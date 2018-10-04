@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "duplicated-dependencies": "syncpack-list-mismatches -s 'packages/*/package.json' -s 'packages/connectors/*/package.json'",
-    "build": "babel packages -d dist --delete-dir-on-start",
+    "build": "babel packages -d dist --delete-dir-on-start && rsync -r packages/ dist/ --ignore-existing",
     "start:dev": "sh scripts/start-dev-connector.sh",
     "test:lint": "eslint packages"
   },

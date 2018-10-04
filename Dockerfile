@@ -1,5 +1,7 @@
 FROM node:8.12-alpine
 
+RUN apk add --no-cache rsync
+
 # basic settings
 WORKDIR /app
 ENTRYPOINT sh /app/scripts/docker-entrypoint.sh
