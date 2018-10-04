@@ -27,3 +27,7 @@ RUN sh /app/scripts/verify-connectors-packages.sh
 
 # build the project
 RUN yarn build
+
+# quick workaround for heroku container requirements
+ENTRYPOINT
+CMD /app/scripts/docker-entrypoint.sh

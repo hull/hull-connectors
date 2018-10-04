@@ -3,7 +3,7 @@ const express = require("express");
 
 function manifestRouteFactory(dirname) {
   return function manifestRoute(req, res) {
-    return res.sendFile(path.resolve(dirname, "..", "manifest.json"));
+    return res.sendFile(path.resolve(dirname, "manifest.json"));
   };
 }
 
@@ -14,12 +14,15 @@ function readmeRoute(req, res) {
 }
 
 function staticRouter() {
+  const applicationDirectory = path.dirname(
+    path.join(require.main.filename, "..")
+  );
   const router = express.Router();
 
-  router.use(express.static(`${process.cwd()}/dist`));
-  router.use(express.static(`${process.cwd()}/assets`));
+  router.use(express.static(`${applicationDirectory}/dist`));
+  router.use(express.static(`${applicationDirectory}/assets`));
 
-  router.get("/manifest.json", manifestRouteFactory(`${process.cwd()}/dir`));
+  router.get("/manifest.json", manifestRouteFactory(applicationDirectory));
   router.get("/", readmeRoute);
   router.get("/readme", readmeRoute);
 
