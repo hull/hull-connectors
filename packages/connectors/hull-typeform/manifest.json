@@ -1,0 +1,83 @@
+{
+  "name": "Typeform",
+  "description": "Fetch form responses",
+  "tags": ["incoming", "oneColumn"],
+  "source": "typeform",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "admin" : "admin",
+  "version": "0.2.2",
+  "settings": [],
+  "private_settings":[
+    {
+      "name":"form_id",
+      "title": "Form",
+      "type": "string",
+      "format": "select",
+      "options" : {
+        "allowCreate": false,
+        "loadOptions": "/schema/forms"
+      }
+    },
+    {
+      "name":"field_as_email",
+      "title": "Select the field matching the user email",
+      "description": "You can only pick fields of type email",
+      "type": "string",
+      "format": "select",
+      "options" : {
+        "allowCreate": false,
+        "loadOptions": "/schema/fields/email"
+      }
+    },
+    {
+      "name" : "incoming_user_attributes",
+      "title" : "List of form fields to save into Hull as user attributes",
+      "description": "Note: Date fields should be saved to traits ending with _date suffix",
+      "type" : "array",
+      "format" : "table",
+      "default": [],
+      "items" : {
+        "type" : "object",
+        "properties" : {
+          "service" : {
+            "type" : "string",
+            "format": "select",
+            "title" : "Form Field",
+            "options" : {
+              "allowCreate": true,
+              "loadOptions" : "/schema/fields"
+            }
+          },
+          "hull" : {
+            "type" : "string",
+            "format" : "trait",
+            "title" : "Hull Attributes",
+            "options": {
+              "allowCreate": true,
+              "source": "typeform"
+            }
+          }
+        },
+        "required" : [
+          "service",
+          "hull"
+        ]
+      }
+    },
+    {
+      "name":"last_fetch_recent_responses_start_at",
+      "type": "string",
+      "format": "hidden"
+    }
+  ],
+  "deployment_settings": [],
+  "resources": [],
+  "readme": "readme.md",
+  "ui": false,
+  "schedules": [{
+      "url": "/fetch-recent-responses",
+      "type": "interval",
+      "value": "5"
+  }]
+}

@@ -1,0 +1,14 @@
+/dist
+/node_modules
+/scripts
+
+*/node_modules
+**/node_modules
+*/test
+**/test
+
+packages/hull-client/*
+!packages/hull-client/src
+
+packages/hull/*
+!packages/hull/src

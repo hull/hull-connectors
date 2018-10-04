@@ -1,0 +1,45 @@
+{
+  "name": "hull-client",
+  "version": "2.0.1",
+  "description": "A barebones Node.js API client for hull.io",
+  "main": "src",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hull/hull-client-node.git"
+  },
+  "homepage": "https://github.com/hull/hull-client-node",
+  "bugs": {
+    "url": "https://github.com/hull/hull-client-node/issues"
+  },
+  "author": "Romain Dardour <romain@hull.io>",
+  "license": "MIT",
+  "scripts": {
+    "test": "npm run test:lint && npm run test:flow && npm run test:unit && npm run test:integration",
+    "test:lint": "eslint src && documentation lint src",
+    "test:dependencies": "npm outdated --depth=0",
+    "test:unit": "NODE_ENV=test mocha --require babel-register --exit -R spec ./test/unit/** ./test/unit/*",
+    "test:integration": "NODE_ENV=test mocha --require babel-register --exit -R spec ./test/integration/* ./test/integration/**",
+    "test:flow": "flow check",
+    "clean": "rimraf lib",
+    "build": "npm run clean && babel src -d lib && npm run documentation",
+    "prepublish": "npm run build",
+    "documentation": "documentation build src -f md -o API.md --access public --markdownToc=false --config documentation.yml",
+    "precommit": "npm run documentation && git add API.md"
+  },
+  "dependencies": {
+    "jwt-simple": "^0.5.0",
+    "winston": "^2.2.0"
+  },
+  "devDependencies": {
+    "husky": "^0.14.3",
+    "isparta": "^4.0.0",
+    "mkdirp": "^0.5.1"
+  },
+  "nodeBoilerplateOptions": {
+    "mochaGlobals": [
+      "stub",
+      "spy",
+      "expect"
+    ]
+  }
+}

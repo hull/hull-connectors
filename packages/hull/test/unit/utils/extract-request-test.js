@@ -1,0 +1,48 @@
+/* global describe, it */
+/* eslint-disable no-unused-expressions */
+const { expect } = require("chai");
+const sinon = require("sinon");
+
+const HullStub = require("../support/hull-stub");
+
+const extractRequest = require("../../../src/utils/extract-request");
+
+describe("extractRequest", () => {
+  beforeEach(function beforeEachHandler() {
+    this.postStub = sinon.stub(HullStub.prototype, "post");
+  });
+
+  afterEach(function afterEachHandler() {
+    this.postStub.restore();
+  });
+
+  it("should allow to perform `extract/user_reports` call", function test1(done) {
+    const stub = new HullStub;
+    extractRequest({ client: stub, hostname: "localhost" })
+      .then(() => {
+        expect(this.postStub.calledOnce).to.be.true;
+        expect(this.postStub.calledWith("extract/user_reports", {
+          url: `https://localhost/batch?ship=${stub.configuration().id}&secret=shutt&organization=xxx.hulltest.rocks&source=connector`,
+          query: {},
+          format: "json",
+          fields: []
+        })).to.be.true;
+        done();
+      });
+  });
+
+  it("should allow to pass additionalQuery", function test1(done) {
+    const stub = new HullStub;
+    extractRequest({ client: stub, hostname: "localhost", additionalQuery: { foo: "bar" } })
+      .then(() => {
+        expect(this.postStub.calledOnce).to.be.true;
+        expect(this.postStub.calledWith("extract/user_reports", {
+          url: `https://localhost/batch?ship=${stub.configuration().id}&secret=shutt&organization=xxx.hulltest.rocks&source=connector&foo=bar`,
+          query: {},
+          format: "json",
+          fields: []
+        })).to.be.true;
+        done();
+      });
+  });
+});

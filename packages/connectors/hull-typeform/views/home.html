@@ -1,0 +1,25 @@
+<html>
+<head>
+  <title>Typeform</title>
+  <link rel="stylesheet" href="//dd04rofzygnm0.cloudfront.net/releases/master/865f04865d2448286626bac92c518a8f8ea8bafe/stylesheets/neue.css" />
+</head>
+<body>
+  <div class="row">
+    <div class="col-md-6 col-md-offset-3 col-sm-offset-2 col-sm-8 col-xs-offset-1 col-xs-10 mt-2 panel">
+      <div class="panel-body">
+        <div class="mb-1 ps-3">
+          <h1 class="mb-0 mt-05  text-center"><i class="icon icon-hull" style="font-size:64px;"></i></h1>
+          <div class="text-center">
+            <form method="post" action="/fetch-all-responses?ship=<%= query.ship %>&organization=<%= query.organization %>&secret=<%= query.secret%>">
+              <% if (completed !== null) { -%>
+              <h5>Completed Form Submissions: <%=completed%></h5>
+              <% } -%>
+              <button class="btn btn-rounded btn-pill btn-primary">Fetch All Form Submissions</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
