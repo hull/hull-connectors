@@ -56,7 +56,9 @@ function scheduleHandlerFactory(
   router.use(clientMiddleware()); // initialize client
   router.use(haltOnTimedoutMiddleware());
   router.use(instrumentationContextMiddleware());
-  router.use(fullContextBodyMiddleware({ requestName: "scheduler", strict: false })); // get rest of the context from body
+  router.use(
+    fullContextBodyMiddleware({ requestName: "scheduler", strict: false })
+  ); // get rest of the context from body
   router.use(fullContextFetchMiddleware());
   router.use(haltOnTimedoutMiddleware());
   router.use(function scheduleHandler(

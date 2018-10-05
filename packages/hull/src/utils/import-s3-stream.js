@@ -7,42 +7,6 @@ const _ = require("lodash");
 const debug = require("debug")("hull-import-s3-stream");
 const moment = require("moment");
 
-function inspectReadableStream(stream) {
-  const events = ["data", "end", "close", "error", "readable"];
-  events.forEach(event => {
-    stream.on(event, () => {
-      require("debug")("inspect-stream:readable")(
-        `on.${event} %o`,
-        _.omit(
-          stream._readableState,
-          "pipes",
-          "objectMode",
-          "highWaterMark",
-          "defaultEncoding"
-        )
-      );
-    });
-  });
-}
-
-function inspectWritableStream(stream) {
-  const events = ["close", "drain", "error", "finish"];
-  events.forEach(event => {
-    stream.on(event, () => {
-      require("debug")("inspect-stream:writable")(
-        `on.${event} %o`,
-        _.omit(
-          stream._writableState,
-          "pipes",
-          "objectMode",
-          "highWaterMark",
-          "defaultEncoding"
-        )
-      );
-    });
-  });
-}
-
 /**
  * This
  * @example
@@ -371,7 +335,7 @@ class ImportS3Stream extends Writable {
     if (this.gzipEnabled === true) {
       gzippedUploadStream = new PassThrough();
       gzippedUploadStream.pipe(zlib.createGzip()).pipe(uploadStream);
-      gzippedUploadStream.on("error", (error) => {
+      gzippedUploadStream.on("error", error => {
         // $FlowFixMe
         gzippedUploadStream.destroy(error);
         // $FlowFixMe

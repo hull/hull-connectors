@@ -13,7 +13,7 @@ if (LOG_LEVEL) {
 
 const cache = new Cache({
   store: "memory",
-  ttl: 1
+  isCacheableValue: () => false
 });
 
 const options = {

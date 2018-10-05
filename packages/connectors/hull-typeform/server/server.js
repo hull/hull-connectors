@@ -1,10 +1,7 @@
 /* @flow */
 const cors = require("cors");
 const express = require("express");
-const {
-  jsonHandler,
-  scheduleHandler
-} = require("../../../hull/src/handlers");
+const { jsonHandler, scheduleHandler } = require("../../../hull/src/handlers");
 
 const actions = require("./actions");
 // const appMiddleware = require("./lib/app-middleware");
