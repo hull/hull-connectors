@@ -1,57 +1,44 @@
 version: 2
-
-shared: &shared
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "package.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
-      - run: npm install
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
-      - run: npm test
-      - run:
-          name: pack
-          command: |
-            OUTPUT=`npm pack | tail -n 1`
-            mv $OUTPUT hull-client-node.tgz
-      - store_artifacts:
-          path: ~/repo/hull-client-node.tgz
-          destination: /hull-client-node.tgz
-
 jobs:
-  "node-6.10":
-    <<: *shared
+  test:
     docker:
-      - image: circleci/node:6.10
-  "node-6.11":
-    <<: *shared
+      - image: circleci/node:8.12
+    steps:
+      - restore_cache:
+          name: Restore Yarn cache for client and server
+          keys:
+            - yarn-packages-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install Dependencies
+          command: yarn
+      - run:
+          name: Run tests
+          command: yarn test
+  build:
     docker:
-      - image: circleci/node:6.11
-  "node-6.12":
-    <<: *shared
-    docker:
-      - image: circleci/node:6.12
-  "node-8.9":
-    <<: *shared
-    docker:
-      - image: circleci/node:8.9
-  "node-8.10":
-    <<: *shared
-    docker:
-      - image: circleci/node:8.10
-
+      - image: circleci/node:8.12
+    steps:
+      - setup_remote_docker
+      - run:
+          name: Deploy all connectors
+          command: |
+            base64 --decode $DEPLOYMENT_CONFIG_JS > deployment.config.js
+            BRANCH=$CIRCLE_BRANCH
+            CONNECTORS=`sh scripts/get-connectors-to-deploy.sh`
+            echo $CONNECTORS
 workflows:
   version: 2
-  build:
+  build_and_test:
     jobs:
-      - "node-6.10"
-      - "node-6.11"
-      - "node-6.12"
-      - "node-8.9"
-      - "node-8.10"
+      - checkout
+      - test:
+          requires:
+            - checkout
+      - build:
+          requires:
+            - checkout
+          filters:
+            branches:
+              only:
+                - master
+                - develop

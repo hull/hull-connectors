@@ -7,6 +7,7 @@
     "duplicated-dependencies": "syncpack-list-mismatches -s 'packages/*/package.json' -s 'packages/connectors/*/package.json'",
     "build": "babel packages -d dist --delete-dir-on-start && rsync -r packages/ dist/ --ignore-existing",
     "start:dev": "sh scripts/start-dev-connector.sh",
+    "test": "yarn test:lint",
     "test:lint": "eslint packages"
   },
   "private": true,
@@ -64,7 +65,7 @@
     "raven": "^2.6.4",
     "sinon": "^6.3.4",
     "sinon-chai": "^3.2.0",
-    "superagent": "3",
+    "superagent": "^3.8.3",
     "urijs": "^1.19.1",
     "uuid": "^3.3.2"
   }

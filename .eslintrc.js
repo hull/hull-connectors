@@ -1,10 +1,10 @@
-{
-  "parser": "babel-eslint",
-  "env": {
-    "es6": true,
-    "node": true
+module.exports = {
+  parser: "babel-eslint",
+  env: {
+    es6: true,
+    node: true
   },
-  "extends": [
+  extends: [
     "airbnb-base",
     "plugin:flowtype/recommended",
     "plugin:prettier/recommended",
@@ -12,12 +12,12 @@
     "prettier/flowtype",
     "prettier/standard"
   ],
-  "plugins": [
+  plugins: [
     "flowtype",
     "flowtype-errors",
     "prettier"
   ],
-  "rules": {
+  rules: {
     "import/no-extraneous-dependencies": [0],
     "arrow-body-style" : [0],
     "arrow-parens": [0],

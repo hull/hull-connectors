@@ -1,4 +1,8 @@
 #!/bin/sh
+
+# This is a utility script to remove a npm package(s) from all
+# child package.json in this mono repo
+
 PACKAGES="$@"
 echo $PACKAGES
 
