@@ -21,15 +21,12 @@ WEB_DOCKER_IMAGE_ID=$(docker images -q hull-connectors)
 docker tag hull-connectors registry.heroku.com/$HEROKU_APPLICATION/web
 docker push registry.heroku.com/$HEROKU_APPLICATION/web
 
-
-# heroku container:release web -a $HEROKU_APPLICATION
-
 curl -n -X PATCH https://api.heroku.com/apps/$HEROKU_APPLICATION/formation \
   -d '{
   "updates": [
     {
       "type": "web",
-      "docker_image": '"$WEB_DOCKER_IMAGE_ID"'
+      "docker_image": "'"$WEB_DOCKER_IMAGE_ID"'"
     }
   ]
 }' \
