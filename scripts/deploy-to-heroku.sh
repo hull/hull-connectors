@@ -17,7 +17,7 @@ HEROKU_APPLICATION=`node -p 'require("./deployment.config.js").connectors["hull-
 echo "deploying $CONNECTOR at branch $BRANCH to application $HEROKU_APPLICATION"
 
 docker build -t hull-connectors .
-$WEB_DOCKER_IMAGE_ID=$(docker images -q hull-connectors)
+WEB_DOCKER_IMAGE_ID=$(docker images -q hull-connectors)
 docker tag hull-connectors registry.heroku.com/$HEROKU_APPLICATION/web
 docker push registry.heroku.com/$HEROKU_APPLICATION/web
 
