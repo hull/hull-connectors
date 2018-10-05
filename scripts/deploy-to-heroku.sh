@@ -34,5 +34,5 @@ curl -n -X PATCH https://api.heroku.com/apps/$HEROKU_APPLICATION/formation \
   ]
 }' \
   -H "Content-Type: application/json" \
-  -H "Accept: application/vnd.heroku+json; version=3.docker-releases"
+  -H "Accept: application/vnd.heroku+json; version=3.docker-releases" \
   -H "Authorization: Bearer $HEROKU_API_KEY"
