@@ -1,4 +1,4 @@
-import nock from "nock";
+const nock = require("nock");
 
 module.exports = function mocks() {
   return {

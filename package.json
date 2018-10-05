@@ -16,7 +16,7 @@
     "packages/hull",
     "packages/hull-client"
   ],
-  "engines": {
+  "_engines": {
     "node": "8.12.x",
     "npm": "6.4.x",
     "yarn": "1.9.x"
@@ -29,6 +29,7 @@
     "@babel/plugin-transform-flow-strip-types": "^7.0.0",
     "@babel/register": "^7.0.0",
     "babel-eslint": "^10.0.1",
+    "chai": "^4.2.0",
     "documentation": "^8.1.2",
     "eslint": "^5.6.1",
     "eslint-config-airbnb-base": "^13.1.0",
@@ -41,30 +42,29 @@
     "flow-typed": "^2.5.1",
     "minihull": "^3.0.2",
     "mocha": "^5.2.0",
+    "nock": "^10.0.0",
     "nodemon": "^1.18.4",
     "prettier": "^1.14.3",
     "rimraf": "^2.6.2",
+    "sinon": "^6.3.5",
+    "sinon-chai": "^3.2.0",
     "syncpack": "^3.0.0"
   },
   "dependencies": {
     "JSONStream": "^1.3.4",
     "basic-auth": "^2.0.1",
-    "bluebird": "3",
+    "bluebird": "^3.5.2",
     "body-parser": "^1.18.3",
     "cache-manager": "^2.9.0",
-    "chai": "^4.2.0",
     "datadog-metrics": "^0.8.1",
     "debug": "^4.0.1",
     "ejs": "^2.6.1",
-    "express": "4",
+    "express": "^4.16.3",
     "kue": "^0.11.6",
     "lodash": "^4.17.11",
     "moment": "^2.22.2",
     "newrelic": "^4.9.0",
-    "nock": "^10.0.0",
     "raven": "^2.6.4",
-    "sinon": "^6.3.4",
-    "sinon-chai": "^3.2.0",
     "superagent": "^3.8.3",
     "urijs": "^1.19.1",
     "uuid": "^3.3.2"

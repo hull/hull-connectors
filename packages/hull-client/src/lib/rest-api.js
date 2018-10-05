@@ -1,6 +1,6 @@
 // const rest = require("restler");
 const superagent = require("superagent");
-const pkg = require("../../../../package.json");
+const pkg = require("../../package.json");
 
 const DEFAULT_HEADERS = {
   "Content-Type": "application/json",

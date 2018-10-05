@@ -116,7 +116,7 @@ function getS3Stub({ delay = 0, errorAt = null } = {}) {
   };
 }
 
-describe.only("ImportS3Stream", () => {
+describe.skip("ImportS3Stream", () => {
   it("should handle basic usage", (done) => {
     const hullClient = getHullClientStub();
     const s3 = getS3Stub();
@@ -274,4 +274,3 @@ describe.only("ImportS3Stream", () => {
     });
   });
 });
-

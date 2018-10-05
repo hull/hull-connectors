@@ -14,15 +14,9 @@
   "author": "Romain Dardour <romain@hull.io>",
   "license": "MIT",
   "scripts": {
-    "test": "npm run test:lint && npm run test:flow && npm run test:unit && npm run test:integration",
-    "test:lint": "eslint src && documentation lint src",
-    "test:dependencies": "npm outdated --depth=0",
+    "test": "yarn run test:unit && yarn run test:integration",
     "test:unit": "NODE_ENV=test mocha --require babel-register --exit -R spec ./test/unit/** ./test/unit/*",
     "test:integration": "NODE_ENV=test mocha --require babel-register --exit -R spec ./test/integration/* ./test/integration/**",
-    "test:flow": "flow check",
-    "clean": "rimraf lib",
-    "build": "npm run clean && babel src -d lib && npm run documentation",
-    "prepublish": "npm run build",
     "documentation": "documentation build src -f md -o API.md --access public --markdownToc=false --config documentation.yml",
     "precommit": "npm run documentation && git add API.md"
   },

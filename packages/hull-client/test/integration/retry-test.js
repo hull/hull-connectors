@@ -21,7 +21,7 @@ describe("client retrying", function test() {
   });
 
   it("should retry 2 times if get 503 response, then reject", (done) => {
-    const stub = minihull.stubGet("/api/v1/testing")
+    const stub = minihull.stubApp("/api/v1/testing")
       .callsFake((req, res) => {
         res.status(503).end("error 503");
       });
@@ -35,7 +35,7 @@ describe("client retrying", function test() {
   });
 
   it("should retry 2 times if get 502 response, then reject", (done) => {
-    const stub = minihull.stubGet("/api/v1/testing")
+    const stub = minihull.stubApp("/api/v1/testing")
       .callsFake((req, res) => {
         res.status(502).end("error 502");
       });
@@ -49,7 +49,7 @@ describe("client retrying", function test() {
   });
 
   it("should retry first 503 response, then resolve", (done) => {
-    const stub = minihull.stubGet("/api/v1/testing")
+    const stub = minihull.stubApp("/api/v1/testing")
       .onFirstCall()
       .callsFake((req, res) => {
         res.status(503).end("error 503");
@@ -68,7 +68,7 @@ describe("client retrying", function test() {
   });
 
   it("shoud retry 2 times on timeout, then reject", (done) => {
-    const stub = minihull.stubGet("/api/v1/testing")
+    const stub = minihull.stubApp("/api/v1/testing")
       .callsFake((req, res) => {});
 
     client.get("/testing", {}, { timeout: 20, retry: 10 })
@@ -80,7 +80,7 @@ describe("client retrying", function test() {
   });
 
   it("shoud retry first timeout, then resolve", (done) => {
-    const stub = minihull.stubGet("/api/v1/testing")
+    const stub = minihull.stubApp("/api/v1/testing")
       .onFirstCall()
       .callsFake((req, res) => {
       })

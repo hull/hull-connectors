@@ -1,8 +1,8 @@
 /* global describe, it, beforeEach, afterEach */
-import Minihull from "minihull";
-import assert from "assert";
-import bootstrap from "./support/bootstrap";
-import TypeformMock from "./support/typeform-mock";
+const Minihull = require("minihull");
+const assert = require("assert");
+const bootstrap = require("./support/bootstrap");
+const TypeformMock = require("./support/typeform-mock");
 
 describe("connector for fetch operation", function test() {
   let minihull;
@@ -25,7 +25,7 @@ describe("connector for fetch operation", function test() {
       private_settings
     });
 
-    minihull.stubSegments([
+    minihull.stubUsersSegments([
       {
         name: "testSegment",
         id: "hullSegmentId"

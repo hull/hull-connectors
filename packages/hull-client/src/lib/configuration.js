@@ -7,7 +7,7 @@ import type {
 } from "../types";
 
 const _ = require("lodash");
-const pkg = require("../../../../package.json");
+const pkg = require("../../package.json");
 const crypto = require("./crypto");
 
 const GLOBALS = {

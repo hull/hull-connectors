@@ -1,9 +1,9 @@
-import { Connector } from "hull";
-import express from "express";
+const { Connector } = require("hull");
+const express = require("express");
 
-import server from "../../../server/server";
+const server = require("../../../server/server");
 
-export default function bootstrap() {
+function bootstrap() {
   const app = express();
   const connector = new Connector({
     hostSecret: "1234",
@@ -16,3 +16,5 @@ export default function bootstrap() {
   connector.startWorker();
   return connector.startApp(app);
 }
+
+module.exports = bootstrap;

@@ -94,4 +94,3 @@ describe("HullClient array capture feature", () => {
     clock.restore();
   });
 });
-

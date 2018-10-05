@@ -4,19 +4,10 @@
   "description": "Hull Typeform integration",
   "main": "index.js",
   "scripts": {
-    "build": "npm run clean && npm run build:server",
-    "build:server": "babel server -d build",
-    "start": "npm run build && COMBINED=true node build",
-    "start:dev": "NODE_ENV=development babel-watch -L server",
     "test": "npm run test:lint && npm run test:flow && npm run test:unit && npm run test:integration",
-    "test:lint": "eslint server",
     "test:unit": "NODE_ENV=test mocha --require babel-register -R spec ./test/unit",
     "test:integration": "NODE_ENV=test mocha --require babel-register -R spec ./test/integration",
-    "test:flow": "flow check",
-    "test:coverage": "nyc --babel-cache --hook-run-in-context false npm test",
-    "clean": "rm -rf build",
-    "_postinstall": "npm run build",
-    "flow": "flow"
+    "test:coverage": "nyc --babel-cache --hook-run-in-context false npm test"
   },
   "repository": {
     "type": "git",
@@ -33,23 +24,14 @@
   },
   "homepage": "https://github.com/hull-ships/hull-typeform",
   "dependencies": {
-    "cache-manager": "^2.2.0",
     "cors": "^2.8.1",
-    "express": "^4.13.4",
     "hull": "^0.14.0-beta.14",
-    "lodash": "^4.12.0",
-    "moment": "^2.14.1",
-    "newrelic": "^1.28.3",
     "passport-typeform": "^0.0.8",
     "striptags": "^3.1.1",
-    "superagent-prefix": "^0.0.2",
-    "urijs": "^1.18.0"
+    "superagent-prefix": "^0.0.2"
   },
   "devDependencies": {
     "cheerio": "^0.22.0",
-    "minihull": "^0.1.3",
-    "mocha": "^5.2.0",
-    "nock": "^9.0.13",
     "nyc": "^11.0.3",
     "sinon": "^1.17.4"
   },

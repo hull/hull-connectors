@@ -6,7 +6,7 @@ const { EventEmitter } = require("events");
 const Promise = require("bluebird");
 const HullStub = require("../support/hull-stub");
 
-const actionHandler = require("../../../src/handlers/action-handler/factory");
+const actionHandler = require("../../../src/handlers/json-handler/factory");
 
 function buildContextBaseStub() {
   return {
@@ -28,8 +28,8 @@ function buildContextBaseStub() {
   };
 }
 
-describe("actionHandler", () => {
-  it("should support plain truthy return values", (done) => {
+describe("jsonHandler", () => {
+  it("should support json values", (done) => {
     const request = httpMocks.createRequest({
       method: "POST",
       url: "/"
@@ -53,11 +53,11 @@ describe("actionHandler", () => {
     };
     const response = httpMocks.createResponse({ eventEmitter: EventEmitter });
     actionHandler(() => {
-      return Promise.resolve("done");
-    }).handle(request, response);
+      return Promise.resolve({ ok: "done" });
+    }).handle(request, response, (err) => { console.log(err) });
     response.on("end", () => {
       expect(response._isEndCalled()).to.be.ok;
-      expect(response._getData()).to.equal("done");
+      expect(response._getData()).to.equal('{"ok":"done"}');
       done();
     });
   });
@@ -79,7 +79,7 @@ describe("actionHandler", () => {
     }).handle(request, response, () => {});
     response.on("end", () => {
       expect(response._isEndCalled()).to.be.ok;
-      expect(response._getData()).to.equal("Error: Something went bad");
+      expect(response._getData()).to.equal('{"error":"Error: Something went bad"}');
       done();
     });
   });
@@ -99,7 +99,7 @@ describe("actionHandler", () => {
     }).handle(request, response, () => {});
     response.on("end", () => {
       expect(response._isEndCalled()).to.be.ok;
-      expect(response._getData()).to.equal("Error: thrown error");
+      expect(response._getData()).to.equal('{"error":"Error: thrown error"}');
       done();
     });
   });

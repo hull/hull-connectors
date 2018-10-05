@@ -31,7 +31,7 @@ function extractRequest(
     path = "batch",
     fields = [],
     additionalQuery = {}
-  }: Object
+  }: Object = {}
 ) {
   const { client, hostname } = ctx;
   const conf = client.configuration();

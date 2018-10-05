@@ -1,11 +1,11 @@
 /* global describe, it */
-import Hull from "hull";
-import express from "express";
-import nock from "nock";
-import request from "request";
-import cheerio from "cheerio";
-import ClientMock from "./support/client-mock";
-import server from "../../server/server";
+const Hull = require("hull");
+const express = require("express");
+const nock = require("nock");
+const request = require("request");
+const cheerio = require("cheerio");
+const ClientMock = require("./support/client-mock");
+const server = require("../../server/server");
 
 const assert = require("assert");
 

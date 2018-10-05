@@ -33,7 +33,7 @@ describe("extractRequest", () => {
 
   it("should allow to pass additionalQuery", function test1(done) {
     const stub = new HullStub;
-    extractRequest({ client: stub, hostname: "localhost", additionalQuery: { foo: "bar" } })
+    extractRequest({ client: stub, hostname: "localhost" }, { additionalQuery: { foo: "bar" } })
       .then(() => {
         expect(this.postStub.calledOnce).to.be.true;
         expect(this.postStub.calledWith("extract/user_reports", {
