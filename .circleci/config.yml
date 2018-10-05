@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  checkout:
+  build:
     docker:
       - image: circleci/node:8.12
     steps:
@@ -17,17 +17,9 @@ jobs:
           key: yarn-packages-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
-  test:
-    docker:
-      - image: circleci/node:8.12
-    steps:
       - run:
           name: Run tests
           command: yarn test
-  build:
-    docker:
-      - image: circleci/node:8.12
-    steps:
       - setup_remote_docker
       - run:
           name: Deploy all connectors
@@ -36,19 +28,3 @@ jobs:
             BRANCH=$CIRCLE_BRANCH
             CONNECTORS=`sh scripts/get-connectors-to-deploy.sh`
             echo $CONNECTORS
-workflows:
-  version: 2
-  build_and_test:
-    jobs:
-      - checkout
-      - test:
-          requires:
-            - checkout
-      - build:
-          requires:
-            - checkout
-          filters:
-            branches:
-              only:
-                - master
-                - develop
