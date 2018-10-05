@@ -26,5 +26,6 @@ jobs:
           command: |
             echo $DEPLOYMENT_CONFIG_JS | base64 -d > deployment.config.js
             CONNECTORS=`BRANCH=$CIRCLE_BRANCH sh scripts/get-connectors-to-deploy.sh`
+            docker login -u _ -p $HEROKU_API_KEY registry.heroku.com
             echo $CONNECTORS
             echo "$CONNECTORS" | while IFS= read -r C ; do CONNECTOR=$C BRANCH=$CIRCLE_BRANCH sh scripts/deploy-to-heroku.sh; done
