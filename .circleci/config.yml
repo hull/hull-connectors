@@ -25,6 +25,6 @@ jobs:
           name: Deploy all connectors
           command: |
             base64 --decode $DEPLOYMENT_CONFIG_JS > deployment.config.js
-            BRANCH=$CIRCLE_BRANCH
-            CONNECTORS=`sh scripts/get-connectors-to-deploy.sh`
+            CONNECTORS=`BRANCH=$CIRCLE_BRANCH sh scripts/get-connectors-to-deploy.sh`
             echo $CONNECTORS
+            echo "$CONNECTORS" | while IFS= read -r C ; do CONNECTOR=$C BRANCH=$CIRCLE_BRANCH sh scripts/deploy-to-heroku.sh; done
