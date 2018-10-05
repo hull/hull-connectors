@@ -1,16 +1,26 @@
 version: 2
 jobs:
-  test:
+  checkout:
     docker:
       - image: circleci/node:8.12
     steps:
+      - checkout
       - restore_cache:
-          name: Restore Yarn cache for client and server
+          name: Restore Yarn cache
           keys:
             - yarn-packages-{{ checksum "yarn.lock" }}
       - run:
           name: Install Dependencies
           command: yarn
+      - save_cache:
+          name: Save Yarn Package cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+  test:
+    docker:
+      - image: circleci/node:8.12
+    steps:
       - run:
           name: Run tests
           command: yarn test
