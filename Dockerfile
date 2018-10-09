@@ -26,7 +26,7 @@ COPY ./packages /app/packages/
 
 # run verification step which prevents from forgetting about adding
 # new connector above
-COPY ./scripts/verify-connectors-packages.sh /app/scripts/
+COPY ./scripts /app/scripts/
 RUN sh /app/scripts/verify-connectors-packages.sh
 
 # build the project
