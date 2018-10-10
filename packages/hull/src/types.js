@@ -7,9 +7,9 @@ import type {
   HullUserUpdateMessage,
   HullAccountUpdateMessage,
   HullClientConfiguration
-} from "../../hull-client";
+} from "hull-client";
 
-const HullClient = require("../../hull-client/src");
+const HullClient = require("hull-client/src");
 const ConnectorCache = require("./infra/cache/connector-cache");
 const MetricAgent = require("./infra/instrumentation/metric-agent");
 

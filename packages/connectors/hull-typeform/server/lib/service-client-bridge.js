@@ -1,6 +1,7 @@
 /* @flow */
+const { promiseToReadableStream } = require("hull/src/utils");
+
 const ServiceClient = require("./service-client");
-const { promiseToReadableStream } = require("../../../../hull/src/utils");
 
 class ServiceClientBridge {
   serviceClient: ServiceClient;

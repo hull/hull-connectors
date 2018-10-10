@@ -1,7 +1,7 @@
 [ignore]
 .*/node_modules/.*/\(lib\|test\|examples\).*\.json$
 .*/node_modules/documentation/.*
-<PROJECT_ROOT>/lib/*.
+<PROJECT_ROOT>/dist/*.
 
 [include]
 

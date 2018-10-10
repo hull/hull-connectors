@@ -1,5 +1,5 @@
 /* @flow */
-import type { HullContext } from "../../../../hull";
+import type { HullContext } from "hull";
 
 import type { TypeformResponse, TypeformForm } from "../types";
 

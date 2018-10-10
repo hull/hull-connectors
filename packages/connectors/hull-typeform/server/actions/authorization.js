@@ -1,7 +1,7 @@
 const moment = require("moment");
 const TypeformStrategy = require("passport-typeform").Strategy;
-const { oAuthHandler } = require("../../../../hull/src/handlers");
-const { settingsUpdate } = require("../../../../hull/src/utils");
+const { oAuthHandler } = require("hull/src/handlers");
+const { settingsUpdate } = require("hull/src/utils");
 const SyncAgent = require("../lib/sync-agent");
 
 module.exports = oAuthHandler({

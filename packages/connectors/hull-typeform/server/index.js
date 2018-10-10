@@ -1,8 +1,8 @@
 /* @flow */
 const express = require("express");
 
-const { Cache } = require("../../../hull/src/infra");
-const Hull = require("../../../hull/src");
+const { Cache } = require("hull/src/infra");
+const Hull = require("hull");
 const server = require("./server");
 
 const { PORT = 8082, SECRET, LOG_LEVEL } = process.env;

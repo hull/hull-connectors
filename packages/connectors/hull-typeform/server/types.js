@@ -1,5 +1,5 @@
 /* @flow */
-import type { HullContext } from "../../../hull/src";
+import type { HullContext } from "hull";
 
 export type TypeformResponseAnswer = {
   field: {

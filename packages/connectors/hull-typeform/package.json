@@ -1,43 +1,26 @@
 {
-  "name": "typeform",
+  "name": "hull-typeform",
   "version": "0.2.2",
   "description": "Hull Typeform integration",
   "main": "index.js",
   "scripts": {
-    "test": "npm run test:lint && npm run test:flow && npm run test:unit && npm run test:integration",
-    "test:unit": "NODE_ENV=test mocha --require babel-register -R spec ./test/unit",
-    "test:integration": "NODE_ENV=test mocha --require babel-register -R spec ./test/integration",
-    "test:coverage": "nyc --babel-cache --hook-run-in-context false npm test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/hull-ships/hull-typeform.git"
+    "test": "yarn run test:unit && yarn run test:integration",
+    "test:unit": "NODE_ENV=test mocha --require ../../../root-babel-register -R spec ./test/unit",
+    "test:integration": "NODE_ENV=test mocha --require ../../../root-babel-register -R spec ./test/integration"
   },
   "keywords": [
     "hull",
     "webhook"
   ],
-  "author": "Hull",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/hull-ships/hull-typeform/issues"
-  },
-  "homepage": "https://github.com/hull-ships/hull-typeform",
   "dependencies": {
     "cors": "^2.8.1",
-    "hull": "^0.14.0-beta.14",
+    "hull": "0.14.0-monorepo",
     "passport-typeform": "^0.0.8",
     "striptags": "^3.1.1",
     "superagent-prefix": "^0.0.2"
   },
   "devDependencies": {
     "cheerio": "^0.22.0",
-    "nyc": "^11.0.3",
     "sinon": "^1.17.4"
-  },
-  "nyc": {
-    "include": [
-      "server"
-    ]
   }
 }

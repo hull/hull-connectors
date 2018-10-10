@@ -1,8 +1,8 @@
 /* @flow */
-/*:: export * from type "./types"; */
-/*:: export * from type "../../hull-client/src"; */
+/* :: export type * from "./types"; */
+/* :: export type * from "hull-client"; */
 
-const HullClient = require("../../hull-client/src");
+const HullClient = require("hull-client");
 
 const Worker = require("./connector/worker");
 const HullConnector = require("./connector/hull-connector");

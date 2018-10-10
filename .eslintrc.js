@@ -25,7 +25,7 @@ module.exports = {
     "class-methods-use-this": [0],
     "comma-dangle": [0],
     "eqeqeq": [1],
-    "flowtype-errors/show-errors": 1,
+    "flowtype-errors/show-errors": 2,
     "max-len": [0],
     "new-cap": [0],
     "no-console": [0],

@@ -83,21 +83,21 @@ export type HullSegment = {
 /**
  * This are claims we can use to identify account
  */
-export type HullAccountClaims = {|
-  id?: string,
-  domain?: string,
-  external_id?: string
-|};
+export type HullAccountClaims = $Shape<{
+  id: string,
+  domain: string,
+  external_id: string
+}>;
 
 /**
  * This are claims we can use to identify user
  */
-export type HullUserClaims = {|
-  id?: string,
-  email?: string,
-  external_id?: string,
-  anonymous_id?: string
-|};
+export type HullUserClaims = $Shape<{
+  id: string,
+  email: string,
+  external_id: string,
+  anonymous_id: string
+}>;
 
 /**
  * This is a combined entity claims type. It's either account or user claims
@@ -325,13 +325,13 @@ export type HullClientConfiguration = {
  * Definition of logger object on HullClient instance
  */
 export type HullClientLogger = {|
-  log: (string, Object) => void,
-  silly: (string, Object) => void,
-  debug: (string, Object) => void,
-  verbose: (string, Object) => void,
-  info: (string, Object) => void,
-  warn: (string, Object) => void,
-  error: (string, Object) => void
+  log: (string, ?Object) => void,
+  silly: (string, ?Object) => void,
+  debug: (string, ?Object) => void,
+  verbose: (string, ?Object) => void,
+  info: (string, ?Object) => void,
+  warn: (string, ?Object) => void,
+  error: (string, ?Object) => void
 |};
 
 // Definition of static logger param available on HullClient class

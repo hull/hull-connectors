@@ -4,7 +4,7 @@ import type {
   HullUserAttributes,
   HullEventProperties,
   HullEventContext
-} from "../../../../hull/src";
+} from "hull";
 
 import type {
   TypeformResponse,
@@ -48,8 +48,9 @@ class MappingUtil {
       if (hidden && hidden[emailFieldId]) {
         ident.email = hidden[emailFieldId].toString();
       }
-      if (_.find(answers, { field: { id: emailFieldId } })) {
-        ident.email = _.find(answers, { field: { id: emailFieldId } }).email;
+      const emailAnswer = _.find(answers, { field: { id: emailFieldId } });
+      if (emailAnswer && emailAnswer.email) {
+        ident.email = emailAnswer.email;
       }
     }
 
@@ -91,6 +92,7 @@ class MappingUtil {
 
     const propertiesFromAnswers = (response.answers || []).reduce(
       (properties, answer) => {
+        // $FlowFixMe
         const formField = _.find(form.fields, { id: answer.field.id });
         if (formField === undefined) {
           return properties;

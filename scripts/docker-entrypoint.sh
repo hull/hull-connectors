@@ -4,6 +4,6 @@
 # it requires `CONNECTOR` variable to be set
 # and runs selected connector
 
-: "${CONNECTOR:?CONNECTOR variable not set or empty}"
+: "${CONNECTOR:?CONNECTOR variable not set or empty. Should be set to \`hull-\*\`}"
 
-exec node dist/connectors/${CONNECTOR}/server
+exec node -r newrelic dist/connectors/${CONNECTOR}/server

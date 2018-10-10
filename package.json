@@ -1,21 +1,28 @@
 {
   "name": "hull-connectors",
   "version": "0.0.1",
-  "main": "index.js",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "packages/connectors/*",
+      "packages/hull",
+      "packages/hull-client"
+    ],
+    "nohoist": [
+      "**/hull",
+      "**/hull-client"
+    ]
+  },
   "license": "MIT",
   "scripts": {
     "duplicated-dependencies": "syncpack-list-mismatches -s 'packages/*/package.json' -s 'packages/connectors/*/package.json'",
-    "build": "babel packages -d dist --delete-dir-on-start && rsync -r packages/ dist/ --ignore-existing",
-    "start:dev": "sh scripts/start-dev-connector.sh",
-    "test": "yarn test:lint",
-    "test:lint": "eslint packages"
+    "build": "babel packages -d dist --delete-dir-on-start && rsync -rl packages/ dist/ --ignore-existing",
+    "dev": "sh scripts/start-dev-connector.sh",
+    "test": "yarn test:lint && yarn workspaces run test",
+    "test:lint": "eslint packages",
+    "test:ci": "yarn test:lint && nyc --babel-cache --hook-run-in-context false yarn workspaces run test",
+    "heroku-postbuild": "yarn build"
   },
-  "private": true,
-  "workspaces": [
-    "packages/connectors/*",
-    "packages/hull",
-    "packages/hull-client"
-  ],
   "_engines": {
     "node": "8.12.x",
     "npm": "6.4.x",
@@ -44,6 +51,7 @@
     "mocha": "^5.2.0",
     "nock": "^10.0.0",
     "nodemon": "^1.18.4",
+    "nyc": "^13.0.1",
     "prettier": "^1.14.3",
     "rimraf": "^2.6.2",
     "sinon": "^6.3.5",

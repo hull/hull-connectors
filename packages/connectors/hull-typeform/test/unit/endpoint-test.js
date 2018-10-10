@@ -12,6 +12,7 @@ const assert = require("assert");
 const port = 8070;
 const app = express();
 
+process.env.CLIENT_ID = 1234;
 const connector = new Hull.Connector({ port, hostSecret: "123" });
 
 connector.setupApp(app);
@@ -30,7 +31,7 @@ app.use((req, res, next) => {
 
 connector.startApp(server(app));
 
-const typeformAllFormsMock = nock("https://api.typeform.com/v1")
+const typeformAllFormsMock = nock("https://api.typeform.com")
   .get("/forms")
   .query(true)
   .reply(200, [
@@ -44,8 +45,8 @@ const typeformAllFormsMock = nock("https://api.typeform.com/v1")
     }
   ]);
 
-const typeformSingleFormMock = nock("https://api.typeform.com/v1")
-  .get(`/form/${typeform_uid}`)
+const typeformSingleFormMock = nock("https://api.typeform.com")
+  .get(`/forms/${typeform_uid}`)
   .query(true)
   .reply(200, {
     stats: {
@@ -59,7 +60,7 @@ describe("Server", () => {
   describe("for /schema/typeforms", () => {
     it("should connect with typeform API and return status OK.", (done) => {
       request
-        .get(`http://127.0.0.1:${port}/schema/typeforms`)
+        .get(`http://127.0.0.1:${port}/schema/forms`)
         .on("response", (response) => {
           assert(response.statusCode === 200);
           typeformAllFormsMock.done();

@@ -1,22 +1,12 @@
 {
   "name": "hull-client",
-  "version": "2.0.1",
+  "version": "2.0.1-monorepo",
   "description": "A barebones Node.js API client for hull.io",
   "main": "src",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/hull/hull-client-node.git"
-  },
-  "homepage": "https://github.com/hull/hull-client-node",
-  "bugs": {
-    "url": "https://github.com/hull/hull-client-node/issues"
-  },
-  "author": "Romain Dardour <romain@hull.io>",
-  "license": "MIT",
   "scripts": {
     "test": "yarn run test:unit && yarn run test:integration",
-    "test:unit": "NODE_ENV=test mocha --require babel-register --exit -R spec ./test/unit/** ./test/unit/*",
-    "test:integration": "NODE_ENV=test mocha --require babel-register --exit -R spec ./test/integration/* ./test/integration/**",
+    "test:unit": "NODE_ENV=test mocha --require ../../root-babel-register --exit -R spec ./test/unit/** ./test/unit/*",
+    "test:integration": "NODE_ENV=test mocha --require ../../root-babel-register --exit -R spec ./test/integration/* ./test/integration/**",
     "documentation": "documentation build src -f md -o API.md --access public --markdownToc=false --config documentation.yml",
     "precommit": "npm run documentation && git add API.md"
   },
@@ -28,12 +18,5 @@
     "husky": "^0.14.3",
     "isparta": "^4.0.0",
     "mkdirp": "^0.5.1"
-  },
-  "nodeBoilerplateOptions": {
-    "mochaGlobals": [
-      "stub",
-      "spy",
-      "expect"
-    ]
   }
 }

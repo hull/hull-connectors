@@ -160,7 +160,7 @@ class HullClient {
       }
     };
 
-    const logFactory = level => (message: string, data: Object) =>
+    const logFactory = level => (message: string, data: Object | null | void) =>
       logger[level](message, { context: ctxe, data });
     this.logger = {
       log: logFactory("info"),
