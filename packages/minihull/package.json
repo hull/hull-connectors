@@ -1,0 +1,21 @@
+{
+  "name": "minihull",
+  "version": "3.0.2-monorepo",
+  "description": "",
+  "main": "src/mini-hull.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "documentation": "documentation lint src/ && documentation build src/ -f html -o docs",
+    "prepublishOnly": "npm run documentation"
+  },
+  "author": "Michał Rączka",
+  "dependencies": {
+    "faker": "^4.1.0",
+    "lodash-id": "^0.14.0",
+    "mini-application": "^1.1.1",
+    "shelljs": "^0.8.2"
+  },
+  "optionalDependencies": {
+    "ngrok": "^2.2.14"
+  }
+}

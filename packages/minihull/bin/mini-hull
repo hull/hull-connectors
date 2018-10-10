@@ -1,0 +1,30 @@
+#!/usr/bin/env node
+const ngrok = require("ngrok");
+const url = require("url");
+const MiniHull = require("../src/mini-hull");
+const {
+  startReplServer,
+  setupReplServer
+} = require("mini-application/src/repl");
+
+const port = process.env.PORT || 3000;
+
+ngrok.connect(port, (err, tunnelUrl) => {
+  const hostname = url.parse(tunnelUrl).hostname;
+  const miniHull = new MiniHull({
+    overrideOrgAddr: hostname
+  });
+  miniHull.listen(port)
+    .then(() => {
+      console.log(`miniHull - listening on ${port} as ${hostname}`);
+      const replServer = startReplServer("miniHull > ");
+      setupReplServer(replServer, miniHull);
+
+      miniHull.on("outgoing.request", (req) => {
+        console.log("outgoing.request", req.method, req.url);
+      });
+      miniHull.on("incoming.request", (req) => {
+        console.log("incoming.request", req.method, req.url);
+      });
+    });
+});

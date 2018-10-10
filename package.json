@@ -6,11 +6,13 @@
     "packages": [
       "packages/connectors/*",
       "packages/hull",
-      "packages/hull-client"
+      "packages/hull-client",
+      "packages/minihull"
     ],
     "nohoist": [
       "**/hull",
-      "**/hull-client"
+      "**/hull-client",
+      "**/minihull"
     ]
   },
   "license": "MIT",
