@@ -5,6 +5,9 @@ jobs:
       - image: circleci/node:8.12
     steps:
       - checkout
+      - run:
+          name: Upgrade Yarn
+          command: sudo npm i -g yarn@$(node -p 'require("./package.json").engines.yarn')
       - restore_cache:
           name: Restore Yarn cache
           keys:
