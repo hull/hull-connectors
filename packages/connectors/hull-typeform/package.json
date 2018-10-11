@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "cheerio": "^0.22.0",
+    "minihull": "3.0.2-monorepo",
     "sinon": "^1.17.4"
   }
 }

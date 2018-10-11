@@ -1,0 +1,32 @@
+{
+  "name": "hull-repl",
+  "version": "0.4.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node repl.js",
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "bin": {
+    "hull-repl": "src/hull-repl.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.282.1",
+    "csv-parse": "^2.0.2",
+    "faker": "^3.1.0",
+    "highland": "^2.11.1",
+    "hull": "0.14.0-monorepo",
+    "inquirer": "^1.1.3",
+    "lowdb": "^1.0.0",
+    "minimist": "^1.2.0",
+    "node-mocks-http": "^1.7.0",
+    "promisepipe": "^2.1.3",
+    "s3": "^4.4.0",
+    "shelljs": "^0.7.8",
+    "stream-transform": "^1.0.0",
+    "superagent-prefix": "0.0.2",
+    "supply": "0.0.4"
+  }
+}
