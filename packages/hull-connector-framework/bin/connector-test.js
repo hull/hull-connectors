@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // @flow
-// import type { IntegrationScenarioConfig } from "../src/integration-scenario-runner";
+// import type { IntegrationScenarioDefinition } from "../src/integration-scenario-runner";
 
 const debug = require("debug")(
   "hull-connector-framework:run-integration-scenarios"

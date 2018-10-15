@@ -4,9 +4,7 @@
   "description": "Hull Typeform integration",
   "main": "index.js",
   "scripts": {
-    "test": "yarn run test:unit && yarn test:integration",
-    "test:unit": "exit 0",
-    "test:integration": "node -r ../../../root-babel-register.js ../../hull-connector-framework/bin/connector-test.js"
+    "test": "exit 0; echo 'tests are run by global jest'"
   },
   "keywords": [
     "hull",
@@ -21,6 +19,7 @@
   },
   "devDependencies": {
     "cheerio": "^0.22.0",
+    "hull-connector-framework": "0.0.1-monorepo",
     "minihull": "3.0.2-monorepo",
     "sinon": "^1.17.4"
   }

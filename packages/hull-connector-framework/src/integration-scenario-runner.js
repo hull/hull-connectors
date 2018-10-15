@@ -43,6 +43,8 @@ class IntegrationScenarioRunner extends EventEmitter {
 
   hullConnectorPort: number;
 
+  hullConnectorServer: *;
+
   minihullPort: number;
 
   timeout: *;
@@ -180,6 +182,10 @@ class IntegrationScenarioRunner extends EventEmitter {
       }
       nock.cleanAll();
       nock.enableNetConnect();
+      await this.minihull.close();
+      await new Promise(resolve => {
+        this.hullConnectorServer.close(() => resolve());
+      });
     } catch (error) {
       return this.emit("error", error);
     }
@@ -196,7 +202,7 @@ class IntegrationScenarioRunner extends EventEmitter {
       this.on("finish", () => {
         resolve();
       });
-      await this.hullConnector.startApp(this.app);
+      this.hullConnectorServer = await this.hullConnector.startApp(this.app);
       await this.minihull.listen(this.minihullPort);
       const { handlerName } = this.scenarioDefinition;
       const response = await this.minihull.postConnector(
@@ -227,7 +233,8 @@ class IntegrationScenarioRunner extends EventEmitter {
         flushAfter: 1
       },
       captureMetrics: this.capturedMetrics,
-      captureLogs: this.capturedLogs
+      captureLogs: this.capturedLogs,
+      disableOnExit: true
     };
 
     const connector = new Hull.Connector(options);

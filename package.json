@@ -5,16 +5,14 @@
   "workspaces": {
     "packages": [
       "packages/connectors/*",
-      "packages/hull",
-      "packages/hull-client",
-      "packages/minihull",
-      "packages/hull-repl"
+      "packages/*"
     ],
     "nohoist": [
       "**/hull",
       "**/hull-client",
       "**/minihull",
-      "**/hull-repl"
+      "**/hull-repl",
+      "**/hull-connector-framework"
     ]
   },
   "license": "MIT",
@@ -39,7 +37,9 @@
     "@babel/plugin-syntax-object-rest-spread": "^7.0.0",
     "@babel/plugin-transform-flow-strip-types": "^7.0.0",
     "@babel/register": "^7.0.0",
+    "babel-core": "^7.0.0-bridge",
     "babel-eslint": "^10.0.1",
+    "babel-jest": "^23.6.0",
     "chai": "^4.2.0",
     "documentation": "^8.1.2",
     "eslint": "^5.6.1",

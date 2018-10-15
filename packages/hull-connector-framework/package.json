@@ -1,0 +1,7 @@
+{
+  "name": "hull-connector-framework",
+  "version": "0.0.1-monorepo",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0"
+  }
+}

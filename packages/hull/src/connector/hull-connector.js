@@ -50,6 +50,7 @@ const { onExit } = require("../utils");
  * @param {Object}        [options.queue] override default QueueAgent
  * @param {Array}         [options.captureMetrics] an array to capture metrics
  * @param {Array}         [options.captureLogs] an array to capture logs
+ * @param {boolean}       [options.disableOnExit=false] an optional param to disable exit listeners
  */
 class HullConnector {
   port: $PropertyType<HullConnectorOptions, "port">;
@@ -90,7 +91,8 @@ class HullConnector {
       timeout,
       notificationValidatorHttpClient,
       captureMetrics,
-      captureLogs
+      captureLogs,
+      disableOnExit = false
     }: HullConnectorOptions = {}
   ) {
     debug("clientConfig", clientConfig);
@@ -136,9 +138,11 @@ class HullConnector {
     }
 
     this.connectorConfig.hostSecret = hostSecret;
-    onExit(() => {
-      return Promise.all([Batcher.exit(), this.queue.exit()]);
-    });
+    if (disableOnExit !== true) {
+      onExit(() => {
+        return Promise.all([Batcher.exit(), this.queue.exit()]);
+      });
+    }
   }
 
   /**

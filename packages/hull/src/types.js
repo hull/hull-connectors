@@ -30,7 +30,8 @@ export type HullConnectorOptions = {
   notificationValidatorHttpClient?: Object,
   timeout: number | string,
   captureMetrics: Array<Object>,
-  captureLogs: Array<any>
+  captureLogs: Array<any>,
+  disableOnExit?: boolean
 };
 
 export type HullNotificationFlowControl = {
