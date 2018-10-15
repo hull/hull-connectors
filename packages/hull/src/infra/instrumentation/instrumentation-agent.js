@@ -53,6 +53,17 @@ class InstrumentationAgent {
       this.dogapi = dogapi;
     }
 
+    if (Array.isArray(options.captureMetrics)) {
+      this.metrics = {
+        gauge: (metric, value, tags) => {
+          options.captureMetrics.push(["value", metric, value, tags]);
+        },
+        increment: (metric, value, tags) => {
+          options.captureMetrics.push(["increment", metric, value, tags]);
+        }
+      };
+    }
+
     if (process.env.SENTRY_URL) {
       debug("starting raven");
       this.raven = Raven.config(process.env.SENTRY_URL, {

@@ -9,7 +9,7 @@ const actions = require("./actions");
 function server(app: express): express {
   app.use("/admin", actions.authorization);
   app.use("/refresh-access-token", scheduleHandler(actions.refreshAccessToken));
-  app.use("/fetch-all-responses", scheduleHandler(actions.fetchAllResponses));
+  app.use("/fetch-all-responses", jsonHandler(actions.fetchAllResponses));
   app.use("/fetch", scheduleHandler(actions.fetchRecentResponses));
   app.use(
     "/fetch-recent-responses",

@@ -14,7 +14,7 @@ const _ = require("lodash");
 const { renderFile } = require("ejs");
 const debug = require("debug")("hull-connector");
 
-const HullClient = require("../../../hull-client/src");
+const HullClient = require("hull-client");
 const { staticRouter } = require("../utils");
 const Worker = require("./worker");
 const {
@@ -48,6 +48,8 @@ const { onExit } = require("../utils");
  * @param {Object}        [options.instrumentation] override default InstrumentationAgent
  * @param {Object}        [options.cache] override default CacheAgent
  * @param {Object}        [options.queue] override default QueueAgent
+ * @param {Array}         [options.captureMetrics] an array to capture metrics
+ * @param {Array}         [options.captureLogs] an array to capture logs
  */
 class HullConnector {
   port: $PropertyType<HullConnectorOptions, "port">;
@@ -86,13 +88,16 @@ class HullConnector {
       connectorName,
       skipSignatureValidation,
       timeout,
-      notificationValidatorHttpClient
+      notificationValidatorHttpClient,
+      captureMetrics,
+      captureLogs
     }: HullConnectorOptions = {}
   ) {
     debug("clientConfig", clientConfig);
     this.HullClient = dependencies.HullClient;
     this.Worker = dependencies.Worker;
-    this.instrumentation = instrumentation || new Instrumentation();
+    this.instrumentation =
+      instrumentation || new Instrumentation({ captureMetrics });
     this.cache = cache || new Cache();
     this.queue = queue || new Queue();
     this.port = port;
@@ -124,6 +129,10 @@ class HullConnector {
 
     if (timeout) {
       this.connectorConfig.timeout = timeout;
+    }
+
+    if (captureLogs) {
+      this.clientConfig.logs = captureLogs;
     }
 
     this.connectorConfig.hostSecret = hostSecret;

@@ -139,7 +139,9 @@ class SyncAgent {
         this.hullClient.logger.info("incoming.job.success");
       })
       .catch(error => {
-        this.hullClient.logger.error("incoming.job.error", error);
+        this.hullClient.logger.error("incoming.job.error", {
+          error: error.message
+        });
       });
   }
 

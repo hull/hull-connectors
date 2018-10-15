@@ -12,7 +12,7 @@ class ServiceClientBridge {
 
   getAllResponsesStream(formId: string) {
     let currentPage = 1;
-    return promiseToReadableStream(push => {
+    return promiseToReadableStream(async push => {
       const getAllResponsesPage = async (token?: string) => {
         const response = await this.serviceClient.getResponses(formId, {
           after: token,

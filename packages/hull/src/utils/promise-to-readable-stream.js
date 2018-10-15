@@ -29,6 +29,7 @@ function promiseToReadableStream(
         })
         .catch(error => {
           debug("error while reading data from promise", error);
+          this.emit("error", error);
           this.destroy(error);
         });
     }

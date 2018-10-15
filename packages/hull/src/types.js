@@ -28,7 +28,9 @@ export type HullConnectorOptions = {
   segmentFilterSetting: any,
   skipSignatureValidation: boolean,
   notificationValidatorHttpClient?: Object,
-  timeout: number | string
+  timeout: number | string,
+  captureMetrics: Array<Object>,
+  captureLogs: Array<any>
 };
 
 export type HullNotificationFlowControl = {

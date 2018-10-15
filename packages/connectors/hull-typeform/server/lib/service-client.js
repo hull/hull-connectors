@@ -78,11 +78,7 @@ class ServiceClient {
           metric: this.metric
         })
       )
-      .use(
-        prefixPlugin(
-          process.env.OVERRIDE_HUBSPOT_URL || "https://api.typeform.com"
-        )
-      )
+      .use(prefixPlugin("https://api.typeform.com"))
       .set("Authorization", `Bearer ${accessToken}`);
   }
 

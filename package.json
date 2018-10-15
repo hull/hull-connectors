@@ -51,6 +51,7 @@
     "eslint-plugin-prettier": "^3.0.0",
     "flow-bin": "^0.82.0",
     "flow-typed": "^2.5.1",
+    "jest": "^23.6.0",
     "mocha": "^5.2.0",
     "nock": "^10.0.0",
     "nodemon": "^1.18.4",

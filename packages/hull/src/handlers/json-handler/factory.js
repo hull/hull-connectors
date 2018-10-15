@@ -13,7 +13,7 @@ import type {
 //   disableErrorHandling?: boolean,
 //   respondWithError?: boolean
 // };
-const debug = require("debug")("hull-connector:action-handler");
+const debug = require("debug")("hull-connector:json-handler");
 const { Router } = require("express");
 
 const { TransientError } = require("../../errors");
@@ -94,7 +94,10 @@ function jsonHandlerFactory(
     })()
       .then(response => {
         debug("callback response", response);
-        res.json(response);
+        if (typeof response === "string") {
+          return res.json({ response });
+        }
+        return res.json(response);
       })
       .catch(error => next(error));
   });

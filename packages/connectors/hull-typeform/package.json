@@ -4,9 +4,9 @@
   "description": "Hull Typeform integration",
   "main": "index.js",
   "scripts": {
-    "test": "yarn run test:unit && yarn run test:integration",
-    "test:unit": "NODE_ENV=test mocha --require ../../../root-babel-register -R spec ./test/unit",
-    "test:integration": "NODE_ENV=test mocha --require ../../../root-babel-register -R spec ./test/integration"
+    "test": "yarn run test:unit && yarn test:integration",
+    "test:unit": "exit 0",
+    "test:integration": "node -r ../../../root-babel-register.js ../../hull-connector-framework/bin/connector-test.js"
   },
   "keywords": [
     "hull",
