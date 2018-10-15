@@ -1,0 +1,14 @@
+{
+    "data": {
+        "type": "mailing",
+        "id": 1,
+        "attributes": {
+            "state": "queued"
+        },
+        "relationships": {}
+    },
+    "meta": {
+        "deliveredAt": "2018-09-26T11:54:27.381-07:00",
+        "eventName": "mailing.updated"
+    }
+}

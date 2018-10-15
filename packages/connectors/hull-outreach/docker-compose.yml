@@ -1,0 +1,11 @@
+version: '3'
+services:
+  yarn:
+    image: node:8.11
+    env_file: .env
+    entrypoint: yarn
+    ports:
+      - "$PORT:$PORT"
+    working_dir: /app
+    volumes:
+      - .:/app

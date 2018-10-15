@@ -1,0 +1,19 @@
+{
+    "data": {
+        "type": "mailing",
+        "id": 1,
+        "attributes": {
+            "updatedAt": "2018-09-26T18:55:03.000Z",
+            "trackOpens": true,
+            "deliveredAt": "2018-09-26T18:54:30.000Z",
+            "stateChangedAt": "2018-09-26T18:55:03.000Z",
+            "messageId": "\u003cCAG=7F4g-EqAXhguzZ_nppBfbgnntVt+3ycZ-DgpNZTghyhxjEg@mail.gmail.com\u003e",
+            "state": "delivered"
+        },
+        "relationships": {}
+    },
+    "meta": {
+        "deliveredAt": "2018-09-26T11:55:03.920-07:00",
+        "eventName": "mailing.updated"
+    }
+}

@@ -1,0 +1,1240 @@
+{
+  "notification_id": "86c24164-b009-426a-81dc-20aa494d5bb1",
+  "configuration": {
+    "id": "5bb3b91656749bf1ab002ddd",
+    "organization": "ad793dc7.hullapp.io",
+    "secret": "781f650e40a929f312bd4c39ae935736"
+  },
+  "connector": {
+    "tags": [],
+    "source_url": "https://d9bb86b5.ngrok.io/",
+    "private_settings": {
+      "synchronized_account_segments": [],
+      "synchronized_user_segments": [],
+      "account_identifier_hull": "domain",
+      "account_identifier_service": "customId",
+      "account_attributes_outbound": [
+        {
+          "hull_field_name": "name",
+          "outreach_field_name": "name"
+        }
+      ],
+      "prospect_attributes_outbound": [
+        {}
+      ],
+      "token": "39b6fbc407ab4c91764e69497759fd10f17fe389d7b3dc4c0028e8b355179ebd",
+      "refresh_token": "ad1f4e84c1d888283ede998eb9d6d5aed135ffce17ff73197e56f412ed650fb6",
+      "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0aW0rc2FuZGJveEBodWxsLmlvIiwiaWF0IjoxNTM4NjAxODE0LCJleHAiOjE1Mzg2MDkwMTQsImJlbnRvIjoiYXBwMmEiLCJvcmdfdXNlcl9pZCI6MSwiYXVkIjoiSHVsbCIsInNjb3BlcyI6ImNyZWF0ZV9wcm9zcGVjdHMgY3JlYXRlX2FjY291bnRzIEFKQUFFQUhBIn0.KGXQ1hpZ7zthKL6IeCT-2LSh-rYS9MjSK555Ft5xLvY"
+    },
+    "index": "https://d9bb86b5.ngrok.io/",
+    "name": "Tims Local Outreach NGrok Connector",
+    "extra": {},
+    "settings": {},
+    "type": "ship",
+    "manifest": {
+      "description": "description",
+      "tags": [
+        "incoming",
+        "outgoing",
+        "batch",
+        "oneColumn",
+        "smart-notifier"
+      ],
+      "private_settings": [
+        {
+          "name": "webhook_id",
+          "title": "Outreach webhook id",
+          "type": "string",
+          "format": "hidden"
+        },
+        {
+          "name": "access_token",
+          "title": "OAuth Access Token",
+          "type": "string",
+          "format": "hidden"
+        },
+        {
+          "name": "refresh_token",
+          "title": "OAuth Refresh Token",
+          "type": "string",
+          "format": "hidden"
+        },
+        {
+          "name": "configuration_title",
+          "title": "Configuration",
+          "format": "title",
+          "type": "string"
+        },
+        {
+          "name": "synchronized_account_segments",
+          "title": "Send *Accounts* as Accounts to Outreach.io when belonging to one of these segments",
+          "type": "array",
+          "default": [],
+          "format": "accountSegment"
+        },
+        {
+          "name": "synchronized_account_segments_hero",
+          "type": "string",
+          "headerTemplate": "The above lists of segments are whitelists for accounts. You need to *explicitely specify one or more segments* for which accounts and events shall be sent to Outreach.io.<br>If you do not specify any segment, no account or event will be sent to Outreach.io.",
+          "format": "information",
+          "title": "Whitelisted Segments"
+        },
+        {
+          "name": "synchronized_user_segments",
+          "title": "Send *Users* as Prospects to Outreach.io when belonging to one of these segments",
+          "type": "array",
+          "default": [],
+          "format": "userSegment"
+        },
+        {
+          "name": "synchronized_user_segments_hero",
+          "type": "string",
+          "headerTemplate": "The above lists of segments are whitelists for users. You need to *explicitely specify one or more segments* for which users and events shall be sent to Outreach.io.<br>If you do not specify any segment, no users or event will be sent to Outreach.io.",
+          "format": "information",
+          "title": "Whitelisted Segments"
+        },
+        {
+          "name": "account_identifier_hull",
+          "title": "The attribute to uniquely identify an account in Hull",
+          "type": "string",
+          "format": "select",
+          "default": "domain",
+          "options": {
+            "loadOptions": "/fields-hull-account-ident"
+          }
+        },
+        {
+          "name": "account_identifier_service",
+          "title": "The field to uniquely identify a Account in Outreach.io",
+          "type": "string",
+          "format": "select",
+          "default": "customId",
+          "options": {
+            "loadOptions": "/fields-outreach-account-ident"
+          }
+        },
+        {
+          "name": "accountsync_title",
+          "title": "Accounts Data Mapping",
+          "format": "title",
+          "type": "string"
+        },
+        {
+          "name": "account_attributes_outbound",
+          "title": "Send Account Attributes to Outreach.io",
+          "description": "Name and domain are sent automatically",
+          "type": "array",
+          "format": "table",
+          "default": [
+            {
+              "hull_field_name": "name",
+              "outreach_field_name": "name"
+            }
+          ],
+          "items": {
+            "type": "object",
+            "properties": {
+              "hull_field_name": {
+                "type": "string",
+                "format": "accountTrait",
+                "title": "Hull Attribute"
+              },
+              "outreach_field_name": {
+                "type": "string",
+                "title": "Outreach.io Field",
+                "format": "select",
+                "options": {
+                  "loadOptions": "/fields-outreach-account-out"
+                }
+              }
+            },
+            "required": [
+              "hull_field_name",
+              "outreach_field_name"
+            ]
+          }
+        },
+        {
+          "name": "account_attributes_inbound",
+          "title": "List of Account fields to fetch from Outreach.io",
+          "type": "array",
+          "format": "select",
+          "options": {
+            "loadOptions": "/fields-outreach-account-in"
+          }
+        },
+        {
+          "name": "prospectsync_title",
+          "title": "Prospects Data Mapping",
+          "format": "title",
+          "type": "string"
+        },
+        {
+          "name": "prospect_attributes_outbound",
+          "title": "Send User Attributes to Outreach.io",
+          "description": "Name is sent automatically",
+          "type": "array",
+          "format": "table",
+          "items": {
+            "type": "object",
+            "properties": {
+              "hull_field_name": {
+                "type": "string",
+                "format": "trait",
+                "title": "Hull Attribute"
+              },
+              "prospect_field_name": {
+                "type": "string",
+                "title": "Outreach.io Field",
+                "format": "select",
+                "options": {
+                  "loadOptions": "/fields-outreach-prospect-out"
+                }
+              }
+            },
+            "required": [
+              "hull_field_name",
+              "prospect_field_name"
+            ]
+          }
+        },
+        {
+          "name": "prospect_attributes_inbound",
+          "title": "List of Prospect fields to fetch from Outreach.io",
+          "type": "array",
+          "format": "select",
+          "options": {
+            "loadOptions": "/fields-outreach-prospect-in"
+          }
+        }
+      ],
+      "admin": "/admin",
+      "tabs": [
+        {
+          "title": "Credentials",
+          "url": "/auth",
+          "size": "small",
+          "editable": false
+        },
+        {
+          "title": "Actions",
+          "url": "/admin",
+          "size": "small",
+          "editable": false
+        }
+      ],
+      "name": "Hull-Outreach",
+      "settings": [],
+      "subscriptions": [
+        {
+          "url": "/smart-notifier",
+          "conditions": {
+            "channels": {
+              "only": [
+                "user:update",
+                "account:update"
+              ]
+            }
+          }
+        }
+      ],
+      "ui": false,
+      "picture": "picture.png",
+      "readme": "readme.md",
+      "version": "0.0.1",
+      "resources": []
+    },
+    "secret": "781f650e40a929f312bd4c39ae935736",
+    "updated_at": "2018-10-05T15:57:38Z",
+    "status": {
+      "updated_at": "2018-10-05T15:58:33Z",
+      "name": "Tims Local Outreach NGrok Connector",
+      "id": "5bb3b91656749bf1ab002ddd"
+    },
+    "id": "5bb3b91656749bf1ab002ddd",
+    "picture": "https://fd80587f.ngrok.io/picture.png",
+    "homepage_url": "https://ad793dc7.hullapp.io/ships/5bb3b91656749bf1ab002ddd",
+    "manifest_url": "https://d9bb86b5.ngrok.io/manifest.json",
+    "created_at": "2018-10-02T18:29:43Z"
+  },
+  "channel": "user:update",
+  "messages": [
+    {
+      "user": {
+        "traits_intercom/last_request_at": "2017-06-26T12:05:34+00:00",
+        "traits_intercom/location_continent_code": "EU",
+        "traits_intercom/location_country_code": "FRA",
+        "traits_intercom/email": "romain+charcoalbee@hull.io",
+        "traits_intercom/anonymous": true,
+        "traits_intercom/tags": [
+          "Hull Users",
+          "Hull Users with Coconuts",
+          "Recompute forced",
+          "Hull Intercom Leads",
+          "Sendgrid - Sync Segment",
+          "Pardot Sync Users",
+          "New Segment 4",
+          "New Segment 3",
+          "New Segment 1",
+          "New segment",
+          "Kraken stress segment",
+          "Clearbit Reveal to Enrich",
+          "Any Website Visitor",
+          "Subscribed Marketers Meeting Romain",
+          "Completed big recent orders",
+          "Kraken stress 2",
+          "Qualified Leads",
+          "No email opens for 6 month",
+          "Sync with Mailchimp",
+          "Intercom leads",
+          "Everyone",
+          "Intercom Users",
+          "Recent Users"
+        ],
+        "traits_intercom/session_count": 0,
+        "traits_intercom/pseudonym": "Charcoal Bee from Paris",
+        "traits_intercom/companies": [
+          "Hull Inc"
+        ],
+        "traits_intercom/id": "5a3cce68d14533a81c7facd2",
+        "id": "5ade1170d2909e1101000441",
+        "email": "romain+charcoalbee@hull.io",
+        "traits_intercom/is_lead": true,
+        "traits_intercom/name": "Charcoal Bee from Paris",
+        "last_known_ip": "80.15.146.203",
+        "name": "Charcoal Bee from Paris",
+        "traits_intercom/lead_user_id": "5890393f-a2cf-469c-9dec-919a2661ed2d",
+        "traits_intercom/created_at": "2017-12-22T09:20:40+00:00",
+        "anonymous_ids": [
+          "intercom:5890393f-a2cf-469c-9dec-919a2661ed2d",
+          "intercom:5a3cce68d14533a81c7facd2"
+        ],
+        "domain": "hull.io",
+        "traits_intercom/location_country_name": "France",
+        "traits_intercom/location_longitude": 2.32919999999999,
+        "last_name": "Paris",
+        "traits_intercom/location_postal_code": "75001",
+        "indexed_at": "2018-10-04T17:51:19Z",
+        "first_name": "Charcoal Bee from",
+        "traits_intercom/location_region_name": "Ile-de-France",
+        "created_at": "2018-04-23T17:01:36Z",
+        "traits_intercom/unsubscribed_from_emails": false,
+        "traits_intercom/updated_at": "2018-03-06T11:08:07+00:00",
+        "is_approved": false,
+        "traits_intercom/location_timezone": "Europe/Paris",
+        "traits_intercom/score": 0.5517,
+        "traits_intercom/last_seen_ip": "80.15.146.203",
+        "last_seen_at": "2018-10-04T17:50:59Z",
+        "traits_intercom/location_latitude": 48.8628,
+        "segment_ids": [
+          "5ade25df4d257947aa001cd5"
+        ],
+        "traits_intercom/location_city_name": "Paris",
+        "traits_intercom/segments": []
+      },
+      "changes": {
+        "is_new": false,
+        "user": {
+          "last_seen_at": [
+            "2018-10-04T17:46:19Z",
+            "2018-10-04T17:50:59Z"
+          ]
+        },
+        "account": {},
+        "segments": {},
+        "account_segments": {}
+      },
+      "account": {},
+      "segments": [
+        {
+          "id": "5ade25df4d257947aa001cd5",
+          "name": "Intercom Users",
+          "updated_at": "2018-04-23T18:28:47Z",
+          "type": "users_segment",
+          "created_at": "2018-04-23T18:28:47Z"
+        }
+      ],
+      "events": [],
+      "account_segments": [],
+      "message_id": "c0e5625f74cfe01c6cdc59526e1499d0e2a60a5b"
+    },
+    {
+      "user": {
+        "traits_intercom/email": "jimmy+carter1@test-hull.io",
+        "traits_intercom/anonymous": true,
+        "traits_intercom/tags": [
+          "Intercom leads",
+          "New Segment 1",
+          "Kraken stress segment",
+          "New segment",
+          "Hull Intercom Leads",
+          "New Segment 3",
+          "Kraken stress 2",
+          "New Segment 4",
+          "Everyone",
+          "Shoppers in 30 days with more than 25$ in the cart",
+          "Qualified Leads",
+          "No email opens for 6 month",
+          "Intercom Users",
+          "Sync with Mailchimp",
+          "Recent Users"
+        ],
+        "traits_intercom/session_count": 0,
+        "traits_intercom/pseudonym": "Blue Diamond",
+        "traits_intercom/companies": [],
+        "traits_intercom/id": "5ae8899369b4bf5689e7cf20",
+        "id": "5ae889b06d23259f1e003efc",
+        "email": "jimmy+carter1@test-hull.io",
+        "traits_intercom/is_lead": true,
+        "traits_intercom/name": "Jimmy Carter",
+        "name": "Jimmy Carter",
+        "traits_intercom/lead_user_id": "0b968b0f-5ad7-4c6c-95f2-7bc9fb4beb02",
+        "traits_intercom/created_at": "2018-05-01T15:36:51+00:00",
+        "anonymous_ids": [
+          "intercom:0b968b0f-5ad7-4c6c-95f2-7bc9fb4beb02"
+        ],
+        "domain": "test-hull.io",
+        "last_name": "Carter",
+        "indexed_at": "2018-10-04T17:51:19Z",
+        "first_name": "Jimmy",
+        "created_at": "2018-05-01T15:37:20Z",
+        "traits_intercom/updated_at": "2018-05-01T15:36:51+00:00",
+        "is_approved": false,
+        "traits_intercom/score": 0.5517,
+        "last_seen_at": "2018-10-04T17:50:59Z",
+        "segment_ids": [
+          "5ade25df4d257947aa001cd5"
+        ],
+        "traits_intercom/segments": []
+      },
+      "changes": {
+        "is_new": false,
+        "user": {
+          "last_seen_at": [
+            "2018-10-04T17:46:19Z",
+            "2018-10-04T17:50:59Z"
+          ]
+        },
+        "account": {},
+        "segments": {},
+        "account_segments": {}
+      },
+      "account": {},
+      "segments": [
+        {
+          "id": "5ade25df4d257947aa001cd5",
+          "name": "Intercom Users",
+          "updated_at": "2018-04-23T18:28:47Z",
+          "type": "users_segment",
+          "created_at": "2018-04-23T18:28:47Z"
+        }
+      ],
+      "events": [],
+      "account_segments": [],
+      "message_id": "5372f4a36c5a3f31348fccfaa9e7a8dd1336d6bd"
+    },
+    {
+      "user": {
+        "traits_intercom/email": "john.doe.1@hull.io",
+        "traits_intercom/anonymous": true,
+        "traits_intercom/tags": [
+          "Hull Intercom Leads",
+          "Hull Users",
+          "Sendgrid - Sync Segment",
+          "New segment",
+          "New segment 1",
+          "Hull Intercom Leads - Coconuts 99",
+          "New Segment 3",
+          "New Segment 4",
+          "Hull Users with Coconuts",
+          "Kraken stress segment",
+          "No email opens for 6 month",
+          "Subscribed Marketers Meeting Romain",
+          "Completed big recent orders",
+          "Kraken stress 2",
+          "Qualified Leads",
+          "Any Website Visitor",
+          "Sync with Mailchimp",
+          "Intercom leads",
+          "Everyone",
+          "Intercom Users",
+          "Recent Users",
+          "What3words"
+        ],
+        "traits_intercom/session_count": 0,
+        "traits_intercom/pseudonym": "Green Radio",
+        "external_id": "012fccd5-6df5-4552-8a6a-65045a18e880",
+        "traits_intercom/companies": [],
+        "traits_intercom/id": "59e0e1081766eba81a97afc6",
+        "id": "5ade116ed2909e1101000429",
+        "email": "john.doe.1@hull.io",
+        "traits_intercom/is_lead": true,
+        "traits_intercom/name": "John Doe",
+        "traits_intercom/import_error": "Server Error",
+        "name": "John Doe",
+        "traits_intercom/lead_user_id": "012fccd5-6df5-4552-8a6a-65045a18e880",
+        "traits_intercom/created_at": "2017-10-13T15:51:36+00:00",
+        "anonymous_ids": [
+          "intercom:8950d33a-c634-49b5-8b68-7c874f17fec4",
+          "intercom:0e6c4109-c85c-4a47-b2eb-82fa6b39dfd0",
+          "intercom:012fccd5-6df5-4552-8a6a-65045a18e880",
+          "intercom:59e0e1081766eba81a97afc6"
+        ],
+        "domain": "hull.io",
+        "last_name": "Doe",
+        "indexed_at": "2018-10-04T17:56:30Z",
+        "first_name": "John",
+        "created_at": "2018-04-23T17:01:34Z",
+        "traits_intercom/unsubscribed_from_emails": false,
+        "traits_intercom/updated_at": "2018-03-05T16:47:22+00:00",
+        "is_approved": false,
+        "traits_intercom/score": 0.4716,
+        "last_seen_at": "2018-10-04T17:56:09Z",
+        "segment_ids": [
+          "5ade25df4d257947aa001cd5"
+        ],
+        "traits_intercom/segments": []
+      },
+      "changes": {
+        "is_new": false,
+        "user": {
+          "traits_intercom/tags[4]": [
+            null,
+            "New segment 1"
+          ],
+          "last_seen_at": [
+            "2018-10-04T17:50:59Z",
+            "2018-10-04T17:56:09Z"
+          ]
+        },
+        "account": {},
+        "segments": {},
+        "account_segments": {}
+      },
+      "account": {},
+      "segments": [
+        {
+          "id": "5ade25df4d257947aa001cd5",
+          "name": "Intercom Users",
+          "updated_at": "2018-04-23T18:28:47Z",
+          "type": "users_segment",
+          "created_at": "2018-04-23T18:28:47Z"
+        }
+      ],
+      "events": [],
+      "account_segments": [],
+      "message_id": "ed8e533548981b21fc89ff015e53a00f673486ef"
+    },
+    {
+      "user": {
+        "traits_intercom/last_request_at": "2017-09-22T09:58:03+00:00",
+        "traits_intercom/location_continent_code": "EU",
+        "traits_intercom/linkedin_username": "rdardour",
+        "traits_intercom/location_country_code": "FRA",
+        "traits_intercom/email": "romain@unity.fr",
+        "traits_intercom/anonymous": true,
+        "traits_intercom/klout_url": "http://klout.com/rdardour",
+        "traits_intercom/tags": [
+          "Hull Users with Coconuts",
+          "Hull Users",
+          "Recompute forced",
+          "Hull Intercom Leads",
+          "Sendgrid - Sync Segment",
+          "Pardot Sync Users",
+          "New segment 1",
+          "New segment",
+          "New Segment 4",
+          "New Segment 3",
+          "Kraken stress segment",
+          "asd",
+          "Qualified Leads",
+          "Clearbit Reveal to Enrich",
+          "Any Website Visitor",
+          "test test test",
+          "Approved users",
+          "Dudes called Romain",
+          "Completed big recent orders",
+          "asdasd",
+          "No email opens for 6 month",
+          "test",
+          "Kraken stress 2",
+          "some test",
+          "test test",
+          "Sync with Mailchimp",
+          "Intercom leads",
+          "Intercom Users",
+          "Founders Fading Away",
+          "Recent Users",
+          "Subscribed Marketers Meeting Romain"
+        ],
+        "traits_intercom/linkedin_id": "5982462",
+        "traits_intercom/session_count": 0,
+        "traits_intercom/pseudonym": "Purple Bear from Paris",
+        "traits_intercom/twitter_username": "hull",
+        "traits_intercom/companies": [
+          "Hull Inc"
+        ],
+        "traits_intercom/klout_username": "rdardour",
+        "traits_intercom/id": "584abf052b8aefb3e543edd0",
+        "id": "5ade116fd2909e110100043e",
+        "email": "romain@unity.fr",
+        "traits_intercom/is_lead": true,
+        "traits_intercom/klout_id": "26458652577379968",
+        "traits_intercom/name": "Romain Dardour",
+        "last_known_ip": "80.15.146.203",
+        "name": "Romain Dardour",
+        "traits_intercom/linkedin_url": "https://www.linkedin.com/in/rdardour",
+        "traits_intercom/lead_user_id": "00087571-30b7-43cf-acca-33fa5c521a72",
+        "traits_intercom/created_at": "2016-12-09T14:26:13+00:00",
+        "traits_intercom/twitter_id": "142333261",
+        "anonymous_ids": [
+          "intercom:00087571-30b7-43cf-acca-33fa5c521a72",
+          "intercom:584abf052b8aefb3e543edd0"
+        ],
+        "domain": "unity.fr",
+        "traits_intercom/location_country_name": "France",
+        "traits_intercom/avatar": "https://d2ojpxxtu63wzl.cloudfront.net/static/89881cab75493d483e096086b45d898e_b9e53388ad29dfc7bb453735396f615a0256dfff9484def5c1a0d1bd0c83a678",
+        "traits_intercom/location_longitude": 2.32919999999999,
+        "last_name": "Dardour",
+        "traits_intercom/location_postal_code": "75001",
+        "indexed_at": "2018-10-04T17:56:30Z",
+        "first_name": "Romain",
+        "traits_intercom/facebook_url": "https://www.facebook.com/romain.dardour",
+        "traits_intercom/location_region_name": "Ile-de-France",
+        "created_at": "2018-04-23T17:01:35Z",
+        "traits_intercom/unsubscribed_from_emails": false,
+        "traits_intercom/updated_at": "2018-03-29T19:10:59+00:00",
+        "traits_intercom/twitter_url": "https://twitter.com/hull",
+        "is_approved": false,
+        "traits_intercom/location_timezone": "Europe/Paris",
+        "traits_intercom/score": 0.5517,
+        "traits_intercom/last_seen_ip": "80.15.146.203",
+        "last_seen_at": "2018-10-04T17:56:09Z",
+        "traits_intercom/location_latitude": 48.8628,
+        "segment_ids": [
+          "5ade25df4d257947aa001cd5"
+        ],
+        "traits_intercom/location_city_name": "Paris",
+        "traits_intercom/segments": []
+      },
+      "changes": {
+        "is_new": false,
+        "user": {
+          "traits_intercom/tags[6]": [
+            null,
+            "New segment 1"
+          ],
+          "last_seen_at": [
+            "2018-10-04T17:50:59Z",
+            "2018-10-04T17:56:09Z"
+          ]
+        },
+        "account": {},
+        "segments": {},
+        "account_segments": {}
+      },
+      "account": {},
+      "segments": [
+        {
+          "id": "5ade25df4d257947aa001cd5",
+          "name": "Intercom Users",
+          "updated_at": "2018-04-23T18:28:47Z",
+          "type": "users_segment",
+          "created_at": "2018-04-23T18:28:47Z"
+        }
+      ],
+      "events": [],
+      "account_segments": [],
+      "message_id": "37faf26ec8a54a25f7ac09f925cd500000fc4ebb"
+    },
+    {
+      "user": {
+        "traits_intercom/last_request_at": "2017-06-26T12:05:34+00:00",
+        "traits_intercom/location_continent_code": "EU",
+        "traits_intercom/location_country_code": "FRA",
+        "traits_intercom/email": "romain+charcoalbee@hull.io",
+        "traits_intercom/anonymous": true,
+        "traits_intercom/tags": [
+          "Hull Users",
+          "Hull Users with Coconuts",
+          "Recompute forced",
+          "Hull Intercom Leads",
+          "Sendgrid - Sync Segment",
+          "Pardot Sync Users",
+          "New Segment 4",
+          "New Segment 3",
+          "New segment 1",
+          "New segment",
+          "Kraken stress segment",
+          "Clearbit Reveal to Enrich",
+          "Any Website Visitor",
+          "Subscribed Marketers Meeting Romain",
+          "Completed big recent orders",
+          "Kraken stress 2",
+          "Qualified Leads",
+          "No email opens for 6 month",
+          "Sync with Mailchimp",
+          "Intercom leads",
+          "Everyone",
+          "Intercom Users",
+          "Recent Users"
+        ],
+        "traits_intercom/session_count": 0,
+        "traits_intercom/pseudonym": "Charcoal Bee from Paris",
+        "traits_intercom/companies": [
+          "Hull Inc"
+        ],
+        "traits_intercom/id": "5a3cce68d14533a81c7facd2",
+        "id": "5ade1170d2909e1101000441",
+        "email": "romain+charcoalbee@hull.io",
+        "traits_intercom/is_lead": true,
+        "traits_intercom/name": "Charcoal Bee from Paris",
+        "last_known_ip": "80.15.146.203",
+        "name": "Charcoal Bee from Paris",
+        "traits_intercom/lead_user_id": "5890393f-a2cf-469c-9dec-919a2661ed2d",
+        "traits_intercom/created_at": "2017-12-22T09:20:40+00:00",
+        "anonymous_ids": [
+          "intercom:5890393f-a2cf-469c-9dec-919a2661ed2d",
+          "intercom:5a3cce68d14533a81c7facd2"
+        ],
+        "domain": "hull.io",
+        "traits_intercom/location_country_name": "France",
+        "traits_intercom/location_longitude": 2.32919999999999,
+        "last_name": "Paris",
+        "traits_intercom/location_postal_code": "75001",
+        "indexed_at": "2018-10-04T17:56:30Z",
+        "first_name": "Charcoal Bee from",
+        "traits_intercom/location_region_name": "Ile-de-France",
+        "created_at": "2018-04-23T17:01:36Z",
+        "traits_intercom/unsubscribed_from_emails": false,
+        "traits_intercom/updated_at": "2018-03-06T11:08:07+00:00",
+        "is_approved": false,
+        "traits_intercom/location_timezone": "Europe/Paris",
+        "traits_intercom/score": 0.5517,
+        "traits_intercom/last_seen_ip": "80.15.146.203",
+        "last_seen_at": "2018-10-04T17:56:09Z",
+        "traits_intercom/location_latitude": 48.8628,
+        "segment_ids": [
+          "5ade25df4d257947aa001cd5"
+        ],
+        "traits_intercom/location_city_name": "Paris",
+        "traits_intercom/segments": []
+      },
+      "changes": {
+        "is_new": false,
+        "user": {
+          "traits_intercom/tags[8]": [
+            null,
+            "New segment 1"
+          ],
+          "last_seen_at": [
+            "2018-10-04T17:50:59Z",
+            "2018-10-04T17:56:09Z"
+          ]
+        },
+        "account": {},
+        "segments": {},
+        "account_segments": {}
+      },
+      "account": {},
+      "segments": [
+        {
+          "id": "5ade25df4d257947aa001cd5",
+          "name": "Intercom Users",
+          "updated_at": "2018-04-23T18:28:47Z",
+          "type": "users_segment",
+          "created_at": "2018-04-23T18:28:47Z"
+        }
+      ],
+      "events": [],
+      "account_segments": [],
+      "message_id": "aa0f06e4cb1a6c239d006119511028b151ef370e"
+    },
+    {
+      "user": {
+        "traits_intercom/email": "jimmy+carter1@test-hull.io",
+        "traits_intercom/anonymous": true,
+        "traits_intercom/tags": [
+          "Intercom leads",
+          "New segment 1",
+          "Kraken stress segment",
+          "New segment",
+          "Hull Intercom Leads",
+          "New Segment 3",
+          "Kraken stress 2",
+          "New Segment 4",
+          "Everyone",
+          "Shoppers in 30 days with more than 25$ in the cart",
+          "Qualified Leads",
+          "No email opens for 6 month",
+          "Intercom Users",
+          "Sync with Mailchimp",
+          "Recent Users"
+        ],
+        "traits_intercom/session_count": 0,
+        "traits_intercom/pseudonym": "Blue Diamond",
+        "traits_intercom/companies": [],
+        "traits_intercom/id": "5ae8899369b4bf5689e7cf20",
+        "id": "5ae889b06d23259f1e003efc",
+        "email": "jimmy+carter1@test-hull.io",
+        "traits_intercom/is_lead": true,
+        "traits_intercom/name": "Jimmy Carter",
+        "name": "Jimmy Carter",
+        "traits_intercom/lead_user_id": "0b968b0f-5ad7-4c6c-95f2-7bc9fb4beb02",
+        "traits_intercom/created_at": "2018-05-01T15:36:51+00:00",
+        "anonymous_ids": [
+          "intercom:0b968b0f-5ad7-4c6c-95f2-7bc9fb4beb02"
+        ],
+        "domain": "test-hull.io",
+        "last_name": "Carter",
+        "indexed_at": "2018-10-04T17:56:30Z",
+        "first_name": "Jimmy",
+        "created_at": "2018-05-01T15:37:20Z",
+        "traits_intercom/updated_at": "2018-05-01T15:36:51+00:00",
+        "is_approved": false,
+        "traits_intercom/score": 0.5517,
+        "last_seen_at": "2018-10-04T17:56:09Z",
+        "segment_ids": [
+          "5ade25df4d257947aa001cd5"
+        ],
+        "traits_intercom/segments": []
+      },
+      "changes": {
+        "is_new": false,
+        "user": {
+          "last_seen_at": [
+            "2018-10-04T17:50:59Z",
+            "2018-10-04T17:56:09Z"
+          ],
+          "traits_intercom/tags[1]": [
+            null,
+            "New segment 1"
+          ]
+        },
+        "account": {},
+        "segments": {},
+        "account_segments": {}
+      },
+      "account": {},
+      "segments": [
+        {
+          "id": "5ade25df4d257947aa001cd5",
+          "name": "Intercom Users",
+          "updated_at": "2018-04-23T18:28:47Z",
+          "type": "users_segment",
+          "created_at": "2018-04-23T18:28:47Z"
+        }
+      ],
+      "events": [],
+      "account_segments": [],
+      "message_id": "2880b1f76c08d5d2b004bd3e4096d92c54dbd94e"
+    },
+    {
+      "user": {
+        "traits_intercom/email": "john.doe.1@hull.io",
+        "traits_intercom/anonymous": true,
+        "traits_intercom/tags": [
+          "Hull Intercom Leads",
+          "Hull Users",
+          "Sendgrid - Sync Segment",
+          "New segment",
+          "New Segment 1",
+          "Hull Intercom Leads - Coconuts 99",
+          "New Segment 3",
+          "New Segment 4",
+          "Hull Users with Coconuts",
+          "Kraken stress segment",
+          "No email opens for 6 month",
+          "Subscribed Marketers Meeting Romain",
+          "Completed big recent orders",
+          "Kraken stress 2",
+          "Qualified Leads",
+          "Any Website Visitor",
+          "Sync with Mailchimp",
+          "Intercom leads",
+          "Everyone",
+          "Intercom Users",
+          "Recent Users",
+          "What3words"
+        ],
+        "traits_intercom/session_count": 0,
+        "traits_intercom/pseudonym": "Green Radio",
+        "external_id": "012fccd5-6df5-4552-8a6a-65045a18e880",
+        "traits_intercom/companies": [],
+        "traits_intercom/id": "59e0e1081766eba81a97afc6",
+        "id": "5ade116ed2909e1101000429",
+        "email": "john.doe.1@hull.io",
+        "traits_intercom/is_lead": true,
+        "traits_intercom/name": "John Doe",
+        "traits_intercom/import_error": "Server Error",
+        "name": "John Doe",
+        "traits_intercom/lead_user_id": "012fccd5-6df5-4552-8a6a-65045a18e880",
+        "traits_intercom/created_at": "2017-10-13T15:51:36+00:00",
+        "anonymous_ids": [
+          "intercom:8950d33a-c634-49b5-8b68-7c874f17fec4",
+          "intercom:0e6c4109-c85c-4a47-b2eb-82fa6b39dfd0",
+          "intercom:012fccd5-6df5-4552-8a6a-65045a18e880",
+          "intercom:59e0e1081766eba81a97afc6"
+        ],
+        "domain": "hull.io",
+        "last_name": "Doe",
+        "indexed_at": "2018-10-04T18:02:23Z",
+        "first_name": "John",
+        "created_at": "2018-04-23T17:01:34Z",
+        "traits_intercom/unsubscribed_from_emails": false,
+        "traits_intercom/updated_at": "2018-03-05T16:47:22+00:00",
+        "is_approved": false,
+        "traits_intercom/score": 0.4716,
+        "last_seen_at": "2018-10-04T18:02:07Z",
+        "segment_ids": [
+          "5ade25df4d257947aa001cd5"
+        ],
+        "traits_intercom/segments": []
+      },
+      "changes": {
+        "is_new": false,
+        "user": {
+          "traits_intercom/tags[4]": [
+            null,
+            "New Segment 1"
+          ],
+          "last_seen_at": [
+            "2018-10-04T17:56:09Z",
+            "2018-10-04T18:02:07Z"
+          ]
+        },
+        "account": {},
+        "segments": {},
+        "account_segments": {}
+      },
+      "account": {},
+      "segments": [
+        {
+          "id": "5ade25df4d257947aa001cd5",
+          "name": "Intercom Users",
+          "updated_at": "2018-04-23T18:28:47Z",
+          "type": "users_segment",
+          "created_at": "2018-04-23T18:28:47Z"
+        }
+      ],
+      "events": [],
+      "account_segments": [],
+      "message_id": "b05bfc2089b6164c636f16f5928a5e3a7e32f79b"
+    },
+    {
+      "user": {
+        "traits_intercom/last_request_at": "2017-09-22T09:58:03+00:00",
+        "traits_intercom/location_continent_code": "EU",
+        "traits_intercom/linkedin_username": "rdardour",
+        "traits_intercom/location_country_code": "FRA",
+        "traits_intercom/email": "romain@unity.fr",
+        "traits_intercom/anonymous": true,
+        "traits_intercom/klout_url": "http://klout.com/rdardour",
+        "traits_intercom/tags": [
+          "Hull Users with Coconuts",
+          "Hull Users",
+          "Recompute forced",
+          "Hull Intercom Leads",
+          "Sendgrid - Sync Segment",
+          "Pardot Sync Users",
+          "New Segment 1",
+          "New segment",
+          "New Segment 4",
+          "New Segment 3",
+          "Kraken stress segment",
+          "asd",
+          "Qualified Leads",
+          "Clearbit Reveal to Enrich",
+          "Any Website Visitor",
+          "test test test",
+          "Approved users",
+          "Dudes called Romain",
+          "Completed big recent orders",
+          "asdasd",
+          "No email opens for 6 month",
+          "test",
+          "Kraken stress 2",
+          "some test",
+          "test test",
+          "Sync with Mailchimp",
+          "Intercom leads",
+          "Intercom Users",
+          "Founders Fading Away",
+          "Recent Users",
+          "Subscribed Marketers Meeting Romain"
+        ],
+        "traits_intercom/linkedin_id": "5982462",
+        "traits_intercom/session_count": 0,
+        "traits_intercom/pseudonym": "Purple Bear from Paris",
+        "traits_intercom/twitter_username": "hull",
+        "traits_intercom/companies": [
+          "Hull Inc"
+        ],
+        "traits_intercom/klout_username": "rdardour",
+        "traits_intercom/id": "584abf052b8aefb3e543edd0",
+        "id": "5ade116fd2909e110100043e",
+        "email": "romain@unity.fr",
+        "traits_intercom/is_lead": true,
+        "traits_intercom/klout_id": "26458652577379968",
+        "traits_intercom/name": "Romain Dardour",
+        "last_known_ip": "80.15.146.203",
+        "name": "Romain Dardour",
+        "traits_intercom/linkedin_url": "https://www.linkedin.com/in/rdardour",
+        "traits_intercom/lead_user_id": "00087571-30b7-43cf-acca-33fa5c521a72",
+        "traits_intercom/created_at": "2016-12-09T14:26:13+00:00",
+        "traits_intercom/twitter_id": "142333261",
+        "anonymous_ids": [
+          "intercom:00087571-30b7-43cf-acca-33fa5c521a72",
+          "intercom:584abf052b8aefb3e543edd0"
+        ],
+        "domain": "unity.fr",
+        "traits_intercom/location_country_name": "France",
+        "traits_intercom/avatar": "https://d2ojpxxtu63wzl.cloudfront.net/static/89881cab75493d483e096086b45d898e_b9e53388ad29dfc7bb453735396f615a0256dfff9484def5c1a0d1bd0c83a678",
+        "traits_intercom/location_longitude": 2.32919999999999,
+        "last_name": "Dardour",
+        "traits_intercom/location_postal_code": "75001",
+        "indexed_at": "2018-10-04T18:02:23Z",
+        "first_name": "Romain",
+        "traits_intercom/facebook_url": "https://www.facebook.com/romain.dardour",
+        "traits_intercom/location_region_name": "Ile-de-France",
+        "created_at": "2018-04-23T17:01:35Z",
+        "traits_intercom/unsubscribed_from_emails": false,
+        "traits_intercom/updated_at": "2018-03-29T19:10:59+00:00",
+        "traits_intercom/twitter_url": "https://twitter.com/hull",
+        "is_approved": false,
+        "traits_intercom/location_timezone": "Europe/Paris",
+        "traits_intercom/score": 0.5517,
+        "traits_intercom/last_seen_ip": "80.15.146.203",
+        "last_seen_at": "2018-10-04T18:02:07Z",
+        "traits_intercom/location_latitude": 48.8628,
+        "segment_ids": [
+          "5ade25df4d257947aa001cd5"
+        ],
+        "traits_intercom/location_city_name": "Paris",
+        "traits_intercom/segments": []
+      },
+      "changes": {
+        "is_new": false,
+        "user": {
+          "traits_intercom/tags[6]": [
+            null,
+            "New Segment 1"
+          ],
+          "last_seen_at": [
+            "2018-10-04T17:56:09Z",
+            "2018-10-04T18:02:07Z"
+          ]
+        },
+        "account": {},
+        "segments": {},
+        "account_segments": {}
+      },
+      "account": {},
+      "segments": [
+        {
+          "id": "5ade25df4d257947aa001cd5",
+          "name": "Intercom Users",
+          "updated_at": "2018-04-23T18:28:47Z",
+          "type": "users_segment",
+          "created_at": "2018-04-23T18:28:47Z"
+        }
+      ],
+      "events": [],
+      "account_segments": [],
+      "message_id": "83dd64ed23d1b5ec7d664fb2aff35656f124607b"
+    },
+    {
+      "user": {
+        "traits_intercom/last_request_at": "2017-06-26T12:05:34+00:00",
+        "traits_intercom/location_continent_code": "EU",
+        "traits_intercom/location_country_code": "FRA",
+        "traits_intercom/email": "romain+charcoalbee@hull.io",
+        "traits_intercom/anonymous": true,
+        "traits_intercom/tags": [
+          "Hull Users",
+          "Hull Users with Coconuts",
+          "Recompute forced",
+          "Hull Intercom Leads",
+          "Sendgrid - Sync Segment",
+          "Pardot Sync Users",
+          "New Segment 4",
+          "New Segment 3",
+          "New Segment 1",
+          "New segment",
+          "Kraken stress segment",
+          "Clearbit Reveal to Enrich",
+          "Any Website Visitor",
+          "Subscribed Marketers Meeting Romain",
+          "Completed big recent orders",
+          "Kraken stress 2",
+          "Qualified Leads",
+          "No email opens for 6 month",
+          "Sync with Mailchimp",
+          "Intercom leads",
+          "Everyone",
+          "Intercom Users",
+          "Recent Users"
+        ],
+        "traits_intercom/session_count": 0,
+        "traits_intercom/pseudonym": "Charcoal Bee from Paris",
+        "traits_intercom/companies": [
+          "Hull Inc"
+        ],
+        "traits_intercom/id": "5a3cce68d14533a81c7facd2",
+        "id": "5ade1170d2909e1101000441",
+        "email": "romain+charcoalbee@hull.io",
+        "traits_intercom/is_lead": true,
+        "traits_intercom/name": "Charcoal Bee from Paris",
+        "last_known_ip": "80.15.146.203",
+        "name": "Charcoal Bee from Paris",
+        "traits_intercom/lead_user_id": "5890393f-a2cf-469c-9dec-919a2661ed2d",
+        "traits_intercom/created_at": "2017-12-22T09:20:40+00:00",
+        "anonymous_ids": [
+          "intercom:5890393f-a2cf-469c-9dec-919a2661ed2d",
+          "intercom:5a3cce68d14533a81c7facd2"
+        ],
+        "domain": "hull.io",
+        "traits_intercom/location_country_name": "France",
+        "traits_intercom/location_longitude": 2.32919999999999,
+        "last_name": "Paris",
+        "traits_intercom/location_postal_code": "75001",
+        "indexed_at": "2018-10-04T18:02:23Z",
+        "first_name": "Charcoal Bee from",
+        "traits_intercom/location_region_name": "Ile-de-France",
+        "created_at": "2018-04-23T17:01:36Z",
+        "traits_intercom/unsubscribed_from_emails": false,
+        "traits_intercom/updated_at": "2018-03-06T11:08:07+00:00",
+        "is_approved": false,
+        "traits_intercom/location_timezone": "Europe/Paris",
+        "traits_intercom/score": 0.5517,
+        "traits_intercom/last_seen_ip": "80.15.146.203",
+        "last_seen_at": "2018-10-04T18:02:07Z",
+        "traits_intercom/location_latitude": 48.8628,
+        "segment_ids": [
+          "5ade25df4d257947aa001cd5"
+        ],
+        "traits_intercom/location_city_name": "Paris",
+        "traits_intercom/segments": []
+      },
+      "changes": {
+        "is_new": false,
+        "user": {
+          "traits_intercom/tags[8]": [
+            null,
+            "New Segment 1"
+          ],
+          "last_seen_at": [
+            "2018-10-04T17:56:09Z",
+            "2018-10-04T18:02:07Z"
+          ]
+        },
+        "account": {},
+        "segments": {},
+        "account_segments": {}
+      },
+      "account": {},
+      "segments": [
+        {
+          "id": "5ade25df4d257947aa001cd5",
+          "name": "Intercom Users",
+          "updated_at": "2018-04-23T18:28:47Z",
+          "type": "users_segment",
+          "created_at": "2018-04-23T18:28:47Z"
+        }
+      ],
+      "events": [],
+      "account_segments": [],
+      "message_id": "6b430ed1ac548a6cc2618c8a85c4ae63ee04fd3a"
+    },
+    {
+      "user": {
+        "traits_intercom/email": "jimmy+carter1@test-hull.io",
+        "traits_intercom/anonymous": true,
+        "traits_intercom/tags": [
+          "Intercom leads",
+          "New Segment 1",
+          "Kraken stress segment",
+          "New segment",
+          "Hull Intercom Leads",
+          "New Segment 3",
+          "Kraken stress 2",
+          "New Segment 4",
+          "Everyone",
+          "Shoppers in 30 days with more than 25$ in the cart",
+          "Qualified Leads",
+          "No email opens for 6 month",
+          "Intercom Users",
+          "Sync with Mailchimp",
+          "Recent Users"
+        ],
+        "traits_intercom/session_count": 0,
+        "traits_intercom/pseudonym": "Blue Diamond",
+        "traits_intercom/companies": [],
+        "traits_intercom/id": "5ae8899369b4bf5689e7cf20",
+        "id": "5ae889b06d23259f1e003efc",
+        "email": "jimmy+carter1@test-hull.io",
+        "traits_intercom/is_lead": true,
+        "traits_intercom/name": "Jimmy Carter",
+        "name": "Jimmy Carter",
+        "traits_intercom/lead_user_id": "0b968b0f-5ad7-4c6c-95f2-7bc9fb4beb02",
+        "traits_intercom/created_at": "2018-05-01T15:36:51+00:00",
+        "anonymous_ids": [
+          "intercom:0b968b0f-5ad7-4c6c-95f2-7bc9fb4beb02"
+        ],
+        "domain": "test-hull.io",
+        "last_name": "Carter",
+        "indexed_at": "2018-10-04T18:02:23Z",
+        "first_name": "Jimmy",
+        "created_at": "2018-05-01T15:37:20Z",
+        "traits_intercom/updated_at": "2018-05-01T15:36:51+00:00",
+        "is_approved": false,
+        "traits_intercom/score": 0.5517,
+        "last_seen_at": "2018-10-04T18:02:07Z",
+        "segment_ids": [
+          "5ade25df4d257947aa001cd5"
+        ],
+        "traits_intercom/segments": []
+      },
+      "changes": {
+        "is_new": false,
+        "user": {
+          "last_seen_at": [
+            "2018-10-04T17:56:09Z",
+            "2018-10-04T18:02:07Z"
+          ],
+          "traits_intercom/tags[1]": [
+            null,
+            "New Segment 1"
+          ]
+        },
+        "account": {},
+        "segments": {},
+        "account_segments": {}
+      },
+      "account": {},
+      "segments": [
+        {
+          "id": "5ade25df4d257947aa001cd5",
+          "name": "Intercom Users",
+          "updated_at": "2018-04-23T18:28:47Z",
+          "type": "users_segment",
+          "created_at": "2018-04-23T18:28:47Z"
+        }
+      ],
+      "events": [],
+      "account_segments": [],
+      "message_id": "c20b06e2860eab8fcc89c54ceb4f2a18cf6cbfa4"
+    }
+  ],
+  "accounts_segments": [],
+  "segments": [
+    {
+      "id": "5ade25df4d257947aa001cd5",
+      "updated_at": "2018-04-23T18:28:47Z",
+      "created_at": "2018-04-23T18:28:47Z",
+      "name": "Intercom Users",
+      "type": "users_segment",
+      "stats": {}
+    }
+  ]
+}

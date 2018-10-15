@@ -1,0 +1,835 @@
+{
+  "notification_id": "6c559875-0e7a-46e1-a08e-dc8ad3ed4804",
+  "configuration": {
+      "id": "5bbe43ff14e12cc48300524a",
+      "organization": "ad793dc7.hullapp.io",
+      "secret": "6c204e603c5316dd58dbee4c7d3108af"
+  },
+  "connector": {
+      "tags": [],
+      "source_url": "https://dev-hull-outreach.ngrok.io/",
+      "private_settings": {
+          "synchronized_account_segments": [],
+          "synchronized_user_segments": [
+              "5bbe5ecb14e12c7a7d0007a3"
+          ],
+          "account_identifier_hull": "domain",
+          "account_identifier_service": "customId",
+          "account_attributes_outbound": [
+              {
+                  "hull_field_name": "name",
+                  "outreach_field_name": "name"
+              }
+          ],
+          "refresh_token": "e8faac431514c7ed78cc9969edbf91479c02740ee2ad19c6645799033f7d161a",
+          "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0aW0rc2FuZGJveEBodWxsLmlvIiwiaWF0IjoxNTM5MjA0NzE3LCJleHAiOjE1MzkyMTE5MTcsImJlbnRvIjoiYXBwMmEiLCJvcmdfdXNlcl9pZCI6MSwiYXVkIjoiSHVsbCIsInNjb3BlcyI6ImNyZWF0ZV9wcm9zcGVjdHMgY3JlYXRlX2FjY291bnRzIEFKQUFFQUhBIn0.cmgdBJt33TDCx5nYVoDzgeIx41onJxJz5a0ZpPzPIwo",
+          "prospect_attributes_outbound": [
+              {}
+          ],
+          "webhook_id": 33
+      },
+      "index": "https://dev-hull-outreach.ngrok.io/",
+      "name": "dev-hull-outreach.ngrok.io",
+      "extra": {},
+      "settings": {},
+      "type": "ship",
+      "manifest": {
+          "description": "description",
+          "tags": [
+              "incoming",
+              "outgoing",
+              "batch",
+              "oneColumn",
+              "smart-notifier"
+          ],
+          "private_settings": [
+              {
+                  "name": "webhook_id",
+                  "title": "Outreach webhook id",
+                  "type": "string"
+              },
+              {
+                  "name": "access_token",
+                  "title": "OAuth Access Token",
+                  "type": "string"
+              },
+              {
+                  "name": "refresh_token",
+                  "title": "OAuth Refresh Token",
+                  "type": "string"
+              },
+              {
+                  "name": "configuration_title",
+                  "title": "Configuration",
+                  "format": "title",
+                  "type": "string"
+              },
+              {
+                  "name": "synchronized_account_segments",
+                  "title": "Send *Accounts* as Accounts to Outreach.io when belonging to one of these segments",
+                  "type": "array",
+                  "default": [],
+                  "format": "accountSegment"
+              },
+              {
+                  "name": "synchronized_account_segments_hero",
+                  "type": "string",
+                  "headerTemplate": "The above lists of segments are whitelists for accounts. You need to *explicitely specify one or more segments* for which accounts and events shall be sent to Outreach.io.<br>If you do not specify any segment, no account or event will be sent to Outreach.io.",
+                  "format": "information",
+                  "title": "Whitelisted Segments"
+              },
+              {
+                  "name": "synchronized_user_segments",
+                  "title": "Send *Users* as Prospects to Outreach.io when belonging to one of these segments",
+                  "type": "array",
+                  "default": [],
+                  "format": "segment"
+              },
+              {
+                  "name": "synchronized_user_segments_hero",
+                  "type": "string",
+                  "headerTemplate": "The above lists of segments are whitelists for users. You need to *explicitely specify one or more segments* for which users and events shall be sent to Outreach.io.<br>If you do not specify any segment, no users or event will be sent to Outreach.io.",
+                  "format": "information",
+                  "title": "Whitelisted Segments"
+              },
+              {
+                  "name": "account_identifier_hull",
+                  "title": "The attribute to uniquely identify an account in Hull",
+                  "type": "string",
+                  "format": "select",
+                  "default": "domain",
+                  "options": {
+                      "loadOptions": "/fields-hull-account-ident"
+                  }
+              },
+              {
+                  "name": "account_identifier_service",
+                  "title": "The field to uniquely identify a Account in Outreach.io",
+                  "type": "string",
+                  "format": "select",
+                  "default": "customId",
+                  "options": {
+                      "loadOptions": "/fields-outreach-account-ident"
+                  }
+              },
+              {
+                  "name": "accountsync_title",
+                  "title": "Accounts Data Mapping",
+                  "format": "title",
+                  "type": "string"
+              },
+              {
+                  "name": "account_attributes_outbound",
+                  "title": "Send Account Attributes to Outreach.io",
+                  "description": "Name and domain are sent automatically",
+                  "type": "array",
+                  "format": "table",
+                  "default": [
+                      {
+                          "hull_field_name": "name",
+                          "outreach_field_name": "name"
+                      }
+                  ],
+                  "items": {
+                      "type": "object",
+                      "properties": {
+                          "hull_field_name": {
+                              "type": "string",
+                              "format": "accountTrait",
+                              "title": "Hull Attribute"
+                          },
+                          "outreach_field_name": {
+                              "type": "string",
+                              "title": "Outreach.io Field",
+                              "format": "select",
+                              "options": {
+                                  "loadOptions": "/fields-outreach-account-out"
+                              }
+                          }
+                      },
+                      "required": [
+                          "hull_field_name",
+                          "outreach_field_name"
+                      ]
+                  }
+              },
+              {
+                  "name": "account_attributes_inbound",
+                  "title": "List of Account fields to fetch from Outreach.io",
+                  "type": "array",
+                  "format": "select",
+                  "options": {
+                      "loadOptions": "/fields-outreach-account-in"
+                  }
+              },
+              {
+                  "name": "prospectsync_title",
+                  "title": "Prospects Data Mapping",
+                  "format": "title",
+                  "type": "string"
+              },
+              {
+                  "name": "prospect_attributes_outbound",
+                  "title": "Send User Attributes to Outreach.io",
+                  "description": "Name is sent automatically",
+                  "type": "array",
+                  "format": "table",
+                  "items": {
+                      "type": "object",
+                      "properties": {
+                          "hull_field_name": {
+                              "type": "string",
+                              "format": "trait",
+                              "title": "Hull Attribute"
+                          },
+                          "prospect_field_name": {
+                              "type": "string",
+                              "title": "Outreach.io Field",
+                              "format": "select",
+                              "options": {
+                                  "loadOptions": "/fields-outreach-prospect-out"
+                              }
+                          }
+                      },
+                      "required": [
+                          "hull_field_name",
+                          "prospect_field_name"
+                      ]
+                  }
+              },
+              {
+                  "name": "prospect_attributes_inbound",
+                  "title": "List of Prospect fields to fetch from Outreach.io",
+                  "type": "array",
+                  "format": "select",
+                  "options": {
+                      "loadOptions": "/fields-outreach-prospect-in"
+                  }
+              }
+          ],
+          "admin": "/admin",
+          "tabs": [
+              {
+                  "title": "Credentials",
+                  "url": "/auth",
+                  "size": "small",
+                  "editable": false
+              },
+              {
+                  "title": "Actions",
+                  "url": "/admin",
+                  "size": "small",
+                  "editable": false
+              }
+          ],
+          "name": "Hull-Outreach",
+          "settings": [],
+          "subscriptions": [
+              {
+                  "url": "/smart-notifier",
+                  "conditions": {
+                      "channels": {
+                          "only": [
+                              "user:update",
+                              "account:update"
+                          ]
+                      }
+                  }
+              }
+          ],
+          "ui": false,
+          "picture": "picture.png",
+          "readme": "readme.md",
+          "version": "0.0.1",
+          "resources": []
+      },
+      "secret": "6c204e603c5316dd58dbee4c7d3108af",
+      "updated_at": "2018-10-10T20:51:58Z",
+      "status": {
+          "updated_at": "2018-10-10T22:06:00Z",
+          "name": "dev-hull-outreach.ngrok.io",
+          "id": "5bbe43ff14e12cc48300524a"
+      },
+      "id": "5bbe43ff14e12cc48300524a",
+      "picture": "https://dev-hull-outreach.ngrok.io/picture.png",
+      "homepage_url": "https://ad793dc7.hullapp.io/ships/5bbe43ff14e12cc48300524a",
+      "manifest_url": "https://dev-hull-outreach.ngrok.io/manifest.json",
+      "created_at": "2018-10-10T18:25:05Z"
+  },
+  "channel": "user:update",
+  "messages": [
+      {
+          "user": {
+              "traits_intercom/email": "john.doe.1@hull.io",
+              "traits_intercom/anonymous": true,
+              "traits_intercom/tags": [
+                  "Hull Intercom Leads",
+                  "Hull Users",
+                  "Sendgrid - Sync Segment",
+                  "New segment",
+                  "New Segment 1",
+                  "Hull Intercom Leads - Coconuts 99",
+                  "New Segment 3",
+                  "New Segment 4",
+                  "Hull Users with Coconuts",
+                  "Kraken stress segment",
+                  "No email opens for 6 month",
+                  "Subscribed Marketers Meeting Romain",
+                  "Completed big recent orders",
+                  "Kraken stress 2",
+                  "Qualified Leads",
+                  "Any Website Visitor",
+                  "Sync with Mailchimp",
+                  "Intercom leads",
+                  "Everyone",
+                  "Intercom Users",
+                  "Recent Users",
+                  "What3words"
+              ],
+              "traits_intercom/session_count": 0,
+              "traits_intercom/pseudonym": "Green Radio",
+              "external_id": "012fccd5-6df5-4552-8a6a-65045a18e880",
+              "traits_intercom/companies": [],
+              "traits_intercom/id": "59e0e1081766eba81a97afc6",
+              "id": "5ade116ed2909e1101000429",
+              "email": "john.doe.1@hull.io",
+              "traits_intercom/is_lead": true,
+              "traits_intercom/name": "John Doe",
+              "traits_intercom/import_error": "Server Error",
+              "name": "John Doe",
+              "traits_intercom/lead_user_id": "012fccd5-6df5-4552-8a6a-65045a18e880",
+              "traits_intercom/created_at": "2017-10-13T15:51:36+00:00",
+              "anonymous_ids": [
+                  "intercom:8950d33a-c634-49b5-8b68-7c874f17fec4",
+                  "intercom:0e6c4109-c85c-4a47-b2eb-82fa6b39dfd0",
+                  "intercom:012fccd5-6df5-4552-8a6a-65045a18e880",
+                  "intercom:59e0e1081766eba81a97afc6"
+              ],
+              "domain": "hull.io",
+              "last_name": "Doe",
+              "indexed_at": "2018-10-10T21:56:17Z",
+              "first_name": "John",
+              "created_at": "2018-04-23T17:01:34Z",
+              "traits_intercom/unsubscribed_from_emails": false,
+              "traits_intercom/updated_at": "2018-03-05T16:47:22+00:00",
+              "is_approved": false,
+              "traits_intercom/score": 0.4716,
+              "last_seen_at": "2018-10-10T21:56:07Z",
+              "segment_ids": [
+                  "5ade25df4d257947aa001cd5"
+              ],
+              "traits_intercom/segments": []
+          },
+          "changes": {
+              "is_new": false,
+              "user": {
+                  "traits_intercom/tags[4]": [
+                      null,
+                      "New Segment 1"
+                  ],
+                  "last_seen_at": [
+                      "2018-10-10T21:51:13Z",
+                      "2018-10-10T21:56:07Z"
+                  ]
+              },
+              "account": {},
+              "segments": {},
+              "account_segments": {}
+          },
+          "account": {},
+          "segments": [
+              {
+                  "id": "5ade25df4d257947aa001cd5",
+                  "name": "Intercom Users",
+                  "updated_at": "2018-04-23T18:28:47Z",
+                  "type": "users_segment",
+                  "created_at": "2018-04-23T18:28:47Z"
+              }
+          ],
+          "events": [],
+          "account_segments": [],
+          "message_id": "24e3c5f5d732b45be401da9c2827332514543b35"
+      },
+      {
+          "user": {
+              "traits_intercom/last_request_at": "2017-09-22T09:58:03+00:00",
+              "traits_intercom/location_continent_code": "EU",
+              "traits_intercom/linkedin_username": "rdardour",
+              "traits_intercom/location_country_code": "FRA",
+              "traits_intercom/email": "romain@unity.fr",
+              "traits_intercom/anonymous": true,
+              "traits_intercom/klout_url": "http://klout.com/rdardour",
+              "traits_intercom/tags": [
+                  "Hull Users with Coconuts",
+                  "Hull Users",
+                  "Recompute forced",
+                  "Hull Intercom Leads",
+                  "Sendgrid - Sync Segment",
+                  "Pardot Sync Users",
+                  "New Segment 1",
+                  "New segment",
+                  "New Segment 4",
+                  "New Segment 3",
+                  "Kraken stress segment",
+                  "asd",
+                  "Qualified Leads",
+                  "Clearbit Reveal to Enrich",
+                  "Any Website Visitor",
+                  "test test test",
+                  "Approved users",
+                  "Dudes called Romain",
+                  "Completed big recent orders",
+                  "asdasd",
+                  "No email opens for 6 month",
+                  "test",
+                  "Kraken stress 2",
+                  "some test",
+                  "test test",
+                  "Sync with Mailchimp",
+                  "Intercom leads",
+                  "Intercom Users",
+                  "Founders Fading Away",
+                  "Recent Users",
+                  "Subscribed Marketers Meeting Romain",
+                  "Tim Test Segment"
+              ],
+              "traits_intercom/linkedin_id": "5982462",
+              "traits_intercom/session_count": 0,
+              "traits_intercom/pseudonym": "Purple Bear from Paris",
+              "traits_intercom/twitter_username": "hull",
+              "traits_intercom/companies": [
+                  "Hull Inc"
+              ],
+              "traits_intercom/klout_username": "rdardour",
+              "traits_intercom/id": "584abf052b8aefb3e543edd0",
+              "id": "5ade116fd2909e110100043e",
+              "email": "romain@unity.fr",
+              "traits_intercom/is_lead": true,
+              "traits_intercom/klout_id": "26458652577379968",
+              "traits_intercom/name": "Romain Dardour",
+              "last_known_ip": "80.15.146.203",
+              "name": "Romain Dardour",
+              "traits_intercom/linkedin_url": "https://www.linkedin.com/in/rdardour",
+              "traits_intercom/lead_user_id": "00087571-30b7-43cf-acca-33fa5c521a72",
+              "traits_intercom/created_at": "2016-12-09T14:26:13+00:00",
+              "traits_intercom/twitter_id": "142333261",
+              "anonymous_ids": [
+                  "intercom:00087571-30b7-43cf-acca-33fa5c521a72",
+                  "intercom:584abf052b8aefb3e543edd0"
+              ],
+              "domain": "unity.fr",
+              "traits_intercom/location_country_name": "France",
+              "traits_intercom/avatar": "https://d2ojpxxtu63wzl.cloudfront.net/static/89881cab75493d483e096086b45d898e_b9e53388ad29dfc7bb453735396f615a0256dfff9484def5c1a0d1bd0c83a678",
+              "traits_intercom/location_longitude": 2.32919999999999,
+              "last_name": "Dardour",
+              "traits_intercom/location_postal_code": "75001",
+              "indexed_at": "2018-10-10T21:56:17Z",
+              "first_name": "Romain",
+              "traits_intercom/facebook_url": "https://www.facebook.com/romain.dardour",
+              "traits_intercom/location_region_name": "Ile-de-France",
+              "created_at": "2018-04-23T17:01:35Z",
+              "traits_intercom/unsubscribed_from_emails": false,
+              "traits_intercom/updated_at": "2018-03-29T19:10:59+00:00",
+              "traits_intercom/twitter_url": "https://twitter.com/hull",
+              "is_approved": false,
+              "traits_intercom/location_timezone": "Europe/Paris",
+              "traits_intercom/score": 0.5517,
+              "traits_intercom/last_seen_ip": "80.15.146.203",
+              "last_seen_at": "2018-10-10T21:56:07Z",
+              "traits_intercom/location_latitude": 48.8628,
+              "segment_ids": [
+                  "5ade25df4d257947aa001cd5",
+                  "5bbe5ecb14e12c7a7d0007a3"
+              ],
+              "traits_intercom/location_city_name": "Paris",
+              "traits_intercom/segments": []
+          },
+          "changes": {
+              "is_new": false,
+              "user": {
+                  "traits_intercom/tags[6]": [
+                      null,
+                      "New Segment 1"
+                  ],
+                  "last_seen_at": [
+                      "2018-10-10T21:51:13Z",
+                      "2018-10-10T21:56:07Z"
+                  ]
+              },
+              "account": {},
+              "segments": {},
+              "account_segments": {}
+          },
+          "account": {},
+          "segments": [
+              {
+                  "id": "5ade25df4d257947aa001cd5",
+                  "name": "Intercom Users",
+                  "updated_at": "2018-04-23T18:28:47Z",
+                  "type": "users_segment",
+                  "created_at": "2018-04-23T18:28:47Z"
+              },
+              {
+                  "id": "5bbe5ecb14e12c7a7d0007a3",
+                  "name": "Tim Test Segment",
+                  "updated_at": "2018-10-10T20:19:23Z",
+                  "type": "users_segment",
+                  "created_at": "2018-10-10T20:19:23Z"
+              }
+          ],
+          "events": [],
+          "account_segments": [],
+          "message_id": "e614682651834a00d578b57f25100eb6e0d69427"
+      },
+      {
+          "user": {
+              "traits_intercom/last_request_at": "2017-06-26T12:05:34+00:00",
+              "traits_intercom/location_continent_code": "EU",
+              "traits_intercom/location_country_code": "FRA",
+              "traits_intercom/email": "romain+charcoalbee@hull.io",
+              "traits_intercom/anonymous": true,
+              "traits_intercom/tags": [
+                  "Hull Users",
+                  "Hull Users with Coconuts",
+                  "Recompute forced",
+                  "Hull Intercom Leads",
+                  "Sendgrid - Sync Segment",
+                  "Pardot Sync Users",
+                  "New Segment 4",
+                  "New Segment 3",
+                  "New Segment 1",
+                  "New segment",
+                  "Kraken stress segment",
+                  "Clearbit Reveal to Enrich",
+                  "Any Website Visitor",
+                  "Subscribed Marketers Meeting Romain",
+                  "Completed big recent orders",
+                  "Kraken stress 2",
+                  "Qualified Leads",
+                  "No email opens for 6 month",
+                  "Sync with Mailchimp",
+                  "Intercom leads",
+                  "Everyone",
+                  "Intercom Users",
+                  "Recent Users"
+              ],
+              "traits_intercom/session_count": 0,
+              "traits_intercom/pseudonym": "Charcoal Bee from Paris",
+              "traits_intercom/companies": [
+                  "Hull Inc"
+              ],
+              "traits_intercom/id": "5a3cce68d14533a81c7facd2",
+              "id": "5ade1170d2909e1101000441",
+              "email": "romain+charcoalbee@hull.io",
+              "traits_intercom/is_lead": true,
+              "traits_intercom/name": "Charcoal Bee from Paris",
+              "last_known_ip": "80.15.146.203",
+              "name": "Charcoal Bee from Paris",
+              "traits_intercom/lead_user_id": "5890393f-a2cf-469c-9dec-919a2661ed2d",
+              "traits_intercom/created_at": "2017-12-22T09:20:40+00:00",
+              "anonymous_ids": [
+                  "intercom:5890393f-a2cf-469c-9dec-919a2661ed2d",
+                  "intercom:5a3cce68d14533a81c7facd2"
+              ],
+              "domain": "hull.io",
+              "traits_intercom/location_country_name": "France",
+              "traits_intercom/location_longitude": 2.32919999999999,
+              "last_name": "Paris",
+              "traits_intercom/location_postal_code": "75001",
+              "indexed_at": "2018-10-10T21:56:17Z",
+              "first_name": "Charcoal Bee from",
+              "traits_intercom/location_region_name": "Ile-de-France",
+              "created_at": "2018-04-23T17:01:36Z",
+              "traits_intercom/unsubscribed_from_emails": false,
+              "traits_intercom/updated_at": "2018-03-06T11:08:07+00:00",
+              "is_approved": false,
+              "traits_intercom/location_timezone": "Europe/Paris",
+              "traits_intercom/score": 0.5517,
+              "traits_intercom/last_seen_ip": "80.15.146.203",
+              "last_seen_at": "2018-10-10T21:56:07Z",
+              "traits_intercom/location_latitude": 48.8628,
+              "segment_ids": [
+                  "5ade25df4d257947aa001cd5"
+              ],
+              "traits_intercom/location_city_name": "Paris",
+              "traits_intercom/segments": []
+          },
+          "changes": {
+              "is_new": false,
+              "user": {
+                  "traits_intercom/tags[8]": [
+                      null,
+                      "New Segment 1"
+                  ],
+                  "last_seen_at": [
+                      "2018-10-10T21:51:13Z",
+                      "2018-10-10T21:56:07Z"
+                  ]
+              },
+              "account": {},
+              "segments": {},
+              "account_segments": {}
+          },
+          "account": {},
+          "segments": [
+              {
+                  "id": "5ade25df4d257947aa001cd5",
+                  "name": "Intercom Users",
+                  "updated_at": "2018-04-23T18:28:47Z",
+                  "type": "users_segment",
+                  "created_at": "2018-04-23T18:28:47Z"
+              }
+          ],
+          "events": [],
+          "account_segments": [],
+          "message_id": "e4032675344f31aa2ea78b231c409050f6608fcd"
+      },
+      {
+          "user": {
+              "traits_intercom/email": "jimmy+carter1@test-hull.io",
+              "traits_intercom/anonymous": true,
+              "traits_intercom/tags": [
+                  "Intercom leads",
+                  "New Segment 1",
+                  "Kraken stress segment",
+                  "New segment",
+                  "Hull Intercom Leads",
+                  "New Segment 3",
+                  "Kraken stress 2",
+                  "New Segment 4",
+                  "Everyone",
+                  "Shoppers in 30 days with more than 25$ in the cart",
+                  "Qualified Leads",
+                  "No email opens for 6 month",
+                  "Intercom Users",
+                  "Sync with Mailchimp",
+                  "Recent Users"
+              ],
+              "traits_intercom/session_count": 0,
+              "traits_intercom/pseudonym": "Blue Diamond",
+              "traits_intercom/companies": [],
+              "traits_intercom/id": "5ae8899369b4bf5689e7cf20",
+              "id": "5ae889b06d23259f1e003efc",
+              "email": "jimmy+carter1@test-hull.io",
+              "traits_intercom/is_lead": true,
+              "traits_intercom/name": "Jimmy Carter",
+              "name": "Jimmy Carter",
+              "traits_intercom/lead_user_id": "0b968b0f-5ad7-4c6c-95f2-7bc9fb4beb02",
+              "traits_intercom/created_at": "2018-05-01T15:36:51+00:00",
+              "anonymous_ids": [
+                  "intercom:0b968b0f-5ad7-4c6c-95f2-7bc9fb4beb02"
+              ],
+              "domain": "test-hull.io",
+              "last_name": "Carter",
+              "indexed_at": "2018-10-10T21:56:17Z",
+              "first_name": "Jimmy",
+              "created_at": "2018-05-01T15:37:20Z",
+              "traits_intercom/updated_at": "2018-05-01T15:36:51+00:00",
+              "is_approved": false,
+              "traits_intercom/score": 0.5517,
+              "last_seen_at": "2018-10-10T21:56:07Z",
+              "segment_ids": [
+                  "5ade25df4d257947aa001cd5"
+              ],
+              "traits_intercom/segments": []
+          },
+          "changes": {
+              "is_new": false,
+              "user": {
+                  "last_seen_at": [
+                      "2018-10-10T21:51:13Z",
+                      "2018-10-10T21:56:07Z"
+                  ],
+                  "traits_intercom/tags[1]": [
+                      null,
+                      "New Segment 1"
+                  ]
+              },
+              "account": {},
+              "segments": {},
+              "account_segments": {}
+          },
+          "account": {},
+          "segments": [
+              {
+                  "id": "5ade25df4d257947aa001cd5",
+                  "name": "Intercom Users",
+                  "updated_at": "2018-04-23T18:28:47Z",
+                  "type": "users_segment",
+                  "created_at": "2018-04-23T18:28:47Z"
+              }
+          ],
+          "events": [],
+          "account_segments": [],
+          "message_id": "591435158428e768736c95cd68f2a464924d437d"
+      },
+      {
+          "user": {
+              "traits_intercom/last_request_at": "2017-09-22T09:58:03+00:00",
+              "traits_intercom/location_continent_code": "EU",
+              "traits_intercom/linkedin_username": "rdardour",
+              "traits_intercom/location_country_code": "FRA",
+              "traits_intercom/email": "romain@unity.fr",
+              "traits_intercom/anonymous": true,
+              "traits_intercom/klout_url": "http://klout.com/rdardour",
+              "traits_intercom/tags": [
+                  "Hull Users with Coconuts",
+                  "Hull Users",
+                  "Recompute forced",
+                  "Hull Intercom Leads",
+                  "Sendgrid - Sync Segment",
+                  "Pardot Sync Users",
+                  "New Segment 1",
+                  "New segment",
+                  "New Segment 4",
+                  "New Segment 3",
+                  "Kraken stress segment",
+                  "asd",
+                  "Qualified Leads",
+                  "Clearbit Reveal to Enrich",
+                  "Any Website Visitor",
+                  "test test test",
+                  "Approved users",
+                  "Dudes called Romain",
+                  "Completed big recent orders",
+                  "asdasd",
+                  "No email opens for 6 month",
+                  "test",
+                  "Kraken stress 2",
+                  "some test",
+                  "test test",
+                  "Sync with Mailchimp",
+                  "Intercom leads",
+                  "Intercom Users",
+                  "Founders Fading Away",
+                  "Recent Users",
+                  "Subscribed Marketers Meeting Romain",
+                  "Tim Test Segment"
+              ],
+              "traits_intercom/linkedin_id": "5982462",
+              "traits_intercom/session_count": 0,
+              "traits_intercom/pseudonym": "Purple Bear from Paris",
+              "traits_intercom/twitter_username": "hull",
+              "traits_intercom/companies": [
+                  "Hull Inc"
+              ],
+              "traits_intercom/klout_username": "rdardour",
+              "traits_intercom/id": "584abf052b8aefb3e543edd0",
+              "id": "5ade116fd2909e110100043e",
+              "email": "romain@unity.fr",
+              "traits_intercom/is_lead": true,
+              "traits_intercom/klout_id": "26458652577379968",
+              "traits_intercom/name": "Romain Dardour",
+              "last_known_ip": "80.15.146.203",
+              "name": "Romain Dardour",
+              "traits_intercom/linkedin_url": "https://www.linkedin.com/in/rdardour",
+              "traits_intercom/lead_user_id": "00087571-30b7-43cf-acca-33fa5c521a72",
+              "traits_intercom/created_at": "2016-12-09T14:26:13+00:00",
+              "traits_intercom/twitter_id": "142333261",
+              "anonymous_ids": [
+                  "intercom:00087571-30b7-43cf-acca-33fa5c521a72",
+                  "intercom:584abf052b8aefb3e543edd0"
+              ],
+              "domain": "unity.fr",
+              "traits_intercom/location_country_name": "France",
+              "traits_intercom/avatar": "https://d2ojpxxtu63wzl.cloudfront.net/static/89881cab75493d483e096086b45d898e_b9e53388ad29dfc7bb453735396f615a0256dfff9484def5c1a0d1bd0c83a678",
+              "traits_intercom/location_longitude": 2.32919999999999,
+              "last_name": "Dardour",
+              "traits_intercom/location_postal_code": "75001",
+              "indexed_at": "2018-10-10T21:57:47Z",
+              "first_name": "Romain",
+              "traits_intercom/facebook_url": "https://www.facebook.com/romain.dardour",
+              "traits_intercom/location_region_name": "Ile-de-France",
+              "created_at": "2018-04-23T17:01:35Z",
+              "traits_intercom/unsubscribed_from_emails": false,
+              "traits_intercom/updated_at": "2018-03-29T19:10:59+00:00",
+              "traits_intercom/twitter_url": "https://twitter.com/hull",
+              "is_approved": false,
+              "traits_intercom/location_timezone": "Europe/Paris",
+              "traits_intercom/score": 0.5517,
+              "traits_intercom/last_seen_ip": "80.15.146.203",
+              "last_seen_at": "2018-10-10T21:56:07Z",
+              "traits_intercom/location_latitude": 48.8628,
+              "segment_ids": [
+                  "5ade25df4d257947aa001cd5",
+                  "5bbe5ecb14e12c7a7d0007a3"
+              ],
+              "traits_intercom/location_city_name": "Paris",
+              "traits_intercom/segments": []
+          },
+          "changes": {
+              "is_new": false,
+              "user": {},
+              "account": {
+                  "id": [
+                      null,
+                      "5bbe75da28e756784a00025f"
+                  ],
+                  "updated_at": [
+                      null,
+                      "2018-10-10T21:57:46Z"
+                  ],
+                  "anonymous_ids": [
+                      null,
+                      [
+                          "outreach:undefined"
+                      ]
+                  ],
+                  "created_at": [
+                      null,
+                      "2018-10-10T21:57:46Z"
+                  ]
+              },
+              "segments": {},
+              "account_segments": {}
+          },
+          "account": {
+              "id": "5bbe75da28e756784a00025f",
+              "updated_at": "2018-10-10T21:57:46Z",
+              "anonymous_ids": [
+                  "outreach:undefined"
+              ],
+              "indexed_at": "2018-10-10T21:57:47+00:00",
+              "created_at": "2018-10-10T21:57:46Z"
+          },
+          "segments": [
+              {
+                  "id": "5ade25df4d257947aa001cd5",
+                  "name": "Intercom Users",
+                  "updated_at": "2018-04-23T18:28:47Z",
+                  "type": "users_segment",
+                  "created_at": "2018-04-23T18:28:47Z"
+              },
+              {
+                  "id": "5bbe5ecb14e12c7a7d0007a3",
+                  "name": "Tim Test Segment",
+                  "updated_at": "2018-10-10T20:19:23Z",
+                  "type": "users_segment",
+                  "created_at": "2018-10-10T20:19:23Z"
+              }
+          ],
+          "events": [],
+          "account_segments": [],
+          "message_id": "a101109f8daa0767a7d13189d8bc0ab4c9b2c64e"
+      }
+  ],
+  "accounts_segments": [],
+  "segments": [
+      {
+          "id": "5ade25df4d257947aa001cd5",
+          "updated_at": "2018-04-23T18:28:47Z",
+          "created_at": "2018-04-23T18:28:47Z",
+          "name": "Intercom Users",
+          "type": "users_segment",
+          "stats": {}
+      },
+      {
+          "id": "5bbe5ecb14e12c7a7d0007a3",
+          "updated_at": "2018-10-10T20:19:23Z",
+          "created_at": "2018-10-10T20:19:23Z",
+          "name": "Tim Test Segment",
+          "type": "users_segment",
+          "stats": {}
+      }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+    "data": {
+        "type": "prospect",
+        "id": 3,
+        "attributes": {},
+        "relationships": {}
+    },
+    "meta": {
+        "deliveredAt": "2018-09-26T11:15:25.311-07:00",
+        "eventName": "prospect.updated"
+    }
+}

@@ -1,0 +1,23 @@
+{
+    "data": {
+        "type": "account",
+        "id": 6,
+        "attributes": {
+            "createdAt": "2018-09-26T18:07:00.000Z",
+            "updatedAt": "2018-09-26T18:07:00.000Z",
+            "named": true,
+            "domain": "skywalkerindustries.com",
+            "name": "Skywalker Industries"
+        },
+        "relationships": {
+            "owner": {
+                "type": "owner",
+                "id": 1
+            }
+        }
+    },
+    "meta": {
+        "deliveredAt": "2018-09-26T11:07:00.421-07:00",
+        "eventName": "account.created"
+    }
+}

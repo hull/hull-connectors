@@ -1,0 +1,19 @@
+{
+    "data": {
+        "type": "prospect",
+        "id": 3,
+        "attributes": {
+            "updatedAt": "2018-09-26T18:07:49.000Z"
+        },
+        "relationships": {
+            "account": {
+                "type": "account",
+                "id": 6
+            }
+        }
+    },
+    "meta": {
+        "deliveredAt": "2018-09-26T11:07:50.117-07:00",
+        "eventName": "prospect.updated"
+    }
+}

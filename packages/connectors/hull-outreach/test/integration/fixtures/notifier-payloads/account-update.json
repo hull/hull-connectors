@@ -1,0 +1,297 @@
+{
+    "notification_id": "f124005a-92e6-4554-a556-d294ed63cdae",
+    "configuration": {
+        "id": "b13d14e9cef7a82345e550b7c5bf",
+        "organization": "unittesting.hullapp.io",
+        "secret": "995ece09c8d843f6bc38e5abd1f60f6b"
+    },
+    "connector": {
+        "description": "Testing Connector",
+        "tags": [],
+        "source_url": "https://hull-outreachio-dev.herokuapp.com/",
+        "terms_of_service_url": null,
+        "private_settings": {
+            "synchronized_segments": [],
+            "synchronized_account_segments": [
+              "59f09bc7f9c5a94af600076d"
+            ],
+            "account_status": "hull-default",
+            "account_attributes_outbound": [
+                {
+                    "hull_field_name": "name",
+                    "outreachio_field_name": "name"
+                }
+            ],
+            "account_identifier_hull": "external_id",
+            "account_identifier_service": "custom.lcf_9TB8XYocaq1GQMK5z7MVyOE7TXS1Cys5VycWwTlRBOZ",
+            "api_key": "4119c01444z4e2cz24c4zc44d549c92z91ee719744415451d9e1b5d0",
+            "prospect_attributes_outbound": [
+                {}
+            ],
+            "account_attributes_inbound": [
+                "name",
+                "custom.lcf_BnhWfopv1iEafpTY2Lcm025IfMboHwWMEhfhh5qsiPQ",
+                "custom.lcf_oGeEw9l2BVl1DVARG6jZUJmq8wLkYZN6W7veDk78ZEo",
+                "custom.lcf_JzIbH01yGJH4aO5jEMcISvkc5eN5J6eD70Yl59XGBFs",
+                "custom.lcf_qdRtQD9yAqeFRyZ7Xw2yJ13EoxFPwnWlQaEl08lGWWU",
+                "custom.lcf_1IkLYzfWy9MrjcRgfTTdknTWPGW99sbZ3ITMHnTNGhe",
+                "custom.lcf_WftiS3zC38jwJ0sEWJvc5qyNg5hTl5xas9bqHMBAIeS",
+                "custom.lcf_CpqzI0t50mc3P052ZlAy9YAx2iC2ofOPDUNUHPHCcrG",
+                "custom.lcf_9MXc0AxjVAQKcqjYlO2A5AFdz9FltUNzRN1ZHyytEeA",
+                "custom.lcf_rbpfN3AmrbcLW9OjmSFEXc6qfYt5OXXBwiuhvGX8JsZ",
+                "custom.lcf_j6Umcj7SRLFVSZRHDqY7FC68rNLhTA7rsdCbPJheNW2",
+                "custom.lcf_S2kETLU0Xo5XfjwdL7nUTbMQqZXe7dx2Ci2qvfm0ex6",
+                "custom.lcf_vsK94XEmkRDGLzvTcUgkDTyV36ett7mXu8J4HwXEBZa",
+                "custom.lcf_5dly1YVWzn0aLR9vpdCLcIJND5jpEYtzB7iZMmbBZyA",
+                "custom.lcf_YthupEWqLhP34Tnv76sTYKfu7HjXYyE6mqqTFtCFCHz",
+                "custom.lcf_8OLCB5q76FSxdxm3IVmO4Vpe9uIao8I6GDOcnBet4W8",
+                "custom.lcf_7TG4pCfaeSerIMcZQ0YxqnJi21H2CJeSsnSdkqDBDI8",
+                "custom.lcf_XD6idHdZm1D9yyd3chwhai4PqJdiIXllN2ylw3AwxVb",
+                "custom.lcf_9TB8XYocaq1GQMK5z7MVyOE7TXS1Cys5VycWwTlRBOZ",
+                "custom.lcf_Xq2gDewoLWRm0fGeembMeSAvLtX434koBAxcySLmJBV",
+                "custom.lcf_mkbFfv07cYOrAofO8djKprdEm3uGUxYTm8qtPdL9MXf",
+                "description",
+                "url",
+                "status_id"
+            ],
+            "prospect_attributes_inbound": [
+                "title",
+                "phones",
+                "emails",
+                "name"
+            ],
+            "last_sync_at": 1531815989812
+        },
+        "index": "https://hull-outreachio-dev.herokuapp.com/",
+        "name": "outreach.io",
+        "extra": {},
+        "settings": {},
+        "type": "ship",
+        "manifest": {
+            "name": "Hull-Outreach",
+            "description": "description",
+            "source": "outreach",
+            "logo": "logo.png",
+            "picture": "picture.png",
+            "version": "0.0.1",
+          
+            "tags": [
+              "incoming", 
+              "outgoing", 
+              "batch", 
+              "oneColumn", 
+              "smart-notifier"
+            ],
+            
+            "private_settings": [
+              {
+                "name": "webhook_id",
+                "title": "Outreach webhook id",
+                "type": "string",
+                "format": "hidden"
+              },
+              {
+                "name": "configuration_title",
+                "title": "Configuration",
+                "format": "title",
+                "type": "string"
+              },
+              {
+                "name": "synchronized_account_segments",
+                "title": "Send *accounts* as accounts to Outreach.io when belonging to one of these segments",
+                "type": "array",
+                "default": [],
+                "format": "accountSegment"
+              },
+              {
+                "name": "synchronized_account_segments_hero",
+                "type": "string",
+                "headerTemplate": "The above lists of segments are whitelists for accounts. You need to *explicitely specify one or more segments* for which accounts and events shall be sent to Outreach.io.<br>If you do not specify any segment, no account or event will be sent to Outreach.io.",
+                "format": "information",
+                "title": "Whitelisted Segments"
+              },
+              {
+                "name": "synchronized_user_segments",
+                "title": "Send *accounts* as accounts to Outreach.io when belonging to one of these segments",
+                "type": "array",
+                "default": [],
+                "format": "accountSegment"
+              },
+              {
+                "name": "synchronized_user_segments_hero",
+                "type": "string",
+                "headerTemplate": "The above lists of segments are whitelists for users. You need to *explicitely specify one or more segments* for which users and events shall be sent to Outreach.io.<br>If you do not specify any segment, no users or event will be sent to Outreach.io.",
+                "format": "information",
+                "title": "Whitelisted Segments"
+              },
+              {
+                "name": "account_identifier_hull",
+                "title": "The attribute to uniquely identify an account in Hull",
+                "type": "string",
+                "format": "select",
+                "default": "domain",
+                "options": {
+                  "loadOptions": "/fields-account-ident"
+                } 
+              },
+              {
+                "name": "account_identifier_service",
+                "title": "The field to uniquely identify a account in Outreach.io",
+                "type": "string",
+                "format": "select",
+                "default": "url",
+                "options": {
+                  "loadOptions": "/fields-outreach-account"
+                } 
+              },
+              {
+                "name": "accountsync_title",
+                "title": "Accounts Data Mapping",
+                "format": "title",
+                "type": "string"
+              },
+              {
+                "name": "account_attributes_outbound",
+                "title": "Send Account Attributes to Outreach.io",
+                "description": "Name and domain are sent automatically",
+                "type": "array",
+                "format": "table",
+                "default": [
+                  { "hull_field_name": "name", "outreach_field_name": "name" }
+                ],
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "hull_field_name" : {
+                      "type" : "string",
+                      "format" : "accountTrait",
+                      "title" : "Hull Attribute"
+                    },
+                    "outreach_field_name" : {
+                      "type" : "string",
+                      "title" : "Outreach.io Field",
+                      "format" : "select",
+                      "options" : {
+                        "loadOptions" : "/fields-outreach-account"
+                      }
+                    }
+                  },
+                  "required" : [
+                    "hull_field_name",
+                    "outreach_field_name"
+                  ]
+                } 
+              },
+              {
+                "name" : "account_attributes_inbound",
+                "title" : "List of account fields to fetch from Outreach.io",
+                "type" : "array",
+                "format" : "select",
+                "options" : {
+                  "loadOptions" : "/fields-outreach-accounts"
+                }
+              },
+              {
+                "name": "prospectsync_title",
+                "title": "Prospects Data Mapping",
+                "format": "title",
+                "type": "string"
+              },
+              {
+                "name": "prospect_attributes_outbound",
+                "title": "Send User Attributes to Outreach.io",
+                "description": "Name is sent automatically",
+                "type": "array",
+                "format": "table",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "hull_field_name" : {
+                      "type" : "string",
+                      "format" : "trait",
+                      "title" : "Hull Attribute"
+                    },
+                    "prospect_field_name" : {
+                      "type" : "string",
+                      "title" : "Outreach.io Field",
+                      "format" : "select",
+                      "options" : {
+                        "loadOptions" : "/fields-outreach-prospect"
+                      }
+                    }
+                  },
+                  "required" : [
+                    "hull_field_name",
+                    "prospect_field_name"
+                  ]
+                }
+              },
+              {
+                "name" : "prospect_attributes_inbound",
+                "title" : "List of prospect fields to fetch from outreach.io",
+                "type" : "array",
+                "format" : "select",
+                "options" : {
+                  "loadOptions" : "/fields-outreach-prospect"
+                }
+              }
+            ],
+            "settings": [],
+            "resources": [],
+          
+            "readme": "readme.md",
+            "admin": "admin",
+            "ui": false,
+            "subscriptions": [{ "url": "/smart-notifier" }],
+            "schedules" : [
+              {
+                "url": "/status",
+                "type": "interval",
+                "value": "5"
+              }
+            ]
+          },
+        "secret": "995ece09c8d843f6bc38e5abd1f60f6b",
+        "ends_at": null,
+        "updated_at": "2018-03-30T14:36:02Z",
+        "status": {
+            "id": "5aa6d6b241c7c1dcae003429",
+            "name": "outreach.io",
+            "status": "ok",
+            "messages": [],
+            "updated_at": "2018-03-12T20:02:26Z",
+            "schedules": [
+                {
+                    "url": "/status",
+                    "type": "cron",
+                    "value": "*/30 * * * *"
+                }
+            ]
+        },
+        "starts_at": null,
+        "id": "b13d14e9cef7a82345e550b7c5bf",
+        "picture": "https://hull-outreachio.herokuapp.com/picture.png",
+        "homepage_url": "https://unittesting.hullapp.io/ships/b13d14e9cef7a82345e550b7c5bf",
+        "resources": {},
+        "manifest_url": "https://hull-outreachio-dev.herokuapp.com/manifest.json",
+        "created_at": "2018-03-12T19:36:19Z",
+        "translations": {},
+        "privacy_policy_url": null
+    },
+    "channel": "account:update",
+    "messages": [{
+        "message_id": "QBJMOAFESVMrQwsqWBFOBCEhPjA-RVNEUAYWLF1GSFE3GQhoUQ5PXiM_NSAoRRIDBU8CKF15MUU_QVhwaFENGXJ9YHNoWUdSV0MGLFdRGAdoTm11JW8JHnV7ZHZtUxIDAEdXd3f_0o6vs8xOZiU9XhJLLD5-MzRFQV4",
+        "account": {
+          "domain": "madkudu.com",
+          "name": "Madkudu",
+          "external_id": "hull12345678"
+        },
+        "account_segments": [{
+          "id": "59f09bc7f9c5a94af600076d",
+          "name": "outreach.io accounts",
+          "type": "accounts_segment",
+          "created_at": "2017-10-25T14:12:23Z",
+          "updated_at": "2017-10-25T14:12:23Z"
+        }]
+      }]
+}
