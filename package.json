@@ -20,9 +20,9 @@
     "duplicated-dependencies": "syncpack-list-mismatches -s 'packages/*/package.json' -s 'packages/connectors/*/package.json'",
     "build": "babel packages -d dist --delete-dir-on-start && rsync -rl packages/ dist/ --ignore-existing",
     "dev": "sh scripts/start-dev-connector.sh",
-    "test": "yarn test:lint && yarn workspaces run test",
+    "test": "yarn test:lint && jest && yarn workspaces run test",
     "test:lint": "eslint packages",
-    "test:ci": "yarn test:lint && nyc --babel-cache --hook-run-in-context false yarn workspaces run test",
+    "test:ci": "yarn test:lint && jest && nyc --babel-cache --hook-run-in-context false yarn workspaces run test",
     "heroku-postbuild": "yarn build"
   },
   "engines": {
