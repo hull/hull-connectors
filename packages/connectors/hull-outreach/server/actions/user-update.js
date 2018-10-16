@@ -1,8 +1,8 @@
 /* @flow */
 import type { TReqContext, THullUserUpdateMessage } from "hull";
 
-const SyncAgent = require("../lib/sync-agent");
 const Promise = require("bluebird");
+const SyncAgent = require("../lib/sync-agent");
 
 function userUpdate(
   ctx: TReqContext,

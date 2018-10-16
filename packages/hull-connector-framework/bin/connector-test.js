@@ -26,9 +26,8 @@ debug("serverPath", serverPath);
   for (const scenarioName of fs.readdirSync(scenariosPath)) {
     const scenarioPath = path.join(scenariosPath, scenarioName);
     const scenarioDefinition = require(scenarioPath); // eslint-disable-line
-    const server = require(serverPath); // eslint-disable-line
     try {
-      const runner = new IntegrationScenarioRunner(server, scenarioDefinition);
+      const runner = new IntegrationScenarioRunner(scenarioDefinition);
       await runner.run(); // eslint-disable-line
     } catch (error) {
       console.error(error);

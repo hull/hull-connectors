@@ -1,130 +1,7 @@
 /* @flow */
-import type {
-  HullAccount,
-  HullUserClaims,
-  HullAccountClaims,
-  HullUserAttributes,
-  HullAccountAttributes,
-  HullUser
-} from "hull";
+import type { HullAccount, HullUser } from "hull";
 
 import type { Readable } from "stream";
-
-/*
- *** Hull Types. Replace when 0.14.0 is released
- */
-
-export type HullMetrics = {
-  increment(name: string, value: number, ...params: any[]): void,
-  value(name: string, value: number, ...params: any[]): void
-};
-
-export type HullClientLogger = {
-  log(message: ?any, ...optionalParams: any[]): void,
-  info(message: ?any, ...optionalParams: any[]): void,
-  warn(message: ?any, ...optionalParams: any[]): void,
-  error(message: ?any, ...optionalParams: any[]): void,
-  debug(message: ?any, ...optionalParams: any[]): void
-};
-
-export type HullClientConfiguration = {
-  prefix: string,
-  domain: string,
-  protocol: string,
-  id: string,
-  secret: string,
-  organization: string,
-  version: string
-};
-
-export type HullClientApiOptions = {
-  timeout: number,
-  retry: number
-};
-
-export type HullClientUtilTraits = {
-  group(user: HullUser | HullAccount): Object,
-  normalize(traits: Object): HullUserAttributes
-};
-
-export type HullClientUtils = {
-  traits: HullClientUtilTraits
-};
-
-export type HullClientTraitsContext = {
-  source: string
-};
-
-export type HullFieldDropdownItem = {
-  value: string,
-  label: string
-};
-
-/**
- * This is an event name which we use when tracking an event
- */
-export type HullEventName = string;
-
-/**
- * This is are event's properties which we use when tracking an event
- */
-export type HullEventProperties = {
-  [HullEventProperty: string]: string
-};
-
-/**
- * This is additional context passed with event
- */
-export type HullEventContext = {
-  location?: {},
-  page?: {
-    referrer?: string
-  },
-  referrer?: {
-    url: string
-  },
-  os?: {},
-  useragent?: string,
-  ip?: string | number
-};
-
-export type HullClient = {
-  configuration: HullClientConfiguration,
-  asUser(ident: HullUserClaims): HullClient,
-  asAccount(ident: HullAccountClaims): HullClient,
-  logger: HullClientLogger,
-  traits(
-    attributes: HullUserAttributes | HullAccountAttributes,
-    context: HullClientTraitsContext
-  ): Promise<any>, // Needs to be refined further
-  track(
-    event: string,
-    properties: HullEventProperties,
-    context: HullEventContext
-  ): Promise<any>,
-  get(
-    url: string,
-    params?: Object,
-    options?: HullClientApiOptions
-  ): Promise<any>,
-  post(
-    url: string,
-    params?: Object,
-    options?: HullClientApiOptions
-  ): Promise<any>,
-  put(
-    url: string,
-    params?: Object,
-    options?: HullClientApiOptions
-  ): Promise<any>,
-  del(
-    url: string,
-    params?: Object,
-    options?: HullClientApiOptions
-  ): Promise<any>,
-  account(ident: HullAccountIdent): HullClient,
-  utils: HullClientUtils
-};
 
 /*
  *** Outreach.io Types, specific to this connector
@@ -396,13 +273,13 @@ export type OutreachAccountUpdateEnvelope = {
   error: string
 };
 
+export type OutreachListMeta = {
+  count: number
+};
+
 export type OutreachList<T> = {
   data: Array<T>,
   meta: OutreachListMeta
-};
-
-export type OutreachListMeta = {
-  count: number
 };
 
 export type OutreachWebhookMeta = {

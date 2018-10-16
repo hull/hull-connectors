@@ -328,7 +328,7 @@ const ACCOUNT_FIELDDEFS: Array<OutreachFieldDefinition> = [
     label: "Website Url",
     in: true,
     out: true
-  },
+  }
 ];
 
 module.exports = ACCOUNT_FIELDDEFS;

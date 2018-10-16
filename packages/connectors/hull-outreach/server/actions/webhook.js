@@ -1,7 +1,4 @@
-import type {
-  OutreachWebhookPayload,
-  OutreachWebhookData
-} from "../lib/types";
+import type { OutreachWebhookPayload, OutreachWebhookData } from "../lib/types";
 
 const { Batcher } = require("hull/src/infra");
 const _ = require("lodash");
@@ -9,15 +6,16 @@ const _ = require("lodash");
 const { saveUsers, saveLeads, saveEvents } = require("./events");
 
 function webhook(req, res, next) {
-
-  req.hull.client.logger.debug("outreach webhook", _.pick(req.body, "data.id", "data.type"));
+  req.hull.client.logger.debug(
+    "outreach webhook",
+    _.pick(req.body, "data.id", "data.type")
+  );
 
   const webhookPayload: OutreachWebhookPayload = _.get(req, "body");
   const webhookData: OutreachWebhookData = webhookPayload.data;
 
   if (webhookData.type === "account") {
-
-    //TODO filter noop accounts
+    // TODO filter noop accounts
 
     // map the users to get only mapped fields
     return Batcher.getHandler("webhook", {
@@ -33,8 +31,7 @@ function webhook(req, res, next) {
   }
 
   if (webhookData.type === "prospect") {
-
-    //TODO filter noop prospect
+    // TODO filter noop prospect
 
     const lead = _.get(req, "body.data.item");
     return Batcher.getHandler("webhook_leads", {

@@ -1,8 +1,8 @@
 /* @flow */
-import type { OutreachFieldDefinition } from "../lib/types";
 
 import type { $Response } from "express";
 import type { THullRequest } from "hull";
+import type { OutreachFieldDefinition } from "../lib/types";
 
 const _ = require("lodash");
 
@@ -72,7 +72,10 @@ function fieldsHullAccountIdent(req: THullRequest, res: $Response): $Response {
   });
 }
 
-function fieldsOutreachAccountIdent(req: THullRequest, res: $Response): $Response {
+function fieldsOutreachAccountIdent(
+  req: THullRequest,
+  res: $Response
+): $Response {
   return res.json({
     options: [
       {

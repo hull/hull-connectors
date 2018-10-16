@@ -1,21 +1,19 @@
 /* @flow */
 import type {
-  THullReqContext,
-  THullUserUpdateMessage,
-  THullAccountUpdateMessage,
-  THullConnector,
-  THullAccount,
+  HullContext,
+  HullUserUpdateMessage,
+  HullAccountUpdateMessage,
+  HullConnector,
+  HullAccount,
   HullUser,
-  THullUserIdent
+  HullUserClaims
 } from "hull";
 
 import type {
-  HullMetrics,
-  HullClient,
   OutreachOutboundMapping,
   OutreachConnectorSettings,
   OutreachList,
-  OutreachAccountRead,
+  // OutreachAccountRead,
   OutreachAccountReadData,
   OutreachProspectRead,
   OutreachProspectReadData,
@@ -25,14 +23,15 @@ import type {
 } from "./types";
 
 const _ = require("lodash");
+const { Client } = require("hull");
+const MetricAgent = require("hull/src/infra/instrumentation/metric-agent");
+const { settingsUpdate } = require("hull/src/utils");
 
 const MappingUtil = require("./helper/mapping-util");
 const FilterUtil = require("./helper/filter-util");
 
 const ServiceClient = require("./service-client");
 const SharedMessages = require("./shared-messages");
-
-const { settingsUpdate } = require("hull/src/utils");
 
 class SyncAgent {
   /**
@@ -41,7 +40,7 @@ class SyncAgent {
    * @type {THullMetrics}
    * @memberof SyncAgent
    */
-  metricsClient: HullMetrics;
+  metricsClient: MetricAgent;
 
   /**
    * Gets or set the hull-node client.
@@ -49,7 +48,7 @@ class SyncAgent {
    * @type {THullClient}
    * @memberof SyncAgent
    */
-  hullClient: HullClient;
+  hullClient: Client;
 
   /**
    * Gets or sets the mapping utility.
@@ -90,21 +89,21 @@ class SyncAgent {
    * @type {THullConnector}
    * @memberof SyncAgent
    */
-  connector: THullConnector;
+  connector: HullConnector;
 
   /**
    * Id of the webhook that we created in outreach
    */
   webhookId: number;
 
-  hullRequestContext: THullReqContext;
+  hullRequestContext: HullContext;
 
   /**
    * Creates an instance of SyncAgent.
    * @param {THullReqContext} reqContext The request context.
    * @memberof SyncAgent
    */
-  constructor(reqContext: THullReqContext) {
+  constructor(reqContext: HullContext) {
     this.hullRequestContext = reqContext;
     // Initialize hull clients
     this.metricsClient = reqContext.metric;
@@ -293,7 +292,7 @@ class SyncAgent {
    * @memberof SyncAgent
    */
   async sendAccountMessages(
-    messages: Array<THullAccountUpdateMessage>
+    messages: Array<HullAccountUpdateMessage>
   ): Promise<any> {
     await this.ensureWebhook();
 
@@ -312,7 +311,7 @@ class SyncAgent {
     filterResults.toSkip.forEach(envelope => {
       this.hullClient
         .asAccount(envelope.hullAccount)
-        .logger.info("outgoing.account.skip", envelope.skipReason);
+        .logger.info("outgoing.account.skip", { reason: envelope.skipReason });
     });
 
     const updatedEnvelopes = await this.serviceClient.patchAccountEnvelopes(
@@ -365,7 +364,7 @@ class SyncAgent {
   }
 
   buildAccountUpdateEnvelope(
-    hullAccount: THullAccount
+    hullAccount: HullAccount
   ): OutreachAccountUpdateEnvelope {
     const envelope: OutreachAccountUpdateEnvelope = {};
     envelope.hullAccount = _.cloneDeep(hullAccount);
@@ -383,9 +382,7 @@ class SyncAgent {
    * @returns {Promise<any>} A promise which wraps the async processing operation.
    * @memberof SyncAgent
    */
-  async sendUserMessages(
-    messages: Array<THullUserUpdateMessage>
-  ): Promise<any> {
+  async sendUserMessages(messages: Array<HullUserUpdateMessage>): Promise<any> {
     await this.ensureWebhook();
 
     // Filter out any duplicates
@@ -481,7 +478,7 @@ class SyncAgent {
   }
 
   saveOutreachProspectToHull(
-    hullUserIdentity: THullUserIdent | HullUser,
+    hullUserIdentity: HullUserClaims | HullUser,
     outreachProspect: OutreachProspectReadData
   ): Promise<*> {
     const hullUserAttributes = this.mappingUtil.mapOutreachProspectToHullUserAttributes(
@@ -516,7 +513,7 @@ class SyncAgent {
    * @memberof SyncAgent
    */
   buildUserUpdateEnvelope(
-    message: THullUserUpdateMessage
+    message: HullUserUpdateMessage
   ): OutreachProspectUpdateEnvelope {
     const combinedUser = _.cloneDeep(message.user);
     combinedUser.account = _.cloneDeep(message.account);

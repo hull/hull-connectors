@@ -68,7 +68,9 @@ class FilterUtil {
       }
 
       if (_.isEmpty(envelope.outreachProspectWrite.data.attributes.emails)) {
-        envelope.outreachProspectWrite.data.attributes.emails = [envelope.hullUser.email];
+        envelope.outreachProspectWrite.data.attributes.emails = [
+          envelope.hullUser.email
+        ];
       }
 
       return results.toInsert.push(envelope);
