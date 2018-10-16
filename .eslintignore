@@ -12,3 +12,6 @@ packages/hull-client/*
 
 packages/hull/*
 !packages/hull/src
+
+
+packages/connectors/hull-outreach
