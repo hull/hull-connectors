@@ -4,7 +4,7 @@
 
 HullClient instance constructor - creates new instance to perform API calls, issue traits/track calls and log information
 
-**Parameters**
+### Parameters
 
 -   `config` **[Object][1]** configuration object
     -   `config.id` **[string][2]** Connector ID - required
@@ -20,7 +20,7 @@ HullClient instance constructor - creates new instance to perform API calls, iss
     -   `config.logs` **[Array][4]?** an optional array to capture all logs entries, you can provide your own array or use `captureLogs` to initiate empty one
     -   `config.firehoseEvents` **[Array][4]?** an optional array to capture all firehose events, you can provide your own array or use `captureFirehoseEvents` to initiate empty one
 
-**Examples**
+### Examples
 
 ```javascript
 const HullClient = require("hull-client");
@@ -35,7 +35,7 @@ const hullClient = new HullClient({
 
 Returns the global configuration object.
 
-**Examples**
+#### Examples
 
 ```javascript
 const hullClient = new HullClient({});
@@ -57,7 +57,7 @@ Returns **[Object][1]** current `HullClient` configuration parameters
 Takes User Claims (link to User Identity docs) and returnes `HullClient` instance scoped to this User.
 This makes [#traits][5] and [#track][6] methods available.
 
-**Parameters**
+#### Parameters
 
 -   `userClaim` **[Object][1]** 
 -   `additionalClaims` **[Object][1]**  (optional, default `{}`)
@@ -75,7 +75,7 @@ Returns **[UserScopedHullClient][8]**
 Takes Account Claims (link to User Identity docs) and returnes `HullClient` instance scoped to this Account.
 This makes [#traits][5] method available.
 
-**Parameters**
+#### Parameters
 
 -   `accountClaim` **[Object][1]** 
 -   `additionalClaims` **[Object][1]**  (optional, default `Object.freeze({})`)
@@ -93,7 +93,7 @@ The following methods are available when `HullClient` instance is scoped to an u
 How to get scoped client? Use `asUser` or `asAccount` methods.
 The `EntityScopedHullClient` is never directly returned by the HullClient but is a base class for UserScopedHullClient and AccountScopedHullClient classes.
 
-**Examples**
+### Examples
 
 ```javascript
 const hullClient = new HullClient({ id, secret, organization });
@@ -107,11 +107,11 @@ Used for [Bring your own users][10].
 Creates a signed string for the user passed in hash. `userHash` needs an `email` field.
 [You can then pass this client-side to Hull.js][11] to authenticate users client-side and cross-domain
 
-**Parameters**
+#### Parameters
 
 -   `claims` **[Object][1]** additionalClaims
 
-**Examples**
+#### Examples
 
 ```javascript
 hullClient.asUser({ email: "xxx@example.com", external_id: "1234" }).token(optionalClaims);
@@ -124,7 +124,7 @@ Returns **[string][2]** token
 
 Saves attributes on the user or account. Only available on User or Account scoped `HullClient` instance (see [#asuser][12] and [#asaccount][13]).
 
-**Parameters**
+#### Parameters
 
 -   `traits` **[Object][1]** object with new attributes, it's always flat object, without nested subobjects
 
@@ -137,7 +137,7 @@ Returns **[Promise][14]**
 The following methods are available when `HullClient` instance is scoped to an user only
 How to get scoped client? Use `asUser` method
 
-**Examples**
+### Examples
 
 ```javascript
 const hullClient = new HullClient({ id, secret, organization });
@@ -150,7 +150,7 @@ scopedHullClient.traits({ new_attribute: "new_value" });
 Available only for User scoped `HullClient` instance (see [#asuser][12]).
 Returns `HullClient` instance scoped to both User and Account, but all traits/track call would be performed on the User, who will be also linked to the Account.
 
-**Parameters**
+#### Parameters
 
 -   `accountClaim` **[Object][1]** [description] (optional, default `Object.freeze({})`)
 
@@ -160,7 +160,7 @@ Returns **[HullClient][15]** HullClient scoped to a User and linked to an Accoun
 
 Issues an `alias` event on user?
 
-**Parameters**
+#### Parameters
 
 -   `body` **[Object][1]** 
 
@@ -170,7 +170,7 @@ Returns **[Promise][14]**
 
 Stores events on user. Only available on User scoped `HullClient` instance (see [#asuser][12]).
 
-**Parameters**
+#### Parameters
 
 -   `event` **[string][2]** event name
 -   `properties` **[Object][1]** additional information about event, this is a one-level JSON object (optional, default `{}`)
@@ -190,7 +190,7 @@ Returns **[Promise][14]**
 
 This is a class returned when we scope client to account. It provides `token` and `traits` methods.
 
-**Examples**
+### Examples
 
 ```javascript
 const hullClient = new HullClient({ id, secret, organization });
@@ -207,7 +207,7 @@ Their are available on base `HullClient` and all scoped classes.
 
 Performs a HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
 
-**Parameters**
+#### Parameters
 
 -   `url` **[string][2]** 
 -   `method` **[string][2]** 
@@ -220,7 +220,7 @@ Performs a HTTP request on selected url of Hull REST API (prefixed with `prefix`
 
 Performs a GET HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
 
-**Parameters**
+#### Parameters
 
 -   `url` **[string][2]** 
 -   `params` **[Object][1]**  (optional, default `{}`)
@@ -232,7 +232,7 @@ Performs a GET HTTP request on selected url of Hull REST API (prefixed with `pre
 
 Performs a POST HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor
 
-**Parameters**
+#### Parameters
 
 -   `url` **[string][2]** 
 -   `params` **[Object][1]**  (optional, default `{}`)
@@ -244,7 +244,7 @@ Performs a POST HTTP request on selected url of Hull REST API (prefixed with `pr
 
 Performs a DELETE HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
 
-**Parameters**
+#### Parameters
 
 -   `url` **[string][2]** 
 -   `params` **[Object][1]**  (optional, default `{}`)
@@ -256,7 +256,7 @@ Performs a DELETE HTTP request on selected url of Hull REST API (prefixed with `
 
 Performs a PUT HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
 
-**Parameters**
+#### Parameters
 
 -   `url` **[string][2]** 
 -   `params` **[Object][1]**  (optional, default `{}`)
@@ -280,7 +280,7 @@ Updates `private_settings` merging them with existing ones before.
 
 Note: this method will trigger `hullClient.put` and will result in `ship:update` notify event coming from Hull platform - possible loop condition.
 
-**Parameters**
+#### Parameters
 
 -   `newSettings` **[Object][1]** settings to update
 
@@ -291,11 +291,11 @@ Returns **[Promise][14]**
 The Hull API returns traits in a "flat" format, with '/' delimiters in the key.
 This method can be used to group those traits into subobjects:
 
-**Parameters**
+#### Parameters
 
 -   `user` **[Object][1]** flat object
 
-**Examples**
+#### Examples
 
 ```javascript
 hullClient.utils.traits.group({

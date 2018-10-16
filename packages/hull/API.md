@@ -15,6 +15,9 @@
     -   `options.connectorName` **[string][2]?** force connector name - if not provided will be taken from manifest.json
     -   `options.skipSignatureValidation` **[boolean][4]?** skip signature validation on notifications (for testing only)
     -   `options.timeout` **([number][3] \| [string][2])?** global HTTP server timeout - format is parsed by `ms` npm package
+    -   `options.captureMetrics` **[Array][5]?** an array to capture metrics
+    -   `options.captureLogs` **[Array][5]?** an array to capture logs
+    -   `options.disableOnExit` **[boolean][4]** an optional param to disable exit listeners (optional, default `false`)
     -   `options.notificationValidatorHttpClient`  
 
 ### setupApp
@@ -26,7 +29,7 @@ This method applies all features of `Hull.Connector` to the provided application
 -   rendering `/views/*.html` files with `ejs` renderer
 -   timeouting all requests after 25 seconds
 -   adding Newrelic and Sentry instrumentation
--   initiating the wole [Context Object][5]
+-   initiating the wole [Context Object][6]
 -   handling the `hullToken` parameter in a default way
 
 #### Parameters
@@ -60,7 +63,7 @@ If you want to customize cache behavior (for example ttl, storage etc.) please @
 
 #### wrap
 
--   **See: [https://github.com/BryanDonovan/node-cache-manager#overview][6]**
+-   **See: [https://github.com/BryanDonovan/node-cache-manager#overview][7]**
 
 Hull client calls which fetch ship settings could be wrapped with this
 method to cache the results
@@ -68,10 +71,10 @@ method to cache the results
 ##### Parameters
 
 -   `key` **[string][2]** 
--   `cb` **[Function][7]** callback which Promised result would be cached
+-   `cb` **[Function][8]** callback which Promised result would be cached
 -   `options` **[Object][1]?** 
 
-Returns **[Promise][8]** 
+Returns **[Promise][9]** 
 
 #### set
 
@@ -83,7 +86,7 @@ Saves ship data to the cache
 -   `value` **mixed** 
 -   `options` **[Object][1]?** 
 
-Returns **[Promise][8]** 
+Returns **[Promise][9]** 
 
 #### get
 
@@ -93,7 +96,7 @@ Returns cached information
 
 -   `key` **[string][2]** 
 
-Returns **[Promise][8]** 
+Returns **[Promise][9]** 
 
 #### del
 
@@ -128,7 +131,7 @@ Sets metric value for gauge metric
 
 -   `metric` **[string][2]** metric name
 -   `value` **[number][3]** metric value (optional, default `1`)
--   `additionalTags` **[Array][9]** additional tags in form of `["tag_name:tag_value"]` (optional, default `[]`)
+-   `additionalTags` **[Array][5]** additional tags in form of `["tag_name:tag_value"]` (optional, default `[]`)
 
 Returns **mixed** 
 
@@ -140,7 +143,7 @@ Increments value of selected metric
 
 -   `metric` **[string][2]** metric metric name
 -   `value` **[number][3]** value which we should increment metric by (optional, default `1`)
--   `additionalTags` **[Array][9]** additional tags in form of `["tag_name:tag_value"]` (optional, default `[]`)
+-   `additionalTags` **[Array][5]** additional tags in form of `["tag_name:tag_value"]` (optional, default `[]`)
 
 Returns **mixed** 
 
@@ -180,12 +183,873 @@ app.get((req, res) => {
 });
 ```
 
-Returns **[Promise][8]** which is resolved when job is successfully enqueued
+Returns **[Promise][9]** which is resolved when job is successfully enqueued
 
 **Meta**
 
 -   **deprecated**: internal connector queue is considered an antipattern, this function is kept only for backward compatiblity
 
+
+## Infra
+
+Production ready connectors need some infrastructure modules to support their operation, allow instrumentation, queueing and caching. The [Hull.Connector][11] comes with default settings, but also allows to initiate them and set a custom configuration:
+
+### Examples
+
+```javascript
+const instrumentation = new Instrumentation();
+const cache = new Cache();
+const queue = new Queue();
+
+const connector = new Hull.Connector({ instrumentation, cache, queue });
+```
+
+### CacheAgent
+
+This is a wrapper over [https://github.com/BryanDonovan/node-cache-manager][12]
+to manage ship cache storage.
+It is responsible for handling cache key for every ship.
+
+By default it comes with the basic in-memory store, but in case of distributed connectors being run in multiple processes for reliable operation a shared cache solution should be used. The `Cache` module internally uses [node-cache-manager][12], so any of it's compatibile store like `redis` or `memcache` could be used:
+
+The `cache` instance also exposes `contextMiddleware` whch adds `req.hull.cache` to store the ship and segments information in the cache to not fetch it for every request. The `req.hull.cache` is automatically picked and used by the `Hull.Middleware` and `segmentsMiddleware`.
+
+> The `req.hull.cache` can be used by the connector developer for any other caching purposes:
+
+```javascript
+ctx.cache.get('object_name');
+ctx.cache.set('object_name', object_value);
+ctx.cache.wrap('object_name', () => {
+  return Promise.resolve(object_value);
+});
+```
+
+> There are two <code>object names</code> which are reserved and cannot be used here:
+>
+> -   any ship id
+> -   "segments"
+>
+> **IMPORTANT** internal caching of `ctx.ship` object is refreshed on `ship:update` notifications, if the connector doesn't subscribe for notification at all the cache won't be refreshed automatically. In such case disable caching, set short TTL or add `notifHandler`
+
+#### Parameters
+
+-   `options` **[Object][1]** passed to node-cache-manager (optional, default `{}`)
+
+#### Examples
+
+```javascript
+const redisStore = require("cache-manager-redis");
+const { Cache } = require("hull/lib/infra");
+
+const cache = new Cache({
+  store: redisStore,
+  url: 'redis://:XXXX@localhost:6379/0?ttl=600'
+});
+
+const connector = new Hull.Connector({ cache });
+```
+
+### InstrumentationAgent
+
+It automatically sends data to DataDog, Sentry and Newrelic if appropriate ENV VARS are set:
+
+-   NEW_RELIC_LICENSE_KEY
+-   DATADOG_API_KEY
+-   SENTRY_URL
+
+It also exposes the `contextMiddleware` which adds `req.hull.metric` agent to add custom metrics to the ship. Right now it doesn't take any custom options, but it's showed here for the sake of completeness.
+
+#### Parameters
+
+-   `options`   (optional, default `{}`)
+
+#### Examples
+
+```javascript
+const { Instrumentation } = require("hull/lib/infra");
+
+const instrumentation = new Instrumentation();
+
+const connector = new Connector.App({ instrumentation });
+```
+
+### QueueAgent
+
+By default it's initiated inside `Hull.Connector` as a very simplistic in-memory queue, but in case of production grade needs, it comes with a [Kue][13] or [Bull][14] adapters which you can initiate in a following way:
+
+`Options` from the constructor of the `BullAdapter` or `KueAdapter` are passed directly to the internal init method and can be set with following parameters:
+
+[https://github.com/Automattic/kue#redis-connection-settings][15] [https://github.com/OptimalBits/bull/blob/master/REFERENCE.md#queue][16]
+
+The `queue` instance has a `contextMiddleware` method which adds `req.hull.enqueue` method to queue jobs - this is done automatically by `Hull.Connector().setupApp(app)`:
+
+```javascript
+req.hull.enqueue((jobName = ''), (jobPayload = {}), (options = {}));
+```
+
+By default the job will be retried 3 times and the payload would be removed from queue after successfull completion.
+
+Then the handlers to work on a specific jobs is defined in following way:
+
+```javascript
+connector.worker({
+  jobsName: (ctx, jobPayload) => {
+    // process Payload
+    // this === job (kue job object)
+    // return Promise
+  }
+});
+connector.startWorker();
+```
+
+#### Parameters
+
+-   `adapter` **[Object][1]** 
+
+#### Examples
+
+````javascript
+```javascript
+const { Queue } = require("hull/lib/infra");
+const BullAdapter = require("hull/lib/infra/queue/adapter/bull"); // or KueAdapter
+
+const queueAdapter = new BullAdapter(options);
+const queue = new Queue(queueAdapter);
+
+const connector = new Hull.Connector({ queue });
+```
+````
+
+**Meta**
+
+-   **deprecated**: internal connector queue is considered an antipattern, this class is kept only for backward compatiblity
+
+
+## Utils
+
+General utilities
+
+### oAuthHandler
+
+OAuthHandler is a packaged authentication handler using [Passport][17]. You give it the right parameters, it handles the entire auth scenario for you.
+
+It exposes hooks to check if the ship is Set up correctly, inject additional parameters during login, and save the returned settings during callback.
+
+To make it working in Hull dashboard set following line in **manifest.json** file:
+
+```json
+{
+  "admin": "/auth/"
+}
+```
+
+For example of the notifications payload [see details][18]
+
+#### Parameters
+
+-   `options` **[Object][1]** 
+    -   `options.name` **[string][2]** The name displayed to the User in the various screens.
+    -   `options.tokenInUrl` **[boolean][4]** Some services (like Stripe) require an exact URL match. Some others (like Hubspot) don't pass the state back on the other hand. Setting this flag to false (default: true) removes the `token` Querystring parameter in the URL to only rely on the `state` param.
+    -   `options.isSetup` **[Function][8]** A method returning a Promise, resolved if the ship is correctly setup, or rejected if it needs to display the Login screen.
+        Lets you define in the Ship the name of the parameters you need to check for. You can return parameters in the Promise resolve and reject methods, that will be passed to the view. This lets you display status and show buttons and more to the customer
+    -   `options.onAuthorize` **[Function][8]** A method returning a Promise, resolved when complete. Best used to save tokens and continue the sequence once saved.
+    -   `options.onLogin` **[Function][8]** A method returning a Promise, resolved when ready. Best used to process form parameters, and place them in `req.authParams` to be submitted to the Login sequence. Useful to add strategy-specific parameters, such as a portal ID for Hubspot for instance.
+    -   `options.Strategy` **[Function][8]** A Passport Strategy.
+    -   `options.views` **[Object][1]** Required, A hash of view files for the different screens: login, home, failure, success
+    -   `options.options` **[Object][1]** Hash passed to Passport to configure the OAuth Strategy. (See [Passport OAuth Configuration][19])
+
+#### Examples
+
+```javascript
+const { oAuthHandler } = require("hull/lib/utils");
+const { Strategy as HubspotStrategy } = require("passport-hubspot");
+
+const app = express();
+
+app.use(
+  '/auth',
+  oAuthHandler({
+    name: 'Hubspot',
+    tokenInUrl: true,
+    Strategy: HubspotStrategy,
+    options: {
+      clientID: 'xxxxxxxxx',
+      clientSecret: 'xxxxxxxxx', //Client Secret
+      scope: ['offline', 'contacts-rw', 'events-rw'] //App Scope
+    },
+    isSetup(req) {
+      if (!!req.query.reset) return Promise.reject();
+      const { token } = req.hull.ship.private_settings || {};
+      return !!token
+      ? Promise.resolve({ valid: true, total: 2 })
+      : Promise.reject({ valid: false, total: 0 });
+    },
+    onLogin: req => {
+      req.authParams = { ...req.body, ...req.query };
+      return req.hull.client.updateSettings({
+        portalId: req.authParams.portalId
+      });
+    },
+    onAuthorize: req => {
+      const { refreshToken, accessToken } = req.account || {};
+      return req.hull.client.updateSettings({
+        refresh_token: refreshToken,
+        token: accessToken
+      });
+    },
+    views: {
+      login: 'login.html',
+      home: 'home.html',
+      failure: 'failure.html',
+      success: 'success.html'
+    }
+  })
+);
+
+//each view will receive the following data:
+{
+  name: "The name passed as handler",
+  urls: {
+    login: '/auth/login',
+    success: '/auth/success',
+    failure: '/auth/failure',
+    home: '/auth/home',
+  },
+  ship: ship //The entire Ship instance's config
+}
+```
+
+Returns **[Function][8]** OAuth handler to use with expressjs
+
+### traits.group
+
+The Hull API returns traits in a "flat" format, with '/' delimiters in the key.
+This method can be used to group those traits into subobjects:
+
+#### Parameters
+
+-   `user` **[Object][1]** flat object
+
+#### Examples
+
+```javascript
+hullClient.utils.traits.group({
+  email: "romain@user",
+  name: "name",
+  "traits_coconut_name": "coconut",
+  "traits_coconut_size": "large",
+  "traits_cb/twitter_bio": "parisian",
+  "traits_cb/twitter_name": "parisian",
+  "traits_group/name": "groupname",
+  "traits_zendesk/open_tickets": 18
+});
+
+// returns
+{
+  "email": "romain@user",
+  "name": "name",
+  "traits": {
+    "coconut_name": "coconut",
+    "coconut_size": "large"
+  },
+  "cb": {
+    "twitter_bio": "parisian",
+    "twitter_name": "parisian"
+  },
+  "group": {
+    "name": "groupname"
+  },
+  "zendesk": {
+    "open_tickets": 18
+  }
+};
+```
+
+Returns **[Object][1]** nested object
+
+### settings.update
+
+Updates `private_settings` merging them with existing ones before.
+
+Note: this method will trigger `hullClient.put` and will result in `ship:update` notify event coming from Hull platform - possible loop condition.
+
+#### Parameters
+
+-   `newSettings` **[Object][1]** settings to update
+
+Returns **[Promise][9]** 
+
+### properties.get
+
+Fetches and returns all existing properties in the organization along with their metadata
+
+Returns **[Promise][9]&lt;[Object][1]>** 
+
+### requestExtract
+
+This is a method to request an extract of user base to be sent back to the Connector to a selected `path` which should be handled by `notifHandler`.
+
+#### Parameters
+
+-   `options` **[Object][1]** ={}
+    -   `options.client` **[Object][1]** 
+    -   `options.hostname` **[string][2]** 
+    -   `options.segment` **[Object][1]**  (optional, default `null`)
+    -   `options.format` **[Object][1]**  (optional, default `json`)
+    -   `options.path` **[Object][1]**  (optional, default `/batch`)
+    -   `options.fields` **[Object][1]**  (optional, default `[]`)
+    -   `options.additionalQuery` **[Object][1]**  (optional, default `{}`)
+
+#### Examples
+
+```javascript
+req.hull.helpers.requestExtract({ segment = null, path, fields = [], additionalQuery = {} });
+```
+
+Returns **[Promise][9]** 
+
+### handleExtract
+
+Helper function to handle JSON extract sent to batch endpoint
+
+#### Parameters
+
+-   `ctx` **[Object][1]** Hull request context
+-   `options` **[Object][1]** 
+    -   `options.body` **[Object][1]** request body object (req.body)
+    -   `options.batchSize` **[Object][1]** size of the chunk we want to pass to handler
+    -   `options.callback` **[Function][8]** callback returning a Promise (will be called with array of elements)
+    -   `options.onResponse` **[Function][8]** callback called on successful inital response
+    -   `options.onError` **[Function][8]** callback called during error
+
+Returns **[Promise][9]** 
+
+### updateSettings
+
+Allows to update selected settings of the ship `private_settings` object. This is a wrapper over `hullClient.utils.settings.update()` call. On top of that it makes sure that the current context ship object is updated, and the ship cache is refreshed.
+It will emit `ship:update` notify event.
+
+#### Parameters
+
+-   `ctx` **[Object][1]** The Context Object
+-   `newSettings` **[Object][1]** settings to update
+
+#### Examples
+
+```javascript
+req.hull.helpers.updateSettings({ newSettings });
+```
+
+Returns **[Promise][9]** 
+
+### superagentErrorPlugin
+
+This is a general error handling SuperAgent plugin.
+
+It changes default superagent retry strategy to rerun the query only on transient
+connectivity issues (`ECONNRESET`, `ETIMEDOUT`, `EADDRINFO`, `ESOCKETTIMEDOUT`, `ECONNABORTED`).
+So any of those errors will be retried according to retries option (defaults to 2).
+
+If the retry fails again due to any of those errors the SuperAgent Promise will
+be rejected with special error class TransientError to distinguish between logical errors
+and flaky connection issues.
+
+In case of any other request the plugin applies simple error handling strategy:
+every non 2xx or 3xx response is treated as an error and the promise will be rejected.
+Every connector ServiceClient should apply it's own error handling strategy by overriding `ok` handler.
+
+#### Parameters
+
+-   `options` **[Object][1]**  (optional, default `{}`)
+    -   `options.retries` **[Number][3]?** Number of retries
+    -   `options.timeout` **[Number][3]?** Timeout for request
+
+#### Examples
+
+```javascript
+superagent.get("http://test/test")
+  .use(superagentErrorPlugin())
+  .ok((res) => {
+    if (res.status === 401) {
+      throw new ConfigurationError();
+    }
+    if (res.status === 429) {
+      throw new RateLimitError();
+    }
+    return true;
+  })
+  .catch((error) => {
+    // error.constructor.name can be ConfigurationError, RateLimitError coming from `ok` handler above
+    // or TransientError coming from logic applied by `superagentErrorPlugin`
+  })
+```
+
+Returns **[Function][8]** function to use as superagent plugin
+
+### superagentInstrumentationPlugin
+
+This plugin takes `client.logger` and `metric` params from the `Context Object` and logs following log line:
+
+-   `ship.service_api.request` with params:
+    -   `url` - the original url passed to agent (use with `superagentUrlTemplatePlugin`)
+    -   `responseTime` - full response time in ms
+    -   `method` - HTTP verb
+    -   `status` - response status code
+    -   `vars` - when using `superagentUrlTemplatePlugin` it will contain all provided variables
+
+The plugin also issue a metric with the same name `ship.service_api.request`.
+
+#### Parameters
+
+-   `options` **[Object][1]** 
+    -   `options.logger` **[Object][1]** Logger from HullClient
+    -   `options.metric` **[Object][1]** Metric from Hull.Connector
+
+#### Examples
+
+````javascript
+const superagent = require('superagent');
+const { superagentInstrumentationPlugin } = require('hull/lib/utils');
+
+// const ctx is a Context Object here
+
+const agent = superagent
+.agent()
+.use(
+  urlTemplatePlugin({
+    defaultVariable: 'mainVariable'
+  })
+)
+.use(
+  superagentInstrumentationPlugin({
+    logger: ctx.client.logger,
+    metric: ctx.metric
+  })
+);
+
+agent
+.get('https://api.url/{{defaultVariable}}/resource/{{resourceId}}')
+.tmplVar({
+  resourceId: 123
+})
+.then(res => {
+  assert(res.request.url === 'https://api.url/mainVariable/resource/123');
+});
+
+> Above code will produce following log line:
+```sh
+connector.service_api.call {
+  responseTime: 880.502444,
+  method: 'GET',
+  url: 'https://api.url/{{defaultVariable}}/resource/{{resourceId}}',
+  status: 200
+}
+```
+
+> and following metrics:
+
+```javascript
+- `ship.service_api.call` - should be migrated to `connector.service_api.call`
+- `connector.service_api.responseTime`
+```
+````
+
+Returns **[Function][8]** function to use as superagent plugin
+
+### superagentUrlTemplatePlugin
+
+This plugin allows to pass generic url with variables - this allows better instrumentation and logging on the same REST API endpoint when resource ids varies.
+
+#### Parameters
+
+-   `defaults` **[Object][1]** default template variable
+
+#### Examples
+
+```javascript
+const superagent = require('superagent');
+const { superagentUrlTemplatePlugin } = require('hull/lib/utils');
+
+const agent = superagent.agent().use(
+  urlTemplatePlugin({
+    defaultVariable: 'mainVariable'
+  })
+);
+
+agent
+.get('https://api.url/{{defaultVariable}}/resource/{{resourceId}}')
+.tmplVar({
+  resourceId: 123
+})
+.then(res => {
+  assert(res.request.url === 'https://api.url/mainVariable/resource/123');
+});
+```
+
+Returns **[Function][8]** function to use as superagent plugin
+
+## Utils
+
+The following methods are helper utilities. They are available under `utils` property
+
+### oAuthHandler
+
+OAuthHandler is a packaged authentication handler using [Passport][17]. You give it the right parameters, it handles the entire auth scenario for you.
+
+It exposes hooks to check if the ship is Set up correctly, inject additional parameters during login, and save the returned settings during callback.
+
+To make it working in Hull dashboard set following line in **manifest.json** file:
+
+```json
+{
+  "admin": "/auth/"
+}
+```
+
+For example of the notifications payload [see details][18]
+
+#### Parameters
+
+-   `options` **[Object][1]** 
+    -   `options.name` **[string][2]** The name displayed to the User in the various screens.
+    -   `options.tokenInUrl` **[boolean][4]** Some services (like Stripe) require an exact URL match. Some others (like Hubspot) don't pass the state back on the other hand. Setting this flag to false (default: true) removes the `token` Querystring parameter in the URL to only rely on the `state` param.
+    -   `options.isSetup` **[Function][8]** A method returning a Promise, resolved if the ship is correctly setup, or rejected if it needs to display the Login screen.
+        Lets you define in the Ship the name of the parameters you need to check for. You can return parameters in the Promise resolve and reject methods, that will be passed to the view. This lets you display status and show buttons and more to the customer
+    -   `options.onAuthorize` **[Function][8]** A method returning a Promise, resolved when complete. Best used to save tokens and continue the sequence once saved.
+    -   `options.onLogin` **[Function][8]** A method returning a Promise, resolved when ready. Best used to process form parameters, and place them in `req.authParams` to be submitted to the Login sequence. Useful to add strategy-specific parameters, such as a portal ID for Hubspot for instance.
+    -   `options.Strategy` **[Function][8]** A Passport Strategy.
+    -   `options.views` **[Object][1]** Required, A hash of view files for the different screens: login, home, failure, success
+    -   `options.options` **[Object][1]** Hash passed to Passport to configure the OAuth Strategy. (See [Passport OAuth Configuration][19])
+
+#### Examples
+
+```javascript
+const { oAuthHandler } = require("hull/lib/utils");
+const { Strategy as HubspotStrategy } = require("passport-hubspot");
+
+const app = express();
+
+app.use(
+  '/auth',
+  oAuthHandler({
+    name: 'Hubspot',
+    tokenInUrl: true,
+    Strategy: HubspotStrategy,
+    options: {
+      clientID: 'xxxxxxxxx',
+      clientSecret: 'xxxxxxxxx', //Client Secret
+      scope: ['offline', 'contacts-rw', 'events-rw'] //App Scope
+    },
+    isSetup(req) {
+      if (!!req.query.reset) return Promise.reject();
+      const { token } = req.hull.ship.private_settings || {};
+      return !!token
+      ? Promise.resolve({ valid: true, total: 2 })
+      : Promise.reject({ valid: false, total: 0 });
+    },
+    onLogin: req => {
+      req.authParams = { ...req.body, ...req.query };
+      return req.hull.client.updateSettings({
+        portalId: req.authParams.portalId
+      });
+    },
+    onAuthorize: req => {
+      const { refreshToken, accessToken } = req.account || {};
+      return req.hull.client.updateSettings({
+        refresh_token: refreshToken,
+        token: accessToken
+      });
+    },
+    views: {
+      login: 'login.html',
+      home: 'home.html',
+      failure: 'failure.html',
+      success: 'success.html'
+    }
+  })
+);
+
+//each view will receive the following data:
+{
+  name: "The name passed as handler",
+  urls: {
+    login: '/auth/login',
+    success: '/auth/success',
+    failure: '/auth/failure',
+    home: '/auth/home',
+  },
+  ship: ship //The entire Ship instance's config
+}
+```
+
+Returns **[Function][8]** OAuth handler to use with expressjs
+
+### traits.group
+
+The Hull API returns traits in a "flat" format, with '/' delimiters in the key.
+This method can be used to group those traits into subobjects:
+
+#### Parameters
+
+-   `user` **[Object][1]** flat object
+
+#### Examples
+
+```javascript
+hullClient.utils.traits.group({
+  email: "romain@user",
+  name: "name",
+  "traits_coconut_name": "coconut",
+  "traits_coconut_size": "large",
+  "traits_cb/twitter_bio": "parisian",
+  "traits_cb/twitter_name": "parisian",
+  "traits_group/name": "groupname",
+  "traits_zendesk/open_tickets": 18
+});
+
+// returns
+{
+  "email": "romain@user",
+  "name": "name",
+  "traits": {
+    "coconut_name": "coconut",
+    "coconut_size": "large"
+  },
+  "cb": {
+    "twitter_bio": "parisian",
+    "twitter_name": "parisian"
+  },
+  "group": {
+    "name": "groupname"
+  },
+  "zendesk": {
+    "open_tickets": 18
+  }
+};
+```
+
+Returns **[Object][1]** nested object
+
+### settings.update
+
+Updates `private_settings` merging them with existing ones before.
+
+Note: this method will trigger `hullClient.put` and will result in `ship:update` notify event coming from Hull platform - possible loop condition.
+
+#### Parameters
+
+-   `newSettings` **[Object][1]** settings to update
+
+Returns **[Promise][9]** 
+
+### properties.get
+
+Fetches and returns all existing properties in the organization along with their metadata
+
+Returns **[Promise][9]&lt;[Object][1]>** 
+
+### requestExtract
+
+This is a method to request an extract of user base to be sent back to the Connector to a selected `path` which should be handled by `notifHandler`.
+
+#### Parameters
+
+-   `options` **[Object][1]** ={}
+    -   `options.client` **[Object][1]** 
+    -   `options.hostname` **[string][2]** 
+    -   `options.segment` **[Object][1]**  (optional, default `null`)
+    -   `options.format` **[Object][1]**  (optional, default `json`)
+    -   `options.path` **[Object][1]**  (optional, default `/batch`)
+    -   `options.fields` **[Object][1]**  (optional, default `[]`)
+    -   `options.additionalQuery` **[Object][1]**  (optional, default `{}`)
+
+#### Examples
+
+```javascript
+req.hull.helpers.requestExtract({ segment = null, path, fields = [], additionalQuery = {} });
+```
+
+Returns **[Promise][9]** 
+
+### handleExtract
+
+Helper function to handle JSON extract sent to batch endpoint
+
+#### Parameters
+
+-   `ctx` **[Object][1]** Hull request context
+-   `options` **[Object][1]** 
+    -   `options.body` **[Object][1]** request body object (req.body)
+    -   `options.batchSize` **[Object][1]** size of the chunk we want to pass to handler
+    -   `options.callback` **[Function][8]** callback returning a Promise (will be called with array of elements)
+    -   `options.onResponse` **[Function][8]** callback called on successful inital response
+    -   `options.onError` **[Function][8]** callback called during error
+
+Returns **[Promise][9]** 
+
+### updateSettings
+
+Allows to update selected settings of the ship `private_settings` object. This is a wrapper over `hullClient.utils.settings.update()` call. On top of that it makes sure that the current context ship object is updated, and the ship cache is refreshed.
+It will emit `ship:update` notify event.
+
+#### Parameters
+
+-   `ctx` **[Object][1]** The Context Object
+-   `newSettings` **[Object][1]** settings to update
+
+#### Examples
+
+```javascript
+req.hull.helpers.updateSettings({ newSettings });
+```
+
+Returns **[Promise][9]** 
+
+### superagentErrorPlugin
+
+This is a general error handling SuperAgent plugin.
+
+It changes default superagent retry strategy to rerun the query only on transient
+connectivity issues (`ECONNRESET`, `ETIMEDOUT`, `EADDRINFO`, `ESOCKETTIMEDOUT`, `ECONNABORTED`).
+So any of those errors will be retried according to retries option (defaults to 2).
+
+If the retry fails again due to any of those errors the SuperAgent Promise will
+be rejected with special error class TransientError to distinguish between logical errors
+and flaky connection issues.
+
+In case of any other request the plugin applies simple error handling strategy:
+every non 2xx or 3xx response is treated as an error and the promise will be rejected.
+Every connector ServiceClient should apply it's own error handling strategy by overriding `ok` handler.
+
+#### Parameters
+
+-   `options` **[Object][1]**  (optional, default `{}`)
+    -   `options.retries` **[Number][3]?** Number of retries
+    -   `options.timeout` **[Number][3]?** Timeout for request
+
+#### Examples
+
+```javascript
+superagent.get("http://test/test")
+  .use(superagentErrorPlugin())
+  .ok((res) => {
+    if (res.status === 401) {
+      throw new ConfigurationError();
+    }
+    if (res.status === 429) {
+      throw new RateLimitError();
+    }
+    return true;
+  })
+  .catch((error) => {
+    // error.constructor.name can be ConfigurationError, RateLimitError coming from `ok` handler above
+    // or TransientError coming from logic applied by `superagentErrorPlugin`
+  })
+```
+
+Returns **[Function][8]** function to use as superagent plugin
+
+### superagentInstrumentationPlugin
+
+This plugin takes `client.logger` and `metric` params from the `Context Object` and logs following log line:
+
+-   `ship.service_api.request` with params:
+    -   `url` - the original url passed to agent (use with `superagentUrlTemplatePlugin`)
+    -   `responseTime` - full response time in ms
+    -   `method` - HTTP verb
+    -   `status` - response status code
+    -   `vars` - when using `superagentUrlTemplatePlugin` it will contain all provided variables
+
+The plugin also issue a metric with the same name `ship.service_api.request`.
+
+#### Parameters
+
+-   `options` **[Object][1]** 
+    -   `options.logger` **[Object][1]** Logger from HullClient
+    -   `options.metric` **[Object][1]** Metric from Hull.Connector
+
+#### Examples
+
+````javascript
+const superagent = require('superagent');
+const { superagentInstrumentationPlugin } = require('hull/lib/utils');
+
+// const ctx is a Context Object here
+
+const agent = superagent
+.agent()
+.use(
+  urlTemplatePlugin({
+    defaultVariable: 'mainVariable'
+  })
+)
+.use(
+  superagentInstrumentationPlugin({
+    logger: ctx.client.logger,
+    metric: ctx.metric
+  })
+);
+
+agent
+.get('https://api.url/{{defaultVariable}}/resource/{{resourceId}}')
+.tmplVar({
+  resourceId: 123
+})
+.then(res => {
+  assert(res.request.url === 'https://api.url/mainVariable/resource/123');
+});
+
+> Above code will produce following log line:
+```sh
+connector.service_api.call {
+  responseTime: 880.502444,
+  method: 'GET',
+  url: 'https://api.url/{{defaultVariable}}/resource/{{resourceId}}',
+  status: 200
+}
+```
+
+> and following metrics:
+
+```javascript
+- `ship.service_api.call` - should be migrated to `connector.service_api.call`
+- `connector.service_api.responseTime`
+```
+````
+
+Returns **[Function][8]** function to use as superagent plugin
+
+### superagentUrlTemplatePlugin
+
+This plugin allows to pass generic url with variables - this allows better instrumentation and logging on the same REST API endpoint when resource ids varies.
+
+#### Parameters
+
+-   `defaults` **[Object][1]** default template variable
+
+#### Examples
+
+```javascript
+const superagent = require('superagent');
+const { superagentUrlTemplatePlugin } = require('hull/lib/utils');
+
+const agent = superagent.agent().use(
+  urlTemplatePlugin({
+    defaultVariable: 'mainVariable'
+  })
+);
+
+agent
+.get('https://api.url/{{defaultVariable}}/resource/{{resourceId}}')
+.tmplVar({
+  resourceId: 123
+})
+.then(res => {
+  assert(res.request.url === 'https://api.url/mainVariable/resource/123');
+});
+```
+
+Returns **[Function][8]** function to use as superagent plugin
 
 ## Errors
 
@@ -264,439 +1128,269 @@ When using `superagentErrorPlugin` it's returned by some errors out-of-the-box.
 -   `message` **[string][2]** 
 -   `extra` **[Object][1]** 
 
-## Utils
+## Api
 
-General utilities
+Following methods allows to perform api calls against Hull REST API.
+Their are available on base `HullClient` and all scoped classes.
 
-### oAuthHandler
+### api
 
-OAuthHandler is a packaged authentication handler using [Passport][11]. You give it the right parameters, it handles the entire auth scenario for you.
-
-It exposes hooks to check if the ship is Set up correctly, inject additional parameters during login, and save the returned settings during callback.
-
-To make it working in Hull dashboard set following line in **manifest.json** file:
-
-```json
-{
-  "admin": "/auth/"
-}
-```
-
-For example of the notifications payload [see details][12]
+Performs a HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
 
 #### Parameters
 
--   `options` **[Object][1]** 
-    -   `options.name` **[string][2]** The name displayed to the User in the various screens.
-    -   `options.tokenInUrl` **[boolean][4]** Some services (like Stripe) require an exact URL match. Some others (like Hubspot) don't pass the state back on the other hand. Setting this flag to false (default: true) removes the `token` Querystring parameter in the URL to only rely on the `state` param.
-    -   `options.isSetup` **[Function][7]** A method returning a Promise, resolved if the ship is correctly setup, or rejected if it needs to display the Login screen.
-        Lets you define in the Ship the name of the parameters you need to check for. You can return parameters in the Promise resolve and reject methods, that will be passed to the view. This lets you display status and show buttons and more to the customer
-    -   `options.onAuthorize` **[Function][7]** A method returning a Promise, resolved when complete. Best used to save tokens and continue the sequence once saved.
-    -   `options.onLogin` **[Function][7]** A method returning a Promise, resolved when ready. Best used to process form parameters, and place them in `req.authParams` to be submitted to the Login sequence. Useful to add strategy-specific parameters, such as a portal ID for Hubspot for instance.
-    -   `options.Strategy` **[Function][7]** A Passport Strategy.
-    -   `options.views` **[Object][1]** Required, A hash of view files for the different screens: login, home, failure, success
-    -   `options.options` **[Object][1]** Hash passed to Passport to configure the OAuth Strategy. (See [Passport OAuth Configuration][13])
-
-#### Examples
-
-```javascript
-const { oAuthHandler } = require("hull/lib/utils");
-const { Strategy as HubspotStrategy } = require("passport-hubspot");
-
-const app = express();
-
-app.use(
-  '/auth',
-  oAuthHandler({
-    name: 'Hubspot',
-    tokenInUrl: true,
-    Strategy: HubspotStrategy,
-    options: {
-      clientID: 'xxxxxxxxx',
-      clientSecret: 'xxxxxxxxx', //Client Secret
-      scope: ['offline', 'contacts-rw', 'events-rw'] //App Scope
-    },
-    isSetup(req) {
-      if (!!req.query.reset) return Promise.reject();
-      const { token } = req.hull.ship.private_settings || {};
-      return !!token
-      ? Promise.resolve({ valid: true, total: 2 })
-      : Promise.reject({ valid: false, total: 0 });
-    },
-    onLogin: req => {
-      req.authParams = { ...req.body, ...req.query };
-      return req.hull.client.updateSettings({
-        portalId: req.authParams.portalId
-      });
-    },
-    onAuthorize: req => {
-      const { refreshToken, accessToken } = req.account || {};
-      return req.hull.client.updateSettings({
-        refresh_token: refreshToken,
-        token: accessToken
-      });
-    },
-    views: {
-      login: 'login.html',
-      home: 'home.html',
-      failure: 'failure.html',
-      success: 'success.html'
-    }
-  })
-);
-
-//each view will receive the following data:
-{
-  name: "The name passed as handler",
-  urls: {
-    login: '/auth/login',
-    success: '/auth/success',
-    failure: '/auth/failure',
-    home: '/auth/home',
-  },
-  ship: ship //The entire Ship instance's config
-}
-```
-
-Returns **[Function][7]** OAuth handler to use with expressjs
-
-### requestExtract
-
-This is a method to request an extract of user base to be sent back to the Connector to a selected `path` which should be handled by `notifHandler`.
-
-#### Parameters
-
--   `options` **[Object][1]** ={}
-    -   `options.client` **[Object][1]** 
-    -   `options.hostname` **[string][2]** 
-    -   `options.segment` **[Object][1]**  (optional, default `null`)
-    -   `options.format` **[Object][1]**  (optional, default `json`)
-    -   `options.path` **[Object][1]**  (optional, default `/batch`)
-    -   `options.fields` **[Object][1]**  (optional, default `[]`)
-    -   `options.additionalQuery` **[Object][1]**  (optional, default `{}`)
-
-#### Examples
-
-```javascript
-req.hull.helpers.requestExtract({ segment = null, path, fields = [], additionalQuery = {} });
-```
-
-Returns **[Promise][8]** 
-
-### handleExtract
-
-Helper function to handle JSON extract sent to batch endpoint
-
-#### Parameters
-
--   `ctx` **[Object][1]** Hull request context
--   `options` **[Object][1]** 
-    -   `options.body` **[Object][1]** request body object (req.body)
-    -   `options.batchSize` **[Object][1]** size of the chunk we want to pass to handler
-    -   `options.callback` **[Function][7]** callback returning a Promise (will be called with array of elements)
-    -   `options.onResponse` **[Function][7]** callback called on successful inital response
-    -   `options.onError` **[Function][7]** callback called during error
-
-Returns **[Promise][8]** 
-
-### updateSettings
-
-Allows to update selected settings of the ship `private_settings` object. This is a wrapper over `hullClient.utils.settings.update()` call. On top of that it makes sure that the current context ship object is updated, and the ship cache is refreshed.
-It will emit `ship:update` notify event.
-
-#### Parameters
-
--   `ctx` **[Object][1]** The Context Object
--   `newSettings` **[Object][1]** settings to update
-
-#### Examples
-
-```javascript
-req.hull.helpers.updateSettings({ newSettings });
-```
-
-Returns **[Promise][8]** 
-
-### superagentErrorPlugin
-
-This is a general error handling SuperAgent plugin.
-
-It changes default superagent retry strategy to rerun the query only on transient
-connectivity issues (`ECONNRESET`, `ETIMEDOUT`, `EADDRINFO`, `ESOCKETTIMEDOUT`, `ECONNABORTED`).
-So any of those errors will be retried according to retries option (defaults to 2).
-
-If the retry fails again due to any of those errors the SuperAgent Promise will
-be rejected with special error class TransientError to distinguish between logical errors
-and flaky connection issues.
-
-In case of any other request the plugin applies simple error handling strategy:
-every non 2xx or 3xx response is treated as an error and the promise will be rejected.
-Every connector ServiceClient should apply it's own error handling strategy by overriding `ok` handler.
-
-#### Parameters
-
+-   `url` **[string][2]** 
+-   `method` **[string][2]** 
+-   `params` **[Object][1]?** 
 -   `options` **[Object][1]**  (optional, default `{}`)
-    -   `options.retries` **[Number][3]?** Number of retries
-    -   `options.timeout` **[Number][3]?** Timeout for request
+    -   `options.timeout` **[Number][3]?** option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
+    -   `options.retry` **[Number][3]?** controls the time between timeout or 503 error occurence and the next retry being done
 
-#### Examples
+### get
 
-```javascript
-superagent.get("http://test/test")
-  .use(superagentErrorPlugin())
-  .ok((res) => {
-    if (res.status === 401) {
-      throw new ConfigurationError();
-    }
-    if (res.status === 429) {
-      throw new RateLimitError();
-    }
-    return true;
-  })
-  .catch((error) => {
-    // error.constructor.name can be ConfigurationError, RateLimitError coming from `ok` handler above
-    // or TransientError coming from logic applied by `superagentErrorPlugin`
-  })
-```
-
-Returns **[Function][7]** function to use as superagent plugin
-
-### superagentInstrumentationPlugin
-
-This plugin takes `client.logger` and `metric` params from the `Context Object` and logs following log line:
-
--   `ship.service_api.request` with params:
-    -   `url` - the original url passed to agent (use with `superagentUrlTemplatePlugin`)
-    -   `responseTime` - full response time in ms
-    -   `method` - HTTP verb
-    -   `status` - response status code
-    -   `vars` - when using `superagentUrlTemplatePlugin` it will contain all provided variables
-
-The plugin also issue a metric with the same name `ship.service_api.request`.
+Performs a GET HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
 
 #### Parameters
 
--   `options` **[Object][1]** 
-    -   `options.logger` **[Object][1]** Logger from HullClient
-    -   `options.metric` **[Object][1]** Metric from Hull.Connector
+-   `url` **[string][2]** 
+-   `params` **[Object][1]**  (optional, default `{}`)
+-   `options` **[Object][1]**  (optional, default `{}`)
+    -   `options.timeout` **[Number][3]?** option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
+    -   `options.retry` **[Number][3]?** controls the time between timeout or 503 error occurence and the next retry being done
 
-#### Examples
+### post
 
-````javascript
-const superagent = require('superagent');
-const { superagentInstrumentationPlugin } = require('hull/lib/utils');
-
-// const ctx is a Context Object here
-
-const agent = superagent
-.agent()
-.use(
-  urlTemplatePlugin({
-    defaultVariable: 'mainVariable'
-  })
-)
-.use(
-  superagentInstrumentationPlugin({
-    logger: ctx.client.logger,
-    metric: ctx.metric
-  })
-);
-
-agent
-.get('https://api.url/{{defaultVariable}}/resource/{{resourceId}}')
-.tmplVar({
-  resourceId: 123
-})
-.then(res => {
-  assert(res.request.url === 'https://api.url/mainVariable/resource/123');
-});
-
-> Above code will produce following log line:
-```sh
-connector.service_api.call {
-  responseTime: 880.502444,
-  method: 'GET',
-  url: 'https://api.url/{{defaultVariable}}/resource/{{resourceId}}',
-  status: 200
-}
-```
-
-> and following metrics:
-
-```javascript
-- `ship.service_api.call` - should be migrated to `connector.service_api.call`
-- `connector.service_api.responseTime`
-```
-````
-
-Returns **[Function][7]** function to use as superagent plugin
-
-### superagentUrlTemplatePlugin
-
-This plugin allows to pass generic url with variables - this allows better instrumentation and logging on the same REST API endpoint when resource ids varies.
+Performs a POST HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor
 
 #### Parameters
 
--   `defaults` **[Object][1]** default template variable
+-   `url` **[string][2]** 
+-   `params` **[Object][1]**  (optional, default `{}`)
+-   `options` **[Object][1]**  (optional, default `{}`)
+    -   `options.timeout` **[Number][3]?** option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
+    -   `options.retry` **[Number][3]?** controls the time between timeout or 503 error occurence and the next retry being done
 
-#### Examples
+### del
 
-```javascript
-const superagent = require('superagent');
-const { superagentUrlTemplatePlugin } = require('hull/lib/utils');
+Performs a DELETE HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
 
-const agent = superagent.agent().use(
-  urlTemplatePlugin({
-    defaultVariable: 'mainVariable'
-  })
-);
+#### Parameters
 
-agent
-.get('https://api.url/{{defaultVariable}}/resource/{{resourceId}}')
-.tmplVar({
-  resourceId: 123
-})
-.then(res => {
-  assert(res.request.url === 'https://api.url/mainVariable/resource/123');
-});
-```
+-   `url` **[string][2]** 
+-   `params` **[Object][1]**  (optional, default `{}`)
+-   `options` **[Object][1]**  (optional, default `{}`)
+    -   `options.timeout` **[Number][3]?** option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
+    -   `options.retry` **[Number][3]?** controls the time between timeout or 503 error occurence and the next retry being done
 
-Returns **[Function][7]** function to use as superagent plugin
+### put
 
-## Infra
+Performs a PUT HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
 
-Production ready connectors need some infrastructure modules to support their operation, allow instrumentation, queueing and caching. The [Hull.Connector][14] comes with default settings, but also allows to initiate them and set a custom configuration:
+#### Parameters
+
+-   `url` **[string][2]** 
+-   `params` **[Object][1]**  (optional, default `{}`)
+-   `options` **[Object][1]**  (optional, default `{}`)
+    -   `options.timeout` **[Number][3]?** option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
+    -   `options.retry` **[Number][3]?** controls the time between timeout or 503 error occurence and the next retry being done
+
+## HullClient
+
+HullClient instance constructor - creates new instance to perform API calls, issue traits/track calls and log information
+
+### Parameters
+
+-   `config` **[Object][1]** configuration object
+    -   `config.id` **[string][2]** Connector ID - required
+    -   `config.secret` **[string][2]** Connector Secret - required
+    -   `config.organization` **[string][2]** Hull organization - required
+    -   `config.requestId` **[string][2]?** additional parameter which will be added to logs context, it can be HTTP request unique id when you init HullClient and you want to group log lines by the request (it can be a job id etc.)
+    -   `config.connectorName` **[string][2]?** additional parameter which will be added to logs context, it's used to track connector name in logs
+    -   `config.captureLogs` **[boolean][4]?** an optional param to enable capturing logs, when enabled logs won't be sent to stdout/stderr and `logs` array would be initiated, which you can access via hullClient.configuration().logs
+    -   `config.captureFirehoseEvents` **[boolean][4]?** an option param to enable capturing firehose events, when enabled firehose events won't be sent to firehose endpoint and `firehoseEvents` array woyld be initiated, which you can access via hullClient.configuration().firehoseEvents
+    -   `config.firehoseUrl` **[string][2]?** The url track/traits calls should be sent, available only for testing purposes
+    -   `config.protocol` **[string][2]** protocol which will be appended to organization url, override for testing only (optional, default `https`)
+    -   `config.prefix` **[string][2]** prefix of Hull REST API, override for testing only (optional, default `/api/v1`)
+    -   `config.logs` **[Array][5]?** an optional array to capture all logs entries, you can provide your own array or use `captureLogs` to initiate empty one
+    -   `config.firehoseEvents` **[Array][5]?** an optional array to capture all firehose events, you can provide your own array or use `captureFirehoseEvents` to initiate empty one
 
 ### Examples
 
 ```javascript
-const instrumentation = new Instrumentation();
-const cache = new Cache();
-const queue = new Queue();
-
-const connector = new Hull.Connector({ instrumentation, cache, queue });
-```
-
-### CacheAgent
-
-This is a wrapper over [https://github.com/BryanDonovan/node-cache-manager][15]
-to manage ship cache storage.
-It is responsible for handling cache key for every ship.
-
-By default it comes with the basic in-memory store, but in case of distributed connectors being run in multiple processes for reliable operation a shared cache solution should be used. The `Cache` module internally uses [node-cache-manager][15], so any of it's compatibile store like `redis` or `memcache` could be used:
-
-The `cache` instance also exposes `contextMiddleware` whch adds `req.hull.cache` to store the ship and segments information in the cache to not fetch it for every request. The `req.hull.cache` is automatically picked and used by the `Hull.Middleware` and `segmentsMiddleware`.
-
-> The `req.hull.cache` can be used by the connector developer for any other caching purposes:
-
-```javascript
-ctx.cache.get('object_name');
-ctx.cache.set('object_name', object_value);
-ctx.cache.wrap('object_name', () => {
-  return Promise.resolve(object_value);
+const HullClient = require("hull-client");
+const hullClient = new HullClient({
+  id: "HULL_ID",
+  secret: "HULL_SECRET",
+  organization: "HULL_ORGANIZATION_DOMAIN"
 });
 ```
 
-> There are two <code>object names</code> which are reserved and cannot be used here:
->
-> -   any ship id
-> -   "segments"
->
-> **IMPORTANT** internal caching of `ctx.ship` object is refreshed on `ship:update` notifications, if the connector doesn't subscribe for notification at all the cache won't be refreshed automatically. In such case disable caching, set short TTL or add `notifHandler`
+### configuration
 
-#### Parameters
-
--   `options` **[Object][1]** passed to node-cache-manager (optional, default `{}`)
+Returns the global configuration object.
 
 #### Examples
 
 ```javascript
-const redisStore = require("cache-manager-redis");
-const { Cache } = require("hull/lib/infra");
-
-const cache = new Cache({
-  store: redisStore,
-  url: 'redis://:XXXX@localhost:6379/0?ttl=600'
-});
-
-const connector = new Hull.Connector({ cache });
+const hullClient = new HullClient({});
+hullClient.configuration() == {
+  prefix: "/api/v1",
+  domain: "hullapp.io",
+  protocol: "https",
+  id: "58765f7de3aa14001999",
+  secret: "12347asc855041674dc961af50fc1",
+  organization: "fa4321.hullapp.io",
+  version: "0.13.10"
+};
 ```
 
-### InstrumentationAgent
+Returns **[Object][1]** current `HullClient` configuration parameters
 
-It automatically sends data to DataDog, Sentry and Newrelic if appropriate ENV VARS are set:
+### asUser
 
--   NEW_RELIC_LICENSE_KEY
--   DATADOG_API_KEY
--   SENTRY_URL
-
-It also exposes the `contextMiddleware` which adds `req.hull.metric` agent to add custom metrics to the ship. Right now it doesn't take any custom options, but it's showed here for the sake of completeness.
+Takes User Claims (link to User Identity docs) and returnes `HullClient` instance scoped to this User.
+This makes [#traits][20] and [#track][21] methods available.
 
 #### Parameters
 
--   `options`   (optional, default `{}`)
+-   `userClaim` **[Object][1]** 
+-   `additionalClaims` **[Object][1]**  (optional, default `{}`)
+    -   `additionalClaims.create` **[boolean][4]** marks if the user should be lazily created if not found (optional, default `true`)
+    -   `additionalClaims.scopes` **[Array][5]** adds scopes claim to the JWT to impersonate a User with admin rights (optional, default `[]`)
+    -   `additionalClaims.active` **[string][2]** marks the user as _active_ meaning a reduced latency at the expense of scalability. Don't use for high volume updates (optional, default `false`)
+
+
+-   Throws **[Error][22]** if no valid claims are passed
+
+Returns **[UserScopedHullClient][23]** 
+
+### asAccount
+
+Takes Account Claims (link to User Identity docs) and returnes `HullClient` instance scoped to this Account.
+This makes [#traits][20] method available.
+
+#### Parameters
+
+-   `accountClaim` **[Object][1]** 
+-   `additionalClaims` **[Object][1]**  (optional, default `Object.freeze({})`)
+
+
+-   Throws **[Error][22]** If no valid claims are passed
+
+Returns **[AccountScopedHullClient][24]** instance scoped to account claims
+
+## EntityScopedHullClient
+
+**Extends HullClient**
+
+The following methods are available when `HullClient` instance is scoped to an user or an account.
+How to get scoped client? Use `asUser` or `asAccount` methods.
+The `EntityScopedHullClient` is never directly returned by the HullClient but is a base class for UserScopedHullClient and AccountScopedHullClient classes.
+
+### Examples
+
+```javascript
+const hullClient = new HullClient({ id, secret, organization });
+const scopedHullClient = hullClient.asUser({ email: "foo@bar.com "});
+scopedHullClient.traits({ new_attribute: "new_value" });
+```
+
+### token
+
+Used for [Bring your own users][25].
+Creates a signed string for the user passed in hash. `userHash` needs an `email` field.
+[You can then pass this client-side to Hull.js][26] to authenticate users client-side and cross-domain
+
+#### Parameters
+
+-   `claims` **[Object][1]** additionalClaims
 
 #### Examples
 
 ```javascript
-const { Instrumentation } = require("hull/lib/infra");
-
-const instrumentation = new Instrumentation();
-
-const connector = new Connector.App({ instrumentation });
+hullClient.asUser({ email: "xxx@example.com", external_id: "1234" }).token(optionalClaims);
+hullClient.asAccount({ domain: "example.com", external_id: "1234" }).token(optionalClaims);
 ```
 
-### QueueAgent
+Returns **[string][2]** token
 
-By default it's initiated inside `Hull.Connector` as a very simplistic in-memory queue, but in case of production grade needs, it comes with a [Kue][16] or [Bull][17] adapters which you can initiate in a following way:
+### traits
 
-`Options` from the constructor of the `BullAdapter` or `KueAdapter` are passed directly to the internal init method and can be set with following parameters:
-
-[https://github.com/Automattic/kue#redis-connection-settings][18] [https://github.com/OptimalBits/bull/blob/master/REFERENCE.md#queue][19]
-
-The `queue` instance has a `contextMiddleware` method which adds `req.hull.enqueue` method to queue jobs - this is done automatically by `Hull.Connector().setupApp(app)`:
-
-```javascript
-req.hull.enqueue((jobName = ''), (jobPayload = {}), (options = {}));
-```
-
-By default the job will be retried 3 times and the payload would be removed from queue after successfull completion.
-
-Then the handlers to work on a specific jobs is defined in following way:
-
-```javascript
-connector.worker({
-  jobsName: (ctx, jobPayload) => {
-    // process Payload
-    // this === job (kue job object)
-    // return Promise
-  }
-});
-connector.startWorker();
-```
+Saves attributes on the user or account. Only available on User or Account scoped `HullClient` instance (see [#asuser][27] and [#asaccount][28]).
 
 #### Parameters
 
--   `adapter` **[Object][1]** 
+-   `traits` **[Object][1]** object with new attributes, it's always flat object, without nested subobjects
 
-#### Examples
+Returns **[Promise][9]** 
 
-````javascript
+## UserScopedHullClient
+
+**Extends EntityScopedHullClient**
+
+The following methods are available when `HullClient` instance is scoped to an user only
+How to get scoped client? Use `asUser` method
+
+### Examples
+
 ```javascript
-const { Queue } = require("hull/lib/infra");
-const BullAdapter = require("hull/lib/infra/queue/adapter/bull"); // or KueAdapter
-
-const queueAdapter = new BullAdapter(options);
-const queue = new Queue(queueAdapter);
-
-const connector = new Hull.Connector({ queue });
+const hullClient = new HullClient({ id, secret, organization });
+const scopedHullClient = hullClient.asUser({ email: "foo@bar.com "});
+scopedHullClient.traits({ new_attribute: "new_value" });
 ```
-````
 
-**Meta**
+### account
 
--   **deprecated**: internal connector queue is considered an antipattern, this class is kept only for backward compatiblity
+Available only for User scoped `HullClient` instance (see [#asuser][27]).
+Returns `HullClient` instance scoped to both User and Account, but all traits/track call would be performed on the User, who will be also linked to the Account.
 
+#### Parameters
+
+-   `accountClaim` **[Object][1]** [description] (optional, default `Object.freeze({})`)
+
+Returns **[HullClient][29]** HullClient scoped to a User and linked to an Account
+
+### alias
+
+Issues an `alias` event on user?
+
+#### Parameters
+
+-   `body` **[Object][1]** 
+
+Returns **[Promise][9]** 
+
+### track
+
+Stores events on user. Only available on User scoped `HullClient` instance (see [#asuser][27]).
+
+#### Parameters
+
+-   `event` **[string][2]** event name
+-   `properties` **[Object][1]** additional information about event, this is a one-level JSON object (optional, default `{}`)
+-   `context` **[Object][1]** The `context` object lets you define event meta-data. Everything is optional (optional, default `{}`)
+    -   `context.source` **[string][2]?** Defines a namespace, such as `zendesk`, `mailchimp`, `stripe`
+    -   `context.type` **[string][2]?** Define a event type, such as `mail`, `ticket`, `payment`
+    -   `context.created_at` **[string][2]?** Define an event date. defaults to `now()`
+    -   `context.event_id` **[string][2]?** Define a way to de-duplicate events. If you pass events with the same unique `event_id`, they will overwrite the previous one.
+    -   `context.ip` **[string][2]?** Define the Event's IP. Set to `null` if you're storing a server call, otherwise, geoIP will locate this event.
+    -   `context.referer` **[string][2]?** Define the Referer. `null` for server calls.
+
+Returns **[Promise][9]** 
+
+## AccountScopedHullClient
+
+**Extends EntityScopedHullClient**
+
+This is a class returned when we scope client to account. It provides `token` and `traits` methods.
+
+### Examples
+
+```javascript
+const hullClient = new HullClient({ id, secret, organization });
+const scopedHullClient = hullClient.asAccount({ domain: "bar.com "});
+scopedHullClient.traits({ new_attribute: "new_value" });
+```
 
 [1]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
 
@@ -706,32 +1400,52 @@ const connector = new Hull.Connector({ queue });
 
 [4]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
 
-[5]: #context
+[5]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
 
-[6]: https://github.com/BryanDonovan/node-cache-manager#overview
+[6]: #context
 
-[7]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+[7]: https://github.com/BryanDonovan/node-cache-manager#overview
 
-[8]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise
+[8]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
 
-[9]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array
+[9]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise
 
 [10]: #context
 
-[11]: http://passportjs.org/
+[11]: #hullconnector
 
-[12]: ./notifications.md
+[12]: https://github.com/BryanDonovan/node-cache-manager
 
-[13]: http://passportjs.org/docs/oauth
+[13]: https://github.com/Automattic/kue
 
-[14]: #hullconnector
+[14]: https://github.com/OptimalBits/bull
 
-[15]: https://github.com/BryanDonovan/node-cache-manager
+[15]: https://github.com/Automattic/kue#redis-connection-settings
 
-[16]: https://github.com/Automattic/kue
+[16]: https://github.com/OptimalBits/bull/blob/master/REFERENCE.md#queue
 
-[17]: https://github.com/OptimalBits/bull
+[17]: http://passportjs.org/
 
-[18]: https://github.com/Automattic/kue#redis-connection-settings
+[18]: ./notifications.md
 
-[19]: https://github.com/OptimalBits/bull/blob/master/REFERENCE.md#queue
+[19]: http://passportjs.org/docs/oauth
+
+[20]: #traits
+
+[21]: #track
+
+[22]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error
+
+[23]: #userscopedhullclient
+
+[24]: #accountscopedhullclient
+
+[25]: http://hull.io/docs/users/byou
+
+[26]: http://www.hull.io/docs/users/byou
+
+[27]: #asuser
+
+[28]: #asaccount
+
+[29]: #hullclient

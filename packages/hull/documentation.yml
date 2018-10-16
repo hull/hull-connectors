@@ -1,6 +1,5 @@
 toc:
   - HullConnector
-  - Hull.Middleware
   - Context
   - Infra
   - Utils

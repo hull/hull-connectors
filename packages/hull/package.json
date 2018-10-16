@@ -8,7 +8,7 @@
     "test": "yarn run test:unit && yarn run test:integration",
     "test:unit": "NODE_ENV=test mocha --exit --require ../../root-babel-register -R spec ./test/unit/*.js ./test/unit/**/*.js",
     "test:integration": "NODE_ENV=test mocha --exit --require ../../root-babel-register -R spec ./test/integration/*.js",
-    "documentation": "documentation build src/**/* src/types.js -f md -o API.md --access public --markdownToc=false",
+    "documentation": "documentation build src/**/* src/types.js -f md -o API.md --access public --markdownToc=false -c documentation.yml",
     "precommit": "npm run documentation && git add API.md"
   },
   "dependencies": {
