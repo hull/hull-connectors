@@ -1,9 +1,11 @@
 // @flow
 import type { $Application } from "express";
 
-const cors = require("cors");
-const { notificationHandler } = require("hull/lib/handlers");
-const { credsFromQueryMiddlewares } = require("hull/lib/utils");
+const {
+  notificationHandler,
+  jsonHandler,
+  scheduleHandler
+} = require("hull/src/handlers");
 
 const notificationsConfiguration = require("./notifications-configuration");
 
@@ -13,38 +15,31 @@ function server(app: $Application, deps: Object): $Application {
   // I couldn't get the (route, cors(), function) syntaxt to work, but this worked...
   app.post("/smart-notifier", notificationHandler(notificationsConfiguration));
 
-  app.post("/fetch", ...credsFromQueryMiddlewares(), actions.fetchAction);
+  app.post("/fetch", scheduleHandler(actions.fetchAction));
 
   app.get(
     "/fields-outreach-prospect-out",
-    ...credsFromQueryMiddlewares(),
-    cors(),
-    actions.fieldsOutreachProspectOutbound
+    jsonHandler(actions.fieldsOutreachProspectOutbound)
   );
   app.get(
     "/fields-outreach-prospect-in",
-    ...credsFromQueryMiddlewares(),
-    cors(),
-    actions.fieldsOutreachProspectInbound
+    jsonHandler(actions.fieldsOutreachProspectInbound)
   );
   app.get(
     "/fields-outreach-account-in",
-    ...credsFromQueryMiddlewares(),
-    cors(),
-    actions.fieldsOutreachAccountInbound
+    jsonHandler(actions.fieldsOutreachAccountInbound)
   );
   app.get(
     "/fields-outreach-account-out",
-    ...credsFromQueryMiddlewares(),
-    cors(),
-    actions.fieldsOutreachAccountOutbound
+    jsonHandler(actions.fieldsOutreachAccountOutbound)
   );
-  app.get("/fields-hull-account-ident", cors(), actions.fieldsHullAccountIdent);
+  app.get(
+    "/fields-hull-account-ident",
+    jsonHandler(actions.fieldsHullAccountIdent)
+  );
   app.get(
     "/fields-outreach-account-ident",
-    ...credsFromQueryMiddlewares(),
-    cors(),
-    actions.fieldsOutreachAccountIdent
+    jsonHandler(actions.fieldsOutreachAccountIdent)
   );
 
   app.get("/admin", actions.adminHandler);

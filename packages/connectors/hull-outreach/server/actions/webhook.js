@@ -3,7 +3,7 @@ import type {
   OutreachWebhookData
 } from "../lib/types";
 
-const { Batcher } = require("hull/lib/infra");
+const { Batcher } = require("hull/src/infra");
 const _ = require("lodash");
 
 const { saveUsers, saveLeads, saveEvents } = require("./events");

@@ -1,8 +1,8 @@
 /* @flow */
 import type {
   HullAccount,
-  HullUserIdent,
-  HullAccountIdent,
+  HullUserClaims,
+  HullAccountClaims,
   HullUserAttributes,
   HullAccountAttributes,
   HullUser
@@ -90,8 +90,8 @@ export type HullEventContext = {
 
 export type HullClient = {
   configuration: HullClientConfiguration,
-  asUser(ident: HullUserIdent): HullClient,
-  asAccount(ident: HullAccountIdent): HullClient,
+  asUser(ident: HullUserClaims): HullClient,
+  asAccount(ident: HullAccountClaims): HullClient,
   logger: HullClientLogger,
   traits(
     attributes: HullUserAttributes | HullAccountAttributes,

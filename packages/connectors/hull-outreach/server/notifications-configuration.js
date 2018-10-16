@@ -1,5 +1,3 @@
-const _ = require("lodash");
-
 const SyncAgent = require("./lib/sync-agent");
 
 module.exports = {

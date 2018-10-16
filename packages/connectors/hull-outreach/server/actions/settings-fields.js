@@ -25,9 +25,9 @@ function fieldsOutreachProspectInbound(
   req: THullRequest,
   res: $Response
 ): $Response {
-  return res.json({
+  return {
     options: getFieldsOutreach(PROSPECT_FIELDDEFS, { in: true })
-  });
+  };
 }
 
 function fieldsOutreachProspectOutbound(

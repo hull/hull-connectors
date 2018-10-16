@@ -32,7 +32,7 @@ const FilterUtil = require("./helper/filter-util");
 const ServiceClient = require("./service-client");
 const SharedMessages = require("./shared-messages");
 
-const { settingsUpdate } = require("hull/lib/utils");
+const { settingsUpdate } = require("hull/src/utils");
 
 class SyncAgent {
   /**

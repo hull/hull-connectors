@@ -28,7 +28,7 @@ const prefixPlugin = require("superagent-prefix");
 const {
   superagentUrlTemplatePlugin,
   superagentInstrumentationPlugin
-} = require("hull/lib/utils");
+} = require("hull/src/utils");
 
 class ServiceClient {
   /**

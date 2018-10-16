@@ -1,8 +1,8 @@
 const OAuth2Strategy = require("passport-oauth2");
-const { oAuthHandler } = require("hull/lib/handlers");
+const { oAuthHandler } = require("hull/src/handlers");
 const Promise = require("bluebird");
 const _ = require("lodash");
-const { settingsUpdate } = require("hull/lib/utils");
+const { settingsUpdate } = require("hull/src/utils");
 
 const oAuthUrl = "https://api.outreach.io";
 
