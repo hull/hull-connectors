@@ -1128,72 +1128,6 @@ When using `superagentErrorPlugin` it's returned by some errors out-of-the-box.
 -   `message` **[string][2]** 
 -   `extra` **[Object][1]** 
 
-## Api
-
-Following methods allows to perform api calls against Hull REST API.
-Their are available on base `HullClient` and all scoped classes.
-
-### api
-
-Performs a HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
-
-#### Parameters
-
--   `url` **[string][2]** 
--   `method` **[string][2]** 
--   `params` **[Object][1]?** 
--   `options` **[Object][1]**  (optional, default `{}`)
-    -   `options.timeout` **[Number][3]?** option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
-    -   `options.retry` **[Number][3]?** controls the time between timeout or 503 error occurence and the next retry being done
-
-### get
-
-Performs a GET HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
-
-#### Parameters
-
--   `url` **[string][2]** 
--   `params` **[Object][1]**  (optional, default `{}`)
--   `options` **[Object][1]**  (optional, default `{}`)
-    -   `options.timeout` **[Number][3]?** option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
-    -   `options.retry` **[Number][3]?** controls the time between timeout or 503 error occurence and the next retry being done
-
-### post
-
-Performs a POST HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor
-
-#### Parameters
-
--   `url` **[string][2]** 
--   `params` **[Object][1]**  (optional, default `{}`)
--   `options` **[Object][1]**  (optional, default `{}`)
-    -   `options.timeout` **[Number][3]?** option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
-    -   `options.retry` **[Number][3]?** controls the time between timeout or 503 error occurence and the next retry being done
-
-### del
-
-Performs a DELETE HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
-
-#### Parameters
-
--   `url` **[string][2]** 
--   `params` **[Object][1]**  (optional, default `{}`)
--   `options` **[Object][1]**  (optional, default `{}`)
-    -   `options.timeout` **[Number][3]?** option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
-    -   `options.retry` **[Number][3]?** controls the time between timeout or 503 error occurence and the next retry being done
-
-### put
-
-Performs a PUT HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
-
-#### Parameters
-
--   `url` **[string][2]** 
--   `params` **[Object][1]**  (optional, default `{}`)
--   `options` **[Object][1]**  (optional, default `{}`)
-    -   `options.timeout` **[Number][3]?** option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
-    -   `options.retry` **[Number][3]?** controls the time between timeout or 503 error occurence and the next retry being done
-
 ## HullClient
 
 HullClient instance constructor - creates new instance to perform API calls, issue traits/track calls and log information
@@ -1278,6 +1212,72 @@ This makes [#traits][20] method available.
 -   Throws **[Error][22]** If no valid claims are passed
 
 Returns **[AccountScopedHullClient][24]** instance scoped to account claims
+
+## Api
+
+Following methods allows to perform api calls against Hull REST API.
+Their are available on base `HullClient` and all scoped classes.
+
+### api
+
+Performs a HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
+
+#### Parameters
+
+-   `url` **[string][2]** 
+-   `method` **[string][2]** 
+-   `params` **[Object][1]?** 
+-   `options` **[Object][1]**  (optional, default `{}`)
+    -   `options.timeout` **[Number][3]?** option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
+    -   `options.retry` **[Number][3]?** controls the time between timeout or 503 error occurence and the next retry being done
+
+### get
+
+Performs a GET HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
+
+#### Parameters
+
+-   `url` **[string][2]** 
+-   `params` **[Object][1]**  (optional, default `{}`)
+-   `options` **[Object][1]**  (optional, default `{}`)
+    -   `options.timeout` **[Number][3]?** option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
+    -   `options.retry` **[Number][3]?** controls the time between timeout or 503 error occurence and the next retry being done
+
+### post
+
+Performs a POST HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor
+
+#### Parameters
+
+-   `url` **[string][2]** 
+-   `params` **[Object][1]**  (optional, default `{}`)
+-   `options` **[Object][1]**  (optional, default `{}`)
+    -   `options.timeout` **[Number][3]?** option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
+    -   `options.retry` **[Number][3]?** controls the time between timeout or 503 error occurence and the next retry being done
+
+### del
+
+Performs a DELETE HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
+
+#### Parameters
+
+-   `url` **[string][2]** 
+-   `params` **[Object][1]**  (optional, default `{}`)
+-   `options` **[Object][1]**  (optional, default `{}`)
+    -   `options.timeout` **[Number][3]?** option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
+    -   `options.retry` **[Number][3]?** controls the time between timeout or 503 error occurence and the next retry being done
+
+### put
+
+Performs a PUT HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
+
+#### Parameters
+
+-   `url` **[string][2]** 
+-   `params` **[Object][1]**  (optional, default `{}`)
+-   `options` **[Object][1]**  (optional, default `{}`)
+    -   `options.timeout` **[Number][3]?** option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
+    -   `options.retry` **[Number][3]?** controls the time between timeout or 503 error occurence and the next retry being done
 
 ## EntityScopedHullClient
 

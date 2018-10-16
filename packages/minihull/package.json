@@ -5,8 +5,7 @@
   "main": "src/mini-hull.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
-    "documentation": "documentation lint src/ && documentation build src/ -f html -o docs",
-    "prepublishOnly": "npm run documentation"
+    "documentation": "exit 0"
   },
   "author": "Michał Rączka",
   "dependencies": {

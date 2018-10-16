@@ -41,11 +41,7 @@
   "peerDependencies": {},
   "devDependencies": {
     "chai-http": "^3.0.0",
-    "husky": "^0.14.3",
-    "isparta": "^4.0.0",
-    "mkdirp": "^0.5.1",
     "node-mocks-http": "^1.7.0",
-    "supertest": "^3.1.0",
-    "updtr": "^1.0.0"
+    "supertest": "^3.1.0"
   }
 }
