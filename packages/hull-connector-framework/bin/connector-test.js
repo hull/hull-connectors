@@ -2,12 +2,10 @@
 // @flow
 // import type { IntegrationScenarioDefinition } from "../src/integration-scenario-runner";
 
-const debug = require("debug")(
-  "hull-connector-framework:run-integration-scenarios"
-);
+const debug = require("debug")("hull-connector-framework:connector-test");
 const fs = require("fs");
 const path = require("path");
-const IntegrationScenarioRunner = require("../src/integration-scenario-runner");
+const IntegrationScenarioRunner = require("../src/test-scenario-runner");
 
 const serverPath = path.join(process.cwd(), "server", "server");
 const scenariosPath = path.join(

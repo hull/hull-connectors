@@ -1,6 +1,8 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-: "${CONNECTOR:?CONNECTOR variable not set or empty}"
+CONNECTOR=$1
+
+: "${CONNECTOR:?CONNECTOR variable not set or empty. Should be set to \`hull-\*\`}"
 
 CONNECTORS=($(ls -1 dist/connectors))
 

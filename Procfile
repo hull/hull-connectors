@@ -1,2 +1,2 @@
-web: SERVER=true bash scripts/heroku-entrypoint.sh
-worker: WORKER=true bash scripts/heroku-entrypoint.sh
+web: SERVER=true bash scripts/bash-entrypoint.sh $CONNECTOR
+worker: WORKER=true bash scripts/bash-entrypoint.sh $CONNECTOR

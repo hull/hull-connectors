@@ -2,17 +2,10 @@
   "name": "hull-outreach",
   "version": "0.0.1-monorepo",
   "description": "Connector description",
-  "keywords": [
-    "hull",
-    "ship",
-    "connector",
-    "hull-ship",
-    "hull-connector",
-    "hull-connector-template-1.0.0"
-  ],
   "scripts": {},
   "dependencies": {
-    "hull": "0.14.0-monorepo",
+    "hull": "link:../../hull",
+    "hull-connector-framework": "link:../../hull-connector-framework",
     "luxon": "^1.3.0",
     "passport-oauth2": "1.4.0",
     "superagent-prefix": "^0.0.2",

@@ -3071,7 +3071,7 @@ core-util-is@1.0.2, core-util-is@~1.0.0:
   resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
   integrity sha1-tf1UIgqivFq1eqtxQMlAdUUDwac=
 
-cors@^2.8.1, cors@^2.8.4:
+cors@^2.8.1:
   version "2.8.4"
   resolved "https://registry.yarnpkg.com/cors/-/cors-2.8.4.tgz#2bd381f2eb201020105cd50ea59da63090694686"
   integrity sha1-K9OB8usgECAQXNUOpZ2mMJBpRoY=
@@ -5690,6 +5690,44 @@ https-proxy-agent@^2.2.0, https-proxy-agent@^2.2.1:
   dependencies:
     agent-base "^4.1.0"
     debug "^3.1.0"
+
+"hull-client@link:packages/hull-client":
+  version "0.0.1-monorepo"
+  dependencies:
+    jwt-simple "^0.5.0"
+    winston "^2.2.0"
+
+"hull-connector-framework@link:packages/hull-connector-framework":
+  version "0.0.1-monorepo"
+
+"hull@link:packages/hull":
+  version "0.0.1-monorepo"
+  dependencies:
+    aws-sdk "^2.81.0"
+    batch-stream "^0.1.3"
+    bull "^3.0.0-rc.3"
+    connect "^3.4.1"
+    connect-timeout "^1.8.0"
+    csv-stream "^0.1.3"
+    del "^2.2.1"
+    dogapi "^2.6.0"
+    hull-client "link:packages/hull-client"
+    jsonwebtoken "^7.4.3"
+    jwt-simple "^0.5.0"
+    kue-ui "^0.1.0"
+    passport "^0.3.2"
+    progress-bar-webpack-plugin "^1.11.0"
+    promise-streams "^1.0.1"
+    promisepipe "^3.0.0"
+    raw-body "^2.1.7"
+    react-hot-loader "^4.2.0"
+    request "^2.72.0"
+    sns-validator "^0.3.0"
+    sqs-consumer "^3.6.1"
+    supply "0.0.4"
+    webpack "^3.12.0"
+    webpack-dev-middleware "^2.0.6"
+    webpack-hot-middleware "^2.22.2"
 
 humanize-ms@^1.2.1:
   version "1.2.1"
