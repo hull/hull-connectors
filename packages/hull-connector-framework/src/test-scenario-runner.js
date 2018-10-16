@@ -9,7 +9,8 @@ const jwt = require("jwt-simple");
 const expect = require("expect");
 const { EventEmitter } = require("events");
 
-export type IntegrationScenarioDefinition = Object => {
+export type TestScenarioDefinition = Object => {
+  connectorServer: express => express,
   handlerType: $Values<typeof handlers>,
   handlerName: string,
   connector: Object,
@@ -22,7 +23,7 @@ export type IntegrationScenarioDefinition = Object => {
   logs: Array<*>
 };
 
-class IntegrationScenarioRunner extends EventEmitter {
+class TestScenarioRunner extends EventEmitter {
   minihull: typeof Minihull;
 
   nockScope: *;
@@ -55,10 +56,9 @@ class IntegrationScenarioRunner extends EventEmitter {
 
   debounceWait: number;
 
-  constructor(
-    server: Function,
-    scenarioDefinition: IntegrationScenarioDefinition
-  ) {
+  server: Function;
+
+  constructor(scenarioDefinition: TestScenarioDefinition) {
     super();
     expect.extend({
       whatever() {
@@ -70,8 +70,8 @@ class IntegrationScenarioRunner extends EventEmitter {
     });
 
     this.finished = false;
-    this.hullConnectorPort = 9091;
-    this.minihullPort = 9092;
+    // this.hullConnectorPort = 9091;
+    // this.minihullPort = 9092;
     this.timeout = 10000;
     this.debounceWait = 100;
     this.capturedMetrics = [];
@@ -79,11 +79,7 @@ class IntegrationScenarioRunner extends EventEmitter {
     this.scenarioDefinition = scenarioDefinition({ expect, nock, handlers });
     this.minihull = new Minihull();
     this.app = express();
-    this.hullConnector = this.setupTestConnector();
-
-    this.hullConnector.setupApp(this.app);
-    server(this.app);
-
+    this.server = this.scenarioDefinition.connectorServer;
     this.connector = _.defaults(this.scenarioDefinition.connector, {
       id: "9993743b22d60dd829001999",
       private_settings: {}
@@ -102,10 +98,11 @@ class IntegrationScenarioRunner extends EventEmitter {
     this.minihull.stubAccountsSegments(
       this.scenarioDefinition.accountsSegments
     );
+    this.nockScope = this.scenarioDefinition.externalApiMock();
 
     switch (this.scenarioDefinition.handlerType) {
+      case handlers.scheduleHandler:
       case handlers.jsonHandler:
-        this.nockScope = this.scenarioDefinition.externalApiMock();
         break;
       default:
         throw new Error(
@@ -202,8 +199,16 @@ class IntegrationScenarioRunner extends EventEmitter {
       this.on("finish", () => {
         resolve();
       });
+      await this.minihull.listen(0);
+      this.minihullPort = this.minihull.server.address().port;
+
+      this.hullConnector = this.setupTestConnector();
+      this.hullConnector.setupApp(this.app);
+      this.server(this.app);
       this.hullConnectorServer = await this.hullConnector.startApp(this.app);
-      await this.minihull.listen(this.minihullPort);
+
+      this.hullConnectorPort = this.hullConnectorServer.address().port;
+
       const { handlerName } = this.scenarioDefinition;
       const response = await this.minihull.postConnector(
         this.connector,
@@ -223,7 +228,7 @@ class IntegrationScenarioRunner extends EventEmitter {
   setupTestConnector() {
     Hull.Client.logger.transports.console.level = "debug";
     const options = {
-      port: this.hullConnectorPort,
+      port: 0,
       hostSecret: "1234",
       skipSignatureValidation: true,
       clientConfig: {
@@ -243,4 +248,4 @@ class IntegrationScenarioRunner extends EventEmitter {
   }
 }
 
-module.exports = IntegrationScenarioRunner;
+module.exports = TestScenarioRunner;

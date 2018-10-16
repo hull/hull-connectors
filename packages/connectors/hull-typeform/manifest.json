@@ -79,5 +79,9 @@
       "url": "/fetch-recent-responses",
       "type": "interval",
       "value": "5"
+  }, {
+      "url": "/refresh-access-token",
+      "type": "interval",
+      "value": "180"
   }]
 }

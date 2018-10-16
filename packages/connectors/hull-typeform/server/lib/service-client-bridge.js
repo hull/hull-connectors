@@ -34,7 +34,7 @@ class ServiceClientBridge {
 
   getRecentResponsesStream(formId: string, { since }: Object) {
     let currentPage = 1;
-    return promiseToReadableStream(push => {
+    return promiseToReadableStream(async push => {
       const getRecentResponsesPage = async (token?: string) => {
         const response = await this.serviceClient.getResponses(formId, {
           after: token,

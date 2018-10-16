@@ -1,16 +1,15 @@
 // @flow
-// import type { IntegrationScenarioDefinition } from "../../../../../hull-connector-framework/src/integration-scenario-runner";
-
-const IntegrationScenarioRunner = require("hull-connector-framework/src/integration-scenario-runner");
+const testScenario = require("hull-connector-framework/src/test-scenario");
 
 // workaround to allow connector start
 process.env.CLIENT_ID = "123";
 const hullTypeformServer = require("../../../server/server");
 
 test("incoming fetch all responses basic", () => {
-  const scenario = new IntegrationScenarioRunner(hullTypeformServer, ({ handlers, requireFixture, expect, nock }) => {
+  return testScenario(({ handlers, requireFixture, expect, nock }) => {
     return {
-      handlerType: handlers.jsonHandler,
+      connectorServer: hullTypeformServer,
+      handlerType: handlers.scheduleHandler,
       handlerName: "fetch-all-responses",
       externalApiMock: () => {
         const scope = nock("https://api.typeform.com");
@@ -23,8 +22,8 @@ test("incoming fetch all responses basic", () => {
       accountsSegments: [],
       response: { response: "ok" },
       logs: [
-        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["info", "incoming.job.start", expect.whatever(), expect.whatever()],
+        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["info", "incoming.job.progress", expect.whatever(), { progress: 4 }],
         ["info", "incoming.user.success", { subject_type: "user", user_email: "lian1078@other.com" }, expect.whatever()],
@@ -145,5 +144,4 @@ test("incoming fetch all responses basic", () => {
       ]
     };
   });
-  return scenario.run();
 });

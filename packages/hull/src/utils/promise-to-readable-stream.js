@@ -22,6 +22,7 @@ function promiseToReadableStream(
         return;
       }
       called = true;
+      debug("running promise");
       promise(this.push.bind(this))
         .then(() => {
           debug("promise resolved, pushing null to readable stream");

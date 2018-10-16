@@ -750,7 +750,7 @@ class MiniHull extends MiniApplication {
     if (this.overrideOrgAddr) {
       return this.overrideOrgAddr;
     }
-    return `${this.hostname}:${this.port}`;
+    return `${this.hostname}:${this.server.address().port}`;
   }
 
   _getConnectorUrl(connector, url) {

@@ -116,33 +116,38 @@ class SyncAgent {
         this.hullClient.logger.info("authorization.refresh-token.success");
       })
       .catch(error => {
-        this.hullClient.logger.error(
-          "authorization.refresh-token.error",
-          error
-        );
+        this.hullClient.logger.error("authorization.refresh-token.error", {
+          error: error.message
+        });
       });
   }
 
   async fetchAllResponses() {
-    const formResponse = await this.serviceClient.getForm(this.formId);
-    const streamOfAllResponses = this.serviceClientBridge.getAllResponsesStream(
-      this.formId
-    );
-    this.hullClient.logger.info("incoming.job.start");
-    return pipeStreamToPromise(streamOfAllResponses, responses => {
-      this.hullClient.logger.info("incoming.job.progress", {
-        progress: responses.length
-      });
-      return this.saveResponses(formResponse.body, responses);
-    })
-      .then(() => {
-        this.hullClient.logger.info("incoming.job.success");
-      })
-      .catch(error => {
-        this.hullClient.logger.error("incoming.job.error", {
-          error: error.message
+    try {
+      this.hullClient.logger.info("incoming.job.start");
+      const formResponse = await this.serviceClient.getForm(this.formId);
+      const streamOfAllResponses = this.serviceClientBridge.getAllResponsesStream(
+        this.formId
+      );
+      return pipeStreamToPromise(streamOfAllResponses, responses => {
+        this.hullClient.logger.info("incoming.job.progress", {
+          progress: responses.length
         });
+        return this.saveResponses(formResponse.body, responses);
+      })
+        .then(() => {
+          this.hullClient.logger.info("incoming.job.success");
+        })
+        .catch(error => {
+          this.hullClient.logger.error("incoming.job.error", {
+            error: error.message
+          });
+        });
+    } catch (error) {
+      return this.hullClient.logger.error("incoming.job.error", {
+        error: error.message
       });
+    }
   }
 
   async fetchRecentResponses() {
@@ -154,29 +159,36 @@ class SyncAgent {
 
     this.hullClient.logger.info("incoming.job.start", { previousFetchStartAt });
 
-    const formResponse = await this.serviceClient.getForm(this.formId);
-    const streamOfRecentResponses = this.serviceClientBridge.getRecentResponsesStream(
-      this.formId,
-      { since: previousFetchStartAt }
-    );
+    try {
+      const formResponse = await this.serviceClient.getForm(this.formId);
 
-    return pipeStreamToPromise(streamOfRecentResponses, responses => {
-      this.hullClient.logger.info("incoming.job.progress", {
-        progress: responses.length
-      });
-      return this.saveResponses(formResponse.body, responses);
-    })
-      .then(() => {
-        return this.settingsUpdate({
-          last_fetch_recent_responses_start_at: fetchStartAt
+      const streamOfRecentResponses = this.serviceClientBridge.getRecentResponsesStream(
+        this.formId,
+        { since: previousFetchStartAt }
+      );
+
+      return pipeStreamToPromise(streamOfRecentResponses, responses => {
+        this.hullClient.logger.info("incoming.job.progress", {
+          progress: responses.length
         });
+        return this.saveResponses(formResponse.body, responses);
       })
-      .then(() => {
-        this.hullClient.logger.info("incoming.job.success", { fetchStartAt });
-      })
-      .catch(error => {
-        this.hullClient.logger.error("incoming.job.error", error);
+        .then(() => {
+          return this.settingsUpdate({
+            last_fetch_recent_responses_start_at: fetchStartAt
+          });
+        })
+        .then(() => {
+          this.hullClient.logger.info("incoming.job.success", { fetchStartAt });
+        })
+        .catch(error => {
+          this.hullClient.logger.error("incoming.job.error", error);
+        });
+    } catch (error) {
+      return this.hullClient.logger.error("incoming.job.error", {
+        error: error.message
       });
+    }
   }
 
   getForms() {
