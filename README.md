@@ -64,3 +64,14 @@ Tests are done in two different ways:
 
 `yarn build`
 `dotenv -e .env.typeform bash scripts/bash-entrypoint.sh hull-foo`
+
+
+## Changes
+
+Monorepository has one global version, to apply it use following commands:
+
+`yarn workspaces run version --new-version 0.0.2-monorepo --no-git-tag-version`
+`yarn version --new-version 0.0.2-monorepo`
+
+this will update version in all packages, and then bump root package.json,
+commit those changes and tag them witht the version.
