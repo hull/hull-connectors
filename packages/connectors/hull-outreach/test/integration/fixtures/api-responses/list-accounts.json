@@ -1,0 +1,198 @@
+{
+    "data": [
+        {
+            "type": "account",
+            "id": 1,
+            "attributes": {
+                "companyType": null,
+                "createdAt": "2018-09-20T18:32:22.000Z",
+                "custom1": "some custom value",
+                "custom10": "another custom value",
+                "custom11": null,
+                "custom12": null,
+                "custom13": null,
+                "custom14": null,
+                "custom15": null,
+                "custom16": null,
+                "custom17": null,
+                "custom18": null,
+                "custom19": null,
+                "custom2": null,
+                "custom20": "value not to be sync'd",
+                "custom21": null,
+                "custom22": null,
+                "custom23": null,
+                "custom24": null,
+                "custom25": null,
+                "custom26": null,
+                "custom27": null,
+                "custom28": null,
+                "custom29": null,
+                "custom3": null,
+                "custom30": null,
+                "custom31": null,
+                "custom32": null,
+                "custom33": null,
+                "custom34": null,
+                "custom35": null,
+                "custom4": null,
+                "custom5": null,
+                "custom6": null,
+                "custom7": null,
+                "custom8": null,
+                "custom9": null,
+                "customId": null,
+                "description": null,
+                "domain": "somehullcompany.com",
+                "externalSource": null,
+                "followers": null,
+                "foundedAt": null,
+                "industry": null,
+                "linkedInEmployees": null,
+                "linkedInUrl": null,
+                "locality": null,
+                "name": "SomeHullCompany",
+                "named": true,
+                "naturalName": null,
+                "numberOfEmployees": null,
+                "tags": [
+                    "somehullcompanytag",
+                    "somehullcompanytag2"
+                ],
+                "updatedAt": "2018-09-20T18:32:22.000Z",
+                "websiteUrl": null
+            },
+            "relationships": {
+                "creator": {
+                    "data": {
+                        "type": "user",
+                        "id": 1
+                    }
+                },
+                "owner": {
+                    "data": {
+                        "type": "user",
+                        "id": 1
+                    }
+                },
+                "prospects": {
+                    "links": {
+                        "related": "https://api.outreach.io/api/v2/prospects?filter%5Baccount%5D%5Bid%5D=1"
+                    }
+                },
+                "tasks": {
+                    "links": {
+                        "related": "https://api.outreach.io/api/v2/tasks?filter%5Baccount%5D%5Bid%5D=1"
+                    }
+                },
+                "updater": {
+                    "data": {
+                        "type": "user",
+                        "id": 1
+                    }
+                }
+            },
+            "links": {
+                "self": "https://api.outreach.io/api/v2/accounts/1"
+            }
+        },
+        {
+            "type": "account",
+            "id": 4,
+            "attributes": {
+                "companyType": null,
+                "createdAt": "2018-09-20T18:35:32.000Z",
+                "custom1": null,
+                "custom10": null,
+                "custom11": null,
+                "custom12": null,
+                "custom13": null,
+                "custom14": null,
+                "custom15": null,
+                "custom16": null,
+                "custom17": null,
+                "custom18": null,
+                "custom19": null,
+                "custom2": null,
+                "custom20": null,
+                "custom21": null,
+                "custom22": null,
+                "custom23": null,
+                "custom24": null,
+                "custom25": null,
+                "custom26": null,
+                "custom27": null,
+                "custom28": null,
+                "custom29": null,
+                "custom3": null,
+                "custom30": null,
+                "custom31": null,
+                "custom32": null,
+                "custom33": null,
+                "custom34": null,
+                "custom35": null,
+                "custom4": null,
+                "custom5": null,
+                "custom6": null,
+                "custom7": null,
+                "custom8": null,
+                "custom9": null,
+                "customId": null,
+                "description": null,
+                "domain": "noprospectshullcompany.com",
+                "externalSource": null,
+                "followers": null,
+                "foundedAt": null,
+                "industry": null,
+                "linkedInEmployees": null,
+                "linkedInUrl": null,
+                "locality": null,
+                "name": "NoProspectsHullCompany",
+                "named": true,
+                "naturalName": null,
+                "numberOfEmployees": null,
+                "tags": [
+                    "somehullcompanytag"
+                ],
+                "updatedAt": "2018-09-20T18:35:32.000Z",
+                "websiteUrl": null
+            },
+            "relationships": {
+                "creator": {
+                    "data": {
+                        "type": "user",
+                        "id": 1
+                    }
+                },
+                "owner": {
+                    "data": {
+                        "type": "user",
+                        "id": 1
+                    }
+                },
+                "prospects": {
+                    "links": {
+                        "related": "https://api.outreach.io/api/v2/prospects?filter%5Baccount%5D%5Bid%5D=4"
+                    }
+                },
+                "tasks": {
+                    "links": {
+                        "related": "https://api.outreach.io/api/v2/tasks?filter%5Baccount%5D%5Bid%5D=4"
+                    }
+                },
+                "updater": {
+                    "data": {
+                        "type": "user",
+                        "id": 1
+                    }
+                }
+            },
+            "links": {
+                "self": "https://api.outreach.io/api/v2/accounts/4"
+            }
+        }
+    ],
+    "meta": {
+        "count": 2
+    }
+}

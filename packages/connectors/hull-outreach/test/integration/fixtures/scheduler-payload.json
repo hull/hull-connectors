@@ -1,0 +1,472 @@
+{
+    "notification_id": "f124005a-92e6-4554-a556-d294ed63cdae",
+    "configuration": {
+        "id": "b13d14e9cef7a82345e550b7c5bf",
+        "organization": "unittesting.hullapp.io",
+        "secret": "995ece09c8d843f6bc38e5abd1f60f6b"
+    },
+    "connector": {
+        "description": "Testing Connector",
+        "tags": [],
+        "source_url": "https://hull-outreach-dev.herokuapp.com/",
+        "terms_of_service_url": null,
+        "private_settings": {
+            "synchronized_user_segments": [],
+            "synchronized_account_segments": [
+                "59f09bc7f9c5a94af600076d"
+            ],
+            "account_attributes_outbound": [
+                {
+                    "hull_field_name": "name",
+                    "account_field_name": "name"
+                }
+            ],
+            "account_identifier_hull": "external_id",
+            "account_identifier_service": "domain",
+            "prospect_attributes_outbound": [
+                {
+
+                }
+            ],
+            "account_attributes_inbound": [
+                "name",
+                "custom1",
+                "custom2",
+                "custom3",
+                "custom4",
+                "custom5",
+                "custom6",
+                "custom7",
+                "custom8",
+                "custom9",
+                "custom10",
+                "title"
+            ],
+            "prospect_attributes_inbound": [
+                "title",
+                "firstName",
+                "lastName",
+                "createdAt",
+                "custom1"
+            ],
+            "last_sync_at": 1531815989
+        },
+        "index": "https://hull-outreach-dev.herokuapp.com/",
+        "name": "Outreach.io",
+        "extra": {},
+        "settings": {},
+        "type": "ship",
+        "manifest": {
+            "name": "Hull-Outreach",
+            "description": "description",
+            "source": "outreach",
+            "logo": "logo.png",
+            "picture": "picture.png",
+            "version": "0.0.1",
+          
+            "tags": [
+              "incoming", 
+              "outgoing", 
+              "batch", 
+              "oneColumn", 
+              "smart-notifier"
+            ],
+            
+            "private_settings": [
+              {
+                "name": "webhook_id",
+                "title": "Outreach webhook id",
+                "type": "string",
+                "format": "hidden"
+              },
+              {
+                "name": "configuration_title",
+                "title": "Configuration",
+                "format": "title",
+                "type": "string"
+              },
+              {
+                "name": "synchronized_account_segments",
+                "title": "Send *accounts* as accounts to Outreach.io when belonging to one of these segments",
+                "type": "array",
+                "default": [],
+                "format": "accountSegment"
+              },
+              {
+                "name": "synchronized_account_segments_hero",
+                "type": "string",
+                "headerTemplate": "The above lists of segments are whitelists for accounts. You need to *explicitely specify one or more segments* for which accounts and events shall be sent to Outreach.io.<br>If you do not specify any segment, no account or event will be sent to Outreach.io.",
+                "format": "information",
+                "title": "Whitelisted Segments"
+              },
+              {
+                "name": "synchronized_user_segments",
+                "title": "Send *accounts* as accounts to Outreach.io when belonging to one of these segments",
+                "type": "array",
+                "default": [],
+                "format": "accountSegment"
+              },
+              {
+                "name": "synchronized_user_segments_hero",
+                "type": "string",
+                "headerTemplate": "The above lists of segments are whitelists for users. You need to *explicitely specify one or more segments* for which users and events shall be sent to Outreach.io.<br>If you do not specify any segment, no users or event will be sent to Outreach.io.",
+                "format": "information",
+                "title": "Whitelisted Segments"
+              },
+              {
+                "name": "account_identifier_hull",
+                "title": "The attribute to uniquely identify an account in Hull",
+                "type": "string",
+                "format": "select",
+                "default": "domain",
+                "options": {
+                  "loadOptions": "/fields-account-ident"
+                } 
+              },
+              {
+                "name": "account_identifier_service",
+                "title": "The field to uniquely identify a lead in Outreach.io",
+                "type": "string",
+                "format": "select",
+                "default": "url",
+                "options": {
+                  "loadOptions": "/fields-outreach-account"
+                } 
+              },
+              {
+                "name": "accountsync_title",
+                "title": "Accounts Data Mapping",
+                "format": "title",
+                "type": "string"
+              },
+              {
+                "name": "account_attributes_outbound",
+                "title": "Send Account Attributes to Outreach.io",
+                "description": "Name and domain are sent automatically",
+                "type": "array",
+                "format": "table",
+                "default": [
+                  { "hull_field_name": "name", "outreach_field_name": "name" }
+                ],
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "hull_field_name" : {
+                      "type" : "string",
+                      "format" : "accountTrait",
+                      "title" : "Hull Attribute"
+                    },
+                    "outreach_field_name" : {
+                      "type" : "string",
+                      "title" : "Outreach.io Field",
+                      "format" : "select",
+                      "options" : {
+                        "loadOptions" : "/fields-outreach-account"
+                      }
+                    }
+                  },
+                  "required" : [
+                    "hull_field_name",
+                    "outreach_field_name"
+                  ]
+                } 
+              },
+              {
+                "name" : "account_attributes_inbound",
+                "title" : "List of Lead fields to fetch from Outreach.io",
+                "type" : "array",
+                "format" : "select",
+                "options" : {
+                  "loadOptions" : "/fields-outreach-accounts"
+                }
+              },
+              {
+                "name": "prospectsync_title",
+                "title": "Prospects Data Mapping",
+                "format": "title",
+                "type": "string"
+              },
+              {
+                "name": "prospect_attributes_outbound",
+                "title": "Send User Attributes to Outreach.io",
+                "description": "Name is sent automatically",
+                "type": "array",
+                "format": "table",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "hull_field_name" : {
+                      "type" : "string",
+                      "format" : "trait",
+                      "title" : "Hull Attribute"
+                    },
+                    "prospect_field_name" : {
+                      "type" : "string",
+                      "title" : "Outreach.io Field",
+                      "format" : "select",
+                      "options" : {
+                        "loadOptions" : "/fields-outreach-prospect"
+                      }
+                    }
+                  },
+                  "required" : [
+                    "hull_field_name",
+                    "prospect_field_name"
+                  ]
+                }
+              },
+              {
+                "name" : "prospect_attributes_inbound",
+                "title" : "List of Contact fields to fetch from Close.io",
+                "type" : "array",
+                "format" : "select",
+                "options" : {
+                  "loadOptions" : "/fields-outreach-prospect"
+                }
+              }
+            ],
+            "settings": [],
+            "resources": [],
+          
+            "readme": "readme.md",
+            "admin": "admin",
+            "ui": false,
+            "subscriptions": [{ "url": "/smart-notifier" }],
+            "schedules" : [
+              {
+                "url": "/status",
+                "type": "interval",
+                "value": "5"
+              }
+            ]
+          },
+        "secret": "995ece09c8d843f6bc38e5abd1f60f6b",
+        "ends_at": null,
+        "updated_at": "2018-03-30T14:36:02Z",
+        "status": {
+            "id": "5aa6d6b241c7c1dcae003429",
+            "name": "Outreach.io",
+            "status": "ok",
+            "messages": [],
+            "updated_at": "2018-03-12T20:02:26Z",
+            "schedules": [
+                {
+                    "url": "/status",
+                    "type": "cron",
+                    "value": "*/30 * * * *"
+                }
+            ]
+        },
+        "starts_at": null,
+        "id": "b13d14e9cef7a82345e550b7c5bf",
+        "picture": "https://hull-outreach.herokuapp.com/picture.png",
+        "homepage_url": "https://unittesting.hullapp.io/ships/b13d14e9cef7a82345e550b7c5bf",
+        "resources": {},
+        "manifest_url": "https://hull-outreach-dev.herokuapp.com/manifest.json",
+        "created_at": "2018-03-12T19:36:19Z",
+        "translations": {},
+        "privacy_policy_url": null
+    },
+    "segments": [
+        {
+            "id": "5a8c05a0f0a9ce7828001733",
+            "name": "New Segment 3",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2018-02-20T11:25:20Z",
+            "updated_at": "2018-02-20T11:25:20Z"
+        },
+        {
+            "id": "5a38201b689faac38100000a",
+            "name": "Nutshell - Sync",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-12-18T20:07:55Z",
+            "updated_at": "2017-12-18T20:07:55Z"
+        },
+        {
+            "id": "5a8c05a56396df5003009d2d",
+            "name": "New Segment 4",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2018-02-20T11:25:24Z",
+            "updated_at": "2018-02-20T11:25:24Z"
+        },
+        {
+            "id": "5aa18fffab290b2a51000047",
+            "name": "Kraken stress 2",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2018-03-08T19:33:19Z",
+            "updated_at": "2018-03-08T19:33:19Z"
+        },
+        {
+            "id": "5aa1a144258b2d62b1000fb1",
+            "name": "Anonymous Users - Highly Engaged",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2018-03-08T20:47:00Z",
+            "updated_at": "2018-03-08T20:47:00Z"
+        },
+        {
+            "id": "59397c8e99941c720b00771e",
+            "name": "Users w/ Connectors",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-06-08T16:34:22Z",
+            "updated_at": "2017-06-08T16:34:22Z"
+        },
+        {
+            "id": "596796d24eaa537e6900e1ee",
+            "name": "Hull Users",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-07-13T15:50:42Z",
+            "updated_at": "2017-09-28T22:54:11Z"
+        },
+        {
+            "id": "59ca4491dfc5fe00a1004b28",
+            "name": "Prospected Users",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-09-26T12:14:09Z",
+            "updated_at": "2017-09-26T12:14:09Z"
+        },
+        {
+            "id": "59cd7d7be26de46db1002273",
+            "name": "Hull Users with Coconuts",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-09-28T22:53:47Z",
+            "updated_at": "2017-09-28T22:53:47Z"
+        },
+        {
+            "id": "59d1f4f20181b920f30000cc",
+            "name": "Prospected Hootsuite Users",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-10-02T08:12:34Z",
+            "updated_at": "2017-10-02T08:12:34Z"
+        },
+        {
+            "id": "59d20238527cb53b78000110",
+            "name": "Prospected Users w/ Account",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-10-02T09:09:12Z",
+            "updated_at": "2017-10-02T09:09:12Z"
+        },
+        {
+            "id": "59d2105b3c9cfdbda30004e1",
+            "name": "Hull Intercom Leads",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-10-02T10:09:31Z",
+            "updated_at": "2017-10-02T10:09:31Z"
+        },
+        {
+            "id": "59d7649fc924cb22c3000071",
+            "name": "Pardot Sync Users",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-10-06T11:10:23Z",
+            "updated_at": "2017-10-06T11:39:33Z"
+        },
+        {
+            "id": "5a8c059c2eb55039f200c15b",
+            "name": "New Segment 1",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2018-02-20T11:25:16Z",
+            "updated_at": "2018-02-20T11:25:16Z"
+        },
+        {
+            "id": "59e488718b2488aa4b000029",
+            "name": "Users w/ Accounts",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-10-16T10:22:41Z",
+            "updated_at": "2017-10-16T10:22:41Z"
+        },
+        {
+            "id": "59e9060e657b1cc20a0000ff",
+            "name": "Sendgrid - Sync Segment",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-10-19T20:07:42Z",
+            "updated_at": "2017-10-19T20:07:42Z"
+        },
+        {
+            "id": "59f09bc7f9c5a94af600076d",
+            "name": "Users signed in last 100 days",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-10-25T14:12:23Z",
+            "updated_at": "2017-10-25T14:12:23Z"
+        },
+        {
+            "id": "5a0c1f07b4d8644425002c65",
+            "name": "SFDC Testing - Sync Leads",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-11-15T11:03:35Z",
+            "updated_at": "2017-11-15T11:22:28Z"
+        },
+        {
+            "id": "5a1630264cc20f200c003fae",
+            "name": "Close.io - Users w/ Accounts",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-11-23T02:19:18Z",
+            "updated_at": "2017-11-23T02:19:18Z"
+        },
+        {
+            "id": "5a256297ac55a70fed0000cb",
+            "name": "Customer signed up 4 days ago",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-12-04T14:58:31Z",
+            "updated_at": "2017-12-04T14:58:31Z"
+        },
+        {
+            "id": "593ee3ecdd139361b2000699",
+            "name": "Recompute forced",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-06-12T18:56:44Z",
+            "updated_at": "2017-12-07T10:07:47Z"
+        },
+        {
+            "id": "5a8c0594f25052338f001823",
+            "name": "New segment 1",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2018-02-20T11:25:08Z",
+            "updated_at": "2018-02-20T11:25:08Z"
+        },
+        {
+            "id": "5a8c04e05b5953decf003a92",
+            "name": "New segment",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2018-02-20T11:22:08Z",
+            "updated_at": "2018-02-20T11:22:08Z"
+        },
+        {
+            "id": "5a8c04d871040e9524006be0",
+            "name": "New segment",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2018-02-20T11:22:00Z",
+            "updated_at": "2018-02-20T11:22:00Z"
+        },
+        {
+            "id": "5a9038eba9c020f280000174",
+            "name": "Visited Pricing Page 3+ times",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2018-02-23T15:53:15Z",
+            "updated_at": "2018-02-23T15:53:15Z"
+        }
+    ]
+}

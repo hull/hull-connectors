@@ -1,0 +1,224 @@
+{
+  "name": "Hull-Outreach",
+  "description": "description",
+  "source": "outreach",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "version": "0.0.1",
+
+  "tags": [
+    "incoming", 
+    "outgoing", 
+    "batch", 
+    "oneColumn", 
+    "smart-notifier"
+  ],
+  
+  "private_settings": [
+    {
+      "name": "webhook_id",
+      "title": "Outreach webhook id",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "access_token",
+      "title": "OAuth Access Token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "refresh_token",
+      "title": "OAuth Refresh Token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "accountidentification_title",
+      "title": "Accounts Identification",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "account_identifier_hull",
+      "title": "The attribute to uniquely identify an account in Hull",
+      "type": "string",
+      "format": "select",
+      "default": "domain",
+      "options": {
+        "loadOptions": "/fields-hull-account-ident"
+      } 
+    },
+    {
+      "name": "account_identifier_service",
+      "title": "The field to uniquely identify a Account in Outreach.io",
+      "type": "string",
+      "format": "select",
+      "default": "customId",
+      "options": {
+        "loadOptions": "/fields-outreach-account-ident"
+      } 
+    },
+    {
+      "name": "accountsynch_title",
+      "title": "Accounts To Synchronize",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "synchronized_account_segments_hero",
+      "type": "string",
+      "headerTemplate": "The below lists of segments are whitelists for accounts. You need to *explicitely specify one or more segments* for which accounts and events shall be sent to Outreach.io.<br>If you do not specify any segment, no account or event will be sent to Outreach.io.",
+      "format": "information",
+      "title": "Whitelisted Segments"
+    },
+    {
+      "name": "synchronized_account_segments",
+      "title": "Send *Accounts* as Accounts to Outreach.io when belonging to one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "accountSegment"
+    },
+    {
+      "name": "accountconfig_title",
+      "title": "Accounts Attribute Configuration",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name" : "account_attributes_inbound",
+      "title" : "List of Account fields to fetch from Outreach.io",
+      "type" : "array",
+      "format" : "select",
+      "options" : {
+        "loadOptions" : "/fields-outreach-account-in"
+      }
+    },
+    {
+      "name": "account_attributes_outbound",
+      "title": "Send Account Attributes to Outreach.io",
+      "description": "Name and domain are sent automatically",
+      "type": "array",
+      "format": "table",
+      "default": [
+        { "hull_field_name": "name", "outreach_field_name": "name" }
+      ],
+      "items": {
+        "type": "object",
+        "properties": {
+          "hull_field_name" : {
+            "type" : "string",
+            "format" : "accountTrait",
+            "title" : "Hull Attribute"
+          },
+          "outreach_field_name" : {
+            "type" : "string",
+            "title" : "Outreach.io Field",
+            "format" : "select",
+            "options" : {
+              "loadOptions" : "/fields-outreach-account-out"
+            }
+          }
+        },
+        "required" : [
+          "hull_field_name",
+          "outreach_field_name"
+        ]
+      } 
+    },
+    {
+      "name": "prospectsync_title",
+      "title": "Users to Synchronize",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "synchronized_user_segments_hero",
+      "type": "string",
+      "headerTemplate": "The above lists of segments are whitelists for users. You need to *explicitely specify one or more segments* for which users and events shall be sent to Outreach.io.<br>If you do not specify any segment, no users or event will be sent to Outreach.io.",
+      "format": "information",
+      "title": "Whitelisted Segments"
+    },
+    {
+      "name": "synchronized_user_segments",
+      "title": "Send *Users* as Prospects to Outreach.io when belonging to one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "segment"
+    },
+    {
+      "name": "prospectconfig_title",
+      "title": "Prospects Attribute Configuration",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name" : "prospect_attributes_inbound",
+      "title" : "List of Prospect fields to fetch from Outreach.io",
+      "type" : "array",
+      "format" : "select",
+      "options" : {
+        "loadOptions" : "/fields-outreach-prospect-in"
+      }
+    },
+    {
+      "name": "prospect_attributes_outbound",
+      "title": "Send User Attributes to Outreach.io",
+      "description": "Name is sent automatically",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hull_field_name" : {
+            "type" : "string",
+            "format" : "trait",
+            "title" : "Hull Attribute"
+          },
+          "outreach_field_name" : {
+            "type" : "string",
+            "title" : "Outreach.io Field",
+            "format" : "select",
+            "options" : {
+              "loadOptions" : "/fields-outreach-prospect-out"
+            }
+          }
+        },
+        "required" : [
+          "hull_field_name",
+          "outreach_field_name"
+        ]
+      }
+    }
+  ],
+  "settings": [],
+  "resources": [],
+  "readme": "readme.md",
+  "tabs": [
+    {
+      "title": "Credentials",
+      "url": "/auth",
+      "size": "small",
+      "editable": false
+    },
+    {
+      "title": "Actions",
+      "url": "/admin",
+      "size": "small",
+      "editable": false
+    }
+  ],
+  "admin": "/admin",
+  "ui": false,
+  "subscriptions": [{
+    "url": "/smart-notifier",
+    "conditions": {
+      "channels": {
+        "only": [
+          "user:update",
+          "account:update"
+        ]
+      }
+    }
+  }]
+}

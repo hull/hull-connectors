@@ -1,0 +1,30 @@
+{
+    "data": {
+        "type": "sequenceState",
+        "id": 1,
+        "attributes": {
+            "createdAt": "2018-09-26T18:15:20.000Z",
+            "updatedAt": "2018-09-26T18:15:20.000Z",
+            "stateChangedAt": "2018-09-26T18:15:20.000Z",
+            "state": "pending"
+        },
+        "relationships": {
+            "mailbox": {
+                "type": "mailbox",
+                "id": 2
+            },
+            "prospect": {
+                "type": "prospect",
+                "id": 3
+            },
+            "sequence": {
+                "type": "sequence",
+                "id": 2
+            }
+        }
+    },
+    "meta": {
+        "deliveredAt": "2018-09-26T11:15:22.780-07:00",
+        "eventName": "sequenceState.created"
+    }
+}

@@ -1,0 +1,15 @@
+{
+    "data": {
+        "type": "mailing",
+        "id": 1,
+        "attributes": {
+            "stateChangedAt": "2018-09-26T18:54:27.000Z",
+            "state": "scheduled"
+        },
+        "relationships": {}
+    },
+    "meta": {
+        "deliveredAt": "2018-09-26T11:54:27.323-07:00",
+        "eventName": "mailing.updated"
+    }
+}

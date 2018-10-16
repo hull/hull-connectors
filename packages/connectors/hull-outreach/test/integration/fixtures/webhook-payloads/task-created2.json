@@ -1,0 +1,47 @@
+{
+    "data": {
+        "type": "task",
+        "id": 3,
+        "attributes": {
+            "createdAt": "2018-09-26T18:55:03.000Z",
+            "updatedAt": "2018-09-26T18:55:03.000Z",
+            "dueAt": "2018-09-26T18:56:03.000Z",
+            "note": "Take a LinkedIn action based on how active this prospect is on LinkedIn.\nIf the prospect is very active on LinkedIn, then you should take an active action, such as commenting on a recent post of theirs.\nIf a prospect is not very active on LinkedIn, you should send a connection request or give their profile a 'view'.\nIf you don’t have your prospect’s LinkedIn Url, copy and paste it into their Outreach profile once you’ve found them on LinkedIn.",
+            "taskType": "sequence_step_task"
+        },
+        "relationships": {
+            "owner": {
+                "type": "owner",
+                "id": 1
+            },
+            "prospect": {
+                "type": "prospect",
+                "id": 3
+            },
+            "sequence": {
+                "type": "sequence",
+                "id": 2
+            },
+            "sequenceState": {
+                "type": "sequenceState",
+                "id": 1
+            },
+            "sequenceStep": {
+                "type": "sequenceStep",
+                "id": 15
+            },
+            "taskPriority": {
+                "type": "taskPriority",
+                "id": 3
+            },
+            "taskTheme": {
+                "type": "taskTheme",
+                "id": 4
+            }
+        }
+    },
+    "meta": {
+        "deliveredAt": "2018-09-26T11:55:04.009-07:00",
+        "eventName": "task.created"
+    }
+}

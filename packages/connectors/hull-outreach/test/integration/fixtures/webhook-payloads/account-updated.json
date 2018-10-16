@@ -1,0 +1,15 @@
+{
+    "data": {
+        "type": "account",
+        "id": 1,
+        "attributes": {
+            "updatedAt": "2018-09-26T19:08:00.000Z",
+            "custom1": "it's a hull company, but we don't know too much more"
+        },
+        "relationships": {}
+    },
+    "meta": {
+        "deliveredAt": "2018-09-26T12:08:00.508-07:00",
+        "eventName": "account.updated"
+    }
+}

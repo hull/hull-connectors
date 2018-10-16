@@ -1,0 +1,37 @@
+{
+    "data": {
+        "type": "sequence",
+        "id": 2,
+        "attributes": {
+            "createdAt": "2018-09-26T18:09:57.000Z",
+            "updatedAt": "2018-09-26T18:09:57.000Z",
+            "lastUsedAt": "2018-09-26T18:09:57.000Z",
+            "throttleMaxAddsPerDay": 50,
+            "description": "Tailored sequence for influencers with strong automation",
+            "name": "Tier 3 - Influencer",
+            "shareType": "private"
+        },
+        "relationships": {
+            "creator": {
+                "type": "creator",
+                "id": 1
+            },
+            "owner": {
+                "type": "owner",
+                "id": 1
+            },
+            "ruleset": {
+                "type": "ruleset",
+                "id": 1
+            },
+            "updater": {
+                "type": "updater",
+                "id": 1
+            }
+        }
+    },
+    "meta": {
+        "deliveredAt": "2018-09-26T11:09:57.571-07:00",
+        "eventName": "sequence.created"
+    }
+}

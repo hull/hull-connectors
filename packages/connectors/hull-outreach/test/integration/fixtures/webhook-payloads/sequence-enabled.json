@@ -1,0 +1,15 @@
+{
+    "data": {
+        "type": "sequence",
+        "id": 2,
+        "attributes": {
+            "updatedAt": "2018-09-26T18:10:51.000Z",
+            "enabledAt": "2018-09-26T18:10:51.000Z"
+        },
+        "relationships": {}
+    },
+    "meta": {
+        "deliveredAt": "2018-09-26T11:10:51.616-07:00",
+        "eventName": "sequence.updated"
+    }
+}

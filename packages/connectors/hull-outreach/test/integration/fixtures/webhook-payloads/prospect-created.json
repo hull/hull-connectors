@@ -1,0 +1,31 @@
+{
+    "data": {
+        "type": "prospect",
+        "id": 3,
+        "attributes": {
+            "createdAt": "2018-09-26T18:01:58.000Z",
+            "updatedAt": "2018-09-26T18:01:58.000Z",
+            "firstName": "Luke",
+            "lastName": "Skywalker",
+            "title": "Jedi Knight"
+        },
+        "relationships": {
+            "account": {
+                "type": "account",
+                "id": 5
+            },
+            "owner": {
+                "type": "owner",
+                "id": 1
+            },
+            "stage": {
+                "type": "stage",
+                "id": 1
+            }
+        }
+    },
+    "meta": {
+        "deliveredAt": "2018-09-26T11:01:59.032-07:00",
+        "eventName": "prospect.created"
+    }
+}

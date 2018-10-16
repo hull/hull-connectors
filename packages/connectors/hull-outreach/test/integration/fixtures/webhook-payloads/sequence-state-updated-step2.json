@@ -1,0 +1,17 @@
+{
+    "data": {
+        "type": "sequenceState",
+        "id": 1,
+        "attributes": {},
+        "relationships": {
+            "sequenceStep": {
+                "type": "sequenceStep",
+                "id": 15
+            }
+        }
+    },
+    "meta": {
+        "deliveredAt": "2018-09-26T11:55:03.944-07:00",
+        "eventName": "sequenceState.updated"
+    }
+}

@@ -1,0 +1,25 @@
+{
+  "parser": "babel-eslint",
+  "globals": {
+    "Hull": true
+  },
+  "settings": {
+    "ecmascript": 6,
+    "jsx": true,
+    "import/extensions": [".js", ".jsx"]
+  },
+  "extends": [
+    "plugin:react/recommended",
+    "prettier/react"
+  ],
+  "plugins": [
+    "react"
+  ],
+  "env": {
+    "node": false,
+    "browser": true,
+    "commonjs": true,
+    "worker": true,
+    "es6": true
+  }
+}
