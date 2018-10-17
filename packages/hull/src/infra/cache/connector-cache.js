@@ -59,7 +59,7 @@ class ConnectorCache {
    * @param {Function} cb callback which Promised result would be cached
    * @return {Promise}
    */
-  wrap(key: string, cb: Function, options: ?Object): Promise<any> {
+  wrap(key: string, cb: Function, options: ?Object = {}): Promise<any> {
     const shipCacheKey = this.getCacheKey(key);
     const reuseWrap = this.promiseReuser.reusePromise(wrappedShipCacheKey => {
       return this.cache.wrap(wrappedShipCacheKey, cb, options);

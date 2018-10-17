@@ -3,8 +3,8 @@ import type { TestScenarioDefinition } from "./test-scenario-runner";
 
 const TestScenarioRunner = require("./test-scenario-runner");
 
-function testScenario(scenarioDefinition: TestScenarioDefinition): Promise<*> {
-  const runner = new TestScenarioRunner(scenarioDefinition);
+function testScenario(connectorServer, scenarioDefinition: TestScenarioDefinition): Promise<*> {
+  const runner = new TestScenarioRunner(connectorServer, scenarioDefinition);
   return runner.run();
 }
 

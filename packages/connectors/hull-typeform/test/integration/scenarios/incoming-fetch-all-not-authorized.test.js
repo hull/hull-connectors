@@ -6,11 +6,10 @@ process.env.CLIENT_ID = "123";
 const hullTypeformServer = require("../../../server/server");
 
 test("incoming fetch all responses not authorized", () => {
-  return testScenario(({ handlers, expect, nock }) => {
+  return testScenario(hullTypeformServer, ({ handlers, expect, nock }) => {
     return {
-      connectorServer: hullTypeformServer,
       handlerType: handlers.scheduleHandler,
-      handlerName: "fetch-all-responses",
+      handlerUrl: "fetch-all-responses",
       externalApiMock: () => {
         const scope = nock("https://api.typeform.com");
         scope.get("/forms/TYPEFORM1").reply(403);

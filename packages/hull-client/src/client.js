@@ -177,7 +177,7 @@ class HullClient {
     if (this.clientConfig.get("logs")) {
       const logsArray = this.clientConfig.get("logs");
       if (!Array.isArray(logsArray)) {
-        throw new Error("Configuration `logsArray` must be an Array");
+        throw new Error("Configuration `logs` must be an Array");
       }
       if (logger.transports.console) {
         logger.remove("console");
@@ -186,16 +186,17 @@ class HullClient {
           json: true,
           stringify: input => input
         });
-        logger.on("logged", (level, message, payload) => {
-          logsArray.push({
-            message,
-            level,
-            data: payload.data,
-            context: payload.context,
-            timestamp: new Date().toISOString()
-          });
-        });
       }
+      logger.removeAllListeners();
+      logger.on("logged", (level, message, payload) => {
+        logsArray.push({
+          message,
+          level,
+          data: payload.data,
+          context: payload.context,
+          timestamp: new Date().toISOString()
+        });
+      });
     }
   }
 

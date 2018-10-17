@@ -8,11 +8,13 @@ const express = require("express");
 const jwt = require("jwt-simple");
 const expect = require("expect");
 const { EventEmitter } = require("events");
+const debug = require("debug")("hull-test-scenario-runner");
+const nockCommon = require("nock/lib/common");
 
 export type TestScenarioDefinition = Object => {
-  connectorServer: express => express,
   handlerType: $Values<typeof handlers>,
-  handlerName: string,
+  handlerUrl: string,
+  channel?: string,
   connector: Object,
   usersSegments: Array<*>,
   accountsSegments: Array<*>,
@@ -33,6 +35,8 @@ class TestScenarioRunner extends EventEmitter {
   hullConnector: *;
 
   scenarioDefinition: *;
+
+  rawScenarioDefinition: Function;
 
   deboucedFinish: *;
 
@@ -58,7 +62,10 @@ class TestScenarioRunner extends EventEmitter {
 
   server: Function;
 
-  constructor(scenarioDefinition: TestScenarioDefinition) {
+  constructor(
+    connectorServer: express => express,
+    scenarioDefinition: TestScenarioDefinition
+  ) {
     super();
     expect.extend({
       whatever() {
@@ -76,44 +83,22 @@ class TestScenarioRunner extends EventEmitter {
     this.debounceWait = 100;
     this.capturedMetrics = [];
     this.capturedLogs = [];
-    this.scenarioDefinition = scenarioDefinition({ expect, nock, handlers });
     this.minihull = new Minihull();
     this.app = express();
-    this.server = this.scenarioDefinition.connectorServer;
-    this.connector = _.defaults(this.scenarioDefinition.connector, {
-      id: "9993743b22d60dd829001999",
-      private_settings: {}
-    });
+    this.rawScenarioDefinition = scenarioDefinition;
     this.deboucedFinish = _.debounce(() => this.finish(), this.debounceWait, {
       maxWait: this.timeout
     });
+    this.server = connectorServer;
 
     this.minihull.on("incoming.request", req =>
       console.log(">>>> MINIHULL", req.method, req.url)
     );
     this.minihull.on("incoming.request@/api/v1/firehose", this.deboucedFinish);
-
-    this.minihull.stubConnector(this.connector);
-    this.minihull.stubUsersSegments(this.scenarioDefinition.usersSegments);
-    this.minihull.stubAccountsSegments(
-      this.scenarioDefinition.accountsSegments
-    );
-    this.nockScope = this.scenarioDefinition.externalApiMock();
-
-    switch (this.scenarioDefinition.handlerType) {
-      case handlers.scheduleHandler:
-      case handlers.jsonHandler:
-        break;
-      default:
-        throw new Error(
-          `Wrong handlerType: ${this.scenarioDefinition.handlerType.name}`
-        );
-    }
-
-    this.nockScope.on("replied", this.deboucedFinish);
   }
 
   async finish() {
+    debug("finish");
     try {
       if (this.finished === true) {
         throw new Error(
@@ -122,12 +107,6 @@ class TestScenarioRunner extends EventEmitter {
       }
       clearTimeout(this.timeoutId);
       this.finished = true;
-
-      expect(
-        this.capturedMetrics.map(metric => {
-          return [metric[0], metric[1], metric[2]];
-        })
-      ).toMatchObject(this.scenarioDefinition.metrics);
       const transformedLogs = this.capturedLogs.map(log => {
         return [
           log.level,
@@ -137,13 +116,11 @@ class TestScenarioRunner extends EventEmitter {
         ];
       });
       expect(transformedLogs).toMatchObject(this.scenarioDefinition.logs);
-      // transformedLogs.forEach((log, index) => {
-      //   expect(log).toMatchObject(this.scenarioDefinition.logs[index]);
-      // });
-
-      // expect(this.capturedLogs.map(log => {
-      //   return [log.level, log.message, _.omit(log.context, "organization", "id", "connector_name"), log.data];
-      // })).toMatchObject(this.scenarioDefinition.logs);
+      expect(
+        this.capturedMetrics.map(metric => {
+          return [metric[0], metric[1], metric[2]];
+        })
+      ).toMatchObject(this.scenarioDefinition.metrics);
       const firehoseEvents = this.minihull.requests
         .get("incoming")
         .filter({ url: "/api/v1/firehose" })
@@ -177,8 +154,10 @@ class TestScenarioRunner extends EventEmitter {
           `pending mocks: ${JSON.stringify(this.nockScope.pendingMocks())}`
         );
       }
+      debug("closing");
       nock.cleanAll();
       nock.enableNetConnect();
+      nock.emitter.removeAllListeners();
       await this.minihull.close();
       await new Promise(resolve => {
         this.hullConnectorServer.close(() => resolve());
@@ -186,47 +165,102 @@ class TestScenarioRunner extends EventEmitter {
     } catch (error) {
       return this.emit("error", error);
     }
+    debug("finishing");
     return this.emit("finish");
   }
 
   async run() {
     return new Promise(async (resolve, reject) => {
-      nock.disableNetConnect();
-      nock.enableNetConnect("localhost");
-      this.on("error", error => {
+      try {
+        nock.disableNetConnect();
+        nock.enableNetConnect("localhost");
+        nock.emitter.on("no match", (req, options, requestBody) => {
+          if (req.hostname !== "localhost") {
+            this.emit("error", new Error(`Missing nock endpoint: ${options.method} ${options.hostname}${options.path} ${JSON.stringify(requestBody)}`));
+          }
+        });
+        this.on("error", error => {
+          reject(error);
+        });
+        this.on("finish", () => {
+          resolve();
+        });
+        await this.minihull.listen(0);
+        this.minihullPort = this.minihull.server.address().port;
+        this.hullConnector = this.setupTestConnector();
+        this.hullConnector.setupApp(this.app);
+        this.server(this.app);
+        this.hullConnectorServer = await this.hullConnector.startApp(this.app);
+
+        this.hullConnectorPort = this.hullConnectorServer.address().port;
+        this.scenarioDefinition = this.rawScenarioDefinition({
+          expect,
+          nock,
+          handlers,
+          connectorPort: this.hullConnectorPort,
+          minihullPort: this.minihullPort
+        });
+        this.nockScope = this.scenarioDefinition.externalApiMock();
+        this.nockScope.on("request", req => {
+          console.log(">>> NOCK REQUEST", req.path);
+        });
+        this.nockScope.on("replied", req => {
+          console.log(">>> NOCK", req.path);
+        });
+        this.nockScope.on("replied", this.deboucedFinish);
+        this.server = this.scenarioDefinition.connectorServer;
+        this.connector = _.defaults(this.scenarioDefinition.connector, {
+          id: "9993743b22d60dd829001999",
+          private_settings: {}
+        });
+        this.minihull.stubConnector(this.connector);
+        this.minihull.stubUsersSegments(this.scenarioDefinition.usersSegments);
+        this.minihull.stubAccountsSegments(
+          this.scenarioDefinition.accountsSegments
+        );
+        let response;
+        const { handlerUrl, channel } = this.scenarioDefinition;
+        switch (this.scenarioDefinition.handlerType) {
+          case handlers.scheduleHandler:
+          case handlers.jsonHandler:
+            response = await this.minihull.postConnector(
+              this.connector,
+              `http://localhost:${this.hullConnectorPort}/${handlerUrl}`,
+              this.scenarioDefinition.usersSegments,
+              this.scenarioDefinition.accountsSegments
+            );
+            break;
+          case handlers.notificationHandler:
+            response = await this.minihull.notifyConnector(
+              this.connector,
+              `http://localhost:${this.hullConnectorPort}/${handlerUrl}`,
+              channel,
+              this.scenarioDefinition.messages,
+              this.scenarioDefinition.usersSegments,
+              this.scenarioDefinition.accountsSegments
+            );
+            break;
+          default:
+            throw new Error(
+              `Wrong handlerType: ${this.scenarioDefinition.handlerType.name}`
+            );
+        }
+        debug("response", response.body, response.statusCode);
+        expect(response.body).toMatchObject(this.scenarioDefinition.response);
+        expect(response.statusCode).toEqual(200);
+        this.timeoutId = setTimeout(() => {
+          this.deboucedFinish.cancel();
+          throw new Error("Scenario timeouted");
+        }, this.timeout);
+        this.deboucedFinish();
+      } catch (error) {
+        console.log(error);
         reject(error);
-      });
-      this.on("finish", () => {
-        resolve();
-      });
-      await this.minihull.listen(0);
-      this.minihullPort = this.minihull.server.address().port;
-
-      this.hullConnector = this.setupTestConnector();
-      this.hullConnector.setupApp(this.app);
-      this.server(this.app);
-      this.hullConnectorServer = await this.hullConnector.startApp(this.app);
-
-      this.hullConnectorPort = this.hullConnectorServer.address().port;
-
-      const { handlerName } = this.scenarioDefinition;
-      const response = await this.minihull.postConnector(
-        this.connector,
-        `http://localhost:${this.hullConnectorPort}/${handlerName}`,
-        this.scenarioDefinition.usersSegments,
-        this.scenarioDefinition.accountsSegments
-      );
-      expect(response.body).toMatchObject(this.scenarioDefinition.response);
-      expect(response.statusCode).toEqual(200);
-      this.timeoutId = setTimeout(() => {
-        this.deboucedFinish.cancel();
-        throw new Error("Scenario timeouted");
-      }, this.timeout);
+      }
     });
   }
 
   setupTestConnector() {
-    Hull.Client.logger.transports.console.level = "debug";
     const options = {
       port: 0,
       hostSecret: "1234",
