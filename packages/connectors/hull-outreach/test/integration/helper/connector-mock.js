@@ -13,6 +13,9 @@ class ContextMock {
     this.ship = new ConnectorMock(id, settings, private_settings);
     this.connector = new ConnectorMock(id, settings, private_settings);
     this.client = new ClientMock();
+    this.client.utils = {
+      settings: { update: jest.fn(() => Promise.resolve(this.connector)) }
+    };
     this.metric = {
       increment: jest.fn((name, value) => console.log(name, value)),
       value: jest.fn((name, value) => console.log(name, value))
@@ -26,6 +29,9 @@ class ContextMock {
       }),
       set: jest.fn(() => {
         return Promise.resolve();
+      }),
+      del: jest.fn(() => {
+        return Promise.resolve(this.connector);
       })
     };
     this.helpers = {

@@ -75,7 +75,8 @@ class ServiceClient {
     this.connectorHostname = ctx.hostname;
 
     const accessToken = ctx.connector.private_settings.access_token;
-    console.log(`Token: ${accessToken}`);
+    debug(`Found Token: ${accessToken}`);
+
     this.agent = superagent
       .agent()
       .use(superagentUrlTemplatePlugin({}))
@@ -85,10 +86,13 @@ class ServiceClient {
           metric: this.metricsClient
         })
       )
-      .use(prefixPlugin("https://api.outreach.io"))
+      .use(prefixPlugin("https://api.outreach.io/api/v2"))
       .set("Authorization", `Bearer ${accessToken}`)
       .set({ "Content-Type": "application/vnd.api+json" })
       .on("response", res => {
+
+        // https://api.outreach.io/api/v2/docs#rate-limiting
+        // Limited to 5k per hour "on a per user basis" -> which I assume means api user
         const limit = _.get(res.header, "x-rate-limit-limit");
         const remaining = _.get(res.header, "x-rate-limit-remaining");
         // const reset = _.get(res.header, "x-rate-limit-reset");
@@ -117,7 +121,7 @@ class ServiceClient {
     SuperAgentResponse<OutreachList<OutreachAccountReadData>>
   > {
     debug("getAccounts");
-    return this.agent.get("/api/v2/accounts/");
+    return this.agent.get("/accounts/");
   }
 
   /**
@@ -129,7 +133,7 @@ class ServiceClient {
    */
   postAccount(data: OutreachAccountWrite): Promise<OutreachAccountRead> {
     return this.agent
-      .post("/api/v2/accounts/")
+      .post("/accounts/")
       .send(data)
       .ok(res => res.status === 201);
   }
@@ -169,7 +173,7 @@ class ServiceClient {
       return Promise.reject(new Error("Cannot update account without id"));
     }
 
-    return this.agent.patch(`/api/v2/accounts/${outreachAccountId}`).send(data);
+    return this.agent.patch(`/accounts/${outreachAccountId}`).send(data);
   }
 
   patchAccountEnvelopes(
@@ -204,7 +208,7 @@ class ServiceClient {
     SuperAgentResponse<OutreachList<OutreachProspectReadData>>
   > {
     debug("getProspects");
-    return this.agent.get("/api/v2/prospects/");
+    return this.agent.get("/prospects/");
   }
 
   /**
@@ -218,10 +222,10 @@ class ServiceClient {
   ): Promise<SuperAgentResponse<OutreachList<OutreachAccountReadData>>> {
     debug(`findOutreachAccounts filter[${attribute}]=${value}`);
     return this.agent
-      .get("/api/v2/accounts/")
+      .get("/accounts/")
       .query(`filter[${attribute}]=${value}`)
       .catch(error => {
-        console.log(error);
+        debug(error);
       });
   }
 
@@ -233,9 +237,9 @@ class ServiceClient {
    * @memberof ServiceClient
    */
   postProspect(data: OutreachProspectWrite): Promise<OutreachProspectRead> {
-    console.log(`Writing Prospect: ${JSON.stringify(data)}`);
+    debug(`Writing Prospect: ${JSON.stringify(data)}`);
     return this.agent
-      .post("/api/v2/prospects/")
+      .post("/prospects/")
       .send(data)
       .ok(res => res.status === 201);
   }
@@ -275,7 +279,7 @@ class ServiceClient {
       return Promise.reject(new Error("Cannot update prospect without id"));
     }
     return this.agent
-      .patch(`/api/v2/prospects/${prospectId}`)
+      .patch(`/prospects/${prospectId}`)
       .send(prospectWrite);
   }
 
@@ -326,7 +330,7 @@ class ServiceClient {
     };
 
     return this.agent
-      .post("/api/v2/webhooks")
+      .post("/webhooks/")
       .send(genericWebhook)
       .ok(res => res.status === 201);
   }
