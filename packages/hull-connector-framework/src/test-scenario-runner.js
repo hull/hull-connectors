@@ -145,9 +145,7 @@ class TestScenarioRunner extends EventEmitter {
           ];
         })
         .value();
-      expect(firehoseEvents).toEqual(
-        this.scenarioDefinition.firehoseEvents
-      );
+      expect(firehoseEvents).toEqual(this.scenarioDefinition.firehoseEvents);
       if (!this.nockScope.isDone()) {
         throw new Error(
           `pending mocks: ${JSON.stringify(this.nockScope.pendingMocks())}`
