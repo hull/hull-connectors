@@ -204,7 +204,11 @@ class TestScenarioRunner extends EventEmitter {
           nock,
           handlers,
           connectorPort: this.hullConnectorPort,
-          minihullPort: this.minihullPort
+          minihullPort: this.minihullPort,
+          alterFixture: (fixture, modification) => {
+            // $FlowFixMe
+            return _.defaultsDeep({}, modification, fixture); // eslint-disable-line global-require, import/no-dynamic-require
+          }
         });
         this.nockScope = this.scenarioDefinition.externalApiMock();
         this.nockScope.on("request", req => {

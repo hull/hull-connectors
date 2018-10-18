@@ -3,6 +3,7 @@ const { Router } = require("express");
 const passport = require("passport");
 const bodyParser = require("body-parser");
 const querystring = require("querystring");
+const debug = require("debug")("hull-connector:oauth-handler");
 
 const {
   clientMiddleware,
@@ -75,20 +76,20 @@ function fetchToken(req, res, next) {
  *     },
  *     isSetup(req) {
  *       if (!!req.query.reset) return Promise.reject();
- *       const { token } = req.hull.ship.private_settings || {};
+ *       const { token } = req.hull.connector.private_settings || {};
  *       return !!token
  *       ? Promise.resolve({ valid: true, total: 2 })
  *       : Promise.reject({ valid: false, total: 0 });
  *     },
  *     onLogin: req => {
  *       req.authParams = { ...req.body, ...req.query };
- *       return req.hull.client.updateSettings({
+ *       return req.hull.helpers.settingsUpdate({
  *         portalId: req.authParams.portalId
  *       });
  *     },
  *     onAuthorize: req => {
  *       const { refreshToken, accessToken } = req.account || {};
- *       return req.hull.client.updateSettings({
+ *       return req.hull.helpers.settingsUpdate({
  *         refresh_token: refreshToken,
  *         token: accessToken
  *       });
@@ -254,6 +255,7 @@ function oAuthHandlerFactory({
   });
 
   router.use((error, req, res, _next) => {
+    debug("error", error);
     const { client } = req.hull;
     if (client) {
       client.logger.error("connector.oauth.error", error);

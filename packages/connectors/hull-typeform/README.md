@@ -4,10 +4,3 @@
 2. Paste it in the settings pane and save
 3. Then choose form you want to fetch responses from, save settings
 4. Configure the mapping, choose which fields you want to save
-
-### Logs :
-
-These logs are specific for Typeform Connector :
-  * error :
-    - incoming.fetch.error - logged when encountered error during fetch operation
-    

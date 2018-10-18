@@ -268,9 +268,9 @@ class SyncAgent {
           response
         );
         const asUser = this.hullClient.asUser(userClaims);
-        if (!userClaims.email) {
+        if (Object.keys(userClaims).length === 0) {
           asUser.logger.info("incoming.user.skip", {
-            reason: "No email defined",
+            reason: "No identification claims defined, please refer to Identification section of documentation",
             rawResponse: response
           });
           return null;

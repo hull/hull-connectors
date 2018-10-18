@@ -18,7 +18,7 @@ const striptags = require("striptags");
 
 const defaultHiddenFieldsIdents = {
   email: "email",
-  anonymous_id: "guest_id",
+  anonymous_id: "anonymous_id",
   external_id: "external_id",
   hull_id: "id"
 };

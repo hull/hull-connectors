@@ -6,18 +6,27 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 process.env.CLIENT_ID = "123";
 const hullTypeformServer = require("../../../server/server");
 
-test("incoming fetch all responses basic", () => {
-  return testScenario(hullTypeformServer, ({ handlers, requireFixture, expect, nock }) => {
+test("incoming fetch all responses hidden fields", () => {
+  return testScenario(hullTypeformServer, ({ handlers, alterFixture, expect, nock }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "fetch-all-responses",
       externalApiMock: () => {
         const scope = nock("https://api.typeform.com");
         scope.get("/forms/TYPEFORM1").reply(200, require("../fixtures/example-form"));
-        scope.get("/forms/TYPEFORM1/responses").query({ completed: true }).reply(200, require("../fixtures/example-form-responses"))
+        const responses = alterFixture(
+          require("../fixtures/example-form-responses"), {
+            items: [
+              { hidden: { external_id: "abc1" } },
+              { hidden: { external_id: "abc2" } },
+              { hidden: { external_id: "abc3" } }
+            ]
+          }
+        );
+        scope.get("/forms/TYPEFORM1/responses").query({ completed: true }).reply(200, responses)
         return scope;
       },
-      connector: { private_settings: { form_id: "TYPEFORM1", field_as_email: "SMEUb7VJz92Q" } },
+      connector: { private_settings: { form_id: "TYPEFORM1" } },
       usersSegments: [],
       accountsSegments: [],
       response: { response: "ok" },
@@ -26,56 +35,55 @@ test("incoming fetch all responses basic", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["info", "incoming.job.progress", expect.whatever(), { progress: 4 }],
-        ["info", "incoming.user.success", { subject_type: "user", user_email: "lian1078@other.com" }, expect.whatever()],
+        ["info", "incoming.user.success", { subject_type: "user", user_external_id: "abc1" }, {}],
         [
           "info",
           "incoming.user-event.success",
-          { subject_type: "user", user_email: "lian1078@other.com" },
+          { subject_type: "user", user_external_id: "abc1" },
           {
             event: "Form Submitted",
             eventProperties: {
-            "form_title": "title",
-            "form_id": "FORM1",
-            "score": 2
+              "form_title": "title",
+              "form_id": "FORM1",
+              "score": 2
             },
             eventContext: expect.whatever()
           }
         ],
-        [
-          "info",
-          "incoming.user.success",
-          {
-            "subject_type": "user",
-            "user_email": "sarahbsmith@example.com"
-          },
-          {}
-        ],
+        ["info", "incoming.user.success", { subject_type: "user", user_external_id: "abc2" }, {}],
         [
           "info",
           "incoming.user-event.success",
           {
-            "subject_type": "user",
-            "user_email": "sarahbsmith@example.com"
+            subject_type: "user",
+            user_external_id: "abc2"
           },
           {
-            "event": "Form Submitted",
-            "eventProperties": {
+            event: "Form Submitted",
+            eventProperties: {
               "form_title": "title",
               "form_id": "FORM1",
               "score": 4
             },
-            "eventContext": expect.whatever()
+            eventContext: expect.whatever()
           }
         ],
+        ["info", "incoming.user.success", { subject_type: "user", user_external_id: "abc3" }, {}],
         [
           "info",
-          "incoming.user.skip",
+          "incoming.user-event.success",
           {
-            "subject_type": "user"
+            subject_type: "user",
+            user_external_id: "abc3"
           },
           {
-            "reason": "No identification claims defined, please refer to Identification section of documentation",
-            "rawResponse": expect.whatever()
+            event: "Form Submitted",
+            eventProperties: {
+              "form_title": "title",
+              "form_id": "FORM1",
+              "score": 10
+            },
+            eventContext: expect.whatever()
           }
         ],
         [
@@ -98,6 +106,7 @@ test("incoming fetch all responses basic", () => {
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()],
         ["increment", "ship.incoming.users", 1],
+        ["increment", "ship.incoming.users", 1],
         ["increment", "ship.incoming.users", 1]
       ],
       firehoseEvents: [
@@ -105,7 +114,7 @@ test("incoming fetch all responses basic", () => {
           "traits",
           {
             asUser: {
-              email: "lian1078@other.com"
+              external_id: "abc1"
             },
             subjectType: "user"
           },
@@ -115,7 +124,7 @@ test("incoming fetch all responses basic", () => {
           "track",
           {
             asUser: {
-              email: "lian1078@other.com",
+              external_id: "abc1"
             },
             subjectType: "user"
           },
@@ -125,7 +134,7 @@ test("incoming fetch all responses basic", () => {
           "traits",
           {
             asUser: {
-              email: "sarahbsmith@example.com"
+              external_id: "abc2"
             },
             subjectType: "user"
           },
@@ -135,7 +144,27 @@ test("incoming fetch all responses basic", () => {
           "track",
           {
             asUser: {
-              email: "sarahbsmith@example.com",
+              external_id: "abc2"
+            },
+            subjectType: "user"
+          },
+          expect.whatever()
+        ],
+        [
+          "traits",
+          {
+            asUser: {
+              external_id: "abc3"
+            },
+            subjectType: "user"
+          },
+          {}
+        ],
+        [
+          "track",
+          {
+            asUser: {
+              external_id: "abc3"
             },
             subjectType: "user"
           },
