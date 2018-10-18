@@ -9,7 +9,6 @@ const jwt = require("jwt-simple");
 const expect = require("expect");
 const { EventEmitter } = require("events");
 const debug = require("debug")("hull-test-scenario-runner");
-const nockCommon = require("nock/lib/common");
 
 export type TestScenarioDefinition = Object => {
   handlerType: $Values<typeof handlers>,
@@ -176,7 +175,14 @@ class TestScenarioRunner extends EventEmitter {
         nock.enableNetConnect("localhost");
         nock.emitter.on("no match", (req, options, requestBody) => {
           if (req.hostname !== "localhost") {
-            this.emit("error", new Error(`Missing nock endpoint: ${options.method} ${options.hostname}${options.path} ${JSON.stringify(requestBody)}`));
+            this.emit(
+              "error",
+              new Error(
+                `Missing nock endpoint: ${options.method} ${options.hostname}${
+                  options.path
+                } ${JSON.stringify(requestBody)}`
+              )
+            );
           }
         });
         this.on("error", error => {

@@ -8,7 +8,7 @@ const hullTypeformServer = require("../../../server/server");
 test("incoming fetch all responses not authorized", () => {
   return testScenario(hullTypeformServer, ({ handlers, expect, nock }) => {
     return {
-      handlerType: handlers.scheduleHandler,
+      handlerType: handlers.jsonHandler,
       handlerUrl: "fetch-all-responses",
       externalApiMock: () => {
         const scope = nock("https://api.typeform.com");
