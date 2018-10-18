@@ -43,9 +43,10 @@ test("incoming fetch all responses hidden fields", () => {
           {
             event: "Form Submitted",
             eventProperties: {
-              "form_title": "title",
-              "form_id": "FORM1",
-              "score": 2
+              external_id: "abc1",
+              form_title: "title",
+              form_id: "FORM1",
+              score: 2
             },
             eventContext: expect.whatever()
           }
@@ -61,9 +62,10 @@ test("incoming fetch all responses hidden fields", () => {
           {
             event: "Form Submitted",
             eventProperties: {
-              "form_title": "title",
-              "form_id": "FORM1",
-              "score": 4
+              external_id: "abc2",
+              form_title: "title",
+              form_id: "FORM1",
+              score: 4
             },
             eventContext: expect.whatever()
           }
@@ -79,9 +81,10 @@ test("incoming fetch all responses hidden fields", () => {
           {
             event: "Form Submitted",
             eventProperties: {
-              "form_title": "title",
-              "form_id": "FORM1",
-              "score": 10
+              external_id: "abc3",
+              form_title: "title",
+              form_id: "FORM1",
+              score: 10
             },
             eventContext: expect.whatever()
           }
