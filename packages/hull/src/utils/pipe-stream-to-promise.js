@@ -1,7 +1,6 @@
 // @flow
 import type { Readable } from "stream";
 
-const promisePipe = require("promisepipe");
 const promiseToWritableStream = require("./promise-to-writable-stream");
 
 function pipeStreamToPromise(
@@ -9,8 +8,18 @@ function pipeStreamToPromise(
   callback: (chunk: any, encoding?: string) => Promise<*>
 ): Promise<*> {
   const writableStream = promiseToWritableStream(callback);
-  return promisePipe(readableStream, writableStream).catch(error => {
-    return Promise.reject(error.originalError);
+  return new Promise((resolve, reject) => {
+    const handleError = error => {
+      reject(error);
+    };
+    const handleFinish = () => {
+      resolve();
+    };
+    readableStream
+      .on("error", handleError)
+      .pipe(writableStream)
+      .on("error", handleError)
+      .on("finish", handleFinish);
   });
 }
 

@@ -18,7 +18,7 @@ const striptags = require("striptags");
 
 const defaultHiddenFieldsIdents = {
   email: "email",
-  anonymous_id: "guest_id",
+  anonymous_id: "anonymous_id",
   external_id: "external_id",
   hull_id: "id"
 };
@@ -65,15 +65,25 @@ class MappingUtil {
     return _.reduce(
       incomingUserAttributes,
       (attributes, attribute) => {
+        if (!attribute.hull || !attribute.service) {
+          return attributes;
+        }
+        const hullTraitName = attribute.hull.replace("traits_", "");
         const answer = _.find(typeformResponse.answers, {
           field: { id: attribute.service }
         });
         if (!answer) {
+          if (typeformResponse.hidden[attribute.service]) {
+            attributes[hullTraitName] =
+              typeformResponse.hidden[attribute.service];
+          } else if (typeformResponse.calculated[attribute.service]) {
+            attributes[hullTraitName] =
+              typeformResponse.calculated[attribute.service];
+          }
           return attributes;
         }
-        const value = this.getAnswerValue(answer);
-        const hullTraitName = attribute.hull.replace("traits_", "");
 
+        const value = this.getAnswerValue(answer);
         attributes[hullTraitName] = value;
         return attributes;
       },

@@ -7,18 +7,30 @@ process.env.CLIENT_ID = "123";
 const hullTypeformServer = require("../../../server/server");
 
 test("incoming fetch all responses basic", () => {
-  return testScenario(({ handlers, requireFixture, expect, nock }) => {
+  return testScenario(hullTypeformServer, ({ handlers, requireFixture, expect, nock }) => {
     return {
-      connectorServer: hullTypeformServer,
       handlerType: handlers.scheduleHandler,
-      handlerName: "fetch-all-responses",
+      handlerUrl: "fetch-all-responses",
       externalApiMock: () => {
         const scope = nock("https://api.typeform.com");
         scope.get("/forms/TYPEFORM1").reply(200, require("../fixtures/example-form"));
         scope.get("/forms/TYPEFORM1/responses").query({ completed: true }).reply(200, require("../fixtures/example-form-responses"))
         return scope;
       },
-      connector: { private_settings: { form_id: "TYPEFORM1", field_as_email: "SMEUb7VJz92Q" } },
+      connector: {
+        private_settings: {
+          form_id: "TYPEFORM1",
+          field_as_email: "SMEUb7VJz92Q",
+          incoming_user_attributes: [
+            { service: "RUqkXSeXBXSd", hull: "traits_boolean_trait" },
+            { service: "JwWggjAKtOkA", hull: "traits_short_text_trait" },
+            { service: "pn48RmPazVdM", hull: "traits_number_trait" },
+            { service: "PNe8ZKBK8C2Q", hull: "traits_array_trait" },
+            { service: "KoJxDM3c6x8h", hull: "traits_date_trait_at" },
+            { service: "score", hull: "traits_calculated_score_trait" },
+          ]
+        }
+      },
       usersSegments: [],
       accountsSegments: [],
       response: { response: "ok" },
@@ -27,7 +39,14 @@ test("incoming fetch all responses basic", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["info", "incoming.job.progress", expect.whatever(), { progress: 4 }],
-        ["info", "incoming.user.success", { subject_type: "user", user_email: "lian1078@other.com" }, expect.whatever()],
+        ["info", "incoming.user.success", { subject_type: "user", user_email: "lian1078@other.com" }, {
+          array_trait: [ "New York", "Tokyo" ],
+          boolean_trait: false,
+          date_trait_at: "2012-03-20T00:00:00Z",
+          number_trait: 1,
+          short_text_trait: "Lian",
+          calculated_score_trait: 2
+        }],
         [
           "info",
           "incoming.user-event.success",
@@ -49,7 +68,14 @@ test("incoming fetch all responses basic", () => {
             "subject_type": "user",
             "user_email": "sarahbsmith@example.com"
           },
-          {}
+          {
+            array_trait: ["London", "New York"],
+            boolean_trait: true,
+            date_trait_at: "2016-05-13T00:00:00Z",
+            number_trait: 1,
+            short_text_trait: "Sarah",
+            calculated_score_trait: 4
+          }
         ],
         [
           "info",
@@ -75,7 +101,7 @@ test("incoming fetch all responses basic", () => {
             "subject_type": "user"
           },
           {
-            "reason": "No email defined",
+            "reason": "No identification claims defined, please refer to Identification section of documentation",
             "rawResponse": expect.whatever()
           }
         ],
@@ -86,7 +112,7 @@ test("incoming fetch all responses basic", () => {
             "subject_type": "user"
           },
           {
-            "reason": "No email defined",
+            "reason": "No identification claims defined, please refer to Identification section of documentation",
             "rawResponse": expect.whatever()
           }
         ],
@@ -110,7 +136,14 @@ test("incoming fetch all responses basic", () => {
             },
             subjectType: "user"
           },
-          {}
+          {
+            array_trait: [ "New York", "Tokyo" ],
+            boolean_trait: false,
+            date_trait_at: "2012-03-20T00:00:00Z",
+            number_trait: 1,
+            short_text_trait: "Lian",
+            calculated_score_trait: 2
+          }
         ],
         [
           "track",
@@ -130,7 +163,14 @@ test("incoming fetch all responses basic", () => {
             },
             subjectType: "user"
           },
-          {}
+          {
+            array_trait: ["London", "New York"],
+            boolean_trait: true,
+            date_trait_at: "2016-05-13T00:00:00Z",
+            number_trait: 1,
+            short_text_trait: "Sarah",
+            calculated_score_trait: 4
+          }
         ],
         [
           "track",

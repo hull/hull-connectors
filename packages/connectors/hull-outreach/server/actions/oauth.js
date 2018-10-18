@@ -2,7 +2,6 @@ const OAuth2Strategy = require("passport-oauth2");
 const { oAuthHandler } = require("hull/src/handlers");
 const Promise = require("bluebird");
 const _ = require("lodash");
-const { settingsUpdate } = require("hull/src/utils");
 
 const oAuthUrl = "https://api.outreach.io";
 
@@ -45,7 +44,7 @@ function oAuthAction(deps: Object) {
     onAuthorize: req => {
       const { refreshToken, params } = req.account || {};
       const { access_token } = params || {};
-      return settingsUpdate(req.hull, {
+      return req.hull.helpers.settingsUpdate({
         refresh_token: refreshToken,
         access_token
       });

@@ -3,7 +3,7 @@ const { expect } = require("chai");
 const sinon = require("sinon");
 const Promise = require("bluebird");
 
-const settingsUpdate = require("../../../src/utils/settings-update");
+const settingsUpdate = require("../../../src/helpers/settings-update");
 
 describe("settingsUpdate", () => {
   it("should call utils.settings.update in the background", (done) => {

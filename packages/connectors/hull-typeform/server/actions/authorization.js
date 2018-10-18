@@ -1,7 +1,6 @@
 const moment = require("moment");
 const TypeformStrategy = require("passport-typeform").Strategy;
 const { oAuthHandler } = require("hull/src/handlers");
-const { settingsUpdate } = require("hull/src/utils");
 const SyncAgent = require("../lib/sync-agent");
 
 module.exports = oAuthHandler({
@@ -21,13 +20,20 @@ module.exports = oAuthHandler({
     ]
   },
   isSetup(req) {
-    const { access_token, refresh_token } = req.hull.connector.private_settings;
+    const {
+      access_token,
+      refresh_token,
+      form_id
+    } = req.hull.connector.private_settings;
 
     if (access_token && refresh_token) {
       const syncAgent = new SyncAgent(req.hull);
-      return syncAgent.getFormResponsesCount().then(completed => {
-        return { completed, query: req.query };
-      });
+      if (form_id) {
+        return syncAgent.getFormResponsesCount().then(completed => {
+          return { completed, form_present: true };
+        });
+      }
+      return Promise.resolve({ form_present: false });
     }
     return Promise.reject();
   },
@@ -36,7 +42,7 @@ module.exports = oAuthHandler({
   },
   onAuthorize(req) {
     const { accessToken, refreshToken } = req.account;
-    return settingsUpdate(req.hull, {
+    return req.hull.helpers.settingsUpdate({
       access_token: accessToken,
       refresh_token: refreshToken,
       expires_in: req.account.params.expires_in,

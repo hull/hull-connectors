@@ -5,7 +5,7 @@ const sinon = require("sinon");
 
 const HullStub = require("../support/hull-stub");
 
-const extractRequest = require("../../../src/utils/extract-request");
+const extractRequest = require("../../../src/helpers/extract-request");
 
 describe("extractRequest", () => {
   beforeEach(function beforeEachHandler() {
