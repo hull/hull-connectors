@@ -2,9 +2,11 @@
 import type { $Response, NextFunction } from "express";
 import type { HullRequestWithCredentials } from "../types";
 
+const _ = require("lodash");
 const debug = require("debug")("hull-connector:client-middleware");
 const jwt = require("jwt-simple");
 const HullClient = require("../../../hull-client/src");
+const helpers = require("../helpers");
 
 /**
  * This middleware initiates Hull client
@@ -65,7 +67,8 @@ function clientMiddlewareFactory() {
       // $FlowFixMe
       req.hull = Object.assign(req.hull, {
         client,
-        clientCredentialsToken
+        clientCredentialsToken,
+        helpers: _.mapValues(helpers, func => func.bind(null, req.hull))
       });
       next();
     } catch (error) {

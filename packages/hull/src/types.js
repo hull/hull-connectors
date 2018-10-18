@@ -83,6 +83,7 @@ export type HullContextWithClient = {
   ...$Exact<HullContextWithCredentials>,
   clientCredentialsToken: string,
   client: HullClient,
+  helpers: *,
   notification?: HullNotification
 };
 

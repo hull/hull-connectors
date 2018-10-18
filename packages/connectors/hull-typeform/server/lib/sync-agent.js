@@ -6,11 +6,8 @@ import type { TypeformResponse, TypeformForm } from "../types";
 const moment = require("moment");
 const _ = require("lodash");
 const striptags = require("striptags");
-const {
-  pipeStreamToPromise,
-  settingsUpdate
-} = require("../../../../hull/src/utils");
-const { ConfigurationError } = require("../../../../hull/src/errors");
+const { pipeStreamToPromise } = require("hull/src/utils");
+const { ConfigurationError } = require("hull/src/errors");
 
 const MappingUtil = require("./mapping-util");
 const ServiceClient = require("./service-client");
@@ -31,7 +28,7 @@ class SyncAgent {
 
   formId: string;
 
-  settingsUpdate: *;
+  helpers: *;
 
   constructor(ctx: HullContext) {
     this.connector = ctx.connector;
@@ -50,7 +47,7 @@ class SyncAgent {
     this.hullClient = ctx.client;
     this.metric = ctx.metric;
     this.formId = this.connector.private_settings.form_id;
-    this.settingsUpdate = settingsUpdate.bind(null, ctx);
+    this.helpers = ctx.helpers;
   }
 
   isAuthorized() {}
@@ -105,7 +102,7 @@ class SyncAgent {
         const refreshToken = response.body.refresh_token;
         const expiresIn = response.body.expires_in;
 
-        return this.settingsUpdate({
+        return this.helpers.settingsUpdate({
           access_token: accessToken,
           refresh_token: refreshToken,
           expires_in: expiresIn,
@@ -174,7 +171,7 @@ class SyncAgent {
         return this.saveResponses(formResponse.body, responses);
       })
         .then(() => {
-          return this.settingsUpdate({
+          return this.helpers.settingsUpdate({
             last_fetch_recent_responses_start_at: fetchStartAt
           });
         })

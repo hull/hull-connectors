@@ -35,7 +35,7 @@ class ContextMock {
       })
     };
     this.helpers = {
-      updateSettings: () => {
+      settingsUpdate: () => {
         return Promise.resolve(this.connector);
       }
     }

@@ -25,7 +25,6 @@ import type {
 const _ = require("lodash");
 const { Client } = require("hull");
 const MetricAgent = require("hull/src/infra/instrumentation/metric-agent");
-const { settingsUpdate } = require("hull/src/utils");
 
 const MappingUtil = require("./helper/mapping-util");
 const FilterUtil = require("./helper/filter-util");
@@ -609,7 +608,7 @@ class SyncAgent {
         // Set webhook id so that if we ever call ensure ever again on this client, we won't create another
         // since we don't keep sync agent around, it doesn't really matter
         this.webhookId = response.body.data.id;
-        return settingsUpdate(this.hullRequestContext, {
+        return this.hullRequestContext.helpers.settingsUpdate({
           webhook_id: this.webhookId
         });
       });
