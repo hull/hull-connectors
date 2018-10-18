@@ -1,6 +1,6 @@
 // @flow
 const { Readable } = require("stream");
-const debug = require("debug")("promise-to-readable-stream");
+const debug = require("debug")("hull:promise-to-readable-stream");
 
 /**
  * A helper function which creates a readable stream.
@@ -30,7 +30,6 @@ function promiseToReadableStream(
         })
         .catch(error => {
           debug("error while reading data from promise", error);
-          this.emit("error", error);
           this.destroy(error);
         });
     }

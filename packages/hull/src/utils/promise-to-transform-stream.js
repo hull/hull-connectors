@@ -1,6 +1,6 @@
 // @flow
 const { Transform } = require("stream");
-const debug = require("debug")("promise-to-readable-stream");
+const debug = require("debug")("hull:promise-to-readable-stream");
 
 /**
  * A helper function which allows to easily use promise as a transform stream.

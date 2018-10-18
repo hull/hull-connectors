@@ -65,6 +65,9 @@ class MappingUtil {
     return _.reduce(
       incomingUserAttributes,
       (attributes, attribute) => {
+        if (!attribute.hull || !attribute.service) {
+          return attributes;
+        }
         const hullTraitName = attribute.hull.replace("traits_", "");
         const answer = _.find(typeformResponse.answers, {
           field: { id: attribute.service }
