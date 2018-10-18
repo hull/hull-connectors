@@ -65,15 +65,22 @@ class MappingUtil {
     return _.reduce(
       incomingUserAttributes,
       (attributes, attribute) => {
+        const hullTraitName = attribute.hull.replace("traits_", "");
         const answer = _.find(typeformResponse.answers, {
           field: { id: attribute.service }
         });
         if (!answer) {
+          if (typeformResponse.hidden[attribute.service]) {
+            attributes[hullTraitName] =
+              typeformResponse.hidden[attribute.service];
+          } else if (typeformResponse.calculated[attribute.service]) {
+            attributes[hullTraitName] =
+              typeformResponse.calculated[attribute.service];
+          }
           return attributes;
         }
-        const value = this.getAnswerValue(answer);
-        const hullTraitName = attribute.hull.replace("traits_", "");
 
+        const value = this.getAnswerValue(answer);
         attributes[hullTraitName] = value;
         return attributes;
       },

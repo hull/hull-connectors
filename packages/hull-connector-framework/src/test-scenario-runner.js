@@ -114,12 +114,12 @@ class TestScenarioRunner extends EventEmitter {
           log.data
         ];
       });
-      expect(transformedLogs).toMatchObject(this.scenarioDefinition.logs);
+      expect(transformedLogs).toEqual(this.scenarioDefinition.logs);
       expect(
         this.capturedMetrics.map(metric => {
           return [metric[0], metric[1], metric[2]];
         })
-      ).toMatchObject(this.scenarioDefinition.metrics);
+      ).toEqual(this.scenarioDefinition.metrics);
       const firehoseEvents = this.minihull.requests
         .get("incoming")
         .filter({ url: "/api/v1/firehose" })
@@ -145,7 +145,7 @@ class TestScenarioRunner extends EventEmitter {
           ];
         })
         .value();
-      expect(firehoseEvents).toMatchObject(
+      expect(firehoseEvents).toEqual(
         this.scenarioDefinition.firehoseEvents
       );
       if (!this.nockScope.isDone()) {
@@ -256,7 +256,7 @@ class TestScenarioRunner extends EventEmitter {
             );
         }
         debug("response", response.body, response.statusCode);
-        expect(response.body).toMatchObject(this.scenarioDefinition.response);
+        expect(response.body).toEqual(this.scenarioDefinition.response);
         expect(response.statusCode).toEqual(200);
         this.timeoutId = setTimeout(() => {
           this.deboucedFinish.cancel();
