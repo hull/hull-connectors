@@ -75,7 +75,7 @@ class ServiceClient {
     this.connectorHostname = ctx.hostname;
 
     const accessToken = ctx.connector.private_settings.access_token;
-    debug(`Found Token: ${accessToken}`);
+    debug(`Found AccessToken: ${accessToken}`);
 
     this.agent = superagent
       .agent()
@@ -89,6 +89,18 @@ class ServiceClient {
       .use(prefixPlugin("https://api.outreach.io/api/v2"))
       .set("Authorization", `Bearer ${accessToken}`)
       .set({ "Content-Type": "application/vnd.api+json" })
+      .on("error", error => {
+        if (error.status === 401) {
+          if (_.isEmpty(accessToken)) {
+            this.loggerClient.error("Not authorized with Outreach yet, please authenticate with Outreach using the Credentials button on the settings page");
+          } else {
+            this.loggerClient.error("API AccessToken no longer valid, please authenticate with Outreach again using the Credentials button on the settings page");
+          }
+        } else {
+          this.loggerClient.error(`Received ${error.status} Error code while connecting with the Outreach API, please contact Hull support`);
+          this.loggerClient.debug(`Received ${error.status} Error code while connecting with the Outreach API, please contact Hull support, ${JSON.stringify(error)}`);
+        }
+      })
       .on("response", res => {
 
         // https://api.outreach.io/api/v2/docs#rate-limiting
@@ -122,6 +134,24 @@ class ServiceClient {
   > {
     debug("getAccounts");
     return this.agent.get("/accounts/");
+  }
+
+  /**
+   * Lists or searches all accounts that match the given parameters.
+   * @returns {Promise<OutreachListResponse<OutreachAccountRead>>} The list response.
+   * @memberof ServiceClient
+   */
+  findOutreachAccounts(
+    attribute: string,
+    value: string
+  ): Promise<SuperAgentResponse<OutreachList<OutreachAccountReadData>>> {
+    debug(`findOutreachAccounts filter[${attribute}]=${value}`);
+    return this.agent
+      .get("/accounts/")
+      .query(`filter[${attribute}]=${value}`)
+      .catch(error => {
+        debug(error);
+      });
   }
 
   /**
@@ -216,13 +246,13 @@ class ServiceClient {
    * @returns {Promise<OutreachListResponse<OutreachAccountRead>>} The list response.
    * @memberof ServiceClient
    */
-  findOutreachAccounts(
+  findOutreachProspects(
     attribute: string,
     value: string
-  ): Promise<SuperAgentResponse<OutreachList<OutreachAccountReadData>>> {
-    debug(`findOutreachAccounts filter[${attribute}]=${value}`);
+  ): Promise<SuperAgentResponse<OutreachList<OutreachProspectReadData>>> {
+    debug(`findOutreachProspects filter[${attribute}]=${value}`);
     return this.agent
-      .get("/accounts/")
+      .get("/prospects/")
       .query(`filter[${attribute}]=${value}`)
       .catch(error => {
         debug(error);
@@ -334,6 +364,36 @@ class ServiceClient {
       .send(genericWebhook)
       .ok(res => res.status === 201);
   }
+
+  getWebhooks(): Promise<SuperAgentResponse<OutreachList<any>>> {
+    return this.agent
+    .get("/webhooks/");
+  }
+
+  findWebhook(attribute: string, value: string): Promise<any> {
+    return this.agent
+    .get("/webhooks/")
+    .query(`filter[${attribute}]=${value}`);
+  }
+
+  getExistingWebhookId(): Promise<number> {
+    return this.getWebhooks()
+    .then( response => {
+      const dataArray = _.get(response, "body.data");
+      if (!_.isEmpty(dataArray)) {
+        const thisConnectorWebhooks =
+          dataArray.filter(
+            webhook => webhook.attributes.url === `https://${this.connectorHostname}/webhooks`);
+        if (thisConnectorWebhooks.length > 0) {
+          debug(`Found ${thisConnectorWebhooks.length} Existing webhooks`);
+          return thisConnectorWebhooks[0].id;
+        }
+      }
+      debug("Existing Webhook not found")
+      return null;
+    });
+  }
+
 }
 
 module.exports = ServiceClient;

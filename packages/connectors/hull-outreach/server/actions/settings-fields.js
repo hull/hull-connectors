@@ -22,43 +22,39 @@ function getFieldsOutreach(
 }
 
 function fieldsOutreachProspectInbound(
-  req: THullRequest,
-  res: $Response
-): $Response {
-  return {
+  req: THullRequest
+) {
+  return Promise.resolve({
     options: getFieldsOutreach(PROSPECT_FIELDDEFS, { in: true })
-  };
+  });
 }
 
 function fieldsOutreachProspectOutbound(
-  req: THullRequest,
-  res: $Response
-): $Response {
-  return res.json({
+  req: THullRequest
+) {
+  return Promise.resolve({
     options: getFieldsOutreach(PROSPECT_FIELDDEFS, { out: true })
   });
 }
 
 function fieldsOutreachAccountInbound(
-  req: THullRequest,
-  res: $Response
-): $Response {
-  return res.json({
+  req: THullRequest
+) {
+  return Promise.resolve({
     options: getFieldsOutreach(ACCOUNT_FIELDDEFS, { in: true })
   });
 }
 
 function fieldsOutreachAccountOutbound(
-  req: THullRequest,
-  res: $Response
-): $Response {
-  return res.json({
+  req: THullRequest
+) {
+  return Promise.resolve({
     options: getFieldsOutreach(ACCOUNT_FIELDDEFS, { out: true })
   });
 }
 
-function fieldsHullAccountIdent(req: THullRequest, res: $Response): $Response {
-  return res.json({
+function fieldsHullAccountIdent(req: THullRequest) {
+  return Promise.resolve({
     options: [
       {
         value: "domain",
@@ -73,10 +69,9 @@ function fieldsHullAccountIdent(req: THullRequest, res: $Response): $Response {
 }
 
 function fieldsOutreachAccountIdent(
-  req: THullRequest,
-  res: $Response
-): $Response {
-  return res.json({
+  req: THullRequest
+) {
+  return Promise.resolve({
     options: [
       {
         value: "domain",

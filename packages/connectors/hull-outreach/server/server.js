@@ -1,5 +1,6 @@
 // @flow
 import type { $Application } from "express";
+const cors = require("cors");
 
 const {
   notificationHandler,
@@ -18,34 +19,41 @@ function server(app: $Application, deps: Object): $Application {
   app.post("/fetch", scheduleHandler(actions.fetchAction));
 
   app.get(
-    "/fields-outreach-prospect-out",
+    "/fields-outreach-prospect-out", 
+    cors(),
     jsonHandler(actions.fieldsOutreachProspectOutbound)
   );
   app.get(
     "/fields-outreach-prospect-in",
+    cors(),
     jsonHandler(actions.fieldsOutreachProspectInbound)
   );
   app.get(
     "/fields-outreach-account-in",
+    cors(),
     jsonHandler(actions.fieldsOutreachAccountInbound)
   );
   app.get(
     "/fields-outreach-account-out",
+    cors(),
     jsonHandler(actions.fieldsOutreachAccountOutbound)
   );
   app.get(
     "/fields-hull-account-ident",
+    cors(),
     jsonHandler(actions.fieldsHullAccountIdent)
   );
   app.get(
     "/fields-outreach-account-ident",
+    cors(),
     jsonHandler(actions.fieldsOutreachAccountIdent)
   );
 
   app.get("/admin", actions.adminHandler);
 
   // app.all("/webhook", bodyParser.json(), webhookHandler);
-  // app.all("/status", statusCheck);
+
+  app.all("/status", scheduleHandler(actions.statusCheck));
 
   // app.use(
   //   "/batch",

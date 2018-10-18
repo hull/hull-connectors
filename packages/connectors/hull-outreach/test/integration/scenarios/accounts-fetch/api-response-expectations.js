@@ -4,6 +4,9 @@ const webhookResponse = require("../../fixtures/api-responses/create-webhook.jso
 
 module.exports = nock => {
   nock("https://api.outreach.io")
+  .get("/api/v2/webhooks/")
+  .reply(200, {body: {data: []}});
+  nock("https://api.outreach.io")
   .post("/api/v2/webhooks/")
   .reply(201, webhookResponse);
   nock("https://api.outreach.io")

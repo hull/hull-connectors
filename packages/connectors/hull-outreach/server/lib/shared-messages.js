@@ -1,13 +1,4 @@
 const SHARED_MESSAGES = {
-  MAPPING_UNSUPPORTEDTYPEOUTBOUND: unsupportedType => {
-    return {
-      id: "MappingUnsupportedTypeOutbound",
-      message: `Failed to map Hull object to unsupported type '${unsupportedType}'.`,
-      level: "Error",
-      channel: "Operation",
-      category: "DataTransformation"
-    };
-  },
   MAPPING_NOOUTBOUNDFIELDS: () => {
     return {
       id: "MappingNoOutboundFields",
@@ -61,10 +52,28 @@ const SHARED_MESSAGES = {
     return {
       id: "StatusNoSegmentsWhitelisted",
       message:
-        "No data will be sent from Hull to Outreach.io due to missing segments configuration.",
+        "No data will be sent from Hull to Outreach.io because there are no whitelisted segments configured.  Please visit the connector settings page and add segments to be sent to Outreach.io.",
       level: "Warning",
       channel: "Configuration",
       category: "DataFlow"
+    };
+  },
+  STATUS_CONNECTOR_MIDDLEWARE_MISCONFIGURED: () => {
+    return {
+      id: "StatusConnectorMiddlewareMisconfigured",
+      message: "The status endpoint is did not parse the incoming request properly.  Either the request was malformed, or the middleware for this connector is misconfigured.  Please contact support to ensure the connector is running properly",
+      level: "Error",
+      channel: "Configuration",
+      category: "Dataflow"
+    };
+  },
+  STATUS_NO_ACCESS_TOKEN_FOUND: () => {
+    return {
+      id: "StatusNoAccessTokenFound",
+      message: "No OAuth AccessToken found.  Please make sure to allow Hull to access your Outreach data by clicking the \"Credentials\" button on the connector page and following the workflow provided",
+      level: "Error",
+      channel: "Configuration",
+      category: "Authentication"
     };
   }
 };

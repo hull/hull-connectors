@@ -11,6 +11,7 @@ const accountUpdate = require("./account-update");
 
 const fetchAction = require("./fetch");
 const adminHandler = require("./admin-handler");
+const statusCheck = require("./status-check");
 
 const oauth = require("./oauth");
 
@@ -25,5 +26,6 @@ module.exports = {
   userUpdate,
   accountUpdate,
   adminHandler,
-  oauth
+  oauth,
+  statusCheck
 };

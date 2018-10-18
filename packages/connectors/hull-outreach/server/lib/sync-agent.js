@@ -26,6 +26,8 @@ const _ = require("lodash");
 const { Client } = require("hull");
 const MetricAgent = require("hull/src/infra/instrumentation/metric-agent");
 
+const debug = require("debug")("hull-outreach:sync-agent");
+
 const MappingUtil = require("./helper/mapping-util");
 const FilterUtil = require("./helper/filter-util");
 
@@ -182,6 +184,10 @@ class SyncAgent {
     return finalSettings;
   }
 
+  hasAuthenticationToken(): boolean {
+    return !_.isEmpty(this.connector.private_settings.access_token);
+  }
+
   /**
    * Fetches all accounts from Outreach.io
    *
@@ -313,6 +319,31 @@ class SyncAgent {
         .logger.info("outgoing.account.skip", { reason: envelope.skipReason });
     });
 
+    const accountIdentifierHull = this.normalizedPrivateSettings
+    .account_identifier_hull;
+    const accountIdentifierService = this.normalizedPrivateSettings
+    .account_identifier_service;
+
+    await Promise.all(filterResults.toInsert.map(async envelope => {
+      return this.serviceClient
+        .findOutreachAccounts(accountIdentifierService, envelope.hullUser[accountIdentifierHull])
+        .then(response => {
+          const existingAccountList: OutreachList<OutreachAccountReadData> = response.body;
+          const existingAccounts = _.get(existingAccountList, "data");
+          if (!_.isEmpty(existingAccounts)) {
+            debug(`Found existing account in Outreach with ${accountIdentifierService}: ${envelope.hullUser[accountIdentifierHull]} with id: ${existingAccounts[0].id}`);
+            envelope.outreachAccountId = existingAccounts[0].id;
+            envelope.outreachAccountWrite.data.id = envelope.outreachAccountId;
+          } else {
+            debug(`No account found with ${accountIdentifierService}: ${envelope.hullUser[accountIdentifierHull]} will create a new prospect`)
+          }
+        });
+    }));
+
+    const additionalUsersToUpdate = filterResults.toInsert.filter(envelope => envelope.outreachProspectId != null);
+    filterResults.toUpdate = filterResults.toUpdate.concat(additionalUsersToUpdate);
+    filterResults.toInsert = filterResults.toInsert.filter(envelope => envelope.outreachProspectId == null)
+
     const updatedEnvelopes = await this.serviceClient.patchAccountEnvelopes(
       filterResults.toUpdate
     );
@@ -404,6 +435,26 @@ class SyncAgent {
         .logger.info("outgoing.user.skip", envelope.skipReason);
     });
 
+    await Promise.all(filterResults.toInsert.map(async envelope => {
+      return this.serviceClient
+        .findOutreachProspects("emails", envelope.hullUser.email)
+        .then(response => {
+          const existingUsersList: OutreachList<OutreachProspectReadData> = response.body;
+          const existingUsers = _.get(existingUsersList, "data");
+          if (!_.isEmpty(existingUsers)) {
+            debug(`Found existing user in Outreach with email: ${envelope.hullUser.email} with id: ${existingUsers[0].id}`);
+            envelope.outreachProspectId = existingUsers[0].id;
+            envelope.outreachProspectWrite.data.id = envelope.outreachProspectId;
+          } else {
+            debug(`No user found with email: ${envelope.hullUser.email} will create a new prospect`)
+          }
+        });
+    }));
+
+    const additionalUsersToUpdate = filterResults.toInsert.filter(envelope => envelope.outreachProspectId != null);
+    filterResults.toUpdate = filterResults.toUpdate.concat(additionalUsersToUpdate);
+    filterResults.toInsert = filterResults.toInsert.filter(envelope => envelope.outreachProspectId == null)
+
     // USER UPDATES -> Ensure Accounts -> Update Users -> Fire callback
     const accountIdentifierHull = this.normalizedPrivateSettings
       .account_identifier_hull;
@@ -449,7 +500,6 @@ class SyncAgent {
     } catch (error) {
       console.log(`Please: ${error}`);
     }
-    console.log("Finished!");
   }
 
   handleHullUserUpdatedCallback(
@@ -602,16 +652,21 @@ class SyncAgent {
   }
 
   async ensureWebhook() {
-    // TODO also should check if webhook exists first too if going to create
     if (this.webhookId == null) {
-      await this.serviceClient.createWebhook().then(response => {
-        // Set webhook id so that if we ever call ensure ever again on this client, we won't create another
-        // since we don't keep sync agent around, it doesn't really matter
-        this.webhookId = response.body.data.id;
-        return this.hullRequestContext.helpers.settingsUpdate({
-          webhook_id: this.webhookId
+      // check for existing webhookid first so that we don't go and create a million of them
+      const existingWebhookId: number = await this.serviceClient.getExistingWebhookId();
+      if (existingWebhookId == null) {
+        await this.serviceClient.createWebhook().then(response => {
+          // Set webhook id so that if we ever call ensure ever again on this client, we won't create another
+          // since we don't keep sync agent around, it doesn't really matter
+          this.webhookId = response.body.data.id;
+          return this.hullRequestContext.helpers.settingsUpdate({
+            webhook_id: this.webhookId
+          });
         });
-      });
+      } else {
+        this.webhookId = existingWebhookId;
+      }
     }
   }
 }

@@ -45,7 +45,6 @@ class FilterUtil {
       toUpdate: []
     };
 
-    console.log("Filtering Users");
     envelopes.forEach((envelope: OutreachProspectUpdateEnvelope) => {
       // Filter users not linked to accounts that match whitelisted segments
       // TODO ask sven about segment logic again...
