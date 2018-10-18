@@ -79,7 +79,7 @@ class TestScenarioRunner extends EventEmitter {
     // this.hullConnectorPort = 9091;
     // this.minihullPort = 9092;
     this.timeout = 10000;
-    this.debounceWait = 100;
+    this.debounceWait = 200;
     this.capturedMetrics = [];
     this.capturedLogs = [];
     this.minihull = new Minihull();
