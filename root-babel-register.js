@@ -6,5 +6,6 @@
  * Instead use this file like this: `mocha -r ../../root-babel-register`.
  */
 require("@babel/register")({
-  cwd: __dirname
+  cwd: __dirname,
+  cache: false
 });
