@@ -1,28 +1,26 @@
 /* @flow */
 import type {
-  THullUser,
-  THullAccount,
-  THullAccountIdent,
-  THullUserIdent,
-  THullAccountAttributes,
-  THullUserAttributes
+  HullUser,
+  HullAccount,
+  HullAccountClaims,
+  HullUserClaims,
+  HullAccountAttributes,
+  HullUserAttributes
 } from "hull";
 
 import type {
   OutreachOutboundMapping,
   OutreachConnectorSettings,
-  OutreachAccountRead,
-  OutreachProspectRead,
   OutreachAccountReadData,
   OutreachProspectReadData,
   OutreachAccountWrite,
   OutreachProspectWrite,
+  OutreachAccountWriteData,
+  OutreachProspectWriteData,
   OutreachAccountUpdateEnvelope,
   OutreachProspectUpdateEnvelope,
   OutreachAccountAttributes,
-  OutreachProspectAttributes,
-  OutreachAccountCreateOrUpdate,
-  OutreachProspectCreateOrUpdate
+  OutreachProspectAttributes
 } from "../types";
 
 const _ = require("lodash");
@@ -49,8 +47,8 @@ class MappingUtil {
 
   mapOutreachAccountToHullAccountIdent(
     account: OutreachAccountReadData
-  ): THullAccountIdent {
-    const ident = {};
+  ): HullAccountClaims {
+    const ident: HullAccountClaims = {};
 
     const accountIdentifierHull = this.settings.account_identifier_hull;
     const accountIdentifierService = this.settings.account_identifier_service;
@@ -84,10 +82,10 @@ class MappingUtil {
    */
   mapOutreachAccountToHullAccountAttributes(
     account: OutreachAccountReadData
-  ): THullAccountAttributes {
+  ): HullAccountAttributes {
     const mapping = this.settings.account_attributes_inbound || [];
 
-    const hObject: THullAccountAttributes = this.applyIncomingHullAttributeMapping(
+    const hObject: HullAccountAttributes = this.applyIncomingHullAttributeMapping(
       mapping,
       account.attributes
     );
@@ -132,8 +130,8 @@ class MappingUtil {
 
   mapOutreachProspectToHullUserIdent(
     prospect: OutreachProspectReadData
-  ): THullUserIdent {
-    const ident = {};
+  ): HullUserClaims {
+    const ident: HullUserClaims = {};
 
     //  TODO need to confirm with sven about this logic....
     //  it currently has a lot of caveats...
@@ -145,14 +143,14 @@ class MappingUtil {
         if (_.isEmpty(prospect.attributes.externalId)) {
           // TODO how do I throw an exception here?
         } else {
-          ident.externalId = prospect.attributes.externalId;
+          ident.external_id = prospect.attributes.externalId;
         }
       } else {
         ident.email = prospect.attributes.emails[0];
       }
     } else {
       // if no emails, fallback to externalId, and set even if it's empty
-      ident.externalId = prospect.attributes.externalId;
+      ident.external_id = prospect.attributes.externalId;
     }
 
     ident.anonymous_id = `outreach:${prospect.id}`;
@@ -162,9 +160,9 @@ class MappingUtil {
 
   mapOutreachProspectToHullUserAttributes(
     prospect: OutreachProspectReadData
-  ): THullUserAttributes {
+  ): HullUserAttributes {
     const mapping = this.settings.prospect_attributes_inbound || [];
-    const hObject: THullUserAttributes = this.applyIncomingHullAttributeMapping(
+    const hObject: HullUserAttributes = this.applyIncomingHullAttributeMapping(
       mapping,
       prospect.attributes
     );
@@ -195,8 +193,8 @@ class MappingUtil {
 
   mapOutreachProspectToHullAccountIdent(
     prospect: OutreachProspectReadData
-  ): THullAccountIdent {
-    const ident = {};
+  ): HullAccountClaims {
+    const ident: HullAccountClaims = {};
     const accountId = _.get(prospect, "relationships.account.data.id");
     if (accountId !== null) {
       ident.anonymous_id = `outreach:${accountId}`;
@@ -222,13 +220,13 @@ class MappingUtil {
   ): OutreachAccountWrite {
     const hullAccount = envelope.hullAccount;
     const accountAttributes: OutreachAccountAttributes = {};
-    const createOrUpdateFields: OutreachAccountCreateOrUpdate = {
+    const writeData: OutreachAccountWriteData = {
       type: "account",
       attributes: accountAttributes
     };
 
     if (_.has(envelope, "outreachAccountId")) {
-      createOrUpdateFields.id = envelope.outreachAccountId;
+      writeData.id = envelope.outreachAccountId;
     }
 
     // Customized mapping
@@ -240,7 +238,7 @@ class MappingUtil {
       accountAttributes
     );
 
-    return { data: createOrUpdateFields };
+    return { data: writeData };
   }
 
   mapHullUserToOutreachProspect(
@@ -248,14 +246,14 @@ class MappingUtil {
   ): OutreachProspectWrite {
     const hullUser = envelope.hullUser;
     const prospectAttributes: OutreachProspectAttributes = {};
-    const createOrUpdateFields: OutreachProspectCreateOrUpdate = {
+    const writeData: OutreachProspectWriteData = {
       type: "prospect",
       attributes: prospectAttributes
     };
 
     // look to see if the hullUser is linked to an account which has been sync'd to outreach
     if (_.has(hullUser, "account.outreach/id")) {
-      _.set(createOrUpdateFields, "relationships.account.data", {
+      _.set(writeData, "relationships.account.data", {
         type: "account",
         id: _.get(hullUser, "account.outreach/id")
       });
@@ -276,15 +274,15 @@ class MappingUtil {
       prospectAttributes
     );
 
-    return { data: createOrUpdateFields };
+    return { data: writeData };
   }
 
   applyIncomingHullAttributeMapping(
     mapping: Array<string>,
     attributes: OutreachAccountAttributes | OutreachProspectAttributes
-  ): THullAccountAttributes | THullUserAttributes {
+  ): HullAccountAttributes | HullUserAttributes {
     return mapping.reduce(
-      (hullAttrs: THullAccountAttributes | THullUserAttributes, m: string) => {
+      (hullAttrs: HullAccountAttributes | HullUserAttributes, m: string) => {
         /* eslint-disable no-case-declarations */
         switch (m) {
           case "emails":
@@ -330,7 +328,7 @@ class MappingUtil {
    */
   applyOutgoingHullAttributeMapping(
     mappings: Array<OutreachOutboundMapping>,
-    hullObject: THullAccount | THullUser,
+    hullObject: HullAccount | HullUser,
     attributes: OutreachAccountAttributes | OutreachProspectAttributes
   ) {
     _.forEach(mappings, (m: OutreachOutboundMapping) => {

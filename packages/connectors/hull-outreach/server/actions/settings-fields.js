@@ -1,7 +1,5 @@
 /* @flow */
 
-import type { $Response } from "express";
-import type { THullRequest } from "hull";
 import type { OutreachFieldDefinition } from "../lib/types";
 
 const _ = require("lodash");
@@ -12,7 +10,7 @@ const PROSPECT_FIELDDEFS = require("./fielddefs/prospect-fielddefs");
 function getFieldsOutreach(
   fields: Array<OutreachFieldDefinition>,
   filter: Object
-): Object {
+): Array<Object> {
   const filteredFields = _.filter(fields, filter);
   const opts = _.map(filteredFields, f => {
     return { value: f.id, label: f.label };
@@ -21,39 +19,31 @@ function getFieldsOutreach(
   return opts;
 }
 
-function fieldsOutreachProspectInbound(
-  req: THullRequest
-) {
+function fieldsOutreachProspectInbound() {
   return Promise.resolve({
     options: getFieldsOutreach(PROSPECT_FIELDDEFS, { in: true })
   });
 }
 
-function fieldsOutreachProspectOutbound(
-  req: THullRequest
-) {
+function fieldsOutreachProspectOutbound() {
   return Promise.resolve({
     options: getFieldsOutreach(PROSPECT_FIELDDEFS, { out: true })
   });
 }
 
-function fieldsOutreachAccountInbound(
-  req: THullRequest
-) {
+function fieldsOutreachAccountInbound() {
   return Promise.resolve({
     options: getFieldsOutreach(ACCOUNT_FIELDDEFS, { in: true })
   });
 }
 
-function fieldsOutreachAccountOutbound(
-  req: THullRequest
-) {
+function fieldsOutreachAccountOutbound() {
   return Promise.resolve({
     options: getFieldsOutreach(ACCOUNT_FIELDDEFS, { out: true })
   });
 }
 
-function fieldsHullAccountIdent(req: THullRequest) {
+function fieldsHullAccountIdent() {
   return Promise.resolve({
     options: [
       {
@@ -68,9 +58,7 @@ function fieldsHullAccountIdent(req: THullRequest) {
   });
 }
 
-function fieldsOutreachAccountIdent(
-  req: THullRequest
-) {
+function fieldsOutreachAccountIdent() {
   return Promise.resolve({
     options: [
       {

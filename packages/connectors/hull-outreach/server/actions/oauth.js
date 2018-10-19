@@ -1,3 +1,4 @@
+/* @flow */
 const OAuth2Strategy = require("passport-oauth2");
 const { oAuthHandler } = require("hull/src/handlers");
 const Promise = require("bluebird");

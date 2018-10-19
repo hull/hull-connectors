@@ -30,7 +30,7 @@ export type OutreachGenericIdentifierRead = {
   id: number
 };
 
-export type OutreachAccountAttributes = {
+export type OutreachAccountAttributes = $Shape<{
   companyType: string,
   createdAt: Date,
   custom1: string,
@@ -85,7 +85,7 @@ export type OutreachAccountAttributes = {
   tags: Array<string>,
   updatedAt: Date,
   websiteUrl: string
-};
+}>;
 
 export type OutreachAccountReadData = {
   type: string,
@@ -107,7 +107,7 @@ export type OutreachAccountWrite = {
   data: OutreachAccountWriteData
 };
 
-export type OutreachProspectAttributes = {
+export type OutreachProspectAttributes = $Shape<{
   addedAt: string,
   addressCity: string,
   addressCountry: string,
@@ -216,7 +216,7 @@ export type OutreachProspectAttributes = {
   websiteUrl2: string,
   websiteUrl3: string,
   workPhones: Array<string>
-};
+}>;
 
 export type OutreachProspectRelationships = {
   account: {
@@ -253,7 +253,7 @@ export type FilterResults<T> = {
   toDelete?: Array<T>
 };
 
-export type OutreachProspectUpdateEnvelope = {
+export type OutreachProspectUpdateEnvelope = $Shape<{
   hullUser: HullUser, // an object taken from message.user but we need to mix in `account` property there
   outreachProspectId: number,
   outreachProspectWrite: OutreachProspectWrite, // the prospect object we want to use to write to API
@@ -261,17 +261,17 @@ export type OutreachProspectUpdateEnvelope = {
   skipReason: string,
   opsResult: string,
   error: string
-};
+}>;
 
-export type OutreachAccountUpdateEnvelope = {
+export type OutreachAccountUpdateEnvelope = $Shape<{
   hullAccount: HullAccount, // an object taken from message, to make it work the same as for UserUpdateEnvelope
   outreachAccountId: number,
   outreachAccountWrite: OutreachAccountWrite,
-  outreachAccountRead: OutreachAccountRead,
-  skipReason: string,
-  opsResult: string,
-  error: string
-};
+  outreachAccountRead?: OutreachAccountRead,
+  skipReason?: string,
+  opsResult?: string,
+  error?: string
+}>;
 
 export type OutreachListMeta = {
   count: number

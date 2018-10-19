@@ -61,7 +61,8 @@ const SHARED_MESSAGES = {
   STATUS_CONNECTOR_MIDDLEWARE_MISCONFIGURED: () => {
     return {
       id: "StatusConnectorMiddlewareMisconfigured",
-      message: "The status endpoint is did not parse the incoming request properly.  Either the request was malformed, or the middleware for this connector is misconfigured.  Please contact support to ensure the connector is running properly",
+      message:
+        "The status endpoint is did not parse the incoming request properly.  Either the request was malformed, or the middleware for this connector is misconfigured.  Please contact support to ensure the connector is running properly",
       level: "Error",
       channel: "Configuration",
       category: "Dataflow"
@@ -70,7 +71,8 @@ const SHARED_MESSAGES = {
   STATUS_NO_ACCESS_TOKEN_FOUND: () => {
     return {
       id: "StatusNoAccessTokenFound",
-      message: "No OAuth AccessToken found.  Please make sure to allow Hull to access your Outreach data by clicking the \"Credentials\" button on the connector page and following the workflow provided",
+      message:
+        'No OAuth AccessToken found.  Please make sure to allow Hull to access your Outreach data by clicking the "Credentials" button on the connector page and following the workflow provided',
       level: "Error",
       channel: "Configuration",
       category: "Authentication"

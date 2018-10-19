@@ -7,7 +7,7 @@ function fetchAction(req: Object, res: $Response): void {
   const syncAgent = new SyncAgent(req.hull);
 
   res.json({ ok: true });
-  syncAgent.fetchOutreachProspects().then(response => {
+  syncAgent.fetchOutreachProspects().then(() => {
     return syncAgent.fetchOutreachProspects();
   });
 }

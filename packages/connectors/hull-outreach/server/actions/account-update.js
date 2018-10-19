@@ -1,12 +1,12 @@
 /* @flow */
-import type { TReqContext, THullAccountUpdateMessage } from "hull";
+import type { HullContext, HullAccountUpdateMessage } from "hull";
 
 const Promise = require("bluebird");
 const SyncAgent = require("../lib/sync-agent");
 
 function accountUpdate(
-  ctx: TReqContext,
-  messages: Array<THullAccountUpdateMessage>
+  ctx: HullContext,
+  messages: Array<HullAccountUpdateMessage>
 ): Promise<*> {
   const syncAgent = new SyncAgent(ctx);
   return syncAgent.sendAccountMessages(messages).catch(err => {

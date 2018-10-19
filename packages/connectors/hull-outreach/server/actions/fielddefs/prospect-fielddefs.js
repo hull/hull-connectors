@@ -1,5 +1,5 @@
 /* @flow */
-import type { OutreachFieldDefinition } from "../types";
+import type { OutreachFieldDefinition } from "../../lib/types";
 
 const PROSPECT_FIELDDEFS: Array<OutreachFieldDefinition> = [
   {

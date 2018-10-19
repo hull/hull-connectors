@@ -1,5 +1,5 @@
 /* @flow */
-import type { THullUserUpdateMessage, THullAccountUpdateMessage } from "hull";
+import type { HullUserUpdateMessage, HullAccountUpdateMessage } from "hull";
 import type {
   FilterResults,
   OutreachConnectorSettings,
@@ -164,19 +164,19 @@ class FilterUtil {
    * @memberof FilterUtil
    */
   deduplicateUserUpdateMessages(
-    messages: Array<THullUserUpdateMessage>
-  ): Array<THullUserUpdateMessage> {
+    messages: Array<HullUserUpdateMessage>
+  ): Array<HullUserUpdateMessage> {
     return _.chain(messages)
       .groupBy("user.id")
       .map(
         (
-          groupedMessages: Array<THullUserUpdateMessage>
-        ): THullUserUpdateMessage => {
+          groupedMessages: Array<HullUserUpdateMessage>
+        ): HullUserUpdateMessage => {
           const dedupedMessage = _.cloneDeep(
             _.last(_.sortBy(groupedMessages, ["user.indexed_at"]))
           );
           const hashedEvents = {};
-          groupedMessages.forEach((m: THullUserUpdateMessage) => {
+          groupedMessages.forEach((m: HullUserUpdateMessage) => {
             _.get(m, "events", []).forEach((e: Object) => {
               _.set(hashedEvents, e.event_id, e);
             });
@@ -189,14 +189,14 @@ class FilterUtil {
   }
 
   deduplicateAccountUpdateMessages(
-    messages: Array<THullAccountUpdateMessage>
-  ): Array<THullAccountUpdateMessage> {
+    messages: Array<HullAccountUpdateMessage>
+  ): Array<HullAccountUpdateMessage> {
     return _.chain(messages)
       .groupBy("account.id")
       .map(
         (
-          groupedMessages: Array<THullUserUpdateMessage>
-        ): THullUserUpdateMessage => {
+          groupedMessages: Array<HullUserUpdateMessage>
+        ): HullUserUpdateMessage => {
           const dedupedMessage = _.cloneDeep(
             _.last(_.sortBy(groupedMessages, ["account.indexed_at"]))
           );

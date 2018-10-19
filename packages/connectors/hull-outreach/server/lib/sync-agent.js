@@ -320,29 +320,53 @@ class SyncAgent {
     });
 
     const accountIdentifierHull = this.normalizedPrivateSettings
-    .account_identifier_hull;
+      .account_identifier_hull;
     const accountIdentifierService = this.normalizedPrivateSettings
-    .account_identifier_service;
+      .account_identifier_service;
 
-    await Promise.all(filterResults.toInsert.map(async envelope => {
-      return this.serviceClient
-        .findOutreachAccounts(accountIdentifierService, envelope.hullUser[accountIdentifierHull])
-        .then(response => {
-          const existingAccountList: OutreachList<OutreachAccountReadData> = response.body;
-          const existingAccounts = _.get(existingAccountList, "data");
-          if (!_.isEmpty(existingAccounts)) {
-            debug(`Found existing account in Outreach with ${accountIdentifierService}: ${envelope.hullUser[accountIdentifierHull]} with id: ${existingAccounts[0].id}`);
-            envelope.outreachAccountId = existingAccounts[0].id;
-            envelope.outreachAccountWrite.data.id = envelope.outreachAccountId;
-          } else {
-            debug(`No account found with ${accountIdentifierService}: ${envelope.hullUser[accountIdentifierHull]} will create a new prospect`)
-          }
-        });
-    }));
+    await Promise.all(
+      filterResults.toInsert.map(async envelope => {
+        const accountIdentifierHullValue: string =
+          envelope.hullUser[accountIdentifierHull];
 
-    const additionalUsersToUpdate = filterResults.toInsert.filter(envelope => envelope.outreachProspectId != null);
-    filterResults.toUpdate = filterResults.toUpdate.concat(additionalUsersToUpdate);
-    filterResults.toInsert = filterResults.toInsert.filter(envelope => envelope.outreachProspectId == null)
+        return this.serviceClient
+          .findOutreachAccounts(
+            accountIdentifierService,
+            accountIdentifierHullValue
+          )
+          .then(response => {
+            const existingAccountList: OutreachList<OutreachAccountReadData> =
+              response.body;
+            const existingAccounts = _.get(existingAccountList, "data");
+            if (!_.isEmpty(existingAccounts)) {
+              debug(
+                `Found existing account in Outreach with ${accountIdentifierService}: ${accountIdentifierHullValue} with id: ${
+                  existingAccounts[0].id
+                }`
+              );
+              envelope.outreachAccountId = existingAccounts[0].id;
+              envelope.outreachAccountWrite.data.id =
+                envelope.outreachAccountId;
+            } else {
+              debug(
+                `No account found with ${accountIdentifierService}: ${
+                  envelope.hullUser[accountIdentifierHull]
+                } will create a new prospect`
+              );
+            }
+          });
+      })
+    );
+
+    const additionalUsersToUpdate = filterResults.toInsert.filter(
+      envelope => envelope.outreachAccountId != null
+    );
+    filterResults.toUpdate = filterResults.toUpdate.concat(
+      additionalUsersToUpdate
+    );
+    filterResults.toInsert = filterResults.toInsert.filter(
+      envelope => envelope.outreachAccountId == null
+    );
 
     const updatedEnvelopes = await this.serviceClient.patchAccountEnvelopes(
       filterResults.toUpdate
@@ -396,8 +420,9 @@ class SyncAgent {
   buildAccountUpdateEnvelope(
     hullAccount: HullAccount
   ): OutreachAccountUpdateEnvelope {
-    const envelope: OutreachAccountUpdateEnvelope = {};
-    envelope.hullAccount = _.cloneDeep(hullAccount);
+    const envelope: OutreachAccountUpdateEnvelope = {
+      hullAccount: _.cloneDeep(hullAccount)
+    };
 
     envelope.outreachAccountWrite = this.mappingUtil.mapHullAccountToOutreachAccount(
       envelope
@@ -435,25 +460,43 @@ class SyncAgent {
         .logger.info("outgoing.user.skip", envelope.skipReason);
     });
 
-    await Promise.all(filterResults.toInsert.map(async envelope => {
-      return this.serviceClient
-        .findOutreachProspects("emails", envelope.hullUser.email)
-        .then(response => {
-          const existingUsersList: OutreachList<OutreachProspectReadData> = response.body;
-          const existingUsers = _.get(existingUsersList, "data");
-          if (!_.isEmpty(existingUsers)) {
-            debug(`Found existing user in Outreach with email: ${envelope.hullUser.email} with id: ${existingUsers[0].id}`);
-            envelope.outreachProspectId = existingUsers[0].id;
-            envelope.outreachProspectWrite.data.id = envelope.outreachProspectId;
-          } else {
-            debug(`No user found with email: ${envelope.hullUser.email} will create a new prospect`)
-          }
-        });
-    }));
+    await Promise.all(
+      filterResults.toInsert.map(async envelope => {
+        return this.serviceClient
+          .findOutreachProspects("emails", envelope.hullUser.email)
+          .then(response => {
+            const existingUsersList: OutreachList<OutreachProspectReadData> =
+              response.body;
+            const existingUsers = _.get(existingUsersList, "data");
+            if (!_.isEmpty(existingUsers)) {
+              debug(
+                `Found existing user in Outreach with email: ${
+                  envelope.hullUser.email
+                } with id: ${existingUsers[0].id}`
+              );
+              envelope.outreachProspectId = existingUsers[0].id;
+              envelope.outreachProspectWrite.data.id =
+                envelope.outreachProspectId;
+            } else {
+              debug(
+                `No user found with email: ${
+                  envelope.hullUser.email
+                } will create a new prospect`
+              );
+            }
+          });
+      })
+    );
 
-    const additionalUsersToUpdate = filterResults.toInsert.filter(envelope => envelope.outreachProspectId != null);
-    filterResults.toUpdate = filterResults.toUpdate.concat(additionalUsersToUpdate);
-    filterResults.toInsert = filterResults.toInsert.filter(envelope => envelope.outreachProspectId == null)
+    const additionalUsersToUpdate = filterResults.toInsert.filter(
+      envelope => envelope.outreachProspectId != null
+    );
+    filterResults.toUpdate = filterResults.toUpdate.concat(
+      additionalUsersToUpdate
+    );
+    filterResults.toInsert = filterResults.toInsert.filter(
+      envelope => envelope.outreachProspectId == null
+    );
 
     // USER UPDATES -> Ensure Accounts -> Update Users -> Fire callback
     const accountIdentifierHull = this.normalizedPrivateSettings
@@ -596,8 +639,10 @@ class SyncAgent {
         if (!_.isEmpty(envelope.hullUser.account)) {
           // find account in outreach if there is no outreach/id on the account
           // if there's no account, unhook it
-          const accountIdentifierHullValue =
-            envelope.hullUser.account[accountIdentifierHull];
+          const accountIdentifierHullValue = _.get(
+            envelope.hullUser.account,
+            accountIdentifierHull
+          );
 
           if (_.isEmpty(accountIdentifierHullValue)) {
             // TODO make sure to design error handling next... should this be resolve?
@@ -647,6 +692,7 @@ class SyncAgent {
             );
           }
         }
+        return Promise.resolve();
       })
     );
   }
@@ -655,7 +701,7 @@ class SyncAgent {
     if (this.webhookId == null) {
       // check for existing webhookid first so that we don't go and create a million of them
       const existingWebhookId: number = await this.serviceClient.getExistingWebhookId();
-      if (existingWebhookId == null) {
+      if (existingWebhookId >= 0) {
         await this.serviceClient.createWebhook().then(response => {
           // Set webhook id so that if we ever call ensure ever again on this client, we won't create another
           // since we don't keep sync agent around, it doesn't really matter

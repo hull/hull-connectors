@@ -1,29 +1,31 @@
 // @flow
 import type { $Application } from "express";
+
 const cors = require("cors");
 
 const {
   notificationHandler,
   jsonHandler,
-  scheduleHandler
+  scheduleHandler,
+  batchHandler
 } = require("hull/src/handlers");
-
-const {
-  statusHandler
-} = require("hull/src/handlers/status-handler");
 
 const notificationsConfiguration = require("./notifications-configuration");
 
 const actions = require("./actions");
 
 function server(app: $Application, deps: Object): $Application {
-  // I couldn't get the (route, cors(), function) syntaxt to work, but this worked...
-  app.post("/smart-notifier", notificationHandler(notificationsConfiguration));
+  app.use("/auth", actions.oauth(deps));
+  app.all("/checkToken", scheduleHandler(actions.tokenCheck));
+  app.all("/status", scheduleHandler(actions.statusCheck));
 
+  app.post("/smart-notifier", notificationHandler(notificationsConfiguration));
+  app.post("/batch", batchHandler(notificationsConfiguration));
   app.post("/fetch", scheduleHandler(actions.fetchAction));
+  // app.all("/webhook", bodyParser.json(), webhookHandler);
 
   app.get(
-    "/fields-outreach-prospect-out", 
+    "/fields-outreach-prospect-out",
     cors(),
     jsonHandler(actions.fieldsOutreachProspectOutbound)
   );
@@ -52,24 +54,6 @@ function server(app: $Application, deps: Object): $Application {
     cors(),
     jsonHandler(actions.fieldsOutreachAccountIdent)
   );
-
-  app.get("/admin", actions.adminHandler);
-
-  // app.all("/webhook", bodyParser.json(), webhookHandler);
-
-  app.all("/status", scheduleHandler(actions.statusCheck));
-
-  // app.use(
-  //   "/batch",
-  //   smartNotifierHandler({
-  //     userHandlerOptions: {
-  //       groupTraits: false
-  //     },
-  //     handlers: notificationsConfiguration
-  //   })
-  // );
-
-  app.use("/auth", actions.oauth(deps));
 }
 
 module.exports = server;

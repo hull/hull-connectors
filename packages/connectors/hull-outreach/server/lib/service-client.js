@@ -1,18 +1,14 @@
 /* @flow */
-import type { THullReqContext } from "hull";
+import type { HullClientLogger, HullMetrics, HullContext } from "hull";
 
 import type {
-  HullMetrics,
-  HullClientLogger,
   OutreachList,
   OutreachAccountRead,
   OutreachAccountWrite,
   OutreachAccountReadData,
-  OutreachAccountWriteData,
   OutreachProspectRead,
   OutreachProspectWrite,
   OutreachProspectReadData,
-  OutreachProspectWriteData,
   OutreachAccountUpdateEnvelope,
   OutreachProspectUpdateEnvelope,
   SuperAgentResponse
@@ -69,7 +65,7 @@ class ServiceClient {
    * @param {CioServiceClientConfiguration} config The configuration to set up the client.
    * @memberof ServiceClient
    */
-  constructor(ctx: THullReqContext) {
+  constructor(ctx: HullContext) {
     this.loggerClient = ctx.client.logger;
     this.metricsClient = ctx.metric;
     this.connectorHostname = ctx.hostname;
@@ -92,17 +88,30 @@ class ServiceClient {
       .on("error", error => {
         if (error.status === 401) {
           if (_.isEmpty(accessToken)) {
-            this.loggerClient.error("Not authorized with Outreach yet, please authenticate with Outreach using the Credentials button on the settings page");
+            this.loggerClient.error(
+              "Not authorized with Outreach yet, please authenticate with Outreach using the Credentials button on the settings page"
+            );
           } else {
-            this.loggerClient.error("API AccessToken no longer valid, please authenticate with Outreach again using the Credentials button on the settings page");
+            this.loggerClient.error(
+              "API AccessToken no longer valid, please authenticate with Outreach again using the Credentials button on the settings page"
+            );
           }
         } else {
-          this.loggerClient.error(`Received ${error.status} Error code while connecting with the Outreach API, please contact Hull support`);
-          this.loggerClient.debug(`Received ${error.status} Error code while connecting with the Outreach API, please contact Hull support, ${JSON.stringify(error)}`);
+          this.loggerClient.error(
+            `Received ${
+              error.status
+            } Error code while connecting with the Outreach API, please contact Hull support`
+          );
+          this.loggerClient.debug(
+            `Received ${
+              error.status
+            } Error code while connecting with the Outreach API, please contact Hull support, ${JSON.stringify(
+              error
+            )}`
+          );
         }
       })
       .on("response", res => {
-
         // https://api.outreach.io/api/v2/docs#rate-limiting
         // Limited to 5k per hour "on a per user basis" -> which I assume means api user
         const limit = _.get(res.header, "x-rate-limit-limit");
@@ -118,6 +127,21 @@ class ServiceClient {
       })
       .timeout({ response: 5000 })
       .ok(res => res.status === 200);
+  }
+
+  refreshAccessToken(private_settings): Promise<any> {
+    return this.agent
+      .post("/oauth/token")
+      .send(`client_id=${clientId}`)
+      .send(`client_secret=${clientSecret}`)
+      .send(`redirect_uri=${redirectUri}`)
+      .send("grant_type=authorization_code")
+      .send(`refresh_token=${refreshToken}`)
+      .then(response => {
+        // updateSettings with new access code if we got one
+        // otherwise log what happened
+        debug(JSON.stringify(response));
+      });
   }
 
   /**
@@ -161,7 +185,9 @@ class ServiceClient {
    * @returns {Promise<OutreachAccountRead>} The data of the created close.io object.
    * @memberof ServiceClient
    */
-  postAccount(data: OutreachAccountWrite): Promise<OutreachAccountRead> {
+  postAccount(
+    data: OutreachAccountWrite
+  ): Promise<SuperAgentResponse<OutreachAccountRead>> {
     return this.agent
       .post("/accounts/")
       .send(data)
@@ -176,7 +202,6 @@ class ServiceClient {
         const enrichedEnvelope = _.cloneDeep(envelope);
         return this.postAccount(envelope.outreachAccountWrite)
           .then(response => {
-            // $FlowFixMe
             enrichedEnvelope.outreachAccountRead = response.body;
             return enrichedEnvelope;
           })
@@ -212,10 +237,9 @@ class ServiceClient {
     return Promise.all(
       envelopes.map(envelope => {
         const enrichedEnvelope = _.cloneDeep(envelope);
-        return this.patchAccount(
-          envelope.outreachAccountWrite,
-          envelope.outreachAccountId
-        )
+        const write: OutreachAccountWrite =
+          enrichedEnvelope.outreachAccountWrite;
+        return this.patchAccount(write, envelope.outreachAccountId)
           .then(response => {
             // $FlowFixMe
             enrichedEnvelope.outreachAccountRead = response.body;
@@ -366,34 +390,31 @@ class ServiceClient {
   }
 
   getWebhooks(): Promise<SuperAgentResponse<OutreachList<any>>> {
-    return this.agent
-    .get("/webhooks/");
+    return this.agent.get("/webhooks/");
   }
 
   findWebhook(attribute: string, value: string): Promise<any> {
-    return this.agent
-    .get("/webhooks/")
-    .query(`filter[${attribute}]=${value}`);
+    return this.agent.get("/webhooks/").query(`filter[${attribute}]=${value}`);
   }
 
   getExistingWebhookId(): Promise<number> {
-    return this.getWebhooks()
-    .then( response => {
+    return this.getWebhooks().then(response => {
       const dataArray = _.get(response, "body.data");
       if (!_.isEmpty(dataArray)) {
-        const thisConnectorWebhooks =
-          dataArray.filter(
-            webhook => webhook.attributes.url === `https://${this.connectorHostname}/webhooks`);
+        const thisConnectorWebhooks = dataArray.filter(
+          webhook =>
+            webhook.attributes.url ===
+            `https://${this.connectorHostname}/webhooks`
+        );
         if (thisConnectorWebhooks.length > 0) {
           debug(`Found ${thisConnectorWebhooks.length} Existing webhooks`);
           return thisConnectorWebhooks[0].id;
         }
       }
-      debug("Existing Webhook not found")
-      return null;
+      debug("Existing Webhook not found");
+      return Promise.resolve(-1);
     });
   }
-
 }
 
 module.exports = ServiceClient;

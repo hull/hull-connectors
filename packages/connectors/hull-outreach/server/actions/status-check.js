@@ -1,13 +1,11 @@
 /* @flow */
-import type { $Response } from "express";
-import type { THullRequest } from "hull";
+import type { HullRequest } from "hull";
 
 const _ = require("lodash");
 const SyncAgent = require("../lib/sync-agent");
 const SHARED_MESSAGES = require("../lib/shared-messages");
 
-function statusCheck(req: THullRequest): void {
-
+function statusCheck(req: HullRequest): void {
   const { connector, client } = req;
   let status: string = "ok";
   const messages: Array<string> = [];
@@ -31,14 +29,16 @@ function statusCheck(req: THullRequest): void {
       status = "warning";
       messages.push(SHARED_MESSAGES.STATUS_WARNING_NOSEGMENTS().message);
     }
-
   } else {
     status = "error";
-    messages.push(SHARED_MESSAGES.STATUS_CONNECTOR_MIDDLEWARE_MISCONFIGURED().message);
+    messages.push(
+      SHARED_MESSAGES.STATUS_CONNECTOR_MIDDLEWARE_MISCONFIGURED().message
+    );
   }
 
-  return client.put(`${connector.id}/status`, { status, messages })
-  .then(() => { status, messages });
+  return client.put(`${connector.id}/status`, { status, messages }).then(() => {
+    return { status, messages };
+  });
 }
 
 module.exports = statusCheck;
