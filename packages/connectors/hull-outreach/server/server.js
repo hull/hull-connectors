@@ -8,6 +8,10 @@ const {
   scheduleHandler
 } = require("hull/src/handlers");
 
+const {
+  statusHandler
+} = require("hull/src/handlers/status-handler");
+
 const notificationsConfiguration = require("./notifications-configuration");
 
 const actions = require("./actions");
