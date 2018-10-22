@@ -1,10 +1,10 @@
 // @flow
-import type { $Response, NextFunction } from "express";
+import type { $Response, $Request, NextFunction } from "express";
 import type { HullRequestFull, HullContextFull } from "../../types";
 
 type HullRequestsBufferHandlerCallback = (
   ctx: HullContextFull,
-  requests: Array<{ body: mixed, query: mixed }>
+  request: $Request
 ) => Promise<*>;
 type HullRequestsBufferHandlerOptions = {
   maxSize?: number,
@@ -14,6 +14,7 @@ type HullRequestsBufferHandlerOptions = {
 
 const crypto = require("crypto");
 const { Router } = require("express");
+const debug = require("debug")("hull:requests-buffer-handler");
 
 const {
   clientMiddleware,
@@ -53,21 +54,34 @@ function requestsBufferHandlerFactory(
     res: $Response,
     next: NextFunction
   ) {
-    Batcher.getHandler(uniqueNamespace, {
-      ctx: req.hull,
-      options: {
-        maxSize,
-        maxTime
-      }
-    })
-      .setCallback(requests => {
-        return callback(req.hull, requests);
-      })
-      .addMessage({ body: req.body, query: req.query })
-      .then(() => {
-        res.status(200).end("ok");
+    callback(req.hull, req)
+      .then(result => {
+        console.log(">>>>> !!!!! response", result);
+        res.status(result.statusCode).json(result.json);
       })
       .catch(error => next(error));
+      // .catch(error => );
+      // .then(result => {
+      //   console.log(">>>>> !!!!! response", result);
+      //   res.status(result).json({ response: "ok" });
+      // })
+      // .catch(error => next(error));
+    // Batcher.getHandler(uniqueNamespace, {
+    //   ctx: req.hull,
+    //   options: {
+    //     maxSize,
+    //     maxTime
+    //   }
+    // })
+    //   .setCallback(requests => {
+    //     return callback(req.hull, requests);
+    //   })
+    //   .addMessage({ body: req.body, query: req.query, method: req.method })
+    //   .then(result => {
+    //     console.log(">>>>> !!!!! response", result);
+    //     res.status(200).json({ response: "ok" });
+    //   })
+    //   .catch(error => next(error));
   });
 
   if (disableErrorHandling !== true) {
@@ -78,7 +92,8 @@ function requestsBufferHandlerFactory(
         res: $Response,
         _next: NextFunction
       ) => {
-        res.status(500).end("error");
+        debug("error", err.stack);
+        res.status(500).json({ response: "error" });
       }
     );
   }

@@ -356,6 +356,7 @@ class SyncAgent {
         } catch (error) {
           return this.hullClient
             .asAccount(envelope.hullAccount)
+            // $FlowFixMe
             .logger.info("outgoing.account.error", envelope.error);
         }
       })
@@ -365,8 +366,9 @@ class SyncAgent {
   buildAccountUpdateEnvelope(
     hullAccount: HullAccount
   ): OutreachAccountUpdateEnvelope {
-    const envelope: OutreachAccountUpdateEnvelope = {};
-    envelope.hullAccount = _.cloneDeep(hullAccount);
+    const envelope: OutreachAccountUpdateEnvelope = {
+      hullAccount: _.cloneDeep(hullAccount)
+    };
 
     envelope.outreachAccountWrite = this.mappingUtil.mapHullAccountToOutreachAccount(
       envelope

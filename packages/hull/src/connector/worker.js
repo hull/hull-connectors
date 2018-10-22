@@ -2,6 +2,7 @@
 const Supply = require("supply");
 const Promise = require("bluebird");
 const _ = require("lodash");
+const debug = require("debug")("hull-connector:worker");
 
 /**
  * Background worker using QueueAdapter.
@@ -71,12 +72,11 @@ class Worker {
     if (_.isEmpty(job.data)) {
       return Promise.resolve();
     }
-
     const jobName = job.data.name;
     const req = _.cloneDeep(job.data.context);
     const jobData = _.cloneDeep(job.data.payload);
     const res = {};
-
+    debug("dispatch", jobName);
     const startTime = process.hrtime();
     return Promise.fromCallback(callback => {
       this.instrumentation.startTransaction(jobName, () => {
@@ -99,7 +99,7 @@ class Worker {
           })
           .catch(err => {
             req.hull.metric.increment(`ship.job.${jobName}.error`);
-            this.instrumentation.catchError(
+            this.instrumentation.captureException(
               err,
               {
                 job_id: job.id,

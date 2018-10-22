@@ -1,0 +1,33 @@
+{
+  "type": "unsubscribe",
+  "data": {
+    "reason": "manual",
+    "id": "1234c41512",
+    "email": "user@unsubscribed.com",
+    "email_type": "html",
+    "ip_opt": "240.102.285.371",
+    "web_id": "123418441",
+    "campaign_id": "1234fcc763",
+    "merges": {
+      "EMAIL": "user@unsubscribed.com",
+      "FNAME": "",
+      "LNAME": "",
+      "MMERGE11": "",
+      "MMERGE12": "",
+      "MMERGE13": "",
+      "MMERGE14": "",
+      "MMERGE15": "",
+      "MMERGE3": "",
+      "INTERESTS": "",
+      "GROUPINGS": [
+        {
+          "id": "3",
+          "unique_id": "1234e447ab",
+          "name": "Hull Segments",
+          "groups": ""
+        }
+      ]
+    },
+    "list_id": "12347f30bc"
+  }
+}

@@ -2,6 +2,7 @@
 const _ = require("lodash");
 const Hull = require("hull");
 const handlers = require("hull/src/handlers");
+const superagent = require("superagent");
 const Minihull = require("minihull");
 const nock = require("nock");
 const express = require("express");
@@ -12,16 +13,24 @@ const debug = require("debug")("hull-test-scenario-runner");
 
 export type TestScenarioDefinition = Object => {
   handlerType: $Values<typeof handlers>,
-  handlerUrl: string,
+  handlerUrl?: string,
   channel?: string,
+  payload?: {
+    body: Object,
+    query: Object,
+    headers: Object
+  },
   connector: Object,
   usersSegments: Array<*>,
   accountsSegments: Array<*>,
+  messages?: Array<*>,
   externalApiMock: Function,
   firehoseEvents: Array<*>,
-  response: any,
+  response: Object | string,
+  responseStatusCode?: number,
   metrics: Array<*>,
-  logs: Array<*>
+  logs: Array<*>,
+  platformApiCalls?: Array<*>
 };
 
 class TestScenarioRunner extends EventEmitter {
@@ -61,8 +70,16 @@ class TestScenarioRunner extends EventEmitter {
 
   server: Function;
 
+  worker: Function;
+
   constructor(
-    connectorServer: express => express,
+    {
+      connectorServer,
+      connectorWorker
+    }: {
+      connectorServer: express => express,
+      connectorWorker?: Function
+    },
     scenarioDefinition: TestScenarioDefinition
   ) {
     super();
@@ -89,6 +106,7 @@ class TestScenarioRunner extends EventEmitter {
       maxWait: this.timeout
     });
     this.server = connectorServer;
+    this.worker = connectorWorker;
 
     this.minihull.on("incoming.request", req =>
       console.log(">>>> MINIHULL", req.method, req.url)
@@ -146,12 +164,22 @@ class TestScenarioRunner extends EventEmitter {
         })
         .value();
       expect(firehoseEvents).toEqual(this.scenarioDefinition.firehoseEvents);
-      if (!this.nockScope.isDone()) {
+      if (this.nockScope && !this.nockScope.isDone()) {
         throw new Error(
           `pending mocks: ${JSON.stringify(this.nockScope.pendingMocks())}`
         );
       }
       debug("closing");
+      const platformApiCalls = this.minihull.requests
+        .get("incoming")
+        .reject({ url: "/api/v1/firehose" })
+        .map(entry => {
+          return [entry.method, entry.url, entry.query, entry.body];
+        })
+        .value();
+      expect(platformApiCalls).toEqual(
+        this.scenarioDefinition.platformApiCalls || []
+      );
       nock.cleanAll();
       nock.enableNetConnect();
       nock.emitter.removeAllListeners();
@@ -172,7 +200,7 @@ class TestScenarioRunner extends EventEmitter {
         nock.disableNetConnect();
         nock.enableNetConnect("localhost");
         nock.emitter.on("no match", (req, options, requestBody) => {
-          if (req.hostname !== "localhost") {
+          if (req.hostname !== "localhost" && options) {
             this.emit(
               "error",
               new Error(
@@ -196,6 +224,11 @@ class TestScenarioRunner extends EventEmitter {
         this.server(this.app);
         this.hullConnectorServer = await this.hullConnector.startApp(this.app);
 
+        if (this.worker) {
+          this.worker(this.hullConnector);
+          this.hullConnector.startWorker();
+        }
+
         this.hullConnectorPort = this.hullConnectorServer.address().port;
         this.scenarioDefinition = this.rawScenarioDefinition({
           expect,
@@ -208,19 +241,23 @@ class TestScenarioRunner extends EventEmitter {
             return _.defaultsDeep({}, modification, fixture); // eslint-disable-line global-require, import/no-dynamic-require
           }
         });
-        this.nockScope = this.scenarioDefinition.externalApiMock();
-        this.nockScope.on("request", req => {
-          console.log(">>> NOCK REQUEST", req.path);
-        });
-        this.nockScope.on("replied", req => {
-          console.log(">>> NOCK", req.path);
-        });
-        this.nockScope.on("replied", this.deboucedFinish);
+        this.nockScope = this.scenarioDefinition.externalApiMock && this.scenarioDefinition.externalApiMock();
+        if (this.nockScope) {
+          this.nockScope.on("request", req => {
+            console.log(">>> NOCK REQUEST", req.path);
+          });
+          this.nockScope.on("replied", req => {
+            console.log(">>> NOCK", req.path);
+          });
+          this.nockScope.on("replied", this.deboucedFinish);
+        }
         this.server = this.scenarioDefinition.connectorServer;
         this.connector = _.defaults(this.scenarioDefinition.connector, {
           id: "9993743b22d60dd829001999",
           private_settings: {}
         });
+        this.externalIncomingRequest = this.scenarioDefinition.externalIncomingRequest;
+
         this.minihull.stubConnector(this.connector);
         this.minihull.stubUsersSegments(this.scenarioDefinition.usersSegments);
         this.minihull.stubAccountsSegments(
@@ -238,6 +275,17 @@ class TestScenarioRunner extends EventEmitter {
               this.scenarioDefinition.accountsSegments
             );
             break;
+          case handlers.requestsBufferHandler:
+              response = await this.externalIncomingRequest({
+                superagent,
+                connectorUrl: `http://localhost:${this.hullConnectorPort}`,
+                plainCredentials: {
+                  organization: this.minihull._getOrgAddr(),
+                  ship: this.connector.id,
+                  secret: this.minihull.secret
+                }
+              });
+              break;
           case handlers.notificationHandler:
             response = await this.minihull.notifyConnector(
               this.connector,
@@ -255,7 +303,7 @@ class TestScenarioRunner extends EventEmitter {
         }
         debug("response", response.body, response.statusCode);
         expect(response.body).toEqual(this.scenarioDefinition.response);
-        expect(response.statusCode).toEqual(200);
+        expect(response.statusCode).toEqual(this.scenarioDefinition.responseStatusCode || 200);
         this.timeoutId = setTimeout(() => {
           this.deboucedFinish.cancel();
           throw new Error("Scenario timeouted");

@@ -9,9 +9,11 @@ import type {
   HullClientConfiguration
 } from "hull-client";
 
+const _ = require("lodash");
 const HullClient = require("hull-client/src");
 const ConnectorCache = require("./infra/cache/connector-cache");
 const MetricAgent = require("./infra/instrumentation/metric-agent");
+const helpers = require("./helpers");
 
 /**
  * @module Types
@@ -83,7 +85,10 @@ export type HullContextWithClient = {
   ...$Exact<HullContextWithCredentials>,
   clientCredentialsToken: string,
   client: HullClient,
-  helpers: *,
+  helpers: {
+    settingsUpdate: typeof helpers.settingsUpdate,
+    extractRequest: typeof helpers.extractRequest
+  },
   notification?: HullNotification
 };
 
