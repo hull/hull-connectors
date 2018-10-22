@@ -16,7 +16,8 @@ class Batcher {
   }
 
   static getHandler(ns, args) {
-    const name = ns + args.ctx.ship.id;
+    const shipOrConnector = args.ctx.ship || args.ctx.connector;
+    const name = ns + shipOrConnector.id;
     return (HANDLERS[name] = HANDLERS[name] || new Batcher(ns, args)); // eslint-disable-line no-return-assign
   }
 

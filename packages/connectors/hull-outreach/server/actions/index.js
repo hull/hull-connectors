@@ -12,7 +12,7 @@ const accountUpdate = require("./account-update");
 const fetchAction = require("./fetch");
 const adminHandler = require("./admin-handler");
 const statusCheck = require("./status-check");
-const tokenCheck = require("./token-check");
+const webhook = require("./webhook");
 
 const oauth = require("./oauth");
 
@@ -29,5 +29,5 @@ module.exports = {
   adminHandler,
   oauth,
   statusCheck,
-  tokenCheck
+  webhook
 };

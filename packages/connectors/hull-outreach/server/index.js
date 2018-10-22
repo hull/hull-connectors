@@ -1,8 +1,8 @@
 /* @flow */
 const Hull = require("hull");
 const express = require("express");
-
-const server = require("./server");
+require('dotenv').config()
+const server = require('./server');
 
 const { LOG_LEVEL, NODE_ENV } = process.env;
 

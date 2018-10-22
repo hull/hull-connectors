@@ -700,20 +700,101 @@ class SyncAgent {
   async ensureWebhook() {
     if (this.webhookId == null) {
       // check for existing webhookid first so that we don't go and create a million of them
-      const existingWebhookId: number = await this.serviceClient.getExistingWebhookId();
-      if (existingWebhookId >= 0) {
-        await this.serviceClient.createWebhook().then(response => {
-          // Set webhook id so that if we ever call ensure ever again on this client, we won't create another
-          // since we don't keep sync agent around, it doesn't really matter
-          this.webhookId = response.body.data.id;
-          return this.hullRequestContext.helpers.settingsUpdate({
-            webhook_id: this.webhookId
+      const existingWebhookId: number = await this.serviceClient.getExistingWebhookId(
+        this.hullClient
+      );
+      if (existingWebhookId < 0) {
+        await this.serviceClient
+          .createWebhook(this.hullClient)
+          .then(response => {
+            // Set webhook id so that if we ever call ensure ever again on this client, we won't create another
+            // since we don't keep sync agent around, it doesn't really matter
+            this.webhookId = response.body.data.id;
+            return this.hullRequestContext.helpers.settingsUpdate({
+              webhook_id: this.webhookId
+            });
           });
-        });
       } else {
         this.webhookId = existingWebhookId;
       }
     }
+  }
+
+  async checkToken(clientID: string, clientSecret: string) {
+    // first check if the access token is about to expire
+    const current_expires_in = _.get(
+      this.normalizedPrivateSettings,
+      "token_expires_in"
+    );
+    const current_created_at = _.get(
+      this.normalizedPrivateSettings,
+      "token_created_at"
+    );
+    const current_refresh_token = _.get(
+      this.normalizedPrivateSettings,
+      "refresh_token"
+    );
+
+    if (
+      !_.isEmpty(current_refresh_token) &&
+      current_expires_in != null &&
+      current_created_at != null
+    ) {
+      const current_expires_inInt = parseInt(current_expires_in, 10);
+      const current_created_atInt = parseInt(current_created_at, 10);
+      const now = Date.now();
+
+      const expiresAtTimeInMillis =
+        (current_created_atInt + current_expires_inInt) * 1000;
+
+      const timeRemaining = expiresAtTimeInMillis - now;
+
+      debug(
+        `Checking token with clientId: ${clientID} expiring in ${timeRemaining} milliseconds`
+      );
+
+      // if about to expire (< 20min), then use the refreshToken to get a new access tokenCheck
+      if (timeRemaining < 1200000) {
+        const newAccessParameters = await this.serviceClient
+          .refreshAccessToken(clientID, clientSecret, current_refresh_token)
+          .then(response => {
+            return _.pick(response.body, [
+              "expires_in",
+              "created_at",
+              "refresh_token",
+              "access_token"
+            ]);
+          });
+
+        const {
+          expires_in,
+          created_at,
+          refresh_token,
+          access_token
+        } = newAccessParameters;
+
+        if (!_.isEmpty(access_token)) {
+          // and send it back to the settingsUpdate
+          return this.hullRequestContext.helpers.settingsUpdate({
+            token_expires_in: expires_in,
+            token_created_at: created_at,
+            refresh_token,
+            access_token
+          });
+        }
+        return Promise.reject();
+      }
+
+      // all good, no need to refresh
+      return Promise.resolve();
+    }
+
+    debug(
+      `Can't check token as valid token information does not exist with clientId: ${clientID}`
+    );
+    // Why/How is this returning a TransientError, and then, later why is it returning 404???
+    return Promise.reject();
+
   }
 }
 

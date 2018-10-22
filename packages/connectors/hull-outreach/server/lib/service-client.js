@@ -14,12 +14,15 @@ import type {
   SuperAgentResponse
 } from "./types";
 
+const { Client } = require("hull");
+
 const _ = require("lodash");
 
 const debug = require("debug")("hull-outreach:service-client");
 
 const superagent = require("superagent");
 const prefixPlugin = require("superagent-prefix");
+const uri = require("urijs");
 
 const {
   superagentUrlTemplatePlugin,
@@ -61,6 +64,16 @@ class ServiceClient {
   loggerClient: HullClientLogger;
 
   /**
+   * a mutex to help us determine if we are currently refreshing AccessToken
+   * so that we don't accidentially loop forever
+   * not a great solution, but it should work
+   * @type {[type]}
+   */
+  tryingToRefreshAccessToken: boolean;
+
+  hullContext: HullContext;
+
+  /**
    *Creates an instance of ServiceClient.
    * @param {CioServiceClientConfiguration} config The configuration to set up the client.
    * @memberof ServiceClient
@@ -69,6 +82,8 @@ class ServiceClient {
     this.loggerClient = ctx.client.logger;
     this.metricsClient = ctx.metric;
     this.connectorHostname = ctx.hostname;
+    this.tryingToRefreshAccessToken = false;
+    this.hullContext = ctx;
 
     const accessToken = ctx.connector.private_settings.access_token;
     debug(`Found AccessToken: ${accessToken}`);
@@ -129,19 +144,36 @@ class ServiceClient {
       .ok(res => res.status === 200);
   }
 
-  refreshAccessToken(private_settings): Promise<any> {
+/**
+  shouldRetry(error: Object, res: Object): boolean {
+    if (this.tryingToRefreshAccessToken) return false;
+
+    if (error.status === 401) {
+      const accessToken = this.hullContext.connector.private_settings.access_token;
+      const refreshToken = this.hullContext.connector.private_settings.refresh_token;
+      if (!_.isEmpty(accessToken) &&
+          !_.isEmpty(refreshToken)) {
+
+      }
+    }
+
+    return false;
+  }
+*/
+
+  refreshAccessToken(
+    clientID: string,
+    clientSecret: string,
+    refreshToken: string
+  ): Promise<any> {
+    const redirectUri = `https://${this.connectorHostname}/auth/callback`;
     return this.agent
-      .post("/oauth/token")
-      .send(`client_id=${clientId}`)
-      .send(`client_secret=${clientSecret}`)
-      .send(`redirect_uri=${redirectUri}`)
-      .send("grant_type=authorization_code")
-      .send(`refresh_token=${refreshToken}`)
-      .then(response => {
-        // updateSettings with new access code if we got one
-        // otherwise log what happened
-        debug(JSON.stringify(response));
-      });
+      .post("https://api.outreach.io/oauth/token")
+      .send({ client_id: clientID })
+      .send({ client_secret: clientSecret })
+      .send({ redirect_uri: redirectUri })
+      .send({ grant_type: "refresh_token" })
+      .send({ refresh_token: refreshToken });
   }
 
   /**
@@ -369,16 +401,16 @@ class ServiceClient {
    * @returns {Promise<OutreachProspectRead>} The data of the updated outreach.io object.
    * @memberof ServiceClient
    */
-  createWebhook(): Promise<any> {
+  createWebhook(client: Client): Promise<any> {
     /**
      * https://api.outreach.io/api/v2/docs#respond-to-platform-events
      */
-
+    const webhookUrl: string = this.buildWebhookUrl(client);
     const genericWebhook = {
       data: {
         type: "webhook",
         attributes: {
-          url: `https://${this.connectorHostname}/webhooks`
+          url: webhookUrl
         }
       }
     };
@@ -397,15 +429,16 @@ class ServiceClient {
     return this.agent.get("/webhooks/").query(`filter[${attribute}]=${value}`);
   }
 
-  getExistingWebhookId(): Promise<number> {
+  getExistingWebhookId(client: Client): Promise<number> {
     return this.getWebhooks().then(response => {
       const dataArray = _.get(response, "body.data");
       if (!_.isEmpty(dataArray)) {
+        const webhookUrl: string = this.buildWebhookUrl(client);
+
         const thisConnectorWebhooks = dataArray.filter(
-          webhook =>
-            webhook.attributes.url ===
-            `https://${this.connectorHostname}/webhooks`
+          webhook => webhook.attributes.url === webhookUrl
         );
+
         if (thisConnectorWebhooks.length > 0) {
           debug(`Found ${thisConnectorWebhooks.length} Existing webhooks`);
           return thisConnectorWebhooks[0].id;
@@ -414,6 +447,18 @@ class ServiceClient {
       debug("Existing Webhook not found");
       return Promise.resolve(-1);
     });
+  }
+
+  buildWebhookUrl(client: Client): string {
+    const { organization, id, secret } = client.configuration();
+    const search = {
+      organization,
+      secret,
+      ship: id
+    };
+    return uri(`https://${this.connectorHostname}/webhooks`)
+      .search(search)
+      .toString();
   }
 }
 

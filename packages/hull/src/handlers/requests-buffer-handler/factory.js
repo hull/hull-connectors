@@ -9,13 +9,15 @@ type HullRequestsBufferHandlerCallback = (
 type HullRequestsBufferHandlerOptions = {
   maxSize?: number,
   maxTime?: number,
-  disableErrorHandling?: boolean
+  disableErrorHandling?: boolean,
+  parseCredentialsFromQuery?: boolean
 };
 
 const crypto = require("crypto");
 const { Router } = require("express");
 
 const {
+  credentialsFromQueryMiddleware,
   clientMiddleware,
   fullContextFetchMiddleware,
   timeoutMiddleware,
@@ -36,12 +38,16 @@ function requestsBufferHandlerFactory(
   {
     maxSize = 100,
     maxTime = 10000,
-    disableErrorHandling = false
+    disableErrorHandling = false,
+    parseCredentialsFromQuery = false
   }: HullRequestsBufferHandlerOptions = {}
 ) {
   const uniqueNamespace = crypto.randomBytes(64).toString("hex");
   const router = Router();
 
+  if (parseCredentialsFromQuery) {
+    router.use(credentialsFromQueryMiddleware()); // parse config from query
+  }
   router.use(timeoutMiddleware());
   router.use(clientMiddleware()); // initialize client, we need configuration to be set already
   router.use(haltOnTimedoutMiddleware());

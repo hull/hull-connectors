@@ -34,6 +34,18 @@
       "format": "hidden"
     },
     {
+      "name": "token_expires_in",
+      "title": "OAuth Token Expiration in seconds",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "token_created_at",
+      "title": "OAuth Token Created At in millis since epoch",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
       "name": "accountidentification_title",
       "title": "Accounts Identification",
       "format": "title",
@@ -214,11 +226,6 @@
       "url": "/status",
       "type": "interval",
       "value": "5"
-  },
-  {
-    "url": "/checkToken",
-    "type": "interval",
-    "value": "1"
   }],
   "subscriptions": [{
     "url": "/smart-notifier",

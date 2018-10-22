@@ -16,13 +16,20 @@ const actions = require("./actions");
 
 function server(app: $Application, deps: Object): $Application {
   app.use("/auth", actions.oauth(deps));
-  app.all("/checkToken", scheduleHandler(actions.tokenCheck));
-  app.all("/status", scheduleHandler(actions.statusCheck));
+  app.post("/status", scheduleHandler(actions.statusCheck));
 
   app.post("/smart-notifier", notificationHandler(notificationsConfiguration));
   app.post("/batch", batchHandler(notificationsConfiguration));
   app.post("/fetch", scheduleHandler(actions.fetchAction));
-  // app.all("/webhook", bodyParser.json(), webhookHandler);
+
+  app.get("/admin", actions.adminHandler);
+
+  // body isn't coming through for some reason... maybe looking in the wrong place?
+  // will take some work to debug....
+  // app.use(
+  //   "/webhooks",
+  //   requestsBufferHandler(actions.webhook, { parseCredentialsFromQuery: true })
+  // );
 
   app.get(
     "/fields-outreach-prospect-out",
