@@ -1,7 +1,9 @@
 /* @flow */
+const { Connector } = require("hull");
+
 const jobs = require("./jobs");
 
-function worker(connector) {
+function worker(connector: Connector) {
   connector.worker(jobs);
 }
 

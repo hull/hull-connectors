@@ -4,7 +4,8 @@ import type {
   HullUser,
   HullUserUpdateMessage,
   HullUserAttributes,
-  HullUserClaims
+  HullUserClaims,
+  HullAttributeValue
 } from "hull";
 import type { TMailchimpWebhookPayload, TMailchimpMergeFields } from "../types";
 
@@ -49,7 +50,7 @@ class UserMappingAgent {
     this.mailchimpFields = MailchimpFields;
   }
 
-  getExtractFields() {
+  getExtractFields(): Array<string> {
     const traits = this.mailchimpFields.map(path => {
       const trait = _.last(path.split("."));
       return `traits_mailchimp/${trait}`;
@@ -191,13 +192,16 @@ class UserMappingAgent {
       hull,
       overwrite = false
     }: { name: string, hull: string, overwrite: boolean }
-  ): string {
+  ): HullAttributeValue {
     // since the account is a subobject we need to use lodash get method to traverse it using dot notation path
-    return overwrite === true
-      ? _.get(payload, hull) || ""
-      : payload[`traits_mailchimp/${name.toLowerCase()}`] ||
-          _.get(payload, hull) ||
-          "";
+    if (overwrite === true) {
+      return _.get(payload, hull) || "";
+    }
+    return (
+      payload[`traits_mailchimp/${name.toLowerCase()}`] ||
+      _.get(payload, hull) ||
+      ""
+    );
   }
 
   /**

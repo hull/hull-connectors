@@ -29,7 +29,7 @@ const usersSegments = [
   }
 ];
 
-it.skip("Missing Mailchimp list", function notifyTests() {
+it.skip("Missing Mailchimp list", () => {
   const email = "email@email.com";
   return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
     return {

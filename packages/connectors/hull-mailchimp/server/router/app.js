@@ -5,7 +5,7 @@ const {
   notificationHandler,
   scheduleHandler,
   jsonHandler,
-  requestsBufferHandler
+  incomingRequestHandler
 } = require("hull/src/handlers");
 
 const { credentialsFromQueryMiddleware } = require("hull/src/middlewares");
@@ -50,7 +50,7 @@ function appRouter() {
     "/mailchimp",
     bodyParser.urlencoded({ extended: true }),
     credentialsFromQueryMiddleware(),
-    requestsBufferHandler(actions.webhook)
+    incomingRequestHandler(actions.webhook)
   );
 
   router.use("/schema/user_fields", jsonHandler(actions.schemaUserFields));

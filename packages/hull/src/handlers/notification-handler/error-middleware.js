@@ -5,7 +5,11 @@ import type { HullRequestFull } from "../../types";
 const debug = require("debug")("hull-connector:notification-handler");
 
 const { notificationDefaultFlowControl } = require("../../utils");
-const { ConfigurationError, TransientError, NotificationValidationError } = require("../../errors");
+const {
+  // ConfigurationError,
+  TransientError,
+  NotificationValidationError
+} = require("../../errors");
 
 function errorToResponse(error) {
   return {

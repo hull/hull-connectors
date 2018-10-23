@@ -28,7 +28,7 @@ const errorMiddleware = require("./error-middleware");
  */
 function notificationHandlerFactory(
   configuration: HullHandlersConfiguration
-): * {
+): Router {
   const router = Router();
   const normalizedConfiguration = normalizeHandlersConfiguration(configuration);
 

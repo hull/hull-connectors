@@ -2,17 +2,14 @@
 import type { $Response, $Request, NextFunction } from "express";
 import type { HullRequestFull, HullContextFull } from "../../types";
 
-type HullRequestsBufferHandlerCallback = (
+type HullIncomingRequestHandlerCallback = (
   ctx: HullContextFull,
   request: $Request
 ) => Promise<*>;
-type HullRequestsBufferHandlerOptions = {
-  maxSize?: number,
-  maxTime?: number,
+type HullIncomingRequestHandlerOptions = {
   disableErrorHandling?: boolean
 };
 
-const crypto = require("crypto");
 const { Router } = require("express");
 const debug = require("debug")("hull:requests-buffer-handler");
 
@@ -24,23 +21,16 @@ const {
   instrumentationContextMiddleware
 } = require("../../middlewares");
 
-const Batcher = require("../../infra/batcher");
-
 /**
  * @param {Object|Function} callback         [description]
  * @param {Object}   options [description]
  * @param {number}   options.maxSize [description]
  * @param {number}   options.maxTime [description]
  */
-function requestsBufferHandlerFactory(
-  callback: HullRequestsBufferHandlerCallback,
-  {
-    maxSize = 100,
-    maxTime = 10000,
-    disableErrorHandling = false
-  }: HullRequestsBufferHandlerOptions = {}
-) {
-  const uniqueNamespace = crypto.randomBytes(64).toString("hex");
+function IncomingRequestHandlerFactory(
+  callback: HullIncomingRequestHandlerCallback,
+  { disableErrorHandling = false }: HullIncomingRequestHandlerOptions = {}
+): Router {
   const router = Router();
 
   router.use(timeoutMiddleware());
@@ -56,32 +46,14 @@ function requestsBufferHandlerFactory(
   ) {
     callback(req.hull, req)
       .then(result => {
-        console.log(">>>>> !!!!! response", result);
-        res.status(result.statusCode).json(result.json);
+        const { statusCode = 200 } = result;
+        if (typeof result.json === "object") {
+          res.status(statusCode).json(result.json);
+        } else if (typeof result.text === "string") {
+          res.status(statusCode).end(result.text);
+        }
       })
       .catch(error => next(error));
-      // .catch(error => );
-      // .then(result => {
-      //   console.log(">>>>> !!!!! response", result);
-      //   res.status(result).json({ response: "ok" });
-      // })
-      // .catch(error => next(error));
-    // Batcher.getHandler(uniqueNamespace, {
-    //   ctx: req.hull,
-    //   options: {
-    //     maxSize,
-    //     maxTime
-    //   }
-    // })
-    //   .setCallback(requests => {
-    //     return callback(req.hull, requests);
-    //   })
-    //   .addMessage({ body: req.body, query: req.query, method: req.method })
-    //   .then(result => {
-    //     console.log(">>>>> !!!!! response", result);
-    //     res.status(200).json({ response: "ok" });
-    //   })
-    //   .catch(error => next(error));
   });
 
   if (disableErrorHandling !== true) {
@@ -101,4 +73,4 @@ function requestsBufferHandlerFactory(
   return router;
 }
 
-module.exports = requestsBufferHandlerFactory;
+module.exports = IncomingRequestHandlerFactory;

@@ -70,7 +70,9 @@ class TestScenarioRunner extends EventEmitter {
 
   server: Function;
 
-  worker: Function;
+  worker: Function | void;
+
+  externalIncomingRequest: Function;
 
   constructor(
     {
@@ -241,7 +243,9 @@ class TestScenarioRunner extends EventEmitter {
             return _.defaultsDeep({}, modification, fixture); // eslint-disable-line global-require, import/no-dynamic-require
           }
         });
-        this.nockScope = this.scenarioDefinition.externalApiMock && this.scenarioDefinition.externalApiMock();
+        this.nockScope =
+          this.scenarioDefinition.externalApiMock &&
+          this.scenarioDefinition.externalApiMock();
         if (this.nockScope) {
           this.nockScope.on("request", req => {
             console.log(">>> NOCK REQUEST", req.path);
@@ -275,17 +279,17 @@ class TestScenarioRunner extends EventEmitter {
               this.scenarioDefinition.accountsSegments
             );
             break;
-          case handlers.requestsBufferHandler:
-              response = await this.externalIncomingRequest({
-                superagent,
-                connectorUrl: `http://localhost:${this.hullConnectorPort}`,
-                plainCredentials: {
-                  organization: this.minihull._getOrgAddr(),
-                  ship: this.connector.id,
-                  secret: this.minihull.secret
-                }
-              });
-              break;
+          case handlers.incomingRequestHandler:
+            response = await this.externalIncomingRequest({
+              superagent,
+              connectorUrl: `http://localhost:${this.hullConnectorPort}`,
+              plainCredentials: {
+                organization: this.minihull._getOrgAddr(),
+                ship: this.connector.id,
+                secret: this.minihull.secret
+              }
+            });
+            break;
           case handlers.notificationHandler:
             response = await this.minihull.notifyConnector(
               this.connector,
@@ -303,7 +307,9 @@ class TestScenarioRunner extends EventEmitter {
         }
         debug("response", response.body, response.statusCode);
         expect(response.body).toEqual(this.scenarioDefinition.response);
-        expect(response.statusCode).toEqual(this.scenarioDefinition.responseStatusCode || 200);
+        expect(response.statusCode).toEqual(
+          this.scenarioDefinition.responseStatusCode || 200
+        );
         this.timeoutId = setTimeout(() => {
           this.deboucedFinish.cancel();
           throw new Error("Scenario timeouted");

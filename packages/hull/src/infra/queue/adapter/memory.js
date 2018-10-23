@@ -24,7 +24,7 @@ class MemoryAdapter {
    * @param {Object} jobPayload
    * @return {Promise}
    */
-  create(jobName, jobPayload = {}, { delay = null } = {}) {
+  create(jobName, jobPayload = {}) {
     // if (delay) {
     //   setTimeout(this.enqueue.bind(this, jobName, jobPayload), delay);
     //   return Promise.resolve();

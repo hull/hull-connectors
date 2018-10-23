@@ -4,10 +4,10 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 
 // workaround to allow connector start
 process.env.CLIENT_ID = "123";
-const hullTypeformServer = require("../../../server/server");
+const connectorServer = require("../../../server/server");
 
 test("incoming fetch all responses hidden fields", () => {
-  return testScenario(hullTypeformServer, ({ handlers, alterFixture, expect, nock }) => {
+  return testScenario({ connectorServer }, ({ handlers, alterFixture, expect, nock }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "fetch-all-responses",
@@ -173,6 +173,11 @@ test("incoming fetch all responses hidden fields", () => {
           },
           expect.whatever()
         ]
+      ],
+      platformApiCalls: [
+        ["GET", "/api/v1/app", {}, {}],
+        ["GET", "/api/v1/users_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}],
+        ["GET", "/api/v1/accounts_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}]
       ]
     };
   });

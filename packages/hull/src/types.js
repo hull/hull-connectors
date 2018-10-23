@@ -9,11 +9,11 @@ import type {
   HullClientConfiguration
 } from "hull-client";
 
-const _ = require("lodash");
+import type { HullHelperExtractRequestOptions } from "./helpers/extract-request";
+
 const HullClient = require("hull-client/src");
 const ConnectorCache = require("./infra/cache/connector-cache");
 const MetricAgent = require("./infra/instrumentation/metric-agent");
-const helpers = require("./helpers");
 
 /**
  * @module Types
@@ -86,8 +86,10 @@ export type HullContextWithClient = {
   clientCredentialsToken: string,
   client: HullClient,
   helpers: {
-    settingsUpdate: typeof helpers.settingsUpdate,
-    extractRequest: typeof helpers.extractRequest
+    settingsUpdate: (
+      $PropertyType<HullConnector, "private_settings">
+    ) => Promise<HullConnector>,
+    extractRequest: HullHelperExtractRequestOptions => Promise<*>
   },
   notification?: HullNotification
 };
@@ -205,7 +207,7 @@ export type HullNormalizedHandlersConfiguration = {
 
 export type HullHandlersConfigurationEntry =
   | HullHandlerCallback
-  | HullNormalizedHandlersConfiguration;
+  | HullNormalizedHandlersConfigurationEntry;
 
 export type HullHandlersConfiguration = {
   [HullChannelName: string]: HullHandlersConfigurationEntry

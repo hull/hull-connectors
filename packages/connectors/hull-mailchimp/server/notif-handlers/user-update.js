@@ -18,17 +18,18 @@ function userUpdateHandler(
 ) {
   const { syncAgent } = shipAppFactory(ctx);
 
-  if (ctx.notificationResponse && ctx.notificationResponse.flow_control) {
-    ctx.notificationResponse.flow_control = {
+  ctx.notificationResponse = {
+    flow_control: {
       type: "next",
       size: parseInt(process.env.FLOW_CONTROL_SIZE, 10) || 50,
       in: parseInt(process.env.FLOW_CONTROL_IN, 10) || 10,
       in_time: parseInt(process.env.FLOW_CONTROL_IN_TIME, 10) || 30000
-    };
-  }
+    }
+  };
 
   const filteredMessages = messages.reduce((accumulator, message) => {
     const { changes = {}, user, events, segments = [] } = message;
+    // $FlowFixMe
     ctx.client.asUser(user).logger.debug("outgoing.user.start", {
       changes,
       events: _.map(events, e => e.event),
@@ -81,11 +82,14 @@ function userUpdateHandler(
         error: _.get(error, "message", "unknown"),
         stack: _.get(error, "stack")
       });
-      if (ctx.smartNotifierResponse) {
-        ctx.smartNotifierResponse.setFlowControl({
-          type: "retry"
-        });
-      }
+      ctx.notificationResponse = {
+        flow_control: {
+          type: "retry",
+          size: parseInt(process.env.FLOW_CONTROL_SIZE, 10) || 50,
+          in: parseInt(process.env.FLOW_CONTROL_IN, 10) || 10,
+          in_time: parseInt(process.env.FLOW_CONTROL_IN_TIME, 10) || 30000
+        }
+      };
       return Promise.resolve();
     });
 }
