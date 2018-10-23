@@ -40,20 +40,14 @@ class Batcher {
     const { maxSize } = this.options;
     if (this.messages.length >= maxSize) {
       return this.flush();
-    } // else {
+    }
     return this.flushLater();
-    // }
-    // return Promise.resolve("ok");
   }
 
   flush() {
     const messages = this.messages;
     this.messages = [];
     return this.callback(messages);
-    // return Promise.resolve(this.callback(messages)).catch(err => {
-    //   console.error(err);
-    //   this.logger.debug("batcher.flush.error", err);
-    // });
   }
 }
 

@@ -3,11 +3,11 @@ import type { HullSegment } from "hull-client";
 import type { HullContext } from "../types";
 
 export type HullHelperExtractRequestOptions = {
-  segment: null | HullSegment,
-  format: "json" | "csv",
-  path: string,
-  fields: Array<string>,
-  additionalQuery: Object
+  segment?: null | HullSegment,
+  format?: "json" | "csv",
+  path?: string,
+  fields?: Array<string>,
+  additionalQuery?: Object
 };
 
 const Promise = require("bluebird");
@@ -41,7 +41,7 @@ function extractRequest(
     path = "batch",
     fields = [],
     additionalQuery = {}
-  }: HullHelperExtractRequestOptions
+  }: HullHelperExtractRequestOptions = {}
 ) {
   const { client, hostname } = ctx;
   const conf = client.configuration();

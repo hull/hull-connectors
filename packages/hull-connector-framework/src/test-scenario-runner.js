@@ -11,6 +11,9 @@ const expect = require("expect");
 const { EventEmitter } = require("events");
 const debug = require("debug")("hull-test-scenario-runner");
 
+const { equals } = require("expect/build/jasmine_utils");
+const { iterableEquality } = require("expect/build/utils");
+
 export type TestScenarioDefinition = Object => {
   handlerType: $Values<typeof handlers>,
   handlerUrl?: string,
@@ -32,6 +35,50 @@ export type TestScenarioDefinition = Object => {
   logs: Array<*>,
   platformApiCalls?: Array<*>
 };
+
+expect.extend({
+  toEqualIgnoringOrder(received, expected, additionalInfo) {
+    const copyOfReceived = _.cloneDeep(received);
+    const copyOfExpected = _.cloneDeep(expected);
+
+    try {
+      expected.forEach(value => {
+        const index = copyOfReceived.findIndex(item =>
+          equals(item, value, [iterableEquality])
+        );
+        if (index === -1) {
+          expect(expected).toEqual(received);
+        }
+        copyOfReceived.splice(index, 1);
+      });
+    } catch (error) {
+      error.message = `${additionalInfo}: we did not receive following entries  \n     ${
+        error.message
+      }`;
+      throw error;
+    }
+
+    try {
+      received.forEach(value => {
+        const index = copyOfExpected.findIndex(item =>
+          equals(item, value, [iterableEquality])
+        );
+        if (index === -1) {
+          expect(expected).toEqual(received);
+        }
+        copyOfExpected.splice(index, 1);
+      });
+    } catch (error) {
+      error.message = `${additionalInfo}: we did not expect following entries  \n     ${
+        error.message
+      }`;
+      throw error;
+    }
+    return {
+      pass: true
+    };
+  }
+});
 
 class TestScenarioRunner extends EventEmitter {
   minihull: typeof Minihull;
@@ -134,12 +181,18 @@ class TestScenarioRunner extends EventEmitter {
           log.data
         ];
       });
-      expect(transformedLogs).toEqual(this.scenarioDefinition.logs);
+      expect(transformedLogs).toEqualIgnoringOrder(
+        this.scenarioDefinition.logs,
+        "logs do not match"
+      );
       expect(
         this.capturedMetrics.map(metric => {
           return [metric[0], metric[1], metric[2]];
         })
-      ).toEqual(this.scenarioDefinition.metrics);
+      ).toEqualIgnoringOrder(
+        this.scenarioDefinition.metrics,
+        "metrics do not match"
+      );
       const firehoseEvents = this.minihull.requests
         .get("incoming")
         .filter({ url: "/api/v1/firehose" })
@@ -165,7 +218,10 @@ class TestScenarioRunner extends EventEmitter {
           ];
         })
         .value();
-      expect(firehoseEvents).toEqual(this.scenarioDefinition.firehoseEvents);
+      expect(firehoseEvents).toEqualIgnoringOrder(
+        this.scenarioDefinition.firehoseEvents,
+        "firehoseEvents do not match"
+      );
       if (this.nockScope && !this.nockScope.isDone()) {
         throw new Error(
           `pending mocks: ${JSON.stringify(this.nockScope.pendingMocks())}`
@@ -179,8 +235,9 @@ class TestScenarioRunner extends EventEmitter {
           return [entry.method, entry.url, entry.query, entry.body];
         })
         .value();
-      expect(platformApiCalls).toEqual(
-        this.scenarioDefinition.platformApiCalls || []
+      expect(platformApiCalls).toEqualIgnoringOrder(
+        this.scenarioDefinition.platformApiCalls || [],
+        "platformApiCalls do not match"
       );
       nock.cleanAll();
       nock.enableNetConnect();
@@ -300,6 +357,8 @@ class TestScenarioRunner extends EventEmitter {
               this.scenarioDefinition.accountsSegments
             );
             break;
+          case undefined:
+            throw new Error("Wrong handlerType");
           default:
             throw new Error(
               `Wrong handlerType: ${this.scenarioDefinition.handlerType.name}`

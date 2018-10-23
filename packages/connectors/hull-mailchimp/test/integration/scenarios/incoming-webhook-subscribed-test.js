@@ -26,7 +26,7 @@ it("should handle incoming webhook for subscribe event", () => {
     connectorServer
   }, ({ handlers, nock, expect }) => {
     return {
-      handlerType: handlers.requestsBufferHandler,
+      handlerType: handlers.incomingRequestHandler,
       externalIncomingRequest: ({ superagent, connectorUrl, plainCredentials }) => {
         return superagent
           .post(`${connectorUrl}/mailchimp`)

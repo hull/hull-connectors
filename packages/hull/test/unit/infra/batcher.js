@@ -6,7 +6,7 @@ const Batcher = require("../../../src/infra/batcher");
 
 const reqStub = {
   hull: {
-    ship: {
+    connector: {
       id: "test"
     },
     client: {
