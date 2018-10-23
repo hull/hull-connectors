@@ -2,8 +2,11 @@ const _ = require("lodash");
 const uri = require("urijs");
 const Promise = require("bluebird");
 
-function statusAction(req, res) {
-  const { client, ship, shipApp, metric } = req.hull;
+const shipAppFactory = require("../lib/ship-app-factory");
+
+function statusAction(ctx) {
+  const { client, connector, metric } = ctx;
+  const shipApp = shipAppFactory(ctx);
 
   const messages = [];
   let status = "ok";
@@ -55,7 +58,7 @@ function statusAction(req, res) {
           status = "error";
         }
       });
-      return req.hull.shipApp.mailchimpClient
+      return shipApp.mailchimpClient
         .get("/lists/{{listId}}/webhooks")
         .ok(result => result.status === 200)
         .query({
@@ -68,7 +71,7 @@ function statusAction(req, res) {
             secret,
             ship: id
           };
-          const url = uri(`https://${req.hostname}/mailchimp`)
+          const url = uri(`https://${ctx.hostname}/mailchimp`)
             .search(search)
             .toString();
           const foundWebhooks = _.filter(webhookRes.body.webhooks, { url });
@@ -91,13 +94,16 @@ function statusAction(req, res) {
         messages.push("More than one webhook registered");
       }
 
-      res.json({
-        status,
-        messages,
-        audit
-      });
       metric.value("mailchimp.mean_sync_percentage", audit.meanSyncPercentage);
-      return client.put(`${ship.id}/status`, { status, messages });
+      return client
+        .put(`${connector.id}/status`, { status, messages })
+        .then(() => {
+          return {
+            status,
+            messages,
+            audit
+          };
+        });
     });
 }
 

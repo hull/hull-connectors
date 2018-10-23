@@ -11,17 +11,10 @@ const _ = require("lodash");
 const server = require("./server");
 const worker = require("./worker");
 
-// const appMiddleware = require("./lib/middleware/app");
-const jobs = require("./jobs");
-// const actions = require("./actions");
-// const notifHandlers = require("./notif-handlers");
-
 const {
   PORT = 8082,
   LOG_LEVEL,
   SECRET = "1234",
-  MAILCHIMP_CLIENT_ID,
-  MAILCHIMP_CLIENT_SECRET,
   KUE_PREFIX = "hull-mailchimp",
   REDIS_URL,
   SHIP_CACHE_MAX,
@@ -37,12 +30,6 @@ if (!_.isNil(LOG_LEVEL)) {
 }
 
 Hull.Client.logger.transports.console.stringify = true;
-
-const shipConfig = {
-  hostSecret: SECRET,
-  clientID: MAILCHIMP_CLIENT_ID,
-  clientSecret: MAILCHIMP_CLIENT_SECRET
-};
 
 const cache = new Cache({
   store: "memory",
@@ -67,15 +54,6 @@ const connector = new Hull.Connector({
   }
 });
 
-const options = {
-  hullMiddleware: connector.clientMiddleware(),
-  connector,
-  shipConfig,
-  cache,
-  queue,
-  jobs
-};
-
 let app = express();
 
 if (COMBINED === "true" || WEB === "true") {
@@ -85,6 +63,12 @@ if (COMBINED === "true" || WEB === "true") {
 }
 
 if (COMBINED === "true" || WORKER === "true") {
-  worker(options);
+  worker(connector);
   connector.startWorker();
+}
+
+if (COMBINED !== "true" && WORKER !== "true" && WEB !== "true") {
+  throw new Error(
+    "Non of the process was started, set any of COMBINED, WEB or WORKER env vars"
+  );
 }
