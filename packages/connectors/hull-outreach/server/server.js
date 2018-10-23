@@ -7,7 +7,8 @@ const {
   notificationHandler,
   jsonHandler,
   scheduleHandler,
-  batchHandler
+  batchHandler,
+  requestsBufferHandler
 } = require("hull/src/handlers");
 
 const notificationsConfiguration = require("./notifications-configuration");
@@ -26,10 +27,10 @@ function server(app: $Application, deps: Object): $Application {
 
   // body isn't coming through for some reason... maybe looking in the wrong place?
   // will take some work to debug....
-  // app.use(
-  //   "/webhooks",
-  //   requestsBufferHandler(actions.webhook, { parseCredentialsFromQuery: true })
-  // );
+  app.use(
+    "/webhooks",
+    requestsBufferHandler(actions.webhook, { parseCredentialsFromQuery: true })
+  );
 
   app.get(
     "/fields-outreach-prospect-out",

@@ -37,7 +37,8 @@ class FilterUtil {
    * @memberof FilterUtil
    */
   filterUsers(
-    envelopes: Array<OutreachProspectUpdateEnvelope>
+    envelopes: Array<OutreachProspectUpdateEnvelope>,
+    isBatchRequest: boolean
   ): FilterResults<OutreachProspectUpdateEnvelope> {
     const results: FilterResults<OutreachProspectUpdateEnvelope> = {
       toSkip: [],
@@ -48,7 +49,10 @@ class FilterUtil {
     envelopes.forEach((envelope: OutreachProspectUpdateEnvelope) => {
       // Filter users not linked to accounts that match whitelisted segments
       // TODO ask sven about segment logic again...
+      // We don't skip anything if it's a batch request
+      // I don't like how this negative boolean logic looks, it isn't clear enough
       if (
+        !isBatchRequest &&
         !this.matchesSegments(
           envelope.hullUser.segment_ids,
           this.settings.synchronized_user_segments
@@ -85,7 +89,8 @@ class FilterUtil {
    * @memberof FilterUtil
    */
   filterAccounts(
-    envelopes: Array<OutreachAccountUpdateEnvelope>
+    envelopes: Array<OutreachAccountUpdateEnvelope>,
+    isBatchRequest
   ): FilterResults<OutreachAccountUpdateEnvelope> {
     const accountIdentifierHull = this.settings.account_identifier_hull;
 
@@ -110,7 +115,10 @@ class FilterUtil {
       // TODO ask sven about segment logic again...
       // TODO also make sure we're looking in the right place for account segment ids
       // close io seemed to be checking the messages level which concatenates all segments from inner user updates together...
+      // don't skip anything if isBatchRequest
+      // Still don't like this double negative boolean logic, not clear enough
       if (
+        !isBatchRequest &&
         !this.matchesSegments(
           envelope.hullAccount.segment_ids,
           this.settings.synchronized_account_segments

@@ -97,6 +97,8 @@ class SyncAgent {
    */
   webhookId: number;
 
+  isBatchRequest: boolean;
+
   hullRequestContext: HullContext;
 
   /**
@@ -109,6 +111,7 @@ class SyncAgent {
     // Initialize hull clients
     this.metricsClient = reqContext.metric;
     this.hullClient = reqContext.client;
+    this.isBatchRequest = reqContext.isBatch;
 
     // Initialize the connector
     this.connector = reqContext.connector;
@@ -311,7 +314,10 @@ class SyncAgent {
       )
     );
 
-    const filterResults = this.filterUtil.filterAccounts(envelopes);
+    const filterResults = this.filterUtil.filterAccounts(
+      envelopes,
+      this.isBatchRequest
+    );
 
     filterResults.toSkip.forEach(envelope => {
       this.hullClient
@@ -451,7 +457,10 @@ class SyncAgent {
     );
 
     // Loop through and filter them into skip/update/insert paths
-    const filterResults = this.filterUtil.filterUsers(envelopes);
+    const filterResults = this.filterUtil.filterUsers(
+      envelopes,
+      this.isBatchRequest
+    );
 
     // Only thing to do is fire a logger for each skip
     filterResults.toSkip.forEach(envelope => {
