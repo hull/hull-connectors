@@ -1,0 +1,43 @@
+{
+  "type": "unsubscribe",
+  "data": {
+    "action": "unsub",
+    "reason": "abuse",
+    "id": "123416b037",
+    "email": "user@abuse.com",
+    "email_type": "html",
+    "web_id": "123474133",
+    "campaign_id": "12346a0ce",
+    "merges": {
+      "EMAIL": "user@abuse.com",
+      "FNAME": "User",
+      "LNAME": "Abuse",
+      "PHONE": "",
+      "ADDRESS": {
+        "addr1": "",
+        "addr2": "",
+        "city": "",
+        "state": "",
+        "zip": "",
+        "country": "MR"
+      },
+      "TAGS": "",
+      "ORDERTOTAL": "",
+      "MMERGE30": "",
+      "MMERGE13": "12/10/2017",
+      "MMERGE14": "active",
+      "MMERGE15": "11/10/2017",
+      "MMERGE16": "active",
+      "INTERESTS": "",
+      "GROUPINGS": [
+        {
+          "id": "1",
+          "unique_id": "123456d652",
+          "name": "Hull Segments",
+          "groups": ""
+        }
+      ]
+    },
+    "list_id": "12346c28ad"
+  }
+}

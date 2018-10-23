@@ -1,0 +1,142 @@
+<html>
+<head>
+  <title>Hull <%= name %></title>
+  <link rel="stylesheet" href="//dd04rofzygnm0.cloudfront.net/releases/master/865f04865d2448286626bac92c518a8f8ea8bafe/stylesheets/neue.css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css" />
+  <link rel="stylesheet" href="/auth.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3 col-sm-offset-2 col-sm-8 col-xs-offset-1 col-xs-10 mt-2 panel">
+        <div class="panel-body">
+          <div class="mb-1">
+            <h1 class="mb-0 mt-05  text-center"><i class="icon icon-hull" style="font-size:64px;"></i></h1>
+            <div class="mb-1 media">
+              <div class="media-left">
+                <div class="media-object pr-1 pt-05">
+                  <div class="check valid"><i class="icon icon-valid"></i></div>
+                </div>
+              </div>
+              <div class="media-body pt-1">
+                <h4 class="m-0 text-muted">Connected to Mailchimp</h4>
+                <p class="mb-1">
+                  The Mailchimp integration is set up correctly. Users are now sent to Mailchimp when they are updated. If you haven’t done it before or you want to reset everything, click the “Sync all users and segments” button below to empty and refill the list.
+  Choose one or more Filtered Segments on the sidebar to limit synced users to a subset of your database.
+                </p>
+                <button class='mb-1 btn btn-block btn-primary'
+                  data-action="<%=form_action%>"
+                  data-confirm="<%=mailchimp_list_name%>">Sync all users and segments</button>
+                <!-- link to list selection is disabled. Due to current implementation -->
+                <!-- it is not possible to change the mailchimp list -->
+                <!-- <a href="<%=select_url%>">Return to Mailchimp List selection</a> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="panel panel-default mt-1">
+          <% if (audit && audit.segmentsStats && _.size(audit.segmentsStats)) { -%>
+          <div class="panel-heading">
+            <h5 class="mt-05 mb-05 text-accented uppercase">Managed Mailchimp Segments and Interest Groups</h5>
+            <p>Since Mailchimp total count on Interest Groups and Static segments only includes subscribed users,
+            it may be difficult to compare numbers between Hull and Mailchimp. You may have 100 users in your Hull segment,
+            but 20 of them have mailchimp status of "unsubscribed", as a result you will only see 80 users in corresponding Mailchimp Group/Segment.</p>
+            <p>To make debugging easier the table below presents all segments which are synchronized to Mailchimp (look at the filter setting) with numbers of users with different statuses. Hover over headers to get more information about how we calculate those numbers.</p>
+          </div>
+          <table class="table table-condensed datagrid-table table table-bordered table-hover">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th title="Total number of users in Hull segment">Total count</th>
+                <th title="Successfully subscribed Mailchimp members">Subscribed Members</th>
+                <th title="Subscribers on Mailchimp Interest Group">MC Interest Group Count</th>
+                <th title="Subscribers on Mailchimp Static Segment">MC Static Segment Count</th>
+                <th title="Members in unsubsribed, pending or cleared status">Not Subscribed Members</th>
+                <th title="Users who were not synced due to for example missing email">Not Synced Users</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <% _.forEach(audit.segmentsStats, (segmentStats) => { -%>
+                <% if(segmentStats.shouldBeSynchronized !== true) return; -%>
+              <tr>
+                <td  style="vertical-align: middle;">
+                  <%= segmentStats.hullSegmentName %>
+                </td>
+                <td  style="vertical-align: middle;">
+                  <small class="text-muted">
+                    <%= segmentStats.hullSegmentCount %>
+                  </small>
+                </td>
+                <td  style="vertical-align: middle;">
+                  <small class="text-muted">
+                    <b><%= segmentStats.hullSubscribedCount %></b>
+                  </small>
+                </td>
+                <td  style="vertical-align: middle;">
+                  <small class="text-muted">
+                    <%= segmentStats.mailchimpInterestGroupCount %>
+                  </small>
+                </td>
+                <td  style="vertical-align: middle;">
+                  <small class="text-muted">
+                    <%= segmentStats.mailchimpStaticSegmentCount %>
+                  </small>
+                </td>
+                <td  style="vertical-align: middle;">
+                  <small class="text-muted">
+                    <%= segmentStats.hullOtherStatusCount %>
+                  </small>
+                </td>
+                <td  style="vertical-align: middle;">
+                  <small class="text-muted">
+                    <%= segmentStats.hullMissCount %>
+                  </small>
+                </td>
+
+              </tr>
+              <% }) -%>
+
+            </tbody>
+          </table>
+          <% } -%>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style type="text/css" media="screen">
+  </style>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+  <script>
+    $(function() {
+
+      $("[data-confirm]").click(function() {
+        var listName = $(this).attr('data-confirm');
+        var actionUrl = $(this).attr('data-action');
+        swal({
+          title: "Sync all users and segments",
+          text: "You are going to resync Mailchimp with Hull. This will empty the list you picked ("
+            + listName + "). This will remove all interest groups and static segments (possibly breaking any automation configuration) and can generate a lot of traffic. Are you sure?",
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#DD6B55",
+          confirmButtonText: "Yes, sync it!",
+          closeOnConfirm: false
+        }, function(isConfirm) {
+          if (isConfirm) {
+            $.post(actionUrl);
+            swal("Sync started", "The Mailchimp list ("
+            + listName + ") will be synced shortly.", "success");
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

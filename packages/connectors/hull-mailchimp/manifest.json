@@ -1,0 +1,160 @@
+{
+  "name": "Mailchimp",
+  "version": "0.6.1",
+  "description": "Powerful segmentation and enrichment for Mailchimp - the world’s favorite email platform",
+  "tags": ["outgoing", "incoming", "batch", "oneColumn", "smart-notifier"],
+  "source": "mailchimp",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "admin" : "/auth/",
+  "private_settings":[
+    {
+      "name": "configuration_title",
+      "title": "Configuration",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "synchronized_segments",
+      "title": "Send users to Mailchimp when belonging to at least one of these segments",
+      "description": "If no segments are specified all users are sent to Mailchimp.",
+      "type": "array",
+      "format": "segment"
+    },
+    {
+      "name": "mailchimp_list_id",
+      "title": "Mailchimp List ID",
+      "description": "Mailchimp List ID selected by user",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "mailchimp_list_name",
+      "title": "Mailchimp List Name",
+      "description": "Mailchimp List Name selected by user",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "api_key",
+      "title": "API Key",
+      "description": "Token or API Key",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "api_endpoint",
+      "title": "API Endpoint",
+      "description": "Mailchimp API endpoint",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "domain",
+      "title": "API Domain",
+      "description": "Mailchimp API Domain",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "data_title",
+      "title": "Data Mapping",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "segment_mapping",
+      "type": "object",
+      "properties": {},
+      "format": "hidden"
+    },
+    {
+      "name": "interest_category_id",
+      "title": "Interest category ID",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "interests_mapping",
+      "type": "object",
+      "properties": {},
+      "format": "hidden"
+    },
+    {
+      "name" : "sync_fields_to_mailchimp",
+      "title" : "Send the following user attributes to Mailchimp",
+      "type" : "array",
+      "format" : "table",
+      "default": [{
+        "hull": "first_name",
+        "name": "FNAME",
+        "overwrite": true
+      }, {
+        "hull": "last_name",
+        "name": "LNAME",
+        "overwrite": true
+      }],
+      "items" : {
+        "type" : "object",
+        "properties" : {
+          "hull" : {
+            "type" : "string",
+            "format" : "trait",
+            "title" : "Hull Attribute"
+          },
+          "name" : {
+            "type" : "string",
+            "format": "select",
+            "title" : "Mailchimp Merge Field",
+            "options" : {
+              "allowCreate": false,
+              "loadOptions" : "/schema/user_fields"
+            }
+          },
+          "overwrite" : {
+            "type" : "boolean",
+            "title" : "Hull overwrites Mailchimp",
+            "default" : false
+          }
+        },
+        "required" : [
+          "hull",
+          "name"
+        ]
+      }
+    },
+    {
+      "name": "force_removal_from_static_segments",
+      "description": "When enabled when processing batch extract it will try to remove user from static segments they should not be in",
+      "default": false,
+      "type": "boolean",
+      "format": "hidden"
+    },
+    {
+      "name": "fetch_user_activity_on_update",
+      "description": "When enabled it will get user activites on user:update",
+      "default": true,
+      "type": "boolean",
+      "format": "hidden"
+    }
+  ],
+  "readme": "readme.md",
+  "ui": false,
+  "subscriptions": [
+    {
+      "url": "/smart-notifier"
+    }
+  ],
+  "schedules": [
+    {
+      "url": "/track",
+      "type": "cron",
+      "value": "7 */6 * * *"
+    },
+    {
+      "url": "/status",
+      "type": "cron",
+      "value": "*/30 * * * *"
+    }
+  ]
+}

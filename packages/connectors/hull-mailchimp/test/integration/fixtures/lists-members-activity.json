@@ -1,0 +1,46 @@
+{
+  "activity": [
+    {
+      "action": "open",
+      "timestamp": "2015-09-15T19:15:47+00:00",
+      "campaign_id": "42694e9e57",
+      "title": "Freddie's Jokes Vol. 1"
+    },
+    {
+      "action": "sent",
+      "timestamp": "2015-09-15T19:05:51+00:00",
+      "type": "regular",
+      "campaign_id": "42694e9e57",
+      "title": "Freddie's Jokes Vol. 1"
+    },
+    {
+      "action": "mandrill_send",
+      "timestamp": "2015-09-02T17:16:41+00:00",
+      "campaign_id": "",
+      "title": "Freddie's Jokes Vol. 3"
+    },
+    {
+      "action": "mandrill_open",
+      "timestamp": "2015-07-13T18:14:09+00:00",
+      "campaign_id": "",
+      "title": "Freddie's Jokes Vol. 3"
+    }
+  ],
+  "email_id": "62eeb292278cc15f5817cb78f7790b08",
+  "list_id": "57afe96172",
+  "_links": [
+    {
+      "rel": "self",
+      "href": "https://usX.api.mailchimp.com/3.0/lists/57afe96172/members/62eeb292278cc15f5817cb78f7790b08/activity",
+      "method": "GET",
+      "targetSchema": "https://api.mailchimp.com/schema/3.0/Lists/Members/Activity/Collection.json"
+    },
+    {
+      "rel": "parent",
+      "href": "https://usX.api.mailchimp.com/3.0/lists/57afe96172/members/62eeb292278cc15f5817cb78f7790b08",
+      "method": "GET",
+      "targetSchema": "https://api.mailchimp.com/schema/3.0/Lists/Members/Instance.json"
+    }
+  ],
+  "total_items": 4
+}

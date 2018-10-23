@@ -1,0 +1,33 @@
+{
+  "type": "unsubscribe",
+  "data": {
+    "action": "unsub",
+    "reason": "manual",
+    "id": "c123409709",
+    "email": "user@unsubscribed.com",
+    "email_type": "html",
+    "web_id": "112346361",
+    "campaign_id": "123400be75",
+    "merges": {
+      "EMAIL": "user@unsubscribed.com",
+      "FNAME": "User",
+      "LNAME": "Unsubscribed",
+      "PHONE": "",
+      "ADDRESS": "",
+      "MMERGE13": "16/11/2017",
+      "MMERGE14": "active",
+      "MMERGE15": "16/11/2017",
+      "MMERGE16": "active",
+      "INTERESTS": "All Users - Has Email, All Users",
+      "GROUPINGS": [
+        {
+          "id": "1",
+          "unique_id": "123456d652",
+          "name": "Hull Segments",
+          "groups": "All Users - Has Email, All Users"
+        }
+      ]
+    },
+    "list_id": "12346c28ad"
+  }
+}

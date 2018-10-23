@@ -1,0 +1,25 @@
+{
+  "id": "8b2428d747",
+  "status": "finished",
+  "total_operations": 4,
+  "finished_operations": 4,
+  "errored_operations": 0,
+  "submitted_at": "2016-05-12T17:43:32+00:00",
+  "completed_at": "2016-05-12T17:43:42+00:00",
+  "response_body_url": "https://mock.api.mailchimp.com/3.0/mailchimp-api-batch.s3.amazonaws.com/8b2428d747-response.tar.gz?AWSAccessKeyId=AKIAJWOH5BECJQZIEWNQ&Expires=1463075697&Signature=9Mva8uTbY56CIu3nywGcOgM%2FH%2FI%3D",
+  "_links": [
+    {
+      "rel": "parent",
+      "href": "https://usX.api.mailchimp.com/3.0/batches",
+      "method": "GET",
+      "targetSchema": "https://api.mailchimp.com/schema/3.0/Batches/Collection.json",
+      "schema": "https://api.mailchimp.com/schema/3.0/CollectionLinks/Batches.json"
+    },
+    {
+      "rel": "self",
+      "href": "https://usX.api.mailchimp.com/3.0/batches/8b2428d747",
+      "method": "GET",
+      "targetSchema": "https://api.mailchimp.com/schema/3.0/Batches/Instance.json"
+    }
+  ]
+}

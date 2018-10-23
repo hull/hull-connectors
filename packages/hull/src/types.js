@@ -9,6 +9,8 @@ import type {
   HullClientConfiguration
 } from "hull-client";
 
+import type { HullHelperExtractRequestOptions } from "./helpers/extract-request";
+
 const HullClient = require("hull-client/src");
 const ConnectorCache = require("./infra/cache/connector-cache");
 const MetricAgent = require("./infra/instrumentation/metric-agent");
@@ -83,7 +85,12 @@ export type HullContextWithClient = {
   ...$Exact<HullContextWithCredentials>,
   clientCredentialsToken: string,
   client: HullClient,
-  helpers: *,
+  helpers: {
+    settingsUpdate: (
+      $PropertyType<HullConnector, "private_settings">
+    ) => Promise<HullConnector>,
+    extractRequest: HullHelperExtractRequestOptions => Promise<*>
+  },
   notification?: HullNotification
 };
 
@@ -200,7 +207,7 @@ export type HullNormalizedHandlersConfiguration = {
 
 export type HullHandlersConfigurationEntry =
   | HullHandlerCallback
-  | HullNormalizedHandlersConfiguration;
+  | HullNormalizedHandlersConfigurationEntry;
 
 export type HullHandlersConfiguration = {
   [HullChannelName: string]: HullHandlersConfigurationEntry
