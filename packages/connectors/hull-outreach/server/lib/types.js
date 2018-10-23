@@ -265,8 +265,8 @@ export type OutreachProspectUpdateEnvelope = $Shape<{
 
 export type OutreachAccountUpdateEnvelope = $Shape<{
   hullAccount: HullAccount, // an object taken from message, to make it work the same as for UserUpdateEnvelope
-  outreachAccountId: number,
-  outreachAccountWrite: OutreachAccountWrite,
+  outreachAccountId?: number,
+  outreachAccountWrite?: OutreachAccountWrite,
   outreachAccountRead?: OutreachAccountRead,
   skipReason?: string,
   opsResult?: string,

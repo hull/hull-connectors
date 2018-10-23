@@ -1,20 +1,18 @@
 // @flow
-import type { $Response, NextFunction } from "express";
+import type { $Response, $Request, NextFunction } from "express";
 import type { HullRequestFull, HullContextFull } from "../../types";
 
-type HullRequestsBufferHandlerCallback = (
+type HullIncomingRequestHandlerCallback = (
   ctx: HullContextFull,
-  requests: Array<{ body: mixed, query: mixed }>
+  request: $Request
 ) => Promise<*>;
-type HullRequestsBufferHandlerOptions = {
-  maxSize?: number,
-  maxTime?: number,
-  disableErrorHandling?: boolean,
+type HullIncomingRequestHandlerOptions = {
+  disableErrorHandling?: boolean
   parseCredentialsFromQuery?: boolean
 };
 
-const crypto = require("crypto");
 const { Router } = require("express");
+const debug = require("debug")("hull:requests-buffer-handler");
 
 const {
   credentialsFromQueryMiddleware,
@@ -25,24 +23,19 @@ const {
   instrumentationContextMiddleware
 } = require("../../middlewares");
 
-const Batcher = require("../../infra/batcher");
-
 /**
  * @param {Object|Function} callback         [description]
  * @param {Object}   options [description]
  * @param {number}   options.maxSize [description]
  * @param {number}   options.maxTime [description]
  */
-function requestsBufferHandlerFactory(
-  callback: HullRequestsBufferHandlerCallback,
-  {
-    maxSize = 100,
-    maxTime = 10000,
+function IncomingRequestHandlerFactory(
+  callback: HullIncomingRequestHandlerCallback,
+  { 
     disableErrorHandling = false,
     parseCredentialsFromQuery = false
-  }: HullRequestsBufferHandlerOptions = {}
-) {
-  const uniqueNamespace = crypto.randomBytes(64).toString("hex");
+  }: HullIncomingRequestHandlerOptions = {}
+): Router {
   const router = Router();
 
   if (parseCredentialsFromQuery) {
@@ -59,19 +52,14 @@ function requestsBufferHandlerFactory(
     res: $Response,
     next: NextFunction
   ) {
-    Batcher.getHandler(uniqueNamespace, {
-      ctx: req.hull,
-      options: {
-        maxSize,
-        maxTime
-      }
-    })
-      .setCallback(requests => {
-        return callback(req.hull, requests);
-      })
-      .addMessage({ body: req.body, query: req.query })
-      .then(() => {
-        res.status(200).end("ok");
+    callback(req.hull, req)
+      .then(result => {
+        const { statusCode = 200 } = result;
+        if (typeof result.json === "object") {
+          res.status(statusCode).json(result.json);
+        } else if (typeof result.text === "string") {
+          res.status(statusCode).end(result.text);
+        }
       })
       .catch(error => next(error));
   });
@@ -84,7 +72,8 @@ function requestsBufferHandlerFactory(
         res: $Response,
         _next: NextFunction
       ) => {
-        res.status(500).end("error");
+        debug("error", err.stack);
+        res.status(500).json({ response: "error" });
       }
     );
   }
@@ -92,4 +81,4 @@ function requestsBufferHandlerFactory(
   return router;
 }
 
-module.exports = requestsBufferHandlerFactory;
+module.exports = IncomingRequestHandlerFactory;

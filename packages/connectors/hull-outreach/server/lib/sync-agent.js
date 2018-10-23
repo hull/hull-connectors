@@ -417,6 +417,7 @@ class SyncAgent {
         } catch (error) {
           return this.hullClient
             .asAccount(envelope.hullAccount)
+            // $FlowFixMe
             .logger.info("outgoing.account.error", envelope.error);
         }
       })

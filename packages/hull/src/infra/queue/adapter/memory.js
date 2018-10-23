@@ -24,16 +24,17 @@ class MemoryAdapter {
    * @param {Object} jobPayload
    * @return {Promise}
    */
-  create(jobName, jobPayload = {}, { delay = null } = {}) {
-    if (delay) {
-      setTimeout(this.enqueue.bind(this, jobName, jobPayload), delay);
-      return Promise.resolve();
-    }
+  create(jobName, jobPayload = {}) {
+    // if (delay) {
+    //   setTimeout(this.enqueue.bind(this, jobName, jobPayload), delay);
+    //   return Promise.resolve();
+    // }
 
     return this.enqueue(jobName, jobPayload);
   }
 
   enqueue(jobName, jobPayload) {
+    console.log(">>>> ENQUEUE", jobName);
     this.queue[jobName] = this.queue[jobName] || [];
     this.queue[jobName].push({
       id: this.queue[jobName].length,

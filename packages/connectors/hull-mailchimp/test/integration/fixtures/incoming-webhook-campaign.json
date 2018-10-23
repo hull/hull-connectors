@@ -1,0 +1,10 @@
+{
+  "type": "campaign",
+  "data": {
+    "id": "1234703879",
+    "subject": "Campaign Title",
+    "status": "sent",
+    "reason": "",
+    "list_id": "1234026007"
+  }
+}

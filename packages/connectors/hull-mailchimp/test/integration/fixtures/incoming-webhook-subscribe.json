@@ -1,0 +1,25 @@
+{
+  "type": "subscribe",
+  "data": {
+    "id": "912348d606",
+    "email": "subscribed@user.com",
+    "email_type": "html",
+    "ip_opt": "14.298.254.028",
+    "web_id": "51234949",
+    "merges": {
+      "EMAIL": "subscribed@user.com",
+      "FNAME": "First",
+      "LNAME": "Last",
+      "INTERESTS": "Users signed in last 100 days, Users w/ Accounts, Pardot Sync Users, Prospected Users w/ Account, Prospected Hootsuite Users, Prospected Users, Recompute forced",
+      "GROUPINGS": [
+        {
+          "id": "3123",
+          "unique_id": "21234a9910",
+          "name": "Hull Segments",
+          "groups": "Users signed in last 100 days, Users w/ Accounts, Pardot Sync Users, Prospected Users w/ Account, Prospected Hootsuite Users, Prospected Users, Recompute forced"
+        }
+      ]
+    },
+    "list_id": "c123480706"
+  }
+}
