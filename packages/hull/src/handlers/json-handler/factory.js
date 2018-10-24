@@ -2,17 +2,26 @@
 import type { $Response, NextFunction } from "express";
 import type {
   HullHandlersConfigurationEntry,
+  HullContextFull,
   HullRequestFull
 } from "../../types";
 
-// type HullJsonHandlerOptions = {
-//   cache?: {
-//     key?: string,
-//     options?: Object
-//   },
-//   disableErrorHandling?: boolean,
-//   respondWithError?: boolean
-// };
+type HullJsonHandlerOptions = {
+  cache?: {
+    key?: string,
+    options?: Object
+  },
+  disableErrorHandling?: boolean,
+  respondWithError?: boolean
+};
+
+type HullJsonHandlerCallback = (ctx: HullContextFull) => Promise<*>;
+
+type HullJsonHandlerConfigurationEntry = HullHandlersConfigurationEntry<
+  HullJsonHandlerCallback,
+  HullJsonHandlerOptions
+>;
+
 const debug = require("debug")("hull-connector:json-handler");
 const { Router } = require("express");
 
@@ -52,7 +61,7 @@ const { normalizeHandlersConfigurationEntry } = require("../../utils");
  * app.use("/list", jsonHandler((ctx) => {}))
  */
 function jsonHandlerFactory(
-  configurationEntry: HullHandlersConfigurationEntry
+  configurationEntry: HullJsonHandlerConfigurationEntry
 ): Router {
   const { callback, options } = normalizeHandlersConfigurationEntry(
     configurationEntry
@@ -89,7 +98,6 @@ function jsonHandlerFactory(
         );
       }
       debug("calling callback");
-      // $FlowFixMe
       return callback(req.hull);
     })()
       .then(response => {

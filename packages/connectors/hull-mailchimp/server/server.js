@@ -1,7 +1,6 @@
 /* @flow */
 import type { $Application } from "express";
 
-const bodyParser = require("body-parser");
 const {
   notificationHandler,
   scheduleHandler,
@@ -70,9 +69,13 @@ function server(app: $Application): $Application {
 
   app.use(
     "/mailchimp",
-    bodyParser.urlencoded({ extended: true }),
     credentialsFromQueryMiddleware(),
-    incomingRequestHandler(actions.webhook)
+    incomingRequestHandler({
+      callback: actions.webhook,
+      options: {
+        bodyParser: "urlencoded"
+      }
+    })
   );
 
   app.use("/schema/user_fields", jsonHandler(actions.schemaUserFields));
