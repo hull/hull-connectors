@@ -84,7 +84,7 @@ class ServiceClient {
     this.refreshToken = ctx.connector.private_settings.refresh_token;
 
     debug(`Found AccessToken: ${this.accessToken}`);
-    debug(`Found AccessToken: ${this.refreshToken}`);
+    debug(`Found RefreshToken: ${this.refreshToken}`);
 
     this.agent = superagent
       .agent()

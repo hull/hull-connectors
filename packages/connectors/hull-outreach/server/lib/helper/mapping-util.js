@@ -73,7 +73,9 @@ class MappingUtil {
       }
     }
 
-    ident.anonymous_id = `outreach:${account.id}`;
+    if (account.id !== null) {
+      ident.anonymous_id = `outreach:${account.id}`;
+    }
     return ident;
   }
 
@@ -152,7 +154,9 @@ class MappingUtil {
       ident.external_id = prospect.attributes.externalId;
     }
 
-    ident.anonymous_id = `outreach:${prospect.id}`;
+    if (prospect.id !== null) {
+      ident.anonymous_id = `outreach:${prospect.id}`;
+    }
 
     return ident;
   }
@@ -195,8 +199,12 @@ class MappingUtil {
   ): HullAccountClaims {
     const ident: HullAccountClaims = {};
     const accountId = _.get(prospect, "relationships.account.data.id");
-    if (accountId !== null) {
+    // When receiving prospect update webhooks, there's no intermediate data object
+    const alternateAccountId = _.get(prospect, "relationships.account.id");
+    if (accountId != null) {
       ident.anonymous_id = `outreach:${accountId}`;
+    } else if (alternateAccountId != null) {
+      ident.anonymous_id = `outreach:${alternateAccountId}`;
     }
     return ident;
   }
@@ -209,9 +217,7 @@ class MappingUtil {
    * @memberof AttributesMapper
    */
   getHumanFieldName(field: string): string {
-    const humanName = _.snakeCase(field);
-    debug("getHumanFieldName", field, humanName);
-    return humanName;
+    return _.snakeCase(field);
   }
 
   mapHullAccountToOutreachAccount(
