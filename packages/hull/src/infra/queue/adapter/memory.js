@@ -34,7 +34,6 @@ class MemoryAdapter {
   }
 
   enqueue(jobName, jobPayload) {
-    console.log(">>>> ENQUEUE", jobName);
     this.queue[jobName] = this.queue[jobName] || [];
     this.queue[jobName].push({
       id: this.queue[jobName].length,

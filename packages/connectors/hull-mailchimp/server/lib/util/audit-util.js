@@ -46,22 +46,22 @@ class AuditUtil {
     this.mailchimpClient = ctx.shipApp.mailchimpClient;
     this.interestCatId = _.get(
       ctx,
-      "ship.private_settings.interest_category_id",
+      "connector.private_settings.interest_category_id",
       ""
     );
     this.segmentMapping = _.get(
       ctx,
-      "ship.private_settings.segment_mapping",
+      "connector.private_settings.segment_mapping",
       {}
     );
     this.interestMapping = _.get(
       ctx,
-      "ship.private_settings.interests_mapping",
+      "connector.private_settings.interests_mapping",
       {}
     );
     this.synchronizedSegments = _.get(
       ctx,
-      "ship.private_settings.synchronized_segments",
+      "connector.private_settings.synchronized_segments",
       []
     );
   }

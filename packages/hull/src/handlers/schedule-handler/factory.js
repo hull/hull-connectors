@@ -67,7 +67,9 @@ function scheduleHandlerFactory(
     next: NextFunction
   ) {
     // $FlowFixMe
-    callback(req.hull)
+    const callbackResult = callback(req.hull);
+    debug("callbackResult", typeof callbackResult);
+    callbackResult
       .then(response => {
         res.json(response);
       })
