@@ -53,16 +53,23 @@ class MappingUtil {
     const accountIdentifierHull = this.settings.account_identifier_hull;
     const accountIdentifierService = this.settings.account_identifier_service;
 
-    //  TODO this logic seems suspect, we should probably agree how this works typically and all the connectors inherit the logic
+    const attributes: OutreachAccountAttributes = account.attributes;
+
+    // This means that we want to grab an attributes from the account
+    // and compare it to the domain of the account in hull
     if (
       accountIdentifierHull === "domain" &&
-      typeof account[accountIdentifierService] === "string"
+      typeof attributes[accountIdentifierService] === "string"
     ) {
-      ident.domain = this.normalizeUrl(account[accountIdentifierService]);
+      ident.domain = this.normalizeUrl(attributes[accountIdentifierService]);
     } else if (accountIdentifierHull === "external_id") {
-      ident[accountIdentifierHull] = account[accountIdentifierService];
-      if (typeof account.attributes.domain === "string") {
-        ident.domain = this.normalizeUrl(account.attributes.domain);
+      // This means that we want to grab an attribute from the account and compare it to
+      // an external_id of an account in hull
+      ident[accountIdentifierHull] = attributes[accountIdentifierService];
+      // if the accountIdentifierService is domain, this will overwrite the raw domain
+      // with normalizedUrl which is ok, kinda what we want
+      if (typeof attributes.domain === "string") {
+        ident.domain = this.normalizeUrl(attributes.domain);
       }
     }
 
@@ -133,23 +140,15 @@ class MappingUtil {
   ): HullUserClaims {
     const ident: HullUserClaims = {};
 
-    //  TODO need to confirm with sven about this logic....
-    //  it currently has a lot of caveats...
-
+    // TODO confirm this logic with product...
     if (!_.isEmpty(prospect.attributes.emails)) {
-      // We cannot say for sure which email address is the proper one,
-      // so stick to anonymous_id
-      if (prospect.attributes.emails.length > 1) {
-        if (_.isEmpty(prospect.attributes.externalId)) {
-          // TODO how do I throw an exception here?
-        } else {
-          ident.external_id = prospect.attributes.externalId;
-        }
-      } else {
-        ident.email = prospect.attributes.emails[0];
-      }
-    } else {
-      // if no emails, fallback to externalId, and set even if it's empty
+      // Outreach support confirms that arrays come in the same order
+      // so ok to choose the first if there's more than 1... right?
+      ident.email = prospect.attributes.emails[0];
+    }
+
+    if (!_.isEmpty(prospect.attributes.externalId)) {
+      // use external id if it exists...
       ident.external_id = prospect.attributes.externalId;
     }
 
@@ -176,7 +175,7 @@ class MappingUtil {
       };
     }
 
-    // TODO clean this up
+    //this sets the default name, but only if it exists here, and it doesn't exist in hull
     if (
       hObject["outreach/name"] &&
       hObject["outreach/name"].value &&

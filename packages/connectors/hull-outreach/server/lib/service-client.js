@@ -138,7 +138,7 @@ class ServiceClient {
           this.metricsClient.value("ship.service_api.limit", limit);
         }
       })
-      .timeout({ response: 500000 })
+      .timeout({ response: 50000 })
       .ok(res => res.status === 200);
   }
 
