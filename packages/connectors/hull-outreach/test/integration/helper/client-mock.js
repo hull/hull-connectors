@@ -2,7 +2,7 @@ const Promise = require("bluebird");
 
 class ClientMock {
   constructor() {
-    this.configuration = { secret: "topsecret123" };
+    this.configuration = jest.fn(() => { return { secret: "testsecret", organization: "testorg", id: "testid"}; });
     this.logger = {
       info: jest.fn((msg, data) => console.log(msg, data)),
       debug: jest.fn((msg, data) => console.log(msg, data)),

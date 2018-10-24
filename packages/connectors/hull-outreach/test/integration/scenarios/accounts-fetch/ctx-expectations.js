@@ -1,12 +1,11 @@
 const payloadAccounts = require("../../fixtures/api-responses/list-accounts.json");
 
 module.exports = ctxMock => {
-  const customFieldIdWithExternalId =
-    "custom.lcf_9TB8XYocaq1GQMK5z7MVyOE7TXS1Cys5VycWwTlRBOZ";
+  const customFieldIdWithExternalId = "domain";
   const accountData = payloadAccounts.data[0];
 
   const expectedAccountIdent = {
-    external_id: accountData[customFieldIdWithExternalId],
+    external_id: accountData.attributes[customFieldIdWithExternalId],
     domain: accountData.attributes.domain.replace("http://", ""),
     anonymous_id: `outreach:${accountData.id}`
   };

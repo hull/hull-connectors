@@ -541,18 +541,11 @@ class SyncAgent {
       filterResults.toInsert
     );
 
-    try {
-      const promise = Promise.all(
-        insertedEnvelopes.map(insertedEnvelope => {
-          return this.handleHullUserUpdatedCallback(insertedEnvelope);
-        })
-      ).catch(error => {
-        console.log(`something: ${error}`);
-      });
-      await promise;
-    } catch (error) {
-      console.log(`Please: ${error}`);
-    }
+    await Promise.all(
+      insertedEnvelopes.map(insertedEnvelope => {
+        return this.handleHullUserUpdatedCallback(insertedEnvelope);
+      })
+    );
   }
 
   handleHullUserUpdatedCallback(
@@ -602,9 +595,7 @@ class SyncAgent {
       });
     }
 
-    return userPromise.catch(error => {
-      console.log(error);
-    });
+    return userPromise;
   }
 
   /**
