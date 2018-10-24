@@ -2,13 +2,15 @@
 import type { $Application } from "express";
 
 const cors = require("cors");
+const bodyParser = require("body-parser");
 
 const {
   notificationHandler,
   jsonHandler,
   scheduleHandler,
   batchHandler,
-  requestsBufferHandler
+  incomingRequestHandler,
+  htmlHandler
 } = require("hull/src/handlers");
 
 const notificationsConfiguration = require("./notifications-configuration");
@@ -21,15 +23,16 @@ function server(app: $Application, deps: Object): $Application {
 
   app.post("/smart-notifier", notificationHandler(notificationsConfiguration));
   app.post("/batch", batchHandler(notificationsConfiguration));
-  app.post("/fetch", scheduleHandler(actions.fetchAction));
+  app.post("/fetch", jsonHandler(actions.fetchAction));
 
-  app.get("/admin", actions.adminHandler);
+  app.get("/admin", htmlHandler(actions.adminHandler));
 
   // body isn't coming through for some reason... maybe looking in the wrong place?
   // will take some work to debug....
   app.use(
     "/webhooks",
-    requestsBufferHandler(actions.webhook, { parseCredentialsFromQuery: true })
+    bodyParser.json({ type: "*/*" }),
+    incomingRequestHandler(actions.webhook, { parseCredentialsFromQuery: true })
   );
 
   app.get(

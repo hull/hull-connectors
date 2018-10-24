@@ -63,15 +63,11 @@ class ServiceClient {
    */
   loggerClient: HullClientLogger;
 
-  /**
-   * a mutex to help us determine if we are currently refreshing AccessToken
-   * so that we don't accidentially loop forever
-   * not a great solution, but it should work
-   * @type {[type]}
-   */
-  tryingToRefreshAccessToken: boolean;
+  accessToken: string;
 
-  hullContext: HullContext;
+  refreshToken: string;
+
+  settingsUpdate: object;
 
   /**
    *Creates an instance of ServiceClient.
@@ -82,11 +78,13 @@ class ServiceClient {
     this.loggerClient = ctx.client.logger;
     this.metricsClient = ctx.metric;
     this.connectorHostname = ctx.hostname;
-    this.tryingToRefreshAccessToken = false;
-    this.hullContext = ctx;
+    this.settingsUpdate = ctx.helpers.settingsUpdate;
 
-    const accessToken = ctx.connector.private_settings.access_token;
-    debug(`Found AccessToken: ${accessToken}`);
+    this.accessToken = ctx.connector.private_settings.access_token;
+    this.refreshToken = ctx.connector.private_settings.refresh_token;
+
+    debug(`Found AccessToken: ${this.accessToken}`);
+    debug(`Found AccessToken: ${this.refreshToken}`);
 
     this.agent = superagent
       .agent()
@@ -98,11 +96,11 @@ class ServiceClient {
         })
       )
       .use(prefixPlugin("https://api.outreach.io/api/v2"))
-      .set("Authorization", `Bearer ${accessToken}`)
+      .set("Authorization", `Bearer ${this.accessToken}`)
       .set({ "Content-Type": "application/vnd.api+json" })
       .on("error", error => {
         if (error.status === 401) {
-          if (_.isEmpty(accessToken)) {
+          if (_.isEmpty(this.accessToken)) {
             this.loggerClient.error(
               "Not authorized with Outreach yet, please authenticate with Outreach using the Credentials button on the settings page"
             );
@@ -140,40 +138,73 @@ class ServiceClient {
           this.metricsClient.value("ship.service_api.limit", limit);
         }
       })
-      .timeout({ response: 5000 })
+      .timeout({ response: 500000 })
       .ok(res => res.status === 200);
   }
 
-/**
-  shouldRetry(error: Object, res: Object): boolean {
-    if (this.tryingToRefreshAccessToken) return false;
+  /**
+   * This is a wrapper which we can use to handle http errors
+   * can be used for timeouts, token refreshes etc...
+   *
+   * @param {Promise} promise
+   */
+  agentErrorHandler(promise: () => Promise<mixed>): Promise<*> {
+    return promise().catch(error => {
+      if (error.status === 401 && this.refreshToken) {
+        this.loggerClient.debug(
+          "trying to refresh token and retry query",
+          _.get(error, "response.body")
+        );
 
-    if (error.status === 401) {
-      const accessToken = this.hullContext.connector.private_settings.access_token;
-      const refreshToken = this.hullContext.connector.private_settings.refresh_token;
-      if (!_.isEmpty(accessToken) &&
-          !_.isEmpty(refreshToken)) {
-
+        return this.checkToken().then(() => promise());
       }
-    }
-
-    return false;
+      return Promise.reject(error);
+    });
   }
-*/
 
-  refreshAccessToken(
-    clientID: string,
-    clientSecret: string,
-    refreshToken: string
-  ): Promise<any> {
+  checkToken(): Promise<*> {
+    return this.refreshAccessToken()
+      .catch(refreshErr => {
+        this.loggerClient.error("Error in refreshAccessToken", refreshErr);
+        return Promise.reject(refreshErr);
+      })
+      .then(res => {
+        const { expires_in, created_at, refresh_token, access_token } = _.pick(
+          res.body,
+          ["expires_in", "created_at", "refresh_token", "access_token"]
+        );
+        if (!_.isEmpty(access_token)) {
+          this.accessToken = access_token;
+          this.refreshToken = refresh_token;
+          this.agent.set("Authorization", `Bearer ${this.accessToken}`);
+
+          // and send it back to the settingsUpdate
+          return this.settingsUpdate({
+            token_expires_in: expires_in,
+            token_created_at: created_at,
+            refresh_token,
+            access_token
+          });
+        }
+        return Promise.reject(
+          new Error(
+            "Unauthorized, and unable to refresh token.  Please try clicking the credentials button on the settings page and reauthenticating the connector"
+          )
+        );
+      });
+  }
+
+  refreshAccessToken(): Promise<any> {
+    this.metricsClient.increment("ship.service_api.call", 1);
     const redirectUri = `https://${this.connectorHostname}/auth/callback`;
-    return this.agent
-      .post("https://api.outreach.io/oauth/token")
-      .send({ client_id: clientID })
-      .send({ client_secret: clientSecret })
-      .send({ redirect_uri: redirectUri })
-      .send({ grant_type: "refresh_token" })
-      .send({ refresh_token: refreshToken });
+
+    return this.agent.post("https://api.outreach.io/oauth/token").send({
+      refresh_token: this.refreshToken,
+      client_id: process.env.CLIENT_ID,
+      client_secret: process.env.CLIENT_SECRET,
+      redirect_uri: redirectUri,
+      grant_type: "refresh_token"
+    });
   }
 
   /**
@@ -189,7 +220,9 @@ class ServiceClient {
     SuperAgentResponse<OutreachList<OutreachAccountReadData>>
   > {
     debug("getAccounts");
-    return this.agent.get("/accounts/");
+    return this.agentErrorHandler(() => {
+      return this.agent.get("/accounts/");
+    });
   }
 
   /**
@@ -202,12 +235,11 @@ class ServiceClient {
     value: string
   ): Promise<SuperAgentResponse<OutreachList<OutreachAccountReadData>>> {
     debug(`findOutreachAccounts filter[${attribute}]=${value}`);
-    return this.agent
-      .get("/accounts/")
-      .query(`filter[${attribute}]=${value}`)
-      .catch(error => {
-        debug(error);
-      });
+    return this.agentErrorHandler(() => {
+      return this.agent
+        .get("/accounts/")
+        .query(`filter[${attribute}]=${value}`);
+    });
   }
 
   /**
@@ -220,29 +252,33 @@ class ServiceClient {
   postAccount(
     data: OutreachAccountWrite
   ): Promise<SuperAgentResponse<OutreachAccountRead>> {
-    return this.agent
-      .post("/accounts/")
-      .send(data)
-      .ok(res => res.status === 201);
+    return this.agentErrorHandler(() => {
+      return this.agent
+        .post("/accounts/")
+        .send(data)
+        .ok(res => res.status === 201);
+    });
   }
 
   postAccountEnvelopes(
     envelopes: Array<OutreachAccountUpdateEnvelope>
   ): Promise<Array<OutreachAccountUpdateEnvelope>> {
-    return Promise.all(
-      envelopes.map(envelope => {
-        const enrichedEnvelope = _.cloneDeep(envelope);
-        return this.postAccount(envelope.outreachAccountWrite)
-          .then(response => {
-            enrichedEnvelope.outreachAccountRead = response.body;
-            return enrichedEnvelope;
-          })
-          .catch(error => {
-            enrichedEnvelope.error = error.response.body;
-            return enrichedEnvelope;
-          });
-      })
-    );
+    return this.agentErrorHandler(() => {
+      return Promise.all(
+        envelopes.map(envelope => {
+          const enrichedEnvelope = _.cloneDeep(envelope);
+          return this.postAccount(envelope.outreachAccountWrite)
+            .then(response => {
+              enrichedEnvelope.outreachAccountRead = response.body;
+              return enrichedEnvelope;
+            })
+            .catch(error => {
+              enrichedEnvelope.error = error.response.body;
+              return enrichedEnvelope;
+            });
+        })
+      );
+    });
   }
 
   /**
@@ -260,29 +296,33 @@ class ServiceClient {
       return Promise.reject(new Error("Cannot update account without id"));
     }
 
-    return this.agent.patch(`/accounts/${outreachAccountId}`).send(data);
+    return this.agentErrorHandler(() => {
+      return this.agent.patch(`/accounts/${outreachAccountId}`).send(data);
+    });
   }
 
   patchAccountEnvelopes(
     envelopes: Array<OutreachAccountUpdateEnvelope>
   ): Promise<Array<OutreachAccountUpdateEnvelope>> {
-    return Promise.all(
-      envelopes.map(envelope => {
-        const enrichedEnvelope = _.cloneDeep(envelope);
-        const write: OutreachAccountWrite =
-          enrichedEnvelope.outreachAccountWrite;
-        return this.patchAccount(write, envelope.outreachAccountId)
-          .then(response => {
-            // $FlowFixMe
-            enrichedEnvelope.outreachAccountRead = response.body;
-            return enrichedEnvelope;
-          })
-          .catch(error => {
-            enrichedEnvelope.error = error.response.body;
-            return enrichedEnvelope;
-          });
-      })
-    );
+    return this.agentErrorHandler(() => {
+      return Promise.all(
+        envelopes.map(envelope => {
+          const enrichedEnvelope = _.cloneDeep(envelope);
+          const write: OutreachAccountWrite =
+            enrichedEnvelope.outreachAccountWrite;
+          return this.patchAccount(write, envelope.outreachAccountId)
+            .then(response => {
+              // $FlowFixMe
+              enrichedEnvelope.outreachAccountRead = response.body;
+              return enrichedEnvelope;
+            })
+            .catch(error => {
+              enrichedEnvelope.error = error.response.body;
+              return enrichedEnvelope;
+            });
+        })
+      );
+    });
   }
 
   /**
@@ -294,7 +334,9 @@ class ServiceClient {
     SuperAgentResponse<OutreachList<OutreachProspectReadData>>
   > {
     debug("getProspects");
-    return this.agent.get("/prospects/");
+    return this.agentErrorHandler(() => {
+      return this.agent.get("/prospects/");
+    });
   }
 
   /**
@@ -307,12 +349,11 @@ class ServiceClient {
     value: string
   ): Promise<SuperAgentResponse<OutreachList<OutreachProspectReadData>>> {
     debug(`findOutreachProspects filter[${attribute}]=${value}`);
-    return this.agent
-      .get("/prospects/")
-      .query(`filter[${attribute}]=${value}`)
-      .catch(error => {
-        debug(error);
-      });
+    return this.agentErrorHandler(() => {
+      return this.agent
+        .get("/prospects/")
+        .query(`filter[${attribute}]=${value}`);
+    });
   }
 
   /**
@@ -324,30 +365,34 @@ class ServiceClient {
    */
   postProspect(data: OutreachProspectWrite): Promise<OutreachProspectRead> {
     debug(`Writing Prospect: ${JSON.stringify(data)}`);
-    return this.agent
-      .post("/prospects/")
-      .send(data)
-      .ok(res => res.status === 201);
+    return this.agentErrorHandler(() => {
+      return this.agent
+        .post("/prospects/")
+        .send(data)
+        .ok(res => res.status === 201);
+    });
   }
 
   postProspectEnvelopes(
     envelopes: Array<OutreachProspectUpdateEnvelope>
   ): Promise<Array<OutreachProspectUpdateEnvelope>> {
-    return Promise.all(
-      envelopes.map(envelope => {
-        const enrichedEnvelope = _.cloneDeep(envelope);
-        return this.postProspect(envelope.outreachProspectWrite)
-          .then(response => {
-            // $FlowFixMe
-            enrichedEnvelope.outreachProspectRead = response.body;
-            return enrichedEnvelope;
-          })
-          .catch(error => {
-            enrichedEnvelope.error = error.response.body;
-            return enrichedEnvelope;
-          });
-      })
-    );
+    return this.agentErrorHandler(() => {
+      return Promise.all(
+        envelopes.map(envelope => {
+          const enrichedEnvelope = _.cloneDeep(envelope);
+          return this.postProspect(envelope.outreachProspectWrite)
+            .then(response => {
+              // $FlowFixMe
+              enrichedEnvelope.outreachProspectRead = response.body;
+              return enrichedEnvelope;
+            })
+            .catch(error => {
+              enrichedEnvelope.error = error.response.body;
+              return enrichedEnvelope;
+            });
+        })
+      );
+    });
   }
 
   /**
@@ -364,32 +409,34 @@ class ServiceClient {
     if (prospectId == null) {
       return Promise.reject(new Error("Cannot update prospect without id"));
     }
-    return this.agent
-      .patch(`/prospects/${prospectId}`)
-      .send(prospectWrite);
+    return this.agentErrorHandler(() => {
+      return this.agent.patch(`/prospects/${prospectId}`).send(prospectWrite);
+    });
   }
 
   patchProspectEnvelopes(
     envelopes: Array<OutreachProspectUpdateEnvelope>
   ): Promise<Array<OutreachProspectUpdateEnvelope>> {
-    return Promise.all(
-      envelopes.map(envelope => {
-        const enrichedEnvelope = _.cloneDeep(envelope);
-        return this.patchProspect(
-          envelope.outreachProspectWrite,
-          envelope.outreachProspectId
-        )
-          .then(response => {
-            // $FlowFixMe
-            enrichedEnvelope.outreachProspectRead = response.body;
-            return enrichedEnvelope;
-          })
-          .catch(error => {
-            enrichedEnvelope.error = error.response.body;
-            return enrichedEnvelope;
-          });
-      })
-    );
+    return this.agentErrorHandler(() => {
+      return Promise.all(
+        envelopes.map(envelope => {
+          const enrichedEnvelope = _.cloneDeep(envelope);
+          return this.patchProspect(
+            envelope.outreachProspectWrite,
+            envelope.outreachProspectId
+          )
+            .then(response => {
+              // $FlowFixMe
+              enrichedEnvelope.outreachProspectRead = response.body;
+              return enrichedEnvelope;
+            })
+            .catch(error => {
+              enrichedEnvelope.error = error.response.body;
+              return enrichedEnvelope;
+            });
+        })
+      );
+    });
   }
 
   /**
@@ -415,37 +462,47 @@ class ServiceClient {
       }
     };
 
-    return this.agent
-      .post("/webhooks/")
-      .send(genericWebhook)
-      .ok(res => res.status === 201);
+    return this.agentErrorHandler(() => {
+      return this.agent
+        .post("/webhooks/")
+        .send(genericWebhook)
+        .ok(res => res.status === 201);
+    });
   }
 
   getWebhooks(): Promise<SuperAgentResponse<OutreachList<any>>> {
-    return this.agent.get("/webhooks/");
+    return this.agentErrorHandler(() => {
+      return this.agent.get("/webhooks/");
+    });
   }
 
   findWebhook(attribute: string, value: string): Promise<any> {
-    return this.agent.get("/webhooks/").query(`filter[${attribute}]=${value}`);
+    return this.agentErrorHandler(() => {
+      return this.agent
+        .get("/webhooks/")
+        .query(`filter[${attribute}]=${value}`);
+    });
   }
 
   getExistingWebhookId(client: Client): Promise<number> {
-    return this.getWebhooks().then(response => {
-      const dataArray = _.get(response, "body.data");
-      if (!_.isEmpty(dataArray)) {
-        const webhookUrl: string = this.buildWebhookUrl(client);
+    return this.agentErrorHandler(() => {
+      return this.getWebhooks().then(response => {
+        const dataArray = _.get(response, "body.data");
+        if (!_.isEmpty(dataArray)) {
+          const webhookUrl: string = this.buildWebhookUrl(client);
 
-        const thisConnectorWebhooks = dataArray.filter(
-          webhook => webhook.attributes.url === webhookUrl
-        );
+          const thisConnectorWebhooks = dataArray.filter(
+            webhook => webhook.attributes.url === webhookUrl
+          );
 
-        if (thisConnectorWebhooks.length > 0) {
-          debug(`Found ${thisConnectorWebhooks.length} Existing webhooks`);
-          return thisConnectorWebhooks[0].id;
+          if (thisConnectorWebhooks.length > 0) {
+            debug(`Found ${thisConnectorWebhooks.length} Existing webhooks`);
+            return thisConnectorWebhooks[0].id;
+          }
         }
-      }
-      debug("Existing Webhook not found");
-      return Promise.resolve(-1);
+        debug("Existing Webhook not found");
+        return Promise.resolve(-1);
+      });
     });
   }
 

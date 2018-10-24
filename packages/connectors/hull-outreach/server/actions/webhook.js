@@ -1,12 +1,14 @@
+/* @flow */
 import type { OutreachWebhookPayload, OutreachWebhookData } from "../lib/types";
 
 const debug = require("debug")("hull-outreach:webhook");
 const _ = require("lodash");
 
-function webhook(req) {
-  debug("Got Webhook req: " + req);
+function webhook(ctx, originalRequest) {
+  const requestBody = originalRequest.body;
+  debug(`Got Webhook req: ${JSON.stringify(requestBody)}`);
 
-  return { status: "all good!" };
+  return Promise.resolve({ status: 200, text: "All good!" });
 }
 
 module.exports = webhook;

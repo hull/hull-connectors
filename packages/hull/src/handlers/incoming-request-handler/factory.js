@@ -7,7 +7,7 @@ type HullIncomingRequestHandlerCallback = (
   request: $Request
 ) => Promise<*>;
 type HullIncomingRequestHandlerOptions = {
-  disableErrorHandling?: boolean
+  disableErrorHandling?: boolean,
   parseCredentialsFromQuery?: boolean
 };
 
@@ -31,7 +31,7 @@ const {
  */
 function IncomingRequestHandlerFactory(
   callback: HullIncomingRequestHandlerCallback,
-  { 
+  {
     disableErrorHandling = false,
     parseCredentialsFromQuery = false
   }: HullIncomingRequestHandlerOptions = {}

@@ -3,13 +3,13 @@ import type { $Response } from "express";
 
 const SyncAgent = require("../lib/sync-agent");
 
-function fetchAction(req: Object, res: $Response): void {
-  const syncAgent = new SyncAgent(req.hull);
+function fetchAction(ctx) {
+  const syncAgent = new SyncAgent(ctx);
 
-  res.json({ ok: true });
-  syncAgent.fetchOutreachProspects().then(() => {
+  syncAgent.fetchOutreachAccounts().then(() => {
     return syncAgent.fetchOutreachProspects();
   });
+  return Promise.resolve("ok");
 }
 
 module.exports = fetchAction;
