@@ -11,7 +11,7 @@ const debug = require("debug")("hull-connector:batch-handler");
 const extractStream = require("../../utils/extract-stream");
 
 function batchExtractProcessingMiddlewareFactory(
-  normalizedConfiguration: HullNormalizedHandlersConfiguration
+  normalizedConfiguration: HullNormalizedHandlersConfiguration<*, *>
 ) {
   return function batchExtractProcessingMiddleware(
     req: HullRequestFull,

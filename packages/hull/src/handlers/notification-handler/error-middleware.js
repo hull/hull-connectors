@@ -6,7 +6,7 @@ const debug = require("debug")("hull-connector:notification-handler");
 
 const { notificationDefaultFlowControl } = require("../../utils");
 const {
-  // ConfigurationError,
+  ConfigurationError,
   TransientError,
   NotificationValidationError
 } = require("../../errors");
@@ -68,6 +68,13 @@ function notificationHandlerErrorMiddlewareFactory() {
       "error"
     );
 
+    if (err instanceof ConfigurationError) {
+      return res.status(200).json({
+        flow_control: defaultErrorFlowControl,
+        error: errorToResponse(err)
+      });
+    }
+
     // if we have transient error
     if (err instanceof TransientError) {
       return res.status(503).json({
@@ -75,13 +82,6 @@ function notificationHandlerErrorMiddlewareFactory() {
         error: errorToResponse(err)
       });
     }
-
-    // if (err instanceof ConfigurationError) {
-    //   return res.status(200).json({
-    //     flow_control: defaultErrorFlowControl,
-    //     error: errorToResponse(err)
-    //   });
-    // }
 
     res.status(500).json({
       flow_control: defaultErrorFlowControl,

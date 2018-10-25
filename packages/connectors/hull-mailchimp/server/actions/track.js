@@ -1,9 +1,8 @@
 /* @flow */
-import type { HullRequest } from "hull";
-import type { $Response, NextFunction } from "express";
+import type { HullContext } from "hull";
 
-function track(req: HullRequest, res: $Response, next: NextFunction) {
-  return req.hull.enqueue("track").then(next, next);
+function track(ctx: HullContext) {
+  return ctx.enqueue("track");
 }
 
 module.exports = track;

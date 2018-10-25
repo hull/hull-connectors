@@ -3,7 +3,13 @@ const { Router } = require("express");
 const bodyParser = require("body-parser");
 const oauth2Factory = require("simple-oauth2");
 const rp = require("request-promise");
-// const { tokenMiddleware } = require("hull/src/utils");
+const {
+  clientMiddleware,
+  credentialsFromQueryMiddleware,
+  fullContextFetchMiddleware
+} = require("hull/src/middlewares");
+
+const shipAppFactory = require("./ship-app-factory");
 
 function oauth({
   name,
@@ -15,8 +21,7 @@ function oauth({
   syncUrl,
   site,
   tokenPath,
-  authorizationPath,
-  hullMiddleware
+  authorizationPath
 }) {
   const oauth2 = oauth2Factory({
     name,
@@ -51,7 +56,9 @@ function oauth({
         })
         .then(() => {
           return res.redirect(
-            `${req.baseUrl}${homeUrl}?hullToken=${req.hull.token}`
+            `${req.baseUrl}${homeUrl}?hullToken=${
+              req.hull.clientCredentialsToken
+            }`
           );
         });
     } else {
@@ -61,15 +68,15 @@ function oauth({
   }
 
   function renderHome(req, res) {
-    const { ship = {} } = req.hull;
+    const { connector } = req.hull;
     const {
       api_key: apiKey,
       mailchimp_list_id: mailchimpListId,
       api_endpoint: apiEndpoint
-    } = ship.private_settings || {};
+    } = connector.private_settings || {};
     const redirect_uri = `https://${req.hostname}${
       req.baseUrl
-    }${callbackUrl}?hullToken=${req.hull.token}`;
+    }${callbackUrl}?hullToken=${req.hull.clientCredentialsToken}`;
     const viewData = {
       name,
       url: oauth2.authCode.authorizeURL({ redirect_uri })
@@ -80,20 +87,24 @@ function oauth({
 
     if (!mailchimpListId) {
       return res.redirect(
-        `${req.baseUrl}${selectUrl}?hullToken=${req.hull.token}`
+        `${req.baseUrl}${selectUrl}?hullToken=${
+          req.hull.clientCredentialsToken
+        }`
       );
     }
 
-    return res.redirect(`${req.baseUrl}${syncUrl}?hullToken=${req.hull.token}`);
+    return res.redirect(
+      `${req.baseUrl}${syncUrl}?hullToken=${req.hull.clientCredentialsToken}`
+    );
   }
 
   function renderRedirect(req, res) {
-    const { ship = {}, client } = req.hull;
+    const { connector, client } = req.hull;
 
     const code = req.query.code;
     const redirect_uri = `https://${req.hostname}${
       req.baseUrl
-    }${callbackUrl}?hullToken=${req.hull.token}`;
+    }${callbackUrl}?hullToken=${req.hull.clientCredentialsToken}`;
     const form = {
       grant_type: "authorization_code",
       client_id: clientID,
@@ -119,8 +130,8 @@ function oauth({
           })
             .then(
               (b = {}) =>
-                client.put(ship.id, {
-                  private_settings: _.merge({}, ship.private_settings, {
+                client.put(connector.id, {
+                  private_settings: _.merge({}, connector.private_settings, {
                     domain: b.dc,
                     api_key: message.access_token,
                     api_endpoint: b.api_endpoint
@@ -145,14 +156,14 @@ function oauth({
   }
 
   function renderSelect(req, res) {
-    const { ship = {}, client } = req.hull;
+    const { connector, client } = req.hull;
     const { api_key: apiKey, mailchimp_list_id, api_endpoint } =
-      ship.private_settings || {};
+      connector.private_settings || {};
     const viewData = {
       name,
       form_action: `https://${req.hostname}${
         req.baseUrl
-      }${selectUrl}?hullToken=${req.hull.token}`,
+      }${selectUrl}?hullToken=${req.hull.clientCredentialsToken}`,
       mailchimp_list_id
     };
     rp({
@@ -169,12 +180,12 @@ function oauth({
       );
 
       return res.render("admin.html", viewData);
-    }, mailchimpErrorHandler.bind(this, req, res, ship, client));
+    }, mailchimpErrorHandler.bind(this, req, res, connector, client));
   }
 
   function handleSelect(req, res) {
-    const { ship = {}, client } = req.hull;
-    const { api_key: apiKey, api_endpoint } = ship.private_settings || {};
+    const { connector = {}, client } = req.hull;
+    const { api_key: apiKey, api_endpoint } = connector.private_settings || {};
     const list_id = req.body.mailchimp_list_id;
     rp({
       uri: `${api_endpoint}/3.0/lists/${list_id}`,
@@ -185,34 +196,36 @@ function oauth({
       json: true
     }).then(data => {
       return client
-        .put(ship.id, {
-          private_settings: _.merge({}, ship.private_settings, {
+        .put(connector.id, {
+          private_settings: _.merge({}, connector.private_settings, {
             mailchimp_list_id: data.id,
             mailchimp_list_name: data.name
           })
         })
         .then(() => {
           return res.redirect(
-            `${req.baseUrl}${syncUrl}?hullToken=${req.hull.token}`
+            `${req.baseUrl}${syncUrl}?hullToken=${
+              req.hull.clientCredentialsToken
+            }`
           );
         });
-    }, mailchimpErrorHandler.bind(this, req, res, ship, client));
+    }, mailchimpErrorHandler.bind(this, req, res, connector, client));
   }
 
   function renderSync(req, res) {
-    const { ship = {} } = req.hull;
-    const { mailchimp_list_name } = ship.private_settings || {};
-
-    req.hull.shipApp.syncAgent.auditUtil
+    const { connector = {} } = req.hull;
+    const { mailchimp_list_name } = connector.private_settings || {};
+    const shipApp = shipAppFactory(req.hull);
+    shipApp.syncAgent.auditUtil
       .getAudit()
       .then(audit => {
         const viewData = {
           name,
           select_url: `https://${req.hostname}${
             req.baseUrl
-          }${selectUrl}?hullToken=${req.hull.token}`,
+          }${selectUrl}?hullToken=${req.hull.clientCredentialsToken}`,
           form_action: `https://${req.hostname}/sync?hullToken=${
-            req.hull.token
+            req.hull.clientCredentialsToken
           }`,
           audit,
           mailchimp_list_name,
@@ -226,9 +239,9 @@ function oauth({
           name,
           select_url: `https://${req.hostname}${
             req.baseUrl
-          }${selectUrl}?hullToken=${req.hull.token}`,
+          }${selectUrl}?hullToken=${req.hull.clientCredentialsToken}`,
           form_action: `https://${req.hostname}/sync?hullToken=${
-            req.hull.token
+            req.hull.clientCredentialsToken
           }`,
           audit: {},
           mailchimp_list_name,
@@ -249,10 +262,9 @@ function oauth({
     req.hull.message.Subject = "ship:update";
     next();
   });
-  router.use((req, res, next) => {
-    next();
-  });
-  router.use(hullMiddleware);
+  router.use(credentialsFromQueryMiddleware());
+  router.use(clientMiddleware());
+  router.use(fullContextFetchMiddleware());
   router.get(homeUrl, renderHome);
   router.get(callbackUrl, renderRedirect);
   router.get(selectUrl, renderSelect);

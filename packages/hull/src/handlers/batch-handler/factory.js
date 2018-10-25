@@ -1,5 +1,32 @@
 // @flow
-import type { HullHandlersConfiguration } from "../../types";
+import type {
+  HullUserUpdateMessage,
+  HullAccountUpdateMessage
+} from "hull-client";
+import type { HullHandlersConfiguration, HullContextFull } from "../../types";
+
+export type HullBatchHandlerOptions = {
+  maxSize?: number
+};
+
+type HullBatchHandlerUserUpdateCallback = (
+  ctx: HullContextFull,
+  messages: Array<HullUserUpdateMessage>
+) => Promise<*>;
+
+type HullBatchHandlerAccountUpdateCallback = (
+  ctx: HullContextFull,
+  messages: Array<HullAccountUpdateMessage>
+) => Promise<*>;
+
+export type HullBatchHandlerCallback =
+  | HullBatchHandlerUserUpdateCallback
+  | HullBatchHandlerAccountUpdateCallback;
+
+type HullBatchHandlerConfiguration = HullHandlersConfiguration<
+  HullBatchHandlerCallback,
+  HullBatchHandlerOptions
+>;
 
 const { Router } = require("express");
 
@@ -28,7 +55,7 @@ const errorMiddleware = require("./error-middleware");
  * }));
  */
 function batchExtractHandlerFactory(
-  configuration: HullHandlersConfiguration
+  configuration: HullBatchHandlerConfiguration
 ): * {
   const router = Router();
   const normalizedConfiguration = normalizeHandlersConfiguration(configuration);

@@ -124,6 +124,34 @@ class SyncAgent {
     );
   }
 
+  isAuthorized(): Promise<boolean> {
+    return this.mailchimpClient
+      .get("/")
+      .then(response => {
+        if (response.statusCode === 200) {
+          return true;
+        }
+        return false;
+      })
+      .catch(() => {
+        return false;
+      });
+  }
+
+  isListPresent(): Promise<boolean> {
+    return this.mailchimpClient
+      .get("/lists/{{listId}}")
+      .then(response => {
+        if (response.statusCode === 200) {
+          return true;
+        }
+        return false;
+      })
+      .catch(() => {
+        return false;
+      });
+  }
+
   /**
    * This method is making sure that all static segments and all interest groups are present on Mailchimp end.
    * Also it makes sure that the webhook url is registered.
