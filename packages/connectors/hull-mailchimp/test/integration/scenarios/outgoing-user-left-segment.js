@@ -29,7 +29,7 @@ const usersSegments = [
   }
 ];
 
-it.skip("should remove user from static list if user left the segment", () => {
+it("should remove user from static list if user left the segment", () => {
   const email = "mocked@email.com";
   return testScenario({ connectorServer }, ({ handlers, nock, expect, minihullPort }) => {
     const userClaims = expect.objectContaining({ subject_type: "user", user_email: email });

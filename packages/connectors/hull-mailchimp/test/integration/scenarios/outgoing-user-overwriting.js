@@ -21,22 +21,10 @@ const connector = {
     },
     synchronized_segments: ["hullSegmentId"],
     sync_fields_to_mailchimp: [
-     { hull: "first_name", name: "TOP_LEVEL_TRAIT", overwrite: true },
-     { hull: "traits_group/custom_calculated_score", name: "USER_CUSTOM_GROUP_TRAIT", overwrite: true },
-
-     { hull: "traits_custom_numeric", name: "USER_CUSTOM_NUMERIC_VALUE", overwrite: true },
-     { hull: "traits_custom_array", name: "USER_CUSTOM_ARRAY_VALUE", overwrite: true },
-     { hull: "traits_custom_empty_array", name: "USER_CUSTOM_EMPTY_ARRAY_VALUE", overwrite: true },
-     { hull: "traits_custom_true", name: "USER_CUSTOM_TRUE_VALUE", overwrite: true },
-     { hull: "traits_custom_false", name: "USER_CUSTOM_FALSE_VALUE", overwrite: true },
-     { hull: "traits_custom_null", name: "USER_CUSTOM_NULL_VALUE", overwrite: true },
-     { hull: "traits_custom_empty_string", name: "USER_CUSTOM_EMPTY_STRING_VALUE", overwrite: true },
-     { hull: "traits_custom_zero", name: "USER_CUSTOM_ZERO_VALUE", overwrite: true },
-     { hull: "traits_custom_undefined", name: "USER_CUSTOM_UNDEFINED_VALUE", overwrite: true },
-     { hull: "traits_custom_date_at", name: "USER_CUSTOM_DATE_VALUE", overwrite: true },
-
-     { hull: "account.domain", name: "ACCOUNT_TOP_LEVEL_TRAIT", overwrite: true },
-     { hull: "account.group/created_at", name: "ACCOUNT_CUSTOM_GROUP_TRAIT", overwrite: true },
+     { hull: "traits_custom_will_overwrite", name: "OVERWRITTEN_MERGE_FIELD", overwrite: true },
+     { hull: "traits_custom_wont_overwrite", name: "NOT_OVERWRITTEN_MERGE_FIELD", overwrite: false },
+     { hull: "account.custom_account_will_overwrite", name: "OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT", overwrite: true },
+     { hull: "account.custom_account_wont_overwrite", name: "NOT_OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT", overwrite: false },
    ]
   }
 };
@@ -47,7 +35,7 @@ const usersSegments = [
   }
 ];
 
-it("should send matching user to the mailchimp", () => {
+it("should send matching user to the mailchimp and allowing to ", () => {
   const email = "email@email.com";
   return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
     return {
@@ -67,21 +55,10 @@ it("should send matching user to the mailchimp", () => {
               {
                 email_type: "html",
                 merge_fields: {
-                  TOP_LEVEL_TRAIT: "John",
-                  USER_CUSTOM_GROUP_TRAIT: 123,
-
-                  USER_CUSTOM_NUMERIC_VALUE: 123,
-                  USER_CUSTOM_ARRAY_VALUE: ["A", "B"],
-                  USER_CUSTOM_EMPTY_ARRAY_VALUE: [],
-                  USER_CUSTOM_TRUE_VALUE: true,
-                  USER_CUSTOM_FALSE_VALUE: "",
-                  USER_CUSTOM_NULL_VALUE: "",
-                  USER_CUSTOM_EMPTY_STRING_VALUE: "",
-                  USER_CUSTOM_ZERO_VALUE: "",
-                  USER_CUSTOM_UNDEFINED_VALUE: "",
-                  USER_CUSTOM_DATE_VALUE: "2018-10-24T09:47:39Z",
-                  ACCOUNT_TOP_LEVEL_TRAIT: "doe.com",
-                  ACCOUNT_CUSTOM_GROUP_TRAIT: "2016-10-24T09:47:39Z"
+                  OVERWRITTEN_MERGE_FIELD: "ovewriting value",
+                  NOT_OVERWRITTEN_MERGE_FIELD: "won't be overwritten",
+                  OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "ovewriting value",
+                  NOT_OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "won't be overwritten"
                 },
                 interests: {
                   MailchimpInterestId: true
@@ -102,33 +79,16 @@ it("should send matching user to the mailchimp", () => {
         {
           user: {
             email,
-            first_name: "John",
-            "traits_group/custom_calculated_score": 123,
-            traits_custom_numeric: 123,
-            traits_custom_array: ["A", "B"],
-            traits_custom_empty_array: [],
-            traits_custom_true: true,
-            traits_custom_false: false,
-            traits_custom_null: null,
-            traits_custom_empty_string: "",
-            traits_custom_zero: 0,
-            // traits_custom_undefined: "", -> this is not present
-            traits_custom_date_at: "2018-10-24T09:47:39Z"
+            traits_custom_will_overwrite: "ovewriting value",
+            "traits_mailchimp/overwritten_merge_field": "will be overwritten",
+            traits_custom_wont_overwrite: "ignored value",
+            "traits_mailchimp/not_overwritten_merge_field": "won't be overwritten",
+            "traits_mailchimp/overwritten_merge_field_from_account": "will be overwritten",
+            "traits_mailchimp/not_overwritten_merge_field_from_account": "won't be overwritten"
           },
           account: {
-            id: "acc123",
-            domain: "doe.com",
-            "group/created_at": "2016-10-24T09:47:39Z",
-            custom_numeric: 123,
-            custom_array: ["A", "B"],
-            custom_empty_array: [],
-            custom_true: true,
-            custom_false: false,
-            custom_null: null,
-            custom_empty_string: "",
-            custom_zero: 0,
-            // custom_undefined: "", -> this is not present
-            custom_date_at: "2018-10-24T09:47:39Z",
+            custom_account_will_overwrite: "ovewriting value",
+            custom_account_wont_overwrite: "ignored value"
           },
           segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
         }
@@ -163,21 +123,10 @@ it("should send matching user to the mailchimp", () => {
                 MailchimpInterestId: true,
               },
               merge_fields: {
-                TOP_LEVEL_TRAIT: "John",
-                USER_CUSTOM_GROUP_TRAIT: 123,
-
-                USER_CUSTOM_NUMERIC_VALUE: 123,
-                USER_CUSTOM_ARRAY_VALUE: ["A", "B"],
-                USER_CUSTOM_EMPTY_ARRAY_VALUE: [],
-                USER_CUSTOM_TRUE_VALUE: true,
-                USER_CUSTOM_FALSE_VALUE: "",
-                USER_CUSTOM_NULL_VALUE: "",
-                USER_CUSTOM_EMPTY_STRING_VALUE: "",
-                USER_CUSTOM_ZERO_VALUE: "",
-                USER_CUSTOM_UNDEFINED_VALUE: "",
-                USER_CUSTOM_DATE_VALUE: "2018-10-24T09:47:39Z",
-                ACCOUNT_TOP_LEVEL_TRAIT: "doe.com",
-                ACCOUNT_CUSTOM_GROUP_TRAIT: "2016-10-24T09:47:39Z"
+                OVERWRITTEN_MERGE_FIELD: "ovewriting value",
+                NOT_OVERWRITTEN_MERGE_FIELD: "won't be overwritten",
+                OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "ovewriting value",
+                NOT_OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "won't be overwritten"
               },
               status_if_new: "subscribed"
             }
