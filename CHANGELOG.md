@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.0.3-monorepo
+- [hull-mailchimp] moved into monorepo
+
 ## v0.0.2-monorepo
 - [hull-typeform] more integration tests, verify ident from hidden fields.
   updated documentation
