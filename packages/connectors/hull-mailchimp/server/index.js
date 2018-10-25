@@ -56,7 +56,7 @@ const connector = new Hull.Connector({
 
 let app = express();
 
-if (COMBINED === "true" || WEB === "true") {
+if (COMBINED === "true" || SERVER === "true") {
   connector.setupApp(app);
   app = server(app);
   connector.startApp(app);
@@ -67,8 +67,8 @@ if (COMBINED === "true" || WORKER === "true") {
   connector.startWorker();
 }
 
-if (COMBINED !== "true" && WORKER !== "true" && WEB !== "true") {
+if (COMBINED !== "true" && WORKER !== "true" && SERVER !== "true") {
   throw new Error(
-    "Non of the process was started, set any of COMBINED, WEB or WORKER env vars"
+    "Non of the process was started, set any of COMBINED, SERVER or WORKER env vars"
   );
 }
