@@ -21,7 +21,7 @@ const {
   SHIP_CACHE_TTL,
   OVERRIDE_FIREHOSE_URL,
   COMBINED,
-  WEB,
+  SERVER,
   WORKER
 } = process.env;
 
