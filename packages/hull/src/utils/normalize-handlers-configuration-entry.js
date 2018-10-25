@@ -4,12 +4,6 @@ import type {
   HullNormalizedHandlersConfigurationEntry
 } from "../types";
 
-// import type { HullBatchHandlerOptions, HullBatchHandlerCallback } from "../handlers/batch-handler/factory";
-// import type { HullIncomingRequestHandlerOptions, HullIncomingRequestHandlerCallback } from "../handlers/incoming-request-handler/factory";
-//
-// type C = HullBatchHandlerCallback | HullIncomingRequestHandlerCallback;
-// type O = HullBatchHandlerOptions | HullIncomingRequestHandlerOptions;
-
 function parseHandlersConfigurationEntry<C, O>(
   configurationEntry: HullHandlersConfigurationEntry<C, O>
 ): HullNormalizedHandlersConfigurationEntry<C, O> {

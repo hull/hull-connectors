@@ -1,6 +1,6 @@
 {
   "name": "hull-connectors",
-  "version": "0.0.2-monorepo",
+  "version": "0.0.3-monorepo",
   "private": true,
   "workspaces": {
     "packages": [
