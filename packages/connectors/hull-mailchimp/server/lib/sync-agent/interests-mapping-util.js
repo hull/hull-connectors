@@ -88,7 +88,7 @@ class InterestsMappingUtil {
     }
     return this.findHullCategory()
       .then(category => {
-        debug("found category?", typeof category, category.id);
+        debug("found category?", typeof category, category && category.id);
         return category || this.createHullCategory();
       })
       .then(category => {
