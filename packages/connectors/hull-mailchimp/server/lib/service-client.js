@@ -52,24 +52,24 @@ class ServiceClient {
       )
       .use(prefixPlugin(`https://${this.domain}.api.mailchimp.com/3.0`))
       .set({ Authorization: `OAuth ${this.apiKey}` })
-         .ok((res) => {
-           if (res.status === 401) {
-             throw new ConfigurationError("Invalid API key");
-           }
-           if (res.status === 404) {
-             if (res.req.path.match(/\/3\.0\/lists\/\w+\/webhooks/)) {
-               throw new ConfigurationError("Mailchimp list is not present");
-             }
-             return true;
-           }
-           if (res.status === 429) {
-             throw new RateLimitError("Rate limit error");
-           }
-           if (res.status < 500) {
-             return true;
-           }
-           return false;
-         })
+      .ok(res => {
+        if (res.status === 401) {
+          throw new ConfigurationError("Invalid API key");
+        }
+        if (res.status === 404) {
+          if (res.req.path.match(/\/3\.0\/lists\/\w+\/webhooks/)) {
+            throw new ConfigurationError("Mailchimp list is not present");
+          }
+          return true;
+        }
+        if (res.status === 429) {
+          throw new RateLimitError("Rate limit error");
+        }
+        if (res.status < 500) {
+          return true;
+        }
+        return false;
+      })
       // .ok(res => res.status < 500 && res.status !== 429) // we reject the promise for 5xx and 429 status codes
       .timeout({ response: 50000 })
       .retry(2);

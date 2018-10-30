@@ -22,7 +22,7 @@ class InterestsMappingUtil {
     this._interests = null;
   }
 
-  /**4
+  /** 4
    * Updates internal segments mapping
    * @param {Object} mapping
    */

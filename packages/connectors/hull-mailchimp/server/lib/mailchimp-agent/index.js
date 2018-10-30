@@ -2,7 +2,6 @@ const crypto = require("crypto");
 const _ = require("lodash");
 const uri = require("urijs");
 const Promise = require("bluebird");
-const { ConfigurationError } = require("hull/src/errors");
 
 const MailchimpBatchAgent = require("./batch-agent");
 

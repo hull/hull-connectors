@@ -13,7 +13,7 @@ class TransientError extends Error {
 
   code: string;
 
-  constructor(message: string, extra: Object) {
+  constructor(message: string, extra?: Object = {}) {
     super(message);
     this.name = "TransientError"; // compatible with http-errors library
     this.code = "HULL_ERR_TRANSIENT"; // compatible with internal node error

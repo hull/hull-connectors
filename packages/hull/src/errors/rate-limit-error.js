@@ -10,7 +10,7 @@ const TransientError = require("./transient-error");
  * @memberof Errors
  */
 class RateLimitError extends TransientError {
-  constructor(message: string, extra: Object) {
+  constructor(message: string, extra?: Object = {}) {
     super(message, extra);
     this.name = "RateLimitError"; // compatible with http-errors library
     this.code = "HULL_ERR_RATE_LIMIT"; // compatible with internal node error
