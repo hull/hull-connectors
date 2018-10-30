@@ -2,13 +2,19 @@
 import type { $Response, NextFunction } from "express";
 import type {
   HullRequestFull,
-  HullHandlersConfigurationEntry
+  HullHandlersConfigurationEntry,
+  HullContextFull
 } from "../../types";
 
-// type HullSchedulerHandlerCallback = (ctx: HullContextFull) => Promise<*>;
-// type HullSchedulerHandlerOptions = {
-//   disableErrorHandling?: boolean
-// };
+type HullSchedulerHandlerCallback = (ctx: HullContextFull) => Promise<*>;
+type HullSchedulerHandlerOptions = {
+  disableErrorHandling?: boolean
+};
+
+type HullSchedulerHandlerConfigurationEntry = HullHandlersConfigurationEntry<
+  HullSchedulerHandlerCallback,
+  HullSchedulerHandlerOptions
+>;
 
 const { Router } = require("express");
 const debug = require("debug")("hull-connector:schedule-handler");
@@ -42,7 +48,7 @@ const { normalizeHandlersConfigurationEntry } = require("../../utils");
  * app.use("/list", actionHandler((ctx) => {}))
  */
 function scheduleHandlerFactory(
-  configurationEntry: HullHandlersConfigurationEntry
+  configurationEntry: HullSchedulerHandlerConfigurationEntry
 ) {
   const router = Router();
   const { callback, options } = normalizeHandlersConfigurationEntry(
@@ -66,8 +72,9 @@ function scheduleHandlerFactory(
     res: $Response,
     next: NextFunction
   ) {
-    // $FlowFixMe
-    callback(req.hull)
+    const callbackResult = callback(req.hull);
+    debug("callbackResult", typeof callbackResult);
+    callbackResult
       .then(response => {
         res.json(response);
       })

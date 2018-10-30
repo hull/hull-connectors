@@ -16,7 +16,7 @@ class Batcher {
   }
 
   static getHandler(ns, args) {
-    const name = ns + args.ctx.ship.id;
+    const name = ns + args.ctx.connector.id;
     return (HANDLERS[name] = HANDLERS[name] || new Batcher(ns, args)); // eslint-disable-line no-return-assign
   }
 
@@ -39,20 +39,15 @@ class Batcher {
     this.messages.push(message);
     const { maxSize } = this.options;
     if (this.messages.length >= maxSize) {
-      this.flush();
-    } else {
-      this.flushLater();
+      return this.flush();
     }
-    return Promise.resolve("ok");
+    return this.flushLater();
   }
 
   flush() {
     const messages = this.messages;
     this.messages = [];
-    return Promise.resolve(this.callback(messages)).catch(err => {
-      console.error(err);
-      this.logger.debug("batcher.flush.error", err);
-    });
+    return this.callback(messages);
   }
 }
 

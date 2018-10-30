@@ -5,10 +5,19 @@ const express = require("express");
 const TestScenarioRunner = require("./test-scenario-runner");
 
 function testScenario(
-  connectorServer: express => express,
+  {
+    connectorServer,
+    connectorWorker
+  }: {
+    connectorServer: express => express,
+    connectorWorker?: Function
+  },
   scenarioDefinition: TestScenarioDefinition
 ): Promise<*> {
-  const runner = new TestScenarioRunner(connectorServer, scenarioDefinition);
+  const runner = new TestScenarioRunner(
+    { connectorServer, connectorWorker },
+    scenarioDefinition
+  );
   return runner.run();
 }
 

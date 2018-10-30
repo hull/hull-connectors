@@ -1,0 +1,25 @@
+{
+  "type": "profile",
+  "data": {
+    "id": "0123411be0",
+    "email": "profile@changed.io",
+    "email_type": "html",
+    "ip_opt": "14.123.157.218",
+    "web_id": "55123797",
+    "merges": {
+      "EMAIL": "profile@changed.io",
+      "FNAME": "First",
+      "LNAME": "Last",
+      "INTERESTS": "Close.io - Users w/ Accounts, Users signed in last 100 days, Users w/ Accounts, Prospected Users w/ Account, Prospected Users",
+      "GROUPINGS": [
+        {
+          "id": "3123",
+          "unique_id": "2123fa9910",
+          "name": "Hull Segments",
+          "groups": "Close.io - Users w/ Accounts, Users signed in last 100 days, Users w/ Accounts, Prospected Users w/ Account, Prospected Users"
+        }
+      ]
+    },
+    "list_id": "c494580123"
+  }
+}

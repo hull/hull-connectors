@@ -2,6 +2,7 @@
 const _ = require("lodash");
 const Hull = require("hull");
 const handlers = require("hull/src/handlers");
+const superagent = require("superagent");
 const Minihull = require("minihull");
 const nock = require("nock");
 const express = require("express");
@@ -10,19 +11,74 @@ const expect = require("expect");
 const { EventEmitter } = require("events");
 const debug = require("debug")("hull-test-scenario-runner");
 
+const { equals } = require("expect/build/jasmine_utils");
+const { iterableEquality } = require("expect/build/utils");
+
 export type TestScenarioDefinition = Object => {
   handlerType: $Values<typeof handlers>,
-  handlerUrl: string,
+  handlerUrl?: string,
   channel?: string,
+  payload?: {
+    body: Object,
+    query: Object,
+    headers: Object
+  },
   connector: Object,
   usersSegments: Array<*>,
   accountsSegments: Array<*>,
+  messages?: Array<*>,
   externalApiMock: Function,
   firehoseEvents: Array<*>,
-  response: any,
+  response: Object | string,
+  responseStatusCode?: number,
   metrics: Array<*>,
-  logs: Array<*>
+  logs: Array<*>,
+  platformApiCalls?: Array<*>
 };
+
+expect.extend({
+  toEqualIgnoringOrder(received, expected, additionalInfo) {
+    const copyOfReceived = _.cloneDeep(received);
+    const copyOfExpected = _.cloneDeep(expected);
+
+    try {
+      expected.forEach(value => {
+        const index = copyOfReceived.findIndex(item =>
+          equals(item, value, [iterableEquality])
+        );
+        if (index === -1) {
+          expect(received).toEqual(expected);
+        }
+        copyOfReceived.splice(index, 1);
+      });
+    } catch (error) {
+      error.message = `${additionalInfo}: we did not receive following entries  \n     ${
+        error.message
+      }`;
+      throw error;
+    }
+
+    try {
+      received.forEach(value => {
+        const index = copyOfExpected.findIndex(item =>
+          equals(item, value, [iterableEquality])
+        );
+        if (index === -1) {
+          expect(received).toEqual(expected);
+        }
+        copyOfExpected.splice(index, 1);
+      });
+    } catch (error) {
+      error.message = `${additionalInfo}: we did not expect following entries  \n     ${
+        error.message
+      }`;
+      throw error;
+    }
+    return {
+      pass: true
+    };
+  }
+});
 
 class TestScenarioRunner extends EventEmitter {
   minihull: typeof Minihull;
@@ -61,8 +117,18 @@ class TestScenarioRunner extends EventEmitter {
 
   server: Function;
 
+  worker: Function | void;
+
+  externalIncomingRequest: Function;
+
   constructor(
-    connectorServer: express => express,
+    {
+      connectorServer,
+      connectorWorker
+    }: {
+      connectorServer: express => express,
+      connectorWorker?: Function
+    },
     scenarioDefinition: TestScenarioDefinition
   ) {
     super();
@@ -89,6 +155,7 @@ class TestScenarioRunner extends EventEmitter {
       maxWait: this.timeout
     });
     this.server = connectorServer;
+    this.worker = connectorWorker;
 
     this.minihull.on("incoming.request", req =>
       console.log(">>>> MINIHULL", req.method, req.url)
@@ -114,12 +181,18 @@ class TestScenarioRunner extends EventEmitter {
           log.data
         ];
       });
-      expect(transformedLogs).toEqual(this.scenarioDefinition.logs);
+      expect(transformedLogs).toEqualIgnoringOrder(
+        this.scenarioDefinition.logs,
+        "logs do not match"
+      );
       expect(
         this.capturedMetrics.map(metric => {
           return [metric[0], metric[1], metric[2]];
         })
-      ).toEqual(this.scenarioDefinition.metrics);
+      ).toEqualIgnoringOrder(
+        this.scenarioDefinition.metrics,
+        "metrics do not match"
+      );
       const firehoseEvents = this.minihull.requests
         .get("incoming")
         .filter({ url: "/api/v1/firehose" })
@@ -145,13 +218,27 @@ class TestScenarioRunner extends EventEmitter {
           ];
         })
         .value();
-      expect(firehoseEvents).toEqual(this.scenarioDefinition.firehoseEvents);
-      if (!this.nockScope.isDone()) {
+      expect(firehoseEvents).toEqualIgnoringOrder(
+        this.scenarioDefinition.firehoseEvents,
+        "firehoseEvents do not match"
+      );
+      if (this.nockScope && !this.nockScope.isDone()) {
         throw new Error(
           `pending mocks: ${JSON.stringify(this.nockScope.pendingMocks())}`
         );
       }
       debug("closing");
+      const platformApiCalls = this.minihull.requests
+        .get("incoming")
+        .reject({ url: "/api/v1/firehose" })
+        .map(entry => {
+          return [entry.method, entry.url, entry.query, entry.body];
+        })
+        .value();
+      expect(platformApiCalls).toEqualIgnoringOrder(
+        this.scenarioDefinition.platformApiCalls || [],
+        "platformApiCalls do not match"
+      );
       nock.cleanAll();
       nock.enableNetConnect();
       nock.emitter.removeAllListeners();
@@ -172,7 +259,7 @@ class TestScenarioRunner extends EventEmitter {
         nock.disableNetConnect();
         nock.enableNetConnect("localhost");
         nock.emitter.on("no match", (req, options, requestBody) => {
-          if (req.hostname !== "localhost") {
+          if (req.hostname !== "localhost" && options) {
             this.emit(
               "error",
               new Error(
@@ -196,6 +283,11 @@ class TestScenarioRunner extends EventEmitter {
         this.server(this.app);
         this.hullConnectorServer = await this.hullConnector.startApp(this.app);
 
+        if (this.worker) {
+          this.worker(this.hullConnector);
+          this.hullConnector.startWorker();
+        }
+
         this.hullConnectorPort = this.hullConnectorServer.address().port;
         this.scenarioDefinition = this.rawScenarioDefinition({
           expect,
@@ -208,19 +300,25 @@ class TestScenarioRunner extends EventEmitter {
             return _.defaultsDeep({}, modification, fixture); // eslint-disable-line global-require, import/no-dynamic-require
           }
         });
-        this.nockScope = this.scenarioDefinition.externalApiMock();
-        this.nockScope.on("request", req => {
-          console.log(">>> NOCK REQUEST", req.path);
-        });
-        this.nockScope.on("replied", req => {
-          console.log(">>> NOCK", req.path);
-        });
-        this.nockScope.on("replied", this.deboucedFinish);
+        this.nockScope =
+          this.scenarioDefinition.externalApiMock &&
+          this.scenarioDefinition.externalApiMock();
+        if (this.nockScope) {
+          this.nockScope.on("request", req => {
+            console.log(">>> NOCK REQUEST", req.path);
+          });
+          this.nockScope.on("replied", req => {
+            console.log(">>> NOCK", req.path);
+          });
+          this.nockScope.on("replied", this.deboucedFinish);
+        }
         this.server = this.scenarioDefinition.connectorServer;
         this.connector = _.defaults(this.scenarioDefinition.connector, {
           id: "9993743b22d60dd829001999",
           private_settings: {}
         });
+        this.externalIncomingRequest = this.scenarioDefinition.externalIncomingRequest;
+
         this.minihull.stubConnector(this.connector);
         this.minihull.stubUsersSegments(this.scenarioDefinition.usersSegments);
         this.minihull.stubAccountsSegments(
@@ -238,6 +336,17 @@ class TestScenarioRunner extends EventEmitter {
               this.scenarioDefinition.accountsSegments
             );
             break;
+          case handlers.incomingRequestHandler:
+            response = await this.externalIncomingRequest({
+              superagent,
+              connectorUrl: `http://localhost:${this.hullConnectorPort}`,
+              plainCredentials: {
+                organization: this.minihull._getOrgAddr(),
+                ship: this.connector.id,
+                secret: this.minihull.secret
+              }
+            });
+            break;
           case handlers.notificationHandler:
             response = await this.minihull.notifyConnector(
               this.connector,
@@ -248,6 +357,8 @@ class TestScenarioRunner extends EventEmitter {
               this.scenarioDefinition.accountsSegments
             );
             break;
+          case undefined:
+            throw new Error("Wrong handlerType");
           default:
             throw new Error(
               `Wrong handlerType: ${this.scenarioDefinition.handlerType.name}`
@@ -255,7 +366,9 @@ class TestScenarioRunner extends EventEmitter {
         }
         debug("response", response.body, response.statusCode);
         expect(response.body).toEqual(this.scenarioDefinition.response);
-        expect(response.statusCode).toEqual(200);
+        expect(response.statusCode).toEqual(
+          this.scenarioDefinition.responseStatusCode || 200
+        );
         this.timeoutId = setTimeout(() => {
           this.deboucedFinish.cancel();
           throw new Error("Scenario timeouted");

@@ -198,7 +198,8 @@ class HullConnector {
    */
   startApp(app: $Application) {
     /**
-     * Instrumentation Middleware
+     * Instrumentation Middleware,
+     * this sends all errors to sentry
      */
     app.use(this.instrumentation.stopMiddleware());
 
@@ -208,7 +209,7 @@ class HullConnector {
     app.use(
       (err: Error, req: HullRequest, res: $Response, _next: NextFunction) => {
         // eslint-disable-line no-unused-vars
-        debug("unhandled-error", err.message);
+        debug("unhandled-error", err.stack);
         if (!res.headersSent) {
           res.status(500).send("unhandled-error");
         }

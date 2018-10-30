@@ -5,7 +5,11 @@ import type { HullRequestFull } from "../../types";
 const debug = require("debug")("hull-connector:notification-handler");
 
 const { notificationDefaultFlowControl } = require("../../utils");
-const { TransientError, NotificationValidationError } = require("../../errors");
+const {
+  ConfigurationError,
+  TransientError,
+  NotificationValidationError
+} = require("../../errors");
 
 function errorToResponse(error) {
   return {
@@ -63,6 +67,17 @@ function notificationHandlerErrorMiddlewareFactory() {
       channel,
       "error"
     );
+
+    if (err instanceof ConfigurationError) {
+      return res.status(200).json({
+        flow_control: notificationDefaultFlowControl(
+          req.hull,
+          channel,
+          "configuration_error"
+        ),
+        error: errorToResponse(err)
+      });
+    }
 
     // if we have transient error
     if (err instanceof TransientError) {

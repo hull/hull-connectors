@@ -1,5 +1,14 @@
 // @flow
+import type { HullSegment } from "hull-client";
 import type { HullContext } from "../types";
+
+export type HullHelperExtractRequestOptions = {
+  segment?: null | HullSegment,
+  format?: "json" | "csv",
+  path?: string,
+  fields?: Array<string>,
+  additionalQuery?: Object
+};
 
 const Promise = require("bluebird");
 const URI = require("urijs");
@@ -26,12 +35,13 @@ const _ = require("lodash");
 function extractRequest(
   ctx: HullContext,
   {
+    // $FlowFixMe
     segment = null,
     format = "json",
     path = "batch",
     fields = [],
     additionalQuery = {}
-  }: Object = {}
+  }: HullHelperExtractRequestOptions = {}
 ) {
   const { client, hostname } = ctx;
   const conf = client.configuration();

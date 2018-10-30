@@ -231,6 +231,15 @@ class MiniHull extends MiniApplication {
     return this;
   }
 
+  stubConnectorNotFound(object) {
+    const responseHandler = (req, res) => {
+      res.status(404).json({ status: 404, message: "App not found" });
+    };
+    this.stubApp(`/api/v1/${object.id}`).respond(responseHandler);
+    this.stubApp("/api/v1/app").respond(responseHandler);
+    return this;
+  }
+
   stubSegments() {
     throw new Error(
       "The `stubSegments` method doesn't exist anymore. Please use `stubUserSegments` instead"

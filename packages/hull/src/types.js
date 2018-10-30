@@ -9,6 +9,8 @@ import type {
   HullClientConfiguration
 } from "hull-client";
 
+import type { HullHelperExtractRequestOptions } from "./helpers/extract-request";
+
 const HullClient = require("hull-client/src");
 const ConnectorCache = require("./infra/cache/connector-cache");
 const MetricAgent = require("./infra/instrumentation/metric-agent");
@@ -83,7 +85,12 @@ export type HullContextWithClient = {
   ...$Exact<HullContextWithCredentials>,
   clientCredentialsToken: string,
   client: HullClient,
-  helpers: *,
+  helpers: {
+    settingsUpdate: (
+      $PropertyType<HullConnector, "private_settings">
+    ) => Promise<HullConnector>,
+    extractRequest: HullHelperExtractRequestOptions => Promise<*>
+  },
   notification?: HullNotification
 };
 
@@ -149,22 +156,6 @@ export type HullRequest = HullRequestFull;
 export type HullSendResponse = Promise<*>;
 export type HullSyncResponse = Promise<*>;
 
-// functional types
-export type HullUserUpdateHandlerCallback = (
-  ctx: HullContextFull,
-  messages: Array<HullUserUpdateMessage>
-) => HullSendResponse;
-export type HullAccountUpdateHandlerCallback = (
-  ctx: HullContextFull,
-  messages: Array<HullAccountUpdateMessage>
-) => HullSendResponse;
-export type HullConnectorUpdateHandlerCallback = (
-  ctx: HullContextFull
-) => HullSyncResponse;
-export type HullSegmentUpdateHandlerCallback = (
-  ctx: HullContextFull
-) => HullSyncResponse;
-
 // OOP types
 export interface HullSyncAgent {
   constructor(ctx: HullContextFull): void;
@@ -183,25 +174,22 @@ export type HullServerFunction = (
   extra?: Object
 ) => $Application;
 
-export type HullHandlerCallback =
-  | HullUserUpdateHandlerCallback
-  | HullAccountUpdateHandlerCallback
-  | HullConnectorUpdateHandlerCallback
-  | HullSegmentUpdateHandlerCallback;
-
-export type HullNormalizedHandlersConfigurationEntry = {
-  callback: HullHandlerCallback,
-  options: Object
+export type HullNormalizedHandlersConfigurationEntry<Callback, Options> = {
+  callback: Callback,
+  options: Options
 };
 
-export type HullNormalizedHandlersConfiguration = {
-  [HullChannelName: string]: HullNormalizedHandlersConfigurationEntry
+export type HullNormalizedHandlersConfiguration<Callback, Options> = {
+  [HullChannelName: string]: HullNormalizedHandlersConfigurationEntry<
+    Callback,
+    Options
+  >
 };
 
-export type HullHandlersConfigurationEntry =
-  | HullHandlerCallback
-  | HullNormalizedHandlersConfiguration;
+export type HullHandlersConfigurationEntry<Callback, Options> =
+  | Callback
+  | HullNormalizedHandlersConfigurationEntry<Callback, Options>;
 
-export type HullHandlersConfiguration = {
-  [HullChannelName: string]: HullHandlersConfigurationEntry
+export type HullHandlersConfiguration<Callback, Options> = {
+  [HullChannelName: string]: HullHandlersConfigurationEntry<Callback, Options>
 };
