@@ -52,7 +52,6 @@ class MailchimpBatchAgent {
           return Promise.resolve();
         }
         options.batchId = id;
-        console.log("ENQUEUING!!! batch");
         return this.ctx.enqueue("handleMailchimpBatch", options, {
           delay: process.env.MAILCHIMP_BATCH_HANDLER_INTERVAL || 10000
         });
