@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.0.4-monorepo
+- [hull] bring back timeout default to 25s
+
 ## v0.0.3-monorepo
 - [hull-mailchimp] moved into monorepo
 - [hull-connector-framework] test runner is able to test incoming webhooks and worker jobs
