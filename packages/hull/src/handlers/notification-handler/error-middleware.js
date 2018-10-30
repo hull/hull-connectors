@@ -70,7 +70,11 @@ function notificationHandlerErrorMiddlewareFactory() {
 
     if (err instanceof ConfigurationError) {
       return res.status(200).json({
-        flow_control: defaultErrorFlowControl,
+        flow_control: notificationDefaultFlowControl(
+          req.hull,
+          channel,
+          "configuration_error"
+        ),
         error: errorToResponse(err)
       });
     }

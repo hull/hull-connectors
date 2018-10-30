@@ -2,7 +2,7 @@
 
 import type { HullContextFull, HullNotificationFlowControl } from "../types";
 
-type HullNotificationResult = "success" | "unsupported" | "error";
+type HullNotificationResult = "success" | "unsupported" | "error" | "configuration_error";
 
 const _ = require("lodash");
 
@@ -28,6 +28,11 @@ function notificationDefaultFlowControl(
     error: {
       size: 10,
       in: 1000,
+      in_time: 10
+    },
+    configuration_error: {
+      size: 10,
+      in: 6000,
       in_time: 10
     },
     unsupported: {

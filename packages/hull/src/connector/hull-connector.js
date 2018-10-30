@@ -198,7 +198,8 @@ class HullConnector {
    */
   startApp(app: $Application) {
     /**
-     * Instrumentation Middleware
+     * Instrumentation Middleware,
+     * this sends all errors to sentry
      */
     app.use(this.instrumentation.stopMiddleware());
 

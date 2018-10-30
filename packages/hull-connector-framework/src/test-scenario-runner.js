@@ -47,7 +47,7 @@ expect.extend({
           equals(item, value, [iterableEquality])
         );
         if (index === -1) {
-          expect(expected).toEqual(received);
+          expect(received).toEqual(expected);
         }
         copyOfReceived.splice(index, 1);
       });
@@ -64,7 +64,7 @@ expect.extend({
           equals(item, value, [iterableEquality])
         );
         if (index === -1) {
-          expect(expected).toEqual(received);
+          expect(received).toEqual(expected);
         }
         copyOfExpected.splice(index, 1);
       });
