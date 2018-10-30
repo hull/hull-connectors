@@ -31,7 +31,11 @@ function statusAction(ctx) {
       .then(isListPresent => {
         if (isListPresent === false) {
           status = "error";
-          messages.push("Selected Mailchimp list does not exists.");
+          messages.push(
+            `Selected Mailchimp list: ${
+              connector.private_settings.mailchimp_list_name
+            } does not exists.`
+          );
           return Promise.resolve({});
         }
         return shipApp.syncAgent.syncConnector({ forceCheck: true });
