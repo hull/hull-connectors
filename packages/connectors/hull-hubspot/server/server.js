@@ -1,0 +1,54 @@
+// @flow
+import type { $Application } from "express";
+
+const cors = require("cors");
+const {
+  jsonHandler,
+  scheduleHandler,
+  notificationHandler,
+  batchHandler
+} = require("hull/src/handlers");
+
+const notificationsConfiguration = require("./notifications-configuration");
+
+const actions = require("./actions");
+
+function server(app: $Application, deps: Object): $Application {
+  app.use("/fetch-all", jsonHandler(actions.fetchAll));
+  app.use("/fetch-all-companies", jsonHandler(actions.fetchAllCompanies));
+  app.use("/sync", scheduleHandler(actions.fetch));
+
+  app.use(
+    "/fetch-recent-companies",
+    scheduleHandler(actions.fetchRecentCompanies)
+  );
+
+  app.use("/batch", batchHandler(notificationsConfiguration));
+
+  app.use("/smart-notifier", notificationHandler(notificationsConfiguration));
+
+  app.use("/monitor/checkToken", scheduleHandler(actions.checkToken));
+
+  app.use(
+    "/schema/contact_properties",
+    cors(),
+    jsonHandler({
+      callback: actions.getContactProperties,
+      options: { respondWithError: true }
+    })
+  );
+
+  app.use(
+    "/schema/company_properties",
+    cors(),
+    jsonHandler(actions.getCompanyProperties)
+  );
+
+  app.use("/status", scheduleHandler(actions.statusCheck));
+
+  app.use("/auth", actions.oauth(deps));
+
+  return app;
+}
+
+module.exports = server;
