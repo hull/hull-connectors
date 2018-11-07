@@ -13,8 +13,8 @@ const {
   SECRET = "1234",
   PORT = 8082,
   OVERRIDE_FIREHOSE_URL,
-  CLIENT_ID = null,
-  CLIENT_SECRET = null,
+  CLIENT_ID,
+  CLIENT_SECRET,
   SERVER,
   COMBINED
 } = process.env;
@@ -46,15 +46,9 @@ const connector = new Hull.Connector({
   }
 });
 
-const deps = {
-  clientID: CLIENT_ID,
-  clientSecret: CLIENT_SECRET,
-  hostSecret: SECRET
-};
-
 connector.setupApp(app);
 
 if (SERVER || COMBINED) {
-  server(app, deps);
+  server(app);
   connector.startApp(app);
 }

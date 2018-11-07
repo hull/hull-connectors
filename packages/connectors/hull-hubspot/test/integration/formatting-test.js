@@ -10,7 +10,7 @@ process.env.CLIENT_SECRET = "abc";
 process.env.OVERRIDE_HUBSPOT_URL = "http://localhost:8002";
 process.env.TZ = "UTC";
 
-describe("Hubspot properties formatting", function test() {
+describe.skip("Hubspot properties formatting", function test() {
   let server, minihull, minihubspot, connector;
 
   beforeEach((done) => {

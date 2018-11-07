@@ -13,7 +13,12 @@ const notificationsConfiguration = require("./notifications-configuration");
 
 const actions = require("./actions");
 
-function server(app: $Application, deps: Object): $Application {
+function server(app: $Application): $Application {
+  const deps = {
+    clientID: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
+    hostSecret: process.env.SECRET
+  };
   app.use("/fetch-all", jsonHandler(actions.fetchAll));
   app.use("/fetch-all-companies", jsonHandler(actions.fetchAllCompanies));
   app.use("/sync", scheduleHandler(actions.fetch));

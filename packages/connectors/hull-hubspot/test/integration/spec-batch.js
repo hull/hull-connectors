@@ -6,7 +6,7 @@ const bootstrap = require("./support/bootstrap");
 
 process.env.OVERRIDE_HUBSPOT_URL = "http://localhost:8002";
 
-describe("Hubspot", function test() {
+describe.skip("Hubspot", function test() {
   let server, minihull, minihubspot, connector;
 
   beforeEach((done) => {

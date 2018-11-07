@@ -13,7 +13,7 @@ process.env.FETCH_CONTACTS_COUNT = 2;
 const Minihubspot = require("./support/minihubspot");
 const bootstrap = require("./support/bootstrap");
 
-describe("Hubspot fetchContacts", function test() {
+describe.skip("Hubspot fetchContacts", function test() {
   let server, minihull, minihubspot, connector;
   beforeEach((done) => {
     minihull = new Minihull();

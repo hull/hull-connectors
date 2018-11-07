@@ -176,7 +176,7 @@ class MappingUtil {
           {
             hull_trait_name: setting.hull,
             hull_default_trait_name:
-              (defaultMapping && defaultMapping.name) || null,
+              (defaultMapping && defaultMapping.hull) || null,
             hull_trait_type: hullTrait.type,
             hull_overwrite_hubspot: setting.overwrite,
             hubspot_property_name: hubspotPropertyName,
@@ -294,7 +294,7 @@ class MappingUtil {
           {
             hull_trait_name: setting.hull,
             hull_default_trait_name:
-              (defaultMapping && defaultMapping.hubspot) || null,
+              (defaultMapping && defaultMapping.hull) || null,
             hull_trait_type: hullTrait.type,
             hull_overwrite_hubspot: setting.overwrite,
             hubspot_property_name: hubspotPropertyName,

@@ -116,7 +116,7 @@ class HubspotClient {
    */
   retryUnauthorized(promise: () => Promise<mixed>): Promise<*> {
     return promise().catch(err => {
-      if (err.response.unauthorized) {
+      if (err.response && err.response.unauthorized) {
         this.client.logger.debug("retrying query", _.get(err, "response.body"));
         return this.checkToken({
           force: true
