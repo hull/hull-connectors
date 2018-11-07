@@ -9,7 +9,7 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name: [process.env.NEW_RELIC_APP_NAME],
+  app_name: [process.env.CONNECTOR],
   /**
    * Your New Relic license key.
    */
@@ -22,5 +22,5 @@ exports.config = {
      */
     level: "info"
   },
-  agent_enabled: !!process.env.NEW_RELIC_LICENSE_KEY,
+  agent_enabled: !!process.env.NEW_RELIC_LICENSE_KEY
 };
