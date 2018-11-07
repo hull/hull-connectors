@@ -124,11 +124,6 @@
               "allowCreate": true,
               "loadOptions" : "/schema/company_properties"
             }
-          },
-          "overwrite" : {
-            "type" : "boolean",
-            "title" : "Hull overwrites Hubspot",
-            "default" : false
           }
         }
       }

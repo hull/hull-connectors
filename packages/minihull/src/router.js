@@ -1,5 +1,8 @@
 const Router = require("express").Router;
 
+const accountReportsFixture = require("./fixtures/search/account_reports/bootstrap.json");
+const userReportsFixture = require("./fixtures/search/user_reports/bootstrap.json");
+
 /**
  * This is an [Express](https://expressjs.com/) router which applies to internal MiniHull
  * http server special endpoint for `mimic*` methods which serve content from internal database (`db` param).
@@ -75,17 +78,11 @@ module.exports = function router(minihull) {
   });
 
   hullRouter.get("/search/user_reports/bootstrap", (req, res) => {
-    res.json({
-      tree: [
-        {
-          text: "User",
-          children: [
-            { id: "id", text: "Hull ID", type: "string" },
-            { id: "email", text: "Email", type: "string", default: null }
-          ]
-        }
-      ]
-    });
+    res.json(userReportsFixture);
+  });
+
+  hullRouter.get("/search/account_reports/bootstrap", (req, res) => {
+    res.json(accountReportsFixture);
   });
 
   return hullRouter;

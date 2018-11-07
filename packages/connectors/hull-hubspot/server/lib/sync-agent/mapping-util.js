@@ -296,7 +296,6 @@ class MappingUtil {
             hull_default_trait_name:
               (defaultMapping && defaultMapping.hull) || null,
             hull_trait_type: hullTrait.type,
-            hull_overwrite_hubspot: setting.overwrite,
             hubspot_property_name: hubspotPropertyName,
             hubspot_property_label: setting.hubspot,
             hubspot_property_read_only:
@@ -789,18 +788,6 @@ class MappingUtil {
         let value = _.has(accountData, mappingEntry.hull_trait_name)
           ? _.get(accountData, mappingEntry.hull_trait_name)
           : _.get({ account: accountData }, mappingEntry.hull_trait_name);
-
-        if (
-          !mappingEntry.hull_overwrite_hubspot &&
-          mappingEntry.hull_default_trait_name
-        ) {
-          value = _.has(
-            accountData,
-            _.get(mappingEntry, "hull_default_trait_name")
-          )
-            ? _.get(accountData, _.get(mappingEntry, "hull_default_trait_name"))
-            : value;
-        }
 
         if (
           /_at$|date$/.test(mappingEntry.hull_trait_name) ||
