@@ -8,7 +8,7 @@ process.env.OVERRIDE_HUBSPOT_URL = "";
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_account_segments: ["hullSegmentId"]
+    synchronized_account_segments: ["someOtherSegment"]
   }
 };
 const accountsSegments = [
@@ -18,7 +18,7 @@ const accountsSegments = [
   }
 ];
 
-it("should send out a new hull account to hubspot", () => {
+it("should filter out accounts based on segments", () => {
   const domain = "hull.io";
   return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
     return {
@@ -31,22 +31,6 @@ it("should send out a new hull account to hubspot", () => {
           .reply(200, []);
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, []);
-        scope.post("/companies/v2/domains/hull.io/companies", {
-          requestOptions: {
-            properties: ["domain", "hs_lastmodifieddate", "name"]
-          }
-        }).reply(200, {
-          results: []
-        });
-        scope.post("/companies/v2/companies/?auditId=Hull", {
-          "properties": [{
-            "name": "hull_segments",
-            "value": "testSegment"
-          }, {
-            "name": "domain",
-            "value": "hull.io"
-          }]
-        }).reply(200, require("../fixtures/post-companies"));
         return scope;
       },
       connector,
@@ -71,51 +55,19 @@ it("should send out a new hull account to hubspot", () => {
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
-        ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 200, "url": "/companies/v2/domains/hull.io/companies" })],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 200, "url": "/companies/v2/companies/" })],
+        ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 0, "toSkip": 1, "toUpdate": 0}],
         [
           "info",
-          "outgoing.account.success",
+          "outgoing.account.skip",
           expect.objectContaining({ "subject_type": "account", "account_domain": domain }),
           {
-            hubspotWriteCompany: {
-              "properties": [{
-                "name": "hull_segments",
-                "value": "testSegment"
-              }, {
-                "name": "domain",
-                "value": "hull.io"
-              }]
-            },
-            operation: "insert"
+            "reason": "Account doesn't match outgoing filter"
           }
         ]
       ],
-      firehoseEvents: [
-        [
-          "traits",
-          {
-            "asAccount": {
-              "domain": "hull.io",
-            },
-            "subjectType": "account",
-          },
-          {
-            "hubspot/id": 266234266,
-            "name": {
-              "operation": "setIfNull",
-              "value": "A company name"
-            }
-          }
-        ]
-      ],
+      firehoseEvents: [],
       metrics: [
         ["increment", "connector.request", 1],
-        ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.any(Number)],
-        ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "ship.service_api.call", 1],
