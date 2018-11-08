@@ -18,7 +18,7 @@ const usersSegments = [
   }
 ];
 
-it.only("should send out an user to hubspot", () => {
+it("should send out a new hull user to hubspot", () => {
   const email = "email@email.com";
   return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
     return {

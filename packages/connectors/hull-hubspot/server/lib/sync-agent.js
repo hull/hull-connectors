@@ -356,13 +356,13 @@ class SyncAgent {
   async sendUserUpdateMessages(
     messages: Array<HullUserUpdateMessage>
   ): Promise<*> {
-    await this.initialize();
     if (!this.isConfigured()) {
       this.hullClient.logger.error("connector.configuration.error", {
         errors: "connector is not configured"
       });
       return Promise.resolve();
     }
+    await this.initialize();
 
     const envelopes = messages.map(message =>
       this.buildUserUpdateMessageEnvelope(message)
@@ -421,13 +421,13 @@ class SyncAgent {
   async sendAccountUpdateMessages(
     messages: Array<HullAccountUpdateMessage>
   ): Promise<*> {
-    await this.initialize();
     if (!this.isConfigured()) {
       this.hullClient.logger.error("connector.configuration.error", {
         errors: "connector is not configured"
       });
       return Promise.resolve();
     }
+    await this.initialize();
     const envelopes = messages.map(message =>
       this.buildAccountUpdateMessageEnvelope(message)
     );

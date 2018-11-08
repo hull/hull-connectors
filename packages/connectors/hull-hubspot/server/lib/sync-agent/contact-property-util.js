@@ -157,6 +157,7 @@ class ContactPropertyUtil {
     const existing =
       groupProperties[property.name] ||
       groupProperties[property.name.replace(/^hull_/, "")];
+    debug("ensureProperty %o", existing);
     if (existing) {
       if (this.shouldUpdateProperty(existing, property)) {
         debug("ensureProperty %o", property);
