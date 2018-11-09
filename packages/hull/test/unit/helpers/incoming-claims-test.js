@@ -10,7 +10,7 @@ function buildCtx(settings) {
   };
 }
 
-describe.only("incoming claims builder", () => {
+describe("incoming claims builder", () => {
   it("should not return claims but an error if valid settings are not provided", () => {
     const accountClaims = incomingClaims({}, "account", {});
     expect(accountClaims).to.eql({

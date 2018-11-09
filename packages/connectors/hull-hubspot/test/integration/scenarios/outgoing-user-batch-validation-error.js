@@ -3,15 +3,11 @@
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const connectorServer = require("../../../server/server");
 
-process.env.CLIENT_ID = "123",
-process.env.CLIENT_SECRET = "abc";
+process.env.CLIENT_ID = "123";
 
 const connector = {
   private_settings: {
     token: "hubToken",
-    refresh_token: "refreshToken",
-    token_fetched_at: "1541670608956",
-    expires_in: 10000,
     synchronized_segments: ["hullSegmentId"]
   }
 };
@@ -22,29 +18,15 @@ const usersSegments = [
   }
 ];
 
-it("should refresh token and perform standard operation in case of token expired", () => {
+it("should send out a new hull user to hubspot", () => {
   const email = "email@email.com";
   return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
     return {
-      handlerType: handlers.notificationHandler,
-      handlerUrl: "smart-notifier",
+      handlerType: handlers.batchHandler,
+      handlerUrl: "batch",
       channel: "user:update",
       externalApiMock: () => {
-        const scope = nock("https://api.hubapi.com", {
-          reqheaders: {
-            Authorization: (headerValue) => {
-              console.log("!!!!!! headerValue", headerValue);
-              return false;
-            }
-          }
-        });
-        scope.get("/contacts/v2/groups?includeProperties=true").reply(401, {});
-        scope.post("/oauth/v1/token", "refresh_token=refreshToken&client_id=123&client_secret=abc&redirect_uri=&grant_type=refresh_token")
-            .reply(200, {
-              access_token: "newAccessToken",
-              expires_in: 10000
-            });
-
+        const scope = nock("https://api.hubapi.com");
         scope.get("/contacts/v2/groups?includeProperties=true")
           .reply(200, []);
         scope.get("/properties/v1/companies/groups?includeProperties=true")
@@ -54,9 +36,22 @@ it("should refresh token and perform standard operation in case of token expired
             "property": "hull_segments",
             "value": "testSegment"
           }],
+          "email": "non-existing-property@hull.io"
+        }, {
+          "properties": [{
+            "property": "hull_segments",
+            "value": "testSegment"
+          }],
           "email": "email@email.com"
-          }]
-        ).reply(202);
+        }]).reply(400, require("../fixtures/post-contact-batch-nonexisting-property"));
+
+        scope.post("/contacts/v1/contact/batch/?auditId=Hull", [{
+          "properties": [{
+            "property": "hull_segments",
+            "value": "testSegment"
+          }],
+          "email": "email@email.com"
+        }]).reply(202);
         return scope;
       },
       connector,
@@ -64,29 +59,30 @@ it("should refresh token and perform standard operation in case of token expired
       accountsSegments: [],
       messages: [
         {
-          user: {
-            email
-          },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          email: "non-existing-property@hull.io",
+          segment_ids: ["hullSegmentId"]
+        },
+        {
+          email,
+          segment_ids: ["hullSegmentId"]
         }
       ],
-      response: {
-        flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
-          type: "next"
-        }
-      },
+      response: {},
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
-        ["debug", "retrying query", expect.whatever(), expect.whatever()],
-        ["debug", "access_token", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
-        ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
+        ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 2, "toSkip": 0, "toUpdate": 0}],
+        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 400, "url": "/contacts/v1/contact/batch/" })],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
+        [
+          "error",
+          "outgoing.user.error",
+          expect.objectContaining({
+            "subject_type": "user",
+            "user_email": "non-existing-property@hull.io",
+          }),
+          "Property \"non-existing-property\" does not exist",
+        ],
         [
           "info",
           "outgoing.user.success",
@@ -99,35 +95,16 @@ it("should refresh token and perform standard operation in case of token expired
         ["increment", "connector.request", 1],
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.any(Number)],
+        ["increment", "ship.service_api.call", 1],
+        ["value", "connector.service_api.response_time", expect.any(Number)],
+        ["increment", "ship.service_api.call", 1],
+        ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "connector.service_api.error", 1],
-        ["increment", "ship.service_api.call", 1],
-        ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.any(Number)],
-        ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.any(Number)],
-        ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.any(Number)]
       ],
       platformApiCalls: [
-        ["GET", "/api/v1/app", {}, {}],
-        [
-          "PUT",
-          "/api/v1/9993743b22d60dd829001999",
-          {},
-          {
-            "private_settings":  {
-              "expires_in": 10000,
-              "refresh_token": "refreshToken",
-              "synchronized_segments": [
-                "hullSegmentId",
-              ],
-              "token": "newAccessToken",
-              "token_fetched_at": expect.any(String)
-            }
-          }
-        ],
+        ["GET", "/_users_batch", {}, {}],
         ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
         ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
       ]
