@@ -5,7 +5,7 @@ const sinon = require("sinon");
 
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
-process.env.OVERRIDE_HUBSPOT_URL = "http://localhost:8002";
+// process.env.OVERRIDE_HUBSPOT_URL = "http://localhost:8002";
 process.env.TZ = "UTC";
 process.env.FETCH_CONTACTS_COUNT = 2;
 
@@ -55,4 +55,3 @@ describe.skip("Hubspot fetchContacts", function test() {
     clock.restore();
   });
 });
-

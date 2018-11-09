@@ -7,7 +7,7 @@ const bootstrap = require("./support/bootstrap");
 
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
-process.env.OVERRIDE_HUBSPOT_URL = "http://localhost:8002";
+// process.env.OVERRIDE_HUBSPOT_URL = "http://localhost:8002";
 process.env.TZ = "UTC";
 
 describe.skip("Hubspot properties formatting", function test() {

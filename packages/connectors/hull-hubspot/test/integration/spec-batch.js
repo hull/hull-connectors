@@ -4,7 +4,7 @@ const expect = require("chai").expect;
 const Minihubspot = require("./support/minihubspot");
 const bootstrap = require("./support/bootstrap");
 
-process.env.OVERRIDE_HUBSPOT_URL = "http://localhost:8002";
+// process.env.OVERRIDE_HUBSPOT_URL = "http://localhost:8002";
 
 describe.skip("Hubspot", function test() {
   let server, minihull, minihubspot, connector;
