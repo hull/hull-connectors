@@ -6,7 +6,9 @@ import type {
   HullConnector,
   HullUserUpdateMessage,
   HullAccountUpdateMessage,
-  HullClientConfiguration
+  HullClientConfiguration,
+  HullEntityType,
+  HullEntityClaims
 } from "hull-client";
 
 import type { HullHelperExtractRequestOptions } from "./helpers/extract-request";
@@ -89,7 +91,14 @@ export type HullContextWithClient = {
     settingsUpdate: (
       $PropertyType<HullConnector, "private_settings">
     ) => Promise<HullConnector>,
-    extractRequest: HullHelperExtractRequestOptions => Promise<*>
+    extractRequest: HullHelperExtractRequestOptions => Promise<*>,
+    extractRequest: (
+      HullEntityType,
+      Object
+    ) => {
+      claims?: HullEntityClaims,
+      error?: string
+    }
   },
   notification?: HullNotification
 };
