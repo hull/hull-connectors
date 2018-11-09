@@ -507,32 +507,31 @@ class HubspotClient {
           });
           return Promise.resolve(erroredOutEnvelopes);
         }
-        const erroredOutEnvelopes = _.get(
-          errorInfo,
-          "validationResults",
-          []
-        ).reduc((agg, error) => {
-          const envelope = _.find(envelopes, {
-            hubspotWriteCompany: {
-              objectId: error.id
-            }
-          });
-          if (envelope === undefined) {
-            return agg;
-          }
-          const hubspotMessage =
-            error.propertyValidationResult &&
-            _.truncate(error.propertyValidationResult.message, {
-              length: 100
+        const erroredOutEnvelopes = (errorInfo.validationResults || []).reduce(
+          (agg, error) => {
+            const envelope = _.find(envelopes, {
+              hubspotWriteCompany: {
+                objectId: error.id
+              }
             });
-          const hubspotPropertyName =
-            error.propertyValidationResult &&
-            error.propertyValidationResult.name;
-          envelope.error =
-            hubspotMessage || error.message || error.error.message;
-          envelope.errorProperty = hubspotPropertyName;
-          return agg.concat([envelope]);
-        });
+            if (envelope === undefined) {
+              return agg;
+            }
+            const hubspotMessage =
+              error.propertyValidationResult &&
+              _.truncate(error.propertyValidationResult.message, {
+                length: 100
+              });
+            const hubspotPropertyName =
+              error.propertyValidationResult &&
+              error.propertyValidationResult.name;
+            envelope.error =
+              hubspotMessage || error.message || error.error.message;
+            envelope.errorProperty = hubspotPropertyName;
+            return agg.concat([envelope]);
+          },
+          []
+        );
 
         const retryEnvelopes = envelopes.filter(envelope => {
           return !_.find(errorInfo.validationResults, {

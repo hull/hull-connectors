@@ -8,67 +8,77 @@ process.env.OVERRIDE_HUBSPOT_URL = "";
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_segments: ["hullSegmentId"]
+    synchronized_account_segments: ["hullSegmentId"]
   }
 };
-const usersSegments = [
+const accountsSegments = [
   {
     name: "testSegment",
     id: "hullSegmentId"
   }
 ];
 
-it("should send out a new hull user to hubspot", () => {
-  const email = "email@email.com";
+it("should send out a new hull account to hubspot", () => {
+  const domain = "hull.io";
   return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
-      channel: "user:update",
+      channel: "account:update",
       externalApiMock: () => {
         const scope = nock("https://api.hubapi.com");
         scope.get("/contacts/v2/groups?includeProperties=true")
           .reply(200, []);
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, []);
-        scope.post("/contacts/v1/contact/batch/?auditId=Hull", [{
+        scope.post("/companies/v1/batch-async/update?auditId=Hull", [{
           "properties": [{
-            "property": "hull_segments",
+            "name": "hull_segments",
             "value": "testSegment"
+          }, {
+            "name": "domain",
+            "value": "hull.io"
           }],
-          "email": "non-existing-property@hull.io"
+          objectId: "companyHubspotId123"
         }, {
           "properties": [{
-            "property": "hull_segments",
+            "name": "hull_segments",
             "value": "testSegment"
+          }, {
+            "name": "domain",
+            "value": "non-existing.com"
           }],
-          "email": "email@email.com"
-        }]).reply(400, require("../fixtures/post-contact-batch-nonexisting-property"));
-
-        scope.post("/contacts/v1/contact/batch/?auditId=Hull", [{
+          objectId: "companyObjectIdNonExisting"
+        }]).reply(400, require("../fixtures/post-companies-update-nonexisting-property"));
+        scope.post("/companies/v1/batch-async/update?auditId=Hull", [{
           "properties": [{
-            "property": "hull_segments",
+            "name": "hull_segments",
             "value": "testSegment"
+          }, {
+            "name": "domain",
+            "value": "hull.io"
           }],
-          "email": "email@email.com"
+          objectId: "companyHubspotId123"
         }]).reply(202);
         return scope;
       },
       connector,
-      usersSegments,
-      accountsSegments: [],
+      usersSegments: [],
+      accountsSegments,
       messages: [
         {
-          user: {
-            email: "non-existing-property@hull.io"
+          account: {
+            domain,
+            "hubspot/id": "companyHubspotId123"
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
         },
         {
-          user: {
-            email
+          account: {
+            domain: "non-existing.com",
+            "hubspot/id": "companyObjectIdNonExisting"
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
         }
       ],
       response: {
@@ -82,23 +92,35 @@ it("should send out a new hull user to hubspot", () => {
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
-        ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 2, "toSkip": 0, "toUpdate": 0}],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 400, "url": "/contacts/v1/contact/batch/" })],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
-        [
-          "error",
-          "outgoing.user.error",
-          expect.objectContaining({
-            "subject_type": "user",
-            "user_email": "non-existing-property@hull.io",
-          }),
-          "Property \"non-existing-property\" does not exist",
-        ],
+        ["debug", "outgoing.job.start", expect.whatever(), { "toInsert": 0, "toSkip": 0, "toUpdate": 2 }],
+        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 400, "url": "/companies/v1/batch-async/update" })],
+        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/companies/v1/batch-async/update" })],
         [
           "info",
-          "outgoing.user.success",
-          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {"email": "email@email.com", "properties": [{"property": "hull_segments", "value": "testSegment"}]}
+          "outgoing.account.success",
+          expect.objectContaining({ "subject_type": "account", "account_domain": domain }),
+          {
+            hubspotWriteCompany: {
+              "properties": [{
+                "name": "hull_segments",
+                "value": "testSegment"
+              }, {
+                "name": "domain",
+                "value": "hull.io"
+              }],
+              objectId: "companyHubspotId123"
+            },
+            operation: "update"
+          }
+        ],
+        [
+          "error",
+          "outgoing.account.error",
+          expect.objectContaining({
+            "account_domain": "non-existing.com",
+            "subject_type": "account",
+          }),
+          "Property \"non-existing-property\" does not exist"
         ]
       ],
       firehoseEvents: [],

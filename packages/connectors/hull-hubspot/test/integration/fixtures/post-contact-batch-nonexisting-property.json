@@ -1,0 +1,17 @@
+{
+  "status": "error",
+  "message": "Errors found processing batch update",
+  "correlationId": "ac4096b2-a40e-47f3-9ae6-70a049e98947",
+  "failureMessages": [
+    {
+      "index": 0,
+      "propertyValidationResult": {
+        "isValid": false,
+        "message": "Property \"non-existing-property\" does not exist",
+        "error": "PROPERTY_DOESNT_EXIST",
+        "name": "non-existing-property"
+      }
+    }
+  ],
+  "requestId": "fe5445de05208abe5718281daf6d2bca"
+}
