@@ -1,6 +1,37 @@
 // @flow
 import type { $Response, NextFunction } from "express";
-import type { HullHandlersConfiguration, HullRequest } from "../../types";
+import type {
+  HullUserUpdateMessage,
+  HullAccountUpdateMessage
+} from "hull-client";
+import type {
+  HullHandlersConfiguration,
+  HullRequest,
+  HullContextFull
+} from "../../types";
+
+type HullUserUpdateHandlerCallback = (
+  ctx: HullContextFull,
+  messages: Array<HullUserUpdateMessage>
+) => Promise<*>;
+type HullAccountUpdateHandlerCallback = (
+  ctx: HullContextFull,
+  messages: Array<HullAccountUpdateMessage>
+) => Promise<*>;
+type HullConnectorUpdateHandlerCallback = (ctx: HullContextFull) => Promise<*>;
+type HullSegmentUpdateHandlerCallback = (ctx: HullContextFull) => Promise<*>;
+
+type Callback =
+  | HullUserUpdateHandlerCallback
+  | HullAccountUpdateHandlerCallback
+  | HullConnectorUpdateHandlerCallback
+  | HullSegmentUpdateHandlerCallback;
+
+type HullNotificationHandlerOptions = {};
+type HullNotificationHandlerConfiguration = HullHandlersConfiguration<
+  Callback,
+  HullNotificationHandlerOptions
+>;
 
 const { Router } = require("express");
 const { normalizeHandlersConfiguration } = require("../../utils");
@@ -27,7 +58,7 @@ const errorMiddleware = require("./error-middleware");
  * }));
  */
 function notificationHandlerFactory(
-  configuration: HullHandlersConfiguration
+  configuration: HullNotificationHandlerConfiguration
 ): Router {
   const router = Router();
   const normalizedConfiguration = normalizeHandlersConfiguration(configuration);

@@ -1,9 +1,15 @@
 /* @flow */
-import type { HullRequest } from "hull";
-import type { $Response, NextFunction } from "express";
+import type { HullContext } from "hull";
 
-function syncOut(req: HullRequest, res: $Response, next: NextFunction) {
-  return req.hull.enqueue("syncOut", { recreate: false }).then(next, next);
+/**
+ * Queue SyncOut and SyncIn jobs here. We cannot guarantee the order
+ * of these operations to be finished since both of them include
+ * requesting userbase extract from Hull API and Mailchimp API.
+ */
+function syncOut(ctx: HullContext) {
+  return ctx.enqueue("syncOut").then(() => {
+    return "ok";
+  });
 }
 
 module.exports = syncOut;

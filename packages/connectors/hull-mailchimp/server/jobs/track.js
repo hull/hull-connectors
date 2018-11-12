@@ -29,7 +29,7 @@ function trackJob(ctx: any) {
       });
     })
     .then(() => {
-      return ctx.helpers.updateSettings({
+      return ctx.helpers.settingsUpdate({
         last_track_at: moment.utc().format()
       });
     });

@@ -129,9 +129,7 @@ class HullConnector {
       this.connectorConfig.notificationValidatorHttpClient = notificationValidatorHttpClient;
     }
 
-    if (timeout) {
-      this.connectorConfig.timeout = timeout;
-    }
+    this.connectorConfig.timeout = timeout || "25s";
 
     if (captureLogs) {
       this.clientConfig.logs = captureLogs;
@@ -198,7 +196,8 @@ class HullConnector {
    */
   startApp(app: $Application) {
     /**
-     * Instrumentation Middleware
+     * Instrumentation Middleware,
+     * this sends all errors to sentry
      */
     app.use(this.instrumentation.stopMiddleware());
 

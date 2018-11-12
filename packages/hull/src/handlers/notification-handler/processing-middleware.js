@@ -10,7 +10,7 @@ const debug = require("debug")("hull-connector:notification-handler");
 const { notificationDefaultFlowControl } = require("../../utils");
 
 function notificationHandlerProcessingMiddlewareFactory(
-  normalizedConfiguration: HullNormalizedHandlersConfiguration
+  normalizedConfiguration: HullNormalizedHandlersConfiguration<*, *>
 ) {
   return function notificationHandlerProcessingMiddleware(
     req: HullRequestFull,

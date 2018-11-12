@@ -2,7 +2,6 @@ const crypto = require("crypto");
 const _ = require("lodash");
 const uri = require("urijs");
 const Promise = require("bluebird");
-const { ConfigurationError } = require("hull/src/errors");
 
 const MailchimpBatchAgent = require("./batch-agent");
 
@@ -36,12 +35,6 @@ class MailchimpAgent {
       .get("/lists/{{listId}}/webhooks")
       .then(response => {
         const { body } = response;
-        if (response.statusCode === 404) {
-          return Promise.reject(
-            new ConfigurationError("Mailchimp list is not present")
-          );
-        }
-        // console.log(response);
         const { webhooks = [] } = body;
         return _.find(webhooks, ({ url = "" }) => {
           return url && url.includes(ship) && url.includes(hostname);

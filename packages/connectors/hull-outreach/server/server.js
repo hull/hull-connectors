@@ -31,8 +31,13 @@ function server(app: $Application, deps: Object): $Application {
   // will take some work to debug....
   app.use(
     "/webhooks",
-    bodyParser.json({ type: "*/*" }),
-    incomingRequestHandler(actions.webhook, { parseCredentialsFromQuery: true })
+    incomingRequestHandler({
+      callback: actions.webhook,
+      options: {
+        parseCredentialsFromQuery: true,
+        bodyParser: "json"
+      }
+    })
   );
 
   app.get(

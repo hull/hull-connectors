@@ -26,6 +26,10 @@ const usersSegments = [
   {
     name: "testSegment",
     id: "hullSegmentId"
+  },
+  {
+    name: "otherTestSegment",
+    id: "hullSegmentIdOther"
   }
 ];
 
@@ -54,7 +58,7 @@ it("should skip user who doesn't match the filter", () => {
           user: {
             email
           },
-          segments: []
+          segments: [usersSegments[1]]
         }
       ],
       response: { flow_control: { "in": 10, "in_time": 30000, "size": 50, "type": "next" } },
@@ -63,7 +67,7 @@ it("should skip user who doesn't match the filter", () => {
           "debug",
           "outgoing.user.start",
           expect.objectContaining({ subject_type: "user", user_email: email }),
-          { changes: {}, events: [], segments: [] }
+          { changes: {}, events: [], segments: ["otherTestSegment"] }
         ],
         ["debug", "outgoing.job.start", expect.whatever(), { messages: 1 }],
         [

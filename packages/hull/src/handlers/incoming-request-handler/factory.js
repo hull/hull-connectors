@@ -1,6 +1,10 @@
 // @flow
 import type { $Response, $Request, NextFunction } from "express";
-import type { HullRequestFull, HullContextFull } from "../../types";
+import type {
+  HullHandlersConfigurationEntry,
+  HullRequestFull,
+  HullContextFull
+} from "../../types";
 
 type HullIncomingRequestHandlerCallback = (
   ctx: HullContextFull,
@@ -8,10 +12,16 @@ type HullIncomingRequestHandlerCallback = (
 ) => Promise<*>;
 type HullIncomingRequestHandlerOptions = {
   disableErrorHandling?: boolean,
-  parseCredentialsFromQuery?: boolean
+  parseCredentialsFromQuery?: boolean,
+  bodyParser: "json" | "urlencoded"
 };
+type HullIncomingRequestHandlerConfigurationEntry = HullHandlersConfigurationEntry<
+  HullIncomingRequestHandlerCallback,
+  HullIncomingRequestHandlerOptions
+>;
 
 const { Router } = require("express");
+const bodyParser = require("body-parser");
 const debug = require("debug")("hull:requests-buffer-handler");
 
 const {
@@ -22,6 +32,7 @@ const {
   haltOnTimedoutMiddleware,
   instrumentationContextMiddleware
 } = require("../../middlewares");
+const { normalizeHandlersConfigurationEntry } = require("../../utils");
 
 /**
  * @param {Object|Function} callback         [description]
@@ -30,17 +41,27 @@ const {
  * @param {number}   options.maxTime [description]
  */
 function IncomingRequestHandlerFactory(
-  callback: HullIncomingRequestHandlerCallback,
-  {
-    disableErrorHandling = false,
-    parseCredentialsFromQuery = false
-  }: HullIncomingRequestHandlerOptions = {}
+  configurationEntry: HullIncomingRequestHandlerConfigurationEntry
 ): Router {
   const router = Router();
+
+  const { callback, options } = normalizeHandlersConfigurationEntry(
+    configurationEntry
+  );
+  const { disableErrorHandling, parseCredentialsFromQuery, bodyParser: bodyParserOption } = options;
 
   if (parseCredentialsFromQuery) {
     router.use(credentialsFromQueryMiddleware()); // parse config from query
   }
+
+  if (bodyParserOption === "json") {
+    router.use(bodyParser.json({ type: "*/*" }));
+  }
+
+  if (bodyParserOption === "urlencoded") {
+    router.use(bodyParser.urlencoded({ extended: true }));
+  }
+
   router.use(timeoutMiddleware());
   router.use(clientMiddleware()); // initialize client, we need configuration to be set already
   router.use(haltOnTimedoutMiddleware());
@@ -52,6 +73,7 @@ function IncomingRequestHandlerFactory(
     res: $Response,
     next: NextFunction
   ) {
+    // $FlowFixMe
     callback(req.hull, req)
       .then(result => {
         const { statusCode = 200 } = result;

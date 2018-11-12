@@ -29,7 +29,7 @@ const usersSegments = [
   }
 ];
 
-it("Missing Mailchimp list", () => {
+it("Api token invalid", () => {
   const email = "email@email.com";
   return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
     return {
@@ -42,7 +42,13 @@ it("Missing Mailchimp list", () => {
       externalApiMock: () => {
         const scope = nock("https://mock.api.mailchimp.com/3.0");
         scope.get("/lists/1/webhooks")
-          .reply(404, {});
+          .reply(401, {
+            type: "http://developer.mailchimp.com/documentation/mailchimp/guides/error-glossary/",
+            title: "API Key Invalid",
+            status: 401,
+            detail: "Your API key may be invalid, or you've attempted to access the wrong datacenter.",
+            instance: "c9e2c425-29d5-4cf9-8a96-2966b53315b6"
+          });
         return scope;
       },
       messages: [
@@ -75,7 +81,7 @@ it("Missing Mailchimp list", () => {
           "webhook.error",
           expect.whatever(),
           {
-            errors: "Mailchimp list is not present",
+            errors: "Invalid API key",
             step: "creating"
           }
         ],
@@ -84,7 +90,7 @@ it("Missing Mailchimp list", () => {
           "outgoing.job.error",
           expect.whatever(),
           {
-            error: "Mailchimp list is not present",
+            error: "Invalid API key",
             stack: expect.any(String),
             type: "notification",
           }

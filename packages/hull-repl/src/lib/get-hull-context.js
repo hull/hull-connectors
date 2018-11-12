@@ -2,8 +2,12 @@ const Promise = require("bluebird");
 const Hull = require("hull");
 const Supply = require("supply");
 const httpMocks = require("node-mocks-http");
-const { contextBaseMiddleware } = require("hull/src/middlewares");
-const { credsFromQueryMiddlewares } = require("hull/src/utils");
+const {
+  contextBaseMiddleware,
+  credentialsFromQueryMiddleware,
+  clientMiddleware,
+  fullContextFetchMiddleware
+} = require("hull/src/middlewares");
 
 async function getHullContext(credentials) {
   const connector = new Hull.Connector({
@@ -29,7 +33,10 @@ async function getHullContext(credentials) {
       clientConfig: connector.clientConfig
     })
   );
-  credsFromQueryMiddlewares().forEach(middleware => supply.use(middleware));
+
+  supply.use(credentialsFromQueryMiddleware());
+  supply.use(clientMiddleware());
+  supply.use(fullContextFetchMiddleware());
   await Promise.fromCallback(callback => {
     supply.each(request, {}, callback);
   });

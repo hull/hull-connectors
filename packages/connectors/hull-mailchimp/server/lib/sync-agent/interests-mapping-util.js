@@ -22,7 +22,7 @@ class InterestsMappingUtil {
     this._interests = null;
   }
 
-  /**
+  /** 4
    * Updates internal segments mapping
    * @param {Object} mapping
    */
@@ -87,7 +87,10 @@ class InterestsMappingUtil {
       return Promise.resolve({ id: interestsCategoryId });
     }
     return this.findHullCategory()
-      .then(category => category || this.createHullCategory())
+      .then(category => {
+        debug("found category?", typeof category, category && category.id);
+        return category || this.createHullCategory();
+      })
       .then(category => {
         if (category && category.id) {
           this.interestsCategoryId = category.id;
