@@ -86,7 +86,8 @@ export type HullSegment = {
 export type HullAccountClaims = $Shape<{
   id: string,
   domain: string,
-  external_id: string
+  external_id: string,
+  anonymous_id: string
 }>;
 
 /**
@@ -265,7 +266,7 @@ export type HullUserUpdateMessage = {|
  */
 export type HullAccountUpdateMessage = {|
   changes: HullUserChanges,
-  segments: Array<HullSegment>, // should be segments or account_segments?
+  account_segments: Array<HullSegment>, // should be segments or account_segments?
   events: Array<HullUserEvent>,
   account: HullAccount
 |};
