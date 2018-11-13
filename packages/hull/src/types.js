@@ -92,7 +92,7 @@ export type HullContextWithClient = {
       $PropertyType<HullConnector, "private_settings">
     ) => Promise<HullConnector>,
     extractRequest: HullHelperExtractRequestOptions => Promise<*>,
-    extractRequest: (
+    incomingClaims: (
       HullEntityType,
       Object
     ) => {
