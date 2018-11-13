@@ -15,6 +15,24 @@ function isInvalid(value: mixed): boolean {
   );
 }
 
+/**
+ * This function builds incoming claims for users and accounts.
+ * It takes `incoming_user_claims` or `incoming_account_claims` setting
+ * from connector `private_settings`.
+ * The struture of the setting is following:
+ * ```
+ * [{
+ *  hull: "nameOfTheHullClaims",
+ *  service: "nameOfThe3rdPartyField",
+ *  required: true
+ * }]
+ * ```
+ * The builder reduce this array using the 3rd object passed in.
+ * In 3 cases it won't return claims but error:
+ * 1. when a required claim is missing or is missing a value
+ * 2. when there is not even a single claim even though all are optional
+ * 3. when there is not correct settings in the connector object
+ */
 function incomingClaims(
   ctx: HullContext,
   entityType: HullEntityType,
