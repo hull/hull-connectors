@@ -48,7 +48,7 @@ class SyncAgent {
 
   metric: Object;
 
-  helpers: Object;
+  helpers: $PropertyType<HullContext, "helpers">;
 
   logger: Object;
 
@@ -281,17 +281,18 @@ class SyncAgent {
     return Promise.all(
       contacts.map(async contact => {
         const traits = this.mappingUtil.getHullUserTraits(contact);
-        const ident = this.mappingUtil.getHullUserIdentFromHubspot(contact);
-        if (!ident.email) {
+        // const ident = this.mappingUtil.getHullUserIdentFromHubspot(contact);
+        const ident = this.helpers.incomingClaims("user", contact);
+        if (ident.error) {
           return this.logger.info("incoming.user.skip", {
             contact,
-            reason: "missing email"
+            reason: ident.error
           });
         }
-        this.logger.debug("incoming.user", { ident, traits });
+        this.logger.debug("incoming.user", { claims: ident.claims, traits });
         let asUser;
         try {
-          asUser = this.hullClient.asUser(ident);
+          asUser = this.hullClient.asUser(ident.claims);
         } catch (error) {
           return this.logger.info("incoming.user.skip", {
             contact,
@@ -303,7 +304,7 @@ class SyncAgent {
           this.connector.private_settings.link_users_in_hull === true &&
           contact.properties.associatedcompanyid
         ) {
-          const linkingClient = this.hullClient.asUser(ident).account({
+          const linkingClient = this.hullClient.asUser(ident.claims).account({
             anonymous_id: `hubspot:${
               contact.properties.associatedcompanyid.value
             }`
@@ -721,24 +722,21 @@ class SyncAgent {
 
   saveCompanies(companies: Array<HubspotReadCompany>): Promise<any> {
     this.logger.debug("saveContacts", companies.length);
-    this.metric.value("ship.incoming.accounts", companies.length);
+    this.metric.increment("ship.incoming.accounts", companies.length);
     return Promise.all(
       companies.map(async company => {
         const traits = this.mappingUtil.getHullAccountTraits(company);
-        const ident = this.mappingUtil.getHullAccountIdentFromHubspot(company);
-        const canFetchAccount = this.filterUtil.filterIncomingAccountIdent(
-          ident
-        );
-        if (canFetchAccount !== true) {
+        const ident = this.helpers.incomingClaims("account", company);
+        if (ident.error) {
           return this.logger.info("incoming.account.skip", {
             company,
-            reason: canFetchAccount
+            reason: ident.error
           });
         }
-        this.logger.debug("incoming.account", { ident, traits });
+        this.logger.debug("incoming.account", { claims: ident.claims, traits });
         let asAccount;
         try {
-          asAccount = this.hullClient.asAccount(ident);
+          asAccount = this.hullClient.asAccount(ident.claims);
         } catch (error) {
           return this.logger.info("incoming.account.skip", {
             company,
@@ -774,7 +772,7 @@ class SyncAgent {
             vids.map(vid => {
               const linkingClient = this.hullClient
                 .asUser({ anonymous_id: `hubspot:${vid}` })
-                .account(ident);
+                .account(ident.claims);
               return linkingClient
                 .traits({})
                 .then(() => {

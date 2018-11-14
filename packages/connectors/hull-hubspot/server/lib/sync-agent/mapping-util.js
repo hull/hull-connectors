@@ -1,7 +1,5 @@
 // @flow
 import type {
-  HullUserClaims,
-  HullAccountClaims,
   HullAccountAttributes,
   HullUserAttributes,
   HullConnector,
@@ -83,10 +81,6 @@ class MappingUtil {
 
   companyIncomingMapping: Array<HubspotCompanyIncomingMapping>;
 
-  incomingAccountIdenHull: string;
-
-  incomingAccountIdentService: string;
-
   constructor({
     connector,
     hullClient,
@@ -122,8 +116,6 @@ class MappingUtil {
     this.companyAttributesOutgoingSettings =
       this.connector.private_settings.outgoing_account_attributes || [];
 
-    this.incomingAccountIdenHull = this.connector.private_settings.incoming_account_ident_hull;
-    this.incomingAccountIdentService = this.connector.private_settings.incoming_account_ident_service;
     this.outgoingLinking = this.connector.private_settings.link_users_in_service;
 
     this.contactOutgoingMapping = this.getContactOutgoingMapping();
@@ -388,80 +380,6 @@ class MappingUtil {
 
   getHullAccountTraitsKeys(): Array<string> {
     return this.companyOutgoingMapping.map(prop => prop.hull_trait_name);
-  }
-
-  /**
-   * Prepares a Hull User resolution object for `hull.as` method.
-   * @param  {Object} hubspotUser
-   * @return {Object}
-   */
-  getHullUserIdentFromHubspot(hubspotUser: HubspotReadContact): HullUserClaims {
-    const ident: HullUserClaims = {};
-
-    const emailIdentity = _.find(
-      _.get(hubspotUser, "identity-profiles[0].identities", []),
-      { type: "EMAIL" }
-    );
-    if (emailIdentity !== undefined) {
-      ident.email = emailIdentity.value;
-    }
-
-    if (_.get(hubspotUser, "properties.email.value")) {
-      ident.email = _.get(hubspotUser, "properties.email.value");
-    }
-
-    if (hubspotUser.vid) {
-      ident.anonymous_id = `hubspot:${hubspotUser.vid}`;
-    }
-    debug("getIdentFromHubspot", ident);
-    return ident;
-  }
-
-  /**
-   * Prepares a Hull User resolution object for `hull.as` method.
-   * @param  {Object} hubspotUser
-   * @return {Object}
-   */
-  getHullAccountIdentFromHubspot(
-    hubspotCompany: HubspotReadCompany
-  ): HullAccountClaims {
-    const ident: HullAccountClaims = {};
-
-    // if we have external_id selected we do external_id AND domain
-    // otherwise we do only `domain` which is the only other option
-    // for the setting
-    if (this.incomingAccountIdenHull === "external_id") {
-      const hubspotIdentValue =
-        hubspotCompany.properties[this.incomingAccountIdentService] &&
-        hubspotCompany.properties[this.incomingAccountIdentService].value;
-      if (
-        hubspotIdentValue !== undefined &&
-        hubspotIdentValue !== null &&
-        typeof hubspotIdentValue === "string" &&
-        hubspotIdentValue.trim() !== ""
-      ) {
-        ident[this.incomingAccountIdenHull] = hubspotIdentValue;
-      }
-    }
-
-    const domainIdentity =
-      hubspotCompany.properties.domain &&
-      hubspotCompany.properties.domain.value;
-
-    if (
-      domainIdentity !== undefined &&
-      domainIdentity !== null &&
-      typeof domainIdentity === "string" &&
-      domainIdentity.trim() !== ""
-    ) {
-      ident.domain = domainIdentity;
-    }
-
-    if (hubspotCompany.companyId) {
-      ident.anonymous_id = `hubspot:${hubspotCompany.companyId}`;
-    }
-    debug("getIdentFromHubspot", ident);
-    return ident;
   }
 
   getHullAccountTraits(accountData: HubspotReadCompany): HullAccountAttributes {

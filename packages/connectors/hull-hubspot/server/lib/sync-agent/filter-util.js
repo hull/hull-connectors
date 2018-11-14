@@ -1,5 +1,5 @@
 // @flow
-import type { HullConnector, HullContext, HullAccountClaims } from "hull";
+import type { HullConnector, HullContext } from "hull";
 import type {
   FilterUtilResults,
   HubspotUserUpdateMessageEnvelope,
@@ -128,23 +128,6 @@ class FilterUtil {
       return filterUtilResults.toInsert.push(envelope);
     });
     return filterUtilResults;
-  }
-
-  filterIncomingAccountIdent(accountIdent: HullAccountClaims): true | string {
-    const valueToTest =
-      accountIdent && accountIdent[this.incomingAccountIdentHull];
-    if (
-      valueToTest !== undefined &&
-      valueToTest !== null &&
-      valueToTest.trim() !== ""
-    ) {
-      return true;
-    }
-    return `The Hubspot company does not have a ${
-      this.incomingAccountIdentService
-    } defined. Please define a ${
-      this.incomingAccountIdentService
-    } in Hubspot for this company in order for it to be imported"`;
   }
 }
 

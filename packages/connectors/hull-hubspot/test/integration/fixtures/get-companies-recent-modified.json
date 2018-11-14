@@ -5,6 +5,299 @@
       "companyId": 19411477,
       "isDeleted": false,
       "properties": {
+        "domain": {
+          "value": "foo.com"
+        },
+        "hs_analytics_num_visits": {
+          "value": "0",
+          "timestamp": 1419968066626,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "hs_analytics_num_visits",
+              "value": "0",
+              "timestamp": 1419968066626,
+              "sourceVid": []
+            }
+          ]
+        },
+        "first_deal_created_date": {
+          "value": "1419966041287",
+          "timestamp": 1419966041656,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "first_deal_created_date",
+              "value": "1419966041287",
+              "timestamp": 1419966041656,
+              "sourceVid": []
+            }
+          ]
+        },
+        "hs_lastmodifieddate": {
+          "value": "1419968097561",
+          "timestamp": 1419968097561,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "hs_lastmodifieddate",
+              "value": "1419968097561",
+              "timestamp": 1419968097561,
+              "sourceVid": []
+            }
+          ]
+        },
+        "recent_deal_close_date": {
+          "value": "1415689200000",
+          "timestamp": 1419966061962,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "recent_deal_close_date",
+              "value": "1415689200000",
+              "timestamp": 1419966061962,
+              "sourceVid": []
+            }
+          ]
+        },
+        "recent_deal_amount": {
+          "value": "5000",
+          "timestamp": 1419966061962,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "recent_deal_amount",
+              "value": "5000",
+              "timestamp": 1419966061962,
+              "sourceVid": []
+            }
+          ]
+        },
+        "closedate": {
+          "value": "1415682000000",
+          "timestamp": 1419968066626,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "closedate",
+              "value": "1415682000000",
+              "timestamp": 1419968066626,
+              "sourceVid": []
+            }
+          ]
+        },
+        "createdate": {
+          "value": "1419966010576",
+          "timestamp": 1419966010576,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "createdate",
+              "value": "1419966010576",
+              "timestamp": 1419966010576,
+              "sourceVid": []
+            }
+          ]
+        },
+        "hubspot_owner_assigneddate": {
+          "value": "1419966010576",
+          "timestamp": 1419966010576,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "hubspot_owner_assigneddate",
+              "value": "1419966010576",
+              "timestamp": 1419966010576,
+              "sourceVid": []
+            }
+          ]
+        },
+        "first_contact_createdate": {
+          "value": "1419965931323",
+          "timestamp": 1419968066626,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "first_contact_createdate",
+              "value": "1419965931323",
+              "timestamp": 1419968066626,
+              "sourceVid": []
+            }
+          ]
+        },
+        "lifecyclestage": {
+          "value": "customer",
+          "timestamp": 1419966061791,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "lifecyclestage",
+              "value": "customer",
+              "timestamp": 1419966061791,
+              "sourceVid": []
+            }
+          ]
+        },
+        "total_revenue": {
+          "value": "5000",
+          "timestamp": 1419966061962,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "total_revenue",
+              "value": "5000",
+              "timestamp": 1419966061962,
+              "sourceVid": []
+            }
+          ]
+        },
+        "hs_analytics_source": {
+          "value": "OFFLINE",
+          "timestamp": 1419968066626,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "hs_analytics_source",
+              "value": "OFFLINE",
+              "timestamp": 1419968066626,
+              "sourceVid": []
+            }
+          ]
+        },
+        "hs_analytics_num_page_views": {
+          "value": "0",
+          "timestamp": 1419968066626,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "hs_analytics_num_page_views",
+              "value": "0",
+              "timestamp": 1419968066626,
+              "sourceVid": []
+            }
+          ]
+        },
+        "hs_analytics_first_timestamp": {
+          "value": "1419965931323",
+          "timestamp": 1419968066626,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "hs_analytics_first_timestamp",
+              "value": "1419965931323",
+              "timestamp": 1419968066626,
+              "sourceVid": []
+            }
+          ]
+        },
+        "name": {
+          "value": "madison Inc",
+          "timestamp": 1419966010576,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "name",
+              "value": "madison Inc",
+              "timestamp": 1419966010576,
+              "sourceVid": []
+            }
+          ]
+        },
+        "num_associated_contacts": {
+          "value": "1",
+          "timestamp": 1419966011133,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "num_associated_contacts",
+              "value": "1",
+              "timestamp": 1419966011133,
+              "sourceVid": []
+            }
+          ]
+        },
+        "hubspot_owner_id": {
+          "value": "70",
+          "timestamp": 1419966010576,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "hubspot_owner_id",
+              "value": "70",
+              "timestamp": 1419966010576,
+              "sourceVid": []
+            }
+          ]
+        },
+        "num_associated_deals": {
+          "value": "1",
+          "timestamp": 1419966041656,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "num_associated_deals",
+              "value": "1",
+              "timestamp": 1419966041656,
+              "sourceVid": []
+            }
+          ]
+        },
+        "hs_analytics_source_data_2": {
+          "value": "",
+          "timestamp": 1419968066626,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "hs_analytics_source_data_2",
+              "value": "",
+              "timestamp": 1419968066626,
+              "sourceVid": []
+            }
+          ]
+        },
+        "hs_analytics_source_data_1": {
+          "value": "API",
+          "timestamp": 1419968066626,
+          "source": null,
+          "sourceId": null,
+          "versions": [
+            {
+              "name": "hs_analytics_source_data_1",
+              "value": "API",
+              "timestamp": 1419968066626,
+              "sourceVid": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "portalId": 62500,
+      "companyId": 10411477,
+      "isDeleted": false,
+      "properties": {
+        "domain": {
+          "value": ""
+        },
         "hs_analytics_num_visits": {
           "value": "0",
           "timestamp": 1419968066626,

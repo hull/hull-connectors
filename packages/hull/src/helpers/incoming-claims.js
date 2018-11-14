@@ -2,10 +2,12 @@
 import type { HullEntityType, HullEntityClaims } from "hull-client";
 import type { HullContext } from "../types";
 
-type incomingClaimsResult = {
+type IncomingClaimsResult = {
   claims?: HullEntityClaims,
   error?: string
 };
+
+const _ = require("lodash");
 
 function isInvalid(value: mixed): boolean {
   return (
@@ -37,7 +39,7 @@ function incomingClaims(
   ctx: HullContext,
   entityType: HullEntityType,
   objectToTransform: Object
-): incomingClaimsResult {
+): IncomingClaimsResult {
   try {
     const settingName = `incoming_${entityType}_claims`;
     if (
@@ -56,7 +58,9 @@ function incomingClaims(
       if (!entry.hull || !entry.service) {
         return claims;
       }
-      if (isInvalid(objectToTransform[entry.service])) {
+      // we need to use lodash to support nested properties
+      const valueFromObject: mixed = _.get(objectToTransform, entry.service);
+      if (isInvalid(valueFromObject)) {
         if (entry.required === true) {
           throw new Error(
             `Value of field "${entry.service}" is empty, cannot map it to ${
@@ -66,7 +70,7 @@ function incomingClaims(
         }
         return claims;
       }
-      claims[entry.hull] = objectToTransform[entry.service];
+      claims[entry.hull] = valueFromObject;
       return claims;
     }, {});
     if (Object.keys(readyClaims).length === 0) {
