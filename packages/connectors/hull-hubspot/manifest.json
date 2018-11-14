@@ -56,6 +56,41 @@
       }
     },
     {
+      "name": "incoming_user_claims",
+      "title": "Incoming user identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hull": {
+            "title": "Hull User Ident",
+            "enum": ["external_id", "email"],
+          },
+          "service": {
+            "title": "Hubspot Field ID",
+            "type": "string",
+            "format": "select",
+            "options" : {
+              "allowCreate": true,
+              "loadOptions": "/schema/contact_properties"
+            }
+          },
+          "required" : {
+            "type": "boolean",
+            "title": "required?"
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "email",
+          "service": "email",
+          "required": true
+        }
+      ]
+    },
+    {
       "name": "sync_fields_to_hull",
       "title": "Custom Fields Sync (Hubspot to Hull)",
       "type": "array",
@@ -142,6 +177,42 @@
       "format": "title",
       "type": "string"
     },
+    {
+      "name": "incoming_account_claims",
+      "title": "Incoming account identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hull": {
+            "title": "Hull Account",
+            "enum": ["external_id", "domain"],
+          },
+          "service": {
+            "title": "Hubspot Field ID",
+            "type": "string",
+            "format": "select",
+            "options" : {
+              "allowCreate": true,
+              "loadOptions": "/schema/company_properties"
+            }
+          },
+          "required" : {
+            "type": "boolean",
+            "title": "required?"
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "domain",
+          "service": "domain",
+          "required": true
+        }
+      ]
+    },
+
     {
       "name": "incoming_account_ident_service",
       "title": "Unique account identifier in Hubspot",
