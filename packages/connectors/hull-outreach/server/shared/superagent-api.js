@@ -3,7 +3,8 @@ import type { RawRestApi } from "./types";
 import type { HullClientLogger, HullMetrics, HullContext } from "hull";
 
 const { Client } = require("hull");
-const { doVariableReplacement } = require("./utils");
+const { doVariableReplacement } = require("./variable-utils");
+const { HullConnectorEngine } = require("./engine");
 
 const _ = require("lodash");
 
@@ -27,8 +28,9 @@ class SuperagentApi {
   loggerClient: HullClientLogger;
   connectorHostname: string;
   settingsUpdate: Object;
+  engine: HullConnectorEngine;
 
-  constructor(reqContext: Object, api: RawRestApi) {
+  constructor(reqContext: Object, api: RawRestApi, engine: HullConnectorEngine) {
     this.reqContext = reqContext;
     this.api = api;
     this.loggerClient = reqContext.client.logger;
@@ -54,8 +56,6 @@ class SuperagentApi {
     _.forEach(superAgentSettings, (value) => {
       const method = doVariableReplacement(reqContext, value.method);
       const params = doVariableReplacement(reqContext, value.params);
-      console.log("Method: " + method);
-      console.log("Params: " + params);
       this.agent[method](params);
     });
 
@@ -76,46 +76,15 @@ class SuperagentApi {
     }
   }
 
-  /**
-   * This is a wrapper which we can use to handle http errors
-   * can be used for timeouts, token refreshes etc...
-   *
-   * @param {Promise} promise
-   */
-  agentErrorHandler(promise: () => Promise<mixed>): Promise<*> {
-    return promise().catch(error => {
-
-      if (error.status === 401) {
-        if (_.isEmpty(this.accessToken)) {
-          this.loggerClient.error(
-            "Not authorized with Outreach yet, please authenticate with Outreach using the Credentials button on the settings page"
-          );
-        } else {
-          this.loggerClient.error(
-            "API AccessToken no longer valid, please authenticate with Outreach again using the Credentials button on the settings page"
-          );
-        }
-      } else {
-        this.loggerClient.error(
-          `Received ${
-            error.status
-          } Error code while connecting with the Outreach API, please contact Hull support`
-        );
-        this.loggerClient.debug(
-          `Received ${
-            error.status
-          } Error code while connecting with the Outreach API, please contact Hull support, ${JSON.stringify(
-            error
-          )}`
-        );
-      }
-    })
-  }
-
   async dispatch(endpointName: string, params: any) {
     this.metricsClient.increment("ship.service_api.call", 1);
 
     const endpoint = this.api.endpoints[endpointName];
+
+    if (_.isEmpty(endpoint)) {
+      debug(`Superagent endpoint does not exists: ${endpointName}`)
+      return null;
+    }
 
     let agentPromise = this.agent[endpoint.operation](endpoint.url);
 

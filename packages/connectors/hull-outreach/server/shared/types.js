@@ -80,7 +80,8 @@ export type CustomApi = {
 export type Connector = {
   glue: Object,
   service: RawRestApi,
-  transformations: Array<Transform>
+  transformations: Array<Transform>,
+  ensure: string;
 };
 
 // // Takes hull objects, transforms them using transforms-to-service

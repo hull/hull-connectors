@@ -8,7 +8,7 @@ const {
   set,
   get,
   filter,
-  updateSettings,
+  utils,
   Cond,
   Svc
 } = require("./shared/language")
@@ -22,6 +22,23 @@ function outreachSend(op: string, data: any): Svc { return new Svc("outreach", o
 // Think about objects (class defs) vs pipes (type defs)
 // Objects don't just define a shape, they're a specific type that must be translated
 // where as pipes (transforms and endpoints) just define behaviors
+
+const webhookDataTemplate = {
+      data: {
+        type: "webhook",
+        attributes: {
+          url: "${webhookUrl}"
+        }
+      }
+    };
+
+const refreshTokenDataTemplate = {
+  refresh_token: "${connector.private_settings.refresh_token}",
+  client_id: process.env.CLIENT_ID,
+  client_secret: process.env.CLIENT_SECRET,
+  redirect_uri: "https://${connectorHostname}/auth/callback",
+  grant_type: "refresh_token"
+}
 
 const glue = {
   userUpdateStart: {
@@ -81,37 +98,46 @@ const glue = {
     false: hull("asAccount", outreachSend("endpointType:create", "account"))
   },
 
-  accountLastSyncFetch:
-    [set("lastsync", "${connector.private_settings.lastSync}"), route("accountFetch")],
-  accountFetch: {
-    if: cond("notEmpty", "${lastsync}"),
-    true: [updateSettings("lastSync", "${NOW}"), "accountFetchAll" ],
-    false: route("accountFetchByLastSync")
-  },
+  fetchAll: [route("accountFetchAll"), route("prospectFetchAll")],
   accountFetchAll: hull("asAccount", outreachQuery("getAllAccounts")),
-  accountFetchByLastSync: hull("asAccount", outreachQuery("endpointType:byProperty", "lastSync=${lastSync}")),
-
   prospectFetchAll: hull("asUser", outreachQuery("getAllProspects")),
-  fetchAll: [route("accountFetchAll"), route("userFetchAll")],
 
-  ensureWebhook: {
-    if: cond("isEmpty", "${connector.private_settings.webhookId}"),
+  ensureWebhooks: {
+    if: cond("isEmpty", "${connector.private_settings.webhook_id}"),
     true: [
-    set("webhookUrl", "${utils.webhookUrl}"),
-    {
-      if: cond("isEmpty", filter(outreachQuery("getAllWebhooks"), ["webhook.attributes.url", "${webhookUrl}"])),
-      true: {},
-      false: updateSettings(["webhookId",
-        get(
-          outreachSend("insertWebhook", {
-            data: {
-              type: "webhook",
-              attributes: {
-                url: "${webhookUrl}"
-              }
-            }
-          }), "id")])
-    }]
+      set("webhookUrl", utils("createWebhookUrl")),
+      {
+        if: cond("isEmpty", filter(outreachQuery("getAllWebhooks"), { type: "webhook", attributes: { url: "${webhookUrl}" } })),
+        true: [
+          set("webhookId", get(outreachSend("insertWebhook", webhookDataTemplate), "id")),
+          hull("settingsUpdate", { webhook_id:  "${webhookId}" })
+        ],
+        false: {}
+      }
+    ]
+  },
+  refreshToken: {
+    if: cond("notEmpty", "${connector.private_settings.refresh_token}"),
+    true: [
+      set("connectorHostname", utils("getConnectorHostname")),
+      set("refreshTokenResponse", outreachSend("refreshToken", refreshTokenDataTemplate)),
+      {
+        if: (cond("notEmpty", get("refreshTokenResponse.access_token"))),
+        true: [
+          set("connector.private_settings.expires_in", "${refreshTokenResponse.expires_in}"),
+          set("connector.private_settings.created_at", "${refreshTokenResponse.created_at}"),
+          set("connector.private_settings.refresh_token", "${refreshTokenResponse.refresh_token}"),
+          set("connector.private_settings.access_token", "${refreshTokenResponse.access_token}"),
+          hull("settingsUpdate", {
+                        "expires_in": "${refreshTokenResponse.expires_in}",
+                        "created_at": "${refreshTokenResponse.created_at}",
+                        "refresh_token": "${refreshTokenResponse.refresh_token}",
+                        "access_token": "${refreshTokenResponse.access_token}"})
+        ],
+        false: {}
+      }
+    ],
+    false: {}
   }
 
 };

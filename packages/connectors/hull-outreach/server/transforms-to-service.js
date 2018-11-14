@@ -1,12 +1,12 @@
 /* @flow */
 import type { Transform, ServiceTransforms } from "./shared/types";
 
-const { HullServiceUser, HullServiceAccount } = require("./shared/hull-service-objects");
+const { HullOutgoingUser, HullOutgoingAccount } = require("./shared/hull-service-objects");
 const { OutreachProspectWrite, OutreachAccountWrite } = require("./service-objects");
 
 const transformsToService: ServiceTransforms = [
   {
-    input: HullServiceUser,
+    input: HullOutgoingUser,
     output: OutreachProspectWrite,
     strategy: "PropertyKeyedValue",
     template: {
@@ -14,7 +14,20 @@ const transformsToService: ServiceTransforms = [
         { type: "prospect" }
       ],
       directmap: [
-        { input: "outreach/id", output: "id" }
+        { input: "outreach/id", output: "id" },
+        {
+          input: "account.outreach/id",
+          output: {
+            relationships: {
+              account: {
+                data: {
+                  type: "account",
+                  id: "${account.outreach/id}"
+                }
+              }
+            }
+          }
+        },
       ],
       keyedGroups: [{
         output: "attributes",
@@ -24,7 +37,7 @@ const transformsToService: ServiceTransforms = [
     }
   },
   {
-    input: HullServiceAccount,
+    input: HullOutgoingAccount,
     output: OutreachAccountWrite,
     strategy: "PropertyKeyedValue",
     template: {

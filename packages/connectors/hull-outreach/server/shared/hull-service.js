@@ -8,8 +8,9 @@ const { Client } = require("hull");
 const _ = require("lodash");
 
 const {
-  HullServiceUser,
-  HullServiceAccount
+  HullIncomingUser,
+  HullIncomingAccount,
+  HullSettings
 } = require("./hull-service-objects");
 
 // should be a generically instantiated class which take
@@ -22,12 +23,14 @@ class HullSdk {
   api: CustomApi;
   metricsClient: MetricAgent;
   loggerClient: HullClientLogger;
+  helpers: Object;
 
   constructor(reqContext: HullContext, api: CustomApi) {
     this.client = reqContext.client;
     this.api = api;
     this.loggerClient = reqContext.client.logger;
     this.metricsClient = reqContext.metric;
+    this.helpers = reqContext.helpers;
   }
 
   async dispatch(endpointName: string, params: any) {
@@ -40,7 +43,7 @@ class HullSdk {
       }
   }
 
-  receiveHullServiceUser(user: HullServiceUser) {
+  upsertHullUser(user: HullIncomingUser) {
     // Logs etc...
     const asUser = this.client.asUser(user.ident);
 
@@ -55,9 +58,13 @@ class HullSdk {
     return userPromise;
   }
 
-  receiveHullServiceAccount(account: HullServiceAccount) {
+  upsertHullAccount(account: HullIncomingAccount) {
     // Logs etc..
     return this.client.asAccount(account.ident).traits(account.attributes);
+  }
+
+  connectorSettingsUpdate(settings: HullSettings) {
+    return this.helpers.settingsUpdate(settings);
   }
 }
 
@@ -68,15 +75,19 @@ const hullService: CustomApi = {
   error: {},
   endpoints: {
     asUser: {
-      method: "receiveHullServiceUser",
+      method: "upsertHullUser",
       endpointType: "upsert",
-      input: HullServiceUser
+      input: HullIncomingUser
     },
     asAccount: {
-      method: "receiveHullServiceAccount",
+      method: "upsertHullAccount",
       endpointType: "upsert",
-      input: HullServiceAccount
-    }
+      input: HullIncomingAccount
+    },
+    settingsUpdate: {
+      method: "connectorSettingsUpdate",
+      endpointType: "upsert"
+    },
   }
 };
 

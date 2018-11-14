@@ -2,8 +2,8 @@
 import type { ServiceTransforms } from "./shared/types";
 
 const {
-  HullServiceUser,
-  HullServiceAccount
+  HullIncomingUser,
+  HullIncomingAccount
 } = require("./shared/hull-service-objects");
 
 const {
@@ -20,7 +20,7 @@ const transformsToHull: ServiceTransforms =
   [
     {
       input: OutreachProspectRead,
-      output: HullServiceUser,
+      output: HullIncomingUser,
       strategy: "PropertyKeyedValue",
       template: {
         directmap: [
@@ -43,7 +43,7 @@ const transformsToHull: ServiceTransforms =
     },
     {
       input: OutreachAccountRead,
-      output: HullServiceAccount,
+      output: HullIncomingAccount,
       strategy: "PropertyKeyedValue",
       template: {
         directmap: [

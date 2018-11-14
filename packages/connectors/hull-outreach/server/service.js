@@ -96,17 +96,21 @@ const service: RawRestApi = {
       input: OutreachProspectWrite,
       output: OutreachProspectRead
     },
-    getWebhookByUrl: {
+    getAllWebhooks: {
       url: "/webhooks/",
       operation: "get",
-      query: "filter[url]=${webhookUrl}",
-      endpointType: "byProperty"
+      endpointType: "fetchAll",
+      returnObj: "body.data"
     },
     insertWebhook: {
       url: "/webhooks/",
       operation: "post",
-      endpointType: "create",
-      input: OutreachWebhookWrite
+      endpointType: "create"
+    },
+    refreshToken: {
+      url: "https://api.outreach.io/oauth/token",
+      operation: "post",
+      endpointType: "create"
     },
   },
   superagent: {

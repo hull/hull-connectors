@@ -3,7 +3,8 @@ import type { HullContext } from "hull";
 
 import type { ServiceTransforms } from "./types";
 
-const { doVariableReplacement } = require("./utils");
+const { doVariableReplacement } = require("./variable-utils");
+const debug = require("debug")("hull-shared:TransformImpl");
 
 const _ = require("lodash");
 
@@ -15,6 +16,11 @@ class TransformImpl {
   }
 
   transform(reqContext: HullContext, input: Object, inputClass: Class<any>, outputClass: Class<any>) {
+
+    if (inputClass === undefined || inputClass === null) {
+      return doVariableReplacement(reqContext, input);
+    }
+
     const transformation = _.find(this.transforms, transform => {
       // find the transformation that outputs what this endpoint needs as input
       // TODO need to capture the concept of the type of class incoming
@@ -27,7 +33,7 @@ class TransformImpl {
 
     if (transformation === undefined) {
       //throw new Error(`Transformation for ${inputClass} to: ${outputClass} not found`);
-      console.log("Couldn't find transformation for: " + inputClass + " and " + outputClass);
+      debug("Couldn't find transformation for: " + inputClass + " and " + outputClass);
       return input;
     }
 
@@ -62,16 +68,22 @@ class TransformImpl {
       if (!_.isEmpty(directTransformations)) {
         _.forEach(directTransformations, (transformation) => {
 
-          const context = _.merge({}, globalContext);
+          const context = _.merge(input, globalContext);
           const inputKey = doVariableReplacement(context, transformation.input);
           context.inKey = inputKey;
 
-          const obj = _.get(input, inputKey);
+          let obj = _.get(input, inputKey);
 
           if (obj !== undefined) {
             context.value = obj;
             const outputKey = doVariableReplacement(context, transformation.output);
-            _.set(output, outputKey, obj);
+
+            if (_.isObject(outputKey)) {
+              _.merge(output, outputKey);
+            } else {
+              _.set(output, outputKey, obj);
+            }
+
           }
         });
       }

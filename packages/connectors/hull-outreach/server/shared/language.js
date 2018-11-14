@@ -1,35 +1,41 @@
 /* @flow */
 
-class Route {
+class HullInstruction {
   type: string;
-
   name: string;
-
-  constructor(name: string) {
-    this.type = "route";
+  constructor(type: string, name: string) {
+    this.type = type;
     this.name = name;
   }
 }
 
-class Cond {
-  type: string;
+class Route extends HullInstruction {
+  constructor(name: string) {
+    super("route", name);
+  }
+}
 
-  name: string;
+class Op extends HullInstruction {
 
   params: any;
 
   constructor(name: string, params: any) {
-    this.type = "condition";
-    this.name = name;
+    super("operation", name);
     this.params = params;
   }
 }
 
-class Svc {
-  type: string;
+class Cond extends HullInstruction {
 
-  name: string;
+  params: any;
 
+  constructor(name: string, params: any) {
+    super("conditional", name);
+    this.params = params;
+  }
+}
+
+class Svc extends HullInstruction {
   op: string;
 
   query: any;
@@ -37,24 +43,9 @@ class Svc {
   params: any;
 
   constructor(name: string, op: string, query: any, params: any) {
-    this.type = "service";
-    this.name = name;
+    super("service", name);
     this.op = op;
     this.query = query;
-    this.params = params;
-  }
-}
-
-class Op {
-  type: string;
-
-  name: string;
-
-  params: any;
-
-  constructor(name: string, params: any) {
-    this.type = "operation";
-    this.name = name;
     this.params = params;
   }
 }
@@ -74,14 +65,15 @@ function set(key: any, value: any) {
 function get(obj: any, key: any) {
   return new Op("get", [ obj, key ]);
 }
-function updateSettings(key: any, value: any) {
-  return new Op("updateSettings", [ key, value ]);
-}
 function filter(key: any, value: any) {
   return new Op("filter", [ key, value ]);
 }
+function utils(utilMethod: string, param: any) {
+  return new Op("utils", [utilMethod, param]);
+}
 
 module.exports = {
+  HullInstruction,
   Route,
   Cond,
   Svc,
@@ -92,5 +84,5 @@ module.exports = {
   set,
   get,
   filter,
-  updateSettings
+  utils
 };

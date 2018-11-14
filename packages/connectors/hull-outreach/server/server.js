@@ -42,7 +42,8 @@ function server(app: $Application, deps: Object): $Application {
   const engine: HullConnectorEngine = new HullConnectorEngine(
     glue,
     {hull: hullService, outreach: service},
-    _.concat(transformsToHull, transformsToService));
+    _.concat(transformsToHull, transformsToService),
+    "ensureWebhooks");
 
 
 /**

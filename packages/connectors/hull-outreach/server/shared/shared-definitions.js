@@ -14,7 +14,7 @@ const definitions = {
   ],
   accountFetch: {
     if: cond("NonEmpty", "${lastsync}"),
-    true: [updateSettings("connector.private_settings.lastSync", "${NOW}"), "accountFetchAll" ],
+    true: [hull("settingsUpdate", { "connector.private_settings.lastSync": "${NOW}" }), "accountFetchAll" ],
     false: "accountFetchByLastSync"
   },
   accountFetchAll: hull(svc("endpointType:getAll")),

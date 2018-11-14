@@ -8,7 +8,7 @@ import type {
 
 const _ = require("lodash");
 
-class HullServiceUser {
+class HullIncomingUser {
   ident: HullUserClaims;
 
   attributes: HullUserAttributes;
@@ -20,14 +20,32 @@ class HullServiceUser {
 
 }
 
-class HullServiceAccount {
-  ident: HullAccountClaims;
+class HullOutgoingUser {
+  //flat data struct with certain ident fields
+  email: string;
+  anonymous_ids: Array<String>;
+  external_ids: Array<String>;
+}
 
-  attributes: HullUserAttributes;
+class HullIncomingAccount {
+  ident: HullAccountClaims;
+  attributes: HullAccountAttributes;
+}
+
+class HullOutgoingAccount {
+  domain: string;
+  anonymous_ids: Array<String>;
+  external_ids: Array<String>;
+}
+
+class HullSettings {
 
 }
 
 module.exports = {
-  HullServiceUser,
-  HullServiceAccount
+  HullIncomingUser,
+  HullIncomingAccount,
+  HullOutgoingUser,
+  HullOutgoingAccount,
+  HullSettings
 };
