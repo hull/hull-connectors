@@ -65,7 +65,7 @@
         "properties": {
           "hull": {
             "title": "Hull User Ident",
-            "enum": ["external_id", "email"],
+            "enum": ["external_id", "email"]
           },
           "service": {
             "title": "Hubspot Field ID",
@@ -119,6 +119,13 @@
           }
         }
       }
+    },
+    {
+      "name": "fetch_accounts",
+      "title": "Fetch accounts?",
+      "description": "If this checkbox is disabled we won't get any account in",
+      "type": "boolean",
+      "default": false
     },
     {
       "name": "outgoing_account_title",
@@ -187,7 +194,7 @@
         "properties": {
           "hull": {
             "title": "Hull Account",
-            "enum": ["external_id", "domain"],
+            "enum": ["external_id", "domain"]
           },
           "service": {
             "title": "Hubspot Field ID",
@@ -212,7 +219,6 @@
         }
       ]
     },
-
     {
       "name": "incoming_account_ident_service",
       "title": "Unique account identifier in Hubspot",

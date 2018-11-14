@@ -60,10 +60,7 @@ class SyncAgent {
 
   isBatch: boolean;
 
-  settingsUpdate: $PropertyType<
-    $PropertyType<HullContext, "helpers">,
-    "settingsUpdate"
-  >;
+  fetchAccounts: boolean;
 
   constructor(ctx: HullContext) {
     const {
@@ -87,7 +84,7 @@ class SyncAgent {
     this.hubspotClient = new HubspotClient(ctx);
     this.progressUtil = new ProgressUtil(ctx);
     this.filterUtil = new FilterUtil(ctx);
-    this.settingsUpdate = ctx.helpers.settingsUpdate;
+    this.fetchAccounts = ctx.connector.private_settings.fetch_accounts;
   }
 
   isInitialized(): boolean {
@@ -553,7 +550,7 @@ class SyncAgent {
       stopFetchAt,
       propertiesToFetch
     });
-    await this.settingsUpdate({
+    await this.helpers.settingsUpdate({
       last_fetch_at: stopFetchAt
     });
 
@@ -651,7 +648,7 @@ class SyncAgent {
       stopFetchAt,
       propertiesToFetch
     });
-    await this.settingsUpdate({
+    await this.helpers.settingsUpdate({
       companies_last_fetch_at: stopFetchAt
     });
 
@@ -721,6 +718,9 @@ class SyncAgent {
   }
 
   saveCompanies(companies: Array<HubspotReadCompany>): Promise<any> {
+    if (this.fetchAccounts !== true) {
+      return Promise.resolve();
+    }
     this.logger.debug("saveContacts", companies.length);
     this.metric.increment("ship.incoming.accounts", companies.length);
     return Promise.all(

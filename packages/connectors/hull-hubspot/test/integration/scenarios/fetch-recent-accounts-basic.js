@@ -15,7 +15,8 @@ const connector = {
       service: "properties.domain.value",
       hull: "domain",
       required: true
-    }]
+    }],
+    fetch_accounts: true
   }
 };
 
@@ -147,6 +148,7 @@ it("should fetch recent companies using settings", () => {
           {
             "private_settings": {
               "companies_last_fetch_at": expect.whatever(),
+              "fetch_accounts": true,
               "incoming_account_claims": [
                 {
                   "hull": "domain",
