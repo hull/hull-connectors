@@ -14,9 +14,7 @@ const {
   PORT = 8082,
   OVERRIDE_FIREHOSE_URL,
   CLIENT_ID,
-  CLIENT_SECRET,
-  SERVER,
-  COMBINED
+  CLIENT_SECRET
 } = process.env;
 
 if (!CLIENT_ID || !CLIENT_SECRET) {
@@ -47,8 +45,5 @@ const connector = new Hull.Connector({
 });
 
 connector.setupApp(app);
-
-if (SERVER || COMBINED) {
-  server(app);
-  connector.startApp(app);
-}
+server(app);
+connector.startApp(app);

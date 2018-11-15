@@ -4,6 +4,7 @@ module.exports.fetchAllCompanies = require("./fetch-all-companies");
 module.exports.fetch = require("./fetch");
 module.exports.fetchRecentCompanies = require("./fetch-recent-companies");
 module.exports.getContactProperties = require("./get-contact-properties");
+module.exports.getIncomingUserClaims = require("./get-incoming-user-claims");
 module.exports.getCompanyProperties = require("./get-company-properties");
 module.exports.oauth = require("./oauth");
 module.exports.statusCheck = require("./status-check");

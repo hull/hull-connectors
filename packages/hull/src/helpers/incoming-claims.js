@@ -7,7 +7,7 @@ type IncomingClaimsResult = {
   error?: string
 };
 
-const _ = require("lodash");
+const jp = require("jsonpath");
 
 function isInvalid(value: mixed): boolean {
   return (
@@ -38,7 +38,8 @@ function isInvalid(value: mixed): boolean {
 function incomingClaims(
   ctx: HullContext,
   entityType: HullEntityType,
-  objectToTransform: Object
+  objectToTransform: Object,
+  options?: { anonymous_id_prefix?: string, anonymous_id_service: string }
 ): IncomingClaimsResult {
   try {
     const settingName = `incoming_${entityType}_claims`;
@@ -58,8 +59,13 @@ function incomingClaims(
       if (!entry.hull || !entry.service) {
         return claims;
       }
-      // we need to use lodash to support nested properties
-      const valueFromObject: mixed = _.get(objectToTransform, entry.service);
+      // if we already have a value for selected claim we skip
+      if (claims[entry.hull]) {
+        return claims;
+      }
+
+      // we need to jsonpath to support nested properties
+      const valueFromObject: mixed = jp.value(objectToTransform, entry.service);
       if (isInvalid(valueFromObject)) {
         if (entry.required === true) {
           throw new Error(
@@ -82,6 +88,25 @@ function incomingClaims(
         `All configured fields for claims are empty: ${allServiceKeys}`
       );
     }
+
+    // we got some correct claims, now we handle anonymoud_id
+    if (options && options.anonymous_id_service) {
+      const valueForAnonymousId: mixed = jp.value(
+        objectToTransform,
+        options.anonymous_id_service
+      );
+      if (
+        isInvalid(valueForAnonymousId) === false &&
+        (typeof valueForAnonymousId === "string" ||
+          typeof valueForAnonymousId === "number")
+      ) {
+        const anonymousIdValue = options.anonymous_id_prefix
+          ? `${options.anonymous_id_prefix}:${valueForAnonymousId.toString()}`
+          : valueForAnonymousId;
+        readyClaims.anonymous_id = anonymousIdValue;
+      }
+    }
+
     return {
       claims: readyClaims
     };

@@ -44,6 +44,15 @@ function server(app: $Application): $Application {
   );
 
   app.use(
+    "/schema/incoming_user_claims",
+    cors(),
+    jsonHandler({
+      callback: actions.getIncomingUserClaims,
+      options: { respondWithError: true }
+    })
+  );
+
+  app.use(
     "/schema/company_properties",
     cors(),
     jsonHandler(actions.getCompanyProperties)

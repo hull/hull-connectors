@@ -84,7 +84,9 @@ class SyncAgent {
     this.hubspotClient = new HubspotClient(ctx);
     this.progressUtil = new ProgressUtil(ctx);
     this.filterUtil = new FilterUtil(ctx);
-    this.fetchAccounts = ctx.connector.private_settings.fetch_accounts;
+    // TODO: `handle_accounts` name chosen for hull-salesforce
+    // compatibility
+    this.fetchAccounts = ctx.connector.private_settings.handle_accounts;
   }
 
   isInitialized(): boolean {
@@ -217,6 +219,61 @@ class SyncAgent {
       });
   }
 
+  getIncomingUserClaims() {
+    return this.getContactProperties().then(contactProperties => {
+      const claimsProperties = contactProperties.options.map(group => {
+        return {
+          label: group.label,
+          options: group.options.map(option => {
+            return {
+              label: option.label,
+              value: `properties.${option.value}.value`
+            };
+          })
+        };
+      });
+      return {
+        options: [
+          {
+            label: "Identity profile Email",
+            value:
+              "$['identity-profiles'][*].identities[?(@.type === 'EMAIL')].value"
+          },
+          {
+            label: "VID",
+            value: "vid"
+          },
+          ...claimsProperties
+        ]
+      };
+    });
+  }
+
+  getIncomingAccountClaims() {
+    return this.getCompanyProperties().then(companyProperties => {
+      const claimsProperties = companyProperties.options.map(group => {
+        return {
+          label: group.label,
+          options: group.options.map(option => {
+            return {
+              label: option.label,
+              value: `properties.${option.value}.value`
+            };
+          })
+        };
+      });
+      return {
+        options: [
+          {
+            label: "companyId",
+            value: "companyId"
+          },
+          ...claimsProperties
+        ]
+      };
+    });
+  }
+
   getCompanyProperties() {
     return this.cache
       .wrap("company_properties", () => {
@@ -278,8 +335,10 @@ class SyncAgent {
     return Promise.all(
       contacts.map(async contact => {
         const traits = this.mappingUtil.getHullUserTraits(contact);
-        // const ident = this.mappingUtil.getHullUserIdentFromHubspot(contact);
-        const ident = this.helpers.incomingClaims("user", contact);
+        const ident = this.helpers.incomingClaims("user", contact, {
+          anonymous_id_prefix: "hubspot",
+          anonymous_id_service: "vid"
+        });
         if (ident.error) {
           return this.logger.info("incoming.user.skip", {
             contact,
@@ -726,7 +785,10 @@ class SyncAgent {
     return Promise.all(
       companies.map(async company => {
         const traits = this.mappingUtil.getHullAccountTraits(company);
-        const ident = this.helpers.incomingClaims("account", company);
+        const ident = this.helpers.incomingClaims("account", company, {
+          anonymous_id_prefix: "hubspot",
+          anonymous_id_service: "companyId"
+        });
         if (ident.error) {
           return this.logger.info("incoming.account.skip", {
             company,

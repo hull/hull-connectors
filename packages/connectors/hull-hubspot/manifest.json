@@ -73,7 +73,7 @@
             "format": "select",
             "options" : {
               "allowCreate": true,
-              "loadOptions": "/schema/contact_properties"
+              "loadOptions": "/schema/incoming_user_claims"
             }
           },
           "required" : {
@@ -85,7 +85,12 @@
       "default": [
         {
           "hull": "email",
-          "service": "email",
+          "service": "$['identity-profiles'][*].identities[?(@.type === 'EMAIL')].value",
+          "required": false
+        },
+        {
+          "hull": "email",
+          "service": "properties.email.value",
           "required": true
         }
       ]
@@ -119,13 +124,6 @@
           }
         }
       }
-    },
-    {
-      "name": "fetch_accounts",
-      "title": "Fetch accounts?",
-      "description": "If this checkbox is disabled we won't get any account in",
-      "type": "boolean",
-      "default": false
     },
     {
       "name": "outgoing_account_title",
@@ -180,9 +178,15 @@
     {
       "name": "ingoing_account_title",
       "title": "Incoming accounts configuration",
-      "description": "By default we create/update accounts in Hull using company `domain` property. If you have an `external_id` present in Hubspot pick it below. When using `external_id` for incoming traffic `domain` will be fetched too if present.",
       "format": "title",
       "type": "string"
+    },
+    {
+      "name": "handle_accounts",
+      "title": "Fetch accounts?",
+      "description": "If this checkbox is disabled we won't get any account in",
+      "type": "boolean",
+      "default": false
     },
     {
       "name": "incoming_account_claims",
@@ -202,7 +206,7 @@
             "format": "select",
             "options" : {
               "allowCreate": true,
-              "loadOptions": "/schema/company_properties"
+              "loadOptions": "/schema/incoming_account_claims"
             }
           },
           "required" : {
@@ -214,28 +218,10 @@
       "default": [
         {
           "hull": "domain",
-          "service": "domain",
+          "service": "properties.domain.value",
           "required": true
         }
       ]
-    },
-    {
-      "name": "incoming_account_ident_service",
-      "title": "Unique account identifier in Hubspot",
-      "description": "We will skip all companies which does not have value for this field",
-      "format": "select",
-      "type": "string",
-      "options": {
-        "loadOptions": "/schema/company_properties"
-      },
-      "default": "domain"
-    },
-    {
-      "name": "incoming_account_ident_hull",
-      "title": "Corresponding identifier field in Hull",
-      "enum": ["domain", "external_id"],
-      "type": "string",
-      "default": "domain"
     },
     {
       "name": "incoming_account_attributes",

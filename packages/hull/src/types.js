@@ -94,7 +94,8 @@ export type HullContextWithClient = {
     extractRequest: HullHelperExtractRequestOptions => Promise<*>,
     incomingClaims: (
       HullEntityType,
-      Object
+      Object,
+      ?{ anonymous_id_service: string, anonymous_id_prefix?: string }
     ) => {
       claims?: HullEntityClaims,
       error?: string

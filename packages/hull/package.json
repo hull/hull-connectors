@@ -21,6 +21,7 @@
     "del": "^2.2.1",
     "dogapi": "^2.6.0",
     "hull-client": "link:../hull-client",
+    "jsonpath": "^1.0.0",
     "jsonwebtoken": "^7.4.3",
     "jwt-simple": "^0.5.0",
     "kue-ui": "^0.1.0",
