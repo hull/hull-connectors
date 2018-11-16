@@ -12,3 +12,4 @@ module.exports.timeoutMiddleware = require("./timeout");
 module.exports.haltOnTimedoutMiddleware = require("./halt-on-timedout");
 module.exports.instrumentationContextMiddleware = require("./instrumentation-context-middleware");
 module.exports.instrumentationTransientError = require("./instrumentation-transient-error");
+module.exports.trimTraitsPrefixMiddleware = require("./trim-traits-prefix");

@@ -107,9 +107,13 @@ class MappingUtil {
 
     // pick stuff from private settings
     this.contactAttributesIncomingSettings =
-      this.connector.private_settings.sync_fields_to_hull || [];
+      this.connector.private_settings.incoming_user_attributes ||
+      this.connector.private_settings.sync_fields_to_hull ||
+      [];
     this.contactAttributesOutgoingSettings =
-      this.connector.private_settings.sync_fields_to_hubspot || [];
+      this.connector.private_settings.outgoing_user_attributes ||
+      this.connector.private_settings.sync_fields_to_hubspot ||
+      [];
 
     this.companyAttributesIncomingSettings =
       this.connector.private_settings.incoming_account_attributes || [];
@@ -128,16 +132,16 @@ class MappingUtil {
   getContactOutgoingMapping(): Array<HubspotContactOutgoingMapping> {
     return this.contactAttributesOutgoingSettings.reduce(
       (outboundMapping, setting) => {
-        if (!setting.name || !setting.hull) {
+        if ((!setting.name && !setting.service) || !setting.hull) {
           return outboundMapping;
         }
         // let's find a default mapping
         const defaultMapping = _.find(CONTACT_DEFAULT_MAPPING, {
-          name: setting.name
+          name: setting.service || setting.name
         });
 
         // let's generate a slug version of the hubspot property
-        let hubspotPropertyName = slug(setting.name, {
+        let hubspotPropertyName = slug(setting.service || setting.name, {
           replacement: "_",
           lower: true
         });
@@ -159,7 +163,9 @@ class MappingUtil {
           });
         }
 
-        const hullTrait = _.find(this.hullUserProperties, { id: setting.hull });
+        const hullTrait =
+          _.find(this.hullUserProperties, { id: setting.hull }) ||
+          _.find(this.hullUserProperties, { id: `traits_${setting.hull}` });
         if (hullTrait === undefined) {
           return outboundMapping;
         }
@@ -172,7 +178,7 @@ class MappingUtil {
             hull_trait_type: hullTrait.type,
             hull_overwrite_hubspot: setting.overwrite,
             hubspot_property_name: hubspotPropertyName,
-            hubspot_property_label: setting.name,
+            hubspot_property_label: setting.service || setting.name,
             hubspot_property_read_only:
               hubspotContactProperty && hubspotContactProperty.readOnlyValue,
             hubspot_property_type:
@@ -214,12 +220,12 @@ class MappingUtil {
     );
     const mappingFromSettings = this.contactAttributesIncomingSettings.reduce(
       (mapping, setting) => {
-        if (!setting.name || !setting.hull) {
+        if ((!setting.name && !setting.service) || !setting.hull) {
           return mapping;
         }
         const hullTrait = this.hullUserProperties[setting.hull];
         const hubspotContactProperty = _.find(this.hubspotContactProperties, {
-          name: setting.name
+          name: setting.service || setting.name
         });
         if (hubspotContactProperty === undefined) {
           return mapping;
@@ -228,7 +234,7 @@ class MappingUtil {
           {
             hull_trait_name: setting.hull,
             hull_trait_type: hullTrait && hullTrait.type,
-            hubspot_property_name: setting.name,
+            hubspot_property_name: setting.service || setting.name,
             hubspot_property_read_only: hubspotContactProperty.readOnlyValue,
             hubspot_property_type: hubspotContactProperty.type,
             hubspot_property_field_type: hubspotContactProperty.fieldType
@@ -243,16 +249,16 @@ class MappingUtil {
   getCompanyOutgoingMapping(): Array<HubspotCompanyOutgoingMapping> {
     return this.companyAttributesOutgoingSettings.reduce(
       (outboundMapping, setting) => {
-        if (!setting.hubspot || !setting.hull) {
+        if ((!setting.service && !setting.hubspot) || !setting.hull) {
           return outboundMapping;
         }
 
         const defaultMapping = _.find(COMPANY_DEFAULT_MAPPING, {
-          hubspot: setting.hubspot
+          hubspot: setting.service || setting.hubspot
         });
 
         // let's generate a slug version of the hubspot property
-        let hubspotPropertyName = slug(setting.hubspot, {
+        let hubspotPropertyName = slug(setting.service || setting.hubspot, {
           replacement: "_",
           lower: true
         });
@@ -289,7 +295,7 @@ class MappingUtil {
               (defaultMapping && defaultMapping.hull) || null,
             hull_trait_type: hullTrait.type,
             hubspot_property_name: hubspotPropertyName,
-            hubspot_property_label: setting.hubspot,
+            hubspot_property_label: setting.service || setting.hubspot,
             hubspot_property_read_only:
               hubspotCompanyProperty && hubspotCompanyProperty.readOnlyValue,
             hubspot_property_type:
@@ -330,12 +336,12 @@ class MappingUtil {
     );
     const mappingFromSettings = this.companyAttributesIncomingSettings.reduce(
       (mapping, setting) => {
-        if (!setting.hubspot || !setting.hull) {
+        if ((!setting.hubspot && !setting.service) || !setting.hull) {
           return mapping;
         }
         const hullTrait = this.hullAccountProperties[setting.hull];
         const hubspotCompanyProperty = _.find(this.hubspotCompanyProperties, {
-          name: setting.hubspot
+          name: setting.service || setting.hubspot
         });
         if (hubspotCompanyProperty === undefined) {
           return mapping;
@@ -344,7 +350,7 @@ class MappingUtil {
           {
             hull_trait_name: setting.hull,
             hull_trait_type: hullTrait && hullTrait.type,
-            hubspot_property_name: setting.hubspot,
+            hubspot_property_name: setting.service || setting.hubspot,
             hubspot_property_read_only: hubspotCompanyProperty.readOnlyValue,
             hubspot_property_type: hubspotCompanyProperty.type,
             hubspot_property_field_type: hubspotCompanyProperty.fieldType
@@ -417,11 +423,7 @@ class MappingUtil {
           ) {
             val = val.split(";");
           }
-          const nameWithoutPrefix = _.trimStart(
-            mappingEntry.hull_trait_name,
-            "traits_"
-          );
-          traits[nameWithoutPrefix] = val;
+          traits[mappingEntry.hull_trait_name] = val;
         }
         return traits;
       },
@@ -482,12 +484,7 @@ class MappingUtil {
           ) {
             val = val.split(";");
           }
-
-          const nameWithoutPrefix = _.trimStart(
-            mappingEntry.hull_trait_name,
-            "traits_"
-          );
-          traits[nameWithoutPrefix] = val;
+          traits[mappingEntry.hull_trait_name] = val;
         }
         return traits;
       },
@@ -579,9 +576,7 @@ class MappingUtil {
           return contactProperties;
         }
 
-        let value = _.has(userData, mappingEntry.hull_trait_name)
-          ? _.get(userData, mappingEntry.hull_trait_name)
-          : _.get(userData, `traits_${mappingEntry.hull_trait_name}`);
+        let value = _.get(userData, mappingEntry.hull_trait_name);
 
         if (
           !mappingEntry.hull_overwrite_hubspot &&

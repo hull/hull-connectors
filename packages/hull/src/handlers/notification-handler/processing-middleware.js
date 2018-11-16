@@ -7,7 +7,10 @@ import type {
 
 const debug = require("debug")("hull-connector:notification-handler");
 
-const { notificationDefaultFlowControl } = require("../../utils");
+const {
+  notificationDefaultFlowControl,
+  trimTraitsPrefixFromUserMessage
+} = require("../../utils");
 
 function notificationHandlerProcessingMiddlewareFactory(
   normalizedConfiguration: HullNormalizedHandlersConfiguration<*, *>
@@ -20,7 +23,8 @@ function notificationHandlerProcessingMiddlewareFactory(
     if (!req.hull.notification) {
       return next(new Error("Missing Notification payload"));
     }
-    const { channel, messages } = req.hull.notification;
+    const { channel } = req.hull.notification;
+    let { messages } = req.hull.notification;
     debug("notification", {
       channel,
       messages: Array.isArray(messages) && messages.length
@@ -29,6 +33,10 @@ function notificationHandlerProcessingMiddlewareFactory(
       return next(new Error("Channel unsupported"));
     }
     const { callback } = normalizedConfiguration[channel];
+
+    if (channel === "user:update") {
+      messages = messages.map(trimTraitsPrefixFromUserMessage);
+    }
 
     const defaultSuccessFlowControl = notificationDefaultFlowControl(
       req.hull,

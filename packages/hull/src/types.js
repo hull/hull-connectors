@@ -35,7 +35,8 @@ export type HullConnectorOptions = {
   timeout: number | string,
   captureMetrics: Array<Object>,
   captureLogs: Array<any>,
-  disableOnExit?: boolean
+  disableOnExit?: boolean,
+  manifest?: Object // FIXME: should in future provide actual flow type
 };
 
 export type HullNotificationFlowControl = {
@@ -203,3 +204,10 @@ export type HullHandlersConfigurationEntry<Callback, Options> =
 export type HullHandlersConfiguration<Callback, Options> = {
   [HullChannelName: string]: HullHandlersConfigurationEntry<Callback, Options>
 };
+
+export type HullConnectorSettingsTraitMapping = Array<{
+  hull?: string,
+  service?: string,
+  name?: string,
+  overwrite?: boolean
+}>;

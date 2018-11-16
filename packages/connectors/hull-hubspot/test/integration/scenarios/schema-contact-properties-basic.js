@@ -2,6 +2,7 @@
 /* global describe, it, beforeEach, afterEach */
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const connectorServer = require("../../../server/server");
+const connectorManifest = require("../../../manifest");
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
@@ -13,7 +14,7 @@ const connector = {
 
 it("should send out a new hull account to hubspot", () => {
   const domain = "hull.io";
-  return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.jsonHandler,
       handlerUrl: "schema/contact_properties",

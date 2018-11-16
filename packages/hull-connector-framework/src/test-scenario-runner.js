@@ -121,13 +121,17 @@ class TestScenarioRunner extends EventEmitter {
 
   externalIncomingRequest: Function;
 
+  connectorManifest: Object;
+
   constructor(
     {
       connectorServer,
-      connectorWorker
+      connectorWorker,
+      connectorManifest
     }: {
       connectorServer: express => express,
-      connectorWorker?: Function
+      connectorWorker?: Function,
+      connectorManifest: Object
     },
     scenarioDefinition: TestScenarioDefinition
   ) {
@@ -141,6 +145,7 @@ class TestScenarioRunner extends EventEmitter {
       }
     });
 
+    this.connectorManifest = connectorManifest;
     this.finished = false;
     // this.hullConnectorPort = 9091;
     // this.minihullPort = 9092;
@@ -405,7 +410,8 @@ class TestScenarioRunner extends EventEmitter {
       },
       captureMetrics: this.capturedMetrics,
       captureLogs: this.capturedLogs,
-      disableOnExit: true
+      disableOnExit: true,
+      manifest: this.connectorManifest
     };
 
     const connector = new Hull.Connector(options);

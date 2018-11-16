@@ -116,10 +116,10 @@ class EventsAgent {
    * - `id` (Hull user ID)
    * It also can take optional params:
    * - `email_id` the MD5 of the `email_address`
-   * - `traits_mailchimp/latest_activity_at` if provided it will be used to filter
+   * - `mailchimp/latest_activity_at` if provided it will be used to filter
    * the returned array
    * @param  {Array} emails
-   * [{ email_address, id, [[email_id,] "traits_mailchimp/latest_activity_at"] }]
+   * [{ email_address, id, [[email_id,] "mailchimp/latest_activity_at"] }]
    * @return {Promise}
    */
   getMemberActivities(users) {
@@ -155,7 +155,7 @@ class EventsAgent {
   /**
    * For every provided email and its activity call Hull Track endpoint.
    * After calling the track endpoint it saves the latest event timestamp
-   * as `traits_mailchimp/latest_activity_at`.
+   * as `mailchimp/latest_activity_at`.
    * @param  {Array} emails
    * [{
    *   activity: [{

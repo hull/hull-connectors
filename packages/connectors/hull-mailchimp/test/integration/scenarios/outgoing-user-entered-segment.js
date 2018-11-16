@@ -2,6 +2,7 @@
 /* global describe, it, beforeEach, afterEach */
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const connectorServer = require("../../../server/server");
+const connectorManifest = require("../../../manifest");
 
 process.env.MAILCHIMP_CLIENT_ID = "1234";
 process.env.MAILCHIMP_CLIENT_SECRET = "1234";
@@ -31,7 +32,7 @@ const usersSegments = [
 
 it("should fetch user events on outgoing traffic", () => {
   const email = "mocked@email.com";
-  return testScenario({ connectorServer }, ({ handlers, nock, expect, minihullPort }) => {
+  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect, minihullPort }) => {
     const userClaims = expect.objectContaining({ subject_type: "user", user_email: email });
     return {
       handlerType: handlers.notificationHandler,

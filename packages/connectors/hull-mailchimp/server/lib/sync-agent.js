@@ -53,15 +53,20 @@ class SyncAgent {
     this.client = ctx.client;
     this.logger = ctx.client.logger;
     this.metric = ctx.metric;
-    // $FlowFixMe wrong case in hull-node:
     this.hostname = ctx.hostname;
     this.segments = ctx.usersSegments;
     this.listId = _.get(ctx.connector, "private_settings.mailchimp_list_id");
-    this.synchronizedSegments = _.get(
-      ctx.connector,
-      "private_settings.synchronized_segments",
+    this.synchronizedSegments = (
+      ctx.connector.private_settings.synchronized_user_segments ||
+      ctx.connector.private_settings.synchronized_segments ||
       []
-    ).map(id => _.find(ctx.usersSegments, { id }));
+    ).reduce((segments, id) => {
+      const found = _.find(ctx.usersSegments, { id });
+      if (found === undefined) {
+        return segments;
+      }
+      return segments.concat([found]);
+    }, []);
     this.forceRemovalFromStaticSegments = _.get(
       ctx.connector,
       "private_settings.force_removal_from_static_segments",
@@ -107,11 +112,11 @@ class SyncAgent {
   }
 
   messageAdded(message: HullUserUpdateMessage) {
-    return !_.isEmpty(message.user["traits_mailchimp/unique_email_id"]);
+    return !_.isEmpty(message.user["mailchimp/unique_email_id"]);
   }
 
   messageWithError(message: HullUserUpdateMessage) {
-    return !_.isEmpty(message.user["traits_mailchimp/import_error"]);
+    return !_.isEmpty(message.user["mailchimp/import_error"]);
   }
 
   messageWhitelisted(message: HullUserUpdateMessage) {

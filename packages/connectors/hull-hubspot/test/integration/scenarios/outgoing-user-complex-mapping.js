@@ -2,6 +2,7 @@
 /* global describe, it, beforeEach, afterEach */
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const connectorServer = require("../../../server/server");
+const connectorManifest = require("../../../manifest");
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
@@ -50,7 +51,7 @@ const usersSegments = [
 
 it("should send out a new hull user to hubspot with complex fields mapping", () => {
   const email = "email@email.com";
-  return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -184,7 +185,7 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
               "hubspot_property_type": undefined,
               "hull_default_trait_name": null,
               "hull_overwrite_hubspot": false,
-              "hull_trait_name": "traits_group/custom_calculated_score",
+              "hull_trait_name": "group/custom_calculated_score",
               "hull_trait_type": "string",
             },
             "warning": "can't support overwrite flag on selected field, please refer to connector documentation",

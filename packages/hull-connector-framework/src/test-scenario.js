@@ -7,15 +7,17 @@ const TestScenarioRunner = require("./test-scenario-runner");
 function testScenario(
   {
     connectorServer,
-    connectorWorker
+    connectorWorker,
+    connectorManifest
   }: {
     connectorServer: express => express,
-    connectorWorker?: Function
+    connectorWorker?: Function,
+    connectorManifest: Object
   },
   scenarioDefinition: TestScenarioDefinition
 ): Promise<*> {
   const runner = new TestScenarioRunner(
-    { connectorServer, connectorWorker },
+    { connectorServer, connectorWorker, connectorManifest },
     scenarioDefinition
   );
   return runner.run();

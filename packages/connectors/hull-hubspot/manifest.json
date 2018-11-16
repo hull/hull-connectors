@@ -15,7 +15,7 @@
   "settings": [],
   "private_settings": [
     {
-      "name": "synchronized_segments",
+      "name": "synchronized_user_segments",
       "title": "User Segments",
       "description": "Post to Hubspot when users match these segments",
       "default": [],
@@ -23,10 +23,23 @@
       "format": "segment"
     },
     {
+      "name": "outgoing_user_attributes",
+      "direction": "outgoing",
+      "title": "Custom Fields Sync (Hull to Hubspot)",
+      "type": "array",
+      "format": "trait-mapping",
+      "options": {
+        "allowOverwrite": true,
+        "placeholder": "Hubspot Field",
+        "allowCreate": true,
+        "loadOptions": "/schema/contact_properties"
+      }
+    },
+    {
       "name": "sync_fields_to_hubspot",
       "title": "Custom Fields Sync (Hull to Hubspot)",
       "type": "array",
-      "format": "table",
+      "format": "hidden",
       "items": {
         "type": "object",
         "properties": {
@@ -96,10 +109,23 @@
       ]
     },
     {
+      "name": "incoming_user_attributes",
+      "direction": "incoming",
+      "title": "Custom Fields Sync (Hubspot to Hull)",
+      "type": "array",
+      "format": "trait-mapping",
+      "options": {
+        "allowOverwrite": false,
+        "placeholder": "Hubspot Field",
+        "allowCreate": false,
+        "loadOptions": "/schema/contact_properties"
+      }
+    },
+    {
       "name": "sync_fields_to_hull",
       "title": "Custom Fields Sync (Hubspot to Hull)",
       "type": "array",
-      "format": "table",
+      "format": "hidden",
       "items": {
         "type": "object",
         "properties": {

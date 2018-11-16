@@ -191,13 +191,15 @@ export type HubspotDefaultContactMapping = {
 
 export type HubspotContactAttributesIncomingSetting = {
   name: string,
-  hull: string
+  hull: string,
+  service: string
 };
 
 export type HubspotContactAttributesOutgoingSetting = {
   hull: string,
   name: string,
-  overwrite: boolean
+  overwrite: boolean,
+  service: string
 };
 
 export type HubspotContactOutgoingMapping = {
@@ -265,11 +267,13 @@ export type HubspotDefaultCompanyMapping = {
 
 export type HubspotCompanyAttributesIncomingSetting = {
   hubspot: string,
+  service: string,
   hull: string
 };
 
 export type HubspotCompanyAttributesOutgoingSetting = {
   hull: string,
+  service: string,
   hubspot: string
 };
 

@@ -14,15 +14,9 @@ class FilterUtil {
 
   isBatch: boolean;
 
-  incomingAccountIdentHull: string;
-
-  incomingAccountIdentService: string;
-
   constructor(ctx: HullContext) {
     this.connector = ctx.connector;
     this.isBatch = ctx.isBatch;
-    this.incomingAccountIdentHull = this.connector.private_settings.incoming_account_ident_hull;
-    this.incomingAccountIdentService = this.connector.private_settings.incoming_account_ident_service;
 
     debug("isBatch", this.isBatch);
   }
@@ -30,7 +24,8 @@ class FilterUtil {
   isUserWhitelisted(envelope: HubspotUserUpdateMessageEnvelope): boolean {
     const segmentIds =
       (this.connector.private_settings &&
-        this.connector.private_settings.synchronized_segments) ||
+        (this.connector.private_settings.synchronized_user_segments ||
+          this.connector.private_settings.synchronized_segments)) ||
       [];
     if (Array.isArray(envelope.message.segments)) {
       return (
@@ -70,7 +65,7 @@ class FilterUtil {
     envelopes.forEach(envelope => {
       const { user, changes = {} } = envelope.message;
       if (
-        _.get(changes, "user['traits_hubspot/fetched_at'][1]", false) &&
+        _.get(changes, "user['hubspot/fetched_at'][1]", false) &&
         _.isEmpty(_.get(changes, "segments"))
       ) {
         envelope.skipReason = "User just touched by hubspot connector";

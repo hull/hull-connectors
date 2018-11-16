@@ -5,9 +5,10 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 // workaround to allow connector start
 process.env.CLIENT_ID = "123";
 const connectorServer = require("../../../server/server");
+const connectorManifest = require("../../../manifest");
 
 test("incoming fetch all responses basic", () => {
-  return testScenario({ connectorServer }, ({ handlers, requireFixture, expect, nock }) => {
+  return testScenario({ connectorServer, connectorManifest }, ({ handlers, requireFixture, expect, nock }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "fetch-all-responses",
@@ -28,6 +29,7 @@ test("incoming fetch all responses basic", () => {
             { service: "PNe8ZKBK8C2Q", hull: "traits_array_trait" },
             { service: "KoJxDM3c6x8h", hull: "traits_date_trait_at" },
             { service: "score", hull: "traits_calculated_score_trait" },
+            { service: "DlXFaesGBpoF", hull: "long_text_trait_without_prefix" },
           ]
         }
       },
@@ -43,6 +45,7 @@ test("incoming fetch all responses basic", () => {
           array_trait: [ "New York", "Tokyo" ],
           boolean_trait: false,
           date_trait_at: "2012-03-20T00:00:00Z",
+          long_text_trait_without_prefix: "It's a big, busy city. I moved here for a job, but I like it, so I am planning to stay. I have made good friends here.",
           number_trait: 1,
           short_text_trait: "Lian",
           calculated_score_trait: 2
@@ -72,6 +75,7 @@ test("incoming fetch all responses basic", () => {
             array_trait: ["London", "New York"],
             boolean_trait: true,
             date_trait_at: "2016-05-13T00:00:00Z",
+            long_text_trait_without_prefix: "It's a rural area. Very quiet. There are a lot of farms...farming is the major industry here.",
             number_trait: 1,
             short_text_trait: "Sarah",
             calculated_score_trait: 4
@@ -140,6 +144,7 @@ test("incoming fetch all responses basic", () => {
             array_trait: [ "New York", "Tokyo" ],
             boolean_trait: false,
             date_trait_at: "2012-03-20T00:00:00Z",
+            long_text_trait_without_prefix: "It's a big, busy city. I moved here for a job, but I like it, so I am planning to stay. I have made good friends here.",
             number_trait: 1,
             short_text_trait: "Lian",
             calculated_score_trait: 2
@@ -167,6 +172,7 @@ test("incoming fetch all responses basic", () => {
             array_trait: ["London", "New York"],
             boolean_trait: true,
             date_trait_at: "2016-05-13T00:00:00Z",
+            long_text_trait_without_prefix: "It's a rural area. Very quiet. There are a lot of farms...farming is the major industry here.",
             number_trait: 1,
             short_text_trait: "Sarah",
             calculated_score_trait: 4

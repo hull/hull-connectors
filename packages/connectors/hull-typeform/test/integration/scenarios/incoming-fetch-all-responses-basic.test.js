@@ -5,9 +5,10 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 // workaround to allow connector start
 process.env.CLIENT_ID = "123";
 const connectorServer = require("../../../server/server");
+const connectorManifest = require("../../../manifest");
 
 test("incoming fetch all responses basic", () => {
-  return testScenario({ connectorServer }, ({ handlers, requireFixture, expect, nock }) => {
+  return testScenario({ connectorServer, connectorManifest }, ({ handlers, requireFixture, expect, nock }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "fetch-all-responses",

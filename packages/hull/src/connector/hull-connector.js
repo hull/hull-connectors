@@ -57,7 +57,7 @@ class HullConnector {
 
   middlewares: Array<Function>;
 
-  connectorConfig: {};
+  connectorConfig: $Shape<HullConnectorOptions>;
 
   cache: $PropertyType<HullConnectorOptions, "cache">;
 
@@ -92,7 +92,8 @@ class HullConnector {
       notificationValidatorHttpClient,
       captureMetrics,
       captureLogs,
-      disableOnExit = false
+      disableOnExit = false,
+      manifest = {}
     }: HullConnectorOptions = {}
   ) {
     debug("clientConfig", clientConfig);
@@ -108,17 +109,20 @@ class HullConnector {
     this.connectorConfig = {};
     this.middlewares = [];
 
+    const applicationDirectory = path.dirname(
+      path.join(require.main.filename, "..")
+    );
+    if (fs.existsSync(`${applicationDirectory}/manifest.json`)) {
+      manifest = JSON.parse(
+        fs.readFileSync(`${applicationDirectory}/manifest.json`).toString()
+      );
+    }
+    this.connectorConfig.manifest = manifest;
+
     if (connectorName) {
       this.clientConfig.connectorName = connectorName;
-    } else {
-      try {
-        const manifest = JSON.parse(
-          fs.readFileSync(`${process.cwd()}/manifest.json`).toString()
-        );
-        if (manifest.name) {
-          this.clientConfig.connectorName = _.kebabCase(manifest.name);
-        }
-      } catch (error) {} // eslint-disable-line no-empty
+    } else if (manifest && manifest.name) {
+      this.clientConfig.connectorName = _.kebabCase(manifest.name);
     }
 
     if (skipSignatureValidation) {

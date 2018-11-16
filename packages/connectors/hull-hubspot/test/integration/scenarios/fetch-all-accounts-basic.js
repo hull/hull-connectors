@@ -2,6 +2,7 @@
 /* global describe, it, beforeEach, afterEach */
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const _ = require("lodash");
+
 const connectorServer = require("../../../server/server");
 const connectorManifest = require("../../../manifest");
 
@@ -12,13 +13,12 @@ const incomingData = require("../fixtures/get-companies-recent-modified");
 const connector = {
   private_settings: {
     token: "hubToken",
-    companies_last_fetch_at: 1419967066626,
     incoming_account_claims: _.find(require("../../../manifest").private_settings, { name: "incoming_account_claims" }).default,
     handle_accounts: true
   }
 };
 
-it("should fetch recent companies using settings", () => {
+it.skip("should fetch all companies", () => {
   return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
@@ -60,7 +60,7 @@ it("should fetch recent companies using settings", () => {
           "incoming.account",
           {},
           {
-            claims: { domain: "foo.com", anonymous_id: "hubspot:19411477" },
+            claims: { domain: "foo.com" },
             traits: { "hubspot/id": 19411477, name: { operation: "setIfNull", value: "madison Inc" } }
           }
         ],
@@ -76,11 +76,7 @@ it("should fetch recent companies using settings", () => {
         [
           "info",
           "incoming.account.success",
-          expect.objectContaining({
-            "subject_type": "account",
-            "account_domain": "foo.com",
-            "account_anonymous_id": "hubspot:19411477"
-          }),
+          expect.objectContaining({ "subject_type": "account", "account_domain": "foo.com" }),
           {
             traits: {
               "hubspot/id": 19411477,
@@ -95,7 +91,6 @@ it("should fetch recent companies using settings", () => {
           "info",
           "incoming.account.link.skip",
           {
-            account_anonymous_id: "hubspot:19411477",
             account_domain: "foo.com",
             subject_type: "account"
           },
@@ -118,7 +113,6 @@ it("should fetch recent companies using settings", () => {
           {
             "asAccount": {
               "domain": "foo.com",
-              "anonymous_id": "hubspot:19411477"
             },
             "subjectType": "account",
           },
@@ -152,7 +146,7 @@ it("should fetch recent companies using settings", () => {
           {
             "private_settings": {
               "companies_last_fetch_at": expect.whatever(),
-              "handle_accounts": true,
+              "fetch_accounts": true,
               "incoming_account_claims": [
                 {
                   "hull": "domain",

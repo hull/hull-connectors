@@ -10,7 +10,8 @@ const {
   credentialsFromQueryMiddleware,
   fullContextFetchMiddleware,
   timeoutMiddleware,
-  haltOnTimedoutMiddleware
+  haltOnTimedoutMiddleware,
+  trimTraitsPrefixMiddleware
 } = require("../../middlewares");
 
 const HOME_URL = "/";
@@ -153,6 +154,7 @@ function oAuthHandlerFactory({
   router.use(timeoutMiddleware());
   router.use(fullContextFetchMiddleware({ requestName: "oAuth" }));
   router.use(haltOnTimedoutMiddleware());
+  router.use(trimTraitsPrefixMiddleware());
   router.use(passport.initialize());
   router.use(bodyParser.urlencoded({ extended: true }));
 
