@@ -104,7 +104,7 @@
         {
           "hull": "email",
           "service": "properties.email.value",
-          "required": true
+          "required": false
         }
       ]
     },
