@@ -2,6 +2,7 @@
 
 ## v0.0.5-monorepo
 - [hull-typeform] fix mapping submission into `HullUserAttributes`
+- [hull] transient error instrumentation cleanup
 
 ## v0.0.4-monorepo
 - [hull] bring back timeout default to 25s
