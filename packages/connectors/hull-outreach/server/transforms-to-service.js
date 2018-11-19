@@ -9,50 +9,39 @@ const transformsToService: ServiceTransforms = [
     input: HullOutgoingUser,
     output: OutreachProspectWrite,
     strategy: "PropertyKeyedValue",
-    template: {
-      hard:[
-        { type: "prospect" }
-      ],
-      directmap: [
-        { input: "outreach/id", output: "id" },
-        {
-          input: "account.outreach/id",
-          output: {
-            relationships: {
-              account: {
-                data: {
-                  type: "account",
-                  id: "${account.outreach/id}"
-                }
-              }
-            }
-          }
-        },
-      ],
-      keyedGroups: [{
-        output: "attributes",
-        mapping: "settings.prospect_attributes_outbound",
-        arrayStrategy: "appendindex"
-      }]
-    }
+    transforms: [
+      { outputPath: "data.type", outputFormat: "prospect" },
+      { inputPath: "outreach/id", outputPath: "data.id" },
+      { inputPath: "email", outputPath: "data.attributes.emails", outputFormat: ["${value}"] },
+      {
+        inputPath: "account.outreach/id",
+        outputPath: "data.relationships.account.data",
+        outputFormat: {
+          type: "account",
+          id: "${value}"
+        }
+      },
+      {
+        mapping: "connector.private_settings.prospect_attributes_outbound",
+        inputPath: "${input_field_name}",
+        outputPath: "data.attributes.${output_field_name}",
+      }
+    ]
   },
   {
     input: HullOutgoingAccount,
     output: OutreachAccountWrite,
     strategy: "PropertyKeyedValue",
-    template: {
-      hard:[
-        { type: "account" }
-      ],
-      directmap: [
-        { input: "outreach/id", output: "id" },
-      ],
-      keyedGroups: [{
-        output: "attributes",
-        mapping: "settings.prospect_attributes_outbound",
-        arrayStrategy: "appendindex"
-      }]
-    }
+    transforms: [
+      { outputPath: "data.type", outputFormat: "account" },
+      { inputPath: "outreach/id", outputPath: "data.id" },
+      { inputPath: "domain", outputPath: "data.attributes.domain" },
+      {
+        mapping: "connector.private_settings.account_attributes_outbound",
+        inputPath: "${input_field_name}",
+        outputPath: "data.attributes.${output_field_name}",
+      }
+    ]
   }
 ];
 

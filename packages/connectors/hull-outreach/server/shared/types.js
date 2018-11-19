@@ -19,7 +19,7 @@ export type Transform = {
   input: Class<any>,
   output: Class<any>,
   strategy: PropertyTransformationStrategy,
-  template: Object
+  transforms: any
 };
 
 export type ServiceTransforms = Array<Transform>;

@@ -15,9 +15,17 @@ const service: RawRestApi = {
   prefix: "https://api.outreach.io/api/v2",
   endpoints: {
     getAccountById: {
-      url: "/accounts/${input.data.id}",
+      url: "/accounts/${accountId}",
       operation: "get",
       endpointType: "byId",
+      returnObj: "body.data",
+      output: OutreachAccountRead
+    },
+    getAccountByDomain: {
+      url: "/accounts/${accountDomain}",
+      operation: "get",
+      endpointType: "byId",
+      returnObj: "body.data",
       output: OutreachAccountRead
     },
     getAccountByProperty: {
@@ -25,13 +33,15 @@ const service: RawRestApi = {
       operation: "get",
       query: "filter[${property}]=${value}",
       endpointType: "byProperty",
+      returnObj: "body.data",
       output: OutreachAccountRead
     },
     getAccountsByLastSync: {
       url: "/accounts/",
       operation: "get",
-      query: "filter[updatedAt]=${lastSync}",
+      query: "filter[updatedAt]=${connector.private_settings.lastSync}",
       endpointType: "byLastSync",
+      returnObj: "body.data",
       output: OutreachAccountRead
     },
     getAllAccounts: {
@@ -49,50 +59,65 @@ const service: RawRestApi = {
       output: OutreachProspectRead
     },
     insertAccount: {
-      url: "/accounts/${input.data.id}",
+      url: "/accounts/",
       operation: "post",
       endpointType: "create",
+      returnObj: "body.data",
       input: OutreachAccountWrite,
       output: OutreachAccountRead
     },
     updateAccount: {
-      url: "/accounts/${input.data.id}",
+      url: "/accounts/${accountId}",
       operation: "patch",
       endpointType: "update",
+      returnObj: "body.data",
       input: OutreachAccountWrite,
       output: OutreachAccountRead
     },
     getProspectById: {
-      url: "/prospects/${input.data.id}",
+      url: "/prospects/${userId}",
       operation: "get",
       endpointType: "byId",
+      returnObj: "body.data",
+      output: OutreachProspectRead
+    },
+    getProspectByEmail: {
+      url: "/prospects/",
+      operation: "get",
+      query: "filter[emails]=${userEmail}",
+      returnObj: "body.data[0]",
+      endpointType: "byProperty",
       output: OutreachProspectRead
     },
     getProspectsByProperty: {
       url: "/prospects/",
       operation: "get",
       query: "filter[${property}]=${value}",
+      returnObj: "body.data",
       endpointType: "byProperty",
       output: OutreachProspectRead
     },
     getProspectsByLastSync: {
       url: "/prospects/",
       operation: "get",
+      returnObj: "body.data",
       query: "filter[updatedAt]=${lastSync}",
       endpointType: "byLastSync",
       output: OutreachProspectRead
     },
     insertProspect: {
-      url: "/prospects/${input.data.id}",
+      url: "/prospects/",
       operation: "post",
       endpointType: "create",
+      returnObj: "body.data",
       input: OutreachProspectWrite,
       output: OutreachProspectRead
     },
     updateProspect: {
-      url: "/prospects/${input.data.id}",
+      url: "/prospects/${userId}",
       operation: "patch",
       endpointType: "update",
+      returnObj: "body.data",
       input: OutreachProspectWrite,
       output: OutreachProspectRead
     },

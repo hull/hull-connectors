@@ -4,6 +4,8 @@ import type { HullContext } from "hull";
 import type { ServiceTransforms } from "./types";
 
 const { doVariableReplacement } = require("./variable-utils");
+const { isUndefinedOrNull } = require("./utils");
+
 const debug = require("debug")("hull-shared:TransformImpl");
 
 const _ = require("lodash");
@@ -15,9 +17,9 @@ class TransformImpl {
     this.transforms = transforms;
   }
 
-  transform(reqContext: HullContext, input: Object, inputClass: Class<any>, outputClass: Class<any>) {
+  transform(reqContext: HullContext, input: Object, inputClass: any, desiredInputClass: any) {
 
-    if (inputClass === undefined || inputClass === null) {
+    if (isUndefinedOrNull(desiredInputClass)) {
       return doVariableReplacement(reqContext, input);
     }
 
@@ -25,121 +27,109 @@ class TransformImpl {
       // find the transformation that outputs what this endpoint needs as input
       // TODO need to capture the concept of the type of class incoming
       // for now only 1 type....
-      if (inputClass === transform.output) {
-        return true;
+      if (isUndefinedOrNull(inputClass) || inputClass === transform.input) {
+        if (desiredInputClass === transform.output) {
+          return true;
+        }
       }
       return false;
     });
 
-    if (transformation === undefined) {
-      //throw new Error(`Transformation for ${inputClass} to: ${outputClass} not found`);
-      debug("Couldn't find transformation for: " + inputClass + " and " + outputClass);
+    // here checking explicitly if undefined or null
+    // otherwise flow throws errors later
+    if (transformation === undefined || transformation === null) {
+      if (isUndefinedOrNull(inputClass)) {
+        debug(`Couldn't find transformation to: ${JSON.stringify(desiredInputClass)}`);
+      } else {
+        debug(`Couldn't find transformation for: ${JSON.stringify(inputClass)} and ${JSON.stringify(desiredInputClass)}`);
+      }
       return input;
     }
 
-    const globalContext = {};
+    const globalContext = _.cloneDeep(reqContext);
 
-    const maps = [
-      "prospect_attributes_inbound",
-      "prospect_attributes_outbound",
-      "account_attributes_inbound",
-      "account_attributes_inbound"
-    ];
-
-    _.forEach(maps, map => {
-      _.set(
-        globalContext,
-        `settings.${map}`,
-        _.get(reqContext, `connector.private_settings.${map}`)
-      );
-    });
-
-    const template = transformation.template;
+    const transforms = transformation.transforms;
 
     if (transformation.strategy === "PropertyKeyedValue") {
       // Need this for transform back to hull
-      const directTransformations = template.directmap;
       const output = {};
 
-      if (!_.isEmpty(template.hard)) {
-        _.merge(output, template.hard);
-      }
+      if (!_.isEmpty(transforms)) {
+        _.forEach(transforms, transform => {
 
-      if (!_.isEmpty(directTransformations)) {
-        _.forEach(directTransformations, (transformation) => {
+          let mapping;
 
-          const context = _.merge(input, globalContext);
-          const inputKey = doVariableReplacement(context, transformation.input);
-          context.inKey = inputKey;
-
-          let obj = _.get(input, inputKey);
-
-          if (obj !== undefined) {
-            context.value = obj;
-            const outputKey = doVariableReplacement(context, transformation.output);
-
-            if (_.isObject(outputKey)) {
-              _.merge(output, outputKey);
-            } else {
-              _.set(output, outputKey, obj);
+          if (!_.isEmpty(transform.mapping)) {
+            mapping = _.get(globalContext, transform.mapping);
+            if (_.isEmpty(mapping)) {
+              debug(`Skipping mapping: ${transform.mapping} because does not exist for transform: ${JSON.stringify(transform)}`);
             }
-
+          } else {
+            mapping = [{ input_field_name: transform.inputPath, output_field_name: transform.outputPath }];
           }
-        });
-      }
-
-      const keyedGroups = template.keyedGroups;
-      if (!_.isEmpty(keyedGroups)) {
-        _.forEach(keyedGroups, keyedGroup => {
-          const arrayStrategy = keyedGroup.arrayStrategy;
-          const inputPath = keyedGroup.input;
-          const outputPath = keyedGroup.output;
-          const outputKeyShape = keyedGroup.key;
-          const outputValueShape = keyedGroup.value;
-          const mapping = _.get(globalContext, keyedGroup.mapping);
-          const inputAttributes = _.get(input, inputPath);
 
           _.forEach(mapping, mappedField => {
-            const context = _.cloneDeep(globalContext);
+
+            // Should create something a little smarter to do local scope...
+            // stack of contexts probably...
+            const context = _.merge({}, globalContext)
 
             if (typeof mappedField === "string") {
-              context.inKey = mappedField;
-              context.outKey = outputKeyShape;
+              context.input_field_name = mappedField;
+              context.output_field_name = mappedField;
             } else {
-              context.inKey = mappedField.input_field_name;
-              context.outKey = mappedField.output_field_name;
+              context.input_field_name = mappedField.input_field_name;
+              context.output_field_name = mappedField.output_field_name;
             }
 
-            context.value = _.get(inputAttributes, context.inKey);
+            if (isUndefinedOrNull(transform.outputPath)) {
+              throw new Error(`Unsupported transform, Must always have output path: ${JSON.stringify(transform)}`);
+            }
+
+            // TODO here's a couple of auditable scenarios where we have to have these things
+            if (!_.isEmpty(transform.inputPath)) {
+
+              context.inputPath = doVariableReplacement(context, transform.inputPath);
+              context.value = _.get(input, context.inputPath);
+
+              // not sure if this is right or not, but we definitely specificied inputPath
+              // so not sure if there's a case where we expect it to pull nothing...
+              if (isUndefinedOrNull(context.value)) return;
+
+              // This could be a dangerous operation, because the original value is gone...
+              // also, figure out how this abstracts for arrays...
+              if (!_.isEmpty(transform.outputFormat)) {
+                context.value = doVariableReplacement(context, transform.outputFormat);
+              }
+
+            } else if (!_.isEmpty(transform.outputFormat)) {
+
+              //TODO may want to throw error os something here if variable replacement
+              // can't find the var here.... this is for injecting context variables...
+              // ******************NEED A SOLUTION********************
+              context.value = doVariableReplacement(context, transform.outputFormat);
+            } else {
+              throw new Error(`Unsupported set of transformation parameters: ${JSON.stringify(transform)}`);
+            }
 
             // TODO this is where we could put standard logic as to what to do to set/unset
             // values with undefined etc...
-            if (context.value === undefined) return;
+            if (isUndefinedOrNull(context.value)) return;
+
+            context.outputPath = doVariableReplacement(context, transform.outputPath);
 
             if (Array.isArray(context.value)) {
               // if (arrayStrategy === "spreadindex") {
               // TODO maybe put an option for slicing plurals?
               // maybe don't always want that?
               _.forEach(context.value, (value, index) => {
-                this.setValue(
-                  context,
-                  output,
-                  outputPath,
-                  `${context.outKey.slice(0, -1)}_${index}`,
-                  outputValueShape,
-                  value
-                );
+                _.set(output,
+                  `${context.outputPath.slice(0, -1)}_${index}`,
+                  doVariableReplacement(context, value));
               });
               // }
             } else {
-              this.setValue(
-                context,
-                output,
-                outputPath,
-                context.outKey,
-                outputValueShape,
-                context.value
-              );
+              _.set(output, context.outputPath, context.value);
             }
           });
         });
@@ -167,39 +157,6 @@ class TransformImpl {
     }
   }
 
-  setValue(
-    context: Object,
-    output: Object,
-    outputPath: string,
-    outputKeyShape: string,
-    outputValueShape: Object,
-    outputValue: Object
-  ) {
-    if (outputValueShape !== undefined) {
-      // TODO let's come back and refactor this in/out key madness
-      // need to understand the spec...
-      const outputGroup = {};
-      _.forEach(outputValueShape, (value, key) => {
-        _.set(
-          outputGroup,
-          doVariableReplacement(context, key),
-          doVariableReplacement(context, value)
-        );
-      });
-
-      _.set(
-        output,
-        `${outputPath}.${doVariableReplacement(context, outputKeyShape)}`,
-        outputGroup
-      );
-    } else {
-      _.set(
-        output,
-        `${outputPath}.${doVariableReplacement(context, outputKeyShape)}`,
-        outputValue
-      );
-    }
-  }
 
   /**
    * Normalizes the url by stripping everything

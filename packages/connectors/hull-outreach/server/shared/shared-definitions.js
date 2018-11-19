@@ -8,17 +8,15 @@
  */
 
 const definitions = {
-  accountLastSyncFetch: [
-    set("lastsync", "${connector.private_settings.lastSync}"),
-    "accountFetch"
-  ],
-  accountFetch: {
-    if: cond("NonEmpty", "${lastsync}"),
-    true: [hull("settingsUpdate", { "connector.private_settings.lastSync": "${NOW}" }), "accountFetchAll" ],
-    false: "accountFetchByLastSync"
-  },
-  accountFetchAll: hull(svc("endpointType:getAll")),
-  accountFetchByLastSync: hull(svc("endpointType:byLastSync"))
+  accountLastSyncFetch:
+    ifLogic(cond("isEmpty", "${connector.private_settings.lastSync}"), {
+      true: hull("asAccount", svc("accountFetchAll"))
+      false: [
+        set("newLastSync", utils("now")),
+        hull("settingsUpdate", { "lastSync": "${newLastSync}" }),
+        svc("accountFetchByLastSync")
+      ]
+    }),
 }
 
 module.exports = {

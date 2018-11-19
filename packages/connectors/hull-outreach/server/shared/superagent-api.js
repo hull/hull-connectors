@@ -4,6 +4,8 @@ import type { HullClientLogger, HullMetrics, HullContext } from "hull";
 
 const { Client } = require("hull");
 const { doVariableReplacement } = require("./variable-utils");
+const { isUndefinedOrNull } = require("./utils");
+
 const { HullConnectorEngine } = require("./engine");
 
 const _ = require("lodash");
@@ -28,9 +30,8 @@ class SuperagentApi {
   loggerClient: HullClientLogger;
   connectorHostname: string;
   settingsUpdate: Object;
-  engine: HullConnectorEngine;
 
-  constructor(reqContext: Object, api: RawRestApi, engine: HullConnectorEngine) {
+  constructor(reqContext: Object, api: RawRestApi) {
     this.reqContext = reqContext;
     this.api = api;
     this.loggerClient = reqContext.client.logger;
@@ -86,13 +87,15 @@ class SuperagentApi {
       return null;
     }
 
-    let agentPromise = this.agent[endpoint.operation](endpoint.url);
+    let agentPromise = this.agent[endpoint.operation](doVariableReplacement(this.reqContext, endpoint.url));
 
     if (endpoint.query) {
-      agentPromise = agentPromise.query(doVariableReplacement(this.reqContext, endpoint.query));
+      const query = doVariableReplacement(this.reqContext, endpoint.query);
+      debug(`Created query: ${query}`);
+      agentPromise = agentPromise.query(query);
     }
 
-    if (params !== undefined && params !== null) {
+    if (!isUndefinedOrNull(params)) {
       agentPromise = agentPromise.send(params);
     }
 

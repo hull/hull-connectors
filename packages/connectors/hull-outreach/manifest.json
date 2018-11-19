@@ -113,17 +113,17 @@
       "type": "array",
       "format": "table",
       "default": [
-        { "hull_field_name": "name", "outreach_field_name": "name" }
+        { "input_field_name": "name", "output_field_name": "name" }
       ],
       "items": {
         "type": "object",
         "properties": {
-          "hull_field_name" : {
+          "input_field_name" : {
             "type" : "string",
             "format" : "accountTrait",
             "title" : "Hull Attribute"
           },
-          "outreach_field_name" : {
+          "output_field_name" : {
             "type" : "string",
             "title" : "Outreach.io Field",
             "format" : "select",
@@ -133,8 +133,8 @@
           }
         },
         "required" : [
-          "hull_field_name",
-          "outreach_field_name"
+          "input_field_name",
+          "output_field_name"
         ]
       }
     },
@@ -182,12 +182,12 @@
       "items": {
         "type": "object",
         "properties": {
-          "hull_field_name" : {
+          "input_field_name" : {
             "type" : "string",
             "format" : "trait",
             "title" : "Hull Attribute"
           },
-          "outreach_field_name" : {
+          "output_field_name" : {
             "type" : "string",
             "title" : "Outreach.io Field",
             "format" : "select",
@@ -197,8 +197,8 @@
           }
         },
         "required" : [
-          "hull_field_name",
-          "outreach_field_name"
+          "input_field_name",
+          "output_field_name"
         ]
       }
     }

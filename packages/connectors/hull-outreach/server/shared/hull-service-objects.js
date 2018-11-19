@@ -38,14 +38,9 @@ class HullOutgoingAccount {
   external_ids: Array<String>;
 }
 
-class HullSettings {
-
-}
-
 module.exports = {
   HullIncomingUser,
   HullIncomingAccount,
   HullOutgoingUser,
-  HullOutgoingAccount,
-  HullSettings
+  HullOutgoingAccount
 };

@@ -9,8 +9,7 @@ const _ = require("lodash");
 
 const {
   HullIncomingUser,
-  HullIncomingAccount,
-  HullSettings
+  HullIncomingAccount
 } = require("./hull-service-objects");
 
 // should be a generically instantiated class which take
@@ -63,7 +62,7 @@ class HullSdk {
     return this.client.asAccount(account.ident).traits(account.attributes);
   }
 
-  connectorSettingsUpdate(settings: HullSettings) {
+  connectorSettingsUpdate(settings: any) {
     return this.helpers.settingsUpdate(settings);
   }
 }

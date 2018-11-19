@@ -22,47 +22,35 @@ const transformsToHull: ServiceTransforms =
       input: OutreachProspectRead,
       output: HullIncomingUser,
       strategy: "PropertyKeyedValue",
-      template: {
-        directmap: [
-          { input: "id", output: "ident.anonymous_id" },
-          { input: "attributes.${user_specified_id}", output: "ident.external_id" },
-          { input: "attributes.domain", output: "ident.domain" }
-        ],
-        keyedGroups: [{
-          input: "attributes",
-          output: "attributes",
-          mapping: "settings.prospect_attributes_inbound",
-          arrayStrategy: "appendindex",
-          key: "outreach/${inKey}",
-          value: {
+      transforms: [
+        { inputPath: "id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
+        { inputPath: "attributes.emails[0]", outputPath: "ident.email" },
+        { mapping: "connector.private_settings.prospect_attributes_inbound",
+          inputPath: "attributes/${input_field_name}",
+          outputPath: "attributes.outreach/${output_field_name}",
+          outputFormat: {
             value: "${value}",
             operation: "set"
           }
-        }]
-      }
+        }
+      ]
     },
     {
       input: OutreachAccountRead,
       output: HullIncomingAccount,
       strategy: "PropertyKeyedValue",
-      template: {
-        directmap: [
-          { input: "id", output: "ident.anonymous_id" },
-          { input: "attributes.${user_specified_id}", output: "ident.external_id" },
-          { input: "attributes.domain", output: "ident.domain" }
-        ],
-        keyedGroups: [{
-          input: "attributes",
-          output: "attributes",
-          mapping: "settings.account_attributes_inbound",
-          arrayStrategy: "appendindex",
-          key: "outreach/${inKey}",
-          value: {
+      transforms: [
+        { inputPath: "id", outputPath: "ident.anonymous_id" },
+        { inputPath: "attributes.domain", outputPath: "ident.domain" },
+        { mapping: "connector.private_settings.account_attributes_inbound",
+          inputPath: "attributes/${input_field_name}",
+          outputPath: "attributes.outreach/${output_field_name}",
+          outputFormat: {
             value: "${value}",
             operation: "set"
           }
-        }]
-      }
+        }
+      ]
     }
   ];
 

@@ -88,8 +88,14 @@ function doStringVariableReplacement(context: Object, value: string): string {
     variableIndex = value.indexOf(value, closeIndex);
   }
 
-  resolvedValue.push(value.substring(closeIndex, value.length));
+  if (closeIndex !== value.length) {
+    resolvedValue.push(value.substring(closeIndex, value.length));
+  }
 
+  if (resolvedValue.length === 1) {
+    // this ensures that if the value in the context was a number, we don't turn it into a string
+    return resolvedValue[0];
+  }
   return resolvedValue.join("");
 }
 

@@ -2,6 +2,7 @@
 const { service } = require("./service");
 
 const {
+  ifLogic,
   route,
   cond,
   hull,
@@ -9,12 +10,17 @@ const {
   get,
   filter,
   utils,
-  Cond,
+  input,
+  inputParameter,
   Svc
 } = require("./shared/language")
 
-function outreachQuery(op: string, query: any): Svc { return new Svc("outreach", op, query, null)};
-function outreachSend(op: string, data: any): Svc { return new Svc("outreach", op, null, data)};
+// function outreach(op: string, query: any): Svc { return new Svc("outreach", op, query, null)};
+// function outreach(op: string, data: any): Svc { return new Svc("outreach", op, null, data)};
+
+function outreach(op: string): Svc { return new Svc("outreach", op)};
+function outreachSend(op: string, param: any): Svc { return new Svc("outreach", op, param)};
+function outreachSendInput(op: string): Svc { return new Svc("outreach", op, input())};
 
 
 // TODO need support for parallel paths too
@@ -40,105 +46,91 @@ const refreshTokenDataTemplate = {
   grant_type: "refresh_token"
 }
 
+// conditionals are a specific type of instruction
+// who can only be executed if inside of an "if" instruction....
+// everything else can be nested, which means, the if/else
+// flow is special somehow....
+
+// glue is a list of routes....
+// a route has a name, and a parameter to be evaluated....
+// a route is a named instruction....
+// everything else doesn't have a name....
+
 const glue = {
-  userUpdateStart: {
-    if: { type: "conditional", op: "notEmpty", param: "user.anonymous_id" },
-    true: route("prospectLookupById"),
-    false: route("prospectLookupByEmail")
-  },
-  prospectLookupById: {
-    if: { type: "conditional", name: "notEmpty", param: { type: "service", name: "outreach", op: "getProspect" } },
-    true: { type: "service", name: "hull", param: { type: "service", name: "outreach", op: "updateProspect" } },
-    false: route("prospectLookupByEmail")
-  },
-  prospectLookupByEmail: {
-    if: {
-      type: "conditional",
-      name: "notEmpty",
-      params: {
-        type: "service",
-        name: "outreach",
-        op: "getProspect",
-        params: "email=${user.email}"
-        }
-      },
-    true: {
-      type: "service",
-      name: "hull",
-      op: "asUser",
-      params: {
-        type: "service",
-        name: "outreach",
-        op: "updateUser"
-      }
-    },
-    false: {
-      type: "service",
-      name: "hull",
-      op: "asUser",
-      params: {
-        type: "service",
-        name: "outreach",
-        op: "insertUser"
-      }
-    }
-  },
-  accountUpdateStart: {
-    if: new Cond("notEmpty", "account.anonymous_id"),
-      true: {
-        if: new Cond("notEmpty", new Svc("outreach", "getAccountById")),
-        true: new Svc("hull", "asAccount", new Svc("outreach", "updateAccount")),
-        false: route("accountLookupByDomain")
-      },
+  userUpdateStart: route("prospectLookupById"),
+  prospectLookupById:
+    ifLogic(cond("notEmpty", set("userId", inputParameter("outreach/id"))), {
+      true: ifLogic(cond("notEmpty", outreach("getProspectById")), {
+              true: hull("asUser", outreachSendInput("updateProspect")),
+              false: route("prospectLookupByEmail")
+            }),
+      false: route("prospectLookupByEmail")
+    }),
+  prospectLookupByEmail:
+    ifLogic(cond("notEmpty", set("userEmail", inputParameter("email"))), {
+      true: ifLogic(cond("notEmpty", set("userId", get(outreach("getProspectByEmail"), "id"))), {
+              true: hull("asUser", outreachSendInput("updateProspect")),
+              false: hull("asUser", outreachSendInput("insertProspect"))
+            }),
+      false: hull("asUser", outreachSendInput("insertProspect"))
+    }),
+  accountUpdateStart:
+    ifLogic(cond("notEmpty", set("accountId", inputParameter("outreach/id"))), {
+      true:
+        ifLogic(cond("notEmpty", outreach("getAccountById")), {
+          true: hull("asAccount", outreachSendInput("updateAccount")),
+          false: route("accountLookupByDomain")
+          }),
       false: route("accountLookupByDomain")
-  },
-  accountLookupByDomain: {
-    if: cond("notEmpty", outreachQuery("getAccountByProperty", "domain=${account.domain}")),
-    true: hull("asAccount", outreachSend("endpointType:update", "account")),
-    false: hull("asAccount", outreachSend("endpointType:create", "account"))
-  },
-
+    }),
+  accountLookupByDomain:
+    ifLogic(cond("notEmpty", set("accountDomain", inputParameter("domain"))), {
+      true: ifLogic(cond("notEmpty", outreach("getAccountByDomain")), {
+              true: hull("asAccount", outreachSendInput("updateAccount")),
+              false: hull("asAccount", outreachSendInput("insertAccount"))
+            }),
+      false: hull("asAccount", outreachSendInput("insertAccount"))
+    }),
   fetchAll: [route("accountFetchAll"), route("prospectFetchAll")],
-  accountFetchAll: hull("asAccount", outreachQuery("getAllAccounts")),
-  prospectFetchAll: hull("asUser", outreachQuery("getAllProspects")),
+  accountFetchAll: hull("asAccount", outreach("getAllAccounts")),
+  prospectFetchAll: hull("asUser", outreach("getAllProspects")),
 
-  ensureWebhooks: {
-    if: cond("isEmpty", "${connector.private_settings.webhook_id}"),
-    true: [
-      set("webhookUrl", utils("createWebhookUrl")),
-      {
-        if: cond("isEmpty", filter(outreachQuery("getAllWebhooks"), { type: "webhook", attributes: { url: "${webhookUrl}" } })),
-        true: [
-          set("webhookId", get(outreachSend("insertWebhook", webhookDataTemplate), "id")),
-          hull("settingsUpdate", { webhook_id:  "${webhookId}" })
+  ensureWebhooks:
+    ifLogic(cond("isEmpty", "${connector.private_settings.webhook_id}"), {
+      true: [
+        set("webhookUrl", utils("createWebhookUrl")),
+        ifLogic(cond("isEmpty", filter(outreach("getAllWebhooks"), { type: "webhook", attributes: { url: "${webhookUrl}" } })),
+          {
+            true: [
+              set("webhookId", get(outreachSend("insertWebhook", webhookDataTemplate), "data.id")),
+              hull("settingsUpdate", { webhook_id:  "${webhookId}" })
+            ],
+            false: {}
+          })
         ],
-        false: {}
-      }
-    ]
-  },
-  refreshToken: {
-    if: cond("notEmpty", "${connector.private_settings.refresh_token}"),
-    true: [
-      set("connectorHostname", utils("getConnectorHostname")),
-      set("refreshTokenResponse", outreachSend("refreshToken", refreshTokenDataTemplate)),
-      {
-        if: (cond("notEmpty", get("refreshTokenResponse.access_token"))),
-        true: [
-          set("connector.private_settings.expires_in", "${refreshTokenResponse.expires_in}"),
-          set("connector.private_settings.created_at", "${refreshTokenResponse.created_at}"),
-          set("connector.private_settings.refresh_token", "${refreshTokenResponse.refresh_token}"),
-          set("connector.private_settings.access_token", "${refreshTokenResponse.access_token}"),
-          hull("settingsUpdate", {
-                        "expires_in": "${refreshTokenResponse.expires_in}",
-                        "created_at": "${refreshTokenResponse.created_at}",
-                        "refresh_token": "${refreshTokenResponse.refresh_token}",
-                        "access_token": "${refreshTokenResponse.access_token}"})
-        ],
-        false: {}
-      }
-    ],
-    false: {}
-  }
+      false: {}
+    }),
+  refreshToken:
+    ifLogic(cond("notEmpty", "${connector.private_settings.refresh_token}"), {
+      true: [
+        set("connectorHostname", utils("getConnectorHostname")),
+        ifLogic(cond("notEmpty", set("refreshTokenResponse", outreachSend("refreshToken", refreshTokenDataTemplate))), {
+          true: [
+            set("connector.private_settings.expires_in", "${refreshTokenResponse.expires_in}"),
+            set("connector.private_settings.created_at", "${refreshTokenResponse.created_at}"),
+            set("connector.private_settings.refresh_token", "${refreshTokenResponse.refresh_token}"),
+            set("connector.private_settings.access_token", "${refreshTokenResponse.access_token}"),
+            hull("settingsUpdate", {
+                          "expires_in": "${refreshTokenResponse.expires_in}",
+                          "created_at": "${refreshTokenResponse.created_at}",
+                          "refresh_token": "${refreshTokenResponse.refresh_token}",
+                          "access_token": "${refreshTokenResponse.access_token}"})
+          ],
+          false: {}
+        })
+      ],
+      false: {}
+  })
 
 };
 

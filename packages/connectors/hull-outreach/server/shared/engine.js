@@ -11,8 +11,8 @@ import type {
 
 const _ = require("lodash");
 const {
-  HullServiceUser,
-  HullServiceAccount
+  HullOutgoingUser,
+  HullOutgoingAccount
 } = require("./hull-service-objects");
 
 const { oAuthHandler } = require("hull/src/handlers");
@@ -22,6 +22,7 @@ const { HullInstruction, Route } = require("./language");
 
 const { doVariableReplacement } = require("./variable-utils");
 const { FrameworkUtils } = require("./framework-utils");
+const { isUndefinedOrNull } = require("./utils");
 
 const { SuperagentApi } = require("./superagent-api");
 const { HullSdk } = require("./hull-service");
@@ -30,6 +31,15 @@ const { TransformImpl } = require("./transform-impl");
 import type { HullRequest } from "hull";
 
 const debug = require("debug")("hull-shared:engine");
+
+class IncomingData {
+  classType: any;
+  obj: any
+  constructor(classType: any, obj: any) {
+    this.classType = classType;
+    this.obj = obj;
+  }
+}
 
 
 class HullConnectorEngine {
@@ -51,96 +61,164 @@ class HullConnectorEngine {
     this.retryMutex = false;
   }
 
-
   async dispatch(context: Object, instruction: Object) {
-    if (!_.isEmpty(this.ensure)) {
-      await this.resolve(context, new Route(this.ensure));
-    }
-    return await this.resolve(context, instruction);
+    return await this.dispatchWithData(context, instruction, null);
   }
 
-  async resolve(context: Object, instruction: Object): any {
+  async dispatchWithData(context: Object, instruction: Object, data: null | IncomingData) {
+    try {
+      if (!_.isEmpty(this.ensure)) {
+        await this.resolve(0, context, new Route(this.ensure), data);
+      }
+      return await this.resolve(0, context, instruction, data);
+    } catch (error) {
+      console.log("Error here: " + error.stack);
+    }
+  }
+
+  async resolve(depth: number, context: Object, instruction: Object, data: null | IncomingData): any {
 
     if (instruction === undefined || instruction === null) {
       return instruction;
     }
 
+    // need to handle array expansion or consolidation in the same place...
+    // is array of instruction different than array of object returns?
+    // maybe not....
+
+    // array of instructions, those results together don't make much sense...
+    // could be consolidating a variety of results from a variety of instructions
+    // many of which don't have outputs...
     if (Array.isArray(instruction)) {
       const results = [];
 
       for (let index = 0; index < instruction.length; index++) {
-        const result = await this.resolve(context, instruction[index]);
+        const result = await this.resolve(depth, context, instruction[index], data);
         results.push(result);
       }
 
       return results;
-    } else if (!_.isEmpty(instruction.if)) {
-      // TODO maybe abstract the if concept, starting to seem out of place...
-      const conditionResult = await this.resolve(context, instruction.if);
-      if (conditionResult) {
-        return await this.resolve(context, instruction.true);
-      } else {
-        return await this.resolve(context, instruction.false);
-      }
-    // } else if (!_.isEmpty(instruction.type)) {
     } else if (instruction instanceof HullInstruction) {
+
+      // an instruction could take in an array
+      // but if it's single, then make array if endpoint takes an array
+      // if it's an array, and endpoint takes 1, then loop over...
+
+      // What are the differnces between input and parameters....
+      // parameters are more downstream instructions that the input gets passed to first
+      // this instruction only gets the result of the downstream objects...
+      // are the hull input objects, the parameters to the route????!!!!
+      // is that why route is the only object without parameters????!!!
+
+      // what is the relationship between the route and the glue? What is the abstraction???
+
       const params = instruction.params;
-      if (!_.isEmpty(_.get(params, "expires_in"))) {
-        console.log('dying...');
-      }
-      let resolvedParams = await this.resolve(context, params);
-      if (!_.isEmpty(resolvedParams)) {
-        try {
-          debug(`Got Parameters: ${JSON.stringify(resolvedParams)} for ${instruction.type}:${instruction.name}`);
-        } catch (error) {
-          debug("dead: "+ error);
+      let resolvedParams = await this.resolve(depth, context, params, data);
+
+      if (!isUndefinedOrNull(resolvedParams)) {
+
+        let paramName = null;
+        if (params instanceof HullInstruction) {
+          paramName = `${params.type}:${params.name}`;
+        } else  if (typeof params === 'string') {
+          paramName = params;
         }
+
+        let paramString = JSON.stringify(resolvedParams);
+        if (paramString.length > 30) {
+          paramString = `${paramString.substring(0,60)}...`;
+        }
+
+        if (paramName === null) {
+          debug(`[EXECUTING]: ${instruction.type}<${instruction.name}> [RESOLVED-TO]: ${paramString}`);
+        } else {
+          debug(`[EXECUTING]: ${instruction.type}<${instruction.name}> [FROM]: ${paramName} [RESOLVED-TO]: ${paramString}`);
+        }
+
+      } else {
+        debug(`[EXECUTING]: ${instruction.type}<${instruction.name}>`);
       }
-      return await this.interpretInstruction(context, instruction, resolvedParams);
+
+      return await this.interpretInstruction(depth, context, instruction, resolvedParams, data);
     } else {
       return doVariableReplacement(context, instruction);
     }
   }
 
-  async interpretInstruction(context: Object, instruction: Object, resolvedParams: any) {
+  async interpretInstruction(depth: number, context: Object, instruction: Object, resolvedParams: any, data: null | IncomingData) {
     let type = _.get(instruction, "type");
 
-    debug(`Executing: ${instruction.type}:${instruction.name}`);
+    if (type === 'reference') {
 
-    if (type === 'route') {
-      const route = this.glue[instruction.name];
-      if (_.isEmpty(route)) {
-        debug(`Route: ${instruction.name} not found in glue`);
-        return null;
-      }
-      return await this.resolve(context, route);
-    } else if (type === 'conditional') {
       const name = instruction.name;
 
-      if (name === 'notEmpty') {
-        return !_.isEmpty(resolvedParams);
-      } else if (name === 'isEmpty') {
-        return _.isEmpty(resolvedParams);
-      } else {
-        throw new Error(`Unsupported Conditional: ${name}`);
+      if (name === 'input') {
+        if (data !== null && !isUndefinedOrNull(instruction.path)) {
+          return _.get(data.obj, instruction.path);
+        }
+        return data;
       }
+
+      throw new Error(`Unsupported Reference: ${name}`);
+
+    } else if (type === 'route') {
+      const route = this.glue[instruction.name];
+      if (_.isEmpty(route)) {
+        throw new Error(`Route: ${instruction.name} not found in glue`);
+      }
+      return await this.resolve(depth, context, route, data);
+    } else if (type === 'logic') {
+
+      const name = instruction.name;
+
+      if (name === 'if') {
+
+        if (resolvedParams) {
+          return await this.resolve(depth, context, instruction.results.true, data);
+        } else {
+          return await this.resolve(depth, context, instruction.results.false, data);
+        }
+
+      } else {
+        throw new Error(`Unsupported Logic: ${name}`);
+      }
+
     } else if (type === 'operation') {
       const name = instruction.name;
 
-      if (Array.isArray(resolvedParams) && resolvedParams.length === 2) {
+      // gotta work out this bs logic to standardize...
+      if (Array.isArray(resolvedParams)) {
 
-        if (name === 'set') {
-          _.set(context, resolvedParams[0], resolvedParams[1]);
-          return null;
-        } else if (name === 'get') {
-          return _.get(context, resolvedParams[0], resolvedParams[1]);
-        } else if (name === 'filter') {
-          return _.filter(resolvedParams[0], resolvedParams[1]);
-        } else if (name === 'utils') {
-          return new FrameworkUtils()[resolvedParams[0]](context, resolvedParams[1]);
+        if (resolvedParams.length === 2){
+
+          if (name === 'set') {
+            _.set(context, resolvedParams[0], resolvedParams[1]);
+            // return the obj that we set...
+            return resolvedParams[1];
+          } else if (name === 'get') {
+            return _.get(resolvedParams[0], resolvedParams[1]);
+          } else if (name === 'filter') {
+            return _.filter(resolvedParams[0], resolvedParams[1]);
+          } else if (name === 'utils') {
+            return new FrameworkUtils()[resolvedParams[0]](context, resolvedParams[1]);
+          } else {
+            throw new Error(`Unsupported Conditional: ${name}`);
+          }
+        } else if (resolvedParams.length === 1) {
+          if (name === 'get') {
+            return _.get(context, resolvedParams[0]);
+          }
         }
-
       }
+
+      if (name === 'notEmpty') {
+        return (typeof resolvedParams === 'number') || !_.isEmpty(resolvedParams);
+      } else if (name === 'isEmpty') {
+        return (typeof resolvedParams !== 'number') && _.isEmpty(resolvedParams);
+      }
+
+      //TODO need to decide if this is valid....
+      return null;
     } else if (type === 'service') {
 
       let inputParams = resolvedParams;
@@ -154,7 +232,7 @@ class HullConnectorEngine {
       const results = [];
 
       for (let index = 0; index < inputParams.length; index++) {
-        const result = await this.callService(context, instruction, inputParams[index]);
+        const result = await this.callService(depth, context, instruction, inputParams[index]);
         results.push(result);
       }
 
@@ -172,24 +250,39 @@ class HullConnectorEngine {
 
   }
 
-  async callService(context: Object, instruction: Object, inputParam: any) {
+  async callService(depth: number, context: Object, instruction: Object, inputParam: any) {
 
     const name = instruction.name;
     const op = instruction.op;
-
     const serviceDefinition = this.services[name];
     const endpoint = serviceDefinition.endpoints[op];
 
-    let transformedObject;
-    if (inputParam === undefined || inputParam === null || endpoint.input === undefined || endpoint.input === null) {
-      transformedObject = inputParam;
-    } else if (typeof inputParam === 'string') {
-      transformedObject = this.transforms.transform(context, _.get(context, inputParam), endpoint.input, endpoint.output);
-    } else {
-      transformedObject = this.transforms.transform(context, inputParam, endpoint.input, endpoint.output);
+    if (isUndefinedOrNull(endpoint))
+      throw new Error(`Undefined endpoint: ${name}<${op}>`);
+
+    let transformedObject = inputParam;
+
+    if (!isUndefinedOrNull(inputParam)) {
+      let classType = null;
+
+      if (typeof inputParam === 'string') {
+        transformedObject = _.get(context, inputParam);
+      } else if (inputParam instanceof IncomingData) {
+        transformedObject = inputParam.obj;
+        classType = inputParam.classType;
+      }
+
+      if (!isUndefinedOrNull(endpoint.input)) {
+        transformedObject = this.transforms.transform(context, transformedObject, classType, endpoint.input);
+      }
     }
 
-    debug(`Sending ${JSON.stringify(transformedObject)} to ${name}:${op}`);
+    if (!_.isEmpty(transformedObject)) {
+      debug(`[CALLING-SERVICE]: ${name}<${op}> [WITH-DATA]: ${JSON.stringify(transformedObject)}`);
+    } else {
+      debug(`[CALLING-SERVICE]: ${name}<${op}>`);
+    }
+
     let retryablePromise;
     if (name === "hull") {
       retryablePromise = () =>{
@@ -197,16 +290,19 @@ class HullConnectorEngine {
       }
     } else {
       retryablePromise = () =>{
-        return new SuperagentApi(context, serviceDefinition, this).dispatch(op, transformedObject);
+        // TODO fix error throwing... it's throwing out to nowhere...
+        // console.log(JSON.stringify(context));
+        return new SuperagentApi(context, serviceDefinition).dispatch(op, transformedObject);
       }
     }
+
     return retryablePromise().catch(error => {
-      debug(`Service ${name} Caught error: ${JSON.stringify(error)}`);
+      debug(`[SERVICE-ERROR]: ${name} [ERROR]: ${JSON.stringify(error)}`);
         const route: string = this.onErrorGetRecovery(serviceDefinition, error);
         if (!this.retryMutex && !_.isEmpty(route)) {
           this.retryMutex = true;
-          debug(`Service ${name} attempting to recover with route: ${route}`);
-          return this.resolve(context, new Route(route)).then(() => {
+          debug(`[SERVICE-ERROR]: ${name} [RECOVERY-ROUTE-ATTEMPT]: ${route}`);
+          return this.resolve(depth, context, new Route(route), inputParam).then(() => {
             this.retryMutex = false;
             return retryablePromise();
           }).catch(error => {
@@ -222,12 +318,14 @@ class HullConnectorEngine {
   onErrorGetRecovery(serviceDefinition: any, error: any): any {
     if (!_.isEmpty(serviceDefinition.retry.templates)) {
       const matchingTemplate = _.find(serviceDefinition.retry.templates, template => {
-        if (_.matches(template.truthy)) {
+        if (_.isMatch(error, template.truthy)) {
           return true;
         }
         return false;
       });
 
+      // checking undefined here even though is empty does it
+      // to make flow happy
       if (matchingTemplate !== undefined && !_.isEmpty(matchingTemplate)) {
         return matchingTemplate.route;
       }
@@ -240,7 +338,7 @@ class HullConnectorEngine {
         return !_.isEmpty(service.authentication)
       });
 
-    if (primaryService !== undefined) {
+    if (!isUndefinedOrNull(primaryService)) {
       const authentication = primaryService.authentication;
 
       if (authentication.strategy === "oauth2") {
@@ -268,14 +366,14 @@ class HullConnectorEngine {
 
   getFetchAllAction() {
     return (context: HullContext) => {
-      this.dispatch(_.merge({}, context), new Route("fetchAll"));
+      this.dispatch(context, new Route("fetchAll"));
       return Promise.resolve("ok");
     }
   }
 
   getWebhookCallback() {
     return (context: HullContext) => {
-      this.dispatch(_.merge({}, context), new Route("webhook"));
+      this.dispatch(context, new Route("webhook"));
       return Promise.resolve("ok");
     }
   }
@@ -293,14 +391,14 @@ class HullConnectorEngine {
         ).length >= 1;
 
         if (!matchesUserSegments) {
-          this.logger.info(SHARED_MESSAGES.OPERATION_SKIP_NOMATCHUSERSEGMENTS());
+          debug(`User does not match segment ${ JSON.stringify(message.user) }`);
           return;
         }
       }
 
       // if no changes to account attributes
       //if ()
-      return this.dispatch(_.merge({ user: message.user }, context), new Route("userUpdateStart"));
+      return this.dispatchWithData(context, new Route("userUpdateStart"), new IncomingData(HullOutgoingUser, message.user));
     }));
 
     return promise;
@@ -316,7 +414,7 @@ class HullConnectorEngine {
         ).length >= 1;
 
         if (!matchesUserSegments) {
-          this.logger.info(SHARED_MESSAGES.OPERATION_SKIP_NOMATCHACCOUNTSEGMENTS());
+          debug(`Account does not match segment ${ JSON.stringify(message.account) }`);
           return;
         }
 
@@ -324,7 +422,7 @@ class HullConnectorEngine {
         //if ()
       }
 
-      return this.dispatch(_.merge({ account: message.account }, context), new Route("accountUpdateStart"));
+      return this.dispatchWithData(context, new Route("accountUpdateStart"), new IncomingData(HullOutgoingAccount, message.account));
     }));
     return promise;
   }
