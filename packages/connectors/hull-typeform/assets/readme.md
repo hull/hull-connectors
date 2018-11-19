@@ -13,14 +13,13 @@ Click "Accept" - you will be redirected back to Hull dashboard.
 
 When connector is successfully authorized please go to settings tab and select
 the form you want to fetch using the dropdown field.
+After this operation please save connector settings and reload it to proceed with other settings.
 
 ### User Identification
 
 There are two ways of identifying user fetched into Hull.
 First is to use one of the fields from the form as email address.
-To use it go to the connector settings and pick an email field from the dropdown.
-(Only email type fields are selectable).
-
+To use it go to the connector settings and pick an email field from the dropdown (only email type fields are selectable).
 
 Other option to reconcile user identities is to setup your Typeform's to embed [Hidden Fields](https://www.typeform.com/help/hidden-fields/). We recognize the following fields automatically:
 

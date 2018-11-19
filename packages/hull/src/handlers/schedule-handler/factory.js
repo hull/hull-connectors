@@ -28,7 +28,8 @@ const {
   timeoutMiddleware,
   haltOnTimedoutMiddleware,
   instrumentationContextMiddleware,
-  trimTraitsPrefixMiddleware
+  trimTraitsPrefixMiddleware,
+  instrumentationTransientErrorMiddleware
 } = require("../../middlewares");
 const { normalizeHandlersConfigurationEntry } = require("../../utils");
 /**
@@ -82,6 +83,7 @@ function scheduleHandlerFactory(
       })
       .catch(error => next(error));
   });
+  router.use(instrumentationTransientErrorMiddleware());
   if (disableErrorHandling === true) {
     router.use(
       (
