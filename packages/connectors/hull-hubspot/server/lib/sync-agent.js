@@ -360,17 +360,23 @@ class SyncAgent {
           this.connector.private_settings.link_users_in_hull === true &&
           contact.properties.associatedcompanyid
         ) {
-          const company = await this.hubspotClient.getCompany(contact.properties.associatedcompanyid.value);
+          const company = await this.hubspotClient.getCompany(
+            contact.properties.associatedcompanyid.value
+          );
           const accountIdent = this.helpers.incomingClaims("account", company, {
             anonymous_id_prefix: "hubspot",
             anonymous_id_service: "companyId"
           });
           if (accountIdent.claims) {
-            const linkingClient = this.hullClient.asUser(ident.claims).account(accountIdent.claims);
+            const linkingClient = this.hullClient
+              .asUser(ident.claims)
+              .account(accountIdent.claims);
             await linkingClient
               .traits({})
               .then(() => {
-                return linkingClient.logger.info("incoming.account.link.success");
+                return linkingClient.logger.info(
+                  "incoming.account.link.success"
+                );
               })
               .catch(error => {
                 return linkingClient.logger.error(
@@ -378,7 +384,7 @@ class SyncAgent {
                   error
                 );
               });
-            }
+          }
         } else {
           asUser.logger.info("incoming.account.link.skip", {
             reason:
