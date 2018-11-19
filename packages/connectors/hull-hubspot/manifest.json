@@ -182,7 +182,7 @@
               "placeholder": "Enter a Hull field id"
             }
           },
-          "hubspot": {
+          "service": {
             "title": "Hubspot Field ID",
             "type": "string",
             "format": "select",
@@ -257,7 +257,7 @@
       "items": {
         "type": "object",
         "properties": {
-          "hubspot": {
+          "service": {
             "title": "Hubspot Field ID",
             "type": "string",
             "format": "select",
