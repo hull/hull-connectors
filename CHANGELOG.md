@@ -2,6 +2,7 @@
 
 ## v0.0.5-monorepo
 - [hull-typeform] fix mapping submission into `HullUserAttributes`
+- [hull-typeform] introduce `trait-mapping` setting to handle incoming mapping
 - [hull] transient error instrumentation cleanup
 
 ## v0.0.4-monorepo
