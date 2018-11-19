@@ -42,11 +42,7 @@
         "placeholder": "Typeform Field",
         "allowCreate": true,
         "loadOptions": "/schema/fields"
-      },
-      "required": [
-        "service",
-        "hull"
-      ]
+      }
     },
     {
       "name":"last_fetch_recent_responses_start_at",
