@@ -110,15 +110,32 @@
     },
     {
       "name": "incoming_user_attributes",
-      "direction": "incoming",
       "title": "Custom Fields Sync (Hubspot to Hull)",
       "type": "array",
-      "format": "trait-mapping",
-      "options": {
-        "allowOverwrite": false,
-        "placeholder": "Hubspot Field",
-        "allowCreate": false,
-        "loadOptions": "/schema/contact_properties"
+      "format": "hidden",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "title": "Hubspot Field ID",
+            "type": "string",
+            "format": "select",
+            "options" : {
+              "allowCreate": false,
+              "loadOptions" : "/schema/contact_properties"
+            }
+          },
+          "hull": {
+            "title": "Hull Field ID",
+            "type": "string",
+            "format": "trait",
+            "options": {
+              "placeholder": "Enter a Hull field id",
+              "allowCreate": true,
+              "source": "hubspot"
+            }
+          }
+        }
       }
     },
     {
