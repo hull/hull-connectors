@@ -81,7 +81,7 @@
             "type": "string",
             "format": "select",
             "options" : {
-              "allowCreate": true,
+              "allowCreate": false,
               "loadOptions": "/schema/incoming_user_claims"
             }
           },
@@ -244,7 +244,7 @@
             "type": "string",
             "format": "select",
             "options" : {
-              "allowCreate": true,
+              "allowCreate": false,
               "loadOptions": "/schema/incoming_account_claims"
             }
           },

@@ -29,7 +29,7 @@
 
           <hr>
 
-          <div data-href="/fetch-all" class="pull-right btn btn-rounded btn-pill btn-primary">Fetch All Contacts</div>
+          <div data-href="/fetch-all" data-entity="contacts" class="pull-right btn btn-rounded btn-pill btn-primary">Fetch All Contacts</div>
 
           <div class="last_fetch">
 
@@ -40,7 +40,7 @@
 
           <hr>
 
-          <div data-href="/fetch-all-companies" class="pull-right btn btn-rounded btn-pill btn-primary">Fetch All Companies</div>
+          <div data-href="/fetch-all-companies" data-entity="companies" class="pull-right btn btn-rounded btn-pill btn-primary">Fetch All Companies</div>
 
         </div>
       </div>
@@ -76,9 +76,10 @@
     jQuery(function($) {
       $("[data-href]").click(function() {
         var url = $(this).attr('data-href');
+        var entity = $(this).attr('data-entity');
         swal({
-          title: "Fetch all contacts",
-          text: "You are going to fetch all Hubspot contacts. This can generate a lot of traffic. Are you sure?",
+          title: "Fetch all " + entity,
+          text: "You are going to fetch all Hubspot " + entity + ". This can generate a lot of traffic. Are you sure?",
           type: "warning",
           showCancelButton: true,
           confirmButtonColor: "#DD6B55",
@@ -87,7 +88,7 @@
         }, function(isConfirm) {
           if (isConfirm) {
             $.post(url+window.location.search);
-            swal("Fetching started", "The Hubspot contacts will be fetched shortly.", "success");
+            swal("Fetching started", "The Hubspot " + entity + " will be fetched shortly.", "success");
           }
         });
       });
