@@ -373,7 +373,8 @@ class HullConnectorEngine {
 
   getWebhookCallback() {
     return (context: HullContext) => {
-      this.dispatch(context, new Route("webhook"));
+      // Commenting out for now so it doesn't freak out when getting webhooks...
+      // this.dispatch(context, new Route("webhook"));
       return Promise.resolve("ok");
     }
   }

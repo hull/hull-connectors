@@ -50,6 +50,8 @@ class TransformImpl {
 
     const transforms = transformation.transforms;
 
+    const arrayAppendIndex = !_.isEmpty(transformation.indexStrategy);
+
     if (transformation.strategy === "PropertyKeyedValue") {
       // Need this for transform back to hull
       const output = {};
@@ -118,7 +120,7 @@ class TransformImpl {
 
             context.outputPath = doVariableReplacement(context, transform.outputPath);
 
-            if (Array.isArray(context.value)) {
+            if (Array.isArray(context.value) && arrayAppendIndex) {
               // if (arrayStrategy === "spreadindex") {
               // TODO maybe put an option for slicing plurals?
               // maybe don't always want that?

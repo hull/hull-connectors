@@ -11,6 +11,7 @@ const transformsToService: ServiceTransforms = [
     strategy: "PropertyKeyedValue",
     transforms: [
       { outputPath: "data.type", outputFormat: "prospect" },
+      { outputPath: "data.id", outputFormat: "${userId}" },
       { inputPath: "outreach/id", outputPath: "data.id" },
       { inputPath: "email", outputPath: "data.attributes.emails", outputFormat: ["${value}"] },
       {
