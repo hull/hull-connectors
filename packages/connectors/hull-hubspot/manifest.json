@@ -76,10 +76,6 @@
       "items": {
         "type": "object",
         "properties": {
-          "hull": {
-            "title": "Hull User Ident",
-            "enum": ["external_id", "email"]
-          },
           "service": {
             "title": "Hubspot Field ID",
             "type": "string",
@@ -88,6 +84,10 @@
               "allowCreate": true,
               "loadOptions": "/schema/incoming_user_claims"
             }
+          },
+          "hull": {
+            "title": "Hull User Ident",
+            "enum": ["external_id", "email"]
           },
           "required" : {
             "type": "boolean",
@@ -222,10 +222,6 @@
       "items": {
         "type": "object",
         "properties": {
-          "hull": {
-            "title": "Hull Account",
-            "enum": ["external_id", "domain"]
-          },
           "service": {
             "title": "Hubspot Field ID",
             "type": "string",
@@ -234,6 +230,10 @@
               "allowCreate": true,
               "loadOptions": "/schema/incoming_account_claims"
             }
+          },
+          "hull": {
+            "title": "Hull Account",
+            "enum": ["external_id", "domain"]
           },
           "required" : {
             "type": "boolean",

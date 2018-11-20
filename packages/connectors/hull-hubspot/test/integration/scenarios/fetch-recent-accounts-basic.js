@@ -47,7 +47,7 @@ it("should fetch recent companies using settings", () => {
           {
             jobName: "fetch",
             lastFetchAt: 1419967066626,
-            propertiesToFetch: [],
+            propertiesToFetch: ["domain"],
             stopFetchAt: expect.whatever(),
             type: "account"
           }

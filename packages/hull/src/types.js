@@ -211,3 +211,9 @@ export type HullConnectorSettingsTraitMapping = Array<{
   name?: string,
   overwrite?: boolean
 }>;
+
+export type HullIncomingClaimsSetting = {
+  hull?: string,
+  service?: string,
+  required?: boolean
+};

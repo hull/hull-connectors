@@ -47,7 +47,7 @@ it.skip("should fetch all companies", () => {
           {
             jobName: "fetch",
             lastFetchAt: 1419967066626,
-            propertiesToFetch: [],
+            propertiesToFetch: ["domain"],
             stopFetchAt: expect.whatever(),
             type: "account"
           }

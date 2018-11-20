@@ -5,7 +5,8 @@ import type {
   HullConnector,
   HullSegment,
   HullUserUpdateMessage,
-  HullAccountUpdateMessage
+  HullAccountUpdateMessage,
+  HullIncomingClaimsSetting
 } from "hull";
 
 import type {
@@ -81,6 +82,10 @@ class MappingUtil {
 
   companyIncomingMapping: Array<HubspotCompanyIncomingMapping>;
 
+  incomingUserClaims: Array<HullIncomingClaimsSetting>;
+
+  incomingAccountClaims: Array<HullIncomingClaimsSetting>;
+
   constructor({
     connector,
     hullClient,
@@ -121,6 +126,9 @@ class MappingUtil {
       this.connector.private_settings.outgoing_account_attributes || [];
 
     this.outgoingLinking = this.connector.private_settings.link_users_in_service;
+
+    this.incomingUserClaims = this.connector.private_settings.incoming_user_claims;
+    this.incomingAccountClaims = this.connector.private_settings.incoming_account_claims;
 
     this.contactOutgoingMapping = this.getContactOutgoingMapping();
     this.contactIncomingMapping = this.getContactIncomingMapping();
@@ -368,7 +376,13 @@ class MappingUtil {
    * @return {Array}
    */
   getHubspotContactPropertiesKeys(): Array<string> {
-    return this.contactIncomingMapping.map(prop => prop.hubspot_property_name);
+    const propertiesFromClaims = this.incomingUserClaims
+      .filter(entry => (entry.service || "").indexOf("properties.") === 0)
+      .map(entry => (entry.service || "").replace(/properties\./, ""))
+      .map(service => service.replace(/\.value/, ""));
+    return this.contactIncomingMapping
+      .map(prop => prop.hubspot_property_name)
+      .concat(propertiesFromClaims);
   }
 
   /**
@@ -381,7 +395,13 @@ class MappingUtil {
   }
 
   getHubspotCompanyPropertiesKeys(): Array<string> {
-    return this.companyIncomingMapping.map(prop => prop.hubspot_property_name);
+    const propertiesFromClaims = this.incomingAccountClaims
+      .filter(entry => (entry.service || "").indexOf("properties.") === 0)
+      .map(entry => (entry.service || "").replace(/properties\./, ""))
+      .map(service => service.replace(/\.value/, ""));
+    return this.companyIncomingMapping
+      .map(prop => prop.hubspot_property_name)
+      .concat(propertiesFromClaims);
   }
 
   getHullAccountTraitsKeys(): Array<string> {

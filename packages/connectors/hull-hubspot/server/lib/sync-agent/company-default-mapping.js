@@ -32,7 +32,7 @@ const DEFAULT_MAPPING: Array<HubspotDefaultCompanyMapping> = [
   },
   {
     hubspot: "hs_lastmodifieddate",
-    hull: "hubspot/hs_lastmodifieddate",
+    hull: "hubspot/hs_lastmodified_date",
     type: "datetime",
     title: "Last Modified Date",
     read_only: true
@@ -46,7 +46,7 @@ const DEFAULT_MAPPING: Array<HubspotDefaultCompanyMapping> = [
   },
   {
     hubspot: "hubspot_owner_assigneddate",
-    hull: "hubspot/hubspot_owner_assigneddate",
+    hull: "hubspot/hubspot_owner_assigned_date",
     type: "datetime",
     title: "Owner Assigned Date",
     read_only: true
@@ -165,14 +165,14 @@ const DEFAULT_MAPPING: Array<HubspotDefaultCompanyMapping> = [
   },
   {
     hubspot: "notes_last_contacted",
-    hull: "hubspot/notes_last_contacted",
+    hull: "hubspot/notes_last_contacted_at",
     type: "datetime",
     title: "Last Contacted",
     read_only: true
   },
   {
     hubspot: "notes_last_updated",
-    hull: "hubspot/notes_last_updated",
+    hull: "hubspot/notes_last_updated_at",
     type: "datetime",
     title: "Last Activity Date",
     read_only: true
@@ -319,21 +319,21 @@ const DEFAULT_MAPPING: Array<HubspotDefaultCompanyMapping> = [
   },
   {
     hubspot: "createdate",
-    hull: "hubspot/createdate",
+    hull: "hubspot/create_date",
     type: "datetime",
     title: "Create Date",
     read_only: true
   },
   {
     hubspot: "closedate",
-    hull: "hubspot/closedate",
+    hull: "hubspot/close_date",
     type: "datetime",
     title: "Close Date",
     read_only: false
   },
   {
     hubspot: "first_contact_createdate",
-    hull: "hubspot/first_contact_createdate",
+    hull: "hubspot/first_contact_create_date",
     type: "datetime",
     title: "First Contact Create Date",
     read_only: true

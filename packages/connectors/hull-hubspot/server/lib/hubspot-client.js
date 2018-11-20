@@ -631,7 +631,6 @@ class HubspotClient {
       return this.agent.get("/companies/v2/companies/recent/modified").query({
         count,
         offset
-        // property: properties
       });
     });
   }
