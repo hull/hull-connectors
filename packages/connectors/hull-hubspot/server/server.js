@@ -48,7 +48,16 @@ function server(app: $Application): $Application {
     cors(),
     jsonHandler({
       callback: actions.getIncomingUserClaims,
-      options: { respondWithError: true }
+      options: { respondWithError: false }
+    })
+  );
+
+  app.use(
+    "/schema/incoming_account_claims",
+    cors(),
+    jsonHandler({
+      callback: actions.getIncomingAccountClaims,
+      options: { respondWithError: false }
     })
   );
 
