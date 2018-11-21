@@ -171,26 +171,6 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
-        [
-          "warn",
-          "outgoing.user.warning",
-          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {
-            "mappingEntry": {
-              "hubspot_property_display_order": undefined,
-              "hubspot_property_field_type": undefined,
-              "hubspot_property_label": "custom_hubspot_score",
-              "hubspot_property_name": "hull_custom_hubspot_score",
-              "hubspot_property_read_only": undefined,
-              "hubspot_property_type": undefined,
-              "hull_default_trait_name": null,
-              "hull_overwrite_hubspot": false,
-              "hull_trait_name": "group/custom_calculated_score",
-              "hull_trait_type": "string",
-            },
-            "warning": "can't support overwrite flag on selected field, please refer to connector documentation",
-          }
-        ],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
         [

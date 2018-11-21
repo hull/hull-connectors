@@ -17,22 +17,22 @@ function migrateConnector(connector) {
     }
   );
 
-  const outgoingAccountAttributes = connector.private_settings.outgoing_account_attributes.map(
-    entry => {
-      return {
-        hull: entry.hull,
-        service: entry.hubspot
-      };
-    }
-  );
-  const incomingAccountAttributes = connector.private_settings.incoming_account_attributes.map(
-    entry => {
-      return {
-        hull: entry.hull,
-        service: entry.hubspot
-      };
-    }
-  );
+  const outgoingAccountAttributes = (
+    connector.private_settings.outgoing_account_attributes || []
+  ).map(entry => {
+    return {
+      hull: entry.hull,
+      service: entry.hubspot
+    };
+  });
+  const incomingAccountAttributes = (
+    connector.private_settings.incoming_account_attributes || []
+  ).map(entry => {
+    return {
+      hull: entry.hull,
+      service: entry.hubspot
+    };
+  });
 
   return {
     private_settings: {

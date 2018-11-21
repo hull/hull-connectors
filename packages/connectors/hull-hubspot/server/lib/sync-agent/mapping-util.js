@@ -604,28 +604,7 @@ class MappingUtil {
         ) {
           if (userData[mappingEntry.hull_default_trait_name] !== undefined) {
             value = userData[mappingEntry.hull_default_trait_name];
-          } else {
-            this.hullClient
-              .asUser(userIdent)
-              .logger.warn("outgoing.user.warning", {
-                warning:
-                  "couldn't find default value to prevent overwrite, please refer to connector documentation",
-                mappingEntry
-              });
           }
-        }
-
-        if (
-          !mappingEntry.hull_overwrite_hubspot &&
-          !mappingEntry.hull_default_trait_name
-        ) {
-          this.hullClient
-            .asUser(userIdent)
-            .logger.warn("outgoing.user.warning", {
-              warning:
-                "can't support overwrite flag on selected field, please refer to connector documentation",
-              mappingEntry
-            });
         }
 
         if (
