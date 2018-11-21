@@ -4,16 +4,16 @@
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.0.1",
+  "version": "0.0.5-monorepo",
 
   "tags": [
-    "incoming", 
-    "outgoing", 
-    "batch", 
-    "oneColumn", 
+    "incoming",
+    "outgoing",
+    "batch",
+    "oneColumn",
     "smart-notifier"
   ],
-  
+
   "private_settings": [
     {
       "name": "webhook_id",
@@ -47,7 +47,7 @@
       "default": "domain",
       "options": {
         "loadOptions": "/fields-hull-account-ident"
-      } 
+      }
     },
     {
       "name": "account_identifier_service",
@@ -57,7 +57,7 @@
       "default": "customId",
       "options": {
         "loadOptions": "/fields-outreach-account-ident"
-      } 
+      }
     },
     {
       "name": "accountsynch_title",
@@ -124,7 +124,7 @@
           "hull_field_name",
           "outreach_field_name"
         ]
-      } 
+      }
     },
     {
       "name": "prospectsync_title",

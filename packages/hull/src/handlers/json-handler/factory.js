@@ -32,7 +32,8 @@ const {
   timeoutMiddleware,
   haltOnTimedoutMiddleware,
   clientMiddleware,
-  instrumentationContextMiddleware
+  instrumentationContextMiddleware,
+  instrumentationTransientErrorMiddleware
 } = require("../../middlewares");
 const { normalizeHandlersConfigurationEntry } = require("../../utils");
 
@@ -109,6 +110,7 @@ function jsonHandlerFactory(
       })
       .catch(error => next(error));
   });
+  router.use(instrumentationTransientErrorMiddleware());
   if (disableErrorHandling !== true) {
     router.use(function jsonHandlerErrorMiddleware(
       err: Error,

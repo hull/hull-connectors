@@ -38,7 +38,7 @@ const {
   fullContextBodyMiddleware,
   fullContextFetchMiddleware,
   instrumentationContextMiddleware,
-  instrumentationTransientError
+  instrumentationTransientErrorMiddleware
 } = require("../../middlewares");
 const { normalizeHandlersConfiguration } = require("../../utils");
 
@@ -70,7 +70,7 @@ function batchExtractHandlerFactory(
   router.use(fullContextFetchMiddleware({ requestName: "batch" })); // if something is missing at body
   router.use(haltOnTimedoutMiddleware());
   router.use(processingMiddleware(normalizedConfiguration));
-  router.use(instrumentationTransientError());
+  router.use(instrumentationTransientErrorMiddleware());
   router.use(errorMiddleware());
   return router;
 }
