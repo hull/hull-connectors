@@ -35,10 +35,14 @@ function migrateConnector(connector) {
   );
 
   return {
-    outgoing_user_attributes: outgoingUserAttributes,
-    incoming_user_attributes: incomingUserAttributes,
-    outgoing_account_attributes: outgoingAccountAttributes,
-    incoming_account_attributes: incomingAccountAttributes
+    private_settings: {
+      synchronized_user_segments:
+        connector.private_settings.synchronized_segments,
+      outgoing_user_attributes: outgoingUserAttributes,
+      incoming_user_attributes: incomingUserAttributes,
+      outgoing_account_attributes: outgoingAccountAttributes,
+      incoming_account_attributes: incomingAccountAttributes
+    }
   };
 }
 
