@@ -6,7 +6,7 @@
   "logo": "logo.png",
   "picture": "picture.png",
   "admin" : "admin",
-  "version": "0.0.5-monorepo",
+  "version": "0.0.6-monorepo",
   "settings": [],
   "private_settings":[
     {

@@ -4,7 +4,7 @@
   "source": "hubspot",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.6.0",
+  "version": "0.0.6-monorepo",
   "tags": [
     "outgoing",
     "incoming",

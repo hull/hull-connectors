@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.0.6-monorepo
+- [hull-hubspot] new version with accounts support and test coverage
+
 ## v0.0.5-monorepo
 - [hull-typeform] fix mapping submission into `HullUserAttributes`
 - [hull-typeform] introduce `trait-mapping` setting to handle incoming mapping
