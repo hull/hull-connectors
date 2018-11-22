@@ -125,10 +125,23 @@ class MappingUtil {
     this.companyAttributesOutgoingSettings =
       this.connector.private_settings.outgoing_account_attributes || [];
 
-    this.outgoingLinking = this.connector.private_settings.link_users_in_service;
+    this.outgoingLinking =
+      this.connector.private_settings.link_users_in_service || false;
 
-    this.incomingUserClaims = this.connector.private_settings.incoming_user_claims;
-    this.incomingAccountClaims = this.connector.private_settings.incoming_account_claims;
+    this.incomingUserClaims =
+      this.connector.private_settings.incoming_user_claims ||
+      _.get(
+        this.connector.manifest,
+        "private_settings.incoming_user_claims.default"
+      ) ||
+      [];
+    this.incomingAccountClaims =
+      this.connector.private_settings.incoming_account_claims ||
+      _.get(
+        this.connector.manifest,
+        "private_settings.incoming_account_claims.default"
+      ) ||
+      [];
 
     this.contactOutgoingMapping = this.getContactOutgoingMapping();
     this.contactIncomingMapping = this.getContactIncomingMapping();

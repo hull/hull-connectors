@@ -100,12 +100,12 @@ function trimTraitsPrefixMiddlewareFactory() {
     res: $Response,
     next: NextFunction
   ) {
-    if (!req.hull.connector || !req.hull.connectorConfig.manifest) {
+    if (!req.hull.connector || !req.hull.connector.manifest) {
       debug("return early");
       return next();
     }
     const { connector } = req.hull;
-    const { manifest } = req.hull.connectorConfig;
+    const { manifest } = connector;
     debug("picked from req", {
       connector: typeof connector,
       manifest: typeof manifest

@@ -9,8 +9,6 @@ import type { HullConnectorOptions, HullRequest } from "../types";
 
 const path = require("path");
 const Promise = require("bluebird");
-const fs = require("fs");
-const _ = require("lodash");
 const { renderFile } = require("ejs");
 const debug = require("debug")("hull-connector");
 
@@ -92,8 +90,7 @@ class HullConnector {
       notificationValidatorHttpClient,
       captureMetrics,
       captureLogs,
-      disableOnExit = false,
-      manifest = {}
+      disableOnExit = false
     }: HullConnectorOptions = {}
   ) {
     debug("clientConfig", clientConfig);
@@ -109,20 +106,8 @@ class HullConnector {
     this.connectorConfig = {};
     this.middlewares = [];
 
-    const applicationDirectory = path.dirname(
-      path.join(require.main.filename, "..")
-    );
-    if (fs.existsSync(`${applicationDirectory}/manifest.json`)) {
-      manifest = JSON.parse(
-        fs.readFileSync(`${applicationDirectory}/manifest.json`).toString()
-      );
-    }
-    this.connectorConfig.manifest = manifest;
-
     if (connectorName) {
       this.clientConfig.connectorName = connectorName;
-    } else if (manifest && manifest.name) {
-      this.clientConfig.connectorName = _.kebabCase(manifest.name);
     }
 
     if (skipSignatureValidation) {
