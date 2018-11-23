@@ -247,6 +247,14 @@ class HullConnectorEngine {
       // }
 
       // This calls concurrently, could have a switch between the 2
+      // TODO figure out the difference between this promise on the outside
+      // and the Promise.all on the inside of callService
+      // I think it's that this promise handles the case where we have many message that we're passing
+      // and makes sure they are all concurrently sent
+      // then the one on the inside handles the case where we got a bunch of messages in 1 serviceData object
+      // like a fetch all and it splits them into different objects...
+      // may want to change the behavior, if we see a batch endpoint, 1 serviceData object with an array
+      // doesn't need to split, but sends the whole array at the same time if "batch" is set...
       const promiseResults = await Promise.all(inputParams.map(input => {
         return this.callService(depth, context, instruction, input);
       }));
@@ -289,7 +297,7 @@ class HullConnectorEngine {
     if (isUndefinedOrNull(endpoint))
       throw new Error(`Undefined endpoint: ${name}<${op}>`);
 
-    let dataToSend = null;
+    const dataToSend = [];
     let entityTypeString = null;
 
     if (!isUndefinedOrNull(inputParam)) {
@@ -322,84 +330,56 @@ class HullConnectorEngine {
         }
 
         if (Array.isArray(objectToTransform)) {
-          dataToSend = objectToTransform.map(obj => {
-            return this.transforms.transform(context, obj, classType, endpoint.input);
+          _.forEach(objectToTransform, obj => {
+            dataToSend.push(this.transforms.transform(context, obj, classType, endpoint.input));
           });
         } else {
-          dataToSend = this.transforms.transform(context, objectToTransform, classType, endpoint.input);
+          dataToSend.push(this.transforms.transform(context, objectToTransform, classType, endpoint.input));
         }
+      } else {
+        dataToSend.push(objectToTransform);
       }
     }
 
-    if (!_.isEmpty(dataToSend)) {
-      debug(`[CALLING-SERVICE]: ${name}<${op}> [WITH-DATA]: ${JSON.stringify(dataToSend)}`);
-    } else {
-      debug(`[CALLING-SERVICE]: ${name}<${op}>`);
+    if (_.isEmpty(dataToSend)) {
+      // even if we don't have data, we want to call the service at least 1x
+      // probably just a query with no data to push...
+      dataToSend.push(null);
     }
 
-    let direction;
-    let retryablePromise;
-    if (name === "hull") {
-      direction = "incoming";
-      retryablePromise = () =>{
-        if (Array.isArray(dataToSend)) {
-          return Promise.all(dataToSend.map(data => {
-            return new HullSdk(context, serviceDefinition).dispatch(op, data).then((results) => {
+    //TODO if it's a batch endpoint, don't break apart...
+    // just send whole array...
+    const retryablePromise = () => {
+      return Promise.all(dataToSend.map(data => {
 
-              if (entityTypeString !== null) {
-                //TODO do an asAccount or asUser with the inputParam too...
-                context.client.logger.info(`${direction}.${entityTypeString}.success`, data);
-                debug(`${direction}.${entityTypeString}.success`, data);
-              }
-
-              return Promise.resolve(results);
-            });
-          }));
+        if (!_.isEmpty(data)) {
+          debug(`[CALLING-SERVICE]: ${name}<${op}> [WITH-DATA]: ${JSON.stringify(data)}`);
         } else {
-          return new HullSdk(context, serviceDefinition).dispatch(op, dataToSend).then((results) => {
-
-            if (entityTypeString !== null) {
-              //TODO do an asAccount or asUser with the inputParam too...
-              context.client.logger.info(`${direction}.${entityTypeString}.success`, dataToSend);
-              debug(`${direction}.${entityTypeString}.success`, dataToSend);
-            }
-
-            return Promise.resolve(results);
-          });
+          debug(`[CALLING-SERVICE]: ${name}<${op}>`);
         }
-      }
-    } else {
-      direction = "outgoing";
-      retryablePromise = () => {
-        // This will help make sure that we don't make a multiple refresh tokens stuff at the same time...
-        // if one promise fails, they'll all fail 1x
-        if (Array.isArray(dataToSend)) {
-          return Promise.all(dataToSend.map(data => {
-            return new SuperagentApi(context, serviceDefinition).dispatch(op, data).then((results) => {
 
-              if (entityTypeString !== null) {
-                //TODO do an asAccount or asUser with the inputParam too...
-                context.client.logger.info(`${direction}.${entityTypeString}.success`, data);
-                debug(`${direction}.${entityTypeString}.success`, data);
-              }
-
-              return Promise.resolve(results);
-            });
-          }));
+        let direction;
+        let dispatchPromise;
+        if (name === "hull") {
+          direction = "incoming";
+          dispatchPromise = new HullSdk(context, serviceDefinition).dispatch(op, data);
         } else {
-          return new SuperagentApi(context, serviceDefinition).dispatch(op, dataToSend).then((results) => {
-
-            if (entityTypeString !== null) {
-              //TODO do an asAccount or asUser with the inputParam too...
-              context.client.logger.info(`${direction}.${entityTypeString}.success`, dataToSend);
-              debug(`${direction}.${entityTypeString}.success`, dataToSend);
-            }
-
-            return Promise.resolve(results);
-          });
+          direction = "outgoing";
+          dispatchPromise = new SuperagentApi(context, serviceDefinition).dispatch(op, data);
         }
-      }
-    }
+
+        return dispatchPromise.then((results) => {
+          if (entityTypeString !== null) {
+            //TODO do an asAccount or asUser with the inputParam too...
+            context.client.logger.info(`${direction}.${entityTypeString}.success`, data);
+            debug(`${direction}.${entityTypeString}.success`, data);
+          }
+
+          return Promise.resolve(results);
+        })
+      }));
+  };
+
 
 
     // If executing concurrently, only one of these will succeed, the rest will fail
