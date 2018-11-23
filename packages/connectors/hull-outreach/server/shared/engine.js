@@ -154,6 +154,11 @@ class HullConnectorEngine {
     }
   }
 
+
+  /**
+   * There's an abtraction between serviceData (outgoing) and resolveParams(incoming) that needs to be clarified
+   * It also provides a decent starting concept for joining data back together when doing things like batch operations...
+   */
   async interpretInstruction(depth: number, context: Object, instruction: Object, resolvedParams: any, serviceData: null | ServiceData) {
     let type = _.get(instruction, "type");
 
