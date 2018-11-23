@@ -347,9 +347,41 @@ class HullConnectorEngine {
       dataToSend.push(null);
     }
 
-    //TODO if it's a batch endpoint, don't break apart...
+    // TODO if it's a batch endpoint, don't break apart...
     // just send whole array...
     const retryablePromise = () => {
+
+      //This is what we want to do for batch, but gigantic copy paste, need to abstract...
+      // would be nice ot have a batch use case to validate against though to make sure
+      // this is right before abstracting
+      if (endpoint.batch) {
+        if (!_.isEmpty(dataToSend)) {
+          debug(`[CALLING-SERVICE]: ${name}<${op}> [WITH-DATA]: ${JSON.stringify(dataToSend)}`);
+        } else {
+          debug(`[CALLING-SERVICE]: ${name}<${op}>`);
+        }
+
+        let direction;
+        let dispatchPromise;
+        if (name === "hull") {
+          direction = "incoming";
+          dispatchPromise = new HullSdk(context, serviceDefinition).dispatch(op, dataToSend);
+        } else {
+          direction = "outgoing";
+          dispatchPromise = new SuperagentApi(context, serviceDefinition).dispatch(op, dataToSend);
+        }
+
+        return dispatchPromise.then((results) => {
+          if (entityTypeString !== null) {
+            //TODO do an asAccount or asUser with the inputParam too...
+            context.client.logger.info(`${direction}.${entityTypeString}.success`, dataToSend);
+            debug(`${direction}.${entityTypeString}.success`, dataToSend);
+          }
+
+          return Promise.resolve(results);
+        })
+      }
+
       return Promise.all(dataToSend.map(data => {
 
         if (!_.isEmpty(data)) {
