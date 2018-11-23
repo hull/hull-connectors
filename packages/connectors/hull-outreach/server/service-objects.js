@@ -406,7 +406,23 @@ class OutreachWebhookWrite {
 
 }
 
+class WebhookPayloadData {
+  type: string;
+  id: number;
+  attributes: Object;
+}
+class WebhookPayloadMeta {
+  deliveredAt: Date;
+  eventName: string;
+}
+
+class WebhookPayload {
+  data: WebhookPayloadData;
+  meta: WebhookPayloadMeta;
+}
+
 module.exports = {
+  WebhookPayload,
   OutreachWebhookWrite,
   OutreachProspectRead,
   OutreachProspectWrite,

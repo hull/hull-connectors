@@ -66,7 +66,7 @@
       "title": "The field to uniquely identify a Account in Outreach.io",
       "type": "string",
       "format": "select",
-      "default": "customId",
+      "default": "domain",
       "options": {
         "loadOptions": "/fields-outreach-account-ident"
       }

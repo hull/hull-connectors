@@ -8,7 +8,8 @@ const {
 
 const {
   OutreachProspectRead,
-  OutreachAccountRead
+  OutreachAccountRead,
+  WebhookPayload,
 } = require("./service-objects");
 
 /**
@@ -37,6 +38,24 @@ const transformsToHull: ServiceTransforms =
       ]
     },
     {
+      input: WebhookPayload,
+      output: HullIncomingUser,
+      strategy: "PropertyKeyedValue",
+      indexStrategy: "append_index",
+      transforms: [
+        { inputPath: "data.id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
+        { inputPath: "data.attributes.emails[0]", outputPath: "ident.email" },
+        { mapping: "connector.private_settings.prospect_attributes_inbound",
+          inputPath: "data.attributes.${input_field_name}",
+          outputPath: "data.attributes.outreach/${output_field_name}",
+          outputFormat: {
+            value: "${value}",
+            operation: "set"
+          }
+        }
+      ]
+    },,
+    {
       input: OutreachAccountRead,
       output: HullIncomingAccount,
       strategy: "PropertyKeyedValue",
@@ -53,7 +72,27 @@ const transformsToHull: ServiceTransforms =
           }
         }
       ]
+    },
+    {
+      input: WebhookPayload,
+      output: HullIncomingAccount,
+      strategy: "PropertyKeyedValue",
+      indexStrategy: "append_index",
+      transforms: [
+        { inputPath: "data.id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
+        { inputPath: "data.attributes.domain", outputPath: "ident.domain" },
+        { inputPath: "data.attributes.${connector.private_settings.account_identifier_service}", outputPath: "ident.${connector.private_settings.account_identifier_hull}" },
+        { mapping: "connector.private_settings.account_attributes_inbound",
+          inputPath: "data.attributes.${input_field_name}",
+          outputPath: "data.attributes.outreach/${output_field_name}",
+          outputFormat: {
+            value: "${value}",
+            operation: "set"
+          }
+        }
+      ]
     }
+
   ];
 
 module.exports = {

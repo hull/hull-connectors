@@ -15,6 +15,11 @@ const {
   HullOutgoingAccount
 } = require("./hull-service-objects");
 
+//TODO this is bad, must abstract this....
+const {
+  WebhookPayload
+} = require("../service-objects");
+
 const { oAuthHandler } = require("hull/src/handlers");
 const { oauth2 } = require("./auth/oauth2");
 
@@ -197,6 +202,8 @@ class HullConnectorEngine {
             return resolvedParams[1];
           } else if (name === 'get') {
             return _.get(resolvedParams[0], resolvedParams[1]);
+          } else if (name === 'isEqual') {
+            return _.isEqual(resolvedParams[0], resolvedParams[1]);
           } else if (name === 'filter') {
             return _.filter(resolvedParams[0], resolvedParams[1]);
           } else if (name === 'utils') {
@@ -372,9 +379,11 @@ class HullConnectorEngine {
   }
 
   getWebhookCallback() {
-    return (context: HullContext) => {
-      // Commenting out for now so it doesn't freak out when getting webhooks...
-      // this.dispatch(context, new Route("webhook"));
+    return (context: HullContext, webhookPayload: any) => {
+      // Interesting abstraction problem
+      // need to tell what type of data is incoming, but the data incoming will be different per connector
+      // so there's an idea that needs to be abstracted above
+      this.dispatchWithData(context, new Route("webhook"), new IncomingData(WebhookPayload, webhookPayload.body));
       return Promise.resolve("ok");
     }
   }

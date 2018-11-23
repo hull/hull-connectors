@@ -95,6 +95,16 @@ const glue = {
   accountFetchAll: hull("asAccount", outreach("getAllAccounts")),
   prospectFetchAll: hull("asUser", outreach("getAllProspects")),
 
+  webhook:
+    ifLogic(cond("isEqual", ["account", get("data.type", input())]), {
+      true: hull("asAccount", input()),
+      false:
+        ifLogic(cond("isEqual", ["prospect", get("data.type", input())]), {
+          true: hull("asUser", input()),
+          false: {}
+        })
+    }),
+
   ensureWebhooks:
     ifLogic(cond("isEmpty", "${connector.private_settings.webhook_id}"), {
       true: [
