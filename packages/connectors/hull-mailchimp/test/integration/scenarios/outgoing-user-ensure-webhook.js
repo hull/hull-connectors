@@ -61,7 +61,10 @@ it("should ensure a webhook is registered on outgoing traffic", () => {
             members: [
               {
                 email_type: "html",
-                merge_fields: {},
+                merge_fields: {
+                  FNAME: "",
+                  LNAME: ""
+                },
                 interests: {
                   MailchimpInterestId: true
                 },
@@ -108,7 +111,10 @@ it("should ensure a webhook is registered on outgoing traffic", () => {
               interests: {
                 MailchimpInterestId: true,
               },
-              merge_fields: {},
+              merge_fields: {
+                FNAME: "",
+                LNAME: ""
+              },
               status_if_new: "subscribed"
             }
           }

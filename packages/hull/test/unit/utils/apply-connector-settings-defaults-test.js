@@ -1,17 +1,9 @@
 const { expect } = require("chai");
-const connectorSettingsDefaultsMiddleware = require("../../../src/middlewares/connector-settings-defaults");
+const applyConnectorSettingsDefaults = require("../../../src/utils/apply-connector-settings-defaults");
 
-function buildReq(connector) {
-  return {
-    hull: {
-      connector
-    }
-  };
-}
-
-describe("connectorSettingsDefaultsMiddleware", () => {
+describe("applyConnectorSettingsDefaults", () => {
   it("should apply defaults to all undefined settings", () => {
-    const reqStub = buildReq({
+    const connector = {
       private_settings: {
         existing_array_field: [],
         existing_string_field: "",
@@ -54,11 +46,10 @@ describe("connectorSettingsDefaultsMiddleware", () => {
           default: "bar"
         }]
       }
-    });
-    connectorSettingsDefaultsMiddleware()(reqStub, {}, () => {});
-    const trimmedConnector = reqStub.hull.connector;
-    expect(trimmedConnector).to.eql({
-      manifest: reqStub.hull.connector.manifest,
+    };
+    applyConnectorSettingsDefaults(connector);
+    expect(connector).to.eql({
+      manifest: connector.manifest,
       private_settings: {
         existing_array_field: [],
         existing_string_field: "",

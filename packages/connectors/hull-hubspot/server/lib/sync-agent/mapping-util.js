@@ -129,19 +129,9 @@ class MappingUtil {
       this.connector.private_settings.link_users_in_service || false;
 
     this.incomingUserClaims =
-      this.connector.private_settings.incoming_user_claims ||
-      _.get(
-        this.connector.manifest,
-        "private_settings.incoming_user_claims.default"
-      ) ||
-      [];
+      this.connector.private_settings.incoming_user_claims || [];
     this.incomingAccountClaims =
-      this.connector.private_settings.incoming_account_claims ||
-      _.get(
-        this.connector.manifest,
-        "private_settings.incoming_account_claims.default"
-      ) ||
-      [];
+      this.connector.private_settings.incoming_account_claims || [];
 
     this.contactOutgoingMapping = this.getContactOutgoingMapping();
     this.contactIncomingMapping = this.getContactIncomingMapping();

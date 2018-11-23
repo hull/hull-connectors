@@ -34,8 +34,7 @@ const {
   haltOnTimedoutMiddleware,
   clientMiddleware,
   instrumentationContextMiddleware,
-  instrumentationTransientErrorMiddleware,
-  trimTraitsPrefixMiddleware
+  instrumentationTransientErrorMiddleware
 } = require("../../middlewares");
 const { normalizeHandlersConfigurationEntry } = require("../../utils");
 
@@ -83,7 +82,6 @@ function jsonHandlerFactory(
   router.use(instrumentationContextMiddleware());
   router.use(fullContextFetchMiddleware({ requestName: "action" }));
   router.use(haltOnTimedoutMiddleware());
-  router.use(trimTraitsPrefixMiddleware());
   router.use(cors());
   router.use(function jsonHandler(
     req: HullRequestFull,

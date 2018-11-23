@@ -1,5 +1,5 @@
 const { expect } = require("chai");
-const trimTraitsPrefixMiddleware = require("../../../src/middlewares/trim-traits-prefix");
+const trimTraitsPrefixFromConnector = require("../../../src/utils/trim-traits-prefix-from-connector");
 
 function buildReq(connector) {
   return {
@@ -9,9 +9,9 @@ function buildReq(connector) {
   };
 }
 
-describe("trimTraitsPrefixMiddleware", () => {
+describe("trimTraitsPrefixFromConnector", () => {
   it("should trim all traits fields in the connector", () => {
-    const reqStub = buildReq({
+    const connector = {
       private_settings: {
         some_other_field: "traits_to_not_remove",
         some_other_object: {
@@ -68,11 +68,10 @@ describe("trimTraitsPrefixMiddleware", () => {
           "format": "trait-mapping"
         }]
       }
-    });
-    trimTraitsPrefixMiddleware()(reqStub, {}, () => {});
-    const trimmedConnector = reqStub.hull.connector;
-    expect(trimmedConnector).to.eql({
-      manifest: reqStub.hull.connector.manifest,
+    };
+    trimTraitsPrefixFromConnector(connector);
+    expect(connector).to.eql({
+      manifest: connector.manifest,
       private_settings: {
         some_other_field: "traits_to_not_remove",
         some_other_object: { nested_param: "traits_to_not_remove" },

@@ -1,6 +1,5 @@
 // @flow
-import type { $Response, NextFunction } from "express";
-import type { HullRequest } from "../types";
+import type { HullConnector } from "hull-client";
 
 const debug = require("debug")("hull:trim-traits-prefix");
 const _ = require("lodash");
@@ -94,27 +93,19 @@ function performTrim(manifest = {}, connector = {}) {
   });
 }
 
-function trimTraitsPrefixMiddlewareFactory() {
-  return function trimTraitsPrefixMiddleware(
-    req: HullRequest,
-    res: $Response,
-    next: NextFunction
-  ) {
-    if (!req.hull.connector || !req.hull.connector.manifest) {
-      debug("return early");
-      return next();
-    }
-    const { connector } = req.hull;
-    const { manifest } = connector;
-    debug("picked from req", {
-      connector: typeof connector,
-      manifest: typeof manifest
-    });
+function trimTraitsPrefixFromConnector(connector: HullConnector) {
+  if (!connector || !connector.manifest) {
+    debug("return early");
+    return;
+  }
+  const { manifest } = connector;
+  debug("picked from req", {
+    connector: typeof connector,
+    manifest: typeof manifest
+  });
 
-    performTrim(manifest.private_settings, connector.private_settings);
-    performTrim(manifest.settings, connector.settings);
-    return next();
-  };
+  performTrim(manifest.private_settings, connector.private_settings);
+  performTrim(manifest.settings, connector.settings);
 }
 
-module.exports = trimTraitsPrefixMiddlewareFactory;
+module.exports = trimTraitsPrefixFromConnector;

@@ -36,7 +36,7 @@ const usersSegments = [
   }
 ];
 
-it("should send matching user to the mailchimp and allowing to ", () => {
+it("should send matching user to the mailchimp, allowing to control overwriting", () => {
   const email = "email@email.com";
   return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
     return {

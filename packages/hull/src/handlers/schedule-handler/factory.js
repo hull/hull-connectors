@@ -28,7 +28,6 @@ const {
   timeoutMiddleware,
   haltOnTimedoutMiddleware,
   instrumentationContextMiddleware,
-  trimTraitsPrefixMiddleware,
   instrumentationTransientErrorMiddleware
 } = require("../../middlewares");
 const { normalizeHandlersConfigurationEntry } = require("../../utils");
@@ -69,7 +68,6 @@ function scheduleHandlerFactory(
   ); // get rest of the context from body
   router.use(fullContextFetchMiddleware());
   router.use(haltOnTimedoutMiddleware());
-  router.use(trimTraitsPrefixMiddleware());
   router.use(function scheduleHandler(
     req: HullRequestFull,
     res: $Response,

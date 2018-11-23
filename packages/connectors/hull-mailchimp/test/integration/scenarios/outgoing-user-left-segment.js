@@ -50,7 +50,10 @@ it("should remove user from static list if user left the segment", () => {
           members: [
             {
               email_type: "html",
-              merge_fields: {},
+              merge_fields: {
+                FNAME: "",
+                LNAME: ""
+              },
               interests: {
                 MailchimpInterestId: false
               },
@@ -112,7 +115,10 @@ it("should remove user from static list if user left the segment", () => {
               interests: {
                 MailchimpInterestId: false,
               },
-              merge_fields: {},
+              merge_fields: {
+                FNAME: "",
+                LNAME: ""
+              },
               status_if_new: "subscribed",
             },
           }

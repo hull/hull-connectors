@@ -28,8 +28,7 @@ const {
   fullContextFetchMiddleware,
   timeoutMiddleware,
   haltOnTimedoutMiddleware,
-  instrumentationContextMiddleware,
-  trimTraitsPrefixMiddleware
+  instrumentationContextMiddleware
 } = require("../../middlewares");
 const { normalizeHandlersConfigurationEntry } = require("../../utils");
 
@@ -63,7 +62,6 @@ function IncomingRequestHandlerFactory(
   router.use(instrumentationContextMiddleware());
   router.use(fullContextFetchMiddleware({ requestName: "requests-buffer" }));
   router.use(haltOnTimedoutMiddleware());
-  router.use(trimTraitsPrefixMiddleware());
   router.use(function requestsBufferHandler(
     req: HullRequestFull,
     res: $Response,

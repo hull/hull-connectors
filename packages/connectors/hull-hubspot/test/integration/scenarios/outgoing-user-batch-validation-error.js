@@ -9,7 +9,7 @@ process.env.CLIENT_ID = "123";
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_segments: ["hullSegmentId"]
+    synchronized_user_segments: ["hullSegmentId"]
   }
 };
 const usersSegments = [
