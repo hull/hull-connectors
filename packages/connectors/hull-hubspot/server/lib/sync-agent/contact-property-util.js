@@ -76,11 +76,12 @@ class ContactPropertyUtil {
     debug("outboundMapping %o", outboundMapping);
     const uniqueSegments = _.uniqBy(this.usersSegments, "name");
     debug("uniqueSegments %o", uniqueSegments.map(s => s.name));
-    const expectedPropertiesList = uniqueSegments.length === 0
-      ? this.getPropertiesList(outboundMapping)
-      : [
-        this.getHullSegmentsProperty(uniqueSegments)
-      ].concat(this.getPropertiesList(outboundMapping));
+    const expectedPropertiesList =
+      uniqueSegments.length === 0
+        ? this.getPropertiesList(outboundMapping)
+        : [this.getHullSegmentsProperty(uniqueSegments)].concat(
+            this.getPropertiesList(outboundMapping)
+          );
     debug("expectedPropertiesList %o", expectedPropertiesList);
     return this.ensureHullGroup(this.hubspotProperties)
       .then(() =>
