@@ -21,6 +21,17 @@ const {
   superagentInstrumentationPlugin
 } = require("hull/src/utils");
 
+// const throttlePool = {};
+
+// throttlePool[this.apiKey] =
+//   throttlePool[this.apiKey] ||
+//   new SuperagentThrottle({
+//     rate: parseInt(process.env.THROTTLE_RATE, 10) || 40, // how many requests can be sent every `ratePer`
+//     ratePer: parseInt(process.env.THROTTLE_RATE_PER, 10) || 1000 // number of ms in which `rate` requests may be sent
+//   });
+//
+// const throttle = throttlePool[this.apiKey];
+
 class SuperagentApi {
 
   reqContext: Object;

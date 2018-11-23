@@ -12,7 +12,9 @@ import type {
 const _ = require("lodash");
 const {
   HullOutgoingUser,
-  HullOutgoingAccount
+  HullOutgoingAccount,
+  HullIncomingUser,
+  HullIncomingAccount
 } = require("./hull-service-objects");
 
 //TODO this is bad, must abstract this....
@@ -37,12 +39,15 @@ import type { HullRequest } from "hull";
 
 const debug = require("debug")("hull-shared:engine");
 
-class IncomingData {
+class ServiceData {
   classType: any;
-  obj: any
-  constructor(classType: any, obj: any) {
+  context: Object;
+  data: any
+
+  constructor(classType: any, data: any) {
     this.classType = classType;
-    this.obj = obj;
+    this.context = {};
+    this.data = data;
   }
 }
 
@@ -53,7 +58,6 @@ class HullConnectorEngine {
   transforms: TransformImpl;
   glue: Object;
   ensure: string;
-  retryMutex: boolean;
 
   // TODO input transforms and services....
   // TODO could have multiple services in the future... maybe take in an array?
@@ -63,14 +67,14 @@ class HullConnectorEngine {
     this.services = services;
     this.transforms = new TransformImpl(transforms);
     this.ensure = ensure;
-    this.retryMutex = false;
+
   }
 
   async dispatch(context: Object, instruction: Object) {
     return await this.dispatchWithData(context, instruction, null);
   }
 
-  async dispatchWithData(context: Object, instruction: Object, data: null | IncomingData) {
+  async dispatchWithData(context: Object, instruction: Object, data: null | ServiceData) {
     try {
       if (!_.isEmpty(this.ensure)) {
         await this.resolve(0, context, new Route(this.ensure), data);
@@ -81,7 +85,7 @@ class HullConnectorEngine {
     }
   }
 
-  async resolve(depth: number, context: Object, instruction: Object, data: null | IncomingData): any {
+  async resolve(depth: number, context: Object, instruction: Object, serviceData: null | ServiceData): any {
 
     if (instruction === undefined || instruction === null) {
       return instruction;
@@ -98,7 +102,7 @@ class HullConnectorEngine {
       const results = [];
 
       for (let index = 0; index < instruction.length; index++) {
-        const result = await this.resolve(depth, context, instruction[index], data);
+        const result = await this.resolve(depth, context, instruction[index], serviceData);
         results.push(result);
       }
 
@@ -118,7 +122,7 @@ class HullConnectorEngine {
       // what is the relationship between the route and the glue? What is the abstraction???
 
       const params = instruction.params;
-      let resolvedParams = await this.resolve(depth, context, params, data);
+      let resolvedParams = await this.resolve(depth, context, params, serviceData);
 
       if (!isUndefinedOrNull(resolvedParams)) {
 
@@ -144,13 +148,13 @@ class HullConnectorEngine {
         debug(`[EXECUTING]: ${instruction.type}<${instruction.name}>`);
       }
 
-      return await this.interpretInstruction(depth, context, instruction, resolvedParams, data);
+      return await this.interpretInstruction(depth, context, instruction, resolvedParams, serviceData);
     } else {
       return doVariableReplacement(context, instruction);
     }
   }
 
-  async interpretInstruction(depth: number, context: Object, instruction: Object, resolvedParams: any, data: null | IncomingData) {
+  async interpretInstruction(depth: number, context: Object, instruction: Object, resolvedParams: any, serviceData: null | ServiceData) {
     let type = _.get(instruction, "type");
 
     if (type === 'reference') {
@@ -158,10 +162,10 @@ class HullConnectorEngine {
       const name = instruction.name;
 
       if (name === 'input') {
-        if (data !== null && !isUndefinedOrNull(instruction.path)) {
-          return _.get(data.obj, instruction.path);
+        if (serviceData !== null && !isUndefinedOrNull(instruction.path)) {
+          return _.get(serviceData.data, instruction.path);
         }
-        return data;
+        return serviceData;
       }
 
       throw new Error(`Unsupported Reference: ${name}`);
@@ -171,7 +175,7 @@ class HullConnectorEngine {
       if (_.isEmpty(route)) {
         throw new Error(`Route: ${instruction.name} not found in glue`);
       }
-      return await this.resolve(depth, context, route, data);
+      return await this.resolve(depth, context, route, serviceData);
     } else if (type === 'logic') {
 
       const name = instruction.name;
@@ -179,9 +183,9 @@ class HullConnectorEngine {
       if (name === 'if') {
 
         if (resolvedParams) {
-          return await this.resolve(depth, context, instruction.results.true, data);
+          return await this.resolve(depth, context, instruction.results.true, serviceData);
         } else {
-          return await this.resolve(depth, context, instruction.results.false, data);
+          return await this.resolve(depth, context, instruction.results.false, serviceData);
         }
 
       } else {
@@ -235,20 +239,38 @@ class HullConnectorEngine {
         inputParams = [inputParams];
       }
 
-      // TODO may need to await calls 1 at a time...
-      const results = [];
+      //This is the way to call 1 at a time, but may want to call may at a time
+      // const results = [];
+      // for (let index = 0; index < inputParams.length; index++) {
+      //   const result = await this.callService(depth, context, instruction, inputParams[index]);
+      //   results.push(result);
+      // }
 
-      for (let index = 0; index < inputParams.length; index++) {
-        const result = await this.callService(depth, context, instruction, inputParams[index]);
-        results.push(result);
-      }
+      // This calls concurrently, could have a switch between the 2
+      const promiseResults = await Promise.all(inputParams.map(input => {
+        return this.callService(depth, context, instruction, input);
+      }));
 
-      if (isArrayInput) {
+      // Need to flatten, in case a single call returns an array
+      // otherwise will return an array inside of an array
+      // in cases where multiple calls are made that return multiple arrays
+      // I think this is probably the desired behavior that we make them all 1 array
+      // I think this is ok, if it's just 1 object returned too?
+      const results = _.flatten(promiseResults);
+
+      // TODO mmm dup code... should refactor...
+      const serviceDefinition = this.services[instruction.name];
+      const endpoint = serviceDefinition.endpoints[instruction.op];
+
+      if (!_.isEmpty(results) && !isUndefinedOrNull(endpoint.output)) {
+
+        if (results.length === 1) {
+          return new ServiceData(endpoint.output, results[0]);
+        } else {
+          return new ServiceData(endpoint.output, results);
+        }
+      } else {
         return results;
-      } else if (results.length === 1){
-        return results[0];
-      } else  if (results.length === 0) {
-        return null;
       }
 
     } else {
@@ -267,53 +289,137 @@ class HullConnectorEngine {
     if (isUndefinedOrNull(endpoint))
       throw new Error(`Undefined endpoint: ${name}<${op}>`);
 
-    let transformedObject = inputParam;
+    let dataToSend = null;
+    let entityTypeString = null;
 
     if (!isUndefinedOrNull(inputParam)) {
+
+      let objectToTransform;
       let classType = null;
 
       if (typeof inputParam === 'string') {
-        transformedObject = _.get(context, inputParam);
-      } else if (inputParam instanceof IncomingData) {
-        transformedObject = inputParam.obj;
+        objectToTransform = _.get(context, inputParam);
+      } else if (inputParam instanceof ServiceData) {
+        objectToTransform = inputParam.data;
         classType = inputParam.classType;
+
+        if (classType === HullOutgoingUser) {
+          entityTypeString = "user";
+        } else if (classType === HullOutgoingAccount || classType === HullIncomingAccount) {
+          entityTypeString = "account";
+        }
+
+      } else {
+        objectToTransform = inputParam;
       }
 
       if (!isUndefinedOrNull(endpoint.input)) {
-        transformedObject = this.transforms.transform(context, transformedObject, classType, endpoint.input);
+
+        if (endpoint.input === HullIncomingUser) {
+          entityTypeString = "user";
+        } else if (endpoint.input === HullIncomingAccount) {
+          entityTypeString = "account";
+        }
+
+        if (Array.isArray(objectToTransform)) {
+          dataToSend = objectToTransform.map(obj => {
+            return this.transforms.transform(context, obj, classType, endpoint.input);
+          });
+        } else {
+          dataToSend = this.transforms.transform(context, objectToTransform, classType, endpoint.input);
+        }
       }
     }
 
-    if (!_.isEmpty(transformedObject)) {
-      debug(`[CALLING-SERVICE]: ${name}<${op}> [WITH-DATA]: ${JSON.stringify(transformedObject)}`);
+    if (!_.isEmpty(dataToSend)) {
+      debug(`[CALLING-SERVICE]: ${name}<${op}> [WITH-DATA]: ${JSON.stringify(dataToSend)}`);
     } else {
       debug(`[CALLING-SERVICE]: ${name}<${op}>`);
     }
 
+    let direction;
     let retryablePromise;
     if (name === "hull") {
+      direction = "incoming";
       retryablePromise = () =>{
-        return new HullSdk(context, serviceDefinition).dispatch(op, transformedObject);
+        if (Array.isArray(dataToSend)) {
+          return Promise.all(dataToSend.map(data => {
+            return new HullSdk(context, serviceDefinition).dispatch(op, data).then((results) => {
+
+              if (entityTypeString !== null) {
+                //TODO do an asAccount or asUser with the inputParam too...
+                context.client.logger.info(`${direction}.${entityTypeString}.success`, data);
+                debug(`${direction}.${entityTypeString}.success`, data);
+              }
+
+              return Promise.resolve(results);
+            });
+          }));
+        } else {
+          return new HullSdk(context, serviceDefinition).dispatch(op, dataToSend).then((results) => {
+
+            if (entityTypeString !== null) {
+              //TODO do an asAccount or asUser with the inputParam too...
+              context.client.logger.info(`${direction}.${entityTypeString}.success`, dataToSend);
+              debug(`${direction}.${entityTypeString}.success`, dataToSend);
+            }
+
+            return Promise.resolve(results);
+          });
+        }
       }
     } else {
-      retryablePromise = () =>{
-        // TODO fix error throwing... it's throwing out to nowhere...
-        // console.log(JSON.stringify(context));
-        return new SuperagentApi(context, serviceDefinition).dispatch(op, transformedObject);
+      direction = "outgoing";
+      retryablePromise = () => {
+        // This will help make sure that we don't make a multiple refresh tokens stuff at the same time...
+        // if one promise fails, they'll all fail 1x
+        if (Array.isArray(dataToSend)) {
+          return Promise.all(dataToSend.map(data => {
+            return new SuperagentApi(context, serviceDefinition).dispatch(op, data).then((results) => {
+
+              if (entityTypeString !== null) {
+                //TODO do an asAccount or asUser with the inputParam too...
+                context.client.logger.info(`${direction}.${entityTypeString}.success`, data);
+                debug(`${direction}.${entityTypeString}.success`, data);
+              }
+
+              return Promise.resolve(results);
+            });
+          }));
+        } else {
+          return new SuperagentApi(context, serviceDefinition).dispatch(op, dataToSend).then((results) => {
+
+            if (entityTypeString !== null) {
+              //TODO do an asAccount or asUser with the inputParam too...
+              context.client.logger.info(`${direction}.${entityTypeString}.success`, dataToSend);
+              debug(`${direction}.${entityTypeString}.success`, dataToSend);
+            }
+
+            return Promise.resolve(results);
+          });
+        }
       }
     }
 
+
+    // If executing concurrently, only one of these will succeed, the rest will fail
+    // failing the whole message... but at least one gets through?
     return retryablePromise().catch(error => {
       debug(`[SERVICE-ERROR]: ${name} [ERROR]: ${JSON.stringify(error)}`);
         const route: string = this.onErrorGetRecovery(serviceDefinition, error);
-        if (!this.retryMutex && !_.isEmpty(route)) {
-          this.retryMutex = true;
+
+        const retrying = _.get(context, "retrying");
+        if ((isUndefinedOrNull(retrying) || !retrying) && !_.isEmpty(route)) {
+
+          _.set(context, "retrying", true);
           debug(`[SERVICE-ERROR]: ${name} [RECOVERY-ROUTE-ATTEMPT]: ${route}`);
-          return this.resolve(depth, context, new Route(route), inputParam).then(() => {
-            this.retryMutex = false;
+
+          //don't input data on an attempt to recover...
+          return this.resolve(depth, context, new Route(route), null).then(() => {
+            _.set(context, "retrying", false);
             return retryablePromise();
           }).catch(error => {
-            this.retryMutex = false;
+            _.set(context, "retrying", false);
             return Promise.reject(error);
           });
       } else {
@@ -383,59 +489,60 @@ class HullConnectorEngine {
       // Interesting abstraction problem
       // need to tell what type of data is incoming, but the data incoming will be different per connector
       // so there's an idea that needs to be abstracted above
-      this.dispatchWithData(context, new Route("webhook"), new IncomingData(WebhookPayload, webhookPayload.body));
+      this.dispatchWithData(context, new Route("webhook"), new ServiceData(WebhookPayload, webhookPayload.body));
         return Promise.resolve({ status: 200, text: "All good" });
     }
   }
 
- userUpdate(context: HullContext, messages: Array<HullUserUpdateMessage>): Promise<any> {
-    // TODO filtering logic first
-    // segment filters
-    // no attribute mapping filters
-    const promise = Promise.all(messages.map(message => {
+  userUpdate(context: HullContext, messages: Array<HullUserUpdateMessage>): Promise<any> {
+     // TODO filtering logic first
+     // segment filters
+     // no attribute mapping filters
+     const promise = Promise.all(messages.map(message => {
 
-      if (!context.isBatch) {
-        const matchesUserSegments = _.intersection(
-          message.user.segment_ids,
-          context.connector.settings.synchronized_user_segments
-        ).length >= 1;
+       if (!context.isBatch) {
+         const matchesUserSegments = _.intersection(
+           message.user.segment_ids,
+           context.connector.settings.synchronized_user_segments
+         ).length >= 1;
 
-        if (!matchesUserSegments) {
-          debug(`User does not match segment ${ JSON.stringify(message.user) }`);
-          return;
-        }
-      }
+         if (!matchesUserSegments) {
+           debug(`User does not match segment ${ JSON.stringify(message.user) }`);
+           return;
+         }
+       }
 
-      // if no changes to account attributes
-      //if ()
-      return this.dispatchWithData(context, new Route("userUpdateStart"), new IncomingData(HullOutgoingUser, message.user));
-    }));
+       // if no changes to account attributes
+       //if ()
+       return this.dispatchWithData(context, new Route("userUpdateStart"), new ServiceData(HullOutgoingUser, message.user));
+     }));
 
-    return promise;
+     return promise;
+   }
+
+  accountUpdate(context: HullContext, messages: Array<HullAccountUpdateMessage>): Promise<any>  {
+     const promise = Promise.all(messages.map(message => {
+
+       if (!context.isBatch) {
+         const matchesUserSegments = _.intersection(
+           message.account.segment_ids,
+           context.connector.settings.synchronized_account_segments
+         ).length >= 1;
+
+         if (!matchesUserSegments) {
+           debug(`Account does not match segment ${ JSON.stringify(message.account) }`);
+           return;
+         }
+
+         // if no changes to account attributes
+         //if ()
+       }
+
+       return this.dispatchWithData(context, new Route("accountUpdateStart"), new ServiceData(HullOutgoingAccount, message.account));
+     }));
+     return promise;
   }
 
- accountUpdate(context: HullContext, messages: Array<HullAccountUpdateMessage>): Promise<any>  {
-    const promise = Promise.all(messages.map(message => {
-
-      if (!context.isBatch) {
-        const matchesUserSegments = _.intersection(
-          message.account.segment_ids,
-          context.connector.settings.synchronized_account_segments
-        ).length >= 1;
-
-        if (!matchesUserSegments) {
-          debug(`Account does not match segment ${ JSON.stringify(message.account) }`);
-          return;
-        }
-
-        // if no changes to account attributes
-        //if ()
-      }
-
-      return this.dispatchWithData(context, new Route("accountUpdateStart"), new IncomingData(HullOutgoingAccount, message.account));
-    }));
-    return promise;
-  }
 }
 
 module.exports = {
