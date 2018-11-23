@@ -47,21 +47,21 @@ const transformsToHull: ServiceTransforms =
         { inputPath: "data.attributes.emails[0]", outputPath: "ident.email" },
         { mapping: "connector.private_settings.prospect_attributes_inbound",
           inputPath: "data.attributes.${input_field_name}",
-          outputPath: "data.attributes.outreach/${output_field_name}",
+          outputPath: "attributes.outreach/${output_field_name}",
           outputFormat: {
             value: "${value}",
             operation: "set"
           }
         }
       ]
-    },,
+    },
     {
       input: OutreachAccountRead,
       output: HullIncomingAccount,
       strategy: "PropertyKeyedValue",
       indexStrategy: "append_index",
       transforms: [
-        { inputPath: "id", outputPath: "ident.anonymous_id" },
+        { inputPath: "id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
         { inputPath: "attributes.domain", outputPath: "ident.domain" },
         { mapping: "connector.private_settings.account_attributes_inbound",
           inputPath: "attributes.${input_field_name}",
@@ -84,7 +84,7 @@ const transformsToHull: ServiceTransforms =
         { inputPath: "data.attributes.${connector.private_settings.account_identifier_service}", outputPath: "ident.${connector.private_settings.account_identifier_hull}" },
         { mapping: "connector.private_settings.account_attributes_inbound",
           inputPath: "data.attributes.${input_field_name}",
-          outputPath: "data.attributes.outreach/${output_field_name}",
+          outputPath: "attributes.outreach/${output_field_name}",
           outputFormat: {
             value: "${value}",
             operation: "set"

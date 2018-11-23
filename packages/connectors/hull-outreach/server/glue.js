@@ -96,10 +96,10 @@ const glue = {
   prospectFetchAll: hull("asUser", outreach("getAllProspects")),
 
   webhook:
-    ifLogic(cond("isEqual", ["account", get("data.type", input())]), {
+    ifLogic(cond("isEqual", ["account", inputParameter("data.type")]), {
       true: hull("asAccount", input()),
       false:
-        ifLogic(cond("isEqual", ["prospect", get("data.type", input())]), {
+        ifLogic(cond("isEqual", ["prospect", inputParameter("data.type")]), {
           true: hull("asUser", input()),
           false: {}
         })

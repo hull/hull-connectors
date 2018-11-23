@@ -384,7 +384,7 @@ class HullConnectorEngine {
       // need to tell what type of data is incoming, but the data incoming will be different per connector
       // so there's an idea that needs to be abstracted above
       this.dispatchWithData(context, new Route("webhook"), new IncomingData(WebhookPayload, webhookPayload.body));
-      return Promise.resolve("ok");
+        return Promise.resolve({ status: 200, text: "All good" });
     }
   }
 
