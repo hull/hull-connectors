@@ -163,7 +163,10 @@ class HubspotClient {
     if (willExpireSoon || force) {
       return this.refreshAccessToken()
         .catch(refreshErr => {
-          this.client.logger.error("Error in refreshAccessToken", refreshErr);
+          this.client.logger.error(
+            "Error in refreshAccessToken",
+            refreshErr.message
+          );
           return Promise.reject(refreshErr);
         })
         .then(res => {
