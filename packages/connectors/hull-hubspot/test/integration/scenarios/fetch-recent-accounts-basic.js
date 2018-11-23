@@ -35,7 +35,7 @@ it("should fetch recent companies using settings", () => {
       connector,
       usersSegments: [],
       accountsSegments: [],
-      response: "",
+      response: "ok",
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],

@@ -9,7 +9,8 @@ const SyncAgent = require("../lib/sync-agent");
  */
 function fetchAction(ctx: HullContext) {
   const syncAgent = new SyncAgent(ctx);
-  return syncAgent.fetchRecentContacts();
+  syncAgent.fetchRecentContacts();
+  return Promise.resolve("ok");
 }
 
 module.exports = fetchAction;

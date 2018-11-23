@@ -2,7 +2,8 @@ const SyncAgent = require("../lib/sync-agent");
 
 function checkTokenAction(ctx) {
   const syncAgent = new SyncAgent(ctx);
-  return syncAgent.checkToken();
+  syncAgent.checkToken();
+  return Promise.resolve("ok");
 }
 
 module.exports = checkTokenAction;
