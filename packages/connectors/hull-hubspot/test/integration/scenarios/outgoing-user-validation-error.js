@@ -93,7 +93,16 @@ it("should send out a new hull user to hubspot", () => {
             "subject_type": "user",
             "user_email": "non-existing-property@hull.io",
           }),
-          "Property \"non-existing-property\" does not exist",
+          {
+            error: "Property \"non-existing-property\" does not exist",
+            hubspotWriteContact: {
+              "properties": [{
+                "property": "hull_segments",
+                "value": "testSegment"
+              }],
+              "email": "non-existing-property@hull.io"
+            }
+          }
         ],
         [
           "info",

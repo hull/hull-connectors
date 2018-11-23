@@ -80,18 +80,30 @@ it("should send out a new hull account to hubspot", () => {
           "outgoing.account.error",
           expect.objectContaining({ "subject_type": "account", "account_domain": domain }),
           {
-            "status": "error",
-            "message": "Property values were not valid",
-            "correlationId": "72b84514-5dd3-4bd6-a12d-50a07966181f",
-            "validationResults": [
-              {
-                "isValid": false,
-                "message": "Property \"non-existing-property\" does not exist",
-                "error": "PROPERTY_DOESNT_EXIST",
-                "name": "non-existing-property"
-              }
-            ],
-            "requestId": "156dd7c3965247bc8c073a02ab1d2f9b"
+            error: {
+              "status": "error",
+              "message": "Property values were not valid",
+              "correlationId": "72b84514-5dd3-4bd6-a12d-50a07966181f",
+              "validationResults": [
+                {
+                  "isValid": false,
+                  "message": "Property \"non-existing-property\" does not exist",
+                  "error": "PROPERTY_DOESNT_EXIST",
+                  "name": "non-existing-property"
+                }
+              ],
+              "requestId": "156dd7c3965247bc8c073a02ab1d2f9b"
+            },
+            hubspotWriteCompany: {
+              "properties": [{
+                "name": "hull_segments",
+                "value": "testSegment"
+              }, {
+                "name": "domain",
+                "value": "hull.io"
+              }]
+            },
+            operation: "insert"
           }
         ]
       ],

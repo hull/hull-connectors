@@ -457,7 +457,10 @@ class SyncAgent {
           } else {
             this.hullClient
               .asUser(envelope.message.user)
-              .logger.error("outgoing.user.error", envelope.error);
+              .logger.error("outgoing.user.error", {
+                error: envelope.error,
+                hubspotWriteContact: envelope.hubspotWriteContact
+              });
           }
         });
       });
@@ -545,7 +548,11 @@ class SyncAgent {
           }
           return this.hullClient
             .asAccount(envelope.message.account)
-            .logger.error("outgoing.account.error", envelope.error);
+            .logger.error("outgoing.account.error", {
+              error: envelope.error,
+              hubspotWriteCompany: envelope.hubspotWriteCompany,
+              operation: "update"
+            });
         });
       });
 
@@ -572,7 +579,11 @@ class SyncAgent {
           }
           return this.hullClient
             .asAccount(envelope.message.account)
-            .logger.error("outgoing.account.error", envelope.error);
+            .logger.error("outgoing.account.error", {
+              error: envelope.error,
+              hubspotWriteCompany: envelope.hubspotWriteCompany,
+              operation: "insert"
+            });
         });
       });
   }
