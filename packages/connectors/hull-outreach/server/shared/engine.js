@@ -37,6 +37,8 @@ const { TransformImpl } = require("./transform-impl");
 
 import type { HullRequest } from "hull";
 
+const HashMap = require('hashmap');
+
 const debug = require("debug")("hull-shared:engine");
 
 class ServiceData {
@@ -77,15 +79,15 @@ class HullConnectorEngine {
   async dispatchWithData(context: Object, instruction: Object, data: null | ServiceData) {
     try {
       if (!_.isEmpty(this.ensure)) {
-        await this.resolve(0, context, new Route(this.ensure), data);
+        await this.resolve(context, new Route(this.ensure), data);
       }
-      return await this.resolve(0, context, instruction, data);
+      return await this.resolve(context, instruction, data);
     } catch (error) {
       console.log("Error here: " + error.stack);
     }
   }
 
-  async resolve(depth: number, context: Object, instruction: Object, serviceData: null | ServiceData): any {
+  async resolve(context: Object, instruction: Object, serviceData: null | ServiceData): any {
 
     if (instruction === undefined || instruction === null) {
       return instruction;
@@ -102,7 +104,7 @@ class HullConnectorEngine {
       const results = [];
 
       for (let index = 0; index < instruction.length; index++) {
-        const result = await this.resolve(depth, context, instruction[index], serviceData);
+        const result = await this.resolve(context, instruction[index], serviceData);
         results.push(result);
       }
 
@@ -122,7 +124,7 @@ class HullConnectorEngine {
       // what is the relationship between the route and the glue? What is the abstraction???
 
       const params = instruction.params;
-      let resolvedParams = await this.resolve(depth, context, params, serviceData);
+      let resolvedParams = await this.resolve(context, params, serviceData);
 
       if (!isUndefinedOrNull(resolvedParams)) {
 
@@ -148,7 +150,7 @@ class HullConnectorEngine {
         debug(`[EXECUTING]: ${instruction.type}<${instruction.name}>`);
       }
 
-      return await this.interpretInstruction(depth, context, instruction, resolvedParams, serviceData);
+      return await this.interpretInstruction(context, instruction, resolvedParams, serviceData);
     } else {
       return doVariableReplacement(context, instruction);
     }
@@ -180,17 +182,22 @@ class HullConnectorEngine {
       if (_.isEmpty(route)) {
         throw new Error(`Route: ${instruction.name} not found in glue`);
       }
-      return await this.resolve(depth, context, route, serviceData);
+      return await this.resolve(context, route, serviceData);
     } else if (type === 'logic') {
 
       const name = instruction.name;
 
       if (name === 'if') {
 
-        if (resolvedParams) {
-          return await this.resolve(depth, context, instruction.results.true, serviceData);
+        // Could drop a promise all around both of these and go parallel
+        // down both paths...
+        // But would introduce the complexity of having 2 paths where if we fail
+        // on somthing like unauthorized, would have to vacate other superAgents
+        // to stop refresh/retry logic being triggered 2x, or maybe introduce
+        // some sort of retry mutex... (kinda already have one, maybe could serve this purpose too)
+          return await this.resolve(context, instruction.results.true, serviceData);
         } else {
-          return await this.resolve(depth, context, instruction.results.false, serviceData);
+          return await this.resolve(context, instruction.results.false, serviceData);
         }
 
       } else {
@@ -247,7 +254,7 @@ class HullConnectorEngine {
       //This is the way to call 1 at a time, but may want to call may at a time
       // const results = [];
       // for (let index = 0; index < inputParams.length; index++) {
-      //   const result = await this.callService(depth, context, instruction, inputParams[index]);
+      //   const result = await this.callService(context, instruction, inputParams[index]);
       //   results.push(result);
       // }
 
@@ -261,7 +268,7 @@ class HullConnectorEngine {
       // may want to change the behavior, if we see a batch endpoint, 1 serviceData object with an array
       // doesn't need to split, but sends the whole array at the same time if "batch" is set...
       const promiseResults = await Promise.all(inputParams.map(input => {
-        return this.callService(depth, context, instruction, input);
+        return this.callService(context, instruction, input);
       }));
 
       // Need to flatten, in case a single call returns an array
@@ -292,7 +299,7 @@ class HullConnectorEngine {
 
   }
 
-  async callService(depth: number, context: Object, instruction: Object, inputParam: any) {
+  async callService(context: Object, instruction: Object, inputParam: any) {
 
     const name = instruction.name;
     const op = instruction.op;
@@ -302,6 +309,7 @@ class HullConnectorEngine {
     if (isUndefinedOrNull(endpoint))
       throw new Error(`Undefined endpoint: ${name}<${op}>`);
 
+    const dataTransforms = new HashMap();
     const dataToSend = [];
     let entityTypeString = null;
 
@@ -336,10 +344,14 @@ class HullConnectorEngine {
 
         if (Array.isArray(objectToTransform)) {
           _.forEach(objectToTransform, obj => {
-            dataToSend.push(this.transforms.transform(context, obj, classType, endpoint.input));
+            const transformedObject = this.transforms.transform(context, obj, classType, endpoint.input)
+            dataTransforms.set(transformedObject, obj);
+            dataToSend.push(transformedObject);
           });
         } else {
-          dataToSend.push(this.transforms.transform(context, objectToTransform, classType, endpoint.input));
+          const transformedObject = this.transforms.transform(context, objectToTransform, classType, endpoint.input);
+          dataTransforms.set(transformedObject, obj);
+          dataToSend.push(transformedObject);
         }
       } else {
         dataToSend.push(objectToTransform);
@@ -352,72 +364,80 @@ class HullConnectorEngine {
       dataToSend.push(null);
     }
 
-    // TODO if it's a batch endpoint, don't break apart...
-    // just send whole array...
     const retryablePromise = () => {
 
-      //This is what we want to do for batch, but gigantic copy paste, need to abstract...
-      // would be nice ot have a batch use case to validate against though to make sure
-      // this is right before abstracting
+      const sendData = (data) => {
+          if (!_.isEmpty(data)) {
+            debug(`[CALLING-SERVICE]: ${name}<${op}> [WITH-DATA]: ${JSON.stringify(data)}`);
+          } else {
+            debug(`[CALLING-SERVICE]: ${name}<${op}>`);
+          }
+
+          let direction;
+          let dispatchPromise;
+          if (name === "hull") {
+            direction = "incoming";
+            dispatchPromise = new HullSdk(context, serviceDefinition).dispatch(op, data);
+          } else {
+            direction = "outgoing";
+            dispatchPromise = new SuperagentApi(context, serviceDefinition).dispatch(op, data);
+          }
+
+          // This specialized function makes sure to ensure the right context for log i think
+          // we can see the exact user we were trying to send and which data was sent
+          const getContextSpecificLogger = () => {
+            let logger = context.client.logger;
+            if (!isUndefinedOrNull(inputParam)) {
+              if (inputParam.classType === HullOutgoingUser) {
+                const userObject = dataTransforms.get(data);
+                if (!_.isEmpty(userObject)) {
+                  logger = context.client.asUser(inputParam).logger;
+                }
+              } else if (inputParam.classType === HullOutgoingAccount) {
+                // if inputParam is an array, must get the right obj
+                // in the array for this log...
+                const accountObject = dataTransforms.get(data);
+                if (!_.isEmpty(accountObject)) {
+                  logger = context.client.asAccount(accountObject).logger;
+                }
+              }
+            }
+            return logger;
+          };
+
+          return dispatchPromise.then((results) => {
+
+            //TODO also need to account for batch endpoints
+            // where we should loge a message for each of the objects in the batch
+            if (entityTypeString !== null) {
+              getContextSpecificLogger().info(`${direction}.${entityTypeString}.success`, data);
+              debug(`${direction}.${entityTypeString}.success`, data);
+            }
+
+            // this is just for logging, do not suppress error here
+            // pass it along with promise resolve
+            return Promise.resolve(results);
+          }).catch (error => {
+
+            if (entityTypeString !== null) {
+              getContextSpecificLogger().error(`${direction}.${entityTypeString}.error`, data);
+              debug(`${direction}.${entityTypeString}.error`, data);
+            }
+
+            // this is just for logging, do not suppress error here
+            // pass it along with promise reject
+            return Promise.reject(error);
+          });
+        }
+
+      // if it's a batch endpoint, don't break apart...
+      // just send whole array...
       if (endpoint.batch) {
-        if (!_.isEmpty(dataToSend)) {
-          debug(`[CALLING-SERVICE]: ${name}<${op}> [WITH-DATA]: ${JSON.stringify(dataToSend)}`);
-        } else {
-          debug(`[CALLING-SERVICE]: ${name}<${op}>`);
-        }
-
-        let direction;
-        let dispatchPromise;
-        if (name === "hull") {
-          direction = "incoming";
-          dispatchPromise = new HullSdk(context, serviceDefinition).dispatch(op, dataToSend);
-        } else {
-          direction = "outgoing";
-          dispatchPromise = new SuperagentApi(context, serviceDefinition).dispatch(op, dataToSend);
-        }
-
-        return dispatchPromise.then((results) => {
-          if (entityTypeString !== null) {
-            //TODO do an asAccount or asUser with the inputParam too...
-            context.client.logger.info(`${direction}.${entityTypeString}.success`, dataToSend);
-            debug(`${direction}.${entityTypeString}.success`, dataToSend);
-          }
-
-          return Promise.resolve(results);
-        })
+        return sendData(dataToSend);
+      } else {
+        return Promise.all(dataToSend.map(sendData));
       }
-
-      return Promise.all(dataToSend.map(data => {
-
-        if (!_.isEmpty(data)) {
-          debug(`[CALLING-SERVICE]: ${name}<${op}> [WITH-DATA]: ${JSON.stringify(data)}`);
-        } else {
-          debug(`[CALLING-SERVICE]: ${name}<${op}>`);
-        }
-
-        let direction;
-        let dispatchPromise;
-        if (name === "hull") {
-          direction = "incoming";
-          dispatchPromise = new HullSdk(context, serviceDefinition).dispatch(op, data);
-        } else {
-          direction = "outgoing";
-          dispatchPromise = new SuperagentApi(context, serviceDefinition).dispatch(op, data);
-        }
-
-        return dispatchPromise.then((results) => {
-          if (entityTypeString !== null) {
-            //TODO do an asAccount or asUser with the inputParam too...
-            context.client.logger.info(`${direction}.${entityTypeString}.success`, data);
-            debug(`${direction}.${entityTypeString}.success`, data);
-          }
-
-          return Promise.resolve(results);
-        })
-      }));
-  };
-
-
+    };
 
     // If executing concurrently, only one of these will succeed, the rest will fail
     // failing the whole message... but at least one gets through?
@@ -432,7 +452,7 @@ class HullConnectorEngine {
           debug(`[SERVICE-ERROR]: ${name} [RECOVERY-ROUTE-ATTEMPT]: ${route}`);
 
           //don't input data on an attempt to recover...
-          return this.resolve(depth, context, new Route(route), null).then(() => {
+          return this.resolve(context, new Route(route), null).then(() => {
             _.set(context, "retrying", false);
             return retryablePromise();
           }).catch(error => {
@@ -525,7 +545,8 @@ class HullConnectorEngine {
 
          if (!matchesUserSegments) {
            debug(`User does not match segment ${ JSON.stringify(message.user) }`);
-           return;
+           context.client.asUser(message.user).logger.info("outgoing.user.skip", "User not in any user defined segments to send");
+           return Promise.resolve();
          }
        }
 
@@ -548,7 +569,8 @@ class HullConnectorEngine {
 
          if (!matchesUserSegments) {
            debug(`Account does not match segment ${ JSON.stringify(message.account) }`);
-           return;
+           context.client.asAccount(message.account).logger.info("outgoing.account.skip", "Account not in any user defined segments to send");
+           return Promise.resolve();
          }
 
          // if no changes to account attributes
