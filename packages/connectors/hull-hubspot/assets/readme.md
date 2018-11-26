@@ -120,3 +120,21 @@ Mappings define the attributes of Hull profiles we synchronize with properties o
 
 
 ## Troubleshooting
+
+### I don’t get any company data in Hull
+check identifiers for accounts
+
+### I don’t get updates of recently updated Contacts or Companies into Hull
+Check your connector logs for any `incoming.job.error`. If you see any with `Permission error` go to the `Credentials` Tab and perform the oAuth flow authorization again using the `Start over` button. Make sure that you are linking the connector again to the same Hubspot portal. Changing the portal on once installed connector can lead to data corruption. This operation does not reset any settings from the connector.
+Right after it's done the incoming dataflow should be resumed. You can verify that by searching for any `incoming.user.success` or `incoming.account.success` log lines (it can take around 5 minutes to show up).
+To fill in any missing data you can use `Fetch all Contacts` and `Fetch all Companies` buttons on the connector tab.
+
+### I don’t see recently added fields
+fetch companies or contacts or send them via batch
+
+### I get empty companies
+mark identifiers required
+
+### My Hubspot Contact or Companies are not updated due to `duplicate property value` error
+If you see `duplicate property value` error in your `outgoing.user.error` or `outgoing.account.error` logs it means that you have duplicate entry in your outgoing attribute mapping. You can inspect `hubspotWriteContact` param in the log line to see the exact payload the connector tried to sent to Hubspot and failed. Search for any property name which appears there twice. Then remove the extra entry in the attributes mapper and resend the affected users/accounts via send to operation.
+If you want to achieve fallback strategy for outgoing attributes you need to prepare the value using Processor.
