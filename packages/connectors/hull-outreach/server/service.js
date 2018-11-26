@@ -3,11 +3,42 @@ import type { RawRestApi, EndpointType, RequestType } from "./shared/types";
 
 const _ = require("lodash");
 
-const OAuth2Strategy = require("passport-oauth2");
-const { OutreachProspectWrite, OutreachProspectRead, OutreachAccountWrite, OutreachAccountRead, OutreachWebhookWrite } = require("./service-objects");
-const { SuperagentApi } = require("./shared/superagent-api");
+const {
+  ConfigurationError,
+  RateLimitError,
+  RecoverableError,
+  TransientError,
+  LogicError,
+  NotificationValidationError
+} = require("hull/src/errors");
 
-const oAuthUrl = "https://api.outreach.io";
+
+const OAuth2Strategy = require("passport-oauth2");
+const {
+  OutreachProspectWrite,
+  OutreachProspectRead,
+  OutreachAccountWrite,
+  OutreachAccountRead,
+  OutreachWebhookWrite
+  } = require("./service-objects");
+
+const { SuperagentApi } = require("./shared/superagent-api");
+const MESSAGES = require("./messages");
+const { isUndefinedOrNull } = require("./shared/utils");
+
+function notNull(param: string) {
+  return (context, error) => {
+    const contextVariable = _.get(context, param);
+    return !isUndefinedOrNull(context);
+  };
+}
+
+function isNull(param: string) {
+  return (context, error) => {
+    const contextVariable = _.get(context, param);
+    return isUndefinedOrNull(context);
+  };
+}
 
 // What about linking calls?
 const service: RawRestApi = {
@@ -87,6 +118,7 @@ const service: RawRestApi = {
       query: "filter[emails]=${userEmail}",
       returnObj: "body.data[0]",
       endpointType: "byProperty",
+      returnObj: "body.data",
       output: OutreachProspectRead
     },
     getProspectsByProperty: {
@@ -170,11 +202,47 @@ const service: RawRestApi = {
       }
     }
   },
-  retry: {
-    templates: [{ truthy: { status: 401 } , route: "refreshToken", retry: 1 }]
-  },
   error: {
-    //error conditions templating
+
+    parser: {
+      httpStatus: "status",
+      parser: {
+        type: "json",
+        target: "response.text",
+        appStatusCode: "errors[0].id",
+        title: "errors[0].title",
+        description: "errors[0].detail",
+        source: "errors[0].source",
+      }
+    },
+
+    templates: [
+      {
+        truthy: { status: 401 },
+        condition: isNull("connector.private_settings.access_token"),
+        errorType: ConfigurationError,
+        message: MESSAGES.STATUS_NO_ACCESS_TOKEN_FOUND
+      },
+      {
+        truthy: { status: 401 },
+        // Do I need to add in options to override the error parameters?
+        // this case the error is in a response.text field...
+        condition: notNull("connector.private_settings.access_token"),
+        errorType: ConfigurationError,
+        message: MESSAGES.STATUS_UNAUTHORIZED_ACCESS_TOKEN,
+        recoveryroute: "refreshToken",
+      },
+      {
+        truthy: { status: 422 },
+        errorType: ConfigurationError,
+        message: MESSAGES.SERVICE_VALIDATION_ERROR
+      },
+      {
+        errorType: Error,
+        message: MESSAGES.UNKNOWN_SERVICE_ERROR,
+      }
+    ]
+
   }
 }
 

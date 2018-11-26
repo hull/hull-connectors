@@ -79,9 +79,9 @@ class HullConnectorEngine {
   async dispatchWithData(context: Object, instruction: Object, data: null | ServiceData) {
     try {
       if (!_.isEmpty(this.ensure)) {
-        await this.resolve(context, new Route(this.ensure), data);
+        await this.resolve(_.merge({}, context), new Route(this.ensure), data);
       }
-      return await this.resolve(context, instruction, data);
+      return await this.resolve(_.merge({}, context), instruction, data);
     } catch (error) {
       console.log("Error here: " + error.stack);
     }
@@ -161,7 +161,7 @@ class HullConnectorEngine {
    * There's an abtraction between serviceData (outgoing) and resolveParams(incoming) that needs to be clarified
    * It also provides a decent starting concept for joining data back together when doing things like batch operations...
    */
-  async interpretInstruction(depth: number, context: Object, instruction: Object, resolvedParams: any, serviceData: null | ServiceData) {
+  async interpretInstruction(context: Object, instruction: Object, resolvedParams: any, serviceData: null | ServiceData) {
     let type = _.get(instruction, "type");
 
     if (type === 'reference') {
@@ -189,12 +189,13 @@ class HullConnectorEngine {
 
       if (name === 'if') {
 
-        // Could drop a promise all around both of these and go parallel
-        // down both paths...
-        // But would introduce the complexity of having 2 paths where if we fail
-        // on somthing like unauthorized, would have to vacate other superAgents
-        // to stop refresh/retry logic being triggered 2x, or maybe introduce
-        // some sort of retry mutex... (kinda already have one, maybe could serve this purpose too)
+        if (resolvedParams) {
+          // Could drop a promise all around both of these and go parallel
+          // down both paths...
+          // But would introduce the complexity of having 2 paths where if we fail
+          // on somthing like unauthorized, would have to vacate other superAgents
+          // to stop refresh/retry logic being triggered 2x, or maybe introduce
+          // some sort of retry mutex... (kinda already have one, maybe could serve this purpose too)
           return await this.resolve(context, instruction.results.true, serviceData);
         } else {
           return await this.resolve(context, instruction.results.false, serviceData);
@@ -278,20 +279,27 @@ class HullConnectorEngine {
       // I think this is ok, if it's just 1 object returned too?
       const results = _.flatten(promiseResults);
 
-      // TODO mmm dup code... should refactor...
+      // TODO mmm dupe code... should refactor...
       const serviceDefinition = this.services[instruction.name];
       const endpoint = serviceDefinition.endpoints[instruction.op];
 
-      if (!_.isEmpty(results) && !isUndefinedOrNull(endpoint.output)) {
+      if (!_.isEmpty(results)) {
+        let newData;
 
         if (results.length === 1) {
-          return new ServiceData(endpoint.output, results[0]);
+          newData = results[0];
         } else {
-          return new ServiceData(endpoint.output, results);
+          newData = results;
         }
-      } else {
-        return results;
+
+        if (!isUndefinedOrNull(endpoint.output)) {
+          return new ServiceData(endpoint.output, newData);
+        } else {
+          return newData;
+        }
       }
+
+      return results;
 
     } else {
       throw new Error("Unsupported type: " + type);
@@ -350,7 +358,7 @@ class HullConnectorEngine {
           });
         } else {
           const transformedObject = this.transforms.transform(context, objectToTransform, classType, endpoint.input);
-          dataTransforms.set(transformedObject, obj);
+          dataTransforms.set(transformedObject, objectToTransform);
           dataToSend.push(transformedObject);
         }
       } else {
@@ -364,6 +372,7 @@ class HullConnectorEngine {
       dataToSend.push(null);
     }
 
+    // this is pretty dry, but butt ugly... function inception
     const retryablePromise = () => {
 
       const sendData = (data) => {
@@ -391,7 +400,7 @@ class HullConnectorEngine {
               if (inputParam.classType === HullOutgoingUser) {
                 const userObject = dataTransforms.get(data);
                 if (!_.isEmpty(userObject)) {
-                  logger = context.client.asUser(inputParam).logger;
+                  logger = context.client.asUser(userObject).logger;
                 }
               } else if (inputParam.classType === HullOutgoingAccount) {
                 // if inputParam is an array, must get the right obj
@@ -442,27 +451,142 @@ class HullConnectorEngine {
     // If executing concurrently, only one of these will succeed, the rest will fail
     // failing the whole message... but at least one gets through?
     return retryablePromise().catch(error => {
+
       debug(`[SERVICE-ERROR]: ${name} [ERROR]: ${JSON.stringify(error)}`);
-        const route: string = this.onErrorGetRecovery(serviceDefinition, error);
 
-        const retrying = _.get(context, "retrying");
-        if ((isUndefinedOrNull(retrying) || !retrying) && !_.isEmpty(route)) {
+      const retrying = _.get(context, "retrying");
+      const errorTemplate = this.findErrorTemplate(context, serviceDefinition, error);
 
+      const onUnrecoverable = () => {
+        const errorException = this.createErrorException(context, name, serviceDefinition.error, errorTemplate, error);
+        _.set(context, "retrying", false);
+        return Promise.reject(errorException);
+      };
+
+      if (!isUndefinedOrNull(errorTemplate) && (isUndefinedOrNull(retrying) || !retrying)) {
+        const route: string = _.get(errorTemplate, "recoveryroute");
+
+        if (!_.isEmpty(route)) {
           _.set(context, "retrying", true);
           debug(`[SERVICE-ERROR]: ${name} [RECOVERY-ROUTE-ATTEMPT]: ${route}`);
 
           //don't input data on an attempt to recover...
           return this.resolve(context, new Route(route), null).then(() => {
+
             _.set(context, "retrying", false);
             return retryablePromise();
+
           }).catch(error => {
-            _.set(context, "retrying", false);
-            return Promise.reject(error);
+            return onUnrecoverable();
           });
-      } else {
-        return Promise.reject(error);
+        }
       }
+
+      return onUnrecoverable();
+
     });
+  }
+
+  createErrorException(context: Object, servicename: string, errorDefinitions: Object, errorTemplate: any, error: any) {
+
+    let logger = context.client.logger;
+
+    if (isUndefinedOrNull(error)) {
+      const message: string = `Unknown error while connecting with the ${servicename} API`;
+      logger.error(message);
+      return new Error(message);
+    } else if (isUndefinedOrNull(errorDefinitions)) {
+      const message: string = `Untemplated error while connecting with the ${servicename} API`;
+      logger.error(message, error);
+      return new Error(error);
+    }
+
+    const output = this.parseError(error, errorDefinitions.parser, {});
+    const logMessage = this.createLogFromOutput(servicename, output);
+
+    if (isUndefinedOrNull(errorTemplate)) {
+      debug.error(logMessage, error);
+      return new Error(error);
+    } else {
+      logger.error(errorTemplate.message().message, logMessage);
+      return new errorTemplate.errorType(logMessage);
+    }
+
+  }
+
+  createLogFromOutput(servicename: string, output: Object) {
+    const {
+      httpStatus,
+      appStatusCode,
+      title,
+      description,
+      source
+    } = output;
+
+    let log = `HTTP[${httpStatus}] ${servicename}[${appStatusCode}] ${title}`;
+
+    if (!_.isEmpty(description)) log += `: ${description}`;
+    if (!_.isEmpty(source)) log += ` SOURCE[${JSON.stringify(source)}]`;
+
+    return log;
+
+  }
+
+  parseError(error: any, parser: any, output: Object): Object {
+
+    if (isUndefinedOrNull(parser))
+      return output;
+
+    let target = error;
+
+    if (!isUndefinedOrNull(parser.target)) {
+      target = _.get(error, parser.target);
+      if (!isUndefinedOrNull(parser.type)) {
+        if (parser.type === 'json') {
+          target = JSON.parse(target);
+        }
+      }
+    }
+
+    if (isUndefinedOrNull(target))
+      return output;
+
+    // ugh... shouldn't there be a lodash fuction for this????
+    // I don't know cuz I'm a lodash newb...
+    const httpStatus: any = _.get(target, parser.httpStatus);
+    if (!isUndefinedOrNull(httpStatus)) _.set(output, "httpStatus", httpStatus);
+    const appStatusCode: any = _.get(target, parser.appStatusCode);
+    if (!isUndefinedOrNull(appStatusCode)) _.set(output, "appStatusCode", appStatusCode);
+    const title: any = _.get(target, parser.title);
+    if (!isUndefinedOrNull(title)) _.set(output, "title", title);
+    const description: any = _.get(target, parser.description);
+    if (!isUndefinedOrNull(description)) _.set(output, "description", description);
+    const source: any = _.get(target, parser.source);
+    if (!isUndefinedOrNull(source)) _.set(output, "source", source);
+
+    // see if any sub parsers that we need
+    // maybe make this a list instead of a nested obj?
+    return this.parseError(target, parser.parser, output);
+  }
+
+  findErrorTemplate(context: Object, serviceDefinition: any, error: any) {
+    if (!_.isEmpty(serviceDefinition.error.templates)) {
+
+      return _.find(serviceDefinition.error.templates, template => {
+        if (!isUndefinedOrNull(template.truthy)) {
+          if (!_.isMatch(error, template.truthy)){
+            return false;
+          }
+        }
+        if (!isUndefinedOrNull(template.condition)) {
+          if (!template.condition(context, error)) {
+            return false;
+          }
+        }
+        return true;
+      });
+    }
+    return null;
   }
 
   onErrorGetRecovery(serviceDefinition: any, error: any): any {

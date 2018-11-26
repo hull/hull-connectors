@@ -68,7 +68,7 @@ const glue = {
     }),
   prospectLookupByEmail:
     ifLogic(cond("notEmpty", set("userEmail", inputParameter("email"))), {
-      true: ifLogic(cond("notEmpty", set("userId", get(outreach("getProspectByEmail"), "id"))), {
+      true: ifLogic(cond("notEmpty", set("userId", get(outreach("getProspectByEmail"), "data[0].id"))), {
               true: hull("asUser", outreachSendInput("updateProspect")),
               false: hull("asUser", outreachSendInput("insertProspect"))
             }),

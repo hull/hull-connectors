@@ -41,7 +41,6 @@ export type RawRestApi = {
     headersToMetrics: Object
   },
   authentication: Object,
-  retry: Object,
   error: Object,
   endpoints: {
     [propertyName: string]: {
