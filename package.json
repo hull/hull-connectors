@@ -1,6 +1,6 @@
 {
   "name": "hull-connectors",
-  "version": "0.0.5-monorepo",
+  "version": "0.0.6-monorepo",
   "private": true,
   "workspaces": {
     "packages": [
@@ -55,7 +55,7 @@
     "jest": "^23.6.0",
     "mocha": "^5.2.0",
     "nock": "^10.0.0",
-    "nodemon": "^1.18.4",
+    "nodemon": "^1.18.7",
     "nyc": "^13.0.1",
     "prettier": "^1.14.3",
     "rimraf": "^2.6.2",
