@@ -331,7 +331,7 @@ class SyncAgent {
    */
   saveContacts(contacts: Array<HubspotReadContact>): Promise<any> {
     this.logger.debug("saveContacts", contacts.length);
-    this.metric.value("ship.incoming.users", contacts.length);
+    this.metric.increment("ship.incoming.users", contacts.length);
     return Promise.all(
       contacts.map(async contact => {
         const traits = this.mappingUtil.getHullUserTraits(contact);

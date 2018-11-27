@@ -358,7 +358,7 @@
   ],
   "schedules": [
     {
-      "url": "/sync",
+      "url": "/fetch-recent-contacts",
       "type": "interval",
       "value": "5"
     },

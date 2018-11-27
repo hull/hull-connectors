@@ -19,10 +19,14 @@ function server(app: $Application): $Application {
     clientSecret: process.env.CLIENT_SECRET,
     hostSecret: process.env.SECRET
   };
-  app.use("/fetch-all", jsonHandler(actions.fetchAll));
-  app.use("/fetch-all-companies", jsonHandler(actions.fetchAllCompanies));
-  app.use("/sync", scheduleHandler(actions.fetch));
 
+  app.use("/fetch-all", jsonHandler(actions.fetchAll)); // old name - to be removed
+  app.use("/fetch-all-contacts", jsonHandler(actions.fetchAll));
+
+  app.use("/sync", scheduleHandler(actions.fetch)); // old name - to be removed
+  app.use("/fetch-recent-contacts", scheduleHandler(actions.fetch));
+
+  app.use("/fetch-all-companies", jsonHandler(actions.fetchAllCompanies));
   app.use(
     "/fetch-recent-companies",
     scheduleHandler(actions.fetchRecentCompanies)
