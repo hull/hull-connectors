@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.0.7-monorepo
+- Migrate Typeform Incoming Attribute Mapping format
+
 ## v0.0.6-monorepo
 - remove malicious npm package: flatmap-stream@^0.1.0
 
