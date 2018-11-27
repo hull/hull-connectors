@@ -236,10 +236,6 @@ const service: RawRestApi = {
         truthy: { status: 422 },
         errorType: ConfigurationError,
         message: MESSAGES.SERVICE_VALIDATION_ERROR
-      },
-      {
-        errorType: Error,
-        message: MESSAGES.UNKNOWN_SERVICE_ERROR,
       }
     ]
 

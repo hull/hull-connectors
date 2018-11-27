@@ -233,7 +233,8 @@
       "channels": {
         "only": [
           "user:update",
-          "account:update"
+          "account:update",
+          "ship:update"
         ]
       }
     }

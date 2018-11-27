@@ -35,16 +35,16 @@ const { transformsToService } = require("./transforms-to-service");
 const { hullService } = require("./shared/hull-service");
 const { transformsToHull } = require("./transforms-to-hull");
 
+const manifest = require("../manifest.json");
 
-
-function server(app: $Application, deps: Object): $Application {
-
-  const engine: HullConnectorEngine = new HullConnectorEngine(
-    glue,
-    {hull: hullService, outreach: service},
+function engine(): HullConnectorEngine {
+  return new HullConnectorEngine(
+    glue, {hull: hullService, outreach: service},
     _.concat(transformsToHull, transformsToService),
     "ensureWebhooks");
+}
 
+function server(app: $Application, deps: Object): $Application {
 
 /**
  * We should think more about how the rules get hooked into routes
@@ -53,24 +53,25 @@ function server(app: $Application, deps: Object): $Application {
  */
   const notifications = {
     "user:update": (ctx: HullContext, messages: Array<HullUserUpdateMessage>) => {
-      return engine.userUpdate(ctx, messages);
+      return engine().userUpdate(ctx, messages);
       },
     "account:update": (ctx: HullContext, messages: Array<HullAccountUpdateMessage>) => {
-      return engine.accountUpdate(ctx, messages);
+      return engine().accountUpdate(ctx, messages);
     }
   };
 
   app.post("/smart-notifier", notificationHandler(notifications));
   app.post("/batch", batchHandler(notifications));
 
-  const authCallback = engine.getAuthCallback();
+// still need to fix...
+  const authCallback = en.getAuthCallback();
   if (authCallback !== null) {
     app.use("/auth", authCallback);
   }
 
-  app.post("/status", scheduleHandler(engine.getStatusCallback()));
+  app.post("/status", scheduleHandler(engine().getStatusCallback()));
 
-  const fetchAllAction = engine.getFetchAllAction();
+  const fetchAllAction = engine().getFetchAllAction();
   if (fetchAllAction !== null)
     app.post("/fetch", jsonHandler(fetchAllAction));
 
