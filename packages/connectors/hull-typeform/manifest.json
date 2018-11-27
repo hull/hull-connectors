@@ -36,7 +36,7 @@
       "title" : "List of form fields to save into Hull as user attributes",
       "description": "Note: Date fields should be saved to traits ending with _date suffix",
       "type": "array",
-      "format": "trait-mapping",
+      "format": "traitMapping",
       "options": {
         "allowOverwrite": false,
         "placeholder": "Typeform Field",
