@@ -86,7 +86,7 @@ class TransformImpl {
             }
 
             if (isUndefinedOrNull(transform.outputPath)) {
-              throw new Error(`Unsupported transform, Must always have output path: ${JSON.stringify(transform)}`);
+              throw new Error(`Unsupported transform, Must always have [outputPath] for transform: ${JSON.stringify(transform)}`);
             }
 
             // TODO here's a couple of auditable scenarios where we have to have these things
@@ -106,15 +106,6 @@ class TransformImpl {
                   context.value = context.value.join(",");
                 }
               }
-
-            } else if (!_.isEmpty(transform.outputFormat)) {
-
-              //TODO may want to throw error os something here if variable replacement
-              // can't find the var here.... this is for injecting context variables...
-              // ******************NEED A SOLUTION********************
-              // context.value = doVariableReplacement(context, transform.outputFormat);
-            } else {
-              throw new Error(`Unsupported set of transformation parameters: ${JSON.stringify(transform)}`);
             }
 
             context.outputPath = doVariableReplacement(context, transform.outputPath);
@@ -124,28 +115,34 @@ class TransformImpl {
             if (Array.isArray(context.value)) {
 
               // export type ArrayTransformationStrategy = "send_raw_array" | "append_index" | "json_stringify" | "join_with_commas";
-              if (arrayStrategy === "send_raw_array" || arrayStrategy === "append_index") {
+              // if the value is still an array, must be one of these strategies...
+              if (arrayStrategy === "send_raw_array") {
+                if (_.isEmpty(transform.outputFormat)) {
+                  _.set(output, context.outputPath, context.value);
+                } else {
+                  const valueArray = [];
+                  _.forEach(context.value, (value, index) => {
+                    valueArray.push(doVariableReplacement(
+                      _.merge({ value: value }, context, transform.outputFormat)));
+                  });
+                  _.set(output, context.outputPath, valueArray);
+                }
+              } else if (arrayStrategy === "append_index") {
                 _.forEach(context.value, (value, index) => {
 
+                  let finalValue = value;
                   if (!_.isEmpty(transform.outputFormat)) {
-                    context.value = doVariableReplacement(_.merge({ value: value }, context, transform.outputFormat));
+                    finalValue = doVariableReplacement(_.merge({ value: value }, context, transform.outputFormat));
                   }
-                  if (arrayStrategy === "append_index") {
                   _.set(output,
                     `${context.outputPath.slice(0, -1)}_${index}`,
-                    doVariableReplacement(context, value));
-                  } else {
-                    _.set(output, context.outputPath, context.value);
-                  }
+                    finalValue);
                 });
               } else {
-                if (!_.isEmpty(transform.outputFormat)) {
-                  context.value = doVariableReplacement(context, transform.outputFormat);
-                }
-                _.set(output, context.outputPath, context.value);
+                // should not ever be here... other array strategies should
+                // have condensed values to a single string
+                throw new Error(`Unable to process array strategy ${arrayStrategy} on transform ${JSON.stringify(transform)}`);
               }
-
-              // }
             } else {
 
               if (!_.isEmpty(transform.outputFormat)) {
@@ -167,13 +164,13 @@ class TransformImpl {
       throw new Error(
         `Transformation Strategy ${
           transformation.strategy
-        } not currently supported`
+        } not currently supported for transformation: ${JSON.stringify(transformation)}`
       );
     } else if (transformation.strategy === "ArrayPropertyGroup") {
       throw new Error(
         `Transformation Strategy ${
           transformation.strategy
-        } not currently supported`
+        } not currently supported for transformation: ${JSON.stringify(transformation)}`
       );
     } else {
       throw new Error(

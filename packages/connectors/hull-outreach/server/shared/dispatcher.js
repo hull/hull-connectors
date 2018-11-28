@@ -47,9 +47,9 @@ class HullDispatcher {
   ensure: string;
   ensurePromise: Promise<any>;
 
-  // TODO input transforms and services....
-  // TODO could have multiple services in the future... maybe take in an array?
-  // TODO really, we could run all of them in the same place potentially
+  // input transforms and services....
+  // could have multiple services in the future... maybe take in an array?
+  // really, we could run all of them in the same place potentially
   constructor(glue: Object, services: Object, transforms: ServiceTransforms, ensure: string) {
     this.glue = glue;
     this.services = new ServiceEngine(this, services, transforms);

@@ -30,7 +30,7 @@ const transformsToHull: ServiceTransforms =
         { inputPath: "attributes.emails[0]", outputPath: "ident.email" },
         { mapping: "connector.private_settings.incoming_user_attributes",
           inputPath: "attributes.${service_field_name}",
-          outputPath: "attributes.outreach/${hull_field_name}",
+          outputPath: "attributes.${hull_field_name}",
           outputFormat: {
             value: "${value}",
             operation: "set"
@@ -49,7 +49,7 @@ const transformsToHull: ServiceTransforms =
         { inputPath: "data.attributes.emails[0]", outputPath: "ident.email" },
         { mapping: "connector.private_settings.incoming_user_attributes",
           inputPath: "data.attributes.${service_field_name}",
-          outputPath: "attributes.outreach/${hull_field_name}",
+          outputPath: "attributes.${hull_field_name}",
           outputFormat: {
             value: "${value}",
             operation: "set"
@@ -68,7 +68,7 @@ const transformsToHull: ServiceTransforms =
         { inputPath: "attributes.domain", outputPath: "ident.domain" },
         { mapping: "connector.private_settings.incoming_account_attributes",
           inputPath: "attributes.${service_field_name}",
-          outputPath: "attributes.outreach/${hull_field_name}",
+          outputPath: "attributes.${hull_field_name}",
           outputFormat: {
             value: "${value}",
             operation: "set"
@@ -88,7 +88,7 @@ const transformsToHull: ServiceTransforms =
         { inputPath: "data.attributes.${connector.private_settings.account_identifier_service}", outputPath: "ident.${connector.private_settings.account_identifier_hull}" },
         { mapping: "connector.private_settings.incoming_account_attributes",
           inputPath: "data.attributes.${service_field_name}",
-          outputPath: "attributes.outreach/${hull_field_name}",
+          outputPath: "attributes.${hull_field_name}",
           outputFormat: {
             value: "${value}",
             operation: "set"
