@@ -95,7 +95,9 @@ class HubspotClient {
   refreshAccessToken(): Promise<*> {
     const refreshToken = this.connector.private_settings.refresh_token;
     if (!refreshToken) {
-      return Promise.reject(new Error("Refresh token is not set."));
+      return Promise.reject(
+        new ConfigurationError("Refresh token is not set.")
+      );
     }
     this.metric.increment("ship.service_api.call", 1);
     return this.agent

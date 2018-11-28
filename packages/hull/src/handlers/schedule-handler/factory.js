@@ -8,7 +8,8 @@ import type {
 
 type HullSchedulerHandlerCallback = (ctx: HullContextFull) => Promise<*>;
 type HullSchedulerHandlerOptions = {
-  disableErrorHandling?: boolean
+  disableErrorHandling?: boolean,
+  fireAndForget?: boolean
 };
 
 type HullSchedulerHandlerConfigurationEntry = HullHandlersConfigurationEntry<
@@ -18,8 +19,9 @@ type HullSchedulerHandlerConfigurationEntry = HullHandlersConfigurationEntry<
 
 const { Router } = require("express");
 const debug = require("debug")("hull-connector:schedule-handler");
+const _ = require("lodash");
 
-const { TransientError } = require("../../errors");
+const { ConfigurationError, TransientError } = require("../../errors");
 const {
   credentialsFromQueryMiddleware,
   clientMiddleware,
@@ -55,7 +57,7 @@ function scheduleHandlerFactory(
   const { callback, options } = normalizeHandlersConfigurationEntry(
     configurationEntry
   );
-  const { disableErrorHandling = false } = options;
+  const { disableErrorHandling = false, fireAndForget = false } = options;
 
   router.use(timeoutMiddleware());
   router.use(credentialsFromQueryMiddleware()); // parse query
@@ -75,7 +77,23 @@ function scheduleHandlerFactory(
   ) {
     const callbackResult = callback(req.hull);
     debug("callbackResult", typeof callbackResult);
-    callbackResult
+
+    if (fireAndForget === true) {
+      callbackResult.catch(error => {
+        if (error instanceof TransientError) {
+          debug("transient-error metric");
+          req.hull.metric.increment("connector.transient_error", 1, [
+            `error_name:${_.snakeCase(error.name)}`,
+            `error_message:${_.snakeCase(error.message)}`
+          ]);
+        }
+        if (!(error instanceof ConfigurationError)) {
+          req.hull.metric.captureException(error);
+        }
+      });
+      return res.json({ status: "deffered" });
+    }
+    return callbackResult
       .then(response => {
         res.json(response);
       })
