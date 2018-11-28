@@ -1,21 +1,21 @@
 function migrateConnector(connector) {
-  const outgoingUserAttributes = connector.private_settings.sync_fields_to_hubspot.map(
-    entry => {
-      return {
-        hull: entry.hull,
-        service: entry.name,
-        overwrite: entry.overwrite
-      };
-    }
-  );
-  const incomingUserAttributes = connector.private_settings.sync_fields_to_hull.map(
-    entry => {
-      return {
-        hull: entry.hull,
-        service: entry.name
-      };
-    }
-  );
+  const outgoingUserAttributes = (
+    connector.private_settings.sync_fields_to_hubspot || []
+  ).map(entry => {
+    return {
+      hull: entry.hull,
+      service: entry.name,
+      overwrite: entry.overwrite
+    };
+  });
+  const incomingUserAttributes = (
+    connector.private_settings.sync_fields_to_hull || []
+  ).map(entry => {
+    return {
+      hull: entry.hull,
+      service: entry.name
+    };
+  });
 
   const outgoingAccountAttributes = (
     connector.private_settings.outgoing_account_attributes || []

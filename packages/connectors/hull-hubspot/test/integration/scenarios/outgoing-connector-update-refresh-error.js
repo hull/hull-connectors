@@ -49,11 +49,16 @@ it("should handle refresh token errors", () => {
         connector
       ],
       response: {
+        error: {
+          code: "HULL_ERR_CONFIGURATION",
+          message: "Failed to refresh access token, try to reauthorize the connector",
+          name: "ConfigurationError",
+        },
         flow_control: {
-          in: 5,
+          in: 6000,
           in_time: 10,
           size: 10,
-          type: "next"
+          type: "retry"
         }
       },
       logs: [
@@ -80,6 +85,7 @@ it("should handle refresh token errors", () => {
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "connector.service_api.error", 1],
+        ["increment", "connector.transient_error", 1],
       ],
       platformApiCalls: []
     };
