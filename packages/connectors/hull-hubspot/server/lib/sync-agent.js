@@ -312,14 +312,21 @@ class SyncAgent {
       });
       return Promise.resolve();
     }
-    await this.initialize({ skipCache: true });
+    try {
+      await this.initialize({ skipCache: true });
 
-    await this.contactPropertyUtil.sync(
-      this.mappingUtil.contactOutgoingMapping
-    );
-    return this.companyPropertyUtil.sync(
-      this.mappingUtil.companyOutgoingMapping
-    );
+      await this.contactPropertyUtil.sync(
+        this.mappingUtil.contactOutgoingMapping
+      );
+      await this.companyPropertyUtil.sync(
+        this.mappingUtil.companyOutgoingMapping
+      );
+    } catch (error) {
+      this.hullClient.logger.error("outgoing.job.error", {
+        error: error.message
+      });
+    }
+    return Promise.resolve();
   }
 
   /**
@@ -463,6 +470,11 @@ class SyncAgent {
               });
           }
         });
+      })
+      .catch(error => {
+        this.hullClient.logger.error("outgoing.job.error", {
+          error: error.message
+        });
       });
   }
 
@@ -509,83 +521,89 @@ class SyncAgent {
 
     const accountsToUpdate = filterResults.toUpdate;
     const accountsToInsert = [];
-
-    // first perform search for companies to be updated
-    await Promise.all(
-      filterResults.toInsert.map(async envelopeToInsert => {
-        const domain = envelopeToInsert.message.account.domain; // TODO
-        const results = await this.hubspotClient.postCompanyDomainSearch(
-          domain
-        );
-        if (results.body.results && results.body.results.length > 0) {
-          const existingCompanies = _.sortBy(
-            results.body.results,
-            "properties.hs_lastmodifieddate.value"
+    try {
+      // first perform search for companies to be updated
+      await Promise.all(
+        filterResults.toInsert.map(async envelopeToInsert => {
+          const domain = envelopeToInsert.message.account.domain; // TODO
+          const results = await this.hubspotClient.postCompanyDomainSearch(
+            domain
           );
-          const envelopeToUpdate = _.cloneDeep(envelopeToInsert);
-          envelopeToUpdate.hubspotWriteCompany.objectId = _.last(
-            existingCompanies
-          ).companyId.toString();
-          accountsToUpdate.push(envelopeToUpdate);
-        } else {
-          accountsToInsert.push(envelopeToInsert);
-        }
-      })
-    );
+          if (results.body.results && results.body.results.length > 0) {
+            const existingCompanies = _.sortBy(
+              results.body.results,
+              "properties.hs_lastmodifieddate.value"
+            );
+            const envelopeToUpdate = _.cloneDeep(envelopeToInsert);
+            envelopeToUpdate.hubspotWriteCompany.objectId = _.last(
+              existingCompanies
+            ).companyId.toString();
+            accountsToUpdate.push(envelopeToUpdate);
+          } else {
+            accountsToInsert.push(envelopeToInsert);
+          }
+        })
+      );
 
-    // update companies
-    await this.hubspotClient
-      .postCompaniesUpdateEnvelopes(accountsToUpdate)
-      .then(resultEnvelopes => {
-        resultEnvelopes.forEach(envelope => {
-          if (envelope.error === undefined) {
+      // update companies
+      await this.hubspotClient
+        .postCompaniesUpdateEnvelopes(accountsToUpdate)
+        .then(resultEnvelopes => {
+          resultEnvelopes.forEach(envelope => {
+            if (envelope.error === undefined) {
+              return this.hullClient
+                .asAccount(envelope.message.account)
+                .logger.info("outgoing.account.success", {
+                  hubspotWriteCompany: envelope.hubspotWriteCompany,
+                  operation: "update"
+                });
+            }
             return this.hullClient
               .asAccount(envelope.message.account)
-              .logger.info("outgoing.account.success", {
+              .logger.error("outgoing.account.error", {
+                error: envelope.error,
                 hubspotWriteCompany: envelope.hubspotWriteCompany,
                 operation: "update"
               });
-          }
-          return this.hullClient
-            .asAccount(envelope.message.account)
-            .logger.error("outgoing.account.error", {
-              error: envelope.error,
-              hubspotWriteCompany: envelope.hubspotWriteCompany,
-              operation: "update"
-            });
+          });
         });
-      });
 
-    // insert companies
-    return this.hubspotClient
-      .postCompaniesEnvelopes(accountsToInsert)
-      .then(resultEnvelopes => {
-        resultEnvelopes.forEach(envelope => {
-          if (envelope.error === undefined && envelope.hubspotReadCompany) {
-            const accountTraits = this.mappingUtil.getHullAccountTraits(
-              envelope.hubspotReadCompany
-            );
+      // insert companies
+      await this.hubspotClient
+        .postCompaniesEnvelopes(accountsToInsert)
+        .then(resultEnvelopes => {
+          resultEnvelopes.forEach(envelope => {
+            if (envelope.error === undefined && envelope.hubspotReadCompany) {
+              const accountTraits = this.mappingUtil.getHullAccountTraits(
+                envelope.hubspotReadCompany
+              );
+              return this.hullClient
+                .asAccount(envelope.message.account)
+                .traits(accountTraits)
+                .then(() => {
+                  return this.hullClient
+                    .asAccount(envelope.message.account)
+                    .logger.info("outgoing.account.success", {
+                      hubspotWriteCompany: envelope.hubspotWriteCompany,
+                      operation: "insert"
+                    });
+                });
+            }
             return this.hullClient
               .asAccount(envelope.message.account)
-              .traits(accountTraits)
-              .then(() => {
-                return this.hullClient
-                  .asAccount(envelope.message.account)
-                  .logger.info("outgoing.account.success", {
-                    hubspotWriteCompany: envelope.hubspotWriteCompany,
-                    operation: "insert"
-                  });
+              .logger.error("outgoing.account.error", {
+                error: envelope.error,
+                hubspotWriteCompany: envelope.hubspotWriteCompany,
+                operation: "insert"
               });
-          }
-          return this.hullClient
-            .asAccount(envelope.message.account)
-            .logger.error("outgoing.account.error", {
-              error: envelope.error,
-              hubspotWriteCompany: envelope.hubspotWriteCompany,
-              operation: "insert"
-            });
+          });
         });
+    } catch (error) {
+      this.hullClient.logger.error("outgoing.job.error", {
+        error: error.message
       });
+    }
+    return Promise.resolve();
   }
 
   buildAccountUpdateMessageEnvelope(
