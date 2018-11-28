@@ -6,8 +6,6 @@ const { Client } = require("hull");
 const { doVariableReplacement } = require("./variable-utils");
 const { isUndefinedOrNull } = require("./utils");
 
-const { HullConnectorEngine } = require("./engine");
-
 const _ = require("lodash");
 
 const debug = require("debug")("hull-outreach:service-client");
@@ -89,7 +87,6 @@ class SuperagentApi {
   }
 
   async dispatch(endpointName: string, params: any) {
-    this.metricsClient.increment("ship.service_api.call", 1);
 
     const endpoint = this.api.endpoints[endpointName];
 

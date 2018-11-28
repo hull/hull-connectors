@@ -9,6 +9,8 @@ const transformsToService: ServiceTransforms = [
     input: HullOutgoingUser,
     output: OutreachProspectWrite,
     strategy: "PropertyKeyedValue",
+    arrayStrategy: "append_index",
+    direction: "outgoing",
     transforms: [
       { outputPath: "data.type", outputFormat: "prospect" },
       { outputPath: "data.id", outputFormat: "${userId}" },
@@ -23,9 +25,9 @@ const transformsToService: ServiceTransforms = [
         }
       },
       {
-        mapping: "connector.private_settings.prospect_attributes_outbound",
-        inputPath: "${input_field_name}",
-        outputPath: "data.attributes.${output_field_name}",
+        mapping: "connector.private_settings.outgoing_user_attributes",
+        inputPath: "${hull_field_name}",
+        outputPath: "data.attributes.${service_field_name}",
       }
     ]
   },
@@ -33,14 +35,16 @@ const transformsToService: ServiceTransforms = [
     input: HullOutgoingAccount,
     output: OutreachAccountWrite,
     strategy: "PropertyKeyedValue",
+    arrayStrategy: "append_index",
+    direction: "outgoing",
     transforms: [
       { outputPath: "data.type", outputFormat: "account" },
       { inputPath: "outreach/id", outputPath: "data.id" },
       { inputPath: "domain", outputPath: "data.attributes.domain" },
       {
-        mapping: "connector.private_settings.account_attributes_outbound",
-        inputPath: "${input_field_name}",
-        outputPath: "data.attributes.${output_field_name}",
+        mapping: "connector.private_settings.outgoing_account_attributes",
+        inputPath: "${hull_field_name}",
+        outputPath: "data.attributes.${service_field_name}",
       }
     ]
   }

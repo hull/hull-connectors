@@ -4,7 +4,8 @@ import type { $Application } from "express";
 import type {
   HullContext,
   HullUserUpdateMessage,
-  HullAccountUpdateMessage
+  HullAccountUpdateMessage,
+  HullRequest
 } from "hull";
 
 const cors = require("cors");
@@ -21,74 +22,55 @@ const {
   htmlHandler
 } = require("hull/src/handlers");
 
-
+const { HullRouter } = require("./shared/router");
 const actions = require("./actions");
 
-const { HullConnectorEngine } = require("./shared/engine");
-
-
-const { glue } = require("./glue");
-
-const { service } = require("./service");
-const { transformsToService } = require("./transforms-to-service");
-
-const { hullService } = require("./shared/hull-service");
-const { transformsToHull } = require("./transforms-to-hull");
-
-const manifest = require("../manifest.json");
-
-function engine(): HullConnectorEngine {
-  return new HullConnectorEngine(
-    glue, {hull: hullService, outreach: service},
-    _.concat(transformsToHull, transformsToService),
-    "ensureWebhooks");
-}
+const hullRouter: HullRouter = new HullRouter();
 
 function server(app: $Application, deps: Object): $Application {
 
-/**
- * We should think more about how the rules get hooked into routes
- * would be cool if this could happen automatically depending on the endpoints you've implemented
- * it's an abstraction for automically routing messages depending on what they "mean"
- */
+  const authHandler = hullRouter.createAuthHandler();
+  if (authHandler !== null) {
+    app.use("/auth", authHandler);
+  }
+
+  app.use(
+    "/webhooks",
+    incomingRequestHandler({
+      callback: (context: HullContext, webhookPayload: any) => {
+        return hullRouter.webhook(context, webhookPayload);
+      },
+      options: {
+        parseCredentialsFromQuery: true,
+        bodyParser: "json"
+      }
+    })
+  );
+
+  /**
+   * We should think more about how the rules get hooked into routes
+   * would be cool if this could happen automatically depending on the endpoints you've implemented
+   * it's an abstraction for automically routing messages depending on what they "mean"
+   */
   const notifications = {
     "user:update": (ctx: HullContext, messages: Array<HullUserUpdateMessage>) => {
-      return engine().userUpdate(ctx, messages);
+      return hullRouter.userUpdate(ctx, messages);
       },
     "account:update": (ctx: HullContext, messages: Array<HullAccountUpdateMessage>) => {
-      return engine().accountUpdate(ctx, messages);
+      return hullRouter.accountUpdate(ctx, messages);
     }
   };
 
   app.post("/smart-notifier", notificationHandler(notifications));
   app.post("/batch", batchHandler(notifications));
-
-// still need to fix...
-  const authCallback = en.getAuthCallback();
-  if (authCallback !== null) {
-    app.use("/auth", authCallback);
-  }
-
-  app.post("/status", scheduleHandler(engine().getStatusCallback()));
-
-  const fetchAllAction = engine().getFetchAllAction();
-  if (fetchAllAction !== null)
-    app.post("/fetch", jsonHandler(fetchAllAction));
-
-  const webhookCallback = engine.getWebhookCallback();
-  if (webhookCallback !== null) {
-    app.use(
-      "/webhooks",
-      incomingRequestHandler({
-        callback: webhookCallback,
-        options: {
-          parseCredentialsFromQuery: true,
-          bodyParser: "json"
-        }
-      })
-    );
-  }
-
+  app.post("/status", scheduleHandler(
+    (req: HullRequest): Promise<any> => {
+      return hullRouter.status(req);
+      }));
+  app.post("/fetch", jsonHandler(
+    (req: HullRequest): Promise<any> => {
+      return hullRouter.fetchAll(req);
+      }));
 
   app.get("/admin", htmlHandler(actions.adminHandler));
   app.get(

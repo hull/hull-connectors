@@ -32,7 +32,7 @@ const { HullInstruction, Route } = require("./language");
 
 const { doVariableReplacement } = require("./variable-utils");
 const { FrameworkUtils } = require("./framework-utils");
-const { isUndefinedOrNull, toSendMessage } = require("./utils");
+const { isUndefinedOrNull, ServiceData } = require("./utils");
 
 const { ServiceEngine } = require("./service-engine");
 
@@ -40,23 +40,12 @@ import type { HullRequest } from "hull";
 
 const debug = require("debug")("hull-shared:engine");
 
-class ServiceData {
-  classType: any;
-  context: Object;
-  data: any
-
-  constructor(classType: any, data: any) {
-    this.classType = classType;
-    this.context = {};
-    this.data = data;
-  }
-}
-
-class HullConnectorEngine {
+class HullDispatcher {
 
   services: ServiceEngine;
   glue: Object;
   ensure: string;
+  ensurePromise: Promise<any>;
 
   // TODO input transforms and services....
   // TODO could have multiple services in the future... maybe take in an array?
@@ -67,19 +56,29 @@ class HullConnectorEngine {
     this.ensure = ensure;
   }
 
-  async dispatch(context: Object, instruction: Object) {
-    return await this.dispatchWithData(context, instruction, null);
+  async dispatch(context: Object, route: string) {
+    return await this.handleRequest(context, route, null);
   }
 
-  async dispatchWithData(context: Object, instruction: Object, data: null | ServiceData) {
+  async dispatchWithData(context: Object, route: string, type: any, data: any) {
+    return await this.handleRequest(context, route, new ServiceData(type, data));
+  }
+
+  async handleRequest(context: Object, route: string, data: null | ServiceData) {
     try {
       if (!_.isEmpty(this.ensure)) {
-        await this.resolve(_.merge({}, context), new Route(this.ensure), data);
+        if (isUndefinedOrNull(this.ensurePromise)) {
+          this.ensurePromise = this.resolve(_.merge({}, context), new Route(this.ensure), data);
+          await this.ensurePromise;
+        } else {
+          await this.ensurePromise;
+        }
+
       }
       // TODO probably should use message or ServiceData local context
       // so we don't have to do this weird merge at the top to create message
       // specific context
-      return await this.resolve(_.merge({}, context), instruction, data);
+      return await this.resolve(_.merge({}, context), new Route(route), data);
     } catch (error) {
       console.log("Error here: " + error.stack);
     }
@@ -212,21 +211,28 @@ class HullConnectorEngine {
     } else if (type === 'operation') {
       const name = instruction.name;
 
-      // gotta work out this bs logic to standardize...
+      // TODO gotta work out this bs logic to standardize...
       if (Array.isArray(resolvedParams)) {
 
-        if (resolvedParams.length === 2){
+        if (resolvedParams.length === 2) {
+
+          // some operations would rather look at the data
+          // I don't get it, it's just their preference
+          let obj = resolvedParams[0];
+          if (obj instanceof ServiceData) {
+            obj = obj.data;
+          }
 
           if (name === 'set') {
             _.set(context, resolvedParams[0], resolvedParams[1]);
             // return the obj that we set...
             return resolvedParams[1];
           } else if (name === 'get') {
-            return _.get(resolvedParams[0], resolvedParams[1]);
+            return _.get(obj, resolvedParams[1]);
           } else if (name === 'isEqual') {
             return _.isEqual(resolvedParams[0], resolvedParams[1]);
           } else if (name === 'filter') {
-            return _.filter(resolvedParams[0], resolvedParams[1]);
+            return _.filter(obj, resolvedParams[1]);
           } else if (name === 'utils') {
             return new FrameworkUtils()[resolvedParams[0]](context, resolvedParams[1]);
           } else {
@@ -245,8 +251,8 @@ class HullConnectorEngine {
         return (typeof resolvedParams !== 'number') && _.isEmpty(resolvedParams);
       }
 
-      //TODO need to decide if this is valid....
-      return null;
+      throw new Error(`Operation ${name} contains invalid format with params: ${JSON.stringify(resolvedParams)}`);
+
     } else if (type === 'service') {
 
       return await this.services.resolveInstruction(context, instruction, resolvedParams);
@@ -257,74 +263,8 @@ class HullConnectorEngine {
 
   }
 
-/******************* this one isn't declared in manifest *******************/
-  getAuthCallback() {
-    return this.services.getAuthCallback();
-  }
-
-/******************* this one isn't declared in manifest *******************/
-  fetchAll(context: HullContext) {
-    this.dispatch(context, new Route("fetchAll"));
-    return Promise.resolve("ok");
-  }
-
-  /******************* this one isn't declared in manifest *******************/
-  webhook(context: HullContext, webhookPayload: any) {
-    // Interesting abstraction problem
-    // need to tell what type of data is incoming, but the data incoming will be different per connector
-    // so there's an idea that needs to be abstracted above
-    this.dispatchWithData(context, new Route("webhook"), new ServiceData(WebhookPayload, webhookPayload.body));
-    return Promise.resolve({ status: 200, text: "All good" });
-  }
-
-  status(req: HullRequest): Promise<any> {
-    const { connector, client } = req;
-    let status: string = "ok";
-
-    //TODO do a bunch of templated stuff
-    //but can also do standard stuff....
-    const messages: Array<string> = [];
-    return client.put(`${connector.id}/status`, { status, messages }).then(() => {
-      return { status, messages };
-    });
-  }
-
-  userUpdate(context: HullContext, messages: Array<HullUserUpdateMessage>): Promise<any> {
-    const promise = Promise.all(messages.map(message => {
-
-      const sendMessage = toSendMessage(context, "user", message,
-        "connector.settings.synchronized_user_segments",
-        "connector.settings.outgoing_user_attributes"
-        )
-      if (sendMessage) {
-        return this.dispatchWithData(context, new Route("userUpdateStart"), new ServiceData(HullOutgoingUser, message.user));
-      } else {
-        return Promise.resolve();
-      }
-    }));
-    return promise;
-   }
-
-
-  accountUpdate(context: HullContext, messages: Array<HullAccountUpdateMessage>): Promise<any>  {
-
-    const promise = Promise.all(messages.map(message => {
-      const sendMessage = toSendMessage(context, "account", message,
-        "connector.settings.synchronized_account_segments",
-        "connector.settings.outgoing_account_attributes"
-      );
-      if (sendMessage) {
-        return this.dispatchWithData(context, new Route("accountUpdateStart"), new ServiceData(HullOutgoingAccount, message.account));
-      } else {
-        return Promise.resolve();
-      }
-    }));
-     return promise;
-  }
-
 }
 
 module.exports = {
-  HullConnectorEngine,
-  ServiceData
+  HullDispatcher
 };

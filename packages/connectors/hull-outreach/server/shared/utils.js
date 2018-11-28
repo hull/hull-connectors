@@ -8,6 +8,19 @@ import type {
 const _ = require("lodash");
 const debug = require("debug")("hull-shared:utils");
 
+class ServiceData {
+  classType: any;
+  context: Object;
+  data: any
+
+  constructor(classType: any, data: any) {
+    this.classType = classType;
+    this.context = {};
+    this.data = data;
+  }
+}
+
+
 function isUndefinedOrNull(obj: any) {
   return obj === undefined || obj === null;
 }
@@ -66,7 +79,7 @@ function toSendMessage(context: HullContext, targetEntity: "user" | "account",
       }
     }
 
-    const entity: any = _.get(context, targetEntity);
+    const entity: any = _.get(message, targetEntity);
 
     const matchesSegments = _.intersection(
       _.get(entity, "segment_ids"),
@@ -76,10 +89,10 @@ function toSendMessage(context: HullContext, targetEntity: "user" | "account",
     if (!matchesSegments) {
       if (targetEntity === "user") {
         debug(`User does not match segment ${ JSON.stringify(entity) }`);
-        context.client.asUser(entity).logger.info("outgoing.user.skip", "User not in any user defined segments to send");
+        context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronzed segment" });
       } else if (targetEntity === "account") {
         debug(`Account does not match segment ${ JSON.stringify(entity) }`);
-        context.client.asAccount(entity).logger.info("outgoing.account.skip", "Account not in any user defined segments to send");
+        context.client.asAccount(entity).logger.info("outgoing.account.skip", { reason: "Account is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the account is present in the settings page, or add the account to an existing synchronzed segment" });
       }
       return false;
     }
@@ -94,10 +107,10 @@ function toSendMessage(context: HullContext, targetEntity: "user" | "account",
     if (_.isEmpty(outgoingAttributes)) {
       if (targetEntity === "user") {
         debug(`No mapped attributes to synchronize ${ JSON.stringify(entity) }`);
-        context.client.asUser(entity).logger.info("outgoing.user.skip", "No mapped attributes to synchronize");
+        context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "There are no outgoing attributes to synchronize for users.  Please go to the settings page and add outgoing user attributes to synchronize" });
       } else if (targetEntity === "account") {
         debug(`No mapped attributes to synchronize ${ JSON.stringify(entity) }`);
-        context.client.asAccount(entity).logger.info("outgoing.account.skip", "No mapped attributes to synchronize");
+        context.client.asAccount(entity).logger.info("outgoing.account.skip", { reason: "There are no outgoing attributes to synchronize for account.  Please go to the settings page and add outgoing account attributes to synchronize" });
       }
       return false;
     }
@@ -116,10 +129,10 @@ function toSendMessage(context: HullContext, targetEntity: "user" | "account",
     if (!hasAttributesToSync) {
       if (targetEntity === "user") {
         debug(`No mapped attributes to synchronize ${ JSON.stringify(entity) }`);
-        context.client.asUser(entity).logger.info("outgoing.user.skip", "No mapped attributes to synchronize");
+        context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "No changes on any of the synchronized attributes for this user.  If you think this is a mistake, please check the settings page for the synchronized user attributes to ensure that the attribute which changed is in the synchronized outgoing attributes" });
       } else if (targetEntity === "account") {
         debug(`No mapped attributes to synchronize ${ JSON.stringify(entity) }`);
-        context.client.asAccount(entity).logger.info("outgoing.account.skip", "No mapped attributes to synchronize");
+        context.client.asAccount(entity).logger.info("outgoing.account.skip", { reason: "No changes on any of the synchronized attributes for this user.  If you think this is a mistake, please check the settings page for the synchronized account attributes to ensure that the attribute which changed is in the synchronized outgoing attributes" });
       }
       return false;
     }
@@ -129,5 +142,6 @@ function toSendMessage(context: HullContext, targetEntity: "user" | "account",
 
 module.exports = {
   isUndefinedOrNull,
-  toSendMessage
+  toSendMessage,
+  ServiceData
 }

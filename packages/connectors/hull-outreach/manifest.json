@@ -98,44 +98,29 @@
       "type": "string"
     },
     {
-      "name" : "account_attributes_inbound",
-      "title" : "List of Account fields to fetch from Outreach.io",
-      "type" : "array",
-      "format" : "select",
-      "options" : {
-        "loadOptions" : "/fields-outreach-account-in"
+      "name": "incoming_accounts_attributes",
+      "title": "Outgoing Account Fields to Sync (Outreach to Hull)",
+      "type": "array",
+      "format": "accountTraitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": false,
+        "placeholder": "Outreach Account Field",
+        "allowCreate": true,
+        "loadOptions": "/fields-outreach-account-in"
       }
     },
     {
-      "name": "account_attributes_outbound",
-      "title": "Send Account Attributes to Outreach.io",
-      "description": "Name and domain are sent automatically",
+      "name": "outgoing_accounts_attributes",
+      "title": "Outgoing Account Fields to Sync (Hull to Outreach)",
       "type": "array",
-      "format": "table",
-      "default": [
-        { "input_field_name": "name", "output_field_name": "name" }
-      ],
-      "items": {
-        "type": "object",
-        "properties": {
-          "input_field_name" : {
-            "type" : "string",
-            "format" : "accountTrait",
-            "title" : "Hull Attribute"
-          },
-          "output_field_name" : {
-            "type" : "string",
-            "title" : "Outreach.io Field",
-            "format" : "select",
-            "options" : {
-              "loadOptions" : "/fields-outreach-account-out"
-            }
-          }
-        },
-        "required" : [
-          "input_field_name",
-          "output_field_name"
-        ]
+      "format": "accountTraitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "Outreach Account Field",
+        "allowCreate": true,
+        "loadOptions": "/fields-outreach-account-out"
       }
     },
     {
@@ -165,41 +150,29 @@
       "type": "string"
     },
     {
-      "name" : "prospect_attributes_inbound",
-      "title" : "List of Prospect fields to fetch from Outreach.io",
-      "type" : "array",
-      "format" : "select",
-      "options" : {
-        "loadOptions" : "/fields-outreach-prospect-in"
+      "name": "incoming_user_attributes",
+      "title": "Incoming User Fields to Sync (Outreach to Hull)",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": false,
+        "placeholder": "Outreach Prospect Field",
+        "allowCreate": true,
+        "loadOptions": "/fields-outreach-prospect-in"
       }
     },
     {
-      "name": "prospect_attributes_outbound",
-      "title": "Send User Attributes to Outreach.io",
-      "description": "Name is sent automatically",
+      "name": "outgoing_user_attributes",
+      "title": "Outgoing User Fields to Sync (Hull to Outreach)",
       "type": "array",
-      "format": "table",
-      "items": {
-        "type": "object",
-        "properties": {
-          "input_field_name" : {
-            "type" : "string",
-            "format" : "trait",
-            "title" : "Hull Attribute"
-          },
-          "output_field_name" : {
-            "type" : "string",
-            "title" : "Outreach.io Field",
-            "format" : "select",
-            "options" : {
-              "loadOptions" : "/fields-outreach-prospect-out"
-            }
-          }
-        },
-        "required" : [
-          "input_field_name",
-          "output_field_name"
-        ]
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "Outreach Prospect Field",
+        "allowCreate": true,
+        "loadOptions": "/fields-outreach-prospect-out"
       }
     }
   ],

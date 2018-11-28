@@ -68,7 +68,7 @@ const glue = {
     }),
   prospectLookupByEmail:
     ifLogic(cond("notEmpty", set("userEmail", inputParameter("email"))), {
-      true: ifLogic(cond("notEmpty", set("userId", get(outreach("getProspectByEmail"), "data[0].id"))), {
+      true: ifLogic(cond("notEmpty", set("userId", get(outreach("getProspectByEmail"), "[0].id"))), {
               true: hull("asUser", outreachSendInput("updateProspect")),
               false: hull("asUser", outreachSendInput("insertProspect"))
             }),
@@ -85,7 +85,7 @@ const glue = {
     }),
   accountLookupByDomain:
     ifLogic(cond("notEmpty", set("accountDomain", inputParameter("domain"))), {
-      true: ifLogic(cond("notEmpty", outreach("getAccountByDomain")), {
+      true: ifLogic(cond("notEmpty", set("accountId", get(outreach("getAccountByDomain"), "[0].id"))), {
               true: hull("asAccount", outreachSendInput("updateAccount")),
               false: hull("asAccount", outreachSendInput("insertAccount"))
             }),

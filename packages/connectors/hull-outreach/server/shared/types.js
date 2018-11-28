@@ -14,11 +14,15 @@ export type Condition = {
 };
 
 export type PropertyTransformationStrategy = "PropertyKeyedValue" | "PropertyKeyedGroup" | "ArrayPropertyGroup";
+export type ArrayTransformationStrategy = "send_raw_array" | "append_index" | "json_stringify" | "join_with_commas";
+export type Direction = "incoming" | "outgoing";
 
 export type Transform = {
   input: Class<any>,
   output: Class<any>,
   strategy: PropertyTransformationStrategy,
+  arrayStrategy: ArrayTransformationStrategy,
+  direction: Direction;
   transforms: any
 };
 

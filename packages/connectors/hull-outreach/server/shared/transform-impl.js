@@ -49,8 +49,7 @@ class TransformImpl {
     const globalContext = _.cloneDeep(reqContext);
 
     const transforms = transformation.transforms;
-
-    const arrayAppendIndex = !_.isEmpty(transformation.indexStrategy);
+    const arrayStrategy = transformation.arrayStrategy;
 
     if (transformation.strategy === "PropertyKeyedValue") {
       // Need this for transform back to hull
@@ -66,8 +65,10 @@ class TransformImpl {
             if (_.isEmpty(mapping)) {
               debug(`Skipping mapping: ${transform.mapping} because does not exist for transform: ${JSON.stringify(transform)}`);
             }
+          } else if (transform.direction === "incoming") {
+            mapping = [{ service: transform.inputPath, hull: transform.outputPath }];
           } else {
-            mapping = [{ input_field_name: transform.inputPath, output_field_name: transform.outputPath }];
+            mapping = [{ hull: transform.inputPath, service: transform.outputPath }];
           }
 
           _.forEach(mapping, mappedField => {
@@ -77,11 +78,11 @@ class TransformImpl {
             const context = _.merge({}, globalContext)
 
             if (typeof mappedField === "string") {
-              context.input_field_name = mappedField;
-              context.output_field_name = mappedField;
+              context.hull_field_name = mappedField;
+              context.service_field_name = mappedField;
             } else {
-              context.input_field_name = mappedField.input_field_name;
-              context.output_field_name = mappedField.output_field_name;
+              context.hull_field_name = mappedField.hull;
+              context.service_field_name = mappedField.service;
             }
 
             if (isUndefinedOrNull(transform.outputPath)) {
@@ -98,10 +99,12 @@ class TransformImpl {
               // so not sure if there's a case where we expect it to pull nothing...
               if (isUndefinedOrNull(context.value)) return;
 
-              // This could be a dangerous operation, because the original value is gone...
-              // also, figure out how this abstracts for arrays...
-              if (!_.isEmpty(transform.outputFormat)) {
-                context.value = doVariableReplacement(context, transform.outputFormat);
+              if (Array.isArray(context.value)) {
+                if (arrayStrategy === "json_stringify") {
+                  context.value = JSON.stringify(context.value);
+                } else if (arrayStrategy === "join_with_commas") {
+                  context.value = context.value.join(",");
+                }
               }
 
             } else if (!_.isEmpty(transform.outputFormat)) {
@@ -109,30 +112,52 @@ class TransformImpl {
               //TODO may want to throw error os something here if variable replacement
               // can't find the var here.... this is for injecting context variables...
               // ******************NEED A SOLUTION********************
-              context.value = doVariableReplacement(context, transform.outputFormat);
+              // context.value = doVariableReplacement(context, transform.outputFormat);
             } else {
               throw new Error(`Unsupported set of transformation parameters: ${JSON.stringify(transform)}`);
             }
 
-            // TODO this is where we could put standard logic as to what to do to set/unset
-            // values with undefined etc...
-            if (isUndefinedOrNull(context.value)) return;
-
             context.outputPath = doVariableReplacement(context, transform.outputPath);
 
-            if (Array.isArray(context.value) && arrayAppendIndex) {
-              // if (arrayStrategy === "spreadindex") {
-              // TODO maybe put an option for slicing plurals?
-              // maybe don't always want that?
-              _.forEach(context.value, (value, index) => {
-                _.set(output,
-                  `${context.outputPath.slice(0, -1)}_${index}`,
-                  doVariableReplacement(context, value));
-              });
+            // TODO ugh, below code is horrible, i just needed to understand what the flow needed to be
+            // gotta straighten this out now that I know...
+            if (Array.isArray(context.value)) {
+
+              // export type ArrayTransformationStrategy = "send_raw_array" | "append_index" | "json_stringify" | "join_with_commas";
+              if (arrayStrategy === "send_raw_array" || arrayStrategy === "append_index") {
+                _.forEach(context.value, (value, index) => {
+
+                  if (!_.isEmpty(transform.outputFormat)) {
+                    context.value = doVariableReplacement(_.merge({ value: value }, context, transform.outputFormat));
+                  }
+                  if (arrayStrategy === "append_index") {
+                  _.set(output,
+                    `${context.outputPath.slice(0, -1)}_${index}`,
+                    doVariableReplacement(context, value));
+                  } else {
+                    _.set(output, context.outputPath, context.value);
+                  }
+                });
+              } else {
+                if (!_.isEmpty(transform.outputFormat)) {
+                  context.value = doVariableReplacement(context, transform.outputFormat);
+                }
+                _.set(output, context.outputPath, context.value);
+              }
+
               // }
             } else {
+
+              if (!_.isEmpty(transform.outputFormat)) {
+                context.value = doVariableReplacement(context, transform.outputFormat);
+              }
+
+              if (isUndefinedOrNull(context.value)) return;
+
               _.set(output, context.outputPath, context.value);
             }
+
+
           });
         });
       }

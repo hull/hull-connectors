@@ -20,19 +20,20 @@ const {
   HullIncomingAccount
 } = require("./hull-service-objects");
 
-const { oAuthHandler } = require("hull/src/handlers");
-const { oauth2 } = require("./auth/oauth2");
+const {
+  LogicError
+} = require("hull/src/errors");
 
 const { HullInstruction, Route } = require("./language");
 
 const { doVariableReplacement } = require("./variable-utils");
 const { FrameworkUtils } = require("./framework-utils");
-const { isUndefinedOrNull } = require("./utils");
+const { isUndefinedOrNull, ServiceData } = require("./utils");
 
 const { HullSdk } = require("./hull-service");
 const { SuperagentApi } = require("./superagent-api");
 const { TransformImpl } = require("./transform-impl");
-const { HullConnectorEngine, ServiceData } = require("./engine");
+const { HullDispatcher } = require("./dispatcher");
 
 const HashMap = require('hashmap');
 
@@ -41,16 +42,15 @@ const debug = require("debug")("hull-shared:service-engine");
 
 class ServiceEngine {
 
-  engine: HullConnectorEngine;
+  dispatcher: HullDispatcher;
   services: Object;
   transforms: TransformImpl;
-  engineContext: Object;
+  recoveryPromise: Promise<any>;
 
-  constructor(engine: HullConnectorEngine, services: Object, transforms: ServiceTransforms) {
-    this.engine = engine;
+  constructor(dispatcher: HullDispatcher, services: Object, transforms: ServiceTransforms) {
+    this.dispatcher = dispatcher;
     this.services = services;
     this.transforms = new TransformImpl(transforms);
-    this.engineContext = {};
   }
 
 
@@ -182,7 +182,7 @@ class ServiceEngine {
     const action = `${direction}.${entityTypeString}`
 
     // this is pretty dry, but butt ugly... function inception
-    const sendData = (data) => {
+    const sendDataRaw = (data) => {
       if (!_.isEmpty(data)) {
         debug(`[CALLING-SERVICE]: ${name}<${op}> [WITH-DATA]: ${JSON.stringify(data)}`);
       } else {
@@ -196,7 +196,11 @@ class ServiceEngine {
         dispatchPromise = new SuperagentApi(context, serviceDefinition).dispatch(op, data);
       }
 
-      return dispatchPromise.catch(error => {
+      return dispatchPromise;
+    }
+
+    const sendData = (data) => {
+      return sendDataRaw(data).catch(error => {
 
         debug(`[SERVICE-ERROR]: ${name} [ERROR]: ${JSON.stringify(error)}`);
 
@@ -212,21 +216,19 @@ class ServiceEngine {
 
           if (!_.isEmpty(route) && !_.isEqual(route, _.get(context, "recoveryroute"))) {
 
-            let recoveryPromise = _.get(this.engineContext, `${name}.${route}`);
-
             // 2 cases,
             // where the recovery promise exists and it's a different path calling
             // and where it IS the recovery path....
-            if (isUndefinedOrNull(recoveryPromise)) {
+            // should probably look at some sort of time stamp if the recovery promise was done a while ago or something...
+            if (isUndefinedOrNull(this.recoveryPromise)) {
               debug(`[SERVICE-ERROR]: ${name} [RECOVERY-ROUTE-ATTEMPT]: ${route}`);
               // The way we do this _.merge is key, means, only the recoveryroute
               // will have it set, but others will not
-              recoveryPromise = this.engine.resolve(_.merge({ recoveryroute: route }, context), new Route(route), null)
-              _.set(this.engineContext, `${name}.${route}`, recoveryPromise);
+              this.recoveryPromise = this.dispatcher.resolve(_.merge({ recoveryroute: route }, context), new Route(route), null);
             }
             //don't input data on an attempt to recover...
-            return recoveryPromise.then(() => {
-              return sendData(data);
+            return this.recoveryPromise.then(() => {
+              return sendDataRaw(data);
             }).catch( error => {
               return Promise.reject(errorException);
             });
@@ -268,7 +270,15 @@ class ServiceEngine {
         // where we should loge a message for each of the objects in the batch
         if (entityTypeString !== null) {
           context.metric.increment(`ship.${action}s`, 1);
-          logger.info(`${action}.success`, data);
+
+          if (direction === 'outgoing') {
+            //TODO need to make this generic, make the "class type" declare this
+            const type = entityTypeString === "user" ? "Prospect" : "Account";
+            logger.info(`${action}.success`, { data, operation: endpoint.op, response: results, type } );
+          } else {
+            logger.info(`${action}.success`, { data } );
+          }
+
           debug(`${action}.success`, data);
         }
         // this is just for logging, do not suppress error here
@@ -277,7 +287,8 @@ class ServiceEngine {
       }).catch (error => {
 
         if (entityTypeString !== null) {
-          logger.error(`${action}.error`, data );
+          const message = isUndefinedOrNull(_.get(error, "message")) ? {} : { error: error.message };
+          logger.error(`${action}.error`, message );
           debug(`${action}.error`, data);
         }
         // this is just for logging, do not suppress error here
@@ -302,16 +313,12 @@ class ServiceEngine {
 
   createErrorException(context: Object, servicename: string, errorDefinitions: Object, errorTemplate: any, error: any) {
 
-    let logger = context.client.logger;
-
     if (isUndefinedOrNull(error)) {
       const message: string = `Unknown error while connecting with the ${servicename} API`;
-      logger.error(message);
       // throw new error if an error obj does not exist, not sure what the case for this is...
       return new Error(message);
     } else if (isUndefinedOrNull(errorDefinitions)) {
       const message: string = `Untemplated error while connecting with the ${servicename} API`;
-      logger.error(message, error);
       // if there is no errordefinition, then no way to parse anything out, just throw the original error
       return error;
     }
@@ -320,17 +327,23 @@ class ServiceEngine {
     const logMessage = this.createLogFromOutput(servicename, output);
 
     if (isUndefinedOrNull(errorTemplate)) {
-      debug(JSON.stringify(output), error);
       // may have parsed parameters from the parser, but no specific error condition with message
       // probably want to both return what was parsed, but also the original error somehow
-      // if we can't specifically handle it, even though we got the parameters...
-      // unlikely that we got a good log output here... stringify the output
-      // probably empty...
-      return error;
+      // for now, if we parsed description or title, can return that...
+      if (!_.isEmpty(output.description)) {
+        if (!_.isEmpty(output.title)) {
+          return new LogicError(`[${output.title}] ${output.description}`, "action", error);
+        } else {
+          return new LogicError(output.description, "action", error);
+        }
+      } else if (!_.isEmpty(output.title)) {
+        return new LogicError(output.title, "action", error);
+      } else {
+        return error;
+      }
 
     } else {
-      logger.error(errorTemplate.message().message, logMessage);
-      return new errorTemplate.errorType(logMessage, error);
+      return new errorTemplate.errorType(errorTemplate.message().message, error);
     }
 
   }
@@ -365,7 +378,11 @@ class ServiceEngine {
       if (!isUndefinedOrNull(target) && !isUndefinedOrNull(parser.type)) {
         if (parser.type === 'json') {
           if (typeof target === 'string') {
-            target = JSON.parse(target);
+            try {
+              target = JSON.parse(target);
+            } catch (error) {
+              return output;
+            }
           }
         }
       }
@@ -412,22 +429,6 @@ class ServiceEngine {
     return null;
   }
 
-  getAuthCallback() {
-    const primaryService = _.find(this.services, (service) => {
-        return !_.isEmpty(service.authentication)
-      });
-
-    if (!isUndefinedOrNull(primaryService)) {
-      const authentication = primaryService.authentication;
-
-      if (authentication.strategy === "oauth2") {
-        const params = _.cloneDeep(authentication.params);
-        _.merge(params, oauth2);
-        return oAuthHandler(params);
-      }
-    }
-    return null;
-  }
 }
 
 module.exports = {

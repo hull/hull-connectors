@@ -29,14 +29,14 @@ const { isUndefinedOrNull } = require("./shared/utils");
 function notNull(param: string) {
   return (context, error) => {
     const contextVariable = _.get(context, param);
-    return !isUndefinedOrNull(context);
+    return !isUndefinedOrNull(contextVariable);
   };
 }
 
 function isNull(param: string) {
   return (context, error) => {
     const contextVariable = _.get(context, param);
-    return isUndefinedOrNull(context);
+    return isUndefinedOrNull(contextVariable);
   };
 }
 
@@ -221,7 +221,8 @@ const service: RawRestApi = {
         truthy: { status: 401 },
         condition: isNull("connector.private_settings.access_token"),
         errorType: ConfigurationError,
-        message: MESSAGES.STATUS_NO_ACCESS_TOKEN_FOUND
+        message: MESSAGES.STATUS_NO_ACCESS_TOKEN_FOUND,
+        recoveryroute: "refreshToken"
       },
       {
         truthy: { status: 401 },
