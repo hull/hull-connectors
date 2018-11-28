@@ -179,6 +179,7 @@ class ServiceEngine {
     }
 
     const direction = (name === "hull") ? "incoming" : "outgoing";
+    const action = `${direction}.${entityTypeString}`
 
     // this is pretty dry, but butt ugly... function inception
     const sendData = (data) => {
@@ -198,6 +199,10 @@ class ServiceEngine {
       return dispatchPromise.catch(error => {
 
         debug(`[SERVICE-ERROR]: ${name} [ERROR]: ${JSON.stringify(error)}`);
+
+        if (name !== 'hull') {
+          context.metric.increment("service.service_api.errors", 1);
+        }
 
         const errorTemplate = this.findErrorTemplate(context, serviceDefinition, error);
         const errorException = this.createErrorException(context, name, serviceDefinition.error, errorTemplate, error);
@@ -254,11 +259,17 @@ class ServiceEngine {
       }
 
       return sendData(data).then((results) => {
+
+        if (name !== 'hull') {
+          context.metric.increment("ship.service_api.call", 1);
+        }
+
         //TODO also need to account for batch endpoints
         // where we should loge a message for each of the objects in the batch
         if (entityTypeString !== null) {
-          logger.info(`${direction}.${entityTypeString}.success`, data);
-          debug(`${direction}.${entityTypeString}.success`, data);
+          context.metric.increment(`ship.${action}s`, 1);
+          logger.info(`${action}.success`, data);
+          debug(`${action}.success`, data);
         }
         // this is just for logging, do not suppress error here
         // pass it along with promise resolve
@@ -266,8 +277,8 @@ class ServiceEngine {
       }).catch (error => {
 
         if (entityTypeString !== null) {
-          logger.error(`${direction}.${entityTypeString}.error`, data );
-          debug(`${direction}.${entityTypeString}.error`, data);
+          logger.error(`${action}.error`, data );
+          debug(`${action}.error`, data);
         }
         // this is just for logging, do not suppress error here
         // pass it along with promise reject

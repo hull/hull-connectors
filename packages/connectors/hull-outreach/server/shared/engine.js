@@ -263,36 +263,30 @@ class HullConnectorEngine {
   }
 
 /******************* this one isn't declared in manifest *******************/
-  getFetchAllAction() {
-    return (context: HullContext) => {
-      this.dispatch(context, new Route("fetchAll"));
-      return Promise.resolve("ok");
-    }
+  fetchAll(context: HullContext) {
+    this.dispatch(context, new Route("fetchAll"));
+    return Promise.resolve("ok");
   }
 
   /******************* this one isn't declared in manifest *******************/
-  getWebhookCallback() {
-    return (context: HullContext, webhookPayload: any) => {
-      // Interesting abstraction problem
-      // need to tell what type of data is incoming, but the data incoming will be different per connector
-      // so there's an idea that needs to be abstracted above
-      this.dispatchWithData(context, new Route("webhook"), new ServiceData(WebhookPayload, webhookPayload.body));
-      return Promise.resolve({ status: 200, text: "All good" });
-    }
+  webhook(context: HullContext, webhookPayload: any) {
+    // Interesting abstraction problem
+    // need to tell what type of data is incoming, but the data incoming will be different per connector
+    // so there's an idea that needs to be abstracted above
+    this.dispatchWithData(context, new Route("webhook"), new ServiceData(WebhookPayload, webhookPayload.body));
+    return Promise.resolve({ status: 200, text: "All good" });
   }
 
-  getStatusCallback(): (req: HullRequest) => Promise<any> {
-    return (req: HullRequest) => {
-      const { connector, client } = req;
-      let status: string = "ok";
+  status(req: HullRequest): Promise<any> {
+    const { connector, client } = req;
+    let status: string = "ok";
 
-      //TODO do a bunch of templated stuff
-      //but can also do standard stuff....
-      const messages: Array<string> = [];
-      return client.put(`${connector.id}/status`, { status, messages }).then(() => {
-        return { status, messages };
-      });
-    }
+    //TODO do a bunch of templated stuff
+    //but can also do standard stuff....
+    const messages: Array<string> = [];
+    return client.put(`${connector.id}/status`, { status, messages }).then(() => {
+      return { status, messages };
+    });
   }
 
   userUpdate(context: HullContext, messages: Array<HullUserUpdateMessage>): Promise<any> {
