@@ -97,7 +97,10 @@ class TransformImpl {
 
               // not sure if this is right or not, but we definitely specificied inputPath
               // so not sure if there's a case where we expect it to pull nothing...
-              if (isUndefinedOrNull(context.value)) return;
+              if (isUndefinedOrNull(context.value)) {
+                debug(`Unable to find value at inputPath: ${context.inputPath} on input: ${JSON.stringify(input)}`);
+                return;
+              }
 
               if (Array.isArray(context.value)) {
                 if (arrayStrategy === "json_stringify") {
@@ -113,7 +116,6 @@ class TransformImpl {
             // TODO ugh, below code is horrible, i just needed to understand what the flow needed to be
             // gotta straighten this out now that I know...
             if (Array.isArray(context.value)) {
-
               // export type ArrayTransformationStrategy = "send_raw_array" | "append_index" | "json_stringify" | "join_with_commas";
               // if the value is still an array, must be one of these strategies...
               if (arrayStrategy === "send_raw_array") {
@@ -143,18 +145,27 @@ class TransformImpl {
                 // have condensed values to a single string
                 throw new Error(`Unable to process array strategy ${arrayStrategy} on transform ${JSON.stringify(transform)}`);
               }
+            } else if (!_.isEmpty(transform.outputFormat)) {
+              // is ok if context.value is null here because outputformat is not
+              context.value = doVariableReplacement(context, transform.outputFormat);
+            }
+
+            if (isUndefinedOrNull(context.value)) {
+              throw new Error("Unable to get in this condition we think....");
             } else {
-
-              if (!_.isEmpty(transform.outputFormat)) {
-                context.value = doVariableReplacement(context, transform.outputFormat);
-              }
-
-              if (isUndefinedOrNull(context.value)) return;
-
               _.set(output, context.outputPath, context.value);
             }
 
-
+           //  else {
+           //
+           //   if (!_.isEmpty(transform.outputFormat)) {
+           //     context.value = doVariableReplacement(context, transform.outputFormat);
+           //   }
+           //
+           //   if (isUndefinedOrNull(context.value)) return;
+           //
+           //   _.set(output, context.outputPath, context.value);
+           // }
           });
         });
       }
