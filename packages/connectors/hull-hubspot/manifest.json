@@ -31,12 +31,12 @@
     },
     {
       "name": "outgoing_user_attributes",
-      "direction": "outgoing",
       "title": "Custom Fields Sync (Hull to Hubspot)",
       "type": "array",
-      "format": "trait-mapping",
+      "format": "traitMapping",
       "options": {
-        "allowOverwrite": true,
+        "direction": "outgoing",
+        "showOverwriteToggle": true,
         "placeholder": "Hubspot Field",
         "allowCreate": true,
         "loadOptions": "/schema/contact_properties"
@@ -124,12 +124,12 @@
     },
     {
       "name": "incoming_user_attributes",
-      "direction": "incoming",
       "title": "Custom Fields Sync (Hubspot to Hull)",
       "type": "array",
-      "format": "trait-mapping",
+      "format": "traitMapping",
       "options": {
-        "allowOverwrite": false,
+        "direction": "incoming",
+        "showOverwriteToggle": false,
         "placeholder": "Hubspot Contact Field",
         "allowCreate": true,
         "loadOptions": "/schema/contact_properties",
