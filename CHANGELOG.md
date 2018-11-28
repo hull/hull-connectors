@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.0.6-monorepo
+## v0.0.8-monorepo
 - [hull-hubspot] new version with accounts support and test coverage
 - [hull-client] flow types fixes
 - [hull-connector-framework] require manifest json file to be passed in for the tests
@@ -10,6 +10,12 @@
 - [hull] incoming claims builder
 - [minihull] introduce better fixtures for `user_reports/bootstrap` and `account_reports/bootstrap` endpoints
 - [monorepo] version bump script also update all manifest.json files
+
+## v0.0.7-monorepo
+- Migrate Typeform Incoming Attribute Mapping format
+
+## v0.0.6-monorepo
+- remove malicious npm package: flatmap-stream@^0.1.0
 
 ## v0.0.5-monorepo
 - [hull-typeform] fix mapping submission into `HullUserAttributes`

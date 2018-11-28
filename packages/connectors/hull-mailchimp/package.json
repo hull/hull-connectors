@@ -1,6 +1,6 @@
 {
   "name": "hull-mailchimp",
-  "version": "0.0.6-monorepo",
+  "version": "0.0.7-monorepo",
   "description": "Hull Mailchimp integration",
   "scripts": {
     "test": "yarn run test:unit && yarn run test:integration",
@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "batch-stream": "^0.1.3",
-    "event-stream": "^3.3.4",
+    "event-stream": "3.3.4",
     "flat": "^2.0.1",
     "hull": "link:../../hull",
     "object-mapper": "^3.0.1",
