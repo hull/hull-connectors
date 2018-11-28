@@ -75,7 +75,11 @@ function performTrim(manifest = {}, connector = {}) {
   // trim trait-mapping
   const traitMappingSettings = _.filter(manifest, {
     format: "trait-mapping"
-  });
+  }).concat(
+    _.filter(manifest, {
+      format: "traitMapping"
+    })
+  );
   debug("traitMappingSettings", traitMappingSettings.map(s => s.name));
   traitMappingSettings.forEach(setting => {
     const { name } = setting;
