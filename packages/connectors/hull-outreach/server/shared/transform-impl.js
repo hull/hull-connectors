@@ -81,7 +81,15 @@ class TransformImpl {
               context.hull_field_name = mappedField;
               context.service_field_name = mappedField;
             } else {
+
               context.hull_field_name = mappedField.hull;
+
+              if (!isUndefinedOrNull(mappedField.hull)) {
+                if (_.startsWith(mappedField.hull, "traits_")) {
+                  context.hull_field_name = mappedField.hull.substring("traits_".length);
+                }
+              }
+
               context.service_field_name = mappedField.service;
             }
 
@@ -119,22 +127,25 @@ class TransformImpl {
               // export type ArrayTransformationStrategy = "send_raw_array" | "append_index" | "json_stringify" | "join_with_commas";
               // if the value is still an array, must be one of these strategies...
               if (arrayStrategy === "send_raw_array") {
+
                 if (_.isEmpty(transform.outputFormat)) {
                   _.set(output, context.outputPath, context.value);
                 } else {
                   const valueArray = [];
                   _.forEach(context.value, (value, index) => {
                     valueArray.push(doVariableReplacement(
-                      _.merge({ value: value }, context, transform.outputFormat)));
+                      _.merge({ value: value }, context), transform.outputFormat));
                   });
                   _.set(output, context.outputPath, valueArray);
                 }
+
               } else if (arrayStrategy === "append_index") {
                 _.forEach(context.value, (value, index) => {
 
                   let finalValue = value;
                   if (!_.isEmpty(transform.outputFormat)) {
-                    finalValue = doVariableReplacement(_.merge({ value: value }, context, transform.outputFormat));
+                    finalValue = doVariableReplacement(
+                      _.merge({ value: value }, context), transform.outputFormat);
                   }
                   _.set(output,
                     `${context.outputPath.slice(0, -1)}_${index}`,

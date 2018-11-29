@@ -10,6 +10,7 @@
     "incoming",
     "outgoing",
     "batch",
+    "batch_accounts",
     "oneColumn",
     "smart-notifier"
   ],
@@ -153,10 +154,10 @@
       "name": "incoming_user_attributes",
       "title": "Incoming User Fields to Sync (Outreach to Hull)",
       "type": "array",
-      "format": "traitMapping",
+      "format": "trait-mapping",
+      "direction": "incoming",
       "options": {
-        "direction": "incoming",
-        "showOverwriteToggle": false,
+        "allowOverwrite": false,
         "placeholder": "Outreach Prospect Field",
         "allowCreate": true,
         "loadOptions": "/fields-outreach-prospect-in"
@@ -166,10 +167,10 @@
       "name": "outgoing_user_attributes",
       "title": "Outgoing User Fields to Sync (Hull to Outreach)",
       "type": "array",
-      "format": "traitMapping",
+      "format": "trait-mapping",
+      "direction": "outgoing",
       "options": {
-        "direction": "outgoing",
-        "showOverwriteToggle": false,
+        "allowOverwrite": false,
         "placeholder": "Outreach Prospect Field",
         "allowCreate": true,
         "loadOptions": "/fields-outreach-prospect-out"
