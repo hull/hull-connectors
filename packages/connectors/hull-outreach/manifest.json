@@ -100,7 +100,7 @@
     },
     {
       "name": "incoming_accounts_attributes",
-      "title": "Outgoing Account Fields to Sync (Outreach to Hull)",
+      "title": "Incoming Account Fields to Sync (Outreach to Hull)",
       "type": "array",
       "format": "accountTraitMapping",
       "options": {
@@ -112,16 +112,32 @@
       }
     },
     {
-      "name": "outgoing_accounts_attributes",
-      "title": "Outgoing Account Fields to Sync (Hull to Outreach)",
+      "name": "outgoing_account_attributes",
+      "title": "Outgoing Account Fields to Sync",
+      "description": "Name and domain are sent automatically",
       "type": "array",
-      "format": "accountTraitMapping",
-      "options": {
-        "direction": "outgoing",
-        "showOverwriteToggle": false,
-        "placeholder": "Outreach Account Field",
-        "allowCreate": true,
-        "loadOptions": "/fields-outreach-account-out"
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hull" : {
+            "type" : "string",
+            "format" : "accountTrait",
+            "title" : "Hull Attribute"
+          },
+          "service" : {
+            "type" : "string",
+            "title" : "Outreach.io Field",
+            "format" : "select",
+            "options" : {
+              "loadOptions" : "/fields-outreach-account-out"
+            }
+          }
+        },
+        "required" : [
+          "hull",
+          "service"
+        ]
       }
     },
     {
