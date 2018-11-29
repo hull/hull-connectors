@@ -8,6 +8,8 @@
 - [hull] add `manifest` content to the connector config
 - [hull] introduce trimming `traits_` from outgoing user notifications/batch and from connector settings
 - [hull] incoming claims builder
+- [hull] introduce `fireAndForget` option on `scheduleHandler`
+- [hull] apply defaults to the connector object
 - [minihull] introduce better fixtures for `user_reports/bootstrap` and `account_reports/bootstrap` endpoints
 - [monorepo] version bump script also update all manifest.json files
 
