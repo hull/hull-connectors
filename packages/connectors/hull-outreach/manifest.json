@@ -99,41 +99,30 @@
       "type": "string"
     },
     {
-      "name" : "incoming_account_attributes",
-      "title" : "Incoming Account Fields to Sync",
-      "type" : "array",
-      "format" : "select",
-      "options" : {
-        "loadOptions" : "/fields-outreach-account-in"
+      "name": "incoming_account_attributes",
+      "title": "Incoming Account Fields to Sync (Outreach to Hull)",
+      "type": "array",
+      "format": "accountTraitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": false,
+        "placeholder": "Outreach Account Field",
+        "allowCreate": true,
+        "loadOptions": "/fields-outreach-account-in",
+        "source": "outreach"
       }
     },
     {
       "name": "outgoing_account_attributes",
-      "title": "Outgoing Account Fields to Sync",
-      "description": "Name and domain are sent automatically",
+      "title": "Outgoing Account Fields to Sync (Hull to Outreach)",
       "type": "array",
-      "format": "table",
-      "items": {
-        "type": "object",
-        "properties": {
-          "hull" : {
-            "type" : "string",
-            "format" : "accountTrait",
-            "title" : "Hull Attribute"
-          },
-          "service" : {
-            "type" : "string",
-            "title" : "Outreach.io Field",
-            "format" : "select",
-            "options" : {
-              "loadOptions" : "/fields-outreach-account-out"
-            }
-          }
-        },
-        "required" : [
-          "hull",
-          "service"
-        ]
+      "format": "accountTraitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "Outreach Account Field",
+        "allowCreate": true,
+        "loadOptions": "/fields-outreach-account-out"
       }
     },
     {
@@ -166,23 +155,24 @@
       "name": "incoming_user_attributes",
       "title": "Incoming User Fields to Sync (Outreach to Hull)",
       "type": "array",
-      "format": "trait-mapping",
-      "direction": "incoming",
+      "format": "traitMapping",
       "options": {
-        "allowOverwrite": false,
+        "direction": "incoming",
+        "showOverwriteToggle": false,
         "placeholder": "Outreach Prospect Field",
         "allowCreate": true,
-        "loadOptions": "/fields-outreach-prospect-in"
+        "loadOptions": "/fields-outreach-prospect-in",
+        "source": "outreach"
       }
     },
     {
       "name": "outgoing_user_attributes",
       "title": "Outgoing User Fields to Sync (Hull to Outreach)",
       "type": "array",
-      "format": "trait-mapping",
-      "direction": "outgoing",
+      "format": "traitMapping",
       "options": {
-        "allowOverwrite": false,
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
         "placeholder": "Outreach Prospect Field",
         "allowCreate": true,
         "loadOptions": "/fields-outreach-prospect-out"
