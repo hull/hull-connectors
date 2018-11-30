@@ -85,7 +85,6 @@ const transformsToHull: ServiceTransforms =
       transforms: [
         { inputPath: "data.id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
         { inputPath: "data.attributes.domain", outputPath: "ident.domain" },
-        { inputPath: "data.attributes.${connector.private_settings.account_identifier_service}", outputPath: "ident.${connector.private_settings.account_identifier_hull}" },
         { mapping: "connector.private_settings.incoming_account_attributes",
           inputPath: "data.attributes.${service_field_name}",
           outputPath: "attributes.${hull_field_name}",

@@ -35,42 +35,16 @@
       "format": "hidden"
     },
     {
-      "name": "token_expires_in",
+      "name": "expires_in",
       "title": "OAuth Token Expiration in seconds",
       "type": "string",
       "format": "hidden"
     },
     {
-      "name": "token_created_at",
+      "name": "created_at",
       "title": "OAuth Token Created At in millis since epoch",
       "type": "string",
       "format": "hidden"
-    },
-    {
-      "name": "accountidentification_title",
-      "title": "Accounts Identification",
-      "format": "title",
-      "type": "string"
-    },
-    {
-      "name": "account_identifier_hull",
-      "title": "The attribute to uniquely identify an account in Hull",
-      "type": "string",
-      "format": "select",
-      "default": "domain",
-      "options": {
-        "loadOptions": "/fields-hull-account-ident"
-      }
-    },
-    {
-      "name": "account_identifier_service",
-      "title": "The field to uniquely identify a Account in Outreach.io",
-      "type": "string",
-      "format": "select",
-      "default": "domain",
-      "options": {
-        "loadOptions": "/fields-outreach-account-ident"
-      }
     },
     {
       "name": "accountsynch_title",
