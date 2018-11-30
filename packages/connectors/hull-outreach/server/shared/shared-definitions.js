@@ -1,3 +1,18 @@
+/* @flow */
+
+const {
+  ifLogic,
+  route,
+  cond,
+  hull,
+  set,
+  get,
+  filter,
+  utils,
+  input,
+  inputParameter,
+  Svc
+} = require("./language");
 /**
  * Still got some time before we can abstract out this far to have shared workflows..
  * But the idea is that if we defined particular endpoints on the service which
@@ -10,11 +25,11 @@
 const definitions = {
   accountLastSyncFetch:
     ifLogic(cond("isEmpty", "${connector.private_settings.lastSync}"), {
-      true: hull("asAccount", svc("accountFetchAll"))
+      true: hull("asAccount", new Svc("${service_name}", "accountFetchAll", input())),
       false: [
         set("newLastSync", utils("now")),
         hull("settingsUpdate", { "lastSync": "${newLastSync}" }),
-        svc("accountFetchByLastSync")
+        new Svc("${service_name}", "accountFetchByLastSync", input())
       ]
     }),
 }

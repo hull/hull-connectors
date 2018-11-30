@@ -2,6 +2,7 @@
 import type { $Response, NextFunction } from "express";
 import type {
   HullHandlersConfigurationEntry,
+  HullContextFull,
   HullRequestFull
 } from "../../types";
 
@@ -18,6 +19,22 @@ const {
   instrumentationContextMiddleware
 } = require("../../middlewares");
 const { normalizeHandlersConfigurationEntry } = require("../../utils");
+
+type HullJsonHandlerOptions = {
+  cache?: {
+    key?: string,
+    options?: Object
+  },
+  disableErrorHandling?: boolean,
+  respondWithError?: boolean
+};
+
+type HullJsonHandlerCallback = (ctx: HullContextFull) => Promise<*>;
+
+type HullJsonHandlerConfigurationEntry = HullHandlersConfigurationEntry<
+  HullJsonHandlerCallback,
+  HullJsonHandlerOptions
+>;
 
 /**
  * TODO the logic for this should be combined with jsonHandler
@@ -48,7 +65,7 @@ const { normalizeHandlersConfigurationEntry } = require("../../utils");
  * app.use("/list", htmlHandler((ctx) => {}))
  */
 function htmlHandlerFactory(
-  configurationEntry: HullHandlersConfigurationEntry
+  configurationEntry: HullJsonHandlerConfigurationEntry
 ): Router {
   const { callback, options } = normalizeHandlersConfigurationEntry(
     configurationEntry

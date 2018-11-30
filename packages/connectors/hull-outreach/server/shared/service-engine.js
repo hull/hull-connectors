@@ -224,7 +224,7 @@ class ServiceEngine {
               debug(`[SERVICE-ERROR]: ${name} [RECOVERY-ROUTE-ATTEMPT]: ${route}`);
               // The way we do this _.merge is key, means, only the recoveryroute
               // will have it set, but others will not
-              this.recoveryPromise = this.dispatcher.resolve(_.merge({ recoveryroute: route }, context), new Route(route), null);
+              this.recoveryPromise = this.dispatcher.resolve(_.assign({ recoveryroute: route }, context), new Route(route), null);
             }
             //don't input data on an attempt to recover...
             return this.recoveryPromise.then(() => {

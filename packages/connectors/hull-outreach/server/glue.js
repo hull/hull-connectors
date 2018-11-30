@@ -13,7 +13,7 @@ const {
   input,
   inputParameter,
   Svc
-} = require("./shared/language")
+} = require("./shared/language");
 
 // function outreach(op: string, query: any): Svc { return new Svc("outreach", op, query, null)};
 // function outreach(op: string, data: any): Svc { return new Svc("outreach", op, null, data)};

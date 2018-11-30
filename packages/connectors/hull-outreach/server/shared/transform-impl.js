@@ -75,7 +75,7 @@ class TransformImpl {
 
             // Should create something a little smarter to do local scope...
             // stack of contexts probably...
-            const context = _.merge({}, globalContext)
+            const context = _.assign({}, globalContext)
 
             if (typeof mappedField === "string") {
               context.hull_field_name = mappedField;
@@ -84,6 +84,10 @@ class TransformImpl {
 
               context.hull_field_name = mappedField.hull;
 
+              // UGH, remove traits from any field that has it
+              // but with if we've mapped the traits and non-traits version
+              // does this only apply to outgoing traffic?
+              // i guess you could have mapped incoming to traits_?
               if (!isUndefinedOrNull(mappedField.hull)) {
                 if (_.startsWith(mappedField.hull, "traits_")) {
                   context.hull_field_name = mappedField.hull.substring("traits_".length);
@@ -106,8 +110,19 @@ class TransformImpl {
               // not sure if this is right or not, but we definitely specificied inputPath
               // so not sure if there's a case where we expect it to pull nothing...
               if (isUndefinedOrNull(context.value)) {
-                debug(`Unable to find value at inputPath: ${context.inputPath} on input: ${JSON.stringify(input)}`);
-                return;
+                //debug(`Unable to find value at inputPath: ${context.inputPath} on input: ${JSON.stringify(input)}`);
+
+                // TODO remove
+                // Maybe pull the field with traits_...
+                // backwards compatible... ugh...
+                const hull_field_name = context.hull_field_name;
+                context.hull_field_name = `traits_${hull_field_name}`;
+                context.inputPath = doVariableReplacement(context, transform.inputPath);
+                context.value = _.get(input, context.inputPath);
+
+                if (isUndefinedOrNull(context.value)) {
+                  return;
+                }
               }
 
               if (Array.isArray(context.value)) {
@@ -134,7 +149,7 @@ class TransformImpl {
                   const valueArray = [];
                   _.forEach(context.value, (value, index) => {
                     valueArray.push(doVariableReplacement(
-                      _.merge({ value: value }, context), transform.outputFormat));
+                      _.assign({ value: value }, context), transform.outputFormat));
                   });
                   _.set(output, context.outputPath, valueArray);
                 }
@@ -145,7 +160,7 @@ class TransformImpl {
                   let finalValue = value;
                   if (!_.isEmpty(transform.outputFormat)) {
                     finalValue = doVariableReplacement(
-                      _.merge({ value: value }, context), transform.outputFormat);
+                      _.assign({ value: value }, context), transform.outputFormat);
                   }
                   _.set(output,
                     `${context.outputPath.slice(0, -1)}_${index}`,
@@ -161,22 +176,15 @@ class TransformImpl {
               context.value = doVariableReplacement(context, transform.outputFormat);
             }
 
-            if (isUndefinedOrNull(context.value)) {
-              throw new Error("Unable to get in this condition we think....");
-            } else {
+            if (!isUndefinedOrNull(context.value)) {
               _.set(output, context.outputPath, context.value);
+            } else {
+              // can get to this point with output like this:
+              // { outputPath: "data.id", outputFormat: "${userId}" },
+              // where userId is not set, it's ok, just don't do anything...
+              //throw new Error("Unable to get in this condition we think....");
             }
 
-           //  else {
-           //
-           //   if (!_.isEmpty(transform.outputFormat)) {
-           //     context.value = doVariableReplacement(context, transform.outputFormat);
-           //   }
-           //
-           //   if (isUndefinedOrNull(context.value)) return;
-           //
-           //   _.set(output, context.outputPath, context.value);
-           // }
           });
         });
       }

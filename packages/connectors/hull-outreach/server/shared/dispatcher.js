@@ -68,7 +68,7 @@ class HullDispatcher {
     try {
       if (!_.isEmpty(this.ensure)) {
         if (isUndefinedOrNull(this.ensurePromise)) {
-          this.ensurePromise = this.resolve(_.merge({}, context), new Route(this.ensure), data);
+          this.ensurePromise = this.resolve(_.assign({}, context), new Route(this.ensure), data);
           await this.ensurePromise;
         } else {
           await this.ensurePromise;
@@ -76,9 +76,9 @@ class HullDispatcher {
 
       }
       // TODO probably should use message or ServiceData local context
-      // so we don't have to do this weird merge at the top to create message
+      // so we don't have to do this weird assign at the top to create message
       // specific context
-      return await this.resolve(_.merge({}, context), new Route(route), data);
+      return await this.resolve(_.assign({}, context), new Route(route), data);
     } catch (error) {
       console.log("Error here: " + error.stack);
     }
@@ -136,9 +136,9 @@ class HullDispatcher {
         }
 
         let paramString = JSON.stringify(resolvedParams);
-        if (paramString.length > 60) {
-          paramString = `${paramString.substring(0,60)}...`;
-        }
+        // if (paramString.length > 60) {
+        //   paramString = `${paramString.substring(0,60)}...`;
+        // }
 
         if (paramName === null) {
           debug(`[EXECUTING]: ${instruction.type}<${instruction.name}> [RESOLVED-TO]: ${paramString}`);

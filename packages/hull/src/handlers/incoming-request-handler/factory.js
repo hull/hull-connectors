@@ -48,7 +48,11 @@ function IncomingRequestHandlerFactory(
   const { callback, options } = normalizeHandlersConfigurationEntry(
     configurationEntry
   );
-  const { disableErrorHandling, parseCredentialsFromQuery, bodyParser: bodyParserOption } = options;
+  const {
+    disableErrorHandling,
+    parseCredentialsFromQuery,
+    bodyParser: bodyParserOption
+  } = options;
 
   if (parseCredentialsFromQuery) {
     router.use(credentialsFromQueryMiddleware()); // parse config from query

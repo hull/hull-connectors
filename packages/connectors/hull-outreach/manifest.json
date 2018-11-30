@@ -99,16 +99,12 @@
       "type": "string"
     },
     {
-      "name": "incoming_accounts_attributes",
-      "title": "Incoming Account Fields to Sync (Outreach to Hull)",
-      "type": "array",
-      "format": "accountTraitMapping",
-      "options": {
-        "direction": "incoming",
-        "showOverwriteToggle": false,
-        "placeholder": "Outreach Account Field",
-        "allowCreate": true,
-        "loadOptions": "/fields-outreach-account-in"
+      "name" : "incoming_account_attributes",
+      "title" : "Incoming Account Fields to Sync",
+      "type" : "array",
+      "format" : "select",
+      "options" : {
+        "loadOptions" : "/fields-outreach-account-in"
       }
     },
     {
