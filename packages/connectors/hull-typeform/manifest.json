@@ -6,7 +6,7 @@
   "logo": "logo.png",
   "picture": "picture.png",
   "admin" : "admin",
-  "version": "0.2.2",
+  "version": "0.0.5-monorepo",
   "settings": [],
   "private_settings":[
     {
@@ -31,38 +31,17 @@
       }
     },
     {
-      "name" : "incoming_user_attributes",
+      "name": "incoming_user_attributes",
       "title" : "List of form fields to save into Hull as user attributes",
       "description": "Note: Date fields should be saved to traits ending with _date suffix",
-      "type" : "array",
-      "format" : "table",
-      "default": [],
-      "items" : {
-        "type" : "object",
-        "properties" : {
-          "service" : {
-            "type" : "string",
-            "format": "select",
-            "title" : "Form Field",
-            "options" : {
-              "allowCreate": true,
-              "loadOptions" : "/schema/fields"
-            }
-          },
-          "hull" : {
-            "type" : "string",
-            "format" : "trait",
-            "title" : "Hull Attributes",
-            "options": {
-              "allowCreate": true,
-              "source": "typeform"
-            }
-          }
-        },
-        "required" : [
-          "service",
-          "hull"
-        ]
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": false,
+        "placeholder": "Typeform Field",
+        "allowCreate": true,
+        "loadOptions": "/schema/fields"
       }
     },
     {

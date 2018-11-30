@@ -73,10 +73,16 @@ class MappingUtil {
           field: { id: attribute.service }
         });
         if (!answer) {
-          if (typeformResponse.hidden[attribute.service]) {
+          if (
+            typeformResponse.hidden &&
+            typeformResponse.hidden[attribute.service]
+          ) {
             attributes[hullTraitName] =
               typeformResponse.hidden[attribute.service];
-          } else if (typeformResponse.calculated[attribute.service]) {
+          } else if (
+            typeformResponse.calculated &&
+            typeformResponse.calculated[attribute.service]
+          ) {
             attributes[hullTraitName] =
               typeformResponse.calculated[attribute.service];
           }

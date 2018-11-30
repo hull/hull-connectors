@@ -42,7 +42,7 @@ const {
   haltOnTimedoutMiddleware,
   fullContextBodyMiddleware,
   instrumentationContextMiddleware,
-  instrumentationTransientError
+  instrumentationTransientErrorMiddleware
 } = require("../../middlewares");
 
 const processingMiddleware = require("./processing-middleware");
@@ -80,7 +80,7 @@ function notificationHandlerFactory(
     next();
   });
   router.use(processingMiddleware(normalizedConfiguration));
-  router.use(instrumentationTransientError());
+  router.use(instrumentationTransientErrorMiddleware());
   router.use(errorMiddleware());
   return router;
 }

@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.0.7-monorepo
+- Migrate Typeform Incoming Attribute Mapping format
+
+## v0.0.6-monorepo
+- remove malicious npm package: flatmap-stream@^0.1.0
+
+## v0.0.5-monorepo
+- [hull-typeform] fix mapping submission into `HullUserAttributes`
+- [hull-typeform] introduce `trait-mapping` setting to handle incoming mapping
+- [hull] transient error instrumentation cleanup
+
 ## v0.0.4-monorepo
 - [hull] bring back timeout default to 25s
 
