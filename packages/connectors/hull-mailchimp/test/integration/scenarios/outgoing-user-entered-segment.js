@@ -50,7 +50,10 @@ it("should fetch user events on outgoing traffic", () => {
           members: [
             {
               email_type: "html",
-              merge_fields: {},
+              merge_fields: {
+                FNAME: "",
+                LNAME: ""
+              },
               interests: {
                 MailchimpInterestId: true
               },
@@ -115,7 +118,10 @@ it("should fetch user events on outgoing traffic", () => {
               interests: {
                 MailchimpInterestId: true,
               },
-              merge_fields: {},
+              merge_fields: {
+                FNAME: "",
+                LNAME: ""
+              },
               status_if_new: "subscribed",
             },
           }

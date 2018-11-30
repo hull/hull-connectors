@@ -9,7 +9,7 @@ process.env.OVERRIDE_HUBSPOT_URL = "";
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_segments: ["someOtherSegment"]
+    synchronized_user_segments: ["someOtherSegment"]
   }
 };
 const usersSegments = [

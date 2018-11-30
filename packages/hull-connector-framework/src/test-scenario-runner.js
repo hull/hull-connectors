@@ -320,7 +320,8 @@ class TestScenarioRunner extends EventEmitter {
         this.server = this.scenarioDefinition.connectorServer;
         this.connector = _.defaults(this.scenarioDefinition.connector, {
           id: "9993743b22d60dd829001999",
-          private_settings: {}
+          private_settings: {},
+          manifest: this.connectorManifest
         });
         this.externalIncomingRequest = this.scenarioDefinition.externalIncomingRequest;
 
@@ -410,8 +411,7 @@ class TestScenarioRunner extends EventEmitter {
       },
       captureMetrics: this.capturedMetrics,
       captureLogs: this.capturedLogs,
-      disableOnExit: true,
-      manifest: this.connectorManifest
+      disableOnExit: true
     };
 
     const connector = new Hull.Connector(options);

@@ -13,7 +13,6 @@ const connector = {
   private_settings: {
     token: "hubToken",
     companies_last_fetch_at: 1419967066626,
-    incoming_account_claims: _.find(require("../../../manifest").private_settings, { name: "incoming_account_claims" }).default,
     handle_accounts: true
   }
 };
@@ -36,7 +35,7 @@ it("should fetch recent companies using settings", () => {
       connector,
       usersSegments: [],
       accountsSegments: [],
-      response: "",
+      response: "ok",
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
@@ -153,13 +152,6 @@ it("should fetch recent companies using settings", () => {
             "private_settings": {
               "companies_last_fetch_at": expect.whatever(),
               "handle_accounts": true,
-              "incoming_account_claims": [
-                {
-                  "hull": "domain",
-                  "required": true,
-                  "service": "properties.domain.value"
-                },
-              ],
               "token": "hubToken"
             }
           }

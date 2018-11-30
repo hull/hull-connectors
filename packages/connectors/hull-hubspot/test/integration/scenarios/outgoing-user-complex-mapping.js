@@ -9,36 +9,36 @@ process.env.OVERRIDE_HUBSPOT_URL = "";
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_segments: ["hullSegmentId"],
-    sync_fields_to_hubspot: [
-      { hull: "first_name", name: "firstname", overwrite: true },
-      { hull: "last_name", name: "lastname", overwrite: false },
-      { hull: "traits_group/custom_calculated_score", name: "custom_hubspot_score", overwrite: false },
-      { hull: "traits_custom_numeric", name: "custom_hubspot_numeric", overwrite: true },
-      { hull: "traits_custom_array", name: "custom_hubspot_array", overwrite: true },
-      { hull: "traits_custom_empty_array", name: "custom_hubspot_empty_array", overwrite: true },
-      { hull: "traits_custom_true", name: "custom_hubspot_true", overwrite: true },
-      { hull: "traits_custom_false", name: "custom_hubspot_false", overwrite: true },
-      { hull: "traits_custom_null", name: "custom_hubspot_null", overwrite: true },
-      { hull: "traits_custom_empty_string", name: "custom_hubspot_empty_string", overwrite: true },
-      { hull: "traits_custom_zero", name: "custom_hubspot_zero", overwrite: true },
-      { hull: "traits_custom_undefined", name: "custom_hubspot_undefined", overwrite: true },
-      { hull: "traits_custom_date_at", name: "custom_hubspot_date_at", overwrite: true },
+    synchronized_user_segments: ["hullSegmentId"],
+    outgoing_user_attributes: [
+      { hull: "first_name", service: "firstname", overwrite: true },
+      { hull: "last_name", service: "lastname", overwrite: false },
+      { hull: "traits_group/custom_calculated_score", service: "custom_hubspot_score", overwrite: false },
+      { hull: "traits_custom_numeric", service: "custom_hubspot_numeric", overwrite: true },
+      { hull: "traits_custom_array", service: "custom_hubspot_array", overwrite: true },
+      { hull: "traits_custom_empty_array", service: "custom_hubspot_empty_array", overwrite: true },
+      { hull: "traits_custom_true", service: "custom_hubspot_true", overwrite: true },
+      { hull: "traits_custom_false", service: "custom_hubspot_false", overwrite: true },
+      { hull: "traits_custom_null", service: "custom_hubspot_null", overwrite: true },
+      { hull: "traits_custom_empty_string", service: "custom_hubspot_empty_string", overwrite: true },
+      { hull: "traits_custom_zero", service: "custom_hubspot_zero", overwrite: true },
+      { hull: "traits_custom_undefined", service: "custom_hubspot_undefined", overwrite: true },
+      { hull: "traits_custom_date_at", service: "custom_hubspot_date_at", overwrite: true },
 
-      { hull: "account.id", name: "custom_hubspot_account_id", overwrite: true },
-      { hull: "account.domain", name: "custom_hubspot_account_domain", overwrite: true },
-      { hull: "account.group/created_at", name: "custom_hubspot_account_group_created_at", overwrite: true },
+      { hull: "account.id", service: "custom_hubspot_account_id", overwrite: true },
+      { hull: "account.domain", service: "custom_hubspot_account_domain", overwrite: true },
+      { hull: "account.group/created_at", service: "custom_hubspot_account_group_created_at", overwrite: true },
 
-      { hull: "account.custom_numeric", name: "custom_hubspot_account_numeric", overwrite: true },
-      { hull: "account.custom_array", name: "custom_hubspot_account_array", overwrite: true },
-      { hull: "account.custom_empty_array", name: "custom_hubspot_account_empty_array", overwrite: true },
-      { hull: "account.custom_true", name: "custom_hubspot_account_true", overwrite: true },
-      { hull: "account.custom_false", name: "custom_hubspot_account_false", overwrite: true },
-      { hull: "account.custom_null", name: "custom_hubspot_account_null", overwrite: true },
-      { hull: "account.custom_empty_string", name: "custom_hubspot_account_empty_string", overwrite: true },
-      { hull: "account.custom_zero", name: "custom_hubspot_account_zero", overwrite: true },
-      { hull: "account.custom_undefined", name: "custom_hubspot_account_undefined", overwrite: true },
-      { hull: "account.custom_date_at", name: "custom_hubspot_account_date_at", overwrite: true }
+      { hull: "account.custom_numeric", service: "custom_hubspot_account_numeric", overwrite: true },
+      { hull: "account.custom_array", service: "custom_hubspot_account_array", overwrite: true },
+      { hull: "account.custom_empty_array", service: "custom_hubspot_account_empty_array", overwrite: true },
+      { hull: "account.custom_true", service: "custom_hubspot_account_true", overwrite: true },
+      { hull: "account.custom_false", service: "custom_hubspot_account_false", overwrite: true },
+      { hull: "account.custom_null", service: "custom_hubspot_account_null", overwrite: true },
+      { hull: "account.custom_empty_string", service: "custom_hubspot_account_empty_string", overwrite: true },
+      { hull: "account.custom_zero", service: "custom_hubspot_account_zero", overwrite: true },
+      { hull: "account.custom_undefined", service: "custom_hubspot_account_undefined", overwrite: true },
+      { hull: "account.custom_date_at", service: "custom_hubspot_account_date_at", overwrite: true }
     ]
   }
 };
@@ -171,26 +171,6 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
-        [
-          "warn",
-          "outgoing.user.warning",
-          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {
-            "mappingEntry": {
-              "hubspot_property_display_order": undefined,
-              "hubspot_property_field_type": undefined,
-              "hubspot_property_label": "custom_hubspot_score",
-              "hubspot_property_name": "hull_custom_hubspot_score",
-              "hubspot_property_read_only": undefined,
-              "hubspot_property_type": undefined,
-              "hull_default_trait_name": null,
-              "hull_overwrite_hubspot": false,
-              "hull_trait_name": "group/custom_calculated_score",
-              "hull_trait_type": "string",
-            },
-            "warning": "can't support overwrite flag on selected field, please refer to connector documentation",
-          }
-        ],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
         [

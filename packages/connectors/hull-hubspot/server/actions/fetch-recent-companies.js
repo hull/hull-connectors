@@ -9,7 +9,8 @@ const SyncAgent = require("../lib/sync-agent");
  */
 function fetchRecentCompaniesAction(ctx: HullContext) {
   const syncAgent = new SyncAgent(ctx);
-  return syncAgent.fetchRecentCompanies();
+  syncAgent.fetchRecentCompanies();
+  return Promise.resolve("ok");
 }
 
 module.exports = fetchRecentCompaniesAction;

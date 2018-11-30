@@ -1,10 +1,10 @@
 {
   "name": "Hubspot",
-  "description": "Sync a Hubspot Channel whenever a User enters or leaves a Segment",
+  "description": "Synchronizes a Hubspot Contacts and Companies",
   "source": "hubspot",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.6.0",
+  "version": "0.0.8-monorepo",
   "tags": [
     "outgoing",
     "incoming",
@@ -15,21 +15,28 @@
   "settings": [],
   "private_settings": [
     {
+      "name": "outgoing_user_title",
+      "title": "Outgoing users configuration",
+      "description": "Following section configures how we create or update `Hubspot Contacts`",
+      "format": "title",
+      "type": "string"
+    },
+    {
       "name": "synchronized_user_segments",
       "title": "User Segments",
-      "description": "Post to Hubspot when users match these segments",
+      "description": "Send to Hubspot when users match these segments",
       "default": [],
       "type": "array",
       "format": "segment"
     },
     {
       "name": "outgoing_user_attributes",
-      "direction": "outgoing",
       "title": "Custom Fields Sync (Hull to Hubspot)",
       "type": "array",
-      "format": "trait-mapping",
+      "format": "traitMapping",
       "options": {
-        "allowOverwrite": true,
+        "direction": "outgoing",
+        "showOverwriteToggle": true,
         "placeholder": "Hubspot Field",
         "allowCreate": true,
         "loadOptions": "/schema/contact_properties"
@@ -67,6 +74,13 @@
           }
         }
       }
+    },
+    {
+      "name": "incoming_user_title",
+      "title": "Incoming users configuration",
+      "description": "Following section configures how we fetch `Hubspot Contacts` and match them with `Hull Users`",
+      "format": "title",
+      "type": "string"
     },
     {
       "name": "incoming_user_claims",
@@ -112,30 +126,14 @@
       "name": "incoming_user_attributes",
       "title": "Custom Fields Sync (Hubspot to Hull)",
       "type": "array",
-      "format": "hidden",
-      "items": {
-        "type": "object",
-        "properties": {
-          "service": {
-            "title": "Hubspot Field ID",
-            "type": "string",
-            "format": "select",
-            "options" : {
-              "allowCreate": false,
-              "loadOptions" : "/schema/contact_properties"
-            }
-          },
-          "hull": {
-            "title": "Hull Field ID",
-            "type": "string",
-            "format": "trait",
-            "options": {
-              "placeholder": "Enter a Hull field id",
-              "allowCreate": true,
-              "source": "hubspot"
-            }
-          }
-        }
+      "format": "traitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": false,
+        "placeholder": "Hubspot Contact Field",
+        "allowCreate": true,
+        "loadOptions": "/schema/contact_properties",
+        "source": "hubspot"
       }
     },
     {
@@ -171,7 +169,7 @@
     {
       "name": "outgoing_account_title",
       "title": "Outgoing accounts configuration",
-      "description": "Outgoing accounts are matched on Hubspot end by `account.domain`. Accounts without domain are skipped. If you want to send out `account.external_id` add it to the table below.",
+      "description": "Following section configures how we create or update `Hubspot Companies`",
       "format": "title",
       "type": "string"
     },
@@ -213,21 +211,22 @@
     },
     {
       "name": "link_users_in_service",
-      "title": "Link users in Hubspot",
-      "description": "Do you want to let Hull associate Users and Accounts in Hubspot",
+      "title": "Link Contacts in Hubspot",
+      "description": "Do you want to let Hull associate Contacts and Companies in Hubspot?",
       "type": "boolean",
       "default": false
     },
     {
-      "name": "ingoing_account_title",
+      "name": "incoming_account_title",
       "title": "Incoming accounts configuration",
+      "description": "Following section configures how we fetch `Hubspot Companies` and match them with `Hull Accounts`",
       "format": "title",
       "type": "string"
     },
     {
       "name": "handle_accounts",
       "title": "Fetch accounts?",
-      "description": "If this checkbox is disabled we won't get any account in",
+      "description": "If this checkbox is disabled we won't get any account in.",
       "type": "boolean",
       "default": false
     },
@@ -275,7 +274,7 @@
         "type": "object",
         "properties": {
           "service": {
-            "title": "Hubspot Field ID",
+            "title": "Hubspot Company Field",
             "type": "string",
             "format": "select",
             "options" : {
@@ -299,7 +298,7 @@
     {
       "name": "link_users_in_hull",
       "title": "Link users in Hull",
-      "description": "Do you want to let Hubspot update links between Users and Accounts in Hull (Be careful about conflicts with other connectors that would link users too)",
+      "description": "Do you want to let Hubspot update links between Users and Accounts in Hull? Be careful about conflicts with other connectors that would link users too.\n\n**IMPORTANT:** when this checkbox is checked the connector will create a Hull Account for EVERY Hubspot Company any Contact is linked to (refer to documentation for more details).",
       "type": "boolean",
       "default": false
     },
@@ -359,7 +358,7 @@
   ],
   "schedules": [
     {
-      "url": "/sync",
+      "url": "/fetch-recent-contacts",
       "type": "interval",
       "value": "5"
     },

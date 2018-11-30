@@ -13,7 +13,6 @@ const incomingData = require("../fixtures/get-companies-recent-modified");
 const connector = {
   private_settings: {
     token: "hubToken",
-    incoming_account_claims: _.find(require("../../../manifest").private_settings, { name: "incoming_account_claims" }).default,
     handle_accounts: true
   }
 };

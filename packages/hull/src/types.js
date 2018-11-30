@@ -35,8 +35,7 @@ export type HullConnectorOptions = {
   timeout: number | string,
   captureMetrics: Array<Object>,
   captureLogs: Array<any>,
-  disableOnExit?: boolean,
-  manifest?: Object // FIXME: should in future provide actual flow type
+  disableOnExit?: boolean
 };
 
 export type HullNotificationFlowControl = {

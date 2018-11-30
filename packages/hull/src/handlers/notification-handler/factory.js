@@ -42,8 +42,7 @@ const {
   haltOnTimedoutMiddleware,
   fullContextBodyMiddleware,
   instrumentationContextMiddleware,
-  instrumentationTransientErrorMiddleware,
-  trimTraitsPrefixMiddleware
+  instrumentationTransientErrorMiddleware
 } = require("../../middlewares");
 
 const processingMiddleware = require("./processing-middleware");
@@ -71,7 +70,6 @@ function notificationHandlerFactory(
   router.use(haltOnTimedoutMiddleware());
   router.use(instrumentationContextMiddleware({ handlerName: "notification" }));
   router.use(fullContextBodyMiddleware({ requestName: "notification" }));
-  router.use(trimTraitsPrefixMiddleware());
   router.use((req: HullRequest, res: $Response, next: NextFunction) => {
     if (
       req.hull.notification &&

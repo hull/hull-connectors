@@ -1,50 +1,17 @@
 const { expect } = require("chai");
-const trimTraitsPrefixMiddleware = require("../../../src/middlewares/trim-traits-prefix");
+const trimTraitsPrefixFromConnector = require("../../../src/utils/trim-traits-prefix-from-connector");
 
-function buildReq(manifest, connector) {
+function buildReq(connector) {
   return {
     hull: {
-      connector,
-      connectorConfig: {
-        manifest
-      }
+      connector
     }
   };
 }
 
-describe("trimTraitsPrefixMiddleware", () => {
-  it("should", () => {
-    const reqStub = buildReq({
-      private_settings: [{
-        "name": "testing_single_trait",
-        "format": "trait",
-        "type": "string"
-      }, {
-        "name": "testing_array_traits",
-        "format": "trait",
-        "type": "array"
-      }, {
-        "name" : "incoming_user_attributes",
-        "type": "array",
-        "items" : {
-          "type" : "object",
-          "properties" : {
-            "name" : {
-              "type" : "string",
-              "format": "select",
-            },
-            "hull" : {
-              "type" : "string",
-              "format" : "trait",
-            }
-          }
-        }
-      }, {
-        "name": "outgoing_user_attributes",
-        "type": "array",
-        "format": "trait-mapping"
-      }]
-    }, {
+describe("trimTraitsPrefixFromConnector", () => {
+  it("should trim all traits fields in the connector", () => {
+    const connector = {
       private_settings: {
         some_other_field: "traits_to_not_remove",
         some_other_object: {
@@ -69,11 +36,42 @@ describe("trimTraitsPrefixMiddleware", () => {
           service: "",
           hull: ""
         }, {}]
+      },
+      manifest: {
+        private_settings: [{
+          "name": "testing_single_trait",
+          "format": "trait",
+          "type": "string"
+        }, {
+          "name": "testing_array_traits",
+          "format": "trait",
+          "type": "array"
+        }, {
+          "name" : "incoming_user_attributes",
+          "type": "array",
+          "items" : {
+            "type" : "object",
+            "properties" : {
+              "name" : {
+                "type" : "string",
+                "format": "select",
+              },
+              "hull" : {
+                "type" : "string",
+                "format" : "trait",
+              }
+            }
+          }
+        }, {
+          "name": "outgoing_user_attributes",
+          "type": "array",
+          "format": "trait-mapping"
+        }]
       }
-    });
-    trimTraitsPrefixMiddleware()(reqStub, {}, () => {});
-    const trimmedConnector = reqStub.hull.connector;
-    expect(trimmedConnector).to.eql({
+    };
+    trimTraitsPrefixFromConnector(connector);
+    expect(connector).to.eql({
+      manifest: connector.manifest,
       private_settings: {
         some_other_field: "traits_to_not_remove",
         some_other_object: { nested_param: "traits_to_not_remove" },

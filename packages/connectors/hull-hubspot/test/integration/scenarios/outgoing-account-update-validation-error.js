@@ -121,7 +121,20 @@ it("should send out a new hull account to hubspot", () => {
             "account_domain": "non-existing.com",
             "subject_type": "account",
           }),
-          "Property \"non-existing-property\" does not exist"
+          {
+            error: "Property \"non-existing-property\" does not exist",
+            hubspotWriteCompany: {
+              "properties": [{
+                "name": "hull_segments",
+                "value": "testSegment"
+              }, {
+                "name": "domain",
+                "value": "non-existing.com"
+              }],
+              objectId: "companyObjectIdNonExisting"
+            },
+            operation: "update"
+          }
         ]
       ],
       firehoseEvents: [],

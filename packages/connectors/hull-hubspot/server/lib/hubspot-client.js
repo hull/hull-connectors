@@ -43,6 +43,7 @@ const superagent = require("superagent");
 const prefixPlugin = require("superagent-prefix");
 const moment = require("moment");
 
+const { ConfigurationError } = require("hull/src/errors");
 const {
   promiseToReadableStream,
   superagentUrlTemplatePlugin,
@@ -94,7 +95,9 @@ class HubspotClient {
   refreshAccessToken(): Promise<*> {
     const refreshToken = this.connector.private_settings.refresh_token;
     if (!refreshToken) {
-      return Promise.reject(new Error("Refresh token is not set."));
+      return Promise.reject(
+        new ConfigurationError("Refresh token is not set.")
+      );
     }
     this.metric.increment("ship.service_api.call", 1);
     return this.agent
@@ -125,7 +128,16 @@ class HubspotClient {
         this.client.logger.debug("retrying query", _.get(err, "response.body"));
         return this.checkToken({
           force: true
-        }).then(() => promise());
+        })
+          .catch(error => {
+            if (error.response) {
+              const errorMessage =
+                "Failed to refresh access token, try to reauthorize the connector";
+              return Promise.reject(new ConfigurationError(errorMessage));
+            }
+            return Promise.reject(error);
+          })
+          .then(() => promise());
       }
       return Promise.reject(err);
     });
@@ -161,21 +173,16 @@ class HubspotClient {
       will_expire_soon: willExpireSoon
     });
     if (willExpireSoon || force) {
-      return this.refreshAccessToken()
-        .catch(refreshErr => {
-          this.client.logger.error("Error in refreshAccessToken", refreshErr);
-          return Promise.reject(refreshErr);
-        })
-        .then(res => {
-          this.agent.set("Authorization", `Bearer ${res.body.access_token}`);
-          return this.settingsUpdate({
-            expires_in: res.body.expires_in,
-            token_fetched_at: moment()
-              .utc()
-              .format("x"),
-            token: res.body.access_token
-          });
+      return this.refreshAccessToken().then(res => {
+        this.agent.set("Authorization", `Bearer ${res.body.access_token}`);
+        return this.settingsUpdate({
+          expires_in: res.body.expires_in,
+          token_fetched_at: moment()
+            .utc()
+            .format("x"),
+          token: res.body.access_token
         });
+      });
     }
     return Promise.resolve("valid");
   }
@@ -565,11 +572,16 @@ class HubspotClient {
 
   postCompanyDomainSearch(domain: string) {
     return this.retryUnauthorized(() => {
-      return this.agent.post(`/companies/v2/domains/${domain}/companies`).send({
-        requestOptions: {
-          properties: ["domain", "hs_lastmodifieddate", "name"]
-        }
-      });
+      return this.agent
+        .post("/companies/v2/domains/{{domain}}/companies")
+        .tmplVar({
+          domain
+        })
+        .send({
+          requestOptions: {
+            properties: ["domain", "hs_lastmodifieddate", "name"]
+          }
+        });
     });
   }
 
@@ -597,9 +609,14 @@ class HubspotClient {
 
   getCompanyVids(companyId: string, vidOffset?: string) {
     return this.retryUnauthorized(() => {
-      return this.agent.get(`/companies/v2/companies/${companyId}/vids`).query({
-        vidOffset
-      });
+      return this.agent
+        .get("/companies/v2/companies/{{companyId}}/vids")
+        .tmplVar({
+          companyId
+        })
+        .query({
+          vidOffset
+        });
     });
   }
 

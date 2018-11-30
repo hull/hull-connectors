@@ -8,6 +8,7 @@ type IncomingClaimsResult = {
 };
 
 const jp = require("jsonpath");
+// const debug = require("debug")("hull:incoming-claims-helper");
 
 function isInvalid(value: mixed): boolean {
   return (
@@ -15,6 +16,18 @@ function isInvalid(value: mixed): boolean {
     (typeof value === "string" && value.trim() === "") ||
     (typeof value === "number" && value === 0)
   );
+}
+
+function getSettingValue(ctx, settingName) {
+  if (
+    ctx.connector &&
+    ctx.connector.private_settings &&
+    ctx.connector.private_settings[settingName] &&
+    Array.isArray(ctx.connector.private_settings[settingName])
+  ) {
+    return ctx.connector.private_settings[settingName];
+  }
+  return undefined;
 }
 
 /**
@@ -43,17 +56,12 @@ function incomingClaims(
 ): IncomingClaimsResult {
   try {
     const settingName = `incoming_${entityType}_claims`;
-    if (
-      !ctx.connector ||
-      !ctx.connector.private_settings ||
-      !ctx.connector.private_settings[settingName] ||
-      !Array.isArray(ctx.connector.private_settings[settingName])
-    ) {
+    const setting = getSettingValue(ctx, settingName);
+    if (!setting) {
       throw new Error(
         `The incoming claims configuration for ${entityType} is missing.`
       );
     }
-    const setting = ctx.connector.private_settings[settingName];
 
     const readyClaims = setting.reduce((claims, entry) => {
       if (!entry.hull || !entry.service) {

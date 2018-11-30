@@ -13,7 +13,7 @@ const connector = {
     refresh_token: "refreshToken",
     token_fetched_at: "1541670608956",
     expires_in: 10000,
-    synchronized_segments: ["hullSegmentId"]
+    synchronized_user_segments: ["hullSegmentId"]
   }
 };
 const usersSegments = [
@@ -119,13 +119,13 @@ it("should refresh token and perform standard operation in case of token expired
           {},
           {
             "private_settings":  {
-              "expires_in": 10000,
-              "refresh_token": "refreshToken",
-              "synchronized_segments": [
+              expires_in: 10000,
+              refresh_token: "refreshToken",
+              synchronized_user_segments: [
                 "hullSegmentId",
               ],
-              "token": "newAccessToken",
-              "token_fetched_at": expect.any(String)
+              token: "newAccessToken",
+              token_fetched_at: expect.any(String)
             }
           }
         ],
