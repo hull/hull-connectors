@@ -5,7 +5,7 @@ const httpMocks = require("node-mocks-http");
 const { EventEmitter } = require("events");
 const Promise = require("bluebird");
 const HullStub = require("../support/hull-stub");
-const { ConfigurationError } = require("../../../src/errors");
+const { ConfigurationError, TransientError } = require("../../../src/errors");
 
 const scheduleHandler = require("../../../src/handlers/schedule-handler/factory");
 
@@ -172,6 +172,42 @@ describe("scheduleHandler", () => {
     scheduleHandler({
       callback: () => {
         return Promise.reject(new ConfigurationError("boom"));
+      },
+      options: {
+        fireAndForget: true
+      }
+    }).handle(request, response, (err) => { console.log(err) });
+    response.on("end", () => {
+      expect(response._isEndCalled()).to.be.ok;
+      expect(response._getData()).to.equal('{"status":"deffered"}');
+    });
+  });
+
+  it("should not capture transient errors in fire&forget mode", (done) => {
+    const request = httpMocks.createRequest({
+      method: "POST",
+      url: "/",
+      body: {
+        connector: {},
+        users_segments: [],
+        accounts_segments: [],
+      }
+    });
+    request.hull = buildContextBaseStub();
+    request.hull.metric = {
+      mergeContext: () => {},
+      increment: () => {},
+      captureException: (error) => {
+        expect(false).to.equal(true);
+      }
+    };
+    setTimeout(() => {
+      done();
+    }, 300);
+    const response = httpMocks.createResponse({ eventEmitter: EventEmitter });
+    scheduleHandler({
+      callback: () => {
+        return Promise.reject(new TransientError("boom"));
       },
       options: {
         fireAndForget: true
