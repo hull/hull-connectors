@@ -21,7 +21,7 @@ const { Router } = require("express");
 const debug = require("debug")("hull-connector:schedule-handler");
 const _ = require("lodash");
 
-const { ConfigurationError, TransientError } = require("../../errors");
+const { TransientError } = require("../../errors");
 const {
   credentialsFromQueryMiddleware,
   clientMiddleware,
@@ -80,14 +80,14 @@ function scheduleHandlerFactory(
 
     if (fireAndForget === true) {
       callbackResult.catch(error => {
+        // all TransientErrors (and child error classes such as ConfigurationError)
         if (error instanceof TransientError) {
           debug("transient-error metric");
           req.hull.metric.increment("connector.transient_error", 1, [
             `error_name:${_.snakeCase(error.name)}`,
             `error_message:${_.snakeCase(error.message)}`
           ]);
-        }
-        if (!(error instanceof ConfigurationError)) {
+        } else {
           req.hull.metric.captureException(error);
         }
       });

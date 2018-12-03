@@ -65,7 +65,7 @@ it("Performing sync", () => {
       connector,
       usersSegments,
       accountsSegments: [],
-      response: "ok",
+      response: {"response": "ok"},
       logs: [
         ["debug", "dispatch", {}, {"id": 0, "name": "syncOut"}],
         ["info", "outgoing.job.start", {}, {"recreate": true}],

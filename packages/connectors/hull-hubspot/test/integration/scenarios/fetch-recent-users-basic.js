@@ -46,7 +46,7 @@ it("should fetch recent users using settings", () => {
       connector,
       usersSegments: [],
       accountsSegments: [],
-      response: "ok",
+      response: {"status": "deffered"},
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],

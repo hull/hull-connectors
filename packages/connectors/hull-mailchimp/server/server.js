@@ -59,7 +59,7 @@ function server(app: $Application): $Application {
     })
   );
 
-  app.use("/sync", scheduleHandler(actions.sync));
+  app.use("/sync", jsonHandler(actions.sync));
 
   app.use("/sync-in", jsonHandler(actions.syncIn));
 
