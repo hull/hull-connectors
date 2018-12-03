@@ -1,5 +1,5 @@
-##Overview (Outreach and Hull)
-***************(This Overview part below needs to go away, but be linked to the marketing overview page...)***************
+## Overview (Outreach and Hull)
+*************** (This Overview part below needs to go away, but be linked to the marketing overview page...) ***************
 Hull's Outreach connector enables the synchronization between Outreach and Hull.  This in turn allows synchronization between any other system which the customer has setup with Hull.  The connector synchronizes "Outreach Prospects" with "Hull Users" using the first email found in Outreach as the key to join with Users in the Hull system.  The connector also synchronizes "Outreach Accounts" with "Hull Accounts" using the domain found in Outreach as the key to join other Accounts in the Hull system.
 
 Events sent from Outreach such as email opens, or sequence state changes are not currently supported, but are planned when enough Hull customer feedback has been gathered on the respective use cases.
@@ -8,8 +8,7 @@ Events sent from Outreach such as email opens, or sequence state changes are not
 
 Below you will find necessary information how to get started with the Outreach integration.
 
-*************** Link for "Beginners guide to Hull" *************
-*************** Link for High level "what outreach connector does" *************
+*************** Link for "Beginners guide to Hull" and Link for High level "what outreach connector does" *************
 
 
 ### Permissions
@@ -61,7 +60,7 @@ This section outlines the steps in order to receive accounts from Outreach.  Ple
 
 Accounts are fetched by either clicking "Actions" and manually triggering a fetch operation, or by incoming webhook.  Outreach provides a feature that fires account creation and attribute change events to Hull.  Once the connector is setup, the data begins to flow between systems, Outreach will begin to send these webhooks Hull.  As with manual fetches, incoming accounts cannot be filtered.  If you wish to not import accounts into Hull, you must remove them from Outreach.  Account deletion over webhooks is not currently a supported feature.
 
-***************(Pending Account Claims Discussion)***************
+*************** (Pending Account Claims Discussion) ***************
 - **incoming account identity** - specify which `Outreach Account Properties` we will use to identify `Hull Account`
 - **incoming account attributes** - defines which `Outreach Account Properties` are stored in `Hull Account Attributes` and the fields they are mapped to.
 
