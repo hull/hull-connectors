@@ -1,0 +1,54 @@
+{
+  "portalId": 62515,
+  "additionalDomains": [],
+  "properties": {
+    "createdate": {
+      "sourceId": "API",
+      "timestamp": 1485550052985,
+      "versions": [
+        {
+          "name": "createdate",
+          "sourceId": "API",
+          "timestamp": 1485550052985,
+          "value": "1485550052985",
+          "source": "API",
+          "sourceVid": []
+        }
+      ],
+      "value": "1485550052985",
+      "source": "API"
+    },
+    "name": {
+      "sourceId": null,
+      "timestamp": 1485550052985,
+      "versions": [
+        {
+          "timestamp": 1485550052985,
+          "sourceVid": [],
+          "name": "name",
+          "value": "A company name",
+          "source": "API"
+        }
+      ],
+      "value": "A company name",
+      "source": "API"
+    },
+    "description": {
+      "sourceId": null,
+      "timestamp": 1485550052985,
+      "versions": [
+        {
+          "timestamp": 1485550052985,
+          "sourceVid": [],
+          "name": "description",
+          "value": "A company description",
+          "source": "API"
+        }
+      ],
+      "value": "A company description",
+      "source": "API"
+    }
+  },
+  "isDeleted": false,
+  "companyId": 266234266
+}

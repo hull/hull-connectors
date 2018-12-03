@@ -2,6 +2,7 @@
 /* global describe, it, beforeEach, afterEach */
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const connectorServer = require("../../../server/server");
+const connectorManifest = require("../../../manifest");
 
 process.env.MAILCHIMP_CLIENT_ID = "1234";
 process.env.MAILCHIMP_CLIENT_SECRET = "1234";
@@ -49,7 +50,7 @@ const usersSegments = [
 
 it("should send matching user to the mailchimp", () => {
   const email = "email@email.com";
-  return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",

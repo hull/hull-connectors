@@ -1,0 +1,231 @@
+{
+  "version": "new",
+  "tree": [
+    {
+      "text": "User",
+      "children": [
+        {
+          "id": "id",
+          "text": "Hull ID",
+          "type": "string"
+        },
+        {
+          "id": "created_at",
+          "text": "Signup on",
+          "type": "date"
+        },
+        {
+          "id": "is_approved",
+          "text": "Is approved",
+          "type": "boolean",
+          "default": false
+        },
+        {
+          "id": "external_id",
+          "text": "External ID",
+          "type": "string"
+        },
+        {
+          "id": "anonymous_ids",
+          "text": "Anonymous IDs",
+          "type": "string"
+        },
+        {
+          "id": "first_name",
+          "text": "First name",
+          "type": "string"
+        },
+        {
+          "id": "last_name",
+          "text": "Last name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "text": "Traits",
+      "children": [
+        {
+          "id": "traits_total_users_count",
+          "text": "Total users count",
+          "type": "number"
+        },
+        {
+          "id": "traits_demo_request_country",
+          "text": "Demo request country",
+          "type": "string"
+        },
+        {
+          "id": "traits_custom_numeric",
+          "text": "Custom numeric",
+          "type": "number"
+        },
+        {
+          "id": "traits_custom_array",
+          "text": "Custom array",
+          "type": "array"
+        },
+        {
+          "id": "traits_custom_empty_array",
+          "text": "Custom empty array",
+          "type": "array"
+        },
+        {
+          "id": "traits_custom_true",
+          "text": "Custom true",
+          "type": "boolean"
+        },
+        {
+          "id": "traits_custom_false",
+          "text": "Custom false",
+          "type": "boolean"
+        },
+        {
+          "id": "traits_custom_null",
+          "text": "Custom null",
+          "type": "string"
+        },
+        {
+          "id": "traits_custom_empty_string",
+          "text": "Custom empty string",
+          "type": "string"
+        },
+        {
+          "id": "traits_custom_undefined",
+          "text": "Custom undefined",
+          "type": "string"
+        },
+        {
+          "id": "traits_custom_date_at",
+          "text": "Custom date at",
+          "type": "date"
+        }
+      ]
+    },
+    {
+      "text": "Clearbit",
+      "children": [
+        {
+          "id": "traits_clearbit/given_name",
+          "text": "Given name",
+          "type": "string"
+        },
+        {
+          "id": "traits_clearbit/utcoffset",
+          "text": "Utcoffset",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "text": "Group",
+      "children": [
+        {
+          "id": "traits_group/custom_calculated_score",
+          "text": "Custom calculated score",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "text": "Account",
+      "children": [
+        {
+          "id": "account.id",
+          "text": "Id",
+          "type": "string"
+        },
+        {
+          "id": "account.external_id",
+          "text": "External Id",
+          "type": "string"
+        },
+        {
+          "id": "account.name",
+          "text": "Name",
+          "type": "string"
+        },
+        {
+          "id": "account.domain",
+          "text": "Domain",
+          "type": "string"
+        },
+        {
+          "id": "account.created_at",
+          "text": "Created At",
+          "type": "date"
+        },
+        {
+          "id": "account.custom_numeric",
+          "text": "Custom numeric",
+          "type": "number"
+        },
+        {
+          "id": "account.custom_array",
+          "text": "Custom array",
+          "type": "array"
+        },
+        {
+          "id": "account.custom_empty_array",
+          "text": "Custom empty array",
+          "type": "array"
+        },
+        {
+          "id": "account.custom_true",
+          "text": "Custom true",
+          "type": "boolean"
+        },
+        {
+          "id": "account.custom_false",
+          "text": "Custom false",
+          "type": "boolean"
+        },
+        {
+          "id": "account.custom_null",
+          "text": "Custom null",
+          "type": "string"
+        },
+        {
+          "id": "account.custom_empty_string",
+          "text": "Custom empty string",
+          "type": "string"
+        },
+        {
+          "id": "account.custom_undefined",
+          "text": "Custom undefined",
+          "type": "string"
+        },
+        {
+          "id": "account.custom_date_at",
+          "text": "Custom date at",
+          "type": "date"
+        }
+      ]
+    },
+    {
+      "text": "Account clearbit",
+      "children": [
+        {
+          "id": "account.clearbit/prospected_at",
+          "text": "Prospected at",
+          "type": "date"
+        },
+        {
+          "id": "account.clearbit/identifiers_us_ein",
+          "text": "Identifiers us ein",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "text": "Account group",
+      "children": [
+        {
+          "id": "account.group/created_at",
+          "text": "Created at",
+          "type": "date"
+        }
+      ]
+    }
+  ]
+}

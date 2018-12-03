@@ -9,8 +9,6 @@ import type { HullConnectorOptions, HullRequest } from "../types";
 
 const path = require("path");
 const Promise = require("bluebird");
-const fs = require("fs");
-const _ = require("lodash");
 const { renderFile } = require("ejs");
 const debug = require("debug")("hull-connector");
 
@@ -57,7 +55,7 @@ class HullConnector {
 
   middlewares: Array<Function>;
 
-  connectorConfig: {};
+  connectorConfig: $Shape<HullConnectorOptions>;
 
   cache: $PropertyType<HullConnectorOptions, "cache">;
 
@@ -110,15 +108,6 @@ class HullConnector {
 
     if (connectorName) {
       this.clientConfig.connectorName = connectorName;
-    } else {
-      try {
-        const manifest = JSON.parse(
-          fs.readFileSync(`${process.cwd()}/manifest.json`).toString()
-        );
-        if (manifest.name) {
-          this.clientConfig.connectorName = _.kebabCase(manifest.name);
-        }
-      } catch (error) {} // eslint-disable-line no-empty
     }
 
     if (skipSignatureValidation) {

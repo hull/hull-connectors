@@ -1,0 +1,39 @@
+{
+  "type": "subscribe",
+  "fired_at": "2018-10-25 12:02:47",
+  "data": {
+    "id": "d85679026d",
+    "email": "john@test.com",
+    "email_type": "html",
+    "ip_opt": "95.155.69.78",
+    "web_id": "128655773",
+    "merges": {
+      "EMAIL": "john@test.com",
+      "FNAME": "John",
+      "LNAME": "Doe",
+      "ADDRESS": {
+        "addr1": "L",
+        "addr2": "L",
+        "city": "L",
+        "state": "L",
+        "zip": "L",
+        "country": "US"
+      },
+      "PHONE": "1123123123",
+      "NUMBER_1": "560",
+      "RADIO": "Second Choice",
+      "DROPDOWN": "Third Choice",
+      "DATE_ME": "2018-10-12",
+      "BIRTHDAY1": "12/30",
+      "US_ZIP": "13200",
+      "INTERESTS": "",
+      "GROUPINGS": [{
+        "id": "20693",
+        "unique_id": "95c348da58",
+        "name": "Hull Segments",
+        "groups": ""
+      }]
+    },
+    "list_id": "c85a31383e"
+  }
+}

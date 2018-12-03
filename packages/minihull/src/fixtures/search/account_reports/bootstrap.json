@@ -1,0 +1,60 @@
+{
+  "version": "new",
+  "tree": [
+    {
+      "text": "Account",
+      "children": [
+        {
+          "id": "id",
+          "text": "Hull Id",
+          "type": "string"
+        },
+        {
+          "id": "external_id",
+          "text": "External Id",
+          "type": "string"
+        },
+        {
+          "id": "domain",
+          "text": "Domain",
+          "type": "string"
+        },
+        {
+          "id": "name",
+          "text": "Name",
+          "type": "string"
+        },
+        {
+          "id": "created_at",
+          "text": "created_at",
+          "type": "date"
+        },
+        {
+          "id": "anonymous_ids",
+          "text": "Anonymous IDs",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "text": "Traits",
+      "children": [
+        {
+          "text": "Clearbit",
+          "children": [
+            {
+              "id": "clearbit/prospected_at",
+              "text": "Prospected at",
+              "type": "date"
+            },
+            {
+              "id": "clearbit/identifiers_us_ein",
+              "text": "Identifiers us ein",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
