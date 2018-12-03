@@ -1,4 +1,4 @@
-***************(This part needs to go away, but be linked to the marketing overview page...)
+***************(This Overview part below needs to go away, but be linked to the marketing overview page...)***************
 ##Overview (Outreach and Hull)
 Hull's Outreach connector enables the synchronization between Outreach and Hull.  This in turn allows synchronization between any other system which the customer has setup with Hull.  The connector synchronizes "Outreach Prospects" with "Hull Users" using the first email found in Outreach as the key to join with Users in the Hull system.  The connector also synchronizes "Outreach Accounts" with "Hull Accounts" using the domain found in Outreach as the key to join other Accounts in the Hull system.
 
@@ -8,7 +8,9 @@ Events sent from Outreach such as email opens, or sequence state changes are not
 
 Below you will find necessary information how to get started with the Outreach integration.
 
-***************Link for "Beginners guide to Hull" terms -> incoming outgoing...
+***************Link for "Beginners guide to Hull"*************
+***************Link for High level "what outreach connector does"*************
+
 
 ### Permissions
 
@@ -51,7 +53,7 @@ This section outlines the steps in order to send accounts from Hull to Outreach 
 - **outgoing account segments** - defines which account segments are sent to Outreach, any account which enters one of these segments is sent to Outreach, as is any changes in attributes on those accounts.  Make sure to configure attributes to be sent to Outreach (below) or nothing (except a shell) will be sent even if the account is in the segment.
 - **outgoing account attributes** - defines which `Hull Account Attributes` are updated/created on `Outreach Account`
 
-*************** Is this section applicable to Outreach? *****************
+*************** Is this section below applicable to Outreach? *****************
 - **outgoing user linking** - defines if Hull will associate `Outreach Prospect` to `Outreach Account` (see below how the linking is performed)
 
 ### Incoming Accounts
@@ -63,7 +65,7 @@ Accounts are fetched by either clicking "Actions" and manually triggering a fetc
 - **incoming account identity** - specify which `Outreach Account Properties` we will use to identify `Hull Account`
 - **incoming account attributes** - defines which `Outreach Account Properties` are stored in `Hull Account Attributes` and the fields they are mapped to.
 
-*************** Is this section applicable to Outreach? *****************
+*************** Is this section below applicable to Outreach? *****************
 - **incoming user linking** - defines if Hull will link `Hull User` with `Hull Account` depending on `Outreach Prospect` to `Outreach Account` association
 
 
@@ -100,8 +102,9 @@ The Outreach connector receives updates to `Hull Users` and `Accounts` in near r
 
 Additionally you can manually select `Hull Users` or `Accounts` in the Hull web application and send them to the connector. This will bypass segment filtering and force update of `Outreach Prospects` and `Accounts`.
 
+*************** Is this section below applicable to Outreach? *****************
 #### User to Account linking
-*************** Is this section applicable to Outreach? *****************
+
 When the Hubspot connector process update on a `Hull User` profile and:
 1. the **outgoing user linking** setting is turned on
 2. the `Hull User` is linked to an `Account`
@@ -114,8 +117,9 @@ it will associate the `Outreach Prospect` with `Account`.
 The Outreach connector is built with a webhook component which will synchronize changes in Outreach in real-time to Hull.  This means anytime you change an attribute in Outreach, that attribute change is propogated to Hull.  As always, make sure to populate your Incoming User and Account Attributes and provide a mapping to which fields you want the Outreach data populating.  Our recommended approach is creating new Outreach specific fields for each of the incoming Outreach attributes.
 
 
+*************** Is this section below applicable to Outreach? *****************
 #### User to Account linking
-*************** Is this section applicable to Outreach? *****************
+
 When the Hubspot connector fetch a `Hubspot Contact` and:
 1. the **incoming user linking** setting is turned on
 2. the `Hubspot Contact` was associated with a `Company`
