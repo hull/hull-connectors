@@ -61,8 +61,8 @@ class AuditUtil {
     );
     this.synchronizedSegments = _.get(
       ctx,
-      "connector.private_settings.synchronized_segments",
-      []
+      "connector.private_settings.synchronized_user_segments",
+      _.get(ctx, "connector.private_settings.synchronized_segments", [])
     );
   }
 

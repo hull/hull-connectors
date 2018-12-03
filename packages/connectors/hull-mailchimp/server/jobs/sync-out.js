@@ -35,7 +35,9 @@ function syncOutJob(ctx: any, { recreate = true }: Object = {}) {
     .then(() => {
       // request an extract for each segment from `synchronized_segments`
       const synchronizedSegments =
-        ctx.connector.private_settings.synchronized_segments || [];
+        ctx.connector.private_settings.synchronized_user_segments ||
+        ctx.connector.private_settings.synchronized_segments ||
+        [];
       const segments = _.intersectionBy(
         ctx.usersSegments,
         synchronizedSegments.map(sId => ({ id: sId })),
