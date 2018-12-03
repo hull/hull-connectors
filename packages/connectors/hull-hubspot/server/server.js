@@ -23,20 +23,49 @@ function server(app: $Application): $Application {
   app.use("/fetch-all", jsonHandler(actions.fetchAll)); // old name - to be removed
   app.use("/fetch-all-contacts", jsonHandler(actions.fetchAll));
 
-  app.use("/sync", scheduleHandler(actions.fetch)); // old name - to be removed
-  app.use("/fetch-recent-contacts", scheduleHandler(actions.fetch));
+  app.use(
+    "/sync",
+    scheduleHandler({
+      callback: actions.fetch,
+      options: {
+        fireAndForget: true
+      }
+    })
+  ); // old name - to be removed
+  app.use(
+    "/fetch-recent-contacts",
+    scheduleHandler({
+      callback: actions.fetch,
+      options: {
+        fireAndForget: true
+      }
+    })
+  );
 
   app.use("/fetch-all-companies", jsonHandler(actions.fetchAllCompanies));
   app.use(
     "/fetch-recent-companies",
-    scheduleHandler(actions.fetchRecentCompanies)
+    scheduleHandler({
+      callback: actions.fetchRecentCompanies,
+      options: {
+        fireAndForget: true
+      }
+    })
   );
 
   app.use("/batch", batchHandler(notificationsConfiguration));
 
   app.use("/smart-notifier", notificationHandler(notificationsConfiguration));
 
-  app.use("/monitor/checkToken", scheduleHandler(actions.checkToken));
+  app.use(
+    "/monitor/checkToken",
+    scheduleHandler({
+      callback: actions.checkToken,
+      options: {
+        fireAndForget: true
+      }
+    })
+  );
 
   app.use(
     "/schema/contact_properties",
