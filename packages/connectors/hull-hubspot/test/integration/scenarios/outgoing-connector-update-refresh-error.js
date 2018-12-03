@@ -12,7 +12,7 @@ const connector = {
     refresh_token: "refreshToken",
     token_fetched_at: "1541670608956",
     expires_in: 10000,
-    synchronized_segments: ["hullSegmentId"]
+    synchronized_user_segments: ["hullSegmentId"]
   }
 };
 

@@ -20,12 +20,12 @@ const connector = {
     segment_mapping: {
       hullSegmentId: "MailchimpSegmentId"
     },
-    synchronized_segments: ["hullSegmentId"],
-    sync_fields_to_mailchimp: [
-     { hull: "traits_custom_will_overwrite", name: "OVERWRITTEN_MERGE_FIELD", overwrite: true },
-     { hull: "traits_custom_wont_overwrite", name: "NOT_OVERWRITTEN_MERGE_FIELD", overwrite: false },
-     { hull: "account.custom_account_will_overwrite", name: "OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT", overwrite: true },
-     { hull: "account.custom_account_wont_overwrite", name: "NOT_OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT", overwrite: false },
+    synchronized_user_segments: ["hullSegmentId"],
+    outgoing_user_attributes: [
+     { hull: "traits_custom_will_overwrite", service: "OVERWRITTEN_MERGE_FIELD", overwrite: true },
+     { hull: "custom_wont_overwrite", service: "NOT_OVERWRITTEN_MERGE_FIELD", overwrite: false },
+     { hull: "account.custom_account_will_overwrite", service: "OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT", overwrite: true },
+     { hull: "account.custom_account_wont_overwrite", service: "NOT_OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT", overwrite: false },
    ]
   }
 };

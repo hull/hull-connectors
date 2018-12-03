@@ -43,39 +43,6 @@
       }
     },
     {
-      "name": "sync_fields_to_hubspot",
-      "title": "Custom Fields Sync (Hull to Hubspot)",
-      "type": "array",
-      "format": "hidden",
-      "items": {
-        "type": "object",
-        "properties": {
-          "hull": {
-            "title": "Hull Field ID",
-            "type": "string",
-            "format": "trait",
-            "options": {
-              "placeholder": "Enter a Hull field id"
-            }
-          },
-          "name": {
-            "title": "Hubspot Field ID",
-            "type": "string",
-            "format": "select",
-            "options" : {
-              "allowCreate": true,
-              "loadOptions" : "/schema/contact_properties"
-            }
-          },
-          "overwrite" : {
-            "type" : "boolean",
-            "title" : "Hull overwrites Hubspot",
-            "default" : false
-          }
-        }
-      }
-    },
-    {
       "name": "incoming_user_title",
       "title": "Incoming users configuration",
       "description": "Following section configures how we fetch `Hubspot Contacts` and match them with `Hull Users`",
@@ -137,36 +104,6 @@
       }
     },
     {
-      "name": "sync_fields_to_hull",
-      "title": "Custom Fields Sync (Hubspot to Hull)",
-      "type": "array",
-      "format": "hidden",
-      "items": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "title": "Hubspot Field ID",
-            "type": "string",
-            "format": "select",
-            "options" : {
-              "allowCreate": false,
-              "loadOptions" : "/schema/contact_properties"
-            }
-          },
-          "hull": {
-            "title": "Hull Field ID",
-            "type": "string",
-            "format": "trait",
-            "options": {
-              "placeholder": "Enter a Hull field id",
-              "allowCreate": true,
-              "source": "hubspot"
-            }
-          }
-        }
-      }
-    },
-    {
       "name": "outgoing_account_title",
       "title": "Outgoing accounts configuration",
       "description": "Following section configures how we create or update `Hubspot Companies`",
@@ -185,28 +122,14 @@
       "name": "outgoing_account_attributes",
       "title": "Custom Accounts Fields Sync (Hull to Hubspot)",
       "type": "array",
-      "format": "table",
-      "items": {
-        "type": "object",
-        "properties": {
-          "hull": {
-            "title": "Hull Field ID",
-            "type": "string",
-            "format": "accountTrait",
-            "options": {
-              "placeholder": "Enter a Hull field id"
-            }
-          },
-          "service": {
-            "title": "Hubspot Field ID",
-            "type": "string",
-            "format": "select",
-            "options" : {
-              "allowCreate": true,
-              "loadOptions" : "/schema/company_properties"
-            }
-          }
-        }
+      "format": "accountTraitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "Hubspot Company Field",
+        "allowCreate": true,
+        "loadOptions": "/schema/company_properties",
+        "source": "hubspot"
       }
     },
     {
@@ -269,30 +192,14 @@
       "name": "incoming_account_attributes",
       "title": "Custom Fields Sync (Hubspot to Hull)",
       "type": "array",
-      "format": "table",
-      "items": {
-        "type": "object",
-        "properties": {
-          "service": {
-            "title": "Hubspot Company Field",
-            "type": "string",
-            "format": "select",
-            "options" : {
-              "allowCreate": false,
-              "loadOptions" : "/schema/company_properties"
-            }
-          },
-          "hull": {
-            "title": "Hull Field ID",
-            "type": "string",
-            "format": "accountTrait",
-            "options": {
-              "placeholder": "Enter a Hull field id",
-              "allowCreate": true,
-              "source": "hubspot"
-            }
-          }
-        }
+      "format": "accountTraitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": false,
+        "placeholder": "Hubspot Company Field",
+        "allowCreate": true,
+        "loadOptions": "/schema/company_properties",
+        "source": "hubspot"
       }
     },
     {
