@@ -200,7 +200,6 @@ class UserMappingAgent {
   ): HullAttributeValue {
     // since the account is a subobject we need to use lodash get method to traverse it using dot notation path
     if (overwrite === true) {
-      console.log(payload, hull);
       return _.get(payload, hull) || "";
     }
     const fieldName = service || name;
