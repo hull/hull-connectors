@@ -10,11 +10,26 @@ function server(app: express): express {
   app.use("/admin", actions.authorization);
   app.use("/refresh-access-token", scheduleHandler(actions.refreshAccessToken));
   app.use("/fetch-all-responses", jsonHandler(actions.fetchAllResponses));
-  app.use("/fetch", scheduleHandler(actions.fetchRecentResponses));
+
+  app.use(
+    "/fetch",
+    scheduleHandler({
+      callback: actions.fetchRecentResponses,
+      options: {
+        fireAndForget: true
+      }
+    })
+  );
   app.use(
     "/fetch-recent-responses",
-    scheduleHandler(actions.fetchRecentResponses)
+    scheduleHandler({
+      callback: actions.fetchRecentResponses,
+      options: {
+        fireAndForget: true
+      }
+    })
   );
+
   app.use("/schema/forms", cors(), jsonHandler(actions.getForms));
   app.use(
     "/schema/fields/email",
