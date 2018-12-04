@@ -20,7 +20,7 @@ const connector = {
     segment_mapping: {
       hullSegmentId: "MailchimpSegmentId"
     },
-    synchronized_segments: ["hullSegmentId"]
+    synchronized_user_segments: ["hullSegmentId"]
   }
 };
 const usersSegments = [
@@ -29,6 +29,7 @@ const usersSegments = [
     id: "hullSegmentId"
   }
 ];
+
 it("should ensure a webhook is registered on outgoing traffic", () => {
   const email = "webhook@email.com";
   return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect, minihullPort }) => {
