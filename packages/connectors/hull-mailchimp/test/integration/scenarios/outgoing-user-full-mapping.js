@@ -20,24 +20,24 @@ const connector = {
     segment_mapping: {
       hullSegmentId: "MailchimpSegmentId"
     },
-    synchronized_segments: ["hullSegmentId"],
-    sync_fields_to_mailchimp: [
-     { hull: "first_name", name: "TOP_LEVEL_TRAIT", overwrite: true },
-     { hull: "traits_group/custom_calculated_score", name: "USER_CUSTOM_GROUP_TRAIT", overwrite: true },
+    synchronized_user_segments: ["hullSegmentId"],
+    outgoing_user_attributes: [
+     { hull: "first_name", service: "TOP_LEVEL_TRAIT", overwrite: true },
+     { hull: "traits_group/custom_calculated_score", service: "USER_CUSTOM_GROUP_TRAIT", overwrite: true },
 
-     { hull: "traits_custom_numeric", name: "USER_CUSTOM_NUMERIC_VALUE", overwrite: true },
-     { hull: "traits_custom_array", name: "USER_CUSTOM_ARRAY_VALUE", overwrite: true },
-     { hull: "traits_custom_empty_array", name: "USER_CUSTOM_EMPTY_ARRAY_VALUE", overwrite: true },
-     { hull: "traits_custom_true", name: "USER_CUSTOM_TRUE_VALUE", overwrite: true },
-     { hull: "traits_custom_false", name: "USER_CUSTOM_FALSE_VALUE", overwrite: true },
-     { hull: "traits_custom_null", name: "USER_CUSTOM_NULL_VALUE", overwrite: true },
-     { hull: "traits_custom_empty_string", name: "USER_CUSTOM_EMPTY_STRING_VALUE", overwrite: true },
-     { hull: "traits_custom_zero", name: "USER_CUSTOM_ZERO_VALUE", overwrite: true },
-     { hull: "traits_custom_undefined", name: "USER_CUSTOM_UNDEFINED_VALUE", overwrite: true },
-     { hull: "traits_custom_date_at", name: "USER_CUSTOM_DATE_VALUE", overwrite: true },
+     { hull: "traits_custom_numeric", service: "USER_CUSTOM_NUMERIC_VALUE", overwrite: true },
+     { hull: "traits_custom_array", service: "USER_CUSTOM_ARRAY_VALUE", overwrite: true },
+     { hull: "traits_custom_empty_array", service: "USER_CUSTOM_EMPTY_ARRAY_VALUE", overwrite: true },
+     { hull: "traits_custom_true", service: "USER_CUSTOM_TRUE_VALUE", overwrite: true },
+     { hull: "traits_custom_false", service: "USER_CUSTOM_FALSE_VALUE", overwrite: true },
+     { hull: "traits_custom_null", service: "USER_CUSTOM_NULL_VALUE", overwrite: true },
+     { hull: "custom_empty_string", service: "USER_CUSTOM_EMPTY_STRING_VALUE", overwrite: true },
+     { hull: "traits_custom_zero", service: "USER_CUSTOM_ZERO_VALUE", overwrite: true },
+     { hull: "traits_custom_undefined", service: "USER_CUSTOM_UNDEFINED_VALUE", overwrite: true },
+     { hull: "traits_custom_date_at", service: "USER_CUSTOM_DATE_VALUE", overwrite: true },
 
-     { hull: "account.domain", name: "ACCOUNT_TOP_LEVEL_TRAIT", overwrite: true },
-     { hull: "account.group/created_at", name: "ACCOUNT_CUSTOM_GROUP_TRAIT", overwrite: true },
+     { hull: "account.domain", service: "ACCOUNT_TOP_LEVEL_TRAIT", overwrite: true },
+     { hull: "account.group/created_at", service: "ACCOUNT_CUSTOM_GROUP_TRAIT", overwrite: true },
    ]
   }
 };

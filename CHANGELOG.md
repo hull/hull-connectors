@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.0.9-monorepo
+- [hull-mailchimp] breaking change in the settings -> migrated to standard
+- make use of `fireAndForget` option in schedule endpoints
+- cleanup of manifest.json settings
+
 ## v0.0.8-monorepo
 - [hull-hubspot] new version with accounts support and test coverage
 - [hull-client] flow types fixes
