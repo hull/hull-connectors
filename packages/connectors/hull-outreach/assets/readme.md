@@ -1,15 +1,6 @@
-## Overview (Outreach and Hull)
-*************** (This Overview part below needs to go away, but be linked to the marketing overview page...) ***************
-Hull's Outreach connector enables the synchronization between Outreach and Hull.  This in turn allows synchronization between any other system which the customer has setup with Hull.  The connector synchronizes "Outreach Prospects" with "Hull Users" using the first email found in Outreach as the key to join with Users in the Hull system.  The connector also synchronizes "Outreach Accounts" with "Hull Accounts" using the domain found in Outreach as the key to join other Accounts in the Hull system.
-
-Events sent from Outreach such as email opens, or sequence state changes are not currently supported, but are planned when enough Hull customer feedback has been gathered on the respective use cases.
-
 ## Getting Started
 
 Below you will find necessary information how to get started with the Outreach integration.
-
-*************** Link for "Beginners guide to Hull" and Link for High level "what outreach connector does" *************
-
 
 ### Permissions
 
@@ -34,6 +25,7 @@ This section outlines the steps in order to send users from Hull to Outreach (ou
 
 - **outgoing user segments** - defines which user segments are sent to Outreach, any user which enters one of these segments is sent to Outreach, as is any changes in attributes on those users.  Make sure to configure attributes to be sent to Outreach (below) or nothing (except a shell) will be sent even if the user is in the segment.
 - **outgoing user attributes** - defines which `Hull User Attributes` are updated/created on `Outreach Prospect` and the field they are mapped to.
+- **link user to account in service** - defines if we will attempt to associate a outgoing Hull User (now a Outreach Prospect) to a Outreach Account.  See section "Outgoing (Hull -> Outreach) User to Account linking" below for a more comprehensive explanation.
 
 ### Incoming Users
 
@@ -44,6 +36,7 @@ Also note that when a user is fetched from Outreach, the connector will also fet
 Users are fetched by either clicking "Actions" and manually triggering a fetch operation, or by incoming webhook.  Outreach provides a feature that fires user creation and attribute change events to Hull.  Once the connector is setup, the data begins to flow between systems, Outreach will begin to send these webhooks to Hull.  As with manual fetches, incoming users cannot be filtered.  If you wish to not import users into Hull, you must remove them from Outreach.  User deletion over webhooks is not currently a supported feature.
 
 - **incoming user attributes** - defines which `Outreach Prospect Properties` are stored in `Hull User Attributes`
+- **link user to account in hull** - defines if we will associate an incoming Outreach Prospect (now Hull User) to a Hull Account.  See section "Incoming (Outreach -> Hull) User to Account linking" below for a more comprehensive explanation.
 
 ### Outgoing Accounts
 
@@ -52,21 +45,13 @@ This section outlines the steps in order to send accounts from Hull to Outreach 
 - **outgoing account segments** - defines which account segments are sent to Outreach, any account which enters one of these segments is sent to Outreach, as is any changes in attributes on those accounts.  Make sure to configure attributes to be sent to Outreach (below) or nothing (except a shell) will be sent even if the account is in the segment.
 - **outgoing account attributes** - defines which `Hull Account Attributes` are updated/created on `Outreach Account`
 
-*************** Is this section below applicable to Outreach? *****************
-- **outgoing user linking** - defines if Hull will associate `Outreach Prospect` to `Outreach Account` (see below how the linking is performed)
-
 ### Incoming Accounts
 This section outlines the steps in order to receive accounts from Outreach.  Please note that incoming accounts cannot be filtered, and any "fetch" operation will pull all accounts from Outreach (unless there is more than 10000 accounts).  In order to fetch only a subset, you must remove the unwanted Accounts from Outreach.
 
 Accounts are fetched by either clicking "Actions" and manually triggering a fetch operation, or by incoming webhook.  Outreach provides a feature that fires account creation and attribute change events to Hull.  Once the connector is setup, the data begins to flow between systems, Outreach will begin to send these webhooks Hull.  As with manual fetches, incoming accounts cannot be filtered.  If you wish to not import accounts into Hull, you must remove them from Outreach.  Account deletion over webhooks is not currently a supported feature.
 
-*************** (Pending Account Claims Discussion) ***************
 - **incoming account identity** - specify which `Outreach Account Properties` we will use to identify `Hull Account`
 - **incoming account attributes** - defines which `Outreach Account Properties` are stored in `Hull Account Attributes` and the fields they are mapped to.
-
-*************** Is this section below applicable to Outreach? *****************
-- **incoming user linking** - defines if Hull will link `Hull User` with `Hull Account` depending on `Outreach Prospect` to `Outreach Account` association
-
 
 
 ## Supported Objects
@@ -101,39 +86,26 @@ The Outreach connector receives updates to `Hull Users` and `Accounts` in near r
 
 Additionally you can manually select `Hull Users` or `Accounts` in the Hull web application and send them to the connector. This will bypass segment filtering and force update of `Outreach Prospects` and `Accounts`.
 
-*************** Is this section below applicable to Outreach? *****************
-#### User to Account linking
-
-When the Hubspot connector process update on a `Hull User` profile and:
-1. the **outgoing user linking** setting is turned on
-2. the `Hull User` is linked to an `Account`
-3. linked `Hull Account` was already synchronized to `Outreach Account` (we know the Outreach identifier)
-
-it will associate the `Outreach Prospect` with `Account`.
-
 ### Synchronization of incoming data (Outreach to Hull)
 
 The Outreach connector is built with a webhook component which will synchronize changes in Outreach in real-time to Hull.  This means anytime you change an attribute in Outreach, that attribute change is propogated to Hull.  As always, make sure to populate your Incoming User and Account Attributes and provide a mapping to which fields you want the Outreach data populating.  Our recommended approach is creating new Outreach specific fields for each of the incoming Outreach attributes.
-
-
-*************** Is this section below applicable to Outreach? *****************
-#### User to Account linking
-
-When the Hubspot connector fetch a `Hubspot Contact` and:
-1. the **incoming user linking** setting is turned on
-2. the `Hubspot Contact` was associated with a `Company`
-3. the `Hubspot Contact` satisfy the incoming identity resolution
-
-it will try to link the stored `Hull User` with appropriate `Hull Account`.
-
-
-**This mean it will create an empty Hull Account which will be only filled in with Hubspot Company data if the Company itself satisfies the incoming identity requirements. If not the Hull User will be linked to an empty Hull Account.**
 
 ## Attributes Mappings
 
 The Hull platform requires explicit mapping between Outreach and Hull.  We populate system defaults, but we primarily rely on the Hull customer to specify which datapoints should be imported and exported.  We do this because we've found that data transparency between systems is one of the most important practices when setting up sustainable data flows.  Below are the only mandated data fields between Hull and Outreach.  They are mandated because the Outreach Api will not support data without these fields.
 
 < TODO: INSERT TABLES FOR DEFAULTS >
+
+#### Incoming (Outreach -> Hull) User to Account linking
+
+When a User (Prospect) is sent from Outreach to Hull, the User will contain the account key for which it is associated.  This "key" is the internal Outreach Id (also known as the Anonymous Id for the account).  If the Account has been pulled from Outreach previously, the user should then be associated with the appropriate account in Hull.  
+
+**If the Account has not been pulled from Outreach previously, a shell account will be created in Hull so that when we do pull the Account from Outreach at a later time, the appropriate users will be associated with the account automatically.**
+
+#### Outgoing (Hull -> Outreach) User to Account linking
+
+When a User is sent from Hull to Outreach, the User on the Hull side may be associated with an account.  We first will lookup to see if that account exists in Outreach.  We lookup by the attributes defined in the Outgoing Account Resolution section.  If the account is found, the Outreach Prospect will be removed from any previous Account and attached to the newly found account.  If an Account is not found, we will create a new account with the account information in Hull.  As with all outgoing traffic, the new account will be created with the attributes specified in the outgoing account attribute mappings.
+
 
 ## Troubleshooting
 
