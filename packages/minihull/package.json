@@ -1,6 +1,6 @@
 {
   "name": "minihull",
-  "version": "0.0.7-monorepo",
+  "version": "0.0.9-monorepo",
   "description": "",
   "main": "src/mini-hull.js",
   "scripts": {

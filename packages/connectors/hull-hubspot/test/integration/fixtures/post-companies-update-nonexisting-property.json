@@ -1,0 +1,15 @@
+{
+  "status": "error",
+  "message": "Property values were not valid",
+  "correlationId": "d224cb01-46c7-40c3-aae9-223fe1ba3d82",
+  "validationResults": [
+    {
+      "isValid": false,
+      "message": "Property \"non-existing-property\" does not exist",
+      "error": "PROPERTY_DOESNT_EXIST",
+      "id": "companyObjectIdNonExisting",
+      "name": "non-existing-property"
+    }
+  ],
+  "requestId": "9cf667571bf00917f0224ea7e3ba5acc"
+}

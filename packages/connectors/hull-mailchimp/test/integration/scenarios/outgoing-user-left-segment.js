@@ -2,6 +2,7 @@
 /* global describe, it, beforeEach, afterEach */
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const connectorServer = require("../../../server/server");
+const connectorManifest = require("../../../manifest");
 
 process.env.MAILCHIMP_CLIENT_ID = "1234";
 process.env.MAILCHIMP_CLIENT_SECRET = "1234";
@@ -19,7 +20,7 @@ const connector = {
     segment_mapping: {
       hullSegmentId: "MailchimpSegmentId"
     },
-    synchronized_segments: ["hullSegmentId"]
+    synchronized_user_segments: ["hullSegmentId"]
   }
 };
 const usersSegments = [
@@ -31,7 +32,7 @@ const usersSegments = [
 
 it("should remove user from static list if user left the segment", () => {
   const email = "mocked@email.com";
-  return testScenario({ connectorServer }, ({ handlers, nock, expect, minihullPort }) => {
+  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect, minihullPort }) => {
     const userClaims = expect.objectContaining({ subject_type: "user", user_email: email });
     return {
       handlerType: handlers.notificationHandler,
@@ -49,7 +50,10 @@ it("should remove user from static list if user left the segment", () => {
           members: [
             {
               email_type: "html",
-              merge_fields: {},
+              merge_fields: {
+                FNAME: "",
+                LNAME: ""
+              },
               interests: {
                 MailchimpInterestId: false
               },
@@ -111,7 +115,10 @@ it("should remove user from static list if user left the segment", () => {
               interests: {
                 MailchimpInterestId: false,
               },
-              merge_fields: {},
+              merge_fields: {
+                FNAME: "",
+                LNAME: ""
+              },
               status_if_new: "subscribed",
             },
           }

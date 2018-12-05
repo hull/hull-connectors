@@ -2,6 +2,7 @@
 /* global describe, it, beforeEach, afterEach */
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const connectorServer = require("../../../server/server");
+const connectorManifest = require("../../../manifest");
 
 process.env.MAILCHIMP_CLIENT_ID = "1234";
 process.env.MAILCHIMP_CLIENT_SECRET = "1234";
@@ -19,7 +20,7 @@ const connector = {
     segment_mapping: {
       hullSegmentId: "MailchimpSegmentId"
     },
-    synchronized_segments: ["hullSegmentId"]
+    synchronized_user_segments: ["hullSegmentId"]
   }
 };
 const usersSegments = [
@@ -31,7 +32,7 @@ const usersSegments = [
 
 it("should send matching user to the mailchimp", () => {
   const email = "email@email.com";
-  return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -48,7 +49,10 @@ it("should send matching user to the mailchimp", () => {
             members: [
               {
                 email_type: "html",
-                merge_fields: {},
+                merge_fields: {
+                  FNAME: "",
+                  LNAME: ""
+                },
                 interests: {
                   MailchimpInterestId: true
                 },
@@ -101,7 +105,10 @@ it("should send matching user to the mailchimp", () => {
               interests: {
                 MailchimpInterestId: true,
               },
-              merge_fields: {},
+              merge_fields: {
+                FNAME: "",
+                LNAME: ""
+              },
               status_if_new: "subscribed"
             }
           }

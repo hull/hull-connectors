@@ -1,6 +1,6 @@
 {
   "name": "hull-mailchimp",
-  "version": "0.0.7-monorepo",
+  "version": "0.0.9-monorepo",
   "description": "Hull Mailchimp integration",
   "scripts": {
     "test": "yarn run test:unit && yarn run test:integration",

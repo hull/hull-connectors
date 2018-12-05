@@ -21,7 +21,7 @@ const connector = {
     segment_mapping: {
       hullSegmentId: "MailchimpSegmentId"
     },
-    synchronized_segments: ["hullSegmentId"]
+    synchronized_user_segments: ["hullSegmentId"]
   }
 };
 const usersSegments = [
@@ -31,7 +31,7 @@ const usersSegments = [
   }
 ];
 
-it("Performing sync", () => {
+it.only("Performing sync", () => {
   const email = "";
   return testScenario({
     connectorServer,
@@ -65,7 +65,7 @@ it("Performing sync", () => {
       connector,
       usersSegments,
       accountsSegments: [],
-      response: "ok",
+      response: {"response": "ok"},
       logs: [
         ["debug", "dispatch", {}, {"id": 0, "name": "syncOut"}],
         ["info", "outgoing.job.start", {}, {"recreate": true}],
@@ -222,9 +222,9 @@ it("Performing sync", () => {
         ["GET", expect.stringContaining("/api/v1/users_segments"), expect.whatever(), {}],
         ["GET", expect.stringContaining("/api/v1/accounts_segments"), expect.whatever(), {}],
         ["GET", "/api/v1/app", {}, {}],
-        ["PUT", "/api/v1/123456789012345678901234", {}, {"private_settings": {"api_key": "1", "domain": "mock", "interest_category_id": "2", "interests_mapping": {}, "mailchimp_list_id": "1", "segment_mapping": {"hullSegmentId": "MailchimpSegmentId"}, "synchronized_segments": ["hullSegmentId"]}}],
+        ["PUT", "/api/v1/123456789012345678901234", {}, {"private_settings": {"api_key": "1", "domain": "mock", "interest_category_id": "2", "interests_mapping": {}, "mailchimp_list_id": "1", "segment_mapping": {"hullSegmentId": "MailchimpSegmentId"}, "synchronized_user_segments": ["hullSegmentId"]}}],
         ["GET", "/api/v1/app", {}, {}],
-        ["PUT", "/api/v1/123456789012345678901234", {}, {"private_settings": {"api_key": "1", "domain": "mock", "interest_category_id": "2", "interests_mapping": {"hullSegmentId": "MailchimpInterestId"}, "mailchimp_list_id": "1", "segment_mapping": {}, "synchronized_segments": ["hullSegmentId"]}}],
+        ["PUT", "/api/v1/123456789012345678901234", {}, {"private_settings": {"api_key": "1", "domain": "mock", "interest_category_id": "2", "interests_mapping": {"hullSegmentId": "MailchimpInterestId"}, "mailchimp_list_id": "1", "segment_mapping": {}, "synchronized_user_segments": ["hullSegmentId"]}}],
         ["GET", "/api/v1/hullSegmentId", {}, {}],
         ["POST", "/api/v1/extract/user_reports", {}, {
           "fields": [

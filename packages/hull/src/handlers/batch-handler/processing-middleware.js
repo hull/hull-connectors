@@ -8,7 +8,10 @@ import type {
 const _ = require("lodash");
 const debug = require("debug")("hull-connector:batch-handler");
 
-const extractStream = require("../../utils/extract-stream");
+const {
+  extractStream,
+  trimTraitsPrefixFromUserMessage
+} = require("../../utils");
 
 function batchExtractProcessingMiddlewareFactory(
   normalizedConfiguration: HullNormalizedHandlersConfiguration<*, *>
@@ -67,7 +70,7 @@ function batchExtractProcessingMiddlewareFactory(
           const segmentIds = _.compact(
             _.uniq(_.concat(entity.segment_ids || [], [segmentId]))
           );
-          const message = {
+          let message = {
             [entityType]: _.omit(entity, "segment_ids"),
             [entitySegmentsKey]: _.compact(
               segmentIds.map(id => _.find(segmentsList, { id }))
@@ -76,6 +79,8 @@ function batchExtractProcessingMiddlewareFactory(
           if (entityType === "user") {
             message.user = _.omit(entity, "account");
             message.account = entity.account || {};
+            // $FlowFixMe
+            message = trimTraitsPrefixFromUserMessage(message);
           }
           return message;
         });

@@ -24,6 +24,7 @@ type HullJsonHandlerConfigurationEntry = HullHandlersConfigurationEntry<
 
 const debug = require("debug")("hull-connector:json-handler");
 const { Router } = require("express");
+const cors = require("cors");
 
 const { TransientError } = require("../../errors");
 const {
@@ -81,6 +82,7 @@ function jsonHandlerFactory(
   router.use(instrumentationContextMiddleware());
   router.use(fullContextFetchMiddleware({ requestName: "action" }));
   router.use(haltOnTimedoutMiddleware());
+  router.use(cors());
   router.use(function jsonHandler(
     req: HullRequestFull,
     res: $Response,

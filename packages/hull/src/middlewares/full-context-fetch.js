@@ -4,6 +4,11 @@ import type { HullRequestWithClient } from "../types";
 
 const debug = require("debug")("hull-connector:full-context-fetch-middleware");
 
+const {
+  applyConnectorSettingsDefaults,
+  trimTraitsPrefixFromConnector
+} = require("../utils");
+
 function fetchConnector(ctx): Promise<*> {
   debug("fetchConnector", typeof ctx.connector);
   if (ctx.connector) {
@@ -97,6 +102,9 @@ function fullContextFetchMiddlewareFactory({
           return next(new Error("Unable to fetch accountsSegments array"));
         }
         const requestId = [requestName].join("-");
+
+        applyConnectorSettingsDefaults(connector);
+        trimTraitsPrefixFromConnector(connector);
         req.hull = Object.assign(req.hull, {
           requestId,
           connector,

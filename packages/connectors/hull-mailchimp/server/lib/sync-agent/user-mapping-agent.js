@@ -5,7 +5,8 @@ import type {
   HullUserUpdateMessage,
   HullUserAttributes,
   HullUserClaims,
-  HullAttributeValue
+  HullAttributeValue,
+  HullConnectorSettingsTraitMapping
 } from "hull";
 import type { TMailchimpWebhookPayload, TMailchimpMergeFields } from "../types";
 
@@ -167,14 +168,17 @@ class UserMappingAgent {
    * @returns {Array} Array of objects having `name` and `hull` properties
    */
   computeMergeFields() {
-    return (
-      _.get(this.ship, "private_settings.sync_fields_to_mailchimp") || []
-    ).filter(
-      f =>
+    const settings: HullConnectorSettingsTraitMapping =
+      this.ship.private_settings.outgoing_user_attributes ||
+      this.ship.private_settings.sync_fields_to_mailchimp;
+    return (settings || []).filter(f => {
+      return (
         typeof f.hull === "string" &&
         f.hull !== "" &&
-        (typeof f.name === "string" && f.name !== "")
-    );
+        ((typeof f.service === "string" && f.service !== "") ||
+          (typeof f.name === "string" && f.name !== ""))
+      );
+    });
   }
 
   /**
@@ -182,23 +186,28 @@ class UserMappingAgent {
    * @returns {Array}
    */
   getMergeFieldsKeys() {
-    return this.computeMergeFields().map(f => f.name);
+    return this.computeMergeFields().map(f => f.service || f.name);
   }
 
   getMergeFieldValue(
     payload: HullUser,
     {
       name,
+      service,
       hull,
       overwrite = false
-    }: { name: string, hull: string, overwrite: boolean }
+    }: { service?: string, name?: string, hull?: string, overwrite?: boolean }
   ): HullAttributeValue {
     // since the account is a subobject we need to use lodash get method to traverse it using dot notation path
     if (overwrite === true) {
       return _.get(payload, hull) || "";
     }
+    const fieldName = service || name;
+    if (!fieldName) {
+      return "";
+    }
     return (
-      payload[`traits_mailchimp/${name.toLowerCase()}`] ||
+      payload[`mailchimp/${fieldName.toLowerCase()}`] ||
       _.get(payload, hull) ||
       ""
     );
@@ -220,8 +229,12 @@ class UserMappingAgent {
     return _.reduce(
       this.computeMergeFields(),
       (fields, prop) => {
+        const name = prop.service || prop.name;
+        if (!name || !prop) {
+          return fields;
+        }
         const value = this.getMergeFieldValue(payload, prop);
-        return { ...fields, [prop.name]: value };
+        return { ...fields, [name]: value };
       },
       {}
     );

@@ -121,13 +121,17 @@ class TestScenarioRunner extends EventEmitter {
 
   externalIncomingRequest: Function;
 
+  connectorManifest: Object;
+
   constructor(
     {
       connectorServer,
-      connectorWorker
+      connectorWorker,
+      connectorManifest
     }: {
       connectorServer: express => express,
-      connectorWorker?: Function
+      connectorWorker?: Function,
+      connectorManifest: Object
     },
     scenarioDefinition: TestScenarioDefinition
   ) {
@@ -141,6 +145,7 @@ class TestScenarioRunner extends EventEmitter {
       }
     });
 
+    this.connectorManifest = connectorManifest;
     this.finished = false;
     // this.hullConnectorPort = 9091;
     // this.minihullPort = 9092;
@@ -315,7 +320,8 @@ class TestScenarioRunner extends EventEmitter {
         this.server = this.scenarioDefinition.connectorServer;
         this.connector = _.defaults(this.scenarioDefinition.connector, {
           id: "9993743b22d60dd829001999",
-          private_settings: {}
+          private_settings: {},
+          manifest: this.connectorManifest
         });
         this.externalIncomingRequest = this.scenarioDefinition.externalIncomingRequest;
 
@@ -346,6 +352,17 @@ class TestScenarioRunner extends EventEmitter {
                 secret: this.minihull.secret
               }
             });
+            break;
+          case handlers.batchHandler:
+            if (channel === "user:update") {
+              this.minihull.stubUsersBatch(this.scenarioDefinition.messages);
+            }
+            response = await this.minihull.batchUsersConnector(
+              this.connector,
+              `http://localhost:${this.hullConnectorPort}/${handlerUrl}`,
+              this.scenarioDefinition.usersSegments,
+              this.scenarioDefinition.accountsSegments
+            );
             break;
           case handlers.notificationHandler:
             response = await this.minihull.notifyConnector(

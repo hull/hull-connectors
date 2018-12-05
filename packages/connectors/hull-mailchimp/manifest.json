@@ -1,6 +1,6 @@
 {
   "name": "Mailchimp",
-  "version": "0.0.5-monorepo",
+  "version": "0.0.9-monorepo",
   "description": "Powerful segmentation and enrichment for Mailchimp - the world’s favorite email platform",
   "tags": ["outgoing", "incoming", "batch", "oneColumn", "smart-notifier"],
   "source": "mailchimp",
@@ -15,7 +15,7 @@
       "type": "string"
     },
     {
-      "name": "synchronized_segments",
+      "name": "synchronized_user_segments",
       "title": "Send users to Mailchimp when belonging to at least one of these segments",
       "description": "If no segments are specified all users are sent to Mailchimp.",
       "type": "array",
@@ -81,47 +81,29 @@
       "format": "hidden"
     },
     {
-      "name" : "sync_fields_to_mailchimp",
-      "title" : "Send the following user attributes to Mailchimp",
-      "type" : "array",
-      "format" : "table",
-      "default": [{
-        "hull": "first_name",
-        "name": "FNAME",
-        "overwrite": true
-      }, {
-        "hull": "last_name",
-        "name": "LNAME",
-        "overwrite": true
-      }],
-      "items" : {
-        "type" : "object",
-        "properties" : {
-          "hull" : {
-            "type" : "string",
-            "format" : "trait",
-            "title" : "Hull Attribute"
-          },
-          "name" : {
-            "type" : "string",
-            "format": "select",
-            "title" : "Mailchimp Merge Field",
-            "options" : {
-              "allowCreate": false,
-              "loadOptions" : "/schema/user_fields"
-            }
-          },
-          "overwrite" : {
-            "type" : "boolean",
-            "title" : "Hull overwrites Mailchimp",
-            "default" : false
-          }
+      "name": "outgoing_user_attributes",
+      "title": "Send the following user attributes to Mailchim",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": true,
+        "placeholder": "Mailchimp Merge Field",
+        "allowCreate": false,
+        "loadOptions": "/schema/user_fields"
+      },
+      "default": [
+        {
+          "hull": "first_name",
+          "service": "FNAME",
+          "overwrite": false
         },
-        "required" : [
-          "hull",
-          "name"
-        ]
-      }
+        {
+          "hull": "last_name",
+          "service": "LNAME",
+          "overwrite": false
+        }
+      ]
     },
     {
       "name": "force_removal_from_static_segments",

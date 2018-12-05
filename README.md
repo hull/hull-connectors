@@ -58,12 +58,19 @@ Tests are done in two different ways:
 
 **How to start connector in dev mode?**
 
-`dotenv -e .env.typeform yarn dev hull-foo`
+First copy the env file and fill it in:
+`cp packages/connectors/hull-foo/.env-sample .env.hull-foo`
+
+Then you can start it with the `dev` script:
+`dotenv -e .env.hull-foo yarn dev hull-foo`
 
 **How to start connector in production mode?**
 
+First build the production dist:
 `yarn build`
-`dotenv -e .env.typeform bash scripts/bash-entrypoint.sh hull-foo`
+
+Then given you have the env file in place (if not look above), you can use bash script to run:
+`dotenv -e .env.hull-foo bash scripts/bash-entrypoint.sh hull-foo`
 
 
 **How to test single connector?**

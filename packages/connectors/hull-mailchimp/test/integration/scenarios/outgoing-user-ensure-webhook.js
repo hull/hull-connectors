@@ -2,6 +2,7 @@
 /* global describe, it, beforeEach, afterEach */
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const connectorServer = require("../../../server/server");
+const connectorManifest = require("../../../manifest");
 
 process.env.MAILCHIMP_CLIENT_ID = "1234";
 process.env.MAILCHIMP_CLIENT_SECRET = "1234";
@@ -19,7 +20,7 @@ const connector = {
     segment_mapping: {
       hullSegmentId: "MailchimpSegmentId"
     },
-    synchronized_segments: ["hullSegmentId"]
+    synchronized_user_segments: ["hullSegmentId"]
   }
 };
 const usersSegments = [
@@ -28,9 +29,10 @@ const usersSegments = [
     id: "hullSegmentId"
   }
 ];
+
 it("should ensure a webhook is registered on outgoing traffic", () => {
   const email = "webhook@email.com";
-  return testScenario({ connectorServer }, ({ handlers, nock, expect, minihullPort }) => {
+  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect, minihullPort }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -60,7 +62,10 @@ it("should ensure a webhook is registered on outgoing traffic", () => {
             members: [
               {
                 email_type: "html",
-                merge_fields: {},
+                merge_fields: {
+                  FNAME: "",
+                  LNAME: ""
+                },
                 interests: {
                   MailchimpInterestId: true
                 },
@@ -107,7 +112,10 @@ it("should ensure a webhook is registered on outgoing traffic", () => {
               interests: {
                 MailchimpInterestId: true,
               },
-              merge_fields: {},
+              merge_fields: {
+                FNAME: "",
+                LNAME: ""
+              },
               status_if_new: "subscribed"
             }
           }

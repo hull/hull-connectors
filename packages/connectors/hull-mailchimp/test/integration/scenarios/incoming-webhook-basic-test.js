@@ -4,26 +4,16 @@
 const path = require("path");
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const connectorServer = require("../../../server/server");
+const connectorManifest = require("../../../manifest");
 
 process.env.MAILCHIMP_CLIENT_ID = "1234";
 process.env.MAILCHIMP_CLIENT_SECRET = "1234";
 
-// const connector = {
-//   id: "123456789012345678901234",
-//   private_settings: {
-//   }
-// };
-// const usersSegments = [
-//   {
-//     name: "testSegment",
-//     id: "hullSegmentId"
-//   }
-// ];
-
 it("should handle incoming webhook GET call", () => {
   const email = "";
   return testScenario({
-    connectorServer
+    connectorServer,
+    connectorManifest
   }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.incomingRequestHandler,

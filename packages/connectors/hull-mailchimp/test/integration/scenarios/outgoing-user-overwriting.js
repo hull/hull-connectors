@@ -2,6 +2,7 @@
 /* global describe, it, beforeEach, afterEach */
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const connectorServer = require("../../../server/server");
+const connectorManifest = require("../../../manifest");
 
 process.env.MAILCHIMP_CLIENT_ID = "1234";
 process.env.MAILCHIMP_CLIENT_SECRET = "1234";
@@ -19,12 +20,12 @@ const connector = {
     segment_mapping: {
       hullSegmentId: "MailchimpSegmentId"
     },
-    synchronized_segments: ["hullSegmentId"],
-    sync_fields_to_mailchimp: [
-     { hull: "traits_custom_will_overwrite", name: "OVERWRITTEN_MERGE_FIELD", overwrite: true },
-     { hull: "traits_custom_wont_overwrite", name: "NOT_OVERWRITTEN_MERGE_FIELD", overwrite: false },
-     { hull: "account.custom_account_will_overwrite", name: "OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT", overwrite: true },
-     { hull: "account.custom_account_wont_overwrite", name: "NOT_OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT", overwrite: false },
+    synchronized_user_segments: ["hullSegmentId"],
+    outgoing_user_attributes: [
+     { hull: "traits_custom_will_overwrite", service: "OVERWRITTEN_MERGE_FIELD", overwrite: true },
+     { hull: "custom_wont_overwrite", service: "NOT_OVERWRITTEN_MERGE_FIELD", overwrite: false },
+     { hull: "account.custom_account_will_overwrite", service: "OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT", overwrite: true },
+     { hull: "account.custom_account_wont_overwrite", service: "NOT_OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT", overwrite: false },
    ]
   }
 };
@@ -35,9 +36,9 @@ const usersSegments = [
   }
 ];
 
-it("should send matching user to the mailchimp and allowing to ", () => {
+it("should send matching user to the mailchimp, allowing to control overwriting", () => {
   const email = "email@email.com";
-  return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
