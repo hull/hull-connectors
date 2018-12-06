@@ -27,7 +27,12 @@ const transformsToHull: ServiceTransforms =
       direction: "incoming",
       transforms: [
         { inputPath: "id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
-        { inputPath: "id", outputPath: "attributes.outreach/id" },
+        { inputPath: "id", outputPath: "attributes.outreach/id",
+          outputFormat: {
+            value: "${value}",
+            operation: "set"
+            }
+        },
         { inputPath: "attributes.emails[0]", outputPath: "ident.email" },
         { mapping: "connector.private_settings.incoming_user_attributes",
           inputPath: "attributes.${service_field_name}",
@@ -47,7 +52,12 @@ const transformsToHull: ServiceTransforms =
       direction: "incoming",
       transforms: [
         { inputPath: "data.id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
-        { inputPath: "data.id", outputPath: "attributes.outreach/id" },
+        { inputPath: "data.id", outputPath: "attributes.outreach/id",
+          outputFormat: {
+            value: "${value}",
+            operation: "set"
+            }
+        },
         { inputPath: "data.attributes.emails[0]", outputPath: "ident.email" },
         { mapping: "connector.private_settings.incoming_user_attributes",
           inputPath: "data.attributes.${service_field_name}",
@@ -67,7 +77,12 @@ const transformsToHull: ServiceTransforms =
       direction: "incoming",
       transforms: [
         { inputPath: "id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
-        { inputPath: "id", outputPath: "attributes.outreach/id" },
+        { inputPath: "id", outputPath: "attributes.outreach/id",
+          outputFormat: {
+            value: "${value}",
+            operation: "set"
+            }
+        },
         { inputPath: "attributes.domain", outputPath: "ident.domain" },
         { mapping: "connector.private_settings.incoming_account_attributes",
           inputPath: "attributes.${service_field_name}",
@@ -88,7 +103,12 @@ const transformsToHull: ServiceTransforms =
       transforms: [
         { inputPath: "data.id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
         { inputPath: "data.id", outputPath: "attributes.outreach/id" },
-        { inputPath: "data.attributes.domain", outputPath: "ident.domain" },
+        { inputPath: "data.attributes.domain", outputPath: "ident.domain",
+          outputFormat: {
+            value: "${value}",
+            operation: "set"
+            }
+        },
         { mapping: "connector.private_settings.incoming_account_attributes",
           inputPath: "data.attributes.${service_field_name}",
           outputPath: "attributes.${hull_field_name}",

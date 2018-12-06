@@ -9,7 +9,7 @@ const transformsToService: ServiceTransforms = [
     input: HullOutgoingUser,
     output: OutreachProspectWrite,
     strategy: "PropertyKeyedValue",
-    arrayStrategy: "append_index",
+    arrayStrategy: "send_raw_array",
     direction: "outgoing",
     transforms: [
       { outputPath: "data.type", outputFormat: "prospect" },
@@ -26,6 +26,10 @@ const transformsToService: ServiceTransforms = [
       },
       {
         mapping: "connector.private_settings.outgoing_user_attributes",
+        outputArrayFields: {
+          checkField: "service_field_name",
+          fields: ["homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"],
+        },
         inputPath: "${hull_field_name}",
         outputPath: "data.attributes.${service_field_name}",
       }
@@ -35,7 +39,7 @@ const transformsToService: ServiceTransforms = [
     input: HullOutgoingAccount,
     output: OutreachAccountWrite,
     strategy: "PropertyKeyedValue",
-    arrayStrategy: "append_index",
+    arrayStrategy: "send_raw_array",
     direction: "outgoing",
     transforms: [
       { outputPath: "data.type", outputFormat: "account" },

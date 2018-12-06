@@ -132,9 +132,22 @@ class TransformImpl {
                   context.value = context.value.join(",");
                 }
               }
+
             }
 
             context.outputPath = doVariableReplacement(context, transform.outputPath);
+
+            if (isUndefinedOrNull(context.outputPath)) {
+              throw new Error(`Bad variable replacment on outputPath, Must always have [outputPath] for transform: ${JSON.stringify(transform)}`);
+            }
+
+            if (!isUndefinedOrNull(context.value) && !isUndefinedOrNull(transform.outputArrayFields)) {
+              const fieldName = _.get(context, transform.outputArrayFields.checkField);
+              if (!isUndefinedOrNull(fieldName)
+                && transform.outputArrayFields.fields.indexOf(fieldName) >= 0) {
+                  context.value = [context.value];
+                }
+            }
 
             // TODO ugh, below code is horrible, i just needed to understand what the flow needed to be
             // gotta straighten this out now that I know...

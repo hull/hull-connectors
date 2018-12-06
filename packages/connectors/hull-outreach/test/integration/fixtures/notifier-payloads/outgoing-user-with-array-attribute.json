@@ -1,0 +1,188 @@
+{
+    "notification_id": "b75cedde-d201-47c2-b5fa-b605ff7e2ddc",
+    "configuration": {
+        "id": "asdf",
+        "organization": "c5011027.hullbeta.io",
+        "secret": "1234"
+    },
+    "connector": {
+        "description": "some",
+        "tags": [],
+        "source_url": "https://dev-hull-outreach.ngrok.io/",
+        "private_settings": {
+            "synchronized_account_segments": [],
+            "synchronized_user_segments": [
+                "5bffc38f625718d58b000004"
+            ],
+            "token_expires_in": 7200,
+            "token_created_at": 1544104207,
+            "refresh_token": "1234",
+            "access_token": "2345",
+            "incoming_user_attributes": [
+                {
+                    "hull": "traits_outreach/custom1",
+                    "service": "custom1"
+                },
+                {
+                    "hull": "traits_outreach/custom2",
+                    "service": "custom2"
+                },
+                {
+                    "hull": "traits_outreach/personalnote2",
+                    "service": "personalNote1"
+                }
+            ],
+            "outgoing_user_attributes": [
+                {
+                    "hull": "traits_closeio/title",
+                    "service": "title"
+                },
+                {
+                    "hull": "traits_closeio/phone_office",
+                    "service": "workPhones"
+                }
+            ],
+            "webhook_id": 31
+        },
+        "index": "https://dev-hull-outreach.ngrok.io/",
+        "name": "dev-hull-outreach.ngrok.io",
+        "extra": {},
+        "settings": {},
+        "type": "ship",
+        "secret": "shhhh",
+        "updated_at": "2018-12-06T15:30:43Z",
+        "status": {
+            "status": "ok",
+            "messages": [],
+            "updated_at": "2018-12-06T14:04:24Z",
+            "name": "dev-hull-outreach.ngrok.io",
+            "id": "123456789012345678901234"
+        },
+        "id": "123456789012345678901234",
+        "picture": "https://dev-hull-outreach.ngrok.io/picture.png",
+        "homepage_url": "https://c5011027.hullbeta.io/ships/123456789012345678901234",
+        "manifest_url": "https://dev-hull-outreach.ngrok.io/manifest.json",
+        "created_at": "2018-12-06T13:49:58Z"
+    },
+    "channel": "user:update",
+    "messages": [
+        {
+            "user": {
+                "traits_outreach/custom2": "Alberto Nodale",
+                "traits_closeio/phone_office": "+18552567346",
+                "id": "userid",
+                "email": "alberto@close.io",
+                "traits_closeio/id": "cont_closio-id",
+                "name": "Alberto Nodale",
+                "anonymous_ids": [
+                    "closeio:cont_closio-id",
+                    "outreach:23"
+                ],
+                "domain": "close.io",
+                "last_name": "Nodale",
+                "indexed_at": "2018-12-06T15:30:59+00:00",
+                "first_name": "Alberto",
+                "created_at": "2018-11-28T13:19:46Z",
+                "traits_outreach/title": "Sales",
+                "is_approved": false,
+                "traits_closeio/email_office": "alberto@close.io",
+                "traits_closeio/title": "Sales",
+                "traits_closeio/name": "Alberto Nodale",
+                "segment_ids": []
+            },
+            "changes": {
+                "is_new": false,
+                "user": {},
+                "account": {},
+                "segments": {
+                    "entered": [
+                        {
+                            "id": "5bffc38f625718d58b000004",
+                            "name": "Smugglers",
+                            "updated_at": "2018-12-06T15:30:50Z",
+                            "type": "users_segment",
+                            "created_at": "2018-11-29T10:46:39Z"
+                        }
+                    ]
+                },
+                "account_segments": {}
+            },
+            "account": {
+                "closeio/name": "Close.io (Sample Lead)",
+                "outreach/createdat": "2018-10-12T21:20:14.000Z",
+                "closeio/industry_sample": "Software",
+                "closeio/id": "lead_closeio_lead_id",
+                "closeio/address_mailing_city": "San Francisco",
+                "outreach/updated_at": "2018-10-12T21:20:14Z",
+                "closeio/address_mailing_address_1": "PO Box 7775 #69574",
+                "id": "5bd329d4e2bcf3eeaf000071",
+                "closeio/updated_at": "2018-11-28T13:16:58+00:00",
+                "outreach/created_at": "2018-10-12T21:20:14Z",
+                "outreach/name": "Close.io (Sample Lead)",
+                "name": "Close.io (Sample Lead)",
+                "outreach/domain": "close.io",
+                "updated_at": "2018-11-28T13:19:46Z",
+                "anonymous_ids": [
+                    "outreach:14",
+                    "14",
+                    "closeio:lead_closeio_lead_id"
+                ],
+                "domain": "close.io",
+                "closeio/status": "Potential",
+                "indexed_at": "2018-12-06T14:22:41+00:00",
+                "outreach/id": 14,
+                "closeio/description": "Visit our blog for high quality sales content, blog.close.io!",
+                "closeio/url": "http://close.io",
+                "closeio/created_at": "2018-11-28T13:16:56+00:00",
+                "created_at": "2018-10-26T14:51:00Z",
+                "outreach/companytype": "",
+                "closeio/address_mailing_zipcode": "94120",
+                "outreach/custom_1": "PO Box 7775 #69574",
+                "outreach/custom1": "PO Box 7775 #69574",
+                "closeio/address_mailing_country": "US",
+                "closeio/address_mailing_state": "CA",
+                "closeio/lead_owner": "user_leadowner-id"
+            },
+            "segments": [
+                {
+                    "id": "5bffc38f625718d58b000004",
+                    "name": "Smugglers",
+                    "updated_at": "2018-12-06T15:30:50Z",
+                    "type": "users_segment",
+                    "created_at": "2018-11-29T10:46:39Z"
+                }
+            ],
+            "events": [],
+            "account_segments": [],
+            "message_id": "c171737f22d56fe92b7345b1ec4e4bb36a3be9f4"
+        }
+    ],
+    "accounts_segments": [
+        {
+            "id": "5bd7201aa682bc4a4d00001e",
+            "updated_at": "2018-11-05T20:08:18Z",
+            "created_at": "2018-10-29T14:58:34Z",
+            "name": "Bad guys",
+            "type": "accounts_segment",
+            "stats": {}
+        }
+    ],
+    "segments": [
+        {
+            "id": "5bd720690026ca86b000004f",
+            "updated_at": "2018-11-05T20:07:04Z",
+            "created_at": "2018-10-29T14:59:53Z",
+            "name": "Star Wars Users",
+            "type": "users_segment",
+            "stats": {}
+        },
+        {
+            "id": "5bffc38f625718d58b000004",
+            "updated_at": "2018-12-06T15:30:50Z",
+            "created_at": "2018-11-29T10:46:39Z",
+            "name": "Smugglers",
+            "type": "users_segment",
+            "stats": {}
+        }
+    ]
+}
