@@ -14,7 +14,31 @@ test("fetch all accounts and prospects from outreach", () => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "fetch",
-      connector: { private_settings: { access_token: "1234" } },
+      connector: {
+        private_settings: {
+          access_token: "1234",
+          incoming_user_attributes: [
+            {
+                "hull": "traits_outreach/custom1",
+                "service": "custom1"
+            },
+            {
+                "hull": "traits_outreach/personalNote1",
+                "service": "personalNote1"
+            },
+          ],
+          incoming_account_attributes: [
+            {
+                "hull": "traits_outreach/custom1",
+                "service": "custom1"
+            },
+            {
+                "hull": "traits_outreach/custom10",
+                "service": "custom10"
+            },
+          ]
+        }
+      },
       usersSegments: [],
       accountsSegments: [],
       externalApiMock: () => {
@@ -34,20 +58,22 @@ test("fetch all accounts and prospects from outreach", () => {
       },
       response: { response : "ok"},
       logs: [
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ method: "GET", url: "/webhooks/" })],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ method: "POST", url: "/webhooks/" })],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ method: "GET", url: "/accounts/" })],
-        ["info", "incoming.account.success", expect.whatever(), expect.objectContaining({ data: { attributes: {"outreach/id":  {"operation": "set", "value": 1}}, ident: { anonymous_id: "outreach:1", domain: "somehullcompany.com" }} })],
-        ["info", "incoming.account.success", expect.whatever(), expect.objectContaining({ data: { attributes: {"outreach/id":  {"operation": "set", "value": 4}}, ident: { anonymous_id: "outreach:4", domain: "noprospectshullcompany.com" }} })],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ method: "GET", url: "/prospects/" })],
-        ["info", "incoming.user.success", expect.whatever(), expect.objectContaining({ data: { attributes: {"outreach/id":  {"operation": "set", "value": 1}}, ident: { anonymous_id: "outreach:1", email: "ceo@somehullcompany.com" }} })],
-        ["info", "incoming.user.success", expect.whatever(), expect.objectContaining({ data: { attributes: {"outreach/id":  {"operation": "set", "value": 2}}, ident: { anonymous_id: "outreach:2", email: "noAccountProspect@noaccount.com" }} })]
+        ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
+        ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
+        ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/", "vars": {}}],
+        ["info", "incoming.account.success", {}, {"data": {"attributes": {"outreach/custom1": {"operation": "set", "value": "some custom value"}, "outreach/custom10": {"operation": "set", "value": "another custom value"}, "outreach/id": {"operation": "set", "value": 1}}, "ident": {"anonymous_id": "outreach:1", "domain": "somehullcompany.com"}}}],
+        ["info", "incoming.account.success", {}, {"data": {"attributes": {"outreach/id": {"operation": "set", "value": 4}}, "ident": {"anonymous_id": "outreach:4", "domain": "noprospectshullcompany.com"}}}],
+        ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/", "vars": {}}],
+        ["info", "incoming.user.success", {}, {"data": {"accountIdent": { "anonymous_id": "outreach:1" }, "attributes": {"outreach/custom1": {"operation": "set", "value": "He's cool"}, "outreach/id": {"operation": "set", "value": 1}, "outreach/personalNote1": {"operation": "set", "value": "he's a cool guy I guess...."}}, "ident": {"anonymous_id": "outreach:1", "email": "ceo@somehullcompany.com"}}}],
+        ["info", "incoming.user.success", {}, {"data": {"accountIdent": { "anonymous_id": "outreach:3" }, "attributes": {"outreach/id": {"operation": "set", "value": 2}}, "ident": {"anonymous_id": "outreach:2", "email": "noAccountProspect@noaccount.com"}}}]
       ],
       firehoseEvents: [
-        ["traits", expect.objectContaining({ asAccount: { anonymous_id: "outreach:1", domain: "somehullcompany.com"}, subjectType: "account"}), expect.whatever()],
-        ["traits", expect.objectContaining({ asAccount: { anonymous_id: "outreach:4", domain: "noprospectshullcompany.com"}, subjectType: "account"}), expect.whatever()],
-        ["traits", expect.objectContaining({ asUser: { anonymous_id: "outreach:1", email: "ceo@somehullcompany.com"}, subjectType: "user"}), expect.whatever()],
-        ["traits", expect.objectContaining({ asUser: { anonymous_id: "outreach:2", email: "noAccountProspect@noaccount.com"}, subjectType: "user"}), expect.whatever()]
+        ["traits", {"asAccount": {"anonymous_id": "outreach:1", "domain": "somehullcompany.com"}, "subjectType": "account"}, {"outreach/custom1": {"operation": "set", "value": "some custom value"}, "outreach/custom10": {"operation": "set", "value": "another custom value"}, "outreach/id": {"operation": "set", "value": 1}}],
+        ["traits", {"asAccount": {"anonymous_id": "outreach:4", "domain": "noprospectshullcompany.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 4}}],
+        ["traits", {"asUser": {"anonymous_id": "outreach:1", "email": "ceo@somehullcompany.com"}, "subjectType": "user"}, {"outreach/custom1": {"operation": "set", "value": "He's cool"}, "outreach/id": {"operation": "set", "value": 1}, "outreach/personalNote1": {"operation": "set", "value": "he's a cool guy I guess...."}}],
+        ["traits", {"asUser": {"anonymous_id": "outreach:2", "email": "noAccountProspect@noaccount.com"}, "subjectType": "user"}, {"outreach/id": {"operation": "set", "value": 2}}],
+        ["traits", {"asAccount": {"anonymous_id": "outreach:1"}, "asUser": {"anonymous_id": "outreach:1", "email": "ceo@somehullcompany.com"}, "subjectType": "account"}, {}],
+        ["traits", {"asAccount": {"anonymous_id": "outreach:3"}, "asUser": {"anonymous_id": "outreach:2", "email": "noAccountProspect@noaccount.com"}, "subjectType": "account"}, {}]
       ],
       metrics: [
         ["increment", "connector.request", 1],
@@ -74,10 +100,10 @@ test("fetch all accounts and prospects from outreach", () => {
       ],
       platformApiCalls: [
         ["GET", "/api/v1/app", {}, {}],
-        ["GET", expect.stringContaining("/api/v1/users_segments"), expect.whatever(), {}],
-        ["GET", expect.stringContaining("/api/v1/accounts_segments"), expect.whatever(), {}],
+        ["GET", "/api/v1/users_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}],
+        ["GET", "/api/v1/accounts_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}],
         ["GET", "/api/v1/app", {}, {}],
-        ["PUT", "/api/v1/9993743b22d60dd829001999", {}, {"private_settings": {"access_token": "1234", "webhook_id": 3}}]
+        ["PUT", "/api/v1/9993743b22d60dd829001999", {}, {"private_settings": {"access_token": "1234", "incoming_account_attributes": [{"hull": "traits_outreach/custom1", "service": "custom1"}, {"hull": "traits_outreach/custom10", "service": "custom10"}], "incoming_user_attributes": [{"hull": "traits_outreach/custom1", "service": "custom1"}, {"hull": "traits_outreach/personalNote1", "service": "personalNote1"}], "webhook_id": 3}}]
       ]
     };
   });

@@ -33,6 +33,7 @@ const transformsToHull: ServiceTransforms =
             operation: "set"
             }
         },
+        { inputPath: "relationships.account.data.id", outputPath: "accountIdent.anonymous_id", outputFormat: "outreach:${value}" },
         { inputPath: "attributes.emails[0]", outputPath: "ident.email" },
         { mapping: "connector.private_settings.incoming_user_attributes",
           inputPath: "attributes.${service_field_name}",
@@ -58,6 +59,7 @@ const transformsToHull: ServiceTransforms =
             operation: "set"
             }
         },
+        { inputPath: "relationships.account.data.id", outputPath: "accountIdent.anonymous_id", outputFormat: "outreach:${value}" },
         { inputPath: "data.attributes.emails[0]", outputPath: "ident.email" },
         { mapping: "connector.private_settings.incoming_user_attributes",
           inputPath: "data.attributes.${service_field_name}",

@@ -270,7 +270,7 @@ class ServiceEngine {
           if (direction === 'outgoing') {
             //TODO need to make this generic, make the "class type" declare this
             const type = entityTypeString === "user" ? "Prospect" : "Account";
-            logger.info(`${action}.success`, { data, operation: endpoint.op, response: results, type } );
+            logger.info(`${action}.success`, { data, operation: endpoint.operation, response: results, type } );
           } else {
             logger.info(`${action}.success`, { data } );
           }
