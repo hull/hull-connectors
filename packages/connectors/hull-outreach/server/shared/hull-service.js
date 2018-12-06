@@ -33,7 +33,6 @@ class HullSdk {
   }
 
   async dispatch(endpointName: string, params: any) {
-    this.metricsClient.increment("ship.service_api.call", 1);
     const endpoint = this.api.endpoints[endpointName];
     if (typeof endpoint.method === "string") {
       return this[endpoint.method](params);

@@ -87,10 +87,16 @@ const glue = {
     ifLogic(cond("notEmpty", set("accountDomain", inputParameter("domain"))), {
       true: ifLogic(cond("notEmpty", set("accountId", get(outreach("getAccountByDomain"), "[0].id"))), {
               true: hull("asAccount", outreachSendInput("updateAccount")),
-              false: hull("asAccount", outreachSendInput("insertAccount"))
+              false: hull("asAccount", route("insertAccount"))
             }),
-      false: hull("asAccount", outreachSendInput("insertAccount"))
+      false: hull("asAccount", route("insertAccount"))
     }),
+  insertAccount:
+    [
+      set("hull_domain", get(input(), "domain")),
+      //maybe another from the claims if we get that sorted...
+      outreachSendInput("insertAccount")
+    ],
   fetchAll: [route("accountFetchAll"), route("prospectFetchAll")],
   accountFetchAll: hull("asAccount", outreach("getAllAccounts")),
   prospectFetchAll: hull("asUser", outreach("getAllProspects")),

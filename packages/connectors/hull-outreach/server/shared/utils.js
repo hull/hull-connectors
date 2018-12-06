@@ -81,61 +81,61 @@ function toSendMessage(context: HullContext, targetEntity: "user" | "account",
 
     const entity: any = _.get(message, targetEntity);
 
-    // const matchesSegments = _.intersection(
-    //   _.get(entity, "segment_ids"),
-    //   _.get(context, synchronizedSegmentPath)
-    // ).length >= 1;
-    //
-    // if (!matchesSegments) {
-    //   if (targetEntity === "user") {
-    //     debug(`User does not match segment ${ JSON.stringify(entity) }`);
-    //     context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronzed segment" });
-    //   } else if (targetEntity === "account") {
-    //     debug(`Account does not match segment ${ JSON.stringify(entity) }`);
-    //     context.client.asAccount(entity).logger.info("outgoing.account.skip", { reason: "Account is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the account is present in the settings page, or add the account to an existing synchronzed segment" });
-    //   }
-    //   return false;
-    // }
-    //
-    // //Is this the right thing?
-    // // don't have to do anything on segment exited right?
-    // // just filter on attribute change...
-    // // const exitedSegments = _.get(message, "changes.segments.exited");
-    // // const exitedAnySegments = !_.isEmpty(enteredSegments);
-    //
-    // const outgoingAttributes = _.get(context, outgoingAttributesPath);
-    // if (_.isEmpty(outgoingAttributes)) {
-    //   if (targetEntity === "user") {
-    //     debug(`No mapped attributes to synchronize ${ JSON.stringify(entity) }`);
-    //     context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "There are no outgoing attributes to synchronize for users.  Please go to the settings page and add outgoing user attributes to synchronize" });
-    //   } else if (targetEntity === "account") {
-    //     debug(`No mapped attributes to synchronize ${ JSON.stringify(entity) }`);
-    //     context.client.asAccount(entity).logger.info("outgoing.account.skip", { reason: "There are no outgoing attributes to synchronize for account.  Please go to the settings page and add outgoing account attributes to synchronize" });
-    //   }
-    //   return false;
-    // }
-    //
-    // const attributesToSync = outgoingAttributes.map( attr => attr.hull );
-    // const changedAttributes = _.reduce(message.changes, (changeList, value, key) => {
-    //   changeList.push(key);
-    //   return changeList;
-    // }, []);
-    //
-    // const hasAttributesToSync = _.intersection(
-    //   attributesToSync,
-    //   changedAttributes
-    // ).length >= 1;
-    //
-    // if (!hasAttributesToSync) {
-    //   if (targetEntity === "user") {
-    //     debug(`No mapped attributes to synchronize ${ JSON.stringify(entity) }`);
-    //     context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "No changes on any of the synchronized attributes for this user.  If you think this is a mistake, please check the settings page for the synchronized user attributes to ensure that the attribute which changed is in the synchronized outgoing attributes" });
-    //   } else if (targetEntity === "account") {
-    //     debug(`No mapped attributes to synchronize ${ JSON.stringify(entity) }`);
-    //     context.client.asAccount(entity).logger.info("outgoing.account.skip", { reason: "No changes on any of the synchronized attributes for this user.  If you think this is a mistake, please check the settings page for the synchronized account attributes to ensure that the attribute which changed is in the synchronized outgoing attributes" });
-    //   }
-    //   return false;
-    // }
+    const matchesSegments = _.intersection(
+      _.get(entity, "segment_ids"),
+      _.get(context, synchronizedSegmentPath)
+    ).length >= 1;
+
+    if (!matchesSegments) {
+      if (targetEntity === "user") {
+        debug(`User does not match segment ${ JSON.stringify(entity) }`);
+        context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronzed segment" });
+      } else if (targetEntity === "account") {
+        debug(`Account does not match segment ${ JSON.stringify(entity) }`);
+        context.client.asAccount(entity).logger.info("outgoing.account.skip", { reason: "Account is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the account is present in the settings page, or add the account to an existing synchronzed segment" });
+      }
+      return false;
+    }
+
+    //Is this the right thing?
+    // don't have to do anything on segment exited right?
+    // just filter on attribute change...
+    // const exitedSegments = _.get(message, "changes.segments.exited");
+    // const exitedAnySegments = !_.isEmpty(enteredSegments);
+
+    const outgoingAttributes = _.get(context, outgoingAttributesPath);
+    if (_.isEmpty(outgoingAttributes)) {
+      if (targetEntity === "user") {
+        debug(`No mapped attributes to synchronize ${ JSON.stringify(entity) }`);
+        context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "There are no outgoing attributes to synchronize for users.  Please go to the settings page and add outgoing user attributes to synchronize" });
+      } else if (targetEntity === "account") {
+        debug(`No mapped attributes to synchronize ${ JSON.stringify(entity) }`);
+        context.client.asAccount(entity).logger.info("outgoing.account.skip", { reason: "There are no outgoing attributes to synchronize for account.  Please go to the settings page and add outgoing account attributes to synchronize" });
+      }
+      return false;
+    }
+
+    const attributesToSync = outgoingAttributes.map( attr => attr.hull );
+    const changedAttributes = _.reduce(message.changes, (changeList, value, key) => {
+      changeList.push(key);
+      return changeList;
+    }, []);
+
+    const hasAttributesToSync = _.intersection(
+      attributesToSync,
+      changedAttributes
+    ).length >= 1;
+
+    if (!hasAttributesToSync) {
+      if (targetEntity === "user") {
+        debug(`No mapped attributes to synchronize ${ JSON.stringify(entity) }`);
+        context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "No changes on any of the synchronized attributes for this user.  If you think this is a mistake, please check the settings page for the synchronized user attributes to ensure that the attribute which changed is in the synchronized outgoing attributes" });
+      } else if (targetEntity === "account") {
+        debug(`No mapped attributes to synchronize ${ JSON.stringify(entity) }`);
+        context.client.asAccount(entity).logger.info("outgoing.account.skip", { reason: "No changes on any of the synchronized attributes for this user.  If you think this is a mistake, please check the settings page for the synchronized account attributes to ensure that the attribute which changed is in the synchronized outgoing attributes" });
+      }
+      return false;
+    }
 
     return true;
   }

@@ -262,10 +262,6 @@ class ServiceEngine {
 
       return sendData(data).then((results) => {
 
-        if (name !== 'hull') {
-          context.metric.increment("ship.service_api.call", 1);
-        }
-
         //TODO also need to account for batch endpoints
         // where we should loge a message for each of the objects in the batch
         if (entityTypeString !== null) {

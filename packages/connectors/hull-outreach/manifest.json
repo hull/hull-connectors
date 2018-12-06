@@ -95,7 +95,7 @@
         "direction": "outgoing",
         "showOverwriteToggle": false,
         "placeholder": "Outreach Account Field",
-        "allowCreate": true,
+        "allowCreate": false,
         "loadOptions": "/fields-outreach-account-out"
       }
     },
@@ -148,7 +148,7 @@
         "direction": "outgoing",
         "showOverwriteToggle": false,
         "placeholder": "Outreach Prospect Field",
-        "allowCreate": true,
+        "allowCreate": false,
         "loadOptions": "/fields-outreach-prospect-out"
       }
     }
