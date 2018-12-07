@@ -56,7 +56,7 @@ When new data about a HubSpot Contact is [ingested](https://www.hull.io/docs/dat
 
 ### Fetching HubSpot Companies into Hull
 
-HubSpot Companies are not handled by default. This must be enabled in the Connector Settings under the **Fetch accounts?** toggle.
+HubSpot Companies are not handled by default. This must be enabled in the Connector Settings under the **Fetch accounts** toggle.
 
 You must select what account-level identifier to map into. This is `domain` by default.
 
