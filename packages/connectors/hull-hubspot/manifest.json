@@ -1,6 +1,6 @@
 {
   "name": "Hubspot",
-  "description": "Synchronizes a Hubspot Contacts and Companies",
+  "description": "Two-way Hubspot integration for Contacts & Companies",
   "source": "hubspot",
   "logo": "logo.png",
   "picture": "picture.png",
