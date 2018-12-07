@@ -1,140 +1,210 @@
+Hull’s [HubSpot integration](https://hull.io/integrations/hubspot/) enables syncing of HubSpot Contacts & Companies with all your other tools through Hull’s [Customer Data Platform](https://hull.io/features/). Teams use Hull with HubSpot for:
+
+- [Lead qualification](https://www.hull.io/playbooks/lead-qualification/)
+- [Lead nurturing](https://www.hull.io/playbooks/lead-nurturing/)
+- [Sales enablement](https://www.hull.io/playbooks/sales-enablement/)
+- [CRM integration](https://www.hull.io/integrations/crm/)
+- [Email integration](https://www.hull.io/integrations/email/)
+
+If you have questions, feedback, or spot any outdated information, we’d love to hear from you via [email](mailto:support@hull.io) or [chat](#arrangeDemo).
+
 ## Getting Started
 
-Below you will find necessary information how to get started with the Hubspot integration.
+To install the HubSpot integration, you must have a HubSpot admin permissions to add and authenticate third party apps.
 
-### Permissions
+1. Login to your Hull Organization and navigate to **Connectors** menu in the top navigation
+2. Choose **Add a Connector**
+3. Click on **HubSpot**
+4. Confirm by clicking **Install**
+5. Within the Connector, click on **Credentials & Actions**. You will need to login with your HubSpot credentials to connect your HubSpot instance.
 
-You will need administrator permissions to your Hubspot account to perform oAuth authorization.
-Make sure you have the correct access before proceeding.
+![oAuth flow first step](./docs/oauth-flow-1.png)
 
-### Add a new Hubspot Connector
-1. From your Connectors list in the dashboard, click `Add Connector`.
-2. Choose `Hubspot`.
-3. Confirm the installation by clicking `Install`.
-4. Click on `Credentials & Actions` and complete the authorization flow:
+### Configure your HubSpot Connector Settings
 
-  ![oAuth flow first step](./docs/oauth-flow-1.png)
+In the HubSpot Connector Dashboard, click the **Settings** tab. Here you can the rules to map, filter & link incoming & outgoing data.
 
-5. Complete the configuration of the Hubspot connector (see section below).
-
-
-### Configure your Hubspot Connector
-
-There are 4 sections of settings which you can configure depending on what kind of synchronization you need.
-
-### Outgoing Users
-
-- **outgoing user segments** - defines which user segments are sent to Hubspot
-- **outgoing user attributes** - defines which `Hull User Attributes` are updated/created on `Hubspot Contact`
-
-### Incoming Users
-
-- **incoming user identity** - specify which `Hubspot Contact Properties` we will use to identify `Hull User`
-- **incoming user attributes** - defines which `Hubspot Contact Properties` are stored in `Hull User Attributes`
-
-### Outgoing Accounts
-
-- **outgoing account segments** - defines which account segments are sent to Hubspot
-- **outgoing account attributes** - defines which `Hull Account Attributes` are updated/created on `Hubspot Company`
-- **outgoing user linking** - defines if Hull will associate `Hubspot Contact` to `Hubspot Company` (see below how the linking is performed)
-
-### Incoming Accounts
-
-- **fetch accounts** - defined if connector will try to read and fetch any `Hubspot Company` information
-- **incoming account identity** - specify which `Hubspot Company Properties` we will use to identify `Hull Account`
-- **incoming account attributes** - defines which `Hubspot Company Properties` are stored in `Hull Account Attributes`
-- **incoming user linking** - defines if Hull will link `Hull User` with `Hull Account` depending on `Hubspot Contact` to `Hubspot Company` association
+There are four sections of settings:
 
 
-
-## Supported Objects
-The Hubspot connector allows you to synchronize data between Hull and Hubspot for the following objects:
-
-|Hull Entity|Hubspot Entity|
-|-----------|--------------|
-|User       |Contact       |
-|Account    |Company       |
-
-No other objects besides the ones listed above are supported. If you need to synchronize additional objects please reach out to our customer success team to explore the options on a case-by-case basis.
-
-Accounts synchronization is disabled by default. To enable it you need to setup **fetch accounts** and **outgoing account segments** settings (look above).
+1. **Outgoing Users:** Whitelist Users to sync with User Segments & map User Attributes to HubSpot Contacts
+2. **Incoming Users:** Map identifiers and HubSpot Contact properties to Hull Users
+3. **Outgoing Accounts:** Whitelist Accounts to sync with Account Segments, map Account Attributes to HubSpot Company Properties, and define if Hull will link HubSpot Contacts & Companies 
+4. **Incoming Accounts:** Toggle HubSpot Companies to sync into Hull, map identifiers & HubSpot Company Properties to Hull Accounts, and define if Hull will link Users & Accounts based on HubSpot Contact-Company associations.
 
 ## Identity Resolution
-The Hubspot connector uses upsert policies for synchronizing data. If we cannot find a matching record, a new one will be created automatically. This section explains how we match existing records between both systems.
 
-### Lookup existing contacts in Hubspot
-When synchronizing a Hull user to a `Hubspot Contact` we match both by email. If the outgoing `Hull User` does not have an email address, the synchronization is skipped.
+Hull can sync the following objects to HubSpot. New data is upserted in both directions - existing profiles are updated, else new profiles are created automatically.
 
-### Lookup existing companies in Hubspot
-When synchronizing a `Hull Account` to a `Hubspot Company` we match both by domain. If the account does not have a domain, the synchronization is skipped.
+| Data Object | Hull    | HubSpot |
+| ----------- | ------- | ------- |
+| Person      | [User](https://www.hull.io/docs/concepts/users/)    | Contact |
+| Company     | [Account](https://www.hull.io/docs/concepts/accounts/) | Company |
 
-### Lookup existing user in Hull
-When synchronizing a `Hubspot Contact` to a Hull user, by default we match both by email. If the contact doesn't have an email, the synchronization is skipped. This behavior can be adjusted using **incoming user identity** setting.
-
-### Lookup existing account in Hull
-When synchronizing a `Hubspot Company` to `Hull Account`, we match the account based on your configured strategy. By default, we match both by domain and we skip synchronization if `Hubspot Company` does not have uit.
-
-When adding more identifiers e.g. `external_id`, you can declare if the identifier as required. If required we will skip synchronization for companies which do not satisfy this condition.
-
-**IMPORTANT:** Skip behavior is changed when **incoming user linking** setting is turned on.
-
-## Components
-
-### Synchronization of outgoing data (Hull to Hubspot)
-
-The Hubspot connector receives updates to `Hull Users` and `Accounts` near real-time and makes requests to the Hubspot API. The data synchronization maps the default attributes to Hubspot properties according to the tables below. If you have defined custom properties in Hubspot and configured mappings, the synchronization will also contain these fields.
-
-Additionally you can manually select `Hull Users` or `Accounts` and send them to the connector. This bypass segment filtering and force update of `Hubspot Contacts` and `Companies`.
-
-#### User to Account linking
-
-When the Hubspot connector process update on a `Hull User` profile and:
-1. the **outgoing user linking** setting is turned on
-2. the `Hull User` is linked to an `Account`
-3. linked `Hull Account` was already synchornized to `Hubspot Company` (we know the Hubspot identifier)
-
-it will associate the `Hubspot Contact` with `Company`.
-
-### Synchronization of incoming data (Hubspot to Hull)
-
-The Hubspot connector is built with a sync component, which means we’ll make requests to API on your behalf on a 5 minute interval to fetch the latest data into Hull. In the initial sync, we will fetch all the Hubspot objects (and their corresponding properties) according to the tables below. The data will be written into a separate attribute group hubspot on the respective Hull profile, corresponding to the mapping schema you have defined.
+Note: HubSpot Companies are not handled by default. You must configure this.
 
 
-#### User to Account linking
+### Fetching HubSpot Contacts into Hull
 
-When the Hubspot connector fetch a `Hubspot Contact` and:
-1. the **incoming user linking** setting is turned on
-2. the `Hubspot Contact` was associated with a `Company`
-3. the `Hubspot Contact` satisfy the incoming identity resolution
+HubSpot Contacts and their updates are fetched into Hull manually or on a schedule.
 
-it will try to link the stored `Hull User` with appropriate `Hull Account`.
+When new data about a HubSpot Contact is [ingested](https://www.hull.io/docs/data_lifecycle/ingest/), Hull follows this process:
+
+1. Checks if there is a matching `anonymous_id` (HubSpot Contact `VID`) or `email`
+2. If so, updates the existing Hull User
+3. Else, creates a new Hull User
+
+### Fetching HubSpot Companies into Hull
+
+HubSpot Companies are not handled by default. This must be enabled in the Connector Settings under the **Fetch accounts?** toggle.
+
+You must select what account-level identifier to map into. This is `domain` by default.
+
+HubSpot Companies and their updates are fetched automatically on a schedule. This can be also be fetched manually in the **Credentials & Actions** tab.
+
+When new data about a HubSpot Company is ingested, Hull follows this process:
+
+1. Check if the required identifier is present. Skip if not.
+2. Checks if there is a matching `domain` in Hull
+3. If so, updates the existing Hull Account
+4. Else, creates a new Hull Account
+
+Linking HubSpot Contacts & Companies in Hull
+
+Hull will match Users and Accounts by a common `domain`.
+
+If you’d also like to match Users and Accounts in Hull by the Contact-Company relationships you have in HubSpot, you can configure this in the Connector Settings under the **Link users in Hull** toggle.
+
+Hull will link Users with Accounts if:
+
+- Link users in Hull is enabled
+- HubSpot Contact is associated with a HubSpot Company
+- HubSpot Contact has a valid identifier
+
+If the HubSpot Company does not have a required identifier, the User will be associated with an empty Hull Account.
+
+Creating & Updating HubSpot Contacts
+
+Hull Users must be in a whitelisted User Segment to be synced to HubSpot. By default, no Users are synced.
+
+When Hull publishes a [User Update](https://www.hull.io/docs/data_lifecycle/notify/#format-of-a-user-update-notification) for a User whitelisted to sync to HubSpot:
+
+1. Check if there is an `email`. Skip if not.
+2. Check if there is a matching `anonymous_id` (corresponds to a HubSpot Contact `VID`) or `email` in HubSpot
+3. If so, update existing HubSpot Contact
+4. Else, create new HubSpot Contact
+
+### Creating & Updating HubSpot Companies
+
+Hull Accounts must be in a whitelisted Account Segment, or be associated with a whitelisted User to be synced to HubSpot. By default, no Accounts are synced.
+
+When Hull publishes an [Account Update](https://www.hull.io/docs/data_lifecycle/notify/#format-of-an-account-update-notification) for an Account whitelisted to sync to HubSpot
+
+1. Check if there is an `domain`. Skip if not.
+2. Check if there is a matching `domain` in HubSpot.
+3. If so, update existing HubSpot Company
+4. Else, create new HubSpot Company
+
+### Linking Hull Users & Accounts in HubSpot
+
+You can associate HubSpot Contacts and Companies based on logic you have in Hull. Click the **Link Contacts in Hubspot** toggle in the Connector Settings.
+
+Hull will link Contacts & Companies in HubSpot if:
+
+- Link Contacts in HubSpot is enabled
+- Hull User is associated with a Hull Account
+- Hull Account is already synchronized with a HubSpot Company
+
+## Data Mapping
+
+Filter which Users & Accounts are synced to HubSpot with User & Account Segments in the Connector Settings.
+
+Map which User & Account attributes are synced to and from HubSpot with the field mappers in the Connector Settings.
+
+### Data types supported
+
+| Data type                   | Hull               | HubSpot                                          |
+| --------------------------- | ------------------ | ------------------------------------------------ |
+| Standard Person Attributes  | User Attributes    | Contact Properties                               |
+| Custom Person Attributes    | User Attributes    | Custom Contact Properties (grouped under `Hull`) |
+| Standard Company Attributes | Account Attributes | Company Properties                               |
+| Custom Company Attributes   | Account Attributes | Custom Company Properties (grouped under `Hull`) |
+
+### Fetching HubSpot Properties
+
+All default HubSpot Contact & Company Properties are fetched and stored as a HubSpot attributes group on Hull User & Account profiles.
+
+In the Connector Settings, under the **Custom Fields Sync (HubSpot to Hull)** headings for Users & Accounts, you can map and name HubSpot Custom Properties into Hull. These will also appear under the HubSpot attributes group on Hull User & Account profiles.
+
+### Creating & Updating HubSpot Properties
+
+In the connector settings, under the **Custom Fields Sync (Hull to Hubspot)** headings for Users & Accounts, you can map Hull User & Account Attributes to Custom Properties in HubSpot Contact & Company profiles. These will appear under a Hull group in HubSpot.
+
+You can configure each field for Hull to overwrite values in HubSpot.
+
+You can create new properties in HubSpot from Hull field mapping. As you type right column of the field mapper, you’ll be prompted to “Create” the field you’re typing.
+
+### Segmentation
+
+You can sync Hull User & Account Segments to HubSpot.
+
+| Group               | Hull             | HubSpot                          |
+| ------------------- | ---------------- | -------------------------------- |
+| Groups of people    | User Segments    | `Hull_Segments` contact property |
+| Groups of companies | Account Segments | `Hull_Segments` company property |
 
 
-**This mean it will create an empty Hull Account which will be only filled in with Hubspot Company data if the Company itself satisfies the incoming identity requirements. If not the Hull User will be linked to an empty Hull Account.**
+## Sync Frequency & Limitations
 
-## Attributes Mappings
+Hull ingests data from the HubSpot connector through the [Firehose API](https://www.hull.io/docs/data_lifecycle/ingest/#messages).
 
-Mappings define the attributes of Hull profiles we synchronize with properties of Hubspot. In user and account profiles, the synchronized properties will show under the attribute group hubspot.
+Learn more about [HubSpot’s API usage guidelines](https://developers.hubspot.com/apps/api_guidelines). 
 
-< TODO: INSERT TABLES FOR DEFAULTS >
-
+| HubSpot API limits             | 40,000 per day                    |
+| ------------------------------ | --------------------------------- |
+| HubSpot Rate Limits            | 10 requests per second            |
+| Bulk operation limitations     | Batches of 100 contacts/customers |
+| Fetch updates sync frequency   | Every 5 minutes                   |
+| Sync data from Hull to HubSpot | With every User or Account update |
 
 ## Troubleshooting
 
-### I don’t get any company data in Hull
-check identifiers for accounts
+### I don’t get any HubSpot Company data in Hull
+
+Check you have setup identifiers for accounts. See [data mapping](#data-mapping)
 
 ### I don’t get updates of recently updated Contacts or Companies into Hull
-Check your connector logs for any `incoming.job.error`. If you see any with `Permission error` go to the `Credentials` Tab and perform the oAuth flow authorization again using the `Start over` button. Make sure that you are linking the connector again to the same Hubspot portal. Changing the portal on once installed connector can lead to data corruption. This operation does not reset any settings from the connector.
-Right after it's done the incoming dataflow should be resumed. You can verify that by searching for any `incoming.user.success` or `incoming.account.success` log lines (it can take around 5 minutes to show up).
-To fill in any missing data you can use `Fetch all Contacts` and `Fetch all Companies` buttons on the connector tab.
 
-### I don’t see recently added fields
-fetch companies or contacts or send them via batch
+Check your connector logs for any `incoming.job.error`. If you see any with `Permission error`, you need to re-authenticate the HubSpot Connector. Go to the **Credentials & Actions** and perform the oAuth flow authorization again using the **Start over** button.
 
-### I get empty companies
-mark identifiers required
+All your connector settings (including data mapping) will remain the same.
+
+After re-authenticating, your data flow should resume. You can also run a **Fetch all Contacts** or **Fetch all Companies** in the connectors tab. Search the connector logs for `incoming.user.success` or `incoming.account.success` to verify data is flowing again - this can take up to 5 minutes.
+
+**Note:** Make sure you link with the same HubSpot portal. Changing the portal can lead to data corruption.
+
+### I don’t see recently mapped fields in Hull
+
+In the HubSpot Connector settings, go to **Credentials & Actions** and then click **Fetch all Contacts** for contact properties or **Fetch all Companies** for company properties.
+
+It may take a few minutes for the import of data to be ingested and be shown in Hull.
+
+### I don’t see recently mapped fields in HubSpot
+
+You can manually sync the Users and Accounts to HubSpot. Go to the User or Account Profiles, or create a User or Account Segment then select the **Send to** button and choose HubSpot. Click confirm.
+
+### I get empty companies in Hull
+
+Make sure you set the required account identifiers in the Connector settings.
 
 ### My Hubspot Contact or Companies are not updated due to `duplicate property value` error
-If you see `duplicate property value` error in your `outgoing.user.error` or `outgoing.account.error` logs it means that you have duplicate entry in your outgoing attribute mapping. You can inspect `hubspotWriteContact` param in the log line to see the exact payload the connector tried to sent to Hubspot and failed. Search for any property name which appears there twice. Then remove the extra entry in the attributes mapper and resend the affected users/accounts via send to operation.
-If you want to achieve fallback strategy for outgoing attributes you need to prepare the value using Processor.
+
+If you see `duplicate property value` error in your `outgoing.user.error` or `outgoing.account.error` logs it means that you have duplicate entry in your outgoing attribute mapping.
+
+You can inspect `hubspotWriteContact` parameter in the logs to see the exact payload the connector tried & failed to send to Hubspot. Search for any attribute name which appears twice in the same payload. Once you have identified the duplicate attribute, remove the extra entry in the attributes mapper in the Connector Settings.
+
+Once you have reconfigured you data mapping, resend the affected Users & Accounts to HubSpot with the **Send to** button on the Profiles or Segmentation tool.
+
+### Any questions?
+
+If you have any questions or have suggestions to improve this documentation, please [email](mailto:support@hull.io) or [chat to us](#arrangeDemo).
