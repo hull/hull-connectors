@@ -22,7 +22,7 @@ To install the HubSpot integration, you must have a HubSpot admin permissions to
 
 ### Configure your HubSpot Connector Settings
 
-In the HubSpot Connector Dashboard, click the **Settings** tab. Here you can the rules to map, filter & link incoming & outgoing data.
+In the HubSpot Connector Dashboard, click the **Settings** tab. Here you can set the rules to map, filter & link incoming & outgoing data.
 
 There are four sections of settings:
 
