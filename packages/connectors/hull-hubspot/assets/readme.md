@@ -69,7 +69,7 @@ When new data about a HubSpot Company is ingested, Hull follows this process:
 3. If so, updates the existing Hull Account
 4. Else, creates a new Hull Account
 
-Linking HubSpot Contacts & Companies in Hull
+### Linking HubSpot Contacts & Companies in Hull
 
 Hull will match Users and Accounts by a common `domain`.
 
@@ -83,7 +83,7 @@ Hull will link Users with Accounts if:
 
 If the HubSpot Company does not have a required identifier, the User will be associated with an empty Hull Account.
 
-Creating & Updating HubSpot Contacts
+### Creating & Updating HubSpot Contacts
 
 Hull Users must be in a whitelisted User Segment to be synced to HubSpot. By default, no Users are synced.
 
@@ -197,7 +197,7 @@ You can manually sync the Users and Accounts to HubSpot. Go to the User or Accou
 
 Make sure you set the required account identifiers in the Connector settings.
 
-### My Hubspot Contact or Companies are not updated due to `duplicate property value` error
+### My Hubspot Contact or Companies are not updated due to "duplicate property value" error
 
 If you see `duplicate property value` error in your `outgoing.user.error` or `outgoing.account.error` logs it means that you have duplicate entry in your outgoing attribute mapping.
 
