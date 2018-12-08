@@ -78,7 +78,7 @@
       "default": [
         {
           "hull": "email",
-          "service": "emails[0]"
+          "service": "emails"
         },
         {
           "hull": "external_id",

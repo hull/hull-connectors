@@ -42,6 +42,7 @@ const transformsToHull: ServiceTransforms =
           outputFormat: "outreach:${value}"
         },
         {
+          arrayStrategy: "pick_first",
           mapping: "connector.private_settings.incoming_user_claims",
           inputPath: "attributes.${service_field_name}",
           outputPath: "ident.${hull_field_name}",
@@ -77,7 +78,9 @@ const transformsToHull: ServiceTransforms =
           outputPath: "accountIdent.anonymous_id",
           outputFormat: "outreach:${value}"
         },
-        { mapping: "connector.private_settings.incoming_user_claims",
+        {
+          arrayStrategy: "pick_first",
+          mapping: "connector.private_settings.incoming_user_claims",
           inputPath: "data.attributes.${service_field_name}",
           outputPath: "ident.${hull_field_name}",
         },

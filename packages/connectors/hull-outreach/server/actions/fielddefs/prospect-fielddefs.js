@@ -311,8 +311,8 @@ const PROSPECT_FIELDDEFS: Array<OutreachFieldDefinition> = [
   {
     id: "emails",
     label: "Emails",
-    in: false,
-    out: false,
+    in: true,
+    out: true,
     type: "array"
   },
   {
