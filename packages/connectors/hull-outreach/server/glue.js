@@ -57,46 +57,73 @@ const refreshTokenDataTemplate = {
 // everything else doesn't have a name....
 
 const glue = {
-  userUpdateStart: route("prospectLookupById"),
-  prospectLookupById:
+  userUpdateStart: route("prospectUpsert"),
+  prospectUpsert:
     ifLogic(cond("notEmpty", set("userId", inputParameter("outreach/id"))), {
-      true: ifLogic(cond("notEmpty", outreach("getProspectById")), {
-              true: hull("asUser", outreachSendInput("updateProspect")),
-              false: route("prospectLookupByEmail")
-            }),
-      false: route("prospectLookupByEmail")
+      true: hull("asUser", outreachSendInput("updateProspect")),
+      false: [
+        route("prospectLookup"),
+        route("linkAccount"),
+        ifLogic(cond("notEmpty", "${userId}"), {
+          true: route("updateProspect"),
+          false: route("insertProspect")
+        }),
+      ]
     }),
-  prospectLookupByEmail:
-    ifLogic(cond("notEmpty", set("userEmail", inputParameter("email"))), {
-      true: ifLogic(cond("notEmpty", set("userId", get(outreach("getProspectByEmail"), "[0].id"))), {
-              true: hull("asUser", outreachSendInput("updateProspect")),
-              false: hull("asUser", outreachSendInput("insertProspect"))
-            }),
-      false: hull("asUser", outreachSendInput("insertProspect"))
+  prospectLookup:
+    expandLogic("claim", notfilter("${connector.private_settings.incoming_prospect_claims}", { service: "id" }),
+      [
+        set("property", "${claim.service}"),
+        set("value", get(input(), "${claim.hull}")),
+        // TODO still need to see if more than 1
+        ifLogic(cond("notEmpty", set("userId", get(outreach("getProspectByProperty"), "[0].id")), {
+          true: expandEnd()
+          false: {}
+        })
+      ]
+    ),
+  linkAccount:
+    ifLogic("${connector.private_settings.link_users_in_service}", {
+      true: ifLogic(intersection(map("${connector.private_settings.synchronized_account_segments}", "id"), inputParameter("account.segmentIds")), {
+        true: [
+          route("accountLookup"),
+          ifLogic(cond("notEmpty", "${accountId}"), {
+            true: route("insertAccount", inputParameter("account")),
+            false: {}
+          })
+        ],
+        false: {}
+      },
+      false: {}
     }),
-  accountUpdateStart:
+  insertAccount: hull("asUser", outreachSendInput("insertUser")),
+  updateAccount: hull("asUser", outreachSendInput("updateUser")),
+  accountUpdateStart: route("accountUpsert"),
+  accountUpsert:
     ifLogic(cond("notEmpty", set("accountId", inputParameter("outreach/id"))), {
-      true:
-        ifLogic(cond("notEmpty", outreach("getAccountById")), {
-          true: hull("asAccount", outreachSendInput("updateAccount")),
-          false: route("accountLookupByDomain")
-          }),
-      false: route("accountLookupByDomain")
+      true: hull("asAccount", outreachSendInput("updateAccount")),
+      false: [
+        route("accountLookup"),
+        ifLogic(cond("notEmpty", "${accountId}"), {
+          true: route("updateAccount"),
+          false: route("insertAccount")
+        }),
+      ]
     }),
-  accountLookupByDomain:
-    ifLogic(cond("notEmpty", set("accountDomain", inputParameter("domain"))), {
-      true: ifLogic(cond("notEmpty", set("accountId", get(outreach("getAccountByDomain"), "[0].id"))), {
-              true: hull("asAccount", outreachSendInput("updateAccount")),
-              false: hull("asAccount", route("insertAccount"))
-            }),
-      false: hull("asAccount", route("insertAccount"))
-    }),
-  insertAccount:
-    [
-      set("hull_domain", get(input(), "domain")),
-      //maybe another from the claims if we get that sorted...
-      outreachSendInput("insertAccount")
-    ],
+  accountLookup:
+    expandLogic("claim", notfilter("${connector.private_settings.incoming_account_claims}", { service: "id" }),
+      [
+        set("property", "${claim.service}"),
+        set("value", get(input(), "${claim.hull}")),
+        // TODO still need to see if more than 1
+        ifLogic(cond("notEmpty", set("accountId", get(outreach("getAccountByProperty"), "[0].id")), {
+          true: expandEnd()
+          false: {}
+        })
+      ]
+    ),
+  insertAccount: hull("asAccount", outreachSendInput("insertAccount")),
+  updateAccount: hull("asAccount", outreachSendInput("updateAccount")),
   fetchAll: [route("accountFetchAll"), route("prospectFetchAll")],
   accountFetchAll: hull("asAccount", outreach("getAllAccounts")),
   prospectFetchAll: hull("asUser", outreach("getAllProspects")),

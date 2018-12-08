@@ -14,8 +14,17 @@ export type Condition = {
 };
 
 export type PropertyTransformationStrategy = "PropertyKeyedValue" | "PropertyKeyedGroup" | "ArrayPropertyGroup";
-export type ArrayTransformationStrategy = "send_raw_array" | "append_index" | "json_stringify" | "join_with_commas";
+export type ArrayTransformationStrategy = "send_raw_array" | "append_index" | "json_stringify" | "join_with_commas" | "pick_first";
 export type Direction = "incoming" | "outgoing";
+
+export type TransformRule = $Shape<{
+  inputPath: string,
+  outputPath: string,
+  outputFormat: any,
+  mapping: string,
+  arrayStrategy: ArrayTransformationStrategy,
+  condition: any
+}>;
 
 export type Transform = {
   input: Class<any>,
@@ -23,7 +32,7 @@ export type Transform = {
   strategy: PropertyTransformationStrategy,
   arrayStrategy: ArrayTransformationStrategy,
   direction: Direction;
-  transforms: any
+  transforms: Array<TransformRule>
 };
 
 export type ServiceTransforms = Array<Transform>;

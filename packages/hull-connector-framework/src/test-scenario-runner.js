@@ -227,10 +227,22 @@ class TestScenarioRunner extends EventEmitter {
         this.scenarioDefinition.firehoseEvents,
         "firehoseEvents do not match"
       );
-      if (this.nockScope && !this.nockScope.isDone()) {
-        throw new Error(
-          `pending mocks: ${JSON.stringify(this.nockScope.pendingMocks())}`
-        );
+      if (this.nockScope) {
+
+        const checkScope = (scope) => {
+          if (!scope.isDone()) {
+            throw new Error(
+              `pending mocks: ${JSON.stringify(this.scope.pendingMocks())}`
+            );
+          }
+        }
+
+        if (Arrays.isArray(this.nockScope)) {
+          _.forEach(this.nockScope, checkScope);
+        } else {
+          checkScope(this.nockScope);
+        }
+
       }
       debug("closing");
       const platformApiCalls = this.minihull.requests
@@ -309,13 +321,23 @@ class TestScenarioRunner extends EventEmitter {
           this.scenarioDefinition.externalApiMock &&
           this.scenarioDefinition.externalApiMock();
         if (this.nockScope) {
-          this.nockScope.on("request", req => {
-            console.log(">>> NOCK REQUEST", req.path);
-          });
-          this.nockScope.on("replied", req => {
-            console.log(">>> NOCK", req.path);
-          });
-          this.nockScope.on("replied", this.deboucedFinish);
+
+          const logNockScope = (scope) => {
+            scope.on("request", req => {
+              console.log(">>> NOCK REQUEST", req.path);
+            });
+            scope.on("replied", req => {
+              console.log(">>> NOCK", req.path);
+            });
+            scope.on("replied", this.deboucedFinish);
+          }
+
+          if (Arrays.isArray(this.nockScope)) {
+            _.forEach(this.nockScope, logNockScope);
+          } else {
+            logNockScope(this.nockScope);
+          }
+
         }
         this.server = this.scenarioDefinition.connectorServer;
         this.connector = _.defaults(this.scenarioDefinition.connector, {

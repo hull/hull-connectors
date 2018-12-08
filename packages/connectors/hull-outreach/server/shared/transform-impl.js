@@ -49,7 +49,6 @@ class TransformImpl {
     const globalContext = _.cloneDeep(reqContext);
 
     const transforms = transformation.transforms;
-    const arrayStrategy = transformation.arrayStrategy;
 
     if (transformation.strategy === "PropertyKeyedValue") {
       // Need this for transform back to hull
@@ -57,6 +56,8 @@ class TransformImpl {
 
       if (!_.isEmpty(transforms)) {
         _.forEach(transforms, transform => {
+
+          const arrayStrategy = transform.arrayStrategy || transformation.arrayStrategy;
 
           let mapping;
 
@@ -126,10 +127,22 @@ class TransformImpl {
               }
 
               if (Array.isArray(context.value)) {
+
+                // TODO may need to validate the different behaviors here
+                // if the array is empty (json stringify would return [] while others might set undefined
                 if (arrayStrategy === "json_stringify") {
                   context.value = JSON.stringify(context.value);
                 } else if (arrayStrategy === "join_with_commas") {
                   context.value = context.value.join(",");
+                  if (_.isEmpty(context.value)) {
+                    context.value = undefined;
+                  }
+                } else if (arrayStrategy === "pick_first") {
+                  if (context.value.length > 0) {
+                    context.value = context.value[0];
+                  } else {
+                    context.value = undefined;
+                  }
                 }
               }
 
@@ -147,6 +160,21 @@ class TransformImpl {
                 && transform.outputArrayFields.fields.indexOf(fieldName) >= 0) {
                   context.value = [context.value];
                 }
+            }
+
+            if (transform.condition) {
+              if (typeof transform.condition === 'string') {
+                const value = _.get(context, transform.condition);
+                if (typeof value === 'boolean' && !value) {
+                  return;
+                } else if (isUndefinedOrNull(value)) {
+                  return;
+                }
+              } else if (typeof transform.condition === 'function') {
+                if (!transform.conditional(context)) {
+                  return;
+                }
+              }
             }
 
             // TODO ugh, below code is horrible, i just needed to understand what the flow needed to be
@@ -184,18 +212,21 @@ class TransformImpl {
                 // have condensed values to a single string
                 throw new Error(`Unable to process array strategy ${arrayStrategy} on transform ${JSON.stringify(transform)}`);
               }
-            } else if (!_.isEmpty(transform.outputFormat)) {
-              // is ok if context.value is null here because outputformat is not
-              context.value = doVariableReplacement(context, transform.outputFormat);
-            }
-
-            if (!isUndefinedOrNull(context.value)) {
-              _.set(output, context.outputPath, context.value);
             } else {
-              // can get to this point with output like this:
-              // { outputPath: "data.id", outputFormat: "${userId}" },
-              // where userId is not set, it's ok, just don't do anything...
-              //throw new Error("Unable to get in this condition we think....");
+
+              if (!_.isEmpty(transform.outputFormat)) {
+                // is ok if context.value is null here because outputformat is not
+                context.value = doVariableReplacement(context, transform.outputFormat);
+              }
+
+              if (!isUndefinedOrNull(context.value)) {
+                _.set(output, context.outputPath, context.value);
+              } else {
+                // can get to this point with output like this:
+                // { outputPath: "data.id", outputFormat: "${userId}" },
+                // where userId is not set, it's ok, just don't do anything...
+                //throw new Error("Unable to get in this condition we think....");
+              }
             }
 
           });

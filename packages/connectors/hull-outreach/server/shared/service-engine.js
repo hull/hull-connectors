@@ -415,7 +415,7 @@ class ServiceEngine {
           }
         }
         if (!isUndefinedOrNull(template.condition)) {
-          if (!template.condition(context, error)) {
+          if (!template.condition(context)) {
             return false;
           }
         }

@@ -17,7 +17,8 @@ const transformsToService: ServiceTransforms = [
       { inputPath: "outreach/id", outputPath: "data.id" },
       { inputPath: "email", outputPath: "data.attributes.emails", outputFormat: ["${value}"] },
       {
-        inputPath: "account.outreach/id",
+        condition: "connector.private_settings.link_users_in_service",
+        inputPath: "${accountId}",
         outputPath: "data.relationships.account.data",
         outputFormat: {
           type: "account",
@@ -28,7 +29,7 @@ const transformsToService: ServiceTransforms = [
         mapping: "connector.private_settings.outgoing_user_attributes",
         outputArrayFields: {
           checkField: "service_field_name",
-          fields: ["homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"],
+          fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"],
         },
         inputPath: "${hull_field_name}",
         outputPath: "data.attributes.${service_field_name}",

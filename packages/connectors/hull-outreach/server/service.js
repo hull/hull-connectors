@@ -25,20 +25,7 @@ const {
 const { SuperagentApi } = require("./shared/superagent-api");
 const MESSAGES = require("./messages");
 const { isUndefinedOrNull } = require("./shared/utils");
-
-function notNull(param: string) {
-  return (context, error) => {
-    const contextVariable = _.get(context, param);
-    return !isUndefinedOrNull(contextVariable);
-  };
-}
-
-function isNull(param: string) {
-  return (context, error) => {
-    const contextVariable = _.get(context, param);
-    return isUndefinedOrNull(contextVariable);
-  };
-}
+const { isNull, notNull } = require("./shared/conditionals");
 
 // What about linking calls?
 const service: RawRestApi = {
