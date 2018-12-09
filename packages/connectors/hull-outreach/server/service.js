@@ -53,9 +53,10 @@ const service: RawRestApi = {
       output: OutreachAccountRead
     },
     getAccountByDomain: {
-      url: "/accounts/${accountDomain}",
+      url: "/accounts/",
       operation: "get",
-      endpointType: "byId",
+      query: "filter[domain]=${accountDomain}",
+      endpointType: "byProperty",
       returnObj: "body.data",
       output: OutreachAccountRead
     },
