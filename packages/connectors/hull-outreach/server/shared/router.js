@@ -125,10 +125,8 @@ class HullRouter {
 
     const promise = Promise.all(messages.map(message => {
 
-      const sendMessage = toSendMessage(context, "user", message,
-        "connector.private_settings.synchronized_user_segments",
-        "connector.private_settings.outgoing_user_attributes"
-        )
+      const sendMessage = toSendMessage(context, "user", message);
+      // TODO send "link account" var in?
       if (sendMessage) {
         return dispatcher.dispatchWithData(context, "userUpdateStart", HullOutgoingUser, message.user);
       } else {
@@ -143,10 +141,7 @@ class HullRouter {
 
     const dispatcher: HullDispatcher = this.dispatcher();
     const promise = Promise.all(messages.map(message => {
-      const sendMessage = toSendMessage(context, "account", message,
-        "connector.private_settings.synchronized_account_segments",
-        "connector.private_settings.outgoing_account_attributes"
-      );
+      const sendMessage = toSendMessage(context, "account", message);
       if (sendMessage) {
         return dispatcher.dispatchWithData(context, "accountUpdateStart", HullOutgoingAccount, message.account);
       } else {

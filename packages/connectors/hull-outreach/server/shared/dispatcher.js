@@ -204,6 +204,62 @@ class HullDispatcher {
           return await this.resolve(context, instruction.results.false, serviceData);
         }
 
+      } else if (name === 'loop') {
+        if (isUndefinedOrNull(resolvedParams)) {
+          // make sure these aren't null because they weren't able to be resolved...
+
+          if (!Array.isArray(resolvedParams)) {
+            throw new Error("Don't know what this looping case is where the parameters aren't an array... not sure it should exist");
+          }
+
+          const results = [];
+          _.every(resolvedParams, (value) => {
+            _.set(context, instruction.varname, value);
+            const instructionResults = await this.resolve(context, instruction.instructions, serviceData);
+            results.push(instructionResults);
+
+            // check to see if includes an end, if so, then stop looping...
+            const endInstruction = _.find(instructionResults, (instructionResult) => {
+              if (instructionResult instanceof HullInstruction
+                && instructionResult.name === "end") {
+                  return true;
+                }
+              return false;
+            });
+            if (isUndefinedOrNull(endInstruction)) {
+              return true;
+            } else {
+              return false;
+            }
+          });
+          return results;
+
+        } else {
+
+          const results = [];
+          while(true) {
+            const instructionResults = await this.resolve(context, instruction.instructions, serviceData);
+            results.push(instructionResults);
+            // if results do not contain an end(), then continue to loop
+            const endInstruction = _.find(instructionResults, (instructionResult) => {
+              if (instructionResult instanceof HullInstruction
+                && instructionResult.name === "end") {
+                  return true;
+                }
+              return false;
+            });
+            if (!isUndefinedOrNull(endInstruction)) {
+              break;
+            }
+          }
+          return results;
+
+        }
+
+      } else if (name === 'end') {
+        return instruction;
+      } else if (name === 'function') {
+        return instruction.toExecute(resolvedParams);
       } else {
         throw new Error(`Unsupported Logic: ${name}`);
       }
@@ -230,11 +286,18 @@ class HullDispatcher {
           } else if (name === 'get') {
             return _.get(obj, resolvedParams[1]);
           } else if (name === 'isEqual') {
-            return _.isEqual(resolvedParams[0], resolvedParams[1]);
+            return _.isEqual(obj, resolvedParams[1]);
           } else if (name === 'filter') {
             return _.filter(obj, resolvedParams[1]);
+          } else if (name === 'notfilter') {
+            return _.filter(obj,
+              (individualObj) => {
+                return !_.isMatch(individualObj, resolvedParams[1])
+              });
           } else if (name === 'utils') {
             return new FrameworkUtils()[resolvedParams[0]](context, resolvedParams[1]);
+          } else if (name === "lessThan") {
+            return obj < resolvedParams[1];
           } else {
             throw new Error(`Unsupported Conditional: ${name}`);
           }

@@ -70,9 +70,25 @@ const service: RawRestApi = {
       returnObj: "body.data",
       output: OutreachAccountRead
     },
+    getAllAccountsPaged: {
+      url: "/accounts/",
+      operation: "get",
+      query: "sort=id&page[limit]=10&filter[id]=${id_offset}..inf",
+      endpointType: "fetchAll",
+      returnObj: "body.data",
+      output: OutreachProspectRead
+    },
     getAllProspects: {
       url: "/prospects/",
       operation: "get",
+      endpointType: "fetchAll",
+      returnObj: "body.data",
+      output: OutreachProspectRead
+    },
+    getAllProspectsPaged: {
+      url: "/prospects/",
+      operation: "get",
+      query: "sort=id&page[limit]=10&filter[id]=${id_offset}..inf",
       endpointType: "fetchAll",
       returnObj: "body.data",
       output: OutreachProspectRead

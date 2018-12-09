@@ -66,6 +66,26 @@ class IfLogic extends Logic {
   }
 }
 
+class LoopLogic extends Logic {
+  // can be the same container for an input array and for dynamic loop
+  // dynamic loop the params are null... we just keep looking...
+  instructions: any;
+  varname: string;
+  constructor(params: any, varname: string, instructions: any) {
+    super("loop", params);
+    this.varname = varname;
+    this.instructions = instructions;
+  }
+}
+
+class FunctionLogic extends Logic {
+  toExecute: function;
+  constructor(params: any, toExecute: function) {
+    super("function", params);
+    this.toExecute = toExecute;
+  }
+}
+
 // May roll this up somewhere else... only one, maybe combine with if?
 class InputReference extends HullInstruction {
   path: string;
@@ -102,13 +122,30 @@ function get(obj: any, key: any): Op {
 function filter(key: any, value: any): Op {
   return new Op("filter", [ key, value ]);
 }
+function notFilter(key: any, value: any): Op {
+  return new Op("notFilter", [ key, value ]);
+}
 function utils(utilMethod: string, param: any): Op {
   return new Op("utils", [utilMethod, param]);
 }
 
-function ifLogic(params: Op, results: { true: any, false: any }): IfLogic {
-  return new IfLogic(params, results);
+function loopLogic(instructions: any): IfLogic {
+  return new LoopLogic(undefined, undefined, results);
 }
+
+function loopArrayLogic(arrayParam: any, varname: string, instructions: any): IfLogic {
+  return new LoopLogic(arrayParam, varname, instructions);
+}
+
+function loopEnd() {
+  return new Logic("end", undefined);
+}
+
+function toExecute(params: any, toExecute: function) {
+  return new FunctionLogic(params, toExecute);
+}
+
+// not filter...
 
 module.exports = {
   HullInstruction,
@@ -123,5 +160,10 @@ module.exports = {
   set,
   get,
   filter,
-  utils
+  notFilter,
+  utils,
+  loopLogic,
+  loopArrayLogic,
+  loopEnd,
+  toExecute
 };

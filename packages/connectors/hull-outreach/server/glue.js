@@ -10,6 +10,8 @@ const {
   get,
   filter,
   utils,
+  loopLogic,
+  loopArrayLogic,
   input,
   inputParameter,
   Svc
@@ -71,7 +73,7 @@ const glue = {
       ]
     }),
   prospectLookup:
-    expandLogic("claim", notfilter("${connector.private_settings.incoming_prospect_claims}", { service: "id" }),
+    loopArrayLogic(notfilter("${connector.private_settings.incoming_prospect_claims}", { service: "id" }), "claim",
       [
         set("property", "${claim.service}"),
         set("value", get(input(), "${claim.hull}")),
@@ -84,7 +86,17 @@ const glue = {
     ),
   linkAccount:
     ifLogic("${connector.private_settings.link_users_in_service}", {
-      true: ifLogic(intersection(map("${connector.private_settings.synchronized_account_segments}", "id"), inputParameter("account.segmentIds")), {
+      // TODO maybe pass a variable through in the context, to tell it to link or not...
+      // then don't have to add all of this intersection/map nonsense
+      true: ifLogic(
+        cond("notEmpty",
+          execute(["${connector.private_settings.synchronized_account_segments}", "id"), inputParameter("account_segments")],
+            (params) => {
+              if (!isUndefinedOrNull(params) && Array.isArray(params) && Array.isArray(params[0]) && Array.isArray(params[1])) {
+                return _.intersection(params[0], params[1].map((param) => param.id)) >= 1;
+              }
+              return [];
+            }), {
         true: [
           route("accountLookup"),
           ifLogic(cond("notEmpty", "${accountId}"), {
@@ -111,11 +123,10 @@ const glue = {
       ]
     }),
   accountLookup:
-    expandLogic("claim", notfilter("${connector.private_settings.incoming_account_claims}", { service: "id" }),
+    loopArrayLogic(notfilter("${connector.private_settings.incoming_account_claims}", { service: "id" }), "claim",
       [
         set("property", "${claim.service}"),
         set("value", get(input(), "${claim.hull}")),
-        // TODO still need to see if more than 1
         ifLogic(cond("notEmpty", set("accountId", get(outreach("getAccountByProperty"), "[0].id")), {
           true: expandEnd()
           false: {}
@@ -125,8 +136,41 @@ const glue = {
   insertAccount: hull("asAccount", outreachSendInput("insertAccount")),
   updateAccount: hull("asAccount", outreachSendInput("updateAccount")),
   fetchAll: [route("accountFetchAll"), route("prospectFetchAll")],
-  accountFetchAll: hull("asAccount", outreach("getAllAccounts")),
-  prospectFetchAll: hull("asUser", outreach("getAllProspects")),
+  accountFetchAll:
+    [
+    set("id_offset", 0),
+    loopLogic(
+      [
+        set("outreachAccounts", outreach("getAllAccountsPaged")),
+        hull("asAccount", "${outreachAccounts}"),
+        ifLogic(cond("lessThan", count("${outreachAccounts}"), 10), {
+          true: expandEnd(),
+          false: set("id_offset",
+                    execute(
+                      get(
+                        execute("${outreachAccounts}", (prospects) => prospects[prospects.length - 1]),
+                        "id")),
+                      (prospectId) => prospectId + 1)
+        })
+      ])
+    ],
+  prospectFetchAll:
+    [
+    set("id_offset", 0),
+    loopLogic(outreach("getAllProspectsPaged"),
+      [
+        hull("asAccount", "${outreachProspects}"),
+        ifLogic(cond("lessThan", execute("${outreachProspects}", (prospects) => prospects.length), 10), {
+          true: expandEnd(),
+          false: set("id_offset",
+                    execute(
+                      get(
+                        execute("${outreachProspects}", (prospects) => prospects[prospects.length - 1]),
+                        "id")),
+                      (prospectId) => prospectId + 1)
+        })
+      ]
+    ],
 
   webhook:
     ifLogic(cond("isEqual", ["account", inputParameter("data.type")]), {
