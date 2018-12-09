@@ -79,8 +79,8 @@ class LoopLogic extends Logic {
 }
 
 class FunctionLogic extends Logic {
-  toExecute: function;
-  constructor(params: any, toExecute: function) {
+  toExecute: Function;
+  constructor(params: any, toExecute: Function) {
     super("function", params);
     this.toExecute = toExecute;
   }
@@ -129,19 +129,23 @@ function utils(utilMethod: string, param: any): Op {
   return new Op("utils", [utilMethod, param]);
 }
 
-function loopLogic(instructions: any): IfLogic {
-  return new LoopLogic(undefined, undefined, results);
+function ifLogic(params: Op, results: { true: any, false: any }): IfLogic {
+  return new IfLogic(params, results);
 }
 
-function loopArrayLogic(arrayParam: any, varname: string, instructions: any): IfLogic {
+function loopLogic(instructions: any): LoopLogic {
+  return new LoopLogic(undefined, undefined, instructions);
+}
+
+function loopArrayLogic(arrayParam: any, varname: string, instructions: any): LoopLogic {
   return new LoopLogic(arrayParam, varname, instructions);
 }
 
-function loopEnd() {
+function loopEnd(): Logic {
   return new Logic("end", undefined);
 }
 
-function toExecute(params: any, toExecute: function) {
+function execute(params: any, toExecute: Function): FunctionLogic {
   return new FunctionLogic(params, toExecute);
 }
 
@@ -165,5 +169,5 @@ module.exports = {
   loopLogic,
   loopArrayLogic,
   loopEnd,
-  toExecute
+  execute
 };

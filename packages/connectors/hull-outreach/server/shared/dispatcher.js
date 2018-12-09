@@ -213,8 +213,8 @@ class HullDispatcher {
           }
 
           const results = [];
-          _.every(resolvedParams, (value) => {
-            _.set(context, instruction.varname, value);
+          for (let i = 0; i < resolvedParams.length; i++) {
+            _.set(context, instruction.varname, resolvedParams[i]);
             const instructionResults = await this.resolve(context, instruction.instructions, serviceData);
             results.push(instructionResults);
 
@@ -231,7 +231,7 @@ class HullDispatcher {
             } else {
               return false;
             }
-          });
+          }
           return results;
 
         } else {

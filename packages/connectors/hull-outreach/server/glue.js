@@ -9,11 +9,14 @@ const {
   set,
   get,
   filter,
+  notFilter,
   utils,
   loopLogic,
   loopArrayLogic,
+  loopEnd,
   input,
   inputParameter,
+  execute,
   Svc
 } = require("./shared/language");
 
@@ -73,13 +76,13 @@ const glue = {
       ]
     }),
   prospectLookup:
-    loopArrayLogic(notfilter("${connector.private_settings.incoming_prospect_claims}", { service: "id" }), "claim",
+    loopArrayLogic(notFilter("${connector.private_settings.incoming_prospect_claims}", { service: "id" }), "claim",
       [
         set("property", "${claim.service}"),
         set("value", get(input(), "${claim.hull}")),
         // TODO still need to see if more than 1
-        ifLogic(cond("notEmpty", set("userId", get(outreach("getProspectByProperty"), "[0].id")), {
-          true: expandEnd()
+        ifLogic(cond("notEmpty", set("userId", get(outreach("getProspectByProperty"), "[0].id"))), {
+          true: loopEnd(),
           false: {}
         })
       ]
@@ -90,13 +93,13 @@ const glue = {
       // then don't have to add all of this intersection/map nonsense
       true: ifLogic(
         cond("notEmpty",
-          execute(["${connector.private_settings.synchronized_account_segments}", "id"), inputParameter("account_segments")],
+          execute(["${connector.private_settings.synchronized_account_segments}", inputParameter("account_segments")],
             (params) => {
               if (!isUndefinedOrNull(params) && Array.isArray(params) && Array.isArray(params[0]) && Array.isArray(params[1])) {
                 return _.intersection(params[0], params[1].map((param) => param.id)) >= 1;
               }
               return [];
-            }), {
+            })), {
         true: [
           route("accountLookup"),
           ifLogic(cond("notEmpty", "${accountId}"), {
@@ -105,11 +108,11 @@ const glue = {
           })
         ],
         false: {}
-      },
+      }),
       false: {}
     }),
-  insertAccount: hull("asUser", outreachSendInput("insertUser")),
-  updateAccount: hull("asUser", outreachSendInput("updateUser")),
+  insertUser: hull("asUser", outreachSendInput("insertUser")),
+  updateUser: hull("asUser", outreachSendInput("updateUser")),
   accountUpdateStart: route("accountUpsert"),
   accountUpsert:
     ifLogic(cond("notEmpty", set("accountId", inputParameter("outreach/id"))), {
@@ -123,12 +126,12 @@ const glue = {
       ]
     }),
   accountLookup:
-    loopArrayLogic(notfilter("${connector.private_settings.incoming_account_claims}", { service: "id" }), "claim",
+    loopArrayLogic(notFilter("${connector.private_settings.incoming_account_claims}", { service: "id" }), "claim",
       [
         set("property", "${claim.service}"),
         set("value", get(input(), "${claim.hull}")),
-        ifLogic(cond("notEmpty", set("accountId", get(outreach("getAccountByProperty"), "[0].id")), {
-          true: expandEnd()
+        ifLogic(cond("notEmpty", set("accountId", get(outreach("getAccountByProperty"), "[0].id"))), {
+          true: loopEnd(),
           false: {}
         })
       ]
@@ -143,8 +146,8 @@ const glue = {
       [
         set("outreachAccounts", outreach("getAllAccountsPaged")),
         hull("asAccount", "${outreachAccounts}"),
-        ifLogic(cond("lessThan", count("${outreachAccounts}"), 10), {
-          true: expandEnd(),
+        ifLogic(cond("lessThan", execute("${outreachAccounts}", (accounts) => accounts.length), 10), {
+          true: loopEnd(),
           false: set("id_offset",
                     execute(
                       get(
@@ -161,7 +164,7 @@ const glue = {
       [
         hull("asAccount", "${outreachProspects}"),
         ifLogic(cond("lessThan", execute("${outreachProspects}", (prospects) => prospects.length), 10), {
-          true: expandEnd(),
+          true: loopEnd(),
           false: set("id_offset",
                     execute(
                       get(
@@ -169,9 +172,8 @@ const glue = {
                         "id")),
                       (prospectId) => prospectId + 1)
         })
-      ]
+      ])
     ],
-
   webhook:
     ifLogic(cond("isEqual", ["account", inputParameter("data.type")]), {
       true: hull("asAccount", input()),
