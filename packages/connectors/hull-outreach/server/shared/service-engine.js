@@ -209,7 +209,6 @@ class ServiceEngine {
         }
 
         const errorTemplate = this.findErrorTemplate(context, serviceDefinition, error);
-        const errorException = this.createErrorException(context, name, serviceDefinition.error, errorTemplate, error);
 
         if (!isUndefinedOrNull(errorTemplate)) {
           const route: string = _.get(errorTemplate, "recoveryroute");
@@ -229,11 +228,19 @@ class ServiceEngine {
             //don't input data on an attempt to recover...
             return this.recoveryPromise.then(() => {
               return sendDataRaw(data);
-            }).catch( error => {
-              return Promise.reject(errorException);
+            }).catch( finalError => {
+              // may have been able to partially recover, log the final error
+              // which may have been different than the original
+              // might be an argument to have several recovery routes that all converge on success at some point
+              // not now though, too early to understand if that would be really helpful or not...
+              const finalErrorTemplate = this.findErrorTemplate(context, serviceDefinition, finalError);
+              const finalErrorException = this.createErrorException(context, name, serviceDefinition.error, finalErrorTemplate, finalError);
+              return Promise.reject(finalErrorException);
             });
           }
         }
+
+        const errorException = this.createErrorException(context, name, serviceDefinition.error, errorTemplate, error);
         return Promise.reject(errorException);
 
       });

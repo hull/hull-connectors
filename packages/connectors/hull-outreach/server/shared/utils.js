@@ -35,8 +35,7 @@ function isUndefinedOrNull(obj: any) {
  * @return {[type]}                         [description]
  */
 function toSendMessage(context: HullContext, targetEntity: "user" | "account",
-    message: HullUserUpdateMessage | HullAccountUpdateMessage,
-    synchronizedSegmentPath: string, outgoingAttributesPath: string): boolean {
+    message: HullUserUpdateMessage | HullAccountUpdateMessage): boolean {
 
     // Entered segment
     // First: entered segment notification (no attribute change)
@@ -63,7 +62,22 @@ function toSendMessage(context: HullContext, targetEntity: "user" | "account",
       return true;
     }
 
-    const enteredSegments = _.get(message, "changes.segments.entered");
+    let segmentAttribute;
+    let synchronizedSegmentPath;
+    let outgoingAttributesPath;
+    if (targetEntity === "user") {
+      segmentAttribute = "segments";
+      synchronizedSegmentPath = "connector.private_settings.synchronized_user_segments",
+      outgoingAttributesPath = "connector.private_settings.outgoing_user_attributes"
+    } else if (targetEntity === "account") {
+      segmentAttribute = "account_segments"
+      synchronizedSegmentPath = "connector.private_settings.synchronized_account_segments",
+      outgoingAttributesPath = "connector.private_settings.outgoing_account_attributes"
+    } else {
+      throw new Error(`Invalid input for target entity, option not supported: ${targetEntity}`);
+    }
+
+    const enteredSegments = _.get(message, `changes.${segmentAttribute}.entered`);
     const enteredAnySegments = !_.isEmpty(enteredSegments);
 
 
@@ -81,18 +95,33 @@ function toSendMessage(context: HullContext, targetEntity: "user" | "account",
 
     const entity: any = _.get(message, targetEntity);
 
-    const matchesSegments = _.intersection(
-      _.get(entity, "segment_ids"),
-      _.get(context, synchronizedSegmentPath)
-    ).length >= 1;
+    const entityInSegments = _.get(message, segmentAttribute);
 
-    if (!matchesSegments) {
+    if (!_.isEmpty(entityInSegments)) {
+
+      const entityInSegmentIds = entityInSegments.map( segment => segment.id );
+      const matchesSegments = _.intersection(
+        entityInSegmentIds,
+        _.get(context, synchronizedSegmentPath)
+      ).length >= 1;
+
+      if (!matchesSegments) {
+        if (targetEntity === "user") {
+          debug(`User does not match segment ${ JSON.stringify(entity) }`);
+          context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment" });
+        } else if (targetEntity === "account") {
+          debug(`Account does not match segment ${ JSON.stringify(entity) }`);
+          context.client.asAccount(entity).logger.info("outgoing.account.skip", { reason: "Account is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the account is present in the settings page, or add the account to an existing synchronzed segment" });
+        }
+        return false;
+      }
+    } else {
       if (targetEntity === "user") {
-        debug(`User does not match segment ${ JSON.stringify(entity) }`);
-        context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronzed segment" });
+        debug(`User is not a part of any segment ${ JSON.stringify(entity) }`);
+        context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: `User is not present in any existing segment (${segmentAttribute}).  Please add the user to an existing synchronized segment` });
       } else if (targetEntity === "account") {
-        debug(`Account does not match segment ${ JSON.stringify(entity) }`);
-        context.client.asAccount(entity).logger.info("outgoing.account.skip", { reason: "Account is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the account is present in the settings page, or add the account to an existing synchronzed segment" });
+        debug(`Account is not a part of any segment ${ JSON.stringify(entity) }`);
+        context.client.asAccount(entity).logger.info("outgoing.account.skip", { reason: `Account is not present in any existing segment (${segmentAttribute}).  Please add the account to an existing synchronized segment` });
       }
       return false;
     }
@@ -116,26 +145,41 @@ function toSendMessage(context: HullContext, targetEntity: "user" | "account",
     }
 
     const attributesToSync = outgoingAttributes.map( attr => attr.hull );
-    const changedAttributes = _.reduce(message.changes, (changeList, value, key) => {
-      changeList.push(key);
-      return changeList;
-    }, []);
 
-    const hasAttributesToSync = _.intersection(
-      attributesToSync,
-      changedAttributes
-    ).length >= 1;
+    const entityAttributeChanges = _.get(message.changes, targetEntity);
 
-    if (!hasAttributesToSync) {
+    if (!_.isEmpty(entityAttributeChanges)) {
+      const changedAttributes = _.reduce(entityAttributeChanges, (changeList, value, key) => {
+        changeList.push(key);
+        return changeList;
+      }, []);
+
+      const hasAttributesToSync = _.intersection(
+        attributesToSync,
+        changedAttributes
+      ).length >= 1;
+
+      if (!hasAttributesToSync) {
+        if (targetEntity === "user") {
+          debug(`No mapped attributes to synchronize ${ JSON.stringify(entity) }`);
+          context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "No changes on any of the synchronized attributes for this user.  If you think this is a mistake, please check the settings page for the synchronized user attributes to ensure that the attribute which changed is in the synchronized outgoing attributes" });
+        } else if (targetEntity === "account") {
+          debug(`No mapped attributes to synchronize ${ JSON.stringify(entity) }`);
+          context.client.asAccount(entity).logger.info("outgoing.account.skip", { reason: "No changes on any of the synchronized attributes for this account.  If you think this is a mistake, please check the settings page for the synchronized account attributes to ensure that the attribute which changed is in the synchronized outgoing attributes" });
+        }
+        return false;
+      }
+    } else {
       if (targetEntity === "user") {
-        debug(`No mapped attributes to synchronize ${ JSON.stringify(entity) }`);
-        context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "No changes on any of the synchronized attributes for this user.  If you think this is a mistake, please check the settings page for the synchronized user attributes to ensure that the attribute which changed is in the synchronized outgoing attributes" });
+        debug(`No attribute changes on target(${targetEntity}) entity: ${ JSON.stringify(entity) }`);
+        context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "No changes on any of the attributes for this user." });
       } else if (targetEntity === "account") {
-        debug(`No mapped attributes to synchronize ${ JSON.stringify(entity) }`);
-        context.client.asAccount(entity).logger.info("outgoing.account.skip", { reason: "No changes on any of the synchronized attributes for this user.  If you think this is a mistake, please check the settings page for the synchronized account attributes to ensure that the attribute which changed is in the synchronized outgoing attributes" });
+        debug(`No attribute changes on target(${targetEntity}) entity: ${ JSON.stringify(entity) }`);
+        context.client.asAccount(entity).logger.info("outgoing.account.skip", { reason: "No changes on any of the attributes for this account." });
       }
       return false;
     }
+
 
     return true;
   }
