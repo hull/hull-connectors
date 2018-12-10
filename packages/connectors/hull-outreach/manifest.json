@@ -10,7 +10,7 @@
     "incoming",
     "outgoing",
     "batch",
-    "batch_accounts",
+    "batch-accounts",
     "oneColumn",
     "smart-notifier"
   ],

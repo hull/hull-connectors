@@ -1,0 +1,339 @@
+{
+    "notification_id": "38108659-4d7b-46cc-861b-3da772d1fec2",
+    "configuration": {
+        "id": "123456789012345678901234",
+        "organization": "c5011027.hullbeta.io",
+        "secret": "shhhh"
+    },
+    "connector": {
+        "description": "some",
+        "tags": [],
+        "source_url": "https://dev-hull-outreach.ngrok.io/",
+        "private_settings": {
+            "token_expires_in": 7200,
+            "outgoing_user_attributes": [
+                {
+                    "hull": "traits_closeio/title",
+                    "service": "title"
+                },
+                {
+                    "hull": "traits_closeio/phone_office",
+                    "service": "workPhones"
+                }
+            ],
+            "incoming_user_attributes": [
+                {
+                    "hull": "traits_outreach/custom1",
+                    "service": "custom1"
+                },
+                {
+                    "hull": "traits_outreach/custom2",
+                    "service": "custom2"
+                },
+                {
+                    "hull": "traits_outreach/personalnote2",
+                    "service": "personalNote1"
+                }
+            ],
+            "token_created_at": 1544104207,
+            "access_token": "1234",
+            "refresh_token": "abcd",
+            "outgoing_account_attributes": [
+                {
+                    "hull": "closeio/industry_sample",
+                    "service": "custom1"
+                },
+                {
+                    "hull": "closeio/name",
+                    "service": "name"
+                },
+                {
+                    "hull": "closeio/address_business_state",
+                    "service": "locality"
+                }
+            ],
+            "synchronized_user_segments": [
+                "5bffc38f625718d58b000004"
+            ],
+            "expires_in": 7200,
+            "webhook_id": 31,
+            "synchronized_account_segments": [
+                "5bd7201aa682bc4a4d00001e"
+            ],
+            "incoming_account_attributes": [
+                {
+                    "hull": "outreach/company_type",
+                    "service": "companyType"
+                },
+                {
+                    "hull": "outreach/description",
+                    "service": "description"
+                }
+            ],
+            "created_at": 1544269649
+        },
+        "index": "https://dev-hull-outreach.ngrok.io/",
+        "name": "dev-hull-outreach.ngrok.io",
+        "extra": {},
+        "settings": {},
+        "type": "ship",
+        "secret": "shhh",
+        "updated_at": "2018-12-09T11:20:32Z",
+        "status": {
+            "status": "ok",
+            "messages": [],
+            "updated_at": "2018-12-06T14:04:24Z",
+            "name": "dev-hull-outreach.ngrok.io",
+            "id": "123456789012345678901234"
+        },
+        "id": "123456789012345678901234",
+        "picture": "https://dev-hull-outreach.ngrok.io/picture.png",
+        "homepage_url": "https://c5011027.hullbeta.io/ships/123456789012345678901234",
+        "manifest_url": "https://dev-hull-outreach.ngrok.io/manifest.json",
+        "created_at": "2018-12-06T13:49:58Z"
+    },
+    "channel": "account:update",
+    "messages": [
+        {
+            "changes": {
+                "is_new": false,
+                "account": {
+                    "closeio/address_business_zipcode": [
+                        "TX",
+                        "RI"
+                    ],
+                    "updated_at": [
+                        "2018-12-09T12:02:28Z",
+                        "2018-12-09T12:05:29Z"
+                    ]
+                },
+                "account_segments": {}
+            },
+            "account": {
+                "closeio/name": "Close.io (Sample Lead)",
+                "closeio/address_business_zipcode": "RI",
+                "outreach/createdat": "2018-10-12T21:20:14.000Z",
+                "closeio/industry_sample": "Software",
+                "closeio/id": "lead_j2OH3UdZFOjc52TYkcY6FQOE8TOoh2muAIFL1kjD6V5",
+                "closeio/address_mailing_city": "San Francisco",
+                "outreach/updated_at": "2018-10-12T21:20:14Z",
+                "closeio/address_mailing_address_1": "PO Box 7775 #69574",
+                "id": "5bd329d4e2bcf3eeaf000071",
+                "closeio/updated_at": "2018-11-28T13:16:58+00:00",
+                "outreach/created_at": "2018-10-12T21:20:14Z",
+                "outreach/name": "Close.io (Sample Lead)",
+                "name": "Close.io (Sample Lead)",
+                "outreach/domain": "close.io",
+                "updated_at": "2018-12-09T12:05:29Z",
+                "anonymous_ids": [
+                    "outreach:14",
+                    "14",
+                    "closeio:lead_j2OH3UdZFOjc52TYkcY6FQOE8TOoh2muAIFL1kjD6V5"
+                ],
+                "domain": "close.io",
+                "closeio/status": "Potential",
+                "indexed_at": "2018-12-09T12:05:58+00:00",
+                "outreach/id": 14,
+                "closeio/description": "Visit our blog for high quality sales content, blog.close.io!",
+                "closeio/url": "http://close.io",
+                "closeio/created_at": "2018-11-28T13:16:56+00:00",
+                "created_at": "2018-10-26T14:51:00Z",
+                "outreach/companytype": "",
+                "closeio/address_mailing_zipcode": "94120",
+                "outreach/custom_1": "PO Box 7775 #69574",
+                "outreach/custom1": "PO Box 7775 #69574",
+                "closeio/address_mailing_country": "US",
+                "closeio/address_mailing_state": "CA",
+                "closeio/lead_owner": "user_7WbYG4PYmGulBZiZWwUdbmRmofK4YY28OXkKW0ne4Q0"
+            },
+            "account_segments": [
+                {
+                    "id": "5bd7201aa682bc4a4d00001e",
+                    "name": "Bad guys",
+                    "updated_at": "2018-12-09T12:05:12Z",
+                    "type": "accounts_segment",
+                    "created_at": "2018-10-29T14:58:34Z"
+                }
+            ],
+            "message_id": "fa6cbdf1db9e9f366905423680c3e039b584dd63"
+        },
+        {
+            "changes": {
+                "is_new": false,
+                "account": {
+                    "updated_at": [
+                        "2018-12-09T12:02:28Z",
+                        "2018-12-09T12:05:29Z"
+                    ],
+                    "outreach/custom_1": [
+                        "custom outreach field, bad name",
+                        "different value"
+                    ]
+                },
+                "account_segments": {}
+            },
+            "account": {
+                "outreach/updated_at": "2018-11-05T21:34:30Z",
+                "note2": "note2 from domain",
+                "external_id": "Oct242018_338ExternalId",
+                "id": "5bd36d8de3d21792360001fd",
+                "outreach/created_at": "2018-11-05T20:09:01Z",
+                "outreach/name": "Oct242018_338ExternalId",
+                "note1": "note1 from externalId",
+                "name": "Oct242018_338ExternalId",
+                "updated_at": "2018-12-09T12:05:29Z",
+                "anonymous_ids": [
+                    "outreach:27"
+                ],
+                "indexed_at": "2018-12-09T12:05:58+00:00",
+                "outreach/id": 27,
+                "created_at": "2018-10-26T19:39:57Z",
+                "outreach/custom_1": "different value",
+                "outreach/custom1": "someasdf"
+            },
+            "account_segments": [],
+            "message_id": "96bafe7199992799d21eb2b07a48819cd23001cb"
+        },
+        {
+            "changes": {
+                "is_new": false,
+                "account": {
+                    "updated_at": [
+                        "2018-12-09T12:02:28Z",
+                        "2018-12-09T12:05:29Z"
+                    ],
+                    "closeio/description": [
+                        "",
+                        "description of wayne enterprises from closeio"
+                    ]
+                },
+                "account_segments": {
+                    "entered": [
+                        {
+                            "id": "5bd7201aa682bc4a4d00001e",
+                            "name": "Bad guys",
+                            "updated_at": "2018-12-09T12:05:12Z",
+                            "type": "accounts_segment",
+                            "created_at": "2018-10-29T14:58:34Z"
+                        }
+                    ]
+                }
+            },
+            "account": {
+                "closeio/name": "Wayne Enterprises (Sample Lead)",
+                "closeio/industry_sample": "Manufacturing",
+                "closeio/id": "lead_J25pTsfypcLT9YJxeDUq0VwqFYmSlqZwSnuuJU56X4l",
+                "outreach/custom2": "175 4th st nw",
+                "id": "5bf2e7bf064aee16a600092a",
+                "closeio/updated_at": "2018-11-28T13:17:28+00:00",
+                "name": "Wayne Enterprises (Sample Lead)",
+                "updated_at": "2018-12-09T12:05:29Z",
+                "anonymous_ids": [
+                    "28",
+                    "closeio:lead_J25pTsfypcLT9YJxeDUq0VwqFYmSlqZwSnuuJU56X4l",
+                    "outreach:28"
+                ],
+                "domain": "wayneenterprises.com",
+                "closeio/status": "Qualified",
+                "indexed_at": "2018-12-09T12:05:58+00:00",
+                "closeio/description": "description of wayne enterprises from closeio",
+                "closeio/url": "http://www.wayneenterprises.com",
+                "closeio/created_at": "2018-11-28T13:16:59+00:00",
+                "created_at": "2018-11-19T16:41:35Z",
+                "closeio/lead_owner": "user_7WbYG4PYmGulBZiZWwUdbmRmofK4YY28OXkKW0ne4Q0"
+            },
+            "account_segments": [
+                {
+                    "id": "5bd7201aa682bc4a4d00001e",
+                    "name": "Bad guys",
+                    "updated_at": "2018-12-09T12:05:12Z",
+                    "type": "accounts_segment",
+                    "created_at": "2018-10-29T14:58:34Z"
+                }
+            ],
+            "message_id": "d7290b50452d14b77d30db60f52d6332f171d701"
+        },
+        {
+            "changes": {
+                "is_new": false,
+                "account": {
+                    "closeio/address_business_state": [
+                        "TX",
+                        "RI"
+                    ],
+                    "updated_at": [
+                        "2018-12-09T12:02:28Z",
+                        "2018-12-09T12:05:29Z"
+                    ]
+                },
+                "account_segments": {}
+            },
+            "account": {
+                "closeio/name": "Bluth Company (Sample Lead)",
+                "closeio/address_business_zipcode": "90210",
+                "closeio/industry_sample": "Real estate",
+                "closeio/id": "lead_U4smwboTfc45flE8RJaLHSBLpnOU6YJwf8MGV1c9Eue",
+                "outreach/custom2": "100 Bluth Drive",
+                "closeio/address_business_city": "Los Angeles",
+                "id": "5bf2e7bf064aee16a600092d",
+                "closeio/updated_at": "2018-11-28T13:17:38+00:00",
+                "name": "Bluth Company (Sample Lead)",
+                "closeio/address_business_state": "RI",
+                "updated_at": "2018-12-09T12:05:29Z",
+                "anonymous_ids": [
+                    "29",
+                    "closeio:lead_U4smwboTfc45flE8RJaLHSBLpnOU6YJwf8MGV1c9Eue",
+                    "outreach:29"
+                ],
+                "domain": "bluth.com",
+                "closeio/status": "Qualified",
+                "indexed_at": "2018-12-09T12:05:58+00:00",
+                "closeio/description": "",
+                "closeio/url": "http://bluth.com",
+                "closeio/address_business_country": "US",
+                "closeio/address_business_address_1": "100 Bluth Drive",
+                "closeio/created_at": "2018-11-20T13:16:56+00:00",
+                "created_at": "2018-11-19T16:41:35Z",
+                "closeio/lead_owner": "user_7WbYG4PYmGulBZiZWwUdbmRmofK4YY28OXkKW0ne4Q0"
+            },
+            "account_segments": [
+                {
+                    "id": "5bd7201aa682bc4a4d00001e",
+                    "name": "Bad guys",
+                    "updated_at": "2018-12-09T12:05:12Z",
+                    "type": "accounts_segment",
+                    "created_at": "2018-10-29T14:58:34Z"
+                }
+            ],
+            "message_id": "8ea967b940da1bd1300260baee27c379d0656027"
+        }
+    ],
+    "accounts_segments": [
+        {
+            "id": "5bd7201aa682bc4a4d00001e",
+            "updated_at": "2018-12-09T12:05:12Z",
+            "created_at": "2018-10-29T14:58:34Z",
+            "name": "Bad guys",
+            "type": "accounts_segment",
+            "stats": {}
+        }
+    ],
+    "segments": [
+        {
+            "id": "5bd720690026ca86b000004f",
+            "updated_at": "2018-11-05T20:07:04Z",
+            "created_at": "2018-10-29T14:59:53Z",
+            "name": "Star Wars Users",
+            "type": "users_segment",
+            "stats": {}
+        },
+        {
+            "id": "5bffc38f625718d58b000004",
+            "updated_at": "2018-12-06T17:33:39Z",
+            "created_at": "2018-11-29T10:46:39Z",
+            "name": "Smugglers",
+            "type": "users_segment",
+            "stats": {}
+        }
+    ]
+}
