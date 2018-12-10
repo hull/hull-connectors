@@ -170,7 +170,8 @@ class HullDispatcher {
 
       if (name === 'input') {
         if (serviceData !== null && !isUndefinedOrNull(instruction.path)) {
-          return _.get(serviceData.data, instruction.path);
+          const path = doVariableReplacement(context, instruction.path);
+          return _.get(serviceData.data, path);
         }
         return serviceData;
       }
@@ -292,7 +293,7 @@ class HullDispatcher {
             return _.isEqual(obj, resolvedParams[1]);
           } else if (name === 'filter') {
             return _.filter(obj, resolvedParams[1]);
-          } else if (name === 'notfilter') {
+          } else if (name === 'notFilter') {
             return _.filter(obj,
               (individualObj) => {
                 return !_.isMatch(individualObj, resolvedParams[1])

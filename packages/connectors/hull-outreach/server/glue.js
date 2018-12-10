@@ -76,13 +76,16 @@ const glue = {
       ]
     }),
   prospectLookup:
-    loopArrayLogic(notFilter("${connector.private_settings.incoming_prospect_claims}", { service: "id" }), "claim",
+    loopArrayLogic(notFilter("${connector.private_settings.incoming_user_claims}", { service: "id" }), "claim",
       [
         set("property", "${claim.service}"),
-        set("value", get(input(), "${claim.hull}")),
+        set("value", inputParameter("${claim.hull}")),
         // TODO still need to see if more than 1
-        ifLogic(cond("notEmpty", set("userId", get(outreach("getProspectByProperty"), "[0].id"))), {
-          true: loopEnd(),
+        ifLogic(cond("notEmpty", "${value}"), {
+          true: ifLogic(cond("notEmpty", set("userId", get(outreach("getProspectsByProperty"), "[0].id"))), {
+                  true: loopEnd(),
+                  false: {}
+                }),
           false: {}
         })
       ]
@@ -111,8 +114,8 @@ const glue = {
       }),
       false: {}
     }),
-  insertUser: hull("asUser", outreachSendInput("insertUser")),
-  updateUser: hull("asUser", outreachSendInput("updateUser")),
+  insertProspect: hull("asUser", outreachSendInput("insertProspect")),
+  updateProspect: hull("asUser", outreachSendInput("updateProspect")),
   accountUpdateStart: route("accountUpsert"),
   accountUpsert:
     ifLogic(cond("notEmpty", set("accountId", inputParameter("outreach/id"))), {
@@ -129,9 +132,12 @@ const glue = {
     loopArrayLogic(notFilter("${connector.private_settings.incoming_account_claims}", { service: "id" }), "claim",
       [
         set("property", "${claim.service}"),
-        set("value", get(input(), "${claim.hull}")),
-        ifLogic(cond("notEmpty", set("accountId", get(outreach("getAccountByProperty"), "[0].id"))), {
-          true: loopEnd(),
+        set("value", inputParameter("${claim.hull}")),
+        ifLogic(cond("notEmpty", "${value}"), {
+          true: ifLogic(cond("notEmpty", set("accountId", get(outreach("getAccountByProperty"), "[0].id"))), {
+            true: loopEnd(),
+            false: {}
+          }),
           false: {}
         })
       ]

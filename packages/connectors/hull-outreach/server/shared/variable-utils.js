@@ -85,7 +85,7 @@ function doStringVariableReplacement(context: Object, value: string): string {
     }
     resolvedValue.push(variableValue);
     closeIndex += 1;
-    variableIndex = value.indexOf(value, closeIndex);
+    variableIndex = value.indexOf("${", closeIndex);
   }
 
   if (closeIndex !== value.length) {

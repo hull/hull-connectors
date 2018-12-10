@@ -13,8 +13,8 @@ const transformsToService: ServiceTransforms = [
     direction: "outgoing",
     transforms: [
       { outputPath: "data.type", outputFormat: "prospect" },
-      { outputPath: "data.id", outputFormat: "${userId}" },
       { inputPath: "outreach/id", outputPath: "data.id" },
+      { outputPath: "data.id", outputFormat: "${userId}" },
       { inputPath: "email", outputPath: "data.attributes.emails", outputFormat: ["${value}"] },
       {
         condition: "connector.private_settings.link_users_in_service",
@@ -44,8 +44,8 @@ const transformsToService: ServiceTransforms = [
     direction: "outgoing",
     transforms: [
       { outputPath: "data.type", outputFormat: "account" },
-      { outputPath: "data.id", outputFormat: "${accountId}" },
       { inputPath: "outreach/id", outputPath: "data.id" },
+      { outputPath: "data.id", outputFormat: "${accountId}" },
       // won't be set if it does not exist, will only exist on insert
       // if we set something different for name in mapping, then it will get overridden
       // which is good
