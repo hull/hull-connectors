@@ -14,8 +14,12 @@ class HullInstruction {
 //Could evaluate an individual or an array as input
 //like a fancy goto used only in glue...
 class Route extends HullInstruction {
-  constructor(name: string) {
+  params: any;
+  paramsType: any;
+  constructor(name: string, params: any, paramsType: any) {
     super("route", name);
+    this.params = params;
+    this.paramsType = paramsType;
   }
 }
 
@@ -105,8 +109,13 @@ function inputParameter(path: string): InputReference {
 }
 
 function route(name: string): Route {
-  return new Route(name);
+  return new Route(name, undefined, undefined);
 }
+
+function routeWithData(name: string, params: any): Route {
+  return new Route(name, params);
+}
+
 function cond(name: string, params: any): Op {
   return new Op(name, params);
 }
@@ -159,6 +168,7 @@ module.exports = {
   inputParameter,
   ifLogic,
   route,
+  routeWithData,
   cond,
   hull,
   set,

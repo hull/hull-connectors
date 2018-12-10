@@ -183,7 +183,14 @@ class HullDispatcher {
       if (_.isEmpty(route)) {
         throw new Error(`Route: ${instruction.name} not found in glue`);
       }
-      return await this.resolve(context, route, serviceData);
+
+      if (!isUndefinedOrNull(instruction.paramsType)) {
+        // TODO could be a pattern for expansion on array to go in parallel
+        return await this.resolve(context, route, new ServiceData(instructions.paramsType, resolvedParams));
+      } else {
+        return await this.resolve(context, route, serviceData);
+      }
+
     } else if (type === 'logic') {
 
       const name = instruction.name;

@@ -20,6 +20,10 @@ const {
   Svc
 } = require("./shared/language");
 
+const {
+  HullOutgoingAccount
+} = require("./shared/hull-service-objects");
+
 // function outreach(op: string, query: any): Svc { return new Svc("outreach", op, query, null)};
 // function outreach(op: string, data: any): Svc { return new Svc("outreach", op, null, data)};
 
@@ -103,13 +107,17 @@ const glue = {
               }
               return [];
             })), {
-        true: [
-          route("accountLookup"),
-          ifLogic(cond("notEmpty", "${accountId}"), {
-            true: route("insertAccount", inputParameter("account")),
+        true:
+          ifLogic(cond("isEmpty", set("accountId", inputParameter("outreach/id"))), {
+            true: [
+              route("accountLookup"),
+              ifLogic(cond("isEmpty", "${accountId}"), {
+                true: route("insertAccount", inputParameter("account"), HullOutgoingAccount),
+                false: {}
+              })
+            ],
             false: {}
-          })
-        ],
+          }),
         false: {}
       }),
       false: {}

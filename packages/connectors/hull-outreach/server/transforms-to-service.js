@@ -17,12 +17,11 @@ const transformsToService: ServiceTransforms = [
       { outputPath: "data.id", outputFormat: "${userId}" },
       { inputPath: "email", outputPath: "data.attributes.emails", outputFormat: ["${value}"] },
       {
-        condition: "connector.private_settings.link_users_in_service",
-        inputPath: "${accountId}",
+        condition: "accountId",
         outputPath: "data.relationships.account.data",
         outputFormat: {
           type: "account",
-          id: "${value}"
+          id: "${accountId}"
         }
       },
       {
