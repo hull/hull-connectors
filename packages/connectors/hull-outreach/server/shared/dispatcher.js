@@ -226,10 +226,8 @@ class HullDispatcher {
                 }
               return false;
             });
-            if (isUndefinedOrNull(endInstruction)) {
-              return true;
-            } else {
-              return false;
+            if (!isUndefinedOrNull(endInstruction)) {
+              break;
             }
           }
           return results;
