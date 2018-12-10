@@ -205,7 +205,7 @@ class HullDispatcher {
         }
 
       } else if (name === 'loop') {
-        if (isUndefinedOrNull(resolvedParams)) {
+        if (!isUndefinedOrNull(resolvedParams)) {
           // make sure these aren't null because they weren't able to be resolved...
 
           if (!Array.isArray(resolvedParams)) {
@@ -257,7 +257,12 @@ class HullDispatcher {
       } else if (name === 'end') {
         return instruction;
       } else if (name === 'function') {
-        return instruction.toExecute(resolvedParams);
+
+        let obj = resolvedParams;
+        if (resolvedParams instanceof ServiceData) {
+          obj = obj.data;
+        }
+        return instruction.toExecute(obj);
       } else {
         throw new Error(`Unsupported Logic: ${name}`);
       }

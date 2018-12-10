@@ -39,9 +39,9 @@ class TransformImpl {
     // otherwise flow throws errors later
     if (transformation === undefined || transformation === null) {
       if (isUndefinedOrNull(inputClass)) {
-        debug(`Couldn't find transformation to: ${JSON.stringify(desiredInputClass)}`);
+        debug(`Couldn't find transformation to: ${desiredInputClass}`);
       } else {
-        debug(`Couldn't find transformation for: ${JSON.stringify(inputClass)} and ${JSON.stringify(desiredInputClass)}`);
+        debug(`Couldn't find transformation for: ${inputClass} and ${desiredInputClass}`);
       }
       return input;
     }

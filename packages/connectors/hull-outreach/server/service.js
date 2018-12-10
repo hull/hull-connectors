@@ -76,7 +76,7 @@ const service: RawRestApi = {
       query: "sort=id&page[limit]=10&filter[id]=${id_offset}..inf",
       endpointType: "fetchAll",
       returnObj: "body.data",
-      output: OutreachProspectRead
+      output: OutreachAccountRead
     },
     getAllProspects: {
       url: "/prospects/",

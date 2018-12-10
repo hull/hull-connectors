@@ -1,6 +1,8 @@
 /* @flow */
 const _ = require("lodash");
 
+const { isUndefinedOrNull } = require("./utils");
+
 function notNull(param: string) {
   return (context) => {
     const contextVariable = _.get(context, param);

@@ -146,31 +146,28 @@ const glue = {
       [
         set("outreachAccounts", outreach("getAllAccountsPaged")),
         hull("asAccount", "${outreachAccounts}"),
-        ifLogic(cond("lessThan", execute("${outreachAccounts}", (accounts) => accounts.length), 10), {
+        ifLogic(cond("lessThan", [execute("${outreachAccounts}", (accounts) => accounts.length), 10]), {
           true: loopEnd(),
           false: set("id_offset",
                     execute(
-                      get(
-                        execute("${outreachAccounts}", (prospects) => prospects[prospects.length - 1]),
-                        "id")),
-                      (prospectId) => prospectId + 1)
+                      get(execute("${outreachAccounts}", (accounts) => accounts[accounts.length - 1]), "id"),
+                      (accountId) => accountId + 1))
         })
       ])
     ],
   prospectFetchAll:
     [
     set("id_offset", 0),
-    loopLogic(outreach("getAllProspectsPaged"),
+    loopLogic(
       [
-        hull("asAccount", "${outreachProspects}"),
-        ifLogic(cond("lessThan", execute("${outreachProspects}", (prospects) => prospects.length), 10), {
+        set("outreachProspects", outreach("getAllProspectsPaged")),
+        hull("asUser", "${outreachProspects}"),
+        ifLogic(cond("lessThan", [execute("${outreachProspects}", (prospects) => prospects.length), 10]), {
           true: loopEnd(),
           false: set("id_offset",
                     execute(
-                      get(
-                        execute("${outreachProspects}", (prospects) => prospects[prospects.length - 1]),
-                        "id")),
-                      (prospectId) => prospectId + 1)
+                      get(execute("${outreachProspects}", (prospects) => prospects[prospects.length - 1]), "id"),
+                      (prospectId) => prospectId + 1))
         })
       ])
     ],
