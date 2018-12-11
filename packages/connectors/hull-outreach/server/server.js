@@ -63,6 +63,7 @@ function server(app: $Application, deps: Object): $Application {
 
   app.post("/smart-notifier", notificationHandler(notifications));
   app.post("/batch", batchHandler(notifications));
+  app.post("/batch-accounts", batchHandler(notifications));
   app.post("/status", scheduleHandler(
     (req: HullRequest): Promise<any> => {
       return hullRouter.status(req);
