@@ -100,7 +100,7 @@
                 }
             ],
             "created_at": 1544523790,
-            "link_users_in_hull": false
+            "link_users_in_hull": true
         },
         "index": "https://dev-hull-outreach.ngrok.io/",
         "name": "dev-hull-outreach.ngrok.io",

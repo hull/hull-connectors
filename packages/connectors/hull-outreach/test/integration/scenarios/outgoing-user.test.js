@@ -18,16 +18,17 @@ test("send smart-notifier user update to outreach", () => {
       channel: "user:update",
       externalApiMock: () => {
         const scope = nock("https://api.outreach.io");
-        scope
-          .get("/api/v2/prospects/16")
-          .reply(200, require("../fixtures/api-responses/outgoing-user-darth-lookup.json"));
-        scope
-          .get("/api/v2/prospects/23")
-          .reply(200, require("../fixtures/api-responses/outgoing-user-alberto-lookup.json"));
 
-        scope
-          .get("/api/v2/prospects/15")
-          .reply(200, require("../fixtures/api-responses/outgoing-user-darkknight-lookup.json"));
+        // not doing lookup on id anymore, saving api call...
+        // scope
+        //   .get("/api/v2/prospects/16")
+        //   .reply(200, require("../fixtures/api-responses/outgoing-user-darth-lookup.json"));
+        // scope
+        //   .get("/api/v2/prospects/23")
+        //   .reply(200, require("../fixtures/api-responses/outgoing-user-alberto-lookup.json"));
+        // scope
+        //   .get("/api/v2/prospects/15")
+        //   .reply(200, require("../fixtures/api-responses/outgoing-user-darkknight-lookup.json"));
 
         // {"data":{"type":"prospect","id":16,"attributes":{"emails":["darth@darksideinc.com"],"custom20":"Description of darth vader"}}}
         scope
@@ -55,9 +56,6 @@ test("send smart-notifier user update to outreach", () => {
       // most of the remaining "whatevers" are returned from the nock endpoints or are tested in traits
       logs: [
         ["info", "outgoing.user.skip", expect.objectContaining({ "subject_type": "user", "user_email": "bluth@close.io" }), expect.objectContaining({ "reason": "User is not present in any existing segment (segments).  Please add the user to an existing synchronized segment" })],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "GET", "status": 200, "url": "/prospects/16" })],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "GET", "status": 200, "url": "/prospects/23" })],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "GET", "status": 200, "url": "/prospects/15" })],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "PATCH","status": 200,"url": "/prospects/16" })],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "PATCH","status": 200,"url": "/prospects/23" })],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "PATCH","status": 200,"url": "/prospects/15" })],
@@ -78,12 +76,6 @@ test("send smart-notifier user update to outreach", () => {
       ],
       metrics: [
         ["increment", "connector.request", 1],
-        ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.whatever()],
-        ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.whatever()],
-        ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.whatever()],
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()],
         ["increment", "ship.service_api.call", 1],
