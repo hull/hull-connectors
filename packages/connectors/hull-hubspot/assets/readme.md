@@ -54,6 +54,8 @@ When new data about a HubSpot Contact is [ingested](https://www.hull.io/docs/dat
 2. If so, updates the existing Hull User
 3. Else, creates a new Hull User
 
+HubSpot Contact `VID` is captured as an `anonymous_id` and `hubspot/id` in Hull User profiles.
+
 ### Fetching HubSpot Companies into Hull
 
 HubSpot Companies are not handled by default. This must be enabled in the Connector Settings under the **Fetch accounts** toggle.
@@ -68,6 +70,8 @@ When new data about a HubSpot Company is ingested, Hull follows this process:
 2. Checks if there is a matching identifier in Hull (e.g. `domain`)
 3. If so, updates the existing Hull Account
 4. Else, creates a new Hull Account
+
+HubSpot Company `ID` is captured as an `anonymous_id` in Hull Account profiles.
 
 ### Linking HubSpot Contacts & Companies in Hull
 
