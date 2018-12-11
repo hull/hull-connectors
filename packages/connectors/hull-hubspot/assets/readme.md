@@ -26,7 +26,6 @@ In the HubSpot Connector Dashboard, click the **Settings** tab. Here you can set
 
 There are four sections of settings:
 
-
 1. **Outgoing Users:** Whitelist Users to sync with User Segments & map User Attributes to HubSpot Contacts
 2. **Incoming Users:** Map identifiers and HubSpot Contact properties to Hull Users
 3. **Outgoing Accounts:** Whitelist Accounts to sync with Account Segments, map Account Attributes to HubSpot Company Properties, and define if Hull will link HubSpot Contacts & Companies 
@@ -41,7 +40,7 @@ Hull can sync the following objects to HubSpot. New data is upserted in both dir
 | Person      | [User](https://www.hull.io/docs/concepts/users/)    | Contact |
 | Company     | [Account](https://www.hull.io/docs/concepts/accounts/) | Company |
 
-Note: HubSpot Companies are not handled by default. You must configure this.
+> **Note:** HubSpot Companies are not handled by default. You must configure this.
 
 
 ### Fetching HubSpot Contacts into Hull
@@ -56,7 +55,7 @@ When new data about a HubSpot Contact is [ingested](https://www.hull.io/docs/dat
 
 HubSpot Contact `VID` is captured as an `anonymous_id` and `hubspot/id` in Hull User profiles.
 
-**Note:** If more than one Hull User exists with the same `email` or HubSpot Contact `VID`, they will be merged. A `User merged` event will show the before/after difference in attribute values. Learn more about [User merging](https://www.hull.io/docs/data_lifecycle/ingest/#user-merging)
+> **Note:** If more than one Hull User exists with the same `email` or HubSpot Contact `VID`, they will be merged. A `User merged` event will show the before/after difference in attribute values. Learn more about [User merging](https://www.hull.io/docs/data_lifecycle/ingest/#user-merging)
 
 ### Fetching HubSpot Companies into Hull
 
@@ -75,7 +74,7 @@ When new data about a HubSpot Company is ingested, Hull follows this process:
 
 HubSpot Company `ID` is captured as an `anonymous_id` in Hull Account profiles.
 
-**Note:** If more than one Hull Account exists with the same `domain`, they will be merged. Learn more about [Account merging](https://www.hull.io/docs/data_lifecycle/ingest/#account-merging).
+> **Note:** If more than one Hull Account exists with the same `domain`, they will be merged. Learn more about [Account merging](https://www.hull.io/docs/data_lifecycle/ingest/#account-merging).
 
 ### Linking HubSpot Contacts & Companies in Hull
 
