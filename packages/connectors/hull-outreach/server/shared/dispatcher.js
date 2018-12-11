@@ -291,6 +291,8 @@ class HullDispatcher {
           }
 
           if (name === 'set') {
+
+            //TODO any reason we don't want to use obj???
             _.set(context, resolvedParams[0], resolvedParams[1]);
             // return the obj that we set...
             return resolvedParams[1];

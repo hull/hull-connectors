@@ -1,0 +1,536 @@
+{
+    "notification_id": "363d40fe-766b-4707-b49c-64a7be52ce11",
+    "configuration": {
+        "id": "123456789012345678901234",
+        "organization": "c5011027.hullbeta.io",
+        "secret": "shhhhh"
+    },
+    "connector": {
+        "description": "some",
+        "tags": [],
+        "source_url": "https://dev-hull-outreach.ngrok.io/",
+        "private_settings": {
+            "incoming_user_claims": [
+                {
+                    "hull": "email",
+                    "service": "emails"
+                },
+                {
+                    "hull": "external_id",
+                    "service": "externalId"
+                }
+            ],
+            "token_expires_in": 7200,
+            "outgoing_user_attributes": [
+                {
+                    "hull": "traits_closeio/title",
+                    "service": "title"
+                },
+                {
+                    "hull": "traits_closeio/phone_office",
+                    "service": "workPhones"
+                },
+                {
+                    "hull": "traits_testattributes/description",
+                    "service": "custom20"
+                }
+            ],
+            "incoming_user_attributes": [
+                {
+                    "hull": "traits_outreach/custom1",
+                    "service": "custom1"
+                },
+                {
+                    "hull": "traits_outreach/custom2",
+                    "service": "custom2"
+                },
+                {
+                    "hull": "traits_outreach/personalnote2",
+                    "service": "personalNote1"
+                }
+            ],
+            "token_created_at": 1544104207,
+            "access_token": "1234",
+            "refresh_token": "abcd",
+            "outgoing_account_attributes": [
+                {
+                    "hull": "closeio/industry_sample",
+                    "service": "custom20"
+                },
+                {
+                    "hull": "closeio/name",
+                    "service": "name"
+                },
+                {
+                    "hull": "closeio/address_business_state",
+                    "service": "locality"
+                },
+                {
+                    "hull": "closeio/address_business_city",
+                    "service": "custom20"
+                },
+                {
+                    "hull": "domain",
+                    "service": "name"
+                }
+            ],
+            "synchronized_user_segments": [
+                "5bffc38f625718d58b000004"
+            ],
+            "incoming_account_claims": [
+                {
+                    "hull": "domain",
+                    "service": "domain"
+                },
+                {
+                    "hull": "external_id",
+                    "service": "customId"
+                }
+            ],
+            "link_users_in_service": true,
+            "expires_in": 7200,
+            "webhook_id": 31,
+            "synchronized_account_segments": [
+                "5bd7201aa682bc4a4d00001e"
+            ],
+            "incoming_account_attributes": [
+                {
+                    "hull": "outreach/company_type",
+                    "service": "companyType"
+                },
+                {
+                    "hull": "outreach/description",
+                    "service": "description"
+                }
+            ],
+            "created_at": 1544538478,
+            "link_users_in_hull": false
+        },
+        "index": "https://dev-hull-outreach.ngrok.io/",
+        "name": "dev-hull-outreach.ngrok.io",
+        "extra": {},
+        "settings": {},
+        "type": "ship",
+        "manifest": {
+            "description": "description",
+            "tags": [
+                "incoming",
+                "outgoing",
+                "batch",
+                "batch-accounts",
+                "oneColumn",
+                "smart-notifier"
+            ],
+            "private_settings": [
+                {
+                    "name": "webhook_id",
+                    "title": "Outreach webhook id",
+                    "type": "string",
+                    "format": "hidden"
+                },
+                {
+                    "name": "access_token",
+                    "title": "OAuth Access Token",
+                    "type": "string",
+                    "format": "hidden"
+                },
+                {
+                    "name": "refresh_token",
+                    "title": "OAuth Refresh Token",
+                    "type": "string",
+                    "format": "hidden"
+                },
+                {
+                    "name": "expires_in",
+                    "title": "OAuth Token Expiration in seconds",
+                    "type": "string",
+                    "format": "hidden"
+                },
+                {
+                    "name": "created_at",
+                    "title": "OAuth Token Created At in millis since epoch",
+                    "type": "string",
+                    "format": "hidden"
+                },
+                {
+                    "name": "prospect_incoming_sync_title",
+                    "title": "Incoming User Synchronization Options (Outreach to Hull)",
+                    "format": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "incoming_user_claims",
+                    "title": "Incoming user identity",
+                    "type": "array",
+                    "format": "table",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "service": {
+                                "title": "Prospect Field ID",
+                                "type": "string",
+                                "format": "select",
+                                "options": {
+                                    "allowCreate": false,
+                                    "loadOptions": "/fields-outreach-prospect-in"
+                                }
+                            },
+                            "hull": {
+                                "title": "Hull User Ident",
+                                "enum": [
+                                    "external_id",
+                                    "email"
+                                ]
+                            }
+                        }
+                    },
+                    "default": [
+                        {
+                            "hull": "email",
+                            "service": "emails"
+                        },
+                        {
+                            "hull": "external_id",
+                            "service": "externalId"
+                        }
+                    ]
+                },
+                {
+                    "name": "incoming_user_attributes",
+                    "title": "Incoming User Fields to Sync (Outreach to Hull)",
+                    "type": "array",
+                    "format": "traitMapping",
+                    "options": {
+                        "direction": "incoming",
+                        "showOverwriteToggle": false,
+                        "placeholder": "Outreach Prospect Field",
+                        "allowCreate": true,
+                        "loadOptions": "/fields-outreach-prospect-in",
+                        "source": "outreach"
+                    }
+                },
+                {
+                    "name": "prospect_outgoing_sync_title",
+                    "title": "Outgoing User Synchronization Options (Hull to Outreach)",
+                    "format": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "synchronized_user_segments",
+                    "title": "User Filter",
+                    "description": "The above lists of segments are whitelists for users. You need to *explicitely specify one or more segments* for which users and events shall be sent to Outreach.io.<br>If you do not specify any segment, no users or event will be sent to Outreach.io.",
+                    "type": "array",
+                    "default": [],
+                    "format": "segment"
+                },
+                {
+                    "name": "outgoing_user_attributes",
+                    "title": "Outgoing User Fields to Sync (Hull to Outreach)",
+                    "type": "array",
+                    "format": "traitMapping",
+                    "options": {
+                        "direction": "outgoing",
+                        "showOverwriteToggle": false,
+                        "placeholder": "Outreach Prospect Field",
+                        "allowCreate": false,
+                        "loadOptions": "/fields-outreach-prospect-out"
+                    }
+                },
+                {
+                    "name": "account_incoming_synch_title",
+                    "title": "Incoming Account Synchronization Options (Outreach to Hull)",
+                    "format": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "incoming_account_claims",
+                    "title": "Incoming account identity",
+                    "type": "array",
+                    "format": "table",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "service": {
+                                "title": "Account Field ID",
+                                "type": "string",
+                                "format": "select",
+                                "options": {
+                                    "allowCreate": false,
+                                    "loadOptions": "/fields-outreach-account-in"
+                                }
+                            },
+                            "hull": {
+                                "title": "Hull Account",
+                                "enum": [
+                                    "external_id",
+                                    "domain"
+                                ]
+                            }
+                        }
+                    },
+                    "default": [
+                        {
+                            "hull": "domain",
+                            "service": "domain"
+                        },
+                        {
+                            "hull": "external_id",
+                            "service": "customId"
+                        }
+                    ]
+                },
+                {
+                    "name": "incoming_account_attributes",
+                    "title": "Incoming Account Fields to Sync (Outreach to Hull)",
+                    "type": "array",
+                    "format": "accountTraitMapping",
+                    "options": {
+                        "direction": "incoming",
+                        "showOverwriteToggle": false,
+                        "placeholder": "Outreach Account Field",
+                        "allowCreate": true,
+                        "loadOptions": "/fields-outreach-account-in",
+                        "source": "outreach"
+                    }
+                },
+                {
+                    "name": "link_users_in_hull",
+                    "title": "Link users to accounts in Hull",
+                    "description": "Do you want to let Outreach update links between Users and Accounts in Hull? Be careful about conflicts with other connectors that would link users too.\n\n**IMPORTANT:** when this checkbox is checked the connector will create a Hull Account for EVERY Outreach Account any Prospect is linked to (refer to documentation for more details).",
+                    "type": "boolean",
+                    "default": false
+                },
+                {
+                    "name": "account_outgoing_synch_title",
+                    "title": "Outgoing Account Synchronization Options (Hull to Outreach)",
+                    "format": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "synchronized_account_segments",
+                    "title": "Account Filter",
+                    "description": "The above lists of segments are whitelists for accounts. You need to *explicitely specify one or more segments* for which accounts and events shall be sent to Outreach.io. If you do not specify any segment, no account or event will be sent to Outreach.io.",
+                    "type": "array",
+                    "default": [],
+                    "format": "accountSegment"
+                },
+                {
+                    "name": "outgoing_account_attributes",
+                    "title": "Outgoing Account Fields to Sync (Hull to Outreach)",
+                    "type": "array",
+                    "format": "accountTraitMapping",
+                    "options": {
+                        "direction": "outgoing",
+                        "showOverwriteToggle": false,
+                        "placeholder": "Outreach Account Field",
+                        "allowCreate": false,
+                        "loadOptions": "/fields-outreach-account-out"
+                    },
+                    "default": [
+                        {
+                            "hull": "name",
+                            "service": "name"
+                        }
+                    ]
+                },
+                {
+                    "name": "outgoing_account_attributes_hero",
+                    "type": "string",
+                    "headerTemplate": "Must have a field mapped to Outreach's Name in account outgoing attributes, otherwise it will fail on trying to create new accounts, because Outreach requires a name for the account.  We've populated the name mapping by default, but you may change it something else if needed",
+                    "format": "information"
+                },
+                {
+                    "name": "link_users_in_service",
+                    "title": "Link Prospects to Accounts in Outreach",
+                    "description": "Do you want to let Hull associate Contacts and Companies in Outreach?",
+                    "type": "boolean",
+                    "default": false
+                }
+            ],
+            "admin": "/admin",
+            "tabs": [
+                {
+                    "title": "Credentials",
+                    "url": "/auth",
+                    "size": "small",
+                    "editable": false
+                },
+                {
+                    "title": "Actions",
+                    "url": "/admin",
+                    "size": "small",
+                    "editable": false
+                }
+            ],
+            "name": "Hull-Outreach",
+            "settings": [],
+            "subscriptions": [
+                {
+                    "url": "/smart-notifier",
+                    "conditions": {
+                        "channels": {
+                            "only": [
+                                "user:update",
+                                "account:update",
+                                "ship:update"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "ui": false,
+            "picture": "picture.png",
+            "readme": "readme.md",
+            "schedules": [
+                {
+                    "url": "/status",
+                    "type": "interval",
+                    "value": "5"
+                }
+            ],
+            "version": "0.0.9-monorepo",
+            "resources": []
+        },
+        "secret": "shhh",
+        "updated_at": "2018-12-11T15:10:36Z",
+        "status": {
+            "status": "ok",
+            "messages": [],
+            "updated_at": "2018-12-06T14:04:24Z",
+            "name": "dev-hull-outreach.ngrok.io",
+            "id": "123456789012345678901234"
+        },
+        "id": "123456789012345678901234",
+        "picture": "https://dev-hull-outreach.ngrok.io/picture.png",
+        "homepage_url": "https://c5011027.hullbeta.io/ships/123456789012345678901234",
+        "manifest_url": "https://dev-hull-outreach.ngrok.io/manifest.json",
+        "created_at": "2018-12-06T13:49:58Z"
+    },
+    "channel": "user:update",
+    "messages": [
+        {
+            "user": {
+                "traits_hubspot/first_name": "Bobba",
+                "traits_traits_outreach/title": "vp of assasination",
+                "traits_hubspot/description": "wears a black suit",
+                "traits_traits_outreach/personal_note_1": "froze han solo in carbinite, he was just a kid!  He's very efficient",
+                "traits_outreach/id": 18,
+                "traits_outreach/name": "Bobba Fett",
+                "traits_outreach/last_name": "Fett",
+                "id": "5bd329d5e2bcf3eeaf00009f",
+                "email": "fettisbest@gmail.com",
+                "traits_hubspot/updated_at": "2018-11-02T14:50:15+00:00",
+                "traits_outreach/first_name": "Bobba",
+                "traits_testattributes/description": "in the afterlife",
+                "name": "Bobba",
+                "traits_testattributes/description2": "wears green armor",
+                "traits_outreach/personal_note_1": "froze han solo in carbinite, he was just a kid!  He's very efficient",
+                "traits_hubspot/id": 151,
+                "anonymous_ids": [
+                    "outreach:18",
+                    "hubspot:151"
+                ],
+                "indexed_at": "2018-12-11T15:29:39+00:00",
+                "traits_hubspot/created_at": "2018-11-02T14:50:03+00:00",
+                "first_name": "Bobba",
+                "traits_outreach/custom1": "probably is a smuggler too",
+                "traits_outreach/personalnote2": "froze han solo in carbinite, he was just a kid!  He's very efficient",
+                "created_at": "2018-10-26T14:51:01Z",
+                "traits_outreach/title": "vp of assasination",
+                "is_approved": false,
+                "traits_outreach/personalnote1": "froze han solo in carbinite, he was just a kid!  He's very efficient",
+                "traits_outreach/custom22": "static custom22 field for testing",
+                "segment_ids": [
+                    "5bffc38f625718d58b000004",
+                    "5bd720690026ca86b000004f"
+                ]
+            },
+            "changes": {
+                "is_new": false,
+                "user": {
+                    "traits_testattributes/description": [
+                        "got eaten by the sarlac",
+                        "in the afterlife"
+                    ]
+                },
+                "account": {},
+                "segments": {},
+                "account_segments": {
+                    "entered": [
+                        {
+                            "id": "5bd7201aa682bc4a4d00001e",
+                            "name": "Bad guys",
+                            "updated_at": "2018-12-11T15:26:06Z",
+                            "type": "accounts_segment",
+                            "created_at": "2018-10-29T14:58:34Z"
+                        }
+                    ]
+                }
+            },
+            "account": {
+                "closeio/industry_sample": "very hot",
+                "id": "5c0fd68ad884b4373800011a",
+                "updated_at": "2018-12-11T15:23:54Z",
+                "anonymous_ids": [],
+                "domain": "afterlife.com",
+                "indexed_at": "2018-12-11T15:29:24+00:00",
+                "created_at": "2018-12-11T15:23:54Z"
+            },
+            "segments": [
+                {
+                    "id": "5bffc38f625718d58b000004",
+                    "name": "Smugglers",
+                    "updated_at": "2018-12-11T10:22:48Z",
+                    "type": "users_segment",
+                    "created_at": "2018-11-29T10:46:39Z"
+                },
+                {
+                    "id": "5bd720690026ca86b000004f",
+                    "name": "Star Wars Users",
+                    "updated_at": "2018-11-05T20:07:04Z",
+                    "type": "users_segment",
+                    "created_at": "2018-10-29T14:59:53Z"
+                }
+            ],
+            "events": [],
+            "account_segments": [
+                {
+                    "id": "5bd7201aa682bc4a4d00001e",
+                    "name": "Bad guys",
+                    "updated_at": "2018-12-11T15:26:06Z",
+                    "type": "accounts_segment",
+                    "created_at": "2018-10-29T14:58:34Z"
+                }
+            ],
+            "message_id": "0a21c1bae62e1bcb99791a74bbd74aa657f7ffca"
+        }
+    ],
+    "accounts_segments": [
+        {
+            "id": "5bd7201aa682bc4a4d00001e",
+            "updated_at": "2018-12-11T15:26:06Z",
+            "created_at": "2018-10-29T14:58:34Z",
+            "name": "Bad guys",
+            "type": "accounts_segment",
+            "stats": {}
+        }
+    ],
+    "segments": [
+        {
+            "id": "5bd720690026ca86b000004f",
+            "updated_at": "2018-11-05T20:07:04Z",
+            "created_at": "2018-10-29T14:59:53Z",
+            "name": "Star Wars Users",
+            "type": "users_segment",
+            "stats": {}
+        },
+        {
+            "id": "5bffc38f625718d58b000004",
+            "updated_at": "2018-12-11T10:22:48Z",
+            "created_at": "2018-11-29T10:46:39Z",
+            "name": "Smugglers",
+            "type": "users_segment",
+            "stats": {}
+        }
+    ]
+}

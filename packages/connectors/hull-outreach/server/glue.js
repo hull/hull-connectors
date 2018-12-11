@@ -119,7 +119,7 @@ const glue = {
             true: [
               route("accountLookup"),
               ifLogic(cond("isEmpty", "${accountId}"), {
-                true: route("insertAccount", inputParameter("account"), HullOutgoingAccount),
+                true: routeWithData("sendInsertAccountWithAccountId", inputParameter("account"), HullOutgoingAccount),
                 false: {}
               })
             ],
@@ -129,6 +129,11 @@ const glue = {
       }),
       false: {}
     }),
+  sendInsertAccountWithAccountId: [
+    set("insertedAccount", outreachSendInput("insertAccount")),
+    set("accountId", get("${insertedAccount}", "id")),
+    hull("asAccount", "${insertedAccount}")
+  ],
   insertProspect: [ route("linkAccount"), routeWithData("sendInsertProspect", inputParameter("user"), HullOutgoingUser) ],
   sendInsertProspect: hull("asUser", outreachSendInput("insertProspect")),
   updateProspect: [ route("linkAccount"), routeWithData("sendUpdateProspect", inputParameter("user"), HullOutgoingUser) ],
