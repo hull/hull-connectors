@@ -21,7 +21,12 @@ const {
 } = require("./shared/language");
 
 const {
-  HullOutgoingAccount
+  isUndefinedOrNull
+} = require("./shared/utils");
+
+const {
+  HullOutgoingAccount,
+  HullOutgoingUser
 } = require("./shared/hull-service-objects");
 
 // function outreach(op: string, query: any): Svc { return new Svc("outreach", op, query, null)};
@@ -68,11 +73,10 @@ const refreshTokenDataTemplate = {
 const glue = {
   userUpdateStart: route("prospectUpsert"),
   prospectUpsert:
-    ifLogic(cond("notEmpty", set("userId", inputParameter("outreach/id"))), {
-      true: hull("asUser", outreachSendInput("updateProspect")),
+    ifLogic(cond("notEmpty", set("userId", inputParameter("user.outreach/id"))), {
+      true: route("updateProspect"),
       false: [
         route("prospectLookup"),
-        route("linkAccount"),
         ifLogic(cond("notEmpty", "${userId}"), {
           true: route("updateProspect"),
           false: route("insertProspect")
@@ -83,7 +87,7 @@ const glue = {
     loopArrayLogic(notFilter("${connector.private_settings.incoming_user_claims}", { service: "id" }), "claim",
       [
         set("property", "${claim.service}"),
-        set("value", inputParameter("${claim.hull}")),
+        set("value", inputParameter("user.${claim.hull}")),
         // TODO still need to see if more than 1
         ifLogic(cond("notEmpty", "${value}"), {
           true: ifLogic(cond("notEmpty", set("userId", get(outreach("getProspectsByProperty"), "[0].id"))), {
@@ -103,12 +107,12 @@ const glue = {
           execute(["${connector.private_settings.synchronized_account_segments}", inputParameter("account_segments")],
             (params) => {
               if (!isUndefinedOrNull(params) && Array.isArray(params) && Array.isArray(params[0]) && Array.isArray(params[1])) {
-                return _.intersection(params[0], params[1].map((param) => param.id)) >= 1;
+                return _.intersection(params[0], params[1].map((param) => param.id));
               }
               return [];
             })), {
         true:
-          ifLogic(cond("isEmpty", set("accountId", inputParameter("outreach/id"))), {
+          ifLogic(cond("isEmpty", set("accountId", inputParameter("account.outreach/id"))), {
             true: [
               route("accountLookup"),
               ifLogic(cond("isEmpty", "${accountId}"), {
@@ -122,11 +126,13 @@ const glue = {
       }),
       false: {}
     }),
-  insertProspect: hull("asUser", outreachSendInput("insertProspect")),
-  updateProspect: hull("asUser", outreachSendInput("updateProspect")),
+  insertProspect: [ route("linkAccount"), route("sendInsertProspect", inputParameter("user"), HullOutgoingUser) ],
+  sendInsertProspect: hull("asUser", outreachSendInput("insertProspect")),
+  updateProspect: [ route("linkAccount"), route("sendUpdateProspect", inputParameter("user"), HullOutgoingUser) ],
+  sendUpdateProspect: hull("asUser", outreachSendInput("updateProspect")),
   accountUpdateStart: route("accountUpsert"),
   accountUpsert:
-    ifLogic(cond("notEmpty", set("accountId", inputParameter("outreach/id"))), {
+    ifLogic(cond("notEmpty", set("accountId", inputParameter("account.outreach/id"))), {
       true: hull("asAccount", outreachSendInput("updateAccount")),
       false: [
         route("accountLookup"),
@@ -150,8 +156,11 @@ const glue = {
         })
       ]
     ),
-  insertAccount: hull("asAccount", outreachSendInput("insertAccount")),
-  updateAccount: hull("asAccount", outreachSendInput("updateAccount")),
+  insertAccount: route("sendInsertAccount", inputParameter("account"), HullOutgoingAccount),
+  sendInsertAccount: hull("asAccount", outreachSendInput("insertAccount")),
+  updateAccount: route("sendUpdateAccount", inputParameter("account"), HullOutgoingAccount),
+  sendUpdateAccount: hull("asAccount", outreachSendInput("updateAccount")),
+
   fetchAll: [route("accountFetchAll"), route("prospectFetchAll")],
   accountFetchAll:
     [
@@ -199,15 +208,37 @@ const glue = {
     ifLogic(cond("isEmpty", "${connector.private_settings.webhook_id}"), {
       true: [
         set("webhookUrl", utils("createWebhookUrl")),
-        ifLogic(cond("isEmpty", filter(outreach("getAllWebhooks"), { type: "webhook", attributes: { url: "${webhookUrl}" } })),
+        set("existingWebhooks", outreach("getAllWebhooks")),
+        ifLogic(cond("isEmpty", filter("${existingWebhooks}", { type: "webhook", attributes: { url: "${webhookUrl}" } })),
           {
             true: [
               set("webhookId", get(outreachSend("insertWebhook", webhookDataTemplate), "data.id")),
               hull("settingsUpdate", { webhook_id:  "${webhookId}" })
             ],
             false: {}
-          })
+          }),
+        route("deleteBadWebhooks")
         ],
+      false: {}
+    }),
+  deleteBadWebhooks:
+    ifLogic(cond("notEmpty", set("webhooksToDelete", execute(["${existingWebhooks}", utils("getConnectorOrganization"),
+                                                      (params) => {
+                                                        const webhooks = params[0] || [];
+                                                        const organization = params[1];
+                                                        return _.reduce(webhooks, (orgWebhooks, webhook) => {
+                                                          const url = _.get(webhook, "attributes.url");
+                                                          if (!_.isEmpty(url) && url.indexOf(organization) > 0) {
+                                                            orgWebhooks.push(webhook);
+                                                          }
+                                                          return orgWebhooks;
+                                                        }, []);
+                                                      }))), {
+      true: loopArrayLogic(notFilter("${existingWebhooks}", { type: "webhook", attributes: { url: "${webhookUrl}" } }), "badWebhook",
+        [
+          set("webhookIdToDelete", get("${badWebhook}", "id")),
+          outreachSend("deleteWebhook")
+        ]),
       false: {}
     }),
   refreshToken:

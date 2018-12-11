@@ -128,7 +128,7 @@ class HullRouter {
       const sendMessage = toSendMessage(context, "user", message);
       // TODO send "link account" var in?
       if (sendMessage) {
-        return dispatcher.dispatchWithData(context, "userUpdateStart", HullOutgoingUser, message.user);
+        return dispatcher.dispatchWithData(context, "userUpdateStart", HullOutgoingUser, message);
       } else {
         return Promise.resolve();
       }
@@ -143,13 +143,14 @@ class HullRouter {
     const promise = Promise.all(messages.map(message => {
       const sendMessage = toSendMessage(context, "account", message);
       if (sendMessage) {
-        return dispatcher.dispatchWithData(context, "accountUpdateStart", HullOutgoingAccount, message.account);
+        return dispatcher.dispatchWithData(context, "accountUpdateStart", HullOutgoingAccount, message);
       } else {
         return Promise.resolve();
       }
     }));
      return promise;
   }
+
 }
 
 module.exports = {

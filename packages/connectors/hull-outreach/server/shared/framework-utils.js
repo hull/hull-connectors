@@ -23,6 +23,12 @@ class FrameworkUtils {
     return context.hostname;
   }
 
+  getConnectorOrganization(context: Object, params: any): string {
+    const client = context.client;
+    const { organization } = client.configuration();
+    return organization;
+  }
+
 }
 module.exports = {
   FrameworkUtils

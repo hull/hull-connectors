@@ -168,6 +168,11 @@ const service: RawRestApi = {
       operation: "post",
       endpointType: "create"
     },
+    deleteWebhook: {
+      url: "/webhooks/${webhookIdToDelete}",
+      operation: "delete",
+      endpointType: "delete"
+    },
     refreshToken: {
       url: "https://api.outreach.io/oauth/token",
       operation: "post",

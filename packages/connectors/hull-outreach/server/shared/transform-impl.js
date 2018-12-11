@@ -165,9 +165,10 @@ class TransformImpl {
             if (transform.condition) {
               if (typeof transform.condition === 'string') {
                 const value = _.get(context, transform.condition);
-                if (typeof value === 'boolean' && !value) {
+
+                if (isUndefinedOrNull(value)) {
                   return;
-                } else if (isUndefinedOrNull(value)) {
+                } else if (typeof value === 'boolean' && !value) {
                   return;
                 }
               } else if (typeof transform.condition === 'function') {
