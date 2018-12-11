@@ -112,8 +112,8 @@ function route(name: string): Route {
   return new Route(name, undefined, undefined);
 }
 
-function routeWithData(name: string, params: any): Route {
-  return new Route(name, params);
+function routeWithData(name: string, params: any, paramsType: any): Route {
+  return new Route(name, params, paramsType);
 }
 
 function cond(name: string, params: any): Op {

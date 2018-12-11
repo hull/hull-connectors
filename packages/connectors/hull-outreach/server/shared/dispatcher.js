@@ -136,14 +136,14 @@ class HullDispatcher {
         }
 
         let paramString = JSON.stringify(resolvedParams);
-        // if (paramString.length > 60) {
-        //   paramString = `${paramString.substring(0,60)}...`;
-        // }
+        if (paramString.length > 60) {
+          paramString = `${paramString.substring(0,60)}...`;
+        }
 
         if (paramName === null) {
-          debug(`[EXECUTING]: ${instruction.type}<${instruction.name}> [RESOLVED-TO]: ${paramString}`);
+          debug(`[EXECUTING]: ${instruction.type}<${instruction.name}> [WITH-RESOLVED-PARAM]: ${paramString}`);
         } else {
-          debug(`[EXECUTING]: ${instruction.type}<${instruction.name}> [FROM]: ${paramName} [RESOLVED-TO]: ${paramString}`);
+          debug(`[EXECUTING]: ${instruction.type}<${instruction.name}> [FROM]: ${paramName} [WITH-RESOLVED-PARAM]: ${paramString}`);
         }
 
       } else {
@@ -186,7 +186,7 @@ class HullDispatcher {
 
       if (!isUndefinedOrNull(instruction.paramsType)) {
         // TODO could be a pattern for expansion on array to go in parallel
-        return await this.resolve(context, route, new ServiceData(instructions.paramsType, resolvedParams));
+        return await this.resolve(context, route, new ServiceData(instruction.paramsType, resolvedParams));
       } else {
         return await this.resolve(context, route, serviceData);
       }

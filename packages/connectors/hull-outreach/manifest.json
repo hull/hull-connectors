@@ -108,17 +108,11 @@
     },
     {
       "name": "synchronized_user_segments",
-      "title": "Send *Users* as Prospects to Outreach.io when belonging to one of these segments",
+      "title": "User Filter",
+      "description": "The above lists of segments are whitelists for users. You need to *explicitely specify one or more segments* for which users and events shall be sent to Outreach.io.<br>If you do not specify any segment, no users or event will be sent to Outreach.io.",
       "type": "array",
       "default": [],
       "format": "segment"
-    },
-    {
-      "name": "synchronized_user_segments_hero",
-      "type": "string",
-      "headerTemplate": "The above lists of segments are whitelists for users. You need to *explicitely specify one or more segments* for which users and events shall be sent to Outreach.io.<br>If you do not specify any segment, no users or event will be sent to Outreach.io.",
-      "format": "information",
-      "title": "Whitelisted Segments"
     },
     {
       "name": "outgoing_user_attributes",
@@ -202,17 +196,11 @@
     },
     {
       "name": "synchronized_account_segments",
-      "title": "Send *Accounts* as Accounts to Outreach.io when belonging to one of these segments",
+      "title": "Account Filter",
+      "description": "The above lists of segments are whitelists for accounts. You need to *explicitely specify one or more segments* for which accounts and events shall be sent to Outreach.io. If you do not specify any segment, no account or event will be sent to Outreach.io.",
       "type": "array",
       "default": [],
       "format": "accountSegment"
-    },
-    {
-      "name": "synchronized_account_segments_hero",
-      "type": "string",
-      "headerTemplate": "The above lists of segments are whitelists for accounts. You need to *explicitely specify one or more segments* for which accounts and events shall be sent to Outreach.io.<br>If you do not specify any segment, no account or event will be sent to Outreach.io.",
-      "format": "information",
-      "title": "Whitelisted Segments"
     },
     {
       "name": "outgoing_account_attributes",
@@ -225,7 +213,19 @@
         "placeholder": "Outreach Account Field",
         "allowCreate": false,
         "loadOptions": "/fields-outreach-account-out"
-      }
+      },
+      "default": [
+        {
+          "hull": "name",
+          "service": "name"
+        }
+      ]
+    },
+    {
+      "name": "outgoing_account_attributes_hero",
+      "type": "string",
+      "headerTemplate": "Must have a field mapped to Outreach's Name in account outgoing attributes, otherwise it will fail on trying to create new accounts, because Outreach requires a name for the account.  We've populated the name mapping by default, but you may change it something else if needed",
+      "format": "information"
     },
     {
       "name": "link_users_in_service",

@@ -45,10 +45,7 @@ const transformsToService: ServiceTransforms = [
       { outputPath: "data.type", outputFormat: "account" },
       { inputPath: "outreach/id", outputPath: "data.id" },
       { outputPath: "data.id", outputFormat: "${accountId}" },
-      // won't be set if it does not exist, will only exist on insert
-      // if we set something different for name in mapping, then it will get overridden
-      // which is good
-      { outputPath: "data.attributes.name", outputFormat: "${hull_domain}" },
+      //still need to take this out in favor of setting the settings outgoing mappings
       { inputPath: "domain", outputPath: "data.attributes.domain" },
       {
         mapping: "connector.private_settings.outgoing_account_attributes",

@@ -4,6 +4,7 @@ const { service } = require("./service");
 const {
   ifLogic,
   route,
+  routeWithData,
   cond,
   hull,
   set,
@@ -28,6 +29,8 @@ const {
   HullOutgoingAccount,
   HullOutgoingUser
 } = require("./shared/hull-service-objects");
+
+const _ = require("lodash");
 
 // function outreach(op: string, query: any): Svc { return new Svc("outreach", op, query, null)};
 // function outreach(op: string, data: any): Svc { return new Svc("outreach", op, null, data)};
@@ -126,14 +129,14 @@ const glue = {
       }),
       false: {}
     }),
-  insertProspect: [ route("linkAccount"), route("sendInsertProspect", inputParameter("user"), HullOutgoingUser) ],
+  insertProspect: [ route("linkAccount"), routeWithData("sendInsertProspect", inputParameter("user"), HullOutgoingUser) ],
   sendInsertProspect: hull("asUser", outreachSendInput("insertProspect")),
-  updateProspect: [ route("linkAccount"), route("sendUpdateProspect", inputParameter("user"), HullOutgoingUser) ],
+  updateProspect: [ route("linkAccount"), routeWithData("sendUpdateProspect", inputParameter("user"), HullOutgoingUser) ],
   sendUpdateProspect: hull("asUser", outreachSendInput("updateProspect")),
   accountUpdateStart: route("accountUpsert"),
   accountUpsert:
     ifLogic(cond("notEmpty", set("accountId", inputParameter("account.outreach/id"))), {
-      true: hull("asAccount", outreachSendInput("updateAccount")),
+      true: route("updateAccount"),
       false: [
         route("accountLookup"),
         ifLogic(cond("notEmpty", "${accountId}"), {
@@ -146,7 +149,7 @@ const glue = {
     loopArrayLogic(notFilter("${connector.private_settings.incoming_account_claims}", { service: "id" }), "claim",
       [
         set("property", "${claim.service}"),
-        set("value", inputParameter("${claim.hull}")),
+        set("value", inputParameter("account.${claim.hull}")),
         ifLogic(cond("notEmpty", "${value}"), {
           true: ifLogic(cond("notEmpty", set("accountId", get(outreach("getAccountByProperty"), "[0].id"))), {
             true: loopEnd(),
@@ -156,9 +159,9 @@ const glue = {
         })
       ]
     ),
-  insertAccount: route("sendInsertAccount", inputParameter("account"), HullOutgoingAccount),
+  insertAccount: routeWithData("sendInsertAccount", inputParameter("account"), HullOutgoingAccount),
   sendInsertAccount: hull("asAccount", outreachSendInput("insertAccount")),
-  updateAccount: route("sendUpdateAccount", inputParameter("account"), HullOutgoingAccount),
+  updateAccount: routeWithData("sendUpdateAccount", inputParameter("account"), HullOutgoingAccount),
   sendUpdateAccount: hull("asAccount", outreachSendInput("updateAccount")),
 
   fetchAll: [route("accountFetchAll"), route("prospectFetchAll")],
@@ -169,7 +172,7 @@ const glue = {
       [
         set("outreachAccounts", outreach("getAllAccountsPaged")),
         hull("asAccount", "${outreachAccounts}"),
-        ifLogic(cond("lessThan", [execute("${outreachAccounts}", (accounts) => accounts.length), 10]), {
+        ifLogic(cond("lessThan", [execute("${outreachAccounts}", (accounts) => accounts.length), 100]), {
           true: loopEnd(),
           false: set("id_offset",
                     execute(
@@ -185,7 +188,7 @@ const glue = {
       [
         set("outreachProspects", outreach("getAllProspectsPaged")),
         hull("asUser", "${outreachProspects}"),
-        ifLogic(cond("lessThan", [execute("${outreachProspects}", (prospects) => prospects.length), 10]), {
+        ifLogic(cond("lessThan", [execute("${outreachProspects}", (prospects) => prospects.length), 100]), {
           true: loopEnd(),
           false: set("id_offset",
                     execute(
@@ -222,7 +225,8 @@ const glue = {
       false: {}
     }),
   deleteBadWebhooks:
-    ifLogic(cond("notEmpty", set("webhooksToDelete", execute(["${existingWebhooks}", utils("getConnectorOrganization"),
+    ifLogic(cond("notEmpty", set("webhooksToDelete",
+    execute([notFilter("${existingWebhooks}", { type: "webhook", attributes: { url: "${webhookUrl}" } }), utils("getConnectorOrganization")],
                                                       (params) => {
                                                         const webhooks = params[0] || [];
                                                         const organization = params[1];
@@ -234,10 +238,10 @@ const glue = {
                                                           return orgWebhooks;
                                                         }, []);
                                                       }))), {
-      true: loopArrayLogic(notFilter("${existingWebhooks}", { type: "webhook", attributes: { url: "${webhookUrl}" } }), "badWebhook",
+      true: loopArrayLogic("${existingWebhooks}", "badWebhook",
         [
-          set("webhookIdToDelete", get("${badWebhook}", "id")),
-          outreachSend("deleteWebhook")
+          set("webhookIdToDelete", get("${badWebhook}", "id"))
+          // outreachSend("deleteWebhook")
         ]),
       false: {}
     }),
