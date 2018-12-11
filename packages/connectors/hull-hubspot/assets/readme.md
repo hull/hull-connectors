@@ -50,7 +50,7 @@ HubSpot Contacts and their updates are fetched into Hull manually or on a schedu
 
 When new data about a HubSpot Contact is [ingested](https://www.hull.io/docs/data_lifecycle/ingest/), Hull follows this process:
 
-1. Checks if there is a matching `anonymous_id` (HubSpot Contact `VID`) or `email`
+1. Checks if there is a matching `email`
 2. If so, updates the existing Hull User
 3. Else, creates a new Hull User
 
@@ -64,14 +64,14 @@ HubSpot Companies and their updates are fetched automatically on a schedule. Thi
 
 When new data about a HubSpot Company is ingested, Hull follows this process:
 
-1. Check if the required identifier is present. Skip if not.
-2. Checks if there is a matching `domain` in Hull
+1. Check if the required identifier is present (e.g. `domain` for default). Skip if not.
+2. Checks if there is a matching identifier in Hull (e.g. `domain`)
 3. If so, updates the existing Hull Account
 4. Else, creates a new Hull Account
 
 ### Linking HubSpot Contacts & Companies in Hull
 
-Hull will match Users and Accounts by a common `domain`.
+Hull will associate Users and Accounts by a common `domain`. e.g. `romain@hull.io` and `www.hull.io` will be associated.
 
 If you’d also like to match Users and Accounts in Hull by the Contact-Company relationships you have in HubSpot, you can configure this in the Connector Settings under the **Link users in Hull** toggle.
 
@@ -90,20 +90,22 @@ Hull Users must be in a whitelisted User Segment to be synced to HubSpot. By def
 When Hull publishes a [User Update](https://www.hull.io/docs/data_lifecycle/notify/#format-of-a-user-update-notification) for a User whitelisted to sync to HubSpot:
 
 1. Check if there is an `email`. Skip if not.
-2. Check if there is a matching `anonymous_id` (corresponds to a HubSpot Contact `VID`) or `email` in HubSpot
-3. If so, update existing HubSpot Contact
-4. Else, create new HubSpot Contact
+2. If `email` exists, sync User Update to HubSpot.
+3. HubSpot will then check if an existing Contact exists with the same `email` or `VID`
+4. If so, HubSpot will update the existing Contact
+5. Else, HubSpot will create a new Contact
 
 ### Creating & Updating HubSpot Companies
 
-Hull Accounts must be in a whitelisted Account Segment, or be associated with a whitelisted User to be synced to HubSpot. By default, no Accounts are synced.
+Hull Accounts must be in a whitelisted Account Segment to be synced to HubSpot. By default, no Accounts are synced.
 
 When Hull publishes an [Account Update](https://www.hull.io/docs/data_lifecycle/notify/#format-of-an-account-update-notification) for an Account whitelisted to sync to HubSpot
 
 1. Check if there is an `domain`. Skip if not.
-2. Check if there is a matching `domain` in HubSpot.
-3. If so, update existing HubSpot Company
-4. Else, create new HubSpot Company
+2. If `domain` exists, sync Account Update to HubSpot
+2. HubSpot will then check if an existing Company exists with the same `domain`
+3. If so, HubSpot will update the existing Company
+4. Else, HubSpot will create a new Company
 
 ### Linking Hull Users & Accounts in HubSpot
 
