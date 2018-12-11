@@ -91,7 +91,7 @@ When Hull publishes a [User Update](https://www.hull.io/docs/data_lifecycle/noti
 
 1. Check if there is an `email`. Skip if not.
 2. If `email` exists, sync User Update to HubSpot.
-3. HubSpot will then check if an existing Contact exists with the same `email` or `VID`
+3. HubSpot will then check if an existing Contact exists with the same `email` or `hubspot/id` (Contact `VID` in HubSpot)
 4. If so, HubSpot will update the existing Contact
 5. Else, HubSpot will create a new Contact
 
