@@ -71,6 +71,14 @@ function server(app: $Application, deps: Object): $Application {
     (req: HullRequest): Promise<any> => {
       return hullRouter.fetchAll(req);
       }));
+  app.post("/accountFetchAll", jsonHandler(
+    (req: HullRequest): Promise<any> => {
+      return hullRouter.accountFetchAll(req);
+      }));
+  app.post("/prospectFetchAll", jsonHandler(
+    (req: HullRequest): Promise<any> => {
+      return hullRouter.prospectFetchAll(req);
+      }));
 
   app.get("/admin", htmlHandler(actions.adminHandler));
   app.get(

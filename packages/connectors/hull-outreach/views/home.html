@@ -11,11 +11,18 @@
           <div class="mb-1">
             <h1 class="mb-0 mt-05  text-center"><i class="icon icon-hull" style="font-size:64px;"></i></h1>
             <div class="mb-1 media ps-4 pb-1">
+              <p class="center-block mb-1 text-center">
+                Please be careful with these operations, they trigger large jobs to pull your data from outreach that take time.  The outreach api can send about 10 entities per second.
+              </p>
               <div class="center-block col-xs-12">
                 <p class="center-block mb-1 text-center">
-                  Fetch will retrieve all Accounts and Prospects up to 10000 entities.  If you have more than 10000 Accounts or Prospects please contact Hull Support for help with batch uploading Outreach data.
                 </p>
-                <div data-href="/fetch" class="center-block btn btn-rounded btn-pill btn-primary">Fetch All Prospects and Accounts</div>
+                <div data-href="/accountFetchAll" class="center-block btn btn-rounded btn-pill btn-primary">Fetch All Accounts</div>
+              </div>
+              <div class="center-block col-xs-12">
+                <p class="center-block mb-1 text-center">
+                </p>
+                <div data-href="/prospectFetchAll" class="center-block btn btn-rounded btn-pill btn-primary">Fetch All Prospects</div>
               </div>
             </div>
           </div>
@@ -30,9 +37,21 @@
       jQuery(function($) {
         $("[data-href]").click(function() {
           var url = $(this).attr('data-href');
+
+          var titleVar, textVar, followupVar;
+          if (url.indexOf("prospect") >= 0) {
+            titleVar = "Fetch all Prospects";
+            textVar = "You are going to fetch your Outreach.io Prospects. This can generate a lot of traffic. Are you sure?";
+            followupVar = "The Prospects will be fetched shortly";
+          } else {
+            titleVar = "Fetch all Accounts";
+            textVar = "You are going to fetch your Outreach.io Accounts. This can generate a lot of traffic. Are you sure?";
+            followupVar = "The Accounts will be fetched shortly";
+          }
+
           swal({
-            title: "Fetch all accounts and prospects",
-            text: "You are going to fetch your Outreach.io Accounts and Prospects. This can generate a lot of traffic. Are you sure?",
+            title: titleVar,
+            text: textVar,
             type: "warning",
             showCancelButton: true,
             confirmButtonColor: "#DD6B55",
@@ -41,7 +60,7 @@
           }, function(isConfirm) {
             if (isConfirm) {
               $.post(url+window.location.search);
-              swal("Fetching started", "The Accounts and Prospects will be fetched shortly.", "success");
+              swal("Fetching started", followupVar, "success");
             }
           });
         });

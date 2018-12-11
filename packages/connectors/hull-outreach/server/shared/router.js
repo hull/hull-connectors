@@ -77,6 +77,16 @@ class HullRouter {
     return Promise.resolve("ok");
   }
 
+  accountFetchAll(context: HullContext) {
+    this.dispatcher().dispatch(context, "accountFetchAll");
+    return Promise.resolve("ok");
+  }
+
+  prospectFetchAll(context: HullContext) {
+    this.dispatcher().dispatch(context, "prospectFetchAll");
+    return Promise.resolve("ok");
+  }
+
     /******************* this one isn't declared in manifest *******************/
   webhook(context: HullContext, webhookPayload: any) {
     // Interesting abstraction problem
