@@ -104,8 +104,8 @@ function jsonHandlerFactory(
           req.hull.metric.captureException(error);
         }
       });
-      // $FlowFixMe
-      return res.json({ status: "deferred" });
+      res.json({ status: "deferred" });
+      return;
     }
 
     (() => {
