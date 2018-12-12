@@ -135,17 +135,17 @@ class HullRouter {
 
   incomingRequest(route: string, request: HullRequest) {
 
-    context.client.logger.info("incoming.job.start", {
+    request.client.logger.info("incoming.job.start", {
       jobName: "Incoming Data Request"
     });
 
     return this.dispatcher().dispatch(request, route).then(results => {
-      context.client.logger.info("incoming.job.success", {
+      request.client.logger.info("incoming.job.success", {
         jobName: "Incoming Data Request"
       });
       return Promise.resolve(results);
     }).catch(error => {
-      context.client.logger.error("incoming.job.error", {
+      request.client.logger.error("incoming.job.error", {
         jobName: "Incoming Data Request", error: error.message
       });
       return Promise.reject(error);
