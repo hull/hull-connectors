@@ -29,7 +29,7 @@ it("should handle error during token refresh", () => {
       connector,
       usersSegments: [],
       accountsSegments: [],
-      response: {"status": "deffered"},
+      response: {"status": "deferred"},
       logs: [
         [
           "debug",
