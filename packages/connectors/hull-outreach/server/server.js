@@ -114,16 +114,6 @@ function server(app: $Application, deps: Object): $Application {
     cors(),
     jsonHandler(actions.fieldsOutreachAccountOutbound)
   );
-  app.get(
-    "/fields-hull-account-ident",
-    cors(),
-    jsonHandler(actions.fieldsHullAccountIdent)
-  );
-  app.get(
-    "/fields-outreach-account-ident",
-    cors(),
-    jsonHandler(actions.fieldsOutreachAccountIdent)
-  );
 }
 
 module.exports = server;
