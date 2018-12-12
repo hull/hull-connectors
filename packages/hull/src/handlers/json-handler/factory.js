@@ -26,6 +26,7 @@ type HullJsonHandlerConfigurationEntry = HullHandlersConfigurationEntry<
 const debug = require("debug")("hull-connector:json-handler");
 const { Router } = require("express");
 const cors = require("cors");
+const _ = require("lodash");
 
 const { TransientError } = require("../../errors");
 const {
@@ -90,7 +91,6 @@ function jsonHandlerFactory(
     res: $Response,
     next: NextFunction
   ) {
-
     if (fireAndForget === true) {
       callback(req.hull).catch(error => {
         // all TransientErrors (and child error classes such as ConfigurationError)
