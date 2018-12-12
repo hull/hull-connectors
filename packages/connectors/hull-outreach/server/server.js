@@ -34,11 +34,25 @@ function server(app: $Application, deps: Object): $Application {
     app.use("/auth", authHandler);
   }
 
+  /**
+   * We should think more about how the rules get hooked into routes
+   * would be cool if this could happen automatically depending on the endpoints you've implemented
+   * it's an abstraction for automically routing messages depending on what they "mean"
+   */
+  const notifications = {
+    "user:update": (ctx: HullContext, messages: Array<HullUserUpdateMessage>) => {
+      return hullRouter.outgoingData("user", ctx, messages);
+      },
+    "account:update": (ctx: HullContext, messages: Array<HullAccountUpdateMessage>) => {
+      return hullRouter.outgoingData("account", ctx, messages);
+    }
+  };
+
   app.use(
     "/webhooks",
     incomingRequestHandler({
       callback: (context: HullContext, webhookPayload: any) => {
-        return hullRouter.webhook(context, webhookPayload);
+        return hullRouter.incomingData("webhook", context, webhookPayload);
       },
       options: {
         parseCredentialsFromQuery: true,
@@ -47,30 +61,9 @@ function server(app: $Application, deps: Object): $Application {
     })
   );
 
-  /**
-   * We should think more about how the rules get hooked into routes
-   * would be cool if this could happen automatically depending on the endpoints you've implemented
-   * it's an abstraction for automically routing messages depending on what they "mean"
-   */
-  const notifications = {
-    "user:update": (ctx: HullContext, messages: Array<HullUserUpdateMessage>) => {
-      return hullRouter.userUpdate(ctx, messages);
-      },
-    "account:update": (ctx: HullContext, messages: Array<HullAccountUpdateMessage>) => {
-      return hullRouter.accountUpdate(ctx, messages);
-    }
-  };
-
-  app.post("/smart-notifier", notificationHandler(notifications));
-  app.post("/batch", batchHandler(notifications));
-  app.post("/batch-accounts", batchHandler(notifications));
-  app.post("/status", scheduleHandler(
-    (req: HullRequest): Promise<any> => {
-      return hullRouter.status(req);
-      }));
   app.post("/fetch", jsonHandler({
     callback: (req: HullRequest): Promise<any> => {
-      return hullRouter.fetchAll(req);
+      return hullRouter.incomingRequest("fetchAll", req);
     },
     options: {
       fireAndForget: true
@@ -78,7 +71,7 @@ function server(app: $Application, deps: Object): $Application {
   }));
   app.post("/accountFetchAll", jsonHandler({
     callback: (req: HullRequest): Promise<any> => {
-      return hullRouter.accountFetchAll(req);
+      return hullRouter.incomingRequest("accountFetchAll", req);
     },
     options: {
       fireAndForget: true
@@ -86,12 +79,21 @@ function server(app: $Application, deps: Object): $Application {
   }));
   app.post("/prospectFetchAll", jsonHandler({
     callback: (req: HullRequest): Promise<any> => {
-      return hullRouter.prospectFetchAll(req);
+      return hullRouter.incomingRequest("prospectFetchAll", req);
     },
     options: {
       fireAndForget: true
     }
   }));
+
+  app.post("/smart-notifier", notificationHandler(notifications));
+  app.post("/batch", batchHandler(notifications));
+  app.post("/batch-accounts", batchHandler(notifications));
+
+  app.post("/status", scheduleHandler(
+    (req: HullRequest): Promise<any> => {
+      return hullRouter.status(req);
+      }));
 
   app.get("/admin", htmlHandler(actions.adminHandler));
   app.get(

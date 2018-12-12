@@ -39,13 +39,15 @@ test("send smart-notifier user update to outreach", () => {
         }
       },
       logs: [
+        ["info", "outgoing.job.start", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}],
         ["debug", "connector.service_api.call", expect.whatever(), {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/", "vars": {}}],
         ["debug", "connector.service_api.call", expect.whatever(), {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/accounts/", "vars": {}}],
         ["info", "outgoing.account.success", expect.objectContaining({"account_domain": "afterlife.com", "subject_type": "account"}), expect.objectContaining({ response: require("../fixtures/api-responses/outgoing-user-link-insert-account.json").data })],
         ["info", "incoming.account.success", expect.whatever(), {"data": {"attributes": {"outreach/id": {"operation": "set", "value": 184796}}, "ident": {"anonymous_id": "outreach:184796", "domain": "afterlife.com"}}}],
         ["debug", "connector.service_api.call", expect.whatever(), {"method": "PATCH", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/18", "vars": {}}],
         ["info", "outgoing.user.success", expect.whatever(), expect.objectContaining({ response: require("../fixtures/api-responses/outgoing-user-link-patch-user.json").data })],
-        ["info", "incoming.user.success", expect.whatever(), { "data": { "accountIdent": {"anonymous_id": "outreach:184796" }, "attributes": {"outreach/custom1": {"operation": "set", "value": "probably is a smuggler too"}, "outreach/id": {"operation": "set", "value": 18}, "outreach/personalnote2": {"operation": "set", "value": "froze han solo in carbinite, he was just a kid!  He's very efficient"}}, "ident": {"anonymous_id": "outreach:18", "email": "fettisbest@gmail.com"}}}]
+        ["info", "incoming.user.success", expect.whatever(), { "data": { "accountIdent": {"anonymous_id": "outreach:184796" }, "attributes": {"outreach/custom1": {"operation": "set", "value": "probably is a smuggler too"}, "outreach/id": {"operation": "set", "value": 18}, "outreach/personalnote2": {"operation": "set", "value": "froze han solo in carbinite, he was just a kid!  He's very efficient"}}, "ident": {"anonymous_id": "outreach:18", "email": "fettisbest@gmail.com"}}}],
+        ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}]
       ],
       firehoseEvents: [
         ["traits", {"asAccount": {"anonymous_id": "outreach:184796", "domain": "afterlife.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 184796}}],

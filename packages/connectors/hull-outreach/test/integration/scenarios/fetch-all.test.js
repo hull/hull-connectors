@@ -79,6 +79,7 @@ test("fetch all accounts and prospects from outreach", () => {
       },
       response: { status : "deferred"},
       logs: [
+        ["info", "incoming.job.start", {}, {"jobName": "Incoming Data Request"}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/", "vars": {}}],
@@ -86,7 +87,8 @@ test("fetch all accounts and prospects from outreach", () => {
         ["info", "incoming.account.success", {}, {"data": {"attributes": {"outreach/id": {"operation": "set", "value": 4}}, "ident": {"anonymous_id": "outreach:4", "domain": "noprospectshullcompany.com"}}}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/", "vars": {}}],
         ["info", "incoming.user.success", {}, {"data": {"accountIdent": { "anonymous_id": "outreach:1" }, "attributes": {"outreach/custom1": {"operation": "set", "value": "He's cool"}, "outreach/id": {"operation": "set", "value": 1}, "outreach/personalNote1": {"operation": "set", "value": "he's a cool guy I guess...."}}, "ident": {"anonymous_id": "outreach:1", "email": "ceo@somehullcompany.com"}}}],
-        ["info", "incoming.user.success", {}, {"data": {"accountIdent": { "anonymous_id": "outreach:3" }, "attributes": {"outreach/id": {"operation": "set", "value": 2}}, "ident": {"anonymous_id": "outreach:2", "email": "noAccountProspect@noaccount.com"}}}]
+        ["info", "incoming.user.success", {}, {"data": {"accountIdent": { "anonymous_id": "outreach:3" }, "attributes": {"outreach/id": {"operation": "set", "value": 2}}, "ident": {"anonymous_id": "outreach:2", "email": "noAccountProspect@noaccount.com"}}}],
+        ["info", "incoming.job.success", {}, {"jobName": "Incoming Data Request"}]
       ],
       firehoseEvents: [
         ["traits", {"asAccount": {"anonymous_id": "outreach:1", "domain": "somehullcompany.com"}, "subjectType": "account"}, {"outreach/custom1": {"operation": "set", "value": "some custom value"}, "outreach/custom10": {"operation": "set", "value": "another custom value"}, "outreach/id": {"operation": "set", "value": 1}}],
