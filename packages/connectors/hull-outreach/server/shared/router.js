@@ -73,27 +73,28 @@ class HullRouter {
 
   /******************* this one isn't declared in manifest *******************/
   fetchAll(context: HullContext) {
-    this.dispatcher().dispatch(context, "fetchAll");
-    return Promise.resolve("ok");
+    return this.dispatcher().dispatch(context, "fetchAll");
   }
 
   accountFetchAll(context: HullContext) {
-    this.dispatcher().dispatch(context, "accountFetchAll");
-    return Promise.resolve("ok");
+    return this.dispatcher().dispatch(context, "accountFetchAll");
   }
 
   prospectFetchAll(context: HullContext) {
-    this.dispatcher().dispatch(context, "prospectFetchAll");
-    return Promise.resolve("ok");
+    return this.dispatcher().dispatch(context, "prospectFetchAll");
   }
 
     /******************* this one isn't declared in manifest *******************/
   webhook(context: HullContext, webhookPayload: any) {
     // Interesting abstraction problem
     // need to tell what type of data is incoming, but the data incoming will be different per connector
-    // so there's an idea that needs to be abstracted above
-    this.dispatcher().dispatchWithData(context, "webhook", WebhookPayload, webhookPayload.body);
-    return Promise.resolve({ status: 200, text: "All good" });
+    // so there's an idea that needs to be abstracted above]
+  //TODO return actual promise
+    return this.dispatcher()
+    .dispatchWithData(context, "webhook", WebhookPayload, webhookPayload.body)
+    .then(results => {
+      return Promise.resolve({ status: 200, text: "All good" });
+    });
   }
 
   status(req: HullRequest): Promise<any> {

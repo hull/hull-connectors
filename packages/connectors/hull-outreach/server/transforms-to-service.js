@@ -15,7 +15,6 @@ const transformsToService: ServiceTransforms = [
       { outputPath: "data.type", outputFormat: "prospect" },
       { inputPath: "outreach/id", outputPath: "data.id" },
       { outputPath: "data.id", outputFormat: "${userId}" },
-      { inputPath: "email", outputPath: "data.attributes.emails", outputFormat: ["${value}"] },
       {
         condition: "accountId",
         outputPath: "data.relationships.account.data",
@@ -26,6 +25,15 @@ const transformsToService: ServiceTransforms = [
       },
       {
         mapping: "connector.private_settings.outgoing_user_attributes",
+        outputArrayFields: {
+          checkField: "service_field_name",
+          fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"],
+        },
+        inputPath: "${hull_field_name}",
+        outputPath: "data.attributes.${service_field_name}",
+      },
+      {
+        mapping: "connector.private_settings.user_claims",
         outputArrayFields: {
           checkField: "service_field_name",
           fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"],
@@ -49,6 +57,15 @@ const transformsToService: ServiceTransforms = [
       { inputPath: "domain", outputPath: "data.attributes.domain" },
       {
         mapping: "connector.private_settings.outgoing_account_attributes",
+        inputPath: "${hull_field_name}",
+        outputPath: "data.attributes.${service_field_name}",
+      },
+      {
+        mapping: "connector.private_settings.account_claims",
+        outputArrayFields: {
+          checkField: "service_field_name",
+          fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"],
+        },
         inputPath: "${hull_field_name}",
         outputPath: "data.attributes.${service_field_name}",
       }

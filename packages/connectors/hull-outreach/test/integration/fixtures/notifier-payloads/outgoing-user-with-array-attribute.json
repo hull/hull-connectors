@@ -20,7 +20,7 @@
             "access_token": "2345",
             "link_users_in_service": true,
             "link_users_in_hull": true,
-            "incoming_user_claims": [
+            "user_claims": [
                 {
                     "hull": "email",
                     "service": "emails"
@@ -52,6 +52,16 @@
                 {
                     "hull": "traits_closeio/phone_office",
                     "service": "workPhones"
+                }
+            ],
+            "account_claims": [
+                {
+                    "hull": "domain",
+                    "service": "domain"
+                },
+                {
+                    "hull": "external_id",
+                    "service": "customId"
                 }
             ],
             "webhook_id": 31

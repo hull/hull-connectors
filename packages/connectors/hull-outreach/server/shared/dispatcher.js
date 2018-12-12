@@ -65,7 +65,7 @@ class HullDispatcher {
   }
 
   async handleRequest(context: Object, route: string, data: null | ServiceData) {
-    try {
+    // try {
       if (!_.isEmpty(this.ensure)) {
         if (isUndefinedOrNull(this.ensurePromise)) {
           this.ensurePromise = this.resolve(_.assign({}, context), new Route(this.ensure), data);
@@ -79,9 +79,9 @@ class HullDispatcher {
       // so we don't have to do this weird assign at the top to create message
       // specific context
       return await this.resolve(_.assign({}, context), new Route(route), data);
-    } catch (error) {
-      console.log("Error here: " + error.stack);
-    }
+    // } catch (error) {
+    //   console.log("Error here: " + error.stack);
+    // }
   }
 
   async resolve(context: Object, instruction: Object, serviceData: null | ServiceData): any {
@@ -136,9 +136,9 @@ class HullDispatcher {
         }
 
         let paramString = JSON.stringify(resolvedParams);
-        if (paramString.length > 60) {
-          paramString = `${paramString.substring(0,60)}...`;
-        }
+        // if (paramString.length > 60) {
+        //   paramString = `${paramString.substring(0,60)}...`;
+        // }
 
         if (paramName === null) {
           debug(`[EXECUTING]: ${instruction.type}<${instruction.name}> [WITH-RESOLVED-PARAM]: ${paramString}`);

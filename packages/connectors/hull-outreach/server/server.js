@@ -68,18 +68,30 @@ function server(app: $Application, deps: Object): $Application {
     (req: HullRequest): Promise<any> => {
       return hullRouter.status(req);
       }));
-  app.post("/fetch", jsonHandler(
-    (req: HullRequest): Promise<any> => {
+  app.post("/fetch", jsonHandler({
+    callback: (req: HullRequest): Promise<any> => {
       return hullRouter.fetchAll(req);
-      }));
-  app.post("/accountFetchAll", jsonHandler(
-    (req: HullRequest): Promise<any> => {
+    },
+    options: {
+      fireAndForget: true
+    }
+  }));
+  app.post("/accountFetchAll", jsonHandler({
+    callback: (req: HullRequest): Promise<any> => {
       return hullRouter.accountFetchAll(req);
-      }));
-  app.post("/prospectFetchAll", jsonHandler(
-    (req: HullRequest): Promise<any> => {
+    },
+    options: {
+      fireAndForget: true
+    }
+  }));
+  app.post("/prospectFetchAll", jsonHandler({
+    callback: (req: HullRequest): Promise<any> => {
       return hullRouter.prospectFetchAll(req);
-      }));
+    },
+    options: {
+      fireAndForget: true
+    }
+  }));
 
   app.get("/admin", htmlHandler(actions.adminHandler));
   app.get(

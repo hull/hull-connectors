@@ -47,14 +47,8 @@
       "format": "hidden"
     },
     {
-      "name": "prospect_incoming_sync_title",
-      "title": "Incoming User Synchronization Options (Outreach to Hull)",
-      "format": "title",
-      "type": "string"
-    },
-    {
-      "name": "incoming_user_claims",
-      "title": "Incoming user identity",
+      "name": "user_claims",
+      "title": "User Identity",
       "type": "array",
       "format": "table",
       "items": {
@@ -85,6 +79,18 @@
           "service": "externalId"
         }
       ]
+    },
+    {
+      "name": "user_claim_hero",
+      "type": "string",
+      "headerTemplate": "Mapped user identity attributes will automatically be pulled in the incoming and outgoing traffic",
+      "format": "information"
+    },
+    {
+      "name": "prospect_incoming_sync_title",
+      "title": "Incoming User Synchronization Options (Outreach to Hull)",
+      "format": "title",
+      "type": "string"
     },
     {
       "name": "incoming_user_attributes",
@@ -128,14 +134,9 @@
       }
     },
     {
-      "name": "account_incoming_synch_title",
-      "title": "Incoming Account Synchronization Options (Outreach to Hull)",
-      "format": "title",
-      "type": "string"
-    },
-    {
-      "name": "incoming_account_claims",
-      "title": "Incoming account identity",
+      "name": "account_claims",
+      "title": "Account Identity",
+      "description": "something",
       "type": "array",
       "format": "table",
       "items": {
@@ -166,6 +167,18 @@
           "service": "customId"
         }
       ]
+    },
+    {
+      "name": "account_claim_hero",
+      "type": "string",
+      "headerTemplate": "Mapped account identity attributes will automatically be pulled in the incoming and outgoing traffic",
+      "format": "information"
+    },
+    {
+      "name": "account_incoming_synch_title",
+      "title": "Incoming Account Synchronization Options (Outreach to Hull)",
+      "format": "title",
+      "type": "string"
     },
     {
       "name": "incoming_account_attributes",

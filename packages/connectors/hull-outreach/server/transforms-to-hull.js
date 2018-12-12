@@ -42,12 +42,6 @@ const transformsToHull: ServiceTransforms =
           outputFormat: "outreach:${value}"
         },
         {
-          arrayStrategy: "pick_first",
-          mapping: "connector.private_settings.incoming_user_claims",
-          inputPath: "attributes.${service_field_name}",
-          outputPath: "ident.${hull_field_name}",
-        },
-        {
           mapping: "connector.private_settings.incoming_user_attributes",
           inputPath: "attributes.${service_field_name}",
           outputPath: "attributes.${hull_field_name}",
@@ -55,6 +49,12 @@ const transformsToHull: ServiceTransforms =
             value: "${value}",
             operation: "set"
           }
+        },
+        {
+          arrayStrategy: "pick_first",
+          mapping: "connector.private_settings.user_claims",
+          inputPath: "attributes.${service_field_name}",
+          outputPath: "ident.${hull_field_name}",
         }
       ]
     },
@@ -78,12 +78,6 @@ const transformsToHull: ServiceTransforms =
           outputPath: "accountIdent.anonymous_id",
           outputFormat: "outreach:${value}"
         },
-        {
-          arrayStrategy: "pick_first",
-          mapping: "connector.private_settings.incoming_user_claims",
-          inputPath: "data.attributes.${service_field_name}",
-          outputPath: "ident.${hull_field_name}",
-        },
         { mapping: "connector.private_settings.incoming_user_attributes",
           inputPath: "data.attributes.${service_field_name}",
           outputPath: "attributes.${hull_field_name}",
@@ -91,6 +85,12 @@ const transformsToHull: ServiceTransforms =
             value: "${value}",
             operation: "set"
           }
+        },
+        {
+          arrayStrategy: "pick_first",
+          mapping: "connector.private_settings.user_claims",
+          inputPath: "data.attributes.${service_field_name}",
+          outputPath: "ident.${hull_field_name}",
         }
       ]
     },
@@ -108,11 +108,6 @@ const transformsToHull: ServiceTransforms =
             operation: "set"
             }
         },
-        { mapping: "connector.private_settings.incoming_account_claims",
-          inputPath: "attributes.${service_field_name}",
-          outputPath: "ident.${hull_field_name}",
-        },
-        { inputPath: "attributes.domain", outputPath: "ident.domain" },
         { mapping: "connector.private_settings.incoming_account_attributes",
           inputPath: "attributes.${service_field_name}",
           outputPath: "attributes.${hull_field_name}",
@@ -120,6 +115,10 @@ const transformsToHull: ServiceTransforms =
             value: "${value}",
             operation: "set"
           }
+        },
+        { mapping: "connector.private_settings.account_claims",
+          inputPath: "attributes.${service_field_name}",
+          outputPath: "ident.${hull_field_name}",
         }
       ]
     },
@@ -130,10 +129,6 @@ const transformsToHull: ServiceTransforms =
       arrayStrategy: "append_index",
       direction: "incoming",
       transforms: [
-        { mapping: "connector.private_settings.incoming_account_claims",
-          inputPath: "data.attributes.${service_field_name}",
-          outputPath: "ident.${hull_field_name}",
-        },
         { inputPath: "data.id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
         { inputPath: "data.id", outputPath: "attributes.outreach/id",
           outputFormat: {
@@ -148,6 +143,10 @@ const transformsToHull: ServiceTransforms =
             value: "${value}",
             operation: "set"
           }
+        },
+        { mapping: "connector.private_settings.account_claims",
+          inputPath: "data.attributes.${service_field_name}",
+          outputPath: "ident.${hull_field_name}",
         }
       ]
     }

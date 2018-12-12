@@ -10,7 +10,7 @@
         "tags": [],
         "source_url": "https://dev-hull-outreach.ngrok.io/",
         "private_settings": {
-            "incoming_user_claims": [
+            "user_claims": [
                 {
                     "hull": "email",
                     "service": "emails"
@@ -77,7 +77,7 @@
             "synchronized_user_segments": [
                 "5bffc38f625718d58b000004"
             ],
-            "incoming_account_claims": [
+            "account_claims": [
                 {
                     "hull": "domain",
                     "service": "domain"
@@ -159,7 +159,7 @@
                     "type": "string"
                 },
                 {
-                    "name": "incoming_user_claims",
+                    "name": "user_claims",
                     "title": "Incoming user identity",
                     "type": "array",
                     "format": "table",
@@ -243,7 +243,7 @@
                     "type": "string"
                 },
                 {
-                    "name": "incoming_account_claims",
+                    "name": "account_claims",
                     "title": "Incoming account identity",
                     "type": "array",
                     "format": "table",

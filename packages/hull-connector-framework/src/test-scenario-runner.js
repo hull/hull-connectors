@@ -237,7 +237,7 @@ class TestScenarioRunner extends EventEmitter {
           }
         }
 
-        if (Arrays.isArray(this.nockScope)) {
+        if (Array.isArray(this.nockScope)) {
           _.forEach(this.nockScope, checkScope);
         } else {
           checkScope(this.nockScope);
@@ -332,7 +332,7 @@ class TestScenarioRunner extends EventEmitter {
             scope.on("replied", this.deboucedFinish);
           }
 
-          if (Arrays.isArray(this.nockScope)) {
+          if (Array.isArray(this.nockScope)) {
             _.forEach(this.nockScope, logNockScope);
           } else {
             logNockScope(this.nockScope);

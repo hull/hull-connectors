@@ -18,7 +18,7 @@ test("fetch all accounts and prospects from outreach", () => {
         private_settings: {
           access_token: "1234",
           link_users_in_hull: true,
-          incoming_user_claims: [
+          user_claims: [
               {
                   hull: "email",
                   service: "emails"
@@ -47,6 +47,16 @@ test("fetch all accounts and prospects from outreach", () => {
                 "hull": "traits_outreach/custom10",
                 "service": "custom10"
             },
+          ],
+          account_claims: [
+              {
+                  "hull": "domain",
+                  "service": "domain"
+              },
+              {
+                  "hull": "external_id",
+                  "service": "customId"
+              }
           ]
         }
       },
@@ -67,7 +77,7 @@ test("fetch all accounts and prospects from outreach", () => {
           .reply(200, require("../fixtures/api-responses/list-prospects.json"));
         return scope;
       },
-      response: { response : "ok"},
+      response: { status : "deferred"},
       logs: [
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
@@ -113,8 +123,7 @@ test("fetch all accounts and prospects from outreach", () => {
         ["GET", "/api/v1/app", {}, {}],
         ["GET", "/api/v1/users_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}],
         ["GET", "/api/v1/accounts_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}],
-        ["GET", "/api/v1/app", {}, {}],
-        ["PUT", "/api/v1/9993743b22d60dd829001999", {}, {"private_settings": {"access_token": "1234", "incoming_account_attributes": [{"hull": "traits_outreach/custom1", "service": "custom1"}, {"hull": "traits_outreach/custom10", "service": "custom10"}], "incoming_user_attributes": [{"hull": "traits_outreach/custom1", "service": "custom1"}, {"hull": "traits_outreach/personalNote1", "service": "personalNote1"}], "incoming_user_claims": [{"hull": "email", "service": "emails"}, {"hull": "external_id", "service": "externalId"}], "link_users_in_hull": true, "webhook_id": 3}}]
+        ["GET", "/api/v1/app", {}, {}], ["PUT", "/api/v1/9993743b22d60dd829001999", {}, {"private_settings": {"access_token": "1234", "account_claims": [{"hull": "domain", "service": "domain"}, {"hull": "external_id", "service": "customId"}], "incoming_account_attributes": [{"hull": "traits_outreach/custom1", "service": "custom1"}, {"hull": "traits_outreach/custom10", "service": "custom10"}], "incoming_user_attributes": [{"hull": "traits_outreach/custom1", "service": "custom1"}, {"hull": "traits_outreach/personalNote1", "service": "personalNote1"}], "link_users_in_hull": true, "user_claims": [{"hull": "email", "service": "emails"}, {"hull": "external_id", "service": "externalId"}], "webhook_id": 3}}]
       ]
     };
   });

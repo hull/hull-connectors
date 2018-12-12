@@ -87,7 +87,7 @@ const glue = {
       ]
     }),
   prospectLookup:
-    loopArrayLogic(notFilter("${connector.private_settings.incoming_user_claims}", { service: "id" }), "claim",
+    loopArrayLogic(notFilter("${connector.private_settings.user_claims}", { service: "id" }), "claim",
       [
         set("property", "${claim.service}"),
         set("value", inputParameter("user.${claim.hull}")),
@@ -151,7 +151,7 @@ const glue = {
       ]
     }),
   accountLookup:
-    loopArrayLogic(notFilter("${connector.private_settings.incoming_account_claims}", { service: "id" }), "claim",
+    loopArrayLogic(notFilter("${connector.private_settings.account_claims}", { service: "id" }), "claim",
       [
         set("property", "${claim.service}"),
         set("value", inputParameter("account.${claim.hull}")),
