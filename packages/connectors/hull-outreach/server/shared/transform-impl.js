@@ -235,18 +235,6 @@ class TransformImpl {
       }
 
       return output;
-    } else if (transformation.strategy === "PropertyKeyedGroup") {
-      throw new Error(
-        `Transformation Strategy ${
-          transformation.strategy
-        } not currently supported for transformation: ${JSON.stringify(transformation)}`
-      );
-    } else if (transformation.strategy === "ArrayPropertyGroup") {
-      throw new Error(
-        `Transformation Strategy ${
-          transformation.strategy
-        } not currently supported for transformation: ${JSON.stringify(transformation)}`
-      );
     } else {
       throw new Error(
         `Transformation Strategy ${
@@ -265,14 +253,14 @@ class TransformImpl {
    * @returns {string} The normalized url.
    * @memberof AttributesMapper
    */
-  normalizeUrl(original: string): string {
-    try {
-      const closeUrl = new URL(original);
-      return closeUrl.hostname;
-    } catch (error) {
-      return original;
-    }
-  }
+  // normalizeUrl(original: string): string {
+  //   try {
+  //     const closeUrl = new URL(original);
+  //     return closeUrl.hostname;
+  //   } catch (error) {
+  //     return original;
+  //   }
+  // }
 }
 
 module.exports = { TransformImpl };
