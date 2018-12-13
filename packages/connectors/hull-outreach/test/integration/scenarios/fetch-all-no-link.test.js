@@ -9,7 +9,7 @@ process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const connectorServer = require("../../../server/server");
 
-test("fetch all accounts and prospects from outreach", () => {
+test("fetch all accounts and prospects from outreach no user/account linking", () => {
   return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
