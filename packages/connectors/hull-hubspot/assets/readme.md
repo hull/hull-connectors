@@ -55,7 +55,7 @@ When new data about a HubSpot Contact is [ingested](https://www.hull.io/docs/dat
 
 HubSpot Contact `VID` is captured as an `anonymous_id` and `hubspot/id` in Hull User profiles.
 
-> **Note:** If more than one Hull User exists with the same `email` or HubSpot Contact `VID`, they will be merged. A `User merged` event will show the before/after difference in attribute values. Learn more about [User merging](https://www.hull.io/docs/data_lifecycle/ingest/#user-merging)
+> **Note:** If more than one Hull User exists with the same `email` or HubSpot Contact `VID` and without a unique external_id then they will be merged. A `User merged` event will show the before/after difference in attribute values. Learn more about [User merging](https://www.hull.io/docs/data_lifecycle/ingest/#user-merging)
 
 ### Fetching HubSpot Companies into Hull
 
@@ -74,7 +74,7 @@ When new data about a HubSpot Company is ingested, Hull follows this process:
 
 HubSpot Company `ID` is captured as an `anonymous_id` in Hull Account profiles.
 
-> **Note:** If more than one Hull Account exists with the same `domain`, they will be merged. Learn more about [Account merging](https://www.hull.io/docs/data_lifecycle/ingest/#account-merging).
+> **Note:** If more than one Hull Account exists with the same `domain` and without a unique external_id then they will be merged. Learn more about [Account merging](https://www.hull.io/docs/data_lifecycle/ingest/#account-merging).
 
 ### Linking HubSpot Contacts & Companies in Hull
 
