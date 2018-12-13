@@ -103,7 +103,7 @@ If the HubSpot Company does not have a required identifier, the User will be ass
 
 ### Creating & Updating HubSpot Contacts
 
-Hull Users must be in a whitelisted User Segment to be synced to HubSpot. By default, no Users are synced.
+Hull Users must be in a whitelisted [User Segment](https://www.hull.io/docs/concepts/segments/) to be synced to HubSpot. By default, no Users are synced.
 
 When Hull publishes a [User Update](https://www.hull.io/docs/data_lifecycle/notify/#format-of-a-user-update-notification) for a User whitelisted to sync to HubSpot:
 
@@ -115,7 +115,7 @@ When Hull publishes a [User Update](https://www.hull.io/docs/data_lifecycle/noti
 
 ### Creating & Updating HubSpot Companies
 
-Hull Accounts must be in a whitelisted Account Segment to be synced to HubSpot. By default, no Accounts are synced.
+Hull Accounts must be in a whitelisted [Account Segment](https://www.hull.io/docs/concepts/segments/) to be synced to HubSpot. By default, no Accounts are synced.
 
 When Hull publishes an [Account Update](https://www.hull.io/docs/data_lifecycle/notify/#format-of-an-account-update-notification) for an Account whitelisted to sync to HubSpot
 
@@ -137,7 +137,7 @@ Hull will link Contacts & Companies in HubSpot if:
 
 ## Data Mapping
 
-Filter which Users & Accounts are synced to HubSpot with User & Account Segments in the Connector Settings.
+Filter which Users & Accounts are synced to HubSpot with [User & Account Segments](https://www.hull.io/docs/concepts/segments/) in the Connector Settings.
 
 Map which User & Account attributes are synced to and from HubSpot with the field mappers in the Connector Settings.
 
@@ -166,7 +166,7 @@ You can create new properties in HubSpot from Hull field mapping. As you type ri
 
 ### Segmentation
 
-You can sync Hull User & Account Segments to HubSpot.
+You can sync Hull [User & Account Segments](https://www.hull.io/docs/concepts/segments/) to HubSpot.
 
 | Group               | Hull             | HubSpot                          |
 | ------------------- | ---------------- | -------------------------------- |
