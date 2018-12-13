@@ -148,7 +148,7 @@
     },
     {
       "name": "handle_accounts",
-      "title": "Fetch accounts?",
+      "title": "Fetch accounts",
       "description": "If this checkbox is disabled we won't get any account in.",
       "type": "boolean",
       "default": false
