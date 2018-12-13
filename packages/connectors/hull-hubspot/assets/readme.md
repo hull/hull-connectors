@@ -26,17 +26,17 @@ In the HubSpot Connector Dashboard, click the **Settings** tab. Here you can set
 
 There are four sections of settings:
 
-**1. Outgoing Users**
+1. Outgoing Users
   1. Whitelist Users to sync with User Segments
   2. Map User Attributes to HubSpot Contacts
-**2. Incoming Users**
+2. Incoming Users**
   1. Map HubSpot Contact identifiers
   2. Map HubSpot Contact properties to Hull Users
-**3. Outgoing Accounts**
+3. Outgoing Accounts
   1. Whitelist Accounts to sync with Account Segments
   2. Map Account Attributes to HubSpot Company Properties
   3. Toggle if Hull will link HubSpot Contacts & Companies
-**4. Incoming Accounts**
+4. Incoming Accounts
   1. Toggle HubSpot Companies to sync into Hull
   2. Map HubSpot Company identifiers
   3. Map HubSpot Company Properties to Hull Accounts
