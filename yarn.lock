@@ -841,7 +841,7 @@ assert-plus@1.0.0, assert-plus@^1.0.0:
   resolved "https://registry.yarnpkg.com/assert-plus/-/assert-plus-1.0.0.tgz#f12e0f3c5d77b0b1cdd9146942e4e96c1e4dd525"
   integrity sha1-8S4PPF13sLHN2RRpQuTpbB5N1SU=
 
-assert@^1.1.1:
+assert@^1.1.1, assert@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/assert/-/assert-1.4.1.tgz#99912d591836b5a6f5b345c0f07eefc08fc65d91"
   integrity sha1-mZEtWRg2tab1s0XA8H7vwI/GXZE=
@@ -5748,16 +5748,16 @@ https-proxy-agent@^2.2.0, https-proxy-agent@^2.2.1:
     debug "^3.1.0"
 
 "hull-client@link:packages/hull-client":
-  version "0.0.5-monorepo"
+  version "0.0.8-monorepo"
   dependencies:
     jwt-simple "^0.5.0"
     winston "^2.2.0"
 
 "hull-connector-framework@link:packages/hull-connector-framework":
-  version "0.0.5-monorepo"
+  version "0.0.8-monorepo"
 
 "hull@link:packages/hull":
-  version "0.0.5-monorepo"
+  version "0.0.8-monorepo"
   dependencies:
     aws-sdk "^2.81.0"
     batch-stream "^0.1.3"
@@ -8103,7 +8103,7 @@ mini-application@^1.1.1:
     moment "^2.18.1"
 
 "minihull@link:packages/minihull":
-  version "0.0.5-monorepo"
+  version "0.0.8-monorepo"
   dependencies:
     faker "^4.1.0"
     lodash-id "^0.14.0"
@@ -8996,6 +8996,11 @@ object-copy@^0.1.0:
     copy-descriptor "^0.1.0"
     define-property "^0.2.5"
     kind-of "^3.0.3"
+
+object-hash@^1.3.0:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/object-hash/-/object-hash-1.3.1.tgz#fde452098a951cb145f039bb7d455449ddc126df"
+  integrity sha512-OSuu/pU4ENM9kmREg0BdNrUDIl1heYa4mBZacJc+vVWz4GtAwu7jO8s4AIt2aGRUTqxykpWzI3Oqnsm13tTMDA==
 
 object-keys@^1.0.11, object-keys@^1.0.12:
   version "1.0.12"
