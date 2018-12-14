@@ -74,7 +74,9 @@ const transformsToHull: ServiceTransforms =
         },
         {
           condition: "connector.private_settings.link_users_in_hull",
-          inputPath: "relationships.account.data.id",
+          //This is something that's specifically different in the webhook
+          // in the normal pull, it's relationships.account.data.id
+          inputPath: "data.relationships.account.id",
           outputPath: "accountIdent.anonymous_id",
           outputFormat: "outreach:${value}"
         },

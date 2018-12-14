@@ -82,7 +82,7 @@ class HullRouter {
     // need to tell what type of data is incoming, but the data incoming will be different per connector
     // so there's an idea that needs to be abstracted above]
     return this.dispatcher()
-    .dispatchWithData(context, route, WebhookPayload, webhookPayload.body)
+    .dispatchWithData(context, route, WebhookPayload, data.body)
     .then(results => {
       // context.client.logger.info("incoming.job.success", {
       //   jobName: "Incoming Data", type: dataType
