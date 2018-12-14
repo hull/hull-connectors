@@ -136,9 +136,9 @@ class HullDispatcher {
         }
 
         let paramString = JSON.stringify(resolvedParams);
-        // if (paramString.length > 60) {
-        //   paramString = `${paramString.substring(0,60)}...`;
-        // }
+        if (paramString.length > 60) {
+          paramString = `${paramString.substring(0,60)}...`;
+        }
 
         if (paramName === null) {
           debug(`[EXECUTING]: ${instruction.type}<${instruction.name}> [WITH-RESOLVED-PARAM]: ${paramString}`);
