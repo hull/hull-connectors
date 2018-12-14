@@ -362,7 +362,7 @@ class TestScenarioRunner extends EventEmitter {
                 this.scenarioDefinition.usersSegments,
                 this.scenarioDefinition.accountsSegments
               );
-            } else if (channel === "account:update") {
+            } else {
               this.minihull.stubAccountsBatch(this.scenarioDefinition.messages);
               response = await this.minihull.batchAccountsConnector(
                 this.connector,
