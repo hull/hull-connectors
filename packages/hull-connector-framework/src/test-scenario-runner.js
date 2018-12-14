@@ -150,7 +150,7 @@ class TestScenarioRunner extends EventEmitter {
     // this.hullConnectorPort = 9091;
     // this.minihullPort = 9092;
     this.timeout = 10000;
-    this.debounceWait = 500;
+    this.debounceWait = 200;
     this.capturedMetrics = [];
     this.capturedLogs = [];
     this.minihull = new Minihull();
@@ -356,13 +356,21 @@ class TestScenarioRunner extends EventEmitter {
           case handlers.batchHandler:
             if (channel === "user:update") {
               this.minihull.stubUsersBatch(this.scenarioDefinition.messages);
+              response = await this.minihull.batchUsersConnector(
+                this.connector,
+                `http://localhost:${this.hullConnectorPort}/${handlerUrl}`,
+                this.scenarioDefinition.usersSegments,
+                this.scenarioDefinition.accountsSegments
+              );
+            } else if (channel === "account:update") {
+              this.minihull.stubAccountsBatch(this.scenarioDefinition.messages);
+              response = await this.minihull.batchAccountsConnector(
+                this.connector,
+                `http://localhost:${this.hullConnectorPort}/${handlerUrl}`,
+                this.scenarioDefinition.usersSegments,
+                this.scenarioDefinition.accountsSegments
+              );
             }
-            response = await this.minihull.batchUsersConnector(
-              this.connector,
-              `http://localhost:${this.hullConnectorPort}/${handlerUrl}`,
-              this.scenarioDefinition.usersSegments,
-              this.scenarioDefinition.accountsSegments
-            );
             break;
           case handlers.notificationHandler:
             response = await this.minihull.notifyConnector(
