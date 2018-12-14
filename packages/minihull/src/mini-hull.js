@@ -159,7 +159,7 @@ class MiniHull extends MiniApplication {
         connector,
         url: `http://${this._getOrgAddr()}/_accounts_batch`,
         format: "json",
-        object_type: "account"
+        object_type: "account_report"
       })
       .then(res => res);
   }
