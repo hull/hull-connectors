@@ -2,7 +2,7 @@ connector | API changelog | API version | API reference
 ----------|---------------|-------------|--------------
 hull-clearbit | https://help.clearbit.com/hc/en-us/articles/115015797408-API-Version-Change-Logs- | Prospector API: 2018-06-06, other APIse use account API settings (https://clearbit.com/docs?javascript#versioning) | https://clearbit.com/docs
 hull-closeio | https://close.io/changelog/ | v1 | https://developer.close.io/
-hull-customerio | TBD | TDB | TBD
+hull-customerio | https://customer.io/release-notes/ | latest | https://customer.io/docs/api/
 hull-datanyze | none | none | https://www.datanyze.com/api-documentation
 hull-facebook-audiences | https://developers.facebook.com/docs/graph-api/changelog | 3.1 | https://developers.facebook.com/docs/marketing-api/reference/v3.1
 hull-google-sheets | https://developers.google.com/apps-script/releases/ | v1 | https://developers.google.com/apps-script/api/reference/rest/
