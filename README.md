@@ -83,6 +83,26 @@ If on mocha run `yarn workspace hull-foo run test`.
 
 Run `eslint packages/connectors/hull-foo`
 
+## Client-side code
+
+
+**How to build client packages**
+
+Client assets will be built during the `build` phase that's triggered when calling `yarn build`. If you want to manually build a single client package, checkout the section below.
+
+**How to build a single client package**
+
+To build the client files for a package, using Webpack, first ensure your files to be built are in the `/src` folder at the root of the package. (For instance `hull-google-analytics/src`)
+
+Then, run `yarn build:client hull-google-analytics`
+
+The files will be built in the `hull-google-analytics/assets` folder
+
+**How to serve javascript compiled files in Development**
+
+The simplest way is to have your connector rely on `packages/server/server`,
+and pass `devMode` to `true` -> The connector will automatically pass the files in `/src` through webpack
+
 ## Changes
 
 Monorepository has one global version and changelog.
