@@ -27,7 +27,7 @@ const instrumentation = new Instrumentation({ options });
  * Cache - enables `cache` object in context
  * @type {Cache}
  */
-const cache = new Cache({ options - REDIS/MEMORY });
+const cache = new Cache({ options /* - REDIS/MEMORY */ });
 
 /**
  * Queue - enables `queue` function in context
@@ -67,5 +67,3 @@ if (startConfig.worker) {
   worker({ app });
   connector.startWorker();
 }
-
-
