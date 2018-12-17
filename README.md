@@ -103,6 +103,14 @@ The files will be built in the `hull-google-analytics/assets` folder
 The simplest way is to have your connector rely on `packages/server/server`,
 and pass `devMode` to `true` -> The connector will automatically pass the files in `/src` through webpack
 
+## Receiving data from Hull in Development
+
+The easiest way to get a connector to receive data from Hull is to start it locally and expose it using a public URL and enter this URL in the `new connector` URL box in your Hull dashboard.
+
+To make this easier, call `yarn ngrok xxx`. For instance, to expose the `hull-typeform` connector, call `yarn ngrok hull-typeform`. Ngrok will start and expose the `https://hull-typeform.ngrok.io` URL to the web (Assuming your Ngrok credentials are configured already, See https://ngrok.com/docs#authtoken)
+
+**Note** You must also boot your connector using `yarn dev hull-typeform` - the `yarn ngrok` command is not doing this for you.
+
 ## Changes
 
 Monorepository has one global version and changelog.
