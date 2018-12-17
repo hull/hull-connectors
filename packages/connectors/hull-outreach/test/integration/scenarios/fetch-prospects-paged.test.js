@@ -10,7 +10,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 const connectorServer = require("../../../server/server");
 
 test("fetch prospects from outreach and page", () => {
-  return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorServer, debounceWait: 1000 }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "prospectFetchAll",
