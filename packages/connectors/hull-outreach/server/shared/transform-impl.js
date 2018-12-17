@@ -191,7 +191,7 @@ class TransformImpl {
                   const valueArray = [];
                   _.forEach(context.value, (value, index) => {
                     valueArray.push(doVariableReplacement(
-                      _.assign({ value: value }, context), transform.outputFormat));
+                      _.assign({}, context, { value: value }), transform.outputFormat));
                   });
                   _.set(output, context.outputPath, valueArray);
                 }
@@ -202,7 +202,7 @@ class TransformImpl {
                   let finalValue = value;
                   if (!_.isEmpty(transform.outputFormat)) {
                     finalValue = doVariableReplacement(
-                      _.assign({ value: value }, context), transform.outputFormat);
+                      _.assign({}, context, { value: value }), transform.outputFormat);
                   }
                   _.set(output,
                     `${context.outputPath.slice(0, -1)}_${index}`,
