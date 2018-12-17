@@ -356,13 +356,25 @@ class TestScenarioRunner extends EventEmitter {
           case handlers.batchHandler:
             if (channel === "user:update") {
               this.minihull.stubUsersBatch(this.scenarioDefinition.messages);
+              response = await this.minihull.batchUsersConnector(
+                this.connector,
+                `http://localhost:${this.hullConnectorPort}/${handlerUrl}`,
+                this.scenarioDefinition.usersSegments,
+                this.scenarioDefinition.accountsSegments
+              );
+            } else if (channel === "account:update") {
+              this.minihull.stubAccountsBatch(this.scenarioDefinition.messages);
+              response = await this.minihull.batchAccountsConnector(
+                this.connector,
+                `http://localhost:${this.hullConnectorPort}/${handlerUrl}`,
+                this.scenarioDefinition.usersSegments,
+                this.scenarioDefinition.accountsSegments
+              );
+            } else {
+              throw new Error(
+                "Channel not supported for the batchHandler endpoint"
+              );
             }
-            response = await this.minihull.batchUsersConnector(
-              this.connector,
-              `http://localhost:${this.hullConnectorPort}/${handlerUrl}`,
-              this.scenarioDefinition.usersSegments,
-              this.scenarioDefinition.accountsSegments
-            );
             break;
           case handlers.notificationHandler:
             response = await this.minihull.notifyConnector(
