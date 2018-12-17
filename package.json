@@ -89,6 +89,7 @@
     "bluebird": "^3.5.2",
     "body-parser": "^1.18.3",
     "cache-manager": "^2.9.0",
+    "compose-middleware": "^5.0.1",
     "datadog-metrics": "^0.8.1",
     "debug": "^4.0.1",
     "ejs": "^2.6.1",

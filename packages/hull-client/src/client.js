@@ -13,7 +13,7 @@ import type {
   HullClientLogger,
   HullClientUtils,
   HullClientStaticLogger
-} from "./types";
+} from "../../types";
 
 const _ = require("lodash");
 const winston = require("winston");

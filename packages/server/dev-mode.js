@@ -1,4 +1,4 @@
-module.exports = function devMode(app, { source, destination }) {
+module.exports = function devMode(app, { port, source, destination }) {
   const _ = require("lodash");
   const webpack = require("webpack");
   const webpackDevMiddleware = require("webpack-dev-middleware");

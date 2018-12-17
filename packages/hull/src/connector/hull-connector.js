@@ -5,8 +5,11 @@ import type {
   NextFunction,
   Middleware
 } from "express";
-import type { HullConnectorOptions, HullRequest } from "../types";
+import { json as jsonParser } from "express";
+import type { HullRequest } from "../types";
+import type { HullConnectorConfig } from "../../../types";
 
+const _ = require("lodash");
 const path = require("path");
 const Promise = require("bluebird");
 const { renderFile } = require("ejs");
@@ -15,12 +18,7 @@ const debug = require("debug")("hull-connector");
 const HullClient = require("hull-client");
 const { staticRouter } = require("../utils");
 const Worker = require("./worker");
-const {
-  credentialsFromQueryMiddleware,
-  contextBaseMiddleware,
-  fullContextFetchMiddleware,
-  clientMiddleware
-} = require("../middlewares");
+const { hullContextMiddleware } = require("../middlewares");
 const { Instrumentation, Cache, Queue, Batcher } = require("../infra");
 const { onExit } = require("../utils");
 // const { TransientError } = require("../errors");
@@ -40,6 +38,7 @@ const { onExit } = require("../utils");
  * @param {string}        [options.connectorName] force connector name - if not provided will be taken from manifest.json
  * @param {string}        [options.hostSecret] secret to sign req.hull.token
  * @param {Number|string} [options.port] port on which expressjs application should be started
+ * @param {Object}        [options.json] a Configuration to pass the body JSON parser, Default: { limit: "10mb" }
  * @param {Object}        [options.clientConfig] additional `HullClient` configuration
  * @param {boolean}       [options.skipSignatureValidation] skip signature validation on notifications (for testing only)
  * @param {number|string} [options.timeout] global HTTP server timeout - format is parsed by `ms` npm package
@@ -51,21 +50,17 @@ const { onExit } = require("../utils");
  * @param {boolean}       [options.disableOnExit=false] an optional param to disable exit listeners
  */
 class HullConnector {
-  port: $PropertyType<HullConnectorOptions, "port">;
-
   middlewares: Array<Function>;
 
-  connectorConfig: $Shape<HullConnectorOptions>;
+  connectorConfig: $Shape<HullConnectorConfig>;
 
-  cache: $PropertyType<HullConnectorOptions, "cache">;
+  cache: Cache;
 
-  queue: $PropertyType<HullConnectorOptions, "queue">;
+  queue: Queue;
 
-  instrumentation: $PropertyType<HullConnectorOptions, "instrumentation">;
+  instrumentation: Instrumentation;
 
-  hostSecret: $PropertyType<HullConnectorOptions, "hostSecret">;
-
-  clientConfig: $PropertyType<HullConnectorOptions, "clientConfig">;
+  clientConfig: $PropertyType<HullConnectorConfig, "clientConfig">;
 
   _worker: Worker;
 
@@ -75,61 +70,56 @@ class HullConnector {
 
   static bind: Function;
 
-  constructor(
-    dependencies: Object,
-    {
-      hostSecret,
-      port,
-      clientConfig = {},
-      instrumentation,
-      cache,
-      queue,
-      connectorName,
-      skipSignatureValidation,
-      timeout,
-      notificationValidatorHttpClient,
+  constructor(dependencies: Object, connectorConfig: HullConnectorConfig) {
+    const {
       captureMetrics,
+      instrumentation = new Instrumentation({ captureMetrics }),
+      cache = new Cache(),
+      queue = new Queue(),
+      clientConfig,
+      connectorName,
+      middlewares = [],
       captureLogs,
       disableOnExit = false
-    }: HullConnectorOptions = {}
-  ) {
-    debug("clientConfig", clientConfig);
+    } = connectorConfig;
+
+    this.connectorConfig = {
+      skipSignatureValidation: false,
+      json: { limit: "10mb" },
+      ...connectorConfig
+    };
+    this.clientConfig = {
+      ...clientConfig,
+      connectorName: clientConfig.connectorName || connectorName,
+      logs: clientConfig.logs || captureLogs
+    };
     this.HullClient = dependencies.HullClient;
     this.Worker = dependencies.Worker;
-    this.instrumentation =
-      instrumentation || new Instrumentation({ captureMetrics });
-    this.cache = cache || new Cache();
-    this.queue = queue || new Queue();
-    this.port = port;
-    this.hostSecret = hostSecret;
-    this.clientConfig = clientConfig;
-    this.connectorConfig = {};
-    this.middlewares = [];
+    this.middlewares = middlewares;
+    this.instrumentation = instrumentation;
+    this.cache = cache;
+    this.queue = queue;
 
-    if (connectorName) {
-      this.clientConfig.connectorName = connectorName;
-    }
-
-    if (skipSignatureValidation) {
-      this.connectorConfig.skipSignatureValidation = skipSignatureValidation;
-    }
-
-    if (notificationValidatorHttpClient) {
-      this.connectorConfig.notificationValidatorHttpClient = notificationValidatorHttpClient;
-    }
-
-    this.connectorConfig.timeout = timeout || "25s";
-
-    if (captureLogs) {
-      this.clientConfig.logs = captureLogs;
-    }
-
-    this.connectorConfig.hostSecret = hostSecret;
     if (disableOnExit !== true) {
       onExit(() => {
         return Promise.all([Batcher.exit(), this.queue.exit()]);
       });
     }
+  }
+
+  /**
+   * This method returns a Hull Middleware that you can insert in your   requests to hydrate the full context.
+   * @public
+   * @return {hullContextMiddleware} a node middleware that hydrates the hull context
+   */
+  middleware(): Middleware {
+    return hullContextMiddleware({
+      HullClient,
+      connectorConfig: this.connectorConfig,
+      instrumentation: this.instrumentation,
+      queue: this.queue,
+      cache: this.cache
+    });
   }
 
   /**
@@ -153,19 +143,9 @@ class HullConnector {
       );
       next();
     });
+    app.use(jsonParser(this.connectorConfig.json));
     app.use("/", staticRouter());
     app.use(this.instrumentation.startMiddleware());
-    app.use(
-      contextBaseMiddleware({
-        instrumentation: this.instrumentation,
-        queue: this.queue,
-        cache: this.cache,
-        connectorConfig: this.connectorConfig,
-        clientConfig: this.clientConfig,
-        HullClient: this.HullClient
-      })
-    );
-
     app.engine("html", renderFile);
 
     const applicationDirectory = path.dirname(
@@ -206,8 +186,8 @@ class HullConnector {
       }
     );
 
-    return app.listen(this.port, () => {
-      debug("connector.server.listen", { port: this.port });
+    return app.listen(this.connectorConfig.port, () => {
+      debug("connector.server.listen", { port: this.connectorConfig.port });
     });
   }
 
@@ -217,19 +197,7 @@ class HullConnector {
       queue: this.queue
     });
     this._worker.use(this.instrumentation.startMiddleware());
-    this._worker.use(
-      contextBaseMiddleware({
-        instrumentation: this.instrumentation,
-        queue: this.queue,
-        cache: this.cache,
-        connectorConfig: this.connectorConfig,
-        clientConfig: this.clientConfig,
-        HullClient: this.HullClient
-      })
-    );
-    this._worker.use(credentialsFromQueryMiddleware());
-    this._worker.use(clientMiddleware());
-    this._worker.use(fullContextFetchMiddleware());
+    this._worker.use(this.middleware());
     this.middlewares.map(middleware => this._worker.use(middleware));
 
     this._worker.setJobs(jobs);

@@ -16,8 +16,10 @@ export default function Server({
   const app = express();
 
   if (devMode) {
-    const { devMode: webpackDevMode } = require("./dev-mode");
+    // eslint-disable-next-line global-require
+    const webpackDevMode = require("./dev-mode");
     webpackDevMode(app, {
+      port,
       source: "../src",
       destination: "../dist"
     });
@@ -31,12 +33,9 @@ export default function Server({
   });
   connector.setupApp(app);
 
-  // const hullMiddleware = Hull.Middleware({ hostSecret, fetchShip: true });
-  //
-  // app.use(hullMiddleware);
   // Error Handler
   app.use(errorHandler);
-  connector.startApp(app);
+  const server = connector.startApp(app);
   console.log(`Started server on port ${port}`);
-  return app;
+  return { connector, app, server };
 }
