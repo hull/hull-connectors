@@ -147,7 +147,10 @@ class HullConnector {
    */
   setupApp(app: $Application): $Application {
     app.use((req, res, next: NextFunction) => {
-      debug("incoming request", req.method, req.url);
+      debug(
+        "incoming request",
+        _.pick(req, "headers", "url", "method", "body")
+      );
       next();
     });
     app.use("/", staticRouter());
