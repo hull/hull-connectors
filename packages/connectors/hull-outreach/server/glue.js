@@ -243,7 +243,7 @@ const glue = {
                                                           return orgWebhooks;
                                                         }, []);
                                                       }))), {
-      true: loopArrayLogic("${existingWebhooks}", "badWebhook",
+      true: loopArrayLogic("${webhooksToDelete}", "badWebhook",
         [
           set("webhookIdToDelete", get("${badWebhook}", "id")),
           outreachSend("deleteWebhook")
