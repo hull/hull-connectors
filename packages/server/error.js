@@ -1,5 +1,6 @@
-import Hull from '../hull';
+import Hull from "../hull";
 
+// eslint-disable-next-line
 const errorHandler = (err, req, res, next) => {
   // eslint-disable-line no-unused-vars
   if (err) {
@@ -8,10 +9,10 @@ const errorHandler = (err, req, res, next) => {
       method: req.method,
       headers: req.headers,
       url: req.url,
-      params: req.params,
+      params: req.params
     };
-    Hull.logger.error(
-      'Error ----------------',
+    Hull.Client.logger.error(
+      "Error ----------------",
       err.message,
       err.status,
       data,
@@ -19,7 +20,7 @@ const errorHandler = (err, req, res, next) => {
     );
     return res.status(err.status || 500).send({ message: err.message });
   }
-  return res.status(err.status || 500).send({ message: 'undefined error' });
+  return res.status(err.status || 500).send({ message: "undefined error" });
 };
 
 export default errorHandler;
