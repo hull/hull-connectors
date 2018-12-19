@@ -181,71 +181,6 @@ class ServiceEngine {
     const direction = (name === "hull") ? "incoming" : "outgoing";
     const action = `${direction}.${entityTypeString}`
 
-    // this is pretty dry, but butt ugly... function inception
-    const sendDataRaw = (data) => {
-      if (!_.isEmpty(data)) {
-        debug(`[CALLING-SERVICE]: ${name}<${op}> [WITH-DATA]: ${JSON.stringify(data)}`);
-      } else {
-        debug(`[CALLING-SERVICE]: ${name}<${op}>`);
-      }
-
-      let dispatchPromise;
-      if (name === "hull") {
-        dispatchPromise = new HullSdk(context, serviceDefinition).dispatch(op, data);
-      } else {
-        dispatchPromise = new SuperagentApi(context, serviceDefinition).dispatch(op, data);
-      }
-
-      return dispatchPromise;
-    }
-
-    const sendData = (data) => {
-      return sendDataRaw(data).catch(error => {
-
-        debug(`[SERVICE-ERROR]: ${name} [ERROR]: ${JSON.stringify(error)}`);
-
-        if (name !== 'hull') {
-          context.metric.increment("service.service_api.errors", 1);
-        }
-
-        const errorTemplate = this.findErrorTemplate(context, serviceDefinition, error);
-
-        if (!isUndefinedOrNull(errorTemplate)) {
-          const route: string = _.get(errorTemplate, "recoveryroute");
-
-          if (!_.isEmpty(route) && !_.isEqual(route, _.get(context, "recoveryroute"))) {
-
-            // 2 cases,
-            // where the recovery promise exists and it's a different path calling
-            // and where it IS the recovery path....
-            // should probably look at some sort of time stamp if the recovery promise was done a while ago or something...
-            if (isUndefinedOrNull(this.recoveryPromise)) {
-              debug(`[SERVICE-ERROR]: ${name} [RECOVERY-ROUTE-ATTEMPT]: ${route}`);
-              // The way we do this _.merge is key, means, only the recoveryroute
-              // will have it set, but others will not
-              this.recoveryPromise = this.dispatcher.resolve(_.assign({ recoveryroute: route }, context), new Route(route), null);
-            }
-            //don't input data on an attempt to recover...
-            return this.recoveryPromise.then(() => {
-              return sendDataRaw(data);
-            }).catch( finalError => {
-              // may have been able to partially recover, log the final error
-              // which may have been different than the original
-              // might be an argument to have several recovery routes that all converge on success at some point
-              // not now though, too early to understand if that would be really helpful or not...
-              const finalErrorTemplate = this.findErrorTemplate(context, serviceDefinition, finalError);
-              const finalErrorException = this.createErrorException(context, name, serviceDefinition.error, finalErrorTemplate, finalError);
-              return Promise.reject(finalErrorException);
-            });
-          }
-        }
-
-        const errorException = this.createErrorException(context, name, serviceDefinition.error, errorTemplate, error);
-        return Promise.reject(errorException);
-
-      });
-    }
-
     const logDataWrapperAroundSendData = (data) => {
 
       // This specialized function makes sure to ensure the right context for log i think
@@ -267,7 +202,7 @@ class ServiceEngine {
         }
       }
 
-      return sendData(data).then((results) => {
+      return this.sendData(context, instruction, data).then((results) => {
 
         //TODO also need to account for batch endpoints
         // where we should loge a message for each of the objects in the batch
@@ -312,6 +247,97 @@ class ServiceEngine {
     // route is pending, or we're in the recovery route
     // This works with submitting the messages one at a time with the same service engine
     // won't work as well if submitting messages for a batch endpoint
+  }
+
+  sendData(context: Object, instruction: Object, data: any) {
+    const name = instruction.name;
+    const serviceDefinition = this.services[name];
+
+    return this.createOperationPromise(context, instruction, data).catch(error => {
+
+      debug(`[SERVICE-ERROR]: ${name} [ERROR]: ${JSON.stringify(error)}`);
+
+      if (name !== 'hull') {
+        context.metric.increment("service.service_api.errors", 1);
+      }
+
+      const errorTemplate = this.findErrorTemplate(context, serviceDefinition, error);
+
+      if (!isUndefinedOrNull(errorTemplate)) {
+
+        const throwFinalError = (finalError) => {
+          // may have been able to partially recover, log the final error
+          // which may have been different than the original
+          // might be an argument to have several recovery routes that all converge on success at some point
+          // not now though, too early to understand if that would be really helpful or not...
+          const finalErrorTemplate = this.findErrorTemplate(context, serviceDefinition, finalError);
+          const finalErrorException = this.createErrorException(context, name, serviceDefinition.error, finalErrorTemplate, finalError);
+          return Promise.reject(finalErrorException);
+        }
+
+        const route: string = _.get(errorTemplate, "recoveryroute");
+
+        if (!_.isEmpty(route) && !_.isEqual(route, _.get(context, "recoveryroute"))) {
+          // 2 cases,
+          // where the recovery promise exists and it's a different path calling
+          // and where it IS the recovery path....
+          // should probably look at some sort of time stamp if the recovery promise was done a while ago or something...
+          if (isUndefinedOrNull(this.recoveryPromise)) {
+            debug(`[SERVICE-ERROR]: ${name} [RECOVERY-ROUTE-ATTEMPT]: ${route}`);
+            // The way we do this _.merge is key, means, only the recoveryroute
+            // will have it set, but others will not
+            // does keeping this promise around keep the data that was the result in memory
+            this.recoveryPromise = this.dispatcher.resolve(_.assign({ recoveryroute: route }, context), new Route(route), null);
+          }
+
+          //don't input data on an attempt to recover...
+          return this.recoveryPromise.then(() => {
+            return this.createOperationPromise(context, instruction, data);
+          }).catch(throwFinalError);
+
+        } else if (errorTemplate.retryAttempts) {
+          return this.retrySendingData(errorTemplate.retryAttempts,
+            this.createOperationPromise, context, instruction, data).catch(throwFinalError);
+        }
+      }
+
+      const errorException = this.createErrorException(context, name, serviceDefinition.error, errorTemplate, error);
+      return Promise.reject(errorException);
+
+    });
+  }
+
+  createOperationPromise(context: Object, instruction: Object, data: any) {
+
+    const name = instruction.name;
+    const op = instruction.op;
+    const serviceDefinition = this.services[name];
+
+    // this is pretty dry, but butt ugly... function inception
+    if (!_.isEmpty(data)) {
+      debug(`[CALLING-SERVICE]: ${name}<${op}> [WITH-DATA]: ${JSON.stringify(data)}`);
+    } else {
+      debug(`[CALLING-SERVICE]: ${name}<${op}>`);
+    }
+
+    let dispatchPromise;
+    if (name === "hull") {
+      dispatchPromise = new HullSdk(context, serviceDefinition).dispatch(op, data);
+    } else {
+      dispatchPromise = new SuperagentApi(context, serviceDefinition).dispatch(op, data);
+    }
+
+    return dispatchPromise;
+  }
+
+  retrySendingData(retryAttempts: number, sendDataFunction: Function, context: Object, instruction: Object, data: any) {
+    return sendDataFunction(context, instruction, data).catch( error => {
+      const remainingRetryAttempts = retryAttempts - 1;
+      if (remainingRetryAttempts === 0) {
+        return Promise.reject(error);
+      }
+      return retrySendingData(remainingRetryAttempts, sendDataFunction, context, instruction, data);
+    });
   }
 
   createErrorException(context: Object, servicename: string, errorDefinitions: Object, errorTemplate: any, error: any) {

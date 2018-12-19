@@ -227,6 +227,12 @@ const service: RawRestApi = {
 
     templates: [
       {
+        truthy: { status: 500 },
+        errorType: TransientError,
+        message: MESSAGES.INTERNAL_SERVER_ERROR,
+        retryAttempts: 3
+      },
+      {
         truthy: { status: 401 },
         condition: isNull("connector.private_settings.access_token"),
         errorType: ConfigurationError,
