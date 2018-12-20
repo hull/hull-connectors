@@ -229,8 +229,8 @@ const service: RawRestApi = {
       {
         truthy: { status: 500 },
         errorType: TransientError,
-        message: MESSAGES.INTERNAL_SERVER_ERROR,
-        retryAttempts: 3
+        message: MESSAGES.INTERNAL_SERVICE_ERROR,
+        retryAttempts: 2
       },
       {
         truthy: { status: 401 },

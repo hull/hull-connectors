@@ -10,15 +10,10 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 const connectorServer = require("../../../server/server");
 
 test("fetch all accounts and prospects from outreach", () => {
-  return testScenario({ connectorServer, debounceWait: 1000 }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorServer, debounceWait: 2000 }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "accountFetchAll",
-      configuration: {
-        id: "asdf",
-        organization: "dev.hullbeta.io",
-        secret: "shhhh"
-      },
       connector: {
         private_settings: {
           access_token: "1234",
@@ -70,35 +65,48 @@ test("fetch all accounts and prospects from outreach", () => {
       externalApiMock: () => {
         const scope = nock("https://api.outreach.io");
         scope.get("/api/v2/webhooks/")
-          .reply(200, require("../fixtures/api-responses/existing-webhook.json"));
+          .reply(200, {body: {data: []}});
         scope
           .post("/api/v2/webhooks/")
           .reply(201, require("../fixtures/api-responses/create-webhook.json"));
-
-        // can't find a reliable way to get organization right now, so no delete is issued
-        // scope
-        //     .delete("/api/v2/webhooks/31")
-        //     .reply(204);
-
-        const listOfAccounts = _.cloneDeep(require("../fixtures/api-responses/list-accounts-template.json"));
-        for (let i = 0; i < 99; i+=1) {
-          const account = listOfAccounts.data[listOfAccounts.data.length - 1];
-          account.id = account.id + 1;
-          account.attributes.domain = `account${i}.com`;
-          listOfAccounts.data.push(account);
-        }
         scope
           .get("/api/v2/accounts/?sort=id&page[limit]=100&filter[id]=0..inf")
-          .reply(200, listOfAccounts);
+          .reply(500, {});
         scope
-          .get("/api/v2/accounts/?sort=id&page[limit]=100&filter[id]=101..inf")
-          .reply(200, _.cloneDeep(require("../fixtures/api-responses/list-accounts.json")));
+          .get("/api/v2/accounts/?sort=id&page[limit]=100&filter[id]=0..inf")
+          .reply(200, require("../fixtures/api-responses/list-accounts.json"));
         return scope;
       },
       response: { status : "deferred"},
-      logs: _.fill(new Array(108), [expect.whatever(), expect.whatever(), expect.whatever(), expect.whatever()]),
-      firehoseEvents: _.fill(new Array(102), ["traits", expect.whatever(), expect.whatever()]),
-      metrics: _.fill(new Array(111), [expect.whatever(), expect.whatever(), expect.whatever()]),
+      logs: [
+        ["info", "incoming.job.start", {}, {"jobName": "Incoming Data Request"}],
+        ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
+        ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
+        ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 500, "url": "/accounts/", "vars": {}}],
+        ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/", "vars": {}}],
+        ["info", "incoming.account.success", {}, {"data": {"attributes": {"outreach/custom1": {"operation": "set", "value": "some custom value"}, "outreach/custom10": {"operation": "set", "value": "another custom value"}, "outreach/id": {"operation": "set", "value": 1}}, "ident": {"anonymous_id": "outreach:1", "domain": "somehullcompany.com"}}}],
+        ["info", "incoming.account.success", {}, {"data": {"attributes": {"outreach/id": {"operation": "set", "value": 4}}, "ident": {"anonymous_id": "outreach:4", "domain": "noprospectshullcompany.com"}}}],
+        ["info", "incoming.job.success", {}, {"jobName": "Incoming Data Request"}]
+      ],
+      firehoseEvents: [
+        ["traits", {"asAccount": {"anonymous_id": "outreach:1", "domain": "somehullcompany.com"}, "subjectType": "account"}, {"outreach/custom1": {"operation": "set", "value": "some custom value"}, "outreach/custom10": {"operation": "set", "value": "another custom value"}, "outreach/id": {"operation": "set", "value": 1}}],
+        ["traits", {"asAccount": {"anonymous_id": "outreach:4", "domain": "noprospectshullcompany.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 4}}]
+      ],
+      metrics: [
+        ["increment", "connector.request", 1],
+        ["increment", "ship.service_api.call", 1],
+        ["value", "connector.service_api.response_time", expect.whatever()],
+        ["increment", "ship.service_api.call", 1],
+        ["value", "connector.service_api.response_time", expect.whatever()],
+        ["increment", "ship.service_api.call", 1],
+        ["value", "connector.service_api.response_time", expect.whatever()],
+        ["increment", "connector.service_api.error", 1],
+        ["increment", "service.service_api.errors", 1],
+        ["increment", "ship.service_api.call", 1],
+        ["value", "connector.service_api.response_time", expect.whatever()],
+        ["increment", "ship.incoming.accounts", 1],
+        ["increment", "ship.incoming.accounts", 1]
+      ],
       platformApiCalls: [
         ["GET", "/api/v1/app", {}, {}],
         ["GET", "/api/v1/users_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}],

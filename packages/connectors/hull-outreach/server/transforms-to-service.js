@@ -1,6 +1,8 @@
 /* @flow */
 import type { Transform, ServiceTransforms } from "./shared/types";
 
+const { isNull, notNull } = require("./shared/conditionals");
+
 const { HullOutgoingUser, HullOutgoingAccount } = require("./shared/hull-service-objects");
 const { OutreachProspectWrite, OutreachAccountWrite } = require("./service-objects");
 
@@ -34,9 +36,21 @@ const transformsToService: ServiceTransforms = [
       },
       {
         mapping: "connector.private_settings.user_claims",
+        condition: notNull("existingProspect"),
         outputArrayFields: {
           checkField: "service_field_name",
           fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"],
+          mergeArrayFromContext: "existingProspect.attributes.${service_field_name}"
+        },
+        inputPath: "${hull_field_name}",
+        outputPath: "data.attributes.${service_field_name}",
+      },
+      {
+        mapping: "connector.private_settings.user_claims",
+        condition: isNull("userId"),
+        outputArrayFields: {
+          checkField: "service_field_name",
+          fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"]
         },
         inputPath: "${hull_field_name}",
         outputPath: "data.attributes.${service_field_name}",
@@ -64,7 +78,8 @@ const transformsToService: ServiceTransforms = [
         mapping: "connector.private_settings.account_claims",
         outputArrayFields: {
           checkField: "service_field_name",
-          fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"],
+          fields: ["tags"],
+          mergeArrayFromContext: "existingAccount.attributes.${service_field_name}"
         },
         inputPath: "${hull_field_name}",
         outputPath: "data.attributes.${service_field_name}",

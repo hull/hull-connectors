@@ -265,16 +265,7 @@ class ServiceEngine {
 
       if (!isUndefinedOrNull(errorTemplate)) {
 
-        const throwFinalError = (finalError) => {
-          // may have been able to partially recover, log the final error
-          // which may have been different than the original
-          // might be an argument to have several recovery routes that all converge on success at some point
-          // not now though, too early to understand if that would be really helpful or not...
-          const finalErrorTemplate = this.findErrorTemplate(context, serviceDefinition, finalError);
-          const finalErrorException = this.createErrorException(context, name, serviceDefinition.error, finalErrorTemplate, finalError);
-          return Promise.reject(finalErrorException);
-        }
-
+        let errorHandlingPromise;
         const route: string = _.get(errorTemplate, "recoveryroute");
 
         if (!_.isEmpty(route) && !_.isEqual(route, _.get(context, "recoveryroute"))) {
@@ -286,18 +277,36 @@ class ServiceEngine {
             debug(`[SERVICE-ERROR]: ${name} [RECOVERY-ROUTE-ATTEMPT]: ${route}`);
             // The way we do this _.merge is key, means, only the recoveryroute
             // will have it set, but others will not
-            // does keeping this promise around keep the data that was the result in memory
+            // don't input data on an attempt to recover...
             this.recoveryPromise = this.dispatcher.resolve(_.assign({ recoveryroute: route }, context), new Route(route), null);
           }
 
-          //don't input data on an attempt to recover...
-          return this.recoveryPromise.then(() => {
-            return this.createOperationPromise(context, instruction, data);
-          }).catch(throwFinalError);
+          // .then creates a new promise reference... must keep track of it
+          // can't do:
+          // promise.then();  promise.then()
+          // must do promise.then().then()
+          // or
+          // promise = promise.then(); promise = promise.then()
 
-        } else if (errorTemplate.retryAttempts) {
-          return this.retrySendingData(errorTemplate.retryAttempts,
-            this.createOperationPromise, context, instruction, data).catch(throwFinalError);
+          //TODO does keeping this promise around keep the data that was the result in memory
+          errorHandlingPromise = this.recoveryPromise.then(() => {
+            return this.createOperationPromise(context, instruction, data);
+          });
+
+        } else if (errorTemplate.retryAttempts && errorTemplate.retryAttempts > 0) {
+          errorHandlingPromise = this.retrySendingData(errorTemplate.retryAttempts - 1, 1000, context, instruction, data);
+        }
+
+        if (!isUndefinedOrNull(errorHandlingPromise)) {
+          return errorHandlingPromise.catch((finalError) => {
+            // may have been able to partially recover, log the final error
+            // which may have been different than the original
+            // might be an argument to have several recovery routes that all converge on success at some point
+            // not now though, too early to understand if that would be really helpful or not...
+            const finalErrorTemplate = this.findErrorTemplate(context, serviceDefinition, finalError);
+            const finalErrorException = this.createErrorException(context, name, serviceDefinition.error, finalErrorTemplate, finalError);
+            return Promise.reject(finalErrorException);
+          });
         }
       }
 
@@ -330,13 +339,20 @@ class ServiceEngine {
     return dispatchPromise;
   }
 
-  retrySendingData(retryAttempts: number, sendDataFunction: Function, context: Object, instruction: Object, data: any) {
-    return sendDataFunction(context, instruction, data).catch( error => {
-      const remainingRetryAttempts = retryAttempts - 1;
-      if (remainingRetryAttempts === 0) {
-        return Promise.reject(error);
-      }
-      return retrySendingData(remainingRetryAttempts, sendDataFunction, context, instruction, data);
+  retrySendingData(retryAttempts: number, sleepTime: number, context: Object, instruction: Object, data: any) {
+
+    // returns a promise which will wait the sleep time before calling the new retry promise
+    // sleep time increases *2 everytime for a good backoff
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(this.createOperationPromise(context, instruction, data).catch( error => {
+          if (retryAttempts === 0) {
+            return Promise.reject(error);
+          }
+          return this.retrySendingData(retryAttempts - 1, sleepTime*2, context, instruction, data);
+        }));
+      }, sleepTime);
+
     });
   }
 
