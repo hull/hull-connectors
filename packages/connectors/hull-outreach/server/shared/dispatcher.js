@@ -65,7 +65,7 @@ class HullDispatcher {
   }
 
   async handleRequest(context: Object, route: string, data: null | ServiceData) {
-    try {
+    // try {
       if (!_.isEmpty(this.ensure)) {
         if (isUndefinedOrNull(this.ensurePromise)) {
           this.ensurePromise = this.resolve(_.assign({}, context), new Route(this.ensure), data);
@@ -79,9 +79,9 @@ class HullDispatcher {
       // so we don't have to do this weird assign at the top to create message
       // specific context
       return await this.resolve(_.assign({}, context), new Route(route), data);
-    } catch (error) {
-      console.log("Error here: " + error.stack);
-    }
+    // } catch (error) {
+    //   console.log("Error here: " + error.stack);
+    // }
   }
 
   async resolve(context: Object, instruction: Object, serviceData: null | ServiceData): any {
@@ -136,14 +136,14 @@ class HullDispatcher {
         }
 
         let paramString = JSON.stringify(resolvedParams);
-        // if (paramString.length > 60) {
-        //   paramString = `${paramString.substring(0,60)}...`;
-        // }
+        if (paramString.length > 60) {
+          paramString = `${paramString.substring(0,60)}...`;
+        }
 
         if (paramName === null) {
-          debug(`[EXECUTING]: ${instruction.type}<${instruction.name}> [RESOLVED-TO]: ${paramString}`);
+          debug(`[EXECUTING]: ${instruction.type}<${instruction.name}> [WITH-RESOLVED-PARAM]: ${paramString}`);
         } else {
-          debug(`[EXECUTING]: ${instruction.type}<${instruction.name}> [FROM]: ${paramName} [RESOLVED-TO]: ${paramString}`);
+          debug(`[EXECUTING]: ${instruction.type}<${instruction.name}> [FROM]: ${paramName} [WITH-RESOLVED-PARAM]: ${paramString}`);
         }
 
       } else {
@@ -170,7 +170,8 @@ class HullDispatcher {
 
       if (name === 'input') {
         if (serviceData !== null && !isUndefinedOrNull(instruction.path)) {
-          return _.get(serviceData.data, instruction.path);
+          const path = doVariableReplacement(context, instruction.path);
+          return _.get(serviceData.data, path);
         }
         return serviceData;
       }
@@ -182,7 +183,14 @@ class HullDispatcher {
       if (_.isEmpty(route)) {
         throw new Error(`Route: ${instruction.name} not found in glue`);
       }
-      return await this.resolve(context, route, serviceData);
+
+      if (!isUndefinedOrNull(instruction.paramsType)) {
+        // TODO could be a pattern for expansion on array to go in parallel
+        return await this.resolve(context, route, new ServiceData(instruction.paramsType, resolvedParams));
+      } else {
+        return await this.resolve(context, route, serviceData);
+      }
+
     } else if (type === 'logic') {
 
       const name = instruction.name;
@@ -204,6 +212,65 @@ class HullDispatcher {
           return await this.resolve(context, instruction.results.false, serviceData);
         }
 
+      } else if (name === 'loop') {
+        if (!isUndefinedOrNull(resolvedParams)) {
+          // make sure these aren't null because they weren't able to be resolved...
+
+          if (!Array.isArray(resolvedParams)) {
+            throw new Error("Don't know what this looping case is where the parameters aren't an array... not sure it should exist");
+          }
+
+          const results = [];
+          for (let i = 0; i < resolvedParams.length; i++) {
+            _.set(context, instruction.varname, resolvedParams[i]);
+            const instructionResults = await this.resolve(context, instruction.instructions, serviceData);
+            results.push(instructionResults);
+
+            // check to see if includes an end, if so, then stop looping...
+            const endInstruction = _.find(instructionResults, (instructionResult) => {
+              if (instructionResult instanceof HullInstruction
+                && instructionResult.name === "end") {
+                  return true;
+                }
+              return false;
+            });
+            if (!isUndefinedOrNull(endInstruction)) {
+              break;
+            }
+          }
+          return results;
+
+        } else {
+
+          const results = [];
+          while(true) {
+            const instructionResults = await this.resolve(context, instruction.instructions, serviceData);
+            results.push(instructionResults);
+            // if results do not contain an end(), then continue to loop
+            const endInstruction = _.find(instructionResults, (instructionResult) => {
+              if (instructionResult instanceof HullInstruction
+                && instructionResult.name === "end") {
+                  return true;
+                }
+              return false;
+            });
+            if (!isUndefinedOrNull(endInstruction)) {
+              break;
+            }
+          }
+          return results;
+
+        }
+
+      } else if (name === 'end') {
+        return instruction;
+      } else if (name === 'function') {
+
+        let obj = resolvedParams;
+        if (resolvedParams instanceof ServiceData) {
+          obj = obj.data;
+        }
+        return instruction.toExecute(obj);
       } else {
         throw new Error(`Unsupported Logic: ${name}`);
       }
@@ -214,33 +281,48 @@ class HullDispatcher {
       // TODO gotta work out this bs logic to standardize...
       if (Array.isArray(resolvedParams)) {
 
-        if (resolvedParams.length === 2) {
-
-          // some operations would rather look at the data
-          // I don't get it, it's just their preference
-          let obj = resolvedParams[0];
+        // some operations would rather look at the data
+        // I don't get it, it's just their preference
+        let obj;
+        if (resolvedParams.length > 0) {
+          obj = resolvedParams[0];
           if (obj instanceof ServiceData) {
             obj = obj.data;
           }
+        }
 
+        if (resolvedParams.length === 2) {
           if (name === 'set') {
+
+            //TODO any reason we don't want to use obj???
             _.set(context, resolvedParams[0], resolvedParams[1]);
             // return the obj that we set...
             return resolvedParams[1];
           } else if (name === 'get') {
             return _.get(obj, resolvedParams[1]);
           } else if (name === 'isEqual') {
-            return _.isEqual(resolvedParams[0], resolvedParams[1]);
+            return _.isEqual(obj, resolvedParams[1]);
           } else if (name === 'filter') {
             return _.filter(obj, resolvedParams[1]);
+          } else if (name === 'notFilter') {
+            return _.filter(obj,
+              (individualObj) => {
+                return !_.isMatch(individualObj, resolvedParams[1])
+              });
           } else if (name === 'utils') {
             return new FrameworkUtils()[resolvedParams[0]](context, resolvedParams[1]);
+          } else if (name === "lessThan") {
+            return obj < resolvedParams[1];
           } else {
             throw new Error(`Unsupported Conditional: ${name}`);
           }
         } else if (resolvedParams.length === 1) {
           if (name === 'get') {
-            return _.get(context, resolvedParams[0]);
+            if (typeof obj === 'string') {
+              return _.get(context, obj);
+            } else {
+              return obj;
+            }
           }
         }
       }

@@ -25,20 +25,7 @@ const {
 const { SuperagentApi } = require("./shared/superagent-api");
 const MESSAGES = require("./messages");
 const { isUndefinedOrNull } = require("./shared/utils");
-
-function notNull(param: string) {
-  return (context, error) => {
-    const contextVariable = _.get(context, param);
-    return !isUndefinedOrNull(contextVariable);
-  };
-}
-
-function isNull(param: string) {
-  return (context, error) => {
-    const contextVariable = _.get(context, param);
-    return isUndefinedOrNull(contextVariable);
-  };
-}
+const { isNull, notNull } = require("./shared/conditionals");
 
 // What about linking calls?
 const service: RawRestApi = {
@@ -83,9 +70,25 @@ const service: RawRestApi = {
       returnObj: "body.data",
       output: OutreachAccountRead
     },
+    getAllAccountsPaged: {
+      url: "/accounts/",
+      operation: "get",
+      query: "sort=id&page[limit]=100&filter[id]=${id_offset}..inf",
+      endpointType: "fetchAll",
+      returnObj: "body.data",
+      output: OutreachAccountRead
+    },
     getAllProspects: {
       url: "/prospects/",
       operation: "get",
+      endpointType: "fetchAll",
+      returnObj: "body.data",
+      output: OutreachProspectRead
+    },
+    getAllProspectsPaged: {
+      url: "/prospects/",
+      operation: "get",
+      query: "sort=id&page[limit]=100&filter[id]=${id_offset}..inf",
       endpointType: "fetchAll",
       returnObj: "body.data",
       output: OutreachProspectRead
@@ -165,6 +168,11 @@ const service: RawRestApi = {
       operation: "post",
       endpointType: "create"
     },
+    deleteWebhook: {
+      url: "/webhooks/${webhookIdToDelete}",
+      operation: "delete",
+      endpointType: "delete"
+    },
     refreshToken: {
       url: "https://api.outreach.io/oauth/token",
       operation: "post",
@@ -218,6 +226,12 @@ const service: RawRestApi = {
     },
 
     templates: [
+      {
+        truthy: { status: 500 },
+        errorType: TransientError,
+        message: MESSAGES.INTERNAL_SERVICE_ERROR,
+        retryAttempts: 2
+      },
       {
         truthy: { status: 401 },
         condition: isNull("connector.private_settings.access_token"),

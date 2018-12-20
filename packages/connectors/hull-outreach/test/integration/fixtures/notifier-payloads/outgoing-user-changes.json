@@ -10,7 +10,7 @@
         "tags": [],
         "source_url": "https://dev-hull-outreach.ngrok.io/",
         "private_settings": {
-            "incoming_user_claims": [
+            "user_claims": [
                 {
                     "hull": "email",
                     "service": "emails"
@@ -73,7 +73,7 @@
             "synchronized_user_segments": [
                 "5bffc38f625718d58b000004"
             ],
-            "incoming_account_claims": [
+            "account_claims": [
                 {
                     "hull": "domain",
                     "service": "domain"
@@ -100,7 +100,7 @@
                 }
             ],
             "created_at": 1544523790,
-            "link_users_in_hull": false
+            "link_users_in_hull": true
         },
         "index": "https://dev-hull-outreach.ngrok.io/",
         "name": "dev-hull-outreach.ngrok.io",
@@ -441,6 +441,10 @@
                     "traits_testattributes/description": [
                         "some test data2",
                         "Description of darth vader"
+                    ],
+                    "email": [
+                        "darthdude@darksideinc.com",
+                        "darth@darksideinc.com"
                     ]
                 },
                 "account": {},

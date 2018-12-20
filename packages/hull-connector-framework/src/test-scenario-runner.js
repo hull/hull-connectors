@@ -127,11 +127,13 @@ class TestScenarioRunner extends EventEmitter {
     {
       connectorServer,
       connectorWorker,
-      connectorManifest
+      connectorManifest,
+      debounceWait
     }: {
       connectorServer: express => express,
       connectorWorker?: Function,
-      connectorManifest: Object
+      connectorManifest: Object,
+      debounceWait?: number
     },
     scenarioDefinition: TestScenarioDefinition
   ) {
@@ -156,6 +158,10 @@ class TestScenarioRunner extends EventEmitter {
     this.minihull = new Minihull();
     this.app = express();
     this.rawScenarioDefinition = scenarioDefinition;
+
+    if (debounceWait) {
+      this.debounceWait = debounceWait;
+    }
     this.deboucedFinish = _.debounce(() => this.finish(), this.debounceWait, {
       maxWait: this.timeout
     });
@@ -356,13 +362,21 @@ class TestScenarioRunner extends EventEmitter {
           case handlers.batchHandler:
             if (channel === "user:update") {
               this.minihull.stubUsersBatch(this.scenarioDefinition.messages);
+              response = await this.minihull.batchUsersConnector(
+                this.connector,
+                `http://localhost:${this.hullConnectorPort}/${handlerUrl}`,
+                this.scenarioDefinition.usersSegments,
+                this.scenarioDefinition.accountsSegments
+              );
+            } else {
+              this.minihull.stubAccountsBatch(this.scenarioDefinition.messages);
+              response = await this.minihull.batchAccountsConnector(
+                this.connector,
+                `http://localhost:${this.hullConnectorPort}/${handlerUrl}`,
+                this.scenarioDefinition.usersSegments,
+                this.scenarioDefinition.accountsSegments
+              );
             }
-            response = await this.minihull.batchUsersConnector(
-              this.connector,
-              `http://localhost:${this.hullConnectorPort}/${handlerUrl}`,
-              this.scenarioDefinition.usersSegments,
-              this.scenarioDefinition.accountsSegments
-            );
             break;
           case handlers.notificationHandler:
             response = await this.minihull.notifyConnector(

@@ -38,6 +38,16 @@
             "token_created_at": 1544104207,
             "access_token": "1234",
             "refresh_token": "abcd",
+            "account_claims": [
+                {
+                    "hull": "domain",
+                    "service": "domain"
+                },
+                {
+                    "hull": "external_id",
+                    "service": "customId"
+                }
+            ],
             "outgoing_account_attributes": [
                 {
                     "hull": "closeio/industry_sample",

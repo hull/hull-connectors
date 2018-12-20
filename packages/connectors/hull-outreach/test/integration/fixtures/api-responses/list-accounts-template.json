@@ -1,0 +1,29 @@
+{
+    "data": [
+        {
+            "type": "account",
+            "id": 1,
+            "attributes": {
+                "createdAt": "2018-09-20T18:32:22.000Z",
+                "custom1": "some custom value",
+                "custom10": "another custom value",
+                "custom20": "value not to be sync'd",
+                "domain": "somehullcompany.com",
+
+                "name": "SomeHullCompany",
+                "named": true,
+                "naturalName": null,
+                "numberOfEmployees": null,
+                "tags": [
+                    "somehullcompanytag",
+                    "somehullcompanytag2"
+                ],
+                "updatedAt": "2018-09-20T18:32:22.000Z",
+                "websiteUrl": null
+            }
+        }
+    ],
+    "meta": {
+        "count": 100
+    }
+}

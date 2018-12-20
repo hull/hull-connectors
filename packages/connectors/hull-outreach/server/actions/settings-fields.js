@@ -43,41 +43,9 @@ function fieldsOutreachAccountOutbound() {
   });
 }
 
-function fieldsHullAccountIdent() {
-  return Promise.resolve({
-    options: [
-      {
-        value: "domain",
-        label: "Domain"
-      },
-      {
-        value: "external_id",
-        label: "External ID"
-      }
-    ]
-  });
-}
-
-function fieldsOutreachAccountIdent() {
-  return Promise.resolve({
-    options: [
-      {
-        value: "domain",
-        label: "Domain"
-      },
-      {
-        value: "customId",
-        label: "Custom ID"
-      }
-    ]
-  });
-}
-
 module.exports = {
   fieldsOutreachProspectInbound,
   fieldsOutreachProspectOutbound,
   fieldsOutreachAccountInbound,
-  fieldsOutreachAccountOutbound,
-  fieldsHullAccountIdent,
-  fieldsOutreachAccountIdent
+  fieldsOutreachAccountOutbound
 };

@@ -18,6 +18,18 @@
             "token_created_at": 1544104207,
             "refresh_token": "1234",
             "access_token": "2345",
+            "link_users_in_service": true,
+            "link_users_in_hull": true,
+            "user_claims": [
+                {
+                    "hull": "email",
+                    "service": "emails"
+                },
+                {
+                    "hull": "external_id",
+                    "service": "externalId"
+                }
+            ],
             "incoming_user_attributes": [
                 {
                     "hull": "traits_outreach/custom1",
@@ -40,6 +52,16 @@
                 {
                     "hull": "traits_closeio/phone_office",
                     "service": "workPhones"
+                }
+            ],
+            "account_claims": [
+                {
+                    "hull": "domain",
+                    "service": "domain"
+                },
+                {
+                    "hull": "external_id",
+                    "service": "customId"
                 }
             ],
             "webhook_id": 31

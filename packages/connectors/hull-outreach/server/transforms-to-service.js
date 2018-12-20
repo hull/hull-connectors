@@ -1,6 +1,8 @@
 /* @flow */
 import type { Transform, ServiceTransforms } from "./shared/types";
 
+const { isNull, notNull } = require("./shared/conditionals");
+
 const { HullOutgoingUser, HullOutgoingAccount } = require("./shared/hull-service-objects");
 const { OutreachProspectWrite, OutreachAccountWrite } = require("./service-objects");
 
@@ -13,22 +15,42 @@ const transformsToService: ServiceTransforms = [
     direction: "outgoing",
     transforms: [
       { outputPath: "data.type", outputFormat: "prospect" },
-      { outputPath: "data.id", outputFormat: "${userId}" },
       { inputPath: "outreach/id", outputPath: "data.id" },
-      { inputPath: "email", outputPath: "data.attributes.emails", outputFormat: ["${value}"] },
+      { outputPath: "data.id", outputFormat: "${userId}" },
       {
-        inputPath: "account.outreach/id",
+        condition: "accountId",
         outputPath: "data.relationships.account.data",
         outputFormat: {
           type: "account",
-          id: "${value}"
+          id: "${accountId}"
         }
       },
       {
         mapping: "connector.private_settings.outgoing_user_attributes",
         outputArrayFields: {
           checkField: "service_field_name",
-          fields: ["homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"],
+          fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"],
+        },
+        inputPath: "${hull_field_name}",
+        outputPath: "data.attributes.${service_field_name}",
+      },
+      {
+        mapping: "connector.private_settings.user_claims",
+        condition: notNull("existingProspect"),
+        outputArrayFields: {
+          checkField: "service_field_name",
+          fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"],
+          mergeArrayFromContext: "existingProspect.attributes.${service_field_name}"
+        },
+        inputPath: "${hull_field_name}",
+        outputPath: "data.attributes.${service_field_name}",
+      },
+      {
+        mapping: "connector.private_settings.user_claims",
+        condition: isNull("userId"),
+        outputArrayFields: {
+          checkField: "service_field_name",
+          fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"]
         },
         inputPath: "${hull_field_name}",
         outputPath: "data.attributes.${service_field_name}",
@@ -43,15 +65,22 @@ const transformsToService: ServiceTransforms = [
     direction: "outgoing",
     transforms: [
       { outputPath: "data.type", outputFormat: "account" },
-      { outputPath: "data.id", outputFormat: "${accountId}" },
       { inputPath: "outreach/id", outputPath: "data.id" },
-      // won't be set if it does not exist, will only exist on insert
-      // if we set something different for name in mapping, then it will get overridden
-      // which is good
-      { outputPath: "data.attributes.name", outputFormat: "${hull_domain}" },
+      { outputPath: "data.id", outputFormat: "${accountId}" },
+      //still need to take this out in favor of setting the settings outgoing mappings
       { inputPath: "domain", outputPath: "data.attributes.domain" },
       {
         mapping: "connector.private_settings.outgoing_account_attributes",
+        inputPath: "${hull_field_name}",
+        outputPath: "data.attributes.${service_field_name}",
+      },
+      {
+        mapping: "connector.private_settings.account_claims",
+        outputArrayFields: {
+          checkField: "service_field_name",
+          fields: ["tags"],
+          mergeArrayFromContext: "existingAccount.attributes.${service_field_name}"
+        },
         inputPath: "${hull_field_name}",
         outputPath: "data.attributes.${service_field_name}",
       }

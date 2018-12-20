@@ -110,6 +110,16 @@ const MESSAGES = {
       channel: "Operation",
       category: "Unknown"
     };
+  },
+  INTERNAL_SERVICE_ERROR: () => {
+    return {
+      id: "InternalServiceError",
+      message:
+        'The Outreach system has thrown an error.  Hull has tried to recover, but was unable.  Please contact your Hull Service Representative so that they can contact Outreach and inform them of this bug',
+      level: "Error",
+      channel: "Operation",
+      category: "Unknown"
+    };
   }
 };
 

@@ -4,16 +4,34 @@ const { service } = require("./service");
 const {
   ifLogic,
   route,
+  routeWithData,
   cond,
   hull,
   set,
   get,
+  getData,
   filter,
+  notFilter,
   utils,
+  loopLogic,
+  loopArrayLogic,
+  loopEnd,
   input,
   inputParameter,
+  execute,
   Svc
 } = require("./shared/language");
+
+const {
+  isUndefinedOrNull
+} = require("./shared/utils");
+
+const {
+  HullOutgoingAccount,
+  HullOutgoingUser
+} = require("./shared/hull-service-objects");
+
+const _ = require("lodash");
 
 // function outreach(op: string, query: any): Svc { return new Svc("outreach", op, query, null)};
 // function outreach(op: string, data: any): Svc { return new Svc("outreach", op, null, data)};
@@ -57,50 +75,137 @@ const refreshTokenDataTemplate = {
 // everything else doesn't have a name....
 
 const glue = {
-  userUpdateStart: route("prospectLookupById"),
-  prospectLookupById:
-    ifLogic(cond("notEmpty", set("userId", inputParameter("outreach/id"))), {
-      true: ifLogic(cond("notEmpty", outreach("getProspectById")), {
-              true: hull("asUser", outreachSendInput("updateProspect")),
-              false: route("prospectLookupByEmail")
-            }),
-      false: route("prospectLookupByEmail")
+  userUpdateStart: route("prospectUpsert"),
+  prospectUpsert:
+    ifLogic(cond("notEmpty", set("userId", inputParameter("user.outreach/id"))), {
+      true: ifLogic(cond("notEmpty", get(input(), "changes.user.email[1]")), {
+        true: [set("existingProspect", getData(outreach("getProspectById"))), route("updateProspect")],
+        false: route("updateProspect")
+      }),
+      false: [
+        route("prospectLookup"),
+        ifLogic(cond("notEmpty", "${userId}"), {
+          true: route("updateProspect"),
+          false: route("insertProspect")
+        }),
+      ]
     }),
-  prospectLookupByEmail:
-    ifLogic(cond("notEmpty", set("userEmail", inputParameter("email"))), {
-      true: ifLogic(cond("notEmpty", set("userId", get(outreach("getProspectByEmail"), "[0].id"))), {
-              true: hull("asUser", outreachSendInput("updateProspect")),
-              false: hull("asUser", outreachSendInput("insertProspect"))
-            }),
-      false: hull("asUser", outreachSendInput("insertProspect"))
-    }),
-  accountUpdateStart:
-    ifLogic(cond("notEmpty", set("accountId", inputParameter("outreach/id"))), {
-      true:
-        ifLogic(cond("notEmpty", outreach("getAccountById")), {
-          true: hull("asAccount", outreachSendInput("updateAccount")),
-          false: route("accountLookupByDomain")
+  prospectLookup:
+    loopArrayLogic(notFilter("${connector.private_settings.user_claims}", { service: "id" }), "claim",
+      [
+        set("property", "${claim.service}"),
+        set("value", inputParameter("user.${claim.hull}")),
+        // TODO still need to see if more than 1
+        ifLogic(cond("notEmpty", "${value}"), {
+          true: ifLogic(cond("notEmpty", set("existingProspect", get(outreach("getProspectsByProperty"), "[0]"))), {
+                  true: [set("userId", get("${existingProspect}", "id")), loopEnd()],
+                  false: {}
+                }),
+          false: {}
+        })
+      ]
+    ),
+  linkAccount:
+    ifLogic("${connector.private_settings.link_users_in_service}", {
+      // TODO maybe pass a variable through in the context, to tell it to link or not...
+      // then don't have to add all of this intersection/map nonsense
+      true: ifLogic(
+        cond("notEmpty",
+          execute(["${connector.private_settings.synchronized_account_segments}", inputParameter("account_segments")],
+            (params) => {
+              if (!isUndefinedOrNull(params) && Array.isArray(params) && Array.isArray(params[0]) && Array.isArray(params[1])) {
+                return _.intersection(params[0], params[1].map((param) => param.id));
+              }
+              return [];
+            })), {
+        true:
+          ifLogic(cond("isEmpty", set("accountId", inputParameter("account.outreach/id"))), {
+            true: [
+              route("accountLookup"),
+              ifLogic(cond("isEmpty", "${accountId}"), {
+                true: routeWithData("sendInsertAccountWithAccountId", inputParameter("account"), HullOutgoingAccount),
+                false: {}
+              })
+            ],
+            false: {}
           }),
-      false: route("accountLookupByDomain")
+        false: {}
+      }),
+      false: {}
     }),
-  accountLookupByDomain:
-    ifLogic(cond("notEmpty", set("accountDomain", inputParameter("domain"))), {
-      true: ifLogic(cond("notEmpty", set("accountId", get(outreach("getAccountByDomain"), "[0].id"))), {
-              true: hull("asAccount", outreachSendInput("updateAccount")),
-              false: hull("asAccount", route("insertAccount"))
-            }),
-      false: hull("asAccount", route("insertAccount"))
+  sendInsertAccountWithAccountId: [
+    set("insertedAccount", outreachSendInput("insertAccount")),
+    set("accountId", get("${insertedAccount}", "id")),
+    hull("asAccount", "${insertedAccount}")
+  ],
+  insertProspect: [ route("linkAccount"), routeWithData("sendInsertProspect", inputParameter("user"), HullOutgoingUser) ],
+  sendInsertProspect: hull("asUser", outreachSendInput("insertProspect")),
+  updateProspect: [ route("linkAccount"), routeWithData("sendUpdateProspect", inputParameter("user"), HullOutgoingUser) ],
+  sendUpdateProspect: hull("asUser", outreachSendInput("updateProspect")),
+  accountUpdateStart: route("accountUpsert"),
+  accountUpsert:
+    ifLogic(cond("notEmpty", set("accountId", inputParameter("account.outreach/id"))), {
+      true: route("updateAccount"),
+      false: [
+        route("accountLookup"),
+        ifLogic(cond("notEmpty", "${accountId}"), {
+          true: route("updateAccount"),
+          false: route("insertAccount")
+        }),
+      ]
     }),
-  insertAccount:
-    [
-      set("hull_domain", get(input(), "domain")),
-      //maybe another from the claims if we get that sorted...
-      outreachSendInput("insertAccount")
-    ],
-  fetchAll: [route("accountFetchAll"), route("prospectFetchAll")],
-  accountFetchAll: hull("asAccount", outreach("getAllAccounts")),
-  prospectFetchAll: hull("asUser", outreach("getAllProspects")),
+  accountLookup:
+    loopArrayLogic(notFilter("${connector.private_settings.account_claims}", { service: "id" }), "claim",
+      [
+        set("property", "${claim.service}"),
+        set("value", inputParameter("account.${claim.hull}")),
+        ifLogic(cond("notEmpty", "${value}"), {
+          true: ifLogic(cond("notEmpty", set("existingAccount", get(outreach("getAccountByProperty"), "[0]"))), {
+            true: [set("accountId", get("${existingAccount}", "id")), loopEnd()],
+            false: {}
+          }),
+          false: {}
+        })
+      ]
+    ),
+  insertAccount: routeWithData("sendInsertAccount", inputParameter("account"), HullOutgoingAccount),
+  sendInsertAccount: hull("asAccount", outreachSendInput("insertAccount")),
+  updateAccount: routeWithData("sendUpdateAccount", inputParameter("account"), HullOutgoingAccount),
+  sendUpdateAccount: hull("asAccount", outreachSendInput("updateAccount")),
 
+  fetchAll: [route("accountFetchAll"), route("prospectFetchAll")],
+  accountFetchAll:
+    [
+    set("id_offset", 0),
+    loopLogic(
+      [
+        set("outreachAccounts", outreach("getAllAccountsPaged")),
+        hull("asAccount", "${outreachAccounts}"),
+        ifLogic(cond("lessThan", [execute("${outreachAccounts}", (accounts) => accounts.length), 100]), {
+          true: loopEnd(),
+          false: set("id_offset",
+                    execute(
+                      get(execute("${outreachAccounts}", (accounts) => accounts[accounts.length - 1]), "id"),
+                      (accountId) => accountId + 1))
+        })
+      ])
+    ],
+  prospectFetchAll:
+    [
+    set("id_offset", 0),
+    loopLogic(
+      [
+        set("outreachProspects", outreach("getAllProspectsPaged")),
+        hull("asUser", "${outreachProspects}"),
+        ifLogic(cond("lessThan", [execute("${outreachProspects}", (prospects) => prospects.length), 100]), {
+          true: loopEnd(),
+          false: set("id_offset",
+                    execute(
+                      get(execute("${outreachProspects}", (prospects) => prospects[prospects.length - 1]), "id"),
+                      (prospectId) => prospectId + 1))
+        })
+      ])
+    ],
   webhook:
     ifLogic(cond("isEqual", ["account", inputParameter("data.type")]), {
       true: hull("asAccount", input()),
@@ -115,15 +220,38 @@ const glue = {
     ifLogic(cond("isEmpty", "${connector.private_settings.webhook_id}"), {
       true: [
         set("webhookUrl", utils("createWebhookUrl")),
-        ifLogic(cond("isEmpty", filter(outreach("getAllWebhooks"), { type: "webhook", attributes: { url: "${webhookUrl}" } })),
+        set("existingWebhooks", outreach("getAllWebhooks")),
+        ifLogic(cond("isEmpty", filter("${existingWebhooks}", { type: "webhook", attributes: { url: "${webhookUrl}" } })),
           {
             true: [
               set("webhookId", get(outreachSend("insertWebhook", webhookDataTemplate), "data.id")),
               hull("settingsUpdate", { webhook_id:  "${webhookId}" })
             ],
             false: {}
-          })
+          }),
+        route("deleteBadWebhooks")
         ],
+      false: {}
+    }),
+  deleteBadWebhooks:
+    ifLogic(cond("notEmpty", set("webhooksToDelete",
+    execute([notFilter("${existingWebhooks}", { type: "webhook", attributes: { url: "${webhookUrl}" } }), utils("getConnectorOrganization")],
+                                                      (params) => {
+                                                        const webhooks = params[0] || [];
+                                                        const organization = params[1];
+                                                        return _.reduce(webhooks, (orgWebhooks, webhook) => {
+                                                          const url = _.get(webhook, "attributes.url");
+                                                          if (!_.isEmpty(url) && url.indexOf(organization) > 0) {
+                                                            orgWebhooks.push(webhook);
+                                                          }
+                                                          return orgWebhooks;
+                                                        }, []);
+                                                      }))), {
+      true: loopArrayLogic("${webhooksToDelete}", "badWebhook",
+        [
+          set("webhookIdToDelete", get("${badWebhook}", "id")),
+          outreachSend("deleteWebhook")
+        ]),
       false: {}
     }),
   refreshToken:

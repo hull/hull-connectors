@@ -108,7 +108,7 @@ describe("scheduleHandler", () => {
     }).handle(request, response, (err) => { console.log(err) });
     response.on("end", () => {
       expect(response._isEndCalled()).to.be.ok;
-      expect(response._getData()).to.equal('{"status":"deffered"}');
+      expect(response._getData()).to.equal('{"status":"deferred"}');
       done();
     });
   });
@@ -143,7 +143,7 @@ describe("scheduleHandler", () => {
     }).handle(request, response, (err) => { console.log(err) });
     response.on("end", () => {
       expect(response._isEndCalled()).to.be.ok;
-      expect(response._getData()).to.equal('{"status":"deffered"}');
+      expect(response._getData()).to.equal('{"status":"deferred"}');
     });
   });
 
@@ -179,7 +179,7 @@ describe("scheduleHandler", () => {
     }).handle(request, response, (err) => { console.log(err) });
     response.on("end", () => {
       expect(response._isEndCalled()).to.be.ok;
-      expect(response._getData()).to.equal('{"status":"deffered"}');
+      expect(response._getData()).to.equal('{"status":"deferred"}');
     });
   });
 
@@ -215,7 +215,7 @@ describe("scheduleHandler", () => {
     }).handle(request, response, (err) => { console.log(err) });
     response.on("end", () => {
       expect(response._isEndCalled()).to.be.ok;
-      expect(response._getData()).to.equal('{"status":"deffered"}');
+      expect(response._getData()).to.equal('{"status":"deferred"}');
     });
   });
 });

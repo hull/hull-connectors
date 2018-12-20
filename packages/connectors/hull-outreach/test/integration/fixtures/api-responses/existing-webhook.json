@@ -1,0 +1,40 @@
+{
+  "data": [
+    {
+      "type": "webhook",
+      "id": 31,
+      "attributes": {
+        "action": "*",
+        "active": true,
+        "createdAt": "2018-12-06T13:53:44.000Z",
+        "resource": "*",
+        "secret": null,
+        "updatedAt": "2018-12-06T13:53:44.000Z",
+        "url": "https://dev-hull-outreach.io/webhooks?organization=dev.hullbeta.io&secret=shhh&ship=123456789012345678901234"
+      },
+      "relationships": {
+        "authorizer": {
+          "data": {
+            "type": "user",
+            "id": 1
+          }
+        },
+        "creator": {
+          "data": {
+            "type": "user",
+            "id": 1
+          }
+        },
+        "updater": {
+          "data": {
+            "type": "user",
+            "id": 1
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.outreach.io/api/v2/webhooks/31"
+      }
+    }
+  ]
+}

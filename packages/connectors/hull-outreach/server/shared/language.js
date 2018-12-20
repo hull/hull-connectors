@@ -14,8 +14,12 @@ class HullInstruction {
 //Could evaluate an individual or an array as input
 //like a fancy goto used only in glue...
 class Route extends HullInstruction {
-  constructor(name: string) {
+  params: any;
+  paramsType: any;
+  constructor(name: string, params: any, paramsType: any) {
     super("route", name);
+    this.params = params;
+    this.paramsType = paramsType;
   }
 }
 
@@ -66,6 +70,26 @@ class IfLogic extends Logic {
   }
 }
 
+class LoopLogic extends Logic {
+  // can be the same container for an input array and for dynamic loop
+  // dynamic loop the params are null... we just keep looking...
+  instructions: any;
+  varname: string;
+  constructor(params: any, varname: string, instructions: any) {
+    super("loop", params);
+    this.varname = varname;
+    this.instructions = instructions;
+  }
+}
+
+class FunctionLogic extends Logic {
+  toExecute: Function;
+  constructor(params: any, toExecute: Function) {
+    super("function", params);
+    this.toExecute = toExecute;
+  }
+}
+
 // May roll this up somewhere else... only one, maybe combine with if?
 class InputReference extends HullInstruction {
   path: string;
@@ -85,8 +109,13 @@ function inputParameter(path: string): InputReference {
 }
 
 function route(name: string): Route {
-  return new Route(name);
+  return new Route(name, undefined, undefined);
 }
+
+function routeWithData(name: string, params: any, paramsType: any): Route {
+  return new Route(name, params, paramsType);
+}
+
 function cond(name: string, params: any): Op {
   return new Op(name, params);
 }
@@ -99,8 +128,14 @@ function set(key: any, value: any): Op{
 function get(obj: any, key: any): Op {
   return new Op("get", [ obj, key ]);
 }
+function getData(key: any): Op {
+  return new Op("get", [ key ]);
+}
 function filter(key: any, value: any): Op {
   return new Op("filter", [ key, value ]);
+}
+function notFilter(key: any, value: any): Op {
+  return new Op("notFilter", [ key, value ]);
 }
 function utils(utilMethod: string, param: any): Op {
   return new Op("utils", [utilMethod, param]);
@@ -110,6 +145,24 @@ function ifLogic(params: Op, results: { true: any, false: any }): IfLogic {
   return new IfLogic(params, results);
 }
 
+function loopLogic(instructions: any): LoopLogic {
+  return new LoopLogic(undefined, undefined, instructions);
+}
+
+function loopArrayLogic(arrayParam: any, varname: string, instructions: any): LoopLogic {
+  return new LoopLogic(arrayParam, varname, instructions);
+}
+
+function loopEnd(): Logic {
+  return new Logic("end", undefined);
+}
+
+function execute(params: any, toExecute: Function): FunctionLogic {
+  return new FunctionLogic(params, toExecute);
+}
+
+// not filter...
+
 module.exports = {
   HullInstruction,
   Route,
@@ -118,10 +171,17 @@ module.exports = {
   inputParameter,
   ifLogic,
   route,
+  routeWithData,
   cond,
   hull,
   set,
   get,
+  getData,
   filter,
-  utils
+  notFilter,
+  utils,
+  loopLogic,
+  loopArrayLogic,
+  loopEnd,
+  execute
 };
