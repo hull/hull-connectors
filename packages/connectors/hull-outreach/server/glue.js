@@ -9,6 +9,7 @@ const {
   hull,
   set,
   get,
+  getObj,
   filter,
   notFilter,
   utils,
@@ -77,7 +78,10 @@ const glue = {
   userUpdateStart: route("prospectUpsert"),
   prospectUpsert:
     ifLogic(cond("notEmpty", set("userId", inputParameter("user.outreach/id"))), {
-      true: route("updateProspect"),
+      true: ifLogic(cond("notEmpty", get(input(), "changes.user.email[1]")), {
+        true: [set("existingProspect", getObj(outreach("getProspectById"))), route("updateProspect")],
+        false: route("updateProspect")
+      }),
       false: [
         route("prospectLookup"),
         ifLogic(cond("notEmpty", "${userId}"), {
