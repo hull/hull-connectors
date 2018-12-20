@@ -154,14 +154,6 @@ class TransformImpl {
               throw new Error(`Bad variable replacment on outputPath, Must always have [outputPath] for transform: ${JSON.stringify(transform)}`);
             }
 
-            if (!isUndefinedOrNull(context.value) && !isUndefinedOrNull(transform.outputArrayFields)) {
-              const fieldName = _.get(context, transform.outputArrayFields.checkField);
-              if (!isUndefinedOrNull(fieldName)
-                && transform.outputArrayFields.fields.indexOf(fieldName) >= 0) {
-                  context.value = [context.value];
-                }
-            }
-
             if (transform.condition) {
               if (typeof transform.condition === 'string') {
                 const value = _.get(context, transform.condition);
@@ -172,8 +164,27 @@ class TransformImpl {
                   return;
                 }
               } else if (typeof transform.condition === 'function') {
-                if (!transform.conditional(context)) {
+                if (!transform.condition(context)) {
                   return;
+                }
+              }
+            }
+
+            if (!isUndefinedOrNull(context.value) && !isUndefinedOrNull(transform.outputArrayFields)) {
+              const fieldName = _.get(context, transform.outputArrayFields.checkField);
+              if (!isUndefinedOrNull(fieldName)
+                && transform.outputArrayFields.fields.indexOf(fieldName) >= 0) {
+                  context.value = [context.value];
+                if (!isUndefinedOrNull(transform.outputArrayFields.mergeArrayFromContext)) {
+                  const contextValue = _.get(context, doVariableReplacement(context, transform.outputArrayFields.mergeArrayFromContext));
+                  if (!isUndefinedOrNull(contextValue) && Array.isArray(contextValue)) {
+                    _.forEach(contextValue, (value) => {
+                      if (context.value.indexOf(value) < 0) {
+                        //so we know that our value will come first
+                        context.value.push(value);
+                      }
+                    });
+                  }
                 }
               }
             }

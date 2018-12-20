@@ -9,6 +9,7 @@ const {
   hull,
   set,
   get,
+  getData,
   filter,
   notFilter,
   utils,
@@ -77,7 +78,10 @@ const glue = {
   userUpdateStart: route("prospectUpsert"),
   prospectUpsert:
     ifLogic(cond("notEmpty", set("userId", inputParameter("user.outreach/id"))), {
-      true: route("updateProspect"),
+      true: ifLogic(cond("notEmpty", get(input(), "changes.user.email[1]")), {
+        true: [set("existingProspect", getData(outreach("getProspectById"))), route("updateProspect")],
+        false: route("updateProspect")
+      }),
       false: [
         route("prospectLookup"),
         ifLogic(cond("notEmpty", "${userId}"), {
@@ -93,8 +97,8 @@ const glue = {
         set("value", inputParameter("user.${claim.hull}")),
         // TODO still need to see if more than 1
         ifLogic(cond("notEmpty", "${value}"), {
-          true: ifLogic(cond("notEmpty", set("userId", get(outreach("getProspectsByProperty"), "[0].id"))), {
-                  true: loopEnd(),
+          true: ifLogic(cond("notEmpty", set("existingProspect", get(outreach("getProspectsByProperty"), "[0]"))), {
+                  true: [set("userId", get("${existingProspect}", "id")), loopEnd()],
                   false: {}
                 }),
           false: {}
@@ -156,8 +160,8 @@ const glue = {
         set("property", "${claim.service}"),
         set("value", inputParameter("account.${claim.hull}")),
         ifLogic(cond("notEmpty", "${value}"), {
-          true: ifLogic(cond("notEmpty", set("accountId", get(outreach("getAccountByProperty"), "[0].id"))), {
-            true: loopEnd(),
+          true: ifLogic(cond("notEmpty", set("existingAccount", get(outreach("getAccountByProperty"), "[0]"))), {
+            true: [set("accountId", get("${existingAccount}", "id")), loopEnd()],
             false: {}
           }),
           false: {}

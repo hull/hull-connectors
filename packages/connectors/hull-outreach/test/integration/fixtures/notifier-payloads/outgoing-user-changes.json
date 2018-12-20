@@ -441,6 +441,10 @@
                     "traits_testattributes/description": [
                         "some test data2",
                         "Description of darth vader"
+                    ],
+                    "email": [
+                        "darthdude@darksideinc.com",
+                        "darth@darksideinc.com"
                     ]
                 },
                 "account": {},

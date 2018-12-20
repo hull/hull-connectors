@@ -281,15 +281,17 @@ class HullDispatcher {
       // TODO gotta work out this bs logic to standardize...
       if (Array.isArray(resolvedParams)) {
 
-        if (resolvedParams.length === 2) {
-
-          // some operations would rather look at the data
-          // I don't get it, it's just their preference
-          let obj = resolvedParams[0];
+        // some operations would rather look at the data
+        // I don't get it, it's just their preference
+        let obj;
+        if (resolvedParams.length > 0) {
+          obj = resolvedParams[0];
           if (obj instanceof ServiceData) {
             obj = obj.data;
           }
+        }
 
+        if (resolvedParams.length === 2) {
           if (name === 'set') {
 
             //TODO any reason we don't want to use obj???
@@ -316,7 +318,11 @@ class HullDispatcher {
           }
         } else if (resolvedParams.length === 1) {
           if (name === 'get') {
-            return _.get(context, resolvedParams[0]);
+            if (typeof obj === 'string') {
+              return _.get(context, obj);
+            } else {
+              return obj;
+            }
           }
         }
       }

@@ -73,10 +73,6 @@
         {
           "hull": "email",
           "service": "emails"
-        },
-        {
-          "hull": "external_id",
-          "service": "externalId"
         }
       ]
     },
@@ -161,10 +157,6 @@
         {
           "hull": "domain",
           "service": "domain"
-        },
-        {
-          "hull": "external_id",
-          "service": "customId"
         }
       ]
     },

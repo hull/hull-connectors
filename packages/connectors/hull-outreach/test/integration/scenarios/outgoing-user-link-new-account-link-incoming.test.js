@@ -26,7 +26,7 @@ test("send smart-notifier user update to outreach", () => {
           .post("/api/v2/accounts/", {"data":{"type":"account","attributes":{"domain":"afterlife.com","custom20":"very hot","name":"afterlife.com"}}})
           .reply(201, require("../fixtures/api-responses/outgoing-user-link-insert-account.json"));
         scope
-          .intercept('/api/v2/prospects/18', 'PATCH', {"data":{"type":"prospect","id":18,"attributes":{"emails":["fettisbest@gmail.com"],"custom20":"in the afterlife"},"relationships":{"account":{"data":{"type":"account","id":184796}}}}})
+          .intercept('/api/v2/prospects/18', 'PATCH', {"data":{"type":"prospect","id":18,"attributes":{"custom20":"in the afterlife"},"relationships":{"account":{"data":{"type":"account","id":184796}}}}})
           .reply(200, require("../fixtures/api-responses/outgoing-user-link-patch-user.json"));
         return scope;
       },
