@@ -128,7 +128,7 @@ function set(key: any, value: any): Op{
 function get(obj: any, key: any): Op {
   return new Op("get", [ obj, key ]);
 }
-function getObj(key: any): Op {
+function getData(key: any): Op {
   return new Op("get", [ key ]);
 }
 function filter(key: any, value: any): Op {
@@ -176,7 +176,7 @@ module.exports = {
   hull,
   set,
   get,
-  getObj,
+  getData,
   filter,
   notFilter,
   utils,
