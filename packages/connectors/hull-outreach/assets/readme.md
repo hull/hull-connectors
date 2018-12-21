@@ -21,7 +21,7 @@ The following sections describe how to configure the different aspects of the Ou
 
 ## User Synchronization
 
-## User Identity
+### User Identity
 The Outreach connector uses email to resolve Hull Users to Outreach Prospects by default.  This identification strategy can be configured in the "User Identity" section in the settings.  For example, if there is another field you wish to use as an identifier, you may click "Add new item" and map an Outreach field to "externalId" and your custom id will be used to resolve users.
 
 For outgoing traffic (Hull -> Outreach) we first check to see if we have received the user from Outreach before.  If so, we'll have the Outreach id for the user and we'll be able to update the user in Outreach.  If the the Outreach id does not exist, we look up the user by email and any other attributes which may have been specified in the "User Identity".  If a prospect with the same identification exists in Outreach, we update that prospect.  However if the user does not exist based on the lookup, we proceed to insert the user.
