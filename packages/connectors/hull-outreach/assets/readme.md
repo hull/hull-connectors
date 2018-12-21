@@ -2,12 +2,12 @@
 
 Below you will find necessary information how to get started with the Outreach integration.
 
-### Permissions
+## Permissions
 
 You will need administrator permissions to your Outreach account to perform oAuth authorization.
 Make sure you have the correct access before proceeding.
 
-### Add a new Outreach Connector
+## Add a new Outreach Connector
 1. From your Connectors list in the dashboard, click `Add Connector`.
 2. Choose `Outreach`.
 3. Confirm the installation by clicking `Install`.
@@ -15,17 +15,18 @@ Make sure you have the correct access before proceeding.
 create/update users, accounts and webhooks.
 5. Complete the configuration of the Outreach connector (see section below).
 
-### Configure your Outreach Connector
+## Configure your Outreach Connector
 
-There are 4 sections of settings which you can configure depending on what kind of synchronization you need.
+The following sections describe how to configure the different aspects of the Outreach Connector.  The connector synchronizes Users and Accounts.
 
-### Outgoing Users
+## User Synchronization
 
-This section outlines the steps in order to send users from Hull to Outreach (outgoing user data)
+## User Identity
+The Outreach connector uses email to resolve Hull Users to Outreach Prospects by default.  This identification strategy can be configured in the "User Identity" section in the settings.  For example, if there is another field you wish to use as an identifier, you may click "Add new item" and map an Outreach field to "externalId" and your custom id will be used to resolve users.
 
-- **outgoing user segments** - defines which user segments are sent to Outreach, any user which enters one of these segments is sent to Outreach, as is any changes in attributes on those users.  Make sure to configure attributes to be sent to Outreach (below) or nothing (except a shell) will be sent even if the user is in the segment.
-- **outgoing user attributes** - defines which `Hull User Attributes` are updated/created on `Outreach Prospect` and the field they are mapped to.
-- **link user to account in service** - defines if we will attempt to associate a outgoing Hull User (now a Outreach Prospect) to a Outreach Account.  See section "Outgoing (Hull -> Outreach) User to Account linking" below for a more comprehensive explanation.
+For outgoing traffic (Hull -> Outreach) we first check to see if we have received the user from Outreach before.  If so, we'll have the Outreach id for the user and we'll be able to update the user in Outreach.  If the the Outreach id does not exist, we look up the user by email and any other attributes which may have been specified in the "User Identity".  If a prospect with the same identification exists in Outreach, we update that prospect.  However if the user does not exist based on the lookup, we proceed to insert the user.
+
+Once we've synchronized the user to Outreach, we read back the current state of the user in Outreach to hull.  As usual, only the attributes which are specified in the incoming user attributes are synchronized.
 
 ### Incoming Users
 
@@ -37,6 +38,23 @@ Users are fetched by either clicking "Actions" and manually triggering a fetch o
 
 - **incoming user attributes** - defines which `Outreach Prospect Properties` are stored in `Hull User Attributes`
 - **link user to account in hull** - defines if we will associate an incoming Outreach Prospect (now Hull User) to a Hull Account.  See section "Incoming (Outreach -> Hull) User to Account linking" below for a more comprehensive explanation.
+
+### Outgoing Users
+
+This section outlines the steps in order to send users from Hull to Outreach (outgoing user data)
+
+- **outgoing user segments** - defines which user segments are sent to Outreach, any user which enters one of these segments is sent to Outreach, as is any changes in attributes on those users.  Make sure to configure attributes to be sent to Outreach (below) or nothing (except a shell) will be sent even if the user is in the segment.
+- **outgoing user attributes** - defines which `Hull User Attributes` are updated/created on `Outreach Prospect` and the field they are mapped to.
+- **link user to account in service** - defines if we will attempt to associate a outgoing Hull User (now a Outreach Prospect) to a Outreach Account.  See section "Outgoing (Hull -> Outreach) User to Account linking" below for a more comprehensive explanation.
+
+## Account Synchronization
+
+### Account Identity
+The Outreach connector uses domain to resolve Hull Accounts to Outreach Accounts by default.  This identification strategy can be configured in the "Account Identity" section in the settings.  For example, if you would like to use another field to resolve accounts, you may click "Add new item" and map an Outreach field to ExternalId in Hull and your custom id will be used to resolve accounts.
+
+For outgoing traffic (Hull -> Outreach) we first check to see if we have received the account from Outreach before.  If so, we'll have the Outreach id for the account and we'll be able to update the account in Outreach. If the Outreach id does not exist, we look up the account by domain and any other attribute which may have been specified in the "Account Identity".  If an account with the same identity exists in Outreach, we update that account.  However if the account does not exist based on the lookup, we proceed to insert the account.
+
+Once we've synchronized the account to Outreach, we read back the current state of the account in Outreach to hull.  As usual, only the attributes which are specified in the incoming account attributes are synchronized.
 
 ### Outgoing Accounts
 
@@ -64,20 +82,6 @@ The Outreach connector allows you to synchronize data between Hull and Outreach 
 
 No other objects besides the ones listed above are supported. If you need to synchronize additional objects please reach out to our customer success team to explore the options on a case-by-case basis.
 
-## Outgoing User Identity Resolution
-The Outreach connector uses email to resolve Hull Users to Outreach Prospects by default.  On outgoing traffic (Hull -> Outreach) we first check to see if we have received the user from Outreach before.  If so, we'll have the Outreach id for the user and we'll be able to update the user in Outreach.  If we have the Outreach id, we will first check to see if the id for the user is still valid (the user could have been deleted) by looking up the user by id.  If the user still exists we update the existing user by id.
-
-If the user was not found by id, or the Outreach id does not exist, we look up the user by email address.  If a prospect with the same email exists in Outreach, we update that prospect.  However if the user does not exist based on an email lookup, we proceed to insert the user.
-
-Once we've synchronized the user to Outreach, we read back the current state of the user in Outreach to hull.  As usual, only the attributes which are specified in the incoming user attributes are synchronized.
-
-## Outgoing Account Identity Resolution
-The Outreach connector uses domain to resolve Hull Accounts to Outreach Accounts by default.  On outgoing traffic (Hull -> Outreach) we first check to see if we have received the account from Outreach before.  If so, we'll have the Outreach id for the account and we'll be able to update the account in Outreach.  If we have the Outreach id, we will first check to see if the id for the account is still valid (the account could have been deleted) by looking up the account by id.  If the account still exists we update the existing account by id.
-
-If the account was not found by id, or the Outreach id does not exist, we look up the account by domain.  If an account with the same domain exists in Outreach, we update that account.  However if the account does not exist based on an domain lookup, we proceed to insert the account.
-
-Once we've synchronized the account to Outreach, we read back the current state of the account in Outreach to hull.  As usual, only the attributes which are specified in the incoming account attributes are synchronized.
-
 ## Components
 
 ### Synchronization of outgoing data (Hull to Outreach)
@@ -94,8 +98,6 @@ The Outreach connector is built with a webhook component which will synchronize 
 
 The Hull platform requires explicit mapping between Outreach and Hull.  We populate system defaults, but we primarily rely on the Hull customer to specify which datapoints should be imported and exported.  We do this because we've found that data transparency between systems is one of the most important practices when setting up sustainable data flows.  Below are the only mandated data fields between Hull and Outreach.  They are mandated because the Outreach Api will not support data without these fields.
 
-< TODO: INSERT TABLES FOR DEFAULTS >
-
 #### Incoming (Outreach -> Hull) User to Account linking
 
 When a User (Prospect) is sent from Outreach to Hull, the User will contain the account key for which it is associated.  This "key" is the internal Outreach Id (also known as the Anonymous Id for the account).  If the Account has been pulled from Outreach previously, the user should then be associated with the appropriate account in Hull.  
@@ -105,6 +107,11 @@ When a User (Prospect) is sent from Outreach to Hull, the User will contain the 
 #### Outgoing (Hull -> Outreach) User to Account linking
 
 When a User is sent from Hull to Outreach, the User on the Hull side may be associated with an account.  We first will lookup to see if that account exists in Outreach.  We lookup by the attributes defined in the Outgoing Account Resolution section.  If the account is found, the Outreach Prospect will be removed from any previous Account and attached to the newly found account.  If an Account is not found, we will create a new account with the account information in Hull.  As with all outgoing traffic, the new account will be created with the attributes specified in the outgoing account attribute mappings.
+
+## Edge Cases
+### Email as an identifier
+In Outreach, you may assign a Prospect multiple email addresses.  By default we pick the first email in the list to be the representative email in Hull.  So please be careful if you are shuffling the emails in Outreach.  In many cases if we've already received the prospect and we have the internal outreach id, this shuffling should be ok, but if the first email on the Prospect changes, it could trigger other merging scenarios potentially.
+Additionally, because email is an array, when sending users to be updated in Outreach, we do not update the emails on Outreach's side by default.  In the case where we looked up and found a prospect, we are able to merge the email into the existing array of emails in Outreach.  But when we are typically doing updates with already synchronized Prospects, we do not update email because we cannot reliably set the email without possibly overwriting other emails.
 
 
 ## Troubleshooting
