@@ -87,31 +87,27 @@ class NotificationValidator {
     ].every(h => _.has(req.headers, h));
   }
 
-  validateSignature(req: HullRequestBase): Promise {
-    return this.getCertificate(req).then(certificate => {
-      try {
-        const decoded = jwt.verify(
-          req.headers["x-hull-smart-notifier-signature"],
-          certificate,
-          {
-            algorithms: ["RS256"],
-            jwtid: (req.body && req.body.notification_id) || ""
-          }
-        );
-
-        if (decoded) {
-          return Promise.resolve(true);
+  async validateSignature(req: HullRequestBase): Promise {
+    try {
+      const certificate = await this.getCertificate(req);
+      const decoded = jwt.verify(
+        req.headers["x-hull-smart-notifier-signature"],
+        certificate,
+        {
+          algorithms: ["RS256"],
+          jwtid: (req.body && req.body.notification_id) || ""
         }
-        return Promise.reject(
-          new NotificationValidationError(
-            "Signature invalid",
-            "INVALID_SIGNATURE"
-          )
+      );
+      if (!decoded) {
+        throw new NotificationValidationError(
+          "Signature invalid",
+          "INVALID_SIGNATURE"
         );
-      } catch (err) {
-        return Promise.reject(err);
       }
-    });
+      return true;
+    } catch (error) {
+      return error;
+    }
   }
 
   getCertificate(req: HullRequestBase): Promise {
