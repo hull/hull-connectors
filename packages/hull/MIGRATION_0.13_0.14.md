@@ -1,4 +1,4 @@
-# 0.13 -> 0.14 migration guide
+# 0.13 -> MONOREPO migration guide
 
 1. load route handlers from `hull/lib/handlers` and not from `hull/lib/utils`
 1. rename `smartNotifierHandler` to `notificationHandler`
@@ -43,19 +43,4 @@ When using `scheduleHandler` or `actionHandler` you need to pass `HullHandlersCo
     Hull.Client.logger.transports.console.level = "debug";
     ```
 9. `Hull.Middleware` or `Hull.middleware` is not available anymore, you need to use `const { clientMiddleware } = require("hull/lib/middlewares");`
-10. `req.hull.helpers` object was removed. Some of the helpers were moved to `utils`. `filterNotifications` helper is not available anymore, implement custom `filterUtil`.
-    ```js
-    // before
-    app.post("/", (req, res) => {
-      req.hull.helpers.updateSettings({ newSettings });
-    });
-
-    // after
-    const { settingsUpdate } = require("hull/lib/utils");
-
-    app.use("/notification", notificationHandler({
-      "ship:update": (ctx) => {
-        settingsUpdate(req.hull, { newSettings });
-      }
-    }));
-    ```
+10. `filterNotifications` helper is not available anymore, implement custom `filterUtil`.

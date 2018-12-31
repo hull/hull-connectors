@@ -1,0 +1,831 @@
+{
+    "notification_id": "f124005a-92e6-4554-a556-d294ed63cdae",
+    "configuration": {
+        "id": "b13d14e9cef7a82345e550b7c5bf",
+        "organization": "unittesting.hullapp.io",
+        "secret": "995ece09c8d843f6bc38e5abd1f60f6b"
+    },
+    "connector": {
+        "description": "Testing Connector",
+        "tags": [],
+        "schema": {
+            "$schema": "http://json-schema.org/draft-04/schema#",
+            "name": "Ships Schema",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "title": "Name",
+                    "type": "string"
+                },
+                "description": {
+                    "title": "Description",
+                    "type": "string"
+                },
+                "settings": {
+                    "$schema": "http://json-schema.org/draft-04/schema#",
+                    "type": "object",
+                    "title": "Settings",
+                    "properties": {
+                        "__private__": {
+                            "$schema": "http://json-schema.org/draft-04/schema#",
+                            "type": "object",
+                            "title": "Private Settings",
+                            "properties": {
+                                "events_filter": {
+                                    "title": "Sends these events to Customer.io",
+                                    "type": "array",
+                                    "format": "event",
+                                    "propertyOrder": 7
+                                },
+                                "data_title": {
+                                    "title": "Data Mapping",
+                                    "format": "title",
+                                    "type": "string",
+                                    "propertyOrder": 11
+                                },
+                                "synchronized_segments": {
+                                    "title": "Send users to Customer.io when belonging to one of these segments",
+                                    "type": "array",
+                                    "default": [],
+                                    "format": "segment",
+                                    "propertyOrder": 4
+                                },
+                                "configuration_title": {
+                                    "title": "Configuration",
+                                    "format": "title",
+                                    "type": "string",
+                                    "propertyOrder": 3
+                                },
+                                "credentials_title": {
+                                    "title": "Credentials",
+                                    "format": "title",
+                                    "type": "string",
+                                    "propertyOrder": 0
+                                },
+                                "synchronized_segments_hero": {
+                                    "type": "string",
+                                    "headerTemplate": "The above list of segments is a whitelist. You need to *explicitely specify one or more segments* for which events and users shall be sent to Customer.io.<br>If you do not specify any segment, no user or event will be sent to Customer.io.",
+                                    "format": "information",
+                                    "title": "Whitelisted Segments",
+                                    "propertyOrder": 5
+                                },
+                                "api_key": {
+                                    "title": "Customer.io API Key",
+                                    "type": "string",
+                                    "propertyOrder": 2
+                                },
+                                "enable_user_deletion": {
+                                    "title": "Enable User Deletion",
+                                    "description": "If this field is enabled, users who don't match the Segments above will be DELETED from Customer.io. Otherwise they will be ignored",
+                                    "type": "boolean",
+                                    "default": false,
+                                    "propertyOrder": 6
+                                },
+                                "user_id_mapping": {
+                                    "title": "Which user attribute to send as the customerId",
+                                    "type": "string",
+                                    "format": "trait",
+                                    "default": "external_id",
+                                    "propertyOrder": 10
+                                },
+                                "synchronized_attributes": {
+                                    "title": "Send Attributes to Customer.io",
+                                    "description": "Email, customerId and hull_segments are sent automatically",
+                                    "type": "array",
+                                    "format": "trait",
+                                    "propertyOrder": 12
+                                },
+                                "site_id": {
+                                    "title": "Customer.io Site ID",
+                                    "type": "string",
+                                    "propertyOrder": 1
+                                },
+                                "anonymous_events": {
+                                    "title": "Send Anonymous Events",
+                                    "type": "boolean",
+                                    "default": false,
+                                    "propertyOrder": 9
+                                },
+                                "send_events_hero": {
+                                    "type": "string",
+                                    "headerTemplate": "The above list of events is a whitelist. You need to *explicitely specify one or more events* that shall be sent to Customer.io.<br>If you do not specify any event, no event data will be sent to Customer.io.",
+                                    "format": "information",
+                                    "title": "Whitelisted Events",
+                                    "propertyOrder": 8
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "source_url": {
+                    "title": "Source URL",
+                    "description": "Base URL for the ship's assets. defaults to the manifest's base URL.",
+                    "type": "string",
+                    "options": {
+                        "advanced": true
+                    }
+                },
+                "manifest_url": {
+                    "title": "manifest URL",
+                    "description": "Ship manifest URL.",
+                    "type": "string",
+                    "options": {
+                        "advanced": true
+                    }
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "title": "Customer.io"
+        },
+        "source_url": "https://hull-customerio-dev.herokuapp.com/",
+        "terms_of_service_url": null,
+        "private_settings": {
+            "events_filter": [
+                "page"
+            ],
+            "data_title": "",
+            "synchronized_segments": [
+                "596796d24eaa537e6900e1ee"
+            ],
+            "configuration_title": "",
+            "credentials_title": "",
+            "synchronized_segments_hero": "",
+            "api_key": "secretapikey114654",
+            "enable_user_deletion": false,
+            "user_id_mapping": "email",
+            "synchronized_attributes": [],
+            "site_id": "iy89ty4qhfac34986",
+            "anonymous_events": false,
+            "send_events_hero": ""
+        },
+        "index": "https://hull-customerio-dev.herokuapp.com/",
+        "name": "Customer.io",
+        "extra": {},
+        "settings": {},
+        "type": "ship",
+        "manifest": {
+            "description": "Supercharge your email engagement in Customer.io",
+            "tags": [
+                "outgoing",
+                "batch",
+                "oneColumn",
+                "kraken"
+            ],
+            "private_settings": [
+                {
+                    "name": "credentials_title",
+                    "title": "Credentials",
+                    "format": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "site_id",
+                    "title": "Customer.io Site ID",
+                    "type": "string"
+                },
+                {
+                    "name": "api_key",
+                    "title": "Customer.io API Key",
+                    "type": "string"
+                },
+                {
+                    "name": "configuration_title",
+                    "title": "Configuration",
+                    "format": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "synchronized_segments",
+                    "title": "Send users to Customer.io when belonging to one of these segments",
+                    "type": "array",
+                    "default": [],
+                    "format": "segment"
+                },
+                {
+                    "name": "synchronized_segments_hero",
+                    "type": "string",
+                    "headerTemplate": "The above list of segments is a whitelist. You need to *explicitely specify one or more segments* for which events and users shall be sent to Customer.io.<br>If you do not specify any segment, no user or event will be sent to Customer.io.",
+                    "format": "information",
+                    "title": "Whitelisted Segments"
+                },
+                {
+                    "name": "enable_user_deletion",
+                    "title": "Enable User Deletion",
+                    "description": "If this field is enabled, users who don't match the Segments above will be DELETED from Customer.io. Otherwise they will be ignored",
+                    "type": "boolean",
+                    "default": false
+                },
+                {
+                    "name": "events_filter",
+                    "title": "Sends these events to Customer.io",
+                    "type": "array",
+                    "format": "event"
+                },
+                {
+                    "name": "send_events_hero",
+                    "type": "string",
+                    "headerTemplate": "The above list of events is a whitelist. You need to *explicitely specify one or more events* that shall be sent to Customer.io.<br>If you do not specify any event, no event data will be sent to Customer.io.",
+                    "format": "information",
+                    "title": "Whitelisted Events"
+                },
+                {
+                    "name": "anonymous_events",
+                    "title": "Send Anonymous Events",
+                    "type": "boolean",
+                    "default": false
+                },
+                {
+                    "name": "user_id_mapping",
+                    "title": "Which user attribute to send as the customerId",
+                    "type": "string",
+                    "format": "trait",
+                    "default": "external_id"
+                },
+                {
+                    "name": "data_title",
+                    "title": "Data Mapping",
+                    "format": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "synchronized_attributes",
+                    "title": "Send Attributes to Customer.io",
+                    "description": "Email, customerId and hull_segments are sent automatically",
+                    "type": "array",
+                    "format": "trait"
+                }
+            ],
+            "admin": "admin.html",
+            "name": "Customer.io",
+            "subscriptions": [
+                {
+                    "url": "/smart-notifier"
+                }
+            ],
+            "ui": false,
+            "picture": "picture.png",
+            "readme": "readme.md",
+            "schedules": [
+                {
+                    "url": "/status",
+                    "type": "cron",
+                    "value": "*/30 * * * *"
+                }
+            ],
+            "version": "0.1.7",
+            "resources": []
+        },
+        "secret": "995ece09c8d843f6bc38e5abd1f60f6b",
+        "ends_at": null,
+        "updated_at": "2018-03-30T14:36:02Z",
+        "status": {
+            "id": "5aa6d6b241c7c1dcae003429",
+            "name": "Customer.io",
+            "status": "ok",
+            "messages": [],
+            "updated_at": "2018-03-12T20:02:26Z",
+            "schedules": [
+                {
+                    "url": "/status",
+                    "type": "cron",
+                    "value": "*/30 * * * *"
+                }
+            ]
+        },
+        "starts_at": null,
+        "id": "b13d14e9cef7a82345e550b7c5bf",
+        "picture": "https://hull-customerio.herokuapp.com/picture.png",
+        "homepage_url": "https://unittesting.hullapp.io/ships/b13d14e9cef7a82345e550b7c5bf",
+        "resources": {},
+        "manifest_url": "https://hull-customerio-dev.herokuapp.com/manifest.json",
+        "created_at": "2018-03-12T19:36:19Z",
+        "translations": {},
+        "privacy_policy_url": null
+    },
+    "channel": "user:update",
+    "messages": [
+        {
+            "user": {
+                "traits_intercom/last_request_at": "2017-06-05T15:22:28+00:00",
+                "traits_intercom/location_continent_code": "NA",
+                "traits_mailchimp/status": "subscribed",
+                "traits_sendgrid_test/in_segment": true,
+                "traits_intercom/linkedin_username": "svenmaschek",
+                "traits_intercom/location_country_code": "USA",
+                "latest_session_initial_url": "http://beta.hull.io/pricing/",
+                "traits_coconut": "23",
+                "traits_intercom/email": "sven@hull.io",
+                "traits_intercom/anonymous": false,
+                "latest_session_platform_id": "592e0e500b79ca51440017b1",
+                "first_session_initial_referrer": "http://beta.hull.io/connectors/",
+                "traits_intercom/tags": [],
+                "traits_intercom/linkedin_id": "119341230",
+                "traits_intercom/session_count": 19,
+                "traits_sendgrid_test/opted_out": true,
+                "traits_intercom/pseudonym": "Rose Mug from Atlanta",
+                "traits_sendgrid_test/demo_requested": "2018-03-17T18:33:16.847Z",
+                "external_id": "5908db9857b9265d4500059f",
+                "traits_intercom/companies": [
+                    "hull.io",
+                    "Winners"
+                ],
+                "first_seen_at": "2018-03-30T14:38:02Z",
+                "traits_intercom/id": "5908db986436cb40a2720ac5",
+                "id": "5aa7ec6db5856ffa1b0a8fa0",
+                "email": "sven@hull.io",
+                "traits_intercom/name": "Sven Maschek",
+                "first_session_platform_id": "592e0e500b79ca51440017b1",
+                "signup_session_started_at": "2018-03-30T14:38:02Z",
+                "last_known_ip": "8.8.8.8",
+                "name": "Sven Maschek",
+                "traits_intercom/linkedin_url": "https://www.linkedin.com/in/svenmaschek",
+                "signup_session_initial_referrer": "http://beta.hull.io/connectors/",
+                "latest_session_initial_referrer": "http://beta.hull.io/connectors/",
+                "traits_sendgrid_test/tech_stack": [
+                    "Clearbit",
+                    "Datanyze",
+                    "Segment",
+                    "Oracle"
+                ],
+                "has_password": false,
+                "traits_intercom/created_at": "2017-05-02T19:18:48+00:00",
+                "anonymous_ids": [
+                    "intercom:5908db986436cb40a2720ac5",
+                    "5908db9857b9265d4500059f"
+                ],
+                "domain": "hull.io",
+                "traits_intercom/location_country_name": "United States",
+                "traits_intercom/avatar": "https://d2ojpxxtu63wzl.cloudfront.net/static/c476873e5d63ca88d5d3d987899b84a3_8c8e1326f0bde9364480096c436f9bcd06740473b26f43b103ffed96e12ec1a8",
+                "traits_intercom/location_longitude": -84.3771,
+                "last_name": "Maschek",
+                "traits_intercom/location_postal_code": "30308",
+                "traits_intercom/signed_up_at": "2017-05-02T19:18:48+00:00",
+                "indexed_at": "2018-03-30T14:41:48+00:00",
+                "first_name": "Sven",
+                "first_session_started_at": "2018-03-30T14:38:02Z",
+                "traits_intercom/account_name": "hull.io",
+                "traits_intercom/location_region_name": "Georgia",
+                "traits_hashivault": true,
+                "signup_session_platform_id": "592e0e500b79ca51440017b1",
+                "created_at": "2018-03-13T15:21:17Z",
+                "traits_intercom/unsubscribed_from_emails": false,
+                "traits_intercom/updated_at": "2018-03-13T15:16:40+00:00",
+                "is_approved": false,
+                "traits_intercom/location_timezone": "America/New_York",
+                "accepts_marketing": false,
+                "traits_intercom/last_seen_ip": "50.225.5.193",
+                "signup_session_initial_url": "http://beta.hull.io/pricing/",
+                "latest_session_started_at": "2018-03-30T14:38:02Z",
+                "last_seen_at": "2018-03-30T14:38:02Z",
+                "traits_intercom/location_latitude": 33.7719,
+                "first_session_initial_url": "http://beta.hull.io/pricing/",
+                "segment_ids": [
+                    "5a8c059c2eb55039f200c15b",
+                    "59f09bc7f9c5a94af600076d",
+                    "5a8c05a56396df5003009d2d",
+                    "5aa18f454b12c19f4b000189",
+                    "596796d24eaa537e6900e1ee",
+                    "5aa18fffab290b2a51000047",
+                    "5a8c05a0f0a9ce7828001733",
+                    "59e9060e657b1cc20a0000ff",
+                    "5a8c04e05b5953decf003a92",
+                    "5a8c04d871040e9524006be0",
+                    "5a8c0594f25052338f001823"
+                ],
+                "traits_intercom/location_city_name": "Atlanta",
+                "traits_sendgrid_test/mrr": 8543.1,
+                "traits_intercom/segments": []
+            },
+            "segments": [
+                {
+                    "id": "5a8c059c2eb55039f200c15b",
+                    "name": "New Segment 1",
+                    "type": "users_segment",
+                    "created_at": "2018-02-20T11:25:16Z",
+                    "updated_at": "2018-02-20T11:25:16Z"
+                },
+                {
+                    "id": "59f09bc7f9c5a94af600076d",
+                    "name": "Users signed in last 100 days",
+                    "type": "users_segment",
+                    "created_at": "2017-10-25T14:12:23Z",
+                    "updated_at": "2017-10-25T14:12:23Z"
+                },
+                {
+                    "id": "5a8c05a56396df5003009d2d",
+                    "name": "New Segment 4",
+                    "type": "users_segment",
+                    "created_at": "2018-02-20T11:25:24Z",
+                    "updated_at": "2018-02-20T11:25:24Z"
+                },
+                {
+                    "id": "5aa18f454b12c19f4b000189",
+                    "name": "Kraken stress segment",
+                    "type": "users_segment",
+                    "created_at": "2018-03-08T19:30:13Z",
+                    "updated_at": "2018-03-08T19:32:40Z"
+                },
+                {
+                    "id": "596796d24eaa537e6900e1ee",
+                    "name": "Hull Users",
+                    "type": "users_segment",
+                    "created_at": "2017-07-13T15:50:42Z",
+                    "updated_at": "2017-09-28T22:54:11Z"
+                },
+                {
+                    "id": "5aa18fffab290b2a51000047",
+                    "name": "Kraken stress 2",
+                    "type": "users_segment",
+                    "created_at": "2018-03-08T19:33:19Z",
+                    "updated_at": "2018-03-08T19:33:19Z"
+                },
+                {
+                    "id": "5a8c05a0f0a9ce7828001733",
+                    "name": "New Segment 3",
+                    "type": "users_segment",
+                    "created_at": "2018-02-20T11:25:20Z",
+                    "updated_at": "2018-02-20T11:25:20Z"
+                },
+                {
+                    "id": "59e9060e657b1cc20a0000ff",
+                    "name": "Sendgrid - Sync Segment",
+                    "type": "users_segment",
+                    "created_at": "2017-10-19T20:07:42Z",
+                    "updated_at": "2017-10-19T20:07:42Z"
+                },
+                {
+                    "id": "5a8c04e05b5953decf003a92",
+                    "name": "New segment",
+                    "type": "users_segment",
+                    "created_at": "2018-02-20T11:22:08Z",
+                    "updated_at": "2018-02-20T11:22:08Z"
+                },
+                {
+                    "id": "5a8c04d871040e9524006be0",
+                    "name": "New segment",
+                    "type": "users_segment",
+                    "created_at": "2018-02-20T11:22:00Z",
+                    "updated_at": "2018-02-20T11:22:00Z"
+                },
+                {
+                    "id": "5a8c0594f25052338f001823",
+                    "name": "New segment 1",
+                    "type": "users_segment",
+                    "created_at": "2018-02-20T11:25:08Z",
+                    "updated_at": "2018-02-20T11:25:08Z"
+                }
+            ],
+            "account": {},
+            "account_segments": [],
+            "events": [
+                {
+                    "properties": {
+                        "path": "/pricing/",
+                        "referrer": "http://beta.hull.io/connectors/",
+                        "title": "Pricing | Hull",
+                        "url": "http://beta.hull.io/pricing/"
+                    },
+                    "event_id": "4cf3e7be-2d7c-4fb7-b032-bc33aa49e246",
+                    "user_id": "5aa7ec6db5856ffa1b0a8fa0",
+                    "event_source": "segment",
+                    "app_name": "Segment",
+                    "event": "page",
+                    "event_type": "track",
+                    "track_id": "5abe4c140fd255b0df0243e8",
+                    "context": {
+                        "useragent": "Hull Node Client version: 1.1.5",
+                        "device": {
+                            "name": "Other"
+                        },
+                        "referrer": {
+                            "url": "http://beta.hull.io/connectors/",
+                            "host": "beta.hull.io",
+                            "path": "/connectors/",
+                            "campaign": {
+                                "name": null,
+                                "source": null,
+                                "medium": null,
+                                "term": null,
+                                "content": null
+                            }
+                        },
+                        "os": {
+                            "name": "Other",
+                            "version": ""
+                        },
+                        "browser": {
+                            "name": "Other"
+                        },
+                        "location": {
+                            "country": "US",
+                            "city": "",
+                            "timezone": "",
+                            "longitude": -97.822,
+                            "latitude": 37.751,
+                            "region": "",
+                            "countryname": "United States",
+                            "regionname": "",
+                            "zipcode": ""
+                        },
+                        "campaign": {
+                            "name": null,
+                            "source": null,
+                            "medium": null,
+                            "term": null,
+                            "content": null
+                        },
+                        "ip": "8.8.8.8",
+                        "page": {
+                            "url": "http://beta.hull.io/pricing/",
+                            "host": "beta.hull.io",
+                            "path": "/pricing/"
+                        }
+                    },
+                    "anonymous_id": "5908db9857b9265d4500059f",
+                    "ship_id": null,
+                    "created_at": "2018-03-30 14:38:02 UTC",
+                    "session_id": "5908db9857b9265d4500059f-2018-03-30",
+                    "app_id": "592e0e500b79ca51440017b1"
+                }
+            ],
+            "changes": {
+                "user": {
+                    "latest_session_initial_url": [
+                        null,
+                        "http://beta.hull.io/pricing/"
+                    ],
+                    "latest_session_platform_id": [
+                        null,
+                        "592e0e500b79ca51440017b1"
+                    ],
+                    "first_session_initial_referrer": [
+                        null,
+                        "http://beta.hull.io/connectors/"
+                    ],
+                    "first_seen_at": [
+                        null,
+                        "2018-03-30T14:38:02Z"
+                    ],
+                    "first_session_platform_id": [
+                        null,
+                        "592e0e500b79ca51440017b1"
+                    ],
+                    "signup_session_started_at": [
+                        null,
+                        "2018-03-30T14:38:02Z"
+                    ],
+                    "last_known_ip": [
+                        null,
+                        "8.8.8.8"
+                    ],
+                    "anonymous_ids[1]": [
+                        null,
+                        "5908db9857b9265d4500059f"
+                    ],
+                    "signup_session_initial_referrer": [
+                        null,
+                        "http://beta.hull.io/connectors/"
+                    ],
+                    "latest_session_initial_referrer": [
+                        null,
+                        "http://beta.hull.io/connectors/"
+                    ],
+                    "first_session_started_at": [
+                        null,
+                        "2018-03-30T14:38:02Z"
+                    ],
+                    "signup_session_platform_id": [
+                        null,
+                        "592e0e500b79ca51440017b1"
+                    ],
+                    "signup_session_initial_url": [
+                        null,
+                        "http://beta.hull.io/pricing/"
+                    ],
+                    "latest_session_started_at": [
+                        null,
+                        "2018-03-30T14:38:02Z"
+                    ],
+                    "last_seen_at": [
+                        "2018-03-26T23:27:22Z",
+                        "2018-03-30T14:38:02Z"
+                    ],
+                    "first_session_initial_url": [
+                        null,
+                        "http://beta.hull.io/pricing/"
+                    ]
+                },
+                "segments": {},
+                "account": {},
+                "account_segments": {},
+                "is_new": false
+            }
+        }
+    ],
+    "segments": [
+        {
+            "id": "5a8c05a0f0a9ce7828001733",
+            "name": "New Segment 3",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2018-02-20T11:25:20Z",
+            "updated_at": "2018-02-20T11:25:20Z"
+        },
+        {
+            "id": "5a38201b689faac38100000a",
+            "name": "Nutshell - Sync",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-12-18T20:07:55Z",
+            "updated_at": "2017-12-18T20:07:55Z"
+        },
+        {
+            "id": "5a8c05a56396df5003009d2d",
+            "name": "New Segment 4",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2018-02-20T11:25:24Z",
+            "updated_at": "2018-02-20T11:25:24Z"
+        },
+        {
+            "id": "5aa18fffab290b2a51000047",
+            "name": "Kraken stress 2",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2018-03-08T19:33:19Z",
+            "updated_at": "2018-03-08T19:33:19Z"
+        },
+        {
+            "id": "5aa1a144258b2d62b1000fb1",
+            "name": "Anonymous Users - Highly Engaged",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2018-03-08T20:47:00Z",
+            "updated_at": "2018-03-08T20:47:00Z"
+        },
+        {
+            "id": "59397c8e99941c720b00771e",
+            "name": "Users w/ Connectors",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-06-08T16:34:22Z",
+            "updated_at": "2017-06-08T16:34:22Z"
+        },
+        {
+            "id": "596796d24eaa537e6900e1ee",
+            "name": "Hull Users",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-07-13T15:50:42Z",
+            "updated_at": "2017-09-28T22:54:11Z"
+        },
+        {
+            "id": "59ca4491dfc5fe00a1004b28",
+            "name": "Prospected Users",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-09-26T12:14:09Z",
+            "updated_at": "2017-09-26T12:14:09Z"
+        },
+        {
+            "id": "59cd7d7be26de46db1002273",
+            "name": "Hull Users with Coconuts",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-09-28T22:53:47Z",
+            "updated_at": "2017-09-28T22:53:47Z"
+        },
+        {
+            "id": "59d1f4f20181b920f30000cc",
+            "name": "Prospected Hootsuite Users",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-10-02T08:12:34Z",
+            "updated_at": "2017-10-02T08:12:34Z"
+        },
+        {
+            "id": "59d20238527cb53b78000110",
+            "name": "Prospected Users w/ Account",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-10-02T09:09:12Z",
+            "updated_at": "2017-10-02T09:09:12Z"
+        },
+        {
+            "id": "59d2105b3c9cfdbda30004e1",
+            "name": "Hull Intercom Leads",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-10-02T10:09:31Z",
+            "updated_at": "2017-10-02T10:09:31Z"
+        },
+        {
+            "id": "59d7649fc924cb22c3000071",
+            "name": "Pardot Sync Users",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-10-06T11:10:23Z",
+            "updated_at": "2017-10-06T11:39:33Z"
+        },
+        {
+            "id": "5a8c059c2eb55039f200c15b",
+            "name": "New Segment 1",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2018-02-20T11:25:16Z",
+            "updated_at": "2018-02-20T11:25:16Z"
+        },
+        {
+            "id": "59e488718b2488aa4b000029",
+            "name": "Users w/ Accounts",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-10-16T10:22:41Z",
+            "updated_at": "2017-10-16T10:22:41Z"
+        },
+        {
+            "id": "59e9060e657b1cc20a0000ff",
+            "name": "Sendgrid - Sync Segment",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-10-19T20:07:42Z",
+            "updated_at": "2017-10-19T20:07:42Z"
+        },
+        {
+            "id": "59f09bc7f9c5a94af600076d",
+            "name": "Users signed in last 100 days",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-10-25T14:12:23Z",
+            "updated_at": "2017-10-25T14:12:23Z"
+        },
+        {
+            "id": "5a0c1f07b4d8644425002c65",
+            "name": "SFDC Testing - Sync Leads",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-11-15T11:03:35Z",
+            "updated_at": "2017-11-15T11:22:28Z"
+        },
+        {
+            "id": "5a1630264cc20f200c003fae",
+            "name": "Close.io - Users w/ Accounts",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-11-23T02:19:18Z",
+            "updated_at": "2017-11-23T02:19:18Z"
+        },
+        {
+            "id": "5a256297ac55a70fed0000cb",
+            "name": "Customer signed up 4 days ago",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-12-04T14:58:31Z",
+            "updated_at": "2017-12-04T14:58:31Z"
+        },
+        {
+            "id": "593ee3ecdd139361b2000699",
+            "name": "Recompute forced",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2017-06-12T18:56:44Z",
+            "updated_at": "2017-12-07T10:07:47Z"
+        },
+        {
+            "id": "5a8c0594f25052338f001823",
+            "name": "New segment 1",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2018-02-20T11:25:08Z",
+            "updated_at": "2018-02-20T11:25:08Z"
+        },
+        {
+            "id": "5a8c04e05b5953decf003a92",
+            "name": "New segment",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2018-02-20T11:22:08Z",
+            "updated_at": "2018-02-20T11:22:08Z"
+        },
+        {
+            "id": "5a8c04d871040e9524006be0",
+            "name": "New segment",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2018-02-20T11:22:00Z",
+            "updated_at": "2018-02-20T11:22:00Z"
+        },
+        {
+            "id": "5a9038eba9c020f280000174",
+            "name": "Visited Pricing Page 3+ times",
+            "type": "users_segment",
+            "stats": {},
+            "created_at": "2018-02-23T15:53:15Z",
+            "updated_at": "2018-02-23T15:53:15Z"
+        }
+    ]
+}

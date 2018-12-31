@@ -1,10 +1,10 @@
 {
   "name": "Hubspot",
-  "description": "Synchronizes a Hubspot Contacts and Companies",
+  "description": "Two-way Hubspot integration for Contacts & Companies",
   "source": "hubspot",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.0.9-monorepo",
+  "version": "0.0.10-monorepo",
   "tags": [
     "outgoing",
     "incoming",
@@ -148,7 +148,7 @@
     },
     {
       "name": "handle_accounts",
-      "title": "Fetch accounts?",
+      "title": "Fetch accounts",
       "description": "If this checkbox is disabled we won't get any account in.",
       "type": "boolean",
       "default": false

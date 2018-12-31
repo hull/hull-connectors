@@ -131,8 +131,10 @@ class HubspotClient {
         })
           .catch(error => {
             if (error.response) {
-              const errorMessage =
-                "Failed to refresh access token, try to reauthorize the connector";
+              const details =
+                (error.response.body && error.response.body.message) ||
+                "unknown";
+              const errorMessage = `Failed to refresh access token, try to reauthorize the connector (error message: "${details}"")`;
               return Promise.reject(new ConfigurationError(errorMessage));
             }
             return Promise.reject(error);
