@@ -61,7 +61,7 @@ Tests are done in two different ways:
 First copy the env file and fill it in:
 `cp packages/connectors/hull-foo/.env-sample .env.hull-foo`
 
-Then you can start it with the `dev` script:
+Then you can start it with the `yarn dev` script:
 `dotenv -e .env.hull-foo yarn dev hull-foo`
 
 **How to start connector in production mode?**
