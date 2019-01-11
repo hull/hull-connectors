@@ -3,8 +3,8 @@
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const _ = require("lodash");
 
-process.env.CLIENT_ID = "12345";
-process.env.CLIENT_SECRET = "67890";
+process.env.CLIENT_ID = "123";
+process.env.CLIENT_SECRET = "abc";
 
 const connectorServer = require("../../../server/server");
 const connectorManifest = require("../../../manifest");
@@ -16,7 +16,7 @@ const connector = {
     token: "hubToken",
     token_fetched_at: 1419967066626,
     expires_in: 10,
-    refresh_token: "12345"
+    refresh_token: "123"
   }
 };
 
@@ -31,9 +31,9 @@ it("Should detect when we try to refresh token and fail with unauthorized", () =
           .reply(401, []);
         scope.get("/contacts/v2/groups?includeProperties=true")
           .reply(401, []);
-        scope.post("/oauth/v1/token", "refresh_token=12345&client_id=12345&client_secret=67890&redirect_uri=&grant_type=refresh_token")
+        scope.post("/oauth/v1/token", "refresh_token=123&client_id=123&client_secret=abc&redirect_uri=&grant_type=refresh_token")
           .reply(400, []);
-        scope.post("/oauth/v1/token", "refresh_token=12345&client_id=12345&client_secret=67890&redirect_uri=&grant_type=refresh_token")
+        scope.post("/oauth/v1/token", "refresh_token=123&client_id=123&client_secret=abc&redirect_uri=&grant_type=refresh_token")
           .reply(400, []);
         return scope;
       },
