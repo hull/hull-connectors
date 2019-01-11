@@ -44,8 +44,8 @@ it("Should detect when we try to refresh token and fail with unauthorized", () =
       logs: [
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 401, "url": "/contacts/v1/lists/recently_updated/contacts/recent", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 401, "url": "/contacts/v2/groups", "vars": {}}],
-        ["debug", "retrying query", {}, []], ["debug", "access_token", {}, {"expires_at": "2014-12-30T14:17:56-05:00", "expires_in": 10, "fetched_at": "2014-12-30T14:17:46-05:00", "utc_now": expect.whatever(), "will_expire_in": expect.whatever(), "will_expire_soon": true}],
-        ["debug", "retrying query", {}, []], ["debug", "access_token", {}, {"expires_at": "2014-12-30T14:17:56-05:00", "expires_in": 10, "fetched_at": "2014-12-30T14:17:46-05:00", "utc_now": expect.whatever(), "will_expire_in": expect.whatever(), "will_expire_soon": true}],
+        ["debug", "retrying query", {}, []], ["debug", "access_token", {}, {"expires_at": expect.whatever(), "expires_in": 10, "fetched_at": expect.whatever(), "utc_now": expect.whatever(), "will_expire_in": expect.whatever(), "will_expire_soon": true}],
+        ["debug", "retrying query", {}, []], ["debug", "access_token", {}, {"expires_at": expect.whatever(), "expires_in": 10, "fetched_at": expect.whatever(), "utc_now": expect.whatever(), "will_expire_in": expect.whatever(), "will_expire_soon": true}],
         ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 400, "url": "/oauth/v1/token", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 400, "url": "/oauth/v1/token", "vars": {}}]
       ],
