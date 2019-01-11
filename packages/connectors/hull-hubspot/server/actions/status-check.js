@@ -6,11 +6,12 @@ const _ = require("lodash");
 const SyncAgent = require("../lib/sync-agent");
 
 function getMessageFromError(err): string {
-
-  console.log(err.message);
-  if (err.message && typeof err.message === 'string'
-      && err.message.indexOf("Failed to refresh access token") === 0) {
-    return "Unauthorized response from Hubspot. Please reauthenticate with Hubspot by clicking the \"Credentials and Actions\" button in the upper right hand section of the connector settings.  Then either click \"Continue to Hubspot\" or \"Start over\"";
+  if (
+    err.message &&
+    typeof err.message === "string" &&
+    err.message.indexOf("Failed to refresh access token") === 0
+    ) {
+      return 'Unauthorized·response·from·Hubspot.·Please·reauthenticate·with·Hubspot·by·clicking·the·"Credentials·and·Actions"·button·in·the·upper·right·hand·section·of·the·connector·settings.··Then·either·click·"Continue·to·Hubspot"·or·"Start·over"';
   }
 
   // return either the msg or message parameter from err
