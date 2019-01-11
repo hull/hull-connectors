@@ -11,7 +11,7 @@ function getMessageFromError(err): string {
     typeof err.message === "string" &&
     err.message.indexOf("Failed to refresh access token") === 0
   ) {
-    return 'Unauthorized·response·from·Hubspot.·Please·reauthenticate·with·Hubspot·by·clicking·the·"Credentials·and·Actions"·button·in·the·upper·right·hand·section·of·the·connector·settings.··Then·either·click·"Continue·to·Hubspot"·or·"Start·over"';
+    return 'Unauthorized response from Hubspot. Please reauthenticate with Hubspot by clicking the "Credentials and Actions" button in the upper right hand section of the connector settings.  Then either click "Continue to Hubspot" or "Start over"';
   }
 
   // return either the msg or message parameter from err
