@@ -16,8 +16,8 @@
     },
     {
       "name": "synchronized_user_segments",
-      "title": "Send users to Mailchimp when belonging to at least one of these segments",
-      "description": "If no segments are specified all users are sent to Mailchimp.",
+      "title": "User Filter",
+      "description": "Send users to Mailchimp when belonging to at least one of these segments. If no segments are specified all users are sent to Mailchimp.",
       "type": "array",
       "format": "segment"
     },
