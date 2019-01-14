@@ -4,7 +4,7 @@
   "source": "customerio",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.0.10-monorepo",
+  "version": "0.0.11-monorepo",
   "tags": [
     "outgoing",
     "batch",
@@ -36,7 +36,8 @@
     },
     {
       "name": "synchronized_segments",
-      "title": "Send users to Customer.io when belonging to one of these segments",
+      "title" : "User Filter",
+      "description": "Send users to Customer.io when belonging to one of these segments",
       "type": "array",
       "default": [],
       "format": "segment"
