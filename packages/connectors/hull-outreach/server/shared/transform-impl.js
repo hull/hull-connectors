@@ -215,8 +215,14 @@ class TransformImpl {
                     finalValue = doVariableReplacement(
                       _.assign({}, context, { value: value }), transform.outputFormat);
                   }
+
+                  // if the word ends in s, remove create the non-pluralized form
+                  let path = context.outputPath;
+                  if (path[path.length -1] === 's') {
+                    path = context.outputPath.slice(0, -1);
+                  }
                   _.set(output,
-                    `${context.outputPath.slice(0, -1)}_${index}`,
+                    `${path}_${index}`,
                     finalValue);
                 });
               } else {
