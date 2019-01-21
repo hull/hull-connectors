@@ -4,7 +4,7 @@
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.0.10-monorepo",
+  "version": "0.0.11-monorepo",
 
   "tags": [
     "incoming",
@@ -74,7 +74,8 @@
     },
     {
       "name": "synchronized_account_segments",
-      "title": "Send *Accounts* as Accounts to Outreach.io when belonging to one of these segments",
+      "title": "Account Filter",
+      "description": "Send *Accounts* as Accounts to Outreach.io when belonging to one of these segments",
       "type": "array",
       "default": [],
       "format": "accountSegment"
@@ -141,7 +142,8 @@
     },
     {
       "name": "synchronized_user_segments",
-      "title": "Send *Users* as Prospects to Outreach.io when belonging to one of these segments",
+      "title" : "User Filter",
+      "description": "Send *Users* as Prospects to Outreach.io when belonging to one of these segments",
       "type": "array",
       "default": [],
       "format": "segment"
