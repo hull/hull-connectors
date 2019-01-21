@@ -1,0 +1,115 @@
+{
+  "name": "Customer.io",
+  "description": "Supercharge your email engagement in Customer.io",
+  "source": "customerio",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "version": "0.0.11-monorepo",
+  "tags": [
+    "outgoing",
+    "batch",
+    "oneColumn",
+    "smart-notifier"
+  ],
+  "private_settings": [
+    {
+      "name": "credentials_title",
+      "title": "Credentials",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "site_id",
+      "title": "Customer.io Site ID",
+      "type": "string"
+    },
+    {
+      "name": "api_key",
+      "title": "Customer.io API Key",
+      "type": "string"
+    },
+    {
+      "name": "configuration_title",
+      "title": "Configuration",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "synchronized_segments",
+      "title" : "User Filter",
+      "description": "Send users to Customer.io when belonging to one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "segment"
+    },
+    {
+      "name": "synchronized_segments_hero",
+      "type": "string",
+      "headerTemplate": "The above list of segments is a whitelist. You need to *explicitely specify one or more segments* for which events and users shall be sent to Customer.io.<br>If you do not specify any segment, no user or event will be sent to Customer.io.",
+      "format": "information",
+      "title": "Whitelisted Segments"
+    },
+    {
+      "name": "enable_user_deletion",
+      "title": "Enable User Deletion",
+      "description": "If this field is enabled, users who don't match the Segments above will be DELETED from Customer.io. Otherwise they will be ignored",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "events_filter",
+      "title": "Sends these events to Customer.io",
+      "type": "array",
+      "format": "event"
+    },
+    {
+      "name": "send_events_hero",
+      "type": "string",
+      "headerTemplate": "The above list of events is a whitelist. You need to *explicitely specify one or more events* that shall be sent to Customer.io.<br>If you do not specify any event, no event data will be sent to Customer.io.",
+      "format": "information",
+      "title": "Whitelisted Events"
+    },
+    {
+      "name": "anonymous_events",
+      "title": "Send Anonymous Events",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "user_id_mapping",
+      "title": "Which user attribute to send as the customerId",
+      "type": "string",
+      "format": "trait",
+      "default": "external_id"
+    },
+    {
+      "name": "data_title",
+      "title": "Data Mapping",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "synchronized_attributes",
+      "title": "Send Attributes to Customer.io",
+      "description": "Email, customerId and hull_segments are sent automatically",
+      "type": "array",
+      "format": "trait"
+    }
+  ],
+  "resources": [],
+  "readme": "readme.md",
+  "admin": "admin.html",
+  "ui": false,
+  "subscriptions": [
+    {
+      "url": "/smart-notifier"
+    }
+  ],
+  "schedules" : [
+    {
+      "url": "/status",
+      "type": "cron",
+      "value": "*/30 * * * *"
+    }
+  ]
+}

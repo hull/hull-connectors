@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.0.10-monorepo
+- [hull-customerio] migrated into monorepo
+- [hull-hubspot] new documentation
+
 ## v0.0.9-monorepo
 - [hull-mailchimp] breaking change in the settings -> migrated to standard
 - make use of `fireAndForget` option in schedule endpoints

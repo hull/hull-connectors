@@ -4,7 +4,7 @@
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.0.9-monorepo",
+  "version": "0.0.11-monorepo",
 
   "tags": [
     "incoming",
@@ -111,7 +111,7 @@
     {
       "name": "synchronized_user_segments",
       "title": "User Filter",
-      "description": "The above lists of segments are whitelists for users. You need to *explicitely specify one or more segments* for which users and events shall be sent to Outreach.io.<br>If you do not specify any segment, no users or event will be sent to Outreach.io.",
+      "description": "Send *Users* as Prospects to Outreach.io when belonging to one of these segments",
       "type": "array",
       "default": [],
       "format": "segment"
@@ -202,7 +202,7 @@
     {
       "name": "synchronized_account_segments",
       "title": "Account Filter",
-      "description": "The above lists of segments are whitelists for accounts. You need to *explicitely specify one or more segments* for which accounts and events shall be sent to Outreach.io. If you do not specify any segment, no account or event will be sent to Outreach.io.",
+      "description": "Send *Accounts* as Accounts to Outreach.io when belonging to one of these segments",
       "type": "array",
       "default": [],
       "format": "accountSegment"

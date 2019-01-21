@@ -1,10 +1,10 @@
 {
   "name": "Hubspot",
-  "description": "Synchronizes a Hubspot Contacts and Companies",
+  "description": "Two-way Hubspot integration for Contacts & Companies",
   "source": "hubspot",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.0.9-monorepo",
+  "version": "0.0.11-monorepo",
   "tags": [
     "outgoing",
     "incoming",
@@ -23,7 +23,7 @@
     },
     {
       "name": "synchronized_user_segments",
-      "title": "User Segments",
+      "title": "User Filter",
       "description": "Send to Hubspot when users match these segments",
       "default": [],
       "type": "array",
@@ -112,7 +112,7 @@
     },
     {
       "name": "synchronized_account_segments",
-      "title": "Account Segments",
+      "title": "Account Filter",
       "description": "Defines the list of Account Segments to send. Nothing sent by default.",
       "default": [],
       "type": "array",
@@ -148,7 +148,7 @@
     },
     {
       "name": "handle_accounts",
-      "title": "Fetch accounts?",
+      "title": "Fetch accounts",
       "description": "If this checkbox is disabled we won't get any account in.",
       "type": "boolean",
       "default": false

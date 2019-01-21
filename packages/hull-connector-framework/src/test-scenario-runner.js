@@ -368,13 +368,17 @@ class TestScenarioRunner extends EventEmitter {
                 this.scenarioDefinition.usersSegments,
                 this.scenarioDefinition.accountsSegments
               );
-            } else {
+            } else if (channel === "account:update") {
               this.minihull.stubAccountsBatch(this.scenarioDefinition.messages);
               response = await this.minihull.batchAccountsConnector(
                 this.connector,
                 `http://localhost:${this.hullConnectorPort}/${handlerUrl}`,
                 this.scenarioDefinition.usersSegments,
                 this.scenarioDefinition.accountsSegments
+              );
+            } else {
+              throw new Error(
+                "Channel not supported for the batchHandler endpoint"
               );
             }
             break;

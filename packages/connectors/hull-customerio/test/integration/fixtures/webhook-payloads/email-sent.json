@@ -1,0 +1,56 @@
+{
+  "data": {
+      "campaign_id": "12",
+      "campaign_name": "Started Vault Trials - 1 - Welcome, Installing and Deploying Vault",
+      "customer_id": "5abc2de89ba6c1be560019e3",
+      "email_address": "Sven <sven+dt2@hull.io>",
+      "email_id": "ZI6aBAABYm8p-RzGk9KlbP_MSBwc",
+      "message_id": "65",
+      "message_name": "How Vault Enterprise trials work",
+      "subject": "How Vault Enterprise trials work",
+      "template_id": "35",
+      "variables": {
+          "campaign": {
+              "id": 12,
+              "name": "Started Vault Trials - 1 - Welcome, Installing and Deploying Vault",
+              "type": "behavioral"
+          },
+          "customer": {
+              "created_at": 1522281960,
+              "email": "sven+dt2@hull.io",
+              "first_name": "Sven",
+              "hull_segments": [
+                  "Enriched Users",
+                  "Known Users",
+                  "Started Vault Trials"
+              ],
+              "id": "5abc2de89ba6c1be560019e3",
+              "intercom-unsubscribed_from_emails": false,
+              "last_name": "Maschek",
+              "trial_end_date": 1524873960,
+              "unsubscribed_vaulttrials": false,
+              "vault_trial-email": "sven+dt2@hull.io",
+              "vault_trial-end_date_unix": 1522800000000,
+              "vault_trial-ip": "3.4.8.9",
+              "vault_trial-product": "vault",
+              "vault_trial-start_date_unix": 1522195200000,
+              "vault_trial-user_id": 120
+          },
+          "delivery_id": "ZI6aBAABYm8p-RzGk9KlbP_MSBwc",
+          "email_id": "ZI6aBAABYm8p-RzGk9KlbP_MSBwc",
+          "layout": {
+              "id": 1,
+              "name": "Empty Layout"
+          },
+          "message": {
+              "id": 65,
+              "name": "How Vault Enterprise trials work",
+              "subject": "How Vault Enterprise trials work",
+              "type": "email_action"
+          }
+      }
+  },
+  "event_id": "01C9QJM259SPWQF2JZ8GX9HY7J",
+  "event_type": "email_sent",
+  "timestamp": 1522283447
+}
