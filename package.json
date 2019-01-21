@@ -22,7 +22,7 @@
     "dev": "sh scripts/start-dev-connector.sh",
     "test": "yarn test:lint && jest && yarn workspaces run test",
     "test:lint": "eslint packages",
-    "test:ci": "yarn test:lint && jest && nyc --babel-cache --hook-run-in-context false yarn workspaces run test",
+    "test:ci": "yarn test:lint && jest --runInBand && nyc --babel-cache --hook-run-in-context false yarn workspaces run test",
     "heroku-postbuild": "yarn build"
   },
   "engines": {
