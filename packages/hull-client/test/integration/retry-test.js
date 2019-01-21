@@ -64,37 +64,28 @@ describe("client retrying", function test() {
   });
 
   it("shoud retry 2 times on timeout, then reject", () => {
-    console.log("Test 1");
     const stub = minihull.stubApp("/api/v1/testing")
       .callsFake((req, res) => {
-        console.log("Test 1 fake1");
       });
-    console.log("Test 1a");
-    return client.get("/testing", {}, { timeout: 20, retry: 10 })
+    return client.get("/testing", {}, { timeout: 100, retry: 10 })
       .catch(err => {
-        console.log("Test 1b");
-        expect(err.message).to.equal("Timeout of 20ms exceeded");
+        expect(err.message).to.equal("Timeout of 100ms exceeded");
         expect(stub.callCount).to.be.eql(3);
       });
   });
 
   it("shoud retry first timeout, then resolve", () => {
-    console.log("Test 2");
     const stub = minihull.stubApp("/api/v1/testing")
       .onFirstCall()
       .callsFake((req, res) => {
-        console.log("Test 2 fake1");
       })
       .onSecondCall()
       .callsFake((req, res) => {
-        console.log("Test 2 fake2");
         res.end("ok")
       });
-      console.log("Test 2a");
 
-    return client.get("/testing", {}, { timeout: 20, retry: 10 })
+    return client.get("/testing", {}, { timeout: 100, retry: 10 })
       .then(() => {
-        console.log("Test 2b");
         expect(stub.callCount).to.be.eql(2);
       });
   });
