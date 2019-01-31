@@ -1,9 +1,14 @@
 /* @flow */
-import type { $Request, $Response } from "express";
 
-function adminHandler(req: $Request, res: $Response) {
-  res.render("home.html", {
-    name: "Outreach.io"
+const debug = require("debug")("hull-outreach:adminHandler");
+
+function adminHandler(ctx) {
+  debug("Rendering adminHandler");
+  return Promise.resolve({
+    pageLocation: "home.html",
+    data: {
+      name: "Outreach.io"
+    }
   });
 }
 

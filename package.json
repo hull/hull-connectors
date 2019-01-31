@@ -22,7 +22,7 @@
     "dev": "sh scripts/start-dev-connector.sh",
     "test": "yarn test:lint && jest && yarn workspaces run test",
     "test:lint": "eslint packages",
-    "test:ci": "yarn test:lint && jest && nyc --babel-cache --hook-run-in-context false yarn workspaces run test",
+    "test:ci": "yarn test:lint && jest --runInBand && nyc --babel-cache --hook-run-in-context false yarn workspaces run test",
     "heroku-postbuild": "yarn build"
   },
   "engines": {
@@ -74,6 +74,7 @@
     "debug": "^4.0.1",
     "ejs": "^2.6.1",
     "express": "^4.16.3",
+    "hashmap": "^2.3.0",
     "kue": "^0.11.6",
     "lodash": "^4.17.11",
     "moment": "^2.22.2",

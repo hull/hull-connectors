@@ -1,0 +1,179 @@
+{
+    "notification_id": "cab2ce40-421d-4301-907e-d45f791419f4",
+    "configuration": {
+      "id": "asdf",
+      "organization": "c5011027.hullbeta.io",
+      "secret": "1234"
+    },
+    "connector": {
+        "description": "some",
+        "tags": [],
+        "source_url": "https://dev-hull-outreach.ngrok.io/",
+        "private_settings": {
+            "token_expires_in": 7200,
+            "outgoing_user_attributes": [
+                {
+                    "hull": "traits_closeio/title",
+                    "service": "title"
+                },
+                {
+                    "hull": "traits_closeio/phone_office",
+                    "service": "workPhones"
+                }
+            ],
+            "incoming_user_attributes": [
+                {
+                    "hull": "traits_outreach/custom1",
+                    "service": "custom1"
+                },
+                {
+                    "hull": "traits_outreach/custom2",
+                    "service": "custom2"
+                },
+                {
+                    "hull": "traits_outreach/personalnote2",
+                    "service": "personalNote1"
+                }
+            ],
+            "token_created_at": 1544104207,
+            "access_token": "1234",
+            "refresh_token": "5678",
+            "synchronized_user_segments": [
+                "5bffc38f625718d58b000004"
+            ],
+            "expires_in": 7140,
+            "webhook_id": 31,
+            "synchronized_account_segments": [],
+            "created_at": 1544111455
+        },
+        "index": "https://dev-hull-outreach.ngrok.io/",
+        "name": "dev-hull-outreach.ngrok.io",
+        "extra": {},
+        "settings": {},
+        "type": "ship",
+        "secret": "shhhh",
+        "updated_at": "2018-12-06T15:51:55Z",
+        "status": {
+            "status": "ok",
+            "messages": [],
+            "updated_at": "2018-12-06T14:04:24Z",
+            "name": "dev-hull-outreach.ngrok.io",
+            "id": "123456789012345678901234"
+        },
+        "id": "123456789012345678901234",
+        "picture": "https://dev-hull-outreach.ngrok.io/picture.png",
+        "homepage_url": "https://c5011027.hullbeta.io/ships/123456789012345678901234",
+        "manifest_url": "https://dev-hull-outreach.ngrok.io/manifest.json",
+        "created_at": "2018-12-06T13:49:58Z"
+    },
+    "channel": "user:update",
+    "messages": [
+        {
+            "user": {
+                "traits_outreach/custom2": "No",
+                "traits_outreach/id": 22,
+                "id": "userid",
+                "email": "han@smuggler.com",
+                "anonymous_ids": [
+                    "outreach:22"
+                ],
+                "domain": "smuggler.com",
+                "indexed_at": "2018-12-06T17:33:47+00:00",
+                "traits_outreach/custom1": "White Helmet",
+                "traits_outreach/personalnote2": "Is he kylo ren's dad? Yes he is, and he gets killed. but kylo is sad",
+                "created_at": "2018-11-28T17:34:05Z",
+                "is_approved": false,
+                "traits_outreach/personalnote1": "Is he kylo ren's dad? Yes he is, and he gets killed. but kylo is sad",
+                "segment_ids": [
+                    "5bffc38f625718d58b000004"
+                ]
+            },
+            "changes": {
+                "is_new": false,
+                "user": {},
+                "account": {},
+                "segments": {
+                    "left": [
+                        {
+                            "id": "5bffc38f625718d58b000004",
+                            "name": "Smugglers",
+                            "updated_at": "2018-12-06T14:23:38Z",
+                            "type": "users_segment",
+                            "created_at": "2018-11-29T10:46:39Z"
+                        }
+                    ]
+                },
+                "account_segments": {}
+            },
+            "account": {},
+            "segments": [],
+            "events": [],
+            "account_segments": [],
+            "message_id": "4dfb39dd430f831cf166ca6810a2116d23df8ed0"
+        },
+        {
+            "user": {
+                "traits_outreach/custom2": "No",
+                "traits_outreach/id": 22,
+                "id": "5bfed18dc9cb255fad000021",
+                "email": "han@smuggler.com",
+                "anonymous_ids": [
+                    "outreach:22"
+                ],
+                "domain": "smuggler.com",
+                "indexed_at": "2018-12-06T17:35:18+00:00",
+                "traits_outreach/custom1": "White Helmet",
+                "traits_outreach/personalnote2": "Is he kylo ren's dad? Yes he is, and he gets killed. but kylo is sad",
+                "created_at": "2018-11-28T17:34:05Z",
+                "is_approved": false,
+                "traits_outreach/personalnote1": "Is he kylo ren's dad? Yes he is, and he gets killed. but kylo is sad",
+                "segment_ids": []
+            },
+            "changes": {
+                "is_new": false,
+                "user": {
+                    "segment_ids[0]": [
+                        "5bffc38f625718d58b000004",
+                        null
+                    ]
+                },
+                "account": {},
+                "segments": {},
+                "account_segments": {}
+            },
+            "account": {},
+            "segments": [],
+            "events": [],
+            "account_segments": [],
+            "message_id": "76e79f8ea9fe066484836ff4d6f847c0d5b64adf"
+        }
+    ],
+    "accounts_segments": [
+        {
+            "id": "5bd7201aa682bc4a4d00001e",
+            "updated_at": "2018-11-05T20:08:18Z",
+            "created_at": "2018-10-29T14:58:34Z",
+            "name": "Bad guys",
+            "type": "accounts_segment",
+            "stats": {}
+        }
+    ],
+    "segments": [
+        {
+            "id": "5bd720690026ca86b000004f",
+            "updated_at": "2018-11-05T20:07:04Z",
+            "created_at": "2018-10-29T14:59:53Z",
+            "name": "Star Wars Users",
+            "type": "users_segment",
+            "stats": {}
+        },
+        {
+            "id": "5bffc38f625718d58b000004",
+            "updated_at": "2018-12-06T17:33:39Z",
+            "created_at": "2018-11-29T10:46:39Z",
+            "name": "Smugglers",
+            "type": "users_segment",
+            "stats": {}
+        }
+    ]
+}

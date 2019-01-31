@@ -1,5 +1,5 @@
 /* @flow */
-import type { OutreachFieldDefinition } from "../types";
+import type { OutreachFieldDefinition } from "../../lib/types";
 
 const PROSPECT_FIELDDEFS: Array<OutreachFieldDefinition> = [
   {
@@ -311,8 +311,8 @@ const PROSPECT_FIELDDEFS: Array<OutreachFieldDefinition> = [
   {
     id: "emails",
     label: "Emails",
-    in: false,
-    out: false,
+    in: true,
+    out: true,
     type: "array"
   },
   {

@@ -9,7 +9,7 @@
           "resource": "*",
           "secret": null,
           "updatedAt": "2018-09-27T18:59:04.000Z",
-          "url": "https://requestbin.fullcontact.com/15b1cro1"
+          "url": "https://dev-hull-outreach.io/webhooks?organization=dev.hullbeta.io&secret=shhh&ship=123456789012345678901235"
       },
       "relationships": {
           "authorizer": {

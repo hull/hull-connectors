@@ -105,7 +105,9 @@
                 "dateOfBirth": null,
                 "degree": null,
                 "emails": [
-                    "ceo@somehullcompany.com"
+                    "ceo@somehullcompany.com",
+                    "ceosomehull@somehullcompany.co",
+                    "mrceo@gmail.com"
                 ],
                 "emailsOptedOutAt": null,
                 "engagedAt": null,
@@ -151,7 +153,8 @@
                 "stackOverflowId": null,
                 "stackOverflowUrl": null,
                 "tags": [
-                    "somehullcompanytag"
+                    "somehullcompanytag",
+                    "anothertag"
                 ],
                 "timeZone": null,
                 "timeZoneIana": null,

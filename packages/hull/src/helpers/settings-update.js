@@ -33,7 +33,7 @@ function settingsUpdate(
     if (!cache) {
       return connector;
     }
-    return cache.del(connector.id).then(() => connector);
+    return cache.del("connector").then(() => connector);
   });
 }
 
