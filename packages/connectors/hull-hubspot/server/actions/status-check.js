@@ -140,7 +140,7 @@ function statusCheckAction(ctx: HullContext) {
           if (!_.find(body, g => g.name === "hull")) {
             pushMessage(
               "warning",
-              "Hubspot is missing the custom Hull attribute group.  This may be problematic if you wish to create new fields in Hubspot for storing custom Hull attributes. Initial synch with Hubspot may not have been completed yet.  If this warning persists please contact your Hull support representative."
+              "Hubspot is missing the Hull custom attribute group.  This may be problematic if you wish to create new fields in Hubspot for storing new Hull that don't exist in Hubspot. Initial synch with Hubspot may not have been completed yet.  If this warning persists please contact your Hull support representative."
             );
           } else if (!_.find(body, g => g.displayName === "Hull Properties")) {
             pushMessage(
