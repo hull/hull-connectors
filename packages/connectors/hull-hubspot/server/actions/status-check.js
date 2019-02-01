@@ -6,8 +6,6 @@ const _ = require("lodash");
 const SyncAgent = require("../lib/sync-agent");
 
 function getMessageFromError(err): string {
-  console.log("ERROR!");
-  console.log(err.message);
   if (
     err.message &&
     typeof err.message === "string" &&
