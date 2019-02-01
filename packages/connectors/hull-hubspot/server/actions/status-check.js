@@ -127,7 +127,7 @@ function statusCheckAction(ctx: HullContext) {
           if (results.body.contacts && results.body.contacts.length === 0) {
             pushMessage(
               "warning",
-              'The Hubspot organization that this connector is communicating with does not contain contacts.  If you think this is not correct, please try and re-authenticate with the "Credentials/Action" button or contact your Hull Support representative'
+              'The Hubspot organization that this connector is communicating with does not contain contacts.  If you think this is not correct, please try and re-authenticate with the "Credentials/Action" button.  If this warning persists please contact your Hull support representative'
             );
           }
         })
@@ -142,12 +142,12 @@ function statusCheckAction(ctx: HullContext) {
           if (!_.find(body, g => g.name === "hull")) {
             pushMessage(
               "warning",
-              "Hubspot is missing the custom attribute for Hull groups.  Initial synch with Hubspot may not have been completed yet"
+              "Hubspot is missing the custom Hull attribute group.  This may be problematic if you wish to create new fields in Hubspot for storing custom Hull attributes. Initial synch with Hubspot may not have been completed yet.  If this warning persists please contact your Hull support representative."
             );
           } else if (!_.find(body, g => g.displayName === "Hull Properties")) {
             pushMessage(
               "warning",
-              "Hubspot is missing the Display Name for the custom attribute for Hull groups.  Initial synch with Hubspot may not have been completed yet"
+              "Hubspot is missing the Display Name for the custom attribute for Hull groups.  Initial synch with Hubspot may not have been completed yet."
             );
           } else if (
             !_.find(body.filter(g => g.name === "hull"), g =>
