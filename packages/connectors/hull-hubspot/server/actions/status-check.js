@@ -6,6 +6,8 @@ const _ = require("lodash");
 const SyncAgent = require("../lib/sync-agent");
 
 function getMessageFromError(err): string {
+  console.log("ERROR!");
+  console.log(err.message);
   if (
     err.message &&
     typeof err.message === "string" &&
@@ -22,16 +24,14 @@ function getMessageFromError(err): string {
   )}`;
 }
 
-
-const statusHierarchy = [ "ok", "warning", "error" ];
+const statusHierarchy = ["ok", "warning", "error"];
 // -1 is (status1 < status2)
 // 0 is (status1 === status2)
 // 1 is (status1 > status1)
 function compareStatus(status1: string, status2: string) {
-  if (status1 === status2)
-    return 0;
+  if (status1 === status2) return 0;
 
-  if (statusHierarchy.indexOf(status1) < statusHierarchy.indexOf(status1)) {
+  if (statusHierarchy.indexOf(status1) < statusHierarchy.indexOf(status2)) {
     return -1;
   }
 
@@ -43,23 +43,32 @@ function statusCheckAction(ctx: HullContext) {
   const messages = [];
 
   const pushMessage = (status: "error" | "warning", message: string) => {
-
     // make sure the message isn't already in the list...
-    if (messages.indexOf(message) < 0) {
+
+    const existingMessage = _.find(messages, { message });
+    if (!existingMessage) {
       messages.push({ status, message });
     }
   };
-  const promises = [];
 
   if (!_.get(connector, "private_settings.token")) {
-    pushMessage("error", 'No OAuth AccessToken found.  Please make sure to allow Hull to access your Hubspot data by clicking the "Credentials & Actions" button on the connector page and following the workflow provided');
+    pushMessage(
+      "error",
+      'No OAuth AccessToken found.  Please make sure to allow Hull to access your Hubspot data by clicking the "Credentials & Actions" button on the connector page and following the workflow provided'
+    );
   }
 
   // This doesn't really matter either.
   // If there's a real problem, we'll hit Unauthorized when doing the below tests
-  // if (!_.get(connector, "private_settings.refresh_token")) {
-  //   pushMessage("Missing refresh token.");
-  // }
+  if (
+    _.get(connector, "private_settings.token") &&
+    !_.get(connector, "private_settings.refresh_token")
+  ) {
+    pushMessage(
+      "error",
+      'Error in authenticating with Hubspot.  Hubspot service did not return the proper OAuth Credentials.  Please reauthenticate with Hubspot by clicking "Credentials & Actions" and then click "Start Over".  This should an intermittent problem, but if you see it happening more, please contact Hull Support.'
+    );
+  }
 
   // Doesn't really matter to the customer I don't think
   // if (!_.get(connector, "private_settings.portal_id")) {
@@ -67,26 +76,40 @@ function statusCheckAction(ctx: HullContext) {
   // }
 
   if (
-    _.isEmpty(_.get(connector, "private_settings.synchronized_user_segments", []))
-    || _.isEmpty(_.get(connector, "private_settings.synchronized_account_segments", []))
+    _.isEmpty(
+      _.get(connector, "private_settings.synchronized_user_segments", [])
+    ) ||
+    _.isEmpty(
+      _.get(connector, "private_settings.synchronized_account_segments", [])
+    )
   ) {
-    pushMessage("warning",
+    pushMessage(
+      "warning",
       "No users or accounts will be sent from Hull to Hubspot because there are no whitelisted segments configured.  Please visit the connector settings page and add segments to be sent to Hubspot"
     );
   }
 
   if (
-    _.isEmpty(_.get(connector, "private_settings.outgoing_user_attributes", []))
-    || _.isEmpty(_.get(connector, "private_settings.outgoing_account_attributes", []))
+    _.isEmpty(
+      _.get(connector, "private_settings.outgoing_user_attributes", [])
+    ) ||
+    _.isEmpty(
+      _.get(connector, "private_settings.outgoing_account_attributes", [])
+    )
   ) {
-    pushMessage("warning",
+    pushMessage(
+      "warning",
       "There are no attributes configured to be sent to Hubspot.  If segments are correctly configured, Accounts/Users will be created in Hubspot, but with no attributes.  Visit the connector settings page and configure the attributes for Accounts/Users to be sent"
     );
   }
 
   if (
-    _.isEmpty(_.get(connector, "private_settings.incoming_user_attributes", []))
-    || _.isEmpty(_.get(connector, "private_settings.incoming_account_attributes", []))
+    _.isEmpty(
+      _.get(connector, "private_settings.incoming_user_attributes", [])
+    ) ||
+    _.isEmpty(
+      _.get(connector, "private_settings.incoming_account_attributes", [])
+    )
   ) {
     pushMessage(
       "warning",
@@ -95,13 +118,17 @@ function statusCheckAction(ctx: HullContext) {
   }
 
   const syncAgent = new SyncAgent(ctx);
+  const promises = [];
   if (_.get(connector, "private_settings.token")) {
     promises.push(
       syncAgent.hubspotClient
         .getRecentlyUpdatedContacts()
         .then(results => {
           if (results.body.contacts && results.body.contacts.length === 0) {
-            pushMessage("warning", 'The Hubspot organization that this connector is communicating with does not contain contacts.  If you think this is not correct, please try and re-authenticate with the "Credentials/Action" button or contact your Hull Support representative');
+            pushMessage(
+              "warning",
+              'The Hubspot organization that this connector is communicating with does not contain contacts.  If you think this is not correct, please try and re-authenticate with the "Credentials/Action" button or contact your Hull Support representative'
+            );
           }
         })
         .catch(err => {
@@ -139,21 +166,28 @@ function statusCheckAction(ctx: HullContext) {
     );
   }
 
-  let worstStatus = "ok";
-  let messagesToSend = [];
-  _.forEach(messages, message => {
-      const statusComparison = compareStatus(worstStatus, message.status);
-      if (statusComparison === 0) {
-        messagesToSend.push(message.message);
-      } else if (statusComparison > 0) {
-        messagesToSend = [ message.message ];
-        worstStatus = message.status;
-      }
-    });
-
-  const statusResults = { status: worstStatus, messages: messagesToSend };
+  // this is sort of worse in someways, keeping this variable out here
+  // so that all the steps from the promise chain can get it
+  // but the alternative is to pass it pack in every chain of the promise...
+  // that seems more annoying and maybe more error prone
+  let statusResults;
 
   return Promise.all(promises)
+    .then(() => {
+      let worstStatus = "ok";
+      let messagesToSend = [];
+      _.forEach(messages, message => {
+        const statusComparison = compareStatus(worstStatus, message.status);
+        if (statusComparison === 0) {
+          messagesToSend.push(message.message);
+        } else if (statusComparison < 0) {
+          messagesToSend = [message.message];
+          worstStatus = message.status;
+        }
+      });
+
+      statusResults = { status: worstStatus, messages: messagesToSend };
+    })
     .then(() => {
       return client.put(`${connector.id}/status`, statusResults);
     })

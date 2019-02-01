@@ -40,7 +40,7 @@ it("Should detect when we try to refresh token and fail with unauthorized", () =
       connector,
       usersSegments: [],
       accountsSegments: [],
-      response: {"messages": ["Missing portal id.", "No fields are going to be sent from hull to hubspot because of missing configuration.", "No fields are going to be sent from hubspot to hull because of missing configuration.", "Unauthorized response from Hubspot. Please reauthenticate with Hubspot by clicking the \"Credentials and Actions\" button in the upper right hand section of the connector settings.  Then either click \"Continue to Hubspot\" or \"Start over\""], "status": "error"},
+      response: {"messages": ['Unauthorized response from Hubspot. Please reauthenticate with Hubspot by clicking the "Credentials and Actions" button in the upper right hand section of the connector settings.  Then either click "Continue to Hubspot" or "Start over"'], "status": "error"},
       logs: [
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 401, "url": "/contacts/v1/lists/recently_updated/contacts/recent", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 401, "url": "/contacts/v2/groups", "vars": {}}],
@@ -72,10 +72,7 @@ it("Should detect when we try to refresh token and fail with unauthorized", () =
           {
             "messages":
               [
-                "Missing portal id.",
-                "No fields are going to be sent from hull to hubspot because of missing configuration.",
-                "No fields are going to be sent from hubspot to hull because of missing configuration.",
-                "Unauthorized response from Hubspot. Please reauthenticate with Hubspot by clicking the \"Credentials and Actions\" button in the upper right hand section of the connector settings.  Then either click \"Continue to Hubspot\" or \"Start over\""
+                'Unauthorized response from Hubspot. Please reauthenticate with Hubspot by clicking the "Credentials and Actions" button in the upper right hand section of the connector settings.  Then either click "Continue to Hubspot" or "Start over"'
               ],
             "status": "error"
           }
