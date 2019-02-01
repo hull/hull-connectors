@@ -147,7 +147,7 @@ function statusCheckAction(ctx: HullContext) {
           } else if (!_.find(body, g => g.displayName === "Hull Properties")) {
             pushMessage(
               "warning",
-              "Hubspot is missing the Display Name for the custom attribute for Hull groups.  Initial synch with Hubspot may not have been completed yet."
+              "Hubspot is missing the Display Name for the custom attribute for Hull groups.  Initial synch with Hubspot may not have been completed yet.  If this warning persists please contact your Hull support representative."
             );
           } else if (
             !_.find(body.filter(g => g.name === "hull"), g =>
@@ -156,7 +156,7 @@ function statusCheckAction(ctx: HullContext) {
           ) {
             pushMessage(
               "warning",
-              "Hubspot is missing the hull segments custom attribute.  Initial synch with Hubspot may not have been completed yet"
+              "Hubspot is missing the hull segments custom attribute.  Initial synch with Hubspot may not have been completed yet.  If this warning persists please contact your Hull support representative."
             );
           }
         })
