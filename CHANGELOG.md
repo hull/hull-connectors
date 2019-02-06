@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.0.13-monorepo
+- [hull-outreach] New outreach connector with new framework
+
 ## v0.0.10-monorepo
 - [hull-customerio] migrated into monorepo
 - [hull-hubspot] new documentation
