@@ -1,7 +1,5 @@
 /* @flow */
 
-import type { $Response } from "express";
-import type { THullRequest } from "hull";
 import type { OutreachFieldDefinition } from "../lib/types";
 
 const _ = require("lodash");
@@ -12,7 +10,7 @@ const PROSPECT_FIELDDEFS = require("./fielddefs/prospect-fielddefs");
 function getFieldsOutreach(
   fields: Array<OutreachFieldDefinition>,
   filter: Object
-): Object {
+): Array<Object> {
   const filteredFields = _.filter(fields, filter);
   const opts = _.map(filteredFields, f => {
     return { value: f.id, label: f.label };
@@ -21,72 +19,27 @@ function getFieldsOutreach(
   return opts;
 }
 
-function fieldsOutreachProspectInbound(
-  req: THullRequest,
-  res: $Response
-): $Response {
-  return {
+function fieldsOutreachProspectInbound() {
+  return Promise.resolve({
     options: getFieldsOutreach(PROSPECT_FIELDDEFS, { in: true })
-  };
+  });
 }
 
-function fieldsOutreachProspectOutbound(
-  req: THullRequest,
-  res: $Response
-): $Response {
-  return res.json({
+function fieldsOutreachProspectOutbound() {
+  return Promise.resolve({
     options: getFieldsOutreach(PROSPECT_FIELDDEFS, { out: true })
   });
 }
 
-function fieldsOutreachAccountInbound(
-  req: THullRequest,
-  res: $Response
-): $Response {
-  return res.json({
+function fieldsOutreachAccountInbound() {
+  return Promise.resolve({
     options: getFieldsOutreach(ACCOUNT_FIELDDEFS, { in: true })
   });
 }
 
-function fieldsOutreachAccountOutbound(
-  req: THullRequest,
-  res: $Response
-): $Response {
-  return res.json({
+function fieldsOutreachAccountOutbound() {
+  return Promise.resolve({
     options: getFieldsOutreach(ACCOUNT_FIELDDEFS, { out: true })
-  });
-}
-
-function fieldsHullAccountIdent(req: THullRequest, res: $Response): $Response {
-  return res.json({
-    options: [
-      {
-        value: "domain",
-        label: "Domain"
-      },
-      {
-        value: "external_id",
-        label: "External ID"
-      }
-    ]
-  });
-}
-
-function fieldsOutreachAccountIdent(
-  req: THullRequest,
-  res: $Response
-): $Response {
-  return res.json({
-    options: [
-      {
-        value: "domain",
-        label: "Domain"
-      },
-      {
-        value: "customId",
-        label: "Custom ID"
-      }
-    ]
   });
 }
 
@@ -94,7 +47,5 @@ module.exports = {
   fieldsOutreachProspectInbound,
   fieldsOutreachProspectOutbound,
   fieldsOutreachAccountInbound,
-  fieldsOutreachAccountOutbound,
-  fieldsHullAccountIdent,
-  fieldsOutreachAccountIdent
+  fieldsOutreachAccountOutbound
 };

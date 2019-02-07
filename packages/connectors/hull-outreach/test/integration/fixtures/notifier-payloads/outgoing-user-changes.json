@@ -1,0 +1,710 @@
+{
+    "notification_id": "5864a24b-8c09-40e5-8cb9-d2f8fa4cb21c",
+    "configuration": {
+        "id": "5c092905c36af496c700012e",
+        "organization": "c5011027.hullbeta.io",
+        "secret": "20a512cc2cd99de69be65313e2f35d45"
+    },
+    "connector": {
+        "description": "some",
+        "tags": [],
+        "source_url": "https://dev-hull-outreach.ngrok.io/",
+        "private_settings": {
+            "user_claims": [
+                {
+                    "hull": "email",
+                    "service": "emails"
+                },
+                {
+                    "hull": "external_id",
+                    "service": "externalId"
+                }
+            ],
+            "token_expires_in": 7200,
+            "outgoing_user_attributes": [
+                {
+                    "hull": "traits_closeio/title",
+                    "service": "title"
+                },
+                {
+                    "hull": "traits_closeio/phone_office",
+                    "service": "workPhones"
+                },
+                {
+                    "hull": "traits_testattributes/description",
+                    "service": "custom20"
+                }
+            ],
+            "incoming_user_attributes": [
+                {
+                    "hull": "traits_outreach/custom1",
+                    "service": "custom1"
+                },
+                {
+                    "hull": "traits_outreach/custom2",
+                    "service": "custom2"
+                },
+                {
+                    "hull": "traits_outreach/personalnote2",
+                    "service": "personalNote1"
+                }
+            ],
+            "token_created_at": 1544104207,
+            "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0aW0rc2FuZGJveEBodWxsLmlvIiwiaWF0IjoxNTQ0NTIzNzkwLCJleHAiOjE1NDQ1MzA5OTAsImJlbnRvIjoiYXBwMmEiLCJvcmdfdXNlcl9pZCI6MSwiYXVkIjoiSHVsbCIsInNjb3BlcyI6ImNyZWF0ZV9wcm9zcGVjdHMgY3JlYXRlX2FjY291bnRzIEFKQUFFQUhBIn0.3MhtOKzBkko7zZLjPOOOTFcfHq0uOWvvV8LkxLGzIUw",
+            "refresh_token": "e1ac0cbffc98e6975a90e1baaea45de7a40731e9b4ce4c97521a321ce9fc3b79",
+            "outgoing_account_attributes": [
+                {
+                    "hull": "closeio/industry_sample",
+                    "service": "custom20"
+                },
+                {
+                    "hull": "closeio/name",
+                    "service": "name"
+                },
+                {
+                    "hull": "closeio/address_business_state",
+                    "service": "locality"
+                },
+                {
+                    "hull": "closeio/address_business_city",
+                    "service": "custom20"
+                }
+            ],
+            "synchronized_user_segments": [
+                "5bffc38f625718d58b000004"
+            ],
+            "account_claims": [
+                {
+                    "hull": "domain",
+                    "service": "domain"
+                },
+                {
+                    "hull": "external_id",
+                    "service": "customId"
+                }
+            ],
+            "link_users_in_service": true,
+            "expires_in": 7200,
+            "webhook_id": 31,
+            "synchronized_account_segments": [
+                "5bd7201aa682bc4a4d00001e"
+            ],
+            "incoming_account_attributes": [
+                {
+                    "hull": "outreach/company_type",
+                    "service": "companyType"
+                },
+                {
+                    "hull": "outreach/description",
+                    "service": "description"
+                }
+            ],
+            "created_at": 1544523790,
+            "link_users_in_hull": true
+        },
+        "index": "https://dev-hull-outreach.ngrok.io/",
+        "name": "dev-hull-outreach.ngrok.io",
+        "extra": {},
+        "settings": {},
+        "type": "ship",
+        "manifest": {
+            "description": "description",
+            "tags": [
+                "incoming",
+                "outgoing",
+                "batch",
+                "batch-accounts",
+                "oneColumn",
+                "smart-notifier"
+            ],
+            "private_settings": [
+                {
+                    "name": "webhook_id",
+                    "title": "Outreach webhook id",
+                    "type": "string",
+                    "format": "hidden"
+                },
+                {
+                    "name": "access_token",
+                    "title": "OAuth Access Token",
+                    "type": "string",
+                    "format": "hidden"
+                },
+                {
+                    "name": "refresh_token",
+                    "title": "OAuth Refresh Token",
+                    "type": "string",
+                    "format": "hidden"
+                },
+                {
+                    "name": "expires_in",
+                    "title": "OAuth Token Expiration in seconds",
+                    "type": "string",
+                    "format": "hidden"
+                },
+                {
+                    "name": "created_at",
+                    "title": "OAuth Token Created At in millis since epoch",
+                    "type": "string",
+                    "format": "hidden"
+                },
+                {
+                    "name": "accountsynch_title",
+                    "title": "Accounts To Synchronize",
+                    "format": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "synchronized_account_segments_hero",
+                    "type": "string",
+                    "headerTemplate": "The below lists of segments are whitelists for accounts. You need to *explicitely specify one or more segments* for which accounts and events shall be sent to Outreach.io.<br>If you do not specify any segment, no account or event will be sent to Outreach.io.",
+                    "format": "information",
+                    "title": "Whitelisted Segments"
+                },
+                {
+                    "name": "synchronized_account_segments",
+                    "title": "Send *Accounts* as Accounts to Outreach.io when belonging to one of these segments",
+                    "type": "array",
+                    "default": [],
+                    "format": "accountSegment"
+                },
+                {
+                    "name": "accountconfig_title",
+                    "title": "Accounts Attribute Configuration",
+                    "format": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "incoming_account_attributes",
+                    "title": "Incoming Account Fields to Sync (Outreach to Hull)",
+                    "type": "array",
+                    "format": "accountTraitMapping",
+                    "options": {
+                        "direction": "incoming",
+                        "showOverwriteToggle": false,
+                        "placeholder": "Outreach Account Field",
+                        "allowCreate": true,
+                        "loadOptions": "/fields-outreach-account-in",
+                        "source": "outreach"
+                    }
+                },
+                {
+                    "name": "outgoing_account_attributes",
+                    "title": "Outgoing Account Fields to Sync (Hull to Outreach)",
+                    "type": "array",
+                    "format": "accountTraitMapping",
+                    "options": {
+                        "direction": "outgoing",
+                        "showOverwriteToggle": false,
+                        "placeholder": "Outreach Account Field",
+                        "allowCreate": false,
+                        "loadOptions": "/fields-outreach-account-out"
+                    }
+                },
+                {
+                    "name": "prospectsync_title",
+                    "title": "Users to Synchronize",
+                    "format": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "synchronized_user_segments_hero",
+                    "type": "string",
+                    "headerTemplate": "The above lists of segments are whitelists for users. You need to *explicitely specify one or more segments* for which users and events shall be sent to Outreach.io.<br>If you do not specify any segment, no users or event will be sent to Outreach.io.",
+                    "format": "information",
+                    "title": "Whitelisted Segments"
+                },
+                {
+                    "name": "synchronized_user_segments",
+                    "title": "Send *Users* as Prospects to Outreach.io when belonging to one of these segments",
+                    "type": "array",
+                    "default": [],
+                    "format": "segment"
+                },
+                {
+                    "name": "prospectconfig_title",
+                    "title": "Prospects Attribute Configuration",
+                    "format": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "incoming_user_attributes",
+                    "title": "Incoming User Fields to Sync (Outreach to Hull)",
+                    "type": "array",
+                    "format": "traitMapping",
+                    "options": {
+                        "direction": "incoming",
+                        "showOverwriteToggle": false,
+                        "placeholder": "Outreach Prospect Field",
+                        "allowCreate": true,
+                        "loadOptions": "/fields-outreach-prospect-in",
+                        "source": "outreach"
+                    }
+                },
+                {
+                    "name": "outgoing_user_attributes",
+                    "title": "Outgoing User Fields to Sync (Hull to Outreach)",
+                    "type": "array",
+                    "format": "traitMapping",
+                    "options": {
+                        "direction": "outgoing",
+                        "showOverwriteToggle": false,
+                        "placeholder": "Outreach Prospect Field",
+                        "allowCreate": false,
+                        "loadOptions": "/fields-outreach-prospect-out"
+                    }
+                }
+            ],
+            "admin": "/admin",
+            "tabs": [
+                {
+                    "title": "Credentials",
+                    "url": "/auth",
+                    "size": "small",
+                    "editable": false
+                },
+                {
+                    "title": "Actions",
+                    "url": "/admin",
+                    "size": "small",
+                    "editable": false
+                }
+            ],
+            "name": "Hull-Outreach",
+            "settings": [],
+            "subscriptions": [
+                {
+                    "url": "/smart-notifier",
+                    "conditions": {
+                        "channels": {
+                            "only": [
+                                "user:update",
+                                "account:update",
+                                "ship:update"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "ui": false,
+            "picture": "picture.png",
+            "readme": "readme.md",
+            "schedules": [
+                {
+                    "url": "/status",
+                    "type": "interval",
+                    "value": "5"
+                }
+            ],
+            "version": "0.0.9-monorepo",
+            "resources": []
+        },
+        "secret": "20a512cc2cd99de69be65313e2f35d45",
+        "updated_at": "2018-12-11T10:23:11Z",
+        "status": {
+            "status": "ok",
+            "messages": [],
+            "updated_at": "2018-12-06T14:04:24Z",
+            "name": "dev-hull-outreach.ngrok.io",
+            "id": "5c092905c36af496c700012e"
+        },
+        "id": "5c092905c36af496c700012e",
+        "picture": "https://dev-hull-outreach.ngrok.io/picture.png",
+        "homepage_url": "https://c5011027.hullbeta.io/ships/5c092905c36af496c700012e",
+        "manifest_url": "https://dev-hull-outreach.ngrok.io/manifest.json",
+        "created_at": "2018-12-06T13:49:58Z"
+    },
+    "channel": "user:update",
+    "messages": [
+        {
+            "user": {
+                "traits_traits_outreach/title": "Magician",
+                "traits_outreach/custom_1": "Gob Bluth",
+                "traits_hubspot/description": "wears a black suit",
+                "traits_closeio/lead_id": "lead_K0ak12k2pMOzQ8OqqNv7pIOY5NcXo2jHqkb7xWh32Ge",
+                "traits_traits_outreach/personal_note_1": "kinda a weird dude!",
+                "traits_outreach/id": 10,
+                "traits_closeio/phone_office": "+12025550186",
+                "id": "5bd329d4e2bcf3eeaf00008d",
+                "email": "bluth@close.io",
+                "traits_outreach/first_name": "Gob Bluth",
+                "traits_closeio/id": "cont_7u78D0w1hzuCofPareWUXGn6ZnLIkw3js6pOJjW3g9S",
+                "name": "Gob Bluth",
+                "traits_outreach/personal_note_1": "kinda a weird dude!",
+                "anonymous_ids": [
+                    "outreach:10",
+                    "closeio:cont_LfztAsCEI02gCAOo1T0Z1bV0uxh28N91WcoLjomGupC",
+                    "closeio:cont_7u78D0w1hzuCofPareWUXGn6ZnLIkw3js6pOJjW3g9S"
+                ],
+                "domain": "close.io",
+                "last_name": "Bluth",
+                "indexed_at": "2018-12-11T10:24:52+00:00",
+                "first_name": "Gob",
+                "traits_outreach/custom1": "Gob Bluth",
+                "traits_outreach/personalnote2": "kinda a weird dude!",
+                "created_at": "2018-10-26T14:51:00Z",
+                "traits_outreach/title": "Magician",
+                "is_approved": false,
+                "traits_closeio/email_office": "bluth@close.io",
+                "traits_closeio/title": "Banana Stand Owner",
+                "traits_outreach/personalnote1": "kinda a weird dude!",
+                "traits_closeio/name": "Gob Bluth",
+                "segment_ids": []
+            },
+            "changes": {
+                "is_new": false,
+                "user": {
+                    "traits_closeio/title": [
+                        "Magician",
+                        "Banana Stand Owner"
+                    ]
+                },
+                "account": {},
+                "segments": {},
+                "account_segments": {}
+            },
+            "account": {
+                "closeio/name": "Bluth Company (Sample Lead)",
+                "closeio/address_business_zipcode": "90210",
+                "closeio/industry_sample": "Real estate",
+                "closeio/id": "lead_U4smwboTfc45flE8RJaLHSBLpnOU6YJwf8MGV1c9Eue",
+                "outreach/custom2": "100 Bluth Drive",
+                "closeio/address_business_city": "Los Angeles",
+                "id": "5bf2e7bf064aee16a600092d",
+                "closeio/updated_at": "2018-11-28T13:17:38+00:00",
+                "name": "Bluth Company (Sample Lead)",
+                "closeio/address_business_state": "RI",
+                "updated_at": "2018-12-09T14:29:51Z",
+                "anonymous_ids": [
+                    "29",
+                    "closeio:lead_U4smwboTfc45flE8RJaLHSBLpnOU6YJwf8MGV1c9Eue",
+                    "outreach:29"
+                ],
+                "domain": "bluth.com",
+                "closeio/status": "Qualified",
+                "indexed_at": "2018-12-11T10:24:37+00:00",
+                "outreach/id": 29,
+                "closeio/description": "",
+                "closeio/url": "http://bluth.com",
+                "closeio/address_business_country": "US",
+                "closeio/address_business_address_1": "100 Bluth Drive",
+                "closeio/created_at": "2018-11-20T13:16:56+00:00",
+                "created_at": "2018-11-19T16:41:35Z",
+                "closeio/lead_owner": "user_7WbYG4PYmGulBZiZWwUdbmRmofK4YY28OXkKW0ne4Q0"
+            },
+            "segments": [],
+            "events": [],
+            "account_segments": [
+                {
+                    "id": "5bd7201aa682bc4a4d00001e",
+                    "name": "Bad guys",
+                    "updated_at": "2018-12-10T14:58:14Z",
+                    "type": "accounts_segment",
+                    "created_at": "2018-10-29T14:58:34Z"
+                }
+            ],
+            "message_id": "c236184bafbc9f9588f0ac1504199ddf7ddcbd2b"
+        },
+        {
+            "user": {
+                "traits_hubspot/description": "wears a black suit",
+                "traits_traits_outreach/personal_note_1": "sith lord, don't mention padme",
+                "traits_outreach/id": 16,
+                "traits_outreach/name": "darth@darksideinc.com",
+                "id": "5bd329d5e2bcf3eeaf000099",
+                "email": "darth@darksideinc.com",
+                "traits_hubspot/updated_at": "2018-11-02T14:50:24+00:00",
+                "traits_testattributes/description": "Description of darth vader",
+                "name": "darth@darksideinc.com",
+                "traits_outreach/personal_note_1": "sith lord, don't mention padme",
+                "traits_hubspot/id": 101,
+                "anonymous_ids": [
+                    "outreach:16",
+                    "hubspot:101"
+                ],
+                "domain": "darksideinc.com",
+                "indexed_at": "2018-12-11T10:24:52+00:00",
+                "traits_hubspot/created_at": "2018-11-02T14:49:13+00:00",
+                "first_name": "darth@darksideinc.com",
+                "traits_outreach/personalnote2": "sith lord, don't mention padme",
+                "created_at": "2018-10-26T14:51:01Z",
+                "is_approved": false,
+                "traits_outreach/personalnote1": "sith lord, don't mention padme",
+                "segment_ids": [
+                    "5bffc38f625718d58b000004",
+                    "5bd720690026ca86b000004f"
+                ]
+            },
+            "changes": {
+                "is_new": false,
+                "user": {
+                    "traits_testattributes/description": [
+                        "some test data2",
+                        "Description of darth vader"
+                    ],
+                    "email": [
+                        "darthdude@darksideinc.com",
+                        "darth@darksideinc.com"
+                    ]
+                },
+                "account": {},
+                "segments": {},
+                "account_segments": {}
+            },
+            "account": {
+                "outreach/createdat": "2018-10-24T16:06:22.000Z",
+                "outreach/updated_at": "2018-11-05T20:05:04Z",
+                "external_id": "darksideinc",
+                "id": "5bd329d4e2bcf3eeaf000078",
+                "outreach/created_at": "2018-10-24T16:06:22Z",
+                "outreach/name": "darksideinc.com",
+                "name": "darksideinc.com",
+                "outreach/domain": "darksideinc.com",
+                "updated_at": "2018-12-10T10:26:45Z",
+                "anonymous_ids": [
+                    "outreach:20",
+                    "20"
+                ],
+                "domain": "darksideinc.com",
+                "indexed_at": "2018-12-11T10:24:37+00:00",
+                "outreach/id": 20,
+                "created_at": "2018-10-26T14:51:00Z",
+                "outreach/companytype": "",
+                "outreach/custom_1": "redlightsabers",
+                "outreach/custom1": "redlightsabers"
+            },
+            "segments": [
+                {
+                    "id": "5bffc38f625718d58b000004",
+                    "name": "Smugglers",
+                    "updated_at": "2018-12-11T10:22:48Z",
+                    "type": "users_segment",
+                    "created_at": "2018-11-29T10:46:39Z"
+                },
+                {
+                    "id": "5bd720690026ca86b000004f",
+                    "name": "Star Wars Users",
+                    "updated_at": "2018-11-05T20:07:04Z",
+                    "type": "users_segment",
+                    "created_at": "2018-10-29T14:59:53Z"
+                }
+            ],
+            "events": [],
+            "account_segments": [
+                {
+                    "id": "5bd7201aa682bc4a4d00001e",
+                    "name": "Bad guys",
+                    "updated_at": "2018-12-10T14:58:14Z",
+                    "type": "accounts_segment",
+                    "created_at": "2018-10-29T14:58:34Z"
+                }
+            ],
+            "message_id": "f52f5c6d4ab475c2f9d95d6d84855d083adfbc74"
+        },
+        {
+            "user": {
+                "traits_outreach/custom2": "Alberto Nodale",
+                "traits_hubspot/description": "wears a black suit",
+                "traits_closeio/lead_id": "lead_b6UVbIbvEFNttqZlgCh6zZmLeCaJo8nOAlpezh2lUV3",
+                "traits_outreach/id": 23,
+                "traits_closeio/phone_office": "+18552567346",
+                "id": "5bfe95f2be3055e164000505",
+                "email": "alberto@close.io",
+                "traits_testattributes/description": "some test data2",
+                "traits_closeio/id": "cont_vtpWY74pa4nnpOs6K4KojKqitHwGuiZlNEwz3XGfC6E",
+                "name": "Alberto Nodale",
+                "anonymous_ids": [
+                    "closeio:cont_NBW1OWN7E4vP0hn7cLViGTadm10AEwsmNEissApnyI0",
+                    "outreach:23",
+                    "closeio:cont_vtpWY74pa4nnpOs6K4KojKqitHwGuiZlNEwz3XGfC6E"
+                ],
+                "domain": "close.io",
+                "last_name": "Nodale",
+                "indexed_at": "2018-12-11T10:24:52+00:00",
+                "first_name": "Alberto",
+                "created_at": "2018-11-28T13:19:46Z",
+                "traits_outreach/title": "Sales",
+                "is_approved": false,
+                "traits_closeio/email_office": "alberto@close.io",
+                "traits_closeio/title": "Great Title",
+                "traits_closeio/name": "Alberto Nodale",
+                "segment_ids": [
+                    "5bffc38f625718d58b000004"
+                ]
+            },
+            "changes": {
+                "is_new": false,
+                "user": {
+                    "traits_closeio/title": [
+                        "Sales",
+                        "Great Title"
+                    ]
+                },
+                "account": {},
+                "segments": {},
+                "account_segments": {}
+            },
+            "account": {
+                "id": "5c0e646e26cbc0d1d700126b",
+                "updated_at": "2018-12-10T13:04:46Z",
+                "anonymous_ids": [
+                    "outreach:32"
+                ],
+                "indexed_at": "2018-12-11T10:24:37+00:00",
+                "created_at": "2018-12-10T13:04:46Z"
+            },
+            "segments": [
+                {
+                    "id": "5bffc38f625718d58b000004",
+                    "name": "Smugglers",
+                    "updated_at": "2018-12-11T10:22:48Z",
+                    "type": "users_segment",
+                    "created_at": "2018-11-29T10:46:39Z"
+                }
+            ],
+            "events": [],
+            "account_segments": [],
+            "message_id": "9ff1080d00dff1267f244f498f7caebc4761462a"
+        },
+        {
+            "user": {
+                "traits_traits_outreach/title": "The Dark Knight",
+                "traits_outreach/custom_1": "Bruce Wayne",
+                "traits_hubspot/description": "wears a black suit",
+                "traits_closeio/lead_id": "lead_BCVKW4hCDC2jKJuRZ34vP4k5mGf9aRlGOzJQUSs9NWm",
+                "traits_outreach/id": 15,
+                "id": "5bd329d5e2bcf3eeaf000096",
+                "email": "thedarkknight@close.io",
+                "traits_closeio/id": "cont_HIs6wkgaOdvD7qXlOkahYgpzXQXAbra2AP2AhV47Brc",
+                "name": "Bruce Wayne",
+                "anonymous_ids": [
+                    "outreach:15",
+                    "closeio:cont_nSc1SvESWYpqTGf10hrHGiG79PjXyVAFpW0v9x63pdz",
+                    "closeio:cont_HIs6wkgaOdvD7qXlOkahYgpzXQXAbra2AP2AhV47Brc"
+                ],
+                "domain": "close.io",
+                "last_name": "Wayne",
+                "indexed_at": "2018-12-11T10:23:07+00:00",
+                "first_name": "Bruce",
+                "traits_outreach/custom1": "Bruce Wayne",
+                "created_at": "2018-10-26T14:51:01Z",
+                "traits_outreach/title": "The Dark Knight",
+                "is_approved": false,
+                "traits_closeio/email_office": "thedarkknight@close.io",
+                "traits_closeio/title": "The Dark Knight",
+                "traits_closeio/name": "Bruce Wayne",
+                "segment_ids": []
+            },
+            "changes": {
+                "is_new": false,
+                "user": {},
+                "account": {},
+                "segments": {
+                    "entered": [
+                        {
+                            "id": "5bffc38f625718d58b000004",
+                            "name": "Smugglers",
+                            "updated_at": "2018-12-11T10:22:48Z",
+                            "type": "users_segment",
+                            "created_at": "2018-11-29T10:46:39Z"
+                        }
+                    ]
+                },
+                "account_segments": {}
+            },
+            "account": {
+                "0": "c",
+                "1": "l",
+                "2": "o",
+                "3": "s",
+                "4": "e",
+                "5": "i",
+                "6": "o",
+                "7": "/",
+                "8": "d",
+                "9": "e",
+                "10": "s",
+                "11": "c",
+                "12": "r",
+                "13": "i",
+                "14": "p",
+                "15": "t",
+                "16": "i",
+                "17": "o",
+                "18": "n",
+                "closeio/name": "Wayne Enterprises (Sample Lead)",
+                "closeio/industry_sample": "Manufacturing",
+                "closeio/id": "lead_J25pTsfypcLT9YJxeDUq0VwqFYmSlqZwSnuuJU56X4l",
+                "outreach/custom2": "175 4th st nw",
+                "id": "5bf2e7bf064aee16a600092a",
+                "closeio/updated_at": "2018-11-28T13:17:28+00:00",
+                "name": "Wayne Enterprises (Sample Lead)",
+                "updated_at": "2018-12-10T13:30:19Z",
+                "anonymous_ids": [
+                    "28",
+                    "closeio:lead_J25pTsfypcLT9YJxeDUq0VwqFYmSlqZwSnuuJU56X4l",
+                    "outreach:28",
+                    "outreach:184792"
+                ],
+                "domain": "wayneenterprises.com",
+                "closeio/status": "Qualified",
+                "indexed_at": "2018-12-10T13:30:48+00:00",
+                "outreach/id": 184792,
+                "closeio/description": "description of wayne enterprises from closeio",
+                "closeio/url": "http://www.wayneenterprises.com",
+                "closeio/created_at": "2018-11-28T13:16:59+00:00",
+                "created_at": "2018-11-19T16:41:35Z",
+                "outreach/description": "great company by thomas wayne",
+                "closeio/lead_owner": "user_7WbYG4PYmGulBZiZWwUdbmRmofK4YY28OXkKW0ne4Q0"
+            },
+            "segments": [
+                {
+                    "id": "5bffc38f625718d58b000004",
+                    "name": "Smugglers",
+                    "updated_at": "2018-12-11T10:22:48Z",
+                    "type": "users_segment",
+                    "created_at": "2018-11-29T10:46:39Z"
+                }
+            ],
+            "events": [],
+            "account_segments": [
+                {
+                    "id": "5bd7201aa682bc4a4d00001e",
+                    "name": "Bad guys",
+                    "updated_at": "2018-12-10T14:58:14Z",
+                    "type": "accounts_segment",
+                    "created_at": "2018-10-29T14:58:34Z"
+                }
+            ],
+            "message_id": "314eba4aed491cbaa084764a31a8000d9fc4a494"
+        }
+    ],
+    "accounts_segments": [
+        {
+            "id": "5bd7201aa682bc4a4d00001e",
+            "updated_at": "2018-12-10T14:58:14Z",
+            "created_at": "2018-10-29T14:58:34Z",
+            "name": "Bad guys",
+            "type": "accounts_segment",
+            "stats": {}
+        }
+    ],
+    "segments": [
+        {
+            "id": "5bd720690026ca86b000004f",
+            "updated_at": "2018-11-05T20:07:04Z",
+            "created_at": "2018-10-29T14:59:53Z",
+            "name": "Star Wars Users",
+            "type": "users_segment",
+            "stats": {}
+        },
+        {
+            "id": "5bffc38f625718d58b000004",
+            "updated_at": "2018-12-11T10:22:48Z",
+            "created_at": "2018-11-29T10:46:39Z",
+            "name": "Smugglers",
+            "type": "users_segment",
+            "stats": {}
+        }
+    ]
+}

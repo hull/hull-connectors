@@ -4,12 +4,13 @@
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.0.12-monorepo",
+  "version": "0.0.13-monorepo",
 
   "tags": [
     "incoming",
     "outgoing",
     "batch",
+    "batch-accounts",
     "oneColumn",
     "smart-notifier"
   ],
@@ -34,43 +35,169 @@
       "format": "hidden"
     },
     {
-      "name": "accountidentification_title",
-      "title": "Accounts Identification",
+      "name": "expires_in",
+      "title": "OAuth Token Expiration in seconds",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "created_at",
+      "title": "OAuth Token Created At in millis since epoch",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "user_claims",
+      "title": "User Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "title": "Prospect Field ID",
+            "type": "string",
+            "format": "select",
+            "options" : {
+              "allowCreate": false,
+              "loadOptions": "/fields-outreach-prospect-in"
+            }
+          },
+          "hull": {
+            "title": "Hull User Ident",
+            "enum": ["external_id", "email"]
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "email",
+          "service": "emails"
+        }
+      ]
+    },
+    {
+      "name": "user_claim_hero",
+      "type": "string",
+      "headerTemplate": "Mapped user identity attributes will automatically be pulled in the incoming and outgoing traffic",
+      "format": "information"
+    },
+    {
+      "name": "prospect_incoming_sync_title",
+      "title": "Incoming User Synchronization Options (Outreach to Hull)",
       "format": "title",
       "type": "string"
     },
     {
-      "name": "account_identifier_hull",
-      "title": "The attribute to uniquely identify an account in Hull",
-      "type": "string",
-      "format": "select",
-      "default": "domain",
+      "name": "incoming_user_attributes",
+      "title": "Incoming User Fields to Sync (Outreach to Hull)",
+      "type": "array",
+      "format": "traitMapping",
       "options": {
-        "loadOptions": "/fields-hull-account-ident"
+        "direction": "incoming",
+        "showOverwriteToggle": false,
+        "placeholder": "Outreach Prospect Field",
+        "allowCreate": true,
+        "loadOptions": "/fields-outreach-prospect-in",
+        "source": "outreach"
       }
     },
     {
-      "name": "account_identifier_service",
-      "title": "The field to uniquely identify a Account in Outreach.io",
-      "type": "string",
-      "format": "select",
-      "default": "customId",
-      "options": {
-        "loadOptions": "/fields-outreach-account-ident"
-      }
-    },
-    {
-      "name": "accountsynch_title",
-      "title": "Accounts To Synchronize",
+      "name": "prospect_outgoing_sync_title",
+      "title": "Outgoing User Synchronization Options (Hull to Outreach)",
       "format": "title",
       "type": "string"
     },
     {
-      "name": "synchronized_account_segments_hero",
+      "name": "synchronized_user_segments",
+      "title": "User Filter",
+      "description": "Send *Users* as Prospects to Outreach.io when belonging to one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "segment"
+    },
+    {
+      "name": "outgoing_user_attributes",
+      "title": "Outgoing User Fields to Sync (Hull to Outreach)",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "Outreach Prospect Field",
+        "allowCreate": false,
+        "loadOptions": "/fields-outreach-prospect-out"
+      }
+    },
+    {
+      "name": "account_claims",
+      "title": "Account Identity",
+      "description": "something",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "title": "Account Field ID",
+            "type": "string",
+            "format": "select",
+            "options" : {
+              "allowCreate": false,
+              "loadOptions": "/fields-outreach-account-in"
+            }
+          },
+          "hull": {
+            "title": "Hull Account",
+            "enum": ["external_id", "domain"]
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "domain",
+          "service": "domain"
+        }
+      ]
+    },
+    {
+      "name": "account_claim_hero",
       "type": "string",
-      "headerTemplate": "The below lists of segments are whitelists for accounts. You need to *explicitely specify one or more segments* for which accounts and events shall be sent to Outreach.io.<br>If you do not specify any segment, no account or event will be sent to Outreach.io.",
-      "format": "information",
-      "title": "Whitelisted Segments"
+      "headerTemplate": "Mapped account identity attributes will automatically be pulled in the incoming and outgoing traffic",
+      "format": "information"
+    },
+    {
+      "name": "account_incoming_synch_title",
+      "title": "Incoming Account Synchronization Options (Outreach to Hull)",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "incoming_account_attributes",
+      "title": "Incoming Account Fields to Sync (Outreach to Hull)",
+      "type": "array",
+      "format": "accountTraitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": false,
+        "placeholder": "Outreach Account Field",
+        "allowCreate": true,
+        "loadOptions": "/fields-outreach-account-in",
+        "source": "outreach"
+      }
+    },
+    {
+      "name": "link_users_in_hull",
+      "title": "Link users to accounts in Hull",
+      "description": "Do you want to let Outreach update links between Users and Accounts in Hull? Be careful about conflicts with other connectors that would link users too.\n\n**IMPORTANT:** when this checkbox is checked the connector will create a Hull Account for EVERY Outreach Account any Prospect is linked to (refer to documentation for more details).",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "account_outgoing_synch_title",
+      "title": "Outgoing Account Synchronization Options (Hull to Outreach)",
+      "format": "title",
+      "type": "string"
     },
     {
       "name": "synchronized_account_segments",
@@ -81,116 +208,36 @@
       "format": "accountSegment"
     },
     {
-      "name": "accountconfig_title",
-      "title": "Accounts Attribute Configuration",
-      "format": "title",
-      "type": "string"
-    },
-    {
-      "name" : "account_attributes_inbound",
-      "title" : "List of Account fields to fetch from Outreach.io",
-      "type" : "array",
-      "format" : "select",
-      "options" : {
-        "loadOptions" : "/fields-outreach-account-in"
-      }
-    },
-    {
-      "name": "account_attributes_outbound",
-      "title": "Send Account Attributes to Outreach.io",
-      "description": "Name and domain are sent automatically",
+      "name": "outgoing_account_attributes",
+      "title": "Outgoing Account Fields to Sync (Hull to Outreach)",
       "type": "array",
-      "format": "table",
+      "format": "accountTraitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "Outreach Account Field",
+        "allowCreate": false,
+        "loadOptions": "/fields-outreach-account-out"
+      },
       "default": [
-        { "hull_field_name": "name", "outreach_field_name": "name" }
-      ],
-      "items": {
-        "type": "object",
-        "properties": {
-          "hull_field_name" : {
-            "type" : "string",
-            "format" : "accountTrait",
-            "title" : "Hull Attribute"
-          },
-          "outreach_field_name" : {
-            "type" : "string",
-            "title" : "Outreach.io Field",
-            "format" : "select",
-            "options" : {
-              "loadOptions" : "/fields-outreach-account-out"
-            }
-          }
-        },
-        "required" : [
-          "hull_field_name",
-          "outreach_field_name"
-        ]
-      }
+        {
+          "hull": "name",
+          "service": "name"
+        }
+      ]
     },
     {
-      "name": "prospectsync_title",
-      "title": "Users to Synchronize",
-      "format": "title",
-      "type": "string"
-    },
-    {
-      "name": "synchronized_user_segments_hero",
+      "name": "outgoing_account_attributes_hero",
       "type": "string",
-      "headerTemplate": "The above lists of segments are whitelists for users. You need to *explicitely specify one or more segments* for which users and events shall be sent to Outreach.io.<br>If you do not specify any segment, no users or event will be sent to Outreach.io.",
-      "format": "information",
-      "title": "Whitelisted Segments"
+      "headerTemplate": "Must have a field mapped to Outreach's Name in account outgoing attributes, otherwise it will fail on trying to create new accounts, because Outreach requires a name for the account.  We've populated the name mapping by default, but you may change it something else if needed",
+      "format": "information"
     },
     {
-      "name": "synchronized_user_segments",
-      "title" : "User Filter",
-      "description": "Send *Users* as Prospects to Outreach.io when belonging to one of these segments",
-      "type": "array",
-      "default": [],
-      "format": "segment"
-    },
-    {
-      "name": "prospectconfig_title",
-      "title": "Prospects Attribute Configuration",
-      "format": "title",
-      "type": "string"
-    },
-    {
-      "name" : "prospect_attributes_inbound",
-      "title" : "List of Prospect fields to fetch from Outreach.io",
-      "type" : "array",
-      "format" : "select",
-      "options" : {
-        "loadOptions" : "/fields-outreach-prospect-in"
-      }
-    },
-    {
-      "name": "prospect_attributes_outbound",
-      "title": "Send User Attributes to Outreach.io",
-      "description": "Name is sent automatically",
-      "type": "array",
-      "format": "table",
-      "items": {
-        "type": "object",
-        "properties": {
-          "hull_field_name" : {
-            "type" : "string",
-            "format" : "trait",
-            "title" : "Hull Attribute"
-          },
-          "outreach_field_name" : {
-            "type" : "string",
-            "title" : "Outreach.io Field",
-            "format" : "select",
-            "options" : {
-              "loadOptions" : "/fields-outreach-prospect-out"
-            }
-          }
-        },
-        "required" : [
-          "hull_field_name",
-          "outreach_field_name"
-        ]
-      }
+      "name": "link_users_in_service",
+      "title": "Link Prospects to Accounts in Outreach",
+      "description": "Do you want to let Hull associate Contacts and Companies in Outreach?",
+      "type": "boolean",
+      "default": false
     }
   ],
   "settings": [],
@@ -212,13 +259,19 @@
   ],
   "admin": "/admin",
   "ui": false,
+  "schedules": [{
+      "url": "/status",
+      "type": "interval",
+      "value": "5"
+  }],
   "subscriptions": [{
     "url": "/smart-notifier",
     "conditions": {
       "channels": {
         "only": [
           "user:update",
-          "account:update"
+          "account:update",
+          "ship:update"
         ]
       }
     }

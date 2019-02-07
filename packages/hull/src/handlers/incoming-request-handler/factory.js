@@ -12,6 +12,7 @@ type HullIncomingRequestHandlerCallback = (
 ) => Promise<*>;
 type HullIncomingRequestHandlerOptions = {
   disableErrorHandling?: boolean,
+  parseCredentialsFromQuery?: boolean,
   bodyParser: "json" | "urlencoded"
 };
 type HullIncomingRequestHandlerConfigurationEntry = HullHandlersConfigurationEntry<
@@ -24,6 +25,7 @@ const bodyParser = require("body-parser");
 const debug = require("debug")("hull:requests-buffer-handler");
 
 const {
+  credentialsFromQueryMiddleware,
   clientMiddleware,
   fullContextFetchMiddleware,
   timeoutMiddleware,
@@ -46,10 +48,18 @@ function IncomingRequestHandlerFactory(
   const { callback, options } = normalizeHandlersConfigurationEntry(
     configurationEntry
   );
-  const { disableErrorHandling, bodyParser: bodyParserOption } = options;
+  const {
+    disableErrorHandling,
+    parseCredentialsFromQuery,
+    bodyParser: bodyParserOption
+  } = options;
+
+  if (parseCredentialsFromQuery) {
+    router.use(credentialsFromQueryMiddleware()); // parse config from query
+  }
 
   if (bodyParserOption === "json") {
-    router.use(bodyParser.json());
+    router.use(bodyParser.json({ type: "*/*" }));
   }
 
   if (bodyParserOption === "urlencoded") {
