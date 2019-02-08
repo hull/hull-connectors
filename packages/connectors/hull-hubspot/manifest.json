@@ -128,8 +128,7 @@
         "showOverwriteToggle": false,
         "placeholder": "Hubspot Company Field",
         "allowCreate": true,
-        "loadOptions": "/schema/company_properties",
-        "source": "hubspot"
+        "loadOptions": "/schema/company_properties"
       }
     },
     {
