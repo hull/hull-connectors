@@ -1,7 +1,12 @@
 // @flow
+/* global describe, it, beforeEach, afterEach */
+declare function describe(name:string, callback:Function):void;
+declare function before(callback:Function):void;
+declare function beforeEach(callback:Function):void;
+declare function it(name:string, callback:Function):void;
+
 const _ = require("lodash");
 
-/* global describe, it, beforeEach, afterEach */
 
 process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
