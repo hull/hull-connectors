@@ -127,11 +127,13 @@ class TestScenarioRunner extends EventEmitter {
     {
       connectorServer,
       connectorWorker,
-      connectorManifest
+      connectorManifest,
+      debounceWait
     }: {
       connectorServer: express => express,
       connectorWorker?: Function,
-      connectorManifest: Object
+      connectorManifest: Object,
+      debounceWait?: number
     },
     scenarioDefinition: TestScenarioDefinition
   ) {
@@ -156,6 +158,10 @@ class TestScenarioRunner extends EventEmitter {
     this.minihull = new Minihull();
     this.app = express();
     this.rawScenarioDefinition = scenarioDefinition;
+
+    if (debounceWait) {
+      this.debounceWait = debounceWait;
+    }
     this.deboucedFinish = _.debounce(() => this.finish(), this.debounceWait, {
       maxWait: this.timeout
     });

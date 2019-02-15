@@ -1,0 +1,19 @@
+{
+  "req": {
+    "method": "GET",
+    "url": "https://api.outreach.io/api/v2/accounts/?filter[domain]=bluth.com",
+    "headers": {
+      "user-agent": "node-superagent/3.8.3",
+      "content-type": "application/vnd.api+json",
+      "authorization": "Bearer 1234"
+    }
+  },
+  "header": {
+    "date": "Sun, 09 Dec 2018 14:29:24 GMT",
+    "server": "nginx/1.14.1",
+    "content-length": "20",
+    "connection": "Close"
+  },
+  "status": 401,
+  "text": "Invalid access token"
+}

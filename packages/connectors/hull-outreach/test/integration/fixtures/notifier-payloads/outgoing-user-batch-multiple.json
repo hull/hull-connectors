@@ -1,0 +1,271 @@
+{
+    "segments": [
+        {
+            "id": "5bd720690026ca86b000004f",
+            "name": "Star Wars Users",
+            "query": {
+                "constant_score": {
+                    "query": {
+                        "match_all": {}
+                    },
+                    "filter": {
+                        "and": {
+                            "filters": [
+                                {
+                                    "terms": {
+                                        "email.raw": [
+                                            "darth@darksideinc.com",
+                                            "luke@skywalkerindustries.com",
+                                            "fettisbest@gmail.com",
+                                            "romain@unity.fr"
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "type": "users_segment",
+            "predicate": {
+                "id": "2862efdb-e426-4da1-9803-69a14eb7c56e",
+                "isEditable": true,
+                "type": "all",
+                "predicates": [
+                    {
+                        "id": "3fabc92e-f815-4f5e-b23e-432fedd41ef3",
+                        "isEditable": true,
+                        "property": {
+                            "key": "email",
+                            "type": "string",
+                            "__typename": "Attribute",
+                            "id": "email",
+                            "name": "email",
+                            "path": [],
+                            "entity": "user"
+                        },
+                        "operator": "equals",
+                        "options": {
+                            "value": [
+                                "darth@darksideinc.com",
+                                "luke@skywalkerindustries.com",
+                                "fettisbest@gmail.com",
+                                "romain@unity.fr"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "stats": {
+                "users": 4
+            },
+            "created_at": "2018-10-29T14:59:53Z",
+            "updated_at": "2018-11-05T20:07:04Z",
+            "fields_list": [
+                "name",
+                "email",
+                "created_at",
+                "last_seen_at"
+            ]
+        },
+        {
+            "id": "5bffc38f625718d58b000004",
+            "name": "Smugglers",
+            "query": {
+                "constant_score": {
+                    "query": {
+                        "match_all": {}
+                    },
+                    "filter": {
+                        "and": {
+                            "filters": [
+                                {
+                                    "or": {
+                                        "filters": [
+                                            {
+                                                "prefix": {
+                                                    "email": "darth@darksideinc.com"
+                                                }
+                                            },
+                                            {
+                                                "prefix": {
+                                                    "email.exact": "darth@darksideinc.com"
+                                                }
+                                            },
+                                            {
+                                                "prefix": {
+                                                    "email": "luke@skywalkerindustries.com"
+                                                }
+                                            },
+                                            {
+                                                "prefix": {
+                                                    "email.exact": "luke@skywalkerindustries.com"
+                                                }
+                                            },
+                                            {
+                                                "prefix": {
+                                                    "email": "fettisbest@gmail.com"
+                                                }
+                                            },
+                                            {
+                                                "prefix": {
+                                                    "email.exact": "fettisbest@gmail.com"
+                                                }
+                                            },
+                                            {
+                                                "prefix": {
+                                                    "email": "alberto@close.io"
+                                                }
+                                            },
+                                            {
+                                                "prefix": {
+                                                    "email.exact": "alberto@close.io"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "type": "users_segment",
+            "predicate": {
+                "id": "56bdb471-ab31-41d5-8bca-d8ba21f5a678",
+                "isEditable": true,
+                "type": "all",
+                "predicates": [
+                    {
+                        "id": "6a3f7167-98b9-4d3a-81a5-fcaf82d18063",
+                        "isEditable": true,
+                        "property": {
+                            "key": "email",
+                            "type": "string",
+                            "__typename": "Attribute",
+                            "id": "email",
+                            "name": "email",
+                            "path": [],
+                            "entity": "user"
+                        },
+                        "operator": "contains",
+                        "options": {
+                            "value": [
+                                "darth@darksideinc.com",
+                                "luke@skywalkerindustries.com",
+                                "fettisbest@gmail.com",
+                                "alberto@close.io"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "stats": {
+                "users": 4
+            },
+            "created_at": "2018-11-29T10:46:39Z",
+            "updated_at": "2018-12-06T17:33:39Z",
+            "fields_list": [
+                "name",
+                "email",
+                "created_at",
+                "last_seen_at"
+            ]
+        }
+    ],
+    "account_segments": [
+        {
+            "id": "5bd7201aa682bc4a4d00001e",
+            "name": "Bad guys",
+            "query": {
+                "constant_score": {
+                    "query": {
+                        "match_all": {}
+                    },
+                    "filter": {
+                        "or": {
+                            "filters": [
+                                {
+                                    "terms": {
+                                        "domain.raw": [
+                                            "darksideinc.com",
+                                            "jabbasgang.com"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "term": {
+                                        "external_id.raw": "Oct242018_338ExternalId"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "type": "accounts_segment",
+            "predicate": {
+                "id": "eb9724d5-74f5-4c34-9411-a1f02a550d73",
+                "isEditable": true,
+                "type": "any",
+                "predicates": [
+                    {
+                        "id": "11de4cd4-5952-4eea-8589-b2d64f08f9cd",
+                        "isEditable": true,
+                        "property": {
+                            "key": "domain",
+                            "type": "string",
+                            "__typename": "Attribute",
+                            "id": "domain",
+                            "name": "domain",
+                            "path": [],
+                            "entity": "account"
+                        },
+                        "operator": "equals",
+                        "options": {
+                            "value": [
+                                "darksideinc.com",
+                                "jabbasgang.com"
+                            ]
+                        }
+                    },
+                    {
+                        "id": "cc51285c-be19-4101-bf55-fdf7fc15e2aa",
+                        "isEditable": true,
+                        "property": {
+                            "key": "external_id",
+                            "type": "string",
+                            "__typename": "Attribute",
+                            "id": "external_id",
+                            "name": "external_id",
+                            "path": [],
+                            "entity": "account"
+                        },
+                        "operator": "equals",
+                        "options": {
+                            "value": [
+                                "Oct242018_338ExternalId"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "stats": {
+                "accounts": 0
+            },
+            "created_at": "2018-10-29T14:58:34Z",
+            "updated_at": "2018-11-05T20:08:18Z",
+            "fields_list": [
+                "name",
+                "domain",
+                "created_at",
+                "external_id"
+            ]
+        }
+    ],
+    "channel": "user:extract",
+    "notification_id": "user:extract:5c0baf4fd7df9c883b000056",
+    "format": "json",
+    "url": "https://hull-platform.s3.amazonaws.com/extracts/user_report/report.json",
+    "object_type": "user_report"
+}

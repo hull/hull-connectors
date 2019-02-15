@@ -91,7 +91,7 @@ function scheduleHandlerFactory(
           req.hull.metric.captureException(error);
         }
       });
-      return res.json({ status: "deffered" });
+      return res.json({ status: "deferred" });
     }
     return callbackResult
       .then(response => {

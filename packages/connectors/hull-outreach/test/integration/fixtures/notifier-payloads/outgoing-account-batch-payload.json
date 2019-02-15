@@ -1,0 +1,29 @@
+{
+  "anonymous_ids": [
+    "29",
+    "closeio:lead_U4smwboTfc45flE8RJaLHSBLpnOU6YJwf8MGV1c9Eue",
+    "outreach:29"
+  ],
+  "closeio/address_business_address_1": "100 Bluth Drive",
+  "closeio/address_business_city": "Los Angeles",
+  "closeio/address_business_country": "US",
+  "closeio/address_business_state": "RI",
+  "closeio/address_business_zipcode": "90210",
+  "closeio/created_at": "2018-11-20T13:16:56+00:00",
+  "closeio/description": "",
+  "closeio/id": "lead_U4smwboTfc45flE8RJaLHSBLpnOU6YJwf8MGV1c9Eue",
+  "closeio/industry_sample": "Real estate",
+  "closeio/lead_owner": "user_7WbYG4PYmGulBZiZWwUdbmRmofK4YY28OXkKW0ne4Q0",
+  "closeio/name": "Bluth Company (Sample Lead)",
+  "closeio/status": "Qualified",
+  "closeio/updated_at": "2018-11-28T13:17:38+00:00",
+  "closeio/url": "http://bluth.com",
+  "created_at": "2018-11-19T16:41:35Z",
+  "domain": "bluth.com",
+  "indexed_at": "2018-12-09T14:30:07+00:00",
+  "name": "Bluth Company (Sample Lead)",
+  "outreach/custom2": "100 Bluth Drive",
+  "updated_at": "2018-12-09T14:29:51Z",
+  "id": "5bf2e7bf064aee16a600092d",
+  "segment_ids": []
+}

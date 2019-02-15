@@ -1,0 +1,27 @@
+{
+  "data": [
+    {
+      "type": "prospect",
+      "id": 9,
+      "attributes": {
+        "createdAt": "2018-09-20T18:33:53.000Z",
+        "custom1": "He's cool",
+        "custom2": "He's the CEO",
+        "custom3": null,
+        "emails": [
+          "ceo@somehullcompany.com"
+        ],
+        "firstName": "MrCeo",
+        "homePhones": [],
+        "lastName": "Person",
+        "name": "MrCeo Person",
+        "personalNote1": "he's a cool guy I guess....",
+        "personalNote2": null,
+        "title": "CEO"
+      },
+      "links": {
+        "self": "https://api.outreach.io/api/v2/prospects/1"
+      }
+    }
+  ]
+}

@@ -24,7 +24,7 @@ function fetchConnector(ctx): Promise<*> {
   );
 }
 
-function fetchSegments(ctx, entityType = "users") {
+function fetchSegments(ctx, entityType = "user") {
   debug("fetchSegments", entityType, typeof ctx[`${entityType}sSegments`]);
   if (ctx.client === undefined) {
     return Promise.reject(new Error("Missing client"));

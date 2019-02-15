@@ -12,7 +12,8 @@ type HullJsonHandlerOptions = {
     options?: Object
   },
   disableErrorHandling?: boolean,
-  respondWithError?: boolean
+  respondWithError?: boolean,
+  fireAndForget?: boolean
 };
 
 type HullJsonHandlerCallback = (ctx: HullContextFull) => Promise<*>;
@@ -25,6 +26,7 @@ type HullJsonHandlerConfigurationEntry = HullHandlersConfigurationEntry<
 const debug = require("debug")("hull-connector:json-handler");
 const { Router } = require("express");
 const cors = require("cors");
+const _ = require("lodash");
 
 const { TransientError } = require("../../errors");
 const {
@@ -71,7 +73,8 @@ function jsonHandlerFactory(
   const {
     cache = {},
     disableErrorHandling = false,
-    respondWithError = false
+    respondWithError = false,
+    fireAndForget = false
   } = options;
   debug("options", options);
   const router = Router();
@@ -88,6 +91,23 @@ function jsonHandlerFactory(
     res: $Response,
     next: NextFunction
   ) {
+    if (fireAndForget === true) {
+      callback(req.hull).catch(error => {
+        // all TransientErrors (and child error classes such as ConfigurationError)
+        if (error instanceof TransientError) {
+          debug("transient-error metric");
+          req.hull.metric.increment("connector.transient_error", 1, [
+            `error_name:${_.snakeCase(error.name)}`,
+            `error_message:${_.snakeCase(error.message)}`
+          ]);
+        } else {
+          req.hull.metric.captureException(error);
+        }
+      });
+      res.json({ status: "deferred" });
+      return;
+    }
+
     (() => {
       debug("processing");
       if (cache && cache.key) {
