@@ -427,8 +427,13 @@ class TestScenarioRunner extends EventEmitter {
         flushAt: 1,
         flushAfter: 1
       },
-      captureMetrics: this.capturedMetrics,
-      captureLogs: this.capturedLogs,
+      metricsConfig: {
+        captureMetrics: this.capturedMetrics
+      },
+      logsConfig: {
+        captureLogs: this.capturedLogs
+      },
+      manifest: {},
       disableOnExit: true
     };
 

@@ -1,6 +1,6 @@
 // @flow
 import type {
-  HullClientConfiguration,
+  HullClientConfig,
   HullEntityClaims,
   HullEntityType,
   HullAuxiliaryClaims
@@ -89,9 +89,9 @@ const ACCOUNT_CLAIMS: Array<string> = [
  * Class containing configuration
  */
 class Configuration {
-  _state: HullClientConfiguration;
+  _state: HullClientConfig;
 
-  constructor(config: HullClientConfiguration) {
+  constructor(config: HullClientConfig) {
     if (!_.isObject(config) || !_.size(config)) {
       throw new Error(
         "Configuration is invalid, it should be a non-empty object"
@@ -191,7 +191,7 @@ class Configuration {
     return typeof object === "string" ? object : _.pick(object, claimsToFilter);
   }
 
-  set(key: string, value: $Values<HullClientConfiguration>): void {
+  set(key: string, value: $Values<HullClientConfig>): void {
     this._state[key] = value;
   }
 
@@ -204,7 +204,7 @@ class Configuration {
     | HullEntityType
     | HullEntityClaims
     | HullAuxiliaryClaims
-    | HullClientConfiguration
+    | HullClientConfig
     | void {
     if (key) {
       return this._state[key];
@@ -212,7 +212,7 @@ class Configuration {
     return JSON.parse(JSON.stringify(this._state));
   }
 
-  getAll(): HullClientConfiguration {
+  getAll(): HullClientConfig {
     return JSON.parse(JSON.stringify(this._state));
   }
 }

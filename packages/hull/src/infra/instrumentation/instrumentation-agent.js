@@ -1,3 +1,11 @@
+// @flow
+import type {
+  HullContextBase,
+  HullRequestFull,
+  HullManifest,
+  HullMetricsConfig
+} from "hull";
+
 const Raven = require("raven");
 const metrics = require("datadog-metrics");
 const dogapi = require("dogapi");
@@ -25,15 +33,24 @@ const MetricAgent = require("./metric-agent");
  * const connector = new Connector.App({ instrumentation });
  */
 class InstrumentationAgent {
-  constructor(options = {}) {
-    this.exitOnError = options.exitOnError || false;
+  raven: any;
+
+  dogapi: any;
+
+  metrics: {};
+
+  exitOnError: boolean;
+
+  nr: any;
+
+  manifest: HullManifest | Object;
+
+  constructor(options: HullMetricsConfig = {}, manifest: HullManifest) {
+    const { exitOnError, captureMetrics } = options;
+    this.exitOnError = exitOnError || false;
     this.nr = null;
     this.raven = null;
-    try {
-      this.manifest = require(`${process.cwd()}/manifest.json`); // eslint-disable-line import/no-dynamic-require,global-require
-    } catch (e) {
-      this.manifest = {};
-    }
+    this.manifest = manifest;
 
     if (process.env.NEW_RELIC_LICENSE_KEY) {
       this.nr = require("newrelic"); // eslint-disable-line global-require
@@ -53,13 +70,13 @@ class InstrumentationAgent {
       this.dogapi = dogapi;
     }
 
-    if (Array.isArray(options.captureMetrics)) {
+    if (captureMetrics !== undefined && Array.isArray(captureMetrics)) {
       this.metrics = {
         gauge: (metric, value, tags) => {
-          options.captureMetrics.push(["value", metric, value, tags]);
+          captureMetrics.push(["value", metric, value, tags]);
         },
         increment: (metric, value, tags) => {
-          options.captureMetrics.push(["increment", metric, value, tags]);
+          captureMetrics.push(["increment", metric, value, tags]);
         }
       };
     }
@@ -99,7 +116,7 @@ class InstrumentationAgent {
     this.getMetric = this.getMetric.bind(this);
   }
 
-  startTransaction(jobName, callback) {
+  startTransaction(jobName: string, callback: () => {}) {
     if (this.nr) {
       return this.nr.createBackgroundTransaction(jobName, callback)();
     }
@@ -112,7 +129,10 @@ class InstrumentationAgent {
     }
   }
 
-  captureException(err = {}, extra = {}, tags = {}) {
+  captureException(err?: Error, extra?: {} = {}, tags?: {} = {}) {
+    if (!err) {
+      return;
+    }
     if (this.raven && err) {
       this.raven.captureException(err, {
         extra,
@@ -120,7 +140,7 @@ class InstrumentationAgent {
         fingerprint: ["{{ default }}", err.message]
       });
     }
-    return console.error(
+    console.error(
       "connector.error",
       JSON.stringify({ message: err.message, stack: err.stack, tags })
     );
@@ -144,12 +164,9 @@ class InstrumentationAgent {
     };
   }
 
-  getMetric(ctx) {
-    // eslint-disable-line class-methods-use-this
-    return new MetricAgent(ctx, this);
-  }
+  getMetric = (ctx: HullContextBase) => new MetricAgent(ctx, this);
 
-  mergeContext(req) {
+  mergeContext(req: HullRequestFull) {
     const info = {
       connector: "",
       organization: ""
@@ -175,9 +192,9 @@ class InstrumentationAgent {
     }
   }
 
-  metricVal(metric, value = 1) {
-    return new MetricAgent({}, this).value(metric, value);
-  }
+  // metricVal(metric: string, value: number = 1) {
+  //   return new MetricAgent({}, this).value(metric, value);
+  // }
 }
 
 module.exports = InstrumentationAgent;

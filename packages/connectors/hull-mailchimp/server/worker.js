@@ -1,9 +1,9 @@
 /* @flow */
-const { Connector } = require("hull");
+import type { HullConnector } from "hull";
 
 const jobs = require("./jobs");
 
-function worker(connector: Connector) {
+function worker(connector: HullConnector) {
   connector.worker(jobs);
 }
 

@@ -1,8 +1,7 @@
 // @flow
 import type { $Response, NextFunction } from "express";
 import type {
-  HullHandlersConfigurationEntry,
-  HullContextFull,
+  HullJsonHandlerConfigurationEntry,
   HullRequestFull
 } from "../../types";
 
@@ -18,23 +17,6 @@ const {
   clientMiddleware,
   instrumentationContextMiddleware
 } = require("../../middlewares");
-const { normalizeHandlersConfigurationEntry } = require("../../utils");
-
-type HullJsonHandlerOptions = {
-  cache?: {
-    key?: string,
-    options?: Object
-  },
-  disableErrorHandling?: boolean,
-  respondWithError?: boolean
-};
-
-type HullJsonHandlerCallback = (ctx: HullContextFull) => Promise<*>;
-
-type HullJsonHandlerConfigurationEntry = HullHandlersConfigurationEntry<
-  HullJsonHandlerCallback,
-  HullJsonHandlerOptions
->;
 
 /**
  * TODO the logic for this should be combined with jsonHandler
@@ -67,9 +49,7 @@ type HullJsonHandlerConfigurationEntry = HullHandlersConfigurationEntry<
 function htmlHandlerFactory(
   configurationEntry: HullJsonHandlerConfigurationEntry
 ): Router {
-  const { callback, options } = normalizeHandlersConfigurationEntry(
-    configurationEntry
-  );
+  const { callback, options } = configurationEntry;
   const {
     cache = {},
     disableErrorHandling = false,

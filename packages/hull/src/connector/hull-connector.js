@@ -1,26 +1,34 @@
 // @flow
-import type {
-  $Application,
-  $Response,
-  NextFunction,
-  Middleware
-} from "express";
-import { json as jsonParser } from "express";
-import type { HullRequest } from "../types";
-import type { HullConnectorConfig } from "../../../types";
 
-const _ = require("lodash");
+import type { $Application, Middleware } from "express";
+import type { Server } from "http";
+import express from "express";
+import type {
+  HullServerConfig,
+  HullMetricsConfig,
+  HullLogsConfig,
+  HullClientConfig,
+  HullWorkerConfig,
+  HullConnectorConfig,
+  HullContextMiddlewareParams,
+  HullClient,
+  HullWorker
+} from "../types";
+
+import errorHandler from "./error";
+
 const path = require("path");
 const Promise = require("bluebird");
 const { renderFile } = require("ejs");
 const debug = require("debug")("hull-connector");
 
-const HullClient = require("hull-client");
 const { staticRouter } = require("../utils");
 const Worker = require("./worker");
 const { hullContextMiddleware } = require("../middlewares");
 const { Instrumentation, Cache, Queue, Batcher } = require("../infra");
 const { onExit } = require("../utils");
+const { hullBaseMiddleware } = require("../middlewares");
+
 // const { TransientError } = require("../errors");
 
 /**
@@ -52,7 +60,17 @@ const { onExit } = require("../utils");
 class HullConnector {
   middlewares: Array<Function>;
 
-  connectorConfig: $Shape<HullConnectorConfig>;
+  connectorConfig: HullConnectorConfig;
+
+  serverConfig: HullServerConfig;
+
+  workerConfig: HullWorkerConfig;
+
+  clientConfig: HullClientConfig;
+
+  metricsConfig: HullMetricsConfig;
+
+  logsConfig: HullLogsConfig;
 
   cache: Cache;
 
@@ -60,45 +78,64 @@ class HullConnector {
 
   instrumentation: Instrumentation;
 
-  clientConfig: $PropertyType<HullConnectorConfig, "clientConfig">;
-
   _worker: Worker;
 
-  Worker: typeof Worker;
+  Worker: Class<HullWorker>;
 
-  HullClient: typeof HullClient;
+  Client: Class<HullClient>;
 
   static bind: Function;
 
-  constructor(dependencies: Object, connectorConfig: HullConnectorConfig) {
+  app: $Application;
+
+  server: Server;
+
+  constructor(
+    dependencies: {
+      Worker: Class<Worker>,
+      Client: Class<HullClient>
+    },
+    connectorConfig: HullConnectorConfig
+  ) {
     const {
-      captureMetrics,
-      instrumentation = new Instrumentation({ captureMetrics }),
-      cache = new Cache(),
-      queue = new Queue(),
+      manifest,
+      instrumentation,
+      cache,
+      queue,
       clientConfig,
+      serverConfig,
+      workerConfig,
+      metricsConfig,
+      logsConfig,
       connectorName,
       middlewares = [],
       captureLogs,
       disableOnExit = false
     } = connectorConfig;
 
-    this.connectorConfig = {
-      skipSignatureValidation: false,
-      json: { limit: "10mb" },
-      ...connectorConfig
-    };
+    this.connectorConfig = connectorConfig;
     this.clientConfig = {
       ...clientConfig,
       connectorName: clientConfig.connectorName || connectorName,
       logs: clientConfig.logs || captureLogs
     };
-    this.HullClient = dependencies.HullClient;
+    this.logsConfig = logsConfig || {};
+    this.metricsConfig = metricsConfig || {};
+    this.workerConfig = workerConfig || {};
+    this.serverConfig = serverConfig || {
+      start: true
+    };
+    this.Client = dependencies.Client;
     this.Worker = dependencies.Worker;
     this.middlewares = middlewares;
-    this.instrumentation = instrumentation;
-    this.cache = cache;
-    this.queue = queue;
+    this.instrumentation =
+      instrumentation || new Instrumentation(this.metricsConfig, manifest);
+    this.cache = cache || new Cache();
+    this.queue = queue || new Queue();
+
+    if (this.logsConfig.logLevel) {
+      this.Client.logger.transports.console.level = this.logsConfig.logLevel;
+    }
 
     if (disableOnExit !== true) {
       onExit(() => {
@@ -107,18 +144,57 @@ class HullConnector {
     }
   }
 
+  start() {
+    if (this.serverConfig.start) {
+      const app = express();
+      this.app = app;
+      if (this.connectorConfig.devMode) {
+        debug("Starting Server in DevMode");
+        // eslint-disable-next-line global-require
+        const webpackDevMode = require("./dev-mode");
+        webpackDevMode(app, {
+          port: this.connectorConfig.port,
+          source: "../src",
+          destination: "../dist"
+        });
+      } else {
+        debug("Starting Server");
+      }
+      this.setupApp(app);
+      const server = this.startApp(app);
+      this.server = server;
+      console.log(`Started server on port ${this.connectorConfig.port}`);
+    } else {
+      debug("Not Starting Server because of `serverConfig`");
+    }
+
+    if (this.workerConfig.start) {
+      this.startWorker(this.workerConfig.queueName);
+    } else {
+      debug("Not Worker Server because of `workerConfig`");
+    }
+  }
+
   /**
    * This method returns a Hull Middleware that you can insert in your   requests to hydrate the full context.
    * @public
    * @return {hullContextMiddleware} a node middleware that hydrates the hull context
    */
-  middleware(): Middleware {
+  contextMiddleware({
+    requestName
+  }: HullContextMiddlewareParams = {}): Middleware {
     return hullContextMiddleware({
-      HullClient,
-      connectorConfig: this.connectorConfig,
+      requestName
+    });
+  }
+
+  baseMiddleware() {
+    return hullBaseMiddleware({
+      Client: this.Client,
       instrumentation: this.instrumentation,
       queue: this.queue,
-      cache: this.cache
+      cache: this.cache,
+      connectorConfig: this.connectorConfig
     });
   }
 
@@ -136,24 +212,26 @@ class HullConnector {
    * @return {express}     expressjs application
    */
   setupApp(app: $Application): $Application {
-    app.use((req, res, next: NextFunction) => {
-      debug(
-        "incoming request",
-        _.pick(req, "headers", "url", "method", "body")
-      );
-      next();
-    });
-    app.use(jsonParser(this.connectorConfig.json));
+    app.use(this.baseMiddleware());
     app.use("/", staticRouter());
-    app.use(this.instrumentation.startMiddleware());
     app.engine("html", renderFile);
-
     const applicationDirectory = path.dirname(
       path.join(require.main.filename, "..")
     );
     app.set("views", `${applicationDirectory}/views`);
     app.set("view engine", "ejs");
     this.middlewares.map(middleware => app.use(middleware));
+    /**
+     * Instrumentation Middleware,
+     * this sends all errors to sentry
+     */
+    app.use(this.instrumentation.stopMiddleware());
+
+    /**
+     * Unhandled error middleware
+     */
+    app.use(errorHandler);
+
     return app;
   }
 
@@ -166,26 +244,7 @@ class HullConnector {
    * @param  {express} app expressjs application
    * @return {http.Server}
    */
-  startApp(app: $Application) {
-    /**
-     * Instrumentation Middleware,
-     * this sends all errors to sentry
-     */
-    app.use(this.instrumentation.stopMiddleware());
-
-    /**
-     * Unhandled error middleware
-     */
-    app.use(
-      (err: Error, req: HullRequest, res: $Response, _next: NextFunction) => {
-        // eslint-disable-line no-unused-vars
-        debug("unhandled-error", err.stack);
-        if (!res.headersSent) {
-          res.status(500).send("unhandled-error");
-        }
-      }
-    );
-
+  startApp(app: $Application): Server {
     return app.listen(this.connectorConfig.port, () => {
       debug("connector.server.listen", { port: this.connectorConfig.port });
     });
@@ -196,8 +255,8 @@ class HullConnector {
       instrumentation: this.instrumentation,
       queue: this.queue
     });
-    this._worker.use(this.instrumentation.startMiddleware());
-    this._worker.use(this.middleware());
+    this._worker.use(this.baseMiddleware());
+    this._worker.use(this.contextMiddleware());
     this.middlewares.map(middleware => this._worker.use(middleware));
 
     this._worker.setJobs(jobs);
@@ -209,12 +268,15 @@ class HullConnector {
     return this;
   }
 
-  startWorker(queueName: string = "queueApp") {
+  startWorker(qn?: string | null): Worker {
+    debug("Starting Worker");
     this.instrumentation.exitOnError = true;
+    const queueName = qn || "queueApp";
     if (this._worker) {
       this._worker.process(queueName);
       debug("connector.worker.process", { queueName });
     }
+    return this._worker;
   }
 }
 

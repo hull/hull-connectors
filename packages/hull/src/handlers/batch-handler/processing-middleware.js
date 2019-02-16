@@ -2,7 +2,7 @@
 import type { $Response, NextFunction } from "express";
 import type {
   HullRequestFull,
-  HullNormalizedHandlersConfiguration
+  HullBatchHandlersConfiguration
 } from "../../types";
 
 const _ = require("lodash");
@@ -14,7 +14,7 @@ const {
 } = require("../../utils");
 
 function batchExtractProcessingMiddlewareFactory(
-  normalizedConfiguration: HullNormalizedHandlersConfiguration<*, *>
+  batchHandlersConfiguration: HullBatchHandlersConfiguration
 ) {
   return function batchExtractProcessingMiddleware(
     req: HullRequestFull,
@@ -34,10 +34,10 @@ function batchExtractProcessingMiddlewareFactory(
     const { url, format, object_type } = body;
     const entityType = object_type === "account_report" ? "account" : "user";
     const channel = `${entityType}:update`;
-    if (normalizedConfiguration[channel] === undefined) {
+    if (batchHandlersConfiguration[channel] === undefined) {
       return next(new Error(`Missing handler for this channel: ${channel}`));
     }
-    const { callback, options } = normalizedConfiguration[channel];
+    const { callback, options = {} } = batchHandlersConfiguration[channel];
 
     debug("channel", channel);
     debug("entityType", entityType);

@@ -1,11 +1,13 @@
 // @flow
 
 import type {
-  HullClientConfiguration,
+  HullClientConfig,
   HullEntityAttributes,
   HullUserEventName,
   HullUserEventProperties,
   HullUserEventContext,
+  HullAccount,
+  HullUser,
   HullAccountClaims,
   HullUserClaims,
   HullAuxiliaryClaims,
@@ -13,7 +15,7 @@ import type {
   HullClientLogger,
   HullClientUtils,
   HullClientStaticLogger
-} from "../../types";
+} from "./types";
 
 const _ = require("lodash");
 const winston = require("winston");
@@ -23,6 +25,10 @@ const Configuration = require("./lib/configuration");
 const restAPI = require("./lib/rest-api");
 const crypto = require("./lib/crypto");
 const Firehose = require("./lib/firehose");
+const {
+  normalizeUserClaims,
+  normalizeAccountClaims
+} = require("./lib/normalize-claims");
 
 const traitsUtils = require("./utils/traits");
 const settingsUtils = require("./utils/settings");
@@ -72,7 +78,7 @@ const logger = new winston.Logger({
  * @public
  */
 class HullClient {
-  config: HullClientConfiguration;
+  config: HullClientConfig;
 
   clientConfig: Configuration;
 
@@ -86,7 +92,7 @@ class HullClient {
 
   static logger: HullClientStaticLogger;
 
-  constructor(config: HullClientConfiguration) {
+  constructor(config: HullClientConfig) {
     if (config.captureLogs === true) {
       config.logs = config.logs || [];
     }
@@ -217,7 +223,7 @@ class HullClient {
    *   version: "0.13.10"
    * };
    */
-  configuration(): HullClientConfiguration {
+  configuration(): HullClientConfig {
     return this.clientConfig.getAll();
   }
 
@@ -307,7 +313,7 @@ class HullClient {
    * @return {UserScopedHullClient}
    */
   asUser(
-    userClaim: string | HullUserClaims,
+    userClaim: string | HullUser | HullUserClaims,
     additionalClaims: HullAuxiliaryClaims = Object.freeze({})
   ) {
     if (!userClaim) {
@@ -316,7 +322,7 @@ class HullClient {
     return new UserScopedHullClient({
       ...this.config,
       subjectType: "user",
-      userClaim,
+      userClaim: normalizeUserClaims(userClaim),
       additionalClaims
     });
   }
@@ -332,7 +338,7 @@ class HullClient {
    * @return {AccountScopedHullClient} instance scoped to account claims
    */
   asAccount(
-    accountClaim: string | HullAccountClaims,
+    accountClaim: string | HullAccount | HullAccountClaims,
     additionalClaims: HullAuxiliaryClaims = Object.freeze({})
   ) {
     if (!accountClaim) {
@@ -343,7 +349,7 @@ class HullClient {
     return new AccountScopedHullClient({
       ...this.config,
       subjectType: "account",
-      accountClaim,
+      accountClaim: normalizeAccountClaims(accountClaim),
       additionalClaims
     });
   }
@@ -495,4 +501,8 @@ class AccountScopedHullClient extends EntityScopedHullClient {}
 
 HullClient.logger = logger;
 
+export type EntityScopedClient = EntityScopedHullClient;
+export type AccountScopedClient = AccountScopedHullClient;
+export type UserScopedClient = UserScopedHullClient;
+export type UnscopedClient = HullClient;
 module.exports = HullClient;

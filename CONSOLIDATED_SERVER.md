@@ -10,7 +10,7 @@ Start it with an object conforming to the flow type `HullConnectorConfig`
 
 ```js
 type HullConnectorConfig = {
-  clientConfig: HullClientConfiguration,
+  clientConfig: HullClientConfig,
   hostSecret: ?string,
   port: number | string,
   connectorName?: string,
@@ -34,7 +34,7 @@ type HullConnectorConfig = {
 Here's a short recap of the parameters format and behaviour:
 
 
-#### clientConfig: HullClientConfiguration,
+#### clientConfig: HullClientConfig,
 - Required
 - default: { }
 

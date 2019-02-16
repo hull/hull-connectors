@@ -1,18 +1,31 @@
 /* @flow */
-/* :: export type * from "./types"; */
 /* :: export type * from "hull-client"; */
+/* :: export type * from "./types"; */
 
-const HullClient = require("hull-client");
+import HullClient from "hull-client";
+import type { HullConnectorConfig } from "./types";
 
 const Worker = require("./connector/worker");
-const HullConnector = require("./connector/hull-connector");
+const ConnectorClass = require("./connector/hull-connector");
 
-const boundHullConnector = HullConnector.bind(undefined, {
-  Worker,
-  HullClient
-});
+export { default as Client } from "hull-client";
+export class Connector extends ConnectorClass {
+  config: HullConnectorConfig;
 
-module.exports = {
-  Connector: boundHullConnector,
-  Client: HullClient
+  constructor(connectorConfig: HullConnectorConfig) {
+    super(
+      {
+        Worker,
+        Client: HullClient
+      },
+      connectorConfig
+    );
+  }
+}
+
+const Hull = {
+  Client: HullClient,
+  Connector
 };
+
+export default Hull;

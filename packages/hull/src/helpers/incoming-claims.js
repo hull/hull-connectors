@@ -1,6 +1,6 @@
 // @flow
 import type { HullEntityType, HullEntityClaims } from "hull-client";
-import type { HullContext } from "../types";
+import type { HullContextFull } from "../types";
 
 type IncomingClaimsResult = {
   claims?: HullEntityClaims,
@@ -49,7 +49,7 @@ function getSettingValue(ctx, settingName) {
  * 3. when there is not correct settings in the connector object
  */
 function incomingClaims(
-  ctx: HullContext,
+  ctx: HullContextFull,
   entityType: HullEntityType,
   objectToTransform: Object,
   options?: { anonymous_id_prefix?: string, anonymous_id_service: string }

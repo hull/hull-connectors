@@ -2,7 +2,7 @@
 import type { $Response, NextFunction } from "express";
 import type {
   HullRequestFull,
-  HullNormalizedHandlersConfiguration
+  HullNotificationHandlerConfiguration
 } from "../../types";
 
 const debug = require("debug")("hull-connector:notification-handler");
@@ -13,7 +13,7 @@ const {
 } = require("../../utils");
 
 function notificationHandlerProcessingMiddlewareFactory(
-  normalizedConfiguration: HullNormalizedHandlersConfiguration<*, *>
+  notificationHandlersConfiguration: HullNotificationHandlerConfiguration
 ) {
   return function notificationHandlerProcessingMiddleware(
     req: HullRequestFull,
@@ -29,10 +29,10 @@ function notificationHandlerProcessingMiddlewareFactory(
       channel,
       messages: Array.isArray(messages) && messages.length
     });
-    if (normalizedConfiguration[channel] === undefined) {
+    if (notificationHandlersConfiguration[channel] === undefined) {
       return next(new Error("Channel unsupported"));
     }
-    const { callback } = normalizedConfiguration[channel];
+    const { callback } = notificationHandlersConfiguration[channel];
 
     if (channel === "user:update") {
       messages = messages.map(trimTraitsPrefixFromUserMessage);

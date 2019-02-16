@@ -1,5 +1,5 @@
-/* @flow */
-import type { $Application } from "express";
+// @flow
+import type { HullFramework, Connector } from "hull";
 
 const {
   notificationHandler,
@@ -7,33 +7,38 @@ const {
   jsonHandler,
   incomingRequestHandler
 } = require("hull/src/handlers");
-const { credentialsFromQueryMiddleware } = require("hull/src/middlewares");
 
+const { credentialsFromQueryMiddleware } = require("hull/src/middlewares");
 const oauth = require("./lib/oauth-client");
 const actions = require("./actions");
 const notifHandlers = require("./notif-handlers");
 
-function server(app: $Application): $Application {
-  const shipConfig = {
-    hostSecret: process.env.SECRET,
-    clientID: process.env.MAILCHIMP_CLIENT_ID,
-    clientSecret: process.env.MAILCHIMP_CLIENT_SECRET
-  };
+type RoutesOptions = {
+  redisUri?: string | null,
+  startServer: boolean,
+  startWorker: boolean,
+  clientID: string,
+  clientSecret: string
+};
 
+export default function Routes(connector: Connector, options: RoutesOptions) {
+  const { app, connectorConfig } = connector;
+  const { hostSecret } = connectorConfig;
+  const { clientID, clientSecret } = options;
   app.use(
     "/auth",
     oauth({
+      hostSecret,
       name: "Mailchimp",
-      clientID: shipConfig.clientID,
-      clientSecret: shipConfig.clientSecret,
+      clientID,
+      clientSecret,
       callbackUrl: "/callback",
       homeUrl: "/",
       selectUrl: "/select",
       syncUrl: "/sync",
       site: "https://login.mailchimp.com",
       tokenPath: "/oauth2/token",
-      authorizationPath: "/oauth2/authorize",
-      hostSecret: shipConfig.hostSecret
+      authorizationPath: "/oauth2/authorize"
     })
   );
 
@@ -81,8 +86,4 @@ function server(app: $Application): $Application {
   app.use("/schema/user_fields", jsonHandler(actions.schemaUserFields));
 
   app.use("/status", scheduleHandler(actions.status));
-
-  return app;
 }
-
-module.exports = server;

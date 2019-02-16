@@ -34,7 +34,7 @@ class MetricAgent {
 
   _captureException: Function;
 
-  constructor(ctx: HullContextFull, instrumentationAgent: Object) {
+  constructor(ctx: HullContextFull | Object, instrumentationAgent: Object) {
     this.mergeContext = instrumentationAgent.mergeContext.bind(
       instrumentationAgent
     );

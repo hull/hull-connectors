@@ -1,32 +1,5 @@
 // @flow
-import type {
-  HullUserUpdateMessage,
-  HullAccountUpdateMessage
-} from "hull-client";
-import type { HullHandlersConfiguration, HullContextFull } from "../../types";
-
-export type HullBatchHandlerOptions = {
-  maxSize?: number
-};
-
-type HullBatchHandlerUserUpdateCallback = (
-  ctx: HullContextFull,
-  messages: Array<HullUserUpdateMessage>
-) => Promise<*>;
-
-type HullBatchHandlerAccountUpdateCallback = (
-  ctx: HullContextFull,
-  messages: Array<HullAccountUpdateMessage>
-) => Promise<*>;
-
-export type HullBatchHandlerCallback =
-  | HullBatchHandlerUserUpdateCallback
-  | HullBatchHandlerAccountUpdateCallback;
-
-type HullBatchHandlerConfiguration = HullHandlersConfiguration<
-  HullBatchHandlerCallback,
-  HullBatchHandlerOptions
->;
+import type { HullBatchHandlersConfiguration } from "../../types";
 
 const { Router } = require("express");
 
@@ -40,7 +13,6 @@ const {
   instrumentationContextMiddleware,
   instrumentationTransientErrorMiddleware
 } = require("../../middlewares");
-const { normalizeHandlersConfiguration } = require("../../utils");
 
 const processingMiddleware = require("./processing-middleware");
 const errorMiddleware = require("./error-middleware");
@@ -55,10 +27,9 @@ const errorMiddleware = require("./error-middleware");
  * }));
  */
 function batchExtractHandlerFactory(
-  configuration: HullBatchHandlerConfiguration
+  configuration: HullBatchHandlersConfiguration
 ): * {
   const router = Router();
-  const normalizedConfiguration = normalizeHandlersConfiguration(configuration);
   router.use(timeoutMiddleware());
   router.use(credentialsFromQueryMiddleware()); // parse query
   router.use(clientMiddleware()); // initialize client
@@ -69,7 +40,7 @@ function batchExtractHandlerFactory(
   ); // get rest of the context from body
   router.use(fullContextFetchMiddleware({ requestName: "batch" })); // if something is missing at body
   router.use(haltOnTimedoutMiddleware());
-  router.use(processingMiddleware(normalizedConfiguration));
+  router.use(processingMiddleware(configuration));
   router.use(instrumentationTransientErrorMiddleware());
   router.use(errorMiddleware());
   return router;

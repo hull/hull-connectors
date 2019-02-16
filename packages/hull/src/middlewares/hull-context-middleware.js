@@ -1,27 +1,31 @@
 // @flow
 
 import type { Middleware } from "express";
-import type { HullContextBaseMiddlewareParams } from "../../../types";
+import type { HullContextMiddlewareParams } from "../types";
 
 const { compose } = require("compose-middleware");
-const contextBaseMiddleware = require("./context-base");
 const credentialsFromQueryMiddleware = require("./credentials-from-query");
+const credentialsFromNotificationMiddleware = require("./credentials-from-notification");
+const instrumentationContextMiddleware = require("./instrumentation-context");
 const clientMiddleware = require("./client");
-const timeoutMiddleware = require("./timeout");
 const fullContextFetchMiddleware = require("./full-context-fetch");
-const haltOnTimedoutMiddleware = require("./halt-on-timedout");
+const fullContextBodyMiddleware = require("./full-context-body");
 
 function hullContextMiddleware(
-  params: HullContextBaseMiddlewareParams
+  params: HullContextMiddlewareParams = {}
 ): Middleware {
-  const { requestName } = params;
+  const { requestName, type = "query" } = params;
   return compose(
-    contextBaseMiddleware(params),
-    credentialsFromQueryMiddleware(),
+    type === "query"
+      ? credentialsFromQueryMiddleware()
+      : credentialsFromNotificationMiddleware(),
     clientMiddleware(),
-    timeoutMiddleware(),
-    fullContextFetchMiddleware({ requestName }), // if something is missing at body
-    haltOnTimedoutMiddleware()
+    instrumentationContextMiddleware({
+      handlerName: requestName
+    }),
+    type === "query"
+      ? fullContextFetchMiddleware({ requestName })
+      : fullContextBodyMiddleware({ requestName }) // if something is missing at body
   );
 }
 

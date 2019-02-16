@@ -1,9 +1,19 @@
 // @flow
 
+import type {
+  EntityScopedClient,
+  AccountScopedClient,
+  UserScopedClient
+} from "./client";
+
 const propertiesUtils = require("./utils/properties");
 const settingsUtils = require("./utils/settings");
 const traitsUtils = require("./utils/traits");
 
+export type HullEntityScopedClient =
+  | EntityScopedClient
+  | AccountScopedClient
+  | UserScopedClient;
 /*
  * --- Basic Types ---
  */
@@ -36,6 +46,105 @@ export type HullConnectorSettings = {
   [HullConnectorSettingName: string]: any
 };
 
+type HullManifestSetting = {
+  [string]: any
+};
+
+export type HullNotificationHandlerOptions = {
+  disableErrorHandling?: boolean,
+  maxTime?: number,
+  maxSize?: number
+};
+type HullNotificationHandlerChannel = {
+  handler: string,
+  options: HullNotificationHandlerOptions
+};
+
+/**
+ * A Manifest Notification block. Defines a route for Hull to send Notifications to.
+ */
+type HullManifestNotification = {
+  url: string,
+  channels: {
+    [channelName: string]: HullNotificationHandlerChannel
+  }
+};
+
+/**
+ * A Manifest Batch block. Defines a route for Hull to send Notifications to.
+ */
+type HullManifestBatch = {
+  url: string,
+  channels: {
+    [channelName: string]: HullNotificationHandlerChannel
+  }
+};
+
+/**
+ * A Manifest Schedule block. Defines a schedule for Hull to ping the connector
+ */
+export type HullSchedulerHandlerOptions = {
+  disableErrorHandling?: boolean,
+  fireAndForget?: boolean
+};
+type HullManifestSchedule = {
+  url: string,
+  handler: string,
+  interval: string,
+  options?: HullSchedulerHandlerOptions
+};
+
+/**
+ * A Manifest Endpoint block. Defines a publicly-available route
+ * for the Connector to receive Service data
+ */
+export type HullExternalHandlerOptions = {
+  respondWithError?: boolean,
+  disableErrorHandling?: boolean,
+  [string]: any
+};
+type HullManifestEndpoint = {
+  url: string,
+  handler: string,
+  method: "get" | "post" | "put" | "patch" | "delete",
+  options?: HullExternalHandlerOptions
+};
+
+/**
+ * A Manifest Tab config. Defines a route to display a screen in the Dashboard
+ */
+type HullManifestTabConfig = {
+  title: string,
+  url: string,
+  handler: string,
+  options?: HullExternalHandlerOptions,
+  size: "small" | "large",
+  editable: boolean
+};
+
+/**
+ * Manifest. Defines a Connector's exposed endpoints and features
+ */
+export type HullManifest = {
+  name: string,
+  description: string,
+  tags: Array<"batch" | "batch-accounts" | "kraken">,
+  source: string,
+  logo: string,
+  picture: string,
+  readme: string,
+  version: string,
+  tabs: Array<HullManifestTabConfig>,
+  schedules?: Array<HullManifestSchedule>,
+  status?: Array<HullManifestSchedule>,
+  subscriptions?: Array<HullManifestNotification>,
+  batch?: Array<HullManifestBatch>,
+  endpoints?: Array<HullManifestEndpoint>,
+  deployment_settings: Array<HullManifestSetting>,
+  settings?: Array<HullManifestSetting>,
+  private_settings?: Array<HullManifestSetting>
+};
+
 /**
  * Connector (also called ship) object with settings, private settings and manifest.json
  * Used for both read and write operations
@@ -52,7 +161,7 @@ export type HullConnector = {
   picture: string,
   homepage_url: string,
   manifest_url: string,
-  manifest: Object,
+  manifest: HullManifest,
   settings: HullConnectorSettings,
   private_settings: HullConnectorSettings,
   status: Object
@@ -83,21 +192,21 @@ export type HullSegment = {
 /**
  * This are claims we can use to identify account
  */
-export type HullAccountClaims = $Shape<{
-  id: string,
-  domain: string,
-  external_id: string,
-  anonymous_id: string
-}>;
+export type HullAccountClaims = {
+  id?: string,
+  domain?: ?string,
+  external_id?: ?string,
+  anonymous_id?: ?string
+};
 
 /**
  * This are claims we can use to identify user
  */
 export type HullUserClaims = $Shape<{
-  id: string,
-  email: string,
-  external_id: string,
-  anonymous_id: string
+  id?: string,
+  email?: ?string,
+  external_id?: ?string,
+  anonymous_id?: ?string
 }>;
 
 /**
@@ -164,6 +273,56 @@ export type HullUserEventContext = {
   ip?: string | number
 };
 
+/*             "useragent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",
+            "device": {
+              "name": "Other"
+            },
+            "referrer": {
+              "url": "https://dashboard.hullbeta.io/",
+              "host": "dashboard.hullbeta.io",
+              "path": "/",
+              "campaign": {
+                "term": null,
+                "medium": null,
+                "name": null,
+                "content": null,
+                "source": null
+              }
+            },
+            "os": {
+              "name": "Mac OS X",
+              "version": "10.13.6"
+            },
+            "browser": {
+              "major": 69,
+              "name": "Chrome",
+              "version": "69.0.3497"
+            },
+            "location": {
+              "country": "FR",
+              "city": "Aubervilliers",
+              "timezone": "Europe/Paris",
+              "longitude": 2.3833,
+              "latitude": 48.9167,
+              "region": "IDF",
+              "countryname": "France",
+              "regionname": "Île-de-France",
+              "zipcode": "93300"
+            },
+            "campaign": {
+              "term": null,
+              "medium": null,
+              "name": null,
+              "content": null,
+              "source": null
+            },
+            "ip": "81.250.150.108",
+            "page": {
+              "url": "https://dashboard.hullbeta.io/884a12fc/overview",
+              "host": "dashboard.hullbeta.io",
+              "path": "/884a12fc/overview"
+            } */
+
 /*
  * --- Data Structures To Use When Reading From Platform ---
  */
@@ -172,9 +331,12 @@ export type HullUserEventContext = {
  * Combined ident and attributes object for account coming from platform
  */
 export type HullAccount = {
-  id: string,
-  domain: string,
-  external_id: string,
+  id?: string,
+  domain?: ?string,
+  external_id?: ?string,
+  anonymous_ids?: ?Array<string>,
+  anonymous_id?: ?string, // TODO: Flow Workaround -> force anonymous_id to be recognized as a ?string, Should be forced on Platform for safety
+  name?: ?string,
   [HullAttributeName]: HullAttributeValue
 };
 
@@ -183,9 +345,13 @@ export type HullAccount = {
  */
 export type HullUser = {
   id: string,
-  email: string,
-  external_id: string,
-  anonymous_ids: Array<string>,
+  email?: ?string,
+  contact_email?: ?string,
+  external_id: ?string,
+  anonymous_ids: ?Array<string>,
+  anonymous_id?: ?string, // TODO: Flow Workaround -> force anonymous_id to be recognized as a ?string, Should be forced on Platform for safety
+  segment_ids: Array<string> | null,
+  domain?: ?string,
   [HullAttributeName]: HullAttributeValue
 };
 
@@ -194,24 +360,27 @@ export type HullUser = {
  */
 export type HullEntity = HullAccount | HullUser;
 
+export type HullEventName = string;
+export type HullEventContext = {};
+export type HullEventProperties = {};
 /**
  * Event coming from platform
  */
-export type HullUserEvent = {
+export type HullEvent = {
   event_id: string,
-  event: HullUserEventName,
+  event: HullEventName,
   created_at: string,
   event_source?: string,
   event_type?: string,
   track_id?: string,
   user_id?: string,
-  anonymous_id?: string, // not sure whether it's string or an array of strings
+  anonymous_id?: ?string,
   session_id?: string,
   ship_id?: string,
   app_id?: string,
   app_name?: string,
-  context: HullUserEventContext,
-  properties: HullUserEventProperties
+  context: HullEventContext,
+  properties: HullEventProperties
 };
 
 /**
@@ -237,17 +406,21 @@ export type HullSegmentsChanges = {|
  * Object containing all changes related to User in HullUserUpdateMessage
  */
 export type HullUserChanges = {|
+  is_new: boolean,
   user: HullAttributesChanges,
   account: HullAttributesChanges,
-  segments: HullSegmentsChanges // should be segments or user_segments?
+  segment_ids: Array<string>,
+  segments: HullSegmentsChanges, // should be segments or user_segments?
+  account_segments: HullSegmentsChanges // should be segments or user_segments?
 |};
 
 /**
  * Object containing all changes related to Account in HullUserUpdateMessage
  */
 export type HullAccountChanges = {|
+  is_new: boolean,
   account: HullAttributesChanges,
-  segments: HullSegmentsChanges // should be segments or account_segments?
+  account_segments: HullSegmentsChanges // should be segments or user_segments?
 |};
 
 /**
@@ -256,19 +429,33 @@ export type HullAccountChanges = {|
 export type HullUserUpdateMessage = {|
   user: HullUser,
   changes: HullUserChanges,
-  segments: Array<HullSegment>, // should be segments or user_segments?
-  events: Array<HullUserEvent>,
-  account: HullAccount
+  segments: Array<HullSegment>,
+  account_segments: Array<HullSegment>,
+  events: Array<HullEvent>,
+  account: HullAccount,
+  message_id: string
 |};
+
+// TODO: What does a segment update message look like
+export type HullSegmentUpdateMessage = {};
+// TODO: What does a segment delete message look like
+export type HullSegmentDeleteMessage = {};
+// TODO: What does a user delete message look like
+export type HullUserDeleteMessage = {};
+// TODO: What does a account delete message look like
+export type HullAccountDeleteMessage = {};
+// TODO: What does a connector update message look like
+export type HullConnectorUpdateMessage = {};
 
 /**
  * A message sent by the platform when any attribute (trait) or segment change happens on the account.
  */
 export type HullAccountUpdateMessage = {|
-  changes: HullUserChanges,
+  changes: HullAccountChanges,
   account_segments: Array<HullSegment>, // should be segments or account_segments?
-  events: Array<HullUserEvent>,
-  account: HullAccount
+  events: Array<HullEvent>,
+  account: HullAccount,
+  message_id: string
 |};
 
 /**
@@ -277,9 +464,9 @@ export type HullAccountUpdateMessage = {|
 export type HullNotification = {
   notification_id: string,
   configuration: {
-    id?: string,
-    secret?: string,
-    organization?: string
+    id: string,
+    secret: string,
+    organization: string
   },
   channel: string,
   connector: HullConnector,
@@ -292,11 +479,13 @@ export type HullNotification = {
  * --- Hull Client Types ---
  */
 
+export type HullAdditionalClaims = {};
+
 /**
  * Configuration which can be passed to the HullClient constructor
  * We cannot use exact type here.
  */
-export type HullClientConfiguration = {
+export type HullClientConfig = {
   id?: string,
   secret?: string,
   organization?: string,
@@ -304,13 +493,14 @@ export type HullClientConfiguration = {
   namespace?: string,
   requestId?: string,
   connectorName?: string,
-  firehoseUrl?: string,
+  firehoseUrl?: ?string,
   protocol?: string,
   prefix?: string,
+  logLevel?: "info" | "error" | "warn" | "debug",
   userClaim?: string | HullUserClaims,
   accountClaim?: string | HullAccountClaims,
   subjectType?: HullEntityType,
-  additionalClaims?: HullAuxiliaryClaims,
+  additionalClaims?: HullAdditionalClaims,
   accessToken?: string,
   hostSecret?: string,
   flushAt?: number,
@@ -326,13 +516,13 @@ export type HullClientConfiguration = {
  * Definition of logger object on HullClient instance
  */
 export type HullClientLogger = {|
-  log: (string, ?Object) => void,
-  silly: (string, ?Object) => void,
-  debug: (string, ?Object) => void,
-  verbose: (string, ?Object) => void,
-  info: (string, ?Object) => void,
-  warn: (string, ?Object) => void,
-  error: (string, ?Object) => void
+  log: (message: string, data?: Object) => void,
+  silly: (message: string, data?: Object) => void,
+  debug: (message: string, data?: Object) => void,
+  verbose: (message: string, data?: Object) => void,
+  info: (message: string, data?: Object) => void,
+  warn: (message: string, data?: Object) => void,
+  error: (message: string, data?: Object) => void
 |};
 
 // Definition of static logger param available on HullClient class
@@ -361,10 +551,3 @@ export type HullProperties = {
     key: string
   }
 };
-
-// deprecated types
-
-export type HullEventName = HullUserEventName;
-export type HullEventProperties = HullUserEventProperties;
-export type HullEventContext = HullUserEventContext;
-export type HullEvent = HullUserEvent;

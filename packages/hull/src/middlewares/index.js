@@ -12,4 +12,7 @@ module.exports.timeoutMiddleware = require("./timeout");
 module.exports.haltOnTimedoutMiddleware = require("./halt-on-timedout");
 module.exports.instrumentationContextMiddleware = require("./instrumentation-context");
 module.exports.instrumentationTransientErrorMiddleware = require("./instrumentation-transient-error");
+
 module.exports.hullContextMiddleware = require("./hull-context-middleware");
+module.exports.hullBaseMiddleware = require("./base-middleware");
+module.exports.clearConnectorCache = require("./clear-connector-cache-middleware");

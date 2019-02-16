@@ -1,6 +1,6 @@
 // @flow
 import type { HullSegment } from "hull-client";
-import type { HullContext } from "../types";
+import type { HullContextFull } from "../types";
 
 export type HullHelperExtractRequestOptions = {
   segment?: null | HullSegment,
@@ -33,7 +33,7 @@ const _ = require("lodash");
  * req.hull.helpers.requestExtract({ segment = null, path, fields = [], additionalQuery = {} });
  */
 function extractRequest(
-  ctx: HullContext,
+  ctx: HullContextFull,
   {
     // $FlowFixMe
     segment = null,

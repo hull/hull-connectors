@@ -61,11 +61,10 @@ function credentialsFromNotificationMiddlewareFactory() {
           throw new Error("Missing Payload Body");
         }
         const { configuration: clientCredentials } = body;
-        req.hull = {
-          ...req.hull,
+        req.hull = Object.assign(req.hull, {
           requestId: ensureRequestId(req),
           clientCredentials
-        };
+        });
         return next();
       })
       .catch(error => next(error));

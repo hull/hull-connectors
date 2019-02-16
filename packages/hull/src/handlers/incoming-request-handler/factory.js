@@ -1,38 +1,22 @@
 // @flow
-import type { $Response, $Request, NextFunction } from "express";
+import type { $Response, NextFunction } from "express";
 import type {
-  HullHandlersConfigurationEntry,
-  HullRequestFull,
-  HullContextFull
+  HullExternalHandlerConfigurationEntry,
+  HullRequestFull
 } from "../../types";
-
-type HullIncomingRequestHandlerCallback = (
-  ctx: HullContextFull,
-  request: $Request
-) => Promise<*>;
-type HullIncomingRequestHandlerOptions = {
-  disableErrorHandling?: boolean,
-  parseCredentialsFromQuery?: boolean,
-  bodyParser: "json" | "urlencoded"
-};
-type HullIncomingRequestHandlerConfigurationEntry = HullHandlersConfigurationEntry<
-  HullIncomingRequestHandlerCallback,
-  HullIncomingRequestHandlerOptions
->;
 
 const { Router } = require("express");
 const bodyParser = require("body-parser");
 const debug = require("debug")("hull:requests-buffer-handler");
 
 const {
-  credentialsFromQueryMiddleware,
+  // credentialsFromQueryMiddleware,
   clientMiddleware,
   fullContextFetchMiddleware,
   timeoutMiddleware,
   haltOnTimedoutMiddleware,
   instrumentationContextMiddleware
 } = require("../../middlewares");
-const { normalizeHandlersConfigurationEntry } = require("../../utils");
 
 /**
  * @param {Object|Function} callback         [description]
@@ -41,22 +25,26 @@ const { normalizeHandlersConfigurationEntry } = require("../../utils");
  * @param {number}   options.maxTime [description]
  */
 function IncomingRequestHandlerFactory(
-  configurationEntry: HullIncomingRequestHandlerConfigurationEntry
+  configurationEntry: HullExternalHandlerConfigurationEntry
 ): Router {
   const router = Router();
 
-  const { callback, options } = normalizeHandlersConfigurationEntry(
-    configurationEntry
-  );
-  const {
-    disableErrorHandling,
-    parseCredentialsFromQuery,
-    bodyParser: bodyParserOption
-  } = options;
-
-  if (parseCredentialsFromQuery) {
-    router.use(credentialsFromQueryMiddleware()); // parse config from query
-  }
+  // <<<<<<< Updated upstream
+  //   const { callback, options } = normalizeHandlersConfigurationEntry(
+  //     configurationEntry
+  //   );
+  //   const {
+  //     disableErrorHandling,
+  //     parseCredentialsFromQuery,
+  //     bodyParser: bodyParserOption
+  //   } = options;
+  //
+  //   if (parseCredentialsFromQuery) {
+  //     router.use(credentialsFromQueryMiddleware()); // parse config from query
+  //   }
+  // =======
+  const { callback, options = {} } = configurationEntry;
+  const { disableErrorHandling, bodyParser: bodyParserOption } = options;
 
   if (bodyParserOption === "json") {
     router.use(bodyParser.json({ type: "*/*" }));

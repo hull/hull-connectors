@@ -1,48 +1,12 @@
 // @flow
-import type { $Response, NextFunction } from "express";
-import type {
-  HullUserUpdateMessage,
-  HullAccountUpdateMessage
-} from "hull-client";
-import type {
-  HullHandlersConfiguration,
-  HullRequest,
-  HullContextFull
-} from "../../types";
-
-type HullUserUpdateHandlerCallback = (
-  ctx: HullContextFull,
-  messages: Array<HullUserUpdateMessage>
-) => Promise<*>;
-type HullAccountUpdateHandlerCallback = (
-  ctx: HullContextFull,
-  messages: Array<HullAccountUpdateMessage>
-) => Promise<*>;
-type HullConnectorUpdateHandlerCallback = (ctx: HullContextFull) => Promise<*>;
-type HullSegmentUpdateHandlerCallback = (ctx: HullContextFull) => Promise<*>;
-
-type Callback =
-  | HullUserUpdateHandlerCallback
-  | HullAccountUpdateHandlerCallback
-  | HullConnectorUpdateHandlerCallback
-  | HullSegmentUpdateHandlerCallback;
-
-type HullNotificationHandlerOptions = {};
-type HullNotificationHandlerConfiguration = HullHandlersConfiguration<
-  Callback,
-  HullNotificationHandlerOptions
->;
+import type { HullNotificationHandlerConfiguration } from "hull";
 
 const { Router } = require("express");
-const { normalizeHandlersConfiguration } = require("../../utils");
+// const { normalizeHandlersConfiguration } = require("../../utils");
 const {
-  credentialsFromNotificationMiddleware,
-  clientMiddleware,
-  timeoutMiddleware,
-  haltOnTimedoutMiddleware,
-  fullContextBodyMiddleware,
-  instrumentationContextMiddleware,
-  instrumentationTransientErrorMiddleware
+  hullContextMiddleware,
+  instrumentationTransientErrorMiddleware,
+  clearConnectorCache
 } = require("../../middlewares");
 
 const processingMiddleware = require("./processing-middleware");
@@ -61,25 +25,16 @@ function notificationHandlerFactory(
   configuration: HullNotificationHandlerConfiguration
 ): Router {
   const router = Router();
-  const normalizedConfiguration = normalizeHandlersConfiguration(configuration);
+  // const normalizedConfiguration = normalizeHandlersConfiguration(configuration);
 
-  router.use(timeoutMiddleware());
-  router.use(credentialsFromNotificationMiddleware());
-  router.use(haltOnTimedoutMiddleware());
-  router.use(clientMiddleware());
-  router.use(haltOnTimedoutMiddleware());
-  router.use(instrumentationContextMiddleware({ handlerName: "notification" }));
-  router.use(fullContextBodyMiddleware({ requestName: "notification" }));
-  router.use((req: HullRequest, res: $Response, next: NextFunction) => {
-    if (
-      req.hull.notification &&
-      req.hull.notification.channel === "ship:update"
-    ) {
-      req.hull.cache.del("connector");
-    }
-    next();
-  });
-  router.use(processingMiddleware(normalizedConfiguration));
+  router.use(
+    hullContextMiddleware({
+      requestName: "notification",
+      type: "notification"
+    })
+  );
+  router.use(clearConnectorCache);
+  router.use(processingMiddleware(configuration));
   router.use(instrumentationTransientErrorMiddleware());
   router.use(errorMiddleware());
   return router;

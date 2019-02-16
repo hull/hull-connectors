@@ -2,20 +2,8 @@
 import type { $Response, NextFunction } from "express";
 import type {
   HullRequestFull,
-  HullHandlersConfigurationEntry,
-  HullContextFull
+  HullSchedulerHandlerConfigurationEntry
 } from "../../types";
-
-type HullSchedulerHandlerCallback = (ctx: HullContextFull) => Promise<*>;
-type HullSchedulerHandlerOptions = {
-  disableErrorHandling?: boolean,
-  fireAndForget?: boolean
-};
-
-type HullSchedulerHandlerConfigurationEntry = HullHandlersConfigurationEntry<
-  HullSchedulerHandlerCallback,
-  HullSchedulerHandlerOptions
->;
 
 const { Router } = require("express");
 const debug = require("debug")("hull-connector:schedule-handler");
@@ -32,7 +20,7 @@ const {
   instrumentationContextMiddleware,
   instrumentationTransientErrorMiddleware
 } = require("../../middlewares");
-const { normalizeHandlersConfigurationEntry } = require("../../utils");
+
 /**
  * This handler allows to handle simple, authorized HTTP calls.
  * By default it picks authorization configuration from query.
@@ -54,9 +42,7 @@ function scheduleHandlerFactory(
   configurationEntry: HullSchedulerHandlerConfigurationEntry
 ) {
   const router = Router();
-  const { callback, options } = normalizeHandlersConfigurationEntry(
-    configurationEntry
-  );
+  const { callback, options = {} } = configurationEntry;
   const { disableErrorHandling = false, fireAndForget = false } = options;
 
   router.use(timeoutMiddleware());

@@ -1,27 +1,9 @@
 // @flow
 import type { $Response, NextFunction } from "express";
 import type {
-  HullHandlersConfigurationEntry,
-  HullContextFull,
+  HullJsonHandlerConfigurationEntry,
   HullRequestFull
 } from "../../types";
-
-type HullJsonHandlerOptions = {
-  cache?: {
-    key?: string,
-    options?: Object
-  },
-  disableErrorHandling?: boolean,
-  respondWithError?: boolean,
-  fireAndForget?: boolean
-};
-
-type HullJsonHandlerCallback = (ctx: HullContextFull) => Promise<*>;
-
-type HullJsonHandlerConfigurationEntry = HullHandlersConfigurationEntry<
-  HullJsonHandlerCallback,
-  HullJsonHandlerOptions
->;
 
 const debug = require("debug")("hull-connector:json-handler");
 const { Router } = require("express");
@@ -38,7 +20,6 @@ const {
   instrumentationContextMiddleware,
   instrumentationTransientErrorMiddleware
 } = require("../../middlewares");
-const { normalizeHandlersConfigurationEntry } = require("../../utils");
 
 /**
  * This handler allows to handle simple, authorized HTTP calls.
@@ -67,9 +48,7 @@ const { normalizeHandlersConfigurationEntry } = require("../../utils");
 function jsonHandlerFactory(
   configurationEntry: HullJsonHandlerConfigurationEntry
 ): Router {
-  const { callback, options } = normalizeHandlersConfigurationEntry(
-    configurationEntry
-  );
+  const { callback, options } = configurationEntry;
   const {
     cache = {},
     disableErrorHandling = false,

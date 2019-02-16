@@ -1,5 +1,5 @@
 /* @flow */
-import type { HullContext } from "hull";
+import type { HullContextFull } from "hull";
 
 import type { TypeformResponse, TypeformForm } from "../types";
 
@@ -30,7 +30,7 @@ class SyncAgent {
 
   helpers: *;
 
-  constructor(ctx: HullContext) {
+  constructor(ctx: HullContextFull) {
     this.connector = ctx.connector;
     this.serviceClient = new ServiceClient({
       accessToken: this.connector.private_settings.access_token,
