@@ -53,7 +53,7 @@ Note down the “Site ID” and “API Key” from the following page:
 
 ## How to determine which events customer.io sends to Hull
 
-Optionally, You can specify the events Hull will receive from customer.io. The list of all events is available in the customer.io docs under [http://learn.customer.io/developer-documentation/webhooks.html#events](http://learn.customer.io/developer-documentation/webhooks.html#events).
+Optionally, You can choose to limit the events Hull will receive from customer.io. The list of all events is available in the customer.io docs under [http://learn.customer.io/developer-documentation/webhooks.html#events](http://learn.customer.io/developer-documentation/webhooks.html#events).
 
 To customize this events, navigate to your customer.io dashboard, select “Integrations” from the menu to the left side of your screen and click the button “Settings” next to Email Activity Webhook:
 ![Webhook Events Step 1](./docs/webhookevents01.png)
