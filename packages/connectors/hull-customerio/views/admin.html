@@ -1,21 +1,34 @@
-<html><head>
-    <title>Hull Customer.io</title>
-    <link rel="stylesheet" href="//dd04rofzygnm0.cloudfront.net/releases/master/865f04865d2448286626bac92c518a8f8ea8bafe/stylesheets/neue.css">
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css">
-</head>
-<body>
-<div class="row">
-    <div class=" mt-1 col-md-6 col-md-offset-3">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title text-center">Customer.io Connector</h3>
+<html>
+  <head>
+      <title>Hull Customer.io</title>
+      <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <div class="row">
+      <div class="col-sm-12 col-md-offset-1 col-md-10">
+        <div class="ps-2">
+          <h1 class="mb-0 mt-05  text-center"><i class="icon icon-hull" style="font-size:64px;"></i></h1>
+
+          <div class='mt-1'>
+            <h5 class='mt-1'>
+              Capturing email activity from <strong>Customer.io</strong>
+            </h5>
+            In <strong>Customer.io</strong>, go to <code>Integrations > Email Activity Webhooks</code>
+            and paste at the following url in <code>Webhook Endpoint</code> :
+            <div class="mt-1">
+              <input class="form-control mb-1" value="https://<%= hostname %>/webhook/?conf=<%= token %>" />
             </div>
-            <div class="panel-body text-center">
-                Webhooks Endpoint that should be configured at customer.io panel <br/>
-                In Customer.io panel go to Integrations -> Email Activity Webhooks and paste at 'Webhook Endpoint' this url : <br/>
-                <input class="form-control mb-1" value="https://<%= hostname %>/webhook/?conf=<%= token %>" />
-            </div>
+
+            <hr>
+
+            <h5 class='mt-2'>
+              Sending User and Event data to <strong>Customer.io</strong>
+            </h5>
+            <p>Head to the Settings section to configure the Customer.io credentials and define mappings between Hull and Customer.io</p>
+            <p>Checkout the <strong>Docs</strong> tab for more details</p>
+
+          </div>
         </div>
     </div>
-</div>
-</body></html>
+  </body>
+</html>
