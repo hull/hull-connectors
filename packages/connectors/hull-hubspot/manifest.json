@@ -15,50 +15,23 @@
   "settings": [],
   "private_settings": [
     {
-      "name": "outgoing_user_title",
-      "title": "Outgoing users configuration",
-      "description": "Following section configures how we create or update `Hubspot Contacts`",
-      "format": "title",
-      "type": "string"
-    },
-    {
-      "name": "synchronized_user_segments",
-      "title": "User Filter",
-      "description": "Send to Hubspot when users match these segments",
-      "default": [],
-      "type": "array",
-      "format": "segment"
-    },
-    {
-      "name": "outgoing_user_attributes",
-      "title": "Custom Fields Sync (Hull to Hubspot)",
-      "type": "array",
-      "format": "traitMapping",
-      "options": {
-        "direction": "outgoing",
-        "showOverwriteToggle": true,
-        "placeholder": "Hubspot Field",
-        "allowCreate": true,
-        "loadOptions": "/schema/contact_properties"
-      }
-    },
-    {
       "name": "incoming_user_title",
-      "title": "Incoming users configuration",
-      "description": "Following section configures how we fetch `Hubspot Contacts` and match them with `Hull Users`",
+      "title": "User Incoming Setup",
+      "description": "How we capture Hubspot Contacts as users",
       "format": "title",
       "type": "string"
     },
     {
       "name": "incoming_user_claims",
-      "title": "Incoming user identity",
+      "title": "User Resolution",
+      "description": "Configure which attributes we use to resolve identities between Hull and Hubspot Contacts. _DO NOT map attributes here. use dedicated the setting below_",
       "type": "array",
       "format": "table",
       "items": {
         "type": "object",
         "properties": {
           "service": {
-            "title": "Hubspot Field ID",
+            "title": "Hubspot Identifier",
             "type": "string",
             "format": "select",
             "options" : {
@@ -67,7 +40,7 @@
             }
           },
           "hull": {
-            "title": "Hull User Ident",
+            "title": "Hull Identifier",
             "enum": ["external_id", "email"]
           },
           "required" : {
@@ -91,7 +64,8 @@
     },
     {
       "name": "incoming_user_attributes",
-      "title": "Custom Fields Sync (Hubspot to Hull)",
+      "title": "Incoming Attribute Mapping",
+      "description": "Define which Attributes are captured from Hubspot into Hull",
       "type": "array",
       "format": "traitMapping",
       "options": {
@@ -104,44 +78,46 @@
       }
     },
     {
-      "name": "outgoing_account_title",
-      "title": "Outgoing accounts configuration",
-      "description": "Following section configures how we create or update `Hubspot Companies`",
+      "name": "outgoing_user_title",
+      "title": "User Outgoing Setup",
+      "description": "How we send Users as Hubspot Contacts",
       "format": "title",
       "type": "string"
     },
     {
-      "name": "synchronized_account_segments",
-      "title": "Account Filter",
-      "description": "Defines the list of Account Segments to send. Nothing sent by default.",
+      "name": "synchronized_user_segments",
+      "title": "User Filter",
+      "description": "Send to Hubspot when users match these segments",
       "default": [],
       "type": "array",
-      "format": "accountSegment"
+      "format": "segment"
     },
     {
-      "name": "outgoing_account_attributes",
-      "title": "Custom Accounts Fields Sync (Hull to Hubspot)",
+      "name": "outgoing_user_attributes",
+      "title": "Outgoing Attribute Mapping",
+      "description": "Define which Hull User attributes are sent to Hubspot",
       "type": "array",
-      "format": "accountTraitMapping",
+      "format": "traitMapping",
       "options": {
         "direction": "outgoing",
-        "showOverwriteToggle": false,
-        "placeholder": "Hubspot Company Field",
+        "showOverwriteToggle": true,
+        "placeholder": "Hubspot Field",
         "allowCreate": true,
-        "loadOptions": "/schema/company_properties"
+        "loadOptions": "/schema/contact_properties"
       }
     },
-    {
-      "name": "link_users_in_service",
-      "title": "Link Contacts in Hubspot",
-      "description": "Do you want to let Hull associate Contacts and Companies in Hubspot?",
-      "type": "boolean",
-      "default": false
-    },
+
+
+
+
+
+
+
+
     {
       "name": "incoming_account_title",
-      "title": "Incoming accounts configuration",
-      "description": "Following section configures how we fetch `Hubspot Companies` and match them with `Hull Accounts`",
+      "title": "Account Incoming Setup",
+      "description": "How we capture Hubspot Companies as Accounts",
       "format": "title",
       "type": "string"
     },
@@ -154,14 +130,15 @@
     },
     {
       "name": "incoming_account_claims",
-      "title": "Incoming account identity",
+      "title": "Account Resolution",
+      "description": "Configure which attributes we use to resolve identities between Hull and Hubspot Accounts. _DO NOT map attributes here. use dedicated the setting below_",
       "type": "array",
       "format": "table",
       "items": {
         "type": "object",
         "properties": {
           "service": {
-            "title": "Hubspot Field ID",
+            "title": "Hubspot Identifier",
             "type": "string",
             "format": "select",
             "options" : {
@@ -170,7 +147,7 @@
             }
           },
           "hull": {
-            "title": "Hull Account",
+            "title": "Hull Identifier",
             "enum": ["external_id", "domain"]
           },
           "required" : {
@@ -189,7 +166,8 @@
     },
     {
       "name": "incoming_account_attributes",
-      "title": "Custom Fields Sync (Hubspot to Hull)",
+      "title": "Incoming Attribute Mapping",
+      "description": "How we map Accounts and their attributes between Hubspot and Hull",
       "type": "array",
       "format": "accountTraitMapping",
       "options": {
@@ -200,6 +178,44 @@
         "loadOptions": "/schema/company_properties",
         "source": "hubspot"
       }
+    },
+
+    {
+      "name": "outgoing_account_title",
+      "title": "Account Outgoing Setup",
+      "description": "Following section configures how we create or update `Hubspot Companies`",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "synchronized_account_segments",
+      "title": "Account Filter",
+      "description": "Defines the list of Account Segments to send. Nothing sent by default.",
+      "default": [],
+      "type": "array",
+      "format": "accountSegment"
+    },
+    {
+      "name": "outgoing_account_attributes",
+      "title": "Outgoing Attribute Mapping",
+      "type": "array",
+      "format": "accountTraitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "Hubspot Company Field",
+        "allowCreate": true,
+        "loadOptions": "/schema/company_properties"
+      }
+    },
+
+
+    {
+      "name": "link_users_in_service",
+      "title": "Link Contacts in Hubspot",
+      "description": "Do you want to let Hull associate Contacts and Companies in Hubspot?",
+      "type": "boolean",
+      "default": false
     },
     {
       "name": "link_users_in_hull",
