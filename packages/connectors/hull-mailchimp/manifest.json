@@ -6,7 +6,15 @@
   "source": "mailchimp",
   "logo": "logo.png",
   "picture": "picture.png",
-  "admin" : "/auth/",
+  "tabs": [
+    {
+      "title": "Credentials & Actions",
+      "url": "/auth/",
+      "size": "small",
+      "setup": true,
+      "editable": false
+    }
+  ],
   "private_settings":[
     {
       "name": "configuration_title",
