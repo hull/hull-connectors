@@ -4,7 +4,7 @@
   "source": "hubspot",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.0.13-monorepo",
+  "version": "0.0.14-monorepo",
   "tags": [
     "outgoing",
     "incoming",
@@ -128,8 +128,7 @@
         "showOverwriteToggle": false,
         "placeholder": "Hubspot Company Field",
         "allowCreate": true,
-        "loadOptions": "/schema/company_properties",
-        "source": "hubspot"
+        "loadOptions": "/schema/company_properties"
       }
     },
     {
