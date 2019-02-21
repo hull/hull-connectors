@@ -1,6 +1,6 @@
 {
-  "name": "Hull-Outreach",
-  "description": "description",
+  "name": "Outreach",
+  "description": "Two-way Outreach integration for Prospects & Accounts",
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
@@ -248,7 +248,8 @@
       "title": "Credentials",
       "url": "/auth",
       "size": "small",
-      "editable": false
+      "editable": false,
+      "setup": true
     },
     {
       "title": "Actions",
