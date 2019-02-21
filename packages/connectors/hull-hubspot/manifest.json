@@ -36,7 +36,7 @@
       "format": "traitMapping",
       "options": {
         "direction": "outgoing",
-        "showOverwriteToggle": true,
+        "showOverwriteToggle": false,
         "placeholder": "Hubspot Field",
         "allowCreate": true,
         "loadOptions": "/schema/contact_properties"
