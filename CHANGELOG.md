@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.0.14-monorepo
+- [hull-hubspot] updated status messaging and logic for surfacing warning and errors
+
 ## v0.0.13-monorepo
 - [hull-outreach] New outreach connector with new framework
 

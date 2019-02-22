@@ -4,7 +4,7 @@
   "source": "hubspot",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.0.13-monorepo",
+  "version": "0.0.14-monorepo",
   "tags": [
     "outgoing",
     "incoming",
@@ -36,7 +36,7 @@
       "format": "traitMapping",
       "options": {
         "direction": "outgoing",
-        "showOverwriteToggle": true,
+        "showOverwriteToggle": false,
         "placeholder": "Hubspot Field",
         "allowCreate": true,
         "loadOptions": "/schema/contact_properties"
