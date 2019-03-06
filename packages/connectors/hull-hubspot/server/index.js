@@ -10,6 +10,8 @@ const {
   LOG_LEVEL,
   SHIP_CACHE_TTL = 180,
   CACHE_REDIS_URL,
+  CACHE_REDIS_MAX_CONNECTIONS = 5,
+  CACHE_REDIS_MIN_CONNECTIONS = 1,
   SECRET = "1234",
   PORT = 8082,
   OVERRIDE_FIREHOSE_URL,
@@ -30,7 +32,9 @@ if (CACHE_REDIS_URL) {
   cache = new Cache({
     store: redisStore,
     url: CACHE_REDIS_URL,
-    ttl: SHIP_CACHE_TTL
+    ttl: SHIP_CACHE_TTL,
+    max: CACHE_REDIS_MAX_CONNECTIONS,
+    min: CACHE_REDIS_MIN_CONNECTIONS
   });
 }
 
