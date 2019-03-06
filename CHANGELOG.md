@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.0.15-monorepo
+- [hull-hubspot] set default max cache pool size
+
 ## v0.0.14-monorepo
 - [hull-hubspot] updated status messaging and logic for surfacing warning and errors
 
