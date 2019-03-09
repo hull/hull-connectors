@@ -1,10 +1,10 @@
-const _ = require("lodash");
+
 const glob = require("glob");
 const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const LodashModuleReplacementPlugin = require("lodash-webpack-plugin");
+// const LodashModuleReplacementPlugin = require("lodash-webpack-plugin");
 
-const getFiles = source => glob.sync(`${source}/*.js`);
+const getFiles = source => glob.sync(`${source}/*.{js,jsx}`);
 const getEntry = files =>
   _.reduce(
     files,
@@ -13,7 +13,7 @@ const getEntry = files =>
         v
           .split("/")
           .pop()
-          .replace(".js", "")
+          .replace(/.(js|jsx)/, "")
       ] = v;
       return m;
     },
@@ -24,23 +24,29 @@ const getPlugins = mode =>
   mode === "production"
     ? [
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
-        new LodashModuleReplacementPlugin({
-          collections: true,
-          paths: true
-        }),
+        // new LodashModuleReplacementPlugin({
+        //   collections: true,
+        //   paths: true
+        // }),
         new MiniCssExtractPlugin({ filename: "[name].css" })
       ]
-    : [];
+    : [new MiniCssExtractPlugin({ filename: "[name].css" })];
 
 const buildConfig = ({ files, destination, mode = "production" }) => ({
   mode,
   entry: getEntry(files),
   devtool: mode === "production" ? "source-map" : "inline-source-map",
   output: {
-    path: destination,
+    path: path.resolve(destination),
     filename: "[name].js",
     publicPath: "/"
   },
+
+  resolve: {
+    modules: [`${process.cwd()}/src`, "node_modules"],
+    extensions: [".js", ".jsx", ".css", ".scss"]
+  },
+
   module: {
     rules: [
       {

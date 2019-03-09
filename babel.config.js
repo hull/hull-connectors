@@ -17,6 +17,11 @@ module.exports = api => {
         }
       ]
     ],
-    plugins: ["transform-flow-strip-types", "syntax-object-rest-spread"]
+    plugins: [
+      "plugin-transform-runtime",
+      "transform-flow-strip-types",
+      "syntax-object-rest-spread",
+      "plugin-proposal-class-properties"
+    ]
   };
 };
