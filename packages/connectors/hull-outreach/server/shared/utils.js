@@ -77,25 +77,6 @@ function toSendMessage(context: HullContext, targetEntity: "user" | "account",
       throw new Error(`Invalid input for target entity, option not supported: ${targetEntity}`);
     }
 
-    // Should we do on entered segment too?
-    if (targetEntity === "user") {
-
-      const linkInService = _.get(context, "connector.private_settings.link_users_in_service");
-
-      if (!isUndefinedOrNull(linkInService) && typeof linkInService === "boolean" && linkInService) {
-        const changedAccounts = _.get(message, `changes.account.id`);
-
-        if (!_.isEmpty(changedAccounts)) {
-          // user changed accounts, and link_users_in_service is enabled
-          // so update user...
-          return true;
-        }
-        // if account enteres a synchronized segment
-        // but it was or wasn't in a synchronized segment before
-        // may want to perform account linking
-      }
-    }
-
     const enteredSegments = _.get(message, `changes.${segmentAttribute}.entered`);
     const enteredAnySegments = !_.isEmpty(enteredSegments);
 
@@ -143,6 +124,25 @@ function toSendMessage(context: HullContext, targetEntity: "user" | "account",
         context.client.asAccount(entity).logger.info("outgoing.account.skip", { reason: `Account is not present in any existing segment (${segmentAttribute}).  Please add the account to an existing synchronized segment` });
       }
       return false;
+    }
+
+    // Should we do on entered segment too?
+    if (targetEntity === "user") {
+
+      const linkInService = _.get(context, "connector.private_settings.link_users_in_service");
+
+      if (!isUndefinedOrNull(linkInService) && typeof linkInService === "boolean" && linkInService) {
+        const changedAccounts = _.get(message, `changes.account.id`);
+
+        if (!_.isEmpty(changedAccounts)) {
+          // user changed accounts, and link_users_in_service is enabled
+          // so update user...
+          return true;
+        }
+        // if account enteres a synchronized segment
+        // but it was or wasn't in a synchronized segment before
+        // may want to perform account linking
+      }
     }
 
     //Is this the right thing?
