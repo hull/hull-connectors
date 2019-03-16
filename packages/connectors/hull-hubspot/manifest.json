@@ -4,7 +4,7 @@
   "source": "hubspot",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.0.13-monorepo",
+  "version": "0.0.15-monorepo",
   "tags": [
     "outgoing",
     "incoming",
@@ -14,6 +14,34 @@
   ],
   "settings": [],
   "private_settings": [
+    {
+      "name": "outgoing_user_title",
+      "title": "Outgoing users configuration",
+      "description": "Following section configures how we create or update `Hubspot Contacts`",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "synchronized_user_segments",
+      "title": "User Filter",
+      "description": "Send to Hubspot when users match these segments",
+      "default": [],
+      "type": "array",
+      "format": "segment"
+    },
+    {
+      "name": "outgoing_user_attributes",
+      "title": "Custom Fields Sync (Hull to Hubspot)",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "Hubspot Field",
+        "allowCreate": true,
+        "loadOptions": "/schema/contact_properties"
+      }
+    },
     {
       "name": "incoming_user_title",
       "title": "User Incoming Setup",

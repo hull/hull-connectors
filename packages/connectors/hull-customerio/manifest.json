@@ -4,7 +4,7 @@
   "source": "customerio",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.0.13-monorepo",
+  "version": "0.0.15-monorepo",
   "tags": [
     "outgoing",
     "batch",

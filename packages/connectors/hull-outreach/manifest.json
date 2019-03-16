@@ -1,10 +1,10 @@
 {
-  "name": "Hull-Outreach",
-  "description": "description",
+  "name": "Outreach",
+  "description": "Two-way Outreach integration for Prospects & Accounts",
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.0.13-monorepo",
+  "version": "0.0.15-monorepo",
 
   "tags": [
     "incoming",
@@ -248,7 +248,8 @@
       "title": "Credentials",
       "url": "/auth",
       "size": "small",
-      "editable": false
+      "editable": false,
+      "setup": true
     },
     {
       "title": "Actions",
