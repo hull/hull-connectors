@@ -45,12 +45,19 @@ class ServiceEngine {
   dispatcher: HullDispatcher;
   services: Object;
   transforms: TransformImpl;
-  recoveryPromise: Promise<any>;
+  recoveryPromise: Promise<any> | null;
+  clearRecoveryPromiseHandle: any;
 
   constructor(dispatcher: HullDispatcher, services: Object, transforms: ServiceTransforms) {
     this.dispatcher = dispatcher;
     this.services = services;
     this.transforms = new TransformImpl(transforms);
+  }
+
+  close() {
+    if (!isUndefinedOrNull(this.clearRecoveryPromiseHandle)) {
+      clearTimeout(this.clearRecoveryPromiseHandle);
+    }
   }
 
 
@@ -279,6 +286,21 @@ class ServiceEngine {
             // will have it set, but others will not
             // don't input data on an attempt to recover...
             this.recoveryPromise = this.dispatcher.resolve(_.assign({ recoveryroute: route }, context), new Route(route), null);
+
+            const envTtl = process.env.RECOVERY_ROUTE_TTL;
+            let recoveryPromiseTtl:number = 3600000;
+            if (!isUndefinedOrNull((envTtl))) {
+              if (typeof envTtl === 'string') {
+                recoveryPromiseTtl = parseInt(envTtl);
+              } else {
+                recoveryPromiseTtl = envTtl;
+              }
+            }
+
+            this.clearRecoveryPromiseHandle = setTimeout(() => {
+              debug("Clearing recovery promise so that it can be used again");
+              this.recoveryPromise = null;
+            }, recoveryPromiseTtl);
           }
 
           // .then creates a new promise reference... must keep track of it

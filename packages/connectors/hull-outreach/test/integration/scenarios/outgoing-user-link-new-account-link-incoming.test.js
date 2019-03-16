@@ -9,7 +9,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 const connectorServer = require("../../../server/server");
 
 
-test("send smart-notifier user update to outreach", () => {
+test("send smart-notifier user update to outreach with returning account link", () => {
   return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
     const updateMessages = _.cloneDeep(require("../fixtures/notifier-payloads/outgoing-user-link-new-account.json"));
     updateMessages.connector.private_settings.link_users_in_hull = true;
