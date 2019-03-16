@@ -101,6 +101,16 @@ const MESSAGES = {
       category: "DataFlow"
     };
   },
+  SERVICE_PROSPECT_IS_OWNER_ERROR: () => {
+    return {
+      id: "ServiceValidationError",
+      message:
+        "Outreach has rejected the prospect being sent, because the email address violated the exclusion rules.  Please check to see if the domain corresponds to the owner of the account and exclude the owner's domain from prospects being synchronized in the segment",
+      level: "Error",
+      channel: "Operation",
+      category: "DataFlow"
+    };
+  },
   UNKNOWN_SERVICE_ERROR: () => {
     return {
       id: "UnknownServiceError",
