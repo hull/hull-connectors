@@ -224,11 +224,11 @@ class HullDispatcher {
             throw new Error("Don't know what this looping case is where the parameters aren't an array... not sure it should exist");
           }
 
-          const results = [];
+          //const results = [];
           for (let i = 0; i < resolvedParams.length; i++) {
             _.set(context, instruction.varname, resolvedParams[i]);
             const instructionResults = await this.resolve(context, instruction.instructions, serviceData);
-            results.push(instructionResults);
+            //results.push(instructionResults);
 
             // check to see if includes an end, if so, then stop looping...
             const endInstruction = _.find(instructionResults, (instructionResult) => {
@@ -242,14 +242,15 @@ class HullDispatcher {
               break;
             }
           }
-          return results;
+          //return results;
+          return Promise.resolve();
 
         } else {
 
-          const results = [];
+          //const results = [];
           while(true) {
             const instructionResults = await this.resolve(context, instruction.instructions, serviceData);
-            results.push(instructionResults);
+            //results.push(instructionResults);
             // if results do not contain an end(), then continue to loop
             const endInstruction = _.find(instructionResults, (instructionResult) => {
               if (instructionResult instanceof HullInstruction
@@ -262,8 +263,8 @@ class HullDispatcher {
               break;
             }
           }
-          return results;
-
+          //return results;
+          return Promise.resolve();
         }
 
       } else if (name === 'end') {
