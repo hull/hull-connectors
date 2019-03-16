@@ -56,6 +56,10 @@ class HullDispatcher {
     this.ensure = ensure;
   }
 
+  close() {
+    this.services.close();
+  }
+
   async dispatch(context: Object, route: string) {
     return await this.handleRequest(context, route, null);
   }
