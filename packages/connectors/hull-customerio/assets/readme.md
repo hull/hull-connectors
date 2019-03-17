@@ -28,7 +28,10 @@ Here you can determine the **whitelisted segments** which a user needs to belong
 
 You can also determine how to handle when a user leaves a segment. When you **enable user deletion**, the Connector will automatically remove users from customer.io if they no longer belong to any of the whitelisted segments.
 
-Furthermore, you can specify which **events** shall be send to customer.io by selecting the events from the dropdown list. You can also activate **Anonymous Events**, which is an advanced feature in customer.io. If you are not familiar with this feature, you can read more in Customer.io’s own [documentation](https://learn.customer.io/recipes/anonymous-invite-emails.html).
+Furthermore, you can specify which **events** shall be send to customer.io by selecting the events from the dropdown list.
+
+### Sending Anonymous Events
+You can also activate **Anonymous Events**, which is an advanced feature in customer.io. If you are not familiar with this feature, you can read more in Customer.io’s own [documentation](https://learn.customer.io/recipes/anonymous-invite-emails.html).
 
 The most important decision you have to make here is **which user attribute to send as the** `**customerId**` to customer.io which is the unique identifier within customer.io. Our recommendation is to either use the `external_id` if you assign your own identifier to users in Hull or use the Hull `id`.
 

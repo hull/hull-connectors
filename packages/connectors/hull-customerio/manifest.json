@@ -59,13 +59,14 @@
     {
       "name": "anonymous_events",
       "title": "Send Anonymous Events",
+      "description": "Send events for users that don't have an email. This is an advanced option. Check our docs for more infos",
       "type": "boolean",
       "default": false
     },
     {
       "name": "user_id_mapping",
       "title": "Which user attribute to send as 'customerId'",
-      "description": "Customer.io requires a unique identifer for each user. The best practice is to use the `external_id` but in specific cases you might want to use another attributes. This is an advanced setting",
+      "description": "Customer.io requires a unique main identifer for each user. The best practice is to use the `external_id` because it can never change, but in specific cases you might want to use another attribute. This is an advanced setting. We advise to contact us before changing",
       "type": "string",
       "format": "trait",
       "default": "external_id"
