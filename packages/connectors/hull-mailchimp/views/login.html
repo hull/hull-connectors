@@ -1,24 +1,22 @@
+<!DOCTYPE html>
 <html>
   <head>
-    <title>Login - Hull <%= name %></title>
+    <title>Hull <%= name %></title>
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
-    <div class="container">
+    <div class="container-fluid">
       <div class="row">
-        <div class="col-sm-12 col-md-offset-1 col-md-1">
-          <div class="mb-1">
-            <h1 class="mb-0 mt-05  text-center"><i class="icon icon-hull" style="font-size:64px;"></i></h1>
-            <h4 class="mb-1">Connect to <%= name %></h4>
-            <p class="text-muted mb-1">
-              <span>
-                Click button below to give Hull permission to access your <%= name %> Account
-              </span>
-            </p>
-            <a href="<%=url%>" target="_blank" id='login' class='btn btn-block btn-primary'>
-              Continue with <%= name %>
-            </a>
-          </div>
+        <div class="col-sm-12 col-md-offset-1 col-md-10 text-center">
+          <h1 class="mb-0 mt-05 text-center"><i class="icon icon-hull" style="font-size:64px;"></i></h1>
+          <h5 class='mt-1'>Connect to <%= name %></h5>
+          <hr>
+          <p class="mb-1">
+            Give Hull permission to access your <%= name %> Account
+          </p>
+          <a href="<%=url%>" target="_blank" id='login' class='btn btn-rounded btn-primary'>
+            Continue with <%= name %>
+          </a>
         </div>
       </div>
     </div>

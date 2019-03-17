@@ -90,7 +90,7 @@
     },
     {
       "name": "outgoing_user_attributes",
-      "title": "Send the following user attributes to Mailchim",
+      "title": "Send the following user attributes to Mailchimp",
       "type": "array",
       "format": "traitMapping",
       "options": {

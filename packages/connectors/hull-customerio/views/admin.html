@@ -1,34 +1,33 @@
+<!DOCTYPE html>
 <html>
   <head>
-      <title>Hull Customer.io</title>
-      <link rel="stylesheet" href="/style.css">
+    <title>Hull Customer.io</title>
+    <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
-    <div class="row">
-      <div class="col-sm-12 col-md-offset-1 col-md-10">
-        <div class="ps-2">
-          <h1 class="mb-0 mt-05  text-center"><i class="icon icon-hull" style="font-size:64px;"></i></h1>
-
-          <div class='mt-1'>
-            <h5 class='mt-1'>
-              Capturing email activity from <strong>Customer.io</strong>
-            </h5>
-            In <strong>Customer.io</strong>, go to <code>Integrations > Email Activity Webhooks</code>
-            and paste at the following url in <code>Webhook Endpoint</code> :
-            <div class="mt-1">
-              <input class="form-control mb-1" value="https://<%= hostname %>/webhook/?conf=<%= token %>" />
-            </div>
-
-            <hr>
-
-            <h5 class='mt-2'>
-              Sending User and Event data to <strong>Customer.io</strong>
-            </h5>
-            <p>Head to the Settings section to configure the Customer.io credentials and define mappings between Hull and Customer.io</p>
-            <p>Checkout the <strong>Docs</strong> tab for more details</p>
-
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-12 col-md-offset-1 col-md-10">
+          <h1 class="mb-0 mt-05 text-center"><i class="icon icon-hull" style="font-size:64px;"></i></h1>
+          <h5 class='mt-1'>
+            Capturing email activity from <strong>Customer.io</strong>
+          </h5>
+          In <strong>Customer.io</strong>, go to <code>Integrations > Email Activity Webhooks</code>
+          and paste at the following url in <code>Webhook Endpoint</code> :
+          <div class="mt-1">
+            <input class="form-control mb-1" value="https://<%= hostname %>/webhook/?conf=<%= token %>" />
           </div>
+
+          <hr>
+
+          <h5 class='mt-2'>
+            Sending User and Event data to <strong>Customer.io</strong>
+          </h5>
+          <p>Head to the Settings section to configure the Customer.io credentials and define mappings between Hull and Customer.io</p>
+          <p>Checkout the <strong>Docs</strong> tab for more details</p>
+
         </div>
+      </div>
     </div>
   </body>
 </html>
