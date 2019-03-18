@@ -5,49 +5,71 @@
 </head>
 <body>
   <div class="row">
-    <div class="col-md-6 col-md-offset-3 col-sm-offset-2 col-sm-8 col-xs-offset-1 col-xs-10 mt-2 panel">
-      <div class="panel-body">
-        <div class="mb-1 ps-3">
+    <div class="col-sm-12 col-md-offset-1 col-md-10">
+      <div class="mb-1 ps-1">
 
-          <h1 class="mb-0 mt-05  text-center"><i class="icon icon-hull" style="font-size:64px;"></i></h1>
+        <h1 class="mb-0 mt-05  text-center"><i class="icon icon-hull" style="font-size:64px;"></i></h1>
 
-          <div class="mb-1 media pb-1">
-            <div class="media-left">
-              <div class="media-object pr-1 pt-1">
-                <div class="check valid"><i class="icon icon-valid"></i></div>
-              </div>
-            </div>
-            <div class="media-body pt-1">
-              <span class="pull-right"><a href="<%=urls.home%>&reset=true" class="btn btn-rounded btn-pill btn-secondary">Start over</a></span>
-              <h4 class="m-0 pt-05 text-muted">
-                Connected to <%=name%> portal
-                <a href="https://app.hubspot.com/dashboard/<%=settings.portal_id%>" target="_blank"><%=settings.portal_id%></a>
-              </h4>
-            </div>
+        <div class="flex-row space-between align-center">
+          <div class="flex-row">
+            <div class="check valid"><i class="icon icon-valid"></i></div>
+            <p class="m-0 ps-1 pt-05">
+              Connected to <%=name%> portal
+              <a href="https://app.hubspot.com/dashboard/<%=settings.portal_id%>" target="_blank"><%=settings.portal_id%></a>
+            </p>
           </div>
-
-
-          <hr>
-
-          <div data-href="/fetch-all" data-entity="contacts" class="pull-right btn btn-rounded btn-pill btn-primary">Fetch All Contacts</div>
-
-          <div class="last_fetch">
-
-            <% if (settings.last_fetch_started_at) { %>
-            <h5>Last Sync <small class="pull-right"><strong><%=settings.fetch_count || 0%> Users</strong> on <span data-time>Friday, September 8 @ 12h30</span></small></h5>
-            <% } %>
-          </div>
-
-          <hr>
-
-          <div data-href="/fetch-all-companies" data-entity="companies" class="pull-right btn btn-rounded btn-pill btn-primary">Fetch All Companies</div>
-
+          <a href="<%=urls.home%>&reset=true" class="btn btn-secondary">Start over</a>
         </div>
+
+        <hr>
+
+        <div class="last_fetch">
+          <div class="flex-row space-between align-center">
+            <h5>Last Sync:
+              <span class="text-muted">
+                <% if (settings.last_fetch_started_at) { %>
+                  <strong><%=settings.fetch_count || 0%> Users</strong> on <span data-time>Friday, September 8 @ 12h30</span>
+                <% } else {%>
+                  Never
+                <% } %>
+              </span>
+            </h5>
+          </div>
+        </div>
+
+        <hr>
+
+        <div>
+          <p>When you are done configuring your incoming mapping in the Settings tab, you can (re-)import your entire database: </p>
+        </div>
+        <div class="flex-row align-center flex-grow">
+          <div data-href="/fetch-all" data-entity="contacts" class="pull-right btn btn-primary mr-1">Fetch All Contacts</div>
+          <div data-href="/fetch-all-companies" data-entity="companies" class="pull-right btn btn-primary">Fetch All Companies</div>
+        </div>
+
+
+
       </div>
     </div>
   </div>
   <script>window.hullAuthCompleted = function authCompleted() { window.location.href = window.location.href.replace("&reset=true", ""); };</script>
   <style type="text/css" media="screen">
+    .sweet-alert {
+      font-family: inherit;
+    }
+    .flex-row{
+      display: flex;
+      flex-direction: row;
+    }
+    .flex-grow div {
+      flex-grow: 1
+    }
+    .align-center{
+      align-items: center;
+    }
+    .space-between{
+      justify-content: space-between;
+    }
     .last_fetch{
       clear: both;
     }
@@ -79,11 +101,11 @@
         var entity = $(this).attr('data-entity');
         swal({
           title: "Fetch all " + entity,
-          text: "You are going to fetch all Hubspot " + entity + ". This can generate a lot of traffic. Are you sure?",
+          text: "You are going to fetch all Hubspot " + entity + ". This will generate an important amount traffic. You should do this once when after installing the connector or if you want to re-import your entire database. Continue?",
           type: "warning",
           showCancelButton: true,
-          confirmButtonColor: "#DD6B55",
-          confirmButtonText: "Yes, fetch all!",
+          confirmButtonColor: "#0093E6",
+          confirmButtonText: "Continue",
           closeOnConfirm: false
         }, function(isConfirm) {
           if (isConfirm) {

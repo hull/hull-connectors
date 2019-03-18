@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.0.16-monorepo
+- [hull-customerio] new logo assets, doc changes and some visual updates to manifest
+- [hull-hubspot] updates to view layer, organized manifest better, updated descriptions in manifest
+- [hull-mailchimp] usability updates, manifest adding auth to tabs
+
 ## v0.0.15-monorepo
 - [hull-hubspot] set default max cache pool size
 
