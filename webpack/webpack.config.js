@@ -1,7 +1,9 @@
-
 const glob = require("glob");
 const webpack = require("webpack");
+const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const _ = require("lodash");
+
 // const LodashModuleReplacementPlugin = require("lodash-webpack-plugin");
 
 const getFiles = source => glob.sync(`${source}/*.{js,jsx}`);
@@ -49,12 +51,18 @@ const buildConfig = ({ files, destination, mode = "production" }) => ({
 
   module: {
     rules: [
-      {
-        enforce: "pre",
-        test: /\.(js|jsx)$/,
-        exclude: /node_modules/,
-        use: "eslint-loader"
-      },
+      // {
+      //   enforce: "pre",
+      //   test: /\.(js|jsx)$/,
+      //   exclude: /node_modules/,
+      //   loader: "eslint-loader",
+      //   options: {
+      //     failOnWarning: true,
+      //     failOnError: true,
+      //     emitWarning: true,
+      //     configFile: "./.eslintrc.js"
+      //   }
+      // },
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,

@@ -1,0 +1,39 @@
+{
+  "name": "Incoming Webhooks",
+  "description": "Recompute external properties and emit events with Javascript logic whenever user is send to connector by webhook",
+  "tags": ["incoming", "oneColumn"],
+  "picture": "picture.png",
+  "ui": false,
+  "admin": "admin.html",
+  "tabs": [
+    {
+      "title": "Code Editor",
+      "url": "admin.html",
+      "size": "large",
+      "setup": false,
+      "workspace": true,
+      "editable": true
+    }
+  ],
+  "readme" : "readme.md",
+  "version": "0.3.0",
+  "private_settings": [
+    {
+      "name":"code",
+      "title": "Code",
+      "description":"Enter Javascript code here, It will receive the data in the middle column, can emit `track()` and `traits()`. Preview results on the right. Save when finished",
+      "type": "string",
+      "default":"//console.log(\"Hello !\");\n//hull.asUser({ email: body.email }).traits({ coconuts: 12 });\n//hull.asUser({ email: body.email }).track(\"sample event\");",
+      "format": "hidden"
+    }
+  ],
+  "resources": [],
+  "subscriptions" : [],
+  "schedules": [
+    {
+      "url": "/status",
+      "type": "cron",
+      "value": "*/30 * * * *"
+    }
+  ]
+}

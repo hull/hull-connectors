@@ -1,22 +1,25 @@
 // @flow
-import type { $Response, NextFunction } from "express";
-import type { HullRequestBase } from "../types";
+import type { NextFunction } from "express";
+import type { HullRequest, HullResponse } from "../types";
+import getBody from "../utils/get-json-body";
 
-const debug = require("debug")("hull-connector:credentials-from-notification");
-const bodyParser = require("body-parser");
 const NotificationValidator = require("../utils/notification-validator");
 
 function getTimestamp() {
   return Math.floor(new Date().getTime() / 1000);
 }
 
-function ensureRequestId(req) {
-  const { hull, body } = req;
-  const { notification_id } = body;
+function ensureRequestId(req: HullRequest) {
+  const { hull } = req;
+
+  // TODO: How to standardize req.body responses (again)
+  // $FlowFixMe
+  const { notification_id = null } = getBody(req);
   if (hull.requestId) return hull.requestId;
   if (notification_id) {
     return ["smart-notifier", getTimestamp(), notification_id].join(":");
   }
+  return undefined;
 }
 
 /**
@@ -26,8 +29,8 @@ function ensureRequestId(req) {
  */
 function credentialsFromNotificationMiddlewareFactory() {
   return function credentialsFromNotificationMiddleware(
-    req: HullRequestBase,
-    res: $Response,
+    req: HullRequest,
+    res: HullResponse,
     next: NextFunction
   ) {
     const { hull, body } = req;
@@ -60,9 +63,11 @@ function credentialsFromNotificationMiddlewareFactory() {
         if (body === null || typeof body !== "object") {
           throw new Error("Missing Payload Body");
         }
-        const { configuration: clientCredentials } = body;
+        const { configuration: clientCredentials = {} } = body;
         req.hull = Object.assign(req.hull, {
           requestId: ensureRequestId(req),
+          // TODO: How to standardize req.body responses (again)
+          // $FlowFixMe
           clientCredentials
         });
         return next();

@@ -1,13 +1,14 @@
 // @flow
-/* global describe, it, beforeEach, afterEach */
-declare function describe(name:string, callback:Function):void;
-declare function before(callback:Function):void;
-declare function beforeEach(callback:Function):void;
-declare function it(name:string, callback:Function):void;
+import connectorConfig from "../../../server/config";
+
+declare function describe(name: string, callback: Function): void;
+declare function before(callback: Function): void;
+declare function beforeEach(callback: Function): void;
+declare function afterEach(callback: Function): void;
+declare function it(name: string, callback: Function): void;
+declare function test(name: string, callback: Function): void;
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
 
 process.env.MAILCHIMP_CLIENT_ID = "1234";
 process.env.MAILCHIMP_CLIENT_SECRET = "1234";
@@ -37,7 +38,7 @@ const usersSegments = [
 
 it("Missing Mailchimp list", () => {
   const email = "email@email.com";
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -47,8 +48,7 @@ it("Missing Mailchimp list", () => {
       accountsSegments: [],
       externalApiMock: () => {
         const scope = nock("https://mock.api.mailchimp.com/3.0");
-        scope.get("/lists/1/webhooks")
-          .reply(404, {});
+        scope.get("/lists/1/webhooks").reply(404, {});
         return scope;
       },
       messages: [
@@ -64,7 +64,7 @@ it("Missing Mailchimp list", () => {
           type: "retry",
           in: 10,
           in_time: 30000,
-          size: 50,
+          size: 50
         }
       },
       logs: [
@@ -75,7 +75,15 @@ it("Missing Mailchimp list", () => {
           { changes: {}, events: [], segments: ["hullSegmentName"] }
         ],
         ["debug", "outgoing.job.start", expect.whatever(), { messages: 1 }],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ method: "GET", url: "/lists/{{listId}}/webhooks" })],
+        [
+          "debug",
+          "connector.service_api.call",
+          expect.whatever(),
+          expect.objectContaining({
+            method: "GET",
+            url: "/lists/{{listId}}/webhooks"
+          })
+        ],
         [
           "warn",
           "webhook.error",
@@ -92,7 +100,7 @@ it("Missing Mailchimp list", () => {
           {
             error: "Mailchimp list is not present",
             stack: expect.any(String),
-            type: "notification",
+            type: "notification"
           }
         ]
       ],

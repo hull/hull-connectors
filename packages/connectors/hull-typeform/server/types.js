@@ -1,5 +1,5 @@
 /* @flow */
-import type { HullContextFull } from "hull";
+import type { HullContext } from "hull";
 
 export type TypeformResponseAnswer = {
   field: {
@@ -76,8 +76,8 @@ export type TypeformServiceClientOptions = {
   refreshToken: string,
   clientId: string,
   clientSecret: string,
-  client: $PropertyType<HullContextFull, "client">,
-  metric: $PropertyType<HullContextFull, "metric">
+  client: $PropertyType<HullContext, "client">,
+  metric: $PropertyType<HullContext, "metric">
 };
 
 export type TypeformConnectorPrivateSettings = Object;

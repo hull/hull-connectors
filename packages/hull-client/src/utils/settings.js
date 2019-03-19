@@ -1,6 +1,8 @@
 // @flow
 
-import type { HullConnector, HullConnectorSettings } from "../types";
+import type { HullConnector, HullConnectorSettings } from "../../../hull/src/types";
+
+/* TODO: Move this to Hull Connector framework because that's where it belongs */
 
 /**
  * Updates `private_settings` merging them with existing ones before.

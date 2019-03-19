@@ -2,6 +2,7 @@
 
 import type { $Application, Middleware } from "express";
 import type { Server } from "http";
+import _ from "lodash";
 import express from "express";
 import type {
   HullServerConfig,
@@ -10,10 +11,19 @@ import type {
   HullClientConfig,
   HullWorkerConfig,
   HullConnectorConfig,
-  HullContextMiddlewareParams,
   HullClient,
   HullWorker
 } from "../types";
+
+import {
+  jsonHandler,
+  scheduleHandler,
+  notificationHandler,
+  batchHandler,
+  incomingRequestHandler,
+  htmlHandler,
+  statusHandler
+} from "../handlers";
 
 import errorHandler from "./error";
 
@@ -24,10 +34,16 @@ const debug = require("debug")("hull-connector");
 
 const { staticRouter } = require("../utils");
 const Worker = require("./worker");
-const { hullContextMiddleware } = require("../middlewares");
 const { Instrumentation, Cache, Queue, Batcher } = require("../infra");
 const { onExit } = require("../utils");
-const { hullBaseMiddleware } = require("../middlewares");
+const {
+  hullContextMiddleware,
+  baseComposedMiddleware
+} = require("../middlewares");
+
+function getAbsolutePath(p) {
+  return `${path.dirname(path.join(require.main.filename, ".."))}/${p}`;
+}
 
 // const { TransientError } = require("../errors");
 
@@ -58,7 +74,9 @@ const { hullBaseMiddleware } = require("../middlewares");
  * @param {boolean}       [options.disableOnExit=false] an optional param to disable exit listeners
  */
 class HullConnector {
-  middlewares: Array<Function>;
+  middlewares: $PropertyType<HullConnectorConfig, "middlewares">;
+
+  handlers: $PropertyType<HullConnectorConfig, "handlers">;
 
   connectorConfig: HullConnectorConfig;
 
@@ -84,8 +102,6 @@ class HullConnector {
 
   Client: Class<HullClient>;
 
-  static bind: Function;
-
   app: $Application;
 
   server: Server;
@@ -109,15 +125,14 @@ class HullConnector {
       logsConfig,
       connectorName,
       middlewares = [],
-      captureLogs,
+      handlers,
       disableOnExit = false
     } = connectorConfig;
 
     this.connectorConfig = connectorConfig;
     this.clientConfig = {
       ...clientConfig,
-      connectorName: clientConfig.connectorName || connectorName,
-      logs: clientConfig.logs || captureLogs
+      connectorName: clientConfig.connectorName || connectorName
     };
     this.logsConfig = logsConfig || {};
     this.metricsConfig = metricsConfig || {};
@@ -128,6 +143,7 @@ class HullConnector {
     this.Client = dependencies.Client;
     this.Worker = dependencies.Worker;
     this.middlewares = middlewares;
+    this.handlers = handlers;
     this.instrumentation =
       instrumentation || new Instrumentation(this.metricsConfig, manifest);
     this.cache = cache || new Cache();
@@ -144,52 +160,143 @@ class HullConnector {
     }
   }
 
-  start() {
+  async start() {
     if (this.serverConfig.start) {
       const app = express();
       this.app = app;
+      console.log("+++++++++++SETUP")
+      this.setupApp(app);
+      console.log("+++++++++++SETUP ROUTES")
+      this.setupRoutes(app);
       if (this.connectorConfig.devMode) {
+        console.log("+++++++++++DEVMODE")
         debug("Starting Server in DevMode");
         // eslint-disable-next-line global-require
         const webpackDevMode = require("./dev-mode");
+
         webpackDevMode(app, {
           port: this.connectorConfig.port,
-          source: "../src",
-          destination: "../dist"
+          source: getAbsolutePath("src"),
+          destination: getAbsolutePath("dist")
         });
       } else {
         debug("Starting Server");
       }
-      this.setupApp(app);
       const server = this.startApp(app);
-      this.server = server;
+      if (server) {
+        this.server = server;
+      }
       console.log(`Started server on port ${this.connectorConfig.port}`);
     } else {
-      debug("Not Starting Server because of `serverConfig`");
+      debug("No Server started: `serverConfig.start === false`");
     }
 
     if (this.workerConfig.start) {
       this.startWorker(this.workerConfig.queueName);
     } else {
-      debug("Not Worker Server because of `workerConfig`");
+      debug("No Worker started: `workerConfig.start` is false");
     }
   }
 
-  /**
-   * This method returns a Hull Middleware that you can insert in your   requests to hydrate the full context.
-   * @public
-   * @return {hullContextMiddleware} a node middleware that hydrates the hull context
-   */
-  contextMiddleware({
-    requestName
-  }: HullContextMiddlewareParams = {}): Middleware {
-    return hullContextMiddleware({
-      requestName
+  setupRoutes(app: $Application) {
+    const {
+      schedules,
+      statuses,
+      batches,
+      notifications,
+      json,
+      incoming,
+      routers,
+      html
+      // $FlowFixMe
+    } = _.isFunction(this.handlers) ? this.handlers(this) : this.handlers;
+
+    // Don't use an arrow function here as it changes the context
+    // Don't move it out of this closure either
+    // https://github.com/expressjs/express/issues/3855
+    function getMethod(method) {
+      const m = method.toLowerCase();
+      switch (m) {
+        case "all":
+          return app.all;
+        case "get":
+          return app.get;
+        case "put":
+          return app.put;
+        case "patch":
+          return app.patch;
+        case "delete":
+          return app.delete;
+        default:
+          return undefined;
+      }
+    }
+
+    // This method wires the routes according to the configuration.
+    // Methods are optional but they all have sane defaults
+
+    // Setup Batch handlers
+    (batches || []).map(({ url, handlers }) =>
+      app.post(url, batchHandler(handlers))
+    );
+
+    // Setup Kraken handlers
+    (notifications || []).map(({ url, handlers }) =>
+      app.post(url, notificationHandler(handlers))
+    );
+
+    // Statuses handlers
+    // Be careful - these handlers return a specific data format
+    (statuses || []).map(({ url, method = "all", handler }) => {
+      const run = getMethod(method);
+      if (run) {
+        app[method](url, statusHandler(handler));
+      }
+      return true;
     });
+
+    // Setup JSON handlers
+    (json || []).map(({ url, method = "all", handler }) => {
+      const run = getMethod(method);
+      if (run) {
+        app.all(url, jsonHandler(handler));
+      }
+      return true;
+    });
+
+    // Setup Incoming handlers
+    (schedules || []).map(({ url, method = "post", handler }) => {
+      const run = getMethod(method);
+      if (run) {
+        app[method](url, scheduleHandler(handler));
+      }
+      return true;
+    });
+
+    // Setup Incoming handlers
+    (incoming || []).map(({ url, method = "post", handler }) => {
+      const run = getMethod(method);
+      if (run) {
+        app[method](url, incomingRequestHandler(handler));
+      }
+      return true;
+    });
+
+    // Setup HTML
+    (html || []).map(({ url, method = "get", handler }) => {
+      const run = getMethod(method);
+      if (run) {
+        app[method](url, htmlHandler(handler));
+      }
+      return true;
+    });
+
+    // Setup Routers
+    (routers || []).map(({ url, handler }) => app.use(url, handler));
   }
 
-  baseMiddleware() {
-    return hullBaseMiddleware({
+  baseComposedMiddleware() {
+    return baseComposedMiddleware({
       Client: this.Client,
       instrumentation: this.instrumentation,
       queue: this.queue,
@@ -212,15 +319,13 @@ class HullConnector {
    * @return {express}     expressjs application
    */
   setupApp(app: $Application): $Application {
-    app.use(this.baseMiddleware());
+    app.use(this.baseComposedMiddleware());
     app.use("/", staticRouter());
     app.engine("html", renderFile);
-    const applicationDirectory = path.dirname(
-      path.join(require.main.filename, "..")
-    );
-    app.set("views", `${applicationDirectory}/views`);
+    app.set("views", getAbsolutePath("views"));
     app.set("view engine", "ejs");
     this.middlewares.map(middleware => app.use(middleware));
+
     /**
      * Instrumentation Middleware,
      * this sends all errors to sentry
@@ -244,10 +349,9 @@ class HullConnector {
    * @param  {express} app expressjs application
    * @return {http.Server}
    */
-  startApp(app: $Application): Server {
-    return app.listen(this.connectorConfig.port, () => {
-      debug("connector.server.listen", { port: this.connectorConfig.port });
-    });
+  startApp(app: $Application): Promise<?Server> {
+    const { port } = this.connectorConfig;
+    return app.listen(port, () => debug("connector.server.listen", { port }));
   }
 
   worker(jobs: Object) {
@@ -255,8 +359,8 @@ class HullConnector {
       instrumentation: this.instrumentation,
       queue: this.queue
     });
-    this._worker.use(this.baseMiddleware());
-    this._worker.use(this.contextMiddleware());
+    this._worker.use(this.baseComposedMiddleware());
+    this._worker.use(hullContextMiddleware());
     this.middlewares.map(middleware => this._worker.use(middleware));
 
     this._worker.setJobs(jobs);

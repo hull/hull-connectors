@@ -1,5 +1,5 @@
 // @flow
-import type { HullContextFull } from "../../types";
+import type { HullContext } from "../../types";
 
 const _ = require("lodash");
 const debug = require("debug")("hull-connector:metric-agent");
@@ -18,7 +18,7 @@ const debug = require("debug")("hull-connector:metric-agent");
  * req.hull.metric.event("eventName", { text = "", properties = {} });
  */
 class MetricAgent {
-  ctx: HullContextFull;
+  ctx: HullContext;
 
   manifest: Object;
 
@@ -34,7 +34,7 @@ class MetricAgent {
 
   _captureException: Function;
 
-  constructor(ctx: HullContextFull | Object, instrumentationAgent: Object) {
+  constructor(ctx: HullContext | Object, instrumentationAgent: Object) {
     this.mergeContext = instrumentationAgent.mergeContext.bind(
       instrumentationAgent
     );

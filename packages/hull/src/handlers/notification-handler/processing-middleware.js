@@ -1,8 +1,10 @@
 // @flow
-import type { $Response, NextFunction } from "express";
+import type { NextFunction } from "express";
 import type {
-  HullRequestFull,
-  HullNotificationHandlerConfiguration
+  HullRequest,
+  HullNotificationHandlerConfiguration,
+  HullNotificationResponse,
+  HullResponse
 } from "../../types";
 
 const debug = require("debug")("hull-connector:notification-handler");
@@ -13,28 +15,29 @@ const {
 } = require("../../utils");
 
 function notificationHandlerProcessingMiddlewareFactory(
-  notificationHandlersConfiguration: HullNotificationHandlerConfiguration
+  configuration: HullNotificationHandlerConfiguration
 ) {
   return function notificationHandlerProcessingMiddleware(
-    req: HullRequestFull,
-    res: $Response,
+    req: HullRequest,
+    res: HullResponse,
     next: NextFunction
   ): mixed {
     if (!req.hull.notification) {
       return next(new Error("Missing Notification payload"));
     }
     const { channel } = req.hull.notification;
-    let { messages } = req.hull.notification;
+    let { messages = [] } = req.hull.notification;
     debug("notification", {
       channel,
       messages: Array.isArray(messages) && messages.length
     });
-    if (notificationHandlersConfiguration[channel] === undefined) {
+    if (configuration[channel] === undefined) {
       return next(new Error("Channel unsupported"));
     }
-    const { callback } = notificationHandlersConfiguration[channel];
+    const { callback } = configuration[channel];
 
     if (channel === "user:update") {
+      // $FlowFixMe
       messages = messages.map(trimTraitsPrefixFromUserMessage);
     }
 
@@ -43,13 +46,12 @@ function notificationHandlerProcessingMiddlewareFactory(
       channel,
       "success"
     );
-    req.hull.notificationResponse = {
-      flow_control: defaultSuccessFlowControl
-    };
+    // req.hull.notificationResponse = notificationResponse
     // $FlowFixMe
     return callback(req.hull, messages)
-      .then(() => {
-        res.status(200).json(req.hull.notificationResponse);
+      .then((nResponse: HullNotificationResponse = {}) => {
+        const { flow_control = defaultSuccessFlowControl } = nResponse || {};
+        res.status(200).json({ flow_control });
       })
       .catch(error => next(error));
   };

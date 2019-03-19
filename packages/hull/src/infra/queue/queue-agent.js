@@ -1,6 +1,6 @@
 // @flow
 
-import type { HullContextFull } from "../../types";
+import type { HullContext } from "../../types";
 
 const enqueue = require("./enqueue");
 const MemoryAdapter = require("./adapter/memory");
@@ -59,7 +59,7 @@ class QueueAgent {
     this.getEnqueue = this.getEnqueue.bind(this);
   }
 
-  getEnqueue = (ctx: HullContextFull) => enqueue.bind(null, this.adapter, ctx);
+  getEnqueue = (ctx: HullContext) => enqueue.bind(null, this.adapter, ctx);
 
   exit() {
     return this.adapter.exit();

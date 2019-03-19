@@ -1,0 +1,96 @@
+{
+  "name": "Browser Personalization",
+  "description": "Get access to whitelisted attributes and segments from the Browser in realtime",
+  "picture": "picture.png",
+  "index": "ship.js",
+  "version": "0.0.3",
+  "tags": [
+    "smart-notifier",
+    "incoming",
+    "outgoing",
+    "oneColumn"
+  ],
+  "tabs": [
+    {
+      "title": "Installation",
+      "url": "/admin.html",
+      "size": "small",
+      "editable": false
+    }
+  ],
+  "settings": [
+    {
+      "name": "script",
+      "title": "Code to be run everytime user is updated",
+      "type": "string",
+      "format": "code",
+      "default": "console.log('Received Data from Browser connector', user, segments, account, account_segments, events, changes);"
+    }
+  ],
+  "private_settings": [
+    {
+      "name": "whitelisted_domains",
+      "title": "Domains from which access will be allowed",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "hull.io"
+      ]
+    },
+    {
+      "name": "synchronized_segments",
+      "title": "Segment Filter",
+      "description": "Only users from these segments will be sent to the browser",
+      "type": "array",
+      "format": "segment",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    {
+      "name": "public_traits",
+      "title": "Traits that will be sent",
+      "type": "array",
+      "format": "trait",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "domain",
+        "email"
+      ]
+    },
+    {
+      "name": "public_segments",
+      "title": "Segment names that will be sent",
+      "type": "array",
+      "format": "segment",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    {
+      "name": "public_account_segments",
+      "title": "Account Segment names that will be sent",
+      "type": "array",
+      "format": "account_segment",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    }
+  ],
+  "resources": [],
+  "readme": "readme.md",
+  "ui": false,
+  "subscriptions": [
+    {
+      "url": "/smart-notifier"
+    }
+  ]
+}

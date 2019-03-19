@@ -1,5 +1,5 @@
 /* @flow */
-import type { HullUserUpdateMessage, HullSegment, HullContext } from "hull";
+import type { HullUserUpdateMessage, HullUserSegment, HullContext } from "hull";
 import type { IUserUpdateEnvelope } from "./types";
 
 const _ = require("lodash");
@@ -27,9 +27,9 @@ class SyncAgent {
 
   hostname: string;
 
-  segments: Array<HullSegment>;
+  segments: Array<HullUserSegment>;
 
-  synchronizedSegments: Array<HullSegment>;
+  synchronizedSegments: Array<HullUserSegment>;
 
   forceRemovalFromStaticSegments: Boolean;
 
@@ -254,12 +254,12 @@ class SyncAgent {
         }
       )
       .map(envelope => {
-        let segmentsToAdd: Array<HullSegment> = _.get(
+        let segmentsToAdd: Array<HullUserSegment> = _.get(
           envelope,
           "message.changes.segments.entered",
           []
         );
-        let segmentsToRemove: Array<HullSegment> = _.get(
+        let segmentsToRemove: Array<HullUserSegment> = _.get(
           envelope,
           "message.changes.segments.left",
           []

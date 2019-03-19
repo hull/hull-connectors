@@ -1,25 +1,11 @@
 // @flow
-import type { $Response, NextFunction } from "express";
-import type {
-  HullJsonHandlerConfigurationEntry,
-  HullRequestFull
-} from "../../types";
+import type { Router } from "express";
+import type { HullJsonHandlerConfigurationEntry } from "../../types";
+import getRouter from "../get-router";
+import errorHandler from "../error-handler";
+import handler from "../external-handler";
 
-const debug = require("debug")("hull-connector:json-handler");
-const { Router } = require("express");
 const cors = require("cors");
-const _ = require("lodash");
-
-const { TransientError } = require("../../errors");
-const {
-  credentialsFromQueryMiddleware,
-  fullContextFetchMiddleware,
-  timeoutMiddleware,
-  haltOnTimedoutMiddleware,
-  clientMiddleware,
-  instrumentationContextMiddleware,
-  instrumentationTransientErrorMiddleware
-} = require("../../middlewares");
 
 /**
  * This handler allows to handle simple, authorized HTTP calls.
@@ -48,97 +34,21 @@ const {
 function jsonHandlerFactory(
   configurationEntry: HullJsonHandlerConfigurationEntry
 ): Router {
-  const { callback, options } = configurationEntry;
-  const {
-    cache = {},
-    disableErrorHandling = false,
-    respondWithError = false,
-    fireAndForget = false
-  } = options;
-  debug("options", options);
-  const router = Router();
-  router.use(credentialsFromQueryMiddleware()); // parse config from query
-  router.use(timeoutMiddleware());
-  router.use(clientMiddleware()); // initialize client
-  router.use(haltOnTimedoutMiddleware());
-  router.use(instrumentationContextMiddleware());
-  router.use(fullContextFetchMiddleware({ requestName: "action" }));
-  router.use(haltOnTimedoutMiddleware());
-  router.use(cors());
-  router.use(function jsonHandler(
-    req: HullRequestFull,
-    res: $Response,
-    next: NextFunction
-  ) {
-    if (fireAndForget === true) {
-      callback(req.hull).catch(error => {
-        // all TransientErrors (and child error classes such as ConfigurationError)
-        if (error instanceof TransientError) {
-          debug("transient-error metric");
-          req.hull.metric.increment("connector.transient_error", 1, [
-            `error_name:${_.snakeCase(error.name)}`,
-            `error_message:${_.snakeCase(error.message)}`
-          ]);
-        } else {
-          req.hull.metric.captureException(error);
-        }
-      });
-      res.json({ status: "deferred" });
-      return;
-    }
+  const { options = {} } = configurationEntry;
 
-    (() => {
-      debug("processing");
-      if (cache && cache.key) {
-        return req.hull.cache.wrap(
-          cache.key,
-          () => {
-            // $FlowFixMe
-            return callback(req.hull);
-          },
-          cache.options || {}
-        );
-      }
-      debug("calling callback");
-      return callback(req.hull);
-    })()
-      .then(response => {
-        debug("callback response", response);
-        if (typeof response === "string") {
-          return res.json({ response });
-        }
-        return res.json(response);
-      })
-      .catch(error => next(error));
+  return getRouter({
+    options: {
+      credentialsFromQuery: true,
+      credentialsFromNotification: false,
+      respondWithError: true,
+      strict: false,
+      ...options
+    },
+    requestName: "action",
+    middlewares: [cors()],
+    handler: handler(configurationEntry),
+    errorHandler: errorHandler(options)
   });
-  router.use(instrumentationTransientErrorMiddleware());
-  if (disableErrorHandling !== true) {
-    router.use(function jsonHandlerErrorMiddleware(
-      err: Error,
-      req: HullRequestFull,
-      res: $Response,
-      next: NextFunction
-    ) {
-      debug("error", err.message, err.constructor.name, { respondWithError });
-
-      // if we have non transient error
-      if (err instanceof TransientError) {
-        res.status(503);
-      }
-
-      if (respondWithError) {
-        res.json({ error: err.toString() });
-      } else {
-        res.json({ error: true });
-      }
-      // if we have non transient error
-      if (!(err instanceof TransientError)) {
-        next(err);
-      }
-    });
-  }
-
-  return router;
 }
 
 module.exports = jsonHandlerFactory;

@@ -56,15 +56,15 @@ class HullDispatcher {
     this.ensure = ensure;
   }
 
-  async dispatch(context: Object, route: string) {
+  async dispatch(context: HullContext, route: string) {
     return await this.handleRequest(context, route, null);
   }
 
-  async dispatchWithData(context: Object, route: string, type: any, data: any) {
+  async dispatchWithData(context: HullContext, route: string, type: any, data: any) {
     return await this.handleRequest(context, route, new ServiceData(type, data));
   }
 
-  async handleRequest(context: Object, route: string, data: null | ServiceData) {
+  async handleRequest(context: HullContext, route: string, data: null | ServiceData) {
     // try {
       if (!_.isEmpty(this.ensure)) {
         if (isUndefinedOrNull(this.ensurePromise)) {
@@ -84,7 +84,7 @@ class HullDispatcher {
     // }
   }
 
-  async resolve(context: Object, instruction: Object, serviceData: null | ServiceData): any {
+  async resolve(context: HullContext, instruction: Object, serviceData: null | ServiceData): any {
 
     if (instruction === undefined || instruction === null) {
       return instruction;
@@ -161,7 +161,7 @@ class HullDispatcher {
    * There's an abtraction between serviceData (outgoing) and resolveParams(incoming) that needs to be clarified
    * It also provides a decent starting concept for joining data back together when doing things like batch operations...
    */
-  async interpretInstruction(context: Object, instruction: Object, resolvedParams: any, serviceData: null | ServiceData) {
+  async interpretInstruction(context: HullContext, instruction: Object, resolvedParams: any, serviceData: null | ServiceData) {
     let type = _.get(instruction, "type");
 
     if (type === 'reference') {

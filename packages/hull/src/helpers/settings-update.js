@@ -1,7 +1,5 @@
 // @flow
-import type { HullConnector } from "hull-client";
-
-import type { HullContextFull } from "../types";
+import type { HullConnector, HullContext } from "../types";
 
 const {
   applyConnectorSettingsDefaults,
@@ -21,10 +19,9 @@ const {
  * @example
  * req.hull.helpers.settingsUpdate({ newSettings });
  */
-function settingsUpdate(
-  ctx: HullContextFull,
+const settingsUpdate = (ctx: HullContext) => (
   newSettings: $PropertyType<HullConnector, "private_settings">
-): Promise<HullConnector> {
+): Promise<HullConnector> => {
   const { client, cache } = ctx;
   return client.utils.settings.update(newSettings).then(connector => {
     applyConnectorSettingsDefaults(connector);
@@ -35,6 +32,6 @@ function settingsUpdate(
     }
     return cache.del("connector").then(() => connector);
   });
-}
+};
 
 module.exports = settingsUpdate;

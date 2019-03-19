@@ -1,7 +1,7 @@
 // @flow
 import type {
   HullContextBase,
-  HullRequestFull,
+  HullRequest,
   HullManifest,
   HullMetricsConfig
 } from "hull";
@@ -166,15 +166,15 @@ class InstrumentationAgent {
 
   getMetric = (ctx: HullContextBase) => new MetricAgent(ctx, this);
 
-  mergeContext(req: HullRequestFull) {
+  mergeContext(req: HullRequest) {
     const info = {
       connector: "",
       organization: ""
     };
     if (req.hull && req.hull.client) {
-      const config = req.hull.client.configuration();
-      info.connector = config.id;
-      info.organization = config.organization;
+      const { id, organization } = req.hull.clientCredentials;
+      info.connector = id;
+      info.organization = organization;
     }
     if (this.raven) {
       Raven.mergeContext({

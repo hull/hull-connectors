@@ -1,9 +1,6 @@
 // @flow
-import type { $Response, NextFunction } from "express";
-import type {
-  HullRequestFull,
-  HullBatchHandlersConfiguration
-} from "../../types";
+import type { NextFunction } from "express";
+import type { HullRequest, HullResponse, HullBatchHandlersConfiguration } from "../../types";
 
 const _ = require("lodash");
 const debug = require("debug")("hull-connector:batch-handler");
@@ -17,8 +14,8 @@ function batchExtractProcessingMiddlewareFactory(
   batchHandlersConfiguration: HullBatchHandlersConfiguration
 ) {
   return function batchExtractProcessingMiddleware(
-    req: HullRequestFull,
-    res: $Response,
+    req: HullRequest,
+    res: HullResponse,
     next: NextFunction
   ) {
     const { client } = req.hull;

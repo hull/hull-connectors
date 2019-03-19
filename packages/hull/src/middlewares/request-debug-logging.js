@@ -1,12 +1,13 @@
 // @flow
-import type { $Response, $Request, Middleware, NextFunction } from "express";
+import type { Middleware, $Response, NextFunction } from "express";
+import type { HullRequest } from "hull";
 
 const _ = require("lodash");
 const debug = require("debug")("hull-middleware");
 
 module.exports = function requestDebugLoggingFactory(): Middleware {
   return function requestDebugLogging(
-    req: $Request,
+    req: HullRequest,
     res: $Response,
     next: NextFunction
   ) {

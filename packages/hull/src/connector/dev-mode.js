@@ -1,11 +1,13 @@
-module.exports = function devMode(app, { port, source, destination }) {
+/* eslint-disable global-require */
+module.exports = function devMode(app, { /* port, */ source, destination }) {
   const _ = require("lodash");
   const webpack = require("webpack");
   const webpackDevMiddleware = require("webpack-dev-middleware");
   const webpackHotMiddleware = require("webpack-hot-middleware");
   const ProgressBarPlugin = require("progress-bar-webpack-plugin");
+  // const debug = require("debug")("hull-connector:dev-mode");
 
-  const config = require("../../webpack/webpack.config")({
+  const config = require("../../../../webpack/webpack.config")({
     source,
     destination,
     mode: "development"
@@ -62,4 +64,5 @@ module.exports = function devMode(app, { port, source, destination }) {
     })
   );
   app.use(webpackHotMiddleware(compiler));
+  return app;
 };

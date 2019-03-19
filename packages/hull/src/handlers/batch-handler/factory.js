@@ -1,18 +1,6 @@
 // @flow
 import type { HullBatchHandlersConfiguration } from "../../types";
-
-const { Router } = require("express");
-
-const {
-  credentialsFromQueryMiddleware,
-  clientMiddleware,
-  timeoutMiddleware,
-  haltOnTimedoutMiddleware,
-  fullContextBodyMiddleware,
-  fullContextFetchMiddleware,
-  instrumentationContextMiddleware,
-  instrumentationTransientErrorMiddleware
-} = require("../../middlewares");
+import getRouter from "../get-router";
 
 const processingMiddleware = require("./processing-middleware");
 const errorMiddleware = require("./error-middleware");
@@ -29,21 +17,17 @@ const errorMiddleware = require("./error-middleware");
 function batchExtractHandlerFactory(
   configuration: HullBatchHandlersConfiguration
 ): * {
-  const router = Router();
-  router.use(timeoutMiddleware());
-  router.use(credentialsFromQueryMiddleware()); // parse query
-  router.use(clientMiddleware()); // initialize client
-  router.use(haltOnTimedoutMiddleware());
-  router.use(instrumentationContextMiddleware({ handler: "batch" }));
-  router.use(
-    fullContextBodyMiddleware({ requestName: "batch", strict: false })
-  ); // get rest of the context from body
-  router.use(fullContextFetchMiddleware({ requestName: "batch" })); // if something is missing at body
-  router.use(haltOnTimedoutMiddleware());
-  router.use(processingMiddleware(configuration));
-  router.use(instrumentationTransientErrorMiddleware());
-  router.use(errorMiddleware());
-  return router;
+  return getRouter({
+    requestName: "batch",
+    handlerName: "batch",
+    handler: processingMiddleware(configuration),
+    errorHandler: errorMiddleware,
+    options: {
+      credentialsFromNotificationMiddleware: true,
+      credentialsFromQuery: true,
+      strict: false
+    }
+  });
 }
 
 module.exports = batchExtractHandlerFactory;

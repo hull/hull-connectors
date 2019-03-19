@@ -10,7 +10,7 @@ import type {
   HullUser,
   HullAccountClaims,
   HullUserClaims,
-  HullAuxiliaryClaims,
+  HullAdditionalClaims,
   HullEntityClaims,
   HullClientLogger,
   HullClientUtils,
@@ -314,7 +314,7 @@ class HullClient {
    */
   asUser(
     userClaim: string | HullUser | HullUserClaims,
-    additionalClaims: HullAuxiliaryClaims = Object.freeze({})
+    additionalClaims: HullAdditionalClaims = Object.freeze({})
   ) {
     if (!userClaim) {
       throw new Error("User Claims was not defined when calling hull.asUser()");
@@ -339,7 +339,7 @@ class HullClient {
    */
   asAccount(
     accountClaim: string | HullAccount | HullAccountClaims,
-    additionalClaims: HullAuxiliaryClaims = Object.freeze({})
+    additionalClaims: HullAdditionalClaims = Object.freeze({})
   ) {
     if (!accountClaim) {
       throw new Error(
@@ -394,6 +394,22 @@ class EntityScopedHullClient extends HullClient {
     );
   }
 
+  // TODO: Check that Aliases are supported at account level
+  /**
+   * Issues an `alias` event on entity?
+   * @todo
+   * @public
+   * @param  {Object} body
+   * @return {Promise}
+   */
+  alias(body: Object) {
+    return this.batch({
+      type: "alias",
+      requestId: this.requestId,
+      body
+    });
+  }
+
   /**
    * Saves attributes on the user or account. Only available on User or Account scoped `HullClient` instance (see {@link #asuser} and {@link #asaccount}).
    *
@@ -431,21 +447,6 @@ class UserScopedHullClient extends EntityScopedHullClient {
       ...this.config,
       subjectType: "account",
       accountClaim
-    });
-  }
-
-  /**
-   * Issues an `alias` event on user?
-   * @todo
-   * @public
-   * @param  {Object} body
-   * @return {Promise}
-   */
-  alias(body: Object) {
-    return this.batch({
-      type: "alias",
-      requestId: this.requestId,
-      body
     });
   }
 

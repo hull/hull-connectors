@@ -1,8 +1,7 @@
 // @flow
-import type { HullContextFull, HullCacheOptions } from "hull";
+import type { HullContext, HullCacheConfig } from "hull";
 
 const cacheManager = require("cache-manager");
-const _ = require("lodash");
 const ConnectorCache = require("./connector-cache");
 const PromiseReuser = require("../../utils/promise-reuser");
 
@@ -53,7 +52,7 @@ class CacheAgent {
 
   promiseReuser: PromiseReuser;
 
-  constructor(options: HullCacheOptions) {
+  constructor(options: HullCacheConfig) {
     const opts = {
       ttl: 60 /* seconds */,
       max: 100 /* items */,
@@ -65,7 +64,7 @@ class CacheAgent {
     this.promiseReuser = new PromiseReuser();
   }
 
-  getConnectorCache(ctx: HullContextFull) {
+  getConnectorCache(ctx: HullContext) {
     // eslint-disable-line class-methods-use-this
     return new ConnectorCache(ctx, this.cache, this.promiseReuser);
   }

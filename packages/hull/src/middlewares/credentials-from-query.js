@@ -1,11 +1,11 @@
 // @flow
-import type { $Response, NextFunction } from "express";
-import type { HullRequestBase } from "../types";
+import type { NextFunction } from "express";
+import type { HullRequest, HullResponse } from "../types";
 
 const debug = require("debug")("hull-connector:credentials-from-query");
 const jwt = require("jwt-simple");
 
-function getToken(query: $PropertyType<HullRequestBase, "query">): string {
+function getToken(query: $PropertyType<HullRequest, "query">): string {
   if (query) {
     if (typeof query.hullToken === "string") {
       return query.hullToken;
@@ -23,7 +23,7 @@ function getToken(query: $PropertyType<HullRequestBase, "query">): string {
 }
 
 function parseQueryString(
-  query: $PropertyType<HullRequestBase, "query">
+  query: $PropertyType<HullRequest, "query">
 ): { [string]: string | void } {
   return ["organization", "id", "secret", "ship"].reduce((cfg, k) => {
     const val = (query && typeof query[k] === "string" ? query[k] : "").trim();
@@ -63,8 +63,8 @@ function generateToken(clientCredentials, secret) {
  */
 function credentialsFromQueryMiddlewareFactory() {
   return function credentialsFromQueryMiddleware(
-    req: HullRequestBase,
-    res: $Response,
+    req: HullRequest,
+    res: HullResponse,
     next: NextFunction
   ) {
     try {
@@ -88,12 +88,13 @@ function credentialsFromQueryMiddlewareFactory() {
 
       // handle legacy naming
       if (
+        // $FlowFixMe
         clientCredentials.ship &&
         typeof clientCredentials.ship === "string"
       ) {
         clientCredentials.id = clientCredentials.ship;
         delete clientCredentials.ship;
-        debug(
+        console.warn(
           "You have passed a config parameter called `ship`, which is deprecated. please use `id` instead"
         );
       }

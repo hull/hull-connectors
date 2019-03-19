@@ -3,7 +3,8 @@ import type {
   HullAccountAttributes,
   HullUserAttributes,
   HullConnector,
-  HullSegment,
+  HullAccountSegment,
+  HullUserSegment,
   HullUserUpdateMessage,
   HullAccountUpdateMessage,
   HullIncomingClaimsSetting
@@ -44,9 +45,9 @@ class MappingUtil {
 
   logger: Object;
 
-  usersSegments: Array<HullSegment>;
+  usersSegments: Array<HullUserSegment>;
 
-  accountsSegments: Array<HullSegment>;
+  accountsSegments: Array<HullAccountSegment>;
 
   hubspotContactProperties: Array<HubspotContactProperty>;
 
@@ -543,7 +544,7 @@ class MappingUtil {
       typeof message.user["hubspot/id"] === "string"
     ) {
       hubspotWriteContact.vid = message.user["hubspot/id"];
-    } else {
+    } else if (message.user.email) {
       hubspotWriteContact.email = message.user.email;
     }
     return hubspotWriteContact;
@@ -657,7 +658,9 @@ class MappingUtil {
     );
 
     // handle segments
-    const userSegments: Array<HullSegment> = Array.isArray(userMessage.segments)
+    const userSegments: Array<HullUserSegment> = Array.isArray(
+      userMessage.segments
+    )
       ? userMessage.segments
       : [];
     debug("userSegments", userMessage.segments);
@@ -767,7 +770,7 @@ class MappingUtil {
       []
     );
 
-    const accountSegments: Array<HullSegment> = Array.isArray(
+    const accountSegments: Array<HullAccountSegment> = Array.isArray(
       message.account_segments
     )
       ? message.account_segments

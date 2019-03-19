@@ -1,4 +1,6 @@
 /* @flow */
+import type { HullOAuthRequest } from "hull";
+
 const HubspotStrategy = require("passport-hubspot-oauth2.0");
 const { oAuthHandler } = require("hull/src/handlers");
 const moment = require("moment");
@@ -7,9 +9,7 @@ const debug = require("debug")("hull-hubspot:oauth");
 
 const SyncAgent = require("../lib/sync-agent");
 
-function oAuthAction(deps: Object) {
-  const { clientID, clientSecret } = deps;
-
+function oAuthAction({ clientID, clientSecret }: Object) {
   return oAuthHandler({
     name: "Hubspot",
     Strategy: HubspotStrategy,
@@ -18,54 +18,72 @@ function oAuthAction(deps: Object) {
       clientSecret,
       scope: ["oauth", "contacts", "timeline"]
     },
-    isSetup(req) {
+    isSetup: async req => {
       const { client, connector } = req.hull;
       if (req.query.reset) return Promise.reject(new Error("Requested reset"));
       const { token } = connector.private_settings || {};
-      if (token) {
-        const syncAgent = new SyncAgent(req.hull);
-        // TODO: we have notices problems with syncing hull segments property
-        // TODO: check if below code works after hull-node upgrade.
-        // after a Hubspot resync, there may be a problem with notification
-        // subscription. Following two lines fixes that problem.
-        // AppMiddleware({ queueAdapter, shipCache, instrumentationAgent })(req, {}, () => {});
-        syncAgent.syncConnector().catch(err =>
-          client.logger.error("connector.configuration.error", {
-            errors: ["Error in creating segments property", err]
-          })
-        );
-
-        return client.get(connector.id).then(s => {
-          return { settings: s.private_settings };
+      try {
+        if (token) {
+          const syncAgent = new SyncAgent(req.hull);
+          // TODO: we have notices problems with syncing hull segments property
+          // TODO: check if below code works after hull-node upgrade.
+          // after a Hubspot resync, there may be a problem with notification
+          // subscription. Following two lines fixes that problem.
+          // AppMiddleware({ queueAdapter, shipCache, instrumentationAgent })(req, {}, () => {});
+          await syncAgent.syncConnector();
+          const s = await client.get(connector.id);
+          return {
+            status: 200,
+            data: { settings: s.private_settings }
+          };
+        }
+        throw new Error("Not authorized");
+      } catch (err) {
+        client.logger.error("connector.configuration.error", {
+          errors: ["Error in creating segments property", err]
         });
       }
-      return Promise.reject(new Error("Not authorized"));
+      return {
+        status: 200
+      };
     },
-    onLogin: req => {
+    onLogin: async (req: HullOAuthRequest) => {
       req.authParams = { ...req.body, ...req.query };
-      return Promise.resolve();
+      return {
+        status: 200,
+        data: {}
+      };
     },
-    onAuthorize: req => {
-      debug("onAuthorize req.account", req.account);
-      const { refreshToken, accessToken } = req.account || {};
-      const { expires_in } = req.account.params;
+    onAuthorize: async (req: HullOAuthRequest) => {
+      const { account = {} } = req;
+      debug("onAuthorize req.account", account);
+      const { params, refreshToken, accessToken } = account;
+      const { expires_in } = params;
       const syncAgent = new SyncAgent(req.hull);
-      return syncAgent.hubspotClient.agent
-        .get(`/oauth/v1/access-tokens/${accessToken}`)
-        .then(res => {
-          const portalId = res.body.hub_id;
-          const newConnector = {
-            portal_id: portalId,
-            refresh_token: refreshToken,
-            token: accessToken,
-            expires_in,
-            token_fetched_at: moment()
-              .utc()
-              .format("x")
-          };
-          debug("onAuthorize updating settings", newConnector);
-          return req.hull.helpers.settingsUpdate(newConnector);
-        });
+
+      if (!accessToken) {
+        throw new Error("Can't find access token");
+      }
+
+      const res = await syncAgent.hubspotClient.agent.get(
+        `/oauth/v1/access-tokens/${accessToken}`
+      );
+      const portalId = res.body.hub_id;
+      const newConnector = {
+        portal_id: portalId,
+        refresh_token: refreshToken,
+        token: accessToken,
+        expires_in,
+        token_fetched_at: moment()
+          .utc()
+          .format("x")
+      };
+      debug("onAuthorize updating settings", newConnector);
+      await req.hull.helpers.settingsUpdate(newConnector);
+      return {
+        status: 200,
+        data: {}
+      };
     },
     views: {
       login: "login.html",

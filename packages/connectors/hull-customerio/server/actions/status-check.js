@@ -1,11 +1,10 @@
 /* @flow */
-import type { $Response } from "express";
-import type { HullRequest } from "hull";
+import type { HullRequest, HullResponse } from "hull";
 
 const _ = require("lodash");
 const SyncAgent = require("../lib/sync-agent");
 
-function statusCheckAction(req: HullRequest, res: $Response): Promise<*> {
+function statusCheckAction(req: HullRequest, res: HullResponse): Promise<*> {
   if (_.has(req, "hull.ship.private_settings")) {
     const { client } = req.hull;
     const connector =

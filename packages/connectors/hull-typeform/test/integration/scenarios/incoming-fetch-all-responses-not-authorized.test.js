@@ -1,13 +1,20 @@
 // @flow
+declare function describe(name: string, callback: Function): void;
+declare function before(callback: Function): void;
+declare function beforeEach(callback: Function): void;
+declare function afterEach(callback: Function): void;
+declare function it(name: string, callback: Function): void;
+declare function test(name: string, callback: Function): void;
+
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 // workaround to allow connector start
 process.env.CLIENT_ID = "123";
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
 
 test("incoming fetch all responses not authorized", () => {
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, expect, nock }) => {
+  return testScenario({ connectorConfig }, ({ handlers, expect, nock }) => {
     return {
       handlerType: handlers.jsonHandler,
       handlerUrl: "fetch-all-responses",

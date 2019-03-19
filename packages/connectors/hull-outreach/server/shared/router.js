@@ -3,12 +3,12 @@ import type {
   HullContext,
   HullRequest,
   HullAccountUpdateMessage,
-  HullUserUpdateMessage
+  HullUserUpdateMessage,
+  HullNotificationResponse,
+  HullIncomingHandlerMessage
 } from "hull";
 
-const {
-  WebhookPayload
-} = require("../service-objects");
+const { WebhookPayload } = require("../service-objects");
 
 const {
   HullOutgoingAccount,
@@ -33,31 +33,39 @@ const _ = require("lodash");
 const MESSAGES = require("../messages");
 
 class HullRouter {
-
   glue: Object;
+
   serviceDefinitions: Object;
+
   transforms: Array<any>;
+
   ensureHook: string;
 
   constructor() {
-      this.glue = glue;
-      this.serviceDefinitions = { hull: hullService, outreach: service};
-      this.transforms = _.concat(transformsToHull, transformsToService);
+    this.glue = glue;
+    this.serviceDefinitions = { hull: hullService, outreach: service };
+    this.transforms = _.concat(transformsToHull, transformsToService);
 
-      // TODO put this as part of the service?
-      // only executed before a call to the service?
-      this.ensureHook = "ensureWebhooks";
+    // TODO put this as part of the service?
+    // only executed before a call to the service?
+    this.ensureHook = "ensureWebhooks";
   }
 
   dispatcher(): HullDispatcher {
-    return new HullDispatcher(this.glue, this.serviceDefinitions, this.transforms, this.ensureHook);
+    return new HullDispatcher(
+      this.glue,
+      this.serviceDefinitions,
+      this.transforms,
+      this.ensureHook
+    );
   }
 
-  /******************* this one isn't declared in manifest *******************/
+  /** ***************** this one isn't declared in manifest *******************/
   createAuthHandler() {
-    const primaryService = _.find(this.serviceDefinitions, (service) => {
-        return !_.isEmpty(service.authentication)
-      });
+    const primaryService = _.find(
+      this.serviceDefinitions,
+      service => !_.isEmpty(service.authentication)
+    );
 
     if (!isUndefinedOrNull(primaryService)) {
       const authentication = primaryService.authentication;
@@ -71,35 +79,48 @@ class HullRouter {
     return null;
   }
 
-  incomingData(route: string, context: HullContext, data: any) {
-
+  async incomingData(
+    route: string,
+    context: HullContext,
+    { body }: HullIncomingHandlerMessage
+  ) {
     // ask stephane if we need this....
     // will generate a lot of traffic for all webhooks...
     // context.client.logger.info("incoming.job.start", {
     //   jobName: "Incoming Data", type: dataType
     // });
-    //Interesting abstraction problem
+    // Interesting abstraction problem
     // need to tell what type of data is incoming, but the data incoming will be different per connector
     // so there's an idea that needs to be abstracted above]
-    return this.dispatcher()
-    .dispatchWithData(context, route, WebhookPayload, data.body)
-    .then(results => {
+
+    try {
+      const results = await this.dispatcher().dispatchWithData(
+        context,
+        route,
+        WebhookPayload,
+        body
+      );
       // context.client.logger.info("incoming.job.success", {
       //   jobName: "Incoming Data", type: dataType
       // });
-      return Promise.resolve({ status: 200, text: "All good" });
-    }).catch(error => {
+      return { status: 200, text: "All good" };
+    } catch (error) {
       context.client.logger.error("incoming.job.error", {
-        jobName: "Incoming Data", error: error.message
+        jobName: "Incoming Data",
+        error: error.message
       });
-      return Promise.reject(error);
-    });
+      throw error;
+    }
   }
 
-  outgoingData(dataType: "account" | "user", context: HullContext, messages: Array<HullUserUpdateMessage> | Array<HullAccountUpdateMessage>) {
-
+  outgoingData(
+    dataType: "account" | "user",
+    context: HullContext,
+    messages: Array<HullUserUpdateMessage> | Array<HullAccountUpdateMessage>
+  ): Promise<HullNotificationResponse> {
     context.client.logger.info("outgoing.job.start", {
-      jobName: "Outgoing Data", type: dataType
+      jobName: "Outgoing Data",
+      type: dataType
     });
 
     const dispatcher: HullDispatcher = this.dispatcher();
@@ -111,54 +132,66 @@ class HullRouter {
       classType = HullOutgoingUser;
     }
 
-    const promise = Promise.all(messages.map(message => {
-      const sendMessage = toSendMessage(context, dataType, message);
-      if (sendMessage) {
-        return dispatcher.dispatchWithData(context, `${dataType}UpdateStart`, classType, message);
-      } else {
+    const promise = Promise.all(
+      messages.map(message => {
+        const sendMessage = toSendMessage(context, dataType, message);
+        if (sendMessage) {
+          return dispatcher.dispatchWithData(
+            context,
+            `${dataType}UpdateStart`,
+            classType,
+            message
+          );
+        }
         return Promise.resolve();
-      }
-    }));
+      })
+    );
 
-    return promise.then(results => {
-      context.client.logger.info("outgoing.job.success", {
-        jobName: "Outgoing Data", type: dataType
+    return promise
+      .then(results => {
+        context.client.logger.info("outgoing.job.success", {
+          jobName: "Outgoing Data",
+          type: dataType
+        });
+        return Promise.resolve({ results });
+      })
+      .catch(error => {
+        context.client.logger.error("outgoing.job.error", {
+          jobName: "Outgoing Data",
+          error: error.message
+        });
+        return Promise.reject(error);
       });
-      return Promise.resolve(results);
-    }).catch(error => {
-      context.client.logger.error("outgoing.job.error", {
-        jobName: "Outgoing Data", error: error.message
-      });
-      return Promise.reject(error);
-    });
   }
 
-  incomingRequest(route: string, request: HullRequest) {
-
-    request.client.logger.info("incoming.job.start", {
+  incomingRequest(route: string, ctx: HullContext) {
+    ctx.client.logger.info("incoming.job.start", {
       jobName: "Incoming Data Request"
     });
 
-    return this.dispatcher().dispatch(request, route).then(results => {
-      request.client.logger.info("incoming.job.success", {
-        jobName: "Incoming Data Request"
+    return this.dispatcher()
+      .dispatch(ctx, route)
+      .then(results => {
+        ctx.client.logger.info("incoming.job.success", {
+          jobName: "Incoming Data Request"
+        });
+        return Promise.resolve(results);
+      })
+      .catch(error => {
+        ctx.client.logger.error("incoming.job.error", {
+          jobName: "Incoming Data Request",
+          error: error.message
+        });
+        return Promise.reject(error);
       });
-      return Promise.resolve(results);
-    }).catch(error => {
-      request.client.logger.error("incoming.job.error", {
-        jobName: "Incoming Data Request", error: error.message
-      });
-      return Promise.reject(error);
-    });
   }
 
-
-  status(req: HullRequest): Promise<any> {
-    const { connector, client } = req;
+  status(ctx: HullContext): Promise<any> {
+    const { connector, client } = ctx;
     let status: string = "ok";
     const messages: Array<string> = [];
 
-    if (_.has(req, "connector.private_settings")) {
+    if (_.has(ctx, "connector.private_settings")) {
       // changing this to an else if block so that we don't bombard the customers with different messages
       // want to be clear with them the thing they need to do next
       if (!_.has(connector, "private_settings.access_token")) {
@@ -182,13 +215,12 @@ class HullRouter {
       );
     }
 
-    return client.put(`${connector.id}/status`, { status, messages }).then(() => {
-      return { status, messages };
-    });
+    return client
+      .put(`${connector.id}/status`, { status, messages })
+      .then(() => {
+        return { status, messages };
+      });
   }
-
 }
 
-module.exports = {
-  HullRouter
-};
+export default HullRouter;

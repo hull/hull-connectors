@@ -1,6 +1,6 @@
 // @flow
-import type { $Response, NextFunction } from "express";
-import type { HullRequestWithClient } from "../types";
+import type { NextFunction } from "express";
+import type { HullRequest, HullResponse } from "../types";
 
 const debug = require("debug")("hull-connector:full-context-fetch-middleware");
 
@@ -67,8 +67,8 @@ function fullContextFetchMiddlewareFactory({
   strict = true
 }: Object = {}) {
   return function fullContextFetchMiddleware(
-    req: HullRequestWithClient,
-    res: $Response,
+    req: HullRequest,
+    res: HullResponse,
     next: NextFunction
   ) {
     if (req.hull === undefined || req.hull.client === undefined) {

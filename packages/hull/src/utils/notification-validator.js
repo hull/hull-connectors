@@ -1,6 +1,6 @@
 /* @flow */
 // import type { $Request } from "express";
-import type { HullRequestBase } from "../types";
+import type { HullRequest } from "../types";
 
 const Promise = require("bluebird");
 const requestClient = require("request");
@@ -23,7 +23,7 @@ class NotificationValidator {
     }
   }
 
-  validateHeaders(req: HullRequestBase): NotificationValidationError | null {
+  validateHeaders(req: HullRequest): NotificationValidationError | null {
     if (!this.hasFlagHeader(req)) {
       return new NotificationValidationError(
         "Missing flag header",
@@ -48,11 +48,11 @@ class NotificationValidator {
     return null;
   }
 
-  hasFlagHeader(req: HullRequestBase): boolean {
+  hasFlagHeader(req: HullRequest): boolean {
     return _.has(req.headers, "x-hull-smart-notifier");
   }
 
-  validatePayload(req: HullRequestBase): NotificationValidationError | null {
+  validatePayload(req: HullRequest): NotificationValidationError | null {
     if (!req.body) {
       return new NotificationValidationError(
         "No notification payload",
@@ -69,7 +69,7 @@ class NotificationValidator {
     return null;
   }
 
-  validateSignatureVersion(req: HullRequestBase): boolean {
+  validateSignatureVersion(req: HullRequest): boolean {
     return (
       _.has(req.headers, "x-hull-smart-notifier-signature-version") &&
       _.indexOf(
@@ -79,7 +79,7 @@ class NotificationValidator {
     );
   }
 
-  validateSignatureHeaders(req: HullRequestBase): boolean {
+  validateSignatureHeaders(req: HullRequest): boolean {
     return [
       "x-hull-smart-notifier-signature",
       "x-hull-smart-notifier-signature-version",
@@ -87,7 +87,7 @@ class NotificationValidator {
     ].every(h => _.has(req.headers, h));
   }
 
-  async validateSignature(req: HullRequestBase): Promise {
+  async validateSignature(req: HullRequest): Promise {
     try {
       const certificate = await this.getCertificate(req);
       const decoded = jwt.verify(
@@ -110,7 +110,7 @@ class NotificationValidator {
     }
   }
 
-  getCertificate(req: HullRequestBase): Promise {
+  getCertificate(req: HullRequest): Promise {
     const certUrl =
       req.headers["x-hull-smart-notifier-signature-public-key-url"];
     const signature = req.headers["x-hull-smart-notifier-signature"];

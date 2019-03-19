@@ -1,6 +1,6 @@
 // @flow
-import type { $Response, NextFunction } from "express";
-import type { HullRequestFull } from "../../types";
+import type { NextFunction } from "express";
+import type { HullRequest, HullResponse } from "../../types";
 
 const debug = require("debug")("hull-connector:notification-handler");
 
@@ -22,8 +22,8 @@ function errorToResponse(error) {
 function notificationHandlerErrorMiddlewareFactory() {
   return function notificationHandlerErrorMiddleware(
     err: Error,
-    req: HullRequestFull,
-    res: $Response,
+    req: HullRequest,
+    res: HullResponse,
     next: NextFunction
   ) {
     debug("error", err.message, err.constructor && err.constructor.name);
