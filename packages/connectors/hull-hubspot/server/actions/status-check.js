@@ -11,7 +11,7 @@ function getMessageFromError(err): string {
     typeof err.message === "string" &&
     err.message.indexOf("Failed to refresh access token") === 0
   ) {
-    return 'Unauthorized response from Hubspot. Please reauthenticate with Hubspot by clicking the "Credentials and Actions" button in the upper right hand section of the connector settings.  Then either click "Continue to Hubspot" or "Start over"';
+    return 'Authorization issue. Please reauthenticate with Hubspot by clicking the "Credentials and Actions" button in the upper right hand section of the connector settings.  Then either click "Continue to Hubspot" or "Start over"';
   }
 
   // return either the msg or message parameter from err
@@ -40,7 +40,7 @@ function statusCheckAction(ctx: HullContext) {
   const { connector = {}, client = {} } = ctx;
   const messages = [];
 
-  const pushMessage = (status: "error" | "warning", message: string) => {
+  const pushMessage = (status: "error" | "warning" | "ok", message: string) => {
     // make sure the message isn't already in the list...
 
     const existingMessage = _.find(messages, { message });
@@ -64,7 +64,7 @@ function statusCheckAction(ctx: HullContext) {
   ) {
     pushMessage(
       "error",
-      'Error in authenticating with Hubspot.  Hubspot service did not return the proper OAuth Credentials.  Please reauthenticate with Hubspot by clicking "Credentials & Actions" and then click "Start Over".  This should an intermittent problem, but if you see it happening more, please contact Hull Support.'
+      'Error in authenticating with Hubspot.  Hubspot service did not return the proper OAuth Credentials.  Please reauthenticate with Hubspot by clicking "Credentials & Actions" and then click "Start Over".  If it happens again, please contact Hull Support.'
     );
   }
 
@@ -82,36 +82,8 @@ function statusCheckAction(ctx: HullContext) {
     )
   ) {
     pushMessage(
-      "warning",
-      "No users or accounts will be sent from Hull to Hubspot because there are no whitelisted segments configured.  Please visit the connector settings page and add segments to be sent to Hubspot"
-    );
-  }
-
-  if (
-    _.isEmpty(
-      _.get(connector, "private_settings.outgoing_user_attributes", [])
-    ) ||
-    _.isEmpty(
-      _.get(connector, "private_settings.outgoing_account_attributes", [])
-    )
-  ) {
-    pushMessage(
-      "warning",
-      "There are no attributes configured to be sent to Hubspot.  If segments are correctly configured, Accounts/Users will be created in Hubspot, but with no attributes.  Visit the connector settings page and configure the attributes for Accounts/Users to be sent"
-    );
-  }
-
-  if (
-    _.isEmpty(
-      _.get(connector, "private_settings.incoming_user_attributes", [])
-    ) ||
-    _.isEmpty(
-      _.get(connector, "private_settings.incoming_account_attributes", [])
-    )
-  ) {
-    pushMessage(
-      "warning",
-      "There are no attributes configured to be pulled into Hull.  Visit the connector settings page and configure the attributes for Accounts/Users that you want imported"
+      "ok",
+      "No users or accounts will be sent from Hull to Hubspot because there are no whitelisted segments configured. If you want to enable outgoing traffic, please visit the connector settings page and add segments to be sent to Hubspot, otherwise please ignore this notification."
     );
   }
 
@@ -120,32 +92,13 @@ function statusCheckAction(ctx: HullContext) {
   if (_.get(connector, "private_settings.token")) {
     promises.push(
       syncAgent.hubspotClient
-        .getRecentlyUpdatedContacts()
-        .then(results => {
-          if (results.body.contacts && results.body.contacts.length === 0) {
-            pushMessage(
-              "warning",
-              'The Hubspot organization that this connector is communicating with does not contain contacts.  If you think this is not correct, please try and re-authenticate with the "Credentials/Action" button.  If this warning persists please contact your Hull support representative'
-            );
-          }
-        })
-        .catch(err => {
-          pushMessage("error", getMessageFromError(err));
-        })
-    );
-    promises.push(
-      syncAgent.hubspotClient
         .getContactPropertyGroups()
         .then(body => {
+          console.log("\n got property groups");
           if (!_.find(body, g => g.name === "hull")) {
             pushMessage(
               "warning",
               "Hubspot is missing the Hull custom attribute group.  This may be problematic if you wish to create new fields in Hubspot for storing new Hull that don't exist in Hubspot. Initial synch with Hubspot may not have been completed yet.  If this warning persists please contact your Hull support representative."
-            );
-          } else if (!_.find(body, g => g.displayName === "Hull Properties")) {
-            pushMessage(
-              "warning",
-              "Hubspot is missing the Display Name for the custom attribute for Hull groups.  Initial synch with Hubspot may not have been completed yet.  If this warning persists please contact your Hull support representative."
             );
           } else if (
             !_.find(body.filter(g => g.name === "hull"), g =>
@@ -154,7 +107,7 @@ function statusCheckAction(ctx: HullContext) {
           ) {
             pushMessage(
               "warning",
-              "Hubspot is missing the hull segments custom attribute.  Initial synch with Hubspot may not have been completed yet.  If this warning persists please contact your Hull support representative."
+              "Hubspot is missing the hull_segments custom attribute. Initial sync with Hubspot may not have been completed yet. If this warning persists please contact your Hull Support."
             );
           }
         })
