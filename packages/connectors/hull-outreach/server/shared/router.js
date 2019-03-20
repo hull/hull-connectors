@@ -117,7 +117,7 @@ class HullRouter {
         return dispatcher.dispatchWithData(context, `${dataType}UpdateStart`, classType, message);
       } else {
 
-        if (dataType === 'user' && message.changes.is_new) {
+        if (dataType === 'user' && message.changes && message.changes.is_new) {
           if (_.isEmpty(message.user.email)
             && _.get(message.user, "outreach/created_by_webhook") === true
             && _.get(message.user, "outreach/id")) {
