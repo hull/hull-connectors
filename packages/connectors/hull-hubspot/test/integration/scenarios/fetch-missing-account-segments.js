@@ -24,7 +24,7 @@ const connector = {
   }
 };
 
-it("Should return a synchronized user/account segments \"ok\" message when no user segments are given in the manifest", () => {
+it("Should return a synchronized user/account segments \"ok\" message when no account segments are given in the manifest", () => {
   return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,

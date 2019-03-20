@@ -8,7 +8,8 @@ process.env.CLIENT_SECRET = "abc";
 
 const connectorServer = require("../../../server/server");
 const connectorManifest = require("../../../manifest");
-const incomingData = require("../fixtures/get-contacts-groups");
+// Clone deep otherwise changes will affect other subsequent tests
+const incomingData = _.cloneDeep(require("../fixtures/get-contacts-groups"));
 
 let index = _.findIndex(incomingData, elem => elem.name === "hull");
 incomingData[index].properties = [];
