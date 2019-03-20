@@ -93,6 +93,14 @@ const transformsToHull: ServiceTransforms =
           mapping: "connector.private_settings.user_claims",
           inputPath: "data.attributes.${service_field_name}",
           outputPath: "ident.${hull_field_name}",
+        },
+        {
+          condition: "createdByWebhook",
+          outputPath: "attributes.outreach/created_by_webhook",
+          outputFormat: {
+            value: "${createdByWebhook}",
+            operation: "set"
+          }
         }
       ]
     },
