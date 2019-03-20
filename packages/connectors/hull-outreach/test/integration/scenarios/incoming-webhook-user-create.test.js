@@ -9,7 +9,7 @@ process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const connectorServer = require("../../../server/server");
 
-test("process in coming user created from outreach", () => {
+test("receive incoming webhook for prospect creation from outreach", () => {
   return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.incomingRequestHandler,
@@ -88,10 +88,10 @@ test("process in coming user created from outreach", () => {
       logs: [
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
-        ["info", "incoming.user.success", {}, {"data": { "accountIdent": {"anonymous_id": "outreach:5" },"attributes": {"outreach/id": {"operation": "set", "value": 3}, "outreach/title": {"operation": "set", "value": "Jedi Knight"}}, "ident": {"anonymous_id": "outreach:3"}}}]
+        ["info", "incoming.user.success", {}, {"data": { "accountIdent": {"anonymous_id": "outreach:5" },"attributes": {"outreach/id": {"operation": "set", "value": 3}, "outreach/created_by_webhook": { "operation": "set", "value": true }, "outreach/title": {"operation": "set", "value": "Jedi Knight"}}, "ident": {"anonymous_id": "outreach:3"}}}]
       ],
       firehoseEvents: [
-        ["traits", {"asUser": {"anonymous_id": "outreach:3"}, "subjectType": "user"}, {"outreach/id": {"operation": "set", "value": 3}, "outreach/title": {"operation": "set", "value": "Jedi Knight"}}],
+        ["traits", {"asUser": {"anonymous_id": "outreach:3"}, "subjectType": "user"}, {"outreach/created_by_webhook": {"operation": "set", "value": true}, "outreach/id": {"operation": "set", "value": 3}, "outreach/title": {"operation": "set", "value": "Jedi Knight"}}],
         ["traits", {"asAccount": {"anonymous_id": "outreach:5"}, "asUser": {"anonymous_id": "outreach:3"}, "subjectType": "account"}, {}]
       ],
       metrics: [

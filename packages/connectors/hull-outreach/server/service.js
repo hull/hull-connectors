@@ -254,6 +254,12 @@ const service: RawRestApi = {
         message: MESSAGES.STATUS_UNAUTHORIZED_ACCESS_TOKEN,
         recoveryroute: "refreshToken",
       },
+      // {
+      //   truthy: { status: 422, response: { text: "{\"errors\":[{\"id\":\"validationError\",\"source\":{\"pointer\":\"/data\"},\"title\":\"Validation Error\",\"detail\":\"Contacts contact is using an excluded email address.\"}]}"} },
+      //   errorType: ConfigurationError,
+      //   toTimeline: true,
+      //   message: MESSAGES.SERVICE_PROSPECT_IS_OWNER_ERROR
+      // },
       {
         truthy: { status: 422 },
         errorType: ConfigurationError,
