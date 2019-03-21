@@ -27,7 +27,7 @@ function statusCheckAction(req: HullRequest, res: $Response): Promise<*> {
     }
 
     if (!syncAgent.isConfigured()) {
-      status = "error";
+      status = "warning";
       messages.push(
         "Missing Credentials: Site ID or API Key are not configured in Settings."
       );

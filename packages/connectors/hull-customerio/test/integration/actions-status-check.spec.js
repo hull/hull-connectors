@@ -156,7 +156,7 @@ describe("actions-status-check", () => {
     });
   });
 
-  test("should return an error if authentication is not configured in the settings", function (done) { // eslint-disable-line func-names
+  test("should return a warning if authentication is not configured in the settings", function (done) { // eslint-disable-line func-names
     const private_settings = {
       synchronized_segments: ["cio leads"]
     };
@@ -174,7 +174,7 @@ describe("actions-status-check", () => {
     };
 
     action(req, responseMock).then(() => {
-      expect(jsonMock.mock.calls[0][0]).toEqual({ status: "error", messages: ["Missing Credentials: Site ID or API Key are not configured in Settings."] });
+      expect(jsonMock.mock.calls[0][0]).toEqual({ status: "warning", messages: ["Missing Credentials: Site ID or API Key are not configured in Settings."] });
       done();
     });
   });
@@ -198,7 +198,7 @@ describe("actions-status-check", () => {
     };
 
     action(req, responseMock).then(() => {
-      expect(jsonMock.mock.calls[0][0]).toEqual({ status: "error", messages: ["Missing Credentials: Site ID or API Key are not configured in Settings."] });
+      expect(jsonMock.mock.calls[0][0]).toEqual({ status: "warning", messages: ["Missing Credentials: Site ID or API Key are not configured in Settings."] });
       done();
     });
   });
@@ -222,7 +222,7 @@ describe("actions-status-check", () => {
     };
 
     action(req, responseMock).then(() => {
-      expect(jsonMock.mock.calls[0][0]).toEqual({ status: "error", messages: ["Missing Credentials: Site ID or API Key are not configured in Settings."] });
+      expect(jsonMock.mock.calls[0][0]).toEqual({ status: "warning", messages: ["Missing Credentials: Site ID or API Key are not configured in Settings."] });
       done();
     });
   });

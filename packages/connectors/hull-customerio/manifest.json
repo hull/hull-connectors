@@ -4,7 +4,7 @@
   "source": "customerio",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.0.15-monorepo",
+  "version": "0.0.16-monorepo",
   "tags": [
     "outgoing",
     "batch",
@@ -37,17 +37,10 @@
     {
       "name": "synchronized_segments",
       "title" : "User Filter",
-      "description": "Send users to Customer.io when belonging to one of these segments",
+      "description": "Send users to Customer.io when belonging to one of these segments. By default, no user is sent",
       "type": "array",
       "default": [],
       "format": "segment"
-    },
-    {
-      "name": "synchronized_segments_hero",
-      "type": "string",
-      "headerTemplate": "The above list of segments is a whitelist. You need to *explicitely specify one or more segments* for which events and users shall be sent to Customer.io.<br>If you do not specify any segment, no user or event will be sent to Customer.io.",
-      "format": "information",
-      "title": "Whitelisted Segments"
     },
     {
       "name": "enable_user_deletion",
@@ -57,48 +50,45 @@
       "default": false
     },
     {
-      "name": "events_filter",
-      "title": "Sends these events to Customer.io",
+      "name": "event_filter",
+      "title": "Event Filter",
+      "description": "Send these events to Customer.io. By default, no event is sent.",
       "type": "array",
       "format": "event"
     },
     {
-      "name": "send_events_hero",
-      "type": "string",
-      "headerTemplate": "The above list of events is a whitelist. You need to *explicitely specify one or more events* that shall be sent to Customer.io.<br>If you do not specify any event, no event data will be sent to Customer.io.",
-      "format": "information",
-      "title": "Whitelisted Events"
-    },
-    {
       "name": "anonymous_events",
       "title": "Send Anonymous Events",
+      "description": "Send events for users that don't have an email. This is an advanced option. Check our docs for more infos",
       "type": "boolean",
       "default": false
     },
     {
       "name": "user_id_mapping",
-      "title": "Which user attribute to send as the customerId",
+      "title": "Which user attribute to send as 'customerId'",
+      "description": "Customer.io requires a unique main identifer for each user. The best practice is to use the `external_id` because it can never change, but in specific cases you might want to use another attribute. This is an advanced setting. We advise to contact us before changing",
       "type": "string",
       "format": "trait",
       "default": "external_id"
     },
     {
-      "name": "data_title",
-      "title": "Data Mapping",
-      "format": "title",
-      "type": "string"
-    },
-    {
       "name": "synchronized_attributes",
-      "title": "Send Attributes to Customer.io",
-      "description": "Email, customerId and hull_segments are sent automatically",
+      "title": "Attribute List",
+      "description": "List the attributes to send to Customer.io. We automatically send the Email, the customerId (as mapped above) and an attribute called `hull_segments` that contains the names of all the segments the User belongs to",
       "type": "array",
       "format": "trait"
     }
   ],
   "resources": [],
   "readme": "readme.md",
-  "admin": "admin.html",
+  "tabs": [
+    {
+      "title": "Setup",
+      "url": "admin.html",
+      "size": "small",
+      "editable": false
+    }
+  ],
   "ui": false,
   "subscriptions": [
     {
