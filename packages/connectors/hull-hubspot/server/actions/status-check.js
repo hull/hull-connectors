@@ -94,7 +94,6 @@ function statusCheckAction(ctx: HullContext) {
       syncAgent.hubspotClient
         .getContactPropertyGroups()
         .then(body => {
-          console.log("\n got property groups");
           if (!_.find(body, g => g.name === "hull")) {
             pushMessage(
               "warning",
