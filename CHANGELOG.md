@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.0.17-monorepo
+- [hull-outreach] fixed re-authentication after 4 hours, fixed memory leak on initial fetch
+- [hull-hubspot] updated status messaging
+
 ## v0.0.16-monorepo
 - [hull-customerio] new logo assets, doc changes and some visual updates to manifest
 - [hull-hubspot] updates to view layer, organized manifest better, updated descriptions in manifest
