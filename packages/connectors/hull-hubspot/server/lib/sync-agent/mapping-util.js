@@ -606,6 +606,15 @@ class MappingUtil {
           mappingEntry.hull_default_trait_name
         ) {
           if (userData[mappingEntry.hull_default_trait_name] !== undefined) {
+
+            try {
+              if (value !== userData[mappingEntry.hull_default_trait_name]) {
+                this.hullClient.logger.debug(`OVERWRITTING: ${value} is not equal to ${userData[mappingEntry.hull_default_trait_name]}`);
+              }
+            } catch (error) {
+
+            }
+
             value = userData[mappingEntry.hull_default_trait_name];
           }
         }
