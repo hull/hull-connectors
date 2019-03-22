@@ -10,7 +10,8 @@
     "incoming",
     "batch",
     "oneColumn",
-    "smart-notifier"
+    "smart-notifier",
+    "first-install"
   ],
   "settings": [],
   "private_settings": [
