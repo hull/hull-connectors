@@ -174,9 +174,7 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
         [
           "debug",
           "OVERWRITTING",
-          {
-            request_id: "smart-notifier:1553251133:f88b528ba164942dc85e2d1a",
-          },
+          expect.whatever(),
           {
             value: "NewLastName",
             valueFromDefaultMapping: "CurrentLastName",
