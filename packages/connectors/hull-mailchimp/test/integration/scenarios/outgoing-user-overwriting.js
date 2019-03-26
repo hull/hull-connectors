@@ -110,6 +110,22 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
           { changes: {}, events: [], segments: ["hullSegmentName"] }
         ],
         ["debug", "outgoing.job.start", expect.whatever(), { messages: 1 }],
+        [
+          "debug",
+          "OVERWRITTING",
+          expect.whatever(),
+          {
+            "fieldName": "NOT_OVERWRITTEN_MERGE_FIELD",
+          },
+        ],
+        [
+          "debug",
+          "OVERWRITTING",
+          expect.whatever(),
+          {
+            "fieldName": "NOT_OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT",
+          }
+        ],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ method: "GET", url: "/lists/{{listId}}/webhooks" })],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ method: "POST", url: "/lists/{{listId}}" })],
         [

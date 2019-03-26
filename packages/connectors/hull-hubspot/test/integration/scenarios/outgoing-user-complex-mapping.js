@@ -6,6 +6,11 @@ const connectorManifest = require("../../../manifest");
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
+/**
+ * This tests if the overwrite field is true/false/notset
+ * because this is a legacy feature that some customers may still have
+ * by default we overwrite for any of these values
+ */
 const connector = {
   private_settings: {
     token: "hubToken",
@@ -13,9 +18,9 @@ const connector = {
     outgoing_user_attributes: [
       { hull: "first_name", service: "firstname", overwrite: true },
       { hull: "last_name", service: "lastname", overwrite: false },
-      { hull: "traits_group/custom_calculated_score", service: "custom_hubspot_score", overwrite: false },
+      { hull: "traits_group/custom_calculated_score", service: "custom_hubspot_score" },
       { hull: "traits_custom_numeric", service: "custom_hubspot_numeric", overwrite: true },
-      { hull: "traits_custom_array", service: "custom_hubspot_array", overwrite: true },
+      { hull: "traits_custom_array", service: "custom_hubspot_array" },
       { hull: "traits_custom_empty_array", service: "custom_hubspot_empty_array", overwrite: true },
       { hull: "traits_custom_true", service: "custom_hubspot_true", overwrite: true },
       { hull: "traits_custom_false", service: "custom_hubspot_false", overwrite: true },
@@ -68,10 +73,10 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
               "value": "John"
             }, {
               "property": "lastname",
-              "value": "CurrentLastName"
+              "value": "NewLastName"
             }, {
               "property": "hull_custom_hubspot_score",
-              "value": 123
+              "value": 456
             }, {
               "property": "hull_custom_hubspot_numeric",
               "value": 123
@@ -130,7 +135,7 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
             first_name: "John",
             last_name: "NewLastName",
             "traits_hubspot/last_name": "CurrentLastName",
-            "traits_group/custom_calculated_score": 123,
+            "traits_group/custom_calculated_score": 456,
             traits_custom_numeric: 123,
             traits_custom_array: ["A", "B"],
             traits_custom_empty_array: [],
@@ -171,15 +176,6 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
-        [
-          "debug",
-          "OVERWRITTING",
-          expect.whatever(),
-          {
-            value: "NewLastName",
-            valueFromDefaultMapping: "CurrentLastName",
-          }
-        ],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
         [
@@ -193,10 +189,10 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
                 "value": "John"
               }, {
                 "property": "lastname",
-                "value": "CurrentLastName"
+                "value": "NewLastName"
               }, {
                 "property": "hull_custom_hubspot_score",
-                "value": 123
+                "value": 456
               }, {
                 "property": "hull_custom_hubspot_numeric",
                 "value": 123

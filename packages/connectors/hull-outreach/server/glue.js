@@ -138,6 +138,10 @@ const glue = {
     set("accountId", get("${insertedAccount}", "id")),
     hull("asAccount", "${insertedAccount}")
   ],
+  getProspectById: [
+    set("userId", get(input(), "user.outreach/id")),
+    hull("asUser", outreach("getProspectById"))
+  ],
   insertProspect: [ route("linkAccount"), routeWithData("sendInsertProspect", inputParameter("user"), HullOutgoingUser) ],
   sendInsertProspect: hull("asUser", outreachSendInput("insertProspect")),
   updateProspect: [ route("linkAccount"), routeWithData("sendUpdateProspect", inputParameter("user"), HullOutgoingUser) ],
@@ -211,7 +215,10 @@ const glue = {
       true: hull("asAccount", input()),
       false:
         ifLogic(cond("isEqual", ["prospect", inputParameter("data.type")]), {
-          true: hull("asUser", input()),
+          true: ifLogic(cond("isEqual", ["prospect.created", inputParameter("meta.eventName")]), {
+            true: [set("createdByWebhook", true), hull("asUser", input())],
+            false: hull("asUser", input())
+          }),
           false: {}
         })
     }),

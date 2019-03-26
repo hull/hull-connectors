@@ -187,7 +187,6 @@ class MappingUtil {
             hull_default_trait_name:
               (defaultMapping && defaultMapping.hull) || null,
             hull_trait_type: hullTrait.type,
-            hull_overwrite_hubspot: setting.overwrite,
             hubspot_property_name: hubspotPropertyName,
             hubspot_property_label: setting.service || setting.name,
             hubspot_property_read_only:
@@ -600,27 +599,6 @@ class MappingUtil {
         }
 
         let value = _.get(userData, mappingEntry.hull_trait_name);
-
-        if (
-          !mappingEntry.hull_overwrite_hubspot &&
-          mappingEntry.hull_default_trait_name
-        ) {
-          if (userData[mappingEntry.hull_default_trait_name] !== undefined) {
-            try {
-              if (value !== userData[mappingEntry.hull_default_trait_name]) {
-                this.hullClient.logger.debug("OVERWRITTING", {
-                  value,
-                  valueFromDefaultMapping:
-                    userData[mappingEntry.hull_default_trait_name]
-                });
-              }
-            } catch (error) {
-              // ignore
-            }
-
-            value = userData[mappingEntry.hull_default_trait_name];
-          }
-        }
 
         if (
           (/_at$|date$/.test(mappingEntry.hull_trait_name) ||
