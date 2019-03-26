@@ -210,7 +210,7 @@ class UserMappingAgent {
     if (
       _.get(payload, hull) !== payload[`mailchimp/${fieldName.toLowerCase()}`]
     ) {
-      this.client.logger.info("OVERWRITTING", {
+      this.client.logger.debug("OVERWRITTING", {
         fieldName
       });
     }
