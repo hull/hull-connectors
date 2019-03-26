@@ -600,15 +600,6 @@ class MappingUtil {
 
         let value = _.get(userData, mappingEntry.hull_trait_name);
 
-        // if (
-        //   !mappingEntry.hull_overwrite_hubspot &&
-        //   mappingEntry.hull_default_trait_name
-        // ) {
-        //   if (userData[mappingEntry.hull_default_trait_name] !== undefined) {
-        //     value = userData[mappingEntry.hull_default_trait_name];
-        //   }
-        // }
-
         if (
           (/_at$|date$/.test(mappingEntry.hull_trait_name) ||
             mappingEntry.hubspot_property_type === "datetime") &&
