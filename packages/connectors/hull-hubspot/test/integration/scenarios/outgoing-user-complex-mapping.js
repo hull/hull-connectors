@@ -176,15 +176,6 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
-        [
-          "debug",
-          "OVERWRITTING",
-          expect.whatever(),
-          {
-            value: "NewLastName",
-            valueFromDefaultMapping: "CurrentLastName",
-          }
-        ],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
         [
