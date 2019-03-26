@@ -66,7 +66,7 @@ class TransformImpl {
             if (_.isEmpty(mapping)) {
               debug(`Skipping mapping: ${transform.mapping} because does not exist for transform: ${JSON.stringify(transform)}`);
             }
-          } else if (transform.direction === "incoming") {
+          } else if (transformation.direction === "incoming") {
             mapping = [{ service: transform.inputPath, hull: transform.outputPath }];
           } else {
             mapping = [{ hull: transform.inputPath, service: transform.outputPath }];

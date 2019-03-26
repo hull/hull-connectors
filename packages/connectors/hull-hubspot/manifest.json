@@ -77,15 +77,6 @@
         "source": "hubspot"
       }
     },
-
-
-
-
-
-
-
-
-
     {
       "name": "outgoing_user_title",
       "title": "User Outgoing Setup",
@@ -109,20 +100,12 @@
       "format": "traitMapping",
       "options": {
         "direction": "outgoing",
-        "showOverwriteToggle": true,
+        "showOverwriteToggle": false,
         "placeholder": "Hubspot Field",
         "allowCreate": true,
         "loadOptions": "/schema/contact_properties"
       }
     },
-
-
-
-
-
-
-
-
     {
       "name": "incoming_account_title",
       "title": "Account Incoming Setup",
@@ -188,11 +171,6 @@
         "source": "hubspot"
       }
     },
-
-
-
-
-
     {
       "name": "outgoing_account_title",
       "title": "Account Outgoing Setup",
@@ -221,10 +199,6 @@
         "loadOptions": "/schema/company_properties"
       }
     },
-
-
-
-
     {
       "name": "link_users_in_service",
       "title": "Link Contacts in Hubspot",
