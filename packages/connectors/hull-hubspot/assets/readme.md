@@ -173,358 +173,136 @@ You can sync Hull [User & Account Segments](https://www.hull.io/docs/concepts/se
 | Groups of people    | User Segments    | `Hull_Segments` contact property |
 | Groups of companies | Account Segments | `Hull_Segments` company property |
 
-### Default Fields
+### Default Contact Mappings
+
+| Name                                          | Hull                                       | Type    | Title                                   | Read Only |
+| :---                                          | :---:                                      | :---:   | :---:                                   | ---:      |
+| email                                         | email                                      | string  | Email                                   | false     |  
+| salutation                                    | hubspot/salutation                         | string  | Salutation                              | false     |  
+| firstname                                     | hubspot/first_name                         | string  | First Name                              | false     |  
+| lastname                                      | hubspot/last_name                          | string  | Last Name                               | false     |  
+| phone                                         | hubspot/phone                              | string  | Phone number                            | false     |  
+| mobilephone                                   | hubspot/mobile_phone                       | string  | Mobile Phone number                     | false     |  
+| address                                       | hubspot/address_street                     | string  | Street Address                          | false     |  
+| city                                          | hubspot/address_city                       | string  | City                                    | false     |  
+| zip                                           | hubspot/address_postal_code                | string  | Postal Code                             | false     |  
+| state                                         | hubspot/address_state                      | string  | State/Region                            | false     |  
+| country                                       | hubspot/address_country                    | string  | Country                                 | false     |  
+| fax                                           | hubspot/fax                                | string  | Fax number                              | false     |  
+| company                                       | hubspot/company                            | string  | Company Name                            | false     |  
+| industry                                      | hubspot/industry                           | string  | Industry                                | false     |  
+| jobtitle                                      | hubspot/job_title                          | string  | Job Title                               | false     |  
+| numemployees                                  | hubspot/employees_count                    | number  | Number of Employees                     | false     |  
+| website                                       | hubspot/website                            | string  | Website URL                             | false     |  
+| createdate                                    | hubspot/created_at                         | date    | Create Date                             | false     |  
+| closedate                                     | hubspot/closed_at                          | date    | Close Date                              | false     |  
+| lastmodifieddate                              | hubspot/updated_at                         | date    | Last Modified Date                      | false     |  
+| annualrevenue                                 | hubspot/annual_revenue                     | number  | Annual Revenue                          | false     |  
+| total_revenue                                 | hubspot/total_revenue                      | number  | Total Revenue                           | false     |  
+| lifecyclestage                                | hubspot/lifecycle_stage                    | string  | Lifecycle Stage                         | false     |  
+| days_to_close                                 | hubspot/days_to_close                      | number  | Days To Close                           | true      |  
+| first_deal_created_date                       | hubspot/first_deal_created_at              | date    | First Deal Created Date                 | false     |  
+| num_associated_deals                          | hubspot/associated_deals_count             | number  | Associated Deals                        | true      |  
+| hubspot_owner_id                              | hubspot/hubspot_owner_id                   | string  | HubSpot Owner                           | false     |  
+| hs_email_optout                               | hubspot/email_optout                       | boolean | Opted out of all email                  | true      |  
+| blog_default_hubspot_blog_subscription        | hubspot/default_hubspot_blog_subscription  | boolean | Default HubSpot Blog Email Subscription | false     |  
+| message                                       | hubspot/message                            | string  | Message                                 | false     |  
+| recent_deal_amount                            | hubspot/recent_deal_amount                 | number  | Recent Deal Amount                      | false     |  
+| recent_deal_close_date                        | hubspot/recent_deal_closed_at              | date    | Recent Deal Close Date                  | false     |  
+| num_notes                                     | hubspot/notes_count                        | number  | Number of Sales Activities              | true      |  
+| num_contacted_notes                           | hubspot/contacted_notes_count              | string  | Number of times contacted               | true      |  
+| notes_last_contacted                          | hubspot/notes_last_contacted_at            | date    | Last Contacted                          | false     |  
+| notes_last_updated                            | hubspot/last_activity_at                   | date    | Last Activity Date                      | false     |  
+| notes_next_activity_date                      | hubspot/next_activity_at                   | date    | Next Activity Date                      | false     |  
+| hubspot_owner_assigneddate                    | hubspot/owner_assigned_at                  | date    | Owner Assigned Date                     | false     |  
+| hs_lead_status                                | hubspot/lead_status                        | string  | Lead Status                             | false     |  
+| hs_lifecyclestage_customer_date               | hubspot/became_customer_at                 | date    | Became a Customer Date                  | false     |  
+| hs_lifecyclestage_lead_date                   | hubspot/became_lead_at                     | date    | Became a Lead Date                      | false     |  
+| hs_lifecyclestage_marketingqualifiedlead_date | hubspot/became_marketing_qualified_lead_at | date    | Became a Marketing Qualified Lead Date  | false     |  
+| hs_lifecyclestage_salesqualifiedlead_date     | hubspot/became_sales_qualified_lead_at     | date    | Became a Sales Qualified Lead Date      | false     |  
+| hs_lifecyclestage_subscriber_date             | hubspot/became_subscriber_at               | date    | Became a Subscriber Date                | false     |  
+| hs_lifecyclestage_evangelist_date             | hubspot/became_evangelist_at               | date    | Became an Evangelist Date               | false     |  
+| hs_lifecyclestage_opportunity_date            | hubspot/became_opportunity_at              | date    | Became an Opportunity Date              | false     |  
+| hs_lifecyclestage_other_date                  | hubspot/became_other_at                    | date    | Beame an Other Lifecycle Date           | false     |  
+| hs_email_bounce                               | hubspot/emails_bounced_count               | number  |                                         | true      |  
+| hs_email_open                                 | hubspot/opened_count                       | number  |                                         | true      |  
+| associatedcompanyid                           | hubspot/associatedcompanyid                | string  |                                         | false     |  
 
 
-  
--     name: email
-      hull: email
-      type: string
-      title: Email
-      read_only: false
-  
-  
--     name: salutation
-      hull: hubspot/salutation
-      type: string
-      title: Salutation
-      read_only: false
-  
-  
--     name: firstname
-      hull: hubspot/first_name
-      type: string
-      title: First Name
-      read_only: false
-  
-  
--     name: lastname
-      hull: hubspot/last_name
-      type: string
-      title: Last Name
-      read_only: false
-  
-  
--     name: phone
-      hull: hubspot/phone
-      type: string
-      title: Phone Number
-      read_only: false
-  
-  
--     name: mobilephone
-      hull: hubspot/mobile_phone
-      type: string
-      title: Mobile Phone Number
-      read_only: false
-  
-  
--     name: address
-      hull: hubspot/address_street
-      type: string
-      title: Street Address
-      read_only: false
-  
-  
--     name: city
-      hull: hubspot/address_city
-      type: string
-      title: City
-      read_only: false
-  
-  
--     name: zip
-      hull: hubspot/address_postal_code
-      type: string
-      title: Postal Code
-      read_only: false
-  
-  
--     name: state
-      hull: hubspot/address_state
-      type: string
-      title: State/Region
-      read_only: false
-  
-  
--     name: country
-      hull: hubspot/address_country
-      type: string
-      title: Country
-      read_only: false
-  
-  
--     name: fax
-      hull: hubspot/fax
-      type: string
-      title: Fax Number
-      read_only: false
-  
-  
--     name: company
-      hull: hubspot/company
-      type: string
-      title: Company Name
-      read_only: false
-  
-  
--     name: industry
-      hull: hubspot/industry
-      type: string
-      title: Industry
-      read_only: false
-  
-  
--     name: jobtitle
-      hull: hubspot/job_title
-      type: string
-      title: Job Title
-      read_only: false
-  
-  
--     name: numemployees
-      hull: hubspot/employees_count
-      type: number
-      title: Number of Employees
-      read_only: false
-  
-  
--     name: website
-      hull: hubspot/website
-      type: string
-      title: Website URL
-      read_only: false
-  
-  
--     name: createdate
-      hull: hubspot/created_at
-      type: date
-      title: Create Date
-      read_only: false
-  
-  
--     name: closedate
-      hull: hubspot/closed_at
-      type: date
-      title: Close Date
-      read_only: false
-  
-  
--     name: lastmodifieddate
-      hull: hubspot/updated_at
-      type: date
-      title: Last Modified Date
-      read_only: false
-  
-  
--     name: annualrevenue
-      hull: hubspot/annual_revenue
-      type: number
-      title: Annual Revenue
-      read_only: false
-  
-  
--     name: total_revenue
-      hull: hubspot/total_revenue
-      type: number
-      title: Total Revenue
-      read_only: false
-  
-  
--     name: lifecyclestage
-      hull: hubspot/lifecycle_stage
-      type: string
-      title: Lifecycle Stage
-      read_only: false
-  
-  
--     name: days_to_close
-      hull: hubspot/days_to_close
-      type: number
-      title: Days To Close
-      read_only: true
-  
-  
--     name: first_deal_created_date
-      hull: hubspot/first_deal_created_at
-      type: date
-      title: First Deal Created Date
-      read_only: false
-  
-  
--     name: num_associated_deals
-      hull: hubspot/associated_deals_count
-      type: number
-      title: Associated Deals
-      read_only: true
-  
-  
--     name: hubspot_owner_id
-      hull: hubspot/hubspot_owner_id
-      type: string
-      title: HubSpot Owner
-      read_only: false
-  
-  
--     name: hs_email_optout
-      hull: hubspot/email_optout
-      type: boolean
-      title: Opted out of all email
-      read_only: true
-  
-  
--     name: blog_default_hubspot_blog_subscription
-      hull: hubspot/default_hubspot_blog_subscription
-      type: boolean
-      title: Default HubSpot Blog Email Subscription
-      read_only: false
-  
-  
--     name: message
-      hull: hubspot/message
-      type: string
-      title: Message
-      read_only: false
-  
-  
--     name: recent_deal_amount
-      hull: hubspot/recent_deal_amount
-      type: number
-      title: Recent Deal Amount
-      read_only: false
-  
-  
--     name: recent_deal_close_date
-      hull: hubspot/recent_deal_closed_at
-      type: date
-      title: Recent Deal Close Date
-      read_only: false
-  
-  
--     name: num_notes
-      hull: hubspot/notes_count
-      type: number
-      title: Number of Sales Activities
-      read_only: true
-  
-  
--     name: num_contacted_notes
-      hull: hubspot/contacted_notes_count
-      type: string
-      title: Number of times contacted
-      read_only: true
-  
-  
--     name: notes_last_contacted
-      hull: hubspot/notes_last_contacted_at
-      type: date
-      title: Last Contacted
-      read_only: false
-  
-  
--     name: notes_last_updated
-      hull: hubspot/last_activity_at
-      type: date
-      title: Last Activity Date
-      read_only: false
-  
-  
--     name: notes_next_activity_date
-      hull: hubspot/next_activity_at
-      type: date
-      title: Next Activity Date
-      read_only: false
-  
-  
--     name: hubspot_owner_assigneddate
-      hull: hubspot/owner_assigned_at
-      type: date
-      title: Owner Assigned Date
-      read_only: false
-  
-  
--     name: hs_lead_status
-      hull: hubspot/lead_status
-      type: string
-      title: Lead Status
-      read_only: false
-  
-  
--     name: hs_lifecyclestage_customer_date
-      hull: hubspot/became_customer_at
-      type: date
-      title: Became a Customer Date
-      read_only: false
-  
-  
--     name: hs_lifecyclestage_lead_date
-      hull: hubspot/became_lead_at
-      type: date
-      title: Became a Lead Date
-      read_only: false
-  
-  
--     name: hs_lifecyclestage_marketingqualifiedlead_date
-      hull: hubspot/became_marketing_qualified_lead_at
-      type: date
-      title: Became a Marketing Qualified Lead Date
-      read_only: false
-  
-  
--     name: hs_lifecyclestage_salesqualifiedlead_date
-      hull: hubspot/became_sales_qualified_lead_at
-      type: date
-      title: Became a Sales Qualified Lead Date
-      read_only: false
-  
-  
--     name: hs_lifecyclestage_subscriber_date
-      hull: hubspot/became_subscriber_at
-      type: date
-      title: Became a Subscriber Date
-      read_only: false
-  
-  
--     name: hs_lifecyclestage_evangelist_date
-      hull: hubspot/became_evangelist_at
-      type: date
-      title: Became an Evangelist Date
-      read_only: false
-  
-  
--     name: hs_lifecyclestage_opportunity_date
-      hull: hubspot/became_opportunity_at
-      type: date
-      title: Became an Opportunity Date
-      read_only: false
-  
-  
--     name: hs_lifecyclestage_other_date
-      hull: hubspot/became_other_at
-      type: date
-      title: Became an Other Lifecycle Date
-      read_only: false
-  
-  
--     name: hs_email_bounce
-      hull: hubspot/emails_bounced_count
-      title: 
-      type: number
-      read_only: true
-  
-  
--     name: hs_email_open
-      hull: hubspot/opened_count
-      title: 
-      type: number
-      read_only: true
-  
-  
--     name: associatedcompanyid
-      hull: hubspot/associatedcompanyid
-      title: 
-      type: string
-      read_only: false
+### Default Company Mappings
+
+
+| Hubspot                                      |  Hull                                                 | Type        | Title                           | Read Only |
+| :---                                         | :---:                                                 | :---:       | :---:                           | ---:      |
+| about_us                                     | hubspot/about_us                                      | string      | About Us                        | false     |
+| first_deal_created_date                      | hubspot/first_deal_created_date                       | datetime    | First Deal Created Date         | true      |
+| founded_year                                 | hubspot/founded_year                                  | string      | Year Founded                    | false     |
+| hs_avatar_filemanager_key                    | hubspot/hs_avatar_filemanager_key                     | string      | Avatar FileManager key          | true      |
+| hs_lastmodifieddate                          | hubspot/hs_lastmodified_date                          | datetime    | Last Modified Date              | true      |
+| hs_predictivecontactscore_v2                 | hubspot/hs_predictivecontactscore_v2                  | number      | Likelihood to close             | true      |
+| hubspot_owner_assigneddate                   | hubspot/hubspot_owner_assigned_date                   | datetime    | Owner Assigned Date             | true      |
+| is_public                                    | hubspot/is_public                                     | bool        | Is Public                       | false     |
+| num_associated_contacts                      | hubspot/num_associated_contacts                       | number      | Associated Contacts             | true      |
+| num_associated_deals                         | hubspot/num_associated_deals                          | number      | Associated Deals                | true      |
+| recent_deal_amount                           | hubspot/recent_deal_amount                            | number      | Recent Deal Amount              | true      |
+| recent_deal_close_date                       | hubspot/recent_deal_close_date                        | datetime    | Recent Deal Close Date          | true      |
+| timezone                                     | hubspot/timezone                                      | string      | Time Zone                       | false     |
+| total_money_raised                           | hubspot/total_money_raised                            | string      | Total Money Raised              | false     |
+| total_revenue                                | hubspot/total_revenue                                 | number      | Total Revenue                   | true      |
+| name                                         | hubspot/name                                          | string      | Name                            | false     |
+| phone                                        | hubspot/phone                                         | string      | Phone Number                    | false     |
+| address                                      | hubspot/address                                       | string      | Street Address                  | false     |
+| address2                                     | hubspot/address2                                      | string      | Street Address 2                | false     |
+| city                                         | hubspot/city                                          | string      | City                            | false     |
+| state                                        | hubspot/state                                         | string      | State/Region                    | false     |
+| hs_sales_email_last_replied                  | hubspot/hs_sales_email_last_replied                   | datetime    | Recent Sales Email Replied Date | true      |
+| hubspot_owner_id                             | hubspot/hubspot_owner_id                              | enumeration | Company owner                   | false     |
+| notes_last_contacted                         | hubspot/notes_last_contacted_at                       | datetime    | Last Contacted                  | true      |
+| notes_last_updated                           | hubspot/notes_last_updated_at                         | datetime    | Last Activity Date              | true      |
+| notes_next_activity_date                     | hubspot/notes_next_activity_date                      | datetime    | Next Activity Date              | true      |
+| num_contacted_notes                          | hubspot/num_contacted_notes                           | number      | Number of times contacted       | true      |
+| num_notes                                    | hubspot/num_notes                                     | number      | Number of Sales Activities      | true      |
+| zip                                          | hubspot/zip                                           | string      | Postal Code                     | false     |
+| country                                      | hubspot/country                                       | string      | Country                         | false     |
+| hubspot_team_id                              | hubspot/hubspot_team_id                               | enumeration | HubSpot Team                    | true      |
+| hs_all_owner_ids                             | hubspot/hs_all_owner_ids                              | enumeration | All owner ids                   | true      |
+| website                                      | hubspot/website                                       | string      | Website URL                     | false     |
+| domain                                       | hubspot/domain                                        | string      | Company Domain Name             | false     |
+| hs_all_team_ids                              | hubspot/hs_all_team_ids                               | enumeration | All team ids                    | true      |
+| hs_all_accessible_team_ids                   | hubspot/hs_all_accessible_team_ids                    | enumeration | All accessible team ids         | true      |
+| numberofemployees                            | hubspot/numberofemployees                             | number      | Number of Employees             | false     |
+| industry                                     | hubspot/industry                                      | enumeration | Industry                        | false     |
+| annualrevenue                                | hubspot/annualrevenue                                 | number      | Annual Revenue                  | false     |
+| lifecyclestage                               | hubspot/lifecyclestage                                | enumeration | Lifecycle Stage                 | false     |
+| hs_lead_status                               | hubspot/hs_lead_status                                | enumeration | Lead Status                     | false     |
+| hs_parent_company_id                         | hubspot/hs_parent_company_id                          | number      | Parent Company                  | true      |
+| type                                         | hubspot/type                                          | enumeration | Type                            | false     |
+| description                                  | hubspot/description                                   | string      | Description                     | false     |
+| hs_num_child_companies                       | hubspot/hs_num_child_companies                        | number      | Number of child companies       | true      |
+| createdate                                   | hubspot/create_date                                   | datetime    | Create Date                     | true      |
+| closedate                                    | hubspot/close_date                                    | datetime    | Close Date                      | false     |
+| first_contact_createdate                     | hubspot/first_contact_create_date                     | datetime    | First Contact Create Date       | true      |
+| web_technologies                             | hubspot/web_technologies                              | enumeration | Web Technologies                | false     |
+| facebookfans                                 | hubspot/facebookfans                                  | number      | Facebook Fans                   | false     |
+| twitterhandle                                | hubspot/twitterhandle                                 | string      | Twitter Handle                  | false     |
+| twitterbio                                   | hubspot/twitterbio                                    | string      | Twitter Bio                     | false     |
+| twitterfollowers                             | hubspot/twitterfollowers                              | number      | Twitter Followers               | false     |
+| facebook_company_page                        | hubspot/facebook_company_page                         | string      | Facebook Company Page           | false     |
+| linkedin_company_page                        | hubspot/linkedin_company_page                         | string      | LinkedIn Company Page           | false     |
+| linkedinbio                                  | hubspot/linkedinbio                                   | string      | LinkedIn Bio                    | false     |
+| googleplus_page                              | hubspot/googleplus_page                               | string      | Google Plus Page                | false     |
+| hs_analytics_first_timestamp                 | hubspot/hs_analytics_first_timestamp                  | datetime    | Time First Seen                 | true      |
+| hs_analytics_first_touch_converting_campaign | hubspot/hs_analytics_first_touch_converting_campaign  | string      | First Touch Converting Campaign | true      |
+| hs_analytics_first_visit_timestamp           | hubspot/hs_analytics_first_visit_timestamp            | datetime    | Time of First Visit             | true      |
+| hs_analytics_last_timestamp                  | hubspot/hs_analytics_last_timestamp                   | datetime    | Time Last Seen                  | true      |
+| hs_analytics_last_touch_converting_campaign  | hubspot/hs_analytics_last_touch_converting_campaign   | string      | Last Touch Converting Campaign  | true      |
+| hs_analytics_last_visit_timestamp            | hubspot/hs_analytics_last_visit_timestamp             | datetime    | Time of Last Session            | true      |
+| hs_analytics_num_page_views                  | hubspot/hs_analytics_num_page_views                   | number      | Number of Pageviews             | true      |
+| hs_analytics_num_visits                      | hubspot/hs_analytics_num_visits                       | number      | Number of Visits                | true      |
+| hs_analytics_source                          | hubspot/hs_analytics_source                           | enumeration | Original Source Type            | true      |
+| hs_analytics_source_data_1                   | hubspot/hs_analytics_source_data_1                    | string      | Original Source Data 1          | true      |
+| hs_analytics_source_data_2                   | hubspot/hs_analytics_source_data_2                    | string      | Original Source Data 2          | true      |
+| days_to_close                                | hubspot/days_to_close                                 | number      | Days to Close                   | true      |
   
 
 ## Sync Frequency & Limitations
