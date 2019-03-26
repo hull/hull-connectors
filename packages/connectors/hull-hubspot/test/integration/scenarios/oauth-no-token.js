@@ -15,11 +15,17 @@ const connector = {
   private_settings: {
     token_fetched_at: 1419967066626,
     expires_in: 10,
-    refresh_token: "123"
+    refresh_token: "123",
+    synchronized_user_segments: [
+      "5bffc38f625718d58b000004"
+    ],
+    synchronized_account_segments: [
+      "5bffc38f625718d58b000005"
+    ]
   }
 };
 
-it("Should return the no token error when calling the connector's API without a token", () => {
+it("Should return the no token \"ok\" message when calling the connector's API without a token", () => {
   return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
@@ -31,7 +37,7 @@ it("Should return the no token error when calling the connector's API without a 
       connector,
       usersSegments: [],
       accountsSegments: [],
-      response: {"messages": ['No OAuth AccessToken found.  Please make sure to allow Hull to access your Hubspot data by clicking the \"Credentials & Actions\" button on the connector page and following the workflow provided'], "status": "error"},
+      response: {"messages": ['No OAuth AccessToken found.  Please make sure to allow Hull to access your Hubspot data by clicking the \"Credentials & Actions\" button on the connector page and following the workflow provided'], "status": "ok"},
       logs: [],
       firehoseEvents: [],
       metrics: [
@@ -44,7 +50,7 @@ it("Should return the no token error when calling the connector's API without a 
               [
                 'No OAuth AccessToken found.  Please make sure to allow Hull to access your Hubspot data by clicking the \"Credentials & Actions\" button on the connector page and following the workflow provided'
               ],
-            "status": "error"
+            "status": "ok"
           }
         ]
       ]

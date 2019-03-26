@@ -6,6 +6,11 @@ const connectorManifest = require("../../../manifest");
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
+/**
+ * This tests if the overwrite field is true/false/notset
+ * because this is a legacy feature that some customers may still have
+ * by default we overwrite for any of these values
+ */
 const connector = {
   private_settings: {
     token: "hubToken",

@@ -198,7 +198,6 @@ export type HubspotContactAttributesIncomingSetting = {
 export type HubspotContactAttributesOutgoingSetting = {
   hull: string,
   name: string,
-  overwrite: boolean,
   service: string
 };
 
@@ -212,10 +211,6 @@ export type HubspotContactOutgoingMapping = {
     "hull"
   > | null,
   hull_trait_type: $PropertyType<HullProperty, "type">,
-  hull_overwrite_hubspot?: $PropertyType<
-    HubspotContactAttributesOutgoingSetting,
-    "overwrite"
-  >,
   hubspot_property_name: $PropertyType<
     HubspotContactAttributesOutgoingSetting,
     "name"

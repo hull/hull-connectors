@@ -31,7 +31,7 @@ const usersSegments = [
   }
 ];
 
-it.only("Performing sync", () => {
+it("Performing sync", () => {
   const email = "";
   return testScenario({
     connectorServer,

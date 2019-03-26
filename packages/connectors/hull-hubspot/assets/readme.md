@@ -160,8 +160,6 @@ In the Connector Settings, under the **Custom Fields Sync (HubSpot to Hull)** he
 
 In the connector settings, under the **Custom Fields Sync (Hull to Hubspot)** headings for Users & Accounts, you can map Hull User & Account Attributes to Custom Properties in HubSpot Contact & Company profiles. These will appear under a Hull group in HubSpot.
 
-You can configure each field for Hull to overwrite values in HubSpot.
-
 You can create new properties in HubSpot from Hull field mapping. As you type right column of the field mapper, you’ll be prompted to “Create” the field you’re typing.
 
 ### Segmentation
@@ -178,7 +176,7 @@ You can sync Hull [User & Account Segments](https://www.hull.io/docs/concepts/se
 
 Hull ingests data from the HubSpot connector through the [Firehose API](https://www.hull.io/docs/data_lifecycle/ingest/#messages).
 
-Learn more about [HubSpot’s API usage guidelines](https://developers.hubspot.com/apps/api_guidelines). 
+Learn more about [HubSpot’s API usage guidelines](https://developers.hubspot.com/apps/api_guidelines).
 
 | HubSpot API limits             | 40,000 per day                    |
 | ------------------------------ | --------------------------------- |

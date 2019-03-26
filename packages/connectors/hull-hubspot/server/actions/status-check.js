@@ -51,7 +51,7 @@ function statusCheckAction(ctx: HullContext) {
 
   if (!_.get(connector, "private_settings.token")) {
     pushMessage(
-      "error",
+      "ok",
       'No OAuth AccessToken found.  Please make sure to allow Hull to access your Hubspot data by clicking the "Credentials & Actions" button on the connector page and following the workflow provided'
     );
   }
@@ -94,7 +94,6 @@ function statusCheckAction(ctx: HullContext) {
       syncAgent.hubspotClient
         .getContactPropertyGroups()
         .then(body => {
-          console.log("\n got property groups");
           if (!_.find(body, g => g.name === "hull")) {
             pushMessage(
               "warning",

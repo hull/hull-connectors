@@ -4,13 +4,14 @@
   "source": "hubspot",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.0.16-monorepo",
+  "version": "0.0.17-monorepo",
   "tags": [
     "outgoing",
     "incoming",
     "batch",
     "oneColumn",
-    "smart-notifier"
+    "smart-notifier",
+    "first-install"
   ],
   "settings": [],
   "private_settings": [
