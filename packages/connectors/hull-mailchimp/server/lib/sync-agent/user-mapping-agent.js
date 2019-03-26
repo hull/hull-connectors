@@ -206,6 +206,15 @@ class UserMappingAgent {
     if (!fieldName) {
       return "";
     }
+
+    if (
+      _.get(payload, hull) !== payload[`mailchimp/${fieldName.toLowerCase()}`]
+    ) {
+      this.client.logger.info("OVERWRITTING", {
+        fieldName
+      });
+    }
+
     return (
       payload[`mailchimp/${fieldName.toLowerCase()}`] ||
       _.get(payload, hull) ||
