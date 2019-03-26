@@ -1,9 +1,12 @@
 /* @flow */
-const Promise = require("bluebird");
+import type { HullContext, HullSegmentDeleteMessage } from "hull";
+import shipAppFactory from "../lib/ship-app-factory";
 
-function segmentDeleteHandler(ctx: any, payload: any) {
-  const { segment } = payload.message;
-  const { syncAgent } = ctx.shipApp;
+function segmentDeleteHandler(
+  ctx: HullContext,
+  message: HullSegmentDeleteMessage
+) {
+  const { syncAgent } = shipAppFactory(ctx);
   if (!syncAgent.isConfigured()) {
     ctx.client.logger.error("connector.configuration.error", {
       errors: "connector not configured"
@@ -12,10 +15,10 @@ function segmentDeleteHandler(ctx: any, payload: any) {
   }
   return Promise.all([
     syncAgent.segmentsMappingAgent
-      .deleteSegment(segment)
+      .deleteSegment(message)
       .then(() => syncAgent.segmentsMappingAgent.updateMapping()),
     syncAgent.interestMappingAgent
-      .deleteInterest(segment)
+      .deleteInterest(message)
       .then(() => syncAgent.interestMappingAgent.updateMapping())
   ]);
 }

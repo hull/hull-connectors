@@ -22,7 +22,6 @@ function baseContextMiddlewareFactory({
     res: HullResponse,
     next: NextFunction
   ) {
-    console.log("-------------------BASE CONTEXT");
     const { clientConfig } = connectorConfig;
     const context = {};
     context.hostname = req.hostname || "";
@@ -41,7 +40,6 @@ function baseContextMiddlewareFactory({
     context.HullClient = Client;
     // $FlowFixMe
     req.hull = context;
-    console.log(req.hull);
     next();
   };
 }

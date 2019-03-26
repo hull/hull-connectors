@@ -34,7 +34,6 @@ function credentialsFromNotificationMiddlewareFactory() {
     next: NextFunction
   ) {
     const { hull, body } = req;
-
     const {
       skipSignatureValidation,
       notificationValidatorHttpClient

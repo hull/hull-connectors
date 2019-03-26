@@ -3,7 +3,10 @@ module.exports = api => {
   return {
     only: [
       "packages/connectors/*/server",
+      "packages/connectors/*/test",
       "packages/connectors/*/src",
+      "packages/hull-connector-framework/src/",
+      "packages/minihull/src",
       "packages/server",
       "packages/hull/src",
       "packages/hull-client/src"
@@ -19,6 +22,7 @@ module.exports = api => {
       ]
     ],
     plugins: [
+      "@babel/plugin-syntax-export-default-from",
       "@babel/plugin-transform-runtime",
       "@babel/plugin-transform-flow-strip-types",
       "@babel/plugin-syntax-object-rest-spread",

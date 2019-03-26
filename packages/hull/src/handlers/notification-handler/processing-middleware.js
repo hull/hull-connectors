@@ -17,7 +17,7 @@ const {
 function notificationHandlerProcessingMiddlewareFactory(
   configuration: HullNotificationHandlerConfiguration
 ) {
-  return function notificationHandlerProcessingMiddleware(
+  return async function notificationHandlerProcessingMiddleware(
     req: HullRequest,
     res: HullResponse,
     next: NextFunction
@@ -31,10 +31,12 @@ function notificationHandlerProcessingMiddlewareFactory(
       channel,
       messages: Array.isArray(messages) && messages.length
     });
-    if (configuration[channel] === undefined) {
+    const handler = configuration[channel];
+    if (handler === undefined) {
+      debug("channel unsupported", channel);
       return next(new Error("Channel unsupported"));
     }
-    const { callback } = configuration[channel];
+    const { callback } = handler;
 
     if (channel === "user:update") {
       // $FlowFixMe
@@ -47,13 +49,18 @@ function notificationHandlerProcessingMiddlewareFactory(
       "success"
     );
     // req.hull.notificationResponse = notificationResponse
-    // $FlowFixMe
-    return callback(req.hull, messages)
-      .then((nResponse: HullNotificationResponse = {}) => {
-        const { flow_control = defaultSuccessFlowControl } = nResponse || {};
-        res.status(200).json({ flow_control });
-      })
-      .catch(error => next(error));
+    try {
+      // $FlowFixMe
+      const nResponse: HullNotificationResponse = await callback(
+        req.hull,
+        // $FlowFixMe
+        messages
+      );
+      const { flow_control = defaultSuccessFlowControl } = nResponse || {};
+      return res.status(200).json({ flow_control });
+    } catch (err) {
+      return next(err);
+    }
   };
 }
 

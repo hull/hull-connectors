@@ -4,6 +4,7 @@ import type {
   HullContext,
   HullNotificationResponse
 } from "hull";
+import shipAppFactory from "../lib/ship-app-factory";
 /**
  * When segment is added or updated make sure its in the segments mapping,
  * and trigger an extract for that segment to update users.
@@ -15,7 +16,7 @@ export default async function segmentUpdateHandler(
 ): Promise<HullNotificationResponse> {
   ctx.client.logger.debug("[segmentUpdateHandler] start", { message });
 
-  const { syncAgent } = ctx.shipApp;
+  const { syncAgent } = shipAppFactory(ctx);
 
   if (!syncAgent.isConfigured()) {
     ctx.client.logger.error("connector.configuration.error", {

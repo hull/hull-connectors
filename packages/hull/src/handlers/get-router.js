@@ -1,6 +1,10 @@
 // @flow
-import { Router } from "express";
-import type { HullIncomingHandlerOptions } from "../types";
+import { Router, NextFunction } from "express";
+import type {
+  HullRequest,
+  HullResponse,
+  HullIncomingHandlerOptions
+} from "../types";
 import getBodyParser from "../utils/get-body-parser";
 
 const debug = require("debug")("hull-connector:router");
@@ -28,12 +32,17 @@ export default function getRouter({
   options: HullIncomingHandlerOptions,
   requestName: string,
   handlerName?: string,
-  handler?: express$Middleware,
-  errorHandler?: ?express$Middleware,
+  handler?: (req: HullRequest, res: HullResponse, next: NextFunction) => any,
+  errorHandler?: (
+    err: Error,
+    req: HullRequest,
+    res: HullResponse,
+    next: NextFunction
+  ) => any,
   beforeMiddlewares?: Array<?express$Middleware>,
   afterMiddlewares?: Array<?express$Middleware>
 }) {
-  debug("router options", options);
+  debug("router options", { requestName, handlerName, options });
   const {
     disableErrorHandling,
     bodyParser,
@@ -46,6 +55,7 @@ export default function getRouter({
   if (credentialsFromQuery) {
     router.use(credentialsFromQueryMiddleware()); // parse config from query
   }
+
   if (credentialsFromNotification) {
     router.use(credentialsFromNotificationMiddleware()); // parse config from body
   }

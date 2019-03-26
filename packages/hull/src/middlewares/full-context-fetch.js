@@ -113,7 +113,7 @@ function fullContextFetchMiddlewareFactory({
         });
         return next();
       })
-      .catch(error => next(error));
+      .catch(next);
   };
 }
 

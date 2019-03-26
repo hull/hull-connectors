@@ -2,7 +2,7 @@
 import type { NextFunction } from "express";
 import type { HullRequest, HullResponse } from "../../types";
 
-const debug = require("debug")("hull-connector:notification-handler");
+const debug = require("debug")("hull-connector:notification-error-handler");
 
 const { notificationDefaultFlowControl } = require("../../utils");
 const {

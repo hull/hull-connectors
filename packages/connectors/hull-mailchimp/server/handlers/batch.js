@@ -1,7 +1,13 @@
-const promiseRetry = require("promise-retry");
+// @flow
+import type { HullContext, HullUserUpdateMessage } from "hull";
+import promiseRetry from "promise-retry";
+import shipAppFactory from "../lib/ship-app-factory";
 
-function batchHandler(ctx, messages) {
-  const { syncAgent } = ctx.shipApp;
+function batchHandler(
+  ctx: HullContext,
+  messages: Array<HullUserUpdateMessage>
+) {
+  const { syncAgent } = shipAppFactory(ctx);
 
   return promiseRetry(
     retry => {

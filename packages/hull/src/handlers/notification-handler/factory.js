@@ -24,10 +24,10 @@ function notificationHandlerFactory(
     requestName: "notification",
     handlerName: "",
     handler: processingMiddleware(configuration),
-    errorHandler: errorMiddleware,
+    errorHandler: errorMiddleware(),
     beforeMiddlewares: [clearConnectorCache],
     options: {
-      credentialsFromNotificationMiddleware: true,
+      credentialsFromNotification: true,
       credentialsFromQuery: false,
       strict: true
     }

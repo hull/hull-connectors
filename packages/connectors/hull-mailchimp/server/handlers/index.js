@@ -29,7 +29,7 @@ const incoming = [
     }
   }
 ];
-const schedules = [
+const statuses = [
   {
     url: "/status",
     handler: {
@@ -115,28 +115,8 @@ export default function handlers({
 }): HullHandlersConfiguration {
   return {
     incoming,
-    notifications: [
-      {
-        url: "/smart-notifier",
-        handlers: {
-          "user:update": {
-            callback: user_update
-          },
-          "ship:update": {
-            callback: ship_update
-          },
-          // TODO: Check that we're properly calling this handler name instead
-          // TODO: of segment:update / delete
-          "users_segment:update": {
-            callback: users_segment_update
-          },
-          "users_segment:delete": {
-            callback: users_segment_delete
-          }
-        }
-      }
-    ],
-    schedules,
+    notifications,
+    statuses,
     batches,
     json,
     routers: [

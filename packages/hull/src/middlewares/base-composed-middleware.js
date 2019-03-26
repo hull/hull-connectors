@@ -9,7 +9,6 @@ const baseContextMiddleware = require("./base-context");
 
 function baseComposedMiddleware(params: HullBaseMiddlewareParams): Middleware {
   const { Client, queue, cache, connectorConfig, instrumentation } = params;
-  console.log("++++++++++++++COMPOSING")
   return compose(
     json({ limit: "10mb", ...connectorConfig.json }),
     urlencoded({ limit: "10mb", extended: true }),

@@ -164,12 +164,9 @@ class HullConnector {
     if (this.serverConfig.start) {
       const app = express();
       this.app = app;
-      console.log("+++++++++++SETUP")
       this.setupApp(app);
-      console.log("+++++++++++SETUP ROUTES")
       this.setupRoutes(app);
       if (this.connectorConfig.devMode) {
-        console.log("+++++++++++DEVMODE")
         debug("Starting Server in DevMode");
         // eslint-disable-next-line global-require
         const webpackDevMode = require("./dev-mode");
@@ -250,6 +247,7 @@ class HullConnector {
     (statuses || []).map(({ url, method = "all", handler }) => {
       const run = getMethod(method);
       if (run) {
+        // $FlowFixMe
         app[method](url, statusHandler(handler));
       }
       return true;
@@ -259,15 +257,17 @@ class HullConnector {
     (json || []).map(({ url, method = "all", handler }) => {
       const run = getMethod(method);
       if (run) {
+        // $FlowFixMe
         app.all(url, jsonHandler(handler));
       }
       return true;
     });
 
     // Setup Incoming handlers
-    (schedules || []).map(({ url, method = "post", handler }) => {
+    (schedules || []).map(({ url, method = "all", handler }) => {
       const run = getMethod(method);
       if (run) {
+        // $FlowFixMe
         app[method](url, scheduleHandler(handler));
       }
       return true;
@@ -277,6 +277,7 @@ class HullConnector {
     (incoming || []).map(({ url, method = "post", handler }) => {
       const run = getMethod(method);
       if (run) {
+        // $FlowFixMe
         app[method](url, incomingRequestHandler(handler));
       }
       return true;
@@ -286,6 +287,7 @@ class HullConnector {
     (html || []).map(({ url, method = "get", handler }) => {
       const run = getMethod(method);
       if (run) {
+        // $FlowFixMe
         app[method](url, htmlHandler(handler));
       }
       return true;

@@ -1,4 +1,4 @@
-/* @flow */
+// @flow
 
 import type { HullConnectorConfig } from "hull";
 import _ from "lodash";
@@ -21,8 +21,8 @@ const {
   OVERRIDE_FIREHOSE_URL,
   COMBINED,
   SERVER,
-  MAILCHIMP_CLIENT_ID,
-  MAILCHIMP_CLIENT_SECRET,
+  CLIENT_ID,
+  CLIENT_SECRET,
   WORKER
 } = process.env;
 
@@ -32,7 +32,7 @@ if (COMBINED !== "true" && WORKER !== "true" && SERVER !== "true") {
   );
 }
 
-if (!MAILCHIMP_CLIENT_ID || !MAILCHIMP_CLIENT_SECRET) {
+if (!CLIENT_ID || !CLIENT_SECRET) {
   throw new Error(
     "Can't find Mailchimp Client ID and/or Client Secret, check env vars"
   );
@@ -49,8 +49,8 @@ const connectorConfig: HullConnectorConfig = {
   port: PORT || 8082,
   handlers: handlers({
     hostSecret,
-    clientID: MAILCHIMP_CLIENT_ID,
-    clientSecret: MAILCHIMP_CLIENT_SECRET
+    clientID: CLIENT_ID,
+    clientSecret: CLIENT_SECRET
   }),
   middlewares: [],
   serverConfig: {

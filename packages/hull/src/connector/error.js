@@ -16,6 +16,7 @@ const errorHandler = (
   res: HullResponse,
   _next: NextFunction
 ) => {
+  console.log("ERROR HANDLER", err);
   // $FlowFixMe
   const { status = 500, message, stack } = err;
   if (message) {

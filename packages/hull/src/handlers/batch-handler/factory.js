@@ -23,7 +23,7 @@ function batchExtractHandlerFactory(
     handler: processingMiddleware(configuration),
     errorHandler: errorMiddleware,
     options: {
-      credentialsFromNotificationMiddleware: true,
+      credentialsFromNotification: true,
       credentialsFromQuery: true,
       strict: false
     }

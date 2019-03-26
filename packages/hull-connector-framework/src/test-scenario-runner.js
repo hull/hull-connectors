@@ -14,7 +14,7 @@ const expect = require("expect");
 const { EventEmitter } = require("events");
 const debug = require("debug")("hull-test-scenario-runner");
 
-const { equals } = require("expect/build/jasmine_utils");
+const { equals } = require("expect/build/jasmineUtils");
 const { iterableEquality } = require("expect/build/utils");
 
 export type TestScenarioDefinition = Object => {
@@ -288,6 +288,7 @@ class TestScenarioRunner extends EventEmitter {
 
         this.connector = this.setupTestConnector(minihullPort);
         await this.connector.start();
+        const { server } = this.connector;
         // this.server(this.app);
         // this.connectorServer = await this.connector.startApp(this.app);
 
@@ -296,7 +297,7 @@ class TestScenarioRunner extends EventEmitter {
         //   this.connector.startWorker();
         // }
 
-        const { port: connectorPort } = this.connectorServer.address();
+        const { port: connectorPort } = server.address();
         this.scenarioDefinition = this.rawScenarioDefinition({
           expect,
           nock,

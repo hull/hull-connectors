@@ -65,6 +65,7 @@ const extractRequest = (ctx: HullContext) => ({
       });
     }
 
+    // TODO: What's the exact format of a Segment message? do we have the query there ?
     if (segment.query) {
       return Promise.resolve(segment);
     }
