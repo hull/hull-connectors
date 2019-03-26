@@ -9,7 +9,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 const connectorServer = require("../../../server/server");
 
 
-test("send smart-notifier user update to outreach", () => {
+test("send smart-notifier user update to outreach with specific attribute changes", () => {
   return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
     const updateMessages = require("../fixtures/notifier-payloads/outgoing-user-changes.json");
     return _.assign(updateMessages, {

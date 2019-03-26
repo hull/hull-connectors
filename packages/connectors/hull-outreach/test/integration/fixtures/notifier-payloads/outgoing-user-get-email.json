@@ -1,0 +1,126 @@
+{
+    "notification_id": "b2f3391e-0c63-4546-aa91-f96c71b8337a",
+    "configuration": {
+        "id": "123456789012345678901234",
+        "organization": "org.hullbeta.io",
+        "secret": "shhh"
+    },
+    "connector": {
+        "tags": [],
+        "source_url": "https://dev-hull-outreach.ngrok.io/",
+        "private_settings": {
+            "token_expires_in": 7199,
+            "outgoing_user_attributes": [
+                {
+                    "hull": "traits_closeio/title",
+                    "service": "title"
+                }
+            ],
+            "incoming_user_attributes": [
+                {
+                    "hull": "traits_outreach/custom1",
+                    "service": "custom1"
+                },
+                {
+                    "hull": "traits_outreach/personalnote1",
+                    "service": "personalNote1"
+                }
+            ],
+            "token_created_at": 1553077676,
+            "user_claims": [
+                {
+                    "hull": "email",
+                    "service": "emails"
+                }
+            ],
+            "access_token": "token",
+            "refresh_token": "refresh",
+            "outgoing_account_attributes": [
+                {
+                    "hull": "name",
+                    "service": "name"
+                }
+            ],
+            "synchronized_user_segments": [],
+            "link_users_in_service": false,
+            "account_claims": [
+                {
+                    "hull": "domain",
+                    "service": "domain"
+                }
+            ],
+            "webhook_id": 47,
+            "synchronized_account_segments": [],
+            "link_users_in_hull": false
+        },
+        "index": "https://dev-hull-outreach.ngrok.io/",
+        "name": "dev-hull-outreach.ngrok.io",
+        "extra": {},
+        "settings": {},
+        "type": "ship",
+        "secret": "shhh",
+        "updated_at": "2019-03-20T10:47:43Z",
+        "id": "123456789012345678901234",
+        "picture": "https://dev-hull-outreach.ngrok.io/picture.png",
+        "homepage_url": "https://org.hullbeta.io/ships/123456789012345678901234",
+        "manifest_url": "https://dev-hull-outreach.ngrok.io/manifest.json",
+        "created_at": "2019-03-20T10:27:46Z"
+    },
+    "channel": "user:update",
+    "messages": [
+        {
+            "user": {
+                "traits_outreach/id": 184816,
+                "id": "5c921ab64c54ced6e1000125",
+                "traits_outreach/created_by_webhook": true,
+                "anonymous_ids": [
+                    "outreach:184816"
+                ],
+                "indexed_at": "2019-03-20T10:49:57+00:00",
+                "created_at": "2019-03-20T10:49:26Z",
+                "is_approved": false
+            },
+            "changes": {
+                "is_new": true,
+                "user": {
+                    "traits_outreach/id": [
+                        null,
+                        184816
+                    ],
+                    "id": [
+                        null,
+                        "5c921ab64c54ced6e1000125"
+                    ],
+                    "traits_outreach/created_by_webhook": [
+                        null,
+                        true
+                    ],
+                    "anonymous_ids": [
+                        null,
+                        [
+                            "outreach:184816"
+                        ]
+                    ],
+                    "created_at": [
+                        null,
+                        "2019-03-20T10:49:26Z"
+                    ],
+                    "is_approved": [
+                        null,
+                        false
+                    ]
+                },
+                "account": {},
+                "segments": {},
+                "account_segments": {}
+            },
+            "account": {},
+            "segments": [],
+            "events": [],
+            "account_segments": [],
+            "message_id": "5d86a12f09f0cb8407882ed09e152091864bbee4"
+        }
+    ],
+    "accounts_segments": [],
+    "segments": []
+}

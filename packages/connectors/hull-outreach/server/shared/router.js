@@ -81,14 +81,14 @@ class HullRouter {
     //Interesting abstraction problem
     // need to tell what type of data is incoming, but the data incoming will be different per connector
     // so there's an idea that needs to be abstracted above]
-    return this.dispatcher()
+    const dispatcher: HullDispatcher = this.dispatcher();
+    return dispatcher
     .dispatchWithData(context, route, WebhookPayload, data.body)
     .then(results => {
-      // context.client.logger.info("incoming.job.success", {
-      //   jobName: "Incoming Data", type: dataType
-      // });
+      dispatcher.close();
       return Promise.resolve({ status: 200, text: "All good" });
     }).catch(error => {
+      dispatcher.close();
       context.client.logger.error("incoming.job.error", {
         jobName: "Incoming Data", error: error.message
       });
@@ -116,16 +116,27 @@ class HullRouter {
       if (sendMessage) {
         return dispatcher.dispatchWithData(context, `${dataType}UpdateStart`, classType, message);
       } else {
+
+        if (dataType === 'user' && message.changes && message.changes.is_new) {
+          if (_.isEmpty(message.user.email)
+            && _.get(message.user, "outreach/created_by_webhook") === true
+            && _.get(message.user, "outreach/id")) {
+            return dispatcher.dispatchWithData(context, "getProspectById", classType, message);
+          }
+        }
+
         return Promise.resolve();
       }
     }));
 
     return promise.then(results => {
+      dispatcher.close();
       context.client.logger.info("outgoing.job.success", {
         jobName: "Outgoing Data", type: dataType
       });
       return Promise.resolve(results);
     }).catch(error => {
+      dispatcher.close();
       context.client.logger.error("outgoing.job.error", {
         jobName: "Outgoing Data", error: error.message
       });
@@ -139,12 +150,15 @@ class HullRouter {
       jobName: "Incoming Data Request"
     });
 
-    return this.dispatcher().dispatch(request, route).then(results => {
+    const dispatcher: HullDispatcher = this.dispatcher();
+    return dispatcher.dispatch(request, route).then(results => {
+      dispatcher.close();
       request.client.logger.info("incoming.job.success", {
         jobName: "Incoming Data Request"
       });
       return Promise.resolve(results);
     }).catch(error => {
+      dispatcher.close();
       request.client.logger.error("incoming.job.error", {
         jobName: "Incoming Data Request", error: error.message
       });

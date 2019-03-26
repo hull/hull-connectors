@@ -9,7 +9,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 const connectorServer = require("../../../server/server");
 
 
-test("send batch user update to outreach", () => {
+test("send batch account update to outreach in a batch", () => {
   return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
     const updateMessages = require("../fixtures/notifier-payloads/outgoing-account-batch.json");
     return _.assign(updateMessages, {
