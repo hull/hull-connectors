@@ -3,7 +3,7 @@ const Hull = require("hull");
 const Supply = require("supply");
 const httpMocks = require("node-mocks-http");
 const {
-  contextBaseMiddleware,
+  baseContextMiddleware,
   credentialsFromQueryMiddleware,
   clientMiddleware,
   fullContextFetchMiddleware
@@ -25,7 +25,7 @@ async function getHullContext(credentials) {
   });
   request.query = query;
   supply.use(
-    contextBaseMiddleware({
+    baseContextMiddleware({
       instrumentation: connector.instrumentation,
       queue: connector.queue,
       cache: connector.cache,

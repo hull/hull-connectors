@@ -48,12 +48,11 @@ function getSettingValue(ctx, settingName) {
  * 2. when there is not even a single claim even though all are optional
  * 3. when there is not correct settings in the connector object
  */
-function incomingClaims(
-  ctx: HullContext,
+const incomingClaims = (ctx: HullContext) => (
   entityType: HullEntityType,
   objectToTransform: Object,
   options?: { anonymous_id_prefix?: string, anonymous_id_service: string }
-): IncomingClaimsResult {
+): IncomingClaimsResult => {
   try {
     const settingName = `incoming_${entityType}_claims`;
     const setting = getSettingValue(ctx, settingName);

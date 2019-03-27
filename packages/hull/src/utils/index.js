@@ -4,8 +4,6 @@
  * @namespace Utils
  * @public
  */
-module.exports.normalizeHandlersConfigurationEntry = require("./normalize-handlers-configuration-entry");
-module.exports.normalizeHandlersConfiguration = require("./normalize-handlers-configuration");
 
 module.exports.staticRouter = require("./static-router");
 module.exports.PromiseReuser = require("./promise-reuser");
@@ -29,3 +27,4 @@ module.exports.extractStream = require("./extract-stream");
 module.exports.trimTraitsPrefixFromUserMessage = require("./trim-traits-prefix-from-user-message");
 module.exports.applyConnectorSettingsDefaults = require("./apply-connector-settings-defaults");
 module.exports.trimTraitsPrefixFromConnector = require("./trim-traits-prefix-from-connector");
+module.exports.getJsonBody = require("./get-json-body");

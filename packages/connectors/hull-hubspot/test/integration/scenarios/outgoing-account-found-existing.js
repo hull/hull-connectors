@@ -1,8 +1,17 @@
 // @flow
-/* global describe, it, beforeEach, afterEach */
+import connectorConfig from "../../../server/config";
+
+declare var it;
+declare var describe;
+declare var beforeEach;
+declare var afterEach;
+declare var test;
+declare function describe(name: string, callback: Function): void;
+declare function before(callback: Function): void;
+declare function beforeEach(callback: Function): void;
+declare function it(name: string, callback: Function): void;
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
@@ -21,32 +30,41 @@ const accountsSegments = [
 
 it("should send out a new hull account to hubspot", () => {
   const domain = "hull.io";
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
       channel: "account:update",
       externalApiMock: () => {
         const scope = nock("https://api.hubapi.com");
-        scope.get("/contacts/v2/groups?includeProperties=true")
+        scope.get("/contacts/v2/groups?includeProperties=true").reply(200, []);
+        scope
+          .get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, []);
-        scope.get("/properties/v1/companies/groups?includeProperties=true")
-          .reply(200, []);
-        scope.post("/companies/v2/domains/hull.io/companies", {
-          requestOptions: {
-            properties: ["domain", "hs_lastmodifieddate", "name"]
-          }
-        }).reply(200, require("../fixtures/post-companies-domains-companies"));
-        scope.post("/companies/v1/batch-async/update?auditId=Hull", [{
-          "properties": [{
-            "name": "hull_segments",
-            "value": "testSegment"
-          }, {
-            "name": "domain",
-            "value": "hull.io"
-          }],
-          objectId: "184896670"
-        }]).reply(202);
+        scope
+          .post("/companies/v2/domains/hull.io/companies", {
+            requestOptions: {
+              properties: ["domain", "hs_lastmodifieddate", "name"]
+            }
+          })
+          .reply(200, require("../fixtures/post-companies-domains-companies"));
+        scope
+          .post("/companies/v1/batch-async/update?auditId=Hull", [
+            {
+              properties: [
+                {
+                  name: "hull_segments",
+                  value: "testSegment"
+                },
+                {
+                  name: "domain",
+                  value: "hull.io"
+                }
+              ],
+              objectId: "184896670"
+            }
+          ])
+          .reply(202);
         return scope;
       },
       connector,
@@ -69,30 +87,65 @@ it("should send out a new hull account to hubspot", () => {
         }
       },
       logs: [
-        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
-        ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0 }],
         [
           "debug",
           "connector.service_api.call",
           expect.whatever(),
-          expect.objectContaining({ method: "POST", status: 200, url: "/companies/v2/domains/{{domain}}/companies", vars: { domain: "hull.io" } })
+          expect.whatever()
         ],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/companies/v1/batch-async/update" })],
+        [
+          "debug",
+          "connector.service_api.call",
+          expect.whatever(),
+          expect.whatever()
+        ],
+        [
+          "debug",
+          "outgoing.job.start",
+          expect.whatever(),
+          { toInsert: 1, toSkip: 0, toUpdate: 0 }
+        ],
+        [
+          "debug",
+          "connector.service_api.call",
+          expect.whatever(),
+          expect.objectContaining({
+            method: "POST",
+            status: 200,
+            url: "/companies/v2/domains/{{domain}}/companies",
+            vars: { domain: "hull.io" }
+          })
+        ],
+        [
+          "debug",
+          "connector.service_api.call",
+          expect.whatever(),
+          expect.objectContaining({
+            method: "POST",
+            status: 202,
+            url: "/companies/v1/batch-async/update"
+          })
+        ],
         [
           "info",
           "outgoing.account.success",
-          expect.objectContaining({ "subject_type": "account", "account_domain": domain }),
+          expect.objectContaining({
+            subject_type: "account",
+            account_domain: domain
+          }),
           {
             hubspotWriteCompany: {
-              "properties": [{
-                "name": "hull_segments",
-                "value": "testSegment"
-              }, {
-                "name": "domain",
-                "value": "hull.io"
-              }],
-              "objectId": "184896670",
+              properties: [
+                {
+                  name: "hull_segments",
+                  value: "testSegment"
+                },
+                {
+                  name: "domain",
+                  value: "hull.io"
+                }
+              ],
+              objectId: "184896670"
             },
             operation: "update"
           }

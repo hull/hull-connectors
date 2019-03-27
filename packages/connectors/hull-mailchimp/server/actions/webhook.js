@@ -1,30 +1,43 @@
 /* @flow */
-import type { HullContext } from "hull";
-import type { $Request } from "express";
+import type { HullContext, HullIncomingHandlerMessage } from "hull";
 
 const _ = require("lodash");
 
 const shipAppFactory = require("../lib/ship-app-factory");
 
-function handleAction(ctx: HullContext, req: $Request) {
+async function handleAction(
+  ctx: HullContext,
+  message: HullIncomingHandlerMessage
+) {
   const { syncAgent } = shipAppFactory(ctx);
-  const { body = {}, method = "" } = req;
+  const { client } = ctx;
+  const { body, method = "" } = message;
+  if (!body) {
+    return {
+      statusCode: 404,
+      json: {
+        ok: false,
+        message: "Body isn't a valid object"
+      }
+    };
+  }
+  // $FlowFixMe
+  const { type = "", data = {} } = body;
 
   if (method.toLowerCase() === "get") {
-    return Promise.resolve({
+    return {
       statusCode: 200,
       json: { ok: true, message: "Webhook registered" }
-    });
+    };
   }
-  const { type, data } = body;
 
-  req.hull.client.logger.debug("incoming.webhook.received", { type, data });
+  client.logger.debug("incoming.webhook.received", { type, data });
 
   if (!data || !data.email) {
-    return Promise.resolve({
+    return {
       statusCode: 404,
       json: { ok: false, message: "Email not found" }
-    });
+    };
   }
   let processedData = _.cloneDeep(data);
   switch (
@@ -55,12 +68,12 @@ function handleAction(ctx: HullContext, req: $Request) {
       break;
     default:
   }
-  return syncAgent.userMappingAgent.updateUser(processedData).then(() => {
-    return {
-      statusCode: 200,
-      json: { ok: true, message: "Data processed" }
-    };
-  });
+  await syncAgent.userMappingAgent.updateUser(processedData);
+
+  return {
+    statusCode: 200,
+    json: { ok: true, message: "Data processed" }
+  };
 }
 
 module.exports = handleAction;

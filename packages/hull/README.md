@@ -685,9 +685,9 @@ When using a [flow](https://flow.org) enabled project, we recommend using flow t
 
 ```javascript
 // @flow
-import type { THullObject } from "hull";
+import type { HullObject } from "hull";
 
-parseHullObject(user: THullObject) {
+parseHullObject(user: HullObject) {
   // ...
 }
 ```
@@ -798,4 +798,3 @@ app.use("/smart-notifier", smartNotifierHandler({
   }
 }));
 ```
-

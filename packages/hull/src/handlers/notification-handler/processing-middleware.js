@@ -1,8 +1,10 @@
 // @flow
-import type { $Response, NextFunction } from "express";
+import type { NextFunction } from "express";
 import type {
-  HullRequestFull,
-  HullNormalizedHandlersConfiguration
+  HullRequest,
+  HullNotificationHandlerConfiguration,
+  HullNotificationResponse,
+  HullResponse
 } from "../../types";
 
 const debug = require("debug")("hull-connector:notification-handler");
@@ -13,28 +15,31 @@ const {
 } = require("../../utils");
 
 function notificationHandlerProcessingMiddlewareFactory(
-  normalizedConfiguration: HullNormalizedHandlersConfiguration<*, *>
+  configuration: HullNotificationHandlerConfiguration
 ) {
-  return function notificationHandlerProcessingMiddleware(
-    req: HullRequestFull,
-    res: $Response,
+  return async function notificationHandlerProcessingMiddleware(
+    req: HullRequest,
+    res: HullResponse,
     next: NextFunction
   ): mixed {
     if (!req.hull.notification) {
       return next(new Error("Missing Notification payload"));
     }
     const { channel } = req.hull.notification;
-    let { messages } = req.hull.notification;
+    let { messages = [] } = req.hull.notification;
     debug("notification", {
       channel,
       messages: Array.isArray(messages) && messages.length
     });
-    if (normalizedConfiguration[channel] === undefined) {
+    const handler = configuration[channel];
+    if (handler === undefined) {
+      debug("channel unsupported", channel);
       return next(new Error("Channel unsupported"));
     }
-    const { callback } = normalizedConfiguration[channel];
+    const { callback } = handler;
 
     if (channel === "user:update") {
+      // $FlowFixMe
       messages = messages.map(trimTraitsPrefixFromUserMessage);
     }
 
@@ -43,15 +48,19 @@ function notificationHandlerProcessingMiddlewareFactory(
       channel,
       "success"
     );
-    req.hull.notificationResponse = {
-      flow_control: defaultSuccessFlowControl
-    };
-    // $FlowFixMe
-    return callback(req.hull, messages)
-      .then(() => {
-        res.status(200).json(req.hull.notificationResponse);
-      })
-      .catch(error => next(error));
+    // req.hull.notificationResponse = notificationResponse
+    try {
+      // $FlowFixMe
+      const nResponse: HullNotificationResponse = await callback(
+        req.hull,
+        // $FlowFixMe
+        messages
+      );
+      const { flow_control = defaultSuccessFlowControl } = nResponse || {};
+      return res.status(200).json({ flow_control });
+    } catch (err) {
+      return next(err);
+    }
   };
 }
 

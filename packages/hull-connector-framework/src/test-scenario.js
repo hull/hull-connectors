@@ -1,28 +1,23 @@
 // @flow
+import type { HullConnectorConfig } from "hull";
 import type { TestScenarioDefinition } from "./test-scenario-runner";
 
-const express = require("express");
 const TestScenarioRunner = require("./test-scenario-runner");
 
 function testScenario(
   {
-    connectorServer,
-    connectorWorker,
-    connectorManifest,
+    connectorConfig,
     debounceWait
   }: {
-    connectorServer: express => express,
-    connectorWorker?: Function,
-    connectorManifest: Object,
+    connectorConfig: HullConnectorConfig,
     debounceWait?: number
   },
   scenarioDefinition: TestScenarioDefinition
 ): Promise<*> {
-  const runner = new TestScenarioRunner(
-    { connectorServer, connectorWorker, connectorManifest, debounceWait },
+  return new TestScenarioRunner(
+    { connectorConfig, debounceWait },
     scenarioDefinition
-  );
-  return runner.run();
+  ).run();
 }
 
 module.exports = testScenario;

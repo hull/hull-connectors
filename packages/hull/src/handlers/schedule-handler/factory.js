@@ -1,38 +1,11 @@
 // @flow
-import type { $Response, NextFunction } from "express";
-import type {
-  HullRequestFull,
-  HullHandlersConfigurationEntry,
-  HullContextFull
-} from "../../types";
+import type { Router } from "express";
+import type { HullSchedulerHandlerConfigurationEntry } from "../../types";
 
-type HullSchedulerHandlerCallback = (ctx: HullContextFull) => Promise<*>;
-type HullSchedulerHandlerOptions = {
-  disableErrorHandling?: boolean,
-  fireAndForget?: boolean
-};
+import getRouter from "../get-router";
+import errorHandler from "../error-handler";
+import handler from "../external-handler";
 
-type HullSchedulerHandlerConfigurationEntry = HullHandlersConfigurationEntry<
-  HullSchedulerHandlerCallback,
-  HullSchedulerHandlerOptions
->;
-
-const { Router } = require("express");
-const debug = require("debug")("hull-connector:schedule-handler");
-const _ = require("lodash");
-
-const { TransientError } = require("../../errors");
-const {
-  credentialsFromQueryMiddleware,
-  clientMiddleware,
-  fullContextBodyMiddleware,
-  fullContextFetchMiddleware,
-  timeoutMiddleware,
-  haltOnTimedoutMiddleware,
-  instrumentationContextMiddleware,
-  instrumentationTransientErrorMiddleware
-} = require("../../middlewares");
-const { normalizeHandlersConfigurationEntry } = require("../../utils");
 /**
  * This handler allows to handle simple, authorized HTTP calls.
  * By default it picks authorization configuration from query.
@@ -52,73 +25,15 @@ const { normalizeHandlersConfigurationEntry } = require("../../utils");
  */
 function scheduleHandlerFactory(
   configurationEntry: HullSchedulerHandlerConfigurationEntry
-) {
-  const router = Router();
-  const { callback, options } = normalizeHandlersConfigurationEntry(
-    configurationEntry
-  );
-  const { disableErrorHandling = false, fireAndForget = false } = options;
+): Router {
+  const { options = {} } = configurationEntry;
 
-  router.use(timeoutMiddleware());
-  router.use(credentialsFromQueryMiddleware()); // parse query
-  router.use(haltOnTimedoutMiddleware());
-  router.use(clientMiddleware()); // initialize client
-  router.use(haltOnTimedoutMiddleware());
-  router.use(instrumentationContextMiddleware());
-  router.use(
-    fullContextBodyMiddleware({ requestName: "scheduler", strict: false })
-  ); // get rest of the context from body
-  router.use(fullContextFetchMiddleware());
-  router.use(haltOnTimedoutMiddleware());
-  router.use(function scheduleHandler(
-    req: HullRequestFull,
-    res: $Response,
-    next: NextFunction
-  ) {
-    const callbackResult = callback(req.hull);
-    debug("callbackResult", typeof callbackResult);
-
-    if (fireAndForget === true) {
-      callbackResult.catch(error => {
-        // all TransientErrors (and child error classes such as ConfigurationError)
-        if (error instanceof TransientError) {
-          debug("transient-error metric");
-          req.hull.metric.increment("connector.transient_error", 1, [
-            `error_name:${_.snakeCase(error.name)}`,
-            `error_message:${_.snakeCase(error.message)}`
-          ]);
-        } else {
-          req.hull.metric.captureException(error);
-        }
-      });
-      return res.json({ status: "deferred" });
-    }
-    return callbackResult
-      .then(response => {
-        res.json(response);
-      })
-      .catch(error => next(error));
+  return getRouter({
+    options,
+    requestName: "scheduler",
+    handler: handler(configurationEntry),
+    errorHandler: errorHandler(options)
   });
-  router.use(instrumentationTransientErrorMiddleware());
-  if (disableErrorHandling === true) {
-    router.use(
-      (
-        err: Error,
-        req: HullRequestFull,
-        res: $Response,
-        next: NextFunction
-      ) => {
-        debug("error", err);
-        // if we have transient error
-        if (err instanceof TransientError) {
-          return res.status(503).end("transient-error");
-        }
-        // else pass it to the global error middleware
-        return next(err);
-      }
-    );
-  }
-  return router;
 }
 
 module.exports = scheduleHandlerFactory;

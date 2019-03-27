@@ -1,3 +1,7 @@
+// //@flow
+//
+// import type  } from "hull";
+
 const _ = require("lodash");
 const Promise = require("bluebird");
 const debug = require("debug")("hull-mailchimp:segments-mapping-util");

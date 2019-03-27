@@ -1,8 +1,14 @@
 // @flow
-/* global describe, it, beforeEach, afterEach */
+import connectorConfig from "../../../server/config";
+
+declare function describe(name: string, callback: Function): void;
+declare function before(callback: Function): void;
+declare function beforeEach(callback: Function): void;
+declare function afterEach(callback: Function): void;
+declare function it(name: string, callback: Function): void;
+declare function test(name: string, callback: Function): void;
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
 
 process.env.MAILCHIMP_CLIENT_ID = "1234";
 process.env.MAILCHIMP_CLIENT_SECRET = "1234";
@@ -32,20 +38,20 @@ const usersSegments = [
 
 it("should send matching user to the mailchimp", () => {
   const email = "email@email.com";
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
       channel: "user:update",
       externalApiMock: () => {
         const scope = nock("https://mock.api.mailchimp.com/3.0");
-        scope.get("/lists/1/webhooks")
-          .reply(200, {
-            webhooks: [
-              { url: `localhost:8000/mailchimp?ship=123456789012345678901234` }
-            ]
-          });
-        scope.post("/lists/1", {
+        scope.get("/lists/1/webhooks").reply(200, {
+          webhooks: [
+            { url: "localhost:8000/mailchimp?ship=123456789012345678901234" }
+          ]
+        });
+        scope
+          .post("/lists/1", {
             members: [
               {
                 email_type: "html",
@@ -81,7 +87,7 @@ it("should send matching user to the mailchimp", () => {
           type: "next",
           in: 10,
           in_time: 30000,
-          size: 50,
+          size: 50
         }
       },
       logs: [
@@ -92,8 +98,21 @@ it("should send matching user to the mailchimp", () => {
           { changes: {}, events: [], segments: ["hullSegmentName"] }
         ],
         ["debug", "outgoing.job.start", expect.whatever(), { messages: 1 }],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ method: "GET", url: "/lists/{{listId}}/webhooks" })],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ method: "POST", url: "/lists/{{listId}}" })],
+        [
+          "debug",
+          "connector.service_api.call",
+          expect.whatever(),
+          expect.objectContaining({
+            method: "GET",
+            url: "/lists/{{listId}}/webhooks"
+          })
+        ],
+        [
+          "debug",
+          "connector.service_api.call",
+          expect.whatever(),
+          expect.objectContaining({ method: "POST", url: "/lists/{{listId}}" })
+        ],
         [
           "info",
           "outgoing.user.success",
@@ -103,7 +122,7 @@ it("should send matching user to the mailchimp", () => {
               email_address: email,
               email_type: "html",
               interests: {
-                MailchimpInterestId: true,
+                MailchimpInterestId: true
               },
               merge_fields: {
                 FNAME: "",
@@ -113,7 +132,12 @@ it("should send matching user to the mailchimp", () => {
             }
           }
         ],
-        ["debug", "outgoing.job.success", expect.whatever(), { errors: 0, successes: 1 }]
+        [
+          "debug",
+          "outgoing.job.success",
+          expect.whatever(),
+          { errors: 0, successes: 1 }
+        ]
       ],
       firehoseEvents: [],
       metrics: [
@@ -122,7 +146,11 @@ it("should send matching user to the mailchimp", () => {
         ["value", "connector.service_api.response_time", expect.whatever()],
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()],
-        ["value", "connector.send_user_update_messages.time", expect.whatever()],
+        [
+          "value",
+          "connector.send_user_update_messages.time",
+          expect.whatever()
+        ],
         ["value", "connector.send_user_update_messages.messages", 1],
         ["increment", "ship.outgoing.users", 1]
       ]

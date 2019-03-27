@@ -1,14 +1,16 @@
 // @flow
 
 import type {
-  HullClientConfiguration,
+  HullClientConfig,
   HullEntityAttributes,
   HullUserEventName,
   HullUserEventProperties,
   HullUserEventContext,
+  HullAccount,
+  HullUser,
   HullAccountClaims,
   HullUserClaims,
-  HullAuxiliaryClaims,
+  HullAdditionalClaims,
   HullEntityClaims,
   HullClientLogger,
   HullClientUtils,
@@ -23,6 +25,10 @@ const Configuration = require("./lib/configuration");
 const restAPI = require("./lib/rest-api");
 const crypto = require("./lib/crypto");
 const Firehose = require("./lib/firehose");
+const {
+  normalizeUserClaims,
+  normalizeAccountClaims
+} = require("./lib/normalize-claims");
 
 const traitsUtils = require("./utils/traits");
 const settingsUtils = require("./utils/settings");
@@ -72,7 +78,7 @@ const logger = new winston.Logger({
  * @public
  */
 class HullClient {
-  config: HullClientConfiguration;
+  config: HullClientConfig;
 
   clientConfig: Configuration;
 
@@ -86,7 +92,7 @@ class HullClient {
 
   static logger: HullClientStaticLogger;
 
-  constructor(config: HullClientConfiguration) {
+  constructor(config: HullClientConfig) {
     if (config.captureLogs === true) {
       config.logs = config.logs || [];
     }
@@ -217,7 +223,7 @@ class HullClient {
    *   version: "0.13.10"
    * };
    */
-  configuration(): HullClientConfiguration {
+  configuration(): HullClientConfig {
     return this.clientConfig.getAll();
   }
 
@@ -307,8 +313,8 @@ class HullClient {
    * @return {UserScopedHullClient}
    */
   asUser(
-    userClaim: string | HullUserClaims,
-    additionalClaims: HullAuxiliaryClaims = Object.freeze({})
+    userClaim: string | HullUser | HullUserClaims,
+    additionalClaims: HullAdditionalClaims = Object.freeze({})
   ) {
     if (!userClaim) {
       throw new Error("User Claims was not defined when calling hull.asUser()");
@@ -316,7 +322,7 @@ class HullClient {
     return new UserScopedHullClient({
       ...this.config,
       subjectType: "user",
-      userClaim,
+      userClaim: normalizeUserClaims(userClaim),
       additionalClaims
     });
   }
@@ -332,8 +338,8 @@ class HullClient {
    * @return {AccountScopedHullClient} instance scoped to account claims
    */
   asAccount(
-    accountClaim: string | HullAccountClaims,
-    additionalClaims: HullAuxiliaryClaims = Object.freeze({})
+    accountClaim: string | HullAccount | HullAccountClaims,
+    additionalClaims: HullAdditionalClaims = Object.freeze({})
   ) {
     if (!accountClaim) {
       throw new Error(
@@ -343,7 +349,7 @@ class HullClient {
     return new AccountScopedHullClient({
       ...this.config,
       subjectType: "account",
-      accountClaim,
+      accountClaim: normalizeAccountClaims(accountClaim),
       additionalClaims
     });
   }
@@ -388,6 +394,22 @@ class EntityScopedHullClient extends HullClient {
     );
   }
 
+  // TODO: Check that Aliases are supported at account level
+  /**
+   * Issues an `alias` event on entity?
+   * @todo
+   * @public
+   * @param  {Object} body
+   * @return {Promise}
+   */
+  alias(body: Object) {
+    return this.batch({
+      type: "alias",
+      requestId: this.requestId,
+      body
+    });
+  }
+
   /**
    * Saves attributes on the user or account. Only available on User or Account scoped `HullClient` instance (see {@link #asuser} and {@link #asaccount}).
    *
@@ -425,21 +447,6 @@ class UserScopedHullClient extends EntityScopedHullClient {
       ...this.config,
       subjectType: "account",
       accountClaim
-    });
-  }
-
-  /**
-   * Issues an `alias` event on user?
-   * @todo
-   * @public
-   * @param  {Object} body
-   * @return {Promise}
-   */
-  alias(body: Object) {
-    return this.batch({
-      type: "alias",
-      requestId: this.requestId,
-      body
     });
   }
 
@@ -495,4 +502,8 @@ class AccountScopedHullClient extends EntityScopedHullClient {}
 
 HullClient.logger = logger;
 
+export type EntityScopedClient = EntityScopedHullClient;
+export type AccountScopedClient = AccountScopedHullClient;
+export type UserScopedClient = UserScopedHullClient;
+export type UnscopedClient = HullClient;
 module.exports = HullClient;

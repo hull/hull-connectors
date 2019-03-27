@@ -1,16 +1,15 @@
 // @flow
 const _ = require("lodash");
 
-/* global describe, it, beforeEach, afterEach */
 
 process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
+import connectorConfig from "../../../server/config";
 
 test("process incoming user update webhook from outreach", () => {
-  return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.incomingRequestHandler,
       externalIncomingRequest: ({ superagent, connectorUrl, plainCredentials }) => {

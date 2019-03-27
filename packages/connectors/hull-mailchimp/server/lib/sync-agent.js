@@ -1,6 +1,7 @@
 /* @flow */
-import type { HullUserUpdateMessage, HullSegment, HullContext } from "hull";
+import type { HullUserUpdateMessage, HullUserSegment, HullContext } from "hull";
 import type { IUserUpdateEnvelope } from "./types";
+import shipAppFactory from "./ship-app-factory";
 
 const _ = require("lodash");
 const Promise = require("bluebird");
@@ -27,27 +28,31 @@ class SyncAgent {
 
   hostname: string;
 
-  segments: Array<HullSegment>;
+  segments: Array<HullUserSegment>;
 
-  synchronizedSegments: Array<HullSegment>;
+  synchronizedSegments: Array<HullUserSegment>;
 
-  forceRemovalFromStaticSegments: Boolean;
+  forceRemovalFromStaticSegments: boolean;
 
-  fetchUserActivityOnUpdate: Boolean;
+  fetchUserActivityOnUpdate: boolean;
 
   mailchimpAgent: Object;
 
-  segmentsMappingAgent: Object;
+  segmentsMappingAgent: SegmentsMappingAgent;
 
-  interestsMappingAgent: Object;
+  interestsMappingAgent: InterestsMappingAgent;
 
-  userMappingAgent: Object;
+  userMappingAgent: UserMappingAgent;
 
-  eventsAgent: Object;
+  eventsAgent: EventsAgent;
 
-  auditUtil: Object;
+  auditUtil: AuditUtil;
 
-  constructor(mailchimpClient: Object, ctx: HullContext) {
+  constructor(
+    mailchimpClient: Object,
+    mailchimpAgent: Object,
+    ctx: HullContext
+  ) {
     this.ship = ctx.connector;
     this.mailchimpClient = mailchimpClient;
     this.client = ctx.client;
@@ -99,9 +104,8 @@ class SyncAgent {
       ctx.connector,
       ctx.metric
     );
-    this.auditUtil = new AuditUtil(ctx);
-    // $FlowFixMe
-    this.mailchimpAgent = ctx.shipApp.mailchimpAgent;
+    this.auditUtil = new AuditUtil(ctx, mailchimpClient);
+    this.mailchimpAgent = mailchimpAgent;
   }
 
   isConfigured() {
@@ -254,12 +258,12 @@ class SyncAgent {
         }
       )
       .map(envelope => {
-        let segmentsToAdd: Array<HullSegment> = _.get(
+        let segmentsToAdd: Array<HullUserSegment> = _.get(
           envelope,
           "message.changes.segments.entered",
           []
         );
-        let segmentsToRemove: Array<HullSegment> = _.get(
+        let segmentsToRemove: Array<HullUserSegment> = _.get(
           envelope,
           "message.changes.segments.left",
           []

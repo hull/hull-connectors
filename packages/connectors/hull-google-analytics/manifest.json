@@ -1,0 +1,25 @@
+{
+  "name": "Google Analytics",
+  "description": "Synchronizes Hull Data with Google Analytics",
+  "source": "ga",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "version": "0.0.9-monorepo",
+  "tags": [
+    "outgoing",
+    "incoming",
+    "batch",
+    "oneColumn",
+    "smart-notifier"
+  ],
+  "settings": [],
+  "private_settings": [],
+  "deployment_settings": [],
+  "readme": "readme.md",
+  "ui": false,
+  "subscriptions": [
+    {
+      "url": "/smart-notifier"
+    }
+  ]
+}

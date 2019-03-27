@@ -1,5 +1,5 @@
 // @flow
-import type { HullConnector } from "hull-client";
+import type { HullConnector } from "../types";
 
 const debug = require("debug")("hull:apply-connector-settings-default");
 

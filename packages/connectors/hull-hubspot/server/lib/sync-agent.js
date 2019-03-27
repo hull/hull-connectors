@@ -3,7 +3,8 @@ import type {
   HullUserUpdateMessage,
   HullConnector,
   HullContext,
-  HullSegment,
+  HullAccountSegment,
+  HullUserSegment,
   HullAccountUpdateMessage
 } from "hull";
 
@@ -52,9 +53,9 @@ class SyncAgent {
 
   logger: Object;
 
-  usersSegments: Array<HullSegment>;
+  usersSegments: Array<HullUserSegment>;
 
-  accountsSegments: Array<HullSegment>;
+  accountsSegments: Array<HullAccountSegment>;
 
   cache: Object;
 

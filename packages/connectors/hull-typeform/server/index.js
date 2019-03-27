@@ -1,30 +1,6 @@
-/* @flow */
-const express = require("express");
+// @flow
 
-const { Cache } = require("hull/src/infra");
-const Hull = require("hull");
-const server = require("./server");
+import Hull from "hull";
+import config from "./config";
 
-const { PORT = 8082, SECRET, LOG_LEVEL } = process.env;
-
-if (LOG_LEVEL) {
-  Hull.Client.logger.transports.console.level = LOG_LEVEL;
-}
-
-const cache = new Cache({
-  store: "memory",
-  isCacheableValue: () => false
-});
-
-const options = {
-  port: PORT,
-  hostSecret: SECRET,
-  cache
-};
-
-const app = express();
-const connector = new Hull.Connector(options);
-
-connector.setupApp(app);
-server(app);
-connector.startApp(app);
+new Hull.Connector(config).start();

@@ -474,7 +474,15 @@ class SyncAgent {
    * @returns {Promise<any>} A promise which returns the result of the Hull logger call.
    * @memberof SyncAgent
    */
-  handleWebhook(payload: Object): Promise<*> {
+  handleWebhook(payload: mixed): Promise<*> {
+    if (!payload || typeof payload !== "object") {
+      this.client.logger.error("incoming.webhook.error", {
+        reason: SHARED_MESSAGES.ERROR_INVALIDPAYLOAD,
+        data: payload
+      });
+      return Promise.resolve();
+    }
+
     const userIdent = this.mappingUtil.mapWebhookToUserIdent(payload);
     const event = this.mappingUtil.mapWebhookToHullEvent(payload);
 

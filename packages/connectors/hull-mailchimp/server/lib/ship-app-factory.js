@@ -14,16 +14,12 @@ function shipAppFactory(
 } {
   const mailchimpClient = new MailchimpClient(ctx);
   const mailchimpAgent = new MailchimpAgent(mailchimpClient, ctx);
-
-  // $FlowFixMe
-  ctx.shipApp = {
+  const syncAgent = new SyncAgent(mailchimpClient, mailchimpAgent, ctx);
+  return {
     mailchimpClient,
-    mailchimpAgent
+    mailchimpAgent,
+    syncAgent
   };
-
-  const syncAgent = new SyncAgent(mailchimpClient, ctx);
-  ctx.shipApp.syncAgent = syncAgent;
-  return ctx.shipApp;
 }
 
-module.exports = shipAppFactory;
+export default shipAppFactory;

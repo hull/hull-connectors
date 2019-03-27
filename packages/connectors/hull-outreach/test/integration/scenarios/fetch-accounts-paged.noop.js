@@ -1,16 +1,23 @@
 // @flow
+declare function describe(name: string, callback: Function): void;
+declare function before(callback: Function): void;
+declare function beforeEach(callback: Function): void;
+declare function afterEach(callback: Function): void;
+declare function it(name: string, callback: Function): void;
+declare function test(name: string, callback: Function): void;
+
+
 const _ = require("lodash");
 
-/* global describe, it, beforeEach, afterEach */
 
 process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
+import connectorConfig from "../../../server/config";
 
 test("fetch all accounts and page through results from outreach", () => {
-  return testScenario({ connectorServer, debounceWait: 1000 }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig, debounceWait: 1000 }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "accountFetchAll",

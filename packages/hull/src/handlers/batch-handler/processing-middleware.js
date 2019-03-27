@@ -1,9 +1,6 @@
 // @flow
-import type { $Response, NextFunction } from "express";
-import type {
-  HullRequestFull,
-  HullNormalizedHandlersConfiguration
-} from "../../types";
+import type { NextFunction } from "express";
+import type { HullRequest, HullResponse, HullBatchHandlersConfiguration } from "../../types";
 
 const _ = require("lodash");
 const debug = require("debug")("hull-connector:batch-handler");
@@ -14,11 +11,11 @@ const {
 } = require("../../utils");
 
 function batchExtractProcessingMiddlewareFactory(
-  normalizedConfiguration: HullNormalizedHandlersConfiguration<*, *>
+  batchHandlersConfiguration: HullBatchHandlersConfiguration
 ) {
   return function batchExtractProcessingMiddleware(
-    req: HullRequestFull,
-    res: $Response,
+    req: HullRequest,
+    res: HullResponse,
     next: NextFunction
   ) {
     const { client } = req.hull;
@@ -34,10 +31,10 @@ function batchExtractProcessingMiddlewareFactory(
     const { url, format, object_type } = body;
     const entityType = object_type === "account_report" ? "account" : "user";
     const channel = `${entityType}:update`;
-    if (normalizedConfiguration[channel] === undefined) {
+    if (batchHandlersConfiguration[channel] === undefined) {
       return next(new Error(`Missing handler for this channel: ${channel}`));
     }
-    const { callback, options } = normalizedConfiguration[channel];
+    const { callback, options = {} } = batchHandlersConfiguration[channel];
 
     debug("channel", channel);
     debug("entityType", entityType);

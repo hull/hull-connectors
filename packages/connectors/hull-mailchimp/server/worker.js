@@ -1,5 +1,5 @@
 /* @flow */
-const { Connector } = require("hull");
+import type { Connector } from "hull";
 
 const jobs = require("./jobs");
 

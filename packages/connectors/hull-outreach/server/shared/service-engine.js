@@ -7,9 +7,7 @@ import type {
   HullAccountClaims
 } from "hull";
 
-import type {
-  ServiceTransforms
-} from "./types";
+import type { ServiceTransforms } from "./types";
 
 const _ = require("lodash");
 
@@ -20,9 +18,7 @@ const {
   HullIncomingAccount
 } = require("./hull-service-objects");
 
-const {
-  LogicError
-} = require("hull/src/errors");
+const { LogicError } = require("hull/src/errors");
 
 const { HullInstruction, Route } = require("./language");
 
@@ -35,20 +31,24 @@ const { SuperagentApi } = require("./superagent-api");
 const { TransformImpl } = require("./transform-impl");
 const { HullDispatcher } = require("./dispatcher");
 
-const HashMap = require('hashmap');
-
+const HashMap = require("hashmap");
 
 const debug = require("debug")("hull-shared:service-engine");
 
 class ServiceEngine {
-
   dispatcher: HullDispatcher;
+
   services: Object;
+
   transforms: TransformImpl;
   recoveryPromise: Promise<any> | null;
   clearRecoveryPromiseHandle: any;
 
-  constructor(dispatcher: HullDispatcher, services: Object, transforms: ServiceTransforms) {
+  constructor(
+    dispatcher: HullDispatcher,
+    services: Object,
+    transforms: ServiceTransforms
+  ) {
     this.dispatcher = dispatcher;
     this.services = services;
     this.transforms = new TransformImpl(transforms);
@@ -62,15 +62,14 @@ class ServiceEngine {
 
 
   async resolveInstruction(context: Object, instruction: Object, param: any) {
-
     let inputParams = param;
 
-    const isArrayInput = Array.isArray(inputParams)
+    const isArrayInput = Array.isArray(inputParams);
     if (!isArrayInput) {
       inputParams = [inputParams];
     }
 
-    //This is the way to call 1 at a time, but may want to call may at a time
+    // This is the way to call 1 at a time, but may want to call may at a time
     // const results = [];
     // for (let index = 0; index < inputParams.length; index++) {
     //   const result = await this.callService(context, instruction, inputParams[index]);
@@ -86,9 +85,11 @@ class ServiceEngine {
     // like a fetch all and it splits them into different objects...
     // may want to change the behavior, if we see a batch endpoint, 1 serviceData object with an array
     // doesn't need to split, but sends the whole array at the same time if "batch" is set...
-    const promiseResults = await Promise.all(inputParams.map(input => {
-      return this.callService(context, instruction, input);
-    }));
+    const promiseResults = await Promise.all(
+      inputParams.map(input => {
+        return this.callService(context, instruction, input);
+      })
+    );
 
     // Need to flatten, in case a single call returns an array
     // otherwise will return an array inside of an array
@@ -112,16 +113,14 @@ class ServiceEngine {
 
       if (!isUndefinedOrNull(endpoint.output)) {
         return new ServiceData(endpoint.output, newData);
-      } else {
-        return newData;
       }
+      return newData;
     }
 
     return results;
   }
 
   async callService(context: Object, instruction: Object, inputParam: any) {
-
     const name = instruction.name;
     const op = instruction.op;
     const serviceDefinition = this.services[name];
@@ -135,11 +134,10 @@ class ServiceEngine {
     let entityTypeString = null;
 
     if (!isUndefinedOrNull(inputParam)) {
-
       let objectToTransform;
       let classType = null;
 
-      if (typeof inputParam === 'string') {
+      if (typeof inputParam === "string") {
         objectToTransform = _.get(context, inputParam);
       } else if (inputParam instanceof ServiceData) {
         objectToTransform = inputParam.data;
@@ -147,16 +145,17 @@ class ServiceEngine {
 
         if (classType === HullOutgoingUser) {
           entityTypeString = "user";
-        } else if (classType === HullOutgoingAccount || classType === HullIncomingAccount) {
+        } else if (
+          classType === HullOutgoingAccount ||
+          classType === HullIncomingAccount
+        ) {
           entityTypeString = "account";
         }
-
       } else {
         objectToTransform = inputParam;
       }
 
       if (!isUndefinedOrNull(endpoint.input)) {
-
         if (endpoint.input === HullIncomingUser) {
           entityTypeString = "user";
         } else if (endpoint.input === HullIncomingAccount) {
@@ -165,12 +164,22 @@ class ServiceEngine {
 
         if (Array.isArray(objectToTransform)) {
           _.forEach(objectToTransform, obj => {
-            const transformedObject = this.transforms.transform(context, obj, classType, endpoint.input)
+            const transformedObject = this.transforms.transform(
+              context,
+              obj,
+              classType,
+              endpoint.input
+            );
             dataTransforms.set(transformedObject, obj);
             dataToSend.push(transformedObject);
           });
         } else {
-          const transformedObject = this.transforms.transform(context, objectToTransform, classType, endpoint.input);
+          const transformedObject = this.transforms.transform(
+            context,
+            objectToTransform,
+            classType,
+            endpoint.input
+          );
           dataTransforms.set(transformedObject, objectToTransform);
           dataToSend.push(transformedObject);
         }
@@ -185,11 +194,10 @@ class ServiceEngine {
       dataToSend.push(null);
     }
 
-    const direction = (name === "hull") ? "incoming" : "outgoing";
-    const action = `${direction}.${entityTypeString}`
+    const direction = name === "hull" ? "incoming" : "outgoing";
+    const action = `${direction}.${entityTypeString}`;
 
-    const logDataWrapperAroundSendData = (data) => {
-
+    const logDataWrapperAroundSendData = data => {
       // This specialized function makes sure to ensure the right context for log i think
       // we can see the exact user we were trying to send and which data was sent
       let logger = context.client.logger;
@@ -209,46 +217,52 @@ class ServiceEngine {
         }
       }
 
-      return this.sendData(context, instruction, data).then((results) => {
+      return this.sendData(context, instruction, data)
+        .then(results => {
+          // TODO also need to account for batch endpoints
+          // where we should loge a message for each of the objects in the batch
+          if (entityTypeString !== null) {
+            context.metric.increment(`ship.${action}s`, 1);
 
-        //TODO also need to account for batch endpoints
-        // where we should loge a message for each of the objects in the batch
-        if (entityTypeString !== null) {
-          context.metric.increment(`ship.${action}s`, 1);
+            if (direction === "outgoing") {
+              // TODO need to make this generic, make the "class type" declare this
+              const type = entityTypeString === "user" ? "Prospect" : "Account";
+              logger.info(`${action}.success`, {
+                data,
+                operation: endpoint.operation,
+                response: results,
+                type
+              });
+            } else {
+              logger.info(`${action}.success`, { data });
+            }
 
-          if (direction === 'outgoing') {
-            //TODO need to make this generic, make the "class type" declare this
-            const type = entityTypeString === "user" ? "Prospect" : "Account";
-            logger.info(`${action}.success`, { data, operation: endpoint.operation, response: results, type } );
-          } else {
-            logger.info(`${action}.success`, { data } );
+            debug(`${action}.success`, data);
           }
-
-          debug(`${action}.success`, data);
-        }
-        // this is just for logging, do not suppress error here
-        // pass it along with promise resolve
-        return Promise.resolve(results);
-      }).catch (error => {
-
-        if (entityTypeString !== null) {
-          const message = isUndefinedOrNull(_.get(error, "message")) ? {} : { error: error.message };
-          logger.error(`${action}.error`, message );
-          debug(`${action}.error`, data);
-        }
-        // this is just for logging, do not suppress error here
-        // pass it along with promise reject
-        return Promise.reject(error);
-      });
-    }
+          // this is just for logging, do not suppress error here
+          // pass it along with promise resolve
+          return Promise.resolve(results);
+        })
+        .catch(error => {
+          if (entityTypeString !== null) {
+            const message = isUndefinedOrNull(_.get(error, "message"))
+              ? {}
+              : { error: error.message };
+            logger.error(`${action}.error`, message);
+            debug(`${action}.error`, data);
+          }
+          // this is just for logging, do not suppress error here
+          // pass it along with promise reject
+          return Promise.reject(error);
+        });
+    };
 
     // if it's a batch endpoint, don't break apart...
     // just send whole array...
     if (endpoint.batch) {
       return logDataWrapperAroundSendData(dataToSend);
-    } else {
-      return Promise.all(dataToSend.map(logDataWrapperAroundSendData));
     }
+    return Promise.all(dataToSend.map(logDataWrapperAroundSendData));
 
     // If executing concurrently we know have engine scope, so others know the recovery
     // route is pending, or we're in the recovery route
@@ -287,7 +301,7 @@ class ServiceEngine {
             // don't input data on an attempt to recover...
             this.recoveryPromise = this.dispatcher.resolve(_.assign({ recoveryroute: route }, context), new Route(route), null);
 
-            const envTtl = process.env.RECOVERY_ROUTE_TTL;
+            const envTtl = process.env.RECOVERY_ROUTE_TTL || "";
             let recoveryPromiseTtl:number = 3600000;
             if (!isUndefinedOrNull((envTtl))) {
               if (typeof envTtl === 'string') {
@@ -339,52 +353,79 @@ class ServiceEngine {
   }
 
   createOperationPromise(context: Object, instruction: Object, data: any) {
-
     const name = instruction.name;
     const op = instruction.op;
     const serviceDefinition = this.services[name];
 
     // this is pretty dry, but butt ugly... function inception
     if (!_.isEmpty(data)) {
-      debug(`[CALLING-SERVICE]: ${name}<${op}> [WITH-DATA]: ${JSON.stringify(data)}`);
+      debug(
+        `[CALLING-SERVICE]: ${name}<${op}> [WITH-DATA]: ${JSON.stringify(data)}`
+      );
     } else {
       debug(`[CALLING-SERVICE]: ${name}<${op}>`);
     }
 
     let dispatchPromise;
     if (name === "hull") {
-      dispatchPromise = new HullSdk(context, serviceDefinition).dispatch(op, data);
+      dispatchPromise = new HullSdk(context, serviceDefinition).dispatch(
+        op,
+        data
+      );
     } else {
-      dispatchPromise = new SuperagentApi(context, serviceDefinition).dispatch(op, data);
+      dispatchPromise = new SuperagentApi(context, serviceDefinition).dispatch(
+        op,
+        data
+      );
     }
 
     return dispatchPromise;
   }
 
-  retrySendingData(retryAttempts: number, sleepTime: number, context: Object, instruction: Object, data: any) {
-
+  retrySendingData(
+    retryAttempts: number,
+    sleepTime: number,
+    context: Object,
+    instruction: Object,
+    data: any
+  ) {
     // returns a promise which will wait the sleep time before calling the new retry promise
     // sleep time increases *2 everytime for a good backoff
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        resolve(this.createOperationPromise(context, instruction, data).catch( error => {
-          if (retryAttempts === 0) {
-            return Promise.reject(error);
-          }
-          return this.retrySendingData(retryAttempts - 1, sleepTime*2, context, instruction, data);
-        }));
+        resolve(
+          this.createOperationPromise(context, instruction, data).catch(
+            error => {
+              if (retryAttempts === 0) {
+                return Promise.reject(error);
+              }
+              return this.retrySendingData(
+                retryAttempts - 1,
+                sleepTime * 2,
+                context,
+                instruction,
+                data
+              );
+            }
+          )
+        );
       }, sleepTime);
-
     });
   }
 
-  createErrorException(context: Object, servicename: string, errorDefinitions: Object, errorTemplate: any, error: any) {
-
+  createErrorException(
+    context: Object,
+    servicename: string,
+    errorDefinitions: Object,
+    errorTemplate: any,
+    error: any
+  ) {
     if (isUndefinedOrNull(error)) {
       const message: string = `Unknown error while connecting with the ${servicename} API`;
       // throw new error if an error obj does not exist, not sure what the case for this is...
       return new Error(message);
-    } else if (isUndefinedOrNull(errorDefinitions)) {
+    }
+    if (isUndefinedOrNull(errorDefinitions)) {
       const message: string = `Untemplated error while connecting with the ${servicename} API`;
       // if there is no errordefinition, then no way to parse anything out, just throw the original error
       return error;
@@ -399,30 +440,24 @@ class ServiceEngine {
       // for now, if we parsed description or title, can return that...
       if (!_.isEmpty(output.description)) {
         if (!_.isEmpty(output.title)) {
-          return new LogicError(`[${output.title}] ${output.description}`, "action", error);
-        } else {
-          return new LogicError(output.description, "action", error);
+          return new LogicError(
+            `[${output.title}] ${output.description}`,
+            "action",
+            error
+          );
         }
-      } else if (!_.isEmpty(output.title)) {
-        return new LogicError(output.title, "action", error);
-      } else {
-        return error;
+        return new LogicError(output.description, "action", error);
       }
-
-    } else {
-      return new errorTemplate.errorType(errorTemplate.message().message, error);
+      if (!_.isEmpty(output.title)) {
+        return new LogicError(output.title, "action", error);
+      }
+      return error;
     }
-
+    return new errorTemplate.errorType(errorTemplate.message().message, error);
   }
 
   createLogFromOutput(servicename: string, output: Object) {
-    const {
-      httpStatus,
-      appStatusCode,
-      title,
-      description,
-      source
-    } = output;
+    const { httpStatus, appStatusCode, title, description, source } = output;
 
     let log = `HTTP[${httpStatus}] ${servicename}[${appStatusCode}] ${title}`;
 
@@ -430,21 +465,18 @@ class ServiceEngine {
     if (!_.isEmpty(source)) log += ` SOURCE[${JSON.stringify(source)}]`;
 
     return log;
-
   }
 
   parseError(error: any, parser: any, output: Object): Object {
-
-    if (isUndefinedOrNull(parser))
-      return output;
+    if (isUndefinedOrNull(parser)) return output;
 
     let target = error;
 
     if (!isUndefinedOrNull(parser.target)) {
       target = _.get(error, parser.target);
       if (!isUndefinedOrNull(target) && !isUndefinedOrNull(parser.type)) {
-        if (parser.type === 'json') {
-          if (typeof target === 'string') {
+        if (parser.type === "json") {
+          if (typeof target === "string") {
             try {
               target = JSON.parse(target);
             } catch (error) {
@@ -455,19 +487,20 @@ class ServiceEngine {
       }
     }
 
-    if (isUndefinedOrNull(target))
-      return output;
+    if (isUndefinedOrNull(target)) return output;
 
     // ugh... shouldn't there be a lodash fuction for this????
     // I don't know cuz I'm a lodash newb...
     const httpStatus: any = _.get(target, parser.httpStatus);
     if (!isUndefinedOrNull(httpStatus)) _.set(output, "httpStatus", httpStatus);
     const appStatusCode: any = _.get(target, parser.appStatusCode);
-    if (!isUndefinedOrNull(appStatusCode)) _.set(output, "appStatusCode", appStatusCode);
+    if (!isUndefinedOrNull(appStatusCode))
+      _.set(output, "appStatusCode", appStatusCode);
     const title: any = _.get(target, parser.title);
     if (!isUndefinedOrNull(title)) _.set(output, "title", title);
     const description: any = _.get(target, parser.description);
-    if (!isUndefinedOrNull(description)) _.set(output, "description", description);
+    if (!isUndefinedOrNull(description))
+      _.set(output, "description", description);
     const source: any = _.get(target, parser.source);
     if (!isUndefinedOrNull(source)) _.set(output, "source", source);
 
@@ -478,10 +511,9 @@ class ServiceEngine {
 
   findErrorTemplate(context: Object, serviceDefinition: any, error: any) {
     if (!_.isEmpty(serviceDefinition.error.templates)) {
-
       return _.find(serviceDefinition.error.templates, template => {
         if (!isUndefinedOrNull(template.truthy)) {
-          if (!_.isMatch(error, template.truthy)){
+          if (!_.isMatch(error, template.truthy)) {
             return false;
           }
         }
@@ -495,7 +527,6 @@ class ServiceEngine {
     }
     return null;
   }
-
 }
 
 module.exports = {

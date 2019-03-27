@@ -7,5 +7,4 @@ module.exports.queueHandler = require("./queue-handler/factory");
 module.exports.incomingRequestHandler = require("./incoming-request-handler/factory");
 module.exports.scheduleHandler = require("./schedule-handler/factory");
 module.exports.htmlHandler = require("./html-handler/factory");
-
-// module.exports.statusHandler = require("./status-handler");
+module.exports.statusHandler = require("./status-handler/factory");

@@ -1,0 +1,36 @@
+{
+  "name": "hull-incoming-webhooks",
+  "description": "Receive webhooks and enrich your data in Hull",
+  "version": "0.0.13-monorepo",
+  "homepage": "https://github.com/hull/hull-connectors",
+  "scripts": {
+    "test": "yarn test:lint && yarn test:flow && yarn test:unit && yarn test:integration",
+    "test:lint": "eslint server",
+    "test:flow": "flow check",
+    "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit",
+    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
+  },
+  "dependencies": {
+    "ace-builds": "^1.4.3",
+    "axios": "^0.18.0",
+    "bootstrap": "^4.3.1",
+    "deep-freeze": "0.0.1",
+    "domready": "^1.0.8",
+    "hull": "link:../../hull",
+    "json-stable-stringify": "^1.0.1",
+    "mongoose": "5.4.16",
+    "request": "^2.88.0",
+    "response-time": "^2.3.2",
+    "react-ace": "^6.4.0",
+    "react-bootstrap": "1.0.0-beta.5",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.1",
+    "syntax-error": "^1.4.0",
+    "urijs": "^1.19.1",
+    "vm2": "^3.6.10"
+  },
+  "devDependencies": {
+    "jwt-decode": "^2.2.0",
+    "minihull": "link:../../minihull"
+  }
+}

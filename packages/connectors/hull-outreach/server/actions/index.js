@@ -1,3 +1,10 @@
+// @flow;
+
+import webhooks from "./webhooks";
+import accountFetchAll from "./account-fetch-all";
+import prospectFetchAll from "./prospect-fetch-all";
+import fetchAll from "./fetch-all";
+
 const {
   fieldsOutreachProspectInbound,
   fieldsOutreachProspectOutbound,
@@ -6,15 +13,18 @@ const {
   fieldsHullAccountIdent,
   fieldsOutreachAccountIdent
 } = require("./settings-fields");
-
 const adminHandler = require("./admin-handler");
 
-module.exports = {
+export default {
   fieldsOutreachProspectInbound,
   fieldsOutreachProspectOutbound,
   fieldsOutreachAccountOutbound,
   fieldsOutreachAccountInbound,
   fieldsHullAccountIdent,
   fieldsOutreachAccountIdent,
-  adminHandler
+  adminHandler,
+  webhooks,
+  accountFetchAll,
+  prospectFetchAll,
+  fetchAll
 };

@@ -1,10 +1,9 @@
 /* @flow */
-import type { $Response } from "express";
-import type { HullRequest } from "hull";
+import type { HullRequest, HullResponse } from "hull";
 
 const SyncAgent = require("../lib/sync-agent");
 
-function webhookHandler(req: HullRequest, res: $Response): Promise<any> {
+function webhookHandler(req: HullRequest, res: HullResponse): Promise<any> {
   res.send();
 
   const syncAgent = new SyncAgent(req.hull);
