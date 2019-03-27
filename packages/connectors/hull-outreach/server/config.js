@@ -2,6 +2,7 @@
 
 import type { HullConnectorConfig } from "hull";
 import manifest from "../manifest.json";
+import handlers from "./handlers";
 
 const {
   LOG_LEVEL,
@@ -13,10 +14,10 @@ const {
 
 const connectorConfig: HullConnectorConfig = {
   manifest,
+  handlers,
   hostSecret: SECRET || "1234",
   devMode: NODE_ENV === "development",
   port: PORT || 8082,
-  handlers: {},
   middlewares: [],
   logsConfig: {
     logLevel: LOG_LEVEL
