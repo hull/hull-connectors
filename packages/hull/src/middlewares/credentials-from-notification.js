@@ -28,7 +28,7 @@ function ensureRequestId(req: HullRequest) {
  * As a result it sets `req.hull.clientCredentials`.
  */
 function credentialsFromNotificationMiddlewareFactory() {
-  return function credentialsFromNotificationMiddleware(
+  return async function credentialsFromNotificationMiddleware(
     req: HullRequest,
     res: HullResponse,
     next: NextFunction
@@ -38,6 +38,7 @@ function credentialsFromNotificationMiddlewareFactory() {
       skipSignatureValidation,
       notificationValidatorHttpClient
     } = hull.connectorConfig;
+
     const notificationValidator = new NotificationValidator(
       notificationValidatorHttpClient
     );
@@ -54,24 +55,25 @@ function credentialsFromNotificationMiddlewareFactory() {
       return next(payloadError);
     }
 
-    return (() =>
-      skipSignatureValidation
-        ? new Promise.resolve()
-        : notificationValidator.validateSignature(req))()
-      .then(() => {
-        if (body === null || typeof body !== "object") {
-          throw new Error("Missing Payload Body");
-        }
-        const { configuration: clientCredentials = {} } = body;
-        req.hull = Object.assign(req.hull, {
-          requestId: ensureRequestId(req),
-          // TODO: How to standardize req.body responses (again)
-          // $FlowFixMe
-          clientCredentials
-        });
-        return next();
-      })
-      .catch(error => next(error));
+    try {
+      await skipSignatureValidation
+      ? Promise.resolve()
+      : notificationValidator.validateSignature(req);
+      if (body === null || typeof body !== "object") {
+        throw new Error("Missing Payload Body");
+      }
+      const { configuration: clientCredentials = {} } = body;
+      req.hull = Object.assign(req.hull, {
+        requestId: ensureRequestId(req),
+        // TODO: How to standardize req.body responses (again)
+        // $FlowFixMe
+        clientCredentials
+      });
+      return next();
+
+    } catch(err){
+      next(err)
+    }
   };
 }
 

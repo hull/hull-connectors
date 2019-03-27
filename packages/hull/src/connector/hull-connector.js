@@ -258,7 +258,8 @@ class HullConnector {
       const run = getMethod(method);
       if (run) {
         // $FlowFixMe
-        app.all(url, jsonHandler(handler));
+        app.post(url, jsonHandler(handler));
+        app.get(url, jsonHandler(handler));
       }
       return true;
     });

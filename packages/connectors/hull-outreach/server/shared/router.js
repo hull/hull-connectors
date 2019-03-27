@@ -113,7 +113,7 @@ class HullRouter {
     }
   }
 
-  outgoingData(
+  async outgoingData(
     dataType: "account" | "user",
     context: HullContext,
     messages: Array<HullUserUpdateMessage> | Array<HullAccountUpdateMessage>
@@ -132,36 +132,33 @@ class HullRouter {
       classType = HullOutgoingUser;
     }
 
-    const promise = Promise.all(
-      messages.map(message => {
-        const sendMessage = toSendMessage(context, dataType, message);
-        if (sendMessage) {
-          return dispatcher.dispatchWithData(
-            context,
-            `${dataType}UpdateStart`,
-            classType,
-            message
-          );
-        }
-        return Promise.resolve();
-      })
-    );
-
-    return promise
-      .then(results => {
-        context.client.logger.info("outgoing.job.success", {
-          jobName: "Outgoing Data",
-          type: dataType
-        });
-        return Promise.resolve({ results });
-      })
-      .catch(error => {
-        context.client.logger.error("outgoing.job.error", {
-          jobName: "Outgoing Data",
-          error: error.message
-        });
-        return Promise.reject(error);
+    try {
+      const results = await Promise.all(
+        messages.map(message => {
+          const sendMessage = toSendMessage(context, dataType, message);
+          if (sendMessage) {
+            return dispatcher.dispatchWithData(
+              context,
+              `${dataType}UpdateStart`,
+              classType,
+              message
+            );
+          }
+          return Promise.resolve();
+        })
+      );
+      context.client.logger.info("outgoing.job.success", {
+        jobName: "Outgoing Data",
+        type: dataType
       });
+      return { results };
+    } catch (error) {
+      context.client.logger.error("outgoing.job.error", {
+        jobName: "Outgoing Data",
+        error: error.message
+      });
+      return error;
+    }
   }
 
   incomingRequest(route: string, ctx: HullContext) {

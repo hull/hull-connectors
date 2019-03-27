@@ -408,7 +408,6 @@ class TestScenarioRunner extends EventEmitter {
         }, this.timeout);
         this.deboucedFinish();
       } catch (error) {
-        console.log(error);
         reject(error);
       }
     });
