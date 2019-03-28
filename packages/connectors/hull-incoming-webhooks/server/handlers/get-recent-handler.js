@@ -24,7 +24,7 @@ export default function getRecent(Model: Object) {
 
       return {
         status: 200,
-        json: {
+        data: {
           recent
         }
       };
@@ -32,7 +32,7 @@ export default function getRecent(Model: Object) {
       client.logger.debug("mongo.query.error", { errors: err });
       return {
         status: 500,
-        json: {
+        data: {
           recent: []
         }
       };

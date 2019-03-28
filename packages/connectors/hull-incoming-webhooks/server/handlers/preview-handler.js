@@ -38,7 +38,7 @@ export default async function computeHandler(
   if (!client || !connector || !payload) {
     return {
       status: 400,
-      json: {
+      data: {
         reason: "missing_params",
         message: "Missing Params"
       }
@@ -62,12 +62,12 @@ export default async function computeHandler(
     }
     return {
       status: 200,
-      json: result
+      data: result
     };
   } catch (error) {
     return {
       status: 500,
-      json: { error }
+      data: { error }
     };
   }
 }

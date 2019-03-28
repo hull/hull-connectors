@@ -47,7 +47,7 @@ export default function handler(EntryModel: Object) {
     if (!client || !connector) {
       return {
         status: 404,
-        json: {
+        data: {
           reason: "connector_not_found",
           message: "We couldn't find a connector for this token"
         }

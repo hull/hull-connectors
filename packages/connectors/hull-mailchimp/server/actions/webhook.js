@@ -15,7 +15,7 @@ async function handleAction(
   if (!body) {
     return {
       statusCode: 404,
-      json: {
+      data: {
         ok: false,
         message: "Body isn't a valid object"
       }
@@ -27,7 +27,7 @@ async function handleAction(
   if (method.toLowerCase() === "get") {
     return {
       statusCode: 200,
-      json: { ok: true, message: "Webhook registered" }
+      data: { ok: true, message: "Webhook registered" }
     };
   }
 
@@ -36,7 +36,7 @@ async function handleAction(
   if (!data || !data.email) {
     return {
       statusCode: 404,
-      json: { ok: false, message: "Email not found" }
+      data: { ok: false, message: "Email not found" }
     };
   }
   let processedData = _.cloneDeep(data);
@@ -72,7 +72,7 @@ async function handleAction(
 
   return {
     statusCode: 200,
-    json: { ok: true, message: "Data processed" }
+    data: { ok: true, message: "Data processed" }
   };
 }
 
