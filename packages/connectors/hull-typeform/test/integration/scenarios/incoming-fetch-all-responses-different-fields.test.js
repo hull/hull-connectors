@@ -10,6 +10,8 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 
 // workaround to allow connector start
 process.env.CLIENT_ID = "123";
+process.env.CLIENT_SECRET = "abc";
+
 import connectorConfig from "../../../server/config";
 
 test("incoming fetch all responses basic", () => {
