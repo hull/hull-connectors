@@ -9,7 +9,7 @@ import type HullRouter from "../shared/router";
 const accountUpdate = (hullRouter: HullRouter) => (
   ctx: HullContext,
   messages: Array<HullAccountUpdateMessage>
-): Promise<HullNotificationResponse> =>
+): HullNotificationResponse =>
   hullRouter.outgoingData("account", ctx, messages);
 
 export default accountUpdate;

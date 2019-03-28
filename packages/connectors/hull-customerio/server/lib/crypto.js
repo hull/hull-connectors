@@ -21,11 +21,13 @@ export function decrypt(text: string, password: string): Object {
   return qs.parse(dec);
 }
 
-export function middleware(password: string) {
+export function middleware(hostSecret: string) {
   return (req: HullRequest, res: HullResponse, next: NextFunction) => {
     if (req.query.conf) {
       req.hull = req.hull || {};
-      req.hull.clientCredentials = decrypt(req.query.conf.toString(), password);
+      if (!req.hull.clientCredentials) {
+        req.hull.clientCredentials = decrypt(req.query.conf.toString(), hostSecret);
+      }
     }
     next();
   };

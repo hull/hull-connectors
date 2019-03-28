@@ -5,6 +5,6 @@ import type HullRouter from "../shared/router";
 const userUpdate = (hullRouter: HullRouter) => (
   ctx: HullContext,
   messages: Array<HullUserUpdateMessage>
-): Promise<HullNotificationResponse> => hullRouter.outgoingData("user", ctx, messages);
+): HullNotificationResponse => hullRouter.outgoingData("user", ctx, messages);
 
 export default userUpdate;

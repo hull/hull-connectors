@@ -1,13 +1,13 @@
 /* @flow */
-import type { HullRequest, HullResponse } from "hull";
-
+import type { HullContext, HullIncomingHandlerMessage, HullExternalResponse } from "hull";
 const SyncAgent = require("../lib/sync-agent");
 
-function webhookHandler(req: HullRequest, res: HullResponse): Promise<any> {
-  res.send();
-
-  const syncAgent = new SyncAgent(req.hull);
-  return syncAgent.handleWebhook(req.body);
+function webhookHandler(ctx: HullContext, message: HullIncomingHandlerMessage): HullExternalResponse {
+  const syncAgent = new SyncAgent(ctx);
+  syncAgent.handleWebhook(message.body);
+  return {
+    status: 200
+  }
 }
 
 module.exports = webhookHandler;

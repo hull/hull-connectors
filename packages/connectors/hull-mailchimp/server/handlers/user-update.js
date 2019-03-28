@@ -25,7 +25,7 @@ const flowControl = (type: "next" | "retry") => ({
 export default function userUpdateHandler(
   ctx: HullContext,
   messages: Array<HullUserUpdateMessage>
-): Promise<HullNotificationResponse> {
+): HullNotificationResponse {
   const { syncAgent } = shipAppFactory(ctx);
 
   const filteredMessages = messages.reduce((accumulator, message) => {

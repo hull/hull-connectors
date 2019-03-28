@@ -7,7 +7,7 @@ import type {
   HullNotificationResponse,
   HullIncomingHandlerMessage
 } from "hull";
-
+import service from "../service";
 const { WebhookPayload } = require("../service-objects");
 
 const {
@@ -25,7 +25,6 @@ const { hullService } = require("./hull-service");
 const { oauth2 } = require("./auth/oauth2");
 
 const { glue } = require("../glue");
-const service = require("../service");
 const { transformsToService } = require("../transforms-to-service");
 const { transformsToHull } = require("../transforms-to-hull");
 const _ = require("lodash");
@@ -125,7 +124,7 @@ class HullRouter {
     dataType: "account" | "user",
     context: HullContext,
     messages: Array<HullUserUpdateMessage> | Array<HullAccountUpdateMessage>
-  ): Promise<HullNotificationResponse> {
+  ): HullNotificationResponse {
     context.client.logger.info("outgoing.job.start", {
       jobName: "Outgoing Data",
       type: dataType

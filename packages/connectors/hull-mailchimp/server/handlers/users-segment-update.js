@@ -13,7 +13,7 @@ export default async function segmentUpdateHandler(
   ctx: HullContext,
   // TODO: check the exact format of the segment update and delete handlers
   message: Array<HullUserSegmentUpdateMessage>
-): Promise<HullNotificationResponse> {
+): HullNotificationResponse {
   ctx.client.logger.debug("[segmentUpdateHandler] start", { message });
 
   const { syncAgent } = shipAppFactory(ctx);

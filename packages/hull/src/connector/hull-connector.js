@@ -322,12 +322,12 @@ class HullConnector {
    * @return {express}     expressjs application
    */
   setupApp(app: $Application): $Application {
+    this.middlewares.map(middleware => app.use(middleware));
     app.use(this.baseComposedMiddleware());
     app.use("/", staticRouter());
     app.engine("html", renderFile);
     app.set("views", getAbsolutePath("views"));
     app.set("view engine", "ejs");
-    this.middlewares.map(middleware => app.use(middleware));
 
     /**
      * Instrumentation Middleware,

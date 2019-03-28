@@ -359,10 +359,12 @@ export type HullMessageResponse = {|
 |};
 
 // TODO: Make this strict
-export type HullNotificationResponse = void | {
+export type HullNotificationResponseData = void | {
   flow_control?: HullNotificationFlowControl,
   responses?: Array<?HullMessageResponse>
 };
+export type HullNotificationResponse = HullNotificationResponseData | Promise<HullNotificationResponseData>;
+
 export type HullExternalResponseData = {
   status?: number,
   pageLocation?: string,
@@ -522,31 +524,31 @@ export type HullNotification = {
 export type HullUserUpdateCallback = (
   ctx: HullContext,
   messages: Array<HullUserUpdateMessage>
-) => Promise<HullNotificationResponse>;
+) => HullNotificationResponse;
 export type HullUserDeleteCallback = (
   ctx: HullContext,
   messages: Array<HullUserDeleteMessage>
-) => Promise<HullNotificationResponse>;
+) => HullNotificationResponse;
 export type HullAccountUpdateCallback = (
   ctx: HullContext,
   messages: Array<HullAccountUpdateMessage>
-) => Promise<HullNotificationResponse>;
+) => HullNotificationResponse;
 export type HullAccountDeleteCallback = (
   ctx: HullContext,
   messages: Array<HullAccountDeleteMessage>
-) => Promise<HullNotificationResponse>;
+) => HullNotificationResponse;
 export type HullSegmentUpdateCallback<T> = (
   ctx: HullContext,
   messages: Array<T>
-) => Promise<HullNotificationResponse>;
+) => HullNotificationResponse;
 export type HullSegmentDeleteCallback<T> = (
   ctx: HullContext,
   messages: Array<T>
-) => Promise<HullNotificationResponse>;
+) => HullNotificationResponse;
 export type HullConnectorUpdateCallback = (
   ctx: HullContext,
   messages?: HullConnectorUpdateMessage
-) => Promise<HullNotificationResponse>;
+) => HullNotificationResponse;
 
 export type HullNotificationHandlerCallback =
   | HullConnectorUpdateCallback
