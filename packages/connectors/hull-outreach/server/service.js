@@ -28,7 +28,10 @@ const { isUndefinedOrNull } = require("./shared/utils");
 const { isNull, notNull } = require("./shared/conditionals");
 
 // What about linking calls?
-const service: RawRestApi = {
+const service = ({ clientID, clientSecret } : {
+  clientID: string,
+  clientSecret: string
+}): RawRestApi => ({
   initialize: (context, api) => new SuperagentApi(context, api),
   prefix: "https://api.outreach.io/api/v2",
   endpoints: {
@@ -196,8 +199,8 @@ const service: RawRestApi = {
       Strategy: OAuth2Strategy,
       tokenInUrl: true,
       options: {
-        clientID: process.env.CLIENT_ID,
-        clientSecret: process.env.CLIENT_SECRET,
+        clientID,
+        clientSecret,
         authorizationURL: "https://api.outreach.io/oauth/authorize",
         tokenURL: "https://api.outreach.io/oauth/token",
         grant_type: "authorization_code",
@@ -268,9 +271,10 @@ const service: RawRestApi = {
     ]
 
   }
-}
+})
 
 
-module.exports = {
-  service
-};
+export default service
+// module.exports = {
+//   service
+// };

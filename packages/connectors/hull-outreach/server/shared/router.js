@@ -25,7 +25,7 @@ const { hullService } = require("./hull-service");
 const { oauth2 } = require("./auth/oauth2");
 
 const { glue } = require("../glue");
-const { service } = require("../service");
+const service = require("../service");
 const { transformsToService } = require("../transforms-to-service");
 const { transformsToHull } = require("../transforms-to-hull");
 const _ = require("lodash");
@@ -41,9 +41,15 @@ class HullRouter {
 
   ensureHook: string;
 
-  constructor() {
+  constructor({
+    clientID,
+    clientSecret
+  }: {
+    clientID: string,
+    clientSecret: string
+  }) {
     this.glue = glue;
-    this.serviceDefinitions = { hull: hullService, outreach: service };
+    this.serviceDefinitions = { hull: hullService, outreach: service({ clientID, clientSecret }) };
     this.transforms = _.concat(transformsToHull, transformsToService);
 
     // TODO put this as part of the service?

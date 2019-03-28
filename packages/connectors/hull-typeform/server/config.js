@@ -17,7 +17,7 @@ const {
 } = process.env;
 
 if (!CLIENT_ID || !CLIENT_SECRET) {
-  throw new Error("some environment variables missing");
+  throw new Error("CLIENT_ID and/or CLIENT_SECRET missing");
 }
 
 const hostSecret = SECRET || "1234";

@@ -9,12 +9,23 @@ const {
   SECRET,
   PORT = 8082,
   NODE_ENV,
+  CLIENT_ID,
+  CLIENT_SECRET,
   OVERRIDE_FIREHOSE_URL
 } = process.env;
 
+if (!CLIENT_ID || !CLIENT_SECRET) {
+  throw new Error(
+    "Can't find Outreach Client ID and/or Client Secret, check env vars"
+  );
+}
+
 const connectorConfig: HullConnectorConfig = {
   manifest,
-  handlers,
+  handlers: handlers({
+    clientID: CLIENT_ID,
+    clientSecret: CLIENT_SECRET
+  }),
   hostSecret: SECRET || "1234",
   devMode: NODE_ENV === "development",
   port: PORT || 8082,

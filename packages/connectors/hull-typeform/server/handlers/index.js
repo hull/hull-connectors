@@ -1,5 +1,5 @@
 // @flow
-import type { HullHandlersConfiguration } from "hull";
+import type { HullHandlersConfiguration, Connector } from "hull";
 import {
   authorization,
   refreshAccessToken,
@@ -10,7 +10,7 @@ import {
   getQuestions
 } from "../actions";
 
-const handlers: HullHandlersConfiguration = {
+const handlers = ({ clientID, clientSecret}: { clientID: string, clientSecret: string}) => (connector: Connector): HullHandlersConfiguration => ({
   external: [
     {
       url: "/fetch-all-responses",
@@ -66,7 +66,7 @@ const handlers: HullHandlersConfiguration = {
     {
       url: "/admin",
       method: "all",
-      handler: authorization
+      handler: authorization({ clientID, clientSecret })
     }
   ]
   // ,
@@ -76,6 +76,6 @@ const handlers: HullHandlersConfiguration = {
   // ],
   // routers: [
   // ]
-};
+});
 
 export default handlers;
