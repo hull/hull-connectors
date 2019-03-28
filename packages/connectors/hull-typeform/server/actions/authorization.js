@@ -3,7 +3,7 @@ const TypeformStrategy = require("passport-typeform").Strategy;
 const { oAuthHandler } = require("hull/src/handlers");
 const SyncAgent = require("../lib/sync-agent");
 
-module.exports = ({ clientID, clientSecret} : { clientID: string, clientSecret: string}) => oAuthHandler({
+module.exports = ({ clientID, clientSecret } : { clientID: string, clientSecret: string }) => oAuthHandler({
   name: "Typeform",
   Strategy: TypeformStrategy,
   tokenInUrl: false,

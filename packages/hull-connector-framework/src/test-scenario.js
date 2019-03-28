@@ -9,7 +9,7 @@ function testScenario(
     connectorConfig,
     debounceWait
   }: {
-    connectorConfig: HullConnectorConfig,
+    connectorConfig: () => HullConnectorConfig,
     debounceWait?: number
   },
   scenarioDefinition: TestScenarioDefinition

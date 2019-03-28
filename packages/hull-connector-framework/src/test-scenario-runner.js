@@ -131,7 +131,7 @@ class TestScenarioRunner extends EventEmitter {
       connectorConfig,
       debounceWait
     }: {
-      connectorConfig: HullConnectorConfig,
+      connectorConfig: () => HullConnectorConfig,
       debounceWait?: number
     },
     scenarioDefinition: TestScenarioDefinition
@@ -146,9 +146,9 @@ class TestScenarioRunner extends EventEmitter {
       }
     });
 
-    this.connectorConfig = connectorConfig;
+    this.connectorConfig = connectorConfig();
     // this.minihullPort = 9092;
-    const { manifest } = connectorConfig;
+    const { manifest } = this.connectorConfig;
 
     this.connectorManifest = manifest;
     this.finished = false;
