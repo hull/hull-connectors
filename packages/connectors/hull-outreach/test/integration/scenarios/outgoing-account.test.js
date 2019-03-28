@@ -1,12 +1,8 @@
 // @flow
 const _ = require("lodash");
 
-beforeAll(() => {
-  console.log("STARTING");
-  process.env.CLIENT_ID = "1234";
-  process.env.CLIENT_SECRET = "1234";
-  console.log(process.env);
-})
+process.env.CLIENT_ID = "1234";
+process.env.CLIENT_SECRET = "1234";
 
 declare function describe(name: string, callback: Function): void;
 declare function before(callback: Function): void;

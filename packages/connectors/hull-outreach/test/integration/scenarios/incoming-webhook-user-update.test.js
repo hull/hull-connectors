@@ -1,10 +1,9 @@
 // @flow
-const _ = require("lodash");
-
 
 process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 
+const _ = require("lodash");
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
 
@@ -13,7 +12,6 @@ test("process incoming user update webhook from outreach", () => {
     return {
       handlerType: handlers.incomingRequestHandler,
       externalIncomingRequest: ({ superagent, connectorUrl, plainCredentials }) => {
-        console.log(plainCredentials);
         return superagent
           .post(`${connectorUrl}/webhooks?ship=${plainCredentials.ship}&organization=${plainCredentials.organization}&secret=1234`)
           .send(require("../fixtures/webhook-payloads/prospect-updated.json"));
