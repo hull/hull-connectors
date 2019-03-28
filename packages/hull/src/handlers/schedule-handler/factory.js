@@ -29,7 +29,13 @@ function scheduleHandlerFactory(
   const { options = {} } = configurationEntry;
 
   return getRouter({
-    options,
+    options: {
+      credentialsFromQuery: true,
+      credentialsFromNotification: false,
+      respondWithError: true,
+      strict: true,
+      ...options
+    },
     requestName: "scheduler",
     handler: handler(configurationEntry),
     errorHandler: errorHandler(options)
