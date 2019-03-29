@@ -16,7 +16,13 @@ function incomingRequestHandlerFactory(
 ): Router {
   const { options = {} } = configurationEntry;
   return getRouter({
-    options,
+    options: {
+      credentialsFromQuery: true,
+      credentialsFromNotification: false,
+      respondWithError: true,
+      strict: false,
+      ...options
+    },
     requestName: "requests-buffer",
     handler: handler(configurationEntry),
     errorHandler: errorHandler(options)

@@ -144,7 +144,7 @@ const handlers = ({ clientID, clientSecret}: {
       handler: {
         callback: webhooks(hullRouter),
         options: {
-          parseCredentialsFromQuery: true,
+          credentialsFromQuery: true,
           bodyParser: "json"
         }
       }

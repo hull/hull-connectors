@@ -104,7 +104,7 @@ function credentialsFromQueryMiddlewareFactory() {
         hostSecret
       );
 
-      debug("resolved configuration");
+      debug("resolved configuration", clientCredentials);
       req.hull = Object.assign(req.hull, {
         clientCredentials,
         clientCredentialsToken

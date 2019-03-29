@@ -220,6 +220,8 @@ class HullConnector {
           return app.get;
         case "put":
           return app.put;
+        case "post":
+          return app.post;
         case "patch":
           return app.patch;
         case "delete":

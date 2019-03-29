@@ -352,7 +352,7 @@ class TestScenarioRunner extends EventEmitter {
               connectorUrl: `http://localhost:${connectorPort}`,
               plainCredentials: {
                 organization: this.minihull._getOrgAddr(),
-                connector: this.connectorData.id,
+                ship: this.connectorData.id,
                 secret: this.minihull.secret
               }
             });

@@ -20,7 +20,6 @@ test("receive incoming webhook for prospect creation from outreach", () => {
     return {
       handlerType: handlers.incomingRequestHandler,
       externalIncomingRequest: ({ superagent, connectorUrl, plainCredentials }) => {
-        console.log(plainCredentials);
         return superagent
           .post(`${connectorUrl}/webhooks?ship=${plainCredentials.ship}&organization=${plainCredentials.organization}&secret=1234`)
           .send(require("../fixtures/webhook-payloads/prospect-created.json"));

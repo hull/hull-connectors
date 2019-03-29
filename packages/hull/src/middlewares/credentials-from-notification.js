@@ -12,9 +12,11 @@ function getTimestamp() {
 function ensureRequestId(req: HullRequest) {
   const { hull } = req;
 
+
   // TODO: How to standardize req.body responses (again)
   // $FlowFixMe
-  const { notification_id = null } = getBody(req);
+  const { notification_id = null } = getBody(req.body);
+
   if (hull.requestId) return hull.requestId;
   if (notification_id) {
     return ["smart-notifier", getTimestamp(), notification_id].join(":");
@@ -65,8 +67,6 @@ function credentialsFromNotificationMiddlewareFactory() {
       const { configuration: clientCredentials = {} } = body;
       req.hull = Object.assign(req.hull, {
         requestId: ensureRequestId(req),
-        // TODO: How to standardize req.body responses (again)
-        // $FlowFixMe
         clientCredentials
       });
       return next();
