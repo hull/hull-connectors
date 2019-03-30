@@ -137,9 +137,7 @@ class HullConnector {
     this.logsConfig = logsConfig || {};
     this.metricsConfig = metricsConfig || {};
     this.workerConfig = workerConfig || {};
-    this.serverConfig = serverConfig || {
-      start: true
-    };
+    this.serverConfig = serverConfig || { start: true };
     this.Client = dependencies.Client;
     this.Worker = dependencies.Worker;
     this.middlewares = middlewares;

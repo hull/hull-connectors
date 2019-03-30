@@ -71,13 +71,6 @@ const handlers = ({ clientID, clientSecret}: { clientID: string, clientSecret: s
       handler: authorization({ clientID, clientSecret })
     }
   ]
-  // ,
-  // json: [
-  // ],
-  // schedules: [
-  // ],
-  // routers: [
-  // ]
 });
 
 export default handlers;
