@@ -1,10 +1,16 @@
+//@flow
+import type { HullExternalResponse, HullContext } from "hull";
 const SyncAgent = require("../lib/sync-agent");
 
-function fetchAllResponses(ctx) {
-  const syncAgent = new SyncAgent(ctx);
+async function fetchAllResponses(ctx: HullContext): HullExternalResponse {
   // fire & forget
-  syncAgent.fetchAllResponses();
-  return Promise.resolve("ok");
+  await new SyncAgent(ctx).fetchAllResponses();
+  return {
+    status: 200,
+    data: {
+      response: "ok"
+    }
+  };
 }
 
 module.exports = fetchAllResponses;

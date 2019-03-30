@@ -11,7 +11,36 @@ import {
 } from "../actions";
 
 const handlers = ({ clientID, clientSecret}: { clientID: string, clientSecret: string}) => (connector: Connector): HullHandlersConfiguration => ({
-  external: [
+  schedules: [
+    {
+      url: "/fetch",
+      handler: {
+        callback: fetchRecentResponses,
+        options: {
+          fireAndForget: true
+        }
+      }
+    },
+    {
+      url: "/fetch-recent-responses",
+      handler: {
+        callback: fetchRecentResponses,
+        options: {
+          fireAndForget: true
+        }
+      }
+    },
+    {
+      url: "/refresh-access-token",
+      handler: {
+        callback: refreshAccessToken,
+        options: {
+          fireAndForget: true
+        }
+      }
+    },
+  ],
+  json: [
     {
       url: "/fetch-all-responses",
       handler: {
@@ -34,33 +63,6 @@ const handlers = ({ clientID, clientSecret}: { clientID: string, clientSecret: s
       url: "/schema/fields",
       handler: {
         callback: getQuestions
-      }
-    },
-    {
-      url: "/refresh-access-token",
-      handler: {
-        callback: refreshAccessToken,
-        options: {
-          fireAndForget: true
-        }
-      }
-    },
-    {
-      url: "/fetch",
-      handler: {
-        callback: fetchRecentResponses,
-        options: {
-          fireAndForget: true
-        }
-      }
-    },
-    {
-      url: "/fetch-recent-responses",
-      handler: {
-        callback: fetchRecentResponses,
-        options: {
-          fireAndForget: true
-        }
       }
     },
     {
