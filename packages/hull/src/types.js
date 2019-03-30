@@ -358,7 +358,7 @@ export type HullMessageResponse = {|
   data: {}
 |};
 
-// TODO: Make this strict
+// @TODO: Make this strict
 export type HullNotificationResponseData = void | {
   flow_control?: HullNotificationFlowControl,
   responses?: Array<?HullMessageResponse>
@@ -613,7 +613,7 @@ export type HullNotificationHandlerConfiguration = {|
   // >
 |};
 
-// TODO: evolve this introducing envelope etc.
+// @TODO: evolve this introducing envelope etc.
 export type HullSendResponse = Promise<*>;
 export type HullSyncResponse = Promise<*>;
 export type HandlerCacheOptions = {

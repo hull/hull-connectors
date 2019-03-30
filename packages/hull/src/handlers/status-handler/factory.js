@@ -27,7 +27,7 @@ import errorHandler from "../error-handler";
  * }
  * ]));
  */
-// TODO: Finish wiring up this handler with a unified middleware stack
+// @TODO: Finish wiring up this handler with a unified middleware stack
 function statusHandlerFactory(
   configurationEntry: HullStatusHandlerConfigurationEntry
 ): Router {

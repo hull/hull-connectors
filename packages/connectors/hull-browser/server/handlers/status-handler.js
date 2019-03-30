@@ -17,7 +17,7 @@ export default function statusCheckFactory({ store }: { store: Store }) {
     if (!pool[id]) messages.push("No Connector Socket active");
     if (!lru[id]) messages.push("Empty Recent user list");
     if (messages.length) status = "error";
-    // TODO: Do we still need this if we're responding to the server ?
+    // @TODO: Do we still need this if we're responding to the server ?
     client.put(`${id}/status`, { status, messages });
     return { status, messages };
   };

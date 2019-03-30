@@ -7,7 +7,7 @@ import errorHandler from "../error-handler";
 import handler from "../external-handler";
 
 /**
- * TODO the logic for this should be combined with jsonHandler
+ * @TODO the logic for this should be combined with jsonHandler
  * should we use inheritance, composition or a functional approach to keep this code DRY?
  * or should we abide by the abstraction rule of 3, and allow this second implementation to be ok for now
  *

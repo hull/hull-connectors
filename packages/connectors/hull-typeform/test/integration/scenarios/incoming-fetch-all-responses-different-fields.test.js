@@ -197,9 +197,10 @@ test("incoming fetch all responses basic", () => {
         ]
       ],
       platformApiCalls: [
-        ["GET", "/api/v1/app", {}, {}],
-        ["GET", "/api/v1/users_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}],
-        ["GET", "/api/v1/accounts_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}]
+        //@TODO Do we still expect to hit the platform if we had the data in the body
+        // ["GET", "/api/v1/app", {}, {}],
+        // ["GET", "/api/v1/users_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}],
+        // ["GET", "/api/v1/accounts_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}]
       ]
     };
   });

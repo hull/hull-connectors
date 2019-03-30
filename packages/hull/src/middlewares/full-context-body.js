@@ -37,7 +37,7 @@ function fullContextBodyMiddlewareFactory({
       }
       const { body } = req;
 
-      // TODO: research how to map unknown data into a shape we expect w/ Flow
+      // @TODO: research how to map unknown data into a shape we expect w/ Flow
       // $FlowFixMe
       const connector: HullConnector = body.connector;
       // pick everything we can

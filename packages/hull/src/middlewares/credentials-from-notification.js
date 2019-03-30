@@ -11,10 +11,6 @@ function getTimestamp() {
 
 function ensureRequestId(req: HullRequest) {
   const { hull } = req;
-
-
-  // TODO: How to standardize req.body responses (again)
-  // $FlowFixMe
   const { notification_id = null } = getBody(req.body);
 
   if (hull.requestId) return hull.requestId;

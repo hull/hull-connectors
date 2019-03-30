@@ -394,7 +394,7 @@ class EntityScopedHullClient extends HullClient {
     );
   }
 
-  // TODO: Check that Aliases are supported at account level
+  // @TODO: Check that Aliases are supported at account level
   /**
    * Issues an `alias` event on entity?
    * @todo

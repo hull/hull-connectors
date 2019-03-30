@@ -34,7 +34,7 @@ export default function buildTokenFactory({
     req.hull = req.hull || {};
     const token: string = req.query.token.toString();
     if (!token) return res.sendStatus(400);
-    // TODO: check that Decrypt returns a proper ClientCredentials object
+    // @TODO: check that Decrypt returns a proper ClientCredentials object
     req.hull.clientCredentials = decrypt(token);
     return next();
   };

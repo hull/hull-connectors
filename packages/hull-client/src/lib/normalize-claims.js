@@ -27,7 +27,7 @@ const normalize = (claims: InputUserClaim | InputAccountClaim) =>
     : _.reduce(
         claims,
         (c, v, k) => {
-          // TODO: Can we implement this feature safely and add the anonymous_id from the array of anonymous_ids
+          // @TODO: Can we implement this feature safely and add the anonymous_id from the array of anonymous_ids
           // It seems to me we could.
           // if (k === "anonymous_ids") {
           //   if (!claims.anonymous_id && v && v.length) {
