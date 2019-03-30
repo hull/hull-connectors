@@ -174,7 +174,7 @@ export type HullAccount = {
   domain?: ?string,
   external_id?: ?string,
   anonymous_ids?: ?Array<string>,
-  anonymous_id?: ?string, // TODO: Flow Workaround -> force anonymous_id to be recognized as a ?string, Should be forced on Platform for safety
+  anonymous_id?: ?string, // @TODO: Flow Workaround -> force anonymous_id to be recognized as a ?string, Should be forced on Platform for safety
   name?: ?string,
   [HullAttributeName]: HullAttributeValue
 };

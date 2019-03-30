@@ -17,8 +17,11 @@ describe("Hull", () => {
         .that.is.an("function");
       expect(scopedAccount).to.has.property("traits")
         .that.is.an("function");
+      expect(scopedAccount).to.has.property("alias")
+        .that.is.an("function");
+      expect(scopedAccount).to.has.property("unalias")
+        .that.is.an("function");
       expect(scopedAccount).not.to.have.property("track");
-      expect(scopedAccount).not.to.have.property("alias");
 
       expect(scopedUser).to.has.property("token")
         .that.is.an("function");
@@ -27,6 +30,8 @@ describe("Hull", () => {
       expect(scopedUser).to.has.property("track")
         .that.is.an("function");
       expect(scopedUser).to.has.property("alias")
+        .that.is.an("function");
+      expect(scopedUser).to.has.property("unalias")
         .that.is.an("function");
     });
 

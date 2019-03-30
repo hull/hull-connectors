@@ -1,6 +1,6 @@
 // @flow
 import type { NextFunction } from "express";
-import type { HullRequest, HullResponse } from "../types";
+import type { HullRequest, HullResponse, HullClientCredentials } from "../types";
 import getBody from "../utils/get-json-body";
 
 const NotificationValidator = require("../utils/notification-validator");
@@ -60,7 +60,9 @@ function credentialsFromNotificationMiddlewareFactory() {
       if (body === null || typeof body !== "object") {
         throw new Error("Missing Payload Body");
       }
-      const { configuration: clientCredentials = {} } = body;
+      const { configuration: clientCredentials = {} }: {
+        configuration: HullClientCredentials
+      } = body;
       req.hull = Object.assign(req.hull, {
         requestId: ensureRequestId(req),
         clientCredentials

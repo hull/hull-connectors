@@ -1,9 +1,15 @@
 // @flow
-import type { HullNotificationHandlerConfiguration } from "hull";
-import type { Router } from "express";
+import type {
+  HullNotificationHandlerConfiguration
+} from "hull";
+import type {
+  Router
+} from "express";
 import getRouter from "../get-router";
 
-const { clearConnectorCache } = require("../../middlewares");
+const {
+  clearConnectorCache
+} = require("../../middlewares");
 
 const processingMiddleware = require("./processing-middleware");
 const errorMiddleware = require("./error-middleware");
@@ -29,6 +35,7 @@ function notificationHandlerFactory(
     options: {
       credentialsFromNotification: true,
       credentialsFromQuery: false,
+      respondWithError: true,
       strict: true
     }
   });

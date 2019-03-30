@@ -85,16 +85,19 @@ type HullManifestSchedule = {
 
 // A Manifest Endpoint block. Defines a publicly-available route for the Connector to receive Service data
 type HTTPMethod =
+  | "all"
+  | "delete"
   | "get"
+  | "patch"
   | "post"
   | "put"
-  | "patch"
-  | "delete"
+  | "ALL"
+  | "DELETE"
   | "GET"
-  | "POST"
-  | "PUT"
   | "PATCH"
-  | "DELETE";
+  | "POST"
+  | "PUT";
+
 type HullManifestEndpoint = {
   url: string,
   handler: string,

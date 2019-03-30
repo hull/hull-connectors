@@ -411,6 +411,21 @@ class EntityScopedHullClient extends HullClient {
   }
 
   /**
+   * Issues ann `unalias` event on entity
+   * @todo
+   * @public
+   * @param  {Object} body
+   * @return {Promise}
+   */
+  unalias(body: Object) {
+    return this.batch({
+      type: "unalias",
+      requestId: this.requestId,
+      body
+    });
+  }
+
+  /**
    * Saves attributes on the user or account. Only available on User or Account scoped `HullClient` instance (see {@link #asuser} and {@link #asaccount}).
    *
    * @public
