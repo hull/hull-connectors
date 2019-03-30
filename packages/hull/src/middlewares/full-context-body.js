@@ -23,7 +23,6 @@ function fullContextBodyMiddlewareFactory({
     next: NextFunction
   ) {
     bodyParser.json({ limit: "10mb" })(req, res, err => {
-      debug("parsed notification body", err);
       if (err !== undefined) {
         return next(err);
       }
@@ -59,7 +58,7 @@ function fullContextBodyMiddlewareFactory({
       const usersSegments = users_segments || segments;
       const accountsSegments = accounts_segments || account_segments;
       debug("read from body %o", {
-        connector: typeof connector,
+        connector: connector,
         usersSegments: Array.isArray(usersSegments) && usersSegments.length,
         accountsSegments:
           Array.isArray(accountsSegments) && accountsSegments.length
