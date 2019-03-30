@@ -8,6 +8,7 @@ import type {
   HullServerConfig,
   HullMetricsConfig,
   HullLogsConfig,
+  HullHTTPClientConfig,
   HullClientConfig,
   HullWorkerConfig,
   HullConnectorConfig,
@@ -84,6 +85,8 @@ class HullConnector {
 
   workerConfig: HullWorkerConfig;
 
+  httpClientConfig: HullHTTPClientConfig;
+
   clientConfig: HullClientConfig;
 
   metricsConfig: HullMetricsConfig;
@@ -121,6 +124,7 @@ class HullConnector {
       clientConfig,
       serverConfig,
       workerConfig,
+      httpClientConfig,
       metricsConfig,
       logsConfig,
       connectorName,
@@ -137,6 +141,7 @@ class HullConnector {
     this.logsConfig = logsConfig || {};
     this.metricsConfig = metricsConfig || {};
     this.workerConfig = workerConfig || {};
+    this.httpClientConfig = httpClientConfig || {};
     this.serverConfig = serverConfig || { start: true };
     this.Client = dependencies.Client;
     this.Worker = dependencies.Worker;

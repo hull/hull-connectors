@@ -27,6 +27,7 @@ const Client = require("hull-client");
 
 const ConnectorCache = require("./infra/cache/connector-cache");
 const MetricAgent = require("./infra/instrumentation/metric-agent");
+import type { agent } from "superagent";
 
 export type HullFramework = {|
   Client: Client,
@@ -179,6 +180,15 @@ export type HullJsonConfig = {
   type?: string | Function,
   verify?: Function
 };
+export type HullHTTPClientConfig = {
+  timeout?: number,
+  prefix?: string,
+  throttle?: false | {
+    rate?: number,
+    ratePer?: number,
+    concurrent?: number
+  }
+};
 export type HullServerConfig = {
   start?: boolean
 };
@@ -198,6 +208,7 @@ export type HullConnectorConfig = {
   serverConfig?: HullServerConfig,
   workerConfig?: HullWorkerConfig,
   metricsConfig?: HullMetricsConfig,
+  httpClientConfig?: HullHTTPClientConfig,
   logsConfig?: HullLogsConfig,
   hostSecret: string,
   port: number | string,
@@ -282,6 +293,8 @@ export type HullContext = {
   notification?: HullNotification,
   connector: HullConnector,
   authParams?: {},
+  // @TODO => refine Superagent signature
+  request: agent,
   helpers: {
     settingsUpdate: $Call<typeof settingsUpdate, HullContext>,
     incomingClaims: $Call<typeof incomingClaims, HullContext>,
