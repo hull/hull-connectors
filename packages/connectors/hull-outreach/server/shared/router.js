@@ -173,7 +173,7 @@ class HullRouter {
         jobName: "Outgoing Data",
         error: error.message
       });
-      return error;
+      throw error;
     }
   }
 
