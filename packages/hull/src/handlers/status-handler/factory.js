@@ -56,7 +56,7 @@ function statusHandlerFactory(
       credentialsFromQuery: true,
       credentialsFromNotification: false,
       respondWithError: true,
-      strict: false,
+      strict: true,
       ...options
     },
     requestName: "status",
