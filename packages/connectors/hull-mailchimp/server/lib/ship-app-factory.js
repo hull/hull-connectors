@@ -22,4 +22,4 @@ function shipAppFactory(
   };
 }
 
-export default shipAppFactory;
+module.exports = shipAppFactory;
