@@ -338,13 +338,20 @@ class TestScenarioRunner extends EventEmitter {
         const { handlerUrl, channel } = this.scenarioDefinition;
         switch (this.scenarioDefinition.handlerType) {
           case handlers.scheduleHandler:
-          case handlers.jsonHandler:
             response = await this.minihull.postConnector(
               this.connectorData,
               `http://localhost:${connectorPort}/${handlerUrl}`,
               this.scenarioDefinition.usersSegments,
               this.scenarioDefinition.accountsSegments
             );
+            break;
+          // @TODO => it seems jsonHandler should not come from Platform but instead be a regular POST call -> confirm ?
+          case handlers.jsonHandler:
+            response = await superagent.post(`http://localhost:${connectorPort}/${handlerUrl}`).query({
+              organization: this.minihull._getOrgAddr(),
+              ship: this.connectorData.id,
+              secret: this.minihull.secret
+            }).send({ });
             break;
           case handlers.incomingRequestHandler:
             response = await this.externalIncomingRequest({
