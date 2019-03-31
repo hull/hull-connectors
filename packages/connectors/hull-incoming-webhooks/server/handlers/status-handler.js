@@ -5,7 +5,7 @@ import _ from "lodash";
 
 export default async function statusCheck(
   ctx: HullContext
-): Promise<HullStatusResponse> {
+): HullStatusResponse {
   const { connector, client } = ctx;
   const messages = [];
   let status = "ok";
