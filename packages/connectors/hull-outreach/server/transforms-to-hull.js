@@ -1,6 +1,9 @@
 /* @flow */
 import type { ServiceTransforms } from "./shared/types";
 
+const { doesNotContain, isEqual } = require("./shared/conditionals");
+
+
 const {
   HullIncomingUser,
   HullIncomingAccount
@@ -81,7 +84,28 @@ const transformsToHull: ServiceTransforms =
           outputFormat: "outreach:${value}"
         },
         { mapping: "connector.private_settings.incoming_user_attributes",
+          condition: doesNotContain(["stage", "owner"], "service_field_name"),
           inputPath: "data.attributes.${service_field_name}",
+          outputPath: "attributes.${hull_field_name}",
+          outputFormat: {
+            value: "${value}",
+            operation: "set"
+          }
+        },
+        {
+          mapping: "connector.private_settings.incoming_user_attributes",
+          condition: isEqual("service_field_name", "stage"),
+          inputPath: "data.relationships.stage.id",
+          outputPath: "attributes.${hull_field_name}",
+          outputFormat: {
+            value: "${value}",
+            operation: "set"
+          }
+        },
+        {
+          mapping: "connector.private_settings.incoming_user_attributes",
+          condition: isEqual("service_field_name", "owner"),
+          inputPath: "data.relationships.owner.id",
           outputPath: "attributes.${hull_field_name}",
           outputFormat: {
             value: "${value}",
