@@ -20,7 +20,6 @@ function isNull(param: string) {
 function doesNotContain(listValues, param: string) {
   return (context) => {
     const contextVariable = _.get(context, param);
-    console.log("List [" + listValues + "] does not contain string [" + contextVariable + "]. Index = [" + listValues.indexOf(contextVariable) + "]");
     return listValues.indexOf(contextVariable) < 0;
   };
 }

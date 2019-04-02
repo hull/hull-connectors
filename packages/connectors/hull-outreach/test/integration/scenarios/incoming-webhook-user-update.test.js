@@ -46,6 +46,10 @@ test("process incoming user update webhook from outreach", () => {
                 "hull": "traits_outreach/title",
                 "service": "title"
             },
+            {
+                "hull": "traits_outreach/stage",
+                "service": "stage"
+            }
           ],
           incoming_account_attributes: [
             {
@@ -88,10 +92,10 @@ test("process incoming user update webhook from outreach", () => {
       logs: [
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
-        ["info", "incoming.user.success", {}, {"data": {"attributes": {"outreach/addressStreet": {"operation": "set", "value": "345 Tattooine Way"}, "outreach/id": {"operation": "set", "value": 3}, "outreach/personalNote1": {"operation": "set", "value": "His father is Darth Vader.  Don't bring it up..."}}, "ident": {"anonymous_id": "outreach:3"}}}]
+        ["info", "incoming.user.success", {}, {"data": {"attributes": {"outreach/stage": {"operation": "set", "value": 2}, "outreach/addressStreet": {"operation": "set", "value": "345 Tattooine Way"}, "outreach/id": {"operation": "set", "value": 3}, "outreach/personalNote1": {"operation": "set", "value": "His father is Darth Vader.  Don't bring it up..."}}, "ident": {"anonymous_id": "outreach:3"}}}]
       ],
       firehoseEvents: [
-        ["traits", {"asUser": {"anonymous_id": "outreach:3"}, "subjectType": "user"}, {"outreach/addressStreet": {"operation": "set", "value": "345 Tattooine Way"}, "outreach/id": {"operation": "set", "value": 3}, "outreach/personalNote1": {"operation": "set", "value": "His father is Darth Vader.  Don't bring it up..."}}]
+        ["traits", {"asUser": {"anonymous_id": "outreach:3"}, "subjectType": "user"}, {"outreach/stage": {"operation": "set", "value": 2}, "outreach/addressStreet": {"operation": "set", "value": "345 Tattooine Way"}, "outreach/id": {"operation": "set", "value": 3}, "outreach/personalNote1": {"operation": "set", "value": "His father is Darth Vader.  Don't bring it up..."}}]
       ],
       metrics: [
         ["increment", "connector.request", 1],
@@ -105,7 +109,7 @@ test("process incoming user update webhook from outreach", () => {
         ["GET", "/api/v1/app", {}, {}],
         ["GET", "/api/v1/users_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}],
         ["GET", "/api/v1/accounts_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}],
-        ["GET", "/api/v1/app", {}, {}], ["PUT", "/api/v1/9993743b22d60dd829001999", {}, {"private_settings": {"access_token": "1234", "account_claims": [{"hull": "domain", "service": "domain"}, {"hull": "external_id", "service": "customId"}], "incoming_account_attributes": [{"hull": "traits_outreach/custom1", "service": "custom1"}, {"hull": "traits_outreach/custom10", "service": "custom10"}, {"hull": "traits_outreach/name", "service": "name"}], "incoming_user_attributes": [{"hull": "traits_outreach/addressStreet", "service": "addressStreet"}, {"hull": "traits_outreach/personalNote1", "service": "personalNote1"}, {"hull": "traits_outreach/title", "service": "title"}], "link_users_in_hull": true, "user_claims": [{"hull": "email", "service": "emails"}, {"hull": "external_id", "service": "externalId"}], "webhook_id": 3}}]
+        ["GET", "/api/v1/app", {}, {}], ["PUT", "/api/v1/9993743b22d60dd829001999", {}, {"private_settings": {"access_token": "1234", "account_claims": [{"hull": "domain", "service": "domain"}, {"hull": "external_id", "service": "customId"}], "incoming_account_attributes": [{"hull": "traits_outreach/custom1", "service": "custom1"}, {"hull": "traits_outreach/custom10", "service": "custom10"}, {"hull": "traits_outreach/name", "service": "name"}], "incoming_user_attributes": [{"hull": "traits_outreach/addressStreet", "service": "addressStreet"}, {"hull": "traits_outreach/personalNote1", "service": "personalNote1"}, {"hull": "traits_outreach/title", "service": "title"}, {"hull": "traits_outreach/stage", "service": "stage"}], "link_users_in_hull": true, "user_claims": [{"hull": "email", "service": "emails"}, {"hull": "external_id", "service": "externalId"}], "webhook_id": 3}}]
       ]
     };
   });
