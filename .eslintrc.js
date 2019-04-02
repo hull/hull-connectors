@@ -19,6 +19,9 @@ module.exports = {
     ecmascript: 6,
     jsx: true,
     "import/extensions": [".js", ".jsx"],
+    react: {
+      version: "detect"
+    },
     flowtype: {
       onlyFilesWithFlowAnnotation: true
     }
@@ -48,7 +51,7 @@ module.exports = {
     "class-methods-use-this": [0],
     "comma-dangle": [0],
     "eqeqeq": [1],
-    "flowtype-errors/show-errors": 2,
+    // "flowtype-errors/show-errors": 2,
     // "flowtype/no-primitive-constructor-types": 2,
     // "flowtype/no-types-missing-file-annotation": 2,
     // "flowtype/require-valid-file-annotation": [1, "always"],
