@@ -1,15 +1,8 @@
 // @flow
 
-
-
-
-
-
-
-
-const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
 
+const testScenario = require("hull-connector-framework/src/test-scenario");
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
@@ -35,26 +28,33 @@ it("should send out a new hull account to hubspot", () => {
       channel: "account:update",
       externalApiMock: () => {
         const scope = nock("https://api.hubapi.com");
-        scope.get("/contacts/v2/groups?includeProperties=true")
+        scope.get("/contacts/v2/groups?includeProperties=true").reply(200, []);
+        scope
+          .get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, []);
-        scope.get("/properties/v1/companies/groups?includeProperties=true")
-          .reply(200, []);
-        scope.post("/companies/v2/domains/hull.io/companies", {
-          requestOptions: {
-            properties: ["domain", "hs_lastmodifieddate", "name"]
-          }
-        }).reply(200, {
-          results: []
-        });
-        scope.post("/companies/v2/companies/?auditId=Hull", {
-          "properties": [{
-            "name": "hull_segments",
-            "value": "testSegment"
-          }, {
-            "name": "domain",
-            "value": "hull.io"
-          }]
-        }).reply(200, require("../fixtures/post-companies"));
+        scope
+          .post("/companies/v2/domains/hull.io/companies", {
+            requestOptions: {
+              properties: ["domain", "hs_lastmodifieddate", "name"]
+            }
+          })
+          .reply(200, {
+            results: []
+          });
+        scope
+          .post("/companies/v2/companies/?auditId=Hull", {
+            properties: [
+              {
+                name: "hull_segments",
+                value: "testSegment"
+              },
+              {
+                name: "domain",
+                value: "hull.io"
+              }
+            ]
+          })
+          .reply(200, require("../fixtures/post-companies"));
         return scope;
       },
       connector,
@@ -77,29 +77,64 @@ it("should send out a new hull account to hubspot", () => {
         }
       },
       logs: [
-        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
-        ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
         [
           "debug",
           "connector.service_api.call",
           expect.whatever(),
-          expect.objectContaining({ method: "POST", status: 200, url: "/companies/v2/domains/{{domain}}/companies", vars: { domain: "hull.io" } })
+          expect.whatever()
         ],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 200, "url": "/companies/v2/companies/" })],
+        [
+          "debug",
+          "connector.service_api.call",
+          expect.whatever(),
+          expect.whatever()
+        ],
+        [
+          "debug",
+          "outgoing.job.start",
+          expect.whatever(),
+          { toInsert: 1, toSkip: 0, toUpdate: 0 }
+        ],
+        [
+          "debug",
+          "connector.service_api.call",
+          expect.whatever(),
+          expect.objectContaining({
+            method: "POST",
+            status: 200,
+            url: "/companies/v2/domains/{{domain}}/companies",
+            vars: { domain: "hull.io" }
+          })
+        ],
+        [
+          "debug",
+          "connector.service_api.call",
+          expect.whatever(),
+          expect.objectContaining({
+            method: "POST",
+            status: 200,
+            url: "/companies/v2/companies/"
+          })
+        ],
         [
           "info",
           "outgoing.account.success",
-          expect.objectContaining({ "subject_type": "account", "account_domain": domain }),
+          expect.objectContaining({
+            subject_type: "account",
+            account_domain: domain
+          }),
           {
             hubspotWriteCompany: {
-              "properties": [{
-                "name": "hull_segments",
-                "value": "testSegment"
-              }, {
-                "name": "domain",
-                "value": "hull.io"
-              }]
+              properties: [
+                {
+                  name: "hull_segments",
+                  value: "testSegment"
+                },
+                {
+                  name: "domain",
+                  value: "hull.io"
+                }
+              ]
             },
             operation: "insert"
           }
@@ -109,16 +144,16 @@ it("should send out a new hull account to hubspot", () => {
         [
           "traits",
           {
-            "asAccount": {
-              "domain": "hull.io",
+            asAccount: {
+              domain: "hull.io"
             },
-            "subjectType": "account",
+            subjectType: "account"
           },
           {
             "hubspot/id": 266234266,
-            "name": {
-              "operation": "setIfNull",
-              "value": "A company name"
+            name: {
+              operation: "setIfNull",
+              value: "A company name"
             }
           }
         ]

@@ -29,7 +29,7 @@ const accountsSegments = [
   }
 ];
 
-it("should send out a new hull account to hubspot", () => {
+it("should send out a new hull account to hubspot insert validation error", () => {
   const domain = "hull.io";
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {

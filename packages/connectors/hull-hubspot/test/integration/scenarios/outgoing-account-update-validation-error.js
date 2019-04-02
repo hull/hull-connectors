@@ -1,16 +1,11 @@
 // @flow
 import connectorConfig from "../../../server/config";
 
-
-
-
-
-
-
-
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
+process.env.CLIENT_ID = "1234";
+process.env.CLIENT_SECRET = "1234";
 
 const connector = {
   private_settings: {
@@ -25,7 +20,7 @@ const accountsSegments = [
   }
 ];
 
-it("should send out a new hull account to hubspot", () => {
+it("should send out a new hull account to hubspot update validation error", () => {
   const domain = "hull.io";
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
