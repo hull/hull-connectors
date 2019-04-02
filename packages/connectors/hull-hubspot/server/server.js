@@ -54,6 +54,7 @@ function server(app: $Application): $Application {
   );
 
   app.use("/batch", batchHandler(notificationsConfiguration));
+  app.use("/batch-accounts", batchHandler(notificationsConfiguration));
 
   app.use("/smart-notifier", notificationHandler(notificationsConfiguration));
 
