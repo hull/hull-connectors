@@ -10,6 +10,9 @@
         "relationships": {
           "stage": {
             "id": 2
+          },
+          "owner": {
+            "id": 1
           }
         }
     },
