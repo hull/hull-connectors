@@ -1,10 +1,4 @@
 // @flow
-declare function describe(name: string, callback: Function): void;
-declare function before(callback: Function): void;
-declare function beforeEach(callback: Function): void;
-declare function afterEach(callback: Function): void;
-declare function it(name: string, callback: Function): void;
-declare function test(name: string, callback: Function): void;
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const _ = require("lodash");

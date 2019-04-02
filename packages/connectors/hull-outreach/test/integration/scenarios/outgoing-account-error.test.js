@@ -4,12 +4,12 @@ const _ = require("lodash");
 process.env.CLIENT_ID = "clientId";
 process.env.CLIENT_SECRET = "clientSecret";
 
-declare function describe(name: string, callback: Function): void;
-declare function before(callback: Function): void;
-declare function beforeEach(callback: Function): void;
-declare function afterEach(callback: Function): void;
-declare function it(name: string, callback: Function): void;
-declare function test(name: string, callback: Function): void;
+
+
+
+
+
+
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";

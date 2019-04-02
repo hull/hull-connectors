@@ -6,10 +6,10 @@ declare var describe;
 declare var beforeEach;
 declare var afterEach;
 declare var test;
-declare function describe(name: string, callback: Function): void;
-declare function before(callback: Function): void;
-declare function beforeEach(callback: Function): void;
-declare function it(name: string, callback: Function): void;
+
+
+
+
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
