@@ -4,7 +4,7 @@
   "version": "0.0.13-monorepo",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {
-    "test": "yarn test:lint && yarn test:flow && yarn test:unit && yarn test:integration",
+    "test": "yarn test:unit && yarn test:integration",
     "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit",
     "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
   },
