@@ -4,7 +4,9 @@
   "description": "Synchronize Data with Browser",
   "main": "index.js",
   "homepage": "https://github.com/hull/hull-connectors",
-  "scripts": {},
+  "scripts": {
+    "test": "exit 0; echo 'No Tests here' Sad Panda"
+  },
   "dependencies": {
     "bluebird": "^3.5.3",
     "builder": "^3.2.3",

@@ -7,7 +7,6 @@ import ReactDOM from "react-dom";
 import queryParams from "./app/utils";
 import Engine from "./app/engine";
 import App from "./app/main";
-
 import "./style/index.scss";
 
 ready(() => {
