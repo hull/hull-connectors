@@ -15,7 +15,10 @@
       "title": "Installation",
       "url": "/admin.html",
       "size": "small",
-      "editable": false
+      "editable": false,
+      "handler": {
+        "callback": "adminHandler"
+      }
     }
   ],
   "settings": [
@@ -90,7 +93,21 @@
   "ui": false,
   "subscriptions": [
     {
-      "url": "/smart-notifier"
+      "url": "/smart-notifier",
+      "handlers": {
+        "ship:update": {
+          "handler": "connectorUpdate"
+        },
+        "users_segment:update": {
+          "handler": "connectorUpdate"
+        },
+        "user_update:update": {
+          "handler": "userUpdate",
+          "options": {
+            "groupTraits": true
+          }
+        }
+      }
     }
   ]
 }

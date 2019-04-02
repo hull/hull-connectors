@@ -7,7 +7,7 @@ const errorMiddleware = require("./error-middleware");
 
 /**
  * [notificationHandlerFactory description]
- * @param  {HullNotificationHandlerConfiguration} configuration: HullNotificationHandlerConfiguration [description]
+ * @param  {HullBatchHandlersConfiguration} configuration: HullBatchHandlersConfiguration [description]
  * @return {[type]}                [description]
  * @example
  * app.use("/batch", notificationHandler({
@@ -26,7 +26,7 @@ function batchExtractHandlerFactory(
     requestName: "batch",
     handlerName: "batch",
     handler: processingMiddleware(configuration),
-    errorHandler: errorMiddleware,
+    errorHandler: errorMiddleware
   });
 }
 

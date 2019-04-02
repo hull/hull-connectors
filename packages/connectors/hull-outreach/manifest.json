@@ -250,24 +250,112 @@
       "url": "/auth",
       "size": "small",
       "editable": false,
-      "setup": true
+      "setup": true,
+      "handler": "authHandler"
     },
     {
       "title": "Actions",
       "url": "/admin",
       "size": "small",
-      "editable": false
+      "editable": false,
+      "method": "get",
+      "handler": "adminHandler"
     }
   ],
   "admin": "/admin",
   "ui": false,
-  "schedules": [{
+  "statuses": [
+    {
       "url": "/status",
       "type": "interval",
-      "value": "5"
-  }],
+      "value": "5",
+      "handler": "status"
+    }
+  ],
+  "incoming": [
+    {
+      "url": "/webhooks",
+      "handler": "webhooks",
+      "options": {
+        "credentialsFromQuery": true,
+        "bodyParser": "json"
+      }
+    }
+  ],
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ]
+    },
+    {
+      "url": "/batch-accounts",
+      "channels": [
+        {
+          "channel": "account:update",
+          "handler": "accountUpdate"
+        }
+      ]
+    }
+  ],
+  "json": [
+    {
+      "url": "/fetch",
+      "handler": "fetchAll",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/accountFetchAll",
+      "handler": "accountFetchAll",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/prospectFetchAll",
+      "handler": "prospectFetchAll",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fields-outreach-prospect-out",
+      "handler": "fieldsOutreachProspectOutbound",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fields-outreach-prospect-in",
+      "handler": "fieldsOutreachProspectInbound"
+    },
+    {
+      "url": "/fields-outreach-account-in",
+      "handler": "fieldsOutreachAccountInbound"
+    },
+    {
+      "url": "/fields-outreach-account-out",
+      "handler": "fieldsOutreachAccountOutbound"
+    }
+  ],
   "subscriptions": [{
     "url": "/smart-notifier",
+    "channels": [
+      {
+        "channel": "user:update",
+        "handler": "userUpdate"
+      },
+      {
+        "channel": "account:update",
+        "handler": "accountUpdate"
+      }
+    ],
     "conditions": {
       "channels": {
         "only": [

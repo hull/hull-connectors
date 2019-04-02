@@ -29,11 +29,36 @@
   ],
   "resources": [],
   "subscriptions" : [],
+  "json": [
+    {
+      "url": "/recent",
+      "handler": "getRecent"
+    },
+    {
+      "url": "/conf",
+      "handler": "confHandler"
+    },
+    {
+      "url": "/preview",
+      "handler": "previewHandler"
+    }
+  ],
+  "incoming": [
+    {
+      "url": "/webhooks/:connectorId/:token",
+      "handler": "incomingHandler"
+    },
+    {
+      "url": "/webhooks/:connectorId",
+      "handler": "incomingHandler"
+    }
+  ],
   "schedules": [
     {
       "url": "/status",
       "type": "cron",
-      "value": "*/30 * * * *"
+      "value": "*/30 * * * *",
+      "handler": "statusHandler"
     }
   ]
 }

@@ -25,158 +25,42 @@ import status from "../actions/status";
 // authHandler &&
 //   routers.push();
 
-const handlers = ({ clientID, clientSecret}: {
+const handlers = ({
+  clientID,
+  clientSecret
+}: {
   clientID: string,
   clientSecret: string
-}) => (connector: Connector):HullHandlersConfiguration => {
-
+}) => (connector: Connector): HullHandlersConfiguration => {
   const hullRouter: HullRouter = new HullRouter({
-    clientID, clientSecret
+    clientID,
+    clientSecret
   });
   const userUpdate = user_update(hullRouter);
   const accountUpdate = account_update(hullRouter);
   const authHandler = hullRouter.createAuthHandler();
 
   /**
-  * We should think more about how the rules get hooked into routes
-  * would be cool if this could happen automatically depending on the endpoints you've implemented
-  * it's an abstraction for automically routing messages depending on what they "mean"
-  */
-  const notifications = [
-    {
-      url: "/smart-notifier",
-      handlers: {
-        "user:update": {
-          callback: userUpdate
-        },
-        "account:update": {
-          callback: accountUpdate
-        }
-      }
-    }
-  ];
-  const schedules = [
-    {
-      url: "/status",
-      handler: {
-        callback: status(hullRouter),
-        options: {}
-      }
-    }
-  ];
-  const batchHandlers = {
-    "user:update": {
-      callback: userUpdate
-    },
-    "account:update": {
-      callback: accountUpdate
-    }
-  };
-  const batches = [
-    {
-      url: "/batch",
-      handlers: batchHandlers
-    },
-    {
-      url: "/batch-accounts",
-      handlers: batchHandlers
-    }
-  ];
-  const json = [
-    {
-      url: "/fetch",
-      handler: {
-        callback: fetchAll(hullRouter),
-        options: {
-          fireAndForget: true
-        }
-      }
-    },
-    {
-      url: "/accountFetchAll",
-      handler: {
-        callback: accountFetchAll(hullRouter),
-        options: {
-          fireAndForget: true
-        }
-      }
-    },
-    {
-      url: "/prospectFetchAll",
-      handler: {
-        callback: prospectFetchAll(hullRouter),
-        options: {
-          fireAndForget: true
-        }
-      }
-    },
-    {
-      url: "/fields-outreach-prospect-out",
-      handler: {
-        callback: fieldsOutreachProspectOutbound,
-        options: {
-          fireAndForget: true
-        }
-      }
-    },
-    {
-      url: "/fields-outreach-prospect-in",
-      handler: {
-        callback: fieldsOutreachProspectInbound
-      }
-    },
-    {
-      url: "/fields-outreach-account-in",
-      handler: {
-        callback: fieldsOutreachAccountInbound
-      }
-    },
-    {
-      url: "/fields-outreach-account-out",
-      handler: {
-        callback: fieldsOutreachAccountOutbound
-      }
-    }
-  ];
-  const incoming = [
-    {
-      url: "/webhooks",
-      handler: {
-        callback: webhooks(hullRouter),
-        options: {
-          credentialsFromQuery: true,
-          bodyParser: "json"
-        }
-      }
-    }
-  ];
-  const html = [
-    {
-      url: "/admin",
-      method: "get",
-      handler: {
-        callback: adminHandler
-      }
-    }
-  ];
-  const routers = authHandler
-  ? [
-    {
-      url: "/auth",
-      handler: authHandler
-    }
-  ]
-  : [];
+   * We should think more about how the rules get hooked into routes
+   * would be cool if this could happen automatically depending on the endpoints you've implemented
+   * it's an abstraction for automically routing messages depending on what they "mean"
+   */
   return {
-    incoming,
-    schedules,
-    notifications,
-    batches,
-    json,
-    html,
-    routers
+    incoming: { webhooks: webhooks(hullRouter) },
+    tabs: { adminHandler, authHandler },
+    statuses: { status: status(hullRouter) },
+    subscriptions: { userUpdate, accountUpdate },
+    batches: { userUpdate, accountUpdate },
+    json: {
+      fetchAll: fetchAll(hullRouter),
+      accountFetchAll: accountFetchAll(hullRouter),
+      prospectFetchAll: prospectFetchAll(hullRouter),
+      fieldsOutreachProspectOutbound,
+      fieldsOutreachProspectInbound,
+      fieldsOutreachAccountInbound,
+      fieldsOutreachAccountOutbound
+    }
   };
-}
-
+};
 
 export default handlers;

@@ -32,60 +32,23 @@ const handlers = ({ redisUri }: { redisUri: string }) => (
     store,
     sendPayload
   });
-  const userUpdate = userUpdateFactory({ sendPayload, store });
   const connectorUpdate = connectorUpdateFactory({ store, onConnection, io });
+  const userUpdate = userUpdateFactory({ connectorUpdate, sendPayload, store });
 
   return {
-    statuses: [
-      {
-        url: "/status",
-        handler: {
-          callback: statusHandlerFactory({ store })
-        }
-      }
-    ],
-    html: [
-      {
-        url: "/admin.html",
-        handler: {
-          callback: adminHandler
-        }
-      }
-    ],
-    notifications: [
-      {
-        url: "/smart-notifier",
-        handlers: {
-          "ship:update": {
-            callback: connectorUpdate,
-            options: {}
-          },
-          "users_segment:update": {
-            callback: connectorUpdate,
-            options: {}
-          },
-          "user:update": {
-            options: {
-              hostSecret,
-              groupTraits: true
-            },
-            callback: async (ctx, messages) => {
-              connectorUpdate(ctx);
-              messages.map(message => userUpdate(ctx, message));
-              // Get 100 users every 100ms at most.
-              return {
-                flow_control: {
-                  type: "next",
-                  in_time: 1,
-                  size: 100,
-                  in: 100
-                }
-              };
-            }
-          }
-        }
-      }
-    ]
+    statuses: {
+      statusHandler: statusHandlerFactory({ store })
+    },
+    tabs: {
+      adminHandler
+    },
+    subscriptions: {
+      connectorUpdate,
+    },
+    notifications: {
+      connectorUpdate,
+      userUpdate
+    }
   };
 };
 

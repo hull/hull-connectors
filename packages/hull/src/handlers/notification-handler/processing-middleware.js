@@ -1,4 +1,5 @@
 // @flow
+import _ from "lodash";
 import type { NextFunction } from "express";
 import type {
   HullRequest,
@@ -31,33 +32,36 @@ function notificationHandlerProcessingMiddlewareFactory(
       channel,
       messages: Array.isArray(messages) && messages.length
     });
-    const handler = configuration[channel];
-    if (handler === undefined) {
-      debug("channel unsupported", channel);
-      return next(new Error("Channel unsupported"));
-    }
-    const { callback } = handler;
 
-    if (channel === "user:update") {
-      // $FlowFixMe
-      messages = messages.map(trimTraitsPrefixFromUserMessage);
+    const handlers = _.filter(configuration, { channel });
+    if (!handlers.length) {
+      return next(new Error(`Missing handler for this channel: ${channel}`));
     }
-
-    const defaultSuccessFlowControl = notificationDefaultFlowControl(
-      req.hull,
-      channel,
-      "success"
-    );
-    // req.hull.notificationResponse = notificationResponse
     try {
-      // $FlowFixMe
-      const nResponse: HullNotificationResponse = await callback(
-        req.hull,
-        // $FlowFixMe
-        messages
+      return await Promise.all(
+        handlers.map(async ({ callback }) => {
+          if (channel === "user:update") {
+            // $FlowFixMe
+            messages = messages.map(trimTraitsPrefixFromUserMessage);
+          }
+
+          const defaultSuccessFlowControl = notificationDefaultFlowControl(
+            req.hull,
+            channel,
+            "success"
+          );
+          // req.hull.notificationResponse = notificationResponse
+
+          // $FlowFixMe
+          const nResponse: HullNotificationResponse = await callback(
+            req.hull,
+            // $FlowFixMe
+            messages
+          );
+          const { flow_control = defaultSuccessFlowControl } = nResponse || {};
+          return res.status(200).json({ flow_control });
+        })
       );
-      const { flow_control = defaultSuccessFlowControl } = nResponse || {};
-      return res.status(200).json({ flow_control });
     } catch (err) {
       return next(err);
     }

@@ -254,40 +254,127 @@
   "deployment_settings": [],
   "resources": [],
   "readme": "readme.md",
-  "tabs": [
-    {
-      "title": "Credentials & Actions",
-      "url": "/auth/",
-      "size": "small",
-      "editable": false
-    }
-  ],
   "ui": false,
   "subscriptions": [
     {
-      "url": "/smart-notifier"
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "user_update"
+        },
+        {
+          "channel": "account:update",
+          "handler": "account_update"
+        },
+        {
+          "channel": "ship:update",
+          "handler": "ship_update"
+        },
+        {
+          "channel": "users_segment:update",
+          "handler": "users_segment_update"
+        },
+        {
+          "channel": "accounts_segment:update",
+          "handler": "accounts_segment_update"
+        }
+      ]
+    }
+  ],
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "user_update"
+        },
+        {
+          "channel": "account:update",
+          "handler": "account_update"
+        }
+      ]
+    }
+  ],
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "30",
+      "method": "all",
+      "handler": "statusCheck"
     }
   ],
   "schedules": [
     {
       "url": "/fetch-recent-contacts",
       "type": "interval",
-      "value": "5"
+      "value": "5",
+      "handler": "fetch",
+      "options": {
+        "fireAndForget": true
+      }
     },
     {
       "url": "/fetch-recent-companies",
       "type": "interval",
-      "value": "5"
+      "value": "5",
+      "handler": "fetchRecentCompanies",
+      "options": {
+        "fireAndForget": true
+      }
     },
     {
       "url": "/monitor/checkToken",
       "type": "interval",
-      "value": "5"
+      "value": "5",
+      "handler": "checkToken",
+      "options": {
+        "fireAndForget": true
+      }
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Credentials & Actions",
+      "url": "/auth/",
+      "size": "small",
+      "editable": false,
+      "handler":"auth"
+    }
+  ],
+  "json": [
+    {
+      "url": "/fetch-all",
+      "handler":"fetchAll"
     },
     {
-      "url": "/status",
-      "type": "interval",
-      "value": "30"
+      "url": "/fetch-all-contacts",
+      "handler":"fetchAll"
+    },
+    {
+      "url": "/fetch-all-companies",
+      "handler":"fetchAllCompanies"
+    },
+    {
+      "url": "/schema/contact_properties",
+      "handler":"getContactProperties",
+      "options": { "respondWithError": true }
+    },
+    {
+      "url": "/schema/incoming_user_claims",
+      "handler":"getIncomingUserClaims",
+      "options": { "respondWithError": false }
+    },
+    {
+      "url": "/schema/incoming_account_claims",
+      "handler":"getIncomingAccountClaims",
+      "options": { "respondWithError": false }
+    },
+    {
+      "url": "/schema/company_properties",
+      "handler":"getCompanyProperties"
     }
   ]
 }

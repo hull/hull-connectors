@@ -87,20 +87,45 @@
       "title": "Setup",
       "url": "admin.html",
       "size": "small",
-      "editable": false
+      "editable": false,
+      "handler": "adminHandler"
     }
   ],
   "ui": false,
   "subscriptions": [
     {
-      "url": "/smart-notifier"
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "updateUser"
+        }
+      ]
     }
   ],
-  "schedules" : [
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "updateUser"
+        }
+      ]
+    }
+  ],
+  "json": [
+    {
+      "url": "/webhook",
+      "handler": "webhookHandler"
+    }
+  ],
+  "statuses": [
     {
       "url": "/status",
       "type": "cron",
-      "value": "*/30 * * * *"
+      "value": "*/30 * * * *",
+      "handler": "statusCheck"
     }
   ]
 }

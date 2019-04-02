@@ -15,7 +15,7 @@ const {
 } = require("./settings-fields");
 const adminHandler = require("./admin-handler");
 
-export default {
+module.exports = {
   fieldsOutreachProspectInbound,
   fieldsOutreachProspectOutbound,
   fieldsOutreachAccountOutbound,

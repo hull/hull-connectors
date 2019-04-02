@@ -8,52 +8,12 @@ import { webhookHandler, statusCheck } from "../actions";
 const handlers = ({  }: {  }) => (
   connector: Connector
 ): HullHandlersConfiguration => {
-  const { hostSecret } = connector.connectorConfig;
   return {
-    statuses: [
-      {
-        url: "/status",
-        handler: {
-          callback: statusCheck
-        }
-      }
-    ],
-    incoming: [
-      {
-        url: "/webhook",
-        handler: {
-          callback: webhookHandler
-        }
-      }
-    ],
-    html: [
-      {
-        url: "/admin.html",
-        handler: {
-          callback: adminHandler
-        }
-      }
-    ],
-    batches: [
-      {
-        url: "/batch",
-        handlers: {
-          "user:update": {
-            callback: updateUser
-          }
-        }
-      }
-    ],
-    notifications: [
-      {
-        url: "/smart-notifier",
-        handlers: {
-          "user:update": {
-            callback: updateUser
-          }
-        }
-      }
-    ]
+    statuses: { statusCheck },
+    incoming: { webhookHandler },
+    tabs: { adminHandler },
+    batches: { updateUser },
+    subscriptions: { updateUser }
   };
 };
 

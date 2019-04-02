@@ -1,6 +1,10 @@
 // @flow
 import type { NextFunction } from "express";
-import type { HullRequest, HullResponse, HullBatchHandlersConfiguration } from "../../types";
+import type {
+  HullRequest,
+  HullResponse,
+  HullBatchHandlersConfiguration
+} from "../../types";
 
 const _ = require("lodash");
 const debug = require("debug")("hull-connector:batch-handler");
@@ -11,9 +15,9 @@ const {
 } = require("../../utils");
 
 function batchExtractProcessingMiddlewareFactory(
-  batchHandlersConfiguration: HullBatchHandlersConfiguration
+  configuration: HullBatchHandlersConfiguration
 ) {
-  return function batchExtractProcessingMiddleware(
+  return async function batchExtractProcessingMiddleware(
     req: HullRequest,
     res: HullResponse,
     next: NextFunction
@@ -28,63 +32,69 @@ function batchExtractProcessingMiddlewareFactory(
     }
 
     const { body = {} } = req;
-    const { url, format, object_type } = body;
-    const entityType = object_type === "account_report" ? "account" : "user";
+    const { url, format, object_type = "user" } = body;
+    const entityType = object_type.replace("_report", "");
     const channel = `${entityType}:update`;
-    if (batchHandlersConfiguration[channel] === undefined) {
+    const handlers = _.filter(configuration, { channel });
+    if (!handlers.length) {
       return next(new Error(`Missing handler for this channel: ${channel}`));
     }
-    const { callback, options = {} } = batchHandlersConfiguration[channel];
-
-    debug("channel", channel);
-    debug("entityType", entityType);
-    debug("handlerCallback", typeof callback);
-    if (!url || !format) {
-      return next(
-        new Error(
-          "Missing any of required payload parameters: `url`, `format`."
-        )
-      );
-    }
-    req.hull.isBatch = true;
-    return extractStream({
-      body,
-      batchSize: options.maxSize || 100,
-      onResponse: () => res.end("ok"),
-      onError: err => {
-        client.logger.error("connector.batch.error", err.stack);
-        res.sendStatus(400);
-      },
-      callback: entities => {
-        const segmentId = (req.query && req.query.segment_id) || null;
-
-        const segmentsList = req.hull[`${entityType}sSegments`].map(s =>
-          _.pick(s, ["id", "name", "type", "created_at", "updated_at"])
-        );
-        const entitySegmentsKey =
-          entityType === "user" ? "segments" : "account_segments";
-        const messages = entities.map(entity => {
-          const segmentIds = _.compact(
-            _.uniq(_.concat(entity.segment_ids || [], [segmentId]))
-          );
-          let message = {
-            [entityType]: _.omit(entity, "segment_ids"),
-            [entitySegmentsKey]: _.compact(
-              segmentIds.map(id => _.find(segmentsList, { id }))
+    try {
+      await handlers.map(({ callback, options = {} }) => {
+        debug("channel", channel);
+        debug("entityType", entityType);
+        debug("handlerCallback", typeof callback);
+        if (!url || !format) {
+          return next(
+            new Error(
+              "Missing any of required payload parameters: `url`, `format`."
             )
-          };
-          if (entityType === "user") {
-            message.user = _.omit(entity, "account");
-            message.account = entity.account || {};
+          );
+        }
+        req.hull.isBatch = true;
+        return extractStream({
+          body,
+          batchSize: options.maxSize || 100,
+          onResponse: () => res.end("ok"),
+          onError: err => {
+            client.logger.error("connector.batch.error", err.stack);
+            res.sendStatus(400);
+          },
+          callback: entities => {
+            const segmentId = (req.query && req.query.segment_id) || null;
+
+            const segmentsList = req.hull[`${entityType}sSegments`].map(s =>
+              _.pick(s, ["id", "name", "type", "created_at", "updated_at"])
+            );
+            const entitySegmentsKey =
+              entityType === "user" ? "segments" : "account_segments";
+            const messages = entities.map(entity => {
+              const segmentIds = _.compact(
+                _.uniq(_.concat(entity.segment_ids || [], [segmentId]))
+              );
+              let message = {
+                [entityType]: _.omit(entity, "segment_ids"),
+                [entitySegmentsKey]: _.compact(
+                  segmentIds.map(id => _.find(segmentsList, { id }))
+                )
+              };
+              if (entityType === "user") {
+                message.user = _.omit(entity, "account");
+                message.account = entity.account || {};
+                // $FlowFixMe
+                message = trimTraitsPrefixFromUserMessage(message);
+              }
+              return message;
+            });
             // $FlowFixMe
-            message = trimTraitsPrefixFromUserMessage(message);
+            return callback(req.hull, messages);
           }
-          return message;
         });
-        // $FlowFixMe
-        return callback(req.hull, messages);
-      }
-    }).catch(error => next(error));
+      });
+    } catch (err) {
+      debug("Error in Batch Handler", err)
+      return next(err);
+    }
   };
 }
 

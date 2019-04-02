@@ -54,13 +54,54 @@
   "resources": [],
   "readme": "readme.md",
   "ui": false,
-  "schedules": [{
+  "json": [
+    {
+      "url": "/fetch-all-responses",
+      "handler":"fetchAllResponses"
+    },
+    {
+      "url": "/schema/forms",
+      "handler":"getForms"
+    },
+    {
+      "url": "/schema/fields/email",
+      "handler":"getEmailQuestions"
+    },
+    {
+      "url": "/schema/fields",
+      "handler":"getQuestions"
+    },
+    {
+      "url": "/fetch-recent-responses",
+      "handler": "fetchRecentResponses",
+      "options": {
+        "fireAndForget": true
+      }
+    }
+  ],
+  "tabs": [
+    {
+      "url": "/admin",
+      "handler": "admin"
+    }
+  ],
+  "schedules": [
+    {
       "url": "/fetch-recent-responses",
       "type": "interval",
-      "value": "5"
-  }, {
+      "value": "5",
+      "handler": "fetchRecentResponses",
+      "options": {
+        "fireAndForget": true
+      }
+    }, {
       "url": "/refresh-access-token",
       "type": "interval",
-      "value": "180"
-  }]
+      "value": "180",
+      "handler": "refreshAccessToken",
+      "options": {
+        "fireAndForget": true
+      }
+    }
+  ]
 }

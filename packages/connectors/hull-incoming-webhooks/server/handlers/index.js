@@ -20,53 +20,15 @@ const html = [
 const handler = ({ EntryModel }: { EntryModel: any }) => (
   _connector: Connector
 ): HullHandlersConfiguration => {
-  // const { connectorConfig } = connector;
-  // const { hostSecret } = connectorConfig;
-  const callback = incomingHandler(EntryModel);
   return {
     html,
-    statuses: [
-      {
-        url: "/status",
-        handler: {
-          callback: statusHandler
-        }
-      }
-    ],
-    json: [
-      {
-        url: "/recent",
-        handler: {
-          callback: getRecent(EntryModel)
-        }
-      },
-      {
-        url: "/conf",
-        handler: {
-          callback: confHandler
-        }
-      },
-      {
-        url: "/compute",
-        handler: {
-          callback: previewHandler
-        }
-      }
-    ],
-    incoming: [
-      {
-        url: "/webhooks/:connectorId/:token",
-        handler: {
-          callback
-        }
-      },
-      {
-        url: "/webhooks/:connectorId",
-        handler: {
-          callback
-        }
-      }
-    ]
+    statuses: { statusHandler },
+    incoming: { incomingHandler: incomingHandler(EntryModel) },
+    json: {
+      getRecent: getRecent(EntryModel),
+      confHandler,
+      previewHandler
+    },
   };
 };
 

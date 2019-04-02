@@ -13,15 +13,6 @@
   "source": "mailchimp",
   "logo": "logo.png",
   "picture": "picture.png",
-  "tabs": [
-    {
-      "title": "Credentials & Actions",
-      "url": "/auth/",
-      "size": "small",
-      "setup": true,
-      "editable": false
-    }
-  ],
   "private_settings":[
     {
       "name": "configuration_title",
@@ -139,18 +130,92 @@
   "ui": false,
   "subscriptions": [
     {
-      "url": "/smart-notifier"
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "user_update"
+        },
+        {
+          "channel": "ship:update",
+          "handler": "ship_update"
+        },
+        {
+          "channel": "users_segment:update",
+          "handler": "users_segment_update"
+        },
+        {
+          "channel": "users_segment:delete",
+          "handler": "users_segment_delete"
+        }
+      ]
+    }
+  ],
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "user_update",
+          "options": {
+            "maxSize": 500
+          }
+        }
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Credentials & Actions",
+      "url": "/auth/",
+      "size": "small",
+      "setup": true,
+      "editable": false,
+      "handler": "auth"
+    }
+  ],
+  "incoming": [
+    {
+      "url": "/mailchimp",
+      "handler": "webhook",
+      "options": {
+        "bodyParser": "urlencoded",
+        "credentialsFromQuery": true
+      }
+    }
+  ],
+  "json": [
+    {
+      "url": "/sync",
+      "handler": "sync"
+    },
+    {
+      "url": "/sync-in",
+      "handler": "syncIn"
+    },
+    {
+      "url": "/sync-out",
+      "handler": "syncOut"
+    },
+    {
+      "url": "/schema/user_fields",
+      "handler": "schemaUserFields"
     }
   ],
   "schedules": [
     {
       "url": "/track",
       "type": "cron",
+      "handler": "track",
       "value": "7 */6 * * *"
-    },
+    }
+  ],
+  "statuses": [
     {
       "url": "/status",
       "type": "cron",
+      "handler": "status",
       "value": "*/30 * * * *"
     }
   ]

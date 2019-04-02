@@ -15,7 +15,7 @@ import type {
   HullAttributeValue
 } from "hull-client";
 
-import type { Connector as ConnectorEngine } from "./index";
+import type { agent } from "superagent";
 import type Cache from "./infra/cache/cache-agent";
 import type Queue from "./infra/queue/queue-agent";
 import type Worker from "./connector/worker";
@@ -27,12 +27,7 @@ const Client = require("hull-client");
 
 const ConnectorCache = require("./infra/cache/connector-cache");
 const MetricAgent = require("./infra/instrumentation/metric-agent");
-import type { agent } from "superagent";
 
-export type HullFramework = {|
-  Client: Client,
-  Connector: Class<ConnectorEngine>
-|};
 export type HullCache = Cache;
 export type HullQueue = Queue;
 export type HullWorker = Worker;
@@ -44,47 +39,6 @@ export type HullClient = Client;
 // You need to use {...$Exact<Type>} if you want to avoid
 // making every field in Type optional
 
-// ====================================
-// Manifest Data types
-// ====================================
-export type HullConnectorSettings = {
-  [HullConnectorSettingName: string]: any
-};
-
-type HullManifestSetting = {
-  [string]: any
-};
-
-type HullNotificationHandlerChannel = {
-  callback: string,
-  options: HullNotificationHandlerOptions
-};
-
-// A Manifest Notification block. Defines a route for Hull to send Notifications to.
-type HullManifestNotification = {
-  url: string,
-  channels: {
-    [channelName: string]: HullNotificationHandlerChannel
-  }
-};
-
-// A Manifest Batch block. Defines a route for Hull to send Notifications to.
-type HullManifestBatch = {
-  url: string,
-  channels: {
-    [channelName: string]: HullNotificationHandlerChannel
-  }
-};
-
-// A Manifest Schedule block. Defines a schedule for Hull to ping the connector
-type HullManifestSchedule = {
-  url: string,
-  handler: string,
-  interval: string,
-  options?: HullSchedulerHandlerOptions
-};
-
-// A Manifest Endpoint block. Defines a publicly-available route for the Connector to receive Service data
 type HTTPMethod =
   | "all"
   | "delete"
@@ -99,7 +53,104 @@ type HTTPMethod =
   | "POST"
   | "PUT";
 
-type HullManifestEndpoint = {
+// ====================================
+// Manifest Data types
+// ====================================
+export type HullConnectorSettings = {
+  [HullConnectorSettingName: string]: any
+};
+
+// ====================================
+//   Notification+Batch Handler Configuration
+// ====================================
+export type HandlerCacheOptions = {
+  key?: string,
+  options?: Object
+};
+export type HullNotificationHandlerOptions = {
+  disableErrorHandling?: boolean,
+  maxTime?: number,
+  maxSize?: number
+};
+export type HullBatchHandlerOptions = {
+  maxSize?: number
+};
+export type HullIncomingHandlerOptions = {
+  // fetchShip?: boolean,
+  // cacheShip?: boolean,
+  cache?: HandlerCacheOptions,
+  respondWithError?: boolean,
+  disableErrorHandling?: boolean,
+  fireAndForget?: boolean,
+  credentialsFromQuery?: boolean,
+  credentialsFromNotification?: boolean,
+  strict?: boolean,
+  format?: "json" | "html",
+  bodyParser?: "urlencoded" | "json"
+};
+export type HullStatusHandlerOptions = HullIncomingHandlerOptions & {};
+export type HullSchedulerHandlerOptions = HullIncomingHandlerOptions & {};
+export type HullHtmlHandlerOptions = HullIncomingHandlerOptions & {};
+export type HullJsonHandlerOptions = HullIncomingHandlerOptions & {};
+
+type HullNotificationHandlerChannel =
+  | "user:update"
+  | "user:delete"
+  | "account:update"
+  | "users_segment:update"
+  | "users_segment:delete"
+  | "accounts_segment:update"
+  | "accounts_segment:delete"
+  | "ship:update";
+type HullBatchHandlerChannel = HullNotificationHandlerChannel;
+
+// A Manifest Notification block. Defines a route for Hull to send Notifications to.
+type HullManifestNotification = {
+  url: string,
+  channels: Array<{
+    handler: "string",
+    channel: HullNotificationHandlerChannel,
+    options: HullNotificationHandlerOptions
+  }>
+};
+
+// A Manifest Batch block. Defines a route for Hull to send Notifications to.
+type HullManifestBatch = {
+  url: string,
+  channels: Array<{
+    handler: "string",
+    channel: HullBatchHandlerChannel,
+    options: HullBatchHandlerOptions
+  }>
+};
+
+// A Manifest Schedule block. Defines a schedule for Hull to ping the connector
+type HullManifestSchedule = {
+  url: string,
+  handler: string,
+  interval: string,
+  method: HTTPMethod,
+  options?: HullSchedulerHandlerOptions
+};
+// A Manifest Status block. Defines a schedule for Hull to ping the connector
+type HullManifestStatus = {
+  url: string,
+  handler: string,
+  interval: string,
+  method: HTTPMethod,
+  options?: HullStatusHandlerOptions
+};
+
+// A Manifest Endpoint block. Defines a publicly-available route for the Connector to receive Service data
+
+type HullManifestJsonConfig = {
+  url: string,
+  handler: string,
+  method: HTTPMethod,
+  options?: HullIncomingHandlerOptions
+};
+
+type HullManifestIncomingConfig = {
   url: string,
   handler: string,
   method: HTTPMethod,
@@ -107,18 +158,22 @@ type HullManifestEndpoint = {
 };
 
 // A Manifest Tab config. Defines a route to display a screen in the Dashboard
-type HullManifestTabConfig = {
+type HullManifestHtmlConfig = {
   title: string,
   url: string,
-  handler: {
-    callback: string,
-    options?: HullIncomingHandlerOptions
-  },
   size: "small" | "large",
-  editable: boolean
+  editable: boolean,
+  handler: string,
+  method: HTTPMethod,
+  options?: HullHtmlHandlerOptions
 };
 
 // Connector Manifest. Defines a Connector's exposed endpoints and features
+
+type HullManifestSetting = {
+  [string]: any
+};
+
 export type HullManifest = {
   name: string,
   description: string,
@@ -128,19 +183,24 @@ export type HullManifest = {
   picture: string,
   readme: string,
   version: string,
-  tabs: Array<HullManifestTabConfig>,
-  schedules?: Array<HullManifestSchedule>,
-  status?: Array<HullManifestSchedule>,
-  subscriptions?: Array<HullManifestNotification>,
-  batch?: Array<HullManifestBatch>,
-  endpoints?: Array<HullManifestEndpoint>,
   deployment_settings: Array<HullManifestSetting>,
   settings?: Array<HullManifestSetting>,
-  private_settings?: Array<HullManifestSetting>
+  private_settings?: Array<HullManifestSetting>,
+
+  batches?: Array<HullManifestBatch>,
+  subscriptions?: Array<HullManifestNotification>,
+
+  tabs?: Array<HullManifestHtmlConfig>,
+  html?: Array<HullManifestHtmlConfig>,
+
+  incoming?: Array<HullManifestIncomingConfig>,
+  json?: Array<HullManifestJsonConfig>,
+  statuses?: Array<HullManifestStatus>,
+  schedules?: Array<HullManifestSchedule>
 };
 
 // =====================================
-// Hull Connector Instance Object
+// Hull Connector Data Object
 // =====================================
 export type HullConnector = {
   id: string,
@@ -183,11 +243,13 @@ export type HullJsonConfig = {
 export type HullHTTPClientConfig = {
   timeout?: number,
   prefix?: string,
-  throttle?: false | {
-    rate?: number,
-    ratePer?: number,
-    concurrent?: number
-  }
+  throttle?:
+    | false
+    | {
+        rate?: number,
+        ratePer?: number,
+        concurrent?: number
+      }
 };
 export type HullServerConfig = {
   start?: boolean
@@ -202,6 +264,16 @@ export type HullMetricsConfig = {
 };
 export type HullLogsConfig = {
   logLevel?: ?string
+};
+export type HullCacheConfig = {
+  ttl?: number,
+  max?: number,
+  store?: string
+};
+export type HullClientCredentials = {
+  id: string,
+  secret: string,
+  organization: string
 };
 export type HullConnectorConfig = {
   clientConfig: HullClientConfig,
@@ -230,16 +302,6 @@ export type HullConnectorConfig = {
   manifest: HullManifest
   // $FlowFixMe
   // handlers: HullHandlers // eslint-disable-line no-use-before-define
-};
-export type HullCacheConfig = {
-  ttl?: number,
-  max?: number,
-  store?: string
-};
-export type HullClientCredentials = {
-  id: string,
-  secret: string,
-  organization: string
 };
 
 // =====================================
@@ -309,11 +371,11 @@ export type HullContext = {
 // Should disappear in the future to be replaced with a unified ctx, message signature
 declare class $HullRequest extends express$Request {
   /*
-  * Since Hull Middleware adds new parameter to the Request object from express application
-  * we are providing an extended type to allow using HullReqContext
-  * @public
-  * @memberof Types
-  */
+   * Since Hull Middleware adds new parameter to the Request object from express application
+   * we are providing an extended type to allow using HullReqContext
+   * @public
+   * @memberof Types
+   */
   hull: HullContext;
 }
 export type HullRequest = $HullRequest;
@@ -333,77 +395,6 @@ export type HullOAuthRequest = HullRequest & {
 // declare class $HullNotificationRequest extends $HullRequest
 //   mixins $NotificationBody {}
 // export type HullNotificationRequest = $HullNotificationRequest;
-
-// === External Handler request. for use in (ctx, message: HullIncomingHandlerMessage) signatures
-type HandlerMap = { [string]: any };
-export type HullIncomingHandlerMessage = {|
-  ip: string,
-  url: string,
-  method: string,
-  protocol: string,
-  hostname: string,
-  path: string,
-  params: HandlerMap,
-  query: HandlerMap,
-  headers: HandlerMap,
-  cookies: HandlerMap,
-  body?: {}
-|};
-
-// =====================================
-//   Handler Responses
-// =====================================
-
-// Should disappear in the future to be replaced with a function return instead.
-// declare class $HullResponse extends express$Response {}
-export type HullResponse = express$Response;
-
-// === Notification Handler response
-export type HullNotificationFlowControl = {
-  type: "next" | "retry",
-  size?: number,
-  in?: number,
-  in_time?: number
-};
-export type HullMessageResponse = {|
-  action: "success" | "skip" | "error",
-  type: "user" | "account" | "event",
-  message_id?: string,
-  message?: string,
-  id: ?string,
-  data: {}
-|};
-
-// @TODO: Make this strict
-export type HullNotificationResponseData = void | {
-  flow_control?: HullNotificationFlowControl,
-  responses?: Array<?HullMessageResponse>
-};
-export type HullNotificationResponse = HullNotificationResponseData | Promise<HullNotificationResponseData>;
-
-export type HullExternalResponseData = {
-  status?: number,
-  pageLocation?: string,
-  data?: any,
-  text?: string
-};
-export type HullExternalResponse =
-  | void
-  | HullExternalResponseData
-  | Promise<void | HullExternalResponseData>;
-export type HullStatusResponseData =
-  | {
-      status: "ok" | "warning" | "error",
-      messages: Array<string>
-    }
-  | {
-      status: "ok" | "warning" | "error",
-      message: string
-    };
-
-export type HullStatusResponse =
-  | HullStatusResponseData
-  | Promise<HullStatusResponseData>;
 
 // ====================================
 //   Notification DataTypes
@@ -534,6 +525,62 @@ export type HullNotification = {
   notification_id: string
 };
 
+// =====================================
+//   Handler Responses
+// =====================================
+
+// Should disappear in the future to be replaced with a function return instead.
+// declare class $HullResponse extends express$Response {}
+export type HullResponse = express$Response;
+
+// === Notification Handler response
+export type HullNotificationFlowControl = {
+  type: "next" | "retry",
+  size?: number,
+  in?: number,
+  in_time?: number
+};
+export type HullMessageResponse = {|
+  action: "success" | "skip" | "error",
+  type: "user" | "account" | "event",
+  message_id?: string,
+  message?: string,
+  id: ?string,
+  data: {}
+|};
+
+export type HullNotificationResponseData = void | {
+  flow_control?: HullNotificationFlowControl,
+  responses?: Array<?HullMessageResponse>
+};
+export type HullNotificationResponse =
+  | HullNotificationResponseData
+  | Promise<HullNotificationResponseData>;
+
+export type HullExternalResponseData = {
+  status?: number,
+  pageLocation?: string,
+  data?: any,
+  text?: string
+};
+export type HullExternalResponse =
+  | void
+  | HullExternalResponseData
+  | Promise<void | HullExternalResponseData>;
+export type HullStatusResponseData =
+  | {
+      status: "ok" | "warning" | "error",
+      messages: Array<string>
+    }
+  | {
+      status: "ok" | "warning" | "error",
+      message: string
+    };
+
+export type HullStatusResponse =
+  | HullStatusResponseData
+  | Promise<HullStatusResponseData>;
+
 // ====================================
 //   Handler functions
 // ====================================
@@ -565,7 +612,6 @@ export type HullConnectorUpdateCallback = (
   ctx: HullContext,
   messages?: HullConnectorUpdateMessage
 ) => HullNotificationResponse;
-
 export type HullNotificationHandlerCallback =
   | HullConnectorUpdateCallback
   | HullUserUpdateCallback
@@ -577,133 +623,41 @@ export type HullNotificationHandlerCallback =
   | HullSegmentDeleteCallback<HullUserSegment>
   | HullSegmentDeleteCallback<HullAccountSegment>;
 
-// ====================================
-//   Notification Handler Configuration
-// ====================================
-export type HullNotificationHandlerOptions = {
-  disableErrorHandling?: boolean,
-  maxTime?: number,
-  maxSize?: number
-};
-export type Handler<HNC, HNO> = {
-  callback: HNC,
-  options?: HNO
-};
-export type HullNotificationHandlerConfiguration = {|
-  "user:update"?: Handler<
-    HullUserUpdateCallback,
-    HullNotificationHandlerOptions
-  >,
-  "user:delete"?: Handler<
-    HullUserDeleteCallback,
-    HullNotificationHandlerOptions
-  >,
-  "account:update"?: Handler<
-    HullAccountUpdateCallback,
-    HullNotificationHandlerOptions
-  >,
-  "users_segment:update"?: Handler<
-    HullSegmentUpdateCallback<HullUserSegmentUpdateMessage>,
-    HullNotificationHandlerOptions
-  >,
-  "users_segment:delete"?: Handler<
-    HullSegmentDeleteCallback<HullUserSegmentUpdateMessage>,
-    HullNotificationHandlerOptions
-  >,
-  "accounts_segment:update"?: Handler<
-    HullSegmentUpdateCallback<HullAccountSegmentUpdateMessage>,
-    HullNotificationHandlerOptions
-  >,
-  "accounts_segment:delete"?: Handler<
-    HullSegmentDeleteCallback<HullAccountSegmentUpdateMessage>,
-    HullNotificationHandlerOptions
-  >,
-  "ship:update"?: Handler<
-    HullConnectorUpdateCallback,
-    HullNotificationHandlerOptions
-  >
-  // ,
-  // [HullChannelName: string]: Handler<
-  //   HullNotificationHandlerCallback,
-  //   HullNotificationHandlerOptions
-  // >
-|};
-
-// @TODO: evolve this introducing envelope etc.
-export type HullSendResponse = Promise<*>;
-export type HullSyncResponse = Promise<*>;
-export type HandlerCacheOptions = {
-  key?: string,
-  options?: Object
-};
-
-// ====================================
-//   Batch Handler Configuration
-// ====================================
-export type HullBatchHandlerOptions = {
-  maxSize?: number
-};
-// Same signature for now
 export type HullBatchHandlerCallback = HullNotificationHandlerCallback;
-export type HullBatchHandlersConfigurationEntry = Handler<
-  HullBatchHandlerCallback,
-  HullBatchHandlerOptions
->;
-export type HullBatchHandlersConfiguration = {
-  [HullChannelName: string]: HullBatchHandlersConfigurationEntry
-};
-
-// ====================================
-//   Status Handler Configuration
-// ====================================
-export type HullStatusHandlerOptions = HullIncomingHandlerOptions & {};
 export type HullStatusHandlerCallback = (
   ctx: HullContext
 ) => HullStatusResponse;
-export type HullStatusHandlerConfigurationEntry = Handler<
-  HullStatusHandlerCallback,
-  HullStatusHandlerOptions
->;
-export type HullStatusHandlersConfiguration = {
-  [HullChannelName: string]: HullStatusHandlerConfigurationEntry
-};
 
 // ====================================
 //   Incoming request handlers - everything that doesn't come from Kraken or Batch
 // ====================================
-export type HullIncomingHandlerOptions = {
-  // fetchShip?: boolean,
-  // cacheShip?: boolean,
-  cache?: HandlerCacheOptions,
-  respondWithError?: boolean,
-  disableErrorHandling?: boolean,
-  fireAndForget?: boolean,
-  credentialsFromQuery?: boolean,
-  credentialsFromNotification?: boolean,
-  strict?: boolean,
-  format?: "json" | "html",
-  bodyParser?: "urlencoded" | "json"
-};
+// @TODO: evolve this introducing envelope etc.
+// === External Handler request. for use in (ctx, message: HullIncomingHandlerMessage) signatures
+type HandlerMap = { [string]: any };
+export type HullIncomingHandlerMessage = {|
+  ip: string,
+  url: string,
+  method: string,
+  protocol: string,
+  hostname: string,
+  path: string,
+  params: HandlerMap,
+  query: HandlerMap,
+  headers: HandlerMap,
+  cookies: HandlerMap,
+  body?: {}
+|};
 
+export type HullSendResponse = Promise<*>;
+export type HullSyncResponse = Promise<*>;
 export type HullIncomingHandlerCallback = (
   ctx: HullContext,
   message: HullIncomingHandlerMessage,
   res: HullResponse
 ) => HullExternalResponse;
-export type HullIncomingHandlerConfigurationEntry = Handler<
-  HullIncomingHandlerCallback,
-  HullIncomingHandlerOptions
->;
-
-// ====================================
-//   Schedule Handler Configuration
-// ====================================
-export type HullSchedulerHandlerOptions = HullIncomingHandlerOptions & {};
 export type HullSchedulerHandlerCallback = HullIncomingHandlerCallback;
-export type HullSchedulerHandlerConfigurationEntry = Handler<
-  HullSchedulerHandlerCallback,
-  HullSchedulerHandlerOptions
->;
+export type HullHtmlHandlerCallback = HullIncomingHandlerCallback;
+export type HullJsonHandlerCallback = HullIncomingHandlerCallback;
 
 // ====================================
 //   Incoming Handler Configuration
@@ -723,34 +677,9 @@ export type HullSchedulerHandlerConfigurationEntry = Handler<
 //   [name: string]: HullHtmlHandlerConfigurationEntry
 // };
 
-// ====================================
-//   HTML Handler Configuration
-// ====================================
-
-export type HullHtmlHandlerOptions = HullIncomingHandlerOptions & {};
-export type HullHtmlHandlerCallback = HullIncomingHandlerCallback;
-export type HullHtmlHandlerConfigurationEntry = Handler<
-  HullHtmlHandlerCallback,
-  HullHtmlHandlerOptions
->;
-
-// ====================================
-//   JSON Handler Configuration
-// ====================================
-export type HullJsonHandlerOptions = HullIncomingHandlerOptions & {};
-export type HullJsonHandlerCallback = HullIncomingHandlerCallback;
-export type HullJsonHandlerConfigurationEntry = Handler<
-  HullJsonHandlerCallback,
-  HullJsonHandlerOptions
->;
-export type HullJsonHandlerConfiguration = {
-  [name: string]: HullJsonHandlerConfigurationEntry
-};
-
 // =====================================
 //   Middleware params types
 // =====================================
-
 export type HullBaseMiddlewareParams = {
   Client: Class<Client>,
   queue: Queue,
@@ -798,41 +727,96 @@ export type HullIncomingClaimsSetting = {
 };
 
 export type HullHandlersConfiguration = {
-  notifications?: Array<{
-    url: string,
-    handlers: HullNotificationHandlerConfiguration
-  }>,
-  batches?: Array<{
-    url: string,
-    handlers: HullBatchHandlersConfiguration
-  }>,
-  json?: Array<{
-    url: string,
-    method?: HTTPMethod,
-    handler: HullJsonHandlerConfigurationEntry
-  }>,
-  statuses?: Array<{
-    url: string,
-    method?: HTTPMethod,
-    handler: HullStatusHandlerConfigurationEntry
-  }>,
-  schedules?: Array<{
-    url: string,
-    method?: HTTPMethod,
-    handler: HullSchedulerHandlerConfigurationEntry
-  }>,
-  incoming?: Array<{
-    url: string,
-    method?: HTTPMethod,
-    handler: HullIncomingHandlerConfigurationEntry
-  }>,
-  html?: Array<{
-    url: string,
-    method?: HTTPMethod,
-    handler: HullHtmlHandlerConfigurationEntry
-  }>,
-  routers?: Array<{
-    url: string,
-    handler: express$Middleware
-  }>
+  subscriptions?: { [string]: HullNotificationHandlerCallback },
+  batches?: { [string]: HullBatchHandlerCallback },
+  tabs?: { [string]: HullHtmlHandlerCallback },
+  statuses?: { [string]: HullStatusHandlerCallback },
+  schedules?: { [string]: HullSchedulerHandlerCallback },
+  json?: { [string]: HullJsonHandlerCallback },
+  incoming?: { [string]: HullIncomingHandlerCallback }
 };
+
+/* CONFIGURATION ENTRIES - for internal use*/
+export type Handler<HNC, HNO> = {
+  callback: HNC,
+  options?: HNO
+};
+export type HullHtmlHandlerConfigurationEntry = Handler<
+  HullHtmlHandlerCallback,
+  HullHtmlHandlerOptions
+>;
+export type HullJsonHandlerConfigurationEntry = Handler<
+  HullJsonHandlerCallback,
+  HullJsonHandlerOptions
+>;
+// export type HullJsonHandlerConfiguration = {
+//   [name: string]: HullJsonHandlerConfigurationEntry
+// };
+
+export type HullSchedulerHandlerConfigurationEntry = Handler<
+  HullSchedulerHandlerCallback,
+  HullSchedulerHandlerOptions
+>;
+export type HullBatchHandlersConfigurationEntry = Handler<
+  HullBatchHandlerCallback,
+  HullBatchHandlerOptions
+>;
+export type HullIncomingHandlerConfigurationEntry = Handler<
+  HullIncomingHandlerCallback,
+  HullIncomingHandlerOptions
+>;
+export type HullStatusHandlerConfigurationEntry = Handler<
+  HullStatusHandlerCallback,
+  HullStatusHandlerOptions
+>;
+
+// export type HullNotificationHandlerConfiguration = {|
+//   "user:update"?: Handler<
+//     HullUserUpdateCallback,
+//     HullNotificationHandlerOptions
+//   >,
+//   "user:delete"?: Handler<
+//     HullUserDeleteCallback,
+//     HullNotificationHandlerOptions
+//   >,
+//   "account:update"?: Handler<
+//     HullAccountUpdateCallback,
+//     HullNotificationHandlerOptions
+//   >,
+//   "users_segment:update"?: Handler<
+//     HullSegmentUpdateCallback<HullUserSegmentUpdateMessage>,
+//     HullNotificationHandlerOptions
+//   >,
+//   "users_segment:delete"?: Handler<
+//     HullSegmentDeleteCallback<HullUserSegmentUpdateMessage>,
+//     HullNotificationHandlerOptions
+//   >,
+//   "accounts_segment:update"?: Handler<
+//     HullSegmentUpdateCallback<HullAccountSegmentUpdateMessage>,
+//     HullNotificationHandlerOptions
+//   >,
+//   "accounts_segment:delete"?: Handler<
+//     HullSegmentDeleteCallback<HullAccountSegmentUpdateMessage>,
+//     HullNotificationHandlerOptions
+//   >,
+//   "ship:update"?: Handler<
+//     HullConnectorUpdateCallback,
+//     HullNotificationHandlerOptions
+//   >
+//   // ,
+//   // [HullChannelName: string]: Handler<
+//   //   HullNotificationHandlerCallback,
+//   //   HullNotificationHandlerOptions
+//   // >
+// |};
+
+export type HullNotificationHandlerConfiguration = Array<{
+  callback: HullNotificationHandlerCallback,
+  channel: HullNotificationHandlerChannel,
+  options: HullNotificationHandlerOptions
+}>;
+export type HullBatchHandlersConfiguration = Array<{
+  callback: HullBatchHandlerCallback,
+  channel: HullBatchHandlerChannel,
+  options: HullBatchHandlerOptions
+}>;

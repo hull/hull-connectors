@@ -35,5 +35,5 @@ export default function connectorConfig(): HullConnectorConfig {
     serverConfig: {
       start: true
     }
-  }
-};
+  };
+}
