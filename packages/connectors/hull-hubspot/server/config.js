@@ -23,7 +23,7 @@ export default function connectorConfig(): HullConnectorConfig {
   } = process.env;
 
   if (!CLIENT_ID || !CLIENT_SECRET) {
-    throw new Error("some environment variables missing");
+    throw new Error("CLIENT_ID or CLIENT_SECRET variables missing");
   }
 
   const hostSecret = SECRET || "1234";
