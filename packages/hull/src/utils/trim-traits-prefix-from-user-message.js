@@ -1,13 +1,23 @@
 // @flow
-import type { HullUserUpdateMessage } from "../types";
+import type {
+  HullUser,
+  HullUserChanges,
+  HullUserUpdateMessage
+} from "../types";
 
 const _ = require("lodash");
 
 const replace = (value, key) => key.replace(/^traits_/, "");
 
-function trimTraitsPrefixFromUserMessage(
-  userMessage: HullUserUpdateMessage
-): HullUserUpdateMessage {
+function trimTraitsPrefixFromUserMessage(userMessage: {
+  user: HullUser,
+  changes?: HullUserChanges
+}):
+  | {
+      user: HullUser,
+      changes?: HullUserChanges
+    }
+  | HullUserUpdateMessage {
   const res = {
     ...userMessage
   };

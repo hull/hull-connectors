@@ -1,7 +1,7 @@
 /* @flow */
 import type { HullUserUpdateMessage, HullUserSegment, HullContext } from "hull";
 import type { IUserUpdateEnvelope } from "./types";
-import shipAppFactory from "./ship-app-factory";
+// import shipAppFactory from "./ship-app-factory";
 
 const _ = require("lodash");
 const Promise = require("bluebird");

@@ -56,7 +56,6 @@ const handler = ({
     schedules: { checkToken, fetchRecentCompanies, fetch },
     json: {
       fetchAll,
-      fetchAll,
       fetchAllCompanies,
       getContactProperties,
       getIncomingUserClaims,

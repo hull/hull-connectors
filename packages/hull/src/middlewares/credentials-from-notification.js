@@ -56,11 +56,10 @@ function credentialsFromNotificationMiddlewareFactory() {
     if (payloadError !== null) {
       return next(payloadError);
     }
-
     try {
-      (await skipSignatureValidation)
+      await (skipSignatureValidation
         ? Promise.resolve()
-        : notificationValidator.validateSignature(req);
+        : notificationValidator.validateSignature(req));
       if (body === null || typeof body !== "object") {
         throw new Error("Missing Payload Body");
       }
@@ -75,7 +74,7 @@ function credentialsFromNotificationMiddlewareFactory() {
       });
       return next();
     } catch (err) {
-      next(err);
+      return next(err);
     }
   };
 }

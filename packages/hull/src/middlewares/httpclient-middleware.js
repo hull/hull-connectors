@@ -1,10 +1,6 @@
 // @flow
 import type { NextFunction } from "express";
-import type {
-  HullBaseMiddlewareParams,
-  HullRequest,
-  HullResponse
-} from "../types";
+import type { HullRequest, HullResponse } from "../types";
 import httpClient from "../utils/httpclient";
 /**
  * This middleware is responsible for setting HullContextBase - the base part of the context.

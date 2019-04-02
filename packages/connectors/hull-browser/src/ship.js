@@ -1,4 +1,4 @@
-/* global window, analytics, location, document */
+/* global window, document */
 
 import { Promise } from "es6-promise";
 import find from "lodash/find";

@@ -45,10 +45,8 @@ function batchExtractProcessingMiddlewareFactory(
         debug("entityType", entityType);
         debug("handlerCallback", typeof callback);
         if (!url || !format) {
-          return next(
-            new Error(
-              "Missing any of required payload parameters: `url`, `format`."
-            )
+          throw new Error(
+            "Missing any of required payload parameters: `url`, `format`."
           );
         }
         req.hull.isBatch = true;
@@ -72,25 +70,29 @@ function batchExtractProcessingMiddlewareFactory(
               const segmentIds = _.compact(
                 _.uniq(_.concat(entity.segment_ids || [], [segmentId]))
               );
-              let message = {
+              if (entityType === "user") {
+                return trimTraitsPrefixFromUserMessage({
+                  [entityType]: _.omit(entity, "segment_ids"),
+                  [entitySegmentsKey]: _.compact(
+                    segmentIds.map(id => _.find(segmentsList, { id }))
+                  ),
+                  user: _.omit(entity, "account"),
+                  account: entity.account || {}
+                });
+              }
+              return {
                 [entityType]: _.omit(entity, "segment_ids"),
                 [entitySegmentsKey]: _.compact(
                   segmentIds.map(id => _.find(segmentsList, { id }))
                 )
               };
-              if (entityType === "user") {
-                message.user = _.omit(entity, "account");
-                message.account = entity.account || {};
-                // $FlowFixMe
-                message = trimTraitsPrefixFromUserMessage(message);
-              }
-              return message;
             });
             // $FlowFixMe
             return callback(req.hull, messages);
           }
         });
       });
+      return next();
     } catch (err) {
       debug("Error in Batch Handler", err);
       return next(err);

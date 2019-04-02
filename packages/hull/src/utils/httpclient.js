@@ -1,13 +1,9 @@
 // @flow
-import type { HullContext, HullHTTPClientConfig } from "hull";
+import type { HullContext } from "hull";
 import superagent from "superagent";
 import SuperagentThrottle from "superagent-throttle";
 import prefixPlugin from "superagent-prefix";
-import {
-  superagentUrlTemplatePlugin,
-  superagentInstrumentationPlugin,
-  superagentErrorPlugin
-} from ".";
+import { superagentInstrumentationPlugin, superagentErrorPlugin } from ".";
 
 const throttle_pool = {};
 
