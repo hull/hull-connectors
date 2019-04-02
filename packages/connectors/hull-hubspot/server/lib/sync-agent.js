@@ -193,113 +193,85 @@ class SyncAgent {
     return this.hubspotClient.checkToken();
   }
 
-  getContactProperties() {
-    return this.cache
-      .wrap("contact_properties", () => {
-        return this.hubspotClient.getContactPropertyGroups();
-      })
-      .then(groups => {
-        return {
-          options: groups.map(group => {
-            return {
-              label: group.displayName,
-              options: _.chain(group.properties)
-                .map(prop => {
-                  return {
-                    label: prop.label,
-                    value: prop.name
-                  };
-                })
-                .value()
-            };
-          })
-        };
-      })
-      .catch(() => {
-        return { options: [] };
-      });
-  }
-
-  getIncomingUserClaims() {
-    return this.getContactProperties().then(contactProperties => {
-      const claimsProperties = contactProperties.options.map(group => {
-        return {
-          label: group.label,
-          options: group.options.map(option => {
-            return {
-              label: option.label,
-              value: `properties.${option.value}.value`
-            };
-          })
-        };
-      });
+  async getContactProperties() {
+    try {
+      const groups = await this.cache.wrap("contact_properties", () =>
+        this.hubspotClient.getContactPropertyGroups()
+      );
       return {
-        options: [
-          {
-            label: "Identity profile Email",
-            value:
-              "$['identity-profiles'][*].identities[?(@.type === 'EMAIL')].value"
-          },
-          {
-            label: "VID",
-            value: "vid"
-          },
-          ...claimsProperties
-        ]
+        options: groups.map(group => ({
+          label: group.displayName,
+          options: _.chain(group.properties)
+            .map(({ label, name: value }) => ({ label, value }))
+            .value()
+        }))
       };
-    });
+    } catch (err) {
+      return { options: [] };
+    }
   }
 
-  getIncomingAccountClaims() {
-    return this.getCompanyProperties().then(companyProperties => {
-      const claimsProperties = companyProperties.options.map(group => {
-        return {
-          label: group.label,
-          options: group.options.map(option => {
-            return {
-              label: option.label,
-              value: `properties.${option.value}.value`
-            };
-          })
-        };
-      });
+  async getIncomingUserClaims() {
+    const contactProperties = await this.getContactProperties();
+    return {
+      options: [
+        {
+          label: "Identity profile Email",
+          value:
+            "$['identity-profiles'][*].identities[?(@.type === 'EMAIL')].value"
+        },
+        {
+          label: "VID",
+          value: "vid"
+        },
+        ...contactProperties.options.map(({ label, options }) => ({
+          label,
+          options: options.map(({ label: optionLabel, value }) => ({
+            label: optionLabel,
+            value: `properties.${value}.value`
+          }))
+        }))
+      ]
+    };
+  }
+
+  async getIncomingAccountClaims() {
+    const companyProperties = await this.getCompanyProperties();
+    return {
+      options: [
+        {
+          label: "companyId",
+          value: "companyId"
+        },
+        ...companyProperties.options.map(({ label, options }) => ({
+          label,
+          options: options.map(({ label: optionLabel, value }) => ({
+            label: optionLabel,
+            value: `properties.${value}.value`
+          }))
+        }))
+      ]
+    };
+  }
+
+  async getCompanyProperties() {
+    try {
+      const groups = await this.cache.wrap("company_properties", () =>
+        this.hubspotClient.getCompanyPropertyGroups()
+      );
       return {
-        options: [
-          {
-            label: "companyId",
-            value: "companyId"
-          },
-          ...claimsProperties
-        ]
+        options: groups.map(({ displayName, properties }) => {
+          return {
+            label: displayName,
+            options: _.chain(properties)
+              .map(({ label, value: name }) => ({ label, name }))
+              .value()
+          };
+        })
       };
-    });
-  }
-
-  getCompanyProperties() {
-    return this.cache
-      .wrap("company_properties", () => {
-        return this.hubspotClient.getCompanyPropertyGroups();
-      })
-      .then(groups => {
-        return {
-          options: groups.map(group => {
-            return {
-              label: group.displayName,
-              options: _.chain(group.properties)
-                .map(prop => {
-                  return {
-                    label: prop.label,
-                    value: prop.name
-                  };
-                })
-                .value()
-            };
-          })
-        };
-      })
-      .catch(() => {
-        return { options: [] };
-      });
+    } catch (err) {
+      return { options: [] };
+    }
   }
 
   /**
@@ -528,7 +500,8 @@ class SyncAgent {
       // first perform search for companies to be updated
       await Promise.all(
         filterResults.toInsert.map(async envelopeToInsert => {
-          const domain = envelopeToInsert.message.account.domain; // TODO
+          // @TODO domains seems to be empty in some cases - fix flow or fix code?
+          const domain = envelopeToInsert.message.account.domain;
           const results = await this.hubspotClient.postCompanyDomainSearch(
             domain
           );

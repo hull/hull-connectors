@@ -8,9 +8,9 @@ export default async (ctx: HullContext) => {
     const syncAgent = new SyncAgent(ctx);
     await syncAgent.syncConnector();
     return {
-      flow_control: { type: "next", size: 1, in: 1 }
+      flow_control: { type: "next", size: 10, in_time: 10, in: 5 }
     };
   } catch (err) {
-    return {};
+    throw err;
   }
 };

@@ -1,5 +1,5 @@
 /* @flow */
-import type { HullContext } from "hull";
+import type { HullContext, HullStatusResponse } from "hull";
 
 const _ = require("lodash");
 
@@ -36,7 +36,7 @@ function compareStatus(status1: string, status2: string) {
   return 1;
 }
 
-function statusCheckAction(ctx: HullContext) {
+async function statusCheckAction(ctx: HullContext): HullStatusResponse {
   const { connector = {}, client = {} } = ctx;
   const messages = [];
 
@@ -116,34 +116,22 @@ function statusCheckAction(ctx: HullContext) {
     );
   }
 
-  // this is sort of worse in someways, keeping this variable out here
-  // so that all the steps from the promise chain can get it
-  // but the alternative is to pass it pack in every chain of the promise...
-  // that seems more annoying and maybe more error prone
-  let statusResults;
+  await Promise.all(promises);
+  let worstStatus = "ok";
+  let messagesToSend = [];
+  _.forEach(messages, message => {
+    const statusComparison = compareStatus(worstStatus, message.status);
+    if (statusComparison === 0) {
+      messagesToSend.push(message.message);
+    } else if (statusComparison < 0) {
+      messagesToSend = [message.message];
+      worstStatus = message.status;
+    }
+  });
 
-  return Promise.all(promises)
-    .then(() => {
-      let worstStatus = "ok";
-      let messagesToSend = [];
-      _.forEach(messages, message => {
-        const statusComparison = compareStatus(worstStatus, message.status);
-        if (statusComparison === 0) {
-          messagesToSend.push(message.message);
-        } else if (statusComparison < 0) {
-          messagesToSend = [message.message];
-          worstStatus = message.status;
-        }
-      });
-
-      statusResults = { status: worstStatus, messages: messagesToSend };
-    })
-    .then(() => {
-      return client.put(`${connector.id}/status`, statusResults);
-    })
-    .then(() => {
-      return statusResults;
-    });
+  const statusResults = { status: worstStatus, messages: messagesToSend };
+  await client.put(`${connector.id}/status`, statusResults);
+  return statusResults;
 }
 
 module.exports = statusCheckAction;
