@@ -18,6 +18,15 @@ module.exports = {
   settings: {
     ecmascript: 6,
     jsx: true,
+    "import/resolver": {
+      webpack: {
+        config: {
+          resolve: {
+            extensions: [".js", ".jsx"]
+          }
+        }
+      }
+    },
     "import/extensions": [".js", ".jsx"],
     react: {
       version: "detect"
