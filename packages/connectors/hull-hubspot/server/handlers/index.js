@@ -21,16 +21,16 @@ import users_segment_update from "./users-segment-update";
 import accounts_segment_update from "./accounts-segment-update";
 
 // const schedules = [
-  // checkToken,
-  // fetchRecentCompanies,
-  // fetch
-  // {
-  //   url: "/sync",
-  //   handler: {
-  //     callback: fetch,
-  //     options: { fireAndForget: true }
-  //   }
-  // }
+// checkToken,
+// fetchRecentCompanies,
+// fetch
+// {
+//   url: "/sync",
+//   handler: {
+//     callback: fetch,
+//     options: { fireAndForget: true }
+//   }
+// }
 // ];
 const handler = ({
   clientID,
@@ -61,8 +61,8 @@ const handler = ({
       getContactProperties,
       getIncomingUserClaims,
       getIncomingAccountClaims,
-      getCompanyProperties,
-    },
+      getCompanyProperties
+    }
   };
 };
 

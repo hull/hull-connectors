@@ -26,7 +26,10 @@ export function middleware(hostSecret: string) {
     if (req.query.conf) {
       req.hull = req.hull || {};
       if (!req.hull.clientCredentials) {
-        req.hull.clientCredentials = decrypt(req.query.conf.toString(), hostSecret);
+        req.hull.clientCredentials = decrypt(
+          req.query.conf.toString(),
+          hostSecret
+        );
       }
     }
     next();

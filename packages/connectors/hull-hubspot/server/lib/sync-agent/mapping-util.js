@@ -57,21 +57,13 @@ class MappingUtil {
 
   hullAccountProperties: { [string]: HullProperty };
 
-  contactAttributesIncomingSettings: Array<
-    HubspotContactAttributesIncomingSetting
-  >;
+  contactAttributesIncomingSettings: Array<HubspotContactAttributesIncomingSetting>;
 
-  contactAttributesOutgoingSettings: Array<
-    HubspotContactAttributesOutgoingSetting
-  >;
+  contactAttributesOutgoingSettings: Array<HubspotContactAttributesOutgoingSetting>;
 
-  companyAttributesIncomingSettings: Array<
-    HubspotCompanyAttributesIncomingSetting
-  >;
+  companyAttributesIncomingSettings: Array<HubspotCompanyAttributesIncomingSetting>;
 
-  companyAttributesOutgoingSettings: Array<
-    HubspotCompanyAttributesOutgoingSetting
-  >;
+  companyAttributesOutgoingSettings: Array<HubspotCompanyAttributesOutgoingSetting>;
 
   outgoingLinking: boolean;
 

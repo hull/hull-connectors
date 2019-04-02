@@ -1,6 +1,9 @@
 // @flow
 
-import type { HullConnector, HullConnectorSettings } from "../../../hull/src/types";
+import type {
+  HullConnector,
+  HullConnectorSettings
+} from "../../../hull/src/types";
 
 /* TODO: Move this to Hull Connector framework because that's where it belongs */
 

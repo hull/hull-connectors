@@ -60,7 +60,7 @@ function clientMiddlewareFactory() {
         requestId: req.hull.requestId
       };
 
-      debug("configuration %o", mergedClientConfig, req.hull.clientCredentials );
+      debug("configuration %o", mergedClientConfig, req.hull.clientCredentials);
       req.hull.client = new HullClientClass(mergedClientConfig);
       req.hull.clientCredentialsToken = jwt.encode(
         req.hull.clientCredentials,

@@ -5,7 +5,7 @@ import type {
   HullRequest,
   HullResponse
 } from "../types";
-import httpClient from "../utils/httpclient"
+import httpClient from "../utils/httpclient";
 /**
  * This middleware is responsible for setting HullContextBase - the base part of the context.
  */

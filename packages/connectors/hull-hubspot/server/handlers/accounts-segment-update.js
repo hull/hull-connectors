@@ -1,6 +1,10 @@
 // @flow
 
-import type { HullContext, HullAccountSegmentUpdateMessage, HullNotificationResponse } from "hull";
+import type {
+  HullContext,
+  HullAccountSegmentUpdateMessage,
+  HullNotificationResponse
+} from "hull";
 import _ from "lodash";
 import SyncAgent from "../lib/sync-agent";
 

@@ -9,7 +9,7 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name: [process.env.NEW_RELIC_APP_NAME || 'hull-browser'],
+  app_name: [process.env.NEW_RELIC_APP_NAME || "hull-browser"],
   /**
    * Your New Relic license key.
    */
@@ -20,6 +20,6 @@ exports.config = {
      * issues with the agent, "info" and higher will impose the least overhead on
      * production applications.
      */
-    level: 'info',
-  },
+    level: "info"
+  }
 };

@@ -122,6 +122,6 @@ const incomingClaims = (ctx: HullContext) => (
       error: error.message
     };
   }
-}
+};
 
 module.exports = incomingClaims;

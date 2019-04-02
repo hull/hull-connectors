@@ -112,8 +112,8 @@ function fullContextFetchMiddlewareFactory({
         accountsSegments
       });
       return next();
-    } catch (error){
-      return next(error)
+    } catch (error) {
+      return next(error);
     }
   };
 }

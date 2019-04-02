@@ -1,5 +1,6 @@
-//@flow
+// @flow
 import type { HullExternalResponse, HullContext } from "hull";
+
 const SyncAgent = require("../lib/sync-agent");
 
 async function fetchAllResponses(ctx: HullContext): HullExternalResponse {

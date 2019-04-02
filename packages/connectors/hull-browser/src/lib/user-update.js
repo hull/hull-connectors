@@ -1,5 +1,5 @@
 // @flow
-/* global window */
+/* eslint-disable no-eval */
 
 import get from "lodash/get";
 import { EventEmitter2 as EventEmitter } from "eventemitter2";

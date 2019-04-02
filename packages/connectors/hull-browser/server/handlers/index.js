@@ -18,8 +18,7 @@ bluebird.promisifyAll(Redis.Multi.prototype);
 const handlers = ({ redisUri }: { redisUri: string }) => (
   connector: Connector
 ): HullHandlersConfiguration => {
-  const { server, Client, connectorConfig } = connector;
-  const { hostSecret } = connectorConfig;
+  const { server, Client } = connector;
   const redis = Redis.createClient(redisUri);
   const store = Store(redis);
   const io = SocketIO(server, {
@@ -43,7 +42,7 @@ const handlers = ({ redisUri }: { redisUri: string }) => (
       adminHandler
     },
     subscriptions: {
-      connectorUpdate,
+      connectorUpdate
     },
     notifications: {
       connectorUpdate,

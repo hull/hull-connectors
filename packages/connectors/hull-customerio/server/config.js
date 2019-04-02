@@ -5,7 +5,7 @@ import { Cache } from "hull/src/infra";
 import manifest from "../manifest.json";
 import { middleware } from "./lib/crypto";
 
-export default function connectorConfig():HullConnectorConfig {
+export default function connectorConfig(): HullConnectorConfig {
   const {
     LOG_LEVEL,
     SECRET,
@@ -20,9 +20,7 @@ export default function connectorConfig():HullConnectorConfig {
     devMode: NODE_ENV === "development",
     port: PORT || 8082,
     handlers: {},
-    middlewares: [
-      middleware(hostSecret)
-    ],
+    middlewares: [middleware(hostSecret)],
     cache: new Cache({
       store: "memory",
       ttl: 1

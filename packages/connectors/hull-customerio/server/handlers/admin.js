@@ -9,8 +9,7 @@ const admin = (ctx: HullContext): HullExternalResponse => {
     status: 200,
     pageLocation: "admin.html",
     data: { hostname, token: encrypt(clientCredentials, hostSecret) }
-  }
-}
-
+  };
+};
 
 export default admin;

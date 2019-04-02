@@ -12,7 +12,7 @@ export function getLocalStorage() {
     return resolve({});
   });
 }
-export function getLocalStorageId(){
+export function getLocalStorageId() {
   const response = getLocalStorage();
   return response && response.user && response.user.id;
 }

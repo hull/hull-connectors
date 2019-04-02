@@ -28,7 +28,7 @@ const handler = ({ EntryModel }: { EntryModel: any }) => (
       getRecent: getRecent(EntryModel),
       confHandler,
       previewHandler
-    },
+    }
   };
 };
 

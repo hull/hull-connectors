@@ -92,7 +92,7 @@ function batchExtractProcessingMiddlewareFactory(
         });
       });
     } catch (err) {
-      debug("Error in Batch Handler", err)
+      debug("Error in Batch Handler", err);
       return next(err);
     }
   };

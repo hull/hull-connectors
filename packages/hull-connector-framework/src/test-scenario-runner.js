@@ -347,11 +347,14 @@ class TestScenarioRunner extends EventEmitter {
             break;
           // @TODO => it seems jsonHandler should not come from Platform but instead be a regular POST call -> confirm ?
           case handlers.jsonHandler:
-            response = await superagent.post(`http://localhost:${connectorPort}/${handlerUrl}`).query({
-              organization: this.minihull._getOrgAddr(),
-              ship: this.connectorData.id,
-              secret: this.minihull.secret
-            }).send({ });
+            response = await superagent
+              .post(`http://localhost:${connectorPort}/${handlerUrl}`)
+              .query({
+                organization: this.minihull._getOrgAddr(),
+                ship: this.connectorData.id,
+                secret: this.minihull.secret
+              })
+              .send({});
             break;
           case handlers.incomingRequestHandler:
             response = await this.externalIncomingRequest({

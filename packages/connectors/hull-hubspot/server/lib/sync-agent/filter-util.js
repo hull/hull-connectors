@@ -55,9 +55,7 @@ class FilterUtil {
   filterUserUpdateMessageEnvelopes(
     envelopes: Array<HubspotUserUpdateMessageEnvelope>
   ): FilterUtilResults<HubspotUserUpdateMessageEnvelope> {
-    const filterUtilResults: FilterUtilResults<
-      HubspotUserUpdateMessageEnvelope
-    > = {
+    const filterUtilResults: FilterUtilResults<HubspotUserUpdateMessageEnvelope> = {
       toInsert: [],
       toUpdate: [],
       toSkip: []
@@ -87,9 +85,7 @@ class FilterUtil {
   filterAccountUpdateMessageEnvelopes(
     envelopes: Array<HubspotAccountUpdateMessageEnvelope>
   ): FilterUtilResults<HubspotAccountUpdateMessageEnvelope> {
-    const filterUtilResults: FilterUtilResults<
-      HubspotAccountUpdateMessageEnvelope
-    > = {
+    const filterUtilResults: FilterUtilResults<HubspotAccountUpdateMessageEnvelope> = {
       toInsert: [],
       toUpdate: [],
       toSkip: []

@@ -1,5 +1,10 @@
 /* @flow */
-import type { HullContext, HullUserUpdateMessage, HullNotificationResponse } from "hull";
+import type {
+  HullContext,
+  HullUserUpdateMessage,
+  HullNotificationResponse
+} from "hull";
+
 const SyncAgent = require("../lib/sync-agent");
 
 async function updateUser(
@@ -11,12 +16,12 @@ async function updateUser(
     await syncAgent.sendUserMessages(messages);
     return {
       status: 200
-    }
-  } catch (err){
+    };
+  } catch (err) {
     console.error(">>>> ERROR <<<<", err);
     return {
       status: 200
-    }
+    };
   }
 }
 

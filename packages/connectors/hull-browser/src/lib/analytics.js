@@ -18,7 +18,11 @@ export default function getAnalyticsId() {
       intercom().then((ids = {}) => {
         // Handle the async Intercom load by Segment;
         if (!isEmpty(ids)) return resolve(ids);
-        return resolve({ anonymous_id: anonymousId, external_id: externalId, email });
+        return resolve({
+          anonymous_id: anonymousId,
+          external_id: externalId,
+          email
+        });
       });
     });
   });

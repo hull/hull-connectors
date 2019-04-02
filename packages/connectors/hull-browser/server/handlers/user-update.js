@@ -1,6 +1,10 @@
 // @flow
 
-import type { HullContext, HullUserUpdateMessage, HullNotificationResponse } from "hull";
+import type {
+  HullContext,
+  HullUserUpdateMessage,
+  HullNotificationResponse
+} from "hull";
 import type { Store, SendPayloadArgs } from "../../types";
 
 import userPayload from "../lib/user-payload";
@@ -23,30 +27,32 @@ export default function factory({
     connectorUpdate(context);
     const { connector, client } = context;
     await Promise.all(
-      messages.map(async ({ events, user, segments, account, account_segments }) => {
-        const { logger } = client.asUser(user);
-        try {
-          const namespace = connector.id;
-          // Refresh LRU cache;
-          await lru(namespace).set(user.id, { user, account, segments });
-          sendPayload({
-            payload: userPayload({
-              user,
-              events,
-              segments,
-              account,
-              account_segments,
-              connector,
-              client
-            }),
-            rooms: getRooms(user),
-            client,
-            namespace
-          });
-        } catch (error) {
-          logger.error("outgoing.user.error", { error });
+      messages.map(
+        async ({ events, user, segments, account, account_segments }) => {
+          const { logger } = client.asUser(user);
+          try {
+            const namespace = connector.id;
+            // Refresh LRU cache;
+            await lru(namespace).set(user.id, { user, account, segments });
+            sendPayload({
+              payload: userPayload({
+                user,
+                events,
+                segments,
+                account,
+                account_segments,
+                connector,
+                client
+              }),
+              rooms: getRooms(user),
+              client,
+              namespace
+            });
+          } catch (error) {
+            logger.error("outgoing.user.error", { error });
+          }
         }
-      })
+      )
     );
     return {
       flow_control: {
@@ -55,6 +61,6 @@ export default function factory({
         size: 100,
         in: 100
       }
-    }
+    };
   };
 }

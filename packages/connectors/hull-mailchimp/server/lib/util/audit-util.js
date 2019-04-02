@@ -1,6 +1,6 @@
 /* @flow */
 import type { HullSegment, HullContext } from "hull";
-import shipAppFactory from "../ship-app-factory";
+// import shipAppFactory from "../ship-app-factory";
 
 const Promise = require("bluebird");
 const _ = require("lodash");
