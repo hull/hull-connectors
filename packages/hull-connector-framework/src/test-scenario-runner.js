@@ -168,7 +168,7 @@ class TestScenarioRunner extends EventEmitter {
     });
 
     this.minihull.on("incoming.request", req =>
-      console.log(">>>> MINIHULL", req.method, req.url)
+      debug(">>>> MINIHULL", req.method, req.url)
     );
     this.minihull.on("incoming.request@/api/v1/firehose", this.deboucedFinish);
   }
@@ -314,10 +314,10 @@ class TestScenarioRunner extends EventEmitter {
           this.scenarioDefinition.externalApiMock();
         if (this.nockScope) {
           this.nockScope.on("request", req => {
-            console.log(">>> NOCK REQUEST", req.path);
+            debug(">>> NOCK REQUEST", req.path);
           });
           this.nockScope.on("replied", req => {
-            console.log(">>> NOCK", req.path);
+            debug(">>> NOCK", req.path);
           });
           this.nockScope.on("replied", this.deboucedFinish);
         }
