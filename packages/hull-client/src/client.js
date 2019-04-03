@@ -223,9 +223,7 @@ class HullClient {
    *   version: "0.13.10"
    * };
    */
-  configuration(): HullClientConfig {
-    return this.clientConfig.getAll();
-  }
+  configuration = (): HullClientConfig => this.clientConfig.getAll();
 
   /**
    * Performs a HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
@@ -238,9 +236,9 @@ class HullClient {
    * @param {Number} [options.timeout] option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
    * @param {Number} [options.retry] controls the time between timeout or 503 error occurence and the next retry being done
    */
-  api(url: string, method: string, params: Object, options: Object = {}) {
+  api = (url: string, method: string, params: Object, options: Object = {}) => {
     return restAPI(this, this.clientConfig, url, method, params, options);
-  }
+  };
 
   /**
    * Performs a GET HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
@@ -252,9 +250,9 @@ class HullClient {
    * @param {Number} [options.timeout] option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
    * @param {Number} [options.retry] controls the time between timeout or 503 error occurence and the next retry being done
    */
-  get(url: string, params: Object = {}, options: Object = {}) {
+  get = (url: string, params: Object = {}, options: Object = {}) => {
     return restAPI(this, this.clientConfig, url, "get", params, options);
-  }
+  };
 
   /**
    * Performs a POST HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor
@@ -266,9 +264,9 @@ class HullClient {
    * @param {Number} [options.timeout] option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
    * @param {Number} [options.retry] controls the time between timeout or 503 error occurence and the next retry being done
    */
-  post(url: string, params: Object = {}, options: Object = {}) {
+  post = (url: string, params: Object = {}, options: Object = {}) => {
     return restAPI(this, this.clientConfig, url, "post", params, options);
-  }
+  };
 
   /**
    * Performs a DELETE HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
@@ -280,9 +278,9 @@ class HullClient {
    * @param {Number} [options.timeout] option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
    * @param {Number} [options.retry] controls the time between timeout or 503 error occurence and the next retry being done
    */
-  del(url: string, params: Object = {}, options: Object = {}) {
+  del = (url: string, params: Object = {}, options: Object = {}) => {
     return restAPI(this, this.clientConfig, url, "del", params, options);
-  }
+  };
 
   /**
    * Performs a PUT HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
@@ -294,9 +292,9 @@ class HullClient {
    * @param {Number} [options.timeout] option controls if the client should retry the request if the client timeout error happens or if there is an error 503 returned serverside - the value of the option is applied for client side error
    * @param {Number} [options.retry] controls the time between timeout or 503 error occurence and the next retry being done
    */
-  put(url: string, params: Object = {}, options: Object = {}) {
+  put = (url: string, params: Object = {}, options: Object = {}) => {
     return restAPI(this, this.clientConfig, url, "put", params, options);
-  }
+  };
 
   /**
    * Takes User Claims (link to User Identity docs) and returnes `HullClient` instance scoped to this User.
@@ -312,10 +310,10 @@ class HullClient {
    * @throws {Error} if no valid claims are passed
    * @return {UserScopedHullClient}
    */
-  asUser(
+  asUser = (
     userClaim: string | HullUser | HullUserClaims,
     additionalClaims: HullAdditionalClaims = Object.freeze({})
-  ) {
+  ) => {
     if (!userClaim) {
       throw new Error("User Claims was not defined when calling hull.asUser()");
     }
@@ -325,7 +323,7 @@ class HullClient {
       userClaim: normalizeUserClaims(userClaim),
       additionalClaims
     });
-  }
+  };
 
   /**
    * Takes Account Claims (link to User Identity docs) and returnes `HullClient` instance scoped to this Account.
@@ -337,10 +335,10 @@ class HullClient {
    * @throws {Error} If no valid claims are passed
    * @return {AccountScopedHullClient} instance scoped to account claims
    */
-  asAccount(
+  asAccount = (
     accountClaim: string | HullAccount | HullAccountClaims,
     additionalClaims: HullAdditionalClaims = Object.freeze({})
-  ) {
+  ) => {
     if (!accountClaim) {
       throw new Error(
         "Account Claims was not defined when calling hull.asAccount()"
@@ -352,7 +350,7 @@ class HullClient {
       accountClaim: normalizeAccountClaims(accountClaim),
       additionalClaims
     });
-  }
+  };
 }
 
 /**
@@ -379,7 +377,7 @@ class EntityScopedHullClient extends HullClient {
    * hullClient.asUser({ email: "xxx@example.com", external_id: "1234" }).token(optionalClaims);
    * hullClient.asAccount({ domain: "example.com", external_id: "1234" }).token(optionalClaims);
    */
-  token(claims: HullEntityClaims) {
+  token = (claims: HullEntityClaims) => {
     const subjectType = this.clientConfig._state.subjectType || "";
     const claim =
       subjectType === "account"
@@ -392,7 +390,7 @@ class EntityScopedHullClient extends HullClient {
       { [subjectType]: claim },
       claims
     );
-  }
+  };
 
   // @TODO: Check that Aliases are supported at account level
   /**
@@ -402,13 +400,13 @@ class EntityScopedHullClient extends HullClient {
    * @param  {Object} body
    * @return {Promise}
    */
-  alias(body: Object) {
+  alias = (body: Object) => {
     return this.batch({
       type: "alias",
       requestId: this.requestId,
       body
     });
-  }
+  };
 
   /**
    * Issues ann `unalias` event on entity
@@ -417,13 +415,13 @@ class EntityScopedHullClient extends HullClient {
    * @param  {Object} body
    * @return {Promise}
    */
-  unalias(body: Object) {
+  unalias = (body: Object) => {
     return this.batch({
       type: "unalias",
       requestId: this.requestId,
       body
     });
-  }
+  };
 
   /**
    * Saves attributes on the user or account. Only available on User or Account scoped `HullClient` instance (see {@link #asuser} and {@link #asaccount}).
@@ -432,10 +430,10 @@ class EntityScopedHullClient extends HullClient {
    * @param  {Object} traits            object with new attributes, it's always flat object, without nested subobjects
    * @return {Promise}
    */
-  traits(traits: HullEntityAttributes): Promise<*> {
+  traits = (traits: HullEntityAttributes): Promise<*> => {
     const body = { ...traits };
     return this.batch({ type: "traits", body, requestId: this.requestId });
-  }
+  };
 }
 
 /**
@@ -457,13 +455,13 @@ class UserScopedHullClient extends EntityScopedHullClient {
    * @param  {Object} accountClaim [description]
    * @return {HullClient} HullClient scoped to a User and linked to an Account
    */
-  account(accountClaim: HullAccountClaims = Object.freeze({})) {
+  account = (accountClaim: HullAccountClaims = Object.freeze({})) => {
     return new AccountScopedHullClient({
       ...this.config,
       subjectType: "account",
       accountClaim
     });
-  }
+  };
 
   /**
    * Stores events on user. Only available on User scoped `HullClient` instance (see {@link #asuser}).
@@ -480,11 +478,11 @@ class UserScopedHullClient extends EntityScopedHullClient {
    * @param  {string} [context.referer]    Define the Referer. `null` for server calls.
    * @return {Promise}
    */
-  track(
+  track = (
     event: HullUserEventName,
     properties: HullUserEventProperties = {},
     context: HullUserEventContext = {}
-  ): Promise<*> {
+  ): Promise<*> => {
     _.defaults(context, {
       event_id: uuidV4()
     });
@@ -501,7 +499,7 @@ class UserScopedHullClient extends EntityScopedHullClient {
         event
       }
     });
-  }
+  };
 }
 
 /**
