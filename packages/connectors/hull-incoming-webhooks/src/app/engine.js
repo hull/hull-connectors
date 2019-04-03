@@ -88,14 +88,14 @@ export default class Engine extends EventEmitter {
     const { payload } = current;
     this.updateParent(code);
     this.setState({ code });
-    this.compute({ code, payload });
+    this.preview({ code, payload });
   };
 
   selectEntry = (current?: Entry) => {
     this.setState({ current });
     if (!current) return;
     const { payload } = current;
-    this.compute({ code: this.state.code, payload });
+    this.preview({ code: this.state.code, payload });
   };
 
   selectEntryByDate = (date: string) => {
@@ -158,7 +158,7 @@ export default class Engine extends EventEmitter {
     }
   };
 
-  compute = _.debounce(
+  preview = _.debounce(
     async (request: PreviewRequest) => {
       // const { computing } = this.state;
       // if (computing) {
@@ -168,7 +168,7 @@ export default class Engine extends EventEmitter {
 
       try {
         const { data, status }: AxiosComputeResult = await this.request({
-          url: "compute",
+          url: "preview",
           method: "post",
           data: request
         });

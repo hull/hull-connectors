@@ -76,7 +76,17 @@ type Props = {
 };
 
 const Preview = ({ result }: Props) => {
-  if (!result) return null;
+  if (!result)
+    return (
+      <Fragment>
+        <CodeTitle title="Console" />
+        <Area
+          id="code-console"
+          value="//Nothing to display. Type some code to preview results"
+          mode="javascript"
+        />
+      </Fragment>
+    );
 
   const {
     userTraits = [],

@@ -233,13 +233,11 @@ export default class App extends Component<Props, State> {
               </ButtonGroup>
             </Header>
 
-            {result && (
-              <Preview
-                title={activeTab}
-                result={this.getResults()}
-                computing={computing}
-              />
-            )}
+            <Preview
+              title={activeTab}
+              result={this.getResults()}
+              computing={computing}
+            />
           </div>
         </div>
       </div>
