@@ -24,17 +24,13 @@ export default function getRecent(Model: Object) {
 
       return {
         status: 200,
-        data: {
-          recent
-        }
+        data: recent
       };
     } catch (err) {
       client.logger.debug("mongo.query.error", { errors: err });
       return {
         status: 500,
-        data: {
-          recent: []
-        }
+        data: []
       };
     }
   };
