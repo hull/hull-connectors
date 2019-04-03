@@ -8,7 +8,7 @@ process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const connectorServer = require("../../../server/server");
 
-test("send batch account update to hubspot in a batch", () => {
+it("send batch account update to hubspot in a batch", () => {
     return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
         //const updateMessage = require("../fixtures/outgoin-account-batch");
         return {
@@ -55,26 +55,43 @@ test("send batch account update to hubspot in a batch", () => {
                 },
             },
             externalApiMock: () => {
-              const scope = nock("https://api.hubapi.com");
+                const scope = nock("https://api.hubapi.com");
       
-              scope.get("/contacts/v2/groups?includeProperties=true")
+                scope.get("/contacts/v2/groups?includeProperties=true")
                   .reply(200, []);
-              scope.get("/properties/v1/companies/groups?includeProperties=true")
+                scope.get("/properties/v1/companies/groups?includeProperties=true")
                   .reply(200, []);
-
-            const updatedCompany = [{"properties":[{"name":"about_us","value":"Wayne Enterprises (Sample Lead)"},{"name":"industry","value":"Manufacturing"},{"name":"hull_segments","value":"Bad guys"},{"name":"domain","value":"wayneenterprises.com"}],"objectId":"1778846597"}];
-            scope
-                .post("/companies/v1/batch-async/update")
-                .reply(202, updatedCompany);
+                  
+                const updatedCompany = [{"properties":[{"name":"about_us","value":"Wayne Enterprises (Sample Lead)"},{"name":"industry","value":"Manufacturing"},{"name":"hull_segments","value":"Bad guys"},{"name":"domain","value":"wayneenterprises.com"}],"objectId":"1778846597"}];
+                scope.post("/companies/v1/batch-async/update?auditId=Hull")
+                  .reply(202, updatedCompany);
       
               return scope;
             },
             response: {},
             // most of the remaining "whatevers" are returned from the nock endpoints or are tested in traits
-            logs: [],
+            logs: [
+                ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/contacts/v2/groups", "vars": {}}],
+                ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/properties/v1/companies/groups", "vars": {}}],
+                ["debug", "outgoing.job.start", {}, {"toInsert": 0, "toSkip": 0, "toUpdate": 1}],
+                ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 202, "url": "/companies/v1/batch-async/update", "vars": {}}],
+                ["info", "outgoing.account.success", {"account_domain": "wayneenterprises.com", "account_id": /*"5bf2e7bf064aee16a600092a"*/ expect.whatever(), "subject_type": "account"}, {"hubspotWriteCompany": {"objectId": "1778846597", "properties": [{"name": "about_us", "value": "Wayne Enterprises (Sample Lead)"}, {"name": "hull_segments", "value": ""}, {"name": "domain", "value": "wayneenterprises.com"}]}, "operation": "update"}]
+            ],
             firehoseEvents: [],
-            metrics: [],
-            platformApiCalls: []
+            metrics: [
+                ["increment", "connector.request", 1],
+                ["increment", "ship.service_api.call", 1],
+                ["value", "connector.service_api.response_time", expect.whatever()],
+                ["increment", "ship.service_api.call", 1],
+                ["value", "connector.service_api.response_time", expect.whatever()],
+                ["increment", "ship.service_api.call", 1],
+                ["value", "connector.service_api.response_time", expect.whatever()]
+            ],
+            platformApiCalls: [
+                ["GET", "/_accounts_batch", {}, {}],
+                ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
+                ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
+            ]
           };
     });
 });
