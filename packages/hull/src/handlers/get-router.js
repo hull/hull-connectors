@@ -1,7 +1,6 @@
 // @flow
 import { Router } from "express";
 import type { NextFunction } from "express";
-import _ from "lodash";
 import type {
   HullRequest,
   HullResponse,
