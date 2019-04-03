@@ -9,6 +9,7 @@
     "outgoing",
     "incoming",
     "batch",
+    "batch-accounts",
     "oneColumn",
     "smart-notifier",
     "first-install"
