@@ -38,7 +38,7 @@ export default function handler(EntryModel: Object) {
     ctx: HullContext,
     message: HullIncomingHandlerMessage,
     res: HullResponse
-  ): Promise<HullExternalResponse> => {
+  ): HullExternalResponse => {
     const { client, connector, metric } = ctx;
     const { private_settings = {} } = connector;
     const { code } = private_settings;
