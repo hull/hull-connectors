@@ -38,7 +38,8 @@ const mapTraits = method =>
     joinLines
   );
 
-const renderStringOrObject = (i: string | {} | Array<any>) => (_.isString(i) ? i : nice(i));
+const renderStringOrObject = (i: string | {} | Array<any>) =>
+  _.isString(i) ? i : nice(i);
 
 const renderLogs = fp.flow(
   fp.map(renderStringOrObject),
@@ -75,7 +76,6 @@ type Props = {
 };
 
 const Preview = ({ result }: Props) => {
-
   if (!result) return null;
 
   const {

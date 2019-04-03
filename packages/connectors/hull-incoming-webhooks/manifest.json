@@ -4,15 +4,15 @@
   "tags": ["incoming", "oneColumn"],
   "picture": "picture.png",
   "ui": false,
-  "admin": "admin.html",
   "tabs": [
     {
       "title": "Code Editor",
-      "url": "admin.html",
+      "url": "/admin.html",
       "size": "large",
       "setup": false,
       "workspace": true,
-      "editable": true
+      "editable": true,
+      "handler": "admin"
     }
   ],
   "readme" : "readme.md",
@@ -53,7 +53,7 @@
       "handler": "incomingHandler"
     }
   ],
-  "schedules": [
+  "statuses": [
     {
       "url": "/status",
       "type": "cron",

@@ -41,7 +41,9 @@ class ServiceEngine {
   services: Object;
 
   transforms: TransformImpl;
+
   recoveryPromise: Promise<any> | null;
+
   clearRecoveryPromiseHandle: any;
 
   constructor(
@@ -59,7 +61,6 @@ class ServiceEngine {
       clearTimeout(this.clearRecoveryPromiseHandle);
     }
   }
-
 
   async resolveInstruction(context: Object, instruction: Object, param: any) {
     let inputParams = param;
@@ -86,9 +87,7 @@ class ServiceEngine {
     // may want to change the behavior, if we see a batch endpoint, 1 serviceData object with an array
     // doesn't need to split, but sends the whole array at the same time if "batch" is set...
     const promiseResults = await Promise.all(
-      inputParams.map(input => {
-        return this.callService(context, instruction, input);
-      })
+      inputParams.map(input => this.callService(context, instruction, input))
     );
 
     // Need to flatten, in case a single call returns an array
@@ -274,82 +273,118 @@ class ServiceEngine {
     const name = instruction.name;
     const serviceDefinition = this.services[name];
 
-    return this.createOperationPromise(context, instruction, data).catch(error => {
+    return this.createOperationPromise(context, instruction, data).catch(
+      error => {
+        debug(`[SERVICE-ERROR]: ${name} [ERROR]: ${JSON.stringify(error)}`);
 
-      debug(`[SERVICE-ERROR]: ${name} [ERROR]: ${JSON.stringify(error)}`);
+        if (name !== "hull") {
+          context.metric.increment("service.service_api.errors", 1);
+        }
 
-      if (name !== 'hull') {
-        context.metric.increment("service.service_api.errors", 1);
-      }
+        const errorTemplate = this.findErrorTemplate(
+          context,
+          serviceDefinition,
+          error
+        );
 
-      const errorTemplate = this.findErrorTemplate(context, serviceDefinition, error);
+        if (!isUndefinedOrNull(errorTemplate)) {
+          let errorHandlingPromise;
+          const route: string = _.get(errorTemplate, "recoveryroute");
 
-      if (!isUndefinedOrNull(errorTemplate)) {
+          if (
+            !_.isEmpty(route) &&
+            !_.isEqual(route, _.get(context, "recoveryroute"))
+          ) {
+            // 2 cases,
+            // where the recovery promise exists and it's a different path calling
+            // and where it IS the recovery path....
+            // should probably look at some sort of time stamp if the recovery promise was done a while ago or something...
+            if (isUndefinedOrNull(this.recoveryPromise)) {
+              debug(
+                `[SERVICE-ERROR]: ${name} [RECOVERY-ROUTE-ATTEMPT]: ${route}`
+              );
+              // The way we do this _.merge is key, means, only the recoveryroute
+              // will have it set, but others will not
+              // don't input data on an attempt to recover...
+              this.recoveryPromise = this.dispatcher.resolve(
+                _.assign({ recoveryroute: route }, context),
+                new Route(route),
+                null
+              );
 
-        let errorHandlingPromise;
-        const route: string = _.get(errorTemplate, "recoveryroute");
-
-        if (!_.isEmpty(route) && !_.isEqual(route, _.get(context, "recoveryroute"))) {
-          // 2 cases,
-          // where the recovery promise exists and it's a different path calling
-          // and where it IS the recovery path....
-          // should probably look at some sort of time stamp if the recovery promise was done a while ago or something...
-          if (isUndefinedOrNull(this.recoveryPromise)) {
-            debug(`[SERVICE-ERROR]: ${name} [RECOVERY-ROUTE-ATTEMPT]: ${route}`);
-            // The way we do this _.merge is key, means, only the recoveryroute
-            // will have it set, but others will not
-            // don't input data on an attempt to recover...
-            this.recoveryPromise = this.dispatcher.resolve(_.assign({ recoveryroute: route }, context), new Route(route), null);
-
-            const envTtl = process.env.RECOVERY_ROUTE_TTL || "";
-            let recoveryPromiseTtl:number = 3600000;
-            if (!isUndefinedOrNull((envTtl))) {
-              if (typeof envTtl === 'string') {
-                recoveryPromiseTtl = parseInt(envTtl);
-              } else {
-                recoveryPromiseTtl = envTtl;
+              const envTtl = process.env.RECOVERY_ROUTE_TTL || "";
+              let recoveryPromiseTtl: number = 3600000;
+              if (!isUndefinedOrNull(envTtl)) {
+                if (typeof envTtl === "string") {
+                  recoveryPromiseTtl = parseInt(envTtl);
+                } else {
+                  recoveryPromiseTtl = envTtl;
+                }
               }
+
+              this.clearRecoveryPromiseHandle = setTimeout(() => {
+                debug("Clearing recovery promise so that it can be used again");
+                this.recoveryPromise = null;
+              }, recoveryPromiseTtl);
             }
 
-            this.clearRecoveryPromiseHandle = setTimeout(() => {
-              debug("Clearing recovery promise so that it can be used again");
-              this.recoveryPromise = null;
-            }, recoveryPromiseTtl);
+            // .then creates a new promise reference... must keep track of it
+            // can't do:
+            // promise.then();  promise.then()
+            // must do promise.then().then()
+            // or
+            // promise = promise.then(); promise = promise.then()
+
+            // TODO does keeping this promise around keep the data that was the result in memory
+            errorHandlingPromise = this.recoveryPromise.then(() => {
+              return this.createOperationPromise(context, instruction, data);
+            });
+          } else if (
+            errorTemplate.retryAttempts &&
+            errorTemplate.retryAttempts > 0
+          ) {
+            errorHandlingPromise = this.retrySendingData(
+              errorTemplate.retryAttempts - 1,
+              1000,
+              context,
+              instruction,
+              data
+            );
           }
 
-          // .then creates a new promise reference... must keep track of it
-          // can't do:
-          // promise.then();  promise.then()
-          // must do promise.then().then()
-          // or
-          // promise = promise.then(); promise = promise.then()
-
-          //TODO does keeping this promise around keep the data that was the result in memory
-          errorHandlingPromise = this.recoveryPromise.then(() => {
-            return this.createOperationPromise(context, instruction, data);
-          });
-
-        } else if (errorTemplate.retryAttempts && errorTemplate.retryAttempts > 0) {
-          errorHandlingPromise = this.retrySendingData(errorTemplate.retryAttempts - 1, 1000, context, instruction, data);
+          if (!isUndefinedOrNull(errorHandlingPromise)) {
+            return errorHandlingPromise.catch(finalError => {
+              // may have been able to partially recover, log the final error
+              // which may have been different than the original
+              // might be an argument to have several recovery routes that all converge on success at some point
+              // not now though, too early to understand if that would be really helpful or not...
+              const finalErrorTemplate = this.findErrorTemplate(
+                context,
+                serviceDefinition,
+                finalError
+              );
+              const finalErrorException = this.createErrorException(
+                context,
+                name,
+                serviceDefinition.error,
+                finalErrorTemplate,
+                finalError
+              );
+              return Promise.reject(finalErrorException);
+            });
+          }
         }
 
-        if (!isUndefinedOrNull(errorHandlingPromise)) {
-          return errorHandlingPromise.catch((finalError) => {
-            // may have been able to partially recover, log the final error
-            // which may have been different than the original
-            // might be an argument to have several recovery routes that all converge on success at some point
-            // not now though, too early to understand if that would be really helpful or not...
-            const finalErrorTemplate = this.findErrorTemplate(context, serviceDefinition, finalError);
-            const finalErrorException = this.createErrorException(context, name, serviceDefinition.error, finalErrorTemplate, finalError);
-            return Promise.reject(finalErrorException);
-          });
-        }
+        const errorException = this.createErrorException(
+          context,
+          name,
+          serviceDefinition.error,
+          errorTemplate,
+          error
+        );
+        return Promise.reject(errorException);
       }
-
-      const errorException = this.createErrorException(context, name, serviceDefinition.error, errorTemplate, error);
-      return Promise.reject(errorException);
-
-    });
+    );
   }
 
   createOperationPromise(context: Object, instruction: Object, data: any) {

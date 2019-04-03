@@ -6,13 +6,13 @@ type TraitsSignature =
   | {
       hullClient: $PropertyType<HullClient, "asUser">,
       data: Array<UserTraits>,
-      entity: string,
+      entity: "user",
       metric: $PropertyType<HullContext, "metric">
     }
   | {
       hullClient: $PropertyType<HullClient, "asAccount">,
       data: Array<AccountTraits>,
-      entity: string,
+      entity: "account",
       metric: $PropertyType<HullContext, "metric">
     };
 

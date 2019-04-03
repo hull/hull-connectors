@@ -168,6 +168,11 @@ type HullManifestHtmlConfig = {
   options?: HullHtmlHandlerOptions
 };
 
+type HullManifestRouter = {
+  url?: string,
+  handler: string
+};
+
 // Connector Manifest. Defines a Connector's exposed endpoints and features
 
 type HullManifestSetting = {
@@ -195,6 +200,7 @@ export type HullManifest = {
 
   incoming?: Array<HullManifestIncomingConfig>,
   json?: Array<HullManifestJsonConfig>,
+  routers?: Array<HullManifestRouter>,
   statuses?: Array<HullManifestStatus>,
   schedules?: Array<HullManifestSchedule>
 };
@@ -444,7 +450,7 @@ export type HullAccountChanges = {
 /**
  * A message sent by the platform when any event, attribute (trait) or segment change happens on the user.
  */
-export type HullUserUpdateMessage = {
+export type HullUserUpdateMessage = {|
   message_id: string,
   user: HullUser,
   changes: HullUserChanges,
@@ -452,61 +458,61 @@ export type HullUserUpdateMessage = {
   account_segments: Array<HullAccountSegment>,
   events: Array<HullEvent>,
   account: HullAccount
-};
+|};
 export type HullUserDeleteMessage = {};
 
 /**
  * A message sent by the platform when any attribute (trait) or segment change happens on the account.
  */
-export type HullAccountUpdateMessage = {
+export type HullAccountUpdateMessage = {|
   changes: HullAccountChanges,
   account_segments: Array<HullAccountSegment>,
   account: HullAccount,
   message_id: string
-};
+|};
 export type HullAccountDeleteMessage = {};
 
 /**
  * A message sent by the platform when a Segment is updated
  */
-export type HullSegmentUpdateMessage = {
+export type HullSegmentUpdateMessage = {|
   id: string,
   name: string,
   created_at: string,
   updated_at: string,
   message_id: string
-};
-export type HullUserSegmentUpdateMessage = HullSegmentUpdateMessage & {
+|};
+export type HullUserSegmentUpdateMessage = HullSegmentUpdateMessage & {|
   type: "users_segment"
-};
-export type HullAccountSegmentUpdateMessage = HullSegmentUpdateMessage & {
+|};
+export type HullAccountSegmentUpdateMessage = HullSegmentUpdateMessage & {|
   type: "accounts_segment"
-};
-export type HullUserSegmentDeleteMessage = HullSegmentUpdateMessage & {
+|};
+export type HullUserSegmentDeleteMessage = HullSegmentUpdateMessage & {|
   type: "users_segment"
-};
-export type HullAccountSegmentDeleteMessage = HullSegmentUpdateMessage & {
+|};
+export type HullAccountSegmentDeleteMessage = HullSegmentUpdateMessage & {|
   type: "accounts_segment"
-};
-export type HullSegmentDeleteMessage = {
+|};
+export type HullSegmentDeleteMessage = {|
   id: string,
   name: string,
   type: "users_segment" | "accounts_segment",
   created_at: string,
   updated_at: string
-};
+|};
 
 /**
  * A message sent by the platform when a Segment is updated
  */
-export type HullConnectorUpdateMessage = {
+export type HullConnectorUpdateMessage = {|
   ...$Exact<HullConnector>,
   secret: string
-};
-export type HullConnectorDeleteMessage = {
+|};
+export type HullConnectorDeleteMessage = {|
   ...$Exact<HullConnector>,
   secret: string
-};
+|};
 
 /**
  * The whole notification object
@@ -521,7 +527,7 @@ export type HullNotification = {
   connector: HullConnector,
   segments: Array<HullUserSegment>,
   accounts_segments: Array<HullAccountSegment>,
-  messages?: Array<HullUserUpdateMessage | HullAccountUpdateMessage>,
+  messages?: Array<HullUserUpdateMessage> | Array<HullAccountUpdateMessage>,
   notification_id: string
 };
 
@@ -588,40 +594,57 @@ export type HullUserUpdateCallback = (
   ctx: HullContext,
   messages: Array<HullUserUpdateMessage>
 ) => HullNotificationResponse;
+
 export type HullUserDeleteCallback = (
   ctx: HullContext,
   messages: Array<HullUserDeleteMessage>
 ) => HullNotificationResponse;
+
 export type HullAccountUpdateCallback = (
   ctx: HullContext,
   messages: Array<HullAccountUpdateMessage>
 ) => HullNotificationResponse;
+
 export type HullAccountDeleteCallback = (
   ctx: HullContext,
   messages: Array<HullAccountDeleteMessage>
 ) => HullNotificationResponse;
-export type HullSegmentUpdateCallback<T> = (
+
+export type HullUserSegmentUpdateCallback = (
   ctx: HullContext,
-  messages: Array<T>
+  messages: Array<HullUserSegment>
 ) => HullNotificationResponse;
-export type HullSegmentDeleteCallback<T> = (
+
+export type HullUserSegmentDeleteCallback = (
   ctx: HullContext,
-  messages: Array<T>
+  messages: Array<HullUserSegment>
 ) => HullNotificationResponse;
+
+export type HullAccountSegmentUpdateCallback = (
+  ctx: HullContext,
+  messages: Array<HullAccountSegment>
+) => HullNotificationResponse;
+
+export type HullAccountSegmentDeleteCallback = (
+  ctx: HullContext,
+  messages: Array<HullAccountSegment>
+) => HullNotificationResponse;
+
 export type HullConnectorUpdateCallback = (
   ctx: HullContext,
   messages?: HullConnectorUpdateMessage
 ) => HullNotificationResponse;
+
 export type HullNotificationHandlerCallback =
   | HullConnectorUpdateCallback
   | HullUserUpdateCallback
   | HullUserDeleteCallback
   | HullAccountUpdateCallback
   | HullAccountDeleteCallback
-  | HullSegmentUpdateCallback<HullUserSegment>
-  | HullSegmentUpdateCallback<HullAccountSegment>
-  | HullSegmentDeleteCallback<HullUserSegment>
-  | HullSegmentDeleteCallback<HullAccountSegment>;
+  | HullUserSegmentUpdateCallback
+  | HullUserSegmentDeleteCallback
+  | HullAccountSegmentUpdateCallback
+  | HullAccountSegmentDeleteCallback;
 
 export type HullBatchHandlerCallback = HullNotificationHandlerCallback;
 export type HullStatusHandlerCallback = (
@@ -733,6 +756,7 @@ export type HullHandlersConfiguration = {
   statuses?: { [string]: HullStatusHandlerCallback },
   schedules?: { [string]: HullSchedulerHandlerCallback },
   json?: { [string]: HullJsonHandlerCallback },
+  routers: { [string]: express$Router },
   incoming?: { [string]: HullIncomingHandlerCallback }
 };
 

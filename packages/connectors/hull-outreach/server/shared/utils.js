@@ -22,7 +22,7 @@ class ServiceData {
   }
 }
 
-function isUndefinedOrNull(obj: any) {
+function isUndefinedOrNull(obj: any): boolean %checks {
   return obj === undefined || obj === null;
 }
 

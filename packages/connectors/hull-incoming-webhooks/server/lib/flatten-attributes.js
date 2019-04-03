@@ -3,10 +3,7 @@ import _ from "lodash";
 import type { Traits } from "../../types";
 
 // Creates a flat object from `/` and `source` parameters
-const flatten = ({
-  attributes,
-  context
-}: $PropertyType<Traits<>, "traits">) => {
+const flatten = ({ attributes, context }: $PropertyType<Traits, "traits">) => {
   const payload = {};
   if (attributes) {
     const { source } = context;

@@ -7,21 +7,11 @@ import previewHandler from "./preview-handler";
 import statusHandler from "./status-handler";
 import confHandler from "./config-handler";
 
-const html = [
-  {
-    url: "/admin.html",
-    method: "get",
-    handler: {
-      callback: () => ({ pageLocation: "admin.html" })
-    }
-  }
-];
-
 const handler = ({ EntryModel }: { EntryModel: any }) => (
   _connector: Connector
 ): HullHandlersConfiguration => {
   return {
-    html,
+    tabs: { admin: () => ({ pageLocation: "admin.html" }) },
     statuses: { statusHandler },
     incoming: { incomingHandler: incomingHandler(EntryModel) },
     json: {

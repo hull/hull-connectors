@@ -1,6 +1,12 @@
 // @flow
 
-import type { $Application, Middleware } from "express";
+import type {
+  $Request,
+  $Response,
+  NextFunction,
+  $Application,
+  Middleware
+} from "express";
 import type { Server } from "http";
 import express from "express";
 import type {
@@ -41,9 +47,25 @@ const {
   baseComposedMiddleware
 } = require("../middlewares");
 
-function getAbsolutePath(p) {
-  return `${path.dirname(path.join(require.main.filename, ".."))}/${p}`;
-}
+const getAbsolutePath = p =>
+  `${path.dirname(path.join(require.main.filename, ".."))}/${p}`;
+
+const getCallbacks = (handlers, category: string, handler: string) => {
+  const cat = handlers[category];
+  if (!cat) {
+    throw new Error(
+      `Trying to access an undefined handler category ${category}`
+    );
+  }
+  const callback = cat[handler];
+  if (!callback) {
+    debug(`error in handlers ${category}`, cat);
+    throw new Error(
+      `Trying to access an undefined handler ${handler} in ${category}`
+    );
+  }
+  return callback;
+};
 
 // const { TransientError } = require("../errors");
 
@@ -159,9 +181,7 @@ class HullConnector {
     }
 
     if (disableOnExit !== true) {
-      onExit(() => {
-        return Promise.all([Batcher.exit(), this.queue.exit()]);
-      });
+      onExit(() => Promise.all([Batcher.exit(), this.queue.exit()]));
     }
   }
 
@@ -206,106 +226,52 @@ class HullConnector {
     // Don't use an arrow function here as it changes the context
     // Don't move it out of this closure either
     // https://github.com/expressjs/express/issues/3855
-    function getCallbacks(category: string) {
-      const cat = handlers[category];
-      return (handler: string) => {
-        if (!cat) {
-          throw new Error(
-            `Trying to access an undefined handler category ${category}`
-          );
-        }
-        const callback = cat[handler];
-        if (!callback) {
-          debug(`error in handlers ${category}`, cat);
-          throw new Error(
-            `Trying to access an undefined handler ${handler} in ${category}`
-          );
-        }
-        return callback;
-      };
-    }
-    function getMethod(method) {
-      const m = method.toLowerCase();
-      switch (m) {
-        case "all":
-          return app.all;
-        case "get":
-          return app.get;
-        case "put":
-          return app.put;
-        case "post":
-          return app.post;
-        case "patch":
-          return app.patch;
-        case "delete":
-          return app.delete;
-        default:
-          return undefined;
-      }
-    }
 
     // This method wires the routes according to the configuration.
     // Methods are optional but they all have sane defaults
-
-    // Setup Kraken handlers
-    (this.manifest.subscriptions || []).map(({ url, channels }) => {
-      const getCallback = getCallbacks("subscriptions");
-      app.post(
-        url,
-        notificationHandler(
-          channels.map(({ handler, channel, options }) => ({
-            callback: getCallback(handler),
-            channel,
-            options
-          }))
+    const mapNotification = (factory, section = "subscriptions") =>
+      (this.manifest[section] || []).map(({ url, channels }) =>
+        app.post(
+          url,
+          factory(
+            channels.map(({ handler, channel, options }) => ({
+              callback: getCallbacks(handlers, section, handler),
+              channel,
+              options
+            }))
+          )
         )
       );
-      return true;
-    });
 
-    // Setup Batch handlers
-    (this.manifest.batches || []).map(({ url, channels }) => {
-      const getCallback = getCallbacks("subscriptions");
-      app.post(
-        url,
-        batchHandler(
-          channels.map(({ handler, channel, options }) => ({
-            callback: getCallback(handler),
-            channel,
-            options
-          }))
-        )
-      );
-      return true;
-    });
-
-    const mapRoute = (factory, section = "json", defaultMethod = "all") => {
-      const getCallback = getCallbacks(section);
-      return (this.manifest[section] || []).map(
+    const mapRoute = (factory, section = "json", defaultMethod = "all") =>
+      (this.manifest[section] || []).map(
         ({ url, method = defaultMethod, handler, options }) => {
-          const run = getMethod(method || defaultMethod);
-          const callback = getCallback(handler);
+          const callback = getCallbacks(handlers, section, handler);
           if (!callback) {
             throw new Error(
               `Trying to setup a handler ${handler} that doesn't exist for url ${url}. Can't continue`
             );
           }
-          if (!run) {
+          // $FlowFixMe
+          if (!app[method || defaultMethod]) {
             throw new Error(
               `Trying to setup an unauthorized method: app.${method}`
             );
           }
           // $FlowFixMe
-          if (run) {
-            app[method](url, factory({ options, callback }));
-            debug(
-              `Setting up ${method.toUpperCase()} ${url}: ${handler} / ${!!callback}`
-            );
-          }
+          app[method || defaultMethod](url, factory({ options, callback }));
+          debug(
+            `Setting up ${method.toUpperCase()} ${url}: ${handler} / ${!!callback}`
+          );
           return true;
         }
       );
-    };
+
+    // Setup Kraken handlers
+    mapNotification(notificationHandler, "subscriptions");
+
+    // Setup Batch handlers
+    mapNotification(batchHandler, "batches");
 
     // Statuses handlers
     // Be careful - these handlers return a specific data format
@@ -315,7 +281,7 @@ class HullConnector {
     mapRoute(scheduleHandler, "schedules", "all");
 
     // Setup Tab handlers
-    mapRoute(htmlHandler, "tabs", "get");
+    mapRoute(htmlHandler, "tabs", "all");
 
     // Setup HTML handlers
     mapRoute(htmlHandler, "html", "get");
@@ -326,8 +292,21 @@ class HullConnector {
     // Setup Incoming Data handlers
     mapRoute(incomingRequestHandler, "incoming", "all");
 
-    // // Setup Routers
-    // (routers || []).map(({ url, handler }) => app.use(url, handler));
+    // Setup Routers
+    (this.manifest.routers || []).map(({ url, handler }) => {
+      const router = handlers.routers[handler];
+      if (!router) {
+        throw new Error(
+          `Trying to access a router that isn't defined in handlers ${handler}`
+        );
+      }
+      if (url) {
+        app.use(url, router);
+      } else {
+        app.use(router);
+      }
+      return true;
+    });
   }
 
   baseComposedMiddleware() {

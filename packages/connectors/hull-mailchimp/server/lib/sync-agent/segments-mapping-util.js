@@ -1,6 +1,6 @@
-// //@flow
-//
-// import type  } from "hull";
+// @flow
+
+import type { HullContext, HullUserSegment } from "hull";
 
 const _ = require("lodash");
 const Promise = require("bluebird");
@@ -12,7 +12,23 @@ const debug = require("debug")("hull-mailchimp:segments-mapping-util");
  * TODO: integrate with SyncAgent
  */
 class SegmentsMappingUtil {
-  constructor(mailchimpClient, ship, helpers) {
+  mailchimpClient: Object;
+
+  ship: $PropertyType<HullContext, "connector">;
+
+  helpers: $PropertyType<HullContext, "helpers">;
+
+  originalMapping: { [string]: string };
+
+  mapping: { [string]: string };
+
+  _segmentsRes: Object;
+
+  constructor(
+    mailchimpClient: Object,
+    ship: $PropertyType<HullContext, "connector">,
+    helpers: $PropertyType<HullContext, "helpers">
+  ) {
     this.mailchimpClient = mailchimpClient;
     this.ship = ship;
     this.helpers = helpers;
@@ -59,12 +75,13 @@ class SegmentsMappingUtil {
       });
   }
 
-  recreateSegment(segment) {
-    const steps = ["deleteSegment", "createSegment", "updateMapping"];
-    return Promise.mapSeries(steps, step => this[step](segment));
+  async recreateSegment(segment: HullUserSegment) {
+    await this.deleteSegment(segment);
+    await this.createSegment(segment);
+    await this.updateMapping();
   }
 
-  findSegment(segment) {
+  findSegment(segment: HullUserSegment) {
     return this.getMailchimpSegments().then(res => {
       const { segments } = res.body;
       const existingMailchimpSegment = _.find(segments, staticSegment => {
@@ -80,7 +97,7 @@ class SegmentsMappingUtil {
    * @param {Object} segment
    * @return {Promise}
    */
-  createSegment(segment) {
+  createSegment(segment: HullUserSegment) {
     debug("createSegment", segment);
     return this.findSegment(segment).then(existingMailchimpSegment => {
       debug("existingMailchimpSegment", existingMailchimpSegment);
@@ -106,7 +123,7 @@ class SegmentsMappingUtil {
    * @param {Object} segment
    * @return {Promise}
    */
-  deleteSegment(segment) {
+  deleteSegment(segment: HullUserSegment) {
     if (!_.get(this.mapping, segment.id)) {
       return Promise.resolve();
     }
@@ -134,14 +151,17 @@ class SegmentsMappingUtil {
    * @param {String} segmentId
    * @return {String}
    */
-  getAudienceId(segmentId) {
+  getAudienceId(segmentId: string) {
     return _.get(this.mapping, segmentId);
   }
 
   /**
    * @return {Promise}
    */
-  syncSegments(segments = [], { check = false } = {}) {
+  syncSegments(
+    segments: Array<HullUserSegment> = [],
+    { check = false }: { check?: boolean } = {}
+  ) {
     const mapping = check === true ? {} : this.mapping;
     const mappedSegments = _.keys(mapping).map(id => {
       return { id };

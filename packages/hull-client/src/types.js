@@ -84,12 +84,12 @@ export type HullAccountClaims = {
 /**
  * This are claims we can use to identify user
  */
-export type HullUserClaims = $Shape<{
+export type HullUserClaims = {
   id?: string,
   email?: ?string,
   external_id?: ?string,
   anonymous_id?: ?string
-}>;
+};
 
 /**
  * This is a combined entity claims type. It's either account or user claims
