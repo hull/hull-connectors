@@ -200,7 +200,7 @@ export type HullManifest = {
 
   incoming?: Array<HullManifestIncomingConfig>,
   json?: Array<HullManifestJsonConfig>,
-  routers?: Array<HullManifestRouter>,
+  // routers?: Array<HullManifestRouter>,
   statuses?: Array<HullManifestStatus>,
   schedules?: Array<HullManifestSchedule>
 };
@@ -756,7 +756,7 @@ export type HullHandlersConfiguration = {
   statuses?: { [string]: HullStatusHandlerCallback },
   schedules?: { [string]: HullSchedulerHandlerCallback },
   json?: { [string]: HullJsonHandlerCallback },
-  routers: { [string]: express$Router },
+  routers?: { [string]: express$Router },
   incoming?: { [string]: HullIncomingHandlerCallback }
 };
 
