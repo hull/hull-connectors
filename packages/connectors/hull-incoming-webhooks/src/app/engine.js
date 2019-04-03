@@ -111,9 +111,7 @@ export default class Engine extends EventEmitter {
   }): Promise<any> => {
     const { config } = this.state;
     if (!config) {
-      return Promise.reject(
-        new Error("Can't find a proper config, please reload page")
-      );
+      throw new Error("Can't find a proper config, please reload page");
     }
     return axios({ method: "get", params: config, ...payload });
   };
