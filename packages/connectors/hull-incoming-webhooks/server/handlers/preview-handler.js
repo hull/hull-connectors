@@ -15,17 +15,18 @@ export default async function computeHandler(
   ctx: HullContext,
   { body }: HullIncomingHandlerMessage,
   res: HullResponse
-): Promise<HullExternalResponse> {
+): HullExternalResponse {
   const { client, connector } = ctx;
 
   // let { connector = {} } = req.body;
-  if (!body || typeof body === "object") {
+  if (!body || typeof body !== "object") {
     return {
       status: 500,
       text: "Invalid Payload, Body must be an object"
     };
   }
 
+  // $FlowFixMe
   const { payload, code }: PreviewRequest = body;
 
   // This condition ensures boot request does work:
