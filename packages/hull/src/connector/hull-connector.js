@@ -1,12 +1,6 @@
 // @flow
 
-import type {
-  $Request,
-  $Response,
-  NextFunction,
-  $Application,
-  Middleware
-} from "express";
+import type { $Application, Middleware } from "express";
 import type { Server } from "http";
 import express from "express";
 import type {
