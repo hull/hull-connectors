@@ -19,7 +19,6 @@ const handlerFactory = ({
   next: NextFunction
 ) => {
   try {
-    debugger
     const { fireAndForget = false, cache = {}, format = "json" } = options;
     const { key, options: cacheOpts = {} } = cache;
     const message = getMessage(req);
