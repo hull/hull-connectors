@@ -505,6 +505,12 @@ const PROSPECT_FIELDDEFS: Array<OutreachFieldDefinition> = [
     type: "array"
   },
   {
+    id: "owner",
+    label: "Owner",
+    in: true,
+    out: true
+  },
+  {
     id: "personalNote1",
     label: "Personal Note1",
     in: true,
@@ -582,6 +588,12 @@ const PROSPECT_FIELDDEFS: Array<OutreachFieldDefinition> = [
   {
     id: "stackOverflowUrl",
     label: "StackOverflowUrl",
+    in: true,
+    out: true
+  },
+  {
+    id: "stage",
+    label: "Stage",
     in: true,
     out: true
   },
