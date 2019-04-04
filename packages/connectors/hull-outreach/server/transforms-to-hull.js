@@ -46,7 +46,28 @@ const transformsToHull: ServiceTransforms =
         },
         {
           mapping: "connector.private_settings.incoming_user_attributes",
+          condition: doesNotContain(["stage", "owner"], "service_field_name"),
           inputPath: "attributes.${service_field_name}",
+          outputPath: "attributes.${hull_field_name}",
+          outputFormat: {
+            value: "${value}",
+            operation: "set"
+          }
+        },
+        {
+          mapping: "connector.private_settings.incoming_user_attributes",
+          condition: isEqual("service_field_name", "stage"),
+          inputPath: "relationships.stage.data.id",
+          outputPath: "attributes.${hull_field_name}",
+          outputFormat: {
+            value: "${value}",
+            operation: "set"
+          }
+        },
+        {
+          mapping: "connector.private_settings.incoming_user_attributes",
+          condition: isEqual("service_field_name", "owner"),
+          inputPath: "relationships.owner.data.id",
           outputPath: "attributes.${hull_field_name}",
           outputFormat: {
             value: "${value}",
