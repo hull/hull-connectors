@@ -252,11 +252,18 @@ class HullConnector {
               `Trying to setup an unauthorized method: app.${method}`
             );
           }
+          const router = factory({ options, callback });
           // $FlowFixMe
-          app[method || defaultMethod](url, factory({ options, callback }));
-          debug(
-            `Setting up ${method.toUpperCase()} ${url}: ${handler} / ${!!callback}`
-          );
+          if (router) {
+            app[method || defaultMethod](url, router);
+            debug(
+              `Setting up ${method.toUpperCase()} ${url}: ${handler} / ${!!callback}`
+            );
+          } else {
+            debug(
+              `Skipping ${method.toUpperCase()} ${url} ${handler} because no router was generated`
+            );
+          }
           return true;
         }
       );

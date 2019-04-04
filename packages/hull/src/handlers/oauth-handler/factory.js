@@ -2,9 +2,9 @@
 
 import type {
   HullRequest,
-  HullOAuthRequest,
   HullResponse,
-  HullExternalResponse
+  HullOAuthHandlerParams,
+  HullOAuthHandlerOptions
 } from "hull";
 import type { Router, NextFunction, $Response } from "express";
 import getRouter from "../get-router";
@@ -59,41 +59,30 @@ const SUCCESS_URL = "/success";
  * app.use(
  *   '/auth',
  *   oAuthHandler({
- *     name: 'Hubspot',
- *     tokenInUrl: true,
- *     Strategy: HubspotStrategy,
- *     options: {
- *       clientID: 'xxxxxxxxx',
- *       clientSecret: 'xxxxxxxxx', //Client Secret
- *       scope: ['offline', 'contacts-rw', 'events-rw'] //App Scope
- *     },
- *     isSetup(req) {
- *       if (!!req.query.reset) return Promise.reject();
- *       const { token } = req.hull.connector.private_settings || {};
- *       return !!token
- *       ? Promise.resolve({ valid: true, total: 2 })
- *       : Promise.reject({ valid: false, total: 0 });
- *     },
- *     onLogin: req => {
- *       req.authParams = { ...req.body, ...req.query };
- *       return req.hull.helpers.settingsUpdate({
- *         portalId: req.authParams.portalId
- *       });
- *     },
- *     onAuthorize: req => {
- *       const { refreshToken, accessToken } = req.account || {};
- *       return req.hull.helpers.settingsUpdate({
- *         refresh_token: refreshToken,
- *         token: accessToken
- *       });
- *     },
- *     views: {
- *       login: 'login.html',
- *       home: 'home.html',
- *       failure: 'failure.html',
- *       success: 'success.html'
- *     }
- *   })
+ *    callback: () => ({
+ *      Strategy: HubspotStrategy,
+ *      isSetup () => {},,
+ *      onAuthorize () => {},
+ *      onLogin; () => {},
+ *      clientID: xxx,
+ *      clientSecret: xxx
+ *    }),
+ *    options: {
+ *      tokenInUrl: true,
+ *      name: "outreach",
+ *      strategy: {
+ *        authorizationURL: "https://xxx",
+ *        tokenURL: "https://xxx",
+ *        grant_type: "authorization_code",
+ *        scope: ['offline', 'contacts-rw', 'events-rw']
+ *      },
+ *      views: {
+ *        login:"login.html"
+ *        home:"home.html"
+ *        failure:"failure.html"
+ *        success:"success.html"
+ *      }
+ *    } : HullOAuthHandlerParams
  * );
  *
  * //each view will receive the following data:
@@ -108,24 +97,9 @@ const SUCCESS_URL = "/success";
  *   ship: ship //The entire Ship instance's config
  * }
  */
-type OAuthParams = {
-  name: string,
-  tokenInUrl?: boolean,
-  isSetup?: (req: HullOAuthRequest) => HullExternalResponse,
-  onAuthorize?: (req: HullOAuthRequest) => HullExternalResponse,
-  onLogin?: (req: HullOAuthRequest) => HullExternalResponse,
-  Strategy: any,
-  options: {},
-  views: {
-    login: string,
-    home: string,
-    failure: string,
-    success: string
-  }
-};
 
 function fetchToken(req: HullRequest, res: $Response, next: NextFunction) {
-  const token: string = (req.query.token || req.query.state).toString();
+  const token: string = (req.query.token || req.query.state || "").toString();
   if (token && token.split(".").length === 3) {
     req.hull = req.hull || {};
     req.hull.clientCredentialsToken = token;
@@ -146,24 +120,33 @@ function getURLs(req) {
   };
 }
 function oAuthHandlerFactory({
-  name,
-  tokenInUrl = true,
-  isSetup = function setup() {
-    return Promise.resolve();
+  options: opts,
+  callback
+}: {
+  options: {
+    oAuthOptions: HullOAuthHandlerOptions
   },
-  onAuthorize = function onAuth() {
-    return Promise.resolve();
-  },
-  onLogin = function onLog() {
-    return Promise.resolve();
-  },
-  Strategy,
-  views,
-  options = {}
-}: OAuthParams): Router {
+  callback: () => HullOAuthHandlerParams
+}): void | Router {
+  const { oAuthOptions } = opts;
+  const handlerParams = callback();
+  if (!handlerParams) {
+    return
+  }
+  const {
+    Strategy,
+    isSetup = _req => Promise.resolve(),
+    onAuthorize = _req => Promise.resolve(),
+    onLogin = _req => Promise.resolve(),
+    clientID,
+    clientSecret
+  } = handlerParams;
+  const { tokenInUrl, name, strategy, views } = oAuthOptions;
   const router = getRouter({
     options: {
-      credentialsFromQuery: true
+      credentialsFromQuery: true,
+      credentialsFromNotification: false,
+      strict: false
     },
     requestName: "oAuth",
     bodyParser: "urlencoded",
@@ -172,8 +155,13 @@ function oAuthHandlerFactory({
     disableErrorHandling: false
   });
 
-  const strategy = new Strategy(
-    _.merge({}, options, { passReqToCallback: true }),
+  const oAuthStrategy = new Strategy(
+    {
+      ...strategy,
+      clientID,
+      clientSecret,
+      passReqToCallback: true
+    },
     function verifyAccount(
       req: HullRequest,
       accessToken: string,
@@ -196,7 +184,7 @@ function oAuthHandlerFactory({
     done(null, user);
   });
 
-  passport.use(strategy);
+  passport.use(oAuthStrategy);
 
   router.get(HOME_URL, async (req: HullRequest, res: HullResponse) => {
     const { connector = {}, client } = req.hull;
@@ -212,7 +200,7 @@ function oAuthHandlerFactory({
 
   function authorize(req: HullRequest, res: HullResponse, next: NextFunction) {
     passport.authorize(
-      strategy.name,
+      oAuthStrategy.name,
       _.merge({}, req.hull.authParams, {
         callbackURL: getURL(
           req,

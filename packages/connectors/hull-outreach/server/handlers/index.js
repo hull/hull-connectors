@@ -38,7 +38,6 @@ const handlers = ({
   });
   const userUpdate = user_update(hullRouter);
   const accountUpdate = account_update(hullRouter);
-  const authHandler = hullRouter.createAuthHandler();
 
   /**
    * We should think more about how the rules get hooked into routes
@@ -47,11 +46,10 @@ const handlers = ({
    */
   return {
     incoming: { webhooks: webhooks(hullRouter) },
-    tabs: { adminHandler },
+    tabs: { adminHandler, authHandler: hullRouter.createAuthHandler },
     statuses: { status: status(hullRouter) },
     subscriptions: { userUpdate, accountUpdate },
     batches: { userUpdate, accountUpdate },
-    routers: { authHandler },
     json: {
       fetchAll: fetchAll(hullRouter),
       accountFetchAll: accountFetchAll(hullRouter),

@@ -195,23 +195,9 @@ const service = ({ clientID, clientSecret } : {
   authentication: {
     strategy: "oauth2",
     params: {
-      name: "Outreach",
       Strategy: OAuth2Strategy,
-      tokenInUrl: true,
-      options: {
-        clientID,
-        clientSecret,
-        authorizationURL: "https://api.outreach.io/oauth/authorize",
-        tokenURL: "https://api.outreach.io/oauth/token",
-        grant_type: "authorization_code",
-        scope: [
-          "create_prospects",
-          "prospects.all",
-          "create_accounts",
-          "accounts.all",
-          "webhooks.all"
-        ] // App Scope
-      }
+      clientID,
+      clientSecret,
     }
   },
   error: {

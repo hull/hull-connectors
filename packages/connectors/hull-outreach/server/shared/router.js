@@ -5,7 +5,8 @@ import type {
   HullAccountUpdateMessage,
   HullUserUpdateMessage,
   HullNotificationResponse,
-  HullIncomingHandlerMessage
+  HullIncomingHandlerMessage,
+  HullOAuthHandlerParams
 } from "hull";
 import service from "../service";
 const { WebhookPayload } = require("../service-objects");
@@ -66,7 +67,7 @@ class HullRouter {
   }
 
   /** ***************** this one isn't declared in manifest *******************/
-  createAuthHandler() {
+  createAuthHandler = (): HullOAuthHandlerParams => {
     const primaryService = _.find(
       this.serviceDefinitions,
       service => !_.isEmpty(service.authentication)
@@ -78,10 +79,11 @@ class HullRouter {
       if (authentication.strategy === "oauth2") {
         const params = _.cloneDeep(authentication.params);
         _.merge(params, oauth2);
-        return oAuthHandler(params);
+        return params;
+        // return oAuthHandler(params);
       }
     }
-    return null;
+    return;
   }
 
   async incomingData(

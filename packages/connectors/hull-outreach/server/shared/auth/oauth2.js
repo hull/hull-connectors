@@ -28,12 +28,6 @@ const oauth2 = {
       refresh_token: refreshToken,
       access_token
     });
-  },
-  views: {
-    login: "login.html",
-    home: "home.html",
-    failure: "failure.html",
-    success: "success.html"
   }
 };
 

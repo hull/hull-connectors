@@ -341,7 +341,22 @@
       "url": "/auth/",
       "size": "small",
       "editable": false,
-      "handler":"auth"
+      "handler":"auth",
+      "options": {
+        "type": "oAuth",
+        "oAuthOptions": {
+          "name": "Hubspot",
+          "strategy": {
+            "scope": ["oauth", "contacts", "timeline"]
+          },
+          "views": {
+            "login": "login.html",
+            "home": "home.html",
+            "failure": "failure.html",
+            "success": "success.html"
+          }
+        }
+      }
     }
   ],
   "json": [
