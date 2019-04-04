@@ -680,6 +680,31 @@ export type HullIncomingHandlerCallback = (
 ) => HullExternalResponse;
 export type HullSchedulerHandlerCallback = HullIncomingHandlerCallback;
 export type HullHtmlHandlerCallback = HullIncomingHandlerCallback;
+export type HullOAuthHandlerParams = void | {
+  isSetup?: (req: HullOAuthRequest) => HullExternalResponse,
+  onAuthorize?: (req: HullOAuthRequest) => HullExternalResponse,
+  onLogin?: (req: HullOAuthRequest) => HullExternalResponse,
+  Strategy: any,
+  clientID: string,
+  clientSecret: string
+};
+export type HullOAuthHandlerOptions = {
+  name: string,
+  tokenInUrl?: boolean,
+  views: {
+    login: string,
+    home: string,
+    failure: string,
+    success: string
+  },
+  strategy: {
+    authorizationURL: string,
+    tokenURL: string,
+    grant_type: string,
+    scope: Array<string>
+  }
+};
+export type HullOAuthHandlerCallback = () => void | HullOAuthHandlerParams;
 export type HullJsonHandlerCallback = HullIncomingHandlerCallback;
 
 // ====================================
@@ -752,7 +777,7 @@ export type HullIncomingClaimsSetting = {
 export type HullHandlersConfiguration = {
   subscriptions?: { [string]: HullNotificationHandlerCallback },
   batches?: { [string]: HullBatchHandlerCallback },
-  tabs?: { [string]: HullHtmlHandlerCallback },
+  tabs?: { [string]: HullHtmlHandlerCallback | HullOAuthHandlerCallback },
   statuses?: { [string]: HullStatusHandlerCallback },
   schedules?: { [string]: HullSchedulerHandlerCallback },
   json?: { [string]: HullJsonHandlerCallback },
@@ -793,47 +818,6 @@ export type HullStatusHandlerConfigurationEntry = Handler<
   HullStatusHandlerCallback,
   HullStatusHandlerOptions
 >;
-
-// export type HullNotificationHandlerConfiguration = {|
-//   "user:update"?: Handler<
-//     HullUserUpdateCallback,
-//     HullNotificationHandlerOptions
-//   >,
-//   "user:delete"?: Handler<
-//     HullUserDeleteCallback,
-//     HullNotificationHandlerOptions
-//   >,
-//   "account:update"?: Handler<
-//     HullAccountUpdateCallback,
-//     HullNotificationHandlerOptions
-//   >,
-//   "users_segment:update"?: Handler<
-//     HullSegmentUpdateCallback<HullUserSegmentUpdateMessage>,
-//     HullNotificationHandlerOptions
-//   >,
-//   "users_segment:delete"?: Handler<
-//     HullSegmentDeleteCallback<HullUserSegmentUpdateMessage>,
-//     HullNotificationHandlerOptions
-//   >,
-//   "accounts_segment:update"?: Handler<
-//     HullSegmentUpdateCallback<HullAccountSegmentUpdateMessage>,
-//     HullNotificationHandlerOptions
-//   >,
-//   "accounts_segment:delete"?: Handler<
-//     HullSegmentDeleteCallback<HullAccountSegmentUpdateMessage>,
-//     HullNotificationHandlerOptions
-//   >,
-//   "ship:update"?: Handler<
-//     HullConnectorUpdateCallback,
-//     HullNotificationHandlerOptions
-//   >
-//   // ,
-//   // [HullChannelName: string]: Handler<
-//   //   HullNotificationHandlerCallback,
-//   //   HullNotificationHandlerOptions
-//   // >
-// |};
-
 export type HullNotificationHandlerConfiguration = Array<{
   callback: HullNotificationHandlerCallback,
   channel: HullNotificationHandlerChannel,
