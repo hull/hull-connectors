@@ -12,7 +12,8 @@
     "batch-accounts",
     "oneColumn",
     "smart-notifier",
-    "first-install"
+    "first-install",
+    "single-install"
   ],
   "settings": [],
   "private_settings": [
