@@ -8,7 +8,8 @@
     "batch",
     "oneColumn",
     "smart-notifier",
-    "first-install"
+    "first-install",
+    "single-install"
   ],
   "source": "mailchimp",
   "logo": "logo.png",
