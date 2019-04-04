@@ -100,7 +100,7 @@
             "user": {
                 "traits_outreach/custom2": "Alberto Nodale",
                 "traits_outreach/stage": 2,
-                "traits_outreach/": 1,
+                "traits_outreach/owner": 1,
                 "traits_closeio/phone_office": "+18552567346",
                 "id": "userid",
                 "email": "alberto@close.io",
