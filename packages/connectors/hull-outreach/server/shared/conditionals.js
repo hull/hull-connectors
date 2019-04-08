@@ -17,6 +17,13 @@ function isNull(param: string) {
   };
 }
 
+function doesContain(listValues, param: string) {
+  return (context) => {
+    const contextVariable = _.get(context, param);
+    return listValues.indexOf(contextVariable) > -1;
+  };
+}
+
 function doesNotContain(listValues, param: string) {
   return (context) => {
     const contextVariable = _.get(context, param);
@@ -59,5 +66,6 @@ module.exports = {
   isEqual,
   doesNotContain,
   isEmptyNotNull,
-  isNotEmpty
+  isNotEmpty,
+  doesContain
 };
