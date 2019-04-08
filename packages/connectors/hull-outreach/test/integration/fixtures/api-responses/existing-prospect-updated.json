@@ -223,7 +223,10 @@
         }
       },
       "owner": {
-        "data": null
+        "data": {
+          "type": "user",
+          "id": 1
+        }
       },
       "persona": {
         "data": null
@@ -248,7 +251,10 @@
         }
       },
       "stage": {
-        "data": null
+        "data": {
+          "type": "stage",
+          "id": 2
+        }
       },
       "tasks": {
         "links": {

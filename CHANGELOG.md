@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.0.18-monorepo
+- [hull-outreach] Added the ability to set and get stage and owner
+- [hull-hubspot] Added ability to batch send accounts to hubspot
+
 ## v0.0.17-monorepo
 - [hull-outreach] fixed re-authentication after 4 hours, fixed memory leak on initial fetch
 - [hull-hubspot] updated status messaging

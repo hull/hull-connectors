@@ -76,7 +76,7 @@ class TransformImpl {
 
             // Should create something a little smarter to do local scope...
             // stack of contexts probably...
-            const context = _.assign({}, globalContext)
+            const context = _.assign({}, globalContext);
 
             if (typeof mappedField === "string") {
               context.hull_field_name = mappedField;
