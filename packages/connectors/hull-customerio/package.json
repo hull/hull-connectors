@@ -3,8 +3,9 @@
   "description": "Sync users within customer.io service",
   "version": "0.0.17-monorepo",
   "scripts": {
-    "test": "exit 0; echo 'tests are run by global jest'",
-    "documentation": "exit 0"
+    "test": "yarn run test:integration",
+    "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit",
+    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
   },
   "dependencies": {
     "hull": "link:../../hull",

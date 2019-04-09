@@ -9,16 +9,18 @@ const { webhookHandler, statusCheck, updateUser } = require("./actions");
 const { encrypt } = require("./lib/crypto");
 const { middleware } = require("./lib/crypto");
 
-function server(app: $Application, { hostSecret }: Object): $Application {
+const { SECRET } = process.env;
+
+function server(app: $Application): $Application {
   app.get("/admin.html", (req: HullRequest, res: $Response) => {
-    const token = encrypt(req.hull.config, hostSecret);
+    const token = encrypt(req.hull.config, SECRET || "1234");
     res.render("admin.html", { hostname: req.hostname, token });
   });
 
   app.all(
     "/webhook",
     bodyParser.json(),
-    middleware(hostSecret),
+    middleware(SECRET || "1234"),
     webhookHandler
   );
 
