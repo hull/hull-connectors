@@ -55,7 +55,8 @@ const handlerFactory = ({
 
     // Early return if we don't have a response;
     if (!response) {
-      return res.send(200).end("ok");
+      res.sendStatus(200);
+      return res.end("ok");
     }
 
     // There'a an actual Response to send
