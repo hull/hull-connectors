@@ -14,8 +14,9 @@ import type {
   Event,
   Result,
   Traits
-} from "../../types";
-import { hasValidUserClaims, hasValidAccountClaims } from "./validate-claims";
+} from "../../../types";
+
+import { hasValidUserClaims, hasValidAccountClaims } from "../validate-claims";
 
 const trackFactory = (
   claims: Claims,

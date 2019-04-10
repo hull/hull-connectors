@@ -16,9 +16,16 @@ type TraitsSignature =
       metric: $PropertyType<HullContext, "metric">
     };
 
+type EventSignature = {
+  hullClient: $PropertyType<HullClient, "asUser">,
+  data: Array<Event>,
+  entity: string,
+  metric: $PropertyType<HullContext, "metric">
+};
+
 export const callTraits = async ({
   hullClient,
-  data,
+  data = [],
   entity,
   metric
 }: TraitsSignature): Promise<any> => {
@@ -29,7 +36,7 @@ export const callTraits = async ({
         async ({ traits: { attributes, context }, claims, claimsOptions }) => {
           const client = hullClient(claims, claimsOptions);
           try {
-            await client.traits(attributes);
+            await client.traits(attributes, context);
             successful += 1;
             return client.logger.info(`incoming.${entity}.success`, {
               attributes,
@@ -51,15 +58,9 @@ export const callTraits = async ({
   }
 };
 
-type EventSignature = {
-  hullClient: $PropertyType<HullClient, "asUser">,
-  data: Array<Event>,
-  entity: string,
-  metric: $PropertyType<HullContext, "metric">
-};
 export const callEvents = async ({
   hullClient,
-  data,
+  data = [],
   entity,
   metric
 }: EventSignature): Promise<any> => {
@@ -96,7 +97,7 @@ export const callEvents = async ({
 
 export const callLinks = async (
   hullClient: $PropertyType<HullClient, "asUser">,
-  data: Array<Links>,
+  data: Array<Links> = [],
   entity: string = "account",
   metric: $PropertyType<HullContext, "metric">
 ): Promise<any> => {

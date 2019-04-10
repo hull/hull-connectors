@@ -3,7 +3,11 @@ import qs from "querystring";
 import url from "url";
 import _ from "lodash";
 
+const debug = require("debug")("hull-incoming-webhooks:cryptoMiddleware");
+
 const algorithm = "aes-128-cbc";
+
+// @TODO use this encryption instead of JWT when providing Tokens to external tools ?
 
 export function encrypt(text, password) {
   const cipher = crypto.createCipher(algorithm, password);
@@ -25,16 +29,13 @@ export function middleware(password) {
       url.parse(req.url).pathname.match("/webhooks/(?:[a-zA-Z0-9]*)/(.*)"),
       "[1]"
     );
+    debug("url", { pathName, url: req.url, query: req.query });
+    const { conf } = req.query || {};
+    const clientCredentials = decrypt(pathName || conf, password);
+    debug("clientCredentials", clientCredentials);
     if (pathName) {
       req.hull = req.hull || {};
-      req.hull.clientCredentials = decrypt(pathName, password);
-      return next();
-    }
-
-    if (req.query && req.query.conf) {
-      req.hull = req.hull || {};
-      req.hull.clientCredentials = decrypt(req.query.conf, password);
-      return next();
+      req.hull.clientCredentials = clientCredentials;
     }
     return next();
   };

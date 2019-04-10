@@ -2,13 +2,15 @@
 import _ from "lodash";
 import type {
   HullContext,
-  HullResponse,
+  // HullResponse,
   HullIncomingHandlerMessage,
   HullExternalResponse
 } from "hull";
 import compute from "../lib/compute";
 import ingest from "../lib/ingest";
 import type { Payload } from "../../types";
+
+// const debug = require("debug")("hull-incoming-webhooks:incoming");
 
 const pickValuesFromRequest = ({
   body,
@@ -33,11 +35,39 @@ const pickValuesFromRequest = ({
   ])
 });
 
+const asyncComputeAndIngest = async ({
+  EntryModel,
+  metric,
+  payload,
+  connector,
+  client,
+  code
+}) => {
+  try {
+    const result = await compute({
+      context: payload,
+      connector,
+      client,
+      code,
+      preview: false
+    });
+    ingest({ payload, code, result, connector, client, metric }, EntryModel);
+  } catch (err) {
+    client.logger.error("incoming.user.error", {
+      hull_summary: `Error Processing user: ${_.get(
+        err,
+        "message",
+        "Unexpected error"
+      )}`,
+      err
+    });
+  }
+};
+
 export default function handler(EntryModel: Object) {
   return async (
     ctx: HullContext,
-    message: HullIncomingHandlerMessage,
-    res: HullResponse
+    message: HullIncomingHandlerMessage
   ): HullExternalResponse => {
     const { client, connector, metric } = ctx;
     const { private_settings = {} } = connector;
@@ -54,40 +84,27 @@ export default function handler(EntryModel: Object) {
       };
     }
 
-    res.send(200);
+    // res.sendStatus(200);
 
     const payload: Payload = pickValuesFromRequest(message);
-    client.logger.debug("connector.request.data", payload);
-    const result = await compute({
+    client.logger.debug(
+      "connector.request.data",
+      _.pick(payload, "body", "method", "params", "query")
+    );
+    asyncComputeAndIngest({
+      EntryModel,
+      metric,
       payload,
       connector,
       client,
-      code,
-      preview: false
+      code
     });
-
-    try {
-      ingest(
-        {
-          payload,
-          code,
-          result,
-          connector,
-          client,
-          metric
-        },
-        EntryModel
-      );
-    } catch (err) {
-      client.logger.error("incoming.user.error", {
-        hull_summary: `Error Processing user: ${_.get(
-          err,
-          "message",
-          "Unexpected error"
-        )}`,
-        err
-      });
-    }
-    return undefined;
+    // return undefined;
+    return {
+      status: 200,
+      data: {
+        ok: true
+      }
+    };
   };
 }

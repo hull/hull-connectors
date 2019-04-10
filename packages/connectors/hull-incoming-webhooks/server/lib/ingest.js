@@ -68,7 +68,12 @@ module.exports = async function ingest(
   // Emit events
   if (_.size(events)) {
     promises.push(
-      callEvents({ hullClient: client.asUser, events, entity: "event", metric })
+      callEvents({
+        hullClient: client.asUser,
+        data: events,
+        entity: "event",
+        metric
+      })
     );
   }
 
@@ -90,6 +95,7 @@ module.exports = async function ingest(
     );
   }
 
+  // Wait until we've ingested everything
   await Promise.all(promises);
 
   const entry: Entry = {
@@ -99,5 +105,5 @@ module.exports = async function ingest(
     payload,
     date: new Date().toString()
   };
-  return EntryModel && EntryModel.create(entry);
+  return EntryModel.create(entry);
 };

@@ -4,10 +4,10 @@ import moment from "moment";
 import _ from "lodash";
 import type { Entry } from "../../types";
 
-export default function getRecent(Model: Object) {
+export default function getRecent(EntryModel: Object) {
   return async (ctx: HullContext): Promise<HullExternalResponse> => {
     const { client, connector = {} } = ctx;
-    const query = Model.find({ connectorId: connector.id })
+    const query = EntryModel.find({ connectorId: connector.id })
       .sort({ date: -1 })
       .limit(100);
 

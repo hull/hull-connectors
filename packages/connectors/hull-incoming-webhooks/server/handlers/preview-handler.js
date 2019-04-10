@@ -2,7 +2,6 @@
 
 import type {
   HullContext,
-  HullResponse,
   HullIncomingHandlerMessage,
   HullExternalResponse
 } from "hull";
@@ -13,8 +12,7 @@ import compute from "../lib/compute";
 
 export default async function computeHandler(
   ctx: HullContext,
-  { body }: HullIncomingHandlerMessage,
-  res: HullResponse
+  { body }: HullIncomingHandlerMessage
 ): HullExternalResponse {
   const { client, connector } = ctx;
 
@@ -34,7 +32,7 @@ export default async function computeHandler(
   // doesn't have private_settings embedded
   // connector = connector.private_settings ? connector : req.hull.connector;
 
-  res.type("application/json");
+  // res.type("application/json");
 
   if (!client || !connector || !payload) {
     return {
@@ -47,7 +45,7 @@ export default async function computeHandler(
   }
 
   const result = await compute({
-    payload,
+    context: payload,
     connector,
     client,
     preview: true,

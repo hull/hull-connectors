@@ -98,7 +98,7 @@ export type Entry = {
 export type ComputeOptions = {
   code: string,
   preview: boolean,
-  payload: Payload,
+  context: Payload,
   connector: HullConnector,
   client: HullClient
 };
@@ -154,14 +154,6 @@ export type ClaimsValidation =
       message: string,
       error: string
     };
-
-export type RunOptions = {
-  connector: HullConnector,
-  client: HullClient,
-  context: {},
-  code: string,
-  preview: boolean
-};
 
 export type ConfResponse = {
   hostname: string,
