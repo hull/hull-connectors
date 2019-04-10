@@ -430,8 +430,18 @@ class EntityScopedHullClient extends HullClient {
    * @param  {Object} traits            object with new attributes, it's always flat object, without nested subobjects
    * @return {Promise}
    */
-  traits = (traits: HullEntityAttributes): Promise<*> => {
-    const body = { ...traits };
+  traits = (
+    traits: HullEntityAttributes,
+    context: {
+      source?: string
+    } = {}
+  ): Promise<*> => {
+    const body =
+      context && context.source
+        ? this.utils.traits.applyContext(traits, context)
+        : {
+            ...traits
+          };
     return this.batch({ type: "traits", body, requestId: this.requestId });
   };
 }
