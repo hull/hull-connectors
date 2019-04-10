@@ -23,7 +23,7 @@ function baseContextMiddlewareFactory({
     next: NextFunction
   ) {
     const { clientConfig } = connectorConfig;
-    const context = {};
+    const context = req.hull || {};
     context.hostname = req.hostname || "";
     context.isBatch = false;
     context.options = Object.assign({}, req.query);
