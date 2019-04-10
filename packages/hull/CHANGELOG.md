@@ -194,7 +194,7 @@
 * logging api timeouts and failures
 * filter out logged claims for users and accounts so one can pass `hull.asUser(user)`
 * add `client.as` alias and deprecation notice
-* add error handling for oAuth client
+* add error handling for OAuth client
 
 # 0.11.8
 * adds identification claims mapping for logger. Since now we can use: `client.asUser({ id, email }).logger("incoming.user.success");`
@@ -333,7 +333,7 @@
 
 # 0.9.4
 
-* isSetup method in oAuth handler accepts parameters in resolve and reject to pass to the view
+* isSetup method in OAuth handler accepts parameters in resolve and reject to pass to the view
 
 # 0.9.3
 

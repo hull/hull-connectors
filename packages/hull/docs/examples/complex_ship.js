@@ -3,7 +3,7 @@ import Promise from "bluebird";
 import express from "express";
 
 // pick what we need from the hull-node
-import { batchHandler, notifHandler, actionHandler, batcherHandler, oAuthHandler } from "hull/lib/utils";
+import { batchHandler, notifHandler, actionHandler, batcherHandler, OAuthHandler } from "hull/lib/utils";
 
 import { Strategy as HubspotStrategy } from "passport-hubspot";
 
@@ -75,9 +75,9 @@ app.use("/notify", notifHandler({
 
 
 /**
- * A handler to ease the oAuth flow
+ * A handler to ease the OAuth flow
  */
-app.use("/auth", oAuthHandler({
+app.use("/auth", OAuthHandler({
   name: "Hubspot",
   Strategy: HubspotStrategy,
   options: {

@@ -343,8 +343,8 @@
       "editable": false,
       "handler":"auth",
       "options": {
-        "type": "oAuth",
-        "oAuthOptions": {
+        "type": "OAuth",
+        "params": {
           "name": "Hubspot",
           "strategy": {
             "scope": ["oauth", "contacts", "timeline"]

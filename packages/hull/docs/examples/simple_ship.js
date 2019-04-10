@@ -2,7 +2,7 @@ import Hull from "hull";
 import express from "express";
 
 // pick what we need from the hull-node
-import { batchHandler, oAuthHandler, actionRouter } from "hull/lib/utils";
+import { batchHandler, OAuthHandler, actionRouter } from "hull/lib/utils";
 
 
 const port = process.env.PORT;

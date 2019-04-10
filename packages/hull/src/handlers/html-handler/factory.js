@@ -5,7 +5,7 @@ import type { HullHtmlHandlerConfigurationEntry } from "../../types";
 import getRouter from "../get-router";
 import errorHandler from "../error-handler";
 import handler from "../external-handler";
-import oAuthHandler from "../oauth-handler/factory";
+import OAuthHandler from "../oauth-handler/factory";
 
 /**
  * @TODO the logic for this should be combined with jsonHandler
@@ -38,10 +38,15 @@ import oAuthHandler from "../oauth-handler/factory";
 function htmlHandlerFactory(
   configurationEntry: HullHtmlHandlerConfigurationEntry
 ): void | Router {
-  const { options = {} } = configurationEntry;
-  const { type } = options;
-  if (type === "oAuth") {
-    return oAuthHandler(configurationEntry);
+  const { options = {}, callback } = configurationEntry;
+  const { type = undefined } = options;
+  if (type) {
+    if (type.toLowerCase() === "router") {
+      return callback(options);
+    }
+    if (type.toLowerCase() === "oauth") {
+      return OAuthHandler(configurationEntry);
+    }
   }
 
   return getRouter({

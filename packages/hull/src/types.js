@@ -78,6 +78,8 @@ export type HullBatchHandlerOptions = {
 export type HullIncomingHandlerOptions = {
   // fetchShip?: boolean,
   // cacheShip?: boolean,
+  type?: "router" | "OAuth" | "oauth",
+  params?: HullOAuthHandlerOptions | {},
   cache?: HandlerCacheOptions,
   respondWithError?: boolean,
   disableErrorHandling?: boolean,

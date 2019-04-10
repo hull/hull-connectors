@@ -3,18 +3,20 @@ import type { HullOAuthRequest, HullOAuthHandlerParams } from "hull";
 
 const HubspotStrategy = require("passport-hubspot-oauth2.0");
 const moment = require("moment");
-const Promise = require("bluebird");
 const debug = require("debug")("hull-hubspot:oauth");
 
 const SyncAgent = require("../lib/sync-agent");
 
-const handler = ({
+module.exports = ({
   clientID,
   clientSecret
-}: Object): HullOAuthHandlerParams => ({
+}: {
+  clientID: string,
+  clientSecret: string
+}) => (): HullOAuthHandlerParams => ({
+  Strategy: HubspotStrategy,
   clientID,
   clientSecret,
-  Strategy: HubspotStrategy,
   isSetup: async req => {
     const { client, connector } = req.hull;
     if (req.query.reset) return Promise.reject(new Error("Requested reset"));
@@ -83,5 +85,3 @@ const handler = ({
     };
   }
 });
-
-module.exports = handler;

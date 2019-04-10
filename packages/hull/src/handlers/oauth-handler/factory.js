@@ -36,7 +36,7 @@ const SUCCESS_URL = "/success";
  *
  * For example of the notifications payload [see details](./notifications.md)
  *
- * @name oAuthHandler
+ * @name OAuthHandler
  * @memberof Utils
  * @public
  * @param  {Object}    options
@@ -51,14 +51,14 @@ const SUCCESS_URL = "/success";
  * @param  {Object}    options.options     Hash passed to Passport to configure the OAuth Strategy. (See [Passport OAuth Configuration](http://passportjs.org/docs/oauth))
  * @return {Function} OAuth handler to use with expressjs
  * @example
- * const { oAuthHandler } = require("hull/lib/utils");
+ * const { OAuthHandler } = require("hull/lib/utils");
  * const { Strategy as HubspotStrategy } = require("passport-hubspot");
  *
  * const app = express();
  *
  * app.use(
  *   '/auth',
- *   oAuthHandler({
+ *   OAuthHandler({
  *    callback: () => ({
  *      Strategy: HubspotStrategy,
  *      isSetup () => {},,
@@ -119,19 +119,19 @@ function getURLs(req) {
     home: getURL(req, HOME_URL)
   };
 }
-function oAuthHandlerFactory({
+function OAuthHandlerFactory({
   options: opts,
   callback
 }: {
   options: {
-    oAuthOptions: HullOAuthHandlerOptions
+    params: HullOAuthHandlerOptions
   },
   callback: () => HullOAuthHandlerParams
-}): void | Router {
-  const { oAuthOptions } = opts;
+}): Router | void {
+  const { params } = opts;
   const handlerParams = callback();
   if (!handlerParams) {
-    return
+    return undefined;
   }
   const {
     Strategy,
@@ -141,21 +141,21 @@ function oAuthHandlerFactory({
     clientID,
     clientSecret
   } = handlerParams;
-  const { tokenInUrl, name, strategy, views } = oAuthOptions;
+  const { tokenInUrl, name, strategy, views } = params;
   const router = getRouter({
     options: {
       credentialsFromQuery: true,
       credentialsFromNotification: false,
       strict: false
     },
-    requestName: "oAuth",
+    requestName: "OAuth",
     bodyParser: "urlencoded",
     beforeMiddlewares: [fetchToken],
     afterMiddlewares: [passport.initialize()],
     disableErrorHandling: false
   });
 
-  const oAuthStrategy = new Strategy(
+  const OAuthStrategy = new Strategy(
     {
       ...strategy,
       clientID,
@@ -166,16 +166,21 @@ function oAuthHandlerFactory({
       req: HullRequest,
       accessToken: string,
       refreshToken: string,
-      params: any,
+      veryfyParams: any,
       profile: (any, any) => any,
       done?: (any, any) => any
     ) {
       if (done === undefined) {
         done = profile;
-        profile = params;
-        params = undefined;
+        profile = veryfyParams;
+        veryfyParams = undefined;
       }
-      done(undefined, { accessToken, refreshToken, params, profile });
+      done(undefined, {
+        accessToken,
+        refreshToken,
+        params: veryfyParams,
+        profile
+      });
     }
   );
 
@@ -184,7 +189,7 @@ function oAuthHandlerFactory({
     done(null, user);
   });
 
-  passport.use(oAuthStrategy);
+  passport.use(OAuthStrategy);
 
   router.get(HOME_URL, async (req: HullRequest, res: HullResponse) => {
     const { connector = {}, client } = req.hull;
@@ -200,7 +205,7 @@ function oAuthHandlerFactory({
 
   function authorize(req: HullRequest, res: HullResponse, next: NextFunction) {
     passport.authorize(
-      oAuthStrategy.name,
+      OAuthStrategy.name,
       _.merge({}, req.hull.authParams, {
         callbackURL: getURL(
           req,
@@ -285,4 +290,4 @@ function oAuthHandlerFactory({
   return router;
 }
 
-module.exports = oAuthHandlerFactory;
+module.exports = OAuthHandlerFactory;

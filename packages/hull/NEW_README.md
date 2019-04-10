@@ -150,7 +150,7 @@ app.use("/incoming-webhook", requestsBufferHandler("incoming:webhook", {
 
 connector.startApp(app);
 ```
-### Handling oAuth authorization flow
+### Handling OAuth authorization flow
 oauthHandler
 
 ### Triggering one time jobs

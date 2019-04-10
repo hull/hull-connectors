@@ -1,7 +1,7 @@
 /**
  * File configuring the server application of the HullApp
  */
-import { actionRouter, batchHandler, notifHandler, oAuthHandler, batcherHandler } from "hull/lib/utils";
+import { actionRouter, batchHandler, notifHandler, OAuthHandler, batcherHandler } from "hull/lib/utils";
 
 export default function Server({ app, clientId, clientSecret }) {
   app.get("/fetch-all", actionRouter((req, { query, body }) => {
@@ -15,7 +15,7 @@ export default function Server({ app, clientId, clientSecret }) {
     }
   }))
 
-  app.use("/admin", oAuthHandler({
+  app.use("/admin", OAuthHandler({
     clientId,
     clientSecret,
     onLogin: () => {}
