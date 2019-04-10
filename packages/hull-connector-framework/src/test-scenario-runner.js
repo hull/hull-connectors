@@ -224,7 +224,8 @@ class TestScenarioRunner extends EventEmitter {
               },
               _.isNil
             ),
-            _.omitBy(entry.body, _.isNil)
+            // @TODO check with Tim why we were omitting _.isNil -> this was filtering out `null` values
+            entry.body
           ];
         })
         .value();
@@ -360,6 +361,7 @@ class TestScenarioRunner extends EventEmitter {
             response = await this.externalIncomingRequest({
               superagent,
               connectorUrl: `http://localhost:${connectorPort}`,
+              config: this.connectorConfig,
               plainCredentials: {
                 organization: this.minihull._getOrgAddr(),
                 ship: this.connectorData.id,
