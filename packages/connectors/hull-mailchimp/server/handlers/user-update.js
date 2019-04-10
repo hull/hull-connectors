@@ -22,7 +22,7 @@ const flowControl = (type: "next" | "retry") => ({
 /**
  * Handles notification about user changes
  */
-export default function userUpdateHandler(
+export default async function userUpdateHandler(
   ctx: HullContext,
   messages: Array<HullUserUpdateMessage>
 ): HullNotificationResponse {
@@ -45,9 +45,9 @@ export default function userUpdateHandler(
       syncAgent.messageAdded(message) && syncAgent.messageWhitelisted(message)
   );
 
-  return (() => {
+  try {
     if (filteredMessages.length > 0) {
-      const sendUsersPromise = promiseRetry(
+      await promiseRetry(
         retry =>
           syncAgent.sendUserUpdateMessages(filteredMessages).catch(error => {
             if (error instanceof ConfigurationError) {
@@ -57,28 +57,31 @@ export default function userUpdateHandler(
           }),
         { retries: 2, minTimeout: 0 }
       );
-      return sendUsersPromise;
     }
-    return Promise.resolve();
-  })()
-    .then(() => {
-      if (
-        messagesToTrack.length > 0 &&
-        syncAgent.fetchUserActivityOnUpdate === true
-      ) {
-        // $FlowFixMe
-        return trackUsers(ctx, {
-          users: messagesToTrack.map(message => message.user)
-        }).then(() => flowControl("next"));
-      }
-      return Promise.resolve(flowControl("next"));
-    })
-    .catch(error => {
-      ctx.client.logger.error("outgoing.job.error", {
-        type: "notification",
-        error: _.get(error, "message", "unknown"),
-        stack: _.get(error, "stack")
+
+    if (
+      messagesToTrack.length > 0 &&
+      syncAgent.fetchUserActivityOnUpdate === true
+    ) {
+      // $FlowFixMe
+      await trackUsers(ctx, {
+        users: messagesToTrack.map(message => message.user)
       });
-      return Promise.resolve(flowControl("retry"));
+      return {
+        flow_control: flowControl("next")
+      };
+    }
+    return {
+      flow_control: flowControl("next")
+    };
+  } catch (error) {
+    ctx.client.logger.error("outgoing.job.error", {
+      type: "notification",
+      error: error.message,
+      stack: error.stack
     });
+    return {
+      flow_control: flowControl("retry")
+    };
+  }
 }

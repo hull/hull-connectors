@@ -11,18 +11,18 @@ const {
 
 const shipAppFactory = require("./ship-app-factory");
 
-function oauth({
-  name,
-  clientID,
-  clientSecret,
-  callbackUrl,
-  homeUrl,
-  selectUrl,
-  syncUrl,
-  site,
-  tokenPath,
-  authorizationPath
-}) {
+const OAuthFactory = ({ clientID, clientSecret }) => ({
+  params: {
+    name,
+    callbackUrl,
+    homeUrl,
+    selectUrl,
+    syncUrl,
+    site,
+    tokenPath,
+    authorizationPath
+  }
+}) => {
   const oauth2 = oauth2Factory({
     name,
     clientID,
@@ -277,6 +277,6 @@ function oauth({
   );
 
   return router;
-}
+};
 
-module.exports = oauth;
+module.exports = OAuthFactory;

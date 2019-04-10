@@ -177,6 +177,7 @@
       "options":{
         "type": "router",
         "params": {
+          "name": "Mailchimp",
           "callbackUrl": "/callback",
           "homeUrl": "/",
           "selectUrl": "/select",

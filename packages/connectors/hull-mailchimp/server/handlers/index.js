@@ -15,7 +15,7 @@ import {
   webhook
 } from "../actions";
 
-import oauth from "../lib/oauth-client";
+import OAuthFactory from "../lib/oauth-client";
 
 export default function handlers({
   clientID,
@@ -28,7 +28,7 @@ export default function handlers({
 }): HullHandlersConfiguration {
   return {
     incoming: { webhook },
-    notifications: {
+    subscriptions: {
       user_update,
       ship_update,
       users_segment_update,
@@ -36,7 +36,7 @@ export default function handlers({
     },
     batches: { user_update },
     statuses: { status },
-    // schedules: { track },
+    schedules: { track },
     json: {
       schemaUserFields,
       syncIn,
@@ -48,18 +48,10 @@ export default function handlers({
     },
     // @TODO: Check we're still working when using the oauth provider as a classic route
     tabs: {
-      auth: oauth({
-        name: "Mailchimp",
+      auth: OAuthFactory({
         hostSecret,
         clientID,
-        clientSecret,
-        callbackUrl: "/callback",
-        homeUrl: "/",
-        selectUrl: "/select",
-        syncUrl: "/sync",
-        site: "https://login.mailchimp.com",
-        tokenPath: "/oauth2/token",
-        authorizationPath: "/oauth2/authorize"
+        clientSecret
       })
     }
   };
