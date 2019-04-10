@@ -59,6 +59,7 @@ function notificationHandlerProcessingMiddlewareFactory(
             messages
           );
           const { flow_control = defaultSuccessFlowControl } = nResponse || {};
+          debug("notification response", JSON.stringify(nResponse.flow_control));
           return res.status(200).json({ flow_control });
         })
       );
