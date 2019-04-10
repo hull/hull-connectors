@@ -22,8 +22,8 @@ export default function connectorConfig(): HullConnectorConfig {
     OVERRIDE_FIREHOSE_URL,
     COMBINED,
     SERVER,
-    CLIENT_ID,
-    CLIENT_SECRET,
+    MAILCHIMP_CLIENT_ID,
+    MAILCHIMP_CLIENT_SECRET,
     WORKER
   } = process.env;
 
@@ -33,7 +33,7 @@ export default function connectorConfig(): HullConnectorConfig {
     );
   }
 
-  if (!CLIENT_ID || !CLIENT_SECRET) {
+  if (!MAILCHIMP_CLIENT_ID || !MAILCHIMP_CLIENT_SECRET) {
     throw new Error(
       "Can't find Mailchimp Client ID and/or Client Secret, check env vars"
     );
@@ -50,8 +50,8 @@ export default function connectorConfig(): HullConnectorConfig {
     port: PORT || 8082,
     handlers: handlers({
       hostSecret,
-      clientID: CLIENT_ID,
-      clientSecret: CLIENT_SECRET
+      clientID: MAILCHIMP_CLIENT_ID,
+      clientSecret: MAILCHIMP_CLIENT_SECRET
     }),
     middlewares: [],
     serverConfig: {
