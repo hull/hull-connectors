@@ -172,7 +172,20 @@
       "size": "small",
       "setup": true,
       "editable": false,
-      "handler": "auth"
+      "handler": "auth",
+      "method": "use",
+      "options":{
+        "type": "router",
+        "params": {
+          "callbackUrl": "/callback",
+          "homeUrl": "/",
+          "selectUrl": "/select",
+          "syncUrl": "/sync",
+          "site": "https://login.mailchimp.com",
+          "tokenPath": "/oauth2/token",
+          "authorizationPath": "/oauth2/authorize"
+        }
+      }
     }
   ],
   "incoming": [

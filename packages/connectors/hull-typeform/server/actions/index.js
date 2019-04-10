@@ -1,6 +1,6 @@
 /* eslint-disable global-require */
 module.exports = {
-  authorization: require("./authorization"),
+  oauth: require("./oauth"),
   fetchAllResponses: require("./fetch-all-responses"),
   fetchRecentResponses: require("./fetch-recent-responses"),
   getForms: require("./get-forms"),

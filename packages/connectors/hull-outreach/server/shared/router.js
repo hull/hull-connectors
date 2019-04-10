@@ -18,7 +18,7 @@ const {
 
 const { isUndefinedOrNull, toSendMessage } = require("./utils");
 
-const { oAuthHandler } = require("hull/src/handlers");
+const { OAuthHandler } = require("hull/src/handlers");
 
 const { HullDispatcher } = require("./dispatcher");
 const { hullService } = require("./hull-service");
@@ -80,7 +80,7 @@ class HullRouter {
         const params = _.cloneDeep(authentication.params);
         _.merge(params, oauth2);
         return params;
-        // return oAuthHandler(params);
+        // return OAuthHandler(params);
       }
     }
     return;

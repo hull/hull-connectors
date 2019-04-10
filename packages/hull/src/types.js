@@ -2,7 +2,7 @@
 /* eslint-disable no-use-before-define */
 /* :: export type * from "hull-client"; */
 
-import type { Middleware, $Application } from "express";
+import type { Middleware, $Application, Router } from "express";
 import type {
   HullSegment,
   HullAccountSegment,
@@ -776,14 +776,16 @@ export type HullIncomingClaimsSetting = {
   required?: boolean
 };
 
+type RouterFactory = any => Router;
 export type HullHandlersConfiguration = {
   subscriptions?: { [string]: HullNotificationHandlerCallback },
   batches?: { [string]: HullBatchHandlerCallback },
-  tabs?: { [string]: HullHtmlHandlerCallback | HullOAuthHandlerCallback },
+  tabs?: {
+    [string]: HullHtmlHandlerCallback | HullOAuthHandlerCallback | RouterFactory
+  },
   statuses?: { [string]: HullStatusHandlerCallback },
   schedules?: { [string]: HullSchedulerHandlerCallback },
   json?: { [string]: HullJsonHandlerCallback },
-  routers?: { [string]: express$Router },
   incoming?: { [string]: HullIncomingHandlerCallback }
 };
 
@@ -792,10 +794,10 @@ export type Handler<HNC, HNO> = {
   callback: HNC,
   options?: HNO
 };
-export type HullHtmlHandlerConfigurationEntry = Handler<
-  HullHtmlHandlerCallback,
-  HullHtmlHandlerOptions
->;
+export type HullHtmlHandlerConfigurationEntry = {
+  callback: HullHtmlHandlerCallback | RouterFactory,
+  options?: HullHtmlHandlerOptions
+};
 export type HullJsonHandlerConfigurationEntry = Handler<
   HullJsonHandlerCallback,
   HullJsonHandlerOptions

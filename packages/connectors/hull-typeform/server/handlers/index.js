@@ -1,7 +1,7 @@
 // @flow
 import type { HullHandlersConfiguration, Connector } from "hull";
 import {
-  authorization,
+  oauth,
   refreshAccessToken,
   fetchAllResponses,
   fetchRecentResponses,
@@ -25,7 +25,7 @@ const handlers = ({
     getEmailQuestions,
     getQuestions
   },
-  tabs: { admin: authorization({ clientID, clientSecret }) }
+  tabs: { admin: oauth({ clientID, clientSecret }) }
 });
 
 export default handlers;

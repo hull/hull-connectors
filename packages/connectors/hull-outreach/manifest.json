@@ -254,8 +254,8 @@
       "method": "use",
       "handler": "authHandler",
       "options": {
-        "type": "oAuth",
-        "oAuthOptions": {
+        "type": "OAuth",
+        "params": {
           "tokenInUrl": true,
           "name": "Outreach",
           "strategy": {
