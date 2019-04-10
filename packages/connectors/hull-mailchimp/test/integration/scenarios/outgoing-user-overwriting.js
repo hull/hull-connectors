@@ -1,17 +1,11 @@
 // @flow
 import connectorConfig from "../../../server/config";
 
-
-
-
-
-
-
-
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 process.env.MAILCHIMP_CLIENT_ID = "1234";
 process.env.MAILCHIMP_CLIENT_SECRET = "1234";
+process.env.COMBINED = "true";
 
 const connector = {
   id: "123456789012345678901234",
@@ -141,19 +135,32 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
           "OVERWRITTING",
           expect.whatever(),
           {
-            "fieldName": "NOT_OVERWRITTEN_MERGE_FIELD",
-          },
+            fieldName: "NOT_OVERWRITTEN_MERGE_FIELD"
+          }
         ],
         [
           "debug",
           "OVERWRITTING",
           expect.whatever(),
           {
-            "fieldName": "NOT_OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT",
+            fieldName: "NOT_OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT"
           }
         ],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ method: "GET", url: "/lists/{{listId}}/webhooks" })],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ method: "POST", url: "/lists/{{listId}}" })],
+        [
+          "debug",
+          "connector.service_api.call",
+          expect.whatever(),
+          expect.objectContaining({
+            method: "GET",
+            url: "/lists/{{listId}}/webhooks"
+          })
+        ],
+        [
+          "debug",
+          "connector.service_api.call",
+          expect.whatever(),
+          expect.objectContaining({ method: "POST", url: "/lists/{{listId}}" })
+        ],
         [
           "info",
           "outgoing.user.success",
