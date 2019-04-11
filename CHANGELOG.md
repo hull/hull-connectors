@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.0.19-monorepo
+- [hull-outreach] Added authentication permission to get stage
+
 ## v0.0.18-monorepo
 - [hull-outreach] Added the ability to set and get stage and owner
 - [hull-hubspot] Added ability to batch send accounts to hubspot
