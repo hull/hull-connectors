@@ -207,7 +207,8 @@ const service: RawRestApi = {
           "create_accounts",
           "accounts.all",
           "webhooks.all",
-          "stages.all"
+          "stages.all",
+          "users.all"
         ] // App Scope
       }
     }
