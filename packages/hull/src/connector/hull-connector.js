@@ -37,7 +37,7 @@ const Worker = require("./worker");
 const { Instrumentation, Cache, Queue, Batcher } = require("../infra");
 const { onExit } = require("../utils");
 const {
-  hullContextMiddleware,
+  workerContextMiddleware,
   baseComposedMiddleware
 } = require("../middlewares");
 
@@ -93,6 +93,8 @@ class HullConnector {
   middlewares: $PropertyType<HullConnectorConfig, "middlewares">;
 
   handlers: $PropertyType<HullConnectorConfig, "handlers">;
+
+  _handlers: $PropertyType<HullConnectorConfig, "handlers">;
 
   manifest: $PropertyType<HullConnectorConfig, "manifest">;
 
@@ -180,6 +182,11 @@ class HullConnector {
   }
 
   async start() {
+    if (this.workerConfig.start) {
+      this.startWorker(this.workerConfig.queueName);
+    } else {
+      debug("No Worker started: `workerConfig.start` is false");
+    }
     if (this.serverConfig.start) {
       const app = express();
       this.app = app;
@@ -206,17 +213,19 @@ class HullConnector {
     } else {
       debug("No Server started: `serverConfig.start === false`");
     }
+  }
 
-    if (this.workerConfig.start) {
-      this.startWorker(this.workerConfig.queueName);
-    } else {
-      debug("No Worker started: `workerConfig.start` is false");
+  getHandlers() {
+    if (this._handlers) {
+      return this._handlers;
     }
+    this._handlers =
+      typeof this.handlers === "function" ? this.handlers(this) : this.handlers;
+    return this._handlers;
   }
 
   setupRoutes(app: $Application) {
-    const handlers =
-      typeof this.handlers === "function" ? this.handlers(this) : this.handlers;
+    const handlers = this.getHandlers();
     // Don't use an arrow function here as it changes the context
     // Don't move it out of this closure either
     // https://github.com/expressjs/express/issues/3855
@@ -292,22 +301,6 @@ class HullConnector {
 
     // Setup Incoming Data handlers
     mapRoute(incomingRequestHandler, "incoming", "all");
-
-    // Setup Routers
-    (this.manifest.routers || []).map(({ url, handler }) => {
-      const router = handlers.routers[handler];
-      if (!router) {
-        throw new Error(
-          `Trying to access a router that isn't defined in handlers ${handler}`
-        );
-      }
-      if (url) {
-        app.use(url, router);
-      } else {
-        app.use(router);
-      }
-      return true;
-    });
   }
 
   baseComposedMiddleware() {
@@ -369,32 +362,29 @@ class HullConnector {
     return app.listen(port, () => debug("connector.server.listen", { port }));
   }
 
-  worker(jobs: Object) {
-    this._worker = new this.Worker({
-      instrumentation: this.instrumentation,
-      queue: this.queue
-    });
-    this._worker.use(this.baseComposedMiddleware());
-    this._worker.use(hullContextMiddleware());
-    this.middlewares.map(middleware => this._worker.use(middleware));
-
-    this._worker.setJobs(jobs);
-    return this._worker;
-  }
-
   use(middleware: Middleware) {
     this.middlewares.push(middleware);
     return this;
   }
 
-  startWorker(qn?: string | null): Worker {
-    debug("Starting Worker");
+  startWorker(queueName?: string = "queueApp"): Worker {
     this.instrumentation.exitOnError = true;
-    const queueName = qn || "queueApp";
-    if (this._worker) {
-      this._worker.process(queueName);
-      debug("connector.worker.process", { queueName });
+    const { jobs } = this.getHandlers();
+    if (!jobs) {
+      throw new Error(
+        "Worker is started but no jobs hash is declared in Handlers"
+      );
     }
+    this._worker = new this.Worker({
+      instrumentation: this.instrumentation,
+      queue: this.queue,
+      jobs
+    });
+    this.middlewares.map(this._worker.use);
+    this._worker.use(this.baseComposedMiddleware());
+    this._worker.use(workerContextMiddleware());
+    this._worker.process(queueName);
+    debug("connector.worker.process", { queueName });
     return this._worker;
   }
 }

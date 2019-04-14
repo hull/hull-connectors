@@ -16,4 +16,4 @@ module.exports.instrumentationTransientErrorMiddleware = require("./instrumentat
 module.exports.clearConnectorCache = require("./clear-connector-cache-middleware");
 
 module.exports.baseComposedMiddleware = require("./base-composed-middleware");
-module.exports.hullContextMiddleware = require("./hull-context-middleware");
+module.exports.workerContextMiddleware = require("./worker-context-middleware");
