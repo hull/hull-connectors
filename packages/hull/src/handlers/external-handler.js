@@ -63,6 +63,7 @@ const handlerFactory = ({
     const { pageLocation, data, status = 200, text } = response;
 
     // Set the response status
+    debug("sending status", status);
     res.status(status);
 
     // For HTML middlewares, force a html rendering or error out.
@@ -74,13 +75,16 @@ const handlerFactory = ({
     }
 
     if (data !== undefined) {
+      debug("sending data", data);
       // Respond with data
-      res.json(data);
-    } else if (text) {
-      // Respond with Text fallback
-      res.send(text);
+      return res.json(data);
     }
-    return res;
+    if (text) {
+      debug("sending text", text);
+      // Respond with Text fallback
+      return res.send(text);
+    }
+    return res.end();
   } catch (err) {
     return next(err);
   }
