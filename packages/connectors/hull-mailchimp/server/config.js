@@ -18,7 +18,7 @@ export default function connectorConfig(): HullConnectorConfig {
     REDIS_URL,
     SHIP_CACHE_MAX,
     SHIP_CACHE_TTL,
-    QUEUE_NAME,
+    QUEUE_NAME = "queueApp",
     OVERRIDE_FIREHOSE_URL,
     COMBINED,
     SERVER,

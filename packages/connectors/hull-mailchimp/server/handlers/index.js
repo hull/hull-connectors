@@ -1,19 +1,28 @@
 // @flow
-import type { HullHandlersConfiguration } from "hull";
+/* eslint-disable global-require */
+
 // import account_update from "./account-update";
+import type { HullHandlersConfiguration } from "hull";
 import user_update from "./user-update";
 import ship_update from "./ship-update";
 import users_segment_update from "./users-segment-update";
 import users_segment_delete from "./users-segment-delete";
-import {
-  sync,
-  syncIn,
-  syncOut,
-  track,
-  schemaUserFields,
-  status,
-  webhook
-} from "../actions";
+
+import webhook from "../actions/webhook";
+import sync from "../actions/sync";
+import syncIn from "../actions/sync-in";
+import syncOut from "../actions/sync-out";
+import track from "../actions/track";
+import schemaUserFields from "../actions/schema-user-fields";
+import status from "../actions/status";
+
+import handleMailchimpBatch from "../jobs/handle-mailchimp-batch";
+import importUsers from "../jobs/import-users";
+import fetchAllUsers from "../jobs/fetch-all-users";
+import syncOutJob from "../jobs/sync-out";
+import trackUsers from "../jobs/track-users";
+import trackJob from "../jobs/track";
+import trackEmailActivites from "../jobs/track-email-activites";
 
 import OAuthFactory from "../lib/oauth-client";
 
@@ -27,6 +36,15 @@ export default function handlers({
   hostSecret: string
 }): HullHandlersConfiguration {
   return {
+    jobs: {
+      handleMailchimpBatch,
+      importUsers,
+      fetchAllUsers,
+      syncOut: syncOutJob,
+      trackUsers,
+      track: trackJob,
+      trackEmailActivites
+    },
     incoming: { webhook },
     subscriptions: {
       user_update,
