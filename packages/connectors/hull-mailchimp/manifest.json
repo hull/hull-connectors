@@ -201,10 +201,6 @@
   ],
   "json": [
     {
-      "url": "/sync",
-      "handler": "sync"
-    },
-    {
       "url": "/sync-in",
       "handler": "syncIn"
     },
@@ -219,6 +215,12 @@
   ],
   "schedules": [
     {
+      "url": "/sync",
+      "handler": "sync",
+      "type": "cron",
+      "value": "*/30 * * * *"
+    },
+    {
       "url": "/track",
       "type": "cron",
       "handler": "track",
@@ -228,8 +230,8 @@
   "statuses": [
     {
       "url": "/status",
-      "type": "cron",
       "handler": "status",
+      "type": "cron",
       "value": "*/30 * * * *"
     }
   ]

@@ -1,18 +1,12 @@
 // @flow
 import connectorConfig from "../../server/config";
 
-
-
-
-
-
-
-
 const path = require("path");
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 process.env.MAILCHIMP_CLIENT_ID = "1234";
 process.env.MAILCHIMP_CLIENT_SECRET = "1234";
+process.env.COMBINED = "true";
 
 const connector = {
   id: "123456789012345678901234",

@@ -36,12 +36,16 @@ export default function handlers({
     },
     batches: { user_update },
     statuses: { status },
-    schedules: { track },
+    schedules: {
+      track,
+      // @TODO: Check with Michal which handler should go in which section
+      // I moved the Sync handler from `json` to `schedules` because the tests seemed to indicate we were hitting it on a schedule
+      sync
+    },
     json: {
       schemaUserFields,
       syncIn,
       syncOut,
-      sync,
       // @TODO : this is used both as a schedule and as a JSON call
       // Check that both work - the Schedules pass things in the body - the JSON don't
       track
