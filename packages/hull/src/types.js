@@ -202,7 +202,6 @@ export type HullManifest = {
 
   incoming?: Array<HullManifestIncomingConfig>,
   json?: Array<HullManifestJsonConfig>,
-  routers?: Array<HullManifestRouter>,
   statuses?: Array<HullManifestStatus>,
   schedules?: Array<HullManifestSchedule>
 };
@@ -264,7 +263,7 @@ export type HullServerConfig = {
 };
 export type HullWorkerConfig = {
   start?: boolean,
-  queueName?: string | null
+  queueName?: string
 };
 export type HullMetricsConfig = {
   captureMetrics?: Array<HullMetric>,
@@ -778,6 +777,7 @@ export type HullIncomingClaimsSetting = {
 
 type RouterFactory = any => Router;
 export type HullHandlersConfiguration = {
+  jobs: { [string]: any },
   subscriptions?: { [string]: HullNotificationHandlerCallback },
   batches?: { [string]: HullBatchHandlerCallback },
   tabs?: {
