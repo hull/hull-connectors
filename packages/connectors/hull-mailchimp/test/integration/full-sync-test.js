@@ -35,7 +35,10 @@ it("Performing sync", () => {
   const email = "";
   return testScenario(
     {
-      connectorConfig
+      connectorConfig: () => ({
+        ...connectorConfig(),
+        queue: undefined
+      })
     },
     ({ handlers, nock, expect }) => {
       return {
