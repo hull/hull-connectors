@@ -236,6 +236,8 @@ export type HullClientConfig = {
   requestId?: string,
   connectorName?: string,
   firehoseUrl?: ?string,
+  timeout?: number,
+  retry?: number,
   protocol?: string,
   prefix?: string,
   logLevel?: "info" | "error" | "warn" | "debug",

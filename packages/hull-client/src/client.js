@@ -134,20 +134,20 @@ class HullClient {
         return Promise.resolve();
       };
     } else {
-      this.batch = Firehose.getInstance(
-        this.clientConfig.get(),
-        (params, batcher) => {
-          const protocol = this.clientConfig._state.protocol || "";
-          const domain = this.clientConfig._state.domain || "";
-          const firehoseUrl =
-            this.clientConfig._state.firehoseUrl ||
-            `${protocol}://firehose.${domain}`;
-          return restAPI(this, batcher.config, firehoseUrl, "post", params, {
-            timeout: process.env.BATCH_TIMEOUT || 10000,
-            retry: process.env.BATCH_RETRY || 5000
-          });
-        }
-      );
+      const clientConfig: HullClientConfig = this.clientConfig.get();
+      this.batch = Firehose.getInstance(config, (params, batcher) => {
+        const {
+          timeout,
+          retry,
+          domain = "",
+          protocol = "",
+          firehoseUrl = `${protocol}://firehose.${domain}`
+        } = clientConfig;
+        return restAPI(this, batcher.config, firehoseUrl, "post", params, {
+          timeout,
+          retry
+        });
+      });
     }
 
     /**

@@ -160,3 +160,15 @@ handlers = {
   json: { myJsonHandler }
 }
 ```
+## Hull Client retries & timeouts.
+
+Moved timeout & retry to `HullClientConfig`:
+Checkout [./packages/hull-client/src/typesjs#239](HullClientConfig);
+
+```
+{
+  ...
+  timeout: 3000 //3s - previously configured with process.env.BATCH_TIMEOUT
+  retry: 3000 //3s - previously configured with process.env.BATCH_RETRY
+}
+```

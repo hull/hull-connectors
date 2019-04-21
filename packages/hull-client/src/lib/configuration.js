@@ -12,7 +12,9 @@ const crypto = require("./crypto");
 
 const GLOBALS = {
   prefix: "/api/v1",
-  protocol: "https"
+  protocol: "https",
+  timeout: 10000,
+  retry: 5000
 };
 
 const VALID_OBJECT_ID = new RegExp("^[0-9a-fA-F]{24}$");
@@ -54,6 +56,8 @@ const VALID_PROPS = {
   subjectType: VALID.string,
   additionalClaims: VALID.object,
   accessToken: VALID.string,
+  timeout: VALID.number,
+  retry: VALID.number,
   hostSecret: VALID.string, // TODO: check if this is being used anywhere
   flushAt: VALID.number,
   flushAfter: VALID.number,
@@ -139,7 +143,8 @@ class Configuration {
     });
 
     _.each(VALID_PROPS, (test, key) => {
-      if (config[key]) {
+      // @TODO check that this is actually desired as a strict comparison to make sure falsy values are still validated
+      if (config[key] !== undefined) {
         this._state[key] = config[key];
       }
     });
