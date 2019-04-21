@@ -160,9 +160,48 @@ handlers = {
   json: { myJsonHandler }
 }
 ```
+
+## Hull-managed HTTP Client.
+
+The Hull-managed HTTP Client is based on the latest superagent with some added plugins. It handles the following for you:
+- Promise Interface
+- Full instrumentation for Logging & metrics
+- Throttling (defaults set through ConnectorConfig)
+- Retries (defaults set through ConnectorConfig)
+- Timeouts (timeout defaults set through ConnectorConfig)
+- prefixes (defaults set through ConnectorConfig)
+
+Checkout [./packages/hull/src/types.js#251](HullHTTPClientConfig)
+More docs here: https://visionmedia.github.io/superagent/#agents-for-global-state
+
+```
+const connectorConfig = {
+  ...
+  httpClientConfig = {
+    timeout: {
+      response: 5000,  // Wait 5 seconds for the server to start sending,
+      deadline: 60000, // but allow 1 minute for the file to finish loading.
+    },
+    /* timeout: 60000, */ Alternative syntax to only use `deadline`
+    prefix: "/foo",
+    retries: 2 //Be careful when setting retries for the entire agent: you don't want to auto-retry requests that aren't idempotent. A better implementation is to call `.retries(n)` in each call.
+    throttle: {
+      rate: 1,
+      ratePer: 2,
+      concurrent: 2
+    }
+  }
+}
+function(ctx, messages){
+  const { request } = ctx;
+  //Instance of SuperAgent
+  request.
+}
+```
+
 ## Hull Client retries & timeouts.
 
-Moved timeout & retry to `HullClientConfig`:
+Moved timeout & retry to `HullClientConfig`: 
 Checkout [./packages/hull-client/src/typesjs#239](HullClientConfig);
 
 ```

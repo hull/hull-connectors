@@ -5,6 +5,8 @@ import SuperagentThrottle from "superagent-throttle";
 import prefixPlugin from "superagent-prefix";
 import { superagentInstrumentationPlugin, superagentErrorPlugin } from ".";
 
+// @TODO: https://github.com/damoclark/superagent-declare
+
 const throttle_pool = {};
 
 export default function httpRequestLibrary(ctx: HullContext) {
@@ -12,7 +14,12 @@ export default function httpRequestLibrary(ctx: HullContext) {
   const { id } = clientCredentials;
   // @TODO: Probably better to access the object stored in the Connector instance in case we decide to manipulate it, the currently used object is the unprocessed object from the HullConnectorConfig
   const { httpClientConfig = {} } = connectorConfig;
-  const { throttle = {}, timeout = 10000, prefix = "" } = httpClientConfig;
+  const {
+    throttle = {},
+    timeout = 10000,
+    prefix = "",
+    retries
+  } = httpClientConfig;
   const { logger } = client;
 
   const agent = superagent
@@ -38,6 +45,10 @@ export default function httpRequestLibrary(ctx: HullContext) {
         concurrent: parseInt(concurrent, 10)
       });
     agent.use(throttle_pool[id].plugin());
+  }
+
+  if (retries) {
+    agent.retry(retries);
   }
 
   if (timeout) {

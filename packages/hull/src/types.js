@@ -73,6 +73,7 @@ export type HullNotificationHandlerOptions = {
   maxSize?: number
 };
 export type HullBatchHandlerOptions = {
+  disableErrorHandling?: boolean,
   maxSize?: number
 };
 export type HullIncomingHandlerOptions = {
@@ -248,7 +249,13 @@ export type HullJsonConfig = {
   verify?: Function
 };
 export type HullHTTPClientConfig = {
-  timeout?: number,
+  timeout?:
+    | number
+    | {
+        deadline: number,
+        response: number
+      },
+  retries?: number,
   prefix?: string,
   throttle?:
     | false
@@ -434,8 +441,8 @@ export type HullUserChanges = {
   account: HullAttributesChanges,
   segment_ids: Array<string>,
   segments: HullSegmentsChanges, // should be segments or user_segments?
-  account_segments: HullSegmentsChanges, // should be segments or user_segments?
-  account_segment_ids?: Array<string>
+  account_segment_ids?: Array<string>,
+  account_segments: HullSegmentsChanges
 };
 
 /**
@@ -444,8 +451,8 @@ export type HullUserChanges = {
 export type HullAccountChanges = {
   is_new: boolean,
   account: HullAttributesChanges,
-  account_segments: HullSegmentsChanges, // should be segments or user_segments?
-  account_segment_ids?: Array<string>
+  account_segment_ids?: Array<string>,
+  account_segments: HullSegmentsChanges
 };
 
 /**
@@ -547,7 +554,8 @@ export type HullNotificationFlowControl = {
   in?: number,
   in_time?: number
 };
-export type HullMessageResponse = {|
+
+export type HullKrakenResponse = {|
   action: "success" | "skip" | "error",
   type: "user" | "account" | "event",
   message_id?: string,
@@ -557,8 +565,8 @@ export type HullMessageResponse = {|
 |};
 
 export type HullNotificationResponseData = void | {
-  flow_control?: HullNotificationFlowControl,
-  responses?: Array<?HullMessageResponse>
+  flow_control?: HullNotificationFlowControl
+  // responses?: Array<?HullKrakenResponse>
 };
 export type HullNotificationResponse =
   | HullNotificationResponseData
@@ -649,7 +657,8 @@ export type HullNotificationHandlerCallback =
 
 export type HullBatchHandlerCallback = HullNotificationHandlerCallback;
 export type HullStatusHandlerCallback = (
-  ctx: HullContext
+  ctx: HullContext,
+  message: HullIncomingHandlerMessage
 ) => HullStatusResponse;
 
 // ====================================
@@ -658,6 +667,7 @@ export type HullStatusHandlerCallback = (
 // @TODO: evolve this introducing envelope etc.
 // === External Handler request. for use in (ctx, message: HullIncomingHandlerMessage) signatures
 type HandlerMap = { [string]: any };
+
 export type HullIncomingHandlerMessage = {|
   ip: string,
   url: string,
@@ -707,24 +717,6 @@ export type HullOAuthHandlerOptions = {
 };
 export type HullOAuthHandlerCallback = () => void | HullOAuthHandlerParams;
 export type HullJsonHandlerCallback = HullIncomingHandlerCallback;
-
-// ====================================
-//   Incoming Handler Configuration
-// ====================================
-//
-// export type HullIncomingHandlerOptions = HullIncomingHandlerOptions & {};
-// export type HullIncomingHandlerCallback = (
-//   ctx: HullContext,
-//   message: HullIncomingHandlerMessage,
-//   res: HullResponse
-// ) => Promise<void | HullExternalResponse>;
-// export type HullIncomingHandlerConfigurationEntry = Handler<
-//   HullIncomingHandlerCallback,
-//   HullIncomingHandlerOptions
-// >;
-// export type HullIncomingHandlerConfiguration = {
-//   [name: string]: HullHtmlHandlerConfigurationEntry
-// };
 
 // =====================================
 //   Middleware params types
@@ -777,7 +769,7 @@ export type HullIncomingClaimsSetting = {
 
 type RouterFactory = any => Router;
 export type HullHandlersConfiguration = {
-  jobs: { [string]: any },
+  jobs?: { [string]: any },
   subscriptions?: { [string]: HullNotificationHandlerCallback },
   batches?: { [string]: HullBatchHandlerCallback },
   tabs?: {
@@ -802,10 +794,6 @@ export type HullJsonHandlerConfigurationEntry = Handler<
   HullJsonHandlerCallback,
   HullJsonHandlerOptions
 >;
-// export type HullJsonHandlerConfiguration = {
-//   [name: string]: HullJsonHandlerConfigurationEntry
-// };
-
 export type HullSchedulerHandlerConfigurationEntry = Handler<
   HullSchedulerHandlerCallback,
   HullSchedulerHandlerOptions
