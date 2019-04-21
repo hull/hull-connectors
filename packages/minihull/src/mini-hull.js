@@ -1,10 +1,10 @@
 const _ = require("lodash");
 const Promise = require("bluebird");
 const lodashId = require("lodash-id");
-const MiniApplication = require("mini-application");
 const crypto = require("crypto");
 const faker = require("faker");
 const shell = require("shelljs");
+const MiniApplication = require("./mini-application");
 
 const minihullRouter = require("./router");
 
