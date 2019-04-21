@@ -1,12 +1,16 @@
 // @flow
 
-import type { HullContext, HullUserUpdateMessage } from "hull";
+import type {
+  HullContext,
+  HullNotificationResponse,
+  HullUserUpdateMessage
+} from "hull";
 import SyncAgent from "../lib/sync-agent";
 
 export default async (
   ctx: HullContext,
   messages: Array<HullUserUpdateMessage>
-) => {
+): HullNotificationResponse => {
   // if (ctx.smartNotifierResponse) {
   //   ctx.smartNotifierResponse.setFlowControl();
   // }

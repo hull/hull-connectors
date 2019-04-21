@@ -18,15 +18,15 @@ function batchExtractHandlerFactory(
   configuration: HullBatchHandlersConfiguration
 ): * {
   return getRouter({
+    requestName: "batch",
+    handlerName: "batch",
+    handler: processingMiddleware(configuration),
+    errorHandler: errorMiddleware,
     options: {
       credentialsFromNotification: false,
       credentialsFromQuery: true,
       strict: false
-    },
-    requestName: "batch",
-    handlerName: "batch",
-    handler: processingMiddleware(configuration),
-    errorHandler: errorMiddleware
+    }
   });
 }
 
