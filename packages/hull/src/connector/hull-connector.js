@@ -262,8 +262,8 @@ class HullConnector {
             );
           }
           const router = factory({ options, callback });
-          // $FlowFixMe
           if (router) {
+            // $FlowFixMe
             app[method || defaultMethod](url, router);
             debug(
               `Setting up ${method.toUpperCase()} ${url}: ${handler} / ${!!callback}`
