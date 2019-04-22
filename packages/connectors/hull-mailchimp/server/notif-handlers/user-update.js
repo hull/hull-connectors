@@ -27,17 +27,12 @@ function userUpdateHandler(
     }
   };
 
-  try {
-    if (!syncAgent.isConfigured()) {
-      ctx.client.logger.error("connector.configuration.error", {
-        errors: "connector not configured, skipping user update"
-      });
-      // uncomment this when we've confirmed this is the correct thing ot do in all cases
-      // return Promise.resolve();
-    }
-  } catch (error) {
-    // console logging just for now, this shouldn't happen, will remove once we've validated this is the right code
-    console.log(`Error with temporary code ${error.message}`);
+  if (!syncAgent.isConfigured()) {
+    ctx.client.logger.error("connector.configuration.error", {
+      errors: "connector not configured, skipping user update"
+    });
+    // uncomment this when we've confirmed this is the correct thing ot do in all cases
+    return Promise.resolve();
   }
 
   const filteredMessages = messages.reduce((accumulator, message) => {
