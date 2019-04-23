@@ -2,7 +2,7 @@
 import type { $Application, $Response } from "express";
 import type { HullRequest, HullUserUpdateMessage } from "hull";
 
-const { notificationHandler, batchHandler } = require("hull/src/handlers");
+const { notificationHandler, batchHandler, scheduleHandler } = require("hull/src/handlers");
 const bodyParser = require("body-parser");
 
 const { webhookHandler, statusCheck, updateUser } = require("./actions");
@@ -24,7 +24,7 @@ function server(app: $Application): $Application {
     webhookHandler
   );
 
-  app.all("/status", statusCheck);
+  app.all("/status", scheduleHandler(statusCheck));
 
   app.use(
     "/batch",
