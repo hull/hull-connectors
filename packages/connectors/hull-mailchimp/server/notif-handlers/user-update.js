@@ -27,6 +27,14 @@ function userUpdateHandler(
     }
   };
 
+  if (!syncAgent.isConfigured()) {
+    ctx.client.logger.error("connector.configuration.error", {
+      errors: "connector not configured, skipping user update"
+    });
+    // uncomment this when we've confirmed this is the correct thing ot do in all cases
+    return Promise.resolve();
+  }
+
   const filteredMessages = messages.reduce((accumulator, message) => {
     const { changes = {}, user, events, segments = [] } = message;
     // $FlowFixMe
