@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.0.20-monorepo
+- [hull-outreach] Added conditional array logic and hotfixes for retrying on outreach errors
+
 ## v0.0.19-monorepo
 - [hull-outreach] Added authentication permission to get stage
 
