@@ -1,6 +1,6 @@
 {
   "name": "hull-hubspot",
-  "version": "v0.0.20-monorepo",
+  "version": "0.0.20-monorepo",
   "description": "Send Notification of User events and segments to Hubspot",
   "homepage": "https://github.com/hull-ships/hull-hubspot",
   "scripts": {
