@@ -3,7 +3,7 @@ const nock = require("nock");
 
 const SyncAgent = require("../../server/lib/sync-agent");
 
-const { ContextMock } = require("./helper/connector-mock");
+const { ContextMock } = require("../integration/helper/connector-mock");
 
 /*
  * SyncAgent tests scenarios triggered by smart-notifier messages,

@@ -33,20 +33,21 @@ it("Should set status to check Site ID and API Key if authentication returns sta
             usersSegments: [],
             accountsSegments: [],
             response: {"messages": ['Invalid Credentials: Verify Site ID and API Key in Settings.'], "status": "error"},
-            logs: [],
+            logs: [
+              ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 401, "url": "https://track.customer.io/auth", "vars": {}}],
+              ["debug", "connector.status", {}, {"messages": ["Invalid Credentials: Verify Site ID and API Key in Settings."], "status": "error"}]
+            ],
             firehoseEvents: [],
-            metrics: [],
+            metrics: [
+              ["increment", "connector.request", 1], ["increment", "ship.service_api.call", 1],
+              ["value", "connector.service_api.response_time", expect.whatever()], ["increment", "connector.service_api.error", 1]
+            ],
             platformApiCalls: [
-                ["PUT", "/api/v1/9993743b22d60dd829001999/status", {},
-                  {
-                    "messages":
-                      [
-                        'Authorization issue. Please reauthenticate with Jeqn Michel by clicking the \"Credentials and Actions\" button in the upper right hand section of the connector settings.  Then either click \"Continue to Hubspot\" or \"Start over\"'
-                      ],
-                    "status": "error"
-                  }
-                ]
+                ["PUT", "/api/v1/9993743b22d60dd829001999/status", {}, {
+                  "messages": ["Invalid Credentials: Verify Site ID and API Key in Settings."],
+                  "status": "error"
+                }]
               ]
         }
     });
-})
+});

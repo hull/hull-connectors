@@ -5,7 +5,7 @@ const _ = require("lodash");
 const SyncAgent = require("../lib/sync-agent");
 
 function statusCheckAction(ctx: HullContext): Promise<*> {
-  const { hullClient } = ctx;
+  const { client } = ctx;
   const connector = _.get(ctx, "connector", null);
   const syncAgent = new SyncAgent(ctx);
   const messages: Array<string> = [];
@@ -54,8 +54,9 @@ function statusCheckAction(ctx: HullContext): Promise<*> {
   }
 
   const handleResponse = () => {
-    hullClient.logger.debug("connector.status", { status, messages });
-    return hullClient.put(`${connector.id}/status`, { status, messages })
+    client.logger.debug("connector.status", { status, messages });
+    return client
+      .put(`${connector.id}/status`, { status, messages })
       .then(() => {
         return Promise.resolve({ status, messages });
       });
