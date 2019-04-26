@@ -364,7 +364,7 @@ class SyncAgent {
       .updateCustomer(envelope.customer)
       .then(() => {
         return userScopedClient
-          .traits(userTraits, { source: "customerio" })
+          .traits(userTraits)
           .then(() => {
             userScopedClient.logger.info("outgoing.user.success", {
               data: envelope.customer,

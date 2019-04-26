@@ -152,11 +152,11 @@ class MappingUtil {
 
     const hash = hashUtil.hash(customer);
     return {
-      id: _.get(customer, "id", null),
-      created_at: _.get(customer, "created_at", null),
-      hash,
-      synced_at: updatedAt,
-      deleted_at: null
+      "customerio/id": _.get(customer, "id", null),
+      "customerio/created_at": _.get(customer, "created_at", null),
+      "customerio/hash": hash,
+      "customerio/synced_at": updatedAt,
+      "customerio/deleted_at": null
     };
   }
 
