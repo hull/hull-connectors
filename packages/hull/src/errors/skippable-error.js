@@ -1,3 +1,5 @@
+// @flow
+
 class SkippableError extends Error {
   extra: Object;
 
