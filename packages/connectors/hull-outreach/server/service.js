@@ -8,6 +8,7 @@ const {
   RateLimitError,
   RecoverableError,
   TransientError,
+  SkippableError,
   LogicError,
   NotificationValidationError
 } = require("hull/src/errors");
@@ -245,6 +246,11 @@ const service: RawRestApi = {
         errorType: TransientError,
         message: MESSAGES.INTERNAL_SERVICE_ERROR,
         retryAttempts: 3
+      },
+      {
+        truthy: { status: 404 , response: { request: { method: "PATCH" } } },
+        errorType: SkippableError,
+        message: MESSAGES.OUTREACH_USER_NOT_FOUND,
       },
       {
         truthy: { status: 404 },

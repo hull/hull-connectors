@@ -130,6 +130,15 @@ const MESSAGES = {
       channel: "Operation",
       category: "Unknown"
     };
+  },
+  OUTREACH_USER_NOT_FOUND: () => {
+    return {
+      id: "OutreachUserNotFound",
+      message: "User not found in outreach.",
+      level: "Error",
+      channel: "Operation",
+      category: "Unknown"
+    };
   }
 };
 
