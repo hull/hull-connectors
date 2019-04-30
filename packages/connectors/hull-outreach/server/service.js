@@ -250,7 +250,7 @@ const service: RawRestApi = {
       {
         truthy: { status: 404 , response: { request: { method: "PATCH" } } },
         errorType: SkippableError,
-        message: MESSAGES.OUTREACH_USER_NOT_FOUND,
+        message: MESSAGES.OUTREACH_ENTITY_NOT_FOUND,
       },
 
       {
@@ -289,7 +289,7 @@ const service: RawRestApi = {
     ]
 
   }
-}
+};
 
 
 module.exports = {
