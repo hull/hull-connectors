@@ -145,7 +145,11 @@ const glue = {
   insertProspect: [ route("linkAccount"), routeWithData("sendInsertProspect", inputParameter("user"), HullOutgoingUser) ],
   sendInsertProspect: hull("asUser", outreachSendInput("insertProspect")),
   updateProspect: [ route("linkAccount"), routeWithData("sendUpdateProspect", inputParameter("user"), HullOutgoingUser) ],
-  sendUpdateProspect: hull("asUser", outreachSendInput("updateProspect")),
+  sendUpdateProspect:
+    ifLogic(cond("notEmpty", set("userFromOutreach", outreachSendInput("updateProspect"))), {
+      true: hull("asUser", "${userFromOutreach}"),
+      false: {}
+    }),
   accountUpdateStart: route("accountUpsert"),
   accountUpsert:
     ifLogic(cond("notEmpty", set("accountId", inputParameter("account.outreach/id"))), {

@@ -21,7 +21,8 @@ const {
 } = require("./hull-service-objects");
 
 const {
-  LogicError
+  LogicError,
+  SkippableError
 } = require("hull/src/errors");
 
 const { HullInstruction, Route } = require("./language");
@@ -186,7 +187,7 @@ class ServiceEngine {
     }
 
     const direction = (name === "hull") ? "incoming" : "outgoing";
-    const action = `${direction}.${entityTypeString}`
+    const action = `${direction}.${entityTypeString}`;
 
     const logDataWrapperAroundSendData = (data) => {
 
@@ -213,34 +214,40 @@ class ServiceEngine {
 
         //TODO also need to account for batch endpoints
         // where we should loge a message for each of the objects in the batch
+
         if (entityTypeString !== null) {
+          const entityStatus = "success";
+
           context.metric.increment(`ship.${action}s`, 1);
 
           if (direction === 'outgoing') {
             //TODO need to make this generic, make the "class type" declare this
             const type = entityTypeString === "user" ? "Prospect" : "Account";
-            logger.info(`${action}.success`, { data, operation: endpoint.operation, response: results, type } );
+            logger.info(`${action}.${entityStatus}`, { data, operation: endpoint.operation, response: results, type } );
           } else {
-            logger.info(`${action}.success`, { data } );
+            logger.info(`${action}.${entityStatus}`, { data } );
           }
 
-          debug(`${action}.success`, data);
+          debug(`${action}.${entityStatus}`, data);
         }
         // this is just for logging, do not suppress error here
         // pass it along with promise resolve
         return Promise.resolve(results);
       }).catch (error => {
 
+        const entityStatus = error instanceof SkippableError ? "skip" : "error";
+
         if (entityTypeString !== null) {
           const message = isUndefinedOrNull(_.get(error, "message")) ? {} : { error: error.message };
-          logger.error(`${action}.error`, message );
-          debug(`${action}.error`, data);
+          logger.error(`${action}.${entityStatus}`, message );
+          debug(`${action}.${entityStatus}`, data);
         }
         // this is just for logging, do not suppress error here
         // pass it along with promise reject
-        return Promise.reject(error);
+
+        return entityStatus === "error" ? Promise.reject(error) : Promise.resolve({});
       });
-    }
+    };
 
     // if it's a batch endpoint, don't break apart...
     // just send whole array...
@@ -480,13 +487,16 @@ class ServiceEngine {
     if (!_.isEmpty(serviceDefinition.error.templates)) {
 
       return _.find(serviceDefinition.error.templates, template => {
-        if (!isUndefinedOrNull(template.truthy)) {
-          if (!_.isMatch(error, template.truthy)){
+        let truthy = template.truthy;
+        let condition = template.condition;
+
+        if (!isUndefinedOrNull(truthy)) {
+          if (!_.isMatch(error, truthy)){
             return false;
           }
         }
-        if (!isUndefinedOrNull(template.condition)) {
-          if (!template.condition(context)) {
+        if (!isUndefinedOrNull(condition)) {
+          if (!condition(context)) {
             return false;
           }
         }
