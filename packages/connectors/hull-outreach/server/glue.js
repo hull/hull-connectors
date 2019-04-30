@@ -177,15 +177,17 @@ const glue = {
       ]
     ),
   insertAccount: routeWithData("sendInsertAccount", inputParameter("account"), HullOutgoingAccount),
-  sendInsertAccount: hull("asAccount", outreachSendInput("insertAccount")),
+  sendInsertAccount:
+    ifLogic(cond("notEmpty", set("accountFromOutreach", outreachSendInput("insertAccount"))), {
+      true: hull("asAccount", "${accountFromOutreach}"),
+        false: {}
+  }),
   updateAccount: routeWithData("sendUpdateAccount", inputParameter("account"), HullOutgoingAccount),
   sendUpdateAccount:
     ifLogic(cond("notEmpty", set("accountFromOutreach", outreachSendInput("updateAccount"))), {
       true: hull("asAccount", "${accountFromOutreach}"),
       false: {}
     }),
-
-
   fetchAll: [route("accountFetchAll"), route("prospectFetchAll")],
   accountFetchAll:
     [
