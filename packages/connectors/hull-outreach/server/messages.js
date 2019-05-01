@@ -130,6 +130,15 @@ const MESSAGES = {
       channel: "Operation",
       category: "Unknown"
     };
+  },
+  OUTREACH_ENTITY_NOT_FOUND: () => {
+    return {
+      id: "OutreachEntityNotFound",
+      message: "Entity not found in outreach.",
+      level: "Error",
+      channel: "Operation",
+      category: "Unknown"
+    };
   }
 };
 

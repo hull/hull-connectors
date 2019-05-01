@@ -332,10 +332,15 @@ class HullDispatcher {
         }
       }
 
+      let obj = resolvedParams;
+      if (resolvedParams instanceof ServiceData) {
+        obj = obj.data;
+      }
+
       if (name === 'notEmpty') {
-        return (typeof resolvedParams === 'number') || !_.isEmpty(resolvedParams);
+        return (typeof obj === 'number') || !_.isEmpty(obj);
       } else if (name === 'isEmpty') {
-        return (typeof resolvedParams !== 'number') && _.isEmpty(resolvedParams);
+        return (typeof obj !== 'number') && _.isEmpty(obj);
       }
 
       throw new Error(`Operation ${name} contains invalid format with params: ${JSON.stringify(resolvedParams)}`);
