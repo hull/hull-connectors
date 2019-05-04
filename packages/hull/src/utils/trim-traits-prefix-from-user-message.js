@@ -11,13 +11,8 @@ const replace = (value, key) => key.replace(/^traits_/, "");
 
 function trimTraitsPrefixFromUserMessage(userMessage: {
   user: HullUser,
-  changes?: HullUserChanges
-}):
-  | {
-      user: HullUser,
-      changes?: HullUserChanges
-    }
-  | HullUserUpdateMessage {
+  changes: HullUserChanges
+}): HullUserUpdateMessage {
   const res = {
     ...userMessage
   };
