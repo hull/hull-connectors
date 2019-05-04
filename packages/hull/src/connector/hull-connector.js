@@ -133,8 +133,12 @@ class HullConnector {
       Worker: Class<Worker>,
       Client: Class<HullClient>
     },
-    connectorConfig: HullConnectorConfig
+    connectorConfig: HullConnectorConfig | (() => HullConnectorConfig)
   ) {
+    const resolvedConfig =
+      typeof connectorConfig === "function"
+        ? connectorConfig()
+        : connectorConfig;
     const {
       manifest,
       instrumentation,
@@ -150,9 +154,9 @@ class HullConnector {
       middlewares = [],
       handlers,
       disableOnExit = false
-    } = connectorConfig;
+    } = resolvedConfig;
 
-    this.connectorConfig = connectorConfig;
+    this.connectorConfig = resolvedConfig;
     this.clientConfig = {
       ...clientConfig,
       connectorName: clientConfig.connectorName || connectorName
