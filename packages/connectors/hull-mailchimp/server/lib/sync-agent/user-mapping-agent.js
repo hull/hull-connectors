@@ -191,9 +191,7 @@ class UserMappingAgent {
 
   getMergeFieldValue(
     payload: HullUser,
-    {
-      hull,
-    }: { hull?: string }
+    { hull }: { hull?: string }
   ): HullAttributeValue {
     return _.get(payload, hull) || "";
   }
