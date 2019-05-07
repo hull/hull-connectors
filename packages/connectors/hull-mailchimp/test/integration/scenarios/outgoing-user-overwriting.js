@@ -54,8 +54,8 @@ it("should send matching user to the mailchimp, defaulting to overwriting", () =
             {
               email_type: "html",
               merge_fields: {
-                OVERWRITTEN_MERGE_FIELD: "ovewriting value",
-                OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "ovewriting value"
+                OVERWRITTEN_MERGE_FIELD: "overwriting value",
+                OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "overwriting value"
               },
               interests: {
                 MailchimpInterestId: true
@@ -76,12 +76,12 @@ it("should send matching user to the mailchimp, defaulting to overwriting", () =
         {
           user: {
             email,
-            traits_custom_will_overwrite: "ovewriting value",
+            traits_custom_will_overwrite: "overwriting value",
             "traits_mailchimp/overwritten_merge_field": "will be overwritten",
             "traits_mailchimp/overwritten_merge_field_from_account": "will be overwritten"
           },
           account: {
-            custom_account_will_overwrite: "ovewriting value"
+            custom_account_will_overwrite: "overwriting value"
           },
           segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
         }
@@ -116,8 +116,8 @@ it("should send matching user to the mailchimp, defaulting to overwriting", () =
                 MailchimpInterestId: true,
               },
               merge_fields: {
-                OVERWRITTEN_MERGE_FIELD: "ovewriting value",
-                OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "ovewriting value"
+                OVERWRITTEN_MERGE_FIELD: "overwriting value",
+                OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "overwriting value"
               },
               status_if_new: "subscribed"
             }
