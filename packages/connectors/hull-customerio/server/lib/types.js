@@ -54,9 +54,9 @@ export interface IMappingUtilOptions {
 }
 
 export type TCustomerIoCustomer = {
-  "customerio/id": string, // required
-  "customerio/email"?: string, // recommended
-  "customerio/created_at": number, // recommended UNIX timestamp
+  id: string, // required
+  email?: string, // recommended
+  created_at: number, // recommended UNIX timestamp
   [TCustomerIoCustomerAttributeName]: TCustomerIoCustomerAttributeValue // Optional
 };
 

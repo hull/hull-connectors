@@ -11,15 +11,21 @@ module.exports = (ctxMock) => {
   expect(ctxMock.client.asUser.mock.calls[0])
     .toEqual([userData]);
 
-  const customerData = {
+  const hullData = {
     "customerio/id": _.get(userData, "email"),
     "customerio/email": _.get(userData, "email"),
     "customerio/created_at": moment(_.get(userData, "created_at")).unix(),
     "customerio/deleted_at": null
   };
+  const customerData = {
+    id: _.get(userData, "email"),
+    email: _.get(userData, "email"),
+    created_at: moment(_.get(userData, "created_at")).unix(),
+    deleted_at: null
+  };
 
   expect(_.omit(ctxMock.client.traits.mock.calls[0][0], "customerio/synced_at", "customerio/hash"))
-    .toEqual(_.omit(customerData, "customerio/email"));
+    .toEqual(_.omit(hullData, "customerio/email"));
   expect(ctxMock.client.traits.mock.calls[0][0])
     .toHaveProperty("customerio/synced_at");
   expect(ctxMock.client.traits.mock.calls[0][0])
@@ -44,7 +50,7 @@ module.exports = (ctxMock) => {
   expect(ctxMock.client.logger.info.mock.calls[0][0])
     .toEqual("outgoing.user.success");
   expect(_.omit(ctxMock.client.logger.info.mock.calls[0][1], "data.synced_at", "data.hash", "data.hull_segments"))
-    .toEqual({ data: _.omit(customerData, "customerio/deleted_at"), operation: "updateCustomer" });
+    .toEqual({ data: _.omit(customerData, "deleted_at"), operation: "updateCustomer" });
   expect(ctxMock.client.logger.info.mock.calls[0][1])
     .toHaveProperty("data.hull_segments");
   expect(_.get(ctxMock.client.logger.info.mock.calls[0][1], "data.hull_segments")).toEqual(_.map(_.get(smartNotifierPayload, "messages[0].segments", []), "name"));

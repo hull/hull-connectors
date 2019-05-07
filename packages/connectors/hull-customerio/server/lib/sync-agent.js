@@ -387,7 +387,7 @@ class SyncAgent {
           return Promise.resolve();
         }
 
-        if (!envelope.customer || !envelope.customer["customerio/id"]) {
+        if (!envelope.customer || !envelope.customer.id) {
           // No ID, send as anonymous events
           return Promise.all(
             _.get(envelope, "customerEvents", []).map(event => {
@@ -421,10 +421,7 @@ class SyncAgent {
         return Promise.all(
           _.get(envelope, "customerEvents", []).map(event => {
             this.metric.increment("ship.outgoing.events", 1);
-            return this.serviceClient.sendEvent(
-              envelope.customer["customerio/id"],
-              event
-            );
+            return this.serviceClient.sendEvent(envelope.customer.id, event);
           })
         )
           .then(() => {

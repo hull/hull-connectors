@@ -231,7 +231,7 @@ describe("FilterUtil", () => {
         message: {
           user: {
             "customerio/id": "usr1",
-            "customerio/email": "test@hull.io"
+            email: "test@hull.io"
           },
           segments: [
             {
@@ -263,7 +263,7 @@ describe("FilterUtil", () => {
         message: {
           user: {
             "customerio/id": "usr1",
-            "customerio/email": "test@hull.io"
+            email: "test@hull.io"
           },
           segments: [
             {
@@ -299,7 +299,7 @@ describe("FilterUtil", () => {
         message: {
           user: {
             "customerio/id": "usr1",
-            "customerio/email": "test@hull.io",
+            email: "test@hull.io",
             "customerio/created_at": "2018-01-31T12:00:00.000Z"
           },
           segments: [
@@ -336,7 +336,7 @@ describe("FilterUtil", () => {
         message: {
           user: {
             "customerio/id": "usr1",
-            "customerio/email": "test@hull.io",
+            email: "test@hull.io",
             "customerio/created_at": "2018-01-31T12:00:00.000Z"
           },
           segments: [
@@ -370,7 +370,7 @@ describe("FilterUtil", () => {
         message: {
           user: {
             "customerio/id": "usr1",
-            "customerio/email": "test@hull.io"
+            email: "test@hull.io"
           },
           segments: [
             {

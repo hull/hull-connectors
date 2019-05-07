@@ -15,10 +15,10 @@ describe("MappingUtil", () => {
     const util = new MappingUtil();
 
     const expected = {
-      "customerio/created_at": 1497915606,
-      "customerio/email": "tb@hull.io",
+      created_at: 1497915606,
+      email: "tb@hull.io",
       hull_segments: [],
-      "customerio/id": "hulltest123"
+      id: "hulltest123"
     };
 
     const actual = util.mapToServiceUser(hullUser, []);
@@ -55,10 +55,10 @@ describe("MappingUtil", () => {
       first_name: "Thomas",
       last_name: "Bass",
       "account_clearbit-geo_state": "Georgia",
-      "customerio/created_at": 1497915606,
-      "customerio/email": "tb@hull.io",
+      created_at: 1497915606,
+      email: "tb@hull.io",
       hull_segments: [],
-      "customerio/id": "tb@hull.io"
+      id: "tb@hull.io"
     };
 
     const actual = util.mapToServiceUser(hullUser, []);
@@ -112,10 +112,10 @@ describe("MappingUtil", () => {
       first_name: "Thomas",
       last_name: "Bass",
       "account_clearbit-geo_state": "Georgia",
-      "customerio/created_at": 1497915606,
-      "customerio/email": "tb@hull.io",
+      created_at: 1497915606,
+      email: "tb@hull.io",
       hull_segments: ["Customer.io - Sync", "Product Trials"],
-      "customerio/id": "tb@hull.io"
+      id: "tb@hull.io"
     };
 
     const actual = util.mapToServiceUser(hullUser, hullSegments);
@@ -130,7 +130,7 @@ describe("MappingUtil", () => {
       "first_name",
       "last_name",
       "account.clearbit/geo_state",
-      "customerio/id"
+      "id"
     ];
 
     const hullUser = {
@@ -143,7 +143,7 @@ describe("MappingUtil", () => {
       email: "tb@hull.io",
       created_at: "2017-06-19T23:40:06Z",
       "traits_salesforce_lead/title": "Customer Success",
-      "customerio/id": "123456"
+      id: "123456"
     };
 
     const util = new MappingUtil({ userAttributeMappings, userAttributeServiceId: "email" });
@@ -154,10 +154,10 @@ describe("MappingUtil", () => {
       first_name: "Thomas",
       last_name: "Bass",
       "account_clearbit-geo_state": "Georgia",
-      "customerio/created_at": 1497915606,
-      "customerio/email": "tb@hull.io",
+      created_at: 1497915606,
+      email: "tb@hull.io",
       hull_segments: [],
-      "customerio/id": "tb@hull.io",
+      id: "tb@hull.io",
       hull_id: "123456"
     };
 

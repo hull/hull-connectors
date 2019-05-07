@@ -105,7 +105,7 @@ class FilterUtil {
 
     envelopes.forEach((envelope: TUserUpdateEnvelope) => {
       if (
-        _.get(envelope, "message.user.customerio/email", "n/a") === "n/a" &&
+        _.get(envelope, "message.user.email", "n/a") === "n/a" &&
         this.ignoreUsersWithoutEmail
       ) {
         envelope.skipReason = SHARED_MESSAGES.SKIP_NOEMAIL;

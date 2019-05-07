@@ -10,9 +10,9 @@ module.exports = (ctxMock) => {
   const segmentIds = _.get(smartNotifierPayload, "messages[0].user.segment_ids", []);
 
   const customerDataX = {
-    "customerio/id": _.get(smartNotifierPayload, "messages[0].user.email"),
-    "customerio/email": _.get(smartNotifierPayload, "messages[0].user.email"),
-    "customerio/created_at": moment(_.get(smartNotifierPayload, "messages[0].user.created_at")).unix(),
+    id: _.get(smartNotifierPayload, "messages[0].user.email"),
+    email: _.get(smartNotifierPayload, "messages[0].user.email"),
+    created_at: moment(_.get(smartNotifierPayload, "messages[0].user.created_at")).unix(),
     hull_segments: _.map(_.filter(_.get(smartNotifierPayload, "messages[0].segments", []), (seg) => {
       return _.includes(segmentIds, seg.id);
     }), "name")

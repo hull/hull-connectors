@@ -9,11 +9,19 @@ module.exports = (ctxMock) => {
   _.set(smartNotifierPayload, "messages[0].user.customerio/id", _.get(smartNotifierPayload, "messages[0].user.email"));
   const segmentIds = _.get(smartNotifierPayload, "messages[0].user.segment_ids", []);
 
-  const customerDataX = {
+  const hullDataX = {
     "customerio/id": _.get(smartNotifierPayload, "messages[0].user.email"),
     "customerio/email": _.get(smartNotifierPayload, "messages[0].user.email"),
     "customerio/created_at": moment(_.get(smartNotifierPayload, "messages[0].user.created_at")).unix(),
     "hull_segments": _.map(_.filter(_.get(smartNotifierPayload, "messages[0].segments", []), (seg) => {
+      return _.includes(segmentIds, seg.id);
+    }), "name")
+  };
+  const customerDataX = {
+    id: _.get(smartNotifierPayload, "messages[0].user.email"),
+    email: _.get(smartNotifierPayload, "messages[0].user.email"),
+    created_at: moment(_.get(smartNotifierPayload, "messages[0].user.created_at")).unix(),
+    hull_segments: _.map(_.filter(_.get(smartNotifierPayload, "messages[0].segments", []), (seg) => {
       return _.includes(segmentIds, seg.id);
     }), "name")
   };
@@ -28,7 +36,7 @@ module.exports = (ctxMock) => {
     .toEqual([userData]);
 
   expect(_.omit(ctxMock.client.traits.mock.calls[0][0], "customerio/synced_at", "customerio/hash", "customerio/deleted_at"))
-    .toEqual(_.omit(customerDataX, "customerio/email", "hull_segments"));
+    .toEqual(_.omit(hullDataX, "customerio/email", "hull_segments"));
   expect(ctxMock.client.traits.mock.calls[0][0])
     .toHaveProperty("customerio/synced_at");
   expect(ctxMock.client.traits.mock.calls[0][0])
