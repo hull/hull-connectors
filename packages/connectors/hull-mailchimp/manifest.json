@@ -109,7 +109,6 @@
       "format": "traitMapping",
       "options": {
         "direction": "outgoing",
-        "showOverwriteToggle": true,
         "placeholder": "Mailchimp Merge Field",
         "allowCreate": false,
         "loadOptions": "/schema/user_fields"
