@@ -62,7 +62,6 @@ class SyncAgent {
       []
     ).reduce((segments, id) => {
       const found = _.find(ctx.usersSegments, { id });
-      
       if (found === undefined || id === "ALL") {
         return segments;
       }
