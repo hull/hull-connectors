@@ -135,8 +135,10 @@ const glue = {
     }),
   sendInsertAccountWithAccountId: [
     set("insertedAccount", outreachSendInput("insertAccount")),
-    set("accountId", get("${insertedAccount}", "id")),
-    hull("asAccount", "${insertedAccount}")
+    ifLogic(cond("notEmpty", set("accountId", get("${insertedAccount}", "id"))), {
+      true: hull("asAccount", "${insertedAccount}"),
+      false: {}
+    })
   ],
   getProspectById: [
     set("userId", get(input(), "user.outreach/id")),
