@@ -242,9 +242,7 @@ class SyncAgent {
         );
         const filteredEvents: TFilterResults<
           ICustomerIoEvent
-          > = this.filterUtil.filterEvents(
-          allEvents
-        );
+          > = this.filterUtil.filterEvents(allEvents);
         const customer = this.mappingUtil.mapToServiceUser(
           hullUser,
           _.get(message, this.segmentPropertyName, [])
@@ -285,23 +283,17 @@ class SyncAgent {
       // deduplicate all messages - merge events but take only last message from notification
       const dedupedMessages: Array<
         HullUserUpdateMessage
-        > = this.filterUtil.deduplicateMessages(
-        messages
-      );
+        > = this.filterUtil.deduplicateMessages(messages);
 
       // create envelopes with all necessary data
       const userUpdateEnvelopes: Array<
         TUserUpdateEnvelope
-        > = this.createUserUpdateEnvelopes(
-        dedupedMessages
-      );
+        > = this.createUserUpdateEnvelopes(dedupedMessages);
 
       // filter those envelopes to get `toSkip`, `toInsert`, `toUpdate` and `toDelete`
       const filteredEnvelopes: TFilterResults<
         TUserUpdateEnvelope
-        > = this.filterUtil.filterUsersBySegment(
-        userUpdateEnvelopes
-      );
+        > = this.filterUtil.filterUsersBySegment(userUpdateEnvelopes);
 
       this.client.logger.debug("sendUserMessages", {
         toSkip: filteredEnvelopes.toSkip.length,
