@@ -62,11 +62,12 @@ class SyncAgent {
       []
     ).reduce((segments, id) => {
       const found = _.find(ctx.usersSegments, { id });
-      if (found === undefined) {
+      if (found === undefined || id === "ALL") {
         return segments;
       }
       return segments.concat([found]);
     }, []);
+
     this.forceRemovalFromStaticSegments = _.get(
       ctx.connector,
       "private_settings.force_removal_from_static_segments",

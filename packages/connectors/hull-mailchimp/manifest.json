@@ -35,7 +35,13 @@
       "title": "User Filter",
       "description": "Send users to Mailchimp when belonging to at least one of these segments. If no segments are specified all users are sent to Mailchimp.",
       "type": "array",
-      "format": "segment"
+      "format": "segment",
+      "options": {
+        "standard": {
+          "ALL": "All Users"
+        }
+      },
+      "default": ["ALL"]
     },
     {
       "name": "mailchimp_list_id",
