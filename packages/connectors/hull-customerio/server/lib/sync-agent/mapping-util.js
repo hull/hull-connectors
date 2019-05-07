@@ -55,7 +55,7 @@ class MappingUtil {
   }
 
   createAttributeName(traitName: string): string {
-    if (traitName === "id") {
+    if (traitName === "customerio/id") {
       return "hull_id";
     }
     if (_.startsWith(traitName, "traits_")) {
@@ -82,9 +82,9 @@ class MappingUtil {
   ): TCustomerIoCustomer {
     // Default required/recommended attributes
     let serviceObj: TCustomerIoCustomer = {
-      id: _.get(user, this.userAttributeServiceId, null),
-      email: _.get(user, "email", null),
-      created_at: moment(_.get(user, "created_at")).unix()
+      "customerio/id": _.get(user, this.userAttributeServiceId, null),
+      "customerio/email": _.get(user, "email", null),
+      "customerio/created_at": moment(_.get(user, "created_at")).unix()
     };
     // Always sync the segments
     _.set(serviceObj, "hull_segments", _.map(segments, s => s.name));
@@ -107,7 +107,7 @@ class MappingUtil {
 
     serviceObj = _.mapValues(serviceObj, (value, key) => {
       if (
-        key !== "created_at" &&
+        key !== "customerio/created_at" &&
         (_.endsWith(key, "_date") || _.endsWith(key, "_at")) &&
         moment(value).isValid()
       ) {
@@ -152,8 +152,8 @@ class MappingUtil {
 
     const hash = hashUtil.hash(customer);
     return {
-      "customerio/id": _.get(customer, "id", null),
-      "customerio/created_at": _.get(customer, "created_at", null),
+      "customerio/id": _.get(customer, "customerio/id", null),
+      "customerio/created_at": _.get(customer, "customerio/created_at", null),
       "customerio/hash": hash,
       "customerio/synced_at": updatedAt,
       "customerio/deleted_at": null

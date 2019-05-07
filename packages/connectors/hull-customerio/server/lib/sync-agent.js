@@ -141,7 +141,7 @@ class SyncAgent {
       ),
       synchronizedEvents: _.get(
         reqContext,
-        "connector.private_settings.event_filter",
+        "connector.private_settings.events_filter",
         []
       ),
       userAttributeServiceId: _.get(
@@ -240,9 +240,9 @@ class SyncAgent {
         const allEvents = _.map(_.get(message, "events", []), event =>
           this.mappingUtil.mapToServiceEvent(event)
         );
-        const filteredEvents: TFilterResults<
-          ICustomerIoEvent
-        > = this.filterUtil.filterEvents(allEvents);
+        const filteredEvents: TFilterResults<ICustomerIoEvent> = this.filterUtil.filterEvents(
+          allEvents
+        );
         const customer = this.mappingUtil.mapToServiceUser(
           hullUser,
           _.get(message, this.segmentPropertyName, [])
@@ -281,19 +281,19 @@ class SyncAgent {
       }
 
       // deduplicate all messages - merge events but take only last message from notification
-      const dedupedMessages: Array<
-        HullUserUpdateMessage
-      > = this.filterUtil.deduplicateMessages(messages);
+      const dedupedMessages: Array<HullUserUpdateMessage> = this.filterUtil.deduplicateMessages(
+        messages
+      );
 
       // create envelopes with all necessary data
-      const userUpdateEnvelopes: Array<
-        TUserUpdateEnvelope
-      > = this.createUserUpdateEnvelopes(dedupedMessages);
+      const userUpdateEnvelopes: Array<TUserUpdateEnvelope> = this.createUserUpdateEnvelopes(
+        dedupedMessages
+      );
 
       // filter those envelopes to get `toSkip`, `toInsert`, `toUpdate` and `toDelete`
-      const filteredEnvelopes: TFilterResults<
-        TUserUpdateEnvelope
-      > = this.filterUtil.filterUsersBySegment(userUpdateEnvelopes);
+      const filteredEnvelopes: TFilterResults<TUserUpdateEnvelope> = this.filterUtil.filterUsersBySegment(
+        userUpdateEnvelopes
+      );
 
       this.client.logger.debug("sendUserMessages", {
         toSkip: filteredEnvelopes.toSkip.length,
@@ -363,14 +363,12 @@ class SyncAgent {
     return this.serviceClient
       .updateCustomer(envelope.customer)
       .then(() => {
-        return userScopedClient
-          .traits(userTraits)
-          .then(() => {
-            userScopedClient.logger.info("outgoing.user.success", {
-              data: envelope.customer,
-              operation: "updateCustomer"
-            });
+        return userScopedClient.traits(userTraits).then(() => {
+          userScopedClient.logger.info("outgoing.user.success", {
+            data: envelope.customer,
+            operation: "updateCustomer"
           });
+        });
       })
       .then(() => {
         // Process the events
@@ -389,7 +387,7 @@ class SyncAgent {
           return Promise.resolve();
         }
 
-        if (!envelope.customer || !envelope.customer.id) {
+        if (!envelope.customer || !envelope.customer["customerio/id"]) {
           // No ID, send as anonymous events
           return Promise.all(
             _.get(envelope, "customerEvents", []).map(event => {
@@ -458,15 +456,13 @@ class SyncAgent {
       .deleteCustomer(_.get(envelope, "customer.id"))
       .then(() => {
         return userScopedClient
-          .traits(
-            {
-              "customerio/deleted_at": new Date(),
-              "customerio/id": null,
-              "customerio/hash": null,
-              "customerio/synced_at": null,
-              "customerio/created_at": null
-            }
-          )
+          .traits({
+            "customerio/deleted_at": new Date(),
+            "customerio/id": null,
+            "customerio/hash": null,
+            "customerio/synced_at": null,
+            "customerio/created_at": null
+          })
           .then(() => {
             return userScopedClient.logger.info("outgoing.user.deletion", {
               data: { id: envelope.customer.id },

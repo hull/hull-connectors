@@ -10,24 +10,26 @@ module.exports = (ctxMock) => {
   });
   const userData = _.get(smartNotifierPayload, "messages[0].user");
 
+  _.set(userData, "customerio/email", _.get(userData, "email"));
+
   expect(ctxMock.client.asUser.mock.calls[0])
     .toEqual([userData]);
 
   const customerData = {
-    id: _.get(userData, "email"),
-    email: _.get(userData, "email"),
-    created_at: moment(_.get(userData, "created_at")).unix(),
-    deleted_at: null
+    "customerio/id": _.get(userData, "email"),
+    "customerio/email": _.get(userData, "email"),
+    "customerio/created_at": moment(_.get(userData, "created_at")).unix(),
+    "customerio/deleted_at": null
   };
 
-  expect(_.omit(ctxMock.client.traits.mock.calls[0][0], "synced_at", "hash"))
-    .toEqual(_.omit(customerData, "email"));
+  expect(_.omit(ctxMock.client.traits.mock.calls[0][0], "customerio/synced_at", "customerio/hash"))
+    .toEqual(_.omit(customerData, "customerio/email"));
   expect(ctxMock.client.traits.mock.calls[0][0])
-    .toHaveProperty("synced_at");
+    .toHaveProperty("customerio/synced_at");
   expect(ctxMock.client.traits.mock.calls[0][0])
-    .toHaveProperty("hash");
-  expect(ctxMock.client.traits.mock.calls[0][1])
-    .toEqual({ source: "customerio" });
+    .toHaveProperty("customerio/hash");
+  // expect(ctxMock.client.traits.mock.calls[0][1])
+  //   .toEqual({ source: "customerio" });
 
   expect(ctxMock.metric.increment.mock.calls).toHaveLength(3);
   expect(ctxMock.metric.increment.mock.calls[0]).toEqual(["ship.outgoing.users", 1]);
@@ -59,7 +61,7 @@ module.exports = (ctxMock) => {
   expect(ctxMock.client.logger.info.mock.calls[0][0])
     .toEqual("outgoing.user.success");
   expect(_.omit(ctxMock.client.logger.info.mock.calls[0][1], "data.synced_at", "data.hash", "data.hull_segments"))
-    .toEqual({ data: _.omit(fullCustomerData, "deleted_at"), operation: "updateCustomer" });
+    .toEqual({ data: _.omit(fullCustomerData, "customerio/deleted_at"), operation: "updateCustomer" });
   expect(ctxMock.client.logger.info.mock.calls[0][1])
     .toHaveProperty("data.hull_segments");
   expect(_.get(ctxMock.client.logger.info.mock.calls[0][1], "data.hull_segments")).toEqual(_.map(_.get(smartNotifierPayload, "messages[0].segments", []), "name"));

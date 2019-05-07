@@ -4,37 +4,37 @@ const HashUtil = require("../../../../server/lib/sync-agent/hash-util");
 const smartNotifierPayload = _.cloneDeep(require("../../fixtures/smart-notifier-payloads/user-update-withevent.json"));
 
 module.exports = (ctxMock) => {
-  _.set(smartNotifierPayload, "messages[0].user.traits_customerio/created_at", _.get(smartNotifierPayload, "messages[0].user.created_at"));
-  _.set(smartNotifierPayload, "messages[0].user.traits_customerio/email", _.get(smartNotifierPayload, "messages[0].user.email"));
-  _.set(smartNotifierPayload, "messages[0].user.traits_customerio/id", _.get(smartNotifierPayload, "messages[0].user.email"));
+  _.set(smartNotifierPayload, "messages[0].user.customerio/created_at", _.get(smartNotifierPayload, "messages[0].user.created_at"));
+  _.set(smartNotifierPayload, "messages[0].user.customerio/email", _.get(smartNotifierPayload, "messages[0].user.email"));
+  _.set(smartNotifierPayload, "messages[0].user.customerio/id", _.get(smartNotifierPayload, "messages[0].user.email"));
   const segmentIds = _.get(smartNotifierPayload, "messages[0].user.segment_ids", []);
 
   const customerDataX = {
-    id: _.get(smartNotifierPayload, "messages[0].user.email"),
-    email: _.get(smartNotifierPayload, "messages[0].user.email"),
-    created_at: moment(_.get(smartNotifierPayload, "messages[0].user.created_at")).unix(),
-    hull_segments: _.map(_.filter(_.get(smartNotifierPayload, "messages[0].segments", []), (seg) => {
+    "customerio/id": _.get(smartNotifierPayload, "messages[0].user.email"),
+    "customerio/email": _.get(smartNotifierPayload, "messages[0].user.email"),
+    "customerio/created_at": moment(_.get(smartNotifierPayload, "messages[0].user.created_at")).unix(),
+    "hull_segments": _.map(_.filter(_.get(smartNotifierPayload, "messages[0].segments", []), (seg) => {
       return _.includes(segmentIds, seg.id);
     }), "name")
   };
 
   const hashUtil = new HashUtil();
   const hash = hashUtil.hash(customerDataX);
-  _.set(smartNotifierPayload, "messages[0].user.traits_customerio/hash", hash);
+  _.set(smartNotifierPayload, "messages[0].user.customerio/hash", hash);
 
   const userData = _.get(smartNotifierPayload, "messages[0].user");
 
   expect(ctxMock.client.asUser.mock.calls[0])
     .toEqual([userData]);
 
-  expect(_.omit(ctxMock.client.traits.mock.calls[0][0], "synced_at", "hash", "deleted_at"))
-    .toEqual(_.omit(customerDataX, "email", "hull_segments"));
+  expect(_.omit(ctxMock.client.traits.mock.calls[0][0], "customerio/synced_at", "customerio/hash", "customerio/deleted_at"))
+    .toEqual(_.omit(customerDataX, "customerio/email", "hull_segments"));
   expect(ctxMock.client.traits.mock.calls[0][0])
-    .toHaveProperty("synced_at");
+    .toHaveProperty("customerio/synced_at");
   expect(ctxMock.client.traits.mock.calls[0][0])
-    .toHaveProperty("hash");
-  expect(ctxMock.client.traits.mock.calls[0][1])
-    .toEqual({ source: "customerio" });
+    .toHaveProperty("customerio/hash");
+  // expect(ctxMock.client.traits.mock.calls[0][1])
+  //   .toEqual({ source: "customerio" });
 
   expect(ctxMock.metric.increment.mock.calls).toHaveLength(4);
   expect(ctxMock.metric.increment.mock.calls[0]).toEqual(["ship.outgoing.users", 1]);
@@ -66,7 +66,7 @@ module.exports = (ctxMock) => {
   expect(ctxMock.client.logger.info.mock.calls[0][0])
     .toEqual("outgoing.user.success");
   expect(_.omit(ctxMock.client.logger.info.mock.calls[0][1], "data.synced_at", "data.hash"))
-    .toEqual({ data: _.omit(customerDataX, "deleted_at"), operation: "updateCustomer" });
+    .toEqual({ data: _.omit(customerDataX, "customerio/deleted_at"), operation: "updateCustomer" });
 
   expect(ctxMock.client.logger.info.mock.calls[1][0])
     .toEqual("outgoing.event.success");
