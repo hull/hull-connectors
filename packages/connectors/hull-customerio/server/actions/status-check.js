@@ -6,11 +6,10 @@ const _ = require("lodash");
 const SyncAgent = require("../lib/sync-agent");
 
 function statusCheckAction(req: HullRequest, res: $Response): Promise<*> {
-  if (_.has(req, "hull.ship.private_settings")) {
-    const { client } = req.hull;
-    const connector =
-      _.get(req, "hull.connector", null) || _.get(req, "hull.ship", null);
-    const syncAgent = new SyncAgent(req.hull);
+  if (_.has(req, "connector.private_settings")) {
+    const { client } = req;
+    const { connector = null } = req;
+    const syncAgent = new SyncAgent(req);
     const messages: Array<string> = [];
     let status: string = "ok";
     const promises: Array<Promise<*>> = [];
@@ -57,9 +56,12 @@ function statusCheckAction(req: HullRequest, res: $Response): Promise<*> {
     }
 
     const handleResponse = () => {
-      res.json({ status, messages });
+      if (res && _.isFunction(res.json)) {
+        res.json({ status, messages });
+      }
       client.logger.debug("connector.status", { status, messages });
-      return client.put(`${connector.id}/status`, { status, messages });
+      client.put(`${connector.id}/status`, { status, messages });
+      return { status, messages };
     };
 
     return Promise.all(promises)
@@ -77,7 +79,9 @@ function statusCheckAction(req: HullRequest, res: $Response): Promise<*> {
   }
 
   return new Promise(resolve => {
-    res.status(404).json({ status: 404, messages: ["Connector not found"] });
+    if (res && _.isFunction(res.status)) {
+      res.status(404).json({ status: 404, messages: ["Connector not found"] });
+    }
     resolve();
   });
 }
