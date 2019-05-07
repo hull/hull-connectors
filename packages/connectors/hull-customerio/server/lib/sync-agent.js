@@ -240,7 +240,9 @@ class SyncAgent {
         const allEvents = _.map(_.get(message, "events", []), event =>
           this.mappingUtil.mapToServiceEvent(event)
         );
-        const filteredEvents: TFilterResults<ICustomerIoEvent> = this.filterUtil.filterEvents(
+        const filteredEvents: TFilterResults<
+          ICustomerIoEvent
+          > = this.filterUtil.filterEvents(
           allEvents
         );
         const customer = this.mappingUtil.mapToServiceUser(
@@ -281,17 +283,23 @@ class SyncAgent {
       }
 
       // deduplicate all messages - merge events but take only last message from notification
-      const dedupedMessages: Array<HullUserUpdateMessage> = this.filterUtil.deduplicateMessages(
+      const dedupedMessages: Array<
+        HullUserUpdateMessage
+        > = this.filterUtil.deduplicateMessages(
         messages
       );
 
       // create envelopes with all necessary data
-      const userUpdateEnvelopes: Array<TUserUpdateEnvelope> = this.createUserUpdateEnvelopes(
+      const userUpdateEnvelopes: Array<
+        TUserUpdateEnvelope
+        > = this.createUserUpdateEnvelopes(
         dedupedMessages
       );
 
       // filter those envelopes to get `toSkip`, `toInsert`, `toUpdate` and `toDelete`
-      const filteredEnvelopes: TFilterResults<TUserUpdateEnvelope> = this.filterUtil.filterUsersBySegment(
+      const filteredEnvelopes: TFilterResults<
+        TUserUpdateEnvelope
+        > = this.filterUtil.filterUsersBySegment(
         userUpdateEnvelopes
       );
 
@@ -421,7 +429,10 @@ class SyncAgent {
         return Promise.all(
           _.get(envelope, "customerEvents", []).map(event => {
             this.metric.increment("ship.outgoing.events", 1);
-            return this.serviceClient.sendEvent(envelope.customer.id, event);
+            return this.serviceClient.sendEvent(
+              envelope.customer["customerio/id"],
+              event
+            );
           })
         )
           .then(() => {

@@ -7,8 +7,7 @@ const SyncAgent = require("../lib/sync-agent");
 
 function statusCheckAction(req: HullRequest, res: $Response): Promise<*> {
   if (_.has(req, "connector.private_settings")) {
-    const { client } = req;
-    const { connector = null } = req;
+    const { client, connector } = req;
     const syncAgent = new SyncAgent(req);
     const messages: Array<string> = [];
     let status: string = "ok";
