@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="/style.css" />
+    <title>Close this window now</title>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-12 col-md-offset-1 col-md-10 text-center">
+          <h1 class="mb-0 mt-05">
+            <i class="icon icon-hull" style="font-size:64px;"></i>
+          </h1>
+          <h5 class="mb-1">Authentication Failed</h5>
+          <a
+            href="<%=urls.home%>&reset=true"
+            target="_blank"
+            id="login"
+            class="btn btn-block btn-rounded btn-pill btn-secondary"
+            >Try again</a
+          >
+        </div>
+      </div>
+    </div>
+    <script>(function finish(){ window.opener.hullAuthCompleted(); window.close(); })();</script>
+  </body>
+</html>

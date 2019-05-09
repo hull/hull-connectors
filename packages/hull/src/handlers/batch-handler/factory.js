@@ -1,5 +1,5 @@
 // @flow
-import type { HullBatchHandlersConfiguration } from "../../types";
+import type { HullRouteMap, HullBatchHandlersConfiguration } from "../../types";
 import getRouter from "../get-router";
 
 const processingMiddleware = require("./processing-middleware");
@@ -16,7 +16,7 @@ const errorMiddleware = require("./error-middleware");
  */
 function batchExtractHandlerFactory(
   configuration: HullBatchHandlersConfiguration
-): * {
+): HullRouteMap {
   return getRouter({
     requestName: "batch",
     handlerName: "batch",

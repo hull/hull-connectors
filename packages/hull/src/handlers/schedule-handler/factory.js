@@ -1,6 +1,8 @@
 // @flow
-import type { Router } from "express";
-import type { HullSchedulerHandlerConfigurationEntry } from "../../types";
+import type {
+  HullRouteMap,
+  HullSchedulerHandlerConfigurationEntry
+} from "../../types";
 
 import getRouter from "../get-router";
 import errorHandler from "../error-handler";
@@ -25,10 +27,11 @@ import handler from "../external-handler";
  */
 function scheduleHandlerFactory(
   configurationEntry: HullSchedulerHandlerConfigurationEntry
-): Router {
-  const { options = {} } = configurationEntry;
+): HullRouteMap {
+  const { method, options = {} } = configurationEntry;
 
   return getRouter({
+    method,
     options: {
       credentialsFromQuery: true,
       credentialsFromNotification: false,

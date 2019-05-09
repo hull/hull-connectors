@@ -67,8 +67,8 @@ describe("client.track()", function test() {
       .onFirstCall()
       .callsFake((req, res) => {
         console.log("FIRSTCALL")
-      })
-      .onSecondCall()
+      });
+    stub.onSecondCall()
       .callsFake((req, res) => {
         console.log("SECONDCALL", res)
         res.end("ok");

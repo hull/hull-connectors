@@ -5,6 +5,7 @@ import type { Server } from "http";
 import express from "express";
 import type {
   HullServerConfig,
+  HullRouteMap,
   HullMetricsConfig,
   HullLogsConfig,
   HullHTTPClientConfig,
@@ -14,7 +15,6 @@ import type {
   HullClient,
   HullWorker
 } from "../types";
-
 import {
   jsonHandler,
   scheduleHandler,
@@ -26,6 +26,8 @@ import {
 } from "../handlers";
 
 import errorHandler from "./error";
+
+type RouterFactory = configurationEntry => void | HullRouteMap;
 
 const path = require("path");
 const Promise = require("bluebird");
@@ -237,20 +239,23 @@ class HullConnector {
     // This method wires the routes according to the configuration.
     // Methods are optional but they all have sane defaults
     const mapNotification = (factory, section = "subscriptions") =>
-      (this.manifest[section] || []).map(({ url, channels }) =>
-        app.post(
-          url,
-          factory(
-            channels.map(({ handler, channel, options }) => ({
-              callback: getCallbacks(handlers, section, handler),
-              channel,
-              options
-            }))
-          )
-        )
-      );
+      (this.manifest[section] || []).map(({ url, channels }) => {
+        const { router } = factory(
+          channels.map(({ handler, channel, options }) => ({
+            callback: getCallbacks(handlers, section, handler),
+            channel,
+            options
+          }))
+        );
+        app.post(url, router);
+      });
 
-    const mapRoute = (factory, section = "json", defaultMethod = "all") =>
+    // Breaking proper separation of concerns here, but its the least invasive way to override route setup with oAuth handlers
+    const mapRoute = (
+      factory: RouterFactory,
+      section = "json",
+      defaultMethod = "all"
+    ) =>
       (this.manifest[section] || []).map(
         ({ url, method = defaultMethod, handler, options }) => {
           const callback = getCallbacks(handlers, section, handler);
@@ -265,16 +270,29 @@ class HullConnector {
               `Trying to setup an unauthorized method: app.${method}`
             );
           }
-          const router = factory({ options, callback });
+          const res = factory({
+            method: method || defaultMethod,
+            options,
+            callback
+          });
+          if (!res) {
+            debug(
+              `Skipping entry because no router was returned for ${section} / ${url}: ${handler}`
+            );
+            return false;
+          }
+          const { method: routerMethod, router } = res;
+          // const m = handleMethod(method, defaultMethod, options)
           if (router) {
             // $FlowFixMe
-            app[method || defaultMethod](url, router);
+            app[routerMethod](url, router);
+            // app[method || defaultMethod](url, router);
             debug(
-              `Setting up ${method.toUpperCase()} ${url}: ${handler} / ${!!callback}`
+              `Setting up ${routerMethod.toUpperCase()} ${url}: ${handler} / ${!!callback}`
             );
           } else {
             debug(
-              `Skipping ${method.toUpperCase()} ${url} ${handler} because no router was generated`
+              `Skipping ${routerMethod.toUpperCase()} ${url} ${handler} because no router was generated`
             );
           }
           return true;

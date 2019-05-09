@@ -1,6 +1,6 @@
 // @flow
-import type { Router } from "express";
-import type { HullJsonHandlerConfigurationEntry } from "../../types";
+
+import type { HullRouteMap, HullJsonHandlerConfigurationEntry } from "../../types";
 import getRouter from "../get-router";
 import errorHandler from "../error-handler";
 import handler from "../external-handler";
@@ -33,10 +33,11 @@ const cors = require("cors");
  */
 function jsonHandlerFactory(
   configurationEntry: HullJsonHandlerConfigurationEntry
-): Router {
+): HullRouteMap {
   const { options = {} } = configurationEntry;
 
   return getRouter({
+    method,
     options: {
       credentialsFromQuery: true,
       credentialsFromNotification: false,

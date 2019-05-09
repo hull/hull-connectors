@@ -1,6 +1,8 @@
 // @flow
-import type { Router } from "express";
-import type { HullHtmlHandlerConfigurationEntry } from "../../types";
+import type {
+  HullRouteMap,
+  HullHtmlHandlerConfigurationEntry
+} from "../../types";
 
 import getRouter from "../get-router";
 import errorHandler from "../error-handler";
@@ -37,19 +39,17 @@ import OAuthHandler from "../oauth-handler/factory";
  */
 function htmlHandlerFactory(
   configurationEntry: HullHtmlHandlerConfigurationEntry
-): void | Router {
-  const { options = {}, callback } = configurationEntry;
+): HullRouteMap {
+  const { method, options = {}, callback } = configurationEntry;
   const { type = undefined } = options;
   if (type) {
-    if (type.toLowerCase() === "router") {
-      return callback(options);
-    }
     if (type.toLowerCase() === "oauth") {
       return OAuthHandler(configurationEntry);
     }
   }
 
   return getRouter({
+    method,
     options: {
       credentialsFromQuery: true,
       credentialsFromNotification: false,

@@ -1,0 +1,48 @@
+<html>
+<head>
+  <title>Hull <%= name %></title>
+  <link rel="stylesheet" href="/index.css" />
+  <script src="/index.js" type="text/javascript" charset="utf-8"></script>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-12 col-md-offset-1 col-md-10">
+        <h1 class="mb-0 mt-05  text-center"><i class="icon icon-hull" style="font-size:64px;"></i></h1>
+        <hr/>
+        <div class="col-sm-6">
+          <div class="mb-1 media">
+            <div class="media-left">
+              <div class="media-object pr-1 pt-1">
+                <div class="check valid"><i class="icon icon-valid"></i></div>
+              </div>
+            </div>
+            <div class="media-body pt-1">
+              <h5 class="m-0 pt-05"><%=name%> Credentials Saved</h5>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="mb-1 media">
+            <div class="media-left">
+              <div class="media-object pr-1 pt-1">
+                <div class="check <%=(connected)?'valid':'cross'%>"><i class="icon icon-<%=(connected)?"valid":"cross"%>"></i></div>
+              </div>
+            </div>
+            <div class="media-body pt-1">
+              <% if(!connected) { %>
+                <span class='pull-right'><a href="#" id="reconnect_button" class='btn btn-rounded btn-pill btn-secondary'>Reconnect Bot</a></span>
+                <% } %>
+                <h5 class="m-0 pt-05"><%=name%> Bot <%=(connected)?"Online":"Offline"%></h5>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-12 col-md-offset-1 col-md-10">
+        <hr>
+        <a href="<%=urls.home%>&reset=true" class='btn btn-rounded btn-block btn-primary'>Start over</a>
+    </div>
+  </div>
+</body>
+</html>

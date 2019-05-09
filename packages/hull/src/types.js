@@ -70,6 +70,10 @@ export type HandlerCacheOptions = {
 export type HullNotificationHandlerOptions = {
   disableErrorHandling?: boolean,
   maxTime?: number,
+  filter?: {
+    user_segments?: string,
+    account_segments?: string
+  },
   maxSize?: number
 };
 export type HullBatchHandlerOptions = {
@@ -169,11 +173,6 @@ type HullManifestHtmlConfig = {
   handler: string,
   method: HTTPMethod,
   options?: HullHtmlHandlerOptions
-};
-
-type HullManifestRouter = {
-  url?: string,
-  handler: string
 };
 
 // Connector Manifest. Defines a Connector's exposed endpoints and features
@@ -306,8 +305,8 @@ export type HullConnectorConfig = {
   devMode?: boolean,
   json?: HullJsonConfig,
   instrumentation?: Instrumentation,
-  cache?: Cache,
-  queue?: Queue,
+  cache?: void | Cache,
+  queue?: void | Queue,
   handlers:
     | HullHandlersConfiguration
     | (HullConnector => HullHandlersConfiguration),
@@ -439,9 +438,7 @@ export type HullUserChanges = {
   is_new: boolean,
   user: HullAttributesChanges,
   account: HullAttributesChanges,
-  segment_ids: Array<string>,
   segments: HullSegmentsChanges, // should be segments or user_segments?
-  account_segment_ids?: Array<string>,
   account_segments: HullSegmentsChanges
 };
 
@@ -451,33 +448,40 @@ export type HullUserChanges = {
 export type HullAccountChanges = {
   is_new: boolean,
   account: HullAttributesChanges,
-  account_segment_ids?: Array<string>,
   account_segments: HullSegmentsChanges
 };
 
 /**
  * A message sent by the platform when any event, attribute (trait) or segment change happens on the user.
  */
-export type HullUserUpdateMessage = {|
+export type HullUserUpdateMessage = {
   message_id: string,
   user: HullUser,
   changes: HullUserChanges,
   segments: Array<HullUserSegment>,
+  segment_ids: Array<string>,
+  user_segments: Array<HullUserSegment>,
+  user_segment_ids: Array<string>,
+  matching_user_segments: Array<HullUserSegment>,
   account_segments: Array<HullAccountSegment>,
+  account_segment_ids: Array<string>,
+  matching_account_segments: Array<HullUserSegment>,
   events: Array<HullEvent>,
   account: HullAccount
-|};
+};
 export type HullUserDeleteMessage = {};
 
 /**
  * A message sent by the platform when any attribute (trait) or segment change happens on the account.
  */
-export type HullAccountUpdateMessage = {|
+export type HullAccountUpdateMessage = {
   changes: HullAccountChanges,
   account_segments: Array<HullAccountSegment>,
+  account_segment_ids: Array<string>,
+  matching_account_segments: Array<HullUserSegment>,
   account: HullAccount,
   message_id: string
-|};
+};
 export type HullAccountDeleteMessage = {};
 
 /**
@@ -555,7 +559,7 @@ export type HullNotificationFlowControl = {
   in_time?: number
 };
 
-export type HullKrakenResponse = {|
+export type HullKrakenResponse = void | {|
   action: "success" | "skip" | "error",
   type: "user" | "account" | "event",
   message_id?: string,
@@ -565,8 +569,8 @@ export type HullKrakenResponse = {|
 |};
 
 export type HullNotificationResponseData = void | {
-  flow_control?: HullNotificationFlowControl
-  // responses?: Array<?HullKrakenResponse>
+  flow_control?: HullNotificationFlowControl,
+  responses?: Array<?HullKrakenResponse>
 };
 export type HullNotificationResponse =
   | HullNotificationResponseData
@@ -692,7 +696,7 @@ export type HullIncomingHandlerCallback = (
 export type HullSchedulerHandlerCallback = HullIncomingHandlerCallback;
 export type HullHtmlHandlerCallback = HullIncomingHandlerCallback;
 export type HullOAuthHandlerParams = void | {
-  isSetup?: (req: HullOAuthRequest) => HullExternalResponse,
+  isSetup?: (req: HullOAuthRequest) => Promise<HullExternalResponseData>,
   onAuthorize?: (req: HullOAuthRequest) => HullExternalResponse,
   onLogin?: (req: HullOAuthRequest) => HullExternalResponse,
   Strategy: any,
@@ -783,13 +787,14 @@ export type HullHandlersConfiguration = {
 
 /* CONFIGURATION ENTRIES - for internal use*/
 export type Handler<HNC, HNO> = {
+  method?: HTTPMethod,
   callback: HNC,
   options?: HNO
 };
-export type HullHtmlHandlerConfigurationEntry = {
-  callback: HullHtmlHandlerCallback | RouterFactory,
-  options?: HullHtmlHandlerOptions
-};
+export type HullHtmlHandlerConfigurationEntry = Handler<
+  HullHtmlHandlerCallback,
+  HullHtmlHandlerOptions
+>;
 export type HullJsonHandlerConfigurationEntry = Handler<
   HullJsonHandlerCallback,
   HullJsonHandlerOptions
@@ -820,3 +825,9 @@ export type HullBatchHandlersConfiguration = Array<{
   channel: HullBatchHandlerChannel,
   options: HullBatchHandlerOptions
 }>;
+
+type ExpressMethod = "use" | HTTPMethod;
+export type HullRouteMap = {
+  router: Router,
+  method?: ExpressMethod
+};

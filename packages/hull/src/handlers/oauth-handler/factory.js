@@ -1,12 +1,12 @@
 // @flow
-
 import type {
+  HullRouteMap,
   HullRequest,
   HullResponse,
   HullOAuthHandlerParams,
   HullOAuthHandlerOptions
 } from "hull";
-import type { Router, NextFunction, $Response } from "express";
+import type { NextFunction, $Response } from "express";
 import getRouter from "../get-router";
 
 const _ = require("lodash");
@@ -15,7 +15,7 @@ const passport = require("passport");
 const querystring = require("querystring");
 const debug = require("debug")("hull-connector:oauth-handler");
 
-const HOME_URL = "/";
+const HOME_URL = "";
 const LOGIN_URL = "/login";
 const CALLBACK_URL = "/callback";
 const FAILURE_URL = "/failure";
@@ -127,7 +127,7 @@ function OAuthHandlerFactory({
     params: HullOAuthHandlerOptions
   },
   callback: () => HullOAuthHandlerParams
-}): Router | void {
+}): void | HullRouteMap {
   const { params } = opts;
   const handlerParams = callback();
   if (!handlerParams) {
@@ -142,7 +142,7 @@ function OAuthHandlerFactory({
     clientSecret
   } = handlerParams;
   const { tokenInUrl, name, strategy, views } = params;
-  const router = getRouter({
+  const { router } = getRouter({
     options: {
       credentialsFromQuery: true,
       credentialsFromNotification: false,
@@ -151,8 +151,8 @@ function OAuthHandlerFactory({
     requestName: "OAuth",
     bodyParser: "urlencoded",
     beforeMiddlewares: [fetchToken],
-    afterMiddlewares: [passport.initialize()],
-    disableErrorHandling: false
+    afterMiddlewares: [passport.initialize()]
+    // disableErrorHandling: false
   });
 
   const OAuthStrategy = new Strategy(
@@ -191,15 +191,22 @@ function OAuthHandlerFactory({
 
   passport.use(OAuthStrategy);
 
-  router.get(HOME_URL, async (req: HullRequest, res: HullResponse) => {
+  router.get(HOME_URL, async function home(
+    req: HullRequest,
+    res: HullResponse
+  ) {
     const { connector = {}, client } = req.hull;
     client.logger.debug("connector.oauth.home");
     const data = { name, urls: getURLs(req), connector };
     try {
-      const setup = await isSetup(req);
-      res.render(views.home, _.merge({}, data, setup));
-    } catch (setup) {
-      res.render(views.login, _.merge({}, data, setup));
+      const setupResponse = await isSetup(req);
+      const { status, data: setupData } = setupResponse;
+      if (status >= 400) {
+        throw new Error(setupResponse);
+      }
+      res.render(views.home, { ...data, ...setupData });
+    } catch (error) {
+      res.render(views.login, { ...data, ...error.data });
     }
   });
 
@@ -262,10 +269,11 @@ function OAuthHandlerFactory({
         await onAuthorize(req);
         res.redirect(getURL(req, SUCCESS_URL));
       } catch (error) {
+        console.log("CALLBACK ERROR", error);
         res.redirect(
           getURL(req, FAILURE_URL, {
             token: req.hull.clientCredentialsToken,
-            error
+            error: error.message
           })
         );
       }
@@ -287,7 +295,10 @@ function OAuthHandlerFactory({
     }
   );
 
-  return router;
+  return {
+    method: "use",
+    router
+  };
 }
 
 module.exports = OAuthHandlerFactory;

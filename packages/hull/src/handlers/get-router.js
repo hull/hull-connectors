@@ -22,6 +22,7 @@ const {
 } = require("../middlewares");
 
 export default function getRouter({
+  method,
   options,
   requestName,
   handlerName,
@@ -30,6 +31,7 @@ export default function getRouter({
   beforeMiddlewares = [],
   handler
 }: {
+  method?: string,
   options: HullIncomingHandlerOptions,
   requestName: string,
   handlerName?: string,
@@ -94,5 +96,8 @@ export default function getRouter({
   if (errorHandler && disableErrorHandling !== true) {
     router.use(errorHandler);
   }
-  return router;
+  return {
+    method,
+    router
+  };
 }

@@ -27,4 +27,7 @@ module.exports.extractStream = require("./extract-stream");
 module.exports.trimTraitsPrefixFromUserMessage = require("./trim-traits-prefix-from-user-message");
 module.exports.applyConnectorSettingsDefaults = require("./apply-connector-settings-defaults");
 module.exports.trimTraitsPrefixFromConnector = require("./trim-traits-prefix-from-connector");
+module.exports.remapUserSegmentsKey = require("./remap-user-segments");
+module.exports.computeMatchingSegments = require("./compute-matching-segments");
+module.exports.filterMatchingSegments = require("./filter-matching-segments");
 module.exports.getJsonBody = require("./get-json-body");

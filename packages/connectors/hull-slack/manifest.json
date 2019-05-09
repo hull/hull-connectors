@@ -1,0 +1,294 @@
+{
+  "name": "Slack",
+  "description": "Notify a Slack Channel whenever a User enters or leaves a Segment",
+  "picture": "picture.png",
+  "version": "0.0.17",
+  "tags": [
+    "incoming",
+    "outgoing",
+    "oneColumn",
+    "smart-notifier"
+  ],
+  "private_settings": [
+    {
+      "name": "token",
+      "title": "Token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "team_id",
+      "title": "team_id",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "user_id",
+      "title": "user_id",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "incoming_webhook",
+      "title": "Incoming Webhook",
+      "type": "object",
+      "format": "hidden",
+      "properties": {
+        "url": {
+          "title": "url",
+          "type": "string"
+        },
+        "channel": {
+          "title": "channel",
+          "type": "string"
+        },
+        "channel_id": {
+          "title": "channel_id",
+          "type": "string"
+        },
+        "configuration_url": {
+          "title": "configuration_url",
+          "type": "string"
+        }
+      }
+    },
+    {
+      "name": "bot",
+      "title": "Bot",
+      "type": "object",
+      "format": "hidden",
+      "properties": {
+        "bot_user_id": {
+          "title": "bot_user_id",
+          "type": "string"
+        },
+        "bot_access_token": {
+          "title": "bot_access_token",
+          "type": "string"
+        }
+      }
+    },
+    {
+      "name": "whitelist",
+      "title": "Add Attributes to Send in Notification",
+      "type": "array",
+      "default": [],
+      "format": "trait"
+    },
+    {
+      "name": "notify_events",
+      "title": "Add Notification Triggers",
+      "type": "array",
+      "format": "table",
+      "default": [
+        {
+          "event": "",
+          "synchronized_segment": "",
+          "channel": "",
+          "text": "{{user.email}} did {{event.event}}"
+        }
+      ],
+      "items": {
+        "type": "object",
+        "required": [
+          "channel",
+          "synchronized_segment",
+          "event",
+          "text"
+        ],
+        "properties": {
+          "event": {
+            "title": "Event Name",
+            "description": "Event which to trigger a notification",
+            "type": "string",
+            "format": "event",
+            "options": {
+              "standard": {
+                "ENTERED_USER_SEGMENT": "Entered User Segment",
+                "LEFT_USER_SEGMENT": "Left User Segment"
+              }
+            }
+          },
+          "synchronized_segment": {
+            "title": "Applicable User Segments",
+            "description": "User segments in which user events must occur in or on",
+            "type": "string",
+            "format": "segment",
+            "options": {
+              "standard": {
+                "ALL": "All Users"
+              }
+            },
+            "default": "ALL"
+          },
+          "channel": {
+            "title": "@user or #channel",
+            "description": "Channel or user to notify on trigger",
+            "type": "string",
+            "format": "string"
+          },
+          "text": {
+            "title": "Message to send",
+            "description": "Liquid supported. Enter the message content",
+            "type": "string",
+            "format": "textarea"
+          }
+        }
+      }
+    },
+    {
+      "name": "attachements",
+      "title": "Attachements",
+      "type": "array",
+      "format": "table",
+      "default": [
+        {
+          "block_title": "",
+          "attributes": []
+        }
+      ],
+      "options": {
+        "itemsPerRow": 1
+      },
+      "items": {
+        "type": "object",
+        "required": [ "block_title", "attributes" ],
+        "properties": {
+          "block_title": {
+            "title": "Block Title",
+            "type": "string",
+            "format": "string"
+          },
+          "attributes": {
+            "title": "Attachements",
+            "type": "array",
+            "format": "trait"
+          }
+        }
+      }
+    },
+    {
+      "name": "actions",
+      "title": "Add User Update Action Buttons",
+      "default": [
+        {
+          "label": "",
+          "property": "",
+          "value": ""
+        }
+      ],
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "title": "Button Label",
+            "type": "string"
+          },
+          "property": {
+            "title": "Property name",
+            "type": "string",
+            "format": "trait"
+          },
+          "value": {
+            "title": "Property Value",
+            "type": "string"
+          }
+        }
+      }
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Slack Notification Triggers",
+      "description": "Choose the scenarios where you would like to receive Slack notifications. \"Entered/Left User Segment\" events apply to the selected segment, whereas for other event types, the user must be IN the segment for the notification to trigger",
+      "properties": [
+        "private_settings.notify_events"
+      ]
+    },
+    {
+      "title": "Attribute Blocks",
+      "description": "Define blocks with fields to attach to slack notifications. Blocks will be attached to every user that's sent",
+      "properties": [
+        "private_settings.attachements"
+      ]
+    }
+  ],
+  "deployment_settings": [],
+  "resources": [],
+  "readme": "readme.md",
+  "admin": "/auth",
+  "router": [
+    {
+      "url": "/",
+      "handler": "slackWebhooks",
+      "options": {
+
+      }
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Credentials",
+      "setup": true,
+      "url": "/auth",
+      "size": "small",
+      "editable": false,
+      "handler": "oauth",
+      "options":{
+        "type": "oauth",
+        "params": {
+          "name": "Slack",
+          "strategy": {
+            "scope": ["bot","channels:write"],
+            "skipUserProfile": true
+          },
+          "views": {
+            "login": "login.html",
+            "home": "home.html",
+            "failure": "failure.html",
+            "success": "success.html"
+          }
+        }
+      }
+    }
+  ],
+  "ui": false,
+  "statuses": [
+    {
+      "url": "/status",
+      "handler": "statusHandler",
+      "type": "interval",
+      "value": "5"
+    }
+  ],
+  "subscriptions": [
+    {
+      "url": "/smart-notify",
+      "conditions": {
+        "channels": {
+          "only": [
+            "user:update",
+            "account:update",
+            "ship:update"
+          ]
+        }
+      },
+      "channels": [
+        {
+          "channel": "account:update",
+          "handler": "accountUpdate"
+        },
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
+        {
+          "channel": "ship:update",
+          "handler": "shipUpdate"
+        }
+      ]
+    }
+  ]
+}

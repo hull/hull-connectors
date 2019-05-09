@@ -31,7 +31,7 @@ import errorHandler from "../error-handler";
 function statusHandlerFactory(
   configurationEntry: HullStatusHandlerConfigurationEntry
 ): Router {
-  const { options = {}, callback } = configurationEntry;
+  const { method, options = {}, callback } = configurationEntry;
 
   async function handler(req: HullRequest, res: HullResponse) {
     try {
@@ -52,11 +52,12 @@ function statusHandlerFactory(
     }
   }
   return getRouter({
+    method,
     options: {
       credentialsFromQuery: true,
       credentialsFromNotification: false,
       respondWithError: true,
-      strict: true,
+      strict: false,
       ...options
     },
     requestName: "status",

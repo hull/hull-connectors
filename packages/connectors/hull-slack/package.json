@@ -1,0 +1,37 @@
+{
+  "name": "hull-slack",
+  "description": "Send Notification of User events and segments to Slack",
+  "version": "0.0.17-monorepo",
+  "homepage": "https://github.com/hull/hull-connectors",
+  "license": "MIT",
+  "main": "bin/start",
+  "scripts": {
+    "test": "npm run test:lint && npm run test:modules",
+    "test:lint": "./node_modules/.bin/eslint server",
+    "test:modules": "npm outdated --depth=0",
+    "test:unit": "NODE_ENV=test jest ./test/unit"
+  },
+  "keywords": [
+    "hull",
+    "ship",
+    "hull-ship",
+    "webhooks",
+    "integration",
+    "user",
+    "sync",
+    "slack"
+  ],
+  "devDependencies": {
+    "minihull": "link:../../minihull"
+  },
+  "dependencies": {
+    "botbuilder-adapter-slack": "^1.0.1",
+    "botkit": "^4.0.1",
+    "bson-objectid": "^1.2.4",
+    "hull": "link:../../hull",
+    "jwt-simple": "^0.5.6",
+    "liquidjs": "^8.2.1",
+    "minimist": "^1.2.0",
+    "passport-slack": "0.0.7"
+  }
+}

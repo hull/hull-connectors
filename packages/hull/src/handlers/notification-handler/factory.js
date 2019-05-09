@@ -1,6 +1,5 @@
 // @flow
-import type { HullNotificationHandlerConfiguration } from "hull";
-import type { Router } from "express";
+import type { HullRouteMap, HullNotificationHandlerConfiguration } from "hull";
 import getRouter from "../get-router";
 
 // Ensures ship:update notifications don't rely on the Ship Cache.
@@ -22,7 +21,7 @@ const errorMiddleware = require("./error-middleware");
  */
 function notificationHandlerFactory(
   configuration: HullNotificationHandlerConfiguration
-): Router {
+): HullRouteMap {
   return getRouter({
     requestName: "notification",
     handlerName: "",

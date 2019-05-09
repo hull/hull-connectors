@@ -1,6 +1,9 @@
 // @flow
-import type { Router } from "express";
-import type { HullIncomingHandlerConfigurationEntry } from "../../types";
+
+import type {
+  HullRouteMap,
+  HullIncomingHandlerConfigurationEntry
+} from "../../types";
 
 import getRouter from "../get-router";
 import errorHandler from "../error-handler";
@@ -13,9 +16,10 @@ import handler from "../external-handler";
  */
 function incomingRequestHandlerFactory(
   configurationEntry: HullIncomingHandlerConfigurationEntry
-): Router {
-  const { options = {} } = configurationEntry;
+): HullRouteMap {
+  const { method, options = {} } = configurationEntry;
   return getRouter({
+    method,
     options: {
       credentialsFromQuery: true,
       credentialsFromNotification: false,
