@@ -55,7 +55,7 @@ function notificationDefaultFlowControl(
     return parseInt(privateSettings[settingName], 10);
   }
   function pickEnv(param: string): number {
-    const envVarName = _.upperCase(
+    const envVarName = _.toUpper(
       _.snakeCase(`flow_control_${channel}_${result}_${param}`)
     );
     return parseInt(process.env[envVarName], 10);
