@@ -19,7 +19,9 @@ module.exports = ({
   clientSecret,
   isSetup: async req => {
     const { client, connector } = req.hull;
-    if (req.query.reset) return Promise.reject(new Error("Requested reset"));
+    if (req.query.reset) {
+      throw new Error("Requested reset");
+    }
     const { token } = connector.private_settings || {};
     try {
       if (token) {
@@ -43,7 +45,8 @@ module.exports = ({
       });
     }
     return {
-      status: 200
+      status: 200,
+      data: {}
     };
   },
   onLogin: async (req: HullOAuthRequest) => {
