@@ -17,6 +17,12 @@
       </div>
     </div>
   </div>
-  <script>(function finish(){ window.opener.hullAuthCompleted(); window.close(); })();</script>
+  <script>
+    function finish() {
+      window.opener.hullAuthCompleted();
+      window.close();
+    };
+    finish();
+  </script>
 </body>
 </html>

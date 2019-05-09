@@ -3,14 +3,20 @@ const _ = require("lodash");
 const oauth2 = {
   isSetup(req) {
     const { connector } = req.hull;
-    if (req.query.reset) return Promise.reject(new Error("Requested reset"));
+    if (req.query.reset) {
+      throw new Error("Requested reset");
+    }
     const { token } = connector.private_settings || {};
     if (token) {
       // We've got a token, We're all good!
       // TODO do we want to check to see if the token is good?
-      Promise.resolve();
+      return {
+        status: 200,
+        data: {}
+      };
+      // Promise.resolve();
     }
-    return Promise.reject(new Error("Not authorized"));
+    throw new Error("Not authorized");
   },
   onLogin: req => {
     req.authParams = _.merge({}, req.body, req.query);
