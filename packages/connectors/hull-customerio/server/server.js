@@ -1,13 +1,21 @@
 /* @flow */
-import type { $Application, $Response } from "express";
+import type { $Application } from "express";
 import type { HullRequest, HullUserUpdateMessage } from "hull";
 
 const {
   notificationHandler,
   batchHandler,
-  scheduleHandler,
-  htmlHandler
+  htmlHandler,
+  scheduleHandler
 } = require("hull/src/handlers");
+
+const {
+  fullContextFetchMiddleware,
+  timeoutMiddleware,
+  haltOnTimedoutMiddleware,
+  clientMiddleware,
+  instrumentationContextMiddleware
+} = require("hull/src/middlewares");
 
 const bodyParser = require("body-parser");
 
@@ -15,25 +23,20 @@ const { webhookHandler, statusCheck, updateUser } = require("./actions");
 const { encrypt } = require("./lib/crypto");
 const { middleware } = require("./lib/crypto");
 
-const {
-  credentialsFromQueryMiddleware,
-  fullContextFetchMiddleware,
-  timeoutMiddleware,
-  haltOnTimedoutMiddleware,
-  clientMiddleware,
-  instrumentationContextMiddleware,
-  instrumentationTransientErrorMiddleware
-} = require("hull/src/middlewares");
-
 function server(app: $Application, { hostSecret }: Object): $Application {
-
-  app.get("/admin.html", htmlHandler((ctx) => {
-    const token = encrypt(ctx.clientCredentials, ctx.connectorConfig.hostSecret);
-    return  Promise.resolve({
-      pageLocation: "admin.html",
-      data: { hostname: ctx.hostname, token }
-    });
-  }));
+  app.get(
+    "/admin.html",
+    htmlHandler(ctx => {
+      const token = encrypt(
+        ctx.clientCredentials,
+        ctx.connectorConfig.hostSecret
+      );
+      return Promise.resolve({
+        pageLocation: "admin.html",
+        data: { hostname: ctx.hostname, token }
+      });
+    })
+  );
 
   // app.get("/admin.html", (req: HullRequest, res: $Response) => {
   //   const token = encrypt(req.hull.config, hostSecret);

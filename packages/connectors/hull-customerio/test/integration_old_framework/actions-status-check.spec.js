@@ -21,11 +21,8 @@ describe("actions-status-check", () => {
     });
     responseMock.json = jsonMock.bind(responseMock);
 
-    const ctx = new ContextMock("1234", {}, private_settings);
-    const req = {
-      url: "https://hull-customerio.herokuapp.com/status/",
-      hull: ctx
-    };
+    const req = new ContextMock("1234", {}, private_settings);
+    req.url = "https://hull-customerio.herokuapp.com/status/";
 
     nock("https://track.customer.io", {
       reqheaders: {
@@ -58,11 +55,8 @@ describe("actions-status-check", () => {
     });
     responseMock.json = jsonMock.bind(responseMock);
 
-    const ctx = new ContextMock("1234", {}, private_settings);
-    const req = {
-      url: "https://hull-customerio.herokuapp.com/status/",
-      hull: ctx
-    };
+    const req = new ContextMock("1234", {}, private_settings);
+    req.url = "https://hull-customerio.herokuapp.com/status/";
 
     nock("https://track.customer.io", {
       reqheaders: {
@@ -95,11 +89,8 @@ describe("actions-status-check", () => {
     });
     responseMock.json = jsonMock.bind(responseMock);
 
-    const ctx = new ContextMock("1234", {}, private_settings);
-    const req = {
-      url: "https://hull-customerio.herokuapp.com/status/",
-      hull: ctx
-    };
+    const req = new ContextMock("1234", {}, private_settings);
+    req.url = "https://hull-customerio.herokuapp.com/status/";
 
     nock("https://track.customer.io", {
       reqheaders: {
@@ -132,11 +123,8 @@ describe("actions-status-check", () => {
     });
     responseMock.json = jsonMock.bind(responseMock);
 
-    const ctx = new ContextMock("1234", {}, private_settings);
-    const req = {
-      url: "https://hull-customerio.herokuapp.com/status/",
-      hull: ctx
-    };
+    const req = new ContextMock("1234", {}, private_settings);
+    req.url = "https://hull-customerio.herokuapp.com/status/";
 
     nock("https://track.customer.io", {
       reqheaders: {
@@ -167,11 +155,8 @@ describe("actions-status-check", () => {
     });
     responseMock.json = jsonMock.bind(responseMock);
 
-    const ctx = new ContextMock("1234", {}, private_settings);
-    const req = {
-      url: "https://hull-customerio.herokuapp.com/status/",
-      hull: ctx
-    };
+    const req = new ContextMock("1234", {}, private_settings);
+    req.url = "https://hull-customerio.herokuapp.com/status/";
 
     action(req, responseMock).then(() => {
       expect(jsonMock.mock.calls[0][0]).toEqual({ status: "warning", messages: ["Missing Credentials: Site ID or API Key are not configured in Settings."] });
@@ -191,11 +176,8 @@ describe("actions-status-check", () => {
     });
     responseMock.json = jsonMock.bind(responseMock);
 
-    const ctx = new ContextMock("1234", {}, private_settings);
-    const req = {
-      url: "https://hull-customerio.herokuapp.com/status/",
-      hull: ctx
-    };
+    const req = new ContextMock("1234", {}, private_settings);
+    req.url = "https://hull-customerio.herokuapp.com/status/";
 
     action(req, responseMock).then(() => {
       expect(jsonMock.mock.calls[0][0]).toEqual({ status: "warning", messages: ["Missing Credentials: Site ID or API Key are not configured in Settings."] });
@@ -215,11 +197,8 @@ describe("actions-status-check", () => {
     });
     responseMock.json = jsonMock.bind(responseMock);
 
-    const ctx = new ContextMock("1234", {}, private_settings);
-    const req = {
-      url: "https://hull-customerio.herokuapp.com/status/",
-      hull: ctx
-    };
+    const req = new ContextMock("1234", {}, private_settings);
+    req.url = "https://hull-customerio.herokuapp.com/status/";
 
     action(req, responseMock).then(() => {
       expect(jsonMock.mock.calls[0][0]).toEqual({ status: "warning", messages: ["Missing Credentials: Site ID or API Key are not configured in Settings."] });
@@ -242,9 +221,7 @@ describe("actions-status-check", () => {
 
     const req = {
       url: "https://hull-customerio.herokuapp.com/status/",
-      hull: {
-        ship: { }
-      }
+      ship: { }
     };
 
     action(req, responseMock).then(() => {

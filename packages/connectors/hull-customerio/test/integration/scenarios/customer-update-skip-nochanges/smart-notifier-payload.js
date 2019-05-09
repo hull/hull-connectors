@@ -8,9 +8,9 @@ module.exports = () => {
   _.set(smartNotifierPayload, "connector.private_settings.synchronized_segments", [userSegmentId]);
   _.set(smartNotifierPayload, "messages[0].events", []);
 
-  _.set(smartNotifierPayload, "messages[0].user.traits_customerio/created_at", _.get(smartNotifierPayload, "messages[0].user.created_at"));
-  _.set(smartNotifierPayload, "messages[0].user.traits_customerio/email", _.get(smartNotifierPayload, "messages[0].user.email"));
-  _.set(smartNotifierPayload, "messages[0].user.traits_customerio/id", _.get(smartNotifierPayload, "messages[0].user.email"));
+  _.set(smartNotifierPayload, "messages[0].user.customerio/created_at", _.get(smartNotifierPayload, "messages[0].user.created_at"));
+  _.set(smartNotifierPayload, "messages[0].user.customerio/email", _.get(smartNotifierPayload, "messages[0].user.email"));
+  _.set(smartNotifierPayload, "messages[0].user.customerio/id", _.get(smartNotifierPayload, "messages[0].user.email"));
 
   const segmentIds = _.get(smartNotifierPayload, "messages[0].user.segment_ids", []);
 
@@ -25,7 +25,7 @@ module.exports = () => {
 
   const hashUtil = new HashUtil();
   const hash = hashUtil.hash(customerData);
-  _.set(smartNotifierPayload, "messages[0].user.traits_customerio/hash", hash);
+  _.set(smartNotifierPayload, "messages[0].user.customerio/hash", hash);
 
   return smartNotifierPayload;
 };
