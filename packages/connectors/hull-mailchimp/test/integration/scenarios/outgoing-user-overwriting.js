@@ -22,11 +22,9 @@ const connector = {
     },
     synchronized_user_segments: ["hullSegmentId"],
     outgoing_user_attributes: [
-     { hull: "traits_custom_will_overwrite", service: "OVERWRITTEN_MERGE_FIELD", overwrite: true },
-     { hull: "custom_wont_overwrite", service: "NOT_OVERWRITTEN_MERGE_FIELD", overwrite: false },
-     { hull: "account.custom_account_will_overwrite", service: "OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT", overwrite: true },
-     { hull: "account.custom_account_wont_overwrite", service: "NOT_OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT", overwrite: false },
-   ]
+      { hull: "traits_custom_will_overwrite", service: "OVERWRITTEN_MERGE_FIELD" },
+      { hull: "account.custom_account_will_overwrite", service: "OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT" }
+    ]
   }
 };
 const usersSegments = [
@@ -36,7 +34,7 @@ const usersSegments = [
   }
 ];
 
-it("should send matching user to the mailchimp, allowing to control overwriting", () => {
+it("should send matching user to the mailchimp, defaulting to overwriting", () => {
   const email = "email@email.com";
   return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
     return {
@@ -52,24 +50,22 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
             ]
           });
         scope.post("/lists/1", {
-            members: [
-              {
-                email_type: "html",
-                merge_fields: {
-                  OVERWRITTEN_MERGE_FIELD: "ovewriting value",
-                  NOT_OVERWRITTEN_MERGE_FIELD: "won't be overwritten",
-                  OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "ovewriting value",
-                  NOT_OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "won't be overwritten"
-                },
-                interests: {
-                  MailchimpInterestId: true
-                },
-                email_address: email,
-                status_if_new: "subscribed"
-              }
-            ],
-            update_existing: true
-          })
+          members: [
+            {
+              email_type: "html",
+              merge_fields: {
+                OVERWRITTEN_MERGE_FIELD: "overwriting value",
+                OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "overwriting value"
+              },
+              interests: {
+                MailchimpInterestId: true
+              },
+              email_address: email,
+              status_if_new: "subscribed"
+            }
+          ],
+          update_existing: true
+        })
           .reply(200);
         return scope;
       },
@@ -80,16 +76,12 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
         {
           user: {
             email,
-            traits_custom_will_overwrite: "ovewriting value",
+            traits_custom_will_overwrite: "overwriting value",
             "traits_mailchimp/overwritten_merge_field": "will be overwritten",
-            traits_custom_wont_overwrite: "ignored value",
-            "traits_mailchimp/not_overwritten_merge_field": "won't be overwritten",
-            "traits_mailchimp/overwritten_merge_field_from_account": "will be overwritten",
-            "traits_mailchimp/not_overwritten_merge_field_from_account": "won't be overwritten"
+            "traits_mailchimp/overwritten_merge_field_from_account": "will be overwritten"
           },
           account: {
-            custom_account_will_overwrite: "ovewriting value",
-            custom_account_wont_overwrite: "ignored value"
+            custom_account_will_overwrite: "overwriting value"
           },
           segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
         }
@@ -110,22 +102,6 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
           { changes: {}, events: [], segments: ["hullSegmentName"] }
         ],
         ["debug", "outgoing.job.start", expect.whatever(), { messages: 1 }],
-        [
-          "debug",
-          "OVERWRITTING",
-          expect.whatever(),
-          {
-            "fieldName": "NOT_OVERWRITTEN_MERGE_FIELD",
-          },
-        ],
-        [
-          "debug",
-          "OVERWRITTING",
-          expect.whatever(),
-          {
-            "fieldName": "NOT_OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT",
-          }
-        ],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ method: "GET", url: "/lists/{{listId}}/webhooks" })],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ method: "POST", url: "/lists/{{listId}}" })],
         [
@@ -140,10 +116,8 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
                 MailchimpInterestId: true,
               },
               merge_fields: {
-                OVERWRITTEN_MERGE_FIELD: "ovewriting value",
-                NOT_OVERWRITTEN_MERGE_FIELD: "won't be overwritten",
-                OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "ovewriting value",
-                NOT_OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "won't be overwritten"
+                OVERWRITTEN_MERGE_FIELD: "overwriting value",
+                OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "overwriting value"
               },
               status_if_new: "subscribed"
             }
