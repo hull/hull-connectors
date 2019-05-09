@@ -206,7 +206,9 @@ const service: RawRestApi = {
           "prospects.all",
           "create_accounts",
           "accounts.all",
-          "webhooks.all"
+          "webhooks.all",
+          "stages.all",
+          "users.all"
         ] // App Scope
       }
     }
@@ -234,6 +236,18 @@ const service: RawRestApi = {
       },
       {
         truthy: { status: 503 },
+        errorType: TransientError,
+        message: MESSAGES.INTERNAL_SERVICE_ERROR,
+        retryAttempts: 2
+      },
+      {
+        truthy: { status: 502 },
+        errorType: TransientError,
+        message: MESSAGES.INTERNAL_SERVICE_ERROR,
+        retryAttempts: 3
+      },
+      {
+        truthy: { status: 404 },
         errorType: TransientError,
         message: MESSAGES.INTERNAL_SERVICE_ERROR,
         retryAttempts: 2

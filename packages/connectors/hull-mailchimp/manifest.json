@@ -1,6 +1,6 @@
 {
   "name": "Mailchimp",
-  "version": "0.0.17-monorepo",
+  "version": "0.0.20-monorepo",
   "description": "Powerful segmentation and enrichment for Mailchimp - the world’s favorite email platform",
   "tags": [
     "outgoing",
@@ -8,7 +8,8 @@
     "batch",
     "oneColumn",
     "smart-notifier",
-    "first-install"
+    "first-install",
+    "single-install"
   ],
   "source": "mailchimp",
   "logo": "logo.png",

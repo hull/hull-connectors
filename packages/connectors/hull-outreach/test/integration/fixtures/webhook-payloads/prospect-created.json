@@ -16,7 +16,7 @@
             },
             "owner": {
                 "type": "owner",
-                "id": 1
+                "id": 0
             },
             "stage": {
                 "type": "stage",

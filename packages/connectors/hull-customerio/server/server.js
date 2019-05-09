@@ -5,26 +5,58 @@ import type { HullRequest, HullUserUpdateMessage } from "hull";
 const {
   notificationHandler,
   batchHandler,
-  scheduleHandler
+  scheduleHandler,
+  htmlHandler
 } = require("hull/src/handlers");
+
 const bodyParser = require("body-parser");
 
 const { webhookHandler, statusCheck, updateUser } = require("./actions");
 const { encrypt } = require("./lib/crypto");
 const { middleware } = require("./lib/crypto");
 
-const { SECRET } = process.env;
+const {
+  credentialsFromQueryMiddleware,
+  fullContextFetchMiddleware,
+  timeoutMiddleware,
+  haltOnTimedoutMiddleware,
+  clientMiddleware,
+  instrumentationContextMiddleware,
+  instrumentationTransientErrorMiddleware
+} = require("hull/src/middlewares");
 
-function server(app: $Application): $Application {
-  app.get("/admin.html", (req: HullRequest, res: $Response) => {
-    const token = encrypt(req.hull.config, SECRET || "1234");
-    res.render("admin.html", { hostname: req.hostname, token });
-  });
+function server(app: $Application, { hostSecret }: Object): $Application {
+
+  app.get("/admin.html", htmlHandler((ctx) => {
+    const token = encrypt(ctx.clientCredentials, ctx.connectorConfig.hostSecret);
+    return  Promise.resolve({
+      pageLocation: "admin.html",
+      data: { hostname: ctx.hostname, token }
+    });
+  }));
+
+  // app.get("/admin.html", (req: HullRequest, res: $Response) => {
+  //   const token = encrypt(req.hull.config, hostSecret);
+  //   res.render("admin.html", { hostname: req.hostname, token });
+  // });
+
+  // app.all(
+  //   "/webhook",
+  //   bodyParser.json(),
+  //   middleware(hostSecret),
+  //   webhookHandler
+  // );
 
   app.all(
     "/webhook",
     bodyParser.json(),
-    middleware(SECRET || "1234"),
+    middleware(hostSecret),
+    timeoutMiddleware(),
+    clientMiddleware(),
+    haltOnTimedoutMiddleware(),
+    instrumentationContextMiddleware(),
+    fullContextFetchMiddleware({ requestName: "action" }),
+    haltOnTimedoutMiddleware(),
     webhookHandler
   );
 
