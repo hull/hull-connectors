@@ -1,4 +1,4 @@
-const { ContextMock } = require("../integration/helper/connector-mock");
+const { ContextMock } = require("./helper/connector-mock");
 
 const action = require("../../server/actions/status-check");
 const nock = require("nock");

@@ -23,7 +23,11 @@ const { webhookHandler, statusCheck, updateUser } = require("./actions");
 const { encrypt } = require("./lib/crypto");
 const { middleware } = require("./lib/crypto");
 
-function server(app: $Application, { hostSecret }: Object): $Application {
+function server(app: $Application): $Application {
+  const deps = {
+    hostSecret: process.env.SECRET || "1234"
+  };
+
   app.get(
     "/admin.html",
     htmlHandler(ctx => {
@@ -53,7 +57,7 @@ function server(app: $Application, { hostSecret }: Object): $Application {
   app.all(
     "/webhook",
     bodyParser.json(),
-    middleware(hostSecret),
+    middleware(deps.hostSecret),
     timeoutMiddleware(),
     clientMiddleware(),
     haltOnTimedoutMiddleware(),

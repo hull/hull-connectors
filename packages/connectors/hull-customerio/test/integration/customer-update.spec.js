@@ -84,10 +84,10 @@ it("should update customer", () => {
             "asUser": {"email": "email@email.com", "external_id": "123"},
             "subjectType": "user"},
             {
-              "created_at": expect.any(Number),
-              "hash": expect.whatever(),
-              "id": "123",
-              "synced_at": expect.whatever()
+              "customerio/created_at": expect.any(Number),
+              "customerio/hash": expect.whatever(),
+              "customerio/id": "123",
+              "customerio/synced_at": expect.whatever()
             }
           ]
       ],
