@@ -22,7 +22,7 @@
     "clean": "sh scripts/clean-connectors.sh",
     "build:client": "sh scripts/build-webpack-project.sh",
     "ngrok": "sh scripts/ngrok.sh",
-    "dev": "NODE_ENV=development DEBUG=hull* sh scripts/start-dev-connector.sh",
+    "dev": "NODE_ENV=development sh scripts/start-dev-connector.sh",
     "test": "yarn test:lint && jest && yarn workspaces run test",
     "test:flow": "flow check",
     "test:lint": "eslint packages",
