@@ -4,6 +4,8 @@ import Liquid from "liquidjs";
 import buildAttachments from "./build-attachments";
 import getUserName from "./get-user-name";
 
+const debug = require("debug")("hull-slack:user-payload");
+
 function urlFor(user = {}, organization) {
   const [namespace, domain, tld] = organization.split(".");
   return `https://dashboard.${domain}.${tld}/${namespace}/users/${user.id}`;
@@ -55,17 +57,18 @@ const getActions = (user, actions) => ({
 });
 
 module.exports = async function userPayload({
-  hull,
+  client,
   message,
   text,
-  attachements,
-  actions = []
+  attachements
+  // , actions = []
 }) {
   const { user, account } = message;
+  debug("building payload for", message);
   const slackText = [
     `:bust_in_silhouette: *<${urlFor(
       user,
-      hull.configuration().organization
+      client.configuration().organization
     )}|${getUserName(user)}>*`
   ];
   if (text) {
@@ -74,8 +77,8 @@ module.exports = async function userPayload({
   }
   return {
     attachments: [
-      ...buildAttachments({ user, account, attachements }),
-      getActions(user, actions)
+      ...buildAttachments({ user, account, attachements })
+      // , getActions(user, actions)
     ],
     text: slackText.join(`
 ——————————————————————————

@@ -21,7 +21,7 @@ module.exports = ({
     const { token, bot = {} } = private_settings;
     const { bot_access_token } = bot;
     try {
-      console.log("isSetup", connector);
+      console.log("isSetup", private_settings);
       await connectSlack({
         client,
         connector: req.hull.connector
