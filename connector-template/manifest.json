@@ -5,12 +5,7 @@
   "logo": "logo.png",
   "picture": "picture.png",
   "version": "0.0.9-monorepo",
-  "tags": [
-    "outgoing",
-    "incoming",
-    "batch",
-    "smart-notifier"
-  ],
+  "tags": ["outgoing", "incoming", "batch", "smart-notifier"],
   "settings": [],
   "private_settings": [],
   "deployment_settings": [],
@@ -29,11 +24,29 @@
   "json": [],
   "incoming": [],
   "schedules": [],
-  "statuses": [],
+  "statuses": [
+    {
+      "url": "/status",
+      "handler": "statusHandler",
+      "type": "interval",
+      "value": "5"
+    }
+  ],
   "router": [],
   "subscriptions": [
     {
-      "url": "/subscriptions"
+      "url": "/subscriptions",
+      "conditions": {
+        "channels": {
+          "only": ["user:update"]
+        }
+      },
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ]
     }
   ]
 }

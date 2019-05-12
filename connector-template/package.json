@@ -1,0 +1,15 @@
+{
+  "name": "hull-emitter",
+  "version": "0.0.9-monorepo",
+  "description": "Send data to Google Analytics",
+  "homepage": "https://github.com/hull/hull-connectors",
+  "scripts": {
+    "test": "exit 0; echo 'No Tests here' Sad Panda"
+  },
+  "dependencies": {
+    "hull": "link:../../hull"
+  },
+  "devDependencies": {
+    "minihull": "link:../../minihull"
+  }
+}

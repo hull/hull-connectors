@@ -6,8 +6,8 @@ import manifest from "../manifest.json";
 export default function connectorConfig(): HullConnectorConfig {
   const {
     LOG_LEVEL,
-    PORT = 8082,
-    SECRET = "1234",
+    PORT,
+    SECRET,
     NODE_ENV,
     OVERRIDE_FIREHOSE_URL
   } = process.env;
@@ -16,8 +16,8 @@ export default function connectorConfig(): HullConnectorConfig {
     manifest,
     devMode: NODE_ENV === "development",
     logLevel: LOG_LEVEL,
-    hostSecret: SECRET,
-    port: PORT,
+    hostSecret: SECRET || "1234",
+    port: PORT || 8082,
     handlers: {},
     middlewares: [],
     clientConfig: {
