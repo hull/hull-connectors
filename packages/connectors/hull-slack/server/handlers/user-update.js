@@ -10,19 +10,6 @@ import type { ConnectSlackFunction } from "../types";
 
 const debug = require("debug")("hull-slack:user-update");
 
-// const getChannel = (channels, name) =>
-//   _.find(channels, t => t.name === name.replace(/^#/, ""));
-//
-// const getMember = (members, name) =>
-//   _.find(members, t => t.name === name.replace(/^@/, ""));
-//
-// const getId = (teamChannels, teamMembers) => channel =>
-//   (
-//     (channel[0] === "@"
-//       ? getMember(teamMembers, channel)
-//       : getChannel(teamChannels, channel)) || {}
-//   ).id;
-
 const getLoggableMessages = responses =>
   _.groupBy(_.compact(responses), "action");
 
@@ -44,10 +31,7 @@ const logResponses = (hull, responses) =>
     });
   });
 
-const eventMatch = (event, events = []) =>
-  events.filter(e => e.event === event);
-
-const segmentChangeEvent = ({ event, synchronized_segment, changes }) => {
+const getSegmentChangeEvents = ({ event, synchronized_segment, changes }) => {
   const { left = [], entered = [] } = changes.segments || {};
   if (event === "ENTERED_USER_SEGMENT") {
     if (_.find(entered, e => e.id === synchronized_segment)) {
@@ -81,12 +65,10 @@ const update = (connectSlack: ConnectSlackFunction) => async (
   messages: Array<HullUserUpdateMessage>
 ): HullNotificationResponse => {
   try {
-    const { getBot /* , slackInstance */ } = await connectSlack({
+    const { getBot } = await connectSlack({
       client,
       connector
     });
-    // const { teamMembers, teamChannels } = slackInstance;
-    // const getChannelOrMemberId = getId(teamChannels, teamMembers);
     const post = async (userClient, payload, channel) => {
       userClient.logger.info("outgoing.user.success", {
         text: payload.text,
@@ -103,7 +85,6 @@ const update = (connectSlack: ConnectSlackFunction) => async (
       const bot = await getBot(connector);
       await bot.startPrivateConversation(user_id);
       bot.say(msg);
-      // sayInPrivate(bot, user_id, msg);
     };
 
     const responses = await Promise.all(
@@ -113,7 +94,6 @@ const update = (connectSlack: ConnectSlackFunction) => async (
         const {
           token = "",
           user_id = "",
-          // actions = [],
           notify_events = [],
           attachements = []
         } = private_settings;
@@ -132,16 +112,17 @@ const update = (connectSlack: ConnectSlackFunction) => async (
           _.map(
             notify_events,
             async ({ event, synchronized_segment, channel, text }) => {
-              // const id = getChannelOrMemberId(channel);
               metric.increment("ship.outgoing.users");
               const { events = [], changes = {} } = message;
-              const eventMatches = eventMatch(event, events).concat(
-                segmentChangeEvent({
-                  event,
-                  synchronized_segment,
-                  changes
-                })
-              );
+              const eventMatches = events
+                .filter(e => e.event === event)
+                .concat(
+                  getSegmentChangeEvents({
+                    event,
+                    synchronized_segment,
+                    changes
+                  })
+                );
               if (!eventMatches.length) {
                 debug("Skipping Notification", {
                   event,
@@ -149,24 +130,24 @@ const update = (connectSlack: ConnectSlackFunction) => async (
                   channel,
                   message
                 });
-                return null;
               }
-              eventMatches.map(async e => {
-                const payload = await userPayload({
-                  message: { ...message, event: e },
-                  client,
-                  // actions,
-                  text,
-                  attachements
-                });
-                post(userClient, payload, channel);
-              });
+              await Promise.all(
+                eventMatches.map(async e => {
+                  const payload = await userPayload({
+                    message: { ...message, event: e },
+                    client,
+                    // actions,
+                    text,
+                    attachements
+                  });
+                  post(userClient, payload, channel);
+                })
+              );
               return null;
             }
           );
           return null;
         } catch (err) {
-          console.log(err);
           client.logger.error("outgoing.user.error", {
             error: err.message
           });
