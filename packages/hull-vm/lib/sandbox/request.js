@@ -1,5 +1,6 @@
 // @flow
 import request from "request";
+import type { Result } from "../../types";
 
 export default function buildRequest(result: Result): any => any {
   return (opts, callback) => {

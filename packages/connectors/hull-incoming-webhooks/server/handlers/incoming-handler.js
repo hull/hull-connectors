@@ -1,4 +1,5 @@
-/* @flow */
+// @flow
+
 import _ from "lodash";
 import type {
   HullContext,
@@ -6,34 +7,11 @@ import type {
   HullIncomingHandlerMessage,
   HullExternalResponse
 } from "hull";
-import compute from "../lib/compute";
+import { compute, pickValuesFromRequest } from "hull-vm";
 import ingest from "../lib/ingest";
 import type { Payload } from "../../types";
 
 // const debug = require("debug")("hull-incoming-webhooks:incoming");
-
-const pickValuesFromRequest = ({
-  body,
-  headers,
-  cookies,
-  ip,
-  method,
-  params,
-  query
-}: HullIncomingHandlerMessage) => ({
-  body,
-  cookies,
-  ip,
-  method,
-  params,
-  query,
-  headers: _.omit(headers, [
-    "x-forwarded-for",
-    "x-forwarded-proto",
-    "x-newrelic-id",
-    "x-newrelic-transaction"
-  ])
-});
 
 const asyncComputeAndIngest = async ({
   EntryModel,
@@ -86,7 +64,7 @@ export default function handler(EntryModel: Object) {
 
     // res.sendStatus(200);
 
-    const payload: Payload = pickValuesFromRequest(message);
+    const payload = pickValuesFromRequest(message);
     client.logger.debug(
       "connector.request.data",
       _.pick(payload, "body", "method", "params", "query")

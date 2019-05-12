@@ -4,7 +4,7 @@ import DropdownButton from "react-bootstrap/DropdownButton";
 import DropdownItem from "react-bootstrap/DropdownItem";
 import Button from "react-bootstrap/Button";
 import _ from "lodash";
-import type { Entry } from "../../../types";
+import type { Entry } from "../../types";
 import PayloadTitle from "./payload-title";
 import Sync from "./sync";
 import Spinner from "./spinner";

@@ -14,7 +14,7 @@ import type {
   Event,
   Result,
   Traits
-} from "../../../types";
+} from "../../types";
 
 import { hasValidUserClaims, hasValidAccountClaims } from "../validate-claims";
 

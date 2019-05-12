@@ -1,0 +1,23 @@
+{
+  "name": "hull-vm",
+  "description": "Hull VM Base",
+  "version": "0.0.13-monorepo",
+  "homepage": "https://github.com/hull/hull-connectors",
+  "main": "lib/index.js",
+  "scripts": {},
+  "dependencies": {
+    "ace-builds": "^1.4.4",
+    "axios": "^0.18.0",
+    "deep-freeze": "0.0.1",
+    "hull": "link:../hull",
+    "json-stable-stringify": "^1.0.1",
+    "react-ace": "^6.5.0",
+    "react-bootstrap": "^1.0.0-beta.8",
+    "request": "^2.88.0",
+    "response-time": "^2.3.2",
+    "syntax-error": "^1.4.0",
+    "urijs": "^1.19.1",
+    "vm2": "^3.6.10"
+  },
+  "devDependencies": {}
+}

@@ -3,9 +3,9 @@ import React, { Fragment } from "react";
 import _ from "lodash";
 import fp from "lodash/fp";
 
-import Area from "../ui/area";
-import CodeTitle from "../ui/code-title";
-import type { Result } from "../../../types";
+import Area from "./area";
+import CodeTitle from "./code-title";
+import type { Result } from "../../types";
 
 const nice = (obj = {}) => JSON.stringify(obj, null, 2);
 const short = (obj = {}) => JSON.stringify(obj);

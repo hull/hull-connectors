@@ -2,7 +2,7 @@
 
 import React from "react";
 import Badge from "react-bootstrap/Badge";
-import type { Entry } from "../../../types";
+import type { Entry } from "../../types";
 
 const LABELS = {
   post: "success",

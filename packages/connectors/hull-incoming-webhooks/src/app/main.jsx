@@ -1,24 +1,27 @@
 // @flow
-/* eslint no-unused-vars:0, no-useless-constructor:0, import/no-unresolved:0 */
+
 import React, { Component } from "react";
-import DropdownButton from "react-bootstrap/DropdownButton";
+
 import Nav from "react-bootstrap/Nav";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Button from "react-bootstrap/Button";
 
 import _ from "lodash";
-import type { EngineState, Ship, Result, Entry } from "../../types";
-import type Engine from "./engine";
 
-import KeyBindings from "./ui/key-bindings";
-import ConfigurationModal from "./ui/configuration-modal";
-import CodePane from "./code";
-import Area from "./ui/area";
-import Preview from "./preview";
-import Header from "./ui/header";
-import PayloadSelector from "./ui/payload-selector";
-import CodeTitle from "./ui/code-title";
-import Spinner from "./ui/spinner";
+import {
+  Code,
+  Preview,
+  KeyBindings,
+  PayloadSelector,
+  ConfigurationModal,
+  Area,
+  Header,
+  CodeTitle,
+  Spinner
+} from "hull-vm/client/ui";
+import type { Result } from "hull-vm";
+import type Engine from "./engine";
+import type { EngineState } from "../../types";
 
 type Props = {
   engine: Engine
@@ -149,12 +152,12 @@ export default class App extends Component<Props, State> {
       recent,
       token,
       hostname,
-      error,
+      // error,
       computing,
-      initialized,
-      result,
+      // initialized,
+      // result,
       activeTab,
-      showConfig,
+      // showConfig,
       showBindings
     } = this.state;
     const { payload } = current || {};
@@ -211,7 +214,7 @@ export default class App extends Component<Props, State> {
               </Nav>
             </Header>
             <CodeTitle title="Code" />
-            <CodePane
+            <Code
               computing={computing}
               code={this.getCode()}
               readOnly={activeTab !== "Current"}

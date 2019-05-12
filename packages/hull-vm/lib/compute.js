@@ -2,7 +2,7 @@
 
 import { VM } from "vm2";
 import _ from "lodash";
-import type { Result, ComputeOptions } from "../../types";
+import type { Result, ComputeOptions } from "../types";
 import getFrozenLibs from "./sandbox/frozen-libs";
 import getHullContext from "./sandbox/hull";
 import getRequest from "./sandbox/request";

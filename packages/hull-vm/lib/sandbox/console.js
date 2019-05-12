@@ -1,4 +1,5 @@
-// @flow
+// @noflow
+import type { Result } from "../../types";
 
 export default function buildConsole(
   { errors, logs, logsForLogger }: Result,
