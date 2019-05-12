@@ -3,12 +3,7 @@
   "description": "Notify a Slack Channel whenever a User enters or leaves a Segment",
   "picture": "picture.png",
   "version": "0.0.17",
-  "tags": [
-    "incoming",
-    "outgoing",
-    "oneColumn",
-    "smart-notifier"
-  ],
+  "tags": ["incoming", "outgoing", "oneColumn", "smart-notifier"],
   "private_settings": [
     {
       "name": "token",
@@ -88,14 +83,12 @@
           "text": "{{user.email}} did {{event.event}}"
         }
       ],
+      "options": {
+        "itemsPerRow": 2
+      },
       "items": {
         "type": "object",
-        "required": [
-          "channel",
-          "synchronized_segment",
-          "event",
-          "text"
-        ],
+        "required": ["channel", "synchronized_segment", "event", "text"],
         "properties": {
           "event": {
             "title": "Event Name",
@@ -125,7 +118,12 @@
             "title": "@user or #channel",
             "description": "Channel or user to notify on trigger",
             "type": "string",
-            "format": "string"
+            "format" : "select",
+            "options": {
+              "loadOptions": "/fetch-destinations",
+              "allowCreate": false,
+              "placeholder": "Pick Channel or User"
+            }
           },
           "text": {
             "title": "Message to send",
@@ -152,7 +150,7 @@
       },
       "items": {
         "type": "object",
-        "required": [ "block_title", "attributes" ],
+        "required": ["block_title", "attributes"],
         "properties": {
           "block_title": {
             "title": "Block Title",
@@ -203,16 +201,12 @@
     {
       "title": "Slack Notification Triggers",
       "description": "Choose the scenarios where you would like to receive Slack notifications. \"Entered/Left User Segment\" events apply to the selected segment, whereas for other event types, the user must be IN the segment for the notification to trigger",
-      "properties": [
-        "private_settings.notify_events"
-      ]
+      "properties": ["private_settings.notify_events"]
     },
     {
       "title": "Attribute Blocks",
       "description": "Define blocks with fields to attach to slack notifications. Blocks will be attached to every user that's sent",
-      "properties": [
-        "private_settings.attachements"
-      ]
+      "properties": ["private_settings.attachements"]
     }
   ],
   "deployment_settings": [],
@@ -223,9 +217,7 @@
     {
       "url": "/",
       "handler": "slackWebhooks",
-      "options": {
-
-      }
+      "options": {}
     }
   ],
   "tabs": [
@@ -236,12 +228,12 @@
       "size": "small",
       "editable": false,
       "handler": "oauth",
-      "options":{
+      "options": {
         "type": "oauth",
         "params": {
           "name": "Slack",
           "strategy": {
-            "scope": ["bot","channels:write"],
+            "scope": ["bot", "channels:write"],
             "skipUserProfile": true
           },
           "views": {
@@ -255,6 +247,12 @@
     }
   ],
   "ui": false,
+  "json": [
+    {
+      "url": "/fetch-destinations",
+      "handler": "fetchDestination"
+    }
+  ],
   "statuses": [
     {
       "url": "/status",
@@ -268,11 +266,7 @@
       "url": "/smart-notify",
       "conditions": {
         "channels": {
-          "only": [
-            "user:update",
-            "account:update",
-            "ship:update"
-          ]
+          "only": ["user:update", "account:update", "ship:update"]
         }
       },
       "channels": [

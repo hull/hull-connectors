@@ -4,7 +4,7 @@ const getTeamMembers = async bot => {
 
   try {
     const { ok, members } = await bot.api.users.list({
-      limit: 999
+      limit: 9999
     });
     // botSetup.teamMembers = members;
     if (!ok) {

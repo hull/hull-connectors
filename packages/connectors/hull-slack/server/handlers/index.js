@@ -2,6 +2,7 @@
 /* eslint-disable global-require */
 import type { HullHandlersConfiguration, Connector } from "hull";
 import statusHandler from "./status";
+import fetchDestination from "./fetch-destinations";
 import oauth from "./oauth";
 import userUpdate from "./user-update";
 import accountUpdate from "./account-update";
@@ -37,6 +38,9 @@ const handler = ({
       userUpdate: userUpdate(connectSlack),
       accountUpdate: accountUpdate(connectSlack),
       shipUpdate: shipUpdate(connectSlack)
+    },
+    json: {
+      fetchDestination: fetchDestination(connectSlack)
     },
     tabs: {
       oauth: oauth({

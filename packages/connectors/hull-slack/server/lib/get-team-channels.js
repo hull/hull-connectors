@@ -4,7 +4,7 @@ const getTeamChannels = async bot => {
 
   try {
     const { ok, channels } = await bot.api.channels.list({
-      limit: 999,
+      limit: 9999,
       exclude_archived: true,
       exclude_members: true
     });

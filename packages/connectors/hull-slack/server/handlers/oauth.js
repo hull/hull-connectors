@@ -15,13 +15,15 @@ module.exports = ({
   clientID,
   clientSecret,
   isSetup: async req => {
+    const { connector, client } = req.hull;
     if (req.query.reset) throw new Error("not setup");
-    const { private_settings = {} } = req.hull.connector;
+    const { private_settings = {} } = connector;
     const { token, bot = {} } = private_settings;
     const { bot_access_token } = bot;
     try {
+      console.log("isSetup", connector);
       await connectSlack({
-        hull: req.hull.client,
+        client,
         connector: req.hull.connector
       });
       if (!!token && !!bot_access_token) {
@@ -34,10 +36,12 @@ module.exports = ({
         };
       }
     } catch (err) {
-      console.log(err);
+      client.logger.info("oauth.setupTest.failed", {
+        error: err.message
+      });
     }
     return {
-      status: 500,
+      status: 404,
       data: {
         credentials: false,
         connected: false

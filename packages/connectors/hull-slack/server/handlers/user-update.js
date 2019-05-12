@@ -6,20 +6,22 @@ import type {
 } from "hull";
 import _ from "lodash";
 import userPayload from "../lib/user-payload";
-import type { ConnectSlackParams } from "../types";
+import type { ConnectSlackFunction } from "../types";
 
-const getChannel = (channels, name) =>
-  _.find(channels, t => t.name === name.replace(/^#/, ""));
+const debug = require("debug")("hull-slack:user-update");
 
-const getMember = (members, name) =>
-  _.find(members, t => t.name === name.replace(/^@/, ""));
-
-const getId = (teamChannels, teamMembers) => channel =>
-  (
-    (channel[0] === "@"
-      ? getMember(teamMembers, channel)
-      : getChannel(teamChannels, channel)) || {}
-  ).id;
+// const getChannel = (channels, name) =>
+//   _.find(channels, t => t.name === name.replace(/^#/, ""));
+//
+// const getMember = (members, name) =>
+//   _.find(members, t => t.name === name.replace(/^@/, ""));
+//
+// const getId = (teamChannels, teamMembers) => channel =>
+//   (
+//     (channel[0] === "@"
+//       ? getMember(teamMembers, channel)
+//       : getChannel(teamChannels, channel)) || {}
+//   ).id;
 
 const getLoggableMessages = responses =>
   _.groupBy(_.compact(responses), "action");
@@ -61,15 +63,17 @@ const shouldSendNotification = ({ event, synchronized_segment, message }) => {
   return false;
 };
 
-const update = (connectSlack: ConnectSlackParams => any) => async (
+const update = (connectSlack: ConnectSlackFunction) => async (
   { client, connector, metric }: HullContext,
   messages: Array<HullUserUpdateMessage>
 ): HullNotificationResponse => {
   try {
-    const { getBot, teamChannels, teamMembers } = await connectSlack({
-      hull: client,
+    const { getBot /* , slackInstance */ } = await connectSlack({
+      client,
       connector
     });
+    // const { teamMembers, teamChannels } = slackInstance;
+    // const getChannelOrMemberId = getId(teamChannels, teamMembers);
     const post = async (userClient, payload, channel) => {
       userClient.logger.info("outgoing.user.success", {
         text: payload.text,
@@ -78,10 +82,9 @@ const update = (connectSlack: ConnectSlackParams => any) => async (
       metric.increment("ship.service_api.call");
       const bot = await getBot(connector);
       await bot.startConversationInChannel(channel);
-      await bot.sendActivity(payload);
+      await bot.say(payload);
       return true;
     };
-
     const tellOperator = async (userClient, user_id, msg, error) => {
       userClient.logger.info("outgoing.user.error", { error, message: msg });
       const bot = await getBot(connector);
@@ -113,11 +116,10 @@ const update = (connectSlack: ConnectSlackParams => any) => async (
         }
 
         try {
-          const getChannelOrMemberId = getId(teamChannels, teamMembers);
           _.map(
             notify_events,
             async ({ event, synchronized_segment, channel, text }) => {
-              const id = getChannelOrMemberId(channel);
+              // const id = getChannelOrMemberId(channel);
               metric.increment("ship.outgoing.users");
               if (
                 !shouldSendNotification({
@@ -126,6 +128,12 @@ const update = (connectSlack: ConnectSlackParams => any) => async (
                   message
                 })
               ) {
+                debug("Skipping Notification", {
+                  event,
+                  synchronized_segment,
+                  channel,
+                  message
+                });
                 return null;
               }
               const payload = await userPayload({
@@ -135,7 +143,7 @@ const update = (connectSlack: ConnectSlackParams => any) => async (
                 text,
                 attachements
               });
-              post(userClient, payload, id);
+              post(userClient, payload, channel);
               return null;
             }
           );

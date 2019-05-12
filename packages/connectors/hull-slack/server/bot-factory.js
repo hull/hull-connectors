@@ -4,11 +4,16 @@ import { Botkit } from "botkit";
 import {
   SlackAdapter,
   SlackMessageTypeMiddleware,
-  SlackEventMiddleware
+  SlackEventMiddleware,
+  SlackBotConfig
 } from "botbuilder-adapter-slack";
 
 import _ from "lodash";
-import type { ConnectSlackParams, Bot } from "./types";
+import type {
+  ConnectSlackParams,
+  SlackConnectorSettings,
+  SlackInstance
+} from "./types";
 import interactiveMessage from "./bot/interactive-message";
 import { replies, join } from "./bot";
 import getTeamChannels from "./lib/get-team-channels";
@@ -26,6 +31,9 @@ type BotFactoryParams = {
   clientID: string
 };
 
+type BotCache = {
+  [string]: SlackInstance
+};
 module.exports = function BotFactory({
   webserver,
   scopes,
@@ -34,16 +42,20 @@ module.exports = function BotFactory({
   signingSecret,
   devMode = false
 }: BotFactoryParams) {
-  const _bots = {};
+  const _bots: BotCache = {};
 
-  const cache = ({ botConfig, actions, attachements, team_id, hull }) => {
-    _bots[team_id] = { hull, actions, attachements, botConfig };
+  const cache = (team_id?: string, payload): SlackInstance | void => {
+    if (!team_id) {
+      return undefined;
+    }
+    //   throw new Error("Tried to access the cache without a Team ID");
+    _bots[team_id] = { ...payload };
     return _bots[team_id];
   };
 
-  const getByTeam = (team_id: string) => _bots[team_id];
+  const getByTeam = (team_id: string): SlackInstance => _bots[team_id];
 
-  const getBotConfig = (team_id: string) => {
+  const getBotConfig = (team_id: string): SlackBotConfig => {
     return (getByTeam(team_id) || {}).botConfig || {};
   };
 
@@ -69,7 +81,7 @@ module.exports = function BotFactory({
     debug: devMode
   });
 
-  async function getBot({ private_settings = {} }) {
+  async function getBot({ private_settings = {} }: SlackConnectorSettings) {
     const { team_id } = private_settings;
     if (!team_id) {
       throw new Error("Can't find a team ID for this Hull connector instance");
@@ -77,11 +89,17 @@ module.exports = function BotFactory({
     return controller.spawn(team_id);
   }
 
-  async function connectSlack({ hull, connector }: ConnectSlackParams): Bot {
+  async function connectSlack({
+    client,
+    connector
+  }: ConnectSlackParams): Promise<{
+    slackInstance: SlackInstance,
+    getBot: typeof getBot
+  }> {
     const { private_settings = {} } = connector;
     const {
       bot: botConfig,
-      actions,
+      // actions,
       attachements,
       token: app_token,
       team_id
@@ -97,41 +115,41 @@ module.exports = function BotFactory({
 
     try {
       const channels = getUniqueChannelNames(getNotifyChannels(connector));
-      const botSetup = getByTeam(team_id);
-      if (botSetup) {
+      let slackInstance = getByTeam(team_id);
+      if (slackInstance) {
         return {
-          ...botSetup,
+          slackInstance: { ...slackInstance },
           getBot
         };
       }
+
       // First, cache the partial config so that the adapter can find it.
-      cache({
+      cache(team_id, {
+        // actions,
+        // attachements,
         botConfig,
-        hull,
-        actions,
-        attachements,
-        team_id
+        hull: client
       });
+
       const bot = await getBot(connector);
       const { teamMembers, teamChannels } = await setupChannels({
-        hull,
+        hull: client,
         bot,
         token: app_token,
         channels
       });
       // Then cache the full config over it;
-      const cachedBot = cache({
+      slackInstance = cache(team_id, {
         botConfig,
-        actions,
+        // actions,
         attachements,
-        team_id,
-        hull,
+        hull: client,
         teamMembers,
         teamChannels
       });
       // const { bot } = botSetup;
-      hull.logger.info("register.success");
-      hull.logger.info("register.success");
+      client.logger.info("register.success");
+      client.logger.info("register.success");
       controller.on("bot_channel_join", join);
       controller.on("bot_channel_join", () => getTeamChannels(bot));
       controller.on("bot_channel_leave", () => getTeamChannels(bot));
@@ -142,11 +160,11 @@ module.exports = function BotFactory({
           controller.hears(message, context, reply)
       );
       return {
-        ...cachedBot,
+        slackInstance: { ...slackInstance },
         getBot
       };
     } catch (err) {
-      hull.logger.error("register.error", {
+      client.logger.error("register.error", {
         error: err.message
       });
       throw err;
@@ -155,8 +173,6 @@ module.exports = function BotFactory({
 
   return {
     controller,
-    getBot,
-    getByTeam,
     connectSlack
   };
 };
