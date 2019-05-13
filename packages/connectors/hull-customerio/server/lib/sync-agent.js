@@ -363,14 +363,12 @@ class SyncAgent {
     return this.serviceClient
       .updateCustomer(envelope.customer)
       .then(() => {
-        return userScopedClient
-          .traits(userTraits, { source: "customerio" })
-          .then(() => {
-            userScopedClient.logger.info("outgoing.user.success", {
-              data: envelope.customer,
-              operation: "updateCustomer"
-            });
+        return userScopedClient.traits(userTraits).then(() => {
+          userScopedClient.logger.info("outgoing.user.success", {
+            data: envelope.customer,
+            operation: "updateCustomer"
           });
+        });
       })
       .then(() => {
         // Process the events
@@ -458,16 +456,13 @@ class SyncAgent {
       .deleteCustomer(_.get(envelope, "customer.id"))
       .then(() => {
         return userScopedClient
-          .traits(
-            {
-              deleted_at: new Date(),
-              id: null,
-              hash: null,
-              synced_at: null,
-              created_at: null
-            },
-            { source: "customerio" }
-          )
+          .traits({
+            "customerio/deleted_at": new Date(),
+            "customerio/id": null,
+            "customerio/hash": null,
+            "customerio/synced_at": null,
+            "customerio/created_at": null
+          })
           .then(() => {
             return userScopedClient.logger.info("outgoing.user.deletion", {
               data: { id: envelope.customer.id },

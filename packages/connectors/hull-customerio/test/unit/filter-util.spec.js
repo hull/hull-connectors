@@ -230,7 +230,7 @@ describe("FilterUtil", () => {
       const envelope = {
         message: {
           user: {
-            id: "usr1",
+            "customerio/id": "usr1",
             email: "test@hull.io"
           },
           segments: [
@@ -255,14 +255,14 @@ describe("FilterUtil", () => {
         segmentPropertyName: "segments",
         ignoreUsersWithoutEmail: true,
         deletionEnabled: false,
-        userAttributeServiceId: "id"
+        userAttributeServiceId: "customerio/id"
       };
       const util = new FilterUtil(opts);
 
       const envelope = {
         message: {
           user: {
-            id: "usr1",
+            "customerio/id": "usr1",
             email: "test@hull.io"
           },
           segments: [
@@ -291,16 +291,16 @@ describe("FilterUtil", () => {
         segmentPropertyName: "segments",
         ignoreUsersWithoutEmail: true,
         deletionEnabled: false,
-        userAttributeServiceId: "id"
+        userAttributeServiceId: "customerio/id"
       };
       const util = new FilterUtil(opts);
 
       const envelope = {
         message: {
           user: {
-            id: "usr1",
+            "customerio/id": "usr1",
             email: "test@hull.io",
-            "traits_customerio/created_at": "2018-01-31T12:00:00.000Z"
+            "customerio/created_at": "2018-01-31T12:00:00.000Z"
           },
           segments: [
             {
@@ -328,16 +328,16 @@ describe("FilterUtil", () => {
         segmentPropertyName: "segments",
         ignoreUsersWithoutEmail: true,
         deletionEnabled: true,
-        userAttributeServiceId: "id"
+        userAttributeServiceId: "customerio/id"
       };
       const util = new FilterUtil(opts);
 
       const envelope = {
         message: {
           user: {
-            id: "usr1",
+            "customerio/id": "usr1",
             email: "test@hull.io",
-            "traits_customerio/created_at": "2018-01-31T12:00:00.000Z"
+            "customerio/created_at": "2018-01-31T12:00:00.000Z"
           },
           segments: [
             {
@@ -362,14 +362,14 @@ describe("FilterUtil", () => {
         segmentPropertyName: "segments",
         ignoreUsersWithoutEmail: true,
         deletionEnabled: true,
-        userAttributeServiceId: "id"
+        userAttributeServiceId: "customerio/id"
       };
       const util = new FilterUtil(opts);
 
       const envelope = {
         message: {
           user: {
-            id: "usr1",
+            "customerio/id": "usr1",
             email: "test@hull.io"
           },
           segments: [

@@ -5,9 +5,9 @@ const SHARED_MESSAGES = require("../../../../server/lib/shared-messages");
 const smartNotifierPayload = _.cloneDeep(require("../../fixtures/smart-notifier-payloads/user-update-withevent.json"));
 
 module.exports = (ctxMock) => {
-  _.set(smartNotifierPayload, "messages[0].user.traits_customerio/created_at", _.get(smartNotifierPayload, "messages[0].user.created_at"));
-  _.set(smartNotifierPayload, "messages[0].user.traits_customerio/email", _.get(smartNotifierPayload, "messages[0].user.email"));
-  _.set(smartNotifierPayload, "messages[0].user.traits_customerio/id", _.get(smartNotifierPayload, "messages[0].user.email"));
+  _.set(smartNotifierPayload, "messages[0].user.customerio/created_at", _.get(smartNotifierPayload, "messages[0].user.created_at"));
+  _.set(smartNotifierPayload, "messages[0].user.customerio/email", _.get(smartNotifierPayload, "messages[0].user.email"));
+  _.set(smartNotifierPayload, "messages[0].user.customerio/id", _.get(smartNotifierPayload, "messages[0].user.email"));
   const segmentIds = _.get(smartNotifierPayload, "messages[0].user.segment_ids", []);
 
   const customerDataX = {
@@ -21,7 +21,7 @@ module.exports = (ctxMock) => {
 
   const hashUtil = new HashUtil();
   const hash = hashUtil.hash(customerDataX);
-  _.set(smartNotifierPayload, "messages[0].user.traits_customerio/hash", hash);
+  _.set(smartNotifierPayload, "messages[0].user.customerio/hash", hash);
 
   const userData = _.get(smartNotifierPayload, "messages[0].user");
 
