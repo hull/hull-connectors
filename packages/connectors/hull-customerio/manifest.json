@@ -10,7 +10,6 @@
     "batch",
     "oneColumn",
     "smart-notifier",
-    "first-install",
     "single-install"
   ],
   "private_settings": [
@@ -52,8 +51,8 @@
       "default": false
     },
     {
-      "name": "event_filter",
-      "title": "Event Filter",
+      "name": "events_filter",
+      "title": "Events Filter",
       "description": "Send these events to Customer.io. By default, no event is sent.",
       "type": "array",
       "format": "event"

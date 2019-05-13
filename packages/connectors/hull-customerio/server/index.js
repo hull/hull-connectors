@@ -21,5 +21,5 @@ const app = express();
 const connector = new Hull.Connector(options);
 
 connector.setupApp(app);
-server(app, { hostSecret: options.hostSecret });
+server(app);
 connector.startApp(app);
