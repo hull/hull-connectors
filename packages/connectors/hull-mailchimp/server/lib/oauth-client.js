@@ -11,18 +11,16 @@ const {
 
 const shipAppFactory = require("./ship-app-factory");
 
-const OAuthFactory = ({ clientID, clientSecret }) => ({
-  params: {
-    name,
-    callbackUrl,
-    homeUrl,
-    selectUrl,
-    syncUrl,
-    site,
-    tokenPath,
-    authorizationPath
-  }
-}) => {
+const homeUrl = "/";
+const callbackUrl = "/callback";
+const selectUrl = "/select";
+const syncUrl = "/sync";
+const site = "https://login.mailchimp.com";
+const tokenPath = "/oauth2/token";
+const authorizationPath = "/oauth2/authorize";
+const name = "Mailchimp";
+
+const OAuthFactory = ({ clientID, clientSecret }) => {
   const oauth2 = oauth2Factory({
     name,
     clientID,

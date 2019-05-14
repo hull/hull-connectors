@@ -1,6 +1,7 @@
 .swal-button {
   font-weight: 500;
-  padding: 5px 20px;
+  padding: 3px 20px;
+  font-size: 16px;
 }
 
 .swal-button--confirm {
@@ -12,7 +13,8 @@
   box-shadow: none;
 }
 .swal-modal {
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 38px;
+  border: 1px solid #e2e2e2;
+  border-radius: 9px;
 }
 .swal-overlay--show-modal .swal-modal {
   animation-timing-function: cubic-bezier(0.35, 0.93, 0.59, 1.03);
