@@ -344,7 +344,8 @@ export type HullContextBase = {
 
   token?: string,
   clientCredentials?: HullClientCredentials, // HullClient credentials
-  clientCredentialsToken?: string // encrypted token with HullClient credentials
+  clientCredentialsToken?: string, // signed (not encrypted) jwt token with HullClient credentials
+  clientCredentialsEncryptedToken?: string // encrypted token with HullClient credentials
 };
 export type HullContext = {
   /**
@@ -358,6 +359,7 @@ export type HullContext = {
   clientCredentials: HullClientCredentials, // HullClient configuration
   // clientCredentialsToken?: string,
   clientCredentialsToken: string,
+  clientCredentialsEncryptedToken: string,
   // connector?: HullConnector,
   connector: HullConnector,
   // usersSegments?: Array<HullSegment>,

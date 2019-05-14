@@ -4,7 +4,6 @@ import type { HullRequest, HullResponse } from "../types";
 
 const _ = require("lodash");
 const debug = require("debug")("hull-connector:client-middleware");
-const jwt = require("jwt-simple");
 const HullClient = require("../../../hull-client/src");
 const helpers = require("../helpers");
 
@@ -53,7 +52,6 @@ function clientMiddlewareFactory() {
       }
 
       const HullClientClass = req.hull.HullClient || HullClient;
-      const { hostSecret } = req.hull.connectorConfig;
       const mergedClientConfig = {
         ...req.hull.clientConfig,
         ...req.hull.clientCredentials,
@@ -62,10 +60,6 @@ function clientMiddlewareFactory() {
 
       debug("configuration %o", mergedClientConfig, req.hull.clientCredentials);
       req.hull.client = new HullClientClass(mergedClientConfig);
-      req.hull.clientCredentialsToken = jwt.encode(
-        req.hull.clientCredentials,
-        hostSecret
-      );
       req.hull.helpers = _.mapValues(helpers, f => f(req.hull));
       next();
     } catch (error) {

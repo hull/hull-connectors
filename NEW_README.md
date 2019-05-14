@@ -211,3 +211,62 @@ Checkout [./packages/hull-client/src/typesjs#239](HullClientConfig);
   retry: 3000 //3s - previously configured with process.env.BATCH_RETRY
 }
 ```
+
+
+
+## aes-Encrypted Tokens
+
+the library now exposes and parses an additional, aes-encrypted token.
+In addition to the jwt-signed `clientCredentialsToken`, you can now use `clientCredentialsEncryptedToken` which is aes-encrypted - useful when you don't want the secret to leak out...
+
+The token will be encrypted and decrypted with the `hostSecret` you passed in the `HullConnectorConfig`.
+
+```js
+function userUpdate(ctx, messages) {
+  ctx.clientCredentialsEncryptedToken // aes-encrypted token.
+}
+```
+
+To generate a client from this token, you can pass the it in the querystring as `hullToken`, `token` or `state`  - any of those three values will be tried for a token if we didn't find anything else anywhere. No middleware required.
+
+```
+  https://my-connector.dev?token=AES_ENCRYPTED_TOKEN
+  https://my-connector.dev?hullToken=AES_ENCRYPTED_TOKEN
+  https://my-connector.dev?state=AES_ENCRYPTED_TOKEN
+  -> Hull will auto-parse this token to generate an Environment.
+```
+
+If you need to pass this token another way, you can add a middleware to your `connectorConfig` that will fetch the token from where you stored it and pass it in `req.hull.clientCredentialsToken`
+
+Here's a full example of a handler parsing things the right way:
+
+```js
+/* @flow */
+import type { NextFunction } from "express";
+import type { HullRequest, HullResponse } from "hull";
+
+export default function fetchToken(
+  req: HullRequest,
+  res: HullResponse,
+  next: NextFunction
+) {
+  if (req.query.conf) {
+    req.hull = req.hull || {};
+    req.hull.clientCredentialsEncryptedToken = req.query.conf.toString();
+  }
+  next();
+}
+
+const config: HullConnectorConfig = {
+  ...
+  hostSecret: "ABCD",
+  middlewares: [fetchToken],
+  ...
+}
+Hull.Connector(config).start();
+```
+
+This will make sure the token is in the right place for the rest of the stack to parse and create the right config.
+
+
+_NOTE: This also parses JWT tokens with the same logic. We just try to decode both formats_

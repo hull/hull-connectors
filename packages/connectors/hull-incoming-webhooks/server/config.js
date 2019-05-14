@@ -3,7 +3,7 @@
 import type { HullConnectorConfig } from "hull";
 import { Cache } from "hull/src/infra";
 import manifest from "../manifest.json";
-import { middleware as cryptoMiddleware } from "./lib/crypto";
+import fetchToken from "./lib/fetch-token";
 import handlers from "./handlers";
 import entryModel from "./models/entry";
 
@@ -37,7 +37,7 @@ export default function connectorConfig(): HullConnectorConfig {
     devMode: NODE_ENV === "development",
     port: PORT || 8082,
     handlers: handlers({ EntryModel }),
-    middlewares: [cryptoMiddleware(hostSecret)],
+    middlewares: [fetchToken],
     cache: new Cache({
       store: "memory",
       ttl: 1
