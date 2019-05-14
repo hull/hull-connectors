@@ -5,6 +5,7 @@ describe("crypto", () => {
   const configuration = {
     organization: "123456789.hullbeta.io",
     ship: "this_is_a_ship_id",
+    id: "this_is_a_ship_id",
     secret: "secret"
   };
 
