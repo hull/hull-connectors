@@ -6,7 +6,7 @@ const _ = require("lodash");
 
 // const LodashModuleReplacementPlugin = require("lodash-webpack-plugin");
 
-const getFiles = source => glob.sync(`${source}/*.{js,jsx}`);
+const getFiles = source => glob.sync(`${source}/*.{js,jsx,css,scss}`);
 const getEntry = files =>
   _.reduce(
     files,
@@ -15,7 +15,7 @@ const getEntry = files =>
         v
           .split("/")
           .pop()
-          .replace(/.(js|jsx)/, "")
+          .replace(/.(js|jsx|css|scss)/, "")
       ] = v;
       return m;
     },
