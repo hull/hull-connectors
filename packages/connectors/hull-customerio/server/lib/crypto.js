@@ -26,6 +26,12 @@ function middleware(password: string) {
     if (req.query.conf) {
       req.hull = req.hull || {};
       req.hull.clientCredentials = decrypt(req.query.conf, password);
+      if (
+        req.hull.clientCredentials.ship &&
+        typeof req.hull.clientCredentials.ship === "string"
+      ) {
+        req.hull.clientCredentials.id = req.hull.clientCredentials.ship;
+      }
     }
     next();
   };
