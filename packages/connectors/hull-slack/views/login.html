@@ -1,15 +1,13 @@
 <html>
   <head>
     <title>Login - Hull <%= name %></title>
-    <link rel="stylesheet" href="/index.css" />
+    <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
     <div class="container-fluid">
       <div class="row">
         <div class="col-sm-12 col-md-offset-1 col-md-10 text-center">
-          <h1 class="mb-0 mt-05  text-center">
-            <i class="icon icon-hull" style="font-size:64px;"></i>
-          </h1>
+          <%- include ../../../assets/partials/hull-logo %>
           <h5 class="mb-1">Connect to <%= name %></h5>
           <hr />
           <p class="mb-1">
@@ -25,10 +23,9 @@
         </div>
       </div>
     </div>
-    <script>
-      window.hullAuthCompleted = function authCompleted() {
-        window.location.href = window.location.href.replace("&reset=true", "");
-      };
+    <script src="/index.js"/></script>
+    <script type="text/javascript">
+      onAuth("reset");
     </script>
   </body>
 </html>

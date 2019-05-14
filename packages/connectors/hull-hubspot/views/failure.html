@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" href="/style.css" />
   <title>Close this window now</title>
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
   <div class="container-fluid">
   <div class="row">
-    <div class="col-sm-12 col-md-offset-1 col-md-10 text-center">
-      <h1 class="mb-0 mt-05">
-        <i class="icon icon-hull" style="font-size:64px;"></i>
-      </h1>
+    <div class="col text-center">
+      <%- include ../../../assets/partials/hull-logo %>
       <h5 class="mb-1">Authentication Failed</h5>
+      <hr>
       <a href="<%=urls.home%>&reset=true" target="_blank" id='login' class='btn btn-rounded btn-pill btn-secondary'>Try again</a>
     </div>
   </div>
-  <script>(function finish(){ window.opener.hullAuthCompleted(); window.close(); })();</script>
+  <script src="/index.js"></script>
+  <script>
+    onAuth("complete");
+  </script>
 </body>
 </html>

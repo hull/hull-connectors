@@ -2,88 +2,43 @@
   <head>
     <title>Hull <%= name %></title>
     <link rel="stylesheet" href="/style.css" />
-    <link rel="stylesheet" href="/swal.css" />
   </head>
   <body>
     <div class="row">
       <div class="col-xs-12">
         <div class="mb-1">
-          <h1 class="mb-0 mt-05  text-center"><i class="icon icon-hull" style="font-size:64px;"></i></h1>
+          <%- include ../../../assets/partials/hull-logo %>
           <div class="mb-1 media ps-4 pb-1">
             <p class="center-block mb-1 text-center">
-              Please be careful with these operations, they trigger large jobs to pull your data from outreach that take time.  The outreach api can send about 10 entities per second.
+              Please be careful with these operations, they trigger large jobs
+              to pull your data from outreach that take time. The outreach api
+              can send about 10 entities per second.
             </p>
             <div class="center-block col-xs-12">
-              <p class="center-block mb-1 text-center">
-              </p>
-              <div data-href="/accountFetchAll" class="center-block btn btn-rounded btn-pill btn-primary">Fetch All Accounts</div>
+              <p class="center-block mb-1 text-center"></p>
+              <div
+                data-href="/accountFetchAll"
+                class="center-block btn btn-rounded btn-pill btn-primary"
+              >
+                Fetch All Accounts
+              </div>
             </div>
             <div class="center-block col-xs-12">
-              <p class="center-block mb-1 text-center">
-              </p>
-              <div data-href="/prospectFetchAll" class="center-block btn btn-rounded btn-pill btn-primary">Fetch All Prospects</div>
+              <p class="center-block mb-1 text-center"></p>
+              <div
+                data-href="/prospectFetchAll"
+                class="center-block btn btn-rounded btn-pill btn-primary"
+              >
+                Fetch All Prospects
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <script>window.hullAuthCompleted = function authCompleted() { window.location.href = window.location.href.replace("&reset=true",""); };</script>
-
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
-    <script>
-      jQuery(function($) {
-        $("[data-href]").click(function() {
-          var url = $(this).attr('data-href');
-
-          var titleVar, textVar, followupVar;
-          if (url.indexOf("prospect") >= 0) {
-            titleVar = "Fetch all Prospects";
-            textVar = "You are going to fetch your Outreach.io Prospects. This can generate a lot of traffic. Are you sure?";
-            followupVar = "The Prospects will be fetched shortly";
-          } else {
-            titleVar = "Fetch all Accounts";
-            textVar = "You are going to fetch your Outreach.io Accounts. This can generate a lot of traffic. Are you sure?";
-            followupVar = "The Accounts will be fetched shortly";
-          }
-
-          swal({
-            title: titleVar,
-            text: textVar,
-            type: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#DD6B55",
-            confirmButtonText: "Yes, fetch all!",
-            closeOnConfirm: false
-          }, function(isConfirm) {
-            if (isConfirm) {
-              $.post(url+window.location.search);
-              swal("Fetching started", followupVar, "success");
-            }
-          });
-        });
-      });
+    <script src="/index.js"/></script>
+    <script type="text/javascript">
+      onAuth("reset");
     </script>
-
-    <style type="text/css" media="screen">
-      .check i.icon {
-        color: rgba(75, 222, 122, 0.52);
-        font-size: 2pc;
-        position: relative;
-        top: -11px;
-        left: 3px;
-      }
-      .check.valid {
-        border-color: rgba(75, 222, 122, 0.52);
-      }
-      .check {
-        border-radius: 100px;
-        border: 2px solid transparent;
-        padding: 0 5px;
-        height: 37px;
-        width: 37px;
-        position: relative;
-      }
-    </style>
   </body>
-  </html>
+</html>

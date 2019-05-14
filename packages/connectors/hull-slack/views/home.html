@@ -1,14 +1,13 @@
 <html>
 <head>
   <title>Hull <%= name %></title>
-  <link rel="stylesheet" href="/index.css" />
-  <script src="/index.js" type="text/javascript" charset="utf-8"></script>
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
   <div class="container-fluid">
     <div class="row">
       <div class="col-sm-12 col-md-offset-1 col-md-10">
-        <h1 class="mb-0 mt-05  text-center"><i class="icon icon-hull" style="font-size:64px;"></i></h1>
+        <%- include ../../../assets/partials/hull-logo %>
         <hr/>
         <div class="col-sm-6">
           <div class="mb-1 media">
@@ -44,5 +43,6 @@
         <a href="<%=urls.home%>&reset=true" class='btn btn-rounded btn-block btn-primary'>Start over</a>
     </div>
   </div>
+  <script src="/index.js"></script>
 </body>
 </html>

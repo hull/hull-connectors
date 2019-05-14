@@ -1,72 +1,37 @@
 <html>
-<head>
-  <title>Typeform</title>
-  <link rel="stylesheet" href="//dd04rofzygnm0.cloudfront.net/releases/master/865f04865d2448286626bac92c518a8f8ea8bafe/stylesheets/neue.css" />
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.css" />
-</head>
-<body>
-  <div class="row">
-    <div class="col-md-6 col-md-offset-3 col-sm-offset-2 col-sm-8 col-xs-offset-1 col-xs-10 mt-2 panel">
-      <div class="panel-body">
-        <div class="mb-1 ps-3">
-          <h1 class="mb-0 mt-05  text-center"><i class="icon icon-hull" style="font-size:64px;"></i></h1>
-          <div class="text-center">
-            <% if (form_present === true) { -%>
-              <% if (completed !== null) { -%>
+  <head>
+    <title>Typeform</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="row">
+      <div
+        class="col-md-6 col-md-offset-3 col-sm-offset-2 col-sm-8 col-xs-offset-1 col-xs-10 mt-2 panel"
+      >
+        <div class="panel-body">
+          <div class="mb-1 ps-3">
+            <%- include ../../../assets/partials/hull-logo %>
+            <div class="text-center">
+              <% if (form_present === true) { -%> <% if (completed !== null) {
+              -%>
               <h5>Completed Form Submissions: <%=completed%></h5>
               <% } -%>
-            <div data-href="/fetch-all-responses" class="center-block btn btn-rounded btn-pill btn-primary">Fetch All Form Submissions</div>
-            <% } else { -%>
-              <h5>Authorization completed, please go to settings and select a form</h5>
-            <% } -%>
+              <div
+                data-href="/fetch-all-responses"
+                class="center-block btn btn-rounded btn-pill btn-primary"
+              >
+                Fetch All Form Submissions
+              </div>
+              <% } else { -%>
+              <h5>
+                Authorization completed, please go to settings and select a form
+              </h5>
+              <% } -%>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
-  <script>
-    jQuery(function($) {
-      $("[data-href]").click(function() {
-        var url = $(this).attr('data-href');
-        swal({
-          title: "Fetch all form submissions",
-          text: "You are going to fetch all form submissions. Are you sure?",
-          type: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#DD6B55",
-          confirmButtonText: "Yes, fetch all!",
-          closeOnConfirm: false
-        }, function(isConfirm) {
-          if (isConfirm) {
-            $.post(url+window.location.search);
-            swal("Fetching started", "The form submissions will be fetched shortly.", "success");
-          }
-        });
-      });
-    });
-  </script>
-
-  <style type="text/css" media="screen">
-    .check i.icon {
-      color: rgba(75, 222, 122, 0.52);
-      font-size: 2pc;
-      position: relative;
-      top: -11px;
-      left: 3px;
-    }
-    .check.valid {
-      border-color: rgba(75, 222, 122, 0.52);
-    }
-    .check {
-      border-radius: 100px;
-      border: 2px solid transparent;
-      padding: 0 5px;
-      height: 37px;
-      width: 37px;
-      position: relative;
-    }
-  </style>
-</body>
+    <script src="/index.js"></script>
+  </body>
 </html>
