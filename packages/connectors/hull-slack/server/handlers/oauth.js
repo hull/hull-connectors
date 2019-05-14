@@ -1,5 +1,12 @@
 /* @flow */
-import type { HullOAuthRequest, HullOAuthHandlerParams } from "hull";
+import type {
+  HullContext,
+  HullExternalResponse,
+  HullIncomingHandlerMessage,
+  HullOAuthHandlerParams,
+  HullOauthAuthorizeMessage,
+  HullOAuthAuthorizeResponse
+} from "hull";
 import { Strategy } from "passport-slack";
 
 module.exports = ({
@@ -14,17 +21,30 @@ module.exports = ({
   Strategy,
   clientID,
   clientSecret,
-  isSetup: async req => {
-    const { connector, client } = req.hull;
-    if (req.query.reset) throw new Error("not setup");
+  isSetup: async (
+    ctx: HullContext,
+    message: HullIncomingHandlerMessage
+  ): HullExternalResponse => {
+    const { connector, client } = ctx;
+    const { query = {} } = message;
+    if (query.reset) throw new Error("not setup");
     const { private_settings = {} } = connector;
     const { token, bot = {} } = private_settings;
     const { bot_access_token } = bot;
+    if (!bot_access_token) {
+      return {
+        status: 404,
+        data: {
+          credentials: false,
+          connected: false
+        }
+      };
+    }
     try {
       console.log("isSetup", private_settings);
       await connectSlack({
         client,
-        connector: req.hull.connector
+        connector
       });
       if (!!token && !!bot_access_token) {
         return {
@@ -41,21 +61,24 @@ module.exports = ({
       });
     }
     return {
-      status: 404,
+      status: 500,
       data: {
         credentials: false,
         connected: false
       }
     };
   },
-  onAuthorize: async (req: HullOAuthRequest) => {
-    const { hull = {} } = req;
-    const { client, connector } = hull;
+  onAuthorize: async (
+    ctx: HullContext,
+    message: HullOauthAuthorizeMessage
+  ): HullOAuthAuthorizeResponse => {
+    const { client, connector } = ctx;
     if (!client || !connector) {
       throw new Error("Error, no Ship or Client");
     }
 
-    const { accessToken, params = {} } = req.account || {};
+    const { account = {} } = message;
+    const { accessToken, params = {} } = account;
     const { ok, bot = {}, team_id, user_id, incoming_webhook = {} } = params;
     if (!ok) {
       throw new Error("Error, invalid reply");
@@ -70,7 +93,8 @@ module.exports = ({
         token: accessToken
       }
     };
-    await connectSlack({ hull: client, connector: connectorData });
-    await client.put(connector.id, connectorData);
+    await connectSlack({ client, connector: connectorData });
+    return connectorData;
+    // await client.put(connector.id, connectorData);
   }
 });

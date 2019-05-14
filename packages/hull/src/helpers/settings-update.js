@@ -19,19 +19,24 @@ const {
  * @example
  * req.hull.helpers.settingsUpdate({ newSettings });
  */
-const settingsUpdate = (ctx: HullContext) => (
+const settingsUpdate = (ctx: HullContext) => async (
   newSettings: $PropertyType<HullConnector, "private_settings">
-): Promise<HullConnector> => {
+): void | Promise<HullConnector> => {
   const { client, cache } = ctx;
-  return client.utils.settings.update(newSettings).then(connector => {
+  try {
+    const connector = await client.utils.settings.update(newSettings);
     applyConnectorSettingsDefaults(connector);
     trimTraitsPrefixFromConnector(connector);
     ctx.connector = connector;
     if (!cache) {
       return connector;
     }
-    return cache.del("connector").then(() => connector);
-  });
+    await cache.del("connector");
+    return connector;
+  } catch (err) {
+    console.log(err);
+    return undefined;
+  }
 };
 
 module.exports = settingsUpdate;

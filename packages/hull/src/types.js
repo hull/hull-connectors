@@ -394,13 +394,19 @@ declare class $HullRequest extends express$Request {
   hull: HullContext;
 }
 export type HullRequest = $HullRequest;
+type HullOAuthAccount = {
+  refreshToken?: string,
+  accessToken?: string,
+  [string]: any
+};
 export type HullOAuthRequest = HullRequest & {
-  account?: {
-    refreshToken?: string,
-    accessToken?: string,
-    [string]: any
-  },
+  account?: HullOAuthAccount,
   authParams?: {}
+};
+
+export type HullOauthAuthorizeMessage = {
+  ...$Exact<HullIncomingHandlerMessage>,
+  account?: HullOAuthAccount
 };
 
 // Hull Notification
@@ -578,16 +584,21 @@ export type HullNotificationResponse =
   | HullNotificationResponseData
   | Promise<HullNotificationResponseData>;
 
-export type HullExternalResponseData = {
+export type HullExternalResponseData = void | {
   status?: number,
   pageLocation?: string,
   data?: any,
   text?: string
 };
 export type HullExternalResponse =
-  | void
   | HullExternalResponseData
-  | Promise<void | HullExternalResponseData>;
+  | Promise<HullExternalResponseData>;
+
+export type HullOAuthAuthorizeResponseData = void | {
+  private_settings?: {}
+};
+export type HullOAuthAuthorizeResponse = void | Promise<HullOAuthAuthorizeResponseData>;
+
 export type HullStatusResponseData =
   | {
       status: "ok" | "warning" | "error",
@@ -698,9 +709,18 @@ export type HullIncomingHandlerCallback = (
 export type HullSchedulerHandlerCallback = HullIncomingHandlerCallback;
 export type HullHtmlHandlerCallback = HullIncomingHandlerCallback;
 export type HullOAuthHandlerParams = void | {
-  isSetup?: (req: HullOAuthRequest) => Promise<HullExternalResponseData>,
-  onAuthorize?: (req: HullOAuthRequest) => HullExternalResponse,
-  onLogin?: (req: HullOAuthRequest) => HullExternalResponse,
+  isSetup?: (
+    ctx: HullContext,
+    message: HullIncomingHandlerMessage
+  ) => HullExternalResponse,
+  onAuthorize?: (
+    ctx: HullContext,
+    message: HullOauthAuthorizeMessage
+  ) => HullOAuthAuthorizeResponse,
+  onLogin?: (
+    ctx: HullContext,
+    message: HullIncomingHandlerMessage
+  ) => HullExternalResponse,
   Strategy: any,
   clientID: string,
   clientSecret: string

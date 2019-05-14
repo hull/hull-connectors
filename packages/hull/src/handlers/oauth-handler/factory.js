@@ -3,11 +3,13 @@ import type {
   HullRouteMap,
   HullRequest,
   HullResponse,
+  HullOAuthRequest,
   HullOAuthHandlerParams,
   HullOAuthHandlerOptions
 } from "hull";
 import type { NextFunction, $Response } from "express";
 import getRouter from "../get-router";
+import getMessage from "../../utils/get-message-from-request";
 
 const _ = require("lodash");
 
@@ -119,6 +121,7 @@ function getURLs(req) {
     home: getURL(req, HOME_URL)
   };
 }
+const noopPromise = (_ctx, _message) => Promise.resolve();
 function OAuthHandlerFactory({
   options: opts,
   callback
@@ -135,9 +138,9 @@ function OAuthHandlerFactory({
   }
   const {
     Strategy,
-    isSetup = _req => Promise.resolve(),
-    onAuthorize = _req => Promise.resolve(),
-    onLogin = _req => Promise.resolve(),
+    isSetup = noopPromise,
+    onAuthorize = noopPromise,
+    onLogin = noopPromise,
     clientID,
     clientSecret
   } = handlerParams;
@@ -195,13 +198,15 @@ function OAuthHandlerFactory({
     req: HullRequest,
     res: HullResponse
   ) {
-    const { connector = {}, client } = req.hull;
+    const { hull: ctx } = req;
+    const { connector, client } = ctx;
     client.logger.debug("connector.oauth.home");
     const data = { name, urls: getURLs(req), connector };
     try {
-      const setupResponse = await isSetup(req);
-      const { status, data: setupData } = setupResponse;
-      if (status >= 400) {
+      const message = getMessage(req);
+      const setupResponse = await isSetup(ctx, message);
+      const { status, data: setupData } = setupResponse || {};
+      if (!status || status >= 400) {
         throw new Error(setupResponse);
       }
       res.render(views.home, { ...data, ...setupData });
@@ -226,20 +231,19 @@ function OAuthHandlerFactory({
   router.all(
     LOGIN_URL,
     async (req: HullRequest, res: HullResponse, next: NextFunction) => {
-      const { client } = req.hull;
-      client.logger.debug("connector.oauth.login");
+      const message = getMessage(req);
+      const { hull: ctx } = req;
+      ctx.client.logger.debug("connector.oauth.login");
       try {
-        await onLogin(req);
+        const authParams = await onLogin(ctx, message);
+        req.hull.authParams = {
+          ...authParams,
+          state: req.hull.clientCredentialsToken
+        };
         next();
       } catch (err) {
         next();
       }
-    },
-    (req: HullRequest, res: HullResponse, next: NextFunction) => {
-      req.hull.authParams = _.merge({}, req.hull.authParams, {
-        state: req.hull.clientCredentialsToken
-      });
-      next();
     },
     authorize
   );
@@ -262,11 +266,23 @@ function OAuthHandlerFactory({
   router.get(
     CALLBACK_URL,
     authorize,
-    async (req: HullRequest, res: HullResponse) => {
-      const { client } = req.hull;
+    async (req: HullOAuthRequest, res: HullResponse) => {
+      const { hull: ctx, account } = req;
+      const { client } = ctx;
+      const message = {
+        ...getMessage(req),
+        account
+      };
       client.logger.debug("connector.oauth.authorize");
       try {
-        await onAuthorize(req);
+        const authResponse = await onAuthorize(ctx, message);
+        const {
+          private_settings
+          // , settings
+        } = authResponse || {};
+        if (private_settings) {
+          await req.hull.helpers.settingsUpdate(private_settings);
+        }
         res.redirect(getURL(req, SUCCESS_URL));
       } catch (error) {
         console.log("CALLBACK ERROR", error);

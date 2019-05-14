@@ -1,5 +1,12 @@
 // @flow
-import type { HullOAuthRequest, HullOAuthHandlerParams } from "hull";
+import type {
+  HullContext,
+  HullExternalResponse,
+  HullIncomingHandlerMessage,
+  HullOAuthHandlerParams,
+  HullOauthAuthorizeMessage,
+  HullOAuthAuthorizeResponse
+} from "hull";
 
 const TypeformStrategy = require("passport-typeform").Strategy;
 const moment = require("moment");
@@ -17,15 +24,16 @@ module.exports = ({
   Strategy: TypeformStrategy,
   clientID,
   clientSecret,
-  isSetup: async (req: HullOAuthRequest) => {
-    const {
-      access_token,
-      refresh_token,
-      form_id
-    } = req.hull.connector.private_settings;
+  isSetup: async (
+    ctx: HullContext,
+    _message: HullIncomingHandlerMessage
+  ): HullExternalResponse => {
+    const { connector } = ctx;
+    const { private_settings = {} } = connector;
+    const { access_token, refresh_token, form_id } = private_settings;
 
     if (access_token && refresh_token) {
-      const syncAgent = new SyncAgent(req.hull);
+      const syncAgent = new SyncAgent(ctx);
       if (form_id) {
         const completed = await syncAgent.getFormResponsesCount();
         return {
@@ -40,18 +48,22 @@ module.exports = ({
     }
     throw new Error("Can't find Access token or refresh token");
   },
-  onLogin: async () => Promise.resolve(),
-  onAuthorize: async (req: HullOAuthRequest) => {
-    const { account } = req;
+  onAuthorize: async (
+    ctx: HullContext,
+    message: HullOauthAuthorizeMessage
+  ): HullOAuthAuthorizeResponse => {
+    const { account } = message;
     if (!account) {
       return undefined;
     }
     const { accessToken, refreshToken, params = {} } = account;
-    return req.hull.helpers.settingsUpdate({
-      access_token: accessToken,
-      refresh_token: refreshToken,
-      expires_in: params.expires_in,
-      tokens_granted_at: moment().format("X")
-    });
+    return {
+      private_settings: {
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        expires_in: params.expires_in,
+        tokens_granted_at: moment().format("X")
+      }
+    };
   }
 });

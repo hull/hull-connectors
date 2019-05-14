@@ -1,9 +1,21 @@
+import type {
+  HullContext,
+  HullExternalResponse,
+  HullIncomingHandlerMessage,
+  HullOAuthHandlerParams,
+  HullOauthAuthorizeMessage,
+  HullOAuthAuthorizeResponse
+} from "hull";
+
 const _ = require("lodash");
 
 const oauth2 = {
-  isSetup(req) {
-    const { connector } = req.hull;
-    if (req.query.reset) {
+  isSetup: async (
+    ctx: HullContext,
+    message: HullIncomingHandlerMessage
+  ): HullExternalResponse => {
+    const { connector } = ctx;
+    if (message.query.reset) {
       throw new Error("Requested reset");
     }
     const { token } = connector.private_settings || {};
@@ -14,26 +26,34 @@ const oauth2 = {
         status: 200,
         data: {}
       };
-      // Promise.resolve();
     }
     throw new Error("Not authorized");
   },
-  onLogin: req => {
-    req.authParams = _.merge({}, req.body, req.query);
-    return Promise.resolve(req.authParams);
-  },
-  onAuthorize: req => {
+  onLogin: async (
+    ctx: HullContext,
+    message: HullIncomingHandlerMessage
+  ): HullExternalResponse => ({
+    ...req.body,
+    ...req.query
+  }),
+  onAuthorize: async (
+    ctx: HullContext,
+    message: HullOauthAuthorizeMessage
+  ): HullOAuthAuthorizeResponse => {
     // access_token, expires_in, refresh_token, created_at
     // for some reason, refreshToken looks like it's at the top level
     // and the more detailed variables are in a params object below req.account
-    const { refreshToken, params } = req.account || {};
+    const { account = {} } = message;
+    const { refreshToken, params } = account;
     const { access_token, expires_in, created_at } = params || {};
-    return req.hull.helpers.settingsUpdate({
-      token_expires_in: expires_in,
-      token_created_at: created_at,
-      refresh_token: refreshToken,
-      access_token
-    });
+    return {
+      private_settings: {
+        token_expires_in: expires_in,
+        token_created_at: created_at,
+        refresh_token: refreshToken,
+        access_token
+      }
+    };
   }
 };
 

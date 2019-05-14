@@ -1,5 +1,12 @@
 /* @flow */
-import type { HullOAuthRequest, HullOAuthHandlerParams } from "hull";
+import type {
+  HullContext,
+  HullExternalResponse,
+  HullIncomingHandlerMessage,
+  HullOAuthHandlerParams,
+  HullOauthAuthorizeMessage,
+  HullOAuthAuthorizeResponse
+} from "hull";
 
 const HubspotStrategy = require("passport-hubspot-oauth2.0");
 const moment = require("moment");
@@ -17,15 +24,18 @@ module.exports = ({
   Strategy: HubspotStrategy,
   clientID,
   clientSecret,
-  isSetup: async req => {
-    const { client, connector } = req.hull;
-    if (req.query.reset) {
+  isSetup: async (
+    ctx: HullContext,
+    message: HullIncomingHandlerMessage
+  ): HullExternalResponse => {
+    const { client, connector } = ctx;
+    if (message.query.reset) {
       throw new Error("Requested reset");
     }
     const { token } = connector.private_settings || {};
     try {
       if (token) {
-        const syncAgent = new SyncAgent(req.hull);
+        const syncAgent = new SyncAgent(ctx);
         // TODO: we have notices problems with syncing hull segments property
         // TODO: check if below code works after hull-node upgrade.
         // after a Hubspot resync, there may be a problem with notification
@@ -43,25 +53,29 @@ module.exports = ({
       client.logger.error("connector.configuration.error", {
         errors: ["Error in creating segments property", err]
       });
+      return {
+        status: 404,
+        data: {
+          error: err.message
+        }
+      };
     }
+  },
+  onLogin: async (ctx: HullContext, message: HullIncomingHandlerMessage) => {
     return {
       status: 200,
-      data: {}
+      data: { ...message.body, ...message.query }
     };
   },
-  onLogin: async (req: HullOAuthRequest) => {
-    req.authParams = { ...req.body, ...req.query };
-    return {
-      status: 200,
-      data: {}
-    };
-  },
-  onAuthorize: async (req: HullOAuthRequest) => {
-    const { account = {} } = req;
+  onAuthorize: async (
+    ctx: HullContext,
+    message: HullOauthAuthorizeMessage
+  ): HullOAuthAuthorizeResponse => {
+    const { account = {} } = message;
     debug("onAuthorize req.account", account);
     const { params, refreshToken, accessToken } = account;
     const { expires_in } = params;
-    const syncAgent = new SyncAgent(req.hull);
+    const syncAgent = new SyncAgent(ctx);
 
     if (!accessToken) {
       throw new Error("Can't find access token");
@@ -71,20 +85,16 @@ module.exports = ({
       `/oauth/v1/access-tokens/${accessToken}`
     );
     const portalId = res.body.hub_id;
-    const newConnector = {
-      portal_id: portalId,
-      refresh_token: refreshToken,
-      token: accessToken,
-      expires_in,
-      token_fetched_at: moment()
-        .utc()
-        .format("x")
-    };
-    debug("onAuthorize updating settings", newConnector);
-    await req.hull.helpers.settingsUpdate(newConnector);
     return {
-      status: 200,
-      data: {}
+      private_settings: {
+        portal_id: portalId,
+        refresh_token: refreshToken,
+        token: accessToken,
+        expires_in,
+        token_fetched_at: moment()
+          .utc()
+          .format("x")
+      }
     };
   }
 });

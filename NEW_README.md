@@ -26,7 +26,8 @@ Forwarding                    https://hull-incoming-webhooks.eu.ngrok.io -> http
 
 ## Webpack
 
-Add client-side code to `src` in a connector's folder -> 
+Add client-side code to `src` in a connector's folder ->
+
 - all root level .js will be compiled.
 - all root-level .scss will be compiled
 
@@ -37,13 +38,16 @@ Hot Reload is included.
 ```
 $ yarn dev hull-incoming-webhooks
 ```
+
 p
 -> Boots connector with the `debug` library started with `DEBUG=hull*` so you can see all of Hull's debugging stack
 
 ## Flow Types
+
 Love and embrace flow types. The uniform method signature is:
 
 For Incoming Data (Webhooks, HTML requests, JSON requests etc...);
+
 ```js
 // @flow
 import type {
@@ -73,8 +77,8 @@ export default async (
 
 ```
 
-
 For Notifications and Batches:
+
 ```js
 // @flow
 import type { HullContext, HullUserUpdateMessage } from "hull";
@@ -113,7 +117,6 @@ import config from "./config";
 new Hull.Connector(config).start();
 ```
 
-
 ## Manifest
 
 Each of the following Keys can accept standard options:
@@ -125,7 +128,7 @@ Each of the following Keys can accept standard options:
 - schedules
 - statuses
 
-They all accept the common pattern: 
+They all accept the common pattern:
 
 ```js
 {
@@ -164,6 +167,7 @@ handlers = {
 ## Hull-managed HTTP Client.
 
 The Hull-managed HTTP Client is based on the latest superagent with some added plugins. It handles the following for you:
+
 - Promise Interface
 - Full instrumentation for Logging & metrics
 - Throttling (defaults set through ConnectorConfig)
@@ -201,7 +205,7 @@ function(ctx, messages){
 
 ## Hull Client retries & timeouts.
 
-Moved timeout & retry to `HullClientConfig`: 
+Moved timeout & retry to `HullClientConfig`:
 Checkout [./packages/hull-client/src/typesjs#239](HullClientConfig);
 
 ```
@@ -212,8 +216,6 @@ Checkout [./packages/hull-client/src/typesjs#239](HullClientConfig);
 }
 ```
 
-
-
 ## aes-Encrypted Tokens
 
 the library now exposes and parses an additional, aes-encrypted token.
@@ -223,11 +225,11 @@ The token will be encrypted and decrypted with the `hostSecret` you passed in th
 
 ```js
 function userUpdate(ctx, messages) {
-  ctx.clientCredentialsEncryptedToken // aes-encrypted token.
+  ctx.clientCredentialsEncryptedToken; // aes-encrypted token.
 }
 ```
 
-To generate a client from this token, you can pass the it in the querystring as `hullToken`, `token` or `state`  - any of those three values will be tried for a token if we didn't find anything else anywhere. No middleware required.
+To generate a client from this token, you can pass the it in the querystring as `hullToken`, `token` or `state` - any of those three values will be tried for a token if we didn't find anything else anywhere. No middleware required.
 
 ```
   https://my-connector.dev?token=AES_ENCRYPTED_TOKEN
@@ -268,5 +270,115 @@ Hull.Connector(config).start();
 
 This will make sure the token is in the right place for the rest of the stack to parse and create the right config.
 
-
 _NOTE: This also parses JWT tokens with the same logic. We just try to decode both formats_
+
+## oauth handler
+
+The OAuth Handler has been rewritten.
+It is now stricter and requires less configuration. Here's how you use it:
+
+### Manifest
+
+```json
+{
+  "tabs": [
+    {
+      "title": "Credentials",
+      "setup": true,
+      "url": "/auth",
+      "size": "small",
+      "editable": false,
+      "handler": "oauthHandler",
+      "options": {
+        "type": "oauth",
+        "params": {
+          "name": "Slack",
+          "strategy": {
+            "scope": ["bot", "channels:write"],
+            "skipUserProfile": true
+          },
+          "views": {
+            "login": "login.html",
+            "home": "home.html",
+            "failure": "failure.html",
+            "success": "success.html"
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+### Code
+
+```js
+/* @flow */
+import type {
+  HullContext,
+  HullExternalResponse,
+  HullIncomingHandlerMessage,
+  HullOAuthHandlerParams,
+  HullOauthAuthorizeMessage,
+  HullOAuthAuthorizeResponse
+} from "hull";
+import { Strategy } from "passport-slack";
+
+async function isSetup(ctx: HullContext, message: HullIncomingHandlerMessage){
+  const { connector, client } = ctx;
+  const { query = {} } = message;
+  //Logic to define if connector is properly setup here.
+  //...
+  //return the data you wish to pass to the page, and a redirect code.
+  if (connector_is_setup) {
+    return { status: 200, data: { credentials: true, connected: true } }
+  } else {
+    return { status: 404, data: { credentials: false, connected: false } }
+  }
+}
+async function onAuthorize(ctx: HullContext, message: HullOauthAuthorizeMessage): HullOAuthAuthorizeResponse {
+  //actions to perform when receiving auth code. Will be present in message.account.
+  //message contains all the interesting components of a HTTP request: See HullIncomingHandlerMessage
+  const { body, ip, url, method, query, params, path, account } = message;
+  const { accessToken, params } = account;
+  const { ok, bot = {}, team_id, user_id, incoming_webhook = {} } = params;
+  //Your logic to extract data from the Oauth response
+  //Reply with a set of updated connector settings - will be saved before redirecting.
+  return {
+    private_settings: {
+      accessToken
+    }
+  }
+}
+async function onLogin(ctx: HullContext, message: HullIncomingHandlerMessage){
+  // Logic to perform on Login
+  // Best used to process form parameters, to be submitted to the Login sequence. Useful to add strategy-specific parameters, such as a portal ID for Hubspot for instance.
+  return {
+    // any data object that you want to pass to the passport.authorize method:
+    // http://www.passportjs.org/docs/authorize/
+    // passport.authorize(AUTH URL, { parameters })
+    // callback URL is passed automatically, and `state`
+  }
+}
+
+const connectorConfig: HullConnectorConfig = {
+  // ...
+  handlers: {
+    // ...
+    html: {
+      oauthHandler: function(): HullOAuthHandlerParams{
+        return {
+          Strategy,
+          clientID
+          clientSecret,
+          isSetup,
+          onAuthorize,
+          onLogin
+        }
+      }
+    }
+  }
+}
+
+Hull.Connector(connectorConfig).start();
+```

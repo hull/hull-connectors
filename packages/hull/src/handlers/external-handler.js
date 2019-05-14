@@ -6,7 +6,7 @@ import type {
   HullExternalResponseData,
   HullResponse
 } from "../types";
-import getMessage from "../utils/get-message";
+import getMessage from "../utils/get-message-from-request";
 
 const debug = require("debug")("hull-connector:external-handler");
 
