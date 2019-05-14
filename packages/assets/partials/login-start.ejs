@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Login - Hull <%= name %></title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col text-center">
+          <%- include ./hull-logo %>
+          <h5 class="mb-3">Connect to <%= name %></h5>
+          <hr />
+          <p class="text-muted mb-3">
+            Give Hull permission to access your <%= name %> Account
+          </p>
+          <form
+            action="<%=urls.login%>"
+            target="_blank"
+            method="post"
+            accept-charset="utf-8">
+              <button
+                type="submit"
+                target="_blank"
+                id='login'
+                class='btn btn-block btn-primary'
+                >Continue with <%= name %></button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <script src="/index.js"/></script>
+    <script type="text/javascript">
+      onAuth("reset");
+    </script>
+  </body>
+</html>
