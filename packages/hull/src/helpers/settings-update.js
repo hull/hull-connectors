@@ -22,20 +22,20 @@ const {
 const settingsUpdate = (ctx: HullContext) => async (
   newSettings: $PropertyType<HullConnector, "private_settings">
 ): void | Promise<HullConnector> => {
-  const { client, cache } = ctx;
+  const { client, cache, connector } = ctx;
   try {
-    const connector = await client.utils.settings.update(newSettings);
-    applyConnectorSettingsDefaults(connector);
-    trimTraitsPrefixFromConnector(connector);
-    ctx.connector = connector;
+    const newConnector = await client.utils.settings.update(newSettings);
+    applyConnectorSettingsDefaults(newConnector);
+    trimTraitsPrefixFromConnector(newConnector);
+    ctx.connector = newConnector;
     if (!cache) {
-      return connector;
+      return newConnector;
     }
     await cache.del("connector");
-    return connector;
+    return newConnector;
   } catch (err) {
     console.log(err);
-    return undefined;
+    return connector;
   }
 };
 

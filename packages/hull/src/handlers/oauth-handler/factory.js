@@ -281,14 +281,14 @@ function OAuthHandlerFactory({
           // , settings
         } = authResponse || {};
         if (private_settings) {
-          await req.hull.helpers.settingsUpdate(private_settings);
+          await ctx.helpers.settingsUpdate(private_settings);
         }
         res.redirect(getURL(req, SUCCESS_URL));
       } catch (error) {
         console.log("CALLBACK ERROR", error);
         res.redirect(
           getURL(req, FAILURE_URL, {
-            token: req.hull.clientCredentialsToken,
+            token: ctx.clientCredentialsToken,
             error: error.message
           })
         );
