@@ -1,32 +1,19 @@
 import jQuery from "jquery";
-import swal from "sweetalert";
+import { fetchConfirm, fetchStarted } from "../../../assets/js/modal";
 import onAuth from "../../../assets/js/opener-auth-complete";
 
 window.onAuth = onAuth;
 
+const entity = "Form Submissions";
+const service = "Typeform";
+
 jQuery(function onStart($) {
-  $("[data-href]").click(function onClick() {
+  $("[data-href]").click(async function onClick() {
     const url = $(this).attr("data-href");
-    swal(
-      {
-        title: "Fetch all form submissions",
-        text: "You are going to fetch all form submissions. Are you sure?",
-        type: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#DD6B55",
-        confirmButtonText: "Yes, fetch all!",
-        closeOnConfirm: false
-      },
-      function confirmed(isConfirm) {
-        if (isConfirm) {
-          $.post(url + window.location.search);
-          swal(
-            "Fetching started",
-            "The form submissions will be fetched shortly.",
-            "success"
-          );
-        }
-      }
-    );
+    const decision = await fetchConfirm({ entity, service });
+    if (decision === "confirm") {
+      $.post(url + window.location.search);
+      fetchStarted({ entity, service });
+    }
   });
 });

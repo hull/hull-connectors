@@ -114,7 +114,6 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "superagent": "^5.0.5",
-    "swal": "^0.1.0",
     "sweetalert": "^2.1.2",
     "urijs": "^1.19.1",
     "uuid": "^3.3.2"
