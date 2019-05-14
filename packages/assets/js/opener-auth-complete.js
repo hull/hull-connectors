@@ -2,6 +2,7 @@ function onAuthComplete() {
   window.opener.hullAuthCompleted();
   window.close();
 }
+window.finish = onAuthComplete;
 
 function reset() {
   window.location.href = window.location.href.replace("&reset=true", "");
