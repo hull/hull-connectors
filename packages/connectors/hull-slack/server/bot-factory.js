@@ -10,7 +10,8 @@ import {
 
 import _ from "lodash";
 import type {
-  ConnectSlackParams,
+  ConnectedSlack,
+  HullSlackContext,
   SlackConnectorSettings,
   SlackInstance
 } from "./types";
@@ -91,11 +92,9 @@ module.exports = function BotFactory({
 
   async function connectSlack({
     client,
-    connector
-  }: ConnectSlackParams): Promise<{
-    slackInstance: SlackInstance,
-    getBot: typeof getBot
-  }> {
+    connector,
+    metric
+  }: HullSlackContext): Promise<ConnectedSlack> {
     const { private_settings = {} } = connector;
     const {
       bot: botConfig,
@@ -113,12 +112,36 @@ module.exports = function BotFactory({
       );
     }
 
+    const post = async ({
+      scopedClient,
+      payload,
+      channel,
+      entity = "user"
+    }) => {
+      scopedClient.logger.info(`outgoing.${entity}.success`, {
+        text: payload.text,
+        channel
+      });
+      metric.increment("ship.service_api.call");
+      const bot = await getBot(connector);
+      await bot.startConversationInChannel(channel);
+      await bot.say(payload);
+      return true;
+    };
+    const tellOperator = async ({ user_id, msg }) => {
+      const bot = await getBot(connector);
+      await bot.startPrivateConversation(user_id);
+      bot.say(msg);
+    };
+
     try {
       const channels = getUniqueChannelNames(getNotifyChannels(connector));
       let slackInstance = getByTeam(team_id);
       if (slackInstance) {
         return {
           slackInstance: { ...slackInstance },
+          post,
+          tellOperator,
           getBot
         };
       }
@@ -161,6 +184,8 @@ module.exports = function BotFactory({
       );
       return {
         slackInstance: { ...slackInstance },
+        post,
+        tellOperator,
         getBot
       };
     } catch (err) {

@@ -1,10 +1,10 @@
-//@noflow
+// @noflow
 import Hull from "hull";
 import _ from "lodash";
 import fetchEvent from "../hull/fetch-event";
 import fetchUser from "../hull/fetch-user";
 import formatEventProperties from "../lib/format-event-properties";
-import userPayload from "../lib/user-payload";
+import getNotification from "../lib/get-notification";
 
 module.exports = async function interactiveMessage(bot, message) {
   const { actions, callback_id, original_message } = message;
@@ -21,7 +21,7 @@ module.exports = async function interactiveMessage(bot, message) {
     } catch (e) {
       hull.logger.error("bot.interactiveMessage.error", {
         type: "update",
-        message: e.message,
+        message: e.message
       });
     }
   } else if (name === "expand") {
@@ -38,7 +38,7 @@ module.exports = async function interactiveMessage(bot, message) {
       try {
         const { events } = await fetchEvent({
           hull,
-          search: { id: callback_id },
+          search: { id: callback_id }
         });
         const [event = {}] = events;
         const { props } = event;
@@ -48,26 +48,24 @@ module.exports = async function interactiveMessage(bot, message) {
       } catch (err) {
         hull.logger.error("bot.interactiveMessage.error", {
           type: "event",
-          message: err.message,
+          message: err.message
         });
       }
     }
 
     if (value === "traits" || value === "events") {
-      const { user, account, events, segments, message = "" } = await fetchUser(
-        {
-          hull,
-          search: { id: callback_id },
-          options: { action: { value } },
-        }
-      );
-      const payload = await userPayload({
+      const { user, account, events, segments, msg = "" } = await fetchUser({
+        hull,
+        search: { id: callback_id },
+        options: { action: { value } }
+      });
+      const payload = await getNotification({
         hull,
         message: { user, account, events, segments },
-        attachements,
         actions,
+        entity: "user"
       });
-      bot.replyInteractive(message, payload);
+      bot.replyInteractive(msg, payload);
     }
   }
   return true;

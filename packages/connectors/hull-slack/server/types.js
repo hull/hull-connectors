@@ -1,6 +1,6 @@
 // @flow
 
-import type { HullClient as Hull, HullConnector } from "hull";
+import type { HullClient as Hull, HullContext, HullConnector } from "hull";
 
 type SlackChannel = {};
 type SlackMember = {};
@@ -61,12 +61,24 @@ export type SlackConnectorSettings = {
 
 export type ConnectedSlack = {
   slackInstance: SlackInstance,
-  getBot: SlackConnectorSettings => Promise<any>
+  getBot: SlackConnectorSettings => Promise<any>,
+  post: ({
+    scopedClient: Hull,
+    payload: any,
+    channel: string,
+    entity: "user" | "account"
+  }) => any,
+  tellOperator: ({
+    scopedClient: Hull,
+    user_id: string,
+    msg: string,
+    error: any,
+    entity: "user" | "account"
+  }) => any
 };
 
-export type ConnectSlackParams = {
-  client: Hull,
+export type HullSlackContext = HullContext & {
   connector: SlackConnectorSettings
 };
 
-export type ConnectSlackFunction = ConnectSlackParams => Promise<ConnectedSlack>;
+export type ConnectSlackFunction = HullSlackContext => Promise<ConnectedSlack>;

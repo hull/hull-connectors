@@ -1,6 +1,6 @@
 // @noflow
 import Hull from "hull";
-import userPayload from "../lib/user-payload";
+import getNotification from "../lib/get-notification";
 import getSearchHash from "../lib/get-search-hash";
 import fetchUser from "../hull/fetch-user";
 import messages from "./messages";
@@ -84,11 +84,12 @@ const postUser = (getByTeam, type, options = {}) =>
       //     search.rest === "full" ? "traits" : search.rest || action.value;
       // }
 
-      const res = await userPayload({
+      const res = await getNotification({
         hull,
         message: { user, account, events, segments },
         attachements,
-        actions
+        actions,
+        entity: "user"
       });
       hull.logger.debug("outgoing.user.reply", res);
       if (pagination.total > 1) {

@@ -5,31 +5,11 @@ import type {
   HullNotificationResponse
 } from "hull";
 import _ from "lodash";
-import userPayload from "../lib/user-payload";
+import getNotification from "../lib/get-notification";
+import logResponses from "../lib/log-responses";
 import type { ConnectSlackFunction } from "../types";
 
 const debug = require("debug")("hull-slack:user-update");
-
-const getLoggableMessages = responses =>
-  _.groupBy(_.compact(responses), "action");
-
-const reduceActionUsers = actions =>
-  _.reduce(
-    actions,
-    (m, v) => {
-      m[v.user_id] = v.message;
-      return m;
-    },
-    {}
-  );
-
-const logResponses = (hull, responses) =>
-  _.map(getLoggableMessages(responses), (actions, name) => {
-    hull.logger.info(`outgoing.user.${name}`, {
-      user_ids: _.map(actions, "user_id"),
-      data: reduceActionUsers(actions)
-    });
-  });
 
 const getSegmentChangeEvents = ({ event, synchronized_segment, changes }) => {
   const { left = [], entered = [] } = changes.segments || {};
@@ -61,44 +41,25 @@ const getSegmentChangeEvents = ({ event, synchronized_segment, changes }) => {
 };
 
 const update = (connectSlack: ConnectSlackFunction) => async (
-  { client, connector, metric }: HullContext,
+  ctx: HullContext,
   messages: Array<HullUserUpdateMessage>
 ): HullNotificationResponse => {
+  const { client, connector, metric } = ctx;
+  const { private_settings = {} } = connector;
+  const {
+    token = "",
+    user_id = "",
+    notify_events = [],
+    attachements = []
+  } = private_settings;
   try {
-    const { getBot } = await connectSlack({
-      client,
-      connector
-    });
-    const post = async (userClient, payload, channel) => {
-      userClient.logger.info("outgoing.user.success", {
-        text: payload.text,
-        channel
-      });
-      metric.increment("ship.service_api.call");
-      const bot = await getBot(connector);
-      await bot.startConversationInChannel(channel);
-      await bot.say(payload);
-      return true;
-    };
-    const tellOperator = async (userClient, user_id, msg, error) => {
-      userClient.logger.info("outgoing.user.error", { error, message: msg });
-      const bot = await getBot(connector);
-      await bot.startPrivateConversation(user_id);
-      bot.say(msg);
-    };
+    const { post, tellOperator } = await connectSlack(ctx);
 
     const responses = await Promise.all(
       _.map(messages, async (message: HullUserUpdateMessage) => {
         const { user } = message;
-        const { private_settings = {} } = connector;
-        const {
-          token = "",
-          user_id = "",
-          notify_events = [],
-          attachements = []
-        } = private_settings;
 
-        const userClient = client.asUser(user);
+        const scopedClient = client.asUser(user);
 
         if (!client || !user.id || !token) {
           return {
@@ -133,14 +94,19 @@ const update = (connectSlack: ConnectSlackFunction) => async (
               }
               await Promise.all(
                 eventMatches.map(async e => {
-                  const payload = await userPayload({
+                  const payload = await getNotification({
                     message: { ...message, event: e },
                     client,
                     // actions,
                     text,
                     attachements
                   });
-                  post(userClient, payload, channel);
+                  post({
+                    scopedClient,
+                    payload,
+                    channel,
+                    entity: "user"
+                  });
                 })
               );
               return null;
@@ -148,17 +114,15 @@ const update = (connectSlack: ConnectSlackFunction) => async (
           );
           return null;
         } catch (err) {
-          client.logger.error("outgoing.user.error", {
+          scopedClient.logger.error("outgoing.user.error", {
             error: err.message
           });
-          tellOperator(
-            userClient,
+          tellOperator({
             user_id,
-            `:crying_cat_face: Something bad happened while posting to the channels :${
+            msg: `:crying_cat_face: Something bad happened while posting to the channels :${
               err.message
-            }`,
-            err
-          );
+            }`
+          });
           return null;
         }
       })
