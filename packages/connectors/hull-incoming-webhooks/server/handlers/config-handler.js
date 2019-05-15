@@ -5,19 +5,17 @@ import type {
   HullExternalResponse
 } from "hull";
 import type { ConfResponse } from "../../types";
-import { encrypt } from "../lib/crypto";
 
 const confHandler = (
   ctx: HullContext,
   message: HullIncomingHandlerMessage
 ): HullExternalResponse => {
-  const { clientCredentials, connectorConfig } = ctx;
-  const { hostSecret } = connectorConfig;
+  const { clientCredentialsEncryptedToken } = ctx;
   const { hostname } = message;
-  if (hostname && clientCredentials) {
+  if (hostname && clientCredentialsEncryptedToken) {
     const data: ConfResponse = {
       hostname,
-      token: encrypt(clientCredentials, hostSecret)
+      token: clientCredentialsEncryptedToken
     };
     return {
       status: 200,
