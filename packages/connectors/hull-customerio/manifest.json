@@ -85,7 +85,7 @@
   "tabs": [
     {
       "title": "Setup",
-      "url": "admin.html",
+      "url": "/admin.html",
       "size": "small",
       "editable": false,
       "handler": "adminHandler"

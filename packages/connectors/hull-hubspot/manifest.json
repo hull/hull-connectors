@@ -313,7 +313,8 @@
       "value": "5",
       "handler": "fetch",
       "options": {
-        "fireAndForget": true
+        "fireAndForget": true,
+        "strict": false
       }
     },
     {
@@ -322,7 +323,8 @@
       "value": "5",
       "handler": "fetchRecentCompanies",
       "options": {
-        "fireAndForget": true
+        "fireAndForget": true,
+        "strict": false
       }
     },
     {
@@ -331,7 +333,8 @@
       "value": "5",
       "handler": "checkToken",
       "options": {
-        "fireAndForget": true
+        "fireAndForget": true,
+        "strict": false
       }
     }
   ],

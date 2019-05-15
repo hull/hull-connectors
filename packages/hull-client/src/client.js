@@ -135,7 +135,7 @@ class HullClient {
       };
     } else {
       const clientConfig: HullClientConfig = this.clientConfig.get();
-      this.batch = Firehose.getInstance(config, (params, batcher) => {
+      this.batch = Firehose.getInstance(clientConfig, (params, batcher) => {
         const {
           timeout,
           retry,

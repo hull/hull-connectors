@@ -4,6 +4,7 @@ import type { HullConnectorConfig } from "hull";
 import { Cache } from "hull/src/infra";
 import manifest from "../manifest.json";
 import fetchToken from "./lib/fetch-token";
+import handlers from "./handlers";
 
 export default function connectorConfig(): HullConnectorConfig {
   const {
@@ -19,7 +20,7 @@ export default function connectorConfig(): HullConnectorConfig {
     hostSecret,
     devMode: NODE_ENV === "development",
     port: PORT || 8082,
-    handlers: {},
+    handlers: handlers(),
     middlewares: [fetchToken],
     cache: new Cache({
       store: "memory",

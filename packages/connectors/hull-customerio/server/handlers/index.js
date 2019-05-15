@@ -10,7 +10,8 @@ const handlers = () => (_connector: Connector): HullHandlersConfiguration => {
     incoming: { webhookHandler },
     tabs: { adminHandler },
     batches: { updateUser },
-    subscriptions: { updateUser }
+    subscriptions: { updateUser },
+    json: { webhookHandler }
   };
 };
 
