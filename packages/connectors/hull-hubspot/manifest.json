@@ -317,7 +317,7 @@
       "properties": [
         "private_settings.handle_accounts",
         "private_settings.incoming_account_claims",
-        "private_settings.incoming_user_attributes"
+        "private_settings.incoming_account_attributes"
       ]
     },
     {
@@ -325,7 +325,7 @@
       "description": "Following section configures how we create or update `Hubspot Companies`",
       "properties": [
         "private_settings.synchronized_account_segments",
-        "private_settings.outgoing_user_attributes",
+        "private_settings.outgoing_account_attributes",
         "private_settings.link_users_in_service",
         "private_settings.link_users_in_hull"
       ]
