@@ -143,9 +143,18 @@ const glue = {
     hull("asUser", outreach("getProspectById"))
   ],
   insertProspect: [ route("linkAccount"), routeWithData("sendInsertProspect", inputParameter("user"), HullOutgoingUser) ],
-  sendInsertProspect: hull("asUser", outreachSendInput("insertProspect")),
+  sendInsertProspect:
+    ifLogic(cond("notEmpty", set("userFromOutreach", outreachSendInput("insertProspect"))), {
+      true: hull("asUser", "${userFromOutreach}"),
+      false: {}
+    }),
+
   updateProspect: [ route("linkAccount"), routeWithData("sendUpdateProspect", inputParameter("user"), HullOutgoingUser) ],
-  sendUpdateProspect: hull("asUser", outreachSendInput("updateProspect")),
+  sendUpdateProspect:
+    ifLogic(cond("notEmpty", set("userFromOutreach", outreachSendInput("updateProspect"))), {
+      true: hull("asUser", "${userFromOutreach}"),
+      false: {}
+    }),
   accountUpdateStart: route("accountUpsert"),
   accountUpsert:
     ifLogic(cond("notEmpty", set("accountId", inputParameter("account.outreach/id"))), {
@@ -173,10 +182,17 @@ const glue = {
       ]
     ),
   insertAccount: routeWithData("sendInsertAccount", inputParameter("account"), HullOutgoingAccount),
-  sendInsertAccount: hull("asAccount", outreachSendInput("insertAccount")),
+  sendInsertAccount:
+    ifLogic(cond("notEmpty", set("accountFromOutreach", outreachSendInput("insertAccount"))), {
+      true: hull("asAccount", "${accountFromOutreach}"),
+        false: {}
+  }),
   updateAccount: routeWithData("sendUpdateAccount", inputParameter("account"), HullOutgoingAccount),
-  sendUpdateAccount: hull("asAccount", outreachSendInput("updateAccount")),
-
+  sendUpdateAccount:
+    ifLogic(cond("notEmpty", set("accountFromOutreach", outreachSendInput("updateAccount"))), {
+      true: hull("asAccount", "${accountFromOutreach}"),
+      false: {}
+    }),
   fetchAll: [route("accountFetchAll"), route("prospectFetchAll")],
   accountFetchAll:
     [

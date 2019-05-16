@@ -4,13 +4,13 @@
   "source": "customerio",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.0.17-monorepo",
+  "version": "0.0.20-monorepo",
   "tags": [
     "outgoing",
     "batch",
     "oneColumn",
     "smart-notifier",
-    "first-install"
+    "single-install"
   ],
   "private_settings": [
     {
@@ -51,8 +51,8 @@
       "default": false
     },
     {
-      "name": "event_filter",
-      "title": "Event Filter",
+      "name": "events_filter",
+      "title": "Events Filter",
       "description": "Send these events to Customer.io. By default, no event is sent.",
       "type": "array",
       "format": "event"
@@ -78,6 +78,27 @@
       "description": "List the attributes to send to Customer.io. We automatically send the Email, the customerId (as mapped above) and an attribute called `hull_segments` that contains the names of all the segments the User belongs to",
       "type": "array",
       "format": "trait"
+    },
+    {
+      "name": "max_attribute_name_length",
+      "description": "Maximum Attribute Name Length Validation",
+      "type": "number",
+      "default": 150,
+      "format": "hidden"
+    },
+    {
+      "name": "max_attribute_value_length",
+      "description": "Maximum Attribute Value Length Validation",
+      "type": "number",
+      "default": 1000,
+      "format": "hidden"
+    },
+    {
+      "name": "max_identifier_value_length",
+      "description": "Maximum Identifier Value Length Validation",
+      "type": "number",
+      "default": 150,
+      "format": "hidden"
     }
   ],
   "resources": [],

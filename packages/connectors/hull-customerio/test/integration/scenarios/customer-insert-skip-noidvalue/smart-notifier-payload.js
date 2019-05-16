@@ -8,5 +8,9 @@ module.exports = () => {
   _.unset(smartNotifierPayload, "messages[0].user.external_id");
   _.set(smartNotifierPayload, "messages[0].events", []);
 
+  _.set(smartNotifierPayload, "messages[0].user.customerio/created_at", _.get(smartNotifierPayload, "messages[0].user.created_at"));
+  _.set(smartNotifierPayload, "messages[0].user.customerio/email", _.get(smartNotifierPayload, "messages[0].user.email"));
+  _.set(smartNotifierPayload, "messages[0].user.customerio/id", _.get(smartNotifierPayload, "messages[0].user.email"));
+
   return smartNotifierPayload;
 };

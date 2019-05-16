@@ -76,7 +76,7 @@ class TransformImpl {
 
             // Should create something a little smarter to do local scope...
             // stack of contexts probably...
-            const context = _.assign({}, globalContext)
+            const context = _.assign({}, globalContext);
 
             if (typeof mappedField === "string") {
               context.hull_field_name = mappedField;
@@ -154,17 +154,25 @@ class TransformImpl {
               throw new Error(`Bad variable replacment on outputPath, Must always have [outputPath] for transform: ${JSON.stringify(transform)}`);
             }
 
-            if (transform.condition) {
-              if (typeof transform.condition === 'string') {
-                const value = _.get(context, transform.condition);
+            let transformConditions = [];
+            if (!Array.isArray(transform.condition)) {
+              transformConditions.push(transform.condition);
+            } else {
+              transformConditions = transform.condition;
+            }
+
+            for (let i = 0; i < transformConditions.length; i += 1) {
+              let transformCondition = transformConditions[i];
+              if (typeof transformCondition === 'string') {
+                const value = _.get(context, transformCondition);
 
                 if (isUndefinedOrNull(value)) {
                   return;
                 } else if (typeof value === 'boolean' && !value) {
                   return;
                 }
-              } else if (typeof transform.condition === 'function') {
-                if (!transform.condition(context)) {
+              } else if (typeof transformCondition === 'function') {
+                if (!transformCondition(context)) {
                   return;
                 }
               }

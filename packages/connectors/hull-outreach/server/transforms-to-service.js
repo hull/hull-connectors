@@ -1,7 +1,7 @@
 /* @flow */
 import type { Transform, ServiceTransforms } from "./shared/types";
 
-const { isNull, notNull } = require("./shared/conditionals");
+const { isNull, notNull, isEqual, doesNotContain } = require("./shared/conditionals");
 
 const {
   HullOutgoingUser,
@@ -33,6 +33,7 @@ const transformsToService: ServiceTransforms = [
       },
       {
         mapping: "connector.private_settings.outgoing_user_attributes",
+        condition: doesNotContain(["stage", "owner"], "service_field_name"),
         outputArrayFields: {
           checkField: "service_field_name",
           fields: [
@@ -47,6 +48,26 @@ const transformsToService: ServiceTransforms = [
         },
         inputPath: "${hull_field_name}",
         outputPath: "data.attributes.${service_field_name}"
+      },
+      {
+        mapping: "connector.private_settings.outgoing_user_attributes",
+        condition: isEqual("service_field_name", "stage"),
+        inputPath: "${hull_field_name}",
+        outputPath: "data.relationships.stage.data",
+        outputFormat: {
+          type: "stage",
+          id: "${value}"
+        }
+      },
+      {
+        mapping: "connector.private_settings.outgoing_user_attributes",
+        condition: isEqual("service_field_name", "owner"),
+        inputPath: "${hull_field_name}",
+        outputPath: "data.relationships.owner.data",
+        outputFormat: {
+          type: "user",
+          id: "${value}"
+        }
       },
       {
         mapping: "connector.private_settings.user_claims",

@@ -14,5 +14,7 @@ module.exports = () => {
   });
   _.set(smartNotifierPayload, "messages[0].events", []);
 
+  _.set(smartNotifierPayload, "messages[0].user.customerio/email", _.get(smartNotifierPayload, "messages[0].user.email"));
+
   return smartNotifierPayload;
 };
