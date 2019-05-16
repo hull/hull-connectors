@@ -4,20 +4,17 @@ import type { HullConnectorConfig } from "hull";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
 
-const redisStore = require("cache-manager-redis");
-const { Cache } = require("hull/src/infra");
-
 export default function connectorConfig(): HullConnectorConfig {
   const {
     LOG_LEVEL,
     SECRET,
-    SHIP_CACHE_TTL = 180,
     PORT = 8082,
     NODE_ENV,
+    SHIP_CACHE_TTL = 180,
+    OVERRIDE_FIREHOSE_URL,
     CACHE_REDIS_URL,
     CACHE_REDIS_MAX_CONNECTIONS = 5,
     CACHE_REDIS_MIN_CONNECTIONS = 1,
-    OVERRIDE_FIREHOSE_URL,
     CLIENT_ID,
     CLIENT_SECRET
   } = process.env;
@@ -37,23 +34,20 @@ export default function connectorConfig(): HullConnectorConfig {
     }),
     devMode: NODE_ENV === "development",
     port: PORT || 8082,
-    cache: CACHE_REDIS_URL
-      ? new Cache({
-          store: redisStore,
+    cacheConfig: CACHE_REDIS_URL
+      ? {
+          store: "redis",
           url: CACHE_REDIS_URL,
           ttl: SHIP_CACHE_TTL,
           max: CACHE_REDIS_MAX_CONNECTIONS,
           min: CACHE_REDIS_MIN_CONNECTIONS
-        })
+        }
       : undefined,
     logsConfig: {
       logLevel: LOG_LEVEL
     },
     clientConfig: {
       firehoseUrl: OVERRIDE_FIREHOSE_URL
-    },
-    serverConfig: {
-      start: true
     }
   };
 }

@@ -382,3 +382,40 @@ const connectorConfig: HullConnectorConfig = {
 
 Hull.Connector(connectorConfig).start();
 ```
+
+### caching
+A cache mechanism is available for use in the connector.
+Here's it's signature:
+```js
+const { cache } = ctx;
+
+await cache.get('object_name');
+await cache.set('object_name', object_value);
+const object_value = await cache.wrap('object_name', () => getData());
+```
+
+_Note_: You can't use the following Cache Keys, they are reserved:
+ - any Connector ID,
+ - `segments`,
+ - `account_segments`,
+
+By default, the cache uses a Memory store. If you want to use persistence, or share it across instances, create a persistence layer such as Redis by passing the following as part of the HullConnectorConfig object at boot. We support "redis" and "memory" caches
+
+```js
+const connectorConfig: HullConnectorConfig = {
+  ...
+  cache: {
+    store: "redis",
+    url: CACHE_REDIS_URL,
+    ttl: SHIP_CACHE_TTL,
+    max: CACHE_REDIS_MAX_CONNECTIONS,
+    min: CACHE_REDIS_MIN_CONNECTIONS
+  }
+  ...
+}
+```
+
+Defaults:
+- ttl = 60 seconds,
+- max: 100 Items
+- store: "memory"

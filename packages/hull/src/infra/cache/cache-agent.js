@@ -1,5 +1,6 @@
 // @flow
 import type { HullContext, HullCacheConfig } from "hull";
+import redisStore from "cache-manager-redis";
 
 const cacheManager = require("cache-manager");
 const ConnectorCache = require("./connector-cache");
@@ -35,15 +36,13 @@ const PromiseReuser = require("../../utils/promise-reuser");
  * @memberof Infra
  * @param {Object} options passed to node-cache-manager
  * @example
- * const redisStore = require("cache-manager-redis");
- * const { Cache } = require("hull/lib/infra");
  *
- * const cache = new Cache({
- *   store: redisStore,
+ * const cacheConfig = {
+ *   store: "redis",
  *   url: 'redis://:XXXX@localhost:6379/0?ttl=600'
- * });
+ * };
  *
- * const connector = new Hull.Connector({ cache });
+ * const connector = new Hull.Connector({ cacheConfig });
  */
 class CacheAgent {
   cache: any;
@@ -53,13 +52,11 @@ class CacheAgent {
   promiseReuser: PromiseReuser;
 
   constructor(options: HullCacheConfig) {
-    const opts = {
-      ttl: 60 /* seconds */,
-      max: 100 /* items */,
-      store: "memory",
-      ...options
-    };
-    this.cache = cacheManager.caching(opts);
+    const { store } = options;
+    this.cache = cacheManager.caching({
+      ...options,
+      store: store === "redis" ? redisStore : "memory"
+    });
     this.getConnectorCache = this.getConnectorCache.bind(this);
     this.promiseReuser = new PromiseReuser();
   }

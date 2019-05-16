@@ -8,6 +8,7 @@ import type {
   HullRouteMap,
   HullMetricsConfig,
   HullLogsConfig,
+  HullCacheConfig,
   HullHTTPClientConfig,
   HullClientConfig,
   HullWorkerConfig,
@@ -100,6 +101,8 @@ class HullConnector {
 
   manifest: $PropertyType<HullConnectorConfig, "manifest">;
 
+  resolvedConfig: HullConnectorConfig;
+
   connectorConfig: HullConnectorConfig;
 
   serverConfig: HullServerConfig;
@@ -113,6 +116,8 @@ class HullConnector {
   metricsConfig: HullMetricsConfig;
 
   logsConfig: HullLogsConfig;
+
+  cacheConfig: HullCacheConfig;
 
   cache: Cache;
 
@@ -144,7 +149,7 @@ class HullConnector {
     const {
       manifest,
       instrumentation,
-      cache,
+      cacheConfig,
       queue,
       clientConfig,
       serverConfig,
@@ -158,13 +163,20 @@ class HullConnector {
       disableOnExit = false
     } = resolvedConfig;
 
-    this.connectorConfig = resolvedConfig;
+    this.resolvedConfig = resolvedConfig;
     this.clientConfig = {
       ...clientConfig,
       connectorName: clientConfig.connectorName || connectorName
     };
     this.logsConfig = logsConfig || {};
     this.metricsConfig = metricsConfig || {};
+    this.cacheConfig = {
+      ttl: 60, // Seconds
+      max: 100, // Items
+      store: "memory",
+      ...cacheConfig
+    };
+    this.cache = new Cache(this.cacheConfig);
     this.workerConfig = workerConfig || {};
     this.httpClientConfig = httpClientConfig || {};
     this.serverConfig = serverConfig || { start: true };
@@ -175,8 +187,19 @@ class HullConnector {
     this.manifest = manifest;
     this.instrumentation =
       instrumentation || new Instrumentation(this.metricsConfig, manifest);
-    this.cache = cache || new Cache();
     this.queue = queue || new Queue();
+
+    // Rebuild a sanitized and defaults-enriched Conenctor Config
+    this.connectorConfig = {
+      ...resolvedConfig,
+      clientConfig: this.clientConfig,
+      workerConfig: this.workerConfig,
+      httpClientConfig: this.httpClientConfig,
+      serverConfig: this.serverConfig,
+      metricsConfig: this.metricsConfig,
+      logsConfig: this.logsConfig,
+      cacheConfig: this.cacheConfig
+    };
 
     if (this.logsConfig.logLevel) {
       this.Client.logger.transports.console.level = this.logsConfig.logLevel;

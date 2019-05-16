@@ -4,8 +4,6 @@ import type { HullConnectorConfig } from "hull";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
 
-const { Cache } = require("hull/src/infra");
-
 export default function connectorConfig(): HullConnectorConfig {
   const {
     LOG_LEVEL,
@@ -32,10 +30,10 @@ export default function connectorConfig(): HullConnectorConfig {
     }),
     devMode: NODE_ENV === "development",
     port: PORT || 8082,
-    cache: new Cache({
+    cache: {
       store: "memory",
       isCacheableValue: () => false
-    }),
+    },
     logsConfig: {
       logLevel: LOG_LEVEL
     },

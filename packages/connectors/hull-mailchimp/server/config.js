@@ -5,7 +5,7 @@ import _ from "lodash";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
 
-const { Queue, Cache } = require("hull/src/infra");
+const { Queue } = require("hull/src/infra");
 const KueAdapter = require("hull/src/infra/queue/adapter/kue");
 
 export default function connectorConfig(): HullConnectorConfig {
@@ -64,11 +64,11 @@ export default function connectorConfig(): HullConnectorConfig {
     clientConfig: {
       firehoseUrl: OVERRIDE_FIREHOSE_URL
     },
-    cache: new Cache({
+    cache: {
       store: "memory",
       max: !_.isNil(SHIP_CACHE_MAX) ? parseInt(SHIP_CACHE_MAX, 10) : 100,
       ttl: !_.isNil(SHIP_CACHE_TTL) ? parseInt(SHIP_CACHE_TTL, 10) : 60
-    }),
+    },
     queue: new Queue(
       new KueAdapter({
         prefix: KUE_PREFIX,

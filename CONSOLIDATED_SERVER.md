@@ -97,21 +97,6 @@ Here's a short recap of the parameters format and behaviour:
 - Optional
 - format: HullInstrumentation,
 
-#### cache
-- Optional
-- format: Hull Cache,
-
-```js
-const { Cache } = require("hull/src/infra");
-if (CACHE_REDIS_URL) {
-  cache = new Cache({
-    store: redisStore,
-    url: CACHE_REDIS_URL,
-    ttl: SHIP_CACHE_TTL
-  });
-}
-```
-
 #### queue
 - Optional
 - format: Hull Queue,

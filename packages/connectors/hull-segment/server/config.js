@@ -1,8 +1,6 @@
 // @flow
 
 import type { HullConnectorConfig } from "hull";
-import redisStore from "cache-manager-redis";
-import { Cache } from "hull/src/infra";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
 import authMiddleware from "./lib/segment-auth-middleware";
@@ -31,12 +29,10 @@ export default function connectorConfig(): HullConnectorConfig {
     clientConfig: {
       firehoseUrl: OVERRIDE_FIREHOSE_URL
     },
-    cache:
-      REDIS_URL &&
-      new Cache({
-        store: redisStore,
-        url: REDIS_URL,
-        ttl: SHIP_CACHE_TTL
-      })
+    cache: REDIS_URL && {
+      store: "redis",
+      url: REDIS_URL,
+      ttl: SHIP_CACHE_TTL
+    }
   };
 }

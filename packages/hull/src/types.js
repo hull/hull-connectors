@@ -278,11 +278,20 @@ export type HullMetricsConfig = {
 export type HullLogsConfig = {
   logLevel?: ?string
 };
-export type HullCacheConfig = {
-  ttl?: number,
-  max?: number,
-  store?: string
-};
+export type HullCacheConfig =
+  | {
+      store: "memory",
+      ttl?: number,
+      max?: number,
+      min?: number
+    }
+  | {
+      store: "redis",
+      url: string,
+      ttl?: number,
+      max?: number,
+      min?: number
+    };
 export type HullClientCredentials = {
   id: string,
   secret: string,
@@ -293,6 +302,7 @@ export type HullConnectorConfig = {
   serverConfig?: HullServerConfig,
   workerConfig?: HullWorkerConfig,
   metricsConfig?: HullMetricsConfig,
+  cacheConfig?: HullCacheConfig,
   httpClientConfig?: HullHTTPClientConfig,
   logsConfig?: HullLogsConfig,
   hostSecret: string,
@@ -305,7 +315,6 @@ export type HullConnectorConfig = {
   devMode?: boolean,
   json?: HullJsonConfig,
   instrumentation?: Instrumentation,
-  cache?: void | Cache,
   queue?: void | Queue,
   handlers:
     | HullHandlersConfiguration
