@@ -5,7 +5,6 @@
  * @public
  * @example
  * const instrumentation = new Instrumentation();
- * const cache = new Cache();
  * const queue = new Queue();
  *
  * const connector = new Hull.Connector({ instrumentation, cache, queue });

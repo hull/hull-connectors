@@ -1,6 +1,11 @@
 // @flow
 
-import type { HullClient as Hull, HullContext, HullConnector } from "hull";
+import type {
+  HullClient as Hull,
+  HullClientCredentials,
+  HullContext,
+  HullConnector
+} from "hull";
 
 type SlackChannel = {};
 type SlackMember = {};
@@ -30,7 +35,6 @@ export type SlackBotConfig = {
 };
 
 export type SlackInstance = {
-  hull: Hull,
   teamChannels?: Array<SlackChannel>,
   teamMembers?: Array<SlackMember>,
   botConfig: SlackBotConfig,

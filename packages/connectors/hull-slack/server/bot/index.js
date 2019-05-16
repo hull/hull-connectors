@@ -1,178 +1,204 @@
-// @noflow
-import Hull from "hull";
-import getNotification from "../lib/get-notification";
-import getSearchHash from "../lib/get-search-hash";
-import fetchUser from "../hull/fetch-user";
-import messages from "./messages";
-import ack from "./ack";
-import getMessageLogData from "../lib/get-log-data";
+// @flow
+import type { $Application } from "express";
+import { Botkit } from "botkit";
+import {
+  SlackAdapter,
+  SlackMessageTypeMiddleware,
+  SlackEventMiddleware,
+  SlackBotConfig
+} from "botbuilder-adapter-slack";
 
-function _replaceBotName(bot, m = "") {
-  return m.replace(/@hull/g, `@${bot.identity.name}`);
-}
+import _ from "lodash";
+import type {
+  ConnectedSlack,
+  HullSlackContext,
+  SlackConnectorSettings,
+  SlackInstance
+} from "../types";
+import interactiveMessage from "./interactive-message";
+import { replies, join } from "./replies";
+import setupChannels from "./setup-channels";
 
-/* Special Conversations */
-export function welcome(bot, user_id) {
-  bot.startPrivateConversation({ user: user_id }, (error, convo) => {
-    if (error) return console.log(error);
-    convo.say(messages.welcome);
-    return true;
-  });
-}
+import getTeamChannels from "../lib/get-team-channels";
+import getNotifyChannels from "../lib/get-notify-channels";
+import getUniqueChannelNames from "../lib/get-unique-channel-names";
 
-export function join(bot, message) {
-  bot.say({
-    text: messages.join,
-    channel: message.channel
-  });
-}
+type BotFactoryParams = {
+  webserver: $Application,
+  devMode?: boolean,
+  scopes: Array<string>,
+  clientSecret: string,
+  signingSecret?: string,
+  clientID: string
+};
 
-/* STANDARD BOT REPLIES, WRAPPED WITH LOGGING */
+type BotCache = {
+  [string]: SlackInstance
+};
+module.exports = function BotFactory({
+  webserver,
+  scopes,
+  clientID,
+  clientSecret,
+  signingSecret,
+  devMode = false
+}: BotFactoryParams) {
+  const _bots: BotCache = {};
 
-function sad(hull, bot, message, err) {
-  hull.logger.error("bot.error", { error: err });
-  return bot.reply(message, `:scream: Something bad happened (${err.message})`);
-}
-function rpl(hull, bot, message, res = {}) {
-  hull.logger.info("bot.reply", {
-    ...getMessageLogData(message),
-    text: res.text
-  });
-  return bot.reply(message, res);
-}
-
-/* MAIN USER ACTION */
-const postUser = (getByTeam, type, options = {}) =>
-  async function post(bot, msg) {
-    ack(bot, msg, "mag_right");
-    const search = getSearchHash(type, msg);
-    const { actions, attachements, hull } = getByTeam(msg.team);
-    console.log(search, msg.matches);
-    const msgdata = getMessageLogData(msg);
-    hull.logger.info("bot.hear", {
-      type,
-      search,
-      options,
-      ...msgdata
-    });
-
-    try {
-      const {
-        user,
-        account,
-        events,
-        segments,
-        pagination,
-        message = ""
-      } = await fetchUser({ hull, search, options });
-
-      if (!user) {
-        hull.logger.info("user.fetch.fail", { message, search, type });
-        throw new Error(`¯\\_(ツ)_/¯ ${message}`);
-      }
-
-      hull.logger.info("user.fetch.success", { ...msgdata, search, type });
-
-      // const { action = {} } = options;
-      // const payload = ;
-      // const { user, account, events, segments } = message;
-      //
-      // if (action.name === "expand") {
-      //   // if there is a search, set group name to search,
-      //   // else set to action value;
-      //   payload.group =
-      //     search.rest === "full" ? "traits" : search.rest || action.value;
-      // }
-
-      const res = await getNotification({
-        hull,
-        message: { user, account, events, segments },
-        attachements,
-        actions,
-        entity: "user"
-      });
-      hull.logger.debug("outgoing.user.reply", res);
-      if (pagination.total > 1) {
-        res.text = `Found ${pagination.total} users, Showing ${res.text}`;
-      }
-      rpl(hull, bot, msg, res);
-    } catch (err) {
-      sad(hull, bot, msg, err);
-      throw err;
+  const cache = (team_id?: string, payload): SlackInstance | void => {
+    if (!team_id) {
+      return undefined;
     }
+    //   throw new Error("Tried to access the cache without a Team ID");
+    _bots[team_id] = { ...payload };
+    return _bots[team_id];
   };
 
-/* BUTTONS */
-export const replies = getByTeam => [
-  {
-    message: new RegExp(
-      /^(info|search|whois|who is)?\s+<(mailto):(.+?)\|(.+?)>$/
-    ),
-    context: "direct_message,mention,direct_mention",
-    reply: postUser(getByTeam, "email")
-  },
-  {
-    message: new RegExp(/^<(mailto):(.+)|(.+)>$/),
-    context: "direct_message,mention,direct_mention",
-    reply: postUser(getByTeam, "email")
-  },
-  // {
-  //   message: [
-  //     "^\\s*<(mailto):(.+?)\\|(.+)>\\s+(.*)$",
-  //     "^attributes\\s*<(mailto):(.+?)\\|(.+)>\\s+(.*)$"
-  //   ],
-  //   context: "direct_message,mention,direct_mention",
-  //   reply: postUser(getByTeam, "email", {
-  //     action: { name: "expand", value: "traits" }
-  //   })
-  // },
-  // {
-  //   message: ["^events\\s<(mailto):(.+?)\\|(.+)>\\s*$"],
-  //   context: "direct_message,mention,direct_mention",
-  //   reply: postUser(getByTeam, "email", {
-  //     action: { name: "expand", value: "events" }
-  //   })
-  // },
-  {
-    message: new RegExp(/^(info|search)\sid:(.+)/),
-    context: "direct_message,mention,direct_mention",
-    reply: postUser(getByTeam, "id")
-  },
-  {
-    message: new RegExp(/^info\s"(.+)"\s?(.*)$', "^info (.+)$/),
-    context: "direct_message,mention,direct_mention",
-    reply: postUser(getByTeam, "name")
-  },
-  {
-    message: ["hello", "hi"],
-    context: "direct_message,mention,direct_mention", // Default
-    reply: (bot, message) => {
-      const hull = new Hull(bot.config.hullConfig);
-      return rpl(hull, bot, message, messages.hi);
+  const getByTeam = (team_id: string): SlackInstance => _bots[team_id];
+
+  const getBotConfig = (team_id: string): SlackBotConfig => {
+    return (getByTeam(team_id) || {}).botConfig || {};
+  };
+
+  const adapter = new SlackAdapter({
+    clientSigningSecret: signingSecret,
+    clientId: clientID,
+    clientSecret,
+    scopes,
+    redirectUri: "/auth/success",
+    getTokenForTeam: async tid => getBotConfig(tid).bot_access_token,
+    getBotUserByTeam: async tid => getBotConfig(tid).bot_user_id
+  });
+  adapter.use(new SlackEventMiddleware());
+  adapter.use(new SlackMessageTypeMiddleware());
+
+  const controller = new Botkit({
+    clientId: clientID,
+    clientSecret,
+    webserver,
+    adapter,
+    stats_optout: true,
+    interactive_replies: true,
+    debug: devMode
+  });
+
+  async function getBot({ private_settings = {} }: SlackConnectorSettings) {
+    const { team_id } = private_settings;
+    if (!team_id) {
+      throw new Error("Can't find a team ID for this Hull connector instance");
     }
-  },
-  {
-    message: "help",
-    context: "direct_message,mention,direct_mention", // Default
-    reply: (bot, message) => {
-      const m = messages[message.text];
-      const hull = new Hull(bot.config.hullConfig);
-      if (m) return rpl(hull, bot, message, _replaceBotName(bot, m));
-      return rpl(hull, bot, message, messages.notfound);
+    return controller.spawn(team_id);
+  }
+
+  async function connectSlack({
+    client,
+    clientCredentials,
+    connector,
+    metric
+  }: HullSlackContext): Promise<ConnectedSlack> {
+    const { private_settings = {} } = connector;
+    const {
+      bot: botConfig,
+      // actions,
+      attachements,
+      token: app_token,
+      team_id
+    } = private_settings;
+
+    if (!botConfig) {
+      throw new Error(
+        `Settings are invalid: private_settings:${JSON.stringify(
+          private_settings
+        )}, bot: ${!!botConfig}`
+      );
+    }
+
+    const post = async ({
+      scopedClient,
+      payload,
+      channel,
+      entity = "user"
+    }) => {
+      scopedClient.logger.info(`outgoing.${entity}.success`, {
+        text: payload.text,
+        channel
+      });
+      metric.increment("ship.service_api.call");
+      const bot = await getBot(connector);
+      await bot.startConversationInChannel(channel);
+      await bot.say(payload);
+      return true;
+    };
+    const tellOperator = async ({ user_id, msg }) => {
+      const bot = await getBot(connector);
+      await bot.startPrivateConversation(user_id);
+      bot.say(msg);
+    };
+
+    try {
+      const channels = getUniqueChannelNames(getNotifyChannels(connector));
+      let slackInstance = getByTeam(team_id);
+      if (slackInstance) {
+        return {
+          slackInstance: { ...slackInstance },
+          post,
+          tellOperator,
+          getBot
+        };
+      }
+
+      // First, cache the partial config so that the adapter can find it.
+      cache(team_id, {
+        // actions,
+        // attachements,
+        botConfig,
+        clientCredentials
+      });
+
+      const bot = await getBot(connector);
+      const { teamMembers, teamChannels } = await setupChannels({
+        hull: client,
+        bot,
+        token: app_token,
+        channels
+      });
+      // Then cache the full config over it;
+      slackInstance = cache(team_id, {
+        botConfig,
+        // actions,
+        attachements,
+        clientCredentials,
+        teamMembers,
+        teamChannels
+      });
+      // const { bot } = botSetup;
+      client.logger.info("register.success");
+      client.logger.info("register.success");
+      controller.on("bot_channel_join", join);
+      controller.on("bot_channel_join", () => getTeamChannels(bot));
+      controller.on("bot_channel_leave", () => getTeamChannels(bot));
+      controller.on("interactive_message_callback", interactiveMessage);
+      _.map(
+        replies(getByTeam),
+        ({ message = "test", context = "direct_message", reply = () => {} }) =>
+          controller.hears(message, context, reply)
+      );
+      return {
+        slackInstance: { ...slackInstance },
+        post,
+        tellOperator,
+        getBot
+      };
+    } catch (err) {
+      client.logger.error("register.error", {
+        error: err.message
+      });
+      throw err;
     }
   }
-  // {
-  //   message: new RegExp(/^kill$/,
-  //   reply: (bot, message) => {
-  //     ack(bot, message, "cry");
-  //     bot.reply(message, ":wave: Bby");
-  //     bot.rtm.close();
-  //   }
-  // }
-  //   message: [
-  //     "^set\\s+<(mailto):(.+?)\\|(.+)>\\s+(.+)$"
-  //   ],
-  //   context: "direct_message,mention,direct_mention",
-  //   reply: traitUser("email")
-  // }, {
-];
+
+  return {
+    controller,
+    connectSlack
+  };
+};

@@ -7,7 +7,7 @@ import oauth from "./oauth";
 import userUpdate from "./user-update";
 import accountUpdate from "./account-update";
 import shipUpdate from "./ship-update";
-import BotFactory from "../bot-factory";
+import BotFactory from "../bot";
 
 const handler = ({
   clientID,

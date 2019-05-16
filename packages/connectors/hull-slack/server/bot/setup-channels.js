@@ -1,7 +1,7 @@
 // @noflow
 import _ from "lodash";
-import getTeamChannels from "./get-team-channels";
-import getTeamMembers from "./get-team-members";
+import getTeamChannels from "../lib/get-team-channels";
+import getTeamMembers from "../lib/get-team-members";
 
 function joinChannels(bot, token, channels) {
   const user = bot.config.bot_id;

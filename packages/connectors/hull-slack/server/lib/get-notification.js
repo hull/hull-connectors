@@ -19,7 +19,7 @@ const interpolateText = async (text, message) => {
   return msg;
 };
 
-module.exports = async function userPayload({
+module.exports = async function getNotification({
   client,
   message,
   text,
