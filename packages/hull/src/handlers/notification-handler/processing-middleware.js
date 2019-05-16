@@ -8,6 +8,7 @@ import type {
   HullResponse
 } from "../../types";
 import processHullMessage from "../process-hull-messages";
+import { MissingHandlerError } from "../../errors";
 
 const debug = require("debug")("hull-connector:notification-handler");
 
@@ -42,7 +43,9 @@ function notificationHandlerProcessingMiddlewareFactory(
       // Force using the first handler. ignore the others.
       const handler = _.find(configuration, { channel });
       if (!handler) {
-        throw new Error(`Missing handler for this channel: ${channel}`);
+        throw new MissingHandlerError(
+          `Missing handler for this channel: ${channel}`
+        );
       }
       const { options = {}, callback } = handler;
       const defaultSuccessFlowControl = notificationDefaultFlowControl(

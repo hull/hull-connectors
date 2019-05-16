@@ -8,7 +8,8 @@ const { notificationDefaultFlowControl } = require("../../utils");
 const {
   ConfigurationError,
   TransientError,
-  NotificationValidationError
+  NotificationValidationError,
+  MissingHandlerError
 } = require("../../errors");
 
 function errorToResponse(error) {
@@ -50,7 +51,7 @@ function notificationHandlerErrorMiddlewareFactory() {
     const { channel } = req.hull.notification;
 
     // channel unsupported
-    if (err.message === "Channel unsupported") {
+    if (err instanceof MissingHandlerError) {
       const defaultUnsupportedFlowControl = notificationDefaultFlowControl(
         req.hull,
         channel,

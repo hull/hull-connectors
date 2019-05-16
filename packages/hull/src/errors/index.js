@@ -11,6 +11,7 @@ module.exports = {
   RateLimitError: require("./rate-limit-error"),
   RecoverableError: require("./recoverable-error"),
   TransientError: require("./transient-error"),
+  MissingHandlerError: require("./missing-handler-error"),
   LogicError: require("./logic-error"),
   NotificationValidationError: require("./notification-validation-error"),
   ValidationError: require("./validation-error")
