@@ -55,7 +55,7 @@ const processHullMessage = ({
   // });
 
   const trim =
-    channel === "user:update" ? fp.identity : trimTraitsPrefixFromUserMessage;
+    channel === "user:update" ? trimTraitsPrefixFromUserMessage : fp.identity;
 
   // const filterMatches = isBatch ? fp.identity : filterMatchingSegments;
 

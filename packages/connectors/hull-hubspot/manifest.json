@@ -316,7 +316,7 @@
       "handler": "fetch",
       "options": {
         "fireAndForget": true,
-        "strict": false
+        "strict": true
       }
     },
     {
@@ -326,7 +326,7 @@
       "handler": "fetchRecentCompanies",
       "options": {
         "fireAndForget": true,
-        "strict": false
+        "strict": true
       }
     },
     {
@@ -336,7 +336,7 @@
       "handler": "checkToken",
       "options": {
         "fireAndForget": true,
-        "strict": false
+        "strict": true
       }
     }
   ],
