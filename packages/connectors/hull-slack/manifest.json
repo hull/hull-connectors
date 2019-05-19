@@ -288,18 +288,16 @@
       "handler": "oauth",
       "options": {
         "type": "oauth",
-        "params": {
-          "name": "Slack",
-          "strategy": {
-            "scope": ["bot", "channels:write"],
-            "skipUserProfile": true
-          },
-          "views": {
-            "login": "login.html",
-            "home": "home.html",
-            "failure": "failure.html",
-            "success": "success.html"
-          }
+        "name": "Slack",
+        "strategy": {
+          "scope": ["bot", "channels:write"],
+          "skipUserProfile": true
+        },
+        "views": {
+          "login": "login.html",
+          "home": "home.html",
+          "failure": "failure.html",
+          "success": "success.html"
         }
       }
     }

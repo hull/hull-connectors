@@ -86,28 +86,26 @@
       "method": "use",
       "options": {
         "type": "OAuth",
-        "params": {
-          "name": "Typeform",
-          "tokenInUrl": false,
-          "strategy": {
-            "authorizationURL": "https://api.outreach.io/oauth/authorize",
-            "tokenURL": "https://api.outreach.io/oauth/token",
-            "grant_type": "authorization_code",
-            "scope": [
-              "forms:read",
-              "responses:read",
-              "webhooks:read",
-              "webhooks:write",
-              "workspaces:read",
-              "offline"
-            ]
-          },
-          "views": {
-            "login": "login.html",
-            "home": "home.html",
-            "failure": "failure.html",
-            "success": "success.html"
-          }
+        "name": "Typeform",
+        "tokenInUrl": false,
+        "strategy": {
+          "authorizationURL": "https://api.outreach.io/oauth/authorize",
+          "tokenURL": "https://api.outreach.io/oauth/token",
+          "grant_type": "authorization_code",
+          "scope": [
+            "forms:read",
+            "responses:read",
+            "webhooks:read",
+            "webhooks:write",
+            "workspaces:read",
+            "offline"
+          ]
+        },
+        "views": {
+          "login": "login.html",
+          "home": "home.html",
+          "failure": "failure.html",
+          "success": "success.html"
         }
       }
     }
