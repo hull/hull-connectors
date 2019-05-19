@@ -256,27 +256,25 @@
       "handler": "authHandler",
       "options": {
         "type": "OAuth",
-        "params": {
-          "tokenInUrl": true,
-          "name": "Outreach",
-          "strategy": {
-            "authorizationURL": "https://api.outreach.io/oauth/authorize",
-            "tokenURL": "https://api.outreach.io/oauth/token",
-            "grant_type": "authorization_code",
-            "scope": [
-              "create_prospects",
-              "prospects.all",
-              "create_accounts",
-              "accounts.all",
-              "webhooks.all"
-            ]
-          },
-          "views": {
-            "login": "login.html",
-            "home": "home.html",
-            "failure": "failure.html",
-            "success": "success.html"
-          }
+        "tokenInUrl": true,
+        "name": "Outreach",
+        "strategy": {
+          "authorizationURL": "https://api.outreach.io/oauth/authorize",
+          "tokenURL": "https://api.outreach.io/oauth/token",
+          "grant_type": "authorization_code",
+          "scope": [
+            "create_prospects",
+            "prospects.all",
+            "create_accounts",
+            "accounts.all",
+            "webhooks.all"
+          ]
+        },
+        "views": {
+          "login": "login.html",
+          "home": "home.html",
+          "failure": "failure.html",
+          "success": "success.html"
         }
       }
     },

@@ -126,12 +126,9 @@ function OAuthHandlerFactory({
   options: opts,
   callback
 }: {
-  options: {
-    params: HullOAuthHandlerOptions
-  },
+  options: HullOAuthHandlerOptions,
   callback: () => HullOAuthHandlerParams
 }): void | HullRouteMap {
-  const { params } = opts;
   const handlerParams = callback();
   if (!handlerParams) {
     return undefined;
@@ -144,7 +141,7 @@ function OAuthHandlerFactory({
     clientID,
     clientSecret
   } = handlerParams;
-  const { tokenInUrl, name, strategy, views } = params;
+  const { tokenInUrl, name, strategy, views, status } = opts;
   const { router } = getRouter({
     options: {
       credentialsFromQuery: true,
@@ -248,7 +245,7 @@ function OAuthHandlerFactory({
     authorize
   );
 
-  router.get(FAILURE_URL, function loginFailue(
+  router.get(FAILURE_URL, function failure(
     req: HullRequest,
     res: HullResponse
   ) {
@@ -257,7 +254,10 @@ function OAuthHandlerFactory({
     return res.render(views.failure, { name, urls: getURLs(req) });
   });
 
-  router.get(SUCCESS_URL, function login(req: HullRequest, res: HullResponse) {
+  router.get(SUCCESS_URL, function success(
+    req: HullRequest,
+    res: HullResponse
+  ) {
     const { client } = req.hull;
     client.logger.debug("connector.oauth.success");
     return res.render(views.success, { name, urls: getURLs(req) });

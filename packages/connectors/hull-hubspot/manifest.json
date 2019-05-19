@@ -349,17 +349,15 @@
       "handler":"auth",
       "options": {
         "type": "OAuth",
-        "params": {
-          "name": "Hubspot",
-          "strategy": {
-            "scope": ["oauth", "contacts", "timeline"]
-          },
-          "views": {
-            "login": "login.html",
-            "home": "home.html",
-            "failure": "failure.html",
-            "success": "success.html"
-          }
+        "name": "Hubspot",
+        "strategy": {
+          "scope": ["oauth", "contacts", "timeline"]
+        },
+        "views": {
+          "login": "login.html",
+          "home": "home.html",
+          "failure": "failure.html",
+          "success": "success.html"
         }
       }
     }
