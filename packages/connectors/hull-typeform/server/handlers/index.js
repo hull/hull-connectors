@@ -18,6 +18,9 @@ const handlers = ({
   clientSecret: string
 }) => (_connector: Connector): HullHandlersConfiguration => ({
   schedules: { fetchRecentResponses, refreshAccessToken },
+  credentials: {
+    oauth: oauth({ clientID, clientSecret })
+  },
   json: {
     fetchRecentResponses,
     fetchAllResponses,

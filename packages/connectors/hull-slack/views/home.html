@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>Hull <%= name %></title>
+  <title>Hull Slack connector</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
@@ -12,25 +12,11 @@
         <div class="row">
           <div class="col-sm-6 col-md mt-4 mb-4">
             <div class="flex-row flex-align-center justify-content-center">
-              <div class="check valid"><i class="icon icon-valid"></i></div>
-              <h5 class="pl-2 m-0"><%=name%> Credentials Saved</h5>
-            </div>
-          </div>
-          <div class="col-sm-6 col-md mt-4 mb-4">
-            <div class="flex-row flex-align-center justify-content-center">
-              <div class="check <%=(connected)?'valid':'cross'%>"><i class="icon icon-<%=(connected)?"valid":"cross"%>"></i></div>
+              <div class="check <%=(credentials)?'valid':'cross'%>"><i class="icon icon-<%=(credentials)?"valid":"cross"%>"></i></div>
               <div>
-                <% if(!connected) { %>
-                  <span class='pull-right'><a href="#" id="reconnect_button" class='btn btn-rounded btn-pill btn-secondary'>Reconnect Bot</a></span>
-                <% } %>
-                <h5 class="pl-2 m-0"><%=name%> Bot <%=(connected)?"Online":"Offline"%></h5>
+                <h5 class="pl-2 m-0"><%=(credentials)?"Credentials Saved":"Missing Credentials"%></h5>
               </div>
             </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <a href="<%=urls.home%>&reset=true" class='btn btn-rounded btn-block btn-primary'>Start over</a>
           </div>
         </div>
       </div>

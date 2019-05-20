@@ -8,4 +8,5 @@ module.exports.getIncomingUserClaims = require("./get-incoming-user-claims");
 module.exports.getIncomingAccountClaims = require("./get-incoming-account-claims");
 module.exports.getCompanyProperties = require("./get-company-properties");
 module.exports.oauth = require("./oauth");
+module.exports.admin = require("./admin");
 module.exports.statusCheck = require("./status-check");

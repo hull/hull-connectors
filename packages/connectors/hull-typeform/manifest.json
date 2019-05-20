@@ -1,12 +1,44 @@
 {
   "name": "Typeform",
   "description": "Fetch form responses",
-  "tags": ["incoming", "oneColumn"],
   "source": "typeform",
   "logo": "logo.png",
   "picture": "picture.png",
   "admin" : "admin",
   "version": "0.0.20-monorepo",
+  "credentials": [
+    {
+      "name": "OauthCredentials",
+      "title": "Oauth",
+      "format": "Oauth",
+      "type": "Oauth",
+      "handler": "oauth",
+      "url": "/auth",
+      "options": {
+        "status": "/status",
+        "name": "Typeform",
+        "tokenInUrl": false,
+        "strategy": {
+          "authorizationURL": "https://api.outreach.io/oauth/authorize",
+          "tokenURL": "https://api.outreach.io/oauth/token",
+          "grant_type": "authorization_code",
+          "scope": [
+            "forms:read",
+            "responses:read",
+            "webhooks:read",
+            "webhooks:write",
+            "workspaces:read",
+            "offline"
+          ]
+        },
+        "views": {
+          "failure": "failure.html",
+          "success": "success.html"
+        }
+      }
+    }
+  ],
+  "tags": ["incoming", "oneColumn"],
   "settings": [],
   "private_settings":[
     {
@@ -81,33 +113,11 @@
   ],
   "tabs": [
     {
+      "title": "Actions",
       "url": "/admin",
       "handler": "admin",
-      "method": "use",
-      "options": {
-        "type": "OAuth",
-        "name": "Typeform",
-        "tokenInUrl": false,
-        "strategy": {
-          "authorizationURL": "https://api.outreach.io/oauth/authorize",
-          "tokenURL": "https://api.outreach.io/oauth/token",
-          "grant_type": "authorization_code",
-          "scope": [
-            "forms:read",
-            "responses:read",
-            "webhooks:read",
-            "webhooks:write",
-            "workspaces:read",
-            "offline"
-          ]
-        },
-        "views": {
-          "login": "login.html",
-          "home": "home.html",
-          "failure": "failure.html",
-          "success": "success.html"
-        }
-      }
+      "size": "small",
+      "editable": false
     }
   ],
   "schedules": [

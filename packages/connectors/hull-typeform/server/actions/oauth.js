@@ -38,7 +38,11 @@ module.exports = ({
         const completed = await syncAgent.getFormResponsesCount();
         return {
           status: 200,
-          data: { completed, form_present: true }
+          data: {
+            message: `Completed form submissions: ${completed}`,
+            completed,
+            form_present: true
+          }
         };
       }
       return {

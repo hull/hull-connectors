@@ -4,6 +4,7 @@ import type { HullHandlersConfiguration, Connector } from "hull";
 import statusHandler from "./status";
 import fetchDestination from "./fetch-destinations";
 import oauth from "./oauth";
+import admin from "./admin";
 import userUpdate from "./user-update";
 import accountUpdate from "./account-update";
 import shipUpdate from "./ship-update";
@@ -43,6 +44,9 @@ const handler = ({
       fetchDestination: fetchDestination(connectSlack)
     },
     tabs: {
+      admin
+    },
+    credentials: {
       oauth: oauth({
         clientID,
         clientSecret,

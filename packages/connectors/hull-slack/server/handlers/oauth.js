@@ -1,7 +1,7 @@
 /* @flow */
 import type {
   HullContext,
-  HullExternalResponse,
+  HullStatusResponse,
   HullIncomingHandlerMessage,
   HullOAuthHandlerParams,
   HullOauthAuthorizeMessage,
@@ -21,10 +21,11 @@ module.exports = ({
   Strategy,
   clientID,
   clientSecret,
+
   isSetup: async (
     ctx: HullContext,
     message: HullIncomingHandlerMessage
-  ): HullExternalResponse => {
+  ): HullStatusResponse => {
     const { connector, client } = ctx;
     const { query = {} } = message;
     if (query.reset) throw new Error("not setup");
@@ -48,11 +49,8 @@ module.exports = ({
       });
       if (!!token && !!bot_access_token) {
         return {
-          status: 200,
-          data: {
-            credentials: true,
-            connected: true
-          }
+          status: "ok",
+          messages: ["Connected to slack"]
         };
       }
     } catch (err) {
@@ -61,13 +59,11 @@ module.exports = ({
       });
     }
     return {
-      status: 500,
-      data: {
-        credentials: false,
-        connected: false
-      }
+      status: "error",
+      messages: ["Can't Connect"]
     };
   },
+
   onAuthorize: async (
     ctx: HullContext,
     message: HullOauthAuthorizeMessage

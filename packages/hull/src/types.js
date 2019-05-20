@@ -175,6 +175,13 @@ type HullManifestHtmlConfig = {
   options?: HullHtmlHandlerOptions
 };
 
+type HullOAuthCredentialsConfig = {
+  title: string,
+  url?: string,
+  status?: string,
+  handler: string,
+  options: HullOAuthHandlerOptions
+};
 // Connector Manifest. Defines a Connector's exposed endpoints and features
 
 type HullManifestSetting = {
@@ -197,6 +204,7 @@ export type HullManifest = {
   batches?: Array<HullManifestBatch>,
   subscriptions?: Array<HullManifestNotification>,
 
+  credentials?: Array<HullOAuthCredentialsConfig>,
   tabs?: Array<HullManifestHtmlConfig>,
   html?: Array<HullManifestHtmlConfig>,
 
@@ -721,7 +729,7 @@ export type HullOAuthHandlerParams = void | {
   isSetup?: (
     ctx: HullContext,
     message: HullIncomingHandlerMessage
-  ) => HullExternalResponse,
+  ) => HullStatusResponse,
   onAuthorize?: (
     ctx: HullContext,
     message: HullOauthAuthorizeMessage
@@ -737,9 +745,8 @@ export type HullOAuthHandlerParams = void | {
 export type HullOAuthHandlerOptions = {
   name: string,
   tokenInUrl?: boolean,
+  status: string,
   views: {
-    login: string,
-    home: string,
     failure: string,
     success: string
   },

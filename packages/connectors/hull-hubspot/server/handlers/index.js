@@ -11,7 +11,8 @@ import {
   getIncomingUserClaims,
   getIncomingAccountClaims,
   getCompanyProperties,
-  oauth
+  oauth,
+  admin
 } from "../actions";
 
 import account_update from "./account-update";
@@ -49,8 +50,9 @@ const handler = ({
       accounts_segment_update
     },
     batches: { user_update, account_update },
-    tabs: {
-      auth: oauth({ hostSecret, clientID, clientSecret })
+    tabs: { admin },
+    credentials: {
+      oauth: oauth({ hostSecret, clientID, clientSecret })
     },
     statuses: { statusCheck },
     schedules: { checkToken, fetchRecentCompanies, fetch },

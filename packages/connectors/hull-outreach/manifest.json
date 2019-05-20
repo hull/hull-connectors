@@ -5,7 +5,37 @@
   "logo": "logo.png",
   "picture": "picture.png",
   "version": "0.0.20-monorepo",
-
+  "credentials": [
+    {
+      "name": "OauthCredentials",
+      "title": "Oauth",
+      "format": "Oauth",
+      "type": "Oauth",
+      "handler": "oauth",
+      "url": "/auth",
+      "options": {
+        "status": "/status",
+        "tokenInUrl": true,
+        "name": "Outreach",
+        "strategy": {
+          "authorizationURL": "https://api.outreach.io/oauth/authorize",
+          "tokenURL": "https://api.outreach.io/oauth/token",
+          "grant_type": "authorization_code",
+          "scope": [
+            "create_prospects",
+            "prospects.all",
+            "create_accounts",
+            "accounts.all",
+            "webhooks.all"
+          ]
+        },
+        "views": {
+          "failure": "failure.html",
+          "success": "success.html"
+        }
+      }
+    }
+  ],
   "tags": [
     "incoming",
     "outgoing",
@@ -16,7 +46,6 @@
     "first-install",
     "single-install"
   ],
-
   "private_settings": [
     {
       "name": "webhook_id",
@@ -247,43 +276,10 @@
   "readme": "readme.md",
   "tabs": [
     {
-      "title": "Credentials",
-      "url": "/auth",
-      "size": "small",
-      "editable": false,
-      "setup": true,
-      "method": "use",
-      "handler": "authHandler",
-      "options": {
-        "type": "OAuth",
-        "tokenInUrl": true,
-        "name": "Outreach",
-        "strategy": {
-          "authorizationURL": "https://api.outreach.io/oauth/authorize",
-          "tokenURL": "https://api.outreach.io/oauth/token",
-          "grant_type": "authorization_code",
-          "scope": [
-            "create_prospects",
-            "prospects.all",
-            "create_accounts",
-            "accounts.all",
-            "webhooks.all"
-          ]
-        },
-        "views": {
-          "login": "login.html",
-          "home": "home.html",
-          "failure": "failure.html",
-          "success": "success.html"
-        }
-      }
-    },
-    {
       "title": "Actions",
       "url": "/admin",
       "size": "small",
       "editable": false,
-      "method": "get",
       "handler": "adminHandler"
     }
   ],

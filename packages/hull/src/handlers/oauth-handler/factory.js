@@ -17,8 +17,8 @@ const passport = require("passport");
 const querystring = require("querystring");
 const debug = require("debug")("hull-connector:oauth-handler");
 
-const HOME_URL = "";
-const LOGIN_URL = "/login";
+// const HOME_URL = "";
+const LOGIN_URL = "/";
 const CALLBACK_URL = "/callback";
 const FAILURE_URL = "/failure";
 const SUCCESS_URL = "/success";
@@ -79,8 +79,6 @@ const SUCCESS_URL = "/success";
  *        scope: ['offline', 'contacts-rw', 'events-rw']
  *      },
  *      views: {
- *        login:"login.html"
- *        home:"home.html"
  *        failure:"failure.html"
  *        success:"success.html"
  *      }
@@ -104,11 +102,15 @@ function fetchToken(req: HullRequest, res: $Response, next: NextFunction) {
   const token: string = (req.query.token || req.query.state || "").toString();
   if (token && token.split(".").length === 3) {
     req.hull = req.hull || {};
-    req.hull.clientCredentialsToken = token;
+    req.hull.clientCredentialsEncryptedToken = token;
   }
   next();
 }
-function getURL(req, url, qs = { token: req.hull.clientCredentialsToken }) {
+function getURL(
+  req,
+  url,
+  qs = { token: req.hull.clientCredentialsEncryptedToken }
+) {
   const host = `https://${req.hostname}${req.baseUrl}${url}`;
   if (qs === false) return host;
   return `${host}?${querystring.stringify(qs)}`;
@@ -117,11 +119,11 @@ function getURLs(req) {
   return {
     login: getURL(req, LOGIN_URL),
     success: getURL(req, SUCCESS_URL),
-    failure: getURL(req, FAILURE_URL),
-    home: getURL(req, HOME_URL)
+    failure: getURL(req, FAILURE_URL)
+    // home: getURL(req, HOME_URL)
   };
 }
-const noopPromise = (_ctx, _message) => Promise.resolve();
+const noopPromise = (_ctx, _message) => Promise.resolve({});
 function OAuthHandlerFactory({
   options: opts,
   callback
@@ -191,27 +193,6 @@ function OAuthHandlerFactory({
 
   passport.use(OAuthStrategy);
 
-  router.get(HOME_URL, async function home(
-    req: HullRequest,
-    res: HullResponse
-  ) {
-    const { hull: ctx } = req;
-    const { connector, client } = ctx;
-    client.logger.debug("connector.oauth.home");
-    const data = { name, urls: getURLs(req), connector };
-    try {
-      const message = getMessage(req);
-      const setupResponse = await isSetup(ctx, message);
-      const { status, data: setupData } = setupResponse || {};
-      if (!status || status >= 400) {
-        throw new Error(setupResponse);
-      }
-      res.render(views.home, { ...data, ...setupData });
-    } catch (error) {
-      res.render(views.login, { ...data, ...error.data });
-    }
-  });
-
   function authorize(req: HullRequest, res: HullResponse, next: NextFunction) {
     passport.authorize(
       OAuthStrategy.name,
@@ -225,6 +206,20 @@ function OAuthHandlerFactory({
     )(req, res, next);
   }
 
+  /* Returns status as a JSON */
+  router.get(status, async function statusResponse(
+    req: HullRequest,
+    res: HullResponse
+  ) {
+    try {
+      const response = await isSetup(req.hull, getMessage(req));
+      res.json(response);
+    } catch (err) {
+      res.status(500).json({ error: err.data });
+    }
+  });
+
+  /* Redirects to Service's Auth Page */
   router.all(
     LOGIN_URL,
     async (req: HullRequest, res: HullResponse, next: NextFunction) => {
@@ -245,6 +240,7 @@ function OAuthHandlerFactory({
     authorize
   );
 
+  /* failed auth */
   router.get(FAILURE_URL, function failure(
     req: HullRequest,
     res: HullResponse
@@ -254,15 +250,7 @@ function OAuthHandlerFactory({
     return res.render(views.failure, { name, urls: getURLs(req) });
   });
 
-  router.get(SUCCESS_URL, function success(
-    req: HullRequest,
-    res: HullResponse
-  ) {
-    const { client } = req.hull;
-    client.logger.debug("connector.oauth.success");
-    return res.render(views.success, { name, urls: getURLs(req) });
-  });
-
+  /* receives the data from the services, saves it and redirects to next step */
   router.get(
     CALLBACK_URL,
     authorize,
@@ -296,6 +284,17 @@ function OAuthHandlerFactory({
     }
   );
 
+  /* successful auth */
+  router.get(SUCCESS_URL, function success(
+    req: HullRequest,
+    res: HullResponse
+  ) {
+    const { client } = req.hull;
+    client.logger.debug("connector.oauth.success");
+    return res.render(views.success, { name, urls: getURLs(req) });
+  });
+
+  /* Error Handler */
   router.use(
     (error, req: HullRequest, res: HullResponse, _next: NextFunction) => {
       debug("error", error);

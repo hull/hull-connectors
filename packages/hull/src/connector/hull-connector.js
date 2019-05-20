@@ -23,6 +23,7 @@ import {
   batchHandler,
   incomingRequestHandler,
   htmlHandler,
+  OAuthHandler,
   statusHandler
 } from "../handlers";
 
@@ -337,6 +338,9 @@ class HullConnector {
 
     // Setup Tab handlers
     mapRoute(htmlHandler, "tabs", "all");
+
+    // Alpha-quality Credentials handlers - DO NOT expose both tab oAuth and Credentials
+    mapRoute(OAuthHandler, "credentials", "all");
 
     // Setup HTML handlers
     mapRoute(htmlHandler, "html", "get");

@@ -45,7 +45,9 @@ module.exports = ({
         const s = await client.get(connector.id);
         return {
           status: 200,
-          data: { settings: s.private_settings }
+          data: {
+            message: `Connected to portal: ${s.private_settings.portal_id}`
+          }
         };
       }
       throw new Error("Not authorized");

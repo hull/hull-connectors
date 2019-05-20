@@ -49,7 +49,7 @@ export default function connectorConfig(): HullConnectorConfig {
       clientID: CLIENT_ID,
       clientSecret: CLIENT_SECRET,
       signingSecret: SIGNING_SECRET,
-      scopes: manifest.tabs[0].options.params.strategy.scope,
+      scopes: manifest.credentials[0].options.strategy.scope,
       devMode
     }),
     clientConfig: {

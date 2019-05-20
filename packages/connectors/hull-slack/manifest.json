@@ -6,63 +6,86 @@
   "tags": ["incoming", "outgoing", "oneColumn", "smart-notifier"],
   "private_settings": [
     {
-      "name": "token",
-      "title": "Token",
-      "type": "string",
-      "format": "hidden"
-    },
-    {
-      "name": "team_id",
-      "title": "team_id",
-      "type": "string",
-      "format": "hidden"
-    },
-    {
-      "name": "user_id",
-      "title": "user_id",
-      "type": "string",
-      "format": "hidden"
-    },
-    {
-      "name": "incoming_webhook",
-      "title": "Incoming Webhook",
+      "name": "oauthItem",
+      "title": "Oauth",
+      "format": "Oauth",
       "type": "object",
-      "format": "hidden",
+      "handler": "oauth",
+      "url": "/auth",
+      "options": {
+        "status": "/status",
+        "name": "Slack",
+        "strategy": {
+          "scope": ["bot", "channels:write"],
+          "skipUserProfile": true
+        },
+        "views": {
+          "failure": "failure.html",
+          "success": "success.html"
+        }
+      },
       "properties": {
-        "url": {
-          "title": "url",
-          "type": "string"
+        "token": {
+          "title": "Token",
+          "type": "string",
+          "format": "hidden"
         },
-        "channel": {
-          "title": "channel",
-          "type": "string"
+        "team_id": {
+          "title": "team_id",
+          "type": "string",
+          "format": "hidden"
         },
-        "channel_id": {
-          "title": "channel_id",
-          "type": "string"
+        "user_id": {
+          "title": "user_id",
+          "type": "string",
+          "format": "hidden"
         },
-        "configuration_url": {
-          "title": "configuration_url",
-          "type": "string"
+        "bot": {
+          "title": "Bot",
+          "type": "object",
+          "format": "hidden",
+          "properties": {
+            "bot_user_id": {
+              "title": "bot_user_id",
+              "type": "string"
+            },
+            "bot_access_token": {
+              "title": "bot_access_token",
+              "type": "string"
+            }
+          }
         }
       }
     },
     {
-      "name": "bot",
-      "title": "Bot",
+      "name": "FetchAllButton",
+      "format": "actionButton",
       "type": "object",
-      "format": "hidden",
-      "properties": {
-        "bot_user_id": {
-          "title": "bot_user_id",
-          "type": "string"
+      "properties":{
+        "fetchUsers": {
+          "type": "string",
+          "format": "button",
+          "title": "Fetch All Users",
+          "options": {
+            "loadOptions": "/fetch-users-link",
+            "action": "call"
+          }
         },
-        "bot_access_token": {
-          "title": "bot_access_token",
-          "type": "string"
+        "fetchAccounts": {
+          "type": "string",
+          "format": "button",
+          "title": "Fetch All Accounts",
+          "options": {
+            "loadOptions": "/fetch-accounts-link",
+            "action": "call"
+          }
         }
       }
     },
+
+
+
+
     {
       "name": "notify_events",
       "title": "Add User Notification Triggers",
@@ -250,7 +273,21 @@
       }
     }
   ],
+
+
   "settings_sections": [
+    {
+      "title": "Credentials",
+      "description": "FooBar",
+      "step": "credentials",
+      "properties": ["private_settings.oauthItem"]
+    },
+    {
+      "title": "Actions",
+      "step": "actions",
+      "description": "These are the actions you can perform",
+      "properties": ["private_settings.actions"]
+    },
     {
       "title": "Slack User Notification Triggers",
       "description": "Choose the scenarios where you would like to receive Slack notifications. \"Entered/Left User Segment\" events apply to the selected segment, whereas for other event types, the user must be IN the segment for the notification to trigger",
@@ -270,36 +307,20 @@
   "deployment_settings": [],
   "resources": [],
   "readme": "readme.md",
-  "admin": "/auth",
+  "tabs": [
+    {
+      "title": "Actions",
+      "url": "/admin",
+      "handler": "admin",
+      "size": "small",
+      "editable": false
+    }
+  ],
   "router": [
     {
       "url": "/",
       "handler": "slackWebhooks",
       "options": {}
-    }
-  ],
-  "tabs": [
-    {
-      "title": "Credentials",
-      "setup": true,
-      "url": "/auth",
-      "size": "small",
-      "editable": false,
-      "handler": "oauth",
-      "options": {
-        "type": "oauth",
-        "name": "Slack",
-        "strategy": {
-          "scope": ["bot", "channels:write"],
-          "skipUserProfile": true
-        },
-        "views": {
-          "login": "login.html",
-          "home": "home.html",
-          "failure": "failure.html",
-          "success": "success.html"
-        }
-      }
     }
   ],
   "ui": false,

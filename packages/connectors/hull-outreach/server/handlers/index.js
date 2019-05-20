@@ -46,7 +46,10 @@ const handlers = ({
    */
   return {
     incoming: { webhooks: webhooks(hullRouter) },
-    tabs: { adminHandler, authHandler: hullRouter.createAuthHandler },
+    tabs: { adminHandler },
+    credentials: {
+      oauth: hullRouter.createAuthHandler
+    }
     statuses: { status: status(hullRouter) },
     subscriptions: { userUpdate, accountUpdate },
     batches: { userUpdate, accountUpdate },
