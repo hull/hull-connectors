@@ -282,6 +282,9 @@ class HullConnector {
     ) =>
       (this.manifest[section] || []).map(
         ({ url, method = defaultMethod, handler, options }) => {
+          if (!url) {
+            return true;
+          }
           const callback = getCallbacks(handlers, section, handler);
           if (!callback) {
             throw new Error(
@@ -323,6 +326,7 @@ class HullConnector {
         }
       );
 
+
     // Setup Kraken handlers
     mapNotification(notificationHandler, "subscriptions");
 
@@ -340,7 +344,8 @@ class HullConnector {
     mapRoute(htmlHandler, "tabs", "all");
 
     // Alpha-quality Credentials handlers - DO NOT expose both tab oAuth and Credentials
-    mapRoute(OAuthHandler, "credentials", "all");
+    mapRoute(OAuthHandler, "private_settings", "all");
+
 
     // Setup HTML handlers
     mapRoute(htmlHandler, "html", "get");

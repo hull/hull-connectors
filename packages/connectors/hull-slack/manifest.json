@@ -6,7 +6,7 @@
   "tags": ["incoming", "outgoing", "oneColumn", "smart-notifier"],
   "private_settings": [
     {
-      "name": "oauthItem",
+      "name": "oauth",
       "title": "Oauth",
       "format": "Oauth",
       "type": "object",
@@ -280,7 +280,7 @@
       "title": "Credentials",
       "description": "FooBar",
       "step": "credentials",
-      "properties": ["private_settings.oauthItem"]
+      "properties": ["private_settings.oauth"]
     },
     {
       "title": "Actions",

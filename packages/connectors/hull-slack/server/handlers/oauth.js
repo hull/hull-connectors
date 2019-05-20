@@ -34,11 +34,8 @@ module.exports = ({
     const { bot_access_token } = bot;
     if (!bot_access_token) {
       return {
-        status: 404,
-        data: {
-          credentials: false,
-          connected: false
-        }
+        status: "error",
+        messsges: ["Can't find access token"]
       };
     }
     try {
@@ -75,18 +72,19 @@ module.exports = ({
 
     const { account = {} } = message;
     const { accessToken, params = {} } = account;
-    const { ok, bot = {}, team_id, user_id, incoming_webhook = {} } = params;
+    const { ok, bot = {}, team_id, user_id } = params;
     if (!ok) {
       throw new Error("Error, invalid reply");
     }
     const connectorData = {
       private_settings: {
         ...connector.private_settings,
-        incoming_webhook,
-        bot,
-        team_id,
-        user_id,
-        token: accessToken
+        oauth: {
+          bot,
+          team_id,
+          user_id,
+          token: accessToken
+        }
       }
     };
     await connectSlack({ client, connector: connectorData });

@@ -46,7 +46,7 @@ const handler = ({
     tabs: {
       admin
     },
-    credentials: {
+    private_settings: {
       oauth: oauth({
         clientID,
         clientSecret,
