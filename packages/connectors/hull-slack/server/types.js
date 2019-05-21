@@ -40,9 +40,11 @@ export type SlackInstance = {
 export type SlackConnectorSettings = {
   ...$Exact<HullConnector>,
   private_settings: {
-    token: string,
-    team_id: string,
-    user_id: string,
+    oauth: {
+      token: string,
+      team_id: string,
+      user_id: string
+    },
     // actions: {},
     // whitelist
     attachements: Array<SlackConnectorAttachement>,

@@ -79,7 +79,8 @@ module.exports = function BotFactory({
   });
 
   async function getBot({ private_settings = {} }: SlackConnectorSettings) {
-    const { team_id } = private_settings;
+    const { oauth = {} } = private_settings;
+    const { team_id } = oauth;
     if (!team_id) {
       throw new Error("Can't find a team ID for this Hull connector instance");
     }
@@ -93,13 +94,12 @@ module.exports = function BotFactory({
   }: HullSlackContext): Promise<ConnectedSlack> {
     const { private_settings = {} } = connector;
     const {
-      bot: botConfig,
+      oauth = {},
       // actions,
-      attachements,
-      token: app_token,
-      team_id
+      attachements
     } = private_settings;
 
+    const { bot: botConfig, token: app_token, team_id } = oauth;
     if (!team_id) {
       return {};
     }

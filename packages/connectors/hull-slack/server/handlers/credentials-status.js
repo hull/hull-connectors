@@ -10,12 +10,9 @@ const statusHandler = async (
   _incomingMessages: HullIncomingHandlerMessage
 ): HullExternalResponse => {
   const { connector } = ctx;
-  const { private_settings } = connector;
-  const {
-    token,
-    team_id,
-    bot: { bot_user_id, bot_access_token } = {}
-  } = private_settings;
+  const { private_settings = {} } = connector;
+  const { oauth = {} } = private_settings;
+  const { token, team_id, bot: { bot_user_id, bot_access_token } = {} } = oauth;
   if (token && bot_user_id && bot_access_token && team_id) {
     return {
       status: 200,

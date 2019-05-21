@@ -47,16 +47,16 @@ const update = (connectSlack: ConnectSlackFunction) => async (
   const { client, connector, metric } = ctx;
   const { private_settings = {} } = connector;
   const {
-    token = "",
-    user_id = "",
+    oauth = {},
     notify_events = [],
     attachements = []
   } = private_settings;
+  const { user_id = "" } = oauth;
   try {
     const { post, tellOperator } = await connectSlack(ctx);
     if (!post || !tellOperator) {
       return {
-        flow_control: "retry",
+        flow_control: "next",
         size: 100,
         in: 1
       };
@@ -67,14 +67,6 @@ const update = (connectSlack: ConnectSlackFunction) => async (
         const { user } = message;
 
         const scopedClient = client.asUser(user);
-
-        if (!client || !user.id || !token) {
-          return {
-            action: "skip",
-            user_id: user.id,
-            message: `Missing credentials, current token value: ${token}`
-          };
-        }
 
         try {
           _.map(
