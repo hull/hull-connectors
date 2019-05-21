@@ -1,12 +1,11 @@
-const _ = require("lodash");
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../server/server");
+import connectorConfig from "../../server/config";
 
 process.env.CLIENT_ID = "123";
 process.env.SECRET = "abc";
 
 it("should update customer", () => {
-  return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -85,6 +84,7 @@ it("should update customer", () => {
             "subjectType": "user"},
             {
               "customerio/created_at": expect.any(Number),
+              "customerio/deleted_at": null,
               "customerio/hash": expect.whatever(),
               "customerio/id": "123",
               "customerio/synced_at": expect.whatever()

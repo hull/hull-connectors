@@ -1,10 +1,9 @@
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const _ = require("lodash");
 
 process.env.CLIENT_ID = "123";
 process.env.SECRET = "abc";
 
-const connectorServer = require("../../server/server");
+import connectorConfig from "../../server/config";
 const connectorManifest = require("../../manifest");
 
 const connector = {
@@ -16,7 +15,7 @@ const connector = {
 };
 
 it("Should set status to check Site ID and API Key if authentication returns status 401", () => {
-    return testScenario({connectorServer, connectorManifest}, ({ handlers, nock, expect }) => {
+    return testScenario({connectorConfig, connectorManifest}, ({ handlers, nock, expect }) => {
         return {
             handlerType: handlers.scheduleHandler,
             handlerUrl: "status",
