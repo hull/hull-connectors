@@ -1,46 +1,68 @@
 // @flow
-import type { HullContext, HullStatusResponse } from "hull";
+import type {
+  HullContext,
+  HullIncomingHandlerMessage,
+  HullStatusResponse
+} from "hull";
+import type { ConnectSlackFunction } from "../types";
 
-export default async function statusCheck(
-  ctx: HullContext
-): HullStatusResponse {
-  const { connector /* , client */ } = ctx;
+const statusHandler = (connectSlack: ConnectSlackFunction) => async (
+  ctx: HullContext,
+  _incomingMessages: HullIncomingHandlerMessage
+): HullStatusResponse => {
+  const { connector, client } = ctx;
   const { private_settings } = connector;
   const {
     token,
     team_id,
     user_id,
     bot: { bot_user_id, bot_access_token } = {},
-    notify_segments = [],
     notify_events = []
   } = private_settings;
 
-  const messages = [];
+  try {
+    if (!token || !bot_access_token) {
+      return {
+        status: "setupRequired",
+        messsges: [
+          'Credentials are empty, Token isn\'t present, please authorize the app by clicking "Credentials & Actions"'
+        ]
+      };
+    }
 
-  // const send = () => {
-  //   res.json({ messages, status });
-  //   return client.put(`${connector.id}/status`, { status, messages });
-  // };
+    if (!team_id || !user_id || !bot_user_id) {
+      return {
+        status: "setupRequired",
+        messages: [
+          "Authentication isn't properly setup. please re-authorize the app"
+        ]
+      };
+    }
 
-  if (!token) {
-    messages.push(
-      'Credentials are empty, Token isn\'t present, please authorize the app by clicking "Credentials & Actions"'
-    );
-    return { status: "warning", messages };
+    await connectSlack({ client, connector });
+
+    if (!notify_events.length) {
+      return {
+        status: "warning",
+        messages: [
+          "Connector has no triggers saved. No notifications will be sent"
+        ]
+      };
+    }
+
+    return {
+      status: "ok",
+      messages: ["Connected to slack"]
+    };
+  } catch (err) {
+    client.logger.info("oauth.setupTest.failed", {
+      error: err.message
+    });
+    return {
+      status: "error",
+      messages: ["Can't Connect"]
+    };
   }
-  if (!team_id || !user_id || !bot_user_id || !bot_access_token) {
-    messages.push(
-      "Authentication isn't properly setup. please re-authorize the app"
-    );
-    return { status: "warning", messages };
-  }
+};
 
-  if (!notify_segments.length && !notify_events.length) {
-    messages.push(
-      "No segments or events are set. No notifications will be sent"
-    );
-    return { status: "warning", messages };
-  }
-
-  return { status: "ok", messages };
-}
+export default statusHandler;

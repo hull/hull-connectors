@@ -45,11 +45,7 @@ module.exports = function BotFactory({
 }: BotFactoryParams) {
   const _bots: BotCache = {};
 
-  const cache = (team_id?: string, payload): SlackInstance | void => {
-    if (!team_id) {
-      return undefined;
-    }
-    //   throw new Error("Tried to access the cache without a Team ID");
+  const cache = (team_id: string, payload): SlackInstance => {
     _bots[team_id] = { ...payload };
     return _bots[team_id];
   };
@@ -105,6 +101,9 @@ module.exports = function BotFactory({
       team_id
     } = private_settings;
 
+    if (!team_id) {
+      return {};
+    }
     if (!botConfig) {
       throw new Error(
         `Settings are invalid: private_settings:${JSON.stringify(
@@ -140,17 +139,14 @@ module.exports = function BotFactory({
       let slackInstance = getByTeam(team_id);
       if (slackInstance) {
         return {
-          slackInstance: { ...slackInstance },
+          ...slackInstance,
           post,
-          tellOperator,
-          getBot
+          tellOperator
         };
       }
 
       // First, cache the partial config so that the adapter can find it.
       cache(team_id, {
-        // actions,
-        // attachements,
         botConfig,
         clientCredentials
       });
@@ -163,14 +159,14 @@ module.exports = function BotFactory({
         channels
       });
       // Then cache the full config over it;
-      slackInstance = cache(team_id, {
-        botConfig,
-        // actions,
-        attachements,
-        clientCredentials,
-        teamMembers,
-        teamChannels
-      });
+      slackInstance =
+        cache(team_id, {
+          botConfig,
+          attachements,
+          clientCredentials,
+          teamMembers,
+          teamChannels
+        }) || {};
       // const { bot } = botSetup;
       client.logger.info("register.success");
       client.logger.info("register.success");
@@ -184,10 +180,9 @@ module.exports = function BotFactory({
           controller.hears(message, context, reply)
       );
       return {
-        slackInstance: { ...slackInstance },
+        ...slackInstance,
         post,
-        tellOperator,
-        getBot
+        tellOperator
       };
     } catch (err) {
       client.logger.error("register.error", {

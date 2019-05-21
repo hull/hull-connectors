@@ -34,7 +34,7 @@ const handler = ({
     devMode
   });
   return {
-    statuses: { statusHandler },
+    statuses: { statusHandler: statusHandler(connectSlack) },
     subscriptions: {
       userUpdate: userUpdate(connectSlack),
       accountUpdate: accountUpdate(connectSlack),
