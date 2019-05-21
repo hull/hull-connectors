@@ -13,8 +13,7 @@ const statusHandler = async (
 ): HullExternalResponse => {
   const { connector } = ctx;
   const { private_settings = {} } = connector;
-  const { oauth } = private_settings;
-  const { token, refresh_token, portal_id } = oauth;
+  const { token, refresh_token, portal_id } = private_settings;
 
   try {
     if (!portal_id || !token || !refresh_token) {

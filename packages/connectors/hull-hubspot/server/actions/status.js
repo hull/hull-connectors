@@ -52,7 +52,7 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
     }
   };
 
-  if (!_.get(connector, "private_settings.oauth.token")) {
+  if (!_.get(connector, "private_settings.token")) {
     pushMessage(
       "setupRequired",
       'No OAuth AccessToken found.  Please make sure to allow Hull to access your Hubspot data by clicking the "Credentials & Actions" button on the connector page and following the workflow provided'
@@ -62,8 +62,8 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
   // This doesn't really matter either.
   // If there's a real problem, we'll hit Unauthorized when doing the below tests
   if (
-    _.get(connector, "private_settings.oauth.token") &&
-    !_.get(connector, "private_settings.oauth.refresh_token")
+    _.get(connector, "private_settings.token") &&
+    !_.get(connector, "private_settings.refresh_token")
   ) {
     pushMessage(
       "setupRequired",
@@ -92,7 +92,7 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
 
   const syncAgent = new SyncAgent(ctx);
   const promises = [];
-  if (_.get(connector, "private_settings.oauth.token")) {
+  if (_.get(connector, "private_settings.token")) {
     promises.push(
       syncAgent.hubspotClient
         .getContactPropertyGroups()
