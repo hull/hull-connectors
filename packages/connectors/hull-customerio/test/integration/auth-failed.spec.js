@@ -3,7 +3,6 @@
 import connectorConfig from "../../server/config";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const _ = require("lodash");
 
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
