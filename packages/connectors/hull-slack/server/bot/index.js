@@ -88,7 +88,6 @@ module.exports = function BotFactory({
 
   async function connectSlack({
     client,
-    clientCredentials,
     connector,
     metric
   }: HullSlackContext): Promise<ConnectedSlack> {
@@ -147,8 +146,7 @@ module.exports = function BotFactory({
 
       // First, cache the partial config so that the adapter can find it.
       cache(team_id, {
-        botConfig,
-        clientCredentials
+        botConfig
       });
 
       const bot = await getBot(connector);
@@ -163,7 +161,6 @@ module.exports = function BotFactory({
         cache(team_id, {
           botConfig,
           attachements,
-          clientCredentials,
           teamMembers,
           teamChannels
         }) || {};

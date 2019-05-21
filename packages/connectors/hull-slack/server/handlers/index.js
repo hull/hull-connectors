@@ -1,9 +1,10 @@
 // @flow
 /* eslint-disable global-require */
 import type { HullHandlersConfiguration, Connector } from "hull";
+import { Strategy } from "passport-slack";
 import statusHandler from "./status";
 import fetchDestination from "./fetch-destinations";
-import oauth from "./oauth";
+import onAuthorize from "./oauth";
 import admin from "./admin";
 import userUpdate from "./user-update";
 import accountUpdate from "./account-update";
@@ -25,7 +26,7 @@ const handler = ({
 
   const { /* hostSecret, port, */ devMode } = connectorConfig;
 
-  const { controller, connectSlack } = BotFactory({
+  const { connectSlack } = BotFactory({
     webserver: app,
     scopes,
     clientID,
@@ -47,11 +48,11 @@ const handler = ({
       admin
     },
     private_settings: {
-      oauth: oauth({
+      oauth: () => ({
+        onAuthorize: onAuthorize(connectSlack),
+        Strategy,
         clientID,
-        clientSecret,
-        controller,
-        connectSlack
+        clientSecret
       })
     }
   };
