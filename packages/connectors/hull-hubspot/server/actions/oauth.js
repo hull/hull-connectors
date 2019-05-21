@@ -5,7 +5,8 @@ import type {
   HullIncomingHandlerMessage,
   HullOAuthHandlerParams,
   HullOauthAuthorizeMessage,
-  HullOAuthAuthorizeResponse
+  HullOAuthAuthorizeResponse,
+  HullStatusResponse
 } from "hull";
 
 const HubspotStrategy = require("passport-hubspot-oauth2.0");
@@ -24,10 +25,11 @@ module.exports = ({
   Strategy: HubspotStrategy,
   clientID,
   clientSecret,
+
   isSetup: async (
     ctx: HullContext,
     message: HullIncomingHandlerMessage
-  ): HullExternalResponse => {
+  ): HullStatusResponse => {
     const { client, connector } = ctx;
     if (message.query.reset) {
       throw new Error("Requested reset");
@@ -44,10 +46,8 @@ module.exports = ({
         await syncAgent.syncConnector();
         const s = await client.get(connector.id);
         return {
-          status: 200,
-          data: {
-            message: `Connected to portal: ${s.private_settings.portal_id}`
-          }
+          status: "ok",
+          messages: [`Connected to portal: ${s.private_settings.portal_id}`]
         };
       }
       throw new Error("Not authorized");
@@ -56,19 +56,19 @@ module.exports = ({
         errors: ["Error in creating segments property", err]
       });
       return {
-        status: 404,
-        data: {
-          error: err.message
-        }
+        status: "setupRequired",
+        messages: [err.message]
       };
     }
   },
+
   onLogin: async (ctx: HullContext, message: HullIncomingHandlerMessage) => {
     return {
       status: 200,
       data: { ...message.body, ...message.query }
     };
   },
+
   onAuthorize: async (
     ctx: HullContext,
     message: HullOauthAuthorizeMessage

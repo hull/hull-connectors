@@ -1,14 +1,14 @@
 /* @flow */
 import type {
   HullContext,
-  HullSegmentDeleteMessage,
+  HullUserSegment,
   HullNotificationResponse
 } from "hull";
 import shipAppFactory from "../lib/ship-app-factory";
 
 async function segmentDeleteHandler(
   ctx: HullContext,
-  message: HullSegmentDeleteMessage
+  message: HullUserSegment
 ): HullNotificationResponse {
   const { syncAgent } = shipAppFactory(ctx);
   if (!syncAgent.isConfigured()) {

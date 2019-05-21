@@ -1,11 +1,15 @@
 // @flow
 
-import track from './track';
-import type { HullContext, SegmentIncomingScreen } from '../types';
+import type { HullContext } from "hull";
+import track from "./track";
+import type { SegmentIncomingScreen } from "../types";
 
-export default function handleScreen(ctx: HullContext, message: SegmentIncomingScreen) {
-const { connector, client } = ctx;
-const { handle_screens } = connector.settings || {};
+export default function handleScreen(
+  ctx: HullContext,
+  message: SegmentIncomingScreen
+) {
+  const { connector /* , client */ } = ctx;
+  const { handle_screens } = connector.settings || {};
   if (handle_screens === false) {
     return false;
   }

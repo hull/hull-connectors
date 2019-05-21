@@ -1,6 +1,6 @@
 /* @flow */
 import type {
-  HullUserSegmentUpdateMessage,
+  HullUserSegment,
   HullContext,
   HullNotificationResponse
 } from "hull";
@@ -12,7 +12,7 @@ import shipAppFactory from "../lib/ship-app-factory";
 export default async function segmentUpdateHandler(
   ctx: HullContext,
   // TODO: check the exact format of the segment update and delete handlers
-  message: Array<HullUserSegmentUpdateMessage>
+  message: Array<HullUserSegment>
 ): HullNotificationResponse {
   ctx.client.logger.debug("[segmentUpdateHandler] start", { message });
 

@@ -59,7 +59,7 @@ export default function connectorConfig(): HullConnectorConfig {
     },
     workerConfig: {
       start: startWorker,
-      queueName: QUEUE_NAME
+      queueName: QUEUE_NAME || "queue"
     },
     clientConfig: {
       firehoseUrl: OVERRIDE_FIREHOSE_URL

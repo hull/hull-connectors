@@ -1,6 +1,7 @@
-/* @flow */
+/* @noflow */
 
-import type { OutreachFieldDefinition } from "../lib/types";
+// TODO: This flow type doesn't seem to exist anymore
+import type { OutreachFieldDefinition } from "../shared/types";
 
 const _ = require("lodash");
 

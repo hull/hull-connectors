@@ -1,6 +1,7 @@
 // @flow
 
 import type { HullConnectorConfig } from "hull";
+import _ from "lodash";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
 
@@ -30,7 +31,10 @@ export default function connectorConfig(): HullConnectorConfig {
   const hostSecret = SECRET || "1234";
   const port = PORT || "8082";
   const devMode = NODE_ENV === "development";
-
+  const scopes = _.get(
+    _.find(manifest.private_settings, s => s.format === "oauth"),
+    "options.strategy.scope"
+  );
   return {
     manifest,
     devMode,
@@ -49,7 +53,7 @@ export default function connectorConfig(): HullConnectorConfig {
       clientID: CLIENT_ID,
       clientSecret: CLIENT_SECRET,
       signingSecret: SIGNING_SECRET,
-      scopes: manifest.private_settings[0].options.strategy.scope,
+      scopes,
       devMode
     }),
     clientConfig: {

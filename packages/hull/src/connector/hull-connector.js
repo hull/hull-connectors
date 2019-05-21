@@ -29,7 +29,7 @@ import {
 
 import errorHandler from "./error";
 
-type RouterFactory = configurationEntry => void | HullRouteMap;
+type RouterFactory = any => void | HullRouteMap;
 
 const path = require("path");
 const Promise = require("bluebird");

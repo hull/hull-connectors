@@ -1,8 +1,13 @@
 // @flow
 
-import { reduce } from 'lodash';
-import scoped from '../scope-hull-client';
-import type { HullContext, SegmentIncomingTrack, SegmentIncomingPage, SegmentIncomingScreen } from '../types';
+import { reduce } from "lodash";
+import type { HullContext } from "hull";
+import scoped from "../scope-hull-client";
+import type {
+  SegmentIncomingTrack,
+  SegmentIncomingPage,
+  SegmentIncomingScreen
+} from "../types";
 
 export default function handleTrack(
   { connector, metric, client }: HullContext,
@@ -22,7 +27,7 @@ export default function handleTrack(
     integrations = {}
   } = message;
 
-  const { page = {}, location = {}, userAgent, ip = '0' } = context;
+  const { page = {}, location = {}, userAgent, ip = "0" } = context;
   const { url, referrer } = page;
   const { latitude, longitude } = location;
 
@@ -32,12 +37,12 @@ export default function handleTrack(
   let _sid = (created_at || new Date().toISOString()).substring(0, 10);
 
   if (_bid) {
-    _sid = [_bid, _sid].join('-');
+    _sid = [_bid, _sid].join("-");
   }
 
   const trackContext = reduce(
     {
-      source: 'segment',
+      source: "segment",
       created_at,
       _bid,
       _sid,
@@ -66,7 +71,7 @@ export default function handleTrack(
       throw new Error("Event name is empty, can't track!");
     }
     return asUser.track(event, properties, trackContext).then(result => {
-      asUser.logger.info('incoming.track.success', {
+      asUser.logger.info("incoming.track.success", {
         trackContext,
         event,
         properties
@@ -74,8 +79,8 @@ export default function handleTrack(
       return result;
     });
   } catch (err) {
-    metric.increment('request.track.error');
-    client.logger.error('incoming.track.error', { errors: message });
+    metric.increment("request.track.error");
+    client.logger.error("incoming.track.error", { errors: message });
     return Promise.reject();
   }
 }

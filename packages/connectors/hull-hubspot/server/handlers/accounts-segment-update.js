@@ -2,7 +2,7 @@
 
 import type {
   HullContext,
-  HullAccountSegmentUpdateMessage,
+  HullAccountSegment,
   HullNotificationResponse
 } from "hull";
 import _ from "lodash";
@@ -10,7 +10,7 @@ import SyncAgent from "../lib/sync-agent";
 
 export default async (
   ctx: HullContext,
-  messages: Array<HullAccountSegmentUpdateMessage>
+  messages: Array<HullAccountSegment>
 ): HullNotificationResponse => {
   try {
     // FIXME: due to the fact the segments lists may be or may not be updated we need

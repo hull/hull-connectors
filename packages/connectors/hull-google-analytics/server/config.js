@@ -16,8 +16,8 @@ export default function connectorConfig(): HullConnectorConfig {
     manifest,
     devMode: NODE_ENV === "development",
     logLevel: LOG_LEVEL,
-    hostSecret: SECRET,
-    port: PORT,
+    hostSecret: SECRET || "1234",
+    port: PORT || "8082",
     handlers: {},
     middlewares: [],
     clientConfig: {

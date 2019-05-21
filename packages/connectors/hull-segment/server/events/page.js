@@ -1,13 +1,14 @@
 // @flow
 
+import type { HullContext } from "hull";
 import track from "./track";
-import type { HullContext, SegmentIncomingPage } from "../types";
+import type { SegmentIncomingPage } from "../types";
 
 export default function handlePage(
   ctx: HullContext,
   message: SegmentIncomingPage
 ) {
-  const { connector, client } = ctx;
+  const { connector /* , client */ } = ctx;
   const { handle_pages } = connector.settings || {};
   if (handle_pages === false) {
     return false;

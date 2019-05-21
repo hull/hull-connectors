@@ -38,9 +38,9 @@ export default function connectorConfig(): HullConnectorConfig {
       ? {
           store: "redis",
           url: CACHE_REDIS_URL,
-          ttl: SHIP_CACHE_TTL,
-          max: CACHE_REDIS_MAX_CONNECTIONS,
-          min: CACHE_REDIS_MIN_CONNECTIONS
+          ttl: SHIP_CACHE_TTL || 180,
+          max: CACHE_REDIS_MAX_CONNECTIONS || 5,
+          min: CACHE_REDIS_MIN_CONNECTIONS || 1
         }
       : undefined,
     logsConfig: {

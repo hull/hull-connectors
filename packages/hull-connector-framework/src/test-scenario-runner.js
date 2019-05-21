@@ -108,7 +108,7 @@ class TestScenarioRunner extends EventEmitter {
 
   capturedLogs: Array<*>;
 
-  connectorServer: Server;
+  connectorConfig: HullConnectorConfig;
 
   timeout: *;
 
@@ -290,13 +290,6 @@ class TestScenarioRunner extends EventEmitter {
         this.connector = this.setupTestConnector(minihullPort);
         await this.connector.start();
         const { server } = this.connector;
-        // this.server(this.app);
-        // this.connectorServer = await this.connector.startApp(this.app);
-
-        // if (this.worker) {
-        //   this.worker(this.connector);
-        //   this.connector.startWorker();
-        // }
 
         const { port: connectorPort } = server.address();
         this.scenarioDefinition = this.rawScenarioDefinition({

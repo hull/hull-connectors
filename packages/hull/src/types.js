@@ -289,16 +289,16 @@ export type HullLogsConfig = {
 export type HullCacheConfig =
   | {
       store: "memory",
-      ttl?: number,
-      max?: number,
-      min?: number
+      ttl?: number | string,
+      max?: number | string,
+      min?: number | string
     }
   | {
       store: "redis",
       url: string,
-      ttl?: number,
-      max?: number,
-      min?: number
+      ttl?: number | string,
+      max?: number | string,
+      min?: numbe | stringr
     };
 export type HullClientCredentials = {
   id: string,
@@ -618,11 +618,11 @@ export type HullOAuthAuthorizeResponse = void | Promise<HullOAuthAuthorizeRespon
 
 export type HullStatusResponseData =
   | {
-      status: "ok" | "warning" | "error",
+      status: "ok" | "warning" | "error" | "setupRequired",
       messages: Array<string>
     }
   | {
-      status: "ok" | "warning" | "error",
+      status: "ok" | "warning" | "error" | "setupRequired",
       message: string
     };
 
@@ -660,7 +660,7 @@ export type HullUserSegmentUpdateCallback = (
 
 export type HullUserSegmentDeleteCallback = (
   ctx: HullContext,
-  messages: Array<HullUserSegment>
+  message: HullUserSegment
 ) => HullNotificationResponse;
 
 export type HullAccountSegmentUpdateCallback = (
@@ -670,7 +670,7 @@ export type HullAccountSegmentUpdateCallback = (
 
 export type HullAccountSegmentDeleteCallback = (
   ctx: HullContext,
-  messages: Array<HullAccountSegment>
+  message: HullAccountSegment
 ) => HullNotificationResponse;
 
 export type HullConnectorUpdateCallback = (
@@ -867,5 +867,5 @@ export type HullBatchHandlersConfiguration = Array<{
 type ExpressMethod = "use" | HTTPMethod;
 export type HullRouteMap = {
   router: Router,
-  method?: ExpressMethod
+  method: ExpressMethod
 };

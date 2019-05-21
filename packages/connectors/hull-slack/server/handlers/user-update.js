@@ -54,6 +54,13 @@ const update = (connectSlack: ConnectSlackFunction) => async (
   } = private_settings;
   try {
     const { post, tellOperator } = await connectSlack(ctx);
+    if (!post || !tellOperator) {
+      return {
+        flow_control: "retry",
+        size: 100,
+        in: 1
+      };
+    }
 
     const responses = await Promise.all(
       _.map(messages, async (message: HullUserUpdateMessage) => {
