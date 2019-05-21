@@ -5,16 +5,25 @@
   "logo": "logo.png",
   "picture": "picture.png",
   "version": "0.0.20-monorepo",
-  "credentials": [
+  "tags": [
+    "incoming",
+    "outgoing",
+    "batch",
+    "batch-accounts",
+    "oneColumn",
+    "smart-notifier",
+    "first-install",
+    "single-install"
+  ],
+  "private_settings": [
     {
-      "name": "OauthCredentials",
+      "name": "oauth",
       "title": "Oauth",
-      "format": "Oauth",
-      "type": "Oauth",
+      "format": "oauth",
       "handler": "oauth",
       "url": "/auth",
       "options": {
-        "status": "/status",
+        "loadOptions": "/credentials-status",
         "tokenInUrl": true,
         "name": "Outreach",
         "strategy": {
@@ -33,20 +42,35 @@
           "failure": "failure.html",
           "success": "success.html"
         }
+      },
+      "properties": {
+        "webhook_id": {
+          "title": "Outreach webhook id",
+          "type": "string",
+          "format": "hidden"
+        },
+        "access_token": {
+          "title": "OAuth Access Token",
+          "type": "string",
+          "format": "hidden"
+        },
+        "refresh_token": {
+          "title": "OAuth Refresh Token",
+          "type": "string",
+          "format": "hidden"
+        },
+        "expires_in": {
+          "title": "OAuth Token Expiration in seconds",
+          "type": "string",
+          "format": "hidden"
+        },
+        "created_at": {
+          "title": "OAuth Token Created At in millis since epoch",
+          "type": "string",
+          "format": "hidden"
+        }
       }
-    }
-  ],
-  "tags": [
-    "incoming",
-    "outgoing",
-    "batch",
-    "batch-accounts",
-    "oneColumn",
-    "smart-notifier",
-    "first-install",
-    "single-install"
-  ],
-  "private_settings": [
+    },
     {
       "name": "webhook_id",
       "title": "Outreach webhook id",
@@ -351,6 +375,10 @@
       "options": {
         "fireAndForget": true
       }
+    },
+    {
+      "url": "/credentials-status",
+      "handler": "credentialsStatus"
     },
     {
       "url": "/fields-outreach-prospect-in",

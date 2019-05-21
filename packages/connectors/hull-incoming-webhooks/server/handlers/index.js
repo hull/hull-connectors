@@ -8,7 +8,7 @@ import type {
 import getRecent from "./get-recent-handler";
 import incomingHandler from "./incoming-handler";
 import previewHandler from "./preview-handler";
-import statusHandler from "./status-handler";
+import status from "./status";
 import confHandler from "./config-handler";
 
 const handler = ({ EntryModel }: { EntryModel: any }) => (
@@ -18,7 +18,7 @@ const handler = ({ EntryModel }: { EntryModel: any }) => (
     tabs: {
       admin: (): HullExternalResponse => ({ pageLocation: "admin.html" })
     },
-    statuses: { statusHandler },
+    statuses: { status },
     incoming: { incomingHandler: incomingHandler(EntryModel) },
     json: {
       getRecent: getRecent(EntryModel),

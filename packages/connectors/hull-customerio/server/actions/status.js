@@ -1,20 +1,27 @@
 /* @flow */
-import type { HullContext } from "hull";
+import type { HullContext, HullStatusResponse } from "hull";
 
 const _ = require("lodash");
 const SyncAgent = require("../lib/sync-agent");
 
-function statusCheckAction(ctx: HullContext): Promise<*> {
-  const { client } = ctx;
-  const connector = _.get(ctx, "connector", null);
+async function statusCheckAction(ctx: HullContext): HullStatusResponse {
+  const { connector } = ctx;
+  const { private_settings = {} } = connector;
+  const { synchronized_segments, site_id, api_key } = private_settings;
+
   const syncAgent = new SyncAgent(ctx);
   const messages: Array<string> = [];
   let status: string = "ok";
   const promises: Array<Promise<*>> = [];
 
-  if (
-    _.isEmpty(_.get(connector, "private_settings.synchronized_segments", []))
-  ) {
+  if (!site_id || !api_key) {
+    return {
+      status: "setupRequired",
+      messages: ["Please enter your Customer.io Site ID and API Key"]
+    };
+  }
+
+  if (_.isEmpty(synchronized_segments)) {
     if (status !== "error") {
       status = "warning";
     }
@@ -53,27 +60,22 @@ function statusCheckAction(ctx: HullContext): Promise<*> {
     );
   }
 
-  const handleResponse = () => {
-    client.logger.debug("connector.status", { status, messages });
-    return client
-      .put(`${connector.id}/status`, { status, messages })
-      .then(() => {
-        return Promise.resolve({ status, messages });
-      });
+  try {
+    await Promise.all(promises);
+  } catch (err) {
+    status = "error";
+    messages.push(
+      `Error when trying to determine the status: ${_.get(
+        err,
+        "message",
+        "Unknown Exception"
+      )}`
+    );
+  }
+  return {
+    status: "error",
+    messages
   };
-
-  return Promise.all(promises)
-    .catch(err => {
-      status = "error";
-      messages.push(
-        `Error when trying to determine the status: ${_.get(
-          err,
-          "message",
-          "Unknown Exception"
-        )}`
-      );
-    })
-    .then(handleResponse);
 }
 
 module.exports = statusCheckAction;

@@ -5,27 +5,6 @@
   "logo": "logo.png",
   "picture": "picture.png",
   "version": "0.0.20-monorepo",
-  "credentials": [
-    {
-      "name": "OauthCredentials",
-      "title": "Oauth",
-      "format": "Oauth",
-      "type": "Oauth",
-      "handler": "oauth",
-      "url": "/auth",
-      "options": {
-        "status": "/status",
-        "name": "Hubspot",
-        "strategy": {
-          "scope": ["oauth", "contacts", "timeline"]
-        },
-        "views": {
-          "failure": "failure.html",
-          "success": "success.html"
-        }
-      }
-    }
-  ],
   "tags": [
     "outgoing",
     "incoming",
@@ -38,6 +17,26 @@
   ],
   "settings": [],
   "private_settings": [
+    {
+      "name": "oauth",
+      "title": "Oauth",
+      "format": "oauth",
+      "type": "object",
+      "handler": "oauth",
+      "url": "/auth",
+      "options": {
+        "loadOptions": "/credentials-status",
+        "status": "/status",
+        "name": "Hubspot",
+        "strategy": {
+          "scope": ["oauth", "contacts", "timeline"]
+        },
+        "views": {
+          "failure": "failure.html",
+          "success": "success.html"
+        }
+      }
+    },
     {
       "name": "incoming_user_title",
       "title": "User Incoming Setup",
@@ -382,6 +381,10 @@
     {
       "url": "/fetch-all-contacts",
       "handler":"fetchAll"
+    },
+    {
+      "url": "/credentials-status",
+      "handler":"credentialsStatus"
     },
     {
       "url": "/fetch-all-companies",

@@ -1,17 +1,19 @@
 // @flow
-import type { HullHandlersConfiguration, Connector } from "hull";
+import type { HullHandlersConfiguration } from "hull";
 import {
   fetch,
   fetchAll,
   fetchAllCompanies,
   fetchRecentCompanies,
   checkToken,
-  statusCheck,
+  status,
+  credentialsStatus,
   getContactProperties,
   getIncomingUserClaims,
   getIncomingAccountClaims,
   getCompanyProperties,
-  oauth,
+  onAuthorize,
+  onLogin,
   admin
 } from "../actions";
 
@@ -21,26 +23,15 @@ import ship_update from "./ship-update";
 import users_segment_update from "./users-segment-update";
 import accounts_segment_update from "./accounts-segment-update";
 
-// const schedules = [
-// checkToken,
-// fetchRecentCompanies,
-// fetch
-// {
-//   url: "/sync",
-//   handler: {
-//     callback: fetch,
-//     options: { fireAndForget: true }
-//   }
-// }
-// ];
+const Strategy = require("passport-hubspot-oauth2.0");
+
 const handler = ({
   clientID,
   clientSecret
 }: {
   clientID: string,
   clientSecret: string
-}) => (connector: Connector): HullHandlersConfiguration => {
-  const { hostSecret } = connector.connectorConfig;
+}) => (): HullHandlersConfiguration => {
   return {
     subscriptions: {
       user_update,
@@ -51,12 +42,19 @@ const handler = ({
     },
     batches: { user_update, account_update },
     tabs: { admin },
-    credentials: {
-      oauth: oauth({ hostSecret, clientID, clientSecret })
+    private_settings: {
+      oauth: () => ({
+        onAuthorize,
+        onLogin,
+        Strategy,
+        clientID,
+        clientSecret
+      })
     },
-    statuses: { statusCheck },
+    statuses: { status },
     schedules: { checkToken, fetchRecentCompanies, fetch },
     json: {
+      credentialsStatus,
       fetchAll,
       fetchAllCompanies,
       getContactProperties,

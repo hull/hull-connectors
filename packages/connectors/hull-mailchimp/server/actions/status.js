@@ -1,10 +1,13 @@
+// @flow
+import type { HullContext, HullStatusResponse } from "hull";
+
 const _ = require("lodash");
 const uri = require("urijs");
 const Promise = require("bluebird");
 
 const shipAppFactory = require("../lib/ship-app-factory");
 
-function statusAction(ctx) {
+async function statusAction(ctx: HullContext): HullStatusResponse {
   const { client, connector, metric } = ctx;
   const shipApp = shipAppFactory(ctx);
 
@@ -130,15 +133,12 @@ function statusAction(ctx) {
           audit.meanSyncPercentage
         );
       }
-      return client
-        .put(`${connector.id}/status`, { status, messages })
-        .then(() => {
-          return {
-            status,
-            messages,
-            audit
-          };
-        });
+
+      return {
+        status,
+        messages,
+        audit
+      };
     });
 }
 

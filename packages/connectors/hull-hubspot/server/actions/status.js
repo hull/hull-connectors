@@ -22,7 +22,7 @@ function getMessageFromError(err): string {
   )}`;
 }
 
-const statusHierarchy = ["ok", "warning", "error"];
+const statusHierarchy = ["ok", "warning", "error", "setupRequired"];
 // -1 is (status1 < status2)
 // 0 is (status1 === status2)
 // 1 is (status1 > status1)
@@ -37,10 +37,13 @@ function compareStatus(status1: string, status2: string) {
 }
 
 async function statusCheckAction(ctx: HullContext): HullStatusResponse {
-  const { connector = {}, client = {} } = ctx;
+  const { connector = {} } = ctx;
   const messages = [];
 
-  const pushMessage = (status: "error" | "warning" | "ok", message: string) => {
+  const pushMessage = (
+    status: "error" | "warning" | "ok" | "setupRequired",
+    message: string
+  ) => {
     // make sure the message isn't already in the list...
 
     const existingMessage = _.find(messages, { message });
@@ -49,9 +52,9 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
     }
   };
 
-  if (!_.get(connector, "private_settings.token")) {
+  if (!_.get(connector, "private_settings.oauth.token")) {
     pushMessage(
-      "ok",
+      "setupRequired",
       'No OAuth AccessToken found.  Please make sure to allow Hull to access your Hubspot data by clicking the "Credentials & Actions" button on the connector page and following the workflow provided'
     );
   }
@@ -59,11 +62,11 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
   // This doesn't really matter either.
   // If there's a real problem, we'll hit Unauthorized when doing the below tests
   if (
-    _.get(connector, "private_settings.token") &&
-    !_.get(connector, "private_settings.refresh_token")
+    _.get(connector, "private_settings.oauth.token") &&
+    !_.get(connector, "private_settings.oauth.refresh_token")
   ) {
     pushMessage(
-      "error",
+      "setupRequired",
       'Error in authenticating with Hubspot.  Hubspot service did not return the proper OAuth Credentials.  Please reauthenticate with Hubspot by clicking "Credentials & Actions" and then click "Start Over".  If it happens again, please contact Hull Support.'
     );
   }
@@ -89,7 +92,7 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
 
   const syncAgent = new SyncAgent(ctx);
   const promises = [];
-  if (_.get(connector, "private_settings.token")) {
+  if (_.get(connector, "private_settings.oauth.token")) {
     promises.push(
       syncAgent.hubspotClient
         .getContactPropertyGroups()
@@ -130,7 +133,6 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
   });
 
   const statusResults = { status: worstStatus, messages: messagesToSend };
-  await client.put(`${connector.id}/status`, statusResults);
   return statusResults;
 }
 

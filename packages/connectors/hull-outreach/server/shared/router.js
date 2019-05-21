@@ -2,6 +2,7 @@
 import type {
   HullContext,
   HullRequest,
+  HullStatusResponse,
   HullAccountUpdateMessage,
   HullUserUpdateMessage,
   HullNotificationResponse,
@@ -9,6 +10,7 @@ import type {
   HullOAuthHandlerParams
 } from "hull";
 import service from "../service";
+
 const { WebhookPayload } = require("../service-objects");
 
 const {
@@ -49,7 +51,10 @@ class HullRouter {
     clientSecret: string
   }) {
     this.glue = glue;
-    this.serviceDefinitions = { hull: hullService, outreach: service({ clientID, clientSecret }) };
+    this.serviceDefinitions = {
+      hull: hullService,
+      outreach: service({ clientID, clientSecret })
+    };
     this.transforms = _.concat(transformsToHull, transformsToService);
 
     // TODO put this as part of the service?
@@ -83,8 +88,7 @@ class HullRouter {
         // return OAuthHandler(params);
       }
     }
-    return;
-  }
+  };
 
   async incomingData(
     route: string,
@@ -152,16 +156,26 @@ class HullRouter {
               classType,
               message
             );
-          } else {
-            if (dataType === 'user' && message.changes && message.changes.is_new) {
-              if (_.isEmpty(message.user.email)
-                && _.get(message.user, "outreach/created_by_webhook") === true
-                && _.get(message.user, "outreach/id")) {
-                return dispatcher.dispatchWithData(context, "getProspectById", classType, message);
-              }
-            }
-            return Promise.resolve();
           }
+          if (
+            dataType === "user" &&
+            message.changes &&
+            message.changes.is_new
+          ) {
+            if (
+              _.isEmpty(message.user.email) &&
+              _.get(message.user, "outreach/created_by_webhook") === true &&
+              _.get(message.user, "outreach/id")
+            ) {
+              return dispatcher.dispatchWithData(
+                context,
+                "getProspectById",
+                classType,
+                message
+              );
+            }
+          }
+          return Promise.resolve();
         })
       );
       context.client.logger.info("outgoing.job.success", {
@@ -200,40 +214,41 @@ class HullRouter {
     }
   }
 
-  status(ctx: HullContext): Promise<any> {
+  async status(ctx: HullContext): HullStatusResponse {
     const { connector, client } = ctx;
-    let status: string = "ok";
-    const messages: Array<string> = [];
+    const { private_settings = {} } = connector;
+    const { oauth = {} } = private_settings;
+    const { access_token } = oauth;
 
-    if (_.has(ctx, "connector.private_settings")) {
-      // changing this to an else if block so that we don't bombard the customers with different messages
-      // want to be clear with them the thing they need to do next
-      if (!_.has(connector, "private_settings.access_token")) {
-        status = "error";
-        messages.push(MESSAGES.STATUS_NO_ACCESS_TOKEN_FOUND().message);
-      } else if (
-        _.isEmpty(
-          _.get(connector, "private_settings.synchronized_account_segments", [])
-        ) &&
-        _.isEmpty(
-          _.get(connector, "private_settings.synchronized_user_segments", [])
-        )
-      ) {
-        status = "warning";
-        messages.push(MESSAGES.STATUS_WARNING_NOSEGMENTS().message);
-      }
-    } else {
-      status = "error";
-      messages.push(
-        MESSAGES.STATUS_CONNECTOR_MIDDLEWARE_MISCONFIGURED().message
-      );
+    if (!_.has(ctx, "connector.private_settings")) {
+      return {
+        status: "error",
+        messages: [MESSAGES.STATUS_CONNECTOR_MIDDLEWARE_MISCONFIGURED().message]
+      };
     }
 
-    return client
-      .put(`${connector.id}/status`, { status, messages })
-      .then(() => {
-        return { status, messages };
-      });
+    if (!access_token) {
+      return {
+        status: "setupRequired",
+        messages: [MESSAGES.STATUS_NO_ACCESS_TOKEN_FOUND().message]
+      };
+    }
+
+    if (
+      _.isEmpty(
+        _.get(connector, "private_settings.synchronized_account_segments", [])
+      ) &&
+      _.isEmpty(
+        _.get(connector, "private_settings.synchronized_user_segments", [])
+      )
+    ) {
+      return {
+        status: "warning",
+        messages: [MESSAGES.STATUS_WARNING_NOSEGMENTS().message]
+      };
+    }
+
+    return { status: "ok", messages: [] };
   }
 }
 

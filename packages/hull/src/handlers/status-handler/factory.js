@@ -1,50 +1,26 @@
 // @flow
-import type { Router } from "express";
 import type {
+  HullRouteMap,
   HullRequest,
   HullResponse,
   HullStatusHandlerConfigurationEntry,
   HullStatusResponse
-} from "hull";
+} from "../../types";
 import getRouter from "../get-router";
 import errorHandler from "../error-handler";
+import getMessage from "../../utils/get-message-from-request";
 
-// const STATUS_MAP = {
-//   ok: 0,
-//   warning: 1,
-//   error: 2
-// };
-//
-/**
- * @param {Array} checks
- * @example
- * app.use("/status", statusHandler([
- * (ctx) => {
- *   return Promise.resolve({
- *     status: "ok|error|warning",
- *     message: "Error Message"
- *   });
- * }
- * ]));
- */
-// @TODO: Finish wiring up this handler with a unified middleware stack
 function statusHandlerFactory(
   configurationEntry: HullStatusHandlerConfigurationEntry
-): Router {
+): HullRouteMap {
   const { method, options = {}, callback } = configurationEntry;
 
   async function handler(req: HullRequest, res: HullResponse) {
     try {
-      const response: HullStatusResponse = await callback(req.hull);
+      const message = getMessage(req);
+      const response: HullStatusResponse = await callback(req.hull, message);
+      await req.hull.client.put(`${req.hull.connector.id}/status`, response);
       res.json(response);
-      // const globalStatus = _.max(
-      //   _.map(responses, s => STATUS_MAP[s.status] || 2)
-      // );
-      // const messages = _.map(responses, s => s.message || "");
-      // res.json({
-      //   messages,
-      //   status: _.invert(STATUS_MAP)[globalStatus] || "error"
-      // });
     } catch (err) {
       res.status(500).json({
         status: "error"

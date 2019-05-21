@@ -1,21 +1,23 @@
 {
   "name": "Typeform",
   "description": "Fetch form responses",
+  "tags": ["incoming", "oneColumn"],
   "source": "typeform",
   "logo": "logo.png",
   "picture": "picture.png",
   "admin" : "admin",
   "version": "0.0.20-monorepo",
-  "credentials": [
+  "settings": [],
+  "private_settings":[
     {
-      "name": "OauthCredentials",
+      "name": "oauth",
       "title": "Oauth",
-      "format": "Oauth",
-      "type": "Oauth",
+      "format": "oauth",
+      "type": "object",
       "handler": "oauth",
       "url": "/auth",
       "options": {
-        "status": "/status",
+        "loadOptions": "/credentials-status",
         "name": "Typeform",
         "tokenInUrl": false,
         "strategy": {
@@ -32,15 +34,13 @@
           ]
         },
         "views": {
+          "login": "login.html",
+          "home": "home.html",
           "failure": "failure.html",
           "success": "success.html"
         }
       }
-    }
-  ],
-  "tags": ["incoming", "oneColumn"],
-  "settings": [],
-  "private_settings":[
+    },
     {
       "name":"form_id",
       "title": "Form",
@@ -92,6 +92,10 @@
       "handler":"fetchAllResponses"
     },
     {
+      "url": "/credentials-status",
+      "handler":"credentialsStatus"
+    },
+    {
       "url": "/schema/forms",
       "handler":"getForms"
     },
@@ -113,11 +117,16 @@
   ],
   "tabs": [
     {
-      "title": "Actions",
       "url": "/admin",
-      "handler": "admin",
-      "size": "small",
-      "editable": false
+      "handler": "admin"
+    }
+  ],
+  "statuses": [
+    {
+      "url": "/status",
+      "handler": "status",
+      "type": "interval",
+      "value": "5"
     }
   ],
   "schedules": [

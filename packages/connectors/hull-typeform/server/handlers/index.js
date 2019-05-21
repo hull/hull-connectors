@@ -1,7 +1,9 @@
 // @flow
 import type { HullHandlersConfiguration, Connector } from "hull";
 import {
-  oauth,
+  onAuthorize,
+  status,
+  credentialsStatus,
   refreshAccessToken,
   fetchAllResponses,
   fetchRecentResponses,
@@ -9,6 +11,8 @@ import {
   getEmailQuestions,
   getQuestions
 } from "../actions";
+
+const Strategy = require("passport-typeform").Strategy;
 
 const handlers = ({
   clientID,
@@ -18,17 +22,25 @@ const handlers = ({
   clientSecret: string
 }) => (_connector: Connector): HullHandlersConfiguration => ({
   schedules: { fetchRecentResponses, refreshAccessToken },
-  credentials: {
-    oauth: oauth({ clientID, clientSecret })
-  },
   json: {
     fetchRecentResponses,
     fetchAllResponses,
     getForms,
     getEmailQuestions,
-    getQuestions
+    getQuestions,
+    credentialsStatus
   },
-  tabs: { admin: oauth({ clientID, clientSecret }) }
+  statuses: {
+    status
+  },
+  private_settings: {
+    oauth: () => ({
+      onAuthorize,
+      Strategy,
+      clientID,
+      clientSecret
+    })
+  }
 });
 
 export default handlers;

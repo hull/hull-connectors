@@ -1,17 +1,16 @@
 // @flow
 
 import _ from "lodash";
-import type { HullSendResponse } from "hull";
-import type { HullContext } from "../types";
+import type { HullContext, HullStatusResponse } from "hull";
 
-module.exports = function statusCheck(ctx: HullContext): HullSendResponse {
+module.exports = function statusCheck(ctx: HullContext): HullStatusResponse {
   const { connector = {} } = ctx;
   const { private_settings, settings } = connector;
   if (!connector) {
-    return Promise.resolve({
+    return {
       status: "error",
       message: "Invalid credentials passed"
-    });
+    };
   }
   const messages = [];
   let status = "ok";
@@ -110,5 +109,5 @@ module.exports = function statusCheck(ctx: HullContext): HullSendResponse {
   }
 
   // return client.put(`${connector.id}/status`, { status, messages });
-  return Promise.resolve({ messages, status });
+  return { messages, status };
 };

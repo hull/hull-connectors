@@ -326,7 +326,6 @@ class HullConnector {
         }
       );
 
-
     // Setup Kraken handlers
     mapNotification(notificationHandler, "subscriptions");
 
@@ -345,7 +344,6 @@ class HullConnector {
 
     // Alpha-quality Credentials handlers - DO NOT expose both tab oAuth and Credentials
     mapRoute(OAuthHandler, "private_settings", "all");
-
 
     // Setup HTML handlers
     mapRoute(htmlHandler, "html", "get");

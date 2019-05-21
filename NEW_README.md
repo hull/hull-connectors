@@ -419,3 +419,34 @@ Defaults:
 - ttl = 60 seconds,
 - max: 100 Items
 - store: "memory"
+
+### Status handler
+By describing a `statuses` block in the manifest, you can have a strictly verified status endpoint:
+
+```
+"statuses": [
+  {
+    "url": "/status",
+    "handler": "statusHandler",
+    "type": "interval",
+    "value": "5"
+  }
+],
+```
+
+```js
+import type { HullStatusResponse, HullContext } from "hull";
+handlers = {
+  ...
+  statuses: {
+    statusHandler: async (ctx: HullContext): HullStatusResponse => {
+      return {
+        status: "ok" | "error" | "warning" | "setupRequired",
+        messages: ["string", "string"]
+      }
+    }
+  }
+}
+```
+
+The connector will take care of updating the status in the platform for you

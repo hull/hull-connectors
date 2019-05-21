@@ -1,7 +1,2 @@
-const webhookHandler = require("./webhook-handler");
-const statusCheck = require("./status-check");
-
-module.exports = {
-  webhookHandler,
-  statusCheck
-};
+module.exports.webhookHandler = require("./webhook-handler");
+module.exports.statusCheck = require("./status");

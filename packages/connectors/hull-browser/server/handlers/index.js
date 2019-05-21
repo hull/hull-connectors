@@ -5,7 +5,7 @@ import Redis from "redis";
 import SocketIO from "socket.io";
 import socketIOredis from "socket.io-redis";
 import Store from "../lib/store";
-import statusHandlerFactory from "./status-handler";
+import statusHandlerFactory from "./status";
 import userUpdateFactory from "./user-update";
 import connectorUpdateFactory from "./connector-update";
 import socketFactory from "../lib/socket-factory";

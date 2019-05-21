@@ -58,7 +58,7 @@
       "url": "/status",
       "type": "cron",
       "value": "*/30 * * * *",
-      "handler": "statusHandler"
+      "handler": "status"
     }
   ]
 }
