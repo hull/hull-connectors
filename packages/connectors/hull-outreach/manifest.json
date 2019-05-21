@@ -42,33 +42,6 @@
           "failure": "failure.html",
           "success": "success.html"
         }
-      },
-      "properties": {
-        "webhook_id": {
-          "title": "Outreach webhook id",
-          "type": "string",
-          "format": "hidden"
-        },
-        "access_token": {
-          "title": "OAuth Access Token",
-          "type": "string",
-          "format": "hidden"
-        },
-        "refresh_token": {
-          "title": "OAuth Refresh Token",
-          "type": "string",
-          "format": "hidden"
-        },
-        "expires_in": {
-          "title": "OAuth Token Expiration in seconds",
-          "type": "string",
-          "format": "hidden"
-        },
-        "created_at": {
-          "title": "OAuth Token Created At in millis since epoch",
-          "type": "string",
-          "format": "hidden"
-        }
       }
     },
     {
