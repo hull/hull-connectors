@@ -27,7 +27,7 @@ function notificationHandlerFactory(
     handlerName: "",
     handler: processingMiddleware(configuration),
     errorHandler: errorMiddleware(),
-    beforeMiddlewares: [clearConnectorCache],
+    afterMiddlewares: [clearConnectorCache],
     options: {
       credentialsFromNotification: true,
       credentialsFromQuery: false,
