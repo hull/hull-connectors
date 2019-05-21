@@ -12,7 +12,9 @@ export { default as Client } from "hull-client";
 export class Connector extends ConnectorClass {
   config: HullConnectorConfig;
 
-  constructor(connectorConfig: HullConnectorConfig) {
+  constructor(
+    connectorConfig: HullConnectorConfig | (() => HullConnectorConfig)
+  ) {
     super(
       {
         Worker,

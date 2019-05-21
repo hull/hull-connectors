@@ -1,10 +1,13 @@
+// @flow
+/* global describe, it, beforeEach, afterEach */
+import connectorConfig from "../../server/config";
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 process.env.CLIENT_ID = "123";
-process.env.SECRET = "abc";
+process.env.CLIENT_SECRET = "abc";
 
-import connectorConfig from "../../server/config";
-const connectorManifest = require("../../manifest");
+process.env.OVERRIDE_HUBSPOT_URL = "";
 
 const connector = {
     private_settings: {
@@ -15,7 +18,7 @@ const connector = {
 };
 
 it("Should set status to check Site ID and API Key if authentication returns status 401", () => {
-    return testScenario({connectorConfig, connectorManifest}, ({ handlers, nock, expect }) => {
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
         return {
             handlerType: handlers.scheduleHandler,
             handlerUrl: "status",

@@ -23,12 +23,13 @@ import {
   batchHandler,
   incomingRequestHandler,
   htmlHandler,
+  OAuthHandler,
   statusHandler
 } from "../handlers";
 
 import errorHandler from "./error";
 
-type RouterFactory = configurationEntry => void | HullRouteMap;
+type RouterFactory = any => void | HullRouteMap;
 
 const path = require("path");
 const Promise = require("bluebird");
@@ -337,6 +338,9 @@ class HullConnector {
 
     // Setup Tab handlers
     mapRoute(htmlHandler, "tabs", "all");
+
+    // Alpha-quality Credentials handlers - DO NOT expose both tab oAuth and Credentials
+    mapRoute(OAuthHandler, "credentials", "all");
 
     // Setup HTML handlers
     mapRoute(htmlHandler, "html", "get");

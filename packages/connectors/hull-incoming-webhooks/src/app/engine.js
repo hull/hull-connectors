@@ -2,7 +2,7 @@
 
 import _ from "lodash";
 import axios from "axios";
-import updateParent from "./lib/update-parent";
+import updateParent from "hull-vm/client/lib/update-parent";
 import type {
   EngineState,
   Config,

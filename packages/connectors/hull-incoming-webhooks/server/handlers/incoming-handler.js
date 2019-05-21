@@ -7,9 +7,7 @@ import type {
   HullIncomingHandlerMessage,
   HullExternalResponse
 } from "hull";
-import { compute, pickValuesFromRequest } from "hull-vm";
-import ingest from "../lib/ingest";
-import type { Payload } from "../../types";
+import { ingest, compute, pickValuesFromRequest } from "hull-vm";
 
 // const debug = require("debug")("hull-incoming-webhooks:incoming");
 

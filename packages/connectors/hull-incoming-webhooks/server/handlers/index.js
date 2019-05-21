@@ -1,5 +1,9 @@
 // @flow
-import type { HullHandlersConfiguration, Connector } from "hull";
+import type {
+  HullExternalResponse,
+  HullHandlersConfiguration,
+  Connector
+} from "hull";
 
 import getRecent from "./get-recent-handler";
 import incomingHandler from "./incoming-handler";
@@ -11,7 +15,9 @@ const handler = ({ EntryModel }: { EntryModel: any }) => (
   _connector: Connector
 ): HullHandlersConfiguration => {
   return {
-    tabs: { admin: () => ({ pageLocation: "admin.html" }) },
+    tabs: {
+      admin: (): HullExternalResponse => ({ pageLocation: "admin.html" })
+    },
     statuses: { statusHandler },
     incoming: { incomingHandler: incomingHandler(EntryModel) },
     json: {

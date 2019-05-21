@@ -1,6 +1,6 @@
 // @flow
 import type { HullClient, HullContext } from "hull";
-import type { UserTraits, AccountTraits, Event, Links } from "../../types";
+import type { UserTraits, AccountTraits, Event, Links } from "../types";
 
 type TraitsSignature =
   | {
