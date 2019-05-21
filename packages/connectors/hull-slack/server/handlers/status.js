@@ -24,7 +24,7 @@ const statusHandler = (connectSlack: ConnectSlackFunction) => async (
     if (!token || !bot_access_token) {
       return {
         status: "setupRequired",
-        messsges: [
+        messages: [
           'Credentials are empty, Token isn\'t present, please authorize the app by clicking "Credentials & Actions"'
         ]
       };
@@ -39,7 +39,7 @@ const statusHandler = (connectSlack: ConnectSlackFunction) => async (
       };
     }
 
-    await connectSlack({ client, connector });
+    await connectSlack(ctx);
 
     if (!notify_events.length) {
       return {
