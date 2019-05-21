@@ -23,81 +23,6 @@ const CALLBACK_URL = "/callback";
 const FAILURE_URL = "/failure";
 const SUCCESS_URL = "/success";
 
-/**
- * OAuthHandler is a packaged authentication handler using [Passport](http://passportjs.org/). You give it the right parameters, it handles the entire auth scenario for you.
- *
- * It exposes hooks to check if the ship is Set up correctly, inject additional parameters during login, and save the returned settings during callback.
- *
- * To make it working in Hull dashboard set following line in **manifest.json** file:
- *
- * ```json
- * {
- *   "admin": "/auth/"
- * }
- * ```
- *
- * For example of the notifications payload [see details](./notifications.md)
- *
- * @name OAuthHandler
- * @memberof Utils
- * @public
- * @param  {Object}    options
- * @param  {string}    options.name        The name displayed to the User in the various screens.
- * @param  {boolean}   options.tokenInUrl  Some services (like Stripe) require an exact URL match. Some others (like Hubspot) don't pass the state back on the other hand. Setting this flag to false (default: true) removes the `token` Querystring parameter in the URL to only rely on the `state` param.
- * @param  {Function}  options.isSetup     A method returning a Promise, resolved if the ship is correctly setup, or rejected if it needs to display the Login screen.
- * Lets you define in the Ship the name of the parameters you need to check for. You can return parameters in the Promise resolve and reject methods, that will be passed to the view. This lets you display status and show buttons and more to the customer
- * @param  {Function}  options.onAuthorize A method returning a Promise, resolved when complete. Best used to save tokens and continue the sequence once saved.
- * @param  {Function}  options.onLogin     A method returning a Promise, resolved when ready. Best used to process form parameters, and place them in `req.authParams` to be submitted to the Login sequence. Useful to add strategy-specific parameters, such as a portal ID for Hubspot for instance.
- * @param  {Function}  options.Strategy    A Passport Strategy.
- * @param  {Object}    options.views       Required, A hash of view files for the different screens: login, home, failure, success
- * @param  {Object}    options.options     Hash passed to Passport to configure the OAuth Strategy. (See [Passport OAuth Configuration](http://passportjs.org/docs/oauth))
- * @return {Function} OAuth handler to use with expressjs
- * @example
- * const { OAuthHandler } = require("hull/lib/utils");
- * const { Strategy as HubspotStrategy } = require("passport-hubspot");
- *
- * const app = express();
- *
- * app.use(
- *   '/auth',
- *   OAuthHandler({
- *    callback: () => ({
- *      Strategy: HubspotStrategy,
- *      isSetup () => {},,
- *      onAuthorize () => {},
- *      onLogin; () => {},
- *      clientID: xxx,
- *      clientSecret: xxx
- *    }),
- *    options: {
- *      tokenInUrl: true,
- *      name: "outreach",
- *      strategy: {
- *        authorizationURL: "https://xxx",
- *        tokenURL: "https://xxx",
- *        grant_type: "authorization_code",
- *        scope: ['offline', 'contacts-rw', 'events-rw']
- *      },
- *      views: {
- *        failure:"failure.html"
- *        success:"success.html"
- *      }
- *    } : HullOAuthHandlerParams
- * );
- *
- * //each view will receive the following data:
- * {
- *   name: "The name passed as handler",
- *   urls: {
- *     login: '/auth/login',
- *     success: '/auth/success',
- *     failure: '/auth/failure',
- *     home: '/auth/home',
- *   },
- *   ship: ship //The entire Ship instance's config
- * }
- */
-
 function fetchToken(req: HullRequest, res: $Response, next: NextFunction) {
   const token: string = (req.query.token || req.query.state || "").toString();
   if (token && token.split(".").length === 3) {
@@ -137,13 +62,12 @@ function OAuthHandlerFactory({
   }
   const {
     Strategy,
-    isSetup = noopPromise,
     onAuthorize = noopPromise,
     onLogin = noopPromise,
     clientID,
     clientSecret
   } = handlerParams;
-  const { tokenInUrl, name, strategy, views, status } = opts;
+  const { tokenInUrl, name, strategy, views } = opts;
   const { router } = getRouter({
     options: {
       credentialsFromQuery: true,
@@ -205,19 +129,6 @@ function OAuthHandlerFactory({
       })
     )(req, res, next);
   }
-
-  /* Returns status as a JSON */
-  router.get(status, async function statusResponse(
-    req: HullRequest,
-    res: HullResponse
-  ) {
-    try {
-      const response = await isSetup(req.hull, getMessage(req));
-      res.json(response);
-    } catch (err) {
-      res.status(500).json({ error: err.data });
-    }
-  });
 
   /* Redirects to Service's Auth Page */
   router.all(

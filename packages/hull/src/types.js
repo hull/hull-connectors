@@ -726,10 +726,6 @@ export type HullIncomingHandlerCallback = (
 export type HullSchedulerHandlerCallback = HullIncomingHandlerCallback;
 export type HullHtmlHandlerCallback = HullIncomingHandlerCallback;
 export type HullOAuthHandlerParams = void | {
-  isSetup?: (
-    ctx: HullContext,
-    message: HullIncomingHandlerMessage
-  ) => HullStatusResponse,
   onAuthorize?: (
     ctx: HullContext,
     message: HullOauthAuthorizeMessage
