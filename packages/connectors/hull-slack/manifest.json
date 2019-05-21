@@ -13,7 +13,6 @@
       "handler": "oauth",
       "url": "/auth",
       "options": {
-        "status": "/status",
         "name": "Slack",
         "strategy": {
           "scope": ["bot", "channels:write"],
