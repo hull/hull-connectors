@@ -3,6 +3,7 @@
 import type { HullHandlersConfiguration, Connector } from "hull";
 import { Strategy } from "passport-slack";
 import statusHandler from "./status";
+import credentialsStatus from "./credentials-status";
 import fetchDestination from "./fetch-destinations";
 import onAuthorize from "./oauth";
 import admin from "./admin";
@@ -42,7 +43,8 @@ const handler = ({
       shipUpdate: shipUpdate(connectSlack)
     },
     json: {
-      fetchDestination: fetchDestination(connectSlack)
+      fetchDestination: fetchDestination(connectSlack),
+      credentialsStatus
     },
     tabs: {
       admin

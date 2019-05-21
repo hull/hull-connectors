@@ -13,6 +13,7 @@
       "handler": "oauth",
       "url": "/auth",
       "options": {
+        "loadOptions": "/credentials-status",
         "name": "Slack",
         "strategy": {
           "scope": ["bot", "channels:write"],
@@ -327,6 +328,10 @@
     {
       "url": "/fetch-destinations",
       "handler": "fetchDestination"
+    },
+    {
+      "url": "/credentials-status",
+      "handler": "credentialsStatus"
     }
   ],
   "statuses": [
