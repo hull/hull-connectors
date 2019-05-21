@@ -1,12 +1,11 @@
 // @flow
 import type { HullContext, HullNotificationResponse } from "hull";
-import type { ConnectSlackParams } from "../types";
+import type { ConnectSlackFunction } from "../types";
 
-const update = (connectSlack: ConnectSlackParams => any) => async (
+const update = (connectSlack: ConnectSlackFunction) => async (
   ctx: HullContext
 ): HullNotificationResponse => {
-  const { client, connector } = ctx;
-  await connectSlack({ hull: client, connector, force: true });
+  await connectSlack(ctx);
   return {
     flow_control: {
       type: "next",

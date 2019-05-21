@@ -32,13 +32,13 @@ module.exports = ({
     const { private_settings = {} } = connector;
     const { token, bot = {} } = private_settings;
     const { bot_access_token } = bot;
-    if (!bot_access_token) {
-      return {
-        status: "error",
-        messsges: ["Can't find access token"]
-      };
-    }
     try {
+      if (!bot_access_token) {
+        return {
+          status: "error",
+          messages: ["Can't find access token"]
+        };
+      }
       console.log("isSetup", private_settings);
       await connectSlack({
         client,

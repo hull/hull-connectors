@@ -10,8 +10,18 @@ const formatList = (list, prefix = "") =>
 const fetchDestinations = (connectSlack: ConnectSlackFunction) => async (
   ctx: HullContext
 ): HullExternalResponse => {
-  const { slackInstance } = await connectSlack(ctx);
-  const { teamMembers, teamChannels } = slackInstance;
+  const {
+    teamMembers = undefined,
+    teamChannels = undefined
+  } = await connectSlack(ctx);
+  if (!teamMembers || !teamChannels) {
+    return {
+      status: 200,
+      data: {
+        options: [{ label: "Configure Slack credentials first " }]
+      }
+    };
+  }
   return {
     status: 200,
     data: {
