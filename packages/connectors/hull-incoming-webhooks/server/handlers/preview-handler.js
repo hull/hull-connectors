@@ -6,9 +6,8 @@ import type {
   HullExternalResponse
 } from "hull";
 
+import { compute } from "hull-vm";
 import type { PreviewRequest } from "../../types";
-
-import compute from "../lib/compute";
 
 export default async function computeHandler(
   ctx: HullContext,

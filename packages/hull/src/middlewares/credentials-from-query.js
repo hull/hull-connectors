@@ -1,27 +1,10 @@
 // @flow
 import type { NextFunction } from "express";
-import qs from "querystring";
-import crypto from "crypto";
 import jwt from "jwt-simple";
+import { encrypt, decrypt } from "../utils/crypto";
 import type { HullRequest, HullResponse } from "../types";
 
 const debug = require("debug")("hull-connector:credentials-from-query");
-
-const algorithm = "aes-128-cbc";
-
-function encrypt(config: Object, password: string): string {
-  const cipher = crypto.createCipher(algorithm, password);
-  let crypted = cipher.update(qs.stringify(config), "utf8", "base64");
-  crypted += cipher.final("base64");
-  return encodeURIComponent(crypted);
-}
-
-function decrypt(config: string, password: string): Object {
-  const decipher = crypto.createDecipher(algorithm, password);
-  let dec = decipher.update(decodeURIComponent(config), "base64", "utf8");
-  dec += decipher.final("utf8");
-  return qs.parse(dec);
-}
 
 function getToken(query: $PropertyType<HullRequest, "query">): string {
   if (query) {
