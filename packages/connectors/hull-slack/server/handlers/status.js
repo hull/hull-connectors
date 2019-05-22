@@ -12,13 +12,13 @@ const statusHandler = (connectSlack: ConnectSlackFunction) => async (
 ): HullStatusResponse => {
   const { connector, client } = ctx;
   const { private_settings } = connector;
-  const { oauth = {}, notify_events = [] } = private_settings;
   const {
     token,
     team_id,
     user_id,
-    bot: { bot_user_id, bot_access_token } = {}
-  } = oauth;
+    bot: { bot_user_id, bot_access_token } = {},
+    notify_events = []
+  } = private_settings;
   try {
     if (!token || !bot_access_token) {
       return {

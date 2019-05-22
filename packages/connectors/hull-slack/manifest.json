@@ -23,45 +23,48 @@
           "failure": "failure.html",
           "success": "success.html"
         }
-      },
+      }
+    },
+    {
+      "name": "token",
+      "title": "Token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "team_id",
+      "title": "team_id",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "user_id",
+      "title": "user_id",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "bot",
+      "title": "Bot",
+      "type": "object",
+      "format": "hidden",
       "properties": {
-        "token": {
-          "title": "Token",
-          "type": "string",
-          "format": "hidden"
+        "bot_user_id": {
+          "title": "bot_user_id",
+          "type": "string"
         },
-        "team_id": {
-          "title": "team_id",
-          "type": "string",
-          "format": "hidden"
-        },
-        "user_id": {
-          "title": "user_id",
-          "type": "string",
-          "format": "hidden"
-        },
-        "bot": {
-          "title": "Bot",
-          "type": "object",
-          "format": "hidden",
-          "properties": {
-            "bot_user_id": {
-              "title": "bot_user_id",
-              "type": "string"
-            },
-            "bot_access_token": {
-              "title": "bot_access_token",
-              "type": "string"
-            }
-          }
+        "bot_access_token": {
+          "title": "bot_access_token",
+          "type": "string"
         }
       }
     },
+
     {
       "name": "FetchAllButton",
       "format": "actionButton",
       "type": "object",
-      "properties":{
+      "properties": {
         "fetchUsers": {
           "type": "string",
           "format": "button",
@@ -82,9 +85,6 @@
         }
       }
     },
-
-
-
 
     {
       "name": "notify_events",
@@ -274,7 +274,6 @@
     }
   ],
 
-
   "settings_sections": [
     {
       "title": "Credentials",
@@ -334,6 +333,12 @@
       "handler": "credentialsStatus"
     }
   ],
+  "status": {
+    "url": "/status",
+    "handler": "statusHandler",
+    "type": "interval",
+    "value": "5"
+  },
   "statuses": [
     {
       "url": "/status",

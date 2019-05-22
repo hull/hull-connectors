@@ -24,12 +24,10 @@ const onAuthorize = (connectSlack: ConnectSlackFunction) => async (
   const connectorData = {
     private_settings: {
       ...connector.private_settings,
-      oauth: {
-        bot,
-        team_id,
-        user_id,
-        token: accessToken
-      }
+      bot,
+      team_id,
+      user_id,
+      token: accessToken
     }
   };
   await connectSlack({ ...ctx, connector: { ...connector, ...connectorData } });

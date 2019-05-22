@@ -342,7 +342,7 @@ class HullConnector {
     // Setup Tab handlers
     mapRoute(htmlHandler, "tabs", "all");
 
-    // Alpha-quality Credentials handlers - DO NOT expose both tab oAuth and Credentials
+    // TODO: Alpha-quality Credentials handlers - DO NOT expose both tab oAuth and Credentials
     mapRoute(OAuthHandler, "private_settings", "all");
 
     // Setup HTML handlers

@@ -47,11 +47,10 @@ const update = (connectSlack: ConnectSlackFunction) => async (
   const { client, connector, metric } = ctx;
   const { private_settings = {} } = connector;
   const {
-    oauth = {},
+    user_id = "",
     notify_events = [],
     attachements = []
   } = private_settings;
-  const { user_id = "" } = oauth;
   try {
     const { post, tellOperator } = await connectSlack(ctx);
     if (!post || !tellOperator) {
