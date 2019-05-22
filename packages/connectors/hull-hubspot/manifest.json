@@ -57,7 +57,7 @@
             "title": "Hubspot Identifier",
             "type": "string",
             "format": "select",
-            "options" : {
+            "options": {
               "allowCreate": false,
               "loadOptions": "/schema/incoming_user_claims"
             }
@@ -66,7 +66,7 @@
             "title": "Hull Identifier",
             "enum": ["external_id", "email"]
           },
-          "required" : {
+          "required": {
             "type": "boolean",
             "title": "required?"
           }
@@ -156,7 +156,7 @@
             "title": "Hubspot Identifier",
             "type": "string",
             "format": "select",
-            "options" : {
+            "options": {
               "allowCreate": false,
               "loadOptions": "/schema/incoming_account_claims"
             }
@@ -165,7 +165,7 @@
             "title": "Hull Identifier",
             "enum": ["external_id", "domain"]
           },
-          "required" : {
+          "required": {
             "type": "boolean",
             "title": "required?"
           }
@@ -335,8 +335,7 @@
       "value": "5",
       "handler": "fetch",
       "options": {
-        "fireAndForget": true,
-        "strict": false
+        "fireAndForget": true
       }
     },
     {
@@ -345,8 +344,7 @@
       "value": "5",
       "handler": "fetchRecentCompanies",
       "options": {
-        "fireAndForget": true,
-        "strict": false
+        "fireAndForget": true
       }
     },
     {
@@ -355,8 +353,7 @@
       "value": "5",
       "handler": "checkToken",
       "options": {
-        "fireAndForget": true,
-        "strict": false
+        "fireAndForget": true
       }
     }
   ],
@@ -376,11 +373,11 @@
   "json": [
     {
       "url": "/fetch-all",
-      "handler":"fetchAll"
+      "handler": "fetchAll"
     },
     {
       "url": "/fetch-all-contacts",
-      "handler":"fetchAll"
+      "handler": "fetchAll"
     },
     {
       "url": "/credentials-status",
@@ -388,26 +385,26 @@
     },
     {
       "url": "/fetch-all-companies",
-      "handler":"fetchAllCompanies"
+      "handler": "fetchAllCompanies"
     },
     {
       "url": "/schema/contact_properties",
-      "handler":"getContactProperties",
+      "handler": "getContactProperties",
       "options": { "respondWithError": true }
     },
     {
       "url": "/schema/incoming_user_claims",
-      "handler":"getIncomingUserClaims",
+      "handler": "getIncomingUserClaims",
       "options": { "respondWithError": false }
     },
     {
       "url": "/schema/incoming_account_claims",
-      "handler":"getIncomingAccountClaims",
+      "handler": "getIncomingAccountClaims",
       "options": { "respondWithError": false }
     },
     {
       "url": "/schema/company_properties",
-      "handler":"getCompanyProperties"
+      "handler": "getCompanyProperties"
     }
   ]
 }

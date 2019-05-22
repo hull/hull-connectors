@@ -98,6 +98,7 @@ it("should update customer", () => {
           },
           {
             "customerio/created_at": expect.any(Number),
+            "customerio/deleted_at": null,
             "customerio/hash": expect.whatever(),
             "customerio/id": "123",
             "customerio/synced_at": expect.whatever()
