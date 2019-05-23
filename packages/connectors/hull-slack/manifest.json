@@ -19,10 +19,6 @@
         "strategy": {
           "scope": ["bot", "channels:write"],
           "skipUserProfile": true
-        },
-        "views": {
-          "failure": "failure.html",
-          "success": "success.html"
         }
       }
     },
@@ -336,14 +332,14 @@
   "status": {
     "initial_value": "setupRequired",
     "url": "/status",
-    "handler": "statusHandler",
+    "handler": "status",
     "type": "interval",
     "value": "5"
   },
   "statuses": [
     {
       "url": "/status",
-      "handler": "statusHandler",
+      "handler": "status",
       "type": "interval",
       "value": "5"
     }

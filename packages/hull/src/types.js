@@ -742,10 +742,6 @@ export type HullOAuthHandlerOptions = {
   name: string,
   tokenInUrl?: boolean,
   status: string,
-  views: {
-    failure: string,
-    success: string
-  },
   strategy: {
     authorizationURL: string,
     tokenURL: string,

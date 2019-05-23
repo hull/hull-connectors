@@ -37,10 +37,6 @@
             "accounts.all",
             "webhooks.all"
           ]
-        },
-        "views": {
-          "failure": "failure.html",
-          "success": "success.html"
         }
       }
     },
