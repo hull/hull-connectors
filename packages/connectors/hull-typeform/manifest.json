@@ -32,12 +32,6 @@
             "workspaces:read",
             "offline"
           ]
-        },
-        "views": {
-          "login": "login.html",
-          "home": "home.html",
-          "failure": "failure.html",
-          "success": "success.html"
         }
       }
     },

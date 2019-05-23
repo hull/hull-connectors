@@ -2,7 +2,7 @@
 /* eslint-disable global-require */
 import type { HullHandlersConfiguration, Connector } from "hull";
 import { Strategy } from "passport-slack";
-import statusHandler from "./status";
+import status from "./status";
 import credentialsStatus from "./credentials-status";
 import fetchDestination from "./fetch-destinations";
 import onAuthorize from "./oauth";
@@ -36,7 +36,7 @@ const handler = ({
     devMode
   });
   return {
-    statuses: { statusHandler: statusHandler(connectSlack) },
+    statuses: { status: status(connectSlack) },
     subscriptions: {
       userUpdate: userUpdate(connectSlack),
       accountUpdate: accountUpdate(connectSlack),

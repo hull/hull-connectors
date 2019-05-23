@@ -30,10 +30,6 @@
         "name": "Hubspot",
         "strategy": {
           "scope": ["oauth", "contacts", "timeline"]
-        },
-        "views": {
-          "failure": "failure.html",
-          "success": "success.html"
         }
       }
     },

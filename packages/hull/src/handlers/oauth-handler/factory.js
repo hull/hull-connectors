@@ -11,8 +11,6 @@ import type { NextFunction, $Response } from "express";
 import getRouter from "../get-router";
 import getMessage from "../../utils/get-message-from-request";
 
-const _ = require("lodash");
-
 const passport = require("passport");
 const querystring = require("querystring");
 const debug = require("debug")("hull-connector:oauth-handler");
@@ -22,6 +20,9 @@ const LOGIN_URL = "/";
 const CALLBACK_URL = "/callback";
 const FAILURE_URL = "/failure";
 const SUCCESS_URL = "/success";
+
+const FAILURE_VIEW = "../../../assets/partials/login-failed.ejs";
+const SUCCESS_VIEW = "../../../assets/partials/login-success.ejs";
 
 function fetchToken(req: HullRequest, res: $Response, next: NextFunction) {
   const token: string = (req.query.token || req.query.state || "").toString();
@@ -60,14 +61,17 @@ function OAuthHandlerFactory({
   if (!handlerParams) {
     return undefined;
   }
+
   const {
     Strategy,
     onAuthorize = noopPromise,
     onLogin = noopPromise,
+    onStatus = noopPromise,
     clientID,
     clientSecret
   } = handlerParams;
-  const { tokenInUrl, name, strategy, views } = opts;
+
+  const { loadOptions, tokenInUrl, name, strategy } = opts;
   const { router } = getRouter({
     options: {
       credentialsFromQuery: true,
@@ -118,16 +122,19 @@ function OAuthHandlerFactory({
   passport.use(OAuthStrategy);
 
   function authorize(req: HullRequest, res: HullResponse, next: NextFunction) {
-    passport.authorize(
-      OAuthStrategy.name,
-      _.merge({}, req.hull.authParams, {
-        callbackURL: getURL(
-          req,
-          CALLBACK_URL,
-          tokenInUrl ? { token: req.hull.clientCredentialsToken } : false
-        )
-      })
-    )(req, res, next);
+    passport.authorize(OAuthStrategy.name, {
+      ...req.hull.authParams,
+      failureRedirect: getURL(
+        req,
+        FAILURE_URL,
+        tokenInUrl ? { token: req.hull.clientCredentialsToken } : false
+      ),
+      callbackURL: getURL(
+        req,
+        CALLBACK_URL,
+        tokenInUrl ? { token: req.hull.clientCredentialsToken } : false
+      )
+    })(req, res, next);
   }
 
   /* Redirects to Service's Auth Page */
@@ -141,16 +148,31 @@ function OAuthHandlerFactory({
         const authParams = await onLogin(ctx, message);
         req.hull.authParams = {
           ...authParams,
-          state: req.hull.clientCredentialsToken
+          state: req.hull.clientCredentialsEncryptedToken
         };
         next();
       } catch (err) {
-        next();
+        next(err);
       }
     },
     authorize
   );
 
+  router.all(
+    loadOptions,
+    async (req: HullRequest, res: HullResponse, next: NextFunction) => {
+      try {
+        const message = getMessage(req);
+        const { hull: ctx } = req;
+        const response = await onStatus(ctx, message);
+        res.json(response);
+        next();
+      } catch (err) {
+        res.json({ error: err.message });
+        next(err);
+      }
+    }
+  );
   /* failed auth */
   router.get(FAILURE_URL, function failure(
     req: HullRequest,
@@ -158,7 +180,7 @@ function OAuthHandlerFactory({
   ) {
     const { client } = req.hull;
     client.logger.debug("connector.oauth.failure");
-    return res.render(views.failure, { name, urls: getURLs(req) });
+    return res.render(FAILURE_VIEW, { name, urls: getURLs(req) });
   });
 
   /* receives the data from the services, saves it and redirects to next step */
@@ -202,7 +224,7 @@ function OAuthHandlerFactory({
   ) {
     const { client } = req.hull;
     client.logger.debug("connector.oauth.success");
-    return res.render(views.success, { name, urls: getURLs(req) });
+    return res.render(SUCCESS_VIEW, { name, urls: getURLs(req) });
   });
 
   /* Error Handler */
@@ -213,7 +235,7 @@ function OAuthHandlerFactory({
       if (client) {
         client.logger.error("connector.oauth.error", error);
       }
-      return res.render(views.failure, {
+      return res.render(FAILURE_VIEW, {
         name,
         urls: getURLs(req),
         error: error.message || error.toString() || ""
