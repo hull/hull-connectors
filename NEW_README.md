@@ -275,7 +275,9 @@ _NOTE: This also parses JWT tokens with the same logic. We just try to decode bo
 ## oauth handler
 
 The OAuth Handler has been rewritten.
-It is now stricter and requires less configuration. Here's how you use it:
+It is now stricter and requires less configuration.
+The `Status` endpoint is configured to be `${URL}/status` -> here below it would be `/auth/status`
+Here's how you use it:
 
 ### Manifest
 
@@ -296,12 +298,6 @@ It is now stricter and requires less configuration. Here's how you use it:
           "strategy": {
             "scope": ["bot", "channels:write"],
             "skipUserProfile": true
-          },
-          "views": {
-            "login": "login.html",
-            "home": "home.html",
-            "failure": "failure.html",
-            "success": "success.html"
           }
         }
       }
@@ -324,18 +320,19 @@ import type {
 } from "hull";
 import { Strategy } from "passport-slack";
 
-async function isSetup(ctx: HullContext, message: HullIncomingHandlerMessage){
+async function onStatus(ctx: HullContext, message: HullIncomingHandlerMessage): HullExternalResponse{
   const { connector, client } = ctx;
   const { query = {} } = message;
   //Logic to define if connector is properly setup here.
   //...
   //return the data you wish to pass to the page, and a redirect code.
   if (connector_is_setup) {
-    return { status: 200, data: { credentials: true, connected: true } }
+    return { status: 200, data: { message: "Connected", html: "<p>Connected</p>" } }
   } else {
-    return { status: 404, data: { credentials: false, connected: false } }
+    return { status: 400, data: { message: "Error", html: "<p>Error</p>" } }
   }
 }
+
 async function onAuthorize(ctx: HullContext, message: HullOauthAuthorizeMessage): HullOAuthAuthorizeResponse {
   //actions to perform when receiving auth code. Will be present in message.account.
   //message contains all the interesting components of a HTTP request: See HullIncomingHandlerMessage
@@ -371,7 +368,7 @@ const connectorConfig: HullConnectorConfig = {
           Strategy,
           clientID
           clientSecret,
-          isSetup,
+          onStatus,
           onAuthorize,
           onLogin
         }
