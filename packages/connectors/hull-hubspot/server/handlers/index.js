@@ -7,11 +7,11 @@ import {
   fetchRecentCompanies,
   checkToken,
   status,
-  credentialsStatus,
   getContactProperties,
   getIncomingUserClaims,
   getIncomingAccountClaims,
   getCompanyProperties,
+  onStatus,
   onAuthorize,
   onLogin,
   admin
@@ -46,6 +46,7 @@ const handler = ({
       oauth: () => ({
         onAuthorize,
         onLogin,
+        onStatus,
         Strategy,
         clientID,
         clientSecret
@@ -54,7 +55,6 @@ const handler = ({
     statuses: { status },
     schedules: { checkToken, fetchRecentCompanies, fetch },
     json: {
-      credentialsStatus,
       fetchAll,
       fetchAllCompanies,
       getContactProperties,

@@ -23,7 +23,6 @@
       "handler": "oauth",
       "url": "/auth",
       "options": {
-        "loadOptions": "/credentials-status",
         "tokenInUrl": true,
         "name": "Outreach",
         "strategy": {
@@ -344,10 +343,6 @@
       "options": {
         "fireAndForget": true
       }
-    },
-    {
-      "url": "/credentials-status",
-      "handler": "credentialsStatus"
     },
     {
       "url": "/fields-outreach-prospect-in",

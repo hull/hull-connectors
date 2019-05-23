@@ -730,6 +730,10 @@ export type HullOAuthHandlerParams = void | {
     ctx: HullContext,
     message: HullOauthAuthorizeMessage
   ) => HullOAuthAuthorizeResponse,
+  onStatus?: (
+    ctx: HullContext,
+    message: HullIncomingHandlerMessage
+  ) => HullStatusResponse,
   onLogin?: (
     ctx: HullContext,
     message: HullIncomingHandlerMessage
@@ -741,7 +745,6 @@ export type HullOAuthHandlerParams = void | {
 export type HullOAuthHandlerOptions = {
   name: string,
   tokenInUrl?: boolean,
-  status: string,
   strategy: {
     authorizationURL: string,
     tokenURL: string,

@@ -2,6 +2,7 @@ import type {
   HullContext,
   HullExternalResponse,
   HullIncomingHandlerMessage,
+  HullExternalResponse,
   HullOAuthHandlerParams,
   HullOauthAuthorizeMessage,
   HullOAuthAuthorizeResponse
@@ -10,24 +11,28 @@ import type {
 const _ = require("lodash");
 
 const oauth2 = {
-  isSetup: async (
+  onStatus: async (
     ctx: HullContext,
     message: HullIncomingHandlerMessage
   ): HullExternalResponse => {
     const { connector } = ctx;
-    if (message.query.reset) {
-      throw new Error("Requested reset");
-    }
     const { token } = connector.private_settings || {};
     if (token) {
       // We've got a token, We're all good!
       // TODO do we want to check to see if the token is good?
       return {
         status: 200,
-        data: {}
+        data: {
+          message: "Connected to Outreach"
+        }
       };
     }
-    throw new Error("Not authorized");
+    return {
+      status: 400,
+      data: {
+        message: "Not Authorized"
+      }
+    }
   },
   onLogin: async (
     ctx: HullContext,
