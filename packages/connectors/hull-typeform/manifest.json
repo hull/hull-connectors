@@ -17,7 +17,6 @@
       "handler": "oauth",
       "url": "/auth",
       "options": {
-        "loadOptions": "/credentials-status",
         "name": "Typeform",
         "tokenInUrl": false,
         "strategy": {
@@ -84,10 +83,6 @@
     {
       "url": "/fetch-all-responses",
       "handler":"fetchAllResponses"
-    },
-    {
-      "url": "/credentials-status",
-      "handler":"credentialsStatus"
     },
     {
       "url": "/schema/forms",

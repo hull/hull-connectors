@@ -11,4 +11,4 @@ module.exports.onAuthorize = require("./on-authorize");
 module.exports.onLogin = require("./on-login");
 module.exports.admin = require("./admin");
 module.exports.status = require("./status");
-module.exports.credentialsStatus = require("./credentials-status");
+module.exports.onStatus = require("./on-status");

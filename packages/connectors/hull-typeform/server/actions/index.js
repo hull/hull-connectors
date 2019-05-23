@@ -1,8 +1,8 @@
 /* eslint-disable global-require */
 module.exports = {
   onAuthorize: require("./on-authorize"),
+  onStatus: require("./on-status"),
   status: require("./status"),
-  credentialStatus: require("./credentials-status"),
   fetchAllResponses: require("./fetch-all-responses"),
   fetchRecentResponses: require("./fetch-recent-responses"),
   getForms: require("./get-forms"),

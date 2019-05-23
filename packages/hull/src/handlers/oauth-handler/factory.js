@@ -18,6 +18,7 @@ const debug = require("debug")("hull-connector:oauth-handler");
 // const HOME_URL = "";
 const LOGIN_URL = "/";
 const CALLBACK_URL = "/callback";
+const STATUS_URL = "/status";
 const FAILURE_URL = "/failure";
 const SUCCESS_URL = "/success";
 
@@ -71,7 +72,7 @@ function OAuthHandlerFactory({
     clientSecret
   } = handlerParams;
 
-  const { loadOptions, tokenInUrl, name, strategy } = opts;
+  const { tokenInUrl, name, strategy } = opts;
   const { router } = getRouter({
     options: {
       credentialsFromQuery: true,
@@ -159,7 +160,7 @@ function OAuthHandlerFactory({
   );
 
   router.all(
-    loadOptions,
+    STATUS_URL,
     async (req: HullRequest, res: HullResponse, next: NextFunction) => {
       try {
         const message = getMessage(req);

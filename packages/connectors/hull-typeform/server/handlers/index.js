@@ -2,8 +2,8 @@
 import type { HullHandlersConfiguration, Connector } from "hull";
 import {
   onAuthorize,
+  onStatus,
   status,
-  credentialsStatus,
   refreshAccessToken,
   fetchAllResponses,
   fetchRecentResponses,
@@ -27,8 +27,7 @@ const handlers = ({
     fetchAllResponses,
     getForms,
     getEmailQuestions,
-    getQuestions,
-    credentialsStatus
+    getQuestions
   },
   statuses: {
     status
@@ -36,6 +35,7 @@ const handlers = ({
   private_settings: {
     oauth: () => ({
       onAuthorize,
+      onStatus,
       Strategy,
       clientID,
       clientSecret

@@ -3,9 +3,9 @@
 import type { HullHandlersConfiguration, Connector } from "hull";
 import { Strategy } from "passport-slack";
 import status from "./status";
-import credentialsStatus from "./credentials-status";
+import onStatus from "./on-status";
 import fetchDestination from "./fetch-destinations";
-import onAuthorize from "./oauth";
+import onAuthorize from "./on-authorize";
 import admin from "./admin";
 import userUpdate from "./user-update";
 import accountUpdate from "./account-update";
@@ -43,8 +43,7 @@ const handler = ({
       shipUpdate: shipUpdate(connectSlack)
     },
     json: {
-      fetchDestination: fetchDestination(connectSlack),
-      credentialsStatus
+      fetchDestination: fetchDestination(connectSlack)
     },
     tabs: {
       admin
@@ -52,6 +51,7 @@ const handler = ({
     private_settings: {
       oauth: () => ({
         onAuthorize: onAuthorize(connectSlack),
+        onStatus,
         Strategy,
         clientID,
         clientSecret
