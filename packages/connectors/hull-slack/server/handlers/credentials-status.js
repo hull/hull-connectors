@@ -20,7 +20,8 @@ const statusHandler = async (
     return {
       status: 200,
       data: {
-        message: `Connected to team ${team_id}`
+        message: `Connected to team ${team_id}`,
+        html: `Connected to team <span>${team_id}</span>`
       }
     };
   }

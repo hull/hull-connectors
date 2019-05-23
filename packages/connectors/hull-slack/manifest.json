@@ -7,9 +7,10 @@
   "private_settings": [
     {
       "name": "oauth",
-      "title": "Oauth",
+      "title": "Credentials",
+      "description": "On the authentication screen, log into Slack with your username and password, if you are not already logged in",
       "format": "oauth",
-      "type": "object",
+      "type": "string",
       "handler": "oauth",
       "url": "/auth",
       "options": {
@@ -276,8 +277,7 @@
 
   "settings_sections": [
     {
-      "title": "Credentials",
-      "description": "FooBar",
+      "title": "Connect with Slack",
       "step": "credentials",
       "properties": ["private_settings.oauth"]
     },
@@ -334,6 +334,7 @@
     }
   ],
   "status": {
+    "initial_value": "setupRequired",
     "url": "/status",
     "handler": "statusHandler",
     "type": "interval",

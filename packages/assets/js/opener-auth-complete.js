@@ -1,5 +1,5 @@
 function onAuthComplete() {
-  window.opener.hullAuthCompleted();
+  // window.opener.hullAuthCompleted();
   window.close();
 }
 window.finish = onAuthComplete;
