@@ -616,14 +616,14 @@ export type HullOAuthAuthorizeResponseData = void | {
 };
 export type HullOAuthAuthorizeResponse = void | Promise<HullOAuthAuthorizeResponseData>;
 
-export type HullCredentialsStatusResponseData = void | {
+export type HullSettingsResponseData = void | {
   status: number,
   data: {
     message: string,
     html?: string
   }
 };
-export type HullCredentialsStatusResponse = void | Promise<HullCredentialsStatusResponseData>;
+export type HullSettingsResponse = void | Promise<HullSettingsResponseData>;
 
 export type HullStatusResponseData =
   | {
