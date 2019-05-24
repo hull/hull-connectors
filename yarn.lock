@@ -7502,13 +7502,13 @@ https-proxy-agent@^2.2.0, https-proxy-agent@^2.2.1:
     debug "^3.1.0"
 
 "hull-client@link:packages/hull-client":
-  version "0.0.17-monorepo"
+  version "0.0.20-monorepo"
   dependencies:
     jwt-simple "^0.5.0"
     winston "^2.2.0"
 
 "hull-connector-framework@link:packages/hull-connector-framework":
-  version "0.0.17-monorepo"
+  version "0.0.20-monorepo"
 
 "hull-vm@link:packages/hull-vm":
   version "0.0.13-monorepo"
@@ -7527,7 +7527,7 @@ https-proxy-agent@^2.2.0, https-proxy-agent@^2.2.1:
     vm2 "^3.6.10"
 
 "hull@link:packages/hull":
-  version "0.0.17-monorepo"
+  version "0.0.20-monorepo"
   dependencies:
     aws-sdk "^2.81.0"
     batch-stream "^0.1.3"
@@ -10190,7 +10190,7 @@ mini-css-extract-plugin@^0.6.0:
     webpack-sources "^1.1.0"
 
 "minihull@link:packages/minihull":
-  version "0.0.17-monorepo"
+  version "0.0.20-monorepo"
   dependencies:
     faker "^4.1.0"
     lodash-id "^0.14.0"
@@ -15025,13 +15025,6 @@ supports-color@^6.0.0, supports-color@^6.1.0:
   dependencies:
     has-flag "^3.0.0"
 
-swal@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/swal/-/swal-0.1.0.tgz#730c1219a627ccc9cdd7f209a8c09d9e438a28fb"
-  integrity sha1-cwwSGaYnzMnN1/IJqMCdnkOKKPs=
-  dependencies:
-    vue "^2.0.1"
-
 sweetalert@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/sweetalert/-/sweetalert-2.1.2.tgz#010baaa80d0dbdc86f96bfcaa96b490728594b79"
@@ -16160,11 +16153,6 @@ vue-template-compiler@^2.5.16:
   dependencies:
     de-indent "^1.0.2"
     he "^1.1.0"
-
-vue@^2.0.1:
-  version "2.6.10"
-  resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.10.tgz#a72b1a42a4d82a721ea438d1b6bf55e66195c637"
-  integrity sha512-ImThpeNU9HbdZL3utgMCq0oiMzAkt1mcgy3/E6zWC/G6AaQoeuFdsl9nDhTDU3X1R6FK7nsIUuRACVcjI+A2GQ==
 
 w3c-hr-time@^1.0.1:
   version "1.0.1"

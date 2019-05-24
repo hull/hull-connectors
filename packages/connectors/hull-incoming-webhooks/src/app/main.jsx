@@ -18,7 +18,7 @@ import {
   Header,
   CodeTitle,
   Spinner
-} from "hull-vm/client/ui";
+} from "hull-vm/src/ui";
 import type { Result } from "hull-vm";
 import type Engine from "./engine";
 import type { EngineState } from "../../types";

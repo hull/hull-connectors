@@ -15,7 +15,7 @@ const getEntry = files =>
         v
           .split("/")
           .pop()
-          .replace(/.(js|jsx|css|scss)/, "")
+          .replace(/.(js|jsx|css|scss)$/, "")
       ] = v;
       return m;
     },
@@ -45,24 +45,12 @@ const buildConfig = ({ files, destination, mode = "production" }) => ({
   },
 
   resolve: {
-    modules: [`${process.cwd()}/src`, "node_modules"],
+    modules: [`${process.cwd()}/packages`, "node_modules"],
     extensions: [".js", ".jsx", ".css", ".scss"]
   },
 
   module: {
     rules: [
-      // {
-      //   enforce: "pre",
-      //   test: /\.(js|jsx)$/,
-      //   exclude: /node_modules/,
-      //   loader: "eslint-loader",
-      //   options: {
-      //     failOnWarning: true,
-      //     failOnError: true,
-      //     emitWarning: true,
-      //     configFile: "./.eslintrc.js"
-      //   }
-      // },
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
@@ -98,5 +86,6 @@ module.exports = ({ source, destination, mode }) => {
   if (!files || !files.length) {
     return undefined;
   }
+  console.log(`${process.cwd()}/packages`)
   return buildConfig({ files, destination, mode });
 };

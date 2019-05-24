@@ -1,4 +1,3 @@
-
 const _ = require("lodash");
 const glob = require("glob");
 const configBuilder = require("./webpack.config");
@@ -15,6 +14,7 @@ module.exports = function buildConfig() {
       });
       if (conf) {
         console.log(`=> Detected client files for ${name}`);
+        console.log(_.values(conf.entry));
         configs.push({ ...conf, name });
       }
       return configs;

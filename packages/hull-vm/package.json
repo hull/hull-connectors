@@ -3,7 +3,7 @@
   "description": "Hull VM Base",
   "version": "0.0.13-monorepo",
   "homepage": "https://github.com/hull/hull-connectors",
-  "main": "lib/index.js",
+  "main": "server/index.js",
   "scripts": {},
   "dependencies": {
     "ace-builds": "^1.4.4",

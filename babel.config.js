@@ -9,6 +9,8 @@ module.exports = api => {
       "packages/minihull/src",
       "packages/server",
       "packages/hull/src",
+      "packages/hull-vm/server",
+      "packages/hull-vm/src",
       "packages/hull-client/src"
     ],
     presets: [
