@@ -11,6 +11,7 @@ import type { NextFunction, $Response } from "express";
 import getRouter from "../get-router";
 import getMessage from "../../utils/get-message-from-request";
 
+const cors = require("cors");
 const passport = require("passport");
 const querystring = require("querystring");
 const debug = require("debug")("hull-connector:oauth-handler");
@@ -81,7 +82,7 @@ function OAuthHandlerFactory({
     },
     requestName: "OAuth",
     bodyParser: "urlencoded",
-    beforeMiddlewares: [fetchToken],
+    beforeMiddlewares: [fetchToken, cors()],
     afterMiddlewares: [passport.initialize()]
     // disableErrorHandling: false
   });
@@ -165,8 +166,8 @@ function OAuthHandlerFactory({
       try {
         const message = getMessage(req);
         const { hull: ctx } = req;
-        const response = await onStatus(ctx, message);
-        res.json(response);
+        const { status = 200, data } = await onStatus(ctx, message);
+        res.status(status).send(data);
         next();
       } catch (err) {
         res.json({ error: err.message });

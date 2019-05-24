@@ -87,20 +87,16 @@
       "title": "Add User Notification Triggers",
       "type": "array",
       "format": "table",
-      "default": [
-        {
-          "event": "",
-          "synchronized_segment": "",
-          "channel": "",
-          "text": "{{user.email}} did {{event.event}}"
-        }
-      ],
       "options": {
         "itemsPerRow": 2
       },
+      "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["channel", "synchronized_segment", "event", "text"],
+        "dependencies": {
+          "channel": ["event", "text"],
+          "event": ["channel", "text"]
+        },
         "properties": {
           "event": {
             "title": "Trigger",
@@ -141,7 +137,8 @@
             "title": "Message to send",
             "description": "Liquid supported. Enter the message content",
             "type": "string",
-            "format": "textarea"
+            "format": "textarea",
+            "default": "{{user.email}} did {{event.event}}"
           }
         }
       }
@@ -151,20 +148,16 @@
       "title": "Add Account Notification Triggers",
       "type": "array",
       "format": "table",
-      "default": [
-        {
-          "event": "",
-          "synchronized_segment": "",
-          "channel": "",
-          "text": "{{account.domain}} entered Segment"
-        }
-      ],
       "options": {
         "itemsPerRow": 2
       },
+      "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["channel", "synchronized_segment", "event", "text"],
+        "dependencies": {
+          "channel": ["event", "text"],
+          "event": ["channel", "text"]
+        },
         "properties": {
           "event": {
             "title": "Trigger",
@@ -201,7 +194,8 @@
             "title": "Message to send",
             "description": "Liquid supported. Enter the message content",
             "type": "string",
-            "format": "textarea"
+            "format": "textarea",
+            "default": "{{account.domain}} entered Segment"
           }
         }
       }
