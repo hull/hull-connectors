@@ -5,13 +5,12 @@ module.exports = api => {
       "packages/connectors/*/server",
       "packages/connectors/*/test",
       "packages/connectors/*/src",
-      "packages/hull-connector-framework/src/",
       "packages/minihull/src",
-      "packages/server",
       "packages/hull/src",
       "packages/hull-vm/server",
       "packages/hull-vm/src",
-      "packages/hull-client/src"
+      "packages/hull-client/src",
+      "packages/hull-connector-framework/src/"
     ],
     presets: [
       [
