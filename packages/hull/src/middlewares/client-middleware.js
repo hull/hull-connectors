@@ -1,10 +1,10 @@
 // @flow
 import type { NextFunction } from "express";
+import HullClient from "hull-client/src";
 import type { HullRequest, HullResponse } from "../types";
 
 const _ = require("lodash");
 const debug = require("debug")("hull-connector:client-middleware");
-const HullClient = require("../../../hull-client/src");
 const helpers = require("../helpers");
 
 /**

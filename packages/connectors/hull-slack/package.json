@@ -22,16 +22,11 @@
     "slack"
   ],
   "devDependencies": {
-    "minihull": "link:../../minihull"
   },
   "dependencies": {
     "botbuilder-adapter-slack": "^1.0.1",
     "botkit": "^4.0.1",
-    "bson-objectid": "^1.2.4",
-    "hull": "link:../../hull",
-    "jwt-simple": "^0.5.6",
     "liquidjs": "^8.2.1",
-    "minimist": "^1.2.0",
     "passport-slack": "0.0.7"
   }
 }

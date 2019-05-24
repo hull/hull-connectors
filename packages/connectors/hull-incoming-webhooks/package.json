@@ -9,19 +9,10 @@
     "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
   },
   "dependencies": {
-    "axios": "^0.18.0",
-    "deep-freeze": "0.0.1",
     "domready": "^1.0.8",
-    "hull": "link:../../hull",
-    "hull-vm": "link:../../hull-vm",
     "mongoose": "5.4.16",
-    "request": "^2.88.0",
-    "syntax-error": "^1.4.0",
-    "urijs": "^1.19.1",
-    "vm2": "^3.6.10"
+    "syntax-error": "^1.4.0"
   },
   "devDependencies": {
-    "jwt-decode": "^2.2.0",
-    "minihull": "link:../../minihull"
   }
 }
