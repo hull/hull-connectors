@@ -616,6 +616,15 @@ export type HullOAuthAuthorizeResponseData = void | {
 };
 export type HullOAuthAuthorizeResponse = void | Promise<HullOAuthAuthorizeResponseData>;
 
+export type HullOAuthStatusResponseData = void | {
+  status: number,
+  data: {
+    message: string,
+    html?: string
+  }
+};
+export type HullOAuthStatusResponse = void | Promise<HullOAuthStatusResponseData>;
+
 export type HullStatusResponseData =
   | {
       status: "ok" | "warning" | "error" | "setupRequired",

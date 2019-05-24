@@ -2,7 +2,7 @@ import type {
   HullContext,
   HullExternalResponse,
   HullIncomingHandlerMessage,
-  HullExternalResponse,
+  HullOAuthStatusResponse,
   HullOAuthHandlerParams,
   HullOauthAuthorizeMessage,
   HullOAuthAuthorizeResponse
@@ -14,7 +14,7 @@ const oauth2 = {
   onStatus: async (
     ctx: HullContext,
     message: HullIncomingHandlerMessage
-  ): HullExternalResponse => {
+  ): HullOAuthStatusResponse => {
     const { connector } = ctx;
     const { token } = connector.private_settings || {};
     if (token) {

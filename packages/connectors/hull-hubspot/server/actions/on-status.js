@@ -2,7 +2,7 @@
 import type {
   HullContext,
   HullIncomingHandlerMessage,
-  HullExternalResponse
+  HullOAuthStatusResponse
 } from "hull";
 
 const SyncAgent = require("../lib/sync-agent");
@@ -10,7 +10,7 @@ const SyncAgent = require("../lib/sync-agent");
 const statusHandler = async (
   ctx: HullContext,
   _incomingMessages: HullIncomingHandlerMessage
-): HullExternalResponse => {
+): HullOAuthStatusResponse => {
   const { connector } = ctx;
   const { private_settings = {} } = connector;
   const { token, refresh_token, portal_id } = private_settings;
@@ -29,14 +29,14 @@ const statusHandler = async (
     return {
       status: 200,
       data: {
-        messages: [`Connected to portal: ${portal_id}`]
+        message: `Connected to portal: ${portal_id}`
       }
     };
   } catch (err) {
     return {
       status: 400,
       data: {
-        messages: [err.message]
+        message: err.message
       }
     };
   }

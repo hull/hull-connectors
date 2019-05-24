@@ -2,13 +2,13 @@
 import type {
   HullContext,
   HullIncomingHandlerMessage,
-  HullExternalResponse
+  HullOAuthStatusResponse
 } from "hull";
 
 const statusHandler = async (
   ctx: HullContext,
   _incomingMessages: HullIncomingHandlerMessage
-): HullExternalResponse => {
+): HullOAuthStatusResponse => {
   const { connector } = ctx;
   const { private_settings = {} } = connector;
   const {
