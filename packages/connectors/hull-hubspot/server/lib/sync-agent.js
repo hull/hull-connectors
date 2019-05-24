@@ -762,6 +762,7 @@ class SyncAgent {
 
     return pipeStreamToPromise(streamOfIncomingCompanies, companies => {
       progress += companies.length;
+      this.progressUtil.updateAccount(progress);
       this.hullClient.logger.info("incoming.job.progress", {
         jobName: "fetchAllCompanies",
         type: "account",

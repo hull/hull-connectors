@@ -32,6 +32,18 @@
       }
     },
     {
+      "name": "actions",
+      "type": "object",
+      "properties": {
+        "last-fetch": {
+          "title": "Last Fetched",
+          "type": "string",
+          "format": "information",
+          "url": "/last-fetched-status"
+        }
+      }
+    },
+    {
       "name": "incoming_user_title",
       "title": "User Incoming Setup",
       "description": "How we capture Hubspot Contacts as users",
@@ -351,28 +363,44 @@
       }
     }
   ],
-  "tabs": [
-    {
-      "title": "Actions",
-      "url": "/admin",
-      "handler": "admin",
-      "method": "all",
-      "size": "small",
-      "editable": false
-    }
-  ],
   "json": [
     {
       "url": "/fetch-all",
       "handler": "fetchAll"
     },
     {
-      "url": "/fetch-all-contacts",
-      "handler": "fetchAll"
+      "title": "Last Fetched",
+      "format": "information",
+      "url": "/last-fetched",
+      "handler": "lastFetchedStatus"
     },
     {
+      "title": "Fetch All Contacts",
+      "name": "fetch_all_contacts",
+      "format": "button",
+      "url": "/fetch-all-contacts",
+      "handler": "fetchAll",
+      "options": {
+        "confirm": {
+          "action": "fetch",
+          "confirmText": "Start Fetching",
+          "entity": "users"
+        }
+      }
+    },
+    {
+      "title": "Fetch All Companies",
+      "name": "fetch_all_companies",
+      "format": "button",
       "url": "/fetch-all-companies",
-      "handler": "fetchAllCompanies"
+      "handler": "fetchAllCompanies",
+      "options": {
+        "confirm": {
+          "action": "fetch",
+          "confirmText": "Start Fetching",
+          "entity": "accounts"
+        }
+      }
     },
     {
       "url": "/schema/contact_properties",
@@ -392,6 +420,21 @@
     {
       "url": "/schema/company_properties",
       "handler": "getCompanyProperties"
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Connect with Hubspot",
+      "step": "credentials",
+      "properties": ["private_settings.oauth"]
+    },
+    {
+      "title": "Actions",
+      "step": "actions",
+      "description": "These are the actions you can perform",
+      "properties": [
+        ["json.fetch_all_contacts", "json.fetch_all_companies"]
+      ]
     }
   ]
 }

@@ -1,21 +1,20 @@
 // @flow
 import type { HullHandlersConfiguration } from "hull";
-import {
-  fetch,
-  fetchAll,
-  fetchAllCompanies,
-  fetchRecentCompanies,
-  checkToken,
-  status,
-  getContactProperties,
-  getIncomingUserClaims,
-  getIncomingAccountClaims,
-  getCompanyProperties,
-  onStatus,
-  onAuthorize,
-  onLogin,
-  admin
-} from "../actions";
+
+import fetch from "../actions/fetch";
+import fetchAll from "../actions/fetch-all";
+import fetchAllCompanies from "../actions/fetch-all-companies";
+import fetchRecentCompanies from "../actions/fetch-recent-companies";
+import checkToken from "../actions/check-token";
+import status from "../actions/status";
+import getContactProperties from "../actions/get-contact-properties";
+import getIncomingUserClaims from "../actions/get-incoming-user-claims";
+import getIncomingAccountClaims from "../actions/get-incoming-account-claims";
+import getCompanyProperties from "../actions/get-company-properties";
+import lastFetchedStatus from "../actions/last-fetched-status";
+import onStatus from "../actions/on-status";
+import onAuthorize from "../actions/on-authorize";
+import onLogin from "../actions/on-login";
 
 import account_update from "./account-update";
 import user_update from "./user-update";
@@ -41,7 +40,6 @@ const handler = ({
       accounts_segment_update
     },
     batches: { user_update, account_update },
-    tabs: { admin },
     private_settings: {
       oauth: () => ({
         onAuthorize,
@@ -55,6 +53,7 @@ const handler = ({
     statuses: { status },
     schedules: { checkToken, fetchRecentCompanies, fetch },
     json: {
+      lastFetchedStatus,
       fetchAll,
       fetchAllCompanies,
       getContactProperties,
