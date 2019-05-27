@@ -5,24 +5,22 @@
   "source": "typeform",
   "logo": "logo.png",
   "picture": "picture.png",
-  "admin" : "admin",
+  "admin": "admin",
   "version": "0.0.20-monorepo",
   "settings": [],
-  "private_settings":[
+  "private_settings": [
     {
       "name": "oauth",
-      "title": "Oauth",
+      "title": "Credentials",
+      "description": "Authenticate with Typeform",
       "format": "oauth",
-      "type": "object",
+      "type": "string",
       "handler": "oauth",
       "url": "/auth",
       "options": {
         "name": "Typeform",
         "tokenInUrl": false,
         "strategy": {
-          "authorizationURL": "https://api.outreach.io/oauth/authorize",
-          "tokenURL": "https://api.outreach.io/oauth/token",
-          "grant_type": "authorization_code",
           "scope": [
             "forms:read",
             "responses:read",
@@ -35,29 +33,29 @@
       }
     },
     {
-      "name":"form_id",
+      "name": "form_id",
       "title": "Form",
       "type": "string",
       "format": "select",
-      "options" : {
+      "options": {
         "allowCreate": false,
         "loadOptions": "/schema/forms"
       }
     },
     {
-      "name":"field_as_email",
+      "name": "field_as_email",
       "title": "Select the field matching the user email",
       "description": "You can only pick fields of type email",
       "type": "string",
       "format": "select",
-      "options" : {
+      "options": {
         "allowCreate": false,
         "loadOptions": "/schema/fields/email"
       }
     },
     {
       "name": "incoming_user_attributes",
-      "title" : "List of form fields to save into Hull as user attributes",
+      "title": "List of form fields to save into Hull as user attributes",
       "description": "Note: Date fields should be saved to traits ending with _date suffix",
       "type": "array",
       "format": "traitMapping",
@@ -70,7 +68,7 @@
       }
     },
     {
-      "name":"last_fetch_recent_responses_start_at",
+      "name": "last_fetch_recent_responses_start_at",
       "type": "string",
       "format": "hidden"
     }
@@ -82,19 +80,19 @@
   "json": [
     {
       "url": "/fetch-all-responses",
-      "handler":"fetchAllResponses"
+      "handler": "fetchAllResponses"
     },
     {
       "url": "/schema/forms",
-      "handler":"getForms"
+      "handler": "getForms"
     },
     {
       "url": "/schema/fields/email",
-      "handler":"getEmailQuestions"
+      "handler": "getEmailQuestions"
     },
     {
       "url": "/schema/fields",
-      "handler":"getQuestions"
+      "handler": "getQuestions"
     },
     {
       "url": "/fetch-recent-responses",
@@ -102,12 +100,6 @@
       "options": {
         "fireAndForget": true
       }
-    }
-  ],
-  "tabs": [
-    {
-      "url": "/admin",
-      "handler": "admin"
     }
   ],
   "statuses": [
@@ -118,6 +110,12 @@
       "value": "5"
     }
   ],
+  "status": {
+    "url": "/status",
+    "handler": "status",
+    "type": "interval",
+    "value": "5"
+  },
   "schedules": [
     {
       "url": "/fetch-recent-responses",
@@ -127,7 +125,8 @@
       "options": {
         "fireAndForget": true
       }
-    }, {
+    },
+    {
       "url": "/refresh-access-token",
       "type": "interval",
       "value": "180",
@@ -135,6 +134,28 @@
       "options": {
         "fireAndForget": true
       }
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Connect with Typeform",
+      "step": "credentials",
+      "properties": ["private_settings.oauth"]
+    },
+    {
+      "title": "Select Form",
+      "step": "actions",
+      "description": "Select the form that will be imported to Hull",
+      "properties": ["private_settings.form_id"]
+    },
+    {
+      "title": "Import Settings",
+      "step": "actions",
+      "description": "Configure how the form will be imported",
+      "properties": [
+        "private_settings.field_as_email",
+        "private_settings.incoming_user_attributes"
+      ]
     }
   ]
 }

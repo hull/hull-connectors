@@ -1,12 +1,10 @@
 /* eslint-disable global-require */
-module.exports = {
-  onAuthorize: require("./on-authorize"),
-  onStatus: require("./on-status"),
-  status: require("./status"),
-  fetchAllResponses: require("./fetch-all-responses"),
-  fetchRecentResponses: require("./fetch-recent-responses"),
-  getForms: require("./get-forms"),
-  getQuestions: require("./get-questions"),
-  getEmailQuestions: require("./get-email-questions"),
-  refreshAccessToken: require("./refresh-access-token")
-};
+export { default as onAuthorize } from "./on-authorize";
+export { default as onStatus } from "./on-status";
+export { default as status } from "./status";
+export { default as fetchAllResponses } from "./fetch-all-responses";
+export { default as fetchRecentResponses } from "./fetch-recent-responses";
+export { default as getForms } from "./get-forms";
+export { default as getQuestions } from "./get-questions";
+export { default as getEmailQuestions } from "./get-email-questions";
+export { default as refreshAccessToken } from "./refresh-access-token";

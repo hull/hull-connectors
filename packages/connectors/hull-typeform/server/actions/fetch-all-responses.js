@@ -3,7 +3,9 @@ import type { HullExternalResponse, HullContext } from "hull";
 
 const SyncAgent = require("../lib/sync-agent");
 
-async function fetchAllResponses(ctx: HullContext): HullExternalResponse {
+export default async function fetchAllResponses(
+  ctx: HullContext
+): HullExternalResponse {
   // fire & forget
   await new SyncAgent(ctx).fetchAllResponses();
   return {
@@ -13,5 +15,3 @@ async function fetchAllResponses(ctx: HullContext): HullExternalResponse {
     }
   };
 }
-
-module.exports = fetchAllResponses;

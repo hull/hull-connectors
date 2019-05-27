@@ -20,9 +20,9 @@
     {
       "name": "oauth",
       "title": "Credentials",
-      "description": "Authenticate with Hubspot to continue",
+      "description": "Authenticate with Hubspot",
       "format": "oauth",
-      "type": "string",
+      "type": "object",
       "handler": "oauth",
       "url": "/auth",
       "options": {

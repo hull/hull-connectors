@@ -13,13 +13,14 @@ const statusHandler = async (
   const { private_settings } = connector;
   const { oauth = {}, form_id } = private_settings;
   const { access_token, refresh_token, expires_in, tokens_granted_at } = oauth;
-  if (
-    access_token &&
-    refresh_token &&
-    expires_in &&
-    tokens_granted_at &&
-    form_id
-  ) {
+  if (access_token && refresh_token && expires_in && tokens_granted_at) {
+    if (!form_id) {
+      return {
+        status: "warning",
+        message:
+          "Please select a Form to import in the Settings of this connector"
+      };
+    }
     return {
       status: "ok",
       message: "Connected to Typeform"
@@ -27,7 +28,7 @@ const statusHandler = async (
   }
   return {
     status: "setupRequired",
-    messages: ["Credentials are empty, please authorize the connector"]
+    message: "Credentials are empty, please authorize the connector"
   };
 };
 
