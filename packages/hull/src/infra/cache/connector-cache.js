@@ -61,9 +61,9 @@ class ConnectorCache {
    */
   wrap(key: string, cb: Function, options: ?Object = {}): Promise<any> {
     const shipCacheKey = this.getCacheKey(key);
-    const reuseWrap = this.promiseReuser.reusePromise(wrappedShipCacheKey => {
-      return this.cache.wrap(wrappedShipCacheKey, cb, options);
-    });
+    const reuseWrap = this.promiseReuser.reusePromise(wrappedShipCacheKey =>
+      this.cache.wrap(wrappedShipCacheKey, cb, options)
+    );
     return reuseWrap(shipCacheKey);
   }
 

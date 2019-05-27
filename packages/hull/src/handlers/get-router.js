@@ -80,7 +80,6 @@ export default function getRouter({
   router.use(haltOnTimedoutMiddleware());
   router.use(instrumentationContextMiddleware({ handlerName }));
   router.use(fullContextBodyMiddleware({ requestName, strict }));
-
   // @TODO - can we leave both middlewares active and have the second one gracefully handle this ?
   // @TODO: why wouldn't we strict with the fullContextFetchMiddleware ?
   router.use(fullContextFetchMiddleware({ requestName /* , strict */ }));

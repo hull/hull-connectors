@@ -19,9 +19,10 @@
   "private_settings": [
     {
       "name": "oauth",
-      "title": "Oauth",
+      "title": "Credentials",
+      "description": "Authenticate with Hubspot to continue",
       "format": "oauth",
-      "type": "object",
+      "type": "string",
       "handler": "oauth",
       "url": "/auth",
       "options": {
@@ -282,7 +283,6 @@
   "deployment_settings": [],
   "resources": [],
   "readme": "readme.md",
-  "ui": false,
   "subscriptions": [
     {
       "url": "/smart-notifier",
@@ -331,9 +331,17 @@
       "type": "interval",
       "value": "30",
       "method": "all",
-      "handler": "statusCheck"
+      "handler": "status"
     }
   ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "interval",
+    "value": "30",
+    "method": "all",
+    "handler": "status"
+  },
   "schedules": [
     {
       "url": "/fetch-recent-contacts",
@@ -383,7 +391,6 @@
       "options": {
         "confirm": {
           "action": "fetch",
-          "confirmText": "Start Fetching",
           "entity": "users"
         }
       }
@@ -397,7 +404,6 @@
       "options": {
         "confirm": {
           "action": "fetch",
-          "confirmText": "Start Fetching",
           "entity": "accounts"
         }
       }
@@ -432,9 +438,7 @@
       "title": "Actions",
       "step": "actions",
       "description": "These are the actions you can perform",
-      "properties": [
-        ["json.fetch_all_contacts", "json.fetch_all_companies"]
-      ]
+      "properties": ["json.fetch_all_contacts", "json.fetch_all_companies"]
     }
   ]
 }

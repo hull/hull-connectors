@@ -24,8 +24,7 @@ const FAILURE_URL = "/failure";
 const SUCCESS_URL = "/success";
 
 const FAILURE_VIEW = "../../../assets/partials/login-failed.ejs";
-const SUCCESS_VIEW = "../../../assets/partials/login-success.ejs";
-
+const SUCCESS_VIEW = "../../../assets/partials/login-successful.ejs";
 function fetchToken(req: HullRequest, res: $Response, next: NextFunction) {
   const token: string = (req.query.token || req.query.state || "").toString();
   if (token && token.split(".").length === 3) {
@@ -101,19 +100,19 @@ function OAuthHandlerFactory({
       req: HullRequest,
       accessToken: string,
       refreshToken: string,
-      veryfyParams: any,
+      verifyParams: any,
       profile: (any, any) => any,
       done?: (any, any) => any
     ) {
       if (done === undefined) {
         done = profile;
-        profile = veryfyParams;
-        veryfyParams = undefined;
+        profile = verifyParams;
+        verifyParams = undefined;
       }
       done(undefined, {
         accessToken,
         refreshToken,
-        params: veryfyParams,
+        params: verifyParams,
         profile
       });
     }
@@ -129,6 +128,7 @@ function OAuthHandlerFactory({
   function authorize(req: HullRequest, res: HullResponse, next: NextFunction) {
     passport.authorize(OAuthStrategy.name, {
       ...req.hull.authParams,
+      failureFlash: true,
       failureRedirect: getURL(
         req,
         FAILURE_URL,
@@ -169,7 +169,8 @@ function OAuthHandlerFactory({
       try {
         const message = getMessage(req);
         const { hull: ctx } = req;
-        const { status = 200, data } = await onStatus(ctx, message);
+        const statusResponse = await onStatus(ctx, message);
+        const { status = 200, data } = statusResponse || {};
         res.status(status).send(data);
         next();
       } catch (err) {
@@ -184,7 +185,7 @@ function OAuthHandlerFactory({
     res: HullResponse
   ) {
     const { client } = req.hull;
-    client.logger.debug("connector.oauth.failure");
+    client.logger.debug("connector.oauth.failure", req.body);
     return res.render(FAILURE_VIEW, { name, urls: getURLs(req) });
   });
 

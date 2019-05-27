@@ -748,7 +748,7 @@ export type HullOAuthHandlerParams = void | {
   onStatus?: (
     ctx: HullContext,
     message: HullIncomingHandlerMessage
-  ) => HullStatusResponse,
+  ) => HullSettingsResponse,
   onLogin?: (
     ctx: HullContext,
     message: HullIncomingHandlerMessage
