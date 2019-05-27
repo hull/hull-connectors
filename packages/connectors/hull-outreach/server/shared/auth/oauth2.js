@@ -39,8 +39,8 @@ const oauth2 = {
     ctx: HullContext,
     message: HullIncomingHandlerMessage
   ): HullExternalResponse => ({
-    ...req.body,
-    ...req.query
+    ...message.body,
+    ...message.query
   }),
   onAuthorize: async (
     ctx: HullContext,
