@@ -5,7 +5,6 @@
   "source": "typeform",
   "logo": "logo.png",
   "picture": "picture.png",
-  "admin": "admin",
   "version": "0.0.20-monorepo",
   "settings": [],
   "private_settings": [
@@ -68,7 +67,22 @@
       }
     },
     {
-      "name": "last_fetch_recent_responses_start_at",
+      "name": "access_token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "refresh_token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "expires_in",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "tokens_granted_at",
       "type": "string",
       "format": "hidden"
     }
@@ -76,7 +90,6 @@
   "deployment_settings": [],
   "resources": [],
   "readme": "readme.md",
-  "ui": false,
   "json": [
     {
       "url": "/fetch-all-responses",
@@ -111,6 +124,7 @@
     }
   ],
   "status": {
+    "initial_value": "setupRequired",
     "url": "/status",
     "handler": "status",
     "type": "interval",

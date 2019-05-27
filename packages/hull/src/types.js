@@ -879,3 +879,15 @@ export type HullRouteMap = {
   router: Router,
   method: ExpressMethod
 };
+
+export type HullUISelect = {
+  label: string,
+  value: any
+};
+export type HullUISelectGroup = {
+  label: string,
+  options: Array<HullUISelectGroup> | Array<HullUISelect>
+};
+export type HullUISelectResponse =
+  | Array<HullUISelect>
+  | Array<HullUISelectGroup>;

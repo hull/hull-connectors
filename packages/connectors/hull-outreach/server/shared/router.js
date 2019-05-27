@@ -217,8 +217,7 @@ class HullRouter {
   async status(ctx: HullContext): HullStatusResponse {
     const { connector, client } = ctx;
     const { private_settings = {} } = connector;
-    const { oauth = {} } = private_settings;
-    const { access_token } = oauth;
+    const { access_token } = private_settings;
 
     if (!_.has(ctx, "connector.private_settings")) {
       return {

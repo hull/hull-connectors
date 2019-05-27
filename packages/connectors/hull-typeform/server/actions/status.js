@@ -5,14 +5,21 @@ import type {
   HullIncomingHandlerMessage
 } from "hull";
 
+const SyncAgent = require("../lib/sync-agent");
+
 const statusHandler = async (
   ctx: HullContext,
   _incomingMessages: HullIncomingHandlerMessage
 ): HullStatusResponse => {
   const { connector } = ctx;
   const { private_settings } = connector;
-  const { oauth = {}, form_id } = private_settings;
-  const { access_token, refresh_token, expires_in, tokens_granted_at } = oauth;
+  const {
+    access_token,
+    refresh_token,
+    expires_in,
+    tokens_granted_at,
+    form_id
+  } = private_settings;
   if (access_token && refresh_token && expires_in && tokens_granted_at) {
     if (!form_id) {
       return {
@@ -21,9 +28,15 @@ const statusHandler = async (
           "Please select a Form to import in the Settings of this connector"
       };
     }
+
+    const completed = await new SyncAgent(ctx).getFormResponsesCount();
+
     return {
       status: "ok",
-      message: "Connected to Typeform"
+      messages: [
+        `Connected to Typeform ${form_id}`,
+        `Form submissions: ${completed}`
+      ]
     };
   }
   return {

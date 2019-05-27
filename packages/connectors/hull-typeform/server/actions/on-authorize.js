@@ -19,12 +19,10 @@ const onAuthorize = async (
   const { accessToken, refreshToken, params = {} } = account;
   return {
     private_settings: {
-      oauth: {
-        access_token: accessToken,
-        refresh_token: refreshToken,
-        expires_in: params.expires_in,
-        tokens_granted_at: moment().format("X")
-      }
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      expires_in: params.expires_in,
+      tokens_granted_at: moment().format("X")
     }
   };
 };

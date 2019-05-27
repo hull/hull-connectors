@@ -1,5 +1,9 @@
 /* @flow */
-import type { HullContext } from "hull";
+import type {
+  HullContext,
+  HullUISelectGroup,
+  HullUISelectResponse
+} from "hull";
 
 import type { TypeformResponse, TypeformForm } from "../types";
 
@@ -188,70 +192,44 @@ class SyncAgent {
     }
   }
 
-  getForms() {
-    return this.serviceClient
-      .getForms()
-      .then(response => {
-        return {
-          options: response.body.items.map(f => {
-            return { label: f.title, value: f.id };
-          })
-        };
-      })
-      .catch(() => {
-        return { options: [] };
-      });
+  async getForms(): Promise<HullUISelectResponse> {
+    const response = await this.serviceClient.getForms();
+    return response.body.items.map(f => ({ label: f.title, value: f.id }));
   }
 
-  getFormResponsesCount() {
-    return this.serviceClient
-      .getResponses(this.formId, { completed: true, pageSize: 1 })
-      .then(response => {
-        return response.body.total_items;
-      });
+  async getFormResponsesCount() {
+    const response = await this.serviceClient.getResponses(this.formId, {
+      completed: true,
+      pageSize: 1
+    });
+    return response.body.total_items;
   }
 
-  getQuestions({ type = null }: Object = {}): Promise<> {
-    return this.serviceClient
-      .getForm(this.formId)
-      .then(({ body }) => {
-        const result = [
-          {
-            label: "questions",
-            options: _.chain(body.fields)
-              // .filter(syncAgent.isNotHidden)
-              .thru(fields => {
-                return (
-                  fields.filter(f => {
-                    if (type) {
-                      return f.type === type;
-                    }
-                    return true;
-                  }) || fields
-                );
-              })
-              .map(f => {
-                return { label: striptags(f.title), value: f.id };
-              })
-              .uniqBy("label")
-              .value()
-          },
-          {
-            label: "hidden",
-            options: _.chain(body.hidden)
-              // .filter(syncAgent.isHidden)
-              .map(f => {
-                return { label: f, value: f };
-              })
-              .uniqBy("label")
-              .value()
-          }
-        ];
-        return { options: result };
-      })
-      .catch(() => {
-        return { options: [] };
-      });
+  async getQuestions({ type = null }: Object = {}): Promise<
+    Array<HullUISelectGroup>
+  > {
+    const { body } = await this.serviceClient.getForm(this.formId);
+    const { hidden, fields: bodyFields } = body;
+    return [
+      {
+        label: "questions",
+        options: _.chain(bodyFields)
+          .thru(
+            fields =>
+              fields.filter(f => (type ? f.type === type : true)) || fields
+          )
+          .map(f => ({ label: striptags(f.title), value: f.id }))
+          .uniqBy("label")
+          .value()
+      },
+      {
+        label: "hidden",
+        options: _.chain(hidden)
+          .map(f => ({ label: f, value: f }))
+          .uniqBy("label")
+          .value()
+      }
+    ];
   }
 
   saveResponses(
