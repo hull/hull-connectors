@@ -4,10 +4,8 @@
   "version": "0.0.17-monorepo",
   "homepage": "https://github.com/hull/hull-connectors",
   "license": "MIT",
-  "main": "bin/start",
   "scripts": {
     "test": "npm run test:lint && npm run test:modules",
-    "test:lint": "./node_modules/.bin/eslint server",
     "test:modules": "npm outdated --depth=0",
     "test:unit": "NODE_ENV=test jest ./test/unit"
   },

@@ -278,53 +278,52 @@ class HullConnector {
     const mapRoute = (
       factory: RouterFactory,
       section = "json",
-      defaultMethod = "all"
+      defaultMethod = "all",
+      entries = []
     ) =>
-      (this.manifest[section] || []).map(
-        ({ url, method = defaultMethod, handler, options }) => {
-          if (!url) {
-            return true;
-          }
-          const callback = getCallbacks(handlers, section, handler);
-          if (!callback) {
-            throw new Error(
-              `Trying to setup a handler ${handler} that doesn't exist for url ${url}. Can't continue`
-            );
-          }
-          // $FlowFixMe
-          if (!app[method || defaultMethod]) {
-            throw new Error(
-              `Trying to setup an unauthorized method: app.${method}`
-            );
-          }
-          const res = factory({
-            method: method || defaultMethod,
-            options,
-            callback
-          });
-          if (!res) {
-            debug(
-              `Skipping entry because no router was returned for ${section} / ${url}: ${handler}`
-            );
-            return false;
-          }
-          const { method: routerMethod, router } = res;
-          // const m = handleMethod(method, defaultMethod, options)
-          if (router) {
-            // $FlowFixMe
-            app[routerMethod](url, router);
-            // app[method || defaultMethod](url, router);
-            debug(
-              `Setting up ${routerMethod.toUpperCase()} ${url}: ${handler} / ${!!callback}`
-            );
-          } else {
-            debug(
-              `Skipping ${routerMethod.toUpperCase()} ${url} ${handler} because no router was generated`
-            );
-          }
+      entries.map(({ url, method = defaultMethod, handler, options }) => {
+        if (!url) {
           return true;
         }
-      );
+        const callback = getCallbacks(handlers, section, handler);
+        if (!callback) {
+          throw new Error(
+            `Trying to setup a handler ${handler} that doesn't exist for url ${url}. Can't continue`
+          );
+        }
+        // $FlowFixMe
+        if (!app[method || defaultMethod]) {
+          throw new Error(
+            `Trying to setup an unauthorized method: app.${method}`
+          );
+        }
+        const res = factory({
+          method: method || defaultMethod,
+          options,
+          callback
+        });
+        if (!res) {
+          debug(
+            `Skipping entry because no router was returned for ${section} / ${url}: ${handler}`
+          );
+          return false;
+        }
+        const { method: routerMethod, router } = res;
+        // const m = handleMethod(method, defaultMethod, options)
+        if (router) {
+          // $FlowFixMe
+          app[routerMethod](url, router);
+          // app[method || defaultMethod](url, router);
+          debug(
+            `Setting up ${routerMethod.toUpperCase()} ${url}: ${handler} / ${!!callback}`
+          );
+        } else {
+          debug(
+            `Skipping ${routerMethod.toUpperCase()} ${url} ${handler} because no router was generated`
+          );
+        }
+        return true;
+      });
 
     // Setup Kraken handlers
     mapNotification(notificationHandler, "subscriptions");
@@ -334,25 +333,27 @@ class HullConnector {
 
     // Statuses handlers
     // Be careful - these handlers return a specific data format
-    mapRoute(statusHandler, "statuses", "all");
+    mapRoute(statusHandler, "statuses", "all", this.manifest.statuses);
 
     // Setup Schedule handlers
-    mapRoute(scheduleHandler, "schedules", "all");
+    mapRoute(scheduleHandler, "schedules", "all", this.manifest.schedules);
 
     // Setup Tab handlers
-    mapRoute(htmlHandler, "tabs", "all");
+    mapRoute(htmlHandler, "tabs", "all", this.manifest.tabs);
 
     // TODO: Alpha-quality Credentials handlers - DO NOT expose both tab oAuth and Credentials
-    mapRoute(OAuthHandler, "private_settings", "all");
-
-    // Setup HTML handlers
-    mapRoute(htmlHandler, "html", "get");
+    mapRoute(
+      OAuthHandler,
+      "private_settings",
+      "all",
+      (this.manifest.private_settings || []).filter(s => s.format === "oauth")
+    );
 
     // Setup JSON handlers
-    mapRoute(jsonHandler, "json", "all");
+    mapRoute(jsonHandler, "json", "all", this.manifest.json);
 
     // Setup Incoming Data handlers
-    mapRoute(incomingRequestHandler, "incoming", "all");
+    mapRoute(incomingRequestHandler, "incoming", "all", this.manifest.incoming);
   }
 
   baseComposedMiddleware() {

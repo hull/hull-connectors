@@ -59,6 +59,9 @@ function OAuthHandlerFactory({
   options: HullOAuthHandlerOptions,
   callback: () => HullOAuthHandlerParams
 }): void | HullRouteMap {
+  if (!opts.strategy) {
+    return undefined;
+  }
   const handlerParams = callback();
   if (!handlerParams) {
     return undefined;

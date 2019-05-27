@@ -185,7 +185,14 @@ type HullOAuthCredentialsConfig = {
 // Connector Manifest. Defines a Connector's exposed endpoints and features
 
 type HullManifestSetting = {
-  [string]: any
+  type: string,
+  name: string,
+  format: string,
+  handler?: string,
+  url?: string,
+  options?: {
+    loadOptions?: string
+  }
 };
 
 export type HullManifest = {
@@ -204,7 +211,6 @@ export type HullManifest = {
   batches?: Array<HullManifestBatch>,
   subscriptions?: Array<HullManifestNotification>,
 
-  credentials?: Array<HullOAuthCredentialsConfig>,
   tabs?: Array<HullManifestHtmlConfig>,
   html?: Array<HullManifestHtmlConfig>,
 
