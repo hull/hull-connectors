@@ -16,8 +16,9 @@ const oauth2 = {
     message: HullIncomingHandlerMessage
   ): HullOAuthStatusResponse => {
     const { connector } = ctx;
-    const { token } = connector.private_settings || {};
-    if (token) {
+    const { private_settings = {} } = connector;
+    const { access_token } = private_settings;
+    if (access_token) {
       // We've got a token, We're all good!
       // TODO do we want to check to see if the token is good?
       return {
@@ -30,9 +31,9 @@ const oauth2 = {
     return {
       status: 400,
       data: {
-        message: "Not Authorized"
+        message: "Please authenticate with Outreach"
       }
-    }
+    };
   },
   onLogin: async (
     ctx: HullContext,
