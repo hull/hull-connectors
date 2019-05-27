@@ -2,6 +2,7 @@
 
 import type {
   HullClientConfig,
+  HullClientCredentials,
   HullEntityAttributes,
   HullUserEventName,
   HullUserEventProperties,
@@ -92,7 +93,7 @@ class HullClient {
 
   static logger: HullClientStaticLogger;
 
-  constructor(config: HullClientConfig) {
+  constructor(config: HullClientConfig | HullClientCredentials) {
     if (config.captureLogs === true) {
       config.logs = config.logs || [];
     }

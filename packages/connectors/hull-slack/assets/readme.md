@@ -2,62 +2,68 @@
 
 This Connector adds a Bot (@hull) to your Slack Team. The Bot can:
 
-- Notify a channel or a Slack User when a Hull User enters or leaves specific segments
+- Notify a channel or a Slack User when a Hull User enters or leaves specific segments.
 - Notify a channel or a Slack User when a Hull User performs certain events.
-- Search for any user in the Hull database and return it.
-- Add buttons that set values (like `send_emails` for instance) on a user, opening the door to triggered actions directly from Slack.
-
-*Note: Private Channels and Groups aren't supported for the moment*
+- Notify a channel or a Slack User when a Hull Account enters or leaves specific segments.
 
 #### Data
 
-The Bot can return either all available data for users or a set of whitelisted properties picked from their profile. 
-In the settings tab, if you leave the box blank then all properties will be returned.
+To setup the bot, create one or more conditions that trigger slack notifications.
+For each notification, you can pick the channel or user to notify, and the content of the message.
+To compose the message, you're allowed to use the (Liquid templating language)[https://shopify.github.io/liquid/] - This allows you to create dynamic messages. The fields at your disposal are:
 
-The Bot can send messages on an event occurrence. There are two types of events that can be triggered - 
-those occurring on the user segment and those occurring in the user segment. Events on a user segment include a user 
-entering or leaving a segment. For these the events, the field 'User Filtered Segment' is used to define the segment 
-that the user either moves into for the event "Entered User Segment" or the user moves out of for the event "Left User Segment". 
-Events in a user segment are all other events. For these events, the user must be in the defined 'User Filtered Segment' 
-segment in order for the message to be sent by the bot. All other segments will be ignored. 
+- user: All user Attributes.
+- account: All Account Attributes.
+- event: The event that triggered the notification (with it's properties).
+- segment: The segment that triggered the notification.
+- account_segments: All the Segments that the Accounts belongs to.
+- segments: All the Segments that the user belongs to.
 
-In Slack, you can toggle between User Attributes and their latest events by clicking the buttons at the footer of each user profile.
+The full payload for each object is documented in the (Hull Documentation)[https://www.hull.io/docs/data_lifecycle/notify/#format-of-a-user-update-notification] - Here's a sample:
+
+```json
+{
+  "user": {
+    "email": "foo@bar.com",
+    ...
+    "traits_clearbit/employment_role": "ceo"
+  },
+  "account": {
+    "domain": "bar.com",
+    "clearbit/name": "The Bar Company"
+  },
+  "event": {
+    "event": "Viewed a page"
+  },
+  "segment": {
+    "name": "Important People"
+  },
+  "segments": [...],
+  "account_segments": [...]
+}
+```
+
+With this, you could compose a liquid message such as:
+
+```liquid
+Hey, User with email {{user.email}} (
+  {{user.traits_clearbit/employment_role}}
+  at {{account.clearbit/name}}: {{account.domain}}
+) just {{event.event}}.
+He's in segment "{{segment.name}}".
+```
+
+Result: 
+
+> Hey, User with email foo@bar.com (
+  ceo at The Bar Company: bar.com
+  ) just Viewed a page.
+  He's in segment "Important People"
+
+
 
 ####  To install:
 
 - Click the "Connect to Slack" button on the Dashboard page,
 - Authorize Slack to access your account.
-- You should see green checkboxes on both "Slack credentials saved" and "Slack Bot online"
-
-#### Usage
-
-To get in-app help:
-- Invite `@hull` to a channel and type `@hull help`.
-- Start a private conversation with `@hull` and simply type `help`
-
-#### Conversations
-
-- `@hull user@example.com`
-
-> get data for the user with this email. You can filter what's displayed from the Connector's settings tab in your dashboard_
-
-- `@hull user@example.com full` 
-
-> get full data for the user with this email. Shows the entire profile_
-> returns everything even if the Settings specify which fields to return.
-
-- `@hull user@example.com <intercom>` 
-
-> get data in the `intercom` group for the user with this email. Replace with the service you want to display
-
-- `@hull events user@example.com` 
-
-> get latest events for the user with this email_
-
-- `@hull help`
-
-> Here to help!
-
-#### Buttons
-
-In the Slack Connector settings screen, you can add up to 3 buttons that will set a value on the User. You can use this to create `Enable Emails` and `Disable Emails` toggles for instance.
+- You should see the Team ID show up in green. If that's not the case, start over.

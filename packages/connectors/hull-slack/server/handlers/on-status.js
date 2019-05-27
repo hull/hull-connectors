@@ -4,11 +4,13 @@ import type {
   HullIncomingHandlerMessage,
   HullSettingsResponse
 } from "hull";
+import type { ConnectSlackFunction } from "../types";
 
-const statusHandler = async (
+const onStatus = (connectSlack: ConnectSlackFunction) => async (
   ctx: HullContext,
   _incomingMessages: HullIncomingHandlerMessage
 ): HullSettingsResponse => {
+  await connectSlack(ctx);
   const { connector } = ctx;
   const { private_settings = {} } = connector;
   const {
@@ -33,4 +35,4 @@ const statusHandler = async (
   };
 };
 
-export default statusHandler;
+export default onStatus;

@@ -1,5 +1,7 @@
-// @noflow
+// @flow
+//
 import Hull from "hull";
+import type { SlackInstance } from "../types";
 import getNotification from "../lib/get-notification";
 import getSearchHash from "../lib/get-search-hash";
 import fetchUser from "../hull/fetch-user";
@@ -7,12 +9,20 @@ import messages from "./messages";
 import ack from "./ack";
 import getMessageLogData from "../lib/get-log-data";
 
-function _replaceBotName(bot, m = "") {
+type SlackMessage = {
+  team: string,
+  channel: string,
+  text: string
+};
+type SlackBot = any;
+type HullClient = Hull.Client | Class<Hull.Client>;
+
+function _replaceBotName(bot: SlackBot, m = "") {
   return m.replace(/@hull/g, `@${bot.identity.name}`);
 }
 
 /* Special Conversations */
-export function welcome(bot, user_id) {
+export function welcome(bot: SlackBot, user_id: string) {
   bot.startPrivateConversation({ user: user_id }, (error, convo) => {
     if (error) return console.log(error);
     convo.say(messages.welcome);
@@ -20,7 +30,7 @@ export function welcome(bot, user_id) {
   });
 }
 
-export function join(bot, message) {
+export function join(bot: SlackBot, message: SlackMessage) {
   bot.say({
     text: messages.join,
     channel: message.channel
@@ -29,32 +39,38 @@ export function join(bot, message) {
 
 /* STANDARD BOT REPLIES, WRAPPED WITH LOGGING */
 
-function sad(client, bot, message, err) {
+function sad(client: HullClient, bot: SlackBot, message: SlackMessage, err) {
   client.logger.error("bot.error", { error: err });
   return bot.reply(message, `:scream: Something bad happened (${err.message})`);
 }
-function reply(client, bot, message, res = {}) {
+function reply(
+  client: HullClient,
+  bot: SlackBot,
+  message: SlackMessage,
+  res: { text: string } = {}
+) {
   client.logger.info("bot.reply", {
     ...getMessageLogData(message),
     text: res.text
   });
-  return bot.reply(message, res);
+  return bot.replyInThread(message, res);
 }
 
 /* MAIN USER ACTION */
 const postUser = (getByTeam, type, options = {}) =>
-  async function post(bot, msg) {
+  async function post(bot: SlackBot, msg: SlackMessage) {
     ack(bot, msg, "mag_right");
     const search = getSearchHash(type, msg);
-    const { actions, attachements, client } = getByTeam(msg.team);
-    console.log(search, msg.matches);
-    const msgdata = getMessageLogData(msg);
-    client.logger.info("bot.hear", {
+    const { attachements, clientCredentials } = getByTeam(msg.team);
+    const client = new Hull.Client(clientCredentials);
+    const logMsg = {
       type,
       search,
       options,
-      ...msgdata
-    });
+      ...getMessageLogData(msg)
+    };
+
+    client.logger.info("bot.hear", logMsg);
 
     try {
       const {
@@ -71,26 +87,14 @@ const postUser = (getByTeam, type, options = {}) =>
         throw new Error(`¯\\_(ツ)_/¯ ${message}`);
       }
 
-      client.logger.info("user.fetch.success", { ...msgdata, search, type });
-
-      // const { action = {} } = options;
-      // const payload = ;
-      // const { user, account, events, segments } = message;
-      //
-      // if (action.name === "expand") {
-      //   // if there is a search, set group name to search,
-      //   // else set to action value;
-      //   payload.group =
-      //     search.rest === "full" ? "traits" : search.rest || action.value;
-      // }
-
       const res = await getNotification({
         client,
         message: { user, account, events, segments },
         attachements,
-        actions,
+        // actions,
         entity: "user"
       });
+
       client.logger.debug("outgoing.user.reply", res);
       if (pagination.total > 1) {
         res.text = `Found ${pagination.total} users, Showing ${res.text}`;
@@ -102,8 +106,9 @@ const postUser = (getByTeam, type, options = {}) =>
     }
   };
 
+type GetByTeam = string => SlackInstance;
 /* BUTTONS */
-export const replies = getByTeam => [
+export const replies = (getByTeam: GetByTeam) => [
   {
     message: new RegExp(
       /^(info|search|whois|who is)?\s+<(mailto):(.+?)\|(.+?)>$/
@@ -146,19 +151,35 @@ export const replies = getByTeam => [
   {
     message: ["hello", "hi"],
     context: "direct_message,mention,direct_mention", // Default
-    reply: (bot, message) => {
-      const hull = new Hull(bot.config.hullConfig);
-      return reply(hull, bot, message, messages.hi);
+    reply: (bot: SlackBot, message: SlackMessage) => {
+      const { clientCredentials } = getByTeam(message.team);
+      if (clientCredentials) {
+        const client = new Hull.Client(clientCredentials);
+        return reply(client, bot, message, {
+          text: messages.hi
+        });
+      }
+      return sad(Hull.Client, bot, message, {
+        message: "Something's wrong with the setup"
+      });
     }
   },
   {
     message: "help",
     context: "direct_message,mention,direct_mention", // Default
-    reply: (bot, message) => {
+    reply: (bot: SlackBot, message: SlackMessage) => {
       const m = messages[message.text];
-      const client = new Hull(bot.config.hullConfig);
-      if (m) return reply(client, bot, message, _replaceBotName(bot, m));
-      return reply(client, bot, message, messages.notfound);
+      const { clientCredentials } = getByTeam(message.team);
+      if (clientCredentials) {
+        const client = new Hull.Client(clientCredentials);
+        if (m)
+          return reply(client, bot, message, {
+            text: _replaceBotName(bot, m)
+          });
+      }
+      return reply(Hull.Client, bot, message, {
+        text: messages.notfound
+      });
     }
   }
   // {

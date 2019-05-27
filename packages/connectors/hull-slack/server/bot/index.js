@@ -88,6 +88,7 @@ module.exports = function BotFactory({
 
   async function connectSlack({
     client,
+    clientCredentials,
     connector,
     metric
   }: HullSlackContext): Promise<ConnectedSlack> {
@@ -161,7 +162,8 @@ module.exports = function BotFactory({
           botConfig,
           attachements,
           teamMembers,
-          teamChannels
+          teamChannels,
+          clientCredentials
         }) || {};
       // const { bot } = botSetup;
       client.logger.info("register.success");

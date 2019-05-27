@@ -4,13 +4,13 @@ import queries from "./queries";
 /**
  * return { events, pagination }
  */
-module.exports = function fetchEvent({ hull, search }) {
+module.exports = function fetchEvent({ client, search }) {
   const { id } = search;
   let params = {};
 
   params = queries.eventId(id);
 
-  return hull
+  return client
     .post("search/events", params)
 
     .then(

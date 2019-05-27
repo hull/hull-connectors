@@ -11,15 +11,15 @@ module.exports = async function interactiveMessage(bot, message) {
   const [action] = actions;
   const { name, value } = action;
 
-  const hull = new Hull(bot.config.hullConfig);
-  hull.logger.info("bot.interactiveMessage.post", { name, value, callback_id });
+  const client = new Hull(bot.config.hullConfig);
+  client.logger.info("bot.interactiveMessage.post", { name, value, callback_id });
 
   if (name === "trait") {
     try {
-      hull.asUser(callback_id).traits(JSON.parse(value), { sync: true });
+      client.asUser({ id: callback_id }).traits(JSON.parse(value), { sync: true });
       bot.reply(message, "User Updated :thumbsup:");
     } catch (e) {
-      hull.logger.error("bot.interactiveMessage.error", {
+      client.logger.error("bot.interactiveMessage.error", {
         type: "update",
         message: e.message
       });
@@ -37,7 +37,7 @@ module.exports = async function interactiveMessage(bot, message) {
 
       try {
         const { events } = await fetchEvent({
-          hull,
+          client,
           search: { id: callback_id }
         });
         const [event = {}] = events;
@@ -46,7 +46,7 @@ module.exports = async function interactiveMessage(bot, message) {
         attachement.actions = [];
         bot.replyInteractive(message, { ...original_message, attachments });
       } catch (err) {
-        hull.logger.error("bot.interactiveMessage.error", {
+        client.logger.error("bot.interactiveMessage.error", {
           type: "event",
           message: err.message
         });
@@ -55,12 +55,12 @@ module.exports = async function interactiveMessage(bot, message) {
 
     if (value === "traits" || value === "events") {
       const { user, account, events, segments, msg = "" } = await fetchUser({
-        hull,
+        client,
         search: { id: callback_id },
         options: { action: { value } }
       });
       const payload = await getNotification({
-        hull,
+        client,
         message: { user, account, events, segments },
         actions,
         entity: "user"

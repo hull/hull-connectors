@@ -51,7 +51,7 @@ const handler = ({
     private_settings: {
       oauth: () => ({
         onAuthorize: onAuthorize(connectSlack),
-        onStatus,
+        onStatus: onStatus(connectSlack),
         Strategy,
         clientID,
         clientSecret

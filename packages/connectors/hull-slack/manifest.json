@@ -55,33 +55,6 @@
         }
       }
     },
-
-    {
-      "name": "FetchAllButton",
-      "format": "actionButton",
-      "type": "object",
-      "properties": {
-        "fetchUsers": {
-          "type": "string",
-          "format": "button",
-          "title": "Fetch All Users",
-          "options": {
-            "loadOptions": "/fetch-users-link",
-            "action": "call"
-          }
-        },
-        "fetchAccounts": {
-          "type": "string",
-          "format": "button",
-          "title": "Fetch All Accounts",
-          "options": {
-            "loadOptions": "/fetch-accounts-link",
-            "action": "call"
-          }
-        }
-      }
-    },
-
     {
       "name": "notify_events",
       "title": "Add User Notification Triggers",
@@ -230,37 +203,6 @@
           }
         }
       }
-    },
-    {
-      "name": "actions",
-      "title": "Add User Update Action Buttons",
-      "default": [
-        {
-          "label": "",
-          "property": "",
-          "value": ""
-        }
-      ],
-      "type": "array",
-      "format": "table",
-      "items": {
-        "type": "object",
-        "properties": {
-          "label": {
-            "title": "Button Label",
-            "type": "string"
-          },
-          "property": {
-            "title": "Property name",
-            "type": "string",
-            "format": "trait"
-          },
-          "value": {
-            "title": "Property Value",
-            "type": "string"
-          }
-        }
-      }
     }
   ],
   "settings_sections": [
@@ -268,12 +210,6 @@
       "title": "Connect with Slack",
       "step": "credentials",
       "properties": ["private_settings.oauth"]
-    },
-    {
-      "title": "Actions",
-      "step": "actions",
-      "description": "These are the actions you can perform",
-      "properties": ["private_settings.actions"]
     },
     {
       "title": "Slack User Notification Triggers",

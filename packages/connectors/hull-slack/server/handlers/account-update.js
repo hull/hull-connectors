@@ -14,25 +14,27 @@ const debug = require("debug")("hull-slack:account-update");
 const getSegmentChangeEvents = ({ event, synchronized_segment, changes }) => {
   const { left = [], entered = [] } = changes.account_segments || {};
   if (event === "ENTERED_ACCOUNT_SEGMENT") {
-    if (_.find(entered, e => e.id === synchronized_segment)) {
+    const segment_entered = _.find(entered, e => e.id === synchronized_segment);
+    if (segment_entered) {
       return [
         {
-          event: "Entered User Segment",
-          properties: {
-            name: synchronized_segment
-          }
+          event: {
+            event: "Entered Account Segment"
+          },
+          segment: segment_entered
         }
       ];
     }
   }
   if (event === "LEFT_ACCOUNT_SEGMENT") {
-    if (_.find(left, e => e.id === synchronized_segment)) {
+    const segment_left = _.find(left, e => e.id === synchronized_segment);
+    if (segment_left) {
       return [
         {
-          event: "Left User Segment",
-          properties: {
-            name: synchronized_segment
-          }
+          event: {
+            event: "Left Account Segment"
+          },
+          segment: segment_left
         }
       ];
     }
@@ -68,15 +70,25 @@ const update = (connectSlack: ConnectSlackFunction) => async (
         try {
           _.map(
             notify_events,
-            async ({ event, synchronized_segment, channel, text }) => {
+            async ({
+              event,
+              synchronized_segment,
+              channel,
+              text
+            }: {
+              event: string,
+              synchronized_segment: string,
+              channel: string,
+              text: string
+            }) => {
               metric.increment("ship.outgoing.account");
               const { changes = {} } = message;
-              const eventMatches = getSegmentChangeEvents({
+              const segmentMatches = getSegmentChangeEvents({
                 event,
                 synchronized_segment,
                 changes
               });
-              if (!eventMatches.length) {
+              if (!segmentMatches.length) {
                 debug("Skipping Notification", {
                   event,
                   synchronized_segment,
@@ -85,11 +97,10 @@ const update = (connectSlack: ConnectSlackFunction) => async (
                 });
               }
               await Promise.all(
-                eventMatches.map(async e => {
+                segmentMatches.map(async match => {
                   const payload = await getNotification({
-                    message: { ...message, event: e },
+                    message: { ...message, ...match },
                     client,
-                    // actions,
                     text,
                     attachements
                   });

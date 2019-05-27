@@ -24,15 +24,16 @@ module.exports = async function fetchUser({ client, search, options = {} }) {
   if (!user || !user.id) {
     throw new Error("User not found!");
   }
-  const q = [client.asUser(user.id).get("/me/segments")];
-  if (eventSearch) {
-    const eventParams = search.rest
-      ? queries.filteredEvents(user.id, search.rest)
-      : queries.events(user.id);
-    client.logger.debug("outgoing.event.search", eventParams);
-    q.push(client.post("search/events", eventParams));
-  }
-  const [segments, events = {}] = await Promise.all(q);
+  const [segments, events = {}] = await Promise.all([
+    client.asUser({ id: user.id }).get("/me/segments"),
+    eventSearch &&
+      client.post(
+        "search/events",
+        search.rest
+          ? queries.filteredEvents(user.id, search.rest)
+          : queries.events(user.id)
+      )
+  ]);
   if (eventSearch && !events.data.length)
     return {
       message: `\n Couldn't find "${search.rest}" events for ${
