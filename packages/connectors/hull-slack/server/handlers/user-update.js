@@ -11,6 +11,7 @@ import type { ConnectSlackFunction } from "../types";
 
 const debug = require("debug")("hull-slack:user-update");
 
+const ENTITY = "user";
 const getSegmentChangeEvents = ({ event, synchronized_segment, changes }) => {
   const { left = [], entered = [] } = changes.segments || {};
   if (event === "ENTERED_USER_SEGMENT") {
@@ -114,13 +115,14 @@ const update = (connectSlack: ConnectSlackFunction) => async (
                     message: { ...message, event: e, segment },
                     client,
                     text,
+                    entity: ENTITY,
                     attachements
                   });
                   post({
                     scopedClient,
                     payload,
                     channel,
-                    entity: "user"
+                    entity: ENTITY
                   });
                 }),
                 ...segmentMatches.map(async match => {
@@ -128,13 +130,14 @@ const update = (connectSlack: ConnectSlackFunction) => async (
                     message: { ...message, ...match },
                     client,
                     text,
+                    entity: ENTITY,
                     attachements
                   });
                   post({
                     scopedClient,
                     payload,
                     channel,
-                    entity: "user"
+                    entity: ENTITY
                   });
                 })
               ]);

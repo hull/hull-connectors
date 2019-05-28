@@ -24,7 +24,7 @@ module.exports = async function getNotification({
   message,
   text,
   attachements,
-  entity
+  entity = "user"
   // , actions = []
 }) {
   const { user, account } = message;
