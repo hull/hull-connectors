@@ -26,7 +26,7 @@ The full payload for each object is documented in the (Hull Documentation)[https
   "user": {
     "email": "foo@bar.com",
     ...
-    "traits_clearbit/employment_role": "ceo"
+    "clearbit/employment_role": "ceo"
   },
   "account": {
     "domain": "bar.com",
@@ -42,6 +42,10 @@ The full payload for each object is documented in the (Hull Documentation)[https
   "account_segments": [...]
 }
 ```
+
+__NOTE__ You should OMIT the `traits_` prefix while writing your queries. This prefix is on the path to being deprecated.
+
+DO NOT write `{{user.traits_clearbit/employment_role}}`, DO write `{{user.clearbit/employment_role}}`
 
 With this, you could compose a liquid message such as:
 
