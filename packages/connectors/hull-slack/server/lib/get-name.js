@@ -1,18 +1,14 @@
 // @noflow
 
 export function getAccountName({ domain } = {}) {
-  return domain || "Unnamed User";
+  return domain || "Unnamed Account";
 }
 
-export function getUserName({
-  name,
-  domain,
-  email,
-  first_name,
-  last_name
-} = {}) {
-  return `${name ||
+export function getUserName({ name, email, first_name, last_name } = {}) {
+  return (
+    name ||
     email ||
     [first_name, " ", last_name].join(" ").trim() ||
-    "Unnamed User"} ${getAccountName({ domain })}`;
+    "Unnamed User"
+  );
 }

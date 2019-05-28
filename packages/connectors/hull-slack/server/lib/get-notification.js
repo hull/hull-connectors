@@ -30,7 +30,11 @@ module.exports = async function getNotification({
   const { user, account } = message;
   const prefix =
     entity === "user" ? ":bust_in_silhouette:" : ":classical_building:";
-  const name = entity === "user" ? getUserName(user) : getAccountName(account);
+  const accountString = getAccountName(account);
+  const name =
+    entity === "user"
+      ? `${getUserName(user)} (${accountString})`
+      : accountString;
   debug("building payload for", message);
   const slackText = [
     `${prefix} *<${urlFor(
