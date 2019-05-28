@@ -91,9 +91,10 @@ const update = (connectSlack: ConnectSlackFunction) => async (
                 s => s.id === synchronized_segment
               );
               // only match on events if the User is in the right segments
-              const eventMatches = segment
-                ? events.filter(e => e.event === event)
-                : [];
+              const eventMatches =
+                synchronized_segment === "ALL" || segment
+                  ? events.filter(e => e.event === event)
+                  : [];
               const segmentMatches = getSegmentChangeEvents({
                 event,
                 synchronized_segment,
