@@ -311,10 +311,7 @@
     },
     {
       "url": "/fields-outreach-prospect-out",
-      "handler": "fieldsOutreachProspectOutbound",
-      "options": {
-        "fireAndForget": true
-      }
+      "handler": "fieldsOutreachProspectOutbound"
     },
     {
       "url": "/fields-outreach-prospect-in",

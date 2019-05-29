@@ -21,27 +21,35 @@ function getFieldsOutreach(
 }
 
 function fieldsOutreachProspectInbound() {
-  return Promise.resolve({
-    options: getFieldsOutreach(PROSPECT_FIELDDEFS, { in: true })
-  });
+  return {
+    data: {
+      options: getFieldsOutreach(PROSPECT_FIELDDEFS, { in: true })
+    }
+  };
 }
 
 function fieldsOutreachProspectOutbound() {
-  return Promise.resolve({
-    options: getFieldsOutreach(PROSPECT_FIELDDEFS, { out: true })
-  });
+  return {
+    data: {
+      options: getFieldsOutreach(PROSPECT_FIELDDEFS, { out: true })
+    }
+  };
 }
 
 function fieldsOutreachAccountInbound() {
-  return Promise.resolve({
-    options: getFieldsOutreach(ACCOUNT_FIELDDEFS, { in: true })
-  });
+  return {
+    data: {
+      options: getFieldsOutreach(ACCOUNT_FIELDDEFS, { in: true })
+    }
+  };
 }
 
 function fieldsOutreachAccountOutbound() {
-  return Promise.resolve({
-    options: getFieldsOutreach(ACCOUNT_FIELDDEFS, { out: true })
-  });
+  return {
+    data: {
+      options: getFieldsOutreach(ACCOUNT_FIELDDEFS, { out: true })
+      }
+    };
 }
 
 module.exports = {

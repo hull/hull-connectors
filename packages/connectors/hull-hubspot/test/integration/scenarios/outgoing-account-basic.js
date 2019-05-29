@@ -1,9 +1,11 @@
 // @flow
-
+/* global describe, it, beforeEach, afterEach */
 import connectorConfig from "../../../server/config";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
+process.env.CLIENT_ID = "123";
+process.env.CLIENT_SECRET = "abc";
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
 const connector = {

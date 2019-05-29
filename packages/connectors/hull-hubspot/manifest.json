@@ -317,7 +317,12 @@
         {
           "channel": "user:update",
           "handler": "user_update"
-        },
+        }
+      ]
+    },
+    {
+      "url": "/batch-accounts",
+      "channels": [
         {
           "channel": "account:update",
           "handler": "account_update"
