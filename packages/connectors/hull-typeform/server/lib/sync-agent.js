@@ -193,9 +193,11 @@ class SyncAgent {
       .getForms()
       .then(response => {
         return {
-          options: response.body.items.map(f => {
-            return { label: f.title, value: f.id };
-          })
+          data: {
+            options: response.body.items.map(f => {
+              return { label: f.title, value: f.id };
+            })
+          }
         };
       })
       .catch(() => {
@@ -247,10 +249,10 @@ class SyncAgent {
               .value()
           }
         ];
-        return { options: result };
+        return { data: { options: result } };
       })
       .catch(() => {
-        return { options: [] };
+        return { data: { options: [] } };
       });
   }
 
