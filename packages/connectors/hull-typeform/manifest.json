@@ -5,7 +5,7 @@
   "source": "typeform",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.0.20-monorepo",
+  "version": "0.0.21-monorepo",
   "settings": [],
   "private_settings": [
     {
