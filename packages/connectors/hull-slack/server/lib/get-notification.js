@@ -53,7 +53,6 @@ module.exports = async function getNotification({
       // , getActions(user, actions)
     ],
     text: slackText.join(`
-——————————————————————————
 `)
   };
 };
