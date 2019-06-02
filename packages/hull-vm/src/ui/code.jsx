@@ -6,11 +6,13 @@ import CodeEditor from "../ui/ace";
 type Props = {
   onChange: string => void,
   readOnly: boolean,
-  code: string
+  code: string,
+  focusOnLoad: boolean
 };
 
-const Code = ({ readOnly, onChange, code }: Props) => (
+const Code = ({ focusOnLoad, readOnly, onChange, code }: Props) => (
   <CodeEditor
+    focusOnLoad={focusOnLoad}
     id="code-editor"
     value={code}
     mode="javascript"

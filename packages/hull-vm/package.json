@@ -7,7 +7,6 @@
   "scripts": {},
   "dependencies": {
     "ace-builds": "^1.4.4",
-    "axios": "^0.18.0",
     "deep-freeze": "0.0.1",
     "json-stable-stringify": "^1.0.1",
     "react-ace": "^6.5.0",

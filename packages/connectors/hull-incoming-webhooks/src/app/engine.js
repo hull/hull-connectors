@@ -1,7 +1,7 @@
 // @flow
 
 import _ from "lodash";
-import axios from "axios";
+
 import updateParent from "hull-vm/src/lib/update-parent";
 import type {
   EngineState,
@@ -9,16 +9,10 @@ import type {
   ConfResponse,
   Entry,
   Result,
-  PreviewRequest
-} from "../../types";
+  PreviewRequest,
+  PreviewResponse
+} from "hull-vm";
 
-type Axios<T> = {
-  data: T,
-  status: number
-};
-type AxiosComputeResult = Axios<Result>;
-type AxiosConfResponse = Axios<ConfResponse>;
-type AxiosRecentResponse = Axios<Array<Entry>>;
 type AnyFunction = any => any;
 
 const EventEmitter = require("events");
@@ -34,7 +28,8 @@ const DEFAULT_STATE = {
   loadingToken: false,
   computing: false,
   initialized: false,
-  code: "",
+  current: undefined,
+  selected: undefined,
   recent: []
 };
 
@@ -56,7 +51,7 @@ export default class Engine extends EventEmitter {
     return callback();
   };
 
-  getState = () => this.state;
+  getState = () => ({ ...this.state });
 
   emitChange = () => this.emit(EVENT);
 
@@ -83,19 +78,22 @@ export default class Engine extends EventEmitter {
   updateParent = (code: string) => updateParent({ private_settings: { code } });
 
   updateCode = (code: string) => {
-    const { current } = this.state;
-    if (!current) return;
-    const { payload } = current;
+    const { current: old } = this.state;
+    if (!old) return;
+    const current = { ...old, code, editable: true };
     this.updateParent(code);
-    this.setState({ code });
-    this.preview({ code, payload });
+    this.setState({ current });
+    this.fetchPreview(current);
   };
 
-  selectEntry = (current?: Entry) => {
+  selectEntry = (selected?: Entry) => {
+    this.setState({ error: undefined, selected });
+    if (!selected) return;
+    const { code } = this.state.current || {};
+    const newCode = code!==undefined ? code : selected.code;
+    const current = { ...selected, code: newCode, editable: true };
     this.setState({ current });
-    if (!current) return;
-    const { payload } = current;
-    this.preview({ code: this.state.code, payload });
+    this.fetchPreview(current);
   };
 
   selectEntryByDate = (date: string) => {
@@ -103,7 +101,12 @@ export default class Engine extends EventEmitter {
     this.selectEntry(_.find(recent, entry => entry.date === date));
   };
 
-  request = async (payload: {
+  request = async ({
+    url,
+    method,
+    data,
+    headers
+  }: {
     url: string,
     method?: "get" | "post",
     data?: {},
@@ -113,82 +116,90 @@ export default class Engine extends EventEmitter {
     if (!config) {
       throw new Error("Can't find a proper config, please reload page");
     }
-    return axios({ method: "get", params: config, ...payload });
+    const response = await fetch(`${url}?${this.getQueryString()}`, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        ...headers
+      },
+      body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+    return response.json();
+  };
+
+  getQueryString = () => {
+    const { id, organization, secret } = this.state.config;
+    return `id=${id}&organization=${organization}&secret=${secret}`;
   };
 
   fetchToken = async () => {
     this.setState({ loadingToken: true });
     try {
-      const { data, status }: AxiosConfResponse = await this.request({
+      const { hostname, token }: ConfResponse = await this.request({
         url: "conf",
         method: "get"
       });
-      if (status !== 200) {
-        throw new Error("Can't load Token");
-      }
-      this.setState({ ...data, loadingToken: false });
+      this.setState({ hostname, token, loadingToken: false, error: undefined });
+      return true;
     } catch (err) {
-      console.log(err);
-      this.setState({ token: "", hostname: "", loadingToken: false });
+      this.setState({
+        error: err.message,
+        token: "",
+        hostname: "",
+        loadingToken: false
+      });
+      return false;
     }
   };
 
   fetchRecent = async () => {
     this.setState({ loadingRecent: true });
     try {
-      const {
-        data: recent = [],
-        status
-      }: AxiosRecentResponse = await this.request({
+      const recent: Array<Entry> = await this.request({
         url: "recent",
         headers: CORS_HEADERS
       });
-      if (status !== 200) {
-        throw new Error("Can't fetch recent webhooks");
-      }
-      this.setState({ recent, loadingRecent: false });
+      this.setState({ recent, loadingRecent: false, error: undefined });
       return true;
     } catch (err) {
-      console.log(err);
-      this.setState({
-        error: err.toString(),
-        loadingRecent: false
-      });
+      this.setState({ error: err.message, loadingRecent: false });
       return false;
     }
   };
 
-  preview = _.debounce(
+  fetchPreview = _.debounce(
     async (request: PreviewRequest) => {
-      // const { computing } = this.state;
-      // if (computing) {
-      //   return computing;
-      // }
       this.setState({ computing: true });
 
       try {
-        const { data, status }: AxiosComputeResult = await this.request({
+        const response: PreviewResponse = await this.request({
           url: "preview",
           method: "post",
           data: request
         });
-        if (status !== 200) {
-          throw new Error("Can't compute result");
-        }
+        const state = this.getState();
         this.setState({
+          error: undefined,
           computing: false,
-          result: data,
+          current: {
+            ...state.current,
+            result: response
+          },
           initialized: true
         });
+        return true;
       } catch (err) {
-        console.log(err);
         this.setState({
+          error: err.message,
           computing: false,
-          error: err.toString(),
+          current: undefined,
           initialized: true
         });
+        return false;
       }
-      return true;
     },
     1000,
     { leading: false, trailing: true }

@@ -86,13 +86,15 @@ export type PreviewRequest = {
   payload: Payload,
   code: string
 };
+export type PreviewResponse = Result;
 
 export type Entry = {
   connectorId: string,
   code: string,
   payload: Payload,
   result: Result,
-  date: string
+  date: string,
+  editable?: boolean
 };
 
 export type ComputeOptions = {
@@ -161,9 +163,9 @@ export type ConfResponse = {
 };
 
 export type Config = {
-  ship: string,
+  id: string,
   secret: string,
-  orgUrl: string
+  organization: string
 };
 
 export type EngineState = {
@@ -174,8 +176,8 @@ export type EngineState = {
   loadingToken: boolean,
   hostname?: string,
   token?: string,
-  code: string,
   config: Config,
+  selected?: Entry,
   current?: Entry,
   recent: Array<Entry>
 };

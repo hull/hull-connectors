@@ -1,4 +1,6 @@
-@import "~bootstrap/dist/css/bootstrap.css";
+@import "../../../assets/style/index.scss";
+
+// @import "~bootstrap/dist/css/bootstrap.css";
 @import "./modules/typography";
 @import "./modules/spinner";
 @import "./modules/layout";
@@ -22,26 +24,13 @@
 
 .refresh-button {
 	padding: 0;
-	background-color: #FFF;
+	background-color: transparent;
 	margin: 0px 20px;
 	height: 30px;
 }
 
 .input-monospace {
 	font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
-}
-
-.content-tag {
-	background: #151617;
-	padding: 5px 10px;
-	color: #676f7d;
-	margin: 0;
-	font-size: 12px;
-}
-
-.content-tag--error {
-	color: #fff;
-	background: #de7878;
 }
 
 .modal-wide {

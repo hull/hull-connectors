@@ -32,8 +32,7 @@ const List = ({
     </Button>
     <DropdownButton
       className="last-payload-button"
-      variant="primary"
-      size="sm"
+      variant="secondary"
       id="last-payload"
       title={<PayloadTitle entry={current} />}
       key={_.get(current, "date")}

@@ -1,41 +1,20 @@
 .main-container {
-	display: flex;
-	position: absolute;
-	position: absolute;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	top: 0;
+  height: 100vh;
 }
-
-.flexRow {
-	flex-direction: row;
-	display: flex;
-}
-
-.flexColumn {
-	display: flex;
-	flex-direction: column;
-}
-
-.flexGrow {
-	flex-grow: 1;
-}
-
 .header {
-	min-height: 42px;
-	padding: 0 5px;
-	align-items: center;
-	.btn-group {
-		align-items: center;
-	}
+  min-height: 55px;
 }
 
-.third {
-	width: 33.333%
+.flex-grow {
+  flex-grow: 1;
 }
 
-.code-editor {
-	display: flex;
-	flex-direction: column;
+.align-center {
+  align-items: center;
+}
+
+.vm-column {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }

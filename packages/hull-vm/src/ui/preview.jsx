@@ -19,18 +19,22 @@ const renderClaimsOptions = (options = {}) =>
   _.size(options) ? `,${short(options)}` : "";
 
 const renderUserClaim = ({ claims, claimsOptions }) =>
-  `hull.asUser(${short(claims)}${renderClaimsOptions(claimsOptions)})`;
+  `hull
+.asUser(${short(claims)}${renderClaimsOptions(claimsOptions)})`;
 
 const renderAccountClaim = ({ claims, claimsOptions }) =>
-  `hull.asAccount(${short(claims)}${renderClaimsOptions(claimsOptions)})`;
+  `hull
+.asAccount(${short(claims)}${renderClaimsOptions(claimsOptions)})`;
 
-const renderUserTraits = ({ claims, traits, claimsOptions }) =>
-  `${renderUserClaim({ claims, claimsOptions })}
-.traits(${nice(traits)}});`;
+const renderTraits = claimRender => ({
+  claims,
+  traits: { attributes, context },
+  claimsOptions
+}) => `${claimRender({ claims, claimsOptions })}
+.traits(${nice(attributes)}, ${nice(context)});`;
 
-const renderAccountTraits = ({ claims, traits, claimsOptions }) =>
-  `${renderAccountClaim({ claims, claimsOptions })}
-.traits(${nice(traits)}});`;
+const renderUserTraits = renderTraits(renderUserClaim);
+const renderAccountTraits = renderTraits(renderAccountClaim);
 
 const mapTraits = method =>
   fp.flow(
@@ -64,7 +68,7 @@ const renderEvent = ({
   claimsOptions
 }) => `// <--------- Event --------->
 ${renderUserClaim({ claims, claimsOptions })}
-.track(${renderEventBody(event)})`;
+.track(${renderEventBody(event)});`;
 
 const mapEvents = fp.flow(
   fp.map(renderEvent),
@@ -114,7 +118,7 @@ const Preview = ({ result }: Props) => {
   ) : (
     <Fragment>
       {_.map(_.pickBy(output, v => !!v), (v, k) => (
-        <Fragment>
+        <Fragment key={k}>
           <CodeTitle title={k} />
           <Area id={`code-${k}`} value={v} type="info" mode="javascript" />
         </Fragment>

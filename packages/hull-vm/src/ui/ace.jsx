@@ -22,7 +22,7 @@ ace.require("ace/mode/text");
 
 ace.require("ace/snippets/javascript");
 ace.require("ace/snippets/json");
-ace.require("ace/theme/tomorrow_night");
+ace.require("ace/theme/clouds_midnight");
 
 ace.require("ace/ext/error_marker");
 ace.require("ace/ext/searchbox");
@@ -35,18 +35,31 @@ type Props = {
   readOnly: boolean,
   onChange?: string => void,
   mode: string,
-  value: string
+  value: string,
+  focusOnLoad?: boolean
 };
 type State = {
   value: string
 };
 
 class CodeEditor extends Component<Props, State> {
+  code: any;
+
   state = {
     /* eslint-disable-next-line react/destructuring-assignment */
     value: this.props.value
   };
 
+  constructor(props: Props) {
+    super(props);
+    this.code = React.createRef();
+  }
+
+  focusCodeInput() {
+    // Explicitly focus the text input using the raw DOM API
+    // Note: we're accessing "current" to get the DOM node
+    this.code.current.editor.focus();
+  }
   // onBeforeChange = (editor: any, data: any, value: string) =>
 
   onChange = (value: string) => {
@@ -61,6 +74,12 @@ class CodeEditor extends Component<Props, State> {
     console.log(annotations);
   };
 
+  componentDidMount() {
+    if (this.props.focusOnLoad) {
+      this.focusCodeInput();
+    }
+  }
+
   componentWillReceiveProps = (nextProps: Props) => {
     /* eslint-disable-next-line react/destructuring-assignment */
     if (nextProps.value !== this.state.value) {
@@ -73,11 +92,13 @@ class CodeEditor extends Component<Props, State> {
     const { value } = this.state;
     return (
       <AceEditor
+        ref={this.code}
         mode={mode}
-        className={className}
-        theme="tomorrow_night"
+        className={`${className ? className : ""} ${
+          readOnly ? "read-only" : ""
+        }`}
+        theme="clouds_midnight"
         width="auto"
-        height="100%"
         wrapEnabled
         tabSize={2}
         fontSize={12}
