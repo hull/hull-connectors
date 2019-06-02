@@ -4,7 +4,7 @@ import type { HullConnectorConfig } from "hull";
 import manifest from "../manifest.json";
 import fetchToken from "./lib/fetch-token";
 import handlers from "./handlers";
-import entryModel from "./models/entry";
+import { entryModel } from "hull-vm";
 
 export default function connectorConfig(): HullConnectorConfig {
   const {

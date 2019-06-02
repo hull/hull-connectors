@@ -5,11 +5,10 @@ import type {
   Connector
 } from "hull";
 
-import getRecent from "hull-vm/server/handlers/get-recent-handler";
+import { getRecentHandler, previewHandler } from "hull-vm";
 import incomingHandler from "./incoming-handler";
-import previewHandler from "hull-vm/server/handlers/preview-handler";
 import status from "./status";
-import confHandler from "./config-handler";
+import configHandler from "./config-handler";
 import credentialsHandler from "./credentials-handler";
 
 const handler = ({ EntryModel }: { EntryModel: any }) => (
@@ -22,8 +21,8 @@ const handler = ({ EntryModel }: { EntryModel: any }) => (
     statuses: { status },
     incoming: { incomingHandler: incomingHandler(EntryModel) },
     json: {
-      getRecent: getRecent(EntryModel),
-      confHandler,
+      getRecent: getRecentHandler(EntryModel),
+      configHandler,
       credentialsHandler,
       previewHandler
     }

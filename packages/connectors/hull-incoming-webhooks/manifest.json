@@ -43,8 +43,8 @@
       "handler": "getRecent"
     },
     {
-      "url": "/conf",
-      "handler": "confHandler"
+      "url": "/config",
+      "handler": "configHandler"
     },
     {
       "url": "/url",

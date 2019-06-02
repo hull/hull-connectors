@@ -62,7 +62,7 @@ export default class Engine extends EventEmitter {
     this.removeListener(EVENT, listener);
 
   setup() {
-    this.fetchToken();
+    this.bootstrap();
     this.attemptFetchRecent();
   }
 
@@ -135,11 +135,11 @@ export default class Engine extends EventEmitter {
     return `id=${id}&organization=${organization}&secret=${secret}`;
   };
 
-  fetchToken = async () => {
+  bootstrap = async () => {
     this.setState({ loadingToken: true });
     try {
       const { url, current }: ConfResponse = await this.request({
-        url: "conf",
+        url: "config",
         method: "get"
       });
       this.setState({ url, current, loadingToken: false, error: undefined });
