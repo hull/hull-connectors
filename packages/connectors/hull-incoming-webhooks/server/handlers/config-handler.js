@@ -10,10 +10,16 @@ const confHandler = (
   ctx: HullContext,
   message: HullIncomingHandlerMessage
 ): HullExternalResponse => {
-  const { clientCredentialsEncryptedToken } = ctx;
+  const { clientCredentialsEncryptedToken, connector } = ctx;
+  const { private_settings = {} } = connector;
+  const { code } = private_settings;
   const { hostname } = message;
   if (hostname && clientCredentialsEncryptedToken) {
     const data: ConfResponse = {
+      current: {
+        connectorId: connector.id,
+        code
+      },
       hostname,
       token: clientCredentialsEncryptedToken
     };

@@ -97,11 +97,13 @@ export default class App extends Component<Props, State> {
     const {
       loadingRecent,
       config,
+      initialized,
       showConfig,
       recent,
       hostname,
       token
     } = this.state;
+    if (!initialized) return null;
     const hasRecent = !!_.get(recent, "length", 0);
     const content = hasRecent
       ? "Copy the URL below and configure your external service to send a valid JSON-formatted payload to it as a HTTP POST call"
@@ -213,7 +215,11 @@ export default class App extends Component<Props, State> {
                 </Nav.Item>
               </Nav>
             </Header>
-            <CodeTitle title="Code" />
+            <CodeTitle
+              title={`Code ${
+                this.showCurrent() ? "(Current)" : "(At webhook reception)"
+              }`}
+            />
             <Code
               focusOnLoad={true}
               computing={computing}

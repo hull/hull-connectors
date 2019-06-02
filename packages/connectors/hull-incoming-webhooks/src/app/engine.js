@@ -25,7 +25,7 @@ const CORS_HEADERS = {
 
 const DEFAULT_STATE = {
   loadingRecent: false,
-  loadingToken: false,
+  initialized: false,
   computing: false,
   initialized: false,
   current: undefined,
@@ -62,7 +62,7 @@ export default class Engine extends EventEmitter {
     this.removeListener(EVENT, listener);
 
   setup() {
-    this.fetchToken();
+    this.bootstrap();
     this.attemptFetchRecent();
   }
 
@@ -90,7 +90,7 @@ export default class Engine extends EventEmitter {
     this.setState({ error: undefined, selected });
     if (!selected) return;
     const { code } = this.state.current || {};
-    const newCode = code!==undefined ? code : selected.code;
+    const newCode = code !== undefined ? code : selected.code;
     const current = { ...selected, code: newCode, editable: true };
     this.setState({ current });
     this.fetchPreview(current);
@@ -135,21 +135,35 @@ export default class Engine extends EventEmitter {
     return `id=${id}&organization=${organization}&secret=${secret}`;
   };
 
-  fetchToken = async () => {
-    this.setState({ loadingToken: true });
+  bootstrap = async () => {
+    this.setState({ initialized: false });
     try {
-      const { hostname, token }: ConfResponse = await this.request({
+      const {
+        hostname,
+        token,
+        current,
+        connectorId
+      }: ConfResponse = await this.request({
         url: "conf",
         method: "get"
       });
-      this.setState({ hostname, token, loadingToken: false, error: undefined });
+      this.setState({
+        current: {
+          ...current,
+          editable: true
+        },
+        hostname,
+        token,
+        initialized: false,
+        error: undefined
+      });
       return true;
     } catch (err) {
       this.setState({
         error: err.message,
         token: "",
         hostname: "",
-        loadingToken: false
+        initialized: false
       });
       return false;
     }

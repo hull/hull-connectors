@@ -171,7 +171,7 @@ export type EngineState = {
   computing: boolean,
   initialized: boolean,
   loadingRecent: boolean,
-  loadingToken: boolean,
+  loading: boolean,
   hostname?: string,
   token?: string,
   code: string,
