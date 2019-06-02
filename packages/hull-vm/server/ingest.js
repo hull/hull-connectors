@@ -8,7 +8,7 @@ const debug = require("debug")("hull-incoming-webhooks:ingest");
 
 // const omitClaimOptions = traits => traits.map(u => _.omit(u, "claimsOptions"));
 
-module.exports = async function ingest(
+export default async function ingest(
   {
     result,
     code,

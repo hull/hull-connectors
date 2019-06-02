@@ -8,7 +8,7 @@ import getHullContext from "./sandbox/hull";
 import getRequest from "./sandbox/request";
 import getConsole from "./sandbox/console";
 
-export default async function runScript({
+export default async function compute({
   connector,
   client,
   context,
