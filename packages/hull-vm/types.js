@@ -100,9 +100,7 @@ export type Entry = {
 export type ComputeOptions = {
   code: string,
   preview: boolean,
-  context: Payload,
-  connector: HullConnector,
-  client: HullClient
+  context: Payload
 };
 
 type AnyFunction = any => any;
@@ -157,10 +155,13 @@ export type ClaimsValidation =
       error: string
     };
 
+export type Current = {
+  connectorId: string,
+  code: string
+}
 export type ConfResponse = {
-  current: Entry,
-  hostname: string,
-  token: string
+  current: Current,
+  url: string
 };
 
 export type Config = {
@@ -175,8 +176,7 @@ export type EngineState = {
   initialized: boolean,
   loadingRecent: boolean,
   initialized: boolean,
-  hostname?: string,
-  token?: string,
+  url?: string,
   config: Config,
   selected?: Entry,
   current?: Entry,

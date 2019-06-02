@@ -43,10 +43,8 @@ export default async function computeHandler(
     };
   }
 
-  const result = await compute({
+  const result = await compute(ctx, {
     context: payload,
-    connector,
-    client,
     preview: true,
     code
   });

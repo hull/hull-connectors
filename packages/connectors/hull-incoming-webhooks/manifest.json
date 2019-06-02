@@ -34,7 +34,7 @@
       "title": "Incoming Webhook URL",
       "description": "Send a POST request to the URL below to start capturing data, Then open the Code editor to write logic on how to ingest it",
       "step": "credentials",
-      "properties": ["json.conf"]
+      "properties": ["json.credentials"]
     }
   ],
   "json": [
@@ -51,7 +51,7 @@
       "name": "url",
       "format": "credentials",
       "title": "Webhook URL",
-      "handler": "credentials"
+      "handler": "credentialsHandler"
     },
     {
       "url": "/preview",
@@ -68,6 +68,13 @@
       "handler": "incomingHandler"
     }
   ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "cron",
+    "value": "*/30 * * * *",
+    "handler": "status"
+  },
   "statuses": [
     {
       "url": "/status",

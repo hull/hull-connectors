@@ -7,38 +7,7 @@ import type {
   HullIncomingHandlerMessage,
   HullExternalResponse
 } from "hull";
-import { ingest, compute, pickValuesFromRequest } from "hull-vm";
-
-// const debug = require("debug")("hull-incoming-webhooks:incoming");
-
-const asyncComputeAndIngest = async ({
-  EntryModel,
-  metric,
-  payload,
-  connector,
-  client,
-  code
-}) => {
-  try {
-    const result = await compute({
-      context: payload,
-      connector,
-      client,
-      code,
-      preview: false
-    });
-    ingest({ payload, code, result, connector, client, metric }, EntryModel);
-  } catch (err) {
-    client.logger.error("incoming.user.error", {
-      hull_summary: `Error Processing user: ${_.get(
-        err,
-        "message",
-        "Unexpected error"
-      )}`,
-      err
-    });
-  }
-};
+import { pickValuesFromRequest, asyncComputeAndIngest } from "hull-vm";
 
 export default function handler(EntryModel: Object) {
   return async (
@@ -60,22 +29,14 @@ export default function handler(EntryModel: Object) {
       };
     }
 
-    // res.sendStatus(200);
-
     const payload = pickValuesFromRequest(message);
+
     client.logger.debug(
       "connector.request.data",
       _.pick(payload, "body", "method", "params", "query")
     );
-    asyncComputeAndIngest({
-      EntryModel,
-      metric,
-      payload,
-      connector,
-      client,
-      code
-    });
-    // return undefined;
+    asyncComputeAndIngest(ctx, { EntryModel, payload, code });
+
     return {
       status: 200,
       data: {

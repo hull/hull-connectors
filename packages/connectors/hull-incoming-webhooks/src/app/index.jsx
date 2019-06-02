@@ -29,8 +29,7 @@ type Props = {
 type State = EngineState & {
   showConfig: boolean,
   showBindings: boolean,
-  activeTab: string,
-  result?: Result
+  activeTab: string
 };
 
 const DEFAULT_STATE = {
@@ -100,8 +99,7 @@ export default class App extends Component<Props, State> {
       initialized,
       showConfig,
       recent,
-      hostname,
-      token
+      url
     } = this.state;
     if (!initialized) return null;
     const hasRecent = !!_.get(recent, "length", 0);
@@ -137,10 +135,9 @@ export default class App extends Component<Props, State> {
       config && (
         <ConfigurationModal
           show={showConfig || !hasRecent}
-          host={hostname}
+          url={url}
           onHide={() => {}}
           connectorId={config.id}
-          token={token}
           content={content}
           actions={actions}
           footer={footerMessage}
@@ -155,8 +152,7 @@ export default class App extends Component<Props, State> {
       current,
       loadingRecent,
       recent,
-      token,
-      hostname,
+      url,
       // error,
       computing,
       // initialized,
@@ -168,7 +164,7 @@ export default class App extends Component<Props, State> {
 
     const active: Entry | void = this.showCurrent() ? current : selected;
 
-    if (!active || !token || !hostname) {
+    if (!active || !url) {
       return (
         <div className="text-center pt-2">
           <h4>Loading...</h4>

@@ -1,6 +1,7 @@
 // @flow
 
 import { VM } from "vm2";
+import type { HullContext } from "hull";
 import _ from "lodash";
 import type { Result, ComputeOptions } from "../types";
 import getFrozenLibs from "./sandbox/frozen-libs";
@@ -8,13 +9,11 @@ import getHullContext from "./sandbox/hull";
 import getRequest from "./sandbox/request";
 import getConsole from "./sandbox/console";
 
-export default async function compute({
-  connector,
-  client,
-  context,
-  code,
-  preview
-}: ComputeOptions): Promise<Result> {
+export default async function compute(
+  ctx: HullContext,
+  { context, code, preview }: ComputeOptions
+): Promise<Result> {
+  const { connector, client } = ctx;
   const result = {
     logs: [],
     logsForLogger: [],

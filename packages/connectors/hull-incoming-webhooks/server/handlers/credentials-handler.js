@@ -4,9 +4,8 @@ import type {
   HullIncomingHandlerMessage,
   HullExternalResponse
 } from "hull";
-import type { ConfResponse } from "hull-vm";
 
-const confHandler = (
+const credentialsHandler = (
   ctx: HullContext,
   message: HullIncomingHandlerMessage
 ): HullExternalResponse => {
@@ -15,18 +14,13 @@ const confHandler = (
   const { code } = private_settings;
   const { hostname } = message;
   if (hostname && clientCredentialsEncryptedToken) {
-    const data: ConfResponse = {
-      current: {
-        connectorId: connector.id,
-        code
-      },
-      url: `https://${hostname}/webhooks/${
-        connector.id
-      }/${clientCredentialsEncryptedToken}`
-    };
     return {
       status: 200,
-      data
+      data: {
+        url: `https://${hostname}/webhooks/${
+          connector.id
+        }/${clientCredentialsEncryptedToken}`
+      }
     };
   }
   return {
@@ -34,4 +28,4 @@ const confHandler = (
   };
 };
 
-export default confHandler;
+export default credentialsHandler;

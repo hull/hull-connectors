@@ -4,9 +4,8 @@ import React, { Component } from "react";
 import Modal from "react-bootstrap/Modal";
 
 type Props = {
-  host: any,
+  url?: string,
   connectorId: any,
-  token: any,
   content: any,
   show: any,
   onHide: Function,
@@ -23,9 +22,8 @@ export default class ConfigurationModal extends Component<Props> {
 
   render() {
     const {
-      host,
       connectorId,
-      token,
+      url,
       content,
       footer,
       show,
@@ -49,7 +47,7 @@ export default class ConfigurationModal extends Component<Props> {
                 type="text"
                 onClick={this.autoSelect}
                 className="form-control input-monospace"
-                value={`https://${host}/webhooks/${connectorId}/${token}`}
+                value={url}
                 readOnly
                 data-autoselect=""
               />

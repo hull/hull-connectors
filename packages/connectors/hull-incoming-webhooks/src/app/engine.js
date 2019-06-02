@@ -25,7 +25,7 @@ const CORS_HEADERS = {
 
 const DEFAULT_STATE = {
   loadingRecent: false,
-  initialized: false,
+  loadingToken: false,
   computing: false,
   initialized: false,
   current: undefined,
@@ -62,7 +62,7 @@ export default class Engine extends EventEmitter {
     this.removeListener(EVENT, listener);
 
   setup() {
-    this.bootstrap();
+    this.fetchToken();
     this.attemptFetchRecent();
   }
 
@@ -135,35 +135,21 @@ export default class Engine extends EventEmitter {
     return `id=${id}&organization=${organization}&secret=${secret}`;
   };
 
-  bootstrap = async () => {
-    this.setState({ initialized: false });
+  fetchToken = async () => {
+    this.setState({ loadingToken: true });
     try {
-      const {
-        hostname,
-        token,
-        current,
-        connectorId
-      }: ConfResponse = await this.request({
+      const { url, current }: ConfResponse = await this.request({
         url: "conf",
         method: "get"
       });
-      this.setState({
-        current: {
-          ...current,
-          editable: true
-        },
-        hostname,
-        token,
-        initialized: false,
-        error: undefined
-      });
+      this.setState({ url, current, loadingToken: false, error: undefined });
       return true;
     } catch (err) {
       this.setState({
         error: err.message,
         token: "",
         hostname: "",
-        initialized: false
+        loadingToken: false
       });
       return false;
     }
@@ -185,14 +171,14 @@ export default class Engine extends EventEmitter {
   };
 
   fetchPreview = _.debounce(
-    async (request: PreviewRequest) => {
+    async ({ code, payload }: PreviewRequest) => {
       this.setState({ computing: true });
 
       try {
         const response: PreviewResponse = await this.request({
           url: "preview",
           method: "post",
-          data: request
+          data: { code, payload }
         });
         const state = this.getState();
         this.setState({

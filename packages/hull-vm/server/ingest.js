@@ -9,23 +9,20 @@ const debug = require("debug")("hull-incoming-webhooks:ingest");
 // const omitClaimOptions = traits => traits.map(u => _.omit(u, "claimsOptions"));
 
 export default async function ingest(
+  ctx: HullContext,
   {
     result,
     code,
-    connector,
-    client,
-    metric,
-    payload
+    payload,
+    EntryModel
   }: {
     result: Result,
     code: string,
-    connector: HullConnector,
-    client: $PropertyType<HullContext, "client">,
-    metric: $PropertyType<HullContext, "metric">,
-    payload: Payload
-  },
-  EntryModel: Object
+    payload: Payload,
+    EntryModel: Object
+  }
 ) {
+  const { connector, client, metric } = ctx;
   debug("ingest.result", result);
 
   const {
@@ -106,4 +103,4 @@ export default async function ingest(
     date: new Date().toString()
   };
   return EntryModel.create(entry);
-};
+}
