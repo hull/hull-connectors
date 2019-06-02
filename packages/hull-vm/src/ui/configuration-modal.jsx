@@ -5,7 +5,6 @@ import Modal from "react-bootstrap/Modal";
 
 type Props = {
   url?: string,
-  connectorId: any,
   content: any,
   show: any,
   onHide: Function,
@@ -22,7 +21,6 @@ export default class ConfigurationModal extends Component<Props> {
 
   render() {
     const {
-      connectorId,
       url,
       content,
       footer,
@@ -43,10 +41,10 @@ export default class ConfigurationModal extends Component<Props> {
             </div>
 
             <div style={{ marginBottom: "1rem" }}>
-              <input
+              <textarea
                 type="text"
                 onClick={this.autoSelect}
-                className="form-control input-monospace"
+                className="form-control input-monospace credential"
                 value={url}
                 readOnly
                 data-autoselect=""

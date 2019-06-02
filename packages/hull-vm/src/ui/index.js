@@ -9,3 +9,5 @@ export { default as CodeTitle } from "./code-title";
 export { default as Spinner } from "./spinner";
 export { default as Code } from "./code";
 export { default as Preview } from "./preview";
+export { default as RecentEntriesUI } from "./recent-ui";
+export { default as VirtualMachineUI } from "./vm-ui";
