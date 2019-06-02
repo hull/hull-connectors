@@ -1,0 +1,147 @@
+$secondary-bg: #2f3640;
+$page-bg: #242a33;
+$white: #ffffff;
+$separator: #50555c;
+body.dark {
+  background: $page-bg;
+  color: $white;
+  font-size: 1.1rem;
+  .content-tag {
+    background: transparent;
+    padding: 5px 10px;
+    color: #ffffff;
+    margin: 0 0 1rem 0;
+    font-size: 18px;
+    border-top: 1px solid #50555c;
+    font-weight: 400;
+    &--error {
+      color: $white;
+      background: #de7878;
+    }
+  }
+  .table {
+    color: #ffffff;
+  }
+  .table-hover tbody tr:hover {
+    color: #95a1ad;
+  }
+  .close {
+    color: $white;
+    text-shadow: none;
+  }
+  .modal-header {
+    border-bottom: 1px solid $separator;
+  }
+  .header {
+    background: #242a33;
+  }
+  h6 {
+    font-size: 1.2rem;
+  }
+  .btn-secondary {
+    border: transparent;
+    background: $secondary-bg;
+    &:hover,
+    &.active,
+    &:focus {
+      background: $secondary-bg;
+    }
+  }
+  .btn {
+    border-radius: 0.5rem;
+    line-height: 1;
+  }
+  .btn-group {
+    .btn {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+  a {
+    color: #96bbe2;
+  }
+  .modal-content {
+    background: rgba(15, 18, 23, 0.9);
+    box-shadow: 0 1px 8px 0 rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-backdrop {
+    opacity: 0;
+  }
+  .modal-footer {
+    border-top: 1px solid $separator;
+  }
+
+  .nav-tabs {
+    border-bottom: 0;
+    .nav-item {
+      padding: 0 0.5rem;
+    }
+    .nav-link {
+      border: 0;
+      color: #ffffff73;
+      padding: 2px 0.5rem;
+      border-radius: 0.5rem;
+    }
+  }
+  .nav-tabs .nav-link.active,
+  .nav-tabs .nav-item.show .nav-link {
+    border-color: transparent;
+    background-color: $secondary-bg;
+    color: $white;
+  }
+  .nav-tabs .nav-link:hover,
+  .nav-tabs .nav-link:focus {
+    background-color: $secondary-bg;
+    border-color: #ffffff1a;
+  }
+
+  .last-payload-button {
+    .btn {
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .ace_editor {
+    background: transparent;
+    color: #ffffff;
+    &.read-only {
+      opacity: 0.7;
+    }
+    .ace_gutter {
+      background: transparent;
+    }
+    .ace_variable {
+      color: #fdcb62;
+    }
+    .ace_paren {
+      color: #50555c;
+    }
+    .ace_string {
+      color: #fdcb62;
+    }
+    .ace_numeric {
+      color: #b37bf4;
+    }
+    .ace_operator {
+      color: #f62379;
+    }
+    .ace_type {
+      color: #60c5ff;
+    }
+    .ace_marker-layer .ace_selection {
+      background: #2a3039;
+    }
+    .ace_gutter-cell {
+      color: $separator;
+    }
+    .ace_storage {
+      color: #78dd06;
+    }
+  }
+
+  .vm-column + .vm-column {
+    box-shadow: inset 1px 0px 0 $separator;
+  }
+}
