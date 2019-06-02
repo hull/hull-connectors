@@ -446,9 +446,7 @@
       "step": "actions",
       "description": "These are the actions you can perform",
       "properties": ["json.fetch_all_contacts", "json.fetch_all_companies"]
-    }
-  ],
-  "settings_sections": [
+    },
     {
       "title": "User Incoming Setup",
       "description": "How we capture Hubspot Contacts as users",

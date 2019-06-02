@@ -15,20 +15,28 @@
       "handler": "admin"
     }
   ],
-  "readme" : "readme.md",
+  "readme": "readme.md",
   "version": "0.3.0",
   "private_settings": [
     {
-      "name":"code",
+      "name": "code",
       "title": "Code",
-      "description":"Enter Javascript code here, It will receive the data in the middle column, can emit `track()` and `traits()`. Preview results on the right. Save when finished",
+      "description": "Enter Javascript code here, It will receive the data in the middle column, can emit `track()` and `traits()`. Preview results on the right. Save when finished",
       "type": "string",
-      "default":"//console.log(\"Hello !\");\n//hull.asUser({ email: body.email }).traits({ coconuts: 12 });\n//hull.asUser({ email: body.email }).track(\"sample event\");",
+      "default": "//console.log(\"Hello !\");\n//hull.asUser({ email: body.email }).traits({ coconuts: 12 });\n//hull.asUser({ email: body.email }).track(\"sample event\");",
       "format": "hidden"
     }
   ],
   "resources": [],
-  "subscriptions" : [],
+  "subscriptions": [],
+  "settings_sections": [
+    {
+      "title": "Incoming Webhook URL",
+      "description": "Send a POST request to the URL below to start capturing data, Then open the Code editor to write logic on how to ingest it",
+      "step": "credentials",
+      "properties": ["json.conf"]
+    }
+  ],
   "json": [
     {
       "url": "/recent",
@@ -37,6 +45,13 @@
     {
       "url": "/conf",
       "handler": "confHandler"
+    },
+    {
+      "url": "/url",
+      "name": "url",
+      "format": "credentials",
+      "title": "Webhook URL",
+      "handler": "credentials"
     },
     {
       "url": "/preview",
