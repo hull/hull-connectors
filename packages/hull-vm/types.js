@@ -158,6 +158,7 @@ export type ClaimsValidation =
     };
 
 export type ConfResponse = {
+  current: Entry,
   hostname: string,
   token: string
 };
@@ -173,7 +174,7 @@ export type EngineState = {
   computing: boolean,
   initialized: boolean,
   loadingRecent: boolean,
-  loadingToken: boolean,
+  initialized: boolean,
   hostname?: string,
   token?: string,
   config: Config,
