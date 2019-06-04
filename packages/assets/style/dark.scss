@@ -106,6 +106,8 @@ body.dark {
   .ace_editor {
     background: transparent;
     color: #ffffff;
+    height: 100%;
+    flex-grow: 1;
     &.read-only {
       opacity: 0.7;
     }
@@ -138,6 +140,9 @@ body.dark {
     }
     .ace_storage {
       color: #78dd06;
+    }
+    .ace_comment{
+      color: #50555c;
     }
   }
 

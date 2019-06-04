@@ -3,12 +3,16 @@
 import { VM } from "vm2";
 import type { HullContext } from "hull";
 import _ from "lodash";
+import moment from "moment";
+import urijs from "urijs";
+import rp from "request-promise";
+
 import type { Result, ComputeOptions } from "../types";
-import getFrozenLibs from "./sandbox/frozen-libs";
 import getHullContext from "./sandbox/hull";
 import getRequest from "./sandbox/request";
 import getConsole from "./sandbox/console";
 
+const LIBS = { _, moment, urijs, rp }
 export default async function compute(
   ctx: HullContext,
   { context, code, preview }: ComputeOptions
@@ -27,22 +31,33 @@ export default async function compute(
   };
 
   const sandbox = {
-    ...context,
-    connector,
-    ship: connector,
     payload: {},
     responses: [],
     errors: result.errors,
     request: getRequest(result),
+  };
+  const frozen = {
     hull: getHullContext(client, result),
     console: getConsole(result, preview),
-    ...getFrozenLibs()
-  };
+    ...context,
+    connector,
+    ship: connector
+  }
 
   try {
-    new VM({
+    const vm = new VM({
       sandbox
-    }).run(`responses = (function() { "use strict"; ${code} }());`);
+      // , timeout: 1000 //TODO: Do we want to enforce a timeout here? what about Promises.
+    })
+    _.map(LIBS, (lib, key) => {
+      console.log("Freezing", key);
+      vm.freeze(lib, key)
+    });
+    _.map(frozen, (lib, key) => {
+      console.log("Freezing", key);
+      vm.freeze(lib, key)
+    });
+    vm.run(`responses = (function() { "use strict"; ${code} }());`);
   } catch (err) {
     result.errors.push(err.stack.split("at ContextifyScript")[0]);
   }
