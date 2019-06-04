@@ -35,6 +35,7 @@ export default function handler(EntryModel: Object) {
       "connector.request.data",
       _.pick(payload, "body", "method", "params", "query")
     );
+    metric.increment("ship.service_api.call");
     asyncComputeAndIngest(ctx, { EntryModel, payload, code });
 
     return {

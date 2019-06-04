@@ -16,7 +16,11 @@ import type {
   Traits
 } from "../../types";
 
-import { hasValidUserClaims, hasValidAccountClaims } from "../validate-claims";
+import {
+  hasValidUserClaims,
+  hasValidAccountClaims,
+  hasValidLinkclaims
+} from "../validate-claims";
 
 const trackFactory = (
   claims: Claims,
@@ -62,9 +66,12 @@ const buildHullContext = (
   function asAccountFactory(
     claims: HullAccountClaims,
     claimsOptions: ClaimsOptions,
-    target: Array<Traits>
+    target: Array<Traits>,
+    isLinkCall: boolean
   ) {
-    const validation = hasValidAccountClaims(claims, claimsOptions, client);
+    const validation = isLinkCall
+      ? hasValidLinkclaims(claims, claimsOptions, client)
+      : hasValidAccountClaims(claims, claimsOptions, client);
     const { valid } = validation;
     if (!valid) {
       errorLogger("user", "Hull.asAccount()", validation);
@@ -82,7 +89,8 @@ const buildHullContext = (
     const account = asAccountFactory(
       accountClaims,
       accountClaimsOptions,
-      accountTraits
+      accountTraits,
+      true
     );
     if (!account.traits) {
       return {};

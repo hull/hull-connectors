@@ -7,12 +7,12 @@ export const isValidClaim = (
   claims: HullEntityClaims,
   claimsOptions: HullAdditionalClaims,
   client: HullClient
-) => (subject: ClaimsSubject): ClaimsValidation => {
+) => (subject: ClaimsSubject, allowEmpty: boolean): ClaimsValidation => {
   try {
     const method = subject === "account" ? client.asAccount : client.asUser;
     return (
       // $FlowFixMe
-      method(claims) && {
+      ((allowEmpty && (!claims || _.isEmpty(claims))) || method(claims)) && {
         valid: true,
         error: undefined,
         message: undefined,
@@ -35,11 +35,12 @@ export const isValidClaim = (
   }
 };
 
-export const hasValidClaims = (subject: ClaimsSubject) => (
+export const hasValidClaims = (subject: ClaimsSubject, allowEmpty: boolean) => (
   claims: HullEntityClaims,
   claimsOptions: HullAdditionalClaims,
   client: HullClient
-) => isValidClaim(claims, claimsOptions, client)(subject);
+) => isValidClaim(claims, claimsOptions, client)(subject, allowEmpty);
 
 export const hasValidUserClaims = hasValidClaims("user");
 export const hasValidAccountClaims = hasValidClaims("account");
+export const hasValidLinkclaims = hasValidClaims("account", true);
