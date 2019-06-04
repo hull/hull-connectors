@@ -22,7 +22,7 @@
       "title": "Credentials",
       "description": "Authenticate with Hubspot",
       "format": "oauth",
-      "type": "object",
+      "type": "string",
       "handler": "oauth",
       "url": "/auth",
       "options": {
