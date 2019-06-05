@@ -668,27 +668,32 @@ class SyncAgent {
       propertiesToFetch
     );
 
-    return pipeStreamToPromise(streamOfIncomingContacts, contacts => {
-      progress += contacts.length;
-      this.progressUtil.update(progress);
-      this.hullClient.logger.info("incoming.job.progress", {
-        jobName: "fetchAllContacts",
-        type: "user",
-        progress
-      });
-      return this.saveContacts(contacts);
-    })
-      .then(() => {
-        this.hullClient.logger.info("incoming.job.success", {
-          jobName: "fetchAllContacts"
-        });
-      })
-      .catch(error => {
-        this.hullClient.logger.info("incoming.job.error", {
+    try {
+      await pipeStreamToPromise(streamOfIncomingContacts, contacts => {
+        progress += contacts.length;
+        this.progressUtil.update(progress);
+        this.hullClient.logger.info("incoming.job.progress", {
           jobName: "fetchAllContacts",
-          error: error.message
+          type: "user",
+          progress
         });
+        return this.saveContacts(contacts);
       });
+      this.hullClient.logger.info("incoming.job.success", {
+        jobName: "fetchAllContacts"
+      });
+      return {
+        status: "ok"
+      };
+    } catch (error) {
+      this.hullClient.logger.info("incoming.job.error", {
+        jobName: "fetchAllContacts",
+        error: error.message
+      });
+      return {
+        error: error.message
+      };
+    }
   }
 
   /**
@@ -723,26 +728,31 @@ class SyncAgent {
       propertiesToFetch
     );
 
-    return pipeStreamToPromise(streamOfIncomingCompanies, companies => {
-      progress += companies.length;
-      this.hullClient.logger.info("incoming.job.progress", {
-        jobName: "fetch",
-        type: "account",
-        progress
-      });
-      return this.saveCompanies(companies);
-    })
-      .then(() => {
-        this.hullClient.logger.info("incoming.job.success", {
-          jobName: "fetch"
-        });
-      })
-      .catch(error => {
-        this.hullClient.logger.info("incoming.job.error", {
+    try {
+      await pipeStreamToPromise(streamOfIncomingCompanies, companies => {
+        progress += companies.length;
+        this.hullClient.logger.info("incoming.job.progress", {
           jobName: "fetch",
-          error
+          type: "account",
+          progress
         });
+        return this.saveCompanies(companies);
       });
+      this.hullClient.logger.info("incoming.job.success", {
+        jobName: "fetch"
+      });
+      return {
+        status: "ok"
+      };
+    } catch (error) {
+      this.hullClient.logger.info("incoming.job.error", {
+        jobName: "fetch",
+        error
+      });
+      return {
+        error: error.message
+      };
+    }
   }
 
   async fetchAllCompanies(): Promise<any> {
@@ -760,27 +770,32 @@ class SyncAgent {
       propertiesToFetch
     );
 
-    return pipeStreamToPromise(streamOfIncomingCompanies, companies => {
-      progress += companies.length;
-      this.progressUtil.updateAccount(progress);
-      this.hullClient.logger.info("incoming.job.progress", {
-        jobName: "fetchAllCompanies",
-        type: "account",
-        progress
-      });
-      return this.saveCompanies(companies);
-    })
-      .then(() => {
-        this.hullClient.logger.info("incoming.job.success", {
-          jobName: "fetchAllCompanies"
-        });
-      })
-      .catch(error => {
-        this.hullClient.logger.info("incoming.job.error", {
+    try {
+      await pipeStreamToPromise(streamOfIncomingCompanies, companies => {
+        progress += companies.length;
+        this.progressUtil.updateAccount(progress);
+        this.hullClient.logger.info("incoming.job.progress", {
           jobName: "fetchAllCompanies",
-          error: error.message
+          type: "account",
+          progress
         });
+        return this.saveCompanies(companies);
       });
+      this.hullClient.logger.info("incoming.job.success", {
+        jobName: "fetchAllCompanies"
+      });
+      return {
+        status: "ok"
+      };
+    } catch (error) {
+      this.hullClient.logger.info("incoming.job.error", {
+        jobName: "fetchAllCompanies",
+        error: error.message
+      });
+      return {
+        error: error.message
+      };
+    }
   }
 
   saveCompanies(companies: Array<HubspotReadCompany>): Promise<any> {
