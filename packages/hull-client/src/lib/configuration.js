@@ -211,10 +211,10 @@ class Configuration {
     | HullAdditionalClaims
     | HullClientConfig
     | void {
-    if (key) {
+    if (key!==undefined) {
       return this._state[key];
     }
-    return JSON.parse(JSON.stringify(this._state));
+    return this.getAll();
   }
 
   getAll(): HullClientConfig {
