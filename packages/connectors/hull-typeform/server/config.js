@@ -30,7 +30,7 @@ export default function connectorConfig(): HullConnectorConfig {
     }),
     devMode: NODE_ENV === "development",
     port: PORT || 8082,
-    cache: {
+    cacheConfig: {
       store: "memory",
       isCacheableValue: () => false
     },

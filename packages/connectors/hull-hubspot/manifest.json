@@ -33,16 +33,11 @@
       }
     },
     {
-      "name": "actions",
-      "type": "object",
-      "properties": {
-        "last-fetch": {
-          "title": "Last Fetched",
-          "type": "string",
-          "format": "information",
-          "url": "/last-fetched-status"
-        }
-      }
+      "name": "last_fetch",
+      "type": "string",
+      "title": "Last Fetched",
+      "format": "information",
+      "url": "/last-fetched-status"
     },
     {
       "name": "incoming_user_title",
@@ -381,10 +376,12 @@
   "json": [
     {
       "url": "/fetch-all",
+      "name": "fetch_all",
       "handler": "fetchAll"
     },
     {
       "title": "Last Fetched",
+      "name": "last_fetched",
       "format": "information",
       "url": "/last-fetched",
       "handler": "lastFetchedStatus"
@@ -396,6 +393,7 @@
       "url": "/fetch-all-contacts",
       "handler": "fetchAll",
       "options": {
+        "disableErrorHandling": true,
         "confirm": {
           "action": "fetch",
           "entity": "users"
@@ -417,21 +415,25 @@
     },
     {
       "url": "/schema/contact_properties",
+      "name": "contact_properties",
       "handler": "getContactProperties",
       "options": { "respondWithError": true }
     },
     {
       "url": "/schema/incoming_user_claims",
+      "name": "incoming_user_claims",
       "handler": "getIncomingUserClaims",
       "options": { "respondWithError": false }
     },
     {
       "url": "/schema/incoming_account_claims",
+      "name": "incoming_account_claims",
       "handler": "getIncomingAccountClaims",
       "options": { "respondWithError": false }
     },
     {
       "url": "/schema/company_properties",
+      "name": "company_properties",
       "handler": "getCompanyProperties"
     }
   ],

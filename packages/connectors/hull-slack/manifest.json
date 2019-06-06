@@ -3,7 +3,7 @@
   "description": "Notify a Slack Channel whenever a User enters or leaves a Segment",
   "picture": "picture.png",
   "version": "0.0.17",
-  "tags": ["incoming", "outgoing", "oneColumn", "smart-notifier"],
+  "tags": ["kraken"],
   "private_settings": [
     {
       "name": "oauth",
@@ -227,25 +227,7 @@
       "properties": ["private_settings.attachements"]
     }
   ],
-  "deployment_settings": [],
-  "resources": [],
   "readme": "readme.md",
-  "tabs": [
-    {
-      "title": "Actions",
-      "url": "/admin",
-      "handler": "admin",
-      "size": "small",
-      "editable": false
-    }
-  ],
-  "router": [
-    {
-      "url": "/",
-      "handler": "slackWebhooks",
-      "options": {}
-    }
-  ],
   "ui": false,
   "json": [
     {
