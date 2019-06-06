@@ -192,21 +192,9 @@ class SyncAgent {
     }
   }
 
-  getForms() {
-    return this.serviceClient
-      .getForms()
-      .then(response => {
-        return {
-          data: {
-            options: response.body.items.map(f => {
-              return { label: f.title, value: f.id };
-            })
-          }
-        };
-      })
-      .catch(() => {
-        return { options: [] };
-      });
+  async getForms() {
+    const response = await this.serviceClient.getForms();
+    return response.body.items.map(f => ({ label: f.title, value: f.id }));
   }
 
   async getFormResponsesCount() {
@@ -217,47 +205,42 @@ class SyncAgent {
     return response.body.total_items;
   }
 
-  getQuestions({ type = null }: Object = {}): Promise<> {
-    return this.serviceClient
-      .getForm(this.formId)
-      .then(({ body }) => {
-        const result = [
-          {
-            label: "questions",
-            options: _.chain(body.fields)
-              // .filter(syncAgent.isNotHidden)
-              .thru(fields => {
-                return (
-                  fields.filter(f => {
-                    if (type) {
-                      return f.type === type;
-                    }
-                    return true;
-                  }) || fields
-                );
-              })
-              .map(f => {
-                return { label: striptags(f.title), value: f.id };
-              })
-              .uniqBy("label")
-              .value()
-          },
-          {
-            label: "hidden",
-            options: _.chain(body.hidden)
-              // .filter(syncAgent.isHidden)
-              .map(f => {
-                return { label: f, value: f };
-              })
-              .uniqBy("label")
-              .value()
-          }
-        ];
-        return { data: { options: result } };
-      })
-      .catch(() => {
-        return { data: { options: [] } };
-      });
+  async getQuestions({ type = null }: Object = {}): Promise<
+    Array<HullUISelectGroup>
+  > {
+    const { body } = await this.serviceClient.getForm(this.formId);
+    return [
+      {
+        label: "questions",
+        options: _.chain(body.fields)
+          // .filter(syncAgent.isNotHidden)
+          .thru(fields => {
+            return (
+              fields.filter(f => {
+                if (type) {
+                  return f.type === type;
+                }
+                return true;
+              }) || fields
+            );
+          })
+          .map(f => {
+            return { label: striptags(f.title), value: f.id };
+          })
+          .uniqBy("label")
+          .value()
+      },
+      {
+        label: "hidden",
+        options: _.chain(body.hidden)
+          // .filter(syncAgent.isHidden)
+          .map(f => {
+            return { label: f, value: f };
+          })
+          .uniqBy("label")
+          .value()
+      }
+    ];
   }
 
   saveResponses(
