@@ -81,10 +81,6 @@ export type HullBatchHandlerOptions = {
   maxSize?: number
 };
 export type HullIncomingHandlerOptions = {
-  // fetchShip?: boolean,
-  // cacheShip?: boolean,
-  type?: "router" | "OAuth" | "oauth",
-  params?: HullOAuthHandlerOptions | {},
   cache?: HandlerCacheOptions,
   respondWithError?: boolean,
   disableErrorHandling?: boolean,
@@ -131,6 +127,16 @@ type HullManifestBatch = {
   }>
 };
 
+//Supported Dashboard widget types
+type HullWidgetFormat = "popup" | "credentials" | "action";
+
+type HullActionConfirmOption = {
+  action: "fetch",
+  text?: string,
+  button?: string,
+  entity: "users" | "accounts"
+};
+
 // A Manifest Schedule block. Defines a schedule for Hull to ping the connector
 type HullManifestSchedule = {
   url: string,
@@ -150,12 +156,28 @@ type HullManifestStatus = {
 
 // A Manifest Endpoint block. Defines a publicly-available route for the Connector to receive Service data
 
-type HullManifestJsonConfig = {
-  url: string,
-  handler: string,
-  method: HTTPMethod,
-  options?: HullIncomingHandlerOptions
-};
+type HullManifestJsonConfig =
+  | {
+      url: string,
+      handler: string,
+      method: HTTPMethod,
+      options?: HullIncomingHandlerOptions & {
+        confirm?: HullActionConfirmOption
+      }
+    }
+  | {
+      url: string,
+      handler: string,
+      method: HTTPMethod,
+
+      name: string,
+      title: string,
+      description?: string,
+      format: HullWidgetFormat,
+      options?: HullIncomingHandlerOptions & {
+        confirm?: HullActionConfirmOption
+      }
+    };
 
 type HullManifestIncomingConfig = {
   url: string,
@@ -295,12 +317,14 @@ export type HullLogsConfig = {
 export type HullCacheConfig =
   | {
       store: "memory",
+      isCacheableValue?: () => boolean,
       ttl?: number | string,
       max?: number | string,
       min?: number | string
     }
   | {
       store: "redis",
+      isCacheableValue?: () => boolean,
       url: string,
       ttl?: number | string,
       max?: number | string,
