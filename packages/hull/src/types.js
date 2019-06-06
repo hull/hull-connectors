@@ -281,12 +281,14 @@ export type HullLogsConfig = {
 export type HullCacheConfig =
   | {
       store: "memory",
+      isCacheableValue?: () => boolean,
       ttl?: number,
       max?: number,
       min?: number
     }
   | {
       store: "redis",
+      isCacheableValue?: () => boolean,
       url: string,
       ttl?: number,
       max?: number,
