@@ -3,6 +3,7 @@
 
 // import account_update from "./account-update";
 import type { HullHandlersConfiguration } from "hull";
+import select_list from "./select-list";
 import user_update from "./user-update";
 import ship_update from "./ship-update";
 import users_segment_update from "./users-segment-update";
@@ -71,6 +72,7 @@ export default function handlers({
     },
     // @TODO: Check we're still working when using the oauth provider as a classic route
     tabs: {
+      select_list,
       auth: oauth({
         clientID,
         clientSecret

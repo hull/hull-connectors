@@ -189,9 +189,13 @@
         "views": {
           "login": "login.html",
           "success": "finished.html",
-          "home": "sync.html"
+          "home": "admin.html"
         }
       }
+    },
+    {
+      "url": "/select",
+      "handler": "select_list"
     }
   ],
   "incoming": [

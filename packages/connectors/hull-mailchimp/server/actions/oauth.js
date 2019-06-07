@@ -8,6 +8,8 @@ import type {
   HullOAuthAuthorizeResponse
 } from "hull";
 
+import rp from "request-promise";
+
 const MailchimpStrategy = require("passport-mailchimp").Strategy;
 const moment = require("moment");
 
@@ -27,17 +29,32 @@ module.exports = ({
     ctx: HullContext,
     _message: HullIncomingHandlerMessage
   ): HullExternalResponse => {
-    const { connector } = ctx;
+    const { connector, clientCredentialsEncryptedToken } = ctx;
     const { private_settings = {} } = connector;
-    const { access_token } = private_settings;
+    const {
+      mailchimp_list_id,
+      api_key,
+      api_endpoint,
+      domain
+    } = private_settings;
 
-    if (access_token) {
+    if (api_key && api_endpoint && domain) {
+
       return {
         status: 200,
-        data: {}
+        data: {
+          url: mailchimp_list_id
+            ? ""
+            : `/select?hullToken=${clientCredentialsEncryptedToken}`
+        }
       };
     }
-    throw new Error("Can't find access token");
+    return {
+      status: 200,
+      data: {
+        url: `/auth/login?hullToken=${clientCredentialsEncryptedToken}`
+      }
+    };
   },
   onAuthorize: async (
     ctx: HullContext,
@@ -47,13 +64,20 @@ module.exports = ({
     if (!account) {
       return undefined;
     }
-    const { accessToken, refreshToken, params = {} } = account;
+    const { accessToken } = account;
+    const data = await rp({
+      uri: "https://login.mailchimp.com/oauth2/metadata",
+      method: "GET",
+      json: true,
+      auth: {
+        bearer: accessToken
+      }
+    });
     return {
       private_settings: {
-        access_token: accessToken,
-        refresh_token: refreshToken,
-        expires_in: params.expires_in,
-        tokens_granted_at: moment().format("X")
+        domain: data.dc,
+        api_key: accessToken,
+        api_endpoint: data.api_endpoint
       }
     };
   }
