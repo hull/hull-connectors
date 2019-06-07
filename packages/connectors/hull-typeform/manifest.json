@@ -90,8 +90,6 @@
         "name": "Typeform",
         "tokenInUrl": false,
         "strategy": {
-          "authorizationURL": "https://api.typeform.com/oauth/authorize",
-          "tokenURL": "https://api.typeform.com/oauth/token",
           "grant_type": "authorization_code",
           "scope": [
             "forms:read",

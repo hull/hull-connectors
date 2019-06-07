@@ -201,7 +201,7 @@ class SyncAgent {
         };
       })
       .catch(() => {
-        return { options: [] };
+        return { data: { options: [] } };
       });
   }
 
