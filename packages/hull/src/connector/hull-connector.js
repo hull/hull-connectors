@@ -346,7 +346,18 @@ class HullConnector {
       OAuthHandler,
       "private_settings",
       "all",
-      (this.manifest.private_settings || []).filter(s => s.format === "oauth")
+      (this.manifest.private_settings || []).filter(
+        s => !!s.url && !!s.handler && s.format === "oauth"
+      )
+    );
+
+    mapRoute(
+      jsonHandler,
+      "private_settings",
+      "all",
+      (this.manifest.private_settings || []).filter(
+        s => !!s.url && !!s.handler && s.format !== "oauth"
+      )
     );
 
     // Setup JSON handlers
