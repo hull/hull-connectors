@@ -61,6 +61,11 @@ const handlerFactory = ({
 
     // There'a an actual Response to send
     const { pageLocation, data, status = 200, text } = response;
+    if (!status && !data && !text && !pageLocation) {
+      throw new Error(
+        "Malformed response, missing content to conform to HullExternalResponse"
+      );
+    }
 
     // Set the response status
     debug("sending status", status);
