@@ -3,6 +3,7 @@
 
 // import account_update from "./account-update";
 import type { HullHandlersConfiguration } from "hull";
+import select_list from "./select-list";
 import user_update from "./user-update";
 import ship_update from "./ship-update";
 import users_segment_update from "./users-segment-update";
@@ -15,6 +16,7 @@ import syncOut from "../actions/sync-out";
 import track from "../actions/track";
 import schemaUserFields from "../actions/schema-user-fields";
 import status from "../actions/status";
+import oauth from "../actions/oauth";
 
 import handleMailchimpBatch from "../jobs/handle-mailchimp-batch";
 import importUsers from "../jobs/import-users";
@@ -24,12 +26,12 @@ import trackUsers from "../jobs/track-users";
 import trackJob from "../jobs/track";
 import trackEmailActivites from "../jobs/track-email-activites";
 
-import OAuthFactory from "../lib/oauth-client";
+// import OAuthFactory from "../lib/oauth-client";
 
 export default function handlers({
   clientID,
   clientSecret,
-  hostSecret
+  _hostSecret
 }: {
   clientID: string,
   clientSecret: string,
@@ -70,8 +72,8 @@ export default function handlers({
     },
     // @TODO: Check we're still working when using the oauth provider as a classic route
     tabs: {
-      auth: OAuthFactory({
-        hostSecret,
+      select_list,
+      auth: oauth({
         clientID,
         clientSecret
       })

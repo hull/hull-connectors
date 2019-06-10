@@ -13,28 +13,14 @@
             Connected to Mailchimp
           </h5>
           <hr>
-          <form class="form-inline" action="<%=form_action%>" method="post">
-            <div class="form-group">
-              <label for="mailchimp_list_id">Choose the Mailchimp list that will sync with Hull.</label>
-              <p>You can only synchronize one Mailchimp list with Hull at a time</p>
-              <select class="form-control" id="mailchimp_list_id" name="mailchimp_list_id" placeholder="Pick Mailchimp List">
-                <%for (var i = 0; i < mailchimp_lists.length; i++) {
-                  var ml = mailchimp_lists[i];
-                  %>
-                  <option<% if (ml.id === mailchimp_list_id) {-%> selected<%}-%> value="<%=ml.id%>"><%=ml.name%></option>
-                  <%}-%>
-                </select>
-            </div>
-              <button class='btn btn-rounded btn-primary'>
-                Select List
-              </button>
-          </form>
         </div>
       </div>
     </div>
-    <script src="/index.js"/></script>
-    <script type="text/javascript">
-      onAuth("reload");
+    <script>
+      var url = "<%= url %>";
+      if (url) {
+        window.location = url;
+      }
     </script>
   </body>
 </html>

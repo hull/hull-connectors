@@ -181,18 +181,21 @@
       "handler": "auth",
       "method": "use",
       "options":{
-        "type": "router",
-        "params": {
-          "name": "Mailchimp",
-          "callbackUrl": "/callback",
-          "homeUrl": "/",
-          "selectUrl": "/select",
-          "syncUrl": "/sync",
-          "site": "https://login.mailchimp.com",
-          "tokenPath": "/oauth2/token",
-          "authorizationPath": "/oauth2/authorize"
+        "type": "OAuth",
+        "name": "Mailchimp",
+        "strategy": {
+          "grant_type": "authorization_code"
+        },
+        "views": {
+          "login": "login.html",
+          "success": "finished.html",
+          "home": "admin.html"
         }
       }
+    },
+    {
+      "url": "/select",
+      "handler": "select_list"
     }
   ],
   "incoming": [
@@ -224,7 +227,10 @@
       "url": "/sync",
       "handler": "sync",
       "type": "cron",
-      "value": "*/30 * * * *"
+      "value": "*/30 * * * *",
+      "options": {
+        "strict": false
+      }
     },
     {
       "url": "/track",

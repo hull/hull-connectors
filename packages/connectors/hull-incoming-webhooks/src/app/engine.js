@@ -24,7 +24,7 @@ export default class IncomingWebhookEngine extends RecentEntriesEngine {
         error: err.message,
         token: "",
         hostname: "",
-        loadingToken: false
+        initialized: false
       });
       return false;
     }
