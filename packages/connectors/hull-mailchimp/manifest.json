@@ -14,7 +14,21 @@
   "source": "mailchimp",
   "logo": "logo.png",
   "picture": "picture.png",
-  "private_settings":[
+  "private_settings": [
+    {
+      "name": "oauth",
+      "title": "Oauth",
+      "description": "Authenticate with Mailchimp",
+      "format": "oauth",
+      "type": "string",
+      "handler": "oauth",
+      "url": "/auth",
+      "options": {
+        "strategy": {
+          "grant_type": "authorization_code"
+        }
+      }
+    },
     {
       "name": "configuration_title",
       "title": "Configuration",
@@ -35,11 +49,16 @@
       "default": ["ALL"]
     },
     {
-      "name": "mailchimp_list_id",
-      "title": "Mailchimp List ID",
-      "description": "Mailchimp List ID selected by user",
       "type": "string",
-      "format": "hidden"
+      "name": "mailchimp_list_id",
+      "description": "Mailchimp List ID selected by user",
+      "title": "Mailchimp List ID",
+      "format": "select",
+      "options": {
+        "loadOptions": "/select",
+        "allowCreate": false,
+        "placeholder": "Select list to synchronize"
+      }
     },
     {
       "name": "mailchimp_list_name",
@@ -70,12 +89,6 @@
       "format": "hidden"
     },
     {
-      "name": "data_title",
-      "title": "Data Mapping",
-      "format": "title",
-      "type": "string"
-    },
-    {
       "name": "segment_mapping",
       "type": "object",
       "properties": {},
@@ -95,7 +108,7 @@
     },
     {
       "name": "outgoing_user_attributes",
-      "title": "Send the following user attributes to Mailchimp",
+      "title": "Mapping from Hull to Mailchimp",
       "type": "array",
       "format": "traitMapping",
       "options": {
@@ -171,33 +184,6 @@
       ]
     }
   ],
-  "tabs": [
-    {
-      "title": "Credentials & Actions",
-      "url": "/auth/",
-      "size": "small",
-      "setup": true,
-      "editable": false,
-      "handler": "auth",
-      "method": "use",
-      "options":{
-        "type": "OAuth",
-        "name": "Mailchimp",
-        "strategy": {
-          "grant_type": "authorization_code"
-        },
-        "views": {
-          "login": "login.html",
-          "success": "finished.html",
-          "home": "admin.html"
-        }
-      }
-    },
-    {
-      "url": "/select",
-      "handler": "select_list"
-    }
-  ],
   "incoming": [
     {
       "url": "/mailchimp",
@@ -211,7 +197,22 @@
   "json": [
     {
       "url": "/sync-in",
-      "handler": "syncIn"
+      "handler": "syncIn",
+      "name": "syncIn",
+      "title": "Fetch List",
+      "format": "action",
+      "options": {
+        "confirm": {
+          "action": "fetch",
+          "text": "Do you want to trigger a fetch of all the users in the list ?",
+          "button": "Start Fetching",
+          "entity": "users"
+        }
+      }
+    },
+    {
+      "url": "/select",
+      "handler": "selectList"
     },
     {
       "url": "/sync-out",
@@ -222,6 +223,29 @@
       "handler": "schemaUserFields"
     }
   ],
+  "settings_sections": [
+    {
+      "title": "Connect with Mailchimp",
+      "properties": ["private_settings.oauth"]
+    },
+    {
+      "title": "Select List",
+      "description": "After you have authenticated with Mailchimp, please select the list that Hull will synchronize with. You can only pick one list, and you will have to reinstall the connector if you wish to change it afterwards. Once you have selected the list, please click Save on the top right",
+      "properties": ["private_settings.mailchimp_list_id"]
+    },
+    {
+      "title": "Fetch Data from Mailchimp",
+      "description": "Trigger a full fetch of the entire mailchimp list. Be careful. If your list is large, it might take a while",
+      "properties": ["json.syncIn"]
+    },
+    {
+      "title": "Outgoing Sync",
+      "step": "actions",
+      "description": "Configure how the data is sent to Mailchimp",
+      "properties": ["private_settings.outgoing_user_attributes"]
+    }
+  ],
+
   "schedules": [
     {
       "url": "/sync",
@@ -239,10 +263,18 @@
       "value": "7 */6 * * *"
     }
   ],
+  "status": {
+    "url": "/status",
+    "handler": "status",
+    "initial_value": "setupRequired",
+    "type": "cron",
+    "value": "*/30 * * * *"
+  },
   "statuses": [
     {
       "url": "/status",
       "handler": "status",
+      "initial_value": "setupRequired",
       "type": "cron",
       "value": "*/30 * * * *"
     }

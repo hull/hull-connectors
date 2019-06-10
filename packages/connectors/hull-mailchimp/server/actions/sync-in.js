@@ -9,7 +9,9 @@ async function syncIn(ctx: HullContext): HullExternalResponse {
   await ctx.enqueue("syncIn");
   return {
     status: 200,
-    text: "ok"
+    data: {
+      message: "Fetching Data, it might take a while"
+    }
   };
 }
 

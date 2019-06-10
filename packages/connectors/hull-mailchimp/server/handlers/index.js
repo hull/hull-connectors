@@ -3,6 +3,7 @@
 
 // import account_update from "./account-update";
 import type { HullHandlersConfiguration } from "hull";
+import { Strategy } from "passport-mailchimp";
 import select_list from "./select-list";
 import user_update from "./user-update";
 import ship_update from "./ship-update";
@@ -16,7 +17,6 @@ import syncOut from "../actions/sync-out";
 import track from "../actions/track";
 import schemaUserFields from "../actions/schema-user-fields";
 import status from "../actions/status";
-import oauth from "../actions/oauth";
 
 import handleMailchimpBatch from "../jobs/handle-mailchimp-batch";
 import importUsers from "../jobs/import-users";
@@ -25,6 +25,8 @@ import syncOutJob from "../jobs/sync-out";
 import trackUsers from "../jobs/track-users";
 import trackJob from "../jobs/track";
 import trackEmailActivites from "../jobs/track-email-activites";
+import onStatus from "../actions/on-status";
+import onAuthorize from "../actions/on-authorize";
 
 // import OAuthFactory from "../lib/oauth-client";
 
@@ -63,6 +65,7 @@ export default function handlers({
       sync
     },
     json: {
+      selectList: select_list,
       schemaUserFields,
       syncIn,
       syncOut,
@@ -71,9 +74,12 @@ export default function handlers({
       track
     },
     // @TODO: Check we're still working when using the oauth provider as a classic route
-    tabs: {
-      select_list,
-      auth: oauth({
+    private_settings: {
+      selectList: select_list,
+      oauth: () => ({
+        onAuthorize,
+        onStatus,
+        Strategy,
         clientID,
         clientSecret
       })

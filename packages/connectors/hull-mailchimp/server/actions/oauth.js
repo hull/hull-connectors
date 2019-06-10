@@ -39,7 +39,6 @@ module.exports = ({
     } = private_settings;
 
     if (api_key && api_endpoint && domain) {
-
       return {
         status: 200,
         data: {

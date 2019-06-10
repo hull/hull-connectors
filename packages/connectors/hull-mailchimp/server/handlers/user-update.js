@@ -75,11 +75,13 @@ export default async function userUpdateHandler(
       flow_control: flowControl("next")
     };
   } catch (error) {
-    ctx.client.logger.error("outgoing.job.error", {
-      type: "notification",
-      error: error.message,
-      stack: error.stack
-    });
+    if (error) {
+      ctx.client.logger.error("outgoing.job.error", {
+        type: "notification",
+        error: error.message,
+        stack: error.stack
+      });
+    }
     return {
       flow_control: flowControl("retry")
     };

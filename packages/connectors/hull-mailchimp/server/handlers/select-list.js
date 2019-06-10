@@ -1,11 +1,19 @@
 // @flow
-const _ = require("lodash");
-import type { HullContext, HullIncomingHandlerMessage } from "hull";
+import type {
+  HullContext,
+  HullIncomingHandlerMessage,
+  HullUISelectResponse
+} from "hull";
 import rp from "request-promise";
 
-export default async function selectList(ctx: HullContext, message: HullIncomingHandlerMessage) {
+import _ from "lodash";
+
+export default async function selectList(
+  ctx: HullContext,
+  message: HullIncomingHandlerMessage
+): HullUISelectResponse {
   const { clientCredentialsEncryptedToken, hostname, connector } = ctx;
-  const { api_key, api_endpoint, mailchimp_list_id } =
+  const { api_key, api_endpoint, mailchimp_list_id, mailchimp_list_name } =
     connector.private_settings || {};
 
   const data = await rp({
@@ -18,15 +26,34 @@ export default async function selectList(ctx: HullContext, message: HullIncoming
     json: true
   });
 
+  // Only allow to select if list is unknown
+  if (mailchimp_list_id) {
+    const list = _.find(data.lists, l => (l.id = mailchimp_list_id));
+    return {
+      status: 200,
+      data: {
+        options: [
+          {
+            label: "List selected. Please reinstall the connector to change it",
+            options: [
+              {
+                label: list.name,
+                value: mailchimp_list_id
+              }
+            ]
+          }
+        ]
+      }
+    };
+  }
+
   return {
-    pageLocation: "select.html",
+    status: 200,
     data: {
-      form_action: `https://${hostname}/select?hullToken=${clientCredentialsEncryptedToken}`,
-      name: "Mailchimp",
-      mailchimp_list_id,
-      mailchimp_lists: _.sortBy(data.lists, list =>
-        (list.name || "").toLowerCase()
-      )
+      options: data.lists.map(({ id: value, name: label }) => ({
+        label,
+        value
+      }))
     }
   };
 }

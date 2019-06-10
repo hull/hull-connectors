@@ -127,7 +127,7 @@ type HullManifestBatch = {
   }>
 };
 
-//Supported Dashboard widget types
+// Supported Dashboard widget types
 type HullWidgetFormat = "popup" | "credentials" | "action";
 
 type HullActionConfirmOption = {
@@ -912,6 +912,13 @@ export type HullUISelectGroup = {
   label: string,
   options: Array<HullUISelectGroup> | Array<HullUISelect>
 };
+
+export type HullUISelectResponseData = {
+  status?: number,
+  data: {
+    options: Array<HullUISelect> | Array<HullUISelectGroup>
+  }
+};
 export type HullUISelectResponse =
-  | Array<HullUISelect>
-  | Array<HullUISelectGroup>;
+  | HullUISelectResponseData
+  | Promise<HullUISelectResponseData>;
