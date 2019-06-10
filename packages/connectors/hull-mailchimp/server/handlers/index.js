@@ -65,8 +65,6 @@ export default function handlers({
       sync
     },
     json: {
-      selectList: select_list,
-      schemaUserFields,
       syncIn,
       syncOut,
       // @TODO : this is used both as a schedule and as a JSON call
@@ -75,6 +73,7 @@ export default function handlers({
     },
     // @TODO: Check we're still working when using the oauth provider as a classic route
     private_settings: {
+      schemaUserFields,
       selectList: select_list,
       oauth: () => ({
         onAuthorize,

@@ -53,6 +53,8 @@
       "name": "mailchimp_list_id",
       "description": "Mailchimp List ID selected by user",
       "title": "Mailchimp List ID",
+      "url": "/select",
+      "handler": "selectList",
       "format": "select",
       "options": {
         "loadOptions": "/select",
@@ -111,11 +113,12 @@
       "title": "Mapping from Hull to Mailchimp",
       "type": "array",
       "format": "traitMapping",
+      "url": "/schema/user_fields",
+      "handler": "schemaUserFields",
       "options": {
         "direction": "outgoing",
         "placeholder": "Mailchimp Merge Field",
-        "allowCreate": false,
-        "loadOptions": "/schema/user_fields"
+        "allowCreate": false
       },
       "default": [
         {
@@ -211,16 +214,8 @@
       }
     },
     {
-      "url": "/select",
-      "handler": "selectList"
-    },
-    {
       "url": "/sync-out",
       "handler": "syncOut"
-    },
-    {
-      "url": "/schema/user_fields",
-      "handler": "schemaUserFields"
     }
   ],
   "settings_sections": [

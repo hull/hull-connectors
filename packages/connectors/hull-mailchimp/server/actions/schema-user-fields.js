@@ -5,14 +5,20 @@ const shipAppFactory = require("../lib/ship-app-factory");
 
 async function schemaUserFields(ctx: HullContext) {
   try {
-    const resBody = await shipAppFactory(ctx).mailchimpAgent.getMergeFields();
+    const res = await shipAppFactory(ctx).mailchimpAgent.getMergeFields();
     return {
-      options: (resBody.merge_fields || []).map(f => {
-        return { label: f.name, value: f.tag };
-      })
+      status: 200,
+      data: {
+        options: (res.merge_fields || []).map(
+          ({ name: label, tag: value }) => ({
+            label,
+            value
+          })
+        )
+      }
     };
   } catch (err) {
-    return { options: [] };
+    return { status: 500, data: { options: [], error: err.message } };
   }
 }
 
