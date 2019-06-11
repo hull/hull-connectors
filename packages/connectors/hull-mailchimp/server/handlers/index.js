@@ -62,9 +62,12 @@ export default function handlers({
       track,
       // @TODO: Check with Michal which handler should go in which section
       // I moved the Sync handler from `json` to `schedules` because the tests seemed to indicate we were hitting it on a schedule
-      sync
+      // sync =>
+      // CAN"T FIND THIS TEST - DO WE NEED TO REACTIVATE THIS?
+      // WHAT WERE YOU THINKING DUDE?
     },
     json: {
+      sync,
       syncIn,
       syncOut,
       // @TODO : this is used both as a schedule and as a JSON call

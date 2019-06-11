@@ -46,7 +46,9 @@
           "ALL": "All Users"
         }
       },
-      "default": ["ALL"]
+      "default": [
+        "ALL"
+      ]
     },
     {
       "type": "string",
@@ -199,15 +201,15 @@
   ],
   "json": [
     {
-      "url": "/sync-in",
-      "handler": "syncIn",
+      "url": "/sync",
+      "handler": "sync",
       "name": "syncIn",
       "title": "Fetch List",
       "format": "action",
       "options": {
         "confirm": {
           "action": "fetch",
-          "text": "Do you want to trigger a fetch of all the users in the list ?",
+          "text": "You are going to resync Mailchimp with Hull. This will empty the list you picked ? This will remove all interest groups and static segments (possibly breaking any automation configuration) and can generate a lot of traffic. Are you sure?",
           "button": "Start Fetching",
           "entity": "users"
         }
@@ -221,36 +223,34 @@
   "settings_sections": [
     {
       "title": "Connect with Mailchimp",
-      "properties": ["private_settings.oauth"]
+      "properties": [
+        "private_settings.oauth"
+      ]
     },
     {
       "title": "Select List",
       "description": "After you have authenticated with Mailchimp, please select the list that Hull will synchronize with. You can only pick one list, and you will have to reinstall the connector if you wish to change it afterwards. Once you have selected the list, please click Save on the top right",
-      "properties": ["private_settings.mailchimp_list_id"]
+      "properties": [
+        "private_settings.mailchimp_list_id"
+      ]
     },
     {
       "title": "Fetch Data from Mailchimp",
       "description": "Trigger a full fetch of the entire mailchimp list. Be careful. If your list is large, it might take a while",
-      "properties": ["json.syncIn"]
+      "properties": [
+        "json.syncIn"
+      ]
     },
     {
       "title": "Outgoing Sync",
       "step": "actions",
       "description": "Configure how the data is sent to Mailchimp",
-      "properties": ["private_settings.outgoing_user_attributes"]
+      "properties": [
+        "private_settings.outgoing_user_attributes"
+      ]
     }
   ],
-
   "schedules": [
-    {
-      "url": "/sync",
-      "handler": "sync",
-      "type": "cron",
-      "value": "*/30 * * * *",
-      "options": {
-        "strict": false
-      }
-    },
     {
       "url": "/track",
       "type": "cron",
