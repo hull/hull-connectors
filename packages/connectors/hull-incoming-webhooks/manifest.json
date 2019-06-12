@@ -1,7 +1,10 @@
 {
   "name": "Incoming Webhooks",
   "description": "Recompute external properties and emit events with Javascript logic whenever user is send to connector by webhook",
-  "tags": ["incoming", "oneColumn"],
+  "tags": [
+    "incoming",
+    "oneColumn"
+  ],
   "picture": "picture.png",
   "ui": false,
   "tabs": [
@@ -34,7 +37,9 @@
       "title": "Incoming Webhook URL",
       "description": "Send a POST request to the URL below to start capturing data, Then open the Code editor to write logic on how to ingest it",
       "step": "credentials",
-      "properties": ["json.credentials"]
+      "properties": [
+        "json.credentials"
+      ]
     }
   ],
   "json": [
@@ -48,9 +53,10 @@
     },
     {
       "url": "/url",
-      "name": "url",
+      "name": "credentials",
       "format": "credentials",
       "title": "Webhook URL",
+      "description": "Set your external service to send POST webhooks to this url",
       "handler": "credentialsHandler"
     },
     {
