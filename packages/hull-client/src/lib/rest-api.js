@@ -37,7 +37,7 @@ function perform(
       "Hull-App-Id": config.id,
       "Hull-Access-Token": config.token,
       "Hull-Organization": config.organization,
-      ...(params.headers || {})
+      ...(params.headers || options.headers || {})
     })
     .retry(2, function retryCallback(err, res) {
       const retryCount = this._retries;

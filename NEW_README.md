@@ -447,3 +447,21 @@ handlers = {
 ```
 
 The connector will take care of updating the status in the platform for you
+
+### Settings Update
+
+From now on you can specify whether or not you want the platform to perform a **synchronous status check** after updating the settings.
+
+This can be achieved by adding an extra parameter in a `settingsUpdate` call.
+
+```js
+const { hull: ctx } = req;
+const authResponse = onAuthorize(ctx, message);
+const {
+  private_settings
+} = authResponse || {};                      //  |
+                                             //  |
+if (private_settings) {                      //  v
+  ctx.helpers.settingsUpdate(private_settings, true);
+}
+```

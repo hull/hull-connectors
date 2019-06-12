@@ -208,7 +208,7 @@ function OAuthHandlerFactory({
           // , settings
         } = authResponse || {};
         if (private_settings) {
-          await ctx.helpers.settingsUpdate(private_settings);
+          await ctx.helpers.settingsUpdate(private_settings, true);
         }
         res.redirect(getURL(req, SUCCESS_URL));
       } catch (error) {

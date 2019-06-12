@@ -15,16 +15,23 @@ import type {
  * @method   settings.update
  * @public
  * @param  {Object} newSettings settings to update
+ * @param  {Boolean} refreshStatus force the platform to refresh the connector status synchronously
  * @return {Promise}
  */
-function update(newSettings: HullConnectorSettings): Promise<HullConnector> {
+function update(
+  newSettings: HullConnectorSettings,
+  refreshStatus: Boolean = false
+): Promise<HullConnector> {
   return this.get("app").then((connector: HullConnector) => {
     const private_settings: HullConnectorSettings = {
       ...connector.private_settings,
       ...newSettings
     };
     connector.private_settings = private_settings;
-    return this.put(connector.id, { private_settings });
+    return this.put(connector.id, {
+      private_settings,
+      refresh_status: refreshStatus
+    });
   });
 }
 
