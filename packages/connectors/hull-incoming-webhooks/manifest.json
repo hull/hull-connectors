@@ -53,7 +53,7 @@
     },
     {
       "url": "/url",
-      "name": "url",
+      "name": "credentials",
       "format": "credentials",
       "title": "Webhook URL",
       "description": "Set your external service to send POST webhooks to this url",
