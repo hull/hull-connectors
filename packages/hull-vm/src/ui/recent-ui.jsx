@@ -104,7 +104,6 @@ export default class RecentEntriesUI extends VirtualMachineUI<Props, State> {
         </div>
       );
     }
-    debugger;
 
     return (
       <div>

@@ -13,13 +13,11 @@ export default async function ingest(
   {
     result,
     code,
-    payload,
-    EntryModel
+    payload
   }: {
     result: Result,
     code: string,
-    payload: Payload,
-    EntryModel: Object
+    payload: Payload
   }
 ) {
   const { connector, client, metric } = ctx;
@@ -93,14 +91,5 @@ export default async function ingest(
   }
 
   // Wait until we've ingested everything
-  await Promise.all(promises);
-
-  const entry: Entry = {
-    connectorId: connector.id,
-    code,
-    result,
-    payload,
-    date: new Date().toString()
-  };
-  return EntryModel.create(entry);
+  return await Promise.all(promises);
 }

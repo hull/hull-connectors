@@ -9,6 +9,13 @@ import type {
 import { compute } from "hull-vm";
 import type { PreviewRequest } from "../../types";
 
+const serialize = result => ({
+  ...result,
+  userTraits: Array.from(result.userTraits),
+  accountTraits: Array.from(result.accountTraits),
+  accountLinks: Array.from(result.accountLinks)
+});
+
 export default async function computeHandler(
   ctx: HullContext,
   message: HullIncomingHandlerMessage
@@ -44,8 +51,8 @@ export default async function computeHandler(
   }
 
   const result = await compute(ctx, {
-    context: payload,
     preview: true,
+    payload,
     code
   });
 
@@ -58,7 +65,7 @@ export default async function computeHandler(
     }
     return {
       status: 200,
-      data: result
+      data: serialize(result)
     };
   } catch (error) {
     return {

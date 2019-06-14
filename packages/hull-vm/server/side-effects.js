@@ -1,17 +1,17 @@
 // @flow
 import type { HullClient, HullContext } from "hull";
-import type { UserTraits, AccountTraits, Event, Links } from "../types";
+import type { Result, UserTraits, AccountTraits, Event, Links } from "../types";
 
 type TraitsSignature =
   | {
       hullClient: $PropertyType<HullClient, "asUser">,
-      data: Array<UserTraits>,
+      data: $PropertyType<Result, "userTraits">,
       entity: "user",
       metric: $PropertyType<HullContext, "metric">
     }
   | {
       hullClient: $PropertyType<HullClient, "asAccount">,
-      data: Array<AccountTraits>,
+      data: $PropertyType<Result, "accountTraits">,
       entity: "account",
       metric: $PropertyType<HullContext, "metric">
     };
@@ -25,30 +25,27 @@ type EventSignature = {
 
 export const callTraits = async ({
   hullClient,
-  data = [],
+  data = new Map(),
   entity,
   metric
 }: TraitsSignature): Promise<any> => {
   let successful = 0;
   try {
     const responses = await Promise.all(
-      data.map(
-        async ({ traits: { attributes, context }, claims, claimsOptions }) => {
-          const client = hullClient(claims, claimsOptions);
-          try {
-            await client.traits(attributes, context);
-            successful += 1;
-            return client.logger.info(`incoming.${entity}.success`, {
-              attributes,
-              context
-            });
-          } catch (err) {
-            return client.logger.error(`incoming.${entity}.error`, {
-              errors: err
-            });
-          }
+      Array.from(data, async ([attributes, claims]) => {
+        const client = hullClient(claims);
+        try {
+          await client.traits(attributes);
+          successful += 1;
+          return client.logger.info(`incoming.${entity}.success`, {
+            attributes
+          });
+        } catch (err) {
+          return client.logger.error(`incoming.${entity}.error`, {
+            errors: err
+          });
         }
-      )
+      })
     );
     metric.increment(`ship.incoming.${entity}s`, successful);
     return responses;
@@ -67,9 +64,9 @@ export const callEvents = async ({
   try {
     let successful = 0;
     const responses = await Promise.all(
-      data.map(async ({ event, claims, claimsOptions }) => {
+      data.map(async ({ event, claims }) => {
         const { eventName, properties, context } = event;
-        const client = hullClient(claims, claimsOptions);
+        const client = hullClient(claims);
         try {
           successful += 1;
           await client.track(eventName, properties, {
@@ -104,8 +101,8 @@ export const callLinks = async (
   try {
     let successful = 0;
     const responses = await Promise.all(
-      data.map(async ({ claims, claimsOptions, accountClaims }) => {
-        const client = hullClient(claims, claimsOptions);
+      data.map(async ({ claims, accountClaims }) => {
+        const client = hullClient(claims);
         try {
           successful += 1;
           await client.account(accountClaims).traits({});

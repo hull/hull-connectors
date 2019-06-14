@@ -515,12 +515,12 @@ export type HullUserUpdateMessage = {
   changes: HullUserChanges,
   segments: Array<HullUserSegment>,
   segment_ids: Array<string>,
-  user_segments: Array<HullUserSegment>,
-  user_segment_ids: Array<string>,
-  matching_user_segments: Array<HullUserSegment>,
+  // user_segments: Array<HullUserSegment>,
+  // user_segment_ids: Array<string>,
+  // matching_user_segments: Array<HullUserSegment>,
   account_segments: Array<HullAccountSegment>,
   account_segment_ids: Array<string>,
-  matching_account_segments: Array<HullUserSegment>,
+  // matching_account_segments: Array<HullUserSegment>,
   events: Array<HullEvent>,
   account: HullAccount
 };

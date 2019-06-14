@@ -15,20 +15,12 @@ const short = (obj = {}) => JSON.stringify(obj);
 // };
 const joinLines = fp.join("\n");
 
-const renderClaimsOptions = (options = {}) =>
-  _.size(options) ? `,${short(options)}` : "";
+const renderUserClaim = claims => `hull.asUser(${short(claims)})`;
+const renderAccountClaim = claims => `hull.asAccount(${short(claims)})`;
 
-const renderUserClaim = ({ claims, claimsOptions }) =>
-  `hull.asUser(${short(claims)}${renderClaimsOptions(claimsOptions)})`;
-
-const renderAccountClaim = ({ claims, claimsOptions }) =>
-  `hull.asAccount(${short(claims)}${renderClaimsOptions(claimsOptions)})`;
-
-const renderTraits = claimRender => ({
-  claims,
-  traits: { attributes, context },
-  claimsOptions
-}) => `${claimRender({ claims, claimsOptions })}.traits(${nice(attributes)}, ${nice(context)});
+const renderTraits = claimRender => ([claims, attributes]) => `${claimRender(
+  claims
+)}.traits(${nice(attributes)});
 `;
 
 const renderUserTraits = renderTraits(renderUserClaim);
@@ -50,7 +42,7 @@ const renderLogs = fp.flow(
 
 const mapAccountLinks = fp.flow(
   fp.map(
-    ({ claims, accountClaims }) => `/* User */ ${short(claims)}
+    ([claims, accountClaims]) => `/* User */ ${short(claims)}
 /* Account */ ${short(accountClaims)}
 `
   ),
@@ -60,12 +52,8 @@ const mapAccountLinks = fp.flow(
 const renderEventBody = ({ eventName, context, properties }) =>
   `"${eventName}", ${nice(properties)}, ${nice(context)}`;
 
-const renderEvent = ({
-  event,
-  claims,
-  claimsOptions
-}) => `// <--------- Event --------->
-${renderUserClaim({ claims, claimsOptions })}
+const renderEvent = ({ event, claims }) => `// <--------- Event --------->
+${renderUserClaim(claims)}
 .track(${renderEventBody(event)});
 `;
 

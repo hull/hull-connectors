@@ -79,14 +79,14 @@
     "url": "/status",
     "type": "cron",
     "value": "*/30 * * * *",
-    "handler": "status"
+    "handler": "statusHandler"
   },
   "statuses": [
     {
       "url": "/status",
       "type": "cron",
       "value": "*/30 * * * *",
-      "handler": "status"
+      "handler": "statusHandler"
     }
   ]
 }

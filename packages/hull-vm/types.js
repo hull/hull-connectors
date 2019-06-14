@@ -8,6 +8,7 @@ import type {
   HullUserClaims,
   HullAdditionalClaims,
   HullAccountClaims,
+  HullUserUpdateMessage,
   HullAttributeContext
 } from "hull";
 
@@ -25,32 +26,26 @@ export type Ship = {
 
 export type UserTraits = {
   claims: HullUserClaims,
-  claimsOptions: HullAdditionalClaims,
-  traits: {
-    attributes: Attributes,
-    context: AttributesContext
-  }
+  attributes: Attributes
 };
 export type AccountTraits = {
   claims: HullAccountClaims,
-  claimsOptions: HullAdditionalClaims,
-  traits: {
-    attributes: Attributes,
-    context: AttributesContext
-  }
+  attributes: Attributes
 };
+export type TraitsCall<ClaimType> = {
+  claims: ClaimType,
+  attributes: Attributes
+};
+
 export type Traits = UserTraits | AccountTraits;
 
 export type Links = {
   claims: Claims,
-  claimsOptions: HullAdditionalClaims,
-  accountClaims: Claims,
-  accountClaimsOptions: HullAdditionalClaims
+  accountClaims: Claims
 };
 
 export type Event = {
   claims: HullUserClaims,
-  claimsOptions: HullAdditionalClaims,
   event: {
     eventName: string,
     properties?: {},
@@ -58,26 +53,28 @@ export type Event = {
   }
 };
 
-export type Payload = {
-  query: {},
-  params: {},
-  cookies: {},
-  method: string,
-  ip: string,
-  headers: {
-    [string]: string
-  },
-  body: mixed
-};
+export type Payload =
+  | {
+      query: {},
+      params: {},
+      cookies: {},
+      method: string,
+      ip: string,
+      headers: {
+        [string]: string
+      },
+      body: mixed
+    }
+  | HullUserUpdateMessage;
 
 export type Result = {
   logsForLogger: Array<string>,
   logs: Array<string | any>,
   errors: Array<string>,
-  userTraits: Array<Traits>,
-  accountTraits: Array<Traits>,
+  userTraits: Map<HullUserClaims, Attributes>,
+  accountTraits: Map<HullAccountClaims, Attributes>,
   events: Array<Event>,
-  accountLinks: Array<Links>,
+  accountLinks: Map<HullUserClaims, HullAccountClaims>,
   isAsync: boolean,
   success: boolean
 };
@@ -100,7 +97,7 @@ export type Entry = {
 export type ComputeOptions = {
   code: string,
   preview: boolean,
-  context: Payload
+  payload: Payload
 };
 
 type AnyFunction = any => any;
@@ -158,7 +155,7 @@ export type ClaimsValidation =
 export type Current = {
   connectorId: string,
   code: string
-}
+};
 export type ConfResponse = {
   current: Current,
   url: string

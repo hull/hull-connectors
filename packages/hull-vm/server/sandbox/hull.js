@@ -1,6 +1,7 @@
 // @flow
 import type {
   HullAccountClaims,
+  HullUserClaims,
   HullClient,
   HullEventProperties,
   HullEventContext
@@ -8,12 +9,11 @@ import type {
 
 import type {
   Claims,
-  ClaimsOptions,
   Attributes,
   AttributesContext,
   Event,
   Result,
-  Traits
+  Links
 } from "../../types";
 
 import {
@@ -22,36 +22,37 @@ import {
   hasValidLinkclaims
 } from "../validate-claims";
 
-const trackFactory = (
-  claims: Claims,
-  claimsOptions: ClaimsOptions,
-  target: Array<Event>
-) => (
+const trackFactory = (claims: HullUserClaims, target: Array<Event>) => (
   eventName: string,
   properties: HullEventProperties = {},
   context: HullEventContext = {}
 ) => {
   target.push({
     claims,
-    claimsOptions,
     event: { eventName, properties, context }
   });
 };
-const identifyFactory = (
-  claims: Claims,
-  claimsOptions: ClaimsOptions,
-  target: Array<Traits>
+
+const identifyFactory = <ClaimType>(
+  claims: ClaimType,
+  target: Map<ClaimType, Attributes>
 ) => (attributes: Attributes, context: AttributesContext) => {
-  target.push({
-    claims,
-    claimsOptions,
-    traits: { attributes, context }
+  const previousAttributes = target.get(claims) || {};
+  target.set(claims, {
+    ...previousAttributes,
+    ...attributes
   });
+  // target.push({
+  //   claims,
+  //   claimsOptions,
+  //   traits: { attributes, context }
+  // });
 };
 
 const buildHullContext = (
   client: HullClient,
-  { errors, userTraits, accountTraits, accountLinks, events }: Result
+  { errors, userTraits, accountTraits, accountLinks, events }: Result,
+  userClaimsScope: HullUserClaims
 ) => {
   const errorLogger = (message, method, validation) => {
     client.logger.info(`incoming.${message}.skip`, {
@@ -65,58 +66,54 @@ const buildHullContext = (
 
   function asAccountFactory(
     claims: HullAccountClaims,
-    claimsOptions: ClaimsOptions,
-    target: Array<Traits>,
-    isLinkCall: boolean
+    target: $PropertyType<Result, "accountTraits">,
+    isLinkCall?: boolean
   ) {
-    const validation = isLinkCall
-      ? hasValidLinkclaims(claims, claimsOptions, client)
-      : hasValidAccountClaims(claims, claimsOptions, client);
+    const validation =
+      isLinkCall === true
+        ? hasValidLinkclaims(claims, client)
+        : hasValidAccountClaims(claims, client);
     const { valid } = validation;
     if (!valid) {
       errorLogger("user", "Hull.asAccount()", validation);
       return {};
     }
 
-    const identify = identifyFactory(claims, claimsOptions, target);
+    const identify = identifyFactory(claims, target);
     return { identify, traits: identify };
   }
 
-  const linksFactory = (claims, claimsOptions, target) => (
-    accountClaims: HullAccountClaims,
-    accountClaimsOptions: ClaimsOptions
-  ) => {
-    const account = asAccountFactory(
-      accountClaims,
-      accountClaimsOptions,
-      accountTraits,
-      true
-    );
+  const linksFactory = (
+    claims: HullUserClaims,
+    target: $PropertyType<Result, "accountLinks">
+  ) => (accountClaims: HullAccountClaims) => {
+    const account = asAccountFactory(accountClaims, accountTraits, true);
     if (!account.traits) {
       return {};
     }
-    target.push({
-      claims,
-      claimsOptions,
-      accountClaims,
-      accountClaimsOptions
-    });
+    target.set(claims, accountClaims);
+    // target.push({
+    //   claims,
+    //   claimsOptions,
+    //   accountClaims,
+    //   accountClaimsOptions
+    // });
     return account;
   };
 
-  function asAccount(claims: HullAccountClaims, claimsOptions: ClaimsOptions) {
-    return asAccountFactory(claims, claimsOptions, accountTraits);
-  }
-  function asUser(claims: Claims, claimsOptions: ClaimsOptions) {
-    const validation = hasValidUserClaims(claims, claimsOptions, client);
+  const asAccount = (claims: HullAccountClaims) =>
+    asAccountFactory(claims, accountTraits);
+
+  function asUser(claims: HullUserClaims) {
+    const validation = hasValidUserClaims(claims, client);
     const { valid, error } = validation;
     if (!valid || error) {
       errorLogger("user", "Hull.asUser()", validation);
       return {};
     }
-    const identify = identifyFactory(claims, claimsOptions, userTraits);
-    const track = trackFactory(claims, claimsOptions, events);
-    const link = linksFactory(claims, claimsOptions, accountLinks);
+    const track = trackFactory(claims, events);
+    const identify = identifyFactory(claims, userTraits);
+    const link = linksFactory(claims, accountLinks);
     return {
       traits: identify,
       account: link,
@@ -125,6 +122,9 @@ const buildHullContext = (
     };
   }
 
+  if (userClaimsScope) {
+    return asUser(userClaimsScope);
+  }
   return {
     /* Deprecated Syntax */
     user: asUser,

@@ -2,12 +2,12 @@
 
 import type { HullClient, HullEntityClaims, HullAdditionalClaims } from "hull";
 import type { ClaimsValidation, ClaimsSubject } from "../types";
+import _ from "lodash";
 
-export const isValidClaim = (
-  claims: HullEntityClaims,
-  claimsOptions: HullAdditionalClaims,
-  client: HullClient
-) => (subject: ClaimsSubject, allowEmpty: boolean): ClaimsValidation => {
+export const isValidClaim = (claims: HullEntityClaims, client: HullClient) => (
+  subject: ClaimsSubject,
+  allowEmpty?: boolean
+): ClaimsValidation => {
   try {
     const method = subject === "account" ? client.asAccount : client.asUser;
     return (
@@ -18,7 +18,6 @@ export const isValidClaim = (
         message: undefined,
         // $FlowFixMe
         claims,
-        claimsOptions,
         subject
       }
     );
@@ -29,17 +28,16 @@ export const isValidClaim = (
       error: err.toString(),
       // $FlowFixMe
       claims,
-      claimsOptions,
       subject
     };
   }
 };
 
-export const hasValidClaims = (subject: ClaimsSubject, allowEmpty: boolean) => (
-  claims: HullEntityClaims,
-  claimsOptions: HullAdditionalClaims,
-  client: HullClient
-) => isValidClaim(claims, claimsOptions, client)(subject, allowEmpty);
+export const hasValidClaims = (
+  subject: ClaimsSubject,
+  allowEmpty?: boolean
+) => (claims: HullEntityClaims, client: HullClient) =>
+  isValidClaim(claims, client)(subject, allowEmpty);
 
 export const hasValidUserClaims = hasValidClaims("user");
 export const hasValidAccountClaims = hasValidClaims("account");

@@ -11,21 +11,22 @@ import type { Result, ComputeOptions } from "../types";
 import getHullContext from "./sandbox/hull";
 import getRequest from "./sandbox/request";
 import getConsole from "./sandbox/console";
+import check from "./check";
 
-const LIBS = { _, moment, urijs, rp }
+const LIBS = { _, moment, urijs, rp };
 export default async function compute(
   ctx: HullContext,
-  { context, code, preview }: ComputeOptions
+  { payload, code, preview, claims }: ComputeOptions
 ): Promise<Result> {
   const { connector, client } = ctx;
   const result = {
     logs: [],
     logsForLogger: [],
     errors: [],
-    userTraits: [],
-    accountTraits: [],
+    userTraits: new Map(),
+    accountTraits: new Map(),
     events: [],
-    accountLinks: [],
+    accountLinks: new Map(),
     success: false,
     isAsync: false
   };
@@ -34,28 +35,28 @@ export default async function compute(
     payload: {},
     responses: [],
     errors: result.errors,
-    request: getRequest(result),
+    request: getRequest(result)
   };
   const frozen = {
-    hull: getHullContext(client, result),
+    ...payload,
+    hull: getHullContext(client, result, claims),
     console: getConsole(result, preview),
-    ...context,
     connector,
     ship: connector
-  }
+  };
 
   try {
     const vm = new VM({
       sandbox
       // , timeout: 1000 //TODO: Do we want to enforce a timeout here? what about Promises.
-    })
+    });
     _.map(LIBS, (lib, key) => {
       console.log("Freezing", key);
-      vm.freeze(lib, key)
+      vm.freeze(lib, key);
     });
     _.map(frozen, (lib, key) => {
       console.log("Freezing", key);
-      vm.freeze(lib, key)
+      vm.freeze(lib, key);
     });
     vm.run(`responses = (function() { "use strict"; ${code} }());`);
   } catch (err) {
@@ -67,6 +68,15 @@ export default async function compute(
     result.isAsync &&
     !_.some(_.compact(responses), r => _.isFunction(r.then))
   ) {
+    const syntaxErrors = check.invalid(ctx, code);
+    if (syntaxErrors.length) {
+      result.errors.push(..._.map(syntaxErrors, "annotated"));
+    }
+    const linterErrors = check.lint(ctx, code);
+    if (linterErrors.length) {
+      result.errors.push(...linterErrors);
+    }
+
     result.errors.push(
       "It seems you’re using 'request' which is asynchronous."
     );

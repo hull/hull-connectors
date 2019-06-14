@@ -1,9 +1,10 @@
-//@flow
+// @flow
 
 import type { HullContext } from "hull";
+import _ from "lodash";
 import compute from "./compute";
 import ingest from "./ingest";
-import _ from "lodash";
+import saveRecent from "./save-recent";
 
 const asyncComputeAndIngest = async (
   ctx: HullContext,
@@ -26,7 +27,8 @@ const asyncComputeAndIngest = async (
       code,
       preview: false
     });
-    await ingest(ctx, { EntryModel, payload, code, result });
+    await ingest(ctx, { payload, code, result });
+    await saveRecent(ctx, { EntryModel, payload, code, result });
   } catch (err) {
     client.logger.error("incoming.user.error", {
       hull_summary: `Error Processing user: ${_.get(

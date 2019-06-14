@@ -188,6 +188,7 @@ export type HullUser = {
   contact_email?: ?string,
   external_id: ?string,
   anonymous_ids: ?Array<string>,
+  account?: HullAccount,
   // @TODO: Flow Workaround -> force anonymous_id to be recognized as a ?string, Should be forced on Platform for safety
   anonymous_id?: ?string,
   segment_ids: Array<string> | null,
