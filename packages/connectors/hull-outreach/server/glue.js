@@ -113,8 +113,15 @@ const glue = {
         cond("notEmpty",
           execute(["${connector.private_settings.synchronized_account_segments}", inputParameter("account_segments")],
             (params) => {
-              if (!isUndefinedOrNull(params) && Array.isArray(params) && Array.isArray(params[0]) && Array.isArray(params[1])) {
-                return _.intersection(params[0], params[1].map((param) => param.id));
+              if (!isUndefinedOrNull(params)) {
+                if (Array.isArray(params) && Array.isArray(params[0]) && Array.isArray(params[1])) {
+                  return _.intersection(params[0], params[1].map((param) => param.id));
+                } else if (params[1] === undefined) {
+                  //going to return a fake segment intersection if account_segments is undefined
+                  // which indicates we're doing a batch call
+                  return ["fakeSegmentForBatchCalls"];
+                }
+
               }
               return [];
             })), {
