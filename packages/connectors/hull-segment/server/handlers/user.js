@@ -123,62 +123,60 @@ const update = (
   metric.increment("ship.service_api.call", 1, ["type:identify"]);
   // asUser.logger.info("outgoing.user.success", { traits });
 
-  events.map(
-    (e: HullEvent): HullKrakenResponse => {
-      const { event_id, event, event_source, context = {} } = e;
-      if (event_source === "segment" && !forward_events) {
-        // Skip event if it comes from Segment and we're not forwarding events
-        return {
-          message_id,
-          action: "skip",
-          message: "Event comes from segment and forward_events is disabled",
-          id: user.id,
-          type: "user",
-          data: { anonymousId, userId, segmentIds, event_id }
-        };
-      }
-
-      if (!_.includes(send_events, e.event)) {
-        return {
-          message_id,
-          action: "skip",
-          message: "Event not in whitelisted list",
-          id: user.id,
-          type: "user",
-          data: { anonymousId, userId, segmentIds, event_id }
-        };
-      }
-
-      const track = segmentEvent({
-        analytics,
-        anonymousId,
-        event: e,
-        userId,
-        groupId,
-        traits,
-        integrations
-      });
-
-      const type = event === "page" || event === "screen" ? event : "track";
-
-      if (track.channel === "browser") {
-        metric.increment("ship.service_api.call", 1, ["type:page"]);
-      } else if (track.channel === "mobile") {
-        metric.increment("ship.service_api.call", 1, ["type:screen"]);
-      } else {
-        metric.increment("ship.service_api.call", 1, ["type:track"]);
-      }
-      asUser.logger.info("outgoing.event.success", { track });
-
+  events.map((e: HullEvent): HullKrakenResponse => {
+    const { event_id, event, event_source, context = {} } = e;
+    if (event_source === "segment" && !forward_events) {
+      // Skip event if it comes from Segment and we're not forwarding events
       return {
         message_id,
-        action: "success",
+        action: "skip",
+        message: "Event comes from segment and forward_events is disabled",
         id: user.id,
-        type: "event",
-        data: { track }
+        type: "user",
+        data: { anonymousId, userId, segmentIds, event_id }
       };
     }
-  );
+
+    if (!_.includes(send_events, e.event)) {
+      return {
+        message_id,
+        action: "skip",
+        message: "Event not in whitelisted list",
+        id: user.id,
+        type: "user",
+        data: { anonymousId, userId, segmentIds, event_id }
+      };
+    }
+
+    const track = segmentEvent({
+      analytics,
+      anonymousId,
+      event: e,
+      userId,
+      groupId,
+      traits,
+      integrations
+    });
+
+    const type = event === "page" || event === "screen" ? event : "track";
+
+    if (track.channel === "browser") {
+      metric.increment("ship.service_api.call", 1, ["type:page"]);
+    } else if (track.channel === "mobile") {
+      metric.increment("ship.service_api.call", 1, ["type:screen"]);
+    } else {
+      metric.increment("ship.service_api.call", 1, ["type:track"]);
+    }
+    asUser.logger.info("outgoing.event.success", { track });
+
+    return {
+      message_id,
+      action: "success",
+      id: user.id,
+      type: "event",
+      data: { track }
+    };
+  });
 
   return {
     action: "success",

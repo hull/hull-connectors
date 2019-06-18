@@ -2,8 +2,9 @@
 
 /* global require, Hull*/
 
-const segment = require("./segment");
 const camelize = require("camelize");
+const segment = require("./segment");
+
 segment();
 
 function start(element, deployment, hull) {

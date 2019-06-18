@@ -1,4 +1,4 @@
-//@flow
+// @flow
 
 import fp from "lodash/fp";
 import type { HullEvent } from "hull";

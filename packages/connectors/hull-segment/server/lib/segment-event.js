@@ -1,13 +1,13 @@
-//@flow
+// @flow
 
-import type { HullEvent } from 'hull';
+import type { HullEvent } from "hull";
 import type {
   SegmentOutgoingPayload,
   SegmentOutgoingPage,
   SegmentOutgoingTrack,
   SegmentOutgoingScreen,
   SegmentClient
-} from '../types';
+} from "../types";
 
 type Payload = {
   analytics: SegmentClient,
@@ -63,10 +63,10 @@ module.exports = function({
   };
 
   const type =
-    eventName === 'page' || eventName === 'screen' ? eventName : 'track';
+    eventName === "page" || eventName === "screen" ? eventName : "track";
 
-  //Page-specific formatting
-  if (type === 'page') {
+  // Page-specific formatting
+  if (type === "page") {
     const p = {
       ...ctx.page,
       ...properties
@@ -74,7 +74,7 @@ module.exports = function({
     const ret: SegmentOutgoingPage = {
       ...payload,
       name: name.toString(),
-      channel: 'browser',
+      channel: "browser",
       properties: p,
       context: {
         ...ctx,
@@ -85,19 +85,19 @@ module.exports = function({
     return ret;
   }
 
-  //Screen-specific formatting
-  if (type === 'screen') {
+  // Screen-specific formatting
+  if (type === "screen") {
     const ret: SegmentOutgoingScreen = {
       ...payload,
       name: name.toString(),
-      channel: 'mobile',
+      channel: "mobile",
       properties
     };
-    analytics.enqueue('screen', ret);
+    analytics.enqueue("screen", ret);
     return ret;
   }
 
-  //Generic Track
+  // Generic Track
   const ret: SegmentOutgoingTrack = {
     ...payload,
     event: eventName,

@@ -1,8 +1,8 @@
-/*global console, module*/
+/* global console, module*/
 
 function segment() {
   // Create a queue, but don't obliterate an existing one!
-  var analytics = (window.analytics = window.analytics || []);
+  const analytics = (window.analytics = window.analytics || []);
 
   // If the real analytics.js is already on the page return.
   if (analytics.initialize) return;
@@ -10,7 +10,7 @@ function segment() {
   // If the snippet was invoked already show an error.
   if (analytics.invoked) {
     if (window.console && console.error) {
-      console.error('Segment snippet included twice.');
+      console.error("Segment snippet included twice.");
     }
     return;
   }
@@ -21,22 +21,22 @@ function segment() {
 
   // A list of the methods in Analytics.js to stub.
   analytics.methods = [
-    'trackSubmit',
-    'trackClick',
-    'trackLink',
-    'trackForm',
-    'pageview',
-    'identify',
-    'reset',
-    'group',
-    'track',
-    'ready',
-    'alias',
-    'debug',
-    'page',
-    'once',
-    'off',
-    'on'
+    "trackSubmit",
+    "trackClick",
+    "trackLink",
+    "trackForm",
+    "pageview",
+    "identify",
+    "reset",
+    "group",
+    "track",
+    "ready",
+    "alias",
+    "debug",
+    "page",
+    "once",
+    "off",
+    "on"
   ];
 
   // Define a factory to create stubs. These are placeholders
@@ -45,7 +45,7 @@ function segment() {
   // stored as the first argument, so we can replay the data.
   analytics.factory = function(method) {
     return function() {
-      var args = Array.prototype.slice.call(arguments);
+      const args = Array.prototype.slice.call(arguments);
       args.unshift(method);
       analytics.push(args);
       return analytics;
@@ -53,8 +53,8 @@ function segment() {
   };
 
   // For each of our methods, generate a queueing stub.
-  for (var i = 0; i < analytics.methods.length; i++) {
-    var key = analytics.methods[i];
+  for (let i = 0; i < analytics.methods.length; i++) {
+    const key = analytics.methods[i];
     analytics[key] = analytics.factory(key);
   }
 
@@ -62,22 +62,19 @@ function segment() {
   // and that will be sure to only ever load it once.
   analytics.load = function(key, options) {
     // Create an async script element based on your key.
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
+    const script = document.createElement("script");
+    script.type = "text/javascript";
     script.async = true;
-    script.src =
-      'https://<%= settings.host %>/analytics.js/v1/' +
-      key +
-      '/analytics.min.js';
+    script.src = `https://<%= settings.host %>/analytics.js/v1/${key}/analytics.min.js`;
 
     // Insert our script next to the first script element.
-    var first = document.getElementsByTagName('script')[0];
+    const first = document.getElementsByTagName("script")[0];
     first.parentNode.insertBefore(script, first);
     analytics._loadOptions = options;
   };
 
   // Add a version to keep track of what's in the wild.
-  analytics.SNIPPET_VERSION = '4.1.0';
+  analytics.SNIPPET_VERSION = "4.1.0";
 }
 
 module.exports = segment;

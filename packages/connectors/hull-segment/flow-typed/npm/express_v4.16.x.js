@@ -19,7 +19,8 @@ declare type express$RequestParams = {
   [param: string]: string
 };
 
-declare class express$Request extends http$IncomingMessage mixins express$RequestResponseBase {
+declare class express$Request extends http$IncomingMessage
+  mixins express$RequestResponseBase {
   baseUrl: string;
   body: mixed;
   cookies: { [cookie: string]: string };
@@ -76,7 +77,8 @@ declare type express$SendFileOptions = {
   dotfiles?: "allow" | "deny" | "ignore"
 };
 
-declare class express$Response extends http$ServerResponse mixins express$RequestResponseBase {
+declare class express$Response extends http$ServerResponse
+  mixins express$RequestResponseBase {
   headersSent: boolean;
   locals: { [name: string]: mixed };
   append(field: string, value?: string): this;
@@ -210,7 +212,8 @@ To work around this issue, we changed Server to ?Server here, so that our invoca
 not be deemed to lack type coverage.
 */
 
-declare class express$Application extends express$Router mixins events$EventEmitter {
+declare class express$Application extends express$Router
+  mixins events$EventEmitter {
   constructor(): void;
   locals: { [name: string]: mixed };
   mountpath: string;
@@ -281,8 +284,8 @@ declare type express$UrlEncodedOptions = {
     res: express$Response,
     buf: Buffer,
     encoding: string
-  ) => mixed,
-}
+  ) => mixed
+};
 
 declare module "express" {
   declare export type RouterOptions = express$RouterOptions;
@@ -299,6 +302,6 @@ declare module "express" {
     json: (opts: ?JsonOptions) => express$Middleware,
     static: (root: string, options?: Object) => express$Middleware, // `static` property on the function
     Router: typeof express$Router, // `Router` property on the function
-    urlencoded: (opts: ?express$UrlEncodedOptions) => express$Middleware,
+    urlencoded: (opts: ?express$UrlEncodedOptions) => express$Middleware
   };
 }

@@ -8,7 +8,12 @@ import screen from "./screen";
 import identify from "./identify";
 
 const handlers = {
-  track, group, alias, page, screen, identify
-}
+  track,
+  group,
+  alias,
+  page,
+  screen,
+  identify
+};
 
 export default handlers;

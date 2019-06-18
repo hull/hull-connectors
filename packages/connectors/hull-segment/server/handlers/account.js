@@ -68,7 +68,7 @@ function update(
     };
   }
 
-  //Process everyone when in batch mode.
+  // Process everyone when in batch mode.
   if (
     !isBatch &&
     !_.size(_.intersection(segmentIds, synchronized_account_segments))
@@ -106,7 +106,7 @@ function update(
     id: account.id,
     type: "account",
     data: { traits }
-  }
+  };
 }
 
 module.exports = (

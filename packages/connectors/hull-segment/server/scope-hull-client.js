@@ -1,9 +1,9 @@
 // @flow
 
-const EMAIL_REGEXP = /([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})/i;
-
 import type { HullClient, HullUser, HullAdditionalClaims } from "hull";
 import type { SegmentConnector, SegmentIncomingPayload } from "./types";
+
+const EMAIL_REGEXP = /([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})/i;
 
 /**
  * Prepares a scoped hull-client-node to provided user object
