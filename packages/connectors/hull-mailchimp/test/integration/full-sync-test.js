@@ -465,7 +465,8 @@ it("Performing sync", () => {
                 mailchimp_list_id: "1",
                 segment_mapping: { hullSegmentId: "MailchimpSegmentId" },
                 synchronized_user_segments: ["hullSegmentId"]
-              }
+              },
+              refresh_status: false
             }
           ],
           ["GET", "/api/v1/app", {}, {}],
@@ -482,7 +483,8 @@ it("Performing sync", () => {
                 mailchimp_list_id: "1",
                 segment_mapping: {},
                 synchronized_user_segments: ["hullSegmentId"]
-              }
+              },
+              refresh_status: false
             }
           ],
           ["GET", "/api/v1/hullSegmentId", {}, {}],

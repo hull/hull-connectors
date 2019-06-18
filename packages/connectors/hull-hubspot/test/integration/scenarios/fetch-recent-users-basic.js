@@ -207,7 +207,8 @@ it("should fetch recent users using settings", () => {
             "private_settings": {
               "last_fetch_at": expect.whatever(),
               "token": "hubToken"
-            }
+            },
+            "refresh_status": false
           }
         ]
       ]

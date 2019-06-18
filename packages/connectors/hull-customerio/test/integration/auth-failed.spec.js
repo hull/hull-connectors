@@ -37,7 +37,7 @@ it("Should set status to check Site ID and API Key if authentication returns sta
             response: {"messages": ['Invalid Credentials: Verify Site ID and API Key in Settings.'], "status": "error"},
             logs: [
               ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 401, "url": "https://track.customer.io/auth", "vars": {}}],
-              ["debug", "connector.status", {}, {"messages": ["Invalid Credentials: Verify Site ID and API Key in Settings."], "status": "error"}]
+              // ["debug", "connector.status", {}, {"messages": ["Invalid Credentials: Verify Site ID and API Key in Settings."], "status": "error"}]
             ],
             firehoseEvents: [],
             metrics: [

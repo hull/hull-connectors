@@ -132,7 +132,8 @@ it("should refresh token and perform standard operation in case of token expired
               ],
               token: "newAccessToken",
               token_fetched_at: expect.any(String)
-            }
+            },
+            "refresh_status": false
           }
         ],
         ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],

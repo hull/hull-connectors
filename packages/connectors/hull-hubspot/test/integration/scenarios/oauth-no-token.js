@@ -36,7 +36,7 @@ it("Should return the no token \"ok\" message when calling the connector's API w
       connector,
       usersSegments: [],
       accountsSegments: [],
-      response: {"messages": ['No OAuth AccessToken found.  Please make sure to allow Hull to access your Hubspot data by clicking the \"Credentials & Actions\" button on the connector page and following the workflow provided'], "status": "ok"},
+      response: {"messages": ['No OAuth AccessToken found.  Please make sure to allow Hull to access your Hubspot data by clicking the \"Credentials & Actions\" button on the connector page and following the workflow provided'], "status": "setupRequired"},
       logs: [],
       firehoseEvents: [],
       metrics: [
@@ -49,7 +49,7 @@ it("Should return the no token \"ok\" message when calling the connector's API w
               [
                 'No OAuth AccessToken found.  Please make sure to allow Hull to access your Hubspot data by clicking the \"Credentials & Actions\" button on the connector page and following the workflow provided'
               ],
-            "status": "ok"
+            "status": "setupRequired"
           }
         ]
       ]

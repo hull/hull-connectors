@@ -129,6 +129,7 @@ module.exports = [
     ],
     metrics: [
       ["increment", "connector.request", 1],
+      ["increment", "ship.service_api.call", 1],
       ["increment", "ship.incoming.users", 1]
     ],
     firehoseEvents: [
@@ -731,8 +732,9 @@ module.exports = [
     ],
     metrics: [
       ["increment", "connector.request", 1],
-      ["increment", "ship.incoming.event", 1],
-      ["increment", "ship.incoming.users", 1]
+      ["increment", "ship.service_api.call", 1],
+      ["increment", "ship.incoming.users", 1],
+      ["increment", "ship.incoming.event", 1]
     ],
     firehoseEvents: [
       identify({
@@ -826,6 +828,7 @@ module.exports = [
     ],
     metrics: [
       ["increment", "connector.request", 1],
+      ["increment", "ship.service_api.call", 1],
       ["increment", "ship.incoming.accounts", 1]
     ],
     firehoseEvents: [
@@ -908,6 +911,7 @@ module.exports = [
     ],
     metrics: [
       ["increment", "connector.request", 1],
+      ["increment", "ship.service_api.call", 1],
       ["increment", "ship.incoming.accounts", 1]
     ],
     firehoseEvents: [
@@ -1015,6 +1019,7 @@ module.exports = [
     ],
     metrics: [
       ["increment", "connector.request", 1],
+      ["increment", "ship.service_api.call", 1],
       ["increment", "ship.incoming.users", 2]
     ],
     firehoseEvents: [

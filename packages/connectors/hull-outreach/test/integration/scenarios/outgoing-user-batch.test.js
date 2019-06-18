@@ -315,7 +315,8 @@ test("send batch user update to outreach", () => {
                 { hull: "external_id", service: "externalId" }
               ],
               webhook_id: 3
-            }
+            },
+            "refresh_status": false
           }
         ]
       ]

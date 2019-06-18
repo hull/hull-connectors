@@ -160,7 +160,8 @@ it("should fetch recent companies using settings", () => {
               "companies_last_fetch_at": expect.whatever(),
               "handle_accounts": true,
               "token": "hubToken"
-            }
+            },
+            "refresh_status": false
           }
         ]
       ]

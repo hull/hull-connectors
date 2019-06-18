@@ -73,7 +73,7 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
     );
   }
   return {
-    status: "error",
+    status,
     messages
   };
 }
