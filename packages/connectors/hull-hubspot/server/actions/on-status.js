@@ -34,9 +34,7 @@ const statusHandler = async (
     // subscription. Following two lines fixes that problem.
     // AppMiddleware({ queueAdapter, shipCache, instrumentationAgent })(req, {}, () => {});
     await syncAgent.syncConnector();
-    const date = moment(last_fetch_started_at).format(
-      "MM/DD/YY [@] H[h]mm"
-    );
+    const date = moment(last_fetch_started_at).format("MM/DD/YY [@] H[h]mm");
 
     const html = `Connected to portal <span>${portal_id}</span>. <span>${fetch_count}</span> users and <span>${fetch_account_count}</span> accounts fetched on <span>${date}</span>`;
     const message = `Connected to portal ${portal_id}. ${fetch_count} users and ${fetch_account_count} accounts fetched on ${date}`;
