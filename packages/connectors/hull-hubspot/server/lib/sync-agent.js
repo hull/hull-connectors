@@ -364,26 +364,32 @@ class SyncAgent {
           });
         }
 
-        if (
-          this.connector.private_settings.link_users_in_hull === true &&
-          contact.properties.associatedcompanyid
-        ) {
-          const linkingClient = this.hullClient.asUser(ident.claims).account({
-            anonymous_id: `hubspot:${
-              contact.properties.associatedcompanyid.value
-            }`
-          });
-          await linkingClient
-            .traits({})
-            .then(() => {
-              return linkingClient.logger.info("incoming.account.link.success");
-            })
-            .catch(error => {
-              return linkingClient.logger.error(
-                "incoming.account.link.error",
-                error
-              );
+        if (this.connector.private_settings.link_users_in_hull === true) {
+          if (contact.properties.associatedcompanyid) {
+            const linkingClient = this.hullClient.asUser(ident.claims).account({
+              anonymous_id: `hubspot:${
+                contact.properties.associatedcompanyid.value
+              }`
             });
+            await linkingClient
+              .traits({})
+              .then(() => {
+                return linkingClient.logger.info(
+                  "incoming.account.link.success"
+                );
+              })
+              .catch(error => {
+                return linkingClient.logger.error(
+                  "incoming.account.link.error",
+                  error
+                );
+              });
+          } else {
+            // asUser.logger.info("incoming.account.link.skip", {
+            //   reason:
+            //     "No associatedcompanyid field found in user to link account"
+            // });
+          }
         } else {
           asUser.logger.info("incoming.account.link.skip", {
             reason:
@@ -851,38 +857,44 @@ class SyncAgent {
               errors: error
             })
         );
-        if (this.connector.private_settings.link_users_in_hull !== true) {
-          asAccount.logger.info("incoming.account.link.skip", {
-            reason:
-              "incoming linking is disabled, you can enabled it in the settings"
-          });
-          return Promise.resolve();
-        }
-        const companyVidsStream = this.hubspotClient.getCompanyVidsStream(
-          company.companyId
-        );
-        return pipeStreamToPromise(companyVidsStream, vids => {
-          return Promise.all(
-            vids.map(vid => {
-              const linkingClient = this.hullClient
-                .asUser({ anonymous_id: `hubspot:${vid}` })
-                .account(ident.claims);
-              return linkingClient
-                .traits({})
-                .then(() => {
-                  return linkingClient.logger.info(
-                    "incoming.account.link.success"
-                  );
-                })
-                .catch(error => {
-                  return linkingClient.logger.error(
-                    "incoming.account.link.error",
-                    error
-                  );
-                });
-            })
-          );
-        });
+
+        // don't get all of the users any more for the company
+        // doesn't work very well anyway because we get: "You have reached your secondly limit."
+        // in the future, this linking is only done on user fetch
+        return Promise.resolve();
+
+        // if (this.connector.private_settings.link_users_in_hull !== true) {
+        //   asAccount.logger.info("incoming.account.link.skip", {
+        //     reason:
+        //       "incoming linking is disabled, you can enabled it in the settings"
+        //   });
+        //   return Promise.resolve();
+        // }
+        // const companyVidsStream = this.hubspotClient.getCompanyVidsStream(
+        //   company.companyId
+        // );
+        // return pipeStreamToPromise(companyVidsStream, vids => {
+        //   return Promise.all(
+        //     vids.map(vid => {
+        //       const linkingClient = this.hullClient
+        //         .asUser({ anonymous_id: `hubspot:${vid}` })
+        //         .account(ident.claims);
+        //       return linkingClient
+        //         .traits({})
+        //         .then(() => {
+        //           return linkingClient.logger.info(
+        //             "incoming.account.link.success"
+        //           );
+        //         })
+        //         .catch(error => {
+        //           return linkingClient.logger.error(
+        //             "incoming.account.link.error",
+        //             error
+        //           );
+        //         });
+        //     })
+        //   );
+        // });
       })
     );
   }
