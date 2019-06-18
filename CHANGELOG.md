@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.0.21-monorepo
+- [hull-hubspot] updated settings to the new ui
+- [hulloutreach] now sending account along with user on batch calls if link_user_in_service is specified
+
 ## v0.0.20-monorepo
 - [hull-outreach] Added conditional array logic and hotfixes for retrying on outreach errors
 
