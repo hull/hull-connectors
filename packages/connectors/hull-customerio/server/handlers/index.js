@@ -6,7 +6,6 @@ import webhookHandler from "./webhook";
 import statusCheck from "./status";
 import updateUser from "./update-user";
 
-
 const handlers = () => (_connector: Connector): HullHandlersConfiguration => {
   return {
     statuses: { statusCheck },

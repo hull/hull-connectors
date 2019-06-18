@@ -231,34 +231,31 @@ class SyncAgent {
   createUserUpdateEnvelopes(
     messages: Array<HullUserUpdateMessage>
   ): Array<TUserUpdateEnvelope> {
-    return _.map(
-      messages,
-      (message): TUserUpdateEnvelope => {
-        const hullUser = _.cloneDeep(_.get(message, "user", {}));
-        _.set(hullUser, "account", _.get(message, "account", {}));
+    return _.map(messages, (message): TUserUpdateEnvelope => {
+      const hullUser = _.cloneDeep(_.get(message, "user", {}));
+      _.set(hullUser, "account", _.get(message, "account", {}));
 
-        const allEvents = _.map(_.get(message, "events", []), event =>
-          this.mappingUtil.mapToServiceEvent(event)
-        );
-        const filteredEvents: TFilterResults<ICustomerIoEvent> = this.filterUtil.filterEvents(
-          allEvents
-        );
-        const customer = this.mappingUtil.mapToServiceUser(
-          hullUser,
-          _.get(message, this.segmentPropertyName, [])
-        );
+      const allEvents = _.map(_.get(message, "events", []), event =>
+        this.mappingUtil.mapToServiceEvent(event)
+      );
+      const filteredEvents: TFilterResults<ICustomerIoEvent> = this.filterUtil.filterEvents(
+        allEvents
+      );
+      const customer = this.mappingUtil.mapToServiceUser(
+        hullUser,
+        _.get(message, this.segmentPropertyName, [])
+      );
 
-        const envelope: TUserUpdateEnvelope = {
-          message,
-          hullUser,
-          customer,
-          hash: this.hashUtil.hash(customer),
-          customerEvents: filteredEvents.toInsert,
-          customerEventsToSkip: filteredEvents.toSkip
-        };
-        return envelope;
-      }
-    );
+      const envelope: TUserUpdateEnvelope = {
+        message,
+        hullUser,
+        customer,
+        hash: this.hashUtil.hash(customer),
+        customerEvents: filteredEvents.toInsert,
+        customerEventsToSkip: filteredEvents.toSkip
+      };
+      return envelope;
+    });
   }
 
   /**
@@ -515,7 +512,6 @@ class SyncAgent {
       });
       return Promise.resolve();
     }
-
 
     const userScopedClient = this.client.asUser(userIdent);
     try {
