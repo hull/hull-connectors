@@ -54,9 +54,7 @@ const OAuthFactory = ({ clientID, clientSecret }) => {
         })
         .then(() => {
           return res.redirect(
-            `${req.baseUrl}${homeUrl}?hullToken=${
-              req.hull.clientCredentialsToken
-            }`
+            `${req.baseUrl}${homeUrl}?hullToken=${req.hull.clientCredentialsToken}`
           );
         });
     } else {
@@ -72,9 +70,7 @@ const OAuthFactory = ({ clientID, clientSecret }) => {
       mailchimp_list_id: mailchimpListId,
       api_endpoint: apiEndpoint
     } = connector.private_settings || {};
-    const redirect_uri = `https://${req.hostname}${
-      req.baseUrl
-    }${callbackUrl}?hullToken=${req.hull.clientCredentialsToken}`;
+    const redirect_uri = `https://${req.hostname}${req.baseUrl}${callbackUrl}?hullToken=${req.hull.clientCredentialsToken}`;
     const viewData = {
       name,
       url: oauth2.authCode.authorizeURL({ redirect_uri })
@@ -85,9 +81,7 @@ const OAuthFactory = ({ clientID, clientSecret }) => {
 
     if (!mailchimpListId) {
       return res.redirect(
-        `${req.baseUrl}${selectUrl}?hullToken=${
-          req.hull.clientCredentialsToken
-        }`
+        `${req.baseUrl}${selectUrl}?hullToken=${req.hull.clientCredentialsToken}`
       );
     }
 
@@ -100,9 +94,7 @@ const OAuthFactory = ({ clientID, clientSecret }) => {
     const { connector, client } = req.hull;
 
     const code = req.query.code;
-    const redirect_uri = `https://${req.hostname}${
-      req.baseUrl
-    }${callbackUrl}?hullToken=${req.hull.clientCredentialsToken}`;
+    const redirect_uri = `https://${req.hostname}${req.baseUrl}${callbackUrl}?hullToken=${req.hull.clientCredentialsToken}`;
     const form = {
       grant_type: "authorization_code",
       client_id: clientID,
@@ -159,9 +151,7 @@ const OAuthFactory = ({ clientID, clientSecret }) => {
       connector.private_settings || {};
     const viewData = {
       name,
-      form_action: `https://${req.hostname}${
-        req.baseUrl
-      }${selectUrl}?hullToken=${req.hull.clientCredentialsToken}`,
+      form_action: `https://${req.hostname}${req.baseUrl}${selectUrl}?hullToken=${req.hull.clientCredentialsToken}`,
       mailchimp_list_id
     };
     rp({
@@ -202,9 +192,7 @@ const OAuthFactory = ({ clientID, clientSecret }) => {
         })
         .then(() => {
           return res.redirect(
-            `${req.baseUrl}${syncUrl}?hullToken=${
-              req.hull.clientCredentialsToken
-            }`
+            `${req.baseUrl}${syncUrl}?hullToken=${req.hull.clientCredentialsToken}`
           );
         });
     }, mailchimpErrorHandler.bind(this, req, res, connector, client));
@@ -219,12 +207,8 @@ const OAuthFactory = ({ clientID, clientSecret }) => {
       .then(audit => {
         const viewData = {
           name,
-          select_url: `https://${req.hostname}${
-            req.baseUrl
-          }${selectUrl}?hullToken=${req.hull.clientCredentialsToken}`,
-          form_action: `https://${req.hostname}/sync?hullToken=${
-            req.hull.clientCredentialsToken
-          }`,
+          select_url: `https://${req.hostname}${req.baseUrl}${selectUrl}?hullToken=${req.hull.clientCredentialsToken}`,
+          form_action: `https://${req.hostname}/sync?hullToken=${req.hull.clientCredentialsToken}`,
           audit,
           mailchimp_list_name,
           _
@@ -235,12 +219,8 @@ const OAuthFactory = ({ clientID, clientSecret }) => {
         req.hull.client.logger.error("connector.oauth.error", error);
         const viewData = {
           name,
-          select_url: `https://${req.hostname}${
-            req.baseUrl
-          }${selectUrl}?hullToken=${req.hull.clientCredentialsToken}`,
-          form_action: `https://${req.hostname}/sync?hullToken=${
-            req.hull.clientCredentialsToken
-          }`,
+          select_url: `https://${req.hostname}${req.baseUrl}${selectUrl}?hullToken=${req.hull.clientCredentialsToken}`,
+          form_action: `https://${req.hostname}/sync?hullToken=${req.hull.clientCredentialsToken}`,
           audit: {},
           mailchimp_list_name,
           _

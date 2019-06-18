@@ -58,17 +58,13 @@ async function statusAction(ctx: HullContext): HullStatusResponse {
     _.map(audit.segmentsStats, segmentStat => {
       if (segmentStat.mailchimpStaticSegmentExists !== true) {
         messages.push(
-          `Missing Mailchimp static segment for Hull segment: ${
-            segmentStat.hullSegmentName
-          }`
+          `Missing Mailchimp static segment for Hull segment: ${segmentStat.hullSegmentName}`
         );
         status = "error";
       }
       if (segmentStat.mailchimpInterestGroupExists !== true) {
         messages.push(
-          `Missing Mailchimp interest group for Hull segment: ${
-            segmentStat.hullSegmentName
-          }`
+          `Missing Mailchimp interest group for Hull segment: ${segmentStat.hullSegmentName}`
         );
         status = "error";
       }
@@ -104,9 +100,7 @@ async function statusAction(ctx: HullContext): HullStatusResponse {
   } catch (error) {
     status = "error";
     messages.push(
-      `Error when trying to get test payload from Mailchimp API: ${
-        error.message
-      }`
+      `Error when trying to get test payload from Mailchimp API: ${error.message}`
     );
     return {
       status,

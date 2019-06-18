@@ -17,8 +17,8 @@ export default async function onStatus(
       return {
         status: 200,
         data: {
-          message: `Connected to Mailchimp`,
-          html: `Connected to Mailchimp`
+          message: "Connected to Mailchimp",
+          html: "Connected to Mailchimp"
         }
       };
     }

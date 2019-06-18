@@ -239,25 +239,23 @@ class SyncAgent {
         });
         return false;
       })
-      .map(
-        (message): IUserUpdateEnvelope => {
-          return {
-            message,
-            // TODO: extract to attributes-mapper-util
-            mailchimpNewMember: {
-              email_type: "html",
-              merge_fields: this.userMappingAgent.getMergeFields(message),
-              interests: this.interestsMappingAgent.getInterestsForSegments(
-                _.get(message, "segments", []).map(s => s.id)
-              ),
-              email_address: _.toString(message.user.email),
-              status_if_new: "subscribed"
-            },
-            staticSegmentsToAdd: [],
-            staticSegmentsToRemove: []
-          };
-        }
-      )
+      .map((message): IUserUpdateEnvelope => {
+        return {
+          message,
+          // TODO: extract to attributes-mapper-util
+          mailchimpNewMember: {
+            email_type: "html",
+            merge_fields: this.userMappingAgent.getMergeFields(message),
+            interests: this.interestsMappingAgent.getInterestsForSegments(
+              _.get(message, "segments", []).map(s => s.id)
+            ),
+            email_address: _.toString(message.user.email),
+            status_if_new: "subscribed"
+          },
+          staticSegmentsToAdd: [],
+          staticSegmentsToRemove: []
+        };
+      })
       .map(envelope => {
         let segmentsToAdd: Array<HullUserSegment> = _.get(
           envelope,

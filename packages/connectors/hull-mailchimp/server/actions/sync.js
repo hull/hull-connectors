@@ -7,10 +7,7 @@ import type { HullContext, HullExternalResponse } from "hull";
  * requesting userbase extract from Hull API and Mailchimp API.
  */
 async function sync(ctx: HullContext): HullExternalResponse {
-  await Promise.all([
-    ctx.enqueue("syncOut"),
-    ctx.enqueue("fetchAllUsers")
-  ]);
+  await Promise.all([ctx.enqueue("syncOut"), ctx.enqueue("fetchAllUsers")]);
   // @TODO Check with Michal if we can use a HullStatusResponse instead.
   return {
     status: 200,
