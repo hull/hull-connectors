@@ -1,8 +1,8 @@
 // @flow
 
 import type { HullClient, HullEntityClaims, HullAdditionalClaims } from "hull";
-import type { ClaimsValidation, ClaimsSubject } from "../types";
 import _ from "lodash";
+import type { ClaimsValidation, ClaimsSubject } from "../types";
 
 export const isValidClaim = (claims: HullEntityClaims, client: HullClient) => (
   subject: ClaimsSubject,

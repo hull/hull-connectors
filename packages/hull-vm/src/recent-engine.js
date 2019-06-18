@@ -1,8 +1,8 @@
 // @flow
-import Engine from "./vm-engine";
 
 import _ from "lodash";
 import type { Config, ConfResponse, Entry } from "hull-vm";
+import Engine from "./vm-engine";
 
 export default class RecentEntriesEngine extends Engine {
   constructor(config: Config) {

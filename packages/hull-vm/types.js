@@ -160,6 +160,9 @@ export type ConfResponse = {
   current: Current,
   url: string
 };
+export type ProcessorConfResponse = {
+  current: Current
+};
 
 export type Config = {
   id: string,

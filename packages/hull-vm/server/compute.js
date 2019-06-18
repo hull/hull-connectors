@@ -100,9 +100,7 @@ export default async function compute(
     if (preview && result.events.length > 10) {
       result.logs.unshift(result.events);
       result.logs.unshift(
-        `You're trying to send ${
-          result.events.length
-        } 'track' calls at a time. We will only process the first 10`
+        `You're trying to send ${result.events.length} 'track' calls at a time. We will only process the first 10`
       );
       result.logs.unshift(
         "You can't send more than 10 tracking calls in one batch."
