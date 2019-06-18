@@ -25,7 +25,7 @@ export default class App extends RecentEntriesUI<Props, State> {
 
   renderSetupMessage() {
     const {
-      loadingRecent,
+      initializing,
       initialized,
       showConfig,
       recent,
@@ -49,7 +49,7 @@ export default class App extends RecentEntriesUI<Props, State> {
           alignItems: "center"
         }}
       >
-        {loadingRecent ? (
+        {initializing ? (
           <Spinner className="loading-spinner" />
         ) : (
           <span>Attempting fetch</span>

@@ -8,7 +8,9 @@ import type {
   HullAdditionalClaims,
   HullAccountClaims,
   HullUserUpdateMessage,
-  HullAttributeContext
+  HullAccountUpdateMessage,
+  HullAttributeContext,
+  HullEntitySymbol
 } from "hull";
 
 export type Claims = HullUserClaims | HullAccountClaims;
@@ -89,7 +91,6 @@ export type SerializedResult = {
   success: boolean
 };
 
-
 export type PreviewRequest = {
   payload: Payload,
   code: string
@@ -100,15 +101,17 @@ export type Entry = {
   connectorId: string,
   code: string,
   payload: Payload,
-  result: SerializedResult,
+  result: Result | SerializedResult,
   date: string,
   editable?: boolean
 };
 
 export type ComputeOptions = {
   code: string,
+  claims?: HullUserClaims | HullAccountClaims,
+  entity?: HullEntitySymbol,
   preview: boolean,
-  payload: Payload
+  payload: Payload | HullUserUpdateMessage | HullAccountUpdateMessage
 };
 
 type AnyFunction = any => any;
@@ -146,19 +149,18 @@ export type ClaimsPayload = {
   accountClaims?: HullAccountClaims,
   accountClaimsOptions?: HullAdditionalClaims
 };
-export type ClaimsSubject = "user" | "account";
 export type ClaimsValidation =
   | {
       ...ClaimsPayload,
       valid: true,
-      subject: ClaimsSubject,
+      subject: HullEntitySymbol,
       message: void,
       error: void
     }
   | {
       ...ClaimsPayload,
       valid: false,
-      subject: ClaimsSubject,
+      subject: HullEntitySymbol,
       message: string,
       error: string
     };
@@ -167,13 +169,14 @@ export type Current = {
   connectorId: string,
   code: string
 };
-export type ConfResponse = {
+export type IncomingConfResponse = {
   current: Current,
   url: string
 };
 export type ProcessorConfResponse = {
   current: Current
 };
+export type ConfResponse = IncomingConfResponse | ProcessorConfResponse;
 
 export type Config = {
   id: string,
@@ -185,7 +188,7 @@ export type EngineState = {
   error?: string,
   computing: boolean,
   initialized: boolean,
-  loadingRecent: boolean,
+  initializing: boolean,
   initialized: boolean,
   url?: string,
   config: Config,
@@ -193,3 +196,7 @@ export type EngineState = {
   current?: Entry,
   recent: Array<Entry>
 };
+export type ProcessorEngineState = EngineState & {
+  search?: string
+};
+export type RecentEngineState = EngineState & {};

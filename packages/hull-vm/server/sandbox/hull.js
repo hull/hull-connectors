@@ -4,7 +4,8 @@ import type {
   HullUserClaims,
   HullClient,
   HullEventProperties,
-  HullEventContext
+  HullEventContext,
+  HullEntitySymbol
 } from "hull";
 import _ from "lodash";
 import type { Attributes, AttributesContext, Event, Result } from "../../types";
@@ -46,7 +47,8 @@ const identifyFactory = <ClaimType>(
 const buildHullContext = (
   client: HullClient,
   { errors, userTraits, accountTraits, accountLinks, events }: Result,
-  userClaimsScope: HullUserClaims
+  claimsScope?: HullUserClaims | HullAccountClaims,
+  entity?: HullEntitySymbol = "user"
 ) => {
   const errorLogger = (message, method, validation) => {
     client.logger.info(`incoming.${message}.skip`, {
@@ -116,8 +118,8 @@ const buildHullContext = (
     };
   }
 
-  if (userClaimsScope) {
-    return asUser(userClaimsScope);
+  if (claimsScope) {
+    return (entity === "account" ? asAccount : asUser)(claimsScope);
   }
   return {
     /* Deprecated Syntax */

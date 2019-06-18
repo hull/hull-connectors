@@ -71,7 +71,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   onValidate = (annotations: any) => {
-    console.log(annotations);
+    // console.log(annotations);
   };
 
   componentDidMount() {

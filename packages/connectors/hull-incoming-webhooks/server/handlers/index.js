@@ -5,7 +5,7 @@ import type {
   Connector
 } from "hull";
 
-import { statusHandler, getRecentHandler, previewHandler } from "hull-vm";
+import { statusHandler, recentHandler, previewHandler } from "hull-vm";
 import incomingHandler from "./incoming-handler";
 import configHandler from "./config-handler";
 import credentialsHandler from "./credentials-handler";
@@ -20,7 +20,7 @@ const handler = ({ EntryModel }: { EntryModel: any }) => (
     statuses: { statusHandler },
     incoming: { incomingHandler: incomingHandler(EntryModel) },
     json: {
-      getRecent: getRecentHandler(EntryModel),
+      getRecent: recentHandler(EntryModel),
       configHandler,
       credentialsHandler,
       previewHandler

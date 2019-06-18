@@ -17,8 +17,8 @@ const EVENT = "CHANGE";
 // const CORS_HEADERS = { "Access-Control-Allow-Origin": "*" };
 
 const DEFAULT_STATE = {
-  loadingRecent: false,
-  loadingToken: false,
+  initializing: false,
+  bootstrapping: false,
   computing: false,
   initialized: false,
   current: undefined,
@@ -37,7 +37,7 @@ const queryParams = (): Config =>
     }, {});
 
 export default class Engine extends EventEmitter {
-  state: EngineState;
+  state: any;
 
   config: Config;
 
@@ -45,10 +45,30 @@ export default class Engine extends EventEmitter {
 
   constructor() {
     const config = queryParams();
-
     super();
     this.setState({ ...DEFAULT_STATE, config });
+    this.bootstrap();
   }
+
+  bootstrap = async () => {
+    this.setState({ bootstrapping: true });
+    try {
+      const response = await this.request({
+        url: "config",
+        method: "get"
+      });
+      this.setState({ ...response, bootstrapping: false, error: undefined });
+      return true;
+    } catch (err) {
+      this.setState({
+        error: err.message,
+        token: "",
+        hostname: "",
+        initialized: false
+      });
+      return false;
+    }
+  };
 
   setState = (newState: { ...EngineState }, callback: AnyFunction = noop) => {
     this.state = { ...this.state, ...newState };
@@ -112,14 +132,14 @@ export default class Engine extends EventEmitter {
   };
 
   fetchPreview = _.debounce(
-    async ({ code, payload }: PreviewRequest) => {
+    async ({ code, payload, claims }: PreviewRequest) => {
       this.setState({ computing: true });
 
       try {
         const response: PreviewResponse = await this.request({
           url: "preview",
           method: "post",
-          data: { code, payload }
+          data: { code, payload, claims}
         });
         const state = this.getState();
         this.setState({

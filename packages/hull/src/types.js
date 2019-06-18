@@ -614,9 +614,10 @@ export type HullNotificationFlowControl = {
   in_time?: number
 };
 
+export type HullEntitySymbol = "user" | "account";
 export type HullKrakenResponse = void | {|
   action: "success" | "skip" | "error",
-  type: "user" | "account" | "event",
+  type: HullEntitySymbol | "event",
   message_id?: string,
   message?: string,
   id: ?string,

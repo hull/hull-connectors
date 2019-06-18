@@ -22,9 +22,15 @@ const renderTraits = claimRender => ([claims, attributes]) => `${claimRender(
   claims
 )}.traits(${nice(attributes)});
 `;
+const renderShortTraits = ([claims, attributes]) => `traits(${nice(
+  attributes
+)});
+`;
 
-const renderUserTraits = renderTraits(renderUserClaim);
-const renderAccountTraits = renderTraits(renderAccountClaim);
+const renderUserTraits = scoped =>
+  scoped ? renderShortTraits : renderTraits(renderUserClaim);
+const renderAccountTraits = scoped =>
+  scoped ? renderShortTraits : renderTraits(renderAccountClaim);
 
 const mapTraits = method =>
   fp.flow(
@@ -56,17 +62,22 @@ const renderEvent = ({ event, claims }) => `// <--------- Event --------->
 ${renderUserClaim(claims)}
 .track(${renderEventBody(event)});
 `;
+const renderScopedEvent = ({ event }) => `// <--------- Event --------->
+track(${renderEventBody(event)});
+`;
 
-const mapEvents = fp.flow(
-  fp.map(renderEvent),
-  joinLines
-);
+const mapEvents = scoped =>
+  fp.flow(
+    fp.map(scoped ? renderScopedEvent : renderEvent),
+    joinLines
+  );
 
 type Props = {
-  result?: Result
+  result?: Result,
+  scoped?: boolean
 };
 
-const Preview = ({ result }: Props) => {
+const Preview = ({ result, scoped }: Props) => {
   if (!result)
     return (
       <Fragment>
@@ -91,10 +102,10 @@ const Preview = ({ result }: Props) => {
   const hasErrors = _.size(errors);
 
   const output = {
-    "User Attributes": mapTraits(renderUserTraits)(userTraits),
-    "Account Attributes": mapTraits(renderAccountTraits)(accountTraits),
+    "User Attributes": mapTraits(renderUserTraits(scoped))(userTraits),
+    "Account Attributes": mapTraits(renderAccountTraits(scoped))(accountTraits),
     "User-Account Links": mapAccountLinks(accountLinks),
-    "User Events": mapEvents(events)
+    "User Events": mapEvents(scoped)(events)
   };
 
   return hasErrors ? (

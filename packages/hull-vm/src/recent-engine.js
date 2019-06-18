@@ -1,20 +1,22 @@
 // @flow
 
 import _ from "lodash";
-import type { Config, Entry } from "hull-vm";
+import type { Config, Entry, RecentEngineState} from "hull-vm";
 import Engine from "./vm-engine";
 
 export default class RecentEntriesEngine extends Engine {
+  state: RecentEngineState;
+
   constructor(config: Config) {
     super(config);
-    this.attemptFetchRecent();
+    this.initialize();
   }
 
-  attemptFetchRecent = async () => {
+  initialize = async () => {
     const success = await this.fetchRecent();
     const { recent } = this.state;
     if (!success || !recent.length) {
-      return setTimeout(this.attemptFetchRecent, 2000);
+      return setTimeout(this.initialize, 2000);
     }
     return this.selectEntry(_.head(recent));
   };
@@ -35,15 +37,15 @@ export default class RecentEntriesEngine extends Engine {
   };
 
   fetchRecent = async () => {
-    this.setState({ loadingRecent: true });
+    this.setState({ initializing: true });
     try {
       const recent: Array<Entry> = await this.request({
         url: "recent"
       });
-      this.setState({ recent, loadingRecent: false, error: undefined });
+      this.setState({ recent, initializing: false, error: undefined });
       return true;
     } catch (err) {
-      this.setState({ error: err.message, loadingRecent: false });
+      this.setState({ error: err.message, initializing: false });
       return false;
     }
   };

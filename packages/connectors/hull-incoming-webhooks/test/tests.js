@@ -91,7 +91,7 @@ module.exports = [
       ],
       [
         "info",
-        "compute.user.debug",
+        "compute.debug",
         {},
         {
           logs: [],
@@ -193,7 +193,7 @@ module.exports = [
       ],
       [
         "info",
-        "compute.user.debug",
+        "compute.debug",
         {},
         {
           logs: [],
@@ -400,7 +400,7 @@ module.exports = [
       ],
       [
         "info",
-        "compute.user.debug",
+        "compute.debug",
         {},
         {
           logs: [],
@@ -594,7 +594,7 @@ module.exports = [
       ],
       [
         "info",
-        "compute.user.debug",
+        "compute.debug",
         {},
         {
           logs: [],
@@ -708,7 +708,7 @@ module.exports = [
       ],
       [
         "info",
-        "compute.user.debug",
+        "compute.debug",
         {},
         {
           logs: [],
@@ -783,7 +783,7 @@ module.exports = [
       ],
       [
         "info",
-        "compute.user.debug",
+        "compute.debug",
         {},
         {
           logs: [],
@@ -866,7 +866,7 @@ module.exports = [
       ],
       [
         "info",
-        "compute.user.debug",
+        "compute.debug",
         {},
         {
           logs: [],

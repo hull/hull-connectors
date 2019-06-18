@@ -9,18 +9,7 @@ const debug = require("debug")("hull-incoming-webhooks:ingest");
 
 // const omitClaimOptions = traits => traits.map(u => _.omit(u, "claimsOptions"));
 
-export default async function ingest(
-  ctx: HullContext,
-  {
-    result,
-    code,
-    payload
-  }: {
-    result: Result,
-    code: string,
-    payload: Payload
-  }
-) {
+export default async function ingest(ctx: HullContext, result: Result) {
   const { connector, client, metric } = ctx;
   debug("ingest.result", result);
 
@@ -35,7 +24,7 @@ export default async function ingest(
 
   const promises = [];
 
-  client.logger.info("compute.user.debug", serialize(result));
+  client.logger.info("compute.debug", serialize(result));
 
   // Update user traits
   if (_.size(userTraits)) {
