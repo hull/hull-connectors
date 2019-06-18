@@ -20,9 +20,7 @@ const confHandler = (
         connectorId: connector.id,
         code
       },
-      url: `https://${hostname}/webhooks/${
-        connector.id
-      }/${clientCredentialsEncryptedToken}`
+      url: `https://${hostname}/webhooks/${connector.id}/${clientCredentialsEncryptedToken}`
     };
     return {
       status: 200,

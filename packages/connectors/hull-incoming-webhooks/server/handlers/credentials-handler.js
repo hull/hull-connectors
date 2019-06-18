@@ -17,9 +17,7 @@ const credentialsHandler = (
     return {
       status: 200,
       data: {
-        url: `https://${hostname}/webhooks/${
-          connector.id
-        }/${clientCredentialsEncryptedToken}`
+        url: `https://${hostname}/webhooks/${connector.id}/${clientCredentialsEncryptedToken}`
       }
     };
   }
