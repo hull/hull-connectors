@@ -12,18 +12,12 @@ const asyncComputeAndIngest = async (
     EntryModel,
     payload,
     code
-  }: {
-    code: string,
-    payload: {
-      [string]: any
-    },
-    EntryModel: Object
-  }
+  }: { code: string, payload: { [string]: any }, EntryModel: Object }
 ) => {
   const { connector, client, metric } = ctx;
   try {
     const result = await compute(ctx, {
-      context: payload,
+      payload,
       code,
       preview: false
     });
