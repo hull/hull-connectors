@@ -24,7 +24,11 @@ function fullContextBodyMiddlewareFactory({
   ) {
     bodyParser.json({ limit: "10mb" })(req, res, err => {
       debug("parsed notification body", err);
-      if (err !== undefined) {
+      // adding a check for err string where body is "null"
+      // which is being sent by kraken in certain circumstances
+      // other versions of hull-node don't just throw error if it is undefined
+      // but this one does.  Maybe take out in the future.
+      if (err !== undefined && err !== null && err.body !== "null") {
         return next(err);
       }
 
