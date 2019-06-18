@@ -14,7 +14,7 @@ const asyncComputeAndIngest = async (
     code
   }: { code: string, payload: { [string]: any }, EntryModel: Object }
 ) => {
-  const { connector, client, metric } = ctx;
+  const { client } = ctx;
   try {
     const result = await compute(ctx, {
       payload,

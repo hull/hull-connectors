@@ -1,7 +1,6 @@
 // @flow
 import type { HullContext, HullStatusResponse } from "hull";
 import { check } from "hull-vm";
-import _ from "lodash";
 
 export default async function statusCheck(
   ctx: HullContext

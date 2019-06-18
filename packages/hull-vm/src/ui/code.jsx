@@ -1,7 +1,7 @@
 // @flow
 import React from "react";
 import _ from "lodash";
-import CodeEditor from "../ui/ace";
+import CodeEditor from "./ace";
 
 type Props = {
   onChange: string => void,

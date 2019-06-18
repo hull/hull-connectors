@@ -9,11 +9,11 @@ import rp from "request-promise";
 import _ from "lodash";
 
 export default async function selectList(
-  ctx: HullContext,
-  message: HullIncomingHandlerMessage
+  ctx: HullContext
+  // message: HullIncomingHandlerMessage
 ): HullUISelectResponse {
-  const { clientCredentialsEncryptedToken, hostname, connector } = ctx;
-  const { api_key, api_endpoint, mailchimp_list_id, mailchimp_list_name } =
+  const { connector } = ctx;
+  const { api_key, api_endpoint, mailchimp_list_id } =
     connector.private_settings || {};
 
   const data = await rp({
@@ -28,7 +28,7 @@ export default async function selectList(
 
   // Only allow to select if list is unknown
   if (mailchimp_list_id) {
-    const list = _.find(data.lists, l => (l.id = mailchimp_list_id));
+    const list = _.find(data.lists, l => l.id == mailchimp_list_id);
     return {
       status: 200,
       data: {

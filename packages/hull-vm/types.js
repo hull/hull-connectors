@@ -1,7 +1,6 @@
 // @flow
 
 import type {
-  HullClient,
   HullAccountAttributes,
   HullUserAttributes,
   HullConnector,

@@ -1,6 +1,6 @@
 // @flow
 
-import type { HullClient, HullEntityClaims, HullAdditionalClaims } from "hull";
+import type { HullClient, HullEntityClaims } from "hull";
 import _ from "lodash";
 import type { ClaimsValidation, ClaimsSubject } from "../types";
 

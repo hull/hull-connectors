@@ -197,13 +197,13 @@ type HullManifestHtmlConfig = {
   options?: HullHtmlHandlerOptions
 };
 
-type HullOAuthCredentialsConfig = {
-  title: string,
-  url?: string,
-  status?: string,
-  handler: string,
-  options: HullOAuthHandlerOptions
-};
+// type HullOAuthCredentialsConfig = {
+//   title: string,
+//   url?: string,
+//   status?: string,
+//   handler: string,
+//   options: HullOAuthHandlerOptions
+// };
 // Connector Manifest. Defines a Connector's exposed endpoints and features
 
 type HullManifestSetting = {

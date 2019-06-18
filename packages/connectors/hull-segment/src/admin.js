@@ -1,3 +1,4 @@
+/* eslint-disable */
 /* global segment, Clipboard */
 require("./clipboard.min.js");
 

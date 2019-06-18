@@ -1,8 +1,6 @@
 // @flow
 import RecentEntriesEngine from "hull-vm/src/recent-engine";
-
-import _ from "lodash";
-import type { Config, ConfResponse, Entry } from "hull-vm";
+import type { Config, ConfResponse /* , Entry*/ } from "hull-vm";
 
 export default class IncomingWebhookEngine extends RecentEntriesEngine {
   constructor(config: Config) {

@@ -33,12 +33,12 @@ function start(element, deployment, hull) {
 
   function identify(me) {
     if (window.analytics && me && me.id) {
-      const user = ["name", "email", "username"].reduce((u, k) => {
-        if (me[k] != null) {
-          u[k] = me[k];
-        }
-        return u;
-      }, {});
+      // const user = ["name", "email", "username"].reduce((u, k) => {
+      //   if (me[k] != null) {
+      //     u[k] = me[k];
+      //   }
+      //   return u;
+      // }, {});
     }
   }
 

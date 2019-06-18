@@ -14,9 +14,7 @@ const EventEmitter = require("events");
 
 const noop = () => {};
 const EVENT = "CHANGE";
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*"
-};
+// const CORS_HEADERS = { "Access-Control-Allow-Origin": "*" };
 
 const DEFAULT_STATE = {
   loadingRecent: false,

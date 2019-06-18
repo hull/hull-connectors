@@ -3,8 +3,6 @@
 import type { HullContext } from "hull";
 import type { Entry, Payload, Result } from "../types";
 
-const debug = require("debug")("hull-incoming-webhooks:save-recent");
-
 export default function saveRecent(
   ctx: HullContext,
   {

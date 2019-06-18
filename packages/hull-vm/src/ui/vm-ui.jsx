@@ -7,18 +7,15 @@ import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Button from "react-bootstrap/Button";
 
 import _ from "lodash";
-
-import {
-  Code,
-  Preview,
-  KeyBindings,
-  PayloadSelector,
-  ConfigurationModal,
-  Area,
-  Header,
-  CodeTitle,
-  Spinner
-} from "./";
+import Code from "./code"
+import Preview from "./preview"
+import KeyBindings from "./key-bindings"
+import PayloadSelector from "./payload-selector"
+import ConfigurationModal from "./configuration-modal"
+import Area from "./area"
+import Header from "./header"
+import CodeTitle from "./code-title"
+import Spinner from "./spinner"
 import type { EngineState, Entry, Result } from "../../types";
 import type VMEngine from "../vm-engine";
 

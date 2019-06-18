@@ -7,14 +7,7 @@ import type {
   HullEventContext
 } from "hull";
 
-import type {
-  Claims,
-  Attributes,
-  AttributesContext,
-  Event,
-  Result,
-  Links
-} from "../../types";
+import type { Attributes, AttributesContext, Event, Result } from "../../types";
 
 import {
   hasValidUserClaims,
@@ -36,7 +29,7 @@ const trackFactory = (claims: HullUserClaims, target: Array<Event>) => (
 const identifyFactory = <ClaimType>(
   claims: ClaimType,
   target: Map<ClaimType, Attributes>
-) => (attributes: Attributes, context: AttributesContext) => {
+) => (attributes: Attributes) => {
   const previousAttributes = target.get(claims) || {};
   target.set(claims, {
     ...previousAttributes,

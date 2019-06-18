@@ -40,7 +40,7 @@ import OAuthHandler from "../oauth-handler/factory";
 function htmlHandlerFactory(
   configurationEntry: HullHtmlHandlerConfigurationEntry
 ): HullRouteMap {
-  const { method, options = {}, callback } = configurationEntry;
+  const { method, options = {} } = configurationEntry;
   const { type = undefined } = options;
   if (type) {
     if (type.toLowerCase() === "oauth") {

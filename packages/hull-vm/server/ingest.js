@@ -1,8 +1,8 @@
 // @flow
 import _ from "lodash";
-import type { HullConnector, HullContext } from "hull";
+import type { HullContext } from "hull";
 import { callLinks, callEvents, callTraits } from "./side-effects";
-import type { Entry, Payload, Result } from "../types";
+import type { Payload, Result } from "../types";
 
 const debug = require("debug")("hull-incoming-webhooks:ingest");
 

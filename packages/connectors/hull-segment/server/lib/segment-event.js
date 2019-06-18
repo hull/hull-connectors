@@ -19,7 +19,7 @@ type Payload = {
   traits: {}
 };
 
-module.exports = function({
+module.exports = function segmentEvent({
   analytics,
   anonymousId,
   event,

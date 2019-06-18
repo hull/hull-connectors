@@ -4,16 +4,13 @@ import type {
   HullExternalResponse,
   HullIncomingHandlerMessage,
   HullOAuthHandlerParams,
-  HullOauthAuthorizeMessage,
+  // HullOauthAuthorizeMessage,
   HullOAuthAuthorizeResponse
 } from "hull";
 
 import rp from "request-promise";
 
 const MailchimpStrategy = require("passport-mailchimp").Strategy;
-const moment = require("moment");
-
-const SyncAgent = require("../lib/sync-agent");
 
 module.exports = ({
   clientID,
