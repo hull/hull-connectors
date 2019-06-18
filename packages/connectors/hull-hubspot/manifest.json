@@ -48,7 +48,8 @@
           },
           "required" : {
             "type": "boolean",
-            "title": "required?"
+            "title": "required?",
+            "format": "select"
           }
         }
       },
@@ -147,7 +148,8 @@
           },
           "required" : {
             "type": "boolean",
-            "title": "required?"
+            "title": "required?",
+            "format": "select"
           }
         }
       },
@@ -290,6 +292,43 @@
       "url": "/status",
       "type": "interval",
       "value": "30"
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "User Incoming Setup",
+      "description": "How we capture Hubspot Contacts as users",
+      "properties": [
+        "private_settings.incoming_user_claims",
+        "private_settings.incoming_user_attributes"
+      ]
+    },
+    {
+      "title": "User Outgoing Setup",
+      "description": "How we send Users as Hubspot Contacts",
+      "properties": [
+        "private_settings.synchronized_user_segments",
+        "private_settings.outgoing_user_attributes"
+      ]
+    },
+    {
+      "title": "Account Incoming Setup",
+      "description": "How we capture Hubspot Companies as Accounts",
+      "properties": [
+        "private_settings.handle_accounts",
+        "private_settings.incoming_account_claims",
+        "private_settings.incoming_account_attributes"
+      ]
+    },
+    {
+      "title": "Account Outgoing Setup",
+      "description": "Following section configures how we create or update `Hubspot Companies`",
+      "properties": [
+        "private_settings.synchronized_account_segments",
+        "private_settings.outgoing_account_attributes",
+        "private_settings.link_users_in_service",
+        "private_settings.link_users_in_hull"
+      ]
     }
   ]
 }
