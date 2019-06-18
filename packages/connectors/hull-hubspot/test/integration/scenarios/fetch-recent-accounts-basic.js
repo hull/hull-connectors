@@ -97,18 +97,19 @@ it("should fetch recent companies using settings", () => {
             }
           }
         ],
-        [
-          "info",
-          "incoming.account.link.skip",
-          {
-            account_anonymous_id: "hubspot:19411477",
-            account_domain: "foo.com",
-            subject_type: "account"
-          },
-          {
-            reason: "incoming linking is disabled, you can enabled it in the settings"
-          }
-        ],
+        // Not doing user/account linking anymore on account fetch
+        // [
+        //   "info",
+        //   "incoming.account.link.skip",
+        //   {
+        //     account_anonymous_id: "hubspot:19411477",
+        //     account_domain: "foo.com",
+        //     subject_type: "account"
+        //   },
+        //   {
+        //     reason: "incoming linking is disabled, you can enabled it in the settings"
+        //   }
+        // ],
         [
           "info",
           "incoming.job.success",
