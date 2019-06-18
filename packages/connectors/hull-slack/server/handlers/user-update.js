@@ -151,9 +151,7 @@ const update = (connectSlack: ConnectSlackFunction) => async (
           });
           tellOperator({
             user_id,
-            msg: `:crying_cat_face: Something bad happened while posting to the channels :${
-              err.message
-            }`
+            msg: `:crying_cat_face: Something bad happened while posting to the channels :${err.message}`
           });
           return null;
         }

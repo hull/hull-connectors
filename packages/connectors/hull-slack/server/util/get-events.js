@@ -1,7 +1,7 @@
 // @flow
 
 import _ from "lodash";
-import flattenForText from "../util/flatten-for-text";
+import flattenForText from "./flatten-for-text";
 
 const belongsToSegment = (sync_segment, entitySegmentIds) => {
   // sync_segments will be undefined if a manifest has not been refreshed

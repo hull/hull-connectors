@@ -1,4 +1,4 @@
-//@noflow
+// @noflow
 import _ from "lodash";
 import moment from "moment";
 import humanize from "./humanize";

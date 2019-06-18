@@ -8,9 +8,7 @@ const debug = require("debug")("hull-slack:get-notification");
 
 function urlFor(user = {}, entity = "user", organization) {
   const [namespace, domain, tld] = organization.split(".");
-  return `https://dashboard.${domain}.${tld}/${namespace}/${entity}s/${
-    user.id
-  }`;
+  return `https://dashboard.${domain}.${tld}/${namespace}/${entity}s/${user.id}`;
 }
 
 const interpolateText = async (text, message) => {

@@ -5,20 +5,20 @@ import flattenForText from "./flatten-for-text";
 
 const SEGMENT_ACTION_TYPE = {
   enter: "enter",
-  leave: "leave",
+  leave: "leave"
 };
 
 const SEGMENT_CHANGE_EVENTS = [
   {
     event: "ENTERED_USER_SEGMENT",
     type: SEGMENT_ACTION_TYPE.enter,
-    path: "segments.entered",
+    path: "segments.entered"
   },
   {
     event: "LEFT_USER_SEGMENT",
     type: SEGMENT_ACTION_TYPE.leave,
-    path: "segments.left",
-  },
+    path: "segments.left"
+  }
 ];
 
 const belongsToSegment = (sync_segment, entitySegmentIds) => {
@@ -58,7 +58,7 @@ const getUserChanges = (changes, notify_segments, notify_events) => {
 
     // Processing segment changes as events:
     _.map(notify_events, notify => {
-      let { event, synchronized_segment, channel } = notify;
+      const { event, synchronized_segment, channel } = notify;
 
       const segment_change_event = _.find(SEGMENT_CHANGE_EVENTS, e => {
         return e.event === event;

@@ -1,4 +1,4 @@
-//@noflow
+// @noflow
 const more = "_Type `@hull help` and I'll show you what I can do_";
 
 module.exports = {
@@ -26,7 +26,7 @@ ${more}`,
 
   join: `
 :tada: Hullo everyone! I am the Hull bot and I've just joined this channel.
-${more}`,
+${more}`
 };
 
 // _\`@hull set user@example.com {"foo":"bar"}\`: set these properties for the User_

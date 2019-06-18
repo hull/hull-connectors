@@ -1,4 +1,4 @@
-//@noflow
+// @noflow
 import queries from "./queries";
 
 /**

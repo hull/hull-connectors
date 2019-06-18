@@ -1,4 +1,4 @@
-//@noflow
+// @noflow
 import _ from "lodash";
 import getSanitizedChannel from "./get-sanitized-channels";
 

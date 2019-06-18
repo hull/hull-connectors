@@ -12,11 +12,17 @@ module.exports = async function interactiveMessage(bot, message) {
   const { name, value } = action;
 
   const client = new Hull(bot.config.hullConfig);
-  client.logger.info("bot.interactiveMessage.post", { name, value, callback_id });
+  client.logger.info("bot.interactiveMessage.post", {
+    name,
+    value,
+    callback_id
+  });
 
   if (name === "trait") {
     try {
-      client.asUser({ id: callback_id }).traits(JSON.parse(value), { sync: true });
+      client
+        .asUser({ id: callback_id })
+        .traits(JSON.parse(value), { sync: true });
       bot.reply(message, "User Updated :thumbsup:");
     } catch (e) {
       client.logger.error("bot.interactiveMessage.error", {

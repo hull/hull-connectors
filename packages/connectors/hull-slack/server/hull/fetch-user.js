@@ -36,9 +36,7 @@ module.exports = async function fetchUser({ client, search, options = {} }) {
   ]);
   if (eventSearch && !events.data.length)
     return {
-      message: `\n Couldn't find "${search.rest}" events for ${
-        user.name
-      } - Search is case-sensitive`
+      message: `\n Couldn't find "${search.rest}" events for ${user.name} - Search is case-sensitive`
     };
 
   if (!user) return { message: "Couldn't find anyone!" };
