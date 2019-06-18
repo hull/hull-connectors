@@ -1,8 +1,11 @@
 // @flow
 import type { HullHandlersConfiguration, Connector } from "hull";
 import adminHandler from "./admin";
+import credentialsHandler from "./credentials";
+import webhookHandler from "./webhook";
+import statusCheck from "./status";
 import updateUser from "./update-user";
-import { webhookHandler, statusCheck } from "../actions";
+
 
 const handlers = () => (_connector: Connector): HullHandlersConfiguration => {
   return {
@@ -11,7 +14,7 @@ const handlers = () => (_connector: Connector): HullHandlersConfiguration => {
     tabs: { adminHandler },
     batches: { updateUser },
     subscriptions: { updateUser },
-    json: { webhookHandler }
+    json: { webhookHandler, credentialsHandler }
   };
 };
 

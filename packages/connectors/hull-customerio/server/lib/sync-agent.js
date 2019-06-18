@@ -487,7 +487,7 @@ class SyncAgent {
    * @returns {Promise<any>} A promise which returns the result of the Hull logger call.
    * @memberof SyncAgent
    */
-  handleWebhook(payload: mixed): Promise<*> {
+  async handleWebhook(payload: mixed): Promise<*> {
     if (!payload || typeof payload !== "object") {
       this.client.logger.error("incoming.webhook.error", {
         reason: SHARED_MESSAGES.ERROR_INVALIDPAYLOAD,
@@ -516,22 +516,24 @@ class SyncAgent {
       return Promise.resolve();
     }
 
-    const userScopedClient = this.client.asUser(userIdent);
 
-    return userScopedClient
-      .track(event.event, event.properties, event.context)
-      .then(() => {
-        return userScopedClient.logger.info("incoming.event.success", {
-          event
-        });
-      })
-      .catch(err => {
-        return userScopedClient.logger.error("incoming.event.error", {
-          reason: SHARED_MESSAGES.ERROR_TRACKFAILED,
-          message: err.message,
-          innerException: err
-        });
+    const userScopedClient = this.client.asUser(userIdent);
+    try {
+      await userScopedClient.track(
+        event.event,
+        event.properties,
+        event.context
+      );
+      return userScopedClient.logger.info("incoming.event.success", {
+        event
       });
+    } catch (err) {
+      return userScopedClient.logger.error("incoming.event.error", {
+        reason: SHARED_MESSAGES.ERROR_TRACKFAILED,
+        message: err.message,
+        innerException: err
+      });
+    }
   }
 }
 

@@ -37,7 +37,7 @@
     },
     {
       "name": "synchronized_segments",
-      "title" : "User Filter",
+      "title": "User Filter",
       "description": "Send users to Customer.io when belonging to one of these segments. By default, no user is sent",
       "type": "array",
       "default": [],
@@ -103,15 +103,6 @@
   ],
   "resources": [],
   "readme": "readme.md",
-  "tabs": [
-    {
-      "title": "Setup",
-      "url": "/admin.html",
-      "size": "small",
-      "editable": false,
-      "handler": "adminHandler"
-    }
-  ],
   "ui": false,
   "subscriptions": [
     {
@@ -138,7 +129,43 @@
   "json": [
     {
       "url": "/webhook",
-      "handler": "webhookHandler"
+      "handler": "webhookHandler",
+      "description": "In **Customer.io**, go to `Integrations > Email Activity Webhooks` and paste at the following url in `Webhook Endpoint`",
+      "format": "credentials",
+      "type": "string"
+    },
+    {
+      "name": "credentials",
+      "handler": "credentialsHandler",
+      "url": "/credentials",
+      "title": "Customer IO Credentials",
+      "description": "Copy this URL and paste it in Customer.io",
+      "format": "credentials",
+      "type": "string"
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Credentials",
+      "step": "credentials",
+      "description": "In **Customer.io**, go to `Integrations > Email Activity Webhooks` and paste at the following url in `Webhook Endpoint`",
+      "properties": [
+        "json.credentials",
+        "private_settings.site_id",
+        "private_settings.api_key"
+      ]
+    },
+    {
+      "title": "Outgoing Mapping",
+      "step": "mapping",
+      "properties": [
+        "private_settings.user_id_mapping",
+        "private_settings.synchronized_segments",
+        "private_settings.synchronized_attributes",
+        "private_settings.enable_user_deletion",
+        "private_settings.events_filter",
+        "private_settings.anonymous_events"
+      ]
     }
   ],
   "statuses": [
@@ -148,5 +175,12 @@
       "value": "*/30 * * * *",
       "handler": "statusCheck"
     }
-  ]
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "cron",
+    "value": "*/30 * * * *",
+    "handler": "statusCheck"
+  }
 }
