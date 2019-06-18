@@ -17,7 +17,6 @@ function baseContextMiddlewareFactory({
   connectorConfig,
   Client
 }: HullBaseMiddlewareParams) {
-
   return function baseContextMiddleware(
     req: HullRequest,
     res: HullResponse,

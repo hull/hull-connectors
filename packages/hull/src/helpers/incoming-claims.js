@@ -76,9 +76,7 @@ const incomingClaims = (ctx: HullContext) => (
       if (isInvalid(valueFromObject)) {
         if (entry.required === true) {
           throw new Error(
-            `Value of field "${entry.service}" is empty, cannot map it to ${
-              entry.hull
-            }, but it's required.`
+            `Value of field "${entry.service}" is empty, cannot map it to ${entry.hull}, but it's required.`
           );
         }
         return claims;

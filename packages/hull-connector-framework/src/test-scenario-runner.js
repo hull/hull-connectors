@@ -55,9 +55,7 @@ expect.extend({
         copyOfReceived.splice(index, 1);
       });
     } catch (error) {
-      error.message = `${additionalInfo}: we did not receive following entries  \n     ${
-        error.message
-      }`;
+      error.message = `${additionalInfo}: we did not receive following entries  \n     ${error.message}`;
       throw error;
     }
 
@@ -72,9 +70,7 @@ expect.extend({
         copyOfExpected.splice(index, 1);
       });
     } catch (error) {
-      error.message = `${additionalInfo}: we did not expect following entries  \n     ${
-        error.message
-      }`;
+      error.message = `${additionalInfo}: we did not expect following entries  \n     ${error.message}`;
       throw error;
     }
     return {

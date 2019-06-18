@@ -82,7 +82,7 @@ class MiniApplication extends EventEmitter /*:: implements MiniApplicationInterf
    */
   _respond(fake /*: Object */, arg1 /*: any */, arg2 /*: any */ = "") {
     // eslint-disable-line class-methods-use-this
-    console.log("RESPOND", fake, arg1, arg2)
+    console.log("RESPOND", fake, arg1, arg2);
     if (_.isFunction(arg1)) {
       return fake.callsFake(arg1);
     }

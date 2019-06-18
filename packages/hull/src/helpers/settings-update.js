@@ -20,7 +20,10 @@ const {
  * @example
  * req.hull.helpers.settingsUpdate({ newSettings }, refreshStatus);
  */
-const settingsUpdate = (ctx: HullContext, refreshStatus: Boolean = false) => async (
+const settingsUpdate = (
+  ctx: HullContext,
+  refreshStatus: Boolean = false
+) => async (
   newSettings: $PropertyType<HullConnector, "private_settings">
 ): void | Promise<HullConnector> => {
   const { client, cache, connector } = ctx;

@@ -211,7 +211,7 @@ class Configuration {
     | HullAdditionalClaims
     | HullClientConfig
     | void {
-    if (key!==undefined) {
+    if (key !== undefined) {
       return this._state[key];
     }
     return this.getAll();
