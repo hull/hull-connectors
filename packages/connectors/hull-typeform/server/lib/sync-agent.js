@@ -1,8 +1,5 @@
 /* @flow */
-import type {
-  HullContext,
-  HullUISelectGroup
-} from "hull";
+import type { HullContext, HullUISelectGroup } from "hull";
 
 import type { TypeformResponse, TypeformForm } from "../types";
 
