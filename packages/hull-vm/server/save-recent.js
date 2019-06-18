@@ -2,7 +2,7 @@
 
 import type { HullContext } from "hull";
 import type { Entry, Payload, Result } from "../types";
-
+import serialize from "./serialize";
 export default function saveRecent(
   ctx: HullContext,
   {
@@ -20,8 +20,8 @@ export default function saveRecent(
   const { connector, client, metric } = ctx;
   const entry: Entry = {
     connectorId: connector.id,
+    result: serialize(result),
     code,
-    result,
     payload,
     date: new Date().toString()
   };

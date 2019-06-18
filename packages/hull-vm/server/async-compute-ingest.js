@@ -21,6 +21,7 @@ const asyncComputeAndIngest = async (
       code,
       preview: false
     });
+    //TODO: Check how errors in the second await could not have a defined error
     await ingest(ctx, { payload, code, result });
     await saveRecent(ctx, { EntryModel, payload, code, result });
   } catch (err) {

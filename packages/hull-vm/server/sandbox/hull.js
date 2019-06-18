@@ -6,7 +6,7 @@ import type {
   HullEventProperties,
   HullEventContext
 } from "hull";
-
+import _ from "lodash";
 import type { Attributes, AttributesContext, Event, Result } from "../../types";
 
 import {
@@ -29,11 +29,12 @@ const trackFactory = (claims: HullUserClaims, target: Array<Event>) => (
 const identifyFactory = <ClaimType>(
   claims: ClaimType,
   target: Map<ClaimType, Attributes>
-) => (attributes: Attributes) => {
+) => (attributes: Attributes, options?: { source?: string } = {}) => {
+  const { source } = options;
   const previousAttributes = target.get(claims) || {};
   target.set(claims, {
     ...previousAttributes,
-    ...attributes
+    ..._.mapKeys(attributes, (v, k) => (source ? `${source}/${k}` : k))
   });
   // target.push({
   //   claims,

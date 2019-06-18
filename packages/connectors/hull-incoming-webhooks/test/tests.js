@@ -44,8 +44,18 @@ const link = ({ claims, accountClaims }) => [
 ];
 const platformApiCalls = [
   ["GET", "/api/v1/app", {}, {}],
-  ["GET", "/api/v1/users_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}],
-  ["GET", "/api/v1/accounts_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}],
+  [
+    "GET",
+    "/api/v1/users_segments?shipId=9993743b22d60dd829001999",
+    { shipId: "9993743b22d60dd829001999" },
+    {}
+  ],
+  [
+    "GET",
+    "/api/v1/accounts_segments?shipId=9993743b22d60dd829001999",
+    { shipId: "9993743b22d60dd829001999" },
+    {}
+  ]
 ];
 
 module.exports = [
@@ -87,22 +97,7 @@ module.exports = [
           logs: [],
           logsForLogger: [],
           errors: [],
-          userTraits: [
-            {
-              claims: {
-                id: "123"
-              },
-              claimsOptions: undefined,
-              traits: {
-                attributes: {
-                  customerioid: "321"
-                },
-                context: {
-                  source: "my-group"
-                }
-              }
-            }
-          ],
+          userTraits: [[{ id: "123" }, { "my-group/customerioid": "321" }]],
           accountTraits: [],
           events: [],
           accountLinks: [],
@@ -119,10 +114,7 @@ module.exports = [
         },
         {
           attributes: {
-            customerioid: "321"
-          },
-          context: {
-            source: "my-group"
+            "my-group/customerioid": "321"
           }
         }
       ]
@@ -208,55 +200,36 @@ module.exports = [
           logsForLogger: [],
           errors: [],
           userTraits: [
-            {
-              claims: {
+            [
+              {
                 id: "123"
               },
-              claimsOptions: undefined,
-              traits: {
-                attributes: {
-                  foo: "321"
-                },
-                context: {
-                  source: "my-group"
-                }
-              }
-            }
+              { "my-group/foo": "321" }
+            ]
           ],
           accountTraits: [
-            {
-              claims: {
+            [
+              {
                 id: "abc"
               },
-              claimsOptions: undefined,
-              traits: {
-                attributes: {
-                  accountFoo: "accountBar"
-                },
-                context: {
-                  source: "foo"
-                }
+              {
+                "foo/accountFoo": "accountBar"
               }
-            },
-            {
-              claims: {
+            ],
+            [
+              {
                 external_id: "external"
               },
-              claimsOptions: undefined,
-              traits: {
-                attributes: {
-                  linkedAccountFoo: "linkedAccountBar"
-                },
-                context: undefined
+              {
+                linkedAccountFoo: "linkedAccountBar"
               }
-            }
+            ]
           ],
           events: [
             {
               claims: {
                 id: "123"
               },
-              claimsOptions: undefined,
               event: {
                 eventName: "event_name",
                 properties: {
@@ -266,18 +239,7 @@ module.exports = [
               }
             }
           ],
-          accountLinks: [
-            {
-              claims: {
-                id: "123"
-              },
-              accountClaimsOptions: undefined,
-              claimsOptions: undefined,
-              accountClaims: {
-                external_id: "external"
-              }
-            }
-          ],
+          accountLinks: [[{ id: "123" }, { external_id: "external" }]],
           success: true,
           isAsync: false
         }
@@ -291,10 +253,7 @@ module.exports = [
         },
         {
           attributes: {
-            foo: "321"
-          },
-          context: {
-            source: "my-group"
+            "my-group/foo": "321"
           }
         }
       ],
@@ -307,10 +266,7 @@ module.exports = [
         },
         {
           attributes: {
-            accountFoo: "accountBar"
-          },
-          context: {
-            source: "foo"
+            "foo/accountFoo": "accountBar"
           }
         }
       ],
@@ -324,8 +280,7 @@ module.exports = [
         {
           attributes: {
             linkedAccountFoo: "linkedAccountBar"
-          },
-          context: undefined
+          }
         }
       ],
       [
@@ -349,10 +304,11 @@ module.exports = [
     ],
     metrics: [
       ["increment", "connector.request", 1],
-      ["increment", "ship.incoming.event", 1],
+      ["increment", "ship.service_api.call", 1],
       ["increment", "ship.incoming.users", 1],
       ["increment", "ship.incoming.accounts", 2],
-      ["increment", "ship.incoming.account", 1]
+      ["increment", "ship.incoming.account", 1],
+      ["increment", "ship.incoming.event", 1]
     ],
     firehoseEvents: [
       identify({
@@ -451,55 +407,36 @@ module.exports = [
           logsForLogger: [],
           errors: [],
           userTraits: [
-            {
-              claims: {
+            [
+              {
                 id: "123"
               },
-              claimsOptions: undefined,
-              traits: {
-                attributes: {
-                  foo: "321"
-                },
-                context: {
-                  source: "my-group"
-                }
+              {
+                "my-group/foo": "321"
               }
-            }
+            ]
           ],
           accountTraits: [
-            {
-              claims: {
+            [
+              {
                 id: "abc"
               },
-              claimsOptions: undefined,
-              traits: {
-                attributes: {
-                  accountFoo: "accountBar"
-                },
-                context: {
-                  source: "foo"
-                }
+              {
+                "foo/accountFoo": "accountBar"
               }
-            },
-            {
-              claims: {
+            ],
+            [
+              {
                 external_id: "external"
               },
-              claimsOptions: undefined,
-              traits: {
-                attributes: {
-                  linkedAccountFoo: "linkedAccountBar"
-                },
-                context: undefined
-              }
-            }
+              { linkedAccountFoo: "linkedAccountBar" }
+            ]
           ],
           events: [
             {
               claims: {
                 id: "123"
               },
-              claimsOptions: undefined,
               event: {
                 eventName: "event_name",
                 properties: {
@@ -510,16 +447,14 @@ module.exports = [
             }
           ],
           accountLinks: [
-            {
-              claims: {
+            [
+              {
                 id: "123"
               },
-              claimsOptions: undefined,
-              accountClaimsOptions: undefined,
-              accountClaims: {
+              {
                 external_id: "external"
               }
-            }
+            ]
           ],
           success: true,
           isAsync: false
@@ -534,10 +469,7 @@ module.exports = [
         },
         {
           attributes: {
-            foo: "321"
-          },
-          context: {
-            source: "my-group"
+            "my-group/foo": "321"
           }
         }
       ],
@@ -550,10 +482,7 @@ module.exports = [
         },
         {
           attributes: {
-            accountFoo: "accountBar"
-          },
-          context: {
-            source: "foo"
+            "foo/accountFoo": "accountBar"
           }
         }
       ],
@@ -567,8 +496,7 @@ module.exports = [
         {
           attributes: {
             linkedAccountFoo: "linkedAccountBar"
-          },
-          context: undefined
+          }
         }
       ],
       [
@@ -592,10 +520,11 @@ module.exports = [
     ],
     metrics: [
       ["increment", "connector.request", 1],
-      ["increment", "ship.incoming.event", 1],
+      ["increment", "ship.service_api.call", 1],
       ["increment", "ship.incoming.users", 1],
       ["increment", "ship.incoming.accounts", 2],
-      ["increment", "ship.incoming.account", 1]
+      ["increment", "ship.incoming.account", 1],
+      ["increment", "ship.incoming.event", 1]
     ],
     firehoseEvents: [
       identify({
@@ -656,8 +585,7 @@ module.exports = [
             },
             traits: {
               customerioid: "4567"
-            },
-            context: undefined
+            }
           },
           method: "POST",
           params: {},
@@ -673,17 +601,14 @@ module.exports = [
           logsForLogger: [],
           errors: [],
           userTraits: [
-            {
-              claims: {
+            [
+              {
                 id: "123"
               },
-              claimsOptions: undefined,
-              traits: {
-                attributes: {
-                  customerioid: "4567"
-                }
+              {
+                customerioid: "4567"
               }
-            }
+            ]
           ],
           accountTraits: [],
           events: [
@@ -691,7 +616,6 @@ module.exports = [
               claims: {
                 id: "123"
               },
-              claimsOptions: undefined,
               event: {
                 eventName: "test",
                 properties: {
@@ -716,8 +640,7 @@ module.exports = [
         {
           attributes: {
             customerioid: "4567"
-          },
-          context: undefined
+          }
         }
       ],
       [
@@ -793,18 +716,12 @@ module.exports = [
           errors: [],
           userTraits: [],
           accountTraits: [
-            {
-              claims: {
+            [
+              {
                 external_id: "123"
               },
-              claimsOptions: undefined,
-              accountClaimsOptions: undefined,
-              traits: {
-                attributes: {
-                  customerioid: "4567"
-                }
-              }
-            }
+              { customerioid: "4567" }
+            ]
           ],
           events: [],
           accountLinks: [],
@@ -874,19 +791,15 @@ module.exports = [
           errors: [],
           userTraits: [],
           accountTraits: [
-            {
-              claims: {
+            [
+              {
                 external_id: "123"
               },
-              claimsOptions: undefined,
-              accountClaimsOptions: undefined,
-              traits: {
-                attributes: {
-                  foo: null,
-                  bar: "baz"
-                }
+              {
+                foo: null,
+                bar: "baz"
               }
-            }
+            ]
           ],
           events: [],
           accountLinks: [],
@@ -926,7 +839,7 @@ module.exports = [
   {
     title: "Should properly store multiple calls",
     code: `
-      const user = hull.asUser({ id:body.id });
+      const user = hull.asUser({ id: body.id });
       user.traits({ foo: body.foo })
       user.traits({ foo: body.bar })
   `,
@@ -959,48 +872,12 @@ module.exports = [
           logs: [],
           logsForLogger: [],
           errors: [],
-          userTraits: [
-            {
-              claims: {
-                id: "123"
-              },
-              claimsOptions: undefined,
-              traits: {
-                attributes: {
-                  foo: "foo"
-                }
-              }
-            },
-            {
-              claims: {
-                id: "123"
-              },
-              claimsOptions: undefined,
-              traits: {
-                attributes: {
-                  foo: "bar"
-                }
-              }
-            }
-          ],
+          userTraits: [[{ id: "123" }, { foo: "bar" }]],
           accountTraits: [],
           events: [],
           accountLinks: [],
           success: true,
           isAsync: false
-        }
-      ],
-      [
-        "info",
-        "incoming.user.success",
-        {
-          subject_type: "user",
-          user_id: "123"
-        },
-        {
-          attributes: {
-            foo: "foo"
-          }
         }
       ],
       [
@@ -1020,16 +897,9 @@ module.exports = [
     metrics: [
       ["increment", "connector.request", 1],
       ["increment", "ship.service_api.call", 1],
-      ["increment", "ship.incoming.users", 2]
+      ["increment", "ship.incoming.users", 1]
     ],
     firehoseEvents: [
-      identify({
-        subjectType: "user",
-        claims: { id: "123" },
-        attributes: {
-          foo: "foo"
-        }
-      }),
       identify({
         subjectType: "user",
         claims: { id: "123" },

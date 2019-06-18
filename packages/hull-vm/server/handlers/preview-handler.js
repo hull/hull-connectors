@@ -8,13 +8,7 @@ import type {
 
 import { compute } from "hull-vm";
 import type { PreviewRequest } from "../../types";
-
-const serialize = result => ({
-  ...result,
-  userTraits: Array.from(result.userTraits),
-  accountTraits: Array.from(result.accountTraits),
-  accountLinks: Array.from(result.accountLinks)
-});
+import serialize from "../serialize";
 
 export default async function computeHandler(
   ctx: HullContext,

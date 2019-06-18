@@ -39,6 +39,7 @@ export default async function compute(
   };
   const frozen = {
     ...payload,
+    ...LIBS,
     hull: getHullContext(client, result, claims),
     console: getConsole(result, preview),
     connector,
@@ -50,14 +51,7 @@ export default async function compute(
       sandbox
       // , timeout: 1000 //TODO: Do we want to enforce a timeout here? what about Promises.
     });
-    _.map(LIBS, (lib, key) => {
-      console.log("Freezing", key);
-      vm.freeze(lib, key);
-    });
-    _.map(frozen, (lib, key) => {
-      console.log("Freezing", key);
-      vm.freeze(lib, key);
-    });
+    _.map(frozen, (lib, key) => vm.freeze(lib, key));
     vm.run(`responses = (function() { "use strict"; ${code} }());`);
   } catch (err) {
     result.errors.push(err.stack.split("at ContextifyScript")[0]);

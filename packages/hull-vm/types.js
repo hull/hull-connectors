@@ -77,18 +77,30 @@ export type Result = {
   isAsync: boolean,
   success: boolean
 };
+export type SerializedResult = {
+  logsForLogger: Array<string>,
+  logs: Array<string | any>,
+  errors: Array<string>,
+  userTraits: Array<[HullUserClaims, Attributes]>,
+  accountTraits: Array<[HullAccountClaims, Attributes]>,
+  events: Array<Event>,
+  accountLinks: Array<[HullUserClaims, HullAccountClaims]>,
+  isAsync: boolean,
+  success: boolean
+};
+
 
 export type PreviewRequest = {
   payload: Payload,
   code: string
 };
-export type PreviewResponse = Result;
+export type PreviewResponse = SerializedResult;
 
 export type Entry = {
   connectorId: string,
   code: string,
   payload: Payload,
-  result: Result,
+  result: SerializedResult,
   date: string,
   editable?: boolean
 };

@@ -3,6 +3,7 @@ import _ from "lodash";
 import type { HullContext } from "hull";
 import { callLinks, callEvents, callTraits } from "./side-effects";
 import type { Payload, Result } from "../types";
+import serialize from "./serialize";
 
 const debug = require("debug")("hull-incoming-webhooks:ingest");
 
@@ -34,7 +35,7 @@ export default async function ingest(
 
   const promises = [];
 
-  client.logger.info("compute.user.debug", result);
+  client.logger.info("compute.user.debug", serialize(result));
 
   // Update user traits
   if (_.size(userTraits)) {
@@ -74,7 +75,14 @@ export default async function ingest(
 
   // Link accounts with users
   if (_.size(accountLinks)) {
-    promises.push(callLinks(client.asUser, accountLinks, "account", metric));
+    promises.push(
+      callLinks({
+        hullClient: client.asUser,
+        data: accountLinks,
+        entity: "account",
+        metric
+      })
+    );
   }
 
   if (errors && errors.length > 0) {

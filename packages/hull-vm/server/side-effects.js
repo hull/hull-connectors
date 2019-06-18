@@ -32,7 +32,7 @@ export const callTraits = async ({
   let successful = 0;
   try {
     const responses = await Promise.all(
-      Array.from(data, async ([attributes, claims]) => {
+      Array.from(data, async ([claims, attributes]) => {
         const client = hullClient(claims);
         try {
           await client.traits(attributes);
@@ -92,16 +92,21 @@ export const callEvents = async ({
   }
 };
 
-export const callLinks = async (
+export const callLinks = async ({
+  hullClient,
+  data,
+  entity,
+  metric
+}: {
   hullClient: $PropertyType<HullClient, "asUser">,
-  data: Array<Links> = [],
-  entity: string = "account",
+  data: $PropertyType<Result, "accountLinks">,
+  entity: "account",
   metric: $PropertyType<HullContext, "metric">
-): Promise<any> => {
+}): Promise<any> => {
   try {
     let successful = 0;
     const responses = await Promise.all(
-      data.map(async ({ claims, accountClaims }) => {
+      Array.from(data, async ([claims, accountClaims]) => {
         const client = hullClient(claims);
         try {
           successful += 1;
