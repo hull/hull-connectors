@@ -20,9 +20,9 @@ const renderAccountClaim = claims => `hull.asAccount(${short(claims)})`;
 
 const renderTraits = claimRender => ([claims, attributes]) => `${claimRender(
   claims
-)}.traits(${nice(attributes)});
+)}.traits(${short(attributes)});
 `;
-const renderShortTraits = ([claims, attributes]) => `traits(${nice(
+const renderShortTraits = ([claims, attributes]) => `traits(${short(
   attributes
 )});
 `;
@@ -39,7 +39,7 @@ const mapTraits = method =>
   );
 
 const renderStringOrObject = (i: string | {} | Array<any>) =>
-  _.isString(i) ? i : nice(i);
+  _.isString(i) ? i : short(i);
 
 const renderLogs = fp.flow(
   fp.map(renderStringOrObject),
@@ -48,21 +48,22 @@ const renderLogs = fp.flow(
 
 const mapAccountLinks = fp.flow(
   fp.map(
-    ([claims, accountClaims]) => `/* User */ ${short(claims)}
-/* Account */ ${short(accountClaims)}
+    ([claims, accountClaims]) => `//★ User → ${short(claims)}
+//★ Account → ${short(accountClaims)}
+
 `
   ),
   joinLines
 );
 
 const renderEventBody = ({ eventName, context, properties }) =>
-  `"${eventName}", ${nice(properties)}, ${nice(context)}`;
+  `"${eventName}", ${short(properties)}, ${short(context)}`;
 
-const renderEvent = ({ event, claims }) => `// <--------- Event --------->
+const renderEvent = ({ event, claims }) => `//★ Event →
 ${renderUserClaim(claims)}
 .track(${renderEventBody(event)});
 `;
-const renderScopedEvent = ({ event }) => `// <--------- Event --------->
+const renderScopedEvent = ({ event }) => `//★ Event →
 track(${renderEventBody(event)});
 `;
 
@@ -118,7 +119,7 @@ const Preview = ({ result, scoped }: Props) => {
       {_.map(_.pickBy(output, v => !!v), (v, k) => (
         <Fragment key={k}>
           <CodeTitle title={k} />
-          <Area id={`code-${k}`} value={v} type="info" mode="javascript" />
+          <Area id={`code-${k}`} value={v} type="info" mode={k==="User-Account Links" ? "text" :"javascript"} />
         </Fragment>
       ))}
       <CodeTitle title="Console" />

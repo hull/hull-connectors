@@ -17,6 +17,7 @@ import AceEditor from "react-ace";
 
 ace.require("ace/keyboard/sublime");
 ace.require("ace/mode/javascript");
+ace.require("ace/mode/markdown");
 ace.require("ace/mode/json");
 ace.require("ace/mode/text");
 
