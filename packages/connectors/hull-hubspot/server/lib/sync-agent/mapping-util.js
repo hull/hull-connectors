@@ -560,10 +560,16 @@ class MappingUtil {
       hubspotWriteCompany.objectId = message.account["hubspot/id"].toString();
     }
 
-    hubspotWriteCompany.properties.push({
-      name: "domain",
-      value: message.account.domain
+    const domainProperties = _.filter(hubspotWriteCompany.properties, {
+      name: "domain"
     });
+
+    if (domainProperties.length === 0) {
+      hubspotWriteCompany.properties.push({
+        name: "domain",
+        value: message.account.domain
+      });
+    }
 
     return hubspotWriteCompany;
   }

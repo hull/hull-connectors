@@ -9,7 +9,13 @@ process.env.OVERRIDE_HUBSPOT_URL = "";
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_account_segments: ["hullSegmentId"]
+    synchronized_account_segments: ["hullSegmentId"],
+    outgoing_account_attributes: [
+      {
+        "hull": "domain",
+        "service": "domain"
+      }
+    ],
   }
 };
 const accountsSegments = [
@@ -41,11 +47,11 @@ it("should send out a new hull account to hubspot", () => {
         });
         scope.post("/companies/v2/companies/?auditId=Hull", {
           "properties": [{
-            "name": "hull_segments",
-            "value": "testSegment"
-          }, {
             "name": "domain",
             "value": "hull.io"
+          },{
+            "name": "hull_segments",
+            "value": "testSegment"
           }]
         }).reply(200, require("../fixtures/post-companies"));
         return scope;
@@ -87,11 +93,12 @@ it("should send out a new hull account to hubspot", () => {
           {
             hubspotWriteCompany: {
               "properties": [{
-                "name": "hull_segments",
-                "value": "testSegment"
-              }, {
                 "name": "domain",
                 "value": "hull.io"
+              },
+              {
+                "name": "hull_segments",
+                "value": "testSegment"
               }]
             },
             operation: "insert"
