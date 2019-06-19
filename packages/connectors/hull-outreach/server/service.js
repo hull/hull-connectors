@@ -255,7 +255,7 @@ const service: RawRestApi = {
 
       {
         truthy: { status: 404 },
-        errorType: TransientError,
+        errorType: SkippableError,
         message: MESSAGES.INTERNAL_SERVICE_ERROR,
         retryAttempts: 2
       },
