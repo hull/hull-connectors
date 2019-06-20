@@ -23,7 +23,7 @@
   "settings_sections": [
     {
       "title": "Webhook URL",
-      "description": "Setup your Front by pasting your Front API Key AND by setting up webhooks",
+      "description": "Setup your Front Connector by pasting your Front API Key AND by setting up webhooks",
       "step": "credentials",
       "properties": [
         "private_settings.api_key",
@@ -37,7 +37,7 @@
       "name": "credentials",
       "format": "credentials",
       "title": "Webhook URL",
-      "description": "Checkout [https://help.frontapp.com/t/x129yt/how-to-enable-and-use-the-webhooks-integration](https://help.frontapp.com/t/x129yt/how-to-enable-and-use-the-webhooks-integration) to setup your Webhook make sure to select **Send Full event data** in your Front webhook configuration",
+      "description": "Checkout This connector's Documentation to setup Front, and make sure to select **Send Full event data** in your Front webhook configuration",
       "handler": "credentialsHandler"
     }
   ],

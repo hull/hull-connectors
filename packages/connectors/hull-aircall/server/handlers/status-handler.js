@@ -17,12 +17,5 @@ export default async function statusCheck(
 ): HullStatusResponse {
   const { connector } = ctx;
   const { private_settings = {} } = connector;
-  const { api_id, api_token } = private_settings;
-  if (!api_token || !api_id) {
-    return {
-      messages: ["Missing API Key, Please enter the Aircall API ID and Token in the Settings"],
-      status: "setupRequired"
-    }
-  }
   return { messages: [], status: "ok" };
 }

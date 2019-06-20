@@ -44,3 +44,5 @@ Please refer to the [Front docs](https://dev.frontapp.com/) to see what each fie
 3. Select the following: `Inbound Message` `Outbound Message` `Outbound Reply` `Reminder Activated` `Conversation Assigned` `Conversation Unassigned` `Conversation tagged` `Conversation untagged` `Message delivery failed`
 4. Copy the URL from the Connector's Settings tab, select `Send to a webhook`, and paste the Hull URL you copied in the `Then` section
 ![](./rule.png)
+
+See Front's [docs here](https://help.frontapp.com/t/x129yt/how-to-enable-and-use-the-webhooks-integration) if you need more help, or contact us!
