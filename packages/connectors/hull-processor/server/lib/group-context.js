@@ -30,7 +30,7 @@ export type HullElasticContext = {
   useragent?: string
 };
 
-const unflatify = ({
+const group = ({
   browser_major,
   browser_name,
   browser_version,
@@ -103,4 +103,4 @@ const unflatify = ({
     path: page_path
   }
 });
-export default unflatify;
+export default group;

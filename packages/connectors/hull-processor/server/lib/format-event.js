@@ -7,8 +7,8 @@ import type {
 } from "hull";
 import _ from "lodash";
 import CONSTANTS from "./constants";
-import type { HullElasticContext } from "./unflatify-context";
-import unflatify_context from "./unflatify-context";
+import type { HullElasticContext } from "./group-context";
+import group_context from "./group-context";
 
 type EventResponse = {
   data: Array<HullEvent>,
@@ -50,7 +50,7 @@ export const formatEvent = (e: HullElasticEvent): HullEvent => {
     properties,
     event_source: source,
     event_type: type,
-    context: unflatify_context(context)
+    context: group_context(context)
   };
 };
 export const isVisible = ({ event }: HullEvent) =>

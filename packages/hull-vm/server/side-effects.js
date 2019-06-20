@@ -42,6 +42,9 @@ export const callTraits = async ({
           });
         } catch (err) {
           return client.logger.error(`incoming.${entity}.error`, {
+            hull_summary: `Error saving Attributes: ${err.message ||
+              "Unexpected error"}`,
+            [entity]: claims,
             errors: err
           });
         }
@@ -71,12 +74,14 @@ export const callEvents = async ({
           successful += 1;
           await client.track(eventName, properties, {
             ip: "0",
-            source: "incoming-webhook",
+            source: "code",
             ...context
           });
-          return client.logger.info(`incoming.${entity}.success`);
+          return client.logger.info("incoming.event.success");
         } catch (err) {
-          return client.logger.error(`incoming.${entity}.error`, {
+          return client.logger.error("incoming.event.error", {
+            hull_summary: `Error processing Event: ${err.message ||
+              "Unexpected error"}`,
             user: claims,
             errors: err,
             event
@@ -114,6 +119,8 @@ export const callLinks = async ({
           return client.logger.info(`incoming.${entity}.link.success`);
         } catch (err) {
           return client.logger.error(`incoming.${entity}.link.error`, {
+            hull_summary: `Error Linking User and account: ${err.message ||
+              "Unexpected error"}`,
             user: claims,
             account: accountClaims,
             errors: err
