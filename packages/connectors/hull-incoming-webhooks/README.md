@@ -10,7 +10,7 @@ End-Users: [See Readme here](https://dashboard.hullapp.io/readme?url=https://hul
 
 ### Usage
 
-- Go to your `Hull Dashboard > Ships > Add new`
+- Go to your `Hull Dashboard > Connectors > Add new`
 - Paste the URL for your Heroku deployment, or use ours : `https://hull-incoming-webhooks.herokuapp.com/`
 
 For further information, see [Instructions](/assets/README.md).

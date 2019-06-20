@@ -12,7 +12,7 @@
 
 ### For each of those events, we capture the following properties:
 
- field Name | field Value
+ Field Name | Field Value
 -------|------------------------------------
 status | "initial" / "answered" / "done"
 direction | "inbound" / "outbound"
