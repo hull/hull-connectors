@@ -183,9 +183,9 @@ export const getClaims = (preferred_email: string) => (
   }
   const { emails, id } = contact;
   const email = (
-    (preferred_email
-      ? _.find(emails, e => e.label === preferred_email)
-      : _.first(emails)) || {}
+    _.find(emails, e => e.label === preferred_email) ||
+    _.first(emails) ||
+    {}
   ).value;
   if (email) {
     return { anonymous_id: `aircall-${id}`, email };

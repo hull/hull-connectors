@@ -11,8 +11,8 @@
   "version": "0.3.0",
   "private_settings": [
     {
-      "title": "Preferred email",
-      "description": "Enter the label of the email you want to use as the main identifier. If absent from contact. we'll fetch the first email we find",
+      "title": "Preferred email Label",
+      "description": "Enter the label of the email you want to use as the main identifier (For instance 'Work' or 'Main'). If contact doesn't have it, we'll fetch the first email we find",
       "name": "preferred_email",
       "format": "string",
       "type": "string"
@@ -31,7 +31,7 @@
     },
     {
       "title": "Configuration",
-      "description": "Configure how we resolve and capture data",
+      "description": "Configure how we resolve identites and associate events to Users",
       "properties": [
         "private_settings.preferred_email"
       ]
