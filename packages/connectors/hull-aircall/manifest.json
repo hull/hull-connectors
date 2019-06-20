@@ -1,0 +1,75 @@
+{
+  "name": "Aircall",
+  "description": "Capture Aircall Events",
+  "tags": [
+    "incoming",
+    "oneColumn"
+  ],
+  "picture": "picture.png",
+  "ui": false,
+  "readme": "readme.md",
+  "version": "0.3.0",
+  "private_settings": [
+    {
+      "title": "Preferred email",
+      "description": "Enter the label of the email you want to use as the main identifier. If absent from contact. we'll fetch the first email int the list",
+      "name": "preferred_email",
+      "format": "string",
+      "type": "string"
+    }
+  ],
+  "resources": [],
+  "subscriptions": [],
+  "settings_sections": [
+    {
+      "title": "Credentials",
+      "description": "Setup Aircall setting up webhooks",
+      "step": "credentials",
+      "properties": [
+        "json.credentials"
+      ]
+    },
+    {
+      "title": "Configuration",
+      "description": "Configure how we resolve and capture data",
+      "properties": [
+        "private_settings.preferred_email"
+      ]
+    }
+  ],
+  "json": [
+    {
+      "url": "/url",
+      "name": "credentials",
+      "format": "credentials",
+      "title": "Webhook URL",
+      "description": "Checkout [https://help.frontapp.com/t/x129yt/how-to-enable-and-use-the-webhooks-integration](https://help.frontapp.com/t/x129yt/how-to-enable-and-use-the-webhooks-integration) to setup your Webhook make sure to select **Send Full event data** in your Front webhook configuration",
+      "handler": "credentialsHandler"
+    }
+  ],
+  "incoming": [
+    {
+      "url": "/webhooks/:connectorId/:token",
+      "handler": "incomingHandler"
+    },
+    {
+      "url": "/webhooks/:connectorId",
+      "handler": "incomingHandler"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "cron",
+    "value": "*/30 * * * *",
+    "handler": "statusHandler"
+  },
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "cron",
+      "value": "*/30 * * * *",
+      "handler": "statusHandler"
+    }
+  ]
+}
