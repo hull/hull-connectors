@@ -6,7 +6,7 @@ import httpClient from "../utils/httpclient";
  * This middleware is responsible for setting HullContextBase - the base part of the context.
  */
 
-export default function httpClientMiddlewareFactory() {
+module.exports = function httpClientMiddlewareFactory() {
   return function httpClientMiddleware(
     req: HullRequest,
     res: HullResponse,

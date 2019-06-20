@@ -18,7 +18,8 @@ const {
   timeoutMiddleware,
   haltOnTimedoutMiddleware,
   instrumentationContextMiddleware,
-  instrumentationTransientErrorMiddleware
+  instrumentationTransientErrorMiddleware,
+  httpClientMiddleware
 } = require("../middlewares");
 
 export default function getRouter({
@@ -83,6 +84,8 @@ export default function getRouter({
   // @TODO - can we leave both middlewares active and have the second one gracefully handle this ?
   // @TODO: why wouldn't we strict with the fullContextFetchMiddleware ?
   router.use(fullContextFetchMiddleware({ requestName /* , strict */ }));
+
+  router.use(httpClientMiddleware());
 
   afterMiddlewares.map(m => m && router.use(m));
 
