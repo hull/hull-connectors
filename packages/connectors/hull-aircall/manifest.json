@@ -43,7 +43,7 @@
       "name": "credentials",
       "format": "credentials",
       "title": "Webhook URL",
-      "description": "Copy this webhook and install it in [Aircall's dashboard](https://dashboard-v2.aircall.io/integrations) to setup your Webhook make sure to select **Send Full event data** in your Front webhook configuration",
+      "description": "Copy this webhook and install it in [Aircall's dashboard](https://dashboard-v2.aircall.io/integrations) to setup your Webhook. Read this connector's Docs for detailed instructions",
       "handler": "credentialsHandler"
     }
   ],
