@@ -32,7 +32,10 @@ function fullContextBodyMiddlewareFactory({
         req.body === undefined ||
         typeof req.body !== "object"
       ) {
-        return next(new Error("Body must be a json object"));
+        if (strict) {
+          return next(new Error("Body must be a json object"));
+        }
+        return next();
       }
       const { body } = req;
 

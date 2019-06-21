@@ -32,7 +32,7 @@ function statusHandlerFactory(
     options: {
       credentialsFromQuery: true,
       credentialsFromNotification: false,
-      respondWithError: true,
+      respondWithError: false,
       strict: false,
       ...options
     },

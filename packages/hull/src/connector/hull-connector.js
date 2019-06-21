@@ -153,6 +153,7 @@ class HullConnector {
       cacheConfig,
       queue,
       clientConfig,
+      jsonConfig,
       serverConfig,
       workerConfig,
       httpClientConfig,
@@ -180,6 +181,7 @@ class HullConnector {
     this.cache = new Cache(this.cacheConfig);
     this.workerConfig = workerConfig || {};
     this.httpClientConfig = httpClientConfig || {};
+    this.jsonConfig = { limit: "10mb", strict: false, ...jsonConfig };
     this.serverConfig = serverConfig || { start: true };
     this.Client = dependencies.Client;
     this.Worker = dependencies.Worker;
@@ -196,6 +198,7 @@ class HullConnector {
       clientConfig: this.clientConfig,
       workerConfig: this.workerConfig,
       httpClientConfig: this.httpClientConfig,
+      jsonConfig: this.jsonConfig,
       serverConfig: this.serverConfig,
       metricsConfig: this.metricsConfig,
       logsConfig: this.logsConfig,

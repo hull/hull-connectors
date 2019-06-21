@@ -343,6 +343,7 @@ export type HullConnectorConfig = {
   cacheConfig?: HullCacheConfig,
   httpClientConfig?: HullHTTPClientConfig,
   logsConfig?: HullLogsConfig,
+  jsonConfig?: HullJsonConfig,
   hostSecret: string,
   port: number | string,
   connectorName?: string,
@@ -351,7 +352,6 @@ export type HullConnectorConfig = {
   timeout?: number | string,
   disableOnExit?: boolean,
   devMode?: boolean,
-  json?: HullJsonConfig,
   instrumentation?: Instrumentation,
   queue?: void | Queue,
   handlers:
