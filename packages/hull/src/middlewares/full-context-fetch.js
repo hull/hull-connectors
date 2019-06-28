@@ -1,6 +1,6 @@
 // @flow
 import type { NextFunction } from "express";
-import type { HullRequest, HullResponse } from "../types";
+import type { HullRequest, HullContext, HullResponse } from "../types";
 
 const debug = require("debug")("hull-connector:full-context-fetch-middleware");
 
@@ -53,6 +53,32 @@ function fetchSegments(ctx, entityType = "user") {
   );
 }
 
+function fetchEventSchema(ctx: HullContext) {
+  debug("fetchSegments");
+  if (ctx.client === undefined) {
+    return Promise.reject(new Error("Missing client"));
+  }
+  if (ctx.eventSchema) {
+    return Promise.resolve(ctx.eventSchema);
+  }
+  const { id } = ctx.client.configuration();
+  return ctx.cache.wrap(
+    "/search/event/bootstrap",
+    () => {
+      if (ctx.client === undefined) {
+        return Promise.reject(new Error("Missing client"));
+      }
+      debug("fetchEventSchema - calling API");
+      return ctx.client.get(
+        "/search/event/bootstrap",
+        {
+          timeout: 5000,
+          retry: 1000
+        }
+      );
+    },
+    { ttl: 60000 }
+  );}
 /**
  * This middleware is responsible for fetching all information
  * using initiated `req.hull.client`.

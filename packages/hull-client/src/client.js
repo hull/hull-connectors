@@ -18,6 +18,8 @@ import type {
   HullClientStaticLogger
 } from "./types";
 
+import { searchUser, searchAccount } from "../../hull/src/utils/get-entity";
+
 const _ = require("lodash");
 const winston = require("winston");
 const uuidV4 = require("uuid/v4");

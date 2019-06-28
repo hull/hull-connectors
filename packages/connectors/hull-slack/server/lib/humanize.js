@@ -1,5 +1,5 @@
 // @noflow
-module.exports = str =>
+module.exports = (str: string) =>
   str
     .replace(/_/g, " ")
     .trim()

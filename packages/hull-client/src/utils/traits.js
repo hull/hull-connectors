@@ -1,19 +1,18 @@
 // @flow
 import type {
+  HullUserAttributes,
+  HullAccountAttributes,
   HullAttributeName,
+  HullAttributeContext,
   HullAttributeValue,
   HullEntity,
-  HullEntityAttributes
+  HullUser,
+  HullAccount,
+  HullEntityAttributes,
+  HullGrouped
 } from "../types";
 
 const _ = require("lodash");
-
-type HullEntityNested = {
-  ...HullEntity,
-  [HullAttributeName]: {
-    [HullAttributeName]: HullAttributeValue
-  }
-};
 
 /**
  * The Hull API returns traits in a "flat" format, with '/' delimiters in the key.
@@ -56,10 +55,10 @@ type HullEntityNested = {
  *   }
  * };
  */
-function group(user: HullEntity): HullEntityNested {
-  return _.reduce(
-    user,
-    (grouped, value, key) => {
+const group = <+T: HullUser | HullAccount>(entity: T): HullGrouped<T> =>
+  _.reduce(
+    entity,
+    (grouped, value, key: string) => {
       let dest = key;
       if (key.match(/^traits_/)) {
         if (key.match(/\//)) {
@@ -72,10 +71,9 @@ function group(user: HullEntity): HullEntityNested {
     },
     {}
   );
-}
 
 // Creates a flat object from `/` and `source` parameters
-function applyContext(attributes: Object, context: Object): Object {
+function applyContext(attributes: HullUserAttributes | HullAccountAttributes, context: HullAttributeContext): Object {
   const payload = {};
   if (attributes) {
     const { source } = context;

@@ -10,15 +10,16 @@ import userUpdateFactory from "./user-update";
 import connectorUpdateFactory from "./connector-update";
 import socketFactory from "../lib/socket-factory";
 import sendPayloadFactory from "../lib/send-payload";
-import adminHandler from "./admin-handler";
+import credentialsHandler from "./credentials-handler";
 
 bluebird.promisifyAll(Redis.RedisClient.prototype);
 bluebird.promisifyAll(Redis.Multi.prototype);
 
-const handlers = ({ redisUri }: { redisUri: string }) => (
+const handlers = ({ redisUri }: { redisUri: string }) => async (
   connector: Connector
 ): HullHandlersConfiguration => {
-  const { server, Client } = connector;
+  const { server, Client, getContext } = connector;
+  // const ctx = await getContext({ token: "xxx" });
   const redis = Redis.createClient(redisUri);
   const store = Store(redis);
   const io = SocketIO(server, {
@@ -27,27 +28,25 @@ const handlers = ({ redisUri }: { redisUri: string }) => (
   }).adapter(socketIOredis(redisUri));
   const sendPayload = sendPayloadFactory({ io });
   const onConnection = socketFactory({
-    Client,
+    getContext,
     store,
     sendPayload
   });
   const connectorUpdate = connectorUpdateFactory({ store, onConnection, io });
   const userUpdate = userUpdateFactory({ connectorUpdate, sendPayload, store });
 
+  console.log("returning")
   return {
+    subscriptions: {
+      connectorUpdate,
+      userUpdate
+    },
     statuses: {
       statusHandler: statusHandlerFactory({ store })
     },
-    tabs: {
-      adminHandler
+    json: {
+      credentialsHandler
     },
-    subscriptions: {
-      connectorUpdate
-    },
-    notifications: {
-      connectorUpdate,
-      userUpdate
-    }
   };
 };
 

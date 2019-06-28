@@ -1,0 +1,113 @@
+<html><head>
+    <title>Hull Clearbit</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="/select2.css" rel="stylesheet" />
+    <script src="/index.js"></script>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <div class="row mt-1">
+        <div class="col-sm-12 text-center">
+          <h1 class="mb-0 mt-05">
+            <i class="icon icon-hull" style="font-size:64px;"></i>
+          </h1>
+        </div>
+      </div>
+      <div class="row mt-1">
+        <div class="col-sm-4">
+          <div class="panel panel-default">
+            <div class="panel-heading text-center">
+              <h5 class="uppercase text-accented mt-05 mb-05">Search for new leads</h5>
+            </div>
+            <div class="panel-body">
+              <div class="mb-1">
+                <form id="prospect-form">
+                <!-- role, seniority, titles -->
+
+                  <div class="form-group">
+                    <label for="domains">Domains (required)</label>
+                    <textarea name="domains" id="domains" rows="5" class="form-control"></textarea>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="titles">Title (required)</label>
+                    <select name="titles" id="titles" class="form-control" multiple="multiple"></select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="role">Role</label>
+                    <select name="role" id="role" rows="5" class="form-control" multiple="multiple">
+                      <option value="">any</option>
+                      <option>ceo</option>
+                      <option>communications</option>
+                      <option>consulting</option>
+                      <option>customer_service</option>
+                      <option>education</option>
+                      <option>engineering</option>
+                      <option>finance</option>
+                      <option>founder</option>
+                      <option>health_professional</option>
+                      <option>human_resources</option>
+                      <option>information_technology</option>
+                      <option>legal</option>
+                      <option>marketing</option>
+                      <option>operations</option>
+                      <option>owner</option>
+                      <option>president</option>
+                      <option>product</option>
+                      <option>public_relations</option>
+                      <option>real_estate</option>
+                      <option>recruiting</option>
+                      <option>research</option>
+                      <option>sales</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="seniority">Seniority</label>
+                    <select name="seniority" id="seniority" rows="5" class="form-control" multiple="multiple">
+                      <option value="">any</option>
+                      <option>executive</option>
+                      <option>director</option>
+                      <option>manager</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="limit">Limit (per domain)</label>
+                    <input type="number" name="limit" id="limit" class="form-control" value="10"></select>
+                  </div>
+
+                  <button type="submit" id="prospect" class="btn btn-block btn-primary">Prospect</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-8" id="results">
+          <div class="panel panel-default">
+            <div class="panel-heading text-center">
+              <h5 class="uppercase text-accented mt-05 mb-05">
+                Prospected results
+              </h5>
+            </div>
+            <div class="panel-body text-center pb-1 pt-1">
+              Search for prospects on the left and they will be imported as users
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <style type="text/css" media="screen">
+      .table {
+        font-size: 14px;
+      }
+      .select2-search:before {
+        display: none;
+      }
+      .select2-search {
+        z-index: auto;
+      }
+    </style>
+  </body>
+</html>

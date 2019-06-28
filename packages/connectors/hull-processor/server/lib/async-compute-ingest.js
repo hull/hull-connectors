@@ -31,6 +31,10 @@ const asyncComputeAndIngest = async (
       payload,
       code
     });
+    // const changed = {
+    //   userTraits,
+    //   accountTraits
+    // }
     return await ingest(ctx, result);
   } catch (err) {
     client.logger.error(`incoming.${entity}.error`, {

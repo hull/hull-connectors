@@ -1,0 +1,82 @@
+ {
+      "ip": "88.211.72.10",
+      "domain": "gocardless.com",
+      "fuzzy": true,
+      "company": {
+        "id": "34c52931-a094-4183-8a40-776ed5e10f42",
+        "name": "GoCardless",
+        "legalName": "GoCardless Ltd",
+        "domain": "gocardless.com",
+        "domainAliases": ["gocardless.co.uk", "gocardless.de"],
+        "url": "https://gocardless.com",
+        "site": {
+          "url": "http://gocardless.com",
+          "title": "The easiest way to collect recurring payments - GoCardless",
+          "h1": "Recurring payments made simple",
+          "metaDescription": "GoCardless is the easy way to collect Direct Debit. Already serving more than 20,000 businesses, perfect for recurring billing and B2B invoicing.",
+          "metaAuthor": null,
+          "phoneNumbers": ["+33 9 75 18 42 95", "+44 20 7183 8674", "+33 1 70 37 71 23", "+1 214-442-0600", "+32 78 48 09 94", "+34 911 98 12 20"],
+          "emailAddresses": ["press@gocardless.com", "pete@gocardless.com", "tomp@gocardless.com", "help@gocardless.com", "france@gocardless.com", "security@gocardless.com"]
+        },
+        "category": {
+          "sector": "Financials",
+          "industryGroup": "Diversified Financials",
+          "industry": "Diversified Financial Services",
+          "subIndustry": "Payments"
+        },
+        "tags": ["SAAS", "B2C", "B2B", "Payments", "Finance", "Financial Services"],
+        "description": "GoCardless is the easy way to collect Direct Debit. Already serving more than 20,000 businesses, perfect for recurring billing and B2B invoicing.",
+        "foundedYear": 2011,
+        "location": "346 Goswell Rd, London EC1V 7LQ, UK",
+        "timeZone": "Europe/London",
+        "utcOffset": 0,
+        "geo": {
+          "streetNumber": "346",
+          "streetName": "Goswell Road",
+          "subPremise": null,
+          "city": "London",
+          "postalCode": "EC1V 7LQ",
+          "state": "England",
+          "stateCode": "England",
+          "country": "United Kingdom",
+          "countryCode": "GB",
+          "lat": 51.5306347,
+          "lng": -0.1033079
+        },
+        "logo": "https://logo.clearbit.com/gocardless.com",
+        "facebook": {
+          "handle": "gocardless"
+        },
+        "linkedin": {
+          "handle": "company/gocardless"
+        },
+        "twitter": {
+          "handle": "GoCardless",
+          "id": "322113837",
+          "bio": "GoCardless makes collecting by Direct Debit easy for everyone from individuals to multi-national corporations. help@gocardless.com",
+          "followers": 6746,
+          "following": 328,
+          "location": "London",
+          "site": "https://t.co/vYQMKEBDXc",
+          "avatar": "https://pbs.twimg.com/profile_images/557910701604237313/SrjOfDyz_normal.png"
+        },
+        "crunchbase": {
+          "handle": "organization/gocardless"
+        },
+        "emailProvider": false,
+        "type": "private",
+        "ticker": null,
+        "phone": null,
+        "metrics": {
+          "alexaUsRank": null,
+          "alexaGlobalRank": 30726,
+          "googleRank": null,
+          "employees": 74,
+          "employeesRange": "51-250",
+          "marketCap": null,
+          "raised": 24800000,
+          "annualRevenue": null
+        },
+        "tech": ["google_analytics", "crazy_egg", "double_click", "adroll", "optimizely", "olark", "ruby_on_rails", "vimeo", "nginx", "greenhouse", "cloud_flare"]
+      }
+    }

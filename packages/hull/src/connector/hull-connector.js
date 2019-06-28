@@ -4,6 +4,7 @@ import type { $Application, Middleware } from "express";
 import type { Server } from "http";
 import express from "express";
 import type {
+  HullContext,
   HullServerConfig,
   HullRouteMap,
   HullMetricsConfig,
@@ -29,6 +30,8 @@ import {
 
 import errorHandler from "./error";
 
+const { compose } = require("compose-middleware");
+
 type RouterFactory = any => void | HullRouteMap;
 
 const path = require("path");
@@ -42,6 +45,7 @@ const { Instrumentation, Cache, Queue, Batcher } = require("../infra");
 const { onExit } = require("../utils");
 const {
   workerContextMiddleware,
+  extendedComposeMiddleware,
   baseComposedMiddleware
 } = require("../middlewares");
 
@@ -248,17 +252,17 @@ class HullConnector {
     }
   }
 
-  getHandlers() {
+  async getHandlers() {
     if (this._handlers) {
       return this._handlers;
     }
     this._handlers =
-      typeof this.handlers === "function" ? this.handlers(this) : this.handlers;
+      typeof this.handlers === "function" ? await this.handlers(this) : this.handlers;
     return this._handlers;
   }
 
-  setupRoutes(app: $Application) {
-    const handlers = this.getHandlers();
+  async setupRoutes(app: $Application) {
+    const handlers = await this.getHandlers();
     // Don't use an arrow function here as it changes the context
     // Don't move it out of this closure either
     // https://github.com/expressjs/express/issues/3855
@@ -343,6 +347,7 @@ class HullConnector {
 
     // Setup Tab handlers
     mapRoute(htmlHandler, "tabs", "all", this.manifest.tabs);
+    mapRoute(htmlHandler, "html", "all", this.manifest.html);
 
     // TODO: Alpha-quality Credentials handlers - DO NOT expose both tab oAuth and Credentials
     mapRoute(
@@ -379,6 +384,32 @@ class HullConnector {
       connectorConfig: this.connectorConfig
     });
   }
+
+  getContext = async ({ token }: { token: string }): HullContext => {
+    const composedMiddleware = compose(
+      this.baseComposedMiddleware(),
+      extendedComposeMiddleware({
+        handlerName: "getContext",
+        requestName: "getContext",
+        options: {
+          credentialsFromNotification: false,
+          credentialsFromQuery: true,
+          strict: false,
+        }
+      })
+    );
+    return new Promise((resolve, reject) => {
+      const ctx = { clientCredentialsEncryptedToken: token };
+      const next = (err, req, res) => {
+        if (err instanceof Error) {
+          reject(err);
+        }
+        resolve(ctx);
+      };
+      const noop = () => {};
+      composedMiddleware({ on: noop, emit: noop, headers: [], body: {}, hull: ctx }, {}, next);
+    });
+  };
 
   /**
    * This method applies all features of `Hull.Connector` to the provided application:

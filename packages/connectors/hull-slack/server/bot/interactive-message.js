@@ -2,7 +2,6 @@
 import Hull from "hull";
 import _ from "lodash";
 import fetchEvent from "../hull/fetch-event";
-import fetchUser from "../hull/fetch-user";
 import formatEventProperties from "../lib/format-event-properties";
 import getNotification from "../lib/get-notification";
 
@@ -60,18 +59,21 @@ module.exports = async function interactiveMessage(bot, message) {
     }
 
     if (value === "traits" || value === "events") {
-      const { user, account, events, segments, msg = "" } = await fetchUser({
-        client,
-        search: { id: callback_id },
-        options: { action: { value } }
-      });
-      const payload = await getNotification({
-        client,
-        message: { user, account, events, segments },
-        actions,
-        entity: "user"
-      });
-      bot.replyInteractive(msg, payload);
+      const notification = {}
+      try {
+        const { user, account, events, segments } = await ctx.entities.user.get({
+          claim: callback_id, claimType: "id", entity: "user"
+        })
+        const payload = await getNotification({
+          client,
+          message: { user, account, events, segments },
+          actions,
+          entity: "user"
+        });
+        bot.replyInteractive(msg, payload);
+      } catch(err) {
+        bot.replyInteractive(msg, err.message);
+      }
     }
   }
   return true;

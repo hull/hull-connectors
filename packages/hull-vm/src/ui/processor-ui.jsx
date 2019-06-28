@@ -12,6 +12,7 @@ import Code from "./code";
 import Preview from "./preview";
 import KeyBindings from "./key-bindings";
 import EntrySelector from "./entry-selector";
+import EventSelector from "./event-selector";
 import ConfigurationModal from "./configuration-modal";
 import Area from "./area";
 import Header from "./header";
@@ -96,7 +97,12 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
             <Area id="code-payload" mode="json" value={current.payload} />
           </div>
           <div className="col vm-column">
-            <Header>Write your code below</Header>
+            <Header title="Pick sample Events">
+              <EventSelector
+                loading={computing || initializing}
+                onChange={this.handleUpdateQuery}
+              />
+            </Header>
             <CodeTitle title="Code" />
             <Code
               focusOnLoad={true}

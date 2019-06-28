@@ -1,5 +1,6 @@
 // @flow
 module.exports.baseContextMiddleware = require("./base-context");
+module.exports.extendedComposeMiddleware = require("./extended-composed-middleware");
 module.exports.clientMiddleware = require("./client-middleware");
 
 module.exports.fullContextFetchMiddleware = require("./full-context-fetch");
@@ -16,5 +17,6 @@ module.exports.instrumentationTransientErrorMiddleware = require("./instrumentat
 module.exports.clearConnectorCache = require("./clear-connector-cache-middleware");
 
 module.exports.httpClientMiddleware = require("./httpclient-middleware");
+module.exports.getEntityMiddleware = require("./get-entity");
 module.exports.baseComposedMiddleware = require("./base-composed-middleware");
 module.exports.workerContextMiddleware = require("./worker-context-middleware");

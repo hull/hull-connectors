@@ -52,6 +52,7 @@ export type HullSegmentType = "users_segment" | "accounts_segment";
 export type HullSegment = {
   id: string,
   name: string,
+  type: "users_segment" | "accounts_segment",
   // stats?: {
   //   users?: number,
   //   accounts?: number // is it really there?
@@ -176,6 +177,7 @@ export type HullAccount = {
   anonymous_ids?: ?Array<string>,
   anonymous_id?: ?string, // @TODO: Flow Workaround -> force anonymous_id to be recognized as a ?string, Should be forced on Platform for safety
   name?: ?string,
+  segment_ids?: ?Array<string>,
   [HullAttributeName]: HullAttributeValue
 };
 
@@ -188,6 +190,7 @@ export type HullUser = {
   contact_email?: ?string,
   external_id: ?string,
   anonymous_ids: ?Array<string>,
+  segment_ids: ?Array<string>,
   account?: HullAccount,
   // @TODO: Flow Workaround -> force anonymous_id to be recognized as a ?string, Should be forced on Platform for safety
   anonymous_id?: ?string,
@@ -222,6 +225,12 @@ export type HullEvent = {
   app_name?: string,
   context: HullEventContext,
   properties: HullEventProperties
+};
+
+export type HullClientCredentials = {
+  id: string,
+  secret: string,
+  organization: string
 };
 
 /**
@@ -296,4 +305,53 @@ export type HullProperties = {
     title: string,
     key: string
   }
+};
+
+export type HullGrouped<Entity> = {
+  ...Entity,
+  anonymous_id?: string,
+  [HullAttributeName]: {
+    [HullAttributeName]: HullAttributeValue
+  }
+};
+
+export type HullGroupedUser = HullGrouped<HullUser>;
+export type HullGroupedAccount = HullGrouped<HullAccount>;
+export type HullIncludedEvents = {
+  names?: Array<string>,
+  per_page?: number,
+  page?: number
+};
+export type HullIncludedEntities = {
+  events?: HullIncludedEvents,
+  account?: boolean,
+  users?: boolean
+};
+
+export type HullAPICollectionResponse<T> = {
+  pagination: {
+    next_url: string,
+    last_url: string,
+    total: number,
+    page: number,
+    pages: number,
+    per_page: number
+  },
+  data: Array<T>
+};
+
+export type HullEventSchemaEntry = {
+  created_at: string,
+  name: string,
+  properties: Array<string>,
+  updated_at: string,
+  emitted: boolean
+};
+
+export type HullAttributeSchemaEntry = {
+  key: string,
+  type: "string" | "date" | "boolean" | "event" | "number" | "json",
+  configurable: boolean,
+  visible: boolean,
+  track_changes: boolean
 };

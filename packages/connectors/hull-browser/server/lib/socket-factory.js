@@ -2,7 +2,7 @@
 
 import URI from "urijs";
 import _ from "lodash";
-import type { HullClient, HullEntityScopedClient } from "hull";
+import type { HullClient, HullContextGetter, HullEntityScopedClient } from "hull";
 import fetchUser from "./fetch-user";
 import type { Store } from "../../types";
 
@@ -37,21 +37,24 @@ const isWhitelisted = (domains, hostname) =>
   );
 
 export default function socketFactory({
-  Client,
+  getContext,
   store,
   sendPayload
 }: {
-  Client: Class<HullClient>,
+  getContext: HullContextGetter,
   sendPayload: Object => void,
   store: Store
 }) {
   const { get, lru } = store;
 
   return async function onConnection(socket: any) {
+    const { client } await getContext({
+
+    })
     const logClose = loggerFactory(socket, Client);
     Client.logger.debug("incoming.connection.start", {});
 
-    async function onUserFetch({ connectorId, /* platformId, */ claims = {} }) {
+    async function onUserFetch({ token, /* platformId, */ claims = {} }) {
       if (!_.size(claims)) {
         return logClose(
           "incoming.connection.error",
@@ -64,34 +67,17 @@ export default function socketFactory({
       if (!origin) {
         return logClose(
           "incoming.connection.error",
-          `Not connecting socket: No Origin (${connectorId})`
+          `Not connecting socket: No Origin (${token})`
         );
       }
 
       try {
         // There's probably a simpler way to access a connector ship cache...
-        const cached = await get(connectorId);
-        const { config, ship } = cached;
-
-        if (!cached || !_.size(ship)) {
-          return logClose(
-            "incoming.connection.error",
-            "Cloud not find config in redis cache. will try at next page view"
-          );
-        }
-
-        const { private_settings = {} } = ship;
+        const ctx = await getContext({ token });
+        const { connector, client } = ctx;
+        const { private_settings = {} } = connector;
         const { whitelisted_domains = [] } = private_settings;
-        const client = new Client({ ...config, id: connectorId });
         const userClient = client.asUser(claims, { scopes: ["admin"] });
-
-        // if (platformId) {
-        //   const platform = await lru(connectorId).getOrSet(platformId, () => client.get(platformId), 60000);
-        //   const { domains, id } = platform;
-        //   console.log("///////////////////////////////");
-        //   console.log(id, platform, domains, config)
-        //   console.log("///////////////////////////////");
-        // }
 
         if (!whitelisted_domains.length) {
           return logClose(
@@ -140,7 +126,7 @@ export default function socketFactory({
 
           if (!payload) {
             socket.emit("cache.miss", { connectorId, claims });
-            payload = await fetchUser(userClient);
+            payload = await ctx.entities.user.get({ claims });
           }
 
           if (!payload) {

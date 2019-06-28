@@ -1,0 +1,4 @@
+--exit
+--compilers js:babel-core/register
+--require babel-register
+-R spec

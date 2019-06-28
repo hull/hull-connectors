@@ -10,8 +10,14 @@ import type {
   HullUser,
   HullEvent,
   HullAccount,
+  HullIncludedEvents,
+  HullAPICollectionResponse,
+  HullEventSchemaEntry,
+  HullAttributeSchemaEntry,
   HullClientConfig,
+  HullClientCredentials,
   HullAttributeName,
+  HullIncludedEntities,
   HullAttributeValue
 } from "hull-client";
 
@@ -330,11 +336,7 @@ export type HullCacheConfig =
       max?: number | string,
       min?: numbe | stringr
     };
-export type HullClientCredentials = {
-  id: string,
-  secret: string,
-  organization: string
-};
+
 export type HullConnectorConfig = {
   clientConfig: HullClientConfig,
   serverConfig?: HullServerConfig,
@@ -394,6 +396,21 @@ export type HullContextBase = {
   clientCredentialsToken?: string, // signed (not encrypted) jwt token with HullClient credentials
   clientCredentialsEncryptedToken?: string // encrypted token with HullClient credentials
 };
+
+export type HullClaimType =
+  | "email"
+  | "anonymous_id"
+  | "service_id"
+  | "external_id"
+  | "id";
+
+export type GetEntityParams = {
+  claim: string,
+  claimType?: HullClaimType,
+  service?: string,
+  include?: HullIncludedEntities
+};
+
 export type HullContext = {
   /**
    * Context added to the express app request by hull-node connector sdk.
@@ -409,8 +426,7 @@ export type HullContext = {
   clientCredentialsEncryptedToken: string,
   // connector?: HullConnector,
   connector: HullConnector,
-  // usersSegments?: Array<HullSegment>,
-  // accountsSegments?: Array<HullSegment>
+  accountsSegments: Array<HullSegment>,
   usersSegments: Array<HullUserSegment>,
   accountsSegments: Array<HullAccountSegment>,
   client: Client,
@@ -423,8 +439,27 @@ export type HullContext = {
     settingsUpdate: $Call<typeof settingsUpdate, HullContext>,
     incomingClaims: $Call<typeof incomingClaims, HullContext>,
     extractRequest: $Call<typeof extractRequest, HullContext>
+  },
+  entities: {
+    // events: {
+    //   get: (
+    //     HullIncludedEvents & { parent: string }
+    //   ) => Promise<Array<HullEvent>>,
+    //   getSchema: () => Promise<Array<HullEventSchemaEntry>>
+    // },
+    users: {
+      get: GetEntityParams => Promise<void | HullFetchedUser>,
+      // getSchema: () => Promise<Array<HullAttributeSchemaEntry>>
+    },
+    // accounts: {
+    //   get: GetEntityParams => Promise<void | HullFetchedAccount>,
+    //   getSchema: () => Promise<Array<HullAttributeSchemaEntry>>
+    // }
   }
 };
+export type HullContextGetter = ({
+  token: string
+}) => Promise<HullContext>
 
 // =====================================
 //   Handlers Requests
@@ -533,7 +568,7 @@ export type HullAccountUpdateMessage = {
   changes: HullAccountChanges,
   account_segments: Array<HullAccountSegment>,
   account_segment_ids: Array<string>,
-  matching_account_segments: Array<HullUserSegment>,
+  // matching_account_segments: Array<HullUserSegment>,
   account: HullAccount,
   message_id: string
 };
@@ -598,6 +633,23 @@ export type HullNotification = {
   notification_id: string
 };
 
+export type HullFetchedUser = {
+  user: HullUser,
+  account: HullAccount,
+  segments: Array<HullUserSegment>,
+  segment_ids: Array<string>,
+  account_segments?: Array<HullAccountSegment>,
+  account_segment_ids?: Array<string>,
+  events?: Array<HullEvent>
+};
+
+export type HullFetchedAccount = {
+  account: HullAccount,
+  account_segments: Array<HullAccountSegment>,
+  account_segment_ids: Array<string>
+  // events: Array<HullEvent>,
+};
+
 // =====================================
 //   Handler Responses
 // =====================================
@@ -636,6 +688,7 @@ export type HullExternalResponseData = void | {
   status?: number,
   pageLocation?: string,
   data?: any,
+  error?: any,
   text?: string
 };
 export type HullExternalResponse =
@@ -805,6 +858,7 @@ export type HullBaseMiddlewareParams = {
   instrumentation: Instrumentation,
   connectorConfig: HullConnectorConfig
 };
+export type HullExtendedMiddlewareParams = HullIncomingHandlerOptions;
 export type HullContextMiddlewareParams = {
   requestName?: string,
   type?: "notification" | "query"
@@ -920,6 +974,13 @@ export type HullUISelectResponseData = {
     options: Array<HullUISelect> | Array<HullUISelectGroup>
   }
 };
+
+export type HullCredentialsResponse = HullExternalResponseData & {
+  status: number,
+  data: {
+    url: string
+  }
+}
 export type HullUISelectResponse =
   | HullUISelectResponseData
   | Promise<HullUISelectResponseData>;

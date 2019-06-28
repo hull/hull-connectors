@@ -2,9 +2,6 @@
 import type { NextFunction } from "express";
 import type { HullRequest, HullResponse } from "../types";
 import httpClient from "../utils/httpclient";
-/**
- * This middleware is responsible for setting HullContextBase - the base part of the context.
- */
 
 module.exports = function httpClientMiddlewareFactory() {
   return function httpClientMiddleware(

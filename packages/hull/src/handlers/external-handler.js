@@ -60,7 +60,7 @@ const handlerFactory = ({
     }
 
     // There'a an actual Response to send
-    const { pageLocation, data, status = 200, text } = response;
+    const { pageLocation, data, error, status = 200, text } = response;
     if (!status && !data && !text && !pageLocation) {
       throw new Error(
         "Malformed response, missing content to conform to HullExternalResponse"
@@ -79,6 +79,11 @@ const handlerFactory = ({
       return res.render(pageLocation, data);
     }
 
+    if (error !== undefined) {
+      debug("sending error", error);
+      // Respond with error
+      return res.json({error});
+    }
     if (data !== undefined) {
       debug("sending data", data);
       // Respond with data

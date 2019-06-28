@@ -78,5 +78,4 @@ function credentialsFromNotificationMiddlewareFactory() {
     }
   };
 }
-
 module.exports = credentialsFromNotificationMiddlewareFactory;

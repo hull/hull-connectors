@@ -3,10 +3,12 @@ import type {
   HullAccountClaims,
   HullUserClaims,
   HullClient,
+  HullAttributeContext,
   HullEventProperties,
   HullEventContext,
   HullEntitySymbol
 } from "hull";
+import { applyContext } from "hull-client/src/utils/traits"
 import _ from "lodash";
 import type { Attributes, AttributesContext, Event, Result } from "../../types";
 
@@ -30,12 +32,11 @@ const trackFactory = (claims: HullUserClaims, target: Array<Event>) => (
 const identifyFactory = <ClaimType>(
   claims: ClaimType,
   target: Map<ClaimType, Attributes>
-) => (attributes: Attributes, options?: { source?: string } = {}) => {
-  const { source } = options;
+) => (attributes: Attributes, context?: HullAttributeContext = {}) => {
   const previousAttributes = target.get(claims) || {};
   target.set(claims, {
     ...previousAttributes,
-    ..._.mapKeys(attributes, (v, k) => (source ? `${source}/${k}` : k))
+    ...applyContext(attributes, context)
   });
   // target.push({
   //   claims,

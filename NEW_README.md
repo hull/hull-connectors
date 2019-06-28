@@ -381,20 +381,23 @@ Hull.Connector(connectorConfig).start();
 ```
 
 ### caching
+
 A cache mechanism is available for use in the connector.
 Here's it's signature:
+
 ```js
 const { cache } = ctx;
 
-await cache.get('object_name');
-await cache.set('object_name', object_value);
-const object_value = await cache.wrap('object_name', () => getData());
+await cache.get("object_name");
+await cache.set("object_name", object_value);
+const object_value = await cache.wrap("object_name", () => getData());
 ```
 
 _Note_: You can't use the following Cache Keys, they are reserved:
- - any Connector ID,
- - `segments`,
- - `account_segments`,
+
+- any Connector ID,
+- `segments`,
+- `account_segments`,
 
 By default, the cache uses a Memory store. If you want to use persistence, or share it across instances, create a persistence layer such as Redis by passing the following as part of the HullConnectorConfig object at boot. We support "redis" and "memory" caches
 
@@ -413,11 +416,13 @@ const connectorConfig: HullConnectorConfig = {
 ```
 
 Defaults:
+
 - ttl = 60 seconds,
 - max: 100 Items
 - store: "memory"
 
 ### Status handler
+
 By describing a `statuses` block in the manifest, you can have a strictly verified status endpoint:
 
 ```
@@ -457,11 +462,117 @@ This can be achieved by adding an extra parameter in a `settingsUpdate` call.
 ```js
 const { hull: ctx } = req;
 const authResponse = onAuthorize(ctx, message);
-const {
-  private_settings
-} = authResponse || {};                      //  |
-                                             //  |
-if (private_settings) {                      //  v
+const { private_settings } = authResponse || {}; //  |
+//  |
+if (private_settings) {
+  //  v
   ctx.helpers.settingsUpdate(private_settings, true);
 }
+```
+
+### Fetch Entities
+
+```js
+const email_fetch = {
+  claimType: "email",
+  claim: "foo@bar.com"
+};
+const external_id_fetch = {
+  claimType: "external_id",
+  claim: "sldjfal;dk"
+};
+const anonymous_id_fetch = {
+  claimType: "anonymous_id",
+  claim: "123890423984"
+};
+const intercom_fetch = {
+  service: "intercom",
+  claimType: "service",
+  claim: "1245"
+};
+const wide_search = {
+  claim: "1245"
+};
+
+const eventSchema = await ctx.entities.events.getSchema();
+const userSchema = await ctx.entities.users.getSchema();
+const accountSchema = await ctx.entities.accounts.getSchema();
+
+const data = await ctx.entities.users.get({
+  claim,
+  service,
+  claimType,
+  include: { events: {
+    names: ["Segmentd Changed"],
+    limit: 100,
+    page: 1
+  },
+, account: false } //Fetch only "Segment Changes" events. Max Limit: 100
+});
+// Response =>
+{
+  user,
+  events, //only if events included
+  account, //except if include.account===false
+  segments,
+  segment_ids,
+  account_segments,
+  account_segment_ids,
+}
+const data = await ctx.entities.events.get({
+  claim,
+  service,
+  claimType,
+  include: { events: {
+    parent: '123142' //mandatory if if you're accessing events directly
+    names: ["Segmentd Changed"],
+    limit: 100,
+    page: 1
+  },
+, account: false } //Fetch only "Segment Changes" events. Max Limit: 100
+});
+// Response =>
+{
+    "event": "Updated email address",
+    "created_at": "2019-03-15T09:48:15Z",
+    "properties": {
+      "email": "romain@hull.io",
+      "topic": "contact.added_email",
+      "event": "Updated email address"
+    },
+    "event_source": "intercom",
+    "event_type": "track",
+    "context": {
+      "useragent": "Hull Node Client version: 2.0.0-beta.1",
+      "device": {
+        "name": "Other"
+      },
+      "referrer": {},
+      "os": {
+        "name": "Other"
+      },
+      "browser": {
+        "name": "Other"
+      },
+      "location": {
+        "country": "US",
+        "city": "Mountain View",
+        "timezone": "America/Los_Angeles",
+        "region": "CA",
+        "countryname": "United States",
+        "regionname": "California",
+        "zipcode": "94035"
+      },
+      "campaign": {},
+      "ip": "216.239.36.21",
+      "page": {}
+    }
+  }
+
+const data = await ctx.entities.accounts.get({
+  claim,
+  service,
+  claimType,
+  include: {} //Nothing supported for now
+});
 ```

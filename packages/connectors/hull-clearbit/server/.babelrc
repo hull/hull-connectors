@@ -1,0 +1,22 @@
+{
+  "presets": [
+    "stage-0",
+    ["env", {
+      "targets": {
+        "node": "current"
+      }
+    }],
+  ],
+  "plugins": [
+    "transform-flow-strip-types",
+    [
+      "transform-runtime",
+      { "polyfill": false, "regenerator": true }
+    ],
+    [
+      "replace-require",
+      { "HULL_CONNECTOR_DEV": "require('hull-connector-dev/require')" },
+      { "HULL_CONNECTOR": "require('hull-connector/require')" }
+    ]
+  ]
+}

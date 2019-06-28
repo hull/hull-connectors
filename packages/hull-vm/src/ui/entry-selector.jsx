@@ -1,11 +1,9 @@
 // @flow
 import React, { Fragment } from "react";
-import InputGroup from "react-bootstrap/InputGroup";
 import FormControl from "react-bootstrap/FormControl";
-import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
-import Button from "react-bootstrap/Button";
 import _ from "lodash";
+import Select from "react-select";
 import type { Entry } from "../../types";
 import PayloadTitle from "./payload-title";
 import Sync from "./sync";
@@ -23,9 +21,8 @@ const List = ({
   onChange: () => void
 }) => (
   <Fragment>
-    <Col xs={6}>
+    <Col xs={8}>
       <FormControl
-        size="sm"
         onChange={onChange}
         placeholder="Email or Id"
         aria-label="Email or Id"
