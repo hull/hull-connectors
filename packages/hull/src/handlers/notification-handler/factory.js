@@ -1,49 +1,11 @@
 // @flow
-import type { $Response, NextFunction } from "express";
-import type {
-  HullUserUpdateMessage,
-  HullAccountUpdateMessage
-} from "hull-client";
-import type {
-  HullHandlersConfiguration,
-  HullRequest,
-  HullContextFull
-} from "../../types";
+import type { HullRouteMap, HullNotificationHandlerConfiguration } from "hull";
+import getRouter from "../get-router";
 
-type HullUserUpdateHandlerCallback = (
-  ctx: HullContextFull,
-  messages: Array<HullUserUpdateMessage>
-) => Promise<*>;
-type HullAccountUpdateHandlerCallback = (
-  ctx: HullContextFull,
-  messages: Array<HullAccountUpdateMessage>
-) => Promise<*>;
-type HullConnectorUpdateHandlerCallback = (ctx: HullContextFull) => Promise<*>;
-type HullSegmentUpdateHandlerCallback = (ctx: HullContextFull) => Promise<*>;
-
-type Callback =
-  | HullUserUpdateHandlerCallback
-  | HullAccountUpdateHandlerCallback
-  | HullConnectorUpdateHandlerCallback
-  | HullSegmentUpdateHandlerCallback;
-
-type HullNotificationHandlerOptions = {};
-type HullNotificationHandlerConfiguration = HullHandlersConfiguration<
-  Callback,
-  HullNotificationHandlerOptions
->;
-
-const { Router } = require("express");
-const { normalizeHandlersConfiguration } = require("../../utils");
-const {
-  credentialsFromNotificationMiddleware,
-  clientMiddleware,
-  timeoutMiddleware,
-  haltOnTimedoutMiddleware,
-  fullContextBodyMiddleware,
-  instrumentationContextMiddleware,
-  instrumentationTransientErrorMiddleware
-} = require("../../middlewares");
+// Ensures ship:update notifications don't rely on the Ship Cache.
+// @TODO do we still need this if we rely on the payload's data to hydrate the settings ?
+// Can we update the cache on every notification ? Would it be beneficial ?
+const { clearConnectorCache } = require("../../middlewares");
 
 const processingMiddleware = require("./processing-middleware");
 const errorMiddleware = require("./error-middleware");
@@ -59,30 +21,20 @@ const errorMiddleware = require("./error-middleware");
  */
 function notificationHandlerFactory(
   configuration: HullNotificationHandlerConfiguration
-): Router {
-  const router = Router();
-  const normalizedConfiguration = normalizeHandlersConfiguration(configuration);
-
-  router.use(timeoutMiddleware());
-  router.use(credentialsFromNotificationMiddleware());
-  router.use(haltOnTimedoutMiddleware());
-  router.use(clientMiddleware());
-  router.use(haltOnTimedoutMiddleware());
-  router.use(instrumentationContextMiddleware({ handlerName: "notification" }));
-  router.use(fullContextBodyMiddleware({ requestName: "notification" }));
-  router.use((req: HullRequest, res: $Response, next: NextFunction) => {
-    if (
-      req.hull.notification &&
-      req.hull.notification.channel === "ship:update"
-    ) {
-      req.hull.cache.del("connector");
+): HullRouteMap {
+  return getRouter({
+    requestName: "notification",
+    handlerName: "",
+    handler: processingMiddleware(configuration),
+    errorHandler: errorMiddleware(),
+    afterMiddlewares: [clearConnectorCache],
+    options: {
+      credentialsFromNotification: true,
+      credentialsFromQuery: false,
+      respondWithError: true,
+      strict: true
     }
-    next();
   });
-  router.use(processingMiddleware(normalizedConfiguration));
-  router.use(instrumentationTransientErrorMiddleware());
-  router.use(errorMiddleware());
-  return router;
 }
 
 module.exports = notificationHandlerFactory;

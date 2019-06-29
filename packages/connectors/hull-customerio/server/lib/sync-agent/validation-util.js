@@ -60,17 +60,13 @@ class ValidationUtil {
         if (this.getBytes(strVal) > this.maxAttributeValueLength) {
           validationResult.isValid = false;
           validationResult.validationErrors.push(
-            `${
-              SHARED_MESSAGES.ERROR_VALIDATION_MAXLENGTHVALUE
-            } '${strVal}' for attribute '${key}'`
+            `${SHARED_MESSAGES.ERROR_VALIDATION_MAXLENGTHVALUE} '${strVal}' for attribute '${key}'`
           );
         }
       } else if (this.getBytes(val) > this.maxAttributeValueLength) {
         validationResult.isValid = false;
         validationResult.validationErrors.push(
-          `${
-            SHARED_MESSAGES.ERROR_VALIDATION_MAXLENGTHVALUE
-          } '${val}' for attribute '${key}'`
+          `${SHARED_MESSAGES.ERROR_VALIDATION_MAXLENGTHVALUE} '${val}' for attribute '${key}'`
         );
       }
     });

@@ -4,13 +4,19 @@ const _ = require("lodash");
 process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 
-/* global describe, it, beforeEach, afterEach */
+
+
+
+
+
+
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
+import connectorConfig from "../../../server/config";
 
 
 test("send batch account update to outreach in a batch", () => {
-  return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = require("../fixtures/notifier-payloads/outgoing-account-batch.json");
     return _.assign(updateMessages, {
       handlerType: handlers.batchHandler,
@@ -102,7 +108,7 @@ test("send batch account update to outreach in a batch", () => {
       platformApiCalls: [
         ["GET", "/_accounts_batch", {}, {}],
         ["GET", "/api/v1/app", {}, {}],
-        ["PUT", "/api/v1/9993743b22d60dd829001999", {}, {"private_settings": {"access_token": "1234", "account_claims": [{"hull": "domain", "service": "domain"}, {"hull": "external_id", "service": "customId"}], "outgoing_account_attributes": [{"hull": "name", "service": "name"}, {"hull": "traits_closeio/description", "service": "custom1"}, {"hull": "traits_closeio/industry_sample", "service": "custom2"}, {"hull": "traits_closeio/status", "service": "custom3"}], "webhook_id": 3}}]
+        ["PUT", "/api/v1/9993743b22d60dd829001999", {}, {"private_settings": {"access_token": "1234", "account_claims": [{"hull": "domain", "service": "domain"}, {"hull": "external_id", "service": "customId"}], "outgoing_account_attributes": [{"hull": "name", "service": "name"}, {"hull": "traits_closeio/description", "service": "custom1"}, {"hull": "traits_closeio/industry_sample", "service": "custom2"}, {"hull": "traits_closeio/status", "service": "custom3"}], "webhook_id": 3}, "refresh_status": false}]
       ]
     });
   });

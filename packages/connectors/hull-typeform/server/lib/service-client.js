@@ -38,7 +38,7 @@ const Promise = require("bluebird");
 const {
   superagentUrlTemplatePlugin,
   superagentInstrumentationPlugin
-} = require("../../../../hull/src/utils");
+} = require("hull/src/utils");
 
 class ServiceClient {
   agent: *;

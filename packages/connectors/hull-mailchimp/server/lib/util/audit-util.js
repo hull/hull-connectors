@@ -1,5 +1,6 @@
 /* @flow */
 import type { HullSegment, HullContext } from "hull";
+// import shipAppFactory from "../ship-app-factory";
 
 const Promise = require("bluebird");
 const _ = require("lodash");
@@ -39,11 +40,10 @@ class AuditUtil {
 
   synchronizedSegments: Array<string>;
 
-  constructor(ctx: HullContext) {
+  constructor(ctx: HullContext, mailchimpClient) {
     this.segments = _.get(ctx, "segments", []);
     this.hullClient = ctx.client;
-    // $FlowFixMe
-    this.mailchimpClient = ctx.shipApp.mailchimpClient;
+    this.mailchimpClient = mailchimpClient;
     this.interestCatId = _.get(
       ctx,
       "connector.private_settings.interest_category_id",

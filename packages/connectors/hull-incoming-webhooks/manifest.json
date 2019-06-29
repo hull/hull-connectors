@@ -1,0 +1,92 @@
+{
+  "name": "Incoming Webhooks",
+  "description": "Recompute external properties and emit events with Javascript logic whenever user is send to connector by webhook",
+  "tags": [
+    "incoming",
+    "oneColumn"
+  ],
+  "picture": "picture.png",
+  "ui": false,
+  "tabs": [
+    {
+      "title": "Code Editor",
+      "url": "/admin.html",
+      "size": "large",
+      "setup": false,
+      "workspace": true,
+      "editable": true,
+      "handler": "admin"
+    }
+  ],
+  "readme": "readme.md",
+  "version": "0.3.0",
+  "private_settings": [
+    {
+      "name": "code",
+      "title": "Code",
+      "description": "Enter Javascript code here, It will receive the data in the middle column, can emit `track()` and `traits()`. Preview results on the right. Save when finished",
+      "type": "string",
+      "default": "//console.log(\"Hello !\");\n//hull.asUser({ email: body.email }).traits({ coconuts: 12 });\n//hull.asUser({ email: body.email }).track(\"sample event\");",
+      "format": "hidden"
+    }
+  ],
+  "resources": [],
+  "subscriptions": [],
+  "settings_sections": [
+    {
+      "title": "Incoming Webhook URL",
+      "description": "Send a POST request to the URL below to start capturing data, Then open the Code editor to write logic on how to ingest it",
+      "step": "credentials",
+      "properties": [
+        "json.credentials"
+      ]
+    }
+  ],
+  "json": [
+    {
+      "url": "/recent",
+      "handler": "getRecent"
+    },
+    {
+      "url": "/config",
+      "handler": "configHandler"
+    },
+    {
+      "url": "/url",
+      "name": "credentials",
+      "format": "credentials",
+      "title": "Webhook URL",
+      "description": "Set your external service to send POST webhooks to this url",
+      "handler": "credentialsHandler"
+    },
+    {
+      "url": "/preview",
+      "handler": "previewHandler"
+    }
+  ],
+  "incoming": [
+    {
+      "url": "/webhooks/:connectorId/:token",
+      "handler": "incomingHandler"
+    },
+    {
+      "url": "/webhooks/:connectorId",
+      "handler": "incomingHandler"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "cron",
+    "value": "*/30 * * * *",
+    "handler": "statusHandler"
+  },
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "cron",
+      "value": "*/30 * * * *",
+      "handler": "statusHandler"
+    }
+  ]
+}

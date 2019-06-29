@@ -1,14 +1,15 @@
 // @flow
-import type { $Response, NextFunction } from "express";
-import type { HullRequestFull } from "../../types";
+import type { NextFunction } from "express";
+import type { HullRequest, HullResponse } from "../../types";
 
-const debug = require("debug")("hull-connector:notification-handler");
+const debug = require("debug")("hull-connector:notification-error-handler");
 
 const { notificationDefaultFlowControl } = require("../../utils");
 const {
   ConfigurationError,
   TransientError,
-  NotificationValidationError
+  NotificationValidationError,
+  MissingHandlerError
 } = require("../../errors");
 
 function errorToResponse(error) {
@@ -22,8 +23,8 @@ function errorToResponse(error) {
 function notificationHandlerErrorMiddlewareFactory() {
   return function notificationHandlerErrorMiddleware(
     err: Error,
-    req: HullRequestFull,
-    res: $Response,
+    req: HullRequest,
+    res: HullResponse,
     next: NextFunction
   ) {
     debug("error", err.message, err.constructor && err.constructor.name);
@@ -50,7 +51,7 @@ function notificationHandlerErrorMiddlewareFactory() {
     const { channel } = req.hull.notification;
 
     // channel unsupported
-    if (err.message === "Channel unsupported") {
+    if (err instanceof MissingHandlerError) {
       const defaultUnsupportedFlowControl = notificationDefaultFlowControl(
         req.hull,
         channel,

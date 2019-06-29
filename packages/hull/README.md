@@ -166,7 +166,7 @@ an encrypted version of configuration. If it's already set in the request, Hull 
 When the connector needs to send the information outside the Hull ecosystem it has to use the token, not to expose the raw credentials. The usual places where this happens are:
 
 - dashboard links
-- oAuth flow (callback url)
+- OAuth flow (callback url)
 - external incoming webhooks
 
 ### **client**
@@ -618,7 +618,7 @@ First step of connector installation is done automatically by the platform and t
 
 However typically after the installation we want that the connector is authorized with the 3rd party API.
 
-Hull Node comes with packaged authentication handler using Passport - the utility is called oAuthHandler and you can find documentation [here](./API.md#oauthhandler).
+Hull Node comes with packaged authentication handler using Passport - the utility is called OAuthHandler and you can find documentation [here](./API.md#oauthhandler).
 
 ---
 
@@ -685,9 +685,9 @@ When using a [flow](https://flow.org) enabled project, we recommend using flow t
 
 ```javascript
 // @flow
-import type { THullObject } from "hull";
+import type { HullObject } from "hull";
 
-parseHullObject(user: THullObject) {
+parseHullObject(user: HullObject) {
   // ...
 }
 ```
@@ -798,4 +798,3 @@ app.use("/smart-notifier", smartNotifierHandler({
   }
 }));
 ```
-

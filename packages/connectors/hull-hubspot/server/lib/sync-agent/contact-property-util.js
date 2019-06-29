@@ -201,7 +201,9 @@ class ContactPropertyUtil {
   }
 
   getHullSegmentsProperty(segments: Array<HullSegment> = []) {
-    const options = _.map(segments, (s, i) => this.optionsHash(s.name, i));
+    const options = _.map(segments, (s, i: number) =>
+      this.optionsHash(s.name, i)
+    );
     return {
       options,
       description: "All the Segments the User belongs to in Hull",

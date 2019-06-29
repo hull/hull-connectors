@@ -1,7 +1,7 @@
 // @flow
 import type { IncomingMessage } from "http";
 import type { Readable } from "stream";
-import type { HullConnector, HullRequest } from "hull";
+import type { HullConnector, HullContext } from "hull";
 import type {
   HubspotUserUpdateMessageEnvelope,
   HubspotAccountUpdateMessageEnvelope,
@@ -65,7 +65,7 @@ class HubspotClient {
 
   incomingAccountIdentService: string;
 
-  constructor(ctx: HullRequest) {
+  constructor(ctx: HullContext) {
     this.connector = ctx.connector;
     this.client = ctx.client;
     this.metric = ctx.metric;

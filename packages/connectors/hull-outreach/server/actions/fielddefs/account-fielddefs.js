@@ -1,5 +1,8 @@
-/* @flow */
-import type { OutreachFieldDefinition } from "../../lib/types";
+/* @noflow */
+
+// TODO: This flow type doesn't seem to exist anymore
+import type { OutreachFieldDefinition } from "../../shared/types";
+
 
 const ACCOUNT_FIELDDEFS: Array<OutreachFieldDefinition> = [
   {

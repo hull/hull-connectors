@@ -329,7 +329,7 @@ const connector = new Hull.Connector({ queue });
 
 General utilities
 
-### oAuthHandler
+### OAuthHandler
 
 OAuthHandler is a packaged authentication handler using [Passport][17]. You give it the right parameters, it handles the entire auth scenario for you.
 
@@ -361,14 +361,14 @@ For example of the notifications payload [see details][18]
 #### Examples
 
 ```javascript
-const { oAuthHandler } = require("hull/lib/utils");
+const { OAuthHandler } = require("hull/lib/utils");
 const { Strategy as HubspotStrategy } = require("passport-hubspot");
 
 const app = express();
 
 app.use(
   '/auth',
-  oAuthHandler({
+  OAuthHandler({
     name: 'Hubspot',
     tokenInUrl: true,
     Strategy: HubspotStrategy,
@@ -692,7 +692,7 @@ Returns **[Function][8]** function to use as superagent plugin
 
 The following methods are helper utilities. They are available under `utils` property
 
-### oAuthHandler
+### OAuthHandler
 
 OAuthHandler is a packaged authentication handler using [Passport][17]. You give it the right parameters, it handles the entire auth scenario for you.
 
@@ -724,14 +724,14 @@ For example of the notifications payload [see details][18]
 #### Examples
 
 ```javascript
-const { oAuthHandler } = require("hull/lib/utils");
+const { OAuthHandler } = require("hull/lib/utils");
 const { Strategy as HubspotStrategy } = require("passport-hubspot");
 
 const app = express();
 
 app.use(
   '/auth',
-  oAuthHandler({
+  OAuthHandler({
     name: 'Hubspot',
     tokenInUrl: true,
     Strategy: HubspotStrategy,

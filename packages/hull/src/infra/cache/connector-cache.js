@@ -1,5 +1,5 @@
 /* @flow */
-import type { HullContextFull } from "../../types";
+import type { HullContext } from "../../types";
 
 const jwt = require("jwt-simple");
 const Promise = require("bluebird");
@@ -13,13 +13,13 @@ const Promise = require("bluebird");
  * @memberof Context
  */
 class ConnectorCache {
-  ctx: HullContextFull;
+  ctx: HullContext;
 
   cache: Object;
 
   promiseReuser: Object;
 
-  constructor(ctx: HullContextFull, cache: Object, promiseReuser: Object) {
+  constructor(ctx: HullContext, cache: Object, promiseReuser: Object) {
     this.ctx = ctx;
     this.cache = cache;
     this.promiseReuser = promiseReuser;
@@ -61,9 +61,9 @@ class ConnectorCache {
    */
   wrap(key: string, cb: Function, options: ?Object = {}): Promise<any> {
     const shipCacheKey = this.getCacheKey(key);
-    const reuseWrap = this.promiseReuser.reusePromise(wrappedShipCacheKey => {
-      return this.cache.wrap(wrappedShipCacheKey, cb, options);
-    });
+    const reuseWrap = this.promiseReuser.reusePromise(wrappedShipCacheKey =>
+      this.cache.wrap(wrappedShipCacheKey, cb, options)
+    );
     return reuseWrap(shipCacheKey);
   }
 

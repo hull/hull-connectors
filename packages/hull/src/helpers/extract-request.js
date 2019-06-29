@@ -1,6 +1,5 @@
 // @flow
-import type { HullSegment } from "hull-client";
-import type { HullContext } from "../types";
+import type { HullSegment, HullContext } from "../types";
 
 export type HullHelperExtractRequestOptions = {
   segment?: null | HullSegment,
@@ -32,17 +31,13 @@ const _ = require("lodash");
  * @example
  * req.hull.helpers.requestExtract({ segment = null, path, fields = [], additionalQuery = {} });
  */
-function extractRequest(
-  ctx: HullContext,
-  {
-    // $FlowFixMe
-    segment = null,
-    format = "json",
-    path = "batch",
-    fields = [],
-    additionalQuery = {}
-  }: HullHelperExtractRequestOptions = {}
-) {
+const extractRequest = (ctx: HullContext) => ({
+  format = "json",
+  segment,
+  path = "batch",
+  fields = [],
+  additionalQuery = {}
+}: HullHelperExtractRequestOptions = {}): Promise<any> => {
   const { client, hostname } = ctx;
   const conf = client.configuration();
   const search = _.merge(
@@ -70,6 +65,7 @@ function extractRequest(
       });
     }
 
+    // TODO: What's the exact format of a Segment message? do we have the query there ?
     if (segment.query) {
       return Promise.resolve(segment);
     }
@@ -79,6 +75,6 @@ function extractRequest(
     client.logger.debug("connector.requestExtract.params", params);
     return client.post("extract/user_reports", params);
   });
-}
+};
 
 module.exports = extractRequest;

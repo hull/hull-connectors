@@ -1,10 +1,9 @@
 // @flow
-/* global describe, it, beforeEach, afterEach */
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const _ = require("lodash");
 
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
@@ -18,7 +17,7 @@ const connector = {
 };
 
 it.skip("should fetch all companies", () => {
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "fetch-recent-companies",

@@ -1,0 +1,27 @@
+<html>
+<head>
+  <title>Hull Slack connector</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col">
+        <%- include ../../../assets/partials/hull-logo %>
+        <hr/>
+        <div class="row">
+          <div class="col-sm-6 col-md mt-4 mb-4">
+            <div class="flex-row flex-align-center justify-content-center">
+              <div class="check <%=(credentials)?'valid':'cross'%>"><i class="icon icon-<%=(credentials)?"valid":"cross"%>"></i></div>
+              <div>
+                <h5 class="pl-2 m-0"><%=(credentials)?"Credentials Saved":"Missing Credentials"%></h5>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/index.js"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Close this window now</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="container-fluid">
+  <div class="row">
+    <div class="col text-center">
+      <%- include ./hull-logo %>
+      <h5 class="mb-3">Authentication Failed</h5>
+      <hr/>
+      <p class="text-muted mb-3">
+        There was an error connecting to <%=name%>
+      </p>
+      Please contact us so we can help
+    </div>
+  </div>
+  <script src="/index.js"></script>
+  <script>
+    // onAuth("complete");
+  </script>
+</body>
+</html>

@@ -61,7 +61,7 @@ Tests are done in two different ways:
 First copy the env file and fill it in:
 `cp packages/connectors/hull-foo/.env-sample .env.hull-foo`
 
-Then you can start it with the `dev` script:
+Then you can start it with the `yarn dev` script:
 `dotenv -e .env.hull-foo yarn dev hull-foo`
 
 **How to start connector in production mode?**
@@ -82,6 +82,34 @@ If on mocha run `yarn workspace hull-foo run test`.
 **How to lint single connector?**
 
 Run `eslint packages/connectors/hull-foo`
+
+## Client-side code
+
+
+**How to build client packages**
+
+Client assets will be built during the `build` phase that's triggered when calling `yarn build`. If you want to manually build a single client package, checkout the section below.
+
+**How to build a single client package**
+
+To build the client files for a package, using Webpack, first ensure your files to be built are in the `/src` folder at the root of the package. (For instance `hull-google-analytics/src`)
+
+Then, run `yarn build:client hull-google-analytics`
+
+The files will be built in the `hull-google-analytics/assets` folder
+
+**How to serve javascript compiled files in Development**
+
+The simplest way is to have your connector rely on `packages/server/server`,
+and pass `devMode` to `true` -> The connector will automatically pass the files in `/src` through webpack
+
+## Receiving data from Hull in Development
+
+The easiest way to get a connector to receive data from Hull is to start it locally and expose it using a public URL and enter this URL in the `new connector` URL box in your Hull dashboard.
+
+To make this easier, call `yarn ngrok xxx`. For instance, to expose the `hull-typeform` connector, call `yarn ngrok hull-typeform`. Ngrok will start and expose the `https://hull-typeform.ngrok.io` URL to the web (Assuming your Ngrok credentials are configured already, See https://ngrok.com/docs#authtoken)
+
+**Note** You must also boot your connector using `yarn dev hull-typeform` - the `yarn ngrok` command is not doing this for you.
 
 ## Changes
 

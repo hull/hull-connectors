@@ -6,8 +6,7 @@ const _ = require("lodash");
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
 
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
@@ -26,7 +25,7 @@ const connector = {
 };
 
 it("Should return the no token \"ok\" message when calling the connector's API without a token", () => {
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "status",
@@ -37,7 +36,7 @@ it("Should return the no token \"ok\" message when calling the connector's API w
       connector,
       usersSegments: [],
       accountsSegments: [],
-      response: {"messages": ['No OAuth AccessToken found.  Please make sure to allow Hull to access your Hubspot data by clicking the \"Credentials & Actions\" button on the connector page and following the workflow provided'], "status": "ok"},
+      response: {"messages": ['No OAuth AccessToken found.  Please make sure to allow Hull to access your Hubspot data by clicking the \"Credentials & Actions\" button on the connector page and following the workflow provided'], "status": "setupRequired"},
       logs: [],
       firehoseEvents: [],
       metrics: [
@@ -50,7 +49,7 @@ it("Should return the no token \"ok\" message when calling the connector's API w
               [
                 'No OAuth AccessToken found.  Please make sure to allow Hull to access your Hubspot data by clicking the \"Credentials & Actions\" button on the connector page and following the workflow provided'
               ],
-            "status": "ok"
+            "status": "setupRequired"
           }
         ]
       ]
