@@ -41,8 +41,7 @@ export type HullAttributeOperation = {|
 /**
  * Possible entity types
  */
-export type HullEntityType = "account" | "user";
-
+export type HullEntityType = "user" | "account";
 export type HullSegmentType = "users_segment" | "accounts_segment";
 
 /**

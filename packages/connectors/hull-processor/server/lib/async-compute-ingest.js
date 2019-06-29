@@ -2,7 +2,7 @@
 
 import type {
   HullContext,
-  HullEntitySymbol,
+  HullEntityType,
   HullUserUpdateMessage,
   HullAccountUpdateMessage
 } from "hull";
@@ -17,7 +17,7 @@ const asyncComputeAndIngest = async (
     entity
   }: {
     code: string,
-    entity: HullEntitySymbol,
+    entity: HullEntityType,
     payload: HullUserUpdateMessage | HullAccountUpdateMessage
   }
 ) => {

@@ -5,7 +5,7 @@ import type {
   HullClient,
   HullEventProperties,
   HullEventContext,
-  HullEntitySymbol
+  HullEntityType
 } from "hull";
 import _ from "lodash";
 import type { Attributes, AttributesContext, Event, Result } from "../../types";
@@ -48,7 +48,7 @@ const buildHullContext = (
   client: HullClient,
   { errors, userTraits, accountTraits, accountLinks, events }: Result,
   claimsScope?: HullUserClaims | HullAccountClaims,
-  entity?: HullEntitySymbol = "user"
+  entity?: HullEntityType = "user"
 ) => {
   const errorLogger = (message, method, validation) => {
     client.logger.info(`incoming.${message}.skip`, {

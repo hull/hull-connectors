@@ -1,7 +1,7 @@
 /* @flow */
 import type {
   HullContext,
-  HullEntitySymbol,
+  HullEntityType,
   HullAccountUpdateMessage,
   HullUserUpdateMessage
 } from "hull";
@@ -38,7 +38,7 @@ function isUndefinedOrNull(obj: any): boolean %checks {
  */
 function toSendMessage(
   context: HullContext,
-  targetEntity: HullEntitySymbol,
+  targetEntity: HullEntityType,
   message: HullUserUpdateMessage | HullAccountUpdateMessage
 ): boolean {
   // Entered segment

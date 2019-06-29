@@ -7,7 +7,7 @@ import type {
   HullIncomingHandlerMessage,
   HullExternalResponse,
   HullUserUpdateMessage,
-  HullEntitySymbol
+  HullEntityType
 } from "hull";
 import _ from "lodash";
 import { formatEvent, isVisible } from "./format-event";
@@ -115,7 +115,7 @@ export const getPayload = async (
 export const getEntity = async (
   ctx: HullContext,
   search: string,
-  type: HullEntitySymbol = "user"
+  type: HullEntityType = "user"
 ): Promise<HullUser> => {
   const { data = [] } = await ctx.client.post(
     `search/${type === "account" ? "account" : "user"}_reports`,

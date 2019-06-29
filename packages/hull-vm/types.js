@@ -10,7 +10,7 @@ import type {
   HullUserUpdateMessage,
   HullAccountUpdateMessage,
   HullAttributeContext,
-  HullEntitySymbol
+  HullEntityType
 } from "hull";
 
 export type Claims = HullUserClaims | HullAccountClaims;
@@ -109,7 +109,7 @@ export type Entry = {
 export type ComputeOptions = {
   code: string,
   claims?: HullUserClaims | HullAccountClaims,
-  entity?: HullEntitySymbol,
+  entity?: HullEntityType,
   preview: boolean,
   payload: Payload | HullUserUpdateMessage | HullAccountUpdateMessage
 };
@@ -153,14 +153,14 @@ export type ClaimsValidation =
   | {
       ...ClaimsPayload,
       valid: true,
-      subject: HullEntitySymbol,
+      subject: HullEntityType,
       message: void,
       error: void
     }
   | {
       ...ClaimsPayload,
       valid: false,
-      subject: HullEntitySymbol,
+      subject: HullEntityType,
       message: string,
       error: string
     };

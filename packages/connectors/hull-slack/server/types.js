@@ -5,7 +5,7 @@ import type {
   HullContext,
   HullConnector,
   HullClientCredentials,
-  HullEntitySymbol
+  HullEntityType
 } from "hull";
 
 type SlackChannel = {};
@@ -73,14 +73,14 @@ export type ConnectedSlack = {
     scopedClient: Hull,
     payload: any,
     channel: string,
-    entity: HullEntitySymbol
+    entity: HullEntityType
   }) => any,
   tellOperator?: ({
     scopedClient: Hull,
     user_id: string,
     msg: string,
     error: any,
-    entity: HullEntitySymbol
+    entity: HullEntityType
   }) => any
 };
 

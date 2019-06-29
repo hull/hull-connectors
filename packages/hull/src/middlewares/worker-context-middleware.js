@@ -1,7 +1,6 @@
 // @flow
 
 import type { Middleware } from "express";
-// import type { HullContextMiddlewareParams } from "../types";
 
 const { compose } = require("compose-middleware");
 const credentialsFromQueryMiddleware = require("./credentials-from-query");
