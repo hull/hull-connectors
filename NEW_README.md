@@ -33,18 +33,18 @@ Add client-side code to `src` in a connector's folder ->
 
 Hot Reload is included.
 
-## Debugger
+## Debug messages
 
 ```
-$ yarn dev hull-incoming-webhooks
+$ DEBUG=hull* yarn dev hull-incoming-webhooks
 ```
 
-p
 -> Boots connector with the `debug` library started with `DEBUG=hull*` so you can see all of Hull's debugging stack
 
 ## Flow Types
 
-Love and embrace flow types. The uniform method signature is:
+Love and embrace flow types. We strive to have a uniform signature for all handlers:
+The first argument is always a HullContext object.
 
 For Incoming Data (Webhooks, HTML requests, JSON requests etc...);
 
@@ -55,6 +55,7 @@ import type {
   HullIncomingHandlerMessage,
   HullExternalResponse
 } from "hull";
+
 export default async (
   ctx: HullContext,
   message: HullIncomingHandlerMessage
@@ -103,6 +104,8 @@ export default async (
   }
 };
 ```
+
+checkout `types.js` for
 
 ## HullConnectorConfig
 
@@ -381,20 +384,23 @@ Hull.Connector(connectorConfig).start();
 ```
 
 ### caching
+
 A cache mechanism is available for use in the connector.
 Here's it's signature:
+
 ```js
 const { cache } = ctx;
 
-await cache.get('object_name');
-await cache.set('object_name', object_value);
-const object_value = await cache.wrap('object_name', () => getData());
+await cache.get("object_name");
+await cache.set("object_name", object_value);
+const object_value = await cache.wrap("object_name", () => getData());
 ```
 
 _Note_: You can't use the following Cache Keys, they are reserved:
- - any Connector ID,
- - `segments`,
- - `account_segments`,
+
+- any Connector ID,
+- `segments`,
+- `account_segments`,
 
 By default, the cache uses a Memory store. If you want to use persistence, or share it across instances, create a persistence layer such as Redis by passing the following as part of the HullConnectorConfig object at boot. We support "redis" and "memory" caches
 
@@ -413,11 +419,13 @@ const connectorConfig: HullConnectorConfig = {
 ```
 
 Defaults:
+
 - ttl = 60 seconds,
 - max: 100 Items
 - store: "memory"
 
 ### Status handler
+
 By describing a `statuses` block in the manifest, you can have a strictly verified status endpoint:
 
 ```
@@ -457,11 +465,23 @@ This can be achieved by adding an extra parameter in a `settingsUpdate` call.
 ```js
 const { hull: ctx } = req;
 const authResponse = onAuthorize(ctx, message);
-const {
-  private_settings
-} = authResponse || {};                      //  |
-                                             //  |
-if (private_settings) {                      //  v
+const { private_settings } = authResponse || {}; //  |
+//  |
+if (private_settings) {
+  //  v
   ctx.helpers.settingsUpdate(private_settings, true);
 }
 ```
+
+## Partials
+
+In views (if you still use them), you can refer to partials in `ejs`:
+
+```
+<%- include ../../../assets/partials/hull-logo %>
+```
+
+## Hull-vm package
+
+This package embeds the common code for all connectors that run User-defined code.
+It gives you a set of methods and classes to abstract the common behaviours. Try to move as much code as possible there when evolving the VM connectors.
