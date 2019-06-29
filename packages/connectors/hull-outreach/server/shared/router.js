@@ -127,7 +127,7 @@ class HullRouter {
   }
 
   async outgoingData(
-    dataType: "account" | "user",
+    dataType: HullEntityType,
     context: HullContext,
     messages: Array<HullUserUpdateMessage> | Array<HullAccountUpdateMessage>
   ): HullNotificationResponse {
@@ -160,20 +160,17 @@ class HullRouter {
           if (
             dataType === "user" &&
             message.changes &&
-            message.changes.is_new
+            message.changes.is_new &&
+            _.isEmpty(message.user.email) &&
+            message.user["outreach/created_by_webhook"] === true &&
+            message.user["outreach/id"]
           ) {
-            if (
-              _.isEmpty(message.user.email) &&
-              _.get(message.user, "outreach/created_by_webhook") === true &&
-              _.get(message.user, "outreach/id")
-            ) {
-              return dispatcher.dispatchWithData(
-                context,
-                "getProspectById",
-                classType,
-                message
-              );
-            }
+            return dispatcher.dispatchWithData(
+              context,
+              "getProspectById",
+              classType,
+              message
+            );
           }
           return Promise.resolve();
         })
@@ -182,8 +179,10 @@ class HullRouter {
         jobName: "Outgoing Data",
         type: dataType
       });
+      dispatcher.close();
       return { results };
     } catch (error) {
+      console.log(error)
       dispatcher.close();
       context.client.logger.error("outgoing.job.error", {
         jobName: "Outgoing Data",

@@ -5,7 +5,6 @@ import type { Server } from "http";
 import express from "express";
 import type {
   HullServerConfig,
-  HullRouteMap,
   HullMetricsConfig,
   HullLogsConfig,
   HullCacheConfig,
@@ -14,6 +13,7 @@ import type {
   HullWorkerConfig,
   HullConnectorConfig,
   HullClient,
+  HullRouterFactory,
   HullWorker
 } from "../types";
 import {
@@ -28,8 +28,6 @@ import {
 } from "../handlers";
 
 import errorHandler from "./error";
-
-type RouterFactory = any => void | HullRouteMap;
 
 const path = require("path");
 const Promise = require("bluebird");
@@ -274,12 +272,12 @@ class HullConnector {
             options
           }))
         );
-        app.post(url, router);
+        return app.post(url, router);
       });
 
     // Breaking proper separation of concerns here, but its the least invasive way to override route setup with oAuth handlers
     const mapRoute = (
-      factory: RouterFactory,
+      factory: HullRouterFactory,
       section = "json",
       defaultMethod = "all",
       entries = []

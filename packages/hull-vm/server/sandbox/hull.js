@@ -8,7 +8,7 @@ import type {
   HullEntityType
 } from "hull";
 import _ from "lodash";
-import type { Attributes, AttributesContext, Event, Result } from "../../types";
+import type { Attributes, Event, Result } from "../../types";
 
 import {
   hasValidUserClaims,

@@ -1,6 +1,5 @@
 // @flow
 
-import _ from "lodash";
 import type {
   HullContext,
   // HullResponse,
@@ -8,17 +7,18 @@ import type {
   HullExternalResponse
 } from "hull";
 import ingest from "../lib/ingest";
+import type { Event } from "../types";
 
 const handler = async (
   ctx: HullContext,
   message: HullIncomingHandlerMessage
 ): HullExternalResponse => {
-  const { client, connector, metric } = ctx;
-  const { private_settings = {} } = connector;
-  const { api_key } = private_settings;
+  const { metric } = ctx;
+  // $FlowFixMe
+  const event: Event = message.body;
 
   metric.increment("ship.service_api.call");
-  ingest(ctx, message.body);
+  ingest(ctx, event);
 
   return {
     status: 200,

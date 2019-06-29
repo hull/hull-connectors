@@ -52,6 +52,23 @@ export type Tag = {
   created_at: number,
   updated_at: number
 };
+export type Teammate = {
+  _links: {
+    self: string,
+    related: {
+      inboxes: string,
+      conversations: string
+    }
+  },
+  id: string,
+  email: string,
+  username: string,
+  first_name: string,
+  last_name: string,
+  is_admin: boolean,
+  is_available: boolean,
+  is_blocked: boolean
+};
 export type Conversation = {
   _links: {
     self: string,
@@ -96,23 +113,6 @@ export type Source = {
   _links: { self: string },
   id: string,
   data?: {}
-};
-export type Teammate = {
-  _links: {
-    self: string,
-    related: {
-      inboxes: string,
-      conversations: string
-    }
-  },
-  id: string,
-  email: string,
-  username: string,
-  first_name: string,
-  last_name: string,
-  is_admin: boolean,
-  is_available: boolean,
-  is_blocked: boolean
 };
 export type EventPreview = {
   _links: { self: string },

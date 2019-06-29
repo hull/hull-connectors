@@ -1,6 +1,5 @@
 // @flow
 
-import _ from "lodash";
 import type {
   HullContext,
   // HullResponse,
@@ -13,9 +12,7 @@ const handler = async (
   ctx: HullContext,
   message: HullIncomingHandlerMessage
 ): HullExternalResponse => {
-  const { client, connector, metric } = ctx;
-  const { private_settings = {} } = connector;
-  const { api_key } = private_settings;
+  const { metric } = ctx;
 
   metric.increment("ship.service_api.call");
   ingest(ctx, message.body);

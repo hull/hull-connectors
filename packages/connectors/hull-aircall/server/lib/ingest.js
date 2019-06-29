@@ -13,8 +13,8 @@ import {
 export default async function ingest(ctx: HullContext, event: Event) {
   const { connector, client } = ctx;
   const { private_settings } = connector;
-  const { api_key, preferred_email = "" } = private_settings;
-  const { resource, timestamp, token, data } = event;
+  const { /* api_key,  */ preferred_email = "" } = private_settings;
+  // const { resource, timestamp, token, data } = event;
   const eventLabel = getEventName(event);
   if (eventLabel === undefined) {
     return;

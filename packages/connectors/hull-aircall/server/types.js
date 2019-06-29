@@ -28,6 +28,18 @@ export type EventType =
 
 export type Source = "teammate" | "rule";
 export type Resource = "number" | "user" | "contact" | "call";
+
+export type User = {
+  id: number,
+  direct_link: string,
+  name: string,
+  email: string,
+  available: boolean,
+  // eslint-disable-next-line no-use-before-define
+  numbers: Array<Number>,
+  created_at: string
+};
+
 export type Tag = {
   name: string,
   tagged_by: User,
@@ -51,16 +63,6 @@ export type Comment = {
   content: string,
   posted_by: User,
   posted_at: number
-};
-
-export type User = {
-  id: number,
-  direct_link: string,
-  name: string,
-  email: string,
-  available: boolean,
-  numbers: Array<Number>,
-  created_at: string
 };
 
 export type Email = {

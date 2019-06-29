@@ -1,5 +1,6 @@
 // @flow
 
+import type { agent } from "superagent";
 import type {
   HullClientCredentials,
   HullUserSegment,
@@ -8,7 +9,11 @@ import type {
   HullConnectorConfig,
   HullClientConfig
 } from "./index";
-import type { agent } from "superagent";
+
+import { incomingClaims, settingsUpdate, extractRequest } from "../helpers";
+
+const ConnectorCache = require("../infra/cache/connector-cache");
+const MetricAgent = require("../infra/instrumentation/metric-agent");
 
 // =====================================
 //   Hull Context

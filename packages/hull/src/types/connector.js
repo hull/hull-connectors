@@ -60,11 +60,9 @@ export type HullWorkerConfig = {
   queueName?: string
 };
 
-
 export type HullMetric =
   | ["value", string, number, Array<string>]
   | ["increment", string, number, Array<string>];
-
 
 export type HullMetricsConfig = {
   captureMetrics?: Array<HullMetric>,

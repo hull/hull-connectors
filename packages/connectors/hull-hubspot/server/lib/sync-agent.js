@@ -340,9 +340,7 @@ class SyncAgent {
         if (this.connector.private_settings.link_users_in_hull === true) {
           if (contact.properties.associatedcompanyid) {
             const linkingClient = this.hullClient.asUser(ident.claims).account({
-              anonymous_id: `hubspot:${
-                contact.properties.associatedcompanyid.value
-              }`
+              anonymous_id: `hubspot:${contact.properties.associatedcompanyid.value}`
             });
             await linkingClient
               .traits({})

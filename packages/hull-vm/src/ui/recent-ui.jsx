@@ -1,26 +1,22 @@
 // @flow
 
-import React, { Component } from "react";
+import React from "react";
 
 import Nav from "react-bootstrap/Nav";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Button from "react-bootstrap/Button";
 
-import _ from "lodash";
-
-import {
-  Code,
-  Preview,
-  KeyBindings,
-  PayloadSelector,
-  ConfigurationModal,
-  Area,
-  Header,
-  CodeTitle,
-  Spinner
-} from "./";
+import KeyBindings from "./key-bindings";
+import Area from "./area";
+import Header from "./header";
+import PayloadSelector from "./payload-selector";
+import CodeTitle from "./code-title";
+import Spinner from "./spinner";
+import Code from "./code";
+import Preview from "./preview";
 import VirtualMachineUI from "./vm-ui";
-import type { EngineState, Entry, Result } from "../../types";
+
+import type { EngineState, Entry } from "../../types";
 import type RecentEngine from "../recent-engine";
 
 type Props = {
@@ -42,30 +38,33 @@ const DEFAULT_STATE = {
 
 export default class RecentEntriesUI extends VirtualMachineUI<Props, State> {
   static leftColumnTitle = "leftColumnTitle";
+
   static tabCurrent = "tabCurrent";
+
   static tabPrevious = "tabPrevious";
+
   state = {
     ...DEFAULT_STATE,
     // eslint-disable-next-line react/destructuring-assignment
     ...this.props.engine.getState()
   };
 
-  constructor(props) {
-    super(props);
-  }
-
   hideInstructions = () => this.setState({ showConfig: false });
+
   showInstructions = () => this.setState({ showConfig: true });
 
   changeTab = (activeTab: string) => this.setState({ activeTab });
+
   selectEntry = (date: string) => {
     const { engine } = this.props;
     engine.selectEntryByDate(date);
   };
+
   handleRefresh = () => {
     const { engine } = this.props;
     engine.fetchRecent();
   };
+
   currentOrPrevious = (current: any, previous: any) => {
     const { activeTab } = this.state;
     return activeTab === "Current" ? current : previous;
@@ -76,6 +75,7 @@ export default class RecentEntriesUI extends VirtualMachineUI<Props, State> {
   renderSetupMessage() {
     return null;
   }
+
   render() {
     const {
       selected,
@@ -137,16 +137,22 @@ export default class RecentEntriesUI extends VirtualMachineUI<Props, State> {
                 id="preview-tabs"
               >
                 <Nav.Item>
-                  <Nav.Link eventKey="Current">{strings.centerColumnCurrentTab}</Nav.Link>
+                  <Nav.Link eventKey="Current">
+                    {strings.centerColumnCurrentTab}
+                  </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link eventKey="Previous">{strings.centerColumnPreviousTab}</Nav.Link>
+                  <Nav.Link eventKey="Previous">
+                    {strings.centerColumnPreviousTab}
+                  </Nav.Link>
                 </Nav.Item>
               </Nav>
             </Header>
             <CodeTitle
               title={`Code ${
-                showingCurrent ? "(Current)" : `(${strings.centerColumnPreviousTab})`
+                showingCurrent
+                  ? "(Current)"
+                  : `(${strings.centerColumnPreviousTab})`
               }`}
             />
             <Code

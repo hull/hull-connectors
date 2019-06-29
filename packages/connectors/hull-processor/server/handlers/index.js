@@ -5,7 +5,7 @@ import type {
   Connector
 } from "hull";
 
-import { statusHandler, recentHandler, previewHandler } from "hull-vm";
+import { statusHandler, previewHandler } from "hull-vm";
 import entityHandler from "./entity-handler";
 import configHandler from "./config-handler";
 import userUpdate from "./user-update";

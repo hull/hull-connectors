@@ -1,14 +1,9 @@
 // @flow
 import type {
   HullContext,
-  HullUser,
-  HullEvent,
-  HullSegment,
   HullIncomingHandlerMessage,
-  HullExternalResponse,
-  HullUserUpdateMessage
+  HullExternalResponse
 } from "hull";
-import _ from "lodash";
 import type { Entry } from "hull-vm";
 import { compute } from "hull-vm";
 import { getEntity, getPayload } from "../lib/get-payload";

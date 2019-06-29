@@ -4,7 +4,6 @@ import type {
   HullIncomingHandlerMessage,
   HullExternalResponse
 } from "hull";
-import type { ConfResponse } from "hull-vm";
 
 const confHandler = (
   ctx: HullContext,

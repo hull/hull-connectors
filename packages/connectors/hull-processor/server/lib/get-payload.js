@@ -4,8 +4,6 @@ import type {
   HullUser,
   HullEvent,
   HullSegment,
-  HullIncomingHandlerMessage,
-  HullExternalResponse,
   HullUserUpdateMessage,
   HullEntityType
 } from "hull";
@@ -22,8 +20,8 @@ const getSegments = async (ctx, id): Promise<Array<HullSegment>> => {
   return _.pick(s, "id", "name", "type", "updated_at", "created_at");
 };
 // const getEvents = get("/events");
-const getUserById = get("/user_report");
-const getAccountById = get("/account_report");
+// const getUserById = get("/user_report");
+// const getAccountById = get("/account_report");
 
 const getEventQuery = id => ({
   query: {

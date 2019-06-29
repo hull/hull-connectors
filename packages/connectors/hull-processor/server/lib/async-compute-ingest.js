@@ -21,7 +21,7 @@ const asyncComputeAndIngest = async (
     payload: HullUserUpdateMessage | HullAccountUpdateMessage
   }
 ) => {
-  const { connector, client, metric } = ctx;
+  const { client } = ctx;
   try {
     const { user = {}, account } = payload;
     const result = await compute(ctx, {
@@ -41,6 +41,7 @@ const asyncComputeAndIngest = async (
       )}`,
       err
     });
+    throw err;
   }
 };
 

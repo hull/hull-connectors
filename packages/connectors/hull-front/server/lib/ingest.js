@@ -14,7 +14,7 @@ export default async function ingest(
   ctx: HullContext,
   eventPreview: EventPreview
 ) {
-  const { _links, type, emitted_at, id } = eventPreview;
+  const { _links } = eventPreview;
   const { self } = _links;
   const { connector, client } = ctx;
   const { private_settings } = connector;

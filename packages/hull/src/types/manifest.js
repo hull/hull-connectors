@@ -1,5 +1,5 @@
 // @flow
-import type { HTTPMethod, HullConnectorSettings } from "./index";
+import type { HTTPMethod } from "./index";
 
 // Supported Dashboard widget types
 type HullWidgetFormat = "popup" | "credentials" | "action";

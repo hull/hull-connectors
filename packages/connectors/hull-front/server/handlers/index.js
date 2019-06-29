@@ -1,9 +1,5 @@
 // @flow
-import type {
-  HullExternalResponse,
-  HullHandlersConfiguration,
-  Connector
-} from "hull";
+import type { HullHandlersConfiguration } from "hull";
 
 import incomingHandler from "./incoming-handler";
 import credentialsHandler from "./credentials-handler";

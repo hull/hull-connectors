@@ -1,7 +1,7 @@
 // @flow
 
 import _ from "lodash";
-import type { Config, Entry, RecentEngineState} from "hull-vm";
+import type { Config, Entry, RecentEngineState } from "hull-vm";
 import Engine from "./vm-engine";
 
 export default class RecentEntriesEngine extends Engine {

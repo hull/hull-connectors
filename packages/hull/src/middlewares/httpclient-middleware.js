@@ -17,4 +17,4 @@ module.exports = function httpClientMiddlewareFactory() {
     hull.request = httpClient(hull);
     next();
   };
-}
+};

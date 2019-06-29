@@ -42,7 +42,7 @@ export const getClaims = (event: Event): void | HullUserClaims => {
 export const getEventData = ({
   type,
   conversation,
-  target
+  _target
 }: Event): HullUserEventProperties => ({
   event_type: type,
   tags: _.map(conversation.tags, "name"),

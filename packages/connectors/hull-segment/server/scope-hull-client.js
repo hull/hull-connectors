@@ -1,6 +1,6 @@
 // @flow
 
-import type { HullClient, HullUser, HullAdditionalClaims } from "hull";
+import type { HullClient, HullAdditionalClaims } from "hull";
 import type { SegmentConnector, SegmentIncomingPayload } from "./types";
 
 const EMAIL_REGEXP = /([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})/i;

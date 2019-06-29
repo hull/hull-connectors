@@ -11,10 +11,10 @@ import type {
   Call,
   Contact,
   CallEvent,
-  ContactEvent,
-  NumberEvent,
-  UserEvent,
-  Email
+  ContactEvent
+  // , NumberEvent,
+  // UserEvent,
+  // Email
 } from "../types";
 
 const propsFromCall = ({
@@ -93,9 +93,9 @@ const PROPERTIES = {
   "call.voicemail_left": (event: CallEvent) => ({
     ...propsFromCall(event.data)
   }),
-  "contact.created": (event: ContactEvent) => ({}),
-  "contact.updated": (event: ContactEvent) => ({}),
-  "contact.deleted": (event: ContactEvent) => ({})
+  "contact.created": (_event: ContactEvent) => ({}),
+  "contact.updated": (_event: ContactEvent) => ({}),
+  "contact.deleted": (_event: ContactEvent) => ({})
 };
 
 const ATTRIBUTES = {
@@ -167,17 +167,22 @@ export const getEventData = (event: Event): HullUserEventProperties => {
   return handler(event);
 };
 
+const getContact = (resource, event) => {
+  if (resource === "call") {
+    return event.data.contact;
+  }
+  if (resource === "contact") {
+    return event.data;
+  }
+  return undefined;
+};
+
 export const getClaims = (preferred_email: string) => (
   event: Event
 ): void | HullUserClaims => {
-  const { resource, data } = event;
+  const { resource } = event;
   // $FlowFixMe
-  const contact: void | Contact =
-    resource === "call"
-      ? event.data.contact
-      : resource === "contact"
-      ? event.data
-      : undefined;
+  const contact: void | Contact = getContact(resource, event);
   if (!contact) {
     return undefined;
   }

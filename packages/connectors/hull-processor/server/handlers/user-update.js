@@ -6,28 +6,24 @@ import type {
 } from "hull";
 import asyncComputeIngest from "../lib/async-compute-ingest";
 
-const debug = require("debug")("hull-processor:user-update");
-
 type FlowControl = {
   flow_size?: number,
   flow_in?: number
 };
-const update = ({
-  EntryModel,
-  flow_size = 100,
-  flow_in = 10
-}: FlowControl) => async (
+const update = ({ flow_size = 100, flow_in = 10 }: FlowControl) => async (
   ctx: HullContext,
   messages: Array<HullUserUpdateMessage>
 ): HullNotificationResponse => {
-  const { client, connector, metric } = ctx;
+  const { connector } = ctx;
   const { private_settings = {} } = connector;
   const { code = "" } = private_settings;
 
   // const user_ids = _.map(messages, "user.id");
   try {
-    const responses = await Promise.all(
-      messages.map(payload => asyncComputeIngest(ctx, { payload, code, entity: "user" }))
+    await Promise.all(
+      messages.map(payload =>
+        asyncComputeIngest(ctx, { payload, code, entity: "user" })
+      )
     );
     return {
       flow_control: {

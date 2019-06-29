@@ -1,6 +1,6 @@
 // @flow
 
-import type { Middleware, $Application, Router } from "express";
+import type { $Application, Router } from "express";
 import type {
   HullConnectorConfig,
   HullCache,
@@ -9,7 +9,6 @@ import type {
   HTTPMethod
 } from "./index";
 
-type RouterFactory = any => Router;
 type ExpressMethod = "use" | HTTPMethod;
 
 // =====================================
@@ -32,3 +31,5 @@ export type HullServerFunction = (
   app: $Application,
   extra?: Object
 ) => $Application;
+
+export type HullRouterFactory = any => void | HullRouteMap;

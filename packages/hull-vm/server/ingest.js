@@ -2,7 +2,7 @@
 import _ from "lodash";
 import type { HullContext } from "hull";
 import { callLinks, callEvents, callTraits } from "./side-effects";
-import type { Payload, Result } from "../types";
+import type { Result } from "../types";
 import serialize from "./serialize";
 
 const debug = require("debug")("hull-incoming-webhooks:ingest");
@@ -10,7 +10,7 @@ const debug = require("debug")("hull-incoming-webhooks:ingest");
 // const omitClaimOptions = traits => traits.map(u => _.omit(u, "claimsOptions"));
 
 export default async function ingest(ctx: HullContext, result: Result) {
-  const { connector, client, metric } = ctx;
+  const { client, metric } = ctx;
   debug("ingest.result", result);
 
   const {
@@ -88,5 +88,5 @@ export default async function ingest(ctx: HullContext, result: Result) {
   }
 
   // Wait until we've ingested everything
-  return await Promise.all(promises);
+  return Promise.all(promises);
 }

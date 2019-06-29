@@ -1,6 +1,5 @@
 // @flow
 import type { Connector, HullConnector, HullConnectorConfig } from "hull";
-import type { Server } from "http";
 
 const _ = require("lodash");
 const Hull = require("hull");

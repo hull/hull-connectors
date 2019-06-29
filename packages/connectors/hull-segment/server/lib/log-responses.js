@@ -2,12 +2,7 @@
 
 import _ from "lodash";
 
-import type {
-  HullContext,
-  HullUserUpdateMessage,
-  HullAccountUpdateMessage,
-  HullNotificationResponse
-} from "hull";
+import type { HullContext, HullNotificationResponse } from "hull";
 import type { SegmentConnector } from "../types";
 
 module.exports = (

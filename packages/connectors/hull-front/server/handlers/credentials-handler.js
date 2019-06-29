@@ -10,7 +10,7 @@ const credentialsHandler = (
   message: HullIncomingHandlerMessage
 ): HullExternalResponse => {
   const { clientCredentialsEncryptedToken, connector } = ctx;
-  const { private_settings = {} } = connector;
+  // const { private_settings = {} } = connector;
   // const { code } = private_settings;
   const { hostname } = message;
   if (hostname && clientCredentialsEncryptedToken) {

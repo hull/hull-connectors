@@ -1,15 +1,15 @@
 // @flow
 
-import type { $Application, $Request, $Response, NextFunction } from "express";
-import type { StatusError, HullRequest } from "../types";
+import type { NextFunction } from "express";
+import type { StatusError, HullRequest, HullResponse } from "../types";
 
 const debug = require("debug")("hull-segment:auth-middleware");
 /*
   Parses current request from Segment. Stores the token from req.headers into req.hull.token
 */
 module.exports = function authTokenMiddleware(
-  req: $Request & { hull: any },
-  res: $Response,
+  req: HullRequest,
+  res: HullResponse,
   next: NextFunction
 ) {
   req.hull = req.hull || {};
@@ -19,7 +19,7 @@ module.exports = function authTokenMiddleware(
     const [authType, token64] = authorization.split(" ");
     if (authType === "Basic" && token64) {
       try {
-        const token = new Buffer(token64, "base64")
+        const token = Buffer.from(token64, "base64")
           .toString()
           .split(":")[0]
           .trim();

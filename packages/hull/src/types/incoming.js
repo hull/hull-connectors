@@ -1,4 +1,4 @@
-//@flow
+// @flow
 
 // ====================================
 //   Incoming request handlers - everything that doesn't come from Kraken or Batch

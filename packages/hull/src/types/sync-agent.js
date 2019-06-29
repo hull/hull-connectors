@@ -5,6 +5,8 @@ import type {
   HullAccountUpdateMessage
 } from "./index";
 
+export type HullSendResponse = Promise<*>;
+export type HullSyncResponse = Promise<*>;
 export interface HullSyncAgent {
   constructor(ctx: HullContext): void;
   sendUserUpdateMessages(
@@ -16,6 +18,3 @@ export interface HullSyncAgent {
   syncConnectorUpdateMessage(): HullSyncResponse;
   syncSegmentUpdateMessage(): HullSyncResponse;
 }
-
-export type HullSendResponse = Promise<*>;
-export type HullSyncResponse = Promise<*>;

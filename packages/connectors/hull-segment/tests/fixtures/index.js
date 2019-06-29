@@ -1,8 +1,15 @@
+const alias = require("./alias.json");
+const group = require("./group.json");
+const identify = require("./identify.json");
+const page = require("./page.json");
+const screen = require("./screen.json");
+const track = require("./track.json");
+
 module.exports = {
-  alias: require("./alias.json"),
-  group: require("./group.json"),
-  identify: require("./identify.json"),
-  page: require("./page.json"),
-  screen: require("./screen.json"),
-  track: require("./track.json")
+  alias,
+  group,
+  identify,
+  page,
+  screen,
+  track
 };

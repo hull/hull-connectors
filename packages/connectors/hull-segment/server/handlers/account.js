@@ -8,12 +8,8 @@ import type {
   HullNotificationResponse,
   HullMessageResponse
 } from "hull";
-import type {
-  SegmentClientFactory,
-  SegmentContext,
-  SegmentConnector
-} from "../types";
-import { getfirstNonNull, getFirstAnonymousIdFromEvents } from "../lib/utils";
+import type { SegmentClientFactory, SegmentConnector } from "../types";
+import { getfirstNonNull } from "../lib/utils";
 
 // import { notificationDefaultFlowControl } from "hull/lib/utils";
 
@@ -30,26 +26,20 @@ function update(
 
   // Empty payload ?
   if (!account.id) {
-    return;
+    return undefined;
   }
 
   const asAccount = client.asAccount(account);
 
   const {
     synchronized_account_properties = [],
-    synchronized_account_segments = [],
-    send_events = []
+    synchronized_account_segments = []
   } = private_settings;
 
-  const {
-    write_key,
-    handle_accounts,
-    public_id_field,
-    public_account_id_field = "external_id"
-  } = settings;
+  const { write_key, public_account_id_field = "external_id" } = settings;
 
   if (!write_key) {
-    return;
+    return undefined;
   }
 
   const analytics = analyticsClient(write_key);
@@ -84,9 +74,9 @@ function update(
 
   const traits = _.reduce(
     synchronized_account_properties.map(k => k.replace(/^account\./, "")),
-    (traits, attribute) => {
-      traits[attribute.replace("/", "_")] = account[attribute];
-      return traits;
+    (tt, attribute) => {
+      tt[attribute.replace("/", "_")] = account[attribute];
+      return tt;
     },
     {
       hull_segments: _.map(account_segments, "name")

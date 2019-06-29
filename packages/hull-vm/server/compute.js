@@ -46,7 +46,7 @@ export default async function compute(
     connector,
     ship: connector
   };
-  if(_.size(claims)) {
+  if (_.size(claims)) {
     Object.assign(frozen, hull);
   }
 

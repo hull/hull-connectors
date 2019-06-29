@@ -34,7 +34,7 @@ const update = (
 
   // Empty payload ?
   if (!user.id || !connector.id) {
-    return;
+    return undefined;
   }
 
   const asUser = client.asUser({ ...user });
@@ -54,7 +54,7 @@ const update = (
   } = settings;
 
   if (!write_key) {
-    return;
+    return undefined;
   }
 
   const analytics = analyticsClient(write_key);
@@ -124,7 +124,7 @@ const update = (
   // asUser.logger.info("outgoing.user.success", { traits });
 
   events.map((e: HullEvent): HullKrakenResponse => {
-    const { event_id, event, event_source, context = {} } = e;
+    const { event_id, event_source } = e;
     if (event_source === "segment" && !forward_events) {
       // Skip event if it comes from Segment and we're not forwarding events
       return {
@@ -158,7 +158,7 @@ const update = (
       integrations
     });
 
-    const type = event === "page" || event === "screen" ? event : "track";
+    // const type = event === "page" || event === "screen" ? event : "track";
 
     if (track.channel === "browser") {
       metric.increment("ship.service_api.call", 1, ["type:page"]);

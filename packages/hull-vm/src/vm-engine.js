@@ -139,7 +139,7 @@ export default class Engine extends EventEmitter {
         const response: PreviewResponse = await this.request({
           url: "preview",
           method: "post",
-          data: { code, payload, claims}
+          data: { code, payload, claims }
         });
         const state = this.getState();
         this.setState({

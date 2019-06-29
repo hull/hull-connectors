@@ -59,6 +59,7 @@ function start(element, deployment, hull) {
   Hull.on("hull.user.*", identify);
   identify(hull.currentUser());
   Hull.on("hull.user.logout", () => {
+    // eslint-disable-next-line no-unused-expressions
     window.analytics && window.analytics.reset();
   });
 }

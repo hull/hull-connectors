@@ -1,4 +1,5 @@
 /* global console, module*/
+/* eslint-disable */
 
 function segment() {
   // Create a queue, but don't obliterate an existing one!

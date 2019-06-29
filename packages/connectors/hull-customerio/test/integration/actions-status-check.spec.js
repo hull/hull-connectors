@@ -1,6 +1,6 @@
 const { ContextMock } = require("./helper/connector-mock");
 
-const action = require("../../server/actions/status");
+const action = require("../../server/handlers/status");
 const nock = require("nock");
 
 describe("actions-status-check", () => {
@@ -15,8 +15,8 @@ describe("actions-status-check", () => {
       synchronized_segments: ["cio leads"]
     };
 
-    const req = new ContextMock("1234", {}, private_settings);
-    req.url = "https://hull-customerio.herokuapp.com/status/";
+    const ctx = new ContextMock("1234", {}, private_settings);
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
     nock("https://track.customer.io", {
       reqheaders: {
@@ -29,7 +29,7 @@ describe("actions-status-check", () => {
           message: "nice credentials."
         }
       });
-    action(req).then((status) => {
+    action(ctx).then((status) => {
       expect(status).toEqual({ status: "ok", messages: [] });
       expect(nock.isDone()).toBe(true);
       done();
@@ -43,8 +43,8 @@ describe("actions-status-check", () => {
       synchronized_segments: ["cio leads"]
     };
 
-    const req = new ContextMock("1234", {}, private_settings);
-    req.url = "https://hull-customerio.herokuapp.com/status/";
+    const ctx = new ContextMock("1234", {}, private_settings);
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
     nock("https://track.customer.io", {
       reqheaders: {
@@ -57,7 +57,7 @@ describe("actions-status-check", () => {
           error: "Unauthorized request"
         }
       });
-    action(req).then((status) => {
+    action(ctx).then((status) => {
       expect(status).toEqual({ status: "error", messages: ["Invalid Credentials: Verify Site ID and API Key in Settings."] });
       expect(nock.isDone()).toBe(true);
       done();
@@ -71,8 +71,8 @@ describe("actions-status-check", () => {
       synchronized_segments: ["cio leads"]
     };
 
-    const req = new ContextMock("1234", {}, private_settings);
-    req.url = "https://hull-customerio.herokuapp.com/status/";
+    const ctx = new ContextMock("1234", {}, private_settings);
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
     nock("https://track.customer.io", {
       reqheaders: {
@@ -85,7 +85,7 @@ describe("actions-status-check", () => {
           error: "Some weird error"
         }
       });
-    action(req).then((status) => {
+    action(ctx).then((status) => {
       expect(status).toEqual({ status: "error", messages: ["Error when trying to connect with Customer.io: Internal Server Error"] });
       expect(nock.isDone()).toBe(true);
       done();
@@ -99,8 +99,8 @@ describe("actions-status-check", () => {
       synchronized_segments: []
     };
 
-    const req = new ContextMock("1234", {}, private_settings);
-    req.url = "https://hull-customerio.herokuapp.com/status/";
+    const ctx = new ContextMock("1234", {}, private_settings);
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
     nock("https://track.customer.io", {
       reqheaders: {
@@ -113,7 +113,7 @@ describe("actions-status-check", () => {
           message: "nice credentials."
         }
       });
-    action(req).then((status) => {
+    action(ctx).then((status) => {
       expect(status).toEqual({ status: "warning", messages: ["No users will be synchronized because you have not specified at least one whitelisted segment in Settings."] });
       expect(nock.isDone()).toBe(true);
       done();
@@ -125,10 +125,10 @@ describe("actions-status-check", () => {
       synchronized_segments: ["cio leads"],
     };
 
-    const req = new ContextMock("1234", {}, private_settings);
-    req.url = "https://hull-customerio.herokuapp.com/status/";
+    const ctx = new ContextMock("1234", {}, private_settings);
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
-    action(req).then((status) => {
+    action(ctx).then((status) => {
       expect(status).toEqual({ status: "setupRequired", messages: ["Please enter your Customer.io Site ID and API Key"] });
       done();
     });
@@ -140,10 +140,10 @@ describe("actions-status-check", () => {
       synchronized_segments: ["cio leads"]
     };
 
-    const req = new ContextMock("1234", {}, private_settings);
-    req.url = "https://hull-customerio.herokuapp.com/status/";
+    const ctx = new ContextMock("1234", {}, private_settings);
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
-    action(req).then((status) => {
+    action(ctx).then((status) => {
       expect(status).toEqual({ status: "setupRequired", messages: ["Please enter your Customer.io Site ID and API Key"] });
       done();
     });
@@ -155,10 +155,10 @@ describe("actions-status-check", () => {
       synchronized_segments: ["cio leads"]
     };
 
-    const req = new ContextMock("1234", {}, private_settings);
-    req.url = "https://hull-customerio.herokuapp.com/status/";
+    const ctx = new ContextMock("1234", {}, private_settings);
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
-    action(req).then((status) => {
+    action(ctx).then((status) => {
       expect(status).toEqual({ status: "setupRequired", messages: ["Please enter your Customer.io Site ID and API Key"] });
       done();
     });

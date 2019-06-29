@@ -2,17 +2,15 @@
 import type { NextFunction, $Request, $Response } from "express";
 import type { StatusError } from "../types";
 
-const debug = require("debug")("hull-segment:error-handler");
-
 type EnhancedRequest = $Request & {
   segment: any
 };
 
-module.exports = function(
+module.exports = function error(
   err: StatusError,
   req: EnhancedRequest,
   res: $Response,
-  next: NextFunction
+  _next: NextFunction
 ) {
   // eslint-disable-line no-unused-vars
   if (err) {

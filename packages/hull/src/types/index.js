@@ -14,30 +14,13 @@
 /* :: export type * from "./sync-agent"; */
 /* :: export type * from "./settings"; */
 
-// import type { Middleware, $Application, Router } from "express";
-import type {
-  HullSegment,
-  HullAccountSegment,
-  HullUserSegment,
-  HullUser,
-  HullEvent,
-  HullAccount,
-  HullClientConfig,
-  HullAttributeName,
-  HullAttributeValue
-} from "hull-client";
-
 import type Cache from "../infra/cache/cache-agent";
 import type Queue from "../infra/queue/queue-agent";
 import type Worker from "../connector/worker";
 import type Instrumentation from "../infra/instrumentation/instrumentation-agent";
-import { incomingClaims, settingsUpdate, extractRequest } from "../helpers";
 
 export type * from "hull-client";
 const Client = require("hull-client");
-
-const ConnectorCache = require("../infra/cache/connector-cache");
-const MetricAgent = require("../infra/instrumentation/metric-agent");
 
 export type HullInstrumentation = Instrumentation;
 export type HullCache = Cache;
@@ -67,9 +50,3 @@ export type HTTPMethod =
 export type HullConnectorSettings = {
   [HullConnectorSettingName: string]: any
 };
-
-// ============================
-// OOP types
-// ============================
-
-/* Configurable Claims */

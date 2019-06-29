@@ -1,19 +1,9 @@
 // @flow
-import type {
-  HullContext,
-  HullUser,
-  HullEvent,
-  HullExternalResponse
-} from "hull";
+import type { HullEvent } from "hull";
 import _ from "lodash";
 import CONSTANTS from "./constants";
 import type { HullElasticContext } from "./group-context";
 import group_context from "./group-context";
-
-type EventResponse = {
-  data: Array<HullEvent>,
-  error?: string
-};
 
 const propsReducer = (props, prop) => {
   props[prop.field_name] = _.get(
