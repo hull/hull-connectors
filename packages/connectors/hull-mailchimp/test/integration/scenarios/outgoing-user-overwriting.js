@@ -49,29 +49,29 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
       channel: "user:update",
       externalApiMock: () => {
         const scope = nock("https://mock.api.mailchimp.com/3.0");
-        scope.get("/lists/1/webhooks")
-          .reply(200, {
-            webhooks: [
-              { url: `localhost:8000/mailchimp?ship=123456789012345678901234` }
-            ]
-          });
-        scope.post("/lists/1", {
-          members: [
-            {
-              email_type: "html",
-              merge_fields: {
-                OVERWRITTEN_MERGE_FIELD: "overwriting value",
-                OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "overwriting value"
-              },
-              interests: {
-                MailchimpInterestId: true
-              },
-              email_address: email,
-              status_if_new: "subscribed"
-            }
-          ],
-          update_existing: true
-        })
+        scope.get("/lists/1/webhooks").reply(200, {
+          webhooks: [
+            { url: "localhost:8000/mailchimp?ship=123456789012345678901234" }
+          ]
+        });
+        scope
+          .post("/lists/1", {
+            members: [
+              {
+                email_type: "html",
+                merge_fields: {
+                  OVERWRITTEN_MERGE_FIELD: "overwriting value",
+                  OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "overwriting value"
+                },
+                interests: {
+                  MailchimpInterestId: true
+                },
+                email_address: email,
+                status_if_new: "subscribed"
+              }
+            ],
+            update_existing: true
+          })
           .reply(200);
         return scope;
       },
@@ -84,7 +84,8 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
             email,
             traits_custom_will_overwrite: "overwriting value",
             "traits_mailchimp/overwritten_merge_field": "will be overwritten",
-            "traits_mailchimp/overwritten_merge_field_from_account": "will be overwritten"
+            "traits_mailchimp/overwritten_merge_field_from_account":
+              "will be overwritten"
           },
           account: {
             custom_account_will_overwrite: "overwriting value"
@@ -97,7 +98,7 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
           type: "next",
           in: 10,
           in_time: 30000,
-          size: 50,
+          size: 50
         }
       },
       logs: [
@@ -108,8 +109,21 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
           { changes: {}, events: [], segments: ["hullSegmentName"] }
         ],
         ["debug", "outgoing.job.start", expect.whatever(), { messages: 1 }],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ method: "GET", url: "/lists/{{listId}}/webhooks" })],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ method: "POST", url: "/lists/{{listId}}" })],
+        [
+          "debug",
+          "connector.service_api.call",
+          expect.whatever(),
+          expect.objectContaining({
+            method: "GET",
+            url: "/lists/{{listId}}/webhooks"
+          })
+        ],
+        [
+          "debug",
+          "connector.service_api.call",
+          expect.whatever(),
+          expect.objectContaining({ method: "POST", url: "/lists/{{listId}}" })
+        ],
         [
           "info",
           "outgoing.user.success",
@@ -119,7 +133,7 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
               email_address: email,
               email_type: "html",
               interests: {
-                MailchimpInterestId: true,
+                MailchimpInterestId: true
               },
               merge_fields: {
                 OVERWRITTEN_MERGE_FIELD: "overwriting value",
@@ -129,7 +143,12 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
             }
           }
         ],
-        ["debug", "outgoing.job.success", expect.whatever(), { errors: 0, successes: 1 }]
+        [
+          "debug",
+          "outgoing.job.success",
+          expect.whatever(),
+          { errors: 0, successes: 1 }
+        ]
       ],
       firehoseEvents: [],
       metrics: [
@@ -138,7 +157,11 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
         ["value", "connector.service_api.response_time", expect.whatever()],
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()],
-        ["value", "connector.send_user_update_messages.time", expect.whatever()],
+        [
+          "value",
+          "connector.send_user_update_messages.time",
+          expect.whatever()
+        ],
         ["value", "connector.send_user_update_messages.messages", 1],
         ["increment", "ship.outgoing.users", 1]
       ]
