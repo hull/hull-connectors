@@ -22,8 +22,14 @@ const connector = {
     },
     synchronized_user_segments: ["hullSegmentId"],
     outgoing_user_attributes: [
-      { hull: "traits_custom_will_overwrite", service: "OVERWRITTEN_MERGE_FIELD" },
-      { hull: "account.custom_account_will_overwrite", service: "OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT" }
+      {
+        hull: "traits_custom_will_overwrite",
+        service: "OVERWRITTEN_MERGE_FIELD"
+      },
+      {
+        hull: "account.custom_account_will_overwrite",
+        service: "OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT"
+      }
     ]
   }
 };
@@ -79,12 +85,8 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
             traits_custom_will_overwrite: "ovewriting value",
             "traits_mailchimp/overwritten_merge_field": "will be overwritten",
             traits_custom_wont_overwrite: "ignored value",
-            "traits_mailchimp/not_overwritten_merge_field":
-              "won't be overwritten",
             "traits_mailchimp/overwritten_merge_field_from_account":
-              "will be overwritten",
-            "traits_mailchimp/not_overwritten_merge_field_from_account":
-              "won't be overwritten"
+              "will be overwritten"
           },
           account: {
             custom_account_will_overwrite: "ovewriting value",
