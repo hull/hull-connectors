@@ -22,26 +22,8 @@ const connector = {
     },
     synchronized_user_segments: ["hullSegmentId"],
     outgoing_user_attributes: [
-      {
-        hull: "traits_custom_will_overwrite",
-        service: "OVERWRITTEN_MERGE_FIELD",
-        overwrite: true
-      },
-      {
-        hull: "custom_wont_overwrite",
-        service: "NOT_OVERWRITTEN_MERGE_FIELD",
-        overwrite: false
-      },
-      {
-        hull: "account.custom_account_will_overwrite",
-        service: "OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT",
-        overwrite: true
-      },
-      {
-        hull: "account.custom_account_wont_overwrite",
-        service: "NOT_OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT",
-        overwrite: false
-      }
+      { hull: "traits_custom_will_overwrite", service: "OVERWRITTEN_MERGE_FIELD" },
+      { hull: "account.custom_account_will_overwrite", service: "OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT" }
     ]
   }
 };
@@ -73,10 +55,7 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
                 email_type: "html",
                 merge_fields: {
                   OVERWRITTEN_MERGE_FIELD: "ovewriting value",
-                  NOT_OVERWRITTEN_MERGE_FIELD: "won't be overwritten",
-                  OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "ovewriting value",
-                  NOT_OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT:
-                    "won't be overwritten"
+                  OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "ovewriting value"
                 },
                 interests: {
                   MailchimpInterestId: true
@@ -174,9 +153,7 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
               },
               merge_fields: {
                 OVERWRITTEN_MERGE_FIELD: "ovewriting value",
-                NOT_OVERWRITTEN_MERGE_FIELD: "won't be overwritten",
-                OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "ovewriting value",
-                NOT_OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "won't be overwritten"
+                OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "ovewriting value"
               },
               status_if_new: "subscribed"
             }
