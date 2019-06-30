@@ -240,7 +240,7 @@ class HullConnector {
       if (server) {
         this.server = server;
       }
-      console.log(`Started server on port ${this.connectorConfig.port}`);
+      debug(`Started server on port ${this.connectorConfig.port}`);
     } else {
       debug("No Server started: `serverConfig.start === false`");
     }

@@ -100,8 +100,9 @@ function credentialsFromQueryMiddlewareFactory() {
       ) {
         clientCredentials.id = clientCredentials.ship;
         delete clientCredentials.ship;
-        console.warn(
-          "You have passed a config parameter called `ship`, which is deprecated. please use `id` instead"
+
+        debug(
+          "WARNING: You have passed a config parameter called `ship`, which is deprecated. please use `id` instead"
         );
       }
 
