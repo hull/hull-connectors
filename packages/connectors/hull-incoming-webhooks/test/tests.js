@@ -11,7 +11,7 @@ expect.extend({
 
 const STANDARD_EVENT_PROPS = {
   event_id: expect.whatever(),
-  source: "incoming-webhook",
+  source: "code",
   referer: null,
   url: null,
   ip: "0"
