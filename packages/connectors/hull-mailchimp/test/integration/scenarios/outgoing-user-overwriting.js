@@ -84,13 +84,11 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
             email,
             traits_custom_will_overwrite: "ovewriting value",
             "traits_mailchimp/overwritten_merge_field": "will be overwritten",
-            traits_custom_wont_overwrite: "ignored value",
             "traits_mailchimp/overwritten_merge_field_from_account":
               "will be overwritten"
           },
           account: {
-            custom_account_will_overwrite: "ovewriting value",
-            custom_account_wont_overwrite: "ignored value"
+            custom_account_will_overwrite: "ovewriting value"
           },
           segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
         }
