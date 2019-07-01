@@ -28,7 +28,11 @@
       "options": {
         "name": "Hubspot",
         "strategy": {
-          "scope": ["oauth", "contacts", "timeline"]
+          "scope": [
+            "oauth",
+            "contacts",
+            "timeline"
+          ]
         }
       }
     },
@@ -66,7 +70,10 @@
           },
           "hull": {
             "title": "Hull Identifier",
-            "enum": ["external_id", "email"]
+            "enum": [
+              "external_id",
+              "email"
+            ]
           },
           "required": {
             "type": "boolean",
@@ -166,7 +173,10 @@
           },
           "hull": {
             "title": "Hull Identifier",
-            "enum": ["external_id", "domain"]
+            "enum": [
+              "external_id",
+              "domain"
+            ]
           },
           "required": {
             "type": "boolean",
@@ -417,19 +427,25 @@
       "url": "/schema/contact_properties",
       "name": "contact_properties",
       "handler": "getContactProperties",
-      "options": { "respondWithError": true }
+      "options": {
+        "respondWithError": true
+      }
     },
     {
       "url": "/schema/incoming_user_claims",
       "name": "incoming_user_claims",
       "handler": "getIncomingUserClaims",
-      "options": { "respondWithError": false }
+      "options": {
+        "respondWithError": false
+      }
     },
     {
       "url": "/schema/incoming_account_claims",
       "name": "incoming_account_claims",
       "handler": "getIncomingAccountClaims",
-      "options": { "respondWithError": false }
+      "options": {
+        "respondWithError": false
+      }
     },
     {
       "url": "/schema/company_properties",
@@ -441,13 +457,18 @@
     {
       "title": "Connect with Hubspot",
       "step": "credentials",
-      "properties": ["private_settings.oauth"]
+      "properties": [
+        "private_settings.oauth"
+      ]
     },
     {
       "title": "Actions",
       "step": "actions",
       "description": "These are the actions you can perform",
-      "properties": ["json.fetch_all_contacts", "json.fetch_all_companies"]
+      "properties": [
+        "json.fetch_all_contacts",
+        "json.fetch_all_companies"
+      ]
     },
     {
       "title": "User Incoming Setup",
@@ -480,43 +501,6 @@
       "properties": [
         "private_settings.synchronized_account_segments",
         "private_settings.outgoing_user_attributes",
-        "private_settings.link_users_in_service",
-        "private_settings.link_users_in_hull"
-      ]
-    }
-  ],
-  "settings_sections": [
-    {
-      "title": "User Incoming Setup",
-      "description": "How we capture Hubspot Contacts as users",
-      "properties": [
-        "private_settings.incoming_user_claims",
-        "private_settings.incoming_user_attributes"
-      ]
-    },
-    {
-      "title": "User Outgoing Setup",
-      "description": "How we send Users as Hubspot Contacts",
-      "properties": [
-        "private_settings.synchronized_user_segments",
-        "private_settings.outgoing_user_attributes"
-      ]
-    },
-    {
-      "title": "Account Incoming Setup",
-      "description": "How we capture Hubspot Companies as Accounts",
-      "properties": [
-        "private_settings.handle_accounts",
-        "private_settings.incoming_account_claims",
-        "private_settings.incoming_account_attributes"
-      ]
-    },
-    {
-      "title": "Account Outgoing Setup",
-      "description": "Following section configures how we create or update `Hubspot Companies`",
-      "properties": [
-        "private_settings.synchronized_account_segments",
-        "private_settings.outgoing_account_attributes",
         "private_settings.link_users_in_service",
         "private_settings.link_users_in_hull"
       ]

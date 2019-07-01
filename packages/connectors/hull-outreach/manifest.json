@@ -90,7 +90,10 @@
           },
           "hull": {
             "title": "Hull User Ident",
-            "enum": ["external_id", "email"]
+            "enum": [
+              "external_id",
+              "email"
+            ]
           }
         }
       },
@@ -155,7 +158,10 @@
           },
           "hull": {
             "title": "Hull Account",
-            "enum": ["external_id", "domain"]
+            "enum": [
+              "external_id",
+              "domain"
+            ]
           }
         }
       },
@@ -286,6 +292,7 @@
       "url": "/fetch",
       "handler": "fetchAll",
       "type": "string",
+      "format": "action",
       "name": "fetch_all_users",
       "title": "Fetch All Users",
       "options": {
@@ -296,6 +303,7 @@
       "url": "/accountFetchAll",
       "handler": "accountFetchAll",
       "type": "string",
+      "format": "action",
       "name": "fetch_all_accounts",
       "title": "Fetch All Accounts",
       "options": {
@@ -305,6 +313,10 @@
     {
       "url": "/prospectFetchAll",
       "handler": "prospectFetchAll",
+      "type": "string",
+      "format": "action",
+      "title": "Fetch All Prospects",
+      "name": "fetch_all_prospects",
       "options": {
         "fireAndForget": true
       }
@@ -341,7 +353,11 @@
       ],
       "conditions": {
         "channels": {
-          "only": ["user:update", "account:update", "ship:update"]
+          "only": [
+            "user:update",
+            "account:update",
+            "ship:update"
+          ]
         }
       }
     }
@@ -350,7 +366,9 @@
     {
       "title": "Connect with Outreach",
       "step": "credentials",
-      "properties": ["private_settings.oauth"]
+      "properties": [
+        "private_settings.oauth"
+      ]
     },
     {
       "title": "Incoming User Traffic",
@@ -370,6 +388,15 @@
       ]
     },
     {
+      "title": "Actions",
+      "description": "Perform manual actions",
+      "properties": [
+        "json.fetch_all_users",
+        "json.fetch_all_prospects",
+        "json.fetch_all_accounts"
+      ]
+    },
+    {
       "title": "Outgoing User Traffic",
       "description": "Configure the way Hull creates and updates users in Outreach",
       "properties": [
@@ -385,11 +412,6 @@
         "private_settings.outgoing_account_attributes",
         "private_settings.link_users_in_service"
       ]
-    },
-    {
-      "title": "Actions",
-      "description": "Perform manual actions",
-      "properties": ["json.fetch_all_users", "json.fetch_all_accounts"]
     }
   ]
 }
