@@ -5,7 +5,10 @@
   "workspaces": {
     "packages": [
       "packages/connectors/*",
-      "packages/*"
+      "packages/hull-connector-framework",
+      "packages/hull-repl",
+      "packages/hull-vm",
+      "packages/minihull"
     ]
   },
   "license": "MIT",
