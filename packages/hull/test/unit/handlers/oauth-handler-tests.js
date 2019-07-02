@@ -6,7 +6,7 @@ const httpMocks = require("node-mocks-http");
 const { EventEmitter } = require("events");
 const passport = require("passport");
 
-const HullStub = require("../support/hull-stub");
+const HullStub = require("../../support/hull-stub");
 
 const oauthHandler = require("../../../src/handlers/oauth-handler/factory");
 

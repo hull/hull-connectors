@@ -4,7 +4,7 @@ const sinon = require("sinon");
 const httpMocks = require("node-mocks-http");
 const { EventEmitter } = require("events");
 const Promise = require("bluebird");
-const HullStub = require("../support/hull-stub");
+const HullStub = require("../../support/hull-stub");
 
 const actionHandler = require("../../../src/handlers/json-handler/factory");
 
