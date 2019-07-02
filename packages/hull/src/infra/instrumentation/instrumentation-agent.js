@@ -192,9 +192,9 @@ class InstrumentationAgent {
     }
   }
 
-  // metricVal(metric: string, value: number = 1) {
-  //   return new MetricAgent({}, this).value(metric, value);
-  // }
+  metricVal(metric: string, value: number = 1) {
+    return new MetricAgent({}, this).value(metric, value);
+  }
 }
 
 module.exports = InstrumentationAgent;
