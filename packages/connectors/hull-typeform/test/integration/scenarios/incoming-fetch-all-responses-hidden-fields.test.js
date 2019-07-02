@@ -36,7 +36,7 @@ test("incoming fetch all responses hidden fields", () => {
       connector: { private_settings: { form_id: "TYPEFORM1" } },
       usersSegments: [],
       accountsSegments: [],
-      response: { response: "ok" },
+      response: { status: "deferred" },
       logs: [
         ["info", "incoming.job.start", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],

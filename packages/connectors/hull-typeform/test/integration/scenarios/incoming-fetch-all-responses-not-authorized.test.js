@@ -27,7 +27,7 @@ test("incoming fetch all responses not authorized", () => {
       connector: { private_settings: { form_id: "TYPEFORM1", field_as_email: "SMEUb7VJz92Q" } },
       usersSegments: [],
       accountsSegments: [],
-      response: { response: "ok" },
+      response: { status: "deferred" },
       logs: [
         ["info", "incoming.job.start", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],

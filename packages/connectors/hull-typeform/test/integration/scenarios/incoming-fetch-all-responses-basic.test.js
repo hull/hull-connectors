@@ -34,7 +34,7 @@ test("incoming fetch all responses basic", () => {
         },
         usersSegments: [],
         accountsSegments: [],
-        response: { response: "ok" },
+        response: { status: "deferred" },
         logs: [
           ["info", "incoming.job.start", expect.whatever(), expect.whatever()],
           [
