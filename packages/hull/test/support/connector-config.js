@@ -1,16 +1,6 @@
+const sinon = require("sinon");
 const handler = () => {};
 const HullStub = require("./hull-stub");
-
-class WorkerStub {
-  use() {}
-  setJobs() {}
-  process() {}
-}
-
-const dependencies = {
-  Worker: WorkerStub,
-  Client: HullStub
-};
 
 const config = {
   manifest: {},
@@ -18,6 +8,9 @@ const config = {
   devMode: false,
   port: 8080,
   handlers: {
+    jobs: {
+      handler
+    },
     statuses: { handler },
     subscriptions: {
       handler
@@ -46,5 +39,38 @@ const config = {
   }
 };
 
-module.exports.config = config;
-module.exports.dependencies = dependencies;
+module.exports = worker => {
+  const useSpy = sinon.spy();
+  const jobsSpy = sinon.spy();
+  const processSpy = sinon.spy();
+  class WorkerStub {
+    use(...args) {
+      return useSpy(...args);
+    }
+
+    setJobs(...args) {
+      return jobsSpy(...args);
+    }
+
+    process(...args) {
+      return processSpy(...args);
+    }
+  }
+  return {
+    spies: {
+      useSpy,
+      jobsSpy,
+      processSpy
+    },
+    dependencies: {
+      Worker: WorkerStub,
+      Client: HullStub
+    },
+    config: {
+      ...config,
+      workerConfig: {
+        start: worker
+      }
+    }
+  };
+};

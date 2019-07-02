@@ -3,14 +3,13 @@ const { expect } = require("chai");
 const sinon = require("sinon");
 
 const HullConnector = require("../../../src/connector/hull-connector");
-const { dependencies, config } = require("../../support/connector-config");
+const getConfig = require("../../support/connector-config");
 
 describe("HullConnector", () => {
-  after(() => {
-    process.removeAllListeners("exit");
-  });
+  after(() => process.removeAllListeners("exit"));
 
   it("should return an object of functions", () => {
+    const { dependencies, config } = getConfig();
     const connector = new HullConnector(dependencies, config);
     expect(connector).to.be.an("object");
     expect(connector.setupApp).to.be.a("function");
@@ -20,6 +19,7 @@ describe("HullConnector", () => {
   });
 
   it("should expose infrastucture objects", () => {
+    const { dependencies, config } = getConfig();
     const connector = new HullConnector(dependencies, config);
     expect(connector.instrumentation).to.be.an("object");
     expect(connector.queue).to.be.an("object");
@@ -27,10 +27,8 @@ describe("HullConnector", () => {
   });
 
   it("should return a worker method which returns worker app", () => {
-    const connector = new HullConnector(dependencies, {
-      ...config,
-      workerConfig: { start: true }
-    });
+    const { dependencies, config } = getConfig(true);
+    const connector = new HullConnector(dependencies, config);
     const worker = new connector.Worker();
     expect(worker.use).to.be.a("function");
     expect(worker.process).to.be.a("function");
@@ -55,43 +53,36 @@ describe("HullConnector", () => {
         return this;
       }
     };
+    const { dependencies, config } = getConfig();
     const connector = new HullConnector(dependencies, config);
-
     connector.setupApp(expressMock);
   });
 
   it("should allow passing name to clientConfig and to Hull Middleware", () => {
-    const connector = new HullConnector(
-      dependencies,
-      { ...config, connectorName: "example" }
-    );
+    const { dependencies, config } = getConfig();
+    const connector = new HullConnector(dependencies, {
+      ...config,
+      connectorName: "example"
+    });
     expect(connector.clientConfig.connectorName).to.be.eql("example");
   });
 
   it("should allow to set the name of internal queue", () => {
-    const connector = new HullConnector(dependencies, {
-      ...config,
-      workerConfig: { start: true }
-    });
+    const { spies, dependencies, config } = getConfig();
+    const connector = new HullConnector(dependencies, config);
     // connector.Worker();
-    const processSpy = sinon.spy(connector._worker, "process");
-    connector.startWorker("example");
-
-    expect(processSpy.calledOnce).to.be.true;
-    expect(processSpy.getCall(0).args[0]).to.be.equal("example");
+    const worker = connector.startWorker("example");
+    expect(spies.processSpy.calledOnce).to.be.true;
+    expect(spies.processSpy.getCall(0).args[0]).to.be.equal("example");
   });
 
   it("should default name of internal queue to queueApp", () => {
-    const connector = new HullConnector(dependencies, {
-      ...config,
-      workerConfig: { start: true }
-    });
+    const { spies, dependencies, config } = getConfig();
+    const connector = new HullConnector(dependencies, config);
     // connector.Worker();
-    const processSpy = sinon.spy(connector._worker, "process");
-    connector.startWorker();
-
-    expect(processSpy.calledOnce).to.be.true;
-    expect(processSpy.getCall(0).args[0]).to.be.equal("queueApp");
+    const worker = connector.startWorker();
+    expect(spies.processSpy.calledOnce).to.be.true;
+    expect(spies.processSpy.getCall(0).args[0]).to.be.equal("queueApp");
   });
 
   it("should allow to setup custom middleware at the end of pre-handler middleware stack", () => {
@@ -110,6 +101,7 @@ describe("HullConnector", () => {
     // const workerUseSpy = sinon.spy(workerStub, "use");
 
     const customMiddleware = (req, res, next) => {};
+    const { dependencies, config } = getConfig();
     const connector = new HullConnector(dependencies, config);
     connector.use(customMiddleware);
     connector.setupApp(appStub);
@@ -117,7 +109,7 @@ describe("HullConnector", () => {
     // connector.Worker({});
 
     expect(appUseSpy.called).to.be.true;
-    expect(appUseSpy.lastCall.args[0]).to.be.eql(customMiddleware);
+    expect(appUseSpy.firstCall.args[0]).to.be.eql(customMiddleware);
 
     // expect(workerUseSpy.called).to.be.true;
     // expect(workerUseSpy.lastCall.args[0]).to.be.eql(customMiddleware);
