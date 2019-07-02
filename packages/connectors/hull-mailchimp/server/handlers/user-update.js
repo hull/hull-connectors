@@ -47,14 +47,19 @@ export default async function userUpdateHandler(
 
   try {
     if (filteredMessages.length > 0) {
+      const isBatch = ctx && ctx.isBatch;
       await promiseRetry(
         retry =>
-          syncAgent.sendUserUpdateMessages(filteredMessages).catch(error => {
-            if (error instanceof ConfigurationError) {
-              return Promise.reject(error);
-            }
-            return retry();
-          }),
+          syncAgent
+            .sendUserUpdateMessages(filteredMessages, {
+              ignoreFilter: isBatch
+            })
+            .catch(error => {
+              if (error instanceof ConfigurationError) {
+                return Promise.reject(error);
+              }
+              return retry();
+            }),
         { retries: 2, minTimeout: 0 }
       );
     }

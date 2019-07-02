@@ -148,7 +148,10 @@ class SyncAgent {
         reqContext,
         "connector.private_settings.user_id_mapping",
         "external_id"
-      )
+      ),
+      isBatch:
+        this.serviceClient.metricsClient.ctx &&
+        this.serviceClient.metricsClient.ctx.isBatch
     };
 
     this.filterUtil = new FilterUtil(filterUtilOptions);
