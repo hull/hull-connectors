@@ -8,6 +8,8 @@
       "packages/hull-connector-framework",
       "packages/hull-repl",
       "packages/hull-vm",
+      "packages/hull",
+      "packages/hull-client",
       "packages/minihull"
     ]
   },
