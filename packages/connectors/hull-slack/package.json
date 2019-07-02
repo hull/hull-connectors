@@ -5,9 +5,7 @@
   "homepage": "https://github.com/hull/hull-connectors",
   "license": "MIT",
   "scripts": {
-    "test": "npm run test:lint && npm run test:modules",
-    "test:modules": "npm outdated --depth=0",
-    "test:unit": "NODE_ENV=test jest ./test/unit"
+    "test": "exit 0; echo 'tests are run by global jest'"
   },
   "keywords": [
     "hull",

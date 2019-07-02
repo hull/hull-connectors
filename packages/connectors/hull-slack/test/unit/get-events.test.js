@@ -1,7 +1,7 @@
 import getEvents from "../../server/util/get-events";
 import _ from "lodash";
 
-describe("Slack user segment entered test", () => {
+describe("Get Slack events test", () => {
   const events = [
     {
       properties: {
