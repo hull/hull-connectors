@@ -3,6 +3,8 @@ jobs:
   build:
     docker:
       - image: circleci/node:10.15
+      - image: circleci/mongo:3.6.12
+      - image: circleci/redis:5.0.4
     steps:
       - checkout
       - run:
