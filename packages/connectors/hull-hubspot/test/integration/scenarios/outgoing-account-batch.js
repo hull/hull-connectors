@@ -13,12 +13,11 @@ it("send batch account update to hubspot in a batch", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     // const updateMessage = require("../fixtures/outgoin-account-batch");
     return {
-      handlerType: handlers.batchHandler,
-      handlerUrl: "batch-accounts",
+      handlerType: handlers.notificationHandler,
+      handlerUrl: "smart-notifier",
       channel: "account:update",
-      messages: [
-        require("../fixtures/notifier-payloads/outgoing-account-batch-payload-hubspot.json")
-      ],
+      is_export: true,
+      messages: require("../fixtures/notifier-payloads/outgoing-account-batch-payload-hubspot.json"),
       usersSegments: [],
       accountsSegments: [],
       connector: {
@@ -80,13 +79,22 @@ it("send batch account update to hubspot in a batch", () => {
 
         return scope;
       },
-      response: {},
+      response: {
+        "flow_control": {
+          "in": 5,
+          "in_time": 10,
+          "size": 10,
+          "type": "next",
+        },
+      },
       // most of the remaining "whatevers" are returned from the nock endpoints or are tested in traits
       logs: [
         [
           "debug",
           "connector.service_api.call",
-          {},
+          {
+            request_id: expect.whatever()
+          },
           {
             method: "GET",
             responseTime: expect.whatever(),
@@ -98,7 +106,9 @@ it("send batch account update to hubspot in a batch", () => {
         [
           "debug",
           "connector.service_api.call",
-          {},
+          {
+            request_id: expect.whatever()
+          },
           {
             method: "GET",
             responseTime: expect.whatever(),
@@ -110,13 +120,17 @@ it("send batch account update to hubspot in a batch", () => {
         [
           "debug",
           "outgoing.job.start",
-          {},
+          {
+            request_id: expect.whatever()
+          },
           { toInsert: 0, toSkip: 0, toUpdate: 1 }
         ],
         [
           "debug",
           "connector.service_api.call",
-          {},
+          {
+            request_id: expect.whatever()
+          },
           {
             method: "POST",
             responseTime: expect.whatever(),
@@ -131,6 +145,7 @@ it("send batch account update to hubspot in a batch", () => {
           {
             account_domain: "wayneenterprises.com",
             account_id: /* "5bf2e7bf064aee16a600092a"*/ expect.whatever(),
+            request_id: expect.whatever(),
             subject_type: "account"
           },
           {
@@ -157,7 +172,6 @@ it("send batch account update to hubspot in a batch", () => {
         ["value", "connector.service_api.response_time", expect.whatever()]
       ],
       platformApiCalls: [
-        ["GET", "/_accounts_batch", {}, {}],
         ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
         ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
       ]
