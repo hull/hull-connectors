@@ -20,6 +20,7 @@ export type TestScenarioDefinition = Object => {
   handlerType: $Values<typeof handlers>,
   handlerUrl?: string,
   channel?: string,
+  is_export?: boolean,
   payload?: {
     body: Object,
     query: Object,
@@ -387,7 +388,8 @@ class TestScenarioRunner extends EventEmitter {
               channel,
               this.scenarioDefinition.messages,
               this.scenarioDefinition.usersSegments,
-              this.scenarioDefinition.accountsSegments
+              this.scenarioDefinition.accountsSegments,
+              this.scenarioDefinition.is_export
             );
             break;
           case undefined:

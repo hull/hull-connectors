@@ -6,22 +6,17 @@ const _ = require("lodash");
 process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 
-
-
-
-
-
-
-
+/* global describe, it, beforeEach, afterEach */
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 test("send batch user update to outreach", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
-    const updateMessages = require("../fixtures/notifier-payloads/outgoing-user-batch-multiple.json");
+    const updateMessages = {};
     return _.assign(updateMessages, {
-      handlerType: handlers.batchHandler,
-      handlerUrl: "batch",
+      handlerType: handlers.notificationHandler,
+      handlerUrl: "smart-notifier",
       channel: "user:update",
+      is_export: true,
       messages: require("../fixtures/notifier-payloads/outgoing-user-batch-multiple-payload.json"),
       connector: {
         private_settings: {
@@ -95,141 +90,20 @@ test("send batch user update to outreach", () => {
 
         return scope;
       },
-      response: {},
+      response:  {"flow_control": {"in": 5, "in_time": 10, "size": 10, "type": "next"}},
       // most of the remaining "whatevers" are returned from the nock endpoints or are tested in traits
       logs: [
-        [
-          "info",
-          "outgoing.job.start",
-          {},
-          { jobName: "Outgoing Data", type: "user" }
-        ],
-        [
-          "debug",
-          "connector.service_api.call",
-          {},
-          {
-            method: "GET",
-            responseTime: expect.whatever(),
-            status: 200,
-            url: "/webhooks/",
-            vars: {}
-          }
-        ],
-        [
-          "debug",
-          "connector.service_api.call",
-          {},
-          {
-            method: "POST",
-            responseTime: expect.whatever(),
-            status: 201,
-            url: "/webhooks/",
-            vars: {}
-          }
-        ],
-        [
-          "debug",
-          "connector.service_api.call",
-          {},
-          {
-            method: "PATCH",
-            responseTime: expect.whatever(),
-            status: 200,
-            url: "/prospects/16",
-            vars: {}
-          }
-        ],
-        [
-          "debug",
-          "connector.service_api.call",
-          {},
-          {
-            method: "GET",
-            responseTime: expect.whatever(),
-            status: 200,
-            url: "/prospects/",
-            vars: {}
-          }
-        ],
-        [
-          "info",
-          "outgoing.user.success",
-          {
-            subject_type: "user",
-            user_email: "darth@darksideinc.com",
-            user_id: "5bd329d5e2bcf3eeaf000099"
-          },
-          expect.objectContaining({ type: "Prospect" })
-        ],
-        [
-          "debug",
-          "connector.service_api.call",
-          {},
-          {
-            method: "POST",
-            responseTime: expect.whatever(),
-            status: 200,
-            url: "/prospects/",
-            vars: {}
-          }
-        ],
-        [
-          "info",
-          "outgoing.user.success",
-          {
-            subject_type: "user",
-            user_email: "fettisbest@gmail.com",
-            user_id: expect.whatever()
-          },
-          expect.objectContaining({ type: "Prospect" })
-        ],
-        [
-          "info",
-          "incoming.user.success",
-          {},
-          {
-            data: {
-              attributes: {
-                "outreach/id": { operation: "set", value: 16 },
-                "outreach/personalNote1": {
-                  operation: "set",
-                  value: "sith lord, don't mention padme"
-                }
-              },
-              ident: {
-                anonymous_id: "outreach:16",
-                email: "darth@darksideinc.com"
-              }
-            }
-          }
-        ],
-        [
-          "info",
-          "incoming.user.success",
-          {},
-          {
-            data: {
-              attributes: {
-                "outreach/id": { operation: "set", value: 16 },
-                "outreach/personalNote1": {
-                  operation: "set",
-                  value: "sith lord, don't mention padme"
-                }
-              },
-              ident: {
-                anonymous_id: "outreach:16",
-                email: "darth@darksideinc.com"
-              }
-            }
-          }
-        ],
-        [
-          "info",
-          "outgoing.job.success",
-          {},
-          { jobName: "Outgoing Data", type: "user" }
-        ]
+        ["info", "outgoing.job.start", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}],
+        ["debug", "connector.service_api.call", expect.whatever(), {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
+        ["debug", "connector.service_api.call", expect.whatever(), {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
+        ["debug", "connector.service_api.call", expect.whatever(), {"method": "PATCH", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/16", "vars": {}}],
+        ["debug", "connector.service_api.call", expect.whatever(), {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/", "vars": {}}],
+        ["info", "outgoing.user.success", {"request_id": expect.whatever(), "subject_type": "user", "user_email": "darth@darksideinc.com", "user_id": "5bd329d5e2bcf3eeaf000099"}, expect.objectContaining({"type": "Prospect"})],
+        ["debug", "connector.service_api.call", expect.whatever(), {"method": "POST", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/", "vars": {}}],
+        ["info", "outgoing.user.success", {"request_id": expect.whatever(), "subject_type": "user", "user_email": "fettisbest@gmail.com", "user_id": expect.whatever()}, expect.objectContaining({"type": "Prospect"})],
+        ["info", "incoming.user.success", expect.whatever(), {"data": {"attributes": {"outreach/id": {"operation": "set", "value": 16}, "outreach/personalNote1": {"operation": "set", "value": "sith lord, don't mention padme"}}, "ident": {"anonymous_id": "outreach:16", "email": "darth@darksideinc.com"}}}],
+        ["info", "incoming.user.success", expect.whatever(), {"data": {"attributes": {"outreach/id": {"operation": "set", "value": 16}, "outreach/personalNote1": {"operation": "set", "value": "sith lord, don't mention padme"}}, "ident": {"anonymous_id": "outreach:16", "email": "darth@darksideinc.com"}}}],
+        ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}]
       ],
       // same received user because we're mocking the return of bobba with a different user
       firehoseEvents: [
@@ -286,7 +160,6 @@ test("send batch user update to outreach", () => {
         ["increment", "ship.incoming.users", 1]
       ],
       platformApiCalls: [
-        ["GET", "/_users_batch", {}, {}],
         ["GET", "/api/v1/app", {}, {}],
         [
           "PUT",

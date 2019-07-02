@@ -13,7 +13,8 @@
     "oneColumn",
     "smart-notifier",
     "first-install",
-    "single-install"
+    "single-install",
+    "kraken-exports"
   ],
   "private_settings": [
     {

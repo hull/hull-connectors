@@ -10,7 +10,8 @@
     "batch",
     "oneColumn",
     "smart-notifier",
-    "single-install"
+    "single-install",
+    "kraken-exports"
   ],
   "private_settings": [
     {

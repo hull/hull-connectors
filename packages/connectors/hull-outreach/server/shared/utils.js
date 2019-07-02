@@ -112,7 +112,7 @@ function toSendMessage(
         _.get(context, synchronizedSegmentPath)
       ).length >= 1;
 
-    if (!matchesSegments) {
+    if (!matchesSegments && !context.notification.is_export) {
       if (targetEntity === "user") {
         debug(`User does not match segment ${JSON.stringify(entity)}`);
         context.client.asUser(entity).logger.info("outgoing.user.skip", {

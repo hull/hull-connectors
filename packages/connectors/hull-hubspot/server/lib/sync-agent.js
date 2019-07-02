@@ -264,7 +264,7 @@ class SyncAgent {
           return {
             label: displayName,
             options: _.chain(properties)
-              .map(({ label, value: name }) => ({ label, name }))
+              .map(({ label, name }) => ({ label, value: name }))
               .value()
           };
         })

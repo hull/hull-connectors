@@ -131,5 +131,6 @@ export type HullNotification = {
   segments: Array<HullUserSegment>,
   accounts_segments: Array<HullAccountSegment>,
   messages?: Array<HullUserUpdateMessage> | Array<HullAccountUpdateMessage>,
-  notification_id: string
+  notification_id: string,
+  is_export?: boolean
 };

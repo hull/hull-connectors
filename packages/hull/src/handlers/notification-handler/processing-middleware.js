@@ -53,6 +53,7 @@ function notificationHandlerProcessingMiddlewareFactory(
         channel,
         "success"
       );
+      req.hull.isBatch = req.hull.notification.is_export || false;
       const process = processHullMessage({
         segments: {
           user_segments,
