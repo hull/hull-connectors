@@ -8,6 +8,8 @@
       "packages/hull-connector-framework",
       "packages/hull-repl",
       "packages/hull-vm",
+      "packages/hull",
+      "packages/hull-client",
       "packages/minihull"
     ]
   },
@@ -50,7 +52,7 @@
     "chai": "^4.2.0",
     "chai-subset": "^1.6.0",
     "css-loader": "^2.1.1",
-    "documentation": "^11.0.0",
+    "documentation": "^11.0.1",
     "dotenv-cli": "^2.0.0",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",

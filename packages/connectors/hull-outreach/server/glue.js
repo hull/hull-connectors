@@ -149,7 +149,7 @@ const glue = {
   ],
   getProspectById: [
     set("userId", get(input(), "user.outreach/id")),
-    ifLogic(cond("notEmpty", set("prospectFromOutreach", outreachSendInput("getProspectById"))), {
+    ifLogic(cond("notEmpty", set("prospectFromOutreach", outreach("getProspectById"))), {
       true: hull("asUser", "${prospectFromOutreach}"),
       false: {}
     })
