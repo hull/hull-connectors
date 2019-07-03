@@ -13,3 +13,6 @@ npm-debug.log
 coverage
 yarn-error.log
 deployment.config.js
+
+.idea/
+_ignored/

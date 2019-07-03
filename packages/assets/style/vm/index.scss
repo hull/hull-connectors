@@ -1,0 +1,48 @@
+@import "./typography";
+@import "./spinner";
+@import "./layout";
+
+.btn.last-payload-button {
+  border-radius: 3px;
+}
+
+.dropdown-menu {
+  max-height: 70vh;
+  overflow-y: auto;
+  width: 100%;
+  text-align: center;
+}
+
+#preview-tabs {
+  width: 100%;
+}
+
+.refresh-button {
+  padding: 0;
+  background-color: transparent;
+  margin: 0px 20px;
+  height: 30px;
+}
+
+.input-monospace {
+  font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier,
+    monospace;
+}
+
+.modal-wide {
+  width: 800px;
+  max-width: none;
+}
+
+.double-center {
+  display: flex;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.ps-2 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}

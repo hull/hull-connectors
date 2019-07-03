@@ -1,6 +1,6 @@
 // @flow
-import type { $Response, NextFunction } from "express";
-import type { HullRequestWithClient } from "../types";
+import type { NextFunction } from "express";
+import type { HullRequest, HullResponse } from "../types";
 
 const debug = require("debug")("hull-connector:full-context-fetch-middleware");
 
@@ -66,9 +66,9 @@ function fullContextFetchMiddlewareFactory({
   requestName,
   strict = true
 }: Object = {}) {
-  return function fullContextFetchMiddleware(
-    req: HullRequestWithClient,
-    res: $Response,
+  return async function fullContextFetchMiddleware(
+    req: HullRequest,
+    res: HullResponse,
     next: NextFunction
   ) {
     if (req.hull === undefined || req.hull.client === undefined) {
@@ -79,41 +79,42 @@ function fullContextFetchMiddlewareFactory({
       );
     }
 
-    return Promise.all([
-      fetchConnector(req.hull),
-      fetchSegments(req.hull, "user"),
-      fetchSegments(req.hull, "account")
-    ])
-      .then(([connector, usersSegments, accountsSegments]) => {
-        debug("received responses %o", {
-          connector: typeof connector,
-          usersSegments: Array.isArray(usersSegments),
-          accountsSegments: Array.isArray(accountsSegments)
-        });
-        if (strict && typeof connector !== "object") {
-          return next(new Error("Unable to fetch connector object"));
-        }
+    try {
+      const [connector, usersSegments, accountsSegments] = await Promise.all([
+        fetchConnector(req.hull),
+        fetchSegments(req.hull, "user"),
+        fetchSegments(req.hull, "account")
+      ]);
+      debug("received responses %o", {
+        connector: typeof connector,
+        usersSegments: Array.isArray(usersSegments),
+        accountsSegments: Array.isArray(accountsSegments)
+      });
+      if (strict && typeof connector !== "object") {
+        return next(new Error("Unable to fetch connector object"));
+      }
 
-        if (strict && !Array.isArray(usersSegments)) {
-          return next(new Error("Unable to fetch usersSegments array"));
-        }
+      if (strict && !Array.isArray(usersSegments)) {
+        return next(new Error("Unable to fetch usersSegments array"));
+      }
 
-        if (strict && !Array.isArray(accountsSegments)) {
-          return next(new Error("Unable to fetch accountsSegments array"));
-        }
-        const requestId = [requestName].join("-");
+      if (strict && !Array.isArray(accountsSegments)) {
+        return next(new Error("Unable to fetch accountsSegments array"));
+      }
+      const requestId = [requestName].join("-");
 
-        applyConnectorSettingsDefaults(connector);
-        trimTraitsPrefixFromConnector(connector);
-        req.hull = Object.assign(req.hull, {
-          requestId,
-          connector,
-          usersSegments,
-          accountsSegments
-        });
-        return next();
-      })
-      .catch(error => next(error));
+      applyConnectorSettingsDefaults(connector);
+      trimTraitsPrefixFromConnector(connector);
+      req.hull = Object.assign(req.hull, {
+        requestId,
+        connector,
+        usersSegments,
+        accountsSegments
+      });
+      return next();
+    } catch (error) {
+      return next(error);
+    }
   };
 }
 

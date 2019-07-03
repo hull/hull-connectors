@@ -9,21 +9,27 @@
     "oneColumn",
     "smart-notifier",
     "first-install",
-    "single-install"
+    "single-install",
+    "kraken-exports"
   ],
   "source": "mailchimp",
   "logo": "logo.png",
   "picture": "picture.png",
-  "tabs": [
+  "private_settings": [
     {
-      "title": "Credentials & Actions",
-      "url": "/auth/",
-      "size": "small",
-      "setup": true,
-      "editable": false
-    }
-  ],
-  "private_settings":[
+      "name": "oauth",
+      "title": "Oauth",
+      "description": "Authenticate with Mailchimp",
+      "format": "oauth",
+      "type": "string",
+      "handler": "oauth",
+      "url": "/auth",
+      "options": {
+        "strategy": {
+          "grant_type": "authorization_code"
+        }
+      }
+    },
     {
       "name": "configuration_title",
       "title": "Configuration",
@@ -41,14 +47,23 @@
           "ALL": "All Users"
         }
       },
-      "default": ["ALL"]
+      "default": [
+        "ALL"
+      ]
     },
     {
-      "name": "mailchimp_list_id",
-      "title": "Mailchimp List ID",
-      "description": "Mailchimp List ID selected by user",
       "type": "string",
-      "format": "hidden"
+      "name": "mailchimp_list_id",
+      "description": "Mailchimp List ID selected by user",
+      "title": "Mailchimp List ID",
+      "url": "/select",
+      "handler": "selectList",
+      "format": "select",
+      "options": {
+        "loadOptions": "/select",
+        "allowCreate": false,
+        "placeholder": "Select list to synchronize"
+      }
     },
     {
       "name": "mailchimp_list_name",
@@ -79,12 +94,6 @@
       "format": "hidden"
     },
     {
-      "name": "data_title",
-      "title": "Data Mapping",
-      "format": "title",
-      "type": "string"
-    },
-    {
       "name": "segment_mapping",
       "type": "object",
       "properties": {},
@@ -104,14 +113,15 @@
     },
     {
       "name": "outgoing_user_attributes",
-      "title": "Send the following user attributes to Mailchimp",
+      "title": "Mapping from Hull to Mailchimp",
       "type": "array",
       "format": "traitMapping",
+      "url": "/schema/user_fields",
+      "handler": "schemaUserFields",
       "options": {
         "direction": "outgoing",
         "placeholder": "Mailchimp Merge Field",
-        "allowCreate": false,
-        "loadOptions": "/schema/user_fields"
+        "allowCreate": false
       },
       "default": [
         {
@@ -145,17 +155,130 @@
   "ui": false,
   "subscriptions": [
     {
-      "url": "/smart-notifier"
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "user_update"
+        },
+        {
+          "channel": "ship:update",
+          "handler": "ship_update"
+        },
+        {
+          "channel": "users_segment:update",
+          "handler": "users_segment_update"
+        },
+        {
+          "channel": "users_segment:delete",
+          "handler": "users_segment_delete"
+        }
+      ]
+    }
+  ],
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "user_update",
+          "options": {
+            "maxSize": 500
+          }
+        }
+      ]
+    }
+  ],
+  "incoming": [
+    {
+      "url": "/mailchimp",
+      "handler": "webhook",
+      "options": {
+        "bodyParser": "urlencoded",
+        "credentialsFromQuery": true
+      }
+    }
+  ],
+  "json": [
+    {
+      "url": "/sync",
+      "handler": "sync",
+      "name": "syncIn",
+      "title": "Fetch List",
+      "format": "action",
+      "options": {
+        "confirm": {
+          "action": "fetch",
+          "text": "You are going to resync Mailchimp with Hull. This will empty the list you picked ? This will remove all interest groups and static segments (possibly breaking any automation configuration) and can generate a lot of traffic. Are you sure?",
+          "button": "Start Fetching",
+          "entity": "users"
+        }
+      }
+    },
+    {
+      "url": "/sync-out",
+      "handler": "syncOut"
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Connect with Mailchimp",
+      "step": "credentials",
+      "properties": [
+        "private_settings.oauth"
+      ]
+    },
+    {
+      "title": "Select List",
+      "description": "After you have authenticated with Mailchimp, please select the list that Hull will synchronize with. You can only pick one list, and you will have to reinstall the connector if you wish to change it afterwards. Once you have selected the list, please click Save on the top right",
+      "properties": [
+        "private_settings.mailchimp_list_id"
+      ]
+    },
+    {
+      "title": "Fetch Data from Mailchimp",
+      "description": "Trigger a full fetch of the entire mailchimp list. Be careful. If your list is large, it might take a while",
+      "properties": [
+        "json.syncIn"
+      ]
+    },
+    {
+      "title": "User Filter",
+      "description": "Send users to Mailchimp when belonging to at least one of these segments. If no segments are specified all users are sent to Mailchimp.",
+      "properties": [
+        "private_settings.synchronized_user_segments"
+      ]
+    },
+    {
+      "title": "Outgoing Sync",
+      "step": "actions",
+      "description": "Configure how the data is sent to Mailchimp",
+      "properties": [
+        "private_settings.outgoing_user_attributes"
+      ]
     }
   ],
   "schedules": [
     {
       "url": "/track",
       "type": "cron",
+      "handler": "track",
       "value": "7 */6 * * *"
-    },
+    }
+  ],
+  "status": {
+    "url": "/status",
+    "handler": "status",
+    "initial_value": "setupRequired",
+    "type": "cron",
+    "value": "*/30 * * * *"
+  },
+  "statuses": [
     {
       "url": "/status",
+      "handler": "status",
+      "initial_value": "setupRequired",
       "type": "cron",
       "value": "*/30 * * * *"
     }

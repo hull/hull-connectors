@@ -1,6 +1,6 @@
 // @flow
-import type { $Response, NextFunction } from "express";
-import type { HullRequestFull } from "../../types";
+import type { NextFunction, $Response } from "express";
+import type { HullRequest } from "../../types";
 
 const { Router } = require("express");
 
@@ -39,16 +39,16 @@ function actionHandler(jobName: string, options: Object) {
   router.use(instrumentationContextMiddleware());
   router.use(fullContextFetchMiddleware({ requestName: "action" }));
   router.use(haltOnTimedoutMiddleware());
-  router.use((req: HullRequestFull, res: $Response, next: NextFunction) => {
-    req.hull
-      .enqueue(jobName, {}, options)
-      .then(() => {
-        res.end("qeueued");
-      })
-      .catch(error => next(error));
+  router.use(async (req: HullRequest, res: $Response, next: NextFunction) => {
+    try {
+      await req.hull.enqueue(jobName, {}, options);
+      res.end("qeueued");
+    } catch (error) {
+      next(error);
+    }
   });
   router.use(
-    (err: Error, req: HullRequestFull, res: $Response, _next: NextFunction) => {
+    (err: Error, req: HullRequest, res: $Response, _next: NextFunction) => {
       res.status(500).end("error");
     }
   );

@@ -1,4 +1,6 @@
 // @flow
+import type { Connector, HullConnector, HullConnectorConfig } from "hull";
+
 const _ = require("lodash");
 const Hull = require("hull");
 const handlers = require("hull/src/handlers");
@@ -11,13 +13,14 @@ const expect = require("expect");
 const { EventEmitter } = require("events");
 const debug = require("debug")("hull-test-scenario-runner");
 
-const { equals } = require("expect/build/jasmine_utils");
+const { equals } = require("expect/build/jasmineUtils");
 const { iterableEquality } = require("expect/build/utils");
 
 export type TestScenarioDefinition = Object => {
   handlerType: $Values<typeof handlers>,
   handlerUrl?: string,
   channel?: string,
+  is_export?: boolean,
   payload?: {
     body: Object,
     query: Object,
@@ -52,9 +55,7 @@ expect.extend({
         copyOfReceived.splice(index, 1);
       });
     } catch (error) {
-      error.message = `${additionalInfo}: we did not receive following entries  \n     ${
-        error.message
-      }`;
+      error.message = `${additionalInfo}: we did not receive following entries  \n     ${error.message}`;
       throw error;
     }
 
@@ -69,9 +70,7 @@ expect.extend({
         copyOfExpected.splice(index, 1);
       });
     } catch (error) {
-      error.message = `${additionalInfo}: we did not expect following entries  \n     ${
-        error.message
-      }`;
+      error.message = `${additionalInfo}: we did not expect following entries  \n     ${error.message}`;
       throw error;
     }
     return {
@@ -81,13 +80,17 @@ expect.extend({
 });
 
 class TestScenarioRunner extends EventEmitter {
+  connectorConfig: HullConnectorConfig;
+
   minihull: typeof Minihull;
 
   nockScope: *;
 
   app: *;
 
-  hullConnector: *;
+  connector: Connector;
+
+  connectorData: HullConnector;
 
   scenarioDefinition: *;
 
@@ -101,17 +104,13 @@ class TestScenarioRunner extends EventEmitter {
 
   capturedLogs: Array<*>;
 
-  hullConnectorPort: number;
-
-  hullConnectorServer: *;
-
-  minihullPort: number;
+  connectorConfig: HullConnectorConfig;
 
   timeout: *;
 
   timeoutId: *;
 
-  connector: Object;
+  connector: Connector;
 
   debounceWait: number;
 
@@ -125,14 +124,10 @@ class TestScenarioRunner extends EventEmitter {
 
   constructor(
     {
-      connectorServer,
-      connectorWorker,
-      connectorManifest,
+      connectorConfig,
       debounceWait
     }: {
-      connectorServer: express => express,
-      connectorWorker?: Function,
-      connectorManifest: Object,
+      connectorConfig: () => HullConnectorConfig,
       debounceWait?: number
     },
     scenarioDefinition: TestScenarioDefinition
@@ -147,10 +142,12 @@ class TestScenarioRunner extends EventEmitter {
       }
     });
 
-    this.connectorManifest = connectorManifest;
-    this.finished = false;
-    // this.hullConnectorPort = 9091;
+    this.connectorConfig = connectorConfig();
     // this.minihullPort = 9092;
+    const { manifest } = this.connectorConfig;
+
+    this.connectorManifest = manifest;
+    this.finished = false;
     this.timeout = 10000;
     this.debounceWait = 200;
     this.capturedMetrics = [];
@@ -165,11 +162,9 @@ class TestScenarioRunner extends EventEmitter {
     this.deboucedFinish = _.debounce(() => this.finish(), this.debounceWait, {
       maxWait: this.timeout
     });
-    this.server = connectorServer;
-    this.worker = connectorWorker;
 
     this.minihull.on("incoming.request", req =>
-      console.log(">>>> MINIHULL", req.method, req.url)
+      debug(">>>> MINIHULL", req.method, req.url)
     );
     this.minihull.on("incoming.request@/api/v1/firehose", this.deboucedFinish);
   }
@@ -225,7 +220,8 @@ class TestScenarioRunner extends EventEmitter {
               },
               _.isNil
             ),
-            _.omitBy(entry.body, _.isNil)
+            // @TODO check with Tim why we were omitting _.isNil -> this was filtering out `null` values
+            entry.body
           ];
         })
         .value();
@@ -255,7 +251,7 @@ class TestScenarioRunner extends EventEmitter {
       nock.emitter.removeAllListeners();
       await this.minihull.close();
       await new Promise(resolve => {
-        this.hullConnectorServer.close(() => resolve());
+        this.connector.server.close(() => resolve());
       });
     } catch (error) {
       return this.emit("error", error);
@@ -281,31 +277,23 @@ class TestScenarioRunner extends EventEmitter {
             );
           }
         });
-        this.on("error", error => {
-          reject(error);
-        });
-        this.on("finish", () => {
-          resolve();
-        });
+        this.on("error", error => reject(error));
+        this.on("finish", () => resolve());
+
         await this.minihull.listen(0);
-        this.minihullPort = this.minihull.server.address().port;
-        this.hullConnector = this.setupTestConnector();
-        this.hullConnector.setupApp(this.app);
-        this.server(this.app);
-        this.hullConnectorServer = await this.hullConnector.startApp(this.app);
+        const { port: minihullPort } = this.minihull.server.address();
 
-        if (this.worker) {
-          this.worker(this.hullConnector);
-          this.hullConnector.startWorker();
-        }
+        this.connector = this.setupTestConnector(minihullPort);
+        await this.connector.start();
+        const { server } = this.connector;
 
-        this.hullConnectorPort = this.hullConnectorServer.address().port;
+        const { port: connectorPort } = server.address();
         this.scenarioDefinition = this.rawScenarioDefinition({
           expect,
           nock,
           handlers,
-          connectorPort: this.hullConnectorPort,
-          minihullPort: this.minihullPort,
+          connectorPort,
+          minihullPort,
           alterFixture: (fixture, modification) => {
             // $FlowFixMe
             return _.defaultsDeep({}, modification, fixture); // eslint-disable-line global-require, import/no-dynamic-require
@@ -316,22 +304,22 @@ class TestScenarioRunner extends EventEmitter {
           this.scenarioDefinition.externalApiMock();
         if (this.nockScope) {
           this.nockScope.on("request", req => {
-            console.log(">>> NOCK REQUEST", req.path);
+            debug(">>> NOCK REQUEST", req.path);
           });
           this.nockScope.on("replied", req => {
-            console.log(">>> NOCK", req.path);
+            debug(">>> NOCK", req.path);
           });
           this.nockScope.on("replied", this.deboucedFinish);
         }
-        this.server = this.scenarioDefinition.connectorServer;
-        this.connector = _.defaults(this.scenarioDefinition.connector, {
+        // this.server = this.scenarioDefinition.connectorServer;
+        this.connectorData = _.defaults(this.scenarioDefinition.connector, {
           id: "9993743b22d60dd829001999",
           private_settings: {},
           manifest: this.connectorManifest
         });
         this.externalIncomingRequest = this.scenarioDefinition.externalIncomingRequest;
 
-        this.minihull.stubConnector(this.connector);
+        this.minihull.stubConnector(this.connectorData);
         this.minihull.stubUsersSegments(this.scenarioDefinition.usersSegments);
         this.minihull.stubAccountsSegments(
           this.scenarioDefinition.accountsSegments
@@ -340,21 +328,32 @@ class TestScenarioRunner extends EventEmitter {
         const { handlerUrl, channel } = this.scenarioDefinition;
         switch (this.scenarioDefinition.handlerType) {
           case handlers.scheduleHandler:
-          case handlers.jsonHandler:
             response = await this.minihull.postConnector(
-              this.connector,
-              `http://localhost:${this.hullConnectorPort}/${handlerUrl}`,
+              this.connectorData,
+              `http://localhost:${connectorPort}/${handlerUrl}`,
               this.scenarioDefinition.usersSegments,
               this.scenarioDefinition.accountsSegments
             );
             break;
+          // @TODO => it seems jsonHandler should not come from Platform but instead be a regular POST call -> confirm ?
+          case handlers.jsonHandler:
+            response = await superagent
+              .post(`http://localhost:${connectorPort}/${handlerUrl}`)
+              .query({
+                organization: this.minihull._getOrgAddr(),
+                ship: this.connectorData.id,
+                secret: this.minihull.secret
+              })
+              .send({});
+            break;
           case handlers.incomingRequestHandler:
             response = await this.externalIncomingRequest({
               superagent,
-              connectorUrl: `http://localhost:${this.hullConnectorPort}`,
+              connectorUrl: `http://localhost:${connectorPort}`,
+              config: this.connectorConfig,
               plainCredentials: {
                 organization: this.minihull._getOrgAddr(),
-                ship: this.connector.id,
+                ship: this.connectorData.id,
                 secret: this.minihull.secret
               }
             });
@@ -363,16 +362,16 @@ class TestScenarioRunner extends EventEmitter {
             if (channel === "user:update") {
               this.minihull.stubUsersBatch(this.scenarioDefinition.messages);
               response = await this.minihull.batchUsersConnector(
-                this.connector,
-                `http://localhost:${this.hullConnectorPort}/${handlerUrl}`,
+                this.connectorData,
+                `http://localhost:${connectorPort}/${handlerUrl}`,
                 this.scenarioDefinition.usersSegments,
                 this.scenarioDefinition.accountsSegments
               );
             } else if (channel === "account:update") {
               this.minihull.stubAccountsBatch(this.scenarioDefinition.messages);
               response = await this.minihull.batchAccountsConnector(
-                this.connector,
-                `http://localhost:${this.hullConnectorPort}/${handlerUrl}`,
+                this.connectorData,
+                `http://localhost:${connectorPort}/${handlerUrl}`,
                 this.scenarioDefinition.usersSegments,
                 this.scenarioDefinition.accountsSegments
               );
@@ -384,12 +383,13 @@ class TestScenarioRunner extends EventEmitter {
             break;
           case handlers.notificationHandler:
             response = await this.minihull.notifyConnector(
-              this.connector,
-              `http://localhost:${this.hullConnectorPort}/${handlerUrl}`,
+              this.connectorData,
+              `http://localhost:${connectorPort}/${handlerUrl}`,
               channel,
               this.scenarioDefinition.messages,
               this.scenarioDefinition.usersSegments,
-              this.scenarioDefinition.accountsSegments
+              this.scenarioDefinition.accountsSegments,
+              this.scenarioDefinition.is_export
             );
             break;
           case undefined:
@@ -410,31 +410,35 @@ class TestScenarioRunner extends EventEmitter {
         }, this.timeout);
         this.deboucedFinish();
       } catch (error) {
-        console.log(error);
         reject(error);
       }
     });
   }
 
-  setupTestConnector() {
-    const options = {
+  setupTestConnector(minihullPort: number) {
+    return new Hull.Connector({
+      ...this.connectorConfig,
       port: 0,
       hostSecret: "1234",
       skipSignatureValidation: true,
       clientConfig: {
+        ...this.connectorConfig.clientConfig,
         protocol: "http",
-        firehoseUrl: `http://localhost:${this.minihullPort}/api/v1/firehose`,
+        firehoseUrl: `http://localhost:${minihullPort}/api/v1/firehose`,
+        captureLogs: true,
+        logs: this.capturedLogs,
         flushAt: 1,
         flushAfter: 1
       },
-      captureMetrics: this.capturedMetrics,
-      captureLogs: this.capturedLogs,
+      metricsConfig: {
+        ...this.connectorConfig.metricsConfig,
+        captureMetrics: this.capturedMetrics
+      },
+      logsConfig: {
+        ...this.connectorConfig.logsConfig
+      },
       disableOnExit: true
-    };
-
-    const connector = new Hull.Connector(options);
-
-    return connector;
+    });
   }
 }
 

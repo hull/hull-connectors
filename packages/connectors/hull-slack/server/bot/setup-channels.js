@@ -1,0 +1,60 @@
+// @noflow
+import _ from "lodash";
+import getTeamChannels from "../lib/get-team-channels";
+import getTeamMembers from "../lib/get-team-members";
+
+function joinChannels(bot, token, channels) {
+  const user = bot.config.bot_id;
+  return Promise.all(
+    _.map(channels, channel => {
+      return new Promise((resolve, reject) => {
+        bot.api.channels.invite({ token, channel: channel.id, user }, err => {
+          if (err) return reject(err);
+          return resolve(channel.id);
+        });
+      });
+    })
+  );
+}
+
+function getChannelsToJoin(teamChannels, channels) {
+  return _.filter(
+    teamChannels,
+    channel => _.includes(channels, channel.id) && channel.is_member === false
+  );
+}
+
+export default async function({ hull, bot, app_token, channels }) {
+  try {
+    const [teamChannels, teamMembers] = await Promise.all([
+      getTeamChannels(bot),
+      getTeamMembers(bot)
+    ]);
+
+    try {
+      const chans = _.filter(channels, c => c.indexOf("@") !== 0);
+      const channelsToJoin = getChannelsToJoin(teamChannels, chans);
+      if (channelsToJoin.length) {
+        try {
+          await joinChannels(bot, app_token, channelsToJoin);
+        } catch (err) {
+          hull.logger.error("bot.setup.error", {
+            object: "channel",
+            type: "invite",
+            error: err
+          });
+          throw err;
+        }
+      }
+    } catch (err) {
+      hull.logger.error("bot.setup.error", { error: err });
+    }
+
+    return {
+      teamChannels,
+      teamMembers
+    };
+  } catch (err) {
+    throw err;
+  }
+}

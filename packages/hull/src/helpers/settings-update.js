@@ -1,7 +1,5 @@
 // @flow
-import type { HullConnector } from "hull-client";
-
-import type { HullContext } from "../types";
+import type { HullConnector, HullContext } from "../types";
 
 const {
   applyConnectorSettingsDefaults,
@@ -17,24 +15,35 @@ const {
  * @memberof Utils
  * @param {Object} ctx The Context Object
  * @param  {Object} newSettings settings to update
+ * @param  {Boolean} refreshStatus force the platform to refresh the connector status synchronously
  * @return {Promise}
  * @example
- * req.hull.helpers.settingsUpdate({ newSettings });
+ * req.hull.helpers.settingsUpdate({ newSettings }, refreshStatus);
  */
-function settingsUpdate(
+const settingsUpdate = (
   ctx: HullContext,
+  refreshStatus: Boolean = false
+) => async (
   newSettings: $PropertyType<HullConnector, "private_settings">
-): Promise<HullConnector> {
-  const { client, cache } = ctx;
-  return client.utils.settings.update(newSettings).then(connector => {
-    applyConnectorSettingsDefaults(connector);
-    trimTraitsPrefixFromConnector(connector);
-    ctx.connector = connector;
+): void | Promise<HullConnector> => {
+  const { client, cache, connector } = ctx;
+  try {
+    const newConnector = await client.utils.settings.update(
+      newSettings,
+      refreshStatus
+    );
+    applyConnectorSettingsDefaults(newConnector);
+    trimTraitsPrefixFromConnector(newConnector);
+    ctx.connector = newConnector;
     if (!cache) {
-      return connector;
+      return newConnector;
     }
-    return cache.del("connector").then(() => connector);
-  });
-}
+    await cache.del("connector");
+    return newConnector;
+  } catch (err) {
+    console.log(err);
+    return connector;
+  }
+};
 
 module.exports = settingsUpdate;

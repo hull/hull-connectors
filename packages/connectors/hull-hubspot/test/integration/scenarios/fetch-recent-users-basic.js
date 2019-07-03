@@ -1,9 +1,16 @@
 // @flow
-/* global describe, it, beforeEach, afterEach */
+
+
+
+
+
+
+
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const _ = require("lodash");
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
+
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
@@ -17,7 +24,7 @@ const connector = {
 };
 
 it("should fetch recent users using settings", () => {
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "fetch-recent-contacts",
@@ -200,7 +207,8 @@ it("should fetch recent users using settings", () => {
             "private_settings": {
               "last_fetch_at": expect.whatever(),
               "token": "hubToken"
-            }
+            },
+            "refresh_status": false
           }
         ]
       ]

@@ -1,6 +1,6 @@
 const { ContextMock } = require("./helper/connector-mock");
 
-const action = require("../../server/actions/status-check");
+const action = require("../../server/handlers/status");
 const nock = require("nock");
 
 describe("actions-status-check", () => {
@@ -15,8 +15,8 @@ describe("actions-status-check", () => {
       synchronized_segments: ["cio leads"]
     };
 
-    const req = new ContextMock("1234", {}, private_settings);
-    req.url = "https://hull-customerio.herokuapp.com/status/";
+    const ctx = new ContextMock("1234", {}, private_settings);
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
     nock("https://track.customer.io", {
       reqheaders: {
@@ -29,8 +29,8 @@ describe("actions-status-check", () => {
           message: "nice credentials."
         }
       });
-    action(req).then(() => {
-      expect(req.client.put.mock.calls[0][1]).toEqual({ status: "ok", messages: [] });
+    action(ctx).then((status) => {
+      expect(status).toEqual({ status: "ok", messages: [] });
       expect(nock.isDone()).toBe(true);
       done();
     });
@@ -43,8 +43,8 @@ describe("actions-status-check", () => {
       synchronized_segments: ["cio leads"]
     };
 
-    const req = new ContextMock("1234", {}, private_settings);
-    req.url = "https://hull-customerio.herokuapp.com/status/";
+    const ctx = new ContextMock("1234", {}, private_settings);
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
     nock("https://track.customer.io", {
       reqheaders: {
@@ -57,8 +57,8 @@ describe("actions-status-check", () => {
           error: "Unauthorized request"
         }
       });
-    action(req).then(() => {
-      expect(req.client.put.mock.calls[0][1]).toEqual({ status: "error", messages: ["Invalid Credentials: Verify Site ID and API Key in Settings."] });
+    action(ctx).then((status) => {
+      expect(status).toEqual({ status: "error", messages: ["Invalid Credentials: Verify Site ID and API Key in Settings."] });
       expect(nock.isDone()).toBe(true);
       done();
     });
@@ -71,8 +71,8 @@ describe("actions-status-check", () => {
       synchronized_segments: ["cio leads"]
     };
 
-    const req = new ContextMock("1234", {}, private_settings);
-    req.url = "https://hull-customerio.herokuapp.com/status/";
+    const ctx = new ContextMock("1234", {}, private_settings);
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
     nock("https://track.customer.io", {
       reqheaders: {
@@ -85,8 +85,8 @@ describe("actions-status-check", () => {
           error: "Some weird error"
         }
       });
-    action(req).then(() => {
-      expect(req.client.put.mock.calls[0][1]).toEqual({ status: "error", messages: ["Error when trying to connect with Customer.io: Internal Server Error"] });
+    action(ctx).then((status) => {
+      expect(status).toEqual({ status: "error", messages: ["Error when trying to connect with Customer.io: Internal Server Error"] });
       expect(nock.isDone()).toBe(true);
       done();
     });
@@ -99,8 +99,8 @@ describe("actions-status-check", () => {
       synchronized_segments: []
     };
 
-    const req = new ContextMock("1234", {}, private_settings);
-    req.url = "https://hull-customerio.herokuapp.com/status/";
+    const ctx = new ContextMock("1234", {}, private_settings);
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
     nock("https://track.customer.io", {
       reqheaders: {
@@ -113,23 +113,23 @@ describe("actions-status-check", () => {
           message: "nice credentials."
         }
       });
-    action(req).then(() => {
-      expect(req.client.put.mock.calls[0][1]).toEqual({ status: "warning", messages: ["No users will be synchronized because you have not specified at least one whitelisted segment in Settings."] });
+    action(ctx).then((status) => {
+      expect(status).toEqual({ status: "warning", messages: ["No users will be synchronized because you have not specified at least one whitelisted segment in Settings."] });
       expect(nock.isDone()).toBe(true);
       done();
     });
   });
 
-  test("should return a warning if authentication is not configured in the settings", function (done) { // eslint-disable-line func-names
+  test("should return a setupRequired if authentication is not configured in the settings", function (done) { // eslint-disable-line func-names
     const private_settings = {
-      synchronized_segments: ["cio leads"]
+      synchronized_segments: ["cio leads"],
     };
 
-    const req = new ContextMock("1234", {}, private_settings);
-    req.url = "https://hull-customerio.herokuapp.com/status/";
+    const ctx = new ContextMock("1234", {}, private_settings);
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
-    action(req).then(() => {
-      expect(req.client.put.mock.calls[0][1]).toEqual({ status: "warning", messages: ["Missing Credentials: Site ID or API Key are not configured in Settings."] });
+    action(ctx).then((status) => {
+      expect(status).toEqual({ status: "setupRequired", messages: ["Please enter your Customer.io Site ID and API Key"] });
       done();
     });
   });
@@ -140,11 +140,11 @@ describe("actions-status-check", () => {
       synchronized_segments: ["cio leads"]
     };
 
-    const req = new ContextMock("1234", {}, private_settings);
-    req.url = "https://hull-customerio.herokuapp.com/status/";
+    const ctx = new ContextMock("1234", {}, private_settings);
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
-    action(req).then(() => {
-      expect(req.client.put.mock.calls[0][1]).toEqual({ status: "warning", messages: ["Missing Credentials: Site ID or API Key are not configured in Settings."] });
+    action(ctx).then((status) => {
+      expect(status).toEqual({ status: "setupRequired", messages: ["Please enter your Customer.io Site ID and API Key"] });
       done();
     });
   });
@@ -155,11 +155,11 @@ describe("actions-status-check", () => {
       synchronized_segments: ["cio leads"]
     };
 
-    const req = new ContextMock("1234", {}, private_settings);
-    req.url = "https://hull-customerio.herokuapp.com/status/";
+    const ctx = new ContextMock("1234", {}, private_settings);
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
-    action(req).then(() => {
-      expect(req.client.put.mock.calls[0][1]).toEqual({ status: "warning", messages: ["Missing Credentials: Site ID or API Key are not configured in Settings."] });
+    action(ctx).then((status) => {
+      expect(status).toEqual({ status: "setupRequired", messages: ["Please enter your Customer.io Site ID and API Key"] });
       done();
     });
   });

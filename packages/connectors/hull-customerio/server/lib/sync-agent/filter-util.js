@@ -61,6 +61,14 @@ class FilterUtil {
   userAttributeServiceId: string;
 
   /**
+   * Defines if user should be bypassing filter.
+   * Happens during batches of users.
+   * @type {boolean}
+   * @memberof FilterUtil
+   */
+  isBatch: boolean;
+
+  /**
    * Creates an instance of FilterUtil.
    * @param {IFilterUtilOptions} options The options to configure the filter utility.
    * @memberof FilterUtil
@@ -84,6 +92,7 @@ class FilterUtil {
       "userAttributeServiceId",
       "external_id"
     );
+    this.isBatch = _.get(options, "isBatch", false);
   }
 
   /**
@@ -115,7 +124,8 @@ class FilterUtil {
 
       if (
         !this.matchesSynchronizedSegments(envelope) &&
-        !this.deletionEnabled
+        !this.deletionEnabled &&
+        !this.isBatch
       ) {
         envelope.skipReason = SHARED_MESSAGES.SKIP_NOTINSEGMENTS;
         envelope.opsResult = "skip";

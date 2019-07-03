@@ -1,9 +1,9 @@
 // @flow
 import type {
-  HullClientConfiguration,
+  HullClientConfig,
   HullEntityClaims,
   HullEntityType,
-  HullAuxiliaryClaims
+  HullAdditionalClaims
 } from "../types";
 
 const _ = require("lodash");
@@ -12,7 +12,9 @@ const crypto = require("./crypto");
 
 const GLOBALS = {
   prefix: "/api/v1",
-  protocol: "https"
+  protocol: "https",
+  timeout: 10000,
+  retry: 5000
 };
 
 const VALID_OBJECT_ID = new RegExp("^[0-9a-fA-F]{24}$");
@@ -54,6 +56,8 @@ const VALID_PROPS = {
   subjectType: VALID.string,
   additionalClaims: VALID.object,
   accessToken: VALID.string,
+  timeout: VALID.number,
+  retry: VALID.number,
   hostSecret: VALID.string, // TODO: check if this is being used anywhere
   flushAt: VALID.number,
   flushAfter: VALID.number,
@@ -89,9 +93,9 @@ const ACCOUNT_CLAIMS: Array<string> = [
  * Class containing configuration
  */
 class Configuration {
-  _state: HullClientConfiguration;
+  _state: HullClientConfig;
 
-  constructor(config: HullClientConfiguration) {
+  constructor(config: HullClientConfig) {
     if (!_.isObject(config) || !_.size(config)) {
       throw new Error(
         "Configuration is invalid, it should be a non-empty object"
@@ -139,7 +143,8 @@ class Configuration {
     });
 
     _.each(VALID_PROPS, (test, key) => {
-      if (config[key]) {
+      // @TODO check that this is actually desired as a strict comparison to make sure falsy values are still validated
+      if (config[key] !== undefined) {
         this._state[key] = config[key];
       }
     });
@@ -191,7 +196,7 @@ class Configuration {
     return typeof object === "string" ? object : _.pick(object, claimsToFilter);
   }
 
-  set(key: string, value: $Values<HullClientConfiguration>): void {
+  set(key: string, value: $Values<HullClientConfig>): void {
     this._state[key] = value;
   }
 
@@ -203,16 +208,16 @@ class Configuration {
     | Array<Object>
     | HullEntityType
     | HullEntityClaims
-    | HullAuxiliaryClaims
-    | HullClientConfiguration
+    | HullAdditionalClaims
+    | HullClientConfig
     | void {
-    if (key) {
+    if (key !== undefined) {
       return this._state[key];
     }
-    return JSON.parse(JSON.stringify(this._state));
+    return this.getAll();
   }
 
-  getAll(): HullClientConfiguration {
+  getAll(): HullClientConfig {
     return JSON.parse(JSON.stringify(this._state));
   }
 }

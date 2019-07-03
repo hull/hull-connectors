@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require("@babel/register");
 const shell = require("shelljs");
 // const url = require("url");
 const repl = require("repl");

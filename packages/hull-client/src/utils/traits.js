@@ -74,6 +74,21 @@ function group(user: HullEntity): HullEntityNested {
   );
 }
 
+// Creates a flat object from `/` and `source` parameters
+function applyContext(attributes: Object, context: Object): Object {
+  const payload = {};
+  if (attributes) {
+    const { source } = context;
+    _.map(
+      _.mapKeys(attributes, (v, k) =>
+        (source ? `${source}/${k}` : k).replace(".", "/")
+      ),
+      (v, k) => _.setWith(payload, k, v)
+    );
+  }
+  return payload;
+}
+
 function normalize(traits: HullEntityAttributes): HullEntityAttributes {
   return _.reduce(
     traits,
@@ -93,5 +108,6 @@ function normalize(traits: HullEntityAttributes): HullEntityAttributes {
 
 module.exports = {
   group,
+  applyContext,
   normalize
 };

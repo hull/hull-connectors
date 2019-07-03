@@ -209,6 +209,7 @@ class MappingUtil {
       "campaign_id",
       "campaign_name",
       "template_id",
+      "tags",
       "subject"
     ];
     const eventProps = _.pick(payload.data, eventPropPaths);

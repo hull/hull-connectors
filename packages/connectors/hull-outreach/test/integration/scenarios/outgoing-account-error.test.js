@@ -4,13 +4,18 @@ const _ = require("lodash");
 process.env.CLIENT_ID = "clientId";
 process.env.CLIENT_SECRET = "clientSecret";
 
-/* global describe, it, beforeEach, afterEach */
-const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
 
+
+
+
+
+
+
+const testScenario = require("hull-connector-framework/src/test-scenario");
+import connectorConfig from "../../../server/config";
 
 test("send smart-notifier account update to outreach with authorization error", () => {
-  return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = require("../fixtures/notifier-payloads/outgoing-account-changes.json");
     return _.assign(updateMessages, {
       handlerType: handlers.notificationHandler,

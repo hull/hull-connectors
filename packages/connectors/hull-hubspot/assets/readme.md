@@ -18,7 +18,7 @@ To install the HubSpot integration, you must have a HubSpot admin permissions to
 4. Confirm by clicking **Install**
 5. Within the Connector, click on **Credentials & Actions**. You will need to login with your HubSpot credentials to connect your HubSpot instance.
 
-![oAuth flow first step](./docs/oauth-flow-1.png)
+![OAuth flow first step](./docs/oauth-flow-1.png)
 
 ### Configure your HubSpot Connector Settings
 
@@ -193,7 +193,7 @@ Check you have setup identifiers for accounts. See [data mapping](#data-mapping)
 
 ### I don’t get updates of recently updated Contacts or Companies into Hull
 
-Check your connector logs for any `incoming.job.error`. If you see any with `Permission error`, you need to re-authenticate the HubSpot Connector. Go to the **Credentials & Actions** and perform the oAuth flow authorization again using the **Start over** button.
+Check your connector logs for any `incoming.job.error`. If you see any with `Permission error`, you need to re-authenticate the HubSpot Connector. Go to the **Credentials & Actions** and perform the OAuth flow authorization again using the **Start over** button.
 
 All your connector settings (including data mapping) will remain the same.
 

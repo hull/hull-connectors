@@ -48,12 +48,11 @@ function getSettingValue(ctx, settingName) {
  * 2. when there is not even a single claim even though all are optional
  * 3. when there is not correct settings in the connector object
  */
-function incomingClaims(
-  ctx: HullContext,
+const incomingClaims = (ctx: HullContext) => (
   entityType: HullEntityType,
   objectToTransform: Object,
   options?: { anonymous_id_prefix?: string, anonymous_id_service: string }
-): IncomingClaimsResult {
+): IncomingClaimsResult => {
   try {
     const settingName = `incoming_${entityType}_claims`;
     const setting = getSettingValue(ctx, settingName);
@@ -77,9 +76,7 @@ function incomingClaims(
       if (isInvalid(valueFromObject)) {
         if (entry.required === true) {
           throw new Error(
-            `Value of field "${entry.service}" is empty, cannot map it to ${
-              entry.hull
-            }, but it's required.`
+            `Value of field "${entry.service}" is empty, cannot map it to ${entry.hull}, but it's required.`
           );
         }
         return claims;
@@ -123,6 +120,6 @@ function incomingClaims(
       error: error.message
     };
   }
-}
+};
 
 module.exports = incomingClaims;

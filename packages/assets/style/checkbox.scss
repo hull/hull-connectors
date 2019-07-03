@@ -1,0 +1,27 @@
+.check i.icon {
+  color: rgba(75, 222, 122, 0.52);
+  font-size: 2pc;
+  position: relative;
+  top: -11px;
+  left: 3px;
+}
+.check.valid {
+  border-color: rgba(75, 222, 122, 0.52);
+}
+.check.cross i.icon {
+  color: rgba(222, 75, 75, 0.52);
+}
+.check.cross {
+  border: none;
+  top: 0;
+  left: -3px;
+}
+
+.check {
+  border-radius: 100px;
+  border: 2px solid transparent;
+  padding: 0 5px;
+  height: 37px;
+  width: 37px;
+  position: relative;
+}

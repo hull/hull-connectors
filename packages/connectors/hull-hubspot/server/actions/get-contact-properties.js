@@ -1,12 +1,15 @@
 /* @flow */
-import type { HullContext } from "hull";
+import type { HullContext, HullExternalResponse } from "hull";
 
 const SyncAgent = require("../lib/sync-agent");
 
-function getContactProperties(ctx: HullContext) {
+async function getContactProperties(ctx: HullContext): HullExternalResponse {
   const syncAgent = new SyncAgent(ctx);
-
-  return syncAgent.getContactProperties();
+  const data = await syncAgent.getContactProperties();
+  return {
+    status: 200,
+    data
+  };
 }
 
 module.exports = getContactProperties;
