@@ -9,6 +9,18 @@ export type HullHelperExtractRequestOptions = {
   additionalQuery?: Object
 };
 
+const getSegmentQuery = (client, segment): { query: {} } => {
+  if (segment == null) {
+    return { query: {} };
+  }
+
+  // TODO: What's the exact format of a Segment message? do we have the query there ?
+  if (segment.query) {
+    return segment;
+  }
+  return client.get(segment.id, {});
+};
+
 const Promise = require("bluebird");
 const URI = require("urijs");
 const _ = require("lodash");
@@ -31,7 +43,7 @@ const _ = require("lodash");
  * @example
  * req.hull.helpers.requestExtract({ segment = null, path, fields = [], additionalQuery = {} });
  */
-const extractRequest = (ctx: HullContext) => ({
+const extractRequest = (ctx: HullContext) => async ({
   format = "json",
   segment,
   path = "batch",
@@ -58,23 +70,10 @@ const extractRequest = (ctx: HullContext) => ({
     .search(search)
     .toString();
 
-  return (() => {
-    if (segment == null) {
-      return Promise.resolve({
-        query: {}
-      });
-    }
-
-    // TODO: What's the exact format of a Segment message? do we have the query there ?
-    if (segment.query) {
-      return Promise.resolve(segment);
-    }
-    return client.get(segment.id, {});
-  })().then(({ query }) => {
-    const params = { query, format, url, fields };
-    client.logger.debug("connector.requestExtract.params", params);
-    return client.post("extract/user_reports", params);
-  });
+  const { query } = await getSegmentQuery(client, segment);
+  const params = { query, format, url, fields };
+  client.logger.debug("connector.requestExtract.params", params);
+  return client.post("extract/user_reports", params);
 };
 
 module.exports = extractRequest;

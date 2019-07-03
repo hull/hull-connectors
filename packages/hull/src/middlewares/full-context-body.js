@@ -1,5 +1,6 @@
 // @flow
 import type { NextFunction } from "express";
+import _ from "lodash";
 import type { HullRequest, HullResponse, HullConnector } from "../types";
 
 const debug = require("debug")("hull-connector:full-context-body-middleware");
@@ -26,12 +27,12 @@ function fullContextBodyMiddlewareFactory({
       if (err !== undefined) {
         return next(err);
       }
-
       if (
         req.body === null ||
         req.body === "null" ||
         req.body === undefined ||
-        typeof req.body !== "object"
+        typeof req.body !== "object" ||
+        _.isEmpty(req.body)
       ) {
         if (strict) {
           return next(new Error("Body must be a json object"));
@@ -63,9 +64,8 @@ function fullContextBodyMiddlewareFactory({
       const accountsSegments = accounts_segments || account_segments;
       debug("read from body %o", {
         connector,
-        usersSegments: Array.isArray(usersSegments) && usersSegments.length,
-        accountsSegments:
-          Array.isArray(accountsSegments) && accountsSegments.length
+        usersSegments: Array.isArray(usersSegments),
+        accountsSegments: Array.isArray(accountsSegments)
       });
 
       if (strict) {

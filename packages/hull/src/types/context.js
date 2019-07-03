@@ -7,7 +7,9 @@ import type {
   HullAccountSegment,
   HullConnector,
   HullConnectorConfig,
-  HullClientConfig
+  HullClientConfig,
+  HullNotification,
+  HullClient
 } from "./index";
 
 import { incomingClaims, settingsUpdate, extractRequest } from "../helpers";
@@ -24,7 +26,7 @@ export type HullContextBase = {
   hostname: string, // req.hostname
   options: Object, // req.query
   isBatch: boolean,
-  HullClient: Class<Client>,
+  HullClient: Class<HullClient>,
 
   connectorConfig: HullConnectorConfig, // configuration passed to Hull.Connector
   clientConfig: HullClientConfig, // configuration which will be applied to Hull Client
@@ -64,7 +66,7 @@ export type HullContext = {
   // accountsSegments?: Array<HullSegment>
   usersSegments: Array<HullUserSegment>,
   accountsSegments: Array<HullAccountSegment>,
-  client: Client,
+  client: HullClient,
   notification?: HullNotification,
   connector: HullConnector,
   authParams?: {},

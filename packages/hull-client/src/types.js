@@ -55,7 +55,7 @@ export type HullSegment = {
   //   users?: number,
   //   accounts?: number // is it really there?
   // },
-  // query?: {},
+  query?: {},
   created_at: string,
   updated_at: string
 };
