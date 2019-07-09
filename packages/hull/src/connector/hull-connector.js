@@ -4,23 +4,27 @@ import type { $Application, Middleware } from "express";
 import type { Server } from "http";
 import express from "express";
 import type {
+  HullContext,
   HullServerConfig,
+  HullContextGetter,
+  HullRouteMap,
   HullMetricsConfig,
   HullLogsConfig,
+  HullJsonConfig,
   HullCacheConfig,
   HullHTTPClientConfig,
   HullClientConfig,
   HullWorkerConfig,
   HullConnectorConfig,
   HullClient,
+  HullCredentialsObject,
   HullRouterFactory,
   HullWorker
-} from "../types";
+} from "../types/index";
 import {
   jsonHandler,
   scheduleHandler,
   notificationHandler,
-  // batchHandler,
   incomingRequestHandler,
   htmlHandler,
   OAuthHandler,
@@ -28,6 +32,8 @@ import {
 } from "../handlers";
 
 import errorHandler from "./error";
+
+const { compose } = require("compose-middleware");
 
 const path = require("path");
 const Promise = require("bluebird");
@@ -40,6 +46,7 @@ const { Instrumentation, Cache, Queue, Batcher } = require("../infra");
 const { onExit } = require("../utils");
 const {
   workerContextMiddleware,
+  extendedComposeMiddleware,
   baseComposedMiddleware
 } = require("../middlewares");
 
@@ -117,6 +124,8 @@ class HullConnector {
   logsConfig: HullLogsConfig;
 
   cacheConfig: HullCacheConfig;
+
+  jsonConfig: HullJsonConfig;
 
   cache: Cache;
 
@@ -221,8 +230,6 @@ class HullConnector {
     if (this.serverConfig.start) {
       const app = express();
       this.app = app;
-      this.setupApp(app);
-      this.setupRoutes(app);
       if (this.connectorConfig.devMode) {
         debug("Starting Server in DevMode");
         // eslint-disable-next-line global-require
@@ -240,23 +247,27 @@ class HullConnector {
       if (server) {
         this.server = server;
       }
+      this.setupApp(app);
+      this.setupRoutes(app);
       debug(`Started server on port ${this.connectorConfig.port}`);
     } else {
       debug("No Server started: `serverConfig.start === false`");
     }
   }
 
-  getHandlers() {
+  async getHandlers() {
     if (this._handlers) {
       return this._handlers;
     }
     this._handlers =
-      typeof this.handlers === "function" ? this.handlers(this) : this.handlers;
+      typeof this.handlers === "function"
+        ? await this.handlers(this)
+        : this.handlers;
     return this._handlers;
   }
 
-  setupRoutes(app: $Application) {
-    const handlers = this.getHandlers();
+  async setupRoutes(app: $Application) {
+    const handlers = await this.getHandlers();
     // Don't use an arrow function here as it changes the context
     // Don't move it out of this closure either
     // https://github.com/expressjs/express/issues/3855
@@ -329,9 +340,6 @@ class HullConnector {
     // Setup Kraken handlers
     mapNotification(notificationHandler, "subscriptions");
 
-    // Setup Batch handlers
-    // mapNotification(batchHandler, "batches");
-
     // Statuses handlers
     // Be careful - these handlers return a specific data format
     mapRoute(statusHandler, "statuses", "all", this.manifest.statuses);
@@ -341,6 +349,7 @@ class HullConnector {
 
     // Setup Tab handlers
     mapRoute(htmlHandler, "tabs", "all", this.manifest.tabs);
+    mapRoute(htmlHandler, "html", "all", this.manifest.html);
 
     // TODO: Alpha-quality Credentials handlers - DO NOT expose both tab oAuth and Credentials
     mapRoute(
@@ -348,7 +357,7 @@ class HullConnector {
       "private_settings",
       "all",
       (this.manifest.private_settings || []).filter(
-        s => !!s.url && !!s.handler && s.format === "oauth"
+        s => !!s.url && !!s.handler && s.format.toLowerCase() === "oauth"
       )
     );
 
@@ -357,7 +366,7 @@ class HullConnector {
       "private_settings",
       "all",
       (this.manifest.private_settings || []).filter(
-        s => !!s.url && !!s.handler && s.format !== "oauth"
+        s => !!s.url && !!s.handler && s.format.toLowerCase() !== "oauth"
       )
     );
 
@@ -377,6 +386,44 @@ class HullConnector {
       connectorConfig: this.connectorConfig
     });
   }
+
+  getContext: HullContextGetter = async ({
+    token,
+    clientCredentialsToken,
+    clientCredentialsEncryptedToken
+  }: HullCredentialsObject): Promise<HullContext> => {
+    const composedMiddleware = compose(
+      this.baseComposedMiddleware(),
+      extendedComposeMiddleware({
+        handlerName: "getContext",
+        requestName: "getContext",
+        options: {
+          credentialsFromNotification: false,
+          credentialsFromQuery: true,
+          strict: false
+        }
+      })
+    );
+    return new Promise((resolve, reject) => {
+      // $FlowFixMe
+      const ctx: HullContext = {
+        token,
+        clientCredentialsToken,
+        clientCredentialsEncryptedToken
+      };
+      const noop = () => {};
+      composedMiddleware(
+        { on: noop, emit: noop, headers: [], body: {}, hull: ctx },
+        {},
+        (err, _req, _res) => {
+          if (err instanceof Error) {
+            reject(err);
+          }
+          resolve(ctx);
+        }
+      );
+    });
+  };
 
   /**
    * This method applies all features of `Hull.Connector` to the provided application:

@@ -2,6 +2,12 @@
 
 import type { agent } from "superagent";
 import type {
+  HullEntityClaims,
+  HullFetchedEvent,
+  HullFetchedUser,
+  HullFetchedAccount,
+  HullAttributeSchemaEntry,
+  HullEventSchemaEntry,
   HullClientCredentials,
   HullUserSegment,
   HullAccountSegment,
@@ -52,6 +58,7 @@ export type HullContext = {
    * @memberof Types
    */
   ...$Exact<HullContextBase>,
+  hostname: string, // req.hostname
   handlerName?: string,
   clientCredentials: HullClientCredentials, // HullClient configuration
   // clientCredentialsToken?: string,
@@ -72,7 +79,7 @@ export type HullContext = {
   entities: {
     events: {
       get: HullEntityClaims => Array<HullFetchedEvent>,
-      getSchema: () => Promise<HullEventSchema>
+      getSchema: () => Promise<Array<HullEventSchemaEntry>>
     },
     users: {
       get: HullEntityClaims => Promise<HullFetchedUser>,

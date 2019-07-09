@@ -2,8 +2,12 @@
 
 import URI from "urijs";
 import _ from "lodash";
-import type { HullClient, HullEntityScopedClient } from "hull";
-import fetchUser from "./fetch-user";
+import type {
+  HullClient,
+  HullContextGetter,
+  HullEntityScopedClient,
+  HullContext
+} from "hull";
 import type { Store } from "../../types";
 
 const USER_NOT_FOUND = {
@@ -36,62 +40,51 @@ const isWhitelisted = (domains, hostname) =>
     hostname
   );
 
-export default function socketFactory({
+export default function onConnectionFactory({
   Client,
+  getContext,
   store,
   sendPayload
 }: {
   Client: Class<HullClient>,
+  getContext: HullContextGetter,
   sendPayload: Object => void,
   store: Store
 }) {
   const { get, lru } = store;
 
   return async function onConnection(socket: any) {
-    const logClose = loggerFactory(socket, Client);
-    Client.logger.debug("incoming.connection.start", {});
-
     async function onUserFetch({ connectorId, /* platformId, */ claims = {} }) {
-      if (!_.size(claims)) {
-        return logClose(
-          "incoming.connection.error",
-          `Empty Claims (${connectorId})`
-        );
-      }
-
-      const { origin } = socket.request.headers;
-
-      if (!origin) {
-        return logClose(
-          "incoming.connection.error",
-          `Not connecting socket: No Origin (${connectorId})`
-        );
-      }
-
       try {
-        // There's probably a simpler way to access a connector ship cache...
-        const cached = await get(connectorId);
-        const { config, ship } = cached;
+        const logClose = loggerFactory(socket, Client);
+        Client.logger.debug("incoming.connection.start", {});
 
-        if (!cached || !_.size(ship)) {
+        if (!_.size(claims)) {
           return logClose(
             "incoming.connection.error",
-            "Cloud not find config in redis cache. will try at next page view"
+            `Empty Claims (${connectorId})`
           );
         }
 
-        const { private_settings = {} } = ship;
-        const { whitelisted_domains = [] } = private_settings;
-        const client = new Client({ ...config, id: connectorId });
-        const userClient = client.asUser(claims, { scopes: ["admin"] });
+        const { origin } = socket.request.headers;
 
-        // if (platformId) {
-        //   const platform = await lru(connectorId).getOrSet(platformId, () => client.get(platformId), 60000);
-        //   const { domains, id } = platform;
-        //   console.log("///////////////////////////////");
-        //   console.log(id, platform, domains, config)
-        //   console.log("///////////////////////////////");
-        // }
+        if (!origin) {
+          return logClose(
+            "incoming.connection.error",
+            `Not connecting socket: No Origin (${connectorId})`
+          );
+        }
+
+        // There's probably a simpler way to access a connector ship cache...
+        const { clientCredentialsEncryptedToken } = await get(connectorId);
+        const ctx: HullContext = await getContext({
+          clientCredentialsEncryptedToken
+        });
+        const { client, connector } = ctx;
+
+        const { private_settings = {} } = connector;
+        const { whitelisted_domains = [] } = private_settings;
+        const userClient = client.asUser(claims, { scopes: ["admin"] });
 
         if (!whitelisted_domains.length) {
           return logClose(
@@ -132,25 +125,22 @@ export default function socketFactory({
         userClient.logger.info("incoming.user.fetch.start", claims);
 
         try {
-          let payload;
+          let message;
           // If we have a Hull ID, then can use LRU. Othwerwise, we wait for the Update to send through websockets.
           if (claims.id) {
-            payload = await lru(connectorId).get(claims.id);
+            message = await lru(connectorId).get(claims.id);
           }
 
-          if (!payload) {
+          if (!message) {
             socket.emit("cache.miss", { connectorId, claims });
-            payload = await fetchUser(userClient);
+            message = await ctx.entities.users.get({ claims });
           }
 
-          if (!payload) {
+          if (!message) {
             throw new Error("Can't find user");
           }
 
-          // Once joined, send payload.
-          userClient.logger.info("incoming.user.fetch.success");
-
-          sendPayload({ client: userClient, ship, ...payload });
+          sendPayload(ctx, message, socket);
         } catch (err) {
           // Error happened, send no one.
           socket.emit("user.error", USER_NOT_FOUND);

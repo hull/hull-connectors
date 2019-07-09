@@ -18,7 +18,7 @@ export type HullFetchedUser = {
   account_segments_ids?: Array<string>
 };
 
-export type HullFetchedUserAccount = {
+export type HullFetchedAccount = {
   account: HullAccount,
   account_segments: Array<HullAccountSegment>,
   account_segments_ids: Array<string>

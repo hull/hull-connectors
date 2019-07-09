@@ -87,3 +87,10 @@ export type HullUISelectResponseData = {
 export type HullUISelectResponse =
   | HullUISelectResponseData
   | Promise<HullUISelectResponseData>;
+
+export type HullCredentialsResponse = {
+  status: number,
+  data: {
+    url: string
+  }
+}
