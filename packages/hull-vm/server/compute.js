@@ -46,16 +46,18 @@ export default async function compute(
     connector,
     ship: connector
   };
-  if (_.size(claims)) {
-    Object.assign(frozen, hull);
-  }
 
   try {
     const vm = new VM({
       sandbox
       // , timeout: 1000 //TODO: Do we want to enforce a timeout here? what about Promises.
     });
-    _.map(frozen, (lib, key) => vm.freeze(lib, key));
+    _.map(frozen, (lib, key: string) => vm.freeze(lib, key));
+
+    // For Processor keep backwards-compatible signature of having `traits` and `track` at top level
+    if (_.size(claims)) {
+      _.map(hull, (lib, key: string) => vm.freeze(lib, key));
+    }
     vm.run(`responses = (function() { "use strict"; ${code} }());`);
   } catch (err) {
     result.errors.push(err.stack.split("at ContextifyScript")[0]);
