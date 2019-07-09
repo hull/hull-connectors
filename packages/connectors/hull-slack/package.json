@@ -17,8 +17,7 @@
     "sync",
     "slack"
   ],
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "dependencies": {
     "botbuilder-adapter-slack": "^1.0.3",
     "botkit": "^4.0.2",
