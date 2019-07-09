@@ -31,7 +31,6 @@ export default class App extends RecentEntriesUI<Props, State> {
       recent,
       url
     } = this.state;
-    if (!initialized) return null;
     const hasRecent = !!_.get(recent, "length", 0);
     const content = hasRecent
       ? "Copy the URL below and configure your external service to send a valid JSON-formatted payload to it as a HTTP POST call"
