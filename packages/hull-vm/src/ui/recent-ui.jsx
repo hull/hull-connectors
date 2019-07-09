@@ -80,12 +80,12 @@ export default class RecentEntriesUI extends VirtualMachineUI<Props, State> {
     const {
       selected,
       current,
+      initialized,
       initializing,
       recent,
       url,
       // error,
       computing,
-      // initialized,
       // result,
       activeTab,
       // showConfig,

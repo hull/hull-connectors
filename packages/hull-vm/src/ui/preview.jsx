@@ -2,35 +2,39 @@
 import React, { Fragment } from "react";
 import _ from "lodash";
 import fp from "lodash/fp";
-
 import Area from "./area";
 import CodeTitle from "./code-title";
 import type { Result } from "../../types";
 
 const nice = (obj = {}) => JSON.stringify(obj, null, 2);
-const short = (obj = {}) => JSON.stringify(obj);
+// const nice = (obj = {}) => JSON.stringify(obj);
 // const conditional = (data, text) => {
 //   if (!data || !_.size(data)) return "";
 //   return `/* ${text} */ ${_.isObject(data) ? nice(data) : data}`;
 // };
 const joinLines = fp.join("\n");
 
-const renderUserClaim = claims => `hull.asUser(${short(claims)})`;
-const renderAccountClaim = claims => `hull.asAccount(${short(claims)})`;
+const renderUserClaim = claims => `hull.asUser(${nice(claims)})`;
+const renderAccountClaim = claims => `hull.asAccount(${nice(claims)})`;
 
-const renderTraits = claimRender => ([claims, attributes]) => `${claimRender(
-  claims
-)}.traits(${short(attributes)});
-`;
-const renderShortTraits = ([claims, attributes]) => `traits(${short(
+const renderShortTraits = ([claims, attributes]) => `traits(${nice(
   attributes
 )});
 `;
-
-const renderUserTraits = scoped =>
-  scoped ? renderShortTraits : renderTraits(renderUserClaim);
-const renderAccountTraits = scoped =>
-  scoped ? renderShortTraits : renderTraits(renderAccountClaim);
+const renderShortAlias = (operation, aliases) => `${operation}(${nice(
+  aliases
+)});
+`;
+const renderTraits = (claimRender, scoped) => ([claims, attributes]) =>
+  (scoped ? "" : `${claimRender(claims)}.`) +
+  renderShortTraits([claims, attributes]);
+const renderAlias = (claimRender, scoped) => ([claims, alias]) =>
+  _.map(
+    alias,
+    ([aliasClaim, operation]) =>
+      (scoped ? "" : `${claimRender(claims)}.`) +
+      renderShortAlias(operation, aliasClaim)
+  ).join("\n");
 
 const mapTraits = method =>
   fp.flow(
@@ -39,7 +43,7 @@ const mapTraits = method =>
   );
 
 const renderStringOrObject = (i: string | {} | Array<any>) =>
-  _.isString(i) ? i : short(i);
+  _.isString(i) ? i : nice(i);
 
 const renderLogs = fp.flow(
   fp.map(renderStringOrObject),
@@ -48,8 +52,8 @@ const renderLogs = fp.flow(
 
 const mapAccountLinks = fp.flow(
   fp.map(
-    ([claims, accountClaims]) => `//★ User → ${short(claims)}
-//★ Account → ${short(accountClaims)}
+    ([claims, accountClaims]) => `//★ User → ${nice(claims)}
+//★ Account → ${nice(accountClaims)}
 
 `
   ),
@@ -57,7 +61,7 @@ const mapAccountLinks = fp.flow(
 );
 
 const renderEventBody = ({ eventName, context, properties }) =>
-  `"${eventName}", ${short(properties)}, ${short(context)}`;
+  `"${eventName}", ${nice(properties)}, ${nice(context)}`;
 
 const renderEvent = ({ event, claims }) => `//★ Event →
 ${renderUserClaim(claims)}
@@ -95,6 +99,8 @@ const Preview = ({ result, scoped }: Props) => {
     userTraits = [],
     accountTraits = [],
     accountLinks = [],
+    accountAliases = [],
+    userAliases = [],
     errors = [],
     events = [],
     logs = []
@@ -103,10 +109,20 @@ const Preview = ({ result, scoped }: Props) => {
   const hasErrors = _.size(errors);
 
   const output = {
-    "User Attributes": mapTraits(renderUserTraits(scoped))(userTraits),
-    "Account Attributes": mapTraits(renderAccountTraits(scoped))(accountTraits),
+    "User Attributes": mapTraits(renderTraits(renderUserClaim, scoped))(
+      userTraits
+    ),
+    "Account Attributes": mapTraits(renderTraits(renderAccountClaim, scoped))(
+      accountTraits
+    ),
     "User-Account Links": mapAccountLinks(accountLinks),
-    "User Events": mapEvents(scoped)(events)
+    "User Events": mapEvents(scoped)(events),
+    "User Aliases": mapTraits(renderAlias(renderUserClaim, scoped))(
+      userAliases
+    ),
+    "Account Aliases": mapTraits(renderAlias(renderAccountClaim, scoped))(
+      accountAliases
+    )
   };
 
   return hasErrors ? (
@@ -119,7 +135,12 @@ const Preview = ({ result, scoped }: Props) => {
       {_.map(_.pickBy(output, v => !!v), (v, k) => (
         <Fragment key={k}>
           <CodeTitle title={k} />
-          <Area id={`code-${k}`} value={v} type="info" mode={k==="User-Account Links" ? "text" :"javascript"} />
+          <Area
+            id={`code-${k}`}
+            value={v}
+            type="info"
+            mode={k === "User-Account Links" ? "text" : "javascript"}
+          />
         </Fragment>
       ))}
       <CodeTitle title="Console" />

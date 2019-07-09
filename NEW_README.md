@@ -105,7 +105,7 @@ export default async (
 };
 ```
 
-checkout `types.js` for
+checkout `types.js` for the exact format of requests and replies
 
 ## HullConnectorConfig
 
@@ -670,3 +670,137 @@ const { app, server, connector } = server({ Hull, connectorConfig }
 configure({ app, server, connector }));
 
 ```
+
+### Fetch Entities
+
+````js
+const email_fetch = {
+  claimType: "email",
+  claim: "foo@bar.com"
+};
+const external_id_fetch = {
+  claimType: "external_id",
+  claim: "sldjfal;dk"
+};
+const anonymous_id_fetch = {
+  claimType: "anonymous_id",
+  claim: "123890423984"
+};
+const intercom_fetch = {
+  service: "intercom",
+  claimType: "service",
+  claim: "1245"
+};
+const wide_search = {
+  claim: "1245"
+};
+
+const eventSchema = await ctx.entities.events.getSchema();
+const userSchema = await ctx.entities.users.getSchema();
+const accountSchema = await ctx.entities.accounts.getSchema();
+
+const data = await ctx.entities.users.get({
+  claim,
+  service,
+  claimType,
+  include: { events: {
+    names: ["Segmentd Changed"],
+    limit: 100,
+    page: 1
+  },
+, account: false } //Fetch only "Segment Changes" events. Max Limit: 100
+});
+// Response =>
+{
+  user,
+  events, //only if events included
+  account, //except if include.account===false
+  segments,
+  segment_ids,
+  account_segments,
+  account_segment_ids,
+}
+const data = await ctx.entities.events.get({
+  claim,
+  service,
+  claimType,
+  include: { events: {
+    parent: '123142' //mandatory if if you're accessing events directly
+    names: ["Segmentd Changed"],
+    limit: 100,
+    page: 1
+  },
+, account: false } //Fetch only "Segment Changes" events. Max Limit: 100
+});
+// Response =>
+{
+    "event": "Updated email address",
+    "created_at": "2019-03-15T09:48:15Z",
+    "properties": {
+      "email": "romain@hull.io",
+      "topic": "contact.added_email",
+      "event": "Updated email address"
+    },
+    "event_source": "intercom",
+    "event_type": "track",
+    "context": {
+      "useragent": "Hull Node Client version: 2.0.0-beta.1",
+      "device": {
+        "name": "Other"
+      },
+      "referrer": {},
+      "os": {
+        "name": "Other"
+      },
+      "browser": {
+        "name": "Other"
+      },
+      "location": {
+        "country": "US",
+        "city": "Mountain View",
+        "timezone": "America/Los_Angeles",
+        "region": "CA",
+        "countryname": "United States",
+        "regionname": "California",
+        "zipcode": "94035"
+      },
+      "campaign": {},
+      "ip": "216.239.36.21",
+      "page": {}
+    }
+  }
+
+const data = await ctx.entities.accounts.get({
+  claim,
+  service,
+  claimType,
+  include: {} //Nothing supported for now
+});
+
+
+## Hull-VM call deduplication
+We're using "immutable" (https://immutable-js.github.io/immutable-js/) to perform value-comparision of the claims that are passed in order to properly and reliably deduplicate calls.
+
+Here are a few examples:
+
+```js
+
+const asUser = hull.asUser({ email: "bar@baz.co" });
+const asUser3 =hull.asUser({ email: "bar@baz.co" });
+
+asUser.alias({ anonymous_id: "1234" });
+asUser.unalias({ anonymous_id: "1234" });
+
+asUser3.alias({ anonymous_id: "1234" });
+asUser3.unalias({ anonymous_id: "1234" });
+
+// => hull.asUser({"email":"bar@baz.co"}).unalias({"anonymous_id":"1234"});
+
+asUser3.traits({ foo: "bar" });
+asUser.traits({ foo: "barz", baz: "boo" });
+hull.asUser({ email: "bar@baz.co" }).identify({
+foo: "bazinga"
+})
+
+// => hull.asUser({"email":"bar@baz.co"}).traits({"foo":"bazinga","baz":"boo"});
+````

@@ -1,5 +1,6 @@
 // @flow
 import type { HullClient, HullContext } from "hull";
+import _ from "lodash";
 import type { Result, Event } from "../types";
 
 type TraitsSignature =
@@ -12,6 +13,20 @@ type TraitsSignature =
   | {
       hullClient: $PropertyType<HullClient, "asAccount">,
       data: $PropertyType<Result, "accountTraits">,
+      entity: "account",
+      metric: $PropertyType<HullContext, "metric">
+    };
+
+type AliasSignature =
+  | {
+      hullClient: $PropertyType<HullClient, "asUser">,
+      data: $PropertyType<Result, "userAliases">,
+      entity: "user",
+      metric: $PropertyType<HullContext, "metric">
+    }
+  | {
+      hullClient: $PropertyType<HullClient, "asAccount">,
+      data: $PropertyType<Result, "accountAliases">,
       entity: "account",
       metric: $PropertyType<HullContext, "metric">
     };
@@ -54,7 +69,7 @@ export const callTraits = async ({
     return responses;
   } catch (err) {
     console.log(err);
-    return Promise.reject();
+    return Promise.reject(err);
   }
 };
 
@@ -133,5 +148,43 @@ export const callLinks = async ({
   } catch (err) {
     console.log(err);
     return Promise.reject();
+  }
+};
+
+export const callAlias = async ({
+  hullClient,
+  data = new Map(),
+  entity,
+  metric
+}: AliasSignature): Promise<any> => {
+  const successful = 0;
+  try {
+    const responses = await Promise.all(
+      Array.from(data, async ([claims, operations]) => {
+        const client = hullClient(claims);
+        try {
+          _.map(operations, (operation, aliasClaims) => {
+            if (operation === "alias") {
+              client.alias(aliasClaims);
+            } else {
+              client.unalias(aliasClaims);
+            }
+          });
+          return client.logger.info(`incoming.${entity}.success`, {
+            aliases: operations
+          });
+        } catch (err) {
+          console.log(err);
+          return client.logger.info(`incoming.${entity}.error`, {
+            aliases: operations
+          });
+        }
+      })
+    );
+    metric.increment(`ship.incoming.${entity}s.alias`, successful);
+    return responses;
+  } catch (err) {
+    console.log(err);
+    return Promise.reject(err);
   }
 };

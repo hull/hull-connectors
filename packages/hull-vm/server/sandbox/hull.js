@@ -3,12 +3,19 @@ import type {
   HullAccountClaims,
   HullUserClaims,
   HullClient,
+  HullAttributeContext,
   HullEventProperties,
   HullEventContext,
   HullEntityType
 } from "hull";
-import _ from "lodash";
-import type { Attributes, Event, Result } from "../../types";
+import { applyContext } from "hull-client/src/utils/traits";
+import { Map } from "immutable";
+import type {
+  HullAliasOperation,
+  Attributes,
+  // Event,
+  Result
+} from "../../types";
 
 import {
   hasValidUserClaims,
@@ -16,37 +23,9 @@ import {
   hasValidLinkclaims
 } from "../validate-claims";
 
-const trackFactory = (claims: HullUserClaims, target: Array<Event>) => (
-  eventName: string,
-  properties: HullEventProperties = {},
-  context: HullEventContext = {}
-) => {
-  target.push({
-    claims,
-    event: { eventName, properties, context }
-  });
-};
-
-const identifyFactory = <ClaimType>(
-  claims: ClaimType,
-  target: Map<ClaimType, Attributes>
-) => (attributes: Attributes, options?: { source?: string } = {}) => {
-  const { source } = options;
-  const previousAttributes = target.get(claims) || {};
-  target.set(claims, {
-    ...previousAttributes,
-    ..._.mapKeys(attributes, (v, k) => (source ? `${source}/${k}` : k))
-  });
-  // target.push({
-  //   claims,
-  //   claimsOptions,
-  //   traits: { attributes, context }
-  // });
-};
-
 const buildHullContext = (
   client: HullClient,
-  { errors, userTraits, accountTraits, accountLinks, events }: Result,
+  result: Result,
   claimsScope?: HullUserClaims | HullAccountClaims,
   entity?: HullEntityType = "user"
 ) => {
@@ -55,16 +34,49 @@ const buildHullContext = (
       method,
       validation
     });
-    errors.push(
+    result.errors.push(
       `Error validating claims for ${method}  ${JSON.stringify(validation)}`
     );
   };
 
-  function asAccountFactory(
-    claims: HullAccountClaims,
-    target: $PropertyType<Result, "accountTraits">,
-    isLinkCall?: boolean
-  ) {
+  const trackFactory = (claims: HullUserClaims, target: string) => (
+    eventName: string,
+    properties: HullEventProperties = {},
+    context: HullEventContext = {}
+  ) => {
+    result[target] = result[target].push({
+      claims,
+      event: { eventName, properties, context }
+    });
+  };
+
+  const aliasFactory = <ClaimType = HullUserClaims | HullAccountClaims>(
+    claims: ClaimType,
+    operation: HullAliasOperation,
+    target: "userAliases" | "accountAliases"
+  ) => (alias: ClaimType) => {
+    // sets the rigth operation for the claim and the given alias.
+    // perform deep value equality checks.
+    result[target] = result[target].setIn(
+      [Map({ ...claims }), Map({ ...alias })],
+      operation
+    );
+  };
+
+  const identifyFactory = <ClaimType>(
+    claims: ClaimType,
+    target: "userTraits" | "accountTraits"
+  ) => (attributes: Attributes, context?: HullAttributeContext = {}) => {
+    // ensures the claims and calls are properly collapsed and aggregated
+    result[target] = result[target].withMutations(map => {
+      map.mergeDeepIn(
+        [Map({ ...claims })],
+        Map(applyContext(attributes, context))
+      );
+    });
+  };
+
+  function asAccountFactory(claims: HullAccountClaims, isLinkCall?: boolean) {
     const validation =
       isLinkCall === true
         ? hasValidLinkclaims(claims, client)
@@ -75,30 +87,24 @@ const buildHullContext = (
       return {};
     }
 
-    const identify = identifyFactory(claims, target);
-    return { identify, traits: identify };
+    const identify = identifyFactory(claims, "accountTraits");
+    const alias = aliasFactory(claims, "alias", "accountAliases");
+    const unalias = aliasFactory(claims, "unalias", "accountAliases");
+    return { identify, traits: identify, alias, unalias };
   }
 
-  const linksFactory = (
-    claims: HullUserClaims,
-    target: $PropertyType<Result, "accountLinks">
-  ) => (accountClaims: HullAccountClaims) => {
-    const account = asAccountFactory(accountClaims, accountTraits, true);
+  const linksFactory = (claims: HullUserClaims) => (
+    accountClaims: HullAccountClaims
+  ) => {
+    const account = asAccountFactory(accountClaims, true);
     if (!account.traits) {
       return {};
     }
-    target.set(claims, accountClaims);
-    // target.push({
-    //   claims,
-    //   claimsOptions,
-    //   accountClaims,
-    //   accountClaimsOptions
-    // });
+    result.accountLinks = result.accountLinks.set(claims, accountClaims);
     return account;
   };
 
-  const asAccount = (claims: HullAccountClaims) =>
-    asAccountFactory(claims, accountTraits);
+  const asAccount = (claims: HullAccountClaims) => asAccountFactory(claims);
 
   function asUser(claims: HullUserClaims) {
     const validation = hasValidUserClaims(claims, client);
@@ -107,12 +113,16 @@ const buildHullContext = (
       errorLogger("user", "Hull.asUser()", validation);
       return {};
     }
-    const track = trackFactory(claims, events);
-    const identify = identifyFactory(claims, userTraits);
-    const link = linksFactory(claims, accountLinks);
+    const track = trackFactory(claims, "events");
+    const alias = aliasFactory(claims, "alias", "userAliases");
+    const unalias = aliasFactory(claims, "unalias", "userAliases");
+    const identify = identifyFactory(claims, "userTraits");
+    const link = linksFactory(claims);
     return {
       traits: identify,
       account: link,
+      alias,
+      unalias,
       identify,
       track
     };

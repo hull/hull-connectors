@@ -68,12 +68,19 @@ export type Payload =
     }
   | HullFetchedUser;
 
+export type HullAliasOperation = "alias" | "unalias";
+
 export type Result = {
   logsForLogger: Array<string>,
   logs: Array<string | any>,
   errors: Array<string>,
   userTraits: Map<HullUserClaims, Attributes>,
   accountTraits: Map<HullAccountClaims, Attributes>,
+  userAliases: Map<HullUserClaims, Map<HullUserClaims, HullAliasOperation>>,
+  accountAliases: Map<
+    HullAccountClaims,
+    Map<HullAccountClaims, HullAliasOperation>
+  >,
   events: Array<Event>,
   accountLinks: Map<HullUserClaims, HullAccountClaims>,
   isAsync: boolean,
@@ -85,6 +92,8 @@ export type SerializedResult = {
   errors: Array<string>,
   userTraits: Array<[HullUserClaims, Attributes]>,
   accountTraits: Array<[HullAccountClaims, Attributes]>,
+  userAliases: Array<[HullUserClaims, HullAliasOperations]>,
+  accountAliases: Array<[HullAccountClaims, HullAliasOperations]>,
   events: Array<Event>,
   accountLinks: Array<[HullUserClaims, HullAccountClaims]>,
   isAsync: boolean,

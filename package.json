@@ -108,6 +108,7 @@
     "eslint-import-resolver-babel-module": "^5.1.0",
     "express": "^4.16.4",
     "hashmap": "^2.3.0",
+    "immutable": "^4.0.0-rc.12",
     "jquery": "^3.4.1",
     "kue": "^0.11.6",
     "lodash": "^4.17.11",

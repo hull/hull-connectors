@@ -41,6 +41,12 @@ body.dark {
   }
   .header {
     background: #242a33;
+    .text-right {
+      padding-right: 1rem;
+    }
+  }
+  .text-right {
+    text-align: right;
   }
   h6 {
     font-size: 1.2rem;

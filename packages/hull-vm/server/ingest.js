@@ -1,7 +1,7 @@
 // @flow
 import _ from "lodash";
 import type { HullContext } from "hull";
-import { callLinks, callEvents, callTraits } from "./side-effects";
+import { callAlias, callLinks, callEvents, callTraits } from "./side-effects";
 import type { Result } from "../types";
 import serialize from "./serialize";
 
@@ -17,6 +17,8 @@ export default async function ingest(ctx: HullContext, result: Result) {
     events,
     userTraits,
     accountTraits,
+    userAliases,
+    accountAliases,
     accountLinks,
     logsForLogger,
     errors
@@ -38,12 +40,36 @@ export default async function ingest(ctx: HullContext, result: Result) {
     );
   }
 
+  // Update user aliases
+  if (_.size(userAliases)) {
+    promises.push(
+      callAlias({
+        hullClient: client.asUser,
+        data: userAliases,
+        entity: "user",
+        metric
+      })
+    );
+  }
+
   // Update account traits
   if (_.size(accountTraits)) {
     promises.push(
       callTraits({
         hullClient: client.asAccount,
         data: accountTraits,
+        entity: "account",
+        metric
+      })
+    );
+  }
+
+  // Update account aliases
+  if (_.size(accountAliases)) {
+    promises.push(
+      callAlias({
+        hullClient: client.asAccount,
+        data: accountAliases,
         entity: "account",
         metric
       })

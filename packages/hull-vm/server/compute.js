@@ -6,7 +6,7 @@ import _ from "lodash";
 import moment from "moment";
 import urijs from "urijs";
 import rp from "request-promise";
-
+import { Map } from "immutable";
 import type { Result, ComputeOptions } from "../types";
 import getHullContext from "./sandbox/hull";
 import getRequest from "./sandbox/request";
@@ -23,10 +23,12 @@ export default async function compute(
     logs: [],
     logsForLogger: [],
     errors: [],
-    userTraits: new Map(),
-    accountTraits: new Map(),
+    userTraits: Map({}),
+    userAliases: Map({}),
+    accountTraits: Map({}),
+    accountAliases: Map({}),
+    accountLinks: Map({}),
     events: [],
-    accountLinks: new Map(),
     success: false,
     isAsync: false
   };
@@ -58,7 +60,10 @@ export default async function compute(
     if (_.size(claims)) {
       _.map(hull, (lib, key: string) => vm.freeze(lib, key));
     }
-    vm.run(`responses = (function() { "use strict"; ${code} }());`);
+    vm.run(`responses = (function() {
+"use strict";
+${code}
+}());`);
   } catch (err) {
     result.errors.push(err.stack.split("at ContextifyScript")[0]);
   }

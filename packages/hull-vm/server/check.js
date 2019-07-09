@@ -6,9 +6,9 @@ import lintCode from "./lint";
 
 function wrapCode(code) {
   return `function() {
-    "use strict";
-    ${code}
-  }()`;
+"use strict";
+${code}
+}()`;
 }
 
 // TODO: We can improve and make the checks more robust here in a centralized way.
