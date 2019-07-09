@@ -106,22 +106,8 @@ function credentialsFromQueryMiddlewareFactory() {
         );
       }
 
-      // Re-generate tokens based on the actual configuration we ended up using
-      const clientCredentialsToken = generateToken(
-        clientCredentials,
-        hostSecret
-      );
-      const clientCredentialsEncryptedToken = generateEncryptedToken(
-        clientCredentials,
-        hostSecret
-      );
-
       debug("resolved configuration", clientCredentials);
-      req.hull = Object.assign(req.hull, {
-        clientCredentials,
-        clientCredentialsToken,
-        clientCredentialsEncryptedToken
-      });
+      req.hull.clientCredentials = clientCredentials;
       return next();
     } catch (error) {
       return next(error);

@@ -39,13 +39,7 @@ export default function getRouter({
   afterMiddlewares?: Array<?express$Middleware>
 }) {
   debug("setting up router", { requestName, handlerName, options });
-  const {
-    disableErrorHandling,
-    bodyParser,
-    credentialsFromQuery,
-    credentialsFromNotification,
-    strict
-  } = options;
+  const { disableErrorHandling } = options;
   const router = Router();
 
   beforeMiddlewares.map(m => m && router.use(m));

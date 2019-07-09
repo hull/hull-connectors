@@ -12,12 +12,13 @@ import fullContextFetchMiddleware from "./full-context-fetch";
 import timeoutMiddleware from "./timeout";
 import haltOnTimedoutMiddleware from "./halt-on-timedout";
 import instrumentationContextMiddleware from "./instrumentation-context";
-import instrumentationTransientErrorMiddleware from "./instrumentation-transient-error";
+// import instrumentationTransientErrorMiddleware from "./instrumentation-transient-error";
 import httpClientMiddleware from "./httpclient-middleware";
 import getEntityMiddleware from "./get-entity";
+import generateTokensMiddleware from "./generate-tokens-middleware";
 
 const { compose } = require("compose-middleware");
-const requestDebugLogging = require("./request-debug-logging");
+// const requestDebugLogging = require("./request-debug-logging");
 
 const noop = (req, res, next) => next();
 function extendedComposeMiddleware({
@@ -42,6 +43,7 @@ function extendedComposeMiddleware({
     credentialsFromNotification === true
       ? credentialsFromNotificationMiddleware()
       : undefined, // parse config from body
+    generateTokensMiddleware(), // rehydrate Tokens
     bodyParser ? getBodyParser(bodyParser) : undefined,
     clientMiddleware(), // initialize client
     // ---------The middlewares below require presence of req.hull;
