@@ -66,7 +66,7 @@ export type Payload =
       },
       body: mixed
     }
-  | HullUserUpdateMessage;
+  | HullFetchedUser;
 
 export type Result = {
   logsForLogger: Array<string>,
@@ -187,7 +187,6 @@ export type Config = {
 export type EngineState = {
   error?: string,
   computing: boolean,
-  initialized: boolean,
   initializing: boolean,
   initialized: boolean,
   url?: string,

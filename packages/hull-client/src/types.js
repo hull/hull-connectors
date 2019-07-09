@@ -172,6 +172,7 @@ export type HullAccount = {
   id?: string,
   domain?: ?string,
   external_id?: ?string,
+  segment_ids: Array<string> | null,
   anonymous_ids?: ?Array<string>,
   anonymous_id?: ?string, // @TODO: Flow Workaround -> force anonymous_id to be recognized as a ?string, Should be forced on Platform for safety
   name?: ?string,
@@ -296,3 +297,15 @@ export type HullProperties = {
     key: string
   }
 };
+
+
+export type HullGrouped<Entity> = {
+  ...Entity,
+  anonymous_id?: string,
+  [HullAttributeName]: {
+    [HullAttributeName]: HullAttributeValue
+  }
+};
+
+export type HullGroupedUser = HullGrouped<HullUser>;
+export type HullGroupedAccount = HullGrouped<HullAccount>;

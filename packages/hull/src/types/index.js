@@ -3,6 +3,7 @@
 /* eslint-disable no-use-before-define */
 /* :: export type * from "hull-client"; */
 /* :: export type * from "./incoming"; */
+/* :: export type * from "./claims"; */
 /* :: export type * from "./connector"; */
 /* :: export type * from "./context"; */
 /* :: export type * from "./manifest"; */
@@ -13,6 +14,8 @@
 /* :: export type * from "./notifications"; */
 /* :: export type * from "./sync-agent"; */
 /* :: export type * from "./settings"; */
+/* :: export type * from "./schema"; */
+/* :: export type * from "./fetched"; */
 
 import type Cache from "../infra/cache/cache-agent";
 import type Queue from "../infra/queue/queue-agent";

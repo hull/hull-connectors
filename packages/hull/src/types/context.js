@@ -9,6 +9,7 @@ import type {
   HullConnectorConfig,
   HullClientConfig,
   HullNotification,
+  HullCredentialsObject,
   HullClient
 } from "./index";
 
@@ -41,11 +42,7 @@ export type HullContextBase = {
     jobPayload?: Object,
     options?: Object
   ) => Promise<*>,
-
-  token?: string,
-  clientCredentials?: HullClientCredentials, // HullClient credentials
-  clientCredentialsToken?: string, // signed (not encrypted) jwt token with HullClient credentials
-  clientCredentialsEncryptedToken?: string // encrypted token with HullClient credentials
+  ...HullCredentialsObject
 };
 export type HullContext = {
   /**
@@ -72,6 +69,20 @@ export type HullContext = {
   authParams?: {},
   // @TODO => refine Superagent signature
   request: agent,
+  entities: {
+    events: {
+      get: HullEntityClaims => Array<HullFetchedEvent>,
+      getSchema: () => Promise<HullEventSchema>
+    },
+    users: {
+      get: HullEntityClaims => Promise<HullFetchedUser>,
+      getSchema: () => Promise<Array<HullAttributeSchemaEntry>>
+    },
+    accounts: {
+      get: HullEntityClaims => Promise<HullFetchedAccount>,
+      getSchema: () => Promise<Array<HullAttributeSchemaEntry>>
+    }
+  },
   helpers: {
     settingsUpdate: $Call<typeof settingsUpdate, HullContext>,
     incomingClaims: $Call<typeof incomingClaims, HullContext>,
