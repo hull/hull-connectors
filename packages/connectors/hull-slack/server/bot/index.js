@@ -86,12 +86,8 @@ module.exports = function BotFactory({
     return controller.spawn(team_id);
   }
 
-  async function connectSlack({
-    client,
-    clientCredentials,
-    connector,
-    metric
-  }: HullSlackContext): Promise<ConnectedSlack> {
+  async function connectSlack(ctx: HullSlackContext): Promise<ConnectedSlack> {
+    const { client, clientCredentials, connector, metric } = ctx;
     const { private_settings = {} } = connector;
     const {
       bot: botConfig,
@@ -171,9 +167,9 @@ module.exports = function BotFactory({
       controller.on("bot_channel_join", join);
       controller.on("bot_channel_join", () => getTeamChannels(bot));
       controller.on("bot_channel_leave", () => getTeamChannels(bot));
-      controller.on("interactive_message_callback", interactiveMessage);
+      controller.on("interactive_message_callback", interactiveMessage(ctx));
       _.map(
-        replies(getByTeam),
+        replies(ctx, getByTeam),
         ({ message = "test", context = "direct_message", reply = () => {} }) =>
           controller.hears(message, context, reply)
       );
