@@ -6,7 +6,6 @@ import type {
   HullResponse,
   HullIncomingHandlerOptions
 } from "../types";
-import getBodyParser from "../utils/get-body-parser";
 import {
   instrumentationTransientErrorMiddleware,
   extendedComposeMiddleware

@@ -20,7 +20,6 @@ import generateTokensMiddleware from "./generate-tokens-middleware";
 const { compose } = require("compose-middleware");
 // const requestDebugLogging = require("./request-debug-logging");
 
-const noop = (req, res, next) => next();
 function extendedComposeMiddleware({
   requestName,
   handlerName,

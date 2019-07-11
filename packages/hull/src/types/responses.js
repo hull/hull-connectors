@@ -93,4 +93,4 @@ export type HullCredentialsResponse = {
   data: {
     url: string
   }
-}
+};

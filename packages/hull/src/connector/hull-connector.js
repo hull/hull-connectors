@@ -7,7 +7,6 @@ import type {
   HullContext,
   HullServerConfig,
   HullContextGetter,
-  HullRouteMap,
   HullMetricsConfig,
   HullLogsConfig,
   HullJsonConfig,

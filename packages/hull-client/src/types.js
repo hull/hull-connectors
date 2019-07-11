@@ -298,7 +298,6 @@ export type HullProperties = {
   }
 };
 
-
 export type HullGrouped<Entity> = {
   ...Entity,
   anonymous_id?: string,

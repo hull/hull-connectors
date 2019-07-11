@@ -1,10 +1,5 @@
 // @flow
-import type {
-  HullContext,
-  HullUser,
-  HullEvent,
-  HullExternalResponse
-} from "hull";
+import type { HullEvent } from "hull";
 import _ from "lodash";
 
 import type { HullElasticContext } from "./group-context";
@@ -16,11 +11,6 @@ const PROP_TYPE_DETECT_ORDER = [
   "num_value",
   "text_value"
 ];
-
-type EventResponse = {
-  data: Array<HullEvent>,
-  error?: string
-};
 
 const propsReducer = (props, prop) => {
   props[prop.field_name] = _.get(
@@ -39,7 +29,8 @@ type HullElasticEvent = {
   created_at: string,
   type: string
 };
-export const formatEvent = (e: HullElasticEvent): HullEvent => {
+
+const formatEvent = (e: HullElasticEvent): HullEvent => {
   const {
     context = {},
     props = {},
@@ -60,3 +51,5 @@ export const formatEvent = (e: HullElasticEvent): HullEvent => {
     context: group_context(context)
   };
 };
+
+export default formatEvent;

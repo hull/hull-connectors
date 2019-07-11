@@ -4,25 +4,18 @@ import _ from "lodash";
 import fp from "lodash/fp";
 import type {
   HullContext,
-  HullClaimType,
   HullFetchedUser,
   HullFetchedAccount,
   HullUser,
   HullAccount,
   HullEvent,
-  HullSegment,
   HullAccountSegment,
   HullUserSegment,
-  HullIncomingHandlerMessage,
-  HullExternalResponse,
-  HullUserUpdateMessage,
-  HullAccountUpdateMessage,
   HullIncludedEvents,
-  HullIncludedEntities,
-  GetEntityParams,
-  HullEntitySymbol
-} from "../types/index.js";
-import { formatEvent } from "./format-event";
+  HullEntityType,
+  HullIncludedEntities
+} from "../types/index";
+import formatEvent from "./format-event";
 import Queries from "./get-search-query";
 
 const pickSegmentKeys = fp.pick([
@@ -32,8 +25,6 @@ const pickSegmentKeys = fp.pick([
   "updated_at",
   "created_at"
 ]);
-
-const formatSegments = fp.map(pickSegmentKeys);
 
 const getSegmentsFromIds = <T: HullUserSegment | HullAccountSegment>(
   segments: Array<T>,
@@ -45,8 +36,9 @@ const getSegmentIds = fp.map("id");
 const get = (path: string) => (ctx: HullContext, id: string) =>
   ctx.client.get(`${id}${path}`);
 
-const getUserById = get("/user_report");
-const getAccountById = get("/account_report");
+// const formatSegments = fp.map(pickSegmentKeys);
+// const getUserById = get("/user_report");
+// const getAccountById = get("/account_report");
 
 const getAccountSegments = async (
   ctx,
@@ -80,7 +72,7 @@ export const searchEvents = (ctx: HullContext) => async ({
 const getEntity = async (
   ctx: HullContext,
   query: {},
-  entityType: HullEntitySymbol = "user"
+  entityType: HullEntityType = "user"
 ): Promise<HullUser | HullAccount> => {
   const { data = [] } = await ctx.client.post(
     `search/${entityType}_reports`,
@@ -154,7 +146,7 @@ const getUserPayload = async (
 };
 
 export const searchEntity = (
-  entityType: HullEntitySymbol,
+  entityType: HullEntityType,
   getPayload: typeof getUserPayload | typeof getAccountPayload
 ) => (ctx: HullContext) => async ({
   claim,
