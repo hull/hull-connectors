@@ -7,7 +7,7 @@ import type { HullContext } from "../types/index";
 const EVENTS_ROUTE = "/search/event/bootstrap";
 const USERS_ROUTE = "/users/schema";
 const ACCOUNTS_ROUTE = "/accounts/schema";
-const get = (route: string) => (ctx: HullContext) =>
+const get = (route: string) => (ctx: HullContext) => () =>
   ctx.cache.wrap(
     route,
     () => ctx.client.get(route, { timeout: 5000, retry: 1000 }),
