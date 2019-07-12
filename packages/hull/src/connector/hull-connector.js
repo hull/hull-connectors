@@ -5,11 +5,6 @@ import type { Server } from "http";
 import express from "express";
 import type {
   HullServerConfig,
-  HullMetricsConfig,
-  HullLogsConfig,
-  HullCacheConfig,
-  HullHTTPClientConfig,
-  HullClientConfig,
   HullWorkerConfig,
   HullConnectorConfig,
   HullClient,
@@ -246,6 +241,10 @@ class HullConnector {
     } else {
       debug("No Server started: `serverConfig.start === false`");
     }
+  }
+
+  stop() {
+    this.server.close();
   }
 
   getHandlers() {
