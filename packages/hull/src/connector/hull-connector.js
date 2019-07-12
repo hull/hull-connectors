@@ -100,23 +100,25 @@ class HullConnector {
 
   manifest: $PropertyType<HullConnectorConfig, "manifest">;
 
-  resolvedConfig: HullConnectorConfig;
-
-  connectorConfig: HullConnectorConfig;
-
   serverConfig: HullServerConfig;
 
   workerConfig: HullWorkerConfig;
 
-  httpClientConfig: HullHTTPClientConfig;
+  httpClientConfig: $PropertyType<HullConnectorConfig, "httpClientConfig">;
 
-  clientConfig: HullClientConfig;
+  clientConfig: $PropertyType<HullConnectorConfig, "clientConfig">;
 
-  metricsConfig: HullMetricsConfig;
+  jsonConfig: $PropertyType<HullConnectorConfig, "jsonConfig">;
 
-  logsConfig: HullLogsConfig;
+  metricsConfig: $PropertyType<HullConnectorConfig, "metricsConfig">;
 
-  cacheConfig: HullCacheConfig;
+  logsConfig: $PropertyType<HullConnectorConfig, "logsConfig">;
+
+  cacheConfig: $PropertyType<HullConnectorConfig, "cacheConfig">;
+
+  resolvedConfig: HullConnectorConfig;
+
+  connectorConfig: HullConnectorConfig;
 
   cache: Cache;
 
