@@ -51,7 +51,7 @@ connector.setupApp(app);
 // }));
 app.use("/notify", notificationHandler({
   "user:update": handler
-}));
+}).router);
 // app.use(smartNotifierErrorMiddleware());
 
 const server = connector.startApp(app);
