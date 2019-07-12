@@ -18,6 +18,17 @@ export default class ProcessorEngine extends Engine {
     this.saveEntry(entry);
   };
 
+  saveConfig = response => {
+    const { eventSchema } = response;
+    const events = eventSchema.map(e => ({ value: e.name, label: e.name }));
+    this.setState({
+      error: undefined,
+      bootstrapping: false,
+      ...response,
+      events
+    });
+  };
+
   saveEntry = (entry?: Entry) => {
     this.setState({ entry });
     if (!entry) {
@@ -58,7 +69,7 @@ export default class ProcessorEngine extends Engine {
         method: "post",
         data: { search }
       });
-      this.setState({ initializing: false, error: undefined });
+      this.setState({ error: undefined });
       return entry;
     } catch (err) {
       this.setState({ error: err.message, initializing: false });

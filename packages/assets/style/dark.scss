@@ -188,4 +188,10 @@ body.dark {
     color: #fff;
     height: 110px;
   }
+  .react-select__menu {
+    z-index: 5;
+  }
+  .react-select__indicator {
+    padding: 5px 8px;
+  }
 }

@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 
 import Nav from "react-bootstrap/Nav";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
@@ -12,6 +12,7 @@ import Code from "./code";
 import Preview from "./preview";
 import KeyBindings from "./key-bindings";
 import EntrySelector from "./entry-selector";
+import EventSelector from "./event-selector";
 import ConfigurationModal from "./configuration-modal";
 import Area from "./area";
 import Header from "./header";
@@ -53,10 +54,14 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
     super(props);
   }
 
-  handleUpdateQuery = (e) => {
+  handleUpdateQuery = e => {
     const query = e.target.value;
     const { engine } = this.props;
     engine.updateQuery(query);
+  };
+
+  handleEventChange = e => {
+    console.log(e);
   };
 
   render() {
@@ -65,7 +70,8 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
       initializing,
       recent,
       computing,
-      showBindings
+      showBindings,
+      events
     } = this.state;
 
     const { strings } = this.props;
@@ -79,7 +85,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
     }
 
     return (
-      <div>
+      <Fragment>
         <KeyBindings show={showBindings} onHide={this.hideBindings} />
         <div className="main-container row no-gutters">
           <div className="col vm-column">
@@ -96,7 +102,13 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
             <Area id="code-payload" mode="json" value={current.payload} />
           </div>
           <div className="col vm-column">
-            <Header>Write your code below</Header>
+            <Header>
+              <EventSelector
+                loading={initializing}
+                onChange={this.handleEventChange}
+                events={events}
+              />
+            </Header>
             <CodeTitle title="Code" />
             <Code
               focusOnLoad={true}
@@ -124,7 +136,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
             />
           </div>
         </div>
-      </div>
+      </Fragment>
     );
   }
 }

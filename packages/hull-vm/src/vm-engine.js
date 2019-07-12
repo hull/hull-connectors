@@ -47,17 +47,17 @@ export default class Engine extends EventEmitter {
     const config = queryParams();
     super();
     this.setState({ ...DEFAULT_STATE, config });
-    this.bootstrap();
+    this.fetchConfig();
   }
 
-  bootstrap = async () => {
+  fetchConfig = async () => {
     this.setState({ bootstrapping: true });
     try {
       const response = await this.request({
         url: "config",
         method: "get"
       });
-      this.setState({ ...response, bootstrapping: false, error: undefined });
+      this.saveConfig(response);
       return true;
     } catch (err) {
       this.setState({
@@ -68,6 +68,14 @@ export default class Engine extends EventEmitter {
       });
       return false;
     }
+  };
+
+  saveConfig = response => {
+    this.setState({
+      error: undefined,
+      bootstrapping: false,
+      ...response
+    });
   };
 
   setState = (newState: { ...EngineState }, callback: AnyFunction = noop) => {
