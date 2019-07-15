@@ -5,11 +5,6 @@ import type { Server } from "http";
 import express from "express";
 import type {
   HullServerConfig,
-  HullMetricsConfig,
-  HullLogsConfig,
-  HullCacheConfig,
-  HullHTTPClientConfig,
-  HullClientConfig,
   HullWorkerConfig,
   HullConnectorConfig,
   HullClient,
@@ -100,23 +95,25 @@ class HullConnector {
 
   manifest: $PropertyType<HullConnectorConfig, "manifest">;
 
-  resolvedConfig: HullConnectorConfig;
-
-  connectorConfig: HullConnectorConfig;
-
   serverConfig: HullServerConfig;
 
   workerConfig: HullWorkerConfig;
 
-  httpClientConfig: HullHTTPClientConfig;
+  httpClientConfig: $PropertyType<HullConnectorConfig, "httpClientConfig">;
 
-  clientConfig: HullClientConfig;
+  clientConfig: $PropertyType<HullConnectorConfig, "clientConfig">;
 
-  metricsConfig: HullMetricsConfig;
+  jsonConfig: $PropertyType<HullConnectorConfig, "jsonConfig">;
 
-  logsConfig: HullLogsConfig;
+  metricsConfig: $PropertyType<HullConnectorConfig, "metricsConfig">;
 
-  cacheConfig: HullCacheConfig;
+  logsConfig: $PropertyType<HullConnectorConfig, "logsConfig">;
+
+  cacheConfig: $PropertyType<HullConnectorConfig, "cacheConfig">;
+
+  resolvedConfig: HullConnectorConfig;
+
+  connectorConfig: HullConnectorConfig;
 
   cache: Cache;
 
@@ -244,6 +241,10 @@ class HullConnector {
     } else {
       debug("No Server started: `serverConfig.start === false`");
     }
+  }
+
+  stop() {
+    this.server.close();
   }
 
   getHandlers() {
