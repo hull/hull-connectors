@@ -119,7 +119,6 @@
       "url": "/schema/user_fields",
       "handler": "schemaUserFields",
       "options": {
-        "loadOptions": "/schema/user_fields",
         "direction": "outgoing",
         "placeholder": "Mailchimp Merge Field",
         "allowCreate": false
