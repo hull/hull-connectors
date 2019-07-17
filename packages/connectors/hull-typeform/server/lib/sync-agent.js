@@ -1,7 +1,7 @@
 /* @flow */
 import type { HullContext, HullUISelectGroup } from "hull";
 
-import type { TypeformForm, TypeformResponse } from "../types";
+import type { TypeformResponse, TypeformForm } from "../types";
 
 const moment = require("moment");
 const _ = require("lodash");
@@ -12,8 +12,6 @@ const { ConfigurationError } = require("hull/src/errors");
 const MappingUtil = require("./mapping-util");
 const ServiceClient = require("./service-client");
 const ServiceClientBridge = require("./service-client-bridge");
-
-require("dotenv").config();
 
 class SyncAgent {
   connector: *;
