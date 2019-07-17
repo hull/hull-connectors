@@ -1,7 +1,7 @@
 /* @flow */
 import type { HullContext, HullUISelectGroup } from "hull";
 
-import type { TypeformResponse, TypeformForm } from "../types";
+import type { TypeformForm, TypeformResponse } from "../types";
 
 const moment = require("moment");
 const _ = require("lodash");
@@ -12,6 +12,8 @@ const { ConfigurationError } = require("hull/src/errors");
 const MappingUtil = require("./mapping-util");
 const ServiceClient = require("./service-client");
 const ServiceClientBridge = require("./service-client-bridge");
+
+require("dotenv").config();
 
 class SyncAgent {
   connector: *;
@@ -75,7 +77,7 @@ class SyncAgent {
     return Promise.resolve();
   }
 
-  async refreshAccessToken() {
+  accessTokenHasExpired(): boolean {
     const timeTokensWereGranted = moment(
       this.connector.private_settings.tokens_granted_at,
       "X"
@@ -87,9 +89,26 @@ class SyncAgent {
     const now = moment();
     const durationToRefreshBefore = moment.duration(6, "hours");
 
-    const hasExpired = timeTokensWereGranted
+    return timeTokensWereGranted
       .add(durationTokensExpire)
       .isBefore(now.subtract(durationToRefreshBefore));
+  }
+
+  /*
+   * timeWindow: number of minutes that defines how close it is
+   * to the expiration of the access token before it should be refreshed
+   */
+  accessTokenWillExpireSoon(timeWindow: number): boolean {
+    const { expires_in, tokens_granted_at } = this.connector.private_settings;
+
+    const tokensGrantedAt = moment(tokens_granted_at, "X");
+    const expiresAt = tokensGrantedAt.clone().add(expires_in, "seconds");
+    const willExpireIn = expiresAt.diff(moment(), "seconds");
+    return willExpireIn <= timeWindow;
+  }
+
+  async refreshAccessToken() {
+    const hasExpired = this.accessTokenHasExpired();
 
     if (hasExpired === false) {
       return Promise.resolve();

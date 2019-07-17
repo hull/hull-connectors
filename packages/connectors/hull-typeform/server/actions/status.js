@@ -21,6 +21,18 @@ const statusHandler = async (
     form_id
   } = private_settings;
   if (access_token && refresh_token && expires_in && tokens_granted_at) {
+    const syncAgent = new SyncAgent(ctx);
+
+    const tokenTimeThreshold = 60 * 30;
+    const willExpireSoon = syncAgent.accessTokenWillExpireSoon(
+      tokenTimeThreshold
+    );
+    const hasExpired = syncAgent.accessTokenHasExpired();
+
+    if (willExpireSoon || hasExpired) {
+      await syncAgent.refreshAccessToken();
+    }
+
     if (!form_id) {
       return {
         status: "warning",
@@ -29,7 +41,7 @@ const statusHandler = async (
       };
     }
 
-    const completed = await new SyncAgent(ctx).getFormResponsesCount();
+    const completed = await syncAgent.getFormResponsesCount();
 
     return {
       status: "ok",
