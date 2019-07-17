@@ -23,13 +23,9 @@ const statusHandler = async (
   if (access_token && refresh_token && expires_in && tokens_granted_at) {
     const syncAgent = new SyncAgent(ctx);
 
-    const tokenTimeThreshold = 60 * 30;
-    const willExpireSoon = syncAgent.accessTokenWillExpireSoon(
-      tokenTimeThreshold
-    );
-    const hasExpired = syncAgent.accessTokenHasExpired();
+    const willExpireSoon = syncAgent.shouldRefreshAccessToken();
 
-    if (willExpireSoon || hasExpired) {
+    if (willExpireSoon) {
       await syncAgent.refreshAccessToken();
     }
 

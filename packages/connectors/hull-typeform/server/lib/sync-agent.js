@@ -75,7 +75,7 @@ class SyncAgent {
     return Promise.resolve();
   }
 
-  accessTokenHasExpired(): boolean {
+  shouldRefreshAccessToken(): boolean {
     const timeTokensWereGranted = moment(
       this.connector.private_settings.tokens_granted_at,
       "X"
@@ -92,23 +92,10 @@ class SyncAgent {
       .isBefore(now.subtract(durationToRefreshBefore));
   }
 
-  /*
-   * timeWindow: number of minutes that defines how close it is
-   * to the expiration of the access token before it should be refreshed
-   */
-  accessTokenWillExpireSoon(timeWindow: number): boolean {
-    const { expires_in, tokens_granted_at } = this.connector.private_settings;
-
-    const tokensGrantedAt = moment(tokens_granted_at, "X");
-    const expiresAt = tokensGrantedAt.clone().add(expires_in, "seconds");
-    const willExpireIn = expiresAt.diff(moment(), "seconds");
-    return willExpireIn <= timeWindow;
-  }
-
   async refreshAccessToken() {
-    const hasExpired = this.accessTokenHasExpired();
+    const shouldRefresh = this.shouldRefreshAccessToken();
 
-    if (hasExpired === false) {
+    if (shouldRefresh === false) {
       return Promise.resolve();
     }
     this.hullClient.logger.info("authorization.refresh-token.start");
