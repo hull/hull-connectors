@@ -385,7 +385,7 @@
     },
     {
       "title": "User - Fetching from Outreach",
-      "description": "Hull gives it's customers the ability to capture a subset of user fields in order to have fine grain control over the dataflow.  Please configure the fields that you would like pulled from Outreach below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.<br /><br />",
+      "description": "Hull gives its customers the ability to capture a subset of user fields in order to have fine grain control over the dataflow.  Please configure the fields that you would like pulled from Outreach below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.<br /><br />",
       "properties": [
         "private_settings.incoming_user_attributes",
         "private_settings.link_users_in_hull",
@@ -410,7 +410,7 @@
     },
     {
       "title": "Account - Fetching from Outreach",
-      "description": "Hull gives it's customers the ability to capture a subset of account fields in order to have fine grain control over the dataflow.  Please configure the fields that you would like pulled from Outreach below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.<br /><br />",
+      "description": "Hull gives its customers the ability to capture a subset of account fields in order to have fine grain control over the dataflow.  Please configure the fields that you would like pulled from Outreach below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.<br /><br />",
       "properties": [
         "private_settings.incoming_account_attributes",
         "json.fetch_all_accounts"
