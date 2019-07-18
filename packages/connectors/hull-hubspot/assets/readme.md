@@ -18,7 +18,7 @@ To install the HubSpot integration, you must have a HubSpot admin permissions to
 4. Confirm by clicking **Install**
 5. Within the Connector, click on **Credentials & Actions**. You will need to login with your HubSpot credentials to connect your HubSpot instance.
 
-![oAuth flow first step](./docs/oauth-flow-1.png)
+![OAuth flow first step](./docs/oauth-flow-1.png)
 
 ### Configure your HubSpot Connector Settings
 
@@ -159,8 +159,6 @@ In the Connector Settings, under the **Custom Fields Sync (HubSpot to Hull)** he
 ### Creating & Updating HubSpot Properties
 
 In the connector settings, under the **Custom Fields Sync (Hull to Hubspot)** headings for Users & Accounts, you can map Hull User & Account Attributes to Custom Properties in HubSpot Contact & Company profiles. These will appear under a Hull group in HubSpot.
-
-You can configure each field for Hull to overwrite values in HubSpot.
 
 You can create new properties in HubSpot from Hull field mapping. As you type right column of the field mapper, you’ll be prompted to “Create” the field you’re typing.
 
@@ -309,7 +307,7 @@ You can sync Hull [User & Account Segments](https://www.hull.io/docs/concepts/se
 
 Hull ingests data from the HubSpot connector through the [Firehose API](https://www.hull.io/docs/data_lifecycle/ingest/#messages).
 
-Learn more about [HubSpot’s API usage guidelines](https://developers.hubspot.com/apps/api_guidelines). 
+Learn more about [HubSpot’s API usage guidelines](https://developers.hubspot.com/apps/api_guidelines).
 
 | HubSpot API limits             | 40,000 per day                    |
 | ------------------------------ | --------------------------------- |
@@ -326,7 +324,7 @@ Check you have setup identifiers for accounts. See [data mapping](#data-mapping)
 
 ### I don’t get updates of recently updated Contacts or Companies into Hull
 
-Check your connector logs for any `incoming.job.error`. If you see any with `Permission error`, you need to re-authenticate the HubSpot Connector. Go to the **Credentials & Actions** and perform the oAuth flow authorization again using the **Start over** button.
+Check your connector logs for any `incoming.job.error`. If you see any with `Permission error`, you need to re-authenticate the HubSpot Connector. Go to the **Credentials & Actions** and perform the OAuth flow authorization again using the **Start over** button.
 
 All your connector settings (including data mapping) will remain the same.
 

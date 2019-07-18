@@ -1,43 +1,16 @@
 // @flow
-import type { $Response, NextFunction } from "express";
 import type {
-  HullHandlersConfigurationEntry,
-  HullContextFull,
-  HullRequestFull
+  HullRouteMap,
+  HullHtmlHandlerConfigurationEntry
 } from "../../types";
 
-const debug = require("debug")("hull-connector:html-handler");
-const { Router } = require("express");
-
-const { TransientError } = require("../../errors");
-const {
-  credentialsFromQueryMiddleware,
-  fullContextFetchMiddleware,
-  timeoutMiddleware,
-  haltOnTimedoutMiddleware,
-  clientMiddleware,
-  instrumentationContextMiddleware
-} = require("../../middlewares");
-const { normalizeHandlersConfigurationEntry } = require("../../utils");
-
-type HullJsonHandlerOptions = {
-  cache?: {
-    key?: string,
-    options?: Object
-  },
-  disableErrorHandling?: boolean,
-  respondWithError?: boolean
-};
-
-type HullJsonHandlerCallback = (ctx: HullContextFull) => Promise<*>;
-
-type HullJsonHandlerConfigurationEntry = HullHandlersConfigurationEntry<
-  HullJsonHandlerCallback,
-  HullJsonHandlerOptions
->;
+import getRouter from "../get-router";
+import errorHandler from "../error-handler";
+import handler from "../external-handler";
+import OAuthHandler from "../oauth-handler/factory";
 
 /**
- * TODO the logic for this should be combined with jsonHandler
+ * @TODO the logic for this should be combined with jsonHandler
  * should we use inheritance, composition or a functional approach to keep this code DRY?
  * or should we abide by the abstraction rule of 3, and allow this second implementation to be ok for now
  *
@@ -65,87 +38,35 @@ type HullJsonHandlerConfigurationEntry = HullHandlersConfigurationEntry<
  * app.use("/list", htmlHandler((ctx) => {}))
  */
 function htmlHandlerFactory(
-  configurationEntry: HullJsonHandlerConfigurationEntry
-): Router {
-  const { callback, options } = normalizeHandlersConfigurationEntry(
-    configurationEntry
-  );
-  const {
-    cache = {},
-    disableErrorHandling = false,
-    respondWithError = false
-  } = options;
-  debug("options", options);
-  const router = Router();
-  router.use(credentialsFromQueryMiddleware()); // parse config from query
-  router.use(timeoutMiddleware());
-  router.use(clientMiddleware()); // initialize client
-  router.use(haltOnTimedoutMiddleware());
-  router.use(instrumentationContextMiddleware());
-  router.use(fullContextFetchMiddleware({ requestName: "action" }));
-  router.use(haltOnTimedoutMiddleware());
-  router.use(function htmlHandler(
-    req: HullRequestFull,
-    res: $Response,
-    next: NextFunction
-  ) {
-    (() => {
-      debug("processing");
-      if (cache && cache.key) {
-        return req.hull.cache.wrap(
-          cache.key,
-          () => {
-            // $FlowFixMe
-            return callback(req.hull);
-          },
-          cache.options || {}
-        );
-      }
-      debug("calling callback");
-      // $FlowFixMe
-      return callback(req.hull);
-    })()
-      .then(response => {
-        debug("callback response", response);
-        if (response.pageLocation != null) {
-          if (response.data != null) {
-            return res.render(response.pageLocation, response.data);
-          }
-          return res.render(response.pageLocation);
-        }
-
-        return res.json({ error: "pageLocation required" });
-      })
-      .catch(error => next(error));
-  });
-  if (disableErrorHandling !== true) {
-    router.use(function htmlHandlerErrorMiddleware(
-      err: Error,
-      req: HullRequestFull,
-      res: $Response,
-      next: NextFunction
-    ) {
-      debug("error", err.message, err.constructor.name, { respondWithError });
-
-      // if we have non transient error
-      if (err instanceof TransientError) {
-        res.status(503);
-      }
-
-      // How do we want to respond?  With json?
-      if (respondWithError) {
-        res.json({ error: err.toString() });
-      } else {
-        res.json({ error: true });
-      }
-      // if we have non transient error
-      if (!(err instanceof TransientError)) {
-        next(err);
-      }
-    });
+  configurationEntry: HullHtmlHandlerConfigurationEntry
+): HullRouteMap {
+  const { method, options = {} } = configurationEntry;
+  const { type = undefined } = options;
+  if (type) {
+    if (type.toLowerCase() === "oauth") {
+      return OAuthHandler(configurationEntry);
+    }
   }
 
-  return router;
+  return getRouter({
+    method,
+    options: {
+      credentialsFromQuery: true,
+      credentialsFromNotification: false,
+      respondWithError: true,
+      strict: false,
+      ...options
+    },
+    requestName: "action",
+    handler: handler({
+      ...configurationEntry,
+      options: {
+        format: "html",
+        ...options
+      }
+    }),
+    errorHandler: errorHandler(options)
+  });
 }
 
 module.exports = htmlHandlerFactory;

@@ -61,6 +61,14 @@ class FilterUtil {
   userAttributeServiceId: string;
 
   /**
+   * Defines if user should be bypassing filter.
+   * Happens during batches of users.
+   * @type {boolean}
+   * @memberof FilterUtil
+   */
+  isBatch: boolean;
+
+  /**
    * Creates an instance of FilterUtil.
    * @param {IFilterUtilOptions} options The options to configure the filter utility.
    * @memberof FilterUtil
@@ -84,6 +92,7 @@ class FilterUtil {
       "userAttributeServiceId",
       "external_id"
     );
+    this.isBatch = _.get(options, "isBatch", false);
   }
 
   /**
@@ -115,7 +124,8 @@ class FilterUtil {
 
       if (
         !this.matchesSynchronizedSegments(envelope) &&
-        !this.deletionEnabled
+        !this.deletionEnabled &&
+        !this.isBatch
       ) {
         envelope.skipReason = SHARED_MESSAGES.SKIP_NOTINSEGMENTS;
         envelope.opsResult = "skip";
@@ -125,18 +135,15 @@ class FilterUtil {
       if (
         this.deletionEnabled &&
         !this.matchesSynchronizedSegments(envelope) &&
-        _.get(envelope, "message.user.traits_customerio/created_at", null) !==
-          null &&
-        _.get(envelope, "message.user.traits_customerio/deleted_at", null) ===
-          null
+        _.get(envelope, "message.user.customerio/created_at", null) !== null &&
+        _.get(envelope, "message.user.customerio/deleted_at", null) === null
       ) {
         return results.toDelete.push(envelope);
       }
       if (
         this.deletionEnabled &&
         !this.matchesSynchronizedSegments(envelope) &&
-        _.get(envelope, "message.user.traits_customerio/created_at", null) ===
-          null
+        _.get(envelope, "message.user.customerio/created_at", null) === null
       ) {
         envelope.skipReason = SHARED_MESSAGES.SKIP_NOTINSEGMENTS;
         envelope.opsResult = "skip";
@@ -145,8 +152,7 @@ class FilterUtil {
       if (
         this.deletionEnabled &&
         !this.matchesSynchronizedSegments(envelope) &&
-        _.get(envelope, "message.user.traits_customerio/deleted_at", null) !==
-          null
+        _.get(envelope, "message.user.customerio/deleted_at", null) !== null
       ) {
         envelope.skipReason = "User was already deleted";
         envelope.opsResult = "skip";
@@ -164,8 +170,7 @@ class FilterUtil {
       }
 
       if (
-        _.get(envelope, "message.user.traits_customerio/created_at", null) ===
-        null
+        _.get(envelope, "message.user.customerio/created_at", null) === null
       ) {
         return results.toInsert.push(envelope);
       }
@@ -174,11 +179,7 @@ class FilterUtil {
       // otherwise skip the API calls
       // TODO: this not skip users who have any event to process, this is a possible API calls optimization place since
       // if we have no changes on the user he/she was created in c.io we don't need to update before sending events
-      const customerHash = _.get(
-        envelope,
-        "message.user.traits_customerio/hash",
-        ""
-      );
+      const customerHash = _.get(envelope, "message.user.customerio/hash", "");
       if (
         customerHash !== "" &&
         customerHash === envelope.hash &&

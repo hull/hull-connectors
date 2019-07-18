@@ -1,5 +1,5 @@
 /* @flow */
-import type { HullContext } from "hull";
+import type { HullContext, HullExternalResponse } from "hull";
 
 const SyncAgent = require("../lib/sync-agent");
 
@@ -7,9 +7,13 @@ const SyncAgent = require("../lib/sync-agent");
  * Handles operation for automatic sync changes of hubspot profiles
  * to hull users.
  */
-function fetchAction(ctx: HullContext) {
+async function fetchAction(ctx: HullContext): HullExternalResponse {
   const syncAgent = new SyncAgent(ctx);
-  return syncAgent.fetchRecentContacts();
+  const data = await syncAgent.fetchRecentContacts();
+  return {
+    status: 200,
+    data
+  };
 }
 
 module.exports = fetchAction;

@@ -113,8 +113,15 @@ const glue = {
         cond("notEmpty",
           execute(["${connector.private_settings.synchronized_account_segments}", inputParameter("account_segments")],
             (params) => {
-              if (!isUndefinedOrNull(params) && Array.isArray(params) && Array.isArray(params[0]) && Array.isArray(params[1])) {
-                return _.intersection(params[0], params[1].map((param) => param.id));
+              if (!isUndefinedOrNull(params)) {
+                if (Array.isArray(params) && Array.isArray(params[0]) && Array.isArray(params[1])) {
+                  return _.intersection(params[0], params[1].map((param) => param.id));
+                } else if (params[1] === undefined) {
+                  //going to return a fake segment intersection if account_segments is undefined
+                  // which indicates we're doing a batch call
+                  return ["fakeSegmentForBatchCalls"];
+                }
+
               }
               return [];
             })), {
@@ -135,17 +142,31 @@ const glue = {
     }),
   sendInsertAccountWithAccountId: [
     set("insertedAccount", outreachSendInput("insertAccount")),
-    set("accountId", get("${insertedAccount}", "id")),
-    hull("asAccount", "${insertedAccount}")
+    ifLogic(cond("notEmpty", set("accountId", get("${insertedAccount}", "id"))), {
+      true: hull("asAccount", "${insertedAccount}"),
+      false: {}
+    })
   ],
   getProspectById: [
     set("userId", get(input(), "user.outreach/id")),
-    hull("asUser", outreach("getProspectById"))
+    ifLogic(cond("notEmpty", set("prospectFromOutreach", outreach("getProspectById"))), {
+      true: hull("asUser", "${prospectFromOutreach}"),
+      false: {}
+    })
   ],
   insertProspect: [ route("linkAccount"), routeWithData("sendInsertProspect", inputParameter("user"), HullOutgoingUser) ],
-  sendInsertProspect: hull("asUser", outreachSendInput("insertProspect")),
+  sendInsertProspect:
+    ifLogic(cond("notEmpty", set("userFromOutreach", outreachSendInput("insertProspect"))), {
+      true: hull("asUser", "${userFromOutreach}"),
+      false: {}
+    }),
+
   updateProspect: [ route("linkAccount"), routeWithData("sendUpdateProspect", inputParameter("user"), HullOutgoingUser) ],
-  sendUpdateProspect: hull("asUser", outreachSendInput("updateProspect")),
+  sendUpdateProspect:
+    ifLogic(cond("notEmpty", set("userFromOutreach", outreachSendInput("updateProspect"))), {
+      true: hull("asUser", "${userFromOutreach}"),
+      false: {}
+    }),
   accountUpdateStart: route("accountUpsert"),
   accountUpsert:
     ifLogic(cond("notEmpty", set("accountId", inputParameter("account.outreach/id"))), {
@@ -173,10 +194,17 @@ const glue = {
       ]
     ),
   insertAccount: routeWithData("sendInsertAccount", inputParameter("account"), HullOutgoingAccount),
-  sendInsertAccount: hull("asAccount", outreachSendInput("insertAccount")),
+  sendInsertAccount:
+    ifLogic(cond("notEmpty", set("accountFromOutreach", outreachSendInput("insertAccount"))), {
+      true: hull("asAccount", "${accountFromOutreach}"),
+        false: {}
+  }),
   updateAccount: routeWithData("sendUpdateAccount", inputParameter("account"), HullOutgoingAccount),
-  sendUpdateAccount: hull("asAccount", outreachSendInput("updateAccount")),
-
+  sendUpdateAccount:
+    ifLogic(cond("notEmpty", set("accountFromOutreach", outreachSendInput("updateAccount"))), {
+      true: hull("asAccount", "${accountFromOutreach}"),
+      false: {}
+    }),
   fetchAll: [route("accountFetchAll"), route("prospectFetchAll")],
   accountFetchAll:
     [

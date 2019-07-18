@@ -8,6 +8,7 @@ const {
   RateLimitError,
   RecoverableError,
   TransientError,
+  SkippableError,
   LogicError,
   NotificationValidationError
 } = require("hull/src/errors");
@@ -28,7 +29,10 @@ const { isUndefinedOrNull } = require("./shared/utils");
 const { isNull, notNull } = require("./shared/conditionals");
 
 // What about linking calls?
-const service: RawRestApi = {
+const service = ({ clientID, clientSecret } : {
+  clientID: string,
+  clientSecret: string
+}): RawRestApi => ({
   initialize: (context, api) => new SuperagentApi(context, api),
   prefix: "https://api.outreach.io/api/v2",
   endpoints: {
@@ -192,23 +196,9 @@ const service: RawRestApi = {
   authentication: {
     strategy: "oauth2",
     params: {
-      name: "Outreach",
       Strategy: OAuth2Strategy,
-      tokenInUrl: true,
-      options: {
-        clientID: process.env.CLIENT_ID,
-        clientSecret: process.env.CLIENT_SECRET,
-        authorizationURL: "https://api.outreach.io/oauth/authorize",
-        tokenURL: "https://api.outreach.io/oauth/token",
-        grant_type: "authorization_code",
-        scope: [
-          "create_prospects",
-          "prospects.all",
-          "create_accounts",
-          "accounts.all",
-          "webhooks.all"
-        ] // App Scope
-      }
+      clientID,
+      clientSecret,
     }
   },
   error: {
@@ -239,6 +229,24 @@ const service: RawRestApi = {
         retryAttempts: 2
       },
       {
+        truthy: { status: 502 },
+        errorType: TransientError,
+        message: MESSAGES.INTERNAL_SERVICE_ERROR,
+        retryAttempts: 3
+      },
+      {
+        truthy: { status: 404 , response: { request: { method: "PATCH" } } },
+        errorType: SkippableError,
+        message: MESSAGES.OUTREACH_ENTITY_NOT_FOUND,
+      },
+
+      {
+        truthy: { status: 404 },
+        errorType: SkippableError,
+        message: MESSAGES.INTERNAL_SERVICE_ERROR,
+        retryAttempts: 2
+      },
+      {
         truthy: { status: 401 },
         condition: isNull("connector.private_settings.access_token"),
         errorType: ConfigurationError,
@@ -262,15 +270,13 @@ const service: RawRestApi = {
       // },
       {
         truthy: { status: 422 },
-        errorType: ConfigurationError,
+        errorType: SkippableError,
         message: MESSAGES.SERVICE_VALIDATION_ERROR
       }
     ]
 
   }
-}
+})
 
 
-module.exports = {
-  service
-};
+export default service

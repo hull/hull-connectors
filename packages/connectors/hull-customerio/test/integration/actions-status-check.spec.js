@@ -1,6 +1,6 @@
 const { ContextMock } = require("./helper/connector-mock");
 
-const action = require("../../server/actions/status-check");
+const action = require("../../server/handlers/status");
 const nock = require("nock");
 
 describe("actions-status-check", () => {
@@ -15,17 +15,8 @@ describe("actions-status-check", () => {
       synchronized_segments: ["cio leads"]
     };
 
-    const responseMock = {};
-    const jsonMock = jest.fn().mockImplementation((data) => {
-      console.log("response.json mocked function called with:", data);
-    });
-    responseMock.json = jsonMock.bind(responseMock);
-
     const ctx = new ContextMock("1234", {}, private_settings);
-    const req = {
-      url: "https://hull-customerio.herokuapp.com/status/",
-      hull: ctx
-    };
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
     nock("https://track.customer.io", {
       reqheaders: {
@@ -38,8 +29,8 @@ describe("actions-status-check", () => {
           message: "nice credentials."
         }
       });
-    action(req, responseMock).then(() => {
-      expect(jsonMock.mock.calls[0][0]).toEqual({ status: "ok", messages: [] });
+    action(ctx).then((status) => {
+      expect(status).toEqual({ status: "ok", messages: [] });
       expect(nock.isDone()).toBe(true);
       done();
     });
@@ -52,17 +43,8 @@ describe("actions-status-check", () => {
       synchronized_segments: ["cio leads"]
     };
 
-    const responseMock = {};
-    const jsonMock = jest.fn().mockImplementation((data) => {
-      console.log("response.json mocked function called with:", data);
-    });
-    responseMock.json = jsonMock.bind(responseMock);
-
     const ctx = new ContextMock("1234", {}, private_settings);
-    const req = {
-      url: "https://hull-customerio.herokuapp.com/status/",
-      hull: ctx
-    };
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
     nock("https://track.customer.io", {
       reqheaders: {
@@ -75,8 +57,8 @@ describe("actions-status-check", () => {
           error: "Unauthorized request"
         }
       });
-    action(req, responseMock).then(() => {
-      expect(jsonMock.mock.calls[0][0]).toEqual({ status: "error", messages: ["Invalid Credentials: Verify Site ID and API Key in Settings."] });
+    action(ctx).then((status) => {
+      expect(status).toEqual({ status: "error", messages: ["Invalid Credentials: Verify Site ID and API Key in Settings."] });
       expect(nock.isDone()).toBe(true);
       done();
     });
@@ -89,17 +71,8 @@ describe("actions-status-check", () => {
       synchronized_segments: ["cio leads"]
     };
 
-    const responseMock = {};
-    const jsonMock = jest.fn().mockImplementation((data) => {
-      console.log("response.json mocked function called with:", data);
-    });
-    responseMock.json = jsonMock.bind(responseMock);
-
     const ctx = new ContextMock("1234", {}, private_settings);
-    const req = {
-      url: "https://hull-customerio.herokuapp.com/status/",
-      hull: ctx
-    };
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
     nock("https://track.customer.io", {
       reqheaders: {
@@ -112,8 +85,8 @@ describe("actions-status-check", () => {
           error: "Some weird error"
         }
       });
-    action(req, responseMock).then(() => {
-      expect(jsonMock.mock.calls[0][0]).toEqual({ status: "error", messages: ["Error when trying to connect with Customer.io: Internal Server Error"] });
+    action(ctx).then((status) => {
+      expect(status).toEqual({ status: "error", messages: ["Error when trying to connect with Customer.io: Internal Server Error"] });
       expect(nock.isDone()).toBe(true);
       done();
     });
@@ -126,17 +99,8 @@ describe("actions-status-check", () => {
       synchronized_segments: []
     };
 
-    const responseMock = {};
-    const jsonMock = jest.fn().mockImplementation((data) => {
-      console.log("response.json mocked function called with:", data);
-    });
-    responseMock.json = jsonMock.bind(responseMock);
-
     const ctx = new ContextMock("1234", {}, private_settings);
-    const req = {
-      url: "https://hull-customerio.herokuapp.com/status/",
-      hull: ctx
-    };
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
     nock("https://track.customer.io", {
       reqheaders: {
@@ -149,32 +113,23 @@ describe("actions-status-check", () => {
           message: "nice credentials."
         }
       });
-    action(req, responseMock).then(() => {
-      expect(jsonMock.mock.calls[0][0]).toEqual({ status: "warning", messages: ["No users will be synchronized because you have not specified at least one whitelisted segment in Settings."] });
+    action(ctx).then((status) => {
+      expect(status).toEqual({ status: "warning", messages: ["No users will be synchronized because you have not specified at least one whitelisted segment in Settings."] });
       expect(nock.isDone()).toBe(true);
       done();
     });
   });
 
-  test("should return a warning if authentication is not configured in the settings", function (done) { // eslint-disable-line func-names
+  test("should return a setupRequired if authentication is not configured in the settings", function (done) { // eslint-disable-line func-names
     const private_settings = {
-      synchronized_segments: ["cio leads"]
+      synchronized_segments: ["cio leads"],
     };
-
-    const responseMock = {};
-    const jsonMock = jest.fn().mockImplementation((data) => {
-      console.log("response.json mocked function called with:", data);
-    });
-    responseMock.json = jsonMock.bind(responseMock);
 
     const ctx = new ContextMock("1234", {}, private_settings);
-    const req = {
-      url: "https://hull-customerio.herokuapp.com/status/",
-      hull: ctx
-    };
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
-    action(req, responseMock).then(() => {
-      expect(jsonMock.mock.calls[0][0]).toEqual({ status: "warning", messages: ["Missing Credentials: Site ID or API Key are not configured in Settings."] });
+    action(ctx).then((status) => {
+      expect(status).toEqual({ status: "setupRequired", messages: ["Please enter your Customer.io Site ID and API Key"] });
       done();
     });
   });
@@ -185,20 +140,11 @@ describe("actions-status-check", () => {
       synchronized_segments: ["cio leads"]
     };
 
-    const responseMock = {};
-    const jsonMock = jest.fn().mockImplementation((data) => {
-      console.log("response.json mocked function called with:", data);
-    });
-    responseMock.json = jsonMock.bind(responseMock);
-
     const ctx = new ContextMock("1234", {}, private_settings);
-    const req = {
-      url: "https://hull-customerio.herokuapp.com/status/",
-      hull: ctx
-    };
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
-    action(req, responseMock).then(() => {
-      expect(jsonMock.mock.calls[0][0]).toEqual({ status: "warning", messages: ["Missing Credentials: Site ID or API Key are not configured in Settings."] });
+    action(ctx).then((status) => {
+      expect(status).toEqual({ status: "setupRequired", messages: ["Please enter your Customer.io Site ID and API Key"] });
       done();
     });
   });
@@ -209,50 +155,12 @@ describe("actions-status-check", () => {
       synchronized_segments: ["cio leads"]
     };
 
-    const responseMock = {};
-    const jsonMock = jest.fn().mockImplementation((data) => {
-      console.log("response.json mocked function called with:", data);
-    });
-    responseMock.json = jsonMock.bind(responseMock);
-
     const ctx = new ContextMock("1234", {}, private_settings);
-    const req = {
-      url: "https://hull-customerio.herokuapp.com/status/",
-      hull: ctx
-    };
+    ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
-    action(req, responseMock).then(() => {
-      expect(jsonMock.mock.calls[0][0]).toEqual({ status: "warning", messages: ["Missing Credentials: Site ID or API Key are not configured in Settings."] });
+    action(ctx).then((status) => {
+      expect(status).toEqual({ status: "setupRequired", messages: ["Please enter your Customer.io Site ID and API Key"] });
       done();
-    });
-  });
-
-  test("should return status 404 if no hull object is present in the request", function (done) { // eslint-disable-line func-names
-    const responseMock = {};
-    const jsonMock = jest.fn().mockImplementation((data) => {
-      console.log("response.status.json mocked function called with:", data);
-    });
-    const statusMockReturn = {};
-    statusMockReturn.json = jsonMock.bind(statusMockReturn);
-    const statusMock = jest.fn().mockImplementation(() => {
-      console.log("response.status mocked function called");
-      return statusMockReturn;
-    });
-    responseMock.status = statusMock.bind(responseMock);
-
-    const req = {
-      url: "https://hull-customerio.herokuapp.com/status/",
-      hull: {
-        ship: { }
-      }
-    };
-
-    action(req, responseMock).then(() => {
-      expect(statusMock.mock.calls[0][0]).toBe(404);
-      expect(jsonMock.mock.calls[0][0]).toEqual({ status: 404, messages: ["Connector not found"] });
-      done();
-    }, (err) => {
-      console.error(err);
     });
   });
 });

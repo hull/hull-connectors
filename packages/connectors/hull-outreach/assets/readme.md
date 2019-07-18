@@ -4,7 +4,7 @@ Below you will find necessary information how to get started with the Outreach i
 
 ## Permissions
 
-You will need administrator permissions to your Outreach account to perform oAuth authorization.
+You will need administrator permissions to your Outreach account to perform OAuth authorization.
 Make sure you have the correct access before proceeding.
 
 ## Add a new Outreach Connector
@@ -123,7 +123,7 @@ Additionally, because email is an array, when sending users to be updated in Out
 - If you've waited for over 15 minutes, and have checked the above suggestions, please check the Hull Status page at: http://status.hull.io/
 
 ### I don’t get updates of recently updated Contacts or Companies into Hull
-Check your connector logs for any `incoming.job.error`. If you see any with `Unauthorized` go to the `Credentials` Tab and perform the oAuth flow authorization again.  Make sure that you are linking the connector again to the same Outreach portal. Changing the portal on once installed connector can lead to data corruption. This operation does not reset any settings from the connector.
+Check your connector logs for any `incoming.job.error`. If you see any with `Unauthorized` go to the `Credentials` Tab and perform the OAuth flow authorization again.  Make sure that you are linking the connector again to the same Outreach portal. Changing the portal on once installed connector can lead to data corruption. This operation does not reset any settings from the connector.
 Right after it's done the incoming dataflow should be resumed. You can verify that by searching for any `incoming.user.success` or `incoming.account.success` log lines (it can take around 5 minutes to show up).
 To fill in any missing data you can use `Fetch all Accounts and Prospects` button which can be viewed by clicking the "Action" button in the settings page.  Be careful if you have a lot of data, this action will trigger a full fetch from Outreach
 

@@ -90,7 +90,7 @@ function superagentInstrumentationPluginFactory({ logger, metric }) {
           status,
           vars: request.urlTemplateVariables
         });
-        // TODO: should be migrated to `connector.service_api.call`
+        // @TODO: should be migrated to `connector.service_api.call`
         metric.increment("ship.service_api.call", 1, [
           `method:${method}`,
           `url:${url}`,

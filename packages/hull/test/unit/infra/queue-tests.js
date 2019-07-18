@@ -1,7 +1,7 @@
 /* global describe, it */
 const { expect } = require("chai");
 const sinon = require("sinon");
-const HullStub = require("../support/hull-stub");
+const HullStub = require("../../support/hull-stub");
 
 const enqueue = require("../../../src/infra/queue/enqueue");
 

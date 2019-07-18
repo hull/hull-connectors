@@ -10,9 +10,17 @@ module.exports = (ctxMock) => {
   });
   const userData = _.get(smartNotifierPayload, "messages[0].user");
 
+  _.set(userData, "customerio/email", _.get(userData, "email"));
+
   expect(ctxMock.client.asUser.mock.calls[0])
     .toEqual([userData]);
 
+  const hullData = {
+    "customerio/id": _.get(userData, "email"),
+    "customerio/email": _.get(userData, "email"),
+    "customerio/created_at": moment(_.get(userData, "created_at")).unix(),
+    "customerio/deleted_at": null
+  };
   const customerData = {
     id: _.get(userData, "email"),
     email: _.get(userData, "email"),
@@ -20,14 +28,14 @@ module.exports = (ctxMock) => {
     deleted_at: null
   };
 
-  expect(_.omit(ctxMock.client.traits.mock.calls[0][0], "synced_at", "hash"))
-    .toEqual(_.omit(customerData, "email"));
+  expect(_.omit(ctxMock.client.traits.mock.calls[0][0], "customerio/synced_at", "customerio/hash"))
+    .toEqual(_.omit(hullData, "customerio/email"));
   expect(ctxMock.client.traits.mock.calls[0][0])
-    .toHaveProperty("synced_at");
+    .toHaveProperty("customerio/synced_at");
   expect(ctxMock.client.traits.mock.calls[0][0])
-    .toHaveProperty("hash");
-  expect(ctxMock.client.traits.mock.calls[0][1])
-    .toEqual({ source: "customerio" });
+    .toHaveProperty("customerio/hash");
+  // expect(ctxMock.client.traits.mock.calls[0][1])
+  //   .toEqual({ source: "customerio" });
 
   expect(ctxMock.metric.increment.mock.calls).toHaveLength(3);
   expect(ctxMock.metric.increment.mock.calls[0]).toEqual(["ship.outgoing.users", 1]);

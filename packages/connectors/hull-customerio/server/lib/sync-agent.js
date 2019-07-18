@@ -22,6 +22,8 @@ const HashUtil = require("./sync-agent/hash-util");
 const ValidationUtil = require("./sync-agent/validation-util");
 const SHARED_MESSAGES = require("./shared-messages");
 
+const { getNumberFromContext } = require("./utils");
+
 const BASE_API_URL = "https://track.customer.io";
 const SEGMENT_PROPERTY_NAME = "segments"; // Prep for transition to dedicated segments for accounts and users
 
@@ -146,7 +148,10 @@ class SyncAgent {
         reqContext,
         "connector.private_settings.user_id_mapping",
         "external_id"
-      )
+      ),
+      isBatch:
+        this.serviceClient.metricsClient.ctx &&
+        this.serviceClient.metricsClient.ctx.isBatch
     };
 
     this.filterUtil = new FilterUtil(filterUtilOptions);
@@ -172,11 +177,27 @@ class SyncAgent {
     // Init the hash util
     this.hashUtil = new HashUtil();
 
+    const maxAttributeNameLength = getNumberFromContext(
+      reqContext,
+      "connector.private_settings.max_attribute_name_length",
+      150
+    );
+    const maxAttributeValueLength = getNumberFromContext(
+      reqContext,
+      "connector.private_settings.max_attribute_value_length",
+      1000
+    );
+    const maxIdentifierValueLength = getNumberFromContext(
+      reqContext,
+      "connector.private_settings.max_identifier_value_length",
+      150
+    );
+
     // Init the validation util
     const valUtilOptions: IValidationUtilOptions = {
-      maxAttributeNameLength: 150,
-      maxAttributeValueLength: 1000,
-      maxIdentifierValueLength: 150
+      maxAttributeNameLength,
+      maxAttributeValueLength,
+      maxIdentifierValueLength
     };
 
     this.validationUtil = new ValidationUtil(valUtilOptions);
@@ -213,34 +234,31 @@ class SyncAgent {
   createUserUpdateEnvelopes(
     messages: Array<HullUserUpdateMessage>
   ): Array<TUserUpdateEnvelope> {
-    return _.map(
-      messages,
-      (message): TUserUpdateEnvelope => {
-        const hullUser = _.cloneDeep(_.get(message, "user", {}));
-        _.set(hullUser, "account", _.get(message, "account", {}));
+    return _.map(messages, (message): TUserUpdateEnvelope => {
+      const hullUser = _.cloneDeep(_.get(message, "user", {}));
+      _.set(hullUser, "account", _.get(message, "account", {}));
 
-        const allEvents = _.map(_.get(message, "events", []), event =>
-          this.mappingUtil.mapToServiceEvent(event)
-        );
-        const filteredEvents: TFilterResults<
-          ICustomerIoEvent
-        > = this.filterUtil.filterEvents(allEvents);
-        const customer = this.mappingUtil.mapToServiceUser(
-          hullUser,
-          _.get(message, this.segmentPropertyName, [])
-        );
+      const allEvents = _.map(_.get(message, "events", []), event =>
+        this.mappingUtil.mapToServiceEvent(event)
+      );
+      const filteredEvents: TFilterResults<ICustomerIoEvent> = this.filterUtil.filterEvents(
+        allEvents
+      );
+      const customer = this.mappingUtil.mapToServiceUser(
+        hullUser,
+        _.get(message, this.segmentPropertyName, [])
+      );
 
-        const envelope: TUserUpdateEnvelope = {
-          message,
-          hullUser,
-          customer,
-          hash: this.hashUtil.hash(customer),
-          customerEvents: filteredEvents.toInsert,
-          customerEventsToSkip: filteredEvents.toSkip
-        };
-        return envelope;
-      }
-    );
+      const envelope: TUserUpdateEnvelope = {
+        message,
+        hullUser,
+        customer,
+        hash: this.hashUtil.hash(customer),
+        customerEvents: filteredEvents.toInsert,
+        customerEventsToSkip: filteredEvents.toSkip
+      };
+      return envelope;
+    });
   }
 
   /**
@@ -263,19 +281,19 @@ class SyncAgent {
       }
 
       // deduplicate all messages - merge events but take only last message from notification
-      const dedupedMessages: Array<
-        HullUserUpdateMessage
-      > = this.filterUtil.deduplicateMessages(messages);
+      const dedupedMessages: Array<HullUserUpdateMessage> = this.filterUtil.deduplicateMessages(
+        messages
+      );
 
       // create envelopes with all necessary data
-      const userUpdateEnvelopes: Array<
-        TUserUpdateEnvelope
-      > = this.createUserUpdateEnvelopes(dedupedMessages);
+      const userUpdateEnvelopes: Array<TUserUpdateEnvelope> = this.createUserUpdateEnvelopes(
+        dedupedMessages
+      );
 
       // filter those envelopes to get `toSkip`, `toInsert`, `toUpdate` and `toDelete`
-      const filteredEnvelopes: TFilterResults<
-        TUserUpdateEnvelope
-      > = this.filterUtil.filterUsersBySegment(userUpdateEnvelopes);
+      const filteredEnvelopes: TFilterResults<TUserUpdateEnvelope> = this.filterUtil.filterUsersBySegment(
+        userUpdateEnvelopes
+      );
 
       this.client.logger.debug("sendUserMessages", {
         toSkip: filteredEnvelopes.toSkip.length,
@@ -345,14 +363,12 @@ class SyncAgent {
     return this.serviceClient
       .updateCustomer(envelope.customer)
       .then(() => {
-        return userScopedClient
-          .traits(userTraits, { source: "customerio" })
-          .then(() => {
-            userScopedClient.logger.info("outgoing.user.success", {
-              data: envelope.customer,
-              operation: "updateCustomer"
-            });
+        return userScopedClient.traits(userTraits).then(() => {
+          userScopedClient.logger.info("outgoing.user.success", {
+            data: envelope.customer,
+            operation: "updateCustomer"
           });
+        });
       })
       .then(() => {
         // Process the events
@@ -440,16 +456,13 @@ class SyncAgent {
       .deleteCustomer(_.get(envelope, "customer.id"))
       .then(() => {
         return userScopedClient
-          .traits(
-            {
-              deleted_at: new Date(),
-              id: null,
-              hash: null,
-              synced_at: null,
-              created_at: null
-            },
-            { source: "customerio" }
-          )
+          .traits({
+            "customerio/deleted_at": new Date(),
+            "customerio/id": null,
+            "customerio/hash": null,
+            "customerio/synced_at": null,
+            "customerio/created_at": null
+          })
           .then(() => {
             return userScopedClient.logger.info("outgoing.user.deletion", {
               data: { id: envelope.customer.id },
@@ -474,7 +487,15 @@ class SyncAgent {
    * @returns {Promise<any>} A promise which returns the result of the Hull logger call.
    * @memberof SyncAgent
    */
-  handleWebhook(payload: Object): Promise<*> {
+  async handleWebhook(payload: mixed): Promise<*> {
+    if (!payload || typeof payload !== "object") {
+      this.client.logger.error("incoming.webhook.error", {
+        reason: SHARED_MESSAGES.ERROR_INVALIDPAYLOAD,
+        data: payload
+      });
+      return Promise.resolve();
+    }
+
     const userIdent = this.mappingUtil.mapWebhookToUserIdent(payload);
     const event = this.mappingUtil.mapWebhookToHullEvent(payload);
 
@@ -496,21 +517,22 @@ class SyncAgent {
     }
 
     const userScopedClient = this.client.asUser(userIdent);
-
-    return userScopedClient
-      .track(event.event, event.properties, event.context)
-      .then(() => {
-        return userScopedClient.logger.info("incoming.event.success", {
-          event
-        });
-      })
-      .catch(err => {
-        return userScopedClient.logger.error("incoming.event.error", {
-          reason: SHARED_MESSAGES.ERROR_TRACKFAILED,
-          message: err.message,
-          innerException: err
-        });
+    try {
+      await userScopedClient.track(
+        event.event,
+        event.properties,
+        event.context
+      );
+      return userScopedClient.logger.info("incoming.event.success", {
+        event
       });
+    } catch (err) {
+      return userScopedClient.logger.error("incoming.event.error", {
+        reason: SHARED_MESSAGES.ERROR_TRACKFAILED,
+        message: err.message,
+        innerException: err
+      });
+    }
   }
 }
 

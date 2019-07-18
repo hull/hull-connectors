@@ -3,7 +3,8 @@ import type {
   HullAccountAttributes,
   HullUserAttributes,
   HullConnector,
-  HullSegment,
+  HullAccountSegment,
+  HullUserSegment,
   HullUserUpdateMessage,
   HullAccountUpdateMessage,
   HullIncomingClaimsSetting
@@ -44,9 +45,9 @@ class MappingUtil {
 
   logger: Object;
 
-  usersSegments: Array<HullSegment>;
+  usersSegments: Array<HullUserSegment>;
 
-  accountsSegments: Array<HullSegment>;
+  accountsSegments: Array<HullAccountSegment>;
 
   hubspotContactProperties: Array<HubspotContactProperty>;
 
@@ -56,21 +57,13 @@ class MappingUtil {
 
   hullAccountProperties: { [string]: HullProperty };
 
-  contactAttributesIncomingSettings: Array<
-    HubspotContactAttributesIncomingSetting
-  >;
+  contactAttributesIncomingSettings: Array<HubspotContactAttributesIncomingSetting>;
 
-  contactAttributesOutgoingSettings: Array<
-    HubspotContactAttributesOutgoingSetting
-  >;
+  contactAttributesOutgoingSettings: Array<HubspotContactAttributesOutgoingSetting>;
 
-  companyAttributesIncomingSettings: Array<
-    HubspotCompanyAttributesIncomingSetting
-  >;
+  companyAttributesIncomingSettings: Array<HubspotCompanyAttributesIncomingSetting>;
 
-  companyAttributesOutgoingSettings: Array<
-    HubspotCompanyAttributesOutgoingSetting
-  >;
+  companyAttributesOutgoingSettings: Array<HubspotCompanyAttributesOutgoingSetting>;
 
   outgoingLinking: boolean;
 
@@ -542,7 +535,7 @@ class MappingUtil {
       typeof message.user["hubspot/id"] === "string"
     ) {
       hubspotWriteContact.vid = message.user["hubspot/id"];
-    } else {
+    } else if (message.user.email) {
       hubspotWriteContact.email = message.user.email;
     }
     return hubspotWriteContact;
@@ -600,15 +593,6 @@ class MappingUtil {
 
         let value = _.get(userData, mappingEntry.hull_trait_name);
 
-        // if (
-        //   !mappingEntry.hull_overwrite_hubspot &&
-        //   mappingEntry.hull_default_trait_name
-        // ) {
-        //   if (userData[mappingEntry.hull_default_trait_name] !== undefined) {
-        //     value = userData[mappingEntry.hull_default_trait_name];
-        //   }
-        // }
-
         if (
           (/_at$|date$/.test(mappingEntry.hull_trait_name) ||
             mappingEntry.hubspot_property_type === "datetime") &&
@@ -656,7 +640,9 @@ class MappingUtil {
     );
 
     // handle segments
-    const userSegments: Array<HullSegment> = Array.isArray(userMessage.segments)
+    const userSegments: Array<HullUserSegment> = Array.isArray(
+      userMessage.segments
+    )
       ? userMessage.segments
       : [];
     debug("userSegments", userMessage.segments);
@@ -766,7 +752,7 @@ class MappingUtil {
       []
     );
 
-    const accountSegments: Array<HullSegment> = Array.isArray(
+    const accountSegments: Array<HullAccountSegment> = Array.isArray(
       message.account_segments
     )
       ? message.account_segments

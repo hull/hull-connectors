@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## v0.0.21-monorepo
+- [hull-hubspot] updated settings to the new ui
+- [hulloutreach] now sending account along with user on batch calls if link_user_in_service is specified
+
+## v0.0.20-monorepo
+- [hull-outreach] Added conditional array logic and hotfixes for retrying on outreach errors
+
+## v0.0.19-monorepo
+- [hull-outreach] Added authentication permission to get stage
+
+## v0.0.18-monorepo
+- [hull-outreach] Added the ability to set and get stage and owner
+- [hull-hubspot] Added ability to batch send accounts to hubspot
+
+## v0.0.17-monorepo
+- [hull-outreach] fixed re-authentication after 4 hours, fixed memory leak on initial fetch
+- [hull-hubspot] updated status messaging
+
 ## v0.0.16-monorepo
 - [hull-customerio] new logo assets, doc changes and some visual updates to manifest
 - [hull-hubspot] updates to view layer, organized manifest better, updated descriptions in manifest

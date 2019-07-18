@@ -1,6 +1,6 @@
 {
   "name": "minihull",
-  "version": "0.0.16-monorepo",
+  "version": "0.0.21-monorepo",
   "description": "",
   "main": "src/mini-hull.js",
   "scripts": {
@@ -11,7 +11,7 @@
   "dependencies": {
     "faker": "^4.1.0",
     "lodash-id": "^0.14.0",
-    "mini-application": "^1.1.1",
+    "lowdb": "^1.0.0",
     "shelljs": "^0.8.2"
   },
   "optionalDependencies": {

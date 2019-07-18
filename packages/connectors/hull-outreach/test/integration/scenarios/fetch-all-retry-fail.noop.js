@@ -1,16 +1,22 @@
 // @flow
 const _ = require("lodash");
 
-/* global describe, it, beforeEach, afterEach */
+
+
+
+
+
+
+
 
 process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
+import connectorConfig from "../../../server/config";
 
 test("fetch all accounts and prospects from outreach and retry on failure", () => {
-  return testScenario({ connectorServer, debounceWait: 3000 }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig, debounceWait: 3000 }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "accountFetchAll",

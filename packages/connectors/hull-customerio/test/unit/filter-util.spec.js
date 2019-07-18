@@ -1,5 +1,5 @@
 const FilterUtil = require("../../server/lib/sync-agent/filter-util");
-
+const { getNumberFromContext } = require("../../server/lib/utils");
 const SHARED_MESSAGES = require("../../server/lib/shared-messages");
 
 describe("FilterUtil", () => {
@@ -230,7 +230,7 @@ describe("FilterUtil", () => {
       const envelope = {
         message: {
           user: {
-            id: "usr1",
+            "customerio/id": "usr1",
             email: "test@hull.io"
           },
           segments: [
@@ -255,14 +255,14 @@ describe("FilterUtil", () => {
         segmentPropertyName: "segments",
         ignoreUsersWithoutEmail: true,
         deletionEnabled: false,
-        userAttributeServiceId: "id"
+        userAttributeServiceId: "customerio/id"
       };
       const util = new FilterUtil(opts);
 
       const envelope = {
         message: {
           user: {
-            id: "usr1",
+            "customerio/id": "usr1",
             email: "test@hull.io"
           },
           segments: [
@@ -291,16 +291,16 @@ describe("FilterUtil", () => {
         segmentPropertyName: "segments",
         ignoreUsersWithoutEmail: true,
         deletionEnabled: false,
-        userAttributeServiceId: "id"
+        userAttributeServiceId: "customerio/id"
       };
       const util = new FilterUtil(opts);
 
       const envelope = {
         message: {
           user: {
-            id: "usr1",
+            "customerio/id": "usr1",
             email: "test@hull.io",
-            "traits_customerio/created_at": "2018-01-31T12:00:00.000Z"
+            "customerio/created_at": "2018-01-31T12:00:00.000Z"
           },
           segments: [
             {
@@ -328,16 +328,16 @@ describe("FilterUtil", () => {
         segmentPropertyName: "segments",
         ignoreUsersWithoutEmail: true,
         deletionEnabled: true,
-        userAttributeServiceId: "id"
+        userAttributeServiceId: "customerio/id"
       };
       const util = new FilterUtil(opts);
 
       const envelope = {
         message: {
           user: {
-            id: "usr1",
+            "customerio/id": "usr1",
             email: "test@hull.io",
-            "traits_customerio/created_at": "2018-01-31T12:00:00.000Z"
+            "customerio/created_at": "2018-01-31T12:00:00.000Z"
           },
           segments: [
             {
@@ -362,14 +362,14 @@ describe("FilterUtil", () => {
         segmentPropertyName: "segments",
         ignoreUsersWithoutEmail: true,
         deletionEnabled: true,
-        userAttributeServiceId: "id"
+        userAttributeServiceId: "customerio/id"
       };
       const util = new FilterUtil(opts);
 
       const envelope = {
         message: {
           user: {
-            id: "usr1",
+            "customerio/id": "usr1",
             email: "test@hull.io"
           },
           segments: [
@@ -423,6 +423,24 @@ describe("FilterUtil", () => {
 
       expect(actual.toSkip[0]).toEqual(cioEvents[1]);
       expect(actual.toInsert[0]).toEqual(cioEvents[0]);
+    });
+  });
+
+  describe("getNumberFromContext", () => {
+    test("should skip events that are not whitelisted and insert the remaining ones", () => {
+      const context = {
+        connector: {
+          private_settings: {
+            max_attribute_name_length: 1000,
+            max_attribute_value_length: "100",
+            max_identifier_name_length: "asdf1a0$00"
+          }
+        }
+      };
+
+      expect(getNumberFromContext(context, "connector.private_settings.max_attribute_name_length", 99)).toEqual(1000);
+      expect(getNumberFromContext(context, "connector.private_settings.max_attribute_value_length", 98)).toEqual(100);
+      expect(getNumberFromContext(context, "connector.private_settings.max_identifier_name_length", 97)).toEqual(97);
     });
   });
 });

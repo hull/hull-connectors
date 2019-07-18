@@ -1,11 +1,15 @@
 // @flow
-/* global describe, it, beforeEach, afterEach */
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
+
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
+/**
+ * This tests if the overwrite field is true/false/notset
+ * because this is a legacy feature that some customers may still have
+ * by default we overwrite for any of these values
+ */
 const connector = {
   private_settings: {
     token: "hubToken",
@@ -51,7 +55,7 @@ const usersSegments = [
 
 it("should send out a new hull user to hubspot with complex fields mapping", () => {
   const email = "email@email.com";
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",

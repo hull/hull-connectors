@@ -191,26 +191,9 @@ class UserMappingAgent {
 
   getMergeFieldValue(
     payload: HullUser,
-    {
-      name,
-      service,
-      hull,
-      overwrite = false
-    }: { service?: string, name?: string, hull?: string, overwrite?: boolean }
+    { hull }: { hull?: string }
   ): HullAttributeValue {
-    // since the account is a subobject we need to use lodash get method to traverse it using dot notation path
-    if (overwrite === true) {
-      return _.get(payload, hull) || "";
-    }
-    const fieldName = service || name;
-    if (!fieldName) {
-      return "";
-    }
-    return (
-      payload[`mailchimp/${fieldName.toLowerCase()}`] ||
-      _.get(payload, hull) ||
-      ""
-    );
+    return _.get(payload, hull) || "";
   }
 
   /**

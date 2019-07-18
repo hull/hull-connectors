@@ -40,6 +40,7 @@ export interface IFilterUtilOptions {
   deletionEnabled: boolean;
   synchronizedEvents: Array<string>;
   userAttributeServiceId: string;
+  isBatch: boolean;
 }
 
 export interface ICustomerIoEvent {

@@ -1,13 +1,19 @@
 // @flow
-/* global describe, it, beforeEach, afterEach */
+
+
+
+
+
+
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const _ = require("lodash");
 
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
 
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
+
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
@@ -21,7 +27,7 @@ const connector = {
 };
 
 it("Should detect when we try to refresh token and fail with unauthorized", () => {
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "status",
@@ -44,13 +50,13 @@ it("Should detect when we try to refresh token and fail with unauthorized", () =
       ],
       firehoseEvents: [],
       metrics: [
-        ["increment", "connector.request", 1], 
-        ["increment", "ship.service_api.call", 1], 
-        ["value", "connector.service_api.response_time", expect.whatever()], 
-        ["increment", "connector.service_api.error", 1], 
+        ["increment", "connector.request", 1],
         ["increment", "ship.service_api.call", 1],
-         ["increment", "ship.service_api.call", 1], 
-         ["value", "connector.service_api.response_time", expect.whatever()], 
+        ["value", "connector.service_api.response_time", expect.whatever()],
+        ["increment", "connector.service_api.error", 1],
+        ["increment", "ship.service_api.call", 1],
+         ["increment", "ship.service_api.call", 1],
+         ["value", "connector.service_api.response_time", expect.whatever()],
          ["increment", "connector.service_api.error", 1]],
       platformApiCalls: [
         ["PUT", "/api/v1/9993743b22d60dd829001999/status", {},
