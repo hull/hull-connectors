@@ -148,8 +148,8 @@
     },
     {
       "name": "handle_accounts",
-      "title": "Automatically Fetch Account Updates",
-      "description": "This option allows you to enable/disable new company updates being pulled in real-time from Hubspot",
+      "title": "Enable Incoming Account Traffic from Hubspot",
+      "description": "Enabled this option to enabled ingestion of account data from Hubspot to Hull.  If disabled, all account ingestion traffic (including manual \"Fetch All Account\" traffic) will be ignored.",
       "type": "boolean",
       "default": false
     },
@@ -245,7 +245,7 @@
     {
       "name": "link_users_in_hull",
       "title": "Link users in Hull",
-      "description": "This option allows you to capture the link between contacts and companies in Hupspot.  Use this option if you know Hubspot is your \"Leading System\" which will control the linkage between users and accounts.  If you do enable this option, any similar option on any other connectors should be disabled so that the configurations will not result in an infinite account re-linking loop.  <br /> <br /> <b>Ensure that you've enabled the \"Automatically Fetch Account Updates\" option in the \"Account - Capture from Hubspot\" to pull in the associated accounts as well",
+      "description": "This option allows you to capture the link between contacts and companies in Hupspot.  Use this option if you know Hubspot is your \"Leading System\" which will control the linkage between users and accounts.  If you do enable this option, any similar option on any other connectors should be disabled so that the configurations will not result in an infinite account re-linking loop.  <br /> <br /> <b>Ensure that you've enabled the \"Enable Incoming Account Traffic from Hubspot\" option in the \"Account - Fetching from Hubspot\" to pull in the associated accounts as well",
       "type": "boolean",
       "default": false
     },
@@ -402,6 +402,7 @@
       "url": "/fetch-all-contacts",
       "handler": "fetchAll",
       "options": {
+        "fireAndForget": true,
         "disableErrorHandling": true,
         "confirm": {
           "action": "fetch",
@@ -419,6 +420,7 @@
       "handler": "fetchAllCompanies",
       "options": {
         "confirm": {
+          "fireAndForget": true,
           "action": "fetch",
           "text": "You are about to pull all companies from Hubspot into Hull.  Please make sure you've configured your account identity properly, and that you have the attributes you'd like pulled configured.  Be careful when clicking this multiple times, it can result in long operations.  Check out the \"Logs\" tab to track incoming.account.success messages as accounts are ingested",
           "button": "Start Fetching Companies",
@@ -467,7 +469,7 @@
     },
     {
       "title": "User - Fetching from Hubspot",
-      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems. The \"User Identity\" section defines which fields are used to resolve users as the come into Hull.  <b>Please note this does not affect the outgoing user flow.</b> To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios.  <br /><br /> Hull captures many of the standard contact fields by default. Refer to the connector documentation in the \"Docs\" tab to view the default mappings.  However, if you have any additional custom fields to capture, you may define these mappings in the \"Incoming Custom Attribute Mapping\" section.",
+      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems. The \"User Identity\" section defines which fields are used to resolve users as the come into Hull.  <b>Please note this does not affect the outgoing user flow.</b> To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios.  <br /><br /> Hull captures many of the standard contact fields by default. Refer to the connector documentation in the \"Docs\" tab to view the default mappings.  If you have any additional custom fields to capture, you may define these mappings in the \"Incoming Custom Attribute Mapping\" section by clicking \"Map another attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
       "properties": [
         "private_settings.incoming_user_claims",
         "private_settings.incoming_user_attributes",
@@ -486,7 +488,7 @@
     },
     {
       "title": "Account - Fetching from Hubspot",
-      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The \"Account Identity\" section defines which fields are used to resolve accounts as the come into Hull.  <b>Please note this does not affect the outgoing account flow.</b>  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Domain</b> can be a good identifier, but be careful because Hull will use the normalized top level domain to match with other accounts.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /> Hull captures many of the standard company fields by default. Refer to the connector documentation in the \"Docs\" tab to view the default mappings.  However, if you have any additional custom fields to capture, you may define these mappings in the \"Incoming Custom Attribute Mapping\" section.",
+      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The \"Account Identity\" section defines which fields are used to resolve accounts as the come into Hull.  <b>Please note this does not affect the outgoing account flow.</b>  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Domain</b> can be a good identifier, but be careful because Hull will use the normalized top level domain to match with other accounts.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /> Hull captures many of the standard company fields by default. Refer to the connector documentation in the \"Docs\" tab to view the default mappings.  If you have any additional custom fields to capture, you may define these mappings in the \"Incoming Custom Attribute Mapping\" section by clicking \"Map another attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
       "properties": [
         "private_settings.handle_accounts",
         "private_settings.incoming_account_claims",
