@@ -12,13 +12,20 @@ class ProgressUtil {
         .utc()
         .format(),
       is_fetch_completed: false,
-      fetch_count: 0
+      fetch_count: 0,
+      fetch_account_count: 0
     });
   }
 
   update(newProgress) {
     return this.settingsUpdate({
       fetch_count: newProgress
+    });
+  }
+
+  updateAccount(newProgress) {
+    return this.settingsUpdate({
+      fetch_account_count: newProgress
     });
   }
 

@@ -4,13 +4,19 @@ const _ = require("lodash");
 process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 
-/* global describe, it, beforeEach, afterEach */
+
+
+
+
+
+
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
+import connectorConfig from "../../../server/config";
 
 
 test("send smart-notifier user update to outreach", () => {
-  return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = require("../fixtures/notifier-payloads/outgoing-user-with-array-attribute.json");
     return _.assign(updateMessages, {
       handlerType: handlers.notificationHandler,

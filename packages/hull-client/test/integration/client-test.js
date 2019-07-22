@@ -66,6 +66,12 @@ describe("API client", () => {
       const conf = new Client(_.extend({}, config, { version: "test" })).configuration();
       conf.version.should.eql(require("../../package.json").version);
     });
+
+    it("Should test if the token is properly created", () => {
+      const client = new Client(config);
+      const asUser = client.asUser({ email: "bob@bob.com"});
+
+    })
   });
 });
 

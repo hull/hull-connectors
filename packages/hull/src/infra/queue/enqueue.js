@@ -1,5 +1,5 @@
 // @flow
-import type { HullContextFull } from "../../types";
+import type { HullContext } from "../../types";
 
 /**
  * @deprecated internal connector queue is considered an antipattern, this function is kept only for backward compatiblity
@@ -27,10 +27,10 @@ import type { HullContextFull } from "../../types";
  */
 module.exports = function enqueue(
   queueAdapter: Object,
-  ctx: HullContextFull,
+  ctx: HullContext,
   jobName: string,
-  jobPayload: Object,
-  options: Object = {}
+  jobPayload?: Object,
+  options?: Object = {}
 ): Promise<*> {
   if (ctx.client === undefined) {
     throw new Error(

@@ -17,31 +17,48 @@
       "updated_at": "2018-11-05T20:05:18Z",
       "id": "5bd329d4e2bcf3eeaf000078"
     },
-    "id": "5bd329d5e2bcf3eeaf000099",
-    "created_at": "2018-10-26T14:51:01Z",
-    "email": "darth@darksideinc.com",
-    "domain": "darksideinc.com",
-    "name": "darth@darksideinc.com",
-    "first_name": "darth@darksideinc.com",
-    "is_approved": false,
-    "anonymous_ids": [
-      "outreach:16",
-      "hubspot:101"
+    "user": {
+      "id": "5bd329d5e2bcf3eeaf000099",
+      "created_at": "2018-10-26T14:51:01Z",
+      "email": "darth@darksideinc.com",
+      "domain": "darksideinc.com",
+      "name": "darth@darksideinc.com",
+      "first_name": "darth@darksideinc.com",
+      "is_approved": false,
+      "anonymous_ids": [
+        "outreach:16",
+        "hubspot:101"
+      ],
+      "traits_outreach/id": 16,
+      "traits_outreach/personal_note_1": "sith lord, don't mention padme",
+      "traits_hubspot/created_at": "2018-11-02T14:49:13+00:00",
+      "traits_hubspot/updated_at": "2018-11-02T14:50:24+00:00",
+      "traits_hubspot/id": 101,
+      "traits_outreach/name": "darth@darksideinc.com",
+      "traits_traits_outreach/personal_note_1": "sith lord, don't mention padme",
+      "traits_outreach/personalnote1": "sith lord, don't mention padme",
+      "traits_outreach/personalnote2": "sith lord, don't mention padme",
+      "indexed_at": "2018-12-06T14:11:11Z"
+    },
+    "segments": [
+      {
+        "id": "5bffc38f625718d58b000004",
+        "name": "Smugglers",
+        "updated_at": "2018-12-06T15:30:50Z",
+        "type": "users_segment",
+        "created_at": "2018-11-29T10:46:39Z"
+      },
+      {
+        "id": "5bd720690026ca86b000004f",
+        "updated_at": "2018-11-05T20:07:04Z",
+        "created_at": "2018-10-29T14:59:53Z",
+        "name": "Star Wars Users",
+        "type": "users_segment",
+        "stats": {}
+      }
     ],
-    "segment_ids": [
-      "5bffc38f625718d58b000004",
-      "5bd720690026ca86b000004f"
-    ],
-    "traits_outreach/id": 16,
-    "traits_outreach/personal_note_1": "sith lord, don't mention padme",
-    "traits_hubspot/created_at": "2018-11-02T14:49:13+00:00",
-    "traits_hubspot/updated_at": "2018-11-02T14:50:24+00:00",
-    "traits_hubspot/id": 101,
-    "traits_outreach/name": "darth@darksideinc.com",
-    "traits_traits_outreach/personal_note_1": "sith lord, don't mention padme",
-    "traits_outreach/personalnote1": "sith lord, don't mention padme",
-    "traits_outreach/personalnote2": "sith lord, don't mention padme",
-    "indexed_at": "2018-12-06T14:11:11Z"
+    "message_id": "4cdfdcf4544ea54d5950689f97f02f4a2cb389af",
+    "update_id": "5d04019a85ab0bef5800e63d:5:0:0"
   },
   {
     "account": {
@@ -61,34 +78,51 @@
       "updated_at": "2018-11-05T20:05:18Z",
       "id": "5bd329d4e2bcf3eeaf000078"
     },
-    "id": "5bd329d5e2bcf3eeaf00009f",
-    "created_at": "2018-10-26T14:51:01Z",
-    "email": "fettisbest@gmail.com",
-    "name": "Bobba",
-    "first_name": "Bobba",
-    "is_approved": false,
-    "anonymous_ids": [
-      "outreach:18",
-      "hubspot:151"
+    "user": {
+      "id": "5bd329d5e2bcf3eeaf00009f",
+      "created_at": "2018-10-26T14:51:01Z",
+      "email": "fettisbest@gmail.com",
+      "name": "Bobba",
+      "first_name": "Bobba",
+      "is_approved": false,
+      "anonymous_ids": [
+        "outreach:18",
+        "hubspot:151"
+      ],
+      "traits_outreach/first_name": "Bobba",
+      "traits_outreach/personal_note_1": "froze han solo in carbinite, he was just a kid!  He's very efficient",
+      "traits_hubspot/created_at": "2018-11-02T14:50:03+00:00",
+      "traits_hubspot/updated_at": "2018-11-02T14:50:15+00:00",
+      "traits_hubspot/id": 151,
+      "traits_hubspot/first_name": "Bobba",
+      "traits_outreach/name": "Bobba Fett",
+      "traits_outreach/last_name": "Fett",
+      "traits_traits_outreach/title": "vp of assasination",
+      "traits_traits_outreach/personal_note_1": "froze han solo in carbinite, he was just a kid!  He's very efficient",
+      "traits_outreach/title": "vp of assasination",
+      "traits_outreach/personalnote1": "froze han solo in carbinite, he was just a kid!  He's very efficient",
+      "traits_outreach/personalnote2": "froze han solo in carbinite, he was just a kid!  He's very efficient",
+      "traits_outreach/custom1": "probably is a smuggler too",
+      "indexed_at": "2018-12-06T14:24:41Z"
+    },
+    "segments": [
+      {
+        "id": "5bffc38f625718d58b000004",
+        "name": "Smugglers",
+        "updated_at": "2018-12-06T15:30:50Z",
+        "type": "users_segment",
+        "created_at": "2018-11-29T10:46:39Z"
+      },
+      {
+        "id": "5bd720690026ca86b000004f",
+        "updated_at": "2018-11-05T20:07:04Z",
+        "created_at": "2018-10-29T14:59:53Z",
+        "name": "Star Wars Users",
+        "type": "users_segment",
+        "stats": {}
+      }
     ],
-    "segment_ids": [
-      "5bffc38f625718d58b000004",
-      "5bd720690026ca86b000004f"
-    ],
-    "traits_outreach/first_name": "Bobba",
-    "traits_outreach/personal_note_1": "froze han solo in carbinite, he was just a kid!  He's very efficient",
-    "traits_hubspot/created_at": "2018-11-02T14:50:03+00:00",
-    "traits_hubspot/updated_at": "2018-11-02T14:50:15+00:00",
-    "traits_hubspot/id": 151,
-    "traits_hubspot/first_name": "Bobba",
-    "traits_outreach/name": "Bobba Fett",
-    "traits_outreach/last_name": "Fett",
-    "traits_traits_outreach/title": "vp of assasination",
-    "traits_traits_outreach/personal_note_1": "froze han solo in carbinite, he was just a kid!  He's very efficient",
-    "traits_outreach/title": "vp of assasination",
-    "traits_outreach/personalnote1": "froze han solo in carbinite, he was just a kid!  He's very efficient",
-    "traits_outreach/personalnote2": "froze han solo in carbinite, he was just a kid!  He's very efficient",
-    "traits_outreach/custom1": "probably is a smuggler too",
-    "indexed_at": "2018-12-06T14:24:41Z"
+    "message_id": "4ckrkcf4544ea54d5950689f97f02f4a2cb389af",
+    "update_id": "5d04019a85ab0bef5800e63d:5:0:0"
   }
 ]

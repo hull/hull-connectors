@@ -1,8 +1,8 @@
 // @flow
-/* global describe, it, beforeEach, afterEach */
+
+import connectorConfig from "../../../server/config";
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
@@ -21,25 +21,30 @@ const usersSegments = [
 
 it("should send out a new hull user to hubspot", () => {
   const email = "email@email.com";
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
       channel: "user:update",
       externalApiMock: () => {
         const scope = nock("https://api.hubapi.com");
-        scope.get("/contacts/v2/groups?includeProperties=true")
+        scope.get("/contacts/v2/groups?includeProperties=true").reply(200, []);
+        scope
+          .get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, []);
-        scope.get("/properties/v1/companies/groups?includeProperties=true")
-          .reply(200, []);
-        scope.post("/contacts/v1/contact/batch/?auditId=Hull", [{
-          "properties": [{
-            "property": "hull_segments",
-            "value": "testSegment"
-          }],
-          "email": "email@email.com"
-          }]
-        ).reply(202);
+        scope
+          .post("/contacts/v1/contact/batch/?auditId=Hull", [
+            {
+              properties: [
+                {
+                  property: "hull_segments",
+                  value: "testSegment"
+                }
+              ],
+              email: "email@email.com"
+            }
+          ])
+          .reply(202);
         return scope;
       },
       connector,
@@ -62,15 +67,45 @@ it("should send out a new hull user to hubspot", () => {
         }
       },
       logs: [
-        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
-        ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
+        [
+          "debug",
+          "connector.service_api.call",
+          expect.whatever(),
+          expect.whatever()
+        ],
+        [
+          "debug",
+          "connector.service_api.call",
+          expect.whatever(),
+          expect.whatever()
+        ],
+        [
+          "debug",
+          "outgoing.job.start",
+          expect.whatever(),
+          { toInsert: 1, toSkip: 0, toUpdate: 0 }
+        ],
+        [
+          "debug",
+          "connector.service_api.call",
+          expect.whatever(),
+          expect.objectContaining({
+            method: "POST",
+            status: 202,
+            url: "/contacts/v1/contact/batch/"
+          })
+        ],
         [
           "info",
           "outgoing.user.success",
-          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {"email": "email@email.com", "properties": [{"property": "hull_segments", "value": "testSegment"}]}
+          expect.objectContaining({
+            subject_type: "user",
+            user_email: "email@email.com"
+          }),
+          {
+            email: "email@email.com",
+            properties: [{ property: "hull_segments", value: "testSegment" }]
+          }
         ]
       ],
       firehoseEvents: [],

@@ -4,13 +4,19 @@ const _ = require("lodash");
 process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 
-/* global describe, it, beforeEach, afterEach */
+
+
+
+
+
+
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
+import connectorConfig from "../../../server/config";
 
 
 test("send smart-notifier user update to outreach with returning account link", () => {
-  return testScenario({ connectorServer }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = _.cloneDeep(require("../fixtures/notifier-payloads/outgoing-user-link-new-account.json"));
     updateMessages.connector.private_settings.link_users_in_hull = true;
     return _.assign(updateMessages, {

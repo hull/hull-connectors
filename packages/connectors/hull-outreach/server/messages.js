@@ -75,7 +75,7 @@ const MESSAGES = {
     return {
       id: "StatusNoAccessTokenFound",
       message:
-        'No OAuth AccessToken found.  Please make sure to allow Hull to access your Outreach data by clicking the "Credentials" button on the connector page and following the workflow provided',
+        'Connector has not been authenticated. Please make sure to allow Hull to access your Outreach data by going to the \"Settings\" tab and clicking \"Login to your Outreach account\" in the \"Connect to Outreach\" section',
       level: "Error",
       channel: "Configuration",
       category: "Authentication"

@@ -9,6 +9,7 @@ const SHARED_MESSAGES = {
     "The following events are not whitelisted and have been skipped for processing.",
   SKIP_NOIDVALUE:
     "User doesn't have a value for the attribute which is mapped to the identifier in customer.io.",
+  ERROR_INVALIDPAYLOAD: "Payload isn't valid",
   ERROR_INVALIDEVENT: "Payload couldn't be mapped to Hull event.",
   ERROR_NOUSERIDENT: "Payload didn't contain any identifier for a Hull user.",
   ERROR_TRACKFAILED: "Event tracking failed, see innerException for details.",

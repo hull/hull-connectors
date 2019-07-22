@@ -4,7 +4,7 @@ const sinon = require("sinon");
 const httpMocks = require("node-mocks-http");
 const { EventEmitter } = require("events");
 const Promise = require("bluebird");
-const HullStub = require("../support/hull-stub");
+const HullStub = require("../../support/hull-stub");
 
 const actionHandler = require("../../../src/handlers/json-handler/factory");
 
@@ -29,7 +29,7 @@ function buildContextBaseStub() {
 }
 
 describe("jsonHandler", () => {
-  it("should support json values", (done) => {
+  it("should support json values", done => {
     const request = httpMocks.createRequest({
       method: "POST",
       url: "/"
@@ -52,9 +52,13 @@ describe("jsonHandler", () => {
       }
     };
     const response = httpMocks.createResponse({ eventEmitter: EventEmitter });
-    actionHandler(() => {
-      return Promise.resolve({ ok: "done" });
-    }).handle(request, response, (err) => { console.log(err) });
+    const { router } = actionHandler({
+      method: "POST",
+      callback: () => ({ status: 200, data: { ok: "done" } })
+    });
+    router.handle(request, response, err => {
+      console.log(err);
+    });
     response.on("end", () => {
       expect(response._isEndCalled()).to.be.ok;
       expect(response._getData()).to.equal('{"ok":"done"}');
@@ -62,7 +66,7 @@ describe("jsonHandler", () => {
     });
   });
 
-  it("should support plain error return values", (done) => {
+  it("should support plain error return values", done => {
     const request = httpMocks.createRequest({
       method: "POST",
       url: "/"
@@ -70,21 +74,24 @@ describe("jsonHandler", () => {
     request.hull = buildContextBaseStub();
     const response = httpMocks.createResponse({ eventEmitter: EventEmitter });
     actionHandler({
+      method: "POST",
       callback: () => {
         return Promise.reject(new Error("Something went bad"));
       },
       options: {
         respondWithError: true
       }
-    }).handle(request, response, () => {});
+    }).router.handle(request, response, () => {});
     response.on("end", () => {
       expect(response._isEndCalled()).to.be.ok;
-      expect(response._getData()).to.equal('{"error":"Error: Something went bad"}');
+      expect(response._getData()).to.equal(
+        '{"error":"Error: Something went bad"}'
+      );
       done();
     });
   });
 
-  it("should support thrown errors", (done) => {
+  it("should support thrown errors", done => {
     const request = httpMocks.createRequest({
       method: "POST",
       url: "/"
@@ -92,11 +99,12 @@ describe("jsonHandler", () => {
     request.hull = buildContextBaseStub();
     const response = httpMocks.createResponse({ eventEmitter: EventEmitter });
     actionHandler({
+      method: "POST",
       callback: () => {
         throw new Error("thrown error");
       },
       options: { respondWithError: true }
-    }).handle(request, response, () => {});
+    }).router.handle(request, response, () => {});
     response.on("end", () => {
       expect(response._isEndCalled()).to.be.ok;
       expect(response._getData()).to.equal('{"error":"Error: thrown error"}');

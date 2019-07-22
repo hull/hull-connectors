@@ -6,8 +6,7 @@ const _ = require("lodash");
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
 
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
 const incomingData = require("../fixtures/get-contacts-groups");
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
@@ -25,7 +24,7 @@ const connector = {
 };
 
 it("Should return a synchronized user/account segments \"ok\" message when no account segments are given in the manifest", () => {
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "status",

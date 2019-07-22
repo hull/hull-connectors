@@ -1,6 +1,6 @@
 /* @flow */
 import type { RawRestApi } from "./types";
-import type { HullClientLogger, HullMetrics, HullContext } from "hull";
+import type { HullClientLogger, HullInstrumentation, HullContext } from "hull";
 
 const { Client } = require("hull");
 const { doVariableReplacement } = require("./variable-utils");
@@ -35,7 +35,7 @@ class SuperagentApi {
   reqContext: Object;
   api: RawRestApi;
   agent: superagent;
-  metricsClient: HullMetrics;
+  metricsClient: HullInstrumentation;
   loggerClient: HullClientLogger;
   connectorHostname: string;
   settingsUpdate: Object;

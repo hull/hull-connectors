@@ -1,15 +1,17 @@
 /* @flow */
+import type { HullContext, HullExternalResponse } from "hull";
 
 const debug = require("debug")("hull-outreach:adminHandler");
 
-function adminHandler(ctx) {
+async function adminHandler(ctx: HullContext): HullExternalResponse {
   debug("Rendering adminHandler");
-  return Promise.resolve({
+  return {
+    status: 200,
     pageLocation: "home.html",
     data: {
       name: "Outreach.io"
     }
-  });
+  };
 }
 
 module.exports = adminHandler;

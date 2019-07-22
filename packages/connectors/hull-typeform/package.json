@@ -1,6 +1,6 @@
 {
   "name": "hull-typeform",
-  "version": "0.0.21-monorepo",
+  "version": "0.1.0-monorepo",
   "description": "Hull Typeform integration",
   "main": "index.js",
   "scripts": {
@@ -12,15 +12,8 @@
     "webhook"
   ],
   "dependencies": {
-    "cors": "^2.8.1",
-    "hull": "link:../../hull",
-    "hull-connector-framework": "link:../../hull-connector-framework",
     "passport-typeform": "^0.0.8",
-    "striptags": "^3.1.1",
-    "superagent-prefix": "^0.0.2"
+    "striptags": "^3.1.1"
   },
-  "devDependencies": {
-    "cheerio": "^0.22.0",
-    "sinon": "^1.17.4"
-  }
+  "devDependencies": {}
 }

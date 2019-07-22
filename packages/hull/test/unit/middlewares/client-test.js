@@ -4,8 +4,9 @@ const sinon = require("sinon");
 const Promise = require("bluebird");
 const _ = require("lodash");
 
-const clientMiddleware = require("../../../src/middlewares/client");
-const HullStub = require("../support/hull-stub");
+// const clientMiddleware = require("../../../src/middlewares/client");
+const clientMiddleware = require("../../../src/middlewares/client-middleware");
+const HullStub = require("../../support/hull-stub");
 
 describe("clientMiddleware", () => {
   beforeEach(function beforeEachHandler() {
@@ -41,7 +42,7 @@ describe("clientMiddleware", () => {
     instance({ HullClient: HullStub }, {}, next);
     expect(next.calledOnce).to.be.true;
     expect(next.args[0][0]).to.be.an("error");
-    expect(next.args[0][0].message).to.eql("Missing request context, you need to initiate it before");
+    expect(next.args[0][0].message).to.eql("Missing request context, you need to initiate it before. we can't find the `req.hull` object");
   });
 
   it("should return a clientMiddleware function", () => {

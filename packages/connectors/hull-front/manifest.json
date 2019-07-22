@@ -1,0 +1,69 @@
+{
+  "name": "FrontApp",
+  "description": "Capture FrontApp Events",
+  "tags": [
+    "incoming",
+    "oneColumn"
+  ],
+  "picture": "picture.png",
+  "ui": false,
+  "readme": "readme.md",
+  "version": "0.1.0-monorepo",
+  "private_settings": [
+    {
+      "title": "API Key",
+      "description": "Copy your Front API key from Settings > Plugins & API > API",
+      "name": "api_key",
+      "format": "string",
+      "type": "string"
+    }
+  ],
+  "resources": [],
+  "subscriptions": [],
+  "settings_sections": [
+    {
+      "title": "Webhook URL",
+      "description": "Setup your Front Connector by pasting your Front API Key AND by setting up webhooks",
+      "step": "credentials",
+      "properties": [
+        "private_settings.api_key",
+        "json.credentials"
+      ]
+    }
+  ],
+  "json": [
+    {
+      "url": "/url",
+      "name": "credentials",
+      "format": "credentials",
+      "title": "Webhook URL",
+      "description": "Checkout This connector's Documentation to setup Front, and make sure to select **Send Full event data** in your Front webhook configuration",
+      "handler": "credentialsHandler"
+    }
+  ],
+  "incoming": [
+    {
+      "url": "/webhooks/:connectorId/:token",
+      "handler": "incomingHandler"
+    },
+    {
+      "url": "/webhooks/:connectorId",
+      "handler": "incomingHandler"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "cron",
+    "value": "*/30 * * * *",
+    "handler": "statusHandler"
+  },
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "cron",
+      "value": "*/30 * * * *",
+      "handler": "statusHandler"
+    }
+  ]
+}

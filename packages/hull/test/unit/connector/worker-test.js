@@ -31,12 +31,8 @@ describe("Worker", () => {
     });
 
 
-    const result = worker.dispatch({
-      data: {}
-    });
-    expect(result).to.be.a("object");
-    result.then(() => {
-      done();
-    });
+    const result = worker.dispatch({ data: {} });
+    expect(result.then).to.be.a("function");
+    result.then(() => done());
   });
 });
