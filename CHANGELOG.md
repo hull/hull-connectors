@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.1.0-monorepo
+- Updated the server configuration to load using the manifest and a config object
+- Added flow types
+- Added support for new oauth workflow
+
 ## v0.0.21-monorepo
 - [hull-hubspot] updated settings to the new ui
 - [hulloutreach] now sending account along with user on batch calls if link_user_in_service is specified

@@ -1,6 +1,6 @@
 {
   "name": "hull-typeform",
-  "version": "0.0.21-monorepo",
+  "version": "0.1.0-monorepo",
   "description": "Hull Typeform integration",
   "main": "index.js",
   "scripts": {
@@ -15,6 +15,5 @@
     "passport-typeform": "^0.0.8",
     "striptags": "^3.1.1"
   },
-  "devDependencies": {
-  }
+  "devDependencies": {}
 }
