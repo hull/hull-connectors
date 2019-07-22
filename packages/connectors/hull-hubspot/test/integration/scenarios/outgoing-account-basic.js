@@ -11,7 +11,13 @@ process.env.OVERRIDE_HUBSPOT_URL = "";
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_account_segments: ["hullSegmentId"]
+    synchronized_account_segments: ["hullSegmentId"],
+    outgoing_account_attributes: [
+      {
+        "hull": "domain",
+        "service": "domain"
+      }
+    ],
   }
 };
 const accountsSegments = [
