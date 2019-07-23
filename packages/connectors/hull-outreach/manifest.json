@@ -357,12 +357,12 @@
         }
       ],
       "conditions": {
-        "segments": {
-          "user:update": ["private_settings.synchronized_user_segments"],
-          "account:update": ["private_settings.synchronized_account_segments"]
-        },
         "channels": {
-          "only": ["user:update", "account:update", "ship:update"]
+          "only": [
+            "user:update",
+            "account:update",
+            "ship:update"
+          ]
         }
       }
     }
