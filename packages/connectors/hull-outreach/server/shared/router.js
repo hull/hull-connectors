@@ -241,7 +241,7 @@ class HullRouter {
       !synchronized_account_segments.length
     ) {
       return {
-        status: "warning",
+        status: "ok",
         messages: [MESSAGES.STATUS_WARNING_NOSEGMENTS().message]
       };
     }
