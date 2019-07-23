@@ -1,7 +1,7 @@
 {
   "name": "hull-vm",
   "description": "Hull VM Base",
-  "version": "0.1.0-monorepo",
+  "version": "0.1.1-monorepo",
   "homepage": "https://github.com/hull/hull-connectors",
   "main": "server/index.js",
   "scripts": {
