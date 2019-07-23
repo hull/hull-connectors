@@ -1,6 +1,6 @@
 {
   "name": "Mailchimp",
-  "version": "0.0.21-monorepo",
+  "version": "0.1.0-monorepo",
   "description": "Powerful segmentation and enrichment for Mailchimp - the world’s favorite email platform",
   "tags": [
     "outgoing",
@@ -119,6 +119,7 @@
       "url": "/schema/user_fields",
       "handler": "schemaUserFields",
       "options": {
+        "loadOptions": "/schema/user_fields",
         "direction": "outgoing",
         "placeholder": "Mailchimp Merge Field",
         "allowCreate": false

@@ -1,7 +1,7 @@
 {
   "name": "hull-slack",
   "description": "Send Notification of User events and segments to Slack",
-  "version": "0.0.17-monorepo",
+  "version": "0.1.0-monorepo",
   "homepage": "https://github.com/hull/hull-connectors",
   "license": "MIT",
   "scripts": {
@@ -17,8 +17,7 @@
     "sync",
     "slack"
   ],
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "dependencies": {
     "botbuilder-adapter-slack": "^1.0.3",
     "botkit": "^4.0.2",
