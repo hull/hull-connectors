@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.1.1-monorepo
+- Updated status for mail chimp so that we have more ok, when things don't deserve warnings
+
 ## v0.1.0-monorepo
 - Updated the server configuration to load using the manifest and a config object
 - Added flow types
