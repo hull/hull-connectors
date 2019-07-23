@@ -1,6 +1,6 @@
 {
   "name": "hull-browser",
-  "version": "0.0.9-monorepo",
+  "version": "0.1.1-monorepo",
   "description": "Synchronize Data with Browser",
   "main": "index.js",
   "homepage": "https://github.com/hull/hull-connectors",

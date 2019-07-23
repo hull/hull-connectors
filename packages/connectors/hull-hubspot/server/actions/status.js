@@ -55,7 +55,7 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
   if (!_.get(connector, "private_settings.token")) {
     pushMessage(
       "setupRequired",
-      'No OAuth AccessToken found.  Please make sure to allow Hull to access your Hubspot data by clicking the "Credentials & Actions" button on the connector page and following the workflow provided'
+      'Connector has not been authenticated. Please make sure to allow Hull to access your Hubspot data by going to the "Settings" tab and clicking "Login to your Hubspot account" in the "Connect to Hubspot" section'
     );
   }
 
