@@ -5,7 +5,6 @@ import _ from "lodash";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
 
-const _ = require("lodash");
 const { Queue } = require("hull/src/infra");
 const KueAdapter = require("hull/src/infra/queue/adapter/kue");
 
