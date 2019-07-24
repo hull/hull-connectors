@@ -4,6 +4,8 @@ import type { HullConnectorConfig } from "hull";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
 
+const _ = require("lodash");
+
 export default function connectorConfig(): HullConnectorConfig {
   const {
     LOG_LEVEL,
@@ -38,7 +40,8 @@ export default function connectorConfig(): HullConnectorConfig {
       logLevel: LOG_LEVEL
     },
     clientConfig: {
-      firehoseUrl: OVERRIDE_FIREHOSE_URL
+      firehoseUrl: OVERRIDE_FIREHOSE_URL,
+      connectorName: _.kebabCase(manifest.name)
     },
     serverConfig: {
       start: true
