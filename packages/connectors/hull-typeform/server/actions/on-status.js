@@ -5,8 +5,6 @@ import type {
   HullSettingsResponse
 } from "hull";
 
-const SyncAgent = require("../lib/sync-agent");
-
 const statusHandler = async (
   ctx: HullContext,
   _incomingMessages: HullIncomingHandlerMessage
@@ -22,14 +20,6 @@ const statusHandler = async (
   } = private_settings;
 
   if (access_token && refresh_token && expires_in && tokens_granted_at) {
-    const syncAgent = new SyncAgent(ctx);
-
-    const willExpireSoon = syncAgent.shouldRefreshAccessToken();
-
-    if (willExpireSoon) {
-      await syncAgent.refreshAccessToken();
-    }
-
     if (!form_id) {
       return {
         status: 200,
