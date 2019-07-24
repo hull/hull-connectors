@@ -1,10 +1,9 @@
 // @flow
 
 import type { HullConnectorConfig } from "hull";
+import _ from "lodash";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
-
-const _ = require("lodash");
 
 export default function connectorConfig(): HullConnectorConfig {
   const {
