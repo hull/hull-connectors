@@ -15,7 +15,7 @@ import {
   jsonHandler,
   scheduleHandler,
   notificationHandler,
-  // batchHandler,
+  batchHandler,
   incomingRequestHandler,
   htmlHandler,
   OAuthHandler,
@@ -331,7 +331,7 @@ class HullConnector {
     mapNotification(notificationHandler, "subscriptions");
 
     // Setup Batch handlers
-    // mapNotification(batchHandler, "batches");
+    mapNotification(batchHandler, "batches");
 
     // Statuses handlers
     // Be careful - these handlers return a specific data format
