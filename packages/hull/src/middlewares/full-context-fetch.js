@@ -1,7 +1,6 @@
 // @flow
 import type { NextFunction } from "express";
 import type { HullRequest, HullResponse } from "../types";
-import ConnectorNotFoundError from "../errors/connector-not-found";
 
 const debug = require("debug")("hull-connector:full-context-fetch-middleware");
 
@@ -117,7 +116,9 @@ function fullContextFetchMiddlewareFactory({
       if (error.status === 404) {
         try {
           debug(`Connector not found: ${error.message}`);
-        } catch (e2) {}
+        } catch (e2) {
+          debug("Error thrown in debug message");
+        }
         // return next(new ConnectorNotFoundError("Invalid id / secret"));
       }
       return next(error);
