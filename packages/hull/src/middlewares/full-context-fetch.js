@@ -115,6 +115,7 @@ function fullContextFetchMiddlewareFactory({
       return next();
     } catch (error) {
       if (error.status === 404) {
+        debug("Connector not found");
         return next(new ConnectorNotFoundError("Invalid id / secret"));
       }
       return next(error);
