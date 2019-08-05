@@ -4,6 +4,7 @@ import type { $Application, Router } from "express";
 import type {
   HullConnectorConfig,
   HullCache,
+  HullClient,
   HullQueue,
   HullClient,
   HullInstrumentation,

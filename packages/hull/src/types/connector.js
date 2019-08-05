@@ -5,12 +5,11 @@ import type {
   HullManifest,
   HullConnectorSettings,
   HullClientConfig,
-  HullInstrumentation,
-  HullQueue,
+  HullHandlersConfiguration,
   HullContext,
-  HullHandlersConfiguration
+  HullInstrumentation,
+  HullQueue
 } from "./index";
-
 // =====================================
 // Hull Connector Data Object
 // =====================================
@@ -120,7 +119,7 @@ export type HullConnectorConfig = {
   disableOnExit?: boolean,
   devMode?: boolean,
   instrumentation?: HullInstrumentation,
-  queue?: HullQueue,
+  queue?: void | HullQueue,
   handlers:
     | HullHandlersConfiguration
     | (HullConnector => HullHandlersConfiguration),

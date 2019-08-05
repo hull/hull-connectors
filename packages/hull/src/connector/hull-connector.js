@@ -24,6 +24,7 @@ import {
   jsonHandler,
   scheduleHandler,
   notificationHandler,
+  batchHandler,
   incomingRequestHandler,
   htmlHandler,
   OAuthHandler,
@@ -106,23 +107,25 @@ class HullConnector {
 
   manifest: $PropertyType<HullConnectorConfig, "manifest">;
 
-  resolvedConfig: HullConnectorConfig;
-
-  connectorConfig: HullConnectorConfig;
-
   serverConfig: HullServerConfig;
 
   workerConfig: HullWorkerConfig;
 
-  httpClientConfig: HullHTTPClientConfig;
+  httpClientConfig: $PropertyType<HullConnectorConfig, "httpClientConfig">;
 
-  clientConfig: HullClientConfig;
+  clientConfig: $PropertyType<HullConnectorConfig, "clientConfig">;
 
-  metricsConfig: HullMetricsConfig;
+  jsonConfig: $PropertyType<HullConnectorConfig, "jsonConfig">;
 
-  logsConfig: HullLogsConfig;
+  metricsConfig: $PropertyType<HullConnectorConfig, "metricsConfig">;
 
-  cacheConfig: HullCacheConfig;
+  logsConfig: $PropertyType<HullConnectorConfig, "logsConfig">;
+
+  cacheConfig: $PropertyType<HullConnectorConfig, "cacheConfig">;
+
+  resolvedConfig: HullConnectorConfig;
+
+  connectorConfig: HullConnectorConfig;
 
   jsonConfig: HullJsonConfig;
 
@@ -254,7 +257,11 @@ class HullConnector {
     }
   }
 
-  async getHandlers() {
+  stop() {
+    this.server.close();
+  }
+
+  getHandlers() {
     if (this._handlers) {
       return this._handlers;
     }
@@ -338,6 +345,9 @@ class HullConnector {
 
     // Setup Kraken handlers
     mapNotification(notificationHandler, "subscriptions");
+
+    // Setup Batch handlers
+    mapNotification(batchHandler, "batches");
 
     // Statuses handlers
     // Be careful - these handlers return a specific data format

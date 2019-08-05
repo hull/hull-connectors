@@ -57,7 +57,8 @@ export default function connectorConfig(): HullConnectorConfig {
       devMode
     }),
     clientConfig: {
-      firehoseUrl: OVERRIDE_FIREHOSE_URL
+      firehoseUrl: OVERRIDE_FIREHOSE_URL,
+      connectorName: _.kebabCase(manifest.name)
     }
   };
 }

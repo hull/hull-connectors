@@ -57,9 +57,12 @@ function credentialsFromNotificationMiddlewareFactory() {
       return next(payloadError);
     }
     try {
-      await (skipSignatureValidation
+      const error = await (skipSignatureValidation
         ? Promise.resolve()
         : notificationValidator.validateSignature(req));
+      if (error) {
+        throw error;
+      }
       if (body === null || typeof body !== "object") {
         throw new Error("Missing Payload Body");
       }
