@@ -1,6 +1,7 @@
 // @flow
 
 import type { $Application, Middleware } from "express";
+import _ from "lodash";
 import type { Server } from "http";
 import express from "express";
 import type {
@@ -154,7 +155,7 @@ class HullConnector {
       httpClientConfig,
       metricsConfig,
       logsConfig,
-      connectorName,
+      connectorName = _.kebabCase(manifest.name),
       middlewares = [],
       handlers,
       disableOnExit = false
