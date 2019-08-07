@@ -36,6 +36,7 @@ const valid_notification = {
 
 let mockHttpClient = {};
 const connector = new Hull.Connector({
+  connectorName: "TestConnector",
   port: 9090,
   timeout: "100ms",
   hostSecret: "1234",
