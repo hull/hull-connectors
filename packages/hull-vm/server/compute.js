@@ -16,14 +16,7 @@ import check from "./check";
 const LIBS = { _, moment, urijs, rp };
 export default async function compute(
   ctx: HullContext,
-  {
-    payload,
-    code,
-    preview,
-    claims,
-    source,
-    entity = "user"
-  }: ComputeOptions
+  { payload, code, preview, claims, source, entity = "user" }: ComputeOptions
 ): Promise<Result> {
   const { connector, client } = ctx;
   const result = {
@@ -46,7 +39,7 @@ export default async function compute(
     errors: result.errors,
     request: getRequest(result)
   };
-  const hull = getHullContext(client, result, claims, entity, source);
+  const hull = getHullContext(client, result, source);
   const frozen = {
     ...payload,
     ...LIBS,
@@ -65,7 +58,10 @@ export default async function compute(
 
     // For Processor keep backwards-compatible signature of having `traits` and `track` at top level
     if (_.size(claims)) {
-      _.map(hull, (lib, key: string) => vm.freeze(lib, key));
+      _.map(
+        (entity === "account" ? hull.asAccount : hull.asUser)(claims),
+        (lib, key: string) => vm.freeze(lib, key)
+      );
     }
     vm.run(`responses = (function() {
 "use strict";

@@ -26,8 +26,6 @@ import {
 const buildHullContext = (
   client: HullClient,
   result: Result,
-  claimsScope?: HullUserClaims | HullAccountClaims,
-  entity?: HullEntityType = "user",
   eventsource?: string
 ) => {
   const errorLogger = (message, method, validation) => {
@@ -133,9 +131,6 @@ const buildHullContext = (
     };
   }
 
-  if (claimsScope) {
-    return (entity === "account" ? asAccount : asUser)(claimsScope);
-  }
   return {
     /* Deprecated Syntax */
     user: asUser,

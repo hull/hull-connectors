@@ -109,18 +109,16 @@ const Preview = ({ result, scoped }: Props) => {
   const hasErrors = _.size(errors);
 
   const output = {
-    "User Attributes": mapTraits(renderTraits(renderUserClaim, scoped))(
+    "User Attributes": mapTraits(renderTraits(renderUserClaim, false))(
       userTraits
     ),
-    "Account Attributes": mapTraits(renderTraits(renderAccountClaim, scoped))(
+    "Account Attributes": mapTraits(renderTraits(renderAccountClaim, false))(
       accountTraits
     ),
     "User-Account Links": mapAccountLinks(accountLinks),
-    "User Events": mapEvents(scoped)(events),
-    "User Aliases": mapTraits(renderAlias(renderUserClaim, scoped))(
-      userAliases
-    ),
-    "Account Aliases": mapTraits(renderAlias(renderAccountClaim, scoped))(
+    "User Events": mapEvents(false)(events),
+    "User Aliases": mapTraits(renderAlias(renderUserClaim, false))(userAliases),
+    "Account Aliases": mapTraits(renderAlias(renderAccountClaim, false))(
       accountAliases
     )
   };
