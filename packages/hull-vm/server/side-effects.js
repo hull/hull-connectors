@@ -66,6 +66,8 @@ export const callTraits = async ({
         const client = hullClient(claims);
         try {
           logIfNested(client, attributes);
+          // Filter undefined attributes
+          const att = _.omitBy(att, (v, k) => k === undefined);
           await client.traits(attributes);
           successful += 1;
           return client.logger.info(`incoming.${entity}.success`, {
