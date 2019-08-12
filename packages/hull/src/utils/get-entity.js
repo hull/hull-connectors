@@ -164,7 +164,9 @@ export const searchEntity = (
   const entity = await getEntity(ctx, query, entityType);
   if (!entity || !entity.id) {
     throw new Error(
-      `Can't find ${entityType} with claimType:${claimType}, claim:${claim}`
+      `Searching for a ${entityType} with ${
+        claimType ? `${claimType}=` : ""
+      }${claim} returned no result`
     );
   }
   // return entity;
