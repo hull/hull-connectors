@@ -13,7 +13,7 @@ export default async function statusCheck(
     return {
       status: "warning",
       messages: [
-        "This processor doesn't contain code. It is recommended for performance reasons to remove empty processors from your organization."
+        "This connector doesn't contain code. It is recommended for performance reasons to remove empty connectors from your organization."
       ]
     };
   }
