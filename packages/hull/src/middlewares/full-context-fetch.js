@@ -125,7 +125,7 @@ function fullContextFetchMiddlewareFactory({
       }
       if (error.status === 402) {
         try {
-          debug(`Payment required: ${error.message}`);
+          debug(`Organization is disabled: ${error.message}`);
         } catch (e2) {
           debug("Error thrown in debug message");
         }
