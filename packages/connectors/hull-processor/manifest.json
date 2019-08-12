@@ -2,7 +2,9 @@
   "name": "Processor",
   "description": "Recompute custom properties and emit events with Javascript logic whenever a user is updated",
   "tags": [
-    "smart-notifier"
+    "batch",
+    "smart-notifier",
+    "kraken-exports"
   ],
   "logo": "logo.png",
   "picture": "picture.png",
