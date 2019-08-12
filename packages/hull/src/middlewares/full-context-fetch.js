@@ -2,6 +2,7 @@
 import type { NextFunction } from "express";
 import type { HullRequest, HullResponse } from "../types";
 import ConnectorNotFoundError from "../errors/connector-not-found";
+import PaymentRequiredError from "../errors/payment-required-error";
 
 const debug = require("debug")("hull-connector:full-context-fetch-middleware");
 
@@ -121,6 +122,14 @@ function fullContextFetchMiddlewareFactory({
           debug("Error thrown in debug message");
         }
         return next(new ConnectorNotFoundError("Invalid id / secret"));
+      }
+      if (error.status === 402) {
+        try {
+          debug(`Payment required: ${error.message}`);
+        } catch (e2) {
+          debug("Error thrown in debug message");
+        }
+        return next(new PaymentRequiredError("Organization is disabled"));
       }
       return next(error);
     }
