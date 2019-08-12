@@ -23,12 +23,12 @@ const List = ({
   onChange: () => void
 }) => (
   <Fragment>
-    <Col xs={6}>
+    <Col xs={12}>
       <FormControl
         size="sm"
         onChange={onChange}
-        placeholder="Email or Id"
-        aria-label="Email or Id"
+        placeholder="Enter Email or Id to preview User"
+        aria-label="Enter Email or Id to preview User"
         aria-describedby="basic-addon1"
       />
     </Col>

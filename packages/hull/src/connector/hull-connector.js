@@ -262,7 +262,7 @@ class HullConnector {
     this.server.close();
   }
 
-  getHandlers() {
+  async getHandlers() {
     if (this._handlers) {
       return this._handlers;
     }

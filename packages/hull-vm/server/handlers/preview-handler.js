@@ -45,6 +45,7 @@ export default async function computeHandler(
   }
 
   const result = await compute(ctx, {
+    source: "processor",
     preview: true,
     entity,
     claims,

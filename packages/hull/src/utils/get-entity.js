@@ -122,7 +122,6 @@ const getUserPayload = async (
     segment_ids || []
   );
 
-  // const { segment_ids: account_segment_ids } = account;
   const { events: includeEvents, account: includeAccount = true } = include;
   const [events = [], account_segments = []] = await Promise.all([
     includeEvents ? searchEvents(ctx)({ ...includeEvents, parent: id }) : [],
@@ -131,7 +130,7 @@ const getUserPayload = async (
   // TODO: see what else we can HullExternalResponse
   return {
     // message_id: "",
-    user,
+    user: _.omit(user, "account"),
     segments,
     segment_ids: segment_ids || [],
     ...(includeEvents ? { events } : {}),
@@ -158,10 +157,15 @@ export const searchEntity = (
   if (!getQuery) {
     throw new Error("Invalid query type");
   }
+  if (!claim) {
+    throw new Error("Empty query, can't fetch");
+  }
   const query = getQuery(claim, service);
   const entity = await getEntity(ctx, query, entityType);
-  if (!entity) {
-    throw new Error(`Can't find ${entityType}`);
+  if (!entity || !entity.id) {
+    throw new Error(
+      `Can't find ${entityType} with claimType:${claimType}, claim:${claim}`
+    );
   }
   // return entity;
   return getPayload(ctx, entity, include || {});

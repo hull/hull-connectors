@@ -9,7 +9,7 @@ exports.config = {
   /**
    * Array of application names.
    */
-  app_name: [process.env.NEW_RELIC_APP_NAME || "hull-incoming-webhooks"],
+  app_name: [process.env.NEW_RELIC_APP_NAME || "hull-processor"],
   /**
    * Your New Relic license key.
    */

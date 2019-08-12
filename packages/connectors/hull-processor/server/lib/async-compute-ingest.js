@@ -25,6 +25,7 @@ const asyncComputeAndIngest = async (
   try {
     const { user = {}, account } = payload;
     const result = await compute(ctx, {
+      source: "processor",
       claims: _.pick(entity === "account" ? account : user, ["id"]),
       preview: false,
       entity,

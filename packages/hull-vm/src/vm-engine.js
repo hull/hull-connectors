@@ -73,6 +73,7 @@ export default class Engine extends EventEmitter {
   saveConfig = response => {
     this.setState({
       error: undefined,
+      computing: false,
       bootstrapping: false,
       ...response
     });

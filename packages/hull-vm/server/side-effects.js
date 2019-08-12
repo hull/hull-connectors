@@ -38,6 +38,21 @@ type EventSignature = {
   metric: $PropertyType<HullContext, "metric">
 };
 
+const logIfNested = (client, attrs) => {
+  _.map(attrs, (v, k) => {
+    if (
+      _.isObject(v) &&
+      !_.isEqual(_.sortBy(_.keys(v)), ["operation", "value"])
+    ) {
+      client.logger.info(
+        `Nested object { ${JSON.stringify(k)}:${JSON.stringify(
+          v
+        )} } found in account traits`
+      );
+    }
+  });
+};
+
 export const callTraits = async ({
   hullClient,
   data = new Map(),
@@ -50,6 +65,7 @@ export const callTraits = async ({
       Array.from(data, async ([claims, attributes]) => {
         const client = hullClient(claims);
         try {
+          logIfNested(client, attributes);
           await client.traits(attributes);
           successful += 1;
           return client.logger.info(`incoming.${entity}.success`, {
@@ -68,7 +84,6 @@ export const callTraits = async ({
     metric.increment(`ship.incoming.${entity}s`, successful);
     return responses;
   } catch (err) {
-    console.log(err);
     return Promise.reject(err);
   }
 };
@@ -107,8 +122,7 @@ export const callEvents = async ({
     metric.increment(`ship.incoming.${entity}`, successful);
     return responses;
   } catch (err) {
-    console.log(err);
-    return Promise.reject();
+    return Promise.reject(err);
   }
 };
 
@@ -146,8 +160,7 @@ export const callLinks = async ({
     metric.increment(`ship.incoming.${entity}`, successful);
     return responses;
   } catch (err) {
-    console.log(err);
-    return Promise.reject();
+    return Promise.reject(err);
   }
 };
 

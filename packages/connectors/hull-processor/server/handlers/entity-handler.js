@@ -29,7 +29,8 @@ export default async function getUser(
   const { code } = private_settings;
   const { body } = message;
   // $FlowFixMe
-  const { claim, claimType } = body;
+  const { claim, claimType, events } = body;
+  console.log("Entry Fetch", body);
   try {
     // const getter = entity === "account" ? ctx.entities.accounts : ctx.entities.users;
     const rawPayload = await ctx.entities.users.get({
@@ -37,11 +38,13 @@ export default async function getUser(
       claimType,
       include: {
         events: {
+          names: events,
           per_page: 20,
           page: 1
         }
       }
     });
+
 
     if (!rawPayload) {
       return {
@@ -60,6 +63,8 @@ export default async function getUser(
     };
 
     const result = await compute(ctx, {
+      source: "processor",
+      claims: _.pick(rawPayload.user, ["id"]),
       preview: true,
       payload,
       code
@@ -77,6 +82,7 @@ export default async function getUser(
       data
     };
   } catch (err) {
+    console.log(err);
     ctx.client.logger.error("fetch.user.error", { error: err.message });
     return {
       status: 200,

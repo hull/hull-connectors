@@ -16,7 +16,14 @@ import check from "./check";
 const LIBS = { _, moment, urijs, rp };
 export default async function compute(
   ctx: HullContext,
-  { payload, code, preview, claims, entity = "user" }: ComputeOptions
+  {
+    payload,
+    code,
+    preview,
+    claims,
+    source,
+    entity = "user"
+  }: ComputeOptions
 ): Promise<Result> {
   const { connector, client } = ctx;
   const result = {
@@ -39,7 +46,7 @@ export default async function compute(
     errors: result.errors,
     request: getRequest(result)
   };
-  const hull = getHullContext(client, result, claims, entity);
+  const hull = getHullContext(client, result, claims, entity, source);
   const frozen = {
     ...payload,
     ...LIBS,

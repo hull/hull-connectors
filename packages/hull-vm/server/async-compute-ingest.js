@@ -11,14 +11,21 @@ const asyncComputeAndIngest = async (
   {
     EntryModel,
     payload,
-    code
-  }: { code: string, payload: { [string]: any }, EntryModel: Object }
+    code,
+    source
+  }: {
+    code: string,
+    payload: { [string]: any },
+    EntryModel: Object,
+    source: string
+  }
 ) => {
   const { client } = ctx;
   try {
     const result = await compute(ctx, {
       payload,
       code,
+      source,
       preview: false
     });
     // TODO: Check how errors in the second await could not have a defined error
@@ -26,7 +33,7 @@ const asyncComputeAndIngest = async (
     await saveRecent(ctx, { EntryModel, payload, code, result });
   } catch (err) {
     client.logger.error("incoming.user.error", {
-      hull_summary: `Error Processing user: ${_.get(
+      hull_summary: `Error ingesting payload: ${_.get(
         err,
         "message",
         "Unexpected error"

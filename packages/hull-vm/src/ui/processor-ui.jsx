@@ -50,28 +50,27 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
     ...this.props.engine.getState()
   };
 
-  constructor(props) {
-    super(props);
-  }
-
   handleUpdateQuery = e => {
     const query = e.target.value;
     const { engine } = this.props;
-    engine.updateQuery(query);
+    engine.updateSearch(query);
   };
 
-  handleEventChange = e => {
-    console.log(e);
+  handleUpdateEvents = events => {
+    const { engine } = this.props;
+    engine.updateEvents(events);
   };
 
   render() {
     const {
       current,
-      initializing,
+      loading,
+      initialized,
       recent,
       computing,
       showBindings,
-      events
+      events,
+      error
     } = this.state;
 
     const { strings } = this.props;
@@ -89,9 +88,9 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
         <KeyBindings show={showBindings} onHide={this.hideBindings} />
         <div className="main-container row no-gutters">
           <div className="col vm-column">
-            <Header title={strings.leftColumnTitle}>
+            <Header>
               <EntrySelector
-                loading={computing || initializing}
+                loading={computing || loading}
                 current={current}
                 recent={recent}
                 onChange={this.handleUpdateQuery}
@@ -99,13 +98,17 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
               <hr className="payload-divider" />
             </Header>
             <CodeTitle title="Payload" />
-            <Area id="code-payload" mode="json" value={current.payload} />
+            <Area
+              id="code-payload"
+              mode="json"
+              value={error || current.payload}
+            />
           </div>
           <div className="col vm-column">
             <Header>
               <EventSelector
-                loading={initializing}
-                onChange={this.handleEventChange}
+                loading={loading && !initialized}
+                onChange={this.handleUpdateEvents}
                 events={events}
               />
             </Header>
@@ -131,7 +134,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
             <Preview
               title="Preview"
               scoped={true}
-              result={current.result}
+              result={error ? {} : current.result}
               computing={computing}
             />
           </div>

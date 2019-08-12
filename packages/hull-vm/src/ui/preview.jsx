@@ -89,7 +89,7 @@ const Preview = ({ result, scoped }: Props) => {
         <CodeTitle title="Console" />
         <Area
           id="code-console"
-          value="//Nothing to display. Type some code to preview results"
+          value="// Nothing to display. Type some code to preview results"
           mode="javascript"
         />
       </Fragment>

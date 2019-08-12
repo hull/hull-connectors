@@ -1,6 +1,6 @@
 {
   "name": "hull-processor",
-  "description": "Receive webhooks and enrich your data in Hull",
+  "description": "Run code to update User Properties and generate Events",
   "version": "0.0.13-monorepo",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {

@@ -27,7 +27,8 @@ const buildHullContext = (
   client: HullClient,
   result: Result,
   claimsScope?: HullUserClaims | HullAccountClaims,
-  entity?: HullEntityType = "user"
+  entity?: HullEntityType = "user",
+  eventsource?: string
 ) => {
   const errorLogger = (message, method, validation) => {
     client.logger.info(`incoming.${message}.skip`, {
@@ -46,7 +47,11 @@ const buildHullContext = (
   ) => {
     result[target] = result[target].push({
       claims,
-      event: { eventName, properties, context }
+      event: {
+        eventName,
+        properties,
+        context: { source: eventsource, ...context }
+      }
     });
   };
 

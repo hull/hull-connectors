@@ -1,8 +1,7 @@
 // @flow
 import React, { Fragment } from "react";
-import _ from "lodash";
+
 import Col from "react-bootstrap/Col";
-import Button from "react-bootstrap/Button";
 import Select, { components } from "react-select";
 import type { Entry } from "../../types";
 import Spinner from "./spinner";
@@ -19,7 +18,12 @@ const noBorder = {
 };
 const styles = {
   menu: s => ({ ...s, backgroundColor: "black" }),
-  valueContainer: s => ({ ...s, padding: "2px 8px", backgroundColor }),
+  valueContainer: s => ({
+    ...s,
+    padding: "6px 8px",
+    backgroundColor,
+    cursor: "pointer"
+  }),
   menuList: s => ({ ...s, backgroundColor }),
   container: s => ({
     ...s,
@@ -39,7 +43,7 @@ const styles = {
     ...s,
     color: "#444"
   }),
-  indicatorContainer: s => ({
+  indicatorContainer: () => ({
     padding: "5px 8px"
   }),
   indicatorSeparator: s => ({
@@ -48,6 +52,7 @@ const styles = {
   }),
   option: (s, { isDisabled, isSelected }) => ({
     ...s,
+    cursor: "pointer",
     color: isSelected ? selected : isDisabled ? "#666" : "#CCC",
     backgroundColor: isDisabled ? disabled : backgroundColor,
     ":active": {
@@ -78,10 +83,15 @@ const styles = {
 
 const ValueContainer = ({ children, getValue, ...props }) => {
   const valueLength = getValue().length;
+  const text =
+    !props.selectProps.inputValue &&
+    (valueLength
+      ? `${valueLength} Event${valueLength != 1 ? "s" : ""} selected`
+      : "Select events to simulate in preview");
+
   return (
     <components.ValueContainer {...props} getValue={getValue}>
-      {!props.selectProps.inputValue &&
-        `${valueLength} Event${valueLength != 1 ? "s" : ""} selected`}
+      {text}
       {React.Children.map(children, child => {
         return child.type === components.Input ? child : null;
       })}
@@ -89,13 +99,11 @@ const ValueContainer = ({ children, getValue, ...props }) => {
   );
 };
 
-const NoOptionsMessage = props => {
-  return (
-    <Tooltip content="Couldn't load Events. Try reloading">
-      <components.NoOptionsMessage {...props} />
-    </Tooltip>
-  );
-};
+const NoOptionsMessage = props => (
+  <Tooltip content="Couldn't load Events. Try reloading">
+    <components.NoOptionsMessage {...props} />
+  </Tooltip>
+);
 
 const MultiValue = () => null;
 
@@ -109,9 +117,9 @@ const List = ({
   onChange: () => void
 }) => (
   <Fragment>
-    <Col xs={6}>
+    <Col xs={12}>
       <Select
-        isOpen={true}
+        isMulti={true}
         classNamePrefix="react-select"
         placeholder={"Pick Events to display in preview"}
         components={{
@@ -121,10 +129,10 @@ const List = ({
         }}
         options={events}
         styles={styles}
-        isLoading={false}
+        isLoading={loading}
+        onChange={onChange}
         hideSelectedOptions={false}
         closeMenuOnSelect={false}
-        isMulti
       />
     </Col>
   </Fragment>

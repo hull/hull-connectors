@@ -1,0 +1,207 @@
+{
+  "name": "Scheduled Calls",
+  "description": "Call an API at regular intervals and pass response to Hull",
+  "tags": [
+    "incoming",
+    "oneColumn"
+  ],
+  "source": "scheduled-calls",
+  "picture": "picture.png",
+  "ui": false,
+  "tabs": [
+    {
+      "title": "Code Editor",
+      "url": "/admin.html",
+      "size": "large",
+      "setup": false,
+      "workspace": true,
+      "editable": true,
+      "handler": "admin"
+    }
+  ],
+  "readme": "readme.md",
+  "version": "0.1.1-monorepo",
+  "private_settings": [
+    {
+      "type": "string",
+      "format": "string",
+      "name": "url",
+      "required": true,
+      "default": "https://example.com?query=true",
+      "title": "API Endpoint"
+    },
+    {
+      "name": "sync_interval",
+      "type": "number",
+      "title": "Call API every:",
+      "description": "Interval in minutes at which to call external API",
+      "default": 30,
+      "enum": [
+        1,
+        5,
+        10,
+        15,
+        30,
+        60,
+        120
+      ],
+      "required": true
+    },
+    {
+      "name": "method",
+      "type": "string",
+      "title": "Method",
+      "description": "The Method to use",
+      "default": "POST",
+      "enum": [
+        "GET",
+        "POST",
+        "PUT",
+        "PATCH",
+        "DELETE"
+      ],
+      "required": true
+    },
+    {
+      "name": "format",
+      "type": "string",
+      "title": "Expected Response Format",
+      "description": "Selecting something other than Raw, we will parse the payload for you",
+      "default": "JSON",
+      "enum": [
+        "JSON",
+        "CSV",
+        "Raw"
+      ],
+      "required": true
+    },
+    {
+      "name": "headers",
+      "title": "Headers",
+      "description": "Headers to provide",
+      "type": "array",
+      "format": "table",
+      "default": [
+        {
+          "name": "Authorization",
+          "value": "Token token=secret"
+        },
+        {
+          "name": "Content-Type",
+          "value": "application/vnd.api+json"
+        }
+      ],
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "format": "string",
+            "title": "Name"
+          },
+          "value": {
+            "type": "string",
+            "format": "string",
+            "title": "Value"
+          }
+        }
+      }
+    },
+    {
+      "name": "cookies",
+      "title": "Cookies",
+      "description": "Cookies to send",
+      "type": "array",
+      "format": "table",
+      "default": [
+        ""
+      ],
+      "items": {
+        "type": "string",
+        "format": "string",
+        "title": "Value",
+        "default": ""
+      }
+    },
+    {
+      "name": "body",
+      "title": "Request Body (POST, PUT, PATCH only)",
+      "type": "string",
+      "format": "code",
+      "default": "{}"
+    },
+    {
+      "name": "code",
+      "title": "Code",
+      "description": "Enter Javascript code here, It will receive the data in the middle column, can emit `track()` and `traits()`. Preview results on the right. Save when finished",
+      "type": "string",
+      "default": "//console.log(\"Hello !\");\n//hull.asUser({ email: body.email }).traits({ coconuts: 12 });\n//hull.asUser({ email: body.email }).track(\"sample event\");",
+      "format": "hidden"
+    }
+  ],
+  "subscriptions": [],
+  "settings_sections": [
+    {
+      "title": "Request Parameters",
+      "description": "Configure the HTTP Api Call to be made",
+      "step": "credentials",
+      "properties": [
+        "private_settings.url",
+        "private_settings.method",
+        "private_settings.headers",
+        "private_settings.cookies",
+        "private_settings.body"
+      ]
+    },
+    {
+      "title": "Schedule",
+      "description": "Configure the query's schedule and expected response",
+      "properties": [
+        "private_settings.sync_interval",
+        "private_settings.format"
+      ]
+    }
+  ],
+  "json": [
+    {
+      "url": "/call",
+      "handler": "apiCall"
+    },
+    {
+      "url": "/recent",
+      "handler": "getRecent"
+    },
+    {
+      "url": "/config",
+      "handler": "configHandler"
+    },
+    {
+      "url": "/preview",
+      "handler": "previewHandler"
+    }
+  ],
+  "schedules": [
+    {
+      "url": "/sync",
+      "type": "interval",
+      "handler": "scheduledCall",
+      "value_from": "private_settings.sync_interval",
+      "default": "30"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "cron",
+    "value": "*/30 * * * *",
+    "handler": "statusHandler"
+  },
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "cron",
+      "value": "*/30 * * * *",
+      "handler": "statusHandler"
+    }
+  ]
+}

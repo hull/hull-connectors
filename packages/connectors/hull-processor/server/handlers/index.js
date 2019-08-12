@@ -5,9 +5,9 @@ import type {
   Connector
 } from "hull";
 
-import { statusHandler, previewHandler } from "hull-vm";
+import { configHandler, statusHandler, previewHandler } from "hull-vm";
 import entityHandler from "./entity-handler";
-import configHandler from "./config-handler";
+import configData from "./config-data";
 import userUpdate from "./user-update";
 
 type HandlerType = { flow_size?: number, flow_in?: number };
@@ -23,7 +23,7 @@ const handler = ({ flow_size, flow_in }: HandlerType) => (
     },
     statuses: { statusHandler },
     json: {
-      configHandler,
+      configHandler: configHandler(configData),
       entityHandler,
       previewHandler
     }

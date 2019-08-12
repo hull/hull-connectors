@@ -107,6 +107,7 @@ export type PreviewRequest = {
 export type PreviewResponse = SerializedResult;
 
 export type Entry = {
+  error?: string,
   connectorId: string,
   code: string,
   payload: Payload,
@@ -120,6 +121,7 @@ export type ComputeOptions = {
   claims?: HullUserClaims | HullAccountClaims,
   entity?: HullEntityType,
   preview: boolean,
+  source: string,
   payload: Payload | HullUserUpdateMessage | HullAccountUpdateMessage
 };
 
@@ -196,7 +198,7 @@ export type Config = {
 export type EngineState = {
   error?: string,
   computing: boolean,
-  initializing: boolean,
+  loading: boolean,
   initialized: boolean,
   url?: string,
   config: Config,
@@ -204,7 +206,21 @@ export type EngineState = {
   current?: Entry,
   recent: Array<Entry>
 };
-export type ProcessorEngineState = EngineState & {
-  search?: string
+export type EventSelect = {
+  value: string,
+  label: string
+};
+export type ProcessorEngineState = {
+  error?: string,
+  computing: boolean,
+  loading: boolean,
+  initialized: boolean,
+  url?: string,
+  config: Config,
+  selected?: Entry,
+  current?: Entry,
+  recent: Array<Entry>,
+  claim?: string,
+  selectedEvents: Array<EventSelect>
 };
 export type RecentEngineState = EngineState & {};

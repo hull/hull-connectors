@@ -10,3 +10,4 @@ export { default as entryModel } from "./models/entry";
 export { default as recentHandler } from "./handlers/recent-handler";
 export { default as previewHandler } from "./handlers/preview-handler";
 export { default as statusHandler } from "./handlers/status-handler";
+export { default as configHandler } from "./handlers/config-handler";
