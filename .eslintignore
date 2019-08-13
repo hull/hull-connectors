@@ -15,3 +15,7 @@ packages/hull/*
 
 
 packages/connectors/hull-outreach
+packages/connectors/hull-warehouse
+packages/connectors/hull-marketo
+packages/connectors/hull-hubspot-deals
+packages/hull-connector-framework
