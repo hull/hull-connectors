@@ -1,16 +1,12 @@
 /* @flow */
-import type { RawRestApi, EndpointType, RequestType } from "./shared/types";
+import type { RawRestApi, EndpointType, RequestType } from "hull-connector-framework/src/purplefusion/types";
 
 const _ = require("lodash");
 
 const {
   ConfigurationError,
-  RateLimitError,
-  RecoverableError,
   TransientError,
-  SkippableError,
-  LogicError,
-  NotificationValidationError
+  SkippableError
 } = require("hull/src/errors");
 
 
@@ -19,22 +15,20 @@ const {
   OutreachProspectWrite,
   OutreachProspectRead,
   OutreachAccountWrite,
-  OutreachAccountRead,
-  OutreachWebhookWrite
+  OutreachAccountRead
   } = require("./service-objects");
 
-const { SuperagentApi } = require("./shared/superagent-api");
+const { SuperagentApi } = require("hull-connector-framework/src/purplefusion/superagent-api");
 const MESSAGES = require("./messages");
-const { isUndefinedOrNull } = require("./shared/utils");
-const { isNull, notNull } = require("./shared/conditionals");
+const { isUndefinedOrNull } = require("hull-connector-framework/src/purplefusion/utils");
+const { isNull, notNull } = require("hull-connector-framework/src/purplefusion/conditionals");
+
 
 // What about linking calls?
-const service = ({ clientID, clientSecret } : {
-  clientID: string,
-  clientSecret: string
-}): RawRestApi => ({
+const service: RawRestApi = {
   initialize: (context, api) => new SuperagentApi(context, api),
   prefix: "https://api.outreach.io/api/v2",
+  defaultReturnObj: "body",
   endpoints: {
     getAccountById: {
       url: "/accounts/${accountId}",
@@ -124,7 +118,6 @@ const service = ({ clientID, clientSecret } : {
       url: "/prospects/",
       operation: "get",
       query: "filter[emails]=${userEmail}",
-      returnObj: "body.data[0]",
       endpointType: "byProperty",
       returnObj: "body.data",
       output: OutreachProspectRead
@@ -196,9 +189,25 @@ const service = ({ clientID, clientSecret } : {
   authentication: {
     strategy: "oauth2",
     params: {
+      name: "Outreach",
       Strategy: OAuth2Strategy,
-      clientID,
-      clientSecret,
+      tokenInUrl: true,
+      options: {
+        clientID: process.env.CLIENT_ID,
+        clientSecret: process.env.CLIENT_SECRET,
+        authorizationURL: "https://api.outreach.io/oauth/authorize",
+        tokenURL: "https://api.outreach.io/oauth/token",
+        grant_type: "authorization_code",
+        scope: [
+          "create_prospects",
+          "prospects.all",
+          "create_accounts",
+          "accounts.all",
+          "webhooks.all",
+          "stages.all",
+          "users.all"
+        ] // App Scope
+      }
     }
   },
   error: {
@@ -242,7 +251,7 @@ const service = ({ clientID, clientSecret } : {
 
       {
         truthy: { status: 404 },
-        errorType: SkippableError,
+        errorType: TransientError,
         message: MESSAGES.INTERNAL_SERVICE_ERROR,
         retryAttempts: 2
       },
@@ -276,7 +285,7 @@ const service = ({ clientID, clientSecret } : {
     ]
 
   }
-})
+};
 
 
-export default service
+module.exports = service;

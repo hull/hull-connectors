@@ -1,13 +1,13 @@
 /* @flow */
-import type { ServiceTransforms } from "./shared/types";
+import type { ServiceTransforms } from "hull-connector-framework/src/purplefusion/types";
 
-const { doesNotContain, isEqual, doesContain, isNotEqual } = require("./shared/conditionals");
+const { doesNotContain, isEqual, doesContain, isNotEqual } = require("hull-connector-framework/src/purplefusion/conditionals");
 
 
 const {
   HullIncomingUser,
   HullIncomingAccount
-} = require("./shared/hull-service-objects");
+} = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const {
   OutreachProspectRead,
@@ -188,6 +188,4 @@ const transformsToHull: ServiceTransforms =
 
   ];
 
-module.exports = {
-  transformsToHull
-};
+module.exports = transformsToHull;

@@ -1,0 +1,127 @@
+<html>
+<head>
+  <title>Hull <%= name %></title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="row">
+    <div class="col-sm-12 col-md-offset-1 col-md-10">
+      <div class="mb-1 ps-1">
+
+        <h1 class="mb-0 mt-05  text-center"><i class="icon icon-hull" style="font-size:64px;"></i></h1>
+
+        <div class="flex-row space-between align-center">
+          <div class="flex-row">
+            <div class="check valid"><i class="icon icon-valid"></i></div>
+            <p class="m-0 ps-1 pt-05">
+              Connected to <%=name%> portal
+              <a href="https://app.hubspot.com/dashboard/<%=settings.portal_id%>" target="_blank"><%=settings.portal_id%></a>
+            </p>
+          </div>
+          <a href="<%=urls.home%>&reset=true" class="btn btn-secondary">Start over</a>
+        </div>
+
+        <hr>
+
+        <div class="last_fetch">
+          <div class="flex-row space-between align-center">
+            <h5>Last Sync:
+              <span class="text-muted">
+                <% if (settings.last_fetch_started_at) { %>
+                  <strong><%=settings.fetch_count || 0%> Users</strong> on <span data-time>Friday, September 8 @ 12h30</span>
+                <% } else {%>
+                  Never
+                <% } %>
+              </span>
+            </h5>
+          </div>
+        </div>
+
+        <hr>
+
+        <div>
+          <p>When you are done configuring your incoming mapping in the Settings tab, you can (re-)import your entire database: </p>
+        </div>
+        <div class="flex-row align-center flex-grow">
+          <div data-href="/fetch-all" data-entity="contacts" class="pull-right btn btn-primary mr-1">Fetch All Contacts</div>
+          <div data-href="/fetch-all-companies" data-entity="companies" class="pull-right btn btn-primary">Fetch All Companies</div>
+        </div>
+
+
+
+      </div>
+    </div>
+  </div>
+  <script>window.hullAuthCompleted = function authCompleted() { window.location.href = window.location.href.replace("&reset=true", ""); };</script>
+  <style type="text/css" media="screen">
+    .sweet-alert {
+      font-family: inherit;
+    }
+    .flex-row{
+      display: flex;
+      flex-direction: row;
+    }
+    .flex-grow div {
+      flex-grow: 1
+    }
+    .align-center{
+      align-items: center;
+    }
+    .space-between{
+      justify-content: space-between;
+    }
+    .last_fetch{
+      clear: both;
+    }
+    .check i.icon {
+      color: rgba(75, 222, 122, 0.52);
+      font-size: 2pc;
+      position: relative;
+      top: -11px;
+      left: 3px;
+    }
+    .check.valid {
+      border-color: rgba(75, 222, 122, 0.52);
+    }
+    .check {
+      border-radius: 100px;
+      border: 2px solid transparent;
+      padding: 0 5px;
+      height: 37px;
+      width: 37px;
+      position: relative;
+    }
+  </style>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
+  <script>
+    jQuery(function($) {
+      $("[data-href]").click(function() {
+        var url = $(this).attr('data-href');
+        var entity = $(this).attr('data-entity');
+        swal({
+          title: "Fetch all " + entity,
+          text: "You are going to fetch all Hubspot " + entity + ". This will generate an important amount traffic. You should do this once when after installing the connector or if you want to re-import your entire database. Continue?",
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#0093E6",
+          confirmButtonText: "Continue",
+          closeOnConfirm: false
+        }, function(isConfirm) {
+          if (isConfirm) {
+            $.post(url+window.location.search);
+            swal("Fetching started", "The Hubspot " + entity + " will be fetched shortly.", "success");
+          }
+        });
+      });
+    });
+  </script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js" integrity="sha256-De/cgZoAkgvqoxL9yJpJzPHyozUETFnSv7EQGfQWQ4o=" crossorigin="anonymous"></script>
+  <script>jQuery(function($) {
+    var time = "<%=settings.last_fetch_started_at%>";
+    if (time) {
+      $("[data-time]").text(moment("<%=settings.last_fetch_started_at%>").format("dddd[,] MMMM D [@] H[h]mm"));
+    }
+  });</script>
+</body>
+</html>

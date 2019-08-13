@@ -1,0 +1,216 @@
+{
+  "name": "Marketo",
+  "description": "Two-way Marketo integration for Leads & Companies",
+  "source": "marketo",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "version": "0.0.20-monorepo",
+
+  "tags": [
+    "incoming",
+    "outgoing",
+    "batch",
+    "batch-accounts",
+    "oneColumn",
+    "smart-notifier",
+    "first-install",
+    "single-install"
+  ],
+
+  "private_settings": [
+    {
+      "name": "access_token",
+      "title": "OAuth Access Token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "token_type",
+      "title": "OAuth Authentication method",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "expires_in",
+      "title": "OAuth Token Expiration in seconds",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "scope",
+      "title": "Owning user of the customer service that was used to authenticate",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "credentials_title",
+      "title": "Credentials",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "marketo_client_id",
+      "title": "Marketo Client ID",
+      "type": "string"
+    },
+    {
+      "name": "marketo_client_secret",
+      "title": "Marketo Client Secret",
+      "type": "string"
+    },
+    {
+      "name": "marketo_authorized_user",
+      "title": "Marketo Authorized User",
+      "type": "string"
+    },
+    {
+      "name": "marketo_identity_url",
+      "title": "Marketo Identity url",
+      "type": "string"
+    },
+    {
+      "name": "user_claims",
+      "title": "User Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "title": "Lead Field ID",
+            "type": "string",
+            "format": "select",
+            "options" : {
+              "allowCreate": false,
+              "loadOptions": "/attributes-leads-outgoing"
+            }
+          },
+          "hull": {
+            "title": "Hull User Ident",
+            "enum": ["external_id", "email"]
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "email",
+          "service": "email"
+        }
+      ]
+    },
+    {
+      "name": "user_claim_hero",
+      "type": "string",
+      "headerTemplate": "Mapped user identity attributes will automatically be pulled in the incoming and outgoing traffic",
+      "format": "information"
+    },
+    {
+      "name": "lead_incoming_sync_title",
+      "title": "Incoming User Synchronization Options (Marketo to Hull)",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "incoming_user_attributes",
+      "title": "Incoming User Fields to Sync (Marketo to Hull)",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": false,
+        "placeholder": "Marketo Lead Field",
+        "allowCreate": true,
+        "loadOptions": "/attributes-leads-incoming",
+        "source": "marketo"
+      }
+    },
+    {
+      "name": "fetch_all_attributes",
+      "type": "boolean",
+      "title": "Fetch All Attributes On Initial Fetch",
+      "description": "On initial fetch if you wish to retrieve all available attributes, you may select this option.  It is only an option for initial fetch because the incremental fetch has a limited number of fields available, so they must be selected for that case",
+      "default": false
+    },
+    {
+      "name": "lead_outgoing_sync_title",
+      "title": "Outgoing User Synchronization Options (Hull to Marketo)",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "synchronized_user_segments",
+      "title": "User Filter",
+      "description": "Send *Users* as Leads to Marketo when belonging to one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "segment"
+    },
+    {
+      "name": "outgoing_user_attributes",
+      "title": "Outgoing User Fields to Sync (Hull to Marketo)",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "Marketo Lead Field",
+        "allowCreate": false,
+        "loadOptions": "/attributes-leads-outgoing"
+      }
+    },
+    {
+      "name": "flow_control_user_update_success_size",
+      "title": "Flow control setting for success on user update",
+      "type": "string",
+      "default": "100",
+      "format": "hidden"
+    }
+  ],
+  "settings": [],
+  "resources": [],
+  "readme": "readme.md",
+  "tabs": [
+    {
+      "title": "Actions",
+      "url": "/admin",
+      "size": "small",
+      "editable": false
+    }
+  ],
+  "admin": "/admin",
+  "ui": false,
+  "schedules": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "5"
+    },
+    {
+      "url": "/refreshCustomAttributes",
+      "type": "interval",
+      "value": "10"
+    },
+    {
+      "url": "/pollLeadExport",
+      "type": "interval",
+      "value": "5"
+    },
+    {
+      "url": "/fetchRecentLeadActivity",
+      "type": "interval",
+      "value": "5"
+    }
+  ],
+  "subscriptions": [{
+    "url": "/smart-notifier",
+    "conditions": {
+      "channels": {
+        "only": [
+          "user:update",
+          "account:update",
+          "ship:update"
+        ]
+      }
+    }
+  }]
+}
