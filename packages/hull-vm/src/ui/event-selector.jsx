@@ -20,7 +20,7 @@ const styles = {
   menu: s => ({ ...s, backgroundColor: "black" }),
   valueContainer: s => ({
     ...s,
-    padding: "6px 8px",
+    padding: "2px 8px",
     backgroundColor,
     cursor: "pointer"
   }),
@@ -87,14 +87,12 @@ const ValueContainer = ({ children, getValue, ...props }) => {
     !props.selectProps.inputValue &&
     (valueLength
       ? `${valueLength} Event${valueLength != 1 ? "s" : ""} selected`
-      : "Select events to simulate in preview");
+      : null);
 
   return (
     <components.ValueContainer {...props} getValue={getValue}>
       {text}
-      {React.Children.map(children, child => {
-        return child.type === components.Input ? child : null;
-      })}
+      {children}
     </components.ValueContainer>
   );
 };
@@ -120,6 +118,7 @@ const List = ({
     <Col xs={12}>
       <Select
         isMulti={true}
+        isSearchable={true}
         classNamePrefix="react-select"
         placeholder={"Pick Events to display in preview"}
         components={{
