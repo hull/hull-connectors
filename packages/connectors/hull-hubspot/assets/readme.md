@@ -141,6 +141,142 @@ Filter which Users & Accounts are synced to HubSpot with [User & Account Segment
 
 Map which User & Account attributes are synced to and from HubSpot with the field mappers in the Connector Settings.
 
+### Hull Data types
+
+Quoted from Hull's [documentation](https://www.hull.io/docs/data_lifecycle/ingest/):
+```text
+Supported Attribute values include:
+
+- Strings
+- Array of strings
+- Numeric
+- Booleans
+- Dates (ISO-8601 formatted strings or UNIX timestamps)
+- Nested JSON Object (experimental support, use carefully)
+```
+
+### Hubspot Data types
+
+- Strings
+- Numbers
+- Booleans
+- Date [📚](https://developers.hubspot.com/docs/faq/how-should-timestamps-be-formatted-for-hubspots-apis)
+  ```text
+    Date properties will only store the date, and must be set to midnight UTC for the date you want.
+    For example, May 1 2015 would be 1430438400000 (01 May 2015 00:00:00 UTC).
+  ```
+  Hull stores dates using hours, minutes, and seconds. The connector will convert a date to the appropriate format that
+  Hubspot expects by removing the hours, minutes, seconds of the related date. You will loose some precision,
+  **otherwise Hubspot won't accept** that date.
+
+ - Datetime [📚](https://developers.hubspot.com/docs/faq/how-should-timestamps-be-formatted-for-hubspots-apis)
+  ```text
+    Datetime properties can store any time, so any valid millisecond timestamp would be accepted.
+    In HubSpot, datetime properties are displayed based on the time zone of the user viewing the record,
+    so the value will be converted to the local time zone of the user.
+  ``` 
+  Here the Hubspot's `Datetime` format is exactly the same as Hull's `Date` format.
+
+- Enumeration (made of above types), mostly used as a *"choose your value(s)"* from a dropdown list.
+  In this data type, you can end up having an array of the selected type.
+  Such a thing is happening for the `Hull-segments` field that you can notice in any Hubspot contact imported from Hull.
+  
+*📚 Other links used for that documentation*
+  - [*Contact Properties Overview*](https://developers.hubspot.com/docs/methods/contacts/contact-properties-overview)
+  - [*Company Properties Overview*](https://developers.hubspot.com/docs/methods/companies/company-properties-overview)
+
+### Data mapping
+
+Here you will find what type conversions are supported in the table below.
+- ✅ : Works and is intuitive to convert 
+- ⚠️ : Can work but under certain condition(s)
+- ❌ : Cannot be converted or would not make sense to
+
+#### Outgoing - From Hull to Hubspot data types
+| Hull Type               | Hubspot String |  Hubspot Number  |         Hubspot Bool        |          Hubspot Date         | Hubspot Datetime | Hubspot Enumeration |
+|-------------------------|:--------------:|:----------------:|:---------------------------:|:-----------------------------:|:----------------:|:-------------------:|
+| String                  |        ✅       |        ✅       |            ⚠️¹             |               ❌               |        ❌       |          ❌         |
+| String_Array            |        ❌       |        ❌       |             ❌             |               ❌               |        ❌       |          ✅         |
+| Numeric                 |        ✅       |        ✅       |            ⚠️²             |               ❌               |        ❌       |          ❌         |
+| Boolean                 |        ✅       |        ✅       |             ✅             |               ❌               |        ❌       |          ❌         |
+| Date                    |        ✅       |        ✅       |             ❌             |              ⚠️³               |        ✅       |          ❌         |
+| JSON                    |        ❌       |        ❌       |             ❌             |               ❌               |        ❌       |          ❌         |
+
+  1. Hull String must be "True" or "False"
+  2. Hull Number must be 0 or 1
+  3. Hours:Minutes:Seconds will be removed
+
+#### Incoming - From Hubspot to Hull data types
+
+| Hubspot type | Hull String | Hull Array of strings | Hull Bool | Hull Date | Hull JSON |
+|--------------|:-----------:|:---------------------:|:---------:|:---------:|:---------:|
+| String       |      ✅     |           ❌          |    ⚠️¹   |     ✅    |     ❌    |
+| Number       |      ✅     |           ❌          |    ⚠️²   |     ❌    |     ❌    |
+| Bool         |      ✅     |           ❌          |    ✅    |     ❌    |     ❌    |
+| Date         |      ✅     |           ❌          |    ❌    |     ✅    |     ❌    |
+| Datetime     |      ✅     |           ❌          |    ❌    |    ️✅    |     ❌    |
+| Enumeration  |      ❌     |           ✅          |    ❌    |     ❌    |     ❌    |
+
+1. Hubspot String must be "True" or "False"
+2. Hubspot Number must be 0 or 1
+
+### Special cases
+
+#### Hubspot - Picklist
+##### How to use them
+A Hubspot "Picklist" is a Hubspot field with a customizable format. Most of the time, you will encounter them under
+the format of a dropdown field with a list of checkboxes. To reach that result, picklists have in their definitions
+the `Enumeration` Hubspot `"type"`, and the `Checkbox` Hubspot `"fieldType"` .
+More information can be found in Hubspot's API [📚](https://developers.hubspot.com/docs/methods/contacts/v2/create_contacts_property)
+
+Here is what would be the definition of an `Enumeration` using that dropdown of checkboxes:
+```json
+{
+    	"name": "hull_test_enum",
+    	"label": "Test Enumeration",
+    	"groupName": "hull",
+    	"type": "enumeration",
+    	"fieldType": "checkbox",
+    	"options": [
+        {
+          "label": 1,
+          "value": 1
+        },
+        {
+          "label": "Option 2",
+          "value": 2
+        },
+        {
+          "label": 333,
+          "value": "3"
+        },
+        {
+          "label": "Big Number",
+          "value": 1565354818310
+        }
+      ]
+    }
+```
+
+This enum results in the following Hubspot UI element:
+![Hubspot Enumeration example](./docs/Hubspot_Test_Enumeration.png)
+
+All the selected options in that field will be stored in the contact properties using the following format:
+```json
+{
+ "value": "1;3;1565354818310"
+}
+```
+Note here that the selected options are referred with the `"value"` fields defined above, not as their `"labels"`.
+
+##### Conversion
+The Hull - string array <=> Hubspot - Enum conversion works in both directions, by parsing each values separated
+by a `;` for incoming data.
+
+In the case of outgoing data, for each element in the Hull - string array, `"value"` and `"label"` fields  will share
+the same value when creating the definition of the Hubspot enumeration. You will not be able to customise the label if
+you export a Hull - string array to Hubspot.
+
 ### Data types supported
 
 | Data type                   | Hull               | HubSpot                                          |
