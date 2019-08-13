@@ -12,6 +12,7 @@ import getHullContext from "./sandbox/hull";
 import getRequest from "./sandbox/request";
 import getConsole from "./sandbox/console";
 import check from "./check";
+import scopedUserMethods from "./sandbox/user_methods";
 
 const LIBS = { _, moment, urijs, rp };
 export default async function compute(
@@ -43,6 +44,7 @@ export default async function compute(
   const frozen = {
     ...payload,
     ...LIBS,
+    ...scopedUserMethods(payload),
     hull,
     console: getConsole(result, preview),
     connector,

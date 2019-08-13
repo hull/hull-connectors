@@ -43,7 +43,7 @@ const mapTraits = method =>
   );
 
 const renderStringOrObject = (i: string | {} | Array<any>) =>
-  _.isString(i) ? i : nice(i);
+  _.isArray(i) ? i.join(", ") : _.isString(i) ? i : nice(i);
 
 const renderLogs = fp.flow(
   fp.map(renderStringOrObject),
