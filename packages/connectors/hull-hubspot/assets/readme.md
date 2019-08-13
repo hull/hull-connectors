@@ -16,7 +16,7 @@ To install the HubSpot integration, you must have a HubSpot admin permissions to
 2. Choose **Add a Connector**
 3. Click on **HubSpot**
 4. Confirm by clicking **Install**
-5. Within the Connector, click on **Credentials & Actions**. You will need to login with your HubSpot credentials to connect your HubSpot instance.
+5. Within the Connector, click on the **Settings** tab. You will need to login with your HubSpot credentials to connect your HubSpot instance.
 
 ![OAuth flow first step](./docs/oauth-flow-1.png)
 
