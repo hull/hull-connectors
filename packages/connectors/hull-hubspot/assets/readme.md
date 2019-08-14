@@ -135,7 +135,7 @@ Hull will link Contacts & Companies in HubSpot if:
 - Hull User is associated with a Hull Account
 - Hull Account is already synchronized with a HubSpot Company
 
-## Data Mapping
+## Data types mapping
 
 Filter which Users & Accounts are synced to HubSpot with [User & Account Segments](https://www.hull.io/docs/concepts/segments/) in the Connector Settings.
 
@@ -160,16 +160,19 @@ Supported Attribute values include:
 - Strings
 - Numbers
 - Booleans
-- Date [📚](https://developers.hubspot.com/docs/faq/how-should-timestamps-be-formatted-for-hubspots-apis)
+- Dates -> [Hubspot documentation](https://developers.hubspot.com/docs/faq/how-should-timestamps-be-formatted-for-hubspots-apis)
   ```text
     Date properties will only store the date, and must be set to midnight UTC for the date you want.
     For example, May 1 2015 would be 1430438400000 (01 May 2015 00:00:00 UTC).
   ```
   Hull stores dates using hours, minutes, and seconds. The connector will convert a date to the appropriate format that
-  Hubspot expects by removing the hours, minutes, seconds of the related date. You will loose some precision,
-  **otherwise Hubspot won't accept** that date.
+  Hubspot expects by removing the hours, minutes, seconds of the related date. As a result, if you send a Hull Date such
+  as 15 June 2019 10:05:22 UTC, a Hubspot Date field will receive it as 15 June 2019 00:00:00 UTC.
+  This limitation comes from Hubspot itself, since you only use the day, month and year when you pick a date on the Dashboard.
+  See the example below.
+  ![Hubspot Date picker](./docs/Hubspot_Date_Picker.png)
 
- - Datetime [📚](https://developers.hubspot.com/docs/faq/how-should-timestamps-be-formatted-for-hubspots-apis)
+ - Datetimes -> [Hubspot documentation](https://developers.hubspot.com/docs/faq/how-should-timestamps-be-formatted-for-hubspots-apis)
   ```text
     Datetime properties can store any time, so any valid millisecond timestamp would be accepted.
     In HubSpot, datetime properties are displayed based on the time zone of the user viewing the record,
@@ -179,7 +182,7 @@ Supported Attribute values include:
 
 - Enumeration (made of above types), mostly used as a *"choose your value(s)"* from a dropdown list.
   In this data type, you can end up having an array of the selected type.
-  Such a thing is happening for the `Hull-segments` field that you can notice in any Hubspot contact imported from Hull.
+  Such a thing is happening for the `Hull segments` field that you can notice in any Hubspot contact imported from Hull.
   
 *📚 Other links used for that documentation*
   - [*Contact Properties Overview*](https://developers.hubspot.com/docs/methods/contacts/contact-properties-overview)
@@ -226,8 +229,8 @@ Here you will find what type conversions are supported in the table below.
 ##### How to use them
 A Hubspot "Picklist" is a Hubspot field with a customizable format. Most of the time, you will encounter them under
 the format of a dropdown field with a list of checkboxes. To reach that result, picklists have in their definitions
-the `Enumeration` Hubspot `"type"`, and the `Checkbox` Hubspot `"fieldType"` .
-More information can be found in Hubspot's API [📚](https://developers.hubspot.com/docs/methods/contacts/v2/create_contacts_property)
+the `enumeration` Hubspot `"type"`, and the `checkbox` Hubspot `"fieldType"` .
+More information can be found in Hubspot's API [documentation](https://developers.hubspot.com/docs/methods/contacts/v2/create_contacts_property)
 
 Here is what would be the definition of an `Enumeration` using that dropdown of checkboxes:
 ```json
@@ -257,6 +260,8 @@ Here is what would be the definition of an `Enumeration` using that dropdown of 
       ]
     }
 ```
+You can customize the name of each element in the `"options"` by changing the `"label"`, however the `"value"` holds the
+true content for each option.
 
 This enum results in the following Hubspot UI element:
 ![Hubspot Enumeration example](./docs/Hubspot_Test_Enumeration.png)
@@ -267,7 +272,7 @@ All the selected options in that field will be stored in the contact properties 
  "value": "1;3;1565354818310"
 }
 ```
-Note here that the selected options are referred with the `"value"` fields defined above, not as their `"labels"`.
+Again, note here that the selected options are referred with the `"value"` fields defined above, not as their `"label"`.
 
 ##### Conversion
 The Hull - string array <=> Hubspot - Enum conversion works in both directions, by parsing each values separated
