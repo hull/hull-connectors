@@ -211,14 +211,14 @@ Here you will find what type conversions are supported in the table below.
 
 #### Incoming - From Hubspot to Hull data types
 
-| Hubspot type | Hull String | Hull Array of strings | Hull Bool | Hull Date | Hull JSON |
-|--------------|:-----------:|:---------------------:|:---------:|:---------:|:---------:|
-| String       |      ✅     |           ❌          |    ⚠️¹   |     ✅    |     ❌    |
-| Number       |      ✅     |           ❌          |    ⚠️²   |     ❌    |     ❌    |
-| Bool         |      ✅     |           ❌          |    ✅    |     ❌    |     ❌    |
-| Date         |      ✅     |           ❌          |    ❌    |     ✅    |     ❌    |
-| Datetime     |      ✅     |           ❌          |    ❌    |    ️✅    |     ❌    |
-| Enumeration  |      ❌     |           ✅          |    ❌    |     ❌    |     ❌    |
+| Hubspot type | Hull String | Hull Array of strings | Hull Boolean | Hull Date | Hull JSON |
+|--------------|:-----------:|:---------------------:|:------------:|:---------:|:---------:|
+| String       |      ✅     |           ❌          |     ⚠️¹     |     ✅    |     ❌    |
+| Number       |      ✅     |           ❌          |     ⚠️²     |     ❌    |     ❌    |
+| Bool         |      ✅     |           ❌          |     ✅      |     ❌    |     ❌    |
+| Date         |      ✅     |           ❌          |     ❌      |     ✅    |     ❌    |
+| Datetime     |      ✅     |           ❌          |     ❌      |    ️✅    |     ❌    |
+| Enumeration  |      ❌     |           ✅          |     ❌      |     ❌    |     ❌    |
 
 1. Hubspot String must be "True" or "False"
 2. Hubspot Number must be 0 or 1
@@ -314,7 +314,7 @@ You can sync Hull [User & Account Segments](https://www.hull.io/docs/concepts/se
 
 ### Default Contact Mappings
 
-| Name                                          | Hull                                       | Type    | Title                                   | Read Only |
+| Hubspot                                         | Hull                                       | Type    | Title                                   | Read Only |
 | :---                                          | :---:                                      | :---:   | :---:                                   | ---:      |
 | email                                         | email                                      | string  | Email                                   | false     |  
 | salutation                                    | hubspot/salutation                         | string  | Salutation                              | false     |  
