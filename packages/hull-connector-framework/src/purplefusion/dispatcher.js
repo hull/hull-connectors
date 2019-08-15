@@ -116,7 +116,8 @@ class HullDispatcher {
     }
   }
 
-  async dispatchWithData(context: Object, route: string, type: any, data: any) {
+  async dispatchWithData(context: Object, route: string, type?: ServiceObjectDefinition, data?: any) {
+
     return await this.dispatch(context, route, new ServiceData(type, data));
   }
 
@@ -291,65 +292,65 @@ class HullDispatcher {
       if (instructionName === 'if') {
 
         // if this instructions doesn't have any params, it's just a "do"
-          let executeDo = true;
+        let executeDo = true;
 
-          const isTrue = (value) => {
-            // undefined and null should both return false
-            if (isUndefinedOrNull(value)) {
-              return false;
-            }
-            return value;
-          };
+        const isTrue = (value) => {
+          // undefined and null should both return false
+          if (isUndefinedOrNull(value)) {
+            return false;
+          }
+          return value;
+        };
 
-          //TODO can't do this if it's already been resolved....
-          // but maybe can solve like cache?  build a set of instructions?
+        // TODO can't do this if it's already been resolved....
+        // but maybe can solve like cache?  build a set of instructions?
         // Can't do a "stop" after evaluation if it's already been evaluated...
-          if (Array.isArray(instructionOptions.if)) {
-            for (let i = 0; i < instructionOptions.if.length; i++) {
-              const result = await this.resolve(context, instructionOptions.if[i], serviceData);
-              if (!isTrue(result)) {
-                executeDo = false;
-                break;
-              }
-            }
-          } else {
-            const result = await this.resolve(context, instructionOptions.if, serviceData);
-            executeDo = isTrue(result);
-          }
-
-          if (executeDo) {
-            debug(`[EXECUTING]: Resolved -> if(true)`);
-            return await this.resolve(context, instructionOptions.do, serviceData);
-          } else {
-            debug(`[EXECUTING]: Resolved -> if(false)`);
-          }
-
-          let elif = instructionOptions.elif;
-
-          if (elif) {
-
-            if (!Array.isArray(instructionOptions.elif)) {
-              elif = [instruction.elif];
-            }
-
-            for (let i = 0; i < elif.length; i++) {
-              const elifResult = await this.resolve(context, elif[i], serviceData);
-
-              // if we get stop, that means that there was an "if" condition
-              // and it did not validate, which meant we return stop
-              if (elifResult.status !== "stop") {
-                return {};
-              }
+        if (Array.isArray(instructionOptions.if)) {
+          for (let i = 0; i < instructionOptions.if.length; i++) {
+            const result = await this.resolve(context, instructionOptions.if[i], serviceData);
+            if (!isTrue(result)) {
+              executeDo = false;
+              break;
             }
           }
+        } else {
+          const result = await this.resolve(context, instructionOptions.if, serviceData);
+          executeDo = isTrue(result);
+        }
 
-          // have to check if undefined because could be wanting to return false to top
-          // if(instructionOptions.eldo) would not execute if eldo=false
-          if (instructionOptions.eldo !== undefined) {
-            return await this.resolve(context, instructionOptions.eldo, serviceData);
+        if (executeDo) {
+          debug(`[EXECUTING]: Resolved -> if(true)`);
+          return await this.resolve(context, instructionOptions.do, serviceData);
+        } else {
+          debug(`[EXECUTING]: Resolved -> if(false)`);
+        }
+
+        let elif = instructionOptions.elif;
+
+        if (elif) {
+
+          if (!Array.isArray(instructionOptions.elif)) {
+            elif = [instruction.elif];
           }
 
-          return { status: "stop" };
+          for (let i = 0; i < elif.length; i++) {
+            const elifResult = await this.resolve(context, elif[i], serviceData);
+
+            // if we get stop, that means that there was an "if" condition
+            // and it did not validate, which meant we return stop
+            if (elifResult.status !== "stop") {
+              return {};
+            }
+          }
+        }
+
+        // have to check if undefined because could be wanting to return false to top
+        // if(instructionOptions.eldo) would not execute if eldo=false
+        if (instructionOptions.eldo !== undefined) {
+          return await this.resolve(context, instructionOptions.eldo, serviceData);
+        }
+
+        return { status: "stop" };
 
       } else if (instructionName === "filter") {
 
@@ -394,6 +395,26 @@ class HullDispatcher {
           loopKeys = Object.keys(resolvedParams);
           setKey = await this.resolve(context, instructionOptions.key, serviceData);
           setValue  = await this.resolve(context, instructionOptions.value, serviceData);
+        }
+
+        // this means that we're iterating over a known array
+        // and we've chosen to do it in an async way
+        // will not respect loop ends...
+        if (loopKeys && instructionOptions.async === true) {
+
+          return Promise.all(_.map(loopKeys, key => {
+            const shallowContextClone = context.shallowCloneContext();
+            shallowContextClone.pushNew();
+            //if the var name is an array, we assume we are trying to designate the value and key
+            if (setValue) {
+              shallowContextClone.set(setValue, resolvedParams[key]);
+            }
+
+            if (setKey) {
+              shallowContextClone.set(setKey, resolvedParams[key]);
+            }
+            return this.resolve(shallowContextClone, instructionOptions.instructions, serviceData);
+          }));
         }
 
         let finalInstruction;

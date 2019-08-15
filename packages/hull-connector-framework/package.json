@@ -12,7 +12,6 @@
     "jsonata": "^1.6.4",
     "through2-map": "^3.0.0",
     "promise-streams": "^1.0.1",
-    "dev-null": "^0.1.1",
-    "hull": "link:../hull"
+    "dev-null": "^0.1.1"
   }
 }

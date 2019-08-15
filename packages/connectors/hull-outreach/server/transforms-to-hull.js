@@ -6,13 +6,13 @@ const { doesNotContain, isEqual, doesContain, isNotEqual } = require("hull-conne
 
 const {
   HullIncomingUser,
-  HullIncomingAccount
+  HullIncomingAccount,
+  WebPayload,
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const {
   OutreachProspectRead,
   OutreachAccountRead,
-  WebhookPayload,
 } = require("./service-objects");
 
 /**
@@ -73,7 +73,7 @@ const transformsToHull: ServiceTransforms =
       ]
     },
     {
-      input: WebhookPayload,
+      input: WebPayload,
       output: HullIncomingUser,
       strategy: "PropertyKeyedValue",
       arrayStrategy: "append_index",
@@ -158,7 +158,7 @@ const transformsToHull: ServiceTransforms =
       ]
     },
     {
-      input: WebhookPayload,
+      input: WebPayload,
       output: HullIncomingAccount,
       strategy: "PropertyKeyedValue",
       arrayStrategy: "append_index",

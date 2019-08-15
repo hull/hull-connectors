@@ -11,7 +11,7 @@ const {
   superagentInstrumentationPlugin
 } = require("hull/src/utils");
 
-const hubspotoauth = {
+const hubspotOAuth = {
     isSetup(req) {
       const { client, connector } = req.hull;
       if (req.query.reset) return Promise.reject(new Error("Requested reset"));
@@ -77,5 +77,5 @@ const hubspotoauth = {
 };
 
 module.exports = {
-  hubspotoauth
+  hubspotOAuth
 };

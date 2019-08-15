@@ -29,6 +29,11 @@ import type { ServiceObjectDefinition } from "./types";
 //   external_ids: Array<String>;
 // }
 
+const WebPayload: ServiceObjectDefinition = {
+  name: "incoming_webpayload",
+  service_name: "WebPayload"
+};
+
 const HullUserRaw: ServiceObjectDefinition = {
   name: "HullUserRaw",
   service_name: "User"
@@ -93,6 +98,7 @@ const HullIncomingUserImportApi: ServiceObjectDefinition = {
 
 
 module.exports = {
+  WebPayload,
   HullIncomingUser,
   HullIncomingAccount,
   HullOutgoingUser,

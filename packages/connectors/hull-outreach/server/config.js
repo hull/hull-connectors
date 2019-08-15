@@ -2,7 +2,9 @@
 
 import type { HullConnectorConfig } from "hull";
 import manifest from "../manifest.json";
-import handlers from "./handlers";
+
+const _ = require("lodash");
+const HullRouter = require("hull-connector-framework/src/purplefusion/router");
 
 export default function connectorConfig(): HullConnectorConfig {
     const {
@@ -23,7 +25,17 @@ export default function connectorConfig(): HullConnectorConfig {
 
   return {
     manifest,
-    handlers: handlers({
+    handlers: new HullRouter({
+      glue: require("./glue"),
+      services: {
+        outreach: require("./service")
+      },
+      transforms: _.concat(
+        require("./transforms-to-hull").
+        require("./transforms-to-service")
+      ),
+      ensureHook: "ensureWebhooks"
+    }).createHandlerFactory({
       clientID: CLIENT_ID,
       clientSecret: CLIENT_SECRET
     }),

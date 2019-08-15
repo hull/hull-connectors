@@ -23,14 +23,7 @@ const OutreachAccountWrite: ServiceObjectDefinition = {
   service_name: "Prospect"
 };
 
-const WebhookPayload: ServiceObjectDefinition = {
-  name: "outreach_incoming_webhook",
-  service_name: "Webhook"
-};
-
-
 module.exports = {
-  WebhookPayload,
   OutreachProspectRead,
   OutreachProspectWrite,
   OutreachAccountWrite,

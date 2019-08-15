@@ -74,15 +74,22 @@ const refreshTokenDataTemplate = {
 // glue is a list of routes....
 // a route has a name, and a parameter to be evaluated....
 // a route is a named instruction....
-// everything else doesn't have a name....
+// everything else doesn't have a name....\
+
 
 const glue = {
   status: {},
   fieldsOutreachProspectOut: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, require("./prospect-fielddefs"))),
   fieldsOutreachProspectIn: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, require("./prospect-fielddefs"))),
   fieldsOutreachAccountOut: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, require("./account-fielddefs"))),
-  fieldsOutreachAccountIn: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, require("./prospect-fielddefs"))),
+  fieldsOutreachAccountIn: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, require("./account-fielddefs"))),
+
   shipUpdateStart: {},
+
+  userUpdate: iterateL(input(), { value: "message", async: true },
+    route("userUpdateStart", cast(HullOutgoingUser, "${message}"))
+  ),
+
   userUpdateStart:
     ifL(cond("notEmpty", set("userId", input("user.outreach/id"))), {
       do: [
@@ -157,6 +164,9 @@ const glue = {
     )
   ],
 
+  accountUpdate: iterateL(input(), { value: "message", async: true },
+    route("accountUpdateStart", cast(HullOutgoingAccount, "${message}"))
+  ),
   accountUpdateStart:
     ifL(cond("notEmpty", set("accountId", input("account.outreach/id"))), {
       do: route("updateAccount"),

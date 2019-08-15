@@ -356,10 +356,14 @@ function loopL(instructions: any): LoopLogic {
  * in order for calling the instruction to make more sense....
  * @param arrayParam the array to iterate over. In this case this array Param is evaluated first
  * @param varname variable name to set for each object of the array as it evaluates the instructions
+ * key will set the name of the variable that will hold the key name if we're iterating over an object, or index if array
+ * value will set the name of the variable that will hold the value that we're currently iterating on
+ * async is a special value which will resolve the array all at the same time in an async way.  Will not respect loopEnds...
+ * this also means that any variables declared inside of the async context will not bubble out, but and variables before will hold their previous values even if set again in the async context
  * @param instructions the instructions to evaluate for each of the objects in the array
  * @returns {LoopLogic}
  */
-function iterateL(arrayParam: any, varname: string | { key: string, value: string }, instructions: any): LoopLogic {
+function iterateL(arrayParam: any, varname: string | { key: string, value: string, async: boolean }, instructions: any): LoopLogic {
 
   let variables;
   if (typeof varname === "string") {

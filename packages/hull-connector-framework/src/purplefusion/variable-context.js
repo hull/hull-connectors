@@ -61,6 +61,14 @@ class HullVariableContext {
     return _.cloneDeep(this.localContext);
   }
 
+  shallowCloneContext() {
+    const shallowClone = new HullVariableContext(this.hullContext);
+    this.localContext.map(context => {
+      shallowClone.pushNew(context);
+    });
+    return shallowClone;
+  }
+
   resolveVariables(key: string, localContext?: Object) {
     if (localContext) {
       this.pushNew(localContext);

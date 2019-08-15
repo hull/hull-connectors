@@ -63,6 +63,9 @@ class PurpleFusionTestHarness {
     this.services = services;
     this.transforms = transforms;
     this.ensureHook = ensureHook;
+
+    // TODO In constructor, validate the glue commands against services etc...
+    // should fail circle ci if have bad calls to service....
   }
 
   runTest(requestTrace) {
