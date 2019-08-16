@@ -36,6 +36,7 @@ const {
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const _ = require("lodash");
+const { accountFields, prospectFields } = require("./fielddefs");
 
 // function outreach(op: string, query: any): Svc { return new Svc("outreach", op, query, null)};
 // function outreach(op: string, data: any): Svc { return new Svc("outreach", op, null, data)};
@@ -76,13 +77,34 @@ const refreshTokenDataTemplate = {
 // a route is a named instruction....
 // everything else doesn't have a name....\
 
-
 const glue = {
-  status: {},
-  fieldsOutreachProspectOut: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, require("./prospect-fielddefs"))),
-  fieldsOutreachProspectIn: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, require("./prospect-fielddefs"))),
-  fieldsOutreachAccountOut: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, require("./account-fielddefs"))),
-  fieldsOutreachAccountIn: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, require("./account-fielddefs"))),
+  status: ifL(cond("isEmpty", settings("access_token")),
+    {
+      do: {
+        status: "setupRequired",
+        message: "'Connector has not been authenticated. Please make sure to allow Hull to access your Outreach data by going to the \"Settings\" tab and clicking \"Login to your Outreach account\" in the \"Connect to Outreach\" section'"
+      },
+      eldo: [
+        ifL([
+          cond("isEmpty", settings("synchronized_account_segments")),
+          cond("isEmpty", settings("synchronized_user_segments"))
+        ], {
+          status: "ok",
+          message: "No data will be sent from Hull to Outreach.io because there are no whitelisted segments configured.  Please visit the connector settings page and add segments to be sent to Outreach.io."
+        })
+      ]
+    }),
+  adminHandler: {
+    status: 200,
+    pageLocation: "home.html",
+    data: {
+      name: "Outreach.io"
+    }
+  },
+  fieldsOutreachProspectOut: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, prospectFields)),
+  fieldsOutreachProspectIn: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, prospectFields)),
+  fieldsOutreachAccountOut: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, accountFields)),
+  fieldsOutreachAccountIn: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, accountFields)),
 
   shipUpdateStart: {},
 
@@ -248,7 +270,7 @@ const glue = {
         ])
     }),
 
-  ensureWebhooks:
+  ensureWebhooks: ifL(settings("access_token"),
     ifL(cond("isEmpty", "${connector.private_settings.webhook_id}"), [
 
       set("webhookUrl", utils("createWebhookUrl")),
@@ -260,7 +282,8 @@ const glue = {
       }),
       hull("settingsUpdate", { webhook_id:  "${webhookId}" }),
       route("deleteBadWebhooks")
-    ]),
+    ])
+  ),
   deleteBadWebhooks: [
     set("connectorOrganization", utils("getConnectorOrganization")),
 

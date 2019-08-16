@@ -1,13 +1,4 @@
 /* @flow */
-import type {
-  HullContext,
-  HullAccountUpdateMessage,
-  HullUserUpdateMessage,
-  HullUserClaims,
-  HullAccountClaims
-} from "hull";
-
-import type { HullRequest } from "hull";
 
 import type {
   ServiceTransforms
@@ -20,13 +11,6 @@ const {
 } = require("./types");
 
 const {
-  HullOutgoingUser,
-  HullOutgoingAccount,
-  HullIncomingUser,
-  HullIncomingAccount
-} = require("./hull-service-objects");
-
-const {
   TransientError
 } = require("hull/src/errors");
 
@@ -36,11 +20,9 @@ const moment = require("moment");
 const { TransformImpl } = require("./transform-impl");
 
 const { HullInstruction, Route } = require("./language");
-
-const { doVariableReplacement, doStringVariableReplacement } = require("./variable-utils");
 const HullVariableContext = require("./variable-context");
 const { FrameworkUtils } = require("./framework-utils");
-const { isUndefinedOrNull, ServiceData, createAnonymizedObject } = require("./utils");
+const { isUndefinedOrNull, getHullDataType, setHullDataType, createAnonymizedObject } = require("./utils");
 
 const { ServiceEngine } = require("./service-engine");
 
@@ -72,7 +54,7 @@ class HullDispatcher {
     this.services.close();
   }
 
-  async dispatch(context: Object, route: string, data?: ServiceData) {
+  async dispatch(context: Object, route: string, data?: any) {
 
     if (process.env.STORE_REQUEST_TRACE) {
       const { organization, id, secret } = context.client.configuration();
@@ -92,10 +74,6 @@ class HullDispatcher {
     try {
 
       const result = await this.handleRequest(new HullVariableContext(context), route, data);
-
-      if (result instanceof ServiceData) {
-        return result.data;
-      }
 
       if (process.env.STORE_REQUEST_TRACE) {
         context.request_trace.result = result;
@@ -118,10 +96,14 @@ class HullDispatcher {
 
   async dispatchWithData(context: Object, route: string, type?: ServiceObjectDefinition, data?: any) {
 
-    return await this.dispatch(context, route, new ServiceData(type, data));
+    if (!isUndefinedOrNull(data) && !isUndefinedOrNull(type)) {
+      setHullDataType(data, type);
+    }
+
+    return await this.dispatch(context, route, data);
   }
 
-  async handleRequest(context: HullVariableContext, route: string, data?: ServiceData) {
+  async handleRequest(context: HullVariableContext, route: string, data?: any) {
 
     // TODO probably should use message or ServiceData local context
     // so we don't have to do this weird assign at the top to create message
@@ -145,7 +127,7 @@ class HullDispatcher {
 
   }
 
-  async resolve(context: HullVariableContext, instruction: Object, serviceData?: ServiceData): any {
+  async resolve(context: HullVariableContext, instruction: Object, serviceData?: any): any {
 
     if (instruction === undefined || instruction === null) {
       return instruction;
@@ -251,7 +233,7 @@ class HullDispatcher {
 
       //
       if (typeof instruction === 'string') {
-        return doStringVariableReplacement(context, instruction);
+        return context.resolveVariables(instruction);
       } else if (!_.isPlainObject(instruction)) {
         return instruction;
       }
@@ -263,7 +245,7 @@ class HullDispatcher {
         const key = keys[i];
         let resolvedKey = key;
         if (typeof key === 'string') {
-          resolvedKey = doStringVariableReplacement(context, key);
+          resolvedKey = context.resolveVariables(key);
         }
 
         returnObj[resolvedKey] = await this.resolve(context, instruction[keys[i]], serviceData);
@@ -281,7 +263,7 @@ class HullDispatcher {
    * There's an abtraction between serviceData (outgoing) and resolveParams(incoming) that needs to be clarified
    * It also provides a decent starting concept for joining data back together when doing things like batch operations...
    */
-  async interpretInstruction(context: HullVariableContext, instruction: Object, resolvedParams: any, serviceData: null | ServiceData) {
+  async interpretInstruction(context: HullVariableContext, instruction: Object, resolvedParams: any, serviceData?: any) {
 
     const type = _.get(instruction, "type");
     const instructionOptions = instruction.options;
@@ -354,16 +336,12 @@ class HullDispatcher {
 
       } else if (instructionName === "filter") {
 
+        const dataType = getHullDataType(resolvedParams);
         let arrayToTraverse = resolvedParams;
-        if (resolvedParams instanceof ServiceData) {
-          arrayToTraverse = resolvedParams.data;
-        }
-
         const results = [];
 
         for (let i = 0; i < arrayToTraverse.length; i += 1) {
           const param = arrayToTraverse[i];
-          // _.set(context, instructionOptions.key, param);
           context.set(instructionOptions.key, param);
           const result = await this.resolve(context, instructionOptions.condition, serviceData);
           if (result) {
@@ -371,8 +349,8 @@ class HullDispatcher {
           }
         }
 
-        if (resolvedParams instanceof ServiceData) {
-          return new ServiceData(resolvedParams.classType, results);
+        if (dataType) {
+          setHullDataType(results, dataType);
         }
 
         return results;
@@ -474,7 +452,7 @@ class HullDispatcher {
       } else if (instructionName === 'end') {
         return instruction;
       } else if (instructionName === 'lock') {
-        const lockname = doVariableReplacement(context, instructionOptions.lockname);
+        const lockname = context.resolveVariables(instructionOptions.lockname);
         if (globalLocks[lockname]) {
 
           // TODO not sure what to throw here... it's sort of a special type of locking behavior
@@ -491,14 +469,6 @@ class HullDispatcher {
             globalLocks[lockname] = false;
           }
         }
-      } else if (instructionName === 'function') {
-
-        let obj = resolvedParams;
-        if (resolvedParams instanceof ServiceData) {
-          obj = obj.data;
-        }
-        return instructionOptions.toExecute(obj);
-
       } else {
         throw new Error(`Unsupported Logic: ${instructionName}`);
       }
@@ -517,28 +487,23 @@ class HullDispatcher {
       if (instructionOptions.name === "set") {
         // todo using the value is wrong because it's not dynamically evaluated
         // but try for now to get full fetch to run
-        await cache.set(cacheKey, resolvedParams, cacheOptions);
+        // not sure what above comment means, clarify if you remember at some point
+
+        // always store with data type if it exists, then can hydrate it when coming back out
+        const valueToCache = { cacheValue: resolvedParams, dataType: getHullDataType(resolvedParams) };
+        await cache.set(cacheKey, valueToCache, cacheOptions);
         return resolvedParams;
       } else if (instructionOptions.name === "get") {
-
-
 
         const result = await cache.get(cacheKey);
 
         if (isUndefinedOrNull(result))
           return result;
 
-        // if stored in a cache, a service data object can lose visibility on it's class type
-        // can't do a valid instanceof anymore, which in our current state we rely on to detect "ServiceData"
-        // to do the right stuff with transforms etc...
-        // so let's do a simple detection right now until we can get smarter
-        if (_.isPlainObject(result) && result.classType && result.data) {
-          if (typeof result.classType.name === "string" && typeof result.classType.service_name === "string") {
-            return new ServiceData(result.classType, result.data);
-          }
-        }
-
-        return result;
+        // set with the "dataType" if it exists
+        const cacheValue = result.cacheValue;
+        setHullDataType(cacheValue, result.dataType);
+        return cacheValue;
 
       } else if (instructionOptions.name === "lock") {
 
@@ -592,7 +557,7 @@ class HullDispatcher {
 
       if (instructionName === 'input') {
         if (!isUndefinedOrNull(serviceData) && !isUndefinedOrNull(instructionOptions.path)) {
-          const path = doVariableReplacement(context, instructionOptions.path);
+          const path = context.resolveVariables(instructionOptions.path);
           return _.get(serviceData.data, path);
         }
         return serviceData;
@@ -624,27 +589,17 @@ class HullDispatcher {
       // This first block is for special operations that have potentially a variable number of arguments
       if (Array.isArray(resolvedParams)) {
 
-        // some operations would rather look at the data
-        // I don't get it, it's just their preference
-        let input = resolvedParams.map(resolvedParam => {
-          if (resolvedParam instanceof ServiceData) {
-            return resolvedParam.data
-          } else {
-            return resolvedParam;
-          }
-        });
-
         if (opInstruction.name === 'isEqual') {
-          return _.isEqual(...input);
+          return _.isEqual(...resolvedParams);
         } else if (opInstruction.name === "lodash") {
           return _[resolvedParams[0]](..._.slice(resolvedParams, 1));
         } else if (opInstruction.name === "moment") {
           return moment(...resolvedParams);
         } else if (opInstruction.name === "lessThan") {
-          return input[0] < input[1];
+          return resolvedParams[0] < resolvedParams[1];
         } else if (opInstruction.name === 'ex') {
 
-          return input[0][input[1]](..._.slice(input, 2));
+          return resolvedParams[0][resolvedParams[1]](..._.slice(resolvedParams, 2));
 
           // TODO Not sure this is the right behavior
           // May make sense for instructions like this:
@@ -662,15 +617,7 @@ class HullDispatcher {
 
       }
 
-      let obj;
-      let objType;
-
-      if (resolvedParams instanceof ServiceData) {
-        obj = resolvedParams.data;
-        objType = resolvedParams.classType;
-      } else {
-        obj = resolvedParams;
-      }
+      let obj = resolvedParams;
 
       if (opInstruction.name === "get") {
 
@@ -708,7 +655,7 @@ class HullDispatcher {
         return resolvedParams;
       } else if (opInstruction.name === 'cast') {
 
-        return new ServiceData(opInstruction.type, obj);
+        setHullDataType(obj, opInstruction.type);
 
       } else if (opInstruction.name === "transformTo") {
 
@@ -728,9 +675,7 @@ class HullDispatcher {
         //   result = this.transforms.transform(context, obj, objType, opInstruction.resultType);
         // }
 
-        const result = this.transforms.transform(context, obj, objType, opInstruction.resultType);
-
-        return new ServiceData(opInstruction.resultType, result);
+        return this.transforms.transform(context, obj, opInstruction.resultType);
 
       } else if (opInstruction.name === "jsonata") {
 

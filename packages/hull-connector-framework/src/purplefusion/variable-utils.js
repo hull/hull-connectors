@@ -116,6 +116,7 @@ function doVariableReplacement(context: HullVariableContext, value: any): any {
   // underlying logic will do this too
   // but if we know we have a string upfront, we can avoid a more costly hasVariables traversal
   // which we call so that if there's no variables, we don't have to create a new obj
+  // but hasVariables for string is a quick lookup, doesn't seem costly to me...
   if (typeof value === 'string') {
     return doStringVariableReplacement(context, value);
   } else if (hasVariables(value)) {

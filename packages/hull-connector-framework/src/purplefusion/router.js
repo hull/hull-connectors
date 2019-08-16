@@ -19,7 +19,7 @@ const { HullDispatcher } = require("./dispatcher");
 const { hullService } = require("./hull-service");
 
 const { toSendMessage } = require("./utils");
-const { statusCallback, statusErrorCallback, resolveServiceDefinition } = require("./service-utils");
+const { statusCallback, statusErrorCallback, resolveServiceDefinition } = require("./router-utils");
 const { createAuthHandler } = require("./auth/auth-utils");
 
 class HullRouter {
@@ -29,11 +29,11 @@ class HullRouter {
   transforms: Array<any>;
   ensureHook: string;
 
-  constructor({ glue, serviceDefinitions, transforms, ensureHook }: any) {
+  constructor({ glue, services, transforms, ensureHook }: any) {
     this.glue = glue;
 
     // don't assign hull service if it already exists...
-    this.serviceDefinitions = serviceDefinitions.hull ? serviceDefinitions : _.assign({ hull: hullService }, serviceDefinitions);
+    this.serviceDefinitions = services.hull ? services : _.assign({ hull: hullService }, services);
     this.transforms = transforms;
     this.ensureHook = ensureHook;
 
@@ -75,6 +75,10 @@ class HullRouter {
     });
 
     _.forEach(_.get(manifest, "json", []), endpoint => {
+      handlers[channel.handler] = this.createIncomingDispatchCallback(endpoint);
+    });
+
+    _.forEach(_.get(manifest, "incoming", []), endpoint => {
       handlers[channel.handler] = this.createIncomingDispatchCallback(endpoint);
     });
 
@@ -181,6 +185,4 @@ class HullRouter {
 
 }
 
-module.exports = {
-  HullRouter
-};
+module.exports = HullRouter;

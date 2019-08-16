@@ -31,7 +31,7 @@ export default function connectorConfig(): HullConnectorConfig {
         outreach: require("./service")
       },
       transforms: _.concat(
-        require("./transforms-to-hull").
+        require("./transforms-to-hull"),
         require("./transforms-to-service")
       ),
       ensureHook: "ensureWebhooks"

@@ -1,6 +1,8 @@
 /* flow... */
 
-const { isUndefinedOrNull } = require("./utils");
+const _ = require("lodash");
+
+const { isUndefinedOrNull } = require("../utils");
 
 const { oAuthHandler } = require("hull/src/handlers");
 const {  } = require("./hubspot-oauth");

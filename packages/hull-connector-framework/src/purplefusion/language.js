@@ -363,7 +363,7 @@ function loopL(instructions: any): LoopLogic {
  * @param instructions the instructions to evaluate for each of the objects in the array
  * @returns {LoopLogic}
  */
-function iterateL(arrayParam: any, varname: string | { key: string, value: string, async: boolean }, instructions: any): LoopLogic {
+function iterateL(arrayParam: any, varname: string | { key: string, value?: string, async?: boolean }, instructions: any): LoopLogic {
 
   let variables;
   if (typeof varname === "string") {

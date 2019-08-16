@@ -2,7 +2,6 @@
 const _ = require("lodash");
 const momentConstructor = require("moment");
 
-const { doVariableReplacement } = require("./variable-utils");
 const uri = require("urijs");
 
 class FrameworkUtils {

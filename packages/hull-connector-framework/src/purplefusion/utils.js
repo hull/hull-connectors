@@ -1,25 +1,15 @@
 /* @flow */
-import type {
-  HullContext,
-  HullAccountUpdateMessage,
-  HullUserUpdateMessage
-} from "hull";
+
 import type { ServiceObjectDefinition } from "./types";
 
 const _ = require("lodash");
 const debug = require("debug")("hull-shared:utils");
-
-class ServiceData {
-  classType: any;
-  context: Object;
-  data: any
-
-  constructor(classType: any, data: any) {
-    this.classType = classType;
-    this.context = {};
-    this.data = data;
-  }
-}
+const {
+  HullOutgoingUser,
+  HullOutgoingAccount,
+  HullIncomingUser,
+  HullIncomingAccount
+} = require("./hull-service-objects");
 
 // Using this method of defining a property which is not enumerable to set the datatype on a data object
 // I don't like that we have to use a special reserved word, but logging a warning if it ever exists and is not a ServiceObjectDefinition
@@ -36,6 +26,9 @@ function getHullDataType(object: any) {
 function setHullDataType(object: any, dataType: ServiceObjectDefinition) {
   if (isUndefinedOrNull(object)) {
     return;
+  } else if (isUndefinedOrNull(dataType)) {
+    // not sure if we should be doing this... maybe unset it if it has a value?
+    return;
   }
   const existingValue = object[reservedHullDataTypeKey];
   if (existingValue && isUndefinedOrNull(_.get(existingValue, "name"))) {
@@ -50,6 +43,19 @@ function setHullDataType(object: any, dataType: ServiceObjectDefinition) {
   });
 }
 
+function getHullPlatformTypeName(classType: ServiceObjectDefinition) {
+  if (isUndefinedOrNull(classType))
+    return;
+
+  if (
+    classType.name === HullOutgoingUser.name
+    || classType.name === HullIncomingUser.name
+    || classType.name === HullOutgoingAccount.name
+    || classType.name === HullIncomingAccount.name) {
+    return classType.service_name;
+  }
+
+}
 
 function isUndefinedOrNull(obj: any) {
   return obj === undefined || obj === null;
@@ -107,6 +113,15 @@ function createAnonymizedObject(object, pathsToAnonymize = {
         return replacementValue;
       }
     }
+
+    const dataType = getHullDataType(object);
+    if (!isUndefinedOrNull(dataType)) {
+      return {
+        [reservedHullDataTypeKey]: dataType,
+        object
+      };
+    }
+
     return value;
   }, 2);
 }
@@ -314,6 +329,6 @@ module.exports = {
   removeTraitsPrefix,
   getHullDataType,
   setHullDataType,
-  ServiceData,
-  createAnonymizedObject
+  createAnonymizedObject,
+  getHullPlatformTypeName
 }

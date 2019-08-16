@@ -9,8 +9,12 @@ const jsonata = require("jsonata");
 const HullVariableContext = require("./variable-context");
 const transformationsShared = require("./transforms-shared");
 
-const { doVariableReplacement } = require("./variable-utils");
-const { isUndefinedOrNull, removeTraitsPrefix } = require("./utils");
+const {
+  isUndefinedOrNull,
+  removeTraitsPrefix,
+  setHullDataType,
+  getHullDataType
+} = require("./utils");
 
 const debug = require("debug")("hull-shared:TransformImpl");
 
@@ -150,11 +154,13 @@ class TransformImpl {
     return true;
   }
 
-  transform(variableContext: HullVariableContext, input: Object, inputClass: any, desiredOutputClass: any) {
+  transform(variableContext: HullVariableContext, input: Object, desiredOutputClass: any) {
 
     if (isUndefinedOrNull(desiredOutputClass)) {
       return variableContext.resolveVariables(input);
     }
+
+    const inputClass = getHullDataType(input);
 
     // cannot transform from the same input to same output, just return data
     if (inputClass && desiredOutputClass.name === inputClass.name) {
@@ -217,6 +223,9 @@ class TransformImpl {
 
     });
 
+    if (!isUndefinedOrNull(result)) {
+      setHullDataType(result, desiredOutputClass);
+    }
     // Can only return a hashmap of mapped objects if we didn't do any array based transforms
     // so not doing that should be the default...
     // though jsonata, kinda lends itself to full array transformations...
