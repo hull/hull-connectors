@@ -101,10 +101,10 @@ const glue = {
       name: "Outreach.io"
     }
   },
-  fieldsOutreachProspectOut: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, prospectFields)),
-  fieldsOutreachProspectIn: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, prospectFields)),
-  fieldsOutreachAccountOut: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, accountFields)),
-  fieldsOutreachAccountIn: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, accountFields)),
+  fieldsOutreachProspectOutbound: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, prospectFields)),
+  fieldsOutreachProspectInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, prospectFields)),
+  fieldsOutreachAccountOutbound: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, accountFields)),
+  fieldsOutreachAccountInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, accountFields)),
 
   shipUpdateStart: {},
 

@@ -24,8 +24,10 @@ const { isUndefinedOrNull } = require("hull-connector-framework/src/purplefusion
 const { isNull, notNull } = require("hull-connector-framework/src/purplefusion/conditionals");
 
 
-// What about linking calls?
-const service: RawRestApi = {
+const service = ({ clientID, clientSecret } : {
+  clientID: string,
+  clientSecret: string
+}): RawRestApi => ({
   initialize: (context, api) => new SuperagentApi(context, api),
   prefix: "https://api.outreach.io/api/v2",
   defaultReturnObj: "body",
@@ -189,25 +191,9 @@ const service: RawRestApi = {
   authentication: {
     strategy: "oauth2",
     params: {
-      name: "Outreach",
       Strategy: OAuth2Strategy,
-      tokenInUrl: true,
-      options: {
-        clientID: process.env.CLIENT_ID,
-        clientSecret: process.env.CLIENT_SECRET,
-        authorizationURL: "https://api.outreach.io/oauth/authorize",
-        tokenURL: "https://api.outreach.io/oauth/token",
-        grant_type: "authorization_code",
-        scope: [
-          "create_prospects",
-          "prospects.all",
-          "create_accounts",
-          "accounts.all",
-          "webhooks.all",
-          "stages.all",
-          "users.all"
-        ] // App Scope
-      }
+      clientID,
+      clientSecret,
     }
   },
   error: {
@@ -285,7 +271,7 @@ const service: RawRestApi = {
     ]
 
   }
-};
+});
 
 
 module.exports = service;

@@ -20,7 +20,7 @@ const { hullService } = require("./hull-service");
 
 const { toSendMessage } = require("./utils");
 const { statusCallback, statusErrorCallback, resolveServiceDefinition } = require("./router-utils");
-const { createAuthHandler } = require("./auth/auth-utils");
+const { getServiceOAuthParams } = require("./auth/auth-utils");
 
 class HullRouter {
 
@@ -46,57 +46,61 @@ class HullRouter {
     return new HullDispatcher(this.glue, this.serviceDefinitions, this.transforms, this.ensureHook);
   }
 
-  createHandlerFactory(manifest: any) {
+  createHandler(hullConnector: any) {
     // This seems like it's very circular logic...
     // I don't like having to declare the handler in the manifest, seems like it should be implicit
     // but I'll use the existing pattern
     // At least it only has to be written once
-
+    const manifest = hullConnector.manifest;
     const handlers = {};
 
-    _.forEach(_.get(manifest, "subscriptions.channels", []), endpoint => {
-      handlers[channel.handler] = this.createOutgoingDispatchCallback(endpoint);
+    _.forEach(_.get(manifest, "subscriptions", []), endpoint => {
+      _.forEach(_.get(endpoint, "channels", []), channel => {
+        _.set(handlers, `subscriptions.${channel.handler}`, this.createOutgoingDispatchCallback(channel));
+      });
     });
 
-    _.forEach(_.get(manifest, "subscriptions.batches", []), endpoint => {
-      handlers[channel.handler] = this.createOutgoingDispatchCallback(endpoint);
+    _.forEach(_.get(manifest, "batches", []), endpoint => {
+      _.forEach(_.get(endpoint, "channels", []), channel => {
+        _.set(handlers, `batches.${channel.handler}`, this.createOutgoingDispatchCallback(channel));
+      });
     });
 
     _.forEach(_.get(manifest, "statuses", []), endpoint => {
-      handlers[channel.handler] = this.createIncomingDispatchCallback(endpoint, statusCallback, statusErrorCallback);
+      _.set(handlers, `statuses.${endpoint.handler}`, this.createIncomingDispatchCallback(endpoint, statusCallback, statusErrorCallback));
     });
 
     _.forEach(_.get(manifest, "schedules", []), endpoint => {
-      handlers[channel.handler] = this.createIncomingDispatchCallback(endpoint);
+      _.set(handlers, `schedules.${endpoint.handler}`, this.createIncomingDispatchCallback(endpoint));
     });
 
     _.forEach(_.get(manifest, "tabs", []), endpoint => {
-      handlers[channel.handler] = this.createIncomingDispatchCallback(endpoint);
+      _.set(handlers, `tabs.${endpoint.handler}`, this.createIncomingDispatchCallback(endpoint));
     });
 
     _.forEach(_.get(manifest, "json", []), endpoint => {
-      handlers[channel.handler] = this.createIncomingDispatchCallback(endpoint);
+      _.set(handlers, `json.${endpoint.handler}`, this.createIncomingDispatchCallback(endpoint));
     });
 
     _.forEach(_.get(manifest, "incoming", []), endpoint => {
-      handlers[channel.handler] = this.createIncomingDispatchCallback(endpoint);
+      _.set(handlers, `incoming.${endpoint.handler}`, this.createIncomingDispatchCallback(endpoint));
     });
 
-    _.set(handlers, "private_settings.oauth", createAuthHandler(manifest, this.serviceDefinitions));
+    _.set(handlers, "private_settings.oauth", () => getServiceOAuthParams(manifest, this.serviceDefinitions));
 
     // mapNotification(notificationHandler, "subscriptions");
     // mapNotification(batchHandler, "batches");
     // mapRoute(statusHandler, "statuses", "all", this.manifest.statuses);
     // mapRoute(scheduleHandler, "schedules", "all", this.manifest.schedules);
     // mapRoute(htmlHandler, "tabs", "all", this.manifest.tabs);
-
+    return handlers;
   }
 
   createOutgoingDispatchCallback(endpoint: string, callback?: Function, errorCallback?: Function) {
-    return this.createDispatchCallback("outgoing", route, callback, errorCallback);
+    return this.createDispatchCallback("outgoing", endpoint, callback, errorCallback);
   }
   createIncomingDispatchCallback(endpoint: string, callback?: Function, errorCallback?: Function) {
-    return this.createDispatchCallback("incoming", route, callback, errorCallback);
+    return this.createDispatchCallback("incoming", endpoint, callback, errorCallback);
   }
 
   createDispatchCallback(direction: string, endpoint: { handler: string, channel?: string }, callback?: Function, errorCallback?: Function) {
