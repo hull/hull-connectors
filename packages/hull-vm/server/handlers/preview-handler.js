@@ -36,11 +36,8 @@ export default async function computeHandler(
 
   if (!client || !connector || !payload) {
     return {
-      status: 400,
-      data: {
-        reason: "missing_params",
-        message: "Missing Params"
-      }
+      status: 404,
+      error: "Missing Params"
     };
   }
 
@@ -67,7 +64,7 @@ export default async function computeHandler(
   } catch (error) {
     return {
       status: 500,
-      data: { error }
+      error
     };
   }
 }

@@ -81,7 +81,7 @@ export default class RecentEntriesUI extends VirtualMachineUI<Props, State> {
       selected,
       current,
       initialized,
-      initializing,
+      fetching,
       recent,
       url,
       // error,
@@ -113,7 +113,7 @@ export default class RecentEntriesUI extends VirtualMachineUI<Props, State> {
           <div className="col vm-column">
             <Header title={strings.leftColumnTitle}>
               <PayloadSelector
-                loading={computing || initializing}
+                loading={computing || fetching}
                 current={selected}
                 recent={recent}
                 onSelect={this.selectEntry}

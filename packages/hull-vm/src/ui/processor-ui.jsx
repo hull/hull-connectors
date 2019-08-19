@@ -64,7 +64,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
   render() {
     const {
       current,
-      loading,
+      fetching,
       initialized,
       recent,
       computing,
@@ -90,7 +90,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
           <div className="col vm-column">
             <Header>
               <EntrySelector
-                loading={computing || loading}
+                loading={computing || fetching}
                 current={current}
                 recent={recent}
                 onChange={this.handleUpdateQuery}
@@ -104,15 +104,17 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
               value={error || current.payload}
             />
           </div>
-          <div className="col vm-column">
+          <div className="col vm-column code-column">
             <Header>
               <EventSelector
-                loading={loading && !initialized}
+                loading={!initialized && fetching}
                 onChange={this.handleUpdateEvents}
                 events={events}
               />
             </Header>
-            <CodeTitle title="Code" />
+            <CodeTitle
+              title={`Code ${!current.editable ? "(disabled)" : ""}`}
+            />
             <Code
               focusOnLoad={true}
               computing={computing}

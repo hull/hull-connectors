@@ -8,6 +8,14 @@ type QueryParams = {
   claim?: string,
   selectedEvents: Array<EventSelect>
 };
+const EMPTY_MESSAGE = `Please enter the identifier of a User in the field above.
+
+Valid identifiers are:
+- external_id
+- anonymous_id
+- email
+- Hull ID
+`;
 export default class ProcessorEngine extends Engine {
   state: ProcessorEngineState;
 
@@ -18,6 +26,7 @@ export default class ProcessorEngine extends Engine {
 
   initialize = async ({ claim, selectedEvents }: QueryParams) => {
     const entry = await this.fetchEntry({ claim, selectedEvents });
+    this.setState({ error: EMPTY_MESSAGE });
     this.saveEntry(entry);
   };
 
@@ -77,7 +86,7 @@ export default class ProcessorEngine extends Engine {
   );
 
   fetchEntry = async ({ claim = "", selectedEvents = [] }: QueryParams) => {
-    this.setState({ loading: true });
+    this.setState({ fetching: true });
     try {
       const entry: Entry = await this.request({
         url: "entry",
@@ -90,9 +99,7 @@ export default class ProcessorEngine extends Engine {
       this.setState({ error: undefined });
       if (entry.error) {
         if (entry.error == "Empty query, can't fetch") {
-          throw new Error(
-            "Please enter the ID, anonymous ID or email of a user on the left"
-          );
+          throw new Error(EMPTY_MESSAGE);
         }
         throw new Error(entry.error);
       }
@@ -102,9 +109,10 @@ export default class ProcessorEngine extends Engine {
         error: err.message,
         current: {
           ...this.state.current,
+          editable: false,
           payload: undefined
         },
-        loading: false
+        fetching: false
       });
       // throw err;
       // return false;

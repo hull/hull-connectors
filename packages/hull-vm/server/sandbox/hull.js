@@ -43,7 +43,7 @@ const buildHullContext = (
     properties: HullEventProperties = {},
     context: HullEventContext = {}
   ) => {
-    result[target] = result[target].push({
+    result[target].push({
       claims,
       event: {
         eventName,

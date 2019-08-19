@@ -37,15 +37,15 @@ export default class RecentEntriesEngine extends Engine {
   };
 
   fetchRecent = async () => {
-    this.setState({ initializing: true });
+    this.setState({ fetching: true });
     try {
       const recent: Array<Entry> = await this.request({
         url: "recent"
       });
-      this.setState({ recent, initializing: false, error: undefined });
+      this.setState({ recent, fetching: false, error: undefined });
       return true;
     } catch (err) {
-      this.setState({ error: err.message, initializing: false });
+      this.setState({ error: err.message, fetching: false });
       return false;
     }
   };

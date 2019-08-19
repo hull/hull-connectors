@@ -62,12 +62,13 @@ export const callTraits = async ({
   let successful = 0;
   try {
     const responses = await Promise.all(
-      Array.from(data, async ([claims, attributes]) => {
+      Array.from(data, async datum => {
+        const [claims, att] = _.map(datum, i => i.toObject());
         const client = hullClient(claims);
         try {
-          logIfNested(client, attributes);
+          logIfNested(client, att);
           // Filter undefined attributes
-          const att = _.omitBy(att, (v, k) => k === undefined);
+          const attributes = _.omitBy(att, (v, k: any) => k === undefined);
           await client.traits(attributes);
           successful += 1;
           return client.logger.info(`incoming.${entity}.success`, {
