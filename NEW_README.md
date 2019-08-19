@@ -804,3 +804,6 @@ foo: "bazinga"
 
 // => hull.asUser({"email":"bar@baz.co"}).traits({"foo":"bazinga","baz":"boo"});
 ````
+
+### Run specified tests
+`yarn run-test path_to_test_file(s)`
