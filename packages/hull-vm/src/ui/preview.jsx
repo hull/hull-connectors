@@ -17,7 +17,7 @@ const joinLines = fp.join("\n");
 const renderUserClaim = claims => `hull.asUser(${nice(claims)})`;
 const renderAccountClaim = claims => `hull.asAccount(${nice(claims)})`;
 
-const renderShortTraits = ([claims, attributes]) => `traits(${nice(
+const renderShortTraits = ([_claims, attributes]) => `traits(${nice(
   attributes
 )});
 `;
