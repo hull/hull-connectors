@@ -26,7 +26,7 @@ export default async function ingest(ctx: HullContext, result: Result) {
 
   const promises = [];
 
-  client.logger.info("compute.debug", serialize(result));
+  client.logger.debug("compute.debug", serialize(result));
 
   // Update user traits
   if (_.size(userTraits)) {
