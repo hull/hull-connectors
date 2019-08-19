@@ -127,14 +127,12 @@ body.dark {
       align-items: center;
     }
   }
-
   .ace_editor {
     background: transparent;
     color: #ffffff;
     height: 100%;
     flex-grow: 1;
     &.read-only {
-      // opacity: 0.7;
       color: #909db3;
       .ace_string {
         color: #fdcb62b0;
@@ -175,6 +173,10 @@ body.dark {
       color: #64748a;
     }
   }
+  .code-column .ace_editor.read-only {
+    opacity: 0.4;
+  }
+
 
   .vm-column + .vm-column {
     box-shadow: inset 1px 0px 0 $separator;
