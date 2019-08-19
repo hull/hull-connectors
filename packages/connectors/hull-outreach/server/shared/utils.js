@@ -32,14 +32,18 @@ function isUndefinedOrNull(obj: any): boolean %checks {
  * @param  {[type]} context                 [description]
  * @param  {[type]} targetEntity            [description]
  * @param  {[type]} message                 [description]
- * @param  {[type]} synchronizedSegmentPath [description]
- * @param  {[type]} outgoingAttributesPath  [description]
+ * @param  {[type]} options [description]
  * @return {[type]}                         [description]
  */
 function toSendMessage(
   context: HullContext,
   targetEntity: HullEntityType,
-  message: HullUserUpdateMessage | HullAccountUpdateMessage
+  message: HullUserUpdateMessage | HullAccountUpdateMessage,
+  options?: {
+    serviceName?: string,
+    // Useful if we're sending the segment as a default attribute and we want to keep it in sync with Hull
+    sendOnAnySegmentChanges?: boolean
+  }
 ): boolean {
   // Entered segment
   // First: entered segment notification (no attribute change)
@@ -162,9 +166,31 @@ function toSendMessage(
         // so update user...
         return true;
       }
-      // if account enteres a synchronized segment
+
+      const serviceName = _.get(options, "serviceName");
+      if (serviceName) {
+        // try to detect if the account id of the user is changing
+        // If 2 users have been resolved to the same user, could result in loops
+        // but as long as they don't keep changing it's ok we think... they'll eventually converge to 1
+        // although there's a million factors there...
+        const changedServiceAccounts = _.get(message, `changes.account.${serviceName}/id`);
+        if (changedServiceAccounts) {
+          return true;
+        }
+      }
+
+      // if account enters a synchronized segment
       // but it was or wasn't in a synchronized segment before
       // may want to perform account linking
+    }
+  }
+
+  // Do not have to normalize this field with regard to array index at the end [1]...
+  // because this field does not do the diff like the other fields, it gives a { left: [{}...], entered:} syntax
+  if (_.get(options, "sendOnAnySegmentChanges", false) === true) {
+    const segmentChanges = _.get(message.changes, segmentAttribute);
+    if (!_.isEmpty(segmentChanges)) {
+      return true;
     }
   }
 

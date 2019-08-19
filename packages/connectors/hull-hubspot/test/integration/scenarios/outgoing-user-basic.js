@@ -5,6 +5,9 @@ import connectorConfig from "../../../server/config";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
+process.env.CLIENT_ID = "123",
+process.env.CLIENT_SECRET = "abc";
+
 
 const connector = {
   private_settings: {
@@ -55,7 +58,24 @@ it("should send out a new hull user to hubspot", () => {
           user: {
             email
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          changes: {
+            is_new: false,
+            user: {},
+            account: {},
+            segments: {
+              left: [
+                {
+                  id: "5bffc38f625718d58b000004",
+                  name: "Smugglers",
+                  updated_at: "2018-12-06T14:23:38Z",
+                  type: "users_segment",
+                  created_at: "2018-11-29T10:46:39Z"
+                }
+              ]
+            },
+            account_segments: {}
+          }
         }
       ],
       response: {

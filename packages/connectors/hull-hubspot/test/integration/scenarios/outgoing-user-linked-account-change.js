@@ -15,35 +15,12 @@ const connector = {
     token: "hubToken",
     synchronized_user_segments: ["hullSegmentId"],
     outgoing_user_attributes: [
-      { hull: "first_name", service: "firstname", overwrite: true },
-      { hull: "last_name", service: "lastname", overwrite: false },
-      { hull: "traits_group/custom_calculated_score", service: "custom_hubspot_score" },
-      { hull: "traits_custom_numeric", service: "custom_hubspot_numeric", overwrite: true },
-      { hull: "traits_custom_array", service: "custom_hubspot_array" },
-      { hull: "traits_custom_empty_array", service: "custom_hubspot_empty_array", overwrite: true },
-      { hull: "traits_custom_true", service: "custom_hubspot_true", overwrite: true },
-      { hull: "traits_custom_false", service: "custom_hubspot_false", overwrite: true },
-      { hull: "traits_custom_null", service: "custom_hubspot_null", overwrite: true },
-      { hull: "traits_custom_empty_string", service: "custom_hubspot_empty_string", overwrite: true },
-      { hull: "traits_custom_zero", service: "custom_hubspot_zero", overwrite: true },
-      { hull: "traits_custom_undefined", service: "custom_hubspot_undefined", overwrite: true },
-      { hull: "traits_custom_date_at", service: "custom_hubspot_date_at", overwrite: true },
-
+      { hull: "traits_outreach/title", service: "jobtitle" },
       { hull: "account.id", service: "custom_hubspot_account_id", overwrite: true },
       { hull: "account.domain", service: "custom_hubspot_account_domain", overwrite: true },
       { hull: "account.group/created_at", service: "custom_hubspot_account_group_created_at", overwrite: true },
-
-      { hull: "account.custom_numeric", service: "custom_hubspot_account_numeric", overwrite: true },
-      { hull: "account.custom_array", service: "custom_hubspot_account_array", overwrite: true },
-      { hull: "account.custom_empty_array", service: "custom_hubspot_account_empty_array", overwrite: true },
-      { hull: "account.custom_true", service: "custom_hubspot_account_true", overwrite: true },
-      { hull: "account.custom_false", service: "custom_hubspot_account_false", overwrite: true },
-      { hull: "account.custom_null", service: "custom_hubspot_account_null", overwrite: true },
-      { hull: "account.custom_empty_string", service: "custom_hubspot_account_empty_string", overwrite: true },
-      { hull: "account.custom_zero", service: "custom_hubspot_account_zero", overwrite: true },
-      { hull: "account.custom_undefined", service: "custom_hubspot_account_undefined", overwrite: true },
-      { hull: "account.custom_date_at", service: "custom_hubspot_account_date_at", overwrite: true }
-    ]
+    ],
+    link_users_in_service: true
   }
 };
 const usersSegments = [
@@ -53,7 +30,7 @@ const usersSegments = [
   }
 ];
 
-it("should send out a new hull user to hubspot with complex fields mapping", () => {
+it("should update hubspot because linked account has changed", () => {
   const email = "email@email.com";
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
@@ -68,53 +45,8 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
           .reply(200, require("../fixtures/get-properties-companies-groups"));
         scope.post("/contacts/v1/contact/batch/?auditId=Hull", [{
           "properties": [{
-              "property": "firstname",
-              "value": "John"
-            }, {
-              "property": "lastname",
-              "value": "NewLastName"
-            }, {
-              "property": "hull_custom_hubspot_score",
-              "value": 456
-            }, {
-              "property": "hull_custom_hubspot_numeric",
-              "value": 123
-            }, {
-              "property": "hull_custom_hubspot_array",
-              "value": "A;B"
-            }, {
-              "property": "hull_custom_hubspot_true",
-              "value": true
-            }, {
-              "property": "hull_custom_hubspot_false",
-              "value": false
-            }, {
-              "property": "hull_custom_hubspot_date_at",
-              "value": 1540374459000
-            }, {
-              "property": "hull_custom_hubspot_account_id",
-              "value": "acc123"
-            }, {
-              "property": "hull_custom_hubspot_account_domain",
-              "value": "doe.com"
-            }, {
-              "property": "hull_custom_hubspot_account_group_created_at",
-              "value": 1477302459000
-            }, {
-              "property": "hull_custom_hubspot_account_numeric",
-              "value": 123
-            }, {
-              "property": "hull_custom_hubspot_account_array",
-              "value": "A;B"
-            }, {
-              "property": "hull_custom_hubspot_account_true",
-              "value": true
-            }, {
-              "property": "hull_custom_hubspot_account_false",
-              "value": false
-            }, {
-              "property": "hull_custom_hubspot_account_date_at",
-              "value": 1540374459000
+              "property": "jobtitle",
+              "value": "sometitle"
             }, {
               "property": "hull_segments",
               "value": "testSegment"
@@ -135,6 +67,7 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
             last_name: "NewLastName",
             "traits_hubspot/last_name": "CurrentLastName",
             "traits_group/custom_calculated_score": 456,
+            "traits_outreach/title": "sometitle",
             traits_custom_numeric: 123,
             traits_custom_array: ["A", "B"],
             traits_custom_empty_array: [],
@@ -150,7 +83,6 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
             id: "acc123",
             domain: "doe.com",
             "group/created_at": "2016-10-24T09:47:39Z",
-            custom_numeric: 123,
             custom_array: ["A", "B"],
             custom_empty_array: [],
             custom_true: true,
@@ -160,19 +92,20 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
             custom_zero: 0,
             // custom_undefined: "", -> this is not present
             custom_date_at: "2018-10-24T09:47:39Z",
+            "traits_hubspot/id": 5678
           },
           segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
           changes: {
-            is_new: false,
-            user: {
-              traits_custom_numeric: [
+            "is_new": false,
+            "user": {},
+            "account": {
+              "traits_hubspot/id": [
                 null,
-                123
+                5678
               ]
             },
-            account: {},
-            segments: {},
-            account_segments: {}
+            "segments": {},
+            "account_segments": {}
           },
         }
       ],
