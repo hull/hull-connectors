@@ -83,7 +83,7 @@ export const callTraits = async ({
         }
       })
     );
-    metric.increment(`ship.incoming.${entity}s`, successful);
+    if (successful) metric.increment(`ship.incoming.${entity}s`, successful);
     return responses;
   } catch (err) {
     return Promise.reject(err);
@@ -121,7 +121,7 @@ export const callEvents = async ({
         }
       })
     );
-    metric.increment(`ship.incoming.${entity}`, successful);
+    if (successful) metric.increment(`ship.incoming.${entity}`, successful);
     return responses;
   } catch (err) {
     return Promise.reject(err);
@@ -159,7 +159,7 @@ export const callLinks = async ({
         }
       })
     );
-    metric.increment(`ship.incoming.${entity}`, successful);
+    if (successful) metric.increment(`ship.incoming.${entity}`, successful);
     return responses;
   } catch (err) {
     return Promise.reject(err);
@@ -196,7 +196,8 @@ export const callAlias = async ({
         }
       })
     );
-    metric.increment(`ship.incoming.${entity}s.alias`, successful);
+    if (successful)
+      metric.increment(`ship.incoming.${entity}s.alias`, successful);
     return responses;
   } catch (err) {
     console.log(err);
