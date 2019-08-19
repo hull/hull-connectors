@@ -1,6 +1,7 @@
 // @flow
 
 import type { HullConnectorConfig } from "hull";
+import _ from "lodash";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
 
