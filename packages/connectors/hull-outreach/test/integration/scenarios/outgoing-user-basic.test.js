@@ -21,7 +21,7 @@ test("send smart-notifier user update to outreach", () => {
           .get("/api/v2/prospects/?filter[emails]=alberto@close.io")
           .reply(200, require("../fixtures/api-responses/existing-prospect.json"));
         scope
-          .intercept('/api/v2/prospects/23', 'PATCH', {"data":{"type":"prospect","id":23,"attributes":{"emails":["alberto@close.io", "albertoman9@gmail.com"],"title":"Sales","workPhones":["+18552567346"]}}})
+          .intercept('/api/v2/prospects/23', 'PATCH', {"data":{"type":"prospect","id":23,"relationships":{"account":{"data":{"type":"account","id":14}}}, "attributes":{"emails":["alberto@close.io", "albertoman9@gmail.com"],"title":"Sales","workPhones":["+18552567346"]}}})
           .reply(200, require("../fixtures/api-responses/existing-prospect-updated.json"));
         return scope;
       },
@@ -37,9 +37,18 @@ test("send smart-notifier user update to outreach", () => {
         ["info", "outgoing.job.start", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({"method": "GET", "status": 200, "url": "/prospects/", "vars": {}})],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({"method": "PATCH", "status": 200, "url": "/prospects/23", "vars": {}})],
-        ["info", "outgoing.user.success", expect.whatever(), { "data": {"data": {"attributes": {"emails": ["alberto@close.io", "albertoman9@gmail.com"], "title": "Sales", "workPhones": ["+18552567346"]}, "id": 23, "type": "prospect"}},
-        "operation": "patch", type:"Prospect" }],
-        ["info", "incoming.user.success", expect.whatever(), {"data": expect.whatever(), "type": "Prospect" }],
+        ["info", "outgoing.user.success", {
+          "subject_type": "user",
+          "request_id": expect.whatever(),
+          "user_id": "userid",
+          "user_email": "alberto@close.io"
+        }, { "data": expect.whatever(), "operation": "patch", "type":"Prospect" }],
+        ["info", "incoming.user.success", {
+          "subject_type": "user",
+          "request_id": expect.whatever(),
+          "user_email": "alberto@close.io",
+          "user_anonymous_id": "outreach:23"
+        }, {"data": expect.whatever(), "type": "Prospect" }],
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}]
       ],
       firehoseEvents: [

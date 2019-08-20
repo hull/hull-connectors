@@ -134,7 +134,6 @@ test("send smart-notifier user update to outreach and link account", () => {
               }
             },
             operation: "patch",
-            response: expect.whatever(),
             type: "Prospect"
           }
         ],
