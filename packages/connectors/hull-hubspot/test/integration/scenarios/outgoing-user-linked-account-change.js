@@ -70,7 +70,25 @@ it("should update hubspot because linked account has changed", () => {
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, require("../fixtures/get-properties-companies-groups"));
         scope.post("/contacts/v1/contact/batch/?auditId=Hull",
-          [{"properties":[{"property":"firstname","value":"John"},{"property":"lastname","value":"NewLastName"},{"property":"hull_custom_hubspot_score","value":456},{"property":"hull_custom_hubspot_numeric","value":123},{"property":"hull_custom_hubspot_array","value":"A;B"},{"property":"hull_custom_hubspot_true","value":true},{"property":"hull_custom_hubspot_false","value":false},{"property":"hull_custom_hubspot_date_at","value":1540374459000},{"property":"hull_custom_hubspot_account_id","value":"acc123"},{"property":"hull_custom_hubspot_account_domain","value":"doe.com"},{"property":"hull_custom_hubspot_account_group_created_at","value":1477302459000},{"property":"hull_custom_hubspot_account_array","value":"A;B"},{"property":"hull_custom_hubspot_account_true","value":true},{"property":"hull_custom_hubspot_account_false","value":false},{"property":"hull_custom_hubspot_account_date_at","value":1540374459000},{"property":"hull_segments","value":"testSegment"}],"email":"email@email.com"}]
+          [
+            {"properties":[{"property":"firstname","value":"John"},
+            {"property":"lastname","value":"NewLastName"},
+            {"property":"hull_custom_hubspot_score","value":456},
+            {"property":"hull_custom_hubspot_numeric","value":123},
+            {"property":"hull_custom_hubspot_array","value":"A;B"},
+            {"property":"hull_custom_hubspot_true","value":true},
+            {"property":"hull_custom_hubspot_false","value":false},
+            {"property":"hull_custom_hubspot_date_at","value":1540374459000},
+            {"property":"hull_custom_hubspot_account_id","value":"acc123"},
+            {"property":"hull_custom_hubspot_account_domain","value":"doe.com"},
+            {"property":"hull_custom_hubspot_account_group_created_at","value":1477302459000},
+            {"property":"hull_custom_hubspot_account_array","value":"A;B"},
+            {"property":"hull_custom_hubspot_account_true","value":true},
+            {"property":"hull_custom_hubspot_account_false","value":false},
+            {"property":"hull_custom_hubspot_account_date_at","value":1540374459000},
+            {"property":"hull_segments","value":"testSegment"},
+            {"property":"associatedcompanyid","value":5678}],"email":"email@email.com"}
+            ]
         ).reply(202);
         return scope;
       },
@@ -110,14 +128,14 @@ it("should update hubspot because linked account has changed", () => {
             custom_zero: 0,
             // custom_undefined: "", -> this is not present
             custom_date_at: "2018-10-24T09:47:39Z",
-            "traits_hubspot/id": 5678
+            "hubspot/id": 5678
           },
           segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
           changes: {
             "is_new": false,
             "user": {},
             "account": {
-              "traits_hubspot/id": [
+              "hubspot/id": [
                 null,
                 5678
               ]
@@ -139,22 +157,6 @@ it("should update hubspot because linked account has changed", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
-        [
-          "info",
-          "outgoing.user.skip",
-          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {
-            "reason": "No changes on any of the attributes for this user."
-          }
-        ],
-        [
-          "info",
-          "outgoing.user.skipcandidate",
-          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {
-            "reason": "attribute change not found"
-          }
-        ],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
         [
           "info",
@@ -210,6 +212,9 @@ it("should update hubspot because linked account has changed", () => {
               }, {
                 "property": "hull_segments",
                 "value": "testSegment"
+              }, {
+                "property": "associatedcompanyid",
+                "value": 5678
               }]
           }
         ]
