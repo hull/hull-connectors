@@ -180,7 +180,7 @@ const transformsShared: ServiceTransforms = [
     strategy: "Jsonata",
     direction: "incoming",
     batchTransform: true,
-    transforms: [`{ "options": $.{"value": name, "label": display } }`]
+    transforms: [`{ "data": { "options": $.{"value": name, "label": display } }, "status": 200 }`]
   },
   {
     input: HullConnectorAttributeDefinition,
@@ -188,7 +188,7 @@ const transformsShared: ServiceTransforms = [
     strategy: "Jsonata",
     direction: "incoming",
     batchTransform: true,
-    transforms: [`$[readOnly=false]{"options": $.{"value": name, "label": display } }`]
+    transforms: [`$[readOnly=false]{ "data": {"options": $.{"value": name, "label": display } }, "status": 200 }`]
   }
 ];
 

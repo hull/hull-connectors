@@ -11,7 +11,8 @@ const {
 } = require("./types");
 
 const {
-  TransientError
+  TransientError,
+  LogicError
 } = require("hull/src/errors");
 
 const jsonata = require("jsonata");
@@ -558,7 +559,7 @@ class HullDispatcher {
       if (instructionName === 'input') {
         if (!isUndefinedOrNull(serviceData) && !isUndefinedOrNull(instructionOptions.path)) {
           const path = context.resolveVariables(instructionOptions.path);
-          return _.get(serviceData.data, path);
+          return _.get(serviceData, path);
         }
         return serviceData;
       }
@@ -621,6 +622,10 @@ class HullDispatcher {
 
       if (opInstruction.name === "get") {
 
+        if (typeof opInstruction.key !== "string") {
+          throw new LogicError(`ERROR: Key is not resolved to a string: ${JSON.stringify(instructionOptions)}`);
+        }
+
         if (!obj) {
           return context.get(opInstruction.key);
         }
@@ -655,7 +660,12 @@ class HullDispatcher {
         return resolvedParams;
       } else if (opInstruction.name === 'cast') {
 
-        setHullDataType(obj, opInstruction.type);
+        // interesting problem if we're using the same input everywhere and "recasting" it...
+        // should maybe do a shallow clone and recast so it doesn't affect other parent or sibling routes
+
+        const castObj = _.clone(obj);
+        setHullDataType(castObj, opInstruction.type);
+        return castObj;
 
       } else if (opInstruction.name === "transformTo") {
 

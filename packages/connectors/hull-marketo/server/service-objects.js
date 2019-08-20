@@ -5,18 +5,18 @@ import type { ServiceObjectDefinition } from "hull-connector-framework/src/purpl
 // TODO do some sort of field definition in here has well
 // include types, abtraction for custom/unknown fields, and read/only
 const MarketoOutgoingCompany: ServiceObjectDefinition = {
-  name: "marketo_outgoing_company",
-  service_name: "Company"
+  service_name: "marketo_outgoing_company",
+  name: "Company"
 };
 
 const MarketoIncomingCompany: ServiceObjectDefinition = {
-  name: "marketo_incoming_company",
-  service_name: "Company"
+  service_name: "marketo_incoming_company",
+  name: "Company"
 };
 
 const MarketoOutgoingLead: ServiceObjectDefinition = {
-  name: "marketo_outgoing_lead",
-  service_name: "Lead"
+  service_name: "marketo_outgoing_lead",
+  name: "Lead"
   // TODO there's an issue with adding stuff to this because the variables get replaced if we put these objects inline
   // and because service objectdefinition is a type, we can't detect it
   // so pretty much anywere we use these inline the glue is problematic if it has variables...
@@ -30,19 +30,19 @@ const MarketoOutgoingLead: ServiceObjectDefinition = {
 };
 
 const MarketoIncomingLead: ServiceObjectDefinition = {
-  name: "marketo_incoming_lead",
-  service_name: "Lead"
+  service_name: "marketo_incoming_lead",
+  name: "Lead"
 };
 
 const MarketoIncomingStreamLead: ServiceObjectDefinition = {
-  name: "marketo_incoming_stream_lead",
-  service_name: "Lead",
+  service_name: "marketo_incoming_stream_lead",
+  name: "Lead",
   stream: "csv"
 };
 
 const MarketoIncomingLeadActivity: ServiceObjectDefinition = {
-  name: "marketo_incoming_lead_activity",
-  service_name: "Lead-Update"
+  service_name: "marketo_incoming_lead_activity",
+  name: "Lead-Update"
   // attributes: {
   //   activityTypeId: {
   //     enumReplace: {
@@ -55,13 +55,13 @@ const MarketoIncomingLeadActivity: ServiceObjectDefinition = {
 };
 
 const MarketoLeadAttributeDefinition: ServiceObjectDefinition = {
-  name: "marketo_lead_attribute_definition",
-  service_name: "MarketoLeadAttributeDefinition"
+  service_name: "marketo_lead_attribute_definition",
+  name: "MarketoLeadAttributeDefinition"
 }
 
 const MarketoActivityTypeIdMap: ServiceObjectDefinition = {
-  name: "marketo_activity_type_id_map",
-  service_name: "MarketoActivityTypeIdMap"
+  service_name: "marketo_activity_type_id_map",
+  name: "MarketoActivityTypeIdMap"
 }
 
 module.exports = {

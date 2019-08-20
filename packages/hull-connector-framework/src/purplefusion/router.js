@@ -116,31 +116,37 @@ class HullRouter {
       const objectType: ServiceObjectDefinition = resolveServiceDefinition(endpoint);
       const dispatcher: HullDispatcher = this.dispatcher();
 
-      context.client.logger.debug(`${_.toLower(direction)}.job.start`, {
+      context.client.logger.info(`${_.toLower(direction)}.job.start`, {
         jobName: `${_.upperFirst(direction)} Data`,
-        route
+        type: _.toLower(objectType.name)
       });
 
-      let dataToSend = data;
+      let dataToSend;
       const dataToSkip = [];
 
-      if (Array.isArray(dataToSend) && (objectType === HullOutgoingUser || objectType === HullOutgoingAccount)) {
+      if (Array.isArray(data) && (objectType === HullOutgoingUser || objectType === HullOutgoingAccount)) {
         dataToSend = [];
         // break up data and send one by one
-        _.forEach(dataToSend, message => {
-          if (toSendMessage(context, objectType, message)) {
+        _.forEach(data, message => {
+          if (toSendMessage(context, _.toLower(objectType.name), message)) {
             dataToSend.push(message);
           } else {
             dataToSkip.push(message);
           }
         });
+      } else {
+        dataToSend = data;
       }
 
       // I like getting rid of the splitting here, and always passing in the data
       // glue can handle the split if needed
+      // TODO need to test sending an empty array, or decide if we need extra logic here...
       let dispatchPromise = dispatcher.dispatchWithData(context, route, objectType, dataToSend);
 
       // This is still bad... need to decide how to handle this....
+      // TODO need to make sure this is only in outreach
+      // because other connectors will get this same message, and we'll be trying to run this route
+      // and it will fail because that route won't exist, or even worse if it did
       _.forEach(dataToSkip, dataToSkipElement => {
         if (objectType === HullOutgoingUser && dataToSkipElement.changes && dataToSkipElement.changes.is_new) {
           if (_.isEmpty(_.get(dataToSkipElement, "user.email"))
@@ -164,8 +170,7 @@ class HullRouter {
 
           context.client.logger.info(`${_.toLower(direction)}.job.success`, {
             jobName: `${_.upperFirst(direction)} Data`,
-            error: error.message,
-            route
+            type: _.toLower(objectType.name)
           });
           return Promise.resolve(results);
         }).catch(error => {
@@ -179,7 +184,7 @@ class HullRouter {
           context.client.logger.error(`${_.toLower(direction)}.job.error`, {
             jobName: `${_.upperFirst(direction)} Data`,
             error: error.message,
-            route
+            type: _.toLower(objectType.name)
           });
           return Promise.reject(error);
         });

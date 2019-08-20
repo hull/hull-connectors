@@ -175,10 +175,13 @@ function set(key: any, value: any): Op{
 /**
  * This method gets a particular key from an object that is evaluated lazily
  * @param key is the parameter that we'll be searching for in obj
- * @param obj can be a object or an instruction that is to be evaluated
+ * @param obj can be a object or an instruction that is to be evaluated.  Object is required, if you're trying to get a variable from the context,
+ * you don't need to use get, just use variable replacement syntax
+ * Though could potentially use a get with key only if you wanted to pull from the context, but wanted to use variable replacement to get a dynamiclly built path
+ * -> like traversing a claims field
  * @returns {Op}
  */
-function get(key: any, obj?: any): Op {
+function get(key: string, obj: any): Op {
   return new Op({ name: "get", key }, obj);
 }
 
@@ -286,6 +289,9 @@ function ifL(params: any, results: any | { do: any, eldo?: any, elif?: any }): I
  * @returns {IfLogic|boolean} returns a set of instructions that will evaluate to true or false
  */
 function or(conditions: Array<any>) {
+  // TODO need to maybe rethink this signature, or make sure it fails if there's not an array
+  // did a or(condition, condition) and it failed silently...
+  // maybe throw an error here if the conditions are not an array?
   if (_.isEmpty(conditions)) {
     return false;
   }

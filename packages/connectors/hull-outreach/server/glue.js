@@ -101,6 +101,7 @@ const glue = {
       name: "Outreach.io"
     }
   },
+  isAuthenticated: not(cond("isEmpty", settings("access_token"))),
   fieldsOutreachProspectOutbound: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, prospectFields)),
   fieldsOutreachProspectInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, prospectFields)),
   fieldsOutreachAccountOutbound: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, accountFields)),
@@ -108,8 +109,10 @@ const glue = {
 
   shipUpdateStart: {},
 
-  userUpdate: iterateL(input(), { value: "message", async: true },
-    route("userUpdateStart", cast(HullOutgoingUser, "${message}"))
+  userUpdate: ifL(route("isAuthenticated"),
+    iterateL(input(), { key: "message", async: true },
+      route("userUpdateStart", cast(HullOutgoingUser, "${message}"))
+    )
   ),
 
   userUpdateStart:
@@ -135,10 +138,10 @@ const glue = {
       ifL([
           cond("notEmpty", set("value", input("user.${claim.hull}"))),
           cond("notEmpty", set("property", "${claim.service}")),
-          cond("notEmpty", set("existingProspect", get(outreach("getProspectsByProperty"), "[0]")))
+          cond("notEmpty", set("existingProspect", get("[0]", outreach("getProspectsByProperty"))))
         ],
         // TODO this is broken, key and value need to be reversed, or get needs to be removed
-        [set("userId", get("${existingProspect}", "id")), loopEndL()]
+        [set("userId", "${existingProspect.id}"), loopEndL()]
       )),
   linkAccount:
   // TODO maybe pass a variable through in the context, to tell it to link or not...
@@ -148,25 +151,28 @@ const glue = {
         cond("isEmpty", set("accountId", input("account.outreach/id"))),
         // must be intersecting or the account_segment is undefined, indicating that it's a batch call
         // as opposed to [] which just says the account isn't in any segments TODO test
-        or(
-          cond("notEmpty", ld("intersection", "${connector.private_settings.synchronized_account_segments}", input("account_segments"))),
+        or([
+          cond("notEmpty", ld("intersection", "${connector.private_settings.synchronized_account_segments}", ld("map", input("account_segments"), "id"))),
           not(input("account_segments"))
-        )
+        ])
       ],
       [
         route("accountLookup"),
         ifL(cond("isEmpty", "${accountId}"),
-          route("sendInsertAccountWithAccountId", cast(HullOutgoingAccount, input("account")))
+          // casting a user message to outgoing account, not sure if that is going to result in bugs
+          // but it should use the account->outreach_account transform
+          route("sendInsertAccountWithAccountId", cast(HullOutgoingAccount, input()))
         )
       ]
     ),
   sendInsertAccountWithAccountId: [
     set("insertedAccount", outreach("insertAccount", input())),
-    set("accountId", get("${insertedAccount}", "id")),
-    hull("asAccount", "${insertedAccount}")
+    ifL(cond("notEmpty", set("accountId", "${insertedAccount.id}")),
+      hull("asAccount", "${insertedAccount}")
+    )
   ],
   getProspectById: [
-    set("userId", get(input(), "user.outreach/id")),
+    set("userId", input("user.outreach/id")),
     ifL(cond("notEmpty", set("prospectFromOutreach", outreach("getProspectById"))),
       // TODO Make sure we have a unit test for this... should have the class type assigned by service
       hull("asUser", "${prospectFromOutreach}")
@@ -174,20 +180,22 @@ const glue = {
   ],
   insertProspect: [
     route("linkAccount"),
-    ifL(cond("notEmpty", set("userFromOutreach", outreach("insertProspect", cast(HullOutgoingUser, input("user"))))),
+    ifL(cond("notEmpty", set("userFromOutreach", outreach("insertProspect", input()))),
       hull("asUser", "${userFromOutreach}")
     )
   ],
 
   updateProspect: [
     route("linkAccount"),
-    ifL(cond("notEmpty", set("userFromOutreach", outreach("updateProspect", cast(HullOutgoingUser, input("user"))))),
+    ifL(cond("notEmpty", set("userFromOutreach", outreach("updateProspect", input()))),
       hull("asUser", "${userFromOutreach}")
     )
   ],
 
-  accountUpdate: iterateL(input(), { value: "message", async: true },
-    route("accountUpdateStart", cast(HullOutgoingAccount, "${message}"))
+  accountUpdate: ifL(route("isAuthenticated"),
+    iterateL(input(), { value: "message", async: true },
+      route("accountUpdateStart", cast(HullOutgoingAccount, "${message}"))
+    )
   ),
   accountUpdateStart:
     ifL(cond("notEmpty", set("accountId", input("account.outreach/id"))), {
@@ -208,10 +216,10 @@ const glue = {
       ifL([
           cond("notEmpty", set("value", input("account.${claim.hull}"))),
           cond("notEmpty", set("property", "${claim.service}")),
-          cond("notEmpty", set("existingAccount", get(outreach("getAccountByProperty"), "[0]")))
+          cond("notEmpty", set("existingAccount", get("[0]", outreach("getAccountByProperty"))))
         ],
         [
-          set("accountId", get("${existingAccount}", "id")),
+          set("accountId", "${existingAccount.id}"),
           loopEndL()
         ]
       )
@@ -221,12 +229,12 @@ const glue = {
   // should add an implicit validation step so all this has to be is:
   // hull("asAccount", outreachSendInput("insertAccount", cast(HullOutgoingAccount, input("account")))
   insertAccount:
-    ifL(cond("notEmpty", set("accountFromOutreach", outreach("insertAccount", cast(HullOutgoingAccount, input("account"))))),
+    ifL(cond("notEmpty", set("accountFromOutreach", outreach("insertAccount", input()))),
       hull("asAccount", "${accountFromOutreach}")
     ),
 
   updateAccount:
-    ifL(cond("notEmpty", set("accountFromOutreach", outreach("updateAccount", cast(HullOutgoingAccount, input("account"))))),
+    ifL(cond("notEmpty", set("accountFromOutreach", outreach("updateAccount", input()))),
       hull("asAccount", "${accountFromOutreach}")
     ),
 
@@ -277,8 +285,8 @@ const glue = {
       set("existingWebhooks", outreach("getAllWebhooks")),
       set("sameWebhook", filter({ type: "webhook", attributes: { url: "${webhookUrl}" } }, "${existingWebhooks}")),
       ifL("sameWebhook[0]", {
-        do: set("webhookId", get("sameWebhook[0].id")),
-        eldo: set("webhookId", get(outreach("insertWebhook", webhookDataTemplate), "data.id"))
+        do: set("webhookId", "${sameWebhook[0].id}"),
+        eldo: set("webhookId", get("data.id", outreach("insertWebhook", webhookDataTemplate)))
       }),
       hull("settingsUpdate", { webhook_id:  "${webhookId}" }),
       route("deleteBadWebhooks")

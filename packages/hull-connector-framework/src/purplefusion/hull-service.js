@@ -170,7 +170,14 @@ const hullService: CustomApi = {
       method: "getAccountAttributes",
       endpointType: "byId",
       output: HullApiAttributeDefinition
+    },
+    outgoingSkip: {
+      method: "outgoingSkip",
+      endpointType: "byId",
+      input: HullIncomingUser,
+      suppressLog: true
     }
+
   }
 };
 

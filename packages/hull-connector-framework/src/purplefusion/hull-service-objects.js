@@ -30,68 +30,68 @@ import type { ServiceObjectDefinition } from "./types";
 // }
 
 const WebPayload: ServiceObjectDefinition = {
-  name: "incoming_webpayload",
-  service_name: "WebPayload"
+  service_name: "incoming_webpayload",
+  name: "WebPayload"
 };
 
 const HullUserRaw: ServiceObjectDefinition = {
-  name: "HullUserRaw",
-  service_name: "User"
+  service_name: "HullUserRaw",
+  name: "User"
 }
 
 const ServiceUserRaw: ServiceObjectDefinition = {
-  name: "ServiceUserRaw",
-  service_name: "User"
+  service_name: "ServiceUserRaw",
+  name: "User"
 }
 
 const HullIncomingUser: ServiceObjectDefinition = {
-  name: "HullIncomingUser",
-  service_name: "User"
+  service_name: "HullIncomingUser",
+  name: "User"
 }
 
 const HullOutgoingUser: ServiceObjectDefinition = {
-  name: "HullOutgoingUser",
-  service_name: "User"
+  service_name: "HullOutgoingUser",
+  name: "User"
 }
 
 const HullIncomingAccount: ServiceObjectDefinition = {
-  name: "HullIncomingAccount",
-  service_name: "Account"
+  service_name: "HullIncomingAccount",
+  name: "Account"
 }
 
 const HullOutgoingAccount: ServiceObjectDefinition = {
-  name: "HullOutgoingAccount",
-  service_name: "Account"
+  service_name: "HullOutgoingAccount",
+  name: "Account"
 }
 
 const HullIncomingDropdownOption: ServiceObjectDefinition = {
-  name: "HullIncomingDropdownOption",
-  service_name: "DropdownOption"
+  service_name: "HullIncomingDropdownOption",
+  name: "DropdownOption"
 }
 
 const HullOutgoingDropdownOption: ServiceObjectDefinition = {
-  name: "HullOutgoingDropdownOption",
-  service_name: "DropdownOption"
+  service_name: "HullOutgoingDropdownOption",
+  name: "DropdownOption"
 }
 
 const HullApiAttributeDefinition: ServiceObjectDefinition = {
-  name: "HullApiAttributeDefinition",
-  service_name: "HullApiAttributeDefinition"
+  service_name: "HullApiAttributeDefinition",
+  name: "HullApiAttributeDefinition"
 }
 
 const HullConnectorAttributeDefinition: ServiceObjectDefinition = {
-  name: "HullConnectorAttributeDefinition",
-  service_name: "HullConnectorAttributeDefinition"
+  service_name: "HullConnectorAttributeDefinition",
+  name: "HullConnectorAttributeDefinition"
 }
 
 const HullConnectorEnumDefinition: ServiceObjectDefinition = {
-  name: "HullConnectorEnumDefinition",
-  service_name: "HullConnectorEnumDefinition"
+  service_name: "HullConnectorEnumDefinition",
+  name: "HullConnectorEnumDefinition"
 }
 
 const HullIncomingUserImportApi: ServiceObjectDefinition = {
-  name: "HullIncomingUserImportApi",
-  service_name: "User"
+  service_name: "HullIncomingUserImportApi",
+  name: "User"
 }
 
 

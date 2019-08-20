@@ -13,7 +13,8 @@ const {
   isUndefinedOrNull,
   removeTraitsPrefix,
   setHullDataType,
-  getHullDataType
+  getHullDataType,
+  sameHullDataType
 } = require("./utils");
 
 const debug = require("debug")("hull-shared:TransformImpl");
@@ -40,20 +41,20 @@ class TransformImpl {
       // not sure if we want to completely deprecate this in the future or not...
       // this means the user didn't define an input, could be dangerous
       if (isUndefinedOrNull(transform.input)) {
-        let outputTransforms = this.unqualifiedDestinations.get(transform.output.name);
+        let outputTransforms = this.unqualifiedDestinations.get(transform.output.service_name);
         if (isUndefinedOrNull(outputTransforms)) {
           outputTransforms = [];
-          this.unqualifiedDestinations.set(transform.output.name, outputTransforms);
+          this.unqualifiedDestinations.set(transform.output.service_name, outputTransforms);
         }
         outputTransforms.push(transform);
         return;
       }
 
 
-      let outputTransforms = this.transformsMap.get(transform.input.name);
+      let outputTransforms = this.transformsMap.get(transform.input.service_name);
       if (isUndefinedOrNull(outputTransforms)) {
         outputTransforms = [];
-        this.transformsMap.set(transform.input.name, outputTransforms);
+        this.transformsMap.set(transform.input.service_name, outputTransforms);
       }
       outputTransforms.push(transform);
     });
@@ -72,7 +73,7 @@ class TransformImpl {
     if (isUndefinedOrNull(current))
       return null;
 
-    let possibleTransforms = this.transformsMap.get(current.name);
+    let possibleTransforms = this.transformsMap.get(current.service_name);
 
     const foundTransforms = _.filter(possibleTransforms, { output: destination });
 
@@ -163,7 +164,7 @@ class TransformImpl {
     const inputClass = getHullDataType(input);
 
     // cannot transform from the same input to same output, just return data
-    if (inputClass && desiredOutputClass.name === inputClass.name) {
+    if (inputClass && sameHullDataType(desiredOutputClass, inputClass.service_name)) {
       return input;
     }
 
@@ -175,7 +176,7 @@ class TransformImpl {
       // for any given transformation that got to desiredOutputClass
       // now we only pick it if the input class for the transform was null...
       // probably best...
-      const unqualifiedTransformations = this.unqualifiedDestinations.get(desiredOutputClass.name);
+      const unqualifiedTransformations = this.unqualifiedDestinations.get(desiredOutputClass.service_name);
 
       if (!isUndefinedOrNull(unqualifiedTransformations) && unqualifiedTransformations.length > 0) {
         // take the first unqualified transformation if found

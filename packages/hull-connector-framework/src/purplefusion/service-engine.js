@@ -8,7 +8,9 @@ const _ = require("lodash");
 
 const {
   HullOutgoingUser,
-  HullOutgoingAccount
+  HullOutgoingAccount,
+  HullIncomingUser,
+  HullIncomingAccount
 } = require("./hull-service-objects");
 
 const {
@@ -20,7 +22,14 @@ const HullVariableContext = require("./variable-context");
 
 const { Route } = require("./language");
 
-const { isUndefinedOrNull, parseIntOrDefault, setHullDataType, getHullDataType, getHullPlatformTypeName } = require("./utils");
+const {
+  isUndefinedOrNull,
+  parseIntOrDefault,
+  setHullDataType,
+  getHullDataType,
+  getHullPlatformTypeName,
+  sameHullDataType
+} = require("./utils");
 
 const { TransformImpl } = require("./transform-impl");
 const { HullDispatcher } = require("./dispatcher");
@@ -148,8 +157,6 @@ class ServiceEngine {
       //   newData = results;
       // }
 
-      setHullDataType(newData, endpoint.output);
-
       if (endpoint) {
         if (endpoint.streamType) {
           newData = newData.stream;
@@ -158,6 +165,7 @@ class ServiceEngine {
         } else if (!_.isEmpty(serviceDefinition.defaultReturnObj)) {
           newData = _.get(newData, serviceDefinition.defaultReturnObj);
         }
+        setHullDataType(newData, endpoint.output);
 
         if (endpoint.transformTo) {
           newData = this.transforms.transform(context, newData, endpoint.transformTo)
@@ -173,119 +181,165 @@ class ServiceEngine {
 
 
   transformAndLogAndSendData(context: HullVariableContext, instruction: Object, inputParam: any, endpoint: any) {
-    const direction = (instruction.options.name === "hull") ? "incoming" : "outgoing";
-
-    // This specialized function makes sure to ensure the right context for log i think
-    // we can see the exact user we were trying to send and which data was sent
-    let logger = context.reqContext().client.logger;
-
     let dataToSend = inputParam;
-    let dataType = getHullDataType(inputParam);
-    let hullDataType = getHullPlatformTypeName(dataType);
 
-
-    if (!isUndefinedOrNull(dataToSend)) {
-
-      if (!isUndefinedOrNull(endpoint.input)) {
-        dataToSend = this.transforms.transform(context, dataToSend, endpoint.input);
-
-        // set this as the latest dataType because it's the last thing that the object was transformed into
-        dataType = getHullDataType(inputParam);
-        hullDataType = getHullPlatformTypeName(dataType);
-      }
-
-      // Not going to be able to pull this data out for a batch call... or would have to look at if it was an array
-      // but even so, if packaged as an array inside of an object, would have no visibility...
-      // can't do it this way anymore probably....
-      // need to unwind this...
+    // Difference between batch or one at a time sent to the service
+    // if we want it sent as batch, we put the type at the top level
+    // if we want them sent one at a time, we put the type at the message level
+    // though, not quite sure how we control that...
+    // maybe at the glue level...
+    if (!isUndefinedOrNull(dataToSend) && !isUndefinedOrNull(endpoint.input)) {
+      dataToSend = this.transforms.transform(context, dataToSend, endpoint.input);
     }
 
-    const action = `${direction}.${_.toLower(hullDataType)}`;
+    // if is an incoming data to hull, then log the final result sent to hull
+    // otherwise if outgoing, log the hull data before all the transforms to the service
+    // No, I think it makes more sense to show the data as it appears coming/going to the service
+    // that's the hardest part to track anyway...
+    // so incoming should be inputparam, outgoing, should be dataToSend
+    const direction = (instruction.options.name === "hull") ? "incoming" : "outgoing";
+    // But also need the right hull data types so that we can attach to the right hull entity and log the right thing..
 
-    const logMessage = (systemMessage, data, results) => {
-      const bestLogger = this.getBestLogger(context, logger, inputParam, data);
-      // TODO add logic here to join back to the original data array to log the right message per object
-      // if it's a batch endpoint, it will have the instructions to join back
-      if (direction === 'outgoing') {
-        bestLogger.info(systemMessage, { data, operation: endpoint.operation, type: dataType });
-      } else {
-        bestLogger.info(systemMessage, { data });
-      }
+    let hullEntityToLog;
+    let dataToLog;
+    let action;
 
-    };
+    if (direction === "incoming") {
+      // in the case of incoming data, then log the raw data which came from the service
+      // more useful we think than the the data after it's been transformed to hull format, which we can view in firehose anyway
+      dataToLog = inputParam;
+      hullEntityToLog = dataToSend
 
-    const logErrorMessage = (systemMessage, data, error) => {
-      const bestLogger = this.getBestLogger(context, logger, inputParam, data);
-      const message = isUndefinedOrNull(_.get(error, "message")) ? {} : { error: error.message };
-      bestLogger.error(systemMessage, { data, operation: endpoint.operation, type: dataType, message });
-    };
+      // in the case of incoming data, we need to log the name of the type which is being sent to hull (dataToSend)
+      const hullTypeToLog = getHullPlatformTypeName(getHullDataType(dataToSend));
+      action = `${direction}.${_.toLower(hullTypeToLog)}`;
+    } else {
+      // in the case of out going data, log the data being sent to the service
+      // more useful than the kraken payload, which we can view in hull
+      dataToLog = dataToSend;
+      hullEntityToLog = inputParam;
+
+      // In the case of outgoing data, we need to log the name of the hull type being sent
+      const hullTypeToLog = getHullPlatformTypeName(getHullDataType(inputParam));
+      action = `${direction}.${_.toLower(hullTypeToLog)}`;
+    }
 
     return this.sendData(context, instruction, dataToSend).then((results) => {
-
       const systemMessage = `${action}.success`;
 
-      if (!isUndefinedOrNull(hullDataType)) {
-
-        context.reqContext().metric.increment(`ship.${action}s`, 1);
-
-        // if is an incoming data to hull, then log the final result sent to hull
-        // otherwise if outgoing, log the hull data before all the transforms to the service
-        // TODO wonder if we could introduce a hook pre/post transform where we could do whatever we wanted
-        // depending on the object that's been converted
-        const dataToLog = direction === "incoming" ? dataToSend : inputParam;
-
-        if (Array.isArray(dataToLog)) {
-          _.forEach(dataToLog, data => {
-            logMessage(systemMessage, data, results);
-          });
-        } else {
-          logMessage(systemMessage, dataToLog, results);
-        }
+      // need a catch to suppress logs if we're handling logs in the endpoint itself (eg: explicit skips)
+      if (endpoint.suppressLog !== true) {
+        this.logMessage(context, instruction, endpoint, systemMessage, direction, { dataToLog, hullEntityToLog, results } );
       }
+
       // this is just for logging, do not suppress error here
       // pass it along with promise resolve
       return Promise.resolve(results);
 
     }).catch(error => {
-
       const entityStatus = error instanceof SkippableError ? "skip" : "error";
       const systemMessage = `${action}.${entityStatus}`;
-
-      // TODO add logic here to join back to the original data array too, like above case too
-      // hopefully can use same logic, but might have to have different join logic
-      if (!isUndefinedOrNull(hullDataType)) {
-
-        const dataToLog = direction === "incoming" ? dataToSend : inputParam;
-        if (Array.isArray(dataToLog)) {
-          _.forEach(dataToLog, data => {
-            logErrorMessage(systemMessage, data, error);
-          });
-        } else {
-          logErrorMessage(systemMessage, dataToLog, error);
-        }
-
-      }
+      this.logMessage(context, instruction, endpoint, systemMessage, direction, { dataToLog, hullEntityToLog }, error);
 
       // if the issue was not an error, resolve, in cases where we marked it as a skippable error
       return entityStatus === "error" ? Promise.reject(error) : Promise.resolve({});
     });
   }
 
-  getBestLogger(context: any, logger: any, inputParam: any, data: any) {
-    const hullType = getHullDataType(inputParam);
-    // ok to do this because inside of hullDataType which is only defined if inputParam is there
-    if (hullType === HullOutgoingUser) {
-      if (!_.isEmpty(data)) {
-        return context.reqContext().client.asUser(data.user).logger;
+  /**
+   * Not great because of 6 params, but I broke it out of the other method, so not as spagetti
+   */
+  logMessage(context, instruction, endpoint, systemMessage, direction, associatedData: { dataToLog: any, hullEntityToLog: any, results?: any }, error) {
+
+    if (isUndefinedOrNull(associatedData.hullEntityToLog)) {
+      if (error) {
+        const message = isUndefinedOrNull(_.get(error, "message")) ? {} : { error: error.message };
+        context.reqContext().client.logger.error(systemMessage, { endpoint: instruction.name, operation: endpoint.operation, message });
       }
-    } else if (hullType === HullOutgoingAccount) {
+      return;
+    }
+
+    // need this data type to override individual datatype if hullEntityToLog is an array, and type is at top
+    const hullDataType = getHullDataType(associatedData.hullEntityToLog);
+    let hullArrayToLog = associatedData.hullEntityToLog;
+    if (!Array.isArray(hullArrayToLog)) {
+      hullArrayToLog = [hullArrayToLog];
+    }
+    const dataToLog = associatedData.dataToLog;
+
+    // if a batch error, this is where we'd join the error state back to the data...
+    // not sure how we template that behavior
+    _.forEach(hullArrayToLog, hullData => {
+      const entitySpecificLogger = this.createEntitySpecificLogger(context, hullData, hullDataType);
+
+      // need some sort of condition so that we don't send a batch of messages for each hull message
+      if (endpoint.batch === true) {
+
+      }
+      if (entitySpecificLogger) {
+        const data = dataToLog;
+        const dataType = getHullDataType(data);
+        let type;
+        if (dataType) {
+          type = dataType.name;
+        }
+        if (error) {
+          const errorMessage = _.get(error, "message");
+          entitySpecificLogger.error(systemMessage, { data, type, operation: endpoint.operation, error: errorMessage });
+        } else if (direction === "outgoing") {
+          // lets not log response, that seems a little excessive and could fill our log pipeline up to an unknown degree
+          // entitySpecificLogger.info(systemMessage, { data, type, response: _.get(associatedData, "results.body"), operation: endpoint.operation });
+          entitySpecificLogger.info(systemMessage, { data, type, operation: endpoint.operation });
+        } else {
+          entitySpecificLogger.info(systemMessage, { data, type });
+        }
+      }
+    });
+
+  }
+
+  /**
+   *
+   * @param context
+   * @param data
+   * @param dataType  allow an optional parameter to overwrite the datatype on the data, used for an array scenario if the type is at the array level
+   * but we can control the entity specific logging though because incoming we do one at a time, and outgoing, we can control? or one or the other? not sure...
+   * @returns {*}
+   */
+  createEntitySpecificLogger(context: any, data: any, dataType?: any) {
+    let hullType = dataType;
+
+    if (!hullType) {
+      hullType = getHullDataType(data);
+    }
+
+    // ok to do this because inside of hullDataType which is only defined if inputParam is there
+    if (sameHullDataType(hullType, HullOutgoingUser)) {
+      const identity = _.get(data, "user");
+      if (!_.isEmpty(identity)) {
+        return context.reqContext().client.asUser(identity).logger;
+      }
+    } else if (sameHullDataType(hullType, HullIncomingUser)) {
+      const identity = _.get(data, "ident");
+      if (!_.isEmpty(data)) {
+        return context.reqContext().client.asUser(identity).logger;
+      }
+    } else if (sameHullDataType(hullType, HullOutgoingAccount)) {
+      const identity = _.get(data, "account");
       // if inputParam is an array, must get the right obj
       // in the array for this log...
       if (!_.isEmpty(data)) {
-        return context.reqContext().client.asAccount(data.account).logger;
+        return context.reqContext().client.asAccount(identity).logger;
       }
     }
-    return logger;
+    else if (sameHullDataType(hullType, HullIncomingAccount)) {
+      const identity = _.get(data, "ident");
+      // if inputParam is an array, must get the right obj
+      // in the array for this log...
+      if (!_.isEmpty(identity)) {
+        return context.reqContext().client.asAccount(identity).logger;
+      }
+    }
   }
 
 

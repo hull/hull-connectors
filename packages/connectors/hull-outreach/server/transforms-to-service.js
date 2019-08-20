@@ -15,7 +15,7 @@ const transformsToService: ServiceTransforms = [
     direction: "outgoing",
     transforms: [
       { outputPath: "data.type", outputFormat: "prospect" },
-      { inputPath: "outreach/id", outputPath: "data.id" },
+      { inputPath: "user.outreach/id", outputPath: "data.id" },
       { outputPath: "data.id", outputFormat: "${userId}" },
       {
         condition: "accountId",
@@ -32,13 +32,13 @@ const transformsToService: ServiceTransforms = [
           checkField: "service_field_name",
           fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"],
         },
-        inputPath: "${hull_field_name}",
+        inputPath: "user.${hull_field_name}",
         outputPath: "data.attributes.${service_field_name}",
       },
       {
         mapping: "connector.private_settings.outgoing_user_attributes",
         condition: isEqual("service_field_name", "stage"),
-        inputPath: "${hull_field_name}",
+        inputPath: "user.${hull_field_name}",
         outputPath: "data.relationships.stage.data",
         outputFormat: {
           type: "stage",
@@ -48,7 +48,7 @@ const transformsToService: ServiceTransforms = [
       {
         mapping: "connector.private_settings.outgoing_user_attributes",
         condition: isEqual("service_field_name", "owner"),
-        inputPath: "${hull_field_name}",
+        inputPath: "user.${hull_field_name}",
         outputPath: "data.relationships.owner.data",
         outputFormat: {
           type: "user",
@@ -63,7 +63,7 @@ const transformsToService: ServiceTransforms = [
           fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"],
           mergeArrayFromContext: "existingProspect.attributes.${service_field_name}"
         },
-        inputPath: "${hull_field_name}",
+        inputPath: "user.${hull_field_name}",
         outputPath: "data.attributes.${service_field_name}",
       },
       {
@@ -73,7 +73,7 @@ const transformsToService: ServiceTransforms = [
           checkField: "service_field_name",
           fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"]
         },
-        inputPath: "${hull_field_name}",
+        inputPath: "user.${hull_field_name}",
         outputPath: "data.attributes.${service_field_name}",
       }
     ]
@@ -86,13 +86,13 @@ const transformsToService: ServiceTransforms = [
     direction: "outgoing",
     transforms: [
       { outputPath: "data.type", outputFormat: "account" },
-      { inputPath: "outreach/id", outputPath: "data.id" },
+      { inputPath: "account.outreach/id", outputPath: "data.id" },
       { outputPath: "data.id", outputFormat: "${accountId}" },
       //still need to take this out in favor of setting the settings outgoing mappings
-      { inputPath: "domain", outputPath: "data.attributes.domain" },
+      { inputPath: "account.domain", outputPath: "data.attributes.domain" },
       {
         mapping: "connector.private_settings.outgoing_account_attributes",
-        inputPath: "${hull_field_name}",
+        inputPath: "account.${hull_field_name}",
         outputPath: "data.attributes.${service_field_name}",
       },
       {
@@ -102,7 +102,7 @@ const transformsToService: ServiceTransforms = [
           fields: ["tags"],
           mergeArrayFromContext: "existingAccount.attributes.${service_field_name}"
         },
-        inputPath: "${hull_field_name}",
+        inputPath: "account.${hull_field_name}",
         outputPath: "data.attributes.${service_field_name}",
       }
     ]

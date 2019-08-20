@@ -43,16 +43,25 @@ function setHullDataType(object: any, dataType: ServiceObjectDefinition) {
   });
 }
 
+function sameHullDataType(dataType1: ServiceObjectDefinition, dataType2: ServiceObjectDefinition): boolean {
+  const objectName1 = _.get(dataType1, "service_name");
+  if (objectName1) {
+    return objectName1 === _.get(dataType2, "service_name");
+  }
+  return false;
+}
+
+
 function getHullPlatformTypeName(classType: ServiceObjectDefinition) {
   if (isUndefinedOrNull(classType))
     return;
 
   if (
-    classType.name === HullOutgoingUser.name
-    || classType.name === HullIncomingUser.name
-    || classType.name === HullOutgoingAccount.name
-    || classType.name === HullIncomingAccount.name) {
-    return classType.service_name;
+    sameHullDataType(classType, HullOutgoingUser)
+    || sameHullDataType(classType, HullIncomingUser)
+    || sameHullDataType(classType, HullOutgoingAccount)
+    || sameHullDataType(classType, HullIncomingAccount)) {
+    return classType.name;
   }
 
 }
@@ -330,5 +339,6 @@ module.exports = {
   getHullDataType,
   setHullDataType,
   createAnonymizedObject,
-  getHullPlatformTypeName
+  getHullPlatformTypeName,
+  sameHullDataType
 }

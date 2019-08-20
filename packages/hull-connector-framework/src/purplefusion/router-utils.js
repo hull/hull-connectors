@@ -69,7 +69,8 @@ function statusErrorCallback(ctx, err) {
     });
 }
 
-function resolveServiceDefinition(channel: string): ServiceObjectDefinition {
+function resolveServiceDefinition(endpoint: { handler: string, channel?: string }): ServiceObjectDefinition {
+  const channel = endpoint.channel;
   if (!isUndefinedOrNull(channel)) {
     if (channel === "account:update") {
       return HullOutgoingAccount;

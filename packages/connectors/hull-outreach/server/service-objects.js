@@ -4,23 +4,23 @@ import type { ServiceObjectDefinition } from "hull-connector-framework/src/purpl
 
 
 const OutreachProspectRead: ServiceObjectDefinition = {
-  name: "outreach_incoming_prospect",
-  service_name: "Prospect"
+  service_name: "outreach_incoming_prospect",
+  name: "Prospect"
 };
 
 const OutreachProspectWrite: ServiceObjectDefinition = {
-  name: "outreach_outgoing_prospect",
-  service_name: "Prospect"
+  service_name: "outreach_outgoing_prospect",
+  name: "Prospect"
 };
 
 const OutreachAccountRead: ServiceObjectDefinition = {
-  name: "outreach_incoming_account",
-  service_name: "Prospect"
+  service_name: "outreach_incoming_account",
+  name: "Account"
 };
 
 const OutreachAccountWrite: ServiceObjectDefinition = {
-  name: "outreach_outgoing_account",
-  service_name: "Prospect"
+  service_name: "outreach_outgoing_account",
+  name: "Account"
 };
 
 module.exports = {
