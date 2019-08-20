@@ -4,6 +4,8 @@ import connectorConfig from "../../../server/config";
 
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
+process.env.CLIENT_ID = "123";
+process.env.CLIENT_SECRET = "abc";
 
 /**
  * This tests if the overwrite field is true/false/notset
@@ -15,10 +17,34 @@ const connector = {
     token: "hubToken",
     synchronized_user_segments: ["hullSegmentId"],
     outgoing_user_attributes: [
-      { hull: "traits_outreach/title", service: "jobtitle" },
+      { hull: "first_name", service: "firstname", overwrite: true },
+      { hull: "last_name", service: "lastname", overwrite: false },
+      { hull: "traits_group/custom_calculated_score", service: "custom_hubspot_score" },
+      { hull: "traits_custom_numeric", service: "custom_hubspot_numeric", overwrite: true },
+      { hull: "traits_custom_array", service: "custom_hubspot_array" },
+      { hull: "traits_custom_empty_array", service: "custom_hubspot_empty_array", overwrite: true },
+      { hull: "traits_custom_true", service: "custom_hubspot_true", overwrite: true },
+      { hull: "traits_custom_false", service: "custom_hubspot_false", overwrite: true },
+      { hull: "traits_custom_null", service: "custom_hubspot_null", overwrite: true },
+      { hull: "traits_custom_empty_string", service: "custom_hubspot_empty_string", overwrite: true },
+      { hull: "traits_custom_zero", service: "custom_hubspot_zero", overwrite: true },
+      { hull: "traits_custom_undefined", service: "custom_hubspot_undefined", overwrite: true },
+      { hull: "traits_custom_date_at", service: "custom_hubspot_date_at", overwrite: true },
+
       { hull: "account.id", service: "custom_hubspot_account_id", overwrite: true },
       { hull: "account.domain", service: "custom_hubspot_account_domain", overwrite: true },
       { hull: "account.group/created_at", service: "custom_hubspot_account_group_created_at", overwrite: true },
+
+      { hull: "account.custom_numeric", service: "custom_hubspot_account_numeric", overwrite: true },
+      { hull: "account.custom_array", service: "custom_hubspot_account_array", overwrite: true },
+      { hull: "account.custom_empty_array", service: "custom_hubspot_account_empty_array", overwrite: true },
+      { hull: "account.custom_true", service: "custom_hubspot_account_true", overwrite: true },
+      { hull: "account.custom_false", service: "custom_hubspot_account_false", overwrite: true },
+      { hull: "account.custom_null", service: "custom_hubspot_account_null", overwrite: true },
+      { hull: "account.custom_empty_string", service: "custom_hubspot_account_empty_string", overwrite: true },
+      { hull: "account.custom_zero", service: "custom_hubspot_account_zero", overwrite: true },
+      { hull: "account.custom_undefined", service: "custom_hubspot_account_undefined", overwrite: true },
+      { hull: "account.custom_date_at", service: "custom_hubspot_account_date_at", overwrite: true }
     ],
     link_users_in_service: true
   }
@@ -43,16 +69,8 @@ it("should update hubspot because linked account has changed", () => {
           .reply(200, require("../fixtures/get-contacts-groups"));
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, require("../fixtures/get-properties-companies-groups"));
-        scope.post("/contacts/v1/contact/batch/?auditId=Hull", [{
-          "properties": [{
-              "property": "jobtitle",
-              "value": "sometitle"
-            }, {
-              "property": "hull_segments",
-              "value": "testSegment"
-            }],
-          "email": "email@email.com"
-          }]
+        scope.post("/contacts/v1/contact/batch/?auditId=Hull",
+          [{"properties":[{"property":"firstname","value":"John"},{"property":"lastname","value":"NewLastName"},{"property":"hull_custom_hubspot_score","value":456},{"property":"hull_custom_hubspot_numeric","value":123},{"property":"hull_custom_hubspot_array","value":"A;B"},{"property":"hull_custom_hubspot_true","value":true},{"property":"hull_custom_hubspot_false","value":false},{"property":"hull_custom_hubspot_date_at","value":1540374459000},{"property":"hull_custom_hubspot_account_id","value":"acc123"},{"property":"hull_custom_hubspot_account_domain","value":"doe.com"},{"property":"hull_custom_hubspot_account_group_created_at","value":1477302459000},{"property":"hull_custom_hubspot_account_array","value":"A;B"},{"property":"hull_custom_hubspot_account_true","value":true},{"property":"hull_custom_hubspot_account_false","value":false},{"property":"hull_custom_hubspot_account_date_at","value":1540374459000},{"property":"hull_segments","value":"testSegment"}],"email":"email@email.com"}]
         ).reply(202);
         return scope;
       },
@@ -121,6 +139,22 @@ it("should update hubspot because linked account has changed", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
+        [
+          "info",
+          "outgoing.user.skip",
+          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
+          {
+            "reason": "No changes on any of the attributes for this user."
+          }
+        ],
+        [
+          "info",
+          "outgoing.user.skipcandidate",
+          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
+          {
+            "reason": "attribute change not found"
+          }
+        ],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
         [
           "info",
@@ -161,9 +195,6 @@ it("should update hubspot because linked account has changed", () => {
               }, {
                 "property": "hull_custom_hubspot_account_group_created_at",
                 "value": 1477302459000
-              }, {
-                "property": "hull_custom_hubspot_account_numeric",
-                "value": 123
               }, {
                 "property": "hull_custom_hubspot_account_array",
                 "value": "A;B"

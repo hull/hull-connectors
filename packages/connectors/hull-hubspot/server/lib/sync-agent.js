@@ -439,7 +439,9 @@ class SyncAgent {
         if (!toSend) {
           this.hullClient
             .asUser(envelope.message.user)
-            .logger.info("outgoing.user.skipcandidate");
+            .logger.info("outgoing.user.skipcandidate", {
+              reason: "attribute change not found"
+            });
         }
       });
     } catch (err) {

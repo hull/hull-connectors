@@ -22,7 +22,7 @@ const usersSegments = [
   }
 ];
 
-it("should send out a new hull user to hubspot", () => {
+it("should send out a new hull user to hubspot - user basic", () => {
   const email = "email@email.com";
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {

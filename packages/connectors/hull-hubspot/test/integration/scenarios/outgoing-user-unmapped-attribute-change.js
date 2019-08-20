@@ -4,6 +4,8 @@ import connectorConfig from "../../../server/config";
 
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
+process.env.CLIENT_ID = "ASDF";
+process.env.CLIENT_SECRET = "134";
 
 /**
  * This tests if the overwrite field is true/false/notset
@@ -42,6 +44,9 @@ it("should filter because none of the mapped attributes have changed", () => {
           .reply(200, require("../fixtures/get-contacts-groups"));
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, require("../fixtures/get-properties-companies-groups"));
+        scope.post("/contacts/v1/contact/batch/?auditId=Hull",
+          [{"properties":[{"property":"hull_custom_hubspot_account_id","value":"acc123"},{"property":"hull_custom_hubspot_account_domain","value":"doe.com"},{"property":"hull_segments","value":"testSegment"}],"email":"email@email.com"}]
+        ).reply(202);
         return scope;
       },
       connector,
@@ -108,6 +113,22 @@ it("should filter because none of the mapped attributes have changed", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
+        [
+          "info",
+          "outgoing.user.skip",
+          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
+          {
+            "reason": "No changes on any of the synchronized attributes for this user.  If you think this is a mistake, please check the settings page for the synchronized user attributes to ensure that the attribute which changed is in the synchronized outgoing attributes"
+          }
+        ],
+        [
+          "info",
+          "outgoing.user.skipcandidate",
+          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
+          {
+            "reason": "attribute change not found"
+          }
+        ],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
         [
           "info",
@@ -121,7 +142,10 @@ it("should filter because none of the mapped attributes have changed", () => {
               }, {
                 "property": "hull_custom_hubspot_account_domain",
                 "value": "doe.com"
-              }]
+              }, {
+                "property": "hull_segments",
+                "value": "testSegment",
+            }]
           }
         ]
       ],
