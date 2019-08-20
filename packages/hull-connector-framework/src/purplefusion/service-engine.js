@@ -252,10 +252,18 @@ class ServiceEngine {
   logMessage(context, instruction, endpoint, systemMessage, direction, associatedData: { dataToLog: any, hullEntityToLog: any, results?: any }, error) {
 
     if (isUndefinedOrNull(associatedData.hullEntityToLog)) {
-      if (error) {
-        const message = isUndefinedOrNull(_.get(error, "message")) ? {} : { error: error.message };
-        context.reqContext().client.logger.error(systemMessage, { endpoint: instruction.name, operation: endpoint.operation, message });
-      }
+      // Don't log anything if there's an error with no association to a particular hull entity
+      // could be slightly misleading if we were doing a query before pushing the entity (where the entity was not the data inputted)
+      // for example on a lookup, could decide we want to know what we are pushing in a deeper way, by looking at the input query is related to...
+      // but difficult to know for sure the specific entity it relates to
+      // ... could push new input() everytime we're doing a specific account lookups... then always rely on input?
+      // ... other cases would be batch cases where we already need to develop logic to join errors back to the batch
+      // but could also lead to throwing errors without a known context
+      // either way, this is bubbled to the top and shown....
+      // if (error) {
+      //   const message = isUndefinedOrNull(_.get(error, "message")) ? {} : { error: error.message };
+      //   context.reqContext().client.logger.error(systemMessage, { endpoint: instruction.name, operation: endpoint.operation, message });
+      // }
       return;
     }
 
@@ -273,9 +281,9 @@ class ServiceEngine {
       const entitySpecificLogger = this.createEntitySpecificLogger(context, hullData, hullDataType);
 
       // need some sort of condition so that we don't send a batch of messages for each hull message
-      if (endpoint.batch === true) {
-
-      }
+      // if (endpoint.batch === true) {
+      //
+      // }
       if (entitySpecificLogger) {
         const data = dataToLog;
         const dataType = getHullDataType(data);

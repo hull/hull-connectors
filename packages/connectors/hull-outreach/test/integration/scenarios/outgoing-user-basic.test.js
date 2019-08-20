@@ -4,13 +4,6 @@ const _ = require("lodash");
 process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 
-
-
-
-
-
-
-
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
 
@@ -45,8 +38,8 @@ test("send smart-notifier user update to outreach", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({"method": "GET", "status": 200, "url": "/prospects/", "vars": {}})],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({"method": "PATCH", "status": 200, "url": "/prospects/23", "vars": {}})],
         ["info", "outgoing.user.success", expect.whatever(), { "data": {"data": {"attributes": {"emails": ["alberto@close.io", "albertoman9@gmail.com"], "title": "Sales", "workPhones": ["+18552567346"]}, "id": 23, "type": "prospect"}},
-        "operation": "patch", "response": require("../fixtures/api-responses/existing-prospect-updated.json").data, type:"Prospect" }],
-        ["info", "incoming.user.success", expect.whatever(), {"data": {"accountIdent": { "anonymous_id": "outreach:32" }, "attributes": {"outreach/custom2": {"operation": "set", "value": "Alberto Nodale"}, "outreach/id": {"operation": "set", "value": 23 }, "outreach/stage": {"operation": "set", "value": 2 }, "outreach/owner": {"operation": "set", "value": 1 }}, "ident": {"anonymous_id": "outreach:23", "email": "alberto@close.io"}}}],
+        "operation": "patch", type:"Prospect" }],
+        ["info", "incoming.user.success", expect.whatever(), {"data": expect.whatever(), "type": "Prospect" }],
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}]
       ],
       firehoseEvents: [
@@ -58,9 +51,7 @@ test("send smart-notifier user update to outreach", () => {
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()],
         ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.whatever()],
-        ["increment", "ship.outgoing.users", 1],
-        ["increment", "ship.incoming.users", 1]
+        ["value", "connector.service_api.response_time", expect.whatever()]
       ]
     });
   });

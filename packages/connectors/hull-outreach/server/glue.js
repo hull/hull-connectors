@@ -32,7 +32,8 @@ const {
   HullOutgoingUser,
   HullOutgoingDropdownOption,
   HullIncomingDropdownOption,
-  HullConnectorAttributeDefinition
+  HullConnectorAttributeDefinition,
+  WebPayload
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const _ = require("lodash");
@@ -193,7 +194,7 @@ const glue = {
   ],
 
   accountUpdate: ifL(route("isAuthenticated"),
-    iterateL(input(), { value: "message", async: true },
+    iterateL(input(), { key: "message", async: true },
       route("accountUpdateStart", cast(HullOutgoingAccount, "${message}"))
     )
   ),
@@ -266,7 +267,8 @@ const glue = {
       })
     ])
   ],
-  webhook:
+  webhooks: ifL(input("body"), route("handleWebhook", cast(WebPayload, input("body")))),
+  handleWebhook:
     ifL(cond("isEqual", "account", input("data.type")), {
       do: hull("asAccount", input()),
       eldo:
@@ -284,7 +286,7 @@ const glue = {
       set("webhookUrl", utils("createWebhookUrl")),
       set("existingWebhooks", outreach("getAllWebhooks")),
       set("sameWebhook", filter({ type: "webhook", attributes: { url: "${webhookUrl}" } }, "${existingWebhooks}")),
-      ifL("sameWebhook[0]", {
+      ifL("${sameWebhook[0]}", {
         do: set("webhookId", "${sameWebhook[0].id}"),
         eldo: set("webhookId", get("data.id", outreach("insertWebhook", webhookDataTemplate)))
       }),

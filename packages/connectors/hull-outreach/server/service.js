@@ -20,7 +20,6 @@ const {
 
 const { SuperagentApi } = require("hull-connector-framework/src/purplefusion/superagent-api");
 const MESSAGES = require("./messages");
-const { isUndefinedOrNull } = require("hull-connector-framework/src/purplefusion/utils");
 const { isNull, notNull } = require("hull-connector-framework/src/purplefusion/conditionals");
 
 

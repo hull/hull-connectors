@@ -366,6 +366,7 @@ class HullDispatcher {
         // if the instruction has params and a varname it means we're looping over a predetermined object or array
         // here we're setting up the traversal and checking that the values make sense
         if (!isUndefinedOrNull(instruction.params) && instructionOptions.key) {
+          // TODO not sure if we should throw error or not here... could quietly suppress... throwing for now...
           if (isUndefinedOrNull(resolvedParams)) {
             throw new Error(`Cannot iterate over a parameter that does not exist.  This instruction undefined: ${JSON.stringify(instruction.params)}`);
           } else if (!Array.isArray(resolvedParams) && !_.isPlainObject(resolvedParams)) {

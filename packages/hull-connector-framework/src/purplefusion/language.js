@@ -320,17 +320,12 @@ function lockL(lockname: string, instructions: any): LoopLogic {
 class LoopLogic extends Logic {
   constructor(instructions: any, collection?: any, variables?: { key: string, value?: string }) {
 
-    let key;
-    let value;
-
-    if (variables) {
-      key = variables.key;
-      value = variables.value;
-    }
+    const additionalParameters = {};
+    _.assign(additionalParameters, variables);
 
     // can be the same container for an input array and for dynamic loop
     // dynamic loop the params are null... we just keep looking...
-    super({ name: "loop", instructions, key, value }, collection);
+    super({ name: "loop", instructions, ...additionalParameters }, collection);
   }
 }
 
@@ -367,6 +362,8 @@ function loopL(instructions: any): LoopLogic {
  * async is a special value which will resolve the array all at the same time in an async way.  Will not respect loopEnds...
  * this also means that any variables declared inside of the async context will not bubble out, but and variables before will hold their previous values even if set again in the async context
  * @param instructions the instructions to evaluate for each of the objects in the array
+ *
+ * // TODO key and value should be switched or changed to be more explicit to what they actually do, seems kinda wrong the way it is now
  * @returns {LoopLogic}
  */
 function iterateL(arrayParam: any, varname: string | { key: string, value?: string, async?: boolean }, instructions: any): LoopLogic {
