@@ -37,7 +37,10 @@ const {
 const { HubspotOutgoingDeal, HubspotIncomingDeal } = require("./service-objects");
 
 // What about linking calls?
-const service: RawRestApi = {
+const service = ({ clientID, clientSecret } : {
+  clientID: string,
+  clientSecret: string
+}): RawRestApi => ({
   initialize: (context, api) => new SuperagentApi(context, api),
   // This is set by the ensureSetup endpoint in the glue
   prefix: "https://api.hubapi.com",
@@ -103,19 +106,27 @@ const service: RawRestApi = {
       "x-rate-limit-remaining": "ship.service_api.limit"
     }
   },
+  // authentication: {
+  //   strategy: "hubspotoauth",
+  //   params: {
+  //     name: "Hubspot",
+  //     Strategy: HubspotStrategy,
+  //     options: {
+  //       clientID: process.env.CLIENT_ID,
+  //       clientSecret: process.env.CLIENT_SECRET,
+  //       authorizationURL: "https://app.hubspot.com/oauth/authorize",
+  //       tokenURL: "https://api.hubapi.com/oauth/v1/token",
+  //       grant_type: "authorization_code",
+  //       scope: ["oauth", "contacts", "timeline"]
+  //     }
+  //   }
+  // },
   authentication: {
-    strategy: "hubspotoauth",
+    strategy: "hubspotOauth",
     params: {
-      name: "Hubspot",
       Strategy: HubspotStrategy,
-      options: {
-        clientID: process.env.CLIENT_ID,
-        clientSecret: process.env.CLIENT_SECRET,
-        authorizationURL: "https://app.hubspot.com/oauth/authorize",
-        tokenURL: "https://api.hubapi.com/oauth/v1/token",
-        grant_type: "authorization_code",
-        scope: ["oauth", "contacts", "timeline"]
-      }
+      clientID,
+      clientSecret,
     }
   },
   error: {
@@ -163,6 +174,6 @@ const service: RawRestApi = {
       }
     ]
   }
-};
+});
 
 module.exports = service;

@@ -19,6 +19,25 @@
   "settings": [],
   "private_settings": [
     {
+      "name": "oauth",
+      "title": "Oauth",
+      "type": "string",
+      "format": "oauth",
+      "description": "On the authentication screen, log into Hubspot with your username and password, if you are not already logged in",
+      "handler": "oauth",
+      "url": "/auth",
+      "options": {
+        "tokenInUrl": true,
+        "name": "Hubspot",
+        "strategy": {
+          "authorizationURL": "https://app.hubspot.com/oauth/authorize",
+          "tokenURL": "https://api.hubapi.com/oauth/v1/token",
+          "grant_type": "authorization_code",
+          "scope": ["oauth", "contacts", "timeline"]
+        }
+      }
+    },
+    {
       "name": "access_token",
       "title": "OAuth Access Token",
       "type": "string",
@@ -123,17 +142,15 @@
   "deployment_settings": [],
   "resources": [],
   "readme": "readme.md",
-  "tabs": [
-    {
-      "title": "Credentials & Actions",
-      "url": "/auth",
-      "size": "small",
-      "editable": false
-    }
-  ],
   "ui": false,
   "subscriptions": [{
     "url": "/smart-notifier",
+    "channels": [
+      {
+        "channel": "user:update",
+        "handler": "userUpdate"
+      }
+    ],
     "conditions": {
       "channels": {
         "only": [
@@ -143,8 +160,43 @@
       }
     }
   }],
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ]
+    }
+  ],
+  "json": [
+    {
+      "url": "/fetch",
+      "handler": "fetchAll",
+      "type": "string",
+      "format": "action",
+      "name": "fetch_all_users",
+      "title": "Fetch All Users",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fields-outreach-prospect-out",
+      "handler": "fieldsOutreachProspectOutbound"
+    }
+  ],
   "schedules": [],
   "settings_sections": [
+    {
+      "title": "Connect with Outreach",
+      "description": "Please begin by authenticating this connector with Outreach.  You must have appropriate privileges to grant access.  Hull requests access to only the endpoints which are required to do User and Account synchronization",
+      "properties": [
+        "private_settings.oauth"
+      ]
+    },
     {
       "title": "Deal Identity",
       "description": "Deal identity is important in order to prevent duplication in Hubspot as well as Hull",

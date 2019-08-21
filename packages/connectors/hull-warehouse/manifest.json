@@ -161,13 +161,33 @@
   "tabs": [],
   "admin": "/admin",
   "ui": false,
-  "schedules": [{
+  "statuses": [
+    {
       "url": "/status",
       "type": "interval",
-      "value": "5"
-  }],
+      "value": "5",
+      "handler": "status"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "interval",
+    "value": "5",
+    "handler": "status"
+  },
   "subscriptions": [{
     "url": "/smart-notifier",
+    "channels": [
+      {
+        "channel": "user:update",
+        "handler": "userUpdate"
+      },
+      {
+        "channel": "account:update",
+        "handler": "accountUpdate"
+      }
+    ],
     "conditions": {
       "channels": {
         "only": [
@@ -178,10 +198,31 @@
       }
     }
   }],
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ]
+    },
+    {
+      "url": "/batch-accounts",
+      "channels": [
+        {
+          "channel": "account:update",
+          "handler": "accountUpdate"
+        }
+      ]
+    }
+  ],
   "settings_sections": [
     {
       "title": "Database Connection Information",
       "description": "Please fill out the following database connection information.  Because this connector is hosted in Heroku, we are unable to provide a static ip address which the connection will be coming from",
+      "step": "credentials",
       "properties": [
         "private_settings.type",
         "private_settings.db_hostname",
@@ -193,6 +234,7 @@
     {
       "title": "Database Login Information",
       "description": "You will need a user and password which can create tables (if the tables do not exist) and functions (used to upsert data).  Additionally the user will need permission to alter tables (to add columns when new attributes appear).",
+      "step": "credentials",
       "properties": [
         "private_settings.db_username",
         "private_settings.db_password"

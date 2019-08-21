@@ -19,7 +19,7 @@ const { isUndefinedOrNull } = require("./utils");
 // 0 is (status1 === status2)
 // 1 is (status1 > status1)
 function compareStatus(status1: string, status2: string) {
-  const statusHierarchy: Array<string> = ["ok", "warning", "error"];
+  const statusHierarchy: Array<string> = ["ok", "warning", "error", "setupRequired"];
 
   if (status1 === status2) return 0;
 

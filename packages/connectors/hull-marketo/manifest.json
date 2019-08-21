@@ -169,48 +169,143 @@
   "settings": [],
   "resources": [],
   "readme": "readme.md",
-  "tabs": [
+  "ui": false,
+  "json": [
     {
-      "title": "Actions",
-      "url": "/admin",
-      "size": "small",
-      "editable": false
+      "url": "/fetchAllLeads",
+      "handler": "fetchAllLeads",
+      "type": "string",
+      "format": "action",
+      "title": "Fetch All Leads",
+      "name": "fetch_all_leads",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all leads from Marketo, this can be a long and costly operation, please inform your Hull customer success representatives before you launch this job so that we can monitor it for you to make sure it succeeds",
+          "button": "Start Fetching Leads",
+          "entity": "users"
+        }
+      }
+    },
+    {
+      "url": "/attributes-leads-outgoing",
+      "handler": "attributesLeadsOutgoing"
+    },
+    {
+      "url": "//attributes-leads-incoming",
+      "handler": "/attributesLeadsIncoming"
     }
   ],
-  "admin": "/admin",
-  "ui": false,
   "schedules": [
-    {
-      "url": "/status",
-      "type": "interval",
-      "value": "5"
-    },
     {
       "url": "/refreshCustomAttributes",
       "type": "interval",
-      "value": "10"
+      "value": "10",
+      "handler": "refreshCustomAttributes",
+      "options": {
+        "fireAndForget": true
+      }
     },
     {
       "url": "/pollLeadExport",
       "type": "interval",
-      "value": "5"
+      "value": "5",
+      "handler": "pollLeadExport",
+      "options": {
+        "fireAndForget": true
+      }
     },
     {
       "url": "/fetchRecentLeadActivity",
       "type": "interval",
-      "value": "5"
-    }
-  ],
-  "subscriptions": [{
-    "url": "/smart-notifier",
-    "conditions": {
-      "channels": {
-        "only": [
-          "user:update",
-          "account:update",
-          "ship:update"
-        ]
+      "value": "5",
+      "handler": "fetchRecentLeadActivity",
+      "options": {
+        "fireAndForget": true
       }
     }
-  }]
+  ],
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "5",
+      "handler": "status"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "interval",
+    "value": "5",
+    "handler": "status"
+  },
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ],
+      "conditions": {
+        "channels": {
+          "only": [
+            "user:update",
+            "ship:update"
+          ]
+        }
+      }
+    }
+  ],
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ]
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Connect with Marketo",
+      "description": "",
+      "step": "credentials",
+      "properties": [
+        "private_settings.marketo_client_id",
+        "private_settings.marketo_client_secret",
+        "private_settings.marketo_authorized_user",
+        "private_settings.marketo_identity_url"
+      ]
+    },
+    {
+      "title": "User - Identity",
+      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to Outreach as well as the data we pull from Outreach.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /> <b>Please be aware that Outreach rejects user emails with the domain of the customer as well as outreach.io domains.</b>",
+      "properties": [
+        "private_settings.user_claims"
+      ]
+    },
+    {
+      "title": "User - Fetching Users from Marketo",
+      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to Outreach as well as the data we pull from Outreach.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /> <b>Please be aware that Outreach rejects user emails with the domain of the customer as well as outreach.io domains.</b>",
+      "properties": [
+        "private_settings.incoming_user_attributes",
+        "private_settings.fetch_all_attributes",
+        "json.fetch_all_leads"
+      ]
+    },
+    {
+      "title": "User - Sending Users to Marketo",
+      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to Outreach as well as the data we pull from Outreach.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /> <b>Please be aware that Outreach rejects user emails with the domain of the customer as well as outreach.io domains.</b>",
+      "properties": [
+        "private_settings.synchronized_user_segments",
+        "private_settings.outgoing_user_attributes"
+      ]
+    },
+  ]
 }

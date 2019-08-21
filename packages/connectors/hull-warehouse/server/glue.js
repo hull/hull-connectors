@@ -33,28 +33,28 @@ const glue = {
     ],
     {
       do: {
-        status: "ok",
+        status: "setupRequired",
         message: "The required fields are not filled out in your connector settings.  Please go to the connector settings and review the configured fields"
       },
       eldo: [
         ifL(cond("isEmpty", settings("db_hostname")), {
-          status: "ok",
+          status: "setupRequired",
           message: "Please specify hostname in the settings as it is a required field"
         }),
         ifL(cond("isEmpty", settings("db_port")), {
-          status: "ok",
+          status: "setupRequired",
           message: "Please specify port in the settings as it is a required field"
         }),
         ifL(cond("isEmpty", settings("db_name")), {
-          status: "ok",
+          status: "setupRequired",
           message: "Please specify database name in the settings as it is a required field"
         }),
         ifL(cond("isEmpty", settings("db_username")), {
-          status: "ok",
+          status: "setupRequired",
           message: "Please specify username in the settings as it is a required field"
         }),
         ifL(cond("isEmpty", settings("db_password")), {
-          status: "ok",
+          status: "setupRequired",
           message: "Please specify password in the settings as it is a required field"
         }),
         ifL(route("hasRequiredFields"),

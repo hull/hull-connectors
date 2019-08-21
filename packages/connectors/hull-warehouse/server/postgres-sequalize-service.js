@@ -1,6 +1,6 @@
 /* @flow */
 import type { HullClientLogger, HullContext } from "hull";
-import type { CustomApi } from "hull-connector-framework/src/purplefusion/types";
+import type { CustomApi, RawRestApi } from "hull-connector-framework/src/purplefusion/types";
 
 const {
   isUndefinedOrNull
@@ -340,7 +340,10 @@ class SequalizeSdk {
   }
 }
 
-const postgresSdk: CustomApi = {
+const postgresSdk = ({ clientID, clientSecret } : {
+  clientID: string,
+  clientSecret: string
+}): CustomApi => ({
   initialize: (context, api) => new SequalizeSdk(context, api),
   error: {
     templates: [
@@ -356,6 +359,6 @@ const postgresSdk: CustomApi = {
       }
     ]
   }
-};
+});
 
 module.exports = postgresSdk;

@@ -10,7 +10,6 @@ const {
   notFilter,
   filterL,
   ifL,
-  finallyL,
   iterateL,
   loopL,
   loopEndL,
@@ -22,7 +21,6 @@ const {
   cacheSet,
   cacheGet,
   cacheLock,
-  cacheUnlock,
   transformTo,
   jsonata,
   ld,
@@ -53,13 +51,20 @@ const leadExportBody = {
     }
   }
 }
-
+q
 // TODO for "join" data syntax, could use a lodash unionBy and then filter
 // to simulate left, right, inner joins.  though could be tricky if have similar values
 const glue = {
-  status: {
-    // use auth token to do a query to see if it works
-  },
+  status: ifL(route("isConfigured"), {
+    do:ifL(cond("isEmpty", settings("synchronized_user_segments")), {
+      status: "ok",
+      message: "No data will be sent from Hull to Marketo currently because there are no whitelisted segments configured.  Please visit the connector settings page and add segments to be sent to Marketo"
+    }),
+    eldo: {
+      status: "setupRequired",
+      message: "Please fill out the required credential fields for Hull to connect with Marketo.  You can find these fields by clicking \"Settings\" then scrolling to the \"Connect with Marketo\" section."
+    }
+  }),
   fetchRecentLeadActivity:
     ifL(route("isConfigured"), [
 
@@ -237,6 +242,7 @@ const glue = {
   isConfigured: cond("allTrue", [
     cond("notEmpty", settings("marketo_client_id")),
     cond("notEmpty", settings("marketo_client_secret")),
+    cond("notEmpty", settings("marketo_authorized_user")),
     cond("notEmpty", settings("marketo_identity_url"))
   ]),
 
