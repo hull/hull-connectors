@@ -6,7 +6,12 @@ import Area from "./area";
 import CodeTitle from "./code-title";
 import type { Result } from "../../types";
 
-const nice = (obj = {}) => JSON.stringify(obj, null, 2);
+const nice = obj => {
+  if (obj === undefined) return "undefined";
+  if (obj === null) return "null";
+  return JSON.stringify(obj, null, 2);
+};
+
 // const nice = (obj = {}) => JSON.stringify(obj);
 // const conditional = (data, text) => {
 //   if (!data || !_.size(data)) return "";
@@ -43,7 +48,7 @@ const mapTraits = method =>
   );
 
 const renderStringOrObject = (i: string | {} | Array<any>) =>
-  _.isArray(i) ? i.join(", ") : _.isString(i) ? i : nice(i);
+  _.isArray(i) ? i.map(nice).join(", ") : _.isString(i) ? i : nice(i);
 
 const renderLogs = fp.flow(
   fp.map(renderStringOrObject),
