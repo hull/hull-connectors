@@ -110,7 +110,10 @@ export const callEvents = async ({
             source: "code",
             ...context
           });
-          return client.logger.info("incoming.event.success");
+          return client.logger.info("incoming.event.success", {
+            eventName,
+            properties
+          });
         } catch (err) {
           return client.logger.error("incoming.event.error", {
             hull_summary: `Error processing Event: ${err.message ||
