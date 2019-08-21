@@ -1,69 +1,109 @@
 // @flow
 import connectorConfig from "../../../server/config";
 
+import {
+  CONNECTOR,
+  connectorWithCode,
+  STANDARD_SEGMENTS,
+  METRIC_INCOMING_USER,
+  NEXT_FLOW_CONTROL,
+  USER,
+  METRIC_CONNECTOR_REQUEST,
+  messageWithUser
+} from "../../fixtures";
+
 const path = require("path");
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
-const connector = {
-  id: "123456789012345678901234",
-  private_settings: {}
-};
-const connectorWithCode = code => ({
-  ...connector,
-  private_settings: { ...connector.private_settings, code }
-});
-
-const STANDARD_SEGMENTS = [{ id: "hullSegmentId", name: "hullSegmentName" }];
-
-const NEXT_FLOW_CONTROL = {
-  type: "next",
-  in: 10,
-  size: 100
-};
-
-const USER = {
-  id: 1234,
-  email: "foo@bar.com",
-  domain: "bar.com"
-};
-
-const SMART_NOTIFIER_MESSAGE = {
-  handlerUrl: "smart-notifier",
-  channel: "user:update",
-  externalApiMock: () => {},
-  usersSegments: [],
-  accountsSegments: [],
-  messages: [
-    {
-      user: USER,
-      segments: STANDARD_SEGMENTS
-    }
-  ],
-  response: {
-    flow_control: NEXT_FLOW_CONTROL
-  }
-};
-
 describe("Basic Attributes manipulation", () => {
-  it("should apply a simple attribute to a user", () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...SMART_NOTIFIER_MESSAGE,
+  it("should group user attributes properly", () => {
+    const asUser = { id: 1234 };
+    const attributes = { userValue: "baz", accountValue: "ball" };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: {
+          ...asUser,
+          "foo/bar": "baz"
+        },
+        account: {
+          id: 1234,
+          "foo/bar": "ball"
+        }
+      }),
       handlerType: handlers.notificationHandler,
-      connector: connectorWithCode('traits({ foo: "bar" })'),
-      firehoseEvents: [
-        [
-          "traits",
-          { asUser: { id: 1234 }, subjectType: "user" },
-          { foo: "bar" }
-        ]
-      ],
+      connector: connectorWithCode(
+        "console.log(account)"
+      ),
+      firehoseEvents: [["traits", { asUser, subjectType: "user" }, attributes]],
       logs: [
         [
           "debug",
           "compute.debug",
           expect.whatever(),
           expect.objectContaining({
-            userTraits: [[{ id: 1234 }, { foo: "bar" }]]
+            userTraits: [[asUser, attributes]]
+          })
+        ],
+        ["info", "incoming.user.success", expect.whatever(), { attributes }]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+
+  it("should handle JSON Objects", () => {
+    const asUser = { id: 1234 };
+    const asAccount = { id: 1234 };
+    const attributes = { userValue: "bat", accountValue: "ball" };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: {
+          ...asUser,
+          "foo/bar": {
+            baz: "bat"
+          }
+        },
+        account: {
+          ...asAccount,
+          "foo/bar": {
+            baz: "ball"
+          }
+        }
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(
+        "console.log(account)"
+      ),
+      firehoseEvents: [["traits", { asUser, subjectType: "user" }, attributes]],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [[asUser, attributes]]
+          })
+        ],
+        ["info", "incoming.user.success", expect.whatever(), { attributes }]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+
+  it("should apply a simple attribute to a user", () => {
+    const asUser = { id: 1234 };
+    const attributes = { foo: "bar" };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser(),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(`traits(${JSON.stringify(attributes)})`),
+      firehoseEvents: [["traits", { asUser, subjectType: "user" }, attributes]],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [[asUser, attributes]]
           })
         ],
         [
@@ -77,21 +117,99 @@ describe("Basic Attributes manipulation", () => {
           }
         ]
       ],
-      metrics: [
-        ["increment", "connector.request", 1],
-        ["increment", "ship.incoming.users", 1]
-      ]
-    })));
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
 
-  it("should apply a simple event to a user", () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...SMART_NOTIFIER_MESSAGE,
+  it("should work as top level or scoped methods", () => {
+    const asUser = { id: 1234 };
+    const attributes = { foo: "bar" };
+    const attributes2 = { faa: "baz" };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser(),
       handlerType: handlers.notificationHandler,
-      connector: connectorWithCode('track("New Event", { foo: "bar" })'),
+      connector: connectorWithCode(
+        `traits(${JSON.stringify(attributes)}); hull.traits(${JSON.stringify(
+          attributes2
+        )})`
+      ),
+      firehoseEvents: [
+        [
+          "traits",
+          { asUser, subjectType: "user" },
+          { ...attributes, ...attributes2 }
+        ]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [[asUser, { ...attributes, ...attributes2 }]]
+          })
+        ],
+        [
+          "info",
+          "incoming.user.success",
+          expect.whatever(),
+          {
+            attributes: { ...attributes, ...attributes2 }
+          }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+
+  it("should flatten a single level deep", () => {
+    const asUser = { id: 1234 };
+    const attributes = {
+      "group/value": "val0",
+      "group/group": {
+        value: "val1",
+        group: {
+          value: "val2"
+        }
+      }
+    };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser(),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(
+        "hull.traits({ value: 'val0', group: { value: 'val1', group: { value: 'val2' } } }, { source: 'group' });"
+      ),
+      firehoseEvents: [["traits", { asUser, subjectType: "user" }, attributes]],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({ userTraits: [[asUser, attributes]] })
+        ],
+        [
+          "info",
+          'Nested object found in key "group/group"',
+          expect.whatever(),
+          attributes["group/group"]
+        ],
+        ["info", "incoming.user.success", expect.whatever(), { attributes }]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+
+  it("should apply a simple event to a user", () => {
+    const asUser = { id: 1234 };
+    const attributes = { foo: "bar" };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser(),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode('hull.track("New Event", { foo: "bar" })'),
       firehoseEvents: [
         [
           "track",
-          { asUser: { id: 1234 }, subjectType: "user" },
+          { asUser, subjectType: "user" },
           {
             event: "New Event",
             event_id: expect.anything(),
@@ -134,23 +252,27 @@ describe("Basic Attributes manipulation", () => {
         ]
       ],
       metrics: [
-        ["increment", "connector.request", 1],
+        METRIC_CONNECTOR_REQUEST,
         ["increment", "ship.incoming.events", 1]
       ]
-    })));
+    }));
+  });
 
-  it("should send an account link to the firehose", () =>
-    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...SMART_NOTIFIER_MESSAGE,
+  it("should send an account link to the firehose", () => {
+    const asUser = { id: 1234 };
+    const attributes = { foo: "bar" };
+    const asAccount = { domain: "bar.com" };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser(),
       handlerType: handlers.notificationHandler,
-      connector: connectorWithCode("account({ domain: user.domain })"),
+      connector: connectorWithCode("hull.account({ domain: user.domain })"),
       // TODO: This should really exist as a Firehose method as "link"
       firehoseEvents: [
         [
           "traits",
           {
-            asUser: { id: 1234 },
-            asAccount: { domain: "bar.com" },
+            asUser,
+            asAccount,
             subjectType: "account"
           },
           {}
@@ -162,7 +284,7 @@ describe("Basic Attributes manipulation", () => {
           "compute.debug",
           expect.whatever(),
           expect.objectContaining({
-            accountLinks: [[{ id: 1234 }, { domain: "bar.com" }]]
+            accountLinks: [[asUser, asAccount]]
           })
         ],
         [
@@ -170,14 +292,15 @@ describe("Basic Attributes manipulation", () => {
           "incoming.account.link.success",
           expect.whatever(),
           {
-            accountClaims: { domain: "bar.com" },
-            claims: { id: 1234 }
+            accountClaims: asAccount,
+            claims: asUser
           }
         ]
       ],
       metrics: [
-        ["increment", "connector.request", 1],
+        METRIC_CONNECTOR_REQUEST,
         ["increment", "ship.incoming.accounts.link", 1]
       ]
-    })));
+    }));
+  });
 });
