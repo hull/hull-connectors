@@ -73,8 +73,8 @@ const glue = {
     cond("notEmpty", settings("db_name"))
   ]),
 
-  accountUpdateStart: ifL(route("hasRequiredFields"), postgresJdbc("upsertHullAccount", input())),
-  userUpdateStart: ifL(route("hasRequiredFields"), postgresJdbc("upsertHullUser", input())),
+  accountUpdate: ifL(route("hasRequiredFields"), postgresJdbc("upsertHullAccount", input())),
+  userUpdate: ifL(route("hasRequiredFields"), postgresJdbc("upsertHullUser", input())),
 
   ensureHook: ifL(route("hasRequiredFields"), [
     set("currentDatabaseSettings",
@@ -147,7 +147,7 @@ const glue = {
     postgresJdbc("syncTableSchema", settings("db_events_table_name"))
   ],
   // currently need to do this so ship:update doesn't fail, but ensure hook will see if we really need to reinit
-  shipUpdateStart: {}
+  shipUpdate: {}
 };
 
 module.exports = glue;

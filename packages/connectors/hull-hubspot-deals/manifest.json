@@ -149,6 +149,10 @@
       {
         "channel": "user:update",
         "handler": "userUpdate"
+      },
+      {
+        "channel": "ship:update",
+        "handler": "shipUpdate"
       }
     ],
     "conditions": {

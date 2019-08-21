@@ -35,8 +35,8 @@ const refreshTokenDataTemplate = {
 };
 
 const glue = {
-  shipUpdateStart: {},
-  userUpdateStart: [
+  shipUpdate: {},
+  userUpdate: [
     set("service_name", "hubspot_deal"),
     set("hullUserId", input("user.id")),
     route("upsertDeal")

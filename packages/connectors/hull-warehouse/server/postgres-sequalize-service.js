@@ -227,6 +227,10 @@ class SequalizeSdk {
           return false;
         }
 
+        // if (normalizedName.length >= 64) {
+        //   return;
+        // }
+
         if (!schema[normalizedName]) {
           return true;
         }

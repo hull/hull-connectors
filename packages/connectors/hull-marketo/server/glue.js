@@ -51,7 +51,7 @@ const leadExportBody = {
     }
   }
 }
-q
+
 // TODO for "join" data syntax, could use a lodash unionBy and then filter
 // to simulate left, right, inner joins.  though could be tricky if have similar values
 const glue = {
@@ -264,7 +264,7 @@ const glue = {
       ifL(cond("isEmpty", settings("access_token")), route("getAuthenticationToken"))
     ]),
 
-  shipUpdateStart: {},
+  shipUpdate: {},
 
   // TODO will need batch output, and parallel handling for update
   // need to decide if use a pure batch upload job with fields to dedup on
@@ -274,7 +274,7 @@ const glue = {
   //Works, but may need to make sure we add the claims to the incoming values too
   // because if not, this is so slow we have to do asynch true, which means, we don't get the value for each user that we're uploading
   // must get it on the other way around like hubspot...
-  userUpdateStart: [
+  userUpdate: [
     // route("leadLookup"),
     set("messages", input()),
     iterateL(settings("user_claims"), "user_claim",

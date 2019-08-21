@@ -32,8 +32,11 @@ export default function connectorConfig(): HullConnectorConfig {
     manifest,
     handlers: new HullRouter({
       glue: require("./glue"),
-      serviceDefinitions: { marketo: require("./service") },
-      transforms: _.concat([], require("./transforms-to-hull"), require("./transforms-to-service")),
+      services: { marketo: require("./service") },
+      transforms: _.concat(
+        require("./transforms-to-hull"),
+        require("./transforms-to-service")
+      ),
       ensureHook: "ensureSetup"
     }).createHandler,
     hostSecret: SECRET || "1234",

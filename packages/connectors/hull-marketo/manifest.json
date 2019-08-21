@@ -248,6 +248,10 @@
         {
           "channel": "user:update",
           "handler": "userUpdate"
+        },
+        {
+          "channel": "ship:update",
+          "handler": "shipUpdate"
         }
       ],
       "conditions": {
@@ -306,6 +310,6 @@
         "private_settings.synchronized_user_segments",
         "private_settings.outgoing_user_attributes"
       ]
-    },
+    }
   ]
 }
