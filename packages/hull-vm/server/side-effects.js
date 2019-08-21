@@ -125,7 +125,7 @@ export const callEvents = async ({
         }
       })
     );
-    if (successful) metric.increment(`ship.incoming.${entity}`, successful);
+    if (successful) metric.increment(`ship.incoming.${entity}s`, successful);
     return responses;
   } catch (err) {
     return Promise.reject(err);
@@ -151,7 +151,10 @@ export const callLinks = async ({
         try {
           successful += 1;
           await client.account(accountClaims).traits({});
-          return client.logger.info(`incoming.${entity}.link.success`);
+          return client.logger.info(`incoming.${entity}.link.success`, {
+            accountClaims,
+            claims
+          });
         } catch (err) {
           return client.logger.error(`incoming.${entity}.link.error`, {
             hull_summary: `Error Linking User and account: ${err.message ||
@@ -163,7 +166,7 @@ export const callLinks = async ({
         }
       })
     );
-    if (successful) metric.increment(`ship.incoming.${entity}`, successful);
+    if (successful) metric.increment(`ship.incoming.${entity}s.link`, successful);
     return responses;
   } catch (err) {
     return Promise.reject(err);

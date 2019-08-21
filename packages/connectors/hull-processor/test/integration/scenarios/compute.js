@@ -21,6 +21,12 @@ const NEXT_FLOW_CONTROL = {
   size: 100
 };
 
+const USER = {
+  id: 1234,
+  email: "foo@bar.com",
+  domain: "bar.com"
+};
+
 const SMART_NOTIFIER_MESSAGE = {
   handlerUrl: "smart-notifier",
   channel: "user:update",
@@ -29,10 +35,7 @@ const SMART_NOTIFIER_MESSAGE = {
   accountsSegments: [],
   messages: [
     {
-      user: {
-        id: 1234,
-        email: "foo@bar.com"
-      },
+      user: USER,
       segments: STANDARD_SEGMENTS
     }
   ],
@@ -42,8 +45,8 @@ const SMART_NOTIFIER_MESSAGE = {
 };
 
 describe("Basic Attributes manipulation", () => {
-  it("should apply a simple attribute to a user", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+  it("should apply a simple attribute to a user", () =>
+    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
       ...SMART_NOTIFIER_MESSAGE,
       handlerType: handlers.notificationHandler,
       connector: connectorWithCode('traits({ foo: "bar" })'),
@@ -78,6 +81,103 @@ describe("Basic Attributes manipulation", () => {
         ["increment", "connector.request", 1],
         ["increment", "ship.incoming.users", 1]
       ]
-    }));
-  });
+    })));
+
+  it("should apply a simple event to a user", () =>
+    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...SMART_NOTIFIER_MESSAGE,
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode('track("New Event", { foo: "bar" })'),
+      firehoseEvents: [
+        [
+          "track",
+          { asUser: { id: 1234 }, subjectType: "user" },
+          {
+            event: "New Event",
+            event_id: expect.anything(),
+            ip: "0",
+            referer: null,
+            url: null,
+            source: "processor",
+            properties: { foo: "bar" }
+          }
+        ]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            events: [
+              {
+                claims: { id: 1234 },
+                event: {
+                  properties: { foo: "bar" },
+                  context: { source: "processor" },
+                  eventName: "New Event"
+                }
+              }
+            ]
+          })
+        ],
+        [
+          "info",
+          "incoming.event.success",
+          expect.whatever(),
+          {
+            eventName: "New Event",
+            properties: {
+              foo: "bar"
+            }
+          }
+        ]
+      ],
+      metrics: [
+        ["increment", "connector.request", 1],
+        ["increment", "ship.incoming.events", 1]
+      ]
+    })));
+
+  it("should send an account link to the firehose", () =>
+    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...SMART_NOTIFIER_MESSAGE,
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode("account({ domain: user.domain })"),
+      // TODO: This should really exist as a Firehose method as "link"
+      firehoseEvents: [
+        [
+          "traits",
+          {
+            asUser: { id: 1234 },
+            asAccount: { domain: "bar.com" },
+            subjectType: "account"
+          },
+          {}
+        ]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            accountLinks: [[{ id: 1234 }, { domain: "bar.com" }]]
+          })
+        ],
+        [
+          "info",
+          "incoming.account.link.success",
+          expect.whatever(),
+          {
+            accountClaims: { domain: "bar.com" },
+            claims: { id: 1234 }
+          }
+        ]
+      ],
+      metrics: [
+        ["increment", "connector.request", 1],
+        ["increment", "ship.incoming.accounts.link", 1]
+      ]
+    })));
 });
