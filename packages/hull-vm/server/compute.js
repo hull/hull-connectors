@@ -45,7 +45,9 @@ export default async function compute(
     ...payload,
     ...LIBS,
     ...scopedUserMethods(payload),
-    hull,
+    hull: _.size(claims)
+      ? (entity === "account" ? hull.asAccount : hull.asUser)(claims)
+      : hull,
     console: getConsole(result, preview),
     connector,
     ship: connector
@@ -57,14 +59,18 @@ export default async function compute(
       // , timeout: 1000 //TODO: Do we want to enforce a timeout here? what about Promises.
     });
     _.map(frozen, (lib, key: string) => vm.freeze(lib, key));
-
     // For Processor keep backwards-compatible signature of having `traits` and `track` at top level
     if (_.size(claims)) {
       _.map(
-        (entity === "account" ? hull.asAccount : hull.asUser)(claims),
+        _.pick(
+          (entity === "account" ? hull.asAccount : hull.asUser)(claims),
+          "traits",
+          "track"
+        ),
         (lib, key: string) => vm.freeze(lib, key)
       );
     }
+
     vm.run(`responses = (function() {
 "use strict";
 ${code}
