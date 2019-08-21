@@ -440,7 +440,8 @@ class SyncAgent {
           this.hullClient
             .asUser(envelope.message.user)
             .logger.info("outgoing.user.skipcandidate", {
-              reason: "attribute change not found"
+              reason: "attribute change not found",
+              changes: _.get(envelope, "message.changes")
             });
         }
       });
