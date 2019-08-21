@@ -39,16 +39,12 @@ type EventSignature = {
 };
 
 const logIfNested = (client, attrs) => {
-  _.map(attrs, (v, k) => {
+  _.map(attrs, (v, k: string) => {
     if (
       _.isObject(v) &&
       !_.isEqual(_.sortBy(_.keys(v)), ["operation", "value"])
     ) {
-      client.logger.info(
-        `Nested object { ${JSON.stringify(k)}:${JSON.stringify(
-          v
-        )} } found in account traits`
-      );
+      client.logger.info(`Nested object found in key "${k}"`, v);
     }
   });
 };
@@ -166,7 +162,8 @@ export const callLinks = async ({
         }
       })
     );
-    if (successful) metric.increment(`ship.incoming.${entity}s.link`, successful);
+    if (successful)
+      metric.increment(`ship.incoming.${entity}s.link`, successful);
     return responses;
   } catch (err) {
     return Promise.reject(err);
