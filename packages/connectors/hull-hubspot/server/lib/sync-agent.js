@@ -431,18 +431,20 @@ class SyncAgent {
     });
 
     try {
+      const noChangesSkip = [];
+
       filterResults.toInsert.forEach(envelope => {
         const toSend = toSendMessage(this.ctx, "user", envelope.message, {
           serviceName: "hubspot",
           sendOnAnySegmentChanges: true
         });
         if (!toSend) {
-          this.hullClient
-            .asUser(envelope.message.user)
-            .logger.info("outgoing.user.skipcandidate", {
-              reason: "attribute change not found"
-            });
+          noChangesSkip.push(envelope);
         }
+      });
+
+      noChangesSkip.forEach(envelope => {
+        _.pull(filterResults.toInsert, envelope);
       });
     } catch (err) {
       console.log(err);

@@ -59,7 +59,26 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
             email,
             "hubspot/id": "existingContactId"
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          // added this change of left segment so would trigger a push
+          // otherwise nothing will be pushed because no mapped attributes
+          changes: {
+            is_new: false,
+            user: {},
+            account: {},
+            segments: {
+              left: [
+                {
+                  id: "5bffc38f625718d58b000004",
+                  name: "Smugglers",
+                  updated_at: "2018-12-06T14:23:38Z",
+                  type: "users_segment",
+                  created_at: "2018-11-29T10:46:39Z"
+                }
+              ]
+            },
+            account_segments: {}
+          }
         }
       ],
       response: {
@@ -74,22 +93,6 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
-        [
-          "info",
-          "outgoing.user.skip",
-          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {
-            "reason": "There are no outgoing attributes to synchronize for users.  Please go to the settings page and add outgoing user attributes to synchronize"
-          }
-        ],
-        [
-          "info",
-          "outgoing.user.skipcandidate",
-          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {
-            "reason": "attribute change not found"
-          }
-        ],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
         [
           "info",

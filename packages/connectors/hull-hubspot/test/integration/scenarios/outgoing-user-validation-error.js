@@ -71,13 +71,45 @@ it("should send out a new hull user to hubspot - validation error", () => {
           user: {
             email: "non-existing-property@hull.io"
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          // added this change of entered segment so would trigger a push
+          // otherwise nothing will be pushed because no mapped attributes
+          changes: {
+            is_new: false,
+            user: {},
+            account: {},
+            segments: {
+              entered: [
+                {
+                  id: "hullSegmentId",
+                  name: "hullSegmentName",
+                  type: "users_segment"
+                }
+              ]
+            },
+            account_segments: {}
+          }
         },
         {
           user: {
             email
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          changes: {
+            is_new: false,
+            user: {},
+            account: {},
+            segments: {
+              entered: [
+                {
+                  id: "hullSegmentId",
+                  name: "hullSegmentName",
+                  type: "users_segment"
+                }
+              ]
+            },
+            account_segments: {}
+          }
         }
       ],
       response: {
@@ -92,38 +124,6 @@ it("should send out a new hull user to hubspot - validation error", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 2, "toSkip": 0, "toUpdate": 0}],
-        [
-          "info",
-          "outgoing.user.skip",
-          expect.objectContaining({ "subject_type": "user", "user_email": "non-existing-property@hull.io"}),
-          {
-            "reason": "There are no outgoing attributes to synchronize for users.  Please go to the settings page and add outgoing user attributes to synchronize"
-          }
-        ],
-        [
-          "info",
-          "outgoing.user.skipcandidate",
-          expect.objectContaining({ "subject_type": "user", "user_email": "non-existing-property@hull.io"}),
-          {
-            "reason": "attribute change not found"
-          }
-        ],
-        [
-          "info",
-          "outgoing.user.skip",
-          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {
-            "reason": "There are no outgoing attributes to synchronize for users.  Please go to the settings page and add outgoing user attributes to synchronize"
-          }
-        ],
-        [
-          "info",
-          "outgoing.user.skipcandidate",
-          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {
-            "reason": "attribute change not found"
-          }
-        ],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 400, "url": "/contacts/v1/contact/batch/" })],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
         [
