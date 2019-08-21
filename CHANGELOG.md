@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.1.2-monorepo
+- Using connector name inferred from manifest and new hubspot doc
+
 ## v0.1.1-monorepo
 - Updated status for mail chimp so that we have more ok, when things don't deserve warnings
 

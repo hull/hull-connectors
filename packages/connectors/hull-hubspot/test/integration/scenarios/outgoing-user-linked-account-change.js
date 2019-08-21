@@ -4,6 +4,8 @@ import connectorConfig from "../../../server/config";
 
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
+process.env.CLIENT_ID = "123";
+process.env.CLIENT_SECRET = "abc";
 
 /**
  * This tests if the overwrite field is true/false/notset
@@ -43,7 +45,8 @@ const connector = {
       { hull: "account.custom_zero", service: "custom_hubspot_account_zero", overwrite: true },
       { hull: "account.custom_undefined", service: "custom_hubspot_account_undefined", overwrite: true },
       { hull: "account.custom_date_at", service: "custom_hubspot_account_date_at", overwrite: true }
-    ]
+    ],
+    link_users_in_service: true
   }
 };
 const usersSegments = [
@@ -53,7 +56,7 @@ const usersSegments = [
   }
 ];
 
-it("should send out a new hull user to hubspot with complex fields mapping", () => {
+it("should update hubspot because linked account has changed", () => {
   const email = "email@email.com";
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
@@ -66,61 +69,26 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
           .reply(200, require("../fixtures/get-contacts-groups"));
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, require("../fixtures/get-properties-companies-groups"));
-        scope.post("/contacts/v1/contact/batch/?auditId=Hull", [{
-          "properties": [{
-              "property": "firstname",
-              "value": "John"
-            }, {
-              "property": "lastname",
-              "value": "NewLastName"
-            }, {
-              "property": "hull_custom_hubspot_score",
-              "value": 456
-            }, {
-              "property": "hull_custom_hubspot_numeric",
-              "value": 123
-            }, {
-              "property": "hull_custom_hubspot_array",
-              "value": "A;B"
-            }, {
-              "property": "hull_custom_hubspot_true",
-              "value": true
-            }, {
-              "property": "hull_custom_hubspot_false",
-              "value": false
-            }, {
-              "property": "hull_custom_hubspot_date_at",
-              "value": 1540374459000
-            }, {
-              "property": "hull_custom_hubspot_account_id",
-              "value": "acc123"
-            }, {
-              "property": "hull_custom_hubspot_account_domain",
-              "value": "doe.com"
-            }, {
-              "property": "hull_custom_hubspot_account_group_created_at",
-              "value": 1477302459000
-            }, {
-              "property": "hull_custom_hubspot_account_numeric",
-              "value": 123
-            }, {
-              "property": "hull_custom_hubspot_account_array",
-              "value": "A;B"
-            }, {
-              "property": "hull_custom_hubspot_account_true",
-              "value": true
-            }, {
-              "property": "hull_custom_hubspot_account_false",
-              "value": false
-            }, {
-              "property": "hull_custom_hubspot_account_date_at",
-              "value": 1540374459000
-            }, {
-              "property": "hull_segments",
-              "value": "testSegment"
-            }],
-          "email": "email@email.com"
-          }]
+        scope.post("/contacts/v1/contact/batch/?auditId=Hull",
+          [
+            {"properties":[{"property":"firstname","value":"John"},
+            {"property":"lastname","value":"NewLastName"},
+            {"property":"hull_custom_hubspot_score","value":456},
+            {"property":"hull_custom_hubspot_numeric","value":123},
+            {"property":"hull_custom_hubspot_array","value":"A;B"},
+            {"property":"hull_custom_hubspot_true","value":true},
+            {"property":"hull_custom_hubspot_false","value":false},
+            {"property":"hull_custom_hubspot_date_at","value":1540374459000},
+            {"property":"hull_custom_hubspot_account_id","value":"acc123"},
+            {"property":"hull_custom_hubspot_account_domain","value":"doe.com"},
+            {"property":"hull_custom_hubspot_account_group_created_at","value":1477302459000},
+            {"property":"hull_custom_hubspot_account_array","value":"A;B"},
+            {"property":"hull_custom_hubspot_account_true","value":true},
+            {"property":"hull_custom_hubspot_account_false","value":false},
+            {"property":"hull_custom_hubspot_account_date_at","value":1540374459000},
+            {"property":"hull_segments","value":"testSegment"},
+            {"property":"associatedcompanyid","value":5678}],"email":"email@email.com"}
+            ]
         ).reply(202);
         return scope;
       },
@@ -135,6 +103,7 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
             last_name: "NewLastName",
             "traits_hubspot/last_name": "CurrentLastName",
             "traits_group/custom_calculated_score": 456,
+            "traits_outreach/title": "sometitle",
             traits_custom_numeric: 123,
             traits_custom_array: ["A", "B"],
             traits_custom_empty_array: [],
@@ -150,7 +119,6 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
             id: "acc123",
             domain: "doe.com",
             "group/created_at": "2016-10-24T09:47:39Z",
-            custom_numeric: 123,
             custom_array: ["A", "B"],
             custom_empty_array: [],
             custom_true: true,
@@ -160,19 +128,20 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
             custom_zero: 0,
             // custom_undefined: "", -> this is not present
             custom_date_at: "2018-10-24T09:47:39Z",
+            "hubspot/id": 5678
           },
           segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
           changes: {
-            is_new: false,
-            user: {
-              traits_custom_numeric: [
+            "is_new": false,
+            "user": {},
+            "account": {
+              "hubspot/id": [
                 null,
-                123
+                5678
               ]
             },
-            account: {},
-            segments: {},
-            account_segments: {}
+            "segments": {},
+            "account_segments": {}
           },
         }
       ],
@@ -229,9 +198,6 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
                 "property": "hull_custom_hubspot_account_group_created_at",
                 "value": 1477302459000
               }, {
-                "property": "hull_custom_hubspot_account_numeric",
-                "value": 123
-              }, {
                 "property": "hull_custom_hubspot_account_array",
                 "value": "A;B"
               }, {
@@ -246,6 +212,9 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
               }, {
                 "property": "hull_segments",
                 "value": "testSegment"
+              }, {
+                "property": "associatedcompanyid",
+                "value": 5678
               }]
           }
         ]
