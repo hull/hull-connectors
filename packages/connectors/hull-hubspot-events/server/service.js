@@ -6,35 +6,34 @@ import type {
 } from "hull-connector-framework/src/purplefusion/types";
 
 const _ = require("lodash");
-
+const MESSAGES = require("./messages");
 const {
-  ConfigurationError,
-  RateLimitError,
-  RecoverableError,
-  TransientError,
-  SkippableError,
-  LogicError,
-  NotificationValidationError
+  ConfigurationError
 } = require("hull/src/errors");
 
-const OAuth2Strategy = require("passport-oauth2");
 const HubspotStrategy = require("passport-hubspot-oauth2.0");
-const MESSAGES = require("./messages");
 
 const {} = require("hull-connector-framework/src/purplefusion/hull-service-objects");
+
+const {
+  isNull,
+  notNull
+} = require("hull-connector-framework/src/purplefusion/conditionals");
 
 const {
   SuperagentApi
 } = require("hull-connector-framework/src/purplefusion/superagent-api");
 
+const { HubspotIncomingEmailEvents, HubspotEmailCampaign, HubspotMarketingEmail } = require("./service-objects");
+
 const {
-  isUndefinedOrNull
-} = require("hull-connector-framework/src/purplefusion/utils");
-const {
-  isNull,
-  notNull
-} = require("hull-connector-framework/src/purplefusion/conditionals");
-const { HubspotOutgoingDeal, HubspotIncomingDeal } = require("./service-objects");
+  HullOutgoingUser,
+  HullOutgoingAccount,
+  HullIncomingUser,
+  HullUserRaw,
+  HullIncomingAccount,
+  ServiceUserRaw
+} = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 // What about linking calls?
 const service: RawRestApi = {
@@ -43,41 +42,52 @@ const service: RawRestApi = {
   prefix: "https://api.hubapi.com",
   defaultReturnObj: "body",
   endpoints: {
-    insertDeal: {
-      url: "/deals/v1/deal",
-      operation: "post",
-      endpointType: "create",
-      returnObj: "body",
-      input: HubspotOutgoingDeal,
-      output: HubspotIncomingDeal
-    },
-    updateDeal: {
-      url: "/deals/v1/deal/${dealId}",
-      operation: "put",
-      endpointType: "update",
-      returnObj: "body",
-      input: HubspotOutgoingDeal,
-      output: HubspotIncomingDeal
-    },
-    updateDealCompanyAssociation: {
-      url: "/crm-associations/v1/associations",
-      operation: "put",
-      endpointType: "update",
-      returnObj: "body"
-    },
-    getAllDeals: {
-      url: "deals/v1/deal/paged?limit=250&offset=${offset}&properties=dealname",
+    getEmailCampaign: {
+      url: "/email/public/v1/campaigns/${emailCampaignId}",
       operation: "get",
-      returnObj: "body.properties",
       endpointType: "byProperty",
-      output: HubspotIncomingDeal
-    },
-    getDealProperties: {
-      url: "/properties/v1/deals/groups",
-      operation: "get",
       returnObj: "body",
+      output: HubspotEmailCampaign
+    },
+    getMarketingEmails: {
+      url: "/marketing-emails/v1/emails",
+      operation: "get",
       endpointType: "byProperty",
-      query: "includeProperties=true"
+      query: "id=${marketingEmailId}",
+      returnObj: "body",
+      output: HubspotMarketingEmail
+    },
+    getAllEmailEvents: {
+      url: "/email/public/v1/events",
+      operation: "get",
+      query: "limit=${limit}",
+      endpointType: "byProperty",
+      returnObj: "body",
+      output: HubspotIncomingEmailEvents
+    },
+    getAllEmailEventsWithOffset: {
+      url: "/email/public/v1/events",
+      operation: "get",
+      query: "limit=${limit}&offset=${offset}",
+      endpointType: "byProperty",
+      returnObj: "body",
+      output: HubspotIncomingEmailEvents
+    },
+    getRecentEmailEvents: {
+      url: "/email/public/v1/events",
+      operation: "get",
+      query: "limit=${limit}&startTimestamp=${startTimestamp}",
+      endpointType: "byProperty",
+      returnObj: "body",
+      output: HubspotIncomingEmailEvents
+    },
+    getRecentEmailEventsWithOffset: {
+      url: "/email/public/v1/events",
+      operation: "get",
+      query: "limit=${limit}&startTimestamp=${startTimestamp}&offset=${offset}",
+      endpointType: "byProperty",
+      returnObj: "body",
+      output: HubspotIncomingEmailEvents
     },
     refreshToken: {
       url: "https://api.hubapi.com/oauth/v1/token",
@@ -114,7 +124,7 @@ const service: RawRestApi = {
         authorizationURL: "https://app.hubspot.com/oauth/authorize",
         tokenURL: "https://api.hubapi.com/oauth/v1/token",
         grant_type: "authorization_code",
-        scope: ["oauth", "contacts", "timeline"]
+        scope: ["oauth", "contacts", "timeline", "content"]
       }
     }
   },
@@ -124,18 +134,14 @@ const service: RawRestApi = {
       parser: {
         type: "json",
         target: "response.text",
-        appStatusCode: "status",
-        title: "message",
-        description: "errors[0]"
+        appStatusCode: "errors[0].id",
+        title: "errors[0].title",
+        description: "errors[0].detail",
+        source: "errors[0].source"
       }
     },
 
     templates: [
-      {
-        truthy: { status: 400 },
-        errorType: SkippableError,
-        message: MESSAGES.INVALID_PARAMETERS
-      },
       {
         truthy: { status: 401 },
         condition: isNull("connector.private_settings.access_token"),
@@ -149,17 +155,6 @@ const service: RawRestApi = {
         errorType: ConfigurationError,
         message: MESSAGES.STATUS_UNAUTHORIZED_ACCESS_TOKEN,
         recoveryroute: "refreshToken"
-      },
-      {
-        truthy: { status: 404 },
-        errorType: SkippableError,
-        message: MESSAGES.DEAL_NOT_FOUND
-      },
-      {
-        truthy: { status: 400 },
-        errorType: SkippableError,
-        message:
-          "Unknown associated entity: Are you sure that the entity ids that you are using are still in Hubspot?  Could there have been deletion activity?"
       }
     ]
   }

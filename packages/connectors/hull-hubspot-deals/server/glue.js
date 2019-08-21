@@ -1,6 +1,7 @@
 /* @flow */
 
 const {
+  jsonata,
   route,
   cond,
   hull,
@@ -40,6 +41,10 @@ const glue = {
     set("hullUserId", input("user.id")),
     route("upsertDeal")
   ],
+  fieldsDealOut:
+    ifL(cond("notEmpty",  set("dealProperties", hubspot("getDealProperties"))),
+      jsonata("{\"options\": [properties.{\"label\": label, \"value\": name}]}", "${dealProperties}")
+    ),
   upsertDeal:
     cacheLock(input("user.id"),
       ifL(or([
@@ -82,8 +87,7 @@ const glue = {
           access_token: "${refreshTokenResponse.access_token}"
         })
       )
-    ]),
-  fieldsDealOut: dealsAttributes
+    ])
 };
 
 module.exports = glue;

@@ -18,36 +18,10 @@
               <a href="https://app.hubspot.com/dashboard/<%=settings.portal_id%>" target="_blank"><%=settings.portal_id%></a>
             </p>
           </div>
-          <a href="<%=urls.home%>&reset=true" class="btn btn-secondary">Start over</a>
+          <a href="<%=urls.home%>&reset=true" class="btn btn-secondary">Reauthenticate</a>
         </div>
 
         <hr>
-
-        <div class="last_fetch">
-          <div class="flex-row space-between align-center">
-            <h5>Last Sync:
-              <span class="text-muted">
-                <% if (settings.last_fetch_started_at) { %>
-                  <strong><%=settings.fetch_count || 0%> Users</strong> on <span data-time>Friday, September 8 @ 12h30</span>
-                <% } else {%>
-                  Never
-                <% } %>
-              </span>
-            </h5>
-          </div>
-        </div>
-
-        <hr>
-
-        <div>
-          <p>When you are done configuring your incoming mapping in the Settings tab, you can (re-)import your entire database: </p>
-        </div>
-        <div class="flex-row align-center flex-grow">
-          <div data-href="/fetch-all" data-entity="contacts" class="pull-right btn btn-primary mr-1">Fetch All Contacts</div>
-          <div data-href="/fetch-all-companies" data-entity="companies" class="pull-right btn btn-primary">Fetch All Companies</div>
-        </div>
-
-
 
       </div>
     </div>
@@ -94,34 +68,6 @@
   </style>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.min.js"></script>
-  <script>
-    jQuery(function($) {
-      $("[data-href]").click(function() {
-        var url = $(this).attr('data-href');
-        var entity = $(this).attr('data-entity');
-        swal({
-          title: "Fetch all " + entity,
-          text: "You are going to fetch all Hubspot " + entity + ". This will generate an important amount traffic. You should do this once when after installing the connector or if you want to re-import your entire database. Continue?",
-          type: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#0093E6",
-          confirmButtonText: "Continue",
-          closeOnConfirm: false
-        }, function(isConfirm) {
-          if (isConfirm) {
-            $.post(url+window.location.search);
-            swal("Fetching started", "The Hubspot " + entity + " will be fetched shortly.", "success");
-          }
-        });
-      });
-    });
-  </script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js" integrity="sha256-De/cgZoAkgvqoxL9yJpJzPHyozUETFnSv7EQGfQWQ4o=" crossorigin="anonymous"></script>
-  <script>jQuery(function($) {
-    var time = "<%=settings.last_fetch_started_at%>";
-    if (time) {
-      $("[data-time]").text(moment("<%=settings.last_fetch_started_at%>").format("dddd[,] MMMM D [@] H[h]mm"));
-    }
-  });</script>
 </body>
 </html>

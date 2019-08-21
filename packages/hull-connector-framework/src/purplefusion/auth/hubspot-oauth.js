@@ -15,8 +15,8 @@ const hubspotOAuth = {
     isSetup(req) {
       const { client, connector } = req.hull;
       if (req.query.reset) return Promise.reject(new Error("Requested reset"));
-      const { token } = connector.private_settings || {};
-      if (token) {
+      const { access_token } = connector.private_settings || {};
+      if (access_token) {
         return client.get(connector.id).then(s => {
           return { settings: s.private_settings };
         });

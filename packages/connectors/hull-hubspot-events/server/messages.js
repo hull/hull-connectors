@@ -18,25 +18,6 @@ const MESSAGES = {
       channel: "Configuration",
       category: "Authentication"
     };
-  },
-  DEAL_NOT_FOUND: () => {
-    return {
-      id: "DealNotFound",
-      message: "Hubspot Deal not found.",
-      level: "Error",
-      channel: "Operation",
-      category: "Unknown"
-    };
-  },
-  INVALID_PARAMETERS: () => {
-    return {
-      id: "InvalidParameters",
-      message:
-        "Hubspot Deal cannot be created due to one or more invalid parameters.",
-      level: "Error",
-      channel: "Operation",
-      category: "Unknown"
-    };
   }
 };
 

@@ -109,7 +109,7 @@
         "direction": "outgoing",
         "showOverwriteToggle": false,
         "placeholder": "Hubspot Field",
-        "allowCreate": true,
+        "allowCreate": false,
         "loadOptions": "/fields-deal-out"
       }
     },
