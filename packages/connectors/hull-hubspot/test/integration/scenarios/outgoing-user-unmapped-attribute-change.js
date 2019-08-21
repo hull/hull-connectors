@@ -126,7 +126,8 @@ it("should filter because none of the mapped attributes have changed", () => {
           "outgoing.user.skipcandidate",
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
           {
-            "reason": "attribute change not found"
+            "reason": "attribute change not found",
+            "changes": expect.whatever()
           }
         ],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
