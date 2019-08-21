@@ -28,7 +28,7 @@ async function statusAction(ctx: HullContext): HullStatusResponse {
 
     if (!shipApp.syncAgent.isListConfigured()) {
       return {
-        status: "setupRequired",
+        status: "ok",
         messages: ["Please select a Mailchimp list to synch with"]
       };
     }

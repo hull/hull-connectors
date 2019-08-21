@@ -30,6 +30,8 @@ const FilterUtil = require("./sync-agent/filter-util");
 
 const hullClientAccountPropertiesUtil = require("../hull-client-account-properties-util");
 
+const { toSendMessage } = require("../../../hull-outreach/server/shared/utils");
+
 class SyncAgent {
   hubspotClient: HubspotClient;
 
@@ -63,6 +65,8 @@ class SyncAgent {
 
   fetchAccounts: boolean;
 
+  ctx: HullContext;
+
   constructor(ctx: HullContext) {
     const {
       client,
@@ -88,6 +92,7 @@ class SyncAgent {
     // TODO: `handle_accounts` name chosen for hull-salesforce
     // compatibility
     this.fetchAccounts = ctx.connector.private_settings.handle_accounts;
+    this.ctx = ctx;
   }
 
   isInitialized(): boolean {
@@ -424,6 +429,24 @@ class SyncAgent {
         .asUser(envelope.message.user)
         .logger.info("outgoing.user.skip", { reason: envelope.skipReason });
     });
+
+    try {
+      filterResults.toInsert.forEach(envelope => {
+        const toSend = toSendMessage(this.ctx, "user", envelope.message, {
+          serviceName: "hubspot",
+          sendOnAnySegmentChanges: true
+        });
+        if (!toSend) {
+          this.hullClient
+            .asUser(envelope.message.user)
+            .logger.info("outgoing.user.skipcandidate", {
+              reason: "attribute change not found"
+            });
+        }
+      });
+    } catch (err) {
+      console.log(err);
+    }
 
     const envelopesToUpsert = filterResults.toInsert.concat(
       filterResults.toUpdate
