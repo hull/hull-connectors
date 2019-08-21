@@ -21,6 +21,10 @@ const moment = require("moment");
 const debug = require("debug")("hull-hubspot:sync-agent");
 
 const { pipeStreamToPromise } = require("hull/src/utils");
+const {
+  toSendMessage
+} = require("hull-connector-framework/src/purplefusion/utils");
+
 const HubspotClient = require("./hubspot-client");
 const ContactPropertyUtil = require("./sync-agent/contact-property-util");
 const CompanyPropertyUtil = require("./sync-agent/company-property-util");
@@ -63,6 +67,8 @@ class SyncAgent {
 
   fetchAccounts: boolean;
 
+  ctx: HullContext;
+
   constructor(ctx: HullContext) {
     const {
       client,
@@ -88,6 +94,7 @@ class SyncAgent {
     // TODO: `handle_accounts` name chosen for hull-salesforce
     // compatibility
     this.fetchAccounts = ctx.connector.private_settings.handle_accounts;
+    this.ctx = ctx;
   }
 
   isInitialized(): boolean {
@@ -424,6 +431,26 @@ class SyncAgent {
         .asUser(envelope.message.user)
         .logger.info("outgoing.user.skip", { reason: envelope.skipReason });
     });
+
+    try {
+      const noChangesSkip = [];
+
+      filterResults.toInsert.forEach(envelope => {
+        const toSend = toSendMessage(this.ctx, "user", envelope.message, {
+          serviceName: "hubspot",
+          sendOnAnySegmentChanges: true
+        });
+        if (!toSend) {
+          noChangesSkip.push(envelope);
+        }
+      });
+
+      noChangesSkip.forEach(envelope => {
+        _.pull(filterResults.toInsert, envelope);
+      });
+    } catch (err) {
+      console.log(err);
+    }
 
     const envelopesToUpsert = filterResults.toInsert.concat(
       filterResults.toUpdate
