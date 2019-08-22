@@ -23,13 +23,20 @@ const asyncComputeAndIngest = async (
 ) => {
   const { client } = ctx;
   try {
-    const { user = {}, account } = payload;
+    const { user, account } = payload;
     const result = await compute(ctx, {
       source: "processor",
       claims: _.pick(entity === "account" ? account : user, ["id"]),
       preview: false,
       entity,
-      payload,
+      payload: _.omitBy(
+        {
+          ...payload,
+          user: client.utils.traits.group(user),
+          account: client.utils.traits.group(account)
+        },
+        _.isUndefined
+      ),
       code
     });
     return await ingest(ctx, result);
