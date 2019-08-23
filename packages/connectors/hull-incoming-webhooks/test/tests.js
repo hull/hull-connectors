@@ -11,7 +11,7 @@ expect.extend({
 
 const STANDARD_EVENT_PROPS = {
   event_id: expect.whatever(),
-  source: "code",
+  source: "incoming-webhooks",
   referer: null,
   url: null,
   ip: "0"
@@ -90,7 +90,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "compute.debug",
         {},
         {
@@ -99,8 +99,10 @@ module.exports = [
           errors: [],
           userTraits: [[{ id: "123" }, { "my-group/customerioid": "321" }]],
           accountTraits: [],
-          events: [],
           accountLinks: [],
+          accountAliases: [],
+          userAliases: [],
+          events: [],
           success: true,
           isAsync: false
         }
@@ -192,7 +194,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "compute.debug",
         {},
         {
@@ -235,10 +237,14 @@ module.exports = [
                 properties: {
                   property: "value"
                 },
-                context: {}
+                context: {
+                  source: "incoming-webhooks"
+                }
               }
             }
           ],
+          accountAliases: [],
+          userAliases: [],
           accountLinks: [[{ id: "123" }, { external_id: "external" }]],
           success: true,
           isAsync: false
@@ -290,7 +296,12 @@ module.exports = [
           subject_type: "user",
           user_id: "123"
         },
-        undefined
+        {
+          eventName: "event_name",
+          properties: {
+            property: "value"
+          }
+        }
       ],
       [
         "info",
@@ -299,7 +310,14 @@ module.exports = [
           subject_type: "user",
           user_id: "123"
         },
-        undefined
+        {
+          accountClaims: {
+            external_id: "external"
+          },
+          claims: {
+            id: "123"
+          }
+        }
       ]
     ],
     metrics: [
@@ -307,8 +325,8 @@ module.exports = [
       ["increment", "ship.service_api.call", 1],
       ["increment", "ship.incoming.users", 1],
       ["increment", "ship.incoming.accounts", 2],
-      ["increment", "ship.incoming.account", 1],
-      ["increment", "ship.incoming.event", 1]
+      ["increment", "ship.incoming.events", 1],
+      ["increment", "ship.incoming.accounts.link", 1]
     ],
     firehoseEvents: [
       identify({
@@ -399,7 +417,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "compute.debug",
         {},
         {
@@ -432,6 +450,8 @@ module.exports = [
               { linkedAccountFoo: "linkedAccountBar" }
             ]
           ],
+          accountAliases: [],
+          userAliases: [],
           events: [
             {
               claims: {
@@ -442,7 +462,9 @@ module.exports = [
                 properties: {
                   property: "value"
                 },
-                context: {}
+                context: {
+                  source: "incoming-webhooks"
+                }
               }
             }
           ],
@@ -506,7 +528,12 @@ module.exports = [
           subject_type: "user",
           user_id: "123"
         },
-        undefined
+        {
+          eventName: "event_name",
+          properties: {
+            property: "value"
+          }
+        }
       ],
       [
         "info",
@@ -515,7 +542,10 @@ module.exports = [
           subject_type: "user",
           user_id: "123"
         },
-        undefined
+        {
+          accountClaims: { external_id: "external" },
+          claims: { id: "123" }
+        }
       ]
     ],
     metrics: [
@@ -523,8 +553,8 @@ module.exports = [
       ["increment", "ship.service_api.call", 1],
       ["increment", "ship.incoming.users", 1],
       ["increment", "ship.incoming.accounts", 2],
-      ["increment", "ship.incoming.account", 1],
-      ["increment", "ship.incoming.event", 1]
+      ["increment", "ship.incoming.events", 1],
+      ["increment", "ship.incoming.accounts.link", 1],
     ],
     firehoseEvents: [
       identify({
@@ -593,7 +623,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "compute.debug",
         {},
         {
@@ -621,11 +651,15 @@ module.exports = [
                 properties: {
                   foo: "bar"
                 },
-                context: {}
+                context: {
+                  source: "incoming-webhooks"
+                }
               }
             }
           ],
           accountLinks: [],
+          accountAliases: [],
+          userAliases: [],
           success: true,
           isAsync: false
         }
@@ -650,14 +684,17 @@ module.exports = [
           subject_type: "user",
           user_id: "123"
         },
-        undefined
+        {
+          eventName: "test",
+          properties: { foo: "bar" }
+        }
       ]
     ],
     metrics: [
       ["increment", "connector.request", 1],
       ["increment", "ship.service_api.call", 1],
       ["increment", "ship.incoming.users", 1],
-      ["increment", "ship.incoming.event", 1]
+      ["increment", "ship.incoming.events", 1]
     ],
     firehoseEvents: [
       identify({
@@ -707,7 +744,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "compute.debug",
         {},
         {
@@ -725,6 +762,8 @@ module.exports = [
           ],
           events: [],
           accountLinks: [],
+          accountAliases: [],
+          userAliases: [],
           success: true,
           isAsync: false
         }
@@ -782,7 +821,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "compute.debug",
         {},
         {
@@ -803,6 +842,8 @@ module.exports = [
           ],
           events: [],
           accountLinks: [],
+          accountAliases: [],
+          userAliases: [],
           success: true,
           isAsync: false
         }
@@ -865,7 +906,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "compute.debug",
         {},
         {
@@ -874,8 +915,10 @@ module.exports = [
           errors: [],
           userTraits: [[{ id: "123" }, { foo: "bar" }]],
           accountTraits: [],
-          events: [],
           accountLinks: [],
+          accountAliases: [],
+          userAliases: [],
+          events: [],
           success: true,
           isAsync: false
         }

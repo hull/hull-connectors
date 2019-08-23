@@ -4,7 +4,7 @@ import _ from "lodash";
 import check from "syntax-error";
 import lintCode from "./lint";
 
-function wrapCode(code) {
+function wrapCode(code: string) {
   return `function() {
 "use strict";
 ${code}
@@ -33,12 +33,13 @@ function pristine(ctx: HullContext, code: string) {
 function lint(ctx: HullContext, code: string) {
   return lintCode(
     `try {
-      results.push(${wrapCode(code)});
+      results = ${wrapCode(code)};
     } catch (err) { errors.push(err.toString()); }`
   );
 }
 
 const checkFunctions = {
+  wrapCode,
   empty,
   pristine,
   invalid,

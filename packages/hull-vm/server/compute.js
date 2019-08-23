@@ -36,7 +36,6 @@ export default async function compute(
   };
 
   const sandbox = {
-    payload: {},
     responses: [],
     errors: result.errors,
     request: getRequest(result)
@@ -45,7 +44,7 @@ export default async function compute(
   const frozen = {
     ...payload,
     ...LIBS,
-    ...scopedUserMethods(payload),
+    ...(claims ? scopedUserMethods(payload) : {}),
     hull: _.size(claims)
       ? (entity === "account" ? hull.asAccount : hull.asUser)(claims)
       : hull,
@@ -75,30 +74,29 @@ export default async function compute(
     }
 
     responses = vm.run(`
-      responses = (function(){
-        "use strict"
-        ${code}
-      })();
+      responses = ${check.wrapCode(code)}
       responses;
     `);
   } catch (err) {
     result.errors.push(err.stack.split("at ContextifyScript")[0]);
   }
 
-  const syntaxErrors = check.invalid(ctx, code);
-  if (syntaxErrors.length) {
-    result.errors.push(..._.map(syntaxErrors, "annotated"));
-  }
+  if (preview) {
+    // Only lint in Preview mode.
+    const syntaxErrors = check.invalid(ctx, code);
+    if (syntaxErrors.length) {
+      result.errors.push(..._.map(syntaxErrors, "annotated"));
+    }
 
-  const linterErrors = check.lint(ctx, code);
-  if (linterErrors.length) {
-    result.errors.push(...linterErrors);
+    const linterErrors = check.lint(ctx, code);
+    if (linterErrors.length) {
+      result.errors.push(...linterErrors);
+    }
   }
 
   if (
-    (result.isAsync && !responses) ||
-    !responses.then ||
-    !_.isFunction(responses.then)
+    result.isAsync &&
+    (!responses || !responses.then || !_.isFunction(responses.then))
   ) {
     result.errors.push(
       "It seems you’re using 'request' which is asynchronous."
