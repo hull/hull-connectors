@@ -132,6 +132,19 @@
       "default": false
     },
     {
+      "name": "fetch_events",
+      "type": "boolean",
+      "title": "Fetch All New Events from Marketo",
+      "description": "Enable this option to fetch all new events from Marketo.  Please be aware that fetching events may produce a lot of incoming volume.  For example a large campaign or update to a large list could cause a large volume of incoming requests, for which you are charged",
+      "default": false
+    },
+    {
+      "name": "fetching_all_leads_information",
+      "type": "string",
+      "headerTemplate": "Fetching all leads from Marketo can be a computationally intensive task which could take days depending on the size of your Marketo instance.  We like to monitor this initial operation and make sure we can set a good expectation for ETA and traffic volumes that it will generate within Hull.  Please contact your Hull Support representative to ask to schedule a full initial lead import",
+      "format": "information"
+    },
+    {
       "name": "lead_outgoing_sync_title",
       "title": "Outgoing User Synchronization Options (Hull to Marketo)",
       "format": "title",
@@ -278,7 +291,7 @@
   "settings_sections": [
     {
       "title": "Connect with Marketo",
-      "description": "",
+      "description": "The following information is required in order to connect with your Marketo instance.  We recommend generating a new api user for hull acccess, but an existing api user would work.  More detailed information on how to find or generate this information can be found [here](https://developers.marketo.com/rest-api/authentication/) on Marketo's support site",
       "step": "credentials",
       "properties": [
         "private_settings.marketo_client_id",
@@ -289,23 +302,25 @@
     },
     {
       "title": "User - Identity",
-      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to Outreach as well as the data we pull from Outreach.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /> <b>Please be aware that Outreach rejects user emails with the domain of the customer as well as outreach.io domains.</b>",
+      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to Marketo as well as the data we pull from Marketo.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios.",
       "properties": [
         "private_settings.user_claims"
       ]
     },
     {
       "title": "User - Fetching Users from Marketo",
-      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to Outreach as well as the data we pull from Outreach.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /> <b>Please be aware that Outreach rejects user emails with the domain of the customer as well as outreach.io domains.</b>",
+      "description": "Hull gives it's customers the ability to capture changes on specific data fields so that they are kept up to date in real-time.  Please configure the fields that you would like pulled from Outreach below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
       "properties": [
         "private_settings.incoming_user_attributes",
+        "private_settings.fetch_events",
         "private_settings.fetch_all_attributes",
+        "private_settings.fetching_all_leads_information",
         "json.fetch_all_leads"
       ]
     },
     {
       "title": "User - Sending Users to Marketo",
-      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to Outreach as well as the data we pull from Outreach.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /> <b>Please be aware that Outreach rejects user emails with the domain of the customer as well as outreach.io domains.</b>",
+      "description": "Configuring this section will result in automated data flows which will update your leads in Marketo.  That's why we provide fine grain control over the updates that you send to Marketo.  First configure a \"Segment\" as a user filter to control which users get sent to Marketo as leads.  Then configure the attributes you want synchronized.  You may always go to a user page and click \"Send to\" in order to override the filter and send specific users manually.  <br /><br /><b>Please be careful to map similar data types. ie. Not boolean to date</b>",
       "properties": [
         "private_settings.synchronized_user_segments",
         "private_settings.outgoing_user_attributes"

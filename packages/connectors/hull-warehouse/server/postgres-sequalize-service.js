@@ -51,6 +51,27 @@ const synchOptions = {
   alter: true
 };
 
+function toBytesUTF8(chars) {
+  return unescape(encodeURIComponent(chars));
+}
+function fromBytesUTF8(bytes) {
+  return decodeURIComponent(escape(bytes));
+}
+
+function truncateByBytesUTF8(chars, n) {
+  const rawBytes = toBytesUTF8(chars);
+  if (rawBytes.length < 255) {
+    return chars;
+  }
+  let bytes = rawBytes.substring(0, n);
+  while (true) {
+    try {
+      return fromBytesUTF8(bytes);
+    } catch(e) {};
+    bytes = bytes.substring(0, bytes.length-1);
+  }
+}
+
 class SequalizeSdk {
   api: CustomApi;
 
@@ -70,8 +91,14 @@ class SequalizeSdk {
 
   accountTableName: string;
 
+  ascii_encoded: boolean;
+
+  use_native_json: boolean;
+
   constructor(globalContext: HullVariableContext, api: CustomApi) {
     const reqContext = globalContext.reqContext();
+    this.ascii_encoded = globalContext.get("connector.private_settings.ascii_encoded_database") === true;
+    this.use_native_json = globalContext.get("connector.private_settings.use_native_json_field_type") === true;
     this.api = api;
     this.loggerClient = reqContext.client.logger;
     this.metricsClient = reqContext.metric;
@@ -194,6 +221,8 @@ class SequalizeSdk {
         sequalizeDataType = Sequelize.DOUBLE;
       } else if (type === "boolean") {
         sequalizeDataType = Sequelize.BOOLEAN;
+      } else if (this.use_native_json && type === "json") {
+        sequalizeDataType = Sequelize.JSON;
       }
 
       sequalizeSchema[normalizedAttributeKey] = sequalizeDataType;
@@ -227,10 +256,6 @@ class SequalizeSdk {
           return false;
         }
 
-        // if (normalizedName.length >= 64) {
-        //   return;
-        // }
-
         if (!schema[normalizedName]) {
           return true;
         }
@@ -255,8 +280,8 @@ class SequalizeSdk {
         }
       } else if (
         !isUndefinedOrNull(value) &&
-        typeof value === "object" &&
-        Object.keys(value).length > 0
+        _.isPlainObject(value) &&
+        !this.use_native_json
       ) {
         valueToUpsert = JSON.stringify(value);
       }
@@ -266,8 +291,15 @@ class SequalizeSdk {
           objectToUpsert[normalizedName] = parsedDate;
         }
       } else {
-        if (typeof valueToUpsert === "string" && valueToUpsert.length > 255)
-          valueToUpsert = valueToUpsert.substring(0, 255);
+        if (typeof valueToUpsert === "string") {
+
+          if (this.ascii_encoded) {
+            valueToUpsert = truncateByBytesUTF8(valueToUpsert, 254);
+          } else if (valueToUpsert.length >= 255) {
+            valueToUpsert = valueToUpsert.substring(0, 254);
+          }
+        }
+
         objectToUpsert[normalizedName] = valueToUpsert;
       }
     });
@@ -280,15 +312,18 @@ class SequalizeSdk {
       messages.map(message => {
         const sequelizedAccount = this.createSequelizedObject(message.account);
         if (message.account_segments) {
-          const segments = message.account_segments.map(segment => {
-            return segment.name;
+          const segments = [];
+          _.forEach(message.account_segments, segment => {
+            if (!isUndefinedOrNull(segment)) {
+              segments.push(segment.name);
+            }
           });
           sequelizedAccount.segments = JSON.stringify(segments);
         }
         return this.getSequelizeConnection()
           .model(this.accountTableName)
           .upsert(sequelizedAccount);
-    }));
+      }));
   }
 
   async upsertHullUser(messages: Array<any>) {
@@ -313,8 +348,11 @@ class SequalizeSdk {
         }
 
         if (message.segments) {
-          const segments = message.segments.map(segment => {
-            return segment.name;
+          const segments = [];
+          _.forEach(message.segments, segment => {
+            if (!isUndefinedOrNull(segment)) {
+              segments.push(segment.name);
+            }
           });
           sequelizedUser.segments = JSON.stringify(segments);
         }
@@ -340,7 +378,7 @@ class SequalizeSdk {
             }
             return Promise.resolve();
           });
-    }));
+      }));
   }
 }
 

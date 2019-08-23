@@ -7,8 +7,6 @@
     "documentation": "exit 0"
   },
   "dependencies": {
-    "hull": "link:../../hull",
-    "hull-connector-framework": "link:../../hull-connector-framework",
     "sequelize": "^5.2.15",
     "pg": "^6.1.0",
     "luxon": "^1.3.0",

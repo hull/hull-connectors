@@ -1,5 +1,4 @@
 /* @flow */
-const { service } = require("./service");
 
 const {
   ifL,
@@ -42,8 +41,7 @@ const { accountFields, prospectFields } = require("./fielddefs");
 // function outreach(op: string, query: any): Svc { return new Svc("outreach", op, query, null)};
 // function outreach(op: string, data: any): Svc { return new Svc("outreach", op, null, data)};
 
-function outreach(op: string, param?: any): Svc { return new Svc({ name: "outreach", op }, param)};
-
+function outreach(op: string, param?: any): Svc { return new Svc({ name: "outreach", op }, param) }
 
 // TODO need support for parallel paths too
 // arrays of objects paths or just object
@@ -52,13 +50,13 @@ function outreach(op: string, param?: any): Svc { return new Svc({ name: "outrea
 // where as pipes (transforms and endpoints) just define behaviors
 
 const webhookDataTemplate = {
-      data: {
-        type: "webhook",
-        attributes: {
-          url: "${webhookUrl}"
-        }
-      }
-    };
+  data: {
+    type: "webhook",
+    attributes: {
+      url: "${webhookUrl}"
+    }
+  }
+};
 
 const refreshTokenDataTemplate = {
   refresh_token: "${connector.private_settings.refresh_token}",

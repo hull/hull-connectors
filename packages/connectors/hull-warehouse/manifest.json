@@ -153,6 +153,27 @@
       "default": "hullaccounts",
       "required" : true,
       "description": "The Account table will contain all account attributes in columns. As new attributes are created in Hull, this connector adds columns to this table"
+    },
+    {
+      "name": "flow_control_user_update_success_size",
+      "title": "Flow control setting for success on user update",
+      "type": "string",
+      "default": "100",
+      "format": "hidden"
+    },
+    {
+      "name": "ascii_encoded_database",
+      "type": "boolean",
+      "title": "Truncate fields based on ascii lengths",
+      "description": "String fields are encoded with varchar(255) which means if you have a value greater than 255 characters, we truncate the field.  If the database is encoded in SQL_ASCII, the truncation must be calculated based on the number of bytes of the value.  Enable this if your database is encoded in SQL_ASCII so that the truncation calculation is correct",
+      "default": false
+    },
+    {
+      "name": "use_native_json_field_type",
+      "type": "boolean",
+      "title": "When creating the table schema, use the native postgres json field type instead of a varchar(255)",
+      "description": "We store nested json values as strings by default.  Enable this option to use postgres's native json column type.  If your tables already exist, you'll have to either drop the table or specify a new table for it to be rebuilt properly",
+      "default": false
     }
   ],
   "settings": [],
@@ -246,7 +267,9 @@
       "properties": [
         "private_settings.db_user_table_name",
         "private_settings.db_account_table_name",
-        "private_settings.db_events_table_name"
+        "private_settings.db_events_table_name",
+        "private_settings.use_native_json_field_type",
+        "private_settings.ascii_encoded_database"
       ]
     },
     {

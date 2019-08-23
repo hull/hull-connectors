@@ -106,24 +106,18 @@ class HullDispatcher {
 
   async handleRequest(context: HullVariableContext, route: string, data?: any) {
 
-    // TODO probably should use message or ServiceData local context
-    // so we don't have to do this weird assign at the top to create message
-    // specific context
+    // need to push a new context here so that we're not setting variables on the global context
+    // remember, ensure route needs to share same variable space as primary route
+    // because some connectors like marketo initialize variables that are used by all routes
     context.pushNew();
-    try {
-      if (!_.isEmpty(this.ensure)) {
-        if (isUndefinedOrNull(this.ensurePromise)) {
-          this.ensurePromise = this.resolve(context, new Route(this.ensure), data);
-          await this.ensurePromise;
-        } else {
-          await this.ensurePromise;
-        }
+    if (!_.isEmpty(this.ensure)) {
+      if (isUndefinedOrNull(this.ensurePromise)) {
+        this.ensurePromise = this.resolve(context, new Route(this.ensure), data);
+        await this.ensurePromise;
+      } else {
+        await this.ensurePromise;
       }
-    } finally {
-      context.popLatest();
     }
-
-    context.pushNew();
     return await this.resolve(context, new Route(route), data);
 
   }
