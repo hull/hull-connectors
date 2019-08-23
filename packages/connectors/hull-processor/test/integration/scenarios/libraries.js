@@ -59,7 +59,7 @@ describe("Basic Attributes manipulation", () => {
           expect.whatever(),
           expect.objectContaining({
             errors: [["error"]],
-            hull_summary: "Error Processing user: error"
+            hull_summary: 'Error Processing user: ["error"]'
           })
         ],
         [
