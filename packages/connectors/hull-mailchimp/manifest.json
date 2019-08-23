@@ -1,6 +1,6 @@
 {
   "name": "Mailchimp",
-  "version": "0.1.1-monorepo",
+  "version": "0.1.2-monorepo",
   "description": "Powerful segmentation and enrichment for Mailchimp - the world’s favorite email platform",
   "tags": [
     "outgoing",
@@ -233,6 +233,7 @@
     {
       "title": "Select List",
       "description": "After you have authenticated with Mailchimp, please select the list that Hull will synchronize with. You can only pick one list, and you will have to reinstall the connector if you wish to change it afterwards. Once you have selected the list, please click Save on the top right",
+      "step": "credentials",
       "properties": [
         "private_settings.mailchimp_list_id"
       ]
