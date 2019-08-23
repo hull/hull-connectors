@@ -484,9 +484,9 @@ class HullConnector {
     return this;
   }
 
-  startWorker(queueName?: string = "queueApp"): Worker {
+  async startWorker(queueName?: string = "queueApp"): Promise<Worker> {
     this.instrumentation.exitOnError = true;
-    const { jobs } = this.getHandlers();
+    const { jobs } = await this.getHandlers();
     if (!jobs) {
       throw new Error(
         "Worker is started but no jobs hash is declared in Handlers"
