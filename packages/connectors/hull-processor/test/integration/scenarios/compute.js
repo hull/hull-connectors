@@ -17,7 +17,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 
 describe("Basic Attributes manipulation", () => {
   it("should group user attributes properly", () => {
-    const asUser = { id: 1234 };
+    const asUser = { id: "1234" };
     const attributes = { userValue: "baz", accountValue: "ball" };
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
@@ -26,14 +26,12 @@ describe("Basic Attributes manipulation", () => {
           "foo/bar": "baz"
         },
         account: {
-          id: 1234,
+          id: "1234",
           "foo/bar": "ball"
         }
       }),
       handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(
-        "console.log(account)"
-      ),
+      connector: connectorWithCode(`hull.traits({ userValue: user.foo.bar, accountValue: account.foo.bar })`),
       firehoseEvents: [["traits", { asUser, subjectType: "user" }, attributes]],
       logs: [
         [
@@ -51,8 +49,8 @@ describe("Basic Attributes manipulation", () => {
   });
 
   it("should handle JSON Objects", () => {
-    const asUser = { id: 1234 };
-    const asAccount = { id: 1234 };
+    const asUser = { id: "1234" };
+    const asAccount = { id: "1234" };
     const attributes = { userValue: "bat", accountValue: "ball" };
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
@@ -70,9 +68,7 @@ describe("Basic Attributes manipulation", () => {
         }
       }),
       handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(
-        "console.log(account)"
-      ),
+      connector: connectorWithCode("hull.traits({ userValue: user.foo.bar.baz, accountValue: account.foo.bar.baz })"),
       firehoseEvents: [["traits", { asUser, subjectType: "user" }, attributes]],
       logs: [
         [
@@ -90,7 +86,7 @@ describe("Basic Attributes manipulation", () => {
   });
 
   it("should apply a simple attribute to a user", () => {
-    const asUser = { id: 1234 };
+    const asUser = { id: "1234" };
     const attributes = { foo: "bar" };
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
@@ -122,7 +118,7 @@ describe("Basic Attributes manipulation", () => {
   });
 
   it("should work as top level or scoped methods", () => {
-    const asUser = { id: 1234 };
+    const asUser = { id: "1234" };
     const attributes = { foo: "bar" };
     const attributes2 = { faa: "baz" };
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
@@ -163,7 +159,7 @@ describe("Basic Attributes manipulation", () => {
   });
 
   it("should flatten a single level deep", () => {
-    const asUser = { id: 1234 };
+    const asUser = { id: "1234" };
     const attributes = {
       "group/value": "val0",
       "group/group": {
@@ -200,7 +196,7 @@ describe("Basic Attributes manipulation", () => {
   });
 
   it("should apply a simple event to a user", () => {
-    const asUser = { id: 1234 };
+    const asUser = { id: "1234" };
     const attributes = { foo: "bar" };
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
@@ -229,7 +225,7 @@ describe("Basic Attributes manipulation", () => {
           expect.objectContaining({
             events: [
               {
-                claims: { id: 1234 },
+                claims: { id: "1234" },
                 event: {
                   properties: { foo: "bar" },
                   context: { source: "processor" },
@@ -259,11 +255,16 @@ describe("Basic Attributes manipulation", () => {
   });
 
   it("should send an account link to the firehose", () => {
-    const asUser = { id: 1234 };
+    const asUser = { id: "1234" };
     const attributes = { foo: "bar" };
     const asAccount = { domain: "bar.com" };
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser(),
+      ...messageWithUser({
+        user: {
+          ...asUser,
+          domain: "bar.com"
+        }
+      }),
       handlerType: handlers.notificationHandler,
       connector: connectorWithCode("hull.account({ domain: user.domain })"),
       // TODO: This should really exist as a Firehose method as "link"
