@@ -67,20 +67,20 @@ describe("HullConnector", () => {
     expect(connector.clientConfig.connectorName).to.be.eql("example");
   });
 
-  it("should allow to set the name of internal queue", () => {
+  it("should allow to set the name of internal queue", async () => {
     const { spies, dependencies, config } = getConfig();
     const connector = new HullConnector(dependencies, config);
     // connector.Worker();
-    const worker = connector.startWorker("example");
+    const worker = await connector.startWorker("example");
     expect(spies.processSpy.calledOnce).to.be.true;
     expect(spies.processSpy.getCall(0).args[0]).to.be.equal("example");
   });
 
-  it("should default name of internal queue to queueApp", () => {
+  it("should default name of internal queue to queueApp", async () => {
     const { spies, dependencies, config } = getConfig();
     const connector = new HullConnector(dependencies, config);
     // connector.Worker();
-    const worker = connector.startWorker();
+    const worker = await connector.startWorker();
     expect(spies.processSpy.calledOnce).to.be.true;
     expect(spies.processSpy.getCall(0).args[0]).to.be.equal("queueApp");
   });
