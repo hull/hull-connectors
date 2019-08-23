@@ -554,7 +554,7 @@ module.exports = [
       ["increment", "ship.incoming.users", 1],
       ["increment", "ship.incoming.accounts", 2],
       ["increment", "ship.incoming.events", 1],
-      ["increment", "ship.incoming.accounts.link", 1],
+      ["increment", "ship.incoming.accounts.link", 1]
     ],
     firehoseEvents: [
       identify({
@@ -950,6 +950,117 @@ module.exports = [
           foo: "bar"
         }
       })
+    ],
+    platformApiCalls
+  },
+  {
+    title: "Should properly alias and unalias Users and Accounts",
+    code: `
+      hull.asUser({ id: body.id }).alias({ email: "foo@bar.com" })
+      const asAccount = hull.asAccount({ domain: "foo.com" })
+      asAccount.alias({ external_id: "123" })
+      asAccount.unalias({ anonymous_id: "nooot" })
+    `,
+    body: {
+      id: "123"
+    },
+    logs: [
+      [
+        "debug",
+        "connector.request.data",
+        {},
+        { body: { id: "123" }, method: "POST", params: {}, query: {} }
+      ],
+      [
+        "debug",
+        "compute.debug",
+        {},
+        {
+          logs: [],
+          logsForLogger: [],
+          errors: [],
+          userTraits: [],
+          accountTraits: [],
+          accountLinks: [],
+          accountAliases: [
+            [
+              { domain: "foo.com" },
+              [
+                [{ external_id: "123" }, "alias"],
+                [{ anonymous_id: "nooot" }, "unalias"]]
+              ]
+          ],
+          userAliases: [
+            [{ id: "123" }, [[{ email: "foo@bar.com" }, "alias"]]]
+          ],
+          events: [],
+          success: true,
+          isAsync: false
+        }
+      ],
+      [
+        "info",
+        "incoming.user.alias.success",
+        {
+          subject_type: "user",
+          user_id: "123"
+        },
+        {
+          aliases: { 'Map { "email": "foo@bar.com" }': "alias" }
+        }
+      ],
+      [
+        "info",
+        "incoming.account.alias.success",
+        {
+          subject_type: "account",
+          account_domain: "foo.com"
+        },
+        {
+          aliases: {
+            'Map { "external_id": "123" }': "alias",
+            'Map { "anonymous_id": "nooot" }': "unalias"
+          }
+        }
+      ]
+    ],
+    metrics: [
+      ["increment", "connector.request", 1],
+      ["increment", "ship.service_api.call", 1],
+      ["increment", "ship.incoming.users.alias", 1],
+      ["increment", "ship.incoming.accounts.alias", 2]
+    ],
+    firehoseEvents: [
+      [
+        "alias",
+        {
+          asUser: {
+            id: "123"
+          },
+          subjectType: "user"
+        },
+        { email: "foo@bar.com" }
+      ],
+      [
+        "alias",
+        {
+          asAccount: {
+            domain: "foo.com"
+          },
+          subjectType: "account"
+        },
+        { external_id: "123" }
+      ],
+      [
+        "unalias",
+        {
+          asAccount: {
+            domain: "foo.com"
+          },
+          subjectType: "account"
+        },
+        { anonymous_id: "nooot" }
+      ],
     ],
     platformApiCalls
   }

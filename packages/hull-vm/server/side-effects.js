@@ -1,5 +1,10 @@
 // @flow
-import type { HullClient, HullContext } from "hull";
+import type {
+  HullUserClaims,
+  HullAccountClaims,
+  HullClient,
+  HullContext
+} from "hull";
 import _ from "lodash";
 import type { Result, Event } from "../types";
 
@@ -49,6 +54,8 @@ const logIfNested = (client, attrs) => {
   });
 };
 
+const pairToObject = d => _.map(d, i => i.toObject());
+
 export const callTraits = async ({
   hullClient,
   data = new Map(),
@@ -59,7 +66,7 @@ export const callTraits = async ({
   try {
     const responses = await Promise.all(
       Array.from(data, async datum => {
-        const [claims, att] = _.map(datum, i => i.toObject());
+        const [claims, att] = pairToObject(datum);
         const client = hullClient(claims);
         try {
           logIfNested(client, att);
@@ -176,26 +183,28 @@ export const callAlias = async ({
   entity,
   metric
 }: AliasSignature): Promise<any> => {
-  const successful = 0;
+  let successful = 0;
   try {
     const responses = await Promise.all(
-      Array.from(data, async ([claims, operations]) => {
-        const client = hullClient(claims);
+      Array.from(data, async datum => {
+        const [claims, operations] = datum;
+        const client = hullClient(claims.toObject());
         try {
-          _.map(operations, (operation, aliasClaims) => {
-            if (operation === "alias") {
-              client.alias(aliasClaims);
-            } else {
-              client.unalias(aliasClaims);
+          operations.map(
+            (operation, aliasClaims: HullUserClaims | HullAccountClaims) => {
+              client[operation === "alias" ? "alias" : "unalias"](
+                aliasClaims.toObject()
+              );
+              successful += 1;
             }
-          });
-          return client.logger.info(`incoming.${entity}.success`, {
-            aliases: operations
+          );
+          return client.logger.info(`incoming.${entity}.alias.success`, {
+            aliases: operations.toJS()
           });
         } catch (err) {
           console.log(err);
-          return client.logger.info(`incoming.${entity}.error`, {
-            aliases: operations
+          return client.logger.info(`incoming.${entity}.alias.error`, {
+            aliases: operations.toJS()
           });
         }
       })
