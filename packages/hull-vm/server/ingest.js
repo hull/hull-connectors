@@ -102,7 +102,9 @@ export default async function ingest(ctx: HullContext, result: Result) {
 
   if (errors && errors.length > 0) {
     client.logger.error("incoming.user.error", {
-      hull_summary: `Error Processing user: ${errors.join(", ")}`,
+      hull_summary: `Error Processing user: ${errors
+        .map(JSON.stringify)
+        .join(", ")}`,
       errors
     });
   }

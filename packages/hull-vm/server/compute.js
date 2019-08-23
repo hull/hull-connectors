@@ -5,8 +5,9 @@ import type { HullContext } from "hull";
 import _ from "lodash";
 import moment from "moment";
 import urijs from "urijs";
-import rp from "request-promise";
+// import request from "request-promise";
 import { Map } from "immutable";
+import errors from "request-promise/errors";
 import type { Result, ComputeOptions } from "../types";
 import getHullContext from "./sandbox/hull";
 import getRequest from "./sandbox/request";
@@ -14,7 +15,7 @@ import getConsole from "./sandbox/console";
 import check from "./check";
 import scopedUserMethods from "./sandbox/user_methods";
 
-const LIBS = { _, moment, urijs, rp };
+const LIBS = { _, moment, urijs };
 export default async function compute(
   ctx: HullContext,
   { payload, code, preview, claims, source, entity = "user" }: ComputeOptions
@@ -53,10 +54,12 @@ export default async function compute(
     ship: connector
   };
 
+  let responses;
+
   try {
     const vm = new VM({
-      sandbox
-      // , timeout: 1000 //TODO: Do we want to enforce a timeout here? what about Promises.
+      sandbox,
+      timeout: 1000 // TODO: Do we want to enforce a timeout here? what about Promises.
     });
     _.map(frozen, (lib, key: string) => vm.freeze(lib, key));
     // For Processor keep backwards-compatible signature of having `traits` and `track` at top level
@@ -71,47 +74,49 @@ export default async function compute(
       );
     }
 
-    vm.run(`responses = (function() {
-"use strict";
-${code}
-}());`);
+    responses = vm.run(`
+      responses = (function(){
+        "use strict"
+        ${code}
+      })();
+      responses;
+    `);
   } catch (err) {
     result.errors.push(err.stack.split("at ContextifyScript")[0]);
   }
-  const { responses } = sandbox;
-  if (
-    responses.length &&
-    result.isAsync &&
-    !_.some(_.compact(responses), r => _.isFunction(r.then))
-  ) {
-    const syntaxErrors = check.invalid(ctx, code);
-    if (syntaxErrors.length) {
-      result.errors.push(..._.map(syntaxErrors, "annotated"));
-    }
-    const linterErrors = check.lint(ctx, code);
-    if (linterErrors.length) {
-      result.errors.push(...linterErrors);
-    }
 
+  const syntaxErrors = check.invalid(ctx, code);
+  if (syntaxErrors.length) {
+    result.errors.push(..._.map(syntaxErrors, "annotated"));
+  }
+
+  const linterErrors = check.lint(ctx, code);
+  if (linterErrors.length) {
+    result.errors.push(...linterErrors);
+  }
+
+  if (
+    (result.isAsync && !responses) ||
+    !responses.then ||
+    !_.isFunction(responses.then)
+  ) {
     result.errors.push(
       "It seems you’re using 'request' which is asynchronous."
     );
     result.errors.push(
       `You need to return a 'new Promise' and 'resolve' or 'reject' it in your 'request' callback:
 
-      return new Promise((resolve, reject) => {
-        request(xxxx, function(response){
-          const something = response //some-processing;
-          resolve(something)
-        })
-      });`
+      return request(xxxx).then((res) => {
+        const something = response //some-processing;
+
+      })`
     );
   }
 
   try {
     // If we returned a Promise, await until we've got resolved it.
     // If it's not a promise we'll continue immediately
-    await Promise.all(responses);
+    await Promise.all([responses]);
     // Slice Events to 10 max
     if (preview && result.events.length > 10) {
       result.logs.unshift(result.events);
@@ -125,7 +130,16 @@ ${code}
     }
     result.success = true;
   } catch (err) {
-    result.errors.push(err.toString());
+    if (
+      err.error ||
+      err instanceof errors.RequestError ||
+      err instanceof errors.StatusCodeError ||
+      err instanceof errors.TransformError
+    ) {
+      result.errors.push(err.error);
+    } else {
+      result.errors.push(err.toString());
+    }
   }
   return result;
 }
