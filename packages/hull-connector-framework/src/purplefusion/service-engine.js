@@ -19,6 +19,7 @@ const {
 } = require("hull/src/errors");
 
 const HullVariableContext = require("./variable-context");
+const { doVariableReplacement } = require("./variable-utils");
 
 const { Route } = require("./language");
 
@@ -89,7 +90,7 @@ class ServiceEngine {
 
     const instructionOptions = instruction.options;
     const name = instructionOptions.name;
-    const op = instructionOptions.op;
+    const op = doVariableReplacement(context, instructionOptions.op);
     const serviceDefinition = this.services[name];
 
     if (isUndefinedOrNull(serviceDefinition))
@@ -464,7 +465,7 @@ class ServiceEngine {
 
     const instructionOptions = instruction.options;
     const name = instructionOptions.name;
-    const op = instructionOptions.op;
+    const op = doVariableReplacement(context, instructionOptions.op);
     const serviceDefinition = this.services[name];
 
     if (!_.isEmpty(data)) {
