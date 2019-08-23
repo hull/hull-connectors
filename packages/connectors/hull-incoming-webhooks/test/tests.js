@@ -987,12 +987,11 @@ module.exports = [
               { domain: "foo.com" },
               [
                 [{ external_id: "123" }, "alias"],
-                [{ anonymous_id: "nooot" }, "unalias"]]
+                [{ anonymous_id: "nooot" }, "unalias"]
               ]
+            ]
           ],
-          userAliases: [
-            [{ id: "123" }, [[{ email: "foo@bar.com" }, "alias"]]]
-          ],
+          userAliases: [[{ id: "123" }, [[{ email: "foo@bar.com" }, "alias"]]]],
           events: [],
           success: true,
           isAsync: false
@@ -1006,7 +1005,8 @@ module.exports = [
           user_id: "123"
         },
         {
-          aliases: { 'Map { "email": "foo@bar.com" }': "alias" }
+          aliases: { 'Map { "email": "foo@bar.com" }': "alias" },
+          claims: { id: "123" }
         }
       ],
       [
@@ -1020,7 +1020,8 @@ module.exports = [
           aliases: {
             'Map { "external_id": "123" }': "alias",
             'Map { "anonymous_id": "nooot" }': "unalias"
-          }
+          },
+          claims: { domain: "foo.com" }
         }
       ]
     ],
@@ -1060,7 +1061,7 @@ module.exports = [
           subjectType: "account"
         },
         { anonymous_id: "nooot" }
-      ],
+      ]
     ],
     platformApiCalls
   }
