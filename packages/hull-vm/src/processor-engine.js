@@ -98,7 +98,7 @@ export default class ProcessorEngine extends Engine {
       });
       this.setState({ error: undefined });
       if (entry.error) {
-        if (entry.error == "Empty query, can't fetch") {
+        if (entry.error === "Empty query, can't fetch") {
           throw new Error(EMPTY_MESSAGE);
         }
         throw new Error(entry.error);
@@ -115,7 +115,7 @@ export default class ProcessorEngine extends Engine {
         fetching: false
       });
       // throw err;
-      // return false;
+      return undefined;
     }
   };
 }

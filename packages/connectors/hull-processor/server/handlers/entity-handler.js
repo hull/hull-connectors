@@ -45,7 +45,6 @@ export default async function getUser(
       }
     });
 
-
     if (!rawPayload) {
       return {
         status: 404,

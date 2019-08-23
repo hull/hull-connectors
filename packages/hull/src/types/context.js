@@ -58,6 +58,7 @@ export type HullContext = {
    * @memberof Types
    */
   ...$Exact<HullContextBase>,
+  metric: MetricAgent,
   hostname: string, // req.hostname
   handlerName?: string,
   clientCredentials: HullClientCredentials, // HullClient configuration

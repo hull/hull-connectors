@@ -40,7 +40,7 @@ export default function handler(EntryModel: Object) {
       source: "incoming-webhooks",
       EntryModel,
       payload,
-      code,
+      code
     });
 
     return {

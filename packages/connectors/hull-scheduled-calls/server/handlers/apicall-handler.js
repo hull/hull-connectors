@@ -4,26 +4,17 @@ import _ from "lodash";
 import neatCsv from "neat-csv";
 import type {
   HullContext,
-  // HullResponse,
+  HullIncomingHandlerMessage,
   HullExternalResponse
 } from "hull";
 import { asyncComputeAndIngest } from "hull-vm";
 
 export default function handler(EntryModel: Object) {
-  return async (ctx: HullContext, message: HullIncomingHandlerMessage): HullExternalResponse => {
-    const { client, connector } = ctx;
-    const { body } = message;
-
-    // let { connector = {} } = req.body;
-    if (!body || typeof body !== "object") {
-      return {
-        status: 500,
-        text: "Invalid Payload, Body must be an object"
-      };
-    }
-
-
-
+  return async (
+    ctx: HullContext,
+    _message: HullIncomingHandlerMessage
+  ): HullExternalResponse => {
+    const { client, connector, metric } = ctx;
 
     const { private_settings = {} } = connector;
     const { code } = private_settings;
@@ -90,14 +81,14 @@ export default function handler(EntryModel: Object) {
       const payload = !response.ok
         ? { error: response.error }
         : {
+            body: responseBody,
             date: new Date(),
             url,
             method,
+            status: response.statusCode,
             requestHeaders: headers,
             requestBody: body,
-            responseHeaders: response.headers,
-            status: response.statusCode,
-            responseBody
+            responseHeaders: response.headers
           };
 
       if (!response.ok) {

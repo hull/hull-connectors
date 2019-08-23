@@ -5,8 +5,7 @@ import type {
   HullClient,
   HullAttributeContext,
   HullEventProperties,
-  HullEventContext,
-  HullEntityType
+  HullEventContext
 } from "hull";
 import { applyContext } from "hull-client/src/utils/traits";
 import { Map } from "immutable";
