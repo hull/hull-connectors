@@ -1,5 +1,16 @@
 // @flow
 
+import type {
+  HullAttributeName,
+  HullAttributeValue,
+  HullSegment,
+  HullUserSegment,
+  HullAccountSegment,
+  HullUser,
+  HullAccount,
+  HullEvent,
+  HullConnector
+} from "../index";
 // ====================================
 //   Notification DataTypes
 // ====================================
