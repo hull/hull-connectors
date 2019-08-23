@@ -312,6 +312,15 @@ class LockLogic extends Logic {
   }
 }
 
+/**
+ * This instruction creates an inmemory lock on "lockname"
+ * meaning that if another request tries to get the same lock while an original holds it
+ * that request will fail.  acts like a mutex, can expand on functionality if needed
+ * cacheLock is a similar instruction, but uses a stored value in the cache instead of an in memory value
+ * @param lockname -> name of the lock that you want to try to get
+ * @param instructions -> instructions to run if you get the lock, and once these instructions are complete, we release the lock
+ * @returns {LockLogic}
+ */
 function lockL(lockname: string, instructions: any): LoopLogic {
   return new LockLogic(lockname, instructions);
 }
