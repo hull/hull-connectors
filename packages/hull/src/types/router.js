@@ -6,7 +6,6 @@ import type {
   HullCache,
   HullClient,
   HullQueue,
-  HullClient,
   HullInstrumentation,
   HTTPMethod
 } from "./index";
