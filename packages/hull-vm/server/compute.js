@@ -136,7 +136,9 @@ export default async function compute(
       err instanceof errors.StatusCodeError ||
       err instanceof errors.TransformError
     ) {
-      result.errors.push(err.error);
+      result.errors.push(
+        err.message === "Error: ESOCKETTIMEDOUT" ? err.message : err.error
+      );
     } else {
       result.errors.push(err.toString());
     }
