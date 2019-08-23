@@ -190,16 +190,16 @@ export const callAlias = async ({
         const [claims, operations] = datum;
         const client = hullClient(claims.toObject());
         try {
-          operations.map(
+          const aliases = operations.map(
             (operation, aliasClaims: HullUserClaims | HullAccountClaims) => {
-              client[operation === "alias" ? "alias" : "unalias"](
-                aliasClaims.toObject()
-              );
+              const a = aliasClaims.toObject();
+              client[operation === "alias" ? "alias" : "unalias"](a);
               successful += 1;
+              return [operation, a];
             }
           );
           return client.logger.info(`incoming.${entity}.alias.success`, {
-            aliases: operations.toJS()
+            aliases
           });
         } catch (err) {
           console.log(err);
