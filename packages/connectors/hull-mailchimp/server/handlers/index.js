@@ -37,7 +37,7 @@ export default function handlers({
 }: {
   clientID: string,
   clientSecret: string,
-  hostSecret: string
+  _hostSecret: string
 }): HullHandlersConfiguration {
   return {
     jobs: {
