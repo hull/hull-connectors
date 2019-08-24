@@ -6,7 +6,7 @@ import type {
   Config,
   PreviewRequest,
   PreviewResponse
-} from "hull-vm";
+} from "../types";
 
 type AnyFunction = any => any;
 
@@ -17,8 +17,6 @@ const EVENT = "CHANGE";
 // const CORS_HEADERS = { "Access-Control-Allow-Origin": "*" };
 
 const DEFAULT_STATE = {
-  initializing: false,
-  bootstrapping: false,
   computing: false,
   initialized: false,
   current: undefined,
@@ -51,7 +49,7 @@ export default class Engine extends EventEmitter {
   }
 
   fetchConfig = async () => {
-    this.setState({ bootstrapping: true });
+    this.setState({ computing: true });
     try {
       const response = await this.request({
         url: "config",
@@ -64,17 +62,18 @@ export default class Engine extends EventEmitter {
         error: err.message,
         token: "",
         hostname: "",
+        computing: false,
         initialized: false
       });
       return false;
     }
   };
 
+  // This methods finishes the init Sequence
   saveConfig = response => {
     this.setState({
       error: undefined,
-      computing: false,
-      bootstrapping: false,
+      initialized: true,
       ...response
     });
   };
@@ -147,7 +146,6 @@ export default class Engine extends EventEmitter {
   fetchPreview = _.debounce(
     async ({ code, payload, claims }: PreviewRequest) => {
       this.setState({ computing: true });
-
       try {
         const response: PreviewResponse = await this.request({
           url: "preview",
@@ -161,15 +159,13 @@ export default class Engine extends EventEmitter {
           current: {
             ...state.current,
             result: response
-          },
-          initialized: true
+          }
         });
         return true;
       } catch (err) {
         this.setState({
           error: err.message,
-          computing: false,
-          initialized: true
+          computing: false
         });
         return false;
       }

@@ -20,11 +20,11 @@ ace.require("ace/mode/javascript");
 ace.require("ace/mode/markdown");
 ace.require("ace/mode/json");
 ace.require("ace/mode/text");
-
 ace.require("ace/snippets/javascript");
 ace.require("ace/snippets/json");
 ace.require("ace/theme/clouds_midnight");
 
+ace.require("ace/ext/beautify");
 ace.require("ace/ext/error_marker");
 ace.require("ace/ext/searchbox");
 ace.require("ace/ext/elastic_tabstops_lite");

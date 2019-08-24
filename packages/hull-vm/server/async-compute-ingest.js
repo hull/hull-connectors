@@ -12,12 +12,14 @@ const asyncComputeAndIngest = async (
     EntryModel,
     payload,
     code,
-    source
+    source,
+    preview = false
   }: {
     code: string,
     payload: { [string]: any },
     EntryModel: Object,
-    source: string
+    source: string,
+    preview?: boolean
   }
 ) => {
   const { client } = ctx;
@@ -26,11 +28,14 @@ const asyncComputeAndIngest = async (
       payload,
       code,
       source,
-      preview: false
+      preview
     });
-    // TODO: Check how errors in the second await could not have a defined error
-    await ingest(ctx, result);
+    if (!preview) {
+      // TODO: Check how errors in the second await could not have a defined error
+      await ingest(ctx, result);
+    }
     await saveRecent(ctx, { EntryModel, payload, code, result });
+    return result;
   } catch (err) {
     client.logger.error("incoming.user.error", {
       hull_summary: `Error ingesting payload: ${_.get(
@@ -40,6 +45,7 @@ const asyncComputeAndIngest = async (
       )}`,
       err
     });
+    throw err;
   }
 };
 

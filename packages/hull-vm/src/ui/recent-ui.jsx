@@ -83,13 +83,12 @@ export default class RecentEntriesUI extends VirtualMachineUI<Props, State> {
       initialized,
       fetching,
       recent,
-      url,
-      // error,
       computing,
-      // result,
       activeTab,
-      // showConfig,
       showBindings
+      // error,
+      // result,
+      // showConfig,
     } = this.state;
 
     const { strings } = this.props;
@@ -97,7 +96,7 @@ export default class RecentEntriesUI extends VirtualMachineUI<Props, State> {
     const showingCurrent = this.showingCurrent();
     const active: Entry | void = showingCurrent ? current : selected;
 
-    if (!active || !url) {
+    if (!active || !initialized) {
       return (
         <div className="text-center pt-2">
           <h4>Loading...</h4>

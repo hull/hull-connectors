@@ -17,10 +17,10 @@ import Header from "./header"
 import CodeTitle from "./code-title"
 import Spinner from "./spinner"
 import type { EngineState, Entry, Result } from "../../types";
-import type VMEngine from "../vm-engine";
+import type Engine from "../engine";
 
 type Props = {
-  engine: VMEngine,
+  engine: Engine,
   strings: {
     [string]: string
   },

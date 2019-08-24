@@ -13,7 +13,8 @@ ready(() => {
     <App
       engine={engine}
       strings={{
-        leftColumnTitle: "Recent API Calls",
+        modalTitle: "Call an external API",
+        leftColumnTitle: "Recent",
         centerColumnCurrentTab: "Current Code",
         centerColumnPreviousTab: "At time of call"
       }}

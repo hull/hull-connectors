@@ -1,12 +1,13 @@
 // @flow
 
-import React, { Component } from "react";
+import React from "react";
 import Button from "react-bootstrap/Button";
 import { ConfigurationModal, Spinner, RecentEntriesUI } from "hull-vm/src/ui";
 import _ from "lodash";
 
 import type { EngineState } from "hull-vm";
 import type Engine from "./engine";
+import ModalBody from "./modal-body";
 
 type Props = {
   engine: Engine
@@ -15,50 +16,67 @@ type Props = {
 type State = EngineState & {};
 
 export default class App extends RecentEntriesUI<Props, State> {
-  callNow() {}
+  callNow = () => {
+    this.props.engine.callAPI(false);
+  };
 
-  callNowAndExecute() {}
+  callNowAndExecute = () => {
+    this.props.engine.callAPI(true);
+  };
 
   renderSetupMessage() {
-    const { initializing, showConfig, recent, url } = this.state;
+    const {
+      computing,
+      initialized,
+      showConfig,
+      recent,
+      url,
+      headers,
+      cookies,
+      body,
+      format,
+      sync_interval,
+      method
+    } = this.state;
+    if (!initialized) return;
+    const { strings } = this.props;
     const hasRecent = !!_.get(recent, "length", 0);
     const content = hasRecent
-      ? "Hull will call the API below on a regular schedule. Call it now manually by clicking the button below"
+      ? `Hull calls the API below every ${sync_interval} minutes. Call it now manually by clicking the button below`
       : "We haven't called the API Yet. Call it now manually by clicking the button below";
     const actions = [
-      <Button key="callNow" onClick={this.callNow}>
-        Call API Now
+      computing && <Spinner className="loading-spinner" />,
+      <Button size="sm" key="callNow" onClick={this.callNow}>
+        Call API (preview results)
       </Button>,
-      <Button key="callNowAndExecute" onClick={this.callNowAndExecute}>
-        Call API and Execute code
+      <Button
+        size="sm"
+        key="callNowAndExecute"
+        variant="danger"
+        onClick={this.callNowAndExecute}
+      >
+        Call API (live call)
       </Button>
     ];
 
-    const footerMessage = !hasRecent && (
-      <span
-        style={{
-          height: 24,
-          flexDirection: "row",
-          display: "flex",
-          alignItems: "center"
-        }}
-      >
-        {initializing ? (
-          <Spinner className="loading-spinner" />
-        ) : (
-          <span>Attempting call</span>
-        )}
-      </span>
-    );
-
     return (
       <ConfigurationModal
-        show={showConfig || !hasRecent}
-        url={url}
-        onHide={() => {}}
+        title={strings.modalTitle}
+        body={
+          <ModalBody
+            url={url}
+            headers={headers}
+            method={method}
+            cookies={cookies}
+            body={body}
+            format={format}
+            sync_interval={sync_interval}
+          />
+        }
         content={content}
         actions={actions}
-        footer={footerMessage}
+        show={showConfig || !hasRecent}
+        onHide={this.hideInstructions}
       />
     );
   }

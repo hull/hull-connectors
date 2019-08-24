@@ -13,7 +13,8 @@ ready(() => {
     <App
       engine={engine}
       strings={{
-        leftColumnTitle: "Recent Webhooks",
+        modalTitle: "Configure your incoming webhook",
+        leftColumnTitle: "Recent",
         centerColumnCurrentTab: "Current Code",
         centerColumnPreviousTab: "At Webhook Reception"
       }}

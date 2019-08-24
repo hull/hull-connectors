@@ -37,14 +37,14 @@ export default async function compute(
 
   const sandbox = {
     responses: [],
-    errors: result.errors,
-    request: getRequest(result)
+    errors: result.errors
   };
   const hull = getHullContext(client, result, source);
   const frozen = {
     ...payload,
     ...LIBS,
     ...(claims ? scopedUserMethods(payload) : {}),
+    request: getRequest(result),
     hull: _.size(claims)
       ? (entity === "account" ? hull.asAccount : hull.asUser)(claims)
       : hull,
@@ -88,7 +88,7 @@ export default async function compute(
       result.errors.push(..._.map(syntaxErrors, "annotated"));
     }
 
-    const linterErrors = check.lint(ctx, code);
+    const linterErrors = check.lint(ctx, code, frozen);
     if (linterErrors.length) {
       result.errors.push(...linterErrors);
     }

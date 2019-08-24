@@ -30,11 +30,12 @@ function pristine(ctx: HullContext, code: string) {
   return code === defaultCode;
 }
 
-function lint(ctx: HullContext, code: string) {
+function lint(ctx: HullContext, code: string, payload?: Object) {
   return lintCode(
     `try {
       results = ${wrapCode(code)};
-    } catch (err) { errors.push(err.toString()); }`
+    } catch (err) { errors.push(err.toString()); }`,
+    payload
   );
 }
 

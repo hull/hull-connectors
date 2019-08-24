@@ -2,7 +2,7 @@
 
 import _ from "lodash";
 import type { EventSelect, Config, Entry, ProcessorEngineState } from "hull-vm";
-import Engine from "./vm-engine";
+import Engine from "./engine";
 
 type QueryParams = {
   claim?: string,
@@ -21,15 +21,10 @@ export default class ProcessorEngine extends Engine {
 
   constructor(config: Config) {
     super(config);
-    this.initialize(this.state);
+    this.fetchPreview(this.state);
   }
 
-  initialize = async ({ claim, selectedEvents }: QueryParams) => {
-    const entry = await this.fetchEntry({ claim, selectedEvents });
-    this.setState({ error: EMPTY_MESSAGE });
-    this.saveEntry(entry);
-  };
-
+  // This methods finishes the init Sequence
   saveConfig = response => {
     const { eventSchema } = response;
     const events = _.sortBy(
@@ -38,10 +33,16 @@ export default class ProcessorEngine extends Engine {
     );
     this.setState({
       error: undefined,
-      bootstrapping: false,
+      initialized: true,
       ...response,
       events
     });
+  };
+
+  initialize = async ({ claim, selectedEvents }: QueryParams) => {
+    const entry = await this.fetchEntry({ claim, selectedEvents });
+    this.setState({ error: EMPTY_MESSAGE });
+    this.saveEntry(entry);
   };
 
   saveEntry = (entry?: Entry) => {
@@ -77,7 +78,7 @@ export default class ProcessorEngine extends Engine {
   };
 
   fetchEntryDebounced = _.debounce(
-    async () => this.initialize(this.state),
+    async () => this.fetchPreview(this.state),
     1000,
     {
       leading: false,

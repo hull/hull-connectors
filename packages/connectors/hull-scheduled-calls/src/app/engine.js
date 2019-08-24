@@ -9,9 +9,10 @@ export default class IncomingWebhookEngine extends RecentEntriesEngine {
       method: "post",
       data: {
         ...this.state.current,
-        execute
+        preview: !execute
       }
     });
+    this.setState({ computing: false });
     this.saveConfig(response);
     return true;
   }

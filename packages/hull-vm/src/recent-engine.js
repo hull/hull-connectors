@@ -2,7 +2,7 @@
 
 import _ from "lodash";
 import type { Config, Entry, RecentEngineState } from "hull-vm";
-import Engine from "./vm-engine";
+import Engine from "./engine";
 
 export default class RecentEntriesEngine extends Engine {
   state: RecentEngineState;
