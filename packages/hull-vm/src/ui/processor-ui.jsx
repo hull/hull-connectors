@@ -129,8 +129,13 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
                 <Button variant="secondary" onClick={this.showBindings}>
                   Keyboard Shortcuts
                 </Button>
-                {computing ? <Spinner className="loading-spinner" /> : null}
               </ButtonGroup>
+              {computing ? (
+                <Spinner
+                  style={{ marginLeft: "1rem" }}
+                  className="loading-spinner"
+                />
+              ) : null}
             </Header>
 
             <Preview

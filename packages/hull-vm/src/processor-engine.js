@@ -21,7 +21,7 @@ export default class ProcessorEngine extends Engine {
 
   constructor(config: Config) {
     super(config);
-    this.fetchPreview(this.state);
+    this.fetchEntry(this.state);
   }
 
   // This methods finishes the init Sequence
@@ -32,17 +32,12 @@ export default class ProcessorEngine extends Engine {
       e => e.label
     );
     this.setState({
-      error: undefined,
+      error: EMPTY_MESSAGE,
       initialized: true,
       ...response,
       events
     });
-  };
-
-  initialize = async ({ claim, selectedEvents }: QueryParams) => {
-    const entry = await this.fetchEntry({ claim, selectedEvents });
-    this.setState({ error: EMPTY_MESSAGE });
-    this.saveEntry(entry);
+    this.fetchEntry(this.state);
   };
 
   saveEntry = (entry?: Entry) => {
@@ -78,7 +73,7 @@ export default class ProcessorEngine extends Engine {
   };
 
   fetchEntryDebounced = _.debounce(
-    async () => this.fetchPreview(this.state),
+    async () => this.fetchEntry(this.state),
     1000,
     {
       leading: false,
@@ -104,16 +99,17 @@ export default class ProcessorEngine extends Engine {
         }
         throw new Error(entry.error);
       }
-      return entry;
+      this.saveEntry(entry);
     } catch (err) {
       this.setState({
         error: err.message,
+        computing: false,
+        fetching: false,
         current: {
           ...this.state.current,
           editable: false,
           payload: undefined
-        },
-        fetching: false
+        }
       });
       // throw err;
       return undefined;

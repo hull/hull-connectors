@@ -98,7 +98,6 @@ class CodeEditor extends Component<Props, State> {
         className={`${className || ""} ${readOnly ? "read-only" : ""}`}
         theme="clouds_midnight"
         width="auto"
-        wrapEnabled
         tabSize={2}
         fontSize={12}
         showPrintMargin
