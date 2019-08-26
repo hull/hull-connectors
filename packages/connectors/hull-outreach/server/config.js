@@ -2,7 +2,10 @@
 
 import type { HullConnectorConfig } from "hull";
 import manifest from "../manifest.json";
-import handlers from "./handlers";
+
+const _ = require("lodash");
+const HullRouter = require("hull-connector-framework/src/purplefusion/router");
+require('dotenv').config()
 
 export default function connectorConfig(): HullConnectorConfig {
     const {
@@ -23,10 +26,20 @@ export default function connectorConfig(): HullConnectorConfig {
 
   return {
     manifest,
-    handlers: handlers({
-      clientID: CLIENT_ID,
-      clientSecret: CLIENT_SECRET
-    }),
+    handlers: new HullRouter({
+      glue: require("./glue"),
+      services: {
+        outreach: require("./service")({
+          clientID: CLIENT_ID,
+          clientSecret: CLIENT_SECRET
+        })
+      },
+      transforms: _.concat(
+        require("./transforms-to-hull"),
+        require("./transforms-to-service")
+      ),
+      ensureHook: "ensureWebhooks"
+    }).createHandler,
     hostSecret: SECRET || "1234",
     devMode: NODE_ENV === "development",
     port: PORT || 8082,

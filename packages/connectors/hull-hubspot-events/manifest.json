@@ -1,0 +1,134 @@
+{
+  "name": "Hubspot Events",
+  "description": "Hubspot integration for Events",
+  "source": "hubspot",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "version": "0.0.20-monorepo",
+  "tags": [
+    "outgoing",
+    "incoming",
+    "batch",
+    "batch-accounts",
+    "oneColumn",
+    "smart-notifier",
+    "first-install",
+    "single-install",
+    "kraken-exports"
+  ],
+  "settings": [],
+  "private_settings": [
+    {
+      "name": "access_token",
+      "title": "OAuth Access Token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "refresh_token",
+      "title": "OAuth Refresh Token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "portal_id",
+      "title": "Hubspot Portal Id",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "token_type",
+      "title": "OAuth Authentication method",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "expires_in",
+      "title": "OAuth Token Expiration in seconds",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "scope",
+      "title": "Owning user of the customer service that was used to authenticate",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "fetch_count",
+      "description": "Count of email events already fetched from Hubspot",
+      "type": "number",
+      "format": "hidden"
+    },
+    {
+      "name": "last_fetch_started_at",
+      "description": "Last time fetched at operation was started",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "title": "Email Events To Fetch From Hubspot",
+      "name": "events_to_fetch",
+      "type": "array",
+      "default": [],
+      "enum": [
+        "SENT",
+        "DROPPED",
+        "PROCESSED",
+        "DELIVERED",
+        "DEFERRED",
+        "BOUNCE",
+        "OPEN",
+        "CLICK",
+        "PRINT",
+        "FORWARD",
+        "STATUSCHANGE",
+        "SPAMREPORT"
+      ]
+    },
+    {
+      "name": "user_claims",
+      "title": "User Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "title": "Hubspot Contact Email",
+            "type": "string",
+            "format": "select",
+            "enum": ["recipient"],
+            "options" : {
+              "allowCreate": false
+            }
+          },
+          "hull": {
+            "title": "Hull User Ident",
+            "enum": ["email"]
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "email",
+          "service": "recipient"
+        }
+      ]
+    }
+  ],
+  "deployment_settings": [],
+  "resources": [],
+  "readme": "readme.md",
+  "tabs": [
+    {
+      "title": "Credentials & Actions",
+      "url": "/auth",
+      "size": "small",
+      "editable": false
+    }
+  ],
+  "ui": false,
+  "subscriptions": [],
+  "schedules": []
+}

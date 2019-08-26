@@ -4,5 +4,17 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
     "documentation": "exit 0"
+  },
+  "dependencies": {
+    "auto-bind": "^2.0.0",
+    "csv-stream": "^0.2.0",
+    "pump-promise": "^1.0.0",
+    "jsonata": "^1.6.4",
+    "through2-map": "^3.0.0",
+    "promise-streams": "^1.0.1",
+    "dev-null": "^0.1.1"
+  },
+  "devDependencies": {
+    "mockdate": "^2.0.5"
   }
 }
