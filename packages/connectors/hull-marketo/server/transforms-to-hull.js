@@ -4,7 +4,8 @@ import type { ServiceTransforms } from "hull-connector-framework/src/purplefusio
 const {
   inputIsEqual,
   inputIsNotEqual,
-  isNotEqual
+  isNotEqual,
+  isEqual
 } = require("hull-connector-framework/src/purplefusion/conditionals");
 
 const {

@@ -28,7 +28,8 @@ const {
   ex,
   cast,
   utils,
-  obj
+  not,
+  or
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -52,9 +53,9 @@ const leadExportBody = {
   }
 }
 
-// TODO for "join" data syntax, could use a lodash unionBy and then filter
-// to simulate left, right, inner joins.  though could be tricky if have similar values
 const glue = {
+  // Simple status which will return setup required if we don't have credentials filled out
+  // TODO need to make a call to marketo to confirm it works...
   status: ifL(route("isConfigured"), {
     do:ifL(cond("isEmpty", settings("synchronized_user_segments")), {
       status: "ok",
@@ -65,6 +66,44 @@ const glue = {
       message: "Please fill out the required credential fields for Hull to connect with Marketo.  You can find these fields by clicking \"Settings\" then scrolling to the \"Connect with Marketo\" section."
     }
   }),
+
+  isConfigured: cond("allTrue", [
+    cond("notEmpty", settings("marketo_client_id")),
+    cond("notEmpty", settings("marketo_client_secret")),
+    cond("notEmpty", settings("marketo_authorized_user")),
+    cond("notEmpty", settings("marketo_identity_url"))
+  ]),
+
+  // gets new authentication token, called if we our access token is denied, and we need to get a new token
+  getAuthenticationToken: {
+    if: route("isConfigured"),
+    do: [
+      set("newAccessToken", marketo("getAuthenticationToken")),
+      settingsUpdate({
+        access_token: "${newAccessToken.access_token}",
+        expires_in: "${newAccessToken.expires_in}",
+        scope: "${newAccessToken.scope}"
+      })
+    ]
+  },
+
+  // Sometimes fields can be in the thousands, so hit the refresh on a schedule, instead of pulling on demand
+  refreshCustomAttributes: cacheWrap(1200, marketo("describeLeads")),
+  attributesLeadsIncoming: transformTo(HullIncomingDropdownOption, route("refreshCustomAttributes")),
+  attributesLeadsOutgoing: transformTo(HullOutgoingDropdownOption, route("refreshCustomAttributes")),
+
+  // Setup marketo api from the configured values
+  ensureSetup:
+    ifL(route("isConfigured"), [
+      set("marketoApiUrl", ld("replace", ld("trim", settings("marketo_identity_url")), /\/identity$/, "")),
+      ifL(cond("isEmpty", settings("access_token")), route("getAuthenticationToken")),
+      set("service_name", "marketo")
+    ]),
+
+  //don't do anything on ship update
+  shipUpdate: {},
+
+  //Incremental polling logic
   fetchRecentLeadActivity:
     ifL(route("isConfigured"), [
 
@@ -77,43 +116,58 @@ const glue = {
       // set now to be one minute previous
       set("now", ex(moment(), "subtract", 1, "minutes")),
 
-      // TODO We could completely remove the following if we embedded the variables in
-      // a mapped object that we pass to "getLatestLeadActivity"
-      // it's a valid pattern to take many inputs and pass to 1 output
-      // harder one is taking 1 output and fanning it to multiple inputs
+      // TODO add conditions for if fields is null and/or fetch_events is true
       set("latestLeadSyncFormatted", ex("${latestLeadSync}", "format")),
       set("nextPageToken", get("nextPageToken", marketo("getLatestLeadActivityPagingToken"))),
-      // set("fields", jsonata("$.rest.name", cacheWrap(60, marketo("describeLeads")))),
       set("fields", jsonata("$.service", settings("incoming_user_attributes"))),
 
-      // need to use the obj instruction otherwise the activitytypeIdmap is inside of a servicedata
-      // in the context...
-      set("activityTypeIdMap", obj(cacheWrap(6000, marketo("getActivityTypeEnum")))),
-
-      //transform uses this to append service name
-      // should probably do this automatically somehow...
-      set("service_name", "marketo"),
-      loopL([
-        set("activityPage", marketo("getLatestLeadActivity")),
-
-        // TODO need to add hull logic for parsing and ingesting events too...
-        ifL(cond("notEmpty", get("activityPage.result")),
-          hull("asUser", cast(MarketoIncomingLeadActivity, get("activityPage.result")))
-        ),
-
-        // now check if there's more results and set the next page Token if needed
-        ifL(get("activityPage.moreResult"), {
-          do: set("nextPageToken", get("activityPage.nextPageToken")),
-          eldo: loopEndL()
-        })
-      ]),
+      // call for activityTypeIdMap so that the transformation can transform the event names properly
+      // could be vulnerable to cases when we add new event types, and it's still cached, but we receive the new value
+      set("activityTypeIdMap", cacheWrap(6000, marketo("getActivityTypeEnum"))),
+      route("pageThroughLeadActivity"),
       settingsUpdate({ latestLeadSync: ex("${now}", "valueOf") })
     ]),
 
+  // TODO may want to lock this
+  // we've gotten into situations where we're far enough behind that we hit the endpoint again
+  // need to research if we need to update latestLeadSync logic, though it's just given a token that's a "from X"
+  // so may need to update with the latest time that we pull or something...
+  pageThroughLeadActivity:
+    loopL([
+      set("activityPage", marketo("getLatestLeadActivity")),
+
+      // if the result is not empty then iterate over it
+      ifL(cond("notEmpty", get("activityPage.result")),
+
+        // iterate over each activity
+        iterateL("${activityPage.result}", { key: "leadActivity", async: true },
+          // if fetch_events is true, or activityTypeId === 13 (attribute update which we still want to bring in)
+          ifL(or([
+              cond("isEqual", settings("fetch_events"), true),
+              cond("isEqual", "${leadActivity.activityTypeId}", 13)
+            ]),
+            hull("asUser", cast(MarketoIncomingLeadActivity, "${leadActivity}"))
+          )
+        ),
+      ),
+
+      // now check if there's more results and set the next page Token if needed
+      ifL(get("activityPage.moreResult"), {
+        do: set("nextPageToken", get("activityPage.nextPageToken")),
+        eldo: loopEndL()
+      })
+    ]),
+
   // Not crazy about all of the variables we use in this method, but it works
+  // will refactor when introducing specific variable input to service
   fetchAllLeads: ifL(route("isConfigured"), {
     do: [
-      set("fields", jsonata("$.rest.name", route("refreshCustomAttributes"))),
+      // get all fields to pull from export
+      ifL(cond("isEqual", settings("fetch_all_attributes"), true), {
+        do: set("fields", jsonata("$.rest.name", route("refreshCustomAttributes"))),
+        eldo: set("fields", jsonata("[$.service]", settings("incoming_user_attributes")))
+      }),
+
 
       // use this to fetch a particular time range
       // exportJobId logic needs to be fixed if only 1 job is created
@@ -157,6 +211,7 @@ const glue = {
 
     ]
   }),
+
   cancelPendingLeadExports:
     iterateL(
       notFilter({ status: "Completed" }, notFilter({ status: "Cancelled" }, marketo("getLeadExportJobs"))),
@@ -195,12 +250,11 @@ const glue = {
   customPollLeadExport: [
 
     // this queues up any jobs that haven't been started
-    // route("enqueueCurrentLeadExports"),
-    set("service_name", "marketo"),
+    route("enqueueCurrentLeadExports"),
 
     // look at the difference in outstanding export jobids and completed jobids
     iterateL(
-      ld("difference", ["811e46d6-51ae-4717-a5b3-ac97b807d86e"], cacheGet("completedJobIds")),
+      ld("difference", cacheGet("exportJobIds"), cacheGet("completedJobIds")),
       "exportId",
       // Make sure the exportId is not in the completed jobs
       // And Make sure the job is marked as "Completed"
@@ -225,53 +279,12 @@ const glue = {
     )
   ],
 
-  refreshCustomAttributes: cacheWrap(1200, marketo("describeLeads")),
-
-  attributesLeadsIncoming:
-    transformTo(
-      HullIncomingDropdownOption,
-      route("refreshCustomAttributes")
-    ),
-
-  attributesLeadsOutgoing:
-    transformTo(
-      HullOutgoingDropdownOption,
-      route("refreshCustomAttributes")
-    ),
-
-  isConfigured: cond("allTrue", [
-    cond("notEmpty", settings("marketo_client_id")),
-    cond("notEmpty", settings("marketo_client_secret")),
-    cond("notEmpty", settings("marketo_authorized_user")),
-    cond("notEmpty", settings("marketo_identity_url"))
-  ]),
-
-  getAuthenticationToken: {
-    if: route("isConfigured"),
-    do: [
-      set("newAccessToken", marketo("getAuthenticationToken")),
-      settingsUpdate({
-        access_token: "${newAccessToken.access_token}",
-        expires_in: "${newAccessToken.expires_in}",
-        scope: "${newAccessToken.scope}"
-      })
-    ]
-  },
-
-  ensureSetup:
-    ifL(route("isConfigured"), [
-      set("marketoApiUrl", ld("replace", ld("trim", settings("marketo_identity_url")), /\/identity$/, "")),
-      ifL(cond("isEmpty", settings("access_token")), route("getAuthenticationToken"))
-    ]),
-
-  shipUpdate: {},
-
   // TODO will need batch output, and parallel handling for update
   // need to decide if use a pure batch upload job with fields to dedup on
   // or do the deduping in code with a batch lookup
   // can only use 1 field for deduping... : lookupField
   // can't use array...
-  //Works, but may need to make sure we add the claims to the incoming values too
+  // Works, but may need to make sure we add the claims to the incoming values too
   // because if not, this is so slow we have to do asynch true, which means, we don't get the value for each user that we're uploading
   // must get it on the other way around like hubspot...
   userUpdate: [
@@ -279,24 +292,9 @@ const glue = {
     set("messages", input()),
     iterateL(settings("user_claims"), "user_claim",
       ifL(cond("notEmpty", "${messages}"), [
-        marketo("upsertLeads",
-          filterL(cond("notEmpty", get("message.user.${user_claim.service}")), "message", "${messages}")),
+        marketo("upsertLeads", filterL(cond("notEmpty", get("message.user.${user_claim.service}")), "message", "${messages}")),
         set("messages", filterL(cond("isEmpty", get("message.user.${user_claim.service}")), "message", "${messages}"))
       ])
-      // ifL(cond("notEmpty", "${messages}"), [
-      //   marketo("upsertLeads",
-      //     cast(MarketoOutgoingLead, {
-      //       action: "createOrUpdate",
-      //       asyncProcessing: true,
-      //       lookupField: get("user_claim.service"),
-      //       input: obj(transformTo(HullUserRaw,
-      //         filterL(
-      //           cond("notEmpty", get("message.user.${user_claim.service}")),
-      //           "message",
-      //           "${messages}")))
-      //     })),
-      //   set("messages", filterL(cond("isEmpty", get("message.user.${user_claim.service}")), "message", "${messages}"))
-      // ])
     ),
     // have to wrap this in an if block because otherwise, service engine will think we've sent a hull user back to hull
     // and log incoming.user.success, even though the array is empty, but it still detects the servicedata with class type
