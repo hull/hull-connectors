@@ -7,7 +7,12 @@ describe("Outreach User Tests", () => {
 
   const harness = new PurpleFusionTestHarness(
     require("../../server/glue"),
-    { outreach: require("../../server/service") },
+    {
+      outreach: require("../../server/service")({
+        clientID: "clientId",
+        clientSecret: "clientSecret"
+      })
+    },
     _.concat(
       require("../../server/transforms-to-hull"),
       require("../../server/transforms-to-service")

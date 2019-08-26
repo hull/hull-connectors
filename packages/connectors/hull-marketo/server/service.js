@@ -38,8 +38,10 @@ const { isUndefinedOrNull } = require("hull-connector-framework/src/purplefusion
 const { isNull, notNull } = require("hull-connector-framework/src/purplefusion/conditionals");
 
 
-// What about linking calls?
-const service: RawRestApi = {
+const service = ({ clientID, clientSecret } : {
+  clientID: string,
+  clientSecret: string
+}): RawRestApi => ({
   initialize: (context, api) => new SuperagentApi(context, api),
   // This is set by the ensureSetup endpoint in the glue
   prefix: "${marketoApiUrl}",
@@ -184,7 +186,7 @@ const service: RawRestApi = {
     ]
 
   }
-};
+});
 
 
 module.exports = service;

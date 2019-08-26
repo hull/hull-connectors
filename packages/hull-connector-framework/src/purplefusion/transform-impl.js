@@ -164,7 +164,7 @@ class TransformImpl {
     const inputClass = getHullDataType(input);
 
     // cannot transform from the same input to same output, just return data
-    if (inputClass && sameHullDataType(desiredOutputClass, inputClass.service_name)) {
+    if (inputClass && sameHullDataType(inputClass, desiredOutputClass)) {
       return input;
     }
 

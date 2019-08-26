@@ -60,23 +60,25 @@ module.exports = {
       ]
     }
   },
-  "route": "webhook",
+  "route": "webhooks",
   "input": {
     "classType": {
-      "name": "outreach_incoming_webhook",
-      "service_name": "Webhook"
+      "service_name": "outreach_incoming_webhook",
+      "name": "Webhook"
     },
     "context": {},
     "data": {
-      "data": {
-        "type": "prospect",
-        "id": 184849,
-        "attributes": {},
-        "relationships": {}
-      },
-      "meta": {
-        "deliveredAt": "2019-08-12T18:57:15.340+00:00",
-        "eventName": "prospect.updated"
+      body: {
+        "data": {
+          "type": "prospect",
+          "id": 184849,
+          "attributes": {},
+          "relationships": {}
+        },
+        "meta": {
+          "deliveredAt": "2019-08-12T18:57:15.340+00:00",
+          "eventName": "prospect.updated"
+        }
       }
     }
   },
@@ -101,5 +103,5 @@ module.exports = {
       "result": {}
     }
   ],
-  "result": {}
+  "result": expect.anything()
 };

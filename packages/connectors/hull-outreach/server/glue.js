@@ -142,17 +142,23 @@ const glue = {
         // TODO this is broken, key and value need to be reversed, or get needs to be removed
         [set("userId", "${existingProspect.id}"), loopEndL()]
       )),
+  // Link account, looks up the account, and inserts it if it doesn't exist
+  // and passes the accountId back to the user being upserted so that we can link to the right account
   linkAccount:
-  // TODO maybe pass a variable through in the context, to tell it to link or not...
-  // then don't have to add all of this intersection/map nonsense
     ifL([
+        // checks to see if we have the "Link users in service" feature on
         "${connector.private_settings.link_users_in_service}",
+        // makes sure we don't already have an accountId on the user, if so, then we'll just use that account id
         cond("isEmpty", set("accountId", input("account.outreach/id"))),
-        // must be intersecting or the account_segment is undefined, indicating that it's a batch call
-        // as opposed to [] which just says the account isn't in any segments TODO test
         or([
+          // insert and link if the account is part of the account segments that we're sending
           cond("notEmpty", ld("intersection", "${connector.private_settings.synchronized_account_segments}", ld("map", input("account_segments"), "id"))),
-          not(input("account_segments"))
+          // or link if account_segments are not present (indication that it's a batch call)
+          // and make sure that there's an actual account to link, that it's not empty {}
+          cond("allTrue", [
+            not(input("account_segments")),
+            cond("notEmpty", input("account"))
+            ])
         ])
       ],
       [

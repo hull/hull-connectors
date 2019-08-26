@@ -4,7 +4,7 @@ const _ = require("lodash");
 
 const { hullService } = require("../purplefusion/hull-service");
 const { HullDispatcher } = require("../purplefusion/dispatcher");
-const { ServiceData } = require("../purplefusion/utils");
+const { setHullDataType } = require("../purplefusion/utils");
 const { ContextMock } = require("./connector-mock");
 
 
@@ -79,11 +79,11 @@ class PurpleFusionTestHarness {
     const serviceMocks = { hull: createServiceMock(hullService, _.filter(requestTrace.serviceRequests, { name: "hull" })) };
 
     // add any other services needed for mocking
-    _.forEach(this.services,(service, key) => {
+    _.forEach(this.services, (service, key) => {
       serviceMocks[key] = createServiceMock(service, _.filter(requestTrace.serviceRequests, { name: key }));
     });
 
-    const hullDispatcher =  new HullDispatcher(
+    const hullDispatcher = new HullDispatcher(
       this.glue,
       serviceMocks,
       this.transforms,
@@ -93,17 +93,25 @@ class PurpleFusionTestHarness {
     const context = new ContextMock(requestTrace.configuration);
 
     let request = requestTrace.input;
-    if (request && request.classType) {
-      request = new ServiceData(request.classType, request.data);
+    if (request && request.classType && request.data) {
+      const classType = request.classType;
+      const data = request.data;
+      setHullDataType(data, classType);
+      request = data;
     }
 
     return hullDispatcher.dispatch(context, requestTrace.route, request)
       .then((results) => {
-        // make sure all mocks have been called
+        // This makes sure that all mocks have been called
+        // this array should be empty at the end
+        // we remove the calls that have been made
+        // any remaining calls are service requests that we did not make
         _.forEach(serviceMocks, service => {
           expect(service.requestedMocks).toEqual([]);
         });
-        expect(requestTrace.result).toEqual(results);
+
+        // This checks the actual object response from the endpoint
+        expect(results).toEqual(requestTrace.result);
         return Promise.resolve(results);
       });
   }

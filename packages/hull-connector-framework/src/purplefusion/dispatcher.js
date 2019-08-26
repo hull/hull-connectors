@@ -59,7 +59,15 @@ class HullDispatcher {
 
     if (process.env.STORE_REQUEST_TRACE) {
       const { organization, id, secret } = context.client.configuration();
-      context.request_trace =  {
+      let dataToStore = data;
+      const classType = getHullDataType(data);
+      if (classType) {
+        dataToStore = {
+          data,
+          classType
+        };
+      }
+      context.request_trace = {
         configuration: {
           id,
           secret,
@@ -68,12 +76,11 @@ class HullDispatcher {
           private_settings: context.connector.private_settings
         },
         route,
-        input: data,
+        input: dataToStore,
         serviceRequests: []
-      }
+      };
     }
     try {
-
       const result = await this.handleRequest(new HullVariableContext(context), route, data);
 
       if (process.env.STORE_REQUEST_TRACE) {

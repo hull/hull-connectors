@@ -4,7 +4,9 @@ module.exports = {
     secret: "shhhhhh",
     organization: "organization.hullapp.io",
     hostname: "225ddbbc.connector.io",
-    private_settings: {}
+    private_settings: {
+      access_token: "somevalue"
+    }
   },
   route: "status",
   serviceRequests: [
@@ -46,7 +48,7 @@ module.exports = {
                 secret: null,
                 updatedAt: "2019-04-30T21:49:11.000Z",
                 url:
-                  "https://dev-hull-outreach.connector.io/webhooks?organization=431c6b01.hullapp.io&secret=28b91ad83985f340e24e1bc83b69ac45&ship=5cc8c28fcdeec5bb01000339"
+                  "https://dev-hull-outreach.connector.io/webhooks?organization=431c6b01.hullapp.io&secret=secret1&ship=otherdeletedship1"
               },
               relationships: {
                 authorizer: { data: { type: "user", id: 1 } },
@@ -66,7 +68,7 @@ module.exports = {
                 secret: null,
                 updatedAt: "2019-08-12T18:50:53.000Z",
                 url:
-                  "https://225ddbbc.connector.io/webhooks?organization=organization.hullapp.io&secret=shhhhhh&ship=otherdeletedship"
+                  "https://225ddbbc.connector.io/webhooks?organization=organization.hullapp.io&secret=secret2&ship=otherdeletedship2"
               },
               relationships: {
                 authorizer: { data: { type: "user", id: 1 } },
@@ -101,5 +103,5 @@ module.exports = {
       }
     }
   ],
-  result: {}
+  result: [{"message": "No data will be sent from Hull to Outreach.io because there are no whitelisted segments configured.  Please visit the connector settings page and add segments to be sent to Outreach.io.", "status": "ok"}]
 };

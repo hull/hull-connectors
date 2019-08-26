@@ -63,8 +63,8 @@ module.exports = {
   "route": "userUpdateStart",
   "input": {
     "classType": {
-      "name": "HullOutgoingUser",
-      "service_name": "User"
+      "service_name": "HullOutgoingUser",
+      "name": "User"
     },
     "context": {},
     "data": {

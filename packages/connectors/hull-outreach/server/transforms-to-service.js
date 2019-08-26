@@ -36,6 +36,16 @@ const transformsToService: ServiceTransforms = [
         outputPath: "data.attributes.${service_field_name}",
       },
       {
+        // have to do this mapping for account level fields with prefix "account.X"
+        mapping: "connector.private_settings.outgoing_user_attributes",
+        outputArrayFields: {
+          checkField: "service_field_name",
+          fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"],
+        },
+        inputPath: "${hull_field_name}",
+        outputPath: "data.attributes.${service_field_name}",
+      },
+      {
         mapping: "connector.private_settings.outgoing_user_attributes",
         condition: isEqual("service_field_name", "stage"),
         inputPath: "user.${hull_field_name}",

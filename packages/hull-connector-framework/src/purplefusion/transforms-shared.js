@@ -90,7 +90,8 @@ const transformsShared: ServiceTransforms = [
         mapping: { type: "input" },
         condition: [
           isEqual("connector.private_settings.fetch_all_attributes", true),
-          not(isServiceAttribute("connector.private_settings.incoming_user_attributes", "service_field_name"))
+          not(isServiceAttribute("connector.private_settings.incoming_user_attributes", "service_field_name")),
+          not(isEqual("service_field_name", "hull_events"))
         ],
         inputPath: "${service_field_name}",
         outputPath: "attributes.${service_name}/${hull_field_name}",
