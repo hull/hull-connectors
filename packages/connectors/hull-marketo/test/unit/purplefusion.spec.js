@@ -1,6 +1,7 @@
 /* @flow */
 const _ = require("lodash");
-const MockDate = require('mockdate');
+const MockDate = require("mockdate");
+const moment = require("moment");
 
 const { PurpleFusionTestHarness } = require("hull-connector-framework/src/purplefusiontester/purplefusion-test-harness");
 
@@ -25,7 +26,7 @@ describe("Marketo User Tests", () => {
   });
 
   it("fetchRecentLeadActivity", () => {
-    MockDate.set(1566507044233, 240);
+    MockDate.set(moment.parseZone("2019-08-06T17:44:03-04:00"));
     return harness.runTest(require("./fixtures/fetchRecentLeadActivity1"))
       .then((results) => {
         MockDate.reset();
