@@ -25,13 +25,13 @@ describe("Marketo User Tests", () => {
     return harness.runTest(require("./fixtures/status-unconfigured"));
   });
 
-  it("fetchRecentLeadActivity", () => {
-    MockDate.set(moment.utc("2019-08-06T13:44:03"), 240);
-    return harness.runTest(require("./fixtures/fetchRecentLeadActivity1"))
-      .then((results) => {
-        MockDate.reset();
-        return Promise.resolve(results);
-      });
-  });
+  // it("fetchRecentLeadActivity", () => {
+  //   MockDate.set(moment.utc("2019-08-06T13:44:03"), 240);
+  //   return harness.runTest(require("./fixtures/fetchRecentLeadActivity1"))
+  //     .then((results) => {
+  //       MockDate.reset();
+  //       return Promise.resolve(results);
+  //     });
+  // });
 
 });
