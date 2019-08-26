@@ -206,8 +206,8 @@
       "handler": "attributesLeadsOutgoing"
     },
     {
-      "url": "//attributes-leads-incoming",
-      "handler": "/attributesLeadsIncoming"
+      "url": "/attributes-leads-incoming",
+      "handler": "attributesLeadsIncoming"
     }
   ],
   "schedules": [

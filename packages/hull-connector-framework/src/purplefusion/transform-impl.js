@@ -220,7 +220,7 @@ class TransformImpl {
         result = this.transformInput(variableContext, result, transform);
       }
 
-      debug("Transform: " + JSON.stringify(result));
+      // debug("Transform: " + JSON.stringify(result));
 
     });
 
