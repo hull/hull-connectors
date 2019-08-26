@@ -26,7 +26,7 @@ describe("Marketo User Tests", () => {
   });
 
   it("fetchRecentLeadActivity", () => {
-    MockDate.set(moment.parseZone("2019-08-06T17:44:03-04:00"), 240);
+    MockDate.set(moment.parseZone("2019-08-06T17:44:03Z"), 240);
     return harness.runTest(require("./fixtures/fetchRecentLeadActivity1"))
       .then((results) => {
         MockDate.reset();

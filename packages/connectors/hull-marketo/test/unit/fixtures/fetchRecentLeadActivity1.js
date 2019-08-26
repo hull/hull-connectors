@@ -274,7 +274,7 @@ module.exports = {
           "service_name": "marketo",
           "connector": {
             "private_settings": {
-              "latestLeadSync": 1565127783000
+              "latestLeadSync": 1565113383000
             }
           }
         }
@@ -282,7 +282,7 @@ module.exports = {
       "name": "hull",
       "op": "settingsUpdate",
       "input": {
-        "latestLeadSync": 1565127783000
+        "latestLeadSync": 1565113383000
       },
       "result": {}
     }
