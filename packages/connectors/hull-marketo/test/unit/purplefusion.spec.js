@@ -25,7 +25,7 @@ describe("Marketo User Tests", () => {
   });
 
   it("fetchRecentLeadActivity", () => {
-    MockDate.set(1566507044233);
+    MockDate.set(1566507044233, 240);
     return harness.runTest(require("./fixtures/fetchRecentLeadActivity1"))
       .then((results) => {
         MockDate.reset();
