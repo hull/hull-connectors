@@ -7,7 +7,7 @@ import type {
 } from "hull";
 import _ from "lodash";
 import type { Entry } from "hull-vm";
-import { compute } from "hull-vm";
+import { compute, serialize } from "hull-vm";
 import getSample from "../lib/get-sample";
 
 const EXCLUDED_EVENTS = [
@@ -72,8 +72,8 @@ export default async function getUser(
     const data: Entry = {
       connectorId: connector.id,
       date: new Date().toString(),
+      result: serialize(result),
       code,
-      result,
       payload
     };
     return {
