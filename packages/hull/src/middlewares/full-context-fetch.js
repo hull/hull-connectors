@@ -11,6 +11,16 @@ const {
   trimTraitsPrefixFromConnector
 } = require("../utils");
 
+
+const getSegments = (ctx, id, entityType) => Promise.resolve(ctx[`${entityType}sSegments`]) || ctx.client.get(
+  `/${entityType}s_segments`,
+  { shipId: id },
+  { timeout: 5000, retry: 1000 }
+)
+const getConnector = ctx => Promise.resolve(ctx.connector) || ctx.client.get("app", {});
+
+
+/*
 function fetchConnector(ctx, cache): Promise<*> {
   debug("fetchConnector", typeof ctx.connector);
   if (ctx.connector) {
@@ -28,6 +38,7 @@ function fetchConnector(ctx, cache): Promise<*> {
     { ttl: 60000 }
   );
 }
+
 
 function fetchSegments(ctx, entityType = "user", cache) {
   debug("fetchSegments", entityType, typeof ctx[`${entityType}sSegments`]);
@@ -64,6 +75,7 @@ function fetchSegments(ctx, entityType = "user", cache) {
     { ttl: 60000 }
   );
 }
+*/
 
 /**
  * This middleware is responsible for fetching all information
@@ -93,11 +105,21 @@ function fullContextFetchMiddlewareFactory({
     }
 
     try {
+      const { id } = ctx.client.configuration();
+      const [connector, usersSegments, accountsSegments] = await ctx.cache.wrap(
+        "connector"
+        "users_segments",
+        "accounts_segments",
+        () => Promise.all([getConnector(ctx), getSegments(ctx, id, "user"), getSegments(ctx, id, "account")]),
+        { ttl: 60000 }
+      )
+      /*
       const [connector, usersSegments, accountsSegments] = await Promise.all([
         fetchConnector(req.hull, cacheContextFetch),
         fetchSegments(req.hull, "user", cacheContextFetch),
         fetchSegments(req.hull, "account", cacheContextFetch)
       ]);
+      */
       debug("received responses %o", {
         connector: typeof connector,
         usersSegments: Array.isArray(usersSegments),
