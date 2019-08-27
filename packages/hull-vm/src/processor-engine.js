@@ -111,8 +111,7 @@ export default class ProcessorEngine extends Engine {
           payload: undefined
         }
       });
-      // throw err;
-      return undefined;
     }
+    return undefined;
   };
 }

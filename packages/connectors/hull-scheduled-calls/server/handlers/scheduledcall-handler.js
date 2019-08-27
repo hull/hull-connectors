@@ -1,6 +1,5 @@
 // @flow
 
-import _ from "lodash";
 import type {
   HullContext,
   // HullResponse,
