@@ -12,12 +12,12 @@ const {
 } = require("../utils");
 
 
-const getSegments = (ctx, id, entityType) => Promise.resolve(ctx[`${entityType}sSegments`]) || ctx.client.get(
+const getSegments = (ctx, id, entityType) => ctx[`${entityType}sSegments`] ? Promise.resolve(ctx[`${entityType}sSegments`]) : ctx.client.get(
   `/${entityType}s_segments`,
   { shipId: id },
   { timeout: 5000, retry: 1000 }
 )
-const getConnector = ctx => Promise.resolve(ctx.connector) || ctx.client.get("app", {});
+const getConnector = ctx => ctx.connector ? Promise.resolve(ctx.connector) : ctx.client.get("app", {});
 
 
 /*
