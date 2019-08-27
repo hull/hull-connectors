@@ -53,7 +53,7 @@ function htmlHandlerFactory(
     options: {
       credentialsFromQuery: true,
       credentialsFromNotification: false,
-      cacheContextFetch: false,
+      // cacheContextFetch: false,
       respondWithError: true,
       strict: false,
       ...options
