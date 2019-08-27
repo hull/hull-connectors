@@ -18,7 +18,7 @@ const leftSegment = (changes = {}) => (name: string) =>
 export default function scopedUserMethods({
   account_segments,
   segments,
-  changes
+  changes = {}
 }: {
   account_segments: Array<HullAccountSegment>,
   segments: Array<HullUserSegment>,
