@@ -3,8 +3,12 @@ import type { HullContext, HullExternalResponse } from "hull";
 
 const _ = require("lodash");
 
-const HullDispatcher = require("../../../../hull-connector-framework/src/purplefusion/dispatcher");
-const { hullService } = require("../../../../hull-connector-framework/src/purplefusion/hull-service");
+const {
+  HullDispatcher
+} = require("../../../../hull-connector-framework/src/purplefusion/dispatcher");
+const {
+  hullService
+} = require("../../../../hull-connector-framework/src/purplefusion/hull-service");
 const glue = require("../purplefusion/hull-hubspot-events/server/glue");
 const eventsService = require("../purplefusion/hull-hubspot-events/server/service");
 const transforms = _.concat(
@@ -16,13 +20,17 @@ const transforms = _.concat(
 async function fetchAllEmailEventsAction(
   ctx: HullContext
 ): HullExternalResponse {
-
   const services = { hubspot: eventsService, hull: hullService };
-  const dispatcher = new HullDispatcher(glue, services, transforms, "asdf");
+  const dispatcher = new HullDispatcher(
+    glue,
+    services,
+    transforms,
+    "setEventMap"
+  );
 
   const route = "fetchAllEmailEvents";
 
-  return dispatcher
+  dispatcher
     .dispatch(ctx, route)
     .then(results => {
       dispatcher.close();
@@ -44,6 +52,10 @@ async function fetchAllEmailEventsAction(
       });
       return Promise.reject(error);
     });
+
+  return {
+    status: 200
+  };
 }
 
 module.exports = fetchAllEmailEventsAction;

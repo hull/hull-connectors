@@ -30,7 +30,7 @@ async function fetchRecentEmailEventsAction(
 
   const route = "fetchRecentEmailEvents";
 
-  return dispatcher
+  dispatcher
     .dispatch(ctx, route)
     .then(results => {
       dispatcher.close();
@@ -52,6 +52,10 @@ async function fetchRecentEmailEventsAction(
       });
       return Promise.reject(error);
     });
+
+  return {
+    status: 200
+  };
 }
 
 module.exports = fetchRecentEmailEventsAction;

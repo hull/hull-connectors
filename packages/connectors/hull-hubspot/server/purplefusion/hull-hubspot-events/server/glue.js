@@ -46,10 +46,11 @@ const refreshTokenDataTemplate = {
 const glue = {
   shipUpdateStart: {},
   setEventMap: [
-    set("eventsMapping", require("./events/email_events"))
+    set("eventsMapping", require("./events/email_events")),
+    set("eventsToFetch", "${connector.private_settings.events_to_fetch}")
   ],
   fetchAllEmailEvents: [
-    ifL(cond("notEmpty", settings("fetch_email_events")), [
+    ifL("${connector.private_settings.fetch_email_events}", [
       set("service_name", "hubspot"),
       set("initialEndpoint", "getAllEmailEvents"),
       set("offsetEndpoint", "getAllEmailEventsWithOffset"),
@@ -57,9 +58,8 @@ const glue = {
     ])
   ],
   fetchRecentEmailEvents: [
-    ifL(cond("notEmpty", settings("fetch_email_events")), [
+    ifL("${connector.private_settings.fetch_email_events}", [
       set("service_name", "hubspot"),
-      set("eventsToFetch", require("./events/events_to_fetch")),
       ifL(cond("notEmpty", settings("last_fetch_started_at")), {
         do: set("startTimestamp", ex(moment(settings("last_fetch_started_at")), "valueOf")),
         eldo: set("startTimestamp", ex(ex(moment(), "subtract", { hours: 24 }), "valueOf"))
