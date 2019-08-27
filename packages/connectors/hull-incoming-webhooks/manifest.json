@@ -67,11 +67,17 @@
   "incoming": [
     {
       "url": "/webhooks/:connectorId/:token",
-      "handler": "incomingHandler"
+      "handler": "incomingHandler",
+      "options": {
+        "bodyParser": "json"
+      }
     },
     {
       "url": "/webhooks/:connectorId",
-      "handler": "incomingHandler"
+      "handler": "incomingHandler",
+      "options": {
+        "bodyParser": "json"
+      }
     }
   ],
   "status": {
