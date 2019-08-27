@@ -54,7 +54,7 @@ class HullVariableContext {
 
   createFlattenedContext() {
     // TODO confirm this works like we think it should...
-    return _.assign({}, [this.hullContext, ...this.localContext]);
+    return _.assign({}, this.hullContext, ...this.localContext);
   }
 
   cloneLocalContext() {

@@ -4,6 +4,8 @@ import type { HullHandlersConfiguration } from "hull";
 import fetch from "../actions/fetch";
 import fetchAll from "../actions/fetch-all";
 import fetchAllCompanies from "../actions/fetch-all-companies";
+import fetchAllEmailEvents from "../actions/fetch-all-email-events";
+import fetchRecentEmailEvents from "../actions/fetch-recent-email-events";
 import fetchRecentCompanies from "../actions/fetch-recent-companies";
 import checkToken from "../actions/check-token";
 import status from "../actions/status";
@@ -56,6 +58,8 @@ const handler = ({
       lastFetchedStatus,
       fetchAll,
       fetchAllCompanies,
+      fetchAllEmailEvents,
+      fetchRecentEmailEvents,
       getContactProperties,
       getIncomingUserClaims,
       getIncomingAccountClaims,
