@@ -105,6 +105,7 @@ function fullContextFetchMiddlewareFactory({
     }
 
     try {
+      const ctx = req.hull;
       const { id } = ctx.client.configuration();
       const [connector, usersSegments, accountsSegments] = await ctx.cache.wrap(
         "connector",
