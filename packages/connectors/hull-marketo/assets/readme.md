@@ -4,7 +4,8 @@ Below you will find necessary information how to get started with the Marketo in
 
 ## Permissions
 
-You may need administration privileges to enable access to Marketo.
+This connector uses the API to push new leads, fetch existing leads (through the export api), and fetch lead activity.  You may create a new api user or use an existing one to grant Hull access to your Marketo instance.
+You may read more about how to obtain api credentials from Marketo at this link: https://developers.marketo.com/rest-api/authentication/
 
 ## Add a new Marketo Connector
 1. From your Connectors list in the dashboard, click `Add Connector`.
@@ -69,7 +70,16 @@ The Marketo connector is built to pull new data from your Marketo instance on a 
 
 ## Edge Cases
 ### Initial Fetch
-.... FROM HERE>....
+Fetching the existing data in Marketo is known for being a complex and time consuming process.  The process involves specifying 30 day increments to export.  By default Hull exports the last 3 years of leads (configurable if needed) which is 36 exports.  These exports can sometimes fail so monitoring is required if particular exports need to be recreated.  In addition, there is a 500MB daily export limit which means that many times these exports may take several days.
+
+This is why we encourage our customers, if an initial import is needed to contact our support team.  That way we can kick off the process and monitor it to completion.
+
+Because the initial fetch is such involved process, we give our customers the option of exporting all of the datapoints over from Marketo.  Typically we let the customer specify the datapoints to be imported.  That's still an option, but we give the additional option to get everything that way you won't have to do another fetch if you missed a needed datapoint.
+
+### Event Support
+Because of the volume that some campaigns can produce, we encourage you to share with the support team the frequency and possible size of campaigns that are being executed in Marketo.  That way we can be sure to allocate the proper compute resources during traffic spikes.
+
+Marketo can generate a lot of traffic as campaigns are activated, or attributes are updated.  
 
 ## Troubleshooting
 
@@ -80,12 +90,11 @@ The Marketo connector is built to pull new data from your Marketo instance on a 
 - If you've waited for over 15 minutes, and have checked the above suggestions, please check the Hull Status page at: http://status.hull.io/
 
 ### I don’t get updates of recently updated Leads into Hull
-Check your connector logs for any `incoming.job.error`. If you see any with `Unauthorized` go to the `Credentials` Tab and perform the OAuth flow authorization again.  Make sure that you are linking the connector again to the same Marketo portal. Changing the portal on once installed connector can lead to data corruption. This operation does not reset any settings from the connector.
+Check your connector logs for any `incoming.job.error`. If you see any with `Unauthorized` go to the `Settings` Tab, and confirm that the credentials are correct under the `Connecto to Marketo` section.  Also ensure that the user you've specified has permissions to do user exports and use the API.
 Right after it's done the incoming dataflow should be resumed. You can verify that by searching for any `incoming.user.success` or `incoming.account.success` log lines (it can take around 5 minutes to show up).
-To fill in any missing data you can use `Fetch all Accounts and Leads` button which can be viewed by clicking the "Action" button in the settings page.  Be careful if you have a lot of data, this action will trigger a full fetch from Marketo
 
 ### I don’t see recently added/updated fields in Marketo
 You may explicitly send particular users by searching for them in the Hull web app, and clicking the checkbox on the left side of each row.  Then, in the upper right hand corner of the interface you can click "Send to" and specify which connector you want to send the users/accounts to.
 
 ### I get empty Users
-...
+Make sure that you've configured the incoming attributes in the `Fetching Users from Marketo` section of the `Settings` Connector tab.

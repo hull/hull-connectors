@@ -123,6 +123,12 @@ const service = ({ clientID, clientSecret } : {
       transformTo: HullConnectorEnumDefinition,
       endpointType: "byProperty"
     },
+    getStatsUsage: {
+      url: "/rest/v1/stats/usage.json",
+      operation: "get",
+      returnObj: "body.result",
+      endpointType: "byProperty"
+    },
     upsertLeads:  {
       url: "/rest/v1/leads.json",
       operation: "post",
@@ -159,12 +165,8 @@ const service = ({ clientID, clientSecret } : {
     parser: {
       httpStatus: "status",
       parser: {
-        type: "json",
-        target: "response.text",
-        appStatusCode: "errors[0].id",
-        title: "errors[0].title",
-        description: "errors[0].detail",
-        source: "errors[0].source",
+        appStatusCode: "body.errors[0].code",
+        description: "body.errors[0].message"
       }
     },
 
@@ -182,6 +184,18 @@ const service = ({ clientID, clientSecret } : {
         errorType: ConfigurationError,
         message: "Unauthorized, please try authenticating with Marketo api again",
         recoveryroute: "getAuthenticationToken"
+      },
+      {
+        // this is the error returned when we're trying to queue up a job and the queue is full, we can skip this
+        // because we handle it in the glue
+        truthy: { body: { errors: [{ code: "1029" }] } },
+        errorType: SkippableError
+      },
+      {
+        // need to be careful with this, it could kill the enqueue logic
+        truthy: { body: { success: false } },
+        errorType: LogicError,
+        message: "There is an issue with the way that the connector is interfacing with Marketo.  Please check the marketo status page to check if the api is having issues, or contact your Hull support representative"
       }
     ]
 

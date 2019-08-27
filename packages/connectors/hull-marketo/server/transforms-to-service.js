@@ -36,7 +36,7 @@ const transformsToHull: ServiceTransforms = [
       "  \"action\": \"createOrUpdate\",\n" +
       "  \"asyncProcessing\": true,\n" +
       "  \"lookupField\": $user_claim.service,\n" +
-      "  \"input\": $\n" +
+      "  \"input\": [$]\n" +
       "}"
     ]
   }

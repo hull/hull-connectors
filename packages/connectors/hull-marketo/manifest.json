@@ -14,7 +14,8 @@
     "oneColumn",
     "smart-notifier",
     "first-install",
-    "single-install"
+    "single-install",
+    "kraken-exports"
   ],
 
   "private_settings": [
@@ -314,8 +315,7 @@
         "private_settings.incoming_user_attributes",
         "private_settings.fetch_events",
         "private_settings.fetch_all_attributes",
-        "private_settings.fetching_all_leads_information",
-        "json.fetch_all_leads"
+        "private_settings.fetching_all_leads_information"
       ]
     },
     {

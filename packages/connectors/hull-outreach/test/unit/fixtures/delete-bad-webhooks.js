@@ -11,7 +11,7 @@ module.exports = {
   route: "status",
   serviceRequests: [
     {
-      localContext: [expect.objectContaining({ webhookIdToDelete: 93 })],
+      localContext: expect.objectContaining({ webhookIdToDelete: 93 }),
       name: "outreach",
       op: "deleteWebhook",
       result: {
