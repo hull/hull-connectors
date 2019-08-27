@@ -300,18 +300,16 @@
       "items": {
         "type": "string",
         "enum": [
-          "SENT",
-          "DROPPED",
-          "PROCESSED",
-          "DELIVERED",
-          "DEFERRED",
-          "BOUNCE",
-          "OPEN",
-          "CLICK",
-          "PRINT",
-          "FORWARD",
-          "STATUSCHANGE",
-          "SPAMREPORT"
+          "Email Sent",
+          "Email Dropped",
+          "Email Processed",
+          "Email Delivered",
+          "Email Deferred",
+          "Email Bounced",
+          "Email Opened",
+          "Email Link Clicked",
+          "Unsubscribed / Subscribed",
+          "Email Marked as Spam"
         ]
       }
     },

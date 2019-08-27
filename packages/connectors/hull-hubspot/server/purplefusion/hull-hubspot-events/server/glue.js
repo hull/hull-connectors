@@ -20,6 +20,7 @@ const {
   get,
   moment,
   cast,
+  jsonata,
   settings,
   ex,
   ld
@@ -28,8 +29,6 @@ const {
 const {
   HubspotIncomingEmailEvent
 } = require("./service-objects");
-
-const mapping = require("./events/email_events");
 
 function hubspot(op: string, param?: any): Svc {
   return new Svc({ name: "hubspot", op }, param);
@@ -104,7 +103,7 @@ const glue = {
   ],
   getEmailCampaignData: [
     iterateL("${hubspotResponse.events}", "hubspotEmailEvent",[
-      ifL(ld("includes", "${eventsToFetch}", "${hubspotEmailEvent.type}"), {
+      ifL(ld("includes", "${eventsToFetch}", get("${hubspotEmailEvent.type}", "${eventsMapping}")), {
         do: [
           set("emailCampaignId", get("emailCampaignId", "${hubspotEmailEvent}")),
           set("event_created_at", ex(moment(get("created", "${hubspotEmailEvent}")), "toISOString")),
