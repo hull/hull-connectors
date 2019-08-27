@@ -107,7 +107,7 @@ function fullContextFetchMiddlewareFactory({
     try {
       const { id } = ctx.client.configuration();
       const [connector, usersSegments, accountsSegments] = await ctx.cache.wrap(
-        "connector"
+        "connector",
         "users_segments",
         "accounts_segments",
         () => Promise.all([getConnector(ctx), getSegments(ctx, id, "user"), getSegments(ctx, id, "account")]),
