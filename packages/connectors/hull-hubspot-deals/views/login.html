@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<head>
+  <title>Login - Hull <%= name %></title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-12 col-md-offset-1 col-md-10 text-center">
+        <h1 class="mb-0 mt-05 text-center"><i class="icon icon-hull" style="font-size:64px;"></i></h1>
+        <h5 class="mb-1">Connect to <%= name %></h5>
+        <hr>
+        <p class="mb-1">Give Hull permission to access your <%= name %> Account</p>
+        <form action="<%=urls.login%>" target="_blank" method="post" accept-charset="utf-8">
+          <button type="submit" target="_blank" id='login' class='btn btn-rounded btn-block btn-primary'>Continue with <%= name %></a>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script>window.hullAuthCompleted = function authCompleted() { window.location.href = window.location.href.replace("&reset=true",""); };</script>
+</body>
+</html>
