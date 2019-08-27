@@ -106,14 +106,13 @@ function fullContextFetchMiddlewareFactory({
 
     try {
       const ctx = req.hull;
+      const ttl = 60000;
       const { id } = ctx.client.configuration();
-      const [connector, usersSegments, accountsSegments] = await ctx.cache.wrap(
-        "connector",
-        "users_segments",
-        "accounts_segments",
-        () => Promise.all([getConnector(ctx), getSegments(ctx, id, "user"), getSegments(ctx, id, "account")]),
-        { ttl: 60000 }
-      )
+      const [connector, usersSegments, accountsSegments] = await Promise.all([
+        ctx.cache.wrap("connector", () => getConnector(ctx), { ttl }),
+        ctx.cache.wrap("users_segments", () => getSegments(ctx, id, "user"), { ttl }),
+        ctx.cache.wrap("accounts_segments", () => getSegments(ctx, id, "account"), { ttl })
+      ]);
       /*
       const [connector, usersSegments, accountsSegments] = await Promise.all([
         fetchConnector(req.hull, cacheContextFetch),
