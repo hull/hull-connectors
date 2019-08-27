@@ -31,10 +31,8 @@ export default function({
           size: collectionSize
         }
       }
-    ).index({
-      connectorId: 1,
-      date: 1,
-      _id: -1
-    });
+    )
+      .index({ connectorId: 1, _id: -1 })
+      .index({ connectorId: 1, date: -1 });
   return mongoose.model(collectionName, schema);
 }
