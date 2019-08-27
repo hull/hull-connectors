@@ -69,7 +69,9 @@ export type Payload =
   | HullFetchedUser;
 
 export type HullAliasOperation = "alias" | "unalias";
-
+export type HullAliasOperations = Array<
+  Map<HullUserClaims | HullAccountClaims, HullAliasOperation>
+>;
 export type Result = {
   logsForLogger: Array<string>,
   logs: Array<string | any>,

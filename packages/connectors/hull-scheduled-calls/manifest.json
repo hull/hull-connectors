@@ -187,6 +187,12 @@
       "handler": "scheduledCall",
       "value_from": "private_settings.sync_interval",
       "default": "30"
+    },
+    {
+      "url": "/remove-old-entries",
+      "type": "interval",
+      "value": "15",
+      "handler": "removeOldEntriesHandler"
     }
   ],
   "status": {

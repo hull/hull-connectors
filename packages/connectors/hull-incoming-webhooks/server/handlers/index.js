@@ -9,7 +9,8 @@ import {
   configHandler,
   statusHandler,
   recentHandler,
-  previewHandler
+  previewHandler,
+  removeOldEntriesHandler
 } from "hull-vm";
 import incomingHandler from "./incoming-handler";
 import configData from "./config-data";
@@ -21,6 +22,9 @@ const handler = ({ EntryModel }: { EntryModel: any }) => (
   return {
     tabs: {
       admin: (): HullExternalResponse => ({ pageLocation: "admin.html" })
+    },
+    schedules: {
+      removeOldEntriesHandler: removeOldEntriesHandler(EntryModel)
     },
     statuses: { statusHandler },
     incoming: { incomingHandler: incomingHandler(EntryModel) },

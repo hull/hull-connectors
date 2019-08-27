@@ -80,6 +80,14 @@
       }
     }
   ],
+  "schedules": [
+    {
+      "url": "/remove-old-webhooks",
+      "type": "interval",
+      "value": "15",
+      "handler": "removeOldEntriesHandler"
+    }
+  ],
   "status": {
     "initial_value": "setupRequired",
     "url": "/status",

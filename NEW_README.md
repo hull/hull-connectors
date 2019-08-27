@@ -509,10 +509,10 @@ type HullConnectorConfig = {
   captureLogs?: Array<any>,
   disableOnExit?: boolean,
   devMode?: boolean,
-  json?: JsonConfig,
+  jsonConfig?: JsonConfig,
   instrumentation?: HullInstrumentation,
-  cache?: HullCache,
-  queue?: HullQueue,
+  cacheConfig?: HullCache,
+  queueConfig?: HullQueue,
   notificationValidatorHttpClient?: Object,
   middlewares: Array<Middleware>,
   manifest: HullManifest
@@ -806,4 +806,5 @@ foo: "bazinga"
 ````
 
 ### Run specified tests
+
 `yarn run-test path_to_test_file(s)`
