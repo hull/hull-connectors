@@ -22,6 +22,7 @@ export type HullExtendedMiddlewareParams = {
   credentialsFromNotification?: boolean,
   cache?: HandlerCacheOptions,
   respondWithError?: boolean,
+  cacheContextFetch?: boolean,
   disableErrorHandling?: boolean,
   fireAndForget?: boolean,
   strict?: boolean,

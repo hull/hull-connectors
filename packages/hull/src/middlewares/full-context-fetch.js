@@ -11,10 +11,13 @@ const {
   trimTraitsPrefixFromConnector
 } = require("../utils");
 
-function fetchConnector(ctx): Promise<*> {
+function fetchConnector(ctx, cache): Promise<*> {
   debug("fetchConnector", typeof ctx.connector);
   if (ctx.connector) {
     return Promise.resolve(ctx.connector);
+  }
+  if (!cache) {
+    return ctx.client.get("app", {});
   }
   return ctx.cache.wrap(
     "connector",
@@ -26,7 +29,7 @@ function fetchConnector(ctx): Promise<*> {
   );
 }
 
-function fetchSegments(ctx, entityType = "user") {
+function fetchSegments(ctx, entityType = "user", cache) {
   debug("fetchSegments", entityType, typeof ctx[`${entityType}sSegments`]);
   if (ctx.client === undefined) {
     return Promise.reject(new Error("Missing client"));
@@ -35,6 +38,13 @@ function fetchSegments(ctx, entityType = "user") {
     return Promise.resolve(ctx[`${entityType}sSegments`]);
   }
   const { id } = ctx.client.configuration();
+  if (!cache) {
+    return ctx.client.get(
+      `/${entityType}s_segments`,
+      { shipId: id },
+      { timeout: 5000, retry: 1000 }
+    );
+  }
   return ctx.cache.wrap(
     `${entityType}s_segments`,
     () => {
@@ -66,6 +76,7 @@ function fetchSegments(ctx, entityType = "user") {
  */
 function fullContextFetchMiddlewareFactory({
   requestName,
+  cacheContextFetch = true,
   strict = true
 }: Object = {}) {
   return async function fullContextFetchMiddleware(
@@ -83,9 +94,9 @@ function fullContextFetchMiddlewareFactory({
 
     try {
       const [connector, usersSegments, accountsSegments] = await Promise.all([
-        fetchConnector(req.hull),
-        fetchSegments(req.hull, "user"),
-        fetchSegments(req.hull, "account")
+        fetchConnector(req.hull, cacheContextFetch),
+        fetchSegments(req.hull, "user", cacheContextFetch),
+        fetchSegments(req.hull, "account", cacheContextFetch)
       ]);
       debug("received responses %o", {
         connector: typeof connector,

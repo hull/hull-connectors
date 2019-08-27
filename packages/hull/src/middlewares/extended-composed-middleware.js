@@ -33,7 +33,8 @@ function extendedComposeMiddleware({
     bodyParser,
     credentialsFromQuery,
     credentialsFromNotification,
-    strict
+    strict,
+    cacheContextFetch
   } = options;
   const middlewares = [
     credentialsFromQuery === true
@@ -52,7 +53,7 @@ function extendedComposeMiddleware({
     fullContextBodyMiddleware({ requestName, strict }),
     // @TODO - can we leave both middlewares active and have the second one gracefully handle this ?
     // @TODO: why wouldn't we strict with the fullContextFetchMiddleware ?
-    fullContextFetchMiddleware({ requestName /* , strict */ }),
+    fullContextFetchMiddleware({ requestName, cacheContextFetch /* , strict */ }),
     httpClientMiddleware(),
     getEntityMiddleware()
   ];
