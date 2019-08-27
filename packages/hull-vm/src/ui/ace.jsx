@@ -69,11 +69,11 @@ class CodeEditor extends Component<Props, State> {
     if (onChange) {
       onChange(value);
     }
-  }
+  };
 
   onValidate = (annotations: any) => {
     // console.log(annotations);
-  }
+  };
 
   componentDidMount() {
     if (this.props.focusOnLoad) {
@@ -86,7 +86,7 @@ class CodeEditor extends Component<Props, State> {
     if (nextProps.value !== this.state.value) {
       this.setState({ value: nextProps.value });
     }
-  }
+  };
 
   render() {
     const { id, mode, className, readOnly } = this.props;
