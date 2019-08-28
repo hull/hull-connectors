@@ -42,7 +42,16 @@ ${c}
     );
   }
 
-  const lintMessages = check.lint(ctx, code);
+  const lintMessages = check.lint(ctx, code, {
+    account_segment_ids: true,
+    account_segments: true,
+    account: true,
+    changes: true,
+    events: true,
+    segment_ids: true,
+    segments: true,
+    user: true
+  });
   if (lintMessages.length) {
     status = "error";
     messages.push(...lintMessages);
