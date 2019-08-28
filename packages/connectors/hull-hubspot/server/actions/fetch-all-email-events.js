@@ -9,12 +9,12 @@ const {
 const {
   hullService
 } = require("../../../../hull-connector-framework/src/purplefusion/hull-service");
-const glue = require("../purplefusion/hull-hubspot-events/server/glue");
-const eventsService = require("../purplefusion/hull-hubspot-events/server/service");
+const glue = require("../purplefusion/glue");
+const eventsService = require("../purplefusion/service");
 const transforms = _.concat(
   [],
-  require("../purplefusion/hull-hubspot-events/server/transforms-to-service"),
-  require("../purplefusion/hull-hubspot-events/server/transforms-to-hull")
+  require("../purplefusion/transforms-to-service"),
+  require("../purplefusion/transforms-to-hull")
 );
 
 async function fetchAllEmailEventsAction(
