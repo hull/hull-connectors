@@ -28,14 +28,16 @@ class HullRouter {
   serviceDefinitions: Object;
   transforms: Array<any>;
   ensureHook: string;
+  filteredMessageCallback: Function;
 
-  constructor({ glue, services, transforms, ensureHook }: any) {
+  constructor({ glue, services, transforms, ensureHook }: any, filteredMessageCallback?: Function) {
     this.glue = glue;
 
     // don't assign hull service if it already exists...
     this.serviceDefinitions = services.hull ? services : _.assign({ hull: hullService }, services);
     this.transforms = transforms;
     this.ensureHook = ensureHook;
+    this.filteredMessageCallback = filteredMessageCallback;
 
     // This ensures that when we pass method pointers for this object
     // that we have the context of this particular object
@@ -143,21 +145,9 @@ class HullRouter {
       // TODO need to test sending an empty array, or decide if we need extra logic here...
       let dispatchPromise = dispatcher.dispatchWithData(context, route, objectType, dataToSend);
 
-      // This is still bad... need to decide how to handle this....
-      // TODO need to make sure this is only in outreach
-      // because other connectors will get this same message, and we'll be trying to run this route
-      // and it will fail because that route won't exist, or even worse if it did
-      _.forEach(dataToSkip, dataToSkipElement => {
-        if (objectType === HullOutgoingUser && dataToSkipElement.changes && dataToSkipElement.changes.is_new) {
-          if (_.isEmpty(_.get(dataToSkipElement, "user.email"))
-            && _.get(dataToSkipElement.user, "outreach/created_by_webhook") === true
-            && _.get(dataToSkipElement.user, "outreach/id")) {
-            dispatchPromise = dispatchPromise.then(() => {
-              return dispatcher.dispatchWithData(context, "getProspectById", objectType, dataToSkipElement);
-            });
-          }
-        }
-      });
+      if (this.filteredMessageCallback) {
+        dispatchPromise = this.filteredMessageCallback(dispatcher, dispatchPromise, objectType, dataToSkip);
+      }
 
       return dispatchPromise
         .then(results => {
