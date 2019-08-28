@@ -32,12 +32,14 @@ async function fetchRecentEmailEventsAction(
 
   const data = await dispatcher
     .dispatch(ctx, route)
-    .then(results => {
+    .then(() => {
       dispatcher.close();
       ctx.client.logger.info("incoming.job.success", {
         jobName: "Incoming Data Request"
       });
-      return Promise.resolve(results);
+      return {
+        status: "ok"
+      };
     })
     .catch(error => {
       dispatcher.close();
@@ -50,7 +52,9 @@ async function fetchRecentEmailEventsAction(
         jobName: "Incoming Data Request",
         error: message
       });
-      return Promise.reject(error);
+      return {
+        error: error.message
+      };
     });
 
   return {
