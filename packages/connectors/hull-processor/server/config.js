@@ -32,6 +32,7 @@ export default function connectorConfig(): HullConnectorConfig {
     hostSecret,
     devMode: NODE_ENV === "development",
     port: PORT || 8082,
+    timeout: "30s",
     handlers: handlers({
       flow_size: FLOW_CONTROL_SIZE,
       flow_in: FLOW_CONTROL_IN
