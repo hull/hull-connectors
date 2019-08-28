@@ -31,6 +31,21 @@
       "format": "hidden"
     },
     {
+      "name": "synchronized_user_segments",
+      "title": "User Filter",
+      "description": "Which users are sent through the processor",
+      "type": "array",
+      "format": "segment",
+      "options": {
+        "standard": {
+          "ALL": "All Users"
+        }
+      },
+      "default": [
+        "ALL"
+      ]
+    },
+    {
       "name": "code",
       "title": "Code",
       "description": "Enter Javascript code here, It will receive the data in the middle column, can emit `track()` and `traits()`. Preview results on the right. Save when finished",
@@ -40,7 +55,15 @@
     }
   ],
   "resources": [],
-  "settings_sections": [],
+  "settings_sections": [
+    {
+      "title": "Configuration",
+      "description": "Configure the way the processor runs",
+      "properties": [
+        "private_settings.synchronized_user_segments"
+      ]
+    }
+  ],
   "json": [
     {
       "url": "/config",
@@ -63,6 +86,9 @@
           "only": [
             "user:update"
           ]
+        },
+        "segments": {
+          "users:update": "private_settings.synchronized_user_segments"
         }
       },
       "channels": [
