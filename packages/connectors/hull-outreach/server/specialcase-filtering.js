@@ -3,7 +3,7 @@ const _ = require("lodash");
 
 const {
   HullOutgoingUser
-} = require("./hull-service-objects");
+} = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 function filteredMessageCallback(dispatcher, dispatchPromise, objectType, dataToSkip) {
 
