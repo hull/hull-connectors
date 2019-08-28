@@ -5,7 +5,7 @@ const {
   HullOutgoingUser
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
-function filteredMessageCallback(dispatcher, dispatchPromise, objectType, dataToSkip) {
+function filteredMessageCallback(context, dispatcher, dispatchPromise, objectType, dataToSkip) {
 
   let promiseToReturn = dispatchPromise;
 

@@ -146,7 +146,7 @@ class HullRouter {
       let dispatchPromise = dispatcher.dispatchWithData(context, route, objectType, dataToSend);
 
       if (this.filteredMessageCallback) {
-        dispatchPromise = this.filteredMessageCallback(dispatcher, dispatchPromise, objectType, dataToSkip);
+        dispatchPromise = this.filteredMessageCallback(context, dispatcher, dispatchPromise, objectType, dataToSkip);
       }
 
       return dispatchPromise
