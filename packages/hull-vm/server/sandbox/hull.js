@@ -37,6 +37,9 @@ const buildHullContext = (
     );
   };
 
+  const deprecationLogger = message =>
+    message && result.logs.unshift(`Warning: ${message}`);
+
   const trackFactory = (claims: HullUserClaims, target: string) => (
     eventName: string,
     properties: HullEventProperties = {},
@@ -83,12 +86,12 @@ const buildHullContext = (
       isLinkCall === true
         ? hasValidLinkclaims(claims, client)
         : hasValidAccountClaims(claims, client);
-    const { valid } = validation;
+    const { valid, message } = validation;
     if (!valid) {
       errorLogger("user", "Hull.asAccount()", validation);
       return {};
     }
-
+    deprecationLogger(message);
     const identify = identifyFactory(claims, "accountTraits");
     const alias = aliasFactory(claims, "alias", "accountAliases");
     const unalias = aliasFactory(claims, "unalias", "accountAliases");
@@ -110,11 +113,12 @@ const buildHullContext = (
 
   function asUser(claims: HullUserClaims) {
     const validation = hasValidUserClaims(claims, client);
-    const { valid, error } = validation;
+    const { valid, error, message } = validation;
     if (!valid || error) {
       errorLogger("user", "Hull.asUser()", validation);
       return {};
     }
+    deprecationLogger(message);
     const track = trackFactory(claims, "events");
     const alias = aliasFactory(claims, "alias", "userAliases");
     const unalias = aliasFactory(claims, "unalias", "userAliases");

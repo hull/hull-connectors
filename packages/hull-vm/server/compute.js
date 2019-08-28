@@ -70,7 +70,15 @@ export default async function compute(
           "traits",
           "track"
         ),
-        (lib, key: string) => vm.freeze(lib, key)
+        (lib, key: string) => {
+          const l = function l(...args) {
+            result.logs.unshift(
+              `Warning. You are using a deprecated method: "${key}()". Please use "hull.${key}()" instead`
+            );
+            lib(...args);
+          };
+          vm.freeze(l, key);
+        }
       );
     }
 

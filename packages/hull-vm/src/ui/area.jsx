@@ -23,15 +23,4 @@ const Area = ({ aceOptions, id, mode, className, onChange, value }: Props) => (
     onChange={onChange}
   />
 );
-
-//
-// class Area extends Component<Props> {
-//   render() {
-//     const { className, wrap, style, onChange, value, javascript } = this.props;
-//
-//     return (
-//     );
-//   }
-// }
-//
 export default Area;
