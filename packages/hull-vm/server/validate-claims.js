@@ -1,44 +1,42 @@
 // @flow
 
-import type { HullClient, HullEntityClaims } from "hull";
-import _ from "lodash";
-import type { ClaimsValidation, ClaimsSubject } from "../types";
+import type { HullClient, HullEntityClaims, HullEntityType } from "hull";
+import type { ClaimsValidation } from "../types";
 
-export const isValidClaim = (claims: HullEntityClaims, client: HullClient) => (
-  subject: ClaimsSubject,
-  allowEmpty?: boolean
+export const isValidClaim = (
+  claims: HullEntityClaims,
+  client: HullClient,
+  entityType: HullEntityType
 ): ClaimsValidation => {
   try {
-    const method = subject === "account" ? client.asAccount : client.asUser;
-    return (
+    const method = entityType === "account" ? client.asAccount : client.asUser;
+    // $FlowFixMe
+    method(claims);
+    return {
+      valid: true,
+      error: undefined,
+      message: undefined,
       // $FlowFixMe
-      ((allowEmpty && (!claims || _.isEmpty(claims))) || method(claims)) && {
-        valid: true,
-        error: undefined,
-        message: undefined,
-        // $FlowFixMe
-        claims,
-        subject
-      }
-    );
+      claims,
+      entityType
+    };
   } catch (err) {
     return {
       valid: false,
-      message: `Invalid Claims for ${subject}`,
+      message: `Invalid Claims for ${entityType}`,
       error: err.toString(),
       // $FlowFixMe
       claims,
-      subject
+      entityType
     };
   }
 };
 
-export const hasValidClaims = (
-  subject: ClaimsSubject,
-  allowEmpty?: boolean
-) => (claims: HullEntityClaims, client: HullClient) =>
-  isValidClaim(claims, client)(subject, allowEmpty);
+export const hasValidClaims = (entity: HullEntityType) => (
+  claims: HullEntityClaims,
+  client: HullClient
+) => isValidClaim(claims, client, entity);
 
 export const hasValidUserClaims = hasValidClaims("user");
 export const hasValidAccountClaims = hasValidClaims("account");
-export const hasValidLinkclaims = hasValidClaims("account", true);
+export const hasValidLinkclaims = hasValidClaims("account");

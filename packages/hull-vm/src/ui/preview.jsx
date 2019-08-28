@@ -93,6 +93,10 @@ const Preview = ({ result, scoped }: Props) => {
       <Fragment>
         <CodeTitle title="Console" />
         <Area
+          aceOptions={{
+            wrapMethod: "code",
+            wrapEnabled: true
+          }}
           id="code-console"
           value="// Nothing to display. Type some code to preview results"
           mode="javascript"
@@ -131,7 +135,15 @@ const Preview = ({ result, scoped }: Props) => {
   return hasErrors ? (
     <Fragment>
       <CodeTitle title="Errors" error />
-      <Area id="code-error" value={errors.join("\n-----\n")} mode="text" />
+      <Area
+        aceOptions={{
+          wrapMethod: "text",
+          wrapEnabled: true
+        }}
+        id="code-error"
+        value={errors.join("\n-----\n")}
+        mode="text"
+      />
     </Fragment>
   ) : (
     <Fragment>
@@ -147,7 +159,15 @@ const Preview = ({ result, scoped }: Props) => {
         </Fragment>
       ))}
       <CodeTitle title="Console" />
-      <Area id="code-console" value={renderLogs(logs)} mode="javascript" />
+      <Area
+        aceOptions={{
+          wrapMethod: "text",
+          wrapEnabled: true
+        }}
+        id="code-console"
+        value={renderLogs(logs)}
+        mode="javascript"
+      />
     </Fragment>
   );
 };

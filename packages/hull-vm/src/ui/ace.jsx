@@ -34,6 +34,7 @@ type Props = {
   className?: string,
   id: string,
   readOnly: boolean,
+  aceOptions?: { [string]: any },
   onChange?: string => void,
   mode: string,
   value: string,
@@ -89,11 +90,12 @@ class CodeEditor extends Component<Props, State> {
   };
 
   render() {
-    const { id, mode, className, readOnly } = this.props;
+    const { id, mode, className, readOnly, aceOptions } = this.props;
     const { value } = this.state;
     return (
       <AceEditor
         ref={this.code}
+        {...aceOptions}
         mode={mode}
         className={`${className || ""} ${readOnly ? "read-only" : ""}`}
         theme="clouds_midnight"

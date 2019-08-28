@@ -7,16 +7,18 @@ type Props = {
   className?: string,
   mode: string,
   id: string,
+  aceOptions?: { [string]: any },
   onChange?: string => void,
   value: string | {} | Array<any>
 };
 
-const Area = ({ id, mode, className, onChange, value }: Props) => (
+const Area = ({ aceOptions, id, mode, className, onChange, value }: Props) => (
   <CodeEditor
     id={id}
     className={className}
     mode={mode}
     readOnly
+    aceOptions={aceOptions}
     value={typeof value !== "string" ? stringify(value, { space: 2 }) : value}
     onChange={onChange}
   />
