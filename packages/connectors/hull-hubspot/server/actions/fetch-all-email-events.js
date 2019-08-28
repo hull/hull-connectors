@@ -30,7 +30,7 @@ async function fetchAllEmailEventsAction(
 
   const route = "fetchAllEmailEvents";
 
-  dispatcher
+  const data = await dispatcher
     .dispatch(ctx, route)
     .then(results => {
       dispatcher.close();
@@ -54,7 +54,8 @@ async function fetchAllEmailEventsAction(
     });
 
   return {
-    status: 200
+    status: 200,
+    data
   };
 }
 
