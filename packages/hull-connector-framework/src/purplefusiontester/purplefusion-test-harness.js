@@ -7,6 +7,22 @@ const { HullDispatcher } = require("../purplefusion/dispatcher");
 const { setHullDataType } = require("../purplefusion/utils");
 const { ContextMock } = require("./connector-mock");
 
+// TODO This is vulnerable to weird edge cases where if you have an array with a jest expect, could get weird errors
+// like: localContext: [expect.objectContaining(..)]
+// would enumerate the objectContaining fields, resulting in a bad comparison
+// stuff like: "TypeError: val.toAsymmetricMatcher is not a function"
+// in this case, don't surround the expect with an array, and it won't be flattened
+// instead just localContext: expect.objecContaining(...)
+function flattenArray(possibleArray) {
+  if (Array.isArray(possibleArray)) {
+    let flattened = {};
+    _.assign(flattened, ...possibleArray);
+    return flattened;
+  } else {
+    return possibleArray;
+  }
+
+}
 
 function createServiceMock(service, possibleMockRequests) {
 
@@ -35,16 +51,54 @@ function createServiceMock(service, possibleMockRequests) {
         // TODO this may not always work if order is not guarantee
         // especially when doing parallel processing
         // could potentially look through all possibles for the right endpoint, not just first
-        const firstIdentifiedEndpoint = _.first(possibleEndpointMocks);
-        expect(localContext).toEqual(firstIdentifiedEndpoint.localContext);
-        expect(data).toEqual(firstIdentifiedEndpoint.input);
+
+        let currentLocalContext = flattenArray(localContext);
+
+        let identifiedResult = null;
+        if (possibleEndpointMocks.length > 1) {
+
+          _.some(possibleEndpointMocks, possibleEndpoint => {
+
+            // Multiple possible endpoints, so test each one to see if it matches
+            try {
+              let storedLocalContext = flattenArray(possibleEndpoint.localContext);
+              expect(currentLocalContext).toEqual(storedLocalContext);
+              expect(data).toEqual(possibleEndpoint.input);
+              identifiedResult = possibleEndpoint;
+              return true;
+            } catch (err) {
+            }
+          });
+
+          // throwing an error here because we did not find a valid endpoint for this call
+          // expecting endpoint name and data to give the user more
+          if (identifiedResult === null) {
+            expect({ localContext: currentLocalContext, op: endpointName, input: data }).toEqual(null);
+          }
+
+        } else {
+
+          identifiedResult = _.first(possibleEndpointMocks);
+
+          // In this case, this is the only endpoint mock that we've found which has the same op name
+          // if there are multiple calls to this op, then check to see that you have the same number of calls to the service
+          // as you do mock endpoints, if you hav emore calls to the service than you do mocks, and it's not matching
+          // it will companre your latest call to the service with the last mock that hasn't been called, but you may not have added the mock endpoint
+          // so the one that this is comparing to may be misleading
+          // local context must be equal or using a jest equivalence object
+          expect(currentLocalContext).toEqual(flattenArray(identifiedResult.localContext));
+          // input must be equal or using a jest equivalence object
+          expect(data).toEqual(identifiedResult.input);
+        }
+
+
 
         // remove the endpoint from the list because it's been called
-        _.pull(serviceWrapper.requestedMocks, firstIdentifiedEndpoint)
+        _.pull(serviceWrapper.requestedMocks, identifiedResult);
 
         // now return the appropriate result
-        const result = firstIdentifiedEndpoint.result;
-        if (result.text) {
+        const result = identifiedResult.result;
+        if (result && result.text) {
           // super agent does not serialize the body of the request, so we parse the "text" attribute and set it as the body
           result.body = JSON.parse(result.text);
         }
@@ -113,7 +167,28 @@ class PurpleFusionTestHarness {
         // This checks the actual object response from the endpoint
         expect(results).toEqual(requestTrace.result);
         return Promise.resolve(results);
+      }).catch(error => {
+
+        // this will hide errors as a result of bad jest expectations...
+        // because a bad expect inside will throw here in cases where the end result is an error
+        // so kinda annoying
+        // TODO need an instanceof jesterror to do better logging for developer
+        if (requestTrace.error) {
+          _.forEach(serviceMocks, service => {
+            expect(service.requestedMocks).toEqual([]);
+          });
+
+          // This checks the actual object response from the endpoint
+          expect(error).toEqual(requestTrace.error);
+
+          // if we survived the error expectation, we can resolve
+          // otherwise it will throw an error
+          return Promise.resolve({});
+        }
+
+        return Promise.reject(error);
       });
+
   }
 
 }

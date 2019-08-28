@@ -540,7 +540,7 @@ class ServiceEngine {
     }
 
     const output = this.parseError(error, errorDefinitions.parser, {});
-    const logMessage = this.createLogFromOutput(servicename, output);
+    const assembledServiceErrorDescription = this.createLogFromOutput(servicename, output);
 
     if (isUndefinedOrNull(errorTemplate)) {
       // may have parsed parameters from the parser, but no specific error condition with message
@@ -566,6 +566,11 @@ class ServiceEngine {
       } else {
         message = errorTemplate.message().message;
       }
+
+      if (!_.isEmpty(assembledServiceErrorDescription)) {
+        message += ` (${assembledServiceErrorDescription})`;
+      }
+
       return new errorTemplate.errorType(message, error);
     }
 
@@ -580,12 +585,21 @@ class ServiceEngine {
       source
     } = output;
 
-    let log = `HTTP[${httpStatus}] ${servicename}[${appStatusCode}] ${title}`;
+    let log = "Error Details:";
+    if (!_.isEmpty(httpStatus)) log = `HTTP[${httpStatus}]`;
+    if (!_.isEmpty(servicename)) log = `${_.upperFirst(servicename)} ${log}`;
 
-    if (!_.isEmpty(description)) log += `: ${description}`;
-    if (!_.isEmpty(source)) log += ` SOURCE[${JSON.stringify(source)}]`;
+    let errorDetails = "";
+    if (!_.isEmpty(appStatusCode)) errorDetails += ` [${appStatusCode}]`;
+    if (!_.isEmpty(title)) errorDetails += ` ${title}`;
+    if (!_.isEmpty(description)) errorDetails += `: ${description}`;
+    if (!_.isEmpty(source)) errorDetails += ` SOURCE[${JSON.stringify(source)}]`;
 
-    return log;
+    if (!_.isEmpty(errorDetails)) {
+      return `${log}${errorDetails}`;
+    }
+
+    return "";
 
   }
 

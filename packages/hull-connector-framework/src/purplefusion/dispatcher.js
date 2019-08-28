@@ -600,6 +600,8 @@ class HullDispatcher {
           return moment(...resolvedParams);
         } else if (opInstruction.name === "lessThan") {
           return resolvedParams[0] < resolvedParams[1];
+        } else if (opInstruction.name === "greaterThan") {
+          return resolvedParams[0] > resolvedParams[1];
         } else if (opInstruction.name === 'ex') {
 
           return resolvedParams[0][resolvedParams[1]](..._.slice(resolvedParams, 2));

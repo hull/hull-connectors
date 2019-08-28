@@ -25,13 +25,19 @@ describe("Marketo User Tests", () => {
     return harness.runTest(require("./fixtures/status-unconfigured"));
   });
 
-  // it("fetchRecentLeadActivity", () => {
-  //   MockDate.set(moment.utc("2019-08-06T13:44:03"), 240);
-  //   return harness.runTest(require("./fixtures/fetchRecentLeadActivity1"))
-  //     .then((results) => {
-  //       MockDate.reset();
-  //       return Promise.resolve(results);
-  //     });
+  it("fetching activity", () => {
+    return harness.runTest(require("./fixtures/fetchRecentLeadActivityWithEvents"));
+  });
+  it("fetching activity no events", () => {
+    return harness.runTest(require("./fixtures/fetchRecentLeadActivityWithNoEvents"));
+  });
+  it("upsert user", () => {
+    return harness.runTest(require("./fixtures/userUpdate"));
+  });
+  // TODO this test is failing because of open handles at the end
+  // need to debug this at some point
+  // it("upsert user fail", () => {
+  //   return harness.runTest(require("./fixtures/userUpdate-fail"));
   // });
 
 });

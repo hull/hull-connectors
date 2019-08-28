@@ -57,10 +57,16 @@ const glue = {
   // Simple status which will return setup required if we don't have credentials filled out
   // TODO need to make a call to marketo to confirm it works...
   status: ifL(route("isConfigured"), {
-    do:ifL(cond("isEmpty", settings("synchronized_user_segments")), {
+    do:[
+      ifL(cond("isEmpty", settings("synchronized_user_segments")), {
       status: "ok",
       message: "No data will be sent from Hull to Marketo currently because there are no whitelisted segments configured.  Please visit the connector settings page and add segments to be sent to Marketo"
-    }),
+      }),
+      ifL(set("totalcalls", get("[0].total", marketo("getStatsUsage"))), {
+        status: "ok",
+        message: "Connected to Marketo.  Have used ${totalcalls} calls to the api today."
+      })
+    ],
     eldo: {
       status: "setupRequired",
       message: "Please fill out the required credential fields for Hull to connect with Marketo.  You can find these fields by clicking \"Settings\" then scrolling to the \"Connect with Marketo\" section."
@@ -231,6 +237,8 @@ const glue = {
             // check if there is an export which is in "created" mode and not queued
             cond("notEmpty", filter({ exportId: "${leadExportId}", status: "Created" }, "${existingJobs}")),
             // marketo returns success: false if there are too many jobs queued, so stop after that
+            // TODO confirm if this logic is still working now that we're catching this code 1029 and making it a skippable error
+            // I think it should
             cond("not", get("success", marketo("enqueueLeadExportJob")))
           ],
           loopEndL()
