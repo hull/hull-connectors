@@ -13,11 +13,11 @@ ${code}
 
 // TODO: We can improve and make the checks more robust here in a centralized way.
 function invalid(ctx: HullContext, code: string) {
-  return check(wrapCode(code));
+  return check(code);
 }
 
 function empty(ctx: HullContext, code: string) {
-  return code;
+  return !code;
 }
 
 function pristine(ctx: HullContext, code: string) {

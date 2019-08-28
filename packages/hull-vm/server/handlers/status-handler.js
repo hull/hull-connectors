@@ -30,10 +30,15 @@ export default async function statusCheck(
   let status = "ok";
   const messages = [];
 
-  if (check.invalid(ctx, code)) {
+  const c = check.invalid(ctx, code);
+  if (c) {
+    console.log(c);
     status = "error";
     messages.push(
-      "The code didn't pass the syntax check. Please review the detected problems and apply fixes where indicated.."
+`The code has syntax error(s). Please review the detected problems and apply fixes where indicated:
+--------
+${c}
+-------`
     );
   }
 
