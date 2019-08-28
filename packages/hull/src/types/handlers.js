@@ -39,6 +39,7 @@ declare class $HullRequest extends express$Request {
    * @public
    * @memberof Types
    */
+  timedout?: boolean;
   hull: HullContext;
 }
 
