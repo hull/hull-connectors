@@ -19,5 +19,5 @@ packages/connectors/hull-warehouse
 packages/connectors/hull-marketo
 packages/connectors/hull-hubspot-deals
 packages/connectors/hull-hubspot-events
-packages/connectors/hull-hubspot/server/purplefusion/hull-hubspot-events
+packages/connectors/hull-hubspot/server/purplefusion
 packages/hull-connector-framework
