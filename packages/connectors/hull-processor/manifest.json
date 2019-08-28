@@ -71,7 +71,10 @@
     },
     {
       "url": "/entry",
-      "handler": "entityHandler"
+      "handler": "entityHandler",
+      "options": {
+        "respondWithError": true
+      }
     },
     {
       "url": "/preview",
