@@ -9,6 +9,7 @@ import _ from "lodash";
 import type { Entry } from "hull-vm";
 import { compute, serialize } from "hull-vm";
 import getSample from "../lib/get-sample";
+import getClaims from "../lib/get-claims";
 
 const EXCLUDED_EVENTS = [
   "Attributes changed",
@@ -30,7 +31,6 @@ export default async function getUser(
   const { body } = message;
   // $FlowFixMe
   const { claim, claimType, events } = body;
-  console.log("Entry Fetch", body);
   try {
     // const getter = entity === "account" ? ctx.entities.accounts : ctx.entities.users;
     const rawPayload = await ctx.entities.users.get({
@@ -61,9 +61,11 @@ export default async function getUser(
       events: (rawPayload.events || []).filter(isVisible)
     };
 
+    const claims = getClaims("user", rawPayload);
+
     const result = await compute(ctx, {
       source: "processor",
-      claims: _.pick(rawPayload.user, ["id"]),
+      claims,
       preview: true,
       payload,
       code

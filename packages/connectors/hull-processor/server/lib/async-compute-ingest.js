@@ -8,6 +8,7 @@ import type {
 } from "hull";
 import _ from "lodash";
 import { compute, ingest } from "hull-vm";
+import getClaims from "./get-claims";
 
 const asyncComputeAndIngest = async (
   ctx: HullContext,
@@ -25,9 +26,10 @@ const asyncComputeAndIngest = async (
   try {
     const { user, account } = payload;
     const { group } = ctx.client.utils.traits;
+    const claims = getClaims(entity, payload);
     const result = await compute(ctx, {
       source: "processor",
-      claims: _.pick(entity === "account" ? account : user, ["id"]),
+      claims,
       preview: false,
       entity,
       payload: _.omitBy(

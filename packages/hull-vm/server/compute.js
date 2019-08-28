@@ -31,6 +31,7 @@ export default async function compute(
     accountAliases: Map({}),
     accountLinks: Map({}),
     events: [],
+    claims,
     success: false,
     isAsync: false
   };

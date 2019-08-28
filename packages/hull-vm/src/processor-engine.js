@@ -47,7 +47,7 @@ export default class ProcessorEngine extends Engine {
     }
     const { code } = this.state.current || {};
     const newCode = code !== undefined ? code : entry.code;
-    const claims = _.pick(entry.payload.user, ["id"]);
+    const claims = _.get(entry, "result.claims");
     const current = { ...entry, code: newCode, editable: true, claims };
     this.setState({ error: undefined, current });
     if (_.size(claims)) {

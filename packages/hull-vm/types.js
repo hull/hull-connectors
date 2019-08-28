@@ -85,6 +85,7 @@ export type Result = {
   >,
   events: Array<Event>,
   accountLinks: Map<HullUserClaims, HullAccountClaims>,
+  claims?: HullUserClaims,
   isAsync: boolean,
   success: boolean
 };
@@ -98,6 +99,7 @@ export type SerializedResult = {
   accountAliases: Array<[HullAccountClaims, HullAliasOperations]>,
   events: Array<Event>,
   accountLinks: Array<[HullUserClaims, HullAccountClaims]>,
+  claims?: HullUserClaims,
   isAsync: boolean,
   success: boolean
 };

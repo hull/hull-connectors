@@ -1,5 +1,5 @@
 // @flow
-import type { Result } from "../types";
+import type { Result, SerializedResult } from "../types";
 
 // These methods transform ImmutableJS Maps to classic JS/JSON objects - this is a custom serialization since having Objects as Keys isn't supported in JSON for instance
 
@@ -17,7 +17,7 @@ const serializeAliases = aliases => {
 const serializeTraits = traits =>
   traits.toArray().map(trait => trait.map(t => t.toObject()));
 
-const serialize = (result: Result) => ({
+const serialize = (result: Result): SerializedResult => ({
   ...result,
   userTraits: serializeTraits(result.userTraits),
   accountTraits: serializeTraits(result.accountTraits),
