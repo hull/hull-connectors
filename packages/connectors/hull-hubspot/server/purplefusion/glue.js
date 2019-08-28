@@ -45,7 +45,7 @@ const refreshTokenDataTemplate = {
 const glue = {
   shipUpdateStart: {},
   setEventMap: [
-    set("eventsMapping", require("./events/email_events")),
+    set("eventsMapping", require("./email_events")),
     set("eventsToFetch", "${connector.private_settings.events_to_fetch}")
   ],
   fetchAllEmailEvents: [
