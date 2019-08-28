@@ -35,7 +35,7 @@ export default async function statusCheck(
     console.log(c);
     status = "error";
     messages.push(
-`The code has syntax error(s). Please review the detected problems and apply fixes where indicated:
+      `The code has syntax error(s). Please review the detected problems and apply fixes where indicated:
 --------
 ${c}
 -------`
