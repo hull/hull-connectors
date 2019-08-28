@@ -31,7 +31,21 @@ function compareStatus(status1: string, status2: string) {
 }
 
 function statusCallback(ctx, messages) {
-  const flattenedMessages = _.flatten(messages);
+
+  let flattenedMessages;
+  if (Array.isArray(messages)) {
+    // if it comes out as an array, try to flatten so it's one level of array
+    // messages may have been nested depending on the logic
+    flattenedMessages = _.flatten(messages);
+  } else if (isUndefinedOrNull(messages)) {
+    // if messages are undefined or null
+    // messages should be empty array
+    flattenedMessages = [];
+  } else {
+    // otherwise, make the flattened messages an array
+    flattenedMessages = [messages];
+  }
+
   let worstStatus = "ok";
   let messagesToSend = [];
   _.forEach(flattenedMessages, message => {
