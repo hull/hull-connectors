@@ -93,10 +93,11 @@ const glue = {
     })
   ]),
 
+  // This isConfigured logic seems kinda redundant... especially when I have to return {} everything otherwise for these endpoints
   // Sometimes fields can be in the thousands, so hit the refresh on a schedule, instead of pulling on demand
-  refreshCustomAttributes: ifL(route("isConfigured"), cacheWrap(1200, marketo("describeLeads"))),
-  attributesLeadsIncoming: ifL(route("isConfigured"), transformTo(HullIncomingDropdownOption, route("refreshCustomAttributes"))),
-  attributesLeadsOutgoing: ifL(route("isConfigured"), transformTo(HullOutgoingDropdownOption, route("refreshCustomAttributes"))),
+  refreshCustomAttributes: ifL(route("isConfigured"), { do: cacheWrap(1200, marketo("describeLeads")), eldo: {} }),
+  attributesLeadsIncoming: ifL(route("isConfigured"), { do: transformTo(HullIncomingDropdownOption, route("refreshCustomAttributes")), eldo: {} }),
+  attributesLeadsOutgoing: ifL(route("isConfigured"), { do: transformTo(HullOutgoingDropdownOption, route("refreshCustomAttributes")), eldo: {} }),
 
   // Setup marketo api from the configured values
   ensureSetup:
