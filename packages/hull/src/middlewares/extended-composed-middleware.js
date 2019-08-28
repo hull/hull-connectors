@@ -48,12 +48,15 @@ function extendedComposeMiddleware({
     clientMiddleware(), // initialize client
     // ---------The middlewares below require presence of req.hull;
     timeoutMiddleware(), // properly handle timeout from connectorConfig
-    haltOnTimedoutMiddleware(),
     instrumentationContextMiddleware({ handlerName }),
     fullContextBodyMiddleware({ requestName, strict }),
     // @TODO - can we leave both middlewares active and have the second one gracefully handle this ?
     // @TODO: why wouldn't we strict with the fullContextFetchMiddleware ?
-    fullContextFetchMiddleware({ requestName, cacheContextFetch /* , strict */ }),
+    fullContextFetchMiddleware({
+      requestName,
+      cacheContextFetch /* , strict */
+    }),
+    haltOnTimedoutMiddleware(),
     httpClientMiddleware(),
     getEntityMiddleware()
   ];
