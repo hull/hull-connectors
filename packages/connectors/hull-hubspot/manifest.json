@@ -32,7 +32,8 @@
           "scope": [
             "oauth",
             "contacts",
-            "timeline"
+            "timeline",
+            "content"
           ]
         }
       }

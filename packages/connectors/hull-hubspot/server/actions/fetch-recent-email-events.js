@@ -5,10 +5,10 @@ const _ = require("lodash");
 
 const {
   HullDispatcher
-} = require("../../../../hull-connector-framework/src/purplefusion/dispatcher");
+} = require("hull-connector-framework/src/purplefusion/dispatcher");
 const {
   hullService
-} = require("../../../../hull-connector-framework/src/purplefusion/hull-service");
+} = require("hull-connector-framework/src/purplefusion/hull-service");
 const glue = require("../purplefusion/glue");
 const eventsService = require("../purplefusion/service");
 const transforms = _.concat(
