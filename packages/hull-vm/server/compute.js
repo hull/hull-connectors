@@ -93,12 +93,12 @@ export default async function compute(
   if (preview) {
     // Only lint in Preview mode.
     const syntaxErrors = check.invalid(ctx, code);
-    if (syntaxErrors.length) {
+    if (syntaxErrors && syntaxErrors.length) {
       result.errors.push(..._.map(syntaxErrors, "annotated"));
     }
 
     const linterErrors = check.lint(ctx, code, frozen);
-    if (linterErrors.length) {
+    if (linterErrors && linterErrors.length) {
       result.errors.push(...linterErrors);
     }
   }
