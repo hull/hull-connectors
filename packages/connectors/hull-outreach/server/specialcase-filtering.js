@@ -1,3 +1,10 @@
+/* @flow */
+const _ = require("lodash");
+
+const {
+  HullOutgoingUser
+} = require("./hull-service-objects");
+
 function filteredMessageCallback(dispatcher, dispatchPromise, objectType, dataToSkip) {
 
   let promiseToReturn = dispatchPromise;
