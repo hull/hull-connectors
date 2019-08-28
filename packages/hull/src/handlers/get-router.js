@@ -44,7 +44,7 @@ export default function getRouter({
   beforeMiddlewares.map(m => m && router.use(m));
 
   router.use(
-    extendedComposeMiddleware({
+    ...extendedComposeMiddleware({
       options,
       requestName,
       handlerName
@@ -52,7 +52,6 @@ export default function getRouter({
   );
 
   afterMiddlewares.map(m => m && router.use(m));
-
   if (handler) {
     router.use(handler);
   }

@@ -17,7 +17,7 @@ import httpClientMiddleware from "./httpclient-middleware";
 import getEntityMiddleware from "./get-entity";
 import generateTokensMiddleware from "./generate-tokens-middleware";
 
-const { compose } = require("compose-middleware");
+// const { compose } = require("compose-middleware");
 // const requestDebugLogging = require("./request-debug-logging");
 
 function extendedComposeMiddleware({
@@ -28,7 +28,7 @@ function extendedComposeMiddleware({
   requestName: string,
   handlerName?: string,
   options: HullExtendedMiddlewareParams
-}): Middleware {
+}): Array<Middleware> {
   const {
     bodyParser,
     credentialsFromQuery,
@@ -60,7 +60,7 @@ function extendedComposeMiddleware({
     httpClientMiddleware(),
     getEntityMiddleware()
   ];
-  return compose(..._.compact(middlewares));
+  return _.compact(middlewares);
 }
 
 module.exports = extendedComposeMiddleware;
