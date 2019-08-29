@@ -1,6 +1,6 @@
 {
   "name": "Marketo",
-  "description": "Two-way Marketo integration for Leads & Companies",
+  "description": "Two-way Marketo integration for Leads",
   "source": "marketo",
   "logo": "logo.png",
   "picture": "picture.png",
