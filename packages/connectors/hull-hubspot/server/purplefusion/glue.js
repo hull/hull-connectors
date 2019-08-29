@@ -111,7 +111,6 @@ const glue = {
               set("event_created_at", ex(moment(get("created", "${hubspotEmailEvent}")), "toISOString")),
 
               // get the email campaign from the email event
-              set("randomvalue", "campaign-${emailCampaignId}"),
               ifL(cond("isEmpty", set("marketingEmailId", cacheGet("campaign-${emailCampaignId}"))), [
                 set("marketingEmailId", get("contentId", hubspot("getEmailCampaign"))),
                 cacheSet("campaign-${emailCampaignId}", "${marketingEmailId}"),
