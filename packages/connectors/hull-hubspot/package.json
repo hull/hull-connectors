@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "passport-hubspot-oauth2.0": "^1.0.2",
-    "slug": "^0.9.1"
+    "slug": "^0.9.1",
+    "hull": "link:../../hull",
+    "hull-connector-framework": "link:../../hull-connector-framework"
   },
   "devDependencies": {}
 }
