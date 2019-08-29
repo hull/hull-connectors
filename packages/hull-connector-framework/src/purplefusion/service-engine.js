@@ -470,8 +470,8 @@ class ServiceEngine {
 
     if (!_.isEmpty(data)) {
       let paramString = JSON.stringify(data);
-      if (paramString && paramString.length > 60) {
-        paramString = `${paramString.substring(0, 60)}...`;
+      if (paramString && paramString.length > 120) {
+        paramString = `${paramString.substring(0, 120)}...`;
       }
       debug(`[CALLING-SERVICE]: ${name}<${op}> [WITH-DATA]: ${paramString}`);
     } else {

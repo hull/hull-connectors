@@ -28,14 +28,16 @@ const transformsToService: ServiceTransforms = [
       "            {" +
       "              \"properties\":" +
       "                 $.{" +
-      "                   \"emailCampaignId\": emailCampaignId," +
-      "                   \"subject\": $string(type & \" - \" & $emailContent.subject)," +
-      "                   \"portalId\": portalId," +
-      "                   \"from\": from," +
+      "                   \"email_campaign_id\": emailCampaignId," +
+      "                   \"email_subject\": $string(type & \" - \" & $emailContent.subject)," +
+      "                   \"link_url\": url," +
+      "                   \"portal_id\": portalId," +
+      "                   \"email_id\": id," +
+      "                   \"sent_by\": sentBy.id," +
       "                   \"recipient\": recipient," +
-      "                   \"lastImported_at\": $last_sync," +
+      "                   \"last_imported_at\": $last_sync," +
       "                   \"created_at\": $event_created_at," +
-      "                   \"emailBody\": \"[html-body]\n\" & $emailContent.body" +
+      "                   \"email_body\": \"[html-body]\n\" & $emailContent.body" +
       "                 }, " +
       "              \"context\":" +
       "                 $.{" +
