@@ -25,20 +25,24 @@ export default function connectorConfig(): HullConnectorConfig {
 
   return {
     manifest,
-    handlers: new HullRouter({
-      glue: require("./glue"),
-      services: {
-        outreach: require("./service")({
-          clientID: CLIENT_ID,
-          clientSecret: CLIENT_SECRET
-        })
+    handlers:
+    new HullRouter(
+      {
+        glue: require("./glue"),
+        services: {
+          outreach: require("./service")({
+            clientID: CLIENT_ID,
+            clientSecret: CLIENT_SECRET
+          })
+        },
+        transforms: _.concat(
+          require("./transforms-to-hull"),
+          require("./transforms-to-service")
+        ),
+        ensureHook: "ensureWebhooks"
       },
-      transforms: _.concat(
-        require("./transforms-to-hull"),
-        require("./transforms-to-service")
-      ),
-      ensureHook: "ensureWebhooks"
-    }).createHandler,
+      require("./specialcase-filtering")
+    ).createHandler,
     hostSecret: SECRET || "1234",
     devMode: NODE_ENV === "development",
     port: PORT || 8082,
