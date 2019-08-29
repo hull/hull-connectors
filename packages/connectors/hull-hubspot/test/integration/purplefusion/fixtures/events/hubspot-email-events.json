@@ -1,0 +1,93 @@
+{
+  "hasMore": false,
+  "offset": "Ch8KFgji7_bzkpCew7MBEM2JybijpZjK2wEY34fd4r4t",
+  "events": [
+    {
+      "appName": "Batch",
+      "created": 1567084185625,
+      "browser": {},
+      "referer": "",
+      "deviceType": "MOBILE",
+      "linkId": 0,
+      "appId": 113,
+      "url": "http://nytimes.com/?utm_campaign=Newsletter&utm_source=hs_email&utm_medium=email&utm_content=76224413&_hsmi=76224413",
+      "userAgent": "Mozilla/5.0 (Android 9; Mobile; rv:68.0) Gecko/68.0 Firefox/68.0",
+      "location": {},
+      "id": "event_id_1",
+      "smtpId": null,
+      "portalId": 6015139,
+      "recipient": "email@gmail.com",
+      "sentBy": {
+        "id": "sentById",
+        "created": 1567081617162
+      },
+      "type": "CLICK",
+      "filteredEvent": false,
+      "emailCampaignId": 1
+    },
+    {
+      "appName": "Batch",
+      "browser": {},
+      "deviceType": "COMPUTER",
+      "created": 1566584323020,
+      "duration": 0,
+      "userAgent": "Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)",
+      "location": {},
+      "id": "event_id_2",
+      "recipient": "email@gmail.com",
+      "sentBy": {
+        "id": "sentById",
+        "created": 1566582186465
+      },
+      "smtpId": null,
+      "portalId": 6015139,
+      "type": "PROCESSED",
+      "filteredEvent": false,
+      "appId": 113,
+      "emailCampaignId": 2
+    },
+    {
+      "appName": "Batch",
+      "browser": {},
+      "deviceType": "COMPUTER",
+      "created": 1566584323020,
+      "duration": 0,
+      "userAgent": "Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)",
+      "location": {},
+      "id": "event_id_3",
+      "recipient": "email@gmail.com",
+      "sentBy": {
+        "id": "sentById",
+        "created": 1566582186465
+      },
+      "smtpId": null,
+      "portalId": 6015139,
+      "type": "OPEN",
+      "filteredEvent": false,
+      "appId": 113,
+      "emailCampaignId": 10
+    },
+    {
+      "appName": "Batch",
+      "created": 1567081617162,
+      "portalId": 6015139,
+      "emailCampaignId": 1,
+      "recipient": "email@gmail.com",
+      "appId": 113,
+      "id": "event_id_4",
+      "replyTo": [
+        "andy@hull.io"
+      ],
+      "cc": [],
+      "bcc": [],
+      "subject": "826",
+      "from": "\"Andy Hull\" <andy@hull.io>",
+      "smtpId": null,
+      "sentBy": {
+        "id": "sentById",
+        "created": 1567081617162
+      },
+      "type": "SENT"
+    }
+  ]
+}

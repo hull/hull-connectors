@@ -275,6 +275,12 @@
       "format": "hidden"
     },
     {
+      "name": "events_last_fetch_started_at",
+      "description": "Last time events fetched at operation was started",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
       "name": "fetch_count",
       "description": "Count of contacts already fetched from Hubspot",
       "type": "number",
