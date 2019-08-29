@@ -1,0 +1,27 @@
+{
+  "hasMore": false,
+  "offset": "Ch8KFgji7_bzkpCew7MBEM2JybijpZjK2wEY34fd4r4t",
+  "events": [
+    {
+      "appName": "Batch",
+      "browser": {},
+      "deviceType": "COMPUTER",
+      "created": 1566584323020,
+      "duration": 0,
+      "userAgent": "Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)",
+      "location": {},
+      "id": "event_id_1",
+      "recipient": "email@gmail.com",
+      "sentBy": {
+        "id": "sentById",
+        "created": 1566582186465
+      },
+      "smtpId": null,
+      "portalId": 6015139,
+      "type": "OPEN",
+      "filteredEvent": false,
+      "appId": 113,
+      "emailCampaignId": 1
+    }
+  ]
+}
