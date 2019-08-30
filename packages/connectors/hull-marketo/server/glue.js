@@ -51,7 +51,14 @@ const leadExportBody = {
       endAt: "${endAt}"
     }
   }
-}
+};
+
+const eventNameMapping =  {
+  "Send Email": "Email Sent",
+  "Click Email": "Email Link Clicked",
+  "Open Email": "Email Opened",
+  "Unsubscribe Email": "Unsubscribed"
+};
 
 const glue = {
   // Simple status which will return setup required if we don't have credentials filled out
@@ -104,7 +111,8 @@ const glue = {
     ifL(route("isConfigured"), [
       set("marketoApiUrl", ld("replace", ld("trim", settings("marketo_identity_url")), /\/identity$/, "")),
       ifL(cond("isEmpty", settings("access_token")), route("getAuthenticationToken")),
-      set("service_name", "marketo")
+      set("service_name", "marketo"),
+      set("eventMapToHull", eventNameMapping)
     ]),
 
   //don't do anything on ship update

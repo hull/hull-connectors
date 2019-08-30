@@ -62,6 +62,11 @@ module.exports = {
               id: 13,
               name: "Change Data Value",
               description: "Changed attribute value for a person/record"
+            },
+            {
+              id: 14,
+              name: "Send Email",
+              description: "Sent someone an email"
             }
           ],
           success: true
@@ -83,6 +88,14 @@ module.exports = {
               leadId: 21749371,
               activityDate: "2019-08-27T14:11:59Z",
               activityTypeId: 12,
+              fields: []
+            },
+            {
+              id: 56789,
+              marketoGUID: "56789",
+              leadId: 234456,
+              activityDate: "2019-08-27T14:11:59Z",
+              activityTypeId: 14,
               fields: []
             },
             {
@@ -233,6 +246,28 @@ module.exports = {
       op: "asUser",
       name: "hull",
       input: expect.anything(),
+      result: {}
+    },
+    {
+      localContext: expect.objectContaining({
+        leadActivity: expect.objectContaining({
+          activityTypeId: 14,
+          id: 56789,
+          leadId: 234456
+        })
+      }),
+      op: "asUser",
+      name: "hull",
+      input: {
+        attributes: { "marketo/id": { operation: "set", value: 234456 } },
+        events: [
+          {
+            context: { created_at: "2019-08-27T14:11:59Z", event_id: 56789 },
+            eventName: "Email Sent"
+          }
+        ],
+        ident: { anonymous_id: "marketo:234456" }
+      },
       result: {}
     }
   ],
