@@ -17,9 +17,9 @@ it("Basic fetch all email events - single event to fetch", () => {
           fetch_email_events: true,
           events_to_fetch: [
             'Email Opened',
-            'Email Processed',
-            'Email Sent',
-            'Email Link Clicked'
+            'Email Deferred',
+            'Email Dropped',
+            'Email Reported As Spam'
           ],
           email_events_user_claims: [
             {
@@ -38,8 +38,8 @@ it("Basic fetch all email events - single event to fetch", () => {
       externalApiMock: () => {
         const scope = nock("https://api.hubapi.com");
         scope.get("/email/public/v1/events?limit=300")
-          .reply(200, require("./fixtures/events/hubspot-email-event"));
-        scope.get("/email/public/v1/campaigns/1")
+          .reply(200, require("./fixtures/events/hubspot-email-events"));
+        scope.get("/email/public/v1/campaigns/10")
           .reply(200, { "contentId": 123});
         scope.get("/marketing-emails/v1/emails?id=123")
           .reply(200, {
@@ -57,7 +57,7 @@ it("Basic fetch all email events - single event to fetch", () => {
       response: { status : "ok"},
       logs: [
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/email/public/v1/events", "status": 200, "vars": {} }],
-        ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/email/public/v1/campaigns/1", "status": 200, "vars": {} }],
+        ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/email/public/v1/campaigns/10", "status": 200, "vars": {} }],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/marketing-emails/v1/emails", "status": 200, "vars": {} }],
         ["info", "incoming.user.success", { "subject_type": "user", "user_email": "email@gmail.com" },
           {
@@ -69,7 +69,7 @@ it("Basic fetch all email events - single event to fetch", () => {
               "duration": 0,
               "userAgent": "Mozilla/5.0 (Windows NT 5.1; rv:11.0) Gecko Firefox/11.0 (via ggpht.com GoogleImageProxy)",
               "location": {},
-              "id": "event_id_1",
+              "id": "event_id_3",
               "recipient": "email@gmail.com",
               "sentBy": {
                 "id": "sentById",
@@ -80,7 +80,7 @@ it("Basic fetch all email events - single event to fetch", () => {
               "type": "OPEN",
               "filteredEvent": false,
               "appId": 113,
-              "emailCampaignId": 1
+              "emailCampaignId": 10
             },
             "type": "hubspot_incoming_email_event"
           }
@@ -92,13 +92,13 @@ it("Basic fetch all email events - single event to fetch", () => {
           {
             "created_at": "2019-08-23T18:18:43.020Z",
             "event": "Email Opened",
-            "event_id": "hubspot:6015139:event_id_1",
+            "event_id": "hubspot:6015139:event_id_3",
             "ip": null,
             "properties": {
               "created_at": "2019-08-23T18:18:43.020Z",
               "email_body": "[html-body]\nEmail Body",
-              "email_campaign_id": 1,
-              "email_id": "event_id_1",
+              "email_campaign_id": 10,
+              "email_id": "event_id_3",
               "email_subject": "OPEN - Newsletter",
               "last_imported_at": expect.whatever(),
               "portal_id": 6015139,
@@ -133,10 +133,10 @@ it("Basic fetch all email events - single event to fetch", () => {
                 },
               ],
               "events_to_fetch": [
-                "Email Opened",
-                "Email Processed",
-                "Email Sent",
-                "Email Link Clicked",
+                'Email Opened',
+                'Email Deferred',
+                'Email Dropped',
+                'Email Reported As Spam'
               ],
               "fetch_email_events": true,
               "events_last_fetch_started_at": expect.whatever(),
