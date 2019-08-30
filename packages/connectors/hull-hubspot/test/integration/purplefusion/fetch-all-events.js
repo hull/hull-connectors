@@ -70,6 +70,7 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
       },
       response: { status : "ok"},
       logs: [
+        ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" }],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/email/public/v1/events", "status": 200, "vars": {} }],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/email/public/v1/campaigns/1", "status": 200, "vars": {} }],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/marketing-emails/v1/emails", "status": 200, "vars": {} }],
@@ -140,12 +141,12 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
               "appId": 113,
               "id": "event_id_4",
               "replyTo": [
-                "andy@hull.io"
+                "email2@gmail.com"
               ],
               "cc": [],
               "bcc": [],
               "subject": "826",
-              "from": "\"Andy Hull\" <andy@hull.io>",
+              "from": "email2@gmail.com",
               "smtpId": null,
               "sentBy": {
                 "id": "sentById",
@@ -156,7 +157,7 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
             "type": "hubspot_incoming_email_event"
           }
         ],
-        ["info", "incoming.job.success", {}, { "jobName": "Incoming Data Request" }]
+        ["info", "incoming.job.success", {}, { "jobName": "Incoming Data", "type": "webpayload" }]
       ],
       firehoseEvents: [
         ["track", { "asUser": { "email": "email@gmail.com" }, "subjectType": "user" },
