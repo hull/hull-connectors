@@ -300,10 +300,8 @@
       "default": false
     },
     {
-      "title": "Email Events To Fetch From Hubspot",
-      "name": "events_to_fetch",
-      "type": "array",
       "default": [],
+      "format": "select",
       "items": {
         "type": "string",
         "enum": [
@@ -318,7 +316,11 @@
           "Unsubscribed / Subscribed",
           "Email Marked as Spam"
         ]
-      }
+      },
+      "title": "Email Events To Fetch From Hubspot",
+      "name": "events_to_fetch",
+      "type": "array",
+      "uniqueItems": true
     },
     {
       "name": "email_events_user_claims",
