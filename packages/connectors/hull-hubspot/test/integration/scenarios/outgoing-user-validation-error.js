@@ -11,6 +11,8 @@ import connectorConfig from "../../../server/config";
 
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
+process.env.CLIENT_ID = "123";
+process.env.CLIENT_SECRET = "abc";
 
 const connector = {
   private_settings: {
@@ -25,7 +27,7 @@ const usersSegments = [
   }
 ];
 
-it("should send out a new hull user to hubspot", () => {
+it("should send out a new hull user to hubspot - validation error", () => {
   const email = "email@email.com";
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
@@ -90,6 +92,38 @@ it("should send out a new hull user to hubspot", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 2, "toSkip": 0, "toUpdate": 0}],
+        [
+          "info",
+          "outgoing.user.skip",
+          expect.objectContaining({ "subject_type": "user", "user_email": "non-existing-property@hull.io"}),
+          {
+            "reason": "There are no outgoing attributes to synchronize for users.  Please go to the settings page and add outgoing user attributes to synchronize"
+          }
+        ],
+        [
+          "info",
+          "outgoing.user.skipcandidate",
+          expect.objectContaining({ "subject_type": "user", "user_email": "non-existing-property@hull.io"}),
+          {
+            "reason": "attribute change not found"
+          }
+        ],
+        [
+          "info",
+          "outgoing.user.skip",
+          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
+          {
+            "reason": "There are no outgoing attributes to synchronize for users.  Please go to the settings page and add outgoing user attributes to synchronize"
+          }
+        ],
+        [
+          "info",
+          "outgoing.user.skipcandidate",
+          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
+          {
+            "reason": "attribute change not found"
+          }
+        ],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 400, "url": "/contacts/v1/contact/batch/" })],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
         [
