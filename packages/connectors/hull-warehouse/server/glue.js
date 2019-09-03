@@ -8,14 +8,21 @@ const {
   route,
   cond,
   hull,
-  set,
   get,
+  set,
+  iterateL,
   input,
   Svc,
   settings,
   obj,
-  iterateL
+  cast,
+  ld
 } = require("hull-connector-framework/src/purplefusion/language");
+
+const {
+  HullOutgoingAccount,
+  HullOutgoingUser
+} = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const _ = require("lodash");
 
@@ -75,36 +82,25 @@ const glue = {
   ]),
 
   accountUpdate: ifL(route("hasRequiredFields"),
-    [
-      iterateL(input(), "message",
-        ifL(cond("notEmpty", "${message.events}"), [
-          iterateL("${message.events}", "event",
-            ifL(cond("isEqual", "${event.event_type}", "account_merged"), [
-                postgresJdbc("removeHullAccount", "${event.properties.merged_id}")
-              ]
-            )
-          )]
-        )
-      ),
-      postgresJdbc("upsertHullAccount", input()),
-    ]
+    iterateL(input(), { key: "message", async: true }, [
+
+      postgresJdbc("upsertHullAccount", cast(HullOutgoingAccount, "${message}")),
+
+      iterateL(ld("filter", "${message.events}", { event_type: "account_merged" }), "event",
+        postgresJdbc("removeHullAccount", "${event.properties.merged_id}")
+      )
+    ])
   ),
   userUpdate: ifL(route("hasRequiredFields"),
-    [
-      iterateL(input(), "message",
-        ifL(cond("notEmpty", "${message.events}"), [
-          iterateL("${message.events}", "event",
-            ifL(cond("isEqual", "${event.event_type}", "user_merged"), [
-                postgresJdbc("mergeHullUser", "${event.properties.merged_id}", "${event.user_id}")
-              ]
-            )
-          )]
-        )
-      ),
-      postgresJdbc("upsertHullUser", input())
-    ]
-  ),
+    iterateL(input(), { key: "message", async: true }, [
 
+      postgresJdbc("upsertHullUser", cast(HullOutgoingUser, "${message}")),
+
+      iterateL(ld("filter", "${message.events}", { event_type: "user_merged" }), "event",
+        postgresJdbc("mergeHullUser", "${event.properties.merged_id}", "${event.user_id}")
+      )
+    ])
+  ),
   ensureHook: ifL(route("hasRequiredFields"), [
     set("currentDatabaseSettings",
       "${connector.private_settings.db_username}|" +
