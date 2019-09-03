@@ -100,13 +100,17 @@ class AuditUtil {
         term: { "traits_mailchimp/status.raw": "subscribed" }
       }),
       this.postSearchUserReports({
-        missing: { field: "traits_mailchimp/status" }
+        bool: {
+          must_not: {
+            exists: { field: "traits_mailchimp/status" }    
+          }
+        }
       }),
       this.postSearchUserReports({
-        and: {
-          filters: [
+        bool: {
+          filter: [
             { exists: { field: "traits_mailchimp/status" } },
-            { not: { term: { "traits_mailchimp/status.raw": "subscribed" } } }
+            { bool: { must_not: { term: { "traits_mailchimp/status.raw": "subscribed" } } } }
           ]
         }
       }),
