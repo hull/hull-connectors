@@ -9,12 +9,18 @@ const {
   cond,
   hull,
   set,
-  get,
+  iterateL,
   input,
   Svc,
   settings,
-  obj
+  obj,
+  cast
 } = require("hull-connector-framework/src/purplefusion/language");
+
+const {
+  HullOutgoingAccount,
+  HullOutgoingUser
+} = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const _ = require("lodash");
 
@@ -73,8 +79,13 @@ const glue = {
     cond("notEmpty", settings("db_name"))
   ]),
 
-  accountUpdate: ifL(route("hasRequiredFields"), postgresJdbc("upsertHullAccount", input())),
-  userUpdate: ifL(route("hasRequiredFields"), postgresJdbc("upsertHullUser", input())),
+  accountUpdate: ifL(route("hasRequiredFields"),
+    iterateL(input(), { key: "message", async: true },
+      postgresJdbc("upsertHullAccount", cast(HullOutgoingAccount, "${message}")))),
+
+  userUpdate: ifL(route("hasRequiredFields"),
+    iterateL(input(), { key: "message", async: true },
+      postgresJdbc("upsertHullUser", cast(HullOutgoingUser, "${message}")))),
 
   ensureHook: ifL(route("hasRequiredFields"), [
     set("currentDatabaseSettings",
