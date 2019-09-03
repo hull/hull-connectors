@@ -199,6 +199,18 @@ function toSendMessage(
     );
   }
 
+  // // We probably should introduce a standard event filter
+  // if (targetEntity === "user") {
+  //   const synchronizedUserEvents = _.get(context, "connector.private_settings.synchronized_user_events");
+  //   const userEvents = _.get(message, "events");
+  //   if (Array.isArray(userEvents) && !_.isEmpty(userEvents)) {
+  //     const eventsToSend = _.filter(userEvents, (userEvent) => {
+  //       return
+  //     })
+  //     return true;
+  //   }
+  // }
+
   const enteredSegments = _.get(message, `changes.${segmentAttribute}.entered`);
   const enteredAnySegments = !_.isEmpty(enteredSegments);
 
@@ -215,43 +227,25 @@ function toSendMessage(
 
   const entity: any = _.get(message, targetEntity);
 
-  const entityInSegments = _.get(message, segmentAttribute);
+  const entityInSegments = _.get(message, segmentAttribute, []);
+  const entityInSegmentIds = entityInSegments.map( segment => segment.id );
 
-  if (!_.isEmpty(entityInSegments)) {
-    const entityInSegmentIds = entityInSegments.map(segment => segment.id);
-    const matchesSegments =
-      _.intersection(
-        entityInSegmentIds,
-        _.get(context, synchronizedSegmentPath)
-      ).length >= 1;
+  // All is the default segment that everyone is in, so if it's selected, it should mean this thing should go
+  entityInSegmentIds.push("ALL");
 
-    if (!matchesSegments && !context.notification.is_export) {
-      if (targetEntity === "user") {
-        debug(`User does not match segment ${JSON.stringify(entity)}`);
-        context.client.asUser(entity).logger.info("outgoing.user.skip", {
-          reason:
-            "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment"
-        });
-      } else if (targetEntity === "account") {
-        debug(`Account does not match segment ${JSON.stringify(entity)}`);
-        context.client.asAccount(entity).logger.info("outgoing.account.skip", {
-          reason:
-            "Account is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the account is present in the settings page, or add the account to an existing synchronzed segment"
-        });
-      }
-      return false;
-    }
-  } else {
+  const matchesSegments = _.intersection(
+    entityInSegmentIds,
+    _.get(context, synchronizedSegmentPath)
+  ).length >= 1;
+
+  // I think we can maybe take out the is_export logic because we're trying to only use isBatch
+  if (!matchesSegments && !context.notification.is_export) {
     if (targetEntity === "user") {
-      debug(`User is not a part of any segment ${JSON.stringify(entity)}`);
-      context.client.asUser(entity).logger.info("outgoing.user.skip", {
-        reason: `User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment`
-      });
+      debug(`User does not match segment ${ JSON.stringify(entity) }`);
+      context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment" });
     } else if (targetEntity === "account") {
-      debug(`Account is not a part of any segment ${JSON.stringify(entity)}`);
-      context.client.asAccount(entity).logger.info("outgoing.account.skip", {
-        reason: `Account is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the account is present in the settings page, or add the account to an existing synchronized segment`
-      });
+      debug(`Account does not match segment ${ JSON.stringify(entity) }`);
+      context.client.asAccount(entity).logger.info("outgoing.account.skip", { reason: "Account is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the account is present in the settings page, or add the account to an existing synchronized segment" });
     }
     return false;
   }
@@ -287,10 +281,28 @@ function toSendMessage(
           return true;
         }
       }
-
       // if account enters a synchronized segment
       // but it was or wasn't in a synchronized segment before
       // may want to perform account linking
+    }
+
+    const associated_account_id = _.get(context, "connector.private_settings.outgoing_user_associated_account_id");
+
+    if (!isUndefinedOrNull(associated_account_id) && typeof associated_account_id === "string") {
+
+      // if it's a user attribute check there
+      const changedAccountId = _.get(message, `changes.user.${associated_account_id}`);
+      if (!_.isEmpty(changedAccountId)) {
+        return true;
+      }
+
+      // if it's an account attribute, it will be in the format account.*
+      // so check if that's changed...
+      const changedAccountIdOnAccount = _.get(message, `changes.${associated_account_id}`);
+      if (!_.isEmpty(changedAccountIdOnAccount)) {
+        return true;
+      }
+
     }
   }
 
@@ -301,6 +313,16 @@ function toSendMessage(
     if (!_.isEmpty(segmentChanges)) {
       return true;
     }
+  }
+
+  const send_all_user_attributes = _.get(context, "connector.private_settings.send_all_user_attributes");
+  if (send_all_user_attributes === true && targetEntity === "user") {
+    return true;
+  }
+
+  const send_all_account_attributes = _.get(context, "connector.private_settings.send_all_account_attributes");
+  if (send_all_account_attributes === true && targetEntity === "account") {
+    return true;
   }
 
   // Is this the right thing?
