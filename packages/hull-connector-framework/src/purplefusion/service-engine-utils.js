@@ -1,5 +1,6 @@
 /* flow... */
 
+const _ = require("lodash");
 const BatchStream = require("batch-stream");
 const csv = require('csv-stream');
 const promisePipe = require("promisepipe");
@@ -12,6 +13,10 @@ const uuid = require("uuid/v1");
 const ps = require("promise-streams");
 const map = require("through2-map");
 const through2 = require("through2");
+
+const {
+  LogicError
+} = require("hull/src/errors");
 
 const HullVariableContext = require("./variable-context");
 const { isUndefinedOrNull, parseIntOrDefault, setHullDataType, getHullDataType } = require("./utils");
@@ -76,13 +81,37 @@ function promiseToWritableStream(promise) {
 
 }
 
+function getEndpoint(serviceDefinition, op) {
+  // Endpoint may not exist
+  // in cases where the endpoint may not add any value
+  // we shouldn't make the user declare it
+  // endpoint is to only be used to add additional metadata to the call
+  let endpoint = _.get(serviceDefinition, `endpoints.${op}`);
+
+  if (isUndefinedOrNull(endpoint)) {
+    // we don't have an endpoint, but we don't want to break the code below
+    // so we infer the endpoint values
+    // batch: true -> Not sure if this is the right default
+    // -> no, means that if we have a single value, it will be sent in an array
+    // but also means if we have an array, it will send the whole array through
+    // basically means "send as whole array"
+    // but means we'll pass the data straight through to the service
+    // and make the endpoint.input be the classType of the incoming data
+    endpoint = { batch: true };
+    endpoint.input = getHullDataType(param);
+  }
+
+  return endpoint;
+}
+
 
 // Code originally from
 // -- https://stackoverflow.com/questions/16010915/parsing-huge-logfiles-in-node-js-read-in-line-by-line
 // Or possibly use: https://github.com/lbdremy/node-csv-stream
 
-async function streamCsv(context: HullVariableContext, instruction: Object, param: any) {
+async function streamCsv(context: HullVariableContext, serviceEngine, serviceDefinition, name, op, param) {
 
+  const endpoint = getEndpoint(serviceDefinition, op);
   let inputParams = param;
 
   const options = {
@@ -105,15 +134,6 @@ async function streamCsv(context: HullVariableContext, instruction: Object, para
   // really need to come back and clean this up
   // it ONLY works for users, and only if coming from a source stream
   // works decently for that case so far, but haven't hit many error cases yet
-  const instructionOptions = instruction.options;
-  const name = instructionOptions.name;
-  const op = instructionOptions.op;
-  const serviceDefinition = this.services[name];
-
-  if (isUndefinedOrNull(serviceDefinition))
-    throw new Error(`Undefined ServiceDefinition: ${name}<${op}>`);
-
-  let endpoint = _.get(serviceDefinition, `endpoints.${op}`);
 
   if (!isUndefinedOrNull(endpoint) && endpoint.type === "stream") {
     const transform = map({ objectMode: true }, (object) => {
@@ -198,7 +218,7 @@ async function streamCsv(context: HullVariableContext, instruction: Object, para
   // and the wrapper for it (pumpPromise) is very simple and it works
   return pumpPromise(inputParams.data, csvStream, batch, promiseToWritableStream((data) => {
     setHullDataType(data, getHullDataType(inputParams));
-    return this.getResults(context, instruction, data);
+    return serviceEngine.invoke(context, serviceDefinition, name, op, data);
   })).then((results) => {
     return Promise.resolve(results);
   }).catch((err) => {
@@ -246,6 +266,151 @@ async function streamCsv(context: HullVariableContext, instruction: Object, para
 
 }
 
+function createErrorException(context: Object, servicename: string, errorDefinitions: Object, errorTemplate: any, error: any) {
+
+  if (isUndefinedOrNull(error)) {
+    const message: string = `Unknown error while connecting with the ${servicename} API`;
+    // throw new error if an error obj does not exist, not sure what the case for this is...
+    return new Error(message);
+  } else if (isUndefinedOrNull(errorDefinitions)) {
+    const message: string = `Untemplated error while connecting with the ${servicename} API`;
+    // if there is no errordefinition, then no way to parse anything out, just throw the original error
+    return error;
+  }
+
+  const output = parseError(error, errorDefinitions.parser, {});
+  const assembledServiceErrorDescription = createLogFromOutput(servicename, output);
+
+  if (isUndefinedOrNull(errorTemplate)) {
+    // may have parsed parameters from the parser, but no specific error condition with message
+    // probably want to both return what was parsed, but also the original error somehow
+    // for now, if we parsed description or title, can return that...
+    if (!_.isEmpty(output.description)) {
+      if (!_.isEmpty(output.title)) {
+        console.log(error.stack);
+        return new LogicError(`[${output.title}] ${output.description}`, "action", error);
+      } else {
+        return new LogicError(output.description, "action", error);
+      }
+    } else if (!_.isEmpty(output.title)) {
+      return new LogicError(output.title, "action", error);
+    } else {
+      return error;
+    }
+
+  } else {
+    let message;
+    if (typeof errorTemplate.message === "string") {
+      message = errorTemplate.message;
+    } else {
+      message = errorTemplate.message().message;
+    }
+
+    if (!_.isEmpty(assembledServiceErrorDescription)) {
+      message += ` (${assembledServiceErrorDescription})`;
+    }
+
+    return new errorTemplate.errorType(message, error);
+  }
+
+}
+
+function createLogFromOutput(servicename: string, output: Object) {
+  const {
+    httpStatus,
+    appStatusCode,
+    title,
+    description,
+    source
+  } = output;
+
+  let log = "Error Details:";
+  if (!_.isEmpty(httpStatus)) log = `HTTP[${httpStatus}]`;
+  if (!_.isEmpty(servicename)) log = `${_.upperFirst(servicename)} ${log}`;
+
+  let errorDetails = "";
+  if (!_.isEmpty(appStatusCode)) errorDetails += ` [${appStatusCode}]`;
+  if (!_.isEmpty(title)) errorDetails += ` ${title}`;
+  if (!_.isEmpty(description)) errorDetails += `: ${description}`;
+  if (!_.isEmpty(source)) errorDetails += ` SOURCE[${JSON.stringify(source)}]`;
+
+  if (!_.isEmpty(errorDetails)) {
+    return `${log}${errorDetails}`;
+  }
+
+  return "";
+
+}
+
+function parseError(error: any, parser: any, output: Object): Object {
+
+  if (isUndefinedOrNull(parser))
+    return output;
+
+  let target = error;
+
+  if (!isUndefinedOrNull(parser.target)) {
+    target = _.get(error, parser.target);
+    if (!isUndefinedOrNull(target) && !isUndefinedOrNull(parser.type)) {
+      if (parser.type === 'json') {
+        if (typeof target === 'string') {
+          try {
+            target = JSON.parse(target);
+          } catch (error) {
+            return output;
+          }
+        }
+      }
+    }
+  }
+
+  if (isUndefinedOrNull(target))
+    return output;
+
+  // ugh... shouldn't there be a lodash fuction for this????
+  // I don't know cuz I'm a lodash newb...
+  const httpStatus: any = _.get(target, parser.httpStatus);
+  if (!isUndefinedOrNull(httpStatus)) _.set(output, "httpStatus", httpStatus);
+  const appStatusCode: any = _.get(target, parser.appStatusCode);
+  if (!isUndefinedOrNull(appStatusCode)) _.set(output, "appStatusCode", appStatusCode);
+  const title: any = _.get(target, parser.title);
+  if (!isUndefinedOrNull(title)) _.set(output, "title", title);
+  const description: any = _.get(target, parser.description);
+  if (!isUndefinedOrNull(description)) _.set(output, "description", description);
+  const source: any = _.get(target, parser.source);
+  if (!isUndefinedOrNull(source)) _.set(output, "source", source);
+
+  // see if any sub parsers that we need
+  // maybe make this a list instead of a nested obj?
+  return parseError(target, parser.parser, output);
+}
+
+function findErrorTemplate(context: Object, serviceDefinition: any, error: any) {
+  if (!_.isEmpty(serviceDefinition.error.templates)) {
+
+    return _.find(serviceDefinition.error.templates, template => {
+      let truthy = template.truthy;
+      let condition = template.condition;
+
+      if (!isUndefinedOrNull(truthy)) {
+        if (!_.isMatch(error, truthy)){
+          return false;
+        }
+      }
+      if (!isUndefinedOrNull(condition)) {
+        if (!condition(context)) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }
+  return null;
+}
+
 module.exports = {
-  streamCsv
+  streamCsv,
+  getEndpoint,
+  findErrorTemplate,
+  createErrorException
 };

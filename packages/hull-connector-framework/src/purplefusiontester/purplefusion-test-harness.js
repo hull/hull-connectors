@@ -171,17 +171,19 @@ class PurpleFusionTestHarness {
       }).catch(error => {
         hullDispatcher.close();
 
-        // this will hide errors as a result of bad jest expectations...
+        // this could hide errors as a result of bad jest expectations...
         // because a bad expect inside will throw here in cases where the end result is an error
-        // so kinda annoying
-        // TODO need an instanceof jesterror to do better logging for developer
+        // This is specifically why we expect the error first a couple lines down from here
+        // will show specifically what we got compared to what we expected
+        // what we got is potentially the bad thing
         if (requestTrace.error) {
-          _.forEach(serviceMocks, service => {
-            expect(service.requestedMocks).toEqual([]);
-          });
 
           // This checks the actual object response from the endpoint
           expect(error).toEqual(requestTrace.error);
+
+          _.forEach(serviceMocks, service => {
+            expect(service.requestedMocks).toEqual([]);
+          });
 
           // if we survived the error expectation, we can resolve
           // otherwise it will throw an error

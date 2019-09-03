@@ -157,6 +157,10 @@ class TransformImpl {
 
   transform(variableContext: HullVariableContext, input: Object, desiredOutputClass: any) {
 
+    if (isUndefinedOrNull(input)) {
+      return input;
+    }
+
     if (isUndefinedOrNull(desiredOutputClass)) {
       return variableContext.resolveVariables(input);
     }
