@@ -13,7 +13,8 @@ const {
   input,
   Svc,
   settings,
-  obj
+  obj,
+  iterateL
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const _ = require("lodash");
@@ -73,8 +74,36 @@ const glue = {
     cond("notEmpty", settings("db_name"))
   ]),
 
-  accountUpdate: ifL(route("hasRequiredFields"), postgresJdbc("upsertHullAccount", input())),
-  userUpdate: ifL(route("hasRequiredFields"), postgresJdbc("upsertHullUser", input())),
+  accountUpdate: ifL(route("hasRequiredFields"),
+    [
+      iterateL(input(), "message",
+        ifL(cond("notEmpty", "${message.events}"), [
+          iterateL("${message.events}", "event",
+            ifL(cond("isEqual", "${event.event_type}", "account_merged"), [
+                postgresJdbc("removeHullAccount", "${event.properties.merged_id}")
+              ]
+            )
+          )]
+        )
+      ),
+      postgresJdbc("upsertHullAccount", input()),
+    ]
+  ),
+  userUpdate: ifL(route("hasRequiredFields"),
+    [
+      iterateL(input(), "message",
+        ifL(cond("notEmpty", "${message.events}"), [
+          iterateL("${message.events}", "event",
+            ifL(cond("isEqual", "${event.event_type}", "user_merged"), [
+                postgresJdbc("mergeHullUser", "${event.properties.merged_id}", "${event.user_id}")
+              ]
+            )
+          )]
+        )
+      ),
+      postgresJdbc("upsertHullUser", input())
+    ]
+  ),
 
   ensureHook: ifL(route("hasRequiredFields"), [
     set("currentDatabaseSettings",

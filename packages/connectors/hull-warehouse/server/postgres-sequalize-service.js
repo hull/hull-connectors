@@ -191,6 +191,10 @@ class SequalizeSdk {
     }
   }
 
+  async justLog(data) {
+    console.log(data);
+  }
+
   generateSequelizeSchema(hullSchema: Array<any>) {
     const fields = {};
 
@@ -379,6 +383,52 @@ class SequalizeSdk {
             return Promise.resolve();
           });
       }));
+  }
+
+  async mergeHullUser(merged_id: String, user_id: String) {
+    const mergeEventsPromise = this.getSequelizeConnection()
+      .model(this.eventTableName)
+      .findAll({
+        where: {
+          user_id: merged_id
+        },
+        attributes: [
+          "user_id"
+        ]
+      })
+      .then((rows: Array) => {
+        return rows.length === 0 ? [] : _.rows.map(rows, event => {
+          event.user_id = user_id;
+        })
+          .then((newRows: Array) => {
+            return this.getSequelizeConnection()
+              .model(this.eventTableName)
+              .upsert(newRows, {
+                  fields: [
+                    "user_id"
+                  ]
+                }
+              );
+          })
+      });
+    const deleteUserPromise = this.getSequelizeConnection()
+        .model(this.userTableName)
+        .destroy({
+          where: {
+            id: merged_id
+          }
+        });
+    return Promise.all([mergeEventsPromise, deleteUserPromise]);
+  }
+
+  async removeHullAccount(id: String) {
+    return this.getSequelizeConnection()
+      .model(this.accountTableName)
+      .destroy({
+        where: {
+          id
+        }
+      });
   }
 }
 

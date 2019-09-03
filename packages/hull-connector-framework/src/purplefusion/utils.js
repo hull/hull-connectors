@@ -178,6 +178,14 @@ function toSendMessage(
     return true;
   }
 
+  if (message.events) {
+    for (let i = 0 ; i < message.events.length ; i = i + 1) {
+      if (message.events[i].event_type === "user_merged") {
+        return true;
+      }
+    }
+  }
+
   let segmentAttribute;
   let synchronizedSegmentPath;
   let outgoingAttributesPath;
