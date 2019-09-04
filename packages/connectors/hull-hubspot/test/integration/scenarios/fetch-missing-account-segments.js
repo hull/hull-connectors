@@ -23,7 +23,7 @@ const connector = {
   }
 };
 
-it("Should return a synchronized user/account segments \"ok\" message when no account segments are given in the manifest", () => {
+it("Should return a synchronized account segments \"ok\" message when no account segments are given in the manifest", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
@@ -37,7 +37,7 @@ it("Should return a synchronized user/account segments \"ok\" message when no ac
       connector,
       usersSegments: [],
       accountsSegments: [],
-      response: {"messages": ['No users or accounts will be sent from Hull to Hubspot because there are no whitelisted segments configured. If you want to enable outgoing traffic, please visit the connector settings page and add segments to be sent to Hubspot, otherwise please ignore this notification.'], "status": "ok"},
+      response: {"messages": ['No accounts will be sent from Hull to Hubspot because there are no whitelisted segments configured. If you want to enable outgoing account traffic, please visit the connector settings page and add account segments to be sent to Hubspot, otherwise please ignore this notification.'], "status": "ok"},
       logs: [
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/contacts/v2/groups", "vars": {}}]
       ],
@@ -52,7 +52,7 @@ it("Should return a synchronized user/account segments \"ok\" message when no ac
           {
             "messages":
               [
-                'No users or accounts will be sent from Hull to Hubspot because there are no whitelisted segments configured. If you want to enable outgoing traffic, please visit the connector settings page and add segments to be sent to Hubspot, otherwise please ignore this notification.'
+                'No accounts will be sent from Hull to Hubspot because there are no whitelisted segments configured. If you want to enable outgoing account traffic, please visit the connector settings page and add account segments to be sent to Hubspot, otherwise please ignore this notification.'
               ],
             "status": "ok"
           }

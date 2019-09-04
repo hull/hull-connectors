@@ -1,6 +1,6 @@
 {
   "name": "hull-hubspot",
-  "version": "0.1.2-monorepo",
+  "version": "0.1.3-monorepo",
   "description": "Send Notification of User events and segments to Hubspot",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {
@@ -10,9 +10,7 @@
   },
   "dependencies": {
     "passport-hubspot-oauth2.0": "^1.0.2",
-    "slug": "^0.9.1",
-    "hull": "link:../../hull",
-    "hull-connector-framework": "link:../../hull-connector-framework"
+    "slug": "^0.9.1"
   },
   "devDependencies": {}
 }
