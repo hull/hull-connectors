@@ -7,7 +7,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
 
 
-it("Basic fetch all email events - single event to fetch", () => {
+it("Basic fetch recent email events since last scheduled fetch - single event to fetch", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
@@ -54,7 +54,7 @@ it("Basic fetch all email events - single event to fetch", () => {
           });
         return scope;
       },
-      response: { status : "ok"},
+      response: { status : "deferred"},
       logs: [
         ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" }],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/email/public/v1/events", "status": 200, "vars": {} }],
