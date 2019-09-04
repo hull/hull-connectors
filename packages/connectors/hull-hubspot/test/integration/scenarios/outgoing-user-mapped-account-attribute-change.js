@@ -17,7 +17,9 @@ const connector = {
     token: "hubToken",
     synchronized_user_segments: ["hullSegmentId"],
     outgoing_user_attributes: [
-      { hull: "traits_outreach/title", service: "jobtitle" }
+      { hull: "traits_outreach/title", service: "jobtitle" },
+      { hull: "account.id", service: "custom_hubspot_account_id", overwrite: true },
+      { hull: "account.domain", service: "custom_hubspot_account_domain", overwrite: true }
     ],
     link_users_in_service: true
   }
@@ -29,7 +31,7 @@ const usersSegments = [
   }
 ];
 
-it("should filter because none of the mapped attributes have changed", () => {
+it("should allow through with mapped account attribute changes", () => {
   const email = "email@email.com";
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
@@ -42,10 +44,8 @@ it("should filter because none of the mapped attributes have changed", () => {
           .reply(200, require("../fixtures/get-contacts-groups"));
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, require("../fixtures/get-properties-companies-groups"));
-
-        // to comment out when we turn on filtering
         scope.post("/contacts/v1/contact/batch/?auditId=Hull",
-          [{"properties":[{"property":"hull_segments","value":"testSegment"}],"email":"email@email.com"}]
+          [{"properties":[{"property":"hull_custom_hubspot_account_id","value":"acc123"},{"property":"hull_custom_hubspot_account_domain","value":"doe.com"},{"property":"hull_segments","value":"testSegment"}],"email":"email@email.com"}]
         ).reply(202);
         return scope;
       },
@@ -121,29 +121,35 @@ it("should filter because none of the mapped attributes have changed", () => {
             "reason": "No changes on any of the synchronized attributes for this user.  If you think this is a mistake, please check the settings page for the synchronized user attributes to ensure that the attribute which changed is in the synchronized outgoing attributes"
           }
         ],
-
-        // To remove when turning on skipping
-        [ 'info',
-          'outgoing.user.skipcandidate',
-          { subject_type: 'user',
-            request_id: expect.whatever(),
-            user_email: 'email@email.com' },
-          { reason: 'attribute change not found', changes: expect.whatever() } ],
-        [ 'debug',
-          'connector.service_api.call',
-          { request_id: expect.whatever() },
-          { responseTime: expect.whatever(),
-            method: 'POST',
-            url: '/contacts/v1/contact/batch/',
-            status: 202,
-            vars: {} } ],
-        [ 'info',
-          'outgoing.user.success',
-          { subject_type: 'user',
-            request_id: expect.whatever(),
-            user_email: 'email@email.com' },
-          { properties: expect.whatever(), email: 'email@email.com' } ]
+        [
+          "info",
+          "outgoing.user.skipcandidate",
+          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
+          {
+            "reason": "attribute change not found",
+            "changes": expect.whatever()
+          }
         ],
+        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
+        [
+          "info",
+          "outgoing.user.success",
+          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
+          {
+            "email": "email@email.com",
+            "properties": [{
+              "property": "hull_custom_hubspot_account_id",
+              "value": "acc123"
+            }, {
+              "property": "hull_custom_hubspot_account_domain",
+              "value": "doe.com"
+            }, {
+              "property": "hull_segments",
+              "value": "testSegment",
+            }]
+          }
+        ]
+      ],
       firehoseEvents: [],
       metrics: [
         ["increment", "connector.request", 1],
