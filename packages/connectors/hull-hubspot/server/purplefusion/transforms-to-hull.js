@@ -29,7 +29,7 @@ const transformsToService: ServiceTransforms = [
       "              \"properties\":" +
       "                 $.{" +
       "                   \"email_campaign_id\": emailCampaignId," +
-      "                   \"email_subject\": $string(type & \" - \" & $emailContent.subject)," +
+      "                   \"email_subject\": $emailContent.subject," +
       "                   \"link_url\": url," +
       "                   \"portal_id\": portalId," +
       "                   \"email_id\": id," +

@@ -171,7 +171,7 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
             "source": "hubspot",
             "properties": {
               "email_campaign_id": 1,
-              "email_subject": "CLICK - Marketing Email 1",
+              "email_subject": "Marketing Email 1",
               "link_url": "http://nytimes.com/?utm_campaign=Newsletter&utm_source=hs_email&utm_medium=email&utm_content=76224413&_hsmi=76224413",
               "portal_id": 6015139,
               "email_id": "event_id_1",
@@ -195,7 +195,7 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
             "source": "hubspot",
             "properties": {
               "email_campaign_id": 2,
-              "email_subject": "PROCESSED - Marketing Email 2",
+              "email_subject": "Marketing Email 2",
               "portal_id": 6015139,
               "email_id": "event_id_2",
               "sent_by": "sentById",
@@ -218,7 +218,7 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
             "source": "hubspot",
             "properties": {
               "email_campaign_id": 1,
-              "email_subject": "SENT - Marketing Email 1",
+              "email_subject": "Marketing Email 1",
               "portal_id": 6015139,
               "email_id": "event_id_4",
               "sent_by": "sentById",

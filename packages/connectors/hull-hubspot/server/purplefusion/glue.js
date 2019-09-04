@@ -49,12 +49,14 @@ const glue = {
     set("eventsToFetch", "${connector.private_settings.events_to_fetch}")
   ],
   fetchAllEmailEvents: [
+    route("setEventMap"),
     set("service_name", "hubspot"),
     set("initialEndpoint", "getAllEmailEvents"),
     set("offsetEndpoint", "getAllEmailEventsWithOffset"),
     route("getEvents")
   ],
   fetchHotOffThePressEvents: [
+    route("setEventMap"),
     set("service_name", "hubspot"),
     set("startTimestamp", ex(ex(moment(), "subtract", { hours: 24 }), "valueOf")),
     set("initialEndpoint", "getRecentEmailEvents"),
@@ -63,6 +65,7 @@ const glue = {
   ],
   fetchRecentEmailEvents: [
     ifL("${connector.private_settings.fetch_email_events}", [
+      route("setEventMap"),
       set("service_name", "hubspot"),
       ifL(cond("notEmpty", settings("events_last_fetch_started_at")), {
         do: set("startTimestamp", ex(moment(settings("events_last_fetch_started_at")), "valueOf")),

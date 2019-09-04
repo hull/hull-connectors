@@ -18,7 +18,7 @@ const transforms = _.concat(
   require("../purplefusion/transforms-to-hull")
 );
 
-const ensureHook = "setEventMap";
+const ensureHook = "";
 
 class HubspotPurpleFusionRouter {
   hullRouter: HullRouter;
