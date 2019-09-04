@@ -380,16 +380,24 @@ class SequalizeSdk {
       });
   }
 
-  async mergeHullUser(merged_id: String, user_id: String) {
+  async mergeHullUser(
+    {
+      previous,
+      merged
+    }: {
+      previous: String,
+      merged: String
+    }
+  ) {
     return this.getSequelizeConnection()
       .model(this.eventTableName)
       .update(
         {
-          user_id: user_id
+          user_id: merged
         },
         {
           where: {
-            user_id: merged_id
+            user_id: previous
           }
         })
       .then(() => {
@@ -397,7 +405,7 @@ class SequalizeSdk {
           .model(this.userTableName)
           .destroy({
             where: {
-              id: merged_id
+              id: previous
             }
           })
       });

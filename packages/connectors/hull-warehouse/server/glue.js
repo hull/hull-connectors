@@ -97,7 +97,7 @@ const glue = {
       postgresJdbc("upsertHullUser", cast(HullOutgoingUser, "${message}")),
 
       iterateL(ld("filter", "${message.events}", { event_type: "user_merged" }), "event",
-        postgresJdbc("mergeHullUser", "${event.properties.merged_id}", "${event.user_id}")
+        postgresJdbc("mergeHullUser", {previous: "${event.properties.merged_id}", merged: "${event.user_id}"})
       )
     ])
   ),
