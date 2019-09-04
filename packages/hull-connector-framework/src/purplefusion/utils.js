@@ -350,7 +350,6 @@ function toSendMessage(
   }
 
   const attributesToSync = outgoingAttributes.map(attr => attr.hull);
-
   const entityAttributeChanges = _.get(message.changes, targetEntity, {});
 
   // if a user has mapped account attributes, have to filter like this
