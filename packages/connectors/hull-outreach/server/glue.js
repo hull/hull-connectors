@@ -183,6 +183,8 @@ const glue = {
       hull("asUser", "${prospectFromOutreach}")
     )
   ],
+
+  getProspectsById: iterateL(input(), { key: "message", async: true }, route("getProspectById", "${message}")),
   insertProspect: [
     route("linkAccount"),
     ifL(cond("notEmpty", set("userFromOutreach", outreach("insertProspect", input()))),

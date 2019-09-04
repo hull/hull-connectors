@@ -7,21 +7,28 @@ const {
 
 function filteredMessageCallback(context, dispatcher, dispatchPromise, objectType, dataToSkip) {
 
-  let promiseToReturn = dispatchPromise;
-
+  const prospectsToLookup = [];
   _.forEach(dataToSkip, dataToSkipElement => {
     if (objectType === HullOutgoingUser && dataToSkipElement.changes && dataToSkipElement.changes.is_new) {
       if (_.isEmpty(_.get(dataToSkipElement, "user.email"))
         && _.get(dataToSkipElement.user, "outreach/created_by_webhook") === true
         && _.get(dataToSkipElement.user, "outreach/id")) {
-        promiseToReturn = promiseToReturn.then(() => {
-          return dispatcher.dispatchWithData(context, "getProspectById", objectType, dataToSkipElement);
-        });
+        prospectsToLookup.push(dataToSkipElement);
       }
     }
   });
 
-  return promiseToReturn;
+  if (!_.isEmpty(prospectsToLookup)) {
+    return dispatchPromise.then(results => {
+      return dispatcher.dispatchWithData(context, "getProspectsById", objectType, prospectsToLookup)
+        .then(() => {
+          // return the original results
+          return Promise.resolve(results);
+        });
+    });
+  }
+
+  return dispatchPromise;
 }
 
 module.exports = filteredMessageCallback;
