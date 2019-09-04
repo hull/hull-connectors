@@ -89,7 +89,7 @@ class AuditUtil {
     const aggs = this.getAggregations();
     return this.hullClient.post("search/user_reports", {
       query,
-      search_type: "count",
+      per_page: 0,
       aggs
     });
   }
