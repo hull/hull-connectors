@@ -602,17 +602,6 @@
         "private_settings.synchronized_account_segments",
         "private_settings.outgoing_account_attributes"
       ]
-    },
-    {
-      "title": "Email Events - Fetching from Hubspot",
-      "description": "Fetch Email Events from Hubspot",
-      "properties": [
-        "private_settings.fetch_email_events",
-        "private_settings.events_to_fetch",
-        "private_settings.email_events_user_claims",
-        "json.fetch_all_email_events",
-        "json.fetch_recent_email_events"
-      ]
     }
   ]
 }
