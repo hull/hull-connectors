@@ -55,7 +55,7 @@ test("send batch account update to outreach in a batch", () => {
         const scope = nock("https://api.outreach.io");
 
         scope.get("/api/v2/webhooks/")
-          .reply(200, {body: {data: []}});
+          .reply(200, {data: []});
         scope
           .post("/api/v2/webhooks/")
           .reply(201, require("../fixtures/api-responses/create-webhook.json"));
@@ -81,7 +81,7 @@ test("send batch account update to outreach in a batch", () => {
         ["debug", "connector.service_api.call", expect.whatever(), {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/", "vars": {}}],
         ["debug", "connector.service_api.call", expect.whatever(), {"method": "PATCH", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/29", "vars": {}}],
         ["info", "outgoing.account.success", {"account_domain": "bluth.com", "account_id": expect.whatever(), "request_id": expect.whatever(), "subject_type": "account"}, expect.whatever()],
-        ["info", "incoming.account.success", expect.whatever(), {"data": {"attributes": {"outreach/id": {"operation": "set", "value": 29}}, "ident": {"anonymous_id": "outreach:29", "domain": "bluth.com"}}}],
+        ["info", "incoming.account.success", expect.whatever(), { data: require("../fixtures/api-responses/outgoing-account-bluth-patch.json").data, "type": "Account" }],
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "account"}]
       ],
       firehoseEvents: [
@@ -96,9 +96,7 @@ test("send batch account update to outreach in a batch", () => {
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()],
         ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.whatever()],
-        ["increment", "ship.outgoing.accounts", 1],
-        ["increment", "ship.incoming.accounts", 1]
+        ["value", "connector.service_api.response_time", expect.whatever()]
       ],
       platformApiCalls: [
         ["GET", "/api/v1/app", {}, {}],

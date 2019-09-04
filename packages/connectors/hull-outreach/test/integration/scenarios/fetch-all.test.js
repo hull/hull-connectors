@@ -79,7 +79,7 @@ test("fetch all accounts and prospects from outreach", () => {
       externalApiMock: () => {
         const scope = nock("https://api.outreach.io");
         scope.get("/api/v2/webhooks/")
-          .reply(200, {body: {data: []}});
+          .reply(200, {data: []});
         scope
           .post("/api/v2/webhooks/")
           .reply(201, require("../fixtures/api-responses/create-webhook.json"));
@@ -93,16 +93,16 @@ test("fetch all accounts and prospects from outreach", () => {
       },
       response: { status : "deferred"},
       logs: [
-        ["info", "incoming.job.start", {}, {"jobName": "Incoming Data Request"}],
+        ["info", "incoming.job.start", {}, {"jobName": "Incoming Data", "type": "webpayload"}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/", "vars": {}}],
-        ["info", "incoming.account.success", {}, {"data": {"attributes": {"outreach/custom1": {"operation": "set", "value": "some custom value"}, "outreach/custom10": {"operation": "set", "value": "another custom value"}, "outreach/id": {"operation": "set", "value": 1}}, "ident": {"anonymous_id": "outreach:1", "domain": "somehullcompany.com"}}}],
-        ["info", "incoming.account.success", {}, {"data": {"attributes": {"outreach/id": {"operation": "set", "value": 4}}, "ident": {"anonymous_id": "outreach:4", "domain": "noprospectshullcompany.com"}}}],
+        ["info", "incoming.account.success", { "account_anonymous_id": "outreach:1", "account_domain": "somehullcompany.com", "subject_type": "account", }, {"data": expect.whatever(), "type": "Account"}],
+        ["info", "incoming.account.success", { "account_anonymous_id": "outreach:4", "account_domain": "noprospectshullcompany.com", "subject_type": "account", }, {"data": expect.whatever(), "type": "Account"}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/", "vars": {}}],
-        ["info", "incoming.user.success", {}, {"data": {"accountIdent": {"anonymous_id": "outreach:1"}, "attributes": {"outreach/custom1": {"operation": "set", "value": "He's cool"}, "outreach/email_0": {"operation": "set", "value": "ceo@somehullcompany.com"}, "outreach/email_1": {"operation": "set", "value": "ceosomehull@somehullcompany.co"}, "outreach/email_2": {"operation": "set", "value": "mrceo@gmail.com"}, "outreach/id": {"operation": "set", "value": 1}, "outreach/personalNote1":  {"operation": "set", "value": "he's a cool guy I guess...."}, "outreach/tag_0": {"operation": "set", "value": "somehullcompanytag"}, "outreach/tag_1": {"operation": "set", "value": "anothertag"}}, "ident": {"anonymous_id": "outreach:1", "email": "ceo@somehullcompany.com"}}}],
-        ["info", "incoming.user.success", {}, {"data": {"accountIdent": {"anonymous_id": "outreach:3"}, "attributes": {"outreach/email_0": {"operation": "set", "value": "noAccountProspect@noaccount.com"}, "outreach/id": {"operation": "set", "value": 2}, "outreach/tag_0": {"operation": "set", "value": "somehullcompanytag2"}}, "ident": {"anonymous_id": "outreach:2", "email": "noAccountProspect@noaccount.com"}}}],
-        ["info", "incoming.job.success", {}, {"jobName": "Incoming Data Request"}]
+        ["info", "incoming.user.success", { "subject_type": "user", "user_anonymous_id": "outreach:1", "user_email": "ceo@somehullcompany.com", }, {"data": expect.whatever(), "type": "Prospect"}],
+        ["info", "incoming.user.success", { "subject_type": "user", "user_anonymous_id": "outreach:2", "user_email": "noAccountProspect@noaccount.com" }, {"data": expect.whatever(), "type": "Prospect"}],
+        ["info", "incoming.job.success", {}, {"jobName": "Incoming Data", "type": "webpayload"}]
       ],
       firehoseEvents: [
         ["traits", {"asAccount": {"anonymous_id": "outreach:1", "domain": "somehullcompany.com"}, "subjectType": "account"}, {"outreach/custom1": {"operation": "set", "value": "some custom value"}, "outreach/custom10": {"operation": "set", "value": "another custom value"}, "outreach/id": {"operation": "set", "value": 1}}],
@@ -125,15 +125,9 @@ test("fetch all accounts and prospects from outreach", () => {
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()],
 
-        ["increment", "ship.incoming.users", 1],
-        ["increment", "ship.incoming.users", 1],
-
         // Get Users
         ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.whatever()],
-
-        ["increment", "ship.incoming.accounts", 1],
-        ["increment", "ship.incoming.accounts", 1],
+        ["value", "connector.service_api.response_time", expect.whatever()]
       ],
       platformApiCalls: [
         // @TODO: I think the expectation below is wrong: When we have context passed in the request's body (such as what's the case with Scheduled Calls here)

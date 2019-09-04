@@ -21,6 +21,10 @@ const moment = require("moment");
 const debug = require("debug")("hull-hubspot:sync-agent");
 
 const { pipeStreamToPromise } = require("hull/src/utils");
+const {
+  toSendMessage
+} = require("hull-connector-framework/src/purplefusion/utils");
+
 const HubspotClient = require("./hubspot-client");
 const ContactPropertyUtil = require("./sync-agent/contact-property-util");
 const CompanyPropertyUtil = require("./sync-agent/company-property-util");
@@ -29,8 +33,6 @@ const ProgressUtil = require("./sync-agent/progress-util");
 const FilterUtil = require("./sync-agent/filter-util");
 
 const hullClientAccountPropertiesUtil = require("../hull-client-account-properties-util");
-
-const { toSendMessage } = require("../../../hull-outreach/server/shared/utils");
 
 class SyncAgent {
   hubspotClient: HubspotClient;
@@ -431,6 +433,8 @@ class SyncAgent {
     });
 
     try {
+      const noChangesSkip = [];
+
       filterResults.toInsert.forEach(envelope => {
         const toSend = toSendMessage(this.ctx, "user", envelope.message, {
           serviceName: "hubspot",
@@ -443,7 +447,13 @@ class SyncAgent {
               reason: "attribute change not found",
               changes: _.get(envelope, "message.changes")
             });
+          // add this when ready to enable
+          // noChangesSkip.push(envelope);
         }
+      });
+
+      noChangesSkip.forEach(envelope => {
+        _.pull(filterResults.toInsert, envelope);
       });
     } catch (err) {
       console.log(err);
