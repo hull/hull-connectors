@@ -381,39 +381,26 @@ class SequalizeSdk {
   }
 
   async mergeHullUser(merged_id: String, user_id: String) {
-    const mergeEventsPromise = this.getSequelizeConnection()
+    return this.getSequelizeConnection()
       .model(this.eventTableName)
-      .findAll({
-        where: {
-          user_id: merged_id
+      .update(
+        {
+          user_id: user_id
         },
-        attributes: [
-          "user_id"
-        ]
-      })
-      .then((rows: Array) => {
-        return rows.length === 0 ? [] : _.rows.map(rows, event => {
-          event.user_id = user_id;
+        {
+          where: {
+            user_id: merged_id
+          }
         })
-          .then((newRows: Array) => {
-            return this.getSequelizeConnection()
-              .model(this.eventTableName)
-              .upsert(newRows, {
-                  fields: [
-                    "user_id"
-                  ]
-                }
-              );
+      .then(() => {
+        this.getSequelizeConnection()
+          .model(this.userTableName)
+          .destroy({
+            where: {
+              id: merged_id
+            }
           })
       });
-    const deleteUserPromise = this.getSequelizeConnection()
-        .model(this.userTableName)
-        .destroy({
-          where: {
-            id: merged_id
-          }
-        });
-    return Promise.all([mergeEventsPromise, deleteUserPromise]);
   }
 
   async removeHullAccount(id: String) {
