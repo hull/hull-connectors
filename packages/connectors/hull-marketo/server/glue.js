@@ -51,7 +51,14 @@ const leadExportBody = {
       endAt: "${endAt}"
     }
   }
-}
+};
+
+const eventNameMapping =  {
+  "Send Email": "Email Sent",
+  "Click Email": "Email Link Clicked",
+  "Open Email": "Email Opened",
+  "Unsubscribe Email": "Unsubscribed"
+};
 
 const glue = {
   // Simple status which will return setup required if we don't have credentials filled out
@@ -73,6 +80,9 @@ const glue = {
     }
   }),
 
+  // Hmmmm this is configured logic seems to be a prerequisite to do anything
+  // maybe the ensure route needs to call it automatically and stop it
+  // that being said, it shouldn't stop it for "status" endpoint
   isConfigured: cond("allTrue", [
     cond("notEmpty", settings("marketo_client_id")),
     cond("notEmpty", settings("marketo_client_secret")),
@@ -81,29 +91,28 @@ const glue = {
   ]),
 
   // gets new authentication token, called if we our access token is denied, and we need to get a new token
-  getAuthenticationToken: {
-    if: route("isConfigured"),
-    do: [
-      set("newAccessToken", marketo("getAuthenticationToken")),
-      settingsUpdate({
-        access_token: "${newAccessToken.access_token}",
-        expires_in: "${newAccessToken.expires_in}",
-        scope: "${newAccessToken.scope}"
-      })
-    ]
-  },
+  getAuthenticationToken: ifL(route("isConfigured"), [
+    set("newAccessToken", marketo("getAuthenticationToken")),
+    settingsUpdate({
+      access_token: "${newAccessToken.access_token}",
+      expires_in: "${newAccessToken.expires_in}",
+      scope: "${newAccessToken.scope}"
+    })
+  ]),
 
+  // This isConfigured logic seems kinda redundant... especially when I have to return {} everything otherwise for these endpoints
   // Sometimes fields can be in the thousands, so hit the refresh on a schedule, instead of pulling on demand
-  refreshCustomAttributes: cacheWrap(1200, marketo("describeLeads")),
-  attributesLeadsIncoming: transformTo(HullIncomingDropdownOption, route("refreshCustomAttributes")),
-  attributesLeadsOutgoing: transformTo(HullOutgoingDropdownOption, route("refreshCustomAttributes")),
+  refreshCustomAttributes: ifL(route("isConfigured"), { do: cacheWrap(1200, marketo("describeLeads")), eldo: {} }),
+  attributesLeadsIncoming: ifL(route("isConfigured"), { do: transformTo(HullIncomingDropdownOption, route("refreshCustomAttributes")), eldo: {} }),
+  attributesLeadsOutgoing: ifL(route("isConfigured"), { do: transformTo(HullOutgoingDropdownOption, route("refreshCustomAttributes")), eldo: {} }),
 
   // Setup marketo api from the configured values
   ensureSetup:
     ifL(route("isConfigured"), [
       set("marketoApiUrl", ld("replace", ld("trim", settings("marketo_identity_url")), /\/identity$/, "")),
       ifL(cond("isEmpty", settings("access_token")), route("getAuthenticationToken")),
-      set("service_name", "marketo")
+      set("service_name", "marketo"),
+      set("eventMapToHull", eventNameMapping)
     ]),
 
   //don't do anything on ship update
@@ -295,8 +304,7 @@ const glue = {
   // Works, but may need to make sure we add the claims to the incoming values too
   // because if not, this is so slow we have to do asynch true, which means, we don't get the value for each user that we're uploading
   // must get it on the other way around like hubspot...
-  userUpdate: [
-    // route("leadLookup"),
+  userUpdate: ifL(route("isConfigured"), [
     set("messages", input()),
     iterateL(settings("user_claims"), "user_claim",
       ifL(cond("notEmpty", "${messages}"), [
@@ -309,7 +317,7 @@ const glue = {
     ifL(cond("notEmpty", "${messages}"),
       hull("outgoingSkip", "${messages}")
     )
-  ],
+  ]),
 
   // This is going to be an interesting one to do right
   // using batch lookup points, and once you find something, filtering on the rest of the attributes

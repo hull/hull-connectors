@@ -134,7 +134,8 @@ class SequalizeSdk {
         define: {
           // prevent sequelize from pluralizing table names
           freezeTableName: true
-        }
+        },
+        logging: false
       };
       databases[this.connectorId] = new Sequelize(this.connectionString, opts);
     }
@@ -307,26 +308,23 @@ class SequalizeSdk {
     return objectToUpsert;
   }
 
-  async upsertHullAccount(messages: Array<any>) {
-    return Promise.all(
-      messages.map(message => {
-        const sequelizedAccount = this.createSequelizedObject(message.account);
-        if (message.account_segments) {
-          const segments = [];
-          _.forEach(message.account_segments, segment => {
-            if (!isUndefinedOrNull(segment)) {
-              segments.push(segment.name);
-            }
-          });
-          sequelizedAccount.segments = JSON.stringify(segments);
+  async upsertHullAccount(message: any) {
+    const sequelizedAccount = this.createSequelizedObject(message.account);
+    if (message.account_segments) {
+      const segments = [];
+      _.forEach(message.account_segments, segment => {
+        if (!isUndefinedOrNull(segment)) {
+          segments.push(segment.name);
         }
-        return this.getSequelizeConnection()
-          .model(this.accountTableName)
-          .upsert(sequelizedAccount);
-      }));
+      });
+      sequelizedAccount.segments = JSON.stringify(segments);
+    }
+    return this.getSequelizeConnection()
+      .model(this.accountTableName)
+      .upsert(sequelizedAccount);
   }
 
-  async upsertHullUser(messages: Array<any>) {
+  async upsertHullUser(message: any) {
 
     // https://stackoverflow.com/questions/48124949/nodejs-sequelize-bulk-upsert
 
@@ -340,45 +338,42 @@ class SequalizeSdk {
     //       console.log(`Created User: ${JSON.stringify(createdUser)}`);
     //     });
 
-    return Promise.all(
-      messages.map(message => {
-        const sequelizedUser = this.createSequelizedObject(message.user);
-        if (message.account) {
-          sequelizedUser.account_id = message.account.id;
-        }
+    const sequelizedUser = this.createSequelizedObject(message.user);
+    if (message.account) {
+      sequelizedUser.account_id = message.account.id;
+    }
 
-        if (message.segments) {
-          const segments = [];
-          _.forEach(message.segments, segment => {
-            if (!isUndefinedOrNull(segment)) {
-              segments.push(segment.name);
-            }
-          });
-          sequelizedUser.segments = JSON.stringify(segments);
+    if (message.segments) {
+      const segments = [];
+      _.forEach(message.segments, segment => {
+        if (!isUndefinedOrNull(segment)) {
+          segments.push(segment.name);
         }
+      });
+      sequelizedUser.segments = JSON.stringify(segments);
+    }
 
-        if (!sequelizedUser.id) {
-          return Promise.resolve();
+    if (!sequelizedUser.id) {
+      return Promise.resolve();
+    }
+    return this.getSequelizeConnection()
+      .model(this.userTableName)
+      .upsert(sequelizedUser)
+      .then(() => {
+        if (message.events) {
+          return Promise.all(
+            message.events.map(event => {
+              if (typeof event.event !== "string") {
+                event.event = "Invalid Name";
+              }
+              return this.getSequelizeConnection()
+                .model(this.eventTableName)
+                .upsert(event);
+            })
+          );
         }
-        return this.getSequelizeConnection()
-          .model(this.userTableName)
-          .upsert(sequelizedUser)
-          .then(() => {
-            if (message.events) {
-              return Promise.all(
-                message.events.map(event => {
-                  if (typeof event.event !== "string") {
-                    event.event = "Invalid Name";
-                  }
-                  return this.getSequelizeConnection()
-                    .model(this.eventTableName)
-                    .upsert(event);
-                })
-              );
-            }
-            return Promise.resolve();
-          });
-      }));
+        return Promise.resolve();
+      });
   }
 }
 

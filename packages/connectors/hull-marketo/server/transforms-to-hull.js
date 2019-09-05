@@ -61,11 +61,14 @@ const transformsToHull: ServiceTransforms = [
         condition: inputIsNotEqual("activityTypeId", 13),
         expression:
           "$.(\n" +
+          "$marketoName := $lookup($activityTypeIdMap, $string(activityTypeId));\n" +
+          "$hullName := $lookup($eventMapToHull, $marketoName);\n" +
+          "$eventName := $exists($hullName) ? $hullName : $marketoName;\n" +
           "{\n" +
           "\t\"id\": leadId,\n" +
           "\t\"hull_events\": [\n" +
           "      {\n" +
-          "    \t\"eventName\": $lookup($activityTypeIdMap, $string(activityTypeId)),\n" +
+          "    \t\"eventName\": $eventName,\n" +
           "    \t\"properties\": $merge(attributes.{ name: value }),\n" +
           "        \"context\": { \"event_id\": id, \"created_at\": activityDate }\n" +
           "      }\n" +

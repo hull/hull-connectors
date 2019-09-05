@@ -156,6 +156,7 @@ class PurpleFusionTestHarness {
 
     return hullDispatcher.dispatch(context, requestTrace.route, request)
       .then((results) => {
+        hullDispatcher.close();
         // This makes sure that all mocks have been called
         // this array should be empty at the end
         // we remove the calls that have been made
@@ -168,6 +169,7 @@ class PurpleFusionTestHarness {
         expect(results).toEqual(requestTrace.result);
         return Promise.resolve(results);
       }).catch(error => {
+        hullDispatcher.close();
 
         // this will hide errors as a result of bad jest expectations...
         // because a bad expect inside will throw here in cases where the end result is an error
