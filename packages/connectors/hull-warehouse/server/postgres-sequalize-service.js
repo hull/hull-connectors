@@ -375,6 +375,47 @@ class SequalizeSdk {
         return Promise.resolve();
       });
   }
+
+  async mergeHullUser(
+    {
+      previous,
+      merged
+    }: {
+      previous: String,
+      merged: String
+    }
+  ) {
+    return this.getSequelizeConnection()
+      .model(this.eventTableName)
+      .update(
+        {
+          user_id: merged
+        },
+        {
+          where: {
+            user_id: previous
+          }
+        })
+      .then(() => {
+        this.getSequelizeConnection()
+          .model(this.userTableName)
+          .destroy({
+            where: {
+              id: previous
+            }
+          })
+      });
+  }
+
+  async removeHullAccount(id: String) {
+    return this.getSequelizeConnection()
+      .model(this.accountTableName)
+      .destroy({
+        where: {
+          id
+        }
+      });
+  }
 }
 
 const postgresSdk = ({ clientID, clientSecret } : {

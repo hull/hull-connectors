@@ -15,7 +15,8 @@ const {
   Svc,
   settings,
   obj,
-  cast
+  cast,
+  ld
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -81,13 +82,20 @@ const glue = {
   ]),
 
   accountUpdate: ifL(route("hasRequiredFields"),
-    iterateL(input(), { key: "message", async: true },
-      postgresJdbc("upsertHullAccount", cast(HullOutgoingAccount, "${message}")))),
-
+    iterateL(input(), { key: "message", async: true }, [
+      postgresJdbc("upsertHullAccount", cast(HullOutgoingAccount, "${message}")),
+    ])
+  ),
   userUpdate: ifL(route("hasRequiredFields"),
-    iterateL(input(), { key: "message", async: true },
-      postgresJdbc("upsertHullUser", cast(HullOutgoingUser, "${message}")))),
+    iterateL(input(), { key: "message", async: true }, [
 
+      postgresJdbc("upsertHullUser", cast(HullOutgoingUser, "${message}")),
+
+      iterateL(ld("filter", "${message.events}", { event_type: "user_merged" }), "event",
+        postgresJdbc("mergeHullUser", {previous: "${event.properties.merged_id}", merged: "${event.user_id}"})
+      )
+    ])
+  ),
   ensureHook: ifL(route("hasRequiredFields"), [
     set("currentDatabaseSettings",
       "${connector.private_settings.db_username}|" +
