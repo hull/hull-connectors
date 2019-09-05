@@ -36,7 +36,7 @@ class HubspotPurpleFusionRouter {
     });
   }
 
-  async invokeRoute(ctx: HullContext) {
+  async invokeRoute(ctx: HullContext, data: Object) {
     let endpoint = _.find(_.get(manifest, "json", []), {
       handler: this.route
     });
@@ -47,7 +47,13 @@ class HubspotPurpleFusionRouter {
       });
     }
 
-    return this.hullRouter.createIncomingDispatchCallback(endpoint)(ctx);
+    if (_.isNil(endpoint)) {
+      endpoint = _.find(_.get(manifest, "incoming", []), {
+        handler: this.route
+      });
+    }
+
+    return this.hullRouter.createIncomingDispatchCallback(endpoint)(ctx, data);
   }
 }
 

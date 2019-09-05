@@ -560,6 +560,12 @@
       }
     }
   ],
+  "incoming": [
+    {
+      "url": "/webhooks/hull-hubspot-webhook",
+      "handler": "incomingWebhooksHandler"
+    }
+  ],
   "settings_sections": [
     {
       "title": "Connect with Hubspot",
