@@ -63,11 +63,11 @@ const transformsToService: ServiceTransforms = [
       {
         condition: [
           isEqual("actionTaken", "DELETED"),
-          isNotEqual("webhookEntity", "company")
+          isNotEqual("hubspotEntity", "company")
         ],
         expression: "{" +
           "   \"ident\": {" +
-          "        \"id\": objectId" +
+          "        \"anonymous_id\": \"hubspot:\" & objectId" +
           "   }," +
           "   \"attributes\": {" +
           "       \"hubspot/deleted_at\": occurredAt" +
@@ -86,11 +86,11 @@ const transformsToService: ServiceTransforms = [
       {
         condition: [
           isEqual("actionTaken", "DELETED"),
-          isEqual("webhookEntity", "company")
+          isEqual("hubspotEntity", "company")
         ],
         expression: "{" +
           "   \"ident\": {" +
-          "        \"id\": objectId" +
+          "        \"anonymous_id\": \"hubspot:\" & objectId" +
           "   }," +
           "   \"attributes\": {" +
           "       \"hubspot/deleted_at\": occurredAt" +

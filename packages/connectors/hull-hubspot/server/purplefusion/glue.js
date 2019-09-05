@@ -77,7 +77,9 @@ const glue = {
           hull("asUser", cast(HubspotWebhookPayload, "${webhookAction}"))
         ],
         eldo: [
-          hull("asAccount", cast(HubspotWebhookPayload, "${webhookAction}"))
+          ifL("${connector.private_settings.handle_accounts}", [
+            hull("asAccount", cast(HubspotWebhookPayload, "${webhookAction}"))
+          ])
         ]
       })
     ])

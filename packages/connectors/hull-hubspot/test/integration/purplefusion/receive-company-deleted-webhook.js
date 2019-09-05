@@ -7,14 +7,15 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
 
 
-it("Receive Webhook - contact deleted payload ", () => {
+it("Receive Webhook - company deleted payload ", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.incomingRequestHandler,
       handlerUrl: "incoming-webhooks-handler",
       connector: {
         private_settings: {
-          portal_id: "1234"
+          portal_id: "1234",
+          handle_accounts: true
         }
       },
       usersSegments: [],
@@ -28,7 +29,7 @@ it("Receive Webhook - contact deleted payload ", () => {
                 "subscriptionId": 162971,
                 "portalId": 6038822,
                 "occurredAt": 1567689104280,
-                "subscriptionType": "contact.deletion",
+                "subscriptionType": "company.deletion",
                 "attemptNumber": 0,
                 "objectId": 123,
                 "changeSource": "CRM",
@@ -39,14 +40,14 @@ it("Receive Webhook - contact deleted payload ", () => {
       response: { "ok": true },
       logs: [
         ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" }],
-        ["info", "incoming.user.success", { "subject_type": "user", "user_anonymous_id": "hubspot:123"},
+        ["info", "incoming.account.success", { "subject_type": "account", "account_anonymous_id": "hubspot:123" },
           {
             "data": {
               "eventId": 1,
               "subscriptionId": 162971,
               "portalId": 6038822,
               "occurredAt": 1567689104280,
-              "subscriptionType": "contact.deletion",
+              "subscriptionType": "company.deletion",
               "attemptNumber": 0,
               "objectId": 123,
               "changeSource": "CRM",
@@ -59,8 +60,8 @@ it("Receive Webhook - contact deleted payload ", () => {
       ],
       firehoseEvents: [
         ["traits",
-          { "asUser": { "anonymous_id": "hubspot:123" },
-            "subjectType": "user" },
+          { "asAccount": { "anonymous_id": "hubspot:123" },
+            "subjectType": "account" },
           { "hubspot/deleted_at": 1567689104280 }
         ]
       ],
