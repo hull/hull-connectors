@@ -15,4 +15,8 @@ describe("Warehouse User Tests", () => {
   it("test unconfigured status", () => {
     return harness.runTest(require("./fixtures/status-notconfigured"));
   });
+
+  it("test merge event", () => {
+    return harness.runTest(require("./fixtures/outgoing-merge-event"));
+  });
 });
