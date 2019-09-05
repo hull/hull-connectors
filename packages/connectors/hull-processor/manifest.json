@@ -91,7 +91,7 @@
           ]
         },
         "segments": {
-          "users:update": "private_settings.synchronized_user_segments"
+          "user:update": "private_settings.synchronized_user_segments"
         }
       },
       "channels": [

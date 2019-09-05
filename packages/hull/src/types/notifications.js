@@ -137,6 +137,9 @@ export type HullNotification = {
     secret: string,
     organization: string
   },
+  kraken: {
+    retries: number
+  },
   channel: string,
   connector: HullConnector,
   segments: Array<HullUserSegment>,
