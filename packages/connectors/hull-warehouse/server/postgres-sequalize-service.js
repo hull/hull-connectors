@@ -192,10 +192,6 @@ class SequalizeSdk {
     }
   }
 
-  async justLog(data) {
-    console.log(data);
-  }
-
   generateSequelizeSchema(hullSchema: Array<any>) {
     const fields = {};
 
