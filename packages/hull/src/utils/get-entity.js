@@ -60,7 +60,7 @@ export const searchEvents = (ctx: HullContext) => async ({
     query.push({ terms: { event: names } });
   }
   const { data = [] } = await ctx.client.post("search/events", {
-    query: { and: query },
+    query: { bool: { filter: query } },
     sort: { created_at: "desc" },
     raw: true,
     page,
