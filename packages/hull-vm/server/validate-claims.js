@@ -45,11 +45,12 @@ export const isValidClaim = (
   }
 };
 
-export const hasValidClaims = (entity: HullEntityType, acceptsEmpty: boolean) => (
-  claims: HullEntityClaims,
-  client: HullClient
-) => isValidClaim(claims, client, entity, acceptsEmpty);
+export const hasValidClaims = (
+  entity: HullEntityType,
+  acceptsEmpty: boolean
+) => (claims: HullEntityClaims, client: HullClient) =>
+  isValidClaim(claims, client, entity, acceptsEmpty);
 
-export const hasValidUserClaims = hasValidClaims("user");
-export const hasValidAccountClaims = hasValidClaims("account");
+export const hasValidUserClaims = hasValidClaims("user", false);
+export const hasValidAccountClaims = hasValidClaims("account", false);
 export const hasValidLinkclaims = hasValidClaims("account", true);
