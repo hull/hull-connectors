@@ -100,7 +100,7 @@ it("Basic fetch all email events - single event to fetch", () => {
               "email_body": "[html-body]\nEmail Body",
               "email_campaign_id": 10,
               "email_id": "event_id_3",
-              "email_subject": "OPEN - Newsletter",
+              "email_subject": "Newsletter",
               "last_imported_at": expect.whatever(),
               "portal_id": 6015139,
               "recipient": "email@gmail.com",

@@ -441,7 +441,14 @@ class SyncAgent {
           sendOnAnySegmentChanges: true
         });
         if (!toSend) {
-          noChangesSkip.push(envelope);
+          this.hullClient
+            .asUser(envelope.message.user)
+            .logger.info("outgoing.user.skipcandidate", {
+              reason: "attribute change not found",
+              changes: _.get(envelope, "message.changes")
+            });
+          // add this when ready to enable
+          // noChangesSkip.push(envelope);
         }
       });
 

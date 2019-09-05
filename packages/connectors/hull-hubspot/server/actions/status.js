@@ -79,14 +79,24 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
   if (
     _.isEmpty(
       _.get(connector, "private_settings.synchronized_user_segments", [])
-    ) ||
+    )
+  ) {
+    pushMessage(
+      "ok",
+      "No users will be sent from Hull to Hubspot because there are no whitelisted segments configured. If you want to enable outgoing user traffic, please visit the connector settings page and add user segments to be sent to Hubspot, otherwise please ignore this notification."
+    );
+  }
+
+  // Separating these two checks for clearer user guidance
+  // during connector setup
+  if (
     _.isEmpty(
       _.get(connector, "private_settings.synchronized_account_segments", [])
     )
   ) {
     pushMessage(
       "ok",
-      "No users or accounts will be sent from Hull to Hubspot because there are no whitelisted segments configured. If you want to enable outgoing traffic, please visit the connector settings page and add segments to be sent to Hubspot, otherwise please ignore this notification."
+      "No accounts will be sent from Hull to Hubspot because there are no whitelisted segments configured. If you want to enable outgoing account traffic, please visit the connector settings page and add account segments to be sent to Hubspot, otherwise please ignore this notification."
     );
   }
 
