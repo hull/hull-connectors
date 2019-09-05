@@ -83,12 +83,7 @@ const glue = {
 
   accountUpdate: ifL(route("hasRequiredFields"),
     iterateL(input(), { key: "message", async: true }, [
-
       postgresJdbc("upsertHullAccount", cast(HullOutgoingAccount, "${message}")),
-
-      iterateL(ld("filter", "${message.events}", { event_type: "account_merged" }), "event",
-        postgresJdbc("removeHullAccount", "${event.properties.merged_id}")
-      )
     ])
   ),
   userUpdate: ifL(route("hasRequiredFields"),
