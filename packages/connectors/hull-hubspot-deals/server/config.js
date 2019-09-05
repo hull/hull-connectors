@@ -5,7 +5,6 @@ import manifest from "../manifest.json";
 
 const _ = require("lodash");
 const HullRouter = require("hull-connector-framework/src/purplefusion/router");
-require('dotenv').config()
 
 export default function connectorConfig(): HullConnectorConfig {
     const {

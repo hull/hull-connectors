@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.1.3-monorepo
+- Merging new Marketo connector to master branch
+- Merging new Warehouse connector to master branch
+- Consolidated filtering logic from previous master with new filtering logic
+- moved purplefusion to hull-connector-framework
+
 ## v0.1.2-monorepo
 - Using connector name inferred from manifest and new hubspot doc
 
