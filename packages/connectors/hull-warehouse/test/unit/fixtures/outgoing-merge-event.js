@@ -92,6 +92,6 @@ module.exports = {
     }
   ],
   "result": {
-    hello: 1234
+    status: "stop"
   }
 };
