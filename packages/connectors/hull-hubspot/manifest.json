@@ -416,6 +416,15 @@
   },
   "schedules": [
     {
+      "url": "/check-cache",
+      "type": "interval",
+      "value": "10",
+      "handler": "checkCache",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
       "url": "/fetch-recent-contacts",
       "type": "interval",
       "value": "5",

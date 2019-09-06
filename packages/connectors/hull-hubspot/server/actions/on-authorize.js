@@ -28,7 +28,10 @@ const onAuthorize = async (
     `/oauth/v1/access-tokens/${accessToken}`
   );
   const portalId = res.body.hub_id;
-  await ctx.cache.cache.set(`hubspot:${portalId}`, ctx.clientCredentials);
+  ctx.cache.cache.set(`hubspot:${portalId}`, ctx.clientCredentials, {
+    ttl: 86400
+  });
+
   return {
     private_settings: {
       portal_id: portalId,
