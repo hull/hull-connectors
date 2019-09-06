@@ -64,15 +64,21 @@ function generateEncryptedToken(clientCredentials, secret) {
 }
 
 async function getClientCredentials(clientCredentials, req) {
-  const connectorName = _.get(req, "hull.clientConfig.connectorName", "");
+  const clientConfig = _.get(req, "hull.clientConfig");
+  const connectorName = _.get(clientConfig, "connectorName", "");
+
+  const path = _.get(clientConfig, "cachedCredentials.payloadPath", null);
+  const field = _.get(clientConfig, "cachedCredentials.field", null);
 
   if (
-    connectorName === "hubspot" &&
+    !_.isNil(path) &&
+    !_.isNil(field) &&
     (_.isNil(clientCredentials) ||
       _.isEmpty(_.compact(_.values(clientCredentials))))
   ) {
-    const hubspotPortalId = _.get(req.body[0], "portalId", "");
-    return req.hull.cache.cache.get(`hubspot:${hubspotPortalId}`);
+    const payload = _.get(req, path, {});
+    const credentialsKey = _.get(payload, field, "");
+    return req.hull.cache.cache.get(`${connectorName}:${credentialsKey}`);
   }
 
   return clientCredentials;

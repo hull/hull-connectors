@@ -47,7 +47,11 @@ export default function connectorConfig(): HullConnectorConfig {
       logLevel: LOG_LEVEL
     },
     clientConfig: {
-      firehoseUrl: OVERRIDE_FIREHOSE_URL
+      firehoseUrl: OVERRIDE_FIREHOSE_URL,
+      cachedCredentials: {
+        field: "portalId",
+        payloadPath: "body[0]"
+      }
     }
   };
 }
