@@ -12,16 +12,12 @@ async function checkCache(ctx: HullContext): HullExternalResponse {
 
   const orgSettings = _.pick(clientCredentials, "organization", "id", "secret");
   if (!_.isNil(portalId) && _.keys(orgSettings).length === 3) {
-    ctx.cache.cache.ttl(`hubspot:${portalId}`, (err, ttl) => {
-      if (ttl) {
-        const thirtyMinutes = 60 * 30;
-        if (ttl < thirtyMinutes) {
-          ctx.cache.cache.set(`hubspot:${portalId}`, ctx.clientCredentials, {
-            ttl: 86400
-          });
-        }
-      }
-    });
+    const clientConfig = await ctx.cache.cache.get(`hubspot:${portalId}`);
+    if (_.isNil(clientConfig)) {
+      ctx.cache.cache.set(`hubspot:${portalId}`, ctx.clientCredentials, {
+        ttl: 0
+      });
+    }
   }
 
   return {

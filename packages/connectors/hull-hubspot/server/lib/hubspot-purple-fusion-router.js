@@ -1,6 +1,5 @@
 /* @flow */
 import type { HullContext } from "hull/src/types/context";
-import manifest from "../../manifest";
 
 const _ = require("lodash");
 
@@ -37,21 +36,9 @@ class HubspotPurpleFusionRouter {
   }
 
   async invokeRoute(ctx: HullContext, data: Object) {
-    let endpoint = _.find(_.get(manifest, "json", []), {
+    const endpoint = {
       handler: this.route
-    });
-
-    if (_.isNil(endpoint)) {
-      endpoint = _.find(_.get(manifest, "schedules", []), {
-        handler: this.route
-      });
-    }
-
-    if (_.isNil(endpoint)) {
-      endpoint = _.find(_.get(manifest, "incoming", []), {
-        handler: this.route
-      });
-    }
+    };
 
     return this.hullRouter.createIncomingDispatchCallback(endpoint)(ctx, data);
   }

@@ -29,7 +29,7 @@ const onAuthorize = async (
   );
   const portalId = res.body.hub_id;
   ctx.cache.cache.set(`hubspot:${portalId}`, ctx.clientCredentials, {
-    ttl: 86400
+    ttl: 0
   });
 
   return {
