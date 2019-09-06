@@ -64,9 +64,12 @@ function generateEncryptedToken(clientCredentials, secret) {
 }
 
 async function getClientCredentials(clientCredentials, req) {
+  const connectorName = _.get(req, "hull.clientConfig.connectorName", "");
+
   if (
-    _.isNil(clientCredentials) ||
-    _.isEmpty(_.compact(_.values(clientCredentials)))
+    connectorName === "hubspot" &&
+    (_.isNil(clientCredentials) ||
+      _.isEmpty(_.compact(_.values(clientCredentials))))
   ) {
     const hubspotPortalId = _.get(req.body[0], "portalId", "");
     return req.hull.cache.cache.get(`hubspot:${hubspotPortalId}`);
@@ -120,10 +123,7 @@ function credentialsFromQueryMiddlewareFactory() {
         );
       }
 
-      const connectorName = _.get(req, "hull.clientConfig.connectorName", "");
-      if (connectorName === "hubspot") {
-        clientCredentials = await getClientCredentials(clientCredentials, req);
-      }
+      clientCredentials = await getClientCredentials(clientCredentials, req);
 
       // Re-generate tokens based on the actual configuration we ended up using
       const clientCredentialsToken = generateToken(

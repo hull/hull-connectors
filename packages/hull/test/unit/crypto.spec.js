@@ -37,8 +37,11 @@ describe("crypto", () => {
     const res = {};
     const next = sinon.spy();
     const mw = middleware();
-    mw(req, res, next);
-    expect(req.hull.clientCredentials).to.deep.equal(configuration);
-    expect(next).to.have.callCount(1);
+    return mw(req, res, next).then(() => {
+      expect(req.hull.clientCredentials).to.deep.equal(configuration);
+      expect(next).to.have.callCount(1);
+      return Promise.resolve();
+    });
+
   });
 });
