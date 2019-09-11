@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.1.4-monorepo
+- merge hubspot incoming events
+
 ## v0.1.3-monorepo
 - Merging new Marketo connector to master branch
 - Merging new Warehouse connector to master branch
