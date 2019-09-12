@@ -4,8 +4,7 @@ const _ = require("lodash");
 
 const { isUndefinedOrNull } = require("../utils");
 
-const { oAuthHandler } = require("hull/src/handlers");
-const {  } = require("./hubspot-oauth");
+const { hubspotOAuth } = require("./hubspot-oauth");
 const { oauth2 } = require("./oauth2");
 
 function getServiceOAuthParams(manifest, serviceDefinitions) {
@@ -15,12 +14,13 @@ function getServiceOAuthParams(manifest, serviceDefinitions) {
 
   if (!isUndefinedOrNull(primaryService) && primaryService.authentication) {
     const authentication = primaryService.authentication;
-    return _.cloneDeep(authentication.params);
-    // if (authentication.strategy === "oauth2") {
-    //   return _.cloneDeep(authentication.params);
-    // } else if (authentication.strategy === "hubspotoauth") {
-    //   return _.cloneDeep(authentication.params);
-    // }
+    const params = _.cloneDeep(authentication.params);
+    if (authentication.strategy === "oauth2") {
+      _.merge(params, oauth2);
+    } else if (authentication.strategy === "hubspotoauth") {
+      _.merge(params, hubspotOAuth);
+    }
+    return params;
   }
   return null;
 }

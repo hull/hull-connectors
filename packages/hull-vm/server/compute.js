@@ -18,14 +18,7 @@ import scopedUserMethods from "./sandbox/user_methods";
 const LIBS = { _, moment, urijs };
 export default async function compute(
   ctx: HullContext,
-  {
-    payload,
-    code,
-    preview,
-    claims,
-    source,
-    entityType = "user"
-  }: ComputeOptions
+  { payload, code, preview, claims, source, entityType }: ComputeOptions
 ): Promise<Result> {
   const { connector, client } = ctx;
   const result = {

@@ -99,6 +99,8 @@ module.exports = [
           errors: [],
           userTraits: [[{ id: "123" }, { "my-group/customerioid": "321" }]],
           accountTraits: [],
+          claims: undefined,
+          entityType: undefined,
           events: [],
           accountLinks: [],
           success: true,
@@ -225,6 +227,8 @@ module.exports = [
               }
             ]
           ],
+          claims: undefined,
+          entityType: undefined,
           events: [
             {
               claims: {
@@ -432,6 +436,8 @@ module.exports = [
               { linkedAccountFoo: "linkedAccountBar" }
             ]
           ],
+          claims: undefined,
+          entityType: undefined,
           events: [
             {
               claims: {
@@ -611,6 +617,8 @@ module.exports = [
             ]
           ],
           accountTraits: [],
+          claims: undefined,
+          entityType: undefined,
           events: [
             {
               claims: {
@@ -723,6 +731,8 @@ module.exports = [
               { customerioid: "4567" }
             ]
           ],
+          claims: undefined,
+          entityType: undefined,
           events: [],
           accountLinks: [],
           success: true,
@@ -801,6 +811,8 @@ module.exports = [
               }
             ]
           ],
+          claims: undefined,
+          entityType: undefined,
           events: [],
           accountLinks: [],
           success: true,
@@ -874,6 +886,8 @@ module.exports = [
           errors: [],
           userTraits: [[{ id: "123" }, { foo: "bar" }]],
           accountTraits: [],
+          claims: undefined,
+          entityType: undefined,
           events: [],
           accountLinks: [],
           success: true,

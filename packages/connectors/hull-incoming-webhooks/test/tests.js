@@ -99,6 +99,8 @@ module.exports = [
           errors: [],
           userTraits: [[{ id: "123" }, { "my-group/customerioid": "321" }]],
           accountTraits: [],
+          claims: undefined,
+          entityType: undefined,
           accountLinks: [],
           accountAliases: [],
           userAliases: [],
@@ -227,6 +229,8 @@ module.exports = [
               }
             ]
           ],
+          claims: undefined,
+          entityType: undefined,
           events: [
             {
               claims: {
@@ -450,6 +454,8 @@ module.exports = [
               { linkedAccountFoo: "linkedAccountBar" }
             ]
           ],
+          claims: undefined,
+          entityType: undefined,
           accountAliases: [],
           userAliases: [],
           events: [
@@ -641,6 +647,8 @@ module.exports = [
             ]
           ],
           accountTraits: [],
+          claims: undefined,
+          entityType: undefined,
           events: [
             {
               claims: {
@@ -760,6 +768,8 @@ module.exports = [
               { customerioid: "4567" }
             ]
           ],
+          claims: undefined,
+          entityType: undefined,
           events: [],
           accountLinks: [],
           accountAliases: [],
@@ -840,6 +850,8 @@ module.exports = [
               }
             ]
           ],
+          claims: undefined,
+          entityType: undefined,
           events: [],
           accountLinks: [],
           accountAliases: [],
@@ -915,6 +927,8 @@ module.exports = [
           errors: [],
           userTraits: [[{ id: "123" }, { foo: "bar" }]],
           accountTraits: [],
+          claims: undefined,
+          entityType: undefined,
           accountLinks: [],
           accountAliases: [],
           userAliases: [],
@@ -981,6 +995,8 @@ module.exports = [
           errors: [],
           userTraits: [],
           accountTraits: [],
+          claims: undefined,
+          entityType: undefined,
           accountLinks: [],
           accountAliases: [
             [
