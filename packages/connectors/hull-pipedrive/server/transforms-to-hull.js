@@ -9,9 +9,7 @@ const {
 } = require("hull-connector-framework/src/purplefusion/conditionals");
 
 const {
-  HullIncomingUser,
-  HullIncomingAccount,
-  WebPayload
+  ServiceUserRaw
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const {
@@ -27,55 +25,26 @@ const {
 const transformsToHull: ServiceTransforms = [
   {
     input: PipedrivePersonRead,
-    output: HullIncomingUser,
+    output: ServiceUserRaw,
     strategy: "PropertyKeyedValue",
     arrayStrategy: "append_index",
     direction: "incoming",
     transforms: [
       {
-        inputPath: "id",
-        outputPath: "ident.anonymous_id",
-        outputFormat: "pipedrive:${value}"
+        mapping: { type: "input" },
+        inputPath: "${service_field_name}",
+        outputPath: "${hull_field_name}"
       },
       {
-        inputPath: "id",
-        outputPath: "attributes.pipedrive/id",
-        outputFormat: {
-          value: "${value}",
-          operation: "set"
-        }
-      },
-      // {
-      //   condition: "connector.private_settings.link_users_in_hull",
-      //   inputPath: "relationships.account.data.id",
-      //   outputPath: "accountIdent.anonymous_id",
-      //   outputFormat: "pipedrive:${value}"
-      // },
-      {
-        mapping: "connector.private_settings.incoming_user_attributes",
-        condition: doesNotContain(["stage", "owner"], "service_field_name"),
-        inputPath: "attributes.${service_field_name}",
-        outputPath: "attributes.${hull_field_name}",
-        outputFormat: {
-          value: "${value}",
-          operation: "set"
-        }
+        mapping: { type: "input" },
+        condition: doesContain(["email", "phone"], "service_field_name"),
+        outputPath: "${service_field_name}",
+        outputFormat: "${value.value}"
       },
       {
-        mapping: "connector.private_settings.incoming_user_attributes",
-        condition: doesContain(["stage", "owner"], "service_field_name"),
-        inputPath: "relationships.${service_field_name}.data.id",
-        outputPath: "attributes.${hull_field_name}",
-        outputFormat: {
-          value: "${value}",
-          operation: "set"
-        }
-      },
-      {
-        arrayStrategy: "pick_first",
-        mapping: "connector.private_settings.user_claims",
-        inputPath: "attributes.${service_field_name}",
-        outputPath: "ident.${hull_field_name}"
+        inputPath: "org_id",
+        outputPath: "hull_service_accountId",
+        outputFormat: "${value.value}"
       }
     ]
   }

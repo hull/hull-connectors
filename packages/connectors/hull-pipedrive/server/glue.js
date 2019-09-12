@@ -4,7 +4,11 @@ const {
   ifL,
   route,
   cond,
-  settings
+  settings,
+  set,
+  loopL,
+  Svc,
+  hull
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -18,7 +22,7 @@ const {
 
 const _ = require("lodash");
 
-function outreach(op: string, param?: any): Svc { return new Svc({ name: "outreach", op }, param) }
+function pipedrive(op: string, param?: any): Svc { return new Svc({ name: "pipedrive", op }, param) }
 
 const refreshTokenDataTemplate = {
   refresh_token: "${connector.private_settings.refresh_token}",
@@ -39,8 +43,19 @@ const glue = {
       message: "allgood"
     }
   }),
-  fetchAll: [route("personFetchAll"), route("orgFetchAll")],
-  personFetchAll: []
+  fetchAll: [
+    route("personFetchAll"),
+    // route("orgFetchAll")
+  ],
+  personFetchAll: [
+    set("start", 0),
+    loopL([
+      set("pipedrivePersons", pipedrive("getAllPersonsPaged")),
+      iterateL("${pipedrivePersons}", { key: "pipedrivePerson", async: true },
+        hull("asUser", "${pipedrivePerson}")
+      )
+    ])
+  ]
 };
 
 module.exports = glue;
