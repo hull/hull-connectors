@@ -1,1 +1,11 @@
-<svg height="257" viewBox="0 0 257 257" width="257" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd" transform="matrix(0 1 -1 0 254 3)"><circle cx="125.5" cy="125.5" fill="#fdf4d1" r="125.5"/><path d="m73.3257384 239.674262 110.1824506-110.182451c2.343145-2.343145 2.343145-6.142135 0-8.485281l-109.8378765-109.8378763c15.7991641-7.17361553 33.3478805-11.1686537 51.8296875-11.1686537 69.311736 0 125.5 56.1882639 125.5 125.5 0 69.311736-56.188264 125.5-125.5 125.5-18.616276 0-36.285834-4.053383-52.1742616-11.325738z" fill="#ffe88d"/><circle cx="124.5" cy="125.5" fill="#ffd222" r="62.5"/></g></svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="257px" height="257px" viewBox="0 0 257 257" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 57.1 (83088) - https://sketch.com -->
+    <title>account-processor/logo</title>
+    <desc>Created with Sketch.</desc>
+    <g id="account-processor/logo" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect fill="#EAD3FF" x="0" y="0" width="257" height="257"></rect>
+        <path d="M0,257 L114.385459,143.059621 C122.18959,135.285856 134.81041,135.285856 142.614541,143.059621 L257,257 L257,257 L257,62 L0,62 L0,257 Z" id="Rectangle" fill="#D9AFFF" transform="translate(128.500000, 159.500000) scale(1, -1) translate(-128.500000, -159.500000) "></path>
+        <circle id="Oval-5" fill="#9422FF" transform="translate(128.500000, 127.500000) rotate(-270.000000) translate(-128.500000, -127.500000) " cx="128.5" cy="127.5" r="62.5"></circle>
+    </g>
+</svg>

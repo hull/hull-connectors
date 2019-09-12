@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="640px" height="360px" viewBox="0 0 640 360" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 52.5 (67469) - http://www.bohemiancoding.com/sketch -->
-    <title>processor/picture</title>
+    <!-- Generator: Sketch 57.1 (83088) - https://sketch.com -->
+    <title>account-processor/picture</title>
     <desc>Created with Sketch.</desc>
-    <g id="processor/picture" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g id="account-processor/picture" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <rect id="Rectangle" fill="#FFFFFF" x="0" y="0" width="640" height="360"></rect>
         <g id="Group-2-Copy-2" transform="translate(200.000000, 178.000000) rotate(-270.000000) translate(-200.000000, -178.000000) translate(160.000000, 138.000000)">
-            <circle id="Oval-2" fill="#FDF4D1" cx="40" cy="40" r="40"></circle>
-            <path d="M23.5350476,76.4649524 L55.7573593,44.2426407 C58.1005051,41.8994949 58.1005051,38.1005051 55.7573593,35.7573593 L23.5350476,3.53504756 C28.5564901,1.26415683 34.1306152,0 40,0 C62.09139,0 80,17.90861 80,40 C80,62.09139 62.09139,80 40,80 C34.1306152,80 28.5564901,78.7358432 23.5350476,76.4649524 Z" id="Combined-Shape" fill="#FFE88D"></path>
-            <circle id="Oval-5" fill="#FFD222" cx="40" cy="40" r="21"></circle>
+            <circle id="Oval-2" fill="#EAD3FF" cx="40" cy="40" r="40"></circle>
+            <path d="M40,0 C62.09139,0 80,17.90861 80,40 C80,62.09139 62.09139,80 40,80 C34.1307813,80 28.5568056,78.7359147 23.5354739,76.4651452 L55.7573593,44.2426407 C58.0404244,41.9595756 58.0989645,38.2943679 55.9329797,35.9404237 L55.7573593,35.7573593 L23.5354739,3.53485477 C28.5568056,1.26408528 34.1307813,0 40,0 Z" id="Combined-Shape" fill="#D9AFFF"></path>
+            <circle id="Oval-5" fill="#9422FF" cx="40" cy="40" r="21"></circle>
         </g>
-        <text id="Processor" font-family="NittiGrotesk-Bold, Nitti Grotesk" font-size="52" font-weight="bold" fill="#FFD222">
-            <tspan x="269" y="194">Processor</tspan>
+        <text id="Processor" font-family="NittiGrotesk-Bold, Nitti Grotesk" font-size="52" font-weight="bold" fill="#9422FF">
+            <tspan x="269" y="204">Processor</tspan>
+        </text>
+        <text id="ACCOUNT" font-family="NittiGrotesk-Light, Nitti Grotesk" font-size="28" font-weight="300" letter-spacing="3.333333" fill="#9422FF">
+            <tspan x="272" y="165">ACCOUNT</tspan>
         </text>
     </g>
 </svg>
