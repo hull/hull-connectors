@@ -357,10 +357,23 @@ function toSendMessage(
   // or could be because it's a new connector which we haven't done a full fetch
   const serviceName = _.get(options, "serviceName");
   if (serviceName) {
-    console.log("servicename");
     const serviceId = _.get(message, `${targetEntity}.${serviceName}/id`);
-    console.log(serviceId);
     if (isUndefinedOrNull(serviceId)) {
+
+      // log for now so we can find this scenario
+      // remove after we've audited
+      try {
+        if (targetEntity === "user") {
+          context.client.asUser(entity).logger.info("outgoing.user.send", {
+            reason: "does not have service id"
+          });
+        } else if (targetEntity === "account") {
+          context.client.asAccount(entity).logger.info("outgoing.account.send", {
+            reason: "does not have service id"
+          });
+        }
+      } catch (error) {}
+
       return true;
     }
   }
