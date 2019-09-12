@@ -1,6 +1,6 @@
 {
-  "name": "Processor",
-  "description": "Recompute custom properties and emit events with Javascript logic whenever a user is updated",
+  "name": "Account Processor",
+  "description": "Recompute custom properties and emit events with Javascript logic whenever an account is updated",
   "tags": [
     "batch",
     "smart-notifier",
@@ -31,14 +31,14 @@
       "format": "hidden"
     },
     {
-      "name": "synchronized_user_segments",
-      "title": "User Filter",
-      "description": "Which users are sent through the processor",
+      "name": "synchronized_account_segments",
+      "title": "Account Filter",
+      "description": "Which Accounts are sent through the processor",
       "type": "array",
-      "format": "segment",
+      "format": "accountSegment",
       "options": {
         "standard": {
-          "ALL": "All Users"
+          "ALL": "All Accounts"
         }
       },
       "default": [
@@ -48,9 +48,9 @@
     {
       "name": "code",
       "title": "Code",
-      "description": "Enter Javascript code here, It will receive the data in the middle column, can emit `track()` and `traits()`. Preview results on the right. Save when finished",
+      "description": "Enter Javascript code here, It will receive the data in the middle column, can emit `traits()`. Preview results on the right. Save when finished",
       "type": "string",
-      "default": "console.log(`Hello ${user.name}`);",
+      "default": "console.log(`Hello ${account.name}`);",
       "format": "hidden"
     }
   ],
@@ -60,7 +60,7 @@
       "title": "Configuration",
       "description": "Configure the way the processor runs",
       "properties": [
-        "private_settings.synchronized_user_segments"
+        "private_settings.synchronized_account_segments"
       ]
     }
   ],
@@ -87,17 +87,17 @@
       "conditions": {
         "channels": {
           "only": [
-            "user:update"
+            "account:update"
           ]
         },
         "segments": {
-          "user:update": "private_settings.synchronized_user_segments"
+          "account:update": "private_settings.synchronized_account_segments"
         }
       },
       "channels": [
         {
-          "channel": "user:update",
-          "handler": "userUpdate"
+          "channel": "account:update",
+          "handler": "accountUpdate"
         }
       ]
     }

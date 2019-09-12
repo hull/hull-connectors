@@ -21,7 +21,7 @@ const EXCLUDED_EVENTS = [
 export const isVisible = ({ event }: HullEvent) =>
   !_.includes(EXCLUDED_EVENTS, event);
 
-export default async function getUser(
+export default async function getEntity(
   ctx: HullContext,
   message: HullIncomingHandlerMessage
 ): HullExternalResponse {
@@ -30,20 +30,28 @@ export default async function getUser(
   const { code } = private_settings;
   const { body } = message;
   // $FlowFixMe
-  const { claim, claimType, events } = body;
+  const { claim, entityType, events } = body;
+  if (!claim) {
+    return {
+      status: 404,
+      error: "Can't search for an empty value"
+    };
+  }
+  const isUser = entityType === "user";
   try {
     // const getter = entity === "account" ? ctx.entities.accounts : ctx.entities.users;
-    const rawPayload = await ctx.entities.users.get({
-      claim,
-      claimType,
-      include: {
-        events: {
-          names: events,
-          per_page: 20,
-          page: 1
-        }
-      }
-    });
+    const rawPayload = await (isUser
+      ? ctx.entities.users.get({
+          claim,
+          include: {
+            events: {
+              names: events,
+              per_page: 20,
+              page: 1
+            }
+          }
+        })
+      : ctx.entities.accounts.get({ claim }));
 
     if (!rawPayload) {
       return {
@@ -53,19 +61,26 @@ export default async function getUser(
     }
     const { group } = ctx.client.utils.traits;
 
-    const payload = {
-      ...rawPayload,
-      user: group(rawPayload.user),
-      account: group(rawPayload.account),
-      changes: getSample(rawPayload.user),
-      events: (rawPayload.events || []).filter(isVisible)
-    };
+    const payload = isUser
+      ? {
+          ...rawPayload,
+          user: group(rawPayload.user),
+          account: group(rawPayload.account),
+          changes: getSample(rawPayload.user),
+          events: (rawPayload.events || []).filter(isVisible)
+        }
+      : {
+          ...rawPayload,
+          account: group(rawPayload.account),
+          changes: getSample(rawPayload.account)
+        };
 
-    const claims = getClaims("user", rawPayload);
+    const claims = getClaims(isUser ? "user" : "account", rawPayload);
 
     const result = await compute(ctx, {
       source: "processor",
       claims,
+      entity: entityType,
       preview: true,
       payload,
       code

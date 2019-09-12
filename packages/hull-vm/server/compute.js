@@ -18,7 +18,14 @@ import scopedUserMethods from "./sandbox/user_methods";
 const LIBS = { _, moment, urijs };
 export default async function compute(
   ctx: HullContext,
-  { payload, code, preview, claims, source, entity = "user" }: ComputeOptions
+  {
+    payload,
+    code,
+    preview,
+    claims,
+    source,
+    entityType = "user"
+  }: ComputeOptions
 ): Promise<Result> {
   const { connector, client } = ctx;
   const result = {
@@ -32,6 +39,7 @@ export default async function compute(
     accountLinks: Map({}),
     events: [],
     claims,
+    entityType,
     success: false,
     isAsync: false
   };
@@ -47,7 +55,7 @@ export default async function compute(
     ...(claims ? scopedUserMethods(payload) : {}),
     request: getRequest(result),
     hull: _.size(claims)
-      ? (entity === "account" ? hull.asAccount : hull.asUser)(claims)
+      ? (entityType === "account" ? hull.asAccount : hull.asUser)(claims)
       : hull,
     console: getConsole(result, preview),
     connector,
@@ -66,7 +74,7 @@ export default async function compute(
     if (_.size(claims)) {
       _.map(
         _.pick(
-          (entity === "account" ? hull.asAccount : hull.asUser)(claims),
+          (entityType === "account" ? hull.asAccount : hull.asUser)(claims),
           "traits",
           "track"
         ),

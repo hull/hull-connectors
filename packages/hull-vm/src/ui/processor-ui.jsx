@@ -61,6 +61,14 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
     engine.updateEvents(events);
   };
 
+  getError = () => {
+    const { error } = this.state;
+    if (error === "empty" || error === "Not Found") {
+      return this.props.strings.leftColumnPreview;
+    }
+    return error;
+  };
+
   render() {
     const {
       current,
@@ -70,7 +78,8 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
       computing,
       showBindings,
       events,
-      error
+      error,
+      entityType
     } = this.state;
 
     const { strings } = this.props;
@@ -92,6 +101,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
               <EntrySelector
                 loading={computing || fetching}
                 current={current}
+                title={strings.leftColumnTitle}
                 recent={recent}
                 onChange={this.handleUpdateQuery}
               />
@@ -101,16 +111,20 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
             <Area
               id="code-payload"
               mode="json"
-              value={error || current.payload}
+              value={this.getError() || current.payload}
             />
           </div>
           <div className="col vm-column code-column">
             <Header>
-              <EventSelector
-                loading={!initialized && fetching}
-                onChange={this.handleUpdateEvents}
-                events={events}
-              />
+              {entityType === "user" ? (
+                <EventSelector
+                  loading={!initialized && fetching}
+                  onChange={this.handleUpdateEvents}
+                  events={events}
+                />
+              ) : (
+                "Enter an account identifier"
+              )}
             </Header>
             <CodeTitle
               title={`Code ${!current.editable ? "(disabled)" : ""}`}
@@ -141,6 +155,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
             <Preview
               title="Preview"
               scoped={true}
+              entityType={entityType}
               result={error ? {} : current.result}
               computing={computing}
             />

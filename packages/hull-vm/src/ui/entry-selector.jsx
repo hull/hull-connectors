@@ -1,25 +1,22 @@
 // @flow
 import React, { Fragment } from "react";
-import InputGroup from "react-bootstrap/InputGroup";
 import FormControl from "react-bootstrap/FormControl";
-import Form from "react-bootstrap/Form";
 import Col from "react-bootstrap/Col";
-import Button from "react-bootstrap/Button";
-import _ from "lodash";
 import type { Entry } from "../../types";
-import PayloadTitle from "./payload-title";
-import Sync from "./sync";
-import Spinner from "./spinner";
+
+const getTitle = (strings, entityType = "user") =>
+  strings[
+    entityType === "user" ? "leftColumnTitleUser" : "leftColumnTitleAccount"
+  ];
 
 const List = ({
-  loading,
   onChange,
-  recent = [],
-  current
+  title
 }: {
   current?: Entry,
   recent?: Array<Entry>,
   loading: boolean,
+  title: string,
   onChange: () => void
 }) => (
   <Fragment>
@@ -27,8 +24,8 @@ const List = ({
       <FormControl
         size="sm"
         onChange={onChange}
-        placeholder="Enter Email or Id to preview User"
-        aria-label="Enter Email or Id to preview User"
+        placeholder={title}
+        aria-label={title}
         aria-describedby="basic-addon1"
       />
     </Col>
