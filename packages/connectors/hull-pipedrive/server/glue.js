@@ -1,5 +1,7 @@
 /* @flow */
 
+import { PipedrivePersonRead } from "./service-objects";
+
 const {
   ifL,
   route,
@@ -9,7 +11,8 @@ const {
   loopL,
   Svc,
   hull,
-  iterateL
+  iterateL,
+  cast
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -51,12 +54,11 @@ const glue = {
   ],
   personFetchAll: [
     set("start", 0),
-    loopL([
+
       set("pipedrivePersons", pipedrive("getAllPersonsPaged")),
       iterateL("${pipedrivePersons}", { key: "pipedrivePerson", async: true },
-        hull("asUser", "${pipedrivePerson}")
+        hull("asUser", cast(PipedrivePersonRead, "${pipedrivePerson}"))
       )
-    ])
   ]
 };
 

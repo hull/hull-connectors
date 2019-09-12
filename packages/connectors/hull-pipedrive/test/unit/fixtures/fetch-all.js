@@ -6,7 +6,7 @@ module.exports = {
     }
   },
   input: {},
-  result: {},
+  result: expect.anything(),
   serviceRequests: [
     {
       localContext:expect.anything(),
@@ -25,13 +25,16 @@ module.exports = {
       ]
     },
     {
-      localContext:{},
+      localContext: expect.anything(),
       input: {
         ident: {
           anonymous_id: "pipedrive:1"
         },
         attributes: {
-          "pipedrive/id": 1
+          "pipedrive/id": {
+            "operation": "set",
+            "value": 1
+          }
         }
       },
       name: "hull",
@@ -45,7 +48,10 @@ module.exports = {
           anonymous_id: "pipedrive:2"
         },
         attributes: {
-          "pipedrive/id": 2
+          "pipedrive/id": {
+            "operation": "set",
+            "value": 2
+          }
         }
       },
       name: "hull",
