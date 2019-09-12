@@ -8,7 +8,8 @@ const {
   set,
   loopL,
   Svc,
-  hull
+  hull,
+  iterateL
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -43,6 +44,7 @@ const glue = {
       message: "allgood"
     }
   }),
+  ensureHook: set("service_name", "pipedrive"),
   fetchAll: [
     route("personFetchAll"),
     // route("orgFetchAll")

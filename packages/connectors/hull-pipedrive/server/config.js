@@ -37,7 +37,7 @@ export default function connectorConfig(): HullConnectorConfig {
         require("./transforms-to-hull")
         // require("./transforms-to-service")
       )
-      // ensureHook: "ensureWebhooks"
+      ensureHook: "ensureHook"
     }).createHandler,
     hostSecret: SECRET || "1234",
     devMode: NODE_ENV === "development",

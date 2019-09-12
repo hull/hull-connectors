@@ -67,7 +67,11 @@ const service = ({ clientID, clientSecret }: {
 
     },
     templates: [
-      {}
+      {
+        truthy: { status: 400 },
+        errorType: SkippableError,
+        message: ""
+      }
     ]
   }
 });

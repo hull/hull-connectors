@@ -7,7 +7,8 @@ module.exports = {
     "<rootDir>/packages/connectors/hull-warehouse/test/**/*.(test|spec).js",
     "<rootDir>/packages/connectors/hull-customerio/test/**/*.(test|spec).js",
     "<rootDir>/packages/connectors/hull-slack/test/**/*.(test|spec).js",
-    "<rootDir>/packages/hull-connector-framework/test/**/*.(test|spec).js"
+    "<rootDir>/packages/hull-connector-framework/test/**/*.(test|spec).js",
+    "<rootDir>/packages/connectors/hull-pipedrive/test/**/*.(test|spec).js"
   ],
   collectCoverageFrom: [
     "<rootDir>/packages/connectors/hull-typeform/server/**/*.js",
