@@ -2,7 +2,7 @@
   "name": "Account Processor",
   "description": "Recompute custom properties and emit events with Javascript logic whenever an account is updated",
   "tags": [
-    "batch",
+    "batch-accounts",
     "smart-notifier",
     "kraken-exports"
   ],
