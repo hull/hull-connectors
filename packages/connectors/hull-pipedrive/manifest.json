@@ -1,0 +1,100 @@
+{
+  "name": "Pipedrive",
+  "description": "Two-way Pipedrive integration for Prospects & Accounts",
+  "source": "pipedrive",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "version": "0.1.3-monorepo",
+  "tags": [
+    "incoming"
+  ],
+  "private_settings": [
+    {
+      "name": "oauth",
+      "title": "Oauth",
+      "type": "string",
+      "format": "oauth",
+      "description": "On the authentication screen, log into Pipedrive with your username and password, if you are not already logged in",
+      "handler": "oauth",
+      "url": "/auth",
+      "options": {
+        "tokenInUrl": false,
+        "name": "Pipedrive",
+        "strategy": {
+          "authorizationURL": "https://oauth.pipedrive.com/oauth/authorize",
+          "tokenURL": "https://oauth.pipedrive.com/oauth/token",
+          "grant_type": "authorization_code"
+        }
+      }
+    },
+    {
+      "name": "access_token",
+      "title": "OAuth Access Token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "refresh_token",
+      "title": "OAuth Refresh Token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "expires_in",
+      "title": "OAuth Token Expiration in seconds",
+      "type": "string",
+      "format": "hidden"
+    }
+  ],
+  "settings": [],
+  "resources": [],
+  "readme": "readme.md",
+  "tabs": [],
+  "admin": "/admin",
+  "ui": false,
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "5",
+      "handler": "status"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "interval",
+    "value": "5",
+    "handler": "status"
+  },
+  "json": [
+    {
+      "url": "/fetch",
+      "handler": "fetchAll",
+      "type": "string",
+      "format": "action",
+      "name": "fetch_all_persons",
+      "title": "Fetch All Persons",
+      "options": {
+        "fireAndForget": true
+      }
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Connect with Pipedrive",
+      "description": "Please begin by authenticating this connector with Pipedrive. You must have appropriate privileges to grant access. Hull accesses to only the endpoint required to do User and Account synchronization",
+      "step": "credentials",
+      "properties": [
+        "private_settings.oauth"
+      ]
+    },
+    {
+      "title": "User - Fetching from Pipedrive",
+      "description": "Hull gives its customers the ability to capture a subset of user fields in order to have fine grain control over the dataflow.  Please configure the fields that you would like pulled from Pipedrive below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.<br /><br />",
+      "properties": [
+        "json.fetch_all_persons"
+      ]
+    }
+  ]
+}
