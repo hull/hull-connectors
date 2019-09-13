@@ -278,14 +278,16 @@ class HullConnector {
     // Methods are optional but they all have sane defaults
     const mapNotification = (factory, section = "subscriptions") =>
       (this.manifest[section] || []).map(({ url, channels }) => {
-        const { router } = factory(
-          channels.map(({ handler, channel, options }) => ({
-            callback: getCallbacks(handlers, section, handler),
-            channel,
-            options
-          }))
-        );
-        return app.post(url, router);
+        if (channels) {
+          const { router } = factory(
+            channels.map(({ handler, channel, options }) => ({
+              callback: getCallbacks(handlers, section, handler),
+              channel,
+              options
+            }))
+          );
+          return app.post(url, router);
+        }
       });
 
     // Breaking proper separation of concerns here, but its the least invasive way to override route setup with oAuth handlers
