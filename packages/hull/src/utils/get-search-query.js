@@ -8,8 +8,14 @@ const ANONYMOUS_ID = ["anonymous_ids.raw"];
 const EMAIL = ["email", "email.exact", "contact_email", "contact_email.exact"];
 const DOMAIN = ["domain", "domain.exact"];
 const NAME = ["name", "name.exact"];
-const ACCOUNT_SEARCH = [...ID, ...NAME, ...DOMAIN, ...EXTERNAL_ID];
-const USER_SEARCH = [...ID, ...NAME, ...EMAIL, ...EXTERNAL_ID];
+const ACCOUNT_SEARCH = [
+  ...ID,
+  ...NAME,
+  ...DOMAIN,
+  ...EXTERNAL_ID,
+  ...ANONYMOUS_ID
+];
+const USER_SEARCH = [...ID, ...NAME, ...EMAIL, ...EXTERNAL_ID, ...ANONYMOUS_ID];
 
 type Lookups = {
   term: {
