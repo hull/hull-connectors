@@ -1,7 +1,7 @@
 // @flow
 
 import _ from "lodash";
-import type { EventSelect, Config, Entry, ProcessorEngineState } from "hull-vm";
+import type { EventSelect, Entry, ProcessorEngineState } from "hull-vm";
 import Engine from "./engine";
 
 type QueryParams = {
@@ -12,10 +12,17 @@ type QueryParams = {
 export default class ProcessorEngine extends Engine {
   state: ProcessorEngineState;
 
-  constructor(config: Config) {
-    super(config);
+  constructor() {
+    super();
+    this.state.claim = this.getSearchCache();
     this.fetchEntry(this.state);
   }
+
+  getSearchCache = (): string =>
+    localStorage.getItem(`claim-${this.state.config.id}`);
+
+  setSearchCache = (value: string) =>
+    localStorage.setItem(`claim-${this.state.config.id}`, value);
 
   // This methods finishes the init Sequence
   saveConfig = response => {
@@ -58,6 +65,7 @@ export default class ProcessorEngine extends Engine {
 
   updateSearch = async (claim: string) => {
     const { claim: oldClaim, current } = this.state;
+    this.setSearchCache(claim);
     this.setState({ claim });
     if (current && oldClaim !== claim) {
       this.fetchEntryDebounced();

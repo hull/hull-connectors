@@ -79,7 +79,8 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
       showBindings,
       events,
       error,
-      entityType
+      entityType,
+      claim
     } = this.state;
 
     const { strings } = this.props;
@@ -101,6 +102,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
               <EntrySelector
                 loading={computing || fetching}
                 current={current}
+                defaultValue={claim}
                 title={strings.leftColumnTitle}
                 recent={recent}
                 onChange={this.handleUpdateQuery}

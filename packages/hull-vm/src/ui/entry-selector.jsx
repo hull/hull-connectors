@@ -11,8 +11,10 @@ const getTitle = (strings, entityType = "user") =>
 
 const List = ({
   onChange,
+  defaultValue,
   title
 }: {
+  defaultValue?: string,
   current?: Entry,
   recent?: Array<Entry>,
   loading: boolean,
@@ -23,6 +25,7 @@ const List = ({
     <Col xs={12}>
       <FormControl
         size="sm"
+        defaultValue={defaultValue}
         onChange={onChange}
         placeholder={title}
         aria-label={title}
