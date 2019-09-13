@@ -440,19 +440,6 @@ it("Performing sync", () => {
         platformApiCalls: [
           ["GET", "/api/v1/app", {}, {}],
           [
-            "GET",
-            expect.stringContaining("/api/v1/users_segments"),
-            expect.whatever(),
-            {}
-          ],
-          [
-            "GET",
-            expect.stringContaining("/api/v1/accounts_segments"),
-            expect.whatever(),
-            {}
-          ],
-          ["GET", "/api/v1/app", {}, {}],
-          [
             "PUT",
             "/api/v1/123456789012345678901234",
             {},
