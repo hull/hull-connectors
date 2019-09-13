@@ -144,13 +144,13 @@ export default class Engine extends EventEmitter {
   };
 
   fetchPreview = _.debounce(
-    async ({ code, payload, claims }: PreviewRequest) => {
+    async ({ code, payload, claims, entityType }: PreviewRequest) => {
       this.setState({ computing: true });
       try {
         const response: PreviewResponse = await this.request({
           url: "preview",
           method: "post",
-          data: { code, payload, claims }
+          data: { code, payload, claims, entityType }
         });
         const state = this.getState();
         this.setState({

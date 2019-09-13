@@ -5,6 +5,7 @@ import CodeEditor from "./ace";
 
 type Props = {
   className?: string,
+  editable?: boolean,
   mode: string,
   id: string,
   aceOptions?: { [string]: any },
@@ -12,12 +13,20 @@ type Props = {
   value: string | {} | Array<any>
 };
 
-const Area = ({ aceOptions, id, mode, className, onChange, value }: Props) => (
+const Area = ({
+  editable,
+  aceOptions,
+  id,
+  mode,
+  className,
+  onChange,
+  value
+}: Props) => (
   <CodeEditor
     id={id}
     className={className}
     mode={mode}
-    readOnly
+    readOnly={!editable}
     aceOptions={aceOptions}
     value={typeof value !== "string" ? stringify(value, { space: 2 }) : value}
     onChange={onChange}

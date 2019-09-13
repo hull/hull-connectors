@@ -1,6 +1,11 @@
 // @flow
 
-import type { HullContext } from "hull";
+import type {
+  HullUserClaims,
+  HullAccountClaims,
+  HullEntityType,
+  HullContext
+} from "hull";
 import _ from "lodash";
 import compute from "./compute";
 import ingest from "./ingest";
@@ -11,33 +16,41 @@ const asyncComputeAndIngest = async (
   {
     EntryModel,
     payload,
-    code,
     source,
+    code,
+    claims,
+    entityType,
     preview = false
   }: {
-    code: string,
-    payload: { [string]: any },
-    EntryModel: Object,
     source: string,
+    code: string,
+    entityType?: HullEntityType,
+    claims: HullUserClaims | HullAccountClaims,
+    payload: { [string]: any },
+    EntryModel?: Object,
     preview?: boolean
   }
 ) => {
   const { client } = ctx;
   try {
     const result = await compute(ctx, {
-      payload,
-      code,
       source,
+      claims,
+      payload,
+      entityType,
+      code,
       preview
     });
     if (!preview) {
       // TODO: Check how errors in the second await could not have a defined error
       await ingest(ctx, result);
     }
-    await saveRecent(ctx, { EntryModel, payload, code, result });
+    if (EntryModel) {
+      await saveRecent(ctx, { EntryModel, payload, code, result });
+    }
     return result;
   } catch (err) {
-    client.logger.error("incoming.user.error", {
+    client.logger.error(`incoming.${entityType || "payload"}.error`, {
       hull_summary: `Error ingesting payload: ${_.get(
         err,
         "message",

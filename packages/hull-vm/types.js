@@ -106,6 +106,8 @@ export type SerializedResult = {
 
 export type PreviewRequest = {
   payload: Payload,
+  entityType?: "user" | "account",
+  claims?: {},
   code: string
 };
 export type PreviewResponse = SerializedResult;
@@ -123,7 +125,7 @@ export type Entry = {
 export type ComputeOptions = {
   code: string,
   claims?: HullUserClaims | HullAccountClaims,
-  entity?: HullEntityType,
+  entityType?: HullEntityType,
   preview: boolean,
   source: string,
   payload: Payload | HullUserUpdateMessage | HullAccountUpdateMessage
@@ -224,6 +226,7 @@ export type ProcessorEngineState = {
   selected?: Entry,
   current?: Entry,
   recent: Array<Entry>,
+  entityType?: "user" | "account",
   claim?: string,
   selectedEvents: Array<EventSelect>
 };

@@ -161,16 +161,21 @@ export const searchEntity = (
     throw new Error("Empty query, can't fetch");
   }
   const query = getQuery(claim, service);
-  const entity = await getEntity(ctx, query, entityType);
-  if (!entity || !entity.id) {
-    throw new Error(
-      `Searching for a ${entityType} with ${
-        claimType ? `${claimType}=` : ""
-      }${claim} returned no result`
-    );
+  try {
+    const entity = await getEntity(ctx, query, entityType);
+    if (!entity || !entity.id) {
+      throw new Error(
+        `Searching for a ${entityType} with ${
+          claimType ? `${claimType}=` : ""
+        }${claim} returned no result`
+      );
+    }
+    // return entity;
+    return getPayload(ctx, entity, include || {});
+  } catch (err) {
+    console.log(err);
+    throw err;
   }
-  // return entity;
-  return getPayload(ctx, entity, include || {});
 };
 export const searchUser = searchEntity("user", getUserPayload);
 export const searchAccount = searchEntity("account", getAccountPayload);

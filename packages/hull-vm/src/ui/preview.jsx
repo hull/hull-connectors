@@ -84,10 +84,11 @@ const mapEvents = scoped =>
 
 type Props = {
   result?: Result,
+  entityType?: "user" | "account",
   scoped?: boolean
 };
 
-const Preview = ({ result, scoped }: Props) => {
+const Preview = ({ result, scoped, entityType }: Props) => {
   if (!result)
     return (
       <Fragment>

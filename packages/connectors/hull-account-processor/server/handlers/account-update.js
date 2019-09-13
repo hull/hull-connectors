@@ -1,7 +1,7 @@
 // @flow
 import type {
   HullContext,
-  HullUserUpdateMessage,
+  HullAccountUpdateMessage,
   HullNotificationResponse
 } from "hull";
 import _ from "lodash";
@@ -13,7 +13,7 @@ type FlowControl = {
 };
 const update = ({ flow_size = 100, flow_in = 10 }: FlowControl) => async (
   ctx: HullContext,
-  messages: Array<HullUserUpdateMessage>
+  messages: Array<HullAccountUpdateMessage>
 ): HullNotificationResponse => {
   const { connector, client } = ctx;
   const { private_settings = {} } = connector;
@@ -28,15 +28,14 @@ const update = ({ flow_size = 100, flow_in = 10 }: FlowControl) => async (
           payload: _.omitBy(
             {
               ...payload,
-              user: group(payload.user),
               account: group(payload.account)
             },
             _.isUndefined
           ),
           source: "processor",
           code,
-          claims: getClaims("user", payload),
-          entityType: "user",
+          claims: getClaims("account", payload),
+          entityType: "account",
           preview: false
         })
       )
@@ -49,7 +48,7 @@ const update = ({ flow_size = 100, flow_in = 10 }: FlowControl) => async (
       }
     };
   } catch (err) {
-    ctx.client.logger.error("incoming.user.error", { error: err.message });
+    ctx.client.logger.error("incoming.account.error", { error: err.message });
     return {
       flow_control: {
         type: "retry",

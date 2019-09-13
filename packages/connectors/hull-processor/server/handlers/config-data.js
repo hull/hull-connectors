@@ -5,7 +5,8 @@ import type { HullContext } from "hull";
 const configHandler = async (ctx: HullContext): Promise<Object> => {
   const eventSchema = await ctx.entities.events.getSchema();
   return {
-    eventSchema
+    eventSchema,
+    entityType: "user"
   };
 };
 

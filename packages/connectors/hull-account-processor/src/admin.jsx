@@ -8,7 +8,7 @@ import App from "./app";
 
 const emptyMessageForEntity = (
   entityType = "user"
-) => `Please enter the identifier of a User in the field above.
+) => `Please enter the identifier of an Account in the field above.
 
 Valid identifiers are:
 - external_id
@@ -23,8 +23,8 @@ ready(() => {
     <App
       engine={engine}
       strings={{
-        leftColumnTitle: "Enter Email or ID to preview User",
-        leftColumnPreview: emptyMessageForEntity("user")
+        leftColumnTitle: "Enter Domain or ID to preview Account",
+        leftColumnPreview: emptyMessageForEntity("account")
       }}
     />,
     root
