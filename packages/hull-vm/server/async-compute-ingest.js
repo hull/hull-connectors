@@ -50,7 +50,7 @@ const asyncComputeAndIngest = async (
     }
     return result;
   } catch (err) {
-    client.logger.error("incoming.user.error", {
+    client.logger.error(`incoming.${entityType || "payload"}.error`, {
       hull_summary: `Error ingesting payload: ${_.get(
         err,
         "message",
