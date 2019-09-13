@@ -106,7 +106,7 @@ export default class ProcessorEngine extends Engine {
           events: selectedEvents
         }
       });
-      this.setState({ error: undefined });
+      this.setState({ error: undefined, fetching: false });
       if (entry.error) {
         if (entry.error === "Can't search for an empty value") {
           throw new Error("empty");

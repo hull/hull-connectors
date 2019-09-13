@@ -215,4 +215,13 @@ body.dark {
       text-overflow: ellipsis;
     }
   }
+  .entry-selector {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    .spinner {
+      width: 30px;
+      margin-left: 10px;
+    }
+  }
 }

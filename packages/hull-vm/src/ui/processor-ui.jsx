@@ -106,7 +106,16 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
                 title={strings.leftColumnTitle}
                 recent={recent}
                 onChange={this.handleUpdateQuery}
-              />
+              >
+                <div className="spinner">
+                  {fetching || computing ? (
+                    <Spinner
+                      style={{ marginLeft: "1rem" }}
+                      className="loading-spinner"
+                    />
+                  ) : null}
+                </div>
+              </EntrySelector>
               <hr className="payload-divider" />
             </Header>
             <CodeTitle title="Payload" />
@@ -146,12 +155,6 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
                   Keyboard Shortcuts
                 </Button>
               </ButtonGroup>
-              {computing ? (
-                <Spinner
-                  style={{ marginLeft: "1rem" }}
-                  className="loading-spinner"
-                />
-              ) : null}
             </Header>
 
             <Preview
