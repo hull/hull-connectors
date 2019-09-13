@@ -43,8 +43,9 @@ const service = ({ clientID, clientSecret }: {
     getAllPersonsPaged: {
       url: "/persons/",
       operation: "get",
-      query: "sort=id ASC&[limit]100",
+      query: "sort=id ASC&limit=100&start=${page}",
       endpointType: "fetchAll",
+      returnObj: "body.data",
       output: PipedrivePersonRead
     }
   },

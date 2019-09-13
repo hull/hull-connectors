@@ -39,12 +39,12 @@ const transformsToHull: ServiceTransforms = [
         mapping: { type: "input" },
         condition: doesContain(["email", "phone"], "service_field_name"),
         outputPath: "${service_field_name}",
-        outputFormat: "${value.value}"
+        outputFormat: "${hull_field_name}"
       },
       {
         inputPath: "org_id",
         outputPath: "hull_service_accountId",
-        outputFormat: "${value.value}"
+        outputFormat: "${hull_field_name}"
       }
     ]
   }

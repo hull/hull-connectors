@@ -12,7 +12,8 @@ const {
   Svc,
   hull,
   iterateL,
-  cast
+  cast,
+  transformTo
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -25,6 +26,7 @@ const {
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const _ = require("lodash");
+const { organizationFields, personFields } = require("./fielddefs");
 
 function pipedrive(op: string, param?: any): Svc { return new Svc({ name: "pipedrive", op }, param) }
 
@@ -59,7 +61,8 @@ const glue = {
       iterateL("${pipedrivePersons}", { key: "pipedrivePerson", async: true },
         hull("asUser", cast(PipedrivePersonRead, "${pipedrivePerson}"))
       )
-  ]
+  ],
+  fieldsPipedrivePersonInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, personFields)),
 };
 
 module.exports = glue;
