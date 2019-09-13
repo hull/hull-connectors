@@ -1,6 +1,6 @@
 // @flow
 
-import type { HullEntityType, HullEvent } from "./index";
+import type { HullEvent } from "./index";
 
 export type HullIncludedEvents = {
   names?: Array<string>,
@@ -15,8 +15,13 @@ export type HullIncludedEntities = {
 };
 
 export type HullEntityClaims = {
-  claims: string,
-  claimType: HullEntityType,
+  claims: {
+    id?: string,
+    external_id?: string,
+    anonymous_id?: string,
+    email?: string,
+    domain?: string
+  },
   service?: string,
   include?: HullIncludedEntities
 };

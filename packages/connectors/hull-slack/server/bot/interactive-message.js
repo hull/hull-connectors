@@ -59,9 +59,10 @@ module.exports = async function interactiveMessage(ctx: HullContext) {
     //   if (value === "traits" || value === "events") {
     try {
       const { user, account, events, segments } = await ctx.entities.user.get({
-        claim: callback_id,
-        claimType: "id",
-        entity: "user"
+        entity: "user",
+        claims: {
+          id: callback_id
+        }
       });
       const payload = await getNotification({
         client,

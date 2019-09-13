@@ -675,21 +675,16 @@ configure({ app, server, connector }));
 
 ````js
 const email_fetch = {
-  claimType: "email",
-  claim: "foo@bar.com"
+  claims: { email: "foo@bar.com" }
 };
 const external_id_fetch = {
-  claimType: "external_id",
-  claim: "sldjfal;dk"
+  claims: { external_id: "sldjfal;dk" }
 };
 const anonymous_id_fetch = {
-  claimType: "anonymous_id",
-  claim: "123890423984"
+  claims: { anonymous_id: "123890423984" }
 };
 const intercom_fetch = {
-  service: "intercom",
-  claimType: "service",
-  claim: "1245"
+  claims: { anonymous_id: "intercom: 1245" }
 };
 const wide_search = {
   claim: "1245"
@@ -700,9 +695,7 @@ const userSchema = await ctx.entities.users.getSchema();
 const accountSchema = await ctx.entities.accounts.getSchema();
 
 const data = await ctx.entities.users.get({
-  claim,
-  service,
-  claimType,
+  claim, // (or claims: {...})
   include: { events: {
     names: ["Segmentd Changed"],
     limit: 100,
@@ -721,9 +714,7 @@ const data = await ctx.entities.users.get({
   account_segment_ids,
 }
 const data = await ctx.entities.events.get({
-  claim,
-  service,
-  claimType,
+  claim, // (or claims: {...})
   include: { events: {
     parent: '123142' //mandatory if if you're accessing events directly
     names: ["Segmentd Changed"],
@@ -771,9 +762,7 @@ const data = await ctx.entities.events.get({
   }
 
 const data = await ctx.entities.accounts.get({
-  claim,
-  service,
-  claimType,
+  claim, // (or claims: {...})
   include: {} //Nothing supported for now
 });
 

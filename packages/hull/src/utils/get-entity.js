@@ -149,25 +149,30 @@ export const searchEntity = (
   getPayload: typeof getUserPayload | typeof getAccountPayload
 ) => (ctx: HullContext) => async ({
   claim,
-  claimType,
+  claims = {},
   service,
   include
 }: GetEntityParams): Promise<void | HullFetchedUser | HullFetchedAccount> => {
-  const getQuery = Queries[claimType || entityType];
+  const lookup = ["id", "external_id", "email", "domain", "anonymous_id"];
+  const claimType = _.find(lookup, v => !!claims[v]);
+  const getQuery = claimType
+    ? Queries[claimType] || Queries[entityType]
+    : Queries[entityType];
+  const value = claim || claims[claimType];
   if (!getQuery) {
     throw new Error("Invalid query type");
   }
-  if (!claim) {
+  if (!value) {
     throw new Error("Empty query, can't fetch");
   }
-  const query = getQuery(claim, service);
+  const query = getQuery(value, service);
   try {
     const entity = await getEntity(ctx, query, entityType);
     if (!entity || !entity.id) {
       throw new Error(
         `Searching for a ${entityType} with ${
           claimType ? `${claimType}=` : ""
-        }${claim} returned no result`
+        }${value} returned no result`
       );
     }
     // return entity;

@@ -73,8 +73,7 @@ const postUser = (ctx, getByTeam, type, options = {}) =>
 
     try {
       const message = await ctx.entities.users.get({
-        claim: search.email,
-        claimType: "email",
+        claims: { email: search.email },
         include: { events: true, account: true }
       });
 
