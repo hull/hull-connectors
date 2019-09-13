@@ -7,6 +7,7 @@ import type {
   HullContext
 } from "hull";
 import _ from "lodash";
+import type { SupportedLanguage } from "../types";
 import compute from "./compute";
 import ingest from "./ingest";
 import saveRecent from "./save-recent";
@@ -17,6 +18,7 @@ const asyncComputeAndIngest = async (
     EntryModel,
     payload,
     source,
+    language,
     code,
     claims,
     entityType,
@@ -24,6 +26,7 @@ const asyncComputeAndIngest = async (
   }: {
     source: string,
     code: string,
+    language?: SupportedLanguage,
     entityType?: HullEntityType,
     claims: HullUserClaims | HullAccountClaims,
     payload: { [string]: any },
@@ -35,6 +38,7 @@ const asyncComputeAndIngest = async (
   try {
     const result = await compute(ctx, {
       source,
+      language,
       claims,
       payload,
       entityType,

@@ -2,8 +2,9 @@
 import type { HullContext } from "hull";
 // import type { ConfResponse } from "hull-vm";
 
-const configHandler = async (_ctx: HullContext): Promise<Object> => {
+const configHandler = async (ctx: HullContext): Promise<Object> => {
   return {
+    language: ctx.connector.private_settings.language,
     entityType: "account"
   };
 };

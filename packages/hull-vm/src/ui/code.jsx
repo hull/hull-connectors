@@ -7,15 +7,22 @@ type Props = {
   onChange: string => void,
   readOnly: boolean,
   code: string,
+  mode?: string,
   focusOnLoad: boolean
 };
 
-const Code = ({ focusOnLoad, readOnly, onChange, code }: Props) => (
+const Code = ({
+  mode = "javascript",
+  focusOnLoad,
+  readOnly,
+  onChange,
+  code
+}: Props) => (
   <CodeEditor
     focusOnLoad={focusOnLoad}
     id="code-editor"
     value={code}
-    mode="javascript"
+    mode={mode}
     readOnly={readOnly || !_.isFunction(onChange)}
     onChange={readOnly ? undefined : onChange}
   />

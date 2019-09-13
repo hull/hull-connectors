@@ -21,9 +21,10 @@ import type Engine from "../engine";
 
 type Props = {
   engine: Engine,
+  language?: string,
   strings: {
     [string]: string
-  },
+  }
 };
 
 type State = EngineState & {

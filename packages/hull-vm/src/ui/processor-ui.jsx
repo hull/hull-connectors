@@ -79,6 +79,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
       showBindings,
       events,
       error,
+      language,
       entityType
     } = this.state;
 
@@ -127,11 +128,14 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
               )}
             </Header>
             <CodeTitle
-              title={`Code ${!current.editable ? "(disabled)" : ""}`}
+              title={`Code - (${language}) ${
+                !current.editable ? "- disabled" : ""
+              }`}
             />
             <Code
               focusOnLoad={true}
               computing={computing}
+              mode={language}
               code={current.code}
               readOnly={!current.editable}
               onChange={this.handleCodeUpdate}

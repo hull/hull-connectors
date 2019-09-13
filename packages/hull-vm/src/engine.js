@@ -97,9 +97,9 @@ export default class Engine extends EventEmitter {
   updateParent = (code: string) => updateParent({ private_settings: { code } });
 
   updateCode = (code: string) => {
-    const { current: old } = this.state;
+    const { current: old, language } = this.state;
     if (!old) return;
-    const current = { ...old, code, editable: true };
+    const current = { ...old, code, language, editable: true };
     this.updateParent(code);
     this.setState({ current });
     this.fetchPreview(current);
@@ -144,13 +144,13 @@ export default class Engine extends EventEmitter {
   };
 
   fetchPreview = _.debounce(
-    async ({ code, payload, claims, entityType }: PreviewRequest) => {
+    async ({ language, code, payload, claims, entityType }: PreviewRequest) => {
       this.setState({ computing: true });
       try {
         const response: PreviewResponse = await this.request({
           url: "preview",
           method: "post",
-          data: { code, payload, claims, entityType }
+          data: { language, code, payload, claims, entityType }
         });
         const state = this.getState();
         this.setState({
