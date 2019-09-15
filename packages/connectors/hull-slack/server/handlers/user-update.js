@@ -55,6 +55,9 @@ const update = (connectSlack: ConnectSlackFunction) => async (
     attachements = []
   } = private_settings;
 
+  let printedMessages = false;
+  const duplicatedSegmentChanges = new Set();
+
   try {
     const { post, tellOperator } = await connectSlack(ctx);
     if (!post || !tellOperator) {
@@ -133,6 +136,27 @@ const update = (connectSlack: ConnectSlackFunction) => async (
                     entity: ENTITY,
                     attachements
                   });
+                  try {
+                    const userId = _.get(message, "user.id", null);
+                    if (!_.isNil(userId)) {
+                      const key = `${userId}:${match.event.event}:${match.segment}:${channel}`;
+                      if (!duplicatedSegmentChanges.has(key)) {
+                        duplicatedSegmentChanges.add(key);
+                      } else if (!printedMessages) {
+                        printedMessages = true;
+                        const triggers = _.map(messages, m => {
+                          return { changes: m.changes, events: m.events };
+                        });
+                        ctx.client.logger.info(
+                          `Duplicate Notification: ${key} - ${JSON.stringify(
+                            triggers
+                          )}`
+                        );
+                      }
+                    }
+                  } catch (err) {
+                    ctx.client.logger(`error finding duplicates ${err}`);
+                  }
                   post({
                     scopedClient,
                     payload,
