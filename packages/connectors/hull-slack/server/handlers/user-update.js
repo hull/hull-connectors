@@ -139,7 +139,7 @@ const update = (connectSlack: ConnectSlackFunction) => async (
                   try {
                     const userId = _.get(message, "user.id", null);
                     if (!_.isNil(userId)) {
-                      const key = `${userId}:${match.event.event}:${match.segment}:${channel}`;
+                      const key = `${userId}:${match.event.event}:${match.segment.name}:${match.segment.id}:${channel}`;
                       if (!duplicatedSegmentChanges.has(key)) {
                         duplicatedSegmentChanges.add(key);
                       } else if (!printedMessages) {
