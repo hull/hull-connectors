@@ -1,4 +1,20 @@
-const organizationFields = [];
+const orgFields = [
+  {
+    name: "name",
+    display: "Name",
+    readOnly: false
+  },
+  {
+    name: "address",
+    display: "Address",
+    readOnly: false
+  },
+  {
+    name: "people_count",
+    display: "People count",
+    readOnly: true
+  }
+];
 
 const personFields = [
   {
@@ -17,7 +33,7 @@ const personFields = [
     readOnly: false
   },
   {
-    name: "email.value",
+    name: "email",
     display: "Email",
     readOnly: false,
     type: "array"
@@ -26,5 +42,5 @@ const personFields = [
 
 module.exports = {
   personFields,
-  organizationFields
+  orgFields
 };

@@ -349,6 +349,7 @@ class TransformImpl {
                 context.hull_field_name = key;
                 context.service_field_name = key;
               } else if (typeof value === "string" && isUndefinedOrNull(key)) {
+                // I don't remember why we need this, please comment when you figure it out
                 context.hull_field_name = value;
                 context.service_field_name = value;
               } else {

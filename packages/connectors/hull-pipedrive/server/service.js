@@ -43,10 +43,28 @@ const service = ({ clientID, clientSecret }: {
     getAllPersonsPaged: {
       url: "/persons/",
       operation: "get",
-      query: "sort=id ASC&limit=100&start=${page}",
+      query: "limit=100&start=${start}",
       endpointType: "fetchAll",
-      returnObj: "body.data",
+      returnObj: "body",
       output: PipedrivePersonRead
+    },
+    getAllOrgsPaged: {
+      url: "/organizations/",
+      operation: "get",
+      query: "limit=100&start=${start}",
+      endpointType: "fetchAll",
+      returnObj: "body",
+      output: PipedriveOrgRead
+    },
+    refreshToken: {
+      url: "https://oauth.pipedrive.com/oauth/token",
+      operation: "post",
+      endpointType: "create",
+      returnObj: "body",
+      settings: [
+        { method: "set", params: { "Content-Type": "application/x-www-form-urlencoded" }},
+        { method: "set", params: { Authorization: "Basic ${refreshAuthorizationHeader}" }}
+      ]
     }
   },
   superagent: {
@@ -72,6 +90,12 @@ const service = ({ clientID, clientSecret }: {
         truthy: { status: 400 },
         errorType: SkippableError,
         message: ""
+      },
+      {
+        truthy: { status: 401 },
+        errorType: ConfigurationError,
+        message: "API AccessToken no longer valid, please authenticate with Pipedrive again using the Credentials button on the settings page",
+        recoveryroute: "refreshToken"
       }
     ]
   }

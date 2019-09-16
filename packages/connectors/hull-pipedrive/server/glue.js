@@ -1,6 +1,6 @@
 /* @flow */
 
-import { PipedrivePersonRead } from "./service-objects";
+import { PipedrivePersonRead, PipedriveOrgRead } from "./service-objects";
 
 const {
   ifL,
@@ -9,11 +9,16 @@ const {
   settings,
   set,
   loopL,
+  loopEndL,
   Svc,
   hull,
   iterateL,
   cast,
-  transformTo
+  transformTo,
+  settingsUpdate,
+  utils,
+  ld,
+  inc
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -26,15 +31,12 @@ const {
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const _ = require("lodash");
-const { organizationFields, personFields } = require("./fielddefs");
+const { orgFields, personFields } = require("./fielddefs");
 
 function pipedrive(op: string, param?: any): Svc { return new Svc({ name: "pipedrive", op }, param) }
 
 const refreshTokenDataTemplate = {
   refresh_token: "${connector.private_settings.refresh_token}",
-  client_id: process.env.CLIENT_ID,
-  client_secret: process.env.CLIENT_SECRET,
-  redirect_uri: "https://${connectorHostname}/auth/callback",
   grant_type: "refresh_token"
 };
 
@@ -52,17 +54,48 @@ const glue = {
   ensureHook: set("service_name", "pipedrive"),
   fetchAll: [
     route("personFetchAll"),
-    // route("orgFetchAll")
+    route("orgFetchAll")
   ],
   personFetchAll: [
     set("start", 0),
-
-      set("pipedrivePersons", pipedrive("getAllPersonsPaged")),
-      iterateL("${pipedrivePersons}", { key: "pipedrivePerson", async: true },
+    loopL([
+      set("personPage", pipedrive("getAllPersonsPaged")),
+      iterateL("${personPage.data}", { key: "pipedrivePerson", async: true },
         hull("asUser", cast(PipedrivePersonRead, "${pipedrivePerson}"))
-      )
+      ),
+      ifL(cond("isEqual", "${personPage.additional_data.pagination.more_items_in_collection}", false), {
+          do: loopEndL(),
+          eldo: set("start", inc("${start}"))
+      })
+    ])
+  ],
+  orgFetchAll: [
+    set("start", 0),
+    loopL([
+      set("orgPage", pipedrive("getAllOrgsPaged")),
+      iterateL("${orgPage.data}", { key: "pipedriveOrg", async: true},
+        hull("asAccount", cast(PipedriveOrgRead, "pipedriveOrg"))
+      ),
+      ifL(cond("isEqual", "${orgPage.additional_data.pagination.more_items_in_collection}", false), {
+          do: loopEndL(),
+          eldo: set("start", inc("${start}"))
+      })
+    ])
   ],
   fieldsPipedrivePersonInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, personFields)),
+  fieldsPipedriveOrgInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, orgFields)),
+  refreshToken:
+    ifL(cond("notEmpty", "${connector.private_settings.refresh_token}"), [
+      set("connectorHostname", utils("getConnectorHostname")),
+      set("refreshAuthorizationHeader", utils("base64Encode", `${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`)),
+      ifL(cond("notEmpty", set("refreshTokenResponse", pipedrive("refreshToken", refreshTokenDataTemplate))),
+          settingsUpdate({
+            expires_in: "${refreshTokenResponse.expires_in}",
+            refresh_token: "${refreshTokenResponse.refresh_token}",
+            access_token: "${refreshTokenResponse.access_token}"
+          })
+        )
+    ])
 };
 
 module.exports = glue;

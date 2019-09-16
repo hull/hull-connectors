@@ -8,17 +8,17 @@ const PipedrivePersonRead: ServiceObjectDefinition = {
 };
 
 const PipedrivePersonWrite: ServiceObjectDefinition = {
-  service_name: "outreach_outgoing_person",
+  service_name: "pipedrive_outgoing_person",
   name: "Person"
 };
 
 const PipedriveOrgRead: ServiceObjectDefinition = {
-  service_name: "outreach_incoming_org",
+  service_name: "pipedrive_incoming_org",
   name: "Org"
 };
 
 const PipedriveOrgWrite: ServiceObjectDefinition = {
-  service_name: "outreach_outgoing_org",
+  service_name: "pipedrive_outgoing_org",
   name: "Org"
 };
 
