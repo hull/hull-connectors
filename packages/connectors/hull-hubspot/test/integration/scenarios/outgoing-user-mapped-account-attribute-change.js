@@ -70,7 +70,8 @@ it("should allow through with mapped account attribute changes", () => {
             traits_custom_empty_string: "",
             traits_custom_zero: 0,
             // traits_custom_undefined: "", -> this is not present
-            traits_custom_date_at: "2018-10-24T09:47:39Z"
+            traits_custom_date_at: "2018-10-24T09:47:39Z",
+            "traits_hubspot/id": 5677
           },
           account: {
             id: "acc123",
