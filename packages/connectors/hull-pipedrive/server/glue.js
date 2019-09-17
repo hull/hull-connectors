@@ -98,7 +98,7 @@ const glue = {
     ),
   insertAccount:
     ifL(cond("notEmpty", set("accountFromPipedrive", pipedrive("insertAccount", input()))),
-      cacheSet({ key: input("account.id") }, "${accountFromPipedrive.data.id}"),
+      cacheSet({ key: input("account.id") }, "${accountFromPipedrive.id}"),
       hull("asAccount", "${accountFromPipedrive}")
     ),
 

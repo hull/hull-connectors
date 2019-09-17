@@ -35,7 +35,7 @@ const service = ({ clientID, clientSecret }: {
   prefix: "https://api-proxy.pipedrive.com",
   endpoints: {
     insertAccount: {
-      url: "/organizations/${accountId}",
+      url: "/organizations",
       operation: "post",
       endpointType: "create",
       returnObj: "body.data",

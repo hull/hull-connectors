@@ -15,7 +15,7 @@ it("Send Single Account To Pipedrive", () => {
       handlerUrl: "smart-notifier",
       channel: "account:update",
       externalApiMock: () => {
-        const scope = nock("https://hull-dev-sandbox-961195.pipedrive.com");
+        const scope = nock("https://api-proxy.pipedrive.com");
 
         scope
           .post("/organizations")
