@@ -22,7 +22,8 @@ const {
   not,
   input,
   notFilter,
-  get
+  get,
+  or
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -139,7 +140,56 @@ const glue = {
             access_token: "${refreshTokenResponse.access_token}"
           })
         )
+    ]),
+  isConfigured: cond("allTrue",[
+    cond("notEmpty", settings("access_token"))
+  ]),
+  updateUser: ifL(route("isConfigured"),
+    iterateL(input(), { key: "message", async: true }, [
+      route("linkAccount", cast(HullOutgoingAccount, "${message}")),
+      ifL(cond("notEmpty", set("userId", input("message.user.pipedrive/id"))), {
+        do: route("updateProspect", cast(HullOutgoingUser, "${message}")),
+        eldo: [
+          route("personLookup"),
+          ifL(cond("notEmpty", "${userId}"), {
+            do: route("updateProspect", cast(HullOutgoingUser, "${message}")),
+            eldo: route("insertProspect", cast(HullOutgoingUser, "${message}"))
+          })
+        ]
+      })
     ])
+  ),
+  updatePerson: [
+    ifL(cond("notEmpty", set("personFromPipedrive", outreach("updateProspect", input()))),
+      hull("asUser", "${personFromPipedrive}")
+    )
+  ],
+  insertPerson: [
+    ifL(cond("notEmpty", set("personFromPipedrive", outreach("insertProspect", input()))),
+      hull("asUser", "${personFromPipedrive}")
+    )
+  ],
+  // Link account, looks up the account, and inserts it if it doesn't exist
+  // and passes the accountId back to the user being upserted so that we can link to the right account
+  linkAccount:
+    ifL([
+        // checks to see if we have the "Link users in service" feature on
+        settings("link_users_in_service"),
+        // makes sure we don't already have an accountId on the user, if so, then we'll just use that account id
+        cond("isEmpty", set("accountId", input("account.outreach/id"))),
+        or([
+          // insert and link if the account is part of the account segments that we're sending
+          cond("notEmpty", ld("intersection", settings("synchronized_account_segments"), ld("map", input("account_segments"), "id"))),
+          // or link if account_segments are not present (indication that it's a batch call)
+          // and make sure that there's an actual account to link, that it's not empty {}
+          cond("allTrue", [
+            not(input("account_segments")),
+            cond("notEmpty", input("account"))
+          ])
+        ])
+      ],
+      route("upsertAccount", input())
+    ),
 };
 
 module.exports = glue;
