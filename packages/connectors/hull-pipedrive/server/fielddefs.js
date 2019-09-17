@@ -13,6 +13,11 @@ const orgFields = [
     name: "people_count",
     display: "People count",
     readOnly: true
+  },
+  {
+    name: "add_time",
+    display: "Added at",
+    readOnly: true
   }
 ];
 
