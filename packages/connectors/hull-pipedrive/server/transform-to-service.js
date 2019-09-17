@@ -35,6 +35,10 @@ const transformsToHull: ServiceTransforms = [
       {
         inputPath: "hull_service_accountId",
         outputPath: "org_id"
+      },
+      {
+        inputPath: "${accountId}",
+        outputPath: "org_id"
       }
     ]
   }
