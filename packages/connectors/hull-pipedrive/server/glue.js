@@ -95,7 +95,31 @@ const glue = {
             access_token: "${refreshTokenResponse.access_token}"
           })
         )
+    ]),
+  isConfigured: cond("allTrue",[
+    cond("notEmpty", settings("access_token"))
+  ]),
+  updateUser: ifL(route("isConfigured"),
+    iterateL(input(), "message", [
+      ifL(cond("notEmpty", set("userId", input("message.user.pipedrive/id"))), {
+        do: route("updateProspect", cast(PipedrivePersonWrite, "${message}")),
+        eldo: [
+          route("personLookup"),
+          ifL(cond("notEmpty", "${userId}"), {
+            do: route("updateProspect", cast(PipedrivePersonWrite, "${message}")),
+            eldo: route("insertProspect", cast(PipedrivePersonWrite, "${message}"))
+          })
+        ]
+      })
     ])
+  ),
+  updatePerson: [
+    route("linkAccount"),
+    ifL(cond("notEmpty", set("personFromPipedrive", outreach("updateProspect", input()))),
+      hull("asUser", "${userFromOutreach}")
+    )
+  ],
+  insertPerson: {}
 };
 
 module.exports = glue;
