@@ -145,6 +145,33 @@
           "service": "domain"
         }
       ]
+    },
+    {
+      "name": "synchronized_account_segments",
+      "title": "Account Filter",
+      "description": "Send *Accounts* as Accounts to Pipedrive when belonging to one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "accountSegment"
+    },
+    {
+      "name": "outgoing_account_attributes",
+      "title": "Account Attributes to send to Outreach",
+      "type": "array",
+      "format": "accountTraitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "Pipedrive Account Field",
+        "allowCreate": false,
+        "loadOptions": "/fields-pipedrive-account-out"
+      },
+      "default": [
+        {
+          "hull": "name",
+          "service": "name"
+        }
+      ]
     }
   ],
   "settings": [],
@@ -210,6 +237,34 @@
     {
       "url": "/fields-pipedrive-org-in",
       "handler": "fieldsPipedriveOrgInbound"
+    },
+    {
+      "url": "/fields-pipedrive-account-out",
+      "handler": "fieldsPipedriveAccountOutbound"
+    }
+  ],
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
+        {
+          "channel": "account:update",
+          "handler": "accountUpdate"
+        }
+      ],
+      "conditions": {
+        "channels": {
+          "only": [
+            "user:update",
+            "account:update",
+            "ship:update"
+          ]
+        }
+      }
     }
   ],
   "settings_sections": [
@@ -250,6 +305,14 @@
       "properties": [
         "private_settings.incoming_orgs_attributes",
         "json.fetch_all_orgs"
+      ]
+    },
+    {
+      "title": "Account - Sending to Pipedrive",
+      "description": "",
+      "properties": [
+        "private_settings.synchronized_account_segments",
+        "private_settings.outgoing_account_attributes"
       ]
     }
   ]

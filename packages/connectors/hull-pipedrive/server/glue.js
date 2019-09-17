@@ -18,7 +18,11 @@ const {
   settingsUpdate,
   utils,
   ld,
-  inc
+  inc,
+  not,
+  input,
+  notFilter,
+  get
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -41,6 +45,7 @@ const refreshTokenDataTemplate = {
 };
 
 const glue = {
+  isAuthenticated: not(cond("isEmpty", settings("access_token"))),
   status: ifL(cond("isEmpty", settings("access_token")), {
     do: {
       status: "setupRequired",
@@ -52,6 +57,44 @@ const glue = {
     }
   }),
   ensureHook: set("service_name", "pipedrive"),
+  accountUpdate: ifL(route("isAuthenticated"),
+    iterateL(input(), { key: "message", async: true },
+      route("accountUpdateStart", cast(HullOutgoingAccount, "${message}"))
+    )
+  ),
+  accountUpdateStart:
+    ifL(cond("notEmpty", set("accountId", input("account.pipedrive/id"))), {
+      do: route("updateAccount"),
+      eldo: [
+        route("accountLookup"),
+        ifL(cond("notEmpty", "${accountId}"), {
+          do: route("updateAccount"),
+          eldo: route("insertAccount")
+        }),
+      ]
+    }),
+  accountLookup:
+    iterateL(notFilter({ service: "id" }, "${connector.private_settings.account_claims}"), "claim",
+      ifL([
+          cond("notEmpty", set("value", input("account.${claim.hull}"))),
+          cond("notEmpty", set("property", "${claim.service}")),
+          cond("notEmpty", set("existingAccount", get("[0]", pipedrive("getAccountsByName"))))
+        ],
+        [
+          set("accountId", "${existingAccount.id}"),
+          loopEndL()
+        ]
+      )
+    ),
+  insertAccount:
+    ifL(cond("notEmpty", set("accountFromPipedrive", pipedrive("insertAccount", input()))),
+      hull("asAccount", "${accountFromPipedrive}")
+    ),
+
+  updateAccount:
+    ifL(cond("notEmpty", set("accountFromPipedrive", pipedrive("updateAccount", input()))),
+      hull("asAccount", "${accountFromPipedrive}")
+    ),
   fetchAll: [
     route("personFetchAll"),
     route("orgFetchAll")
@@ -84,6 +127,7 @@ const glue = {
   ],
   fieldsPipedrivePersonInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, personFields)),
   fieldsPipedriveOrgInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, orgFields)),
+  fieldsPipedriveAccountOutbound: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, orgFields)),
   refreshToken:
     ifL(cond("notEmpty", "${connector.private_settings.refresh_token}"), [
       set("connectorHostname", utils("getConnectorHostname")),

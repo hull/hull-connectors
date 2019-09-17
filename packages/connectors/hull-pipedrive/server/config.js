@@ -34,8 +34,8 @@ export default function connectorConfig(): HullConnectorConfig {
         })
       },
       transforms: _.concat(
-        require("./transforms-to-hull")
-        // require("./transforms-to-service")
+        require("./transforms-to-hull"),
+        require("./transforms-to-service")
       ),
       ensureHook: "ensureHook"
     }).createHandler,
