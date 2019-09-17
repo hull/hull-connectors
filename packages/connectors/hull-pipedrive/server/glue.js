@@ -73,7 +73,7 @@ const glue = {
     )
   ),
   accountUpdateStart:
-    cacheLock(input("user.id"),
+    cacheLock(input("account.id"),
       ifL(or([
           set("accountId", input("account.pipedrive/id")),
           set("accountId", cacheGet(input("account.id")))
@@ -139,9 +139,10 @@ const glue = {
   webhooks: [
 
   ],
+  getOrgFields: pipedrive("getOrgFields"),
   fieldsPipedrivePersonInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, personFields)),
   fieldsPipedriveOrgInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, orgFields)),
-  fieldsPipedriveAccountOutbound: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, orgFields)),
+  fieldsPipedriveAccountOutbound: transformTo(HullOutgoingDropdownOption, route("getOrgFields")),
   refreshToken:
     ifL(cond("notEmpty", "${connector.private_settings.refresh_token}"), [
       set("connectorHostname", utils("getConnectorHostname")),
@@ -160,7 +161,7 @@ const glue = {
   updateUser: ifL(route("isConfigured"),
     iterateL(input(), { key: "message", async: true }, [
       route("linkAccount", cast(HullOutgoingAccount, "${message}")),
-      ifL(cond("notEmpty", set("userId", input("message.user.pipedrive/id"))), {
+      ifL(cond("notEmpty", set("userId", input("message.user.${service_name}/id"))), {
         do: route("updateProspect", cast(HullOutgoingUser, "${message}")),
         eldo: [
           route("personLookup"),
@@ -189,7 +190,7 @@ const glue = {
         // checks to see if we have the "Link users in service" feature on
         settings("link_users_in_service"),
         // makes sure we don't already have an accountId on the user, if so, then we'll just use that account id
-        cond("isEmpty", set("accountId", input("account.outreach/id"))),
+        cond("isEmpty", set("accountId", input("account.${service_name}/id"))),
         or([
           // insert and link if the account is part of the account segments that we're sending
           cond("notEmpty", ld("intersection", settings("synchronized_account_segments"), ld("map", input("account_segments"), "id"))),
@@ -201,7 +202,7 @@ const glue = {
           ])
         ])
       ],
-      route("upsertAccount", input())
+      route("accountUpdateStart", input())
     ),
 };
 

@@ -58,6 +58,13 @@ const transformsShared: ServiceTransforms = [
         outputPath: "hull_service_accountId"
       },
       {
+        // this transform is for account attributes mapped to the user level
+        // the account attribute will be labeled account.X
+        mapping: "connector.private_settings.outgoing_user_attributes",
+        inputPath: "${hull_field_name}",
+        outputPath: "${service_field_name}",
+      },
+      {
         mapping: "connector.private_settings.outgoing_user_attributes",
         inputPath: "user.${hull_field_name}",
         outputPath: "${service_field_name}",

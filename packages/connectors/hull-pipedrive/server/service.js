@@ -95,6 +95,13 @@ const service = ({ clientID, clientSecret }: {
       endpointType: "update",
       returnObj: "body.data",
       output: PipedrivePersonRead
+    },
+    getOrgFields: {
+      url: "/organizationFields",
+      operation: "get",
+      endpointType: "get",
+      returnObj: "body",
+      output: PipedriveAttributeDefinition
     }
   },
   superagent: {
