@@ -65,8 +65,10 @@ const transformsToHull: ServiceTransforms = [
           operation: "set"
         }
       },
-      { mapping: "connector.private_settings.incoming_account_attributes",
-        inputPath: "attributes.${service_field_name}",
+      {
+        mapping: "connector.private_settings.incoming_account_attributes",
+        condition: doesNotContain(["owner_id"], "service_field_name"),
+        inputPath: "${service_field_name}",
         outputPath: "attributes.${hull_field_name}",
         outputFormat: {
           value: "${value}",
@@ -76,7 +78,7 @@ const transformsToHull: ServiceTransforms = [
       {
         mapping: "connector.private_settings.account_claims",
         condition: doesNotContain(["owner_id"], "service_field_name"),
-        inputPath: "attributes.${service_field_name}",
+        inputPath: "${service_field_name}",
         outputPath: "ident.${hull_field_name}",
       }
     ]

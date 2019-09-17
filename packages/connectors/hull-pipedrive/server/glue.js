@@ -60,7 +60,13 @@ const glue = {
       message: "allgood"
     }
   }),
-  ensureHook: set("service_name", "pipedrive"),
+  ensureWebhooks: [
+    set("service_name", "pipedrive"),
+    ifL(settings("access_token"), ifL(cond("isEmpty", "${connector.private_settings.webhook_id}"), [
+      set("webhookUrl", utils("createWebhookUrl")),
+      set("existingWebhooks", pipedrive("getAllWebhooks")),
+    ]))
+  ],
   accountUpdate: ifL(route("isAuthenticated"),
     iterateL(input(), { key: "message", async: true },
       route("accountUpdateStart", cast(HullOutgoingAccount, "${message}"))
@@ -122,13 +128,16 @@ const glue = {
     loopL([
       set("orgPage", pipedrive("getAllOrgsPaged")),
       iterateL("${orgPage.data}", { key: "pipedriveOrg", async: true},
-        hull("asAccount", cast(PipedriveOrgRead, "pipedriveOrg"))
+        hull("asAccount", cast(PipedriveOrgRead, "${pipedriveOrg}"))
       ),
       ifL(cond("isEqual", "${orgPage.additional_data.pagination.more_items_in_collection}", false), {
           do: loopEndL(),
           eldo: set("start", inc("${start}"))
       })
     ])
+  ],
+  webhooks: [
+
   ],
   fieldsPipedrivePersonInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, personFields)),
   fieldsPipedriveOrgInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, orgFields)),

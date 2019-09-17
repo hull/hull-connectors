@@ -79,7 +79,7 @@
       ]
     },
     {
-      "name": "incoming_orgs_attributes",
+      "name": "incoming_account_attributes",
       "title": "Organization Attributes to capture from Pipedrive",
       "type": "array",
       "format": "accountTraitMapping",
@@ -89,7 +89,7 @@
         "placeholder": "Pipedrive Organization Field",
         "allowCreate": true,
         "loadOptions": "/fields-pipedrive-org-in",
-        "source": "outreach"
+        "source": "pipedrive"
       }
     },
     {
@@ -195,6 +195,16 @@
     "value": "60",
     "handler": "status"
   },
+  "incoming": [
+    {
+      "url": "/webhooks",
+      "handler": "webhooks",
+      "options": {
+        "credentialsFromQuery": true,
+        "bodyParser": "json"
+      }
+    }
+  ],
   "json": [
     {
       "url": "/personFetchAll",
@@ -303,7 +313,7 @@
       "title": "Account - Fetching from Pipedrive",
       "description": "Hull gives its customers the ability to capture a subset of account fields in order to have fine grain control over the dataflow.  Please configure the fields that you would like pulled from Pipedrive below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.<br /><br />",
       "properties": [
-        "private_settings.incoming_orgs_attributes",
+        "private_settings.incoming_account_attributes",
         "json.fetch_all_orgs"
       ]
     },
