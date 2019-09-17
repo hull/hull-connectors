@@ -10,12 +10,14 @@ const {
 
 const {
   ServiceUserRaw,
-  HullIncomingAccount
+  HullIncomingAccount,
+  HullConnectorAttributeDefinition
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const {
   PipedrivePersonRead,
-  PipedriveOrgRead
+  PipedriveOrgRead,
+  PipeDriveAttributeDefinition
 } = require("./service-objects");
 
 /**
@@ -24,6 +26,16 @@ const {
  * @type {[type]}
  */
 const transformsToHull: ServiceTransforms = [
+  {
+    input: PipeDriveAttributeDefinition,
+    output: HullConnectorAttributeDefinition,
+    strategy: "Jsonata",
+    direction: "incoming",
+    batchTransform: true,
+    transforms: [
+      `$.{"type": field_type, "name": key, "display": name, "readOnly": edit_flag}`
+    ]
+  },
   {
     input: PipedrivePersonRead,
     output: ServiceUserRaw,

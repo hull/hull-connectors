@@ -17,7 +17,8 @@ const {
   PipedrivePersonWrite,
   PipedrivePersonRead,
   PipedriveOrgWrite,
-  PipedriveOrgRead
+  PipedriveOrgRead,
+  PipedriveAttributeDefinition
 } = require("./service-objects");
 
 const {
@@ -100,7 +101,7 @@ const service = ({ clientID, clientSecret }: {
       url: "/organizationFields",
       operation: "get",
       endpointType: "get",
-      returnObj: "body",
+      returnObj: "body.data",
       output: PipedriveAttributeDefinition
     }
   },
