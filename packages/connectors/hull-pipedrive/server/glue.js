@@ -124,7 +124,7 @@ const glue = {
     loopL([
       set("orgPage", pipedrive("getAllOrgsPaged")),
       iterateL("${orgPage.data}", { key: "pipedriveOrg", async: true},
-        hull("asAccount", cast(PipedriveOrgRead, "pipedriveOrg"))
+        hull("asAccount", cast(PipedriveOrgRead, "${pipedriveOrg}"))
       ),
       ifL(cond("isEqual", "${orgPage.additional_data.pagination.more_items_in_collection}", false), {
           do: loopEndL(),
