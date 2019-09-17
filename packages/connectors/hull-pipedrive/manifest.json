@@ -195,6 +195,16 @@
     "value": "60",
     "handler": "status"
   },
+  "incoming": [
+    {
+      "url": "/webhooks",
+      "handler": "webhooks",
+      "options": {
+        "credentialsFromQuery": true,
+        "bodyParser": "json"
+      }
+    }
+  ],
   "json": [
     {
       "url": "/personFetchAll",
