@@ -23,7 +23,10 @@ const {
   input,
   notFilter,
   get,
-  or
+  or,
+  cacheLock,
+  cacheSet,
+  cacheGet
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -64,16 +67,16 @@ const glue = {
     )
   ),
   accountUpdateStart:
-    ifL(cond("notEmpty", set("accountId", input("account.pipedrive/id"))), {
-      do: route("updateAccount"),
-      eldo: [
-        route("accountLookup"),
-        ifL(cond("notEmpty", "${accountId}"), {
+    cacheLock(input("user.id"),
+      ifL(or([
+          set("accountId", input("account.pipedrive/id")),
+          set("accountId", cacheGet(input("account.id")))
+        ]), {
           do: route("updateAccount"),
           eldo: route("insertAccount")
-        }),
-      ]
-    }),
+        }
+      )
+    ),
   accountLookup:
     iterateL(notFilter({ service: "id" }, "${connector.private_settings.account_claims}"), "claim",
       ifL([
@@ -89,6 +92,7 @@ const glue = {
     ),
   insertAccount:
     ifL(cond("notEmpty", set("accountFromPipedrive", pipedrive("insertAccount", input()))),
+      cacheSet({ key: input("account.id") }, "${accountFromPipedrive.data.id}"),
       hull("asAccount", "${accountFromPipedrive}")
     ),
 
@@ -160,12 +164,12 @@ const glue = {
     ])
   ),
   updatePerson: [
-    ifL(cond("notEmpty", set("personFromPipedrive", outreach("updateProspect", input()))),
+    ifL(cond("notEmpty", set("personFromPipedrive", pipedrive("updateProspect", input()))),
       hull("asUser", "${personFromPipedrive}")
     )
   ],
   insertPerson: [
-    ifL(cond("notEmpty", set("personFromPipedrive", outreach("insertProspect", input()))),
+    ifL(cond("notEmpty", set("personFromPipedrive", pipedrive("insertProspect", input()))),
       hull("asUser", "${personFromPipedrive}")
     )
   ],

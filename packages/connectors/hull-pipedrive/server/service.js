@@ -64,7 +64,6 @@ const service = ({ clientID, clientSecret }: {
       returnObj: "body",
       output: PipedrivePersonRead
     },
-<<<<<<< Updated upstream
     getAllOrgsPaged: {
       url: "/organizations/",
       operation: "get",
@@ -79,10 +78,10 @@ const service = ({ clientID, clientSecret }: {
       endpointType: "create",
       returnObj: "body",
       settings: [
-        { method: "set", params: { "Content-Type": "application/x-www-form-urlencoded" }},
-        { method: "set", params: { Authorization: "Basic ${refreshAuthorizationHeader}" }}
+        { method: "set", params: { "Content-Type": "application/x-www-form-urlencoded" } },
+        { method: "set", params: { Authorization: "Basic ${refreshAuthorizationHeader}" } }
       ]
-=======
+    },
     insertPerson: {
       url: "/persons",
       operation: "post",
@@ -96,7 +95,6 @@ const service = ({ clientID, clientSecret }: {
       endpointType: "update",
       returnObj: "body.data",
       output: PipedrivePersonRead
->>>>>>> Stashed changes
     }
   },
   superagent: {
