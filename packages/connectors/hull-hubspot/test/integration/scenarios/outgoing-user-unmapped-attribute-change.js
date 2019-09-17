@@ -70,7 +70,8 @@ it("should filter because none of the mapped attributes have changed", () => {
             traits_custom_empty_string: "",
             traits_custom_zero: 0,
             // traits_custom_undefined: "", -> this is not present
-            traits_custom_date_at: "2018-10-24T09:47:39Z"
+            traits_custom_date_at: "2018-10-24T09:47:39Z",
+            "traits_hubspot/id": 1234
           },
           account: {
             id: "acc123",
