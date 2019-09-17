@@ -448,7 +448,8 @@
       "value": "5",
       "handler": "checkToken",
       "options": {
-        "fireAndForget": true
+        "fireAndForget": true,
+        "alwaysEnabled": true
       }
     }
   ],

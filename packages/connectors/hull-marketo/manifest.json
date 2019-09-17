@@ -227,7 +227,8 @@
       "value": "5",
       "handler": "pollLeadExport",
       "options": {
-        "fireAndForget": true
+        "fireAndForget": true,
+        "alwaysEnabled": true
       }
     },
     {
