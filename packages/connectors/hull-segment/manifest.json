@@ -1,0 +1,239 @@
+{
+  "name": "Segment",
+  "description": "Complete control over your customer data with Hull and Segment",
+  "tags": ["batch", "batch-accounts", "kraken"],
+  "index": "ship.js",
+  "source": "segment",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "ui": false,
+  "admin": "admin.html",
+  "readme": "readme.md",
+  "version": "0.2.0",
+  "deployment_settings": [
+    {
+      "name": "_selector",
+      "default": "body",
+      "type": "string",
+      "format": "string"
+    },
+    {
+      "name": "_placement",
+      "default": "append",
+      "type": "string",
+      "format": "string"
+    }
+  ],
+  "private_settings": [
+    {
+      "name": "sync_out_info",
+      "title": "Hull ➞ Segment",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "synchronized_segments",
+      "title": "Users to send",
+      "description": "List segments for which to send Users to Segment",
+      "type": "array",
+      "format": "segment",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    {
+      "name": "synchronized_properties",
+      "title": "Attributes to send in Users",
+      "description": "*By default, only `email` and `hull_segments` are sent to Segment.com in `analytics.identify()` calls*",
+      "type": "array",
+      "format": "trait",
+      "items": {
+        "type": "string"
+      },
+      "default": ["email"]
+    },
+    {
+      "name": "send_events",
+      "title": "Events to send",
+      "description": "*By Default, all events are sent to Segment.com as `analytics.track()` calls. If you specify events above, only those will be sent.*",
+      "type": "array",
+      "format": "event",
+      "default": []
+    },
+    {
+      "name": "forward_events",
+      "title": "Enable forwarding of events received from Segment.com",
+      "description": "ONLY enable this feature when the Write Key is from a different workspace. Read the manual before making any changes; this can result in an endless loop of events.",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "synchronized_account_segments",
+      "title": "Accounts to send",
+      "description": "List segments for which to send Account to segment",
+      "type": "array",
+      "format": "account_segment",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    {
+      "name": "synchronized_account_properties",
+      "title": "Attributes to send in Accounts",
+      "description": "*By default, only `domain` is sent to Segment.com in `analytics.group()` calls*",
+      "type": "array",
+      "format": "accountTrait",
+      "items": {
+        "type": "string"
+      },
+      "default": ["domain"]
+    }
+  ],
+  "settings": [
+    {
+      "name": "write_key",
+      "title": "Write Key to send data to Segment.com API",
+      "description": "Find it under Settings > API Keys > Write Key in your Segment.com workspace.",
+      "type": "string",
+      "format": "text"
+    },
+    {
+      "name": "ignore_segment_userId",
+      "title": "Ignore User ID",
+      "description": "Ignore `userId` received from segment.com, use the email or anonymousId as identifier instead.",
+      "type": "boolean",
+      "default": false,
+      "format": "hidden"
+    },
+    {
+      "name": "public_id_field",
+      "title": "User ID",
+      "description": "Attribute to use as `userId` in the segment payload. Warning: This can affect your MTUs.",
+      "type": "string",
+      "enum": ["id", "external_id", "email"],
+      "default": "external_id",
+      "format": "hidden"
+    },
+    {
+      "name": "public_account_id_field",
+      "title": "Public Account ID Field",
+      "description": "Account field to use as the groupId for data sent to segment",
+      "type": "string",
+      "enum": ["id", "external_id", "domain"],
+      "default": "external_id",
+      "format": "hidden"
+    },
+    {
+      "name": "sending_hero",
+      "title": "Important Note",
+      "headerTemplate": "**Users and Accounts are only sent to segment.com when at least one identifier is present, this can be either the `External ID` or one or more `Anonymous IDs`.**",
+      "format": "information",
+      "type": "string"
+    },
+    {
+      "name": "sync_in_info",
+      "title": "Segment ➞ Hull",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "handle_pages",
+      "title": "Handle Page Calls",
+      "description": "Record whenever a user sees a page of your website.",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "handle_screens",
+      "title": "Capture Screen Calls",
+      "description": "Screen calls let you record whenever a user sees a screen on a mobile app.",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "handle_accounts",
+      "title": "Capture Group Calls",
+      "description": "Handle incoming group calls. Group calls associate an individual user with a group—be it a company, organization, account, project, team or whatever you come up with. A user can be in multiple groups in segment, however **Hull will handle only one group**. Consecutive group calls will overwrite the attributes in Hull. For further information, please read the Instructions.",
+      "type": "boolean",
+      "default": false
+    }
+  ],
+  "actions": [],
+  "tabs": [
+    {
+      "url": "admin.html",
+      "handler": "admin",
+      "title": "Credentials",
+      "options": {
+        "size": "small",
+        "editable": false
+      }
+    }
+  ],
+  "schedules": [
+    {
+      "url": "/status",
+      "handler": "statusUpdate",
+      "options": {
+        "interval": "5"
+      }
+    }
+  ],
+  "subscriptions": [
+    {
+      "url": "/notifier",
+      "channels": {
+        "user:update": {
+          "handler": "userUpdate",
+          "options": {}
+        },
+        "account:update": {
+          "handler": "accountUpdate",
+          "options": {}
+        }
+      }
+    }
+  ],
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate",
+          "options": {
+            "filter": {
+              "user_segments": "private_settings.synchronized_segments"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "url": "/batch-accounts",
+      "channels": [
+        {
+          "channel": "account:update",
+          "handler": "accountUpdate",
+          "options": {
+            "filter": {
+              "account_segments": "private_settings.synchronized_account_segments"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "incoming": [
+    {
+      "url": "/segment",
+      "method": "POST",
+      "handler": "incomingHandler",
+      "options": {
+        "credentialsFromQuery": true
+      }
+    }
+  ]
+}
