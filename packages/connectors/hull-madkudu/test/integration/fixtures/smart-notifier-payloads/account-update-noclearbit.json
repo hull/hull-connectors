@@ -1,0 +1,54 @@
+{
+  "configuration": {
+    "id": "5aa93acd5f8245f89a002d38",
+    "organization": "56be9938.hullapp.io",
+    "secret": "1ea902c7ae7e2ff67e090be8e5def7f6"
+  },
+  "channel": "account:update",
+  "messages": [{
+    "message_id": "QBJMOAFESVMrQwsqWBFOBCEhPjA-RVNEUAYWLF1GSFE3GQhoUQ5PXiM_NSAoRRIDBU8CKF15MUU_QVhwaFENGXJ9YHNoWUdSV0MGLFdRGAdoTm11JW8JHnV7ZHZtUxIDAEdXd3f_0o6vs8xOZiU9XhJLLD5-MzRFQV4",
+    "account": {
+      "domain": "madkudu.com",
+      "name": "Madkudu",
+      "external_id": "hull12345678"
+    },
+    "account_segments": [{
+      "id": "59f09bc7f9c5a94af600076d",
+      "name": "Madkudu Account",
+      "type": "accounts_segment",
+      "created_at": "2017-10-25T14:12:23Z",
+      "updated_at": "2017-10-25T14:12:23Z"
+    }]
+  }],
+  "notification_id": "dce9bf32-bd5b-4348-b830-e9d7347df9a8",
+  "connector": {
+    "id": "5aa93acd5f8245f89a002d38",
+    "settings": {},
+    "manifest": {
+      "name": "Madkudu",
+      "version": "1.0.1",
+      "subscriptions": [{
+        "url": "/smart-notifier"
+      }],
+      "tags": [
+        "incoming",
+        "outgoing",
+        "batch-accounts",
+        "oneColumn",
+        "smart-notifier"
+      ]
+    },
+    "type": "ship",
+    "name": "Madkudu staging",
+    "private_settings": {
+      "api_key": "abcdfghaygfai17285",
+      "enabled": true,
+      "sending_enabled": false,
+      "synchronized_account_segments": [
+        "59f09bc7f9c5a94af600076d"
+      ]
+    },
+    "source_url": "https://hull-madkudu.herokuapp.com/",
+    "manifest_url": "https://hull-madkudu.herokuapp.com/manifest.json"
+  }
+}

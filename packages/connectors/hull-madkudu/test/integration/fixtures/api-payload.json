@@ -1,0 +1,50 @@
+{
+  "company": {
+    "category": {
+      "industry": "Professional Services", 
+      "industryGroup": "Commercial & Professional Services", 
+      "sector": "Industrials", 
+      "subIndustry": "Consulting"
+    },
+    "description": "We are the premier fitness brand for all fitness levels.",
+    "domain": "stayfit123.com",
+    "domainAliases": ["stayfit123.nl"],
+    "emailProvider": false,
+    "facebook": { "handle": "stayfit123" },
+    "geo": {
+      "city": "Eindhoven", 
+      "country": "Netherlands", 
+      "countryCode": "NL", 
+      "lat": 51.4719807, 
+      "lng": 5.4450888, 
+      "postalCode": "5624 CL", 
+      "state": "Noord-Brabant", 
+      "stateCode": "NB", 
+      "streetName": "Boschdijk", 
+      "streetNumber": "888"
+    },
+    "id": "some12345678id",
+    "linkedin": { "handle": "company/stayfit123" },
+    "location": "Boschdijk 888, 5624 CL Eindhoven, Netherlands",
+    "logo": "https://logo.clearbit.com/stayfit123.com",
+    "metrics": { "alexaGlobalRank": 999999, "employees": 30 },
+    "name": "Stayfit 123",
+    "site": { "emailAddresses": ["info@stayfit123.com", "support@stayfit123.com", "contact@stayfit123.com"], "phoneNumbers": ["+31 88 666 9999"] },
+    "tags": ["B2B", "Consulting & Professional Services", "Internet"],
+    "tech": ["google_analytics", "outlook", "google_tag_manager", "microsoft_exchange_online", "apache", "microsoft_office_365", "new_relic", "vimeo", "google_maps", "typekit_by_adobe", "facebook_advertiser", "piwik"],
+    "timeZone": "Europe/Amsterdam",
+    "twitter": {
+      "avatar": "https://pbs.twimg.com/profile_images/518735780634868345696/In9ABC1-_normal.jpg", 
+      "bio": "Stayfit 123 is the premier B2B fitness brand.", 
+      "followers": 999, 
+      "following": 111, 
+      "handle": "stayfit123", 
+      "id": "123456789", 
+      "location": "Boschdijk 888, Eindhoven", 
+      "site": "https://t.co/AbCdEF12gh"
+    },
+    "type": "private",
+    "utcOffset": 1
+  },
+  "domain": "stayfit123.com"
+}

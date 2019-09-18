@@ -1,0 +1,16 @@
+version: "2"
+checks:
+  method-lines:
+    config:
+      threshold: 30
+exclude_patterns:
+  - "flow-typed/"
+  - "**/node_modules/"
+  - "**/test/"
+engines:
+  duplication:
+    enabled: true
+    config:
+      languages:
+        javascript:
+          mass_threshold: 90

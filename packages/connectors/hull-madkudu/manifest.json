@@ -1,0 +1,47 @@
+{
+  "name": "Madkudu",
+  "description": "Enrich Accounts with Madkudu",
+  "tags": ["incoming", "outgoing", "batch-accounts", "oneColumn", "smart-notifier"],
+  "ui": false,
+  "source": "madkudu",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "readme": "readme.md",
+  "version": "1.0.3",
+  "private_settings": [
+    {
+      "type": "string",
+      "format": "string",
+      "name": "api_key",
+      "required": true,
+      "default": "",
+      "title": "Madkudu API Key"
+    },
+    {
+      "name": "synchronized_account_segments",
+      "title": "Account Filter",
+      "description": "Send to Madkudu when accounts match these segments",
+      "default": [],
+      "type": "array",
+      "format": "accountSegment"
+    },
+    {
+      "name": "synchronized_user_segments",
+      "title": "User Filter",
+      "description": "Send to Madkudu when users match these segments",
+      "default": [],
+      "type": "array",
+      "format": "segment"
+    }
+  ],
+  "settings": [],
+  "resources": [],
+  "subscriptions": [{ "url": "/smart-notifier" }],
+  "schedules" : [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "5"
+    }
+  ]
+}
