@@ -1,0 +1,128 @@
+{
+  "name": "Google Analytics",
+  "description": "Sends Events to Google Analytics",
+  "source": "ga",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "version": "0.0.9-monorepo",
+  "index": "ship.js",
+  "tags": [
+    "batch",
+    "kraken-exports",
+    "smart-notifier"
+  ],
+  "settings": [
+    {
+      "name": "tid",
+      "title": "Google Tracking ID",
+      "description": "Enter the Google tracking ID (UA-XXXXXXX-Y)",
+      "type": "string",
+      "format": "string",
+      "options": {
+        "placeholder": "UA-XXXXXXX-Y"
+      }
+    }
+  ],
+  "private_settings": [
+    {
+      "name": "synchronized_user_segments",
+      "title": "Segment Filter",
+      "description": "Select users to send to Google Analytics",
+      "type": "array",
+      "default": "ALL",
+      "format": "segment",
+      "options": {
+        "standard": {
+          "ALL": "All Accounts"
+        }
+      }
+    },
+    {
+      "name": "events",
+      "title": "Events to send to GA",
+      "type": "array",
+      "format": "table",
+      "options": {
+        "itemsPerRow": 1
+      },
+      "items": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "title": "Event",
+            "type": "string",
+            "format": "event"
+          },
+          "category": {
+            "title": "Category",
+            "type": "string",
+            "format": "string"
+          },
+          "action": {
+            "title": "Action",
+            "type": "string",
+            "format": "string"
+          },
+          "dimensions": {
+            "title": "Custom Dimensions",
+            "description": "Send custom dimensions to Google Analytics. Enter the exact name of the property in the selected Hull Event, it will be mapped to custom dimensions 1-20",
+            "type": "array",
+            "format": "table",
+            "maxItems": 20,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "default": [
+        "hull.io"
+      ]
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Setup",
+      "properties": [
+        "settings.tid",
+        "private_settings.synchronized_user_segments"
+      ]
+    },
+    {
+      "title": "Events to send",
+      "description": "Select events to send to Google Analutics using their server-side API. Event name will be sent as 'label'",
+      "properties": [
+        "private_settings.events"
+      ]
+    }
+  ],
+  "deployment_settings": [],
+  "readme": "readme.md",
+  "ui": false,
+  "json": [],
+  "incoming": [],
+  "schedules": [],
+  "statuses": [],
+  "router": [],
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "conditions": {
+        "channels": {
+          "only": [
+            "user:update"
+          ]
+        },
+        "segments": {
+          "user:update": "private_settings.synchronized_user_segments"
+        }
+      },
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ]
+    }
+  ]
+}
