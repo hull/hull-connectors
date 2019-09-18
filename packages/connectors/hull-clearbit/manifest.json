@@ -1,0 +1,249 @@
+{
+  "name": "Clearbit",
+  "description": "Synchronize Data with Clearbit",
+  "tags": ["incoming", "outgoing", "batch", "oneColumn", "smart-notifier"],
+  "ui": false,
+  "picture": "picture.png",
+  "admin": "admin.html",
+  "tabs": [
+    {
+      "title": "Prospector",
+      "url": "admin.html",
+      "size": "large",
+      "handler": "admin",
+      "editable": false
+    }
+  ],
+  "source": "clearbit",
+  "readme": "readme.md",
+  "version": "0.0.20-monorepo",
+  "private_settings": [
+    {
+      "title": "Clearbit API Key",
+      "name": "api_key",
+      "description": "Use the secret API key from https://dashboard.clearbit.com/api",
+      "type": "string",
+      "format": "text"
+    },
+    {
+      "title": "Enrich Users",
+      "name": "enrich_user_segments",
+      "description": "Specify one or more segments for which enrichment will be performed. *No one is sent if this is empty*",
+      "type": "array",
+      "format": "segment",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    {
+      "title": "Enrich Accounts",
+      "name": "enrich_account_segments",
+      "description": "Specify one or more Account segments for which enrichment will be performed. *No one is sent if this is empty*",
+      "type": "array",
+      "format": "accountSegment",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    {
+      "title": "Reveal filter",
+      "description": "Who will be sent to Reveal. *Every anonymous user is sent if this is empty*. We never send anyone who has identifiable information",
+      "name": "reveal_segments",
+      "type": "array",
+      "format": "segment",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    {
+      "title": "Minimum distinct visitors from same company to trigger Prospect API",
+      "name": "reveal_prospect_min_contacts",
+      "type": "number",
+      "description": "As soon as this number of distinct visitors from the same Company is met, the connector will run the Prospect workflow (if it's enabled)",
+      "format": "range",
+      "default": 1,
+      "minimum": 1,
+      "maximum": 10,
+      "multipleOf": 1
+    },
+    {
+      "title": "Attribute that defines the company domain",
+      "name": "discover_domain",
+      "type": "string",
+      "format": "trait",
+      "default": "domain",
+      "description": "Use this attribute as domain when fetching people from Clearbit."
+    },
+    {
+      "name": "discover_segments",
+      "title": "Discover filter",
+      "description": "Define which companies are going to trigger new Discovery calls to find similar companies.",
+      "type": "array",
+      "format": "segment",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    {
+      "name": "discover_limit_count",
+      "title": "Maximum number of companies to fetch for each new company triggerering Discovery",
+      "type": "number",
+      "format": "range",
+      "default": 5,
+      "minimum": 1,
+      "maximum": 10,
+      "multipleOf": 1
+    },
+    {
+      "name": "prospect_domain",
+      "title": "Attribute that defines the company domain",
+      "type": "string",
+      "format": "trait",
+      "default": "domain",
+      "description": "The connector will use the value of this attribute as domain when fetching people from Clearbit."
+    },
+    {
+      "name": "prospect_segments",
+      "title": "Prospect filter",
+      "description": "The Clearbit Prospector API will be called for the users matching these segments to find leads for their parent Account",
+      "type": "array",
+      "format": "segment",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    {
+      "name": "prospect_limit_count",
+      "title": "Maximum number of leads to fetch per company",
+      "type": "number",
+      "format": "range",
+      "default": 5,
+      "minimum": 1,
+      "maximum": 20,
+      "multipleOf": 1
+    },
+    {
+      "name": "prospect_filter_role",
+      "title": "Filter for a certain Role",
+      "type": "array",
+      "options": {
+        "multiple": true
+      },
+      "format": "select",
+      "enum": [
+        "",
+        "ceo",
+        "communications",
+        "consulting",
+        "customer_service",
+        "education",
+        "engineering",
+        "finance",
+        "founder",
+        "health_professional",
+        "human_resources",
+        "information_technology",
+        "legal",
+        "marketing",
+        "operations",
+        "owner",
+        "president",
+        "product",
+        "public_relations",
+        "real_estate",
+        "recruiting",
+        "research",
+        "sales"
+      ],
+      "description": "Specify a certain role or leave blank to search without restriction."
+    },
+    {
+      "name": "prospect_filter_seniority",
+      "title": "Filter for specific Seniority",
+      "type": "array",
+      "options": {
+        "multiple": true
+      },
+      "format": "select",
+      "enum": ["", "executive", "director", "manager"],
+      "description": "Define a specific seniority or leave blank if you don't want to restrict your search."
+    },
+    {
+      "name": "prospect_filter_titles",
+      "title": "Search for Titles containing",
+      "type": "array",
+      "items": {
+        "title": "Title",
+        "type": "string"
+      },
+      "format": "select",
+      "options": {
+        "allowCreate": true
+      },
+      "description": "Restrict your search by specifying criteria for the prospect's title. If left blank, search is carried out without restriction."
+    }
+  ],
+  "settings": [],
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "updateUser"
+        },
+        {
+          "channel": "account:update",
+          "handler": "updateAccount"
+        }
+      ]
+    }
+  ],
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "updateUser"
+        },
+        {
+          "channel": "account:update",
+          "handler": "updateAccount"
+        }
+      ]
+    }
+  ],
+  "incoming": [
+    {
+      "url": "/clearbit-enrich",
+      "handler": "webhookHandler"
+    }
+  ],
+  "json": [
+    {
+      "url": "/prospect",
+      "handler": "prospectHandler"
+    }
+  ],
+  "status": {
+    "url": "/status",
+    "initial_value": "setupRequired",
+    "type": "interval",
+    "handler": "statusHandler",
+    "value": "5"
+  },
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "handler": "statusHandler",
+      "value": "5"
+    }
+  ]
+}
