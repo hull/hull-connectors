@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable no-eval */
 
-import get from "lodash/get";
+import _get from "lodash/get";
 import { EventEmitter2 as EventEmitter } from "eventemitter2";
 import type { PublicPayload, PublicUpdate } from "../../types";
 
@@ -18,7 +18,7 @@ export default function({
   payload,
   changes
 }: UserUpdateParams) {
-  if (get(payload, "user.id")) {
+  if (_get(payload, "user.id")) {
     const {
       user = {},
       events = [],

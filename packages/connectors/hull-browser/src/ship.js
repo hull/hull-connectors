@@ -3,7 +3,7 @@
 import { Promise } from "es6-promise";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
-import get from "lodash/get";
+import _get from "lodash/get";
 import io from "socket.io-client";
 import { EventEmitter2 as EventEmitter } from "eventemitter2";
 import debugFactory from "debug";
@@ -103,7 +103,7 @@ const onEmbed = (rootNode, deployment, hull) => {
   setup();
 
   socket.on("user.update", async (payload = {}) => {
-    const userId = get(payload, "user.id");
+    const userId = _get(payload, "user.id");
     const previous = (await getLocalStorage()) || {};
     const changes = diff(payload, previous);
     if (!isEmpty(changes)) {
