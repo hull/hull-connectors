@@ -25,8 +25,8 @@ export default function connectorConfig(): HullConnectorConfig {
     logLevel: LOG_LEVEL,
     middlewares: [],
     handlers: handlers({
-      flow_size: FLOW_CONTROL_SIZE || 200,
-      flow_in: FLOW_CONTROL_IN || 1
+      flow_size: parseInt(FLOW_CONTROL_SIZE || 200, 1),
+      flow_in: parseInt(FLOW_CONTROL_IN || 1, 1)
     }),
     logsConfig: {
       logLevel: LOG_LEVEL

@@ -8,7 +8,7 @@ import webhookHandler from "./webhook";
 import updateUser from "./update-user";
 import updateAccount from "./update-account";
 
-type HandlerType = { flow_size: string | number, flow_in: string | number };
+type HandlerType = { flow_size: number, flow_in: number };
 const handler = ({
   flow_size,
   flow_in
