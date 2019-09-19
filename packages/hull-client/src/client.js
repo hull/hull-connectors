@@ -32,6 +32,7 @@ const {
 } = require("./lib/normalize-claims");
 
 const traitsUtils = require("./utils/traits");
+const claimsUtils = require("./utils/claims");
 const settingsUtils = require("./utils/settings");
 const propertiesUtils = require("./utils/properties");
 
@@ -159,6 +160,9 @@ class HullClient {
      */
     this.utils = {
       traits: traitsUtils,
+      claims: {
+        get: claimsUtils
+      },
       properties: {
         get: propertiesUtils.get.bind(this)
       },

@@ -797,3 +797,10 @@ foo: "bazinga"
 ### Run specified tests
 
 `yarn run-test path_to_test_file(s)`
+
+### Util to get Service Identifier in a stable way:
+
+```
+const clearbit_id = ctx.client.utils.claims.getService("clearbit", account);
+// -> First anonymous_id with the format: `clearbit:xxx`
+```
