@@ -3,7 +3,8 @@
 import _ from "lodash";
 import type { HullContext, HullUserUpdateMessage } from "hull";
 
-import ga from "../destinations/google-analytics";
+import ga from "../destinations/ga";
+import gtm from "../destinations/gtm";
 
 import type { Segments, Events, Payload } from "../../types";
 
@@ -62,7 +63,8 @@ export default function userPayload(
     user: { ...u, id: user.id },
     settings,
     destinations: {
-      google_analytics: ga({ user, settings })
+      ga: ga({ user, settings }),
+      gtm: gtm({ user, settings })
     },
     // workaround to use the traits that contain both account and user traits, and leave the account object separate
     account: _.pick(

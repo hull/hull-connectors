@@ -54,10 +54,13 @@ export type PrivatePayload = {
   segments: {}
 };
 
+export type Destination = {
+  enabled?: boolean,
+  userId?: string
+};
 export type Destinations = {
-  google_analytics: {
-    userId?: string
-  }
+  ga: Destination,
+  gtm: Destination
 };
 
 export type PublicPayload = {

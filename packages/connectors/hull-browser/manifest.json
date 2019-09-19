@@ -17,6 +17,20 @@
       "type": "string",
       "format": "code",
       "default": "console.log('Received Data from Browser connector', user, segments, account, account_segments, events, changes);"
+    },
+    {
+      "title": "Send to Google Analytics",
+      "description": "Send the attributes and events to Google Analytics in the page",
+      "name": "use_ga",
+      "format": "checkbox",
+      "type": "boolean"
+    },
+    {
+      "title": "Send to Google Tag Manager",
+      "description": "Send the attributes and events to Google Tag Manager in the page",
+      "name": "use_gtm",
+      "format": "checkbox",
+      "type": "boolean"
     }
   ],
   "private_settings": [
@@ -88,7 +102,9 @@
       "description": "If you use Hull.js, deploy this connector in the **platform** you installed directly. Otherwise, copy the code below and paste it in your page.",
       "step": "credentials",
       "properties": [
-        "json.credentials"
+        "json.credentials",
+        "settings.use_gtm",
+        "settings.use_ga"
       ]
     },
     {

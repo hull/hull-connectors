@@ -56,7 +56,7 @@ const onEmbed = (rootNode, deployment, hull) => {
           verboseMemoryLeak: true
         });
 
-  destinations(emitter);
+  destinations({ emitter });
   if (!window.Hull) window.hullBrowser = emitter;
 
   function setup() {
