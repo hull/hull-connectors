@@ -1,9 +1,8 @@
 // @flow
-import { HullContext, HullIncomingHandlerMessage } from "hull";
+import type { HullContext, HullIncomingHandlerMessage } from "hull";
+import { saveUser } from "../lib/side-effects";
 
-import Clearbit from "../clearbit";
-
-export default function handleWebhook(
+export default async function handleWebhook(
   ctx: HullContext,
   message: HullIncomingHandlerMessage
 ) {
@@ -27,16 +26,8 @@ export default function handleWebhook(
     }
 
     if (person) {
-      client
-        .asUser({ id })
-        .logger.info("incoming.user.start", { source: "webhook" });
-      new Clearbit(ctx).saveUser(
-        { user: { id }, person },
-        {
-          source: "enrich",
-          incoming: true
-        }
-      );
+      // $FlowFixMe
+      await saveUser(ctx, { user: { id }, person, source: "webhook" });
     }
 
     return {

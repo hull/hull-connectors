@@ -103,9 +103,13 @@ export async function saveAccount(
 
   const domain = account.domain || traits["clearbit/domain"];
 
+  const accountClaims = { domain, anonymous_id: `clearbit:${company.id}` };
   const asAccount = _.isEmpty(account)
-    ? client.asUser(user).account({ domain })
-    : client.asAccount({ ...account, domain });
+    ? client.asUser(user).account(accountClaims)
+    : client.asAccount({
+        ...account,
+        ...accountClaims
+      });
 
   asAccount.logger.info("incoming.account.success", {
     source,
@@ -154,7 +158,10 @@ export async function saveUser(
   //   throw new Error("Missing identifier for user");
   // }
 
-  const asUser = client.asUser(user);
+  const asUser = client.asUser({
+    ...user,
+    anonymous_id: `clearbit:${person.id}`
+  });
 
   const traits = {
     ...getUserTraitsFrom(person, "Person"),
