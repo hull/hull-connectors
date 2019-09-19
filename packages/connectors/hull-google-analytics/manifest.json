@@ -29,7 +29,9 @@
       "title": "Segment Filter",
       "description": "Select users to send to Google Analytics",
       "type": "array",
-      "default": "ALL",
+      "default": [
+        "ALL"
+      ],
       "format": "segment",
       "options": {
         "standard": {
@@ -75,23 +77,23 @@
           }
         }
       },
-      "default": [
-        "hull.io"
-      ]
+      "default": []
     }
   ],
   "settings_sections": [
     {
       "title": "Setup",
+      "description": "Specify the Google Tracking ID here. Once you have configured the Google Analytics connector, you will need to inject the bridge snippet by going to the Platform settings for your web property in Hull, and installing the Google analytics connector so we can establish a bridge between Hull identities and the Google Analytics user ID named `cid`. If Hull.js can't find a Google Analytics snippet in the page, it will inject it and configure it for you, otherwise it will rely on the existing GA snippet, and this ID will be only used for server-side tracking",
       "properties": [
         "settings.tid",
-        "private_settings.synchronized_user_segments"
+        "settings.uid"
       ]
     },
     {
       "title": "Events to send",
-      "description": "Select events to send to Google Analutics using their server-side API. Event name will be sent as 'label'",
+      "description": "Here you can select additional server-side events to send to Google Analytics using their server-side API. Event name will be sent as 'label'. Events that are tracked in your page don't need to be listed here, they will be sent automatically. You only need to list events that are not generated in the page, such as backend evenst or events from SaaS services",
       "properties": [
+        "private_settings.synchronized_user_segments",
         "private_settings.events"
       ]
     }
