@@ -3,7 +3,7 @@
 import { Client } from "clearbit";
 import request from "request";
 import qs from "qs";
-import Promise from "bluebird";
+// import BluebirdPromise from "bluebird";
 import type { HullContext } from "hull";
 import { STATUS_CODES } from "http";
 import type {
@@ -12,7 +12,12 @@ import type {
   ClearbitCombined
 } from "../types";
 
-function ClearbitApi({ path, method = "get", params = {}, key }) {
+function ClearbitApi({
+  path,
+  method = "get",
+  params = {},
+  key
+}): Promise<ClearbitProspectorResponse> {
   const baseUrl = `https://prospector.clearbit.com/v1${path}`;
   const url = `${baseUrl}?${qs.stringify(params, { arrayFormat: "brackets" })}`;
   return new Promise((resolve, reject) => {
@@ -108,7 +113,7 @@ export default class ClearbitClient {
     return this.client.Discovery.search(params);
   }
 
-  prospect(params: any): Promise<void | ClearbitProspectorResponse> {
+  prospect(params: any): Promise<ClearbitProspectorResponse> {
     this.ctx.metric.increment("clearbit.prospect");
     this.ctx.metric.increment("ship.service_api.call", 1, [
       "ship_action:clearbit:prospect"

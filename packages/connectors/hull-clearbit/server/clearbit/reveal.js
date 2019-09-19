@@ -2,7 +2,8 @@
 import _ from "lodash";
 import type { HullUserUpdateMessage, HullContext } from "hull";
 import { isInSegments, isValidIpAddress } from "./utils";
-import type Client from "./client";
+import Client from "./client";
+import { saveAccount, saveUser } from "../lib/side-effects";
 import type {
   ShouldAction,
   ClearbitResult,
@@ -56,19 +57,62 @@ export function shouldReveal(
   return { should: true };
 }
 
-export async function reveal({
+export async function performReveal({
   client,
   message
 }: {
   client: Client,
   message: HullUserUpdateMessage
-}): Promise<ClearbitResult> {
+}) {
   const { user } = message;
   const { last_known_ip: ip } = user;
   const response: ClearbitResult = await client.reveal({ ip });
   return {
+    company: undefined,
     ...response,
     source: "reveal",
     ip
   };
 }
+
+export const reveal = async (
+  ctx: HullContext,
+  message: HullUserUpdateMessage
+) => {
+  const { user, account } = message;
+  const { metric, client } = ctx;
+
+  const asUser = client.asUser(user);
+  try {
+    metric.increment("reveal");
+    const response = await performReveal({
+      client: new Client(ctx),
+      message
+    });
+    if (!response || !response.source) return false;
+    const { company, source, ip } = response;
+    if (company) {
+      await Promise.all([
+        saveUser(ctx, { user, source }),
+        saveAccount(
+          ctx,
+          { account, user, company, source },
+          {
+            company: _.pick(company, "name", "domain"),
+            ip
+          }
+        )
+      ]);
+    }
+  } catch (err) {
+    // we filter error messages
+    if (!_.includes(["unknown_ip"], err.type)) {
+      asUser.logger.info("outgoing.user.error", {
+        errors: err,
+        method: "revealUser"
+      });
+    }
+    throw err;
+  }
+  return undefined;
+};

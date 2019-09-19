@@ -1,50 +1,58 @@
+// @flow
+import type {
+  HullContext,
+  HullIncomingHandlerMessage,
+  HullExternalResponse
+} from "hull";
+import BluebirdPromise from "bluebird";
 import _ from "lodash";
-import Promise from "bluebird";
+import { saveProspect } from "../lib/side-effects";
 
-import Clearbit from "../clearbit";
+import Client from "../clearbit/client";
+// import Promise from "bluebird";
+import { performProspect } from "../clearbit/prospect";
 
-export default function handleProspect({ hostSecret }) {
-  return (req, res) => {
-    const { domains, role, seniority, titles = [], limit } = req.body;
-    const { client: hull, ship, metric } = req.hull;
+const prospect = async (
+  ctx: HullContext,
+  message: HullIncomingHandlerMessage
+): HullExternalResponse => {
+  // $FlowFixMe
+  const { domains, role, seniority, titles = [], limit } = message.body;
+  if (!domains.length) {
+    return { status: 404, data: { message: "Empty list of domains" } };
+  }
+  const clearbitClient = new Client(ctx);
+  const responses = await BluebirdPromise.mapSeries(domains, async domain => {
+    const account = { domain };
+    const { prospects } = await performProspect({
+      settings: {
+        prospect_filter_role: role,
+        prospect_filter_seniority: seniority,
+        prospect_filter_titles: titles,
+        prospect_filter_limit: limit
+      },
+      client: clearbitClient,
 
-    if (domains) {
-      const cb = new Clearbit({
-        hull,
-        ship,
-        hostSecret,
-        metric
-      });
-      const prospecting = Promise.mapSeries(domains, domain => {
-        const query = {
-          domain,
-          role,
-          seniority,
-          titles,
-          limit
-        };
-        return cb.fetchProspects({ query });
-      });
-
-      Promise.all(prospecting)
-        .then(results => {
-          const resData = _.flatten(results);
-          // We need to check in case the request timed out earlier.
-          // It seems that one of the middleware components is setting headers and writing into the
-          // body without ending the response.
-          if (!res.headersSent) {
-            res.status(200).json({ prospects: resData });
-          } else {
-            res.end();
-          }
-        })
-        .catch(error => {
-          // eslint-disable-next-line no-console
-          console.warn("Error prospecting...", error);
-          res.status(500).json({ error: error.message });
-        });
-    } else {
-      res.status(404).json({ message: "Empty list of domains..." });
-    }
-  };
-}
+      // $FlowFixMe
+      message: { account }
+    });
+    return prospects;
+    // return Promise.all(
+    // $FlowFixMe
+    // prospects.map(person => saveProspect(ctx, { account, person }))
+    // );
+  });
+  const prospects = _.flatten(responses.map(_.values));
+  // const prospects = _.reduce(
+  //   responses,
+  //   (m, v) => {
+  //     _.map(v, (p, email) => {
+  //       m[email] = p;
+  //     });
+  //     return m;
+  //   },
+  //   {}
+  // );
+  return { status: 200, data: { prospects: _.flatten(prospects) } };
+};
+export default prospect;

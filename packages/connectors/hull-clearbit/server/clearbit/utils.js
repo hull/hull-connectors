@@ -22,7 +22,8 @@ export function isInSegments(
   );
 }
 
-export function getDomain(account: HullAccount) {
+export function getDomain(account: HullAccount): string {
+  // $FlowFixMe
   return account.domain || account["clearbit/domain"];
 }
 

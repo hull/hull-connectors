@@ -6,8 +6,10 @@ import type {
   HullAccountUpdateMessage,
   HullContext
 } from "hull";
-import type Client from "./client";
+import Client from "./client";
 import { isInSegments, getDomain } from "./utils";
+
+import { saveAccount, saveUser } from "../lib/side-effects";
 
 import type {
   ShouldAction,
@@ -129,19 +131,18 @@ export function shouldEnrichAccount(
   return { should: true };
 }
 
-export async function enrich({
+export async function performEnrich({
   client,
   token,
   message,
   hostname
 }: {
-  settings: any,
   token: string,
   client: Client,
   subscribe: boolean,
   hostname: string,
   message: HullUserUpdateMessage | HullAccountUpdateMessage
-}): Promise<ClearbitResult> {
+}) {
   const { user = {}, account } = message;
   const domain = getDomain(account);
 
@@ -164,10 +165,42 @@ export async function enrich({
       };
 
   // if (hostname) {
-  payload.webhook_url = `https://${hostname}/clearbit-enrich/${token}`;
+  payload.webhook_url = `https://${hostname}/clearbit-enrich?token=${token}`;
   // }
 
   const enrichment = await client.enrich(payload);
 
   return { ...enrichment, source: "enrich" };
 }
+
+export const enrich = async (
+  ctx: HullContext,
+  message: HullUserUpdateMessage | HullAccountUpdateMessage
+): Promise<void | ClearbitResult> => {
+  const { user, account } = message;
+  const { hostname, metric, client, clientCredentialsEncryptedToken } = ctx;
+
+  try {
+    metric.increment("enrich");
+    const response = await performEnrich({
+      token: clientCredentialsEncryptedToken,
+      client: new Client(ctx),
+      subscribe: true,
+      hostname,
+      message
+    });
+    if (!response || !response.source) return undefined;
+    const { person, company, source } = response;
+    await Promise.all([
+      user && saveUser(ctx, { user, person, source }),
+      account && saveAccount(ctx, { user, account, company, source })
+    ]);
+  } catch (err) {
+    client.asUser(user).logger.info("outgoing.user.error", {
+      errors: err,
+      method: "enrichUser"
+    });
+    throw err;
+  }
+  return undefined;
+};

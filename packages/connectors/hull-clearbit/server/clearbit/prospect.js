@@ -4,9 +4,11 @@
 import Promise from "bluebird";
 import type { HullContext, HullAccountUpdateMessage } from "hull";
 import _ from "lodash";
-import type Client from "./client";
-import { isInSegments, getDomain } from "./utils";
+import Client from "./client";
+import { isInSegments, getDomain, now } from "./utils";
+
 import excludes from "../excludes";
+import { saveProspect } from "../lib/side-effects";
 import type {
   ClearbitPrivateSettings,
   ShouldAction,
@@ -51,55 +53,7 @@ export async function shouldProspect(
   return { should: true };
 }
 
-export function fetchProspects({
-  client,
-  query
-}: {
-  client: Client,
-  query: ClearbitProspectorQuery
-}) {
-  const {
-    titles = [],
-    domain,
-    roles,
-    seniorities,
-    cities,
-    states,
-    countries,
-    limit = 5
-  } = query;
-
-  // Allow prospecting even if no titles passed
-  if (titles.length === 0) titles.push(null);
-
-  const prospects = {};
-
-  return Promise.mapSeries(titles, title => {
-    const newLimit = limit - _.size(prospects);
-    if (newLimit <= 0) return Promise.resolve(prospects);
-    const params = _.omitBy(
-      {
-        domain,
-        roles,
-        seniorities,
-        cities,
-        states,
-        countries,
-        title,
-        limit: newLimit,
-        email: true
-      },
-      v => v === undefined || v === null
-    );
-    return client.prospect(params).then((results = []) => {
-      results.forEach(p => {
-        prospects[p.email] = p;
-      });
-    });
-  }).then(() => ({ prospects, query }));
-}
-
-export function prospect({
+export async function performProspect({
   settings,
   client,
   message
@@ -108,24 +62,109 @@ export function prospect({
   client: Client,
   message: HullAccountUpdateMessage
 }): Promise<{ prospect: ClearbitProspect, query: ClearbitProspectorQuery }> {
-  const { account } = message;
-  const query = {
-    domain: getDomain(account),
-    limit: settings.prospect_limit_count,
-    email: true
-  };
+  try {
+    const { account } = message;
 
-  ["seniorities", "titles", "roles", "cities", "states", "countries"].forEach(
-    k => {
+    const query = {};
+    ["seniorities", "roles", "cities", "states", "countries"].forEach(k => {
       const filter = settings[`prospect_filter_${k}`];
-      if (!_.isEmpty(filter)) {
+      if (!!filter && !_.isEmpty(filter) && !_.isUndefined(filter)) {
         query[k] = filter;
       }
-    }
-  );
+    });
 
-  return fetchProspects({ client, query });
+    const titles = settings.prospect_filter_titles || [null];
+    const limit = settings.prospect_limit_count || 5;
+    const domain = getDomain(account);
+    // Allow prospecting even if no titles passed
+    if (titles.length === 0) {
+      titles.push(null);
+    }
+    const prospects = {};
+    const responseQuery = { query, titles, domain, limit };
+    await Promise.mapSeries(titles, async title => {
+      const newLimit = limit - _.size(prospects);
+      if (newLimit <= 0) return Promise.resolve(prospects);
+      const { results } = await client.prospect({
+        domain,
+        title,
+        limit: newLimit,
+        ...query
+      });
+      if (!results) {
+        throw new Error("No Results");
+      }
+      return results.forEach(p => {
+        prospects[p.email] = p;
+      });
+    });
+    return { prospects, query: responseQuery };
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
 }
+
+export const prospect = async (
+  ctx: HullContext,
+  message: HullAccountUpdateMessage = {}
+) => {
+  const { metric, client, connector } = ctx;
+  const { account } = message;
+  const { private_settings } = connector;
+
+  const scope = client.asAccount(account);
+
+  const logError = error => {
+    scope.logger.info("outgoing.account.error", {
+      errors: _.get(error, "message", error),
+      method: "prospectUser"
+    });
+  };
+
+  try {
+    metric.increment("prospect");
+    const { prospects, query } = await performProspect({
+      message,
+      client: new Client(ctx),
+      settings: private_settings
+    });
+    const log = {
+      source: "prospector",
+      message: `Found ${_.size(prospects)} new Prospects`,
+      ...query,
+      prospects
+    };
+
+    scope.logger.info("outgoing.account.success", log);
+
+    // If we're scoped as Hull (and not as a User)
+    // - when coming from the Prospector UI, then we can't add Track & Traits.
+    // if (scope.traits) {
+    //   scope.traits({
+    //     "clearbit/prospected_at": { value: now(), operation: "setIfNull" }
+    //   });
+    // }
+    //
+    // if (scope.track) {
+    //   scope.track(
+    //     "Clearbit Prospector Triggered",
+    //     {
+    //       ..._.mapKeys(query, (v, k) => `query_${k}`),
+    //       found: _.size(prospects),
+    //       emails: _.keys(prospects)
+    //     },
+    //     { ip: 0 }
+    //   );
+    // }
+    return Promise.all(
+      prospects.map(person => saveProspect(ctx, { account, person }))
+    );
+  } catch (err) {
+    logError(err);
+    return Promise.reject(err);
+  }
+};
 
 /**
  * Check if we already have known users from that domain

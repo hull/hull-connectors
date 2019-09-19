@@ -2,29 +2,18 @@
 import type {
   HullContext,
   HullConnector,
-  HullAccountUpdateMessage,
-  HullUserUpdateMessage
+  HullAccountUpdateMessage
 } from "hull";
 import _ from "lodash";
-import type { ClearbitResult } from "../types";
 import Client from "./client";
 
 import { getDomain, now } from "./utils";
-import { prospect } from "./prospect";
-import { enrich } from "./enrich";
-import { reveal } from "./reveal";
-// import { discover } from "./discover";
+import { discover } from "./discover";
 // import { getUserTraitsFrom, getAccountTraitsFromCompany } from "./mapping";
-import {
-  saveProspect,
-  saveAccount,
-  saveUser,
-  saveDiscovered
-} from "../lib/side-effects";
+import { saveDiscovered } from "../lib/side-effects";
 
 // const debug = require("debug")("hull-clearbit:clearbit_class");
 
-const FILTERED_ERRORS = ["unknown_ip"];
 type Settings = {
   api_key: string,
 
@@ -75,129 +64,6 @@ export default class Clearbit {
       throw new Error("No API Key Available");
     }
     this.client = new Client(ctx);
-  }
-
-  /** *********************************************************
-   * Clearbit Enrichment
-   */
-
-  async enrich(message: HullUserUpdateMessage = {}): void | ClearbitResult {
-    const { user, account } = message;
-    const { hostname } = this.ctx;
-    try {
-      this.metric.increment("enrich");
-      const response = await enrich({
-        settings: this.settings,
-        token: this.token,
-        client: this.client,
-        subscribe: true,
-        hostname,
-        message
-      });
-      if (!response || !response.source) return false;
-      const { person, company, source } = response;
-      await Promise.all([
-        user && saveUser(this.ctx, { user, person, source }),
-        account && saveAccount(this.ctx, { user, account, company, source })
-      ]);
-    } catch (err) {
-      this.hull.asUser(user).logger.info("outgoing.user.error", {
-        errors: err,
-        method: "enrichUser"
-      });
-      throw err;
-    }
-    return undefined;
-  }
-
-  async reveal(message: HullUserUpdateMessage = {}) {
-    const { user, account } = message;
-    const asUser = this.hull.asUser(user);
-    try {
-      this.metric.increment("reveal");
-      const response = await reveal({
-        settings: this.settings,
-        client: this.client,
-        message
-      });
-      if (!response || !response.source) return false;
-      const { company, source, ip } = response;
-      await Promise.all([
-        saveUser(this.ctx, { user, source }),
-        saveAccount(
-          this.ctx,
-          { account, user, company, source },
-          {
-            company: _.pick(company, "name", "domain"),
-            ip
-          }
-        )
-      ]);
-    } catch (err) {
-      // we filter error messages
-      if (!_.includes(FILTERED_ERRORS, err.type)) {
-        asUser.logger.info("outgoing.user.error", {
-          errors: err,
-          method: "revealUser"
-        });
-      }
-      throw err;
-    }
-    return undefined;
-  }
-
-  async prospect(message: HullAccountUpdateMessage = {}) {
-    const { account } = message;
-    const scope = this.hull.asAccount(account);
-    const logError = error => {
-      scope.logger.info("outgoing.account.error", {
-        errors: _.get(error, "message", error),
-        method: "prospectUser"
-      });
-    };
-
-    try {
-      this.metric.increment("prospect");
-      const { prospects, query } = await prospect({
-        message,
-        client: this.client,
-        settings: this.settings
-      });
-      const log = {
-        source: "prospector",
-        message: `Found ${_.size(prospects)} new Prospects`,
-        ...query,
-        prospects
-      };
-
-      scope.logger.info("outgoing.user.success", log);
-
-      // If we're scoped as Hull (and not as a User)
-      // - when coming from the Prospector UI, then we can't add Track & Traits.
-      if (scope.traits) {
-        scope.traits({
-          "clearbit/prospected_at": { value: now(), operation: "setIfNull" }
-        });
-      }
-
-      if (scope.track) {
-        scope.track(
-          "Clearbit Prospector Triggered",
-          {
-            ..._.mapKeys(query, (v, k) => `query_${k}`),
-            found: _.size(prospects),
-            emails: _.keys(prospects)
-          },
-          { ip: 0 }
-        );
-      }
-      return Promise.all(
-        prospects.map(person => saveProspect(this.ctx, { account, person }))
-      );
-    } catch (err) {
-      logError(err);
-      return Promise.reject(err);
-    }
   }
 
   /** *********************************************************

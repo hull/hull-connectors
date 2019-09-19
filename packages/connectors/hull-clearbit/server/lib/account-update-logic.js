@@ -1,19 +1,15 @@
 // @flow
 import _ from "lodash";
 import type { HullContext, HullAccountUpdateMessage } from "hull";
-import type Clearbit from "../clearbit";
 import type {
   ShouldAction,
   ClearbitResult,
   ClearbitPrivateSettings
 } from "../types";
-import { shouldProspect } from "../clearbit/prospect";
-import { shouldEnrichAccount } from "../clearbit/enrich";
+import { prospect, shouldProspect } from "../clearbit/prospect";
+import { enrich, shouldEnrichAccount } from "../clearbit/enrich";
 
-export default async function updateLogic(
-  ctx: HullContext,
-  clearbit: Clearbit
-) {
+export default async function updateLogic(ctx: HullContext) {
   const settings: ClearbitPrivateSettings = ctx.connector.private_settings;
   return async function accountUpdateLogic(message: HullAccountUpdateMessage) {
     const actions = await Promise.all([
@@ -27,8 +23,8 @@ export default async function updateLogic(
     ] = actions;
 
     const results: Array<void | false | ClearbitResult> = await Promise.all([
-      enrichAction.should && clearbit.enrich(message),
-      prospectActions.should && clearbit.prospect(message)
+      enrichAction.should && enrich(ctx, message),
+      prospectActions.should && prospect(ctx, message)
     ]);
 
     // const {

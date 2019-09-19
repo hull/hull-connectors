@@ -1,19 +1,15 @@
 // @flow
 import type { HullContext, HullUserUpdateMessage } from "hull";
 import _ from "lodash";
-import type Clearbit from "../clearbit";
 import type {
   ShouldAction,
   ClearbitResult,
   ClearbitPrivateSettings
 } from "../types";
-import { shouldReveal } from "../clearbit/reveal";
-import { shouldEnrichUser } from "../clearbit/enrich";
+import { reveal, shouldReveal } from "../clearbit/reveal";
+import { enrich, shouldEnrichUser } from "../clearbit/enrich";
 
-export default async function userUpdateLogic(
-  ctx: HullContext,
-  clearbit: Clearbit
-) {
+export default async function userUpdateLogic(ctx: HullContext) {
   const settings: ClearbitPrivateSettings = ctx.connector.private_settings;
   return async function updateLogic(message: HullUserUpdateMessage) {
     const actions = await Promise.all([
@@ -23,14 +19,14 @@ export default async function userUpdateLogic(
     const [enrichAction, revealAction]: [ShouldAction, ShouldAction] = actions;
 
     const results: Array<void | false | ClearbitResult> = await Promise.all([
-      enrichAction.should && clearbit.enrich(message),
-      revealAction.should && clearbit.reveal(message)
+      enrichAction.should && enrich(ctx, message),
+      revealAction.should && reveal(ctx, message)
     ]);
 
     return _.filter(actions, "should")
-      .map(({ message }) => ({
+      .map(({ message: msg }) => ({
         action: "skip",
-        message
+        message: msg
       }))
       .concat(results);
   };

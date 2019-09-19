@@ -23,8 +23,8 @@ function renderResults(prospects) {
         ${prospects.length} Prospected users
       </h5>
     </div>
-    <table class="table table-bordered table-responsive">
-      <thead>
+    <table class="table table-dark table-striped table-responsive-sm">
+      <thead class="thead-dark">
         <tr>
           <th>Name</th>
           <th>Email</th>
@@ -50,6 +50,7 @@ export default function boot() {
     });
     $("#titles").select2({
       tags: true,
+      placeholder: "Enter one or more job titles",
       closeOnSelect: true
     });
 
@@ -122,3 +123,5 @@ export default function boot() {
     });
   });
 }
+
+boot();
