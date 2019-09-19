@@ -40,7 +40,7 @@ export function shouldDiscover(settings = {}, message = {}) {
 export function discover(clearbit, message) {
   const { account } = message;
   // TODO -> Support Accounts
-  const domain = this.getDomain(account);
+  const domain = getDomain(account);
   const limit = clearbit.settings.discover_limit_count;
   const query = { similar: domain };
 
@@ -61,7 +61,7 @@ export function discover(clearbit, message) {
 // companiesDiscoveredFromDomain(domain) {
 //   // TODO -> Support Accounts
 //   const query = {
-//     term: { "traits_clearbit/discovered_from_domain.exact": domain }
+//     term: { "clearbit/discovered_from_domain.exact": domain }
 //   };
 //   return this.hull.post("search/user_reports", { query });
 // }

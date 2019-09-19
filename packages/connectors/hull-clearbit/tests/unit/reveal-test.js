@@ -6,7 +6,7 @@ const sinon = require("sinon");
 const { shouldReveal } = require("../../server/clearbit/reveal");
 
 describe("enrich module", () => {
-  describe("canReveal", () => {
+  describe("shouldReveal", () => {
     it("can reveal if everything is OK", () => {
       assert.deepStrictEqual(
         shouldReveal(
@@ -50,7 +50,7 @@ describe("enrich module", () => {
             user: {
               id: "1234",
               last_known_ip: "1.2.3.4",
-              "traits_clearbit/enriched_at": "2018"
+              "clearbit/enriched_at": "2018"
             }
           }
         ),
@@ -128,7 +128,7 @@ describe("enrich module", () => {
               id: "1234",
               last_known_ip: "1.2.3.4",
               email: "foo@bar.com",
-              "traits_clearbit/revealed_at": "1234"
+              "clearbit/revealed_at": "1234"
             }
           }
         ),

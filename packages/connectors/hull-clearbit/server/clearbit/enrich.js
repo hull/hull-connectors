@@ -1,8 +1,14 @@
 // @flow
 import _ from "lodash";
 import moment from "moment";
-import type { HullUserUpdateMessage, HullAccountUpdateMessage } from "hull";
+import type {
+  HullUserUpdateMessage,
+  HullAccountUpdateMessage,
+  HullContext
+} from "hull";
+import type Client from "./client";
 import { isInSegments, getDomain } from "./utils";
+
 import type {
   ShouldAction,
   ClearbitResult,
@@ -16,162 +22,152 @@ import type {
  * @return {Boolean}
  */
 function lookupIsPending(entity) {
-  const fetched_at =
-    entity["traits_clearbit/fetched_at"] || entity["clearbit/fetched_at"];
+  const fetched_at = entity["clearbit/fetched_at"];
   const one_hour_ago = moment().subtract(1, "hours");
   return fetched_at && moment(fetched_at).isAfter(one_hour_ago);
 }
 
-/**
- * Fetch data from Clearbit's Enrichment API
- */
-function fetchFromEnrich({ settings, client, token, message, hostname }) {
-  const { lookup_domain = "domain", stream } = settings;
-  const { user = {}, account } = message;
-  const domain = getDomain(account, user, lookup_domain);
-
-  const payload = _.size(user)
-    ? {
-        email: user.email,
-        given_name: user.first_name,
-        family_name: user.last_name,
-        stream
-      }
-    : {
-        domain,
-        company_name: account.name,
-        stream
-      };
-
-  const id = user.id || account.id;
-
-  // if (hostname) {
-  payload.webhook_url = `https://${hostname}/clearbit-enrich/${token}`;
-  // }
-
-  if (!stream) {
-    payload.webhook_id = id;
-  }
-
-  return client.enrich(payload);
-}
-
-/**
- * Check if we can Enrich the User (based on user data and ship configuration)
- * @param  {User({ email })} user - A user profile
- * @return {Boolean}
- */
-export function canEnrich(
+export const shouldEnrichUser = (
+  ctx: HullContext,
   settings: ClearbitPrivateSettings,
-  message: HullUserUpdateMessage | HullAccountUpdateMessage
-): boolean {
-  const { lookup_domain = "domain" } = settings;
-  // Merge enrich and prospect segments lists
-  // To check if the user matches one of them
-  const { user, account } = message;
-  if (user) {
-    return !_.isEmpty(user.email);
+  message: HullUserUpdateMessage
+): ShouldAction => {
+  const { user, segments = [] } = message;
+  const { enrich_user_segments = [] } = settings;
+
+  if (_.isEmpty(user.email)) {
+    return {
+      should: false,
+      message: "Cannot Enrich because missing email"
+    };
   }
-  if (account) {
-    return !_.isEmpty(getDomain(account, user, lookup_domain));
+
+  if (_.isEmpty(enrich_user_segments)) {
+    return {
+      should: false,
+      message: "No enrich segments defined for User"
+    };
   }
-  return false;
-}
+
+  if (!isInSegments(segments, enrich_user_segments)) {
+    return {
+      should: false,
+      message: "Enrich Segments are defined but User isn't in any of them"
+    };
+  }
+
+  // Skip if we are waiting for the webhook
+  if (lookupIsPending(user)) {
+    return { should: false, message: "Waiting for webhook" };
+  }
+
+  // Skip if we have a Clearbit ID already
+  const clearbit_id = ctx.client.utils.claims.getService("clearbit", user);
+  if (clearbit_id) {
+    return { should: false, message: "Clearbit ID present" };
+  }
+
+  // Skip if we have already tried enriching
+  if (user["clearbit/enriched_at"]) {
+    return { should: false, message: "enriched_at present" };
+  }
+
+  return { should: true };
+};
 
 /**
  * Check if we should Enrich the User (based on user data and ship configuration)
  * @param  {Message({ user, segments })} message - A user:update message
  * @return {Boolean}
  */
-export function shouldEnrich(
+export function shouldEnrichAccount(
+  ctx: HullContext,
   settings: ClearbitPrivateSettings,
-  message: HullUserUpdateMessage | HullAccountUpdateMessage
+  message: HullAccountUpdateMessage
 ): ShouldAction {
-  const { user, account, segments = [], account_segments = [] } = message;
-  const { enrich_account_segments = [], enrich_user_segments = [] } = settings;
+  const { account, account_segments = [] } = message;
+  const { enrich_account_segments = [] } = settings;
 
-  if (!canEnrich(settings, message)) {
+  if (!getDomain(account)) {
     return {
       should: false,
-      message: "Cannot Enrich because missing email or domain"
+      message: "Cannot Enrich because missing domain"
     };
   }
 
-  if (user) {
-    if (_.isEmpty(enrich_user_segments)) {
-      return {
-        should: false,
-        message: "No enrich segments defined for User"
-      };
-    }
-
-    // Skip if no segments match
-    if (!isInSegments(segments, enrich_user_segments)) {
-      return {
-        should: false,
-        message: "Enrich Segments are defined but User isn't in any of them"
-      };
-    }
-
-    // Skip if we are waiting for the webhook
-    if (lookupIsPending(user)) {
-      return { should: false, message: "Waiting for webhook" };
-    }
-
-    // Skip if we have a Clearbit ID already
-    if (user["traits_clearbit/id"]) {
-      return { should: false, message: "Clearbit ID present" };
-    }
-
-    // Skip if we have already tried enriching
-    if (user["traits_clearbit/enriched_at"]) {
-      return { should: false, message: "enriched_at present" };
-    }
-
-    return { should: true };
+  if (_.isEmpty(enrich_account_segments)) {
+    return {
+      should: false,
+      message: "No enrich segments defined for Account"
+    };
   }
 
-  if (account) {
-    if (_.isEmpty(enrich_account_segments)) {
-      return {
-        should: false,
-        message: "No enrich segments defined for Account"
-      };
-    }
-
-    // Skip if no segments match
-    if (!isInSegments(account_segments, enrich_account_segments)) {
-      return {
-        should: false,
-        message: "Enrich Segments are defined but Account isn't in any of them"
-      };
-    }
-
-    // Skip if we are waiting for the webhook
-    if (lookupIsPending(account)) {
-      return { should: false, message: "Waiting for webhook" };
-    }
-
-    // Skip if we have a Clearbit ID already
-    if (account["clearbit/id"]) {
-      return { should: false, message: "Clearbit ID present" };
-    }
-
-    // Skip if we have already tried enriching
-    if (account["clearbit/enriched_at"]) {
-      return { should: false, message: "enriched_at present" };
-    }
-
-    return { should: true };
+  // Skip if no segments match
+  if (!isInSegments(account_segments, enrich_account_segments)) {
+    return {
+      should: false,
+      message: "Enrich Segments are defined but Account isn't in any of them"
+    };
   }
 
-  return { should: false, message: "Can't find a User or Account to enrich" };
+  // Skip if we are waiting for the webhook
+  if (lookupIsPending(account)) {
+    return { should: false, message: "Waiting for webhook" };
+  }
+
+  // Skip if we have a Clearbit ID already
+  const clearbit_id = ctx.client.utils.claims.getService("clearbit", account);
+  if (clearbit_id) {
+    return { should: false, message: "Clearbit ID present" };
+  }
+
+  // Skip if we have already tried enriching
+  if (account["clearbit/enriched_at"]) {
+    return { should: false, message: "enriched_at present" };
+  }
+
+  return { should: true };
 }
 
-export async function enrich(params): ClearbitResult {
-  const enrichment = await fetchFromEnrich(params);
-  return {
-    ...enrichment,
-    source: "enrich"
-  };
+export async function enrich({
+  client,
+  token,
+  message,
+  hostname
+}: {
+  settings: any,
+  token: string,
+  client: Client,
+  subscribe: boolean,
+  hostname: string,
+  message: HullUserUpdateMessage | HullAccountUpdateMessage
+}): Promise<ClearbitResult> {
+  const { user = {}, account } = message;
+  const domain = getDomain(account);
+
+  const id = user.id || account.id;
+  const payload = _.size(user)
+    ? {
+        email: user.email,
+        given_name: user.first_name,
+        family_name: user.last_name,
+        webhook_url: undefined,
+        webhook_id: id,
+        subscribe: undefined
+      }
+    : {
+        domain: domain || user.domain,
+        company_name: account.name,
+        webhook_url: undefined,
+        webhook_id: id,
+        subscribe: undefined
+      };
+
+  // if (hostname) {
+  payload.webhook_url = `https://${hostname}/clearbit-enrich/${token}`;
+  // }
+
+  const enrichment = await client.enrich(payload);
+
+  return { ...enrichment, source: "enrich" };
 }

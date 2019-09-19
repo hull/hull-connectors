@@ -1,15 +1,36 @@
+// @flow
+//
+// Because we need MapSeries
 import Promise from "bluebird";
+import type { HullContext, HullAccountUpdateMessage } from "hull";
 import _ from "lodash";
+import type Client from "./client";
 import { isInSegments, getDomain } from "./utils";
 import excludes from "../excludes";
+import type {
+  ClearbitPrivateSettings,
+  ShouldAction,
+  ClearbitProspectorQuery,
+  ClearbitProspect
+} from "../types";
 
-export async function shouldProspect(settings = {}, message = {}) {
-  const { account = {}, user = {}, account_segments = [] } = message;
+export async function shouldProspect(
+  ctx: HullContext,
+  settings: ClearbitPrivateSettings,
+  message: HullAccountUpdateMessage
+): Promise<ShouldAction> {
+  const { account, account_segments = [] } = message;
   const { prospect_account_segments = [] } = settings;
-  const { lookup_domain = "domain" } = settings;
-
-  if (!getDomain(account, user, lookup_domain)) {
+  const domain = getDomain(account);
+  if (!domain) {
     return { should: false, message: "Can't find a domain" };
+  }
+  if (_.includes(excludes.domains, domain)) {
+    return {
+      should: false,
+      message:
+        "We don't prospect excluded domains. See https://github.com/hull-ships/hull-clearbit/blob/master/server/excludes.js"
+    };
   }
 
   if (!isInSegments(account_segments, prospect_account_segments)) {
@@ -30,78 +51,13 @@ export async function shouldProspect(settings = {}, message = {}) {
   return { should: true };
 }
 
-/**
- * Check if we already have known users from that domain
- * or if we have enough revealed visitors to prospect
- * @param  {Object(user)} payload - Hull user object
- * @return {Promise -> Bool}
- */
-export async function shouldProspectDomain({ domain, hull, settings }) {
-  if (_.includes(excludes.domains, domain)) {
-    return Promise.resolve({
-      should: false,
-      message:
-        "We don't prospect excluded domains. See https://github.com/hull-ships/hull-clearbit/blob/master/server/excludes.js"
-    });
-  }
-
-  return hull
-    .post("search/user_reports", {
-      query: {
-        bool: {
-          should: [
-            { term: { "traits_clearbit_company/domain.exact": domain } },
-            { term: { "account.domain.exact": domain } },
-            { term: { "account.clearbit.domain.exact": domain } }
-          ],
-          minimum_should_match: 1
-        }
-      },
-      aggs: {
-        without_email: { missing: { field: "email" } },
-        by_source: { terms: { field: "traits_clearbit/source.exact" } }
-      },
-      search_type: "count"
-    })
-    .then(({ /* pagination, */ aggregations }) => {
-      // const { total } = pagination;
-      const anonymous = aggregations.without_email.doc_count;
-      const bySource = _.reduce(
-        aggregations.by_source.buckets,
-        (bs, bkt) => {
-          return { ...bs, [bkt.key]: bkt.doc_count };
-        },
-        {}
-      );
-
-      // // Skip prospect if we have known users with that domain
-      // if (total > 0 && total !== anonymous) {
-      //   return { should: false, message: "We have known users in that domain" };
-      // }
-
-      // Prospect if at least one of those anonymous has been discovered
-      // if (bySource.discover && bySource.discover > 0) {
-      //   return { should: true };
-      // }
-
-      const min_contacts = settings.reveal_prospect_min_contacts || 0;
-
-      if (
-        min_contacts &&
-        (bySource.reveal < min_contacts || anonymous < min_contacts)
-      ) {
-        return {
-          should: false,
-          message:
-            "We are under the unique anonymous visitors threshold for prospecting"
-        };
-      }
-      // Prospect if we have at least a given number of reveals.
-      return { should: true };
-    });
-}
-
-export function fetchProspects({ client, query }) {
+export function fetchProspects({
+  client,
+  query
+}: {
+  client: Client,
+  query: ClearbitProspectorQuery
+}) {
   const {
     titles = [],
     domain,
@@ -143,11 +99,18 @@ export function fetchProspects({ client, query }) {
   }).then(() => ({ prospects, query }));
 }
 
-export function prospect({ settings, client, message }) {
-  const { lookup_domain = "domain" } = settings;
-  const { account, user = {} } = message;
+export function prospect({
+  settings,
+  client,
+  message
+}: {
+  settings: any,
+  client: Client,
+  message: HullAccountUpdateMessage
+}): Promise<{ prospect: ClearbitProspect, query: ClearbitProspectorQuery }> {
+  const { account } = message;
   const query = {
-    domain: getDomain(account, user, lookup_domain),
+    domain: getDomain(account),
     limit: settings.prospect_limit_count,
     email: true
   };
@@ -163,3 +126,66 @@ export function prospect({ settings, client, message }) {
 
   return fetchProspects({ client, query });
 }
+
+/**
+ * Check if we already have known users from that domain
+ * or if we have enough revealed visitors to prospect
+ * @param  {Object(user)} payload - Hull user object
+ * @return {Promise -> Bool}
+ */
+// export async function shouldProspectDomain({ domain, hull, settings }) {
+//   return hull
+//     .post("search/user_reports", {
+//       query: {
+//         bool: {
+//           should: [
+//             { term: { "traits_clearbit_company/domain.exact": domain } },
+//             { term: { "account.domain.exact": domain } },
+//             { term: { "account.clearbit.domain.exact": domain } }
+//           ],
+//           minimum_should_match: 1
+//         }
+//       },
+//       aggs: {
+//         without_email: { missing: { field: "email" } },
+//         by_source: { terms: { field: "traits_clearbit/source.exact" } }
+//       },
+//       search_type: "count"
+//     })
+//     .then(({ /* pagination, */ aggregations }) => {
+//       // const { total } = pagination;
+//       const anonymous = aggregations.without_email.doc_count;
+//       const bySource = _.reduce(
+//         aggregations.by_source.buckets,
+//         (bs, bkt) => {
+//           return { ...bs, [bkt.key]: bkt.doc_count };
+//         },
+//         {}
+//       );
+//
+//       // // Skip prospect if we have known users with that domain
+//       // if (total > 0 && total !== anonymous) {
+//       //   return { should: false, message: "We have known users in that domain" };
+//       // }
+//
+//       // Prospect if at least one of those anonymous has been discovered
+//       // if (bySource.discover && bySource.discover > 0) {
+//       //   return { should: true };
+//       // }
+//
+//       const min_contacts = settings.reveal_prospect_min_contacts || 0;
+//
+//       if (
+//         min_contacts &&
+//         (bySource.reveal < min_contacts || anonymous < min_contacts)
+//       ) {
+//         return {
+//           should: false,
+//           message:
+//             "We are under the unique anonymous visitors threshold for prospecting"
+//         };
+//       }
+//       // Prospect if we have at least a given number of reveals.
+//       return { should: true };
+//     });
+// }

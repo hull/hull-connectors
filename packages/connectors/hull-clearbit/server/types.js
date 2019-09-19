@@ -189,6 +189,11 @@ export type ClearbitCompany = {
   }
 };
 
+export type ClearbitCombined = {
+  person: ClearbitPerson,
+  company: ClearbitCompany
+};
+
 export type ClearbitPrivateSettings = {
   api_key: string,
 
@@ -198,7 +203,7 @@ export type ClearbitPrivateSettings = {
   enrich_user_segments: Array<string>,
   enrich_account_segments: Array<string>,
 
-  prospect_segments: Array<string>,
+  prospect_account_segments: Array<string>,
   prospect_filter_role: Array<string>,
   prospect_filter_seniority: Array<string>,
   prospect_filter_titles: Array<string>,
@@ -206,4 +211,31 @@ export type ClearbitPrivateSettings = {
 
   reveal_prospect_min_contacts: number,
   reveal_segments: Array<string>
+};
+
+export type ClearbitRevealResponse = {
+  ip: string,
+  fuzzy: boolean,
+  domain: string,
+  type: "company",
+  company: ClearbitCompany,
+  geoIP: any
+};
+
+export type ClearbitProspectorResponse = {
+  page: number,
+  page_size: number,
+  total: number,
+  results: Array<ClearbitProspect>
+};
+
+export type ClearbitProspectorQuery = {
+  titles: Array<string>,
+  domain: string,
+  roles: Array<string>,
+  seniorities: Array<string>,
+  cities?: Array<string>,
+  states?: Array<string>,
+  countries?: Array<string>,
+  limit: number
 };

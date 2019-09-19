@@ -64,7 +64,7 @@ describe("enrich module", () => {
           },
           {
             segments: [{ id: "1" }],
-            user: { email: "romain@hull.io", "traits_clearbit/id": "1234" }
+            user: { email: "romain@hull.io", "clearbit/id": "1234" }
           }
         ),
         {
@@ -137,7 +137,7 @@ describe("enrich module", () => {
             segments: [{ id: "1" }],
             user: {
               email: "romain@hull.io",
-              "traits_clearbit/enriched_at": "2018"
+              "clearbit/enriched_at": "2018"
             }
           }
         ),

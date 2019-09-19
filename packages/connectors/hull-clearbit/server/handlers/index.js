@@ -8,27 +8,27 @@ import webhookHandler from "./webhook";
 import updateUser from "./update-user";
 import updateAccount from "./update-account";
 
-export default function handlers(): HullHandlersConfiguration {
-  return {
-    json: {
-      prospectHandler
-    },
-    tabs: {
-      admin: (): HullExternalResponse => ({ pageLocation: "/admin.html" })
-    },
-    incoming: {
-      webhookHandler
-    },
-    statuses: {
-      statusHandler
-    },
-    subscriptions: {
-      updateUser,
-      updateAccount
-    },
-    batches: {
-      updateUser,
-      updateAccount
-    }
-  };
-}
+type HandlerType = { flow_size: string | number, flow_in: string | number };
+const handler = ({
+  flow_size,
+  flow_in
+}: HandlerType): HullHandlersConfiguration => ({
+  json: {
+    prospectHandler
+  },
+  tabs: {
+    admin: (): HullExternalResponse => ({ pageLocation: "/admin.html" })
+  },
+  incoming: {
+    webhookHandler
+  },
+  statuses: {
+    statusHandler
+  },
+  subscriptions: {
+    updateUser: updateUser({ flow_size, flow_in }),
+    updateAccount: updateAccount({ flow_size, flow_in })
+  }
+});
+
+export default handler;

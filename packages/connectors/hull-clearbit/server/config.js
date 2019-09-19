@@ -10,23 +10,32 @@ export default function connectorConfig(): HullConnectorConfig {
     LOG_LEVEL,
     NODE_ENV,
     SECRET = "1234",
-    OVERRIDE_FIREHOSE_URL
+    OVERRIDE_FIREHOSE_URL,
+    FLOW_CONTROL_IN = 1,
+    FLOW_CONTROL_SIZE = 200
   } = process.env;
 
   // We're not using default assignments because "null" values makes Flow choke
   const hostSecret = SECRET || "1234";
-  const port = PORT || "8082";
-  const devMode = NODE_ENV === "development";
   return {
     manifest,
-    devMode,
-    logLevel: LOG_LEVEL,
     hostSecret,
-    port,
+    devMode: NODE_ENV === "development",
+    port: PORT || 8082,
+    logLevel: LOG_LEVEL,
     middlewares: [],
-    handlers: handlers(),
+    handlers: handlers({
+      flow_size: FLOW_CONTROL_SIZE || 200,
+      flow_in: FLOW_CONTROL_IN || 1
+    }),
+    logsConfig: {
+      logLevel: LOG_LEVEL
+    },
     clientConfig: {
       firehoseUrl: OVERRIDE_FIREHOSE_URL
+    },
+    serverConfig: {
+      start: true
     }
   };
 }

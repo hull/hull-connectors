@@ -1,3 +1,5 @@
+// @flow
+
 import _ from "lodash";
 import rangeCheck from "range_check";
 import type { HullAccount, HullUser } from "hull";
@@ -9,36 +11,28 @@ import excludes from "../excludes";
  * @param  {Array<ObjectId>} segmentsListIds - A list of segment ids
  * @return {Boolean}
  */
-export function isInSegments(userSegments = [], segmentsListIds = []) {
+export function isInSegments(
+  segmentDefinitions: Array<{ id: string, [string]: any }> = [],
+  segmentsListIds: Array<string> = []
+) {
   return (
     _.isEmpty(segmentsListIds) ||
-    _.intersection(userSegments.map(({ id }) => id), segmentsListIds).length > 0
+    _.intersection(segmentDefinitions.map(({ id }) => id), segmentsListIds)
+      .length > 0
   );
 }
 
-export function getDomain(
-  account: HullAccount = {},
-  user: HullUser = {},
-  attribute = "domain"
-) {
-  return (
-    (attribute.indexOf("account.") === 0
-      ? account[attribute.replace(/^account./, "")]
-      : user[attribute]) ||
-    account.domain ||
-    account["clearbit/domain"] ||
-    user["clearbit/employment_domain"] ||
-    user["clearbit_company/domain"] ||
-    user.domain
-  );
+export function getDomain(account: HullAccount) {
+  return account.domain || account["clearbit/domain"];
 }
 
 export function now() {
   return new Date().toISOString();
 }
 
-export function isValidIpAddress(ip) {
+export function isValidIpAddress(ip?: string) {
   return (
+    !!ip &&
     ip !== "0" &&
     rangeCheck.isIP(ip) &&
     !rangeCheck.inRange(ip, excludes.ip_ranges)

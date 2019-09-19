@@ -126,9 +126,9 @@ describe("User Update Logic", () => {
       user: {
         last_known_ip: "1.2.3.4",
         email: "foo@bar.com",
-        "traits_clearbit/id": "1234",
-        "traits_clearbit/revealed_at": "1234",
-        "traits_clearbit/enriched_at": "1234"
+        "clearbit/id": "1234",
+        "clearbit/revealed_at": "1234",
+        "clearbit/enriched_at": "1234"
       },
       segments: [{ id: "1" }]
     };
@@ -148,7 +148,7 @@ describe("User Update Logic", () => {
       user: {
         last_known_ip: "1.2.3.4",
         email: "foo@bar.com",
-        "traits_clearbit/enriched_at": "1234"
+        "clearbit/enriched_at": "1234"
       },
       segments: [{ id: "2" }]
     };
@@ -168,8 +168,8 @@ describe("User Update Logic", () => {
       user: {
         last_known_ip: "1.2.3.4",
         email: "foo@bar.com",
-        "traits_clearbit/revealed_at": moment().format(),
-        "traits_clearbit_company/id": "1234"
+        "clearbit/revealed_at": moment().format(),
+        "clearbit_company/id": "1234"
       },
       segments: [{ id: "1" }]
     };
@@ -191,7 +191,7 @@ describe("User Update Logic", () => {
   //     user: {
   //       last_known_ip: "1.2.3.4",
   //       email: "foo@bar.com",
-  //       "traits_clearbit/enriched_at": moment().format()
+  //       "clearbit/enriched_at": moment().format()
   //     },
   //     account: {
   //       "clearbit/id": "1234"
@@ -214,9 +214,9 @@ describe("User Update Logic", () => {
   //     user: {
   //       last_known_ip: "1.2.3.4",
   //       email: "foo@bar.com",
-  //       "traits_clearbit/enriched_at": moment().format(),
-  //       "traits_clearbit/revealed_at": moment().format(),
-  //       "traits_clearbit_company/id": "1234"
+  //       "clearbit/enriched_at": moment().format(),
+  //       "clearbit/revealed_at": moment().format(),
+  //       "clearbit_company/id": "1234"
   //     },
   //     segments: [{ id: "1" }]
   //   };

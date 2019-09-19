@@ -1,43 +1,47 @@
 // @flow
-import type { HullContext, HullAccountUpdateMessage } from "hull";
+import type {
+  HullContext,
+  HullAccountUpdateMessage,
+  HullNotificationResponse
+} from "hull";
 import _ from "lodash";
 import Clearbit from "../clearbit";
 import accountUpdateLogic from "../lib/account-update-logic";
 
-const updateAccount = async (
+const updateAccount = ({
+  flow_size,
+  flow_in
+}: {
+  flow_size: number,
+  flow_in: number
+}) => async (
   ctx: HullContext,
   messages: Array<HullAccountUpdateMessage>
-) => {
-  const flowControlSize = parseInt(process.env.FLOW_CONTROL_SIZE, 10) || 200;
-  const flowControlIn = parseInt(process.env.FLOW_CONTROL_IN, 10) || 100;
-
+): HullNotificationResponse => {
   try {
     const { client } = ctx;
-    const clearbit = new Clearbit(ctx, { stream });
+    const clearbit = new Clearbit(ctx);
+
     const ids = _.compact(_.map(messages, m => _.get(m, "account.id")));
-
-    client.logger.info("outgoing.account.start", { ids });
-
     if (!ids.length) {
-      return client.logger.info("outgoing.account.skip", {
+      client.logger.info("outgoing.account.skip", {
         ids
       });
+    } else {
+      const updateLogic = accountUpdateLogic(ctx, clearbit);
+      await Promise.all(messages.map(updateLogic));
     }
-
-    await Promise.all(
-      messages.map(message => accountUpdateLogic({ message, clearbit, client }))
-    );
 
     return {
       type: "next",
-      size: flowControlSize,
-      in: flowControlIn
+      size: flow_size,
+      in: flow_in
     };
   } catch (err) {
     return {
       type: "retry",
-      size: flowControlSize,
-      in: flowControlIn
+      size: flow_size,
+      in: flow_in
     };
   }
 };

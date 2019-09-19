@@ -1,46 +1,65 @@
+// @flow
 import _ from "lodash";
+import type { HullContext, HullAccountUpdateMessage } from "hull";
+import type Clearbit from "../clearbit";
+import type {
+  ShouldAction,
+  ClearbitResult,
+  ClearbitPrivateSettings
+} from "../types";
+import { shouldProspect } from "../clearbit/prospect";
+import { shouldEnrichAccount } from "../clearbit/enrich";
 
-export default function accountUpdateLogic({ message = {}, clearbit, client }) {
-  const { account_segments, account } = message;
-  const skips = {};
+export default async function updateLogic(
+  ctx: HullContext,
+  clearbit: Clearbit
+) {
+  const settings: ClearbitPrivateSettings = ctx.connector.private_settings;
+  return async function accountUpdateLogic(message: HullAccountUpdateMessage) {
+    const actions = await Promise.all([
+      shouldEnrichAccount(ctx, settings, message),
+      shouldProspect(ctx, settings, message)
+    ]);
 
-  const { should, message: enrichMessage } = clearbit.shouldEnrich(message);
-  if (should) {
-    clearbit.enrich(message);
-  } else {
-    skips.enrich = enrichMessage;
-  }
+    const [enrichAction, prospectActions]: [
+      ShouldAction,
+      ShouldAction
+    ] = actions;
 
-  const {
-    should: shouldDiscover,
-    message: discoverMessage
-  } = clearbit.shouldDiscover(message);
+    const results: Array<void | false | ClearbitResult> = await Promise.all([
+      enrichAction.should && clearbit.enrich(message),
+      prospectActions.should && clearbit.prospect(message)
+    ]);
 
-  if (shouldDiscover) {
-    clearbit.discover(message);
-  } else {
-    skips.discover = discoverMessage;
-  }
+    // const {
+    //   should: shouldDiscover,
+    //   message: discoverMessage
+    // } = clearbit.shouldDiscover(message);
+    //
+    // if (shouldDiscover) {
+    //   clearbit.discover(message);
+    // } else {
+    //   skips.discover = discoverMessage;
+    // }
 
-  const {
-    should: shouldProspect,
-    message: prospectMessage
-  } = clearbit.shouldProspect({
-    account_segments,
-    account
-  });
-  if (shouldProspect) {
-    clearbit.prospect(account);
-  } else {
-    skips.prospect = prospectMessage;
-  }
+    // const {
+    //   should: shouldProspect,
+    //   message: prospectMessage
+    // } = clearbit.shouldProspect({
+    //   account_segments,
+    //   account
+    // });
+    // if (shouldProspect) {
+    //   clearbit.prospect(account);
+    // } else {
+    //   skips.prospect = prospectMessage;
+    // }
 
-  if (_.size(skips)) {
-    client.asAccount(account).logger.info("outgoing.account.skip", {
-      reason: "no action matched",
-      ...skips
-    });
-    return false;
-  }
-  return true;
+    return _.filter(actions, "should")
+      .map(({ message }) => ({
+        action: "skip",
+        message
+      }))
+      .concat(results);
+  };
 }

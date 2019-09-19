@@ -4,49 +4,41 @@ import type {
   HullUserUpdateMessage,
   HullNotificationResponse
 } from "hull";
+import _ from "lodash";
 import Clearbit from "../clearbit";
 import userUpdateLogic from "../lib/user-update-logic";
 
-const updateAccount = async (
+const updateAccount = ({
+  flow_size,
+  flow_in
+}: {
+  flow_size: number,
+  flow_in: number
+}) => async (
   ctx: HullContext,
   messages: Array<HullUserUpdateMessage>
 ): HullNotificationResponse => {
-  const flowControlSize = parseInt(process.env.FLOW_CONTROL_SIZE, 10) || 200;
-  const flowControlIn = parseInt(process.env.FLOW_CONTROL_IN, 10) || 100;
-
+  const { client } = ctx;
   try {
     const clearbit = new Clearbit(ctx);
-    const updateLogic = userUpdateLogic(ctx, clearbit);
-    await Promise.all(messages.map(message => updateLogic(message)));
 
-    // const ids = _.reduce(
-    //   messages,
-    //   (memo, { account = {} }) => {
-    //     if (account.id) memo.push(account.id);
-    //     return memo
-    //   },
-    //   []
-    // );
-    //
-    // client.logger.info("outgoing.user.start", { ids });
-    //
-    // if (!ids.length) {
-    //   return client.logger.info("outgoing.user.skip", {
-    //     ids
-    //   });
-    // }
-    //
-
+    const ids = _.compact(_.map(messages, m => _.get(m, "user.id")));
+    if (!ids.length) {
+      client.logger.info("outgoing.account.skip", { ids });
+    } else {
+      const updateLogic = userUpdateLogic(ctx, clearbit);
+      await Promise.all(messages.map(updateLogic));
+    }
     return {
       type: "next",
-      size: flowControlSize,
-      in: flowControlIn
+      size: flow_size,
+      in: flow_in
     };
   } catch (err) {
     return {
       type: "retry",
-      size: flowControlSize,
-      in: flowControlIn
+      size: flow_size,
+      in: flow_in
     };
   }
 };

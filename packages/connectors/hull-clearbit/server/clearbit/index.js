@@ -1,20 +1,19 @@
 // @flow
 import type {
   HullContext,
-  HullAccount,
-  HullUser,
   HullConnector,
   HullAccountUpdateMessage,
   HullUserUpdateMessage
 } from "hull";
 import _ from "lodash";
+import type { ClearbitResult } from "../types";
 import Client from "./client";
 
 import { getDomain, now } from "./utils";
-import { shouldProspect, shouldProspectDomain, prospect } from "./prospect";
-import { shouldEnrich, enrich } from "./enrich";
-import { shouldDiscover, discover } from "./discover";
-import { shouldReveal, reveal } from "./reveal";
+import { prospect } from "./prospect";
+import { enrich } from "./enrich";
+import { reveal } from "./reveal";
+// import { discover } from "./discover";
 // import { getUserTraitsFrom, getAccountTraitsFromCompany } from "./mapping";
 import {
   saveProspect,
@@ -75,48 +74,24 @@ export default class Clearbit {
     if (!api_key) {
       throw new Error("No API Key Available");
     }
-    this.client = new Client(api_key, metric, client);
-  }
-
-  getDomain(account: HullAccount, user: HullUser) {
-    return getDomain(account, user, "domain");
+    this.client = new Client(ctx);
   }
 
   /** *********************************************************
    * Clearbit Enrichment
    */
 
-  shouldEnrich(message: HullUserUpdateMessage) {
-    return this.shouldLogic(message, shouldEnrich);
-  }
-
-  shouldReveal(message: HullUserUpdateMessage) {
-    return this.shouldLogic(message, shouldReveal);
-  }
-
-  shouldProspect(message: HullAccountUpdateMessage) {
-    return this.shouldLogic(message, shouldProspect);
-  }
-
-  shouldDiscover(message: HullAccountUpdateMessage) {
-    return this.shouldLogic(message, shouldDiscover);
-  }
-
-  shouldLogic(
-    message: HullAccountUpdateMessage | HullUserUpdateMessage,
-    action: (Settings, any) => any
-  ) {
-    return action(this.settings, message);
-  }
-
-  async enrich(message: HullUserUpdateMessage = {}) {
+  async enrich(message: HullUserUpdateMessage = {}): void | ClearbitResult {
     const { user, account } = message;
+    const { hostname } = this.ctx;
     try {
       this.metric.increment("enrich");
       const response = await enrich({
         settings: this.settings,
         token: this.token,
         client: this.client,
+        subscribe: true,
+        hostname,
         message
       });
       if (!response || !response.source) return false;
@@ -173,28 +148,13 @@ export default class Clearbit {
 
   async prospect(message: HullAccountUpdateMessage = {}) {
     const { account } = message;
-    const scope = account ? this.hull.asAccount(account) : this.hull;
-
-    // const asAccount = this.hull.asAccount(account);
+    const scope = this.hull.asAccount(account);
     const logError = error => {
       scope.logger.info("outgoing.account.error", {
         errors: _.get(error, "message", error),
         method: "prospectUser"
       });
     };
-
-    // Since user update logic is synchronous,
-    // There is a second, asynchronous part of checks in here.
-    const { should, message: msg } = await shouldProspectDomain({
-      domain: this.getDomain(account),
-      hull: this.hull,
-      settings: this.settings
-    });
-
-    if (!should) {
-      logError(msg);
-      return Promise.reject(msg);
-    }
 
     try {
       this.metric.increment("prospect");
