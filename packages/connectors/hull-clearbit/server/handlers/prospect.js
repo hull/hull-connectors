@@ -26,10 +26,11 @@ const prospect = async (
     const account = { domain };
     const { prospects } = await performProspect({
       settings: {
+        ...ctx.connector.private_settings,
         prospect_filter_role: role,
         prospect_filter_seniority: seniority,
         prospect_filter_titles: titles,
-        prospect_filter_limit: limit
+        prospect_limit_count: limit
       },
       client: clearbitClient,
 

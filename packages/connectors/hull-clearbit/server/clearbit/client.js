@@ -122,11 +122,12 @@ export default class ClearbitClient {
       params,
       action: "prospect"
     });
-    return ClearbitApi({
-      path: "/people/search",
-      method: "get",
-      params,
-      key: this.key
-    });
+    return this.client.Prospector.search(params)
+    // return ClearbitApi({
+    //   path: "/people/search",
+    //   method: "get",
+    //   params,
+    //   key: this.key
+    // });
   }
 }

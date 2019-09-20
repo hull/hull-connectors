@@ -43,12 +43,22 @@ function renderResults(prospects) {
 export default function boot() {
   $(() => {
     $("#role").select2({
-      closeOnSelect: true
+      theme: "bootstrap",
+      closeOnSelect: false
     });
     $("#seniority").select2({
+      theme: "bootstrap",
+      closeOnSelect: false
+    });
+    $("#domains").select2({
+      theme: "bootstrap",
+      tags: true,
+      tokenSeparators: [",", " "],
+      placeholder: "Enter one or more domain names (required)",
       closeOnSelect: true
     });
     $("#titles").select2({
+      theme: "bootstrap",
       tags: true,
       placeholder: "Enter one or more job titles",
       closeOnSelect: true
@@ -64,7 +74,6 @@ export default function boot() {
 
       const domains = $("#domains")
         .val()
-        .split("\n")
         .map(d => d.trim())
         .filter(d => d.length > 0);
 

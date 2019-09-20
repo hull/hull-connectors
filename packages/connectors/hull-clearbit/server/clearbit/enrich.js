@@ -103,7 +103,7 @@ export function shouldEnrichAccount(
     enrich_account_segments_exclusion = []
   } = settings;
 
-  if (!getDomain(account)) {
+  if (!getDomain(account, settings)) {
     return {
       should: false,
       message: "Cannot Enrich because missing domain"
@@ -157,17 +157,19 @@ export function shouldEnrichAccount(
 export async function performEnrich({
   client,
   token,
+  settings,
   message,
   hostname
 }: {
   token: string,
+  settings: ClearbitConnectorSettings,
   client: Client,
   subscribe: boolean,
   hostname: string,
   message: HullUserUpdateMessage | HullAccountUpdateMessage
 }) {
   const { user = {}, account } = message;
-  const domain = getDomain(account);
+  const domain = getDomain(account, settings);
 
   const id = user.id || account.id;
   const payload = _.size(user)
@@ -202,10 +204,12 @@ export const enrich = async (
 ): Promise<void | ClearbitResult> => {
   const { user, account } = message;
   const { hostname, metric, client, clientCredentialsEncryptedToken } = ctx;
-
+  const { connector } = ctx;
+  const { private_settings } = connector;
   try {
     metric.increment("enrich");
     const response = await performEnrich({
+      settings: private_settings,
       token: clientCredentialsEncryptedToken,
       client: new Client(ctx),
       subscribe: true,

@@ -5,7 +5,7 @@ import Promise from "bluebird";
 import type { HullContext, HullAccountUpdateMessage } from "hull";
 import _ from "lodash";
 import Client from "./client";
-import { isInSegments, getDomain, now } from "./utils";
+import { isInSegments, getDomain } from "./utils";
 
 import excludes from "../excludes";
 import { saveProspect } from "../lib/side-effects";
@@ -23,7 +23,7 @@ export async function shouldProspect(
 ): Promise<ShouldAction> {
   const { account, account_segments = [] } = message;
   const { prospect_account_segments = [] } = settings;
-  const domain = getDomain(account);
+  const domain = getDomain(account, settings);
 
   if (ctx.isBatch) {
     return {
@@ -66,7 +66,7 @@ export async function performProspect({
   client,
   message
 }: {
-  settings: any,
+  settings: ClearbitConnectorSettings,
   client: Client,
   message: HullAccountUpdateMessage
 }): Promise<{ prospect: ClearbitProspect, query: ClearbitProspectorQuery }> {
@@ -74,37 +74,47 @@ export async function performProspect({
     const { account } = message;
 
     const query = {};
-    ["seniorities", "roles", "cities", "states", "countries"].forEach(k => {
-      const filter = settings[`prospect_filter_${k}`];
-      if (!!filter && !_.isEmpty(filter) && !_.isUndefined(filter)) {
-        query[k] = filter;
+    ["seniorities", "titles", "roles", "cities", "states", "countries"].forEach(
+      k => {
+        const filter = settings[`prospect_filter_${k}`];
+        if (!!filter && !_.isEmpty(filter) && !_.isUndefined(filter)) {
+          query[k] = filter;
+        }
       }
-    });
+    );
 
-    const titles = settings.prospect_filter_titles || [null];
+    // const titles = settings.prospect_filter_titles || [null];
     const limit = settings.prospect_limit_count || 5;
-    const domain = getDomain(account);
+    const domain = getDomain(account, settings);
+
     // Allow prospecting even if no titles passed
-    if (titles.length === 0) {
-      titles.push(null);
-    }
+    // if (titles.length === 0) {
+    //   titles.push(null);
+    // }
     const prospects = {};
-    const responseQuery = { query, titles, domain, limit };
-    await Promise.mapSeries(titles, async title => {
-      const newLimit = limit - _.size(prospects);
-      if (newLimit <= 0) return Promise.resolve(prospects);
-      const { results } = await client.prospect({
-        domain,
-        title,
-        limit: newLimit,
-        ...query
-      });
-      if (!results) {
-        throw new Error("No Results");
-      }
-      return results.forEach(p => {
-        prospects[p.email] = p;
-      });
+    const responseQuery = { query, domain, limit };
+    const page_size = Math.min(limit, 20);
+    const pages = Math.floor(limit / page_size);
+    let lastResultsCount = page_size;
+    const resultsArray = await Promise.all(
+      Promise.mapSeries(_.times(pages), async index => {
+        // Early return if we had less results than the max. i.e. we won't get more
+        if (lastResultsCount < page_size) {
+          return [];
+        }
+        const { results } = await client.prospect({
+          domain,
+          page: index + 1,
+          page_size,
+          ..._.omit(query, "limit")
+        });
+        lastResultsCount = _.size(results);
+        return results;
+      })
+    );
+
+    _.flatten(resultsArray).forEach(p => {
+      prospects[p.email] = p;
     });
     return { prospects, query: responseQuery };
   } catch (err) {
