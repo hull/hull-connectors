@@ -55,12 +55,18 @@ export const searchEvents = (ctx: HullContext) => async ({
   page = 1,
   per_page = 50
 }: HullIncludedEvents & { parent: string }): Promise<Array<HullEvent>> => {
-  const query = [{
-    has_parent: {
-      parent_type: "user_report",
-      query: { term: { id: parent } }
+  const query = [
+    {
+      has_parent: {
+        parent_type: "user_report",
+        query: {
+          term: {
+            id: parent
+          }
+        }
+      }
     }
-  }];
+  ];
   if (_.isArray(names)) {
     query.push({ terms: { event: names } });
   }
