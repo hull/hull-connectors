@@ -38,6 +38,7 @@ export default {
     "employment.domain": "clearbit/employment_domain",
     "employment.name": "clearbit/employment_name",
     "employment.role": "clearbit/employment_role",
+    "employment.subRole": "clearbit/employment_sub_role",
     "employment.seniority": "clearbit/employment_seniority",
     "employment.title": "clearbit/employment_title",
     "facebook.handle": "clearbit/facebook_handle",
@@ -100,6 +101,7 @@ export default {
     }),
     phone: "clearbit/phone",
     role: "clearbit/employment_role",
+    subRole: "clearbit/employment_sub_role",
     seniority: "clearbit/employment_seniority",
     title: "clearbit/employment_title",
     verified: "clearbit/verified"
