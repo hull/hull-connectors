@@ -10,13 +10,12 @@ const debug = require("debug")("hull-error");
 //   status: number,
 //   message?: string
 // };
-const errorHandler = (
+export default function errorHandler(
   err: Error,
   req: HullRequest,
   res: HullResponse,
   _next: NextFunction
-) => {
-  console.log("ERROR HANDLER", err);
+) {
   // $FlowFixMe
   const { status = 500, message, stack } = err;
   if (message) {
@@ -28,7 +27,7 @@ const errorHandler = (
       url,
       params
     };
-    Hull.Client.logger.error("Error ----------------", {
+    Hull.Client.logger.error("connector.error", {
       message,
       status,
       data,
@@ -43,5 +42,3 @@ const errorHandler = (
   debug("unhandled-error", err.stack);
   return res.status(status).send({ message: "undefined error" });
 };
-
-export default errorHandler;
