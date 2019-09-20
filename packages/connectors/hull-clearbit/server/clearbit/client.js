@@ -5,58 +5,11 @@ import request from "request";
 import qs from "qs";
 // import BluebirdPromise from "bluebird";
 import type { HullContext } from "hull";
-import { STATUS_CODES } from "http";
 import type {
   ClearbitRevealResponse,
   ClearbitProspectorResponse,
   ClearbitCombined
 } from "../types";
-
-function ClearbitApi({
-  path,
-  method = "get",
-  params = {},
-  key
-}): Promise<ClearbitProspectorResponse> {
-  const baseUrl = `https://prospector.clearbit.com/v1${path}`;
-  const url = `${baseUrl}?${qs.stringify(params, { arrayFormat: "brackets" })}`;
-  return new Promise((resolve, reject) => {
-    request(
-      url,
-      {
-        method,
-        headers: {
-          "content-type": "application/json",
-          accept: "application/json"
-        },
-        auth: { bearer: key }
-      },
-      (error, response, rawBody) => {
-        let body;
-
-        try {
-          body = JSON.parse(rawBody);
-        } catch (err) {
-          body = {};
-        }
-        if (error) {
-          reject(error);
-        } else if (response.statusCode === 202 || response.statusCode >= 400) {
-          const message = body.error
-            ? body.error.message
-            : STATUS_CODES[response.statusCode] || "Unknown";
-          reject(new Error(message));
-        } else {
-          try {
-            resolve(body);
-          } catch (err) {
-            reject(err);
-          }
-        }
-      }
-    );
-  });
-}
 
 export default class ClearbitClient {
   key: string;
@@ -70,8 +23,7 @@ export default class ClearbitClient {
     const { private_settings } = connector;
     const { api_key } = private_settings;
     this.ctx = ctx;
-    this.key = api_key;
-    this.client = new Client({ key: api_key });
+    this.client = new Client({ key: "api_key" });
   }
 
   enrich(params: any): Promise<void | ClearbitCombined> {
@@ -122,12 +74,11 @@ export default class ClearbitClient {
       params,
       action: "prospect"
     });
-    return this.client.Prospector.search(params)
+    return this.client.Prospector.search(params);
     // return ClearbitApi({
     //   path: "/people/search",
     //   method: "get",
     //   params,
-    //   key: this.key
     // });
   }
 }
