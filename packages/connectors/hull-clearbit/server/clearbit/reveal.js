@@ -7,7 +7,7 @@ import { saveAccount, saveUser } from "../lib/side-effects";
 import type {
   ShouldAction,
   ClearbitResult,
-  ClearbitPrivateSettings
+  ClearbitConnectorSettings
 } from "../types";
 
 /**
@@ -17,14 +17,21 @@ import type {
  */
 export function shouldReveal(
   ctx: HullContext,
-  settings: ClearbitPrivateSettings,
+  settings: ClearbitConnectorSettings,
   message: HullUserUpdateMessage
 ): ShouldAction {
   const { user, account, segments = [] } = message;
-  const { reveal_segments = [] } = settings;
+  const { reveal_user_segments = [] } = settings;
+
+  if (ctx.isBatch) {
+    return {
+      should: false,
+      message: "Prospector doesn't work on Batch updates"
+    };
+  }
 
   // Skip if reveal is disabled
-  if (_.isEmpty(reveal_segments)) {
+  if (_.isEmpty(reveal_user_segments)) {
     return { should: false, message: "No reveal Segments enabled" };
   }
 
@@ -36,7 +43,7 @@ export function shouldReveal(
   }
 
   // Skip if no segments match
-  if (!isInSegments(segments, reveal_segments)) {
+  if (!isInSegments(segments, reveal_user_segments)) {
     return {
       should: false,
       message: "Reveal segments are defined but user isn't in any of them"

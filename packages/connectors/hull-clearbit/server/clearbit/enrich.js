@@ -14,7 +14,7 @@ import { saveAccount, saveUser } from "../lib/side-effects";
 import type {
   ShouldAction,
   ClearbitResult,
-  ClearbitPrivateSettings
+  ClearbitConnectorSettings
 } from "../types";
 
 /**
@@ -31,11 +31,15 @@ function lookupIsPending(entity) {
 
 export const shouldEnrichUser = (
   ctx: HullContext,
-  settings: ClearbitPrivateSettings,
+  settings: ClearbitConnectorSettings,
   message: HullUserUpdateMessage
 ): ShouldAction => {
   const { user, segments = [] } = message;
-  const { enrich_user_segments = [] } = settings;
+  const {
+    enrich_user_segments = [],
+    enrich_user_segments_exclusion = [],
+    enrich_refresh
+  } = settings;
 
   if (_.isEmpty(user.email)) {
     return {
@@ -44,34 +48,40 @@ export const shouldEnrichUser = (
     };
   }
 
-  if (_.isEmpty(enrich_user_segments)) {
-    return {
-      should: false,
-      message: "No enrich segments defined for User"
-    };
-  }
+  // Batches trigger enrichment no matter what
+  if (!ctx.isBatch) {
+    if (_.isEmpty(enrich_user_segments)) {
+      return {
+        should: false,
+        message: "No enrich segments defined for User"
+      };
+    }
+    if (!isInSegments(segments, enrich_user_segments)) {
+      return {
+        should: false,
+        message: "Enrich Segments are defined but User isn't in any of them"
+      };
+    }
+    if (isInSegments(segments, enrich_user_segments_exclusion)) {
+      return {
+        should: false,
+        message: "User is in Enrichment blacklist"
+      };
+    }
+    // Skip if we are waiting for the webhook
+    if (lookupIsPending(user)) {
+      return { should: false, message: "Waiting for webhook" };
+    }
 
-  if (!isInSegments(segments, enrich_user_segments)) {
-    return {
-      should: false,
-      message: "Enrich Segments are defined but User isn't in any of them"
-    };
-  }
-
-  // Skip if we are waiting for the webhook
-  if (lookupIsPending(user)) {
-    return { should: false, message: "Waiting for webhook" };
-  }
-
-  // Skip if we have a Clearbit ID already
-  const clearbit_id = ctx.client.utils.claims.getService("clearbit", user);
-  if (clearbit_id) {
-    return { should: false, message: "Clearbit ID present" };
-  }
-
-  // Skip if we have already tried enriching
-  if (user["clearbit/enriched_at"]) {
-    return { should: false, message: "enriched_at present" };
+    // Skip if we have a Clearbit ID already
+    const clearbit_id = ctx.client.utils.claims.getService("clearbit", user);
+    if (clearbit_id) {
+      return { should: false, message: "Clearbit ID present" };
+    }
+    // Skip if we have already tried enriching and we aren't on auto-refresh mode.
+    if (!enrich_refresh && user["clearbit/enriched_at"]) {
+      return { should: false, message: "enriched_at present" };
+    }
   }
 
   return { should: true };
@@ -84,11 +94,14 @@ export const shouldEnrichUser = (
  */
 export function shouldEnrichAccount(
   ctx: HullContext,
-  settings: ClearbitPrivateSettings,
+  settings: ClearbitConnectorSettings,
   message: HullAccountUpdateMessage
 ): ShouldAction {
   const { account, account_segments = [] } = message;
-  const { enrich_account_segments = [] } = settings;
+  const {
+    enrich_account_segments = [],
+    enrich_account_segments_exclusion = []
+  } = settings;
 
   if (!getDomain(account)) {
     return {
@@ -97,35 +110,45 @@ export function shouldEnrichAccount(
     };
   }
 
-  if (_.isEmpty(enrich_account_segments)) {
-    return {
-      should: false,
-      message: "No enrich segments defined for Account"
-    };
-  }
+  // Batches trigger enrichment no matter what
+  if (!ctx.isBatch) {
+    if (_.isEmpty(enrich_account_segments)) {
+      return {
+        should: false,
+        message: "No enrich segments defined for Account"
+      };
+    }
 
-  // Skip if no segments match
-  if (!isInSegments(account_segments, enrich_account_segments)) {
-    return {
-      should: false,
-      message: "Enrich Segments are defined but Account isn't in any of them"
-    };
-  }
+    // Skip if no segments match
+    if (!isInSegments(account_segments, enrich_account_segments)) {
+      return {
+        should: false,
+        message: "Enrich Segments are defined but Account isn't in any of them"
+      };
+    }
 
-  // Skip if we are waiting for the webhook
-  if (lookupIsPending(account)) {
-    return { should: false, message: "Waiting for webhook" };
-  }
+    if (isInSegments(account_segments, enrich_account_segments_exclusion)) {
+      return {
+        should: false,
+        message: "Account is in Enrichment Blacklist"
+      };
+    }
 
-  // Skip if we have a Clearbit ID already
-  const clearbit_id = ctx.client.utils.claims.getService("clearbit", account);
-  if (clearbit_id) {
-    return { should: false, message: "Clearbit ID present" };
-  }
+    // Skip if we are waiting for the webhook
+    if (lookupIsPending(account)) {
+      return { should: false, message: "Waiting for webhook" };
+    }
 
-  // Skip if we have already tried enriching
-  if (account["clearbit/enriched_at"]) {
-    return { should: false, message: "enriched_at present" };
+    // Skip if we have a Clearbit ID already
+    const clearbit_id = ctx.client.utils.claims.getService("clearbit", account);
+    if (clearbit_id) {
+      return { should: false, message: "Clearbit ID present" };
+    }
+
+    // Skip if we have already tried enriching
+    if (account["clearbit/enriched_at"]) {
+      return { should: false, message: "enriched_at present" };
+    }
   }
 
   return { should: true };

@@ -13,7 +13,7 @@ export default function statusCheck(ctx: HullContext) {
     enrich_enabled,
     prospect_enabled,
     enrich_user_segments,
-    reveal_segments,
+    reveal_user_segments,
     reveal_enabled,
     prospect_filter_seniority,
     prospect_filter_titles,
@@ -38,7 +38,7 @@ export default function statusCheck(ctx: HullContext) {
       "Enrich enabled, but no segments are listed. No one will be enriched"
     );
   }
-  if (reveal_enabled && !_.size(reveal_segments)) {
+  if (reveal_enabled && !_.size(reveal_user_segments)) {
     messages.push(
       "Reveal enabled, but no segments are listed. No one will be revealed"
     );

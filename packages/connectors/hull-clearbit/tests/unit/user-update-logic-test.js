@@ -42,7 +42,7 @@ describe("User Update Logic", () => {
   it("should not do anything if no segments active", () => {
     const cb = makeClearbit({
       enrich_user_segments: [],
-      reveal_segments: [],
+      reveal_user_segments: [],
       enrich_account_segments: [],
       prospect_account_segments: [],
       discover_account_segments: []
@@ -63,7 +63,7 @@ describe("User Update Logic", () => {
   it("should reveal anonymous users", () => {
     const cb = makeClearbit({
       enrich_user_segments: ["1"],
-      reveal_segments: ["1"],
+      reveal_user_segments: ["1"],
       enrich_account_segments: [],
       prospect_account_segments: [],
       discover_account_segments: []
@@ -82,7 +82,7 @@ describe("User Update Logic", () => {
   it("should enrich and reveal users with an email", () => {
     const cb = makeClearbit({
       enrich_user_segments: ["1"],
-      reveal_segments: ["1"]
+      reveal_user_segments: ["1"]
     });
     const message = {
       user: { last_known_ip: "1.2.3.4", email: "foo@bar.com" },
@@ -98,7 +98,7 @@ describe("User Update Logic", () => {
   it("should not reveal Users with a company", () => {
     const cb = makeClearbit({
       enrich_user_segments: [],
-      reveal_segments: ["1"]
+      reveal_user_segments: ["1"]
     });
     const message = {
       user: {
@@ -120,7 +120,7 @@ describe("User Update Logic", () => {
   it("should not do anything for already enriched and revealed users", () => {
     const cb = makeClearbit({
       enrich_user_segments: ["1"],
-      reveal_segments: ["1"]
+      reveal_user_segments: ["1"]
     });
     const message = {
       user: {
@@ -142,7 +142,7 @@ describe("User Update Logic", () => {
   it("should not do anything for users in wrong segments", () => {
     const cb = makeClearbit({
       enrich_user_segments: ["1"],
-      reveal_segments: ["1"]
+      reveal_user_segments: ["1"]
     });
     const message = {
       user: {
@@ -162,7 +162,7 @@ describe("User Update Logic", () => {
   it("should enrich Revealed Users without enrichment data", () => {
     const cb = makeClearbit({
       enrich_user_segments: ["1"],
-      reveal_segments: ["1"]
+      reveal_user_segments: ["1"]
     });
     const message = {
       user: {
@@ -185,7 +185,7 @@ describe("User Update Logic", () => {
   // it("should reveal enriched Users without reveal data", () => {
   //   const cb = makeClearbit({
   //     enrich_user_segments: ["1"],
-  //     reveal_segments: ["1"]
+  //     reveal_user_segments: ["1"]
   //   });
   //   const message = {
   //     user: {
@@ -208,7 +208,7 @@ describe("User Update Logic", () => {
   // it("should not enrich or Reveal Users with Enrichment data", () => {
   //   const cb = makeClearbit({
   //     enrich_user_segments: ["1"],
-  //     reveal_segments: ["1"]
+  //     reveal_user_segments: ["1"]
   //   });
   //   const message = {
   //     user: {

@@ -1,36 +1,19 @@
 // @flow
 import type {
   HullContext,
-  HullConnector,
-  HullAccountUpdateMessage
+  HullConnector
+  // HullAccountUpdateMessage
 } from "hull";
-import _ from "lodash";
+// import _ from "lodash";
 import Client from "./client";
-
-import { getDomain, now } from "./utils";
-import { discover } from "./discover";
+import type { ClearbitConnectorSettings } from "../types";
+// import { getDomain, now } from "./utils";
+// import { discover } from "./discover";
 // import { getUserTraitsFrom, getAccountTraitsFromCompany } from "./mapping";
-import { saveDiscovered } from "../lib/side-effects";
+// import { saveDiscovered } from "../lib/side-effects";
 
 // const debug = require("debug")("hull-clearbit:clearbit_class");
 
-type Settings = {
-  api_key: string,
-
-  enrich_segments: Array<string>,
-
-  discover_limit_count: number,
-  discover_segments: Array<string>,
-
-  prospect_segments: Array<string>,
-  prospect_filter_role: Array<string>,
-  prospect_filter_seniority: Array<string>,
-  prospect_filter_titles: Array<string>,
-  prospect_limit_count: number,
-
-  reveal_prospect_min_contacts: number,
-  reveal_segments: Array<string>
-};
 export default class Clearbit {
   ctx: HullContext;
 
@@ -42,7 +25,7 @@ export default class Clearbit {
 
   hull: $PropertyType<HullContext, "client">;
 
-  settings: Settings;
+  settings: ClearbitConnectorSettings;
 
   client: Client;
 
@@ -50,8 +33,8 @@ export default class Clearbit {
     const { client, connector, metric, clientCredentialsEncryptedToken } = ctx;
     this.ctx = ctx;
     this.token = clientCredentialsEncryptedToken;
-    const { private_settings = {} } = connector;
-
+    const { private_settings } = connector;
+    this.settings = private_settings;
     if (!connector.private_settings) {
       console.error("MissingPrivateSettingsError", connector); // eslint-disable-line no-console
     }
@@ -76,37 +59,37 @@ export default class Clearbit {
    * @param  {Object} filters - Criteria to use as filters
    * @return {Promise}
    */
-  async discover({ account = {} }: HullAccountUpdateMessage) {
-    // TODO -> Support Accounts
-    const domain = getDomain(account);
-    const { client } = this.ctx;
-    const asAccount = client.asAccount(account);
-
-    try {
-      // Let's not call the Discovery API if we have already done it before...
-      const companies = (await discover(account)) || [];
-      if (!companies || !companies.length) {
-        asAccount.logger.info("outgoing.account.success", {
-          reason: "no companies from discovery attempt"
-        });
-        return false;
-      }
-      if (account.id && !account["clearbit/discovered_similar_companies_at"]) {
-        asAccount.traits(
-          {
-            "clearbit/discovered_similar_companies_at": now()
-          },
-          { sync: true }
-        );
-      }
-
-      const response = await saveDiscovered(this.ctx, { domain, companies });
-      return response;
-    } catch (err) {
-      asAccount.logger.info("outgoing.user.error", {
-        errors: _.get(err, "message", err)
-      });
-      return Promise.reject(err);
-    }
-  }
+  // async discover({ account = {} }: HullAccountUpdateMessage) {
+  //   // TODO -> Support Accounts
+  //   const domain = getDomain(account);
+  //   const { client } = this.ctx;
+  //   const asAccount = client.asAccount(account);
+  //
+  //   try {
+  //     // Let's not call the Discovery API if we have already done it before...
+  //     const companies = (await discover(account)) || [];
+  //     if (!companies || !companies.length) {
+  //       asAccount.logger.info("outgoing.account.success", {
+  //         reason: "no companies from discovery attempt"
+  //       });
+  //       return false;
+  //     }
+  //     if (account.id && !account["clearbit/discovered_similar_companies_at"]) {
+  //       asAccount.traits(
+  //         {
+  //           "clearbit/discovered_similar_companies_at": now()
+  //         },
+  //         { sync: true }
+  //       );
+  //     }
+  //
+  //     const response = await saveDiscovered(this.ctx, { domain, companies });
+  //     return response;
+  //   } catch (err) {
+  //     asAccount.logger.info("outgoing.user.error", {
+  //       errors: _.get(err, "message", err)
+  //     });
+  //     return Promise.reject(err);
+  //   }
+  // }
 }

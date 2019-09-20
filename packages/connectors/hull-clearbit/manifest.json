@@ -33,9 +33,22 @@
       "format": "text"
     },
     {
-      "title": "Enrich Users",
+      "title": "User Enrichment whitelist",
       "name": "enrich_user_segments",
       "description": "Specify one or more segments for which enrichment will be performed. *No one is sent if this is empty*",
+      "type": "array",
+      "options": {
+        "standard": {
+          "ALL": "All users"
+        }
+      },
+      "default": [],
+      "format": "segment"
+    },
+    {
+      "title": "User Enrichment blacklist",
+      "name": "enrich_user_segments_exclusion",
+      "description": "Users in those segments will be excluded from enrichment. Takes precedence over the whitelist",
       "type": "array",
       "default": [],
       "format": "segment"
@@ -43,36 +56,50 @@
     {
       "title": "Refresh Clearbit Data",
       "name": "enrich_refresh",
-      "description": "Should the data be refreshed when users and accounts are updated? Use this in conjunction with Segments to control how frequently to refresh data. If you enable `Refresh Clearbit Data`, users will be refreshed by clearbit everytime they are updated. We suggest to configure your segments to include `enriched_at > xx days ago` to mark users for refresh",
+      "description": "Should the data be refreshed when users and accounts are updated? Use this in conjunction with Segment whitelist and blacklists to control how frequently to refresh data. If you enable `Refresh Clearbit Data`, users will be refreshed by clearbit everytime they are updated. We suggest to configure your segments to include `enriched_at > xx days ago` to mark users for refresh. If you leave it disabled, users and accounts will only be enriched once",
       "type": "boolean",
       "default": false
     },
     {
-      "title": "Enrich Accounts",
+      "title": "Account Enrichment whitelist",
       "name": "enrich_account_segments",
       "description": "Specify one or more Account segments for which enrichment will be performed. *No one is sent if this is empty*",
+      "type": "array",
+      "options": {
+        "standard": {
+          "ALL": "All Accounts"
+        }
+      },
+      "format": "accountSegment"
+    },
+    {
+      "title": "Account Enrichment blacklist",
+      "name": "enrich_account_segments_exclusion",
+      "description": "Accounts in those segments will be excluded from enrichment. Takes precedence over the whitelist",
       "type": "array",
       "default": [],
       "format": "accountSegment"
     },
     {
-      "title": "Reveal filter",
+      "title": "User Reveal whitelist",
       "description": "Who will be sent to Reveal. *Every anonymous user is sent if this is empty*. We never send anyone who has identifiable information",
-      "name": "reveal_segments",
+      "name": "reveal_user_segments",
       "type": "array",
       "default": [],
+      "options": {
+        "standard": {
+          "ALL": "All users"
+        }
+      },
       "format": "segment"
     },
     {
-      "title": "Minimum distinct visitors from same company to trigger Prospect API",
-      "name": "reveal_prospect_min_contacts",
-      "type": "number",
-      "description": "As soon as this number of distinct visitors from the same Company is met, the connector will run the Prospect workflow (if it's enabled)",
-      "format": "range",
-      "default": 1,
-      "minimum": 1,
-      "maximum": 10,
-      "multipleOf": 1
+      "title": "User Reveal blacklist",
+      "description": "Users in those segments will be excluded from reveal. Takes precedence over the whitelist",
+      "name": "reveal_user_segments_exclusion",
+      "type": "array",
+      "default": [],
+      "format": "segment"
     },
     {
       "title": "Attribute that defines the company domain",
@@ -102,16 +129,29 @@
     },
     {
       "name": "prospect_domain",
-      "title": "Attribute that defines the company domain",
+      "title": "Domain lookup",
       "type": "string",
       "format": "accountTrait",
       "default": "domain",
-      "description": "The connector will use the value of this attribute as domain when fetching people from Clearbit."
+      "description": "Which attribute to use as the domain to prospect. Usually the Account domain."
     },
     {
       "name": "prospect_account_segments",
-      "title": "Prospect filter",
+      "title": "Account Prospector whitelist",
       "description": "The Clearbit Prospector API will be called for these accounts find leads for their parent Account",
+      "type": "array",
+      "default": [],
+      "options": {
+        "standard": {
+          "ALL": "All Accounts"
+        }
+      },
+      "format": "segment"
+    },
+    {
+      "name": "prospect_account_segments_exclusion",
+      "title": "Account Prospector blacklist",
+      "description": "Accounts in those segments will be excluded from Prospector. Takes precedence over the whitelist",
       "type": "array",
       "default": [],
       "format": "segment"
@@ -200,7 +240,9 @@
       "description": "Configure the way Clearbit Enrich runs",
       "properties": [
         "private_settings.enrich_user_segments",
+        "private_settings.enrich_user_segments_exclusion",
         "private_settings.enrich_account_segments",
+        "private_settings.enrich_account_segments_exclusion",
         "private_settings.enrich_refresh"
       ]
     },
@@ -208,8 +250,8 @@
       "title": "Reveal",
       "description": "Configure the way Clearbit Reveal runs",
       "properties": [
-        "private_settings.reveal_segments",
-        "private_settings.reveal_prospect_min_contacts"
+        "private_settings.reveal_user_segments",
+        "private_settings.reveal_user_segments_exclusion"
       ]
     },
     {
@@ -217,11 +259,12 @@
       "description": "Configure the way Clearbit Prospector runs",
       "properties": [
         "private_settings.prospect_account_segments",
+        "private_settings.prospect_account_segments_exclusion",
         "private_settings.prospect_domain",
-        "private_settings.prospect_limit_count",
+        "private_settings.prospect_filter_titles",
         "private_settings.prospect_filter_role",
         "private_settings.prospect_filter_seniority",
-        "private_settings.prospect_filter_titles"
+        "private_settings.prospect_limit_count"
       ]
     }
   ],

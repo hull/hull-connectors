@@ -11,7 +11,7 @@ describe("enrich module", () => {
       assert.deepStrictEqual(
         shouldReveal(
           {
-            reveal_segments: ["1"]
+            reveal_user_segments: ["1"]
           },
           {
             segments: [{ id: "1" }],
@@ -27,7 +27,7 @@ describe("enrich module", () => {
       assert.deepStrictEqual(
         shouldReveal(
           {
-            reveal_segments: ["1"]
+            reveal_user_segments: ["1"]
           },
           {
             segments: [{ id: "1" }],
@@ -43,7 +43,7 @@ describe("enrich module", () => {
       assert.deepStrictEqual(
         shouldReveal(
           {
-            reveal_segments: ["1"]
+            reveal_user_segments: ["1"]
           },
           {
             segments: [{ id: "1" }],
@@ -64,7 +64,7 @@ describe("enrich module", () => {
       assert.deepStrictEqual(
         shouldReveal(
           {
-            reveal_segments: ["1"]
+            reveal_user_segments: ["1"]
           },
           {
             segments: [{ id: "1" }],
@@ -81,7 +81,7 @@ describe("enrich module", () => {
       assert.deepStrictEqual(
         shouldReveal(
           {
-            reveal_segments: ["1"]
+            reveal_user_segments: ["1"]
           },
           {
             segments: [{ id: "2" }],
@@ -98,7 +98,7 @@ describe("enrich module", () => {
       assert.deepStrictEqual(
         shouldReveal(
           {
-            reveal_segments: ["1"]
+            reveal_user_segments: ["1"]
           },
           {
             segments: [{ id: "1" }],
@@ -120,7 +120,7 @@ describe("enrich module", () => {
       assert.deepStrictEqual(
         shouldReveal(
           {
-            reveal_segments: ["1"]
+            reveal_user_segments: ["1"]
           },
           {
             segments: [{ id: "1" }],

@@ -194,25 +194,6 @@ export type ClearbitCombined = {
   company: ClearbitCompany
 };
 
-export type ClearbitPrivateSettings = {
-  api_key: string,
-
-  discover_limit_count: number,
-  discover_segments: Array<string>,
-
-  enrich_user_segments: Array<string>,
-  enrich_account_segments: Array<string>,
-
-  prospect_account_segments: Array<string>,
-  prospect_filter_role: Array<string>,
-  prospect_filter_seniority: Array<string>,
-  prospect_filter_titles: Array<string>,
-  prospect_limit_count: number,
-
-  reveal_prospect_min_contacts: number,
-  reveal_segments: Array<string>
-};
-
 export type ClearbitRevealResponse = {
   ip: string,
   fuzzy: boolean,
@@ -238,4 +219,28 @@ export type ClearbitProspectorQuery = {
   states?: Array<string>,
   countries?: Array<string>,
   limit: number
+};
+
+export type ClearbitConnectorSettings = {
+  api_key: string,
+
+  enrich_user_segments: Array<string>,
+  enrich_user_segments_exclusion: Array<string>,
+  enrich_refresh: string,
+  enrich_account_segments: Array<string>,
+  enrich_account_segments_exclusion: Array<string>,
+
+  discover_limit_count: number,
+  discover_segments: Array<string>,
+
+  prospect_account_segments: Array<string>,
+  prospect_account_segments_exclusion: Array<string>,
+  prospect_domain: string,
+  prospect_filter_role: Array<string>,
+  prospect_filter_seniority: Array<string>,
+  prospect_filter_titles: Array<string>,
+  prospect_limit_count: number,
+
+  reveal_user_segments: Array<string>,
+  reveal_user_segments_exclusion: Array<string>
 };

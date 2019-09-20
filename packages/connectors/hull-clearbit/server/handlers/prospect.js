@@ -43,16 +43,6 @@ const prospect = async (
     // );
   });
   const prospects = _.flatten(responses.map(_.values));
-  // const prospects = _.reduce(
-  //   responses,
-  //   (m, v) => {
-  //     _.map(v, (p, email) => {
-  //       m[email] = p;
-  //     });
-  //     return m;
-  //   },
-  //   {}
-  // );
   return { status: 200, data: { prospects: _.flatten(prospects) } };
 };
 export default prospect;

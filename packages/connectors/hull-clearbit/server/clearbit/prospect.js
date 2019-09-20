@@ -10,7 +10,7 @@ import { isInSegments, getDomain, now } from "./utils";
 import excludes from "../excludes";
 import { saveProspect } from "../lib/side-effects";
 import type {
-  ClearbitPrivateSettings,
+  ClearbitConnectorSettings,
   ShouldAction,
   ClearbitProspectorQuery,
   ClearbitProspect
@@ -18,12 +18,20 @@ import type {
 
 export async function shouldProspect(
   ctx: HullContext,
-  settings: ClearbitPrivateSettings,
+  settings: ClearbitConnectorSettings,
   message: HullAccountUpdateMessage
 ): Promise<ShouldAction> {
   const { account, account_segments = [] } = message;
   const { prospect_account_segments = [] } = settings;
   const domain = getDomain(account);
+
+  if (ctx.isBatch) {
+    return {
+      should: false,
+      message: "Prospector doesn't work on Batch updates"
+    };
+  }
+
   if (!domain) {
     return { should: false, message: "Can't find a domain" };
   }

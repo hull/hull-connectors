@@ -17,7 +17,7 @@ describe("Reveal action", () => {
     id: "123456789012345678901234",
     private_settings: {
       api_key: "123",
-      reveal_segments: ["1"]
+      reveal_user_segments: ["1"]
     }
   };
   const mocks = mockr({
@@ -158,7 +158,7 @@ describe("Reveal action", () => {
   //         private_settings: {
   //           api_key: "123",
   //           reveal_enabled: true,
-  //           reveal_segments: ["1"]
+  //           reveal_user_segments: ["1"]
   //         }
   //       },
   //       messages: [

@@ -4,7 +4,7 @@ import _ from "lodash";
 import rangeCheck from "range_check";
 import type { HullAccount, HullUser } from "hull";
 import excludes from "../excludes";
-
+import type { ClearbitConnectorSettings } from "../types";
 /**
  * Check if a user belongs to one of the segments listed
  * @param  {Array<Segment>} userSegments - A list of segments
@@ -22,9 +22,14 @@ export function isInSegments(
   );
 }
 
-export function getDomain(account: HullAccount): string {
+export function getDomain(
+  account: HullAccount,
+  settings: ClearbitConnectorSettings
+): string {
+  const { prospect_domain } = settings;
+  // return account.domain || account["clearbit/domain"];
   // $FlowFixMe
-  return account.domain || account["clearbit/domain"];
+  return account[prospect_domain];
 }
 
 export function now() {
