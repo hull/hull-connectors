@@ -246,7 +246,8 @@ class HullConnector {
         this.server = server;
       }
       this.setupApp(app);
-      this.setupRoutes(app);
+      await this.setupRoutes(app);
+      this.setupErrorHandling(app);
       debug(`Started server on port ${this.connectorConfig.port}`);
     } else {
       debug("No Server started: `serverConfig.start === false`");
@@ -452,7 +453,10 @@ class HullConnector {
     app.engine("html", renderFile);
     app.set("views", getAbsolutePath("views"));
     app.set("view engine", "ejs");
+    return app;
+  }
 
+  setupErrorHandling(app: $Application): $Application {
     /**
      * Instrumentation Middleware,
      * this sends all errors to sentry
