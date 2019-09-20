@@ -23,7 +23,7 @@ export default class ClearbitClient {
     const { private_settings } = connector;
     const { api_key } = private_settings;
     this.ctx = ctx;
-    this.client = new Client({ key: "api_key" });
+    this.client = new Client({ key: api_key });
   }
 
   enrich(params: any): Promise<void | ClearbitCombined> {
