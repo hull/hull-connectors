@@ -156,7 +156,8 @@
       "value": "180",
       "handler": "refreshAccessToken",
       "options": {
-        "fireAndForget": true
+        "fireAndForget": true,
+        "alwaysEnabled": true
       }
     }
   ],

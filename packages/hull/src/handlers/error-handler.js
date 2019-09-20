@@ -22,7 +22,7 @@ function errorHandlerMiddlewareFactory({
     res: HullResponse,
     next: NextFunction
   ) {
-    const { metric, client } = req.hull;
+    const { metric } = req.hull;
     const errorString = err.message || err.toString();
     debug("error", errorString, err.constructor.name, { respondWithError });
 
