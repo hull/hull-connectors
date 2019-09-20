@@ -289,6 +289,7 @@ class HullConnector {
           );
           return app.post(url, router);
         }
+        return app;
       });
 
     // Breaking proper separation of concerns here, but its the least invasive way to override route setup with oAuth handlers
