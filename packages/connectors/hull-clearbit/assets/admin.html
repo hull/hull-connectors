@@ -4,23 +4,36 @@
     <link rel="stylesheet" href="/style.css" />
     <script src="/index.js"></script>
   </head>
-  <body>
-    <div class="container">
-      <div class="row mt-1 mb-4">
+  <body style="display: flex; align-items: center; justify-content: center;">
+    <div class="container-fluid">
+      <div class="row mb-5">
         <div class="col-lg-12 text-center">
           <h1 class="mb-0 mt-05">
             <i class="icon icon-hull" style="font-size:64px;"></i>
           </h1>
         </div>
       </div>
-      <div class="row mt-1">
-        <div class="col-sm-12 col-lg-3">
-          <h5 class=" mt-05 mb-05">Search for new leads</h5>
+      <div class="row mt-1 justify-content-md-center">
+        <div class="col-sm-12 col-md-3">
+          <div class="mb-4">
+            <h5
+              class=" mt-05 mb-05"
+              style="display: flex; align-items: center;"
+            >
+              <img
+                src="/logo.svg"
+                alt=""
+                width="32"
+                style="position: absolute"
+              />
+              <span style="margin-left: 40px;">Lead Prospector</span>
+            </h5>
+          </div>
           <form id="prospect-form">
             <!-- role, seniority, titles -->
 
             <div class="form-group">
-              <label for="domains">Domains (required)</label>
+              <label class="form-label" for="domains">Domains (required)</label>
               <select
                 name="domains"
                 id="domains"
@@ -30,7 +43,7 @@
             </div>
 
             <div class="form-group">
-              <label for="titles">Title (required)</label>
+              <label class="form-label" for="titles">Title (required)</label>
               <select
                 name="titles"
                 id="titles"
@@ -40,7 +53,7 @@
             </div>
 
             <div class="form-group">
-              <label for="role">Role</label>
+              <label class="form-label" for="role">Role</label>
               <select
                 name="role"
                 id="role"
@@ -75,7 +88,7 @@
             </div>
 
             <div class="form-group">
-              <label for="seniority">Seniority</label>
+              <label class="form-label" for="seniority">Seniority</label>
               <select
                 name="seniority"
                 id="seniority"
@@ -91,7 +104,7 @@
             </div>
 
             <div class="form-group">
-              <label for="limit">Limit (per domain)</label>
+              <label class="form-label" for="limit">Limit (per domain)</label>
               <input
                 type="number"
                 name="limit"
@@ -105,23 +118,30 @@
               <button
                 type="submit"
                 id="prospect"
-                class="btn btn-block btn-primary btn-rounded"
+                class="btn btn-block btn-primary"
               >
-                Prospect
+                Prospect new leads
               </button>
             </div>
           </form>
         </div>
-        <div class="col-sm-12 col-lg-8">
-          <button type="submit" id="import" class="btn btn-primary float-right">
-            Import to Hull
-          </button>
-          <h5 class=" mt-05 mb-1">
-            Results
-          </h5>
-          <p>
-            Search for prospects on the left and they will be imported as users
-          </p>
+        <div class="col-sm-12 col-lg-7 col-md-8 offset-md-0 offset-lg-1">
+          <div class="mb-5" style="display: flex; align-items: center; justify-content: space-between;">
+            <h5 class=" mt-05 mb-1">
+              Results
+              <small>
+                Search for prospects on the left and they will be imported as
+                users
+              </small>
+            </h5>
+            <button
+              type="submit"
+              id="import"
+              class="btn btn-primary"
+            >
+              Import to Hull
+            </button>
+          </div>
           <table
             id="results"
             data-sortable="true"
@@ -135,13 +155,13 @@
               <tr>
                 <th data-field="state" data-checkbox="true"></th>
                 <!-- <th data-field="fullName">Full Name</th> -->
+                <th data-field="name" data-formatter='nameFormatter'>Name</th>
                 <th data-field="email">Email</th>
                 <th data-field="role">Role</th>
                 <th data-field="seniority">Seniority</th>
                 <th data-field="title">Title</th>
                 <th data-field="domain">Domain</th>
               </tr>
-            </thead>
           </table>
         </div>
       </div>

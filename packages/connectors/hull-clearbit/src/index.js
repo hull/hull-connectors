@@ -17,16 +17,13 @@ const renderError = err =>
 const renderResults = ({ container, data }) =>
   container.bootstrapTable("load", data);
 
-const changeButton = (text, disabled) => btn =>
+const changeButton = disabled => (text, btn) =>
   btn.text(text).prop("disabled", disabled);
 
-const enableActionButton = changeButton(STRINGS.BTN_DEFAULT, false);
+const enableButton = changeButton(false);
+const disableButton = changeButton(true);
 
-const disableActionButton = changeButton(STRINGS.BTN_LOADING, true);
-
-const enableImportButton = changeButton(STRINGS.BTN_IMPORT_DEFAULT, false);
-
-const disableImportButton = changeButton(STRINGS.BTN_IMPORT_LOADING, true);
+window.nameFormatter = (value, row) => row.name.fullName;
 
 const request = async ({ url, data }) => {
   try {
@@ -58,16 +55,16 @@ const updateImportButtonStatus = (button, selected) =>
 
 const onImport = container => async ev => {
   const button = $(ev.target);
-  disableImportButton(button);
+  disableButton(STRINGS.BTN_IMPORT_LOADING, button);
   const prospects = container.bootstrapTable("getSelections");
   const { error } = await request({ url: "/save", data: { prospects } });
   if (!error) {
     container.bootstrapTable("uncheckAll");
-    enableImportButton(button);
+    enableButton(STRINGS.BTN_IMPORT_DEFAULT, button);
     updateImportButtonStatus(button, 0);
     button.text("Import Successful");
   } else {
-    enableImportButton(button);
+    enableButton(STRINGS.BTN_IMPORT_DEFAULT, button);
     button.text(`Import Failed: ${error}`);
   }
   // debugger;
@@ -77,63 +74,85 @@ export default function boot() {
   $(() => {
     const $btn_prospect = $("button#prospect");
     const $btn_import = $("button#import");
+    const $domains = $("#domains");
+    const $titles = $("#titles");
+    const $role = $("#role");
+    const $seniority = $("#seniority");
+    // const $limit = $("#limit");
+    updateImportButtonStatus($btn_import, 0);
+
     const container = $("#results");
-    $btn_import.prop("disabled", true);
-    container.bootstrapTable("refreshOptions", {
-      classes: "table table-borderless table-hover"
-    });
-    container.on(
-      "check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table",
-      function onSelect() {
-        updateImportButtonStatus(
-          $btn_import,
-          container.bootstrapTable("getSelections").length
-        );
-      }
-    );
-    // renderResults({ container, data: p });
-    $btn_import.on("click", onImport(container));
 
-    $("#role").select2({ theme: "bootstrap", closeOnSelect: false });
-    $("#seniority").select2({ theme: "bootstrap", closeOnSelect: false });
-    $("#domains").select2({
-      theme: "bootstrap",
-      tags: true,
-      tokenSeparators: [",", " "],
-      placeholder: STRINGS.DOMAINS_PLACEHOLDER,
-      closeOnSelect: true
-    });
-    $("#titles").select2({
-      theme: "bootstrap",
-      tags: true,
-      placeholder: STRINGS.TITLES_PLACEHOLDER,
-      closeOnSelect: true
-    });
+    $btn_import.prop("disabled", true).on("click", onImport(container));
 
-    $("form#prospect-form").on("submit", async evt => {
-      evt.preventDefault();
-      updateImportButtonStatus($btn_import, 0);
-      const titles = $("#titles")
+    container
+      .on(
+        "check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table",
+        function onSelect() {
+          updateImportButtonStatus(
+            $btn_import,
+            container.bootstrapTable("getSelections").length
+          );
+        }
+      )
+      .bootstrapTable("refreshOptions", {
+        classes: "table table-borderless table-hover"
+      });
+
+    const updateState = () => {
+      const data = {};
+      const titles = $titles
         .val()
         .map(d => d.trim())
         .filter(d => d.length > 0);
-      const domains = $("#domains")
+      const domains = $domains
         .val()
         .map(d => d.trim())
         .filter(d => d.length > 0);
-      if (domains.length === 0) {
-        return;
-      }
-
-      const data = { domains, titles };
-
       ["role", "seniority", "limit"].forEach(k => {
         const val = $(`#${k}`).val();
         if (val && val.length > 0) {
           data[k] = val;
         }
       });
-      disableActionButton($btn_prospect);
+      if (titles.length && domains.length) {
+        enableButton(STRINGS.BTN_DEFAULT, $btn_prospect);
+      } else {
+        disableButton(STRINGS.BTN_DEFAULT, $btn_prospect);
+      }
+      return { domains, titles };
+    };
+
+    $role
+      .select2({ theme: "bootstrap", closeOnSelect: false })
+      .on("change", updateState);
+    $seniority
+      .select2({ theme: "bootstrap", closeOnSelect: false })
+      .on("change", updateState);
+    $domains
+      .select2({
+        theme: "bootstrap",
+        tags: true,
+        tokenSeparators: [",", " "],
+        placeholder: STRINGS.DOMAINS_PLACEHOLDER,
+        closeOnSelect: true
+      })
+      .on("change", updateState);
+    $titles
+      .select2({
+        theme: "bootstrap",
+        tags: true,
+        placeholder: STRINGS.TITLES_PLACEHOLDER,
+        closeOnSelect: true
+      })
+      .on("change", updateState);
+
+    updateState();
+
+    $("form#prospect-form").on("submit", async evt => {
+      evt.preventDefault();
+      const data = updateState();
+      disableButton(STRINGS.BTN_LOADING, $btn_prospect);
       const { error, prospects } = await request({ url: "/prospect", data });
       if (error) {
         $("#results").html(renderError(error));
@@ -142,7 +161,7 @@ export default function boot() {
         $btn_prospect.show();
         renderResults({ container, data: prospects });
       }
-      enableActionButton($btn_prospect);
+      enableButton(STRINGS.BTN_DEFAULT, $btn_prospect);
     });
   });
 }
