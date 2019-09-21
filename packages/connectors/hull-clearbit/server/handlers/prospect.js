@@ -6,7 +6,7 @@ import type {
 } from "hull";
 import BluebirdPromise from "bluebird";
 import _ from "lodash";
-import { saveProspect } from "../lib/side-effects";
+// import { saveProspect } from "../lib/side-effects";
 
 import Client from "../clearbit/client";
 // import Promise from "bluebird";
@@ -18,8 +18,11 @@ const prospect = async (
 ): HullExternalResponse => {
   // $FlowFixMe
   const { domains, role, seniority, titles = [], limit } = message.body;
-  if (!domains.length) {
-    return { status: 404, data: { message: "Empty list of domains" } };
+  if (!domains || !domains.length) {
+    return { status: 400, data: { error: "Empty list of domains" } };
+  }
+  if (!titles || !titles.length) {
+    return { status: 400, data: { error: "Empty list of titles" } };
   }
   const clearbitClient = new Client(ctx);
   const responses = await BluebirdPromise.mapSeries(domains, async domain => {
@@ -37,13 +40,12 @@ const prospect = async (
       // $FlowFixMe
       message: { account }
     });
-    return prospects;
-    // return Promise.all(
-    // $FlowFixMe
-    // prospects.map(person => saveProspect(ctx, { account, person }))
-    // );
+    return _.mapValues(prospects, p => ({ domain, ...p }));
   });
   const prospects = _.flatten(responses.map(_.values));
+  if (!prospects.length) {
+    return { status: 404, data: { error: "No results" } };
+  }
   return { status: 200, data: { prospects: _.flatten(prospects) } };
 };
 export default prospect;

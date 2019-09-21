@@ -1,29 +1,4 @@
 @import "../../../assets/style/index.scss";
-@import "../../../assets/style/dark.scss";
 @import "~select2/dist/css/select2.css";
 @import "~select2-bootstrap-theme/dist/select2-bootstrap.css";
-
-// $secondary-bg: #2f3640;
-// $page-bg: #242a33;
-// $white: #ffffff;
-// $separator: #50555c;
-
-.select2-container--bootstrap .select2-selection {
-  background-color: $secondary-bg;
-  border: 1px solid $separator;
-}
-
-.select2-dropdown {
-  background-color: $secondary-bg;
-  border: 1px solid $separator;
-}
-
-.select2-search__field {
-  color: white;
-}
-
-.select2-container--bootstrap .select2-selection--multiple .select2-selection__choice {
-  background-color: $page-bg;
-  border: 1px solid $separator;
-  color: white;
-}
+@import "~bootstrap-table/dist/bootstrap-table.css";

@@ -1,9 +1,10 @@
-<html><head>
+<html>
+  <head>
     <title>Hull Clearbit</title>
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/style.css" />
     <script src="/index.js"></script>
   </head>
-  <body class="dark">
+  <body>
     <div class="container-fluid">
       <div class="row mt-1">
         <div class="col-lg-12 text-center">
@@ -21,21 +22,37 @@
             <div class="panel-body">
               <div class="mb-1">
                 <form id="prospect-form">
-                <!-- role, seniority, titles -->
+                  <!-- role, seniority, titles -->
 
                   <div class="form-group">
                     <label for="domains">Domains (required)</label>
-                    <select name="domains" id="domains" class="form-control" multiple="multiple"></select>
+                    <select
+                      name="domains"
+                      id="domains"
+                      class="form-control"
+                      multiple="multiple"
+                    ></select>
                   </div>
 
                   <div class="form-group">
                     <label for="titles">Title (required)</label>
-                    <select name="titles" id="titles" class="form-control" multiple="multiple"></select>
+                    <select
+                      name="titles"
+                      id="titles"
+                      class="form-control"
+                      multiple="multiple"
+                    ></select>
                   </div>
 
                   <div class="form-group">
                     <label for="role">Role</label>
-                    <select name="role" id="role" rows="5" class="form-control" multiple="multiple">
+                    <select
+                      name="role"
+                      id="role"
+                      rows="5"
+                      class="form-control"
+                      multiple="multiple"
+                    >
                       <option value="">any</option>
                       <option>ceo</option>
                       <option>communications</option>
@@ -64,7 +81,13 @@
 
                   <div class="form-group">
                     <label for="seniority">Seniority</label>
-                    <select name="seniority" id="seniority" rows="5" class="form-control" multiple="multiple">
+                    <select
+                      name="seniority"
+                      id="seniority"
+                      rows="5"
+                      class="form-control"
+                      multiple="multiple"
+                    >
                       <option value="">any</option>
                       <option>executive</option>
                       <option>director</option>
@@ -74,26 +97,56 @@
 
                   <div class="form-group">
                     <label for="limit">Limit (per domain)</label>
-                    <input type="number" name="limit" id="limit" class="form-control" value="10"></select>
+                    <input
+                      type="number"
+                      name="limit"
+                      id="limit"
+                      class="form-control"
+                      value="10"
+                    />
                   </div>
 
-                  <button type="submit" id="prospect" class="btn btn-block btn-primary">Prospect</button>
+                  <button
+                    type="submit"
+                    id="prospect"
+                    class="btn btn-block btn-primary"
+                  >
+                    Prospect
+                  </button>
                 </form>
               </div>
             </div>
           </div>
         </div>
-        <div class="col-sm-8" id="results">
-          <div class="panel panel-default">
-            <div class="panel-heading text-center">
-              <h5 class=" mt-05 mb-1">
-                Results
-              </h5>
-            </div>
-            <div class="panel-body text-center pb-1 pt-1">
-              Search for prospects on the left and they will be imported as users
-            </div>
-          </div>
+        <div class="col-sm-8">
+          <button type="submit" id="import" class="btn btn-primary float-right">
+            Import to Hull
+          </button>
+          <h5 class=" mt-05 mb-1">
+            Results
+          </h5>
+          <p>
+            Search for prospects on the left and they will be imported as users
+          </p>
+          <table
+            id="results"
+            data-sortable="true"
+            data-toggle="table"
+            data-height="460"
+            data-click-to-select="true"
+          >
+            <thead>
+              <tr>
+                <th data-field="state" data-checkbox="true"></th>
+                <!-- <th data-field="fullName">Full Name</th> -->
+                <th data-field="email">Email</th>
+                <th data-field="role">Role</th>
+                <th data-field="seniority">Seniority</th>
+                <th data-field="title">Title</th>
+                <th data-field="domain">Domain</th>
+              </tr>
+            </thead>
+          </table>
         </div>
       </div>
     </div>
@@ -108,7 +161,7 @@
         z-index: auto;
       }
       .select2-container {
-          width: 100% !important;
+        width: 100% !important;
       }
     </style>
   </body>

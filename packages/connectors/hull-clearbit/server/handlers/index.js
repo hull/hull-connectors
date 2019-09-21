@@ -4,6 +4,7 @@ import type { HullExternalResponse, HullHandlersConfiguration } from "hull";
 
 import statusHandler from "./status";
 import prospectHandler from "./prospect";
+import saveHandler from "./save";
 import webhookHandler from "./webhook";
 import updateUser from "./update-user";
 import updateAccount from "./update-account";
@@ -14,7 +15,8 @@ const handler = ({
   flow_in
 }: HandlerType): HullHandlersConfiguration => ({
   json: {
-    prospectHandler
+    prospectHandler,
+    saveHandler
   },
   tabs: {
     admin: (): HullExternalResponse => ({ pageLocation: "/admin.html" })
