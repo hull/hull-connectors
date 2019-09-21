@@ -79,6 +79,9 @@ export default function boot() {
     const $btn_import = $("button#import");
     const container = $("#results");
     $btn_import.prop("disabled", true);
+    container.bootstrapTable("refreshOptions", {
+      classes: "table table-borderless table-hover"
+    });
     container.on(
       "check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table",
       function onSelect() {
@@ -109,6 +112,7 @@ export default function boot() {
 
     $("form#prospect-form").on("submit", async evt => {
       evt.preventDefault();
+      updateImportButtonStatus($btn_import, 0);
       const titles = $("#titles")
         .val()
         .map(d => d.trim())
