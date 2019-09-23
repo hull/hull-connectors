@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.1.4-monorepo
+- merge hubspot incoming events
+
+## v0.1.3-monorepo
+- Merging new Marketo connector to master branch
+- Merging new Warehouse connector to master branch
+- Consolidated filtering logic from previous master with new filtering logic
+- moved purplefusion to hull-connector-framework
+
+## v0.1.2-monorepo
+- Using connector name inferred from manifest and new hubspot doc
+
 ## v0.1.1-monorepo
 - Updated status for mail chimp so that we have more ok, when things don't deserve warnings
 

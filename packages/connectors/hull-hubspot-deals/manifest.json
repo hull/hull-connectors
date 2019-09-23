@@ -1,0 +1,221 @@
+{
+  "name": "Hubspot Deals",
+  "description": "Hubspot integration for Deals",
+  "source": "hubspot",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "version": "0.1.4-monorepo",
+  "tags": [
+    "outgoing",
+    "incoming",
+    "batch",
+    "batch-accounts",
+    "oneColumn",
+    "smart-notifier",
+    "first-install",
+    "single-install",
+    "kraken-exports"
+  ],
+  "settings": [],
+  "private_settings": [
+    {
+      "name": "oauth",
+      "title": "Oauth",
+      "type": "string",
+      "format": "oauth",
+      "description": "On the authentication screen, log into Hubspot with your username and password, if you are not already logged in",
+      "handler": "oauth",
+      "url": "/auth",
+      "options": {
+        "tokenInUrl": true,
+        "name": "Hubspot",
+        "strategy": {
+          "authorizationURL": "https://app.hubspot.com/oauth/authorize",
+          "tokenURL": "https://api.hubapi.com/oauth/v1/token",
+          "grant_type": "authorization_code",
+          "scope": ["oauth", "contacts", "timeline"]
+        }
+      }
+    },
+    {
+      "name": "access_token",
+      "title": "OAuth Access Token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "refresh_token",
+      "title": "OAuth Refresh Token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "portal_id",
+      "title": "Hubspot Portal Id",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "token_type",
+      "title": "OAuth Authentication method",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "expires_in",
+      "title": "OAuth Token Expiration in seconds",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "scope",
+      "title": "Owning user of the customer service that was used to authenticate",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "user_claims",
+      "title": "Deal Identity mapping",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "title": "Deal Field ID",
+            "type": "string",
+            "format": "select",
+            "enum": ["dealname"],
+            "options" : {
+              "allowCreate": false
+            }
+          },
+          "hull": {
+            "title": "Hull User Ident",
+            "enum": ["external_id"]
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "external_id",
+          "service": "dealname"
+        }
+      ]
+    },
+    {
+      "name": "outgoing_user_title",
+      "title": "Outgoing Deal Setup",
+      "description": "How we send Users as Hubspot Deals",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "synchronized_user_segments",
+      "title": "User Filter",
+      "description": "Send to Hubspot when users match these segments",
+      "default": [],
+      "type": "array",
+      "format": "segment"
+    },
+    {
+      "name": "outgoing_user_attributes",
+      "title": "Outgoing Attribute Mapping",
+      "description": "Define which Hull User attributes are sent to Hubspot",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "Hubspot Field",
+        "allowCreate": false,
+        "loadOptions": "/fields-deal-out"
+      }
+    },
+    {
+      "name": "outgoing_user_associated_account_id",
+      "title": "Choose an optional field which contains the hubspot account vid which you want the deal associated",
+      "format": "trait",
+      "type": "string"
+    }
+  ],
+  "deployment_settings": [],
+  "resources": [],
+  "readme": "readme.md",
+  "ui": false,
+  "subscriptions": [{
+    "url": "/smart-notifier",
+    "channels": [
+      {
+        "channel": "user:update",
+        "handler": "userUpdate"
+      },
+      {
+        "channel": "ship:update",
+        "handler": "shipUpdate"
+      }
+    ],
+    "conditions": {
+      "channels": {
+        "only": [
+          "user:update",
+          "ship:update"
+        ]
+      }
+    }
+  }],
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ]
+    }
+  ],
+  "json": [
+    {
+      "url": "/fetch",
+      "handler": "fetchAll",
+      "type": "string",
+      "format": "action",
+      "name": "fetch_all_users",
+      "title": "Fetch All Users",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fields-outreach-prospect-out",
+      "handler": "fieldsOutreachProspectOutbound"
+    }
+  ],
+  "schedules": [],
+  "settings_sections": [
+    {
+      "title": "Connect with Outreach",
+      "description": "Please begin by authenticating this connector with Outreach.  You must have appropriate privileges to grant access.  Hull requests access to only the endpoints which are required to do User and Account synchronization",
+      "properties": [
+        "private_settings.oauth"
+      ]
+    },
+    {
+      "title": "Deal Identity",
+      "description": "Deal identity is important in order to prevent duplication in Hubspot as well as Hull",
+      "properties": [
+        "private_settings.user_claims"
+      ]
+    },
+    {
+      "title": "Deal Outgoing Setup",
+      "description": "Select the segments of \"users\" which you want to send as deals to Hubspot.  Then make sure you've configured the attributes that you want to set on the Hubspot Deal.  <b>Make sure to select fields of the same datatype, or Hubspot will reject the deal being sent. Example: Don't map a string to the amount field</b>",
+      "properties": [
+        "private_settings.synchronized_user_segments",
+        "private_settings.outgoing_user_attributes",
+        "private_settings.outgoing_user_associated_account_id"
+      ]
+    }
+  ]
+}

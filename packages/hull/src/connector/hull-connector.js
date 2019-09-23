@@ -1,6 +1,7 @@
 // @flow
 
 import type { $Application, Middleware } from "express";
+import _ from "lodash";
 import type { Server } from "http";
 import express from "express";
 import type {
@@ -15,7 +16,7 @@ import {
   jsonHandler,
   scheduleHandler,
   notificationHandler,
-  // batchHandler,
+  batchHandler,
   incomingRequestHandler,
   htmlHandler,
   OAuthHandler,
@@ -154,7 +155,7 @@ class HullConnector {
       httpClientConfig,
       metricsConfig,
       logsConfig,
-      connectorName,
+      connectorName = _.kebabCase(manifest.name),
       middlewares = [],
       handlers,
       disableOnExit = false
@@ -331,7 +332,7 @@ class HullConnector {
     mapNotification(notificationHandler, "subscriptions");
 
     // Setup Batch handlers
-    // mapNotification(batchHandler, "batches");
+    mapNotification(batchHandler, "batches");
 
     // Statuses handlers
     // Be careful - these handlers return a specific data format

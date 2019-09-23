@@ -37,6 +37,7 @@ describe("notificationHandler", () => {
 
     app = express();
     connector = new Hull.Connector({
+      connectorName: "TestConnector",
       port: 9092,
       timeout: "100ms",
       skipSignatureValidation: true,

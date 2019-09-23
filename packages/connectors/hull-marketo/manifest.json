@@ -1,0 +1,331 @@
+{
+  "name": "Marketo",
+  "description": "Two-way Marketo integration for Leads",
+  "source": "marketo",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "version": "0.1.4-monorepo",
+
+  "tags": [
+    "incoming",
+    "outgoing",
+    "batch",
+    "batch-accounts",
+    "oneColumn",
+    "smart-notifier",
+    "first-install",
+    "single-install",
+    "kraken-exports"
+  ],
+
+  "private_settings": [
+    {
+      "name": "access_token",
+      "title": "OAuth Access Token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "token_type",
+      "title": "OAuth Authentication method",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "expires_in",
+      "title": "OAuth Token Expiration in seconds",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "scope",
+      "title": "Owning user of the customer service that was used to authenticate",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "credentials_title",
+      "title": "Credentials",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "marketo_client_id",
+      "title": "Marketo Client ID",
+      "type": "string"
+    },
+    {
+      "name": "marketo_client_secret",
+      "title": "Marketo Client Secret",
+      "type": "string"
+    },
+    {
+      "name": "marketo_authorized_user",
+      "title": "Marketo Authorized User",
+      "type": "string"
+    },
+    {
+      "name": "marketo_identity_url",
+      "title": "Marketo Identity url",
+      "type": "string"
+    },
+    {
+      "name": "user_claims",
+      "title": "User Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "title": "Lead Field ID",
+            "type": "string",
+            "format": "select",
+            "options" : {
+              "allowCreate": false,
+              "loadOptions": "/attributes-leads-outgoing"
+            }
+          },
+          "hull": {
+            "title": "Hull User Ident",
+            "enum": ["external_id", "email"]
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "email",
+          "service": "email"
+        }
+      ]
+    },
+    {
+      "name": "user_claim_hero",
+      "type": "string",
+      "headerTemplate": "Mapped user identity attributes will automatically be pulled in the incoming and outgoing traffic",
+      "format": "information"
+    },
+    {
+      "name": "lead_incoming_sync_title",
+      "title": "Incoming User Synchronization Options (Marketo to Hull)",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "incoming_user_attributes",
+      "title": "Incoming User Fields to Sync (Marketo to Hull)",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": false,
+        "placeholder": "Marketo Lead Field",
+        "allowCreate": true,
+        "loadOptions": "/attributes-leads-incoming",
+        "source": "marketo"
+      }
+    },
+    {
+      "name": "fetch_all_attributes",
+      "type": "boolean",
+      "title": "Fetch All Attributes On Initial Fetch",
+      "description": "On initial fetch if you wish to retrieve all available attributes, you may select this option.  It is only an option for initial fetch because the incremental fetch has a limited number of fields available, so they must be selected for that case",
+      "default": false
+    },
+    {
+      "name": "fetch_events",
+      "type": "boolean",
+      "title": "Fetch All New Events from Marketo",
+      "description": "Enable this option to fetch all new events from Marketo.  Please be aware that fetching events may produce a lot of incoming volume.  For example a large campaign or update to a large list could cause a large volume of incoming requests, for which you are charged",
+      "default": false
+    },
+    {
+      "name": "fetching_all_leads_information",
+      "type": "string",
+      "headerTemplate": "Fetching all leads from Marketo can be a computationally intensive task which could take days depending on the size of your Marketo instance.  We like to monitor this initial operation and make sure we can set a good expectation for ETA and traffic volumes that it will generate within Hull.  Please contact your Hull Support representative to ask to schedule a full initial lead import",
+      "format": "information"
+    },
+    {
+      "name": "lead_outgoing_sync_title",
+      "title": "Outgoing User Synchronization Options (Hull to Marketo)",
+      "format": "title",
+      "type": "string"
+    },
+    {
+      "name": "synchronized_user_segments",
+      "title": "User Filter",
+      "description": "Send *Users* as Leads to Marketo when belonging to one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "segment"
+    },
+    {
+      "name": "outgoing_user_attributes",
+      "title": "Outgoing User Fields to Sync (Hull to Marketo)",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "Marketo Lead Field",
+        "allowCreate": false,
+        "loadOptions": "/attributes-leads-outgoing"
+      }
+    },
+    {
+      "name": "flow_control_user_update_success_size",
+      "title": "Flow control setting for success on user update",
+      "type": "string",
+      "default": "100",
+      "format": "hidden"
+    }
+  ],
+  "settings": [],
+  "resources": [],
+  "readme": "readme.md",
+  "ui": false,
+  "json": [
+    {
+      "url": "/fetchAllLeads",
+      "handler": "fetchAllLeads",
+      "type": "string",
+      "format": "action",
+      "title": "Fetch All Leads",
+      "name": "fetch_all_leads",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all leads from Marketo, this can be a long and costly operation, please inform your Hull customer success representatives before you launch this job so that we can monitor it for you to make sure it succeeds",
+          "button": "Start Fetching Leads",
+          "entity": "users"
+        }
+      }
+    },
+    {
+      "url": "/attributes-leads-outgoing",
+      "handler": "attributesLeadsOutgoing"
+    },
+    {
+      "url": "/attributes-leads-incoming",
+      "handler": "attributesLeadsIncoming"
+    }
+  ],
+  "schedules": [
+    {
+      "url": "/refreshCustomAttributes",
+      "type": "interval",
+      "value": "10",
+      "handler": "refreshCustomAttributes",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/pollLeadExport",
+      "type": "interval",
+      "value": "5",
+      "handler": "pollLeadExport",
+      "options": {
+        "fireAndForget": true,
+        "alwaysEnabled": true
+      }
+    },
+    {
+      "url": "/fetchRecentLeadActivity",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentLeadActivity",
+      "options": {
+        "fireAndForget": true
+      }
+    }
+  ],
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "5",
+      "handler": "status"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "interval",
+    "value": "5",
+    "handler": "status"
+  },
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
+        {
+          "channel": "ship:update",
+          "handler": "shipUpdate"
+        }
+      ],
+      "conditions": {
+        "channels": {
+          "only": [
+            "user:update",
+            "ship:update"
+          ]
+        }
+      }
+    }
+  ],
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ]
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Connect with Marketo",
+      "description": "The following information is required in order to connect with your Marketo instance.  We recommend generating a new api user for hull acccess, but an existing api user would work.  More detailed information on how to find or generate this information can be found [here](https://developers.marketo.com/rest-api/authentication/) on Marketo's support site",
+      "step": "credentials",
+      "properties": [
+        "private_settings.marketo_client_id",
+        "private_settings.marketo_client_secret",
+        "private_settings.marketo_authorized_user",
+        "private_settings.marketo_identity_url"
+      ]
+    },
+    {
+      "title": "User - Identity",
+      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to Marketo as well as the data we pull from Marketo.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios.",
+      "properties": [
+        "private_settings.user_claims"
+      ]
+    },
+    {
+      "title": "User - Fetching Users from Marketo",
+      "description": "Hull gives it's customers the ability to capture changes on specific data fields so that they are kept up to date in real-time.  Please configure the fields that you would like pulled from Outreach below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
+      "properties": [
+        "private_settings.incoming_user_attributes",
+        "private_settings.fetch_events",
+        "private_settings.fetch_all_attributes",
+        "private_settings.fetching_all_leads_information"
+      ]
+    },
+    {
+      "title": "User - Sending Users to Marketo",
+      "description": "Configuring this section will result in automated data flows which will update your leads in Marketo.  That's why we provide fine grain control over the updates that you send to Marketo.  First configure a \"Segment\" as a user filter to control which users get sent to Marketo as leads.  Then configure the attributes you want synchronized.  You may always go to a user page and click \"Send to\" in order to override the filter and send specific users manually.  <br /><br /><b>Please be careful to map similar data types. ie. Not boolean to date</b>",
+      "properties": [
+        "private_settings.synchronized_user_segments",
+        "private_settings.outgoing_user_attributes"
+      ]
+    }
+  ]
+}
