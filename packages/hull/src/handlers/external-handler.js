@@ -19,10 +19,23 @@ const handlerFactory = ({
   next: NextFunction
 ) => {
   try {
-    const { fireAndForget = false, cache = {}, format = "json" } = options;
+    const {
+      fireAndForget = false,
+      cache = {},
+      format = "json",
+      dropIfConnectorDisabled = false
+    } = options;
     const { key, options: cacheOpts = {} } = cache;
     const message = getMessage(req);
 
+    if (
+      !req.hull.connector.accept_incoming_webhooks &&
+      dropIfConnectorDisabled
+    ) {
+      return res.json({
+        message: "Connector is paused, skipped"
+      });
+    }
     // Immediately respond to service
     if (fireAndForget === true) {
       res.json({ status: "deferred" });

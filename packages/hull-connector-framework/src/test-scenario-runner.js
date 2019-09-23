@@ -21,6 +21,7 @@ export type TestScenarioDefinition = Object => {
   handlerUrl?: string,
   channel?: string,
   is_export?: boolean,
+  accept_incoming_webhooks?: boolean,
   payload?: {
     body: Object,
     query: Object,
@@ -299,6 +300,9 @@ class TestScenarioRunner extends EventEmitter {
             return _.defaultsDeep({}, modification, fixture); // eslint-disable-line global-require, import/no-dynamic-require
           }
         });
+        if (this.scenarioDefinition.connector.accept_incoming_webhooks === undefined) {
+          this.scenarioDefinition.connector.accept_incoming_webhooks = true;
+        }
         this.nockScope =
           this.scenarioDefinition.externalApiMock &&
           this.scenarioDefinition.externalApiMock();
