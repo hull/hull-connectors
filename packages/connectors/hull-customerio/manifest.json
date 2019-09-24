@@ -4,7 +4,7 @@
   "source": "customerio",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.5-monorepo",
+  "version": "0.1.6-monorepo",
   "tags": [
     "outgoing",
     "batch",
@@ -108,6 +108,12 @@
   "subscriptions": [
     {
       "url": "/smart-notifier",
+      "conditions" : {
+        "channels": { "only": ["user:update"] },
+        "segments": {
+          "user:update": ["private_settings.synchronized_segments"]
+        }
+      },
       "channels": [
         {
           "channel": "user:update",

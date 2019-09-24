@@ -19,7 +19,7 @@
     }
   ],
   "readme": "readme.md",
-  "version": "0.1.5-monorepo",
+  "version": "0.1.6-monorepo",
   "private_settings": [
     {
       "name": "code",

@@ -4,7 +4,7 @@
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.5-monorepo",
+  "version": "0.1.6-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -357,12 +357,11 @@
         }
       ],
       "conditions": {
+        "segments": {
+          "account:update": ["private_settings.synchronized_account_segments"]
+        },
         "channels": {
-          "only": [
-            "user:update",
-            "account:update",
-            "ship:update"
-          ]
+          "only": ["user:update", "account:update", "ship:update"]
         }
       }
     }

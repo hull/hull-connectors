@@ -4,7 +4,7 @@
   "source": "hubspot",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.5-monorepo",
+  "version": "0.1.6-monorepo",
   "tags": [
     "outgoing",
     "incoming",
@@ -353,6 +353,12 @@
   "subscriptions": [
     {
       "url": "/smart-notifier",
+      "conditions" : {
+        "segments": {
+          "user:update": ["private_settings.synchronized_user_segments"],
+          "account:update": ["private_settings.synchronized_account_segments"]
+        }
+      },
       "channels": [
         {
           "channel": "user:update",
