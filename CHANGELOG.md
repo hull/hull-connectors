@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.1.5-monorepo
+- hubspot filtering unneeded updates
+
 ## v0.1.4-monorepo
 - merge hubspot incoming events
 
