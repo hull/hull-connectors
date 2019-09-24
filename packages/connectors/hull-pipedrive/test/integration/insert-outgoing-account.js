@@ -31,9 +31,79 @@ it("Insert Single Account To Pipedrive", () => {
           size: 10,
         }
       },
-      logs: [],
+      logs: [
+        [
+          "info",
+          "outgoing.job.start",
+          {
+            "request_id": expect.whatever()
+          },
+          {
+            "jobName": "Outgoing Data",
+            "type": "account"
+          }
+        ],
+        [
+          "debug",
+          "connector.service_api.call",
+          {
+            "request_id": expect.whatever()
+          },
+          {
+            "responseTime": expect.whatever(),
+            "method": "POST",
+            "url": "/organizations",
+            "status": 201,
+            "vars": {}
+          }
+        ],
+        [
+          "info",
+          "outgoing.account.success",
+          {
+            "subject_type": "account",
+            "account_id": "account_id_2",
+            "request_id": expect.whatever(),
+            "account_domain": "apple.com"
+          },
+          {
+            "data": {
+              "address": "123 Random Pl"
+            },
+            "type": "Org",
+            "operation": "post"
+          }
+        ],
+        [
+          "info",
+          "outgoing.job.success",
+          {
+            "request_id": expect.whatever()
+          },
+          {
+            "jobName": "Outgoing Data",
+            "type": "account"
+          }
+        ]
+      ],
       firehoseEvents: [],
-      metrics: [],
+      metrics:   [
+        [
+          "increment",
+          "connector.request",
+          1,
+        ],
+        [
+          "increment",
+          "ship.service_api.call",
+          1,
+        ],
+        [
+          "value",
+          "connector.service_api.response_time",
+          expect.whatever(),
+        ],
+      ],
       platformApiCalls: []
     });
   });
