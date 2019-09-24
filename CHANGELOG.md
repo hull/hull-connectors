@@ -1,5 +1,9 @@
 # CHANGELOG
 
+
+## v0.1.6-monorepo
+- kraken level filtering on segment for Hubspot/Outreach/Customerio/Mailchimp
+
 ## v0.1.5-monorepo
 - hubspot filtering unneeded updates
 

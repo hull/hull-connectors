@@ -1,6 +1,6 @@
 {
   "name": "hull-outreach",
-  "version": "0.1.5-monorepo",
+  "version": "0.1.6-monorepo",
   "description": "Connector description",
   "scripts": {
     "test": "exit 0; echo 'tests are run by global jest'",
