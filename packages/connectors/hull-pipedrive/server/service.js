@@ -103,6 +103,21 @@ const service = ({ clientID, clientSecret }: {
       endpointType: "get",
       returnObj: "body.data",
       output: PipedriveAttributeDefinition
+    },
+    getAllWebhooks: {
+      url: "/webhooks/",
+      operation: "get",
+      endpointType: "fetchAll",
+      returnObj: "body.data"
+    },
+    insertWebhook: {
+      url: "/webhooks/",
+      operation: "post",
+      endpointType: "create",
+      returnObj: "body",
+      settings: [
+        { method: "set", params: { "Content-Type": "application/json" } }
+      ]
     }
   },
   superagent: {

@@ -26,7 +26,8 @@ const {
   or,
   cacheLock,
   cacheSet,
-  cacheGet
+  cacheGet,
+  filter
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -42,6 +43,17 @@ const _ = require("lodash");
 const { orgFields, personFields } = require("./fielddefs");
 
 function pipedrive(op: string, param?: any): Svc { return new Svc({ name: "pipedrive", op }, param) }
+
+const webhookPersonTemplate = {
+  subscription_url: "${webhookUrl}",
+  event_object: "person",
+  event_action: "*"
+};
+const webhookOrgTemplate = {
+  subscription_url: "${webhookUrl}",
+  event_object: "organization",
+  event_action: "*"
+};
 
 const refreshTokenDataTemplate = {
   refresh_token: "${connector.private_settings.refresh_token}",
@@ -62,10 +74,30 @@ const glue = {
   }),
   ensureWebhooks: [
     set("service_name", "pipedrive"),
-    ifL(settings("access_token"), ifL(cond("isEmpty", "${connector.private_settings.webhook_id}"), [
+    ifL(settings("access_token"), ifL(cond("isEmpty", "${connector.private_settings.webhook_id_person}"), [
       set("webhookUrl", utils("createWebhookUrl")),
       set("existingWebhooks", pipedrive("getAllWebhooks")),
+      set("samePersonWebhook", filter({ subscription_url: "${webhookUrl}", event_object: "person" }, "${existingWebhooks}")),
+      set("sameOrgWebhook", filter({ subscription_url: "${webhookUrl}", event_object: "organization" }, "${existingWebhooks}")),
+      ifL("${samePersonWebhook[0]}", {
+        do: [
+          set("webhookIdPerson", "${samePersonWebhook[0].id}"),
+          set("webhookIdOrg", "${sameOrgWebhook[0].id}")
+        ],
+        eldo: [
+          set("webhookIdPerson", get("data.id", pipedrive("insertWebhook", webhookPersonTemplate))),
+          set("webhookIdOrg", get("data.id", pipedrive("insertWebhook", webhookOrgTemplate)))
+        ]
+      }),
+      settingsUpdate({
+        webhook_id_person: "${webhookIdPerson}",
+        webhook_id_org: "${webhookIdOrg}"
+      }),
+      route("deleteBadWebhooks")
     ]))
+  ],
+  deleteBadWebhooks: [
+
   ],
   accountUpdate: ifL(route("isAuthenticated"),
     iterateL(input(), { key: "message", async: true },
