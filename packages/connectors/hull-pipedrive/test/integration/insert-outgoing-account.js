@@ -7,9 +7,9 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../server/config";
 
 
-it("Send Single Account To Pipedrive", () => {
+it("Insert Single Account To Pipedrive", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
-    const updateMessages = require("../integration/fixtures/notifier-payloads/single-account");
+    const updateMessages = require("./fixtures/notifier-payloads/new-single-account");
     return _.assign(updateMessages, {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -19,7 +19,7 @@ it("Send Single Account To Pipedrive", () => {
 
         scope
           .post("/organizations")
-          .reply(201, require("./fixtures/pipedrive/insert_account_response"));
+          .reply(201, require("./fixtures/pipedrive/account_response"));
 
         return scope;
       },
