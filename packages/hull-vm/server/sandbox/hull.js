@@ -7,7 +7,6 @@ import type {
   HullEventProperties,
   HullEventContext
 } from "hull";
-import { applyContext } from "hull-client/src/utils/traits";
 import { Map } from "immutable";
 import type {
   HullAliasOperation,
@@ -21,6 +20,8 @@ import {
   hasValidAccountClaims,
   hasValidLinkclaims
 } from "../validate-claims";
+
+const { applyContext } = require("hull-client/src/utils/traits");
 
 const buildHullContext = (
   client: HullClient,
@@ -55,7 +56,7 @@ const buildHullContext = (
     });
   };
 
-  const aliasFactory = <ClaimType = HullUserClaims | HullAccountClaims>(
+  const aliasFactory = <ClaimType = HullUserClaims>(
     claims: ClaimType,
     operation: HullAliasOperation,
     target: "userAliases" | "accountAliases"
@@ -105,7 +106,10 @@ const buildHullContext = (
     if (!account.traits) {
       return {};
     }
-    result.accountLinks = result.accountLinks.set(claims, accountClaims);
+    result.accountLinks = result.accountLinks.set(
+      Map({ ...claims }),
+      Map({ ...accountClaims })
+    );
     return account;
   };
 

@@ -1,15 +1,26 @@
 // @flow
 import _ from "lodash";
-import type { HullContext } from "hull";
+import type {
+  HullContext,
+  HullUser,
+  HullAccount,
+  HullUserClaims,
+  HullAccountClaims
+} from "hull";
 import { callAlias, callLinks, callEvents, callTraits } from "./side-effects";
-import type { Result } from "../types";
+import type { Payload, Result } from "../types";
 import serialize from "./serialize";
 
 const debug = require("debug")("hull-incoming-webhooks:ingest");
 
 // const omitClaimOptions = traits => traits.map(u => _.omit(u, "claimsOptions"));
 
-export default async function ingest(ctx: HullContext, result: Result) {
+export default async function ingest(
+  ctx: HullContext,
+  result: Result,
+  claims?: HullUserClaims | HullAccountClaims,
+  payload?: Payload
+) {
   const { client, metric } = ctx;
   debug("ingest.result", result);
 
@@ -24,6 +35,15 @@ export default async function ingest(ctx: HullContext, result: Result) {
     errors
   } = result;
 
+  // $FlowFixMe
+  const {
+    user = {},
+    account = {}
+  }: {
+    user?: HullUser,
+    account?: HullAccount
+  } = claims ? payload : {};
+
   const promises = [];
 
   client.logger.debug("compute.debug", serialize(result));
@@ -33,6 +53,7 @@ export default async function ingest(ctx: HullContext, result: Result) {
     promises.push(
       callTraits({
         hullClient: client.asUser,
+        payload: user,
         data: userTraits,
         entity: "user",
         metric
@@ -45,6 +66,7 @@ export default async function ingest(ctx: HullContext, result: Result) {
     promises.push(
       callAlias({
         hullClient: client.asUser,
+        payload: user,
         data: userAliases,
         entity: "user",
         metric
@@ -57,6 +79,7 @@ export default async function ingest(ctx: HullContext, result: Result) {
     promises.push(
       callTraits({
         hullClient: client.asAccount,
+        payload: account,
         data: accountTraits,
         entity: "account",
         metric
@@ -69,6 +92,7 @@ export default async function ingest(ctx: HullContext, result: Result) {
     promises.push(
       callAlias({
         hullClient: client.asAccount,
+        payload: account,
         data: accountAliases,
         entity: "account",
         metric
@@ -93,6 +117,7 @@ export default async function ingest(ctx: HullContext, result: Result) {
     promises.push(
       callLinks({
         hullClient: client.asUser,
+        payload: user,
         data: accountLinks,
         entity: "account",
         metric

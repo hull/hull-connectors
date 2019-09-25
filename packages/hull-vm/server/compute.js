@@ -21,7 +21,7 @@ export default async function compute(
   { payload, code, preview, claims, source, entityType }: ComputeOptions
 ): Promise<Result> {
   const { connector, client } = ctx;
-  const result = {
+  const result: Result = {
     logs: [],
     logsForLogger: [],
     errors: [],
