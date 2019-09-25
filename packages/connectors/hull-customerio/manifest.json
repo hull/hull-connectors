@@ -133,14 +133,16 @@
       ]
     }
   ],
-  "json": [
+  "incoming": [
     {
       "url": "/webhook",
       "handler": "webhookHandler",
       "description": "In **Customer.io**, go to `Integrations > Email Activity Webhooks` and paste at the following url in `Webhook Endpoint`",
       "format": "credentials",
       "type": "string"
-    },
+    }
+  ],
+  "json": [
     {
       "name": "credentials",
       "handler": "credentialsHandler",
