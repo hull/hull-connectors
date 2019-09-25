@@ -15,9 +15,9 @@ function getMapping(key) {
 const getTraits = mapping => entity =>
   _.omitBy(ObjectMapper(entity, {}, mapping), _.isNil);
 
-export const getAccountTraitsFromCompany = company =>
-  getTraits(Mappings.Company)(company);
-
+// export const getAccountTraitsFromCompany = company =>
+//   getTraits(Mappings.Company)(company);
+//
 /**
  * Builds the list of traits to apply on the user
  * from data pulled from Clearbit
