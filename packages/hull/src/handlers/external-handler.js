@@ -28,14 +28,19 @@ const handlerFactory = ({
     const { key, options: cacheOpts = {} } = cache;
     const message = getMessage(req);
 
-    if (
-      !req.hull.connector.accept_incoming_webhooks &&
-      dropIfConnectorDisabled
-    ) {
-      return res.json({
-        message: "Connector is paused, skipped"
-      });
+    try {
+      if (
+        dropIfConnectorDisabled &&
+        !req.hull.connector.accept_incoming_webhooks
+      ) {
+        return res.json({
+          message: "Connector is paused, skipped"
+        });
+      }
+    } catch (unknownError) {
+      debug("unknown error when trying to drop incoming request");
     }
+
     // Immediately respond to service
     if (fireAndForget === true) {
       res.json({ status: "deferred" });
