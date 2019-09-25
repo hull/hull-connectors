@@ -4,8 +4,7 @@ import type {
   HullContext,
   HullUser,
   HullAccount,
-  HullUserClaims,
-  HullAccountClaims
+  HullEntityClaims
 } from "hull";
 import { callAlias, callLinks, callEvents, callTraits } from "./side-effects";
 import type { Payload, Result } from "../types";
@@ -18,7 +17,7 @@ const debug = require("debug")("hull-incoming-webhooks:ingest");
 export default async function ingest(
   ctx: HullContext,
   result: Result,
-  claims?: HullUserClaims | HullAccountClaims,
+  claims?: HullEntityClaims,
   payload?: Payload
 ) {
   const { client, metric } = ctx;

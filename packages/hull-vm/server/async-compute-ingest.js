@@ -1,11 +1,6 @@
 // @flow
 
-import type {
-  HullUserClaims,
-  HullAccountClaims,
-  HullEntityType,
-  HullContext
-} from "hull";
+import type { HullEntityClaims, HullEntityType, HullContext } from "hull";
 import _ from "lodash";
 import type { Payload } from "../types";
 import compute from "./compute";
@@ -26,7 +21,7 @@ const asyncComputeAndIngest = async (
     source: string,
     code: string,
     entityType?: HullEntityType,
-    claims: HullUserClaims | HullAccountClaims,
+    claims: HullEntityClaims,
     payload: Payload,
     EntryModel?: Object,
     preview?: boolean

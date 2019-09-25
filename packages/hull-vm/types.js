@@ -5,6 +5,7 @@ import type {
   HullUserAttributes,
   HullConnector,
   HullUserClaims,
+  HullEntityClaims,
   HullAdditionalClaims,
   HullAccountClaims,
   HullUserUpdateMessage,
@@ -15,7 +16,6 @@ import type {
 } from "hull";
 import { Map } from "immutable";
 
-export type Claims = HullUserClaims | HullAccountClaims;
 export type ClaimsOptions = HullAdditionalClaims;
 export type Attributes = HullUserAttributes | HullAccountAttributes;
 export type AttributesContext = HullAttributeContext;
@@ -43,8 +43,8 @@ export type TraitsCall<ClaimType> = {
 export type Traits = UserTraits | AccountTraits;
 
 export type Links = {
-  claims: Claims,
-  accountClaims: Claims
+  claims: HullEntityClaims,
+  accountClaims: HullEntityClaims
 };
 
 export type Event = {
@@ -75,7 +75,7 @@ type HullUserClaimsMap = Map<$Keys<HullUserClaims>, $Values<HullUserClaims>>;
 type HullAccountClaimsMap = Map<$Keys<HullUserClaims>, $Values<HullUserClaims>>;
 type HullAttributesMap = Map<$Keys<Attributes>, $Values<Attributes>>;
 export type HullAliasOperations = Array<
-  Map<HullUserClaims | HullAccountClaims, HullAliasOperation>
+  Map<HullEntityClaims, HullAliasOperation>
 >;
 export type Result = {
   logsForLogger: Array<string>,
@@ -93,7 +93,7 @@ export type Result = {
   >,
   accountLinks: Map<HullUserClaimsMap, HullAccountClaimsMap>,
   events: Array<Event>,
-  claims?: HullUserClaims | HullAccountClaims,
+  claims?: HullEntityClaims,
   isAsync: boolean,
   success: boolean
 };
@@ -107,7 +107,7 @@ export type SerializedResult = {
   accountAliases: Array<[HullAccountClaims, HullAliasOperations]>,
   events: Array<Event>,
   accountLinks: Array<[HullUserClaims, HullAccountClaims]>,
-  claims?: HullUserClaims | HullAccountClaims,
+  claims?: HullEntityClaims,
   isAsync: boolean,
   success: boolean
 };
@@ -132,7 +132,7 @@ export type Entry = {
 
 export type ComputeOptions = {
   code: string,
-  claims?: HullUserClaims | HullAccountClaims,
+  claims?: HullEntityClaims,
   entityType?: HullEntityType,
   preview: boolean,
   source: string,
