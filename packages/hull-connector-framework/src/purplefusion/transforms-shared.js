@@ -85,6 +85,7 @@ const transformsShared: ServiceTransforms = [
     transforms: [
       {
         mapping: "connector.private_settings.incoming_user_attributes",
+        condition: isNotEqual("value", "null"),
         inputPath: "${service_field_name}",
         //don't need service_name because hull automatically appends it
         outputPath: "attributes.${hull_field_name}",
@@ -98,7 +99,8 @@ const transformsShared: ServiceTransforms = [
         condition: [
           isEqual("connector.private_settings.fetch_all_attributes", true),
           not(isServiceAttribute("connector.private_settings.incoming_user_attributes", "service_field_name")),
-          not(isEqual("service_field_name", "hull_events"))
+          not(isEqual("service_field_name", "hull_events")),
+          isNotEqual("value", "null"),
         ],
         inputPath: "${service_field_name}",
         outputPath: "attributes.${service_name}/${hull_field_name}",
@@ -123,12 +125,6 @@ const transformsShared: ServiceTransforms = [
         inputPath: "hull_service_accountId",
         outputPath: "accountAttributes.${service_name}/id",
         outputFormat: "${value}"
-      },
-      {
-        mapping: "connector.private_settings.incoming_user_attributes",
-        condition: isNotEqual("value", "null"),
-        inputPath: "${service_field_name}",
-        outputPath: "attributes.${hull_field_name}"
       },
       {
         inputPath: "id",

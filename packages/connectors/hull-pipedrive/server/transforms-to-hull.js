@@ -72,20 +72,20 @@ const transformsToHull: ServiceTransforms = [
     direction: "incoming",
     transforms: [
       {
-        mapping: { type: "input" },
+        mapping: { type: "input", path: "current" },
         inputPath: "current.${service_field_name}",
         outputPath: "${service_field_name}"
       },
       {
-        mapping: { type: "input" },
+        mapping: { type: "input", path: "current" },
         arrayStrategy: "pick_first",
         condition: doesContain(["email", "phone"], "service_field_name"),
-        inputPath: "${service_field_name}",
+        inputPath: "current.${service_field_name}",
         outputPath: "${service_field_name}",
         outputFormat: "${value.value}"
       },
       {
-        inputPath: "org_id",
+        inputPath: "current.org_id",
         outputPath: "hull_service_accountId",
         outputFormat: "${value.value}"
       },

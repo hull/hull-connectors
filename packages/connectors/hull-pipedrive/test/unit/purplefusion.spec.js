@@ -3,7 +3,7 @@ const _ = require("lodash");
 
 const { PurpleFusionTestHarness } = require("hull-connector-framework/src/purplefusiontester/purplefusion-test-harness");
 
-describe("Outreach User Tests", () => {
+describe("Pipedrive User Tests", () => {
 
   const harness = new PurpleFusionTestHarness(
     require("../../server/glue"),
@@ -13,11 +13,16 @@ describe("Outreach User Tests", () => {
         clientSecret: "clientSecret"
       })
     },
-    require("../../server/transforms-to-hull"),
-    "ensureHook");
+    _.concat(require("../../server/transforms-to-hull"),
+    require("../../server/transforms-to-service")),
+    "ensureWebhooks");
 
 
   it("fetch pipedrive users", () => {
     return harness.runTest(require("./fixtures/fetch-all"));
+  });
+
+  it("incoming user webhook from pipedrive", () => {
+    return harness.runTest(require("./fixtures/user-webhook-update"));
   });
 });
