@@ -27,10 +27,16 @@ const PipedriveAttributeDefinition: ServiceObjectDefinition = {
   name: "PipedriveAttributeDefinition"
 };
 
+const PipedrivePersonAttributeDefinition: ServiceObjectDefinition = {
+  service_name: "pipedrive_attribute_definition",
+  name: "PipedriveAttributeDefinition"
+};
+
 module.exports = {
   PipedrivePersonRead,
   PipedrivePersonWrite,
   PipedriveOrgWrite,
   PipedriveOrgRead,
-  PipedriveAttributeDefinition
+  PipedriveAttributeDefinition,
+  PipedrivePersonAttributeDefinition
 };

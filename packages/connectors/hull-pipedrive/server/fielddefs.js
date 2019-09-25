@@ -39,9 +39,8 @@ const personFields = [
   },
   {
     name: "email",
-    display: "Email",
-    readOnly: false,
-    type: "array"
+    display: "Emails",
+    readOnly: false
   }
 ];
 

@@ -18,7 +18,8 @@ const {
   PipedrivePersonRead,
   PipedriveOrgWrite,
   PipedriveOrgRead,
-  PipedriveAttributeDefinition
+  PipedriveAttributeDefinition,
+  PipedrivePersonAttributeDefinition
 } = require("./service-objects");
 
 const {
@@ -104,6 +105,13 @@ const service = ({ clientID, clientSecret }: {
       returnObj: "body.data",
       output: PipedriveAttributeDefinition
     },
+    getPersonFields: {
+      url: "/personFields",
+      operation: "get",
+      endpointType: "get",
+      returnObj: "body.data",
+      output: PipedrivePersonAttributeDefinition
+    },
     getAllWebhooks: {
       url: "/webhooks/",
       operation: "get",
@@ -118,6 +126,11 @@ const service = ({ clientID, clientSecret }: {
       settings: [
         { method: "set", params: { "Content-Type": "application/json" } }
       ]
+    },
+    deleteWebhook: {
+      url: "/webhooks/${webhookIdToDelete}",
+      operation: "delete",
+      endpointType: "delete"
     }
   },
   superagent: {

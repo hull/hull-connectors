@@ -27,7 +27,8 @@ const {
   cacheLock,
   cacheSet,
   cacheGet,
-  filter
+  filter,
+  ex
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -80,14 +81,12 @@ const glue = {
       set("samePersonWebhook", filter({ subscription_url: "${webhookUrl}", event_object: "person" }, "${existingWebhooks}")),
       set("sameOrgWebhook", filter({ subscription_url: "${webhookUrl}", event_object: "organization" }, "${existingWebhooks}")),
       ifL("${samePersonWebhook[0]}", {
-        do: [
-          set("webhookIdPerson", "${samePersonWebhook[0].id}"),
-          set("webhookIdOrg", "${sameOrgWebhook[0].id}")
-        ],
-        eldo: [
-          set("webhookIdPerson", get("data.id", pipedrive("insertWebhook", webhookPersonTemplate))),
-          set("webhookIdOrg", get("data.id", pipedrive("insertWebhook", webhookOrgTemplate)))
-        ]
+        do: set("webhookIdPerson", "${samePersonWebhook[0].id}"),
+        eldo: set("webhookIdPerson", get("data.id", pipedrive("insertWebhook", webhookPersonTemplate))),
+      }),
+      ifL("${sameOrgWebhook[0]}", {
+        do: set("webhookIdOrg", "${sameOrgWebhook[0].id}"),
+        eldo: set("webhookIdOrg", get("data.id", pipedrive("insertWebhook", webhookOrgTemplate)))
       }),
       settingsUpdate({
         webhook_id_person: "${webhookIdPerson}",
@@ -97,7 +96,20 @@ const glue = {
     ]))
   ],
   deleteBadWebhooks: [
+    set("connectorOrganization", utils("getConnectorOrganization")),
 
+    // Not sure I like this method of removing webhooks, think about how we might refactor
+    // or add instructions to make this easier
+    // TODO need to test this new pipedrive (copied from outreach) logic, this delete in particular
+    iterateL("${existingWebhooks}", "candidateWebhook",
+      ifL([
+        cond("not", cond("isEqual", "${candidateWebhook.subscription_url}", "${webhookUrl}")),
+        ex("${candidateWebhook.attributes.url}", "includes", "${connectorOrganization}"),
+      ], [
+        set("webhookIdToDelete","${candidateWebhook.id}"),
+        pipedrive("deleteWebhook")
+      ])
+    )
   ],
   accountUpdate: ifL(route("isAuthenticated"),
     iterateL(input(), { key: "message", async: true },
@@ -168,10 +180,20 @@ const glue = {
       })
     ])
   ],
-  webhooks: [
-
-  ],
+  webhooks: ifL(input("body"), route("handleWebhook", cast(WebPayload, input("body")))),
+  handleWebhook:
+    ifL(cond("isEqual", "organization", input("meta.object")), {
+      do: hull("asAccount", input()),
+      eldo:
+        ifL(cond("isEqual", "person", input("meta.object")), [
+          ifL(cond("isEqual", "added", input("meta.action")),
+            set("createdByWebhook", true)
+          ),
+          hull("asUser", input())
+        ])
+    }),
   getOrgFields: pipedrive("getOrgFields"),
+  getPersonFields: pipedrive("getPersonFields"),
   fieldsPipedrivePersonInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, personFields)),
   fieldsPipedriveOrgInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, orgFields)),
   fieldsPipedriveAccountOutbound: transformTo(HullOutgoingDropdownOption, route("getOrgFields")),
@@ -205,6 +227,7 @@ const glue = {
       })
     ])
   ),
+  userUpdate: [],
   updatePerson: [
     ifL(cond("notEmpty", set("personFromPipedrive", pipedrive("updateProspect", input()))),
       hull("asUser", "${personFromPipedrive}")
