@@ -38,11 +38,11 @@ const normalize = (claims: HullUser | HullAccount | Object): HullEntityClaims =>
         (c, v, k) => {
           // @TODO: Can we implement this feature safely and add the anonymous_id from the array of anonymous_ids
           // It seems to me we could.
-          if (k === "anonymous_ids" && !claims.anonymous_id) {
-            c.anonymous_id = _.first(v);
-          } else {
-            c[k] = v;
-          }
+          // if (k === "anonymous_ids" && !claims.anonymous_id) {
+          //   c.anonymous_id = _.first(v);
+          // } else {
+          c[k] = v;
+          // }
           return c;
         },
         {}
@@ -52,10 +52,7 @@ export const filterEntityClaims = (
   type: HullEntityType,
   claims: void | string | HullUser | HullAccount | Object
 ): HullEntityClaims => {
-  const claimsToFilter = (type === "user"
-    ? USER_CLAIMS
-    : ACCOUNT_CLAIMS
-  ).concat(["anonymous_ids"]);
+  const claimsToFilter = type === "user" ? USER_CLAIMS : ACCOUNT_CLAIMS;
   return normalize(
     typeof claims === "string" ? { id: claims } : _.pick(claims, claimsToFilter)
   );
