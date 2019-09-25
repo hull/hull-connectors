@@ -102,6 +102,7 @@ it("Basic fetch recent email events since last scheduled fetch - single event to
               "email_id": "event_id_3",
               "email_subject": "Newsletter",
               "last_imported_at": expect.whatever(),
+              "status": "Completed",
               "portal_id": 6015139,
               "recipient": "email@gmail.com",
               "sent_by": "sentById"
