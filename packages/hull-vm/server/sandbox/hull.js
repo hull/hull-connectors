@@ -2,7 +2,6 @@
 import type {
   HullAccountClaims,
   HullUserClaims,
-  HullEntityClaims,
   HullClient,
   HullAttributeContext,
   HullEventProperties,
