@@ -281,7 +281,7 @@
   "status": {
     "url": "/status",
     "handler": "status",
-    "initial_value": "ok",
+    "initial_value": "setupRequired",
     "type": "cron",
     "value": "*/30 * * * *"
   },
@@ -289,7 +289,7 @@
     {
       "url": "/status",
       "handler": "status",
-      "initial_value": "ok",
+      "initial_value": "setupRequired",
       "type": "cron",
       "value": "*/30 * * * *"
     }
