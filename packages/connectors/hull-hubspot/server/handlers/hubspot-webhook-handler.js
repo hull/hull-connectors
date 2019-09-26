@@ -52,9 +52,6 @@ async function hubspotWebhookHandler(req: HullRequest, res: HullResponse) {
   const { hostSecret } = req.hull.connectorConfig;
 
   for (let i = 0; i < clientCredentialsArray.length; i += 1) {
-    console.log(
-      `resolving credentials ${i} of ${clientCredentialsArray.length}`
-    );
     const request = _.cloneDeep(req);
     const clientCredentials = clientCredentialsArray[i];
 
@@ -95,12 +92,8 @@ async function hubspotWebhookHandler(req: HullRequest, res: HullResponse) {
     }
   }
 
-  return {
-    status: 200,
-    data: {
-      ok: true
-    }
-  };
+  res.sendStatus(200);
+  return res.end("ok");
 }
 
 module.exports = hubspotWebhookHandler;
