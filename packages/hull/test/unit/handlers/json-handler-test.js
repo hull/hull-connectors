@@ -7,24 +7,26 @@ const Promise = require("bluebird");
 const HullStub = require("../../support/hull-stub");
 
 const actionHandler = require("../../../src/handlers/json-handler/factory");
-
+const clientCredentials = {
+  id: "5c21c7a6b0c4ae18e1001123",
+  secret: "1234",
+  organization: "test.hull.local"
+};
+const cache = {
+  wrap: () => {},
+  set: () => {}
+};
 function buildContextBaseStub() {
   return {
     HullClient: HullStub,
-    clientCredentials: {
-      id: "5c21c7a6b0c4ae18e1001123",
-      secret: "1234",
-      organization: "test.hull.local"
-    },
+    clientCredentials,
     connector: {},
     usersSegments: [],
     accountsSegments: [],
     connectorConfig: {
       hostSecret: "123"
     },
-    cache: {
-      wrap: () => {}
-    }
+    cache
   };
 }
 
@@ -42,14 +44,8 @@ describe("jsonHandler", () => {
       connector: {},
       accountsSegments: [],
       usersSegments: [],
-      clientCredentials: {
-        id: "5c21c7a6b0c4ae18e1001123",
-        secret: "1234",
-        organization: "test.hull.local"
-      },
-      cache: {
-        wrap: () => {}
-      }
+      clientCredentials,
+      cache
     };
     const response = httpMocks.createResponse({ eventEmitter: EventEmitter });
     const { router } = actionHandler({
@@ -75,18 +71,14 @@ describe("jsonHandler", () => {
     const response = httpMocks.createResponse({ eventEmitter: EventEmitter });
     actionHandler({
       method: "POST",
-      callback: () => {
-        return Promise.reject(new Error("Something went bad"));
-      },
+      callback: () => Promise.reject(new Error("Something went bad")),
       options: {
         respondWithError: true
       }
     }).router.handle(request, response, () => {});
     response.on("end", () => {
       expect(response._isEndCalled()).to.be.ok;
-      expect(response._getData()).to.equal(
-        '{"error":"Error: Something went bad"}'
-      );
+      expect(response._getData()).to.equal('{"error":"Something went bad"}');
       done();
     });
   });
@@ -107,7 +99,7 @@ describe("jsonHandler", () => {
     }).router.handle(request, response, () => {});
     response.on("end", () => {
       expect(response._isEndCalled()).to.be.ok;
-      expect(response._getData()).to.equal('{"error":"Error: thrown error"}');
+      expect(response._getData()).to.equal('{"error":"thrown error"}');
       done();
     });
   });
