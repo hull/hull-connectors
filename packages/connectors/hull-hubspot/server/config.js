@@ -3,8 +3,6 @@
 import type { HullConnectorConfig } from "hull";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
-import deleteEntity from "./actions/delete-entity";
-import incomingWebhooksHandler from "./handlers/incoming-webhooks-handler";
 import hubspotWebhookHandler from "./handlers/hubspot-webhook-handler";
 
 require("dotenv").config();
