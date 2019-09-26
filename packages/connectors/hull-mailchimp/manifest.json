@@ -44,10 +44,7 @@
         "standard": {
           "ALL": "All Users"
         }
-      },
-      "default": [
-        "ALL"
-      ]
+      }
     },
     {
       "type": "string",
