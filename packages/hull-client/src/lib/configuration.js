@@ -6,6 +6,11 @@ import type {
   HullAdditionalClaims
 } from "../types";
 
+import {
+  filterEntityClaims,
+  assertEntityClaimsValidity
+} from "./filter-claims";
+
 const _ = require("lodash");
 const pkg = require("../../package.json");
 const crypto = require("./crypto");
@@ -68,28 +73,6 @@ const VALID_PROPS = {
 };
 
 /**
- * All valid user claims, used for validation and filterind .asUser calls
- * @type {Array}
- */
-const USER_CLAIMS: Array<string> = [
-  "id",
-  "email",
-  "external_id",
-  "anonymous_id"
-];
-
-/**
- * All valid accounts claims, used for validation and filtering .asAccount calls
- * @type {Array}
- */
-const ACCOUNT_CLAIMS: Array<string> = [
-  "id",
-  "external_id",
-  "domain",
-  "anonymous_id"
-];
-
-/**
  * Class containing configuration
  */
 class Configuration {
@@ -103,15 +86,15 @@ class Configuration {
     }
 
     if (config.userClaim !== undefined || config.accountClaim !== undefined) {
-      this.assertEntityClaimsValidity("user", config.userClaim);
-      this.assertEntityClaimsValidity("account", config.accountClaim);
+      assertEntityClaimsValidity("user", config.userClaim);
+      assertEntityClaimsValidity("account", config.accountClaim);
 
       if (config.userClaim) {
-        config.userClaim = this.filterEntityClaims("user", config.userClaim);
+        config.userClaim = filterEntityClaims("user", config.userClaim);
       }
 
       if (config.accountClaim) {
-        config.accountClaim = this.filterEntityClaims(
+        config.accountClaim = filterEntityClaims(
           "account",
           config.accountClaim
         );
@@ -156,44 +139,6 @@ class Configuration {
     }
 
     this._state.version = pkg.version;
-  }
-
-  /**
-   * make sure that provided "identity claim" is valid
-   * @param  {string} type          "user" or "account"
-   * @param  {string|Object} object identity claim
-   * claim is an object
-   * @throws Error
-   */
-  assertEntityClaimsValidity(
-    type: HullEntityType,
-    object: void | string | HullEntityClaims
-  ): void {
-    const claimsToCheck = type === "user" ? USER_CLAIMS : ACCOUNT_CLAIMS;
-    if (!_.isEmpty(object)) {
-      if (typeof object === "string") {
-        if (!object) {
-          throw new Error(`Missing ${type} ID`);
-        }
-      } else if (
-        typeof object !== "object" ||
-        _.intersection(_.keys(object), claimsToCheck).length === 0
-      ) {
-        throw new Error(
-          `You need to pass an ${type} hash with an ${claimsToCheck.join(
-            ", "
-          )} field`
-        );
-      }
-    }
-  }
-
-  filterEntityClaims(
-    type: HullEntityType,
-    object: void | string | HullEntityClaims
-  ): * {
-    const claimsToFilter = type === "user" ? USER_CLAIMS : ACCOUNT_CLAIMS;
-    return typeof object === "string" ? object : _.pick(object, claimsToFilter);
   }
 
   set(key: string, value: $Values<HullClientConfig>): void {

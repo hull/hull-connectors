@@ -315,6 +315,8 @@ function toSendMessage(
     }
   }
 
+  // This is a special flag where we send all attributes regardless of change
+  // may want to reorder this in cases where we still may not want to send if an event comes through
   const send_all_user_attributes = _.get(context, "connector.private_settings.send_all_user_attributes");
   if (send_all_user_attributes === true && targetEntity === "user") {
     return true;
@@ -347,6 +349,33 @@ function toSendMessage(
       });
     }
     return false;
+  }
+
+  // in cases where we do not have a id of the service, which means we haven't sync'd the entity before
+  // send the user because we know it's in the list to send
+  // this may be the result of pushing a full segment after it's creation
+  // or could be because it's a new connector which we haven't done a full fetch
+  const serviceName = _.get(options, "serviceName");
+  if (serviceName) {
+    const serviceId = _.get(message, `${targetEntity}.${serviceName}/id`);
+    if (isUndefinedOrNull(serviceId)) {
+
+      // log for now so we can find this scenario
+      // remove after we've audited
+      try {
+        if (targetEntity === "user") {
+          context.client.asUser(entity).logger.info("outgoing.user.send", {
+            reason: "does not have service id"
+          });
+        } else if (targetEntity === "account") {
+          context.client.asAccount(entity).logger.info("outgoing.account.send", {
+            reason: "does not have service id"
+          });
+        }
+      } catch (error) {}
+
+      return true;
+    }
   }
 
   const attributesToSync = outgoingAttributes.map(attr => attr.hull);

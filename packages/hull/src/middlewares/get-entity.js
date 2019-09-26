@@ -8,8 +8,8 @@ import {
   getAccountSchema
 } from "../utils/get-schemas";
 
-module.exports = function httpClientMiddlewareFactory() {
-  return function httpClientMiddleware(
+module.exports = function getEntityMiddlewareFactory() {
+  return function getEntityMiddleware(
     req: HullRequest,
     res: HullResponse,
     next: NextFunction
