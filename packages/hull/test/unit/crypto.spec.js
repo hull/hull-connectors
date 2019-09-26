@@ -1,4 +1,3 @@
-
 const { encrypt, decrypt } = require("../../src/utils/crypto");
 const middleware = require("../../src/middlewares/credentials-from-query");
 const chai = require("chai");
