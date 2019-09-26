@@ -38,17 +38,13 @@
     {
       "name": "synchronized_user_segments",
       "title": "User Filter",
-      "description": "Send users to Mailchimp when belonging to at least one of these segments. If no segments are specified all users are sent to Mailchimp.",
       "type": "array",
       "format": "segment",
       "options": {
         "standard": {
           "ALL": "All Users"
         }
-      },
-      "default": [
-        "ALL"
-      ]
+      }
     },
     {
       "type": "string",
@@ -257,7 +253,7 @@
     },
     {
       "title": "User Filter",
-      "description": "Send users to Mailchimp when belonging to at least one of these segments. If no segments are specified all users are sent to Mailchimp.",
+      "description": "Send users to Mailchimp when belonging to at least one of these segments.  If this segment list is empty, no users will be sent.  If \"All Users\" is selected, all users are sent",
       "properties": [
         "private_settings.synchronized_user_segments"
       ]
