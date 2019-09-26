@@ -3,7 +3,7 @@
   "description": "Get access to whitelisted attributes and segments from the Browser in realtime",
   "picture": "picture.png",
   "index": "ship.js",
-  "version": "0.1.3-monorepo",
+  "version": "0.1.5-monorepo",
   "tags": [
     "smart-notifier",
     "incoming",
@@ -94,6 +94,12 @@
   "subscriptions": [
     {
       "url": "/smart-notifier",
+      "conditions" : {
+        "channels": { "only": ["user:update"] },
+        "segments": {
+          "user:update": ["private_settings.synchronized_segments"]
+        }
+      },
       "handlers": {
         "ship:update": {
           "handler": "connectorUpdate"

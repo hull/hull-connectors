@@ -18,6 +18,7 @@ class ContextMock {
       increment: jest.fn((name, value) => console.log(name, value)),
       value: jest.fn((name, value) => console.log(name, value))
     };
+    this.notification = {};
     this.cache = {
       wrap: jest.fn((key, cb) => {
         return Promise.resolve(cb());

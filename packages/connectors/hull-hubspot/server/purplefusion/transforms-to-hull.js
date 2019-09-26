@@ -32,6 +32,7 @@ const transformsToService: ServiceTransforms = [
       "                   \"email_campaign_id\": emailCampaignId," +
       "                   \"email_subject\": $emailContent.subject," +
       "                   \"link_url\": url," +
+      "                   \"status\": \"Completed\"," +
       "                   \"portal_id\": portalId," +
       "                   \"email_id\": id," +
       "                   \"sent_by\": sentBy.id," +

@@ -8,7 +8,7 @@
   "source": "typeform",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.3-monorepo",
+  "version": "0.1.5-monorepo",
   "settings": [],
   "private_settings": [
     {
@@ -156,7 +156,8 @@
       "value": "180",
       "handler": "refreshAccessToken",
       "options": {
-        "fireAndForget": true
+        "fireAndForget": true,
+        "alwaysEnabled": true
       }
     }
   ],

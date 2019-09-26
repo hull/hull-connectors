@@ -54,3 +54,4 @@ This section outlines the steps in order to send accounts from Hull to Outreach 
 - Because of the way we automatically evolve the tables to have a column per attribute, you cannot create a view using columns from the account or user table.  Views using columns from the user or account tables interfere with column evolution.
 - Because this connector is hosted in Heroku, we are unable to provide a static ip address which the connection will be coming from
 - Hull currently does not have the capability to backfill historical events.  Only newly created events will go to the datawarehouse
+- Merging is only available for users and user-events. Accounts and accounts-events merging is not available, since account events are not supported in Hull.

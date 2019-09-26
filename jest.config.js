@@ -6,7 +6,8 @@ module.exports = {
     "<rootDir>/packages/connectors/hull-marketo/test/**/*.(test|spec).js",
     "<rootDir>/packages/connectors/hull-warehouse/test/**/*.(test|spec).js",
     "<rootDir>/packages/connectors/hull-customerio/test/**/*.(test|spec).js",
-    "<rootDir>/packages/connectors/hull-slack/test/**/*.(test|spec).js"
+    "<rootDir>/packages/connectors/hull-slack/test/**/*.(test|spec).js",
+    "<rootDir>/packages/hull-connector-framework/test/**/*.(test|spec).js"
   ],
   collectCoverageFrom: [
     "<rootDir>/packages/connectors/hull-typeform/server/**/*.js",
@@ -14,7 +15,8 @@ module.exports = {
     "<rootDir>/packages/connectors/hull-marketo/server/**/*.js",
     "<rootDir>/packages/connectors/hull-warehouse/server/**/*.js",
     "<rootDir>/packages/connectors/hull-customerio/server/**/*.js",
-    "<rootDir>/packages/connectors/hull-slack/test/**/*.(test|spec).js"
+    "<rootDir>/packages/connectors/hull-slack/test/**/*.(test|spec).js",
+    "<rootDir>/packages/hull-connector-framework/src/**/*.(test|spec).js"
   ],
   collectCoverage: true,
   coveragePathIgnorePatterns: ["/node_modules/", "/test/"],
