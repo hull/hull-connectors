@@ -8,7 +8,44 @@ import type {
 const moment = require("moment");
 const debug = require("debug")("hull-hubspot:oauth");
 
+const _ = require("lodash");
 const SyncAgent = require("../lib/sync-agent");
+
+async function getClientCredentials(ctx, portalId) {
+  const cachedCredentials = await ctx.cache.cache.get(`hubspot:${portalId}`);
+
+  if (_.isNil(cachedCredentials)) {
+    return [];
+  }
+
+  if (!Array.isArray(cachedCredentials)) {
+    const clientCredentials = [];
+    clientCredentials.push(cachedCredentials);
+    return clientCredentials;
+  }
+
+  return cachedCredentials;
+}
+
+function credentialsInCache(clientCredentials, pendingCredentials) {
+  return clientCredentials.some(
+    creds =>
+      creds.id === pendingCredentials.id &&
+      creds.organization === pendingCredentials.organization &&
+      creds.secret === pendingCredentials.secret
+  );
+}
+
+async function setClientCredentials(ctx, portalId) {
+  const clientCredentials = await getClientCredentials(ctx, portalId);
+  const pendingCredentials = ctx.clientCredentials;
+  if (!credentialsInCache(clientCredentials, pendingCredentials)) {
+    clientCredentials.push(pendingCredentials);
+    ctx.cache.cache.set(`hubspot:${portalId}`, clientCredentials, {
+      ttl: 0
+    });
+  }
+}
 
 const onAuthorize = async (
   ctx: HullContext,
@@ -28,9 +65,7 @@ const onAuthorize = async (
     `/oauth/v1/access-tokens/${accessToken}`
   );
   const portalId = res.body.hub_id;
-  ctx.cache.cache.set(`hubspot:${portalId}`, ctx.clientCredentials, {
-    ttl: 0
-  });
+  await setClientCredentials(ctx, portalId);
 
   return {
     private_settings: {

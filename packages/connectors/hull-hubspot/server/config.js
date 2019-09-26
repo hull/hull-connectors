@@ -3,6 +3,11 @@
 import type { HullConnectorConfig } from "hull";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
+import deleteEntity from "./actions/delete-entity";
+import incomingWebhooksHandler from "./handlers/incoming-webhooks-handler";
+import hubspotWebhookHandler from "./handlers/hubspot-webhook-handler";
+
+require("dotenv").config();
 
 export default function connectorConfig(): HullConnectorConfig {
   const {
@@ -52,6 +57,13 @@ export default function connectorConfig(): HullConnectorConfig {
         field: "portalId",
         payloadPath: "body[0]"
       }
-    }
+    },
+    rawCustomRoutes: [
+      {
+        url: "/hubspot-webhook",
+        handler: hubspotWebhookHandler,
+        method: "post"
+      }
+    ]
   };
 }

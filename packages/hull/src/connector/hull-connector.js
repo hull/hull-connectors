@@ -3,7 +3,7 @@
 import type { $Application, Middleware } from "express";
 import _ from "lodash";
 import type { Server } from "http";
-import express from "express";
+import express, { Router } from "express";
 import type {
   HullServerConfig,
   HullWorkerConfig,
@@ -262,6 +262,14 @@ class HullConnector {
     // Don't use an arrow function here as it changes the context
     // Don't move it out of this closure either
     // https://github.com/expressjs/express/issues/3855
+
+    const { rawCustomRoutes } = this.connectorConfig;
+    if (rawCustomRoutes) {
+      rawCustomRoutes.map(({ method, url, handler }) => {
+        app[method](url, handler);
+        return true;
+      });
+    }
 
     // This method wires the routes according to the configuration.
     // Methods are optional but they all have sane defaults

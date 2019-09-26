@@ -22,7 +22,7 @@ it("Receive Webhook - company deleted payload ", () => {
       accountsSegments: [],
       externalIncomingRequest: ({ superagent, connectorUrl, plainCredentials }) => {
         return superagent
-          .post(`${connectorUrl}/webhooks/hull-hubspot-webhook?ship=${plainCredentials.ship}&organization=${plainCredentials.organization}&secret=1234`)
+          .post(`${connectorUrl}/webhooks/hull-webhook?ship=${plainCredentials.ship}&organization=${plainCredentials.organization}&secret=1234`)
           .send(
               [{
                 "eventId": 1,
