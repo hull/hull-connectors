@@ -1,3 +1,4 @@
+
 const { encrypt, decrypt } = require("../../src/utils/crypto");
 const middleware = require("../../src/middlewares/credentials-from-query");
 const chai = require("chai");
@@ -37,11 +38,8 @@ describe("crypto", () => {
     const res = {};
     const next = sinon.spy();
     const mw = middleware();
-    return mw(req, res, next).then(() => {
-      expect(req.hull.clientCredentials).to.deep.equal(configuration);
-      expect(next).to.have.callCount(1);
-      return Promise.resolve();
-    });
-
+    mw(req, res, next);
+    expect(req.hull.clientCredentials).to.deep.equal(configuration);
+    expect(next).to.have.callCount(1);
   });
 });

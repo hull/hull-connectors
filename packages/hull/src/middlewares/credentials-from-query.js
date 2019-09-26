@@ -4,8 +4,6 @@ import jwt from "jwt-simple";
 import { encrypt, decrypt } from "../utils/crypto";
 import type { HullRequest, HullResponse } from "../types";
 
-const _ = require("lodash");
-
 const debug = require("debug")("hull-connector:credentials-from-query");
 
 function getToken(query: $PropertyType<HullRequest, "query">): string {
@@ -63,27 +61,6 @@ function generateEncryptedToken(clientCredentials, secret) {
   return encrypt(clientCredentials, secret);
 }
 
-async function getClientCredentials(clientCredentials, req) {
-  const clientConfig = _.get(req, "hull.clientConfig");
-  const connectorName = _.get(clientConfig, "connectorName", "");
-
-  const path = _.get(clientConfig, "cachedCredentials.payloadPath", null);
-  const field = _.get(clientConfig, "cachedCredentials.field", null);
-
-  if (
-    !_.isNil(path) &&
-    !_.isNil(field) &&
-    (_.isNil(clientCredentials) ||
-      _.isEmpty(_.compact(_.values(clientCredentials))))
-  ) {
-    const payload = _.get(req, path, {});
-    const credentialsKey = _.get(payload, field, "");
-    return req.hull.cache.cache.get(`${connectorName}:${credentialsKey}`);
-  }
-
-  return clientCredentials;
-}
-
 /**
  * This middleware is responsible for preparing `req.hull.clientCredentials`.
  * If there is already `req.hull.clientCredentials` set before it just skips.
@@ -92,7 +69,7 @@ async function getClientCredentials(clientCredentials, req) {
  * If those two steps fails to find information it parse `req.query` looking for direct connector configuration
  */
 function credentialsFromQueryMiddlewareFactory() {
-  return async function credentialsFromQueryMiddleware(
+  return function credentialsFromQueryMiddleware(
     req: HullRequest,
     res: HullResponse,
     next: NextFunction
@@ -104,7 +81,7 @@ function credentialsFromQueryMiddlewareFactory() {
         );
       }
       const { hostSecret } = req.hull.connectorConfig;
-      let clientCredentials =
+      const clientCredentials =
         req.hull.clientCredentials ||
         parseToken(req.hull.clientCredentialsEncryptedToken, hostSecret) ||
         parseToken(req.hull.clientCredentialsToken, hostSecret) ||
@@ -128,8 +105,6 @@ function credentialsFromQueryMiddlewareFactory() {
           "WARNING: You have passed a config parameter called `ship`, which is deprecated. please use `id` instead"
         );
       }
-
-      clientCredentials = await getClientCredentials(clientCredentials, req);
 
       // Re-generate tokens based on the actual configuration we ended up using
       const clientCredentialsToken = generateToken(

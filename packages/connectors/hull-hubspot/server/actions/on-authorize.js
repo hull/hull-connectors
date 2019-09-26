@@ -11,7 +11,7 @@ const debug = require("debug")("hull-hubspot:oauth");
 const _ = require("lodash");
 const SyncAgent = require("../lib/sync-agent");
 
-async function getClientCredentials(ctx, portalId) {
+async function getCachedClientCredentials(ctx, portalId) {
   const cachedCredentials = await ctx.cache.cache.get(`hubspot:${portalId}`);
 
   if (_.isNil(cachedCredentials)) {
@@ -36,9 +36,10 @@ function credentialsInCache(clientCredentials, pendingCredentials) {
   );
 }
 
-async function setClientCredentials(ctx, portalId) {
-  const clientCredentials = await getClientCredentials(ctx, portalId);
+async function cacheClientCredentials(ctx, portalId) {
+  const clientCredentials = await getCachedClientCredentials(ctx, portalId);
   const pendingCredentials = ctx.clientCredentials;
+
   if (!credentialsInCache(clientCredentials, pendingCredentials)) {
     clientCredentials.push(pendingCredentials);
     ctx.cache.cache.set(`hubspot:${portalId}`, clientCredentials, {
@@ -65,7 +66,7 @@ const onAuthorize = async (
     `/oauth/v1/access-tokens/${accessToken}`
   );
   const portalId = res.body.hub_id;
-  await setClientCredentials(ctx, portalId);
+  await cacheClientCredentials(ctx, portalId);
 
   return {
     private_settings: {
