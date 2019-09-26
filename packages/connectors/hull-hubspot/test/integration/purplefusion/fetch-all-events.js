@@ -178,6 +178,7 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
               "sent_by": "sentById",
               "recipient": "email@gmail.com",
               "last_imported_at": expect.whatever(),
+              "status": "Completed",
               "created_at": "2019-08-29T13:09:45.625Z",
               "email_body": "[html-body]\nEmail Body"
             },
@@ -201,6 +202,7 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
               "sent_by": "sentById",
               "recipient": "email@gmail.com",
               "last_imported_at": expect.whatever(),
+              "status": "Completed",
               "created_at": "2019-08-23T18:18:43.020Z",
               "email_body": "[html-body]\nEmail Body"
             },
@@ -224,6 +226,7 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
               "sent_by": "sentById",
               "recipient": "email@gmail.com",
               "last_imported_at": expect.whatever(),
+              "status": "Completed",
               "created_at": "2019-08-29T12:26:57.162Z",
               "email_body": "[html-body]\nEmail Body"
             },

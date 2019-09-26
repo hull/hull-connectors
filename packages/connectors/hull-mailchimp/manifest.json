@@ -1,6 +1,6 @@
 {
   "name": "Mailchimp",
-  "version": "0.1.4-monorepo",
+  "version": "0.1.5-monorepo",
   "description": "Powerful segmentation and enrichment for Mailchimp - the world’s favorite email platform",
   "tags": [
     "outgoing",
@@ -9,7 +9,6 @@
     "oneColumn",
     "smart-notifier",
     "first-install",
-    "single-install",
     "kraken-exports"
   ],
   "source": "mailchimp",
@@ -147,7 +146,7 @@
     {
       "name": "fetch_user_activity_on_update",
       "description": "When enabled it will get user activites on user:update",
-      "default": true,
+      "default": false,
       "type": "boolean",
       "format": "hidden"
     }
@@ -157,6 +156,17 @@
   "subscriptions": [
     {
       "url": "/smart-notifier",
+      "conditions" : {
+        "channels": { "only": [
+          "user:update",
+          "ship:update",
+          "users_segment:update",
+          "users_segment:delete"
+        ] },
+        "segments": {
+          "user:update": ["private_settings.synchronized_user_segments"]
+        }
+      },
       "channels": [
         {
           "channel": "user:update",
