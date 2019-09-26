@@ -4,31 +4,9 @@ const sinon = require("sinon");
 const httpMocks = require("node-mocks-http");
 const { EventEmitter } = require("events");
 const Promise = require("bluebird");
-const HullStub = require("../../support/hull-stub");
+const buildContextBaseStub = require("../../support/context-stub");
 
 const actionHandler = require("../../../src/handlers/json-handler/factory");
-const clientCredentials = {
-  id: "5c21c7a6b0c4ae18e1001123",
-  secret: "1234",
-  organization: "test.hull.local"
-};
-const cache = {
-  wrap: () => {},
-  set: () => {}
-};
-function buildContextBaseStub() {
-  return {
-    HullClient: HullStub,
-    clientCredentials,
-    connector: {},
-    usersSegments: [],
-    accountsSegments: [],
-    connectorConfig: {
-      hostSecret: "123"
-    },
-    cache
-  };
-}
 
 describe("jsonHandler", () => {
   it("should support json values", done => {
@@ -36,17 +14,7 @@ describe("jsonHandler", () => {
       method: "POST",
       url: "/"
     });
-    request.hull = {
-      client: new HullStub(),
-      connectorConfig: {
-        hostSecret: "123"
-      },
-      connector: {},
-      accountsSegments: [],
-      usersSegments: [],
-      clientCredentials,
-      cache
-    };
+    request.hull = buildContextBaseStub();
     const response = httpMocks.createResponse({ eventEmitter: EventEmitter });
     const { router } = actionHandler({
       method: "POST",
