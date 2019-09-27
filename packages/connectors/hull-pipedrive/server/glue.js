@@ -104,7 +104,7 @@ const glue = {
     iterateL("${existingWebhooks}", "candidateWebhook",
       ifL([
         cond("not", cond("isEqual", "${candidateWebhook.subscription_url}", "${webhookUrl}")),
-        ex("${candidateWebhook.attributes.url}", "includes", "${connectorOrganization}"),
+        ex("${candidateWebhook.subscription_url}", "includes", "${connectorOrganization}"),
       ], [
         set("webhookIdToDelete","${candidateWebhook.id}"),
         pipedrive("deleteWebhook")
@@ -195,8 +195,9 @@ const glue = {
   getOrgFields: pipedrive("getOrgFields"),
   getPersonFields: pipedrive("getPersonFields"),
   fieldsPipedrivePersonInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, personFields)),
+  fieldsPipedrivePersonOutbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, personFields)),
   fieldsPipedriveOrgInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, orgFields)),
-  fieldsPipedriveAccountOutbound: transformTo(HullOutgoingDropdownOption, route("getOrgFields")),
+  fieldsPipedriveAccountOutbound: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, orgFields)),
   refreshToken:
     ifL(cond("notEmpty", "${connector.private_settings.refresh_token}"), [
       set("connectorHostname", utils("getConnectorHostname")),
@@ -212,29 +213,40 @@ const glue = {
   isConfigured: cond("allTrue",[
     cond("notEmpty", settings("access_token"))
   ]),
-  updateUser: ifL(route("isConfigured"),
+  personLookup:
+    iterateL(notFilter({ service: "id" }, settings("user_claims")), "claim",
+      ifL([
+          cond("notEmpty", set("value", input("user.${claim.hull}"))),
+          cond("notEmpty", set("property", "${claim.service}")),
+          cond("notEmpty", set("existingPerson", get("[0]", pipedrive("findPersonByEmail"))))
+        ],
+        // TODO this is broken, key and value need to be reversed, or get needs to be removed
+        [set("userId", "${existingPerson.id}"), loopEndL()]
+      )),
+  userUpdate: ifL(route("isConfigured"),
     iterateL(input(), { key: "message", async: true }, [
       route("linkAccount", cast(HullOutgoingAccount, "${message}")),
       ifL(cond("notEmpty", set("userId", input("message.user.${service_name}/id"))), {
-        do: route("updateProspect", cast(HullOutgoingUser, "${message}")),
+        do: route("updatePerson", cast(HullOutgoingUser, "${message}")),
         eldo: [
           route("personLookup"),
           ifL(cond("notEmpty", "${userId}"), {
-            do: route("updateProspect", cast(HullOutgoingUser, "${message}")),
-            eldo: route("insertProspect", cast(HullOutgoingUser, "${message}"))
+            do: route("updatePerson", cast(HullOutgoingUser, "${message}")),
+            eldo: route("insertPerson", cast(HullOutgoingUser, "${message}"))
           })
         ]
       })
     ])
   ),
-  userUpdate: [],
   updatePerson: [
-    ifL(cond("notEmpty", set("personFromPipedrive", pipedrive("updateProspect", input()))),
+    // TODO Field "name" in body request is required
+    ifL(cond("notEmpty", set("personFromPipedrive", pipedrive("updatePerson", input()))),
       hull("asUser", "${personFromPipedrive}")
     )
   ],
   insertPerson: [
-    ifL(cond("notEmpty", set("personFromPipedrive", pipedrive("insertProspect", input()))),
+    // TODO Field "name" in body request is required
+    ifL(cond("notEmpty", set("personFromPipedrive", pipedrive("insertPerson", input()))),
       hull("asUser", "${personFromPipedrive}")
     )
   ],

@@ -6,7 +6,13 @@
   "picture": "picture.png",
   "version": "0.1.3-monorepo",
   "tags": [
-    "incoming"
+    "incoming",
+    "outgoing",
+    "batch",
+    "batch-accounts",
+    "kraken-exports",
+    "first-install",
+    "single-install"
   ],
   "private_settings": [
     {
@@ -114,6 +120,34 @@
       }
     },
     {
+      "name": "synchronized_user_segments",
+      "title": "User Filter",
+      "description": "Send *Users* as Persons to Pipedrive when belonging to one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "segment"
+    },
+    {
+      "name": "outgoing_user_attributes",
+      "title": "User Attributes to send to Pipedrive",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "Pipedrive Person Field",
+        "allowCreate": false,
+        "loadOptions": "/fields-pipedrive-person-out"
+      }
+    },
+    {
+      "name": "link_users_in_service",
+      "title": "Link Persons to Organizations in Pipedrive",
+      "description": "Do you want to let Hull associate Persons and Organizations in Pipedrive?",
+      "type": "boolean",
+      "default": false
+    },
+    {
       "name": "account_claims",
       "title": "Fields to match for Account Identity Resolution",
       "type": "array",
@@ -156,7 +190,7 @@
     },
     {
       "name": "outgoing_account_attributes",
-      "title": "Account Attributes to send to Outreach",
+      "title": "Account Attributes to send to Pipedrive",
       "type": "array",
       "format": "accountTraitMapping",
       "options": {
@@ -245,6 +279,10 @@
       "handler": "fieldsPipedrivePersonInbound"
     },
     {
+      "url": "/fields-pipedrive-person-out",
+      "handler": "fieldsPipedrivePersonOutbound"
+    },
+    {
       "url": "/fields-pipedrive-org-in",
       "handler": "fieldsPipedriveOrgInbound"
     },
@@ -300,6 +338,15 @@
         "private_settings.incoming_user_attributes",
         "private_settings.link_users_in_hull",
         "json.fetch_all_persons"
+      ]
+    },
+    {
+      "title": "User - Sending to Pipedrive",
+      "description": "Configuring this section will result in automated data flows which will update your users in Pipedrive.  That's why we provide fine grain control over the updates that you send to Pipedrive.  First configure a \"Segment\" as a user filter to control which users get sent to Pipedrive.  Then configure the attributes you want synchronized.  You may always go to a user page and click \"Send to\" in order to override the filter and send specific users manually.  <br /><br /><b>Please be careful to map similar data types. ie. Not boolean to date</b>",
+      "properties": [
+        "private_settings.synchronized_user_segments",
+        "private_settings.outgoing_user_attributes",
+        "private_settings.link_users_in_service"
       ]
     },
     {

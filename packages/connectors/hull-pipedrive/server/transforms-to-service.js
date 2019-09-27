@@ -41,6 +41,10 @@ const transformsToService: ServiceTransforms = [
       {
         inputPath: "${accountId}",
         outputPath: "org_id"
+      },
+      {
+        inputPath: "${first_name}",
+        outputPath: "name"
       }
     ]
   }

@@ -66,6 +66,22 @@ const service = ({ clientID, clientSecret }: {
       returnObj: "body",
       output: PipedrivePersonRead
     },
+    findPersonByEmail: {
+      url: "/persons/find",
+      operation: "get",
+      endpointType: "byProperty",
+      query: "term={userEmail}&search_by_email=1",
+      returnObj: "body.data",
+      output: PipedrivePersonRead
+    },
+    findPersonByName: {
+      url: "/persons/find",
+      operation: "get",
+      endpointType: "byProperty",
+      query: "term={personName}",
+      returnObj: "body.data",
+      output: PipedrivePersonRead
+    },
     getAllOrgsPaged: {
       url: "/organizations/",
       operation: "get",
@@ -92,7 +108,7 @@ const service = ({ clientID, clientSecret }: {
       output: PipedrivePersonRead
     },
     updatePerson: {
-      url: "/persons/${id}",
+      url: "/persons/${userId}",
       operation: "put",
       endpointType: "update",
       returnObj: "body.data",
