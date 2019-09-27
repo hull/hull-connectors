@@ -55,7 +55,7 @@ Hull can sync the following objects to HubSpot. New data is upserted in both dir
 
 ### Fetching HubSpot Marketing Emails into Hull
 
-Hubspot Marketing Emails will be imported into Hull manually or on a schedule. Users have the option to fetch all email events created in the last 24 hours or fetch all email events in their Hubspot instance. Email events can also be fetched by Hull on 5 minute schedule by turning on the toggle "Fetch Email Events". The fetch buttons will fetch email events whether or not this toggle is on or off.
+Hubspot Marketing Emails will be imported into Hull manually or on a schedule. Users have the option to fetch all email events created in the last 24 hours or fetch all email events in their Hubspot instance. Email events can also be fetched by Hull on a 5 minute schedule by turning on the toggle "Fetch Email Events". The fetch buttons will fetch email events whether or not this toggle is on or off.
 
 For an email event to be successfully fetched by Hull, the email must be a part of a marketing email campaign.
 
