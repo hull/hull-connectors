@@ -53,6 +53,44 @@ Hull can sync the following objects to HubSpot. New data is upserted in both dir
 
 > **Note:** HubSpot Companies are not handled by default. You must configure this.
 
+### Fetching HubSpot Marketing Emails into Hull
+
+Hubspot Marketing Emails will be imported into Hull manually or on a schedule. Users have the option to fetch all email events created in the last 24 hours or fetch all email events in their Hubspot instance. Email events can also be fetched by Hull on a 5 minute schedule by turning on the toggle "Fetch Email Events". The fetch buttons will fetch email events whether or not this toggle is on or off.
+
+For an email event to be successfully fetched by Hull, the email must be a part of a marketing email campaign.
+
+Hull will only retrieve the email events that the user has selected. The available events to retrieve are:
+
+|  |
+| ----------- |
+| Email Sent      |
+| Email Dropped    |
+| Email Processed     |
+| Email Delivered     |
+| Email Deferred     |
+| Email Bounced     |
+| Email Opened      |
+| Email Link Clicked     |
+| Unsubscribed / Subscribed    |
+| Email Marked as Spam      |
+
+
+Hull will retrieve the following fields from a marketing email: 
+
+|  |
+| ----------- |
+| Email Campaign Id      |
+| Portal Id     |
+| Email Id     |
+| Link Url     |
+| Sent By     |
+| Recipient     |
+| Created At     |
+| Email Subject     |
+| Email Body     |
+
+The email body will only be retrieved if it is a plaintext html body.
+
 
 ### Fetching HubSpot Contacts into Hull
 
