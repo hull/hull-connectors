@@ -52,8 +52,7 @@ export default function connectorConfig(): HullConnectorConfig {
     clientConfig: {
       firehoseUrl: OVERRIDE_FIREHOSE_URL,
       cachedCredentials: {
-        field: "portalId",
-        payloadPath: "body[0]"
+        serviceKey: "body[0].portalId"
       }
     },
     rawCustomRoutes: [

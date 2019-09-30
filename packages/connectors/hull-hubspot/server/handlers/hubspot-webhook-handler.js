@@ -24,13 +24,13 @@ async function getClientCredentials(req) {
   const clientConfig = _.get(req, "hull.clientConfig");
   const connectorName = _.get(clientConfig, "connectorName", "hubspot");
 
-  const path = _.get(clientConfig, "cachedCredentials.payloadPath", null);
-  const field = _.get(clientConfig, "cachedCredentials.field", null);
+  const serviceKey = _.get(clientConfig, "cachedCredentials.serviceKey", null);
 
-  if (!_.isNil(path) && !_.isNil(field)) {
-    const payload = _.get(req, path, {});
-    const credentialsKey = _.get(payload, field, "");
-    return req.hull.cache.cache.get(`${connectorName}:${credentialsKey}`);
+  if (!_.isNil(serviceKey)) {
+    const serviceValue = _.get(req, serviceKey, null);
+    if (!_.isNil(serviceValue)) {
+      return req.hull.cache.cache.get(`${connectorName}:${serviceValue}`);
+    }
   }
 
   return clientCredentials;

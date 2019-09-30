@@ -436,10 +436,10 @@
   },
   "schedules": [
     {
-      "url": "/check-cache",
+      "url": "/check-cached-credentials",
       "type": "interval",
       "value": "10",
-      "handler": "checkCache",
+      "handler": "checkCachedCredentials",
       "options": {
         "fireAndForget": true
       }
