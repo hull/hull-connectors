@@ -41,12 +41,45 @@ function sendResponse(res) {
   return res.end("ok");
 }
 
-async function hubspotWebhookHandler(req: HullRequest, res: HullResponse) {
+async function middleware(request, res) {
   const requestName = "requests-buffer";
+  try {
+    // TODO validate middlewares
+    credentialsFromQueryMiddleware()(request, res, () => {});
+    clientMiddleware()(request, res, () => {});
+    timeoutMiddleware()(request, res, () => {});
+    haltOnTimedoutMiddleware()(request, res, () => {});
+    instrumentationContextMiddleware({})(request, res, () => {});
+    fullContextBodyMiddleware({ requestName })(request, res, () => {});
+    await fullContextFetchMiddleware({ requestName })(request, res, () => {});
+    const { connector } = request.hull;
+    if (!connector) {
+      // TODO remove connector config from cache
+    }
+
+    httpClientMiddleware()(request, res, () => {});
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+async function processRequest(request, res, message) {
+  try {
+    await middleware(request, res);
+    incomingWebhooksHandler(request.hull, message);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+async function hubspotWebhookHandler(req: HullRequest, res: HullResponse) {
   const message = getMessage(req);
   const clientCredentialsArray = await getClientCredentials(req);
 
   if (_.isNil(clientCredentialsArray)) {
+    // if there are no cached credentials, check if we
+    // can get it through the query
+    await processRequest(req, res, message);
     return sendResponse(res);
   }
 
@@ -56,22 +89,8 @@ async function hubspotWebhookHandler(req: HullRequest, res: HullResponse) {
 
     request.hull = Object.assign(request.hull, { clientCredentials });
 
-    try {
-      credentialsFromQueryMiddleware()(request, res, () => {});
-      clientMiddleware()(request, res, () => {});
-      timeoutMiddleware()(request, res, () => {});
-      haltOnTimedoutMiddleware()(request, res, () => {});
-      instrumentationContextMiddleware({})(request, res, () => {});
-      fullContextBodyMiddleware({ requestName })(request, res, () => {});
-      // eslint-disable-next-line
-      await fullContextFetchMiddleware({ requestName })(request, res, () => {});
-      httpClientMiddleware()(request, res, () => {});
-
-      incomingWebhooksHandler(request.hull, message);
-    } catch (err) {
-      // TODO remove connector config from cache
-      console.log(`ERROR - Connector Not Found: ${err}`);
-    }
+    // eslint-disable-next-line
+    await processRequest(request, res, message);
   }
   return sendResponse(res);
 }

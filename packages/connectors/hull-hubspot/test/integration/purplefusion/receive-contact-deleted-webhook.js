@@ -12,6 +12,7 @@ import connectorConfig from "../../../server/config";
 it("Receive Webhook - contact deleted payload ", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
+      handlerType: handlers.incomingRequestHandler,
       rawCustomRoutes: [
         {
           url: "/hubspot-webhook",
@@ -28,7 +29,7 @@ it("Receive Webhook - contact deleted payload ", () => {
       accountsSegments: [],
       externalIncomingRequest: ({ superagent, connectorUrl, plainCredentials }) => {
         return superagent
-          .post(`${connectorUrl}/webhooks/hubspot-webhook?ship=${plainCredentials.ship}&organization=${plainCredentials.organization}&secret=1234`)
+          .post(`${connectorUrl}/hubspot-webhook?ship=${plainCredentials.ship}&organization=${plainCredentials.organization}&secret=1234`)
           .send(
               [{
                 "eventId": 1,
@@ -43,7 +44,7 @@ it("Receive Webhook - contact deleted payload ", () => {
               }]
           );
       },
-      response: { "ok": true },
+      response: {},
       logs: [
         ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" }],
         ["info", "incoming.user.success", { "subject_type": "user", "user_anonymous_id": "hubspot:123"},
