@@ -5,8 +5,6 @@ import manifest from "../manifest.json";
 import handlers from "./handlers";
 import hubspotWebhookHandler from "./handlers/hubspot-webhook-handler";
 
-require("dotenv").config();
-
 export default function connectorConfig(): HullConnectorConfig {
   const {
     LOG_LEVEL,

@@ -1,7 +1,6 @@
 // @flow
 
 import type { HullRequest, HullResponse } from "hull/src/types";
-import type { NextFunction } from "express";
 import getMessage from "hull/src/utils/get-message-from-request";
 
 import incomingWebhooksHandler from "../actions/incoming-webhook";
@@ -55,18 +54,23 @@ async function middleware(request, res) {
     const { connector } = request.hull;
     if (!connector) {
       // TODO remove connector config from cache
+      return false;
     }
 
     httpClientMiddleware()(request, res, () => {});
   } catch (err) {
     console.log(err);
+    return false;
   }
+  return true;
 }
 
 async function processRequest(request, res, message) {
   try {
-    await middleware(request, res);
-    incomingWebhooksHandler(request.hull, message);
+    const shouldProcess = await middleware(request, res);
+    if (shouldProcess) {
+      incomingWebhooksHandler(request.hull, message);
+    }
   } catch (err) {
     console.log(err);
   }

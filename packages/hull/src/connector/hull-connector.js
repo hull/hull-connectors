@@ -3,7 +3,7 @@
 import type { $Application, Middleware } from "express";
 import _ from "lodash";
 import type { Server } from "http";
-import express, { Router } from "express";
+import express from "express";
 import type {
   HullServerConfig,
   HullWorkerConfig,
