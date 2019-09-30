@@ -1,4 +1,6 @@
 /* @flow */
+import hubspotWebhookHandler from "../../../server/handlers/hubspot-webhook-handler";
+
 const _ = require("lodash");
 
 process.env.CLIENT_ID = "1234";
@@ -10,8 +12,13 @@ import connectorConfig from "../../../server/config";
 it("Receive Webhook - contact deleted payload ", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
-      handlerType: handlers.incomingRequestHandler,
-      handlerUrl: "incoming-webhooks-handler",
+      rawCustomRoutes: [
+        {
+          url: "/hubspot-webhook",
+          handler: hubspotWebhookHandler,
+          method: "post"
+        }
+      ],
       connector: {
         private_settings: {
           portal_id: "1234"
@@ -21,7 +28,7 @@ it("Receive Webhook - contact deleted payload ", () => {
       accountsSegments: [],
       externalIncomingRequest: ({ superagent, connectorUrl, plainCredentials }) => {
         return superagent
-          .post(`${connectorUrl}/webhooks/hull-webhook?ship=${plainCredentials.ship}&organization=${plainCredentials.organization}&secret=1234`)
+          .post(`${connectorUrl}/webhooks/hubspot-webhook?ship=${plainCredentials.ship}&organization=${plainCredentials.organization}&secret=1234`)
           .send(
               [{
                 "eventId": 1,

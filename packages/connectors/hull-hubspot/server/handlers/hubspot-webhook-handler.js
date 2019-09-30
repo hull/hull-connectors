@@ -1,33 +1,24 @@
 // @flow
 
 import type { HullRequest, HullResponse } from "hull/src/types";
+import type { NextFunction } from "express";
 import getMessage from "hull/src/utils/get-message-from-request";
-import jwt from "jwt-simple";
-import { encrypt } from "hull/src/utils/crypto";
-import HullClient from "hull-client";
-import incomingWebhooksHandler from "./incoming-webhooks-handler";
+
+import incomingWebhooksHandler from "../actions/incoming-webhook";
+
+const {
+  credentialsFromQueryMiddleware,
+  clientMiddleware,
+  fullContextFetchMiddleware,
+  fullContextBodyMiddleware,
+  timeoutMiddleware,
+  haltOnTimedoutMiddleware,
+  instrumentationContextMiddleware,
+  httpClientMiddleware
+} = require("hull/src/middlewares");
 
 const _ = require("lodash");
 
-async function fetchConnector(ctx): Promise<*> {
-  if (ctx.connector) {
-    return Promise.resolve(ctx.connector);
-  }
-  return ctx.cache.wrap(
-    "connector",
-    () => {
-      return ctx.client.get("app", {});
-    },
-    { ttl: 60000 }
-  );
-}
-
-function generateToken(clientCredentials, secret) {
-  return jwt.encode(clientCredentials, secret);
-}
-function generateEncryptedToken(clientCredentials, secret) {
-  return encrypt(clientCredentials, secret);
-}
 async function getClientCredentials(req) {
   const clientCredentials = [];
   const clientConfig = _.get(req, "hull.clientConfig");
@@ -45,55 +36,44 @@ async function getClientCredentials(req) {
   return clientCredentials;
 }
 
+function sendResponse(res) {
+  res.sendStatus(200);
+  return res.end("ok");
+}
+
 async function hubspotWebhookHandler(req: HullRequest, res: HullResponse) {
+  const requestName = "requests-buffer";
   const message = getMessage(req);
   const clientCredentialsArray = await getClientCredentials(req);
-  const requestId = "requests-buffer";
-  const { hostSecret } = req.hull.connectorConfig;
+
+  if (_.isNil(clientCredentialsArray)) {
+    return sendResponse(res);
+  }
 
   for (let i = 0; i < clientCredentialsArray.length; i += 1) {
     const request = _.cloneDeep(req);
     const clientCredentials = clientCredentialsArray[i];
 
-    const clientCredentialsToken = generateToken(clientCredentials, hostSecret);
-    const clientCredentialsEncryptedToken = generateEncryptedToken(
-      clientCredentials,
-      hostSecret
-    );
-
-    request.hull = Object.assign(request.hull, {
-      requestId,
-      clientCredentials,
-      clientCredentialsToken,
-      clientCredentialsEncryptedToken
-    });
-
-    const HullClientClass = request.hull.HullClient || HullClient;
-    const mergedClientConfig = {
-      ...request.hull.clientConfig,
-      ...request.hull.clientCredentials,
-      requestId: request.hull.requestId
-    };
-
-    request.hull.client = new HullClientClass(mergedClientConfig);
+    request.hull = Object.assign(request.hull, { clientCredentials });
 
     try {
-      const connector = await fetchConnector(request.hull);
+      credentialsFromQueryMiddleware()(request, res, () => {});
+      clientMiddleware()(request, res, () => {});
+      timeoutMiddleware()(request, res, () => {});
+      haltOnTimedoutMiddleware()(request, res, () => {});
+      instrumentationContextMiddleware({})(request, res, () => {});
+      fullContextBodyMiddleware({ requestName })(request, res, () => {});
+      // eslint-disable-next-line
+      await fullContextFetchMiddleware({ requestName })(request, res, () => {});
+      httpClientMiddleware()(request, res, () => {});
 
-      if (!_.isNil(connector)) {
-        request.hull = Object.assign(request.hull, {
-          connector
-        });
-        incomingWebhooksHandler(request.hull, message);
-      }
+      incomingWebhooksHandler(request.hull, message);
     } catch (err) {
       // TODO remove connector config from cache
       console.log(`ERROR - Connector Not Found: ${err}`);
     }
   }
-
-  res.sendStatus(200);
-  return res.end("ok");
+  return sendResponse(res);
 }
 
 module.exports = hubspotWebhookHandler;
