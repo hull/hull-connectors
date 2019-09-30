@@ -4,33 +4,12 @@ import type {
   HullOauthAuthorizeMessage,
   HullOAuthAuthorizeResponse
 } from "hull";
-import getCachedClientCredentials from "./get-cached-client-credentials";
+import { cacheClientCredentials } from "./utils/cached-client-credentials-utils";
 
 const moment = require("moment");
 const debug = require("debug")("hull-hubspot:oauth");
 
 const SyncAgent = require("../lib/sync-agent");
-
-function credentialsInCache(clientCredentials, pendingCredentials) {
-  return clientCredentials.some(
-    creds =>
-      creds.id === pendingCredentials.id &&
-      creds.organization === pendingCredentials.organization &&
-      creds.secret === pendingCredentials.secret
-  );
-}
-
-async function cacheClientCredentials(ctx, portalId) {
-  const clientCredentials = await getCachedClientCredentials(ctx, portalId);
-  const pendingCredentials = ctx.clientCredentials;
-
-  if (!credentialsInCache(clientCredentials, pendingCredentials)) {
-    clientCredentials.push(pendingCredentials);
-    ctx.cache.cache.set(`hubspot:${portalId}`, clientCredentials, {
-      ttl: 0
-    });
-  }
-}
 
 const onAuthorize = async (
   ctx: HullContext,
