@@ -1,23 +1,9 @@
 /* @flow */
 import type { HullContext, HullExternalResponse } from "hull";
+import getCachedClientCredentials from "./get-cached-client-credentials";
 
 const _ = require("lodash");
-
-async function getCachedClientCredentials(ctx, portalId) {
-  const cachedCredentials = await ctx.cache.cache.get(`hubspot:${portalId}`);
-
-  if (_.isNil(cachedCredentials)) {
-    return [];
-  }
-
-  if (!Array.isArray(cachedCredentials)) {
-    const clientCredentials = [];
-    clientCredentials.push(cachedCredentials);
-    return clientCredentials;
-  }
-
-  return cachedCredentials;
-}
+const SyncAgent = require("../lib/sync-agent");
 
 function credentialsInCache(clientCredentials, pendingCredentials) {
   return clientCredentials.some(
@@ -28,8 +14,17 @@ function credentialsInCache(clientCredentials, pendingCredentials) {
   );
 }
 
-async function checkCache(ctx: HullContext): HullExternalResponse {
-  const portalId = _.get(ctx, "connector.private_settings.portal_id");
+async function checkCachedCredentials(ctx: HullContext): HullExternalResponse {
+  const syncAgent = new SyncAgent(ctx);
+  const portalInformation = (await syncAgent.getPortalInformation()) || {};
+
+  const portalId = _.get(portalInformation, "portalId", null);
+  if (portalId === null) {
+    return {
+      status: 200,
+      data: {}
+    };
+  }
 
   const clientCredentials = await getCachedClientCredentials(ctx, portalId);
   const pendingCredentials = ctx.clientCredentials;
@@ -47,4 +42,4 @@ async function checkCache(ctx: HullContext): HullExternalResponse {
   };
 }
 
-module.exports = checkCache;
+module.exports = checkCachedCredentials;

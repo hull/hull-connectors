@@ -1,5 +1,6 @@
 /* @flow */
 import type { HullContext, HullStatusResponse } from "hull";
+import getCachedClientCredentials from "./get-cached-client-credentials";
 
 const _ = require("lodash");
 
@@ -71,10 +72,17 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
     );
   }
 
-  // Doesn't really matter to the customer I don't think
-  // if (!_.get(connector, "private_settings.portal_id")) {
-  //   pushMessage("Missing portal id.");
-  // }
+  const portalId = _.get(connector, "private_settings.portal_id", null);
+  const fetchDeleted =
+    _.get(connector, "private_settings.mark_deleted_contacts", false) ||
+    _.get(connector, "private_settings.mark_deleted_companies", false);
+  if (
+    portalId !== null &&
+    fetchDeleted &&
+    _.isEmpty(await getCachedClientCredentials(ctx, portalId))
+  ) {
+    pushMessage("ok", "Credentials Are Not Cached. Please Re-authenticate.");
+  }
 
   if (
     _.isEmpty(
