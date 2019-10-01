@@ -1,0 +1,105 @@
+{
+  "notification_id": "38108659-4d7b-46cc-861b-3da772d1fec2",
+  "configuration": {
+    "id": "123456789012345678901234",
+    "organization": "c5011027.hullbeta.io",
+    "secret": "shhhh"
+  },
+  "connector": {
+    "description": "some",
+    "tags": [],
+    "source_url": "https://dev-hull-pipedrive.ngrok.io/",
+    "private_settings": {
+      "user_claims": [
+        {
+          "hull": "email",
+          "service": "email"
+        }
+      ],
+      "token_expires_in": 7200,
+      "outgoing_user_attributes": [
+        {
+          "hull": "address",
+          "service": "address"
+        },
+        {
+          "hull": "name",
+          "service": "name"
+        }
+      ],
+      "incoming_user_attributes": [],
+      "token_created_at": 1544104207,
+      "access_token": "1234",
+      "refresh_token": "abcd",
+      "account_claims": [],
+      "outgoing_account_attributes": [],
+      "synchronized_user_segments": [
+        "1"
+      ],
+      "synchronized_account_segments": [],
+      "incoming_account_attributes": [],
+      "created_at": 1544269649
+    },
+    "index": "https://dev-hull-outreach.ngrok.io/",
+    "name": "pipedrive",
+    "extra": {},
+    "settings": {},
+    "type": "ship",
+    "secret": "shhh",
+    "updated_at": "2018-12-09T11:20:32Z",
+    "status": {},
+    "id": "123456789012345678901234",
+    "picture": "",
+    "homepage_url": "",
+    "manifest_url": "",
+    "created_at": "2018-12-06T13:49:58Z"
+  },
+  "channel": "user:update",
+  "messages": [
+    {
+      "changes": {
+        "is_new": false,
+        "account": {},
+        "user": {
+          "address": [
+            "123 Pl",
+            "1234 Hull Pl"
+          ]
+        },
+        "account_segments": {}
+      },
+      "account": {},
+      "user": {
+        "id": "5bd329d5e2bcf3eeaf000099",
+        "pipedrive/id": 827,
+        "name": "pipedrive_user_1",
+        "email": "andy@hull.com",
+        "address": "1234 Hull Pl"
+      },
+      "account_segments": [],
+      "segments": [
+        {
+          "id": "1",
+          "name": "UserSegment1",
+          "updated_at": "2018-12-09T12:05:12Z",
+          "type": "users_segment",
+          "created_at": "2018-10-29T14:58:34Z"
+        }
+      ],
+      "message_id": "message_1"
+    }
+  ],
+  "accounts_segments": [],
+  "segments": [
+    {
+      "id": "1",
+      "updated_at": "2018-12-09T12:05:12Z",
+      "created_at": "2018-10-29T14:58:34Z",
+      "name": "UserSegment1",
+      "type": "users_segment",
+      "stats": {
+
+      }
+    }
+  ]
+}

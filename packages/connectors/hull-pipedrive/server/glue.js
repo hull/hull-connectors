@@ -213,7 +213,8 @@ const glue = {
   isConfigured: cond("allTrue",[
     cond("notEmpty", settings("access_token"))
   ]),
-  personLookup:
+  personLookup: [
+    set("userEmail", input("user.email")),
     iterateL(notFilter({ service: "id" }, settings("user_claims")), "claim",
       ifL([
           cond("notEmpty", set("value", input("user.${claim.hull}"))),
@@ -222,34 +223,40 @@ const glue = {
         ],
         // TODO this is broken, key and value need to be reversed, or get needs to be removed
         [set("userId", "${existingPerson.id}"), loopEndL()]
-      )),
+      ))
+    ],
   userUpdate: ifL(route("isConfigured"),
     iterateL(input(), { key: "message", async: true }, [
       route("linkAccount", cast(HullOutgoingAccount, "${message}")),
-      ifL(cond("notEmpty", set("userId", input("message.user.${service_name}/id"))), {
-        do: route("updatePerson", cast(HullOutgoingUser, "${message}")),
-        eldo: [
-          route("personLookup"),
-          ifL(cond("notEmpty", "${userId}"), {
-            do: route("updatePerson", cast(HullOutgoingUser, "${message}")),
-            eldo: route("insertPerson", cast(HullOutgoingUser, "${message}"))
-          })
-        ]
-      })
+      route("userUpdateStart", cast(HullOutgoingUser, "${message}"))
     ])
   ),
-  updatePerson: [
-    // TODO Field "name" in body request is required
+  userUpdateStart:
+    cacheLock(input("user.id"),
+      ifL(or([
+          set("userId", input("user.pipedrive/id")),
+          set("userId", cacheGet(input("user.id")))
+        ]), {
+          do: route("updateUser"),
+          eldo: [
+            route("personLookup"),
+            ifL(cond("isEmpty", "${userId}"), {
+              do: route("insertUser"),
+              eldo: route("updateUser")
+            })
+          ]
+        }
+      )
+    ),
+  updateUser:
     ifL(cond("notEmpty", set("personFromPipedrive", pipedrive("updatePerson", input()))),
       hull("asUser", "${personFromPipedrive}")
-    )
-  ],
-  insertPerson: [
-    // TODO Field "name" in body request is required
-    ifL(cond("notEmpty", set("personFromPipedrive", pipedrive("insertPerson", input()))),
+    ),
+  insertUser:
+    ifL(cond("notEmpty", set("personFromPipedrive", pipedrive("insertPerson", input()))), [
+      cacheSet({ key: input("user.id") }, "${personFromPipedrive.id}"),
       hull("asUser", "${personFromPipedrive}")
-    )
-  ],
+    ]),
   // Link account, looks up the account, and inserts it if it doesn't exist
   // and passes the accountId back to the user being upserted so that we can link to the right account
   linkAccount:
@@ -257,7 +264,7 @@ const glue = {
         // checks to see if we have the "Link users in service" feature on
         settings("link_users_in_service"),
         // makes sure we don't already have an accountId on the user, if so, then we'll just use that account id
-        cond("isEmpty", set("accountId", input("account.${service_name}/id"))),
+        cond("isEmpty", set("accountId", input("account.pipedrive/id"))),
         or([
           // insert and link if the account is part of the account segments that we're sending
           cond("notEmpty", ld("intersection", settings("synchronized_account_segments"), ld("map", input("account_segments"), "id"))),
@@ -269,7 +276,7 @@ const glue = {
           ])
         ])
       ],
-      route("accountUpdateStart", input())
+      route("accountUpdateStart", cast(HullOutgoingAccount, "${message}"))
     ),
 };
 

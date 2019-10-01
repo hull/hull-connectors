@@ -70,7 +70,7 @@ const service = ({ clientID, clientSecret }: {
       url: "/persons/find",
       operation: "get",
       endpointType: "byProperty",
-      query: "term={userEmail}&search_by_email=1",
+      query: "term=${userEmail}&search_by_email=1",
       returnObj: "body.data",
       output: PipedrivePersonRead
     },
@@ -105,6 +105,7 @@ const service = ({ clientID, clientSecret }: {
       operation: "post",
       endpointType: "insert",
       returnObj: "body.data",
+      input: PipedrivePersonWrite,
       output: PipedrivePersonRead
     },
     updatePerson: {
@@ -112,6 +113,7 @@ const service = ({ clientID, clientSecret }: {
       operation: "put",
       endpointType: "update",
       returnObj: "body.data",
+      input: PipedrivePersonWrite,
       output: PipedrivePersonRead
     },
     getOrgFields: {
