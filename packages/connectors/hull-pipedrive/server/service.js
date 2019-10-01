@@ -131,13 +131,13 @@ const service = ({ clientID, clientSecret }: {
       output: PipedrivePersonAttributeDefinition
     },
     getAllWebhooks: {
-      url: "/webhooks/",
+      url: "/webhooks",
       operation: "get",
       endpointType: "fetchAll",
       returnObj: "body.data"
     },
     insertWebhook: {
-      url: "/webhooks/",
+      url: "/webhooks",
       operation: "post",
       endpointType: "create",
       returnObj: "body",

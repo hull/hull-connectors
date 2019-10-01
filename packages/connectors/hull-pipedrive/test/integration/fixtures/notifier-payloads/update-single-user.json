@@ -10,6 +10,7 @@
     "tags": [],
     "source_url": "https://dev-hull-pipedrive.ngrok.io/",
     "private_settings": {
+      "webhook_id_person": 11111,
       "user_claims": [
         {
           "hull": "email",
