@@ -113,7 +113,6 @@ export type HullConnectorConfig = {
   hostSecret: string,
   port: number | string,
   connectorName?: string,
-  segmentFilterSetting?: any,
   skipSignatureValidation?: boolean,
   timeout?: number | string,
   disableOnExit?: boolean,

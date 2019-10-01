@@ -24,29 +24,107 @@ Forwarding                    http://hull-incoming-webhooks.eu.ngrok.io -> http:
 Forwarding                    https://hull-incoming-webhooks.eu.ngrok.io -> http://localhost:8082
 ```
 
-## Webpack
+### Run specified tests
 
-Add client-side code to `src` in a connector's folder ->
+`yarn run-test path_to_test_file(s)`
+
+## Client-side code bundles
+
+Any code in the `src` folder of a connector will be built
 
 - all root level .js will be compiled.
 - all root-level .scss will be compiled
 
+Those will be available at the root of the connector when deployed:
+
+`/src/index.js` -> `https://connector.com/admin.js`
+
 Hot Reload is included.
 
-## Debug messages
+## Enabling Debug messages
+
+Start the connector with the following syntax:
 
 ```
 $ DEBUG=hull* yarn dev hull-incoming-webhooks
 ```
 
--> Boots connector with the `debug` library started with `DEBUG=hull*` so you can see all of Hull's debugging stack
+- Boots connector with the `debug` library started with `DEBUG=hull*` so you can see all of Hull's debugging stack
+- Hull will always scope debug messages with the `hull` prefix
 
-## Flow Types
+## Data Typing
 
-Love and embrace flow types. We strive to have a uniform signature for all handlers:
-The first argument is always a HullContext object.
+### Function Parameters
 
-For Incoming Data (Webhooks, HTML requests, JSON requests etc...);
+We love and embrace `flow`. We strive to have a uniform signature for all handlers:
+The first argument is always a `HullContext` object.
+The second argument varies depending on the Handler:
+
+- HullIncomingHandlerMessage for `html`, `incoming`, `JSON`, `status` handlers
+- HullUserUpdateMessage for `user:update` Kraken Notifications
+- HullAAccountUpdateMessage for `account:udpate` Kraken Notifications
+
+### Function Responses
+
+We also strive to have a uniform and typed response so functions can be as pure as possible, and simply return data whenever possible.
+
+- All methods MUST be `async`
+- The returned data must conform to one of the following types. Check `packages/hull/src/types/response.js`
+  - `HullStatusResponse` for status responses back to the platform.
+  - `HullExternalResponse` for anything that returns data to the outside.
+  - `HullCredentialsResponse` for handlers that display generated tokens and URLS showin in the Settings
+  - `HullUISelectResponse` for handlers that return the content of a Select field in the settings
+  - `HullNotificationResponse` for Kraken notifications,
+
+```js
+// Kraken Response for subscription handlers
+type HullNotificationResponse = {
+  flow_control?: {
+    type: "next" | "retry",
+    size?: number,
+    in?: number,
+    in_time?: number
+  }
+};
+
+// json, html and incoming handlers (except if `fireAndForget=true` in handler options in manifest)
+type HullExternalResponseData = void | {
+  status?: number, //HTTP StatusCode
+  pageLocation?: string,
+  error?: string, //Optional error. takes precedence. sent as { error: error }
+  data?: any, //JSON Response,
+  text?: string //Fallback Text response. Ignored if `data` is set
+};
+
+// For `Status` handlers
+type HullStatusResponse = {
+  status: "ok" | "warning" | "error" | "setupRequired", //Conector Status
+  messages: string | Array<string> //Message or array of messages to display in dashboard
+};
+
+// For `json` handlers that display a Select in the dashboard
+type HullUISelect = { label: string, value: string | number };
+type HullUISelectGroup = {
+  label: string,
+  options: Array<HullUISelectGroup> | Array<HullUISelect>
+};
+type HullUISelectResponse = {
+  status?: number,
+  data: {
+    options: Array<HullUISelect> | Array<HullUISelectGroup>
+  }
+};
+
+// For text fields that return a computed string that the dashboard should show, I.e. to expose a token or an URL
+type HullCredentialsResponse = {
+  status: number,
+  data: {
+    url: string
+  }
+};
+```
+
+Example Usage:
 
 ```js
 // @flow
@@ -109,11 +187,76 @@ checkout `types.js` for the exact format of requests and replies
 
 ## HullConnectorConfig
 
-An object returned by `/config.js` -> uses a strict Flow type of `HullConnectorConfig` - check `/packages/hull/types.js` to get all the details;
+The main way to configure a connector, an object returned by `/config.js`
+Uses a strict Flow type of `HullConnectorConfig` - check `/packages/hull/types/connector.js` to get all the details;
+
+```js
+// @flow
+
+import type { HullConnectorConfig } from "hull";
+import manifest from "../manifest.json";
+import fetchToken from "./lib/fetch-token";
+import handlers from "./handlers";
+
+export default function connectorConfig(): HullConnectorConfig {
+  const {
+    LOG_LEVEL,
+    SECRET,
+    NODE_ENV,
+    PORT = 8082,
+    OVERRIDE_FIREHOSE_URL
+  } = process.env;
+
+  const hostSecret = SECRET || "1234";
+
+  return {
+    manifest,
+    hostSecret,
+    devMode: NODE_ENV === "development",
+    port: PORT || 8082,
+    handlers: async (connectorInstance: HullConnector) => ({
+      json: { ...json handlers },
+      incoming: { ...incoming handlers },
+      html: { ...html handlers },
+      statuses: { ...statuses handlers },
+      subscriptions: { ...subscriptions handlers },
+    }),
+    middlewares: [fetchToken],
+    cacheConfig: { store: "memory", ttl: 1 },
+    logsConfig: { logLevel: LOG_LEVEL },
+    clientConfig: { firehoseUrl: OVERRIDE_FIREHOSE_URL },
+    serverConfig: { start: true }
+  };
+}
+```
+
+```js
+export type HullConnectorConfig = {
+  clientConfig: HullClientConfig,
+  serverConfig?: HullServerConfig, //How to start the express server
+  workerConfig?: HullWorkerConfig, //How to start workers
+  metricsConfig?: HullMetricsConfig, //Metrics reporting configuration
+  cacheConfig?: HullCacheConfig, //Cache configuration
+  httpClientConfig?: HullHTTPClientConfig, //HTTP Client util configuration
+  logsConfig?: HullLogsConfig, //Logs configuration
+  jsonConfig?: HullJsonConfig, //JSON parsing configuration
+  hostSecret: string, //connector secret
+  port: number | string, //connector port
+  connectorName?: string, //connector name
+  timeout?: number | string, //Connector timeout settings. Default = 25s
+  disableOnExit?: boolean, //Should we disable exit listeners. Default = false
+  devMode?: boolean, //development mode
+  instrumentation?: HullInstrumentation, // set a custom instrumentation instance
+  queue?: void | HullQueue, // set a Custom Queue instance for workers
+  handlers: HullConnector => HullHandlersConfiguration, //Handlers methods
+  middlewares: Array<Middleware>, //Array of middlewares to run before handlers
+  manifest: HullManifest // the current manifest
+};
+```
 
 We recommend to boot the connector like this:
 
-```
+```js
 // @flow
 import Hull from "hull";
 import config from "./config";
@@ -125,13 +268,12 @@ new Hull.Connector(config).start();
 Each of the following Keys can accept standard options:
 
 - json
-- html
-- tabs
+- html / tabs
 - incoming
 - schedules
 - statuses
 
-They all accept the common pattern:
+They all accept the common pattern. Sane defaults are applied to each handler type, you can override them by setting the relevant options
 
 ```js
 {
@@ -141,31 +283,27 @@ They all accept the common pattern:
       handler: string, // "myJsonHandler",
       method?: "post" | "get" | "put" | "all",
       options: {
+        bodyParser?: "urlencoded" | "json",
+        credentialsFromQuery?: boolean,
+        credentialsFromNotification?: boolean,
         cache?: {
           key: string,
           secret: Object
         },
+        dropIfConnectorDisabled?: boolean,
         respondWithError?: boolean,
+        cacheContextFetch?: boolean,
         disableErrorHandling?: boolean,
         fireAndForget?: boolean,
-        credentialsFromQuery?: boolean,
-        credentialsFromNotification?: boolean,
         strict?: boolean,
-        format?: "json" | "html",
-        bodyParser?: "urlencoded" | "json"
+        format?: "json" | "html"
       }
     }
   ]
 }
 ```
 
-The `handler` key defines what function to use to respond on this url. in `config.js` -> HullConnectorConfig.handler:
-
-```
-handlers = {
-  json: { myJsonHandler }
-}
-```
+The `handler` key from the manifest defines which function to use to respond on this url. in `config.js` -> `HullConnectorConfig.handler`:
 
 ## Hull-managed HTTP Client.
 
@@ -181,7 +319,7 @@ The Hull-managed HTTP Client is based on the latest superagent with some added p
 Checkout [./packages/hull/src/types.js#251](HullHTTPClientConfig)
 More docs here: https://visionmedia.github.io/superagent/#agents-for-global-state
 
-```
+```js
 const connectorConfig = {
   ...
   httpClientConfig = {
@@ -202,7 +340,10 @@ const connectorConfig = {
 function(ctx, messages){
   const { request } = ctx;
   //Instance of SuperAgent
-  request.
+  const response = await request
+    .get("https://example.com/foo")
+    .set("accept", "json")
+    .set(`Authorization: Bearer ${api_key}`));
 }
 ```
 
@@ -211,11 +352,14 @@ function(ctx, messages){
 Moved timeout & retry to `HullClientConfig`:
 Checkout [./packages/hull-client/src/typesjs#239](HullClientConfig);
 
-```
-{
+```js
+const connectorSettings = {
   ...
-  timeout: 3000 //3s - previously configured with process.env.BATCH_TIMEOUT
-  retry: 3000 //3s - previously configured with process.env.BATCH_RETRY
+  clientConfig: {
+    ...
+    timeout: 3000 //3s - previously configured with process.env.BATCH_TIMEOUT
+    retry: 3000 //3s - previously configured with process.env.BATCH_RETRY
+  }
 }
 ```
 
@@ -275,7 +419,7 @@ This will make sure the token is in the right place for the rest of the stack to
 
 _NOTE: This also parses JWT tokens with the same logic. We just try to decode both formats_
 
-## oauth handler
+# OAuth authorization
 
 The OAuth Handler has been rewritten.
 It is now stricter and requires less configuration.
@@ -286,22 +430,19 @@ Here's how you use it:
 
 ```json
 {
-  "tabs": [
+  "private_settings": [
     {
+      "name": "oauth",
       "title": "Credentials",
-      "setup": true,
+      "description": "Authenticate with Hubspot",
+      "format": "oauth",
+      "type": "string",
+      "handler": "oauth",
       "url": "/auth",
-      "size": "small",
-      "editable": false,
-      "handler": "oauthHandler",
       "options": {
-        "type": "oauth",
-        "params": {
-          "name": "Slack",
-          "strategy": {
-            "scope": ["bot", "channels:write"],
-            "skipUserProfile": true
-          }
+        "name": "Hubspot",
+        "strategy": {
+          "scope": ["oauth", "contacts", "timeline", "content"]
         }
       }
     }
@@ -323,20 +464,29 @@ import type {
 } from "hull";
 import { Strategy } from "passport-slack";
 
-async function onStatus(ctx: HullContext, message: HullIncomingHandlerMessage): HullExternalResponse{
+async function onStatus(
+  ctx: HullContext,
+  message: HullIncomingHandlerMessage
+): HullExternalResponse {
   const { connector, client } = ctx;
   const { query = {} } = message;
   //Logic to define if connector is properly setup here.
   //...
   //return the data you wish to pass to the page, and a redirect code.
   if (connector_is_setup) {
-    return { status: 200, data: { message: "Connected", html: "<p>Connected</p>" } }
+    return {
+      status: 200,
+      data: { message: "Connected", html: "<p>Connected</p>" }
+    };
   } else {
-    return { status: 400, data: { message: "Error", html: "<p>Error</p>" } }
+    return { status: 400, data: { message: "Error", html: "<p>Error</p>" } };
   }
 }
 
-async function onAuthorize(ctx: HullContext, message: HullOauthAuthorizeMessage): HullOAuthAuthorizeResponse {
+async function onAuthorize(
+  ctx: HullContext,
+  message: HullOauthAuthorizeMessage
+): HullOAuthAuthorizeResponse {
   //actions to perform when receiving auth code. Will be present in message.account.
   //message contains all the interesting components of a HTTP request: See HullIncomingHandlerMessage
   const { body, ip, url, method, query, params, path, account } = message;
@@ -348,9 +498,9 @@ async function onAuthorize(ctx: HullContext, message: HullOauthAuthorizeMessage)
     private_settings: {
       accessToken
     }
-  }
+  };
 }
-async function onLogin(ctx: HullContext, message: HullIncomingHandlerMessage){
+async function onLogin(ctx: HullContext, message: HullIncomingHandlerMessage) {
   // Logic to perform on Login
   // Best used to process form parameters, to be submitted to the Login sequence. Useful to add strategy-specific parameters, such as a portal ID for Hubspot for instance.
   return {
@@ -358,32 +508,29 @@ async function onLogin(ctx: HullContext, message: HullIncomingHandlerMessage){
     // http://www.passportjs.org/docs/authorize/
     // passport.authorize(AUTH URL, { parameters })
     // callback URL is passed automatically, and `state`
-  }
+  };
 }
 
 const connectorConfig: HullConnectorConfig = {
   // ...
   handlers: {
-    // ...
-    html: {
-      oauthHandler: function(): HullOAuthHandlerParams{
-        return {
-          Strategy,
-          clientID
-          clientSecret,
-          onStatus,
-          onAuthorize,
-          onLogin
-        }
-      }
+    private_settings: {
+      oauth: () => ({
+        onAuthorize, // collect the response from authorization and return a new `private_settings` with the token in it.
+        onLogin, //returns data that should be passed on Login.
+        onStatus, //handler that checks if tokens are properly saved and returns an oauth-specific status and user-displayed content in the Settings tab
+        Strategy, //pass passport Strategy. We rely on Passport to handle it all
+        clientID, //pass client id -> recommendation is to pass it to the handlers() method
+        clientSecret //pass client secret -> recommendation is to pass it to the handlers() method
+      })
     }
   }
-}
+};
 
 Hull.Connector(connectorConfig).start();
 ```
 
-### caching
+# Caching
 
 A cache mechanism is available for use in the connector.
 Here's it's signature:
@@ -424,7 +571,7 @@ Defaults:
 - max: 100 Items
 - store: "memory"
 
-### Status handler
+# Connector Status checks
 
 By describing a `statuses` block in the manifest, you can have a strictly verified status endpoint:
 
@@ -456,7 +603,7 @@ handlers = {
 
 The connector will take care of updating the status in the platform for you
 
-## Settings Update
+# Updating Settings
 
 From now on you can specify whether or not you want the platform to perform a **synchronous status check** after updating the settings.
 
@@ -473,7 +620,7 @@ if (private_settings) {
 }
 ```
 
-## Partials
+# View Partials
 
 In views (if you still use them), you can refer to partials in `ejs`:
 
@@ -481,147 +628,10 @@ In views (if you still use them), you can refer to partials in `ejs`:
 <%- include ../../../assets/partials/hull-logo %>
 ```
 
-## Hull-vm package
+# Hull Virtual Machine package
 
 This package embeds the common code for all connectors that run User-defined code.
 It gives you a set of methods and classes to abstract the common behaviours. Try to move as much code as possible there when evolving the VM connectors.
-
-## consolidated `server`
-
-This system has the objective of progressively DRY'ing the different implementations of the express server we use in connectors.
-
-The implementation is as follows:
-
-### `package/server/index.js`
-
-Start it with an object conforming to the flow type `HullConnectorConfig`
-
-```js
-type HullConnectorConfig = {
-  clientConfig: HullClientConfig,
-  hostSecret: ?string,
-  port: number | string,
-  connectorName?: string,
-  segmentFilterSetting?: any,
-  skipSignatureValidation?: boolean,
-  timeout?: number | string,
-  captureMetrics?: Array<Object>,
-  captureLogs?: Array<any>,
-  disableOnExit?: boolean,
-  devMode?: boolean,
-  jsonConfig?: JsonConfig,
-  instrumentation?: HullInstrumentation,
-  cacheConfig?: HullCache,
-  queueConfig?: HullQueue,
-  notificationValidatorHttpClient?: Object,
-  middlewares: Array<Middleware>,
-  manifest: HullManifest
-};
-```
-
-Here's a short recap of the parameters format and behaviour:
-
-#### clientConfig: HullClientConfig,
-
-- Required
-- default: { }
-
-#### hostSecret: ?string,
-
-- Required
-- format: string
-- a random generated secret
-
-#### port: number | string
-
-- Required
-- the port on which to listen to
-
-#### connectorName
-
-- Optional
-- format: string
-- A human-readable name for the connector (for the Logs)
-- default: automatic
-
-#### segmentFilterSetting
-
-- Optional
-- format: any
-- default false
-
-#### skipSignatureValidation
-
-- Optional
-- format: boolean
-- default: false
-
-#### timeout
-
-- Optional
-- format: number | string
-- default: 25s
-
-#### captureMetrics
-
-- Optional
-- format: Array<Object>,
-- an array to populate with metrics
-
-#### captureLogs
-
-- Optional
-- format: Array<any>,
-- an array to populate with the logs
-
-#### disableOnExit
-
-- Optional
-- format: boolean,
-
-#### devMode
-
-- Optional
-- format: boolean,
-- if `devMode` is true, start the server in development mode, adding `webpack` to the mix and switching to verbose errors
-
-#### json
-
-- Optional
-- format: JsonConfig,
-- A configuration object for the express json parser. (https://expressjs.com/en/api.html#express.json)
-- default: `{ limit: "10mb" }`
-
-#### instrumentation
-
-- Optional
-- format: HullInstrumentation,
-
-#### queue
-
-- Optional
-- format: Hull Queue,
-  `const { Queue } = require("hull/src/infra");`
-
-#### notificationValidatorHttpClient
-
-- Optional
-- format: Object,
-- used for Tests
-
-#### middlewares: Array<Middleware>,
-
-- Required
-- an array of `express` middlewares that will be applied after all the other middlewares
-
-#### manifest: HullManifest
-
-- required
-- the connector's manifest.
-
-```js
-import manifest from "../manifest.json";
-```
 
 Calling the `server` method Starts an express server and returns an object containing:
 
@@ -671,7 +681,35 @@ configure({ app, server, connector }));
 
 ```
 
-### Fetch Entities
+## Hull-VM call deduplication
+
+We're using "immutable" (https://immutable-js.github.io/immutable-js/) to perform value-comparision of the claims that are passed in order to properly and reliably deduplicate calls.
+We're also comparing the data from the payload with the returned data to eliminate the idempotent value updates connector-side.
+
+Here are a few examples:
+
+```js
+const asUser = hull.asUser({ email: "bar@baz.co" });
+const asUser3 = hull.asUser({ email: "bar@baz.co" });
+
+asUser.alias({ anonymous_id: "1234" });
+asUser.unalias({ anonymous_id: "1234" });
+
+asUser3.alias({ anonymous_id: "1234" });
+asUser3.unalias({ anonymous_id: "1234" });
+
+// => hull.asUser({"email":"bar@baz.co"}).unalias({"anonymous_id":"1234"});
+
+asUser3.traits({ foo: "bar" });
+asUser.traits({ foo: "barz", baz: "boo" });
+hull.asUser({ email: "bar@baz.co" }).identify({ foo: "bazinga" });
+// => hull.asUser({"email":"bar@baz.co"}).traits({"foo":"bazinga","baz":"boo"});
+```
+
+# Fetching Entities
+
+These methods help you fetch data from the Hull API and rebuild a format that is mosly similar to a Kraken Notification.
+Some data types from event properties can't be reliably mapped back at the moment, but the raw data will be present.
 
 ````js
 const email_fetch = {
@@ -686,22 +724,21 @@ const anonymous_id_fetch = {
 const intercom_fetch = {
   claims: { anonymous_id: "intercom: 1245" }
 };
-const wide_search = {
-  claim: "1245"
-};
 
 const eventSchema = await ctx.entities.events.getSchema();
 const userSchema = await ctx.entities.users.getSchema();
 const accountSchema = await ctx.entities.accounts.getSchema();
 
 const data = await ctx.entities.users.get({
-  claim, // (or claims: {...})
-  include: { events: {
-    names: ["Segmentd Changed"],
-    limit: 100,
-    page: 1
-  },
-, account: false } //Fetch only "Segment Changes" events. Max Limit: 100
+  claims: { email: "foo@bar.com" }
+  include: {
+    events: {
+      names: ["Segmentd Changed"],
+      limit: 100,
+      page: 1
+    },
+  , account: false
+  }
 });
 // Response =>
 {
@@ -714,14 +751,16 @@ const data = await ctx.entities.users.get({
   account_segment_ids,
 }
 const data = await ctx.entities.events.get({
-  claim, // (or claims: {...})
-  include: { events: {
-    parent: '123142' //mandatory if if you're accessing events directly
-    names: ["Segmentd Changed"],
-    limit: 100,
-    page: 1
-  },
-, account: false } //Fetch only "Segment Changes" events. Max Limit: 100
+  claims: { email: "foo@bar.com" }
+  include: {
+    events: {
+      parent: '123142' //mandatory if if you're accessing events directly
+      names: ["Segmentd Changed"],
+      limit: 100,
+      page: 1
+    },
+    account: false
+  } //Fetch only "Segment Changes" events. Max Limit: 100
 });
 // Response =>
 {
@@ -762,38 +801,8 @@ const data = await ctx.entities.events.get({
   }
 
 const data = await ctx.entities.accounts.get({
-  claim, // (or claims: {...})
+  claims: { domain: "foo.com" }
   include: {} //Nothing supported for now
 });
-
-
-## Hull-VM call deduplication
-We're using "immutable" (https://immutable-js.github.io/immutable-js/) to perform value-comparision of the claims that are passed in order to properly and reliably deduplicate calls.
-
-Here are a few examples:
-
-```js
-
-const asUser = hull.asUser({ email: "bar@baz.co" });
-const asUser3 =hull.asUser({ email: "bar@baz.co" });
-
-asUser.alias({ anonymous_id: "1234" });
-asUser.unalias({ anonymous_id: "1234" });
-
-asUser3.alias({ anonymous_id: "1234" });
-asUser3.unalias({ anonymous_id: "1234" });
-
-// => hull.asUser({"email":"bar@baz.co"}).unalias({"anonymous_id":"1234"});
-
-asUser3.traits({ foo: "bar" });
-asUser.traits({ foo: "barz", baz: "boo" });
-hull.asUser({ email: "bar@baz.co" }).identify({
-foo: "bazinga"
-})
-
-// => hull.asUser({"email":"bar@baz.co"}).traits({"foo":"bazinga","baz":"boo"});
+```
 ````
-
-### Run specified tests
-
-`yarn run-test path_to_test_file(s)`
