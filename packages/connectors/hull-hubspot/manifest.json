@@ -4,7 +4,7 @@
   "source": "hubspot",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.5-monorepo",
+  "version": "0.1.7-monorepo",
   "tags": [
     "outgoing",
     "incoming",
@@ -289,7 +289,7 @@
     {
       "name": "fetch_email_events",
       "title": "Fetch Email Events",
-      "description": "Enable fetching Salesforce Tasks to Hull as events",
+      "description": "Enable fetching Hubspot Marketing Emails to Hull as events",
       "type": "boolean",
       "default": false
     },
