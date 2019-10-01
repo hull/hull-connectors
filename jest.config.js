@@ -12,6 +12,7 @@ module.exports = {
   ],
   collectCoverageFrom: [
     "<rootDir>/packages/connectors/hull-typeform/server/**/*.js",
+    "<rootDir>/packages/connectors/hull-pipedrive/server/**/*.js",
     "<rootDir>/packages/connectors/hull-outreach/server/**/*.js",
     "<rootDir>/packages/connectors/hull-marketo/server/**/*.js",
     "<rootDir>/packages/connectors/hull-warehouse/server/**/*.js",
