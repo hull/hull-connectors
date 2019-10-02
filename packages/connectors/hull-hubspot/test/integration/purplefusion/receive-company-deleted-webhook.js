@@ -13,13 +13,6 @@ it("Receive Webhook - company deleted payload ", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.incomingRequestHandler,
-      rawCustomRoutes: [
-        {
-          url: "/hubspot-webhook",
-          handler: hubspotWebhookHandler,
-          method: "post"
-        }
-      ],
       connector: {
         private_settings: {
           portal_id: "1234",

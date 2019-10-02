@@ -19,7 +19,6 @@ import lastFetchedStatus from "../actions/last-fetched-status";
 import onStatus from "../actions/on-status";
 import onAuthorize from "../actions/on-authorize";
 import onLogin from "../actions/on-login";
-import incomingWebhooksHandler from "../actions/incoming-webhook";
 
 import account_update from "./account-update";
 import user_update from "./user-update";
@@ -55,7 +54,6 @@ const handler = ({
         clientSecret
       })
     },
-    incoming: { incomingWebhooksHandler },
     statuses: { status },
     schedules: {
       checkCachedCredentials,
