@@ -189,6 +189,14 @@ class HubspotClient {
     return Promise.resolve("valid");
   }
 
+  getPortalInformation(): Promise<*> {
+    return this.retryUnauthorized(() => {
+      return this.agent.get("/integrations/v1/me").then(response => {
+        return Promise.resolve(response.body);
+      });
+    });
+  }
+
   /**
    * Get 100 hubspot contacts and queues their import
    * and getting another 100 - needs to be processed in one queue without

@@ -1,5 +1,7 @@
 /* @flow */
 
+import { HubspotWebhookPayload } from "./service-objects";
+
 const {
   route,
   cond,
@@ -23,7 +25,8 @@ const {
   jsonata,
   settings,
   ex,
-  ld
+  ld,
+  not
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -47,6 +50,39 @@ const glue = {
   setEventMap: [
     set("eventsMapping", require("./email_events")),
     set("eventsToFetch", "${connector.private_settings.events_to_fetch}")
+  ],
+  incomingWebhooksHandler: [
+    /*
+      Example Payload:
+      [
+        {
+          "eventId": 1,
+          "subscriptionId": 162971,
+          "portalId": 6038822,
+          "occurredAt": 1567689104280,
+          "subscriptionType": "contact.deletion",
+          "attemptNumber": 0,
+          "objectId": 123,
+          "changeSource": "CRM",
+          "changeFlag": "DELETED"
+        }
+      ]
+     */
+    iterateL(input(), "webhookAction", [
+      set("webhookSubscription", ld("split", "${webhookAction.subscriptionType}", ".")),
+      set("hubspotEntity", "${webhookSubscription[0]}"),
+      set("actionTaken", "${webhookAction.changeFlag}"),
+      ifL(not(cond("isEqual", "${hubspotEntity}", "company")), {
+        do: [
+          hull("asUser", cast(HubspotWebhookPayload, "${webhookAction}"))
+        ],
+        eldo: [
+          ifL("${connector.private_settings.handle_accounts}", [
+            hull("asAccount", cast(HubspotWebhookPayload, "${webhookAction}"))
+          ])
+        ]
+      })
+    ])
   ],
   fetchAllEmailEvents: [
     route("setEventMap"),

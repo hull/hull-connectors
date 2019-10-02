@@ -200,6 +200,14 @@ class SyncAgent {
     return this.hubspotClient.checkToken();
   }
 
+  getPortalInformation() {
+    try {
+      return this.hubspotClient.getPortalInformation();
+    } catch (err) {
+      return Promise.resolve();
+    }
+  }
+
   async getContactProperties() {
     try {
       const groups = await this.cache.wrap("contact_properties", () =>
