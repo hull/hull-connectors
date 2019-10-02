@@ -61,11 +61,12 @@ it("Update Single User To Pipedrive", () => {
             "subject_type": "user",
             "request_id": expect.whatever(),
             "user_id": "5bd329d5e2bcf3eeaf000099",
-            "user_email": "andy@hull.com"
+            "user_email": "pipedrive_user_1@hull.com"
           },
           {
             "data": {
               "address": "1234 Hull Pl",
+              "email": ["pipedrive_user_1@hull.com"],
               "name": "pipedrive_user_1"
             },
             "type": "Person",
@@ -78,7 +79,7 @@ it("Update Single User To Pipedrive", () => {
           {
             "subject_type": "user",
             "request_id": expect.whatever(),
-            "user_email": "andy@hull.com",
+            "user_email": "pipedrive_user_1@hull.com",
             "user_anonymous_id": "pipedrive:827"
           },
           {
@@ -126,7 +127,7 @@ it("Update Single User To Pipedrive", () => {
               "email": [
                 {
                   "label": "",
-                  "value": "andy@hull.com",
+                  "value": "pipedrive_user_1@hull.com",
                   "primary": true
                 }
               ],
@@ -166,7 +167,7 @@ it("Update Single User To Pipedrive", () => {
         [
           "traits",
           { "asUser": {
-            "email": "andy@hull.com", "anonymous_id": "pipedrive:827"
+            "email": "pipedrive_user_1@hull.com", "anonymous_id": "pipedrive:827"
             }, "subjectType": "user"
           },
           { "pipedrive/id": { "value": 827, "operation": "set" } }]

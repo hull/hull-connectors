@@ -39,7 +39,7 @@ const personFields = [
   },
   {
     name: "email",
-    display: "Emails",
+    display: "Email",
     readOnly: false
   }
 ];

@@ -44,6 +44,14 @@ const transformsToHull: ServiceTransforms = [
     arrayStrategy: "append_index",
     direction: "incoming",
     transforms: [
+      { inputPath: "id", outputPath: "ident.anonymous_id", outputFormat: "pipedrive:${value}" },
+      {
+        arrayStrategy: "pick_first",
+        condition: doesContain(["email"], "service_field_name"),
+        mapping: "connector.private_settings.user_claims",
+        inputPath: "${service_field_name}",
+        outputPath: "ident.${hull_field_name}",
+      },
       {
         mapping: { type: "input" },
         inputPath: "${service_field_name}",
