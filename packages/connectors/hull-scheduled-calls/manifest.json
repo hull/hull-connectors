@@ -165,19 +165,31 @@
   "json": [
     {
       "url": "/call",
-      "handler": "apiCall"
+      "handler": "apiCall",
+      "options": {
+        "cacheContextFetch": false
+      }
     },
     {
       "url": "/recent",
-      "handler": "getRecent"
+      "handler": "getRecent",
+      "options": {
+        "cacheContextFetch": false
+      }
     },
     {
       "url": "/config",
-      "handler": "configHandler"
+      "handler": "configHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
     },
     {
       "url": "/preview",
-      "handler": "previewHandler"
+      "handler": "previewHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
     }
   ],
   "schedules": [
