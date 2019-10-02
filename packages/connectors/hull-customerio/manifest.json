@@ -4,7 +4,7 @@
   "source": "customerio",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.2-monorepo",
+  "version": "0.1.7-monorepo",
   "tags": [
     "outgoing",
     "batch",
@@ -108,6 +108,12 @@
   "subscriptions": [
     {
       "url": "/smart-notifier",
+      "conditions" : {
+        "channels": { "only": ["user:update"] },
+        "segments": {
+          "user:update": ["private_settings.synchronized_segments"]
+        }
+      },
       "channels": [
         {
           "channel": "user:update",
@@ -127,14 +133,16 @@
       ]
     }
   ],
-  "json": [
+  "incoming": [
     {
       "url": "/webhook",
       "handler": "webhookHandler",
       "description": "In **Customer.io**, go to `Integrations > Email Activity Webhooks` and paste at the following url in `Webhook Endpoint`",
       "format": "credentials",
       "type": "string"
-    },
+    }
+  ],
+  "json": [
     {
       "name": "credentials",
       "handler": "credentialsHandler",

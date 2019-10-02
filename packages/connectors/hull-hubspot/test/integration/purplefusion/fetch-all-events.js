@@ -70,6 +70,7 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
       },
       response: { status : "ok"},
       logs: [
+        ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" }],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/email/public/v1/events", "status": 200, "vars": {} }],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/email/public/v1/campaigns/1", "status": 200, "vars": {} }],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/marketing-emails/v1/emails", "status": 200, "vars": {} }],
@@ -140,12 +141,12 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
               "appId": 113,
               "id": "event_id_4",
               "replyTo": [
-                "andy@hull.io"
+                "email2@gmail.com"
               ],
               "cc": [],
               "bcc": [],
               "subject": "826",
-              "from": "\"Andy Hull\" <andy@hull.io>",
+              "from": "email2@gmail.com",
               "smtpId": null,
               "sentBy": {
                 "id": "sentById",
@@ -156,7 +157,7 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
             "type": "hubspot_incoming_email_event"
           }
         ],
-        ["info", "incoming.job.success", {}, { "jobName": "Incoming Data Request" }]
+        ["info", "incoming.job.success", {}, { "jobName": "Incoming Data", "type": "webpayload" }]
       ],
       firehoseEvents: [
         ["track", { "asUser": { "email": "email@gmail.com" }, "subjectType": "user" },
@@ -170,13 +171,14 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
             "source": "hubspot",
             "properties": {
               "email_campaign_id": 1,
-              "email_subject": "CLICK - Marketing Email 1",
+              "email_subject": "Marketing Email 1",
               "link_url": "http://nytimes.com/?utm_campaign=Newsletter&utm_source=hs_email&utm_medium=email&utm_content=76224413&_hsmi=76224413",
               "portal_id": 6015139,
               "email_id": "event_id_1",
               "sent_by": "sentById",
               "recipient": "email@gmail.com",
               "last_imported_at": expect.whatever(),
+              "status": "Completed",
               "created_at": "2019-08-29T13:09:45.625Z",
               "email_body": "[html-body]\nEmail Body"
             },
@@ -194,12 +196,13 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
             "source": "hubspot",
             "properties": {
               "email_campaign_id": 2,
-              "email_subject": "PROCESSED - Marketing Email 2",
+              "email_subject": "Marketing Email 2",
               "portal_id": 6015139,
               "email_id": "event_id_2",
               "sent_by": "sentById",
               "recipient": "email@gmail.com",
               "last_imported_at": expect.whatever(),
+              "status": "Completed",
               "created_at": "2019-08-23T18:18:43.020Z",
               "email_body": "[html-body]\nEmail Body"
             },
@@ -217,12 +220,13 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
             "source": "hubspot",
             "properties": {
               "email_campaign_id": 1,
-              "email_subject": "SENT - Marketing Email 1",
+              "email_subject": "Marketing Email 1",
               "portal_id": 6015139,
               "email_id": "event_id_4",
               "sent_by": "sentById",
               "recipient": "email@gmail.com",
               "last_imported_at": expect.whatever(),
+              "status": "Completed",
               "created_at": "2019-08-29T12:26:57.162Z",
               "email_body": "[html-body]\nEmail Body"
             },

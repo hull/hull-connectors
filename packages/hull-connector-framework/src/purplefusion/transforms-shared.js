@@ -58,6 +58,13 @@ const transformsShared: ServiceTransforms = [
         outputPath: "hull_service_accountId"
       },
       {
+        // this transform is for account attributes mapped to the user level
+        // the account attribute will be labeled account.X
+        mapping: "connector.private_settings.outgoing_user_attributes",
+        inputPath: "${hull_field_name}",
+        outputPath: "${service_field_name}",
+      },
+      {
         mapping: "connector.private_settings.outgoing_user_attributes",
         inputPath: "user.${hull_field_name}",
         outputPath: "${service_field_name}",
@@ -78,6 +85,7 @@ const transformsShared: ServiceTransforms = [
     transforms: [
       {
         mapping: "connector.private_settings.incoming_user_attributes",
+        condition: isNotEqual("value", "null"),
         inputPath: "${service_field_name}",
         //don't need service_name because hull automatically appends it
         outputPath: "attributes.${hull_field_name}",
@@ -91,7 +99,8 @@ const transformsShared: ServiceTransforms = [
         condition: [
           isEqual("connector.private_settings.fetch_all_attributes", true),
           not(isServiceAttribute("connector.private_settings.incoming_user_attributes", "service_field_name")),
-          not(isEqual("service_field_name", "hull_events"))
+          not(isEqual("service_field_name", "hull_events")),
+          isNotEqual("value", "null"),
         ],
         inputPath: "${service_field_name}",
         outputPath: "attributes.${service_name}/${hull_field_name}",
@@ -118,12 +127,6 @@ const transformsShared: ServiceTransforms = [
         outputFormat: "${value}"
       },
       {
-        mapping: "connector.private_settings.incoming_user_attributes",
-        condition: isNotEqual("value", "null"),
-        inputPath: "${service_field_name}",
-        outputPath: "attributes.${hull_field_name}"
-      },
-      {
         inputPath: "id",
         outputPath: "attributes.${service_name}/id",
         outputFormat: {
@@ -132,6 +135,7 @@ const transformsShared: ServiceTransforms = [
         }
       },
       {
+        arrayStrategy: "pick_first",
         mapping: "connector.private_settings.user_claims",
         inputPath: "${service_field_name}",
         outputPath: "ident.${hull_field_name}"

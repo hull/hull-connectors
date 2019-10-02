@@ -4,7 +4,7 @@
   "source": "hubspot",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.2-monorepo",
+  "version": "0.1.7-monorepo",
   "tags": [
     "outgoing",
     "incoming",
@@ -275,12 +275,6 @@
       "format": "hidden"
     },
     {
-      "name": "events_last_fetch_started_at",
-      "description": "Last time events fetched at operation was started",
-      "type": "string",
-      "format": "hidden"
-    },
-    {
       "name": "fetch_count",
       "description": "Count of contacts already fetched from Hubspot",
       "type": "number",
@@ -295,15 +289,13 @@
     {
       "name": "fetch_email_events",
       "title": "Fetch Email Events",
-      "description": "Enable fetching Salesforce Tasks to Hull as events",
+      "description": "Enable fetching Hubspot Marketing Emails to Hull as events",
       "type": "boolean",
       "default": false
     },
     {
-      "title": "Email Events To Fetch From Hubspot",
-      "name": "events_to_fetch",
-      "type": "array",
       "default": [],
+      "format": "select",
       "items": {
         "type": "string",
         "enum": [
@@ -318,7 +310,11 @@
           "Unsubscribed / Subscribed",
           "Email Marked as Spam"
         ]
-      }
+      },
+      "title": "Email Events To Fetch From Hubspot",
+      "name": "events_to_fetch",
+      "type": "array",
+      "uniqueItems": true
     },
     {
       "name": "email_events_user_claims",
@@ -357,6 +353,12 @@
   "subscriptions": [
     {
       "url": "/smart-notifier",
+      "conditions" : {
+        "segments": {
+          "user:update": ["private_settings.synchronized_user_segments"],
+          "account:update": ["private_settings.synchronized_account_segments"]
+        }
+      },
       "channels": [
         {
           "channel": "user:update",
@@ -438,12 +440,22 @@
       }
     },
     {
+      "url": "/fetch-recent-email-events",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentEmailEvents",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
       "url": "/monitor/checkToken",
       "type": "interval",
       "value": "5",
       "handler": "checkToken",
       "options": {
-        "fireAndForget": true
+        "fireAndForget": true,
+        "alwaysEnabled": true
       }
     }
   ],
@@ -540,10 +552,10 @@
     },
     {
       "title": "Fetch Recent Email Events of Last 24 Hours",
-      "name": "fetch_recent_email_events",
+      "name": "fetch_hot_off_the_press_events",
       "format": "button",
-      "url": "/fetch-recent-email-events",
-      "handler": "fetchRecentEmailEvents",
+      "url": "/fetch-hot-off-the-press-events",
+      "handler": "fetchHotOffThePressEvents",
       "options": {
         "confirm": {
           "fireAndForget": true,
@@ -609,7 +621,7 @@
         "private_settings.events_to_fetch",
         "private_settings.email_events_user_claims",
         "json.fetch_all_email_events",
-        "json.fetch_recent_email_events"
+        "json.fetch_hot_off_the_press_events"
       ]
     }
   ]

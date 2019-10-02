@@ -17,9 +17,7 @@ const connector = {
     token: "hubToken",
     synchronized_user_segments: ["hullSegmentId"],
     outgoing_user_attributes: [
-      { hull: "traits_outreach/title", service: "jobtitle" },
-      { hull: "account.id", service: "custom_hubspot_account_id", overwrite: true },
-      { hull: "account.domain", service: "custom_hubspot_account_domain", overwrite: true }
+      { hull: "traits_outreach/title", service: "jobtitle" }
     ],
     link_users_in_service: true
   }
@@ -44,6 +42,7 @@ it("should filter because none of the mapped attributes have changed", () => {
           .reply(200, require("../fixtures/get-contacts-groups"));
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, require("../fixtures/get-properties-companies-groups"));
+
         return scope;
       },
       connector,
@@ -67,7 +66,8 @@ it("should filter because none of the mapped attributes have changed", () => {
             traits_custom_empty_string: "",
             traits_custom_zero: 0,
             // traits_custom_undefined: "", -> this is not present
-            traits_custom_date_at: "2018-10-24T09:47:39Z"
+            traits_custom_date_at: "2018-10-24T09:47:39Z",
+            "traits_hubspot/id": 1234
           },
           account: {
             id: "acc123",
@@ -118,7 +118,7 @@ it("should filter because none of the mapped attributes have changed", () => {
             "reason": "No changes on any of the synchronized attributes for this user.  If you think this is a mistake, please check the settings page for the synchronized user attributes to ensure that the attribute which changed is in the synchronized outgoing attributes"
           }
         ]
-      ],
+        ],
       firehoseEvents: [],
       metrics: [
         ["increment", "connector.request", 1],

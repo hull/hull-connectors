@@ -56,6 +56,7 @@ it("Basic fetch all email events - single event to fetch", () => {
       },
       response: { status : "ok"},
       logs: [
+        ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" }],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/email/public/v1/events", "status": 200, "vars": {} }],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/email/public/v1/campaigns/10", "status": 200, "vars": {} }],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/marketing-emails/v1/emails", "status": 200, "vars": {} }],
@@ -85,7 +86,7 @@ it("Basic fetch all email events - single event to fetch", () => {
             "type": "hubspot_incoming_email_event"
           }
         ],
-        ["info", "incoming.job.success", {}, { "jobName": "Incoming Data Request" }]
+        ["info", "incoming.job.success", {}, { "jobName": "Incoming Data", "type": "webpayload" }]
       ],
       firehoseEvents: [
         ["track", { "asUser": { "email": "email@gmail.com", }, "subjectType": "user", },
@@ -99,8 +100,9 @@ it("Basic fetch all email events - single event to fetch", () => {
               "email_body": "[html-body]\nEmail Body",
               "email_campaign_id": 10,
               "email_id": "event_id_3",
-              "email_subject": "OPEN - Newsletter",
+              "email_subject": "Newsletter",
               "last_imported_at": expect.whatever(),
+              "status": "Completed",
               "portal_id": 6015139,
               "recipient": "email@gmail.com",
               "sent_by": "sentById"

@@ -76,12 +76,12 @@
       "appId": 113,
       "id": "event_id_4",
       "replyTo": [
-        "andy@hull.io"
+        "email2@gmail.com"
       ],
       "cc": [],
       "bcc": [],
       "subject": "826",
-      "from": "\"Andy Hull\" <andy@hull.io>",
+      "from": "email2@gmail.com",
       "smtpId": null,
       "sentBy": {
         "id": "sentById",

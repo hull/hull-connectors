@@ -73,7 +73,7 @@ function createServiceMock(service, possibleMockRequests) {
           // throwing an error here because we did not find a valid endpoint for this call
           // expecting endpoint name and data to give the user more
           if (identifiedResult === null) {
-            expect({ localContext: currentLocalContext, op: endpointName, input: data }).toEqual(null);
+            expect({ localContext: currentLocalContext, op: endpointName, input: data }).toEqual(possibleEndpointMocks);
           }
 
         } else {

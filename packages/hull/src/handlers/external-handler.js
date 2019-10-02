@@ -19,9 +19,27 @@ const handlerFactory = ({
   next: NextFunction
 ) => {
   try {
-    const { fireAndForget = false, cache = {}, format = "json" } = options;
+    const {
+      fireAndForget = false,
+      cache = {},
+      format = "json",
+      dropIfConnectorDisabled = false
+    } = options;
     const { key, options: cacheOpts = {} } = cache;
     const message = getMessage(req);
+
+    try {
+      if (
+        dropIfConnectorDisabled &&
+        !req.hull.connector.accept_incoming_webhooks
+      ) {
+        return res.json({
+          message: "Connector is paused, skipped"
+        });
+      }
+    } catch (unknownError) {
+      debug("unknown error when trying to drop incoming request");
+    }
 
     // Immediately respond to service
     if (fireAndForget === true) {

@@ -233,7 +233,12 @@ const service = ({ clientID, clientSecret } : {
         errorType: SkippableError,
         message: MESSAGES.OUTREACH_ENTITY_NOT_FOUND,
       },
-
+      {
+        truthy: { status: 404 , response: { request: { method: "GET" } } },
+        errorType: SkippableError,
+        message: MESSAGES.OUTREACH_ENTITY_NOT_FOUND,
+        retryAttempts: 1
+      },
       {
         truthy: { status: 404 },
         errorType: TransientError,

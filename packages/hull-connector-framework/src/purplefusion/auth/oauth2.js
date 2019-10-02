@@ -1,39 +1,65 @@
+import type {
+  HullContext,
+  HullExternalResponse,
+  HullIncomingHandlerMessage,
+  HullOAuthStatusResponse,
+  HullOAuthHandlerParams,
+  HullOauthAuthorizeMessage,
+  HullOAuthAuthorizeResponse
+} from "hull";
+
 const _ = require("lodash");
 
 const oauth2 = {
-  isSetup(req) {
-    const { connector } = req.hull;
-    if (req.query.reset) return Promise.reject(new Error("Requested reset"));
-    const { token } = connector.private_settings || {};
-    if (token) {
+  onStatus: async (
+    ctx: HullContext,
+    message: HullIncomingHandlerMessage
+  ): HullOAuthStatusResponse => {
+    const { connector } = ctx;
+    const { private_settings = {} } = connector;
+    const { access_token } = private_settings;
+    if (access_token) {
       // We've got a token, We're all good!
       // TODO do we want to check to see if the token is good?
-      Promise.resolve();
+      return {
+        status: 200,
+        data: {
+          message: "Connected to Outreach"
+        }
+      };
     }
-    return Promise.reject(new Error("Not authorized"));
+    return {
+      status: 400,
+      data: {
+        message: "Please authenticate with Outreach"
+      }
+    };
   },
-  onLogin: req => {
-    req.authParams = _.merge({}, req.body, req.query);
-    return Promise.resolve(req.authParams);
-  },
-  onAuthorize: req => {
+  onLogin: async (
+    ctx: HullContext,
+    message: HullIncomingHandlerMessage
+  ): HullExternalResponse => ({
+    ...message.body,
+    ...message.query
+  }),
+  onAuthorize: async (
+    ctx: HullContext,
+    message: HullOauthAuthorizeMessage
+  ): HullOAuthAuthorizeResponse => {
     // access_token, expires_in, refresh_token, created_at
     // for some reason, refreshToken looks like it's at the top level
     // and the more detailed variables are in a params object below req.account
-    const { refreshToken, params } = req.account || {};
-    const { access_token, expires_in, created_at } = params || {};
-    return req.hull.helpers.settingsUpdate({
-      token_expires_in: expires_in,
-      token_created_at: created_at,
-      refresh_token: refreshToken,
-      access_token
-    });
-  },
-  views: {
-    login: "login.html",
-    home: "home.html",
-    failure: "failure.html",
-    success: "success.html"
+    const { account = {} } = message;
+    const { refreshToken, params } = account;
+    const { access_token, expires_in, created_at, refresh_token } = params || {};
+    return {
+      private_settings: {
+        token_expires_in: expires_in,
+        token_created_at: created_at,
+        refresh_token: refreshToken || refresh_token,
+        access_token
+      }
+    };
   }
 };
 
