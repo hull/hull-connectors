@@ -28,6 +28,8 @@ const transformsToService: ServiceTransforms = [
     arrayStrategy: "append_index",
     direction: "outgoing",
     transforms: [
+      { inputPath: "user.name",
+        outputPath: "name" },
       {
         mapping: "connector.private_settings.outgoing_user_attributes",
         condition: doesNotContain(["hull_service_accountId"], "service_field_name"),
@@ -41,10 +43,6 @@ const transformsToService: ServiceTransforms = [
       {
         inputPath: "${accountId}",
         outputPath: "org_id"
-      },
-      {
-        inputPath: "${first_name}",
-        outputPath: "name"
       }
     ]
   }

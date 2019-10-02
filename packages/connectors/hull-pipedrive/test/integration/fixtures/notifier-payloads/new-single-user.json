@@ -22,10 +22,6 @@
         {
           "hull": "address",
           "service": "address"
-        },
-        {
-          "hull": "name",
-          "service": "name"
         }
       ],
       "incoming_user_attributes": [],
