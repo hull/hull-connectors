@@ -18,7 +18,7 @@ const {
 const {
   PipedrivePersonRead,
   PipedriveOrgRead,
-  PipeDriveAttributeDefinition
+  PipedriveAttributeDefinition
 } = require("./service-objects");
 
 /**
@@ -28,13 +28,21 @@ const {
  */
 const transformsToHull: ServiceTransforms = [
   {
-    input: PipeDriveAttributeDefinition,
+    input: PipedriveAttributeDefinition,
     output: HullConnectorAttributeDefinition,
     strategy: "Jsonata",
     direction: "incoming",
     batchTransform: true,
     transforms: [
-      `$.{"type": field_type, "name": key, "display": name, "readOnly": edit_flag}`
+      `$map(
+        $filter(data, function($v, $i, $a) {
+          $v.bulk_edit_allowed = true
+        }), function($v, $i, $a) {
+          {"type": $v.field_type, 
+          "name": $v.key, 
+          "display": $v.name, 
+          "readOnly": $v.bulk_edit_allowed}
+        })`
     ]
   },
   {

@@ -120,14 +120,14 @@ const service = ({ clientID, clientSecret }: {
       url: "/organizationFields",
       operation: "get",
       endpointType: "get",
-      returnObj: "body.data",
+      returnObj: "body",
       output: PipedriveAttributeDefinition
     },
     getPersonFields: {
       url: "/personFields",
       operation: "get",
       endpointType: "get",
-      returnObj: "body.data",
+      returnObj: "body",
       output: PipedrivePersonAttributeDefinition
     },
     getAllWebhooks: {

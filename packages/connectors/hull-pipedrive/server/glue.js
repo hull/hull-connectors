@@ -1,6 +1,6 @@
 /* @flow */
 
-import { PipedrivePersonRead, PipedriveOrgRead } from "./service-objects";
+import { PipedrivePersonRead, PipedriveOrgRead, PipedriveAttributeDefinition } from "./service-objects";
 
 const {
   ifL,
@@ -41,7 +41,6 @@ const {
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const _ = require("lodash");
-const { orgFields, personFields } = require("./fielddefs");
 
 function pipedrive(op: string, param?: any): Svc { return new Svc({ name: "pipedrive", op }, param) }
 
@@ -192,12 +191,10 @@ const glue = {
           hull("asUser", input())
         ])
     }),
-  getOrgFields: pipedrive("getOrgFields"),
-  getPersonFields: pipedrive("getPersonFields"),
-  fieldsPipedrivePersonInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, personFields)),
-  fieldsPipedrivePersonOutbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, personFields)),
-  fieldsPipedriveOrgInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, orgFields)),
-  fieldsPipedriveAccountOutbound: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, orgFields)),
+  fieldsPipedrivePersonInbound: transformTo(HullIncomingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getPersonFields"))),
+  fieldsPipedrivePersonOutbound: transformTo(HullIncomingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getPersonFields"))),
+  fieldsPipedriveOrgInbound: transformTo(HullIncomingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getOrgFields"))),
+  fieldsPipedriveAccountOutbound: transformTo(HullOutgoingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getOrgFields"))),
   refreshToken:
     ifL(cond("notEmpty", "${connector.private_settings.refresh_token}"), [
       set("connectorHostname", utils("getConnectorHostname")),
