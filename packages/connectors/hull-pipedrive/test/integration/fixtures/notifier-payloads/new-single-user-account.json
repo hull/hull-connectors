@@ -35,7 +35,12 @@
           "service": "name"
         }
       ],
-      "incoming_user_attributes": [],
+      "incoming_user_attributes": [
+        {
+          "hull": "pipedrive/description",
+          "service": "4f9ab746d362cdbce1344c14eec9eb2b26ef484b"
+        }
+      ],
       "token_created_at": 1544104207,
       "access_token": "1234",
       "refresh_token": "abcd",
