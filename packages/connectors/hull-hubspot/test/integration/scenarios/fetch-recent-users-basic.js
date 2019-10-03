@@ -38,6 +38,7 @@ it("should fetch recent users using settings", () => {
           .query({
             count: 100,
             vidOffset: null,
+            timeOffset: null,
             property: "email"
           })
           .reply(200, incomingData);
@@ -45,6 +46,7 @@ it("should fetch recent users using settings", () => {
           .query({
             count: 100,
             vidOffset: 3714024,
+            timeOffset: 1484854580823,
             property: "email"
           })
           .reply(200, { contacts: [], "has-more": false });
