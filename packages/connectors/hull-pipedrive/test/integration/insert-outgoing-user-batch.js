@@ -104,6 +104,7 @@ it("Batch - Insert Single User To Pipedrive", () => {
                 "active_flag": true,
                 "value": 10475878
               },
+              "4f9ab746d362cdbce1344c14eec9eb2b26ef484b": "New Contact",
               "org_id": null,
               "name": "pipedrive_user_1",
               "first_name": "pipedrive_user_1",
@@ -179,7 +180,8 @@ it("Batch - Insert Single User To Pipedrive", () => {
             "email": "pipedrive_user_1@hull.com", "anonymous_id": "pipedrive:827"
             }, "subjectType": "user"
           },
-          { "pipedrive/id": { "value": 827, "operation": "set" } }]
+          { "pipedrive/id": { "value": 827, "operation": "set" },
+            "pipedrive/description": { "value": "New Contact", "operation": "set" } }]
       ],
       metrics:   [
         ["increment", "connector.request", 1,],

@@ -44,9 +44,9 @@ const transformsToService: ServiceTransforms = [
         condition: doesNotContain(["hull_service_accountId"], "service_field_name"),
         outputArrayFields: {
           checkField: "service_field_name",
-          fields: ["email"]
+          fields: ["email", "phone"]
         },
-        inputPath: "user.${service_field_name}",
+        inputPath: "user.${hull_field_name}",
         outputPath: "${service_field_name}"
       },
       {

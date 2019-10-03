@@ -96,6 +96,7 @@ it("Insert Single User To Pipedrive", () => {
                 }
               ],
               "first_char": "p",
+              "4f9ab746d362cdbce1344c14eec9eb2b26ef484b": "New Contact",
               "update_time": "2019-10-01 16:04:44",
               "add_time": "2019-10-01 16:04:44",
               "visible_to": "3",
@@ -115,26 +116,20 @@ it("Insert Single User To Pipedrive", () => {
             "type": "Person"
           }
         ],
-        [
-          "info",
-          "outgoing.job.success",
-          {
-            "request_id": expect.whatever()
-          },
-          {
-            "jobName": "Outgoing Data",
-            "type": "user"
-          }
-        ]
+        ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "user" }]
       ],
       firehoseEvents: [
         [
           "traits",
-          { "asUser": {
-            "email": "pipedrive_user_1@hull.com", "anonymous_id": "pipedrive:827"
-            }, "subjectType": "user"
+          { "asUser":
+              {
+                "email": "pipedrive_user_1@hull.com",
+                "anonymous_id": "pipedrive:827"
+              },
+            "subjectType": "user"
           },
-          { "pipedrive/id": { "value": 827, "operation": "set" } }]
+          { "pipedrive/id": { "value": 827, "operation": "set" },
+          "pipedrive/description": { "value": "New Contact", "operation": "set" } }]
       ],
       metrics:   [
         ["increment", "connector.request", 1,],

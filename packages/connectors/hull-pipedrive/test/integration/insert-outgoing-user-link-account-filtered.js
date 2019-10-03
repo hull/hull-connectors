@@ -117,6 +117,7 @@ it("Insert Single User To Pipedrive Filter Linked Account", () => {
                 "value": 10475878
               },
               "org_id": null,
+              "4f9ab746d362cdbce1344c14eec9eb2b26ef484b": "New Contact",
               "name": "pipedrive_user_1",
               "first_name": "pipedrive_user_1",
               "last_name": null,
@@ -175,7 +176,10 @@ it("Insert Single User To Pipedrive Filter Linked Account", () => {
         ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "user" }]
       ],
       firehoseEvents: [
-        ["traits", { "asUser": { "email": "pipedrive_user_1@hull.com", "anonymous_id": "pipedrive:827" }, "subjectType": "user" }, { "pipedrive/id": { "value": 827, "operation": "set" } }]
+        ["traits",
+          { "asUser": { "email": "pipedrive_user_1@hull.com", "anonymous_id": "pipedrive:827" }, "subjectType": "user" },
+          { "pipedrive/id": { "value": 827, "operation": "set" },
+            "pipedrive/description": { "value": "New Contact", "operation": "set" } }]
       ],
       metrics:   [
         ["increment", "connector.request", 1,],
