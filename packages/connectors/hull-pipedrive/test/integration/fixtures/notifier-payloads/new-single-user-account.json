@@ -20,7 +20,7 @@
       ],
       "account_claims": [
         {
-          "hull": "name",
+          "hull": "domain",
           "service": "name"
         }
       ],

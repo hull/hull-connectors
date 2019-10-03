@@ -80,7 +80,7 @@
       "default": [
         {
           "hull": "email",
-          "service": "emails"
+          "service": "Email"
         }
       ]
     },
@@ -176,7 +176,7 @@
       "default": [
         {
           "hull": "domain",
-          "service": "domain"
+          "service": "Name"
         }
       ]
     },
@@ -200,12 +200,7 @@
         "allowCreate": false,
         "loadOptions": "/fields-pipedrive-account-out"
       },
-      "default": [
-        {
-          "hull": "name",
-          "service": "name"
-        }
-      ]
+      "default": []
     }
   ],
   "settings": [],

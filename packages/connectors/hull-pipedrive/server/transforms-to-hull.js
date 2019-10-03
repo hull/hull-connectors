@@ -123,7 +123,8 @@ const transformsToHull: ServiceTransforms = [
     direction: "incoming",
     transforms: [
       { inputPath: "id", outputPath: "ident.anonymous_id", outputFormat: "pipedrive:${value}" },
-      { inputPath: "id", outputPath: "attributes.pipedrive/id",
+      { inputPath: "id",
+        outputPath: "attributes.pipedrive/id",
         outputFormat: {
           value: "${value}",
           operation: "set"
@@ -131,8 +132,7 @@ const transformsToHull: ServiceTransforms = [
       },
       {
         mapping: "connector.private_settings.incoming_account_attributes",
-        condition: doesNotContain(["owner_id"], "service_field_name"),
-        inputPath: "${service_field_name}",
+        inputPath: "attributes.${service_field_name}",
         outputPath: "attributes.${hull_field_name}",
         outputFormat: {
           value: "${value}",
@@ -141,10 +141,9 @@ const transformsToHull: ServiceTransforms = [
       },
       {
         mapping: "connector.private_settings.account_claims",
-        condition: doesNotContain(["owner_id"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "ident.${hull_field_name}",
-      }
+      },
     ]
   },
   {
@@ -163,19 +162,12 @@ const transformsToHull: ServiceTransforms = [
       },
       {
         mapping: "connector.private_settings.incoming_account_attributes",
-        condition: doesNotContain(["owner_id"], "service_field_name"),
         inputPath: "current.${service_field_name}",
         outputPath: "attributes.${hull_field_name}",
         outputFormat: {
           value: "${value}",
           operation: "set"
         }
-      },
-      {
-        mapping: "connector.private_settings.account_claims",
-        condition: doesNotContain(["owner_id"], "service_field_name"),
-        inputPath: "current.${service_field_name}",
-        outputPath: "ident.${hull_field_name}",
       }
     ]
   }

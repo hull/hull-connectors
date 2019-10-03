@@ -15,6 +15,11 @@ const transformsToService: ServiceTransforms = [
     direction: "outgoing",
     transforms: [
       {
+        mapping: "connector.private_settings.account_claims",
+        inputPath: "account.${hull_field_name}",
+        outputPath: "${service_field_name}",
+      },
+      {
         mapping: "connector.private_settings.outgoing_account_attributes",
         inputPath: "account.${hull_field_name}",
         outputPath: "${service_field_name}",
@@ -50,11 +55,8 @@ const transformsToService: ServiceTransforms = [
         outputPath: "${service_field_name}"
       },
       {
-        inputPath: "hull_service_accountId",
-        outputPath: "org_id"
-      },
-      {
-        inputPath: "${accountId}",
+        inputPath: "accountId",
+        condition: "accountId",
         outputPath: "org_id"
       }
     ]

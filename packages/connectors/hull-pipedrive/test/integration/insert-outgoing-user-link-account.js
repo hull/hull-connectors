@@ -81,6 +81,7 @@ it("Insert Single User To Pipedrive Link Account", () => {
           {
             "subject_type": "account",
             "request_id": expect.whatever(),
+            "account_domain": "apple.com",
             "account_anonymous_id": "pipedrive:3"
           },
           {
@@ -96,7 +97,7 @@ it("Insert Single User To Pipedrive Link Account", () => {
                 "active_flag": true,
                 "value": 10358676
               },
-              "name": "alIncorporated",
+              "name": "apple.com",
               "open_deals_count": 0,
               "related_open_deals_count": 0,
               "closed_deals_count": 0,
@@ -285,7 +286,8 @@ it("Insert Single User To Pipedrive Link Account", () => {
         ]
       ],
       firehoseEvents: [
-        ["traits", { "asAccount": { "anonymous_id": "pipedrive:3" }, "subjectType": "account" }, { "pipedrive/id": { "value": 3, "operation": "set" } }],
+        ["traits", { "asAccount": { "domain": "apple.com", "anonymous_id": "pipedrive:3" }, "subjectType": "account" },
+          { "pipedrive/id": { "value": 3, "operation": "set" } }],
         ["traits", { "asUser": { "email": "pipedrive_user_1@hull.com", "anonymous_id": "pipedrive:827" }, "subjectType": "user" },
           { "pipedrive/id": { "value": 827, "operation": "set" },
           "pipedrive/description": { "value": "New Contact", "operation": "set" } }]
