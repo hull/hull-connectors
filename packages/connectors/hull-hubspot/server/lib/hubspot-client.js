@@ -312,16 +312,14 @@ class HubspotClient {
   getRecentlyUpdatedContacts(
     properties: Array<string> = [],
     count: number = 100,
-    vidOffset: ?number = null,
-    timeOffset: ?number = null
+    offset: ?number = null
   ): Promise<HubspotGetAllContactsResponse> {
     return this.retryUnauthorized(() => {
       return this.agent
         .get("/contacts/v1/lists/recently_updated/contacts/recent")
         .query({
           count,
-          vidOffset,
-          timeOffset,
+          timeOffset: offset,
           property: properties
         });
     });
@@ -335,12 +333,11 @@ class HubspotClient {
     offset: ?string = null
   ): Readable {
     return promiseToReadableStream(push => {
-      const getRecentContactsPage = (vidOffset, timeOffset) => {
+      const getRecentContactsPage = pageOffset => {
         return this.getRecentlyUpdatedContacts(
           properties,
           count,
-          vidOffset,
-          timeOffset
+          pageOffset
         ).then(response => {
           const contacts = response.body.contacts.filter(c => {
             const time = moment(
@@ -358,13 +355,13 @@ class HubspotClient {
             );
           });
           const hasMore = response.body["has-more"];
-          const newVidOffset = response.body["vid-offset"];
-          const newTimeOffset = response.body["time-offset"];
+          // const vidOffset = response.body["vid-offset"];
+          const timeOffset = response.body["time-offset"];
           if (contacts.length > 0) {
             push(contacts);
           }
-          if (hasMore && moment(lastFetchAt).valueOf() <= newTimeOffset) {
-            return getRecentContactsPage(newVidOffset, newTimeOffset);
+          if (hasMore && moment(lastFetchAt).valueOf() <= timeOffset) {
+            return getRecentContactsPage(timeOffset);
           }
 
           return Promise.resolve();
