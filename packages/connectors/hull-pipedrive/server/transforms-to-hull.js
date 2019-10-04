@@ -41,7 +41,7 @@ const transformsToHull: ServiceTransforms = [
           {"type": $v.field_type, 
           "name": $v.key, 
           "display": $v.name, 
-          "readOnly": $v.bulk_edit_allowed}
+          "readOnly": $not($v.bulk_edit_allowed)}
         })`
     ]
   },

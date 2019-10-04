@@ -192,7 +192,7 @@ const glue = {
         ])
     }),
   fieldsPipedrivePersonInbound: transformTo(HullIncomingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getPersonFields"))),
-  fieldsPipedrivePersonOutbound: transformTo(HullIncomingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getPersonFields"))),
+  fieldsPipedrivePersonOutbound: transformTo(HullOutgoingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getPersonFields"))),
   fieldsPipedriveOrgInbound: transformTo(HullIncomingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getOrgFields"))),
   fieldsPipedriveAccountOutbound: transformTo(HullOutgoingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getOrgFields"))),
   refreshToken:
