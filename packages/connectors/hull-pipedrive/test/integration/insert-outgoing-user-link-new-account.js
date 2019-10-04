@@ -7,7 +7,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../server/config";
 
 
-it("Insert Single User To Pipedrive Link Account", () => {
+it("Insert Single User To Pipedrive Link New Account", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = require("./fixtures/notifier-payloads/new-single-user-account");
     return _.assign(updateMessages, {

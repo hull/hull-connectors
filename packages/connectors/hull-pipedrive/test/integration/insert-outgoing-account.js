@@ -29,9 +29,9 @@ it("Insert Single Account To Pipedrive", () => {
         ["debug", "connector.service_api.call", { "request_id": expect.whatever() }, { "responseTime": expect.whatever(), "method": "POST", "url": "/organizations", "status": 201, "vars": {} }],
         ["info", "outgoing.account.success",
           { "subject_type": "account", "request_id": expect.whatever(), "account_id": "account_id_2", "account_domain": "apple.com" },
-          { "data": { "address": "123 Random Pl" }, "type": "Org", "operation": "post" }],
+          { "data": { "address": "123 Random Pl", "name": "apple.com" }, "type": "Org", "operation": "post" }],
         ["info", "incoming.account.success",
-          { "subject_type": "account", "request_id": expect.whatever(), "account_anonymous_id": "pipedrive:3" },
+          { "subject_type": "account", "request_id": expect.whatever(), "account_anonymous_id": "pipedrive:3", "account_domain": "apple.com" },
           {
             "data": {
               "id": 3,
@@ -45,7 +45,7 @@ it("Insert Single Account To Pipedrive", () => {
                 "active_flag": true,
                 "value": 10358676
               },
-              "name": "alIncorporated",
+              "name": "apple.com",
               "open_deals_count": 0,
               "related_open_deals_count": 0,
               "closed_deals_count": 0,
@@ -99,7 +99,7 @@ it("Insert Single Account To Pipedrive", () => {
       ],
       firehoseEvents: [
         ["traits",
-          { "asAccount": { "anonymous_id": "pipedrive:3" }, "subjectType": "account" },
+          { "asAccount": { "anonymous_id": "pipedrive:3", "domain": "apple.com" }, "subjectType": "account" },
           { "pipedrive/id": { "value": 3, "operation": "set" } }]
       ],
       metrics:   [

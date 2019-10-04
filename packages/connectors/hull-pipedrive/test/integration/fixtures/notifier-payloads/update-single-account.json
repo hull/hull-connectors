@@ -19,7 +19,7 @@
       "refresh_token": "abcd",
       "account_claims": [
         {
-          "hull": "id",
+          "hull": "domain",
           "service": "name"
         }
       ],
@@ -27,10 +27,6 @@
         {
           "hull": "address",
           "service": "address"
-        },
-        {
-          "hull": "hull_name",
-          "service": "name"
         }
       ],
       "synchronized_user_segments": [],

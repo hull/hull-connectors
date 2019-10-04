@@ -55,9 +55,9 @@ const transformsToService: ServiceTransforms = [
         outputPath: "${service_field_name}"
       },
       {
-        inputPath: "accountId",
         condition: "accountId",
-        outputPath: "org_id"
+        outputPath: "org_id",
+        outputFormat: "${accountId}",
       }
     ]
   }
