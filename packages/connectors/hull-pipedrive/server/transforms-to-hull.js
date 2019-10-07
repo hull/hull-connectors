@@ -34,10 +34,7 @@ const transformsToHull: ServiceTransforms = [
     direction: "incoming",
     batchTransform: true,
     transforms: [
-      `$map(
-        $filter(data, function($v, $i, $a) {
-          $v.bulk_edit_allowed = true
-        }), function($v, $i, $a) {
+      `$map(data, function($v, $i, $a) {
           {"type": $v.field_type, 
           "name": $v.key, 
           "display": $v.name, 
