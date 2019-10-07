@@ -148,6 +148,13 @@
       "default": false
     },
     {
+      "name": "support_user_deletion",
+      "title": "Let Pipedrive delete Hull users",
+      "description": "Do you want to let Pipedrive delete Hull users when Persons are directly removed from Pipdrive's dashboard?",
+      "type": "boolean",
+      "default": false
+    },
+    {
       "name": "account_claims",
       "title": "Fields to match for Account Identity Resolution",
       "type": "array",
@@ -201,6 +208,13 @@
         "loadOptions": "/fields-pipedrive-account-out"
       },
       "default": []
+    },
+    {
+      "name": "support_account_deletion",
+      "title": "Let Pipedrive delete Hull accounts",
+      "description": "Do you want to let Pipedrive delete Hull accounts when organisations are directly removed from Pipdrive's dashboard?",
+      "type": "boolean",
+      "default": false
     }
   ],
   "settings": [],
@@ -332,6 +346,7 @@
       "properties": [
         "private_settings.incoming_user_attributes",
         "private_settings.link_users_in_hull",
+        "private_settings.support_user_deletion",
         "json.fetch_all_persons"
       ]
     },
@@ -356,6 +371,7 @@
       "description": "Hull gives its customers the ability to capture a subset of account fields in order to have fine grain control over the dataflow.  Please configure the fields that you would like pulled from Pipedrive below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.<br /><br />",
       "properties": [
         "private_settings.incoming_account_attributes",
+        "private_settings.support_account_deletion",
         "json.fetch_all_orgs"
       ]
     },

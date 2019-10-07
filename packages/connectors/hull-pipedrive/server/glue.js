@@ -78,17 +78,24 @@ const glue = {
       set("webhookUrl", utils("createWebhookUrl")),
       set("existingWebhooks", pipedrive("getAllWebhooks")),
       set("samePersonWebhook", filter({ subscription_url: "${webhookUrl}", event_object: "person" }, "${existingWebhooks}")),
-      set("sameOrgWebhook", filter({ subscription_url: "${webhookUrl}", event_object: "organization" }, "${existingWebhooks}")),
       ifL("${samePersonWebhook[0]}", {
         do: set("webhookIdPerson", "${samePersonWebhook[0].id}"),
         eldo: set("webhookIdPerson", get("data.id", pipedrive("insertWebhook", webhookPersonTemplate))),
       }),
+      settingsUpdate({
+        webhook_id_person: "${webhookIdPerson}",
+      }),
+      ifL(not(cond("isEmpty", "${connector.private_settings.webhook_id_org}")), route("deleteBadWebhooks")),
+    ])),
+    ifL(settings("access_token"), ifL(cond("isEmpty", "${connector.private_settings.webhook_id_org}"), [
+      set("webhookUrl", utils("createWebhookUrl")),
+      set("existingWebhooks", pipedrive("getAllWebhooks")),
+      set("sameOrgWebhook", filter({ subscription_url: "${webhookUrl}", event_object: "organization" }, "${existingWebhooks}")),
       ifL("${sameOrgWebhook[0]}", {
         do: set("webhookIdOrg", "${sameOrgWebhook[0].id}"),
         eldo: set("webhookIdOrg", get("data.id", pipedrive("insertWebhook", webhookOrgTemplate)))
       }),
       settingsUpdate({
-        webhook_id_person: "${webhookIdPerson}",
         webhook_id_org: "${webhookIdOrg}"
       }),
       route("deleteBadWebhooks")
@@ -181,15 +188,25 @@ const glue = {
   ],
   webhooks: ifL(input("body"), route("handleWebhook", cast(WebPayload, input("body")))),
   handleWebhook:
-    ifL(cond("isEqual", "organization", input("meta.object")), {
-      do: hull("asAccount", input()),
+    ifL(cond("isEqual", input("meta.object"), "organization"), {
+      do:
+        ifL(cond("isEqual", input("meta.action"), "deleted"), {
+          do: ifL(cond("isEqual", "${connector.private_settings.support_account_deletion}", true),
+            []),// DELETE USER
+          eldo: hull("asAccount", input())
+      }),
       eldo:
-        ifL(cond("isEqual", "person", input("meta.object")), [
-          ifL(cond("isEqual", "added", input("meta.action")),
-            set("createdByWebhook", true)
-          ),
-          hull("asUser", input())
-        ])
+        ifL(cond("isEqual", input("meta.action"), "deleted"), {
+          do: ifL(cond("isEqual", "${connector.private_settings.support_user_deletion}", true),
+            []), // DELETE ACCOUNT
+          eldo:
+            ifL(cond("isEqual", input("meta.object"), "person"), [
+              ifL(cond("isEqual", "added", input("meta.action")),
+                set("createdByWebhook", true)
+              ),
+              hull("asUser", input())
+            ])
+        })
     }),
   fieldsPipedrivePersonInbound: transformTo(HullIncomingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getPersonFields"))),
   fieldsPipedrivePersonOutbound: transformTo(HullOutgoingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getPersonFields"))),
