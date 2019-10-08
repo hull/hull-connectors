@@ -188,25 +188,46 @@ const glue = {
   ],
   webhooks: ifL(input("body"), route("handleWebhook", cast(WebPayload, input("body")))),
   handleWebhook:
-    ifL(cond("isEqual", input("meta.object"), "organization"), {
-      do:
-        ifL(cond("isEqual", input("meta.action"), "deleted"), {
-          do: ifL(cond("isEqual", "${connector.private_settings.support_account_deletion}", true),
-            []),// DELETE USER
-          eldo: hull("asAccount", input())
-      }),
-      eldo:
-        ifL(cond("isEqual", input("meta.action"), "deleted"), {
-          do: ifL(cond("isEqual", "${connector.private_settings.support_user_deletion}", true),
-            []), // DELETE ACCOUNT
-          eldo:
-            ifL(cond("isEqual", input("meta.object"), "person"), [
-              ifL(cond("isEqual", "added", input("meta.action")),
-                set("createdByWebhook", true)
-              ),
-              hull("asUser", input())
-            ])
-        })
+    ifL(cond("isEqual", input("meta.action"), "deleted"), {
+      do: [
+        ifL(or([
+            cond("isEqual", "${connector.private_settings.support_account_deletion}", true),
+            cond("isEqual", "${connector.private_settings.support_user_deletion}", true),
+          ]), [
+            set("pipedriveId", input("meta.id")),
+            set("deletedAt", input("meta.timestamp")),
+            set("deletedEntity", {
+              ident: {
+                anonymous_id: "pipedrive:${pipedriveId}"
+              },
+              attributes: {
+                "pipedrive/id": null,
+                "pipedrive/deleted_at": "${deletedAt}"
+              }
+            })
+          ]
+        ),
+        ifL([
+            cond("isEqual", input("meta.object"), "person"),
+            cond("isEqual", "${connector.private_settings.support_user_deletion}", true)
+          ],
+          hull("asUser", "${deletedEntity}")),
+        ifL([
+            cond("isEqual", input("meta.object"), "organization"),
+            cond("isEqual", "${connector.private_settings.support_account_deletion}", true)
+          ],
+          hull("asUser", "${deletedEntity}"))
+      ],
+      eldo: [
+        ifL(cond("isEqual", input("meta.object"), "person"), [
+          ifL(cond("isEqual", "added", input("meta.action")),
+            set("createdByWebhook", true)),
+          hull("asUser", input())
+        ]),
+        ifL(cond("isEqual", input("meta.object"), "organization"),
+          hull("asAccount", input())
+        )
+      ]
     }),
   fieldsPipedrivePersonInbound: transformTo(HullIncomingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getPersonFields"))),
   fieldsPipedrivePersonOutbound: transformTo(HullOutgoingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getPersonFields"))),
