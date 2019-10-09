@@ -71,7 +71,8 @@ const transformsToService: ServiceTransforms = [
           "        \"anonymous_id\": \"hubspot:\" & objectId" +
           "   }," +
           "   \"attributes\": {" +
-          "       \"hubspot/deleted_at\": occurredAt" +
+          "       \"hubspot/deleted_at\": occurredAt," +
+          "       \"hubspot/id\": null" +
           "   }" +
           "}"
       },
