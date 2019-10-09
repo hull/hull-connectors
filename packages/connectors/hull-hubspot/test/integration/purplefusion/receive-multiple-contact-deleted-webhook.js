@@ -94,8 +94,8 @@ it("Receive Webhook - contact deleted payload ", () => {
         ]
       ],
       firehoseEvents: [
-        ["traits", { "asUser": { "anonymous_id": "hubspot:123" }, "subjectType": "user" }, { "hubspot/deleted_at": 1567689104280 }],
-        ["traits", { "asUser": { "anonymous_id": "hubspot:124" }, "subjectType": "user" }, { "hubspot/deleted_at": 1567689104280 }]
+        ["traits", { "asUser": { "anonymous_id": "hubspot:123" }, "subjectType": "user" }, { "hubspot/deleted_at": 1567689104280, "hubspot/id": null }],
+        ["traits", { "asUser": { "anonymous_id": "hubspot:124" }, "subjectType": "user" }, { "hubspot/deleted_at": 1567689104280, "hubspot/id": null }]
       ],
       metrics: [
         ["increment", "connector.request", 1,]

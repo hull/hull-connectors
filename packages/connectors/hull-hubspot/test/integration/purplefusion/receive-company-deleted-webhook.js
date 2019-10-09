@@ -63,7 +63,7 @@ it("Receive Webhook - company deleted payload ", () => {
         ["traits",
           { "asAccount": { "anonymous_id": "hubspot:123" },
             "subjectType": "account" },
-          { "hubspot/deleted_at": 1567689104280 }
+          { "hubspot/deleted_at": 1567689104280, "hubspot/id": null }
         ]
       ],
       metrics: [
