@@ -121,12 +121,15 @@ class ServiceEngine {
     // but not sure that case necessarily exists...
     let results;
     if (!isUndefinedOrNull(rawInputParam) && !endpoint.batch && Array.isArray(rawInputParam)) {
-      results = await Promise.all(rawInputParam.map(rawObject => {
+
+      // TODO need to test if making the callback async in the map works correctly
+      // it should...
+      results = await Promise.all(rawInputParam.map(async rawObject => {
 
         // not sure how we differentiate between the type at the array level and the
         setHullDataType(rawObject, rawInputType);
 
-        const dataToSend = this.transforms.transform(context, rawObject, endpoint.input);
+        const dataToSend = await this.transforms.transform(this.dispatcher, context, rawObject, endpoint.input);
         const servicePromise = this.invokeServiceOperation(context, serviceDefinition, name, op, dataToSend);
         return this.logOutcome(context, servicePromise, {
           name,
@@ -137,7 +140,7 @@ class ServiceEngine {
 
       }));
     } else {
-      const dataToSend = this.transforms.transform(context, param, endpoint.input);
+      const dataToSend = await this.transforms.transform(this.dispatcher, context, param, endpoint.input);
       const servicePromise = this.invokeServiceOperation(context, serviceDefinition, name, op, dataToSend);
       results = await this.logOutcome(context, servicePromise, {
         name,
@@ -162,7 +165,7 @@ class ServiceEngine {
         setHullDataType(newData, endpoint.output);
 
         if (endpoint.transformTo) {
-          newData = this.transforms.transform(context, newData, endpoint.transformTo);
+          newData = await this.transforms.transform(this.dispatcher, context, newData, endpoint.transformTo);
         }
       }
 

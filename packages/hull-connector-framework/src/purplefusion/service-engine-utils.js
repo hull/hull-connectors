@@ -141,6 +141,7 @@ async function streamCsv(context: HullVariableContext, serviceEngine, serviceDef
       setHullDataType(object, getHullDataType(inputParams));
 
       if (!isUndefinedOrNull(endpoint.input)) {
+        // TODO need to confirm how this works, now that this is an async method
         return this.transforms.transform(context, object, endpoint.input);
       }
     });
