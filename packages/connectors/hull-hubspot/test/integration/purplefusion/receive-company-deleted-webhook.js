@@ -9,7 +9,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
 
 
-it("Receive Webhook - company deleted payload ", () => {
+it("Receive Webhook - company deleted payload", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.incomingRequestHandler,
@@ -63,7 +63,7 @@ it("Receive Webhook - company deleted payload ", () => {
         ["traits",
           { "asAccount": { "anonymous_id": "hubspot:123" },
             "subjectType": "account" },
-          { "hubspot/deleted_at": 1567689104280 }
+          { "hubspot/deleted_at": 1567689104280, "hubspot/id": null }
         ]
       ],
       metrics: [
