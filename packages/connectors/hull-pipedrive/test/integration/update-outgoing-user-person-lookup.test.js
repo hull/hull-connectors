@@ -7,9 +7,9 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../server/config";
 
 
-it("Update Single User To Pipedrive", () => {
+it("Update Single User To Pipedrive With Successful Lookup", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
-    const updateMessages = require("./fixtures/notifier-payloads/update-single-user");
+    const updateMessages = require("./fixtures/notifier-payloads/new-single-user");
     return _.assign(updateMessages, {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -17,9 +17,9 @@ it("Update Single User To Pipedrive", () => {
       externalApiMock: () => {
         const scope = nock("https://api-proxy.pipedrive.com");
 
-        /*scope
-          .get("/persons/find?term=andy@hull.com?search_by_email=1")
-          .reply(200, require("./fixtures/pipedrive/person_lookup_no_result"));*/
+        scope
+          .get("/persons/find?term=pipedrive_user_1@hull.com&search_by_email=1")
+          .reply(200, require("./fixtures/pipedrive/person_lookup_found_result"));
 
         scope
           .intercept("/persons/827", "PUT")
@@ -38,6 +38,20 @@ it("Update Single User To Pipedrive", () => {
           {
             "jobName": "Outgoing Data",
             "type": "user"
+          }
+        ],
+        [
+          "debug",
+          "connector.service_api.call",
+          {
+            "request_id": expect.whatever()
+          },
+          {
+            "responseTime": expect.whatever(),
+            "method": "GET",
+            "url": "/persons/find",
+            "status": 200,
+            "vars": {}
           }
         ],
         [
@@ -69,8 +83,7 @@ it("Update Single User To Pipedrive", () => {
               "email": ["pipedrive_user_1@hull.com"],
               "name": "pipedrive_user_1"
             },
-            "type": "Person",
-            "operation": "put"
+            "type": "Person"
           }
         ],
         [
@@ -167,16 +180,23 @@ it("Update Single User To Pipedrive", () => {
       firehoseEvents: [
         [
           "traits",
-          { "asUser": {
-            "email": "pipedrive_user_1@hull.com", "anonymous_id": "pipedrive:827"
-            }, "subjectType": "user"
+          {
+            "asUser": {
+              "email": "pipedrive_user_1@hull.com",
+              "anonymous_id": "pipedrive:827"
+            },
+            "subjectType": "user"
           },
           { "pipedrive/id": { "value": 827, "operation": "set" },
-            "pipedrive/description": { "value": "New Contact", "operation": "set" } }]
+            "pipedrive/description": { "operation": "set", "value": "New Contact" }
+          }
+        ]
       ],
       metrics:   [
         ["increment", "connector.request", 1,],
         ["increment", "ship.service_api.call", 1,],
+        ["increment", "ship.service_api.call", 1,],
+        ["value", "connector.service_api.response_time", expect.whatever(),],
         ["value", "connector.service_api.response_time", expect.whatever(),],
       ],
       platformApiCalls: []

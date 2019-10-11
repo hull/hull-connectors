@@ -20,6 +20,7 @@ it("Insert Single User To Pipedrive Filter Linked Account", () => {
         "source_url": "https://dev-hull-pipedrive.ngrok.io/",
         "private_settings": {
           "webhook_id_person": 11111,
+          "webhook_id_org": 11111,
           "link_users_in_service": true,
           "user_claims": [
             {
@@ -106,7 +107,7 @@ it("Insert Single User To Pipedrive Filter Linked Account", () => {
         ["debug", "connector.service_api.call", { "request_id": expect.whatever() }, { "responseTime": expect.whatever(), "method": "POST", "url": "/persons", "status": 201, "vars": {} }],
         ["info", "outgoing.user.success",
           { "subject_type": "user", "request_id": expect.whatever(), "user_id": "5bd329d5e2bcf3eeaf000099", "user_email": "pipedrive_user_1@hull.com" },
-          { "data": { "address": "1234 Hull Pl", "email": ["pipedrive_user_1@hull.com"], "name": "pipedrive_user_1" }, "type": "Person", "operation": "post" }
+          { "data": { "address": "1234 Hull Pl", "email": ["pipedrive_user_1@hull.com"], "name": "pipedrive_user_1" }, "type": "Person" }
         ],
         ["info", "incoming.user.success", { "subject_type": "user", "request_id": expect.whatever(), "user_email": "pipedrive_user_1@hull.com", "user_anonymous_id": "pipedrive:827" },
           { "data": {

@@ -136,8 +136,7 @@ it("Insert Single User To Pipedrive Link Existing Pipedrive Account", () => {
               "address": "1234 Hull Pl",
               "org_id": 3
             },
-            "type": "Person",
-            "operation": "post"
+            "type": "Person"
           }
         ],
         [

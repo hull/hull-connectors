@@ -7,13 +7,64 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../server/config";
 
 
-it("Insert Single Account To Pipedrive", () => {
+it("Batch - Insert Single Account To Pipedrive", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = require("./fixtures/notifier-payloads/new-single-account");
     return _.assign(updateMessages, {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
       channel: "account:update",
+      is_export: true,
+      connector: {
+        "description": "some",
+        "tags": [],
+        "source_url": "https://dev-hull-pipedrive.ngrok.io/",
+        "private_settings": {
+          "webhook_id_person": 11111,
+          "webhook_id_org": 11111,
+          "token_expires_in": 7200,
+          "outgoing_user_attributes": [],
+          "incoming_user_attributes": [],
+          "token_created_at": 1544104207,
+          "access_token": "1234",
+          "refresh_token": "abcd",
+          "account_claims": [
+            {
+              "hull": "domain",
+              "service": "name"
+            }
+          ],
+          "outgoing_account_attributes": [
+            {
+              "hull": "address",
+              "service": "address"
+            },
+            {
+              "hull": "pipedrive/department",
+              "service": "department"
+            }
+          ],
+          "synchronized_user_segments": [],
+          "synchronized_account_segments": [
+            "random_segment"
+          ],
+          "incoming_account_attributes": [],
+          "created_at": 1544269649
+        },
+        "index": "https://dev-hull-outreach.ngrok.io/",
+        "name": "pipedrive",
+        "extra": {},
+        "settings": {},
+        "type": "ship",
+        "secret": "shhh",
+        "updated_at": "2018-12-09T11:20:32Z",
+        "status": {},
+        "id": "123456789012345678901234",
+        "picture": "",
+        "homepage_url": "",
+        "manifest_url": "",
+        "created_at": "2018-12-06T13:49:58Z"
+      },
       externalApiMock: () => {
         const scope = nock("https://api-proxy.pipedrive.com");
 
@@ -25,13 +76,57 @@ it("Insert Single Account To Pipedrive", () => {
       },
       response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
       logs: [
-        ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }],
-        ["debug", "connector.service_api.call", { "request_id": expect.whatever() }, { "responseTime": expect.whatever(), "method": "POST", "url": "/organizations", "status": 201, "vars": {} }],
-        ["info", "outgoing.account.success",
-          { "subject_type": "account", "request_id": expect.whatever(), "account_id": "account_id_2", "account_domain": "apple.com" },
-          { "data": { "address": "123 Random Pl", "name": "apple.com" }, "type": "Org", "operation": "post" }],
-        ["info", "incoming.account.success",
-          { "subject_type": "account", "request_id": expect.whatever(), "account_anonymous_id": "pipedrive:3", "account_domain": "apple.com" },
+        [
+          "info",
+          "outgoing.job.start",
+          {
+            "request_id": expect.whatever()
+          },
+          {
+            "jobName": "Outgoing Data",
+            "type": "account"
+          }
+        ],
+        [
+          "debug",
+          "connector.service_api.call",
+          {
+            "request_id": expect.whatever()
+          },
+          {
+            "responseTime": expect.whatever(),
+            "method": "POST",
+            "url": "/organizations",
+            "status": 201,
+            "vars": {}
+          }
+        ],
+        [
+          "info",
+          "outgoing.account.success",
+          {
+            "subject_type": "account",
+            "request_id": expect.whatever(),
+            "account_id": "account_id_2",
+            "account_domain": "apple.com"
+          },
+          {
+            "data": {
+              "name": "apple.com",
+              "address": "123 Random Pl"
+            },
+            "type": "Org"
+          }
+        ],
+        [
+          "info",
+          "incoming.account.success",
+          {
+            "subject_type": "account",
+            "request_id": expect.whatever(),
+            "account_domain": "apple.com",
+            "account_anonymous_id": "pipedrive:3"
+          },
           {
             "data": {
               "id": 3,
@@ -95,11 +190,21 @@ it("Insert Single Account To Pipedrive", () => {
             "type": "Org"
           }
         ],
-        ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }]
+        [
+          "info",
+          "outgoing.job.success",
+          {
+            "request_id": expect.whatever()
+          },
+          {
+            "jobName": "Outgoing Data",
+            "type": "account"
+          }
+        ]
       ],
       firehoseEvents: [
         ["traits",
-          { "asAccount": { "anonymous_id": "pipedrive:3", "domain": "apple.com" }, "subjectType": "account" },
+          { "asAccount": { "anonymous_id": "pipedrive:3", "domain": "apple.com", }, "subjectType": "account" },
           { "pipedrive/id": { "value": 3, "operation": "set" } }]
       ],
       metrics:   [

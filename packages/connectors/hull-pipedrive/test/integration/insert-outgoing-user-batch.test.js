@@ -7,95 +7,90 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../server/config";
 
 
-it("Update Single User To Pipedrive With Successful Lookup", () => {
+it("Batch - Insert Single User To Pipedrive", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = require("./fixtures/notifier-payloads/new-single-user");
     return _.assign(updateMessages, {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
       channel: "user:update",
+      is_export: true,
+      connector: {
+        "description": "some",
+        "tags": [],
+        "source_url": "https://dev-hull-pipedrive.ngrok.io/",
+        "private_settings": {
+          "webhook_id_person": 11111,
+          "webhook_id_org": 11111,
+          "user_claims": [
+            {
+              "hull": "email",
+              "service": "email"
+            }
+          ],
+          "token_expires_in": 7200,
+          "outgoing_user_attributes": [
+            {
+              "hull": "address",
+              "service": "address"
+            }
+          ],
+          "incoming_user_attributes": [],
+          "token_created_at": 1544104207,
+          "access_token": "1234",
+          "refresh_token": "abcd",
+          "account_claims": [],
+          "outgoing_account_attributes": [],
+          "synchronized_user_segments": ["random_segment"],
+          "synchronized_account_segments": [],
+          "incoming_account_attributes": [],
+          "created_at": 1544269649
+        },
+        "index": "https://dev-hull-outreach.ngrok.io/",
+        "name": "pipedrive",
+        "extra": {},
+        "settings": {},
+        "type": "ship",
+        "secret": "shhh",
+        "updated_at": "2018-12-09T11:20:32Z",
+        "status": {},
+        "id": "123456789012345678901234",
+        "picture": "",
+        "homepage_url": "",
+        "manifest_url": "",
+        "created_at": "2018-12-06T13:49:58Z"
+      },
       externalApiMock: () => {
         const scope = nock("https://api-proxy.pipedrive.com");
 
         scope
           .get("/persons/find?term=pipedrive_user_1@hull.com&search_by_email=1")
-          .reply(200, require("./fixtures/pipedrive/person_lookup_found_result"));
+          .reply(200, require("./fixtures/pipedrive/person_lookup_no_result"));
 
         scope
-          .intercept("/persons/827", "PUT")
+          .post("/persons")
           .reply(201, require("./fixtures/pipedrive/user_response"));
 
         return scope;
       },
       response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
       logs: [
-        [
-          "info",
-          "outgoing.job.start",
-          {
-            "request_id": expect.whatever()
-          },
-          {
-            "jobName": "Outgoing Data",
-            "type": "user"
-          }
-        ],
-        [
-          "debug",
-          "connector.service_api.call",
-          {
-            "request_id": expect.whatever()
-          },
-          {
-            "responseTime": expect.whatever(),
-            "method": "GET",
-            "url": "/persons/find",
-            "status": 200,
-            "vars": {}
-          }
-        ],
-        [
-          "debug",
-          "connector.service_api.call",
-          {
-            "request_id": expect.whatever()
-          },
-          {
-            "responseTime": expect.whatever(),
-            "method": "PUT",
-            "url": "/persons/827",
-            "status": 201,
-            "vars": {}
-          }
-        ],
-        [
-          "info",
-          "outgoing.user.success",
-          {
-            "subject_type": "user",
-            "request_id": expect.whatever(),
-            "user_id": "5bd329d5e2bcf3eeaf000099",
-            "user_email": "pipedrive_user_1@hull.com"
-          },
+        ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "user" }],
+        ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+          { "responseTime": expect.whatever(), "method": "GET", "url": "/persons/find", "status": 200, "vars": {} }],
+        ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+          { "responseTime": expect.whatever(), "method": "POST", "url": "/persons", "status": 201, "vars": {} }],
+        ["info", "outgoing.user.success", { "subject_type": "user", "request_id": expect.whatever(), "user_id": "5bd329d5e2bcf3eeaf000099", "user_email": "pipedrive_user_1@hull.com" },
           {
             "data": {
               "address": "1234 Hull Pl",
               "email": ["pipedrive_user_1@hull.com"],
               "name": "pipedrive_user_1"
             },
-            "type": "Person",
-            "operation": "put"
+            "type": "Person"
           }
         ],
-        [
-          "info",
-          "incoming.user.success",
-          {
-            "subject_type": "user",
-            "request_id": expect.whatever(),
-            "user_email": "pipedrive_user_1@hull.com",
-            "user_anonymous_id": "pipedrive:827"
-          },
+        ["info", "incoming.user.success", { "subject_type": "user", "request_id": expect.whatever(), "user_email": "pipedrive_user_1@hull.com", "user_anonymous_id": "pipedrive:827"},
           {
             "data": {
               "id": 827,
@@ -181,15 +176,11 @@ it("Update Single User To Pipedrive With Successful Lookup", () => {
       firehoseEvents: [
         [
           "traits",
-          {
-            "asUser": {
-              "email": "pipedrive_user_1@hull.com",
-              "anonymous_id": "pipedrive:827"
-            },
-            "subjectType": "user"
+          { "asUser": {
+            "email": "pipedrive_user_1@hull.com", "anonymous_id": "pipedrive:827"
+            }, "subjectType": "user"
           },
-          { "pipedrive/id": { "value": 827, "operation": "set" } }
-        ]
+          { "pipedrive/id": { "value": 827, "operation": "set" } }]
       ],
       metrics:   [
         ["increment", "connector.request", 1,],
