@@ -19,7 +19,7 @@
       "refresh_token": "abcd",
       "account_claims": [
         {
-          "hull": "name",
+          "hull": "domain",
           "service": "name"
         }
       ],
@@ -29,8 +29,8 @@
           "service": "address"
         },
         {
-          "hull": "hull_name",
-          "service": "name"
+          "hull": "pipedrive/department",
+          "service": "department"
         }
       ],
       "synchronized_user_segments": [],

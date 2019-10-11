@@ -18,7 +18,7 @@ const {
 const {
   PipedrivePersonRead,
   PipedriveOrgRead,
-  PipeDriveAttributeDefinition
+  PipedriveAttributeDefinition
 } = require("./service-objects");
 
 /**
@@ -28,13 +28,13 @@ const {
  */
 const transformsToHull: ServiceTransforms = [
   {
-    input: PipeDriveAttributeDefinition,
+    input: PipedriveAttributeDefinition,
     output: HullConnectorAttributeDefinition,
     strategy: "Jsonata",
     direction: "incoming",
     batchTransform: true,
     transforms: [
-      `$.{"type": field_type, "name": key, "display": name, "readOnly": edit_flag}`
+      `$.data.{ "type" : field_type, "name": key, "display": name, "readOnly": $not(bulk_edit_allowed) }`
     ]
   },
   {
@@ -44,6 +44,14 @@ const transformsToHull: ServiceTransforms = [
     arrayStrategy: "append_index",
     direction: "incoming",
     transforms: [
+      { inputPath: "id", outputPath: "ident.anonymous_id", outputFormat: "pipedrive:${value}" },
+      {
+        arrayStrategy: "pick_first",
+        condition: doesContain(["email"], "service_field_name"),
+        mapping: "connector.private_settings.user_claims",
+        inputPath: "${service_field_name}",
+        outputPath: "ident.${hull_field_name}",
+      },
       {
         mapping: { type: "input" },
         inputPath: "${service_field_name}",
@@ -85,9 +93,9 @@ const transformsToHull: ServiceTransforms = [
         outputFormat: "${value.value}"
       },
       {
+        mapping: { type: "input", path: "current" },
         inputPath: "current.org_id",
         outputPath: "hull_service_accountId",
-        outputFormat: "${value.value}"
       },
       {
         condition: "createdByWebhook",
@@ -107,7 +115,8 @@ const transformsToHull: ServiceTransforms = [
     direction: "incoming",
     transforms: [
       { inputPath: "id", outputPath: "ident.anonymous_id", outputFormat: "pipedrive:${value}" },
-      { inputPath: "id", outputPath: "attributes.pipedrive/id",
+      { inputPath: "id",
+        outputPath: "attributes.pipedrive/id",
         outputFormat: {
           value: "${value}",
           operation: "set"
@@ -115,8 +124,7 @@ const transformsToHull: ServiceTransforms = [
       },
       {
         mapping: "connector.private_settings.incoming_account_attributes",
-        condition: doesNotContain(["owner_id"], "service_field_name"),
-        inputPath: "${service_field_name}",
+        inputPath: "attributes.${service_field_name}",
         outputPath: "attributes.${hull_field_name}",
         outputFormat: {
           value: "${value}",
@@ -125,10 +133,9 @@ const transformsToHull: ServiceTransforms = [
       },
       {
         mapping: "connector.private_settings.account_claims",
-        condition: doesNotContain(["owner_id"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "ident.${hull_field_name}",
-      }
+      },
     ]
   },
   {
@@ -147,19 +154,12 @@ const transformsToHull: ServiceTransforms = [
       },
       {
         mapping: "connector.private_settings.incoming_account_attributes",
-        condition: doesNotContain(["owner_id"], "service_field_name"),
         inputPath: "current.${service_field_name}",
         outputPath: "attributes.${hull_field_name}",
         outputFormat: {
           value: "${value}",
           operation: "set"
         }
-      },
-      {
-        mapping: "connector.private_settings.account_claims",
-        condition: doesNotContain(["owner_id"], "service_field_name"),
-        inputPath: "current.${service_field_name}",
-        outputPath: "ident.${hull_field_name}",
       }
     ]
   }

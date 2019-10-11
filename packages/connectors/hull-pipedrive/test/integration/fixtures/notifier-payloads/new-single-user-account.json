@@ -20,7 +20,7 @@
       ],
       "account_claims": [
         {
-          "hull": "name",
+          "hull": "domain",
           "service": "name"
         }
       ],
@@ -35,7 +35,12 @@
           "service": "name"
         }
       ],
-      "incoming_user_attributes": [],
+      "incoming_user_attributes": [
+        {
+          "hull": "pipedrive/description",
+          "service": "4f9ab746d362cdbce1344c14eec9eb2b26ef484b"
+        }
+      ],
       "token_created_at": 1544104207,
       "access_token": "1234",
       "refresh_token": "abcd",
@@ -101,7 +106,7 @@
       "user": {
         "id": "5bd329d5e2bcf3eeaf000099",
         "name": "pipedrive_user_1",
-        "email": "andy@hull.com",
+        "email": "pipedrive_user_1@hull.com",
         "address": "1234 Hull Pl"
       },
       "account_segments": [

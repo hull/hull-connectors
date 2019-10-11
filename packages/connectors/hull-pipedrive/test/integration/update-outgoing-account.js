@@ -63,12 +63,13 @@ it("Update Single Account To Pipedrive", () => {
           {
             "subject_type": "account",
             "request_id": expect.whatever(),
-            "account_id": "account_id_1",
-            "account_domain": "apple.com"
+            "account_domain": "apple.com",
+            "account_id": "account_id_1"
           },
           {
             "data": {
-              "address": "123 Random Pl"
+              "address": "123 Random Pl",
+              "name": "apple.com"
             },
             "type": "Org",
             "operation": "put"
@@ -80,7 +81,7 @@ it("Update Single Account To Pipedrive", () => {
           {
             "subject_type": "account",
             "request_id": expect.whatever(),
-            "account_id": "alIncorporated",
+            "account_domain": "apple.com",
             "account_anonymous_id": "pipedrive:3"
           },
           {
@@ -96,7 +97,7 @@ it("Update Single Account To Pipedrive", () => {
                 "active_flag": true,
                 "value": 10358676
               },
-              "name": "alIncorporated",
+              "name": "apple.com",
               "open_deals_count": 0,
               "related_open_deals_count": 0,
               "closed_deals_count": 0,
@@ -163,7 +164,7 @@ it("Update Single Account To Pipedrive", () => {
           "traits",
           {
             "asAccount": {
-              "id": "alIncorporated",
+              "domain": "apple.com",
               "anonymous_id": "pipedrive:3"
             },
             "subjectType": "account"

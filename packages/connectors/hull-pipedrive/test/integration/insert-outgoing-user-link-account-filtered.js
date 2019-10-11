@@ -44,7 +44,12 @@ it("Insert Single User To Pipedrive Filter Linked Account", () => {
               "service": "name"
             }
           ],
-          "incoming_user_attributes": [],
+          "incoming_user_attributes": [
+            {
+              "hull": "pipedrive/description",
+              "service": "4f9ab746d362cdbce1344c14eec9eb2b26ef484b"
+            }
+          ],
           "token_created_at": 1544104207,
           "access_token": "1234",
           "refresh_token": "abcd",
@@ -85,7 +90,7 @@ it("Insert Single User To Pipedrive Filter Linked Account", () => {
         const scope = nock("https://api-proxy.pipedrive.com");
 
         scope
-          .get("/persons/find?term=andy@hull.com&search_by_email=1")
+          .get("/persons/find?term=pipedrive_user_1@hull.com&search_by_email=1")
           .reply(200, require("./fixtures/pipedrive/person_lookup_no_result"));
 
         scope
@@ -100,10 +105,10 @@ it("Insert Single User To Pipedrive Filter Linked Account", () => {
         ["debug", "connector.service_api.call", { "request_id": expect.whatever() }, { "responseTime": expect.whatever(), "method": "GET", "url": "/persons/find", "status": 200, "vars": {} }],
         ["debug", "connector.service_api.call", { "request_id": expect.whatever() }, { "responseTime": expect.whatever(), "method": "POST", "url": "/persons", "status": 201, "vars": {} }],
         ["info", "outgoing.user.success",
-          { "subject_type": "user", "request_id": expect.whatever(), "user_id": "5bd329d5e2bcf3eeaf000099", "user_email": "andy@hull.com" },
-          { "data": { "address": "1234 Hull Pl", "name": "pipedrive_user_1" }, "type": "Person", "operation": "post" }
+          { "subject_type": "user", "request_id": expect.whatever(), "user_id": "5bd329d5e2bcf3eeaf000099", "user_email": "pipedrive_user_1@hull.com" },
+          { "data": { "address": "1234 Hull Pl", "email": ["pipedrive_user_1@hull.com"], "name": "pipedrive_user_1" }, "type": "Person", "operation": "post" }
         ],
-        ["info", "incoming.user.success", { "subject_type": "user", "request_id": expect.whatever(), "user_email": "andy@hull.com", "user_anonymous_id": "pipedrive:827" },
+        ["info", "incoming.user.success", { "subject_type": "user", "request_id": expect.whatever(), "user_email": "pipedrive_user_1@hull.com", "user_anonymous_id": "pipedrive:827" },
           { "data": {
               "id": 827,
               "company_id": 7009148,
@@ -117,6 +122,7 @@ it("Insert Single User To Pipedrive Filter Linked Account", () => {
                 "value": 10475878
               },
               "org_id": null,
+              "4f9ab746d362cdbce1344c14eec9eb2b26ef484b": "New Contact",
               "name": "pipedrive_user_1",
               "first_name": "pipedrive_user_1",
               "last_name": null,
@@ -148,7 +154,7 @@ it("Insert Single User To Pipedrive Filter Linked Account", () => {
               "email": [
                 {
                   "label": "",
-                  "value": "andy@hull.com",
+                  "value": "pipedrive_user_1@hull.com",
                   "primary": true
                 }
               ],
@@ -175,7 +181,10 @@ it("Insert Single User To Pipedrive Filter Linked Account", () => {
         ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "user" }]
       ],
       firehoseEvents: [
-        ["traits", { "asUser": { "email": "andy@hull.com", "anonymous_id": "pipedrive:827" }, "subjectType": "user" }, { "pipedrive/id": { "value": 827, "operation": "set" } }]
+        ["traits",
+          { "asUser": { "email": "pipedrive_user_1@hull.com", "anonymous_id": "pipedrive:827" }, "subjectType": "user" },
+          { "pipedrive/id": { "value": 827, "operation": "set" },
+            "pipedrive/description": { "value": "New Contact", "operation": "set" } }]
       ],
       metrics:   [
         ["increment", "connector.request", 1,],

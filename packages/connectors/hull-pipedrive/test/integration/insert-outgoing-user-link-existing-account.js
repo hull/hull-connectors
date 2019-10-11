@@ -7,58 +7,63 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../server/config";
 
 
-it("Batch - Insert Single User To Pipedrive", () => {
+it("Insert Single User To Pipedrive Link Existing Pipedrive Account", () => {
+  const userResponse = _.cloneDeep(require("./fixtures/pipedrive/user_response"));
+  _.set(userResponse, "data.org_id", 3);
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
-    const updateMessages = require("./fixtures/notifier-payloads/new-single-user");
+    const updateMessages = require("./fixtures/notifier-payloads/new-single-user-account");
     return _.assign(updateMessages, {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
       channel: "user:update",
-      is_export: true,
-      connector: {
-        "description": "some",
-        "tags": [],
-        "source_url": "https://dev-hull-pipedrive.ngrok.io/",
-        "private_settings": {
-          "webhook_id_person": 11111,
-          "user_claims": [
+      messages: [
+        {
+          "changes": {
+            "is_new": false,
+            "account": {},
+            "user": {
+              "address": [
+                "123 Pl",
+                "1234 Hull Pl"
+              ]
+            },
+            "account_segments": {}
+          },
+          "account": {
+            "id": "account_id_2",
+            "account_name": "Apple",
+            "account_address": "1 Atlanta Dr",
+            "domain": "apple.com",
+            "pipedrive/id": 3,
+            "anonymous_ids": []
+          },
+          "user": {
+            "id": "5bd329d5e2bcf3eeaf000099",
+            "name": "pipedrive_user_1",
+            "email": "pipedrive_user_1@hull.com",
+            "address": "1234 Hull Pl"
+          },
+          "account_segments": [
             {
-              "hull": "email",
-              "service": "email"
+              "id": "AccountSegment1",
+              "name": "AccountSegment1",
+              "updated_at": "2018-12-09T12:05:12Z",
+              "type": "accounts_segment",
+              "created_at": "2018-10-29T14:58:34Z"
             }
           ],
-          "token_expires_in": 7200,
-          "outgoing_user_attributes": [
+          "segments": [
             {
-              "hull": "address",
-              "service": "address"
+              "id": "UserSegment1",
+              "name": "UserSegment1",
+              "updated_at": "2018-12-09T12:05:12Z",
+              "type": "users_segment",
+              "created_at": "2018-10-29T14:58:34Z"
             }
           ],
-          "incoming_user_attributes": [],
-          "token_created_at": 1544104207,
-          "access_token": "1234",
-          "refresh_token": "abcd",
-          "account_claims": [],
-          "outgoing_account_attributes": [],
-          "synchronized_user_segments": ["random_segment"],
-          "synchronized_account_segments": [],
-          "incoming_account_attributes": [],
-          "created_at": 1544269649
-        },
-        "index": "https://dev-hull-outreach.ngrok.io/",
-        "name": "pipedrive",
-        "extra": {},
-        "settings": {},
-        "type": "ship",
-        "secret": "shhh",
-        "updated_at": "2018-12-09T11:20:32Z",
-        "status": {},
-        "id": "123456789012345678901234",
-        "picture": "",
-        "homepage_url": "",
-        "manifest_url": "",
-        "created_at": "2018-12-06T13:49:58Z"
-      },
+          "message_id": "message_1"
+        }
+      ],
       externalApiMock: () => {
         const scope = nock("https://api-proxy.pipedrive.com");
 
@@ -68,29 +73,82 @@ it("Batch - Insert Single User To Pipedrive", () => {
 
         scope
           .post("/persons")
-          .reply(201, require("./fixtures/pipedrive/user_response"));
+          .reply(201, userResponse);
 
         return scope;
       },
       response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
       logs: [
-        ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "user" }],
-        ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
-          { "responseTime": expect.whatever(), "method": "GET", "url": "/persons/find", "status": 200, "vars": {} }],
-        ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
-          { "responseTime": expect.whatever(), "method": "POST", "url": "/persons", "status": 201, "vars": {} }],
-        ["info", "outgoing.user.success", { "subject_type": "user", "request_id": expect.whatever(), "user_id": "5bd329d5e2bcf3eeaf000099", "user_email": "pipedrive_user_1@hull.com" },
+        [
+          "info",
+          "outgoing.job.start",
+          {
+            "request_id": expect.whatever()
+          },
+          {
+            "jobName": "Outgoing Data",
+            "type": "user"
+          }
+        ],
+        [
+          "debug",
+          "connector.service_api.call",
+          {
+            "request_id": expect.whatever()
+          },
+          {
+            "responseTime": expect.whatever(),
+            "method": "GET",
+            "url": "/persons/find",
+            "status": 200,
+            "vars": {}
+          }
+        ],
+        [
+          "debug",
+          "connector.service_api.call",
+          {
+            "request_id": expect.whatever()
+          },
+          {
+            "responseTime": expect.whatever(),
+            "method": "POST",
+            "url": "/persons",
+            "status": 201,
+            "vars": {}
+          }
+        ],
+        [
+          "info",
+          "outgoing.user.success",
+          {
+            "subject_type": "user",
+            "request_id": expect.whatever(),
+            "user_id": "5bd329d5e2bcf3eeaf000099",
+            "user_email": "pipedrive_user_1@hull.com"
+          },
           {
             "data": {
+              "name": "pipedrive_user_1",
+              "email": [
+                "pipedrive_user_1@hull.com"
+              ],
               "address": "1234 Hull Pl",
-              "email": ["pipedrive_user_1@hull.com"],
-              "name": "pipedrive_user_1"
+              "org_id": 3
             },
             "type": "Person",
             "operation": "post"
           }
         ],
-        ["info", "incoming.user.success", { "subject_type": "user", "request_id": expect.whatever(), "user_email": "pipedrive_user_1@hull.com", "user_anonymous_id": "pipedrive:827"},
+        [
+          "info",
+          "incoming.user.success",
+          {
+            "subject_type": "user",
+            "request_id": expect.whatever(),
+            "user_email": "pipedrive_user_1@hull.com",
+            "user_anonymous_id": "pipedrive:827"
+          },
           {
             "data": {
               "id": 827,
@@ -104,8 +162,7 @@ it("Batch - Insert Single User To Pipedrive", () => {
                 "active_flag": true,
                 "value": 10475878
               },
-              "4f9ab746d362cdbce1344c14eec9eb2b26ef484b": "New Contact",
-              "org_id": null,
+              "org_id": 3,
               "name": "pipedrive_user_1",
               "first_name": "pipedrive_user_1",
               "last_name": null,
@@ -142,6 +199,7 @@ it("Batch - Insert Single User To Pipedrive", () => {
                 }
               ],
               "first_char": "p",
+              "4f9ab746d362cdbce1344c14eec9eb2b26ef484b": "New Contact",
               "update_time": "2019-10-01 16:04:44",
               "add_time": "2019-10-01 16:04:44",
               "visible_to": "3",
@@ -174,14 +232,9 @@ it("Batch - Insert Single User To Pipedrive", () => {
         ]
       ],
       firehoseEvents: [
-        [
-          "traits",
-          { "asUser": {
-            "email": "pipedrive_user_1@hull.com", "anonymous_id": "pipedrive:827"
-            }, "subjectType": "user"
-          },
+        ["traits", { "asUser": { "email": "pipedrive_user_1@hull.com", "anonymous_id": "pipedrive:827" }, "subjectType": "user" },
           { "pipedrive/id": { "value": 827, "operation": "set" },
-            "pipedrive/description": { "value": "New Contact", "operation": "set" } }]
+          "pipedrive/description": { "value": "New Contact", "operation": "set" } }]
       ],
       metrics:   [
         ["increment", "connector.request", 1,],

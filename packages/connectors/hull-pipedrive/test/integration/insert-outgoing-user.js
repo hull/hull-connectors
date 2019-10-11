@@ -18,7 +18,7 @@ it("Insert Single User To Pipedrive", () => {
         const scope = nock("https://api-proxy.pipedrive.com");
 
         scope
-          .get("/persons/find?term=andy@hull.com&search_by_email=1")
+          .get("/persons/find?term=pipedrive_user_1@hull.com&search_by_email=1")
           .reply(200, require("./fixtures/pipedrive/person_lookup_no_result"));
 
         scope
@@ -34,17 +34,18 @@ it("Insert Single User To Pipedrive", () => {
           { "responseTime": expect.whatever(), "method": "GET", "url": "/persons/find", "status": 200, "vars": {} }],
         ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
           { "responseTime": expect.whatever(), "method": "POST", "url": "/persons", "status": 201, "vars": {} }],
-        ["info", "outgoing.user.success", { "subject_type": "user", "request_id": expect.whatever(), "user_id": "5bd329d5e2bcf3eeaf000099", "user_email": "andy@hull.com" },
+        ["info", "outgoing.user.success", { "subject_type": "user", "request_id": expect.whatever(), "user_id": "5bd329d5e2bcf3eeaf000099", "user_email": "pipedrive_user_1@hull.com" },
           {
             "data": {
               "address": "1234 Hull Pl",
+              "email": ["pipedrive_user_1@hull.com"],
               "name": "pipedrive_user_1"
             },
             "type": "Person",
             "operation": "post"
           }
         ],
-        ["info", "incoming.user.success", { "subject_type": "user", "request_id": expect.whatever(), "user_email": "andy@hull.com", "user_anonymous_id": "pipedrive:827"},
+        ["info", "incoming.user.success", { "subject_type": "user", "request_id": expect.whatever(), "user_email": "pipedrive_user_1@hull.com", "user_anonymous_id": "pipedrive:827"},
           {
             "data": {
               "id": 827,
@@ -90,11 +91,12 @@ it("Insert Single User To Pipedrive", () => {
               "email": [
                 {
                   "label": "",
-                  "value": "andy@hull.com",
+                  "value": "pipedrive_user_1@hull.com",
                   "primary": true
                 }
               ],
               "first_char": "p",
+              "4f9ab746d362cdbce1344c14eec9eb2b26ef484b": "New Contact",
               "update_time": "2019-10-01 16:04:44",
               "add_time": "2019-10-01 16:04:44",
               "visible_to": "3",
@@ -114,24 +116,17 @@ it("Insert Single User To Pipedrive", () => {
             "type": "Person"
           }
         ],
-        [
-          "info",
-          "outgoing.job.success",
-          {
-            "request_id": expect.whatever()
-          },
-          {
-            "jobName": "Outgoing Data",
-            "type": "user"
-          }
-        ]
+        ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "user" }]
       ],
       firehoseEvents: [
         [
           "traits",
-          { "asUser": {
-            "email": "andy@hull.com", "anonymous_id": "pipedrive:827"
-            }, "subjectType": "user"
+          { "asUser":
+              {
+                "email": "pipedrive_user_1@hull.com",
+                "anonymous_id": "pipedrive:827"
+              },
+            "subjectType": "user"
           },
           { "pipedrive/id": { "value": 827, "operation": "set" } }]
       ],

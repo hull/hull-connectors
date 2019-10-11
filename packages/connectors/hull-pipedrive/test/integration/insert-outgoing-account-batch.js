@@ -7,7 +7,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../server/config";
 
 
-it("Insert Single Account To Pipedrive", () => {
+it("Batch - Insert Single Account To Pipedrive", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = require("./fixtures/notifier-payloads/new-single-account");
     return _.assign(updateMessages, {
@@ -29,7 +29,7 @@ it("Insert Single Account To Pipedrive", () => {
           "refresh_token": "abcd",
           "account_claims": [
             {
-              "hull": "name",
+              "hull": "domain",
               "service": "name"
             }
           ],
@@ -39,8 +39,8 @@ it("Insert Single Account To Pipedrive", () => {
               "service": "address"
             },
             {
-              "hull": "hull_name",
-              "service": "name"
+              "hull": "pipedrive/department",
+              "service": "department"
             }
           ],
           "synchronized_user_segments": [],
@@ -75,13 +75,58 @@ it("Insert Single Account To Pipedrive", () => {
       },
       response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
       logs: [
-        ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }],
-        ["debug", "connector.service_api.call", { "request_id": expect.whatever() }, { "responseTime": expect.whatever(), "method": "POST", "url": "/organizations", "status": 201, "vars": {} }],
-        ["info", "outgoing.account.success",
-          { "subject_type": "account", "request_id": expect.whatever(), "account_id": "account_id_2", "account_domain": "apple.com" },
-          { "data": { "address": "123 Random Pl" }, "type": "Org", "operation": "post" }],
-        ["info", "incoming.account.success",
-          { "subject_type": "account", "request_id": expect.whatever(), "account_anonymous_id": "pipedrive:3" },
+        [
+          "info",
+          "outgoing.job.start",
+          {
+            "request_id": expect.whatever()
+          },
+          {
+            "jobName": "Outgoing Data",
+            "type": "account"
+          }
+        ],
+        [
+          "debug",
+          "connector.service_api.call",
+          {
+            "request_id": expect.whatever()
+          },
+          {
+            "responseTime": expect.whatever(),
+            "method": "POST",
+            "url": "/organizations",
+            "status": 201,
+            "vars": {}
+          }
+        ],
+        [
+          "info",
+          "outgoing.account.success",
+          {
+            "subject_type": "account",
+            "request_id": expect.whatever(),
+            "account_id": "account_id_2",
+            "account_domain": "apple.com"
+          },
+          {
+            "data": {
+              "name": "apple.com",
+              "address": "123 Random Pl"
+            },
+            "type": "Org",
+            "operation": "post"
+          }
+        ],
+        [
+          "info",
+          "incoming.account.success",
+          {
+            "subject_type": "account",
+            "request_id": expect.whatever(),
+            "account_domain": "apple.com",
+            "account_anonymous_id": "pipedrive:3"
+          },
           {
             "data": {
               "id": 3,
@@ -95,7 +140,7 @@ it("Insert Single Account To Pipedrive", () => {
                 "active_flag": true,
                 "value": 10358676
               },
-              "name": "alIncorporated",
+              "name": "apple.com",
               "open_deals_count": 0,
               "related_open_deals_count": 0,
               "closed_deals_count": 0,
@@ -145,11 +190,21 @@ it("Insert Single Account To Pipedrive", () => {
             "type": "Org"
           }
         ],
-        ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }]
+        [
+          "info",
+          "outgoing.job.success",
+          {
+            "request_id": expect.whatever()
+          },
+          {
+            "jobName": "Outgoing Data",
+            "type": "account"
+          }
+        ]
       ],
       firehoseEvents: [
         ["traits",
-          { "asAccount": { "anonymous_id": "pipedrive:3" }, "subjectType": "account" },
+          { "asAccount": { "anonymous_id": "pipedrive:3", "domain": "apple.com", }, "subjectType": "account" },
           { "pipedrive/id": { "value": 3, "operation": "set" } }]
       ],
       metrics:   [

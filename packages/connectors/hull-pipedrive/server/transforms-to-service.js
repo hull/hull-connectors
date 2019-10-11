@@ -15,6 +15,11 @@ const transformsToService: ServiceTransforms = [
     direction: "outgoing",
     transforms: [
       {
+        mapping: "connector.private_settings.account_claims",
+        inputPath: "account.${hull_field_name}",
+        outputPath: "${service_field_name}",
+      },
+      {
         mapping: "connector.private_settings.outgoing_account_attributes",
         inputPath: "account.${hull_field_name}",
         outputPath: "${service_field_name}",
@@ -25,24 +30,34 @@ const transformsToService: ServiceTransforms = [
     input: HullOutgoingUser,
     output: PipedrivePersonWrite,
     strategy: "PropertyKeyedValue",
-    arrayStrategy: "append_index",
+    arrayStrategy: "send_raw_array",
     direction: "outgoing",
     transforms: [
       { inputPath: "user.name",
         outputPath: "name" },
       {
+        mapping: "connector.private_settings.user_claims",
+        outputArrayFields: {
+          checkField: "service_field_name",
+          fields: ["email"]
+        },
+        inputPath: "user.${hull_field_name}",
+        outputPath: "${service_field_name}",
+      },
+      {
         mapping: "connector.private_settings.outgoing_user_attributes",
         condition: doesNotContain(["hull_service_accountId"], "service_field_name"),
-        inputPath: "user.${service_field_name}",
+        outputArrayFields: {
+          checkField: "service_field_name",
+          fields: ["email", "phone"]
+        },
+        inputPath: "user.${hull_field_name}",
         outputPath: "${service_field_name}"
       },
       {
-        inputPath: "hull_service_accountId",
-        outputPath: "org_id"
-      },
-      {
-        inputPath: "${accountId}",
-        outputPath: "org_id"
+        condition: "accountId",
+        outputPath: "org_id",
+        outputFormat: "${accountId}",
       }
     ]
   }

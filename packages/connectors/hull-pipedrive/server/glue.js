@@ -1,6 +1,6 @@
 /* @flow */
 
-import { PipedrivePersonRead, PipedriveOrgRead } from "./service-objects";
+import { PipedrivePersonRead, PipedriveOrgRead, PipedriveAttributeDefinition } from "./service-objects";
 
 const {
   ifL,
@@ -41,7 +41,6 @@ const {
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const _ = require("lodash");
-const { orgFields, personFields } = require("./fielddefs");
 
 function pipedrive(op: string, param?: any): Svc { return new Svc({ name: "pipedrive", op }, param) }
 
@@ -79,17 +78,24 @@ const glue = {
       set("webhookUrl", utils("createWebhookUrl")),
       set("existingWebhooks", pipedrive("getAllWebhooks")),
       set("samePersonWebhook", filter({ subscription_url: "${webhookUrl}", event_object: "person" }, "${existingWebhooks}")),
-      set("sameOrgWebhook", filter({ subscription_url: "${webhookUrl}", event_object: "organization" }, "${existingWebhooks}")),
       ifL("${samePersonWebhook[0]}", {
         do: set("webhookIdPerson", "${samePersonWebhook[0].id}"),
         eldo: set("webhookIdPerson", get("data.id", pipedrive("insertWebhook", webhookPersonTemplate))),
       }),
+      settingsUpdate({
+        webhook_id_person: "${webhookIdPerson}",
+      }),
+      ifL(not(cond("isEmpty", "${connector.private_settings.webhook_id_org}")), route("deleteBadWebhooks")),
+    ])),
+    ifL(settings("access_token"), ifL(cond("isEmpty", "${connector.private_settings.webhook_id_org}"), [
+      set("webhookUrl", utils("createWebhookUrl")),
+      set("existingWebhooks", pipedrive("getAllWebhooks")),
+      set("sameOrgWebhook", filter({ subscription_url: "${webhookUrl}", event_object: "organization" }, "${existingWebhooks}")),
       ifL("${sameOrgWebhook[0]}", {
         do: set("webhookIdOrg", "${sameOrgWebhook[0].id}"),
         eldo: set("webhookIdOrg", get("data.id", pipedrive("insertWebhook", webhookOrgTemplate)))
       }),
       settingsUpdate({
-        webhook_id_person: "${webhookIdPerson}",
         webhook_id_org: "${webhookIdOrg}"
       }),
       route("deleteBadWebhooks")
@@ -122,8 +128,8 @@ const glue = {
           set("accountId", input("account.pipedrive/id")),
           set("accountId", cacheGet(input("account.id")))
         ]), {
-          do: route("updateAccount"),
-          eldo: route("insertAccount")
+          do: route("updateOrg"),
+          eldo: route("insertOrg")
         }
       )
     ),
@@ -140,14 +146,14 @@ const glue = {
         ]
       )
     ),
-  insertAccount:
-    ifL(cond("notEmpty", set("accountFromPipedrive", pipedrive("insertAccount", input()))), [
+  insertOrg:
+    ifL(cond("notEmpty", set("accountFromPipedrive", pipedrive("insertOrg", input()))), [
       cacheSet({ key: input("account.id") }, "${accountFromPipedrive.id}"),
       hull("asAccount", "${accountFromPipedrive}")
     ]),
 
-  updateAccount:
-    ifL(cond("notEmpty", set("accountFromPipedrive", pipedrive("updateAccount", input()))),
+  updateOrg:
+    ifL(cond("notEmpty", set("accountFromPipedrive", pipedrive("updateOrg", input()))),
       hull("asAccount", "${accountFromPipedrive}")
     ),
   fetchAll: [
@@ -182,22 +188,51 @@ const glue = {
   ],
   webhooks: ifL(input("body"), route("handleWebhook", cast(WebPayload, input("body")))),
   handleWebhook:
-    ifL(cond("isEqual", "organization", input("meta.object")), {
-      do: hull("asAccount", input()),
-      eldo:
-        ifL(cond("isEqual", "person", input("meta.object")), [
+    ifL(cond("isEqual", input("meta.action"), "deleted"), {
+      do: [
+        ifL(or([
+            cond("isEqual", "${connector.private_settings.support_account_deletion}", true),
+            cond("isEqual", "${connector.private_settings.support_user_deletion}", true),
+          ]), [
+            set("pipedriveId", input("meta.id")),
+            set("deletedAt", input("meta.timestamp")),
+            set("deletedEntity", {
+              ident: {
+                anonymous_id: "pipedrive:${pipedriveId}"
+              },
+              attributes: {
+                "pipedrive/id": null,
+                "pipedrive/deleted_at": "${deletedAt}"
+              }
+            })
+          ]
+        ),
+        ifL([
+            cond("isEqual", input("meta.object"), "person"),
+            cond("isEqual", "${connector.private_settings.support_user_deletion}", true)
+          ],
+          hull("asUser", "${deletedEntity}")),
+        ifL([
+            cond("isEqual", input("meta.object"), "organization"),
+            cond("isEqual", "${connector.private_settings.support_account_deletion}", true)
+          ],
+          hull("asUser", "${deletedEntity}"))
+      ],
+      eldo: [
+        ifL(cond("isEqual", input("meta.object"), "person"), [
           ifL(cond("isEqual", "added", input("meta.action")),
-            set("createdByWebhook", true)
-          ),
+            set("createdByWebhook", true)),
           hull("asUser", input())
-        ])
+        ]),
+        ifL(cond("isEqual", input("meta.object"), "organization"),
+          hull("asAccount", input())
+        )
+      ]
     }),
-  getOrgFields: pipedrive("getOrgFields"),
-  getPersonFields: pipedrive("getPersonFields"),
-  fieldsPipedrivePersonInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, personFields)),
-  fieldsPipedrivePersonOutbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, personFields)),
-  fieldsPipedriveOrgInbound: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, orgFields)),
-  fieldsPipedriveAccountOutbound: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, orgFields)),
+  fieldsPipedrivePersonInbound: transformTo(HullIncomingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getPersonFields"))),
+  fieldsPipedrivePersonOutbound: transformTo(HullOutgoingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getPersonFields"))),
+  fieldsPipedriveOrgInbound: transformTo(HullIncomingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getOrgFields"))),
+  fieldsPipedriveAccountOutbound: transformTo(HullOutgoingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getOrgFields"))),
   refreshToken:
     ifL(cond("notEmpty", "${connector.private_settings.refresh_token}"), [
       set("connectorHostname", utils("getConnectorHostname")),
@@ -237,18 +272,18 @@ const glue = {
           set("userId", input("user.pipedrive/id")),
           set("userId", cacheGet(input("user.id")))
         ]), {
-          do: route("updateUser"),
+          do: route("updatePerson"),
           eldo: [
             route("personLookup"),
             ifL(cond("isEmpty", "${userId}"), {
               do: route("insertUser"),
-              eldo: route("updateUser")
+              eldo: route("updatePerson")
             })
           ]
         }
       )
     ),
-  updateUser:
+  updatePerson:
     ifL(cond("notEmpty", set("personFromPipedrive", pipedrive("updatePerson", input()))),
       hull("asUser", "${personFromPipedrive}")
     ),

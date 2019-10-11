@@ -24,14 +24,14 @@ const oauth2 = {
       return {
         status: 200,
         data: {
-          message: "Connected to Outreach"
+          message: "Connected"
         }
       };
     }
     return {
       status: 400,
       data: {
-        message: "Please authenticate with Outreach"
+        message: "Please authenticate"
       }
     };
   },

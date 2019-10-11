@@ -7,7 +7,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../server/config";
 
 
-it("Update Single User To Pipedrive", () => {
+it("Update Single User To Pipedrive With Successful Lookup", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = require("./fixtures/notifier-payloads/new-single-user");
     return _.assign(updateMessages, {
@@ -18,7 +18,7 @@ it("Update Single User To Pipedrive", () => {
         const scope = nock("https://api-proxy.pipedrive.com");
 
         scope
-          .get("/persons/find?term=andy@hull.com&search_by_email=1")
+          .get("/persons/find?term=pipedrive_user_1@hull.com&search_by_email=1")
           .reply(200, require("./fixtures/pipedrive/person_lookup_found_result"));
 
         scope
@@ -75,11 +75,12 @@ it("Update Single User To Pipedrive", () => {
             "subject_type": "user",
             "request_id": expect.whatever(),
             "user_id": "5bd329d5e2bcf3eeaf000099",
-            "user_email": "andy@hull.com"
+            "user_email": "pipedrive_user_1@hull.com"
           },
           {
             "data": {
               "address": "1234 Hull Pl",
+              "email": ["pipedrive_user_1@hull.com"],
               "name": "pipedrive_user_1"
             },
             "type": "Person",
@@ -92,7 +93,7 @@ it("Update Single User To Pipedrive", () => {
           {
             "subject_type": "user",
             "request_id": expect.whatever(),
-            "user_email": "andy@hull.com",
+            "user_email": "pipedrive_user_1@hull.com",
             "user_anonymous_id": "pipedrive:827"
           },
           {
@@ -108,6 +109,7 @@ it("Update Single User To Pipedrive", () => {
                 "active_flag": true,
                 "value": 10475878
               },
+              "4f9ab746d362cdbce1344c14eec9eb2b26ef484b": "New Contact",
               "org_id": null,
               "name": "pipedrive_user_1",
               "first_name": "pipedrive_user_1",
@@ -140,7 +142,7 @@ it("Update Single User To Pipedrive", () => {
               "email": [
                 {
                   "label": "",
-                  "value": "andy@hull.com",
+                  "value": "pipedrive_user_1@hull.com",
                   "primary": true
                 }
               ],
@@ -181,17 +183,12 @@ it("Update Single User To Pipedrive", () => {
           "traits",
           {
             "asUser": {
-              "email": "andy@hull.com",
+              "email": "pipedrive_user_1@hull.com",
               "anonymous_id": "pipedrive:827"
             },
             "subjectType": "user"
           },
-          {
-            "pipedrive/id": {
-              "value": 827,
-              "operation": "set"
-            }
-          }
+          { "pipedrive/id": { "value": 827, "operation": "set" } }
         ]
       ],
       metrics:   [
