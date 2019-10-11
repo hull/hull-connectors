@@ -1,4 +1,6 @@
 // @flow
+import type { HullEventContext } from "../types";
+
 export type HullElasticContext = {
   browser_major?: string,
   browser_name?: string,
@@ -59,7 +61,7 @@ const group = ({
   referrer_path,
   referrer_url,
   useragent
-}: HullElasticContext = {}) => ({
+}: HullElasticContext = {}): HullEventContext => ({
   useragent,
   device: {
     name: device_name
