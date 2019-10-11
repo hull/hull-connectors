@@ -107,7 +107,7 @@ describe("Outgoing User Segment Filtering Tests", () => {
   });
 
   it("outgoing user deleted in service", () => {
-    const context = new ContextMock({ private_settings: { "ignore_deleted_users": false }});
+    const context = new ContextMock({ private_settings: { synchronized_user_segments: [ "1234" ], "ignore_deleted_users": false }});
     const options = { serviceName: "hubspot" };
     expect(toSendMessage(context,
       "user", { segments: [ ], user: { email: "someuser@gmail.com", "hubspot/deleted_at": "1-1-2019"}, changes: { segments: { entered: [ { id: "1234" }]}} }, options)).toEqual(true);
@@ -160,7 +160,7 @@ describe("Outgoing User Segment Filtering Tests", () => {
   });
 
   it("outgoing user deleted in service", () => {
-    const context = new ContextMock({ private_settings: { "ignore_deleted_users": true }});
+    const context = new ContextMock({ private_settings: { synchronized_user_segments: [ "1234" ], "ignore_deleted_users": true }});
     const options = { serviceName: "hubspot" };
     expect(toSendMessage(context,
       "user", { segments: [ ], user: { email: "someuser@gmail.com", "hubspot/deleted_at": "1-1-2019"}, changes: { segments: { entered: [ { id: "1234" }]}} }, options)).toEqual(false);
