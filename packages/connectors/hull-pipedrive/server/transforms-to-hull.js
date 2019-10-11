@@ -98,9 +98,9 @@ const transformsToHull: ServiceTransforms = [
         outputFormat: "${value.value}"
       },
       {
+        mapping: { type: "input", path: "current" },
         inputPath: "current.org_id",
         outputPath: "hull_service_accountId",
-        outputFormat: "${value.value}"
       },
       {
         condition: "createdByWebhook",
