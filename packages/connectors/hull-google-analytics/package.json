@@ -7,7 +7,7 @@
     "test": "exit 0; echo 'No Tests here' Sad Panda"
   },
   "dependencies": {
+    "query-string": "^6.8.3"
   },
-  "devDependencies": {
-  }
+  "devDependencies": {}
 }

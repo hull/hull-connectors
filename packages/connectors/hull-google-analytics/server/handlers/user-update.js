@@ -5,10 +5,14 @@ import type {
   HullNotificationResponse
 } from "hull";
 import _ from "lodash";
+import queryString from "query-string";
 
-const GA_URL = "https://www.google-analytics.com/collect";
+// const GA_URL = "https://www.google-analytics.com/collect";
+const GA_BATCH_URL = "https://www.google-analytics.com/batch";
 // https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters#t
 const getQuery = ({
+  ip,
+  useragent,
   tid,
   cid,
   category,
@@ -17,6 +21,8 @@ const getQuery = ({
   value,
   dimensions
 }) => ({
+  uip: ip,
+  ua: useragent,
   v: 1,
   tid,
   cid,
@@ -40,6 +46,7 @@ const getDimensions = ({ dimensions, properties }) =>
     },
     {}
   );
+
 const update = async (
   ctx: HullContext,
   messages: Array<HullUserUpdateMessage>
@@ -47,33 +54,52 @@ const update = async (
   try {
     const { connector, request } = ctx;
     const { private_settings = {} } = connector;
-    const { tid, events: gaEvents } = private_settings;
-    await Promise.all(
-      messages.map(({ user, events }) => {
+    const { tid: tid_attribute, events: gaEvents } = private_settings;
+
+    const tracks = _.reduce(
+      messages,
+      (payloads, message): Array<string> => {
+        const { user, events } = message;
+        const tid = user[tid_attribute];
         const cid = _.find(user.anonymous_ids, v => v.indexOf("ga:") === 0);
-        if (!cid) return undefined;
-        return gaEvents.map(eventConfig =>
-          _.filter(events, event => event.event === eventConfig.event).map(
-            ({ event: eventName, properties }) =>
-              request
-                .query(
-                  getQuery({
-                    tid,
-                    cid,
-                    category: eventConfig.category,
-                    label: eventName,
-                    value: eventConfig.value,
-                    action: eventConfig.action,
-                    dimensions: getDimensions({
-                      dimensions: eventConfig.dimensions,
-                      properties
-                    })
-                  })
-                )
-                .post(GA_URL)
-          )
-        );
-      })
+        if (!cid) {
+          return payloads;
+        }
+        gaEvents.forEach(gaEvent => {
+          events.forEach(
+            ({ event: label, properties, context: { ip, useragent } }) => {
+              if (label !== gaEvent.event) {
+                return;
+              }
+              const payload = getQuery({
+                tid,
+                cid,
+                ip,
+                label,
+                useragent,
+                category: gaEvent.category,
+                value: gaEvent.value,
+                action: gaEvent.action,
+                dimensions: getDimensions({
+                  dimensions: gaEvent.dimensions,
+                  properties
+                })
+              });
+              payloads.push(queryString.stringify(payload));
+            }
+          );
+        });
+        return payloads;
+      },
+      []
+    );
+    await Promise.all(
+      _.chunk(tracks, 20).map(chunk =>
+        request
+          .type("text")
+          .post(GA_BATCH_URL)
+          .send(chunk.join("\n"))
+      )
     );
     return {
       flow_control: {
