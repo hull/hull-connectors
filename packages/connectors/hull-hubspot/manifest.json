@@ -19,13 +19,6 @@
   "settings": [],
   "private_settings": [
     {
-      "name": "ignore_deleted_objects",
-      "type": "boolean",
-      "title": "Ignore deleted Hubspot objects",
-      "default": true,
-      "description": "When objects are deleted in Hubspot, avoid recreating them."
-    },
-    {
       "name": "oauth",
       "title": "Credentials",
       "description": "Authenticate with Hubspot",
