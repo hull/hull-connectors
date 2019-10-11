@@ -106,6 +106,13 @@ describe("Outgoing User Segment Filtering Tests", () => {
       "user", { segments: [ { id: "1234" } ], user: { email: "someuser@gmail.com"}, changes: { user: { "salesforce/someid": ["asdf", "1234"]}} })).toEqual(true);
   });
 
+  it("outgoing user deleted in service", () => {
+    const context = new ContextMock({ private_settings: { "ignore_deleted_users": false }});
+    const options = { serviceName: "hubspot" };
+    expect(toSendMessage(context,
+      "user", { segments: [ ], user: { email: "someuser@gmail.com", "hubspot/deleted_at": "1-1-2019"}, changes: { segments: { entered: [ { id: "1234" }]}} }, options)).toEqual(true);
+  });
+
 
   // negative tests
   it("outgoing user all segments no attribute changes", () => {
@@ -150,6 +157,13 @@ describe("Outgoing User Segment Filtering Tests", () => {
     expect(toSendMessage(context,
       "user", { segments: [ { id: "1234" } ], user: { email: "someuser@gmail.com", "hubspot/id": 5678 } },
       { "serviceName": "hubspot" })).toEqual(false);
+  });
+
+  it("outgoing user deleted in service", () => {
+    const context = new ContextMock({ private_settings: { "ignore_deleted_users": true }});
+    const options = { serviceName: "hubspot" };
+    expect(toSendMessage(context,
+      "user", { segments: [ ], user: { email: "someuser@gmail.com", "hubspot/deleted_at": "1-1-2019"}, changes: { segments: { entered: [ { id: "1234" }]}} }, options)).toEqual(false);
   });
 
   // Edge case, in the future we may decide to send this maybe, but no outgoing attributes...
