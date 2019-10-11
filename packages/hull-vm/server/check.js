@@ -5,10 +5,9 @@ import check from "syntax-error";
 import lintCode from "./lint";
 
 function wrapCode(code: string) {
-  return `function() {
-"use strict";
+  return `(async () => {
 ${code}
-}()`;
+})()`;
 }
 
 // TODO: We can improve and make the checks more robust here in a centralized way.
@@ -33,7 +32,7 @@ function pristine(ctx: HullContext, code: string) {
 function lint(ctx: HullContext, code: string, payload?: Object) {
   return lintCode(
     `try {
-      results = ${wrapCode(code)};
+      ${wrapCode(code)};
     } catch (err) { errors.push(err.toString()); }`,
     payload
   );

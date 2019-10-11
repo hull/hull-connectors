@@ -97,7 +97,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
       <Fragment>
         <KeyBindings show={showBindings} onHide={this.hideBindings} />
         <div className="main-container row no-gutters">
-          <div className="col vm-column">
+          <div className="col-3 vm-column">
             <Header>
               <EntrySelector
                 loading={computing || fetching}
@@ -148,7 +148,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
               onChange={this.handleCodeUpdate}
             />
           </div>
-          <div className="col vm-column">
+          <div className="col-3 vm-column">
             <Header>
               <ButtonGroup>
                 <Button variant="secondary" onClick={this.showBindings}>

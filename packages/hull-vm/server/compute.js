@@ -83,12 +83,9 @@ export default async function compute(
       );
     }
 
-    responses = vm.run(`
-      responses = ${check.wrapCode(code)}
-      responses;
-    `);
+    responses = await vm.run(check.wrapCode(code));
   } catch (err) {
-    result.errors.push(err.stack.split("at ContextifyScript")[0]);
+    result.errors.push(err.stack.split("at new Script")[0]);
   }
 
   if (preview) {
@@ -102,23 +99,6 @@ export default async function compute(
     if (linterErrors && linterErrors.length) {
       result.errors.push(...linterErrors);
     }
-  }
-
-  if (
-    result.isAsync &&
-    (!responses || !responses.then || !_.isFunction(responses.then))
-  ) {
-    result.errors.push(
-      "It seems you’re using 'request' which is asynchronous."
-    );
-    result.errors.push(
-      `You need to return a 'new Promise' and 'resolve' or 'reject' it in your 'request' callback:
-
-      return request(xxxx).then((res) => {
-        const something = response //some-processing;
-
-      })`
-    );
   }
 
   try {

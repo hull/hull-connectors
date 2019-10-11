@@ -25,7 +25,12 @@ const getGlobals = (vars: Array<Array<string>>) =>
 
 const getConfig = (payload?: Object = {}) => ({
   env: {
-    es6: true
+    es6: true,
+    node: true
+  },
+  parserOptions: {
+    ecmaVersion: 2017,
+    sourceType: "module"
   },
   rules: {
     "no-undef": [2]
