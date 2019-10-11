@@ -35,7 +35,7 @@ const service = ({ clientID, clientSecret }: {
   initialize: (context, api) => new SuperagentApi(context, api),
   prefix: "https://api-proxy.pipedrive.com",
   endpoints: {
-    insertAccount: {
+    insertOrg: {
       url: "/organizations",
       operation: "post",
       endpointType: "create",
@@ -43,7 +43,7 @@ const service = ({ clientID, clientSecret }: {
       input: PipedriveOrgWrite,
       output: PipedriveOrgRead
     },
-    updateAccount: {
+    updateOrg: {
       url: "/organizations/${accountId}",
       operation: "put",
       endpointType: "update",

@@ -128,8 +128,8 @@ const glue = {
           set("accountId", input("account.pipedrive/id")),
           set("accountId", cacheGet(input("account.id")))
         ]), {
-          do: route("updateAccount"),
-          eldo: route("insertAccount")
+          do: route("updateOrg"),
+          eldo: route("insertOrg")
         }
       )
     ),
@@ -146,14 +146,14 @@ const glue = {
         ]
       )
     ),
-  insertAccount:
-    ifL(cond("notEmpty", set("accountFromPipedrive", pipedrive("insertAccount", input()))), [
+  insertOrg:
+    ifL(cond("notEmpty", set("accountFromPipedrive", pipedrive("insertOrg", input()))), [
       cacheSet({ key: input("account.id") }, "${accountFromPipedrive.id}"),
       hull("asAccount", "${accountFromPipedrive}")
     ]),
 
-  updateAccount:
-    ifL(cond("notEmpty", set("accountFromPipedrive", pipedrive("updateAccount", input()))),
+  updateOrg:
+    ifL(cond("notEmpty", set("accountFromPipedrive", pipedrive("updateOrg", input()))),
       hull("asAccount", "${accountFromPipedrive}")
     ),
   fetchAll: [
@@ -272,18 +272,18 @@ const glue = {
           set("userId", input("user.pipedrive/id")),
           set("userId", cacheGet(input("user.id")))
         ]), {
-          do: route("updateUser"),
+          do: route("updatePerson"),
           eldo: [
             route("personLookup"),
             ifL(cond("isEmpty", "${userId}"), {
               do: route("insertUser"),
-              eldo: route("updateUser")
+              eldo: route("updatePerson")
             })
           ]
         }
       )
     ),
-  updateUser:
+  updatePerson:
     ifL(cond("notEmpty", set("personFromPipedrive", pipedrive("updatePerson", input()))),
       hull("asUser", "${personFromPipedrive}")
     ),
