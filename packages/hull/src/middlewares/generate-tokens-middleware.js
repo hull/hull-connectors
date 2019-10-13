@@ -20,8 +20,8 @@ function generateEncryptedToken(clientCredentials, secret) {
  * if not available it tries to get the token in `req.query.hullToken`, `req.query.token` or `req.query.state`.
  * If those two steps fails to find information it parse `req.query` looking for direct connector configuration
  */
-function generateTokensMiddleware() {
-  return function credentialsFromQueryMiddleware(
+function generateTokensMiddlewareFactory() {
+  return function generateTokensMiddleware(
     req: HullRequest,
     res: HullResponse,
     next: NextFunction
@@ -59,4 +59,4 @@ function generateTokensMiddleware() {
   };
 }
 
-module.exports = generateTokensMiddleware;
+module.exports = generateTokensMiddlewareFactory;

@@ -70,7 +70,8 @@ it("should allow through with mapped account attribute changes", () => {
             traits_custom_empty_string: "",
             traits_custom_zero: 0,
             // traits_custom_undefined: "", -> this is not present
-            traits_custom_date_at: "2018-10-24T09:47:39Z"
+            traits_custom_date_at: "2018-10-24T09:47:39Z",
+            "traits_hubspot/id": 5677
           },
           account: {
             id: "acc123",
@@ -95,7 +96,12 @@ it("should allow through with mapped account attribute changes", () => {
                 "asdf"
               ]
             },
-            "account": {},
+            "account": {
+              "domain": [
+                "otherdomain.com",
+                "doe.com"
+              ]
+            },
             "segments": {},
             "account_segments": {}
           },
@@ -113,23 +119,6 @@ it("should allow through with mapped account attribute changes", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
-        [
-          "info",
-          "outgoing.user.skip",
-          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {
-            "reason": "No changes on any of the synchronized attributes for this user.  If you think this is a mistake, please check the settings page for the synchronized user attributes to ensure that the attribute which changed is in the synchronized outgoing attributes"
-          }
-        ],
-        [
-          "info",
-          "outgoing.user.skipcandidate",
-          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {
-            "reason": "attribute change not found",
-            "changes": expect.whatever()
-          }
-        ],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
         [
           "info",

@@ -1,12 +1,8 @@
 // @flow
 
-import type {
-  HullUserClaims,
-  HullAccountClaims,
-  HullEntityType,
-  HullContext
-} from "hull";
+import type { HullEntityClaims, HullEntityType, HullContext } from "hull";
 import _ from "lodash";
+import type { Payload } from "../types";
 import compute from "./compute";
 import ingest from "./ingest";
 import saveRecent from "./save-recent";
@@ -25,8 +21,8 @@ const asyncComputeAndIngest = async (
     source: string,
     code: string,
     entityType?: HullEntityType,
-    claims: HullUserClaims | HullAccountClaims,
-    payload: { [string]: any },
+    claims: HullEntityClaims,
+    payload: Payload,
     EntryModel?: Object,
     preview?: boolean
   }
@@ -43,7 +39,7 @@ const asyncComputeAndIngest = async (
     });
     if (!preview) {
       // TODO: Check how errors in the second await could not have a defined error
-      await ingest(ctx, result);
+      await ingest(ctx, result, claims, payload);
     }
     if (EntryModel) {
       await saveRecent(ctx, { EntryModel, payload, code, result });

@@ -30,17 +30,17 @@ export default async function statusCheck(
   let status = "ok";
   const messages = [];
 
-  const c = check.invalid(ctx, code);
-  if (c) {
-    console.log(c);
-    status = "error";
-    messages.push(
-      `The code has syntax error(s). Please review the detected problems and apply fixes where indicated:
---------
-${c}
--------`
-    );
-  }
+  //   const c = check.(ctx, code);
+  //   if (c) {
+  //     console.log(c);
+  //     status = "error";
+  //     messages.push(
+  //       `The code has syntax error(s). Please review the detected problems and apply fixes where indicated:
+  // --------
+  // ${c}
+  // -------`
+  //     );
+  //   }
 
   const lintMessages = check.lint(ctx, code, {
     account_segment_ids: true,
