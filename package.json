@@ -17,6 +17,7 @@
   "scripts": {
     "duplicated-dependencies": "syncpack-list-mismatches -s 'packages/*/package.json' -s 'packages/connectors/*/package.json'",
     "build": "sh scripts/build-connectors.sh",
+    "repl": "NODE_ENV=development sh scripts/repl.sh",
     "clean": "sh scripts/clean-connectors.sh",
     "build:client": "sh scripts/build-webpack-project.sh",
     "ngrok": "sh scripts/ngrok.sh",
@@ -103,6 +104,7 @@
     "cache-manager": "^2.9.0",
     "cache-manager-redis": "^0.6.0",
     "compose-middleware": "^5.0.1",
+    "copy-webpack-plugin": "^5.0.4",
     "datadog-metrics": "^0.8.1",
     "debug": "^4.1.1",
     "ejs": "^2.6.1",

@@ -4,6 +4,8 @@ import type { $Application, Middleware } from "express";
 import _ from "lodash";
 import type { Server } from "http";
 import express from "express";
+import repl from "hull-repl";
+import minimist from "minimist";
 import type {
   HullContext,
   HullServerConfig,
@@ -252,6 +254,17 @@ class HullConnector {
     } else {
       debug("No Server started: `serverConfig.start === false`");
     }
+    const argv = minimist(process.argv);
+    if (argv.repl) {
+      this.repl(_.pick(argv, "id", "organization", "secret"));
+    }
+  }
+
+  async repl(credentials: {}) {
+    return repl({
+      credentials,
+      middlewares: this.baseComposedMiddleware()
+    });
   }
 
   stop() {
