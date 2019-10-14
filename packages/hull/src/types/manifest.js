@@ -21,6 +21,7 @@ export type HullExtendedMiddlewareParams = {
   credentialsFromQuery?: boolean,
   credentialsFromNotification?: boolean,
   cache?: HandlerCacheOptions,
+  dropIfConnectorDisabled?: boolean,
   respondWithError?: boolean,
   cacheContextFetch?: boolean,
   disableErrorHandling?: boolean,

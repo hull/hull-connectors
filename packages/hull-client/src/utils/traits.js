@@ -58,17 +58,16 @@ const group = <+T: HullUser | HullAccount>(entity: T): HullGrouped<T> =>
     (grouped, value, key: string) => {
       let dest = key;
       if (key.match(/^traits_/)) {
-        if (key.match(/\//)) {
-          dest = key.replace(/^traits_/, "");
-        } else {
-          dest = key.replace(/^traits_/, "traits/");
-        }
+        dest = key.replace(/^traits_/, "");
+        // if (key.match(/\//)) {
+        // } else {
+        //   dest = key.replace(/^traits_/, "traits/");
+        // }
       }
       return _.setWith(grouped, dest.split("/"), value, Object);
     },
     {}
   );
-
 // Creates a flat object from `/` and `source` parameters
 function applyContext(
   attributes: HullUserAttributes | HullAccountAttributes,

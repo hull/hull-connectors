@@ -67,18 +67,25 @@
   "json": [
     {
       "url": "/config",
-      "handler": "configHandler"
+      "handler": "configHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
     },
     {
       "url": "/entry",
       "handler": "entityHandler",
       "options": {
+        "cacheContextFetch": false,
         "respondWithError": true
       }
     },
     {
       "url": "/preview",
-      "handler": "previewHandler"
+      "handler": "previewHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
     }
   ],
   "subscriptions": [

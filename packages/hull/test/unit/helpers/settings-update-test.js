@@ -27,7 +27,7 @@ describe("settingsUpdate", () => {
           settings: { update: updateStub }
         }
       }
-    }, true)({});
+    })({}, true);
     expect(updateStub.called).to.be.ok;
     expect(updateStub.calledWith({}, true)).to.be.true;
   });
