@@ -20,15 +20,15 @@
   "private_settings": [
     {
       "name": "ignore_deleted_users",
-      "title": "Mark Deleted Contacts",
-      "description": "If a user has been deleted in Hubspot, do not recreate it.",
+      "title": "Ignore Deleted Contacts",
+      "description": "If a contact has been deleted in Hubspot, do not send that user to Hubspot from Hull.",
       "type": "boolean",
       "default": true
     },
     {
       "name": "ignore_deleted_accounts",
       "title": "Ignore Deleted Companies",
-      "description": "If an account has been deleted in Hubspot, do not recreate it.",
+      "description": "If an company has been deleted in Hubspot, do not send that account to Hubspot from Hull.",
       "type": "boolean",
       "default": true
     },
