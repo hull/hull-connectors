@@ -107,7 +107,7 @@ class HullSdk {
     }
 
     if (this.isDeletedInService(user)) {
-      const anonymous_id = _.get(user, "ident.anonymous_id", null);
+      const anonymous_id = _.get(user, "ident.anonymous_id");
       userPromise = userPromise.then(() => {
         return asUser.unalias({ "anonymous_id": anonymous_id })
       });
@@ -139,7 +139,7 @@ class HullSdk {
     accountPromise = asAccount.traits(account.attributes);
 
     if (this.isDeletedInService(account)) {
-      const anonymous_id = _.get(account, "ident.anonymous_id", null);
+      const anonymous_id = _.get(account, "ident.anonymous_id");
       accountPromise = accountPromise.then(() => {
         return asAccount.unalias({ "anonymous_id": anonymous_id })
       });
