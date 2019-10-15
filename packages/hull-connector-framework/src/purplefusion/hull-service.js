@@ -52,6 +52,19 @@ class HullSdk {
     }
   }
 
+  isDeletedInService(entity: HullIncomingUser | HullIncomingAccount) {
+    const anonymous_id = _.get(entity, "ident.anonymous_id", null);
+
+    if (!_.isNil(anonymous_id)) {
+      const service = anonymous_id.substr(0, anonymous_id.indexOf(":"));
+      const service_id = _.get(entity, `attributes.${service}/id`);
+      const deleted_at = _.get(entity, `attributes.${service}/deleted_at`);
+
+      return _.isNull(service_id) && !_.isNil(deleted_at);
+    }
+    return false;
+  }
+
   upsertHullUser(user: HullIncomingUser) {
 
     const identity = _.cloneDeep(user.ident);
@@ -93,6 +106,13 @@ class HullSdk {
       });
     }
 
+    if (this.isDeletedInService(user)) {
+      const anonymous_id = _.get(user, "ident.anonymous_id", null);
+      userPromise = userPromise.then(() => {
+        return asUser.unalias({ "anonymous_id": anonymous_id })
+      });
+    }
+
     return userPromise;
   }
 
@@ -114,7 +134,18 @@ class HullSdk {
   }
 
   upsertHullAccount(account: HullIncomingAccount) {
-    return this.client.asAccount(account.ident).traits(account.attributes);
+    let accountPromise;
+    const asAccount = this.client.asAccount(account.ident);
+    accountPromise = asAccount.traits(account.attributes);
+
+    if (this.isDeletedInService(account)) {
+      const anonymous_id = _.get(account, "ident.anonymous_id", null);
+      accountPromise = accountPromise.then(() => {
+        return asAccount.unalias({ "anonymous_id": anonymous_id })
+      });
+    }
+
+    return accountPromise;
   }
 
   connectorSettingsUpdate(settings: any) {
@@ -132,7 +163,6 @@ class HullSdk {
       return response;
     });
   }
-
 }
 
 const hullService: CustomApi = {
