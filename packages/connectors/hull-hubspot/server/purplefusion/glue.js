@@ -26,7 +26,9 @@ const {
   settings,
   ex,
   ld,
-  not
+  not,
+  or,
+  inc
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -35,6 +37,10 @@ const {
 
 function hubspot(op: string, param?: any): Svc {
   return new Svc({ name: "hubspot", op }, param);
+}
+
+function hubspotSyncAgent(op: string, param?: any): Svc {
+  return new Svc({ name: "hubspot_service", op }, param);
 }
 
 const refreshTokenDataTemplate = {
@@ -194,6 +200,51 @@ const glue = {
           token: "${refreshTokenResponse.token}"
         })
       )
+    ]),
+  fetchRecentContacts:
+    cacheLock("getRecentContacts",[
+      ifL(cond("isEmpty", set("lastFetchAt", ex(moment("${connector.private_settings.last_fetch_at}"), "valueOf"))),
+        set("lastFetchAt", ex(ex(moment(), "subtract", { hour: 1 }), "valueOf"))),
+      set("properties", hubspotSyncAgent("getContactPropertiesKeys")),
+      set("stopFetchAt", ex(moment(), "format")),
+      loopL([
+        set("contactsPage", hubspot("getRecentContactsPage")),
+        ifL(cond("lessThan", "${contactsPage.time-offset}", "${lastFetchAt}"), {
+          do: [
+            set("index", 0),
+            iterateL("${contactsPage.contacts}", "contact", [
+              ifL(or([
+                cond("greaterThan", "${contact.addedAt}", "${lastFetchAt}"),
+                cond("isEqual", "${contact.addedAt}", "${lastFetchAt}"),
+              ]), {
+                do: set("index", inc("${index}")),
+                eldo: [
+                  ifL(cond("greaterThan", "${index}", 0),
+                    hubspotSyncAgent("saveContacts", ld("slice", "${contactsPage.contacts}", 0, "${index}"))
+                  ),
+                  loopEndL()
+                ]
+              })
+            ])
+          ],
+          eldo: hubspotSyncAgent("saveContacts", "${contactsPage.contacts}")
+        }),
+        ifL([
+            cond("greaterThan", "${index}", 0),
+            cond("isEqual", "${contactsPage.time-offset}", 0)
+          ],
+          hubspotSyncAgent("saveContacts", ld("slice", "${contactsPage.contacts}", 0, "${index}"))),
+        ifL(
+          or([
+            cond("isEqual", "${contactsPage.has-more}", false),
+            cond("greaterThan", "${lastFetchAt}", "${contactsPage.time-offset}"),
+            cond("isEqual", "${lastFetchAt}", "${contactsPage.time-offset}")
+          ]),
+          loopEndL()
+        ),
+        set("offset", "${contactsPage.time-offset}")
+      ]),
+      settingsUpdate({last_fetch_at: "${stopFetchAt}"})
     ])
 };
 

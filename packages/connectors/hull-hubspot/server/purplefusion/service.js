@@ -97,6 +97,11 @@ const service: RawRestApi = {
         { method: "set", params: { "Content-Type": "application/x-www-form-urlencoded" } }
       ]
     },
+    getRecentContactsPage: {
+      url: "/contacts/v1/lists/recently_updated/contacts/recent",
+      operation: "get",
+      query: "timeOffset=${offset}&property=${properties}"
+    }
   },
   superagent: {
     settings: [

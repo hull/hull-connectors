@@ -9,8 +9,13 @@ const {
 } = require("hull-connector-framework/src/purplefusion/hull-service");
 const glue = require("../purplefusion/glue");
 const eventsService = require("../purplefusion/service");
+const hubspotService = require("../purplefusion/hubspot-service");
 
-const services = { hubspot: eventsService, hull: hullService };
+const services = {
+  hubspot: eventsService,
+  hull: hullService,
+  hubspot_service: hubspotService
+};
 const transforms = _.concat(
   [],
   require("../purplefusion/transforms-to-service"),
