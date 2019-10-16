@@ -34,12 +34,7 @@ const transformsToHull: ServiceTransforms = [
     direction: "incoming",
     batchTransform: true,
     transforms: [
-      `$map(data, function($v, $i, $a) {
-          {"type": $v.field_type, 
-          "name": $v.key, 
-          "display": $v.name, 
-          "readOnly": $not($v.bulk_edit_allowed)}
-        })`
+      `$.data.{ "type" : field_type, "name": key, "display": name, "readOnly": $not(bulk_edit_allowed) }`
     ]
   },
   {
