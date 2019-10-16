@@ -216,7 +216,7 @@ const glue = {
             cond("isEqual", input("meta.object"), "organization"),
             cond("isEqual", "${connector.private_settings.support_account_deletion}", true)
           ],
-          hull("asUser", "${deletedEntity}"))
+          hull("asAccount", "${deletedEntity}"))
       ],
       eldo: [
         ifL(cond("isEqual", input("meta.object"), "person"), [
