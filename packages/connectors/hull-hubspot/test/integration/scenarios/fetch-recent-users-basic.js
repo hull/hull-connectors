@@ -36,18 +36,16 @@ it("should fetch recent users using settings", () => {
           .reply(200, []);
         scope.get("/contacts/v1/lists/recently_updated/contacts/recent")
           .query({
-            count: 100,
             timeOffset: null,
             property: "email"
           })
           .reply(200, incomingData);
         scope.get("/contacts/v1/lists/recently_updated/contacts/recent")
           .query({
-            count: 100,
             timeOffset: 1484854580823,
             property: "email"
           })
-          .reply(200, { contacts: [], "has-more": false });
+          .reply(200, { contacts: [], "has-more": false, "time-offset": 0 });
         return scope;
       },
       connector,
@@ -55,22 +53,19 @@ it("should fetch recent users using settings", () => {
       accountsSegments: [],
       response: {"status": "deferred"},
       logs: [
-        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
+        ["info", "incoming.job.start", expect.whatever(), {jobName: "Incoming Data", type: "webpayload"}],
         [
-          "info",
-          "incoming.job.start",
+          "debug",
+          "connector.service_api.call",
           expect.whatever(),
-          {
-            jobName: "fetch",
-            lastFetchAt: 1419967066626,
-            propertiesToFetch: ["email"],
-            stopFetchAt: expect.whatever(),
-            type: "user"
-          }
+          expect.objectContaining({
+            method: "GET",
+            status: 200,
+            url: "/contacts/v2/groups",
+          })
         ],
+        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "GET", "status": 200, "url": "/properties/v1/companies/groups" })],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "GET", "status": 200, "url": "/contacts/v1/lists/recently_updated/contacts/recent" })],
-        ["info", "incoming.job.progress", {}, { jobName: "fetch", progress: 2, type: "user" }],
         ["debug", "saveContacts", {}, 2],
         [
           "debug",
@@ -117,7 +112,6 @@ it("should fetch recent users using settings", () => {
             reason: "incoming linking is disabled, you can enabled it in the settings"
           }
         ],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "GET", "status": 200, "url": "/contacts/v1/lists/recently_updated/contacts/recent" })],
         [
           "info",
           "incoming.user.success",
@@ -147,11 +141,22 @@ it("should fetch recent users using settings", () => {
           }
         ],
         [
+          "debug",
+          "connector.service_api.call",
+          {},
+          expect.objectContaining({
+            method: "GET",
+            status: 200,
+            url: "/contacts/v1/lists/recently_updated/contacts/recent"
+          })
+        ],
+        [
           "info",
           "incoming.job.success",
           {},
           {
-            "jobName": "fetch",
+            "jobName": "Incoming Data",
+            "type": "webpayload"
           }
         ]
       ],
