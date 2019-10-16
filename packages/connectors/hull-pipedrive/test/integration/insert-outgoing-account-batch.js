@@ -21,6 +21,7 @@ it("Batch - Insert Single Account To Pipedrive", () => {
         "source_url": "https://dev-hull-pipedrive.ngrok.io/",
         "private_settings": {
           "webhook_id_person": 11111,
+          "webhook_id_org": 11111,
           "token_expires_in": 7200,
           "outgoing_user_attributes": [],
           "incoming_user_attributes": [],

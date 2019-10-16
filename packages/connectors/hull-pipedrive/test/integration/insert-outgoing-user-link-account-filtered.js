@@ -20,6 +20,7 @@ it("Insert Single User To Pipedrive Filter Linked Account", () => {
         "source_url": "https://dev-hull-pipedrive.ngrok.io/",
         "private_settings": {
           "webhook_id_person": 11111,
+          "webhook_id_org": 11111,
           "link_users_in_service": true,
           "user_claims": [
             {

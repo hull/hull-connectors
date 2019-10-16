@@ -66,7 +66,6 @@ it("Update Single User To Pipedrive", () => {
           {
             "data": {
               "address": "1234 Hull Pl",
-              "email": ["pipedrive_user_1@hull.com"],
               "name": "pipedrive_user_1"
             },
             "type": "Person",

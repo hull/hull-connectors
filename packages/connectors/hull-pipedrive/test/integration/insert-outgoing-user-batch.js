@@ -21,6 +21,7 @@ it("Batch - Insert Single User To Pipedrive", () => {
         "source_url": "https://dev-hull-pipedrive.ngrok.io/",
         "private_settings": {
           "webhook_id_person": 11111,
+          "webhook_id_org": 11111,
           "user_claims": [
             {
               "hull": "email",
@@ -180,8 +181,7 @@ it("Batch - Insert Single User To Pipedrive", () => {
             "email": "pipedrive_user_1@hull.com", "anonymous_id": "pipedrive:827"
             }, "subjectType": "user"
           },
-          { "pipedrive/id": { "value": 827, "operation": "set" },
-            "pipedrive/description": { "value": "New Contact", "operation": "set" } }]
+          { "pipedrive/id": { "value": 827, "operation": "set" } }]
       ],
       metrics:   [
         ["increment", "connector.request", 1,],

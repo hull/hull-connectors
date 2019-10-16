@@ -188,7 +188,8 @@ it("Update Single User To Pipedrive With Successful Lookup", () => {
             },
             "subjectType": "user"
           },
-          { "pipedrive/id": { "value": 827, "operation": "set" } }
+          { "pipedrive/id": { "value": 827, "operation": "set" },
+            "pipedrive/description": { "value": "New Contact", "operation": "set" } }
         ]
       ],
       metrics:   [

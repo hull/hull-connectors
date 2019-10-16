@@ -128,7 +128,8 @@ it("Insert Single User To Pipedrive", () => {
               },
             "subjectType": "user"
           },
-          { "pipedrive/id": { "value": 827, "operation": "set" } }]
+          { "pipedrive/id": { "value": 827, "operation": "set" },
+            "pipedrive/description": { "value": "New Contact", "operation": "set" }}]
       ],
       metrics:   [
         ["increment", "connector.request", 1,],
