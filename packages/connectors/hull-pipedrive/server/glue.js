@@ -272,7 +272,12 @@ const glue = {
           set("userId", input("user.pipedrive/id")),
           set("userId", cacheGet(input("user.id")))
         ]), {
-          do: route("updatePerson"),
+          do: [
+            ifL(cond("notEmpty", input("changes.user.email[1]")),
+              set("existingPerson", cast(PipedrivePersonRead, pipedrive("getPersonById")))
+            ),
+            route("updatePerson")
+          ],
           eldo: [
             route("personLookup"),
             ifL(cond("isEmpty", "${userId}"), {

@@ -37,9 +37,21 @@ const transformsToService: ServiceTransforms = [
         outputPath: "name" },
       {
         mapping: "connector.private_settings.user_claims",
+        condition: notNull("existingPerson"),
         outputArrayFields: {
           checkField: "service_field_name",
-          fields: ["email"]
+          fields: ["email", "phone"],
+          mergeArrayFromContext: "existingPerson.${service_field_name}"
+        },
+        inputPath: "user.${hull_field_name}",
+        outputPath: "${service_field_name}",
+      },
+      {
+        mapping: "connector.private_settings.user_claims",
+        condition: isNull("userId"),
+        outputArrayFields: {
+          checkField: "service_field_name",
+          fields: ["email", "phone"]
         },
         inputPath: "user.${hull_field_name}",
         outputPath: "${service_field_name}",

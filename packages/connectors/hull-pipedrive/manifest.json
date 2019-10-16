@@ -80,7 +80,7 @@
       "default": [
         {
           "hull": "email",
-          "service": "Email"
+          "service": "email"
         }
       ]
     },
@@ -190,7 +190,7 @@
       "default": [
         {
           "hull": "domain",
-          "service": "Name"
+          "service": "name"
         }
       ]
     },
