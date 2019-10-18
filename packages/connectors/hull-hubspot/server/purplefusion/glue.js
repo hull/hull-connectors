@@ -74,11 +74,15 @@ const glue = {
       set("actionTaken", "${webhookAction.changeFlag}"),
       ifL(not(cond("isEqual", "${hubspotEntity}", "company")), {
         do: [
-          hull("asUser", cast(HubspotWebhookPayload, "${webhookAction}"))
+          set("incomingUser", cast(HubspotWebhookPayload, "${webhookAction}")),
+          hull("asUser", "${incomingUser}"),
+          hull("unaliasUser", "${incomingUser}")
         ],
         eldo: [
           ifL("${connector.private_settings.handle_accounts}", [
-            hull("asAccount", cast(HubspotWebhookPayload, "${webhookAction}"))
+            set("incomingAccount", cast(HubspotWebhookPayload, "${webhookAction}")),
+            hull("asAccount", "${incomingAccount}"),
+            hull("unaliasAccount", "${incomingAccount}")
           ])
         ]
       })

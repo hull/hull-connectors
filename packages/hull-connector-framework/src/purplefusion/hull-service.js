@@ -52,17 +52,21 @@ class HullSdk {
     }
   }
 
-  isDeletedInService(entity: HullIncomingUser | HullIncomingAccount) {
-    const anonymous_id = _.get(entity, "ident.anonymous_id", null);
-
+  unaliasEntity(entity: HullIncomingUser | HullIncomingAccount, asEntity: function) {
+    const identity = _.cloneDeep(entity.ident);
+    const anonymous_id = _.get(identity, "anonymous_id", null);
     if (!_.isNil(anonymous_id)) {
-      const service = anonymous_id.substr(0, anonymous_id.indexOf(":"));
-      const service_id = _.get(entity, `attributes.${service}/id`);
-      const deleted_at = _.get(entity, `attributes.${service}/deleted_at`);
-
-      return _.isNull(service_id) && !_.isNil(deleted_at);
+      return asEntity(identity).unalias({ "anonymous_id": anonymous_id })
     }
-    return false;
+    return Promise.resolve();
+  }
+
+  unaliasHullUser(user: HullIncomingUser) {
+    return this.unaliasEntity(user, this.client.asUser);
+  }
+
+  unaliasHullAccount(account: HullIncomingAccount) {
+    return this.unaliasEntity(account, this.client.asAccount);
   }
 
   upsertHullUser(user: HullIncomingUser) {
@@ -106,13 +110,6 @@ class HullSdk {
       });
     }
 
-    if (this.isDeletedInService(user)) {
-      const anonymous_id = _.get(user, "ident.anonymous_id");
-      userPromise = userPromise.then(() => {
-        return asUser.unalias({ "anonymous_id": anonymous_id })
-      });
-    }
-
     return userPromise;
   }
 
@@ -134,18 +131,7 @@ class HullSdk {
   }
 
   upsertHullAccount(account: HullIncomingAccount) {
-    let accountPromise;
-    const asAccount = this.client.asAccount(account.ident);
-    accountPromise = asAccount.traits(account.attributes);
-
-    if (this.isDeletedInService(account)) {
-      const anonymous_id = _.get(account, "ident.anonymous_id");
-      accountPromise = accountPromise.then(() => {
-        return asAccount.unalias({ "anonymous_id": anonymous_id })
-      });
-    }
-
-    return accountPromise;
+    return this.client.asAccount(account.ident).traits(account.attributes);
   }
 
   connectorSettingsUpdate(settings: any) {
@@ -175,6 +161,16 @@ const hullService: CustomApi = {
       method: "upsertHullUser",
       endpointType: "upsert",
       input: HullIncomingUser
+    },
+    unaliasUser: {
+      method: "unaliasHullUser",
+      endpointType: "upsert",
+      input: HullIncomingUser
+    },
+    unaliasAccount: {
+      method: "unaliasHullAccount",
+      endpointType: "upsert",
+      input: HullIncomingAccount
     },
     asUserImport: {
       method: "upsertHullUser",
