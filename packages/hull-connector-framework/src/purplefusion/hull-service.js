@@ -52,13 +52,13 @@ class HullSdk {
     }
   }
 
-  detachEntityFromService(entity: HullIncomingUser | HullIncomingAccount, asEntityCallback: function) {
+  detachEntityFromService(entity: HullIncomingUser | HullIncomingAccount, asEntity) {
     const entityType = _.get(entity, "hull-connector-data-type.name", "").toLowerCase();
     const service_name = this.globalContext.get("service_name");
     const deleted_at = _.get(entity, `attributes.${service_name}/deleted_at`);
 
     const identity = _.cloneDeep(entity.ident);
-    const asHullEntity = asEntityCallback(identity);
+    const asHullEntity = asEntity(identity);
 
     if (_.isNil(deleted_at)) {
       asHullEntity.logger.info(`Cannot detach  ${entityType} from service.`, { data: entity });
@@ -76,7 +76,7 @@ class HullSdk {
         return asHullEntity.unalias({ "anonymous_id": anonymous_id })
       });
     }
-    return entityPromise
+    return entityPromise;
   }
 
   detachHullUserFromService(user: HullIncomingUser) {
