@@ -52,21 +52,33 @@ class HullSdk {
     }
   }
 
-  unaliasEntity(entity: HullIncomingUser | HullIncomingAccount, asEntity: function) {
+  detachEntityFromService(entity: HullIncomingUser | HullIncomingAccount, asEntity: function) {
+    const service_name = this.globalContext.get("service_name");
+    const service_id = _.get(entity, `attributes.${service_name}/id`);
+    const deleted_at = _.get(entity, `attributes.${service_name}/deleted_at`);
+
+    if (!_.isNull(service_id) || _.isNil(deleted_at)) {
+      return Promise.resolve();
+    }
+
+    let entityPromise = typeof entity === HullIncomingUser ? this.upsertHullUser(entity) : this.upsertHullAccount(entity);
+
     const identity = _.cloneDeep(entity.ident);
     const anonymous_id = _.get(identity, "anonymous_id", null);
     if (!_.isNil(anonymous_id)) {
-      return asEntity(identity).unalias({ "anonymous_id": anonymous_id })
+      entityPromise = entityPromise.then(() => {
+        return asEntity.unalias({ "anonymous_id": anonymous_id })
+      });
     }
-    return Promise.resolve();
+    return entityPromise
   }
 
-  unaliasHullUser(user: HullIncomingUser) {
-    return this.unaliasEntity(user, this.client.asUser);
+  detachHullUserFromService(user: HullIncomingUser) {
+    return this.detachEntityFromService(user, this.client.asUser);
   }
 
-  unaliasHullAccount(account: HullIncomingAccount) {
-    return this.unaliasEntity(account, this.client.asAccount);
+  detachHullAccountFromService(account: HullIncomingAccount) {
+    return this.detachEntityFromService(account, this.client.asAccount);
   }
 
   upsertHullUser(user: HullIncomingUser) {
@@ -162,13 +174,13 @@ const hullService: CustomApi = {
       endpointType: "upsert",
       input: HullIncomingUser
     },
-    unaliasUser: {
-      method: "unaliasHullUser",
+    userDeletedInService: {
+      method: "detachHullUserFromService",
       endpointType: "upsert",
       input: HullIncomingUser
     },
-    unaliasAccount: {
-      method: "unaliasHullAccount",
+    accountDeletedInService: {
+      method: "detachHullAccountFromService",
       endpointType: "upsert",
       input: HullIncomingAccount
     },
