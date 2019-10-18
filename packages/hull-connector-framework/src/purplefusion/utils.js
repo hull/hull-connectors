@@ -346,6 +346,16 @@ function toSendMessage(
   // may want to reorder this in cases where we still may not want to send if an event comes through
   const send_all_user_attributes = _.get(context, "connector.private_settings.send_all_user_attributes");
   if (send_all_user_attributes === true && targetEntity === "user") {
+
+    const accountChanges = _.get(message.changes, "account");
+    const userChanges = _.get(message.changes, "user");
+    const userEvents = _.get(message, "events");
+
+    // if there are only account changes, then do not send user update message
+    if (!_.isEmpty(accountChanges) && _.isEmpty(userChanges) && _.isEmpty(userEvents)) {
+      return false;
+    }
+
     return true;
   }
 
