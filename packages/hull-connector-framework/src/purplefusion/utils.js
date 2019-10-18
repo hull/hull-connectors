@@ -353,6 +353,10 @@ function toSendMessage(
 
     // if there are only account changes, then do not send user update message
     if (!_.isEmpty(accountChanges) && _.isEmpty(userChanges) && _.isEmpty(userEvents)) {
+      context.client.asUser(entity).logger.info("outgoing.user.skip", {
+        reason:
+          "Has account changes but no user changes and no events"
+      });
       return false;
     }
 
