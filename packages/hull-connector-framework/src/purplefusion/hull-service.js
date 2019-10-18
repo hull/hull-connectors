@@ -52,22 +52,28 @@ class HullSdk {
     }
   }
 
-  detachEntityFromService(entity: HullIncomingUser | HullIncomingAccount, asEntity: function) {
+  detachEntityFromService(entity: HullIncomingUser | HullIncomingAccount, asEntityCallback: function) {
+    const entityType = _.get(entity, "hull-connector-data-type.name", "").toLowerCase();
     const service_name = this.globalContext.get("service_name");
-    const service_id = _.get(entity, `attributes.${service_name}/id`);
     const deleted_at = _.get(entity, `attributes.${service_name}/deleted_at`);
 
-    if (!_.isNull(service_id) || _.isNil(deleted_at)) {
+    const identity = _.cloneDeep(entity.ident);
+    const asHullEntity = asEntityCallback(identity);
+
+    if (_.isNil(deleted_at)) {
+      asHullEntity.logger.info(`Cannot detach  ${entityType} from service.`, { data: entity });
       return Promise.resolve();
     }
 
-    let entityPromise = typeof entity === HullIncomingUser ? this.upsertHullUser(entity) : this.upsertHullAccount(entity);
+    _.set(entity, `attributes.${service_name}/id`, null);
 
-    const identity = _.cloneDeep(entity.ident);
+    let entityPromise = entityType === "account"
+      ? this.upsertHullAccount(entity) : this.upsertHullUser(entity);
+
     const anonymous_id = _.get(identity, "anonymous_id", null);
     if (!_.isNil(anonymous_id)) {
       entityPromise = entityPromise.then(() => {
-        return asEntity.unalias({ "anonymous_id": anonymous_id })
+        return asHullEntity.unalias({ "anonymous_id": anonymous_id })
       });
     }
     return entityPromise
