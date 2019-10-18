@@ -175,6 +175,26 @@ describe("Outgoing User Segment Filtering Tests", () => {
       { "serviceName": "hubspot" })).toEqual(false);
   });
 
+  it("outgoing user do not send if only account changes even if send_all_user_attributes option set", () => {
+    const context = new ContextMock({ private_settings: { synchronized_user_segments: [ "1234" ], send_all_user_attributes: true }});
+    expect(toSendMessage(context,
+      "user", { segments: [ { id: "1234" } ], user: { email: "someuser@gmail.com" }, changes: { account: { type: [ null, "financial" ] }, user: {}, events: [] } },
+      { "serviceName": "hubspot" })).toEqual(false);
+  });
+
+  it("outgoing user send if user changes if send_all_user_attributes option set", () => {
+    const context = new ContextMock({ private_settings: { synchronized_user_segments: [ "1234" ], send_all_user_attributes: true }});
+    expect(toSendMessage(context,
+      "user", { segments: [ { id: "1234" } ], user: { email: "someuser@gmail.com" }, changes: { account: { type: [ null, "financial" ] }, user: { title: [null, "ceo"]}, events: [] } },
+      { "serviceName": "hubspot" })).toEqual(true);
+  });
+
+  it("outgoing user send if events if send_all_user_attributes option set", () => {
+    const context = new ContextMock({ private_settings: { synchronized_user_segments: [ "1234" ], send_all_user_attributes: true }});
+    expect(toSendMessage(context,
+      "user", { segments: [ { id: "1234" } ], user: { email: "someuser@gmail.com" }, changes: { account: { type: [ null, "financial" ] }, user: { } }, events: [ { event_id: 1 }] },
+      { "serviceName": "hubspot" })).toEqual(true);
+  });
 
 });
 
@@ -274,7 +294,6 @@ describe("Outgoing Account Segment Filtering Tests", () => {
       "account", { account_segments: [ { id: "1234" } ], account: { domain: "somedomain.com", "hubspot/id": 5678} },
       { "serviceName": "hubspot" })).toEqual(false);
   });
-
 
 });
 
