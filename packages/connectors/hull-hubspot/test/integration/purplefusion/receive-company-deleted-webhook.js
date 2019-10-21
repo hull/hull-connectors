@@ -16,7 +16,8 @@ it("Receive Webhook - company deleted payload", () => {
       connector: {
         private_settings: {
           portal_id: "1234",
-          handle_accounts: true
+          handle_accounts: true,
+          mark_deleted_companies: true
         }
       },
       usersSegments: [],
@@ -64,7 +65,9 @@ it("Receive Webhook - company deleted payload", () => {
           { "asAccount": { "anonymous_id": "hubspot:123" },
             "subjectType": "account" },
           { "hubspot/deleted_at": 1567689104280, "hubspot/id": null }
-        ]
+        ],
+        ["unalias", { "asAccount":
+            { "anonymous_id": "hubspot:123" }, "subjectType": "account" }, { "anonymous_id": "hubspot:123" }]
       ],
       metrics: [
         ["increment", "connector.request", 1,]

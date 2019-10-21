@@ -9,7 +9,7 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
 
 
-it("Receive Webhook - contact deleted payload ", () => {
+it("Receive Webhook - multiple contacts deleted payload", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.incomingRequestHandler,
@@ -22,7 +22,8 @@ it("Receive Webhook - contact deleted payload ", () => {
       ],
       connector: {
         private_settings: {
-          portal_id: "1234"
+          portal_id: "1234",
+          mark_deleted_contacts: true
         }
       },
       usersSegments: [],
@@ -95,7 +96,9 @@ it("Receive Webhook - contact deleted payload ", () => {
       ],
       firehoseEvents: [
         ["traits", { "asUser": { "anonymous_id": "hubspot:123" }, "subjectType": "user" }, { "hubspot/deleted_at": 1567689104280, "hubspot/id": null }],
-        ["traits", { "asUser": { "anonymous_id": "hubspot:124" }, "subjectType": "user" }, { "hubspot/deleted_at": 1567689104280, "hubspot/id": null }]
+        ["traits", { "asUser": { "anonymous_id": "hubspot:124" }, "subjectType": "user" }, { "hubspot/deleted_at": 1567689104280, "hubspot/id": null }],
+        ["unalias", { "asUser": { "anonymous_id": "hubspot:123" }, "subjectType": "user" }, { "anonymous_id": "hubspot:123" }],
+        ["unalias", { "asUser": { "anonymous_id": "hubspot:124" }, "subjectType": "user" }, { "anonymous_id": "hubspot:124" }]
       ],
       metrics: [
         ["increment", "connector.request", 1,]
