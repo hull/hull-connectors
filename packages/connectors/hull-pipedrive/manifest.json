@@ -80,7 +80,7 @@
       "default": [
         {
           "hull": "email",
-          "service": "Email"
+          "service": "email"
         }
       ]
     },
@@ -155,6 +155,13 @@
       "default": false
     },
     {
+      "name": "ignore_deleted_users",
+      "title": "Ignore deleted users",
+      "description": "Deleted users in Hull are not actually removed. Instead these users are marked with an attribute \"deleted_at\". Do you want to ignore sending deleted users?",
+      "type": "boolean",
+      "default": true
+    },
+    {
       "name": "account_claims",
       "title": "Fields to match for Account Identity Resolution",
       "type": "array",
@@ -183,7 +190,7 @@
       "default": [
         {
           "hull": "domain",
-          "service": "Name"
+          "service": "name"
         }
       ]
     },
@@ -215,6 +222,13 @@
       "description": "Do you want to let Pipedrive delete Hull accounts when organisations are directly removed from Pipdrive's dashboard?",
       "type": "boolean",
       "default": false
+    },
+    {
+      "name": "ignore_deleted_accounts",
+      "title": "Ignore deleted accounts",
+      "description": "Deleted accounts in Hull are not actually removed. Instead these accounts are marked with an attribute \"deleted_at\". Do you want to ignore sending deleted accounts?",
+      "type": "boolean",
+      "default": true
     }
   ],
   "settings": [],
@@ -356,7 +370,8 @@
       "properties": [
         "private_settings.synchronized_user_segments",
         "private_settings.outgoing_user_attributes",
-        "private_settings.link_users_in_service"
+        "private_settings.link_users_in_service",
+        "private_settings.ignore_deleted_users"
       ]
     },
     {
@@ -380,7 +395,8 @@
       "description": "",
       "properties": [
         "private_settings.synchronized_account_segments",
-        "private_settings.outgoing_account_attributes"
+        "private_settings.outgoing_account_attributes",
+        "private_settings.ignore_deleted_accounts"
       ]
     }
   ]

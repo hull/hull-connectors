@@ -51,6 +51,7 @@ const transformsToHull: ServiceTransforms = [
         mapping: "connector.private_settings.user_claims",
         inputPath: "${service_field_name}",
         outputPath: "ident.${hull_field_name}",
+        outputFormat: "${value.value}"
       },
       {
         mapping: { type: "input" },

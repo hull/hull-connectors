@@ -82,6 +82,13 @@ const service = ({ clientID, clientSecret }: {
       returnObj: "body.data",
       output: PipedrivePersonRead
     },
+    getPersonById: {
+      url: "/persons/${userId}",
+      operation: "get",
+      endpointType: "byId",
+      returnObj: "body.data",
+      output: PipedrivePersonRead
+    },
     getAllOrgsPaged: {
       url: "/organizations/",
       operation: "get",
