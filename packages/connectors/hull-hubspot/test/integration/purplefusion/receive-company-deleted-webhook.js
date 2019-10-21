@@ -16,7 +16,8 @@ it("Receive Webhook - company deleted payload", () => {
       connector: {
         private_settings: {
           portal_id: "1234",
-          handle_accounts: true
+          handle_accounts: true,
+          mark_deleted_companies: true
         }
       },
       usersSegments: [],

@@ -15,17 +15,15 @@ const {
   cacheSet,
   cacheGet,
   settingsUpdate,
-  cacheLock,
   loopL,
   loopEndL,
-  filterL,
   get,
   moment,
   cast,
-  jsonata,
   settings,
   ex,
   ld,
+  or,
   not
 } = require("hull-connector-framework/src/purplefusion/language");
 
@@ -71,20 +69,24 @@ const glue = {
         }
       ]
      */
-    iterateL(input(), "webhookAction", [
-      set("webhookSubscription", ld("split", "${webhookAction.subscriptionType}", ".")),
-      set("hubspotEntity", "${webhookSubscription[0]}"),
-      set("actionTaken", "${webhookAction.changeFlag}"),
-      ifL(not(cond("isEqual", "${hubspotEntity}", "company")), {
-        do: [
-          hull("userDeletedInService", cast(HubspotWebhookPayload, "${webhookAction}"))
-        ],
-        eldo: [
-          ifL("${connector.private_settings.handle_accounts}", [
-            hull("accountDeletedInService", cast(HubspotWebhookPayload, "${webhookAction}"))
-          ])
-        ]
-      })
+    ifL(or([settings("mark_deleted_contacts"), settings("mark_deleted_companies")]), [
+      iterateL(input(), "webhookAction", [
+        set("webhookSubscription", ld("split", "${webhookAction.subscriptionType}", ".")),
+        set("hubspotEntity", "${webhookSubscription[0]}"),
+        set("actionTaken", "${webhookAction.changeFlag}"),
+        ifL(not(cond("isEqual", "${hubspotEntity}", "company")), {
+          do: [
+            ifL(settings("mark_deleted_contacts"), [
+              hull("userDeletedInService", cast(HubspotWebhookPayload, "${webhookAction}"))
+            ])
+          ],
+          eldo: [
+            ifL([settings("handle_accounts"), settings("mark_deleted_companies")], [
+              hull("accountDeletedInService", cast(HubspotWebhookPayload, "${webhookAction}"))
+            ])
+          ]
+        })
+      ])
     ])
   ],
   fetchAllEmailEvents: [

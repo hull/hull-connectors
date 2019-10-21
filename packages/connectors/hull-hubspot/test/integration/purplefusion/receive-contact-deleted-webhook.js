@@ -15,7 +15,8 @@ it("Receive Webhook - single contact deleted payload", () => {
       handlerType: handlers.incomingRequestHandler,
       connector: {
         private_settings: {
-          portal_id: "1234"
+          portal_id: "1234",
+          mark_deleted_contacts: true
         }
       },
       usersSegments: [],
