@@ -8,13 +8,15 @@ const jsonata = require("jsonata");
 
 const HullVariableContext = require("./variable-context");
 const transformationsShared = require("./transforms-shared");
+const { performTransformation } = require("../../src/purplefusion/transform-utils");
 
 const {
   isUndefinedOrNull,
   removeTraitsPrefix,
   setHullDataType,
   getHullDataType,
-  sameHullDataType
+  sameHullDataType,
+  asyncForEach
 } = require("./utils");
 
 const debug = require("debug")("hull-shared:TransformImpl");
@@ -155,7 +157,11 @@ class TransformImpl {
     return true;
   }
 
-  transform(variableContext: HullVariableContext, input: Object, desiredOutputClass: any) {
+  async transform(dispatcher, variableContext: HullVariableContext, input: Object, desiredOutputClass: any) {
+
+    if (isUndefinedOrNull(input)) {
+      return input;
+    }
 
     if (isUndefinedOrNull(desiredOutputClass)) {
       return variableContext.resolveVariables(input);
@@ -203,24 +209,39 @@ class TransformImpl {
     // loop through all the transforms to finally get the right data...
     let result = input;
 
-    _.forEach(transforms, transform => {
+    // for (let transformsI = 0; transformsI < transforms.length; transformsI += 1) {
+    await asyncForEach(transforms, async (transform) => {
+      // const transform = transforms[transformsI];
+      let transformsToExecute = [transform];
 
-      // maybe depending on the transformation, break obj into multiple objects for array
-      // or leave as is.... what should be the default?
-      if (Array.isArray(result) && !transform.batchTransform) {
-        result = result.map(obj => {
-          return this.transformInput(variableContext, obj, transform);
-        });
-      } else {
-
-        //if we're batch transforming an array, then we lose trackability here...
-        // unless we go back in and resolve on user_claims (natural keys)
-        // at batch endpoints we lose trackability as well, can't really say success...
-        // unless reading back and can somehow do a natural key (or ordered) lookup/join
-        result = this.transformInput(variableContext, result, transform);
+      if (transform.strategy === "MixedTransforms") {
+        transformsToExecute = transform.transforms;
       }
 
-      // debug("Transform: " + JSON.stringify(result));
+      // for (let transformsToExecuteI = 0; transformsToExecuteI < transformsToExecute.length; transformsToExecuteI += 1) {
+      //   const executeTransform = transformsToExecute[transformsToExecuteI];
+      await asyncForEach(transformsToExecute, async (executeTransform) => {
+
+        // maybe depending on the transformation, break obj into multiple objects for array
+        // or leave as is.... what should be the default?
+        if (Array.isArray(result) && !executeTransform.batchTransform) {
+          const nextResults = [];
+          for (let resultI = 0; resultI < result.length; resultI += 1) {
+            const nextResult = await this.transformInput(dispatcher, variableContext, result[resultI], executeTransform);
+            nextResults.push(nextResult)
+          }
+          result = nextResults;
+        } else {
+
+          //if we're batch transforming an array, then we lose trackability here...
+          // unless we go back in and resolve on user_claims (natural keys)
+          // at batch endpoints we lose trackability as well, can't really say success...
+          // unless reading back and can somehow do a natural key (or ordered) lookup/join
+          result = await this.transformInput(dispatcher, variableContext, result, executeTransform);
+        }
+
+        debug("Transform: " + JSON.stringify(result));
+      });
 
     });
 
@@ -262,12 +283,15 @@ class TransformImpl {
     return input;
   }
 
-  transformInput(globalContext: HullVariableContext, input: Object, transformation: Object) {
+  async transformInput(dispatcher, globalContext: HullVariableContext, input: Object, transformation: Object) {
     input = this.preAttributeTransform(transformation, input);
 
     const transforms = transformation.transforms;
 
-    if (transformation.strategy === "Jsonata") {
+
+    if (transformation.strategy === "AtomicReaction") {
+      return await performTransformation(dispatcher, globalContext, input, transformation);
+    } else if (transformation.strategy === "Jsonata") {
       let result = input;
 
       _.forEach(transforms, transform => {

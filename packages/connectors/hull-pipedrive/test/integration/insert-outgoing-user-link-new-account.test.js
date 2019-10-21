@@ -228,8 +228,7 @@ it("Insert Single User To Pipedrive Link New Account", () => {
               "name": "Apple",
               "address": "1 Atlanta Dr"
             },
-            "type": "Org",
-            "operation": "post"
+            "type": "Org"
           }
         ],
         [
@@ -347,8 +346,7 @@ it("Insert Single User To Pipedrive Link New Account", () => {
               "email": ["pipedrive_user_1@hull.com"],
               "address": "1234 Hull Pl"
             },
-            "type": "Person",
-            "operation": "post"
+            "type": "Person"
           }
         ],
         [

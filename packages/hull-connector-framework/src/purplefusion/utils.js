@@ -16,6 +16,21 @@ const {
 // I don't like that we have to use a special reserved word, but logging a warning if it ever exists and is not a ServiceObjectDefinition
 const reservedHullDataTypeKey = "hull-connector-data-type";
 
+async function asyncForEach(toIterateOn, asyncCallback) {
+
+  if (
+    isUndefinedOrNull(toIterateOn) ||
+    isUndefinedOrNull(asyncCallback) ||
+    !Array.isArray(toIterateOn)) {
+    return;
+  }
+
+  for (let i = 0; i < toIterateOn.length; i += 1) {
+    await asyncCallback(toIterateOn[i], i);
+  }
+
+}
+
 function getHullDataType(object: any) {
   if (isUndefinedOrNull(object)) {
     return;
@@ -453,5 +468,6 @@ module.exports = {
   setHullDataType,
   createAnonymizedObject,
   getHullPlatformTypeName,
-  sameHullDataType
+  sameHullDataType,
+  asyncForEach
 }

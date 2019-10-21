@@ -53,7 +53,6 @@ test("send smart-notifier user update to outreach with returning account link", 
             }
           },
           "type": "Account",
-          "operation": "post"
         } ],
         ["info", "incoming.account.success", expect.whatever(), {"data": expect.whatever(), "type": "Account" }],
         ["debug", "connector.service_api.call", expect.whatever(), {"method": "PATCH", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/18", "vars": {}}],
@@ -75,8 +74,7 @@ test("send smart-notifier user update to outreach with returning account link", 
               }
             }
           },
-          "type": "Prospect",
-          "operation": "patch"
+          "type": "Prospect"
         }],
         ["info", "incoming.user.success", expect.whatever(), { "data": expect.whatever(), "type": "Prospect" }],
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}]

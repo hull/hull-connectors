@@ -689,7 +689,7 @@ class HullDispatcher {
         //   result = this.transforms.transform(context, obj, objType, opInstruction.resultType);
         // }
 
-        return this.transforms.transform(context, obj, opInstruction.resultType);
+        return await this.transforms.transform(this, context, obj, opInstruction.resultType);
 
       } else if (opInstruction.name === "jsonata") {
 

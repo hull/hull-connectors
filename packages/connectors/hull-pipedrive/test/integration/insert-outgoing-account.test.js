@@ -7,9 +7,9 @@ const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../server/config";
 
 
-it("Update Single Account To Pipedrive", () => {
+it("Insert Single Account To Pipedrive", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
-    const updateMessages = require("./fixtures/notifier-payloads/update-single-account");
+    const updateMessages = require("./fixtures/notifier-payloads/new-single-account");
     return _.assign(updateMessages, {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -18,72 +18,20 @@ it("Update Single Account To Pipedrive", () => {
         const scope = nock("https://api-proxy.pipedrive.com");
 
         scope
-          .intercept("/organizations/3", "PUT")
+          .post("/organizations")
           .reply(201, require("./fixtures/pipedrive/account_response"));
 
         return scope;
       },
-      response: {
-        flow_control: {
-          type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10,
-        }
-      },
+      response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
       logs: [
-        [
-          "info",
-          "outgoing.job.start",
-          {
-            "request_id": expect.whatever()
-          },
-          {
-            "jobName": "Outgoing Data",
-            "type": "account"
-          }
-        ],
-        [
-          "debug",
-          "connector.service_api.call",
-          {
-            "request_id": expect.whatever()
-          },
-          {
-            "responseTime": expect.whatever(),
-            "method": "PUT",
-            "url": "/organizations/3",
-            "status": 201,
-            "vars": {}
-          }
-        ],
-        [
-          "info",
-          "outgoing.account.success",
-          {
-            "subject_type": "account",
-            "request_id": expect.whatever(),
-            "account_domain": "apple.com",
-            "account_id": "account_id_1"
-          },
-          {
-            "data": {
-              "address": "123 Random Pl",
-              "name": "apple.com"
-            },
-            "type": "Org",
-            "operation": "put"
-          }
-        ],
-        [
-          "info",
-          "incoming.account.success",
-          {
-            "subject_type": "account",
-            "request_id": expect.whatever(),
-            "account_domain": "apple.com",
-            "account_anonymous_id": "pipedrive:3"
-          },
+        ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }],
+        ["debug", "connector.service_api.call", { "request_id": expect.whatever() }, { "responseTime": expect.whatever(), "method": "POST", "url": "/organizations", "status": 201, "vars": {} }],
+        ["info", "outgoing.account.success",
+          { "subject_type": "account", "request_id": expect.whatever(), "account_id": "account_id_2", "account_domain": "apple.com" },
+          { "data": { "address": "123 Random Pl", "name": "apple.com" }, "type": "Org" }],
+        ["info", "incoming.account.success",
+          { "subject_type": "account", "request_id": expect.whatever(), "account_anonymous_id": "pipedrive:3", "account_domain": "apple.com" },
           {
             "data": {
               "id": 3,
@@ -147,52 +95,17 @@ it("Update Single Account To Pipedrive", () => {
             "type": "Org"
           }
         ],
-        [
-          "info",
-          "outgoing.job.success",
-          {
-            "request_id": expect.whatever()
-          },
-          {
-            "jobName": "Outgoing Data",
-            "type": "account"
-          }
-        ]
+        ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }]
       ],
       firehoseEvents: [
-        [
-          "traits",
-          {
-            "asAccount": {
-              "domain": "apple.com",
-              "anonymous_id": "pipedrive:3"
-            },
-            "subjectType": "account"
-          },
-          {
-            "pipedrive/id": {
-              "value": 3,
-              "operation": "set"
-            }
-          }
-        ]
+        ["traits",
+          { "asAccount": { "anonymous_id": "pipedrive:3", "domain": "apple.com" }, "subjectType": "account" },
+          { "pipedrive/id": { "value": 3, "operation": "set" } }]
       ],
-      metrics:  [
-        [
-          "increment",
-          "connector.request",
-          1,
-        ],
-        [
-          "increment",
-          "ship.service_api.call",
-          1,
-        ],
-        [
-          "value",
-          "connector.service_api.response_time",
-          expect.whatever(),
-        ],
+      metrics:   [
+        ["increment", "connector.request", 1,],
+        ["increment", "ship.service_api.call", 1,],
+        ["value", "connector.service_api.response_time", expect.whatever(),],
       ],
       platformApiCalls: []
     });
