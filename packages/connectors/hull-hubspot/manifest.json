@@ -42,7 +42,7 @@
     {
       "name": "mark_deleted_companies",
       "title": "Mark Deleted Companies",
-      "description": "If a contact has been deleted in Hubspot, mark it as such in Hull.",
+      "description": "If a company has been deleted in Hubspot, mark it as such in Hull.",
       "type": "boolean",
       "default": false
     },
