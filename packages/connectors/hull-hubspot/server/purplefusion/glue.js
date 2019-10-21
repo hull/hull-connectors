@@ -46,6 +46,9 @@ const refreshTokenDataTemplate = {
 };
 
 const glue = {
+  ensureHook: [
+    set("service_name", "hubspot")
+  ],
   shipUpdateStart: {},
   setEventMap: [
     set("eventsMapping", require("./email_events")),
@@ -74,11 +77,11 @@ const glue = {
       set("actionTaken", "${webhookAction.changeFlag}"),
       ifL(not(cond("isEqual", "${hubspotEntity}", "company")), {
         do: [
-          hull("asUser", cast(HubspotWebhookPayload, "${webhookAction}"))
+          hull("userDeletedInService", cast(HubspotWebhookPayload, "${webhookAction}"))
         ],
         eldo: [
           ifL("${connector.private_settings.handle_accounts}", [
-            hull("asAccount", cast(HubspotWebhookPayload, "${webhookAction}"))
+            hull("accountDeletedInService", cast(HubspotWebhookPayload, "${webhookAction}"))
           ])
         ]
       })
