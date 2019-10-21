@@ -199,6 +199,35 @@ function toSendMessage(
     );
   }
 
+  const entity: any = _.get(message, targetEntity);
+
+  const serviceName = _.get(options, "serviceName");
+  if (serviceName) {
+    const isDeleted = _.get(message, `${targetEntity}.${serviceName}/deleted_at`, null);
+
+    if (!isUndefinedOrNull(isDeleted)) {
+      const ignoreDeletedUsers = _.get(
+        context,
+        "connector.private_settings.ignore_deleted_users"
+      );
+
+      const ignoreDeletedAccounts = _.get(
+        context,
+        "connector.private_settings.ignore_deleted_accounts"
+      );
+
+      if (targetEntity === 'user' && ignoreDeletedUsers === true) {
+        context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "User has been deleted" });
+        return false;
+      }
+
+      if (targetEntity === 'account' && ignoreDeletedAccounts === true) {
+        context.client.asUser(entity).logger.info("outgoing.account.skip", { reason: "Account has been deleted" });
+        return false;
+      }
+    }
+  }
+
   // // We probably should introduce a standard event filter
   // if (targetEntity === "user") {
   //   const synchronizedUserEvents = _.get(context, "connector.private_settings.synchronized_user_events");
@@ -224,8 +253,6 @@ function toSendMessage(
       return true;
     }
   }
-
-  const entity: any = _.get(message, targetEntity);
 
   const entityInSegments = _.get(message, segmentAttribute, []);
   const entityInSegmentIds = entityInSegments.map( segment => segment.id );
@@ -355,7 +382,6 @@ function toSendMessage(
   // send the user because we know it's in the list to send
   // this may be the result of pushing a full segment after it's creation
   // or could be because it's a new connector which we haven't done a full fetch
-  const serviceName = _.get(options, "serviceName");
   if (serviceName) {
     const serviceId = _.get(message, `${targetEntity}.${serviceName}/id`);
     if (isUndefinedOrNull(serviceId)) {
