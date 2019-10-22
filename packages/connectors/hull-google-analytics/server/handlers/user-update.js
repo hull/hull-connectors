@@ -15,6 +15,7 @@ const getQuery = ({
   useragent,
   tid,
   cid,
+  uid,
   category,
   action,
   label,
@@ -26,6 +27,7 @@ const getQuery = ({
   v: 1,
   tid,
   cid,
+  uid,
   t: "event",
   ni: 1,
   aip: 1,
@@ -54,15 +56,17 @@ const update = async (
   try {
     const { connector, request } = ctx;
     const { private_settings = {} } = connector;
-    const { tid: tid_attribute, events: gaEvents } = private_settings;
+    const { tid, uid: uid_attribute, events: gaEvents } = private_settings;
 
     const tracks = _.reduce(
       messages,
       (payloads, message): Array<string> => {
         const { user, events } = message;
-        const tid = user[tid_attribute];
-        const cid = _.find(user.anonymous_ids, v => v.indexOf("ga:") === 0);
-        if (!cid) {
+        const uid = user[uid_attribute];
+        const cid = (
+          _.find(user.anonymous_ids, v => v.indexOf("ga:") === 0) || ""
+        ).replace("ga:", "");
+        if (!cid && !uid) {
           return payloads;
         }
         gaEvents.forEach(gaEvent => {
@@ -71,29 +75,38 @@ const update = async (
               if (label !== gaEvent.event) {
                 return;
               }
+              const value = properties[gaEvent.category];
               const payload = getQuery({
                 tid,
+                uid,
                 cid,
                 ip,
                 label,
                 useragent,
+                value,
                 category: gaEvent.category,
-                value: gaEvent.value,
-                action: gaEvent.action,
-                dimensions: getDimensions({
-                  dimensions: gaEvent.dimensions,
-                  properties
-                })
+                action: gaEvent.action
+                // ,
+                // dimensions: getDimensions({
+                //   dimensions: gaEvent.dimensions,
+                //   properties
+                // })
               });
               payloads.push(queryString.stringify(payload));
             }
           );
         });
+        console.log("message", {
+          payloads,
+          cid,
+          uid,
+          email: user.email
+        });
         return payloads;
       },
       []
     );
-    await Promise.all(
+    const responses = await Promise.all(
       _.chunk(tracks, 20).map(chunk =>
         request
           .type("text")
@@ -101,6 +114,7 @@ const update = async (
           .send(chunk.join("\n"))
       )
     );
+    console.log(responses);
     return {
       flow_control: {
         type: "next",

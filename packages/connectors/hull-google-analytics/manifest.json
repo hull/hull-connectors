@@ -40,6 +40,17 @@
       }
     },
     {
+      "name": "uid",
+      "title": "UID Mapping",
+      "description": "Identifier to send as google's `uid`",
+      "type": "string",
+      "default": "",
+      "enum": [
+        "external_id",
+        "id"
+      ]
+    },
+    {
       "name": "events",
       "title": "Events to send to GA",
       "type": "array",
@@ -53,27 +64,20 @@
           "event": {
             "title": "Event",
             "type": "string",
+            "description": "Hull Event to send to Google Analytics",
             "format": "event"
-          },
-          "category": {
-            "title": "Category",
-            "type": "string",
-            "format": "string"
           },
           "action": {
             "title": "Action",
+            "description": "Hard-coded value that will be sent for the Action property in Google Analytics",
             "type": "string",
             "format": "string"
           },
-          "dimensions": {
-            "title": "Custom Dimensions",
-            "description": "Send custom dimensions to Google Analytics. Enter the exact name of the property in the selected Hull Event, it will be mapped to custom dimensions 1-20",
-            "type": "array",
-            "format": "table",
-            "maxItems": 20,
-            "items": {
-              "type": "string"
-            }
+          "category": {
+            "title": "Category",
+            "description": "The name of the event property to use for the category. We will send the value of this property as `value`",
+            "type": "string",
+            "format": "string"
           }
         }
       },

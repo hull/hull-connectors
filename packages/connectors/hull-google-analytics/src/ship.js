@@ -6,7 +6,7 @@
 // gtag('js', new Date());
 // gtag('config', 'UA-34606920-14');
 
-import loadGA from "./lib/load-ga";
+// import loadGA from "./lib/load-ga";
 
 // Only supports analytics.js. GTM is a different thing
 const start = (element, deployment, hull) => {
@@ -16,9 +16,9 @@ const start = (element, deployment, hull) => {
   const { tid /* , uid */ } = settings;
 
   // Load GA for customer if we don't have it in the page.
-  if (!window.ga) {
-    loadGA();
-  }
+  // if (!window.ga) {
+  //   loadGA();
+  // }
   const ga = window.ga;
   ga("create", tid, "auto");
   ga("send", "pageview");
