@@ -67,9 +67,8 @@ const transformsToHull: ServiceTransforms = [
         outputFormat: "${value.value}"
       },
       {
-        inputPath: "org_id",
-        outputPath: "hull_service_accountId",
-        outputFormat: "${value.value}"
+        inputPath: "org_id.value",
+        outputPath: "hull_service_accountId"
       }
     ]
   },
@@ -95,7 +94,7 @@ const transformsToHull: ServiceTransforms = [
       },
       {
         mapping: { type: "input", path: "current" },
-        inputPath: "current.org_id",
+        inputPath: "current.org_id.value",
         outputPath: "hull_service_accountId",
       },
       {

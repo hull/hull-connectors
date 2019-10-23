@@ -20,13 +20,19 @@ describe("Pipedrive User Tests", () => {
 
   it("fetch pipedrive users", () => {
     // TODO: needs to be fixed
-    // return harness.runTest(require("./fixtures/fetch-all"));
-    return expect(true).toEqual(true);
+    return harness.runTest(require("./fixtures/fetch-all"));
+    // return expect(true).toEqual(true);
   });
 
   it("incoming user webhook from pipedrive", () => {
     // TODO: needs to be fixed
-    //return harness.runTest(require("./fixtures/user-webhook-update"));
-    return expect(true).toEqual(true);
+    return harness.runTest(require("./fixtures/user-webhook-update"));
+    // return expect(true).toEqual(true);
+  });
+
+  it("userUpdate user webhook from pipedrive", () => {
+    // TODO: needs to be fixed
+    return harness.runTest(require("./fixtures/userUpdate"));
+    // return expect(true).toEqual(true);
   });
 });

@@ -20,7 +20,8 @@ const {
   HullIncomingUserImportApi,
   HullConnectorAttributeDefinition,
   HullIncomingDropdownOption,
-  HullOutgoingDropdownOption
+  HullOutgoingDropdownOption,
+  HullApiAttributeDefinition
 } = require("./hull-service-objects");
 
 
@@ -178,6 +179,14 @@ const transformsShared: ServiceTransforms = [
         outputPath: "accountId"
       },
     ]
+  },
+  {
+    input: HullApiAttributeDefinition,
+    output: HullConnectorAttributeDefinition,
+    strategy: "Jsonata",
+    direction: "incoming",
+    batchTransform: true,
+    transforms: [`$.{ "name": ($contains(key, /^traits_/) ? $substring(key, 7) : key), "type": type, "display": key }`]
   },
   {
     input: HullConnectorAttributeDefinition,

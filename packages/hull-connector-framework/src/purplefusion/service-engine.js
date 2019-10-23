@@ -101,7 +101,7 @@ class ServiceEngine {
   }
 
   async invoke(context, serviceDefinition, name, op, param) {
-    const endpoint = getEndpoint(serviceDefinition, op);
+    const endpoint = getEndpoint(serviceDefinition, op, param);
 
     // The logic below pulls out the data and class type if the input is a service data
     let rawInputParam = param;
@@ -178,7 +178,7 @@ class ServiceEngine {
 
   invokeServiceOperation(context: HullVariableContext, serviceDefinition, name, op, data: any) {
 
-    return this.dispatchOperation(context, serviceDefinition, op, data)
+    return this.dispatchOperation(context, serviceDefinition, name, op, data)
       .then(results => {
         // find a better way to pass an already determined error template to recovery code
         // maybe a local wrapper error that's specifically for this condition
@@ -247,11 +247,11 @@ class ServiceEngine {
 
           //TODO does keeping this promise around keep the data that was the result in memory
           errorHandlingPromise = this.recoveryPromise.then(() => {
-            return this.dispatchOperation(context, serviceDefinition, op, data);
+            return this.dispatchOperation(context, serviceDefinition, name, op, data);
           });
 
         } else if (errorTemplate.retryAttempts && errorTemplate.retryAttempts > 0) {
-          errorHandlingPromise = this.retrySendingData(errorTemplate.retryAttempts - 1, 1000, context, serviceDefinition, op, data);
+          errorHandlingPromise = this.retrySendingData(errorTemplate.retryAttempts - 1, 1000, context, serviceDefinition, name, op, data);
         }
 
         if (!isUndefinedOrNull(errorHandlingPromise)) {
@@ -280,7 +280,7 @@ class ServiceEngine {
     });
   }
 
-  dispatchOperation(context: HullVariableContext, serviceDefinition, op, data: any) {
+  dispatchOperation(context: HullVariableContext, serviceDefinition, name, op, data: any) {
 
     // instantiates the service using the definition and the context
     // then dispatch the request
@@ -314,17 +314,17 @@ class ServiceEngine {
 
   }
 
-  retrySendingData(retryAttempts: number, sleepTime: number, context: Object, serviceDefinition, op, data: any) {
+  retrySendingData(retryAttempts: number, sleepTime: number, context: Object, serviceDefinition, name, op, data: any) {
 
     // returns a promise which will wait the sleep time before calling the new retry promise
     // sleep time increases *2 everytime for a good backoff
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        resolve(this.dispatchOperation(context, serviceDefinition, op, data).catch( error => {
+        resolve(this.dispatchOperation(context, serviceDefinition, name, op, data).catch( error => {
           if (retryAttempts === 0) {
             return Promise.reject(error);
           }
-          return this.retrySendingData(retryAttempts - 1, sleepTime*2, context, serviceDefinition, op, data);
+          return this.retrySendingData(retryAttempts - 1, sleepTime*2, context, serviceDefinition, name, op, data);
         }));
       }, sleepTime);
 

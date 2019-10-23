@@ -28,7 +28,8 @@ const {
   cacheSet,
   cacheGet,
   filter,
-  ex
+  ex,
+  cacheWrap
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -233,6 +234,11 @@ const glue = {
   fieldsPipedrivePersonOutbound: transformTo(HullOutgoingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getPersonFields"))),
   fieldsPipedriveOrgInbound: transformTo(HullIncomingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getOrgFields"))),
   fieldsPipedriveAccountOutbound: transformTo(HullOutgoingDropdownOption, cast(PipedriveAttributeDefinition, pipedrive("getOrgFields"))),
+  // pipedrivePersonSchema: transformTo(HullConnectorAttributeDefinition, cacheWrap(60, pipedrive("getPersonFields"))),
+  // pipedriveOrgSchema: transformTo(HullConnectorAttributeDefinition, cacheWrap(60, pipedrive("getOrgFields"))),
+  // hullUserSchema: transformTo(HullConnectorAttributeDefinition, cacheWrap(60, hull("getUserAttributes"))),
+  // pipedrivePersonEnumSchema: transformTo(HullEnumMap, cast(PipedriveAttributeDefinition, cacheWrap(60, pipedrive("getPersonFields")))),
+  hullAccountSchema: cacheWrap(60, hull("getAccountAttributes")),
   refreshToken:
     ifL(cond("notEmpty", "${connector.private_settings.refresh_token}"), [
       set("connectorHostname", utils("getConnectorHostname")),

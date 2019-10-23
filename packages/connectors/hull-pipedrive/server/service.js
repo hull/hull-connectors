@@ -135,7 +135,7 @@ const service = ({ clientID, clientSecret }: {
       operation: "get",
       endpointType: "get",
       returnObj: "body",
-      output: PipedrivePersonAttributeDefinition
+      output: PipedriveAttributeDefinition
     },
     getAllWebhooks: {
       url: "/webhooks",

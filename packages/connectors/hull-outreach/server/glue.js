@@ -23,7 +23,9 @@ const {
   settingsUpdate,
   transformTo,
   or,
-  not
+  not,
+  jsonata,
+  cacheWrap
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -327,7 +329,9 @@ const glue = {
           access_token: "${refreshTokenResponse.access_token}"
         })
       )
-    ])
+    ]),
+  getStageIdMap: jsonata("data{ $string(id): attributes.name }", cacheWrap(60, outreach("getStages"))),
+  getOwnerIdToEmailMap: jsonata("data{ $string(id): attributes.email }", cacheWrap(60, outreach("getUsers"))),
 
 };
 

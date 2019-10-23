@@ -1,5 +1,5 @@
 module.exports = {
-  route: "fetchAll",
+  route: "personFetchAll",
   configuration: {
     private_settings: {
 
@@ -13,16 +13,25 @@ module.exports = {
       input: undefined,
       name: "pipedrive",
       op: "getAllPersonsPaged",
-      result: [
-        {
-          id: 1,
-          someattr: "tim"
-        },
-        {
-          id: 2,
-          someattr: "louis"
+      result: {
+        body: {
+          data: [
+            {
+              id: 1,
+              someattr: "tim"
+            },
+            {
+              id: 2,
+              someattr: "louis"
+            }
+          ],
+          additional_data: {
+            pagination: {
+              more_items_in_collection: false
+            }
+          }
         }
-      ]
+      },
     },
     {
       localContext: expect.anything(),

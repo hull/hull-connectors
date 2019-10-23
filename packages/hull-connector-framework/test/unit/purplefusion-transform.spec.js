@@ -12,8 +12,8 @@ describe("Transformation tests", () => {
   it("type conversion", () => {
 
     const dispatcher = {
-      dispatch: (context, route, input) => {
-        if (route === "inputSchemaRoute") {
+      resolve: (context, route, input) => {
+        if (route.options.name === "inputSchemaRoute") {
           return {
             "otherservice/name": {
               type: "string"
@@ -28,7 +28,7 @@ describe("Transformation tests", () => {
               type: "int"
             }
           }
-        } else if (route === "outputSchemaRoute") {
+        } else if (route.options.name === "outputSchemaRoute") {
           return {
             "howold": {
               type: "int"
@@ -104,13 +104,13 @@ describe("Transformation tests", () => {
   it("enum replace", () => {
 
     const dispatcher = {
-      dispatch: (context, route, input) => {
-        if (route === "getMapForEnum") {
+      resolve: (context, route, input) => {
+        if (route.options.name === "getMapForEnum") {
           return {
             1: "New",
             2: "In Progress"
           }
-        } else if (route === "getInverseMap") {
+        } else if (route.options.name === "getInverseMap") {
           return {
             "New": 1,
             "In Progress": 2
@@ -171,7 +171,7 @@ describe("Transformation tests", () => {
   it("test end to end transformation", () => {
 
     const dispatcher = {
-      dispatch: (context, route, input) => {
+      resolve: (context, route, input) => {
         return {
           1: "New",
           2: "In Progress"

@@ -1,12 +1,46 @@
 /* @flow */
 const _ = require("lodash");
 const { isUndefinedOrNull, asyncForEach } = require("./utils");
+const { Route } = require("./language");
 
 function toUnixTimestamp() {
   return (date) => {
     const closeDate = new Date(date);
     return closeDate.getTime();
   }
+}
+
+function toTransform(transform, context, input) {
+
+  if (!_.isPlainObject(transform) || !transform.condition) {
+    return true;
+  }
+
+  let transformConditions = [];
+  if (!Array.isArray(transform.condition)) {
+    transformConditions.push(transform.condition);
+  } else {
+    transformConditions = transform.condition;
+  }
+
+  for (let i = 0; i < transformConditions.length; i += 1) {
+    let transformCondition = transformConditions[i];
+    if (typeof transformCondition === 'string') {
+      const value = context.get(transformCondition);
+
+      if (isUndefinedOrNull(value)) {
+        return false
+      } else if (typeof value === 'boolean' && !value) {
+        return false;
+      }
+    } else if (typeof transformCondition === 'function') {
+      if (!transformCondition(context, input)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
 }
 
 async function performTransformation(dispatcher, context, initialInput, transformation) {
@@ -43,7 +77,7 @@ async function performTransformation(dispatcher, context, initialInput, transfor
             localContext.operateValue = context.resolveVariables(transform.output.format);
           }
 
-          if (!isUndefinedOrNull(localContext.operateValue)) {
+          if (localContext.operateValue !== undefined) {
             const path = context.resolveVariables(transform.output.path);
             _.set(target, path, localContext.operateValue);
           }
@@ -55,7 +89,7 @@ async function performTransformation(dispatcher, context, initialInput, transfor
           localContext.operateValue = context.resolveVariables(transform.output.format);
         }
 
-        if (!isUndefinedOrNull(localContext.operateValue)) {
+        if (localContext.operateValue !== undefined) {
           const path = context.resolveVariables(transform.output.path);
           _.set(target, path, localContext.operateValue);
         }
@@ -75,6 +109,10 @@ async function performTransformation(dispatcher, context, initialInput, transfor
 async function resolveValue(dispatcher, context, initialInput, input, transform) {
   const operatingOn = await resolveIdentifier(dispatcher, context, initialInput, input, transform.operateOn);
 
+  if (!toTransform(transform, context, input)) {
+    return undefined;
+  }
+
   if (transform.mapOn) {
     const keys = await resolveIdentifier(dispatcher, context, initialInput, input, transform.mapOn.key);
     const map = await resolveIdentifier(dispatcher, context, initialInput, input, transform.mapOn.map);
@@ -93,7 +131,7 @@ async function resolveValue(dispatcher, context, initialInput, input, transform)
       if (operatingOn) {
         return mapValue(operatingOn);
       }
-    } else {
+    } else if (mapValue !== undefined) {
       return mapValue;
     }
 
@@ -135,7 +173,7 @@ async function resolve(dispatcher, context, initialInput, input, identifier) {
   } else if (type === "input") {
     resolvedObject = input;
   }  else if (type === "glue") {
-    resolvedObject = await dispatcher.dispatch(context, identifier.route, input);
+    resolvedObject = await dispatcher.resolve(context, new Route(identifier.route), input);
   } else if (type === "static") {
     resolvedObject = identifier.object;
   } else if (type === "cloneInitialInput") {
@@ -147,13 +185,14 @@ async function resolve(dispatcher, context, initialInput, input, identifier) {
     return {};
   }
 
+  if (truthy) {
+    resolvedObject = _.filter(resolvedObject, truthy);
+  }
+
   if (path) {
     resolvedObject = _.get(resolvedObject, path)
   }
 
-  if (truthy) {
-    resolvedObject = _.filter(resolvedObject, truthy);
-  }
   return resolvedObject;
 
 }
@@ -161,5 +200,6 @@ async function resolve(dispatcher, context, initialInput, input, identifier) {
 
 module.exports = {
   toUnixTimestamp,
-  performTransformation
+  performTransformation,
+  toTransform
 };

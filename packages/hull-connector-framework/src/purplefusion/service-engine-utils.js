@@ -81,7 +81,7 @@ function promiseToWritableStream(promise) {
 
 }
 
-function getEndpoint(serviceDefinition, op) {
+function getEndpoint(serviceDefinition, op, param) {
   // Endpoint may not exist
   // in cases where the endpoint may not add any value
   // we shouldn't make the user declare it
@@ -111,7 +111,7 @@ function getEndpoint(serviceDefinition, op) {
 
 async function streamCsv(context: HullVariableContext, serviceEngine, serviceDefinition, name, op, param) {
 
-  const endpoint = getEndpoint(serviceDefinition, op);
+  const endpoint = getEndpoint(serviceDefinition, op, param);
   let inputParams = param;
 
   const options = {

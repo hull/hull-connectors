@@ -8,7 +8,7 @@ const jsonata = require("jsonata");
 
 const HullVariableContext = require("./variable-context");
 const transformationsShared = require("./transforms-shared");
-const { performTransformation } = require("../../src/purplefusion/transform-utils");
+const { performTransformation, toTransform } = require("../../src/purplefusion/transform-utils");
 
 const {
   isUndefinedOrNull,
@@ -122,39 +122,6 @@ class TransformImpl {
     }
 
     return foundPaths;
-  }
-
-  toTransform(transform, context, input) {
-
-    if (!_.isPlainObject(transform) || !transform.condition) {
-      return true;
-    }
-
-    let transformConditions = [];
-    if (!Array.isArray(transform.condition)) {
-      transformConditions.push(transform.condition);
-    } else {
-      transformConditions = transform.condition;
-    }
-
-    for (let i = 0; i < transformConditions.length; i += 1) {
-      let transformCondition = transformConditions[i];
-      if (typeof transformCondition === 'string') {
-        const value = context.get(transformCondition);
-
-        if (isUndefinedOrNull(value)) {
-          return false
-        } else if (typeof value === 'boolean' && !value) {
-          return false;
-        }
-      } else if (typeof transformCondition === 'function') {
-        if (!transformCondition(context, input)) {
-          return false;
-        }
-      }
-    }
-
-    return true;
   }
 
   async transform(dispatcher, variableContext: HullVariableContext, input: Object, desiredOutputClass: any) {
@@ -296,18 +263,18 @@ class TransformImpl {
 
       _.forEach(transforms, transform => {
 
-        let toTransform = true;
+        let doTransform = true;
         let jsonataExpression = transform;
 
         // TODO this conditional stuff is copy pasted, need to refactor
         // but probably should refactor a lot of this stuff
         // once the transformation abstraction becomes more clear
         if (_.isPlainObject(transform)) {
-          toTransform = this.toTransform(transform, globalContext, input);
+          doTransform = toTransform(transform, globalContext, input);
           jsonataExpression = transform.expression;
         }
 
-        if (toTransform) {
+        if (doTransform) {
           const expression = jsonata(jsonataExpression);
           // flattened context can be expensive, don't do it often...
           result = expression.evaluate(result, globalContext.createFlattenedContext());
@@ -432,7 +399,7 @@ class TransformImpl {
                 throw new Error(`Bad variable replacment on outputPath, Must always have [outputPath] for transform: ${JSON.stringify(transform)}`);
               }
 
-              if (!this.toTransform(transform, globalContext, input)) {
+              if (!toTransform(transform, globalContext, input)) {
                 return;
               }
 
