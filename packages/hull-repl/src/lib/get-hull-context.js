@@ -14,6 +14,9 @@ async function getHullContext(credentials) {
     hostSecret: "hull-repl",
     clientConfig: {
       connectorName: "hull-repl"
+    },
+    manifest: {
+      name: "hull-repl"
     }
   });
   const supply = new Supply();
