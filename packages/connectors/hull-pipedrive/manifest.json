@@ -149,15 +149,15 @@
     },
     {
       "name": "support_user_deletion",
-      "title": "Let Pipedrive delete Hull users",
-      "description": "Do you want to let Pipedrive delete Hull users when Persons are directly removed from Pipdrive's dashboard?",
+      "title": "Let Pipedrive mark Hull users as deleted",
+      "description": "Users tagged as deleted in Hull are marked with the attribute \"deleted_at\". Do you want to ignore sending these marked users?",
       "type": "boolean",
       "default": false
     },
     {
       "name": "ignore_deleted_users",
       "title": "Ignore deleted users",
-      "description": "Deleted users in Hull are not actually removed. Instead these users are marked with an attribute \"deleted_at\". Do you want to ignore sending deleted users?",
+      "description": "Users tagged as deleted in Hull are marked with the attribute \"deleted_at\". Do you want to ignore sending these marked users?",
       "type": "boolean",
       "default": true
     },
@@ -218,15 +218,15 @@
     },
     {
       "name": "support_account_deletion",
-      "title": "Let Pipedrive delete Hull accounts",
-      "description": "Do you want to let Pipedrive delete Hull accounts when organisations are directly removed from Pipdrive's dashboard?",
+      "title": "Let Pipedrive mark Hull accounts as deleted",
+      "description": "Do you want to let Pipedrive tag Hull accounts as deleted when Organizations are directly removed from Pipdrive's dashboard?",
       "type": "boolean",
       "default": false
     },
     {
       "name": "ignore_deleted_accounts",
       "title": "Ignore deleted accounts",
-      "description": "Deleted accounts in Hull are not actually removed. Instead these accounts are marked with an attribute \"deleted_at\". Do you want to ignore sending deleted accounts?",
+      "description": "Accounts tagged as deleted in Hull are marked with the attribute \"deleted_at\". Do you want to ignore sending these marked accounts?",
       "type": "boolean",
       "default": true
     }
