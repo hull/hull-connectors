@@ -37,13 +37,15 @@ it("should fetch recent users using settings", () => {
         scope.get("/contacts/v1/lists/recently_updated/contacts/recent")
           .query({
             timeOffset: null,
-            property: "email"
+            property: "email",
+            count: 100
           })
           .reply(200, incomingData);
         scope.get("/contacts/v1/lists/recently_updated/contacts/recent")
           .query({
             timeOffset: 1484854580823,
-            property: "email"
+            property: "email",
+            count: 100
           })
           .reply(200, { contacts: [], "has-more": false, "time-offset": 0 });
         return scope;

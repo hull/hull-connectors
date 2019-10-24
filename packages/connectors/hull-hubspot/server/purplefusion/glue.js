@@ -203,6 +203,7 @@ const glue = {
     ]),
   fetchRecentContacts:
     cacheLock("getRecentContacts",[
+      set("count", 100),
       ifL(cond("isEmpty", set("lastFetchAt", ex(moment("${connector.private_settings.last_fetch_at}"), "valueOf"))),
         set("lastFetchAt", ex(ex(moment(), "subtract", { hour: 1 }), "valueOf"))),
       set("properties", hubspotSyncAgent("getContactPropertiesKeys")),
