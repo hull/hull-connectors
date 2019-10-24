@@ -249,7 +249,7 @@
     "initial_value": "setupRequired",
     "url": "/status",
     "type": "interval",
-    "value": "60",
+    "value": "5",
     "handler": "status"
   },
   "incoming": [
