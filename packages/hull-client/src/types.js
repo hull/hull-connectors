@@ -207,7 +207,50 @@ export type HullEntity = HullAccount | HullUser;
  * Event coming from platform
  */
 export type HullEventName = string;
-export type HullEventContext = {};
+export type HullEventContext = {
+  useragent?: string,
+  device?: {
+    name?: string
+  },
+  referrer?: {
+    url?: string,
+    host?: string,
+    path?: string
+  },
+  os?: {
+    name?: string,
+    version?: string
+  },
+  browser?: {
+    major?: string,
+    name?: string,
+    version?: string
+  },
+  location?: {
+    country?: string,
+    city?: string,
+    timezone?: string,
+    longitude?: string,
+    latitude?: string,
+    region?: string,
+    countryname?: string,
+    regionname?: string,
+    zipcode?: string
+  },
+  campaign?: {
+    term?: string,
+    medium?: string,
+    name?: string,
+    content?: string,
+    source?: string
+  },
+  ip?: string,
+  page?: {
+    url?: string,
+    host?: string,
+    path?: string
+  }
+};
 export type HullEventProperties = {};
 export type HullEvent = {
   event_id: string,

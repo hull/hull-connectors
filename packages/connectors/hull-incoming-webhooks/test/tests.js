@@ -119,7 +119,8 @@ module.exports = [
         {
           attributes: {
             "my-group/customerioid": "321"
-          }
+          },
+          no_ops: {}
         }
       ]
     ],
@@ -264,7 +265,8 @@ module.exports = [
         {
           attributes: {
             "my-group/foo": "321"
-          }
+          },
+          no_ops: {}
         }
       ],
       [
@@ -277,7 +279,8 @@ module.exports = [
         {
           attributes: {
             "foo/accountFoo": "accountBar"
-          }
+          },
+          no_ops: {}
         }
       ],
       [
@@ -290,7 +293,8 @@ module.exports = [
         {
           attributes: {
             linkedAccountFoo: "linkedAccountBar"
-          }
+          },
+          no_ops: {}
         }
       ],
       [
@@ -318,7 +322,7 @@ module.exports = [
           accountClaims: {
             external_id: "external"
           },
-          claims: {
+          userClaims: {
             id: "123"
           }
         }
@@ -498,7 +502,8 @@ module.exports = [
         {
           attributes: {
             "my-group/foo": "321"
-          }
+          },
+          no_ops: {}
         }
       ],
       [
@@ -511,7 +516,8 @@ module.exports = [
         {
           attributes: {
             "foo/accountFoo": "accountBar"
-          }
+          },
+          no_ops: {}
         }
       ],
       [
@@ -524,7 +530,8 @@ module.exports = [
         {
           attributes: {
             linkedAccountFoo: "linkedAccountBar"
-          }
+          },
+          no_ops: {}
         }
       ],
       [
@@ -550,7 +557,7 @@ module.exports = [
         },
         {
           accountClaims: { external_id: "external" },
-          claims: { id: "123" }
+          userClaims: { id: "123" }
         }
       ]
     ],
@@ -682,7 +689,8 @@ module.exports = [
         {
           attributes: {
             customerioid: "4567"
-          }
+          },
+          no_ops: {}
         }
       ],
       [
@@ -788,7 +796,8 @@ module.exports = [
         {
           attributes: {
             customerioid: "4567"
-          }
+          },
+          no_ops: {}
         }
       ]
     ],
@@ -871,7 +880,8 @@ module.exports = [
           attributes: {
             foo: null,
             bar: "baz"
-          }
+          },
+          no_ops: {}
         }
       ]
     ],
@@ -947,7 +957,8 @@ module.exports = [
         {
           attributes: {
             foo: "bar"
-          }
+          },
+          no_ops: {}
         }
       ]
     ],
@@ -1021,7 +1032,7 @@ module.exports = [
           user_id: "123"
         },
         {
-          aliases: { 'Map { "email": "foo@bar.com" }': "alias" },
+          operations: [[{ email: "foo@bar.com" }, "alias"]],
           claims: { id: "123" }
         }
       ],
@@ -1033,10 +1044,10 @@ module.exports = [
           account_domain: "foo.com"
         },
         {
-          aliases: {
-            'Map { "external_id": "123" }': "alias",
-            'Map { "anonymous_id": "nooot" }': "unalias"
-          },
+          operations: [
+            [{ external_id: "123" }, "alias"],
+            [{ anonymous_id: "nooot" }, "unalias"]
+          ],
           claims: { domain: "foo.com" }
         }
       ]

@@ -7,7 +7,6 @@ import type {
   HullEventProperties,
   HullEventContext
 } from "hull";
-import { applyContext } from "hull-client/src/utils/traits";
 import { Map } from "immutable";
 import type {
   HullAliasOperation,
@@ -21,6 +20,9 @@ import {
   hasValidAccountClaims,
   hasValidLinkclaims
 } from "../validate-claims";
+
+const { applyContext } = require("hull-client/src/utils/traits");
+const { filterEntityClaims } = require("hull-client/src/lib/filter-claims");
 
 const buildHullContext = (
   client: HullClient,
@@ -46,7 +48,7 @@ const buildHullContext = (
     context: HullEventContext = {}
   ) => {
     result[target].push({
-      claims,
+      claims: filterEntityClaims("user", claims),
       event: {
         eventName,
         properties,
@@ -54,7 +56,6 @@ const buildHullContext = (
       }
     });
   };
-
   const aliasFactory = <ClaimType = HullUserClaims | HullAccountClaims>(
     claims: ClaimType,
     operation: HullAliasOperation,
@@ -63,19 +64,34 @@ const buildHullContext = (
     // sets the rigth operation for the claim and the given alias.
     // perform deep value equality checks.
     result[target] = result[target].setIn(
-      [Map({ ...claims }), Map({ ...alias })],
+      [
+        Map(
+          filterEntityClaims(
+            target === "userAliases" ? "user" : "account",
+            claims
+          )
+        ),
+        Map({ ...alias })
+      ],
       operation
     );
   };
 
-  const identifyFactory = <ClaimType>(
+  const identifyFactory = <ClaimType = HullUserClaims | HullAccountClaims>(
     claims: ClaimType,
     target: "userTraits" | "accountTraits"
   ) => (attributes: Attributes, context?: HullAttributeContext = {}) => {
     // ensures the claims and calls are properly collapsed and aggregated
     result[target] = result[target].withMutations(map => {
       map.mergeDeepIn(
-        [Map({ ...claims })],
+        [
+          Map(
+            filterEntityClaims(
+              target === "userTraits" ? "user" : "account",
+              claims
+            )
+          )
+        ],
         Map(applyContext(attributes, context))
       );
     });
@@ -105,7 +121,10 @@ const buildHullContext = (
     if (!account.traits) {
       return {};
     }
-    result.accountLinks = result.accountLinks.set(claims, accountClaims);
+    result.accountLinks = result.accountLinks.set(
+      Map(filterEntityClaims("user", claims)),
+      Map(filterEntityClaims("account", accountClaims))
+    );
     return account;
   };
 

@@ -2,7 +2,6 @@
 
 import type {
   HullClientConfig,
-  HullClientCredentials,
   HullEntityAttributes,
   HullUserEventName,
   HullUserEventProperties,
@@ -26,15 +25,17 @@ const Configuration = require("./lib/configuration");
 const restAPI = require("./lib/rest-api");
 const crypto = require("./lib/crypto");
 const Firehose = require("./lib/firehose");
-const {
-  normalizeUserClaims,
-  normalizeAccountClaims
-} = require("./lib/normalize-claims");
 
 const traitsUtils = require("./utils/traits");
 const claimsUtils = require("./utils/claims");
 const settingsUtils = require("./utils/settings");
 const propertiesUtils = require("./utils/properties");
+
+type HullClientCredentials = {
+  id: string,
+  secret: string,
+  organization: string
+};
 
 const logger = new winston.Logger({
   transports: [
@@ -325,7 +326,7 @@ class HullClient {
     return new UserScopedHullClient({
       ...this.config,
       subjectType: "user",
-      userClaim: normalizeUserClaims(userClaim),
+      userClaim,
       additionalClaims
     });
   };
@@ -352,7 +353,7 @@ class HullClient {
     return new AccountScopedHullClient({
       ...this.config,
       subjectType: "account",
-      accountClaim: normalizeAccountClaims(accountClaim),
+      accountClaim,
       additionalClaims
     });
   };

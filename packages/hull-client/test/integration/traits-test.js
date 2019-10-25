@@ -39,10 +39,8 @@ describe('Traits.group', () => {
       group: {
         name: "groupname"
       },
-      traits: {
-        coconut_name: "coconut",
-        coconut_size: "large"
-      },
+      coconut_name: "coconut",
+      coconut_size: "large",
       zendesk: {
         open_tickets: 18,
         open: { tickets: 18 }

@@ -68,6 +68,7 @@ export type HullStatusResponse =
 export type HullExternalResponseData = void | {
   status?: number,
   pageLocation?: string,
+  error?: any,
   data?: any,
   text?: string
 };
