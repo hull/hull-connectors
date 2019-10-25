@@ -161,7 +161,19 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
             // custom_undefined: "", -> this is not present
             custom_date_at: "2018-10-24T09:47:39Z",
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          changes: {
+            is_new: false,
+            user: {
+              traits_custom_numeric: [
+                null,
+                123
+              ]
+            },
+            account: {},
+            segments: {},
+            account_segments: {}
+          },
         }
       ],
       response: {
@@ -177,6 +189,13 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
+        [
+          "info",
+          "outgoing.user.send",
+          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
+          {
+            reason: "does not have service id"
+          }],
         [
           "info",
           "outgoing.user.success",
