@@ -3,7 +3,7 @@ const { TransientError } = require("../errors");
 
 function timeoutMiddlewareFactory({ emitError = true, onTimeout = null } = {}) {
   return function timeoutMiddleware(req, res, next) {
-    const { timeout } = req.hull.connectorConfig;
+    const { timeout = 25000 } = req.hull.connectorConfig;
     const originalSend = res.send;
     const originalJson = res.json;
     res.json = function customJson(data) {

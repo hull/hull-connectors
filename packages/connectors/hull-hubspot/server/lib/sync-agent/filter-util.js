@@ -62,6 +62,9 @@ class FilterUtil {
     };
     envelopes.forEach(envelope => {
       const { user, changes = {} } = envelope.message;
+
+      // TODO need to be careful with this logic.  If multiple changes came in at the same time
+      // could be blocking good changes from going...
       if (
         _.get(changes, "user['hubspot/fetched_at'][1]", false) &&
         _.isEmpty(_.get(changes, "segments"))

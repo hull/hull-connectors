@@ -4,7 +4,7 @@
  * @namespace Infra
  * @public
  * @example
- * const instrumentation = new Instrumentation();
+ * const instrumentation = new Instrumentation(options: HullMetricsConfig = {}, manifest: HullManifest);
  * const queue = new Queue();
  *
  * const connector = new Hull.Connector({ instrumentation, cache, queue });

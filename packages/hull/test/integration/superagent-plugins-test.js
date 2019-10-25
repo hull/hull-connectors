@@ -1,4 +1,5 @@
 /* global it, describe */
+const { expect } = require("chai");
 const nock = require("nock");
 const superagent = require("superagent");
 const TransientError = require("../../src/errors/transient-error");
@@ -17,9 +18,26 @@ describe("SuperAgent plugins", () => {
         .use(superagentErrorPlugin())
         .then(() => {})
         .catch((error) => {
-          console.log(error.stack, error instanceof TransientError);
+          expect(error).to.be.instanceof(TransientError)
+          // console.log(error.stack, error instanceof TransientError);
           done();
         });
+    });
+    it("should return transient error for EADDRINFO", (done) => {
+      nock("http://test")
+      .get("/test")
+      .thrice()
+      .replyWithError({ code: "EADDRINFO" });
+      superagent.get("http://test/test")
+      .use(superagentErrorPlugin())
+      .then((res) => {
+        // console.log(res);
+      })
+      .catch((error) => {
+        expect(error).to.be.instanceof(TransientError)
+        // console.log(error, error instanceof TransientError);
+        done();
+      });
     });
 
     it("should return transient error for a header response timeout", (done) => {
@@ -30,33 +48,14 @@ describe("SuperAgent plugins", () => {
         .reply(200);
       superagent.get("http://test/test")
         .use(superagentErrorPlugin())
-        .timeout({
-          response: 10
-        })
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((error) => {
-          console.log(error, error instanceof TransientError);
+        .timeout(10)
+        .end((error) => {
+          expect(error).to.be.instanceof(TransientError)
+          // console.log(error, error instanceof TransientError);
           done();
         });
     });
 
-    it("should return transient error for EADDRINFO", (done) => {
-      nock("http://test")
-        .get("/test")
-        .thrice()
-        .replyWithError({ code: "EADDRINFO" });
-      superagent.get("http://test/test")
-        .use(superagentErrorPlugin())
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((error) => {
-          console.log(error, error instanceof TransientError);
-          done();
-        });
-    });
 
     it("should return transient error for body timeout", (done) => {
       nock("http://test")
@@ -70,13 +69,11 @@ describe("SuperAgent plugins", () => {
         .timeout({
           deadline: 10
         })
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((error) => {
-          console.log(error, error instanceof TransientError);
+        .end((error) => {
+          expect(error).to.be.instanceof(TransientError)
+          // console.log(error, error instanceof TransientError);
           done();
-        });
+        })
     });
 
     it("should reject with normal Error object in case of non 2xx response", (done) => {
@@ -87,10 +84,10 @@ describe("SuperAgent plugins", () => {
       superagent.get("http://test/test")
         .use(superagentErrorPlugin())
         .then((res) => {
-          console.log(res);
+          // console.log(res);
         })
         .catch((error) => {
-          console.log(error, error instanceof Error);
+          expect(error).to.be.instanceof(Error)
           done();
         });
     });
@@ -109,15 +106,16 @@ describe("SuperAgent plugins", () => {
           return true;
         })
         .then((res) => {
-          console.log(res);
+          // console.log(res);
         })
         .catch((error) => {
-          console.log(error, error instanceof ConfigurationError, error.constructor.name);
+          expect(error).to.be.instanceof(ConfigurationError)
+          // console.log(error, error instanceof ConfigurationError, error.constructor.name);
           done();
         });
     });
 
-    it("should allow normal response without retrial", (done) => {
+    it("should allow normal response without retry", (done) => {
       nock("http://test")
         .get("/test")
         .reply(200, "OK");
@@ -125,10 +123,11 @@ describe("SuperAgent plugins", () => {
       superagent.get("http://test/test")
         .use(superagentErrorPlugin())
         .then((res) => {
-          console.log(res);
+          // console.log(res);
           done();
         })
         .catch((error) => {
+          console.log(error)
         });
     });
   });
