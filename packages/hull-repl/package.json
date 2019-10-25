@@ -8,7 +8,7 @@
     "documentation": "exit 0"
   },
   "bin": {
-    "hull-repl": "src/hull-repl.js"
+    "hull-repl": "src/index.js"
   },
   "author": "",
   "license": "MIT",
