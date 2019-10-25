@@ -204,7 +204,10 @@ const glue = {
   fetchRecentContacts:
     cacheLock("getRecentContacts",[
       set("count", 100),
-      ifL(cond("isEmpty", set("lastFetchAt", ex(moment("${connector.private_settings.last_fetch_at}"), "valueOf"))),
+      set("lastFetchAt", "${connector.private_settings.last_fetch_timestamp}"),
+      ifL(cond("isEmpty", "${lastFetchAt}"),
+        set("lastFetchAt", ex(moment("${connector.private_settings.last_fetch_at}"), "valueOf"))),
+      ifL(cond("isEmpty", "lastFetchAt"),
         set("lastFetchAt", ex(ex(moment(), "subtract", { hour: 1 }), "valueOf"))),
       set("properties", hubspotSyncAgent("getContactPropertiesKeys")),
       set("stopFetchAt", ex(moment(), "format")),
@@ -245,7 +248,7 @@ const glue = {
         ),
         set("offset", "${contactsPage.time-offset}")
       ]),
-      settingsUpdate({last_fetch_at: "${stopFetchAt}"})
+      settingsUpdate({last_fetch_timestamp: "${stopFetchAt}"})
     ])
 };
 
