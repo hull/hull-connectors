@@ -28,7 +28,10 @@ function incomingRequestHandlerFactory(
       ...options
     },
     requestName: "requests-buffer",
-    handler: handler(configurationEntry),
+    handler: handler({
+      ...configurationEntry,
+      options: { dropIfConnectorDisabled: true, ...options }
+    }),
     errorHandler: errorHandler(options)
   });
 }

@@ -8,7 +8,7 @@
   "picture": "picture.png",
   "ui": false,
   "readme": "readme.md",
-  "version": "0.3.0",
+  "version": "0.1.8-monorepo",
   "private_settings": [
     {
       "title": "API Key",

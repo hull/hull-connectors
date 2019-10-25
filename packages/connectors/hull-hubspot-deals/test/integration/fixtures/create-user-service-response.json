@@ -1,0 +1,174 @@
+{
+  "portalId": 6015139,
+  "dealId": 843792333,
+  "isDeleted": false,
+  "associations": {
+    "associatedVids": [],
+    "associatedCompanyIds": [],
+    "associatedDealIds": [],
+    "associatedTicketIds": []
+  },
+  "properties": {
+    "pipeline": {
+      "value": "default",
+      "timestamp": 1561394141901,
+      "source": "API",
+      "sourceId": "",
+      "versions": [
+        {
+          "name": "pipeline",
+          "value": "default",
+          "timestamp": 1561394141901,
+          "sourceId": "",
+          "source": "API",
+          "sourceVid": []
+        }
+      ]
+    },
+    "dealname": {
+      "value": "Deal Dealerson",
+      "timestamp": 1561394141901,
+      "source": "API",
+      "sourceId": "",
+      "versions": [
+        {
+          "name": "dealname",
+          "value": "Deal Dealerson",
+          "timestamp": 1561394141901,
+          "sourceId": "",
+          "source": "API",
+          "sourceVid": []
+        }
+      ]
+    },
+    "amount": {
+      "value": "60000",
+      "timestamp": 1561394141901,
+      "source": "API",
+      "sourceId": "",
+      "versions": [
+        {
+          "name": "amount",
+          "value": "60000",
+          "timestamp": 1561394141901,
+          "sourceId": "",
+          "source": "API",
+          "sourceVid": []
+        }
+      ]
+    },
+    "hs_lastmodifieddate": {
+      "value": "1561394141901",
+      "timestamp": 1561394141901,
+      "source": "CALCULATED",
+      "sourceId": null,
+      "versions": [
+        {
+          "name": "hs_lastmodifieddate",
+          "value": "1561394141901",
+          "timestamp": 1561394141901,
+          "source": "CALCULATED",
+          "sourceVid": []
+        }
+      ]
+    },
+    "dealstage": {
+      "value": "appointmentscheduled",
+      "timestamp": 1561394141901,
+      "source": "API",
+      "sourceId": "",
+      "versions": [
+        {
+          "name": "dealstage",
+          "value": "appointmentscheduled",
+          "timestamp": 1561394141901,
+          "sourceId": "",
+          "source": "API",
+          "sourceVid": []
+        }
+      ]
+    },
+    "hs_createdate": {
+      "value": "1561394141901",
+      "timestamp": 1561394141901,
+      "source": "API",
+      "sourceId": "",
+      "versions": [
+        {
+          "name": "hs_createdate",
+          "value": "1561394141901",
+          "timestamp": 1561394141901,
+          "sourceId": "",
+          "source": "API",
+          "sourceVid": []
+        }
+      ]
+    },
+    "createdate": {
+      "value": "1561394141901",
+      "timestamp": 1561394141901,
+      "source": "API",
+      "sourceId": "",
+      "versions": [
+        {
+          "name": "createdate",
+          "value": "1561394141901",
+          "timestamp": 1561394141901,
+          "sourceId": "",
+          "source": "API",
+          "sourceVid": []
+        }
+      ]
+    },
+    "amount_in_home_currency": {
+      "value": "60000",
+      "timestamp": 1561394141901,
+      "source": "CALCULATED",
+      "sourceId": null,
+      "versions": [
+        {
+          "name": "amount_in_home_currency",
+          "value": "60000",
+          "timestamp": 1561394141901,
+          "source": "CALCULATED",
+          "sourceVid": [],
+          "sourceMetadata": ""
+        }
+      ]
+    },
+    "days_to_close": {
+      "value": "0",
+      "timestamp": 1561394141901,
+      "source": "CALCULATED",
+      "sourceId": null,
+      "versions": [
+        {
+          "name": "days_to_close",
+          "value": "0",
+          "timestamp": 1561394141901,
+          "source": "CALCULATED",
+          "sourceVid": [],
+          "sourceMetadata": ""
+        }
+      ]
+    },
+    "dealtype": {
+      "value": "newbusiness",
+      "timestamp": 1561394141901,
+      "source": "API",
+      "sourceId": "",
+      "versions": [
+        {
+          "name": "dealtype",
+          "value": "newbusiness",
+          "timestamp": 1561394141901,
+          "sourceId": "",
+          "source": "API",
+          "sourceVid": []
+        }
+      ]
+    }
+  },
+  "imports": [],
+  "stateChanges": []
+}
