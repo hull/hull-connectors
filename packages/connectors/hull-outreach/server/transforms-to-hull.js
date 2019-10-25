@@ -1,18 +1,18 @@
 /* @flow */
-import type { ServiceTransforms } from "./shared/types";
+import type { ServiceTransforms } from "hull-connector-framework/src/purplefusion/types";
 
-const { doesNotContain, isEqual, doesContain, isNotEqual } = require("./shared/conditionals");
+const { doesNotContain, isEqual, doesContain, isNotEqual } = require("hull-connector-framework/src/purplefusion/conditionals");
 
 
 const {
   HullIncomingUser,
-  HullIncomingAccount
-} = require("./shared/hull-service-objects");
+  HullIncomingAccount,
+  WebPayload,
+} = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const {
   OutreachProspectRead,
   OutreachAccountRead,
-  WebhookPayload,
 } = require("./service-objects");
 
 /**
@@ -73,7 +73,7 @@ const transformsToHull: ServiceTransforms =
       ]
     },
     {
-      input: WebhookPayload,
+      input: WebPayload,
       output: HullIncomingUser,
       strategy: "PropertyKeyedValue",
       arrayStrategy: "append_index",
@@ -158,7 +158,7 @@ const transformsToHull: ServiceTransforms =
       ]
     },
     {
-      input: WebhookPayload,
+      input: WebPayload,
       output: HullIncomingAccount,
       strategy: "PropertyKeyedValue",
       arrayStrategy: "append_index",
@@ -188,6 +188,4 @@ const transformsToHull: ServiceTransforms =
 
   ];
 
-module.exports = {
-  transformsToHull
-};
+module.exports = transformsToHull;

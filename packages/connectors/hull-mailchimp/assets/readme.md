@@ -29,8 +29,8 @@ The Mailchimp Connector supports  `update traits` and `create events`.
 
 ## Specify which users are synchronized with Mailchimp
 
-By default all users in your Hull organization are synchronized with Mailchimp, but you can easily change this behavior in the “Settings” tab of the Connector. Locate the section labelled configuration and select the segments you want to synchronize:
-![Whitelisted Segments](./docs/whitelistedsegments01.png)
+By default no users are sent to Mailchimp, but you can easily change this behavior in the “Settings” tab of the Connector. Locate the section labelled configuration and select the segments you want to synchronize.  You may also select "All Users" to send all users to Mailchimp
+
 
 ## Determine the user attributes to send to Mailchimp
 

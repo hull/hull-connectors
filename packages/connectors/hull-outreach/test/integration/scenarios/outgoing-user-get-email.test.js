@@ -9,7 +9,7 @@ process.env.CLIENT_SECRET = "1234";
 /* global describe, it, beforeEach, afterEach */
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
-test.skip("send smart-notifier user update to outreach", () => {
+test("send smart-notifier user update to outreach", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = require("../fixtures/notifier-payloads/outgoing-user-get-email.json");
     return _.assign(updateMessages, {
@@ -47,7 +47,7 @@ test.skip("send smart-notifier user update to outreach", () => {
           expect.whatever(),
           {
             reason:
-              "User is not present in any existing segment (segments).  Please add the user to an existing synchronized segment"
+            "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment"
           }
         ],
         [
@@ -64,53 +64,16 @@ test.skip("send smart-notifier user update to outreach", () => {
         ],
         [
           "info",
-          "outgoing.user.success",
-          expect.whatever(),
-          {
-            data: {
-              changes: {
-                is_new: true,
-                user: {
-                  "outreach/id": [null, 184816],
-                  id: [null, "5c921ab64c54ced6e1000125"],
-                  "outreach/created_by_webhook": [null, true],
-                  anonymous_ids: [null, ["outreach:184816"]],
-                  created_at: [null, expect.whatever()],
-                  is_approved: [null, false]
-                },
-                account: {},
-                segments: {},
-                account_segments: {}
-              },
-              user: expect.whatever(),
-              account: {},
-              segments: [],
-              events: [],
-              account_segments: [],
-              message_id: "5d86a12f09f0cb8407882ed09e152091864bbee4",
-              user_segments: [],
-              user_segment_ids: undefined
-            },
-            operation: "get",
-            response: [expect.whatever()],
-            type: "prospect"
-          }
-        ],
-
-        [
-          "info",
           "incoming.user.success",
-          expect.whatever(),
           {
-            data: {
-              attributes: {
-                "outreach/id": { operation: "set", value: 184816 }
-              },
-              ident: {
-                anonymous_id: "outreach:184816",
-                email: "bruce@hulk.com"
-              }
-            }
+            "subject_type": "user",
+            "request_id": expect.whatever(),
+            "user_email": "bruce@hulk.com",
+            "user_anonymous_id": "outreach:184816"
+          },
+          {
+            data: expect.whatever(),
+            type: "Prospect"
           }
         ],
         [
@@ -136,8 +99,7 @@ test.skip("send smart-notifier user update to outreach", () => {
       metrics: [
         ["increment", "connector.request", 1],
         ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.whatever()],
-        ["increment", "ship.incoming.users", 1]
+        ["value", "connector.service_api.response_time", expect.whatever()]
       ]
     });
   });
