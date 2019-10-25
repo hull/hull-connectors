@@ -43,10 +43,6 @@ it("should filter because none of the mapped attributes have changed", () => {
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, require("../fixtures/get-properties-companies-groups"));
 
-        // to comment out when we turn on filtering
-        scope.post("/contacts/v1/contact/batch/?auditId=Hull",
-          [{"properties":[{"property":"hull_segments","value":"testSegment"}],"email":"email@email.com"}]
-        ).reply(202);
         return scope;
       },
       connector,
@@ -70,7 +66,8 @@ it("should filter because none of the mapped attributes have changed", () => {
             traits_custom_empty_string: "",
             traits_custom_zero: 0,
             // traits_custom_undefined: "", -> this is not present
-            traits_custom_date_at: "2018-10-24T09:47:39Z"
+            traits_custom_date_at: "2018-10-24T09:47:39Z",
+            "traits_hubspot/id": 1234
           },
           account: {
             id: "acc123",
@@ -120,35 +117,11 @@ it("should filter because none of the mapped attributes have changed", () => {
           {
             "reason": "No changes on any of the synchronized attributes for this user.  If you think this is a mistake, please check the settings page for the synchronized user attributes to ensure that the attribute which changed is in the synchronized outgoing attributes"
           }
-        ],
-
-        // To remove when turning on skipping
-        [ 'info',
-          'outgoing.user.skipcandidate',
-          { subject_type: 'user',
-            request_id: expect.whatever(),
-            user_email: 'email@email.com' },
-          { reason: 'attribute change not found', changes: expect.whatever() } ],
-        [ 'debug',
-          'connector.service_api.call',
-          { request_id: expect.whatever() },
-          { responseTime: expect.whatever(),
-            method: 'POST',
-            url: '/contacts/v1/contact/batch/',
-            status: 202,
-            vars: {} } ],
-        [ 'info',
-          'outgoing.user.success',
-          { subject_type: 'user',
-            request_id: expect.whatever(),
-            user_email: 'email@email.com' },
-          { properties: expect.whatever(), email: 'email@email.com' } ]
+        ]
         ],
       firehoseEvents: [],
       metrics: [
         ["increment", "connector.request", 1],
-        ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "ship.service_api.call", 1],

@@ -199,6 +199,35 @@ function toSendMessage(
     );
   }
 
+  const entity: any = _.get(message, targetEntity);
+
+  const serviceName = _.get(options, "serviceName");
+  if (serviceName) {
+    const isDeleted = _.get(message, `${targetEntity}.${serviceName}/deleted_at`, null);
+
+    if (!isUndefinedOrNull(isDeleted)) {
+      const ignoreDeletedUsers = _.get(
+        context,
+        "connector.private_settings.ignore_deleted_users"
+      );
+
+      const ignoreDeletedAccounts = _.get(
+        context,
+        "connector.private_settings.ignore_deleted_accounts"
+      );
+
+      if (targetEntity === 'user' && ignoreDeletedUsers === true) {
+        context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "User has been deleted" });
+        return false;
+      }
+
+      if (targetEntity === 'account' && ignoreDeletedAccounts === true) {
+        context.client.asUser(entity).logger.info("outgoing.account.skip", { reason: "Account has been deleted" });
+        return false;
+      }
+    }
+  }
+
   // // We probably should introduce a standard event filter
   // if (targetEntity === "user") {
   //   const synchronizedUserEvents = _.get(context, "connector.private_settings.synchronized_user_events");
@@ -224,8 +253,6 @@ function toSendMessage(
       return true;
     }
   }
-
-  const entity: any = _.get(message, targetEntity);
 
   const entityInSegments = _.get(message, segmentAttribute, []);
   const entityInSegmentIds = entityInSegments.map( segment => segment.id );
@@ -315,8 +342,24 @@ function toSendMessage(
     }
   }
 
+  // This is a special flag where we send all attributes regardless of change
+  // may want to reorder this in cases where we still may not want to send if an event comes through
   const send_all_user_attributes = _.get(context, "connector.private_settings.send_all_user_attributes");
   if (send_all_user_attributes === true && targetEntity === "user") {
+
+    const accountChanges = _.get(message.changes, "account");
+    const userChanges = _.get(message.changes, "user");
+    const userEvents = _.get(message, "events");
+
+    // if there are only account changes, then do not send user update message
+    if (!_.isEmpty(accountChanges) && _.isEmpty(userChanges) && _.isEmpty(userEvents)) {
+      context.client.asUser(entity).logger.info("outgoing.user.skip", {
+        reason:
+          "Has account changes but no user changes and no events"
+      });
+      return false;
+    }
+
     return true;
   }
 
@@ -347,6 +390,32 @@ function toSendMessage(
       });
     }
     return false;
+  }
+
+  // in cases where we do not have a id of the service, which means we haven't sync'd the entity before
+  // send the user because we know it's in the list to send
+  // this may be the result of pushing a full segment after it's creation
+  // or could be because it's a new connector which we haven't done a full fetch
+  if (serviceName) {
+    const serviceId = _.get(message, `${targetEntity}.${serviceName}/id`);
+    if (isUndefinedOrNull(serviceId)) {
+
+      // log for now so we can find this scenario
+      // remove after we've audited
+      try {
+        if (targetEntity === "user") {
+          context.client.asUser(entity).logger.info("outgoing.user.send", {
+            reason: "does not have service id"
+          });
+        } else if (targetEntity === "account") {
+          context.client.asAccount(entity).logger.info("outgoing.account.send", {
+            reason: "does not have service id"
+          });
+        }
+      } catch (error) {}
+
+      return true;
+    }
   }
 
   const attributesToSync = outgoingAttributes.map(attr => attr.hull);

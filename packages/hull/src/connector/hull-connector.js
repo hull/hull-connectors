@@ -4,6 +4,8 @@ import type { $Application, Middleware } from "express";
 import _ from "lodash";
 import type { Server } from "http";
 import express from "express";
+import repl from "hull-repl";
+import minimist from "minimist";
 import type {
   HullContext,
   HullServerConfig,
@@ -246,11 +248,23 @@ class HullConnector {
         this.server = server;
       }
       this.setupApp(app);
-      this.setupRoutes(app);
+      await this.setupRoutes(app);
+      this.setupErrorHandling(app);
       debug(`Started server on port ${this.connectorConfig.port}`);
     } else {
       debug("No Server started: `serverConfig.start === false`");
     }
+    const argv = minimist(process.argv);
+    if (argv.repl) {
+      this.repl(_.pick(argv, "id", "organization", "secret"));
+    }
+  }
+
+  async repl(credentials: {}) {
+    return repl({
+      credentials,
+      middlewares: this.baseComposedMiddleware()
+    });
   }
 
   stop() {
@@ -274,6 +288,14 @@ class HullConnector {
     // Don't move it out of this closure either
     // https://github.com/expressjs/express/issues/3855
 
+    const { rawCustomRoutes } = this.connectorConfig;
+    if (rawCustomRoutes) {
+      rawCustomRoutes.map(({ method, url, handler }) => {
+        app[method](url, handler);
+        return true;
+      });
+    }
+
     // This method wires the routes according to the configuration.
     // Methods are optional but they all have sane defaults
     const mapNotification = (factory, section = "subscriptions") =>
@@ -288,6 +310,7 @@ class HullConnector {
           );
           return app.post(url, router);
         }
+        return app;
       });
 
     // Breaking proper separation of concerns here, but its the least invasive way to override route setup with oAuth handlers
@@ -452,7 +475,10 @@ class HullConnector {
     app.engine("html", renderFile);
     app.set("views", getAbsolutePath("views"));
     app.set("view engine", "ejs");
+    return app;
+  }
 
+  setupErrorHandling(app: $Application): $Application {
     /**
      * Instrumentation Middleware,
      * this sends all errors to sentry

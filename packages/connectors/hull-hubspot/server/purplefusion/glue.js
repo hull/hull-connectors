@@ -1,5 +1,7 @@
 /* @flow */
 
+import { HubspotWebhookPayload } from "./service-objects";
+
 const {
   route,
   cond,
@@ -13,17 +15,16 @@ const {
   cacheSet,
   cacheGet,
   settingsUpdate,
-  cacheLock,
   loopL,
   loopEndL,
-  filterL,
   get,
   moment,
   cast,
-  jsonata,
   settings,
   ex,
-  ld
+  ld,
+  or,
+  not
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -43,10 +44,50 @@ const refreshTokenDataTemplate = {
 };
 
 const glue = {
+  ensureHook: [
+    set("service_name", "hubspot")
+  ],
   shipUpdateStart: {},
   setEventMap: [
     set("eventsMapping", require("./email_events")),
     set("eventsToFetch", "${connector.private_settings.events_to_fetch}")
+  ],
+  incomingWebhooksHandler: [
+    /*
+      Example Payload:
+      [
+        {
+          "eventId": 1,
+          "subscriptionId": 162971,
+          "portalId": 6038822,
+          "occurredAt": 1567689104280,
+          "subscriptionType": "contact.deletion",
+          "attemptNumber": 0,
+          "objectId": 123,
+          "changeSource": "CRM",
+          "changeFlag": "DELETED"
+        }
+      ]
+     */
+    ifL(or([settings("mark_deleted_contacts"), settings("mark_deleted_companies")]), [
+      iterateL(input(), "webhookAction", [
+        set("webhookSubscription", ld("split", "${webhookAction.subscriptionType}", ".")),
+        set("hubspotEntity", "${webhookSubscription[0]}"),
+        set("actionTaken", "${webhookAction.changeFlag}"),
+        ifL(not(cond("isEqual", "${hubspotEntity}", "company")), {
+          do: [
+            ifL(settings("mark_deleted_contacts"), [
+              hull("userDeletedInService", cast(HubspotWebhookPayload, "${webhookAction}"))
+            ])
+          ],
+          eldo: [
+            ifL([settings("handle_accounts"), settings("mark_deleted_companies")], [
+              hull("accountDeletedInService", cast(HubspotWebhookPayload, "${webhookAction}"))
+            ])
+          ]
+        })
+      ])
+    ])
   ],
   fetchAllEmailEvents: [
     route("setEventMap"),
