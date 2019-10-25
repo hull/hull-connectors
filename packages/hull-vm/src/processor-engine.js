@@ -101,9 +101,15 @@ export default class ProcessorEngine extends Engine {
         url: "entry",
         method: "post",
         data: {
-          claim,
-          entityType,
-          events: selectedEvents
+          claims: {
+            email: claim
+          },
+          entity: entityType,
+          include: {
+            events: {
+              names: selectedEvents
+            }
+          }
         }
       });
       this.setState({ error: undefined, fetching: false });
