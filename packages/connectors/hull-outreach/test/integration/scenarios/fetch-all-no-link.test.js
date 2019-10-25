@@ -71,7 +71,7 @@ test("fetch all accounts and prospects from outreach no user/account linking", (
       externalApiMock: () => {
         const scope = nock("https://api.outreach.io");
         scope.get("/api/v2/webhooks/")
-          .reply(200, {body: {data: []}});
+          .reply(200, {data: []});
         scope
           .post("/api/v2/webhooks/")
           .reply(201, require("../fixtures/api-responses/create-webhook.json"));
@@ -85,16 +85,32 @@ test("fetch all accounts and prospects from outreach no user/account linking", (
       },
       response: { status : "deferred"},
       logs: [
-        ["info", "incoming.job.start", {}, {"jobName": "Incoming Data Request"}],
+        ["info", "incoming.job.start", {}, {"jobName": "Incoming Data", "type": "webpayload",}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/", "vars": {}}],
-        ["info", "incoming.account.success", {}, {"data": {"attributes": {"outreach/custom1": {"operation": "set", "value": "some custom value"}, "outreach/custom10": {"operation": "set", "value": "another custom value"}, "outreach/id": {"operation": "set", "value": 1}}, "ident": {"anonymous_id": "outreach:1", "domain": "somehullcompany.com"}}}],
-        ["info", "incoming.account.success", {}, {"data": {"attributes": {"outreach/id": {"operation": "set", "value": 4}}, "ident": {"anonymous_id": "outreach:4", "domain": "noprospectshullcompany.com"}}}],
+        ["info", "incoming.account.success", {
+          "subject_type": "account",
+          "account_domain": "somehullcompany.com",
+          "account_anonymous_id": "outreach:1"
+        }, {"data": expect.whatever(), "type": "Account" }],
+        ["info", "incoming.account.success", {
+          "subject_type": "account",
+          "account_domain": "noprospectshullcompany.com",
+          "account_anonymous_id": "outreach:4"
+        }, {"data": expect.whatever(), "type": "Account" }],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/", "vars": {}}],
-        ["info", "incoming.user.success", {}, {"data": {"attributes": {"outreach/custom1": {"operation": "set", "value": "He's cool"}, "outreach/id": {"operation": "set", "value": 1}, "outreach/personalNote1": {"operation": "set", "value": "he's a cool guy I guess...."}}, "ident": {"anonymous_id": "outreach:1", "email": "ceo@somehullcompany.com"}}}],
-        ["info", "incoming.user.success", {}, {"data": {"attributes": {"outreach/id": {"operation": "set", "value": 2}}, "ident": {"anonymous_id": "outreach:2", "email": "noAccountProspect@noaccount.com"}}}],
-        ["info", "incoming.job.success", {}, {"jobName": "Incoming Data Request"}]
+        ["info", "incoming.user.success", {
+          "subject_type": "user",
+          "user_email": "ceo@somehullcompany.com",
+          "user_anonymous_id": "outreach:1"
+        }, {"data": expect.whatever(), "type": "Prospect" }],
+        ["info", "incoming.user.success", {
+          "subject_type": "user",
+          "user_email": "noAccountProspect@noaccount.com",
+          "user_anonymous_id": "outreach:2"
+        }, {"data": expect.whatever(), "type": "Prospect" }],
+        ["info", "incoming.job.success", {}, {"jobName": "Incoming Data", "type": "webpayload"}]
       ],
       firehoseEvents: [
         ["traits", {"asAccount": {"anonymous_id": "outreach:1", "domain": "somehullcompany.com"}, "subjectType": "account"}, {"outreach/custom1": {"operation": "set", "value": "some custom value"}, "outreach/custom10": {"operation": "set", "value": "another custom value"}, "outreach/id": {"operation": "set", "value": 1}}],
@@ -108,6 +124,7 @@ test("fetch all accounts and prospects from outreach no user/account linking", (
         // Ensure webhooks
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()],
+
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()],
 
@@ -115,15 +132,10 @@ test("fetch all accounts and prospects from outreach no user/account linking", (
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()],
 
-        ["increment", "ship.incoming.users", 1],
-        ["increment", "ship.incoming.users", 1],
-
         // Get Users
         ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.whatever()],
+        ["value", "connector.service_api.response_time", expect.whatever()]
 
-        ["increment", "ship.incoming.accounts", 1],
-        ["increment", "ship.incoming.accounts", 1],
       ],
       platformApiCalls: [
         // ["GET", "/api/v1/app", {}, {}],
