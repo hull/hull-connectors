@@ -17,39 +17,6 @@ const ACCOUNT_SEARCH = [
   ...ANONYMOUS_ID
 ];
 const USER_SEARCH = [...ID, ...NAME, ...EMAIL, ...EXTERNAL_ID, ...ANONYMOUS_ID];
-
-type Lookups = {
-  term: {
-    [string]: string
-  }
-};
-
-type Options = {
-  page?: number,
-  per_page?: number,
-  include?: Array<string>
-};
-
-export const query = (
-  verb: string,
-  terms: Array<Lookups>,
-  { page = 1, per_page = 1, include }: Options
-) =>
-  verb && _.size(terms)
-    ? {
-        query: {
-          bool: {
-            [verb]: terms,
-            minimum_should_match: 1
-          }
-        },
-        raw: true,
-        ...(include ? { include } : {}),
-        page,
-        per_page
-      }
-    : undefined;
-
 const TERMS = {
   email: EMAIL,
   domain: DOMAIN,
@@ -57,10 +24,46 @@ const TERMS = {
   anonymous_id: ANONYMOUS_ID
 };
 
+type Lookup = { term: { [string]: string } };
+type Condition = { bool: { ["should" | "filter"]: Array<Lookup | Condition> } };
+type Options = { page?: number, per_page?: number, include?: Array<string> };
+
+export const condition = (
+  verb: string,
+  predicates: Array<Lookup | Condition>
+) => ({ bool: { [verb]: predicates } });
+
+export const query = (
+  verb: string,
+  terms: Array<Lookup | Condition>,
+  { page = 1, per_page = 1, include }: Options
+) =>
+  verb && _.size(terms)
+    ? {
+        query: condition(verb, terms),
+        raw: true,
+        ...(include ? { include } : {}),
+        page,
+        per_page
+      }
+    : undefined;
+
+const getTerms = (claims?: HullEntityClaims = {}): Array<Lookup | Condition> =>
+  _.reduce(
+    claims,
+    (filters, value, claim: string) => {
+      if (!TERMS[claim]) {
+        return filters;
+      }
+      const tt = TERMS[claim].map(term => ({ term: { [term]: value } }));
+      console.log(tt);
+      filters.push(tt.length === 1 ? _.first(tt) : condition("should", tt));
+      return filters;
+    },
+    []
+  );
 const getSearches = (term, lookups) =>
-  lookups.map(l => ({
-    term: { [l]: term }
-  }));
+  lookups.map(l => ({ term: { [l]: term } }));
 
 const getQuery = ({
   claims,
@@ -72,21 +75,12 @@ const getQuery = ({
   search?: string,
   entity: HullEntityType,
   options: Options
-}) => {
-  const terms = !search
-    ? _.reduce(
-        claims,
-        (filters, value, claim: string) => {
-          if (TERMS[claim]) {
-            _.map(TERMS[claim], term =>
-              filters.push({ term: { [term]: value } })
-            );
-          }
-          return filters;
-        },
-        []
-      )
-    : getSearches(search, entity === "user" ? USER_SEARCH : ACCOUNT_SEARCH);
-  return query(!search ? "filter" : "should", terms, options);
-};
+}) =>
+  search === undefined
+    ? query("filter", getTerms(claims), options)
+    : query(
+        "should",
+        getSearches(search, entity === "user" ? USER_SEARCH : ACCOUNT_SEARCH),
+        options
+      );
 export default getQuery;
