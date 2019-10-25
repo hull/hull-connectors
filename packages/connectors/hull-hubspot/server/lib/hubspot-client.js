@@ -88,7 +88,7 @@ class HubspotClient {
       )
       .set("Authorization", `Bearer ${accessToken}`)
       .timeout({
-        response: 5000
+        response: 10000
       });
   }
 
@@ -187,6 +187,14 @@ class HubspotClient {
       });
     }
     return Promise.resolve("valid");
+  }
+
+  getPortalInformation(): Promise<*> {
+    return this.retryUnauthorized(() => {
+      return this.agent.get("/integrations/v1/me").then(response => {
+        return Promise.resolve(response.body);
+      });
+    });
   }
 
   /**

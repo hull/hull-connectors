@@ -15,9 +15,22 @@ async function statusAction(ctx: HullContext): HullStatusResponse {
   const messages = [];
   let status = "ok";
   try {
-    if (!shipApp.syncAgent.isConfigured()) {
-      status = "warning";
-      messages.push("External service credentials aren’t set.");
+    if (!shipApp.syncAgent.isAuthorizationConfigured()) {
+      // status = "warning";
+      // messages.push("External service credentials aren’t set.");
+      return {
+        status: "setupRequired",
+        messages: [
+          'Please proceed to the settings page and click the "Login to your Mailchimp account" button to authenticate this connector'
+        ]
+      };
+    }
+
+    if (!shipApp.syncAgent.isListConfigured()) {
+      return {
+        status: "ok",
+        messages: ["Please select a Mailchimp list to synch with"]
+      };
     }
 
     const isAuthorized = await shipApp.syncAgent.isAuthorized();

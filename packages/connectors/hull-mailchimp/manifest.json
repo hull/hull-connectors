@@ -1,6 +1,6 @@
 {
   "name": "Mailchimp",
-  "version": "0.0.21-monorepo",
+  "version": "0.1.8-monorepo",
   "description": "Powerful segmentation and enrichment for Mailchimp - the world’s favorite email platform",
   "tags": [
     "outgoing",
@@ -9,7 +9,6 @@
     "oneColumn",
     "smart-notifier",
     "first-install",
-    "single-install",
     "kraken-exports"
   ],
   "source": "mailchimp",
@@ -39,17 +38,13 @@
     {
       "name": "synchronized_user_segments",
       "title": "User Filter",
-      "description": "Send users to Mailchimp when belonging to at least one of these segments. If no segments are specified all users are sent to Mailchimp.",
       "type": "array",
       "format": "segment",
       "options": {
         "standard": {
           "ALL": "All Users"
         }
-      },
-      "default": [
-        "ALL"
-      ]
+      }
     },
     {
       "type": "string",
@@ -119,6 +114,7 @@
       "url": "/schema/user_fields",
       "handler": "schemaUserFields",
       "options": {
+        "loadOptions": "/schema/user_fields",
         "direction": "outgoing",
         "placeholder": "Mailchimp Merge Field",
         "allowCreate": false
@@ -146,7 +142,7 @@
     {
       "name": "fetch_user_activity_on_update",
       "description": "When enabled it will get user activites on user:update",
-      "default": true,
+      "default": false,
       "type": "boolean",
       "format": "hidden"
     }
@@ -156,6 +152,17 @@
   "subscriptions": [
     {
       "url": "/smart-notifier",
+      "conditions" : {
+        "channels": { "only": [
+          "user:update",
+          "ship:update",
+          "users_segment:update",
+          "users_segment:delete"
+        ] },
+        "segments": {
+          "user:update": ["private_settings.synchronized_user_segments"]
+        }
+      },
       "channels": [
         {
           "channel": "user:update",
@@ -232,6 +239,7 @@
     {
       "title": "Select List",
       "description": "After you have authenticated with Mailchimp, please select the list that Hull will synchronize with. You can only pick one list, and you will have to reinstall the connector if you wish to change it afterwards. Once you have selected the list, please click Save on the top right",
+      "step": "credentials",
       "properties": [
         "private_settings.mailchimp_list_id"
       ]
@@ -245,7 +253,7 @@
     },
     {
       "title": "User Filter",
-      "description": "Send users to Mailchimp when belonging to at least one of these segments. If no segments are specified all users are sent to Mailchimp.",
+      "description": "Send users to Mailchimp when belonging to at least one of these segments.  If this segment list is empty, no users will be sent.  If \"All Users\" is selected, all users are sent",
       "properties": [
         "private_settings.synchronized_user_segments"
       ]

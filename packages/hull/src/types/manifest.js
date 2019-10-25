@@ -35,6 +35,7 @@ export type HullIncomingHandlerOptions = {
   fireAndForget?: boolean,
   credentialsFromQuery?: boolean,
   credentialsFromNotification?: boolean,
+  dropIfConnectorDisabled?: boolean,
   strict?: boolean,
   format?: "json" | "html",
   bodyParser?: "urlencoded" | "json"
