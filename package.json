@@ -13,6 +13,18 @@
       "packages/minihull"
     ]
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx}": [
+      "pretty-quick --staged",
+      "eslint packages --fix",
+      "git add"
+    ]
+  },
   "license": "MIT",
   "scripts": {
     "duplicated-dependencies": "syncpack-list-mismatches -s 'packages/*/package.json' -s 'packages/connectors/*/package.json'",
