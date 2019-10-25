@@ -74,7 +74,7 @@ export const getUserPayload = async (
   );
 
   const { events: includeEvents, account: includeAccount = true } = include;
-  const [events = [], account_segments = []] = await Promise.all([
+  const [events = {}, account_segments = []] = await Promise.all([
     includeEvents
       ? searchEvents(ctx)({ ...(includeEvents && {}), parent: id })
       : [],
@@ -86,7 +86,7 @@ export const getUserPayload = async (
     user: _.omit(user, "account", "indexed_at", "doctype", "segment_ids"),
     segments,
     segment_ids: segment_ids || [],
-    ...(includeEvents ? { events } : {}),
+    ...(includeEvents ? { events: events.data || [] } : {}),
     ...(includeAccount
       ? {
           account,

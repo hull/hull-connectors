@@ -234,8 +234,8 @@ export type ProcessorEngineState = {
   selected?: Entry,
   current?: Entry,
   recent: Array<Entry>,
-  entityType?: "user" | "account",
-  claim?: string,
+  entity?: "user" | "account",
+  search?: string,
   selectedEvents: Array<EventSelect>
 };
 export type RecentEngineState = EngineState & {};

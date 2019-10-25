@@ -1,5 +1,8 @@
 // @flow
 
+import _ from "lodash";
+import type { HullEntityClaims, HullEntityType } from "../../types";
+
 const ID = ["id"];
 const EXTERNAL_ID = ["external_id.raw"];
 const ANONYMOUS_ID = ["anonymous_ids.raw"];
@@ -21,79 +24,69 @@ type Lookups = {
   }
 };
 
-type Filters = {
-  prefix: {
-    [string]: string
-  }
+type Options = {
+  page?: number,
+  per_page?: number,
+  include?: Array<string>
 };
 
-const getLookups = (lookups: Array<string>, value?: string): Array<Lookups> =>
-  lookups.map((key: string) => ({ term: { [key]: value } }));
-const getFilters = (lookups: Array<string>, value?: string): Array<Filters> =>
-  lookups.map((key: string) => ({ prefix: { [key]: value } }));
-
-type Pagination = void | { page?: number, per_page?: number };
-export const filter = (lookups: Array<string>) => (
-  value?: string,
-  { page = 1, per_page = 1 }: Pagination = {}
-) => ({
-  query: {
-    constant_score: {
-      query: { match_all: {} },
-      filter: {
-        and: {
-          filters: getFilters(lookups, value)
-        }
-      }
-    }
-  },
-  sort: { created_at: "desc" },
-  raw: true,
-  page,
-  per_page
-});
-
-export const search = (lookups: Array<string>) => (
-  value?: string,
-  { page = 1, per_page = 1 }: Pagination = {}
-) => ({
-  query:
-    value !== undefined
-      ? {
+export const query = (
+  verb: string,
+  terms: Array<Lookups>,
+  { page = 1, per_page = 1, include }: Options
+) =>
+  verb && _.size(terms)
+    ? {
+        query: {
           bool: {
-            should: getLookups(lookups, value),
+            [verb]: terms,
             minimum_should_match: 1
           }
-        }
-      : {
-          match_all: {}
         },
-  raw: true,
-  page,
-  per_page
-});
+        raw: true,
+        ...(include ? { include } : {}),
+        page,
+        per_page
+      }
+    : undefined;
 
-// const getUserSearchQuery = search(USER_SEARCH);
-// const getIdQuery = search(ID);
-// const getEmailQuery = search(EMAIL);
-// const getAccountSearchQuery = search(ACCOUNT_SEARCH);
-// const getDomainQuery = search(DOMAIN);
-// const getExternalIdQuery = search(EXTERNAL_ID);
-// const getAnonymousIdQuery = filter(ANONYMOUS_ID);
-// const getNameQuery = search(NAME);
-// const getServiceIdQuery = (value: string, service?: string = "") =>
-//   getAnonymousIdQuery(_.compact([service, value]).join(":"), service);
-
-const queries = {
-  user: search(USER_SEARCH),
-  account: search(ACCOUNT_SEARCH),
-  id: search(ID),
-  email: search(EMAIL),
-  domain: search(DOMAIN),
-  external_id: search(EXTERNAL_ID),
-  anonymous_id: filter(ANONYMOUS_ID),
-  name: search(NAME)
-  // service_id: getServiceIdQuery
+const TERMS = {
+  email: EMAIL,
+  domain: DOMAIN,
+  external_id: EXTERNAL_ID,
+  anonymous_id: ANONYMOUS_ID
 };
 
-export default queries;
+const getSearches = (term, lookups) =>
+  lookups.map(l => ({
+    term: { [l]: term }
+  }));
+
+const getQuery = ({
+  claims,
+  entity,
+  options,
+  search
+}: {
+  claims?: HullEntityClaims,
+  search?: string,
+  entity: HullEntityType,
+  options: Options
+}) => {
+  const terms = !search
+    ? _.reduce(
+        claims,
+        (filters, value, claim: string) => {
+          if (TERMS[claim]) {
+            _.map(TERMS[claim], term =>
+              filters.push({ term: { [term]: value } })
+            );
+          }
+          return filters;
+        },
+        []
+      )
+    : getSearches(search, entity === "user" ? USER_SEARCH : ACCOUNT_SEARCH);
+  return query(!search ? "filter" : "should", terms, options);
+};
+export default getQuery;

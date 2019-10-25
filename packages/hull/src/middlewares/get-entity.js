@@ -4,7 +4,8 @@ import _ from "lodash";
 
 import type { NextFunction } from "express";
 import type { HullRequest, HullResponse, HullGetEntityParams } from "../types";
-import search from "../utils/get-entity";
+import { getEntity } from "../utils/get-entity";
+
 import searchEvents from "../utils/get-entity/search-events";
 import {
   getEventSchema,
@@ -23,7 +24,7 @@ module.exports = function getEntityMiddlewareFactory() {
     // Create and expose a ctx.entities.() method to access higher-level Hull Data
     hull.entities = {
       // Parameter version
-      get: search(hull),
+      get: getEntity(hull),
       getSchema: getSchema(hull),
       // Scoped versions
       events: {
@@ -33,12 +34,12 @@ module.exports = function getEntityMiddlewareFactory() {
       users: {
         getSchema: getUserSchema(hull),
         get: (params: HullGetEntityParams) =>
-          search(hull, { entity: "user", ...params })
+          getEntity(hull, { entity: "user", ...params })
       },
       accounts: {
         getSchema: getAccountSchema(hull),
         get: (params: HullGetEntityParams) =>
-          search(hull, { entity: "account", ..._.pick(params, "claims") })
+          getEntity(hull, { entity: "account", ..._.pick(params, "claims") })
       }
     };
     next();

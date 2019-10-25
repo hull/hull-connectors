@@ -1,11 +1,6 @@
 // @flow
 
-import type {
-  HullEvent,
-  // HullEntityType,
-  HullUserClaims,
-  HullAccountClaims
-} from "./index";
+import type { HullEvent, HullEntityType, HullEntityClaims } from "./index";
 
 export type HullIncludedEvents = {
   names?: Array<string>,
@@ -19,19 +14,13 @@ export type HullIncludedEntities = {
   users?: boolean
 };
 
-export type HullGetEntityParams =
-  | {
-      claims: HullAccountClaims,
-      entity: "account",
-      per_page?: number,
-      page?: number
-    }
-  | {
-      claims: HullUserClaims,
-      entity: "user",
-      include?: HullIncludedEntities,
-      per_page?: number,
-      page?: number
-    };
+export type HullGetEntityParams = {
+  claims?: HullEntityClaims,
+  search?: string,
+  entity: HullEntityType,
+  include?: HullIncludedEntities,
+  per_page?: number,
+  page?: number
+};
 
 export type HullFetchedEvent = HullEvent;

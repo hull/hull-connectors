@@ -742,13 +742,23 @@ const data = await ctx.entities.users.get({
 });
 // Response =>
 {
-  user,
-  events, //only if events included
-  account, //except if include.account===false
-  segments,
-  segment_ids,
-  account_segments,
-  account_segment_ids,
+  "pagination": {
+     "total": 1,
+     "page": 1,
+     "pages": 1,
+     "per_page": 1
+   },
+   "data": [
+    {
+      user,
+      events, //only if events included
+      account, //except if include.account===false
+      segments,
+      segment_ids,
+      account_segments,
+      account_segment_ids,
+    }
+  ]
 }
 const data = await ctx.entities.events.get({
   claims: { email: "foo@bar.com" }
@@ -764,41 +774,51 @@ const data = await ctx.entities.events.get({
 });
 // Response =>
 {
-    "event": "Updated email address",
-    "created_at": "2019-03-15T09:48:15Z",
-    "properties": {
-      "email": "romain@hull.io",
-      "topic": "contact.added_email",
-      "event": "Updated email address"
-    },
-    "event_source": "intercom",
-    "event_type": "track",
-    "context": {
-      "useragent": "Hull Node Client version: 2.0.0-beta.1",
-      "device": {
-        "name": "Other"
+  "pagination": {
+     "total": 1,
+     "page": 1,
+     "pages": 1,
+     "per_page": 1
+   },
+  data: [
+    {
+      "event": "Updated email address",
+      "created_at": "2019-03-15T09:48:15Z",
+      "properties": {
+        "email": "romain@hull.io",
+        "topic": "contact.added_email",
+        "event": "Updated email address"
       },
-      "referrer": {},
-      "os": {
-        "name": "Other"
-      },
-      "browser": {
-        "name": "Other"
-      },
-      "location": {
-        "country": "US",
-        "city": "Mountain View",
-        "timezone": "America/Los_Angeles",
-        "region": "CA",
-        "countryname": "United States",
-        "regionname": "California",
-        "zipcode": "94035"
-      },
-      "campaign": {},
-      "ip": "216.239.36.21",
-      "page": {}
+      "event_source": "intercom",
+      "event_type": "track",
+      "context": {
+        "useragent": "Hull Node Client version: 2.0.0-beta.1",
+        "device": {
+          "name": "Other"
+        },
+        "referrer": {},
+        "os": {
+          "name": "Other"
+        },
+        "browser": {
+          "name": "Other"
+        },
+        "location": {
+          "country": "US",
+          "city": "Mountain View",
+          "timezone": "America/Los_Angeles",
+          "region": "CA",
+          "countryname": "United States",
+          "regionname": "California",
+          "zipcode": "94035"
+        },
+        "campaign": {},
+        "ip": "216.239.36.21",
+        "page": {}
+      }
     }
-  }
+  ]
+}
 
 const data = await ctx.entities.accounts.get({
   claims: { domain: "foo.com" }

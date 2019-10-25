@@ -30,8 +30,8 @@ export default async function getEntity(
   const { code } = private_settings;
   const { body } = message;
   // $FlowFixMe
-  const { claims, entity, include } = body;
-  if (!claims || _.isEmpty(claims)) {
+  const { search, claims, entity, include } = body;
+  if (!search && (!claims || _.isEmpty(claims))) {
     return {
       status: 404,
       error: "Can't search for an empty value"
@@ -39,8 +39,9 @@ export default async function getEntity(
   }
   const isUser = entity === "user";
   try {
-    const rawPayloads = await ctx.entities.get({
+    const response = await ctx.entities.get({
       claims,
+      search,
       entity,
       include: {
         events: {
@@ -51,14 +52,14 @@ export default async function getEntity(
       }
     });
 
-    if (!rawPayloads || !rawPayloads.length) {
+    const rawPayload = _.first(response.data);
+    if (!rawPayload) {
       return {
         status: 404,
-        error: `Can't find ${entity}`
+        error: `Can't find ${entity} with ${search}`
       };
     }
     const { group } = ctx.client.utils.traits;
-    const rawPayload = _.first(rawPayloads);
     const { user, account, events = [] } = rawPayload;
     const payload = isUser
       ? {

@@ -14,7 +14,10 @@ const searchEvents = (ctx: HullContext) => async ({
   names,
   page = 1,
   per_page = 20
-}: HullIncludedEvents & { parent: string }): Promise<Array<HullEvent>> => {
+}: HullIncludedEvents & { parent: string }): Promise<{
+  pagination: {},
+  data: Array<HullEvent>
+}> => {
   const query = [
     {
       has_parent: {
@@ -35,14 +38,17 @@ const searchEvents = (ctx: HullContext) => async ({
   if (_.isArray(names)) {
     query.push({ terms: { event: names } });
   }
-  const { data = [] } = await ctx.client.post("search/events", {
+  const response = await ctx.client.post("search/events", {
     query: { bool: { filter: query } },
     sort: { created_at: "desc" },
     raw: true,
     page,
     per_page
   });
-  return data.map(formatEvent);
+  return {
+    ...response,
+    data: (response.data || []).map(formatEvent)
+  };
 };
 
 export default searchEvents;
