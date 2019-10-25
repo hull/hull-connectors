@@ -711,7 +711,7 @@ hull.asUser({ email: "bar@baz.co" }).identify({ foo: "bazinga" });
 These methods help you fetch data from the Hull API and rebuild a format that is mosly similar to a Kraken Notification.
 Some data types from event properties can't be reliably mapped back at the moment, but the raw data will be present.
 
-````js
+```js
 const email_fetch = {
   claims: { email: "foo@bar.com" }
 };
@@ -804,5 +804,74 @@ const data = await ctx.entities.accounts.get({
   claims: { domain: "foo.com" }
   include: {} //Nothing supported for now
 });
+
 ```
-````
+
+## Hull REPL
+
+The connectors can be started in "command line" mode, where you will be able to emit calls to the API, and send them some data.
+
+```
+yarn repl hull-processor --id=CONNECTOR_ID --secret=CONNECTOR_SECRET --organization=ORGANIZATION
+```
+
+Then, once boot is complete:
+
+```
+hull > ctx.client.get("app")
+```
+
+## Import util
+
+In authorized repl you can execute following line to generate 10 faked users with name and email:
+
+```
+hull > fakeUsers("name_of_the_file.json", 10)
+```
+
+Then import it to the organization of the ship:
+
+```
+hull > importFile("name_of_the_file.json")
+```
+
+## `ctx`
+
+Hull Context object (see docs)
+
+## `utils`
+
+Hull Utils object
+
+## `updatePrivateSettings` helper to update settings for this connector instance. use like this:
+
+```js
+updatePrivateSettings({ foo: "bar" });
+```
+
+## utilities libs
+
+- moment: `moment`
+- lodash: `lo`
+- shelljs: `shell`
+- parse: `parse`
+- highland: `highland`
+- sourceUrl: Connector's source URL
+
+## superagent: `agent`
+
+use like this:
+
+```
+agent.get("/some_connector_url") -> credentials will be added for you
+```
+
+## fakeUsers
+
+## fakeAccounts
+
+## importFile
+
+```
+
+```
