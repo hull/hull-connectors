@@ -6,7 +6,7 @@ const _ = require("lodash");
 const fullContextFetchMiddleware = require("../../src/middlewares/full-context-fetch");
 const { Cache } = require("../../src/infra");
 
-const HullStub = require("../../support/hull-stub");
+const HullStub = require("../support/hull-stub");
 
 let reqStub;
 

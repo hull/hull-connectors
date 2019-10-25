@@ -24,13 +24,12 @@ const MetricAgent = require("./metric-agent");
  * It also exposes the `contextMiddleware` which adds `req.hull.metric` agent to add custom metrics to the ship. Right now it doesn't take any custom options, but it's showed here for the sake of completeness.
  *
  * @memberof Infra
- * @public
+ * @private
  * @example
  * const { Instrumentation } = require("hull/lib/infra");
  *
- * const instrumentation = new Instrumentation();
+ * const instrumentation = new Instrumentation(options: HullMetricsConfig = {}, manifest: HullManifest);
  *
- * const connector = new Connector.App({ instrumentation });
  */
 class InstrumentationAgent {
   raven: any;

@@ -89,9 +89,14 @@ test("process account update webhook from outreach", () => {
       accountsSegments: [],
       response: {},
       logs: [
-          ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
-          ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
-          ["info", "incoming.account.success", {}, {"data": {"attributes": {"outreach/custom1": {"operation": "set", "value": "it's a hull company, but we don't know too much more"}, "outreach/id": {"operation": "set", "value": 1}}, "ident": {"anonymous_id": "outreach:1"}}}]
+        ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" } ],
+        ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
+        ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
+        ["info", "incoming.account.success", {
+          "subject_type": "account",
+          "account_anonymous_id": "outreach:1"
+        }, {"data": expect.whatever(), "type": "WebPayload"}],
+        ["info", "incoming.job.success", {}, { "jobName": "Incoming Data", "type": "webpayload" } ]
       ],
       firehoseEvents: [
         ["traits", {"asAccount": {"anonymous_id": "outreach:1"}, "subjectType": "account"}, {"outreach/custom1": {"operation": "set", "value": "it's a hull company, but we don't know too much more"}, "outreach/id": {"operation": "set", "value": 1}}]
@@ -101,8 +106,7 @@ test("process account update webhook from outreach", () => {
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()],
         ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.whatever()],
-        ["increment", "ship.incoming.accounts", 1]
+        ["value", "connector.service_api.response_time", expect.whatever()]
       ],
       platformApiCalls: [
         ["GET", "/api/v1/app", {}, {}],

@@ -4,6 +4,7 @@ import type { $Application, Router } from "express";
 import type {
   HullConnectorConfig,
   HullCache,
+  HullClient,
   HullQueue,
   HullInstrumentation,
   HTTPMethod
@@ -15,7 +16,7 @@ type ExpressMethod = "use" | HTTPMethod;
 //   Middleware params types
 // =====================================
 export type HullBaseMiddlewareParams = {
-  Client: Class<Client>,
+  Client: Class<HullClient>,
   queue: HullQueue,
   cache: HullCache,
   instrumentation: HullInstrumentation,

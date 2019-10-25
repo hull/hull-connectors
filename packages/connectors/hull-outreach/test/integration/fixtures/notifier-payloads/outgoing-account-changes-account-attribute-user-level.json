@@ -1,0 +1,130 @@
+{
+    "notification_id": "38108659-4d7b-46cc-861b-3da772d1fec2",
+    "configuration": {
+        "id": "123456789012345678901234",
+        "organization": "c5011027.hullbeta.io",
+        "secret": "shhhh"
+    },
+    "connector": {
+        "description": "some",
+        "tags": [],
+        "source_url": "https://dev-hull-outreach.ngrok.io/",
+        "private_settings": {
+            "token_expires_in": 7200,
+            "outgoing_user_attributes": [
+                {
+                  "hull": "account.domain",
+                  "service": "custom1"
+                }
+            ],
+            "incoming_user_attributes": [
+            ],
+            "token_created_at": 1544104207,
+            "access_token": "1234",
+            "refresh_token": "abcd",
+            "account_claims": [
+                {
+                    "hull": "domain",
+                    "service": "domain"
+                },
+                {
+                    "hull": "external_id",
+                    "service": "customId"
+                }
+            ],
+            "outgoing_account_attributes": [
+            ],
+            "synchronized_user_segments": [
+                "5bffc38f625718d58b000004"
+            ],
+            "expires_in": 7200,
+            "webhook_id": 31,
+            "synchronized_account_segments": [
+                "5bd7201aa682bc4a4d00001e"
+            ],
+            "incoming_account_attributes": [
+            ],
+            "created_at": 1544269649
+        },
+        "index": "https://dev-hull-outreach.ngrok.io/",
+        "name": "dev-hull-outreach.ngrok.io",
+        "extra": {},
+        "settings": {},
+        "type": "ship",
+        "secret": "shhh",
+        "updated_at": "2018-12-09T11:20:32Z",
+        "status": {
+            "status": "ok",
+            "messages": [],
+            "updated_at": "2018-12-06T14:04:24Z",
+            "name": "dev-hull-outreach.ngrok.io",
+            "id": "123456789012345678901234"
+        },
+        "id": "123456789012345678901234",
+        "picture": "https://dev-hull-outreach.ngrok.io/picture.png",
+        "homepage_url": "https://c5011027.hullbeta.io/ships/123456789012345678901234",
+        "manifest_url": "https://dev-hull-outreach.ngrok.io/manifest.json",
+        "created_at": "2018-12-06T13:49:58Z"
+    },
+    "channel": "account:update",
+    "messages": [
+        {
+            "changes": {
+                "is_new": false,
+                "account": {
+                  "domain": [
+                    "close.io",
+                    "newdomain.com"
+                  ],
+                  "updated_at": [
+                    "2018-12-09T12:02:28Z",
+                    "2018-12-09T12:05:29Z"
+                  ]
+                },
+                "account_segments": {}
+            },
+            "account": {
+                "updated_at": "2018-12-09T12:05:29Z",
+                "domain": "newdomain.com"
+            },
+            "user": {
+              "id": "userid",
+              "email": "alberto@close.io",
+              "segment_ids": [
+                "5bffc38f625718d58b000004"
+              ]
+            },
+            "message_id": "fa6cbdf1db9e9f366905423680c3e039b584dd63",
+            "segments": [
+              {
+                "id": "5bffc38f625718d58b000004",
+                "updated_at": "2018-12-06T17:33:39Z",
+                "created_at": "2018-11-29T10:46:39Z",
+                "name": "Smugglers",
+                "type": "users_segment",
+                "stats": {}
+              }
+            ]
+        }
+    ],
+    "accounts_segments": [
+        {
+            "id": "5bd7201aa682bc4a4d00001e",
+            "updated_at": "2018-12-09T12:05:12Z",
+            "created_at": "2018-10-29T14:58:34Z",
+            "name": "Bad guys",
+            "type": "accounts_segment",
+            "stats": {}
+        }
+    ],
+    "segments": [
+        {
+            "id": "5bffc38f625718d58b000004",
+            "updated_at": "2018-12-06T17:33:39Z",
+            "created_at": "2018-11-29T10:46:39Z",
+            "name": "Smugglers",
+            "type": "users_segment",
+            "stats": {}
+        }
+    ]
+}

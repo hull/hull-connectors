@@ -11,7 +11,10 @@ const {
 
 async function getHullContext(credentials) {
   const connector = new Hull.Connector({
-    hostSecret: "hull-repl"
+    hostSecret: "hull-repl",
+    clientConfig: {
+      connectorName: "hull-repl"
+    }
   });
   const supply = new Supply();
   const query = {
