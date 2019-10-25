@@ -3,7 +3,11 @@ import type { HullHandlersConfiguration } from "hull";
 
 import fetch from "../actions/fetch";
 import fetchAll from "../actions/fetch-all";
+import checkCachedCredentials from "../actions/check-cached-credentials";
 import fetchAllCompanies from "../actions/fetch-all-companies";
+import fetchAllEmailEvents from "../actions/fetch-all-email-events";
+import fetchRecentEmailEvents from "../actions/fetch-recent-email-events";
+import fetchHotOffThePressEvents from "../actions/fetch-hot-off-the-press-events";
 import fetchRecentCompanies from "../actions/fetch-recent-companies";
 import checkToken from "../actions/check-token";
 import status from "../actions/status";
@@ -51,11 +55,19 @@ const handler = ({
       })
     },
     statuses: { status },
-    schedules: { checkToken, fetchRecentCompanies, fetch },
+    schedules: {
+      checkCachedCredentials,
+      checkToken,
+      fetchRecentCompanies,
+      fetch,
+      fetchRecentEmailEvents
+    },
     json: {
       lastFetchedStatus,
       fetchAll,
       fetchAllCompanies,
+      fetchAllEmailEvents,
+      fetchHotOffThePressEvents,
       getContactProperties,
       getIncomingUserClaims,
       getIncomingAccountClaims,

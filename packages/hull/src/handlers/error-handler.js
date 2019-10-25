@@ -5,7 +5,11 @@ import type {
   HullIncomingHandlerOptions,
   HullResponse
 } from "../types";
-import { TransientError } from "../errors";
+import {
+  TransientError,
+  ConnectorNotFoundError,
+  PaymentRequiredError
+} from "../errors";
 
 const debug = require("debug")("hull-connector:error-handler");
 
@@ -25,6 +29,14 @@ const errorHandler = ({ respondWithError }: HullIncomingHandlerOptions) => (
   if (err instanceof TransientError) {
     res.status(503);
     return res.end("transient-error");
+  }
+  if (err instanceof ConnectorNotFoundError) {
+    res.status(404);
+    return res.end("not-found");
+  }
+  if (err instanceof PaymentRequiredError) {
+    res.status(402);
+    return res.end("payment-required");
   }
 
   metric.captureException(err);

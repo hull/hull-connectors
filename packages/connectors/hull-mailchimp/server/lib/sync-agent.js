@@ -110,10 +110,18 @@ class SyncAgent {
   }
 
   isConfigured() {
+    return this.isAuthorizationConfigured() && this.isListConfigured();
+  }
+
+  isAuthorizationConfigured() {
     const apiKey = _.get(this.ship, "private_settings.api_key");
     const domain = _.get(this.ship, "private_settings.domain");
+    return !_.isEmpty(domain) && !_.isEmpty(apiKey);
+  }
+
+  isListConfigured() {
     const listId = _.get(this.ship, "private_settings.mailchimp_list_id");
-    return !_.isEmpty(domain) && !_.isEmpty(apiKey) && !_.isEmpty(listId);
+    return !_.isEmpty(listId);
   }
 
   messageAdded(message: HullUserUpdateMessage) {
