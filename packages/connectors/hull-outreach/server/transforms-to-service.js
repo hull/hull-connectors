@@ -1,16 +1,10 @@
 /* @flow */
-import type { Transform, ServiceTransforms } from "./shared/types";
+import type { Transform, ServiceTransforms } from "hull-connector-framework/src/purplefusion/types";
 
-const { isNull, notNull, isEqual, doesNotContain } = require("./shared/conditionals");
+const { isNull, notNull, isEqual, doesNotContain } = require("hull-connector-framework/src/purplefusion/conditionals");
 
-const {
-  HullOutgoingUser,
-  HullOutgoingAccount
-} = require("./shared/hull-service-objects");
-const {
-  OutreachProspectWrite,
-  OutreachAccountWrite
-} = require("./service-objects");
+const { HullOutgoingUser, HullOutgoingAccount } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
+const { OutreachProspectWrite, OutreachAccountWrite } = require("./service-objects");
 
 const transformsToService: ServiceTransforms = [
   {
@@ -21,7 +15,7 @@ const transformsToService: ServiceTransforms = [
     direction: "outgoing",
     transforms: [
       { outputPath: "data.type", outputFormat: "prospect" },
-      { inputPath: "outreach/id", outputPath: "data.id" },
+      { inputPath: "user.outreach/id", outputPath: "data.id" },
       { outputPath: "data.id", outputFormat: "${userId}" },
       {
         condition: "accountId",
@@ -36,23 +30,25 @@ const transformsToService: ServiceTransforms = [
         condition: doesNotContain(["stage", "owner"], "service_field_name"),
         outputArrayFields: {
           checkField: "service_field_name",
-          fields: [
-            "emails",
-            "homePhones",
-            "mobilePhones",
-            "otherPhones",
-            "tags",
-            "voipPhones",
-            "workPhones"
-          ]
+          fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"],
+        },
+        inputPath: "user.${hull_field_name}",
+        outputPath: "data.attributes.${service_field_name}",
+      },
+      {
+        // have to do this mapping for account level fields with prefix "account.X"
+        mapping: "connector.private_settings.outgoing_user_attributes",
+        outputArrayFields: {
+          checkField: "service_field_name",
+          fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"],
         },
         inputPath: "${hull_field_name}",
-        outputPath: "data.attributes.${service_field_name}"
+        outputPath: "data.attributes.${service_field_name}",
       },
       {
         mapping: "connector.private_settings.outgoing_user_attributes",
         condition: isEqual("service_field_name", "stage"),
-        inputPath: "${hull_field_name}",
+        inputPath: "user.${hull_field_name}",
         outputPath: "data.relationships.stage.data",
         outputFormat: {
           type: "stage",
@@ -62,7 +58,7 @@ const transformsToService: ServiceTransforms = [
       {
         mapping: "connector.private_settings.outgoing_user_attributes",
         condition: isEqual("service_field_name", "owner"),
-        inputPath: "${hull_field_name}",
+        inputPath: "user.${hull_field_name}",
         outputPath: "data.relationships.owner.data",
         outputFormat: {
           type: "user",
@@ -74,38 +70,21 @@ const transformsToService: ServiceTransforms = [
         condition: notNull("existingProspect"),
         outputArrayFields: {
           checkField: "service_field_name",
-          fields: [
-            "emails",
-            "homePhones",
-            "mobilePhones",
-            "otherPhones",
-            "tags",
-            "voipPhones",
-            "workPhones"
-          ],
-          mergeArrayFromContext:
-            "existingProspect.attributes.${service_field_name}"
+          fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"],
+          mergeArrayFromContext: "existingProspect.attributes.${service_field_name}"
         },
-        inputPath: "${hull_field_name}",
-        outputPath: "data.attributes.${service_field_name}"
+        inputPath: "user.${hull_field_name}",
+        outputPath: "data.attributes.${service_field_name}",
       },
       {
         mapping: "connector.private_settings.user_claims",
         condition: isNull("userId"),
         outputArrayFields: {
           checkField: "service_field_name",
-          fields: [
-            "emails",
-            "homePhones",
-            "mobilePhones",
-            "otherPhones",
-            "tags",
-            "voipPhones",
-            "workPhones"
-          ]
+          fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"]
         },
-        inputPath: "${hull_field_name}",
-        outputPath: "data.attributes.${service_field_name}"
+        inputPath: "user.${hull_field_name}",
+        outputPath: "data.attributes.${service_field_name}",
       }
     ]
   },
@@ -117,30 +96,27 @@ const transformsToService: ServiceTransforms = [
     direction: "outgoing",
     transforms: [
       { outputPath: "data.type", outputFormat: "account" },
-      { inputPath: "outreach/id", outputPath: "data.id" },
+      { inputPath: "account.outreach/id", outputPath: "data.id" },
       { outputPath: "data.id", outputFormat: "${accountId}" },
-      // still need to take this out in favor of setting the settings outgoing mappings
-      { inputPath: "domain", outputPath: "data.attributes.domain" },
+      //still need to take this out in favor of setting the settings outgoing mappings
+      { inputPath: "account.domain", outputPath: "data.attributes.domain" },
       {
         mapping: "connector.private_settings.outgoing_account_attributes",
-        inputPath: "${hull_field_name}",
-        outputPath: "data.attributes.${service_field_name}"
+        inputPath: "account.${hull_field_name}",
+        outputPath: "data.attributes.${service_field_name}",
       },
       {
         mapping: "connector.private_settings.account_claims",
         outputArrayFields: {
           checkField: "service_field_name",
           fields: ["tags"],
-          mergeArrayFromContext:
-            "existingAccount.attributes.${service_field_name}"
+          mergeArrayFromContext: "existingAccount.attributes.${service_field_name}"
         },
-        inputPath: "${hull_field_name}",
-        outputPath: "data.attributes.${service_field_name}"
+        inputPath: "account.${hull_field_name}",
+        outputPath: "data.attributes.${service_field_name}",
       }
     ]
   }
 ];
 
-module.exports = {
-  transformsToService
-};
+module.exports = transformsToService;

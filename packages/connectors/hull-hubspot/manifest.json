@@ -4,7 +4,7 @@
   "source": "hubspot",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.0.21-monorepo",
+  "version": "0.1.8-monorepo",
   "tags": [
     "outgoing",
     "incoming",
@@ -19,6 +19,34 @@
   "settings": [],
   "private_settings": [
     {
+      "name": "ignore_deleted_users",
+      "title": "Ignore Deleted Contacts",
+      "description": "If a contact has been deleted in Hubspot, do not send that user to Hubspot from Hull.",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "ignore_deleted_accounts",
+      "title": "Ignore Deleted Companies",
+      "description": "If an company has been deleted in Hubspot, do not send that account to Hubspot from Hull.",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "mark_deleted_contacts",
+      "title": "Mark Deleted Contacts",
+      "description": "If a contact has been deleted in Hubspot, mark it as such in Hull.",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "mark_deleted_companies",
+      "title": "Mark Deleted Companies",
+      "description": "If a company has been deleted in Hubspot, mark it as such in Hull.",
+      "type": "boolean",
+      "default": false
+    },
+    {
       "name": "oauth",
       "title": "Credentials",
       "description": "Authenticate with Hubspot",
@@ -32,7 +60,8 @@
           "scope": [
             "oauth",
             "contacts",
-            "timeline"
+            "timeline",
+            "content"
           ]
         }
       }
@@ -53,8 +82,7 @@
     },
     {
       "name": "incoming_user_claims",
-      "title": "User Resolution",
-      "description": "Configure which attributes we use to resolve identities between Hull and Hubspot Contacts. _DO NOT map attributes here. use dedicated the setting below_",
+      "title": "User Identity",
       "type": "array",
       "format": "table",
       "items": {
@@ -98,8 +126,8 @@
     },
     {
       "name": "incoming_user_attributes",
-      "title": "Incoming Attribute Mapping",
-      "description": "Define which Attributes are captured from Hubspot into Hull",
+      "title": "Incoming Custom Attribute Mapping",
+      "description": "Define which Custom Attributes are captured from Hubspot",
       "type": "array",
       "format": "traitMapping",
       "options": {
@@ -149,15 +177,14 @@
     },
     {
       "name": "handle_accounts",
-      "title": "Fetch accounts",
-      "description": "If this checkbox is disabled we won't get any account in.",
+      "title": "Enable Incoming Account Traffic from Hubspot",
+      "description": "Enabled this option to enabled ingestion of account data from Hubspot to Hull. If disabled, all account ingestion traffic (including manual \"Fetch All Account\" traffic) will be ignored.",
       "type": "boolean",
       "default": false
     },
     {
       "name": "incoming_account_claims",
-      "title": "Account Resolution",
-      "description": "Configure which attributes we use to resolve identities between Hull and Hubspot Accounts. _DO NOT map attributes here. use dedicated the setting below_",
+      "title": "Account Identity",
       "type": "array",
       "format": "table",
       "items": {
@@ -196,7 +223,7 @@
     },
     {
       "name": "incoming_account_attributes",
-      "title": "Incoming Attribute Mapping",
+      "title": "Incoming Custom Attribute Mapping",
       "description": "How we map Accounts and their attributes between Hubspot and Hull",
       "type": "array",
       "format": "accountTraitMapping",
@@ -240,14 +267,14 @@
     {
       "name": "link_users_in_service",
       "title": "Link Contacts in Hubspot",
-      "description": "Do you want to let Hull associate Contacts and Companies in Hubspot?",
+      "description": "This option synchronizes the relationship between the user and account with the same contacts and companies in Hubspot. When the user gets sent to Hubspot, the connector will link the contact with the appropriate company in Hubspot. Please note that the account the user is linked to in Hull must already exist in Hubspot (has a hubspot/id) for the user to be re-linked to the new account",
       "type": "boolean",
       "default": false
     },
     {
       "name": "link_users_in_hull",
       "title": "Link users in Hull",
-      "description": "Do you want to let Hubspot update links between Users and Accounts in Hull? Be careful about conflicts with other connectors that would link users too.\n\n**IMPORTANT:** when this checkbox is checked the connector will create a Hull Account for EVERY Hubspot Company any Contact is linked to (refer to documentation for more details).",
+      "description": "This option allows you to capture the link between contacts and companies in Hupspot. Use this option if you know Hubspot is your \"Leading System\" which will control the linkage between users and accounts. If you do enable this option, any similar option on any other connectors should be disabled so that the configurations will not result in an infinite account re-linking loop. <br /> <br /> <b>Ensure that you've enabled the \"Enable Incoming Account Traffic from Hubspot\" option in the \"Account - Fetching from Hubspot\" to pull in the associated accounts as well",
       "type": "boolean",
       "default": false
     },
@@ -286,6 +313,66 @@
       "type": "boolean",
       "default": false,
       "format": "hidden"
+    },
+    {
+      "name": "fetch_email_events",
+      "title": "Fetch Email Events",
+      "description": "Enable fetching Hubspot Marketing Emails to Hull as events",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "default": [],
+      "format": "select",
+      "items": {
+        "type": "string",
+        "enum": [
+          "Email Sent",
+          "Email Dropped",
+          "Email Processed",
+          "Email Delivered",
+          "Email Deferred",
+          "Email Bounced",
+          "Email Opened",
+          "Email Link Clicked",
+          "Unsubscribed / Subscribed",
+          "Email Marked as Spam"
+        ]
+      },
+      "title": "Email Events To Fetch From Hubspot",
+      "name": "events_to_fetch",
+      "type": "array",
+      "uniqueItems": true
+    },
+    {
+      "name": "email_events_user_claims",
+      "title": "User Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "title": "Hubspot Contact Email",
+            "type": "string",
+            "format": "select",
+            "enum": ["recipient"],
+            "options" : {
+              "allowCreate": false
+            }
+          },
+          "hull": {
+            "title": "Hull User Ident",
+            "enum": ["email"]
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "email",
+          "service": "recipient"
+        }
+      ]
     }
   ],
   "deployment_settings": [],
@@ -294,6 +381,12 @@
   "subscriptions": [
     {
       "url": "/smart-notifier",
+      "conditions" : {
+        "segments": {
+          "user:update": ["private_settings.synchronized_user_segments"],
+          "account:update": ["private_settings.synchronized_account_segments"]
+        }
+      },
       "channels": [
         {
           "channel": "user:update",
@@ -357,6 +450,15 @@
   },
   "schedules": [
     {
+      "url": "/check-cached-credentials",
+      "type": "interval",
+      "value": "10",
+      "handler": "checkCachedCredentials",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
       "url": "/fetch-recent-contacts",
       "type": "interval",
       "value": "5",
@@ -375,12 +477,22 @@
       }
     },
     {
+      "url": "/fetch-recent-email-events",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentEmailEvents",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
       "url": "/monitor/checkToken",
       "type": "interval",
       "value": "5",
       "handler": "checkToken",
       "options": {
-        "fireAndForget": true
+        "fireAndForget": true,
+        "alwaysEnabled": true
       }
     }
   ],
@@ -404,9 +516,12 @@
       "url": "/fetch-all-contacts",
       "handler": "fetchAll",
       "options": {
+        "fireAndForget": true,
         "disableErrorHandling": true,
         "confirm": {
           "action": "fetch",
+          "text": "You are about to pull all contacts from Hubspot into Hull. Please make sure you've configured your user identity properly, and that you have the attributes you'd like pulled configured. Be careful when clicking this multiple times, it can result in long operations. Check out the \"Logs\" tab to track incoming.user.success messages as users are ingested",
+          "button": "Start Fetching Contacts",
           "entity": "users"
         }
       }
@@ -419,7 +534,10 @@
       "handler": "fetchAllCompanies",
       "options": {
         "confirm": {
+          "fireAndForget": true,
           "action": "fetch",
+          "text": "You are about to pull all companies from Hubspot into Hull. Please make sure you've configured your account identity properly, and that you have the attributes you'd like pulled configured. Be careful when clicking this multiple times, it can result in long operations. Check out the \"Logs\" tab to track incoming.account.success messages as accounts are ingested",
+          "button": "Start Fetching Companies",
           "entity": "accounts"
         }
       }
@@ -452,58 +570,99 @@
       "url": "/schema/company_properties",
       "name": "company_properties",
       "handler": "getCompanyProperties"
+    },
+    {
+      "title": "Fetch All Email Events",
+      "name": "fetch_all_email_events",
+      "format": "button",
+      "url": "/fetch-all-email-events",
+      "handler": "fetchAllEmailEvents",
+      "options": {
+        "confirm": {
+          "fireAndForget": true,
+          "action": "fetch",
+          "text": "You are about to pull all email events from Hubspot into Hull. Please make sure you've configured your account identity properly, and that you have the attributes you'd like pulled configured. Be careful when clicking this multiple times, it can result in long operations. Check out the \"Logs\" tab to track incoming.account.success messages as accounts are ingested",
+          "button": "Start Fetching Email Events",
+          "entity": "events"
+        }
+      }
+    },
+    {
+      "title": "Fetch Recent Email Events of Last 24 Hours",
+      "name": "fetch_hot_off_the_press_events",
+      "format": "button",
+      "url": "/fetch-hot-off-the-press-events",
+      "handler": "fetchHotOffThePressEvents",
+      "options": {
+        "confirm": {
+          "fireAndForget": true,
+          "action": "fetch",
+          "text": "You are about to pull all email events of last the 24 hours from Hubspot into Hull. Please make sure you've configured your account identity properly, and that you have the attributes you'd like pulled configured. Be careful when clicking this multiple times, it can result in long operations. Check out the \"Logs\" tab to track incoming.account.success messages as accounts are ingested",
+          "button": "Start Fetching Email Events",
+          "entity": "events"
+        }
+      }
     }
   ],
   "settings_sections": [
     {
       "title": "Connect with Hubspot",
       "step": "credentials",
+      "description": "Please begin by authenticating this connector with Hubspot. You must have appropriate privileges to grant access. Hull requests access to only the endpoints required to do synchronization with our platform",
       "properties": [
         "private_settings.oauth"
       ]
     },
     {
-      "title": "Actions",
-      "step": "actions",
-      "description": "These are the actions you can perform",
+      "title": "User - Fetching from Hubspot",
+      "description": "<b>Identity</b> is one of the most important concepts in Hull. The field mapping for user identity should correspond to unique fields across systems. The \"User Identity\" section defines which fields are used to resolve users as the come into Hull. <b>Please note this does not affect the outgoing user flow.</b> To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases. Ideally there is an unique identifier (external_id) that can be used across systems. Try to configure the identity before doing anything else. Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /> Hull captures many of the standard contact fields by default. Refer to the connector documentation in the \"Docs\" tab to view the default mappings. If you have any additional custom fields to capture, you may define these mappings in the \"Incoming Custom Attribute Mapping\" section by clicking \"Map another attribute\". To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
       "properties": [
-        "json.fetch_all_contacts",
+        "private_settings.mark_deleted_contacts",
+        "private_settings.incoming_user_claims",
+        "private_settings.incoming_user_attributes",
+        "private_settings.link_users_in_hull",
+        "json.fetch_all_contacts"
+      ]
+    },
+    {
+      "title": "User - Sending to Hubspot",
+      "description": "Configuring this section will result in automated data flows which will insert/update your prospects in Hubspot. That's why we provide fine grain control over the updates that you send to Hubspot. Because of the limitations of the Hubspot api, <b>outgoing users will only be synchronized based on email</b>. Users without email will be rejected. <br /><br />  First configure a \"Segment\" as a user filter to control which users get sent to Hubspot. Then configure the attributes you want synchronized. You may always go to a user page and click \"Send to\" in order to override the filter and send specific users manually. <br /><br /><b>Please be careful to map similar data types. ie. Not boolean to date</b>",
+      "properties": [
+        "private_settings.ignore_deleted_users",
+        "private_settings.synchronized_user_segments",
+        "private_settings.outgoing_user_attributes",
+        "private_settings.link_users_in_service"
+      ]
+    },
+    {
+      "title": "Account - Fetching from Hubspot",
+      "description": "<b>Identity</b> is one of the most important concepts in Hull. The \"Account Identity\" section defines which fields are used to resolve accounts as the come into Hull. <b>Please note this does not affect the outgoing account flow.</b>  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Domain</b> can be a good identifier, but be careful because Hull will use the normalized top level domain to match with other accounts. Ideally there is an unique identifier (external_id) that can be used across systems. Try to configure the identity before doing anything else. Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /> Hull captures many of the standard company fields by default. Refer to the connector documentation in the \"Docs\" tab to view the default mappings. If you have any additional custom fields to capture, you may define these mappings in the \"Incoming Custom Attribute Mapping\" section by clicking \"Map another attribute\". To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
+      "properties": [
+        "private_settings.handle_accounts",
+        "private_settings.mark_deleted_companies",
+        "private_settings.incoming_account_claims",
+        "private_settings.incoming_account_attributes",
         "json.fetch_all_companies"
       ]
     },
     {
-      "title": "User Incoming Setup",
-      "description": "How we capture Hubspot Contacts as users",
+      "title": "Account - Sending to Hubspot",
+      "description": "Configuring this section will result in automated data flows which will insert/update your companies in Hubspot. That's why we provide fine grain control over the updates that you send to Hubspot. Because of the limitations of the Hubspot api, <b>outgoing accounts will only be synchronized based on domain</b>. Accounts without domain will be rejected. <br /><br />  First configure a \"Segment\" as an account filter to control which accounts get sent to Hubspot. Then configure the attributes you want synchronized. You may always go to a account page and click \"Send to\" in order to override the filter and send specific users manually. <br /><br /><b>Please be careful to map similar data types. ie. Not boolean to date</b>",
       "properties": [
-        "private_settings.incoming_user_claims",
-        "private_settings.incoming_user_attributes"
-      ]
-    },
-    {
-      "title": "User Outgoing Setup",
-      "description": "How we send Users as Hubspot Contacts",
-      "properties": [
-        "private_settings.synchronized_user_segments",
-        "private_settings.outgoing_user_attributes"
-      ]
-    },
-    {
-      "title": "Account Incoming Setup",
-      "description": "How we capture Hubspot Companies as Accounts",
-      "properties": [
-        "private_settings.handle_accounts",
-        "private_settings.incoming_account_claims",
-        "private_settings.incoming_user_attributes"
-      ]
-    },
-    {
-      "title": "Account Outgoing Setup",
-      "description": "Following section configures how we create or update `Hubspot Companies`",
-      "properties": [
+        "private_settings.ignore_deleted_accounts",
         "private_settings.synchronized_account_segments",
-        "private_settings.outgoing_user_attributes",
-        "private_settings.link_users_in_service",
-        "private_settings.link_users_in_hull"
+        "private_settings.outgoing_account_attributes"
+      ]
+    },
+    {
+      "title": "Email Events - Fetching from Hubspot",
+      "description": "Fetch Email Events from Hubspot",
+      "properties": [
+        "private_settings.fetch_email_events",
+        "private_settings.events_to_fetch",
+        "private_settings.email_events_user_claims",
+        "json.fetch_all_email_events",
+        "json.fetch_hot_off_the_press_events"
       ]
     }
   ]
