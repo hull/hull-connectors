@@ -66,7 +66,7 @@ test("send batch user update to outreach", () => {
       externalApiMock: () => {
         const scope = nock("https://api.outreach.io");
 
-        scope.get("/api/v2/webhooks/").reply(200, { body: { data: [] } });
+        scope.get("/api/v2/webhooks/").reply(200, { data: [] });
         scope
           .post("/api/v2/webhooks/")
           .reply(201, require("../fixtures/api-responses/create-webhook.json"));
@@ -101,8 +101,18 @@ test("send batch user update to outreach", () => {
         ["info", "outgoing.user.success", {"request_id": expect.whatever(), "subject_type": "user", "user_email": "darth@darksideinc.com", "user_id": "5bd329d5e2bcf3eeaf000099"}, expect.objectContaining({"type": "Prospect"})],
         ["debug", "connector.service_api.call", expect.whatever(), {"method": "POST", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/", "vars": {}}],
         ["info", "outgoing.user.success", {"request_id": expect.whatever(), "subject_type": "user", "user_email": "fettisbest@gmail.com", "user_id": expect.whatever()}, expect.objectContaining({"type": "Prospect"})],
-        ["info", "incoming.user.success", expect.whatever(), {"data": {"attributes": {"outreach/id": {"operation": "set", "value": 16}, "outreach/personalNote1": {"operation": "set", "value": "sith lord, don't mention padme"}}, "ident": {"anonymous_id": "outreach:16", "email": "darth@darksideinc.com"}}}],
-        ["info", "incoming.user.success", expect.whatever(), {"data": {"attributes": {"outreach/id": {"operation": "set", "value": 16}, "outreach/personalNote1": {"operation": "set", "value": "sith lord, don't mention padme"}}, "ident": {"anonymous_id": "outreach:16", "email": "darth@darksideinc.com"}}}],
+        ["info", "incoming.user.success", {
+          "subject_type": "user",
+          "request_id": expect.whatever(),
+          "user_email": "darth@darksideinc.com",
+          "user_anonymous_id": "outreach:16"
+        }, {"data": expect.whatever(), "type": "Prospect"}],
+        ["info", "incoming.user.success", {
+          "subject_type": "user",
+          "request_id": expect.whatever(),
+          "user_email": "darth@darksideinc.com",
+          "user_anonymous_id": "outreach:16"
+        }, {"data": expect.whatever(), "type": "Prospect"}],
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}]
       ],
       // same received user because we're mocking the return of bobba with a different user
@@ -152,12 +162,8 @@ test("send batch user update to outreach", () => {
         ["value", "connector.service_api.response_time", expect.whatever()],
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()],
-        ["increment", "ship.outgoing.users", 1],
         ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.whatever()],
-        ["increment", "ship.outgoing.users", 1],
-        ["increment", "ship.incoming.users", 1],
-        ["increment", "ship.incoming.users", 1]
+        ["value", "connector.service_api.response_time", expect.whatever()]
       ],
       platformApiCalls: [
         ["GET", "/api/v1/app", {}, {}],
