@@ -7,6 +7,7 @@ babel packages                          -d dist                                 
 # Copy compiled local libs to the right place so Node lookups succeed
 babel packages/hull                     -d dist/node_modules/hull                     --root-mode upward --verbose --copy-files
 babel packages/hull-client              -d dist/node_modules/hull-client              --root-mode upward --verbose --copy-files
+babel packages/hull-repl                -d dist/node_modules/hull-repl              --root-mode upward --verbose --copy-files
 babel packages/hull-vm                  -d dist/node_modules/hull-vm                  --root-mode upward --verbose --copy-files --ignore "packages/hull-vm/src/**"
 babel packages/hull-connector-framework -d dist/node_modules/hull-connector-framework --root-mode upward --verbose --copy-files
 
