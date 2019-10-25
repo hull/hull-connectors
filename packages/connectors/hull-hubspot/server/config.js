@@ -3,6 +3,7 @@
 import type { HullConnectorConfig } from "hull";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
+import hubspotWebhookHandler from "./handlers/hubspot-webhook-handler";
 
 export default function connectorConfig(): HullConnectorConfig {
   const {
@@ -47,7 +48,18 @@ export default function connectorConfig(): HullConnectorConfig {
       logLevel: LOG_LEVEL
     },
     clientConfig: {
-      firehoseUrl: OVERRIDE_FIREHOSE_URL
-    }
+      firehoseUrl: OVERRIDE_FIREHOSE_URL,
+      timeout: 20000,
+      cachedCredentials: {
+        serviceKey: "body[0].portalId"
+      }
+    },
+    rawCustomRoutes: [
+      {
+        url: "/hubspot-webhook",
+        handler: hubspotWebhookHandler,
+        method: "post"
+      }
+    ]
   };
 }

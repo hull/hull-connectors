@@ -37,6 +37,7 @@ describe("notificationHandler", () => {
 
     app = express();
     connector = new Hull.Connector({
+      connectorName: "TestConnector",
       port: 9092,
       timeout: "100ms",
       skipSignatureValidation: true,
@@ -64,22 +65,22 @@ describe("notificationHandler", () => {
           }, 125);
         });
       }
-    }));
+    }).router);
     app.use("/error-notification", notificationHandler({
       "user:update": (ctx, messages) => {
         return Promise.reject(new Error("error message"));
       }
-    }));
+    }).router);
     app.use("/transient-notification", notificationHandler({
       "user:update": (ctx, messages) => {
         return Promise.reject(new TransientError("Transient error message"));
       }
-    }));
+    }).router);
     app.use("/configuration-notification", notificationHandler({
       "user:update": (ctx, messages) => {
         return Promise.reject(new ConfigurationError("Missing API key"));
       }
-    }));
+    }).router);
     server = connector.startApp(app);
     miniHull.listen(3000).then(done);
   });

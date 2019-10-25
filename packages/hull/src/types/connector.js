@@ -1,6 +1,14 @@
 // @flow
 
-import type { HullManifest, HullConnectorSettings } from "./index";
+import type { Middleware } from "express";
+import type {
+  HullManifest,
+  HullConnectorSettings,
+  HullClientConfig,
+  HullHandlersConfiguration,
+  HullInstrumentation,
+  HullQueue
+} from "./index";
 // =====================================
 // Hull Connector Data Object
 // =====================================
@@ -85,7 +93,7 @@ export type HullCacheConfig =
       url: string,
       ttl?: number | string,
       max?: number | string,
-      min?: number | stringr
+      min?: number | string
     };
 export type HullClientCredentials = {
   id: string,
@@ -109,8 +117,8 @@ export type HullConnectorConfig = {
   timeout?: number | string,
   disableOnExit?: boolean,
   devMode?: boolean,
-  instrumentation?: Instrumentation,
-  queue?: void | Queue,
+  instrumentation?: HullInstrumentation,
+  queue?: void | HullQueue,
   handlers:
     | HullHandlersConfiguration
     | (HullConnector => HullHandlersConfiguration),
