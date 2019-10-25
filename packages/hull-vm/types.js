@@ -178,14 +178,14 @@ export type ClaimsValidation =
   | {
       ...ClaimsPayload,
       valid: true,
-      subject: HullEntityType,
+      entity: HullEntityType,
       message: void,
       error: void
     }
   | {
       ...ClaimsPayload,
       valid: false,
-      subject: HullEntityType,
+      entity: HullEntityType,
       message: string,
       error: string
     };

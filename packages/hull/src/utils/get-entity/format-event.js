@@ -2,8 +2,8 @@
 import type { HullEvent } from "hull";
 import _ from "lodash";
 
-import type { HullElasticContext } from "./group-context";
-import group_context from "./group-context";
+import type { HullElasticContext } from "../group-context";
+import group_context from "../group-context";
 
 const PROP_TYPE_DETECT_ORDER = [
   "bool_value",

@@ -1,6 +1,7 @@
 // @flow
 //
 import Hull from "hull";
+import _ from "lodash";
 import type { HullContext } from "hull";
 import type { SlackInstance } from "../types";
 import getNotification from "../lib/get-notification";
@@ -72,12 +73,15 @@ const postUser = (ctx, getByTeam, type, options = {}) =>
     client.logger.info("bot.hear", logMsg);
 
     try {
-      const message = await ctx.entities.users.get({
+      const payloads = await ctx.entities.get({
         claims: { email: search.email },
+        entity: "user",
         include: { events: true, account: true }
       });
-
-      if (!message.user) {
+      const message = _.first(payloads);
+      // $FlowFixMe
+      const { user } = message || {};
+      if (!user) {
         client.logger.info("user.fetch.fail", { message, search, type });
         throw new Error(`¯\\_(ツ)_/¯ ${message}`);
       }

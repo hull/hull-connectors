@@ -39,19 +39,17 @@ export default async function getEntity(
   }
   const isUser = entityType === "user";
   try {
-    // const getter = entity === "account" ? ctx.entities.accounts : ctx.entities.users;
-    const rawPayload = await (isUser
-      ? ctx.entities.users.get({
-          claim,
-          include: {
-            events: {
-              names: events,
-              per_page: 20,
-              page: 1
-            }
-          }
-        })
-      : ctx.entities.accounts.get({ claim }));
+    const rawPayload = await ctx.entities.get({
+      claim,
+      entity: entityType,
+      include: {
+        events: {
+          names: events,
+          per_page: 20,
+          page: 1
+        }
+      }
+    });
 
     if (!rawPayload) {
       return {

@@ -15,11 +15,11 @@ export type HullFetchedUser = {
   events?: Array<HullEvent>,
   account?: HullAccount,
   account_segments?: Array<HullAccountSegment>,
-  account_segments_ids?: Array<string>
+  account_segment_ids?: Array<string>
 };
 
 export type HullFetchedAccount = {
   account: HullAccount,
   account_segments: Array<HullAccountSegment>,
-  account_segments_ids: Array<string>
+  account_segment_ids: Array<string>
 };
