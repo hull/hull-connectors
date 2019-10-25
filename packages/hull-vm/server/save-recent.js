@@ -1,7 +1,7 @@
 // @flow
 
 import type { HullContext } from "hull";
-import type { Entry, Payload, Result } from "../types";
+import type { Entry, Payload, SerializedResult } from "../types";
 import serialize from "./serialize";
 
 export default function saveRecent(
@@ -12,7 +12,7 @@ export default function saveRecent(
     result,
     payload
   }: {
-    result: Result,
+    result: SerializedResult,
     code: string,
     payload: Payload,
     EntryModel: Object
@@ -21,7 +21,7 @@ export default function saveRecent(
   const { connector } = ctx;
   const entry: Entry = {
     connectorId: connector.id,
-    result: serialize(result),
+    result,
     code,
     payload,
     date: new Date().toString()

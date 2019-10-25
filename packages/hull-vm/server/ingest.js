@@ -6,9 +6,8 @@ import type {
   HullAccount,
   HullEntityClaims
 } from "hull";
-import { callAlias, callLinks, callEvents, callTraits } from "./side-effects";
-import type { Payload, Result } from "../types";
-import serialize from "./serialize";
+import { callAlias, callEvents, callIdentify } from "./side-effects";
+import type { Payload, SerializedResult } from "../types";
 
 const debug = require("debug")("hull-incoming-webhooks:ingest");
 
@@ -16,7 +15,7 @@ const debug = require("debug")("hull-incoming-webhooks:ingest");
 
 export default async function ingest(
   ctx: HullContext,
-  result: Result,
+  result: SerializedResult,
   claims?: HullEntityClaims,
   payload?: Payload
 ) {
@@ -45,16 +44,16 @@ export default async function ingest(
 
   const promises = [];
 
-  client.logger.debug("compute.debug", serialize(result));
+  client.logger.debug("compute.debug", result);
 
   // Update user traits
   if (_.size(userTraits)) {
     promises.push(
-      callTraits({
-        hullClient: client.asUser,
+      callIdentify({
+        client,
         payload: user,
         data: userTraits,
-        entity: "user",
+        subjects: "user",
         metric
       })
     );
@@ -64,10 +63,10 @@ export default async function ingest(
   if (_.size(userAliases)) {
     promises.push(
       callAlias({
-        hullClient: client.asUser,
+        client,
         payload: user,
         data: userAliases,
-        entity: "user",
+        subjects: "user",
         metric
       })
     );
@@ -76,11 +75,11 @@ export default async function ingest(
   // Update account traits
   if (_.size(accountTraits)) {
     promises.push(
-      callTraits({
-        hullClient: client.asAccount,
+      callIdentify({
+        client,
         payload: account,
         data: accountTraits,
-        entity: "account",
+        subjects: "account",
         metric
       })
     );
@@ -90,10 +89,10 @@ export default async function ingest(
   if (_.size(accountAliases)) {
     promises.push(
       callAlias({
-        hullClient: client.asAccount,
+        client,
         payload: account,
         data: accountAliases,
-        entity: "account",
+        subjects: "account",
         metric
       })
     );
@@ -103,22 +102,9 @@ export default async function ingest(
   if (_.size(events)) {
     promises.push(
       callEvents({
-        hullClient: client.asUser,
+        client,
         data: events,
         entity: "event",
-        metric
-      })
-    );
-  }
-
-  // Link accounts with users
-  if (_.size(accountLinks)) {
-    promises.push(
-      callLinks({
-        hullClient: client.asUser,
-        payload: user,
-        data: accountLinks,
-        entity: "account",
         metric
       })
     );

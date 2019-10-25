@@ -7,7 +7,7 @@ import type {
 } from "hull";
 import _ from "lodash";
 import type { Entry } from "hull-vm";
-import { compute, serialize } from "hull-vm";
+import { compute } from "hull-vm";
 import getSample from "../lib/get-sample";
 import getClaims from "../lib/get-claims";
 
@@ -89,7 +89,7 @@ export default async function getEntity(
     const data: Entry = {
       connectorId: connector.id,
       date: new Date().toString(),
-      result: serialize(result),
+      result,
       code,
       payload
     };

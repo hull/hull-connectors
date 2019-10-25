@@ -49,10 +49,10 @@ const normalize = (claims: HullUser | HullAccount | Object): HullEntityClaims =>
       );
 
 export const filterEntityClaims = (
-  type: HullEntityType,
+  subject: HullEntityType,
   claims: void | string | HullUser | HullAccount | Object
 ): HullEntityClaims => {
-  const claimsToFilter = type === "user" ? USER_CLAIMS : ACCOUNT_CLAIMS;
+  const claimsToFilter = subject === "user" ? USER_CLAIMS : ACCOUNT_CLAIMS;
   return normalize(
     typeof claims === "string" ? { id: claims } : _.pick(claims, claimsToFilter)
   );

@@ -6,59 +6,26 @@ import type { Result, SerializedResult } from "../types";
 const serializeAliases = (
   aliases: $PropertyType<Result, "userAliases">
 ): $PropertyType<SerializedResult, "userAliases"> =>
-  aliases
-    .toArray()
-    .map(([claims, operations]) => [
-      claims.toObject(),
-      operations
-        .toArray()
-        .map(([claim, operation]) => [claim.toObject(), operation])
-    ]);
+  aliases.toArray().map(([claims, operations]) => [
+    claims.toObject(),
+    operations.toArray().map(([claim, operation]) => {
+      claim: claim.toObject, operation;
+    })
+  ]);
 
-// [
-//   [
-//     claims,
-//     [
-//       [ claim, operation ]
-//     ]
-//   ]
-// ]
-//
-//
-//   return aliases
-//     .toArray()
-//     .map(([claims, operations]) => [
-//       claims.toObject(),
-//       operations
-//         .toArray()
-//         .map(([claim, operation]) => [claim.toObject(), operation])
-//     ]);
-// };
-
-const serializeLinks = (
-  links: $PropertyType<Result, "accountLinks">
-): $PropertyType<SerializedResult, "accountLinks"> =>
-  links
-    .toArray()
-    .map(([userClaims, accountClaims]) => [
-      userClaims.toObject(),
-      accountClaims.toObject()
-    ]);
-
-const serializeTraits = (
-  traits: $PropertyType<Result, "userTraits">
+const serializeIdentify = (
+  data: $PropertyType<Result, "userTraits">
 ): $PropertyType<SerializedResult, "userTraits"> =>
-  traits
+  data
     .toArray()
     .map(([claims, attributes]) => [claims.toObject(), attributes.toObject()]);
 
 const serialize = (result: Result) => ({
   ...result,
-  userTraits: serializeTraits(result.userTraits),
-  accountTraits: serializeTraits(result.accountTraits),
+  userTraits: serializeIdentify(result.userTraits),
+  accountTraits: serializeIdentify(result.accountTraits),
   userAliases: serializeAliases(result.userAliases),
-  accountAliases: serializeAliases(result.accountAliases),
-  accountLinks: serializeLinks(result.accountLinks)
+  accountAliases: serializeAliases(result.accountAliases)
 });
 
 export default serialize;

@@ -14,7 +14,7 @@ import type {
   HullEntityType,
   HullFetchedUser
 } from "hull";
-import { Map } from "immutable";
+import type { Map, RecordOf } from "immutable";
 
 export type ClaimsOptions = HullAdditionalClaims;
 export type Attributes = HullUserAttributes | HullAccountAttributes;
@@ -47,15 +47,6 @@ export type Links = {
   accountClaims: HullEntityClaims
 };
 
-export type Event = {
-  claims: HullUserClaims,
-  event: {
-    eventName: string,
-    properties?: {},
-    context?: {}
-  }
-};
-
 export type Payload =
   | {
       query: {},
@@ -71,42 +62,97 @@ export type Payload =
   | HullFetchedUser;
 
 export type HullAliasOperation = "alias" | "unalias";
+
 type HullUserClaimsMap = Map<$Keys<HullUserClaims>, $Values<HullUserClaims>>;
-type HullAccountClaimsMap = Map<$Keys<HullUserClaims>, $Values<HullUserClaims>>;
+type HullAccountClaimsMap = Map<
+  $Keys<HullAccountClaims>,
+  $Values<HullAccountClaims>
+>;
+
 type HullAttributesMap = Map<$Keys<Attributes>, $Values<Attributes>>;
+
 export type HullAliasOperations = Array<
   Map<HullEntityClaims, HullAliasOperation>
 >;
+
+type UserClaim = {
+  asUser: HullUserClaimsMap,
+  subject: "user"
+};
+type AccountClaim = {
+  asUser?: HullUserClaimsMap,
+  asAccount: HullAccountClaimsMap,
+  subject: "account"
+};
+
+export type HullClaims = {
+  asUser?: HullUserClaimsMap,
+  asAccount?: HullAccountClaimsMap,
+  subject: "user" | "account"
+};
+
+export type HullUserClaimsRecord = RecordOf<UserClaim>;
+export type HullAccountClaimsRecord = RecordOf<AccountClaim>;
+export type HullClaimsRecord = RecordOf<HullClaims>;
+// type Claim = UserClaim | AccountClaim;
+
+export type Event = {
+  claims: HullClaimsRecord,
+  event: {
+    eventName: string,
+    properties?: {},
+    context?: {}
+  }
+};
+
+export type SerializedEvent = {
+  claims: HullClaims,
+  event: {
+    eventName: string,
+    properties?: {},
+    context?: {}
+  }
+};
+
 export type Result = {
   logsForLogger: Array<string>,
   logs: Array<string | any>,
   errors: Array<string>,
-  userTraits: Map<HullUserClaimsMap, HullAttributesMap>,
-  accountTraits: Map<HullAccountClaimsMap, HullAttributesMap>,
+  userTraits: Map<HullUserClaimsRecord, HullAttributesMap>,
   userAliases: Map<
-    HullUserClaimsMap,
+    HullUserClaimsRecord,
     Map<HullUserClaimsMap, HullAliasOperation>
   >,
+  accountTraits: Map<HullAccountClaimsRecord, HullAttributesMap>,
   accountAliases: Map<
-    HullAccountClaimsMap,
+    HullAccountClaimsRecord,
     Map<HullAccountClaimsMap, HullAliasOperation>
   >,
-  accountLinks: Map<HullUserClaimsMap, HullAccountClaimsMap>,
   events: Array<Event>,
   claims?: HullEntityClaims,
   isAsync: boolean,
   success: boolean
 };
+
 export type SerializedResult = {
   logsForLogger: Array<string>,
   logs: Array<string | any>,
   errors: Array<string>,
-  userTraits: Array<[HullUserClaims, Attributes]>,
-  accountTraits: Array<[HullAccountClaims, Attributes]>,
-  userAliases: Array<[HullUserClaims, HullAliasOperations]>,
-  accountAliases: Array<[HullAccountClaims, HullAliasOperations]>,
-  events: Array<Event>,
-  accountLinks: Array<[HullUserClaims, HullAccountClaims]>,
+  userTraits: Array<[HullClaims, Attributes]>,
+  accountTraits: Array<[HullClaims, Attributes]>,
+  userAliases: Array<
+    [
+      HullClaims,
+      Array<{ claim: HullUserClaims, operation: HullAliasOperation }>
+    ]
+  >,
+  accountAliases: Array<
+    [
+      HullClaims,
+      Array<{ claim: HullAccountClaims, operation: HullAliasOperation }>
+    ]
+  >,
+  events: Array<SerializedEvent>,
   claims?: HullEntityClaims,
   isAsync: boolean,
   success: boolean

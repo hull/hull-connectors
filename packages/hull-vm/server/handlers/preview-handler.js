@@ -59,7 +59,7 @@ export default async function computeHandler(
     }
     return {
       status: 200,
-      data: serialize(result)
+      data: result
     };
   } catch (error) {
     return {

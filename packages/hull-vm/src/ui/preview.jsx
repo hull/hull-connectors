@@ -47,38 +47,43 @@ const mapTraits = method =>
     joinLines
   );
 
-const renderStringOrObject = (i: string | {} | Array<any>) =>
-  _.isArray(i) ? i.map(nice).join(", ") : _.isString(i) ? i : nice(i);
+const renderStringOrObject = (i: string | {} | Array<any>) => {
+  if (_.isArray(i)) {
+    return i.map(nice).join(", ");
+  }
+  return _.isString(i) ? i : nice(i);
+};
 
 const renderLogs = fp.flow(
   fp.map(renderStringOrObject),
   joinLines
 );
 
-const mapAccountLinks = fp.flow(
-  fp.map(
-    ([claims, accountClaims]) => `//★ User → ${nice(claims)}
-//★ Account → ${nice(accountClaims)}
-
-`
-  ),
-  joinLines
-);
+// const mapAccountLinks = fp.flow(
+//   fp.map(
+//     ([claims, accountClaims]) => `//★ User → ${nice(claims)}
+// //★ Account → ${nice(accountClaims)}
+//
+// `
+//   ),
+//   joinLines
+// );
 
 const renderEventBody = ({ eventName, context, properties }) =>
   `"${eventName}", ${nice(properties)}, ${nice(context)}`;
 
-const renderEvent = ({ event, claims }) => `//★ Event →
-${renderUserClaim(claims)}
+const renderEvent = payloadClaims => ({ event, claims }) => `//★ Event →
+${renderUserClaim(payloadClaims || claims)}
 .track(${renderEventBody(event)});
 `;
-const renderScopedEvent = ({ event }) => `//★ Event →
-track(${renderEventBody(event)});
-`;
+// const renderScopedEvent = _claims => ({ event }) => `//★ Event →
+// track(${renderEventBody(event)});
+// `;
 
-const mapEvents = scoped =>
+const mapEvents = claims =>
   fp.flow(
-    fp.map(scoped ? renderScopedEvent : renderEvent),
+    // fp.map(claims ? renderScopedEvent(claims) : renderEvent(claims)),
+    fp.map(renderEvent(claims)),
     joinLines
   );
 
@@ -108,9 +113,10 @@ const Preview = ({ result, scoped, entityType }: Props) => {
   const {
     userTraits = [],
     accountTraits = [],
-    accountLinks = [],
+    // accountLinks = [],
     accountAliases = [],
     userAliases = [],
+    claims,
     errors = [],
     events = [],
     logs = []
@@ -125,8 +131,8 @@ const Preview = ({ result, scoped, entityType }: Props) => {
     "Account Attributes": mapTraits(renderTraits(renderAccountClaim, false))(
       accountTraits
     ),
-    "User-Account Links": mapAccountLinks(accountLinks),
-    "User Events": mapEvents(false)(events),
+    // "User-Account Links": mapAccountLinks(accountLinks),
+    "User Events": mapEvents(claims)(events),
     "User Aliases": mapTraits(renderAlias(renderUserClaim, false))(userAliases),
     "Account Aliases": mapTraits(renderAlias(renderAccountClaim, false))(
       accountAliases

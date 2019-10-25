@@ -8,10 +8,11 @@ import urijs from "urijs";
 // import request from "request-promise";
 import { Map } from "immutable";
 import errors from "request-promise/errors";
-import type { Result, ComputeOptions } from "../types";
+import type { SerializedResult, Result, ComputeOptions } from "../types";
 import getHullContext from "./sandbox/hull";
 import getRequest from "./sandbox/request";
 import getConsole from "./sandbox/console";
+import serialize from "./serialize";
 import check from "./check";
 import scopedUserMethods from "./sandbox/user_methods";
 
@@ -19,7 +20,7 @@ const LIBS = { _, moment, urijs };
 export default async function compute(
   ctx: HullContext,
   { payload, code, preview, claims, source, entityType }: ComputeOptions
-): Promise<Result> {
+): Promise<SerializedResult> {
   const { connector, client } = ctx;
   const result: Result = {
     logs: [],
@@ -29,7 +30,6 @@ export default async function compute(
     userAliases: Map({}),
     accountTraits: Map({}),
     accountAliases: Map({}),
-    accountLinks: Map({}),
     events: [],
     claims,
     entityType,
@@ -131,5 +131,5 @@ export default async function compute(
       result.errors.push(err.toString());
     }
   }
-  return result;
+  return serialize(result);
 }
