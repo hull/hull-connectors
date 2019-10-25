@@ -11,6 +11,8 @@ import connectorConfig from "../../../server/config";
 
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
+process.env.CLIENT_ID = "123";
+process.env.CLIENT_SECRET = "abc";
 
 const connector = {
   private_settings: {
@@ -57,7 +59,26 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
             email,
             "hubspot/id": "existingContactId"
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          // added this change of left segment so would trigger a push
+          // otherwise nothing will be pushed because no mapped attributes
+          changes: {
+            is_new: false,
+            user: {},
+            account: {},
+            segments: {
+              left: [
+                {
+                  id: "5bffc38f625718d58b000004",
+                  name: "Smugglers",
+                  updated_at: "2018-12-06T14:23:38Z",
+                  type: "users_segment",
+                  created_at: "2018-11-29T10:46:39Z"
+                }
+              ]
+            },
+            account_segments: {}
+          }
         }
       ],
       response: {
