@@ -212,7 +212,21 @@ it("should fetch recent users using settings", () => {
           {},
           {
             "private_settings": {
+              "last_fetch_timestamp": expect.any(Number),
               "last_fetch_at": expect.whatever(),
+              "token": "hubToken"
+            },
+            "refresh_status": false
+          }
+        ],
+        ["GET", "/api/v1/app", {}, {}],
+        [
+          "PUT",
+          "/api/v1/9993743b22d60dd829001999",
+          {},
+          {
+            "private_settings": {
+              "last_fetch_at": null,
               "token": "hubToken"
             },
             "refresh_status": false

@@ -210,7 +210,7 @@ const glue = {
       ifL(cond("isEmpty", "lastFetchAt"),
         set("lastFetchAt", ex(ex(moment(), "subtract", { hour: 1 }), "valueOf"))),
       set("properties", hubspotSyncAgent("getContactPropertiesKeys")),
-      set("stopFetchAt", ex(moment(), "format")),
+      set("stopFetchAt", ex(moment(), "valueOf")),
       loopL([
         set("contactsPage", hubspot("getRecentContactsPage")),
         ifL(cond("lessThan", "${contactsPage.time-offset}", "${lastFetchAt}"), {
@@ -248,7 +248,9 @@ const glue = {
         ),
         set("offset", "${contactsPage.time-offset}")
       ]),
-      settingsUpdate({last_fetch_timestamp: "${stopFetchAt}"})
+      settingsUpdate({last_fetch_timestamp: "${stopFetchAt}"}),
+      ifL(not(cond("isEmpty", "${connector.private_settings.last_fetch_at}")),
+        settingsUpdate({last_fetch_at: null}))
     ])
 };
 
