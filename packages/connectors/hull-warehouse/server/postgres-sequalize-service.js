@@ -1,6 +1,9 @@
 /* @flow */
 import type { HullClientLogger, HullContext } from "hull";
-import type { CustomApi, RawRestApi } from "hull-connector-framework/src/purplefusion/types";
+import type {
+  CustomApi,
+  RawRestApi
+} from "hull-connector-framework/src/purplefusion/types";
 
 const {
   isUndefinedOrNull
@@ -67,8 +70,8 @@ function truncateByBytesUTF8(chars, n) {
   while (true) {
     try {
       return fromBytesUTF8(bytes);
-    } catch(e) {};
-    bytes = bytes.substring(0, bytes.length-1);
+    } catch (e) {}
+    bytes = bytes.substring(0, bytes.length - 1);
   }
 }
 
@@ -97,8 +100,13 @@ class SequalizeSdk {
 
   constructor(globalContext: HullVariableContext, api: CustomApi) {
     const reqContext = globalContext.reqContext();
-    this.ascii_encoded = globalContext.get("connector.private_settings.ascii_encoded_database") === true;
-    this.use_native_json = globalContext.get("connector.private_settings.use_native_json_field_type") === true;
+    this.ascii_encoded =
+      globalContext.get("connector.private_settings.ascii_encoded_database") ===
+      true;
+    this.use_native_json =
+      globalContext.get(
+        "connector.private_settings.use_native_json_field_type"
+      ) === true;
     this.api = api;
     this.loggerClient = reqContext.client.logger;
     this.metricsClient = reqContext.metric;
@@ -126,7 +134,6 @@ class SequalizeSdk {
       _.unset(databases, this.connectorId);
     }
   }
-
 
   getSequelizeConnection(): Sequelize {
     if (!databases[this.connectorId]) {
@@ -165,7 +172,7 @@ class SequalizeSdk {
     return EVENT_SCHEMA;
   }
 
-  async initSchema(params: { schema: any, tableName: string } ) {
+  async initSchema(params: { schema: any, tableName: string }) {
     return this.getSequelizeConnection().define(
       params.tableName,
       params.schema
@@ -240,7 +247,11 @@ class SequalizeSdk {
     return sequalizeSchema;
   }
 
-  containsNewAttribute(params: { messages: Array<any>, schema: any, path: string }) {
+  containsNewAttribute(params: {
+    messages: Array<any>,
+    schema: any,
+    path: string
+  }) {
     const schema = params.schema;
     const path = params.path;
 
@@ -248,7 +259,12 @@ class SequalizeSdk {
       // Remember, when creating the object, we'll still put these fields in the payload
       // but the sequelize library "gracefully" handles attributes that don't map
       // where it will just exclude them from being sent
-      const reservedAttributes = ["indexed_at", "updated_at", "segment_ids"];
+      const reservedAttributes = [
+        "indexed_at",
+        "updated_at",
+        "segment_ids",
+        "doctype"
+      ];
 
       return _.some(_.get(message, path), (value, key) => {
         let normalizedName = normalizeFieldName(key);
@@ -265,7 +281,6 @@ class SequalizeSdk {
       });
     });
   }
-
 
   createSequelizedObject(objectToSend: any) {
     const objectToUpsert = {};
@@ -293,7 +308,6 @@ class SequalizeSdk {
         }
       } else {
         if (typeof valueToUpsert === "string") {
-
           if (this.ascii_encoded) {
             valueToUpsert = truncateByBytesUTF8(valueToUpsert, 254);
           } else if (valueToUpsert.length >= 255) {
@@ -325,7 +339,6 @@ class SequalizeSdk {
   }
 
   async upsertHullUser(message: any) {
-
     // https://stackoverflow.com/questions/48124949/nodejs-sequelize-bulk-upsert
 
     // looks like updateOnDuplicate does not work for postgres
@@ -376,15 +389,13 @@ class SequalizeSdk {
       });
   }
 
-  async mergeHullUser(
-    {
-      previous,
-      merged
-    }: {
-      previous: String,
-      merged: String
-    }
-  ) {
+  async mergeHullUser({
+    previous,
+    merged
+  }: {
+    previous: String,
+    merged: String
+  }) {
     return this.getSequelizeConnection()
       .model(this.eventTableName)
       .update(
@@ -395,7 +406,8 @@ class SequalizeSdk {
           where: {
             user_id: previous
           }
-        })
+        }
+      )
       .then(() => {
         this.getSequelizeConnection()
           .model(this.userTableName)
@@ -403,7 +415,7 @@ class SequalizeSdk {
             where: {
               id: previous
             }
-          })
+          });
       });
   }
 
@@ -418,7 +430,10 @@ class SequalizeSdk {
   }
 }
 
-const postgresSdk = ({ clientID, clientSecret } : {
+const postgresSdk = ({
+  clientID,
+  clientSecret
+}: {
   clientID: string,
   clientSecret: string
 }): CustomApi => ({

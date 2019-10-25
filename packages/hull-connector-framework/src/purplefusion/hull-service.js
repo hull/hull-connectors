@@ -20,7 +20,6 @@ const {
 // and maps the data back to account and traits calls....
 
 class HullSdk {
-
   client: Client;
   api: CustomApi;
   metricsClient: MetricAgent;
@@ -38,7 +37,6 @@ class HullSdk {
   }
 
   async dispatch(endpointName: string, params: any) {
-
     //TODO make this method generic across all sdks
     // use method if it exists, if not, just call use endpoint name
     // the endpoint definition in the service should only be used to augment the endpoint
@@ -52,8 +50,58 @@ class HullSdk {
     }
   }
 
-  upsertHullUser(user: HullIncomingUser) {
+  detachEntityFromService(
+    entity: HullIncomingUser | HullIncomingAccount,
+    upsertEntity: any,
+    asEntity: any
+  ) {
+    const service_name = this.globalContext.get("service_name");
 
+    if (_.isNil(service_name)) {
+      return Promise.resolve();
+    }
+
+    const deleted_at = _.get(entity, `attributes.${service_name}/deleted_at`);
+
+    const identity = _.cloneDeep(entity.ident);
+    const asHullEntity = asEntity(identity);
+
+    if (_.isNil(deleted_at)) {
+      asHullEntity.logger.info("Cannot detach from service.", { data: entity });
+      return Promise.resolve();
+    }
+
+    _.set(entity, `attributes.${service_name}/id`, null);
+
+    const upsert = _.bind(upsertEntity, this, entity);
+    let entityPromise = upsert();
+
+    const anonymous_id = _.get(identity, "anonymous_id", null);
+    if (!_.isNil(anonymous_id)) {
+      entityPromise = entityPromise.then(() => {
+        return asHullEntity.unalias({ anonymous_id: anonymous_id });
+      });
+    }
+    return entityPromise;
+  }
+
+  detachHullUserFromService(user: HullIncomingUser) {
+    return this.detachEntityFromService(
+      user,
+      this.upsertHullUser,
+      this.client.asUser
+    );
+  }
+
+  detachHullAccountFromService(account: HullIncomingAccount) {
+    return this.detachEntityFromService(
+      account,
+      this.upsertHullAccount,
+      this.client.asAccount
+    );
+  }
+
+  upsertHullUser(user: HullIncomingUser) {
     const identity = _.cloneDeep(user.ident);
     const hullUserId = this.globalContext.get("hullUserId");
     if (hullUserId) {
@@ -71,9 +119,11 @@ class HullSdk {
     // Not the tightest code in the world, but preserves the old behavior for now
     // which was to do a traits call no matter what
     if (user.events) {
-      userPromise = Promise.all(user.events.map( event => {
-        return asUser.track(event.eventName, event.properties, event.context);
-      }));
+      userPromise = Promise.all(
+        user.events.map(event => {
+          return asUser.track(event.eventName, event.properties, event.context);
+        })
+      );
 
       if (!_.isEmpty(user.attributes)) {
         userPromise = userPromise.then(() => {
@@ -81,7 +131,6 @@ class HullSdk {
         });
       }
     } else {
-
       //need to call traits in all cases in case it's a new user
       // but still would need to validate identity values
       userPromise = asUser.traits(user.attributes);
@@ -89,7 +138,7 @@ class HullSdk {
 
     if (!_.isEmpty(user.accountIdent)) {
       userPromise = userPromise.then(() => {
-        return asUser.account(user.accountIdent).traits({})
+        return asUser.account(user.accountIdent).traits({});
       });
     }
 
@@ -97,7 +146,6 @@ class HullSdk {
   }
 
   outgoingSkip(messages: any) {
-
     let entities = messages;
     if (!Array.isArray(messages)) {
       entities = [messages];
@@ -106,7 +154,9 @@ class HullSdk {
       if (entity.user) {
         this.client.asUser(entity.user).logger.info("outgoing.user.skip");
       } else if (entity.account) {
-        this.client.asAccount(entity.account).logger.info("outgoing.account.skip");
+        this.client
+          .asAccount(entity.account)
+          .logger.info("outgoing.account.skip");
       } else {
         this.client.logger.info("outgoing.entity.skip", { data: entity });
       }
@@ -122,17 +172,16 @@ class HullSdk {
   }
 
   getUserAttributes() {
-    return this.client.get("/users/schema").then((response) => {
+    return this.client.get("/users/schema").then(response => {
       return response;
     });
   }
 
   getAccountAttributes() {
-    return this.client.get("/accounts/schema").then((response) => {
+    return this.client.get("/accounts/schema").then(response => {
       return response;
     });
   }
-
 }
 
 const hullService: CustomApi = {
@@ -145,6 +194,16 @@ const hullService: CustomApi = {
       method: "upsertHullUser",
       endpointType: "upsert",
       input: HullIncomingUser
+    },
+    userDeletedInService: {
+      method: "detachHullUserFromService",
+      endpointType: "upsert",
+      input: HullIncomingUser
+    },
+    accountDeletedInService: {
+      method: "detachHullAccountFromService",
+      endpointType: "upsert",
+      input: HullIncomingAccount
     },
     asUserImport: {
       method: "upsertHullUser",
@@ -177,7 +236,6 @@ const hullService: CustomApi = {
       input: HullIncomingUser,
       suppressLog: true
     }
-
   }
 };
 

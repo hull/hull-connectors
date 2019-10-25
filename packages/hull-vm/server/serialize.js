@@ -8,9 +8,10 @@ const serializeAliases = (
 ): $PropertyType<SerializedResult, "userAliases"> =>
   aliases.toArray().map(([claims, operations]) => [
     claims.toObject(),
-    operations.toArray().map(([claim, operation]) => {
-      claim: claim.toObject, operation;
-    })
+    operations.toArray().map(([claim, operation]) => ({
+      claim: claim.toObject(),
+      operation
+    }))
   ]);
 
 const serializeIdentify = (

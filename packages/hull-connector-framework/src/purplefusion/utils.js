@@ -1,7 +1,12 @@
 /* @flow */
 
 import type { ServiceObjectDefinition } from "./types";
-import type { HullAccountUpdateMessage, HullContext, HullEntityType, HullUserUpdateMessage } from "hull";
+import type {
+  HullAccountUpdateMessage,
+  HullContext,
+  HullEntityType,
+  HullUserUpdateMessage
+} from "hull";
 
 const _ = require("lodash");
 const debug = require("debug")("hull-shared:utils");
@@ -33,7 +38,11 @@ function setHullDataType(object: any, dataType: ServiceObjectDefinition) {
   }
   const existingValue = object[reservedHullDataTypeKey];
   if (existingValue && isUndefinedOrNull(_.get(existingValue, "name"))) {
-    debug(`WARNING: object has existing ${reservedHullDataTypeKey} key: ${JSON.stringify(object)}`);
+    debug(
+      `WARNING: object has existing ${reservedHullDataTypeKey} key: ${JSON.stringify(
+        object
+      )}`
+    );
   }
 
   Object.defineProperty(object, reservedHullDataTypeKey, {
@@ -44,7 +53,10 @@ function setHullDataType(object: any, dataType: ServiceObjectDefinition) {
   });
 }
 
-function sameHullDataType(dataType1: ServiceObjectDefinition, dataType2: ServiceObjectDefinition): boolean {
+function sameHullDataType(
+  dataType1: ServiceObjectDefinition,
+  dataType2: ServiceObjectDefinition
+): boolean {
   const objectName1 = _.get(dataType1, "service_name");
   if (objectName1) {
     return objectName1 === _.get(dataType2, "service_name");
@@ -52,19 +64,17 @@ function sameHullDataType(dataType1: ServiceObjectDefinition, dataType2: Service
   return false;
 }
 
-
 function getHullPlatformTypeName(classType: ServiceObjectDefinition) {
-  if (isUndefinedOrNull(classType))
-    return;
+  if (isUndefinedOrNull(classType)) return;
 
   if (
-    sameHullDataType(classType, HullOutgoingUser)
-    || sameHullDataType(classType, HullIncomingUser)
-    || sameHullDataType(classType, HullOutgoingAccount)
-    || sameHullDataType(classType, HullIncomingAccount)) {
+    sameHullDataType(classType, HullOutgoingUser) ||
+    sameHullDataType(classType, HullIncomingUser) ||
+    sameHullDataType(classType, HullOutgoingAccount) ||
+    sameHullDataType(classType, HullIncomingAccount)
+  ) {
     return classType.name;
   }
-
 }
 
 function isUndefinedOrNull(obj: any) {
@@ -72,15 +82,17 @@ function isUndefinedOrNull(obj: any) {
 }
 
 function parseIntOrDefault(intString: string, defaultInt: number) {
-  if (!isUndefinedOrNull(intString) && typeof intString === 'string') {
+  if (!isUndefinedOrNull(intString) && typeof intString === "string") {
     return parseInt(intString);
   }
   return defaultInt;
 }
 
-
 function removeTraitsPrefix(attributeName: string) {
-  if (!isUndefinedOrNull(attributeName) && attributeName.indexOf("traits_") === 0) {
+  if (
+    !isUndefinedOrNull(attributeName) &&
+    attributeName.indexOf("traits_") === 0
+  ) {
     return removeTraitsPrefix(attributeName.substring("traits_".length));
   }
   return attributeName;
@@ -94,16 +106,18 @@ function removeTraitsPrefix(attributeName: string) {
  * @param pathsToAnonymize
  * @returns {string}
  */
-function createAnonymizedObject(object, pathsToAnonymize = {
-  "configuration.id": "5c092905c36af496c700012e",
-  "configuration.secret": "shhh",
-  "configuration.organization": "organization.hullapp.io",
-  "configuration.hostname": "connectortest.connectordomain.io",
-  "configuration.private_settings.access_token": "access_token",
-  "configuration.private_settings.refresh_token": "refresh_token",
-  "configuration.private_settings.api_key": "api_key",
-}) {
-
+function createAnonymizedObject(
+  object,
+  pathsToAnonymize = {
+    "configuration.id": "5c092905c36af496c700012e",
+    "configuration.secret": "shhh",
+    "configuration.organization": "organization.hullapp.io",
+    "configuration.hostname": "connectortest.connectordomain.io",
+    "configuration.private_settings.access_token": "access_token",
+    "configuration.private_settings.refresh_token": "refresh_token",
+    "configuration.private_settings.api_key": "api_key"
+  }
+) {
   const toAnonymize = [];
 
   _.forEach(pathsToAnonymize, (value, key) => {
@@ -111,29 +125,37 @@ function createAnonymizedObject(object, pathsToAnonymize = {
     if (!isUndefinedOrNull(secretValue) && typeof secretValue === "string") {
       toAnonymize.push({ value: secretValue, replacement: value });
     }
-  })
+  });
 
-  return JSON.stringify(object, (key, value) => {
-    if (typeof value === "string") {
-      if (!isUndefinedOrNull(value)) {
-        let replacementValue = value;
-        _.forEach(toAnonymize, secret => {
-          replacementValue = _.replace(replacementValue, secret.value, secret.replacement);
-        });
-        return replacementValue;
+  return JSON.stringify(
+    object,
+    (key, value) => {
+      if (typeof value === "string") {
+        if (!isUndefinedOrNull(value)) {
+          let replacementValue = value;
+          _.forEach(toAnonymize, secret => {
+            replacementValue = _.replace(
+              replacementValue,
+              secret.value,
+              secret.replacement
+            );
+          });
+          return replacementValue;
+        }
       }
-    }
 
-    const dataType = getHullDataType(object);
-    if (!isUndefinedOrNull(dataType)) {
-      return {
-        [reservedHullDataTypeKey]: dataType,
-        object
-      };
-    }
+      const dataType = getHullDataType(object);
+      if (!isUndefinedOrNull(dataType)) {
+        return {
+          [reservedHullDataTypeKey]: dataType,
+          object
+        };
+      }
 
-    return value;
-  }, 2);
+      return value;
+    },
+    2
+  );
 }
 
 /**
@@ -199,6 +221,43 @@ function toSendMessage(
     );
   }
 
+  const entity: any = _.get(message, targetEntity);
+
+  const serviceName = _.get(options, "serviceName");
+  if (serviceName) {
+    const isDeleted = _.get(
+      message,
+      `${targetEntity}.${serviceName}/deleted_at`,
+      null
+    );
+
+    if (!isUndefinedOrNull(isDeleted)) {
+      const ignoreDeletedUsers = _.get(
+        context,
+        "connector.private_settings.ignore_deleted_users"
+      );
+
+      const ignoreDeletedAccounts = _.get(
+        context,
+        "connector.private_settings.ignore_deleted_accounts"
+      );
+
+      if (targetEntity === "user" && ignoreDeletedUsers === true) {
+        context.client.asUser(entity).logger.info("outgoing.user.skip", {
+          reason: "User has been deleted"
+        });
+        return false;
+      }
+
+      if (targetEntity === "account" && ignoreDeletedAccounts === true) {
+        context.client.asUser(entity).logger.info("outgoing.account.skip", {
+          reason: "Account has been deleted"
+        });
+        return false;
+      }
+    }
+  }
+
   // // We probably should introduce a standard event filter
   // if (targetEntity === "user") {
   //   const synchronizedUserEvents = _.get(context, "connector.private_settings.synchronized_user_events");
@@ -225,27 +284,30 @@ function toSendMessage(
     }
   }
 
-  const entity: any = _.get(message, targetEntity);
-
   const entityInSegments = _.get(message, segmentAttribute, []);
-  const entityInSegmentIds = entityInSegments.map( segment => segment.id );
+  const entityInSegmentIds = entityInSegments.map(segment => segment.id);
 
   // All is the default segment that everyone is in, so if it's selected, it should mean this thing should go
   entityInSegmentIds.push("ALL");
 
-  const matchesSegments = _.intersection(
-    entityInSegmentIds,
-    _.get(context, synchronizedSegmentPath)
-  ).length >= 1;
+  const matchesSegments =
+    _.intersection(entityInSegmentIds, _.get(context, synchronizedSegmentPath))
+      .length >= 1;
 
   // I think we can maybe take out the is_export logic because we're trying to only use isBatch
   if (!matchesSegments && !context.notification.is_export) {
     if (targetEntity === "user") {
-      debug(`User does not match segment ${ JSON.stringify(entity) }`);
-      context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment" });
+      debug(`User does not match segment ${JSON.stringify(entity)}`);
+      context.client.asUser(entity).logger.info("outgoing.user.skip", {
+        reason:
+          "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment"
+      });
     } else if (targetEntity === "account") {
-      debug(`Account does not match segment ${ JSON.stringify(entity) }`);
-      context.client.asAccount(entity).logger.info("outgoing.account.skip", { reason: "Account is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the account is present in the settings page, or add the account to an existing synchronized segment" });
+      debug(`Account does not match segment ${JSON.stringify(entity)}`);
+      context.client.asAccount(entity).logger.info("outgoing.account.skip", {
+        reason:
+          "Account is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the account is present in the settings page, or add the account to an existing synchronized segment"
+      });
     }
     return false;
   }
@@ -276,7 +338,10 @@ function toSendMessage(
         // If 2 users have been resolved to the same user, could result in loops
         // but as long as they don't keep changing it's ok we think... they'll eventually converge to 1
         // although there's a million factors there...
-        const changedServiceAccounts = _.get(message, `changes.account.${serviceName}/id`);
+        const changedServiceAccounts = _.get(
+          message,
+          `changes.account.${serviceName}/id`
+        );
         if (changedServiceAccounts) {
           return true;
         }
@@ -286,23 +351,33 @@ function toSendMessage(
       // may want to perform account linking
     }
 
-    const associated_account_id = _.get(context, "connector.private_settings.outgoing_user_associated_account_id");
+    const associated_account_id = _.get(
+      context,
+      "connector.private_settings.outgoing_user_associated_account_id"
+    );
 
-    if (!isUndefinedOrNull(associated_account_id) && typeof associated_account_id === "string") {
-
+    if (
+      !isUndefinedOrNull(associated_account_id) &&
+      typeof associated_account_id === "string"
+    ) {
       // if it's a user attribute check there
-      const changedAccountId = _.get(message, `changes.user.${associated_account_id}`);
+      const changedAccountId = _.get(
+        message,
+        `changes.user.${associated_account_id}`
+      );
       if (!_.isEmpty(changedAccountId)) {
         return true;
       }
 
       // if it's an account attribute, it will be in the format account.*
       // so check if that's changed...
-      const changedAccountIdOnAccount = _.get(message, `changes.${associated_account_id}`);
+      const changedAccountIdOnAccount = _.get(
+        message,
+        `changes.${associated_account_id}`
+      );
       if (!_.isEmpty(changedAccountIdOnAccount)) {
         return true;
       }
-
     }
   }
 
@@ -317,12 +392,34 @@ function toSendMessage(
 
   // This is a special flag where we send all attributes regardless of change
   // may want to reorder this in cases where we still may not want to send if an event comes through
-  const send_all_user_attributes = _.get(context, "connector.private_settings.send_all_user_attributes");
+  const send_all_user_attributes = _.get(
+    context,
+    "connector.private_settings.send_all_user_attributes"
+  );
   if (send_all_user_attributes === true && targetEntity === "user") {
+    const accountChanges = _.get(message.changes, "account");
+    const userChanges = _.get(message.changes, "user");
+    const userEvents = _.get(message, "events");
+
+    // if there are only account changes, then do not send user update message
+    if (
+      !_.isEmpty(accountChanges) &&
+      _.isEmpty(userChanges) &&
+      _.isEmpty(userEvents)
+    ) {
+      context.client.asUser(entity).logger.info("outgoing.user.skip", {
+        reason: "Has account changes but no user changes and no events"
+      });
+      return false;
+    }
+
     return true;
   }
 
-  const send_all_account_attributes = _.get(context, "connector.private_settings.send_all_account_attributes");
+  const send_all_account_attributes = _.get(
+    context,
+    "connector.private_settings.send_all_account_attributes"
+  );
   if (send_all_account_attributes === true && targetEntity === "account") {
     return true;
   }
@@ -355,11 +452,9 @@ function toSendMessage(
   // send the user because we know it's in the list to send
   // this may be the result of pushing a full segment after it's creation
   // or could be because it's a new connector which we haven't done a full fetch
-  const serviceName = _.get(options, "serviceName");
   if (serviceName) {
     const serviceId = _.get(message, `${targetEntity}.${serviceName}/id`);
     if (isUndefinedOrNull(serviceId)) {
-
       // log for now so we can find this scenario
       // remove after we've audited
       try {
@@ -368,9 +463,11 @@ function toSendMessage(
             reason: "does not have service id"
           });
         } else if (targetEntity === "account") {
-          context.client.asAccount(entity).logger.info("outgoing.account.send", {
-            reason: "does not have service id"
-          });
+          context.client
+            .asAccount(entity)
+            .logger.info("outgoing.account.send", {
+              reason: "does not have service id"
+            });
         }
       } catch (error) {}
 
@@ -454,4 +551,4 @@ module.exports = {
   createAnonymizedObject,
   getHullPlatformTypeName,
   sameHullDataType
-}
+};

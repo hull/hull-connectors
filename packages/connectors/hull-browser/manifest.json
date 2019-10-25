@@ -3,13 +3,8 @@
   "description": "Get access to whitelisted attributes and segments from the Browser in realtime",
   "picture": "picture.png",
   "index": "ship.js",
-  "version": "0.1.7-monorepo",
-  "tags": [
-    "smart-notifier",
-    "incoming",
-    "outgoing",
-    "oneColumn"
-  ],
+  "version": "0.1.8-monorepo",
+  "tags": ["smart-notifier", "incoming", "outgoing", "oneColumn"],
   "settings": [
     {
       "name": "script",
@@ -29,9 +24,7 @@
       "items": {
         "type": "string"
       },
-      "default": [
-        "hull.io"
-      ]
+      "default": ["hull.io"]
     },
     {
       "name": "synchronized_segments",
@@ -47,10 +40,7 @@
       "type": "array",
       "description": "Only these attributes will be sent.",
       "format": "trait",
-      "default": [
-        "domain",
-        "email"
-      ]
+      "default": ["domain", "email"]
     },
     {
       "name": "public_segments",
@@ -87,9 +77,7 @@
       "title": "Setup",
       "description": "If you use Hull.js, deploy this connector in the **platform** you installed directly. Otherwise, copy the code below and paste it in your page.",
       "step": "credentials",
-      "properties": [
-        "json.credentials"
-      ]
+      "properties": ["json.credentials"]
     },
     {
       "title": "Filters",
@@ -111,9 +99,7 @@
     {
       "title": "Code",
       "description": "The code you write below will run in the page whenever new data is sent client-side. we suggest you read the documentation to see the available data and the connector's behaviour",
-      "properties": [
-        "settings.code"
-      ]
+      "properties": ["settings.code"]
     }
   ],
   "subscriptions": [
@@ -121,16 +107,10 @@
       "url": "/smart-notifier",
       "conditions": {
         "channels": {
-          "only": [
-            "user:update",
-            "ship:update",
-            "users_segment:update"
-          ]
+          "only": ["user:update", "ship:update", "users_segment:update"]
         },
         "segments": {
-          "user:update": [
-            "private_settings.synchronized_segments"
-          ]
+          "user:update": ["private_settings.synchronized_segments"]
         }
       },
       "channels": [

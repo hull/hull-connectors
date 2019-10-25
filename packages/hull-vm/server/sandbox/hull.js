@@ -75,7 +75,7 @@ const buildHullContext = (
     properties: HullEventProperties = {},
     context: HullEventContext = {}
   ) => {
-    console.log("EVENT", asUser, claimsMap({ asUser }))
+    console.log("EVENT", asUser, claimsMap({ asUser }));
     // const target = "events";
     result.events.push({
       claims: claimsMap({ asUser }),

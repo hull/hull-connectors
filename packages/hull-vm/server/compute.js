@@ -55,8 +55,6 @@ export default async function compute(
     ship: connector
   };
 
-  let responses;
-
   try {
     const vm = new VM({
       sandbox,
@@ -83,28 +81,21 @@ export default async function compute(
       );
     }
 
-    responses = await vm.run(check.wrapCode(code));
-  } catch (err) {
-    result.errors.push(err.stack.split("at new Script")[0]);
-  }
+    await vm.run(check.wrapCode(code));
 
-  if (preview) {
     // Only lint in Preview mode.
-    const syntaxErrors = check.invalid(ctx, code);
-    if (syntaxErrors && syntaxErrors.length) {
-      result.errors.push(..._.map(syntaxErrors, "annotated"));
+    if (preview) {
+      const syntaxErrors = check.invalid(ctx, code);
+      if (syntaxErrors && syntaxErrors.length) {
+        result.errors.push(..._.map(syntaxErrors, "annotated"));
+      }
+
+      const linterErrors = check.lint(ctx, code, frozen);
+      if (linterErrors && linterErrors.length) {
+        result.errors.push(...linterErrors);
+      }
     }
 
-    const linterErrors = check.lint(ctx, code, frozen);
-    if (linterErrors && linterErrors.length) {
-      result.errors.push(...linterErrors);
-    }
-  }
-
-  try {
-    // If we returned a Promise, await until we've got resolved it.
-    // If it's not a promise we'll continue immediately
-    await Promise.all([responses]);
     // Slice Events to 10 max
     if (preview && result.events.length > 10) {
       result.logs.unshift(result.events);
@@ -128,7 +119,7 @@ export default async function compute(
         err.message === "Error: ESOCKETTIMEDOUT" ? err.message : err.error
       );
     } else {
-      result.errors.push(err.toString());
+      result.errors.push(err.stack.split("at new Script")[0]);
     }
   }
   return serialize(result);

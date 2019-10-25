@@ -2,7 +2,6 @@
 
 import type { HullContext } from "hull";
 import type { Entry, Payload, SerializedResult } from "../types";
-import serialize from "./serialize";
 
 export default function saveRecent(
   ctx: HullContext,

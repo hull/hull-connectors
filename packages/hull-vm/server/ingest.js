@@ -1,4 +1,5 @@
 // @flow
+
 import _ from "lodash";
 import type {
   HullContext,
@@ -28,7 +29,6 @@ export default async function ingest(
     accountTraits,
     userAliases,
     accountAliases,
-    accountLinks,
     logsForLogger,
     errors
   } = result;

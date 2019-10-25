@@ -22,9 +22,15 @@ const HubspotMarketingEmail: ServiceObjectDefinition = {
   service_name: "MarketingEmail"
 };
 
+const HubspotWebhookPayload: ServiceObjectDefinition = {
+  name: "hubspot_webhook_payload",
+  service_name: "WebhookPayload"
+};
+
 module.exports = {
   HubspotIncomingEmailEvent,
   HubspotIncomingEmailEvents,
   HubspotEmailCampaign,
-  HubspotMarketingEmail
+  HubspotMarketingEmail,
+  HubspotWebhookPayload
 };

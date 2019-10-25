@@ -1,14 +1,11 @@
 {
   "name": "Aircall",
   "description": "Capture Aircall Events",
-  "tags": [
-    "incoming",
-    "oneColumn"
-  ],
+  "tags": ["incoming", "oneColumn"],
   "picture": "picture.png",
   "ui": false,
   "readme": "readme.md",
-  "version": "0.1.7-monorepo",
+  "version": "0.1.8-monorepo",
   "private_settings": [
     {
       "title": "Preferred email Label",
@@ -25,16 +22,12 @@
       "title": "Credentials",
       "description": "Setup Aircall Webhook to capture events",
       "step": "credentials",
-      "properties": [
-        "json.credentials"
-      ]
+      "properties": ["json.credentials"]
     },
     {
       "title": "Configuration",
       "description": "Configure how we resolve identites and associate events to Users",
-      "properties": [
-        "private_settings.preferred_email"
-      ]
+      "properties": ["private_settings.preferred_email"]
     }
   ],
   "json": [

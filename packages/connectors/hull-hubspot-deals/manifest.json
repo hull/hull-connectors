@@ -4,7 +4,7 @@
   "source": "hubspot",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.7-monorepo",
+  "version": "0.1.8-monorepo",
   "tags": [
     "outgoing",
     "incoming",
@@ -86,7 +86,7 @@
             "type": "string",
             "format": "select",
             "enum": ["dealname"],
-            "options" : {
+            "options": {
               "allowCreate": false
             }
           },
@@ -143,27 +143,26 @@
   "resources": [],
   "readme": "readme.md",
   "ui": false,
-  "subscriptions": [{
-    "url": "/smart-notifier",
-    "channels": [
-      {
-        "channel": "user:update",
-        "handler": "userUpdate"
-      },
-      {
-        "channel": "ship:update",
-        "handler": "shipUpdate"
-      }
-    ],
-    "conditions": {
-      "channels": {
-        "only": [
-          "user:update",
-          "ship:update"
-        ]
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
+        {
+          "channel": "ship:update",
+          "handler": "shipUpdate"
+        }
+      ],
+      "conditions": {
+        "channels": {
+          "only": ["user:update", "ship:update"]
+        }
       }
     }
-  }],
+  ],
   "batches": [
     {
       "url": "/batch",
@@ -197,16 +196,12 @@
     {
       "title": "Connect with Outreach",
       "description": "Please begin by authenticating this connector with Outreach.  You must have appropriate privileges to grant access.  Hull requests access to only the endpoints which are required to do User and Account synchronization",
-      "properties": [
-        "private_settings.oauth"
-      ]
+      "properties": ["private_settings.oauth"]
     },
     {
       "title": "Deal Identity",
       "description": "Deal identity is important in order to prevent duplication in Hubspot as well as Hull",
-      "properties": [
-        "private_settings.user_claims"
-      ]
+      "properties": ["private_settings.user_claims"]
     },
     {
       "title": "Deal Outgoing Setup",

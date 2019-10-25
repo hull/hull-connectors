@@ -4,7 +4,7 @@
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.7-monorepo",
+  "version": "0.1.8-monorepo",
 
   "tags": [
     "outgoing",
@@ -26,17 +26,15 @@
       "name": "type",
       "type": "string",
       "title": "Type",
-      "enum": [
-        "postgres"
-      ],
+      "enum": ["postgres"],
       "default": "postgres",
-      "required" : true
+      "required": true
     },
     {
       "name": "db_hostname",
       "type": "string",
       "title": "Database Hostname",
-      "required" : true,
+      "required": true,
       "description": "The hostname of the postgres database to connect to"
     },
     {
@@ -44,14 +42,14 @@
       "type": "number",
       "title": "Database Port",
       "default": 5432,
-      "required" : true,
+      "required": true,
       "description": "The port that you want to connect to"
     },
     {
       "name": "db_name",
       "type": "string",
       "title": "Database Name",
-      "required" : true,
+      "required": true,
       "description": "The name of the database that you want to connect to"
     },
     {
@@ -64,13 +62,13 @@
       "name": "db_username",
       "type": "string",
       "title": "Username",
-      "required" : true
+      "required": true
     },
     {
       "name": "db_password",
       "type": "string",
       "title": "Password",
-      "required" : true
+      "required": true
     },
     {
       "name": "user_outgoing_sync_title",
@@ -135,7 +133,7 @@
       "type": "string",
       "title": "User Table Name",
       "default": "hullusers",
-      "required" : true,
+      "required": true,
       "description": "The User table will contain all user attributes in columns. You may join to the account table using the \"accountId\" field.  As new attributes are created in Hull, this connector adds columns to this table"
     },
     {
@@ -143,7 +141,7 @@
       "type": "string",
       "title": "Events Table Name",
       "default": "hullevents",
-      "required" : true,
+      "required": true,
       "description": "The Event table is a static schema which can be joined to the user table using the \"userId\" column.  The properties and context columns are JSON columns which contain attributes associated with the event"
     },
     {
@@ -151,7 +149,7 @@
       "type": "string",
       "title": "Account Table Name",
       "default": "hullaccounts",
-      "required" : true,
+      "required": true,
       "description": "The Account table will contain all account attributes in columns. As new attributes are created in Hull, this connector adds columns to this table"
     },
     {
@@ -197,28 +195,26 @@
     "value": "5",
     "handler": "status"
   },
-  "subscriptions": [{
-    "url": "/smart-notifier",
-    "channels": [
-      {
-        "channel": "user:update",
-        "handler": "userUpdate"
-      },
-      {
-        "channel": "account:update",
-        "handler": "accountUpdate"
-      }
-    ],
-    "conditions": {
-      "channels": {
-        "only": [
-          "ship:update",
-          "user:update",
-          "account:update"
-        ]
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
+        {
+          "channel": "account:update",
+          "handler": "accountUpdate"
+        }
+      ],
+      "conditions": {
+        "channels": {
+          "only": ["ship:update", "user:update", "account:update"]
+        }
       }
     }
-  }],
+  ],
   "batches": [
     {
       "url": "/batch",
@@ -249,7 +245,6 @@
         "private_settings.db_hostname",
         "private_settings.db_port",
         "private_settings.db_name"
-
       ]
     },
     {
@@ -278,7 +273,7 @@
       "properties": [
         "private_settings.synchronized_user_segments",
         "private_settings.synchronized_account_segments"
-        ]
+      ]
     }
   ]
 }

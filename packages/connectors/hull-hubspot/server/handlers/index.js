@@ -3,6 +3,7 @@ import type { HullHandlersConfiguration } from "hull";
 
 import fetch from "../actions/fetch";
 import fetchAll from "../actions/fetch-all";
+import checkCachedCredentials from "../actions/check-cached-credentials";
 import fetchAllCompanies from "../actions/fetch-all-companies";
 import fetchAllEmailEvents from "../actions/fetch-all-email-events";
 import fetchRecentEmailEvents from "../actions/fetch-recent-email-events";
@@ -55,6 +56,7 @@ const handler = ({
     },
     statuses: { status },
     schedules: {
+      checkCachedCredentials,
       checkToken,
       fetchRecentCompanies,
       fetch,

@@ -8,7 +8,6 @@ import type {
 
 import { compute } from "hull-vm";
 import type { PreviewRequest } from "../../types";
-import serialize from "../serialize";
 
 export default async function computeHandler(
   ctx: HullContext,
