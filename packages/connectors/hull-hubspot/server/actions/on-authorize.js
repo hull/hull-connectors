@@ -4,6 +4,7 @@ import type {
   HullOauthAuthorizeMessage,
   HullOAuthAuthorizeResponse
 } from "hull";
+import { cacheClientCredentials } from "./utils/cached-client-credentials-utils";
 
 const moment = require("moment");
 const debug = require("debug")("hull-hubspot:oauth");
@@ -28,6 +29,8 @@ const onAuthorize = async (
     `/oauth/v1/access-tokens/${accessToken}`
   );
   const portalId = res.body.hub_id;
+  await cacheClientCredentials(ctx, portalId);
+
   return {
     private_settings: {
       portal_id: portalId,

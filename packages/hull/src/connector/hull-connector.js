@@ -1,15 +1,11 @@
 // @flow
 
 import type { $Application, Middleware } from "express";
+import _ from "lodash";
 import type { Server } from "http";
 import express from "express";
 import type {
   HullServerConfig,
-  HullMetricsConfig,
-  HullLogsConfig,
-  HullCacheConfig,
-  HullHTTPClientConfig,
-  HullClientConfig,
   HullWorkerConfig,
   HullConnectorConfig,
   HullClient,
@@ -20,7 +16,7 @@ import {
   jsonHandler,
   scheduleHandler,
   notificationHandler,
-  // batchHandler,
+  batchHandler,
   incomingRequestHandler,
   htmlHandler,
   OAuthHandler,
@@ -100,23 +96,25 @@ class HullConnector {
 
   manifest: $PropertyType<HullConnectorConfig, "manifest">;
 
-  resolvedConfig: HullConnectorConfig;
-
-  connectorConfig: HullConnectorConfig;
-
   serverConfig: HullServerConfig;
 
   workerConfig: HullWorkerConfig;
 
-  httpClientConfig: HullHTTPClientConfig;
+  httpClientConfig: $PropertyType<HullConnectorConfig, "httpClientConfig">;
 
-  clientConfig: HullClientConfig;
+  clientConfig: $PropertyType<HullConnectorConfig, "clientConfig">;
 
-  metricsConfig: HullMetricsConfig;
+  jsonConfig: $PropertyType<HullConnectorConfig, "jsonConfig">;
 
-  logsConfig: HullLogsConfig;
+  metricsConfig: $PropertyType<HullConnectorConfig, "metricsConfig">;
 
-  cacheConfig: HullCacheConfig;
+  logsConfig: $PropertyType<HullConnectorConfig, "logsConfig">;
+
+  cacheConfig: $PropertyType<HullConnectorConfig, "cacheConfig">;
+
+  resolvedConfig: HullConnectorConfig;
+
+  connectorConfig: HullConnectorConfig;
 
   cache: Cache;
 
@@ -157,7 +155,7 @@ class HullConnector {
       httpClientConfig,
       metricsConfig,
       logsConfig,
-      connectorName,
+      connectorName = _.kebabCase(manifest.name),
       middlewares = [],
       handlers,
       disableOnExit = false
@@ -246,6 +244,10 @@ class HullConnector {
     }
   }
 
+  stop() {
+    this.server.close();
+  }
+
   getHandlers() {
     if (this._handlers) {
       return this._handlers;
@@ -260,6 +262,14 @@ class HullConnector {
     // Don't use an arrow function here as it changes the context
     // Don't move it out of this closure either
     // https://github.com/expressjs/express/issues/3855
+
+    const { rawCustomRoutes } = this.connectorConfig;
+    if (rawCustomRoutes) {
+      rawCustomRoutes.map(({ method, url, handler }) => {
+        app[method](url, handler);
+        return true;
+      });
+    }
 
     // This method wires the routes according to the configuration.
     // Methods are optional but they all have sane defaults
@@ -330,7 +340,7 @@ class HullConnector {
     mapNotification(notificationHandler, "subscriptions");
 
     // Setup Batch handlers
-    // mapNotification(batchHandler, "batches");
+    mapNotification(batchHandler, "batches");
 
     // Statuses handlers
     // Be careful - these handlers return a specific data format
