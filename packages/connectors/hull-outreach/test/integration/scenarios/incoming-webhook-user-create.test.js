@@ -95,9 +95,14 @@ test("receive incoming webhook for prospect creation from outreach", () => {
       accountsSegments: [],
       response: {},
       logs: [
+        ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" } ],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
-        ["info", "incoming.user.success", {}, {"data": { "accountIdent": {"anonymous_id": "outreach:5" },"attributes": {"outreach/id": {"operation": "set", "value": 3}, "outreach/created_by_webhook": { "operation": "set", "value": true }, "outreach/title": {"operation": "set", "value": "Jedi Knight"}}, "ident": {"anonymous_id": "outreach:3"}}}]
+        ["info", "incoming.user.success", {
+          "subject_type": "user",
+          "user_anonymous_id": "outreach:3"
+        }, {"data": expect.whatever(), "type": "WebPayload" }],
+        ["info", "incoming.job.success", {}, { "jobName": "Incoming Data", "type": "webpayload" } ]
       ],
       firehoseEvents: [
         ["traits", {"asUser": {"anonymous_id": "outreach:3"}, "subjectType": "user"}, {"outreach/created_by_webhook": {"operation": "set", "value": true}, "outreach/id": {"operation": "set", "value": 3}, "outreach/title": {"operation": "set", "value": "Jedi Knight"}}],
@@ -108,8 +113,7 @@ test("receive incoming webhook for prospect creation from outreach", () => {
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()],
         ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.whatever()],
-        ["increment", "ship.incoming.users", 1]
+        ["value", "connector.service_api.response_time", expect.whatever()]
       ],
       platformApiCalls: [
         ["GET", "/api/v1/app", {}, {}],

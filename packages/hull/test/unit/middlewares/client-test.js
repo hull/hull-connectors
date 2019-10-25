@@ -42,7 +42,7 @@ describe("clientMiddleware", () => {
     instance({ HullClient: HullStub }, {}, next);
     expect(next.calledOnce).to.be.true;
     expect(next.args[0][0]).to.be.an("error");
-    expect(next.args[0][0].message).to.eql("Missing request context, you need to initiate it before");
+    expect(next.args[0][0].message).to.eql("Missing request context, you need to initiate it before. we can't find the `req.hull` object");
   });
 
   it("should return a clientMiddleware function", () => {
