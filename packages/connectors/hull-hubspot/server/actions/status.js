@@ -1,5 +1,6 @@
 /* @flow */
 import type { HullContext, HullStatusResponse } from "hull";
+import checkCachedCredentials from "./check-cached-credentials";
 
 const _ = require("lodash");
 
@@ -55,7 +56,7 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
   if (!_.get(connector, "private_settings.token")) {
     pushMessage(
       "setupRequired",
-      'No OAuth AccessToken found.  Please make sure to allow Hull to access your Hubspot data by clicking the "Credentials & Actions" button on the connector page and following the workflow provided'
+      'Connector has not been authenticated. Please make sure to allow Hull to access your Hubspot data by going to the "Settings" tab and clicking "Login to your Hubspot account" in the "Connect to Hubspot" section'
     );
   }
 
@@ -71,22 +72,34 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
     );
   }
 
-  // Doesn't really matter to the customer I don't think
-  // if (!_.get(connector, "private_settings.portal_id")) {
-  //   pushMessage("Missing portal id.");
-  // }
+  if (
+    _.get(connector, "private_settings.mark_deleted_contacts", false) ||
+    _.get(connector, "private_settings.mark_deleted_companies", false)
+  ) {
+    checkCachedCredentials(ctx);
+  }
 
   if (
     _.isEmpty(
       _.get(connector, "private_settings.synchronized_user_segments", [])
-    ) ||
+    )
+  ) {
+    pushMessage(
+      "ok",
+      "No users will be sent from Hull to Hubspot because there are no whitelisted segments configured. If you want to enable outgoing user traffic, please visit the connector settings page and add user segments to be sent to Hubspot, otherwise please ignore this notification."
+    );
+  }
+
+  // Separating these two checks for clearer user guidance
+  // during connector setup
+  if (
     _.isEmpty(
       _.get(connector, "private_settings.synchronized_account_segments", [])
     )
   ) {
     pushMessage(
       "ok",
-      "No users or accounts will be sent from Hull to Hubspot because there are no whitelisted segments configured. If you want to enable outgoing traffic, please visit the connector settings page and add segments to be sent to Hubspot, otherwise please ignore this notification."
+      "No accounts will be sent from Hull to Hubspot because there are no whitelisted segments configured. If you want to enable outgoing account traffic, please visit the connector settings page and add account segments to be sent to Hubspot, otherwise please ignore this notification."
     );
   }
 

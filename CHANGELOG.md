@@ -1,5 +1,38 @@
 # CHANGELOG
 
+## v0.1.8-monorepo
+- [hull-hubspot] support entity deletions
+
+## v0.1.7-monorepo
+- mailchimp now defaults to not pulling events on user updates
+- disable incoming webhooks when connector is disabled
+
+## v0.1.6-monorepo
+- kraken level filtering on segment for Hubspot/Outreach/Customerio/Mailchimp
+
+## v0.1.5-monorepo
+- hubspot filtering unneeded updates
+
+## v0.1.4-monorepo
+- merge hubspot incoming events
+
+## v0.1.3-monorepo
+- Merging new Marketo connector to master branch
+- Merging new Warehouse connector to master branch
+- Consolidated filtering logic from previous master with new filtering logic
+- moved purplefusion to hull-connector-framework
+
+## v0.1.2-monorepo
+- Using connector name inferred from manifest and new hubspot doc
+
+## v0.1.1-monorepo
+- Updated status for mail chimp so that we have more ok, when things don't deserve warnings
+
+## v0.1.0-monorepo
+- Updated the server configuration to load using the manifest and a config object
+- Added flow types
+- Added support for new oauth workflow
+
 ## v0.0.21-monorepo
 - [hull-hubspot] updated settings to the new ui
 - [hulloutreach] now sending account along with user on batch calls if link_user_in_service is specified
