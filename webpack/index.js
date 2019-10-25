@@ -9,6 +9,7 @@ module.exports = function buildConfig() {
     glob.sync(`${sourceFolder}/*`).reduce((configs, c) => {
       const name = c.split("/").pop();
       const conf = configBuilder({
+        assets: `${sourceFolder}/${name}/assets`,
         source: `${sourceFolder}/${name}/src`,
         destination: `${destinationFolder}/${name}/dist`
       });

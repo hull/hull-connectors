@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.1.8-monorepo
+- [hull-hubspot] support entity deletions
+
+## v0.1.7-monorepo
+- mailchimp now defaults to not pulling events on user updates
+- disable incoming webhooks when connector is disabled
+
+## v0.1.6-monorepo
+- kraken level filtering on segment for Hubspot/Outreach/Customerio/Mailchimp
+
 ## v0.1.5-monorepo
 - hubspot filtering unneeded updates
 

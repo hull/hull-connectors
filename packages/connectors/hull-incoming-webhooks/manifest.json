@@ -19,7 +19,7 @@
     }
   ],
   "readme": "readme.md",
-  "version": "0.1.5-monorepo",
+  "version": "0.1.8-monorepo",
   "private_settings": [
     {
       "name": "code",
@@ -45,11 +45,17 @@
   "json": [
     {
       "url": "/recent",
-      "handler": "getRecent"
+      "handler": "getRecent",
+      "options": {
+        "cacheContextFetch": false
+      }
     },
     {
       "url": "/config",
-      "handler": "configHandler"
+      "handler": "configHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
     },
     {
       "url": "/url",
@@ -57,11 +63,17 @@
       "format": "credentials",
       "title": "Webhook URL",
       "description": "Set your external service to send POST webhooks to this url",
-      "handler": "credentialsHandler"
+      "handler": "credentialsHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
     },
     {
       "url": "/preview",
-      "handler": "previewHandler"
+      "handler": "previewHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
     }
   ],
   "incoming": [
