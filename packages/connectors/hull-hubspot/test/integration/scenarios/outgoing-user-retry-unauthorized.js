@@ -74,7 +74,24 @@ it("should refresh token and perform standard operation in case of token expired
           user: {
             email
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          changes: {
+            is_new: false,
+            user: {},
+            account: {},
+            segments: {
+              entered: [
+                {
+                  id: "hullSegmentId",
+                  name: "hullSegmentName",
+                  updated_at: "2018-12-06T14:23:38Z",
+                  type: "users_segment",
+                  created_at: "2018-11-29T10:46:39Z"
+                }
+              ]
+            },
+            account_segments: {}
+          }
         }
       ],
       response: {
