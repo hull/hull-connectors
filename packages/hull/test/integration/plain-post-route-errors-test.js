@@ -22,10 +22,11 @@ describe("plain post routes", () => {
   let server;
   let miniHull;
   let connectorId;
-  let stopMiddlewareSpy;
-  let metricIncrementSpy;
+  let stopMiddleware;
+  let startMiddleware;
+  let getMetric;
 
-  beforeEach((done) => {
+  beforeEach(async () => {
     miniHull = new MiniHull();
     connectorId = miniHull.fakeId();
     miniHull.stubConnector({
@@ -34,8 +35,9 @@ describe("plain post routes", () => {
         enrich_segments: ["1"]
       }
     });
-
-    app = express();
+    stopMiddleware = sinon.spy((err, req, res, next) => next(err))
+    startMiddleware = sinon.spy((err, req, res, next) => next(err))
+    getMetric = sinon.spy((err, req, res, next) => next(err))
     connector = new Hull.Connector({
       port: 9091,
       timeout: "100ms",
@@ -43,70 +45,106 @@ describe("plain post routes", () => {
       hostSecret: "1234",
       clientConfig: {
         protocol: "http"
-      }
-    });
-    stopMiddlewareSpy = sinon.spy((err, req, res, next) => {
-      next(err);
-    });
-    metricIncrementSpy = sinon.spy();
-    connector.instrumentation.stopMiddleware = () => stopMiddlewareSpy;
-    connector.setupApp(app);
-    app.use((req, res, next) => {
-      req.hull.metric.increment = metricIncrementSpy;
-      next();
-    });
-
-    app.post("/error-endpoint", () => {
-      throw new Error();
-    });
-    app.post("/transient-endpoint", () => {
-      throw new TransientError("Some Message");
-    });
-    app.post("/configuration-endpoint", () => {
-      throw new ConfigurationError("Missing API Key");
-    });
-    app.post("/timeout-endpoint", (req, res) => {
-      setTimeout(() => {
-        res.json({ foo: "bar" });
-      }, 125);
-    });
-    server = connector.startApp(app);
-    miniHull.listen(3000).then(done);
+      },
+      instrumentation: {
+        startMiddleware: () => startMiddleware,
+        stopMiddleware: () => stopMiddleware,
+        getMetric: () => getMetric,
+      },
+      middlewares: [],
+      manifest: {
+        incoming: [
+          {
+            url: "/errorEndpoint",
+            handler: "errorEndpoint",
+            options: {
+              respondWithError: false
+            }
+          },
+          {
+            url: "/transientErrorEndpoint",
+            handler: "transientErrorEndpoint",
+            options: {
+              respondWithError: false
+            }
+          },
+          {
+            url: "/configurationErrorEndpoint",
+            handler: "configurationErrorEndpoint",
+            options: {
+              respondWithError: false
+            }
+          },
+          {
+            url: "/timeoutErrorEndpoint",
+            handler: "timeoutErrorEndpoint",
+            options: {
+              respondWithError: false
+            }
+          }
+        ]
+      },
+      handlers: () => ({
+        incoming: {
+          errorEndpoint: () => {
+            throw new Error();
+          },
+          transientErrorEndpoint: () => {
+            throw new TransientError();
+          },
+          configurationErrorEndpoint: () => {
+            throw new ConfigurationError("Missing API Key");
+          },
+          timeoutErrorEndpoint: () => {
+            setTimeout(() => {
+              res.json({ foo: "bar" });
+            }, 125);
+          }
+        }
+      })
+    })
+    await connector.start();
+    await miniHull.listen(3000);
+    return true
   });
 
   afterEach(() => {
-    server.close();
+    connector.stop();
     miniHull.server.close();
   });
 
-  it("should handle unhandled error", () => {
-    return miniHull.postConnector(connectorId, "localhost:9091/error-endpoint")
-      .catch((err) => {
-        expect(stopMiddlewareSpy.called).to.be.true;
+  it("should handle unhandled error", async () => {
+    return miniHull
+      .postConnector(connectorId, "localhost:9091/errorEndpoint")
+      .catch(err => {
+        console.log("++++++++++++");
+        console.log(err.response.text);
+        console.log("++++++++++++");
+        expect(stopMiddleware.called).to.be.true;
         expect(err.response.statusCode).to.equal(500);
         expect(err.response.text).to.equal("unhandled-error");
       });
   });
   it("transient error", () => {
-    return miniHull.postConnector(connectorId, "localhost:9091/transient-endpoint")
+    return miniHull.postConnector(connectorId, "localhost:9091/transientErrorEndpoint")
       .catch((err) => {
-        expect(stopMiddlewareSpy.called).to.be.true;
+        expect(stopMiddleware.called).to.be.true;
         expect(err.response.statusCode).to.equal(500);
         expect(err.response.text).to.equal("unhandled-error");
       });
   });
   it("configuration error", () => {
-    return miniHull.postConnector(connectorId, "localhost:9091/configuration-endpoint")
+    return miniHull.postConnector(connectorId, "localhost:9091/configurationErrorEndpoint")
       .catch((err) => {
-        expect(stopMiddlewareSpy.called).to.be.true;
+        expect(stopMiddleware.called).to.be.true;
         expect(err.response.statusCode).to.equal(500);
         expect(err.response.text).to.equal("unhandled-error");
       });
   });
   it("should handle timeout error", function test(done) {
-    miniHull.postConnector(connectorId, "localhost:9091/timeout-endpoint")
+    miniHull.postConnector(connectorId, "localhost:9091/timeoutErrorEndpoint")
       .catch((err) => {
-        expect(stopMiddlewareSpy.called).to.be.true;
+        expect(stopMiddleware.called).to.be.true;
         expect(err.response.statusCode).to.equal(500);
         expect(err.response.text).to.equal("unhandled-error");
       });

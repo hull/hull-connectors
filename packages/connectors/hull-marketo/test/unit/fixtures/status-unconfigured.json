@@ -1,0 +1,37 @@
+{
+  "configuration": {
+    "id": "5c092905c36af496c700012e",
+    "secret": "shhh",
+    "organization": "organization.hullapp.io",
+    "hostname": "connectortest.connectordomain.io",
+    "private_settings": {
+      "marketo_client_id": "asdf",
+      "marketo_client_secret": "secret",
+      "pollLeadExportInterval": null,
+      "access_token": "access_token",
+      "expires_in": 3599,
+      "scope": "user@company.com",
+      "incoming_user_attributes": [
+        {
+          "hull": "marketo/companyname",
+          "service": "company"
+        }
+      ],
+      "latestLeadSync": 1565127843849,
+      "outgoing_user_attributes": [
+        {
+          "hull": "unified_data/title",
+          "service": "title"
+        }
+      ],
+      "fetch_all_attributes": true
+    }
+  },
+  "route": "status",
+  "input": {},
+  "serviceRequests": [],
+  "result": {
+    "message": "Please fill out the required credential fields for Hull to connect with Marketo.  You can find these fields by clicking \"Settings\" then scrolling to the \"Connect with Marketo\" section.",
+    "status": "setupRequired"
+  }
+}

@@ -104,7 +104,7 @@ class NotificationValidator {
           "INVALID_SIGNATURE"
         );
       }
-      return true;
+      return null;
     } catch (error) {
       return error;
     }

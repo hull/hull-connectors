@@ -1,0 +1,174 @@
+{
+  "configuration": {
+    "id": "5c092905c36af496c700012e",
+    "secret": "shhh",
+    "organization": "organization.hullapp.io",
+    "hostname": "connectortest.connectordomain.io",
+    "private_settings": {
+      "type": "postgres",
+      "db_port": 5432,
+      "synchronized_user_segments": [],
+      "send_all_user_attributes": true,
+      "send_all_account_attributes": true,
+      "synchronized_account_segments": [],
+      "db_user_table_name": "hullusers",
+      "db_events_table_name": "hullevents",
+      "db_account_table_name": "hullaccounts",
+      "db_hostname": "somehost",
+      "db_name": "wrong name",
+      "db_username": "username",
+      "db_password": "password"
+    }
+  },
+  "route": "status",
+  "input": {},
+  "serviceRequests": [
+    {
+      "localContext": [
+        {
+          "currentDatabaseSettings": "username|password|somehost|5432|wrong name|hullaccounts|hullusers|hullevents"
+        }
+      ],
+      "name": "postgres",
+      "op": "closeDatabaseConnectionIfExists"
+    },
+    {
+      "localContext": [
+        {
+          "currentDatabaseSettings": "username|password|somehost|5432|wrong name|hullaccounts|hullusers|hullevents"
+        }
+      ],
+      "name": "hull",
+      "op": "getAccountAttributes",
+      "result": [
+        {
+          "key": "id",
+          "type": "string",
+          "configurable": false,
+          "track_changes": false,
+          "visible": true
+        }
+      ]
+    },
+    {
+      "localContext": [
+        {
+          "currentDatabaseSettings": "username|password|somehost|5432|wrong name|hullaccounts|hullusers|hullevents"
+        }
+      ],
+      "name": "postgres",
+      "op": "createAccountSchema",
+      "input": [
+        {
+          "key": "id",
+          "type": "string",
+          "configurable": false,
+          "track_changes": false,
+          "visible": true
+        }
+      ],
+      "result": {
+        "id": {
+          "type": {
+            "options": {},
+            "_length": 255
+          },
+          "primaryKey": true,
+          "fieldName": "id",
+          "_modelAttribute": true,
+          "field": "id"
+        },
+        "segments": {
+          "type": {
+            "options": {},
+            "_length": ""
+          },
+          "fieldName": "segments",
+          "_modelAttribute": true,
+          "field": "segments"
+        }
+      }
+    },
+    {
+      "localContext": [
+        {
+          "currentDatabaseSettings": "username|password|somehost|5432|wrong name|hullaccounts|hullusers|hullevents"
+        }
+      ],
+      "name": "postgres",
+      "op": "initSchema",
+      "input": {
+        "schema": {
+          "id": {
+            "type": {
+              "options": {},
+              "_length": 255
+            },
+            "primaryKey": true,
+            "fieldName": "id",
+            "_modelAttribute": true,
+            "field": "id"
+          },
+          "segments": {
+            "type": {
+              "options": {},
+              "_length": ""
+            },
+            "fieldName": "segments",
+            "_modelAttribute": true,
+            "field": "segments"
+          }
+        },
+        "tableName": "hullaccounts"
+      }
+    },
+    {
+      "localContext": [
+        {
+          "currentDatabaseSettings": "username|password|somehost|5432|wrong name|hullaccounts|hullusers|hullevents"
+        }
+      ],
+      "name": "postgres",
+      "op": "syncTableSchema",
+      "input": "hullaccounts",
+      "error": {
+        "name": "SequelizeHostNotFoundError",
+        "parent": {
+          "errno": "ENOTFOUND",
+          "code": "ENOTFOUND",
+          "syscall": "getaddrinfo",
+          "hostname": "somehost",
+          "host": "somehost",
+          "port": 5432
+        },
+        "original": {
+          "errno": "ENOTFOUND",
+          "code": "ENOTFOUND",
+          "syscall": "getaddrinfo",
+          "hostname": "somehost",
+          "host": "somehost",
+          "port": 5432
+        }
+      }
+    }
+  ],
+  "error": {
+    "name": "SequelizeHostNotFoundError",
+    "parent": {
+      "errno": "ENOTFOUND",
+      "code": "ENOTFOUND",
+      "syscall": "getaddrinfo",
+      "hostname": "somehost",
+      "host": "somehost",
+      "port": 5432
+    },
+    "original": {
+      "errno": "ENOTFOUND",
+      "code": "ENOTFOUND",
+      "syscall": "getaddrinfo",
+      "hostname": "somehost",
+      "host": "somehost",
+      "port": 5432
+    }
+  }
+}

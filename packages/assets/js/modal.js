@@ -4,7 +4,7 @@ export const fetchConfirm = async ({
   entity,
   service,
   title = `Fetch all ${entity}`,
-  text = `You are going to fetch all ${service} ${entity}. This will generate an important amount traffic. You should do this once when after installing the connector or if you want to re-import your entire database. Continue?`,
+  text = `You are going to fetch all ${service} ${entity}. This will generate a significant amount of traffic. You should only do this once after installing the connector or if you want to re-import your entire database.`,
   type = "warning",
   icon = "warning",
   confirmText = "Start Fetching"
