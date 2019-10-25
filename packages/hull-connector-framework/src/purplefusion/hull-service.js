@@ -52,6 +52,45 @@ class HullSdk {
     }
   }
 
+  detachEntityFromService(entity: HullIncomingUser | HullIncomingAccount, upsertEntity: any, asEntity: any) {
+    const service_name = this.globalContext.get("service_name");
+
+    if (_.isNil(service_name)) {
+      return Promise.resolve();
+    }
+
+    const deleted_at = _.get(entity, `attributes.${service_name}/deleted_at`);
+
+    const identity = _.cloneDeep(entity.ident);
+    const asHullEntity = asEntity(identity);
+
+    if (_.isNil(deleted_at)) {
+      asHullEntity.logger.info("Cannot detach from service.", { data: entity });
+      return Promise.resolve();
+    }
+
+    _.set(entity, `attributes.${service_name}/id`, null);
+
+    const upsert = _.bind(upsertEntity, this, entity);
+    let entityPromise = upsert();
+
+    const anonymous_id = _.get(identity, "anonymous_id", null);
+    if (!_.isNil(anonymous_id)) {
+      entityPromise = entityPromise.then(() => {
+        return asHullEntity.unalias({ "anonymous_id": anonymous_id })
+      });
+    }
+    return entityPromise;
+  }
+
+  detachHullUserFromService(user: HullIncomingUser) {
+    return this.detachEntityFromService(user, this.upsertHullUser, this.client.asUser);
+  }
+
+  detachHullAccountFromService(account: HullIncomingAccount) {
+    return this.detachEntityFromService(account, this.upsertHullAccount, this.client.asAccount);
+  }
+
   upsertHullUser(user: HullIncomingUser) {
 
     const identity = _.cloneDeep(user.ident);
@@ -132,7 +171,6 @@ class HullSdk {
       return response;
     });
   }
-
 }
 
 const hullService: CustomApi = {
@@ -145,6 +183,16 @@ const hullService: CustomApi = {
       method: "upsertHullUser",
       endpointType: "upsert",
       input: HullIncomingUser
+    },
+    userDeletedInService: {
+      method: "detachHullUserFromService",
+      endpointType: "upsert",
+      input: HullIncomingUser
+    },
+    accountDeletedInService: {
+      method: "detachHullAccountFromService",
+      endpointType: "upsert",
+      input: HullIncomingAccount
     },
     asUserImport: {
       method: "upsertHullUser",

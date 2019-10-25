@@ -248,7 +248,7 @@ class SequalizeSdk {
       // Remember, when creating the object, we'll still put these fields in the payload
       // but the sequelize library "gracefully" handles attributes that don't map
       // where it will just exclude them from being sent
-      const reservedAttributes = ["indexed_at", "updated_at", "segment_ids"];
+      const reservedAttributes = ["indexed_at", "updated_at", "segment_ids", "doctype"];
 
       return _.some(_.get(message, path), (value, key) => {
         let normalizedName = normalizeFieldName(key);
