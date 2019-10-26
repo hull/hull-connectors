@@ -67,7 +67,7 @@ module.exports = async function interactiveMessage(ctx: HullContext) {
       });
       const notification = await getNotification({
         client,
-        message: _.first(payloads),
+        message: _.first(payloads.data),
         actions,
         entity: "user"
       });

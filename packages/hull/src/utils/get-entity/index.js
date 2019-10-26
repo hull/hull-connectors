@@ -3,10 +3,8 @@
 import _ from "lodash";
 import type {
   HullContext,
-  HullFetchedUser,
-  HullFetchedAccount,
-  HullUser,
-  HullAccount,
+  HullGetUserResponse,
+  HullGetAccountResponse,
   HullEntityName,
   HullGetEntityParams
 } from "../../types/index";
@@ -17,10 +15,7 @@ const getEntities = async (
   ctx: HullContext,
   query: {},
   entity: HullEntityName = "user"
-): Promise<{
-  pagination: {},
-  data: Array<HullUser | HullAccount>
-}> => {
+): Promise<HullGetUserResponse | HullGetAccountResponse> => {
   const response = await ctx.client.post(`search/${entity}_reports`, query);
   const { data = [] } = response;
   if (!data.length) {
@@ -46,7 +41,7 @@ export const getEntity = (ctx: HullContext) => async ({
   page = 1,
   include
 }: HullGetEntityParams): Promise<
-  Array<HullFetchedUser | HullFetchedAccount>
+  HullGetUserResponse | HullGetAccountResponse
 > => {
   if (!entity) {
     throw new Error(

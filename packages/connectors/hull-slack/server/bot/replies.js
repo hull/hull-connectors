@@ -69,21 +69,22 @@ const postUser = (ctx, getByTeam, type, options = {}) =>
       options,
       ...getMessageLogData(msg)
     };
+    const { email }: { email: string } = search;
 
     client.logger.info("bot.hear", logMsg);
 
     try {
       const payloads = await ctx.entities.get({
-        claims: { email: search.email },
+        claims: { email },
         entity: "user",
         include: { events: true, account: true }
       });
-      const message = _.first(payloads);
+      const message = _.first(payloads.data);
       // $FlowFixMe
       const { user } = message || {};
       if (!user) {
         client.logger.info("user.fetch.fail", { message, search, type });
-        throw new Error(`¯\\_(ツ)_/¯ ${message}`);
+        throw new Error("¯\\_(ツ)_/¯ Can't find a user");
       }
 
       const res = await getNotification({

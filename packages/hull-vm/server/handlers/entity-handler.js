@@ -39,7 +39,7 @@ export default async function getEntity(
   }
   const isUser = entity === "user";
   try {
-    const response = await ctx.entities.get({
+    const payloads = await ctx.entities.get({
       claims,
       search,
       entity,
@@ -52,7 +52,7 @@ export default async function getEntity(
       }
     });
 
-    const rawPayload = _.first(response.data);
+    const rawPayload = _.first(payloads.data);
     if (!rawPayload) {
       return {
         status: 404,

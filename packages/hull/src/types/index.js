@@ -14,7 +14,6 @@
 /* :: export type * from "./sync-agent"; */
 /* :: export type * from "./settings"; */
 /* :: export type * from "./schema"; */
-/* :: export type * from "./fetched"; */
 /* :: export type * from "./get-entity"; */
 
 import type Cache from "../infra/cache/cache-agent";
