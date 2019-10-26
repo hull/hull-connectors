@@ -134,6 +134,5 @@ export default class ProcessorEngine extends Engine {
         }
       });
     }
-    return undefined;
   };
 }
