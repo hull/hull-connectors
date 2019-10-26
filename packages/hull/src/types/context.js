@@ -4,7 +4,7 @@ import type { agent } from "superagent";
 import type {
   HullGetEntityParams,
   HullIncludedEvents,
-  HullEntityType,
+  HullEntityName,
   HullFetchedEvent,
   HullFetchedUser,
   HullFetchedAccount,
@@ -83,7 +83,7 @@ export type HullContext = {
     get: HullGetEntityParams => Promise<
       Array<HullFetchedUser | HullFetchedAccount>
     >,
-    getSchema: HullEntityType => Promise<Array<HullEventSchemaEntry>>,
+    getSchema: HullEntityName => Promise<Array<HullEventSchemaEntry>>,
     events: {
       get: HullIncludedEvents => Promise<Array<HullFetchedEvent>>,
       getSchema: () => Promise<Array<HullEventSchemaEntry>>

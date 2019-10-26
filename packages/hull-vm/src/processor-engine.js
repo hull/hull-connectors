@@ -1,12 +1,13 @@
 // @flow
 
 import _ from "lodash";
+import type { HullEntityName } from "hull";
 import type { EventSelect, Entry, ProcessorEngineState } from "hull-vm";
 import Engine from "./engine";
 
 type QueryParams = {
   search?: string,
-  entity: "user" | "account",
+  entity: HullEntityName,
   selectedEvents: Array<EventSelect>
 };
 

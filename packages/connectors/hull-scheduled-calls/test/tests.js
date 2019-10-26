@@ -100,7 +100,7 @@ module.exports = [
           userTraits: [[{ id: "123" }, { "my-group/customerioid": "321" }]],
           accountTraits: [],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           events: [],
           accountLinks: [],
           success: true,
@@ -228,7 +228,7 @@ module.exports = [
             ]
           ],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           events: [
             {
               claims: {
@@ -437,7 +437,7 @@ module.exports = [
             ]
           ],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           events: [
             {
               claims: {
@@ -618,7 +618,7 @@ module.exports = [
           ],
           accountTraits: [],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           events: [
             {
               claims: {
@@ -732,7 +732,7 @@ module.exports = [
             ]
           ],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           events: [],
           accountLinks: [],
           success: true,
@@ -812,7 +812,7 @@ module.exports = [
             ]
           ],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           events: [],
           accountLinks: [],
           success: true,
@@ -887,7 +887,7 @@ module.exports = [
           userTraits: [[{ id: "123" }, { foo: "bar" }]],
           accountTraits: [],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           events: [],
           accountLinks: [],
           success: true,

@@ -35,7 +35,7 @@ const update = ({ flow_size = 100, flow_in = 10 }: FlowControl) => async (
           source: "processor",
           code,
           claims: getClaims("account", payload),
-          entityType: "account",
+          entity: "account",
           preview: false
         })
       )

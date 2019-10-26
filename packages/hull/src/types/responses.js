@@ -1,5 +1,5 @@
 // @flow
-import type { HullUISelect, HullUISelectGroup, HullEntityType } from "./index";
+import type { HullUISelect, HullUISelectGroup, HullEntityName } from "./index";
 
 // =====================================
 //   Handler Responses
@@ -19,7 +19,7 @@ export type HullNotificationFlowControl = {
 
 export type HullKrakenResponse = void | {|
   action: "success" | "skip" | "error",
-  type: HullEntityType | "event",
+  type: HullEntityName | "event",
   message_id?: string,
   message?: string,
   id: ?string,

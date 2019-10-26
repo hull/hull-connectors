@@ -1,7 +1,7 @@
 // @flow
 
 import _ from "lodash";
-import type { HullEntityClaims, HullEntityType } from "../../types";
+import type { HullEntityClaims, HullEntityName } from "../../types";
 
 const ID = ["id"];
 const EXTERNAL_ID = ["external_id.raw"];
@@ -73,7 +73,7 @@ const getQuery = ({
 }: {
   claims?: HullEntityClaims,
   search?: string,
-  entity: HullEntityType,
+  entity: HullEntityName,
   options: Options
 }) =>
   search === undefined

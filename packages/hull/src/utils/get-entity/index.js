@@ -7,7 +7,7 @@ import type {
   HullFetchedAccount,
   HullUser,
   HullAccount,
-  HullEntityType,
+  HullEntityName,
   HullGetEntityParams
 } from "../../types/index";
 import { getAccountPayload, getUserPayload } from "./get-payload";
@@ -16,7 +16,7 @@ import getQuery from "./queries";
 const getEntities = async (
   ctx: HullContext,
   query: {},
-  entity: HullEntityType = "user"
+  entity: HullEntityName = "user"
 ): Promise<{
   pagination: {},
   data: Array<HullUser | HullAccount>

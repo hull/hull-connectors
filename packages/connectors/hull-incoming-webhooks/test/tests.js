@@ -100,7 +100,7 @@ module.exports = [
           userTraits: [[{ id: "123" }, { "my-group/customerioid": "321" }]],
           accountTraits: [],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           accountLinks: [],
           accountAliases: [],
           userAliases: [],
@@ -231,7 +231,7 @@ module.exports = [
             ]
           ],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           events: [
             {
               claims: {
@@ -459,7 +459,7 @@ module.exports = [
             ]
           ],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           accountAliases: [],
           userAliases: [],
           events: [
@@ -655,7 +655,7 @@ module.exports = [
           ],
           accountTraits: [],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           events: [
             {
               claims: {
@@ -777,7 +777,7 @@ module.exports = [
             ]
           ],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           events: [],
           accountLinks: [],
           accountAliases: [],
@@ -860,7 +860,7 @@ module.exports = [
             ]
           ],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           events: [],
           accountLinks: [],
           accountAliases: [],
@@ -938,7 +938,7 @@ module.exports = [
           userTraits: [[{ id: "123" }, { foo: "bar" }]],
           accountTraits: [],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           accountLinks: [],
           accountAliases: [],
           userAliases: [],
@@ -1007,7 +1007,7 @@ module.exports = [
           userTraits: [],
           accountTraits: [],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           accountLinks: [],
           accountAliases: [
             [

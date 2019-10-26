@@ -7,13 +7,13 @@ import Engine from "./app/engine";
 import App from "./app";
 
 const emptyMessageForEntity = (
-  entityType = "user"
+  entity = "user"
 ) => `Please enter the identifier of an Account in the field above.
 
 Valid identifiers are:
 - external_id
 - anonymous_id
-- ${entityType === "user" ? "email" : "domain"}
+- ${entity === "user" ? "email" : "domain"}
 - Hull ID
 `;
 ready(() => {

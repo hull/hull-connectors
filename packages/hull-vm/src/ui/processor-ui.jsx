@@ -79,7 +79,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
       showBindings,
       events,
       error,
-      entityType,
+      entity,
       claim
     } = this.state;
 
@@ -127,7 +127,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
           </div>
           <div className="col vm-column code-column">
             <Header>
-              {entityType === "user" ? (
+              {entity === "user" ? (
                 <EventSelector
                   loading={!initialized && fetching}
                   onChange={this.handleUpdateEvents}
@@ -160,7 +160,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
             <Preview
               title="Preview"
               scoped={true}
-              entityType={entityType}
+              entity={entity}
               result={error ? {} : current.result}
               computing={computing}
             />

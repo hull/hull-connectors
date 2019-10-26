@@ -1,7 +1,7 @@
 // @flow
 // import _ from "lodash";
 // import fp from "lodash/fp";
-import type { HullContext, HullEntityType } from "../types/index";
+import type { HullContext, HullEntityName } from "../types/index";
 // import { formatEvent } from "./format-event";
 
 const EVENTS_ROUTE = "/search/event/bootstrap";
@@ -22,5 +22,5 @@ const schemaMapping = {
 export const getEventSchema = get(EVENTS_ROUTE);
 export const getUserSchema = get(USERS_ROUTE);
 export const getAccountSchema = get(ACCOUNTS_ROUTE);
-export const getSchema = (ctx: HullContext) => (entity: HullEntityType) =>
+export const getSchema = (ctx: HullContext) => (entity: HullEntityName) =>
   get(schemaMapping[entity])(ctx);
