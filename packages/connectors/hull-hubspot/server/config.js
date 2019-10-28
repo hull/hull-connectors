@@ -49,6 +49,7 @@ export default function connectorConfig(): HullConnectorConfig {
     },
     clientConfig: {
       firehoseUrl: OVERRIDE_FIREHOSE_URL,
+      timeout: 20000,
       cachedCredentials: {
         serviceKey: "body[0].portalId"
       }

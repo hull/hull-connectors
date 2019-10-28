@@ -1,9 +1,6 @@
 /* @flow */
 import type { HullContext, HullStatusResponse } from "hull";
-import {
-  getCachedClientCredentials,
-  credentialsInCache
-} from "./utils/cached-client-credentials-utils";
+import checkCachedCredentials from "./check-cached-credentials";
 
 const _ = require("lodash");
 
@@ -75,15 +72,11 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
     );
   }
 
-  const portalId = _.get(connector, "private_settings.portal_id", null);
-  const fetchDeleted =
+  if (
     _.get(connector, "private_settings.mark_deleted_contacts", false) ||
-    _.get(connector, "private_settings.mark_deleted_companies", false);
-  if (portalId !== null && fetchDeleted) {
-    const cachedCredentials = await getCachedClientCredentials(ctx, portalId);
-    if (!credentialsInCache(cachedCredentials, ctx.clientCredentials)) {
-      pushMessage("ok", "Credentials Are Not Cached. Please Re-authenticate.");
-    }
+    _.get(connector, "private_settings.mark_deleted_companies", false)
+  ) {
+    checkCachedCredentials(ctx);
   }
 
   if (

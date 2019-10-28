@@ -8,7 +8,7 @@
   "source": "typeform",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.7-monorepo",
+  "version": "0.1.8-monorepo",
   "settings": [],
   "private_settings": [
     {

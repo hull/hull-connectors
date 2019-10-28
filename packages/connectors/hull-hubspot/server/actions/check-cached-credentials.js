@@ -10,15 +10,9 @@ async function checkCachedCredentials(ctx: HullContext): HullExternalResponse {
   const portalInformation = (await syncAgent.getPortalInformation()) || {};
 
   const portalId = _.get(portalInformation, "portalId", null);
-  if (portalId === null) {
-    return {
-      status: 200,
-      data: {}
-    };
+  if (!_.isNil(portalId)) {
+    await cacheClientCredentials(ctx, portalId);
   }
-
-  await cacheClientCredentials(ctx, portalId);
-
   return {
     status: 200,
     data: {}
