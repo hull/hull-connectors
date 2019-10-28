@@ -231,7 +231,8 @@ const glue = {
           ]),
           loopEndL()
         ),
-        set("offset", "${contactsPage.time-offset}"),
+        set("vidOffset", "${contactsPage.vid-offset}"),
+        set("timeOffset", "${contactsPage.time-offset}"),
         set("contactsPage", []),
       ]),
       settingsUpdate({last_fetch_timestamp: "${stopFetchAt}"}),
