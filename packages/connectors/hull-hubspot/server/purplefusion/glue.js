@@ -203,10 +203,9 @@ const glue = {
     ]),
   fetchRecentContacts:
     cacheLock("getRecentContacts",[
-      set("count", 100),
-      set("lastFetchAt", "${connector.private_settings.last_fetch_timestamp}"),
+      set("lastFetchAt", settings("last_fetch_timestamp")),
       ifL(cond("isEmpty", "${lastFetchAt}"),
-        set("lastFetchAt", ex(moment("${connector.private_settings.last_fetch_at}"), "valueOf"))),
+        set("lastFetchAt", ex(moment(settings("last_fetch_at")), "valueOf"))),
       ifL(cond("isEmpty", "lastFetchAt"),
         set("lastFetchAt", ex(ex(moment(), "subtract", { hour: 1 }), "valueOf"))),
       set("properties", hubspotSyncAgent("getContactPropertiesKeys")),
@@ -214,30 +213,16 @@ const glue = {
       loopL([
         set("contactsPage", hubspot("getRecentContactsPage")),
         ifL(cond("lessThan", "${contactsPage.time-offset}", "${lastFetchAt}"), {
-          do: [
-            set("index", 0),
-            iterateL("${contactsPage.contacts}", "contact", [
-              ifL(or([
+          do:
+            set("contactsToSave",
+              filterL(or([
                 cond("greaterThan", "${contact.addedAt}", "${lastFetchAt}"),
                 cond("isEqual", "${contact.addedAt}", "${lastFetchAt}"),
-              ]), {
-                do: set("index", inc("${index}")),
-                eldo: [
-                  ifL(cond("greaterThan", "${index}", 0),
-                    hubspotSyncAgent("saveContacts", ld("slice", "${contactsPage.contacts}", 0, "${index}"))
-                  ),
-                  loopEndL()
-                ]
-              })
-            ])
-          ],
-          eldo: hubspotSyncAgent("saveContacts", "${contactsPage.contacts}")
+              ]), "contact", "${contactsPage.contacts}")),
+          eldo: set("contactsToSave", "${contactsPage.contacts}")
         }),
-        ifL([
-            cond("greaterThan", "${index}", 0),
-            cond("isEqual", "${contactsPage.time-offset}", 0)
-          ],
-          hubspotSyncAgent("saveContacts", ld("slice", "${contactsPage.contacts}", 0, "${index}"))),
+        ifL(cond("notEmpty", "${contactsToSave}"),
+          hubspotSyncAgent("saveContacts", "${contactsToSave}")),
         ifL(
           or([
             cond("isEqual", "${contactsPage.has-more}", false),
@@ -246,10 +231,11 @@ const glue = {
           ]),
           loopEndL()
         ),
-        set("offset", "${contactsPage.time-offset}")
+        set("offset", "${contactsPage.time-offset}"),
+        set("contactsPage", []),
       ]),
       settingsUpdate({last_fetch_timestamp: "${stopFetchAt}"}),
-      ifL(not(cond("isEmpty", "${connector.private_settings.last_fetch_at}")),
+      ifL(cond("notEmpty", settings("last_fetch_at")),
         settingsUpdate({last_fetch_at: null}))
     ])
 };
