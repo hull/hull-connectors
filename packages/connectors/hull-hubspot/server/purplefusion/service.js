@@ -166,7 +166,7 @@ const service: RawRestApi = {
         truthy: { status: 429 },
         errorType: RateLimitError,
         message: "Hubspot temporary API rate limit exceeded, retrying in a moment",
-        retry: 3
+        retryAttempts: 3
       }
     ]
   }
