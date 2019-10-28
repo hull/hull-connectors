@@ -24,8 +24,7 @@ const {
   ex,
   ld,
   not,
-  or,
-  inc
+  or
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
