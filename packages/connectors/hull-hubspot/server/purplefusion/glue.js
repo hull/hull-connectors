@@ -24,7 +24,8 @@ const {
   ex,
   ld,
   not,
-  or
+  or,
+  cacheLock
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
