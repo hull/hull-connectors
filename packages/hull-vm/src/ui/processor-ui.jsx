@@ -1,26 +1,20 @@
 // @flow
 
-import React, { Component, Fragment } from "react";
-
-import Nav from "react-bootstrap/Nav";
+import React, { Fragment } from "react";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Button from "react-bootstrap/Button";
-
-import _ from "lodash";
-
 import Code from "./code";
 import Preview from "./preview";
 import KeyBindings from "./key-bindings";
 import EntrySelector from "./entry-selector";
 import EventSelector from "./event-selector";
-import ConfigurationModal from "./configuration-modal";
 import Area from "./area";
 import Header from "./header";
 import CodeTitle from "./code-title";
 import Spinner from "./spinner";
 
 import VirtualMachineUI from "./vm-ui";
-import type { EngineState, Entry, Result } from "../../types";
+import type { EngineState } from "../../types";
 import type ProcessorEngine from "../processor-engine";
 
 type Props = {
@@ -116,7 +110,6 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
                   ) : null}
                 </div>
               </EntrySelector>
-              <hr className="payload-divider" />
             </Header>
             <CodeTitle title="Payload" />
             <Area
