@@ -359,16 +359,16 @@ class TransformImpl {
                 context.value = _.get(input, context.inputPath);
 
                 // add traits onto the possible field value, see if it resolves...
-                if (isUndefinedOrNull(context.value)) {
+                if (isUndefinedOrNull(context.value) && (transform.allowNull !== true || context.value === undefined)) {
                   const hull_field_name = context.hull_field_name;
                   context.hull_field_name = `traits_${hull_field_name}`;
                   context.inputPath = globalContext.resolveVariables(transform.inputPath);
                   context.value = _.get(input, context.inputPath);
+                }
 
-                  // if no value, then return
-                  if (isUndefinedOrNull(context.value)) {
-                    return;
-                  }
+                // if no value, then return
+                if (isUndefinedOrNull(context.value) && (transform.allowNull !== true || context.value === undefined)) {
+                  return;
                 }
 
                 if (Array.isArray(context.value)) {

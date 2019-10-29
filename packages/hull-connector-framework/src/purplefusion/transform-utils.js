@@ -45,77 +45,84 @@ function toTransform(transform, context, input) {
 
 async function performTransformation(dispatcher, context, initialInput, transformation) {
 
+  const target = await resolveIdentifier(dispatcher, context, initialInput, initialInput, transformation.target);
+
+  if (transformation.transforms) {
+    await transformToTarget(dispatcher, context, initialInput, target, transformation.transforms);
+  } else {
+    await transformToTarget(dispatcher, context, initialInput, target, transformation);
+  }
+
+  return target;
+}
+
+async function transformToTarget(dispatcher, context, initialInput, target, transformation, inheritedOperateOn) {
+
   let transforms = transformation;
   if (!Array.isArray(transforms)) {
     transforms = [transforms];
   }
 
-  let input = initialInput;
-  let target;
-
   // for (let i = 0; i < transforms.length; i += 1) {
   await asyncForEach(transforms, async (transform) => {
 
-    target = await resolveIdentifier(dispatcher, context, initialInput, input, transform.target);
+    if (!toTransform(transform, context, initialInput)) {
+      return;
+    }
 
     const localContext = {};
     context.pushNew(localContext);
     try {
-      if (transform.iterateOn) {
-        const toIterateOn = await resolveIdentifier(dispatcher, context, initialInput, input, transform.iterateOn);
-
-        // const keyValueArray = [];
-        // _.forEach(toIterateOn, (value, key) => {
-        //   keyValueArray.push({ value, key });
-        // });
-        //
-        //for (let j = 0; j < keyValueArray.length; j += 1) {
-        await asyncForEach(toIterateOn, async (value, key) => {
-          _.assign(localContext, { value, key });
-          localContext.operateValue = await resolveValue(dispatcher, context, initialInput, input, transform);
-          if (transform.output.format) {
-            localContext.operateValue = context.resolveVariables(transform.output.format);
-          }
-
-          if (localContext.operateValue !== undefined) {
-            const path = context.resolveVariables(transform.output.path);
-            _.set(target, path, localContext.operateValue);
-          }
-          // outputValue: { path, setIfValueIsNull, setIfTargetIsNull, format }
+      let operatingOn = inheritedOperateOn;
+      if (transform.operateOn) {
+        operatingOn = await resolveIdentifier(dispatcher, context, initialInput, target, transform.operateOn);
+      }
+      if (!isUndefinedOrNull(transform.expand) && transform.expand !== false) {
+        const keyVariableName = _.get(transform, "expand.keyName", "expandKey");
+        const valueVariableName = _.get(transform, "expand.valueName", "expandValue");
+        await asyncForEach(operatingOn, async (value, key) => {
+          _.assign(localContext, { [valueVariableName]: value, [keyVariableName]: key });
+          await resolveValue(dispatcher, context, initialInput, target, transform, operatingOn);
         });
       } else {
-        localContext.operateValue = await resolveValue(dispatcher, context, initialInput, input, transform);
-        if (transform.output.format) {
-          localContext.operateValue = context.resolveVariables(transform.output.format);
-        }
-
-        if (localContext.operateValue !== undefined) {
-          const path = context.resolveVariables(transform.output.path);
-          _.set(target, path, localContext.operateValue);
-        }
+        await resolveValue(dispatcher, context, initialInput, target, transform, operatingOn);
       }
-
-      // input for next transformation is the target from this one
-      input = target;
 
     } finally {
       context.popLatest();
     }
   });
-
-  return target;
 }
 
-async function resolveValue(dispatcher, context, initialInput, input, transform) {
-  const operatingOn = await resolveIdentifier(dispatcher, context, initialInput, input, transform.operateOn);
+async function resolveValue(dispatcher, context, initialInput, target, transform, operatingOn) {
 
-  if (!toTransform(transform, context, input)) {
-    return undefined;
+  if (transform.then) {
+    await transformToTarget(dispatcher, context, initialInput, target, transform.then, operatingOn)
   }
 
-  if (transform.mapOn) {
-    const keys = await resolveIdentifier(dispatcher, context, initialInput, input, transform.mapOn.key);
-    const map = await resolveIdentifier(dispatcher, context, initialInput, input, transform.mapOn.map);
+  if (transform.writeTo) {
+
+    let valueToOutput = operatingOn;
+    context.set("value", valueToOutput);
+
+    if (!toTransform(transform.writeTo, context, initialInput)) {
+      return;
+    }
+
+    if (transform.writeTo.formatter) {
+      const formatter = await resolveIdentifier(dispatcher, context, initialInput, target, transform.writeTo.formatter);
+      if (typeof formatter === "function") {
+        valueToOutput = formatter(valueToOutput)
+        context.set("value", valueToOutput);
+      }
+    }
+
+    if (transform.writeTo.format) {
+      valueToOutput = context.resolveVariables(transform.writeTo.format);
+      context.set("value", valueToOutput);
+    }
+
+    const keys = await resolveIdentifier(dispatcher, context, initialInput, target, transform.writeTo.path);
 
     let keyPath = keys;
     if (Array.isArray(keyPath)) {
@@ -125,72 +132,113 @@ async function resolveValue(dispatcher, context, initialInput, input, transform)
       keyPath = _.join(keyPath, ".");
     }
 
-    const mapValue = _.get(map, keyPath);
-
-    if (typeof mapValue === "function") {
-      if (operatingOn) {
-        return mapValue(operatingOn);
-      }
-    } else if (mapValue !== undefined) {
-      return mapValue;
-    }
-
+    // if undefined, my be trying to unset things, so don't do an undefined check (no use cases yet, add unit test)
+    // if null, then definitely could be setting something to null
+    _.set(target, keyPath, valueToOutput);
   }
-
-  return operatingOn;
 
 }
 
-async function resolveIdentifier(dispatcher, context, initialInput, input, identifier) {
+async function resolveIdentifier(dispatcher, context, initialInput, target, identifier) {
   if (Array.isArray(identifier)) {
     const results = [];
     for (let i = 0; i < identifier.length; i += 1) {
-      const result = await resolve(dispatcher, context, initialInput, input, identifier[i]);
+      const result = await resolve(dispatcher, context, initialInput, target, identifier[i]);
       results.push(result);
     }
     return results;
   }
 
-  return await resolve(dispatcher, context, initialInput, input, identifier);
+  return await resolve(dispatcher, context, initialInput, target, identifier);
 
 }
 
-async function resolve(dispatcher, context, initialInput, input, identifier) {
+async function resolve(dispatcher, context, initialInput, target, identifier) {
+
+  if (isUndefinedOrNull(identifier)) {
+    return identifier;
+  } else if (!identifier.component) {
+    // TODO this is a pretty weak way to identify instructions, if there's a "component field, then this transform won't work...
+    return context.resolveVariables(identifier);
+  }
+
+  const name = context.resolveVariables(identifier.name);
 
   let resolvedObject;
 
-  const type = identifier.type;
-  const path = context.resolveVariables(identifier.path);
-  const truthy = context.resolveVariables(identifier.truthy);
+  const type = identifier.component;
+
+  let selectors = [];
+  let selectorsToResolve = identifier.select;
+  if (selectorsToResolve) {
+    if (!Array.isArray(selectorsToResolve)) {
+      selectorsToResolve = [selectorsToResolve];
+    }
+
+    selectors = await resolveIdentifier(dispatcher, context, initialInput, target, selectorsToResolve);
+  }
 
   if (type === "context") {
-    return context.get(path);
+    if (!isUndefinedOrNull(selectors) && !_.isEmpty(selectors)) {
+      if (typeof selectors[0] !== "string") {
+        throw new Error(`Must have path as first selector into context. Cannot index into the context with: ${JSON.stringify(selectors)}`);
+      }
+      resolvedObject = context.get(selectors[0]);
+      selectors = _.slice(selectors, 1);
+    } else {
+      throw new Error(`Must have a valid selector: ${JSON.stringify(selectors)}`)
+    }
   } else if (type === "settings") {
-    return context.get(`connector.private_settings.${path}`);
+    if (!isUndefinedOrNull(selectors) && !_.isEmpty(selectors)) {
+      if (typeof selectors[0] !== "string") {
+        throw new Error(`Must have path as first selector into settings. Cannot index into the settings with: ${JSON.stringify(selectors)}`);
+      }
+      resolvedObject = context.get(`connector.private_settings.${selectors[0]}`);
+      selectors = _.slice(selectors, 1);
+    } else {
+      throw new Error(`Must have a valid selector: ${JSON.stringify(selectors)}`)
+    }
   } else if (type === "initialInput") {
     // this is the original input value
     resolvedObject = initialInput;
   } else if (type === "input") {
-    resolvedObject = input;
+    resolvedObject = target;
   }  else if (type === "glue") {
-    resolvedObject = await dispatcher.resolve(context, new Route(identifier.route), input);
+    resolvedObject = await dispatcher.resolve(context, new Route(identifier.route), initialInput);
   } else if (type === "static") {
     resolvedObject = identifier.object;
   } else if (type === "cloneInitialInput") {
-    if (path) {
-      return _.cloneDeep(_.get(initialInput, path));
-    }
-    return _.cloneDeep(initialInput);
+    resolvedObject = _.cloneDeep(initialInput);
   } else if (type === "new") {
     return {};
   }
 
-  if (truthy) {
-    resolvedObject = _.filter(resolvedObject, truthy);
+  if (_.some(selectors, isUndefinedOrNull)) {
+    // Invalid selector, don't do anything
+    return undefined;
   }
 
-  if (path) {
-    resolvedObject = _.get(resolvedObject, path)
+  _.forEach(selectors, selector => {
+    // if it's a string, use to index in, otherwise use this as a truthy
+    if (typeof selector === "string" || typeof selector === "number") {
+      resolvedObject = _.get(resolvedObject, selector);
+    } else {
+      resolvedObject = _.filter(resolvedObject, selector);
+    }
+  });
+
+
+
+  // if (truthy) {
+  //   resolvedObject = _.filter(resolvedObject, truthy);
+  // }
+  //
+  // if (path) {
+  //   resolvedObject = _.get(resolvedObject, path)
+  // }
+
+  if (name) {
+    context.set(name, resolvedObject);
   }
 
   return resolvedObject;

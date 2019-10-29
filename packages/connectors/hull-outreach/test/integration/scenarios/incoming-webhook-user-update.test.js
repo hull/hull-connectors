@@ -50,6 +50,18 @@ test("process incoming user update webhook from outreach", () => {
             {
               "hull": "traits_outreach/owner",
               "service": "owner"
+            },
+            {
+              "hull": "traits_outreach/sdrEmail",
+              "service": "ownerEmail"
+            },
+            {
+              "hull": "traits_outreach/someStage",
+              "service": "stage"
+            },
+            {
+              "hull": "traits_outreach/someStageName",
+              "service": "stageName"
             }
           ],
           incoming_account_attributes: [
@@ -85,6 +97,12 @@ test("process incoming user update webhook from outreach", () => {
         scope
           .post("/api/v2/webhooks/")
           .reply(201, require("../fixtures/api-responses/create-webhook.json"));
+        scope
+          .get("/api/v2/users/")
+          .reply(201, { data: [ { id: 1, attributes: { email: "andy@hull.io" } }, { id: 0, attributes: { email: "tim@hull.io" }}]});
+        scope
+          .get("/api/v2/stages/")
+          .reply(201, { data: [ { id: 1, attributes: { name: "New Stage" } }, { id: 0, attributes: { name: "Cool Stage" }}]});
         return scope;
       },
       usersSegments: [],
@@ -102,6 +120,8 @@ test("process incoming user update webhook from outreach", () => {
         ],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
+        ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 201, "url": "/users/", "vars": {}}],
+        ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 201, "url": "/stages/", "vars": {}}],
         ["info", "incoming.user.success", {
           "subject_type": "user",
           "user_anonymous_id": "outreach:3"
@@ -121,6 +141,10 @@ test("process incoming user update webhook from outreach", () => {
       ],
       metrics: [
         ["increment", "connector.request", 1],
+        ["increment", "ship.service_api.call", 1],
+        ["value", "connector.service_api.response_time", expect.whatever()],
+        ["increment", "ship.service_api.call", 1],
+        ["value", "connector.service_api.response_time", expect.whatever()],
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()],
         ["increment", "ship.service_api.call", 1],

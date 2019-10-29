@@ -30,25 +30,53 @@ const transformsToHull: ServiceTransforms =
       transforms: [
         {
           strategy: "AtomicReaction",
-          operateOn: { type: "input", path: "relationships.stage.data.id" },
+          target: { component: "cloneInitialInput" },
+          operateOn: { component: "input", select: "relationships.stage.data.id", name: "stageId" },
           condition: mappingExists("incoming_user_attributes", { service: "stageName" }),
-          mapOn: {
-            key: { type: "input", path: "relationships.stage.data.id" },
-            map: { type: "glue", route: "getStageIdMap" }
-          },
-          target: { type: "cloneInitialInput" },
-          output: { path: "attributes.stageName" }
+          then: [
+            {
+              operateOn: { component: "glue", route: "getStageIdMap", select: "${stageId}" },
+              writeTo: { path: "data.attributes.stageName" }
+            },
+            {
+              writeTo: {
+                condition: isEqual("stageId", null),
+                path: "data.attributes.stageName"
+              }
+            }
+          ]
         },
         {
           strategy: "AtomicReaction",
-          operateOn: { type: "input", path: "relationships.owner.data.id" },
+          target: { component: "cloneInitialInput" },
+          operateOn: { component: "input", select: "relationships.stage.data.id" },
+          condition: mappingExists("incoming_user_attributes", { service: "stage" }),
+          writeTo: { path: "attributes.stage" }
+        },
+        {
+          strategy: "AtomicReaction",
+          target: { component: "cloneInitialInput" },
           condition: mappingExists("incoming_user_attributes", { service: "ownerEmail" }),
-          mapOn: {
-            key: { type: "input", path: "relationships.owner.data.id" },
-            map: { type: "glue", route: "getOwnerIdToEmailMap" }
-          },
-          target: { type: "cloneInitialInput" },
-          output: { path: "attributes.ownerEmail" }
+          operateOn: { component: "input", select: "relationships.owner.data.id", name: "ownerId" },
+          then: [
+            {
+              operateOn: { component: "glue", route: "getOwnerIdToEmailMap", select: "${ownerId}" },
+              writeTo: { path: "data.attributes.ownerEmail" }
+            },
+            {
+              writeTo: {
+                condition: isEqual("ownerId", null),
+                path: "data.attributes.ownerEmail"
+              }
+            }
+          ]
+        },
+        {
+          strategy: "AtomicReaction",
+          target: { component: "cloneInitialInput" },
+          operateOn: { component: "input", select: "relationships.owner.data.id" },
+          condition: mappingExists("incoming_user_attributes", { service: "owner" }),
+          writeTo: { path: "attributes.owner" }
         },
         {
           strategy: "PropertyKeyedValue",
@@ -71,18 +99,8 @@ const transformsToHull: ServiceTransforms =
             },
             {
               mapping: "connector.private_settings.incoming_user_attributes",
-              condition: doesNotContain(["stage", "owner"], "service_field_name"),
+              allowNull: true,
               inputPath: "attributes.${service_field_name}",
-              outputPath: "attributes.${hull_field_name}",
-              outputFormat: {
-                value: "${value}",
-                operation: "set"
-              }
-            },
-            {
-              mapping: "connector.private_settings.incoming_user_attributes",
-              condition: doesContain(["stage", "owner"], "service_field_name"),
-              inputPath: "relationships.${service_field_name}.data.id",
               outputPath: "attributes.${hull_field_name}",
               outputFormat: {
                 value: "${value}",
@@ -107,25 +125,55 @@ const transformsToHull: ServiceTransforms =
       transforms: [
         {
           strategy: "AtomicReaction",
-          operateOn: { type: "input", path: "data.relationships.stage.id" },
+          target: { component: "cloneInitialInput" },
           condition: mappingExists("incoming_user_attributes", { service: "stageName" }),
-          mapOn: {
-            key: { type: "input", path: "data.relationships.stage.id" },
-            map: { type: "glue", route: "getStageIdMap" }
-          },
-          target: { type: "cloneInitialInput" },
-          output: { path: "data.attributes.stageName" }
+          operateOn: { component: "input", select: "data.relationships.stage.id", name: "stageId" },
+          then: [
+            {
+              operateOn: { component: "glue", route: "getStageIdMap", select: "${stageId}" },
+              writeTo: { path: "data.attributes.stageName" }
+            },
+            {
+              // need to provision for if this was unset and it's null
+              writeTo: {
+                condition: isEqual("stageId", null),
+                path: "data.attributes.stageName"
+              }
+            }
+          ]
         },
         {
           strategy: "AtomicReaction",
-          operateOn: { type: "input", path: "data.relationships.owner.id" },
+          target: { component: "cloneInitialInput" },
+          condition: mappingExists("incoming_user_attributes", { service: "stage" }),
+          operateOn: { component: "input", select: "data.relationships.stage.id" },
+          writeTo: { path: "data.attributes.stage" }
+        },
+        {
+          strategy: "AtomicReaction",
+          target: { component: "cloneInitialInput" },
           condition: mappingExists("incoming_user_attributes", { service: "ownerEmail" }),
-          mapOn: {
-            key: { type: "input", path: "data.relationships.owner.id" },
-            map: { type: "glue", route: "getOwnerIdToEmailMap" }
-          },
-          target: { type: "cloneInitialInput" },
-          output: { path: "data.attributes.ownerEmail" }
+          operateOn: { component: "input", select: "data.relationships.owner.id", name: "ownerId" },
+          then: [
+            {
+              operateOn: { component: "glue", route: "getOwnerIdToEmailMap", select: "${ownerId}" },
+              writeTo: { path: "data.attributes.ownerEmail" }
+            },
+            {
+              // need to provision for if this was unset and it's null
+              writeTo: {
+                condition: isEqual("ownerId", null),
+                path: "data.attributes.ownerEmail"
+              }
+            }
+          ]
+        },
+        {
+          strategy: "AtomicReaction",
+          target: { component: "cloneInitialInput" },
+          condition: mappingExists("incoming_user_attributes", { service: "owner" }),
+          operateOn: { component: "input", select: "data.relationships.owner.id" },
+          writeTo: { path: "data.attributes.owner" }
         },
         {
           strategy: "PropertyKeyedValue",
@@ -147,18 +195,8 @@ const transformsToHull: ServiceTransforms =
               outputFormat: "outreach:${value}"
             },
             { mapping: "connector.private_settings.incoming_user_attributes",
-              condition: doesNotContain(["stage", "owner"], "service_field_name"),
               inputPath: "data.attributes.${service_field_name}",
-              outputPath: "attributes.${hull_field_name}",
-              outputFormat: {
-                value: "${value}",
-                operation: "set"
-              }
-            },
-            {
-              mapping: "connector.private_settings.incoming_user_attributes",
-              condition: [doesContain(["stage", "owner"], "service_field_name"), isNotEqual("value", 0)],
-              inputPath: "data.relationships.${service_field_name}.id",
+              allowNull: true,
               outputPath: "attributes.${hull_field_name}",
               outputFormat: {
                 value: "${value}",
@@ -191,21 +229,29 @@ const transformsToHull: ServiceTransforms =
       transforms: [
         {
           strategy: "AtomicReaction",
-          operateOn: { type: "input", path: "relationships.owner.data.id" },
+          target: { component: "cloneInitialInput" },
+          operateOn: { component: "input", select: "relationships.owner.data.id", name: "ownerId" },
           condition: mappingExists("incoming_account_attributes", { service: "ownerEmail" }),
-          mapOn: {
-            key: { type: "input", path: "data.relationships.owner.id" },
-            map: { type: "glue", route: "getOwnerIdToEmailMap" }
-          },
-          target: { type: "cloneInitialInput" },
-          output: { path: "attributes.ownerEmail" }
+          then: [
+            {
+              operateOn: { component: "glue", route: "getOwnerIdToEmailMap", select: "${ownerId}" },
+              writeTo: { path: "attributes.ownerEmail" }
+            },
+            {
+              operateOn: { component: "context", select: "ownerId" },
+              writeTo: {
+                condition: isEqual("ownerId", null),
+                path: "attributes.ownerEmail"
+              }
+            }
+          ]
         },
         {
           strategy: "AtomicReaction",
-          operateOn: { type: "input", path: "relationships.owner.data.id" },
+          target: { component: "cloneInitialInput" },
+          operateOn: { component: "input", select: "relationships.owner.data.id", name: "ownerId" },
           condition: mappingExists("incoming_account_attributes", { service: "owner" }),
-          target: { type: "cloneInitialInput" },
-          output: { path: "attributes.owner" }
+          writeTo: { path: "attributes.owner" }
         },
         {
           strategy: "PropertyKeyedValue",
@@ -223,9 +269,21 @@ const transformsToHull: ServiceTransforms =
               mapping: "connector.private_settings.incoming_account_attributes",
               inputPath: "attributes.${service_field_name}",
               outputPath: "attributes.${hull_field_name}",
+              allowNull: true,
+              condition: doesNotContain(["name"], "hull_field_name"),
               outputFormat: {
                 value: "${value}",
                 operation: "set"
+              }
+            },
+            {
+              mapping: "connector.private_settings.incoming_account_attributes",
+              inputPath: "attributes.${service_field_name}",
+              outputPath: "attributes.${hull_field_name}",
+              condition: doesContain(["name"], "hull_field_name"),
+              outputFormat: {
+                value: "${value}",
+                operation: "setIfNull"
               }
             },
             {
@@ -245,21 +303,28 @@ const transformsToHull: ServiceTransforms =
       transforms: [
         {
           strategy: "AtomicReaction",
-          operateOn: { type: "input", path: "data.relationships.owner.id" },
+          target: { component: "cloneInitialInput" },
+          operateOn: { component: "input", select: "data.relationships.owner.id", name: "ownerId" },
           condition: mappingExists("incoming_account_attributes", { service: "ownerEmail" }),
-          mapOn: {
-            key: { type: "input", path: "data.relationships.owner.id" },
-            map: { type: "glue", route: "getOwnerIdToEmailMap" }
-          },
-          target: { type: "cloneInitialInput" },
-          output: { path: "data.attributes.ownerEmail" }
+          then: [
+            {
+              operateOn: { component: "glue", route: "getOwnerIdToEmailMap", select: "${ownerId}" },
+              writeTo: { path: "data.attributes.ownerEmail" }
+            },
+            {
+              writeTo: {
+                condition: isEqual("ownerId", null),
+                path: "data.attributes.ownerEmail"
+              }
+            }
+          ]
         },
         {
           strategy: "AtomicReaction",
-          operateOn: { type: "input", path: "data.relationships.owner.id" },
+          target: { component: "cloneInitialInput" },
+          operateOn: { component: "input", select: "data.relationships.owner.id", name: "ownerId" },
           condition: mappingExists("incoming_account_attributes", { service: "owner" }),
-          target: { type: "cloneInitialInput" },
-          output: { path: "data.attributes.owner" }
+          writeTo: { path: "data.attributes.owner" }
         },
         {
           strategy: "PropertyKeyedValue",
