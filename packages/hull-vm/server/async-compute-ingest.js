@@ -21,7 +21,7 @@ const asyncComputeAndIngest = async (
     source: string,
     code: string,
     entity?: HullEntityName,
-    claims: HullEntityClaims,
+    claims?: HullEntityClaims,
     payload: Payload,
     EntryModel?: Object,
     preview?: boolean

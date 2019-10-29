@@ -136,7 +136,11 @@ export type ComputeOptions = {
   entity?: HullEntityName,
   preview: boolean,
   source: string,
-  payload: Payload | HullUserUpdateMessage | HullAccountUpdateMessage
+  payload: { variables: {} } & (
+    | Payload
+    | HullUserUpdateMessage
+    | HullAccountUpdateMessage
+  )
 };
 
 type AnyFunction = any => any;

@@ -7,7 +7,7 @@ import type {
 } from "hull";
 import _ from "lodash";
 import type { Entry } from "hull-vm";
-import { compute, serialize } from "hull-vm";
+import { compute, serialize, varsFromSettings } from "hull-vm";
 import getSample from "../lib/get-sample";
 import getClaims from "../lib/get-claims";
 
@@ -64,6 +64,7 @@ export default async function getEntity(
     const payload = isUser
       ? {
           ...rawPayload,
+          variables: varsFromSettings(ctx),
           user: group(user),
           account: group(account),
           changes: getSample(user),
@@ -71,6 +72,7 @@ export default async function getEntity(
         }
       : {
           ...rawPayload,
+          variables: varsFromSettings(ctx),
           account: group(account),
           changes: getSample(account)
         };

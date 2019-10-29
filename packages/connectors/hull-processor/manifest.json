@@ -31,6 +31,31 @@
       "format": "hidden"
     },
     {
+      "name": "variables",
+      "title": "Custom Variables",
+      "description": "Define custom variables here. usually things you don't want to save in the Connector's code, such as API Keys, or values you want to allow non-technical users to be able to update. A variable you define as `foo` Will be available as `variables.foo` in the code editor. Only Strings are supported here",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "title": "Variable Name",
+            "placeholder": "Variable Name",
+            "type": "string",
+            "format": "string"
+          },
+          "value": {
+            "title": "Value",
+            "placeholder": "Variable Value",
+            "type": "string",
+            "format": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    {
       "name": "synchronized_user_segments",
       "title": "User Filter",
       "description": "Which users are sent through the processor",
@@ -60,7 +85,8 @@
       "title": "Configuration",
       "description": "Configure the way the processor runs",
       "properties": [
-        "private_settings.synchronized_user_segments"
+        "private_settings.synchronized_user_segments",
+        "private_settings.variables"
       ]
     }
   ],
