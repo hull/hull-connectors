@@ -5,7 +5,6 @@ import type {
   HullNotificationResponse
 } from "hull";
 import _ from "lodash";
-import Clearbit from "../clearbit";
 import accountUpdateLogic from "../lib/account-update-logic";
 
 const updateAccount = ({
@@ -20,7 +19,6 @@ const updateAccount = ({
 ): HullNotificationResponse => {
   try {
     const { client } = ctx;
-    const clearbit = new Clearbit(ctx);
 
     const ids = _.compact(_.map(messages, m => _.get(m, "account.id")));
     if (!ids.length) {
@@ -28,7 +26,7 @@ const updateAccount = ({
         ids
       });
     } else {
-      const updateLogic = accountUpdateLogic(ctx, clearbit);
+      const updateLogic = accountUpdateLogic(ctx);
       await Promise.all(messages.map(updateLogic));
     }
 

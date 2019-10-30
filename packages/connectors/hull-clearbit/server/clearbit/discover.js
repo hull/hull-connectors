@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { isInSegments, getDomain } from "./utils";
+import { isInSegments, getDomain } from "../lib/utils";
 
 /**
  * Check if we should fetch similar companies from clearbit (based on user data and ship configuration)

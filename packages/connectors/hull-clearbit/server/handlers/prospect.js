@@ -6,9 +6,7 @@ import type {
 } from "hull";
 import BluebirdPromise from "bluebird";
 import _ from "lodash";
-// import { saveProspect } from "../lib/side-effects";
 
-import Client from "../clearbit/client";
 // import Promise from "bluebird";
 import { performProspect } from "../clearbit/prospect";
 
@@ -24,10 +22,10 @@ const prospect = async (
   if (!titles || !titles.length) {
     return { status: 400, data: { error: "Empty list of titles" } };
   }
-  const clearbitClient = new Client(ctx);
   const responses = await BluebirdPromise.mapSeries(domains, async domain => {
     const account = { domain };
     const { prospects } = await performProspect({
+      ctx,
       settings: {
         ...ctx.connector.private_settings,
         prospect_filter_role: role,
@@ -35,7 +33,6 @@ const prospect = async (
         prospect_filter_titles: titles,
         prospect_limit_count: limit
       },
-      client: clearbitClient,
 
       // $FlowFixMe
       message: { account }

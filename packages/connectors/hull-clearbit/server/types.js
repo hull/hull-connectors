@@ -1,4 +1,7 @@
 // @flow
+
+import type { HullAttributeMapping } from "hull";
+
 export type ShouldAction = {
   should: boolean,
   message?: string
@@ -223,6 +226,10 @@ export type ClearbitProspectorQuery = {
 
 export type ClearbitConnectorSettings = {
   api_key: string,
+
+  incoming_prospect_mapping: HullAttributeMapping,
+  incoming_person_mapping: HullAttributeMapping,
+  incoming_company_mapping: HullAttributeMapping,
 
   enrich_user_segments: Array<string>,
   enrich_user_segments_exclusion: Array<string>,

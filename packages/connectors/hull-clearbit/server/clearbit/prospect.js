@@ -5,7 +5,7 @@ import Promise from "bluebird";
 import type { HullContext, HullAccountUpdateMessage } from "hull";
 import _ from "lodash";
 import Client from "./client";
-import { isInSegments, getDomain } from "./utils";
+import { isInSegments, getDomain } from "../lib/utils";
 
 import excludes from "../excludes";
 import { saveProspect } from "../lib/side-effects";
@@ -62,12 +62,12 @@ export async function shouldProspect(
 }
 
 export async function performProspect({
+  ctx,
   settings,
-  client,
   message
 }: {
   settings: ClearbitConnectorSettings,
-  client: Client,
+  ctx: HullContext,
   message: HullAccountUpdateMessage
 }): Promise<{ prospect: ClearbitProspect, query: ClearbitProspectorQuery }> {
   try {
@@ -96,6 +96,7 @@ export async function performProspect({
     const page_size = Math.min(limit, 20);
     const pages = Math.floor(limit / page_size);
     let lastResultsCount = page_size;
+    const client = new Client(ctx);
     const resultsArray = await Promise.all(
       Promise.mapSeries(_.times(pages), async index => {
         // Early return if we had less results than the max. i.e. we won't get more
@@ -144,7 +145,7 @@ export const prospect = async (
     metric.increment("prospect");
     const { prospects, query } = await performProspect({
       message,
-      client: new Client(ctx),
+      ctx,
       settings: private_settings
     });
     const log = {
@@ -183,66 +184,3 @@ export const prospect = async (
     return Promise.reject(err);
   }
 };
-
-/**
- * Check if we already have known users from that domain
- * or if we have enough revealed visitors to prospect
- * @param  {Object(user)} payload - Hull user object
- * @return {Promise -> Bool}
- */
-// export async function shouldProspectDomain({ domain, hull, settings }) {
-//   return hull
-//     .post("search/user_reports", {
-//       query: {
-//         bool: {
-//           should: [
-//             { term: { "traits_clearbit_company/domain.exact": domain } },
-//             { term: { "account.domain.exact": domain } },
-//             { term: { "account.clearbit.domain.exact": domain } }
-//           ],
-//           minimum_should_match: 1
-//         }
-//       },
-//       aggs: {
-//         without_email: { missing: { field: "email" } },
-//         by_source: { terms: { field: "traits_clearbit/source.exact" } }
-//       },
-//       search_type: "count"
-//     })
-//     .then(({ /* pagination, */ aggregations }) => {
-//       // const { total } = pagination;
-//       const anonymous = aggregations.without_email.doc_count;
-//       const bySource = _.reduce(
-//         aggregations.by_source.buckets,
-//         (bs, bkt) => {
-//           return { ...bs, [bkt.key]: bkt.doc_count };
-//         },
-//         {}
-//       );
-//
-//       // // Skip prospect if we have known users with that domain
-//       // if (total > 0 && total !== anonymous) {
-//       //   return { should: false, message: "We have known users in that domain" };
-//       // }
-//
-//       // Prospect if at least one of those anonymous has been discovered
-//       // if (bySource.discover && bySource.discover > 0) {
-//       //   return { should: true };
-//       // }
-//
-//       const min_contacts = settings.reveal_prospect_min_contacts || 0;
-//
-//       if (
-//         min_contacts &&
-//         (bySource.reveal < min_contacts || anonymous < min_contacts)
-//       ) {
-//         return {
-//           should: false,
-//           message:
-//             "We are under the unique anonymous visitors threshold for prospecting"
-//         };
-//       }
-//       // Prospect if we have at least a given number of reveals.
-//       return { should: true };
-//     });
-// }

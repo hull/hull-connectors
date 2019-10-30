@@ -1,18 +1,7 @@
 // @flow
-import type {
-  HullContext,
-  HullConnector
-  // HullAccountUpdateMessage
-} from "hull";
-// import _ from "lodash";
+import type { HullContext, HullConnector } from "hull";
 import Client from "./client";
 import type { ClearbitConnectorSettings } from "../types";
-// import { getDomain, now } from "./utils";
-// import { discover } from "./discover";
-// import { getUserTraitsFrom, getAccountTraitsFromCompany } from "./mapping";
-// import { saveDiscovered } from "../lib/side-effects";
-
-// const debug = require("debug")("hull-clearbit:clearbit_class");
 
 export default class Clearbit {
   ctx: HullContext;

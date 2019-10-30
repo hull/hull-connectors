@@ -4,13 +4,13 @@ import _ from "lodash";
 import type {
   ShouldAction,
   ClearbitResult,
-  ClearbitPrivateSettings
+  ClearbitConnectorSettings
 } from "../types";
 import { reveal, shouldReveal } from "../clearbit/reveal";
 import { enrich, shouldEnrichUser } from "../clearbit/enrich";
 
 export default async function userUpdateLogic(ctx: HullContext) {
-  const settings: ClearbitPrivateSettings = ctx.connector.private_settings;
+  const settings: ClearbitConnectorSettings = ctx.connector.private_settings;
   return async function updateLogic(message: HullUserUpdateMessage) {
     const actions = await Promise.all([
       shouldReveal(ctx, settings, message),

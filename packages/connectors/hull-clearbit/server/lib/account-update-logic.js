@@ -4,13 +4,13 @@ import type { HullContext, HullAccountUpdateMessage } from "hull";
 import type {
   ShouldAction,
   ClearbitResult,
-  ClearbitPrivateSettings
+  ClearbitConnectorSettings
 } from "../types";
 import { prospect, shouldProspect } from "../clearbit/prospect";
 import { enrich, shouldEnrichAccount } from "../clearbit/enrich";
 
 export default async function updateLogic(ctx: HullContext) {
-  const settings: ClearbitPrivateSettings = ctx.connector.private_settings;
+  const settings: ClearbitConnectorSettings = ctx.connector.private_settings;
   return async function accountUpdateLogic(message: HullAccountUpdateMessage) {
     const actions = await Promise.all([
       shouldEnrichAccount(ctx, settings, message),

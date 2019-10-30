@@ -7,7 +7,7 @@ import type {
   HullContext
 } from "hull";
 import Client from "./client";
-import { isInSegments, getDomain } from "./utils";
+import { isInSegments, getDomain } from "../lib/utils";
 
 import { saveAccount, saveUser } from "../lib/side-effects";
 
@@ -155,15 +155,15 @@ export function shouldEnrichAccount(
 }
 
 export async function performEnrich({
-  client,
+  ctx,
   token,
   settings,
   message,
   hostname
 }: {
+  ctx: HullContext,
   token: string,
   settings: ClearbitConnectorSettings,
-  client: Client,
   subscribe: boolean,
   hostname: string,
   message: HullUserUpdateMessage | HullAccountUpdateMessage
@@ -189,13 +189,9 @@ export async function performEnrich({
         subscribe: undefined
       };
 
-  // if (hostname) {
   payload.webhook_url = `https://${hostname}/clearbit-enrich?token=${token}`;
-  // }
-
-  const enrichment = await client.enrich(payload);
-
-  return { ...enrichment, source: "enrich" };
+  const enrich = await new Client(ctx).enrich(payload);
+  return enrich || {};
 }
 
 export const enrich = async (
@@ -208,19 +204,22 @@ export const enrich = async (
   const { private_settings } = connector;
   try {
     metric.increment("enrich");
-    const response = await performEnrich({
+    const { person, company } = await performEnrich({
+      ctx,
       settings: private_settings,
       token: clientCredentialsEncryptedToken,
-      client: new Client(ctx),
       subscribe: true,
       hostname,
       message
     });
-    if (!response || !response.source) return undefined;
-    const { person, company, source } = response;
+    if (!person && !company) {
+      return undefined;
+    }
+    // if (!response || !response.source) return undefined;
+    // const { person, company } = enrichment;
     await Promise.all([
-      user && saveUser(ctx, { user, person, source }),
-      account && saveAccount(ctx, { user, account, company, source })
+      user && saveUser(ctx, { user, person, source: "enrich" }),
+      account && saveAccount(ctx, { user, account, company, source: "enrich" })
     ]);
   } catch (err) {
     client.asUser(user).logger.info("outgoing.user.error", {

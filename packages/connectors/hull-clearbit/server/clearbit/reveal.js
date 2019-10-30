@@ -1,12 +1,12 @@
 // @flow
 import _ from "lodash";
 import type { HullUserUpdateMessage, HullContext } from "hull";
-import { isInSegments, isValidIpAddress } from "./utils";
+import { isInSegments, isValidIpAddress } from "../lib/utils";
 import Client from "./client";
 import { saveAccount, saveUser } from "../lib/side-effects";
 import type {
   ShouldAction,
-  ClearbitResult,
+  ClearbitRevealResponse,
   ClearbitConnectorSettings
 } from "../types";
 
@@ -65,18 +65,20 @@ export function shouldReveal(
 }
 
 export async function performReveal({
-  client,
+  ctx,
   message
 }: {
-  client: Client,
+  ctx: HullContext,
   message: HullUserUpdateMessage
 }) {
   const { user } = message;
   const { last_known_ip: ip } = user;
-  const response: ClearbitResult = await client.reveal({ ip });
+  const response: void | ClearbitRevealResponse = await new Client(ctx).reveal({
+    ip
+  });
   return {
     company: undefined,
-    ...response,
+    ...(response || {}),
     source: "reveal",
     ip
   };
@@ -93,7 +95,7 @@ export const reveal = async (
   try {
     metric.increment("reveal");
     const response = await performReveal({
-      client: new Client(ctx),
+      ctx,
       message
     });
     if (!response || !response.source) return false;
