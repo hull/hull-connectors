@@ -44,8 +44,8 @@ export type SlackInstance = {
   attachements: Array<SlackConnectorAttachement>
 };
 
-export type SlackConnectorSettings = {
-  ...$Exact<HullConnector>,
+export type SlackConnectorSettings = {|
+  ...HullConnector,
   private_settings: {
     token: string,
     team_id: string,
@@ -63,7 +63,7 @@ export type SlackConnectorSettings = {
     bot: SlackBotConfig,
     whitelist: Array<string>
   }
-};
+|};
 
 export type ConnectedSlack = {
   attachements: Array<SlackConnectorAttachement>,

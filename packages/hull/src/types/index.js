@@ -52,3 +52,9 @@ export type HTTPMethod =
 export type HullConnectorSettings = {
   [HullConnectorSettingName: string]: any
 };
+
+export type HullAttributeMapping = {
+  hull: string,
+  service: string,
+  overwrite: boolean
+};

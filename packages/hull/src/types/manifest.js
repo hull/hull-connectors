@@ -16,7 +16,7 @@ export type HandlerCacheOptions = {
   options?: Object
 };
 
-export type HullExtendedMiddlewareParams = {
+export type HullExtendedMiddlewareParams = {|
   bodyParser?: "urlencoded" | "json",
   credentialsFromQuery?: boolean,
   credentialsFromNotification?: boolean,
@@ -28,7 +28,7 @@ export type HullExtendedMiddlewareParams = {
   fireAndForget?: boolean,
   strict?: boolean,
   format?: "json" | "html"
-};
+|};
 
 export type HullNotificationHandlerOptions = {
   disableErrorHandling?: boolean,
@@ -43,9 +43,9 @@ export type HullBatchHandlerOptions = {
   disableErrorHandling?: boolean,
   maxSize?: number
 };
-export type HullIncomingHandlerOptions = {
-  ...$Exact<HullExtendedMiddlewareParams>
-};
+export type HullIncomingHandlerOptions = {|
+  ...HullExtendedMiddlewareParams
+|};
 export type HullStatusHandlerOptions = HullIncomingHandlerOptions & {};
 export type HullSchedulerHandlerOptions = HullIncomingHandlerOptions & {};
 export type HullHtmlHandlerOptions = HullIncomingHandlerOptions & {};

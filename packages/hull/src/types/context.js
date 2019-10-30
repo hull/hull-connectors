@@ -30,7 +30,7 @@ const MetricAgent = require("../infra/instrumentation/metric-agent");
 //   Hull Context
 // =====================================
 
-export type HullContextBase = {
+export type HullContextBase = {|
   requestId?: string, // request id
   hostname: string, // req.hostname
   options: Object, // req.query
@@ -51,15 +51,15 @@ export type HullContextBase = {
     options?: Object
   ) => Promise<*>,
   ...HullCredentialsObject
-};
-export type HullContext = {
+|};
+export type HullContext = {|
   /**
    * Context added to the express app request by hull-node connector sdk.
    * Accessible via `req.hull` param.
    * @public
    * @memberof Types
    */
-  ...$Exact<HullContextBase>,
+  ...HullContextBase,
   metric: MetricAgent,
   hostname: string, // req.hostname
   handlerName?: string,
@@ -102,4 +102,4 @@ export type HullContext = {
     incomingClaims: $Call<typeof incomingClaims, HullContext>,
     extractRequest: $Call<typeof extractRequest, HullContext>
   }
-};
+|};
