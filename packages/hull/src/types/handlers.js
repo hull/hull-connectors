@@ -56,10 +56,10 @@ export type HullOAuthRequest = HullRequest & {
   authParams?: {}
 };
 
-export type HullOauthAuthorizeMessage = {
-  ...$Exact<HullIncomingHandlerMessage>,
+export type HullOauthAuthorizeMessage = {|
+  ...HullIncomingHandlerMessage,
   account?: HullOAuthAccount
-};
+|};
 
 // ====================================
 //   Handler functions

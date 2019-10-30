@@ -1,5 +1,9 @@
 // @flow
-import type { HullUISelect, HullUISelectGroup, HullEntityName } from "./index";
+import type {
+  HullAttributeMapping,
+  HullUISelectOptions,
+  HullEntityName
+} from "./index";
 
 // =====================================
 //   Handler Responses
@@ -77,13 +81,17 @@ export type HullExternalResponse =
   | HullExternalResponseData
   | Promise<HullExternalResponseData>;
 
-export type HullUISelectResponseData = {
-  ...$Exact<HullExternalResponseData>,
-  status?: number,
-  data: {
-    options: Array<HullUISelect> | Array<HullUISelectGroup>
-  }
+export type HullUISelectData = {
+  label?: string,
+  options: HullUISelectOptions,
+  default: Array<HullAttributeMapping>
 };
+
+export type HullUISelectResponseData = {|
+  ...HullExternalResponseData,
+  status?: number,
+  data: HullUISelectData
+|};
 
 export type HullUISelectResponse =
   | HullUISelectResponseData

@@ -21,11 +21,11 @@ export type ConnectorPrivateSettings = {
   whitelisted_domains: Array<string>
 };
 
-export type BrowserConnector = {
-  ...$Exact<HullConnector>,
+export type BrowserConnector = {|
+  ...HullConnector,
   private_settings: ConnectorPrivateSettings,
   settings: ConnectorPublicSettings
-};
+|};
 
 // export type HullContext = Context<HullConnector>;
 // export type HullRequest = Request<HullContext>;
@@ -60,7 +60,7 @@ export type Destinations = {
   }
 };
 
-export type PublicPayload = {
+export type PublicPayload = {|
   message: "ok",
   user: AttributesCollection,
   account: AttributesCollection,
@@ -71,12 +71,12 @@ export type PublicPayload = {
   public_account_segments: Segments,
   public_user_segments: Segments,
   settings: ConnectorPublicSettings
-};
+|};
 
-export type PublicUpdate = {
-  ...$Exact<PublicPayload>,
+export type PublicUpdate = {|
+  ...PublicPayload,
   changes: Changes
-};
+|};
 
 export type Payload = PrivatePayload | PublicPayload;
 

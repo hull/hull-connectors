@@ -120,11 +120,11 @@ export type HullSegmentDeleteMessage = {|
  * A message sent by the platform when a Segment is updated
  */
 export type HullConnectorUpdateMessage = {|
-  ...$Exact<HullConnector>,
+  ...HullConnector,
   secret: string
 |};
 export type HullConnectorDeleteMessage = {|
-  ...$Exact<HullConnector>,
+  ...HullConnector,
   secret: string
 |};
 
