@@ -31,6 +31,31 @@
       "title": "API Endpoint"
     },
     {
+      "name": "variables",
+      "title": "Custom Variables",
+      "description": "Define custom variables here. usually things you don't want to save in the Connector's code, such as API Keys, or values you want to allow non-technical users to be able to update. A variable you define as `foo` Will be available as `variables.foo` in the code editor. Only Strings are supported here",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "title": "Variable Name",
+            "placeholder": "Variable Name",
+            "type": "string",
+            "format": "string"
+          },
+          "value": {
+            "title": "Value",
+            "placeholder": "Variable Value",
+            "type": "string",
+            "format": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    {
       "name": "sync_interval",
       "type": "number",
       "title": "Call API every:",
@@ -159,6 +184,13 @@
       "properties": [
         "private_settings.sync_interval",
         "private_settings.format"
+      ]
+    },
+    {
+      "title": "Configuration",
+      "description": "Configure custom variables to pass to the connector",
+      "properties": [
+        "private_settings.variables"
       ]
     }
   ],

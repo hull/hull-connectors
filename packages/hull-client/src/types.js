@@ -42,7 +42,7 @@ export type HullAttributeOperation = {|
 /**
  * Possible entity types
  */
-export type HullEntityType = "user" | "account";
+export type HullEntityName = "user" | "account";
 export type HullSegmentType = "users_segment" | "accounts_segment";
 
 /**
@@ -289,7 +289,7 @@ export type HullClientConfig = {
   logLevel?: "info" | "error" | "warn" | "debug",
   userClaim?: string | HullUserClaims,
   accountClaim?: string | HullAccountClaims,
-  subjectType?: HullEntityType,
+  subjectType?: HullEntityName,
   additionalClaims?: HullAdditionalClaims,
   accessToken?: string,
   hostSecret?: string,

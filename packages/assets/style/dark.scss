@@ -224,4 +224,14 @@ body.dark {
       margin-left: 10px;
     }
   }
+  .code-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .code-header--help {
+    font-size: 0.8rem;
+    opacity: 0.5;
+  }
 }

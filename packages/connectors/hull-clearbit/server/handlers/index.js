@@ -9,9 +9,9 @@ import webhookHandler from "./webhook";
 import updateUser from "./update-user";
 import updateAccount from "./update-account";
 import companyMapping from "./company-mapping";
-import personMapping from "./person-mapping";
 
 type HandlerType = { flow_size: number, flow_in: number };
+
 const handler = ({
   flow_size,
   flow_in
@@ -19,8 +19,7 @@ const handler = ({
   json: {
     prospectHandler,
     saveHandler,
-    companyMapping,
-    personMapping
+    companyMapping
   },
   tabs: {
     admin: (): HullExternalResponse => ({ pageLocation: "/admin.html" })

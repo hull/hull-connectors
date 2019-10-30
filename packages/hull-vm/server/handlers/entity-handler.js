@@ -7,7 +7,7 @@ import type {
 } from "hull";
 import _ from "lodash";
 import type { Entry } from "hull-vm";
-import { compute, serialize } from "hull-vm";
+import { compute, serialize, varsFromSettings } from "hull-vm";
 import getSample from "../lib/get-sample";
 import getClaims from "../lib/get-claims";
 
@@ -30,58 +30,58 @@ export default async function getEntity(
   const { code } = private_settings;
   const { body } = message;
   // $FlowFixMe
-  const { claim, entityType, events } = body;
-  if (!claim) {
+  const { search, claims, entity, include } = body;
+  if (!search && (!claims || _.isEmpty(claims))) {
     return {
       status: 404,
       error: "Can't search for an empty value"
     };
   }
-  const isUser = entityType === "user";
+  const isUser = entity === "user";
   try {
-    // const getter = entity === "account" ? ctx.entities.accounts : ctx.entities.users;
-    const rawPayload = await (isUser
-      ? ctx.entities.users.get({
-          claim,
-          include: {
-            events: {
-              names: events,
-              per_page: 20,
-              page: 1
-            }
-          }
-        })
-      : ctx.entities.accounts.get({ claim }));
+    const payloads = await ctx.entities.get({
+      claims,
+      search,
+      entity,
+      include: {
+        events: {
+          ...include.events,
+          per_page: 20,
+          page: 1
+        }
+      }
+    });
 
+    const rawPayload = _.first(payloads.data);
     if (!rawPayload) {
       return {
         status: 404,
-        error: "Can't find user"
+        error: `Can't find ${entity} with ${search}`
       };
     }
     const { group } = ctx.client.utils.traits;
-
+    const { user, account, events = [] } = rawPayload;
     const payload = isUser
       ? {
           ...rawPayload,
-          user: group(rawPayload.user),
-          account: group(rawPayload.account),
-          changes: getSample(rawPayload.user),
-          events: (rawPayload.events || []).filter(isVisible)
+          variables: varsFromSettings(ctx),
+          user: group(user),
+          account: group(account),
+          changes: getSample(user),
+          events: (events || []).filter(isVisible)
         }
       : {
           ...rawPayload,
-          account: group(rawPayload.account),
-          changes: getSample(rawPayload.account)
+          variables: varsFromSettings(ctx),
+          account: group(account),
+          changes: getSample(account)
         };
-
-    const claims = getClaims(isUser ? "user" : "account", rawPayload);
 
     const result = await compute(ctx, {
       source: "processor",
-      claims,
-      entity: entityType,
+      claims: getClaims(isUser ? "user" : "account", rawPayload),
       preview: true,
+      entity,
       payload,
       code
     });
