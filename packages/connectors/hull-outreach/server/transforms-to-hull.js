@@ -270,22 +270,30 @@ const transformsToHull: ServiceTransforms =
               inputPath: "attributes.${service_field_name}",
               outputPath: "attributes.${hull_field_name}",
               allowNull: true,
-              condition: doesNotContain(["name"], "hull_field_name"),
+              // condition: doesNotContain(["name"], "hull_field_name"),
               outputFormat: {
                 value: "${value}",
                 operation: "set"
               }
             },
-            {
-              mapping: "connector.private_settings.incoming_account_attributes",
-              inputPath: "attributes.${service_field_name}",
-              outputPath: "attributes.${hull_field_name}",
-              condition: doesContain(["name"], "hull_field_name"),
-              outputFormat: {
-                value: "${value}",
-                operation: "setIfNull"
-              }
-            },
+            // {
+            //   mapping: "connector.private_settings.incoming_account_attributes",
+            //   inputPath: "attributes.${service_field_name}",
+            //   outputPath: "attributes.${hull_field_name}",
+            //   condition: doesContain(["name"], "hull_field_name"),
+            //   outputFormat: {
+            //     value: "${value}",
+            //     operation: "setIfNull"
+            //   }
+            // },
+            // add this to the manifest
+//             "default": [
+//   {
+//     "hull": "name",
+//     "service": "name",
+//     "overwrite": false
+//   }
+// ]
             {
               mapping: "connector.private_settings.account_claims",
               inputPath: "attributes.${service_field_name}",

@@ -187,14 +187,7 @@
         "allowCreate": true,
         "loadOptions": "/fields-outreach-account-in",
         "source": "outreach"
-      },
-      "default": [
-        {
-          "hull": "name",
-          "service": "name",
-          "overwrite": false
-        }
-      ]
+      }
     },
     {
       "name": "link_users_in_hull",

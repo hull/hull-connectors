@@ -2,12 +2,6 @@
 const _ = require("lodash");
 
 
-
-
-
-
-
-
 process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 
@@ -106,9 +100,9 @@ test("fetch all accounts and prospects from outreach", () => {
       ],
       firehoseEvents: [
         ["traits", {"asAccount": {"anonymous_id": "outreach:1", "domain": "somehullcompany.com"}, "subjectType": "account"}, {"outreach/custom1": {"operation": "set", "value": "some custom value"}, "outreach/custom10": {"operation": "set", "value": "another custom value"}, "outreach/id": {"operation": "set", "value": 1}}],
-        ["traits", {"asAccount": {"anonymous_id": "outreach:4", "domain": "noprospectshullcompany.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 4}}],
+        ["traits", {"asAccount": {"anonymous_id": "outreach:4", "domain": "noprospectshullcompany.com"}, "subjectType": "account"}, {"outreach/custom1": {"operation": "set", "value": null}, "outreach/custom10": {"operation": "set", "value": null}, "outreach/id": {"operation": "set", "value": 4}}],
         ["traits", {"asUser": {"anonymous_id": "outreach:1", "email": "ceo@somehullcompany.com"}, "subjectType": "user"}, {"outreach/custom1": {"operation": "set", "value": "He's cool"}, "outreach/email_0": {"operation": "set", "value": "ceo@somehullcompany.com"}, "outreach/email_1": {"operation": "set", "value": "ceosomehull@somehullcompany.co"}, "outreach/email_2": {"operation": "set", "value": "mrceo@gmail.com"}, "outreach/id": {"operation": "set", "value": 1}, "outreach/personalNote1": {"operation": "set", "value": "he's a cool guy I guess...."}, "outreach/tag_0": {"operation": "set", "value": "somehullcompanytag"}, "outreach/tag_1": {"operation": "set", "value": "anothertag"}}],
-        ["traits", {"asUser": {"anonymous_id": "outreach:2", "email": "noAccountProspect@noaccount.com"}, "subjectType": "user"}, {"outreach/email_0": {"operation": "set", "value": "noAccountProspect@noaccount.com"}, "outreach/id": {"operation": "set", "value": 2}, "outreach/tag_0": {"operation": "set", "value": "somehullcompanytag2"}}],
+        ["traits", {"asUser": {"anonymous_id": "outreach:2", "email": "noAccountProspect@noaccount.com"}, "subjectType": "user"}, {"outreach/custom1": { "operation": "set", "value": null }, "outreach/email_0": {"operation": "set", "value": "noAccountProspect@noaccount.com"}, "outreach/id": {"operation": "set", "value": 2}, "outreach/personalNote1": {"operation": "set", "value": null}, "outreach/tag_0": {"operation": "set", "value": "somehullcompanytag2"}}],
         ["traits", {"asAccount": {"anonymous_id": "outreach:1"}, "asUser": {"anonymous_id": "outreach:1", "email": "ceo@somehullcompany.com"}, "subjectType": "account"}, {}],
         ["traits", {"asAccount": {"anonymous_id": "outreach:3"}, "asUser": {"anonymous_id": "outreach:2", "email": "noAccountProspect@noaccount.com"}, "subjectType": "account"}, {}]
       ],

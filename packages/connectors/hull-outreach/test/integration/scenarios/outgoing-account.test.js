@@ -5,12 +5,6 @@ process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 
 
-
-
-
-
-
-
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
 
@@ -91,8 +85,8 @@ test("send smart-notifier account update to outreach", () => {
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "account"}]
       ],
       firehoseEvents: [
-        ["traits", {"asAccount": {"anonymous_id": "outreach:28", "domain": "wayneenterprises.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 28}}],
-        ["traits", {"asAccount": {"anonymous_id": "outreach:29", "domain": "bluth.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 29}}]
+        ["traits", {"asAccount": {"anonymous_id": "outreach:28", "domain": "wayneenterprises.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 28}, "outreach/company_type": {"operation": "set", "value": null}, "outreach/description": {"operation": "set", "value": null}}],
+        ["traits", {"asAccount": {"anonymous_id": "outreach:29", "domain": "bluth.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 29}, "outreach/company_type": {"operation": "set", "value": null}, "outreach/description": {"operation": "set", "value": null}}]
       ],
       metrics: [
         ["increment", "connector.request", 1],

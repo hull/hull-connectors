@@ -172,6 +172,7 @@ test("send smart-notifier user update to outreach and link account", () => {
               operation: "set",
               value: "probably is a smuggler too"
             },
+            "outreach/custom2": { operation: "set", value: null },
             "outreach/id": { operation: "set", value: 18 },
             "outreach/personalnote2": {
               operation: "set",
