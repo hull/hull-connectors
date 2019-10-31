@@ -48,7 +48,7 @@ test("send smart-notifier user update to outreach and link account", () => {
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}]
       ],
       firehoseEvents: [
-        ["traits", {"asUser": {"anonymous_id": "outreach:18", "email": "fettisbest@gmail.com"}, "subjectType": "user"}, {"outreach/custom1": {"operation": "set", "value": "probably is a smuggler too"}, "outreach/id": {"operation": "set", "value": 18}, "outreach/personalnote2": {"operation": "set", "value": "froze han solo in carbinite, he was just a kid!  He's very efficient"}}]
+        ["traits", {"asUser": {"anonymous_id": "outreach:18", "email": "fettisbest@gmail.com"}, "subjectType": "user"}, {"outreach/custom1": {"operation": "set", "value": "probably is a smuggler too"}, "outreach/custom2": {"operation": "set", "value": null}, "outreach/id": {"operation": "set", "value": 18}, "outreach/personalnote2": {"operation": "set", "value": "froze han solo in carbinite, he was just a kid!  He's very efficient"}}]
       ],
       metrics: [
         ["increment", "connector.request", 1],

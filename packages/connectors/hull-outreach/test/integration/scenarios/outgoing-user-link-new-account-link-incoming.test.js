@@ -80,8 +80,8 @@ test("send smart-notifier user update to outreach with returning account link", 
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}]
       ],
       firehoseEvents: [
-        ["traits", {"asAccount": {"anonymous_id": "outreach:184796", "domain": "afterlife.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 184796}}],
-        ["traits", {"asUser": {"anonymous_id": "outreach:18", "email": "fettisbest@gmail.com"}, "subjectType": "user"}, {"outreach/custom1": {"operation": "set", "value": "probably is a smuggler too"}, "outreach/id": {"operation": "set", "value": 18}, "outreach/personalnote2": {"operation": "set", "value": "froze han solo in carbinite, he was just a kid!  He's very efficient"}}],
+        ["traits", {"asAccount": {"anonymous_id": "outreach:184796", "domain": "afterlife.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 184796}, "outreach/company_type": {"operation": "set", "value": null}, "outreach/description": {"operation": "set", "value": null}}],
+        ["traits", {"asUser": {"anonymous_id": "outreach:18", "email": "fettisbest@gmail.com"}, "subjectType": "user"}, {"outreach/custom2": { "operation": "set", "value": null }, "outreach/custom1": {"operation": "set", "value": "probably is a smuggler too"}, "outreach/id": {"operation": "set", "value": 18}, "outreach/personalnote2": {"operation": "set", "value": "froze han solo in carbinite, he was just a kid!  He's very efficient"}}],
         ["traits", {"asAccount": {"anonymous_id": "outreach:184796"}, "asUser": {"anonymous_id": "outreach:18", "email": "fettisbest@gmail.com"}, "subjectType": "account"}, {}]
       ],
       metrics: [

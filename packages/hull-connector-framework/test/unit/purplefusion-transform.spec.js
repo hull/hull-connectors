@@ -64,29 +64,32 @@ describe("Transformation tests", () => {
     };
 
     const transformation = {
-      target: { type: "input" },
-      iterateOn: { type: "settings", path: "outgoing_user_attributes" },
-      operateOn: { type: "input", path: "${value.service}" },
-      mapOn: {
-        key: [
-          { type: "glue", route: "inputSchemaRoute", path: "${value.hull}.type" },
-          { type: "glue", route: "outputSchemaRoute", path: "${value.service}.type" }
-        ],
-        map: {
-          type: "static",
-          object:
-            {
-              "string": {
-                "int": (value) => { return parseInt(value, 10); },
-                "array": (value) => { return value.split(","); }
-              },
-              "int": {
-                "string": (value) => { return `${value}`; }
-              }
-            }
+      target: { component: "input" },
+      operateOn: { component: "settings", select: "outgoing_user_attributes" },
+      expand: { valueName: "mapping" },
+      then: [{
+        operateOn: { component: "input", select: "${mapping.service}" },
+        writeTo: {
+          path: "${mapping.service}",
+          formatter: {
+            component: "static",
+            object:
+                {
+                  "string": {
+                    "int": (value) => { return parseInt(value, 10); },
+                    "array": (value) => { return value.split(","); }
+                  },
+                  "int": {
+                    "string": (value) => { return `${value}`; }
+                  }
+                },
+            select: [
+              { component: "glue", route: "inputSchemaRoute", select: "${mapping.hull}.type" },
+              { component: "glue", route: "outputSchemaRoute", select: "${mapping.service}.type" }
+            ]
+          }
         }
-      },
-      output: { path: "${value.service}" }
+      }]
     };
 
     return performTransformation(dispatcher, context, initialInput, transformation)
@@ -136,26 +139,18 @@ describe("Transformation tests", () => {
       "Notes": 2
     };
 
-    const transformation = [
-      {
-        target: { type: "input" },
-        operateOn: { type: "input", path: "stage" },
-        mapOn: {
-          key: { type: "input", path: "stage" },
-          map: { type: "glue", route: "getInverseMap" }
+    const transformation = {
+      target: { component: "input" },
+      transforms: [
+        {
+          operateOn: { component: "glue", route: "getInverseMap", select: { component: "input", select: "stage" } },
+          writeTo: { path: "stage" }
         },
-        output: { path: "stage" }
-      },
-      {
-        target: { type: "input" },
-        operateOn: { type: "input", path: "Notes" },
-        mapOn: {
-          key: { type: "input", path: "Notes" },
-          map: { type: "glue", route: "getMapForEnum" }
-        },
-        output: { path: "Notes" }
-      }
-    ];
+        {
+          operateOn: { component: "glue", route: "getMapForEnum", select: { component: "input", select: "Notes" } },
+          writeTo: { path: "Notes" }
+        }
+      ]};
 
     return performTransformation(dispatcher, context, initialInput, transformation)
       .then((results) => {
@@ -196,23 +191,21 @@ describe("Transformation tests", () => {
       transforms: [
         {
           strategy: "AtomicReaction",
-          target: { type: "input" },
-          operateOn: { type: "input", path: "stage" },
-          mapOn: {
-            key: { type: "input", path: "stage" },
-            map: { type: "glue", route: "getInverseMap" }
-          },
-          output: { path: "stage" }
+          target: { component: "input" },
+          operateOn: { component: "glue", route: "getInverseMap", select: { component: "input", select: "stage" }},
+          writeTo: { path: "stage" }
         },
         {
           strategy: "AtomicReaction",
-          target: { type: "input" },
-          operateOn: { type: "input", path: "Notes" },
-          mapOn: {
-            key: { type: "input", path: "Notes" },
-            map: { type: "glue", route: "getMapForEnum" }
-          },
-          output: { path: "Notes" }
+          target: { component: "input" },
+          operateOn: { component: "glue", route: "getMapForEnum", select: { component: "input", select: "Notes" } },
+          writeTo: { path: "Notes" }
+        },
+        {
+          strategy: "AtomicReaction",
+          target: { component: "input" },
+          operateOn: { component: "glue", route: "getMapForEnum", select: { component: "input", select: "NotesDNE" } },
+          writeTo: { path: "NoteThatShouldNotExist" }
         },
         {
           strategy: "PropertyKeyedValue",

@@ -114,9 +114,9 @@ test("fetch all accounts and prospects from outreach no user/account linking", (
       ],
       firehoseEvents: [
         ["traits", {"asAccount": {"anonymous_id": "outreach:1", "domain": "somehullcompany.com"}, "subjectType": "account"}, {"outreach/custom1": {"operation": "set", "value": "some custom value"}, "outreach/custom10": {"operation": "set", "value": "another custom value"}, "outreach/id": {"operation": "set", "value": 1}}],
-        ["traits", {"asAccount": {"anonymous_id": "outreach:4", "domain": "noprospectshullcompany.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 4}}],
+        ["traits", {"asAccount": {"anonymous_id": "outreach:4", "domain": "noprospectshullcompany.com"}, "subjectType": "account"}, {"outreach/custom1": {"operation": "set", "value": null},"outreach/custom10": {"operation": "set", "value": null},"outreach/id": {"operation": "set", "value": 4}}],
         ["traits", {"asUser": {"anonymous_id": "outreach:1", "email": "ceo@somehullcompany.com"}, "subjectType": "user"}, {"outreach/custom1": {"operation": "set", "value": "He's cool"}, "outreach/id": {"operation": "set", "value": 1}, "outreach/personalNote1": {"operation": "set", "value": "he's a cool guy I guess...."}}],
-        ["traits", {"asUser": {"anonymous_id": "outreach:2", "email": "noAccountProspect@noaccount.com"}, "subjectType": "user"}, {"outreach/id": {"operation": "set", "value": 2}}]
+        ["traits", {"asUser": {"anonymous_id": "outreach:2", "email": "noAccountProspect@noaccount.com"}, "subjectType": "user"}, {"outreach/id": {"operation": "set", "value": 2}, "outreach/custom1": {"operation": "set", "value": null}, "outreach/personalNote1": {"operation": "set", "value": null}}]
       ],
       metrics: [
         ["increment", "connector.request", 1],
