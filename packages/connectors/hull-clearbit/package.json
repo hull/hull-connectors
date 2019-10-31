@@ -18,10 +18,10 @@
     "test:modules": "npm outdated --depth=0",
     "test:coverage": "NODE_ENV=test jest --env=jsdom --config=jest.config.json --coverage",
     "test:client": "NODE_ENV=test jest --env=jsdom --config=jest.config.json",
-    "test:units": "NODE_ENV=test mocha --opts ./tests/mocha.opts ./tests/unit/*.js",
-    "test:units:watch": "NODE_ENV=test mocha --watch --opts ./tests/mocha.opts ./tests/unit/*.js",
-    "test:specs": "NODE_ENV=test mocha --opts ./tests/mocha.opts ./tests/integration/*.js",
-    "test:specs:watch": "NODE_ENV=test mocha --watch --opts ./tests/mocha.opts ./tests/integration/*.js"
+    "test:units": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit/*.js",
+    "test:units:watch": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit/*.js",
+    "test:specs": "NODE_ENV=test mocha mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/*.js",
+    "test:specs:watch": "NODE_ENV=test mocha --watch --exit --require ../../../root-babel-register.js -R spec ./test/integration/*.js"
   },
   "dependencies": {
     "bootstrap-table": "^1.15.4",

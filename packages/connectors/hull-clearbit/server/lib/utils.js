@@ -2,10 +2,10 @@
 
 import _ from "lodash";
 import rangeCheck from "range_check";
-import type { HullAccount } from "hull";
+import type { HullAttributeMapping, HullAccount } from "hull";
 import excludes from "../excludes";
 import type { ClearbitConnectorSettings } from "../types";
-import Mappings from "../mappings";
+// import Mappings from "../mappings";
 import TopLevelMappings from "../top-level-mappings";
 
 /**
@@ -20,9 +20,8 @@ export function isInSegments(
   segmentsListIds: Array<string> = []
 ) {
   return (
-    _.isEmpty(segmentsListIds) ||
-    _.intersection(segmentDefinitions.map(({ id }) => id), segmentsListIds)
-      .length > 0
+    segmentsListIds.includes("ALL") ||
+    _.intersection(_.map(segmentDefinitions, "id"), segmentsListIds).length > 0
   );
 }
 
@@ -51,12 +50,13 @@ export function isValidIpAddress(ip?: string) {
 
 export const setIfNull = (value: any) => ({ value, operation: "setIfNull" });
 
-export default function getTraitsFrom(
+export function getTraitsFrom(
   entity: {},
+  mapping: Array<HullAttributeMapping>,
   mappingName: "Person" | "Company" | "Prospect"
 ) {
   return _.reduce(
-    [...Mappings[mappingName], ...TopLevelMappings[mappingName]],
+    [...mapping, ...TopLevelMappings[mappingName]],
     (m, { service, hull, overwrite }) => {
       const value = _.get(entity, service);
       const hullValue = overwrite ? value : { operation: "setIfNull", value };

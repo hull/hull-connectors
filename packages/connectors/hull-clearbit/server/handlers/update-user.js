@@ -20,11 +20,9 @@ const updateAccount = ({
 ): HullNotificationResponse => {
   const { client } = ctx;
   try {
-    // const clearbit = new Clearbit(ctx);
-
     const ids = _.compact(_.map(messages, m => _.get(m, "user.id")));
     if (!ids.length) {
-      client.logger.info("outgoing.account.skip", { ids });
+      client.logger.info("outgoing.user.skip", { ids });
     } else {
       const updateLogic = userUpdateLogic(ctx);
       await Promise.all(messages.map(updateLogic));
@@ -35,6 +33,7 @@ const updateAccount = ({
       in: flow_in
     };
   } catch (err) {
+    console.log("Error", err);
     return {
       type: "retry",
       size: flow_size,

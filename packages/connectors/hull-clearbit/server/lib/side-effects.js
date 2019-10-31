@@ -8,7 +8,7 @@ import type {
   ClearbitCompany
 } from "../types";
 
-import { getTraitsFrom, setIfNull, now } from "../lib/utils";
+import { getTraitsFrom, setIfNull, now } from "./utils";
 
 /**
  * Create a new user on Hull from a discovered Prospect
@@ -60,7 +60,6 @@ export async function saveProspect(
   });
   metric.increment("ship.incoming.users", 1, ["prospect"]);
   asAccount.logger.info("incoming.account.success", {
-    person,
     source: "prospector"
   });
 
@@ -108,11 +107,11 @@ export async function saveAccount(
 
   await asAccount.traits(traits);
 
-  asAccount.logger.info("incoming.account.success", {
-    ...meta,
-    source,
-    traits
-  });
+  // asAccount.logger.info("incoming.account.success", {
+  //   ...meta,
+  //   source
+  //   // traits
+  // });
 
   metric.increment("ship.incoming.accounts", 1, ["saveAccount"]);
   return company;
@@ -138,17 +137,17 @@ export async function saveUser(
   // with complete messed up ident claims if we do this). We need to pass all claims
   // to the platform to allow proper identity resolution.
 
-  if (!person) {
-    return;
-  }
+  // if (!person) {
+  //   return;
+  // }
 
   const asUser = client.asUser({
     ...user,
-    anonymous_id: `clearbit:${person.id}`
+    ...(person ? { anonymous_id: `clearbit:${person.id}` } : {})
   });
 
   const traits = {
-    ...getTraitsFrom(person, incoming_person_mapping, "Person"),
+    ...(person ? getTraitsFrom(person, incoming_person_mapping, "Person") : {}),
     "clearbit/fetched_at": setIfNull(now()),
     ...(source
       ? {
@@ -160,7 +159,7 @@ export async function saveUser(
 
   await asUser.traits(traits);
   metric.increment("ship.incoming.users", 1, ["saveUser"]);
-  asUser.logger.info("incoming.user.success", { ...meta, source, traits });
+  // asUser.logger.info("incoming.user.success", { ...meta, source });
   // return { traits, user, person };
 }
 

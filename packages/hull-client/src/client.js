@@ -161,9 +161,7 @@ class HullClient {
      */
     this.utils = {
       traits: traitsUtils,
-      claims: {
-        get: claimsUtils
-      },
+      claims: claimsUtils,
       properties: {
         get: propertiesUtils.get.bind(this)
       },

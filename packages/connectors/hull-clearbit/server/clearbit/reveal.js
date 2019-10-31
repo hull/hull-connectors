@@ -21,12 +21,15 @@ export function shouldReveal(
   message: HullUserUpdateMessage
 ): ShouldAction {
   const { user, account, segments = [] } = message;
-  const { reveal_user_segments = [] } = settings;
+  const {
+    reveal_user_segments = [],
+    reveal_user_segments_exclusion = []
+  } = settings;
 
   if (ctx.isBatch) {
     return {
       should: false,
-      message: "Prospector doesn't work on Batch updates"
+      message: "Reveal doesn't work on Batch updates"
     };
   }
 
@@ -46,12 +49,20 @@ export function shouldReveal(
   if (!isInSegments(segments, reveal_user_segments)) {
     return {
       should: false,
-      message: "Reveal segments are defined but user isn't in any of them"
+      message: "User not in any Reveal segment whitelist"
+    };
+  }
+
+  // Skip if no segments match
+  if (isInSegments(segments, reveal_user_segments_exclusion)) {
+    return {
+      should: false,
+      message: "User in Reveal segment blacklist"
     };
   }
 
   // Skip if clearbit company already set on account
-  const clearbit_id = ctx.client.utils.claims.getService("clearbit", account);
+  const clearbit_id = ctx.client.utils.claims.getServiceId("clearbit", account);
   if (clearbit_id) {
     return { should: false, message: "Clearbit Company ID present on Account" };
   }

@@ -898,6 +898,6 @@ agent.get("/some_connector_url") -> credentials will be added for you
 ### Get a Service Identifier in a stable way:
 
 ```
-const clearbit_id = ctx.client.utils.claims.getService("clearbit", account);
+const clearbit_id = ctx.client.utils.claims.getServiceId("clearbit", account);
 // -> First anonymous_id with the format: `clearbit:xxx`
 ```

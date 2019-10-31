@@ -9,6 +9,8 @@ import type {
 import { prospect, shouldProspect } from "../clearbit/prospect";
 import { enrich, shouldEnrichAccount } from "../clearbit/enrich";
 
+const debug = require("debug")("hull-clearbit:account-update-logic");
+
 export default async function updateLogic(ctx: HullContext) {
   const settings: ClearbitConnectorSettings = ctx.connector.private_settings;
   return async function accountUpdateLogic(message: HullAccountUpdateMessage) {
@@ -21,6 +23,8 @@ export default async function updateLogic(ctx: HullContext) {
       ShouldAction,
       ShouldAction
     ] = actions;
+
+    debug("Account Update Logic Actions", actions);
 
     const results: Array<void | false | ClearbitResult> = await Promise.all([
       enrichAction.should && enrich(ctx, message),
