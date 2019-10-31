@@ -4,7 +4,6 @@ import type {
   HullAccountUpdateMessage,
   HullNotificationResponse
 } from "hull";
-import _ from "lodash";
 import accountUpdateLogic from "../lib/account-update-logic";
 
 const updateAccount = ({
@@ -18,17 +17,8 @@ const updateAccount = ({
   messages: Array<HullAccountUpdateMessage>
 ): HullNotificationResponse => {
   try {
-    const { client } = ctx;
-
-    const ids = _.compact(_.map(messages, m => _.get(m, "account.id")));
-    if (!ids.length) {
-      client.logger.info("outgoing.account.skip", {
-        ids
-      });
-    } else {
-      const updateLogic = accountUpdateLogic(ctx);
-      await Promise.all(messages.map(updateLogic));
-    }
+    const updateLogic = accountUpdateLogic(ctx);
+    await Promise.all(messages.map(updateLogic));
 
     return {
       type: "next",

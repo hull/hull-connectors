@@ -33,6 +33,26 @@ describe("Reveal action", () => {
     domain: "uber.com",
     company
   };
+  const noOpResponse = {
+    accountsSegments,
+    usersSegments,
+    handlerUrl: "smart-notifier",
+    channel: "user:update",
+    response: [],
+    externalApiMock: () => {},
+    response: {
+      flow_control: {
+        in: 5,
+        in_time: 10,
+        size: 10,
+        type: "next"
+      }
+    },
+    logs: [],
+    firehoseEvents: [],
+    metrics: [["increment", "connector.request", 1]],
+    platformApiCalls: []
+  };
 
   it("should properly reveal users and update account", async () =>
     testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
@@ -53,7 +73,6 @@ describe("Reveal action", () => {
       externalApiMock: () => {
         const scope = nock("https://reveal.clearbit.com");
         scope
-          .log(console.log)
           .get(/v1\/companies\/find/)
           .query({ ip: "100.0.0.0" })
           .reply(200, REVEAL_SUCCESS_RESPONSE);
@@ -147,7 +166,6 @@ describe("Reveal action", () => {
       externalApiMock: () => {
         const scope = nock("https://reveal.clearbit.com");
         scope
-          .log(console.log)
           .get(/v1\/companies\/find/)
           .query({ ip: "100.0.0.0" })
           .reply(200, REVEAL_SUCCESS_RESPONSE);
@@ -218,64 +236,30 @@ describe("Reveal action", () => {
 
   it("should not reveal users if revealed_at has a value", async () =>
     testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...noOpResponse,
       handlerType: handlers.notificationHandler,
-      handlerUrl: "smart-notifier",
-      channel: "user:update",
       connector,
-      accountsSegments,
-      usersSegments,
-      response: [],
       messages: [
         {
           user: { ...ANONYMOUS_USER, "traits_clearbit/revealed_at": "foo" },
           account: {},
           segments: []
         }
-      ],
-      externalApiMock: () => {},
-      response: {
-        flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
-          type: "next"
-        }
-      },
-      logs: [],
-      firehoseEvents: [],
-      metrics: [["increment", "connector.request", 1]],
-      platformApiCalls: []
+      ]
     })));
 
   it("should not reveal users if we don't have an IP", async () =>
     testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...noOpResponse,
       handlerType: handlers.notificationHandler,
-      handlerUrl: "smart-notifier",
-      channel: "user:update",
       connector,
-      accountsSegments,
-      usersSegments,
-      response: [],
       messages: [
         {
           user: { ...ANONYMOUS_USER, last_known_ip: undefined },
           account: {},
           segments: []
         }
-      ],
-      externalApiMock: () => {},
-      response: {
-        flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
-          type: "next"
-        }
-      },
-      logs: [],
-      firehoseEvents: [],
-      metrics: [["increment", "connector.request", 1]],
-      platformApiCalls: []
+      ]
     })));
 
   it("should not reveal users if we have a clearbit company associated at account level", async () =>
@@ -311,63 +295,44 @@ describe("Reveal action", () => {
 
   it("should not reveal users if not in segment whitelist", async () =>
     testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...noOpResponse,
       handlerType: handlers.notificationHandler,
-      handlerUrl: "smart-notifier",
-      channel: "user:update",
       connector,
-      accountsSegments,
-      usersSegments,
-      response: [],
       messages: [
         {
           user: ANONYMOUS_USER,
           account: {},
           segments: []
         }
-      ],
-      externalApiMock: () => {},
-      response: {
-        flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
-          type: "next"
+      ]
+    })));
+
+  it("should not reveal users if Batch Job", async () =>
+    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...noOpResponse,
+      handlerType: handlers.notificationHandler,
+      connector,
+      is_export: true,
+      messages: [
+        {
+          user: ANONYMOUS_USER,
+          account: {},
+          segments: [{ id: "reveal" }]
         }
-      },
-      logs: [],
-      firehoseEvents: [],
-      metrics: [["increment", "connector.request", 1]],
-      platformApiCalls: []
+      ]
     })));
 
   it("should not reveal users if in segment whitelist and blacklist ", async () =>
     testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...noOpResponse,
       handlerType: handlers.notificationHandler,
-      handlerUrl: "smart-notifier",
-      channel: "user:update",
       connector,
-      accountsSegments,
-      usersSegments,
-      response: [],
       messages: [
         {
           user: ANONYMOUS_USER,
           account: {},
           segments: [{ id: "reveal" }, { id: "exclusion" }]
         }
-      ],
-      externalApiMock: () => {},
-      response: {
-        flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
-          type: "next"
-        }
-      },
-      logs: [],
-      firehoseEvents: [],
-      metrics: [["increment", "connector.request", 1]],
-      platformApiCalls: []
+      ]
     })));
 });

@@ -140,7 +140,10 @@ export function shouldEnrichAccount(
     }
 
     // Skip if we have a Clearbit ID already
-    const clearbit_id = ctx.client.utils.claims.getServiceId("clearbit", account);
+    const clearbit_id = ctx.client.utils.claims.getServiceId(
+      "clearbit",
+      account
+    );
     if (clearbit_id) {
       return { should: false, message: "Clearbit ID present" };
     }

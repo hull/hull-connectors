@@ -66,14 +66,13 @@ export default class ClearbitClient {
   }
 
   prospect(params: any): Promise<ClearbitProspectorResponse> {
-    this.ctx.metric.increment("clearbit.prospect");
-    this.ctx.metric.increment("ship.service_api.call", 1, [
-      "ship_action:clearbit:prospect"
-    ]);
     this.ctx.client.logger.debug("clearbit.start", {
       params,
       action: "prospect"
     });
+    this.ctx.metric.increment("ship.service_api.call", 1, [
+      "ship_action:clearbit:prospect"
+    ]);
     return this.client.Prospector.search(params);
     // return ClearbitApi({
     //   path: "/people/search",

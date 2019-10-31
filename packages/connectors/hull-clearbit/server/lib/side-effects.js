@@ -54,14 +54,7 @@ export async function saveProspect(
     asAccount.traits(attribution)
   ]);
 
-  asUser.logger.info("incoming.user.success", {
-    personId: id,
-    source: "prospector"
-  });
   metric.increment("ship.incoming.users", 1, ["prospect"]);
-  asAccount.logger.info("incoming.account.success", {
-    source: "prospector"
-  });
 
   return person;
 }

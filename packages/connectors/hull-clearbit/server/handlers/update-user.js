@@ -4,8 +4,6 @@ import type {
   HullUserUpdateMessage,
   HullNotificationResponse
 } from "hull";
-import _ from "lodash";
-// import Clearbit from "../clearbit";
 import userUpdateLogic from "../lib/user-update-logic";
 
 const updateAccount = ({
@@ -18,15 +16,9 @@ const updateAccount = ({
   ctx: HullContext,
   messages: Array<HullUserUpdateMessage>
 ): HullNotificationResponse => {
-  const { client } = ctx;
   try {
-    const ids = _.compact(_.map(messages, m => _.get(m, "user.id")));
-    if (!ids.length) {
-      client.logger.info("outgoing.user.skip", { ids });
-    } else {
-      const updateLogic = userUpdateLogic(ctx);
-      await Promise.all(messages.map(updateLogic));
-    }
+    const updateLogic = userUpdateLogic(ctx);
+    await Promise.all(messages.map(updateLogic));
     return {
       type: "next",
       size: flow_size,

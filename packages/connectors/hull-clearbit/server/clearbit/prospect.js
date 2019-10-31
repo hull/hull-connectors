@@ -22,7 +22,10 @@ export async function shouldProspect(
   message: HullAccountUpdateMessage
 ): Promise<ShouldAction> {
   const { account, account_segments = [] } = message;
-  const { prospect_account_segments = [] } = settings;
+  const {
+    prospect_account_segments = [],
+    prospect_account_segments_exclusion = []
+  } = settings;
   const domain = getDomain(account, settings);
 
   if (ctx.isBatch) {
@@ -46,7 +49,15 @@ export async function shouldProspect(
   if (!isInSegments(account_segments, prospect_account_segments)) {
     return {
       should: false,
-      message: "Account isn't in any prospectable segment"
+      message: "Account not in any Prospect segment whitelist"
+    };
+  }
+
+  // Skip if no segments match
+  if (isInSegments(account_segments, prospect_account_segments_exclusion)) {
+    return {
+      should: false,
+      message: "Account in Prospect segment blacklist"
     };
   }
 
@@ -177,7 +188,7 @@ export const prospect = async (
     //   );
     // }
     return Promise.all(
-      prospects.map(person => saveProspect(ctx, { account, person }))
+      _.map(prospects, person => saveProspect(ctx, { account, person }))
     );
   } catch (err) {
     logError(err);

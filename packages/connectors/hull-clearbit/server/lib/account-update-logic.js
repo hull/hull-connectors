@@ -11,7 +11,7 @@ import { enrich, shouldEnrichAccount } from "../clearbit/enrich";
 
 const debug = require("debug")("hull-clearbit:account-update-logic");
 
-export default async function updateLogic(ctx: HullContext) {
+export default function updateLogic(ctx: HullContext) {
   const settings: ClearbitConnectorSettings = ctx.connector.private_settings;
   return async function accountUpdateLogic(message: HullAccountUpdateMessage) {
     const actions = await Promise.all([
