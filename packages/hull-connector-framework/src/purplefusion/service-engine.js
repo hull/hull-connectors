@@ -126,10 +126,14 @@ class ServiceEngine {
       // it should...
       results = await Promise.all(rawInputParam.map(async rawObject => {
 
+        // Transforms are now able to define their own variables in the context
+        // we need to fork each one when we go parallel
+        const shallowContextClone = context.shallowCloneContext();
+        shallowContextClone.pushNew();
+
         // not sure how we differentiate between the type at the array level and the
         setHullDataType(rawObject, rawInputType);
-
-        const dataToSend = await this.transforms.transform(this.dispatcher, context, rawObject, endpoint.input);
+        const dataToSend = await this.transforms.transform(this.dispatcher, shallowContextClone, rawObject, endpoint.input);
         const servicePromise = this.invokeServiceOperation(context, serviceDefinition, name, op, dataToSend);
         return this.logOutcome(context, servicePromise, {
           name,
@@ -140,7 +144,11 @@ class ServiceEngine {
 
       }));
     } else {
-      const dataToSend = await this.transforms.transform(this.dispatcher, context, param, endpoint.input);
+      // creating a scoped context for the transforms so their variables don't leak out
+      const shallowContextClone = context.shallowCloneContext();
+      shallowContextClone.pushNew();
+
+      const dataToSend = await this.transforms.transform(this.dispatcher, shallowContextClone, param, endpoint.input);
       const servicePromise = this.invokeServiceOperation(context, serviceDefinition, name, op, dataToSend);
       results = await this.logOutcome(context, servicePromise, {
         name,

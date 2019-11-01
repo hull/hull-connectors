@@ -112,7 +112,7 @@ async function resolveValue(dispatcher, context, initialInput, target, transform
     if (transform.writeTo.formatter) {
       const formatter = await resolveIdentifier(dispatcher, context, initialInput, target, transform.writeTo.formatter);
       if (typeof formatter === "function") {
-        valueToOutput = formatter(valueToOutput)
+        valueToOutput = formatter(valueToOutput);
         context.set("value", valueToOutput);
       }
     }
