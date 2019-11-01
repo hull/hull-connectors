@@ -36,12 +36,12 @@ const transformsToHull: ServiceTransforms =
           then: [
             {
               operateOn: { component: "glue", route: "getStageIdMap", select: "${stageId}" },
-              writeTo: { path: "data.attributes.stageName" }
+              writeTo: { path: "attributes.stageName" }
             },
             {
               writeTo: {
                 condition: isEqual("stageId", null),
-                path: "data.attributes.stageName"
+                path: "attributes.stageName"
               }
             }
           ]
@@ -61,12 +61,12 @@ const transformsToHull: ServiceTransforms =
           then: [
             {
               operateOn: { component: "glue", route: "getOwnerIdToEmailMap", select: "${ownerId}" },
-              writeTo: { path: "data.attributes.ownerEmail" }
+              writeTo: { path: "attributes.ownerEmail" }
             },
             {
               writeTo: {
                 condition: isEqual("ownerId", null),
-                path: "data.attributes.ownerEmail"
+                path: "attributes.ownerEmail"
               }
             }
           ]
