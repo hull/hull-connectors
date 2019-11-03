@@ -15,13 +15,14 @@
   "scripts": {
     "dev": "builder run dev",
     "test": "npm run test:lint && npm run test:modules && npm run test:coverage && npm run test:client && npm run test:units && npm run test:specs",
-    "test:modules": "npm outdated --depth=0",
-    "test:coverage": "NODE_ENV=test jest --env=jsdom --config=jest.config.json --coverage",
-    "test:client": "NODE_ENV=test jest --env=jsdom --config=jest.config.json",
-    "test:units": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit/*.js",
-    "test:units:watch": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit/*.js",
-    "test:specs": "NODE_ENV=test mocha mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/*.js",
-    "test:specs:watch": "NODE_ENV=test mocha --watch --exit --require ../../../root-babel-register.js -R spec ./test/integration/*.js"
+    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}",
+    "testx:modules": "npm outdated --depth=0",
+    "testx:coverage": "NODE_ENV=test jest --env=jsdom --config=jest.config.json --coverage",
+    "testx:client": "NODE_ENV=test jest --env=jsdom --config=jest.config.json",
+    "testx:units": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit/*.js",
+    "testx:units:watch": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit/*.js",
+    "testx:specs": "NODE_ENV=test mocha mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/*.js",
+    "testx:specs:watch": "NODE_ENV=test mocha --watch --exit --require ../../../root-babel-register.js -R spec ./test/integration/*.js"
   },
   "dependencies": {
     "bootstrap-table": "^1.15.4",
