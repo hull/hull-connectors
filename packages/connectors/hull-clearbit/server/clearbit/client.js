@@ -1,8 +1,6 @@
 // @flow
 
 import { Client } from "clearbit";
-import request from "request";
-import qs from "qs";
 // import BluebirdPromise from "bluebird";
 import type { HullContext } from "hull";
 import type {

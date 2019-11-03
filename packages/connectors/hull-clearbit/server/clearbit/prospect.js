@@ -8,7 +8,7 @@ import Client from "./client";
 import { isInSegments, getDomain } from "../lib/utils";
 
 import excludes from "../excludes";
-import { saveProspect, saveProspects } from "../lib/side-effects";
+import { saveProspects } from "../lib/side-effects";
 import type {
   ClearbitConnectorSettings,
   ShouldAction,

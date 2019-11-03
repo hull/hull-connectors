@@ -56,9 +56,9 @@ export default function updateLogic(ctx: HullContext) {
     // }
 
     return _.filter(actions, "should")
-      .map(({ message }) => ({
+      .map(({ message: msg }) => ({
         action: "skip",
-        message
+        message: msg
       }))
       .concat(results);
   };

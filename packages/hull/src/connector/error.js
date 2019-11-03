@@ -41,4 +41,4 @@ export default function errorHandler(
   }
   debug("unhandled-error", err.stack);
   return res.status(status).send({ message: "undefined error" });
-};
+}
