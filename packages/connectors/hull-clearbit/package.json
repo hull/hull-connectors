@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "dev": "builder run dev",
-    "test": "npm run test:lint && npm run test:modules && npm run test:coverage && npm run test:client && npm run test:units && npm run test:specs",
+    "test": "yarn test:unit && yarn test:integration",
     "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}",
     "testx:modules": "npm outdated --depth=0",
     "testx:coverage": "NODE_ENV=test jest --env=jsdom --config=jest.config.json --coverage",
