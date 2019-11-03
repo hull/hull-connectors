@@ -74,10 +74,11 @@ export const shouldEnrichUser = (
     }
 
     // Skip if we have a Clearbit ID already
-    const clearbit_id = ctx.client.utils.claims.getServiceId("clearbit", user);
-    if (clearbit_id) {
-      return { should: false, message: "Clearbit ID present" };
-    }
+    // Disable so we can rely on Audience Segments
+    // const clearbit_id = ctx.client.utils.claims.getServiceId("clearbit", user);
+    // if (clearbit_id) {
+    //   return { should: false, message: "Clearbit ID present" };
+    // }
     // Skip if we have already tried enriching and we aren't on auto-refresh mode.
     if (!enrich_refresh && user["clearbit/enriched_at"]) {
       return { should: false, message: "enriched_at present" };
@@ -173,7 +174,9 @@ export async function performEnrich({
 }) {
   const { user = {}, account } = message;
   const domain = getDomain(account, settings);
-
+  const { connector } = ctx;
+  const { private_settings = {} } = connector;
+  const { enrich_refresh } = private_settings;
   const id = user.id || account.id;
   const payload = _.size(user)
     ? {
@@ -182,14 +185,14 @@ export async function performEnrich({
         family_name: user.last_name,
         webhook_url: undefined,
         webhook_id: id,
-        subscribe: undefined
+        subscribe: !!enrich_refresh
       }
     : {
         domain: domain || user.domain,
         company_name: account.name,
         webhook_url: undefined,
         webhook_id: id,
-        subscribe: undefined
+        subscribe: !!enrich_refresh
       };
 
   payload.webhook_url = `https://${hostname}/clearbit-enrich?token=${token}`;
@@ -222,11 +225,12 @@ export const enrich = async (
     // const { person, company } = enrichment;
     await Promise.all([
       user && saveUser(ctx, { user, person, source: "enrich" }),
-      account && saveAccount(ctx, { user, account, company, source: "enrich" })
+      account &&
+        saveAccount(ctx, { user, person, account, company, source: "enrich" })
     ]);
   } catch (err) {
     client.asUser(user).logger.info("outgoing.user.error", {
-      errors: err,
+      errors: _.get(err, "body.error") || err.message || err,
       method: "enrichUser"
     });
     throw err;

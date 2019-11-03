@@ -1,128 +1,443 @@
-// import { expect } from "chai";
-// import _ from "lodash";
-// import supertest from "supertest";
-//
-// describe("Enrich action", () => {
-//   /*   const connector = {
-//     id: "123456789012345678901234",
-//     private_settings: {
-//       api_key: "123",
-//       enrich_enabled: true,
-//       enrich_user_segments: ["1"]
-//     }
-//   };
-//   const mocks = mockr({
-//     server,
-//     beforeEach,
-//     afterEach,
-//     port: 8000,
-//     segments: [
-//       {
-//         id: "1",
-//         name: "A"
-//       }
-//     ]
-//   });
-//
-//   it("should properly enrich users", done => {
-//     mocks
-//       .nock("https://person.clearbit.com")
-//       .get(/\/v2\/combined\/find/)
-//       .reply(200, {
-//         person: {
-//           id: "d54c54ad-40be-4305-8a34-0ab44710b90d",
-//           name: {
-//             fullName: "Alex MacCaw",
-//             givenName: "Alex",
-//             familyName: "MacCaw"
-//           },
-//           email: "alex@clearbit.com",
-//           "//": "..."
-//         },
-//         company: {
-//           id: "c5a6a9c5-303a-455a-935c-9dffcd2ed756",
-//           name: "Clearbit",
-//           legalName: "APIHub, Inc",
-//           domain: "clearbit.com",
-//           "//": "..."
-//         }
-//       });
-//     mocks.minihull.userUpdate(
-//       {
-//         connector,
-//         messages: [
-//           {
-//             user: {
-//               email: "alex@clearbit.com",
-//               last_known_ip: "1.1.1.1"
-//             },
-//             segments: [{ id: "1" }]
-//           }
-//         ]
-//       },
-//       ({ batch, logs }) => {
-//         const [first] = batch;
-//         expect(logs[1].message).to.equal("outgoing.user.start");
-//         expect(logs[2].message).to.equal("outgoing.user.success");
-//         expect(_.get(first, "body.clearbit/last_name", "")).to.equal("MacCaw");
-//         expect(_.get(first, "body.clearbit/email", "")).to.equal(
-//           "alex@clearbit.com"
-//         );
-//         expect(_.get(first, "body.clearbit/first_name", "")).to.deep.equal(
-//           "Alex"
-//         );
-//         expect(_.get(first, "body.clearbit/source", "")).to.deep.equal({
-//           value: "enrich",
-//           operation: "setIfNull"
-//         });
-//         expect(_.get(first, "body.clearbit_company/domain", "")).to.equal(
-//           "clearbit.com"
-//         );
-//         expect(_.get(first, "body.last_name", "")).to.deep.equal({
-//           value: "MacCaw",
-//           operation: "setIfNull"
-//         });
-//         expect(_.get(first, "body.first_name", "")).to.deep.equal({
-//           value: "Alex",
-//           operation: "setIfNull"
-//         });
-//         expect(batch.length).to.equal(1);
-//         done();
-//       }
-//     );
-//   });
-//
-//   it("should handle Invalid Email error", done => {
-//     mocks
-//       .nock("https://person.clearbit.com")
-//       .get(/\/v2\/combined\/find/)
-//       .reply(422, {
-//         error: {
-//           message: "Invalid email.",
-//           type: "email_invalid"
-//         }
-//       });
-//
-//     mocks.minihull.userUpdate(
-//       {
-//         connector,
-//         messages: [
-//           {
-//             user: {
-//               id: "1234",
-//               email: "foo@bar.com",
-//               last_known_ip: "1.1.1.1"
-//             },
-//             segments: [{ id: "1" }]
-//           }
-//         ]
-//       },
-//       ({ batch, logs }) => {
-//         expect(logs[2].message).to.equal("outgoing.user.error");
-//         expect(batch.length).to.equal(0);
-//         done();
-//       }
-//     );
-//   });
-//  */
-// });
+// @flow
+
+const testScenario = require("hull-connector-framework/src/test-scenario");
+import moment from "moment";
+const _ = require("lodash");
+import connectorConfig from "../../server/config";
+import company from "../fixtures/company.json";
+import company_attributes from "../fixtures/company-attributes.js";
+import person_attributes from "../fixtures/person-attributes.js";
+import person from "../fixtures/person.json";
+
+describe("Clearbit Enrich Tests", () => {
+  const connector = {
+    id: "123456789012345678901234",
+    private_settings: {
+      api_key: "123",
+      enrich_account_segments: ["enrich"],
+      enrich_account_segments_exclusion: ["exclusion"],
+      enrich_user_segments: ["enrich-users"],
+      enrich_user_segments_exclusion: ["exclusion-users"]
+    }
+  };
+  const usersSegments = [
+    { id: "enrich-users", name: "Users to Enrich" },
+    { id: "exclusion-users", name: "Users to Skip" }
+  ];
+  const accountsSegments = [
+    { id: "enrich", name: "Accounts to Enrich" },
+    { id: "exclusion", name: "Accounts to Skip" }
+  ];
+  const ANONYMOUS_USER = {
+    id: "1234",
+    anonymous_ids: ["foobar-anonymous"],
+    email: null,
+    last_known_ip: "100.0.0.0"
+  };
+  const EMAIL_USER = {
+    id: "1234",
+    email: "foo@bar.com",
+    anonymous_ids: [],
+    domain: "foobar.com"
+  };
+  const ACCOUNT = {
+    id: "1234",
+    anonymous_ids: ["bar-anonymous"],
+    domain: "bar.com"
+  };
+
+  const noOpResponse = {
+    accountsSegments,
+    usersSegments,
+    handlerUrl: "smart-notifier",
+    channel: "account:update",
+    response: [],
+    externalApiMock: () => {},
+    response: {
+      flow_control: {
+        in: 5,
+        in_time: 10,
+        size: 10,
+        type: "next"
+      }
+    },
+    logs: [],
+    firehoseEvents: [],
+    metrics: [["increment", "connector.request", 1]],
+    platformApiCalls: []
+  };
+  const noOpUserResponse = {
+    ...noOpResponse,
+    channel: "user:update"
+  };
+  const noOpAccountResponse = {
+    ...noOpResponse,
+    channel: "account:update"
+  };
+  const enrichUserResponse = (nock, expect, subscribe = true) => ({
+    ...noOpUserResponse,
+    externalApiMock: () => {
+      const scope = nock("https://person.clearbit.com");
+      scope
+        .get(/v2\/combined\/find/)
+        .query(true)
+        .reply(200, { person, company });
+      return scope;
+      // person.clearbit.com:443/v2/combined/find?email[]=foo%40bar.com&given_name=&family_name=&webhook_url=https%3A%2F%2Flocalhost%2Fclearbit-enrich%3Ftoken%3Dab4LzEe006CGPAFbgBxXi2z2G5vzW2Wd2Md9BOIIfUBwJPSzSEogY4d4jOtqBGrlFrgjpB7NoSk4lmF6c2H2r0h6%252Fk56RDbYT36m2qVrFdo%253D&webhook_id=1234&subscribe=true
+    },
+    firehoseEvents: [
+      [
+        "traits",
+        {
+          asUser: {
+            anonymous_id: `clearbit:${person.id}`,
+            email: EMAIL_USER.email,
+            id: "1234"
+          },
+          subjectType: "user"
+        },
+        person_attributes(expect, "enrich")
+      ],
+      [
+        "traits",
+        {
+          asAccount: {
+            anonymous_id: `clearbit:${company.id}`
+          },
+          asUser: {
+            anonymous_id: `clearbit:${person.id}`,
+            email: EMAIL_USER.email,
+            id: "1234"
+          },
+          subjectType: "account"
+        },
+        company_attributes(expect, "enrich")
+      ]
+    ],
+    logs: [
+      [
+        "debug",
+        "clearbit.start",
+        expect.whatever(),
+        {
+          action: "enrich",
+          params: {
+            email: EMAIL_USER.email,
+            family_name: undefined,
+            given_name: undefined,
+            subscribe,
+            webhook_id: "1234",
+            webhook_url: expect.whatever()
+          }
+        }
+      ]
+    ],
+    metrics: [
+      ["increment", "connector.request", 1],
+      ["increment", "enrich", 1],
+      ["increment", "ship.service_api.call", 1],
+      ["increment", "ship.incoming.users", 1],
+      ["increment", "ship.incoming.accounts", 1]
+    ]
+  });
+  const enrichAccountResponse = (nock, expect, subscribe = true) => ({
+    ...noOpAccountResponse,
+    externalApiMock: () => {
+      const scope = nock("https://company.clearbit.com");
+      scope
+        .get(/v2\/companies\/find/)
+        .query(true)
+        .reply(200, { company });
+      return scope;
+      // person.clearbit.com:443/v2/combined/find?email[]=foo%40bar.com&given_name=&family_name=&webhook_url=https%3A%2F%2Flocalhost%2Fclearbit-enrich%3Ftoken%3Dab4LzEe006CGPAFbgBxXi2z2G5vzW2Wd2Md9BOIIfUBwJPSzSEogY4d4jOtqBGrlFrgjpB7NoSk4lmF6c2H2r0h6%252Fk56RDbYT36m2qVrFdo%253D&webhook_id=1234&subscribe=true
+    },
+    firehoseEvents: [
+      [
+        "traits",
+        {
+          asAccount: {
+            id: ACCOUNT.id,
+            domain: ACCOUNT.domain,
+            anonymous_id: `clearbit:${company.id}`
+          },
+          subjectType: "account"
+        },
+        company_attributes(expect, "enrich")
+      ]
+    ],
+    logs: [
+      [
+        "debug",
+        "clearbit.start",
+        expect.whatever(),
+        {
+          action: "enrich",
+          params: {
+            domain: "bar.com",
+            family_name: undefined,
+            given_name: undefined,
+            subscribe,
+            webhook_id: "1234",
+            webhook_url: expect.whatever()
+          }
+        }
+      ]
+    ],
+    metrics: [
+      ["increment", "connector.request", 1],
+      ["increment", "enrich", 1],
+      ["increment", "ship.service_api.call", 1],
+      ["increment", "ship.incoming.accounts", 1]
+    ]
+  });
+
+  it("should enrich user", async () =>
+    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...enrichUserResponse(nock, expect, false),
+      handlerType: handlers.notificationHandler,
+      connector: {
+        ...connector,
+        private_settings: {
+          ...connector.private_settings
+        }
+      },
+      messages: [
+        {
+          user: EMAIL_USER,
+          account: {},
+          segments: [{ id: "enrich-users" }]
+        }
+      ]
+    })));
+
+  it("should enrich account", async () =>
+    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...enrichAccountResponse(nock, expect, false),
+      handlerType: handlers.notificationHandler,
+      connector,
+      messages: [
+        {
+          account: ACCOUNT,
+          account_segments: [{ id: "enrich" }]
+        }
+      ]
+    })));
+
+  it("should re-enrich user if enrich_refresh enabled", async () =>
+    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...enrichUserResponse(nock, expect),
+      handlerType: handlers.notificationHandler,
+      connector: {
+        ...connector,
+        private_settings: {
+          ...connector.private_settings,
+          enrich_refresh: true
+        }
+      },
+      messages: [
+        {
+          user: {
+            ...EMAIL_USER,
+            "traits_clearbit/enriched_at": moment()
+              .subtract(10, "days")
+              .toISOString()
+          },
+          account: {},
+          segments: [{ id: "enrich-users" }]
+        }
+      ]
+    })));
+
+  it("should enrich user if lookup>1h", async () =>
+    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...enrichUserResponse(nock, expect),
+      handlerType: handlers.notificationHandler,
+      connector: {
+        ...connector,
+        private_settings: {
+          ...connector.private_settings,
+          enrich_refresh: true
+        }
+      },
+      messages: [
+        {
+          user: {
+            ...EMAIL_USER,
+            "traits_clearbit/fetched_at": moment()
+              .subtract(2, "hours")
+              .toISOString()
+          },
+          account: {},
+          segments: [{ id: "enrich-users" }]
+        }
+      ]
+    })));
+
+  it("should not enrich users if not in segments", async () =>
+    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...noOpUserResponse,
+      handlerType: handlers.notificationHandler,
+      connector,
+      logs: [],
+      metrics: [["increment", "connector.request", 1]],
+      messages: [
+        {
+          user: EMAIL_USER,
+          account: {},
+          segments: []
+        }
+      ]
+    })));
+
+  it("should not enrich users if in Blacklisted segments", async () =>
+    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...noOpUserResponse,
+      handlerType: handlers.notificationHandler,
+      connector,
+      logs: [],
+      metrics: [["increment", "connector.request", 1]],
+      messages: [
+        {
+          user: EMAIL_USER,
+          account: {},
+          segments: [{ id: "enrich-users" }, { id: "exclusion-users" }]
+        }
+      ]
+    })));
+
+  it("should not enrich users if no email", async () =>
+    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...noOpUserResponse,
+      handlerType: handlers.notificationHandler,
+      connector,
+      logs: [],
+      metrics: [["increment", "connector.request", 1]],
+      messages: [
+        {
+          user: ANONYMOUS_USER,
+          account: {},
+          segments: [{ id: "enrich-users" }]
+        }
+      ]
+    })));
+
+  it("should not enrich user enrich refresh disabled", async () =>
+    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...noOpUserResponse,
+      handlerType: handlers.notificationHandler,
+      connector: {
+        ...connector,
+        private_settings: {
+          ...connector.private_settings,
+          enrich_refresh: false
+        }
+      },
+      logs: [],
+      metrics: [["increment", "connector.request", 1]],
+      messages: [
+        {
+          user: {
+            ...EMAIL_USER,
+            "traits_clearbit/enriched_at": moment()
+              .subtract(10, "days")
+              .toISOString()
+          },
+          account: {},
+          segments: [{ id: "enrich-users" }]
+        }
+      ]
+    })));
+
+  it("should not enrich user if pending lookup", async () =>
+    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...noOpUserResponse,
+      handlerType: handlers.notificationHandler,
+      connector,
+      logs: [],
+      metrics: [["increment", "connector.request", 1]],
+      messages: [
+        {
+          user: {
+            ...EMAIL_USER,
+            "traits_clearbit/fetched_at": moment()
+              .subtract(30, "minutes")
+              .toISOString()
+          },
+          account: {},
+          segments: [{ id: "enrich-users" }]
+        }
+      ]
+    })));
+
+  it("should handle invalid email errors", async () =>
+    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...noOpUserResponse,
+      externalApiMock: () => {
+        const scope = nock("https://person.clearbit.com");
+        scope
+          .get(/v2\/combined\/find/)
+          .query(true)
+          .reply(422, {
+            error: {
+              message: "Invalid email.",
+              type: "email_invalid"
+            }
+          });
+        return scope;
+        // person.clearbit.com:443/v2/combined/find?email[]=foo%40bar.com&given_name=&family_name=&webhook_url=https%3A%2F%2Flocalhost%2Fclearbit-enrich%3Ftoken%3Dab4LzEe006CGPAFbgBxXi2z2G5vzW2Wd2Md9BOIIfUBwJPSzSEogY4d4jOtqBGrlFrgjpB7NoSk4lmF6c2H2r0h6%252Fk56RDbYT36m2qVrFdo%253D&webhook_id=1234&subscribe=true
+      },
+      firehoseEvents: [],
+      logs: [
+        [
+          "debug",
+          "clearbit.start",
+          expect.whatever(),
+          {
+            action: "enrich",
+            params: {
+              email: "foo@bar.com",
+              family_name: undefined,
+              given_name: undefined,
+              subscribe: true,
+              webhook_id: "1234",
+              webhook_url: expect.whatever()
+            }
+          }
+        ],
+        [
+          "info",
+          "outgoing.user.error",
+          expect.whatever(),
+          {
+            errors: { message: "Invalid email.", type: "email_invalid" },
+            method: "enrichUser"
+          }
+        ]
+      ],
+      metrics: [
+        ["increment", "connector.request", 1],
+        ["increment", "enrich", 1],
+        ["increment", "ship.service_api.call", 1]
+      ],
+      handlerType: handlers.notificationHandler,
+      connector: {
+        ...connector,
+        private_settings: {
+          ...connector.private_settings,
+          enrich_refresh: true
+        }
+      },
+      messages: [
+        {
+          user: {
+            ...EMAIL_USER,
+            "traits_clearbit/fetched_at": moment()
+              .subtract(2, "hours")
+              .toISOString()
+          },
+          account: {},
+          segments: [{ id: "enrich-users" }]
+        }
+      ]
+    })));
+});

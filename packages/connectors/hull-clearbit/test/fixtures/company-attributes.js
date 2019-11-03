@@ -1,6 +1,6 @@
 import company from "./company.json";
 
-export default function(expect) {
+export default function(expect, source="reveal") {
   return {
     domain: {
       operation: "setIfNull",
@@ -10,7 +10,18 @@ export default function(expect) {
       operation: "setIfNull",
       value: company.name
     },
-
+    [`clearbit/${source}ed_at`]: {
+      operation: "setIfNull",
+      value: expect.whatever()
+    },
+    "clearbit/fetched_at": {
+      operation: "setIfNull",
+      value: expect.whatever()
+    },
+    "clearbit/source": {
+      operation: "setIfNull",
+      value: source
+    },
     "clearbit/category_industry": "Internet Software & Services",
     "clearbit/category_industry_group": "Software & Services",
     "clearbit/category_naics_code": "51",
@@ -24,10 +35,6 @@ export default function(expect) {
     "clearbit/domain_aliases": ["uber.org", "ubercab.com"],
     "clearbit/email_provider": false,
     "clearbit/facebook_handle": "uber",
-    "clearbit/fetched_at": {
-      operation: "setIfNull",
-      value: expect.whatever()
-    },
     "clearbit/founded_year": 2009,
     "clearbit/geo_city": "San Francisco",
     "clearbit/geo_country": "United States",
@@ -58,16 +65,8 @@ export default function(expect) {
     "clearbit/name": company.name,
     "clearbit/parent_domain": null,
     "clearbit/phone": null,
-    "clearbit/revealed_at": {
-      operation: "setIfNull",
-      value: expect.whatever()
-    },
     "clearbit/site_email_addresses": ["domains@uber.com"],
     "clearbit/site_phone_numbers": [],
-    "clearbit/source": {
-      operation: "setIfNull",
-      value: "reveal"
-    },
     "clearbit/tags": [
       "Technology",
       "Marketplace",

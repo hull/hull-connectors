@@ -59,8 +59,9 @@ export function getTraitsFrom(
     [...mapping, ...TopLevelMappings[mappingName]],
     (m, { service, hull, overwrite }) => {
       const value = _.get(entity, service);
-      const hullValue = overwrite ? value : { operation: "setIfNull", value };
-      _.set(m, hull, hullValue);
+      if (value !== undefined) {
+        _.set(m, hull, overwrite ? value : { operation: "setIfNull", value });
+      }
       return m;
     },
     {}

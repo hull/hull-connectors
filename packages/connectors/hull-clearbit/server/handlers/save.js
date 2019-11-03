@@ -4,8 +4,7 @@ import type {
   HullIncomingHandlerMessage,
   HullExternalResponse
 } from "hull";
-import _ from "lodash";
-import { saveProspect } from "../lib/side-effects";
+import { saveProspects } from "../lib/side-effects";
 
 const prospect = async (
   ctx: HullContext,
@@ -16,11 +15,12 @@ const prospect = async (
   if (!prospects || !prospects.length) {
     return { status: 400, data: { error: "No Prospects to save" } };
   }
-  await Promise.all(
-    prospects.map(person =>
-      saveProspect(ctx, { person, account: { domain: person.domain } })
-    )
-  );
+  await saveProspects({ ctx, prospects });
+  // await Promise.all(
+  //   prospects.map(person =>
+  //     saveProspect(ctx, { person, account: { domain: person.domain } })
+  //   )
+  // );
   return { status: 200, data: { ok: true } };
 };
 export default prospect;

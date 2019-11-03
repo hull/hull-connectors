@@ -10,70 +10,100 @@ import type {
 
 import { getTraitsFrom, setIfNull, now } from "./utils";
 
+const getClearbitAnonymousId = entity => `clearbit:${entity.id}`;
+
 /**
  * Create a new user on Hull from a discovered Prospect
  * @param  {Object({ person })} payload - Clearbit/Person object
  * @return {Promise -> Object({ person })}
  */
-export async function saveProspect(
+
+export async function saveProspect({
+  ctx,
+  attribution,
+  account,
+  prospect = {}
+}: {
   ctx: HullContext,
-  {
-    account = {},
-    person = {}
-  }: {
-    account: HullAccount,
-    person: ClearbitProspect
-  }
-) {
+  attribution: { [key: string]: {} },
+  account: HullAccount | { domain: string },
+  prospect: ClearbitProspect
+}): Promise<any> {
   const { connector, client, metric } = ctx;
   const { incoming_prospect_mapping } = connector.private_settings;
 
-  const { id, email } = person;
-  const { domain } = account;
+  const { id, email } = prospect;
 
-  const traits = getTraitsFrom(person, incoming_prospect_mapping, "Prospect");
+  const traits = getTraitsFrom(prospect, incoming_prospect_mapping, "Prospect");
 
+  // as a new user
+  const asUser = client.asUser(
+    {
+      email,
+      anonymous_id: `clearbit-prospect:${id}`
+    },
+    {},
+    account
+  );
+
+  metric.increment("ship.incoming.users", 1, ["prospect"]);
+  return asUser.traits({ ...traits, ...attribution });
+}
+
+export async function saveProspects({
+  ctx,
+  account,
+  prospects = []
+}: {
+  ctx: HullContext,
+  account?: HullAccount,
+  prospects: Array<{| ...ClearbitProspect, domain: string |}>
+}) {
+  const { client } = ctx;
   const attribution = {
     "clearbit/prospected_at": setIfNull(now()),
     "clearbit/source": setIfNull("prospector")
   };
-
-  // as a new user
-  const asUser = client.asUser({
-    email,
-    anonymous_id: `clearbit-prospect:${id}`
-  });
-
-  // as the existing account
-  const asAccount = _.isEmpty(account)
-    ? asUser.account({ domain })
-    : client.asAccount({ ...account, domain });
-
-  await Promise.all([
-    asUser.traits({ ...traits, ...attribution }),
-    asAccount.traits(attribution)
-  ]);
-
-  metric.increment("ship.incoming.users", 1, ["prospect"]);
-
-  return person;
+  try {
+    const promises = prospects.map(prospect =>
+      saveProspect({
+        ctx,
+        attribution,
+        account: account || { domain: prospect.domain, segment_ids: [] },
+        prospect
+      })
+    );
+    if (account) {
+      promises.push(client.asAccount(account).traits(attribution));
+    } else {
+      _.map(_.uniq(_.compact(_.map(prospects, "domain"))), domain => {
+        promises.push(client.asAccount({ domain }).traits(attribution));
+      });
+    }
+    return promises;
+  } catch (err) {
+    client.logger.error("prospect.error", { err });
+    throw err;
+  }
 }
 
 export async function saveAccount(
   ctx: HullContext,
   {
     account,
+    person,
     company,
     user,
     source
   }: {
     account: HullAccount,
     user: HullUser,
+    person: ClearbitPerson,
     company: ClearbitCompany,
     source: "prospect" | "enrich" | "discover" | "reveal"
-  },
-  meta?: {} = {}
+  }
 ) {
+  // meta?: {} = {}
   const { client, metric, connector } = ctx;
   const { private_settings } = connector;
   const { incoming_account_mapping } = private_settings;
@@ -92,10 +122,16 @@ export async function saveAccount(
 
   const accountClaims = {
     ...account,
-    anonymous_id: `clearbit:${company.id}`
+    anonymous_id: getClearbitAnonymousId(company)
   };
+  const userClaims = {
+    ...user
+  };
+  if (person) {
+    userClaims.anonymous_id = getClearbitAnonymousId(person);
+  }
   const asAccount = _.isEmpty(account)
-    ? client.asUser(user).account(accountClaims)
+    ? client.asUser(userClaims).account(accountClaims)
     : client.asAccount(accountClaims);
 
   await asAccount.traits(traits);
@@ -120,12 +156,13 @@ export async function saveUser(
     user: HullUser,
     person?: ClearbitPerson,
     source: "prospect" | "enrich" | "discover" | "reveal"
-  },
-  meta?: {} = {}
+  }
 ) {
+  // meta?: {} = {}
   const { client, metric, connector } = ctx;
   const { private_settings } = connector;
   const { incoming_person_mapping } = private_settings;
+
   // Never ever change the email address (Clearbit strips +xxx parts, so we end up
   // with complete messed up ident claims if we do this). We need to pass all claims
   // to the platform to allow proper identity resolution.
@@ -136,7 +173,7 @@ export async function saveUser(
 
   const asUser = client.asUser({
     ...user,
-    ...(person ? { anonymous_id: `clearbit:${person.id}` } : {})
+    ...(person ? { anonymous_id: getClearbitAnonymousId(person) } : {})
   });
 
   const traits = {

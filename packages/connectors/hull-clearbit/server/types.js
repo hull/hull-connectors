@@ -13,7 +13,7 @@ export type ClearbitResult = {
   message?: string
 };
 
-export type ClearbitProspect = {
+export type ClearbitProspect = {|
   id: string,
   name: {
     givenName: string,
@@ -30,9 +30,9 @@ export type ClearbitProspect = {
   email: string,
   verified: boolean,
   phone: string
-};
+|};
 
-export type ClearbitPerson = {
+export type ClearbitPerson = {|
   id: string,
   name: {
     fullName: string,
@@ -105,9 +105,9 @@ export type ClearbitPerson = {
   fuzzy: boolean,
   emailProvider: boolean,
   indexedAt: string
-};
+|};
 
-export type ClearbitCompany = {
+export type ClearbitCompany = {|
   id: string,
   name: string,
   legalName: string,
@@ -190,7 +190,7 @@ export type ClearbitCompany = {
   ultimate_parent: {
     domain: ?string
   }
-};
+|};
 
 export type ClearbitCombined = {
   person: ClearbitPerson,

@@ -1,3 +1,7 @@
+- discover_domain / prospect_domain -> Do we still need to prospect based on a custom domain that's not the main `domain` at account level ?
+- prospect searches for titles in parallel - is this an issue ?
+
+
 # Hull Clearbit Ship.
 
 Enrich customer profiles using [Clearbit](https://clearbit.com)

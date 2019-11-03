@@ -7,7 +7,7 @@ import company from "../fixtures/company.json";
 import company_attributes from "../fixtures/company-attributes.js";
 import person from "../fixtures/person.json";
 
-describe("Reveal action", () => {
+describe("Clearbit Reveal Tests", () => {
   const connector = {
     id: "123456789012345678901234",
     private_settings: {

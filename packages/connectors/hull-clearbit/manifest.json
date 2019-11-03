@@ -915,7 +915,7 @@
       "format": "segment"
     },
     {
-      "title": "Refresh Clearbit Data",
+      "title": "Refresh Enrichment Data",
       "name": "enrich_refresh",
       "description": "Should the data be refreshed when users and accounts are updated? Use this in conjunction with Segment whitelist and blacklists to control how frequently to refresh data. If you enable `Refresh Clearbit Data`, users will be refreshed by clearbit everytime they are updated. We suggest to configure your segments to include `enriched_at > xx days ago` to mark users for refresh. If you leave it disabled, users and accounts will only be enriched once",
       "type": "boolean",

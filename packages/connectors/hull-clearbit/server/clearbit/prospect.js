@@ -8,7 +8,7 @@ import Client from "./client";
 import { isInSegments, getDomain } from "../lib/utils";
 
 import excludes from "../excludes";
-import { saveProspect } from "../lib/side-effects";
+import { saveProspect, saveProspects } from "../lib/side-effects";
 import type {
   ClearbitConnectorSettings,
   ShouldAction,
@@ -187,9 +187,7 @@ export const prospect = async (
     //     { ip: 0 }
     //   );
     // }
-    return Promise.all(
-      _.map(prospects, person => saveProspect(ctx, { account, person }))
-    );
+    return saveProspects({ prospects: _.values(prospects), ctx, account });
   } catch (err) {
     logError(err);
     return Promise.reject(err);
