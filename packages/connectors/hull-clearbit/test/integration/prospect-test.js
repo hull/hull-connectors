@@ -123,6 +123,7 @@ describe("Clearbit Prospector Tests", () => {
             subjectType: "account"
           },
           {
+            "clearbit/prospected_users": { operation: "increment", value: 1 },
             "clearbit/prospected_at": {
               operation: "setIfNull",
               value: expect.whatever()
@@ -219,6 +220,7 @@ describe("Clearbit Prospector Tests", () => {
             subjectType: "account"
           },
           {
+            "clearbit/prospected_users": { operation: "increment", value: 1 },
             "clearbit/prospected_at": {
               operation: "setIfNull",
               value: expect.whatever()

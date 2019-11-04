@@ -74,10 +74,23 @@ export async function saveProspects({
       })
     );
     if (account) {
-      promises.push(client.asAccount(account).traits(attribution));
+      promises.push(
+        client.asAccount(account).traits({
+          ...attribution,
+          "clearbit/prospected_users": {
+            operation: "increment",
+            value: prospects.length
+          }
+        })
+      );
     } else {
       _.map(_.uniq(_.compact(_.map(prospects, "domain"))), domain => {
-        promises.push(client.asAccount({ domain }).traits(attribution));
+        promises.push(
+          client.asAccount({ domain }).traits({
+            ...attribution,
+            "clearbit/prospected_users": { operation: "increment", value: 1 }
+          })
+        );
       });
     }
     return promises;
