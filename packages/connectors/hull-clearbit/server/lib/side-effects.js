@@ -119,10 +119,10 @@ export async function saveAccount(
   // meta?: {} = {}
   const { client, metric, connector } = ctx;
   const { private_settings } = connector;
-  const { incoming_account_mapping } = private_settings;
+  const { incoming_company_mapping } = private_settings;
 
   const traits = {
-    ...getTraitsFrom(company, incoming_account_mapping, "Company"),
+    ...getTraitsFrom(company, incoming_company_mapping, "Company"),
     "clearbit/id": company.id,
     "clearbit/fetched_at": setIfNull(now()),
     ...(source

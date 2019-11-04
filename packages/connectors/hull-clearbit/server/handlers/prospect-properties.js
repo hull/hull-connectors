@@ -1,13 +1,12 @@
 // @flow
 import type { HullContext, HullUISelectResponse } from "hull";
-import mappings from "../mappings";
 import mappingToOptions from "../lib/mapping-to-options";
 
-const prospect = async (_ctx: HullContext): HullUISelectResponse => {
+const prospect = async (ctx: HullContext): HullUISelectResponse => {
   return {
     status: 200,
-    data: mappingToOptions({
-      mapping: mappings.Prospect,
+    data: mappingToOptions(ctx, {
+      name: "incoming_prospect_mapping",
       label: "Clearbit Prospect"
     })
   };

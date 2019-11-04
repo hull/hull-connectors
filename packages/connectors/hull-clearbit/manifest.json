@@ -43,243 +43,68 @@
         "showOverwriteToggle": true,
         "allowCreate": true,
         "placeholder": "Clearbit Person Field",
-        "loadOptions": "/schema/person_properties",
+        "loadOptions": "/schema/prospect_properties",
         "source": "clearbit"
       },
       "default": [
+        {
+          "service": "email",
+          "hull": "traits_clearbit/email",
+          "overwrite": true
+        },
         {
           "service": "id",
           "hull": "traits_clearbit/prospect_id",
           "overwrite": true
         },
         {
-          "service": "bio",
-          "hull": "traits_clearbit/bio",
+          "service": "phone",
+          "hull": "traits_clearbit/phone",
           "overwrite": true
         },
         {
-          "service": "indexedAt",
-          "hull": "traits_clearbit/indexed_at",
-          "overwrite": true
-        },
-        {
-          "service": "avatar",
-          "hull": "traits_clearbit/avatar",
-          "overwrite": true
-        },
-        {
-          "service": "emailProvider",
-          "hull": "traits_clearbit/email_provider",
-          "overwrite": true
-        },
-        {
-          "service": "fuzzy",
-          "hull": "traits_clearbit/fuzzy",
-          "overwrite": true
-        },
-        {
-          "service": "location",
-          "hull": "traits_clearbit/location",
-          "overwrite": true
-        },
-        {
-          "service": "site",
-          "hull": "traits_clearbit/site",
-          "overwrite": true
-        },
-        {
-          "service": "timeZone",
-          "hull": "traits_clearbit/timeZone",
-          "overwrite": true
-        },
-        {
-          "service": "utcOffset",
-          "hull": "traits_clearbit/utcOffset",
-          "overwrite": true
-        },
-        {
-          "service": "name.familyName",
-          "hull": "traits_clearbit/familyName",
-          "overwrite": true
-        },
-        {
-          "service": "name.fullName",
-          "hull": "traits_clearbit/fullName",
-          "overwrite": true
-        },
-        {
-          "service": "name.givenName",
-          "hull": "traits_clearbit/givenName",
-          "overwrite": true
-        },
-        {
-          "service": "employment.domain",
-          "hull": "traits_clearbit/employment_domain",
-          "overwrite": true
-        },
-        {
-          "service": "employment.name",
-          "hull": "traits_clearbit/employment_name",
-          "overwrite": true
-        },
-        {
-          "service": "employment.role",
+          "service": "role",
           "hull": "traits_clearbit/employment_role",
           "overwrite": true
         },
         {
-          "service": "employment.seniority",
+          "service": "subRole",
+          "hull": "traits_clearbit/employment_sub_role",
+          "overwrite": true
+        },
+        {
+          "service": "seniority",
           "hull": "traits_clearbit/employment_seniority",
           "overwrite": true
         },
         {
-          "service": "employment.subRole",
-          "hull": "traits_clearbit/employment_subRole",
-          "overwrite": true
-        },
-        {
-          "service": "employment.title",
+          "service": "title",
           "hull": "traits_clearbit/employment_title",
           "overwrite": true
         },
         {
-          "service": "facebook.handle",
-          "hull": "traits_clearbit/facebook_handle",
+          "service": "verified",
+          "hull": "traits_clearbit/verified",
           "overwrite": true
         },
         {
-          "service": "geo.city",
-          "hull": "traits_clearbit/geo_city",
+          "service": "name.familyName",
+          "hull": "traits_clearbit/last_name",
           "overwrite": true
         },
         {
-          "service": "geo.country",
-          "hull": "traits_clearbit/geo_country",
+          "service": "name.fullName",
+          "hull": "traits_clearbit/full_name",
           "overwrite": true
         },
         {
-          "service": "geo.lat",
-          "hull": "traits_clearbit/geo_lat",
+          "service": "name.givenName",
+          "hull": "traits_clearbit/first_name",
           "overwrite": true
         },
         {
-          "service": "geo.lng",
-          "hull": "traits_clearbit/geo_lng",
-          "overwrite": true
-        },
-        {
-          "service": "geo.state",
-          "hull": "traits_clearbit/geo_state",
-          "overwrite": true
-        },
-        {
-          "service": "github.avatar",
-          "hull": "traits_clearbit/github_avatar",
-          "overwrite": true
-        },
-        {
-          "service": "github.blog",
-          "hull": "traits_clearbit/github_blog",
-          "overwrite": true
-        },
-        {
-          "service": "github.company",
-          "hull": "traits_clearbit/github_company",
-          "overwrite": true
-        },
-        {
-          "service": "github.followers",
-          "hull": "traits_clearbit/github_followers",
-          "overwrite": true
-        },
-        {
-          "service": "github.following",
-          "hull": "traits_clearbit/github_following",
-          "overwrite": true
-        },
-        {
-          "service": "github.handle",
-          "hull": "traits_clearbit/github_handle",
-          "overwrite": true
-        },
-        {
-          "service": "github.id",
-          "hull": "traits_clearbit/github_id",
-          "overwrite": true
-        },
-        {
-          "service": "googleplus.handle",
-          "hull": "traits_clearbit/googleplus_handle",
-          "overwrite": true
-        },
-        {
-          "service": "gravatar.avatar",
-          "hull": "traits_clearbit/gravatar_avatar",
-          "overwrite": true
-        },
-        {
-          "service": "gravatar.avatars",
-          "hull": "traits_clearbit/gravatar_avatars",
-          "overwrite": true
-        },
-        {
-          "service": "gravatar.handle",
-          "hull": "traits_clearbit/gravatar_handle",
-          "overwrite": true
-        },
-        {
-          "service": "gravatar.urls",
-          "hull": "traits_clearbit/gravatar_urls",
-          "overwrite": true
-        },
-        {
-          "service": "linkedin.handle",
-          "hull": "traits_clearbit/linkedin_handle",
-          "overwrite": true
-        },
-        {
-          "service": "twitter.avatar",
-          "hull": "traits_clearbit/twitter_avatar",
-          "overwrite": true
-        },
-        {
-          "service": "twitter.favorites",
-          "hull": "traits_clearbit/twitter_favorites",
-          "overwrite": true
-        },
-        {
-          "service": "twitter.followers",
-          "hull": "traits_clearbit/twitter_followers",
-          "overwrite": true
-        },
-        {
-          "service": "twitter.following",
-          "hull": "traits_clearbit/twitter_following",
-          "overwrite": true
-        },
-        {
-          "service": "twitter.handle",
-          "hull": "traits_clearbit/twitter_handle",
-          "overwrite": true
-        },
-        {
-          "service": "twitter.id",
-          "hull": "traits_clearbit/twitter_id",
-          "overwrite": true
-        },
-        {
-          "service": "twitter.location",
-          "hull": "traits_clearbit/twitter_location",
-          "overwrite": true
-        },
-        {
-          "service": "twitter.site",
-          "hull": "traits_clearbit/twitter_site",
-          "overwrite": true
-        },
-        {
-          "service": "twitter.statuses",
-          "hull": "traits_clearbit/twitter_statuses",
+          "service": "company.name",
+          "hull": "traits_clearbit/company_name",
           "overwrite": true
         }
       ]
@@ -547,7 +372,7 @@
       ]
     },
     {
-      "name": "incoming_account_mapping",
+      "name": "incoming_company_mapping",
       "title": "Clearbit Company Mapping",
       "description": "How we map Clearbit Company Data to Hull Accounts",
       "type": "array",
@@ -562,9 +387,9 @@
       },
       "default": [
         {
-          "service": "name",
-          "overwrite": false,
-          "hull": "name"
+          "service": "id",
+          "overwrite": true,
+          "hull": "clearbit/id"
         },
         {
           "service": "name",
@@ -1100,7 +925,7 @@
       "title": "Account Mapping",
       "description": "Configure the mapping between Clearbit Companies an Hull Accounts",
       "properties": [
-        "private_settings.incoming_account_mapping"
+        "private_settings.incoming_company_mapping"
       ]
     },
     {

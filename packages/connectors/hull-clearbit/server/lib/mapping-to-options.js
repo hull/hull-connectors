@@ -1,21 +1,34 @@
 // @flow
 import _ from "lodash";
-import type { HullAttributeMapping, HullUISelectData } from "hull";
+import type { HullContext, HullAttributeMapping, HullUISelectData } from "hull";
 
 const selectFromKey = (k: string = "") => ({
   label: _.last(k.split(".")),
   value: k
 });
 
-const mappingToOptions = ({
-  mapping,
-  label
-}: {
-  mapping: Array<HullAttributeMapping>,
-  label: string
-}): HullUISelectData => {
+const mappingToOptions = (
+  ctx: HullContext,
+  {
+    name,
+    label
+  }: {
+    name: string,
+    label: string
+  }
+): HullUISelectData => {
+  const { connector } = ctx;
+  const { manifest } = connector;
+
+  // $FlowFixMe
+  const defaults: Array<HullAttributeMapping> = (
+    _.find(manifest.private_settings, { name }) || {}
+  ).default;
+  if (!defaults) {
+    return {};
+  }
   const options = _.reduce(
-    mapping,
+    defaults,
     (m, entry) => {
       const { service } = entry;
       if (service.indexOf(".") > -1) {
@@ -36,7 +49,7 @@ const mappingToOptions = ({
   return {
     label,
     options: _.sortBy(_.values(options), v => !!_.get(v, "options")),
-    default: mapping
+    default: defaults
   };
 };
 export default mappingToOptions;
