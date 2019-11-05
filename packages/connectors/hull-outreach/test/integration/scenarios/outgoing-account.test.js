@@ -85,8 +85,8 @@ test("send smart-notifier account update to outreach", () => {
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "account"}]
       ],
       firehoseEvents: [
-        ["traits", {"asAccount": {"anonymous_id": "outreach:28", "domain": "wayneenterprises.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 28}, "outreach/company_type": {"operation": "set", "value": null}, "outreach/description": {"operation": "set", "value": null}}],
-        ["traits", {"asAccount": {"anonymous_id": "outreach:29", "domain": "bluth.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 29}, "outreach/company_type": {"operation": "set", "value": null}, "outreach/description": {"operation": "set", "value": null}}]
+        ["traits", {"asAccount": {"anonymous_id": "outreach:28", "domain": "wayneenterprises.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 28}, "name": { "operation": "setIfNull", "value": "Wayne Enterprises (Sample Lead)" }, "outreach/company_type": {"operation": "set", "value": null}, "outreach/description": {"operation": "set", "value": null}}],
+        ["traits", {"asAccount": {"anonymous_id": "outreach:29", "domain": "bluth.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 29}, "name": { "operation": "setIfNull", "value": "Bluth Company (Sample Lead)" },"outreach/company_type": {"operation": "set", "value": null}, "outreach/description": {"operation": "set", "value": null}}]
       ],
       metrics: [
         ["increment", "connector.request", 1],

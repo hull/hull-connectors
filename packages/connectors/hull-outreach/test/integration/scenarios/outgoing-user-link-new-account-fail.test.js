@@ -24,6 +24,12 @@ test("send smart-notifier user update to outreach and link account", () => {
         scope
           .post("/api/v2/accounts/", {"data":{"type":"account","attributes":{"domain":"afterlife.com","custom20":"very hot","name":"afterlife.com"}}})
           .reply(422);
+        // scope
+        //   .get("/api/v2/users/")
+        //   .reply(201, { data: [ { id: 1, attributes: { email: "andy@hull.io" } }, { id: 0, attributes: { email: "tim@hull.io" }}]});
+        // scope
+        //   .get("/api/v2/stages/")
+        //   .reply(201, { data: [ { id: 1, attributes: { name: "New Stage" } }, { id: 0, attributes: { name: "Cool Stage" }}]});
         scope
           .intercept('/api/v2/prospects/18', 'PATCH', {"data":{"type":"prospect","id":18,"attributes":{"custom20":"in the afterlife"}}})
           .reply(200, require("../fixtures/api-responses/outgoing-user-link-patch-user.json"));

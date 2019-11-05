@@ -266,34 +266,23 @@ const transformsToHull: ServiceTransforms =
               }
             },
             {
+              inputPath: "attributes.name",
+              outputPath: "attributes.name",
+              outputFormat: {
+                value: "${value}",
+                operation: "setIfNull"
+              }
+            },
+            {
               mapping: "connector.private_settings.incoming_account_attributes",
               inputPath: "attributes.${service_field_name}",
               outputPath: "attributes.${hull_field_name}",
               allowNull: true,
-              // condition: doesNotContain(["name"], "hull_field_name"),
               outputFormat: {
                 value: "${value}",
                 operation: "set"
               }
             },
-            // {
-            //   mapping: "connector.private_settings.incoming_account_attributes",
-            //   inputPath: "attributes.${service_field_name}",
-            //   outputPath: "attributes.${hull_field_name}",
-            //   condition: doesContain(["name"], "hull_field_name"),
-            //   outputFormat: {
-            //     value: "${value}",
-            //     operation: "setIfNull"
-            //   }
-            // },
-            // add this to the manifest
-//             "default": [
-//   {
-//     "hull": "name",
-//     "service": "name",
-//     "overwrite": false
-//   }
-// ]
             {
               mapping: "connector.private_settings.account_claims",
               inputPath: "attributes.${service_field_name}",
@@ -347,23 +336,20 @@ const transformsToHull: ServiceTransforms =
               }
             },
             {
-              mapping: "connector.private_settings.incoming_account_attributes",
-              inputPath: "data.attributes.${service_field_name}",
-              outputPath: "attributes.${hull_field_name}",
-              condition: doesNotContain(["name"], "hull_field_name"),
+              inputPath: "data.attributes.name",
+              outputPath: "attributes.name",
               outputFormat: {
                 value: "${value}",
-                operation: "set"
+                operation: "setIfNull"
               }
             },
             {
               mapping: "connector.private_settings.incoming_account_attributes",
               inputPath: "data.attributes.${service_field_name}",
               outputPath: "attributes.${hull_field_name}",
-              condition: doesContain(["name"], "hull_field_name"),
               outputFormat: {
                 value: "${value}",
-                operation: "setIfNull"
+                operation: "set"
               }
             },
             {

@@ -333,8 +333,8 @@ const glue = {
         })
       )
     ]),
-  getStageIdMap: jsonata("data{ $string(id): attributes.name }", cacheWrap(60, outreach("getStages"))),
-  getOwnerIdToEmailMap: jsonata("data{ $string(id): attributes.email }", cacheWrap(60, outreach("getUsers"))),
+  getStageIdMap: jsonata("data{ $string(id): attributes.name }", cacheWrap(600, outreach("getStages"))),
+  getOwnerIdToEmailMap: jsonata("data{ $string(id): attributes.email }", cacheWrap(600, outreach("getUsers"))),
 
 };
 
