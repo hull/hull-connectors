@@ -24,6 +24,15 @@ Forwarding                    http://hull-incoming-webhooks.eu.ngrok.io -> http:
 Forwarding                    https://hull-incoming-webhooks.eu.ngrok.io -> http://localhost:8082
 ```
 
+## Combined Start
+
+Starts NGROK and the connector with one command:
+
+```
+yarn combined hull-incoming-webhooks
+# Starts Ngrok & the Connector
+```
+
 ### Run specified tests
 
 `yarn run-test path_to_test_file(s)`
