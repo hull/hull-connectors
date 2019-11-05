@@ -38,7 +38,7 @@ export default function statusCheck(ctx: HullContext) {
   }
   if (!_.size(reveal_user_segments)) {
     messages.push(
-      "Reveal enabled, but no segments are listed. No one will be revealed"
+      "Reveal enabled, but No User segments are listed. No User will be revealed"
     );
   }
 
