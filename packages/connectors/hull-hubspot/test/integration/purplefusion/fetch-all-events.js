@@ -36,7 +36,7 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
       accountsSegments: [],
       externalApiMock: () => {
         const scope = nock("https://api.hubapi.com");
-        scope.get("/email/public/v1/events?limit=300")
+        scope.get("/email/public/v1/events?limit=300&excludeFilteredEvents=true")
           .reply(200, require("./fixtures/events/hubspot-email-events"));
         scope.get("/email/public/v1/campaigns/1")
           .reply(200, { "contentId": 123 });

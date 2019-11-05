@@ -76,7 +76,7 @@ const service: RawRestApi = {
     getRecentEmailEvents: {
       url: "/email/public/v1/events",
       operation: "get",
-      query: "limit=${limit}&startTimestamp=${startTimestamp}",
+      query: "limit=${limit}&excludeFilteredEvents=true&startTimestamp=${startTimestamp}",
       endpointType: "byProperty",
       returnObj: "body",
       output: HubspotIncomingEmailEvents
