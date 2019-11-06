@@ -139,6 +139,16 @@ Hull will link Users with Accounts if:
 
 If the HubSpot Company does not have a required identifier, the User will be associated with an empty Hull Account.
 
+### Deleting HubSpot Contacts & Companies in Hull
+
+When a Hubspot Contact or Company is deleted in Hubspot, you will have the option to mark the associated Hull User
+or Hull Account as deleted in Hull. This action will remove the hubspot id from the associated entity in Hull and
+the field "hubspot/deleted_at" will be added with the timestamp of the deletion.
+
+By default, Hull will not send out Hull Users or Hull Accounts to Hubspot that have the field "hubspot/deleted_at" set. If you
+would like to send those entities back out to Hubspot, which will create a new Hubspot Contact or Company, you may turn off the
+toggles "Ignore Deleted Contacts" and/or "Ignore Deleted Companies".
+
 ### Creating & Updating HubSpot Contacts
 
 Hull Users must be in a whitelisted [User Segment](https://www.hull.io/docs/concepts/segments/) to be synced to HubSpot. By default, no Users are synced.
