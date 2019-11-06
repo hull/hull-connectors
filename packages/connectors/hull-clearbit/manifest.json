@@ -50,11 +50,13 @@
         {
           "service": "email",
           "hull": "traits_clearbit/email",
+          "readOnly": true,
           "overwrite": true
         },
         {
           "service": "id",
           "hull": "traits_clearbit/prospect_id",
+          "readOnly": true,
           "overwrite": true
         },
         {
@@ -127,11 +129,13 @@
         {
           "service": "id",
           "hull": "traits_clearbit/id",
+          "readOnly": true,
           "overwrite": true
         },
         {
           "service": "email",
           "hull": "traits_clearbit/email",
+          "readOnly": true,
           "overwrite": true
         },
         {
@@ -389,16 +393,19 @@
         {
           "service": "id",
           "overwrite": true,
+          "readOnly": true,
           "hull": "clearbit/id"
         },
         {
           "service": "name",
           "overwrite": true,
+          "readOnly": true,
           "hull": "clearbit/name"
         },
         {
           "service": "domain",
           "overwrite": true,
+          "readOnly": true,
           "hull": "clearbit/domain"
         },
         {
@@ -922,16 +929,10 @@
       ]
     },
     {
-      "title": "Account Mapping",
-      "description": "Configure the mapping between Clearbit Companies an Hull Accounts",
+      "title": "Attribute Mapping",
+      "description": "Configure the mapping between Clearbit Persons and Hull Users & Accounts",
       "properties": [
-        "private_settings.incoming_company_mapping"
-      ]
-    },
-    {
-      "title": "Person Mapping",
-      "description": "Configure the mapping between Clearbit Persons an Hull Users",
-      "properties": [
+        "private_settings.incoming_company_mapping",
         "private_settings.incoming_person_mapping",
         "private_settings.incoming_prospect_mapping"
       ]
