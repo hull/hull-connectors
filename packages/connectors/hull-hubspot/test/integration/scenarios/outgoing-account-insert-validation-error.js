@@ -99,7 +99,7 @@ it("should send out a new hull account to hubspot insert validation error", () =
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
         [
           "info",
-          "outgoing.account.send"
+          "outgoing.account.send",
           {
             "subject_type": "account",
             "request_id": expect.whatever(),
