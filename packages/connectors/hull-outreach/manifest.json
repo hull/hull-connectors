@@ -37,7 +37,8 @@
             "prospects.all",
             "create_accounts",
             "accounts.all",
-            "webhooks.all"
+            "webhooks.all",
+            "events.all"
           ]
         }
       }
@@ -227,6 +228,62 @@
       "description": "Do you want to let Hull associate Contacts and Companies in Outreach?",
       "type": "boolean",
       "default": false
+    },
+    {
+      "name": "fetch_events",
+      "title": "Fetch Events",
+      "description": "Enable fetching Outreach events to Hull as events",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "default": [],
+      "format": "select",
+      "items": {
+        "type": "string",
+        "enum": [
+          "outbound_message",
+          "message_opened"
+        ],
+        "enumNames": [
+          "Outbound Message",
+          "Message Opened"
+        ]
+      },
+      "title": "Events To Fetch From Outreach",
+      "name": "events_to_fetch",
+      "type": "array",
+      "uniqueItems": true
+    },
+    {
+      "name": "events_user_claims",
+      "title": "User Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "title": "Outreach Prospect Email",
+            "type": "string",
+            "format": "select",
+            "enum": ["recipient"],
+            "options" : {
+              "allowCreate": false
+            }
+          },
+          "hull": {
+            "title": "Hull User Identity",
+            "enum": ["email"]
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "email",
+          "service": "recipient"
+        }
+      ]
     }
   ],
   "settings": [],
@@ -327,6 +384,22 @@
       }
     },
     {
+      "url": "/fetch-all-events",
+      "handler": "eventsFetchAll",
+      "format": "action",
+      "title": "Fetch All Events",
+      "name": "fetch_all_events",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all events from Outreach into Hull.  Please make sure you've configured your user identity properly, and that you have selected the type of events you'd like to pull.  Be careful when clicking this multiple times, it can result in long operations.  Check out the \"Logs\" tab to track incoming.user.success messages as events are ingested",
+          "button": "Start Fetching Events",
+          "entity": "events"
+        }
+      }
+    },
+    {
       "url": "/fields-outreach-prospect-out",
       "handler": "fieldsOutreachProspectOutbound"
     },
@@ -421,6 +494,15 @@
       "properties": [
         "private_settings.synchronized_account_segments",
         "private_settings.outgoing_account_attributes"
+      ]
+    },
+    {
+      "title": "Events - Fetching from Outreach",
+      "description": "Fetch events from Outreach",
+      "properties": [
+        "private_settings.fetch_events",
+        "private_settings.events_to_fetch",
+        "json.fetch_all_events"
       ]
     }
   ]

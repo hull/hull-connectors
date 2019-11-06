@@ -8,11 +8,13 @@ const {
   HullIncomingUser,
   HullIncomingAccount,
   WebPayload,
+  ServiceUserRaw
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const {
   OutreachProspectRead,
   OutreachAccountRead,
+  OutreachEventRead
 } = require("./service-objects");
 
 /**
@@ -184,8 +186,31 @@ const transformsToHull: ServiceTransforms =
           outputPath: "ident.${hull_field_name}",
         }
       ]
+    },
+    {
+      input: OutreachEventRead,
+      output: ServiceUserRaw,
+      strategy: "Jsonata",
+      direction: "incoming",
+      transforms: [
+        {
+          expression:
+            "{\n" +
+            "\t\"id\": relationships.prospect.data.id,\n" +
+            "    \"hull_events\": [\n" +
+            "    \t{\n" +
+            "        \t\"eventName\": attributes.name,\n" +
+            "            \"properties\": {},\n" +
+            "            \"context\": {\n" +
+            "            \t\"event_id\": id,\n" +
+            "                \"created_at\": attributes.eventAt\n" +
+            "            }\n" +
+            "        }\n" +
+            "    ]\n" +
+            "}"
+        }
+      ]
     }
-
   ];
 
 module.exports = transformsToHull;

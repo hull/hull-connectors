@@ -176,6 +176,13 @@ const service = ({ clientID, clientSecret } : {
       operation: "post",
       endpointType: "create"
     },
+    getEvents: {
+      url: "/events/",
+      operation: "get",
+      endpointType: "fetchAll",
+      query: "filter[name]=${eventsToFetch}",
+      returnObj: "body.data"
+    }
   },
   superagent: {
     settings: [

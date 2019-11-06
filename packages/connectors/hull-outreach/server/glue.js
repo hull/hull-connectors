@@ -32,11 +32,14 @@ const {
   HullOutgoingDropdownOption,
   HullIncomingDropdownOption,
   HullConnectorAttributeDefinition,
-  WebPayload
+  WebPayload,
+  HullConnectorEnumDefinition
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
+const { OutreachEventRead } = require("./service-objects");
+
 const _ = require("lodash");
-const { accountFields, prospectFields } = require("./fielddefs");
+const { accountFields, prospectFields, eventFields } = require("./fielddefs");
 
 // function outreach(op: string, query: any): Svc { return new Svc("outreach", op, query, null)};
 // function outreach(op: string, data: any): Svc { return new Svc("outreach", op, null, data)};
@@ -327,8 +330,20 @@ const glue = {
           access_token: "${refreshTokenResponse.access_token}"
         })
       )
+    ]),
+  eventsFetchAll:
+    ifL([
+      cond("isEqual", settings("fetch_events"), true),
+      cond("notEmpty", settings("events_to_fetch"))
+    ], [
+      set("service_name", "outreach"),
+      set("eventsToFetch", ld("join", settings("events_to_fetch"), ",")),
+      ifL(cond("notEmpty", set("outreachEvents", outreach("getEvents"))),
+        iterateL("${outreachEvents}", { key: "outreachEvent", async: true },
+          hull("asUser", cast(OutreachEventRead, "${outreachEvent}"))
+        )
+      )
     ])
-
 };
 
 module.exports = glue;
