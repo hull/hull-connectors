@@ -37,7 +37,9 @@
             "prospects.all",
             "create_accounts",
             "accounts.all",
-            "webhooks.all"
+            "webhooks.all",
+            "users.read",
+            "stages.read"
           ]
         }
       }
