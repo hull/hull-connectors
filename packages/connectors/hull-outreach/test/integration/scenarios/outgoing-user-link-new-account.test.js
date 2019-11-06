@@ -138,8 +138,7 @@ test("send smart-notifier user update to outreach and link account", () => {
           }
         ],
         [
-          "info",
-          "incoming.user.success",
+          "debug", "incoming.user.success",
           {
             "subject_type": "user",
             "request_id": expect.whatever(),

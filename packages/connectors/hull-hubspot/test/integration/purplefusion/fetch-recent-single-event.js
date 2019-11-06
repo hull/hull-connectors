@@ -60,7 +60,7 @@ it("Basic fetch recent email events since last scheduled fetch - single event to
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/email/public/v1/events", "status": 200, "vars": {} }],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/email/public/v1/campaigns/10", "status": 200, "vars": {} }],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/marketing-emails/v1/emails", "status": 200, "vars": {} }],
-        ["info", "incoming.user.success", { "subject_type": "user", "user_email": "email@gmail.com" },
+        ["debug", "incoming.user.success", { "subject_type": "user", "user_email": "email@gmail.com" },
           {
             "data": {
               "appName": "Batch",

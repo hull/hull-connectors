@@ -51,8 +51,7 @@ test("incoming fetch all responses basic", () => {
           ],
           ["info", "incoming.job.progress", expect.whatever(), { progress: 4 }],
           [
-            "info",
-            "incoming.user.success",
+            "debug", "incoming.user.success",
             { subject_type: "user", user_email: "lian1078@other.com" },
             {}
           ],
@@ -71,8 +70,7 @@ test("incoming fetch all responses basic", () => {
             }
           ],
           [
-            "info",
-            "incoming.user.success",
+            "debug", "incoming.user.success",
             { subject_type: "user", user_email: "sarahbsmith@example.com" },
             {}
           ],

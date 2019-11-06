@@ -81,7 +81,7 @@ test("send batch account update to outreach in a batch", () => {
         ["debug", "connector.service_api.call", expect.whatever(), {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/", "vars": {}}],
         ["debug", "connector.service_api.call", expect.whatever(), {"method": "PATCH", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/29", "vars": {}}],
         ["info", "outgoing.account.success", {"account_domain": "bluth.com", "account_id": expect.whatever(), "request_id": expect.whatever(), "subject_type": "account"}, expect.whatever()],
-        ["info", "incoming.account.success", expect.whatever(), { data: require("../fixtures/api-responses/outgoing-account-bluth-patch.json").data, "type": "Account" }],
+        ["debug", "incoming.account.success", expect.whatever(), { data: require("../fixtures/api-responses/outgoing-account-bluth-patch.json").data, "type": "Account" }],
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "account"}]
       ],
       firehoseEvents: [

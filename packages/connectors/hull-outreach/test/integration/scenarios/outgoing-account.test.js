@@ -76,13 +76,13 @@ test("send smart-notifier account update to outreach", () => {
         ["debug", "connector.service_api.call", {"request_id": expect.whatever()}, {"method": "PATCH", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/29", "vars": {}}],
         ["info", "outgoing.account.success", {"account_domain": "wayneenterprises.com", "account_id": "5bf2e7bf064aee16a600092a", "request_id": expect.whatever(), "subject_type": "account"}, {"data": {"data": {"attributes": {"custom1": "Manufacturing", "domain": "wayneenterprises.com", "name": "Wayne Enterprises (Sample Lead)"}, "id": 28, "type": "account"}}, "operation": "patch", "type": "Account"}],
         ["info", "outgoing.account.success", {"account_domain": "bluth.com", "account_id": "5bf2e7bf064aee16a600092d", "request_id": expect.whatever(), "subject_type": "account"}, {"data": {"data": {"attributes": {"custom1": "Real estate", "domain": "bluth.com", "locality": "RI", "name": "Bluth Company (Sample Lead)"}, "id": 29, "type": "account"}}, "operation": "patch", "type": "Account"}],
-        ["info", "incoming.account.success", {
+        ["debug", "incoming.account.success", {
           "subject_type": "account",
           "request_id": expect.whatever(),
           "account_domain": "bluth.com",
           "account_anonymous_id": "outreach:29"
         }, {"data": expect.whatever(), "type": "Account"}],
-        ["info", "incoming.account.success", {
+        ["debug", "incoming.account.success", {
           "subject_type": "account",
           "request_id": expect.whatever(),
           "account_domain": "wayneenterprises.com",

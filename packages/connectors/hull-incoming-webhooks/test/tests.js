@@ -106,8 +106,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -245,8 +244,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -258,7 +256,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -271,7 +269,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -461,8 +459,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -474,7 +471,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -487,7 +484,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -631,8 +628,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -730,7 +726,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -808,7 +804,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -881,8 +877,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"

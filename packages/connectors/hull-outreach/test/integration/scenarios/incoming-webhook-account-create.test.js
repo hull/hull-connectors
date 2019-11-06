@@ -92,7 +92,7 @@ test("process account creation webhook from outreach", () => {
         ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" } ],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
-        ["info", "incoming.account.success", {
+        ["debug", "incoming.account.success", {
           "subject_type": "account",
           "account_domain": "skywalkerindustries.com",
           "account_anonymous_id": "outreach:6"
