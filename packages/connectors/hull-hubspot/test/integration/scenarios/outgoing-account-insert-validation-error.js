@@ -75,7 +75,7 @@ it("should send out a new hull account to hubspot insert validation error", () =
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
         [
-          "info",
+          "debug",
           "outgoing.account.skip",
           {
             "subject_type": "account",
@@ -87,7 +87,7 @@ it("should send out a new hull account to hubspot insert validation error", () =
           }
         ],
         [
-          "info",
+          "debug",
           "outgoing.account.skipcandidate",
           {
             "subject_type": "account",

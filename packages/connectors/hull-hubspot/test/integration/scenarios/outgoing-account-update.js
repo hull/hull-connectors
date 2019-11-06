@@ -78,7 +78,7 @@ it("should send out a new hull account to hubspot account update", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), { "toInsert": 0, "toSkip": 0, "toUpdate": 1 }],
         [
-          "info",
+          "debug",
           "outgoing.account.skip",
           {
             "subject_type": "account",
@@ -90,7 +90,7 @@ it("should send out a new hull account to hubspot account update", () => {
           }
         ],
         [
-          "info",
+          "debug",
           "outgoing.account.skipcandidate",
           {
             "subject_type": "account",

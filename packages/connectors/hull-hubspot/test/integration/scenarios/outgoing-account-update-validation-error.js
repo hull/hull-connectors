@@ -132,7 +132,7 @@ it("should send out a new hull account to hubspot update validation error", () =
           { toInsert: 0, toSkip: 0, toUpdate: 2 }
         ],
         [
-          "info",
+          "debug",
           "outgoing.account.skip",
           {
             "subject_type": "account",
@@ -144,7 +144,7 @@ it("should send out a new hull account to hubspot update validation error", () =
           }
         ],
         [
-          "info",
+          "debug",
           "outgoing.account.skipcandidate",
           {
             "subject_type": "account",
@@ -156,7 +156,7 @@ it("should send out a new hull account to hubspot update validation error", () =
           }
         ],
         [
-          "info",
+          "debug",
           "outgoing.account.skip",
           {
             "subject_type": "account",
@@ -168,7 +168,7 @@ it("should send out a new hull account to hubspot update validation error", () =
           }
         ],
         [
-          "info",
+          "debug",
           "outgoing.account.skipcandidate",
           {
             "subject_type": "account",

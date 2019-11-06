@@ -437,7 +437,7 @@ class SyncAgent {
     filterResults.toSkip.forEach(envelope => {
       this.hullClient
         .asUser(envelope.message.user)
-        .logger.info("outgoing.user.skip", { reason: envelope.skipReason });
+        .logger.debug("outgoing.user.skip", { reason: envelope.skipReason });
     });
 
     try {
@@ -537,7 +537,7 @@ class SyncAgent {
     filterResults.toSkip.forEach(envelope => {
       this.hullClient
         .asAccount(envelope.message.account)
-        .logger.info("outgoing.account.skip", { reason: envelope.skipReason });
+        .logger.debug("outgoing.account.skip", { reason: envelope.skipReason });
     });
 
     try {
@@ -554,7 +554,7 @@ class SyncAgent {
         if (!toSend) {
           this.hullClient
             .asAccount(envelope.message.account)
-            .logger.info("outgoing.account.skipcandidate", {
+            .logger.debug("outgoing.account.skipcandidate", {
               reason: "attribute change not found",
               changes: _.get(envelope, "message.changes")
             });

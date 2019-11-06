@@ -119,7 +119,7 @@ it("should send out a new hull account to hubspot found existing", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "outgoing.account.skip",
           {
             "subject_type": "account",
@@ -131,7 +131,7 @@ it("should send out a new hull account to hubspot found existing", () => {
           }
         ],
         [
-          "info",
+          "debug",
           "outgoing.account.skipcandidate",
           {
             "subject_type": "account",
