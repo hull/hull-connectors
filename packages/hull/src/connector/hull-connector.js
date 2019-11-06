@@ -263,6 +263,14 @@ class HullConnector {
     // Don't move it out of this closure either
     // https://github.com/expressjs/express/issues/3855
 
+    const { rawCustomRoutes } = this.connectorConfig;
+    if (rawCustomRoutes) {
+      rawCustomRoutes.map(({ method, url, handler }) => {
+        app[method](url, handler);
+        return true;
+      });
+    }
+
     // This method wires the routes according to the configuration.
     // Methods are optional but they all have sane defaults
     const mapNotification = (factory, section = "subscriptions") =>

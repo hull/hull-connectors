@@ -1,6 +1,5 @@
 /* @flow */
 import type { HullContext } from "hull/src/types/context";
-import manifest from "../../manifest";
 
 const _ = require("lodash");
 
@@ -10,15 +9,20 @@ const {
 } = require("hull-connector-framework/src/purplefusion/hull-service");
 const glue = require("../purplefusion/glue");
 const eventsService = require("../purplefusion/service");
+const hubspotService = require("../purplefusion/hubspot-service");
 
-const services = { hubspot: eventsService, hull: hullService };
+const services = {
+  hubspot: eventsService,
+  hull: hullService,
+  hubspot_service: hubspotService
+};
 const transforms = _.concat(
   [],
   require("../purplefusion/transforms-to-service"),
   require("../purplefusion/transforms-to-hull")
 );
 
-const ensureHook = "";
+const ensureHook = "ensureHook";
 
 class HubspotPurpleFusionRouter {
   hullRouter: HullRouter;
@@ -36,18 +40,12 @@ class HubspotPurpleFusionRouter {
     });
   }
 
-  async invokeRoute(ctx: HullContext) {
-    let endpoint = _.find(_.get(manifest, "json", []), {
+  async invokeRoute(ctx: HullContext, data: Object) {
+    const endpoint = {
       handler: this.route
-    });
+    };
 
-    if (_.isNil(endpoint)) {
-      endpoint = _.find(_.get(manifest, "schedules", []), {
-        handler: this.route
-      });
-    }
-
-    return this.hullRouter.createIncomingDispatchCallback(endpoint)(ctx);
+    return this.hullRouter.createIncomingDispatchCallback(endpoint)(ctx, data);
   }
 }
 

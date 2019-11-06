@@ -12,6 +12,8 @@ import connectorConfig from "../../../server/config";
 
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
+process.env.CLIENT_ID = "1234";
+process.env.CLIENT_SECRET = "1234";
 
 const connector = {
   private_settings: {
@@ -75,6 +77,30 @@ it("should send out a new hull account to hubspot account update", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), { "toInsert": 0, "toSkip": 0, "toUpdate": 1 }],
+        [
+          "info",
+          "outgoing.account.skip",
+          {
+            "subject_type": "account",
+            "request_id": expect.whatever(),
+            "account_domain": "hull.io"
+          },
+          {
+            "reason": "There are no outgoing attributes to synchronize for account.  Please go to the settings page and add outgoing account attributes to synchronize"
+          }
+        ],
+        [
+          "info",
+          "outgoing.account.skipcandidate",
+          {
+            "subject_type": "account",
+            "request_id": expect.whatever(),
+            "account_domain": "hull.io"
+          },
+          {
+            "reason": "attribute change not found"
+          }
+        ],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/companies/v1/batch-async/update" })],
         [
           "info",

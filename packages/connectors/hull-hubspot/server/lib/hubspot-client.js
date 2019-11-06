@@ -88,7 +88,7 @@ class HubspotClient {
       )
       .set("Authorization", `Bearer ${accessToken}`)
       .timeout({
-        response: 5000
+        response: 10000
       });
   }
 
@@ -187,6 +187,14 @@ class HubspotClient {
       });
     }
     return Promise.resolve("valid");
+  }
+
+  getPortalInformation(): Promise<*> {
+    return this.retryUnauthorized(() => {
+      return this.agent.get("/integrations/v1/me").then(response => {
+        return Promise.resolve(response.body);
+      });
+    });
   }
 
   /**
@@ -304,14 +312,14 @@ class HubspotClient {
   getRecentlyUpdatedContacts(
     properties: Array<string> = [],
     count: number = 100,
-    offset: ?string = null
+    offset: ?number = null
   ): Promise<HubspotGetAllContactsResponse> {
     return this.retryUnauthorized(() => {
       return this.agent
         .get("/contacts/v1/lists/recently_updated/contacts/recent")
         .query({
           count,
-          vidOffset: offset,
+          timeOffset: offset,
           property: properties
         });
     });
@@ -347,13 +355,13 @@ class HubspotClient {
             );
           });
           const hasMore = response.body["has-more"];
-          const vidOffset = response.body["vid-offset"];
-          // const timeOffset = response.body["time-offset"];
+          // const vidOffset = response.body["vid-offset"];
+          const timeOffset = response.body["time-offset"];
           if (contacts.length > 0) {
             push(contacts);
           }
-          if (hasMore) {
-            return getRecentContactsPage(vidOffset);
+          if (hasMore && moment(lastFetchAt).valueOf() <= timeOffset) {
+            return getRecentContactsPage(timeOffset);
           }
 
           return Promise.resolve();

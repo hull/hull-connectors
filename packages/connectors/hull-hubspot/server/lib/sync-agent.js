@@ -200,6 +200,14 @@ class SyncAgent {
     return this.hubspotClient.checkToken();
   }
 
+  getPortalInformation() {
+    try {
+      return this.hubspotClient.getPortalInformation();
+    } catch (err) {
+      return Promise.resolve();
+    }
+  }
+
   async getContactProperties() {
     try {
       const groups = await this.cache.wrap("contact_properties", () =>
@@ -532,6 +540,36 @@ class SyncAgent {
         .logger.info("outgoing.account.skip", { reason: envelope.skipReason });
     });
 
+    try {
+      // const noChangesSkip = [];
+      const upsertResults = _.concat(
+        filterResults.toInsert,
+        filterResults.toUpdate
+      );
+      upsertResults.forEach(envelope => {
+        const toSend = toSendMessage(this.ctx, "account", envelope.message, {
+          serviceName: "hubspot",
+          sendOnAnySegmentChanges: true
+        });
+        if (!toSend) {
+          this.hullClient
+            .asAccount(envelope.message.account)
+            .logger.info("outgoing.account.skipcandidate", {
+              reason: "attribute change not found",
+              changes: _.get(envelope, "message.changes")
+            });
+          // add this when ready to enable
+          // noChangesSkip.push(envelope);
+        }
+      });
+
+      /* noChangesSkip.forEach(envelope => {
+        _.pull(filterResults.toInsert, envelope);
+      });*/
+    } catch (err) {
+      console.log(err);
+    }
+
     const accountsToUpdate = filterResults.toUpdate;
     const accountsToInsert = [];
     try {
@@ -629,6 +667,10 @@ class SyncAgent {
       message,
       hubspotWriteCompany
     };
+  }
+
+  async getContactPropertiesKeys() {
+    return this.mappingUtil.getHubspotContactPropertiesKeys();
   }
 
   /**
