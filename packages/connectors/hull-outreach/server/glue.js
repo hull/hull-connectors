@@ -23,7 +23,9 @@ const {
   settingsUpdate,
   transformTo,
   or,
-  not
+  not,
+  jsonata,
+  cacheWrap
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -254,6 +256,7 @@ const glue = {
   accountFetchAll: [
     set("id_offset", 0),
     loopL([
+      route("getOwnerIdToEmailMap"),
       set("outreachAccounts", outreach("getAllAccountsPaged")),
       hull("asAccount", "${outreachAccounts}"),
       ifL(cond("lessThan", ld("size", "${outreachAccounts}"), 100), {
@@ -265,6 +268,8 @@ const glue = {
   prospectFetchAll: [
     set("id_offset", 0),
     loopL([
+      route("getStageIdMap"),
+      route("getOwnerIdToEmailMap"),
       set("outreachProspects", outreach("getAllProspectsPaged")),
       hull("asUser", "${outreachProspects}"),
       ifL(cond("lessThan", ld("size", "${outreachProspects}"), 100), {
@@ -327,7 +332,9 @@ const glue = {
           access_token: "${refreshTokenResponse.access_token}"
         })
       )
-    ])
+    ]),
+  getStageIdMap: jsonata("data{ $string(id): attributes.name }", cacheWrap(600, outreach("getStages"))),
+  getOwnerIdToEmailMap: jsonata("data{ $string(id): attributes.email }", cacheWrap(600, outreach("getUsers"))),
 
 };
 

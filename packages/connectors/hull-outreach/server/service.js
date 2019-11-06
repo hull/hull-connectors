@@ -176,6 +176,16 @@ const service = ({ clientID, clientSecret } : {
       operation: "post",
       endpointType: "create"
     },
+    getUsers: {
+      url: "/users/",
+      operation: "get",
+      endpointType: "fetchAll"
+    },
+    getStages: {
+      url: "/stages/",
+      operation: "get",
+      endpointType: "fetchAll"
+    },
   },
   superagent: {
     settings: [
