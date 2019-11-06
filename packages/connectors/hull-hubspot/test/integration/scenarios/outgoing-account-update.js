@@ -18,7 +18,10 @@ process.env.CLIENT_SECRET = "1234";
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_account_segments: ["hullSegmentId"]
+    synchronized_account_segments: ["hullSegmentId"],
+    outgoing_account_attributes: [
+      { hull: "name", service: "name", overwrite: true }
+    ]
   }
 };
 const accountsSegments = [
@@ -42,13 +45,19 @@ it("should send out a new hull account to hubspot account update", () => {
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, []);
           scope.post("/companies/v1/batch-async/update?auditId=Hull", [{
-            "properties": [{
-              "name": "hull_segments",
-              "value": "testSegment"
-            }, {
-              "name": "domain",
-              "value": "hull.io"
-            }],
+            "properties": [
+              {
+                name: "name",
+                value: "New Name"
+              },
+              {
+                "name": "hull_segments",
+                "value": "testSegment"
+              }, {
+                "name": "domain",
+                "value": "hull.io"
+              }
+            ],
             objectId: "companyHubspotId123"
           }]).reply(202);
         return scope;
@@ -58,8 +67,21 @@ it("should send out a new hull account to hubspot account update", () => {
       accountsSegments,
       messages: [
         {
+          changes: {
+            is_new: false,
+            user: {},
+            account: {
+              name: [
+                "old",
+                "New Name"
+              ]
+            },
+            segments: {},
+            account_segments: {}
+          },
           account: {
             domain,
+            name: "New Name",
             "hubspot/id": "companyHubspotId123"
           },
           account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
@@ -77,30 +99,6 @@ it("should send out a new hull account to hubspot account update", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), { "toInsert": 0, "toSkip": 0, "toUpdate": 1 }],
-        [
-          "debug",
-          "outgoing.account.skip",
-          {
-            "subject_type": "account",
-            "request_id": expect.whatever(),
-            "account_domain": "hull.io"
-          },
-          {
-            "reason": "There are no outgoing attributes to synchronize for account.  Please go to the settings page and add outgoing account attributes to synchronize"
-          }
-        ],
-        [
-          "debug",
-          "outgoing.account.skipcandidate",
-          {
-            "subject_type": "account",
-            "request_id": expect.whatever(),
-            "account_domain": "hull.io"
-          },
-          {
-            "reason": "attribute change not found"
-          }
-        ],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/companies/v1/batch-async/update" })],
         [
           "info",
@@ -108,13 +106,19 @@ it("should send out a new hull account to hubspot account update", () => {
           expect.objectContaining({ "subject_type": "account", "account_domain": domain }),
           {
             hubspotWriteCompany: {
-              "properties": [{
-                "name": "hull_segments",
-                "value": "testSegment"
-              }, {
-                "name": "domain",
-                "value": "hull.io"
-              }],
+              "properties": [
+                {
+                  name: "name",
+                  value: "New Name"
+                },
+                {
+                  "name": "hull_segments",
+                  "value": "testSegment"
+                }, {
+                  "name": "domain",
+                  "value": "hull.io"
+                }
+              ],
               objectId: "companyHubspotId123"
             },
             operation: "update"
