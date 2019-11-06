@@ -541,7 +541,7 @@ class SyncAgent {
     });
 
     try {
-      // const noChangesSkip = [];
+      const noChangesSkip = [];
       const upsertResults = _.concat(
         filterResults.toInsert,
         filterResults.toUpdate
@@ -552,20 +552,23 @@ class SyncAgent {
           sendOnAnySegmentChanges: true
         });
         if (!toSend) {
+          /*
           this.hullClient
             .asAccount(envelope.message.account)
             .logger.info("outgoing.account.skipcandidate", {
               reason: "attribute change not found",
               changes: _.get(envelope, "message.changes")
             });
+          */
           // add this when ready to enable
-          // noChangesSkip.push(envelope);
+          noChangesSkip.push(envelope);
         }
       });
 
-      /* noChangesSkip.forEach(envelope => {
+      noChangesSkip.forEach(envelope => {
         _.pull(filterResults.toInsert, envelope);
-      });*/
+        _.pull(filterResults.toUpdate, envelope);
+      });
     } catch (err) {
       console.log(err);
     }

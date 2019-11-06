@@ -37,7 +37,7 @@ it("Basic fetch recent email events since last scheduled fetch - single event to
       accountsSegments: [],
       externalApiMock: () => {
         const scope = nock("https://api.hubapi.com");
-        scope.get("/email/public/v1/events?limit=300&startTimestamp=1567082210396")
+        scope.get("/email/public/v1/events?limit=300&excludeFilteredEvents=true&startTimestamp=1567082210396")
           .reply(200, require("./fixtures/events/hubspot-email-events"));
         scope.get("/email/public/v1/campaigns/10")
           .reply(200, { "contentId": 123});
