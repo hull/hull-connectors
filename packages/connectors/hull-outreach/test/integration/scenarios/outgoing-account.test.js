@@ -5,12 +5,6 @@ process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 
 
-
-
-
-
-
-
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
 
@@ -74,8 +68,8 @@ test("send smart-notifier account update to outreach", () => {
         ["debug", "connector.service_api.call", {"request_id": expect.whatever()}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/", "vars": {}}],
         ["debug", "connector.service_api.call", {"request_id": expect.whatever()}, {"method": "PATCH", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/28", "vars": {}}],
         ["debug", "connector.service_api.call", {"request_id": expect.whatever()}, {"method": "PATCH", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/29", "vars": {}}],
-        ["info", "outgoing.account.success", {"account_domain": "wayneenterprises.com", "account_id": "5bf2e7bf064aee16a600092a", "request_id": expect.whatever(), "subject_type": "account"}, {"data": {"data": {"attributes": {"custom1": "Manufacturing", "domain": "wayneenterprises.com", "name": "Wayne Enterprises (Sample Lead)"}, "id": 28, "type": "account"}}, "operation": "patch", "type": "Account"}],
-        ["info", "outgoing.account.success", {"account_domain": "bluth.com", "account_id": "5bf2e7bf064aee16a600092d", "request_id": expect.whatever(), "subject_type": "account"}, {"data": {"data": {"attributes": {"custom1": "Real estate", "domain": "bluth.com", "locality": "RI", "name": "Bluth Company (Sample Lead)"}, "id": 29, "type": "account"}}, "operation": "patch", "type": "Account"}],
+        ["info", "outgoing.account.success", {"account_domain": "wayneenterprises.com", "account_id": "5bf2e7bf064aee16a600092a", "request_id": expect.whatever(), "subject_type": "account"}, {"data": {"data": {"attributes": {"custom1": "Manufacturing", "domain": "wayneenterprises.com", "name": "Wayne Enterprises (Sample Lead)"}, "id": 28, "type": "account"}}, "type": "Account"}],
+        ["info", "outgoing.account.success", {"account_domain": "bluth.com", "account_id": "5bf2e7bf064aee16a600092d", "request_id": expect.whatever(), "subject_type": "account"}, {"data": {"data": {"attributes": {"custom1": "Real estate", "domain": "bluth.com", "locality": "RI", "name": "Bluth Company (Sample Lead)"}, "id": 29, "type": "account"}}, "type": "Account"}],
         ["debug", "incoming.account.success", {
           "subject_type": "account",
           "request_id": expect.whatever(),
@@ -91,8 +85,8 @@ test("send smart-notifier account update to outreach", () => {
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "account"}]
       ],
       firehoseEvents: [
-        ["traits", {"asAccount": {"anonymous_id": "outreach:28", "domain": "wayneenterprises.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 28}}],
-        ["traits", {"asAccount": {"anonymous_id": "outreach:29", "domain": "bluth.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 29}}]
+        ["traits", {"asAccount": {"anonymous_id": "outreach:28", "domain": "wayneenterprises.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 28}, "name": { "operation": "setIfNull", "value": "Wayne Enterprises (Sample Lead)" }, "outreach/company_type": {"operation": "set", "value": null}, "outreach/description": {"operation": "set", "value": null}}],
+        ["traits", {"asAccount": {"anonymous_id": "outreach:29", "domain": "bluth.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 29}, "name": { "operation": "setIfNull", "value": "Bluth Company (Sample Lead)" },"outreach/company_type": {"operation": "set", "value": null}, "outreach/description": {"operation": "set", "value": null}}]
       ],
       metrics: [
         ["increment", "connector.request", 1],

@@ -127,6 +127,7 @@ test("send batch user update to outreach", () => {
             subjectType: "user"
           },
           {
+            "outreach/custom1": { "operation": "set", "value": null },
             "outreach/id": { operation: "set", value: 16 },
             "outreach/personalNote1": {
               operation: "set",
@@ -144,6 +145,7 @@ test("send batch user update to outreach", () => {
             subjectType: "user"
           },
           {
+            "outreach/custom1": { "operation": "set", "value": null },
             "outreach/id": { operation: "set", value: 16 },
             "outreach/personalNote1": {
               operation: "set",

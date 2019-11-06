@@ -259,6 +259,16 @@ const accountFields = [
     readOnly: false
   },
   {
+    name: "owner",
+    display: "Owner Id",
+    readOnly: true
+  },
+  {
+    name: "ownerEmail",
+    display: "Owner Email",
+    readOnly: true
+  },
+  {
     name: "tags",
     display: "Tags",
     readOnly: false
@@ -703,6 +713,11 @@ const prospectFields = [
     readOnly: false
   },
   {
+    name: "ownerEmail",
+    display: "Owner Email",
+    readOnly: true
+  },
+  {
     name: "personalNote1",
     display: "Personal Note1",
     readOnly: false
@@ -774,6 +789,11 @@ const prospectFields = [
     name: "stage",
     display: "Stage",
     readOnly: false
+  },
+  {
+    name: "stageName",
+    display: "Stage Name",
+    readOnly: true
   },
   {
     name: "tags",

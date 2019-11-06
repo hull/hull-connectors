@@ -98,7 +98,6 @@ test("send smart-notifier user update to outreach and link account", () => {
           },
           {
             data: expect.whatever(),
-            operation: "post",
             type: "Account",
             error:
               "Outreach has rejected the objects being sent, please review attributes that you have in your filters to make sure that you've selected all the fields that outreach requires, if you think this is correct, please contact Hull support"
@@ -133,7 +132,6 @@ test("send smart-notifier user update to outreach and link account", () => {
                 type: "prospect"
               }
             },
-            operation: "patch",
             type: "Prospect"
           }
         ],
@@ -173,6 +171,7 @@ test("send smart-notifier user update to outreach and link account", () => {
               operation: "set",
               value: "probably is a smuggler too"
             },
+            "outreach/custom2": { operation: "set", value: null },
             "outreach/id": { operation: "set", value: 18 },
             "outreach/personalnote2": {
               operation: "set",

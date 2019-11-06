@@ -85,7 +85,7 @@ test("send batch account update to outreach in a batch", () => {
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "account"}]
       ],
       firehoseEvents: [
-        ["traits", {"asAccount": {"anonymous_id": "outreach:29", "domain": "bluth.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 29}}]
+        ["traits", {"asAccount": {"anonymous_id": "outreach:29", "domain": "bluth.com"}, "subjectType": "account"}, {"name": {"operation": "setIfNull", "value": "Bluth Company (Sample Lead)"}, "outreach/id": {"operation": "set", "value": 29}}]
       ],
       metrics: [
         ["increment", "connector.request", 1],
