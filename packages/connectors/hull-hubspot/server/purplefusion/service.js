@@ -60,7 +60,7 @@ const service: RawRestApi = {
     getAllEmailEvents: {
       url: "/email/public/v1/events",
       operation: "get",
-      query: "limit=${limit}",
+      query: "limit=${limit}&excludeFilteredEvents=true",
       endpointType: "byProperty",
       returnObj: "body",
       output: HubspotIncomingEmailEvents
@@ -68,7 +68,7 @@ const service: RawRestApi = {
     getAllEmailEventsWithOffset: {
       url: "/email/public/v1/events",
       operation: "get",
-      query: "limit=${limit}&offset=${offset}",
+      query: "limit=${limit}&excludeFilteredEvents=true&offset=${offset}",
       endpointType: "byProperty",
       returnObj: "body",
       output: HubspotIncomingEmailEvents
@@ -76,7 +76,7 @@ const service: RawRestApi = {
     getRecentEmailEvents: {
       url: "/email/public/v1/events",
       operation: "get",
-      query: "limit=${limit}&startTimestamp=${startTimestamp}",
+      query: "limit=${limit}&excludeFilteredEvents=true&startTimestamp=${startTimestamp}",
       endpointType: "byProperty",
       returnObj: "body",
       output: HubspotIncomingEmailEvents
