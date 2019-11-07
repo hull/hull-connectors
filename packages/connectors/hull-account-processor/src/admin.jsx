@@ -6,16 +6,20 @@ import ReactDOM from "react-dom";
 import Engine from "./app/engine";
 import App from "./app";
 
-const emptyMessageForEntity = (
-  entity = "user"
-) => `Please enter the identifier of an Account in the field above.
-
-Valid identifiers are:
+const VALID = `Valid identifiers are:
 - external_id
 - anonymous_id
-- ${entity === "user" ? "email" : "domain"}
-- Hull ID
-`;
+- domain
+- Hull ID`;
+
+const EMPTY = `Please enter the identifier of an Account in the field above.
+${VALID}`;
+
+const NOT_FOUND = `We couldn't find a matching Account.
+Did you use the right identifiers?
+
+${VALID}`;
+
 ready(() => {
   const root = document.getElementById("app");
   const engine = new Engine();
@@ -24,7 +28,8 @@ ready(() => {
       engine={engine}
       strings={{
         leftColumnTitle: "Enter Domain or ID to preview Account",
-        leftColumnPreview: emptyMessageForEntity("account")
+        leftColumnPreview: EMPTY,
+        leftColumnEmpty: NOT_FOUND
       }}
     />,
     root

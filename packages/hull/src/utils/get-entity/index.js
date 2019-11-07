@@ -19,7 +19,7 @@ const getEntities = async (
   const response = await ctx.client.post(`search/${entity}_reports`, query);
   const { data = [] } = response;
   if (!data.length) {
-    throw new Error("No entity Found");
+    throw new Error("No entity found");
   }
   return {
     ...response,

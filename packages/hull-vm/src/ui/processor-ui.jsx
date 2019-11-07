@@ -57,8 +57,11 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
 
   getError = () => {
     const { error } = this.state;
-    if (error === "empty" || error === "Not Found") {
+    if (error === "empty") {
       return this.props.strings.leftColumnPreview;
+    }
+    if (error === "notfound") {
+      return this.props.strings.leftColumnEmpty;
     }
     return error;
   };
@@ -74,7 +77,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
       events,
       error,
       entity,
-      claim
+      search
     } = this.state;
 
     const { strings } = this.props;
@@ -96,7 +99,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
               <EntrySelector
                 loading={computing || fetching}
                 current={current}
-                defaultValue={claim}
+                defaultValue={search}
                 title={strings.leftColumnTitle}
                 recent={recent}
                 onChange={this.handleUpdateQuery}
@@ -131,7 +134,11 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
               )}
             </Header>
             <CodeTitle
-              title={`Code ${!current.editable ? "(disabled)" : ""}`}
+              title={`Code ${
+                !current.editable
+                  ? "(disabled - first search for something on the left panel)"
+                  : ""
+              }`}
             />
             <Code
               focusOnLoad={true}

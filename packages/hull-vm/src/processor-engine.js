@@ -120,6 +120,9 @@ export default class ProcessorEngine extends Engine {
         if (entry.error === "Can't search for an empty value") {
           throw new Error("empty");
         }
+        if (entry.error === "No entity found") {
+          throw new Error("notfound");
+        }
         throw new Error(entry.error);
       }
       this.saveEntry(entry);
