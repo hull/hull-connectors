@@ -143,9 +143,9 @@ class HullSdk {
     }
     _.forEach(entities, entity => {
       if (entity.user) {
-        this.client.asUser(entity.user).logger.info("outgoing.user.skip");
+        this.client.asUser(entity.user).logger.debug("outgoing.user.skip");
       } else if (entity.account) {
-        this.client.asAccount(entity.account).logger.info("outgoing.account.skip");
+        this.client.asAccount(entity.account).logger.debug("outgoing.account.skip");
       } else {
         this.client.logger.info("outgoing.entity.skip", { data: entity });
       }
