@@ -26,7 +26,7 @@ export async function saveProspect({
 }: {
   ctx: HullContext,
   attribution: { [key: string]: {} },
-  account: HullAccount | { domain: string },
+  account: HullAccount | { domain?: string },
   prospect: ClearbitProspect
 }): Promise<any> {
   const { connector, client, metric } = ctx;
