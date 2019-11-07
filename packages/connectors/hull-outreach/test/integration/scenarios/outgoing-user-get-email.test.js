@@ -42,7 +42,7 @@ test("send smart-notifier user update to outreach", () => {
           { jobName: "Outgoing Data", type: "user" }
         ],
         [
-          "info",
+          "debug",
           "outgoing.user.skip",
           expect.whatever(),
           {
