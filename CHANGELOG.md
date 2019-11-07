@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.1.9-monorepo
+- [hull-pipedrive] New Connector!
+- [hull-hubspot] Enhanced fetching reduces number of api calls and number of fetches running in parallel
+- [hull-node] Upped timeout to avoid aborted issues when there are many requests in flight
+- [hull-outreach] Added ability to pull stageName and ownerEmail
+- [hull-connector-framework] Refactored service engine, also added new transform logic
+
 ## v0.1.8-monorepo
 - [hull-hubspot] support entity deletions
 
