@@ -42,7 +42,7 @@ test("send smart-notifier user update to outreach", () => {
           "request_id": expect.whatever(),
           "user_id": "userid",
           "user_email": "alberto@close.io"
-        }, { "data": expect.whatever(), "operation": "patch", "type":"Prospect" }],
+        }, { "data": expect.whatever(), "type":"Prospect" }],
         ["info", "incoming.user.success", {
           "subject_type": "user",
           "request_id": expect.whatever(),
@@ -52,7 +52,7 @@ test("send smart-notifier user update to outreach", () => {
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}]
       ],
       firehoseEvents: [
-        ["traits", {"asUser": {"anonymous_id": "outreach:23", "email": "alberto@close.io"}, "subjectType": "user"}, {"outreach/custom2": {"operation": "set", "value": "Alberto Nodale"}, "outreach/id": {"operation": "set", "value": 23}, "outreach/stage": {"operation": "set", "value": 2 }, "outreach/owner": {"operation": "set", "value": 1 }}],
+        ["traits", {"asUser": {"anonymous_id": "outreach:23", "email": "alberto@close.io"}, "subjectType": "user"}, {"outreach/custom1": {"operation": "set", "value": null}, "outreach/custom2": {"operation": "set", "value": "Alberto Nodale"}, "outreach/id": {"operation": "set", "value": 23}, "outreach/stage": {"operation": "set", "value": 2 }, "outreach/owner": {"operation": "set", "value": 1 }, "outreach/personalnote2": {"operation": "set", "value": null }}],
         ["traits", {"asAccount": {"anonymous_id": "outreach:32"}, "asUser": {"anonymous_id": "outreach:23", "email": "alberto@close.io"}, "subjectType": "account"}, {}]
       ],
       metrics: [

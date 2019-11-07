@@ -16,6 +16,21 @@ const {
 // I don't like that we have to use a special reserved word, but logging a warning if it ever exists and is not a ServiceObjectDefinition
 const reservedHullDataTypeKey = "hull-connector-data-type";
 
+async function asyncForEach(toIterateOn, asyncCallback) {
+
+  if (
+    isUndefinedOrNull(toIterateOn) ||
+    isUndefinedOrNull(asyncCallback) ||
+    !Array.isArray(toIterateOn)) {
+    return;
+  }
+
+  for (let i = 0; i < toIterateOn.length; i += 1) {
+    await asyncCallback(toIterateOn[i], i);
+  }
+
+}
+
 function getHullDataType(object: any) {
   if (isUndefinedOrNull(object)) {
     return;
@@ -346,6 +361,20 @@ function toSendMessage(
   // may want to reorder this in cases where we still may not want to send if an event comes through
   const send_all_user_attributes = _.get(context, "connector.private_settings.send_all_user_attributes");
   if (send_all_user_attributes === true && targetEntity === "user") {
+
+    const accountChanges = _.get(message.changes, "account");
+    const userChanges = _.get(message.changes, "user");
+    const userEvents = _.get(message, "events");
+
+    // if there are only account changes, then do not send user update message
+    if (!_.isEmpty(accountChanges) && _.isEmpty(userChanges) && _.isEmpty(userEvents)) {
+      context.client.asUser(entity).logger.info("outgoing.user.skip", {
+        reason:
+          "Has account changes but no user changes and no events"
+      });
+      return false;
+    }
+
     return true;
   }
 
@@ -479,5 +508,6 @@ module.exports = {
   setHullDataType,
   createAnonymizedObject,
   getHullPlatformTypeName,
-  sameHullDataType
+  sameHullDataType,
+  asyncForEach
 }

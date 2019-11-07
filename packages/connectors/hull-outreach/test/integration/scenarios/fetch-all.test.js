@@ -2,12 +2,6 @@
 const _ = require("lodash");
 
 
-
-
-
-
-
-
 process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 
@@ -84,6 +78,12 @@ test("fetch all accounts and prospects from outreach", () => {
           .post("/api/v2/webhooks/")
           .reply(201, require("../fixtures/api-responses/create-webhook.json"));
         scope
+          .get("/api/v2/users/")
+          .reply(201, { data: [ { id: 1, attributes: { email: "andy@hull.io" } }, { id: 0, attributes: { email: "tim@hull.io" }}]});
+        scope
+          .get("/api/v2/stages/")
+          .reply(201, { data: [ { id: 1, attributes: { name: "New Stage" } }, { id: 0, attributes: { name: "Cool Stage" }}]});
+        scope
           .get("/api/v2/accounts/?sort=id&page[limit]=100&filter[id]=0..inf")
           .reply(200, require("../fixtures/api-responses/list-accounts.json"));
         scope
@@ -97,6 +97,8 @@ test("fetch all accounts and prospects from outreach", () => {
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/", "vars": {}}],
+        ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 201, "url": "/stages/", "vars": {}}],
+        ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 201, "url": "/users/", "vars": {}}],
         ["info", "incoming.account.success", { "account_anonymous_id": "outreach:1", "account_domain": "somehullcompany.com", "subject_type": "account", }, {"data": expect.whatever(), "type": "Account"}],
         ["info", "incoming.account.success", { "account_anonymous_id": "outreach:4", "account_domain": "noprospectshullcompany.com", "subject_type": "account", }, {"data": expect.whatever(), "type": "Account"}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/", "vars": {}}],
@@ -105,10 +107,10 @@ test("fetch all accounts and prospects from outreach", () => {
         ["info", "incoming.job.success", {}, {"jobName": "Incoming Data", "type": "webpayload"}]
       ],
       firehoseEvents: [
-        ["traits", {"asAccount": {"anonymous_id": "outreach:1", "domain": "somehullcompany.com"}, "subjectType": "account"}, {"outreach/custom1": {"operation": "set", "value": "some custom value"}, "outreach/custom10": {"operation": "set", "value": "another custom value"}, "outreach/id": {"operation": "set", "value": 1}}],
-        ["traits", {"asAccount": {"anonymous_id": "outreach:4", "domain": "noprospectshullcompany.com"}, "subjectType": "account"}, {"outreach/id": {"operation": "set", "value": 4}}],
+        ["traits", {"asAccount": {"anonymous_id": "outreach:1", "domain": "somehullcompany.com"}, "subjectType": "account"}, {"name": {"operation": "setIfNull", "value": "SomeHullCompany"}, "outreach/custom1": {"operation": "set", "value": "some custom value"}, "outreach/custom10": {"operation": "set", "value": "another custom value"}, "outreach/id": {"operation": "set", "value": 1}}],
+        ["traits", {"asAccount": {"anonymous_id": "outreach:4", "domain": "noprospectshullcompany.com"}, "subjectType": "account"}, {"name": {"operation": "setIfNull", "value": "NoProspectsHullCompany"}, "outreach/custom1": {"operation": "set", "value": null}, "outreach/custom10": {"operation": "set", "value": null}, "outreach/id": {"operation": "set", "value": 4}}],
         ["traits", {"asUser": {"anonymous_id": "outreach:1", "email": "ceo@somehullcompany.com"}, "subjectType": "user"}, {"outreach/custom1": {"operation": "set", "value": "He's cool"}, "outreach/email_0": {"operation": "set", "value": "ceo@somehullcompany.com"}, "outreach/email_1": {"operation": "set", "value": "ceosomehull@somehullcompany.co"}, "outreach/email_2": {"operation": "set", "value": "mrceo@gmail.com"}, "outreach/id": {"operation": "set", "value": 1}, "outreach/personalNote1": {"operation": "set", "value": "he's a cool guy I guess...."}, "outreach/tag_0": {"operation": "set", "value": "somehullcompanytag"}, "outreach/tag_1": {"operation": "set", "value": "anothertag"}}],
-        ["traits", {"asUser": {"anonymous_id": "outreach:2", "email": "noAccountProspect@noaccount.com"}, "subjectType": "user"}, {"outreach/email_0": {"operation": "set", "value": "noAccountProspect@noaccount.com"}, "outreach/id": {"operation": "set", "value": 2}, "outreach/tag_0": {"operation": "set", "value": "somehullcompanytag2"}}],
+        ["traits", {"asUser": {"anonymous_id": "outreach:2", "email": "noAccountProspect@noaccount.com"}, "subjectType": "user"}, {"outreach/custom1": { "operation": "set", "value": null }, "outreach/email_0": {"operation": "set", "value": "noAccountProspect@noaccount.com"}, "outreach/id": {"operation": "set", "value": 2}, "outreach/personalNote1": {"operation": "set", "value": null}, "outreach/tag_0": {"operation": "set", "value": "somehullcompanytag2"}}],
         ["traits", {"asAccount": {"anonymous_id": "outreach:1"}, "asUser": {"anonymous_id": "outreach:1", "email": "ceo@somehullcompany.com"}, "subjectType": "account"}, {}],
         ["traits", {"asAccount": {"anonymous_id": "outreach:3"}, "asUser": {"anonymous_id": "outreach:2", "email": "noAccountProspect@noaccount.com"}, "subjectType": "account"}, {}]
       ],
@@ -126,6 +128,12 @@ test("fetch all accounts and prospects from outreach", () => {
         ["value", "connector.service_api.response_time", expect.whatever()],
 
         // Get Users
+        ["increment", "ship.service_api.call", 1],
+        ["value", "connector.service_api.response_time", expect.whatever()],
+
+        ["increment", "ship.service_api.call", 1],
+        ["value", "connector.service_api.response_time", expect.whatever()],
+
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()]
       ],

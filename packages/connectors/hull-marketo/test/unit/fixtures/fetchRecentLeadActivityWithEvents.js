@@ -168,7 +168,10 @@ module.exports = {
       op: "asUser",
       input: {
         attributes: {
-          "marketo/state": "NC",
+          "marketo/state": {
+            value: "NC",
+            operation: "set"
+          },
           "marketo/id": {
             value: 21749371,
             operation: "set"
@@ -202,7 +205,10 @@ module.exports = {
       op: "asUser",
       input: {
         attributes: {
-          "marketo/state": "TX",
+          "marketo/state": {
+            value: "TX",
+            operation: "set"
+          },
           "marketo/id": {
             value: 21738032,
             operation: "set"
