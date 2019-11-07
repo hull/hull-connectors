@@ -523,7 +523,7 @@ class SyncAgent {
         event.properties,
         event.context
       );
-      return userScopedClient.logger.info("incoming.event.success", {
+      return userScopedClient.logger.debug("incoming.event.success", {
         event
       });
     } catch (err) {

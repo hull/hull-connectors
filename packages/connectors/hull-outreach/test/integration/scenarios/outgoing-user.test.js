@@ -65,9 +65,9 @@ test("send smart-notifier user update to outreach with specific attribute change
         ["info", "outgoing.user.success", expect.objectContaining({ "subject_type": "user", "user_email": "darth@darksideinc.com" }), expect.whatever()],
         ["info", "outgoing.user.success", expect.objectContaining({ "subject_type": "user", "user_email": "alberto@close.io" }), expect.whatever()],
         ["info", "outgoing.user.success", expect.objectContaining({ "subject_type": "user", "user_email": "thedarkknight@close.io" }), expect.whatever()],
-        ["info", "incoming.user.success", expect.whatever(), expect.whatever()],
-        ["info", "incoming.user.success", expect.whatever(), expect.whatever()],
-        ["info", "incoming.user.success", expect.whatever(), expect.whatever()],
+        ["debug", "incoming.user.success", expect.whatever(), expect.whatever()],
+        ["debug", "incoming.user.success", expect.whatever(), expect.whatever()],
+        ["debug", "incoming.user.success", expect.whatever(), expect.whatever()],
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}]
       ],
       firehoseEvents: [

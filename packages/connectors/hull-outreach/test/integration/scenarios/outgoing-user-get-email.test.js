@@ -63,8 +63,7 @@ test("send smart-notifier user update to outreach", () => {
           }
         ],
         [
-          "info",
-          "incoming.user.success",
+          "debug", "incoming.user.success",
           {
             "subject_type": "user",
             "request_id": expect.whatever(),

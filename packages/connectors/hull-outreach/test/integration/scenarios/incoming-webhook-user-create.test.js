@@ -118,7 +118,7 @@ test("receive incoming webhook for prospect creation from outreach", () => {
         ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 201, "url": "/users/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 201, "url": "/stages/", "vars": {}}],
-        ["info", "incoming.user.success", {
+        ["debug", "incoming.user.success", {
           "subject_type": "user",
           "user_anonymous_id": "outreach:3"
         }, {"data": expect.whatever(), "type": "WebPayload" }],

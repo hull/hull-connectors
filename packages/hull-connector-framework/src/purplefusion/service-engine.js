@@ -354,6 +354,7 @@ class ServiceEngine {
     let hullEntityToLog;
     let dataToLog;
     let action;
+    let logLevel = 'info';
 
     if (direction === "incoming") {
       // in the case of incoming data, then log the raw data which came from the service
@@ -364,6 +365,7 @@ class ServiceEngine {
       // in the case of incoming data, we need to log the name of the type which is being sent to hull (dataToSend)
       const hullTypeToLog = getHullPlatformTypeName(getHullDataType(params.dataToSend));
       action = `${direction}.${_.toLower(hullTypeToLog)}`;
+      logLevel = 'debug';
     } else {
       // in the case of out going data, log the data being sent to the service
       // more useful than the kraken payload, which we can view in hull
@@ -380,7 +382,7 @@ class ServiceEngine {
 
       // need a catch to suppress logs if we're handling logs in the endpoint itself (eg: explicit skips)
       if (suppressLog !== true) {
-        this.logMessage(context, systemMessage, { dataToLog, hullEntityToLog, results });
+        this.logMessage(context, systemMessage, { dataToLog, hullEntityToLog, results }, null, logLevel);
       }
       // this is just for logging, do not suppress error here
       // pass it along with promise resolve
@@ -398,7 +400,7 @@ class ServiceEngine {
     });
   }
 
-  logMessage(context, systemMessage, associatedData: { dataToLog: any, hullEntityToLog: any, results?: any }, error) {
+  logMessage(context, systemMessage, associatedData: { dataToLog: any, hullEntityToLog: any, results?: any }, error: any, logLevel: string) {
 
     if (isUndefinedOrNull(associatedData.hullEntityToLog)) {
       // Don't log anything if there's an error with no association to a particular hull entity
@@ -441,7 +443,8 @@ class ServiceEngine {
           const errorMessage = _.get(error, "message");
           entitySpecificLogger.error(systemMessage, { data, type, error: errorMessage });
         } else {
-          entitySpecificLogger.info(systemMessage, { data, type });
+          const logFn = entitySpecificLogger[logLevel] || entitySpecificLogger.info;
+          logFn(systemMessage, { data, type });
         }
       }
     });

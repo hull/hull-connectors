@@ -384,7 +384,7 @@ class SyncAgent {
         }
 
         return asUser.traits(traits).then(
-          () => asUser.logger.info("incoming.user.success", { traits }),
+          () => asUser.logger.debug("incoming.user.success", { traits }),
           error =>
             asUser.logger.error("incoming.user.error", {
               hull_summary: `Fetching data from Hubspot returned an error: ${_.get(

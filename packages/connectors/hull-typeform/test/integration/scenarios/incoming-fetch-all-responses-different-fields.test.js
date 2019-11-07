@@ -48,7 +48,7 @@ test("incoming fetch all responses basic", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["info", "incoming.job.progress", expect.whatever(), { progress: 4 }],
-        ["info", "incoming.user.success", { subject_type: "user", user_email: "lian1078@other.com" }, {
+        ["debug", "incoming.user.success", { subject_type: "user", user_email: "lian1078@other.com" }, {
           array_trait: [ "New York", "Tokyo" ],
           boolean_trait: false,
           date_trait_at: "2012-03-20T00:00:00Z",
@@ -72,8 +72,7 @@ test("incoming fetch all responses basic", () => {
           }
         ],
         [
-          "info",
-          "incoming.user.success",
+          "debug", "incoming.user.success",
           {
             "subject_type": "user",
             "user_email": "sarahbsmith@example.com"

@@ -90,7 +90,7 @@ it("Batch - Insert Single User To Pipedrive", () => {
             "type": "Person"
           }
         ],
-        ["info", "incoming.user.success", { "subject_type": "user", "request_id": expect.whatever(), "user_email": "pipedrive_user_1@hull.com", "user_anonymous_id": "pipedrive:827"},
+        ["debug", "incoming.user.success", { "subject_type": "user", "request_id": expect.whatever(), "user_email": "pipedrive_user_1@hull.com", "user_anonymous_id": "pipedrive:827"},
           {
             "data": {
               "id": 827,
