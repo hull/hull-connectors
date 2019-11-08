@@ -58,8 +58,7 @@ test("incoming fetch all responses basic", () => {
           calculated_score_trait: 2
         }],
         [
-          "info",
-          "incoming.user-event.success",
+          "debug", "incoming.user-event.success",
           { subject_type: "user", user_email: "lian1078@other.com" },
           {
             event: "Form Submitted",
@@ -88,8 +87,7 @@ test("incoming fetch all responses basic", () => {
           }
         ],
         [
-          "info",
-          "incoming.user-event.success",
+          "debug", "incoming.user-event.success",
           {
             "subject_type": "user",
             "user_email": "sarahbsmith@example.com"
@@ -105,8 +103,7 @@ test("incoming fetch all responses basic", () => {
           }
         ],
         [
-          "info",
-          "incoming.user.skip",
+          "debug", "incoming.user.skip",
           {
             "subject_type": "user"
           },
@@ -116,8 +113,7 @@ test("incoming fetch all responses basic", () => {
           }
         ],
         [
-          "info",
-          "incoming.user.skip",
+          "debug", "incoming.user.skip",
           {
             "subject_type": "user"
           },

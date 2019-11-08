@@ -80,8 +80,7 @@ it("should fetch recent companies using settings", () => {
           }
         ],
         [
-          "info",
-          "incoming.account.success",
+          "debug", "incoming.account.success",
           expect.objectContaining({
             "subject_type": "account",
             "account_domain": "foo.com",
