@@ -101,7 +101,12 @@ const service: RawRestApi = {
     getRecentContactsPage: {
       url: "/contacts/v1/lists/recently_updated/contacts/recent",
       operation: "get",
-      query: "vidOffset=${vidOffset}&timeOffset=${timeOffset}&property=${properties}&count=100"
+      query: {
+        vidOffset: "${vidOffset}",
+        timeOffset: "${timeOffset}",
+        property: "${properties}",
+        count: 100
+      }
     }
   },
   superagent: {
