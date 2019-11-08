@@ -161,7 +161,7 @@ describe("Clearbit Prospector Tests", () => {
       externalApiMock: () => {
         const scope = nock("https://prospector.clearbit.com");
         scope
-          .log(console.log)
+          // .log(console.log)
           .get(/v1\/people\/search/)
           .query({ domain: "foobar.com", page: 1, page_size: 5 })
           .reply(200, PROSPECTOR_SUCCESS_RESPONSE);

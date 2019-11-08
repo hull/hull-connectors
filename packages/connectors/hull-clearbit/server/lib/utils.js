@@ -2,11 +2,9 @@
 
 import _ from "lodash";
 import rangeCheck from "range_check";
-import type { HullAttributeMapping, HullAccount } from "hull";
+import type { HullAccount } from "hull";
 import excludes from "../excludes";
 import type { ClearbitConnectorSettings } from "../types";
-// import Mappings from "../mappings";
-import TopLevelMappings from "../top-level-mappings";
 
 /**
  * Check if a user belongs to one of the segments listed
@@ -45,25 +43,5 @@ export function isValidIpAddress(ip?: string) {
     ip !== "0" &&
     rangeCheck.isIP(ip) &&
     !rangeCheck.inRange(ip, excludes.ip_ranges)
-  );
-}
-
-export const setIfNull = (value: any) => ({ value, operation: "setIfNull" });
-
-export function getTraitsFrom(
-  entity: {},
-  mapping: Array<HullAttributeMapping>,
-  mappingName: "Person" | "Company" | "Prospect"
-) {
-  return _.reduce(
-    [...mapping, ...TopLevelMappings[mappingName]],
-    (m, { service, hull, overwrite }) => {
-      const value = _.get(entity, service);
-      if (value !== undefined) {
-        _.set(m, hull, overwrite ? value : { operation: "setIfNull", value });
-      }
-      return m;
-    },
-    {}
   );
 }

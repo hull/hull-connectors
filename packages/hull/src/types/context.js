@@ -21,7 +21,14 @@ import type {
   HullClient
 } from "./index";
 
-import { incomingClaims, settingsUpdate, extractRequest } from "../helpers";
+import {
+  incomingClaims,
+  settingsUpdate,
+  extractRequest,
+  mappingToOptions,
+  mapAttributes,
+  operations
+} from "../helpers";
 
 const ConnectorCache = require("../infra/cache/connector-cache");
 const MetricAgent = require("../infra/instrumentation/metric-agent");
@@ -100,6 +107,9 @@ export type HullContext = {|
   helpers: {
     settingsUpdate: $Call<typeof settingsUpdate, HullContext>,
     incomingClaims: $Call<typeof incomingClaims, HullContext>,
-    extractRequest: $Call<typeof extractRequest, HullContext>
+    extractRequest: $Call<typeof extractRequest, HullContext>,
+    mappingToOptions: $Call<typeof mappingToOptions, HullContext>,
+    mapAttributes: $Call<typeof mapAttributes, HullContext>,
+    operations: $Call<typeof operations, HullContext>
   }
 |};

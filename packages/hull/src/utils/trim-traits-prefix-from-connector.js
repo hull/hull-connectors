@@ -1,5 +1,5 @@
 // @flow
-import type { HullConnector } from "../types";
+import type { HullConnector, HullManifest } from "../types";
 
 const debug = require("debug")("hull:trim-traits-prefix");
 const _ = require("lodash");
@@ -107,7 +107,6 @@ function trimTraitsPrefixFromConnector(connector: HullConnector) {
     connector: typeof connector,
     manifest: typeof manifest
   });
-
   performTrim(manifest.private_settings, connector.private_settings);
   performTrim(manifest.settings, connector.settings);
 }

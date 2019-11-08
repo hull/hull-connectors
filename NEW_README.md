@@ -910,3 +910,95 @@ agent.get("/some_connector_url") -> credentials will be added for you
 const clearbit_id = ctx.client.utils.claims.getServiceId("clearbit", account);
 // -> First anonymous_id with the format: `clearbit:xxx`
 ```
+
+### Mapping Helpers.
+
+We now support a new top-level entry in the manifest: "mappings", with the following format:
+
+```js
+"mappings": {
+  "prospect": {
+    "incoming": {
+      //Top level Mappings
+      "top_level": [
+        {
+          "service": "email",
+          "hull": "email",
+          "overwrite": false
+        },
+        {
+          "service": "name.familyName",
+          "hull": "last_name",
+          "overwrite": false
+        }
+      ],
+      //Grouped mappings
+      "mapping": [
+        {
+          "service": "id",
+          "hull": "traits_clearbit/id",
+          "readOnly": true,
+          "overwrite": true
+        }
+      ]
+    }
+  },
+  "outgoing": {...}
+}
+```
+
+You can then use them as references as defaults:
+
+```js
+{
+  "name": "incoming_prospect_mapping",
+  "title": "Clearbit Prospect Mapping",
+  "description": "How we map Clearbit Prospects to Hull Users",
+  "type": "array",
+  "format": "traitMapping",
+  "options": {
+    "direction": "incoming",
+    "showOverwriteToggle": true,
+    "allowCreate": true,
+    "placeholder": "Clearbit Person Field",
+    "loadOptions": "/schema/prospect_properties",
+    "source": "clearbit"
+  },
+  "default": "#/mappings/prospect/incoming/mapping"
+}
+```
+
+To use it to prefill a list of options in the dashboard, you can use the `mappingToOptions` method
+
+```js
+// @flow
+import type { HullContext, HullUISelectResponse } from "hull";
+
+const prospect = async (ctx: HullContext): HullUISelectResponse => {
+  const { mappingToOptions } = ctx.helpers;
+  return {
+    status: 200,
+    data: mappingToOptions({
+      type: "prospect",
+      direction: "incoming",
+      label: "Clearbit Prospect"
+    })
+  };
+};
+export default prospect;
+```
+
+Apply Mapping (JSONata expressions)
+
+```js
+//@flow
+const { helpers } = ctx;
+const { mapAttributes } = helpers;
+
+hull.asUser({...}).traits(mapAttributes({
+  entity: { ..company object },
+  mapping: "incoming_company_mapping",
+  type: "company",
+  direction: "incoming"
+}));
+```

@@ -15,6 +15,7 @@ export type ClearbitResult = {
 
 export type ClearbitProspect = {|
   id: string,
+  domain?: string,
   name: {
     givenName: string,
     familyName: string,

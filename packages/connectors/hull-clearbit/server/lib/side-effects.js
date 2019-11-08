@@ -8,7 +8,7 @@ import type {
   ClearbitCompany
 } from "../types";
 
-import { getTraitsFrom, setIfNull, now } from "./utils";
+import { now } from "./utils";
 
 const getClearbitAnonymousId = entity => `clearbit:${entity.id}`;
 
@@ -29,25 +29,33 @@ export async function saveProspect({
   account: HullAccount | { domain?: string },
   prospect: ClearbitProspect
 }): Promise<any> {
-  const { connector, client, metric } = ctx;
-  const { incoming_prospect_mapping } = connector.private_settings;
-
+  const { client, metric, helpers } = ctx;
+  const { mapAttributes } = helpers;
   const { id, email } = prospect;
+  try {
+    const traits = mapAttributes({
+      entity: prospect,
+      mapping: "incoming_prospect_mapping",
+      type: "prospect",
+      direction: "incoming"
+    });
 
-  const traits = getTraitsFrom(prospect, incoming_prospect_mapping, "Prospect");
+    // as a new user
+    const asUser = client.asUser(
+      {
+        email,
+        anonymous_id: `clearbit-prospect:${id}`
+      },
+      {},
+      account
+    );
 
-  // as a new user
-  const asUser = client.asUser(
-    {
-      email,
-      anonymous_id: `clearbit-prospect:${id}`
-    },
-    {},
-    account
-  );
-
-  metric.increment("ship.incoming.users", 1, ["prospect"]);
-  return asUser.traits({ ...traits, ...attribution });
+    metric.increment("ship.incoming.users", 1, ["prospect"]);
+    return asUser.traits({ ...traits, ...attribution });
+  } catch (err) {
+    console.log("ERROR!-----------------", err);
+    return undefined;
+  }
 }
 
 export async function saveProspects({
@@ -59,7 +67,9 @@ export async function saveProspects({
   account?: HullAccount,
   prospects: Array<{| ...ClearbitProspect, domain: string |}>
 }) {
-  const { client } = ctx;
+  const { client, helpers } = ctx;
+  const { operations } = helpers;
+  const { setIfNull } = operations;
   const attribution = {
     "clearbit/prospected_at": setIfNull(now()),
     "clearbit/source": setIfNull("prospector")
@@ -117,12 +127,17 @@ export async function saveAccount(
   }
 ) {
   // meta?: {} = {}
-  const { client, metric, connector } = ctx;
-  const { private_settings } = connector;
-  const { incoming_company_mapping } = private_settings;
+  const { client, metric, helpers } = ctx;
+  const { mapAttributes, operations } = helpers;
+  const { setIfNull } = operations;
 
   const traits = {
-    ...getTraitsFrom(company, incoming_company_mapping, "Company"),
+    ...mapAttributes({
+      entity: company,
+      mapping: "incoming_company_mapping",
+      type: "company",
+      direction: "incoming"
+    }),
     "clearbit/id": company.id,
     "clearbit/fetched_at": setIfNull(now()),
     ...(source
@@ -172,9 +187,9 @@ export async function saveUser(
   }
 ) {
   // meta?: {} = {}
-  const { client, metric, connector } = ctx;
-  const { private_settings } = connector;
-  const { incoming_person_mapping } = private_settings;
+  const { client, metric, helpers } = ctx;
+  const { mapAttributes, operations } = helpers;
+  const { setIfNull } = operations;
 
   // Never ever change the email address (Clearbit strips +xxx parts, so we end up
   // with complete messed up ident claims if we do this). We need to pass all claims
@@ -190,7 +205,14 @@ export async function saveUser(
   });
 
   const traits = {
-    ...(person ? getTraitsFrom(person, incoming_person_mapping, "Person") : {}),
+    ...(person
+      ? mapAttributes({
+          entity: person,
+          type: "person",
+          mapping: "incoming_person_mapping",
+          direction: "incoming"
+        })
+      : {}),
     "clearbit/fetched_at": setIfNull(now()),
     ...(source
       ? {
