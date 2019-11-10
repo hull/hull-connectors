@@ -162,6 +162,13 @@
       "format": "hidden"
     },
     {
+      "name": "flow_control_account_update_success_size",
+      "title": "Flow control setting for success on user update",
+      "type": "string",
+      "default": "100",
+      "format": "hidden"
+    },
+    {
       "name": "ascii_encoded_database",
       "type": "boolean",
       "title": "Truncate fields based on ascii lengths",
