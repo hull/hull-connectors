@@ -639,14 +639,14 @@ describe("Request Methods", () => {
     id: "1234",
     "foo/bar": "ball"
   };
-  it("should handle request errors", () => {
+  it("should handle request timeouts", () => {
     const error_message = "Error: ESOCKETTIMEDOUT";
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({ user, account }),
       handlerType: handlers.notificationHandler,
       externalApiMock: () => {
         const scope = nock("https://foo.com");
-        scope.get("/").socketDelay(3500).reply(500, { boom: true });
+        scope.get("/").socketDelay(35000).reply(500, { boom: true });
         return scope;
       },
       connector: connectorWithCode(
@@ -675,7 +675,7 @@ describe("Request Methods", () => {
       metrics: [METRIC_CONNECTOR_REQUEST]
     }));
   });
-  it("should handle request timeouts", () => {
+  it("should handle request errors", () => {
     const error_message = '{"boom":true}';
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({ user, account }),
