@@ -162,7 +162,8 @@ const glue = {
 
     postgresJdbc("initSchema", {
       schema: postgresJdbc("createEventSchema"),
-      tableName: settings("db_events_table_name")
+      tableName: settings("db_events_table_name"),
+      indexes: postgresJdbc("createEventIndexes")
     }),
     postgresJdbc("syncTableSchema", settings("db_events_table_name"))
   ],
