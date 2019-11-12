@@ -1,5 +1,5 @@
 // @flow
-import type { HullConnector, HullManifest } from "../types";
+import type { HullConnector } from "../types";
 
 const debug = require("debug")("hull:trim-traits-prefix");
 const _ = require("lodash");

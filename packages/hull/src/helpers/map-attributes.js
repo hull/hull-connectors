@@ -8,8 +8,6 @@ import type {
 } from "hull";
 import jsonata from "jsonata";
 
-const debug = require("debug")("hull:map-attributes");
-
 const mapAttributes = (ctx: HullContext) => ({
   entity,
   type,
