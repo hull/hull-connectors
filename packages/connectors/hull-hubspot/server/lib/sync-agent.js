@@ -371,7 +371,7 @@ class SyncAgent {
                 );
               });
           } else {
-            // asUser.logger.info("incoming.account.link.skip", {
+            // asUser.logger.debug("incoming.account.link.skip", {
             //   reason:
             //     "No associatedcompanyid field found in user to link account"
             // });

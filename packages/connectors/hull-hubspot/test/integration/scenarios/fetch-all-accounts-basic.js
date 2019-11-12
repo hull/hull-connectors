@@ -85,8 +85,7 @@ it.skip("should fetch all companies", () => {
           }
         ],
         [
-          "info",
-          "incoming.account.link.skip",
+          "debug", "incoming.account.link.skip",
           {
             account_domain: "foo.com",
             subject_type: "account"
