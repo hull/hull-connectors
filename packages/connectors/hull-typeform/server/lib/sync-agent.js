@@ -264,7 +264,7 @@ class SyncAgent {
 
         this.metric.increment("ship.incoming.users", 1);
 
-        asUser.logger.info("incoming.user.success", userAttributes);
+        asUser.logger.debug("incoming.user.success", userAttributes);
         asUser.logger.info("incoming.user-event.success", {
           event: "Form Submitted",
           eventProperties,

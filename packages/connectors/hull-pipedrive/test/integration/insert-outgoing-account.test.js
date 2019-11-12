@@ -30,7 +30,7 @@ it("Insert Single Account To Pipedrive", () => {
         ["info", "outgoing.account.success",
           { "subject_type": "account", "request_id": expect.whatever(), "account_id": "account_id_2", "account_domain": "apple.com" },
           { "data": { "address": "123 Random Pl", "name": "apple.com" }, "type": "Org" }],
-        ["info", "incoming.account.success",
+        ["debug", "incoming.account.success",
           { "subject_type": "account", "request_id": expect.whatever(), "account_anonymous_id": "pipedrive:3", "account_domain": "apple.com" },
           {
             "data": {

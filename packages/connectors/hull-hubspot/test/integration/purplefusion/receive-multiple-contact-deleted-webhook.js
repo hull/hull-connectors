@@ -59,7 +59,7 @@ it("Receive Webhook - multiple contacts deleted payload", () => {
       response: {},
       logs: [
         ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" }],
-        ["info", "incoming.user.success", { "subject_type": "user", "user_anonymous_id": "hubspot:123" },
+        ["debug", "incoming.user.success", { "subject_type": "user", "user_anonymous_id": "hubspot:123" },
           {
             "data": {
               "eventId": 1,
@@ -75,7 +75,7 @@ it("Receive Webhook - multiple contacts deleted payload", () => {
             "type": "hubspot_webhook_payload"
           }
         ],
-        ["info", "incoming.user.success", { "subject_type": "user", "user_anonymous_id": "hubspot:124" },
+        ["debug", "incoming.user.success", { "subject_type": "user", "user_anonymous_id": "hubspot:124" },
           {
             "data": {
               "eventId": 2,

@@ -131,7 +131,7 @@ class TransformImpl {
     }
 
     if (isUndefinedOrNull(desiredOutputClass)) {
-      return variableContext.resolveVariables(input);
+      return input;
     }
 
     const inputClass = getHullDataType(input);

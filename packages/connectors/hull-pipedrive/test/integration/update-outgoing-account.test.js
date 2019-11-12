@@ -75,8 +75,7 @@ it("Update Single Account To Pipedrive", () => {
           }
         ],
         [
-          "info",
-          "incoming.account.success",
+          "debug", "incoming.account.success",
           {
             "subject_type": "account",
             "request_id": expect.whatever(),

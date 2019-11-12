@@ -54,7 +54,7 @@ test("send smart-notifier user update to outreach with returning account link", 
           },
           "type": "Account",
         } ],
-        ["info", "incoming.account.success", expect.whatever(), {"data": expect.whatever(), "type": "Account" }],
+        ["debug", "incoming.account.success", expect.whatever(), {"data": expect.whatever(), "type": "Account" }],
         ["debug", "connector.service_api.call", expect.whatever(), {"method": "PATCH", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/18", "vars": {}}],
         ["info", "outgoing.user.success", expect.whatever(), {
           "data": {
@@ -76,7 +76,7 @@ test("send smart-notifier user update to outreach with returning account link", 
           },
           "type": "Prospect"
         }],
-        ["info", "incoming.user.success", expect.whatever(), { "data": expect.whatever(), "type": "Prospect" }],
+        ["debug", "incoming.user.success", expect.whatever(), { "data": expect.whatever(), "type": "Prospect" }],
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}]
       ],
       firehoseEvents: [

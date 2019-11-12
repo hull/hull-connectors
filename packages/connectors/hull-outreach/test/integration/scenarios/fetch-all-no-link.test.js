@@ -95,12 +95,12 @@ test("fetch all accounts and prospects from outreach no user/account linking", (
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/", "vars": {}}],
-        ["info", "incoming.account.success", {
+        ["debug", "incoming.account.success", {
           "subject_type": "account",
           "account_domain": "somehullcompany.com",
           "account_anonymous_id": "outreach:1"
         }, {"data": expect.whatever(), "type": "Account" }],
-        ["info", "incoming.account.success", {
+        ["debug", "incoming.account.success", {
           "subject_type": "account",
           "account_domain": "noprospectshullcompany.com",
           "account_anonymous_id": "outreach:4"
@@ -108,12 +108,12 @@ test("fetch all accounts and prospects from outreach no user/account linking", (
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 201, "url": "/stages/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 201, "url": "/users/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/", "vars": {}}],
-        ["info", "incoming.user.success", {
+        ["debug", "incoming.user.success", {
           "subject_type": "user",
           "user_email": "ceo@somehullcompany.com",
           "user_anonymous_id": "outreach:1"
         }, {"data": expect.whatever(), "type": "Prospect" }],
-        ["info", "incoming.user.success", {
+        ["debug", "incoming.user.success", {
           "subject_type": "user",
           "user_email": "noAccountProspect@noaccount.com",
           "user_anonymous_id": "outreach:2"

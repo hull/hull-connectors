@@ -41,8 +41,7 @@ it("should handle incoming webhook for subscribe event", () => {
             require("../fixtures/incoming-webhook-subscribe")
           ],
           [
-            "info",
-            "incoming.user.success",
+            "debug", "incoming.user.success",
             {
               subject_type: "user",
               user_anonymous_id: "mailchimp:912348d606",

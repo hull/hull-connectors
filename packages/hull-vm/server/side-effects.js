@@ -37,7 +37,7 @@ export const callTraits = async ({
         try {
           await client.traits(attributes);
           successful += 1;
-          return client.logger.info(`incoming.${entity}.success`, {
+          return client.logger.debug(`incoming.${entity}.success`, {
             attributes
           });
         } catch (err) {
@@ -77,7 +77,7 @@ export const callEvents = async ({
             source: "code",
             ...context
           });
-          return client.logger.info("incoming.event.success");
+          return client.logger.debug("incoming.event.success");
         } catch (err) {
           return client.logger.error("incoming.event.error", {
             hull_summary: `Error processing Event: ${err.message ||
@@ -116,7 +116,7 @@ export const callLinks = async ({
         try {
           successful += 1;
           await client.account(accountClaims).traits({});
-          return client.logger.info(`incoming.${entity}.link.success`);
+          return client.logger.debug(`incoming.${entity}.link.success`);
         } catch (err) {
           return client.logger.error(`incoming.${entity}.link.error`, {
             hull_summary: `Error Linking User and account: ${err.message ||
