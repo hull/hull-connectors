@@ -50,8 +50,12 @@ export async function saveProspect({
       account
     );
 
+    const accountAttribution = account.id
+      ? { "clearbit/prospected_account": account.id }
+      : {};
+
     metric.increment("ship.incoming.users", 1, ["prospect"]);
-    return asUser.traits({ ...traits, ...attribution });
+    return asUser.traits({ ...traits, ...attribution, ...accountAttribution });
   } catch (err) {
     console.log("ERROR!-----------------", err);
     return undefined;
@@ -217,7 +221,7 @@ export async function saveUser(
     ...(source
       ? {
           "clearbit/source": setIfNull(source),
-          [`clearbit/${source}ed_at`]: setIfNull(now())
+          [`clearbit/${source}ed_at`]: now()
         }
       : {})
   };

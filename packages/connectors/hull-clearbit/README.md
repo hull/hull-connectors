@@ -1,12 +1,6 @@
-- discover_domain / prospect_domain -> Do we still need to prospect based on a custom domain that's not the main `domain` at account level ?
-- prospect searches for titles in parallel - is this an issue ?
-
-
-# Hull Clearbit Ship.
+# Hull Clearbit Connector.
 
 Enrich customer profiles using [Clearbit](https://clearbit.com)
-
-If you want your own instance: [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy?template=https://github.com/hull-ships/hull-clearbit)
 
 End-Users: [See Readme here](https://dashboard.hullapp.io/readme?url=https://hull-clearbit.herokuapp.com)
 ---
@@ -14,20 +8,8 @@ End-Users: [See Readme here](https://dashboard.hullapp.io/readme?url=https://hul
 ### Using :
 
 - Go to your `Hull Dashboard > Connectors > Add new`
-- Paste the URL for your Heroku deployment, or use ours : `https://hull-clearbit.herokuapp.com/`
+- Paste the URL for your Heroku deployment, or use ours : `https://hull-clearbit-nextgen.herokuapp.com/`
 - Enter the Clearbit API Key
-- Go to Clearbit and save the following webhook url: `https://hull-clearbit.herokuapp.com/clearbit`
-
-### Developing :
-
-- Fork
-- Install
-
-```sh
-npm install -g gulp
-npm install
-gulp
-```
 
 ### Logs :
 
