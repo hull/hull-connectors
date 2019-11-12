@@ -243,11 +243,13 @@
         "type": "string",
         "enum": [
           "outbound_message",
-          "message_opened"
+          "message_opened",
+          "prospect_stage_changed"
         ],
         "enumNames": [
           "Outbound Message",
-          "Message Opened"
+          "Message Opened",
+          "Prospect Stage Changed"
         ]
       },
       "title": "Events To Fetch From Outreach",

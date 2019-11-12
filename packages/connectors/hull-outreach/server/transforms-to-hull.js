@@ -200,7 +200,7 @@ const transformsToHull: ServiceTransforms =
             "    \"hull_events\": [\n" +
             "    \t{\n" +
             "        \t\"eventName\": attributes.name,\n" +
-            "            \"properties\": {},\n" +
+            "            \"properties\": attributes,\n" +
             "            \"context\": {\n" +
             "            \t\"event_id\": id,\n" +
             "                \"created_at\": attributes.eventAt\n" +

@@ -23,7 +23,8 @@ const {
   settingsUpdate,
   transformTo,
   or,
-  not
+  not,
+  moment
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -332,17 +333,61 @@ const glue = {
       )
     ]),
   eventsFetchAll:
+    ifL(cond("notEmpty", settings("events_to_fetch")), [
+      set("service_name", "outreach"),
+      set("eventsToFetch", ld("join", settings("events_to_fetch"), ",")),
+      set("outreachEvents", outreach("getEvents")),
+      loopL([
+        iterateL("${outreachEvents.data}", { key: "outreachEvent", async: true },
+          hull("asUser", cast(OutreachEventRead, "${outreachEvent}"))
+        ),
+        ifL(cond("isEmpty", "${outreachEvents.links.next}"), {
+          do: loopEndL(),
+          eldo: [
+            set("indexQuery", inc(ex("${outreachEvents.links.next}", "indexOf", "?"))),
+            set("offsetQuery", ex("${outreachEvents.links.next}", "substr", "${indexQuery}")),
+            set("outreachEvents", outreach("getEventsOffset")),
+          ]
+        })
+      ])
+    ]),
+  eventsFetchLast:
     ifL([
       cond("isEqual", settings("fetch_events"), true),
       cond("notEmpty", settings("events_to_fetch"))
     ], [
       set("service_name", "outreach"),
       set("eventsToFetch", ld("join", settings("events_to_fetch"), ",")),
-      ifL(cond("notEmpty", set("outreachEvents", outreach("getEvents"))),
-        iterateL("${outreachEvents}", { key: "outreachEvent", async: true },
-          hull("asUser", cast(OutreachEventRead, "${outreachEvent}"))
-        )
-      )
+      ifL(cond("isEmpty", settings("events_last_fetch_timestamp")), {
+        do: set("eventsLastFetch", ex(moment(settings("events_last_fetch_timestamp")), "valueOf")),
+        eldo: set("eventsLastFetch", ex(ex(moment(), "subtract", { hour: 1 }), "valueOf"))
+      }),
+      set("stopPaging", false),
+      set("outreachEvents", outreach("getRecentEvents")),
+      loopL([
+        iterateL("${outreachEvents}.data", { key: "outreachEvent", async: true },
+          ifL(cond("lessThan", ex(moment("${outreachEvent}.attributes.eventAt")), "valueOf", "${eventsLastFetch}"), {
+            do: [
+              set("stopPaging", true),
+              loopEndL()
+            ],
+            eldo: hull("asUser", cast(OutreachEventRead, "${outreachEvent}"))
+          }),
+        ),
+        ifL(or(
+          [
+            cond("isEmpty", "${outreachEvents.links.next}"),
+            cond("isEqual", "${stopPaging}", true)
+          ]
+        ), {
+          do: loopEndL(),
+          eldo: [
+            set("indexQuery", inc(ex("${outreachEvents.links.next}", "indexOf", "?"))),
+            set("offsetQuery", ex("${outreachEvents.links.next}", "substr", "${indexQuery}")),
+            set("outreachEvents", outreach("getEventsOffset")),
+          ]
+        })
+      ])
     ])
 };
 

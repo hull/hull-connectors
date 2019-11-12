@@ -179,9 +179,20 @@ const service = ({ clientID, clientSecret } : {
     getEvents: {
       url: "/events/",
       operation: "get",
-      endpointType: "fetchAll",
-      query: "filter[name]=${eventsToFetch}",
-      returnObj: "body.data"
+      endpointType: "byProperty",
+      query: "filter[name]=${eventsToFetch}&page[limit]=100"
+    },
+    getRecentEvents: {
+      url: "/events/",
+      operation: "get",
+      endpointType: "byProperty",
+      query: "filter[name]=${eventsToFetch}&sort=-eventAt&page[limit]=100"
+    },
+    getEventsOffset: {
+      url: "/events/",
+      operation: "get",
+      endpointType: "byProperty",
+      query: "${offsetQuery}"
     }
   },
   superagent: {
