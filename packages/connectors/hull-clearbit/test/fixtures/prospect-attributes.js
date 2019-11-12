@@ -16,10 +16,7 @@ export default function(expect) {
     "clearbit/company_name": "Clearbit",
 
     "clearbit/prospect_id": "7416592A-A0D5-4AE5-ACB0-03156E444E9C",
-    "clearbit/prospected_at": {
-      operation: "setIfNull",
-      value: expect.whatever()
-    },
+    "clearbit/prospected_at": expect.whatever(),
     "clearbit/source": {
       operation: "setIfNull",
       value: "prospector"
