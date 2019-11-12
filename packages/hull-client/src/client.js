@@ -27,6 +27,7 @@ const crypto = require("./lib/crypto");
 const Firehose = require("./lib/firehose");
 
 const traitsUtils = require("./utils/traits");
+const claimsUtils = require("./utils/claims");
 const settingsUtils = require("./utils/settings");
 const propertiesUtils = require("./utils/properties");
 
@@ -160,6 +161,7 @@ class HullClient {
      */
     this.utils = {
       traits: traitsUtils,
+      claims: claimsUtils,
       properties: {
         get: propertiesUtils.get.bind(this)
       },
@@ -314,16 +316,19 @@ class HullClient {
    */
   asUser = (
     userClaim: string | HullUser | HullUserClaims,
-    additionalClaims: HullAdditionalClaims = Object.freeze({})
+    additionalClaims: HullAdditionalClaims = Object.freeze({}),
+    accountClaim?: HullAccount | HullAccountClaims
   ) => {
     if (!userClaim) {
       throw new Error("User Claims was not defined when calling hull.asUser()");
     }
+    // $FlowFixMe
     return new UserScopedHullClient({
       ...this.config,
       subjectType: "user",
       userClaim,
-      additionalClaims
+      additionalClaims,
+      ...(accountClaim ? { accountClaim } : {})
     });
   };
 
@@ -346,6 +351,7 @@ class HullClient {
         "Account Claims was not defined when calling hull.asAccount()"
       );
     }
+    // $FlowFixMe
     return new AccountScopedHullClient({
       ...this.config,
       subjectType: "account",

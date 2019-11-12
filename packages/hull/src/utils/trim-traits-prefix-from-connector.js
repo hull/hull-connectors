@@ -107,7 +107,6 @@ function trimTraitsPrefixFromConnector(connector: HullConnector) {
     connector: typeof connector,
     manifest: typeof manifest
   });
-
   performTrim(manifest.private_settings, connector.private_settings);
   performTrim(manifest.settings, connector.settings);
 }

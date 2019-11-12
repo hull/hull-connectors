@@ -1,5 +1,5 @@
 // @flow
-import type { HTTPMethod } from "./index";
+import type { HullAttributeMapping, HTTPMethod } from "./index";
 
 // Supported Dashboard widget types
 type HullWidgetFormat = "popup" | "credentials" | "action";
@@ -133,6 +133,7 @@ export type HullManifestSetting = {
   format: string,
   handler?: string,
   url?: string,
+  default: any,
   options?: {
     loadOptions?: string
   }
@@ -177,6 +178,17 @@ type HullManifestTag =
 
 export type HullManifest = {
   name: string,
+  mappings?: {
+    [key: string]: {
+      incoming?: {
+        mapping: Array<HullAttributeMapping>,
+        top_level: Array<HullAttributeMapping>
+      },
+      outgoing?: {
+        mapping: Array<HullAttributeMapping>
+      }
+    }
+  },
   description: string,
   tags: Array<HullManifestTag>,
   source: string,

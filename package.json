@@ -36,6 +36,7 @@
     "ngrok": "sh scripts/ngrok.sh",
     "dev": "NODE_ENV=development sh scripts/start-dev-connector.sh",
     "run-test": "sh scripts/run-test.sh",
+    "watch-test": "sh scripts/watch-test.sh",
     "test": "yarn test:lint && jest && yarn workspaces run test",
     "test:flow": "flow check",
     "test:lint": "eslint packages",

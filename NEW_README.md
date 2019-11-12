@@ -850,7 +850,7 @@ Then, once boot is complete:
 hull > ctx.client.get("app")
 ```
 
-## Import util
+### Import util
 
 In authorized repl you can execute following line to generate 10 faked users with name and email:
 
@@ -864,21 +864,21 @@ Then import it to the organization of the ship:
 hull > importFile("name_of_the_file.json")
 ```
 
-## `ctx`
+### `ctx`
 
 Hull Context object (see docs)
 
-## `utils`
+### `utils`
 
 Hull Utils object
 
-## `updatePrivateSettings` helper to update settings for this connector instance. use like this:
+### `updatePrivateSettings` helper to update settings for this connector instance. use like this:
 
 ```js
 updatePrivateSettings({ foo: "bar" });
 ```
 
-## utilities libs
+### utilities libs
 
 - moment: `moment`
 - lodash: `lo`
@@ -887,7 +887,7 @@ updatePrivateSettings({ foo: "bar" });
 - highland: `highland`
 - sourceUrl: Connector's source URL
 
-## superagent: `agent`
+### superagent: `agent`
 
 use like this:
 
@@ -895,12 +895,110 @@ use like this:
 agent.get("/some_connector_url") -> credentials will be added for you
 ```
 
-## fakeUsers
+### fakeUsers
 
-## fakeAccounts
+### fakeAccounts
 
-## importFile
+## Run a single or a few tests only
+
+`yarn run-test packages/connectors/hull-processor/test/integration/scenarios/request-tests.js`
+`yarn run-test packages/connectors/hull-processor/test/integration/scenarios/*`
+
+### Get a Service Identifier in a stable way:
 
 ```
+const clearbit_id = ctx.client.utils.claims.getServiceId("clearbit", account);
+// -> First anonymous_id with the format: `clearbit:xxx`
+```
 
+### Mapping Helpers.
+
+We now support a new top-level entry in the manifest: "mappings", with the following format:
+
+```js
+"mappings": {
+  "prospect": {
+    "incoming": {
+      //Top level Mappings
+      "top_level": [
+        {
+          "service": "email",
+          "hull": "email",
+          "overwrite": false
+        },
+        {
+          "service": "name.familyName",
+          "hull": "last_name",
+          "overwrite": false
+        }
+      ],
+      //Grouped mappings
+      "mapping": [
+        {
+          "service": "id",
+          "hull": "traits_clearbit/id",
+          "readOnly": true,
+          "overwrite": true
+        }
+      ]
+    }
+  },
+  "outgoing": {...}
+}
+```
+
+You can then use them as references as defaults:
+
+```js
+{
+  "name": "incoming_prospect_mapping",
+  "title": "Clearbit Prospect Mapping",
+  "description": "How we map Clearbit Prospects to Hull Users",
+  "type": "array",
+  "format": "traitMapping",
+  "options": {
+    "direction": "incoming",
+    "showOverwriteToggle": true,
+    "allowCreate": true,
+    "placeholder": "Clearbit Person Field",
+    "loadOptions": "/schema/prospect_properties",
+    "source": "clearbit"
+  },
+  "default": "#/mappings/prospect/incoming/mapping"
+}
+```
+
+To use it to prefill a list of options in the dashboard, you can use the `mappingToOptions` method
+
+```js
+// @flow
+import type { HullContext, HullUISelectResponse } from "hull";
+
+const prospect = async (ctx: HullContext): HullUISelectResponse => {
+  const { mappingToOptions } = ctx.helpers;
+  return {
+    status: 200,
+    data: mappingToOptions({
+      type: "prospect",
+      direction: "incoming",
+      label: "Clearbit Prospect"
+    })
+  };
+};
+export default prospect;
+```
+
+Apply Mapping (JSONata expressions)
+
+```js
+//@flow
+const { helpers } = ctx;
+const { mapAttributes } = helpers;
+
+hull.asUser({...}).traits(mapAttributes({
+  entity: { ..company object },
+  mapping: "incoming_company_mapping",
+  type: "company",
+  direction: "incoming"
+}));
 ```
