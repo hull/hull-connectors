@@ -22,10 +22,7 @@ export default function(expect, source="reveal") {
         "O'Reilly author, software engineer & traveller. Founder of https://clearbit.com"
     },
     [`clearbit/${source}ed_at`]: expect.whatever(),
-    "clearbit/fetched_at": {
-      operation: "setIfNull",
-      value: expect.whatever()
-    },
+    "clearbit/fetched_at": expect.whatever(),
     "clearbit/source": {
       operation: "setIfNull",
       value: source

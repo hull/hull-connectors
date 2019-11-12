@@ -105,14 +105,8 @@ describe("Clearbit Reveal Tests", () => {
             subjectType: "user"
           },
           {
-            "clearbit/fetched_at": {
-              operation: "setIfNull",
-              value: expect.whatever()
-            },
-            "clearbit/revealed_at": {
-              operation: "setIfNull",
-              value: expect.whatever()
-            },
+            "clearbit/fetched_at": expect.whatever(),
+            "clearbit/revealed_at": expect.whatever(),
             "clearbit/source": { value: "reveal", operation: "setIfNull" }
           }
         ],
@@ -198,14 +192,8 @@ describe("Clearbit Reveal Tests", () => {
             subjectType: "user"
           },
           {
-            "clearbit/fetched_at": {
-              operation: "setIfNull",
-              value: expect.whatever()
-            },
-            "clearbit/revealed_at": {
-              operation: "setIfNull",
-              value: expect.whatever()
-            },
+            "clearbit/fetched_at": expect.whatever(),
+            "clearbit/revealed_at": expect.whatever(),
             "clearbit/source": { value: "reveal", operation: "setIfNull" }
           }
         ],

@@ -14,8 +14,9 @@ export default function(expect) {
     "clearbit/employment_title": "Co Founder at Clearbit",
     "clearbit/verified": true,
     "clearbit/company_name": "Clearbit",
-
+    "clearbit/prospected_account_id": "1234",
     "clearbit/prospect_id": "7416592A-A0D5-4AE5-ACB0-03156E444E9C",
+    "clearbit/fetched_at": expect.whatever(),
     "clearbit/prospected_at": expect.whatever(),
     "clearbit/source": {
       operation: "setIfNull",

@@ -11,10 +11,7 @@ export default function(expect, source="reveal") {
       value: company.name
     },
     [`clearbit/${source}ed_at`]: expect.whatever(),
-    "clearbit/fetched_at": {
-      operation: "setIfNull",
-      value: expect.whatever()
-    },
+    "clearbit/fetched_at": expect.whatever(),
     "clearbit/source": {
       operation: "setIfNull",
       value: source

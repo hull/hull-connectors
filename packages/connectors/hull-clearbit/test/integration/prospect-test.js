@@ -124,10 +124,8 @@ describe("Clearbit Prospector Tests", () => {
           },
           {
             "clearbit/prospected_users": { operation: "increment", value: 1 },
-            "clearbit/prospected_at": {
-              operation: "setIfNull",
-              value: expect.whatever()
-            },
+            "clearbit/fetched_at": expect.whatever(),
+            "clearbit/prospected_at": expect.whatever(),
             "clearbit/source": { value: "prospector", operation: "setIfNull" }
           }
         ]
@@ -221,10 +219,8 @@ describe("Clearbit Prospector Tests", () => {
           },
           {
             "clearbit/prospected_users": { operation: "increment", value: 1 },
-            "clearbit/prospected_at": {
-              operation: "setIfNull",
-              value: expect.whatever()
-            },
+            "clearbit/fetched_at": expect.whatever(),
+            "clearbit/prospected_at": expect.whatever(),
             "clearbit/source": { value: "prospector", operation: "setIfNull" }
           }
         ],

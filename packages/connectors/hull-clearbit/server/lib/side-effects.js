@@ -51,7 +51,7 @@ export async function saveProspect({
     );
 
     const accountAttribution = account.id
-      ? { "clearbit/prospected_account": account.id }
+      ? { "clearbit/prospected_account_id": account.id }
       : {};
 
     metric.increment("ship.incoming.users", 1, ["prospect"]);
@@ -71,11 +71,13 @@ export async function saveProspects({
   account?: HullAccount,
   prospects: Array<{| ...ClearbitProspect, domain: string |}>
 }) {
+  const timestamp = now();
   const { client, helpers } = ctx;
   const { operations } = helpers;
   const { setIfNull } = operations;
   const attribution = {
-    "clearbit/prospected_at": setIfNull(now()),
+    "clearbit/fetched_at": timestamp,
+    "clearbit/prospected_at": timestamp,
     "clearbit/source": setIfNull("prospector")
   };
   try {
@@ -135,6 +137,7 @@ export async function saveAccount(
   const { mapAttributes, operations } = helpers;
   const { setIfNull } = operations;
 
+  const timestamp = now();
   const traits = {
     ...mapAttributes({
       entity: company,
@@ -143,11 +146,11 @@ export async function saveAccount(
       direction: "incoming"
     }),
     "clearbit/id": company.id,
-    "clearbit/fetched_at": setIfNull(now()),
+    "clearbit/fetched_at": timestamp,
     ...(source
       ? {
-          "clearbit/source": { value: source, operation: "setIfNull" },
-          [`clearbit/${source}ed_at`]: setIfNull(now())
+          "clearbit/source": setIfNull(source),
+          [`clearbit/${source}ed_at`]: timestamp
         }
       : {})
   };
@@ -208,6 +211,7 @@ export async function saveUser(
     ...(person ? { anonymous_id: getClearbitAnonymousId(person) } : {})
   });
 
+  const timestamp = now();
   const traits = {
     ...(person
       ? mapAttributes({
@@ -217,11 +221,11 @@ export async function saveUser(
           direction: "incoming"
         })
       : {}),
-    "clearbit/fetched_at": setIfNull(now()),
+    "clearbit/fetched_at": timestamp,
     ...(source
       ? {
           "clearbit/source": setIfNull(source),
-          [`clearbit/${source}ed_at`]: now()
+          [`clearbit/${source}ed_at`]: timestamp
         }
       : {})
   };
