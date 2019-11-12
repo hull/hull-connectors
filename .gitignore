@@ -16,3 +16,4 @@ deployment.config.js
 
 .idea/
 _ignored/
+.cache

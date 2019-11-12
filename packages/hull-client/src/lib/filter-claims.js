@@ -5,7 +5,7 @@ import type {
   HullUser,
   HullAccount,
   HullEntityClaims,
-  HullEntityType
+  HullEntityName
 } from "../types";
 
 /**
@@ -49,7 +49,7 @@ const normalize = (claims: HullUser | HullAccount | Object): HullEntityClaims =>
       );
 
 export const filterEntityClaims = (
-  type: HullEntityType,
+  type: HullEntityName,
   claims: void | string | HullUser | HullAccount | Object
 ): HullEntityClaims => {
   const claimsToFilter = type === "user" ? USER_CLAIMS : ACCOUNT_CLAIMS;
@@ -66,7 +66,7 @@ export const filterEntityClaims = (
  * @throws Error
  */
 export const assertEntityClaimsValidity = (
-  type: HullEntityType,
+  type: HullEntityName,
   object: void | string | HullEntityClaims
 ): void => {
   const claimsToCheck = type === "user" ? USER_CLAIMS : ACCOUNT_CLAIMS;

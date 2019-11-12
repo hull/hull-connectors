@@ -8,7 +8,8 @@ import type {
 const _ = require("lodash");
 const MESSAGES = require("./messages");
 const {
-  ConfigurationError
+  ConfigurationError,
+  RateLimitError
 } = require("hull/src/errors");
 
 const HubspotStrategy = require("passport-hubspot-oauth2.0");
@@ -97,6 +98,11 @@ const service: RawRestApi = {
         { method: "set", params: { "Content-Type": "application/x-www-form-urlencoded" } }
       ]
     },
+    getRecentContactsPage: {
+      url: "/contacts/v1/lists/recently_updated/contacts/recent",
+      operation: "get",
+      query: "vidOffset=${vidOffset}&timeOffset=${timeOffset}&property=${properties}&count=100"
+    }
   },
   superagent: {
     settings: [
@@ -155,6 +161,12 @@ const service: RawRestApi = {
         errorType: ConfigurationError,
         message: MESSAGES.STATUS_UNAUTHORIZED_ACCESS_TOKEN,
         recoveryroute: "refreshToken"
+      },
+      {
+        truthy: { status: 429 },
+        errorType: RateLimitError,
+        message: "Hubspot temporary API rate limit exceeded, retrying in a moment",
+        retryAttempts: 3
       }
     ]
   }

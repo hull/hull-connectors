@@ -1,0 +1,187 @@
+{
+  "person": {
+    "id": "fe558ef3-08cc-4d12-a0a7-2e1833191509",
+    "name": {
+      "fullName": "Chris Bugg",
+      "givenName": "Chris",
+      "familyName": "Bugg"
+    },
+    "email": "bchris@calvinklein.com",
+    "gender": null,
+    "location": "New York, NY, US",
+    "timeZone": "America/New_York",
+    "utcOffset": -5,
+    "geo": {
+      "city": "New York",
+      "state": "New York",
+      "stateCode": "NY",
+      "country": "United States",
+      "countryCode": "US",
+      "lat": 40.7127837,
+      "lng": -74.0059413
+    },
+    "bio": null,
+    "site": null,
+    "avatar": null,
+    "employment": {
+      "domain": "calvinklein.us",
+      "name": "Calvin Klein",
+      "title": "Vice President, Global Digital Marketing",
+      "role": "marketing",
+      "seniority": "executive"
+    },
+    "facebook": {
+      "handle": null
+    },
+    "github": {
+      "handle": null,
+      "id": null,
+      "avatar": null,
+      "company": null,
+      "blog": null,
+      "followers": null,
+      "following": null
+    },
+    "twitter": {
+      "handle": null,
+      "id": null,
+      "bio": null,
+      "followers": null,
+      "following": null,
+      "statuses": null,
+      "favorites": null,
+      "location": null,
+      "site": null,
+      "avatar": null
+    },
+    "linkedin": {
+      "handle": "in/chris-bugg-7989ba41"
+    },
+    "googleplus": {
+      "handle": null
+    },
+    "aboutme": {
+      "handle": null,
+      "bio": null,
+      "avatar": null
+    },
+    "gravatar": {
+      "handle": null,
+      "urls": null,
+      "avatar": null,
+      "avatars": [
+
+      ]
+    },
+    "fuzzy": false,
+    "emailProvider": false,
+    "indexedAt": "2016-12-13T15:34:31.573Z"
+  },
+  "company": {
+    "id": "31522083-23f4-41ed-ba12-b86863602da5",
+    "name": "Calvin Klein",
+    "legalName": "Calvin Klein Inc",
+    "domain": "calvinklein.us",
+    "domainAliases": [
+      "cmi-ck.com",
+      "ck.rs",
+      "calvinkleinunderpants.com",
+      "calvinklein.com",
+      "todayshow-calvinklein.com",
+      "calvinklein-online.de",
+      "calvinklein-underwear.de",
+      "ckbags.com",
+      "calvinkleincottonlast.com",
+      "calvinkleinjeans.de",
+      "ckjeans.com",
+      "calvinkleinjeans.com",
+      "calvinklein.asia",
+      "cku.com",
+      "calvinklein.it",
+      "ckes.es",
+      "calvinkleininc.com",
+      "calvinklein.com.au",
+      "calvinklien.com"
+    ],
+    "url": "http://www.calvinklein.com",
+    "site": {
+      "url": "http://calvinklein.us",
+      "title": "Calvin Klein – Official Site and Online Store",
+      "h1": "50% OFF",
+      "metaDescription": "Calvin Klein offers modern, sophisticated styles for women and men including apparel, handbags, footwear, underwear, fragrance and home furnishings with free shipping available.",
+      "metaAuthor": null,
+      "phoneNumbers": [
+        "+1 866-513-0513"
+      ],
+      "emailAddresses": [
+        "customerservice@calvinklein.com",
+        "customerservice@calvinklein.us"
+      ]
+    },
+    "category": {
+      "sector": "Consumer Discretionary",
+      "industryGroup": "Consumer Durables & Apparel",
+      "industry": "Textiles, Apparel & Luxury Goods",
+      "subIndustry": "Apparel, Accessories & Luxury Goods"
+    },
+    "tags": [
+      "Apparel & Footwear",
+      "Apparel & Fashion",
+      "E-commerce",
+      "B2C"
+    ],
+    "description": "Calvin Klein offers modern, sophisticated styles for women and men including apparel, handbags, footwear, underwear, fragrance and home furnishings with free shipping available.",
+    "foundedYear": 1968,
+    "location": "600 Pennsylvania Ave NW, Washington, DC 20580, USA",
+    "timeZone": "America/New_York",
+    "utcOffset": -5,
+    "geo": {
+      "streetNumber": "600",
+      "streetName": "Pennsylvania Avenue Northwest",
+      "subPremise": null,
+      "city": "Washington",
+      "postalCode": "20580",
+      "state": "District of Columbia",
+      "stateCode": "DC",
+      "country": "United States",
+      "countryCode": "US",
+      "lat": 38.8926389,
+      "lng": -77.0211032
+    },
+    "logo": "https://logo.clearbit.com/calvinklein.us",
+    "facebook": {
+      "handle": "calvinklein"
+    },
+    "linkedin": {
+      "handle": null
+    },
+    "twitter": {
+      "handle": "CalvinKlein",
+      "id": "18647765",
+      "bio": "Calvin Klein is a global lifestyle brand that exemplifies bold, progressive ideals and a seductive, and often minimal, aesthetic.",
+      "followers": 3300015,
+      "following": 233,
+      "location": "New York City",
+      "site": "http://t.co/JzkFcTOMdo",
+      "avatar": "https://pbs.twimg.com/profile_images/681247148273471488/bOmkpuVx_normal.jpg"
+    },
+    "crunchbase": {
+      "handle": null
+    },
+    "emailProvider": false,
+    "type": "private",
+    "ticker": null,
+    "phone": null,
+    "metrics": {
+      "alexaUsRank": 5970,
+      "alexaGlobalRank": 55993,
+      "googleRank": null,
+      "employees": 1001,
+      "employeesRange": "1000+",
+      "marketCap": null,
+      "raised": null,
+      "annualRevenue": null
+    },
+    "indexedAt": "2016-11-28T20:34:44.027Z"
+  }
+}

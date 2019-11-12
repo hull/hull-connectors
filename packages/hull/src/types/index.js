@@ -3,7 +3,6 @@
 /* eslint-disable no-use-before-define */
 /* :: export type * from "hull-client"; */
 /* :: export type * from "./incoming"; */
-/* :: export type * from "./claims"; */
 /* :: export type * from "./connector"; */
 /* :: export type * from "./context"; */
 /* :: export type * from "./manifest"; */
@@ -15,7 +14,7 @@
 /* :: export type * from "./sync-agent"; */
 /* :: export type * from "./settings"; */
 /* :: export type * from "./schema"; */
-/* :: export type * from "./fetched"; */
+/* :: export type * from "./get-entity"; */
 
 import type Cache from "../infra/cache/cache-agent";
 import type Queue from "../infra/queue/queue-agent";
@@ -52,4 +51,10 @@ export type HTTPMethod =
 
 export type HullConnectorSettings = {
   [HullConnectorSettingName: string]: any
+};
+
+export type HullAttributeMapping = {
+  hull: string,
+  service: string,
+  overwrite: boolean
 };

@@ -1,18 +1,35 @@
 // @flow
-// import _ from "lodash";
-// import fp from "lodash/fp";
-import type { HullContext } from "../types/index";
-// import { formatEvent } from "./format-event";
+
+import type {
+  HullEventSchemaEntry,
+  HullAttributeSchemaEntry,
+  HullContext,
+  HullEntityName
+} from "../types/index";
 
 const EVENTS_ROUTE = "/search/event/bootstrap";
 const USERS_ROUTE = "/users/schema";
 const ACCOUNTS_ROUTE = "/accounts/schema";
-const get = (route: string) => (ctx: HullContext) => () =>
+const get = (route: string) => (ctx: HullContext) => async () =>
   ctx.cache.wrap(
     route,
     () => ctx.client.get(route, { timeout: 5000, retry: 1000 }),
     { ttl: 60000 }
   );
-export const getEventSchema = get(EVENTS_ROUTE);
-export const getUserSchema = get(USERS_ROUTE);
-export const getAccountSchema = get(ACCOUNTS_ROUTE);
+
+const schemaMapping = {
+  user: USERS_ROUTE,
+  account: ACCOUNTS_ROUTE,
+  events: EVENTS_ROUTE
+};
+export const getEventSchema: HullContext => () => Promise<HullEventSchemaEntry> = get(
+  EVENTS_ROUTE
+);
+export const getUserSchema: HullContext => () => Promise<HullAttributeSchemaEntry> = get(
+  USERS_ROUTE
+);
+export const getAccountSchema: HullContext => () => Promise<HullAttributeSchemaEntry> = get(
+  ACCOUNTS_ROUTE
+);
+export const getSchema = (ctx: HullContext) => (entity: HullEntityName) =>
+  get(schemaMapping[entity])(ctx);

@@ -629,3 +629,86 @@ describe("Basic Attributes manipulation", () => {
     }));
   });
 });
+
+describe("Request Methods", () => {
+  const user = {
+    id: "1234",
+    "foo/bar": "baz"
+  };
+  const account = {
+    id: "1234",
+    "foo/bar": "ball"
+  };
+  it("should handle request timeouts", () => {
+    const error_message = "Error: ESOCKETTIMEDOUT";
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({ user, account }),
+      handlerType: handlers.notificationHandler,
+      externalApiMock: () => {
+        const scope = nock("https://foo.com");
+        scope.get("/").socketDelay(35000).reply(500, { boom: true });
+        return scope;
+      },
+      connector: connectorWithCode(
+        `const res = await request("https://foo.com")`
+      ),
+      firehoseEvents: [],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            errors: [error_message]
+          })
+        ],
+        [
+          "error",
+          "incoming.user.error",
+          expect.whatever(),
+          {
+            errors: [error_message],
+            hull_summary: `Error Processing user: ${error_message}`
+          }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST]
+    }));
+  });
+  it("should handle request errors", () => {
+    const error_message = '{"boom":true}';
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({ user, account }),
+      handlerType: handlers.notificationHandler,
+      externalApiMock: () => {
+        const scope = nock("https://foo.com");
+        scope.get("/").reply(500, { boom: true });
+        return scope;
+      },
+      connector: connectorWithCode(
+        `const res = await request("https://foo.com")`
+      ),
+      firehoseEvents: [],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            errors: [error_message]
+          })
+        ],
+        [
+          "error",
+          "incoming.user.error",
+          expect.whatever(),
+          {
+            errors: [error_message],
+            hull_summary: `Error Processing user: ${error_message}`
+          }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST]
+    }));
+  });
+});

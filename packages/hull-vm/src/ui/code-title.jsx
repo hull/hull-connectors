@@ -9,7 +9,9 @@ const CodeTitle = ({
   error?: boolean
 }) => (
   <h6
-    className={`mt-05 mb-05 content-tag ${error ? "content-tag--error" : ""}`}
+    className={`mt-05 mb-05 code-header content-tag ${
+      error ? "content-tag--error" : ""
+    }`}
   >
     {title}
   </h6>
