@@ -14,7 +14,7 @@ import type {
 // Hull Connector Data Object
 // =====================================
 
-export type HullConnector = {
+export type HullConnector = {|
   id: string,
   updated_at: string,
   created_at: string,
@@ -30,7 +30,7 @@ export type HullConnector = {
   settings: HullConnectorSettings,
   private_settings: HullConnectorSettings,
   status: Object
-};
+|};
 
 // =====================================
 //   Connector Configuration
@@ -125,14 +125,13 @@ export type HullConnectorConfig = {
   notificationValidatorHttpClient?: Object,
   middlewares: Array<Middleware>,
   manifest: HullManifest
-  // $FlowFixMe
   // handlers: HullHandlers // eslint-disable-line no-use-before-define
 };
 
-export type HullCredentialsObject = {
+export type HullCredentialsObject = {|
   token?: string,
   clientCredentials?: HullClientCredentials, // HullClient credentials
   clientCredentialsToken?: string, // signed (not encrypted) jwt token with HullClient credentials
   clientCredentialsEncryptedToken?: string // encrypted token with HullClient credentials
-};
+|};
 export type HullContextGetter = HullCredentialsObject => Promise<HullContext>;

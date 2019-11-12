@@ -1,0 +1,38 @@
+{
+  "name": "hull-clearbit",
+  "description": "Enrich Customer data with Clearbit",
+  "version": "0.0.17-monorepo",
+  "license": "MIT",
+  "homepage": "https://github.com/hull/hull-connectors",
+  "keywords": [
+    "hull",
+    "ship",
+    "hull-ship",
+    "clearbit",
+    "enrichment",
+    "sync"
+  ],
+  "scripts": {
+    "dev": "builder run dev",
+    "test": "yarn test:integration",
+    "testx:unit": "exit 0; echo 'No Tests here' Sad Panda",
+    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}",
+    "testx:modules": "npm outdated --depth=0",
+    "testx:coverage": "NODE_ENV=test jest --env=jsdom --config=jest.config.json --coverage",
+    "testx:client": "NODE_ENV=test jest --env=jsdom --config=jest.config.json",
+    "testx:units": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit/*.js",
+    "testx:units:watch": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit/*.js",
+    "testx:specs": "NODE_ENV=test mocha mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/*.js",
+    "testx:specs:watch": "NODE_ENV=test mocha --watch --exit --require ../../../root-babel-register.js -R spec ./test/integration/*.js"
+  },
+  "dependencies": {
+    "bootstrap-table": "^1.15.4",
+    "bottleneck": "^2.19.5",
+    "clearbit": "^1.3.4",
+    "object-mapper": "^5.0.0",
+    "range_check": "^1.4.0",
+    "select2": "^4.0.10",
+    "select2-bootstrap-theme": "^0.1.0-beta.10"
+  },
+  "devDependencies": {}
+}

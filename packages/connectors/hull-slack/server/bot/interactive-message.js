@@ -1,5 +1,6 @@
 // @noflow
 import type { HullContext } from "hull";
+import _ from "lodash";
 import getNotification from "../lib/get-notification";
 
 module.exports = async function interactiveMessage(ctx: HullContext) {
@@ -58,19 +59,19 @@ module.exports = async function interactiveMessage(ctx: HullContext) {
     //
     //   if (value === "traits" || value === "events") {
     try {
-      const { user, account, events, segments } = await ctx.entities.user.get({
+      const payloads = await ctx.entities.get({
         entity: "user",
         claims: {
           id: callback_id
         }
       });
-      const payload = await getNotification({
+      const notification = await getNotification({
         client,
-        message: { user, account, events, segments },
+        message: _.first(payloads.data),
         actions,
         entity: "user"
       });
-      bot.replyInteractive(message, payload);
+      bot.replyInteractive(message, notification);
     } catch (err) {
       bot.replyInteractive(message, err.message);
     }

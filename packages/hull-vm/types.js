@@ -11,7 +11,7 @@ import type {
   HullUserUpdateMessage,
   HullAccountUpdateMessage,
   HullAttributeContext,
-  HullEntityType,
+  HullEntityName,
   HullFetchedUser
 } from "hull";
 import { Map } from "immutable";
@@ -114,7 +114,7 @@ export type SerializedResult = {
 
 export type PreviewRequest = {
   payload: Payload,
-  entityType?: "user" | "account",
+  entity?: HullEntityName,
   claims?: {},
   code: string
 };
@@ -133,10 +133,14 @@ export type Entry = {
 export type ComputeOptions = {
   code: string,
   claims?: HullEntityClaims,
-  entityType?: HullEntityType,
+  entity?: HullEntityName,
   preview: boolean,
   source: string,
-  payload: Payload | HullUserUpdateMessage | HullAccountUpdateMessage
+  payload: { variables: {} } & (
+    | Payload
+    | HullUserUpdateMessage
+    | HullAccountUpdateMessage
+  )
 };
 
 type AnyFunction = any => any;
@@ -178,14 +182,14 @@ export type ClaimsValidation =
   | {
       ...ClaimsPayload,
       valid: true,
-      subject: HullEntityType,
+      entity: HullEntityName,
       message: void,
       error: void
     }
   | {
       ...ClaimsPayload,
       valid: false,
-      subject: HullEntityType,
+      entity: HullEntityName,
       message: string,
       error: string
     };
@@ -234,8 +238,8 @@ export type ProcessorEngineState = {
   selected?: Entry,
   current?: Entry,
   recent: Array<Entry>,
-  entityType?: "user" | "account",
-  claim?: string,
+  entity?: HullEntityName,
+  search?: string,
   selectedEvents: Array<EventSelect>
 };
 export type RecentEngineState = EngineState & {};

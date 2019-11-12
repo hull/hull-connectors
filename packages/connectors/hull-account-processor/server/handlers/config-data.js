@@ -4,7 +4,7 @@ import type { HullContext } from "hull";
 
 const configHandler = async (_ctx: HullContext): Promise<Object> => {
   return {
-    entityType: "account"
+    entity: "account"
   };
 };
 

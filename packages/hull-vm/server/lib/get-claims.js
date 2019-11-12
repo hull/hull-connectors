@@ -1,10 +1,15 @@
 // @flow
 
 import _ from "lodash";
+import type {
+  HullEntityName,
+  HullUserUpdateMessage
+  // HullAccountUpdateMessage
+} from "hull";
 
 const getClaims = (
-  entity: "user" | "account",
-  { user, account }: HullUserUpdateMessage | HullAccountUpdateMessage
+  entity: HullEntityName,
+  { user, account }: HullUserUpdateMessage
 ) => {
   const claims =
     entity === "account"

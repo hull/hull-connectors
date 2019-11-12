@@ -205,7 +205,6 @@ class MiniHull extends MiniApplication {
       messages,
       is_export
     };
-
     return this.post(url)
       .set("x-hull-smart-notifier", "dummy")
       .send(body)

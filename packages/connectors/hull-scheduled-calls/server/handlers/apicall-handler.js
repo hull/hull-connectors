@@ -5,7 +5,7 @@ import type {
   HullIncomingHandlerMessage,
   HullExternalResponse
 } from "hull";
-import { asyncComputeAndIngest } from "hull-vm";
+import { asyncComputeAndIngest, varsFromSettings } from "hull-vm";
 import callApi from "../lib/call-api";
 
 export default function handler(EntryModel: Object) {
@@ -35,7 +35,10 @@ export default function handler(EntryModel: Object) {
       const result = await asyncComputeAndIngest(ctx, {
         source: "scheduled-calls",
         EntryModel,
-        payload,
+        payload: {
+          ...payload,
+          variables: varsFromSettings(ctx)
+        },
         code,
         preview
       });

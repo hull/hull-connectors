@@ -5,7 +5,7 @@ import type {
   HullContext,
   HullConnector,
   HullClientCredentials,
-  HullEntityType
+  HullEntityName
 } from "hull";
 
 type SlackChannel = {};
@@ -44,8 +44,8 @@ export type SlackInstance = {
   attachements: Array<SlackConnectorAttachement>
 };
 
-export type SlackConnectorSettings = {
-  ...$Exact<HullConnector>,
+export type SlackConnectorSettings = {|
+  ...HullConnector,
   private_settings: {
     token: string,
     team_id: string,
@@ -63,7 +63,7 @@ export type SlackConnectorSettings = {
     bot: SlackBotConfig,
     whitelist: Array<string>
   }
-};
+|};
 
 export type ConnectedSlack = {
   attachements: Array<SlackConnectorAttachement>,
@@ -73,14 +73,14 @@ export type ConnectedSlack = {
     scopedClient: Hull,
     payload: any,
     channel: string,
-    entity: HullEntityType
+    entity: HullEntityName
   }) => any,
   tellOperator?: ({
     scopedClient: Hull,
     user_id: string,
     msg: string,
     error: any,
-    entity: HullEntityType
+    entity: HullEntityName
   }) => any
 };
 
