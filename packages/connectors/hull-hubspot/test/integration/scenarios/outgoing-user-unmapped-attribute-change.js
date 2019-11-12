@@ -111,7 +111,7 @@ it("should filter because none of the mapped attributes have changed", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
         [
-          "info",
+          "debug",
           "outgoing.user.skip",
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
           {

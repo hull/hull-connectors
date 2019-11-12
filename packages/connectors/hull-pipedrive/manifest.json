@@ -1,0 +1,403 @@
+{
+  "name": "Pipedrive",
+  "description": "Two-way Pipedrive integration for Persons & Organizations",
+  "source": "pipedrive",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "version": "0.1.9-monorepo",
+  "tags": [
+    "incoming",
+    "outgoing",
+    "batch",
+    "batch-accounts",
+    "kraken-exports",
+    "first-install",
+    "single-install"
+  ],
+  "private_settings": [
+    {
+      "name": "oauth",
+      "title": "Oauth",
+      "type": "string",
+      "format": "oauth",
+      "description": "On the authentication screen, log into Pipedrive with your username and password, if you are not already logged in",
+      "handler": "oauth",
+      "url": "/auth",
+      "options": {
+        "tokenInUrl": false,
+        "name": "Pipedrive",
+        "strategy": {
+          "authorizationURL": "https://oauth.pipedrive.com/oauth/authorize",
+          "tokenURL": "https://oauth.pipedrive.com/oauth/token",
+          "grant_type": "authorization_code"
+        }
+      }
+    },
+    {
+      "name": "access_token",
+      "title": "OAuth Access Token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "refresh_token",
+      "title": "OAuth Refresh Token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "expires_in",
+      "title": "OAuth Token Expiration in seconds",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "user_claims",
+      "title": "Fields to match for User Identity Resolution",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "title": "Person Field ID",
+            "type": "string",
+            "format": "select",
+            "options": {
+              "allowCreate": false,
+              "loadOptions": "/fields-pipedrive-person-in"
+            }
+          },
+          "hull": {
+            "title": "Hull User Ident",
+            "enum": [
+              "external_id",
+              "email"
+            ]
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "email",
+          "service": "email"
+        }
+      ]
+    },
+    {
+      "name": "incoming_account_attributes",
+      "title": "Organization Attributes to capture from Pipedrive",
+      "type": "array",
+      "format": "accountTraitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": false,
+        "placeholder": "Pipedrive Organization Field",
+        "allowCreate": true,
+        "loadOptions": "/fields-pipedrive-org-in",
+        "source": "pipedrive"
+      }
+    },
+    {
+      "name": "link_users_in_hull",
+      "title": "Link Users to Accounts in Hull",
+      "description": "Do you want to let Pipedrive update links between Users and Accounts in Hull? Be careful about conflicts with other connectors that would link users too.\n\n**IMPORTANT:** when this checkbox is checked the connector will create a Hull Account for EVERY Pipedrive Organization any Person is linked to (refer to documentation for more details).",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "incoming_user_attributes",
+      "title": "User Attributes to capture from Pipedrive",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": false,
+        "placeholder": "Pipedrive Person Field",
+        "allowCreate": true,
+        "loadOptions": "/fields-pipedrive-person-in",
+        "source": "pipedrive"
+      }
+    },
+    {
+      "name": "synchronized_user_segments",
+      "title": "User Filter",
+      "description": "Send *Users* as Persons to Pipedrive when belonging to one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "segment"
+    },
+    {
+      "name": "outgoing_user_attributes",
+      "title": "User Attributes to send to Pipedrive",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "Pipedrive Person Field",
+        "allowCreate": false,
+        "loadOptions": "/fields-pipedrive-person-out"
+      }
+    },
+    {
+      "name": "link_users_in_service",
+      "title": "Link Persons to Organizations in Pipedrive",
+      "description": "Do you want to let Hull associate Persons and Organizations in Pipedrive?",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "support_user_deletion",
+      "title": "Let Pipedrive mark Hull users as deleted",
+      "description": "Users tagged as deleted in Hull are marked with the attribute \"deleted_at\". Do you want to ignore sending these marked users?",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "ignore_deleted_users",
+      "title": "Ignore deleted users",
+      "description": "Users tagged as deleted in Hull are marked with the attribute \"deleted_at\". Do you want to ignore sending these marked users?",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "account_claims",
+      "title": "Fields to match for Account Identity Resolution",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "title": "Account Field ID",
+            "type": "string",
+            "format": "select",
+            "options": {
+              "allowCreate": false,
+              "loadOptions": "/fields-pipedrive-org-in"
+            }
+          },
+          "hull": {
+            "title": "Hull Account",
+            "enum": [
+              "external_id",
+              "domain"
+            ]
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "domain",
+          "service": "name"
+        }
+      ]
+    },
+    {
+      "name": "synchronized_account_segments",
+      "title": "Account Filter",
+      "description": "Send *Accounts* as Accounts to Pipedrive when belonging to one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "accountSegment"
+    },
+    {
+      "name": "outgoing_account_attributes",
+      "title": "Account Attributes to send to Pipedrive",
+      "type": "array",
+      "format": "accountTraitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "Pipedrive Account Field",
+        "allowCreate": false,
+        "loadOptions": "/fields-pipedrive-account-out"
+      },
+      "default": []
+    },
+    {
+      "name": "support_account_deletion",
+      "title": "Let Pipedrive mark Hull accounts as deleted",
+      "description": "Do you want to let Pipedrive tag Hull accounts as deleted when Organizations are directly removed from Pipdrive's dashboard?",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "ignore_deleted_accounts",
+      "title": "Ignore deleted accounts",
+      "description": "Accounts tagged as deleted in Hull are marked with the attribute \"deleted_at\". Do you want to ignore sending these marked accounts?",
+      "type": "boolean",
+      "default": true
+    }
+  ],
+  "settings": [],
+  "resources": [],
+  "readme": "readme.md",
+  "tabs": [],
+  "admin": "/admin",
+  "ui": false,
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "5",
+      "handler": "status"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "interval",
+    "value": "5",
+    "handler": "status"
+  },
+  "incoming": [
+    {
+      "url": "/webhooks",
+      "handler": "webhooks",
+      "options": {
+        "credentialsFromQuery": true,
+        "bodyParser": "json"
+      }
+    }
+  ],
+  "json": [
+    {
+      "url": "/personFetchAll",
+      "handler": "personFetchAll",
+      "type": "string",
+      "format": "action",
+      "name": "fetch_all_persons",
+      "title": "Fetch All Persons",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all users from Pipedrive into Hull.  Please make sure you've configured your user identity properly, and that you have the attributes you'd like pulled configured.  Be careful when clicking this multiple times, it can result in long operations.  Check out the \"Logs\" tab to track incoming.user.success messages as users are ingested",
+          "button": "Start Fetching Users",
+          "entity": "users"
+        }
+      }
+    },
+    {
+      "url": "/orgFetchAll",
+      "handler": "orgFetchAll",
+      "type": "string",
+      "format": "action",
+      "name": "fetch_all_orgs",
+      "title": "Fetch All Organizations",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all accounts from Pipedrive into Hull.  Please make sure you've configured your account identity properly, and that you have the attributes you'd like pulled configured.  Be careful when clicking this multiple times, it can result in long operations.  Check out the \"Logs\" tab to track incoming.account.success messages as accounts are ingested",
+          "button": "Start Fetching Accounts",
+          "entity": "accounts"
+        }
+      }
+    },
+    {
+      "url": "/fields-pipedrive-person-in",
+      "handler": "fieldsPipedrivePersonInbound"
+    },
+    {
+      "url": "/fields-pipedrive-person-out",
+      "handler": "fieldsPipedrivePersonOutbound"
+    },
+    {
+      "url": "/fields-pipedrive-org-in",
+      "handler": "fieldsPipedriveOrgInbound"
+    },
+    {
+      "url": "/fields-pipedrive-account-out",
+      "handler": "fieldsPipedriveAccountOutbound"
+    }
+  ],
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
+        {
+          "channel": "account:update",
+          "handler": "accountUpdate"
+        }
+      ],
+      "conditions": {
+        "channels": {
+          "only": [
+            "user:update",
+            "account:update",
+            "ship:update"
+          ]
+        }
+      }
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Connect with Pipedrive",
+      "description": "Please begin by authenticating this connector with Pipedrive. You must have appropriate privileges to grant access. Hull accesses to only the endpoint required to do User and Account synchronization",
+      "step": "credentials",
+      "properties": [
+        "private_settings.oauth"
+      ]
+    },
+    {
+      "title": "User - Identity",
+      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to Pipedrive as well as the data we pull from Pipedrive.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /> <b>Please be aware that Pipedrive rejects user emails with the domain of the customer as well as pipedrivemail.com domains.</b>",
+      "properties": [
+        "private_settings.user_claims"
+      ]
+    },
+    {
+      "title": "User - Fetching from Pipedrive",
+      "description": "Hull gives its customers the ability to capture a subset of user fields in order to have fine grain control over the dataflow.  Please configure the fields that you would like pulled from Pipedrive below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.<br /><br />",
+      "properties": [
+        "private_settings.incoming_user_attributes",
+        "private_settings.link_users_in_hull",
+        "private_settings.support_user_deletion",
+        "json.fetch_all_persons"
+      ]
+    },
+    {
+      "title": "User - Sending to Pipedrive",
+      "description": "Configuring this section will result in automated data flows which will update your users in Pipedrive.  That's why we provide fine grain control over the updates that you send to Pipedrive.  First configure a \"Segment\" as a user filter to control which users get sent to Pipedrive.  Then configure the attributes you want synchronized.  You may always go to a user page and click \"Send to\" in order to override the filter and send specific users manually.  <br /><br /><b>Please be careful to map similar data types. ie. Not boolean to date</b>",
+      "properties": [
+        "private_settings.synchronized_user_segments",
+        "private_settings.outgoing_user_attributes",
+        "private_settings.link_users_in_service",
+        "private_settings.ignore_deleted_users"
+      ]
+    },
+    {
+      "title": "Account - Identity",
+      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for account identity should correspond to unique fields across systems.  This identity applies to both the data we send to Pipedrive as well as the data we pull from Pipedrive.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Domain</b> can be a good identifier, but be careful because Hull will use the normalized top level domain to match with other accounts.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /><b>Please be aware that Pipedrive will reject accounts sent without a name</b>",
+      "properties": [
+        "private_settings.account_claims"
+      ]
+    },
+    {
+      "title": "Account - Fetching from Pipedrive",
+      "description": "Hull gives its customers the ability to capture a subset of account fields in order to have fine grain control over the dataflow.  Please configure the fields that you would like pulled from Pipedrive below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.<br /><br />",
+      "properties": [
+        "private_settings.incoming_account_attributes",
+        "private_settings.support_account_deletion",
+        "json.fetch_all_orgs"
+      ]
+    },
+    {
+      "title": "Account - Sending to Pipedrive",
+      "description": "",
+      "properties": [
+        "private_settings.synchronized_account_segments",
+        "private_settings.outgoing_account_attributes",
+        "private_settings.ignore_deleted_accounts"
+      ]
+    }
+  ]
+}

@@ -106,8 +106,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -245,8 +244,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -258,7 +256,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -271,7 +269,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -284,8 +282,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.event.success",
+        "debug", "incoming.event.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -293,8 +290,7 @@ module.exports = [
         undefined
       ],
       [
-        "info",
-        "incoming.account.link.success",
+        "debug", "incoming.account.link.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -461,8 +457,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -474,7 +469,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -487,7 +482,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -500,8 +495,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.event.success",
+        "debug", "incoming.event.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -509,8 +503,7 @@ module.exports = [
         undefined
       ],
       [
-        "info",
-        "incoming.account.link.success",
+        "debug", "incoming.account.link.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -631,8 +624,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -644,8 +636,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.event.success",
+        "debug", "incoming.event.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -730,7 +721,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -808,7 +799,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -881,8 +872,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"

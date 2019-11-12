@@ -41,7 +41,7 @@ it("Receive Webhook - single contact deleted payload", () => {
       response: {},
       logs: [
         ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" }],
-        ["info", "incoming.user.success", { "subject_type": "user", "user_anonymous_id": "hubspot:123"},
+        ["debug", "incoming.user.success", { "subject_type": "user", "user_anonymous_id": "hubspot:123"},
           {
             "data": {
               "eventId": 1,

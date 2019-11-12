@@ -1,12 +1,5 @@
 // @flow
 
-
-
-
-
-
-
-
 const _ = require("lodash");
 
 
@@ -25,6 +18,12 @@ test("process account update webhook from outreach", () => {
         return superagent
           .post(`${connectorUrl}/webhooks?ship=${plainCredentials.ship}&organization=${plainCredentials.organization}&secret=1234`)
           .send(require("../fixtures/webhook-payloads/account-updated.json"));
+        scope
+          .get("/api/v2/users/")
+          .reply(201, { data: [ { id: 1, attributes: { email: "andy@hull.io" } }, { id: 0, attributes: { email: "tim@hull.io" }}]});
+        scope
+          .get("/api/v2/stages/")
+          .reply(201, { data: [ { id: 1, attributes: { name: "New Stage" } }, { id: 0, attributes: { name: "Cool Stage" }}]});
       },
       connector: {
         private_settings: {
@@ -92,7 +91,7 @@ test("process account update webhook from outreach", () => {
         ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" } ],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
-        ["info", "incoming.account.success", {
+        ["debug", "incoming.account.success", {
           "subject_type": "account",
           "account_anonymous_id": "outreach:1"
         }, {"data": expect.whatever(), "type": "WebPayload"}],
