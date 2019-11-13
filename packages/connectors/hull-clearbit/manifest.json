@@ -914,12 +914,22 @@
       "multipleOf": 1
     },
     {
-      "name": "prospect_domain",
+      "name": "lookup_domain",
       "title": "Domain lookup",
       "type": "string",
       "format": "accountTrait",
       "default": "domain",
-      "description": "Which attribute to use as the domain to prospect. Usually the Account domain."
+      "required": true,
+      "description": "Which attribute to use as the domain to lookup on Accounts. Usually the Account domain."
+    },
+    {
+      "name": "lookup_email",
+      "title": "Email lookup",
+      "type": "string",
+      "format": "trait",
+      "default": "email",
+      "required": true,
+      "description": "Which attribute to use as the email to lookup on Users. Usually the User's main email."
     },
     {
       "name": "prospect_account_segments",
@@ -946,7 +956,6 @@
       "name": "prospect_limit_count",
       "title": "Maximum number of leads to fetch per company",
       "type": "number",
-      "format": "range",
       "default": 5,
       "minimum": 1,
       "maximum": 20,
@@ -1027,7 +1036,9 @@
       "properties": [
         "private_settings.incoming_company_mapping",
         "private_settings.incoming_person_mapping",
-        "private_settings.incoming_prospect_mapping"
+        "private_settings.incoming_prospect_mapping",
+        "private_settings.lookup_email",
+        "private_settings.lookup_domain"
       ]
     },
     {
@@ -1055,7 +1066,6 @@
       "properties": [
         "private_settings.prospect_account_segments",
         "private_settings.prospect_account_segments_exclusion",
-        "private_settings.prospect_domain",
         "private_settings.prospect_filter_titles",
         "private_settings.prospect_filter_role",
         "private_settings.prospect_filter_seniority",

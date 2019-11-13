@@ -6,10 +6,10 @@ import handlers from "./handlers";
 
 export default function connectorConfig(): HullConnectorConfig {
   const {
-    PORT = "8082",
+    PORT = 8082,
     LOG_LEVEL,
     NODE_ENV,
-    SECRET = "1234",
+    SECRET,
     OVERRIDE_FIREHOSE_URL,
     FLOW_CONTROL_IN = 1,
     FLOW_CONTROL_SIZE = 200
@@ -17,17 +17,18 @@ export default function connectorConfig(): HullConnectorConfig {
 
   // We're not using default assignments because "null" values makes Flow choke
   const hostSecret = SECRET || "1234";
+
   return {
     manifest,
     hostSecret,
     devMode: NODE_ENV === "development",
     port: PORT || 8082,
-    logLevel: LOG_LEVEL,
-    middlewares: [],
+    timeout: "25s",
     handlers: handlers({
       flow_size: parseInt(FLOW_CONTROL_SIZE || 200, 1),
       flow_in: parseInt(FLOW_CONTROL_IN || 1, 1)
     }),
+    middlewares: [],
     logsConfig: {
       logLevel: LOG_LEVEL
     },
