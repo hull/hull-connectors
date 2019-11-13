@@ -15,7 +15,8 @@ export default function statusCheck(ctx: HullContext) {
     prospect_filter_seniority,
     prospect_filter_titles,
     prospect_filter_role,
-    prospect_domain,
+    lookup_domain,
+    lookup_email,
     prospect_account_segments,
     prospect_limit_count
   } = private_settings;
@@ -53,11 +54,15 @@ export default function statusCheck(ctx: HullContext) {
       "Prospector enabled, but no Roles are listed. Prospection will be unpredictable"
     );
   }
-  if (!prospect_domain) {
+  if (!lookup_domain) {
     status = "error";
     messages.push(
-      "Prospector enabled, but no 'Company Domain' field is set. We need to know what domain to lookup"
+      "No 'Company Domain' set. We need to know what domain to lookup"
     );
+  }
+  if (!lookup_email) {
+    status = "error";
+    messages.push("No 'User Email' set. We need to know what email to lookup");
   }
   if (!prospect_filter_seniority) {
     status = "ok";

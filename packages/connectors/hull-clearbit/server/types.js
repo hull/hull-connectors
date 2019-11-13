@@ -237,13 +237,14 @@ export type ClearbitConnectorSettings = {
   enrich_refresh: string,
   enrich_account_segments: Array<string>,
   enrich_account_segments_exclusion: Array<string>,
+  lookup_email: string,
+  lookup_domain: string,
 
   discover_limit_count: number,
   discover_segments: Array<string>,
 
   prospect_account_segments: Array<string>,
   prospect_account_segments_exclusion: Array<string>,
-  prospect_domain: string,
   prospect_filter_role: Array<string>,
   prospect_filter_seniority: Array<string>,
   prospect_filter_titles: Array<string>,

@@ -126,7 +126,7 @@ export async function saveAccount(
     source
   }: {
     account: HullAccount,
-    user: HullUser,
+    user?: HullUser,
     person: ClearbitPerson,
     company: ClearbitCompany,
     source: "prospect" | "enrich" | "discover" | "reveal"

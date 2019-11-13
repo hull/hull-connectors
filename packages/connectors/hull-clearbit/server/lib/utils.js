@@ -2,7 +2,7 @@
 
 import _ from "lodash";
 import rangeCheck from "range_check";
-import type { HullAccount } from "hull";
+import type { HullAccount, HullUser } from "hull";
 import excludes from "../excludes";
 import type { ClearbitConnectorSettings } from "../types";
 
@@ -27,10 +27,20 @@ export function getDomain(
   account: HullAccount,
   settings: ClearbitConnectorSettings
 ): string {
-  const { prospect_domain } = settings;
+  const { lookup_domain } = settings;
   // return account.domain || account["clearbit/domain"];
   // $FlowFixMe
-  return account[prospect_domain];
+  return account[lookup_domain];
+}
+
+export function getEmail(
+  user: HullUser,
+  settings: ClearbitConnectorSettings
+): string {
+  const { lookup_email } = settings;
+  // return account.domain || account["clearbit/domain"];
+  // $FlowFixMe
+  return user[lookup_email];
 }
 
 export function now() {
