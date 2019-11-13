@@ -946,7 +946,6 @@
       "name": "prospect_limit_count",
       "title": "Maximum number of leads to fetch per company",
       "type": "number",
-      "format": "range",
       "default": 5,
       "minimum": 1,
       "maximum": 20,
