@@ -4,6 +4,7 @@ import URI from "urijs";
 import _ from "lodash";
 import type {
   HullClient,
+  HullFetchedUser,
   HullContextGetter,
   HullEntityScopedClient,
   HullContext
@@ -48,7 +49,7 @@ export default function onConnectionFactory({
 }: {
   Client: Class<HullClient>,
   getContext: HullContextGetter,
-  sendPayload: Object => void,
+  sendPayload: (HullContext, HullFetchedUser, any) => void,
   store: Store
 }) {
   const { get, lru } = store;
@@ -136,11 +137,11 @@ export default function onConnectionFactory({
             message = await ctx.entities.users.get({ claims });
           }
 
-          if (!message) {
+          if (!message || !message.data || !message.data.length) {
             throw new Error("Can't find user");
           }
 
-          sendPayload(ctx, message, socket);
+          sendPayload(ctx, _.first(message.data), socket);
         } catch (err) {
           // Error happened, send no one.
           socket.emit("user.error", USER_NOT_FOUND);

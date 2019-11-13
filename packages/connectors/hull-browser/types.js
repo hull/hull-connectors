@@ -86,13 +86,6 @@ export type Payload = PrivatePayload | PublicPayload;
 type storeSet = (id: string, data: any) => void;
 type storeGet = (id: string) => any;
 
-export type SendPayloadArgs = {
-  client: HullClient,
-  namespace: string,
-  rooms: Array<string>,
-  payload: Payload
-};
-
 export type Store = {
   get: storeGet,
   set: storeSet,

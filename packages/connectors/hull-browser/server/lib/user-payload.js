@@ -1,7 +1,7 @@
 // @flow
 
 import _ from "lodash";
-import type { HullContext, HullUserUpdateMessage } from "hull";
+import type { HullContext, HullFetchedUser } from "hull";
 
 import ga from "../destinations/ga";
 import gtm from "../destinations/gtm";
@@ -18,7 +18,7 @@ import type { Segments, Events, Payload } from "../../types";
  */
 export default function userPayload(
   ctx: HullContext,
-  message: HullUserUpdateMessage
+  message: HullFetchedUser
 ): Payload {
   const { user, segments, account_segments, events, account } = message;
   const { client, connector } = ctx;

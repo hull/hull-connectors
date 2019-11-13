@@ -1,15 +1,15 @@
 // @flow
 
 import _ from "lodash";
-import type { HullContext, HullUserUpdateMessage, HullFetchedUser } from "hull";
+import type { HullContext, HullFetchedUser } from "hull";
 import userPayload from "./user-payload";
 import getRooms from "./get-rooms";
 
 export default function sendUpdateFactory({ io }: any) {
   return function sendPayload(
     ctx: HullContext,
-    message: HullUserUpdateMessage | HullFetchedUser,
-    socket
+    message: HullFetchedUser,
+    socket?: any
   ) {
     const { clientCredentials, client } = ctx;
     const { id: namespace } = clientCredentials;

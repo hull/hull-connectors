@@ -3,9 +3,10 @@
 import type {
   HullContext,
   HullUserUpdateMessage,
+  HullFetchedUser,
   HullNotificationResponse
 } from "hull";
-import type { Store, SendPayloadArgs } from "../../types";
+import type { Store } from "../../types";
 
 export default function factory({
   connectorUpdate,
@@ -13,16 +14,16 @@ export default function factory({
   store
 }: {
   connectorUpdate: (ctx: HullContext) => Promise<void>,
-  sendPayload: SendPayloadArgs => void,
+  sendPayload: (HullContext, HullFetchedUser) => void,
   store: Store
 }) {
   const { /* get,  */ lru } = store;
   return async function handle(
-    context: HullContext,
+    ctx: HullContext,
     messages: Array<HullUserUpdateMessage>
   ): HullNotificationResponse {
-    const { connector, client } = context;
-    await connectorUpdate(context);
+    const { connector, client } = ctx;
+    await connectorUpdate(ctx);
     await Promise.all(
       messages.map(async message => {
         const { user } = message;
@@ -32,7 +33,7 @@ export default function factory({
           // Store the latest message for a given user id in LRU so that we can retrieve it quickly on next page loads
           await lru(namespace).set(user.id, message);
           // Attempt to send current payload to any websocket-connected client
-          sendPayload(context, message);
+          sendPayload(ctx, message);
         } catch (error) {
           client.asUser(user).logger.error("outgoing.user.error", { error });
         }
