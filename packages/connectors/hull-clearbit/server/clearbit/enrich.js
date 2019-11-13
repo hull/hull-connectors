@@ -7,7 +7,7 @@ import type {
   HullContext
 } from "hull";
 import Client from "./client";
-import { isInSegments, getDomain } from "../lib/utils";
+import { isInSegments, getDomain, getEmail } from "../lib/utils";
 
 import { saveAccount, saveUser } from "../lib/side-effects";
 
@@ -41,7 +41,7 @@ export const shouldEnrichUser = (
     enrich_refresh
   } = settings;
 
-  if (_.isEmpty(user.email)) {
+  if (!getEmail(user, settings)) {
     return {
       should: false,
       message: "Cannot Enrich because missing email"
@@ -172,28 +172,28 @@ export async function performEnrich({
   hostname: string,
   message: HullUserUpdateMessage | HullAccountUpdateMessage
 }) {
-  const { user = {}, account } = message;
-  const domain = getDomain(account, settings);
+  const { user, account } = message;
   const { connector } = ctx;
   const { private_settings = {} } = connector;
   const { enrich_refresh } = private_settings;
-  const id = user.id || account.id;
-  const payload = _.size(user)
-    ? {
-        email: user.email,
-        given_name: user.first_name,
-        family_name: user.last_name,
-        webhook_url: undefined,
-        webhook_id: id,
-        subscribe: !!enrich_refresh
-      }
-    : {
-        domain: domain || user.domain,
-        company_name: account.name,
-        webhook_url: undefined,
-        webhook_id: id,
-        subscribe: !!enrich_refresh
-      };
+  const id = _.get(user, "id") || account.id;
+  const payload =
+    user && _.size(user)
+      ? {
+          email: getEmail(user, settings),
+          given_name: user.first_name,
+          family_name: user.last_name,
+          webhook_url: undefined,
+          webhook_id: id,
+          subscribe: !!enrich_refresh
+        }
+      : {
+          domain: getDomain(account, settings),
+          company_name: account.name,
+          webhook_url: undefined,
+          webhook_id: id,
+          subscribe: !!enrich_refresh
+        };
 
   payload.webhook_url = `https://${hostname}/clearbit-enrich?token=${token}`;
   const enrich = await new Client(ctx).enrich(payload);
