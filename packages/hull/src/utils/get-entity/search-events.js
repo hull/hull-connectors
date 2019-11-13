@@ -20,13 +20,9 @@ const searchEvents = (ctx: HullContext) => async ({
 }> => {
   const query = [
     {
-      has_parent: {
-        parent_type: "user_report",
-        query: {
-          term: {
-            id: parent
-          }
-        }
+      parent_id: {
+        type: "user_report",
+        id: parent
       }
     }
   ];
