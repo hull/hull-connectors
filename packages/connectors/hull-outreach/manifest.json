@@ -230,13 +230,6 @@
       "default": false
     },
     {
-      "name": "fetch_events",
-      "title": "Fetch Events",
-      "description": "Enable fetching Outreach events to Hull as events",
-      "type": "boolean",
-      "default": false
-    },
-    {
       "default": [],
       "format": "select",
       "items": {
@@ -256,36 +249,6 @@
       "name": "events_to_fetch",
       "type": "array",
       "uniqueItems": true
-    },
-    {
-      "name": "events_user_claims",
-      "title": "User Identity",
-      "type": "array",
-      "format": "table",
-      "items": {
-        "type": "object",
-        "properties": {
-          "service": {
-            "title": "Outreach Prospect Email",
-            "type": "string",
-            "format": "select",
-            "enum": ["recipient"],
-            "options" : {
-              "allowCreate": false
-            }
-          },
-          "hull": {
-            "title": "Hull User Identity",
-            "enum": ["email"]
-          }
-        }
-      },
-      "default": [
-        {
-          "hull": "email",
-          "service": "recipient"
-        }
-      ]
     }
   ],
   "settings": [],
@@ -337,6 +300,17 @@
           "handler": "accountUpdate"
         }
       ]
+    }
+  ],
+  "schedules": [
+    {
+      "url": "/fetch-recent-events",
+      "type": "interval",
+      "value": "5",
+      "handler": "eventsFetchRecent",
+      "options": {
+        "fireAndForget": true
+      }
     }
   ],
   "json": [
@@ -502,7 +476,6 @@
       "title": "Events - Fetching from Outreach",
       "description": "Fetch events from Outreach",
       "properties": [
-        "private_settings.fetch_events",
         "private_settings.events_to_fetch",
         "json.fetch_all_events"
       ]
