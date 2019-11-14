@@ -186,7 +186,7 @@ const service = ({ clientID, clientSecret } : {
       url: "/events/",
       operation: "get",
       endpointType: "byProperty",
-      query: "filter[name]=${eventsToFetch}&sort=-eventAt&page[limit]=100"
+      query: "filter[name]=${eventsToFetch}&filter[eventAt]=${filterLimits}&sort=-eventAt&page[limit]=100"
     },
     getEventsOffset: {
       url: "/events/",
