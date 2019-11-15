@@ -36,7 +36,7 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
       accountsSegments: [],
       externalApiMock: () => {
         const scope = nock("https://api.hubapi.com");
-        scope.get("/email/public/v1/events?limit=300")
+        scope.get("/email/public/v1/events?limit=300&excludeFilteredEvents=true")
           .reply(200, require("./fixtures/events/hubspot-email-events"));
         scope.get("/email/public/v1/campaigns/1")
           .reply(200, { "contentId": 123 });
@@ -74,7 +74,7 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/email/public/v1/events", "status": 200, "vars": {} }],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/email/public/v1/campaigns/1", "status": 200, "vars": {} }],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/marketing-emails/v1/emails", "status": 200, "vars": {} }],
-        ["info", "incoming.user.success", { "subject_type": "user", "user_email": "email@gmail.com" },
+        ["debug", "incoming.user.success", { "subject_type": "user", "user_email": "email@gmail.com" },
           {
             "data": {
               "appName": "Batch",
@@ -104,7 +104,7 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
         ],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/email/public/v1/campaigns/2", "status": 200, "vars": {} }],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/marketing-emails/v1/emails", "status": 200, "vars": {} }],
-        ["info", "incoming.user.success", { "subject_type": "user", "user_email": "email@gmail.com" },
+        ["debug", "incoming.user.success", { "subject_type": "user", "user_email": "email@gmail.com" },
           {
             "data": {
               "appName": "Batch",
@@ -130,7 +130,7 @@ it("Complex fetch all email events - multiple event to fetch and filter", () => 
             "type": "hubspot_incoming_email_event"
           }
         ],
-        ["info", "incoming.user.success", { "subject_type": "user", "user_email": "email@gmail.com" },
+        ["debug", "incoming.user.success", { "subject_type": "user", "user_email": "email@gmail.com" },
           {
             "data": {
               "appName": "Batch",

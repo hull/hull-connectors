@@ -384,7 +384,7 @@ class SyncAgent {
         }
 
         return asUser.traits(traits).then(
-          () => asUser.logger.info("incoming.user.success", { traits }),
+          () => asUser.logger.debug("incoming.user.success", { traits }),
           error =>
             asUser.logger.error("incoming.user.error", {
               hull_summary: `Fetching data from Hubspot returned an error: ${_.get(
@@ -437,7 +437,7 @@ class SyncAgent {
     filterResults.toSkip.forEach(envelope => {
       this.hullClient
         .asUser(envelope.message.user)
-        .logger.info("outgoing.user.skip", { reason: envelope.skipReason });
+        .logger.debug("outgoing.user.skip", { reason: envelope.skipReason });
     });
 
     try {
@@ -537,11 +537,11 @@ class SyncAgent {
     filterResults.toSkip.forEach(envelope => {
       this.hullClient
         .asAccount(envelope.message.account)
-        .logger.info("outgoing.account.skip", { reason: envelope.skipReason });
+        .logger.debug("outgoing.account.skip", { reason: envelope.skipReason });
     });
 
     try {
-      // const noChangesSkip = [];
+      const noChangesSkip = [];
       const upsertResults = _.concat(
         filterResults.toInsert,
         filterResults.toUpdate
@@ -552,20 +552,23 @@ class SyncAgent {
           sendOnAnySegmentChanges: true
         });
         if (!toSend) {
+          /*
           this.hullClient
             .asAccount(envelope.message.account)
-            .logger.info("outgoing.account.skipcandidate", {
+            .logger.debug("outgoing.account.skipcandidate", {
               reason: "attribute change not found",
               changes: _.get(envelope, "message.changes")
             });
+          */
           // add this when ready to enable
-          // noChangesSkip.push(envelope);
+          noChangesSkip.push(envelope);
         }
       });
 
-      /* noChangesSkip.forEach(envelope => {
+      noChangesSkip.forEach(envelope => {
         _.pull(filterResults.toInsert, envelope);
-      });*/
+        _.pull(filterResults.toUpdate, envelope);
+      });
     } catch (err) {
       console.log(err);
     }

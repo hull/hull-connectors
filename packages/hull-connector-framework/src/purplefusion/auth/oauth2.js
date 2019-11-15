@@ -24,14 +24,14 @@ const oauth2 = {
       return {
         status: 200,
         data: {
-          message: "Connected to Outreach"
+          message: "Connected"
         }
       };
     }
     return {
       status: 400,
       data: {
-        message: "Please authenticate with Outreach"
+        message: "Please authenticate"
       }
     };
   },
@@ -51,12 +51,12 @@ const oauth2 = {
     // and the more detailed variables are in a params object below req.account
     const { account = {} } = message;
     const { refreshToken, params } = account;
-    const { access_token, expires_in, created_at } = params || {};
+    const { access_token, expires_in, created_at, refresh_token } = params || {};
     return {
       private_settings: {
         token_expires_in: expires_in,
         token_created_at: created_at,
-        refresh_token: refreshToken,
+        refresh_token: refreshToken || refresh_token,
         access_token
       }
     };

@@ -39,8 +39,8 @@ test("send smart-notifier user update to outreach", () => {
         ["debug", "connector.service_api.call", {"request_id": expect.whatever()}, expect.objectContaining({"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/", "vars": {}})],
         ["debug", "connector.service_api.call", {"request_id": expect.whatever()}, expect.objectContaining({"method": "PATCH", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/23", "vars": {}})],
         ["info", "outgoing.user.success", expect.objectContaining({"request_id": expect.whatever(), "subject_type": "user", "user_email": "alberto@close.io", "user_id": "userid"}), { "data": {"data": {"attributes": {"emails": ["alberto@close.io", "albertoman9@gmail.com"], "custom1": "newdomain.com" }, "id": 23, "type": "prospect"}},
-        "operation": "patch", type:"Prospect" }],
-        ["info", "incoming.user.success", {
+        type:"Prospect" }],
+        ["debug", "incoming.user.success", {
           "request_id": expect.whatever(),
           "subject_type": "user",
           "user_anonymous_id": "outreach:23",

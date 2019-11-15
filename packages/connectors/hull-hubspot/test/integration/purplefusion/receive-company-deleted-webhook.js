@@ -42,7 +42,7 @@ it("Receive Webhook - company deleted payload", () => {
       response: {},
       logs: [
         ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" }],
-        ["info", "incoming.account.success", { "subject_type": "account", "account_anonymous_id": "hubspot:123" },
+        ["debug", "incoming.account.success", { "subject_type": "account", "account_anonymous_id": "hubspot:123" },
           {
             "data": {
               "eventId": 1,

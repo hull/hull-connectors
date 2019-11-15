@@ -41,8 +41,7 @@ it("should handle incoming webhook for unsubscribe event", () => {
             require("../fixtures/incoming-webhook-unsubscribe-abuse")
           ],
           [
-            "info",
-            "incoming.user.success",
+            "debug", "incoming.user.success",
             {
               subject_type: "user",
               user_anonymous_id: "mailchimp:123416b037",

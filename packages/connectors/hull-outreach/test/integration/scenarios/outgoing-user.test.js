@@ -57,7 +57,7 @@ test("send smart-notifier user update to outreach with specific attribute change
       // most of the remaining "whatevers" are returned from the nock endpoints or are tested in traits
       logs: [
         ["info", "outgoing.job.start", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}],
-        ["info", "outgoing.user.skip", expect.objectContaining({ "subject_type": "user", "user_email": "bluth@close.io" }), expect.objectContaining({ "reason": "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment" })],
+        ["debug", "outgoing.user.skip", expect.objectContaining({ "subject_type": "user", "user_email": "bluth@close.io" }), expect.objectContaining({ "reason": "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment" })],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "GET","status": 200,"url": "/prospects/16" })],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "PATCH","status": 200,"url": "/prospects/16" })],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "PATCH","status": 200,"url": "/prospects/23" })],
@@ -65,15 +65,15 @@ test("send smart-notifier user update to outreach with specific attribute change
         ["info", "outgoing.user.success", expect.objectContaining({ "subject_type": "user", "user_email": "darth@darksideinc.com" }), expect.whatever()],
         ["info", "outgoing.user.success", expect.objectContaining({ "subject_type": "user", "user_email": "alberto@close.io" }), expect.whatever()],
         ["info", "outgoing.user.success", expect.objectContaining({ "subject_type": "user", "user_email": "thedarkknight@close.io" }), expect.whatever()],
-        ["info", "incoming.user.success", expect.whatever(), expect.whatever()],
-        ["info", "incoming.user.success", expect.whatever(), expect.whatever()],
-        ["info", "incoming.user.success", expect.whatever(), expect.whatever()],
+        ["debug", "incoming.user.success", expect.whatever(), expect.whatever()],
+        ["debug", "incoming.user.success", expect.whatever(), expect.whatever()],
+        ["debug", "incoming.user.success", expect.whatever(), expect.whatever()],
         ["info", "outgoing.job.success", expect.whatever(), {"jobName": "Outgoing Data", "type": "user"}]
       ],
       firehoseEvents: [
-        ["traits", {"asUser": {"anonymous_id": "outreach:16", "email": "darth@darksideinc.com"}, "subjectType": "user"}, {"outreach/id": {"operation": "set", "value": 16}, "outreach/personalnote2": {"operation": "set", "value": "sith lord, don't mention padme"}}],
-        ["traits", {"asUser": {"anonymous_id": "outreach:23", "email": "alberto@close.io"}, "subjectType": "user"}, {"outreach/custom2": {"operation": "set", "value": "Alberto Nodale"}, "outreach/id": {"operation": "set", "value": 23}}],
-        ["traits", {"asUser": {"anonymous_id": "outreach:15", "email": "thedarkknight@close.io"}, "subjectType": "user"}, {"outreach/custom1": {"operation": "set", "value": "Bruce Wayne"}, "outreach/id": {"operation": "set", "value": 15}}],
+        ["traits", {"asUser": {"anonymous_id": "outreach:16", "email": "darth@darksideinc.com"}, "subjectType": "user"}, {"outreach/custom1": { "operation": "set", "value": null }, "outreach/custom2": { "operation": "set", "value": null }, "outreach/id": {"operation": "set", "value": 16}, "outreach/personalnote2": {"operation": "set", "value": "sith lord, don't mention padme"}}],
+        ["traits", {"asUser": {"anonymous_id": "outreach:23", "email": "alberto@close.io"}, "subjectType": "user"}, {"outreach/custom1": { "operation": "set", "value": null }, "outreach/custom2": {"operation": "set", "value": "Alberto Nodale"}, "outreach/id": {"operation": "set", "value": 23}, "outreach/personalnote2": {"operation": "set", "value": null}}],
+        ["traits", {"asUser": {"anonymous_id": "outreach:15", "email": "thedarkknight@close.io"}, "subjectType": "user"}, {"outreach/custom1": {"operation": "set", "value": "Bruce Wayne"}, "outreach/custom2": { "operation": "set", "value": null }, "outreach/id": {"operation": "set", "value": 15}, "outreach/personalnote2": {"operation": "set", "value": null}}],
         ["traits", {"asAccount": {"anonymous_id": "outreach:20"}, "asUser": {"anonymous_id": "outreach:16", "email": "darth@darksideinc.com"}, "subjectType": "account"}, {}],
         ["traits", {"asAccount": {"anonymous_id": "outreach:32"}, "asUser": {"anonymous_id": "outreach:23", "email": "alberto@close.io"}, "subjectType": "account"}, {}],
         ["traits", {"asAccount": {"anonymous_id": "outreach:28"}, "asUser": {"anonymous_id": "outreach:15", "email": "thedarkknight@close.io"}, "subjectType": "account"}, {}]
