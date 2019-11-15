@@ -10,7 +10,7 @@ import type {
   HullEntityClaims
 } from "./index";
 
-export type HullFetchedUser = {
+export type HullFetchedUser = {|
   user: HullUser,
   segments: Array<HullUserSegment>,
   segment_ids: Array<string>,
@@ -18,7 +18,7 @@ export type HullFetchedUser = {
   account?: HullAccount,
   account_segments?: Array<HullAccountSegment>,
   account_segment_ids?: Array<string>
-};
+|};
 
 export type HullFetchedAccount = {
   account: HullAccount,

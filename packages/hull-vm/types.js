@@ -63,12 +63,16 @@ export type Payload =
       cookies: {},
       method: string,
       ip: string,
+      variables: {},
       headers: {
         [string]: string
       },
       body: mixed
     }
-  | HullFetchedUser;
+  | {
+      ...HullFetchedUser,
+      variables: {}
+    };
 
 export type HullAliasOperation = "alias" | "unalias";
 type HullUserClaimsMap = Map<$Keys<HullUserClaims>, $Values<HullUserClaims>>;

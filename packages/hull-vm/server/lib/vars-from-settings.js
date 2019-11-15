@@ -3,7 +3,9 @@
 import type { HullContext } from "hull";
 import _ from "lodash";
 
-export default function varsFromSettings(ctx: HullContext) {
+export default function varsFromSettings(
+  ctx: HullContext
+): { [key: string]: string } {
   const { connector } = ctx;
   const { private_settings = {} } = connector;
   const { variables = [] } = private_settings;
