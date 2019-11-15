@@ -135,6 +135,7 @@ class TransformImpl {
 
       try {
         const isString = typeof input === "string";
+        console.log("Attempting to determine variable presence");
         if (!isString && hasVariables(input)) {
           console.log("HASVARIABLES");
           console.log(JSON.stringify(input));
