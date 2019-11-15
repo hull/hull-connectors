@@ -7,6 +7,7 @@ const HashMap = require('hashmap');
 const jsonata = require("jsonata");
 
 const HullVariableContext = require("./variable-context");
+const { hasVariables } = require("./variable-utils");
 const transformationsShared = require("./transforms-shared");
 const { performTransformation, toTransform } = require("../../src/purplefusion/transform-utils");
 
@@ -131,6 +132,17 @@ class TransformImpl {
     }
 
     if (isUndefinedOrNull(desiredOutputClass)) {
+
+      try {
+        const isString = typeof input === "string";
+        if (!isString && hasVariables(input)) {
+          console.log("HASVARIABLES");
+          console.log(JSON.stringify(input));
+        }
+      } catch (err) {
+
+      }
+
       return variableContext.resolveVariables(input);
     }
 
