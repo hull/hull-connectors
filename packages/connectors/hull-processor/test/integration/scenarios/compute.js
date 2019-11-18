@@ -8,6 +8,7 @@ import {
   METRIC_INCOMING_USER,
   NEXT_FLOW_CONTROL,
   USER,
+  METRIC_SERVICE_REQUEST,
   METRIC_CONNECTOR_REQUEST,
   messageWithUser
 } from "../../fixtures";
@@ -646,7 +647,10 @@ describe("Request Methods", () => {
       handlerType: handlers.notificationHandler,
       externalApiMock: () => {
         const scope = nock("https://foo.com");
-        scope.get("/").socketDelay(35000).reply(500, { boom: true });
+        scope
+          .get("/")
+          .socketDelay(35000)
+          .reply(500, { boom: true });
         return scope;
       },
       connector: connectorWithCode(
@@ -672,7 +676,7 @@ describe("Request Methods", () => {
           }
         ]
       ],
-      metrics: [METRIC_CONNECTOR_REQUEST]
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
     }));
   });
   it("should handle request errors", () => {
@@ -708,7 +712,7 @@ describe("Request Methods", () => {
           }
         ]
       ],
-      metrics: [METRIC_CONNECTOR_REQUEST]
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
     }));
   });
 });

@@ -47,7 +47,7 @@ export default async function compute(
     ...payload,
     ...LIBS,
     ...(claims ? scopedUserMethods(payload) : {}),
-    request: getRequest(result),
+    request: getRequest(ctx, result),
     hull: _.size(claims) ? scopedClient(claims) : hull,
     console: getConsole(result, preview),
     connector,
