@@ -115,8 +115,8 @@ const glue = {
       route("setEventMap"),
       set("service_name", "hubspot"),
       ifL(cond("notEmpty", settings("events_last_fetch_started_at")), {
-        do: set("startTimestamp", ex(moment(settings("events_last_fetch_started_at")), "valueOf")),
-        eldo: set("startTimestamp", ex(ex(moment(), "subtract", { minutes: 6 }), "valueOf"))
+        do: set("startTimestamp", settings("events_last_fetch_started_at")),
+        eldo: set("startTimestamp", ex(ex(moment(), "subtract", { minutes: 5 }), "valueOf"))
       }),
       set("initialEndpoint", "getRecentEmailEvents"),
       set("offsetEndpoint", "getRecentEmailEventsWithOffset"),
@@ -134,10 +134,11 @@ const glue = {
      */
     set("limit", 300),
     ifL(cond("notEmpty", set("hubspotResponse", hubspot("${initialEndpoint}"))), [
-      set("last_sync", moment()),
+
       set("hasMore", get("hasMore", "${hubspotResponse}")),
 
       loopL([
+        set("last_sync", ex(moment(), "valueOf")),
         ifL([
           "${hasMore}", cond("notEmpty", "${offset}")
         ], [
@@ -151,6 +152,7 @@ const glue = {
           eldo: loopEndL()
         })
       ]),
+
       settingsUpdate({
         events_last_fetch_started_at: "${last_sync}"
       })
