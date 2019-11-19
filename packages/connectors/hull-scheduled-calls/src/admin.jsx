@@ -21,7 +21,6 @@ const render = Component => {
           centerColumnPreviousTab: "At time of call"
         }}
       />
-      ,
     </AppContainer>,
     root
   );

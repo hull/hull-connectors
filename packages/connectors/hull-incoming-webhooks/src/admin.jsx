@@ -21,7 +21,6 @@ const render = Component => {
           centerColumnPreviousTab: "At Webhook Reception"
         }}
       />
-      ,
     </AppContainer>,
     root
   );

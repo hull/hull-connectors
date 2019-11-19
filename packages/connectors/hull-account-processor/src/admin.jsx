@@ -34,7 +34,6 @@ const render = Component => {
           leftColumnEmpty: NOT_FOUND
         }}
       />
-      ,
     </AppContainer>,
     root
   );
