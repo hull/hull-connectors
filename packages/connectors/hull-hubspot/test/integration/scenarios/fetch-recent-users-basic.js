@@ -36,8 +36,8 @@ it("should fetch recent users using settings", () => {
           .reply(200, []);
         scope.get("/contacts/v1/lists/recently_updated/contacts/recent")
           .query({
-            timeOffset: null,
-            vidOffset: null,
+            // timeOffset: null,
+            // vidOffset: null,
             property: "email",
             count: 100
           })
