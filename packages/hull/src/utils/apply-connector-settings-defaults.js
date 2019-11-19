@@ -1,5 +1,5 @@
 // @flow
-import _ from "lodash";
+
 import type { HullManifest, HullConnector } from "../types";
 
 const debug = require("debug")("hull:apply-connector-settings-default");
