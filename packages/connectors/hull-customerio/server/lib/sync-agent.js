@@ -306,7 +306,7 @@ class SyncAgent {
       filteredEnvelopes.toSkip.forEach((envelope: TUserUpdateEnvelope) => {
         this.client
           .asUser(envelope.message.user)
-          .logger.info("outgoing.user.skip", { reason: envelope.skipReason });
+          .logger.debug("outgoing.user.skip", { reason: envelope.skipReason });
       });
 
       try {

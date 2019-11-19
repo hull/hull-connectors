@@ -81,8 +81,7 @@ it("should fetch recent users using settings", () => {
           }
         ],
         [
-          "info",
-          "incoming.account.link.skip",
+          "debug", "incoming.account.link.skip",
           {
             subject_type: "user", user_email: "testingapis@hubspot.com", user_anonymous_id: "hubspot:3234574"
           },
@@ -105,8 +104,7 @@ it("should fetch recent users using settings", () => {
           }
         ],
         [
-          "info",
-          "incoming.account.link.skip",
+          "debug", "incoming.account.link.skip",
           {
             subject_type: "user",
             user_anonymous_id: "hubspot:3714024",
