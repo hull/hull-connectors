@@ -72,8 +72,7 @@ it.skip("should fetch all companies", () => {
           }
         ],
         [
-          "info",
-          "incoming.account.success",
+          "debug", "incoming.account.success",
           expect.objectContaining({ "subject_type": "account", "account_domain": "foo.com" }),
           {
             traits: {
@@ -86,8 +85,7 @@ it.skip("should fetch all companies", () => {
           }
         ],
         [
-          "info",
-          "incoming.account.link.skip",
+          "debug", "incoming.account.link.skip",
           {
             account_domain: "foo.com",
             subject_type: "account"
