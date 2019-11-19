@@ -30,7 +30,7 @@ it("Basic fetch recent email events since last scheduled fetch - single event to
           portal_id: 6015139,
           refresh_token: 'refresh_token',
           token: 'access_token',
-          events_last_fetch_started_at: '2019-08-29T12:36:50.396Z'
+          events_last_fetch_started_at: '1567082210396'
         }
       },
       usersSegments: [],
