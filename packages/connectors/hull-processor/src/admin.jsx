@@ -3,9 +3,9 @@
 import ready from "domready";
 import React from "react";
 import ReactDOM from "react-dom";
+import { AppContainer } from "react-hot-loader";
 import Engine from "./app/engine";
 import App from "./app";
-
 
 const VALID = `Valid identifiers are:
 - external_id
@@ -21,18 +21,29 @@ Did you use the right identifiers?
 
 ${VALID}`;
 
-ready(() => {
+const render = Component => {
   const root = document.getElementById("app");
   const engine = new Engine();
   ReactDOM.render(
-    <App
-      engine={engine}
-      strings={{
-        leftColumnTitle: "Enter Email or ID to preview User",
-        leftColumnPreview: EMPTY,
-        leftColumnEmpty: NOT_FOUND
-      }}
-    />,
+    <AppContainer>
+      <Component
+        engine={engine}
+        strings={{
+          leftColumnTitle: "Enter Email or ID to preview User",
+          leftColumnPreview: EMPTY,
+          leftColumnEmpty: NOT_FOUND
+        }}
+      />
+      ,
+    </AppContainer>,
     root
   );
-});
+};
+
+ready(() => render(App));
+
+if (module.hot) {
+  module.hot.accept("./app", () => {
+    render(App);
+  });
+}
