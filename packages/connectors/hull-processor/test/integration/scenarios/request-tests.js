@@ -250,7 +250,7 @@ describe("Request library", () => {
           })
         ]
       ],
-      metrics: [METRIC_CONNECTOR_REQUEST]
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
     }));
   });
 
