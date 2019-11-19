@@ -1615,10 +1615,14 @@
       "items": {
         "type": "string"
       },
+      "default": [
+        "ceo",
+        "head of marketing"
+      ],
       "options": {
         "allowCreate": true
       },
-      "description": "Restrict your search by specifying criteria for the prospect's title. If left blank, search is carried out without restriction."
+      "description": "Hit `Enter` after every title to make a Tag out of it, Restrict your search by specifying criteria for the prospect's title. If left blank, search is carried out without restriction."
     },
     {
       "name": "prospect_filter_role",
