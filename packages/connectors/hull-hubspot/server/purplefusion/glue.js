@@ -153,6 +153,7 @@ const glue = {
         })
       ]),
 
+      set("events_last_fetch_timestamp", "${last_sync}"),
       settingsUpdate({
         events_last_fetch_started_at: "${last_sync}"
       })
