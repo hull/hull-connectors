@@ -25,8 +25,8 @@ export default function connectorConfig(): HullConnectorConfig {
     port: PORT || 8082,
     timeout: "25s",
     handlers: handlers({
-      flow_size: parseInt(FLOW_CONTROL_SIZE || 200, 1),
-      flow_in: parseInt(FLOW_CONTROL_IN || 1, 1)
+      flow_size: parseInt(FLOW_CONTROL_SIZE || 200, 10),
+      flow_in: parseInt(FLOW_CONTROL_IN || 1, 10)
     }),
     middlewares: [],
     logsConfig: {
