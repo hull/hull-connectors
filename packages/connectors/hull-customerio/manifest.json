@@ -28,8 +28,7 @@
     {
       "name": "api_key",
       "title": "Customer.io API Key",
-      "type": "string",
-      "format": "password"
+      "type": "string"
     },
     {
       "name": "configuration_title",
@@ -109,16 +108,10 @@
   "subscriptions": [
     {
       "url": "/smart-notifier",
-      "conditions": {
-        "channels": {
-          "only": [
-            "user:update"
-          ]
-        },
+      "conditions" : {
+        "channels": { "only": ["user:update"] },
         "segments": {
-          "user:update": [
-            "private_settings.synchronized_segments"
-          ]
+          "user:update": ["private_settings.synchronized_segments"]
         }
       },
       "channels": [
