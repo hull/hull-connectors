@@ -476,7 +476,7 @@
     },
     {
       "title": "Events - Fetching from Outreach",
-      "description": "Fetch events from Outreach",
+      "description": "Fetch events from Outreach. Identity resolution in Outreach events is achieved by using the anonymous_id only. Beware, if you don't pull your Prospects first, you will end up having users in Hull with blank names. They will eventually be enriched if these Prospects are updated in Outreach.",
       "properties": [
         "private_settings.events_to_fetch",
         "json.fetch_all_events"

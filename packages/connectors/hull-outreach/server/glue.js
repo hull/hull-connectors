@@ -341,7 +341,8 @@ const glue = {
   getOwnerIdToEmailMap: jsonata("data{ $string(id): attributes.email }", cacheWrap(600, outreach("getUsers"))),
   eventsMapping: [
     set("service_name", "outreach"),
-    set("eventsToFetch", ld("join", settings("events_to_fetch"), ",")),
+    set("eventsToFetch", settings("events_to_fetch")),
+    set("eventsBlackList", ld("difference", "${eventsToFetch}", require("./events"))),
     set("last_sync", ex(ex(moment(), "utc"), "format")),
   ],
   eventsFetchAll:
@@ -351,10 +352,7 @@ const glue = {
       route("getEvents")
     ]),
   eventsFetchRecent:
-    ifL([
-      cond("isEqual", settings("fetch_events"), true),
-      cond("notEmpty", settings("events_to_fetch"))
-    ], [
+    ifL(cond("notEmpty", settings("events_to_fetch")), [
       route("eventsMapping"),
       ifL(cond("isEmpty", settings("events_last_fetch_st")), {
         do: set("eventsLastFetch", settings("events_last_fetch_at")),
@@ -367,7 +365,7 @@ const glue = {
   getEvents: [
     loopL([
       iterateL("${outreachEvents.data}", { key: "outreachEvent", async: true },
-        hull("asUser", cast(OutreachEventRead, "${outreachEvent}"))
+        hull("asUser", ld("filter", cast(OutreachEventRead, "${outreachEvent}"))),
       ),
       ifL(cond("isEmpty", "${outreachEvents.links.next}"), {
         do: loopEndL(),

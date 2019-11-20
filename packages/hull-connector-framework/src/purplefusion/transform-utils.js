@@ -10,37 +10,59 @@ function toUnixTimestamp() {
   }
 }
 
-function toTransform(transform, context, input) {
-
-  if (!_.isPlainObject(transform) || !transform.condition) {
-    return true;
-  }
-
-  let transformConditions = [];
-  if (!Array.isArray(transform.condition)) {
-    transformConditions.push(transform.condition);
+function evaluateCondition(conditions, context, input): boolean {
+  let conditionArray = [];
+  if (!Array.isArray(conditions)) {
+    conditionArray.push(conditions);
   } else {
-    transformConditions = transform.condition;
+    conditionArray = conditions;
   }
-
-  for (let i = 0; i < transformConditions.length; i += 1) {
-    let transformCondition = transformConditions[i];
-    if (typeof transformCondition === 'string') {
-      const value = context.get(transformCondition);
+  for (let i = 0; i < conditionArray.length; i += 1) {
+    const condition = conditionArray[i];
+    if (typeof condition === 'string') {
+      const value = context.get(condition);
 
       if (isUndefinedOrNull(value)) {
         return false
       } else if (typeof value === 'boolean' && !value) {
         return false;
       }
-    } else if (typeof transformCondition === 'function') {
-      if (!transformCondition(context, input)) {
+    } else if (typeof condition === 'function') {
+      if (!condition(context, input)) {
         return false;
       }
     }
   }
-
   return true;
+}
+
+function evaluateValidation(transform) {
+  if (transform.validation) {
+    if (evaluateCondition(transform.validation.condition, context, input)) {
+      if (transform.validation.error === "BreakProcess") {
+        throw new Error(`Validation didn't pass for transform: ${transform.validation.message} ${JSON.stringify(transform, null, 2)}`);
+      } else if (transform.validation.error === "Skip") {
+        throw new SkippableError(`Validation didn't pass for transform: ${transform.validation.message} ${JSON.stringify(transform, null, 2)}`);
+      }
+    }
+    //evaluate transforma.validation.condition
+    //if true
+    // look at transform.validation.error
+    //if error === "breakeverything"
+  }
+}
+
+function toTransform(transform, context, input) {
+  if (!_.isPlainObject(transform) || !transform.condition) {
+    evaluateValidation(transform);
+    return true;
+  }
+
+  if (evaluateCondition(transform.condition, context, input)) {
+    evaluateValidation(transform);
+    return true;
+  }
+  return false;
 }
 
 async function performTransformation(dispatcher, context, initialInput, transformation) {
