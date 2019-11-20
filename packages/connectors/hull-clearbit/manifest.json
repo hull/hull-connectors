@@ -1607,52 +1607,35 @@
       "multipleOf": 1
     },
     {
-      "name": "prospect_filter_titles",
-      "title": "Search for Titles containing",
-      "type": "array",
-      "format": "tags",
-      "uniqueItems": true,
-      "items": {
-        "type": "string"
-      },
-      "options": {
-        "allowCreate": true
-      },
-      "description": "Restrict your search by specifying criteria for the prospect's title. If left blank, search is carried out without restriction."
-    },
-    {
       "name": "prospect_filter_role",
       "title": "Filter for a certain Role",
-      "format": "select",
       "type": "array",
-      "uniqueItems": true,
-      "items": {
-        "type": "string",
-        "enum": [
-          "ceo",
-          "communications",
-          "consulting",
-          "customer_service",
-          "education",
-          "engineering",
-          "finance",
-          "founder",
-          "health_professional",
-          "human_resources",
-          "information_technology",
-          "legal",
-          "marketing",
-          "operations",
-          "owner",
-          "president",
-          "product",
-          "public_relations",
-          "real_estate",
-          "recruiting",
-          "research",
-          "sales"
-        ]
-      },
+      "format": "select",
+      "enum": [
+        "",
+        "ceo",
+        "communications",
+        "consulting",
+        "customer_service",
+        "education",
+        "engineering",
+        "finance",
+        "founder",
+        "health_professional",
+        "human_resources",
+        "information_technology",
+        "legal",
+        "marketing",
+        "operations",
+        "owner",
+        "president",
+        "product",
+        "public_relations",
+        "real_estate",
+        "recruiting",
+        "research",
+        "sales"
+      ],
       "description": "Specify a certain role or leave blank to search without restriction."
     },
     {
@@ -1660,16 +1643,27 @@
       "title": "Filter for specific Seniority",
       "type": "array",
       "format": "select",
-      "uniqueItems": true,
-      "items": {
-        "type": "string",
-        "enum": [
-          "executive",
-          "director",
-          "manager"
-        ]
-      },
+      "enum": [
+        "",
+        "executive",
+        "director",
+        "manager"
+      ],
       "description": "Define a specific seniority or leave blank if you don't want to restrict your search."
+    },
+    {
+      "name": "prospect_filter_titles",
+      "title": "Search for Titles containing",
+      "type": "array",
+      "items": {
+        "title": "Title",
+        "type": "string"
+      },
+      "format": "select",
+      "options": {
+        "allowCreate": true
+      },
+      "description": "Restrict your search by specifying criteria for the prospect's title. If left blank, search is carried out without restriction."
     }
   ],
   "settings_sections": [
