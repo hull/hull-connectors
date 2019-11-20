@@ -132,19 +132,7 @@ class TransformImpl {
     }
 
     if (isUndefinedOrNull(desiredOutputClass)) {
-
-      try {
-        const isString = typeof input === "string";
-        console.log("Attempting to determine variable presence");
-        if (!isString && hasVariables(input)) {
-          console.log("HASVARIABLES");
-          console.log(JSON.stringify(input));
-        }
-      } catch (err) {
-
-      }
-
-      return variableContext.resolveVariables(input);
+      return input;
     }
 
     const inputClass = getHullDataType(input);

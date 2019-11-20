@@ -197,8 +197,7 @@ it("Update Single User To Pipedrive With Successful Lookup", () => {
           }
         ],
         [
-          "info",
-          "incoming.user.success",
+          "debug", "incoming.user.success",
           {
             "subject_type": "user",
             "request_id": expect.whatever(),
@@ -313,4 +312,3 @@ it("Update Single User To Pipedrive With Successful Lookup", () => {
     });
   });
 });
-

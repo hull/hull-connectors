@@ -59,8 +59,8 @@ test("send smart-notifier account update to outreach", () => {
       },
       logs: [
         ["info", "outgoing.job.start", expect.whatever(), {"jobName": "Outgoing Data", "type": "account"}],
-        ["info", "outgoing.account.skip", {"account_domain": "close.io", "account_id": "5bd329d4e2bcf3eeaf000071", "request_id": expect.whatever(), "subject_type": "account"}, {"reason": "No changes on any of the synchronized attributes for this account.  If you think this is a mistake, please check the settings page for the synchronized account attributes to ensure that the attribute which changed is in the synchronized outgoing attributes"}],
-        ["info", "outgoing.account.skip", {"account_external_id": "Oct242018_338ExternalId", "account_id": "5bd36d8de3d21792360001fd", "request_id": expect.whatever(), "subject_type": "account"}, {"reason": "Account is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the account is present in the settings page, or add the account to an existing synchronized segment"}],
+        ["debug", "outgoing.account.skip", {"account_domain": "close.io", "account_id": "5bd329d4e2bcf3eeaf000071", "request_id": expect.whatever(), "subject_type": "account"}, {"reason": "No changes on any of the synchronized attributes for this account.  If you think this is a mistake, please check the settings page for the synchronized account attributes to ensure that the attribute which changed is in the synchronized outgoing attributes"}],
+        ["debug", "outgoing.account.skip", {"account_external_id": "Oct242018_338ExternalId", "account_id": "5bd36d8de3d21792360001fd", "request_id": expect.whatever(), "subject_type": "account"}, {"reason": "Account is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the account is present in the settings page, or add the account to an existing synchronized segment"}],
         ["debug", "connector.service_api.call", {"request_id": expect.whatever()}, {"method": "GET", "responseTime": expect.whatever(), "status": 401, "url": "/accounts/", "vars": {}}],
         ["debug", "connector.service_api.call", {"request_id": expect.whatever()}, {"method": "GET", "responseTime": expect.whatever(), "status": 401, "url": "/accounts/", "vars": {}}],
         ["debug", "connector.service_api.call", {"request_id": expect.whatever()}, {"method": "POST", "responseTime": expect.whatever(), "status": 200, "url": "https://api.outreach.io/oauth/token", "vars": {}}],
@@ -70,13 +70,13 @@ test("send smart-notifier account update to outreach", () => {
         ["debug", "connector.service_api.call", {"request_id": expect.whatever()}, {"method": "PATCH", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/29", "vars": {}}],
         ["info", "outgoing.account.success", {"account_domain": "wayneenterprises.com", "account_id": "5bf2e7bf064aee16a600092a", "request_id": expect.whatever(), "subject_type": "account"}, {"data": {"data": {"attributes": {"custom1": "Manufacturing", "domain": "wayneenterprises.com", "name": "Wayne Enterprises (Sample Lead)"}, "id": 28, "type": "account"}}, "type": "Account"}],
         ["info", "outgoing.account.success", {"account_domain": "bluth.com", "account_id": "5bf2e7bf064aee16a600092d", "request_id": expect.whatever(), "subject_type": "account"}, {"data": {"data": {"attributes": {"custom1": "Real estate", "domain": "bluth.com", "locality": "RI", "name": "Bluth Company (Sample Lead)"}, "id": 29, "type": "account"}}, "type": "Account"}],
-        ["info", "incoming.account.success", {
+        ["debug", "incoming.account.success", {
           "subject_type": "account",
           "request_id": expect.whatever(),
           "account_domain": "bluth.com",
           "account_anonymous_id": "outreach:29"
         }, {"data": expect.whatever(), "type": "Account"}],
-        ["info", "incoming.account.success", {
+        ["debug", "incoming.account.success", {
           "subject_type": "account",
           "request_id": expect.whatever(),
           "account_domain": "wayneenterprises.com",

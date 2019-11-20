@@ -109,7 +109,7 @@ it("Insert Single User To Pipedrive Filter Linked Account", () => {
           { "subject_type": "user", "request_id": expect.whatever(), "user_id": "5bd329d5e2bcf3eeaf000099", "user_email": "pipedrive_user_1@hull.com" },
           { "data": { "address": "1234 Hull Pl", "email": ["pipedrive_user_1@hull.com"], "name": "pipedrive_user_1" }, "type": "Person" }
         ],
-        ["info", "incoming.user.success", { "subject_type": "user", "request_id": expect.whatever(), "user_email": "pipedrive_user_1@hull.com", "user_anonymous_id": "pipedrive:827" },
+        ["debug", "incoming.user.success", { "subject_type": "user", "request_id": expect.whatever(), "user_email": "pipedrive_user_1@hull.com", "user_anonymous_id": "pipedrive:827" },
           { "data": {
               "id": 827,
               "company_id": 7009148,

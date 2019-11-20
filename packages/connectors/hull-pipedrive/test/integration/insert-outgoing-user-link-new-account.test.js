@@ -232,8 +232,7 @@ it("Insert Single User To Pipedrive Link New Account", () => {
           }
         ],
         [
-          "info",
-          "incoming.account.success",
+          "debug", "incoming.account.success",
           {
             "subject_type": "account",
             "request_id": expect.whatever(),
@@ -350,8 +349,7 @@ it("Insert Single User To Pipedrive Link New Account", () => {
           }
         ],
         [
-          "info",
-          "incoming.user.success",
+          "debug", "incoming.user.success",
           {
             "subject_type": "user",
             "request_id": expect.whatever(),

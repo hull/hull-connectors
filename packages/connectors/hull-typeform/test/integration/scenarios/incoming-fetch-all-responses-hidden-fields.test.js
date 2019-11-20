@@ -42,10 +42,9 @@ test("incoming fetch all responses hidden fields", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["info", "incoming.job.progress", expect.whatever(), { progress: 4 }],
-        ["info", "incoming.user.success", { subject_type: "user", user_external_id: "abc1" }, {}],
+        ["debug", "incoming.user.success", { subject_type: "user", user_external_id: "abc1" }, {}],
         [
-          "info",
-          "incoming.user-event.success",
+          "debug", "incoming.user-event.success",
           { subject_type: "user", user_external_id: "abc1" },
           {
             event: "Form Submitted",
@@ -58,10 +57,9 @@ test("incoming fetch all responses hidden fields", () => {
             eventContext: expect.whatever()
           }
         ],
-        ["info", "incoming.user.success", { subject_type: "user", user_external_id: "abc2" }, {}],
+        ["debug", "incoming.user.success", { subject_type: "user", user_external_id: "abc2" }, {}],
         [
-          "info",
-          "incoming.user-event.success",
+          "debug", "incoming.user-event.success",
           {
             subject_type: "user",
             user_external_id: "abc2"
@@ -77,10 +75,9 @@ test("incoming fetch all responses hidden fields", () => {
             eventContext: expect.whatever()
           }
         ],
-        ["info", "incoming.user.success", { subject_type: "user", user_external_id: "abc3" }, {}],
+        ["debug", "incoming.user.success", { subject_type: "user", user_external_id: "abc3" }, {}],
         [
-          "info",
-          "incoming.user-event.success",
+          "debug", "incoming.user-event.success",
           {
             subject_type: "user",
             user_external_id: "abc3"
@@ -97,8 +94,7 @@ test("incoming fetch all responses hidden fields", () => {
           }
         ],
         [
-          "info",
-          "incoming.user.skip",
+          "debug", "incoming.user.skip",
           {
             "subject_type": "user"
           },
