@@ -114,7 +114,7 @@ describe("actions-status-check", () => {
         }
       });
     action(ctx).then((status) => {
-      expect(status).toEqual({ status: "warning", messages: ["No users will be synchronized because you have not specified at least one whitelisted segment in Settings."] });
+      expect(status).toEqual({ status: "ok", messages: ["No users will be synchronized because you have not specified at least one whitelisted segment in Settings."] });
       expect(nock.isDone()).toBe(true);
       done();
     });
@@ -129,7 +129,7 @@ describe("actions-status-check", () => {
     ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
     action(ctx).then((status) => {
-      expect(status).toEqual({ status: "setupRequired", messages: ["Please enter your Customer.io Site ID and API Key"] });
+      expect(status).toEqual({ status: "ok", messages: ["Please enter your Customer.io Site ID and API Key"] });
       done();
     });
   });
@@ -144,7 +144,7 @@ describe("actions-status-check", () => {
     ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
     action(ctx).then((status) => {
-      expect(status).toEqual({ status: "setupRequired", messages: ["Please enter your Customer.io Site ID and API Key"] });
+      expect(status).toEqual({ status: "ok", messages: ["Please enter your Customer.io Site ID and API Key"] });
       done();
     });
   });
@@ -159,7 +159,7 @@ describe("actions-status-check", () => {
     ctx.url = "https://hull-customerio.herokuapp.com/status/";
 
     action(ctx).then((status) => {
-      expect(status).toEqual({ status: "setupRequired", messages: ["Please enter your Customer.io Site ID and API Key"] });
+      expect(status).toEqual({ status: "ok", messages: ["Please enter your Customer.io Site ID and API Key"] });
       done();
     });
   });

@@ -131,5 +131,6 @@ function doVariableReplacement(context: HullVariableContext, value: any): any {
 
 module.exports = {
   doVariableReplacement,
-  doStringVariableReplacement
+  doStringVariableReplacement,
+  hasVariables
 };
