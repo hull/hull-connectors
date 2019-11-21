@@ -8,8 +8,14 @@ import type {
   HullEntityName
 } from "hull";
 
-type SlackChannel = {};
-type SlackMember = {};
+export type SlackChannel = {
+  name: string,
+  id: string
+};
+export type SlackMember = {
+  name: string,
+  id: string
+};
 
 export type ServerOptions = {
   port: number,
@@ -36,11 +42,8 @@ export type SlackBotConfig = {
 };
 
 export type SlackInstance = {
-  teamChannels?: Array<SlackChannel>,
-  teamMembers?: Array<SlackMember>,
   botConfig: SlackBotConfig,
   clientCredentials: HullClientCredentials,
-  // actions: SlackConnectorAction,
   attachements: Array<SlackConnectorAttachement>
 };
 
@@ -67,8 +70,10 @@ export type SlackConnectorSettings = {|
 
 export type ConnectedSlack = {
   attachements: Array<SlackConnectorAttachement>,
-  teamChannels?: Array<SlackChannel>,
-  teamMembers?: Array<SlackMember>,
+  getChannels: () => Promise<{
+    teamChannels?: Array<SlackChannel>,
+    teamMembers?: Array<SlackMember>
+  }>,
   post?: ({
     scopedClient: Hull,
     payload: any,
