@@ -471,6 +471,7 @@ class HullConnector {
   setupApp(app: $Application): $Application {
     this.middlewares.map(middleware => app.use(middleware));
     app.use(this.baseComposedMiddleware());
+    app.disable("etag");
     app.use("/", staticRouter());
     app.engine("html", renderFile);
     app.set("views", getAbsolutePath("views"));
