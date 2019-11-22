@@ -4,7 +4,7 @@
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.8-monorepo",
+  "version": "0.1.9-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -37,7 +37,9 @@
             "prospects.all",
             "create_accounts",
             "accounts.all",
-            "webhooks.all"
+            "webhooks.all",
+            "users.read",
+            "stages.read"
           ]
         }
       }
@@ -82,12 +84,16 @@
         "properties": {
           "service": {
             "title": "Prospect Field ID",
-            "type": "string",
-            "format": "select",
-            "options": {
-              "allowCreate": false,
-              "loadOptions": "/fields-outreach-prospect-in"
-            }
+            "enum": [
+              "emails",
+              "firstName",
+              "githubUsername",
+              "lastName",
+              "linkedInId",
+              "stackOverflowId",
+              "title",
+              "twitterUsername"
+            ]
           },
           "hull": {
             "title": "Hull User Ident",
@@ -150,12 +156,11 @@
         "properties": {
           "service": {
             "title": "Account Field ID",
-            "type": "string",
-            "format": "select",
-            "options": {
-              "allowCreate": false,
-              "loadOptions": "/fields-outreach-account-in"
-            }
+            "enum": [
+              "domain",
+              "customId",
+              "name"
+            ]
           },
           "hull": {
             "title": "Hull Account",

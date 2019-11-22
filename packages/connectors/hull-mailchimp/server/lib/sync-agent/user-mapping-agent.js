@@ -152,7 +152,7 @@ class UserMappingAgent {
         () => {
           this.client
             .asUser(ident)
-            .logger.info("incoming.user.success", { traits });
+            .logger.debug("incoming.user.success", { traits });
         },
         error => {
           this.client

@@ -5,7 +5,7 @@ module.exports = (ctxMock) => {
   };
   expect(ctxMock.client.asUser.mock.calls[0])
     .toEqual([userData]);
- 
+
   const event = {
     context: {
       ip: "0"
@@ -28,8 +28,8 @@ module.exports = (ctxMock) => {
   expect(ctxMock.client.track.mock.calls[0])
     .toEqual([event.event, event.properties, event.context]);
 
-  expect(ctxMock.client.logger.info.mock.calls).toHaveLength(1);
-  expect(ctxMock.client.logger.info.mock.calls[0])
+  expect(ctxMock.client.logger.debug.mock.calls).toHaveLength(1);
+  expect(ctxMock.client.logger.debug.mock.calls[0])
     .toEqual(["incoming.event.success", { event }]);
 
   expect(ctxMock.metric.increment.mock.calls).toHaveLength(1);

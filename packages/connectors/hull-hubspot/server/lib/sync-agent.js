@@ -336,7 +336,7 @@ class SyncAgent {
           anonymous_id_service: "vid"
         });
         if (ident.error) {
-          return this.logger.info("incoming.user.skip", {
+          return this.logger.info("incoming.user.error", {
             contact,
             reason: ident.error
           });
@@ -346,7 +346,7 @@ class SyncAgent {
         try {
           asUser = this.hullClient.asUser(ident.claims);
         } catch (error) {
-          return this.logger.info("incoming.user.skip", {
+          return this.logger.info("incoming.user.error", {
             contact,
             error
           });
@@ -371,20 +371,20 @@ class SyncAgent {
                 );
               });
           } else {
-            // asUser.logger.info("incoming.account.link.skip", {
+            // asUser.logger.debug("incoming.account.link.skip", {
             //   reason:
             //     "No associatedcompanyid field found in user to link account"
             // });
           }
         } else {
-          asUser.logger.info("incoming.account.link.skip", {
+          asUser.logger.debug("incoming.account.link.skip", {
             reason:
               "incoming linking is disabled, you can enabled it in the settings"
           });
         }
 
         return asUser.traits(traits).then(
-          () => asUser.logger.info("incoming.user.success", { traits }),
+          () => asUser.logger.debug("incoming.user.success", { traits }),
           error =>
             asUser.logger.error("incoming.user.error", {
               hull_summary: `Fetching data from Hubspot returned an error: ${_.get(
@@ -437,7 +437,7 @@ class SyncAgent {
     filterResults.toSkip.forEach(envelope => {
       this.hullClient
         .asUser(envelope.message.user)
-        .logger.info("outgoing.user.skip", { reason: envelope.skipReason });
+        .logger.debug("outgoing.user.skip", { reason: envelope.skipReason });
     });
 
     try {
@@ -451,7 +451,7 @@ class SyncAgent {
         if (!toSend) {
           // this.hullClient
           //   .asUser(envelope.message.user)
-          //   .logger.info("outgoing.user.skipcandidate", {
+          //   .logger.debug("outgoing.user.skipcandidate", {
           //     reason: "attribute change not found",
           //     changes: _.get(envelope, "message.changes")
           //   });
@@ -537,11 +537,11 @@ class SyncAgent {
     filterResults.toSkip.forEach(envelope => {
       this.hullClient
         .asAccount(envelope.message.account)
-        .logger.info("outgoing.account.skip", { reason: envelope.skipReason });
+        .logger.debug("outgoing.account.skip", { reason: envelope.skipReason });
     });
 
     try {
-      // const noChangesSkip = [];
+      const noChangesSkip = [];
       const upsertResults = _.concat(
         filterResults.toInsert,
         filterResults.toUpdate
@@ -552,20 +552,23 @@ class SyncAgent {
           sendOnAnySegmentChanges: true
         });
         if (!toSend) {
+          /*
           this.hullClient
             .asAccount(envelope.message.account)
-            .logger.info("outgoing.account.skipcandidate", {
+            .logger.debug("outgoing.account.skipcandidate", {
               reason: "attribute change not found",
               changes: _.get(envelope, "message.changes")
             });
+          */
           // add this when ready to enable
-          // noChangesSkip.push(envelope);
+          noChangesSkip.push(envelope);
         }
       });
 
-      /* noChangesSkip.forEach(envelope => {
+      noChangesSkip.forEach(envelope => {
         _.pull(filterResults.toInsert, envelope);
-      });*/
+        _.pull(filterResults.toUpdate, envelope);
+      });
     } catch (err) {
       console.log(err);
     }
@@ -909,7 +912,7 @@ class SyncAgent {
         }
 
         await asAccount.traits(traits).then(
-          () => asAccount.logger.info("incoming.account.success", { traits }),
+          () => asAccount.logger.debug("incoming.account.success", { traits }),
           error =>
             asAccount.logger.error("incoming.account.error", {
               hull_summary: `Fetching data from Hubspot returned an error: ${_.get(
@@ -928,7 +931,7 @@ class SyncAgent {
         return Promise.resolve();
 
         // if (this.connector.private_settings.link_users_in_hull !== true) {
-        //   asAccount.logger.info("incoming.account.link.skip", {
+        //   asAccount.logger.debug("incoming.account.link.skip", {
         //     reason:
         //       "incoming linking is disabled, you can enabled it in the settings"
         //   });

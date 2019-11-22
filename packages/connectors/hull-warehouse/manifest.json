@@ -4,7 +4,7 @@
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.8-monorepo",
+  "version": "0.1.9-monorepo",
 
   "tags": [
     "outgoing",
@@ -156,6 +156,13 @@
     },
     {
       "name": "flow_control_user_update_success_size",
+      "title": "Flow control setting for success on user update",
+      "type": "string",
+      "default": "100",
+      "format": "hidden"
+    },
+    {
+      "name": "flow_control_account_update_success_size",
       "title": "Flow control setting for success on user update",
       "type": "string",
       "default": "100",

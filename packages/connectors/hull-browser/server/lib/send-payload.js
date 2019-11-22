@@ -19,7 +19,7 @@ export default function sendUpdateFactory({ io }: any) {
     client.logger.info("outgoing.user.start", { rooms, payload });
 
     if (payload.message !== "ok") {
-      return client.logger.info("outgoing.user.skip", { rooms, payload });
+      return client.logger.debug("outgoing.user.skip", { rooms, payload });
     }
 
     if (!_.size(rooms)) {

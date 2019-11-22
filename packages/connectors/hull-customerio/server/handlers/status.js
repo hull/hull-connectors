@@ -20,14 +20,14 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
 
   if (!site_id || !api_key) {
     return {
-      status: "setupRequired",
+      status: "ok",
       messages: ["Please enter your Customer.io Site ID and API Key"]
     };
   }
 
   if (_.isEmpty(synchronized_segments)) {
     if (status !== "error") {
-      status = "warning";
+      status = "ok";
     }
     messages.push(
       "No users will be synchronized because you have not specified at least one whitelisted segment in Settings."
@@ -35,9 +35,10 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
   }
 
   if (!syncAgent.isConfigured()) {
+    // Not sure what this case is, but it's pretty weird because we have a site_id  and api key
     status = "warning";
     messages.push(
-      "Missing Credentials: Site ID or API Key are not configured in Settings."
+      "Missing Credentials: Site ID or API Key are not configured correctly in Settings.  Please request assistance from Hull Support"
     );
   } else {
     promises.push(

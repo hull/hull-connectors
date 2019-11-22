@@ -42,7 +42,7 @@ test("send smart-notifier user update to outreach", () => {
           { jobName: "Outgoing Data", type: "user" }
         ],
         [
-          "info",
+          "debug",
           "outgoing.user.skip",
           expect.whatever(),
           {
@@ -63,8 +63,7 @@ test("send smart-notifier user update to outreach", () => {
           }
         ],
         [
-          "info",
-          "incoming.user.success",
+          "debug", "incoming.user.success",
           {
             "subject_type": "user",
             "request_id": expect.whatever(),
@@ -93,7 +92,10 @@ test("send smart-notifier user update to outreach", () => {
             },
             subjectType: "user"
           },
-          { "outreach/id": { operation: "set", value: 184816 } }
+          {
+            "outreach/custom1": { operation: "set", value: null },
+            "outreach/id": { operation: "set", value: 184816 }
+          }
         ]
       ],
       metrics: [

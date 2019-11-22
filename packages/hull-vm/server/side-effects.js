@@ -88,7 +88,7 @@ export const callTraits = async ({
             await client.traits(attributes);
           }
           successful += 1;
-          return client.logger.info(`incoming.${entity}.success`, {
+          return client.logger.debug(`incoming.${entity}.success`, {
             attributes,
             no_ops
           });
@@ -128,7 +128,7 @@ export const callEvents = async ({
             source: "code",
             ...context
           });
-          return client.logger.info("incoming.event.success", {
+          return client.logger.debug("incoming.event.success", {
             eventName,
             properties
           });
@@ -171,7 +171,7 @@ export const callLinks = async ({
         try {
           successful += 1;
           await client.account(accountClaims).traits({});
-          return client.logger.info(`incoming.${entity}.link.success`, {
+          return client.logger.debug(`incoming.${entity}.link.success`, {
             accountClaims,
             userClaims
           });
