@@ -24,7 +24,7 @@
   "complete_task",
   "outbound_message",
   "account_updated",
-  "old_message_opened",
+  "message_opened",
   "prospect_destroyed",
   "account_prospect_removed"
 ]
