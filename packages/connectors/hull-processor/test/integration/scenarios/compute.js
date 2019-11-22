@@ -148,7 +148,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "debug",
+          "info",
           "incoming.user.alias.success",
           expect.whatever(),
           {
