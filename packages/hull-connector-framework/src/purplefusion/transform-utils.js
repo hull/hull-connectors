@@ -36,11 +36,11 @@ function evaluateCondition(conditions, context, input): boolean {
   return true;
 }
 
-function evaluateValidation(transform) {
+function evaluateValidation(transform, context, input) {
   if (transform.validation) {
     if (evaluateCondition(transform.validation.condition, context, input)) {
       if (transform.validation.error === "BreakProcess") {
-        throw new Error(`Validation didn't pass for transform: ${transform.validation.message} ${JSON.stringify(transform, null, 2)}`);
+        throw new Error(`Validation didn't pass for transform: ${transform.validation.message}\n ${JSON.stringify(transform, null, 2)}\n input: ${JSON.stringify(input, null, 2)}`);
       } else if (transform.validation.error === "Skip") {
         throw new SkippableError(`Validation didn't pass for transform: ${transform.validation.message} ${JSON.stringify(transform, null, 2)}`);
       }
@@ -54,12 +54,12 @@ function evaluateValidation(transform) {
 
 function toTransform(transform, context, input) {
   if (!_.isPlainObject(transform) || !transform.condition) {
-    evaluateValidation(transform);
+    evaluateValidation(transform, context, input);
     return true;
   }
 
   if (evaluateCondition(transform.condition, context, input)) {
-    evaluateValidation(transform);
+    evaluateValidation(transform, context, input);
     return true;
   }
   return false;

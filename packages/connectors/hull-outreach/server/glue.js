@@ -365,7 +365,9 @@ const glue = {
   getEvents: [
     loopL([
       iterateL("${outreachEvents.data}", { key: "outreachEvent", async: true },
-        hull("asUser", ld("filter", cast(OutreachEventRead, "${outreachEvent}"))),
+        ifL(cond("greaterThan", ld("indexOf", "${eventsToFetch}", "${outreachEvent.attributes.name}"), -1),
+          hull("asUser", cast(OutreachEventRead, "${outreachEvent}")),
+        )
       ),
       ifL(cond("isEmpty", "${outreachEvents.links.next}"), {
         do: loopEndL(),

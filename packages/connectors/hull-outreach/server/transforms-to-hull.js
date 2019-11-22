@@ -412,17 +412,17 @@ const transformsToHull: ServiceTransforms =
                 error: "BreakProcess",
                 message: "Event has never been seen before by the connector, please report issue to your Hull Support representative",
                 condition:
-                  doesNotContain("${eventInput.hull_events[0].eventName}", require("./events.json"))
+                  doesNotContain(require("./events.json"), "eventInput.hull_events[0].eventName")
               }
             },
-            {
-              validation: {
-                error: "BreakToLoop",
-                message: "Event has not been whitelisted by the connector settings, please see the \"Events To Fetch\" in the settings to add this event type",
-                condition:
-                  mappingExists("events_to_fetch", "${eventInput.hull_events[0].eventName}")
-              }
-            },
+            // {
+            //   validation: {
+            //     error: "BreakToLoop",
+            //     message: "Event has not been whitelisted by the connector settings, please see the \"Events To Fetch\" in the settings to add this event type",
+            //     condition:
+            //       mappingExists("events_to_fetch", "eventInput.hull_events[0].eventName")
+            //   }
+            // },
             {
               operateOn: {
                 component: "static",
@@ -434,9 +434,9 @@ const transformsToHull: ServiceTransforms =
                 select: "${eventInput.hull_events[0].eventName}",
                 name: "eventName"
               },
-              validation: { error: "BreakProcess", condition: [
-                  isUndefinedOrNull("${eventName}"),
-                ]},
+              // validation: { error: "BreakProcess", condition: [
+              //     isUndefinedOrNull("${eventName}"),
+              //   ]},
               writeTo: {
                 path: "hull_events[0].eventName"
               }
