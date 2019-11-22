@@ -177,7 +177,7 @@ describe("Request library", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           expect.objectContaining({
@@ -188,7 +188,7 @@ describe("Request library", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.event.success",
           expect.whatever(),
           expect.objectContaining({

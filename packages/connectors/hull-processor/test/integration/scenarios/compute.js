@@ -51,7 +51,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes, no_ops: {} }
@@ -104,7 +104,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes: { value: "foosball" }, no_ops: {} }
@@ -148,7 +148,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.alias.success",
           expect.whatever(),
           {
@@ -190,7 +190,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes: {}, no_ops: { identical: "identical value" } }
@@ -241,7 +241,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes, no_ops: { identical: "identical value" } }
@@ -286,7 +286,7 @@ describe("Basic Attributes manipulation", () => {
           attributes["foo"]
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes: {}, no_ops: { foo: "identical value" } }
@@ -342,7 +342,7 @@ describe("Basic Attributes manipulation", () => {
           attributes["foo"]
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes, no_ops: {} }
@@ -393,7 +393,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes, no_ops: {} }
@@ -421,7 +421,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           {
@@ -465,7 +465,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           {
@@ -510,7 +510,7 @@ describe("Basic Attributes manipulation", () => {
           attributes["group/group"]
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes, no_ops: {} }
@@ -561,7 +561,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.event.success",
           expect.whatever(),
           {
@@ -614,7 +614,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.account.link.success",
           expect.whatever(),
           {
