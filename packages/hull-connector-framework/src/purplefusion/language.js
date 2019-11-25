@@ -462,12 +462,14 @@ function cacheWrap(expiration: number, param: any) {
 
   // TODO need to find a better way to do cache key for wrapping methods
   // just ran into a bug where the key wasn't unique enough... will cause really weird issues...
-  return ifL(
-    cond("isEmpty", set("hull-internal-cacheWrappedValue", cacheGet(`${param.type}|${param.options.name}|${param.options.op}`))),
-    {
-      do: cacheSet({ ttl: expiration, key: `${param.type}|${param.options.name}|${param.options.op}`}, param),
-      eldo: "${hull-internal-cacheWrappedValue}"
-    });
+  // return ifL(
+  //   cond("isEmpty", set("hull-internal-cacheWrappedValue", cacheGet(`${param.type}|${param.options.name}|${param.options.op}`))),
+  //   {
+  //     do: cacheSet({ ttl: expiration, key: `${param.type}|${param.options.name}|${param.options.op}`}, param),
+  //     eldo: "${hull-internal-cacheWrappedValue}"
+  //   });
+  //TODO key could be JSON.stringify(param) -> then could MD5 that....
+  return new Cache({name: "wrap", key: `${param.type}|${param.options.name}|${param.options.op}`, ttl: expiration, instruction: param });
 }
 
 function cacheGet(key: string) {

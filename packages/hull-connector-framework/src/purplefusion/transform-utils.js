@@ -94,10 +94,14 @@ async function transformToTarget(dispatcher, context, initialInput, target, tran
 
     const localContext = {};
     context.pushNew(localContext);
+    // TODO have to be careful with scoping of setting "operateOn" variable...
+    // I like this push of a new context when we resolve it, need ot make sure it's only inherited from parent
+    // and doesn't get set in between parallel transforms
     try {
       let operatingOn = inheritedOperateOn;
       if (transform.operateOn) {
         operatingOn = await resolveIdentifier(dispatcher, context, initialInput, target, transform.operateOn);
+        context.set("operateOn", operatingOn);
       }
       if (!isUndefinedOrNull(transform.expand) && transform.expand !== false) {
         const keyVariableName = _.get(transform, "expand.keyName", "expandKey");
@@ -125,7 +129,6 @@ async function resolveValue(dispatcher, context, initialInput, target, transform
   if (transform.writeTo) {
 
     let valueToOutput = operatingOn;
-    context.set("value", valueToOutput);
 
     if (!toTransform(transform.writeTo, context, initialInput)) {
       return;
@@ -135,13 +138,8 @@ async function resolveValue(dispatcher, context, initialInput, target, transform
       const formatter = await resolveIdentifier(dispatcher, context, initialInput, target, transform.writeTo.formatter);
       if (typeof formatter === "function") {
         valueToOutput = formatter(valueToOutput);
-        context.set("value", valueToOutput);
+        context.set("formattedValue", valueToOutput);
       }
-    }
-
-    if (transform.writeTo.format) {
-      valueToOutput = context.resolveVariables(transform.writeTo.format);
-      context.set("value", valueToOutput);
     }
 
     const keys = await resolveIdentifier(dispatcher, context, initialInput, target, transform.writeTo.path);
@@ -152,6 +150,10 @@ async function resolveValue(dispatcher, context, initialInput, target, transform
         return undefined;
       }
       keyPath = _.join(keyPath, ".");
+    }
+
+    if (transform.writeTo.format) {
+      valueToOutput = context.resolveVariables(transform.writeTo.format);
     }
 
     // if undefined, my be trying to unset things, so don't do an undefined check (no use cases yet, add unit test)

@@ -196,9 +196,9 @@ class HullDispatcher {
         }
 
         let paramString = JSON.stringify(resolvedParams);
-        if (paramString && paramString.length > 120) {
-          paramString = `${paramString.substring(0, 120)}...`;
-        }
+        // if (paramString && paramString.length > 120) {
+        //   paramString = `${paramString.substring(0, 120)}...`;
+        // }
 
         if (paramName === null) {
           debug(`[EXECUTING]: ${instruction.type}<${optionString}> [WITH-RESOLVED-PARAM]: ${paramString}`);
@@ -518,6 +518,16 @@ class HullDispatcher {
         const cacheValue = result.cacheValue;
         setHullDataType(cacheValue, result.dataType);
         return cacheValue;
+
+      } else if (instructionOptions.name === "wrap") {
+
+        return await cache.wrap(
+          cacheKey,
+          () => {
+            return this.resolve(context, instructionOptions.instruction, serviceData);
+          },
+          { ttl: instructionOptions.ttl }
+        );
 
       } else if (instructionOptions.name === "lock") {
 

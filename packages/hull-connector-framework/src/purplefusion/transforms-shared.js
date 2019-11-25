@@ -149,6 +149,131 @@ const transformsShared: ServiceTransforms = [
     ]
   },
   {
+    input: ServiceLeadRaw,
+    output: HullIncomingUser,
+    strategy: "PropertyKeyedValue",
+    arrayStrategy: "append_index",
+    direction: "incoming",
+    transforms: [
+      {
+        mapping: "connector.private_settings.incoming_lead_attributes",
+        condition: isNotEqual("value", "null"),
+        inputPath: "${service_field_name}",
+        //don't need service_name because hull automatically appends it
+        outputPath: "attributes.${hull_field_name}",
+        outputFormat: {
+          value: "${value}",
+          operation: "set"
+        }
+      },
+      {
+        mapping: { type: "input" },
+        condition: [
+          isEqual("connector.private_settings.fetch_all_attributes", true),
+          not(isServiceAttribute("connector.private_settings.incoming_user_attributes", "service_field_name")),
+          not(isEqual("service_field_name", "hull_events")),
+          isNotEqual("value", "null"),
+        ],
+        inputPath: "${service_field_name}",
+        outputPath: "attributes.${service_name}/${hull_field_name}",
+        outputFormat: {
+          value: "${value}",
+          operation: "set"
+        }
+      },
+      {
+        inputPath: "id",
+        outputPath: "ident.anonymous_id",
+        outputFormat: "${service_name}:${value}"
+      },
+      {
+        condition: isEqual("connector.private_settings.link_users_in_hull", true),
+        inputPath: "hull_service_accountId",
+        outputPath: "accountIdent.anonymous_id",
+        outputFormat: "${service_name}:${value}"
+      },
+      {
+        condition: isEqual("connector.private_settings.link_users_in_hull", true),
+        inputPath: "hull_service_accountId",
+        outputPath: "accountAttributes.${service_name}/id",
+        outputFormat: "${value}"
+      },
+      {
+        inputPath: "id",
+        outputPath: "attributes.${service_name}/id",
+        outputFormat: {
+          value: "${value}",
+          operation: "set"
+        }
+      },
+      {
+        arrayStrategy: "pick_first",
+        mapping: "connector.private_settings.lead_claims",
+        inputPath: "${service_field_name}",
+        outputPath: "ident.${hull_field_name}"
+      },
+      {
+        arrayStrategy: "send_raw_array",
+        inputPath: "hull_events",
+        outputPath: "events"
+      }
+    ]
+  },
+  {
+    input: ServiceAccountRaw,
+    output: HullIncomingAccount,
+    strategy: "PropertyKeyedValue",
+    arrayStrategy: "append_index",
+    direction: "incoming",
+    transforms: [
+      {
+        mapping: "connector.private_settings.incoming_account_attributes",
+        condition: isNotEqual("value", "null"),
+        inputPath: "${service_field_name}",
+        //don't need service_name because hull automatically appends it
+        outputPath: "attributes.${hull_field_name}",
+        outputFormat: {
+          value: "${value}",
+          operation: "set"
+        }
+      },
+      {
+        mapping: { type: "input" },
+        condition: [
+          isEqual("connector.private_settings.fetch_all_attributes", true),
+          not(isServiceAttribute("connector.private_settings.incoming_account_attributes", "service_field_name")),
+          not(isEqual("service_field_name", "hull_events")),
+          isNotEqual("value", "null"),
+        ],
+        inputPath: "${service_field_name}",
+        outputPath: "attributes.${service_name}/${hull_field_name}",
+        outputFormat: {
+          value: "${value}",
+          operation: "set"
+        }
+      },
+      {
+        inputPath: "id",
+        outputPath: "ident.anonymous_id",
+        outputFormat: "${service_name}:${value}"
+      },
+      {
+        inputPath: "id",
+        outputPath: "attributes.${service_name}/id",
+        outputFormat: {
+          value: "${value}",
+          operation: "set"
+        }
+      },
+      {
+        arrayStrategy: "pick_first",
+        mapping: "connector.private_settings.account_claims",
+        inputPath: "${service_field_name}",
+        outputPath: "ident.${hull_field_name}"
+      }
+    ]
+  },
+  {
     input: HullIncomingUser,
     output: HullIncomingUserImportApi,
     strategy: "PropertyKeyedValue",
