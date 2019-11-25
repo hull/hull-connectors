@@ -11604,6 +11604,13 @@ passport-oauth@~0.1.1:
     passport "~0.1.1"
     pkginfo "0.2.x"
 
+passport-pipedrive@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/passport-pipedrive/-/passport-pipedrive-0.1.1.tgz#cb6c48ed42172e57ce4a0560ca843b92c8632b45"
+  integrity sha512-7r6cwy5XSTj6ZwUM7OUC59kTFAgxazx9W+Tg9+AqdACUin/xQXaCljXPOppQmnoV8E5oiiXiFq+T9/fmgW+6zA==
+  dependencies:
+    passport-oauth2 "1.x.x"
+
 passport-slack@0.0.7:
   version "0.0.7"
   resolved "https://registry.yarnpkg.com/passport-slack/-/passport-slack-0.0.7.tgz#167eb80f0ab622d2156e7cae7055e16d0b1890d0"

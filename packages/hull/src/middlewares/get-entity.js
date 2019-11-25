@@ -34,12 +34,12 @@ module.exports = function getEntityMiddlewareFactory() {
       users: {
         getSchema: getUserSchema(hull),
         get: (params: HullGetEntityParams) =>
-          getEntity(hull, { entity: "user", ...params })
+          getEntity(hull)({ entity: "user", ...params })
       },
       accounts: {
         getSchema: getAccountSchema(hull),
         get: (params: HullGetEntityParams) =>
-          getEntity(hull, { entity: "account", ..._.pick(params, "claims") })
+          getEntity(hull)({ entity: "account", ..._.pick(params, "claims") })
       }
     };
     next();

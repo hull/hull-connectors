@@ -213,9 +213,22 @@ function inc(object: any): Op {
   return new Op({ name: "inc" }, object);
 }
 
+/**
+ * this uses lodash filter moethod
+ * @param truthyFilter
+ * @param toFilter
+ * @returns {Op}
+ */
 function filter(truthyFilter: any, toFilter: any): Op {
   return new Op({ name: "filter", truthyFilter }, toFilter);
 }
+
+/**
+ * This uses the lodash reject method
+ * @param truthyFilter
+ * @param toFilter
+ * @returns {Op}
+ */
 function notFilter(truthyFilter: any, toFilter: any): Op {
   return new Op({ name: "notFilter", truthyFilter }, toFilter);
 }
@@ -272,7 +285,7 @@ function ifL(params: any, results: any | { do: any, eldo?: any, elif?: any }): I
   // if do isn't present in the results, then build one to make the underlying evaluation code simpler
   // this is just a way to give the instruction syntax simplicity on top, so that if only a "do" exists, then we just can pass the next instruction
   if (!results.do) {
-   toEvaluate = { do: toEvaluate };
+    toEvaluate = { do: toEvaluate };
   }
 
   return new Logic({ name: "if", if: params, ...toEvaluate });
@@ -302,6 +315,14 @@ function or(conditions: Array<any>) {
   });
 }
 
+/**
+ * This is a way to filter an array based on glue logic which is applied to each object in the array
+ *
+ * @param condition this is a glue instruction that must evaluate to true or false per object in the array traversed
+ * @param key this is the name of variable for the current object that we're traversing in the array
+ * @param array this is the array to traverse, and the result will be a filtered array where any object not matching the condition logic will be removed
+ * @returns {Logic} when this instruction ins evaluated, any object where the condition returns false, will be removed from the array
+ */
 function filterL(condition: any, key: string, array: any) {
   return new Logic({ name: "filter", key, condition }, array);
 }
@@ -393,6 +414,10 @@ function iterateL(arrayParam: any, varname: string | { key: string, value?: stri
  */
 function loopEndL(): Logic {
   return new Logic({ name: "end" });
+}
+
+function returnValue(instructions: any, returnValue: any) {
+  return new Logic({ name: "return", instructions, returnValue });
 }
 
 /**
@@ -516,6 +541,8 @@ function cacheLock(key: any, instructions: any) {
 }
 
 
+
+
 // not filter...
 
 module.exports = {
@@ -552,5 +579,6 @@ module.exports = {
   ld,
   moment,
   ex,
-  inc
+  inc,
+  returnValue
 };
