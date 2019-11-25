@@ -1,0 +1,31 @@
+{
+  "ip": "::1",
+  "url": "/subscribe?token=12345",
+  "method": "POST",
+  "protocol": "http",
+  "hostname": "hull-staging-zapier.ngrok.io",
+  "path": "/subscribe",
+  "params": {},
+  "query": {
+    "token": "123456789"
+  },
+  "headers": {
+    "user-agent": "Zapier",
+    "content-type": "application/json; charset=utf-8",
+    "accept-encoding": "gzip,deflate",
+    "connection": "close",
+    "accept": "*/*",
+    "content-length": "138",
+    "host": "hull-staging-zapier.ngrok.io",
+    "x-forwarded-proto": "https",
+    "x-forwarded-for": "11.111.111.111"
+  },
+  "body": {
+    "url": "https://hooks.zapier.com/hooks/standard/5687326/8bc34320f3554eb0ae3713c03733c818/",
+    "action": "entered_segment",
+    "entityType": "user",
+    "inputData": {
+      "user_segments": [ "5ccc40117dd61d9b680099e0", "5cc98a004c5202e276001ac0" ]
+    }
+  }
+}
