@@ -237,13 +237,23 @@
       "items": {
         "type": "string",
         "enum": [
-          "outbound_message",
+          "bounced_message",
+          "emails_opt_out",
+          "inbound_message",
+          "message_clicked",
           "message_opened",
+          "message_opened_sender",
+          "outbound_message",
           "prospect_stage_changed"
         ],
         "enumNames": [
-          "Outbound Message",
+          "Bounced Message",
+          "Emails Opt Out",
+          "Inbound Message",
+          "Message Clicked",
           "Message Opened",
+          "Message Opened Sender",
+          "Outbound Message",
           "Prospect Stage Changed"
         ]
       },
