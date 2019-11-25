@@ -156,7 +156,6 @@
   "settings_sections": [
     {
       "title": "Credentials",
-      "step": "credentials",
       "description": "In **Customer.io**, go to `Integrations > Email Activity Webhooks` and paste at the following url in `Webhook Endpoint`",
       "properties": [
         "json.credentials",
@@ -186,7 +185,6 @@
     }
   ],
   "status": {
-    "initial_value": "setupRequired",
     "url": "/status",
     "type": "cron",
     "value": "*/30 * * * *",
