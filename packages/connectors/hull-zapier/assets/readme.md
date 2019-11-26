@@ -11,6 +11,7 @@ token when prompted.
 #### Zap Triggers
 
 There are 9 triggers that can be configured:
+
  1. User Enters Segment
     
     - User enters one or more of the whitelisted user segments
