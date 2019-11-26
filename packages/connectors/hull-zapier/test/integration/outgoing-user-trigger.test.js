@@ -8,7 +8,6 @@ import connectorConfig from "../../server/config";
 
 describe("Outgoing Users Tests", () => {
 
-  /*
   it("Whitelisted User Attribute Changed. Send User To Single Zap", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-user"));

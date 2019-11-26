@@ -127,9 +127,9 @@ const glue = {
                    AND
                 -> Event name matches an event on the user
             5) Account Enters Segment
-                -> User enters one or more of the whitelisted account segments
+                -> Account enters one or more of the whitelisted account segments
             6) Account Leaves Segment
-                -> User leaves one or more of the whitelisted user segments
+                -> Account leaves one or more of the whitelisted user segments
             7) Account Attribute Update
                 -> Account is IN one or more of the whitelisted user segments
                    AND
