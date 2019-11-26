@@ -223,7 +223,7 @@ class ServiceEngine {
             context.set("recoveryroute", route);
 
             //couldn't get finally to work consistently, so using then/catch
-            this.recoveryPromise = this.dispatcher.resolve(context, new Route(route))
+            this.recoveryPromise = this.dispatcher.resolve(context, new Route(route), error)
               .then((results) => {
                 context.popLatest();
                 return Promise.resolve(results);

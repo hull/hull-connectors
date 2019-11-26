@@ -1,6 +1,6 @@
 // @flow
 
-export default function getSanitizedChannel(channel) {
+export default function getSanitizedChannel(channel: string) {
   return channel
     .toLowerCase()
     .replace(/^#/, "")

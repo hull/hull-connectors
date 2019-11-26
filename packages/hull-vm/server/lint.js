@@ -1,43 +1,50 @@
 // @flow
 import { Linter } from "eslint";
+import _ from "lodash";
 
+const LIBS = [
+  "_",
+  "moment",
+  "urijs",
+  "hull",
+  "console",
+  "isInSegment",
+  "enteredSegment",
+  "leftSegment",
+  "isGenericEmail",
+  "isGenericDomain",
+  "request",
+  "captureException",
+  "captureMessage"
+];
+const COMMON_VARS = [
+  "ship",
+  "connector",
+  "results",
+  "errors",
+  "logs",
+  "track",
+  "traits"
+];
 const linter = new Linter();
-const CONFIG = {
+
+const getGlobals = (vars: Array<Array<string>>) =>
+  _.fromPairs(_.uniq(_.flatten(vars)).map(v => [v, true]));
+
+const getConfig = (payload?: Object = {}) => ({
   env: {
-    es6: true
+    es6: true,
+    node: true
   },
-  globals: {
-    changes: false,
-    _: false,
-    moment: false,
-    urijs: false,
-    user: false,
-    account: false,
-    events: false,
-    segments: false,
-    account_segments: false,
-    ship: false,
-    payload: false,
-    results: false,
-    errors: false,
-    logs: false,
-    track: false,
-    traits: false,
-    hull: false,
-    request: false,
-    console: false,
-    captureMessage: false,
-    captureException: false,
-    isGenericEmail: false,
-    isGenericDomain: false,
-    isInSegment: false,
-    enteredSegment: false,
-    leftSegment: false
+  parserOptions: {
+    ecmaVersion: 2017,
+    sourceType: "module"
   },
   rules: {
     "no-undef": [2]
-  }
-};
+  },
+  globals: getGlobals([_.keys(payload), LIBS, COMMON_VARS])
+});
 
 function formatLinterError({ line, column, source, message }) {
   return `Error at line ${line}, column ${column}
@@ -46,8 +53,8 @@ ${source}
 ${message}`;
 }
 
-export default function lint(code: string): Array<string> {
+export default function lint(code: string, payload?: Object): Array<string> {
   return linter
-    .verify(code, CONFIG, { filename: "Code" })
+    .verify(code, getConfig(payload), { filename: "Code" })
     .map(formatLinterError);
 }

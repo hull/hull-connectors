@@ -80,16 +80,15 @@ export default class RecentEntriesUI extends VirtualMachineUI<Props, State> {
     const {
       selected,
       current,
-      initializing,
+      initialized,
+      fetching,
       recent,
-      url,
-      // error,
       computing,
-      // initialized,
-      // result,
       activeTab,
-      // showConfig,
       showBindings
+      // error,
+      // result,
+      // showConfig,
     } = this.state;
 
     const { strings } = this.props;
@@ -97,7 +96,7 @@ export default class RecentEntriesUI extends VirtualMachineUI<Props, State> {
     const showingCurrent = this.showingCurrent();
     const active: Entry | void = showingCurrent ? current : selected;
 
-    if (!active || !url) {
+    if (!active || !initialized) {
       return (
         <div className="text-center pt-2">
           <h4>Loading...</h4>
@@ -113,7 +112,7 @@ export default class RecentEntriesUI extends VirtualMachineUI<Props, State> {
           <div className="col vm-column">
             <Header title={strings.leftColumnTitle}>
               <PayloadSelector
-                loading={computing || initializing}
+                loading={computing || fetching}
                 current={selected}
                 recent={recent}
                 onSelect={this.selectEntry}

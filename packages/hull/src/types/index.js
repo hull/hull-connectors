@@ -13,6 +13,8 @@
 /* :: export type * from "./notifications"; */
 /* :: export type * from "./sync-agent"; */
 /* :: export type * from "./settings"; */
+/* :: export type * from "./schema"; */
+/* :: export type * from "./get-entity"; */
 
 import type Cache from "../infra/cache/cache-agent";
 import type Queue from "../infra/queue/queue-agent";
@@ -49,4 +51,10 @@ export type HTTPMethod =
 
 export type HullConnectorSettings = {
   [HullConnectorSettingName: string]: any
+};
+
+export type HullAttributeMapping = {
+  hull: string,
+  service: string,
+  overwrite: boolean
 };

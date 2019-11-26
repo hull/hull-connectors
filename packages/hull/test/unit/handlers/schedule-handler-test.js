@@ -33,6 +33,7 @@ describe("scheduleHandler", () => {
     const response = httpMocks.createResponse({ eventEmitter: EventEmitter });
     scheduleHandler({
       method: "POST",
+      options: { },
       callback: () => Promise.resolve({ status: 200, data: { ok: "done" } })
     }).router.handle(request, response, err => {
       console.log(err);
@@ -57,6 +58,9 @@ describe("scheduleHandler", () => {
     request.hull = buildContextBaseStub();
     const response = httpMocks.createResponse({ eventEmitter: EventEmitter });
     scheduleHandler({
+      options: {
+        respondWithError: true
+      },
       callback: () => {
         return Promise.reject(new Error("Something went bad"));
       }
@@ -73,6 +77,9 @@ describe("scheduleHandler", () => {
     request.hull = buildContextBaseStub();
     const response = httpMocks.createResponse({ eventEmitter: EventEmitter });
     scheduleHandler({
+      options: {
+        respondWithError: true
+      },
       callback: () => {
         throw new Error("thrown error");
       }

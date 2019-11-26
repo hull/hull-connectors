@@ -1,7 +1,7 @@
-import ga from "./google-analytics";
+// import ga from "./google-analytics";
 
-export default function handleDestinations(emitter) {
-  emitter.on("user.update", update => {
-    ga(update);
-  });
+export default function handleDestinations(_emitter) {
+  // emitter.on("user.update", update => {
+  //   ga(update);
+  // });
 }

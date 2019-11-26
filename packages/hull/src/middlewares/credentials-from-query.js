@@ -1,7 +1,7 @@
 // @flow
 import type { NextFunction } from "express";
 import jwt from "jwt-simple";
-import { encrypt, decrypt } from "../utils/crypto";
+import { decrypt } from "../utils/crypto";
 import type { HullRequest, HullResponse } from "../types";
 
 const debug = require("debug")("hull-connector:credentials-from-query");
@@ -54,13 +54,6 @@ function parseToken(token, secret) {
   }
 }
 
-function generateToken(clientCredentials, secret) {
-  return jwt.encode(clientCredentials, secret);
-}
-function generateEncryptedToken(clientCredentials, secret) {
-  return encrypt(clientCredentials, secret);
-}
-
 /**
  * This middleware is responsible for preparing `req.hull.clientCredentials`.
  * If there is already `req.hull.clientCredentials` set before it just skips.
@@ -106,22 +99,8 @@ function credentialsFromQueryMiddlewareFactory() {
         );
       }
 
-      // Re-generate tokens based on the actual configuration we ended up using
-      const clientCredentialsToken = generateToken(
-        clientCredentials,
-        hostSecret
-      );
-      const clientCredentialsEncryptedToken = generateEncryptedToken(
-        clientCredentials,
-        hostSecret
-      );
-
       debug("resolved configuration", clientCredentials);
-      req.hull = Object.assign(req.hull, {
-        clientCredentials,
-        clientCredentialsToken,
-        clientCredentialsEncryptedToken
-      });
+      req.hull.clientCredentials = clientCredentials;
       return next();
     } catch (error) {
       return next(error);

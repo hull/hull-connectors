@@ -1,5 +1,5 @@
 // @flow
-import type { HullEntityType, HullEntityClaims } from "hull-client";
+import type { HullEntityName, HullEntityClaims } from "hull-client";
 import type { HullContext } from "../types";
 
 type IncomingClaimsResult = {
@@ -49,16 +49,16 @@ function getSettingValue(ctx, settingName) {
  * 3. when there is not correct settings in the connector object
  */
 const incomingClaims = (ctx: HullContext) => (
-  entityType: HullEntityType,
+  entity: HullEntityName,
   objectToTransform: Object,
   options?: { anonymous_id_prefix?: string, anonymous_id_service: string }
 ): IncomingClaimsResult => {
   try {
-    const settingName = `incoming_${entityType}_claims`;
+    const settingName = `incoming_${entity}_claims`;
     const setting = getSettingValue(ctx, settingName);
     if (!setting) {
       throw new Error(
-        `The incoming claims configuration for ${entityType} is missing.`
+        `The incoming claims configuration for ${entity} is missing.`
       );
     }
 

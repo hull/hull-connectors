@@ -6,6 +6,7 @@ import type {
   HullConnectorSettings,
   HullClientConfig,
   HullHandlersConfiguration,
+  HullContext,
   HullInstrumentation,
   HullQueue
 } from "./index";
@@ -13,7 +14,7 @@ import type {
 // Hull Connector Data Object
 // =====================================
 
-export type HullConnector = {
+export type HullConnector = {|
   id: string,
   updated_at: string,
   created_at: string,
@@ -26,10 +27,11 @@ export type HullConnector = {
   homepage_url: string,
   manifest_url: string,
   manifest: HullManifest,
+  accept_incoming_webhooks?: boolean,
   settings: HullConnectorSettings,
   private_settings: HullConnectorSettings,
   status: Object
-};
+|};
 
 // =====================================
 //   Connector Configuration
@@ -38,7 +40,7 @@ export type HullConnector = {
 export type HullJsonConfig = {
   inflate?: boolean,
   reviver?: Function,
-  limit?: string,
+  limit?: string | number,
   strict?: boolean,
   type?: string | Function,
   verify?: Function
@@ -112,7 +114,6 @@ export type HullConnectorConfig = {
   hostSecret: string,
   port: number | string,
   connectorName?: string,
-  segmentFilterSetting?: any,
   skipSignatureValidation?: boolean,
   timeout?: number | string,
   disableOnExit?: boolean,
@@ -125,6 +126,13 @@ export type HullConnectorConfig = {
   notificationValidatorHttpClient?: Object,
   middlewares: Array<Middleware>,
   manifest: HullManifest
-  // $FlowFixMe
   // handlers: HullHandlers // eslint-disable-line no-use-before-define
 };
+
+export type HullCredentialsObject = {|
+  token?: string,
+  clientCredentials?: HullClientCredentials, // HullClient credentials
+  clientCredentialsToken?: string, // signed (not encrypted) jwt token with HullClient credentials
+  clientCredentialsEncryptedToken?: string // encrypted token with HullClient credentials
+|};
+export type HullContextGetter = HullCredentialsObject => Promise<HullContext>;

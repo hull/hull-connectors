@@ -4,10 +4,8 @@ const _ = require("lodash");
 process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 
-/* global describe, it, beforeEach, afterEach */
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
-
 
 test("send batch account update to outreach in a batch", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {

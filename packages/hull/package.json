@@ -28,6 +28,7 @@
     "passport": "^0.3.2",
     "promise-streams": "^1.0.1",
     "promisepipe": "^3.0.0",
+    "jsonata": "^1.7.0",
     "raw-body": "^2.1.7",
     "react-hot-loader": "^4.2.0",
     "request": "^2.72.0",

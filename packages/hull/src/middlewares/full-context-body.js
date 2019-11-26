@@ -81,7 +81,8 @@ function fullContextBodyMiddlewareFactory({
           return next(new Error("Body is missing accounts_segments array"));
         }
       }
-      applyConnectorSettingsDefaults(connector);
+      const { manifest } = req.hull.connectorConfig;
+      applyConnectorSettingsDefaults(connector, manifest);
       trimTraitsPrefixFromConnector(connector);
 
       // $FlowFixMe

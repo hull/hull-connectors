@@ -8,24 +8,25 @@ export default function buildConsole(
   function log(...args) {
     logs.push(args);
   }
-  function debug(...args) {
+  function logDebug(...args) {
     // Only show debug logs in preview mode
     if (preview) {
       logs.push(args);
     }
   }
   function logError(...args) {
+    logs.push(args);
     errors.push(args);
   }
-  function info(...args) {
+  function logInfo(...args) {
     logs.push(args);
     logsForLogger.push(args);
   }
   return {
     log,
     warn: log,
-    error: logError,
-    debug,
-    info
+    debug: logDebug,
+    info: logInfo,
+    error: logError
   };
 }

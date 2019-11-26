@@ -1,51 +1,44 @@
+import getRouter from "hull/src/handlers/get-router";
+
 const Promise = require("bluebird");
-const Hull = require("hull");
 const Supply = require("supply");
 const httpMocks = require("node-mocks-http");
-const {
-  baseContextMiddleware,
-  credentialsFromQueryMiddleware,
-  clientMiddleware,
-  fullContextFetchMiddleware
-} = require("hull/src/middlewares");
 
-async function getHullContext(credentials) {
-  const connector = new Hull.Connector({
-    hostSecret: "hull-repl",
-    clientConfig: {
-      connectorName: "hull-repl"
+async function getHullContext({ credentials, middlewares }) {
+  const supply = new Supply();
+
+  const { router } = getRouter({
+    method: "GET",
+    options: {
+      credentialsFromQuery: true,
+      credentialsFromNotification: false,
+      cacheContextFetch: false,
+      respondWithError: true,
+      strict: false
     },
-    manifest: {
-      name: "hull-repl"
+    requestName: "action",
+    handler: (req, res, next) => {
+      next();
     }
   });
-  const supply = new Supply();
-  const query = {
-    ship: credentials.ship,
-    secret: credentials.secret,
-    organization: credentials.organization
-  };
+
   const request = httpMocks.createRequest({
     method: "POST",
     url: "/"
   });
-  request.query = query;
-  supply.use(
-    baseContextMiddleware({
-      instrumentation: connector.instrumentation,
-      queue: connector.queue,
-      cache: connector.cache,
-      connectorConfig: connector.connectorConfig,
-      clientConfig: connector.clientConfig
-    })
+  request.query = credentials;
+  supply.use(middlewares);
+  supply.use(router);
+  await Promise.fromCallback(callback =>
+    supply.each(
+      request,
+      {
+        json: () => {},
+        setHeader: () => {}
+      },
+      callback
+    )
   );
-
-  supply.use(credentialsFromQueryMiddleware());
-  supply.use(clientMiddleware());
-  supply.use(fullContextFetchMiddleware());
-  await Promise.fromCallback(callback => {
-    supply.each(request, {}, callback);
-  });
   return request.hull;
 }
 

@@ -47,8 +47,12 @@ export default function Store(redis: any): StoreReturnValue {
       return Promise.reject(new Error("No context object"));
     }
     // Cache the current config.
-    const { clientCredentials, connector } = ctx;
-    if (!clientCredentials || !connector) {
+    const {
+      clientCredentialsEncryptedToken,
+      clientCredentials,
+      connector
+    } = ctx;
+    if (!clientCredentialsEncryptedToken || !connector) {
       return Promise.reject(new Error("No config in Context object"));
     }
 
@@ -57,16 +61,11 @@ export default function Store(redis: any): StoreReturnValue {
       return Promise.reject(new Error("Couldn't find Connector ID"));
     }
 
-    const { private_settings, settings } = connector;
-    if (!private_settings) {
-      return Promise.reject(new Error("No private_settings"));
-    }
-
     lru(id);
 
     return set(id, {
-      connector: { id, private_settings, settings },
-      clientCredentials
+      // connector: { id, private_settings, settings },
+      clientCredentialsEncryptedToken
     });
   };
   return { get, set, setup, lru, pool };

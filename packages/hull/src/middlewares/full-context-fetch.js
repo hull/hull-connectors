@@ -11,45 +11,49 @@ const {
   trimTraitsPrefixFromConnector
 } = require("../utils");
 
-function fetchConnector(ctx): Promise<*> {
+async function fetchConnector(ctx, cache): Promise<*> {
   debug("fetchConnector", typeof ctx.connector);
   if (ctx.connector) {
-    return Promise.resolve(ctx.connector);
+    await ctx.cache.set("connector", ctx.connector);
+    return ctx.connector;
   }
+  const getConnector = () => ctx.client.get("app", {});
+  if (!cache) return getConnector();
   return ctx.cache.wrap(
     "connector",
     () => {
       debug("fetchConnector - calling API");
-      return ctx.client.get("app", {});
+      return getConnector();
     },
     { ttl: 60000 }
   );
 }
 
-function fetchSegments(ctx, entityType = "user") {
-  debug("fetchSegments", entityType, typeof ctx[`${entityType}sSegments`]);
-  if (ctx.client === undefined) {
-    return Promise.reject(new Error("Missing client"));
-  }
-  if (ctx[`${entityType}sSegments`]) {
-    return Promise.resolve(ctx[`${entityType}sSegments`]);
+async function fetchSegments(ctx, entity = "user", cache) {
+  debug("fetchSegments", entity, typeof ctx[`${entity}sSegments`]);
+  const entitySegments = `${entity}s_segments`;
+  const ctxEntity = `${entity}sSegments`;
+  const segments = ctx[ctxEntity];
+  if (segments) {
+    await ctx.cache.set(entitySegments, segments);
+    return segments;
   }
   const { id } = ctx.client.configuration();
+  const getSegments = () =>
+    ctx.client.get(
+      `/${entitySegments}`,
+      { shipId: id },
+      { timeout: 5000, retry: 1000 }
+    );
+  if (!cache) return getSegments();
   return ctx.cache.wrap(
-    `${entityType}s_segments`,
+    entitySegments,
     () => {
       if (ctx.client === undefined) {
         return Promise.reject(new Error("Missing client"));
       }
       debug("fetchSegments - calling API");
-      return ctx.client.get(
-        `/${entityType}s_segments`,
-        { shipId: id },
-        {
-          timeout: 5000,
-          retry: 1000
-        }
-      );
+      return getSegments();
     },
     { ttl: 60000 }
   );
@@ -66,6 +70,7 @@ function fetchSegments(ctx, entityType = "user") {
  */
 function fullContextFetchMiddlewareFactory({
   requestName,
+  cacheContextFetch = true,
   strict = true
 }: Object = {}) {
   return async function fullContextFetchMiddleware(
@@ -82,10 +87,14 @@ function fullContextFetchMiddlewareFactory({
     }
 
     try {
+      const ctx = req.hull;
+      if (ctx.client === undefined) {
+        throw new Error("Missing client");
+      }
       const [connector, usersSegments, accountsSegments] = await Promise.all([
-        fetchConnector(req.hull),
-        fetchSegments(req.hull, "user"),
-        fetchSegments(req.hull, "account")
+        fetchConnector(ctx, cacheContextFetch),
+        fetchSegments(ctx, "user", cacheContextFetch),
+        fetchSegments(ctx, "account", cacheContextFetch)
       ]);
       debug("received responses %o", {
         connector: typeof connector,

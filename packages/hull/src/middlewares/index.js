@@ -18,3 +18,4 @@ module.exports.clearConnectorCache = require("./clear-connector-cache-middleware
 module.exports.httpClientMiddleware = require("./httpclient-middleware");
 module.exports.baseComposedMiddleware = require("./base-composed-middleware");
 module.exports.workerContextMiddleware = require("./worker-context-middleware");
+module.exports.extendedComposeMiddleware = require("./extended-composed-middleware");

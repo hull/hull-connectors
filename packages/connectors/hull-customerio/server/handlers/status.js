@@ -1,5 +1,9 @@
 /* @flow */
-import type { HullContext, HullStatusResponse } from "hull";
+import type {
+  HullContext,
+  HullStatusResponse,
+  HullStatusResponseData
+} from "hull";
 
 const _ = require("lodash");
 const SyncAgent = require("../lib/sync-agent");
@@ -11,7 +15,7 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
 
   const syncAgent = new SyncAgent(ctx);
   const messages: Array<string> = [];
-  let status: string = "ok";
+  let status: $PropertyType<HullStatusResponseData, "status"> = "ok";
   const promises: Array<Promise<*>> = [];
 
   if (!site_id || !api_key) {
