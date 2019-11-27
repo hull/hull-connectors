@@ -2,11 +2,10 @@
   "name": "Clearbit",
   "description": "Synchronize Data with Clearbit!",
   "tags": [
-    "incoming",
-    "outgoing",
     "batch",
-    "oneColumn",
-    "smart-notifier"
+    "batch-accounts",
+    "smart-notifier",
+    "kraken-exports"
   ],
   "mappings": {
     "person": {
@@ -1735,7 +1734,8 @@
         "channels": {
           "only": [
             "user:update",
-            "account:update"
+            "account:update",
+            "ship:update"
           ]
         }
       },

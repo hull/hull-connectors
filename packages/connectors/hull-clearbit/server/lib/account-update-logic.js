@@ -11,15 +11,25 @@ import { enrich, shouldEnrichAccount } from "../clearbit/enrich";
 
 const debug = require("debug")("hull-clearbit:account-update-logic");
 
+type AccountUpdateResponse = {
+  prospectAction: {},
+  enrichAction: {},
+  account_id?: string,
+  prospectResult?: any,
+  enrichResult?: any
+};
+
 export default function updateLogic(ctx: HullContext) {
   const settings: ClearbitConnectorSettings = ctx.connector.private_settings;
-  return async function accountUpdateLogic(message: HullAccountUpdateMessage) {
+  return async function accountUpdateLogic(
+    message: HullAccountUpdateMessage
+  ): Promise<AccountUpdateResponse> {
     const actions = await Promise.all([
       shouldEnrichAccount(ctx, settings, message),
       shouldProspect(ctx, settings, message)
     ]);
 
-    const [enrichAction, prospectActions]: [
+    const [enrichAction, prospectAction]: [
       ShouldAction,
       ShouldAction
     ] = actions;
@@ -28,9 +38,16 @@ export default function updateLogic(ctx: HullContext) {
 
     const results: Array<void | false | ClearbitResult> = await Promise.all([
       enrichAction.should && enrich(ctx, message),
-      prospectActions.should && prospect(ctx, message)
+      prospectAction.should && prospect(ctx, message)
     ]);
 
+    return {
+      account_id: message.account.id,
+      enrichAction,
+      prospectAction,
+      enrichResult: results[0],
+      prospectResult: results[1]
+    };
     // const {
     //   should: shouldDiscover,
     //   message: discoverMessage
@@ -54,12 +71,5 @@ export default function updateLogic(ctx: HullContext) {
     // } else {
     //   skips.prospect = prospectMessage;
     // }
-
-    return _.filter(actions, "should")
-      .map(({ message: msg }) => ({
-        action: "skip",
-        message: msg
-      }))
-      .concat(results);
   };
 }
