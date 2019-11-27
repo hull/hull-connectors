@@ -15,7 +15,11 @@ const {
 const {
   HullUserRaw,
   ServiceUserRaw,
+  ServiceLeadRaw,
+  ServiceAccountRaw,
+  ServiceOpportunityRaw,
   HullIncomingUser,
+  HullIncomingAccount,
   HullOutgoingUser,
   HullIncomingUserImportApi,
   HullConnectorAttributeDefinition,
@@ -151,119 +155,95 @@ const transformsShared: ServiceTransforms = [
   {
     input: ServiceLeadRaw,
     output: HullIncomingUser,
-    strategy: "PropertyKeyedValue",
-    arrayStrategy: "append_index",
+    strategy: "AtomicReaction",
     direction: "incoming",
     transforms: [
       {
-        mapping: "connector.private_settings.incoming_lead_attributes",
-        condition: isNotEqual("value", "null"),
-        inputPath: "${service_field_name}",
-        //don't need service_name because hull automatically appends it
-        outputPath: "attributes.${hull_field_name}",
-        outputFormat: {
-          value: "${value}",
-          operation: "set"
+        operateOn: "connector.private_settings.incoming_lead_attributes",
+        expand: { valueName: "mapping" },
+        then: {
+          operateOn: { component: "input", select: "${mapping.service}"},
+          writeTo: { path: "attributes.${mapping.hull}" }
         }
       },
+      // {
+      //   operateOn: { component: "input" },
+      //   condition: [
+      //     isEqual("connector.private_settings.fetch_all_attributes", true),
+      //     not(isServiceAttribute("connector.private_settings.incoming_lead_attributes", "service_field_name")),
+      //     not(isEqual("service_field_name", "hull_events"))
+      //   ],
+      //   inputPath: "${service_field_name}",
+      //   outputPath: "attributes.${service_name}/${hull_field_name}",
+      //   outputFormat: {
+      //     value: "${value}",
+      //     operation: "set"
+      //   }
+      // },
       {
-        mapping: { type: "input" },
-        condition: [
-          isEqual("connector.private_settings.fetch_all_attributes", true),
-          not(isServiceAttribute("connector.private_settings.incoming_user_attributes", "service_field_name")),
-          not(isEqual("service_field_name", "hull_events")),
-          isNotEqual("value", "null"),
-        ],
-        inputPath: "${service_field_name}",
-        outputPath: "attributes.${service_name}/${hull_field_name}",
-        outputFormat: {
-          value: "${value}",
-          operation: "set"
-        }
-      },
-      {
-        inputPath: "id",
-        outputPath: "ident.anonymous_id",
-        outputFormat: "${service_name}:${value}"
+        operateOn: { component: "input", select: "id" },
+        then:[
+          { writeTo: { path: "ident.anonymous_id", format: "${service_name}:${operateOn}" } },
+          {
+            writeTo: {
+              path: "attributes.${service_name}/id",
+              format: {
+                value: "${value}",
+                operation: "set"
+              }
+            }
+          }
+        ]
       },
       {
         condition: isEqual("connector.private_settings.link_users_in_hull", true),
-        inputPath: "hull_service_accountId",
-        outputPath: "accountIdent.anonymous_id",
-        outputFormat: "${service_name}:${value}"
-      },
-      {
-        condition: isEqual("connector.private_settings.link_users_in_hull", true),
-        inputPath: "hull_service_accountId",
-        outputPath: "accountAttributes.${service_name}/id",
-        outputFormat: "${value}"
-      },
-      {
-        inputPath: "id",
-        outputPath: "attributes.${service_name}/id",
-        outputFormat: {
-          value: "${value}",
-          operation: "set"
-        }
-      },
-      {
-        arrayStrategy: "pick_first",
-        mapping: "connector.private_settings.lead_claims",
-        inputPath: "${service_field_name}",
-        outputPath: "ident.${hull_field_name}"
-      },
-      {
-        arrayStrategy: "send_raw_array",
-        inputPath: "hull_events",
-        outputPath: "events"
+        then: [
+          {
+            operateOn: { component: "input", select: "hull_service_accountId" },
+            writeTo: { path: "accountIdent.anonymous_id", format: "${service_name}:${operateOn}" }
+          },
+          {
+            operateOn: { component: "input", select: "hull_service_accountId" },
+            writeTo: { path: "accountAttributes.${service_name}/id" }
+          }
+        ]
       }
     ]
   },
   {
     input: ServiceAccountRaw,
     output: HullIncomingAccount,
-    strategy: "PropertyKeyedValue",
-    arrayStrategy: "append_index",
+    strategy: "AtomicReaction",
     direction: "incoming",
     transforms: [
       {
-        mapping: "connector.private_settings.incoming_account_attributes",
-        condition: isNotEqual("value", "null"),
-        inputPath: "${service_field_name}",
-        //don't need service_name because hull automatically appends it
-        outputPath: "attributes.${hull_field_name}",
-        outputFormat: {
-          value: "${value}",
-          operation: "set"
+        operateOn: "connector.private_settings.incoming_account_attributes",
+        expand: { valueName: "mapping" },
+        then: {
+          operateOn: { component: "input", select: "${mapping.service}"},
+          writeTo: { path: "attributes.${mapping.hull}" }
         }
       },
+      // {
+      //   mapping: { type: "input" },
+      //   condition: [
+      //     isEqual("connector.private_settings.fetch_all_attributes", true),
+      //     not(isServiceAttribute("connector.private_settings.incoming_account_attributes", "service_field_name")),
+      //     not(isEqual("service_field_name", "hull_events"))
+      //   ],
+      //   inputPath: "${service_field_name}",
+      //   outputPath: "attributes.${service_name}/${hull_field_name}",
+      //   outputFormat: {
+      //     value: "${value}",
+      //     operation: "set"
+      //   }
+      // },
       {
-        mapping: { type: "input" },
-        condition: [
-          isEqual("connector.private_settings.fetch_all_attributes", true),
-          not(isServiceAttribute("connector.private_settings.incoming_account_attributes", "service_field_name")),
-          not(isEqual("service_field_name", "hull_events")),
-          isNotEqual("value", "null"),
-        ],
-        inputPath: "${service_field_name}",
-        outputPath: "attributes.${service_name}/${hull_field_name}",
-        outputFormat: {
-          value: "${value}",
-          operation: "set"
-        }
-      },
-      {
-        inputPath: "id",
-        outputPath: "ident.anonymous_id",
-        outputFormat: "${service_name}:${value}"
-      },
-      {
-        inputPath: "id",
-        outputPath: "attributes.${service_name}/id",
-        outputFormat: {
-          value: "${value}",
-          operation: "set"
-        }
+        operateOn: { component: "input", select: "id" },
+        then:[
+          { writeTo: { path: "ident.anonymous_id", format: "${service_name}:${operateOn}" } },
+          { writeTo: { path: "attributes.${service_name}/id", format: { operation: "set", value: "${operateOn}" } } }
+        ]
       },
       {
         arrayStrategy: "pick_first",
@@ -271,6 +251,56 @@ const transformsShared: ServiceTransforms = [
         inputPath: "${service_field_name}",
         outputPath: "ident.${hull_field_name}"
       }
+    ]
+  },
+  {
+    input: ServiceOpportunityRaw,
+    output: HullIncomingAccount,
+    strategy: "AtomicReaction",
+    direction: "incoming",
+    transforms: [
+      {
+        operateOn: { component: "input", select: "company_id" },
+        validation: { error: "BreakLoop", message: "Opp doesn't have company", condition: [ inputIsNotEqual("company_id", null), inputIsNotEqual("company_id", undefined) ] },
+        writeTo: { path: "ident.anonymous_id", format: "${service_name}:${operateOn}" },
+      },
+      {
+        operateOn: {component: "input", select: "${connector.private_settings.opportunity_type}", name: "opportunityType"},
+        then: [
+          {
+            operateOn: { component: "input", select: "id" },
+            writeTo: {
+              path: "attributes.${service_name}/id_${opportunityType}",
+              format: {
+                value: "${value}",
+                operation: "set"
+              }
+            }
+          },
+          {
+            operateOn: "connector.private_settings.incoming_opportunity_attributes",
+            expand: { valueName: "mapping" },
+            then: {
+              operateOn: { component: "input", select: "${mapping.service}"},
+              writeTo: { path: "attributes.${mapping.hull}_${opportunityType}", format: { operation: "set", value: "${operateOn}" }}
+            }
+          }
+        ]
+      },
+      // {
+      //   mapping: { type: "input" },
+      //   condition: [
+      //     isEqual("connector.private_settings.fetch_all_attributes", true),
+      //     not(isServiceAttribute("connector.private_settings.incoming_account_attributes", "service_field_name")),
+      //     not(isEqual("service_field_name", "hull_events"))
+      //   ],
+      //   inputPath: "${service_field_name}",
+      //   outputPath: "attributes.${service_name}/${hull_field_name}",
+      //   outputFormat: {
+      //     value: "${value}",
+      //     operation: "set"
+      //   }
+      // },
     ]
   },
   {

@@ -5,8 +5,8 @@ module.exports = {
     "organization": "organization.hullapp.io",
     "hostname": "225ddbbc.connector.io",
     "private_settings": {
-      "coppercrm_api_key": "b99541216a0cd2af073a5c187f0b44d4",
-      "coppercrm_email": "timliuhull@gmail.com",
+      "coppercrm_api_key": process.env.COPPER_API_KEY,
+      "coppercrm_email": process.env.COPPER_EMAIL,
 
       "user_claims": [
         {

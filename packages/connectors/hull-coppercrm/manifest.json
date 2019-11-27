@@ -1,7 +1,7 @@
 {
-  "name": "Marketo",
-  "description": "Two-way Marketo integration for Leads",
-  "source": "marketo",
+  "name": "CopperCrm",
+  "description": "Two-way CopperCrm integration for Leads",
+  "source": "coppercrm",
   "logo": "logo.png",
   "picture": "picture.png",
   "version": "0.1.9-monorepo",
@@ -30,8 +30,8 @@
       "type": "string"
     },
     {
-      "name": "user_claims",
-      "title": "User Identity",
+      "name": "lead_claims",
+      "title": "Lead Identity",
       "type": "array",
       "format": "table",
       "items": {
@@ -39,11 +39,50 @@
         "properties": {
           "service": {
             "title": "Lead Field ID",
-            "enum": ["external_id", "email"]
+            "enum": ["email"]
           },
           "hull": {
             "title": "Hull User Ident",
-            "enum": ["external_id", "email"]
+            "enum": ["email"]
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "email",
+          "service": "email"
+        }
+      ]
+    },
+    {
+      "name": "incoming_lead_attributes",
+      "title": "Incoming Lead Fields to Sync (CopperCrm to Hull)",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": false,
+        "placeholder": "CopperCrm Lead Field",
+        "allowCreate": true,
+        "loadOptions": "/attributes-leads-incoming",
+        "source": "coppercrm"
+      }
+    },
+    {
+      "name": "user_claims",
+      "title": "Person Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "title": "Person Field ID",
+            "enum": ["email"]
+          },
+          "hull": {
+            "title": "Hull User Ident",
+            "enum": ["email"]
           }
         }
       },
@@ -56,37 +95,82 @@
     },
     {
       "name": "incoming_user_attributes",
-      "title": "Incoming User Fields to Sync (Marketo to Hull)",
+      "title": "Incoming People Fields to Sync (CopperCrm to Hull)",
       "type": "array",
       "format": "traitMapping",
       "options": {
         "direction": "incoming",
         "showOverwriteToggle": false,
-        "placeholder": "Marketo Lead Field",
+        "placeholder": "CopperCrm People Field",
         "allowCreate": true,
-        "loadOptions": "/attributes-leads-incoming",
-        "source": "marketo"
+        "loadOptions": "/attributes-people-incoming",
+        "source": "coppercrm"
       }
     },
     {
-      "name": "synchronized_user_segments",
-      "title": "User Filter",
-      "description": "Send *Users* as Leads to Marketo when belonging to one of these segments",
-      "type": "array",
-      "default": [],
-      "format": "segment"
+      "name": "link_users_in_hull",
+      "title": "Link Users to Accounts in Hull",
+      "description": "Do you want to let CopperCrm update links between Users and Accounts in Hull? Be careful about conflicts with other connectors that would link users too.\n\n**IMPORTANT:** when this checkbox is checked the connector will create a Hull Account for EVERY CopperCrm Account any Prospect is linked to (refer to documentation for more details).",
+      "type": "boolean",
+      "default": false
     },
     {
-      "name": "outgoing_user_attributes",
-      "title": "Outgoing User Fields to Sync (Hull to Marketo)",
+      "name": "account_claims",
+      "title": "Company Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "title": "Company Field ID",
+            "enum": ["email_domain"]
+          },
+          "hull": {
+            "title": "Hull Account Ident",
+            "enum": ["domain"]
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "domain",
+          "service": "email_domain"
+        }
+      ]
+    },
+    {
+      "name": "incoming_account_attributes",
+      "title": "Incoming People Fields to Sync (CopperCrm to Hull)",
       "type": "array",
       "format": "traitMapping",
       "options": {
-        "direction": "outgoing",
+        "direction": "incoming",
         "showOverwriteToggle": false,
-        "placeholder": "Marketo Lead Field",
-        "allowCreate": false,
-        "loadOptions": "/attributes-leads-outgoing"
+        "placeholder": "CopperCrm Company Field",
+        "allowCreate": true,
+        "loadOptions": "/attributes-company-incoming",
+        "source": "coppercrm"
+      }
+    },
+    {
+      "name": "incoming_opportunity_type",
+      "title": "Choose an field to differentiate between opportunity types",
+      "format": "trait",
+      "type": "string"
+    },
+    {
+      "name": "incoming_opportunity_attributes",
+      "title": "Incoming Opportunity Fields to Sync (CopperCrm to Hull)",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": false,
+        "placeholder": "CopperCrm Company Field",
+        "allowCreate": true,
+        "loadOptions": "/attributes-opportunity-incoming",
+        "source": "coppercrm"
       }
     },
     {
@@ -113,8 +197,59 @@
         "fireAndForget": true,
         "confirm": {
           "action": "fetch",
-          "text": "You are about to pull all leads from Marketo, this can be a long and costly operation, please inform your Hull customer success representatives before you launch this job so that we can monitor it for you to make sure it succeeds",
+          "text": "You are about to pull all leads from CopperCrm, this can be a long and costly operation, please inform your Hull customer success representatives before you launch this job so that we can monitor it for you to make sure it succeeds",
           "button": "Start Fetching Leads",
+          "entity": "users"
+        }
+      }
+    },
+    {
+      "url": "/fetchAllPeople",
+      "handler": "fetchAllPeople",
+      "type": "string",
+      "format": "action",
+      "title": "Fetch All People",
+      "name": "fetch_all_people",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all people from CopperCrm, this can be a long and costly operation, please inform your Hull customer success representatives before you launch this job so that we can monitor it for you to make sure it succeeds",
+          "button": "Start Fetching People",
+          "entity": "users"
+        }
+      }
+    },
+    {
+      "url": "/fetchAllCompanies",
+      "handler": "fetchAllCompanies",
+      "type": "string",
+      "format": "action",
+      "title": "Fetch All Companies",
+      "name": "fetch_all_companies",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all companies from CopperCrm, this can be a long and costly operation, please inform your Hull customer success representatives before you launch this job so that we can monitor it for you to make sure it succeeds",
+          "button": "Start Fetching Companies",
+          "entity": "users"
+        }
+      }
+    },
+    {
+      "url": "/fetchAllOpportunities",
+      "handler": "fetchAllOpportunities",
+      "type": "string",
+      "format": "action",
+      "title": "Fetch All Opportunities",
+      "name": "fetch_all_opportunities",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all opportunities from CopperCrm, this can be a long and costly operation, please inform your Hull customer success representatives before you launch this job so that we can monitor it for you to make sure it succeeds",
+          "button": "Start Fetching Opportunities",
           "entity": "users"
         }
       }
@@ -122,14 +257,53 @@
     {
       "url": "/attributes-leads-incoming",
       "handler": "attributesLeadsIncoming"
+    },
+    {
+      "url": "/attributes-people-incoming",
+      "handler": "attributesPeopleIncoming"
+    },
+    {
+      "url": "/attributes-companies-incoming",
+      "handler": "attributesCompaniesIncoming"
+    },
+    {
+      "url": "/attributes-opportunity-incoming",
+      "handler": "attributesOpportunitiesIncoming"
     }
   ],
   "schedules": [
     {
-      "url": "/fetchRecentLeadActivity",
+      "url": "/fetchRecentLeads",
       "type": "interval",
       "value": "5",
-      "handler": "fetchRecentLeadActivity",
+      "handler": "fetchRecentLeads",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetchRecentPeople",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentPeople",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetchRecentCompanies",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentCompanies",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetchRecentOpportunities",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentOpportunities",
       "options": {
         "fireAndForget": true
       }
@@ -144,72 +318,65 @@
     }
   ],
   "status": {
-    "initial_value": "setupRequired",
     "url": "/status",
     "type": "interval",
     "value": "5",
     "handler": "status"
   },
-  "subscriptions": [
-    {
-      "url": "/smart-notifier",
-      "channels": [
-        {
-          "channel": "user:update",
-          "handler": "userUpdate"
-        },
-        {
-          "channel": "ship:update",
-          "handler": "shipUpdate"
-        }
-      ],
-      "conditions": {
-        "channels": {
-          "only": [
-            "user:update",
-            "ship:update"
-          ]
-        }
-      }
-    }
-  ],
-  "batches": [
-    {
-      "url": "/batch",
-      "channels": [
-        {
-          "channel": "user:update",
-          "handler": "userUpdate"
-        },
-        {
-          "channel": "account:update",
-          "handler": "accountUpdate"
-        }
-      ]
-    }
-  ],
+  "subscriptions": [],
+  "batches": [],
   "settings_sections": [
     {
-      "title": "Connect with Marketo",
-      "description": "The following information is required in order to connect with your Marketo instance.  We recommend generating a new api user for hull acccess, but an existing api user would work.  More detailed information on how to find or generate this information can be found [here](https://developers.marketo.com/rest-api/authentication/) on Marketo's support site",
-      "step": "credentials",
+      "title": "Connect with CopperCrm",
+      "description": "The following information is required in order to connect with your CopperCrm instance.",
       "properties": [
         "private_settings.coppercrm_api_key",
         "private_settings.coppercrm_email"
       ]
     },
     {
+      "title": "Lead - Identity",
+      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to CopperCrm as well as the data we pull from CopperCrm.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios.",
+      "properties": [
+        "private_settings.lead_claims"
+      ]
+    },
+    {
+      "title": "User - Fetching Users from CopperCrm",
+      "description": "Hull gives it's customers the ability to capture changes on specific data fields so that they are kept up to date in real-time.  Please configure the fields that you would like pulled from CopperCrm below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
+      "properties": [
+        "private_settings.incoming_lead_attributes",
+        "json.fetch_all_leads"
+      ]
+    },
+    {
       "title": "User - Identity",
-      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to Marketo as well as the data we pull from Marketo.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios.",
+      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to CopperCrm as well as the data we pull from CopperCrm.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios.",
       "properties": [
         "private_settings.user_claims"
       ]
     },
     {
-      "title": "User - Fetching Users from Marketo",
-      "description": "Hull gives it's customers the ability to capture changes on specific data fields so that they are kept up to date in real-time.  Please configure the fields that you would like pulled from Outreach below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
+      "title": "User - Fetching People from CopperCRM",
+      "description": "Hull gives it's customers the ability to capture changes on specific data fields so that they are kept up to date in real-time.  Please configure the fields that you would like pulled from CopperCrm below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
       "properties": [
-        "private_settings.incoming_user_attributes"
+        "private_settings.incoming_user_attributes",
+        "json.fetch_all_people"
+      ]
+    },
+    {
+      "title": "Companies - Identity",
+      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to CopperCrm as well as the data we pull from CopperCrm.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios.",
+      "properties": [
+        "private_settings.account_claims"
+      ]
+    },
+    {
+      "title": "User - Fetching Companies from CopperCRM",
+      "description": "Hull gives it's customers the ability to capture changes on specific data fields so that they are kept up to date in real-time.  Please configure the fields that you would like pulled from CopperCrm below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
+      "properties": [
+        "private_settings.incoming_account_attributes",
+        "json.fetch_all_companies"
       ]
     }
   ]

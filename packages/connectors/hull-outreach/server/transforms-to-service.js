@@ -17,6 +17,15 @@ const transformsToService: ServiceTransforms = [
       { outputPath: "data.type", outputFormat: "prospect" },
       { inputPath: "user.outreach/id", outputPath: "data.id" },
       { outputPath: "data.id", outputFormat: "${userId}" },
+      // {
+      //   condition: isEqual("connector.private_settings.link_users_in_service", true),
+      //   inputPath: "account.outreach/id",
+      //   outputPath: "data.relationships.account.data",
+      //   outputFormat: {
+      //     type: "account",
+      //     id: "${value}"
+      //   }
+      // },
       {
         condition: "accountId",
         outputPath: "data.relationships.account.data",

@@ -49,6 +49,21 @@ const ServiceUserRaw: ServiceObjectDefinition = {
   name: "User"
 };
 
+const ServiceLeadRaw: ServiceObjectDefinition = {
+  service_name: "ServiceLeadRaw",
+  name: "Lead"
+};
+
+const ServiceAccountRaw: ServiceObjectDefinition = {
+  service_name: "ServiceAccountRaw",
+  name: "Account"
+};
+
+const ServiceOpportunityRaw: ServiceObjectDefinition = {
+  service_name: "ServiceOpportunityRaw",
+  name: "Opportunity"
+};
+
 const HullIncomingUser: ServiceObjectDefinition = {
   service_name: "HullIncomingUser",
   name: "User"
@@ -114,5 +129,8 @@ module.exports = {
   HullConnectorEnumDefinition,
   HullUserRaw,
   ServiceUserRaw,
+  ServiceLeadRaw,
+  ServiceAccountRaw,
+  ServiceOpportunityRaw,
   HullIncomingUserImportApi
 };

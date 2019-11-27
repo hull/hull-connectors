@@ -35,13 +35,16 @@ const {
 
 const {
   HullIncomingDropdownOption,
-  HullOutgoingDropdownOption
+  HullOutgoingDropdownOption,
+  HullConnectorAttributeDefinition
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
+
+const { fetchAllByDate, fetchRecentByDate } = require("hull-connector-framework/src/purplefusion/glue-utils");
 
 const {
   CopperCRMIncomingLead,
   CopperCRMIncomingPerson,
-  CopperCRMIncomingAccount
+  CopperCRMIncomingCompany
 } = require("./service-objects");
 
 // const {  } = require("./service-objects");
@@ -66,66 +69,87 @@ const glue = {
 
 
   // Setup marketo api from the configured values
-  ensureSetup:
+  ensure:
     ifL(route("isConfigured"), [
     ]),
 
   //don't do anything on ship update
   shipUpdate: {},
 
-  //Incremental polling logic
-  fetchAllLeads:[
-    set("pageOffset", 1),
-    loopL([
+  // Incremental polling logic
+  fetchAllLeads:
+    fetchAllByDate({
+      serviceName: "coppercrm",
+      fetchEndpoint: "fetchAllLeads",
+      incomingType: CopperCRMIncomingLead,
+      datePathOnEntity: "date_created",
+      pageSize: 100,
+      hullCommand: "asUser"
+    }),
+  fetchRecentLeads:
+    fetchRecentByDate({
+      serviceName: "coppercrm",
+      fetchEndpoint: "fetchRecentLeads",
+      incomingType: CopperCRMIncomingLead,
+      datePathOnEntity: "date_modified",
+      pageSize: 100,
+      hullCommand: "asUser",
+      timeFormat: "unix"
+    }),
 
-      set("leadPage", coppercrm("fetchAllLeads")),
+  fetchAllPeople:
+    fetchAllByDate({
+      serviceName: "coppercrm",
+      fetchEndpoint: "fetchAllPeople",
+      incomingType: CopperCRMIncomingPerson,
+      datePathOnEntity: "date_created",
+      pageSize: 100,
+      hullCommand: "asUser"
+    }),
+  fetchRecentPeople:
+    fetchRecentByDate({
+      serviceName: "coppercrm",
+      fetchEndpoint: "fetchRecentPeople",
+      incomingType: CopperCRMIncomingPerson,
+      datePathOnEntity: "date_modified",
+      pageSize: 100,
+      hullCommand: "asUser",
+      timeFormat: "unix"
+    }),
+  fetchAllCompanies:
+    fetchAllByDate({
+      serviceName: "coppercrm",
+      fetchEndpoint: "fetchAllCompanies",
+      incomingType: CopperCRMIncomingCompany,
+      datePathOnEntity: "date_created",
+      pageSize: 100,
+      hullCommand: "asAccount"
+    }),
+  fetchRecentCompanies:
+    fetchRecentByDate({
+      serviceName: "coppercrm",
+      fetchEndpoint: "fetchRecentCompanies",
+      incomingType: CopperCRMIncomingCompany,
+      datePathOnEntity: "date_modified",
+      pageSize: 100,
+      hullCommand: "asAccount",
+      timeFormat: "unix"
+    }),
+  attributesLeadsIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, ld("concat", require("./fields/lead_fields"), route("customLeadFields")))),
+  attributesPeopleIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, ld("concat", require("./fields/people_fields"), route("customPeopleFields")))),
+  attributesCompaniesIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, ld("concat", require("./fields/company_fields"), route("customPeopleFields")))),
+  attributesOpportunitiesIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, ld("concat", require("./fields/opportunity_fields"), route("customOpportunityFields")))),
+  customLeadFields: jsonata("$[\"lead\" in available_on].{\"label\": name, \"name\": name, \"type\": data_type, \"readOnly\": false}", cacheWrap(6000, coppercrm("getCustomFields"))),
+  customPeopleFields: jsonata("$[\"people\" in available_on].{\"label\": name, \"name\": name, \"type\": data_type, \"readOnly\": false}", cacheWrap(6000, coppercrm("getCustomFields"))),
+  customCompanyFields: jsonata("$[\"company\" in available_on].{\"label\": name, \"name\": name, \"type\": data_type, \"readOnly\": false}", cacheWrap(6000, coppercrm("getCustomFields"))),
+  customOpportunityFields: jsonata("$[\"company\" in available_on].{\"label\": name, \"name\": name, \"type\": data_type, \"readOnly\": false}", cacheWrap(6000, coppercrm("getCustomFields"))),
+  getAssignees: cacheWrap(6000, coppercrm("getUsers")),
+  getContactTypes: cacheWrap(6000, coppercrm("getContactTypes")),
+  getCustomerSources: cacheWrap(6000, coppercrm("getCustomerSources")),
+  getLossReason: cacheWrap(6000, coppercrm("getLossReason")),
+  getPipelines: cacheWrap(6000, coppercrm("getPipelines")),
+  getPipelineStages: cacheWrap(6000, coppercrm("getPipelineStages")),
 
-      iterateL("${leadPage}", { key: "lead", async: true }, hull("asUser", cast(CopperCRMIncomingLead, "${lead}"))),
-
-      set("createdAtOffset", get("date_created", ld("last", "${leadPage}"))),
-      ifL(cond("lessThan", "${leadPage.length}", 1), loopEndL()),
-
-      // doing this if we know that the number of contacts on the same date_created is greater than the page size
-      // will avoid loops
-      ifL(cond("isEqual", get("date_created", ld("first", "${leadPage}")), get("date_created", ld("last", "${leadPage}"))), {
-        do: set("pageOffset", inc("${pageOffset}")),
-        eldo: set("pageOffset", 1)
-      })
-    ])
-  ],
-  fetchRecentLeads: cacheLock("fetchRecentLeads", [
-
-    set("modifiedAtOffset", settings("last_fetch_timestamp")),
-    ifL(cond("isEmpty", "${modifiedAtOffset}"), set("modifiedAtOffset", ex(ex(moment(), "subtract", { hour: 1 }), "unix"))),
-    set("pageOffset", 1),
-
-    loopL([
-      set("leadPage", coppercrm("fetchRecentLeads")),
-
-      iterateL("${leadPage}", { key: "lead", async: true }, hull("asUser", cast(CopperCRMIncomingLead, "${lead}"))),
-
-      // TODO if leadPage is empty, we'll going to have an issue
-      set("modifiedAtOffset", get("date_modified", ld("last", "${leadPage}"))),
-
-      ifL(cond("lessThan", "${leadPage.length}", 1), loopEndL()),
-      // doing this if we know that the number of contacts on the same date_created is greater than the page size
-      // will avoid loops
-      ifL(cond("isEqual", get("date_modified", ld("first", "${leadPage}")), get("date_modified", ld("last", "${leadPage}"))), {
-        do: set("pageOffset", inc("${pageOffset}")),
-        eldo: set("pageOffset", 1)
-      })
-    ]),
-
-    settingsUpdate({last_fetch_timestamp: "${modifiedAtOffset}"}),
-  ]),
-  fetchAllPeople: {},
-  fetchRecentPeople: {},
-  fetchAllCompanies: {},
-  fetchRecentCompanies: {},
-  leadFields: ld("concat", require("lead_fields"), route("customLeadFields")),
-  peopleFields: ld("concat", require("people_fields"), route("customPeopleFields")),
-  customLeadFields: jsonata("$[\"lead\" in available_on].{\"label\": name, \"name\": name, \"type\": data_type, \"readOnly\": false}", cacheWrap("getCustomFields")),
-  customPeopleFields: jsonata("$[\"people\" in available_on].{\"label\": name, \"name\": name, \"type\": data_type, \"readOnly\": false}", cacheWrap("getCustomFields"))
 
 };
 

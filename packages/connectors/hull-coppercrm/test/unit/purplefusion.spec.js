@@ -20,7 +20,7 @@ describe("CopperCRM Lead Tests", () => {
       require("../../server/transforms-to-hull"),
       require("../../server/transforms-to-service")
     ),
-    "ensureSetup");
+    "ensure");
 
   const router = new HullRouter({
     glue: require("../../server/glue"),
@@ -33,7 +33,7 @@ describe("CopperCRM Lead Tests", () => {
       require("../../server/transforms-to-hull"),
       require("../../server/transforms-to-service")
     ),
-    ensureHook: "ensureSetup"
+    ensureHook: "ensure"
   });
 
 
@@ -60,21 +60,21 @@ describe("CopperCRM Lead Tests", () => {
   it("fetch recent coppercrm", () => {
     // return harness.runTest(require("./fixtures/fetch-all-leads"));
     const requestTrace = require("./fixtures/fetch-recent-leads");
-    const context = new ContextMock(requestTrace.configuration);
+  const context = new ContextMock(requestTrace.configuration);
 
-    let request = requestTrace.input;
-    if (request && request.classType && request.data) {
-      const classType = request.classType;
-      const data = request.data;
-      setHullDataType(data, classType);
-      request = data;
-    }
+  let request = requestTrace.input;
+  if (request && request.classType && request.data) {
+    const classType = request.classType;
+    const data = request.data;
+    setHullDataType(data, classType);
+    request = data;
+  }
 
-    return router.dispatcher().dispatch(context, requestTrace.route, request).catch(error => {
-      console.log(error.message);
-      console.log(error.stack);
-      return Promise.reject(error);
-    });
+  return router.dispatcher().dispatch(context, requestTrace.route, request).catch(error => {
+    console.log(error.message);
+    console.log(error.stack);
+    return Promise.reject(error);
   });
+});
 
 });

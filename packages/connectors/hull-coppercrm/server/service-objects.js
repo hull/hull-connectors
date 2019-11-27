@@ -12,9 +12,9 @@ const CopperCRMIncomingPerson: ServiceObjectDefinition = {
   name: "Person"
 };
 
-const CopperCRMIncomingAccount: ServiceObjectDefinition = {
-  service_name: "coppercrm_incoming_account",
-  name: "Account"
+const CopperCRMIncomingCompany: ServiceObjectDefinition = {
+  service_name: "coppercrm_incoming_company",
+  name: "Company"
 };
 
 const CopperCRMIncomingOpportunity: ServiceObjectDefinition = {
@@ -25,6 +25,6 @@ const CopperCRMIncomingOpportunity: ServiceObjectDefinition = {
 module.exports = {
   CopperCRMIncomingLead,
   CopperCRMIncomingPerson,
-  CopperCRMIncomingAccount,
+  CopperCRMIncomingCompany,
   CopperCRMIncomingOpportunity
 };

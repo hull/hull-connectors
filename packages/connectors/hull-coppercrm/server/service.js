@@ -13,18 +13,12 @@ const {
   NotificationValidationError
 } = require("hull/src/errors");
 
-const OAuth2Strategy = require("passport-oauth2");
-
 const {
   CopperCRMIncomingLead,
   CopperCRMIncomingPerson,
-  CopperCRMIncomingAccount,
+  CopperCRMIncomingCompany,
   CopperCRMIncomingOpportunity
   } = require("./service-objects");
-
-const {
-  HullConnectorEnumDefinition
-} = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const { SuperagentApi } = require("hull-connector-framework/src/purplefusion/superagent-api");
 
@@ -41,86 +35,149 @@ const service = ({ clientID, clientSecret } : {
   prefix: "https://api.prosperworks.com/developer_api",
   defaultReturnObj: "body",
   endpoints: {
-    fetchRecentLeads: {
-      url: "/v1/leads/search",
-      operation: "post",
-      endpointType: "lastFetch",
-      query: {
-        "sort_by": "date_modified",
-        "sort_direction": "asc",
-        "page_size": "1",
-        "page_number": "${pageOffset}",
-        "minimum_modified_date": "${modifiedAtOffset}"
-      },
-      output: CopperCRMIncomingLead
-    },
-    fetchAllLeads: {
-      url: "/v1/lead_statuses",
+    getUsers: {
+      url: "/v1/users/search",
       operation: "get",
-      endpointType: "lastFetch"
-    },
-    getLeadStatuses: {
-      url: "/v1/leads/search",
-      operation: "post",
       endpointType: "lastFetch",
       query: {
         "sort_by": "date_created",
         "sort_direction": "asc",
-        "page_size": "1",
+        "page_size": 200
+      }
+    },
+    getLeadStatuses: {
+      url: "/v1/lead_statuses",
+      operation: "get",
+      endpointType: "lastFetch"
+    },
+    getCustomerSources: {
+      url: "/v1/customer_sources",
+      operation: "get",
+      endpointType: "lastFetch"
+    },
+    getContactTypes: {
+      url: "/v1/contact_types",
+      operation: "get",
+      endpointType: "lastFetch"
+    },
+    getLossReasons: {
+      url: "/v1/loss_reasons",
+      operation: "get",
+      endpointType: "lastFetch"
+    },
+    getPipelines: {
+      url: "/v1/pipelines",
+      operation: "get",
+      endpointType: "lastFetch"
+    },
+    getPipelineStages: {
+      url: "/v1/pipeline_stages",
+      operation: "get",
+      endpointType: "lastFetch"
+    },
+    fetchRecentLeads: {
+      url: "/v1/leads/search",
+      operation: "post",
+      endpointType: "lastFetch",
+      output: CopperCRMIncomingLead,
+      query: {
+        "sort_by": "date_modified",
+        "sort_direction": "asc",
+        "page_size": "${pageSize}",
         "page_number": "${pageOffset}",
-        "minimum_created_date": "${createdAtOffset}"
-      },
-      output: CopperCRMIncomingLead
+        "minimum_modified_date": "${dateOffset}"
+      }
+    },
+    fetchAllLeads: {
+      url: "/v1/leads/search",
+      operation: "post",
+      endpointType: "lastFetch",
+      output: CopperCRMIncomingLead,
+      query: {
+        "sort_by": "date_created",
+        "sort_direction": "asc",
+        "page_size": "${pageSize}",
+        "page_number": "${pageOffset}",
+        "minimum_created_date": "${dateOffset}"
+      }
     },
     fetchRecentPeople: {
       url: "/v1/people/search",
       operation: "post",
       endpointType: "lastFetch",
-      output: CopperCRMIncomingPerson
+      output: CopperCRMIncomingPerson,
+      query: {
+        "sort_by": "date_modified",
+        "sort_direction": "asc",
+        "page_size": "${pageSize}",
+        "page_number": "${pageOffset}",
+        "minimum_modified_date": "${dateOffset}"
+      }
     },
     fetchAllPeople: {
       url: "/v1/people/search?sort_by=date_modified&sort_direction=desc",
       operation: "post",
       endpointType: "fetchAll",
+      output: CopperCRMIncomingPerson,
       query: {
         "sort_by": "date_created",
         "sort_direction": "asc",
-        "page_size": "1",
+        "page_size": "${pageSize}",
         "page_number": "${pageOffset}",
-        "minimum_created_date": "${createdAtOffset}"
-      },
-      output: CopperCRMIncomingPerson
+        "minimum_created_date": "${dateOffset}"
+      }
     },
-    fetchRecentAccount: {
-      url: "/v1/people/search?sort_by=date_modified&sort_direction=desc",
+    fetchRecentCompanies: {
+      url: "/v1/company/search",
       operation: "post",
       endpointType: "lastFetch",
-      output: CopperCRMIncomingPerson
+      output: CopperCRMIncomingCompany,
+      query: {
+        "sort_by": "date_modified",
+        "sort_direction": "asc",
+        "page_size": "${pageSize}",
+        "page_number": "${pageOffset}",
+        "minimum_modified_date": "${dateOffset}"
+      },
     },
     fetchAllAccounts: {
-      url: "/v1/people/search?sort_by=date_modified&sort_direction=desc",
+      url: "/v1/company/search",
       operation: "post",
       endpointType: "lastFetch",
+      output: CopperCRMIncomingCompany,
       query: {
         "sort_by": "date_created",
         "sort_direction": "asc",
         "page_size": "1",
         "page_number": "${pageOffset}",
-        "minimum_created_date": "${createdAtOffset}"
-      },
-      output: CopperCRMIncomingPerson
+        "minimum_created_date": "${dateOffset}"
+      }
     },
     fetchRecentOpportunities: {
-      url: "/v1/people/search?sort_by=date_modified&sort_direction=desc",
+      url: "/v1/opportunity/search",
       operation: "post",
       endpointType: "lastFetch",
-      output: CopperCRMIncomingPerson
+      output: CopperCRMIncomingOpportunity,
+      query: {
+        "sort_by": "date_modified",
+        "sort_direction": "asc",
+        "page_size": "${pageSize}",
+        "page_number": "${pageOffset}",
+        "minimum_modified_date": "${dateOffset}"
+      }
     },
     fetchAllOpportunities: {
-      url: "/v1/people/search?sort_by=date_modified&sort_direction=desc",
+      url: "/v1/opportunity/search",
       operation: "post",
       endpointType: "lastFetch",
-      output: CopperCRMIncomingPerson
+      output: CopperCRMIncomingOpportunity,
+      query: {
+        "sort_by": "date_modified",
+        "sort_direction": "asc",
+        "page_size": "1",
+        "page_number": "${pageOffset}",
+        "minimum_created_date": "${dateOffset}"
+      }
     }
   },
   superagent: {
