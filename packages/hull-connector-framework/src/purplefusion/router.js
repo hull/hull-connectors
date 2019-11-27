@@ -28,9 +28,11 @@ class HullRouter {
   serviceDefinitions: Object;
   transforms: Array<any>;
   ensureHook: string;
+  serviceName: string;
   filteredMessageCallback: Function;
 
-  constructor({ glue, services, transforms, ensureHook }: any, filteredMessageCallback?: Function) {
+  constructor({ serviceName, glue, services, transforms, ensureHook }: any, filteredMessageCallback?: Function) {
+    this.serviceName = serviceName;
     this.glue = glue;
 
     // don't assign hull service if it already exists...
@@ -162,7 +164,7 @@ class HullRouter {
             // TODO make sure this works if callback returns promise
             return Promise.resolve(callback(context, results))
           }
-          
+
           return Promise.resolve(results);
         }).catch(error => {
           dispatcher.close();
