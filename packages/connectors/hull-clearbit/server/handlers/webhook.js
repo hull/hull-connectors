@@ -27,7 +27,7 @@ export default async function handleWebhook(
 
     if (person) {
       // $FlowFixMe
-      await saveUser(ctx, { user: { id }, person, source: "webhook" });
+      await saveUser(ctx, { user: { id }, person, source: "enrich" });
     }
 
     return {
