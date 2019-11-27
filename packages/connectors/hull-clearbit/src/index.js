@@ -82,6 +82,8 @@ export default function boot() {
     updateImportButtonStatus($btn_import, 0);
 
     const container = $("#results");
+    const errorContainer = $("#errors");
+    errorContainer.hide();
 
     $btn_import.prop("disabled", true).on("click", onImport(container));
 
@@ -153,11 +155,13 @@ export default function boot() {
       evt.preventDefault();
       const data = updateState();
       disableButton(STRINGS.BTN_LOADING, $btn_prospect);
+      errorContainer.hide();
       const { error, prospects } = await request({ url: "/prospect", data });
       if (error) {
-        $("#results").html(renderError(error));
+        errorContainer.html(renderError(error)).show();
       }
       if (prospects && prospects.length) {
+        errorContainer.empty().hide();
         $btn_prospect.show();
         renderResults({ container, data: prospects });
       }

@@ -1760,7 +1760,10 @@
   "json": [
     {
       "url": "/prospect",
-      "handler": "prospectHandler"
+      "handler": "prospectHandler",
+      "options": {
+        "respondWithError": true
+      }
     },
     {
       "url": "/schema/company_properties",
