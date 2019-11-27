@@ -1,25 +1,14 @@
 import person from "./person.json";
 
-export default function(expect, source="reveal") {
+export default function(expect, source = "reveal") {
   return {
-    address: {
-      city: {
-        operation: "setIfNull",
-        value: "San Francisco"
-      },
-      country: {
-        operation: "setIfNull",
-        value: "United States"
-      },
-      state: {
-        operation: "setIfNull",
-        value: "California"
-      }
-    },
-    bio: {
+    "address": {
       operation: "setIfNull",
-      value:
-        "O'Reilly author, software engineer & traveller. Founder of https://clearbit.com"
+      value: {
+        "city": "San Francisco",
+        "country": "United States",
+        "state": "California"
+      }
     },
     [`clearbit/${source}ed_at`]: expect.whatever(),
     "clearbit/fetched_at": expect.whatever(),

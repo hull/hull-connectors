@@ -179,7 +179,7 @@ export async function performEnrich({
   const { connector } = ctx;
   const { private_settings = {} } = connector;
   const { enrich_refresh } = private_settings;
-  const id = `${_.get(user, "id")}:${account.id || ""}`;
+  const id = `${_.get(user, "id", "")}:${_.get(account, "id", "")}`;
   const payload =
     user && _.size(user)
       ? {

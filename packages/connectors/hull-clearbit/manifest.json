@@ -32,23 +32,8 @@
             "overwrite": false
           },
           {
-            "service": "bio",
-            "hull": "bio",
-            "overwrite": false
-          },
-          {
-            "service": "geo.city",
-            "hull": "address.city",
-            "overwrite": false
-          },
-          {
-            "service": "geo.country",
-            "hull": "address.country",
-            "overwrite": false
-          },
-          {
-            "service": "geo.state",
-            "hull": "address.state",
+            "service": "{ 'city': geo.city, 'country': geo.country, 'state': geo.state }",
+            "hull": "address",
             "overwrite": false
           }
         ],
