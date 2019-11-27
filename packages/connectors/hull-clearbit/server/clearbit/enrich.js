@@ -175,11 +175,11 @@ export async function performEnrich({
   hostname: string,
   message: HullUserUpdateMessage | HullAccountUpdateMessage
 }) {
-  const { user, account } = message;
+  const { user, account = {} } = message;
   const { connector } = ctx;
   const { private_settings = {} } = connector;
   const { enrich_refresh } = private_settings;
-  const id = _.get(user, "id") || account.id;
+  const id = `${_.get(user, "id")}:${account.id || ""}`;
   const payload =
     user && _.size(user)
       ? {
