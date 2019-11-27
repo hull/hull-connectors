@@ -81,7 +81,10 @@ export const shouldEnrichUser = (
     // }
     // Skip if we have already tried enriching and we aren't on auto-refresh mode.
     if (!enrich_refresh && user["clearbit/enriched_at"]) {
-      return { should: false, message: "enriched_at present" };
+      return {
+        should: false,
+        message: "enriched_at present and refresh disabled"
+      };
     }
   }
 
@@ -205,7 +208,7 @@ export const enrich = async (
   message: HullUserUpdateMessage | HullAccountUpdateMessage
 ): Promise<void | ClearbitResult> => {
   const { user, account } = message;
-  const { hostname, metric, client, clientCredentialsEncryptedToken } = ctx;
+  const { hostname, metric, clientCredentialsEncryptedToken } = ctx;
   const { connector } = ctx;
   const { private_settings } = connector;
   try {
@@ -229,10 +232,6 @@ export const enrich = async (
         saveAccount(ctx, { user, person, account, company, source: "enrich" })
     ]);
   } catch (err) {
-    client.asUser(user).logger.info("outgoing.user.error", {
-      errors: _.get(err, "body.error") || err.message || err,
-      method: "enrichUser"
-    });
     throw err;
   }
   return undefined;

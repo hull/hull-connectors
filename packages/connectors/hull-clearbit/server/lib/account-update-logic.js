@@ -1,5 +1,4 @@
 // @flow
-import _ from "lodash";
 import type { HullContext, HullAccountUpdateMessage } from "hull";
 import type {
   ShouldAction,

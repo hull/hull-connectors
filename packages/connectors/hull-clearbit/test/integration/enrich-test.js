@@ -130,6 +130,27 @@ describe("Clearbit Enrich Tests", () => {
             webhook_url: expect.whatever()
           }
         }
+      ],
+      [
+        "info",
+        "outgoing.user.info",
+        expect.whatever(),
+        {
+          actions: [
+            {
+              user_id: "1234",
+              enrichAction: {
+                should: true
+              },
+              enrichResult: undefined,
+              revealAction: {
+                should: false,
+                message: "No reveal Segments enabled"
+              },
+              revealResult: false
+            }
+          ]
+        }
       ]
     ],
     metrics: [
@@ -174,12 +195,32 @@ describe("Clearbit Enrich Tests", () => {
           action: "enrich",
           params: {
             domain: "bar.com",
-            family_name: undefined,
-            given_name: undefined,
+            company_name: undefined,
             subscribe,
             webhook_id: "1234",
             webhook_url: expect.whatever()
           }
+        }
+      ],
+      [
+        "info",
+        "outgoing.account.info",
+        expect.whatever(),
+        {
+          actions: [
+            {
+              account_id: "1234",
+              enrichAction: {
+                should: true
+              },
+              enrichResult: undefined,
+              prospectAction: {
+                should: false,
+                message: "Account not in any Prospect segment whitelist"
+              },
+              prospectResult: false
+            }
+          ]
         }
       ]
     ],
@@ -278,7 +319,31 @@ describe("Clearbit Enrich Tests", () => {
       ...noOpUserResponse,
       handlerType: handlers.notificationHandler,
       connector,
-      logs: [],
+      logs: [
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  should: false,
+                  message:
+                    "Enrich Segments are defined but User isn't in any of them"
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: false,
+                  message: "No reveal Segments enabled"
+                },
+                revealResult: false
+              }
+            ]
+          }
+        ]
+      ],
       metrics: [["increment", "connector.request", 1]],
       messages: [
         {
@@ -294,7 +359,30 @@ describe("Clearbit Enrich Tests", () => {
       ...noOpUserResponse,
       handlerType: handlers.notificationHandler,
       connector,
-      logs: [],
+      logs: [
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  should: false,
+                  message: "User is in Enrichment blacklist"
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: false,
+                  message: "No reveal Segments enabled"
+                },
+                revealResult: false
+              }
+            ]
+          }
+        ]
+      ],
       metrics: [["increment", "connector.request", 1]],
       messages: [
         {
@@ -310,7 +398,30 @@ describe("Clearbit Enrich Tests", () => {
       ...noOpUserResponse,
       handlerType: handlers.notificationHandler,
       connector,
-      logs: [],
+      logs: [
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  should: false,
+                  message: "Cannot Enrich because missing email"
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: false,
+                  message: "No reveal Segments enabled"
+                },
+                revealResult: false
+              }
+            ]
+          }
+        ]
+      ],
       metrics: [["increment", "connector.request", 1]],
       messages: [
         {
@@ -332,7 +443,30 @@ describe("Clearbit Enrich Tests", () => {
           enrich_refresh: false
         }
       },
-      logs: [],
+      logs: [
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  should: false,
+                  message: "enriched_at present and refresh disabled"
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: false,
+                  message: "No reveal Segments enabled"
+                },
+                revealResult: false
+              }
+            ]
+          }
+        ]
+      ],
       metrics: [["increment", "connector.request", 1]],
       messages: [
         {
@@ -353,7 +487,30 @@ describe("Clearbit Enrich Tests", () => {
       ...noOpUserResponse,
       handlerType: handlers.notificationHandler,
       connector,
-      logs: [],
+      logs: [
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  should: false,
+                  message: "Waiting for webhook"
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: false,
+                  message: "No reveal Segments enabled"
+                },
+                revealResult: false
+              }
+            ]
+          }
+        ]
+      ],
       metrics: [["increment", "connector.request", 1]],
       messages: [
         {
@@ -405,12 +562,14 @@ describe("Clearbit Enrich Tests", () => {
           }
         ],
         [
-          "info",
+          "error",
           "outgoing.user.error",
           expect.whatever(),
           {
-            errors: { message: "Invalid email.", type: "email_invalid" },
-            method: "enrichUser"
+            error: {
+              message: "Invalid email.",
+              type: "email_invalid"
+            }
           }
         ]
       ],

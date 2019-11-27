@@ -1,4 +1,6 @@
 // @flow
+import _ from "lodash";
+
 import type {
   HullContext,
   HullAccountUpdateMessage,
@@ -26,7 +28,9 @@ const updateAccount = ({
       in: flow_in
     };
   } catch (error) {
-    ctx.client.logger.error("outgoing.account.error", { error });
+    ctx.client.logger.error("outgoing.account.error", {
+      error: _.get(error, "body.error") || error.message || error
+    });
     return {
       type: "retry",
       size: flow_size,
