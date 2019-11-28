@@ -16,7 +16,8 @@ const { isUndefinedOrNull } = require("hull-connector-framework/src/purplefusion
 const {
   OutreachProspectRead,
   OutreachAccountRead,
-  OutreachEventRead
+  OutreachEventRead,
+  OutreachWebEventRead
 } = require("./service-objects");
 
 /**
@@ -116,6 +117,42 @@ const transformsToHull: ServiceTransforms =
               mapping: "connector.private_settings.user_claims",
               inputPath: "attributes.${service_field_name}",
               outputPath: "ident.${hull_field_name}",
+            }
+          ]
+        }
+      ]
+    },
+    {
+      input: OutreachWebEventRead,
+      output: ServiceUserRaw,
+      direction: "incoming",
+      strategy: "MixedTransforms",
+      transforms: [
+        {
+          strategy: "AtomicReaction",
+          target: { component: "input" },
+          condition: "connector.private_settings.ingest_prospect_stage_changed",
+          operateOn: { component: "input", select: "data.relationships.stage.id", name: "stageId" },
+          then: [
+            {
+              operateOn: { component: "glue", route: "getStageIdMap", select: "${stageId}" },
+              writeTo: { path: "changed_to" }
+            },
+          ]
+        },
+        {
+          strategy: "PropertyKeyedValue",
+          arrayStrategy: "append_index",
+          transforms: [
+            { inputPath: "data.id", outputPath: "id"},
+            { inputPath: "changed_to", outputPath: "hull_events[0].properties.changed_to"},
+            {
+              outputPath: "hull_events[0].eventName",
+              outputFormat: "Prospect Stage Changed"
+            },
+            {
+              inputPath: "data.attributes.updatedAt",
+              outputPath: "hull_events[0].context.created_at"
             }
           ]
         }
@@ -427,9 +464,13 @@ const transformsToHull: ServiceTransforms =
               operateOn: {
                 component: "static",
                 object: {
+                  "bounced_message": "Bounced Message",
+                  "emails_opt_out": "Emails Opt Out",
+                  "inbound_message": "Inbound Message",
+                  "message_clicked": "Message Clicked",
                   "message_opened": "Email Opened",
-                  "outbound_message": "Email Delivered",
-                  "prospect_stage_changed": "Prospect Stage Changed"
+                  "message_opened_sender": "Email Opened Sender",
+                  "outbound_message": "Email Delivered"
                 },
                 select: "${eventInput.hull_events[0].eventName}",
                 name: "eventName"

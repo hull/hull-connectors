@@ -39,7 +39,7 @@ const {
   HullConnectorEnumDefinition
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
-const { OutreachEventRead } = require("./service-objects");
+const { OutreachEventRead, OutreachWebEventRead } = require("./service-objects");
 
 const _ = require("lodash");
 const { accountFields, prospectFields, eventFields } = require("./fielddefs");
@@ -282,16 +282,23 @@ const glue = {
       })
     ])
   ],
-  webhooks: ifL(input("body"), route("handleWebhook", cast(WebPayload, input("body")))),
+  webhooks: ifL(input("body"), route("handleWebhook", input("body"))),
   handleWebhook:
     ifL(cond("isEqual", "account", input("data.type")), {
-      do: hull("asAccount", input()),
+      do: hull("asAccount", cast(WebPayload, input())),
       eldo:
         ifL(cond("isEqual", "prospect", input("data.type")), [
           ifL(cond("isEqual", "prospect.created", input("meta.eventName")),
             set("createdByWebhook", true)
           ),
-          hull("asUser", input())
+          ifL([
+              cond("isEqual", input("data.relationships.stage.type"), "stage"),
+              settings("ingest_prospect_stage_changed")
+            ], [
+              set("service_name", "outreach"),
+              hull("asUser", cast(OutreachWebEventRead, input())),
+          ]),
+          hull("asUser", cast(WebPayload, input())),
         ])
     }),
 
@@ -342,14 +349,28 @@ const glue = {
   eventsMapping: [
     set("service_name", "outreach"),
     set("eventsToFetch", settings("events_to_fetch")),
-    set("eventsBlackList", ld("difference", "${eventsToFetch}", require("./events"))),
     set("last_sync", ex(ex(moment(), "utc"), "format")),
   ],
   eventsFetchAll:
     ifL(cond("notEmpty", settings("events_to_fetch")), [
-      route("eventsMapping"),
-      set("outreachEvents", outreach("getEvents")),
-      route("getEvents")
+      set("id_offset", 0),
+      set("page_limit", 1000),
+      set("service_name", "outreach"),
+      set("eventsToFetch", settings("events_to_fetch")),
+      //route("getEvents")
+      loopL([
+        set("outreachEvents", outreach("getEventsPaged")),
+        iterateL("${outreachEvents.data}", { key: "outreachEvent", async: true },
+          ifL(cond("greaterThan", ld("indexOf", "${eventsToFetch}", "${outreachEvent.attributes.name}"), -1),
+            hull("asUser", cast(OutreachEventRead, "${outreachEvent}")),
+          )
+        ),
+        ifL(cond("isEqual", ld("size", "${outreachEvents.data}")), {
+          do: set("id_offset", "${outreachEvents.data[999].id}"),
+          eldo: loopEndL()
+        })
+      ]),
+      settingsUpdate({events_last_fetch_at: ex(ex(moment(), "utc"), "format")}),
     ]),
   eventsFetchRecent:
     ifL(cond("notEmpty", settings("events_to_fetch")), [
