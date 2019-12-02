@@ -132,7 +132,7 @@ class HullRouter {
         dataToSend = [];
         // break up data and send one by one
         _.forEach(data, message => {
-          if (toSendMessage(context, _.toLower(objectType.name), message)) {
+          if (toSendMessage(context, _.toLower(objectType.name), message, { serviceName: this.serviceName })) {
             dataToSend.push(message);
           } else {
             dataToSkip.push(message);
