@@ -30,6 +30,7 @@ export default function connectorConfig(): HullConnectorConfig {
   return {
     manifest,
     handlers: new HullRouter({
+      serviceName: "coppercrm",
       glue: require("./glue"),
       services: { coppercrm:  require("./service")({
           clientID: CLIENT_ID,

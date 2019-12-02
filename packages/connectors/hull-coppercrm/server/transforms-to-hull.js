@@ -68,7 +68,11 @@ const transformsToHull: ServiceTransforms = [
               operateOn: { component: "glue", route: "getCustomerSources", select: [{ id: { component: "input", select: "customer_source_id" } }, "[0].email"] },
               // default null?
               writeTo: { path: "customerSource" }
-            }
+            },
+            {
+              operateOn: { component: "input", select: "email.email" },
+              writeTo: { path: "primaryEmail" }
+            },
           ])
       }
     ]
@@ -94,7 +98,16 @@ const transformsToHull: ServiceTransforms = [
             },
             {
               operateOn: { component: "input", select: "emails[0].email" },
-              writeTo: { path: "email" }
+              writeTo: { path: "primaryEmail" }
+            },
+            {
+              operateOn: { component: "input", select: "leads_converted_from" },
+              writeTo: {
+                path: "hull_multiple_anonymous_ids",
+                formatter: array => {
+                  return array.map(value => `coppercrm-lead:lead-${value.lead_id}`);
+                }
+              }
             }
           ])
       }

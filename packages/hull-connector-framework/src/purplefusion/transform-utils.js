@@ -152,6 +152,14 @@ async function resolveValue(dispatcher, context, initialInput, target, transform
       keyPath = _.join(keyPath, ".");
     }
 
+    if (transform.writeTo.pathFormatter) {
+      const formatter = await resolveIdentifier(dispatcher, context, initialInput, target, transform.writeTo.pathFormatter);
+      if (typeof formatter === "function") {
+        keyPath = formatter(keyPath);
+        context.set("formattedPath", keyPath);
+      }
+    }
+
     if (transform.writeTo.format) {
       valueToOutput = context.resolveVariables(transform.writeTo.format);
     }
@@ -182,7 +190,8 @@ async function resolve(dispatcher, context, initialInput, target, identifier) {
   if (isUndefinedOrNull(identifier)) {
     return identifier;
   } else if (!identifier.component) {
-    // TODO this is a pretty weak way to identify instructions, if there's a "component field, then this transform won't work...
+    // this is a pretty weak way to identify instructions, if there's a "component" field, then this transform won't work...
+    // in those cases could use "static" component type which passes through a static object
     return context.resolveVariables(identifier);
   }
 

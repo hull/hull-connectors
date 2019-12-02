@@ -103,6 +103,20 @@ class HullSdk {
       identity.id = hullUserId;
     }
 
+    // combine all anonymous ids if they exist
+    if (identity.anonymous_ids) {
+      if (!Array.isArray(identity.anonymous_ids)) {
+        // remove it if it is not an array, not valid syntax
+        _.unset(identity, "anonymous_ids");
+      } else {
+        const anonymousId = _.get(identity, "anonymous_id");
+        if (anonymousId && _.indexOf(identity.anonymous_ids, anonymousId) < 0) {
+          identity.anonymous_ids.push(anonymousId)
+        }
+        _.unset(identity, "anonymous_id");
+      }
+    }
+
     // Might think about adding some validation here or somewhere else
     // for now throwing errors, which I'm not sure is wrong
     // but it does make writing all the additional logic in the glue to validate more annoying

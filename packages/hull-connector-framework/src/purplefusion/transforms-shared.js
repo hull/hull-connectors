@@ -13,6 +13,11 @@ const {
 } = require("./conditionals");
 
 const {
+  getAttributeName,
+  getAttributeNamespace
+} = require("./utils");
+
+const {
   HullUserRaw,
   ServiceUserRaw,
   ServiceLeadRaw,
@@ -147,6 +152,11 @@ const transformsShared: ServiceTransforms = [
       },
       {
         arrayStrategy: "send_raw_array",
+        inputPath: "hull_multiple_anonymous_ids",
+        outputPath: "ident.anonymous_ids"
+      },
+      {
+        arrayStrategy: "send_raw_array",
         inputPath: "hull_events",
         outputPath: "events"
       }
@@ -159,34 +169,36 @@ const transformsShared: ServiceTransforms = [
     direction: "incoming",
     transforms: [
       {
+        operateOn: "connector.private_settings.user_claims",
+        expand: { valueName: "mapping" },
+        then: {
+          operateOn: { component: "input", select: "${mapping.service}"},
+          writeTo: {
+            // should expose specific identity mappings like "primaryEmail" if there are service specific rules/attributes...
+            path: "ident.${mapping.hull}"
+          }
+        }
+      },
+      {
         operateOn: "connector.private_settings.incoming_lead_attributes",
         expand: { valueName: "mapping" },
         then: {
           operateOn: { component: "input", select: "${mapping.service}"},
-          writeTo: { path: "attributes.${mapping.hull}" }
+          writeTo: {
+            path: "${mapping.hull}",
+            pathFormatter: (path) => {
+              return `attributes.${getAttributeNamespace(path)}_lead/${getAttributeName(path)}`;
+            }
+          }
         }
       },
-      // {
-      //   operateOn: { component: "input" },
-      //   condition: [
-      //     isEqual("connector.private_settings.fetch_all_attributes", true),
-      //     not(isServiceAttribute("connector.private_settings.incoming_lead_attributes", "service_field_name")),
-      //     not(isEqual("service_field_name", "hull_events"))
-      //   ],
-      //   inputPath: "${service_field_name}",
-      //   outputPath: "attributes.${service_name}/${hull_field_name}",
-      //   outputFormat: {
-      //     value: "${value}",
-      //     operation: "set"
-      //   }
-      // },
       {
         operateOn: { component: "input", select: "id" },
         then:[
-          { writeTo: { path: "ident.anonymous_id", format: "${service_name}:${operateOn}" } },
+          { writeTo: { path: "ident.anonymous_id", format: "${service_name}-lead:lead-${operateOn}" } },
           {
             writeTo: {
-              path: "attributes.${service_name}/id",
+              path: "attributes.${service_name}_lead/id",
               format: {
                 value: "${value}",
                 operation: "set"
@@ -194,6 +206,10 @@ const transformsShared: ServiceTransforms = [
             }
           }
         ]
+      },
+      {
+        operateOn: { component: "input", select: "hull_multiple_anonymous_ids" },
+        writeTo: { path: "ident.anonymous_ids" }
       },
       {
         condition: isEqual("connector.private_settings.link_users_in_hull", true),

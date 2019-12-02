@@ -93,6 +93,21 @@ function parseIntOrDefault(intString: string, defaultInt: number) {
   return defaultInt;
 }
 
+function getAttributeNamespace(hullName: string) {
+  const parts = _.split(hullName, "/");
+  if (parts.length > 1) {
+    return _.last(parts);
+  }
+  return undefined;
+}
+
+function getAttributeName(hullName: string) {
+  const parts = _.split(hullName, "/");
+  if (parts.length === 2) {
+    return parts[1];
+  }
+  return hullName;
+}
 
 function removeTraitsPrefix(attributeName: string) {
   if (!isUndefinedOrNull(attributeName) && attributeName.indexOf("traits_") === 0) {
@@ -509,5 +524,7 @@ module.exports = {
   createAnonymizedObject,
   getHullPlatformTypeName,
   sameHullDataType,
-  asyncForEach
+  asyncForEach,
+  getAttributeName,
+  getAttributeNamespace
 }
