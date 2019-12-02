@@ -11,7 +11,7 @@ expect.extend({
 
 const STANDARD_EVENT_PROPS = {
   event_id: expect.whatever(),
-  source: "code",
+  source: "incoming-webhooks",
   referer: null,
   url: null,
   ip: "0"
@@ -90,7 +90,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "compute.debug",
         {},
         {
@@ -99,8 +99,12 @@ module.exports = [
           errors: [],
           userTraits: [[{ id: "123" }, { "my-group/customerioid": "321" }]],
           accountTraits: [],
-          events: [],
+          claims: undefined,
+          entity: undefined,
           accountLinks: [],
+          accountAliases: [],
+          userAliases: [],
+          events: [],
           success: true,
           isAsync: false
         }
@@ -114,7 +118,8 @@ module.exports = [
         {
           attributes: {
             "my-group/customerioid": "321"
-          }
+          },
+          no_ops: {}
         }
       ]
     ],
@@ -191,7 +196,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "compute.debug",
         {},
         {
@@ -224,6 +229,8 @@ module.exports = [
               }
             ]
           ],
+          claims: undefined,
+          entity: undefined,
           events: [
             {
               claims: {
@@ -234,10 +241,14 @@ module.exports = [
                 properties: {
                   property: "value"
                 },
-                context: {}
+                context: {
+                  source: "incoming-webhooks"
+                }
               }
             }
           ],
+          accountAliases: [],
+          userAliases: [],
           accountLinks: [[{ id: "123" }, { external_id: "external" }]],
           success: true,
           isAsync: false
@@ -252,7 +263,8 @@ module.exports = [
         {
           attributes: {
             "my-group/foo": "321"
-          }
+          },
+          no_ops: {}
         }
       ],
       [
@@ -265,7 +277,8 @@ module.exports = [
         {
           attributes: {
             "foo/accountFoo": "accountBar"
-          }
+          },
+          no_ops: {}
         }
       ],
       [
@@ -278,7 +291,8 @@ module.exports = [
         {
           attributes: {
             linkedAccountFoo: "linkedAccountBar"
-          }
+          },
+          no_ops: {}
         }
       ],
       [
@@ -287,7 +301,12 @@ module.exports = [
           subject_type: "user",
           user_id: "123"
         },
-        undefined
+        {
+          eventName: "event_name",
+          properties: {
+            property: "value"
+          }
+        }
       ],
       [
         "debug", "incoming.account.link.success",
@@ -295,7 +314,14 @@ module.exports = [
           subject_type: "user",
           user_id: "123"
         },
-        undefined
+        {
+          accountClaims: {
+            external_id: "external"
+          },
+          userClaims: {
+            id: "123"
+          }
+        }
       ]
     ],
     metrics: [
@@ -303,8 +329,8 @@ module.exports = [
       ["increment", "ship.service_api.call", 1],
       ["increment", "ship.incoming.users", 1],
       ["increment", "ship.incoming.accounts", 2],
-      ["increment", "ship.incoming.account", 1],
-      ["increment", "ship.incoming.event", 1]
+      ["increment", "ship.incoming.events", 1],
+      ["increment", "ship.incoming.accounts.link", 1]
     ],
     firehoseEvents: [
       identify({
@@ -395,7 +421,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "compute.debug",
         {},
         {
@@ -428,6 +454,10 @@ module.exports = [
               { linkedAccountFoo: "linkedAccountBar" }
             ]
           ],
+          claims: undefined,
+          entity: undefined,
+          accountAliases: [],
+          userAliases: [],
           events: [
             {
               claims: {
@@ -438,7 +468,9 @@ module.exports = [
                 properties: {
                   property: "value"
                 },
-                context: {}
+                context: {
+                  source: "incoming-webhooks"
+                }
               }
             }
           ],
@@ -465,7 +497,8 @@ module.exports = [
         {
           attributes: {
             "my-group/foo": "321"
-          }
+          },
+          no_ops: {}
         }
       ],
       [
@@ -478,7 +511,8 @@ module.exports = [
         {
           attributes: {
             "foo/accountFoo": "accountBar"
-          }
+          },
+          no_ops: {}
         }
       ],
       [
@@ -491,7 +525,8 @@ module.exports = [
         {
           attributes: {
             linkedAccountFoo: "linkedAccountBar"
-          }
+          },
+          no_ops: {}
         }
       ],
       [
@@ -500,7 +535,12 @@ module.exports = [
           subject_type: "user",
           user_id: "123"
         },
-        undefined
+        {
+          eventName: "event_name",
+          properties: {
+            property: "value"
+          }
+        }
       ],
       [
         "debug", "incoming.account.link.success",
@@ -508,7 +548,10 @@ module.exports = [
           subject_type: "user",
           user_id: "123"
         },
-        undefined
+        {
+          accountClaims: { external_id: "external" },
+          userClaims: { id: "123" }
+        }
       ]
     ],
     metrics: [
@@ -516,8 +559,8 @@ module.exports = [
       ["increment", "ship.service_api.call", 1],
       ["increment", "ship.incoming.users", 1],
       ["increment", "ship.incoming.accounts", 2],
-      ["increment", "ship.incoming.account", 1],
-      ["increment", "ship.incoming.event", 1]
+      ["increment", "ship.incoming.events", 1],
+      ["increment", "ship.incoming.accounts.link", 1]
     ],
     firehoseEvents: [
       identify({
@@ -586,7 +629,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "compute.debug",
         {},
         {
@@ -604,6 +647,8 @@ module.exports = [
             ]
           ],
           accountTraits: [],
+          claims: undefined,
+          entity: undefined,
           events: [
             {
               claims: {
@@ -614,11 +659,15 @@ module.exports = [
                 properties: {
                   foo: "bar"
                 },
-                context: {}
+                context: {
+                  source: "incoming-webhooks"
+                }
               }
             }
           ],
           accountLinks: [],
+          accountAliases: [],
+          userAliases: [],
           success: true,
           isAsync: false
         }
@@ -632,7 +681,8 @@ module.exports = [
         {
           attributes: {
             customerioid: "4567"
-          }
+          },
+          no_ops: {}
         }
       ],
       [
@@ -641,14 +691,17 @@ module.exports = [
           subject_type: "user",
           user_id: "123"
         },
-        undefined
+        {
+          eventName: "test",
+          properties: { foo: "bar" }
+        }
       ]
     ],
     metrics: [
       ["increment", "connector.request", 1],
       ["increment", "ship.service_api.call", 1],
       ["increment", "ship.incoming.users", 1],
-      ["increment", "ship.incoming.event", 1]
+      ["increment", "ship.incoming.events", 1]
     ],
     firehoseEvents: [
       identify({
@@ -698,7 +751,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "compute.debug",
         {},
         {
@@ -714,8 +767,12 @@ module.exports = [
               { customerioid: "4567" }
             ]
           ],
+          claims: undefined,
+          entity: undefined,
           events: [],
           accountLinks: [],
+          accountAliases: [],
+          userAliases: [],
           success: true,
           isAsync: false
         }
@@ -730,7 +787,8 @@ module.exports = [
         {
           attributes: {
             customerioid: "4567"
-          }
+          },
+          no_ops: {}
         }
       ]
     ],
@@ -773,7 +831,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "compute.debug",
         {},
         {
@@ -792,8 +850,12 @@ module.exports = [
               }
             ]
           ],
+          claims: undefined,
+          entity: undefined,
           events: [],
           accountLinks: [],
+          accountAliases: [],
+          userAliases: [],
           success: true,
           isAsync: false
         }
@@ -809,7 +871,8 @@ module.exports = [
           attributes: {
             foo: null,
             bar: "baz"
-          }
+          },
+          no_ops: {}
         }
       ]
     ],
@@ -856,7 +919,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "compute.debug",
         {},
         {
@@ -865,8 +928,12 @@ module.exports = [
           errors: [],
           userTraits: [[{ id: "123" }, { foo: "bar" }]],
           accountTraits: [],
-          events: [],
+          claims: undefined,
+          entity: undefined,
           accountLinks: [],
+          accountAliases: [],
+          userAliases: [],
+          events: [],
           success: true,
           isAsync: false
         }
@@ -880,7 +947,8 @@ module.exports = [
         {
           attributes: {
             foo: "bar"
-          }
+          },
+          no_ops: {}
         }
       ]
     ],
@@ -897,6 +965,120 @@ module.exports = [
           foo: "bar"
         }
       })
+    ],
+    platformApiCalls
+  },
+  {
+    title: "Should properly alias and unalias Users and Accounts",
+    code: `
+      hull.asUser({ id: body.id }).alias({ email: "foo@bar.com" })
+      const asAccount = hull.asAccount({ domain: "foo.com" })
+      asAccount.alias({ external_id: "123" })
+      asAccount.unalias({ anonymous_id: "nooot" })
+    `,
+    body: {
+      id: "123"
+    },
+    logs: [
+      [
+        "debug",
+        "connector.request.data",
+        {},
+        { body: { id: "123" }, method: "POST", params: {}, query: {} }
+      ],
+      [
+        "debug",
+        "compute.debug",
+        {},
+        {
+          logs: [],
+          logsForLogger: [],
+          errors: [],
+          userTraits: [],
+          accountTraits: [],
+          claims: undefined,
+          entity: undefined,
+          accountLinks: [],
+          accountAliases: [
+            [
+              { domain: "foo.com" },
+              [
+                [{ external_id: "123" }, "alias"],
+                [{ anonymous_id: "nooot" }, "unalias"]
+              ]
+            ]
+          ],
+          userAliases: [[{ id: "123" }, [[{ email: "foo@bar.com" }, "alias"]]]],
+          events: [],
+          success: true,
+          isAsync: false
+        }
+      ],
+      [
+        "info",
+        "incoming.user.alias.success",
+        {
+          subject_type: "user",
+          user_id: "123"
+        },
+        {
+          operations: [[{ email: "foo@bar.com" }, "alias"]],
+          claims: { id: "123" }
+        }
+      ],
+      [
+        "info",
+        "incoming.account.alias.success",
+        {
+          subject_type: "account",
+          account_domain: "foo.com"
+        },
+        {
+          operations: [
+            [{ external_id: "123" }, "alias"],
+            [{ anonymous_id: "nooot" }, "unalias"]
+          ],
+          claims: { domain: "foo.com" }
+        }
+      ]
+    ],
+    metrics: [
+      ["increment", "connector.request", 1],
+      ["increment", "ship.service_api.call", 1],
+      ["increment", "ship.incoming.users.alias", 1],
+      ["increment", "ship.incoming.accounts.alias", 2]
+    ],
+    firehoseEvents: [
+      [
+        "alias",
+        {
+          asUser: {
+            id: "123"
+          },
+          subjectType: "user"
+        },
+        { email: "foo@bar.com" }
+      ],
+      [
+        "alias",
+        {
+          asAccount: {
+            domain: "foo.com"
+          },
+          subjectType: "account"
+        },
+        { external_id: "123" }
+      ],
+      [
+        "unalias",
+        {
+          asAccount: {
+            domain: "foo.com"
+          },
+          subjectType: "account"
+        },
+        { anonymous_id: "nooot" }
+      ]
     ],
     platformApiCalls
   }

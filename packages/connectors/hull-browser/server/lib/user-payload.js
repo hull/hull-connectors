@@ -1,10 +1,11 @@
 // @flow
 
 import _ from "lodash";
+import type { HullContext, HullUserUpdateMessage } from "hull";
 
 import ga from "../destinations/google-analytics";
 
-import type { Segments, Events, UserPayload, Payload } from "../../types";
+import type { Segments, Events, Payload } from "../../types";
 
 /**
  * Build a User payload with the necessary objects to be sent client-side
@@ -14,15 +15,12 @@ import type { Segments, Events, UserPayload, Payload } from "../../types";
  * @param  {Object} options.connector     Ship settings
  * @return {Object}                  The user payload, status code, and script to run client-side
  */
-export default function userPayload({
-  user,
-  segments,
-  account_segments,
-  events,
-  account,
-  client,
-  connector
-}: UserPayload): Payload {
+export default function userPayload(
+  ctx: HullContext,
+  message: HullUserUpdateMessage
+): Payload {
+  const { user, segments, account_segments, events, account } = message;
+  const { client, connector } = ctx;
   const { private_settings, settings } = connector;
 
   const {

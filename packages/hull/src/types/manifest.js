@@ -1,5 +1,5 @@
 // @flow
-import type { HTTPMethod } from "./index";
+import type { HullAttributeMapping, HTTPMethod } from "./index";
 
 // Supported Dashboard widget types
 type HullWidgetFormat = "popup" | "credentials" | "action";
@@ -15,6 +15,21 @@ export type HandlerCacheOptions = {
   key?: string,
   options?: Object
 };
+
+export type HullExtendedMiddlewareParams = {|
+  bodyParser?: "urlencoded" | "json",
+  credentialsFromQuery?: boolean,
+  credentialsFromNotification?: boolean,
+  cache?: HandlerCacheOptions,
+  dropIfConnectorDisabled?: boolean,
+  respondWithError?: boolean,
+  cacheContextFetch?: boolean,
+  disableErrorHandling?: boolean,
+  fireAndForget?: boolean,
+  strict?: boolean,
+  format?: "json" | "html"
+|};
+
 export type HullNotificationHandlerOptions = {
   disableErrorHandling?: boolean,
   maxTime?: number,
@@ -28,18 +43,9 @@ export type HullBatchHandlerOptions = {
   disableErrorHandling?: boolean,
   maxSize?: number
 };
-export type HullIncomingHandlerOptions = {
-  cache?: HandlerCacheOptions,
-  respondWithError?: boolean,
-  disableErrorHandling?: boolean,
-  fireAndForget?: boolean,
-  credentialsFromQuery?: boolean,
-  credentialsFromNotification?: boolean,
-  dropIfConnectorDisabled?: boolean,
-  strict?: boolean,
-  format?: "json" | "html",
-  bodyParser?: "urlencoded" | "json"
-};
+export type HullIncomingHandlerOptions = {|
+  ...HullExtendedMiddlewareParams
+|};
 export type HullStatusHandlerOptions = HullIncomingHandlerOptions & {};
 export type HullSchedulerHandlerOptions = HullIncomingHandlerOptions & {};
 export type HullHtmlHandlerOptions = HullIncomingHandlerOptions & {};
@@ -127,6 +133,7 @@ export type HullManifestSetting = {
   format: string,
   handler?: string,
   url?: string,
+  default: any,
   options?: {
     loadOptions?: string
   }
@@ -171,6 +178,17 @@ type HullManifestTag =
 
 export type HullManifest = {
   name: string,
+  mappings?: {
+    [key: string]: {
+      incoming?: {
+        mapping: Array<HullAttributeMapping>,
+        top_level: Array<HullAttributeMapping>
+      },
+      outgoing?: {
+        mapping: Array<HullAttributeMapping>
+      }
+    }
+  },
   description: string,
   tags: Array<HullManifestTag>,
   source: string,

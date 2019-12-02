@@ -1,23 +1,15 @@
 // @flow
-import request from "request";
+import request from "request-promise";
+import type { HullContext } from "hull";
 import type { Result } from "../../types";
 
-export default function buildRequest(result: Result): any => any {
-  return (opts, callback) => {
+export default function getRequest(
+  ctx: HullContext,
+  result: Result
+): any => any {
+  return function req(...args) {
     result.isAsync = true;
-    return request.defaults({ timeout: 3000 })(
-      opts,
-      (error, response, body) => {
-        try {
-          if (callback) {
-            callback(error, response, body);
-          } else {
-            throw new Error("Method has no callback defined");
-          }
-        } catch (err) {
-          result.errors.push(err.toString());
-        }
-      }
-    );
+    ctx.metric.increment("connector.service_api.call");
+    return request.defaults({ timeout: 3000 })(...args);
   };
 }

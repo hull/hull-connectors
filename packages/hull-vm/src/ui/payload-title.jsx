@@ -21,7 +21,7 @@ const PayloadTitle = ({
   !entry ? (
     "Nothing to show"
   ) : (
-    <span>
+    <span className="payload-title">
       <Badge
         size="sm"
         variant={LABELS[entry.payload.method.toLowerCase()]}
@@ -30,7 +30,10 @@ const PayloadTitle = ({
         {entry.payload.method}
       </Badge>
       <span className="entry-content">
-        {entry.payload.headers["user-agent"]}
+        {entry.payload.url ||
+          (entry.payload.headers || entry.payload.requestHeaders || {})[
+            "user-agent"
+          ]}
       </span>
       {showDate ? (
         <small style={{ display: "block" }}>{entry.date}</small>

@@ -15,18 +15,16 @@ export default function connectorConfig(): HullConnectorConfig {
     OVERRIDE_FIREHOSE_URL,
 
     MONGO_URL,
-    MONGO_COLLECTION_NAME = "webhook_requests",
-    MONGO_COLLECTION_SIZE = 524288000
+    MONGO_COLLECTION_NAME = "webhook_requests"
   } = process.env;
 
-  if (!MONGO_COLLECTION_NAME || !MONGO_COLLECTION_SIZE || !MONGO_URL) {
+  if (!MONGO_COLLECTION_NAME || !MONGO_URL) {
     throw new Error("One or more MongoDB Environment variables not set.");
   }
   const hostSecret = SECRET || "1234";
   // Mongo connection setup
   const EntryModel = entryModel({
     mongoUrl: MONGO_URL,
-    collectionSize: MONGO_COLLECTION_SIZE,
     collectionName: MONGO_COLLECTION_NAME
   });
 

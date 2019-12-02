@@ -6,6 +6,7 @@ module.exports = function buildContextBaseStub({
 } = {}) {
   return {
     HullClient: HullStub,
+    client: new HullStub(),
     metric: {
       captureException: error => {
         expect(error.message).to.equal(exception);
@@ -23,7 +24,11 @@ module.exports = function buildContextBaseStub({
       hostSecret: "123"
     },
     cache: {
-      wrap: () => {}
-    }
+      wrap: () => {},
+      set: () => {}
+    },
+    connector: {},
+    usersSegments: [],
+    accountsSegments: [],
   };
 };

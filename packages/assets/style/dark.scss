@@ -41,6 +41,13 @@ body.dark {
   }
   .header {
     background: #242a33;
+    flex-wrap: nowrap;
+    .text-right {
+      padding-right: 1rem;
+    }
+  }
+  .text-right {
+    text-align: right;
   }
   h6 {
     font-size: 1.2rem;
@@ -68,7 +75,8 @@ body.dark {
     border-radius: $border-radius;
     border: 0;
     background: #0000007d;
-    color: #ccc;
+    color: #ffffff;
+    font-size: 1.1rem;
   }
   .btn-group .btn {
     padding-left: 1rem;
@@ -120,14 +128,12 @@ body.dark {
       align-items: center;
     }
   }
-
   .ace_editor {
     background: transparent;
     color: #ffffff;
     height: 100%;
     flex-grow: 1;
     &.read-only {
-      // opacity: 0.7;
       color: #909db3;
       .ace_string {
         color: #fdcb62b0;
@@ -155,7 +161,7 @@ body.dark {
       color: #60c5ff;
     }
     .ace_marker-layer .ace_selection {
-      background: #313740;
+      background: #4a586d;
     }
     .ace_gutter-cell {
       color: $separator;
@@ -167,6 +173,9 @@ body.dark {
       color: #50555c;
       color: #64748a;
     }
+  }
+  .code-column .ace_editor.read-only {
+    opacity: 0.4;
   }
 
   .vm-column + .vm-column {
@@ -180,6 +189,49 @@ body.dark {
     border: 1px solid $secondary-bg;
     font-size: 12px;
     color: #fff;
+  }
+  textarea.credential {
     height: 110px;
+  }
+  .react-select__menu {
+    z-index: 5;
+  }
+  .react-select__indicator {
+    padding: 5px 8px;
+  }
+  .list-group-item {
+    pre {
+      color: $white;
+    }
+    background: $secondary-bg;
+  }
+  .payload-title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    .entry-content {
+      max-width: 170px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+  .entry-selector {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    .spinner {
+      width: 30px;
+      margin-left: 10px;
+    }
+  }
+  .code-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .code-header--help {
+    font-size: 0.8rem;
+    opacity: 0.5;
   }
 }

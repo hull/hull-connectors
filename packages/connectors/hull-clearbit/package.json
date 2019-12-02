@@ -1,0 +1,29 @@
+{
+  "name": "hull-clearbit",
+  "description": "Enrich Customer data with Clearbit",
+  "version": "0.0.17-monorepo",
+  "license": "MIT",
+  "homepage": "https://github.com/hull/hull-connectors",
+  "keywords": [
+    "hull",
+    "ship",
+    "hull-ship",
+    "clearbit",
+    "enrichment",
+    "sync"
+  ],
+  "scripts": {
+    "test": "yarn test:integration",
+    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
+  },
+  "dependencies": {
+    "bootstrap-table": "^1.15.4",
+    "bottleneck": "^2.19.5",
+    "clearbit": "^1.3.4",
+    "object-mapper": "^5.0.0",
+    "range_check": "^1.4.0",
+    "select2": "^4.0.10",
+    "select2-bootstrap-theme": "^0.1.0-beta.10"
+  },
+  "devDependencies": {}
+}

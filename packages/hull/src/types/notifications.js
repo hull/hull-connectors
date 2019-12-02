@@ -1,5 +1,16 @@
 // @flow
 
+import type {
+  HullAttributeName,
+  HullAttributeValue,
+  HullSegment,
+  HullUserSegment,
+  HullAccountSegment,
+  HullUser,
+  HullAccount,
+  HullEvent,
+  HullConnector
+} from "../index";
 // ====================================
 //   Notification DataTypes
 // ====================================
@@ -45,7 +56,7 @@ export type HullAccountChanges = {
 /**
  * A message sent by the platform when any event, attribute (trait) or segment change happens on the user.
  */
-export type HullUserUpdateMessage = {
+export type HullUserUpdateMessage = {|
   message_id: string,
   user: HullUser,
   changes: HullUserChanges,
@@ -59,20 +70,21 @@ export type HullUserUpdateMessage = {
   // matching_account_segments: Array<HullUserSegment>,
   events: Array<HullEvent>,
   account: HullAccount
-};
+|};
 export type HullUserDeleteMessage = {};
 
 /**
  * A message sent by the platform when any attribute (trait) or segment change happens on the account.
  */
-export type HullAccountUpdateMessage = {
+export type HullAccountUpdateMessage = {|
+  user: void,
   changes: HullAccountChanges,
   account_segments: Array<HullAccountSegment>,
   account_segment_ids: Array<string>,
   matching_account_segments: Array<HullUserSegment>,
   account: HullAccount,
   message_id: string
-};
+|};
 export type HullAccountDeleteMessage = {};
 
 /**
@@ -109,11 +121,11 @@ export type HullSegmentDeleteMessage = {|
  * A message sent by the platform when a Segment is updated
  */
 export type HullConnectorUpdateMessage = {|
-  ...$Exact<HullConnector>,
+  ...HullConnector,
   secret: string
 |};
 export type HullConnectorDeleteMessage = {|
-  ...$Exact<HullConnector>,
+  ...HullConnector,
   secret: string
 |};
 
@@ -125,6 +137,9 @@ export type HullNotification = {
     id: string,
     secret: string,
     organization: string
+  },
+  kraken: {
+    retries: number
   },
   channel: string,
   connector: HullConnector,

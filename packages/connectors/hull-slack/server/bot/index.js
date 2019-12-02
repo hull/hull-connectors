@@ -20,6 +20,7 @@ import { replies, join } from "./replies";
 import setupChannels from "./setup-channels";
 
 import getTeamChannels from "../lib/get-team-channels";
+import getTeamMembers from "../lib/get-team-members";
 import getNotifyChannels from "../lib/get-notify-channels";
 import getUniqueChannelNames from "../lib/get-unique-channel-names";
 
@@ -86,12 +87,8 @@ module.exports = function BotFactory({
     return controller.spawn(team_id);
   }
 
-  async function connectSlack({
-    client,
-    clientCredentials,
-    connector,
-    metric
-  }: HullSlackContext): Promise<ConnectedSlack> {
+  async function connectSlack(ctx: HullSlackContext): Promise<ConnectedSlack> {
+    const { client, clientCredentials, connector, metric } = ctx;
     const { private_settings = {} } = connector;
     const {
       bot: botConfig,
@@ -133,36 +130,51 @@ module.exports = function BotFactory({
       bot.say(msg);
     };
 
+    const getChannels = async () => {
+      const bot = await getBot(connector);
+      const [teamChannels, teamMembers] = await Promise.all([
+        getTeamChannels(bot),
+        getTeamMembers(bot)
+      ]);
+      return {
+        teamChannels,
+        teamMembers
+      };
+    };
+
     try {
       const channels = getUniqueChannelNames(getNotifyChannels(connector));
       let slackInstance = getByTeam(team_id);
+
       if (slackInstance) {
         return {
           ...slackInstance,
+          getChannels,
           post,
           tellOperator
         };
       }
-
       // First, cache the partial config so that the adapter can find it.
       cache(team_id, {
         botConfig
       });
 
       const bot = await getBot(connector);
-      const { teamMembers, teamChannels } = await setupChannels({
+      const { teamChannels } = getTeamChannels(bot);
+      await setupChannels({
         hull: client,
         bot,
         token: app_token,
+        teamChannels,
         channels
       });
       // Then cache the full config over it;
       slackInstance =
         cache(team_id, {
+          bot,
           botConfig,
+          getChannels,
           attachements,
-          teamMembers,
-          teamChannels,
           clientCredentials
         }) || {};
       // const { bot } = botSetup;
@@ -171,14 +183,15 @@ module.exports = function BotFactory({
       controller.on("bot_channel_join", join);
       controller.on("bot_channel_join", () => getTeamChannels(bot));
       controller.on("bot_channel_leave", () => getTeamChannels(bot));
-      controller.on("interactive_message_callback", interactiveMessage);
+      controller.on("interactive_message_callback", interactiveMessage(ctx));
       _.map(
-        replies(getByTeam),
+        replies(ctx, getByTeam),
         ({ message = "test", context = "direct_message", reply = () => {} }) =>
           controller.hears(message, context, reply)
       );
       return {
         ...slackInstance,
+        getChannels,
         post,
         tellOperator
       };
