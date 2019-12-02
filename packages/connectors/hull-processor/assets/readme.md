@@ -215,7 +215,7 @@ The following code shows an example of changes:
 
 ## Input - Account
 
-The account object consists of a flat trait hierarchy in contrast to the user object in Hull. This means you can access all traits directly by their name, e.g. to get the name of an account, just use `account.name` in the code.
+The account object consists of a nested trait hierarchy in contrast to the user object in Hull. This means you can access all traits directly by their name, e.g. to get the name of an account, just use `account.name` in the code.
 Accounts do have various identifiers: the Hull ID (`account.id`), an External ID (`account.external_id` ) and Domain (`account.domain`).
 The following snippet shows an example of an account:
 
@@ -226,7 +226,10 @@ The following snippet shows an example of an account:
         external_id: "8476c4c7-fe7d-45b1-a30d-cd532621325b",
         domain: "hull.io",
         name: "Hull Inc.",
-        ... // more attributes in flat hierarchy
+        clearbit: {
+          name: "Hull Inc."
+        },
+        ... // more attributes in nested hierarchy
       },
       [...] // omitted for clarity
     }
@@ -448,9 +451,6 @@ In contrast to the user, accounts do only support top-level attributes. You can 
   hull.account().traits({ ATTRIBUTE_NAME: <value>, ATTRIBUTE2_NAME: <value> })
 ```
 
-You can specify the properties of the event by passing them as object in the second parameter: `hull.account().track(<event_name>, {PROPERTY_NAME:<value>, PROPERTY2_NAME:<value>})`
-Make sure to encapsulate the `track`  call in a conditional `if` statement, otherwise you end up with an infinite loop that counts towards your plan’s quota.
-
 ### Limitations
 
 The Platform refuses to associate Users in accounts with a domain being a Generic Email Domain - See the list of email domains we refuse here: https://github.com/smudge/freemail/tree/master/data  - This helps preventing accounts with thousands of users under domains like `gmail.com` because you'd have written the following code:
@@ -517,11 +517,11 @@ The processor provides the following methods to help you:
 | **Function Name**                                  | **Description**                                                                                                                                                                                                                                                                        |
 | ---------------------------------------------------| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `isInSegment(<name>)`                              | Returns `true` if the user is in the segment with the specified name; otherwise `false`. Please note that the name is case-sensitive.                                                                                                                                                  |
+| `isInAccountSegment(<name>)`                              | Returns `true` if the user's account is in the segment with the specified name; otherwise `false`. Please note that the name is case-sensitive.                                                                                                                                                  |
 | `enteredSegment(<name>)`                              | Returns the segment object if the user just entered the segment with the specified name; otherwise `null`. Please note that the name is case-sensitive.                                                                                                                                                  |
+| `enteredAccountSegment(<name>)`                              | Returns the segment object if the user's Account just entered the segment with the specified name; otherwise `null`. Please note that the name is case-sensitive.                                                                                                                                                  |
 | `leftSegment(<name>)`                              | Returns the segment object if the user just left the segment with the specified name; otherwise `null`. Please note that the name is case-sensitive.                                                                                                                                                  |
-| `isGenericEmail(<email>, <[additional-domains]>)`  | Returns `true` if the user uses a generic email host. The list of email providers we check against is here: https://github.com/hull-ships/hull-processor/blob/develop/server/email-domains.js. `additional-domains` is an array of strings for additional domain names to check against|
-| `isGenericDomain(<domain>, <[additional-domains]>)`| Returns `true` if the user uses a generic email host. The list of email providers we check against is here: https://github.com/hull-ships/hull-processor/blob/develop/server/email-domains.js. `additional-domains` is an array of strings for additional domain names to check against|
-
+| `leftAccountSegment(<name>)`                              | Returns the segment object if the user's Account just left the segment with the specified name; otherwise `null`. Please note that the name is case-sensitive.                                                                                                                                                  |
 
 ## External Libraries
 
@@ -579,18 +579,7 @@ You can access the operational logs via the tab “Logs” in the user interface
 | **Message**                | **Description**                                                                                                                                                                                                               |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `compute.console.info`     | The manually logged information via `console.info`.                                                                                                                                                                           |
-| `incoming.user.start`      | Logged when the computation of a user is started.                                                                                                                                                                             |
 | `incoming.user.success`    | Logged after attributes of a user have been successfully computed.                                                                                                                                                            |
-| `incoming.user.skip`       | Logged if the user hasn’t changed and there is no computation necessary.                                                                                                                                                      |
 | `incoming.account.success` | Logged after attributes of an account have been successfully computed.                                                                                                                                                        |
 | `incoming.account.link`    | Logged after the user has been successfully linked with an account.                                                                                                                                                           |
 | `incoming.user.error`      | Logged if an error is encountered during compute. The data of the error provides additional information whether the error occurred in the sandboxed custom code or in the processor itself (see boolean value for `sandbox`). |
-
-If an error is encountered in the processor code itself, the error object contains additional information:
-
-| Message                     | Description                                                          |
-| --------------------------- | -------------------------------------------------------------------- |
-| `fetch.user.events.error`   | Indicates problems when fetching events data for the current user.   |
-| `fetch.user.segments.error` | Indicates problems when fetching the segments the user is part of.   |
-| `fetch.user.report.error`   | Indicates problems when fetching report data about the current user. |
-| `fetch.user.error`          | Indicates problems when fetching data about the current user.        |
