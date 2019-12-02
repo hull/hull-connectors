@@ -126,7 +126,7 @@ describe("Clearbit Enrich Tests", () => {
             family_name: undefined,
             given_name: undefined,
             subscribe,
-            webhook_id: "1234",
+            webhook_id: "1234:",
             webhook_url: expect.whatever()
           }
         }
@@ -197,7 +197,7 @@ describe("Clearbit Enrich Tests", () => {
             domain: "bar.com",
             company_name: undefined,
             subscribe,
-            webhook_id: "1234",
+            webhook_id: ":1234",
             webhook_url: expect.whatever()
           }
         }
@@ -556,7 +556,7 @@ describe("Clearbit Enrich Tests", () => {
               family_name: undefined,
               given_name: undefined,
               subscribe: true,
-              webhook_id: "1234",
+              webhook_id: "1234:",
               webhook_url: expect.whatever()
             }
           }

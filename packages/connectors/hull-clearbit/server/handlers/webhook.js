@@ -35,21 +35,22 @@ export default async function handleWebhook(
     }
 
     const promises = [];
-
+    const user = user_id ? { id: user_id } : {};
+    const account = account_id ? { id: account_id } : {};
     if (person) {
       promises.push(
         // $FlowFixMe
-        saveUser(ctx, { user: { id: user_id }, person, source: "enrich" })
+        saveUser(ctx, { user, person, source: "enrich" })
       );
     }
     if (company) {
       promises.push(
         // $FlowFixMe
         saveAccount(ctx, {
-          account: { id: account_id },
+          account,
           person,
           company,
-          user: { id: user_id },
+          user,
           source: "enrich"
         })
       );

@@ -5,7 +5,6 @@ export default function(expect) {
     "clearbit/first_name": "Harlow",
     "clearbit/last_name": "Ward",
     "clearbit/full_name": "Harlow Ward",
-
     "clearbit/email": "harlow@clearbit.com",
     "clearbit/phone": "+1 415-555-1212",
     "clearbit/employment_role": "leadership",
