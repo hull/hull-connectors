@@ -293,7 +293,7 @@ const glue = {
           ),
           ifL([
               cond("isEqual", input("data.relationships.stage.type"), "stage"),
-              settings("ingest_prospect_stage_changed")
+              cond("greaterThan", ld("indexOf", settings("events_to_fetch"), "prospect_stage_changed"), -1)
             ], [
               set("service_name", "outreach"),
               hull("asUser", cast(OutreachWebEventRead, input())),
@@ -346,18 +346,11 @@ const glue = {
     ]),
   getStageIdMap: jsonata("data{ $string(id): attributes.name }", cacheWrap(600, outreach("getStages"))),
   getOwnerIdToEmailMap: jsonata("data{ $string(id): attributes.email }", cacheWrap(600, outreach("getUsers"))),
-  eventsMapping: [
-    set("service_name", "outreach"),
-    set("eventsToFetch", settings("events_to_fetch")),
-    set("last_sync", ex(ex(moment(), "utc"), "format")),
-  ],
   eventsFetchAll:
-    ifL(cond("notEmpty", settings("events_to_fetch")), [
+    ifL(cond("notEmpty", set("eventsToFetch", ld("filter", settings("events_to_fetch"), elem => elem !== "prospect_stage_changed"))), [
       set("id_offset", 0),
       set("page_limit", 1000),
       set("service_name", "outreach"),
-      set("eventsToFetch", settings("events_to_fetch")),
-      //route("getEvents")
       loopL([
         set("outreachEvents", outreach("getEventsPaged")),
         iterateL("${outreachEvents.data}", { key: "outreachEvent", async: true },
@@ -365,7 +358,7 @@ const glue = {
             hull("asUser", cast(OutreachEventRead, "${outreachEvent}")),
           )
         ),
-        ifL(cond("isEqual", ld("size", "${outreachEvents.data}")), {
+        ifL(cond("isEqual", ld("size", "${outreachEvents.data}"), 1000), {
           do: set("id_offset", "${outreachEvents.data[999].id}"),
           eldo: loopEndL()
         })
@@ -373,34 +366,31 @@ const glue = {
       settingsUpdate({events_last_fetch_at: ex(ex(moment(), "utc"), "format")}),
     ]),
   eventsFetchRecent:
-    ifL(cond("notEmpty", settings("events_to_fetch")), [
-      route("eventsMapping"),
-      ifL(cond("isEmpty", settings("events_last_fetch_st")), {
-        do: set("eventsLastFetch", settings("events_last_fetch_at")),
-        eldo: set("eventsLastFetch", ex(ex(ex(moment(), "subtract", { hour: 1 }), "utc"), "format"))
-      }),
-      set("filterLimits", "${eventsLastFetch}..${last_sync}"),
-      set("outreachEvents", outreach("getRecentEvents")),
-      route("getEvents"),
-    ]),
-  getEvents: [
-    loopL([
-      iterateL("${outreachEvents.data}", { key: "outreachEvent", async: true },
-        ifL(cond("greaterThan", ld("indexOf", "${eventsToFetch}", "${outreachEvent.attributes.name}"), -1),
-          hull("asUser", cast(OutreachEventRead, "${outreachEvent}")),
-        )
+    ifL(cond("notEmpty", set("eventsToFetch", ld("filter", settings("events_to_fetch"), elem => elem !== "prospect_stage_changed"))), [
+      set("service_name", "outreach"),
+      set("sync_end", ex(ex(moment(), "utc"), "format")),
+      ifL(cond("isEmpty", set("eventsLastFetch", settings("events_last_fetch_at"))),
+        set("eventsLastFetch", ex(ex(ex(moment(), "subtract", { hour: 1 }), "utc"), "format"))
       ),
-      ifL(cond("isEmpty", "${outreachEvents.links.next}"), {
-        do: loopEndL(),
-        eldo: [
-          set("indexQuery", inc(ex("${outreachEvents.links.next}", "indexOf", "?"))),
-          set("offsetQuery", ex("${outreachEvents.links.next}", "substr", "${indexQuery}")),
-          set("outreachEvents", outreach("getEventsOffset")),
-        ]
-      })
-    ]),
-    settingsUpdate({events_last_fetch_at: "${last_sync}"})
-  ]
+      set("filterLimits", "${eventsLastFetch}..${sync_end}"),
+      set("outreachEvents", outreach("getRecentEvents")),
+      loopL([
+        iterateL("${outreachEvents.data}", { key: "outreachEvent", async: true },
+          ifL(cond("greaterThan", ld("indexOf", "${eventsToFetch}", "${outreachEvent.attributes.name}"), -1),
+            hull("asUser", cast(OutreachEventRead, "${outreachEvent}")),
+          )
+        ),
+        ifL(cond("isEmpty", "${outreachEvents.links.next}"), {
+          do: loopEndL(),
+          eldo: [
+            set("indexQuery", inc(ex("${outreachEvents.links.next}", "indexOf", "?"))),
+            set("offsetQuery", ex("${outreachEvents.links.next}", "substr", "${indexQuery}")),
+            set("outreachEvents", outreach("getEventsOffset")),
+          ]
+        })
+      ]),
+      settingsUpdate({events_last_fetch_at: "${sync_end}"})
+    ])
 };
 
 module.exports = glue;

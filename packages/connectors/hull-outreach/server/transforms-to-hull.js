@@ -131,7 +131,6 @@ const transformsToHull: ServiceTransforms =
         {
           strategy: "AtomicReaction",
           target: { component: "input" },
-          condition: "connector.private_settings.ingest_prospect_stage_changed",
           operateOn: { component: "input", select: "data.relationships.stage.id", name: "stageId" },
           then: [
             {
@@ -468,9 +467,9 @@ const transformsToHull: ServiceTransforms =
                   "emails_opt_out": "Emails Opt Out",
                   "inbound_message": "Inbound Message",
                   "message_clicked": "Message Clicked",
-                  "message_opened": "Email Opened",
-                  "message_opened_sender": "Email Opened Sender",
-                  "outbound_message": "Email Delivered"
+                  "message_opened": "Message Opened",
+                  "message_opened_sender": "Message Opened Sender",
+                  "outbound_message": "Outbound Message"
                 },
                 select: "${eventInput.hull_events[0].eventName}",
                 name: "eventName"

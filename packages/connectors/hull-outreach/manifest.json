@@ -246,7 +246,8 @@
           "message_clicked",
           "message_opened",
           "message_opened_sender",
-          "outbound_message"
+          "outbound_message",
+          "prospect_stage_changed"
         ],
         "enumNames": [
           "Bounced Message",
@@ -255,20 +256,14 @@
           "Message Clicked",
           "Message Opened",
           "Message Opened Sender",
-          "Outbound Message"
+          "Outbound Message",
+          "Prospect Stage Changed"
         ]
       },
       "title": "Events To Fetch From Outreach",
       "name": "events_to_fetch",
       "type": "array",
       "uniqueItems": true
-    },
-    {
-      "title": "Ingest event \"Prospect Stage Changed\"",
-      "name": "ingest_prospect_stage_changed",
-      "type": "boolean",
-      "description": "Due to API limitations from Outreach, the connector will only be able to read the prospect stage change event going onward.",
-      "default": false
     }
   ],
   "settings": [],
@@ -385,6 +380,7 @@
       "format": "action",
       "title": "Fetch All Events",
       "name": "fetch_all_events",
+      "description": "Due to API limitations from Outreach, fetching all events will not pull in the \"Prospect Stage Changed\" events. Instead, the connector will only be able to ingest the \"Prospect Stage Changed\" event going onward after selecting that event in the dropdown above.",
       "options": {
         "fireAndForget": true,
         "confirm": {
@@ -497,7 +493,6 @@
       "description": "Fetch events from Outreach. Identity resolution in Outreach events is achieved by using the anonymous_id only. Beware, if you don't pull your Prospects first, you will end up having users in Hull with blank names. They will eventually be enriched if these Prospects are updated in Outreach.",
       "properties": [
         "private_settings.events_to_fetch",
-        "private_settings.ingest_prospect_stage_changed",
         "json.fetch_all_events"
       ]
     }

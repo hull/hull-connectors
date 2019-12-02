@@ -29,7 +29,7 @@ const OutreachEventRead: ServiceObjectDefinition = {
 };
 
 const OutreachWebEventRead: ServiceObjectDefinition = {
-  service_name: "outreach_incoming_event",
+  service_name: "outreach_incoming_web_event",
   name: "Event"
 };
 
