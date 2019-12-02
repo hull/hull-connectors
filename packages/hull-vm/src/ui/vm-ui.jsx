@@ -17,10 +17,10 @@ import Header from "./header"
 import CodeTitle from "./code-title"
 import Spinner from "./spinner"
 import type { EngineState, Entry, Result } from "../../types";
-import type VMEngine from "../vm-engine";
+import type Engine from "../engine";
 
 type Props = {
-  engine: VMEngine,
+  engine: Engine,
   strings: {
     [string]: string
   },
@@ -43,7 +43,7 @@ export default class VirtualMachineUI extends Component<Props, State> {
     ...this.props.engine.getState()
   };
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     const { engine } = this.props;
     engine.addChangeListener(this._onChange);
   }

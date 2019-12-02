@@ -14,20 +14,16 @@ function colorFactory() {
 }
 
 function getBlockAttachements(user, account, attachements, color) {
-  const payload = { ...user, account };
+  const payload = { user, account };
   return _.map(attachements, ({ block_title, attributes }) => ({
     color: color(),
     author_name: block_title,
     mrkdwn_in: ["text"],
-    text: _.map(
-      attributes,
-      title =>
-        `*${title.replace(/^traits_/, "")}*: ${_.get(
-          payload,
-          title,
-          "_Undefined_"
-        )}`
-    ).join("\n")
+    text: _.map(attributes, title => {
+      const attr = title.replace(/^traits_/, "");
+      const key = title.indexOf("account.") === 0 ? title : `user.${attr}`;
+      return `*${key}*: ${_.get(payload, key, "_Undefined_")}`;
+    }).join("\n")
     // fields: _.map(attributes, title => ({
     //   title: title.replace(/^traits_/, ""),
     //   value: _.get(payload, title, "Undefined"),

@@ -22,7 +22,7 @@ const {
  */
 const settingsUpdate = (ctx: HullContext) => async (
   newSettings: $PropertyType<HullConnector, "private_settings">,
-  refreshStatus: Boolean = false
+  refreshStatus: boolean = false
 ): void | Promise<HullConnector> => {
   const { client, cache, connector } = ctx;
   try {

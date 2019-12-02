@@ -13,14 +13,30 @@
       "packages/minihull"
     ]
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx}": [
+      "pretty-quick --staged",
+      "eslint packages --fix",
+      "git add"
+    ]
+  },
   "license": "MIT",
   "scripts": {
     "duplicated-dependencies": "syncpack-list-mismatches -s 'packages/*/package.json' -s 'packages/connectors/*/package.json'",
     "build": "sh scripts/build-connectors.sh",
+    "repl": "NODE_ENV=development sh scripts/repl.sh",
     "clean": "sh scripts/clean-connectors.sh",
+    "combined": "sh scripts/combined-start.sh",
     "build:client": "sh scripts/build-webpack-project.sh",
     "ngrok": "sh scripts/ngrok.sh",
     "dev": "NODE_ENV=development sh scripts/start-dev-connector.sh",
+    "run-test": "sh scripts/run-test.sh",
+    "watch-test": "sh scripts/watch-test.sh",
     "test": "yarn test:lint && jest && yarn workspaces run test",
     "test:flow": "flow check",
     "test:lint": "eslint packages",
@@ -61,7 +77,7 @@
     "eslint-loader": "^2.1.2",
     "eslint-plugin-flowtype": "^3.10.3",
     "eslint-plugin-flowtype-errors": "^4.1.0",
-    "eslint-plugin-import": "^2.17.3",
+    "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-jest": "^22.6.4",
     "eslint-plugin-jsx-a11y": "^6.2.1",
     "eslint-plugin-prettier": "^3.1.0",
@@ -102,12 +118,15 @@
     "cache-manager": "^2.9.0",
     "cache-manager-redis": "^0.6.0",
     "compose-middleware": "^5.0.1",
+    "concurrently": "^5.0.0",
+    "copy-webpack-plugin": "^5.0.4",
     "datadog-metrics": "^0.8.1",
     "debug": "^4.1.1",
     "ejs": "^2.6.1",
     "eslint-import-resolver-babel-module": "^5.1.0",
     "express": "^4.16.4",
     "hashmap": "^2.3.0",
+    "immutable": "^4.0.0-rc.12",
     "jquery": "^3.4.1",
     "kue": "^0.11.6",
     "lodash": "^4.17.11",
@@ -116,6 +135,7 @@
     "raven": "^2.6.4",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-select": "^3.0.4",
     "superagent": "^5.0.5",
     "sweetalert": "^2.1.2",
     "urijs": "^1.19.1",

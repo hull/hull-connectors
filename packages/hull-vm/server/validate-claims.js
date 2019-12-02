@@ -1,44 +1,56 @@
 // @flow
 
-import type { HullClient, HullEntityClaims } from "hull";
+import type { HullClient, HullEntityClaims, HullEntityName } from "hull";
 import _ from "lodash";
-import type { ClaimsValidation, ClaimsSubject } from "../types";
+import type { ClaimsValidation } from "../types";
 
-export const isValidClaim = (claims: HullEntityClaims, client: HullClient) => (
-  subject: ClaimsSubject,
-  allowEmpty?: boolean
+export const isValidClaim = (
+  claims: HullEntityClaims,
+  client: HullClient,
+  entity: HullEntityName,
+  acceptsEmpty: boolean
 ): ClaimsValidation => {
   try {
-    const method = subject === "account" ? client.asAccount : client.asUser;
-    return (
-      // $FlowFixMe
-      ((allowEmpty && (!claims || _.isEmpty(claims))) || method(claims)) && {
+    const method = entity === "account" ? client.asAccount : client.asUser;
+    if (acceptsEmpty && (!claims || _.isEmpty(claims))) {
+      const message =
+        'Using Empty claims in ".account()" call. This is a deprecated syntax, please specify some claims';
+      return {
         valid: true,
         error: undefined,
-        message: undefined,
-        // $FlowFixMe
+        message,
         claims,
-        subject
-      }
-    );
+        entity
+      };
+    }
+    // $FlowFixMe
+    method(claims);
+    return {
+      valid: true,
+      error: undefined,
+      message: undefined,
+      // $FlowFixMe
+      claims,
+      entity
+    };
   } catch (err) {
     return {
       valid: false,
-      message: `Invalid Claims for ${subject}`,
+      message: `Invalid Claims for ${entity}`,
       error: err.toString(),
       // $FlowFixMe
       claims,
-      subject
+      entity
     };
   }
 };
 
 export const hasValidClaims = (
-  subject: ClaimsSubject,
-  allowEmpty?: boolean
+  entity: HullEntityName,
+  acceptsEmpty: boolean
 ) => (claims: HullEntityClaims, client: HullClient) =>
-  isValidClaim(claims, client)(subject, allowEmpty);
+  isValidClaim(claims, client, entity, acceptsEmpty);
 
-export const hasValidUserClaims = hasValidClaims("user");
-export const hasValidAccountClaims = hasValidClaims("account");
+export const hasValidUserClaims = hasValidClaims("user", false);
+export const hasValidAccountClaims = hasValidClaims("account", false);
 export const hasValidLinkclaims = hasValidClaims("account", true);

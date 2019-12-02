@@ -4,20 +4,19 @@ import _ from "lodash";
 import check from "syntax-error";
 import lintCode from "./lint";
 
-function wrapCode(code) {
-  return `function() {
-    "use strict";
-    ${code}
-  }()`;
+function wrapCode(code: string) {
+  return `(async () => {
+${code}
+})()`;
 }
 
 // TODO: We can improve and make the checks more robust here in a centralized way.
 function invalid(ctx: HullContext, code: string) {
-  return check(wrapCode(code));
+  return check(code);
 }
 
 function empty(ctx: HullContext, code: string) {
-  return code;
+  return !code;
 }
 
 function pristine(ctx: HullContext, code: string) {
@@ -30,15 +29,17 @@ function pristine(ctx: HullContext, code: string) {
   return code === defaultCode;
 }
 
-function lint(ctx: HullContext, code: string) {
+function lint(ctx: HullContext, code: string, payload?: Object) {
   return lintCode(
     `try {
-      results.push(${wrapCode(code)});
-    } catch (err) { errors.push(err.toString()); }`
+      ${wrapCode(code)};
+    } catch (err) { errors.push(err.toString()); }`,
+    payload
   );
 }
 
 const checkFunctions = {
+  wrapCode,
   empty,
   pristine,
   invalid,

@@ -88,6 +88,7 @@ const HullConnectorAttributeDefinition: ServiceObjectDefinition = {
   service_name: "HullConnectorAttributeDefinition",
   name: "HullConnectorAttributeDefinition"
 };
+
 const HullConnectorEnumDefinition: ServiceObjectDefinition = {
   service_name: "HullConnectorEnumDefinition",
   name: "HullConnectorEnumDefinition"
@@ -98,6 +99,15 @@ const HullIncomingUserImportApi: ServiceObjectDefinition = {
   name: "User"
 };
 
+const HullApiSegmentDefinition: ServiceObjectDefinition = {
+  service_name: "HullApiSegmentDefinition",
+  name: "HullApiSegmentDefinition"
+};
+
+const HullApiEventDefinition: ServiceObjectDefinition = {
+  service_name: "HullApiEventDefinition",
+  name: "HullApiEventDefinition"
+};
 
 
 module.exports = {
@@ -114,5 +124,7 @@ module.exports = {
   HullConnectorEnumDefinition,
   HullUserRaw,
   ServiceUserRaw,
-  HullIncomingUserImportApi
+  HullIncomingUserImportApi,
+  HullApiSegmentDefinition,
+  HullApiEventDefinition
 };

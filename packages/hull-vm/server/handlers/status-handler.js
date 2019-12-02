@@ -13,7 +13,7 @@ export default async function statusCheck(
     return {
       status: "warning",
       messages: [
-        "This processor doesn't contain code. It is recommended for performance reasons to remove empty processors from your organization."
+        "This connector doesn't contain code. It is recommended for performance reasons to remove empty connectors from your organization."
       ]
     };
   }
@@ -30,14 +30,29 @@ export default async function statusCheck(
   let status = "ok";
   const messages = [];
 
-  if (check.invalid(ctx, code)) {
-    status = "error";
-    messages.push(
-      "The code didn't pass the syntax check. Please review the detected problems and apply fixes where indicated.."
-    );
-  }
+  //   const c = check.(ctx, code);
+  //   if (c) {
+  //     console.log(c);
+  //     status = "error";
+  //     messages.push(
+  //       `The code has syntax error(s). Please review the detected problems and apply fixes where indicated:
+  // --------
+  // ${c}
+  // -------`
+  //     );
+  //   }
 
-  const lintMessages = check.lint(ctx, code);
+  const lintMessages = check.lint(ctx, code, {
+    account_segment_ids: true,
+    account_segments: true,
+    account: true,
+    changes: true,
+    events: true,
+    segment_ids: true,
+    segments: true,
+    user: true,
+    variables: true
+  });
   if (lintMessages.length) {
     status = "error";
     messages.push(...lintMessages);

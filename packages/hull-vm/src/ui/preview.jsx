@@ -2,35 +2,45 @@
 import React, { Fragment } from "react";
 import _ from "lodash";
 import fp from "lodash/fp";
-
 import Area from "./area";
 import CodeTitle from "./code-title";
 import type { Result } from "../../types";
+import type { HullEntityName } from "hull";
 
-const nice = (obj = {}) => JSON.stringify(obj, null, 2);
-const short = (obj = {}) => JSON.stringify(obj);
+const nice = obj => {
+  if (obj === undefined) return "undefined";
+  if (obj === null) return "null";
+  return JSON.stringify(obj, null, 2);
+};
+
+// const nice = (obj = {}) => JSON.stringify(obj);
 // const conditional = (data, text) => {
 //   if (!data || !_.size(data)) return "";
 //   return `/* ${text} */ ${_.isObject(data) ? nice(data) : data}`;
 // };
 const joinLines = fp.join("\n");
 
-const renderUserClaim = claims => `hull.asUser(${short(claims)})`;
-const renderAccountClaim = claims => `hull.asAccount(${short(claims)})`;
+const renderUserClaim = claims => `hull.asUser(${nice(claims)})`;
+const renderAccountClaim = claims => `hull.asAccount(${nice(claims)})`;
 
-const renderTraits = claimRender => ([claims, attributes]) => `${claimRender(
-  claims
-)}.traits(${short(attributes)});
-`;
-const renderShortTraits = ([claims, attributes]) => `traits(${short(
+const renderShortTraits = ([_claims, attributes]) => `traits(${nice(
   attributes
 )});
 `;
-
-const renderUserTraits = scoped =>
-  scoped ? renderShortTraits : renderTraits(renderUserClaim);
-const renderAccountTraits = scoped =>
-  scoped ? renderShortTraits : renderTraits(renderAccountClaim);
+const renderShortAlias = (operation, aliases) => `${operation}(${nice(
+  aliases
+)});
+`;
+const renderTraits = (claimRender, scoped) => ([claims, attributes]) =>
+  (scoped ? "" : `${claimRender(claims)}.`) +
+  renderShortTraits([claims, attributes]);
+const renderAlias = (claimRender, scoped) => ([claims, alias]) =>
+  _.map(
+    alias,
+    ([aliasClaim, operation]) =>
+      (scoped ? "" : `${claimRender(claims)}.`) +
+      renderShortAlias(operation, aliasClaim)
+  ).join("\n");
 
 const mapTraits = method =>
   fp.flow(
@@ -39,7 +49,7 @@ const mapTraits = method =>
   );
 
 const renderStringOrObject = (i: string | {} | Array<any>) =>
-  _.isString(i) ? i : short(i);
+  _.isArray(i) ? i.map(nice).join(", ") : _.isString(i) ? i : nice(i);
 
 const renderLogs = fp.flow(
   fp.map(renderStringOrObject),
@@ -48,8 +58,8 @@ const renderLogs = fp.flow(
 
 const mapAccountLinks = fp.flow(
   fp.map(
-    ([claims, accountClaims]) => `//★ User → ${short(claims)}
-//★ Account → ${short(accountClaims)}
+    ([claims, accountClaims]) => `//★ User → ${nice(claims)}
+//★ Account → ${nice(accountClaims)}
 
 `
   ),
@@ -57,7 +67,7 @@ const mapAccountLinks = fp.flow(
 );
 
 const renderEventBody = ({ eventName, context, properties }) =>
-  `"${eventName}", ${short(properties)}, ${short(context)}`;
+  `"${eventName}", ${nice(properties)}, ${nice(context)}`;
 
 const renderEvent = ({ event, claims }) => `//★ Event →
 ${renderUserClaim(claims)}
@@ -75,17 +85,22 @@ const mapEvents = scoped =>
 
 type Props = {
   result?: Result,
+  entity?: HullEntityName,
   scoped?: boolean
 };
 
-const Preview = ({ result, scoped }: Props) => {
+const Preview = ({ result, scoped, entity }: Props) => {
   if (!result)
     return (
       <Fragment>
         <CodeTitle title="Console" />
         <Area
+          aceOptions={{
+            wrapMethod: "code",
+            wrapEnabled: true
+          }}
           id="code-console"
-          value="//Nothing to display. Type some code to preview results"
+          value="// Nothing to display. Type some code to preview results"
           mode="javascript"
         />
       </Fragment>
@@ -95,6 +110,8 @@ const Preview = ({ result, scoped }: Props) => {
     userTraits = [],
     accountTraits = [],
     accountLinks = [],
+    accountAliases = [],
+    userAliases = [],
     errors = [],
     events = [],
     logs = []
@@ -103,27 +120,56 @@ const Preview = ({ result, scoped }: Props) => {
   const hasErrors = _.size(errors);
 
   const output = {
-    "User Attributes": mapTraits(renderUserTraits(scoped))(userTraits),
-    "Account Attributes": mapTraits(renderAccountTraits(scoped))(accountTraits),
+    "User Attributes": mapTraits(renderTraits(renderUserClaim, false))(
+      userTraits
+    ),
+    "Account Attributes": mapTraits(renderTraits(renderAccountClaim, false))(
+      accountTraits
+    ),
     "User-Account Links": mapAccountLinks(accountLinks),
-    "User Events": mapEvents(scoped)(events)
+    "User Events": mapEvents(false)(events),
+    "User Aliases": mapTraits(renderAlias(renderUserClaim, false))(userAliases),
+    "Account Aliases": mapTraits(renderAlias(renderAccountClaim, false))(
+      accountAliases
+    )
   };
 
   return hasErrors ? (
     <Fragment>
       <CodeTitle title="Errors" error />
-      <Area id="code-error" value={errors.join("\n-----\n")} mode="text" />
+      <Area
+        aceOptions={{
+          wrapMethod: "text",
+          wrapEnabled: true
+        }}
+        id="code-error"
+        value={errors.join("\n-----\n")}
+        mode="text"
+      />
     </Fragment>
   ) : (
     <Fragment>
       {_.map(_.pickBy(output, v => !!v), (v, k) => (
         <Fragment key={k}>
           <CodeTitle title={k} />
-          <Area id={`code-${k}`} value={v} type="info" mode={k==="User-Account Links" ? "text" :"javascript"} />
+          <Area
+            id={`code-${k}`}
+            value={v}
+            type="info"
+            mode={k === "User-Account Links" ? "text" : "javascript"}
+          />
         </Fragment>
       ))}
       <CodeTitle title="Console" />
-      <Area id="code-console" value={renderLogs(logs)} mode="javascript" />
+      <Area
+        aceOptions={{
+          wrapMethod: "text",
+          wrapEnabled: true
+        }}
+        id="code-console"
+        value={renderLogs(logs)}
+        mode="javascript"
+      />
     </Fragment>
   );
 };

@@ -20,5 +20,8 @@ export type HullUISelect = {
 
 export type HullUISelectGroup = {
   label: string,
-  options: Array<HullUISelectGroup> | Array<HullUISelect>
+  // eslint-disable-next-line no-use-before-define
+  options: HullUISelectOptions
 };
+
+export type HullUISelectOptions = Array<HullUISelect | HullUISelectGroup>;

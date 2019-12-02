@@ -10,17 +10,6 @@
     "outgoing",
     "oneColumn"
   ],
-  "tabs": [
-    {
-      "title": "Installation",
-      "url": "/admin.html",
-      "size": "small",
-      "editable": false,
-      "handler": {
-        "callback": "adminHandler"
-      }
-    }
-  ],
   "settings": [
     {
       "name": "script",
@@ -33,7 +22,8 @@
   "private_settings": [
     {
       "name": "whitelisted_domains",
-      "title": "Domains from which access will be allowed",
+      "title": "Authorized Websites. (Domain only, without https://)",
+      "description": "The connector will only load for the websites you list here",
       "type": "array",
       "format": "table",
       "items": {
@@ -46,22 +36,17 @@
     {
       "name": "synchronized_segments",
       "title": "Segment Filter",
-      "description": "Only users from these segments will be sent to the browser",
+      "description": "Only users from these segments will be sent",
       "type": "array",
-      "format": "segment",
-      "items": {
-        "type": "string"
-      },
-      "default": []
+      "default": [],
+      "format": "segment"
     },
     {
       "name": "public_traits",
-      "title": "Traits that will be sent",
+      "title": "Attributes that will be sent",
       "type": "array",
+      "description": "Only these attributes will be sent.",
       "format": "trait",
-      "items": {
-        "type": "string"
-      },
       "default": [
         "domain",
         "email"
@@ -69,51 +54,99 @@
     },
     {
       "name": "public_segments",
-      "title": "Segment names that will be sent",
+      "title": "User Segments that will be sent",
+      "description": "Only these segment names will be sent.",
       "type": "array",
       "format": "segment",
-      "items": {
-        "type": "string"
-      },
       "default": []
     },
     {
       "name": "public_account_segments",
-      "title": "Account Segment names that will be sent",
+      "title": "Account Segments that will be sent",
       "type": "array",
-      "format": "account_segment",
-      "items": {
-        "type": "string"
-      },
+      "format": "accountSegment",
+      "description": "Only these segment names will be sent.",
       "default": []
+    }
+  ],
+  "json": [
+    {
+      "name": "credentials",
+      "url": "/credentials",
+      "handler": "credentialsHandler",
+      "description": "If you're not using Hull.js, copy this snippet and paste it in your page",
+      "format": "credentials",
+      "type": "string"
     }
   ],
   "resources": [],
   "readme": "readme.md",
   "ui": false,
+  "settings_sections": [
+    {
+      "title": "Setup",
+      "description": "If you use Hull.js, deploy this connector in the **platform** you installed directly. Otherwise, copy the code below and paste it in your page.",
+      "step": "credentials",
+      "properties": [
+        "json.credentials"
+      ]
+    },
+    {
+      "title": "Filters",
+      "description": "This section defines the required conditions for a user to be sent client-side",
+      "properties": [
+        "private_settings.whitelisted_domains",
+        "private_settings.synchronized_segments"
+      ]
+    },
+    {
+      "title": "Exposed Data",
+      "description": "This section defines the data that will be visible client-side. This way you can avoid exposing sensitive values",
+      "properties": [
+        "private_settings.public_traits",
+        "private_settings.public_segments",
+        "private_settings.public_account_segments"
+      ]
+    },
+    {
+      "title": "Code",
+      "description": "The code you write below will run in the page whenever new data is sent client-side. we suggest you read the documentation to see the available data and the connector's behaviour",
+      "properties": [
+        "settings.code"
+      ]
+    }
+  ],
   "subscriptions": [
     {
       "url": "/smart-notifier",
-      "conditions" : {
-        "channels": { "only": ["user:update"] },
+      "conditions": {
+        "channels": {
+          "only": [
+            "user:update",
+            "ship:update",
+            "users_segment:update"
+          ]
+        },
         "segments": {
-          "user:update": ["private_settings.synchronized_segments"]
+          "user:update": [
+            "private_settings.synchronized_segments"
+          ]
         }
       },
-      "handlers": {
-        "ship:update": {
+      "channels": [
+        {
+          "channel": "ship:update",
           "handler": "connectorUpdate"
         },
-        "users_segment:update": {
+        {
+          "channel": "users_segment:update",
           "handler": "connectorUpdate"
         },
-        "user_update:update": {
-          "handler": "userUpdate",
-          "options": {
-            "groupTraits": true
-          }
+        {
+          "channel": "user_update:update",
+          "handler": "userUpdate"
         }
-      }
+      ]
     }
   ]
 }

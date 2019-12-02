@@ -20,11 +20,11 @@ ace.require("ace/mode/javascript");
 ace.require("ace/mode/markdown");
 ace.require("ace/mode/json");
 ace.require("ace/mode/text");
-
 ace.require("ace/snippets/javascript");
 ace.require("ace/snippets/json");
 ace.require("ace/theme/clouds_midnight");
 
+ace.require("ace/ext/beautify");
 ace.require("ace/ext/error_marker");
 ace.require("ace/ext/searchbox");
 ace.require("ace/ext/elastic_tabstops_lite");
@@ -34,6 +34,7 @@ type Props = {
   className?: string,
   id: string,
   readOnly: boolean,
+  aceOptions?: { [string]: any },
   onChange?: string => void,
   mode: string,
   value: string,
@@ -69,11 +70,11 @@ class CodeEditor extends Component<Props, State> {
     if (onChange) {
       onChange(value);
     }
-  }
+  };
 
   onValidate = (annotations: any) => {
     // console.log(annotations);
-  }
+  };
 
   componentDidMount() {
     if (this.props.focusOnLoad) {
@@ -86,19 +87,19 @@ class CodeEditor extends Component<Props, State> {
     if (nextProps.value !== this.state.value) {
       this.setState({ value: nextProps.value });
     }
-  }
+  };
 
   render() {
-    const { id, mode, className, readOnly } = this.props;
+    const { id, mode, className, readOnly, aceOptions } = this.props;
     const { value } = this.state;
     return (
       <AceEditor
         ref={this.code}
+        {...aceOptions}
         mode={mode}
         className={`${className || ""} ${readOnly ? "read-only" : ""}`}
         theme="clouds_midnight"
         width="auto"
-        wrapEnabled
         tabSize={2}
         fontSize={12}
         showPrintMargin

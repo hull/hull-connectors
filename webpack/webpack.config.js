@@ -2,6 +2,7 @@ const glob = require("glob");
 const webpack = require("webpack");
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 const _ = require("lodash");
 
 // const LodashModuleReplacementPlugin = require("lodash-webpack-plugin");
@@ -22,7 +23,7 @@ const getEntry = files =>
     {}
   );
 
-const getPlugins = mode =>
+const getPlugins = ({ mode, assets, destination }) =>
   mode === "production"
     ? [
         new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
@@ -30,11 +31,17 @@ const getPlugins = mode =>
         //   collections: true,
         //   paths: true
         // }),
-        new MiniCssExtractPlugin({ filename: "[name].css" })
+        new MiniCssExtractPlugin({ filename: "[name].css" }),
+        new CopyPlugin([
+          {
+            from: assets,
+            to: path.resolve(destination)
+          }
+        ])
       ]
     : [new MiniCssExtractPlugin({ filename: "[name].css" })];
 
-const buildConfig = ({ files, destination, mode = "production" }) => ({
+const buildConfig = ({ assets, files, destination, mode = "production" }) => ({
   mode,
   entry: getEntry(files),
   devtool: mode === "production" ? "source-map" : "inline-source-map",
@@ -78,14 +85,15 @@ const buildConfig = ({ files, destination, mode = "production" }) => ({
       }
     ]
   },
-  plugins: getPlugins(mode)
+  plugins: getPlugins({ mode, assets, destination })
 });
 
-module.exports = ({ source, destination, mode }) => {
+module.exports = ({ assets, source, destination, mode }) => {
   const files = getFiles(source);
   if (!files || !files.length) {
     return undefined;
   }
-  console.log(`${process.cwd()}/packages`)
-  return buildConfig({ files, destination, mode });
+
+  console.log(`${process.cwd()}/packages`);
+  return buildConfig({ assets, files, destination, mode });
 };

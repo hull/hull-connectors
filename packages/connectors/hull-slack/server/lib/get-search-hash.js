@@ -3,8 +3,8 @@ module.exports = function getSearchHash(type, message) {
   const search = {};
   const { matches = [] } = message;
   if (type === "email") {
-    search.email = matches[3];
-    if (matches[4]) search.rest = matches[4];
+    search.email = matches[2];
+    if (matches[3]) search.rest = matches[3];
     return search;
   }
 

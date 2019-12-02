@@ -1,0 +1,36 @@
+{
+  "name": "hull-zapier",
+  "description": "A Hull <> Zapier Connector",
+  "version": "0.1.9-monorepo",
+  "homepage": "https://github.com/hull-ships/hull-zapier",
+  "license": "MIT",
+  "main": "bin/start",
+  "author": {
+    "name": "Hull",
+    "email": "contact@hull.io",
+    "url": "https://github.com/hull"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/hull-ships/hull-zapier"
+  },
+  "bugs": {
+    "url": "https://github.com/hull-ships/hull-zapier/issues"
+  },
+  "scripts": {
+    "test": "exit 0",
+    "documentation": "exit 0"
+  },
+  "keywords": [
+    "hull",
+    "ship",
+    "hull-ship",
+    "webhooks",
+    "integration",
+    "user",
+    "sync",
+    "zapier"
+  ],
+  "dependencies": {},
+  "devDependencies": {}
+}

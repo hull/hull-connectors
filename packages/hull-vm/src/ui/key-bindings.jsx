@@ -7,6 +7,7 @@ import Button from "react-bootstrap/Button";
 
 const SHORTCUTS = {
   "Cmd-/": "Toggle Comment",
+  "Cmd-F": "Search (& Replace)",
 
   "Cmd-Alt-[": "Fold Block",
   "Cmd-Alt-]": "Unfold Block",
