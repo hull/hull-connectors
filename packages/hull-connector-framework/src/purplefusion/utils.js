@@ -414,21 +414,6 @@ function toSendMessage(
   if (!isUndefinedOrNull(serviceName)) {
     const serviceId = _.get(message, `${targetEntity}.${serviceName}/id`);
     if (isUndefinedOrNull(serviceId)) {
-
-      // log for now so we can find this scenario
-      // remove after we've audited
-      try {
-        if (targetEntity === "user") {
-          context.client.asUser(entity).logger.info("outgoing.user.send", {
-            reason: "does not have service id"
-          });
-        } else if (targetEntity === "account") {
-          context.client.asAccount(entity).logger.info("outgoing.account.send", {
-            reason: "does not have service id"
-          });
-        }
-      } catch (error) {}
-
       return true;
     }
   }
