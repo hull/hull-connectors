@@ -190,13 +190,19 @@ const service = ({ clientID, clientSecret } : {
       url: "/events/",
       operation: "get",
       endpointType: "byProperty",
-      query: "page[limit]=500"
+      query: "page[limit]=1000"
+    },
+    getEventsPaged: {
+      url: "/events/",
+      operation: "get",
+      endpointType: "byProperty",
+      query: "page[limit]=${page_limit}&filter[id]=${id_offset}..inf"
     },
     getRecentEvents: {
       url: "/events/",
       operation: "get",
       endpointType: "byProperty",
-      query: "filter[eventAt]=${filterLimits}&sort=-eventAt&page[limit]=500"
+      query: "filter[eventAt]=${filterLimits}&sort=-eventAt&page[limit]=1000"
     },
     getEventsOffset: {
       url: "/events/",

@@ -28,10 +28,16 @@ const OutreachEventRead: ServiceObjectDefinition = {
   name: "Event"
 };
 
+const OutreachWebEventRead: ServiceObjectDefinition = {
+  service_name: "outreach_incoming_web_event",
+  name: "Event"
+};
+
 module.exports = {
   OutreachProspectRead,
   OutreachProspectWrite,
   OutreachAccountWrite,
   OutreachAccountRead,
-  OutreachEventRead
+  OutreachEventRead,
+  OutreachWebEventRead
 };

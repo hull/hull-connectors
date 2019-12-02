@@ -240,13 +240,23 @@
       "items": {
         "type": "string",
         "enum": [
-          "outbound_message",
+          "bounced_message",
+          "emails_opt_out",
+          "inbound_message",
+          "message_clicked",
           "message_opened",
+          "message_opened_sender",
+          "outbound_message",
           "prospect_stage_changed"
         ],
         "enumNames": [
-          "Outbound Message",
+          "Bounced Message",
+          "Emails Opt Out",
+          "Inbound Message",
+          "Message Clicked",
           "Message Opened",
+          "Message Opened Sender",
+          "Outbound Message",
           "Prospect Stage Changed"
         ]
       },
@@ -370,6 +380,7 @@
       "format": "action",
       "title": "Fetch All Events",
       "name": "fetch_all_events",
+      "description": "Due to API limitations from Outreach, fetching all events will not pull in the \"Prospect Stage Changed\" events. Instead, the connector will only be able to ingest the \"Prospect Stage Changed\" event going onward after selecting that event in the dropdown above.",
       "options": {
         "fireAndForget": true,
         "confirm": {
