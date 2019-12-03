@@ -43,7 +43,7 @@ function evaluateCondition(transform, context, input): boolean {
 
 function evaluateValidation(transform, context, input) {
   if (transform.validation) {
-    if (evaluateCondition(transform.validation.condition, context, input)) {
+    if (evaluateCondition(transform.validation, context, input)) {
       if (transform.validation.error === "BreakProcess") {
         throw new Error(`Validation didn't pass for transform: ${transform.validation.message}\n ${JSON.stringify(transform, null, 2)}\n input: ${JSON.stringify(input, null, 2)}`);
       } else if (transform.validation.error === "Skip") {
