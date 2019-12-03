@@ -120,7 +120,7 @@ export async function saveAccount(
   ctx: HullContext,
   {
     account,
-    person,
+    person = {},
     company,
     user,
     source
