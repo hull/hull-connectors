@@ -16,6 +16,22 @@ const {
 // I don't like that we have to use a special reserved word, but logging a warning if it ever exists and is not a ServiceObjectDefinition
 const reservedHullDataTypeKey = "hull-connector-data-type";
 
+const triggers = {
+  userUpdate: [
+    "userEnteredSegment",
+    "userLeftSegment",
+    "userAttributeUpdated",
+    "userEventCreated",
+    "userCreated"
+  ],
+  accountUpdate: [
+    "accountEnteredSegment",
+    "accountLeftSegment",
+    "accountAttributeUpdated",
+    "accountCreated"
+  ]
+};
+
 async function asyncForEach(toIterateOn, asyncCallback) {
 
   if (
@@ -499,6 +515,61 @@ function toSendMessage(
   return true;
 }
 
+function getEntityTriggers(entityAction: string, entity: Object): Array<string> {
+  const filteredTriggers = [];
+
+  _.forEach(_.get(triggers, entityAction, []), trigger => {
+    if (trigger === "userEnteredSegment") {
+      if (!_.isEmpty(_.get(entity, "changes.segments.entered", []))) {
+        filteredTriggers.push(trigger);
+      }
+    }
+    if (trigger === "userLeftSegment") {
+      if (!_.isEmpty(_.get(entity, "changes.segments.left", []))) {
+        filteredTriggers.push(trigger);
+      }
+    }
+    if (trigger === "userAttributeUpdated") {
+      if (!_.isEmpty(_.get(entity, "changes.user", {})) ||
+          !_.isEmpty(_.get(entity, "changes.account", {}))) {
+        filteredTriggers.push(trigger);
+      }
+    }
+    if (trigger === "userEventCreated") {
+      if (!_.isEmpty(_.get(entity, "events", []))) {
+        filteredTriggers.push(trigger);
+      }
+    }
+    if (trigger === "userCreated") {
+      if (_.get(entity, "changes.is_new", false)) {
+        filteredTriggers.push(trigger);
+      }
+    }
+    if (trigger === "accountEnteredSegment") {
+      if (!_.isEmpty(_.get(entity, "changes.account_segments.entered", []))) {
+        filteredTriggers.push(trigger);
+      }
+    }
+    if (trigger === "accountLeftSegment") {
+      if (!_.isEmpty(_.get(entity, "changes.account_segments.left", []))) {
+        filteredTriggers.push(trigger);
+      }
+    }
+    if (trigger === "accountAttributeUpdated") {
+      if (!_.isEmpty(_.get(entity, "changes.account", []))) {
+        filteredTriggers.push(trigger);
+      }
+    }
+    if (trigger === "accountCreated") {
+      if (_.get(entity, "changes.is_new", false)) {
+        filteredTriggers.push(trigger);
+      }
+    }
+  });
+
+  return filteredTriggers;
+}
+
 module.exports = {
   isUndefinedOrNull,
   parseIntOrDefault,
@@ -509,5 +580,6 @@ module.exports = {
   createAnonymizedObject,
   getHullPlatformTypeName,
   sameHullDataType,
-  asyncForEach
-}
+  asyncForEach,
+  getEntityTriggers
+};

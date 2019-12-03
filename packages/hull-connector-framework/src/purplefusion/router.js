@@ -18,7 +18,7 @@ const { HullDispatcher } = require("./dispatcher");
 
 const { hullService } = require("./hull-service");
 
-const { toSendMessage } = require("./utils");
+const { toSendMessage, getEntityTriggers } = require("./utils");
 const { statusCallback, statusErrorCallback, resolveServiceDefinition } = require("./router-utils");
 const { getServiceOAuthParams } = require("./auth/auth-utils");
 
@@ -123,33 +123,52 @@ class HullRouter {
         type: _.toLower(objectType.name)
       });
 
-      let dataToSend;
-      const dataToSkip = [];
+      const connectorOptions = _.get(context, "connectorConfig.options", {});
+      const isTrigger = _.get(connectorOptions, "outgoingMechanism", "sync") === "trigger" && direction === "outgoing";
 
-      if (Array.isArray(data) && (objectType === HullOutgoingUser || objectType === HullOutgoingAccount)) {
-        dataToSend = [];
-        // break up data and send one by one
-        _.forEach(data, message => {
-          if (toSendMessage(context, _.toLower(objectType.name), message)) {
-            dataToSend.push(message);
-          } else {
-            dataToSkip.push(message);
-          }
+      let dispatchPromises = [];
+      if (isTrigger && (objectType === HullOutgoingUser || objectType === HullOutgoingAccount)) {
+        const dataToSend = Array.isArray(data) ? data : [data];
+        _.forEach(dataToSend, message => {
+          const triggers = getEntityTriggers(route, message);
+          _.forEach(triggers, (trigger) => {
+            dispatchPromises.push(dispatcher.dispatchWithData(context, `${trigger}`, objectType, [ message ]));
+          });
         });
-      } else {
-        dataToSend = data;
       }
 
-      // I like getting rid of the splitting here, and always passing in the data
-      // glue can handle the split if needed
-      // TODO need to test sending an empty array, or decide if we need extra logic here...
-      let dispatchPromise = dispatcher.dispatchWithData(context, route, objectType, dataToSend);
+      if (!isTrigger) {
 
-      if (this.filteredMessageCallback) {
-        dispatchPromise = this.filteredMessageCallback(context, dispatcher, dispatchPromise, objectType, dataToSkip);
+        let dataToSend;
+        const dataToSkip = [];
+
+        if (Array.isArray(data) && (objectType === HullOutgoingUser || objectType === HullOutgoingAccount)) {
+          dataToSend = [];
+          // break up data and send one by one
+          _.forEach(data, message => {
+            if (toSendMessage(context, _.toLower(objectType.name), message)) {
+              dataToSend.push(message);
+            } else {
+              dataToSkip.push(message);
+            }
+          });
+        } else {
+          dataToSend = data;
+        }
+
+        // I like getting rid of the splitting here, and always passing in the data
+        // glue can handle the split if needed
+        // TODO need to test sending an empty array, or decide if we need extra logic here...
+        let dispatchPromise = dispatcher.dispatchWithData(context, route, objectType, dataToSend);
+
+        if (this.filteredMessageCallback) {
+          dispatchPromise = this.filteredMessageCallback(context, dispatcher, dispatchPromise, objectType, dataToSkip);
+        }
+
+        dispatchPromises = [ dispatchPromise ];
       }
 
-      return dispatchPromise
+      return Promise.all(dispatchPromises)
         .then(results => {
           dispatcher.close();
 
