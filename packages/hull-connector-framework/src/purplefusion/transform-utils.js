@@ -2,6 +2,7 @@
 const _ = require("lodash");
 const { isUndefinedOrNull, asyncForEach } = require("./utils");
 const { Route } = require("./language");
+const { SkippableError } = require("hull/src/errors");
 
 function toUnixTimestamp() {
   return (date) => {
@@ -10,7 +11,11 @@ function toUnixTimestamp() {
   }
 }
 
-function evaluateCondition(conditions, context, input): boolean {
+function evaluateCondition(transform, context, input): boolean {
+  if (!_.isPlainObject(transform) || !transform.condition) {
+    return true;
+  }
+  const conditions = transform.condition;
   let conditionArray = [];
   if (!Array.isArray(conditions)) {
     conditionArray.push(conditions);
@@ -45,24 +50,12 @@ function evaluateValidation(transform, context, input) {
         throw new SkippableError(`Validation didn't pass for transform: ${transform.validation.message} ${JSON.stringify(transform, null, 2)}`);
       }
     }
-    //evaluate transforma.validation.condition
-    //if true
-    // look at transform.validation.error
-    //if error === "breakeverything"
   }
 }
 
 function toTransform(transform, context, input) {
-  if (!_.isPlainObject(transform) || !transform.condition) {
-    evaluateValidation(transform, context, input);
-    return true;
-  }
-
-  if (evaluateCondition(transform.condition, context, input)) {
-    evaluateValidation(transform, context, input);
-    return true;
-  }
-  return false;
+  evaluateValidation(transform, context, input);
+  return evaluateCondition(transform, context, input);
 }
 
 async function performTransformation(dispatcher, context, initialInput, transformation) {
