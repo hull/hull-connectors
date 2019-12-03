@@ -8,7 +8,185 @@ import connectorConfig from "../../server/config";
 
 describe("Outgoing Account Tests", () => {
 
-  it("Whitelisted Account Attribute Changed. Send Account To Single Zap", () => {
+  it("Account Enters Segment. Should Send To Zapier", () => {
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+      const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
+      const private_settings = {
+        ...updateMessages.connector.private_settings,
+        "subscriptions": [
+          {
+            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1",
+            "action": "entered_segment",
+            "entityType": "account",
+            "inputData": {
+              "account_segments": [ "account_segment_1", "account_segment_212341324" ]
+            }
+          }
+        ]
+      };
+      const message1 =
+        {
+          "changes": {
+            "is_new": false,
+            "user": {},
+            "account": {},
+            "segments": {},
+            "account_segments": {
+              "entered": [
+                {
+                  "id": "account_segment_1",
+                  "name": "AccountSegment1"
+                }
+              ]
+            }
+          },
+          "user": {},
+          "account": {
+            "id": "5bd329d5e2bcf3eeaf000099",
+            "domain": "apple.com",
+          },
+          "segments": [],
+          "account_segments": [
+            {
+              "id": "account_segment_1",
+              "name": "AccountSegment1",
+              "type": "accounts_segment",
+            }
+          ],
+          "message_id": "message_1"
+        };
+
+      _.set(updateMessages, "messages", [
+        message1
+      ]);
+      _.set(updateMessages.connector, "private_settings", private_settings);
+      return _.assign(updateMessages, {
+        handlerType: handlers.notificationHandler,
+        handlerUrl: "smart-notifier",
+        channel: "account:update",
+        externalApiMock: () => {
+          const scope = nock("https://hooks.zapier.com/hooks/standard/5687326");
+
+          scope
+            .post("/account-entered-segment/1")
+            .reply(200, {
+              "status": "success",
+              "attempt": "1",
+              "id": "1",
+              "request_id": "1"
+            });
+
+          return scope;
+        },
+        response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
+        logs: [
+          ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }],
+          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+            expect.objectContaining({"url": "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1", "method": "POST"})
+          ],
+          ["info", "outgoing.account.success",
+            expect.objectContaining({ "subject_type": "account", "account_id": "5bd329d5e2bcf3eeaf000099" }),
+            expect.objectContaining({ "data": expect.objectContaining({"message_id": "message_1"}), "type": "Account" })
+          ],
+          ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }]
+        ],
+        firehoseEvents:[],
+        metrics: [["increment", "connector.request", 1,], ["increment", "ship.service_api.call", 1,], ["value", "connector.service_api.response_time", expect.whatever()]],
+        platformApiCalls: []
+      });
+    });
+  });
+
+  it("Account Leaves Segment. Should Send To Zapier", () => {
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+      const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
+      const private_settings = {
+        ...updateMessages.connector.private_settings,
+        "subscriptions": [
+          {
+            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1",
+            "action": "left_segment",
+            "entityType": "account",
+            "inputData": {
+              "account_segments": [ "account_segment_1", "account_segment_212341324" ]
+            }
+          }
+        ]
+      };
+      const message1 =
+        {
+          "changes": {
+            "is_new": false,
+            "user": {},
+            "account": {},
+            "segments": {},
+            "account_segments": {
+              "left": [
+                {
+                  "id": "account_segment_1",
+                  "name": "AccountSegment1"
+                }
+              ]
+            }
+          },
+          "user": {},
+          "account": {
+            "id": "5bd329d5e2bcf3eeaf000099",
+            "domain": "apple.com",
+          },
+          "segments": [],
+          "account_segments": [
+            {
+              "id": "account_segment_2",
+              "name": "AccountSegment2",
+              "type": "accounts_segment",
+            }
+          ],
+          "message_id": "message_1"
+        };
+
+      _.set(updateMessages, "messages", [
+        message1
+      ]);
+      _.set(updateMessages.connector, "private_settings", private_settings);
+      return _.assign(updateMessages, {
+        handlerType: handlers.notificationHandler,
+        handlerUrl: "smart-notifier",
+        channel: "account:update",
+        externalApiMock: () => {
+          const scope = nock("https://hooks.zapier.com/hooks/standard/5687326");
+
+          scope
+            .post("/account-left-segment/1")
+            .reply(200, {
+              "status": "success",
+              "attempt": "1",
+              "id": "1",
+              "request_id": "1"
+            });
+
+          return scope;
+        },
+        response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
+        logs: [
+          ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }],
+          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+            expect.objectContaining({"url": "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1", "method": "POST"})
+          ],
+          ["info", "outgoing.account.success",
+            expect.objectContaining({ "subject_type": "account", "account_id": "5bd329d5e2bcf3eeaf000099" }),
+            expect.objectContaining({ "data": expect.objectContaining({"message_id": "message_1"}), "type": "Account" })
+          ],
+          ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }]
+        ],
+        firehoseEvents:[],
+        metrics: [["increment", "connector.request", 1,], ["increment", "ship.service_api.call", 1,], ["value", "connector.service_api.response_time", expect.whatever()]],
+        platformApiCalls: []
+      });
+    });
+  });
+
+  it("Whitelisted Account Attribute Changed. Should Send To Zapier", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
@@ -125,7 +303,7 @@ describe("Outgoing Account Tests", () => {
     });
   });
 
-  it("Send New Account in Whitelisted Segments To Multiple Zaps", () => {
+  it("New Account in Whitelisted Segment. Should Send to Zapier", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {

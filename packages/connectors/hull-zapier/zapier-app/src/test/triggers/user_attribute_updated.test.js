@@ -284,8 +284,8 @@ describe('Trigger - user_attribute_updated', () => {
       },
 
       inputData: {
-        user_segments: ["user_segment_1"],
-        account_segments: ["account_segment_1"],
+        user_segments: ["all_segments"],
+        account_segments: ["all_segments"],
         account_attributes: ["domain"]
       },
 

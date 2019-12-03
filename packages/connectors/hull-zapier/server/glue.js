@@ -48,24 +48,161 @@ function zapier(op: string, param?: any): Svc {
 }
 
 const glue = {
-  userUpdate: [
+  accountEnteredSegment: [
     iterateL(input(), { key: "message", async: true }, [
-      route("userUpdateStart", cast(HullOutgoingUser, "${message}"))
+      set("outgoingAccount", cast(HullOutgoingAccount, "${message}")),
+
+      set("entityType", "account"),
+      set("action", "entered_segment"),
+      set("hasEnteredSegmentChanges", cond("lessThan", 0, ld("size", ld("get", "${outgoingAccount}", "changes.account_segments.entered", [])))),
+
+      ifL("${hasEnteredSegmentChanges}", [
+        route("performTrigger", {
+          entityType: "${entityType}",
+          action: "${action}",
+          data: "${outgoingAccount}"
+        })
+      ])
     ])
   ],
-  accountUpdate: [
+  accountLeftSegment: [
     iterateL(input(), { key: "message", async: true }, [
-      route("accountUpdateStart", cast(HullOutgoingAccount, "${message}"))
+      set("outgoingAccount", cast(HullOutgoingAccount, "${message}")),
+
+      set("entityType", "account"),
+      set("action", "left_segment"),
+      set("hasLeftSegmentChanges", cond("lessThan", 0, ld("size", ld("get", "${outgoingAccount}", "changes.account_segments.left", [])))),
+
+      ifL("${hasLeftSegmentChanges}", [
+       route("performTrigger", {
+         entityType: "${entityType}",
+         action: "${action}",
+         data: "${outgoingAccount}"
+       })
+      ])
     ])
   ],
-  userUpdateStart: [
-    route("filterUserMessage"),
-    route("sendZaps")
+  accountAttributeUpdated: [
+    iterateL(input(), { key: "message", async: true }, [
+      set("outgoingAccount", cast(HullOutgoingAccount, "${message}")),
+
+      set("entityType", "account"),
+      set("action", "attribute_updated"),
+      set("hasChanges", cond("lessThan", 0, ld("size", ld("get", "${outgoingAccount}", "changes"), "account"))),
+
+      ifL("${hasChanges}", [
+        route("performTrigger", {
+          entityType: "${entityType}",
+          action: "${action}",
+          data: "${outgoingAccount}"
+        })
+      ])
+    ])
   ],
-  accountUpdateStart: [
-    route("filterAccountMessage"),
-    route("sendZaps")
+  accountCreated: [
+    iterateL(input(), { key: "message", async: true }, [
+      set("outgoingAccount", cast(HullOutgoingAccount, "${message}")),
+
+      set("entityType", "account"),
+      set("action", "created"),
+      set("isNew", ld("get", "${outgoingAccount}", "changes.is_new", false)),
+
+      ifL("${isNew}", [
+        route("performTrigger", {
+          entityType: "${entityType}",
+          action: "${action}",
+          data: "${outgoingAccount}"
+        })
+      ])
+    ])
   ],
+  userEnteredSegment: [
+    iterateL(input(), { key: "message", async: true }, [
+      set("outgoingUser", cast(HullOutgoingUser, "${message}")),
+
+      set("entityType", "user"),
+      set("action", "entered_segment"),
+      set("hasEnteredSegmentChanges", cond("lessThan", 0, ld("size", ld("get", "${outgoingUser}", "changes.segments.entered", [])))),
+
+      ifL("${hasEnteredSegmentChanges}", [
+        route("performTrigger", {
+          entityType: "${entityType}",
+          action: "${action}",
+          data: "${outgoingUser}"
+        })
+      ])
+    ])
+  ],
+  userLeftSegment: [
+    iterateL(input(), { key: "message", async: true }, [
+      set("outgoingUser", cast(HullOutgoingUser, "${message}")),
+
+      set("entityType", "user"),
+      set("action", "left_segment"),
+      set("hasLeftSegmentChanges", cond("lessThan", 0, ld("size", ld("get", "${outgoingUser}", "changes.segments.left", [])))),
+
+      ifL("${hasLeftSegmentChanges}", [
+        route("performTrigger", {
+          entityType: "${entityType}",
+          action: "${action}",
+          data: "${outgoingUser}"
+        })
+      ])
+    ])
+  ],
+  userAttributeUpdated: [
+    iterateL(input(), { key: "message", async: true }, [
+      set("outgoingUser", cast(HullOutgoingUser, "${message}")),
+
+      set("entityType", "user"),
+      set("action", "attribute_updated"),
+      set("hasChanges", cond("lessThan", 0, ld("size", ld("get", "${outgoingUser}", "changes"), "user"))),
+
+      ifL("${hasChanges}", [
+        route("performTrigger", {
+          entityType: "${entityType}",
+          action: "${action}",
+          data: "${outgoingUser}"
+        })
+      ])
+    ])
+  ],
+  userEventCreated: [
+    iterateL(input(), { key: "message", async: true }, [
+      set("outgoingUser", cast(HullOutgoingUser, "${message}")),
+
+      set("entityType", "user_event"),
+      set("action", "created"),
+      set("hasNewEvents", cond("lessThan", 0, ld("size", ld("get", "${outgoingUser}", "events", [])))),
+
+      ifL("${hasNewEvents}", [
+        route("performTrigger", {
+          entityType: "${entityType}",
+          action: "${action}",
+          data: "${outgoingUser}"
+        })
+      ])
+    ])
+  ],
+  userCreated: [
+    iterateL(input(), { key: "message", async: true }, [
+      set("outgoingUser", cast(HullOutgoingUser, "${message}")),
+
+      set("entityType", "user"),
+      set("action", "created"),
+      set("isNew", ld("get", "${outgoingUser}", "changes.is_new", false)),
+
+      ifL("${isNew}", [
+        route("performTrigger", {
+          entityType: "${entityType}",
+          action: "${action}",
+          data: "${outgoingUser}"
+        })
+      ])
+    ])
+  ],
+  userUpdate: [],
+  accountUpdate: [],
   isValidateInputData: [
     /*
     validate input data:
@@ -78,6 +215,34 @@ const glue = {
     }
      */
   ],
+  performTrigger: [
+    set("filteredZaps", route("filterZaps", {
+      zaps: filter({ entityType: input("entityType"), action: input("action") }, settings("subscriptions")),
+      data: input("data")
+    })),
+
+    route("sendZaps", {
+      filteredZaps: "${filteredZaps}",
+      data: input("data")
+    })
+  ],
+  sendZaps: [
+    iterateL(input("filteredZaps"), { key: "zap", async: true }, [
+      set("zap_url", "${zap.url}"),
+      set("resp", zapier("sendZap", input("data")))
+    ])
+  ],
+  filterZaps: returnValue([
+    set("filteredZaps", []),
+    iterateL(input("zaps"), "zap", [
+      ifL(cond("isEqual", true, route("isValidZap", {
+        zap: "${zap}",
+        data: input("data")
+      })), [
+        set("filteredZaps", ld("concat", "${filteredZaps}", "${zap}"))
+      ])
+    ])
+  ], "${filteredZaps}"),
   isValidSegment: [
     ifL(not(cond("isEqual", "${zapAction}", "left_segment")), [
       ifL(cond("isEqual", 0, ld("size", ld("intersection", "${validationData}", "${segmentsIn}"))), [
@@ -96,10 +261,25 @@ const glue = {
     ])
   ],
   isValidZap: returnValue([
-      set("zapInputData", get("inputData", "${zap}")),
-      set("zapAction", get("action", "${zap}")),
-      set("validations", ld("keys", "${zapInputData}")),
+      set("entity", input("data")),
       set("isValid", true),
+
+      // Entity Data
+      set("changes", ld("get", "${entity}", "changes", {})),
+
+      // User Data
+      set("segments", ld("get", "${entity}", "segments", {})),
+      set("userChangedAttributes", ld("keys", ld("get", "${changes}", "user", {}))),
+      set("userEvents", ld("map", ld("get", "${entity}", "events", []), "event")),
+
+      // Account Data
+      set("account_segments", ld("get", "${entity}", "account_segments", {})),
+      set("accountChangedAttributes", ld("keys", ld("get", "${changes}", "account", {}))),
+
+      // Zap Data
+      set("zapInputData", get("inputData", input("zap"))),
+      set("zapAction", get("action", input("zap"))),
+      set("validations", ld("keys", "${zapInputData}")),
 
       iterateL("${validations}", "validation", [
 
@@ -129,9 +309,9 @@ const glue = {
             5) Account Enters Segment
                 -> Account enters one or more of the whitelisted account segments
             6) Account Leaves Segment
-                -> Account leaves one or more of the whitelisted user segments
+                -> Account leaves one or more of the whitelisted account segments
             7) Account Attribute Update
-                -> Account is IN one or more of the whitelisted user segments
+                -> Account is IN one or more of the whitelisted account segments
                    AND
                 -> A whitelisted account attribute was updated
             8) User is created
@@ -150,7 +330,7 @@ const glue = {
         // User Segment Validations
         ifL(cond("isEqual", "${validation}", "user_segments"), [
 
-          set("segmentsIn", ld("concat", "all_segments", ld("map", input("segments"), "id"))),
+          set("segmentsIn", ld("concat", "all_segments", ld("map", "${segments}", "id"))),
           set("segmentsEntered", ld("map", ld("get", "${changes}", "segments.entered", []), "id")),
           set("segmentsLeft", ld("map", ld("get", "${changes}", "segments.left", []), "id")),
 
@@ -167,7 +347,7 @@ const glue = {
         // Account Segment Validations
         ifL(cond("isEqual", "${validation}", "account_segments"), [
 
-          set("segmentsIn", ld("concat", "all_segments", ld("map", input("account_segments"), "id"))),
+          set("segmentsIn", ld("concat", "all_segments", ld("map", "${account_segments}", "id"))),
           set("segmentsEntered", ld("map", ld("get", "${changes}", "account_segments.entered", []), "id")),
           set("segmentsLeft", ld("map", ld("get", "${changes}", "account_segments.left", []), "id")),
 
@@ -199,86 +379,6 @@ const glue = {
     ],
     "${isValid}"
   ),
-  filterZaps: [
-    iterateL("${zaps}", "zap", [
-      ifL(cond("isEqual", true, route("isValidZap")), [
-        set("filteredZaps", ld("concat", "${filteredZaps}", "${zap}"))
-      ])
-    ])
-  ],
-  filterUserMessage: [
-    set("entityType", "user"),
-    set("zaps", []),
-    set("filteredZaps", []),
-    set("changes", input("changes")),
-
-    set("userEvents", ld("map", input("events"), "event")),
-    set("userChangedAttributes", ld("keys", ld("get", "${changes}", "user", {}))),
-    set("accountChangedAttributes", ld("keys", ld("get", "${changes}", "account", {}))),
-
-    set("isNewUser", ld("get", "${changes}", "is_new", false)),
-    set("hasUserChanges", cond("lessThan", 0, ld("size", "${changes.user}"))),
-    set("hasNewEvents", cond("lessThan", 0, ld("size", input("events")))),
-    set("hasUserLeftSegmentChanges", cond("lessThan", 0, ld("size", ld("get", "${changes}", "segments.left", [])))),
-    set("hasUserEnteredSegmentChanges", cond("lessThan", 0, ld("size", ld("get", "${changes}", "segments.entered", [])))),
-
-    ifL("${isNewUser}", [
-      set("zaps", filter({ entityType: "user", action: "created" }, settings("subscriptions"))),
-      route("filterZaps")
-    ]),
-    ifL("${hasUserChanges}", [
-      set("zaps", filter({ entityType: "user", action: "attribute_updated" }, settings("subscriptions"))),
-      route("filterZaps")
-    ]),
-    ifL("${hasNewEvents}", [
-      set("zaps", filter({ entityType: "user_event", action: "created" }, settings("subscriptions"))),
-      route("filterZaps")
-    ]),
-    ifL("${hasUserEnteredSegmentChanges}", [
-      set("zaps", filter({ entityType: "user", action: "entered_segment" }, settings("subscriptions"))),
-      route("filterZaps")
-    ]),
-    ifL("${hasUserLeftSegmentChanges}", [
-      set("zaps", filter({ entityType: "user", action: "left_segment" }, settings("subscriptions"))),
-      route("filterZaps")
-    ])
-  ],
-  filterAccountMessage: [
-    set("entityType", "account"),
-    set("zaps", []),
-    set("filteredZaps", []),
-    set("changes", input("changes")),
-
-    set("accountChangedAttributes", ld("keys", ld("get", "${changes}", "account", {}))),
-
-    set("isNewAccount", ld("get", "${changes}", "is_new", false)),
-    set("hasAccountChanges", cond("lessThan", 0, ld("size", "${changes.account}"))),
-    set("hasAccountLeftSegmentChanges", cond("lessThan", 0, ld("size", ld("get", "${changes}", "account_segments.left", [])))),
-    set("hasAccountEnteredSegmentChanges", cond("lessThan", 0, ld("size", ld("get", "${changes}", "account_segments.entered", [])))),
-
-    ifL("${isNewAccount}", [
-      set("zaps", filter({ entityType: "account", action: "created" }, settings("subscriptions"))),
-      route("filterZaps")
-    ]),
-    ifL("${hasAccountChanges}", [
-      set("zaps", filter({ entityType: "account", action: "attribute_updated" }, settings("subscriptions"))),
-      route("filterZaps")
-    ]),
-    ifL("${hasAccountEnteredSegmentChanges}", [
-      set("zaps", filter({ entityType: "account", action: "entered_segment" }, settings("subscriptions"))),
-      route("filterZaps")
-    ]),
-    ifL("${hasAccountLeftSegmentChanges}", [
-      set("zaps", filter({ entityType: "account", action: "left_segment" }, settings("subscriptions"))),
-      route("filterZaps")
-    ])
-  ],
-  sendZaps: [
-    iterateL("${filteredZaps}", { key: "zap", async: true }, [
-      set("zap_url", "${zap.url}"),
-      set("resp", zapier("sendZap", input()))
-    ])
-  ],
   unsubscribeFromError: [
     route("unsubscribe", jsonata(`$.{"body": {"url": url}}`, input("response.req")))
   ],
@@ -323,7 +423,6 @@ const glue = {
   create: returnValue([
     set("entityType", input("body.entityType")),
 
-    // TODO move to new transformation when it's ready
     ifL(cond("isEqual", "${entityType}", "account"), [
       hull("asAccount", jsonata(`$.{"ident": {"external_id": claims.external_id, "domain": claims.domain}, "attributes": attributes}`, input("body")))
     ]),
