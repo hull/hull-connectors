@@ -110,8 +110,6 @@ const HullApiEventDefinition: ServiceObjectDefinition = {
 };
 
 
-
-
 module.exports = {
   HullEnumMap,
   WebPayload,

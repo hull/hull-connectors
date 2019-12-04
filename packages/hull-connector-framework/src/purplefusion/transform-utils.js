@@ -2,6 +2,7 @@
 const _ = require("lodash");
 const { isUndefinedOrNull, asyncForEach } = require("./utils");
 const { Route } = require("./language");
+const { SkippableError } = require("hull/src/errors");
 
 function toUnixTimestamp() {
   return (date) => {
@@ -10,37 +11,51 @@ function toUnixTimestamp() {
   }
 }
 
-function toTransform(transform, context, input) {
-
+function evaluateCondition(transform, context, input): boolean {
   if (!_.isPlainObject(transform) || !transform.condition) {
     return true;
   }
-
-  let transformConditions = [];
-  if (!Array.isArray(transform.condition)) {
-    transformConditions.push(transform.condition);
+  const conditions = transform.condition;
+  let conditionArray = [];
+  if (!Array.isArray(conditions)) {
+    conditionArray.push(conditions);
   } else {
-    transformConditions = transform.condition;
+    conditionArray = conditions;
   }
-
-  for (let i = 0; i < transformConditions.length; i += 1) {
-    let transformCondition = transformConditions[i];
-    if (typeof transformCondition === 'string') {
-      const value = context.get(transformCondition);
+  for (let i = 0; i < conditionArray.length; i += 1) {
+    const condition = conditionArray[i];
+    if (typeof condition === 'string') {
+      const value = context.get(condition);
 
       if (isUndefinedOrNull(value)) {
         return false
       } else if (typeof value === 'boolean' && !value) {
         return false;
       }
-    } else if (typeof transformCondition === 'function') {
-      if (!transformCondition(context, input)) {
+    } else if (typeof condition === 'function') {
+      if (!condition(context, input)) {
         return false;
       }
     }
   }
-
   return true;
+}
+
+function evaluateValidation(transform, context, input) {
+  if (transform.validation) {
+    if (evaluateCondition(transform.validation, context, input)) {
+      if (transform.validation.error === "BreakProcess") {
+        throw new Error(`Validation didn't pass for transform: ${transform.validation.message}\n ${JSON.stringify(transform, null, 2)}\n input: ${JSON.stringify(input, null, 2)}`);
+      } else if (transform.validation.error === "Skip") {
+        throw new SkippableError(`Validation didn't pass for transform: ${transform.validation.message} ${JSON.stringify(transform, null, 2)}`);
+      }
+    }
+  }
+}
+
+function toTransform(transform, context, input) {
+  evaluateValidation(transform, context, input);
+  return evaluateCondition(transform, context, input);
 }
 
 async function performTransformation(dispatcher, context, initialInput, transformation) {

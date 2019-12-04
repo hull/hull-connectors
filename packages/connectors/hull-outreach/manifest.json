@@ -39,7 +39,9 @@
             "accounts.all",
             "webhooks.all",
             "users.read",
-            "stages.read"
+            "stages.read",
+            "events.all",
+            "mailings.read"
           ]
         }
       }
@@ -232,6 +234,37 @@
       "description": "Do you want to let Hull associate Contacts and Companies in Outreach?",
       "type": "boolean",
       "default": false
+    },
+    {
+      "default": [],
+      "format": "select",
+      "items": {
+        "type": "string",
+        "enum": [
+          "bounced_message",
+          "emails_opt_out",
+          "inbound_message",
+          "message_clicked",
+          "message_opened",
+          "message_opened_sender",
+          "outbound_message",
+          "prospect_stage_changed"
+        ],
+        "enumNames": [
+          "Bounced Message",
+          "Emails Opt Out",
+          "Inbound Message",
+          "Message Clicked",
+          "Message Opened",
+          "Message Opened Sender",
+          "Outbound Message",
+          "Prospect Stage Changed"
+        ]
+      },
+      "title": "Events To Fetch From Outreach",
+      "name": "events_to_fetch",
+      "type": "array",
+      "uniqueItems": true
     }
   ],
   "settings": [],
@@ -285,6 +318,17 @@
       ]
     }
   ],
+  "schedules": [
+    {
+      "url": "/fetch-recent-events",
+      "type": "interval",
+      "value": "5",
+      "handler": "eventsFetchRecent",
+      "options": {
+        "fireAndForget": true
+      }
+    }
+  ],
   "json": [
     {
       "url": "/fetch",
@@ -328,6 +372,23 @@
           "text": "You are about to pull all users from Outreach into Hull.  Please make sure you've configured your user identity properly, and that you have the attributes you'd like pulled configured.  Be careful when clicking this multiple times, it can result in long operations.  Check out the \"Logs\" tab to track incoming.user.success messages as users are ingested",
           "button": "Start Fetching Users",
           "entity": "users"
+        }
+      }
+    },
+    {
+      "url": "/fetch-all-events",
+      "handler": "eventsFetchAll",
+      "format": "action",
+      "title": "Fetch Historical Events",
+      "name": "fetch_all_events",
+      "description": "Due to Outreach API limitations, this operation won't fetch historical \"Prospect Stage Changed\" events. If you have whitelisted this event above you will only get new occurrences going forward.",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all events from Outreach into Hull.  Please make sure you've configured your user identity properly, and that you have selected the type of events you'd like to pull.  Be careful when clicking this multiple times, it can result in long operations.  Check out the \"Logs\" tab to track incoming.user.success messages as events are ingested",
+          "button": "Start Fetching Events",
+          "entity": "events"
         }
       }
     },
@@ -426,6 +487,14 @@
       "properties": [
         "private_settings.synchronized_account_segments",
         "private_settings.outgoing_account_attributes"
+      ]
+    },
+    {
+      "title": "Events - Fetching from Outreach",
+      "description": "This section configures and activates the ongoing fetch of Outreach Events. Start by picking which events you would like to fetch in the dropdown below. Then use the button to optionally fetch some historical events (see further explanation below).\nIncoming events are identified by Outreach Prospect ID only, so the best practice is to fetch all Prospects before fetching Events, otherwise empty User profiles without attributes and other identifiers may be created.",
+      "properties": [
+        "private_settings.events_to_fetch",
+        "json.fetch_all_events"
       ]
     }
   ]

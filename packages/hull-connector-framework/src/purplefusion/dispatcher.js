@@ -147,8 +147,14 @@ class HullDispatcher {
       const results = [];
 
       for (let index = 0; index < instruction.length; index++) {
-        const result = await this.resolve(context, instruction[index], serviceData);
-        results.push(result);
+        try {
+          const result = await this.resolve(context, instruction[index], serviceData);
+          results.push(result);
+        } catch(err) {
+          if (typeof err !== "SkippableArrayError") {
+            throw err;
+          }
+        }
       }
 
       return results;
@@ -426,26 +432,31 @@ class HullDispatcher {
 
             loopIndex += 1;
           }
+          try {
+            const instructionResults = await this.resolve(context, instructionOptions.instructions, serviceData);
+            //results.push(instructionResults);
+            // if results do not contain an end(), then continue to loop
+            let endInstruction;
+            const isEnd = (someResult) => {
+              return someResult instanceof HullInstruction && someResult.options.name === "end";
+            };
 
-          const instructionResults = await this.resolve(context, instructionOptions.instructions, serviceData);
-          //results.push(instructionResults);
-          // if results do not contain an end(), then continue to loop
-          let endInstruction;
-          const isEnd = (someResult) => {
-            return someResult instanceof HullInstruction && someResult.options.name === "end";
-          };
+            if (Array.isArray(instructionResults)) {
+              // check to see if includes an end, if so, then stop looping...
+              endInstruction = _.find(instructionResults, isEnd);
+            } else if (!isUndefinedOrNull(instructionResults) && isEnd(instructionResults)) {
+              endInstruction = instructionResults;
+            }
 
-          if (Array.isArray(instructionResults)) {
-            // check to see if includes an end, if so, then stop looping...
-            endInstruction = _.find(instructionResults, isEnd);
-          } else if (!isUndefinedOrNull(instructionResults) && isEnd(instructionResults)) {
-            endInstruction = instructionResults;
-          }
-
-          if (!isUndefinedOrNull(endInstruction)) {
-            break;
-          } else {
-            finalInstruction = instructionResults;
+            if (!isUndefinedOrNull(endInstruction)) {
+              break;
+            } else {
+              finalInstruction = instructionResults;
+            }
+          } catch(err) {
+            if (typeof err !== "BreakToLoop") {
+              throw err;
+            }
           }
         }
 
