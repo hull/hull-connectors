@@ -120,7 +120,7 @@ export async function saveAccount(
   ctx: HullContext,
   {
     account,
-    person,
+    person = {},
     company,
     user,
     source
@@ -166,9 +166,11 @@ export async function saveAccount(
   if (clearbitClaim) {
     userClaims.anonymous_id = clearbitClaim;
   }
-  const asAccount = _.isEmpty(account)
-    ? client.asUser(userClaims).account(accountClaims)
-    : client.asAccount(accountClaims);
+
+  const asAccount =
+    _.isEmpty(account) && !_.isEmpty(userClaims)
+      ? client.asUser(userClaims).account(accountClaims)
+      : client.asAccount(accountClaims);
 
   await asAccount.traits(traits);
 
