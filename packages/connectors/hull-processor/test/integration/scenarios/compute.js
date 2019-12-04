@@ -296,6 +296,93 @@ describe("Basic Attributes manipulation", () => {
     }));
   });
 
+  it("recognizes Arrays of Objects as JSON Objects", () => {
+    const asUser = {
+      id: "1234"
+    };
+    const asAccount = {
+      id: "1234"
+    };
+    const obj = [{ bar: "baz" }];
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: asUser,
+        account: {}
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(
+        `hull.traits({ "foo": [{ "bar": "baz" }] })`
+      ),
+      firehoseEvents: [
+        ["traits", { asUser, subjectType: "user" }, { foo: obj }]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [[asUser, { foo: obj }]]
+          })
+        ],
+        ["info", 'Nested object found in key "foo"', expect.whatever(), obj],
+        [
+          "debug",
+          "incoming.user.success",
+          expect.whatever(),
+          { attributes: { foo: obj }, no_ops: {} }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+
+  it("doesn't confuse Arrays for JSON Objects", () => {
+    const asUser = {
+      id: "1234"
+    };
+    const asAccount = {
+      id: "1234"
+    };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: asUser,
+        account: {}
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(`hull.traits({ "foo": ["bar","baz"] })`),
+      firehoseEvents: [
+        [
+          "traits",
+          {
+            asUser,
+            subjectType: "user"
+          },
+          {
+            foo: ["bar", "baz"]
+          }
+        ]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [[asUser, { foo: ["bar", "baz"] }]]
+          })
+        ],
+        [
+          "debug",
+          "incoming.user.success",
+          expect.whatever(),
+          { attributes: { foo: ["bar", "baz"] }, no_ops: {} }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+
   it("be able to identify differences in JSON objects and send the full payload", () => {
     const asUser = {
       id: "1234"

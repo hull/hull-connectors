@@ -10,7 +10,7 @@ import type {
 
 import { now } from "./utils";
 
-const getClearbitAnonymousId = entity => `clearbit:${entity.id}`;
+const getClearbitAnonymousId = entity => entity.id && `clearbit:${entity.id}`;
 
 /**
  * Create a new user on Hull from a discovered Prospect
@@ -120,7 +120,7 @@ export async function saveAccount(
   ctx: HullContext,
   {
     account,
-    person,
+    person = {},
     company,
     user,
     source
@@ -155,19 +155,22 @@ export async function saveAccount(
       : {})
   };
 
-  const accountClaims = {
-    ...account,
-    anonymous_id: getClearbitAnonymousId(company)
-  };
-  const userClaims = {
-    ...user
-  };
-  if (person) {
-    userClaims.anonymous_id = getClearbitAnonymousId(person);
+  const accountClaims = { ...account };
+  const clearbitAccountClaim = getClearbitAnonymousId(company);
+  if (clearbitAccountClaim) {
+    accountClaims.anonymous_id = clearbitAccountClaim;
   }
-  const asAccount = _.isEmpty(account)
-    ? client.asUser(userClaims).account(accountClaims)
-    : client.asAccount(accountClaims);
+
+  const userClaims = { ...user };
+  const clearbitClaim = getClearbitAnonymousId(person);
+  if (clearbitClaim) {
+    userClaims.anonymous_id = clearbitClaim;
+  }
+
+  const asAccount =
+    _.isEmpty(account) && !_.isEmpty(userClaims)
+      ? client.asUser(userClaims).account(accountClaims)
+      : client.asAccount(accountClaims);
 
   await asAccount.traits(traits);
 

@@ -45,6 +45,11 @@ export function shouldReveal(
     };
   }
 
+  // Skip if user has been revealed
+  if (user["clearbit/revealed_at"]) {
+    return { should: false, message: "revealed_at present" };
+  }
+
   // Skip if no segments match
   if (!isInSegments(segments, reveal_user_segments)) {
     return {
@@ -65,11 +70,6 @@ export function shouldReveal(
   const clearbit_id = ctx.client.utils.claims.getServiceId("clearbit", account);
   if (clearbit_id) {
     return { should: false, message: "Clearbit Company ID present on Account" };
-  }
-
-  // Skip if user has been revealed
-  if (user["clearbit/revealed_at"]) {
-    return { should: false, message: "revealed_at present" };
   }
 
   return { should: true };

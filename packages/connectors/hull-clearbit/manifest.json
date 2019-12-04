@@ -2,11 +2,10 @@
   "name": "Clearbit",
   "description": "Synchronize Data with Clearbit!",
   "tags": [
-    "incoming",
-    "outgoing",
     "batch",
-    "oneColumn",
-    "smart-notifier"
+    "batch-accounts",
+    "smart-notifier",
+    "kraken-exports"
   ],
   "mappings": {
     "person": {
@@ -33,23 +32,8 @@
             "overwrite": false
           },
           {
-            "service": "bio",
-            "hull": "bio",
-            "overwrite": false
-          },
-          {
-            "service": "geo.city",
-            "hull": "address.city",
-            "overwrite": false
-          },
-          {
-            "service": "geo.country",
-            "hull": "address.country",
-            "overwrite": false
-          },
-          {
-            "service": "geo.state",
-            "hull": "address.state",
+            "service": "{ 'city': geo.city, 'country': geo.country, 'state': geo.state }",
+            "hull": "address",
             "overwrite": false
           }
         ],
@@ -1735,7 +1719,8 @@
         "channels": {
           "only": [
             "user:update",
-            "account:update"
+            "account:update",
+            "ship:update"
           ]
         }
       },
@@ -1760,7 +1745,10 @@
   "json": [
     {
       "url": "/prospect",
-      "handler": "prospectHandler"
+      "handler": "prospectHandler",
+      "options": {
+        "respondWithError": true
+      }
     },
     {
       "url": "/schema/company_properties",

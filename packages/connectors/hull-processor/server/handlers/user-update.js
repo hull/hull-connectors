@@ -27,6 +27,8 @@ const update = ({ flow_size = 100, flow_in = 10 }: FlowControl) => async (
         asyncComputeAndIngest(ctx, {
           payload: _.omitBy(
             {
+              changes: undefined,
+              events: undefined,
               ...payload,
               variables: varsFromSettings(ctx),
               user: group(payload.user),

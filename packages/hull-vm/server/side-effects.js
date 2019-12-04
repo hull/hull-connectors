@@ -46,8 +46,9 @@ type EventSignature = {
 const logIfNested = (client, attrs) => {
   _.map(attrs, (v, k: string) => {
     if (
-      _.isObject(v) &&
-      !_.isEqual(_.sortBy(_.keys(v)), ["operation", "value"])
+      (_.isPlainObject(v) &&
+        !_.isEqual(_.sortBy(_.keys(v)), ["operation", "value"])) ||
+      (_.isArray(v) && _.some(v, vv => _.isObject(vv)))
     ) {
       client.logger.info(`Nested object found in key "${k}"`, v);
     }
