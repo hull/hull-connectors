@@ -100,7 +100,7 @@ describe("Outgoing Users Tests", () => {
     });
   });
 
-  /*it("User Left Segment. Should Send To Zapier", () => {
+  it("User Left Segment. Should Send To Zapier", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-user"));
       const private_settings = {
@@ -1228,5 +1228,5 @@ describe("Outgoing Users Tests", () => {
         platformApiCalls: []
       });
     });
-  });*/
+  });
 });
