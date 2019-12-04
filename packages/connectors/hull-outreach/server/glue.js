@@ -362,8 +362,7 @@ const glue = {
           do: set("id_offset", "${outreachEvents.data[999].id}"),
           eldo: loopEndL()
         })
-      ]),
-      settingsUpdate({events_last_fetch_at: ex(ex(moment(), "utc"), "format")}),
+      ])
     ]),
   eventsFetchRecent:
     ifL(cond("notEmpty", set("eventsToFetch", ld("filter", settings("events_to_fetch"), elem => elem !== "prospect_stage_changed"))), [
