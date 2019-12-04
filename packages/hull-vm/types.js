@@ -5,15 +5,17 @@ import type {
   HullUserAttributes,
   HullConnector,
   HullUserClaims,
+  HullEntityClaims,
   HullAdditionalClaims,
   HullAccountClaims,
   HullUserUpdateMessage,
   HullAccountUpdateMessage,
   HullAttributeContext,
-  HullEntityType
+  HullEntityName,
+  HullFetchedUser
 } from "hull";
+import { Map } from "immutable";
 
-export type Claims = HullUserClaims | HullAccountClaims;
 export type ClaimsOptions = HullAdditionalClaims;
 export type Attributes = HullUserAttributes | HullAccountAttributes;
 export type AttributesContext = HullAttributeContext;
@@ -41,8 +43,8 @@ export type TraitsCall<ClaimType> = {
 export type Traits = UserTraits | AccountTraits;
 
 export type Links = {
-  claims: Claims,
-  accountClaims: Claims
+  claims: HullEntityClaims,
+  accountClaims: HullEntityClaims
 };
 
 export type Event = {
@@ -61,21 +63,41 @@ export type Payload =
       cookies: {},
       method: string,
       ip: string,
+      variables: {},
       headers: {
         [string]: string
       },
       body: mixed
     }
-  | HullUserUpdateMessage;
+  | {
+      ...HullFetchedUser,
+      variables: {}
+    };
 
+export type HullAliasOperation = "alias" | "unalias";
+type HullUserClaimsMap = Map<$Keys<HullUserClaims>, $Values<HullUserClaims>>;
+type HullAccountClaimsMap = Map<$Keys<HullUserClaims>, $Values<HullUserClaims>>;
+type HullAttributesMap = Map<$Keys<Attributes>, $Values<Attributes>>;
+export type HullAliasOperations = Array<
+  Map<HullEntityClaims, HullAliasOperation>
+>;
 export type Result = {
   logsForLogger: Array<string>,
   logs: Array<string | any>,
   errors: Array<string>,
-  userTraits: Map<HullUserClaims, Attributes>,
-  accountTraits: Map<HullAccountClaims, Attributes>,
+  userTraits: Map<HullUserClaimsMap, HullAttributesMap>,
+  accountTraits: Map<HullAccountClaimsMap, HullAttributesMap>,
+  userAliases: Map<
+    HullUserClaimsMap,
+    Map<HullUserClaimsMap, HullAliasOperation>
+  >,
+  accountAliases: Map<
+    HullAccountClaimsMap,
+    Map<HullAccountClaimsMap, HullAliasOperation>
+  >,
+  accountLinks: Map<HullUserClaimsMap, HullAccountClaimsMap>,
   events: Array<Event>,
-  accountLinks: Map<HullUserClaims, HullAccountClaims>,
+  claims?: HullEntityClaims,
   isAsync: boolean,
   success: boolean
 };
@@ -85,19 +107,25 @@ export type SerializedResult = {
   errors: Array<string>,
   userTraits: Array<[HullUserClaims, Attributes]>,
   accountTraits: Array<[HullAccountClaims, Attributes]>,
+  userAliases: Array<[HullUserClaims, HullAliasOperations]>,
+  accountAliases: Array<[HullAccountClaims, HullAliasOperations]>,
   events: Array<Event>,
   accountLinks: Array<[HullUserClaims, HullAccountClaims]>,
+  claims?: HullEntityClaims,
   isAsync: boolean,
   success: boolean
 };
 
 export type PreviewRequest = {
   payload: Payload,
+  entity?: HullEntityName,
+  claims?: {},
   code: string
 };
 export type PreviewResponse = SerializedResult;
 
 export type Entry = {
+  error?: string,
   connectorId: string,
   code: string,
   payload: Payload,
@@ -108,10 +136,15 @@ export type Entry = {
 
 export type ComputeOptions = {
   code: string,
-  claims?: HullUserClaims | HullAccountClaims,
-  entity?: HullEntityType,
+  claims?: HullEntityClaims,
+  entity?: HullEntityName,
   preview: boolean,
-  payload: Payload | HullUserUpdateMessage | HullAccountUpdateMessage
+  source: string,
+  payload: { variables: {} } & (
+    | Payload
+    | HullUserUpdateMessage
+    | HullAccountUpdateMessage
+  )
 };
 
 type AnyFunction = any => any;
@@ -153,14 +186,14 @@ export type ClaimsValidation =
   | {
       ...ClaimsPayload,
       valid: true,
-      subject: HullEntityType,
+      entity: HullEntityName,
       message: void,
       error: void
     }
   | {
       ...ClaimsPayload,
       valid: false,
-      subject: HullEntityType,
+      entity: HullEntityName,
       message: string,
       error: string
     };
@@ -187,8 +220,7 @@ export type Config = {
 export type EngineState = {
   error?: string,
   computing: boolean,
-  initialized: boolean,
-  initializing: boolean,
+  loading: boolean,
   initialized: boolean,
   url?: string,
   config: Config,
@@ -196,7 +228,22 @@ export type EngineState = {
   current?: Entry,
   recent: Array<Entry>
 };
-export type ProcessorEngineState = EngineState & {
-  search?: string
+export type EventSelect = {
+  value: string,
+  label: string
+};
+export type ProcessorEngineState = {
+  error?: string,
+  computing: boolean,
+  loading: boolean,
+  initialized: boolean,
+  url?: string,
+  config: Config,
+  selected?: Entry,
+  current?: Entry,
+  recent: Array<Entry>,
+  entity?: HullEntityName,
+  search?: string,
+  selectedEvents: Array<EventSelect>
 };
 export type RecentEngineState = EngineState & {};

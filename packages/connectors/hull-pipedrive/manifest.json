@@ -4,7 +4,7 @@
   "source": "pipedrive",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.10-monorepo",
+  "version": "0.1.11-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -61,12 +61,9 @@
         "properties": {
           "service": {
             "title": "Person Field ID",
-            "type": "string",
-            "format": "select",
-            "options": {
-              "allowCreate": false,
-              "loadOptions": "/fields-pipedrive-person-in"
-            }
+            "enum": [
+              "email"
+            ]
           },
           "hull": {
             "title": "Hull User Ident",
@@ -171,12 +168,9 @@
         "properties": {
           "service": {
             "title": "Account Field ID",
-            "type": "string",
-            "format": "select",
-            "options": {
-              "allowCreate": false,
-              "loadOptions": "/fields-pipedrive-org-in"
-            }
+            "enum": [
+              "name"
+            ]
           },
           "hull": {
             "title": "Hull Account",

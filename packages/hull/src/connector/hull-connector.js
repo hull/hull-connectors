@@ -4,14 +4,20 @@ import type { $Application, Middleware } from "express";
 import _ from "lodash";
 import type { Server } from "http";
 import express from "express";
+import repl from "hull-repl";
+import minimist from "minimist";
 import type {
+  HullContext,
   HullServerConfig,
+  HullContextGetter,
+  HullJsonConfig,
   HullWorkerConfig,
   HullConnectorConfig,
   HullClient,
+  HullCredentialsObject,
   HullRouterFactory,
   HullWorker
-} from "../types";
+} from "../types/index";
 import {
   jsonHandler,
   scheduleHandler,
@@ -25,6 +31,8 @@ import {
 
 import errorHandler from "./error";
 
+const { compose } = require("compose-middleware");
+
 const path = require("path");
 const Promise = require("bluebird");
 const { renderFile } = require("ejs");
@@ -36,6 +44,7 @@ const { Instrumentation, Cache, Queue, Batcher } = require("../infra");
 const { onExit } = require("../utils");
 const {
   workerContextMiddleware,
+  extendedComposeMiddleware,
   baseComposedMiddleware
 } = require("../middlewares");
 
@@ -115,6 +124,8 @@ class HullConnector {
   resolvedConfig: HullConnectorConfig;
 
   connectorConfig: HullConnectorConfig;
+
+  jsonConfig: HullJsonConfig;
 
   cache: Cache;
 
@@ -219,8 +230,6 @@ class HullConnector {
     if (this.serverConfig.start) {
       const app = express();
       this.app = app;
-      this.setupApp(app);
-      this.setupRoutes(app);
       if (this.connectorConfig.devMode) {
         debug("Starting Server in DevMode");
         // eslint-disable-next-line global-require
@@ -238,27 +247,43 @@ class HullConnector {
       if (server) {
         this.server = server;
       }
+      this.setupApp(app);
+      await this.setupRoutes(app);
+      this.setupErrorHandling(app);
       debug(`Started server on port ${this.connectorConfig.port}`);
     } else {
       debug("No Server started: `serverConfig.start === false`");
     }
+    const argv = minimist(process.argv);
+    if (argv.repl) {
+      this.repl(_.pick(argv, "id", "organization", "secret"));
+    }
+  }
+
+  async repl(credentials: {}) {
+    return repl({
+      credentials,
+      middlewares: this.baseComposedMiddleware()
+    });
   }
 
   stop() {
     this.server.close();
   }
 
-  getHandlers() {
+  async getHandlers() {
     if (this._handlers) {
       return this._handlers;
     }
     this._handlers =
-      typeof this.handlers === "function" ? this.handlers(this) : this.handlers;
+      typeof this.handlers === "function"
+        ? await this.handlers(this)
+        : this.handlers;
     return this._handlers;
   }
 
-  setupRoutes(app: $Application) {
-    const handlers = this.getHandlers();
+  async setupRoutes(app: $Application) {
+    const handlers = await this.getHandlers();
     // Don't use an arrow function here as it changes the context
     // Don't move it out of this closure either
     // https://github.com/expressjs/express/issues/3855
@@ -275,14 +300,17 @@ class HullConnector {
     // Methods are optional but they all have sane defaults
     const mapNotification = (factory, section = "subscriptions") =>
       (this.manifest[section] || []).map(({ url, channels }) => {
-        const { router } = factory(
-          channels.map(({ handler, channel, options }) => ({
-            callback: getCallbacks(handlers, section, handler),
-            channel,
-            options
-          }))
-        );
-        return app.post(url, router);
+        if (channels) {
+          const { router } = factory(
+            channels.map(({ handler, channel, options }) => ({
+              callback: getCallbacks(handlers, section, handler),
+              channel,
+              options
+            }))
+          );
+          return app.post(url, router);
+        }
+        return app;
       });
 
     // Breaking proper separation of concerns here, but its the least invasive way to override route setup with oAuth handlers
@@ -351,6 +379,7 @@ class HullConnector {
 
     // Setup Tab handlers
     mapRoute(htmlHandler, "tabs", "all", this.manifest.tabs);
+    mapRoute(htmlHandler, "html", "all", this.manifest.html);
 
     // TODO: Alpha-quality Credentials handlers - DO NOT expose both tab oAuth and Credentials
     mapRoute(
@@ -358,7 +387,7 @@ class HullConnector {
       "private_settings",
       "all",
       (this.manifest.private_settings || []).filter(
-        s => !!s.url && !!s.handler && s.format === "oauth"
+        s => !!s.url && !!s.handler && s.format.toLowerCase() === "oauth"
       )
     );
 
@@ -367,7 +396,7 @@ class HullConnector {
       "private_settings",
       "all",
       (this.manifest.private_settings || []).filter(
-        s => !!s.url && !!s.handler && s.format !== "oauth"
+        s => !!s.url && !!s.handler && s.format.toLowerCase() !== "oauth"
       )
     );
 
@@ -388,6 +417,44 @@ class HullConnector {
     });
   }
 
+  getContext: HullContextGetter = async ({
+    token,
+    clientCredentialsToken,
+    clientCredentialsEncryptedToken
+  }: HullCredentialsObject): Promise<HullContext> => {
+    const composedMiddleware = compose(
+      this.baseComposedMiddleware(),
+      extendedComposeMiddleware({
+        handlerName: "getContext",
+        requestName: "getContext",
+        options: {
+          credentialsFromNotification: false,
+          credentialsFromQuery: true,
+          strict: false
+        }
+      })
+    );
+    return new Promise((resolve, reject) => {
+      // $FlowFixMe
+      const ctx: HullContext = {
+        token,
+        clientCredentialsToken,
+        clientCredentialsEncryptedToken
+      };
+      const noop = () => {};
+      composedMiddleware(
+        { on: noop, emit: noop, headers: [], body: {}, hull: ctx },
+        {},
+        (err, _req, _res) => {
+          if (err instanceof Error) {
+            reject(err);
+          }
+          resolve(ctx);
+        }
+      );
+    });
+  };
+
   /**
    * This method applies all features of `Hull.Connector` to the provided application:
    *   - serving `/manifest.json`, `/readme` and `/` endpoints
@@ -404,11 +471,15 @@ class HullConnector {
   setupApp(app: $Application): $Application {
     this.middlewares.map(middleware => app.use(middleware));
     app.use(this.baseComposedMiddleware());
+    app.disable("etag");
     app.use("/", staticRouter());
     app.engine("html", renderFile);
     app.set("views", getAbsolutePath("views"));
     app.set("view engine", "ejs");
+    return app;
+  }
 
+  setupErrorHandling(app: $Application): $Application {
     /**
      * Instrumentation Middleware,
      * this sends all errors to sentry
@@ -442,9 +513,9 @@ class HullConnector {
     return this;
   }
 
-  startWorker(queueName?: string = "queueApp"): Worker {
+  async startWorker(queueName?: string = "queueApp"): Promise<Worker> {
     this.instrumentation.exitOnError = true;
-    const { jobs } = this.getHandlers();
+    const { jobs } = await this.getHandlers();
     if (!jobs) {
       throw new Error(
         "Worker is started but no jobs hash is declared in Handlers"

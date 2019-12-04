@@ -8,11 +8,16 @@ const {
   HullIncomingUser,
   HullIncomingAccount,
   WebPayload,
+  ServiceUserRaw
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
+
+const { isUndefinedOrNull } = require("hull-connector-framework/src/purplefusion/utils");
 
 const {
   OutreachProspectRead,
   OutreachAccountRead,
+  OutreachEventRead,
+  OutreachWebEventRead
 } = require("./service-objects");
 
 /**
@@ -112,6 +117,41 @@ const transformsToHull: ServiceTransforms =
               mapping: "connector.private_settings.user_claims",
               inputPath: "attributes.${service_field_name}",
               outputPath: "ident.${hull_field_name}",
+            }
+          ]
+        }
+      ]
+    },
+    {
+      input: OutreachWebEventRead,
+      output: ServiceUserRaw,
+      direction: "incoming",
+      strategy: "MixedTransforms",
+      transforms: [
+        {
+          strategy: "AtomicReaction",
+          target: { component: "input" },
+          operateOn: { component: "input", select: "data.relationships.stage.id", name: "stageId" },
+          then: [
+            {
+              operateOn: { component: "glue", route: "getStageIdMap", select: "${stageId}" },
+              writeTo: { path: "changed_to" }
+            },
+          ]
+        },
+        {
+          strategy: "PropertyKeyedValue",
+          arrayStrategy: "append_index",
+          transforms: [
+            { inputPath: "data.id", outputPath: "id"},
+            { inputPath: "changed_to", outputPath: "hull_events[0].properties.changed_to"},
+            {
+              outputPath: "hull_events[0].eventName",
+              outputFormat: "Prospect Stage Changed"
+            },
+            {
+              inputPath: "data.attributes.updatedAt",
+              outputPath: "hull_events[0].context.created_at"
             }
           ]
         }
@@ -360,8 +400,91 @@ const transformsToHull: ServiceTransforms =
           ]
         }
       ]
+    },
+    {
+      input: OutreachEventRead,
+      output: ServiceUserRaw,
+      strategy: "MixedTransforms",
+      transforms: [
+        {
+          strategy: "Jsonata",
+          direction: "incoming",
+          transforms: [
+            {
+              expression:
+                "{\n" +
+                "\t\"id\": relationships.prospect.data.id,\n" +
+                "\t\"hull_events\": [\n" +
+                "\t\t{\n" +
+                "\t\t\t\"eventName\": attributes.name,\n" +
+                "\t\t\t\"properties\": {\n" +
+                "            \t\"body\": attributes.body,\n" +
+                "                \"created_at\": attributes.createdAt,\n" +
+                "                \"external_url\": attributes.externalUrl,\n" +
+                "                \"email_id\": attributes.mailingId,\n" +
+                "                \"payload\": attributes.payload,\n" +
+                "                \"request_city\": attributes.requestCity,\n" +
+                "                \"user_agent\": attributes.requestDevice,\n" +
+                "                \"ip\": attributes.requestHost,\n" +
+                "                \"request_proxied\": attributes.requestProxied,\n" +
+                "                \"request_region\": attributes.requestRegion\n" +
+                "            },\n" +
+                "\t\t\t\"context\": {\n" +
+                "\t\t\t\t\"event_id\": id,\n" +
+                "\t\t\t\t\"created_at\": attributes.eventAt\n" +
+                "\t\t\t}\n" +
+                "\t\t}\n" +
+                "\t]\n" +
+                "}"
+            }
+          ]
+        },
+        {
+          strategy: "AtomicReaction",
+          target: { component: "input", name: "eventInput" },
+          then: [
+            {
+              validation: {
+                error: "BreakProcess",
+                message: "Event has never been seen before by the connector, please report issue to your Hull Support representative",
+                condition:
+                  doesNotContain(require("./events.json"), "eventInput.hull_events[0].eventName")
+              }
+            },
+            // {
+            //   validation: {
+            //     error: "BreakToLoop",
+            //     message: "Event has not been whitelisted by the connector settings, please see the \"Events To Fetch\" in the settings to add this event type",
+            //     condition:
+            //       mappingExists("events_to_fetch", "eventInput.hull_events[0].eventName")
+            //   }
+            // },
+            {
+              operateOn: {
+                component: "static",
+                object: {
+                  "bounced_message": "Bounced Message",
+                  "emails_opt_out": "Emails Opt Out",
+                  "inbound_message": "Inbound Message",
+                  "message_clicked": "Message Clicked",
+                  "message_opened": "Message Opened",
+                  "message_opened_sender": "Message Opened Sender",
+                  "outbound_message": "Outbound Message"
+                },
+                select: "${eventInput.hull_events[0].eventName}",
+                name: "eventName"
+              },
+              // validation: { error: "BreakProcess", condition: [
+              //     isUndefinedOrNull("${eventName}"),
+              //   ]},
+              writeTo: {
+                path: "hull_events[0].eventName"
+              }
+            }
+          ]
+        },
+      ]
     }
-
   ];
 
 module.exports = transformsToHull;

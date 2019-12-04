@@ -7,7 +7,7 @@ export default function statusCheckFactory({ store }: { store: Store }) {
   return async function statusCheck(ctx: HullContext): HullStatusResponse {
     const { connector } = ctx;
     const { id } = connector;
-    let status = "ok";
+    // let status = "ok";
     const messages = [];
     try {
       await get(id);
@@ -16,8 +16,7 @@ export default function statusCheckFactory({ store }: { store: Store }) {
     }
     if (!pool[id]) messages.push("No Connector Socket active");
     if (!lru[id]) messages.push("Empty Recent user list");
-    if (messages.length) status = "error";
-    // @TODO: Do we still need this if we're responding to the server ?
-    return { status, messages };
+    // if (messages.length) status = "error";
+    return { status: "ok", messages };
   };
 }

@@ -1,0 +1,18 @@
+{
+  "name": "hull-scheduled-calls",
+  "description": "Call an API at regular intervals and pass response to Hull",
+  "version": "0.1.11-monorepo",
+  "homepage": "https://github.com/hull/hull-connectors",
+  "scripts": {
+    "test": "yarn test:unit && yarn test:integration",
+    "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit",
+    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
+  },
+  "dependencies": {
+    "domready": "^1.0.8",
+    "mongoose": "5.4.16",
+    "neat-csv": "^5.1.0",
+    "syntax-error": "^1.4.0"
+  },
+  "devDependencies": {}
+}

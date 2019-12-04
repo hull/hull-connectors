@@ -87,7 +87,7 @@ class HullRouter {
     });
 
     _.forEach(_.get(manifest, "incoming", []), endpoint => {
-      _.set(handlers, `incoming.${endpoint.handler}`, this.createIncomingDispatchCallback(endpoint, () => {}));
+      _.set(handlers, `incoming.${endpoint.handler}`, this.createIncomingDispatchCallback(endpoint));
     });
 
     _.set(handlers, "private_settings.oauth", () => getServiceOAuthParams(manifest, this.serviceDefinitions));
@@ -159,7 +159,6 @@ class HullRouter {
             jobName: `${_.upperFirst(direction)} Data`,
             type: _.toLower(objectType.name)
           });
-
           if (callback) {
             // TODO make sure this works if callback returns promise
             return Promise.resolve(callback(context, results))

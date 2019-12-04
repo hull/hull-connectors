@@ -1,15 +1,15 @@
 // @flow
 
-import React, { Component } from "react";
+import React from "react";
 
-import Nav from "react-bootstrap/Nav";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Button from "react-bootstrap/Button";
 import { ConfigurationModal, Spinner, RecentEntriesUI } from "hull-vm/src/ui";
 import _ from "lodash";
 
-import type { EngineState, Entry, Result } from "hull-vm";
+import type { EngineState } from "hull-vm";
 import type Engine from "./engine";
+import ModalBody from "./modal-body";
 
 type Props = {
   engine: Engine
@@ -17,21 +17,11 @@ type Props = {
 
 type State = EngineState & {};
 
-const DEFAULT_STATE = {};
 export default class App extends RecentEntriesUI<Props, State> {
-  constructor(props: any) {
-    super(props);
-  }
-
   renderSetupMessage() {
-    const {
-      initializing,
-      initialized,
-      showConfig,
-      recent,
-      url
-    } = this.state;
-    if (!initialized) return null;
+    const { initializing, initialized, showConfig, recent, url } = this.state;
+    if (!initialized) return;
+    const { strings } = this.props;
     const hasRecent = !!_.get(recent, "length", 0);
     const content = hasRecent
       ? "Copy the URL below and configure your external service to send a valid JSON-formatted payload to it as a HTTP POST call"
@@ -49,22 +39,23 @@ export default class App extends RecentEntriesUI<Props, State> {
           alignItems: "center"
         }}
       >
-        {initializing ? (
-          <Spinner className="loading-spinner" />
-        ) : (
+        {initialized ? (
           <span>Attempting fetch</span>
+        ) : (
+          <Spinner className="loading-spinner" />
         )}
       </span>
     );
 
     return (
       <ConfigurationModal
-        show={showConfig || !hasRecent}
-        url={url}
-        onHide={() => {}}
+        title={strings.modalTitle}
         content={content}
-        actions={actions}
+        body={<ModalBody url={url} />}
         footer={footerMessage}
+        actions={actions}
+        show={showConfig || !hasRecent}
+        onHide={this.hideInstructions}
       />
     );
   }

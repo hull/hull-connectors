@@ -1,7 +1,5 @@
 // @noflow
 import _ from "lodash";
-import getTeamChannels from "../lib/get-team-channels";
-import getTeamMembers from "../lib/get-team-members";
 
 function joinChannels(bot, token, channels) {
   const user = bot.config.bot_id;
@@ -24,37 +22,30 @@ function getChannelsToJoin(teamChannels, channels) {
   );
 }
 
-export default async function({ hull, bot, app_token, channels }) {
+export default async function({
+  hull,
+  bot,
+  app_token,
+  channels,
+  teamChannels
+}) {
   try {
-    const [teamChannels, teamMembers] = await Promise.all([
-      getTeamChannels(bot),
-      getTeamMembers(bot)
-    ]);
-
-    try {
-      const chans = _.filter(channels, c => c.indexOf("@") !== 0);
-      const channelsToJoin = getChannelsToJoin(teamChannels, chans);
-      if (channelsToJoin.length) {
-        try {
-          await joinChannels(bot, app_token, channelsToJoin);
-        } catch (err) {
-          hull.logger.error("bot.setup.error", {
-            object: "channel",
-            type: "invite",
-            error: err
-          });
-          throw err;
-        }
+    const chans = _.filter(channels, c => c.indexOf("@") !== 0);
+    const channelsToJoin = getChannelsToJoin(teamChannels, chans);
+    if (channelsToJoin.length) {
+      try {
+        await joinChannels(bot, app_token, channelsToJoin);
+      } catch (err) {
+        hull.logger.error("bot.setup.error", {
+          object: "channel",
+          type: "invite",
+          error: err
+        });
+        throw err;
       }
-    } catch (err) {
-      hull.logger.error("bot.setup.error", { error: err });
     }
-
-    return {
-      teamChannels,
-      teamMembers
-    };
   } catch (err) {
+    hull.logger.error("bot.setup.error", { error: err });
     throw err;
   }
 }

@@ -1,15 +1,25 @@
 // @flow
 import _ from "lodash";
-import type { HullContext } from "hull";
-import { callLinks, callEvents, callTraits } from "./side-effects";
-import type { Result } from "../types";
+import type {
+  HullContext,
+  HullUser,
+  HullAccount,
+  HullEntityClaims
+} from "hull";
+import { callAlias, callLinks, callEvents, callTraits } from "./side-effects";
+import type { Payload, Result } from "../types";
 import serialize from "./serialize";
 
 const debug = require("debug")("hull-incoming-webhooks:ingest");
 
 // const omitClaimOptions = traits => traits.map(u => _.omit(u, "claimsOptions"));
 
-export default async function ingest(ctx: HullContext, result: Result) {
+export default async function ingest(
+  ctx: HullContext,
+  result: Result,
+  claims?: HullEntityClaims,
+  payload?: Payload
+) {
   const { client, metric } = ctx;
   debug("ingest.result", result);
 
@@ -17,21 +27,46 @@ export default async function ingest(ctx: HullContext, result: Result) {
     events,
     userTraits,
     accountTraits,
+    userAliases,
+    accountAliases,
     accountLinks,
     logsForLogger,
     errors
   } = result;
 
+  // $FlowFixMe
+  const {
+    user = {},
+    account = {}
+  }: {
+    user?: HullUser,
+    account?: HullAccount
+  } = claims ? payload : {};
+
   const promises = [];
 
-  client.logger.info("compute.debug", serialize(result));
+  client.logger.debug("compute.debug", serialize(result));
 
   // Update user traits
   if (_.size(userTraits)) {
     promises.push(
       callTraits({
         hullClient: client.asUser,
+        payload: user,
         data: userTraits,
+        entity: "user",
+        metric
+      })
+    );
+  }
+
+  // Update user aliases
+  if (_.size(userAliases)) {
+    promises.push(
+      callAlias({
+        hullClient: client.asUser,
+        payload: user,
+        data: userAliases,
         entity: "user",
         metric
       })
@@ -43,7 +78,21 @@ export default async function ingest(ctx: HullContext, result: Result) {
     promises.push(
       callTraits({
         hullClient: client.asAccount,
+        payload: account,
         data: accountTraits,
+        entity: "account",
+        metric
+      })
+    );
+  }
+
+  // Update account aliases
+  if (_.size(accountAliases)) {
+    promises.push(
+      callAlias({
+        hullClient: client.asAccount,
+        payload: account,
+        data: accountAliases,
         entity: "account",
         metric
       })
@@ -67,6 +116,7 @@ export default async function ingest(ctx: HullContext, result: Result) {
     promises.push(
       callLinks({
         hullClient: client.asUser,
+        payload: user,
         data: accountLinks,
         entity: "account",
         metric
@@ -76,7 +126,9 @@ export default async function ingest(ctx: HullContext, result: Result) {
 
   if (errors && errors.length > 0) {
     client.logger.error("incoming.user.error", {
-      hull_summary: `Error Processing user: ${errors.join(", ")}`,
+      hull_summary: `Error Processing user: ${errors
+        .map(e => (_.isObject(e) ? JSON.stringify(e) : e))
+        .join(", ")}`,
       errors
     });
   }

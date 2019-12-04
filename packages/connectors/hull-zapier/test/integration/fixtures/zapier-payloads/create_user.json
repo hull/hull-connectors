@@ -1,0 +1,38 @@
+{
+  "ip": "::1",
+  "url": "/create?token=12345",
+  "method": "POST",
+  "protocol": "http",
+  "hostname": "hull-staging-zapier.ngrok.io",
+  "path": "/create",
+  "params": {
+
+  },
+  "query": {
+    "token": "12345"
+  },
+  "headers": {
+    "x-api-key": "12345",
+    "content-type": "application/json",
+    "accept": "application/json",
+    "user-agent": "Zapier",
+    "accept-encoding": "gzip,deflate",
+    "connection": "close",
+    "content-length": "167",
+    "host": "hull-staging-zapier.ngrok.io",
+    "x-forwarded-proto": "https",
+    "x-forwarded-for": "54.90.209.51"
+  },
+  "body": {
+    "entityType": "user",
+    "attributes": {
+      "pipedrive/department": "marketing",
+      "name": "Andy Hull",
+      "pipedrive/id": "pipedrive_id"
+    },
+    "claims": {
+      "external_id": "test_external_id",
+      "email": "email_1@gmail.com"
+    }
+  }
+}

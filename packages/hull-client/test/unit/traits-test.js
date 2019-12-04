@@ -13,10 +13,8 @@ const grouped_expected = {
   array: ["a", "b"],
   integer: 216,
   created_at: "2015-10-07T12:39:29Z",
-  traits: {
-    0: null,
-    foo: "bar"
-  },
+  0: null,
+  foo: "bar",
   computed: {
     custom: {
       processed: true
@@ -32,8 +30,8 @@ describe("Traits", () => {
   describe("Traits Grouping", () => {
     it("should be properly formatted", () => {
       const grouped = group(user);
-      expect(grouped.traits).to.be.a("object");
-      expect(grouped.traits).to.not.be.a("array");
+      // expect(grouped.traits).to.be.a("object");
+      expect(grouped).to.not.be.a("array");
       expect(grouped).to.deep.equal(grouped_expected);
     });
   });

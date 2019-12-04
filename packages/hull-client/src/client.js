@@ -2,7 +2,6 @@
 
 import type {
   HullClientConfig,
-  HullClientCredentials,
   HullEntityAttributes,
   HullUserEventName,
   HullUserEventProperties,
@@ -26,14 +25,17 @@ const Configuration = require("./lib/configuration");
 const restAPI = require("./lib/rest-api");
 const crypto = require("./lib/crypto");
 const Firehose = require("./lib/firehose");
-const {
-  normalizeUserClaims,
-  normalizeAccountClaims
-} = require("./lib/normalize-claims");
 
 const traitsUtils = require("./utils/traits");
+const claimsUtils = require("./utils/claims");
 const settingsUtils = require("./utils/settings");
 const propertiesUtils = require("./utils/properties");
+
+type HullClientCredentials = {
+  id: string,
+  secret: string,
+  organization: string
+};
 
 const logger = new winston.Logger({
   transports: [
@@ -159,6 +161,7 @@ class HullClient {
      */
     this.utils = {
       traits: traitsUtils,
+      claims: claimsUtils,
       properties: {
         get: propertiesUtils.get.bind(this)
       },
@@ -313,16 +316,19 @@ class HullClient {
    */
   asUser = (
     userClaim: string | HullUser | HullUserClaims,
-    additionalClaims: HullAdditionalClaims = Object.freeze({})
+    additionalClaims: HullAdditionalClaims = Object.freeze({}),
+    accountClaim?: HullAccount | HullAccountClaims
   ) => {
     if (!userClaim) {
       throw new Error("User Claims was not defined when calling hull.asUser()");
     }
+    // $FlowFixMe
     return new UserScopedHullClient({
       ...this.config,
       subjectType: "user",
-      userClaim: normalizeUserClaims(userClaim),
-      additionalClaims
+      userClaim,
+      additionalClaims,
+      ...(accountClaim ? { accountClaim } : {})
     });
   };
 
@@ -345,10 +351,11 @@ class HullClient {
         "Account Claims was not defined when calling hull.asAccount()"
       );
     }
+    // $FlowFixMe
     return new AccountScopedHullClient({
       ...this.config,
       subjectType: "account",
-      accountClaim: normalizeAccountClaims(accountClaim),
+      accountClaim,
       additionalClaims
     });
   };
