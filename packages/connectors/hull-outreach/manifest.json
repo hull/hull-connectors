@@ -40,7 +40,8 @@
             "webhooks.all",
             "users.read",
             "stages.read",
-            "events.all"
+            "events.all",
+            "mailings.read"
           ]
         }
       }
