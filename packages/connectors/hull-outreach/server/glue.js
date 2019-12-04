@@ -26,8 +26,7 @@ const {
   not,
   jsonata,
   cacheWrap,
-  moment,
-  returnValue
+  moment
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -283,12 +282,7 @@ const glue = {
       })
     ])
   ],
-  webhooks: returnValue(
-    ifL(input("body"), route("handleWebhook", input("body"))),
-    {
-      status: 200
-    }
-  ),
+  webhooks: ifL(input("body"), route("handleWebhook", input("body"))),
   handleWebhook:
     ifL(cond("isEqual", "account", input("data.type")), {
       do: hull("asAccount", cast(WebPayload, input())),

@@ -92,6 +92,6 @@ module.exports = {
     }
   ],
   "result": {
-    status: "stop"
+    hullDispatcherStatus: "stop"
   }
 };
