@@ -32,6 +32,7 @@ export default function connectorConfig(): HullConnectorConfig {
     handlers:
     new HullRouter(
       {
+        serviceName: "outreach",
         glue: require("./glue"),
         services: {
           outreach: require("./service")({

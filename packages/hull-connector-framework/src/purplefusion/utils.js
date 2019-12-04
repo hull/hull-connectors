@@ -217,7 +217,7 @@ function toSendMessage(
   const entity: any = _.get(message, targetEntity);
 
   const serviceName = _.get(options, "serviceName");
-  if (serviceName) {
+  if (!isUndefinedOrNull(serviceName)) {
     const isDeleted = _.get(message, `${targetEntity}.${serviceName}/deleted_at`, null);
 
     if (!isUndefinedOrNull(isDeleted)) {
@@ -313,7 +313,7 @@ function toSendMessage(
       }
 
       const serviceName = _.get(options, "serviceName");
-      if (serviceName) {
+      if (!isUndefinedOrNull(serviceName)) {
         // try to detect if the account id of the user is changing
         // If 2 users have been resolved to the same user, could result in loops
         // but as long as they don't keep changing it's ok we think... they'll eventually converge to 1
@@ -411,24 +411,9 @@ function toSendMessage(
   // send the user because we know it's in the list to send
   // this may be the result of pushing a full segment after it's creation
   // or could be because it's a new connector which we haven't done a full fetch
-  if (serviceName) {
+  if (!isUndefinedOrNull(serviceName)) {
     const serviceId = _.get(message, `${targetEntity}.${serviceName}/id`);
     if (isUndefinedOrNull(serviceId)) {
-
-      // log for now so we can find this scenario
-      // remove after we've audited
-      try {
-        if (targetEntity === "user") {
-          context.client.asUser(entity).logger.info("outgoing.user.send", {
-            reason: "does not have service id"
-          });
-        } else if (targetEntity === "account") {
-          context.client.asAccount(entity).logger.info("outgoing.account.send", {
-            reason: "does not have service id"
-          });
-        }
-      } catch (error) {}
-
       return true;
     }
   }
