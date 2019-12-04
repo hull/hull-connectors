@@ -13,7 +13,7 @@ it("Receive Create User", () => {
       handlerType: handlers.incomingRequestHandler,
       connector: {
         private_settings: {
-          subscriptions: []
+          triggers: []
         }
       },
       usersSegments: [],
@@ -93,7 +93,7 @@ it("Receive New Subscription And Merge With Existing Subscriptions", () => {
       handlerType: handlers.incomingRequestHandler,
       connector: {
         private_settings: {
-          subscriptions: [
+          triggers: [
             {
               "url": "https://hooks.zapier.com/hooks/standard/1/1/",
               "action": "entered_segment",
@@ -129,7 +129,7 @@ it("Receive New Subscription And Merge With Existing Subscriptions", () => {
         ["GET", "/api/v1/app", {}, {}],
         ["PUT", "/api/v1/9993743b22d60dd829001999", {}, {
           "private_settings": {
-            "subscriptions": [
+            "triggers": [
               {
                 "url": "https://hooks.zapier.com/hooks/standard/1/1/",
                 "action": "entered_segment",
@@ -155,7 +155,7 @@ it("Receive New Subscription And Unable To Merge With Existing Subscriptions", (
       handlerType: handlers.incomingRequestHandler,
       connector: {
         private_settings: {
-          subscriptions: [
+          triggers: [
             {
               "url": "https://hooks.zapier.com/hooks/standard/1/1/",
               "action": "entered_segment",

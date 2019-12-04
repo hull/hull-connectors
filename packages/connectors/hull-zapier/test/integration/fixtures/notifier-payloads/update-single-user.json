@@ -17,7 +17,7 @@
       "synchronized_account_segments": [
         "ALL"
       ],
-      "subscriptions": [
+      "triggers": [
         {
           "url": "https://hooks.zapier.com/hooks/standard/5687326/user-attribute-updated/1",
           "action": "attribute_updated",

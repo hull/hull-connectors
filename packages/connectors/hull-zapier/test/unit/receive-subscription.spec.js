@@ -29,7 +29,7 @@ describe("Zapier Subscription Tests", () => {
       }
     };
     subscribe.serviceRequests[0].input = {
-      "subscriptions": [
+      "triggers": [
         {
           "url": "https://hooks.zapier.com/hooks/standard/1/1/",
           "action": "entered_segment",
@@ -42,7 +42,7 @@ describe("Zapier Subscription Tests", () => {
 
   it("Receive New Subscription And Merge With Existing Subscriptions", () => {
     const subscribe = _.cloneDeep(testDefinition);
-    subscribe.configuration.private_settings.subscriptions = [
+    subscribe.configuration.private_settings.triggers = [
       {
         "url": "https://hooks.zapier.com/hooks/standard/1/1/",
         "action": "entered_segment",
@@ -57,7 +57,7 @@ describe("Zapier Subscription Tests", () => {
       }
     };
     subscribe.serviceRequests[0].input = {
-      "subscriptions": [
+      "triggers": [
         {
           "url": "https://hooks.zapier.com/hooks/standard/1/1/",
           "action": "entered_segment",
@@ -75,7 +75,7 @@ describe("Zapier Subscription Tests", () => {
 
   it("Receive New Subscription And Unable To Merge With Existing Subscriptions", () => {
     const subscribe = _.cloneDeep(testDefinition);
-    subscribe.configuration.private_settings.subscriptions = [
+    subscribe.configuration.private_settings.triggers = [
       {
         "url": "https://hooks.zapier.com/hooks/standard/1/1/",
         "action": "entered_segment",

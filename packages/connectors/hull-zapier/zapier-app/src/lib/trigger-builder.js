@@ -15,7 +15,8 @@ function triggerBuilder({
   action,
   description,
   sample,
-  important = false
+  important = false,
+  hidden = false,
 }) {
   const titleAction = _.startCase(action);
   const titleNoun = _.startCase(entityType);
@@ -31,7 +32,7 @@ function triggerBuilder({
     },
     noun: entityType,
     display: {
-      hidden: false,
+      hidden: hidden,
       important,
       description,
       label: `${titleNoun} ${titleAction}`

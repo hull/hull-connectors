@@ -14,22 +14,12 @@
   "version": "0.1.9-monorepo",
   "private_settings": [
     {
-      "name": "subscriptions",
+      "name": "triggers",
       "title": "Rest Hook Subscriptions",
       "type": "array",
       "items": {
         "type": "object",
-        "properties": {
-          "url": {
-            "type": "string"
-          },
-          "action": {
-            "type": "string"
-          },
-          "entityType": {
-            "type": "string"
-          }
-        }
+        "properties": {}
       },
       "default": []
     },

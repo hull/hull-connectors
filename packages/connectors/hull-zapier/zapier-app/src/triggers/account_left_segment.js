@@ -14,7 +14,8 @@ const account_left_segment = triggerBuilder({
   sample,
   description: "Triggers when an account leaves a segment.",
   entityType: "account",
-  action: "left_segment"
+  action: "left_segment",
+  hidden: true
 });
 
 module.exports = {

@@ -132,7 +132,7 @@ class HullRouter {
         _.forEach(dataToSend, message => {
           const triggers = getEntityTriggers(route, message);
           _.forEach(triggers, (trigger) => {
-            dispatchPromises.push(dispatcher.dispatchWithData(context, `${trigger}`, objectType, [ message ]));
+            dispatchPromises.push(dispatcher.dispatchWithData(context, "performTrigger", objectType, [ trigger ]));
           });
         });
       }

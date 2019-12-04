@@ -13,7 +13,7 @@ describe("Outgoing Account Tests", () => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
-        "subscriptions": [
+        "triggers": [
           {
             "url": "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1",
             "action": "entered_segment",
@@ -102,7 +102,7 @@ describe("Outgoing Account Tests", () => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
-        "subscriptions": [
+        "triggers": [
           {
             "url": "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1",
             "action": "left_segment",
@@ -191,7 +191,7 @@ describe("Outgoing Account Tests", () => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
-        "subscriptions": [
+        "triggers": [
           {
             "url": "https://hooks.zapier.com/hooks/standard/5687326/user-attribute-updated/1",
             "action": "attribute_updated",
@@ -308,7 +308,7 @@ describe("Outgoing Account Tests", () => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
-        "subscriptions": [
+        "triggers": [
           {
             "url": "https://hooks.zapier.com/hooks/standard/5687326/account-created/1",
             "action": "created",
@@ -463,7 +463,7 @@ describe("Outgoing Account Tests", () => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
-        "subscriptions": [
+        "triggers": [
           {
             "url": "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated/1",
             "action": "attribute_updated",
@@ -626,7 +626,7 @@ describe("Outgoing Account Tests", () => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
-        "subscriptions": [
+        "triggers": [
           {
             "url": "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated/1",
             "action": "attribute_updated",
@@ -804,7 +804,7 @@ describe("Outgoing Account Tests", () => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
-        "subscriptions": [
+        "triggers": [
           {
             "url": "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated/1",
             "action": "attribute_updated",
@@ -902,7 +902,7 @@ describe("Outgoing Account Tests", () => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
-        "subscriptions": [
+        "triggers": [
           {
             "url": "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated/1",
             "action": "attribute_updated",

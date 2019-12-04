@@ -21,7 +21,7 @@ describe("Zapier Subscription Tests", () => {
 
   it("Receive Unsubscribe", () => {
     const unsubscribe = _.cloneDeep(testDefinition);
-    unsubscribe.configuration.private_settings.subscriptions = [
+    unsubscribe.configuration.private_settings.triggers = [
       {
         "url": "https://hooks.zapier.com/hooks/standard/1/1/",
         "action": "entered_segment",
@@ -46,7 +46,7 @@ describe("Zapier Subscription Tests", () => {
       }
     };
     unsubscribe.serviceRequests[0].input = {
-      "subscriptions": [
+      "triggers": [
         {
           "url": "https://hooks.zapier.com/hooks/standard/1/1/",
           "action": "entered_segment",
@@ -65,7 +65,7 @@ describe("Zapier Subscription Tests", () => {
   it("Receive Unsubscribe From Error", () => {
     const unsubscribe = _.cloneDeep(testDefinition);
     _.set(unsubscribe, "route", "unsubscribeFromError");
-    unsubscribe.configuration.private_settings.subscriptions = [
+    unsubscribe.configuration.private_settings.triggers = [
       {
         "url": "https://hooks.zapier.com/hooks/standard/1/1/",
         "action": "entered_segment",
@@ -97,7 +97,7 @@ describe("Zapier Subscription Tests", () => {
       }
     };
     unsubscribe.serviceRequests[0].input = {
-      "subscriptions": [
+      "triggers": [
         {
           "url": "https://hooks.zapier.com/hooks/standard/1/1/",
           "action": "entered_segment",

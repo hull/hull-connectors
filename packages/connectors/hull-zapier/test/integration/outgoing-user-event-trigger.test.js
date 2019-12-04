@@ -13,7 +13,7 @@ describe("Outgoing User Event Tests", () => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-user"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
-        subscriptions: [
+        triggers: [
           {
             "url": "https://hooks.zapier.com/hooks/standard/5687326/user-event-created/1",
             "action": "created",
@@ -116,7 +116,7 @@ describe("Outgoing User Event Tests", () => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-user"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
-        subscriptions: [
+        triggers: [
           {
             "url": "https://hooks.zapier.com/hooks/standard/5687326/user-event-created/1",
             "action": "created",

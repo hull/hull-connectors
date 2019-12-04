@@ -2,7 +2,9 @@
 
 import type { ServiceObjectDefinition } from "./types";
 import type { HullAccountUpdateMessage, HullContext, HullEntityName, HullUserUpdateMessage } from "hull";
-
+const {
+  isValidTrigger
+} = require("./validate-trigger");
 const _ = require("lodash");
 const debug = require("debug")("hull-shared:utils");
 const {
@@ -12,25 +14,11 @@ const {
   HullIncomingAccount
 } = require("./hull-service-objects");
 
+const { triggers } = require("./triggers");
+
 // Using this method of defining a property which is not enumerable to set the datatype on a data object
 // I don't like that we have to use a special reserved word, but logging a warning if it ever exists and is not a ServiceObjectDefinition
 const reservedHullDataTypeKey = "hull-connector-data-type";
-
-const triggers = {
-  userUpdate: [
-    "userEnteredSegment",
-    "userLeftSegment",
-    "userAttributeUpdated",
-    "userEventCreated",
-    "userCreated"
-  ],
-  accountUpdate: [
-    "accountEnteredSegment",
-    "accountLeftSegment",
-    "accountAttributeUpdated",
-    "accountCreated"
-  ]
-};
 
 async function asyncForEach(toIterateOn, asyncCallback) {
 
@@ -518,52 +506,29 @@ function toSendMessage(
 function getEntityTriggers(entityAction: string, entity: Object): Array<string> {
   const filteredTriggers = [];
 
-  _.forEach(_.get(triggers, entityAction, []), trigger => {
-    if (trigger === "userEnteredSegment") {
-      if (!_.isEmpty(_.get(entity, "changes.segments.entered", []))) {
-        filteredTriggers.push(trigger);
-      }
+  const entityTriggers = _.get(triggers, entityAction, {});
+  const triggerKeys = _.keys(entityTriggers);
+
+  _.forEach(triggerKeys, triggerKey => {
+    const trigger = _.get(entityTriggers, triggerKey);
+    const { validations, action, entityType } = _.get(entityTriggers, triggerKey);
+    const inputData = {};
+
+    // TODO build global whitelist filter as inputData:
+    /*
+    inputData = {
+      user_segments: [],
+      user_events: [],
+      user_attributes: [],
+      account_segments: [],
+      account_attributes: []
     }
-    if (trigger === "userLeftSegment") {
-      if (!_.isEmpty(_.get(entity, "changes.segments.left", []))) {
-        filteredTriggers.push(trigger);
-      }
-    }
-    if (trigger === "userAttributeUpdated") {
-      if (!_.isEmpty(_.get(entity, "changes.user", {})) ||
-          !_.isEmpty(_.get(entity, "changes.account", {}))) {
-        filteredTriggers.push(trigger);
-      }
-    }
-    if (trigger === "userEventCreated") {
-      if (!_.isEmpty(_.get(entity, "events", []))) {
-        filteredTriggers.push(trigger);
-      }
-    }
-    if (trigger === "userCreated") {
-      if (_.get(entity, "changes.is_new", false)) {
-        filteredTriggers.push(trigger);
-      }
-    }
-    if (trigger === "accountEnteredSegment") {
-      if (!_.isEmpty(_.get(entity, "changes.account_segments.entered", []))) {
-        filteredTriggers.push(trigger);
-      }
-    }
-    if (trigger === "accountLeftSegment") {
-      if (!_.isEmpty(_.get(entity, "changes.account_segments.left", []))) {
-        filteredTriggers.push(trigger);
-      }
-    }
-    if (trigger === "accountAttributeUpdated") {
-      if (!_.isEmpty(_.get(entity, "changes.account", []))) {
-        filteredTriggers.push(trigger);
-      }
-    }
-    if (trigger === "accountCreated") {
-      if (_.get(entity, "changes.is_new", false)) {
-        filteredTriggers.push(trigger);
-      }
+     */
+    if (isValidTrigger(entity, inputData, validations)) {
+      const rawEntity = entity;
+      const cleanedEntity = _.pick(entity, trigger.filter);
+
+      filteredTriggers.push({ cleanedEntity, action, entityType, rawEntity });
     }
   });
 

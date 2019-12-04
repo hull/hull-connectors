@@ -16,7 +16,8 @@ const account_attribute_updated = triggerBuilder({
   sample,
   description: "Triggers when an account attribute is updated.",
   entityType: "account",
-  action: "attribute_updated"
+  action: "attribute_updated",
+  hidden: true
 });
 
 module.exports = {

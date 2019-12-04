@@ -16,7 +16,8 @@ const user_event_created = triggerBuilder({
   sample,
   description: "Triggers when a user event is created.",
   entityType: "user_event",
-  action: "created"
+  action: "created",
+  hidden: true
 });
 
 module.exports = {

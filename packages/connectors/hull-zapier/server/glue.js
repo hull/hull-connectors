@@ -30,16 +30,8 @@ const {
   returnValue,
   jsonata
 } = require("hull-connector-framework/src/purplefusion/language");
-const {
-  ZapierUserRead,
-  ZapierAccountRead
-} = require("./service-objects");
 
-const {
-  HullOutgoingAccount,
-  HullOutgoingUser,
-  WebPayload
-} = require("hull-connector-framework/src/purplefusion/hull-service-objects");
+const { HullOutgoingUser, HullOutgoingAccount } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const _ = require("lodash");
 
@@ -48,159 +40,6 @@ function zapier(op: string, param?: any): Svc {
 }
 
 const glue = {
-  accountEnteredSegment: [
-    iterateL(input(), { key: "message", async: true }, [
-      set("outgoingAccount", cast(HullOutgoingAccount, "${message}")),
-
-      set("entityType", "account"),
-      set("action", "entered_segment"),
-      set("hasEnteredSegmentChanges", cond("lessThan", 0, ld("size", ld("get", "${outgoingAccount}", "changes.account_segments.entered", [])))),
-
-      ifL("${hasEnteredSegmentChanges}", [
-        route("performTrigger", {
-          entityType: "${entityType}",
-          action: "${action}",
-          data: "${outgoingAccount}"
-        })
-      ])
-    ])
-  ],
-  accountLeftSegment: [
-    iterateL(input(), { key: "message", async: true }, [
-      set("outgoingAccount", cast(HullOutgoingAccount, "${message}")),
-
-      set("entityType", "account"),
-      set("action", "left_segment"),
-      set("hasLeftSegmentChanges", cond("lessThan", 0, ld("size", ld("get", "${outgoingAccount}", "changes.account_segments.left", [])))),
-
-      ifL("${hasLeftSegmentChanges}", [
-       route("performTrigger", {
-         entityType: "${entityType}",
-         action: "${action}",
-         data: "${outgoingAccount}"
-       })
-      ])
-    ])
-  ],
-  accountAttributeUpdated: [
-    iterateL(input(), { key: "message", async: true }, [
-      set("outgoingAccount", cast(HullOutgoingAccount, "${message}")),
-
-      set("entityType", "account"),
-      set("action", "attribute_updated"),
-      set("hasChanges", cond("lessThan", 0, ld("size", ld("get", "${outgoingAccount}", "changes"), "account"))),
-
-      ifL("${hasChanges}", [
-        route("performTrigger", {
-          entityType: "${entityType}",
-          action: "${action}",
-          data: "${outgoingAccount}"
-        })
-      ])
-    ])
-  ],
-  accountCreated: [
-    iterateL(input(), { key: "message", async: true }, [
-      set("outgoingAccount", cast(HullOutgoingAccount, "${message}")),
-
-      set("entityType", "account"),
-      set("action", "created"),
-      set("isNew", ld("get", "${outgoingAccount}", "changes.is_new", false)),
-
-      ifL("${isNew}", [
-        route("performTrigger", {
-          entityType: "${entityType}",
-          action: "${action}",
-          data: "${outgoingAccount}"
-        })
-      ])
-    ])
-  ],
-  userEnteredSegment: [
-    iterateL(input(), { key: "message", async: true }, [
-      set("outgoingUser", cast(HullOutgoingUser, "${message}")),
-
-      set("entityType", "user"),
-      set("action", "entered_segment"),
-      set("hasEnteredSegmentChanges", cond("lessThan", 0, ld("size", ld("get", "${outgoingUser}", "changes.segments.entered", [])))),
-
-      ifL("${hasEnteredSegmentChanges}", [
-        route("performTrigger", {
-          entityType: "${entityType}",
-          action: "${action}",
-          data: "${outgoingUser}"
-        })
-      ])
-    ])
-  ],
-  userLeftSegment: [
-    iterateL(input(), { key: "message", async: true }, [
-      set("outgoingUser", cast(HullOutgoingUser, "${message}")),
-
-      set("entityType", "user"),
-      set("action", "left_segment"),
-      set("hasLeftSegmentChanges", cond("lessThan", 0, ld("size", ld("get", "${outgoingUser}", "changes.segments.left", [])))),
-
-      ifL("${hasLeftSegmentChanges}", [
-        route("performTrigger", {
-          entityType: "${entityType}",
-          action: "${action}",
-          data: "${outgoingUser}"
-        })
-      ])
-    ])
-  ],
-  userAttributeUpdated: [
-    iterateL(input(), { key: "message", async: true }, [
-      set("outgoingUser", cast(HullOutgoingUser, "${message}")),
-
-      set("entityType", "user"),
-      set("action", "attribute_updated"),
-      set("hasChanges", cond("lessThan", 0, ld("size", ld("get", "${outgoingUser}", "changes"), "user"))),
-
-      ifL("${hasChanges}", [
-        route("performTrigger", {
-          entityType: "${entityType}",
-          action: "${action}",
-          data: "${outgoingUser}"
-        })
-      ])
-    ])
-  ],
-  userEventCreated: [
-    iterateL(input(), { key: "message", async: true }, [
-      set("outgoingUser", cast(HullOutgoingUser, "${message}")),
-
-      set("entityType", "user_event"),
-      set("action", "created"),
-      set("hasNewEvents", cond("lessThan", 0, ld("size", ld("get", "${outgoingUser}", "events", [])))),
-
-      ifL("${hasNewEvents}", [
-        route("performTrigger", {
-          entityType: "${entityType}",
-          action: "${action}",
-          data: "${outgoingUser}"
-        })
-      ])
-    ])
-  ],
-  userCreated: [
-    iterateL(input(), { key: "message", async: true }, [
-      set("outgoingUser", cast(HullOutgoingUser, "${message}")),
-
-      set("entityType", "user"),
-      set("action", "created"),
-      set("isNew", ld("get", "${outgoingUser}", "changes.is_new", false)),
-
-      ifL("${isNew}", [
-        route("performTrigger", {
-          entityType: "${entityType}",
-          action: "${action}",
-          data: "${outgoingUser}"
-        })
-      ])
-    ])
-  ],
   userUpdate: [],
   accountUpdate: [],
   isValidateInputData: [
@@ -216,20 +55,39 @@ const glue = {
      */
   ],
   performTrigger: [
-    set("filteredZaps", route("filterZaps", {
-      zaps: filter({ entityType: input("entityType"), action: input("action") }, settings("subscriptions")),
-      data: input("data")
-    })),
+    iterateL(input(), { key: "message", async: true }, [
+      set("entityType", get("entityType", "${message}")),
+      set("action", get("action", "${message}")),
 
-    route("sendZaps", {
-      filteredZaps: "${filteredZaps}",
-      data: input("data")
-    })
+      ifL(or([
+          cond("isEqual", "${entityType}", "user"),
+          cond("isEqual", "${entityType}", "user_event")
+        ]), [
+        set("outgoingEntity", cast(HullOutgoingUser, get("cleanedEntity", "${message}"))),
+      ]),
+
+      ifL(cond("isEqual", "${entityType}", "account"), [
+        set("outgoingEntity", cast(HullOutgoingAccount, get("cleanedEntity", "${message}"))),
+      ]),
+
+      set("filteredZaps", route("filterZaps", {
+        zaps: filter({
+            entityType: "${entityType}",
+            action:"${action}",
+          }, settings("triggers")),
+        data: "${outgoingEntity}"
+      })),
+
+      route("sendZaps", {
+        filteredZaps: "${filteredZaps}",
+        data: "${outgoingEntity}"
+      })
+    ])
   ],
   sendZaps: [
     iterateL(input("filteredZaps"), { key: "zap", async: true }, [
       set("zap_url", "${zap.url}"),
-      set("resp", zapier("sendZap", input("data")))
+      zapier("sendZap", input("data"))
     ])
   ],
   filterZaps: returnValue([
@@ -393,12 +251,12 @@ const glue = {
   subscriptionRegisteredInHull:
     filter({
       url: input("body.url")
-    }, settings("subscriptions")),
+    }, settings("triggers")),
   subscribe: returnValue([
       ifL(ld("isEmpty", route("subscriptionRegisteredInHull")), [
         settingsUpdate({
-          subscriptions:
-            ld("uniqBy", ld("concat", settings("subscriptions"), input("body")), "url")
+          triggers:
+            ld("uniqBy", ld("concat", settings("triggers"), input("body")), "url")
         })
       ])], {
       data: {
@@ -410,8 +268,8 @@ const glue = {
   unsubscribe: returnValue([
       ifL(not(ld("isEmpty", route("subscriptionRegisteredInHull"))), [
         settingsUpdate({
-          subscriptions:
-            notFilter({ url: input("body.url") }, settings("subscriptions"))
+          triggers:
+            notFilter({ url: input("body.url") }, settings("triggers"))
         })
       ])], {
       data: {
