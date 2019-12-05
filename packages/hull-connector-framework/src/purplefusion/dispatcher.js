@@ -332,7 +332,7 @@ class HullDispatcher {
 
             // if we get stop, that means that there was an "if" condition
             // and it did not validate, which meant we return stop
-            if (elifResult.status !== "stop") {
+            if (elifResult.hullDispatcherStatus !== "stop") {
               return {};
             }
           }
@@ -344,7 +344,7 @@ class HullDispatcher {
           return await this.resolve(context, instructionOptions.eldo, serviceData);
         }
 
-        return { status: "stop" };
+        return { hullDispatcherStatus: "stop" };
 
       } else if (instructionName === "filter") {
 
