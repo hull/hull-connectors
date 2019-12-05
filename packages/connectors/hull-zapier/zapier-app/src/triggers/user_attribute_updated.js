@@ -1,7 +1,8 @@
 const _ = require("lodash");
 const sample = require("../../samples/user-attribute-updated");
 const { triggerBuilder } = require("../lib");
-const { getUserAttributes } = require("../lib/input-fields");
+const { getUserAttributeInputFields } = require("../lib/input-fields");
+const { getUserAttributeOutputFields } = require("../lib/output-fields");
 const { performTrigger } = require("../lib/perform-trigger");
 const { validateChanges, validateSegments } = require("../lib/validate");
 
@@ -12,7 +13,8 @@ const validations = {
 };
 
 const user_attribute_updated = triggerBuilder({
-  getInputFields: getUserAttributes,
+  getInputFields: getUserAttributeInputFields,
+  getOutputFields: getUserAttributeOutputFields,
   performTrigger: performTrigger(validations),
   sample,
   description: "Triggers when a user attribute is updated.",

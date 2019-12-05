@@ -23,6 +23,7 @@ const account = {
   noun: "Account",
 
   display: {
+    hidden: true,
     label: "Create or Update a Hull Account",
     description:
       "Sends Attribute updates to the account identified by a domain. Will create the account if not created already."
