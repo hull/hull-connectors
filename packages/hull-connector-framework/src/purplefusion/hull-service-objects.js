@@ -146,9 +146,6 @@ const HullAccountCreatedTrigger: ServiceObjectDefinition = {
   name: "Account"
 };
 
-
-
-
 module.exports = {
   HullEnumMap,
   WebPayload,

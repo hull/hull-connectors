@@ -316,18 +316,18 @@ const glue = {
   schema: returnValue([
       ifL(cond("isEqual", input("body.entityType"), "user_event"), [
         set("rawEntitySchema", hull("getUserEvents")),
-        set("entitySchema", jsonata(`[$.{"value": name, "label": name}]`, "${rawEntitySchema}"))
+        set("transformedSchema", jsonata(`[$.{"name": $string("user_event." & name)}]`, "${rawEntitySchema}"))
       ]),
       ifL(cond("isEqual", input("body.entityType"), "user"), [
         set("rawEntitySchema", hull("getUserAttributes")),
-        set("entitySchema", jsonata(`[$[$not($contains(key, "account."))].{"value": $replace(key, "traits_", ""), "label": $replace(key, "traits_", "")}]`, "${rawEntitySchema}"))
+        set("transformedSchema", jsonata(`[$[$not($contains(key, "account."))].{"name": $string("user." & $replace(key, "traits_", ""))}]`, "${rawEntitySchema}"))
       ]),
       ifL(cond("isEqual", input("body.entityType"), "account"), [
         set("rawEntitySchema", hull("getAccountAttributes")),
-        set("entitySchema", jsonata(`[$.{"value": $replace(key, "traits_", ""), "label": $replace(key, "traits_", "")}]`, "${rawEntitySchema}"))
+        set("transformedSchema", jsonata(`[$.{"name": $string("account." & $replace(key, "traits_", ""))}]`, "${rawEntitySchema}"))
       ]),
     ],{
-      data: "${entitySchema}",
+      data: "${transformedSchema}",
       status: 200
     }
   ),

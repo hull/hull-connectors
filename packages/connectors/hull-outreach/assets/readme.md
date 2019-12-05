@@ -71,6 +71,27 @@ Accounts are fetched by either clicking "Actions" and manually triggering a fetc
 - **incoming account identity** - specify which `Outreach Account Properties` we will use to identify `Hull Account`
 - **incoming account attributes** - defines which `Outreach Account Properties` are stored in `Hull Account Attributes` and the fields they are mapped to.
 
+## Outreach Incoming Events
+
+The connector is able to pull in events from Outreach in a variety of different circumstances.  Currently the connector is focused on supporting email events and prospect state changes.  This is because other types of events do not always relate to a user.  However if there's an event that you consider relevant, please reach out to your Hull support representative to request if the event may be added.
+
+The following events are the types that Hull currently supports:
+
+    [
+      "bounced_message",
+      "emails_opt_out",
+      "inbound_message",
+      "message_clicked",
+      "message_opened",
+      "message_opened_sender",
+      "outbound_message",
+      "prospect_stage_changed"
+    ]
+
+### Incoming Events Limitations
+
+- The outreach event api is not always stable and event names can change.  Because of this, we've built in the ability to notify when there's an event we've never seen before.  In this case, Hull will triage the scenario, map the event and the incremental fetching of events will be restored.  Please be aware of this scenario if you see it.
+- Although the properties in the events api are limited, we try our best to enrich the events with relevant information from other endpoints as well.  Though this type of additional enrichment is on a case by case basis.
 
 ## Supported Objects
 The Outreach connector allows you to synchronize data between Hull and Outreach for the following objects:

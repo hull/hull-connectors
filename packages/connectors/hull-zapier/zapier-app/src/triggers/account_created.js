@@ -1,6 +1,7 @@
 const sample = require( "../../samples/account-created");
 const { triggerBuilder } = require("../lib");
-const { getAccountSegments } = require("../lib/input-fields");
+const { getAccountSegmentInputFields } = require("../lib/input-fields");
+const { getAccountAttributeOutputFields } = require("../lib/output-fields");
 const { performTrigger } = require("../lib/perform-trigger");
 const { validateSegments, required } = require("../lib/validate");
 
@@ -11,7 +12,8 @@ const validations = {
 };
 
 const account_created = triggerBuilder({
-  getInputFields: getAccountSegments,
+  getInputFields: getAccountSegmentInputFields,
+  getOutputFields: getAccountAttributeOutputFields,
   performTrigger: performTrigger(validations),
   sample,
   description: "Triggers when an account is created.",

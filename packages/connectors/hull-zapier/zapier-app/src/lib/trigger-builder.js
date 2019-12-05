@@ -10,6 +10,7 @@ function getSample({ sample }) {
 
 function triggerBuilder({
   getInputFields,
+  getOutputFields,
   performTrigger,
   entityType,
   action,
@@ -28,7 +29,8 @@ function triggerBuilder({
       perform: performTrigger({ entityType, action }),
       performSubscribe: subscribe({ entityType, action }),
       performUnsubscribe: unsubscribe({ entityType, action }),
-      inputFields: [getInputFields]
+      inputFields: [getInputFields],
+      outputFields: [getOutputFields]
     },
     noun: entityType,
     display: {

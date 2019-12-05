@@ -104,18 +104,6 @@ it("should send out a new hull account to hubspot", () => {
           { toInsert: 1, toSkip: 0, toUpdate: 0 }
         ],
         [
-          "info",
-          "outgoing.account.send",
-          {
-            "subject_type": "account",
-            "request_id": expect.whatever(),
-            "account_domain": "hull.io"
-          },
-          {
-            "reason": "does not have service id"
-          }
-        ],
-        [
           "debug",
           "connector.service_api.call",
           expect.whatever(),

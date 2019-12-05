@@ -191,13 +191,6 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
         [
           "info",
-          "outgoing.user.send",
-          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {
-            reason: "does not have service id"
-          }],
-        [
-          "info",
           "outgoing.user.success",
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
           {
