@@ -51,6 +51,6 @@ module.exports = {
       ]
     }
   ],
-  "result": {"data": [{"label": "external_id", "value": "external_id"}, {"label": "domain", "value": "domain"}], "status": 200}
+  "result": {"data": [{"name": "account.external_id"}, {"name": "account.domain"}], "status": 200}
 };
 
