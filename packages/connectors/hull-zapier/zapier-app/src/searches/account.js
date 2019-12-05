@@ -31,6 +31,7 @@ const account = {
   key: "account",
   noun: "Account",
   display: {
+    hidden: true,
     label: "Find an Account",
     description: "Search for an Account by domain or external_id"
   },

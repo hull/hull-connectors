@@ -7,7 +7,8 @@ const account_deleted = triggerBuilder({
   sample,
   description: "Triggers when an account is deleted.",
   entityType: "account",
-  action: "deleted"
+  action: "deleted",
+  hidden: true
 });
 
 module.exports = {

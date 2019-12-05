@@ -358,37 +358,16 @@ const glue = {
   }),
   schema: returnValue([
       ifL(cond("isEqual", input("body.entityType"), "user_event"), [
-        ifL(cond("isEqual", input("body.zapierSchema"), "fieldsSchema"), {
-          do: [
-            set("transformedSchema", `[$.{"label": "Event Name", "key": "events[]event"}]`)
-          ],
-          eldo: [
-            set("rawEntitySchema", hull("getUserEvents")),
-            set("transformedSchema", jsonata(`[$.{"value": name, "label": name}]`, "${rawEntitySchema}"))
-          ]
-        })
+        set("rawEntitySchema", hull("getUserEvents")),
+        set("transformedSchema", jsonata(`[$.{"name": $string("user_event." & name)}]`, "${rawEntitySchema}"))
       ]),
       ifL(cond("isEqual", input("body.entityType"), "user"), [
         set("rawEntitySchema", hull("getUserAttributes")),
-        ifL(cond("isEqual", input("body.zapierSchema"), "fieldsSchema"), {
-          do: [
-            set("transformedSchema", jsonata(`[$[$not($contains(key, "account."))].{"label": $string("user." & $replace(key, "traits_", "")), "key": $string("user__" & $replace(key, "traits_", ""))}]`, "${rawEntitySchema}"))
-          ],
-          eldo: [
-            set("transformedSchema", jsonata(`[$[$not($contains(key, "account."))].{"value": $replace(key, "traits_", ""), "label": $replace(key, "traits_", "")}]`, "${rawEntitySchema}"))
-          ]
-        })
+        set("transformedSchema", jsonata(`[$[$not($contains(key, "account."))].{"name": $string("user." & $replace(key, "traits_", ""))}]`, "${rawEntitySchema}"))
       ]),
       ifL(cond("isEqual", input("body.entityType"), "account"), [
         set("rawEntitySchema", hull("getAccountAttributes")),
-        ifL(cond("isEqual", input("body.zapierSchema"), "fieldsSchema"), {
-          do: [
-            set("transformedSchema", jsonata(`[$.{"label": $string("account." & $replace(key, "traits_", "")), "key": $string("account__" & $replace(key, "traits_", ""))}]`, "${rawEntitySchema}"))
-          ],
-          eldo: [
-            set("transformedSchema", jsonata(`[$.{"value": $replace(key, "traits_", ""), "label": $replace(key, "traits_", "")}]`, "${rawEntitySchema}"))
-          ]
-        })
+        set("transformedSchema", jsonata(`[$.{"name": $string("account." & $replace(key, "traits_", ""))}]`, "${rawEntitySchema}"))
       ]),
     ],{
       data: "${transformedSchema}",
