@@ -65,7 +65,7 @@
         "placeholder": "CopperCrm Lead Field",
         "allowCreate": true,
         "loadOptions": "/attributes-leads-incoming",
-        "source": "coppercrm"
+        "source": "coppercrm_lead"
       }
     },
     {
@@ -94,7 +94,7 @@
       ]
     },
     {
-      "name": "incoming_user_attributes",
+      "name": "incoming_person_attributes",
       "title": "Incoming People Fields to Sync (CopperCrm to Hull)",
       "type": "array",
       "format": "traitMapping",
@@ -104,7 +104,7 @@
         "placeholder": "CopperCrm People Field",
         "allowCreate": true,
         "loadOptions": "/attributes-people-incoming",
-        "source": "coppercrm"
+        "source": "coppercrm_person"
       }
     },
     {
@@ -170,7 +170,7 @@
         "placeholder": "CopperCrm Company Field",
         "allowCreate": true,
         "loadOptions": "/attributes-opportunity-incoming",
-        "source": "coppercrm"
+        "source": "coppercrm_opportunity"
       }
     },
     {

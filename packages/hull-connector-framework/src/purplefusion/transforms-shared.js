@@ -18,9 +18,12 @@ const {
 } = require("./utils");
 
 const {
+  createIncomingServiceUserTransform
+} = require("./transform-predefined");
+
+const {
   HullUserRaw,
   ServiceUserRaw,
-  ServiceLeadRaw,
   ServiceAccountRaw,
   ServiceOpportunityRaw,
   HullIncomingUser,
@@ -30,7 +33,8 @@ const {
   HullConnectorAttributeDefinition,
   HullIncomingDropdownOption,
   HullOutgoingDropdownOption,
-  HullApiAttributeDefinition
+  HullApiAttributeDefinition,
+  HullIncomingOpportunity
 } = require("./hull-service-objects");
 
 
@@ -163,70 +167,6 @@ const transformsShared: ServiceTransforms = [
     ]
   },
   {
-    input: ServiceLeadRaw,
-    output: HullIncomingUser,
-    strategy: "AtomicReaction",
-    direction: "incoming",
-    transforms: [
-      {
-        operateOn: "connector.private_settings.user_claims",
-        expand: { valueName: "mapping" },
-        then: {
-          operateOn: { component: "input", select: "${mapping.service}"},
-          writeTo: {
-            // should expose specific identity mappings like "primaryEmail" if there are service specific rules/attributes...
-            path: "ident.${mapping.hull}"
-          }
-        }
-      },
-      {
-        operateOn: "connector.private_settings.incoming_lead_attributes",
-        expand: { valueName: "mapping" },
-        then: {
-          operateOn: { component: "input", select: "${mapping.service}"},
-          writeTo: {
-            path: "${mapping.hull}",
-            pathFormatter: (path) => {
-              return `attributes.${getAttributeNamespace(path)}_lead/${getAttributeName(path)}`;
-            }
-          }
-        }
-      },
-      {
-        operateOn: { component: "input", select: "id" },
-        then:[
-          { writeTo: { path: "ident.anonymous_id", format: "${service_name}-lead:lead-${operateOn}" } },
-          {
-            writeTo: {
-              path: "attributes.${service_name}_lead/id",
-              format: {
-                value: "${value}",
-                operation: "set"
-              }
-            }
-          }
-        ]
-      },
-      {
-        operateOn: { component: "input", select: "hull_multiple_anonymous_ids" },
-        writeTo: { path: "ident.anonymous_ids" }
-      },
-      {
-        condition: isEqual("connector.private_settings.link_users_in_hull", true),
-        then: [
-          {
-            operateOn: { component: "input", select: "hull_service_accountId" },
-            writeTo: { path: "accountIdent.anonymous_id", format: "${service_name}:${operateOn}" }
-          },
-          {
-            operateOn: { component: "input", select: "hull_service_accountId" },
-            writeTo: { path: "accountAttributes.${service_name}/id" }
-          }
-        ]
-      }
-    ]
-  },
-  {
     input: ServiceAccountRaw,
     output: HullIncomingAccount,
     strategy: "AtomicReaction",
@@ -271,13 +211,17 @@ const transformsShared: ServiceTransforms = [
   },
   {
     input: ServiceOpportunityRaw,
-    output: HullIncomingAccount,
+    output: HullIncomingOpportunity,
     strategy: "AtomicReaction",
     direction: "incoming",
     transforms: [
       {
-        operateOn: { component: "input", select: "company_id" },
+        operateOn: { component: "input", select: "hull_service_accountId" },
         validation: { error: "BreakLoop", message: "Opp doesn't have company", condition: [ inputIsNotEqual("company_id", null), inputIsNotEqual("company_id", undefined) ] },
+        writeTo: { path: "accountIdent.anonymous_id", format: "${service_name}:${operateOn}" },
+      },
+      {
+        operateOn: { component: "input", select: "hull_service_userId" },
         writeTo: { path: "ident.anonymous_id", format: "${service_name}:${operateOn}" },
       },
       {
@@ -286,7 +230,7 @@ const transformsShared: ServiceTransforms = [
           {
             operateOn: { component: "input", select: "id" },
             writeTo: {
-              path: "attributes.${service_name}/id_${opportunityType}",
+              path: "attributes.${service_name}_opportunity_${opportunityType}/id",
               format: {
                 value: "${value}",
                 operation: "set"
@@ -298,7 +242,13 @@ const transformsShared: ServiceTransforms = [
             expand: { valueName: "mapping" },
             then: {
               operateOn: { component: "input", select: "${mapping.service}"},
-              writeTo: { path: "attributes.${mapping.hull}_${opportunityType}", format: { operation: "set", value: "${operateOn}" }}
+              writeTo: {
+                path: "${mapping.hull}",
+                pathFormatter: (path, context) => {
+                  return `attributes.${getAttributeNamespace(path)}_${context.get("opportunityType")}/${getAttributeName(path)}`;
+                },
+                format: { operation: "set", value: "${operateOn}" }
+              }
             }
           }
         ]

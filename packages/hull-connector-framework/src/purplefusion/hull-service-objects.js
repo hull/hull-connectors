@@ -69,6 +69,11 @@ const HullIncomingUser: ServiceObjectDefinition = {
   name: "User"
 };
 
+const HullIncomingOpportunity: ServiceObjectDefinition = {
+  service_name: "HullIncomingOpportunity",
+  name: "Opportunity"
+};
+
 const HullOutgoingUser: ServiceObjectDefinition = {
   service_name: "HullOutgoingUser",
   name: "User"
@@ -144,5 +149,6 @@ module.exports = {
   ServiceOpportunityRaw,
   HullIncomingUserImportApi,
   HullApiSegmentDefinition,
-  HullApiEventDefinition
+  HullApiEventDefinition,
+  HullIncomingOpportunity
 };

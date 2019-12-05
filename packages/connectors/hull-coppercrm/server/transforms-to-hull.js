@@ -1,13 +1,5 @@
 /* @flow */
 import type { ServiceTransforms } from "hull-connector-framework/src/purplefusion/types";
-
-const {
-  inputIsEqual,
-  inputIsNotEqual,
-  isNotEqual,
-  isEqual
-} = require("hull-connector-framework/src/purplefusion/conditionals");
-
 const _ = require("lodash");
 
 const {
@@ -16,6 +8,8 @@ const {
   ServiceAccountRaw,
   ServiceOpportunityRaw
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
+
+const { createIncomingServiceUserTransform }  = require("hull-connector-framework/src/purplefusion/transform-predefined");
 
 const {
   CopperCRMIncomingLead,
@@ -30,7 +24,8 @@ const addressTransform = [
   { operateOn: { component: "input", select: "address.state" }, writeTo: { path: "addressState" } },
   { operateOn: { component: "input", select: "address.postalCode" }, writeTo: { path: "addressPostalCode" } },
   { operateOn: { component: "input", select: "address.country" }, writeTo: { path: "addressCountry" } }
-  ];
+];
+
 const customFieldsTransform = [
   {
     operateOn: { component: "input", select: "custom_fields" },
@@ -40,7 +35,8 @@ const customFieldsTransform = [
       writeTo: { path: "${operateOn.name}", format: "${customField.value}" }
     }
   }
-  ];
+];
+
 const assigneesTransform = [
   {
     operateOn: { component: "glue", route: "getAssignees", select: [{ id: { component: "input", select: "assignee_id" } }, "[0].email"] },
@@ -59,22 +55,27 @@ const transformsToHull: ServiceTransforms = [
     output: ServiceLeadRaw,
     direction: "incoming",
     strategy: "AtomicReaction",
-    transforms: [
+    target: { component: "cloneInitialInput", asPipeline: true },
+    then: [
       {
-        target: { component: "cloneInitialInput" },
-        then: _.concat(addressTransform, customFieldsTransform, assigneesTransform,
-          [
+        target: { component: "input" },
+        then: _.concat(addressTransform, customFieldsTransform, assigneesTransform, [
             {
-              operateOn: { component: "glue", route: "getCustomerSources", select: [{ id: { component: "input", select: "customer_source_id" } }, "[0].email"] },
+              operateOn: {
+                component: "glue",
+                route: "getCustomerSources",
+                select: [{ id: { component: "input", select: "customer_source_id" } }, "[0].email"]
+              },
               // default null?
               writeTo: { path: "customerSource" }
             },
             {
               operateOn: { component: "input", select: "email.email" },
               writeTo: { path: "primaryEmail" }
-            },
-          ])
-      }
+            }
+        ])
+      },
+      createIncomingServiceUserTransform("lead")
     ]
   },
   {
@@ -82,7 +83,7 @@ const transformsToHull: ServiceTransforms = [
     output: ServiceUserRaw,
     direction: "incoming",
     strategy: "AtomicReaction",
-    transforms: [
+    target: { component: "cloneInitialInput", asPipeline: true },
       {
         target: { component: "cloneInitialInput" },
         then: _.concat(addressTransform, customFieldsTransform, assigneesTransform,
@@ -128,7 +129,9 @@ const transformsToHull: ServiceTransforms = [
               // default null?
               writeTo: { path: "contactType" }
             }
-          ])
+          ],
+
+          )
       }
     ]
   },
@@ -146,6 +149,10 @@ const transformsToHull: ServiceTransforms = [
             writeTo: { path: "hull_service_accountId" }
           },
           {
+            operateOn: { component: "input", select: "primary_contact_id" },
+            writeTo: { path: "hull_service_userId" }
+          },
+          {
             operateOn: { component: "glue", route: "getContactTypes", select: [{ id: { component: "input", select: "contact_type_id" } }, "[0].name"] },
             // default null?
             writeTo: { path: "contactType" }
@@ -156,12 +163,8 @@ const transformsToHull: ServiceTransforms = [
             writeTo: { path: "customerSource" }
           },
           {
-            operateOn: { component: "input", select: "loss_reason_id", name: "lossReasonId"},
-            then: {
-              operateOn: { component: "glue", route: "getLossReason" },
-              // default null?
-              writeTo: { path: "lossReason" }
-            }
+            operateOn: { component: "glue", route: "getLossReason", select: { component: "input", select: "loss_reason_id" }, onUndefined: null },
+            writeTo: { path: "lossReason" }
           },
           {
             operateOn: { component: "glue", route: "getPipelines", select: [{ id: { component: "input", select: "pipeline_id" } }, "[0].name"] },
