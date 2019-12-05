@@ -358,12 +358,12 @@ const glue = {
   }),
   schema: returnValue([
       ifL(cond("isEqual", input("body.entityType"), "user_event"), [
-        set("rawEntitySchema", hull("getUserEvents")),
         ifL(cond("isEqual", input("body.zapierSchema"), "fieldsSchema"), {
           do: [
-            set("transformedSchema", jsonata(`[$.{"label": name, "key": name}]`, "${rawEntitySchema}"))
+            set("transformedSchema", `[$.{"label": "Event Name", "key": "events[]event"}]`)
           ],
           eldo: [
+            set("rawEntitySchema", hull("getUserEvents")),
             set("transformedSchema", jsonata(`[$.{"value": name, "label": name}]`, "${rawEntitySchema}"))
           ]
         })
