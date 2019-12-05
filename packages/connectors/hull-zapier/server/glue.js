@@ -363,11 +363,25 @@ const glue = {
       ]),
       ifL(cond("isEqual", input("body.entityType"), "user"), [
         set("rawEntitySchema", hull("getUserAttributes")),
-        set("entitySchema", jsonata(`[$[$not($contains(key, "account."))].{"value": $replace(key, "traits_", ""), "label": $replace(key, "traits_", "")}]`, "${rawEntitySchema}"))
+        ifL(cond("isEqual", input("body.type"), "outputFields"), {
+          do: [
+            set("entitySchema", jsonata(`[$[$not($contains(key, "account."))].{"label": $string("user." & $replace(key, "traits_", "")), "key": $string("user__" & $replace(key, "traits_", ""))}]`, "${rawEntitySchema}"))
+          ],
+          eldo: [
+            set("entitySchema", jsonata(`[$[$not($contains(key, "account."))].{"value": $replace(key, "traits_", ""), "label": $replace(key, "traits_", "")}]`, "${rawEntitySchema}"))
+          ]
+        })
       ]),
       ifL(cond("isEqual", input("body.entityType"), "account"), [
         set("rawEntitySchema", hull("getAccountAttributes")),
-        set("entitySchema", jsonata(`[$.{"value": $replace(key, "traits_", ""), "label": $replace(key, "traits_", "")}]`, "${rawEntitySchema}"))
+        ifL(cond("isEqual", input("body.type"), "outputFields"), {
+          do: [
+            set("entitySchema", jsonata(`[$.{"label": $string("account." & $replace(key, "traits_", "")), "key": $string("account__" & $replace(key, "traits_", ""))}]`, "${rawEntitySchema}"))
+          ],
+          eldo: [
+            set("entitySchema", jsonata(`[$.{"value": $replace(key, "traits_", ""), "label": $replace(key, "traits_", "")}]`, "${rawEntitySchema}"))
+          ]
+        })
       ]),
     ],{
       data: "${entitySchema}",
