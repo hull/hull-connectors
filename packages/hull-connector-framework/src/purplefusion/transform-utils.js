@@ -76,6 +76,7 @@ async function performTransformation(dispatcher, context, input, transformation)
 
 async function transformToTarget({ dispatcher, context, input, transformation, target, operatingOn }) {
 
+  // return the target unless otherwise directed
   let currentTarget = target;
 
   const localContext = {};
@@ -87,22 +88,22 @@ async function transformToTarget({ dispatcher, context, input, transformation, t
 
     // target probably should be resolved first.... even before toTransform
     // better to have consistent objects being passed between transforms probably rather than worry about conditionals
-    if (transform.target) {
+    if (transformation.target) {
       currentTarget = await resolveIdentifier(dispatcher, context, input, currentTarget, transformation.target);
     }
 
-    if (!toTransform(transform, context, input)) {
+    if (!toTransform(transformation, context, input)) {
       return currentTarget;
     }
 
     let operateOn = operatingOn;
-    if (transform.operateOn) {
-      operateOn = await resolveIdentifier(dispatcher, context, input, currentTarget, transform.operateOn);
+    if (transformation.operateOn) {
+      operateOn = await resolveIdentifier(dispatcher, context, input, currentTarget, transformation.operateOn);
       context.set("operateOn", operateOn);
     }
 
-    if (transform.writeTo) {
-      await writeTo(dispatcher, context, input, target, transform, operatingOn);
+    if (transformation.writeTo) {
+      await performWrite(dispatcher, context, input, currentTarget, transformation.writeTo, operateOn);
     }
 
     if (!isUndefinedOrNull(transformation.expand) && transformation.expand !== false) {
@@ -120,6 +121,8 @@ async function transformToTarget({ dispatcher, context, input, transformation, t
           expandTarget = value;
         }
 
+        // can't really return anything relevant on an expand, so don't set toReturn
+        // always return the target
         await resolveTransform(dispatcher, context, input, expandTarget, transformation, value);
       });
     } else {
@@ -135,45 +138,53 @@ async function transformToTarget({ dispatcher, context, input, transformation, t
 
 async function resolveTransform(dispatcher, context, input, target, transformation, operatingOn) {
 
-  let result = target;
+  let nextInput = input;
 
-  if (transform.then) {
+  const asPipeline = transformation.asPipeline === true;
 
-    let nestedTransforms = transform.then;
+  if (transformation.then) {
+
+    let nestedTransforms = transformation.then;
     if (!Array.isArray(nestedTransforms)) {
       nestedTransforms = [nestedTransforms];
     }
 
     await asyncForEach(nestedTransforms, async (nestedTransform) => {
-      const transformResult = await transformToTarget({ dispatcher, context, input, result, transform: nestedTransform, operatingOn} );
-      if (_.get(transform, "target.asPipeline") === true) {
-        result = transformResult;
+      const transformResult = await transformToTarget({ dispatcher, context, input: nextInput, target, transformation: nestedTransform, operatingOn} );
+      if (asPipeline) {
+        nextInput = transformResult;
       }
     });
 
   }
 
-  return result;
+  if (asPipeline) {
+    // if the transformation uses a "pipeline" strategy, then take the final output (nextInput) and return it
+    // we only care about the output of each individual transform if it's the input for the next, and we're returning the final
+    return nextInput;
+  } else {
+    return target;
+  }
 
 }
 
-async function writeTo(dispatcher, context, input, target, transform, operatingOn) {
+async function performWrite(dispatcher, context, input, target, writeTo, operatingOn) {
 
   let valueToOutput = operatingOn;
 
-  if (!toTransform(transform.writeTo, context, input)) {
+  if (!toTransform(writeTo, context, input)) {
     return;
   }
 
-  if (transform.writeTo.formatter) {
-    const formatter = await resolveIdentifier(dispatcher, context, input, target, transform.writeTo.formatter);
+  if (writeTo.formatter) {
+    const formatter = await resolveIdentifier(dispatcher, context, input, target, writeTo.formatter);
     if (typeof formatter === "function") {
       valueToOutput = formatter(valueToOutput);
       context.set("formattedValue", valueToOutput);
     }
   }
 
-  const keys = await resolveIdentifier(dispatcher, context, input, target, transform.writeTo.path);
+  const keys = await resolveIdentifier(dispatcher, context, input, target, writeTo.path);
 
   let keyPath = keys;
   if (Array.isArray(keyPath)) {
@@ -183,16 +194,16 @@ async function writeTo(dispatcher, context, input, target, transform, operatingO
     keyPath = _.join(keyPath, ".");
   }
 
-  if (transform.writeTo.pathFormatter) {
-    const formatter = await resolveIdentifier(dispatcher, context, input, target, transform.writeTo.pathFormatter);
+  if (writeTo.pathFormatter) {
+    const formatter = await resolveIdentifier(dispatcher, context, input, target, writeTo.pathFormatter);
     if (typeof formatter === "function") {
       keyPath = formatter(keyPath, context);
       context.set("formattedPath", keyPath);
     }
   }
 
-  if (transform.writeTo.format) {
-    valueToOutput = context.resolveVariables(transform.writeTo.format);
+  if (writeTo.format) {
+    valueToOutput = context.resolveVariables(writeTo.format);
   }
 
   // if undefined, my be trying to unset things, so don't do an undefined check (no use cases yet, add unit test)
@@ -265,8 +276,10 @@ async function resolve(dispatcher, context, input, target, identifier) {
     // this is the original input value
     resolvedObject = input;
   } else if (type === "input") {
+    resolvedObject = input;
+  } else if (type === "target") {
     resolvedObject = target;
-  }  else if (type === "glue") {
+  } else if (type === "glue") {
     resolvedObject = await dispatcher.resolve(context, new Route(identifier.route), input);
   } else if (type === "static") {
     resolvedObject = identifier.object;

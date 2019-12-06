@@ -55,7 +55,8 @@ const transformsToHull: ServiceTransforms = [
     output: ServiceLeadRaw,
     direction: "incoming",
     strategy: "AtomicReaction",
-    target: { component: "cloneInitialInput", asPipeline: true },
+    target: { component: "cloneInitialInput" },
+    asPipeline: true,
     then: [
       {
         target: { component: "input" },

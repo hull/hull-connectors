@@ -1,14 +1,6 @@
 // @flow
 const _ = require("lodash");
 
-
-
-
-
-
-
-
-
 process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 
