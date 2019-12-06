@@ -25,15 +25,21 @@ describe("Zapier Subscription Tests", () => {
       body: {
         "url": "https://hooks.zapier.com/hooks/standard/1/1/",
         "action": "entered_segment",
-        "entityType": "user"
+        "entityType": "user",
+        "inputData": {
+          "user_segments": ["all_segments"]
+        }
       }
     };
     subscribe.serviceRequests[0].input = {
       "triggers": [
         {
-          "url": "https://hooks.zapier.com/hooks/standard/1/1/",
-          "action": "entered_segment",
-          "entityType": "user"
+          "serviceAction": {
+            "webhook": "https://hooks.zapier.com/hooks/standard/1/1/"
+          },
+          "inputData": {
+            "entered_user_segments": ["all_segments"]
+          }
         }
       ]
     };
@@ -44,29 +50,41 @@ describe("Zapier Subscription Tests", () => {
     const subscribe = _.cloneDeep(testDefinition);
     subscribe.configuration.private_settings.triggers = [
       {
-        "url": "https://hooks.zapier.com/hooks/standard/1/1/",
-        "action": "entered_segment",
-        "entityType": "user"
+        "serviceAction": {
+          "webhook": "https://hooks.zapier.com/hooks/standard/1/1/"
+        },
+        "inputData": {
+          "entered_user_segments": ["all_segments"]
+        }
       }
     ];
     subscribe.input.data = {
       body: {
         "url": "https://hooks.zapier.com/hooks/standard/1/2/",
         "action": "entered_segment",
-        "entityType": "user"
+        "entityType": "user",
+        "inputData": {
+          "user_segments": ["user_segment_1"]
+        }
       }
     };
     subscribe.serviceRequests[0].input = {
       "triggers": [
         {
-          "url": "https://hooks.zapier.com/hooks/standard/1/1/",
-          "action": "entered_segment",
-          "entityType": "user"
+          "serviceAction": {
+            "webhook": "https://hooks.zapier.com/hooks/standard/1/1/"
+          },
+          "inputData": {
+            "entered_user_segments": ["all_segments"]
+          }
         },
         {
-          "url": "https://hooks.zapier.com/hooks/standard/1/2/",
-          "action": "entered_segment",
-          "entityType": "user"
+          "serviceAction": {
+            "webhook": "https://hooks.zapier.com/hooks/standard/1/2/"
+          },
+          "inputData": {
+            "entered_user_segments": ["user_segment_1"]
+          }
         }
       ]
     };
@@ -77,25 +95,25 @@ describe("Zapier Subscription Tests", () => {
     const subscribe = _.cloneDeep(testDefinition);
     subscribe.configuration.private_settings.triggers = [
       {
-        "url": "https://hooks.zapier.com/hooks/standard/1/1/",
-        "action": "entered_segment",
-        "entityType": "user"
+        "serviceAction": {
+          "webhook": "https://hooks.zapier.com/hooks/standard/1/1/"
+        },
+        "inputData": {
+          "entered_user_segments": ["all_segments"]
+        }
       }
     ];
     subscribe.input.data = {
       body: {
         "url": "https://hooks.zapier.com/hooks/standard/1/1/",
         "action": "entered_segment",
-        "entityType": "user"
+        "entityType": "user",
+        "inputData": {
+          "user_segments": ["user_segment_1"]
+        }
       }
     };
-    subscribe.serviceRequests = {
-      "localContext": expect.anything(),
-      "name": "hull",
-      "op": "settingsUpdate",
-      "input": {},
-      "result": {}
-    };
+    subscribe.serviceRequests = [];
     return harness.runTest(subscribe);
   });
 });

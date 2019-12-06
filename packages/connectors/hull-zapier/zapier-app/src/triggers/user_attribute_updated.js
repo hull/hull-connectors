@@ -19,8 +19,7 @@ const user_attribute_updated = triggerBuilder({
   sample,
   description: "Triggers when a user attribute is updated.",
   entityType: "user",
-  action: "attribute_updated",
-  hidden: true
+  action: "attribute_updated"
 });
 
 module.exports = {

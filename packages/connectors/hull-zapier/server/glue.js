@@ -250,13 +250,38 @@ const glue = {
   }),
   subscriptionRegisteredInHull:
     filter({
-      url: input("body.url")
+      serviceAction: { webhook: input("url") }
     }, settings("triggers")),
   subscribe: returnValue([
-      ifL(ld("isEmpty", route("subscriptionRegisteredInHull")), [
+      ifL(ld("isEmpty", route("subscriptionRegisteredInHull", { url: input("body.url") })), [
+
+        // TODO terrible. move over to new transformation layer
+        set("transformedTrigger", jsonata(`
+          $merge([
+              {"serviceAction": {"webhook": url}}, 
+              {
+                "inputData": 
+                  $merge([
+                    $[$contains(entityType, /user/)].$[$not($contains(action, "entered_segment"))].$[$not($contains(action, "left_segment"))].{"user_segments": inputData.user_segments},
+                    $[$contains(entityType, /user/)].$[$not($contains(action, "entered_segment"))].$[$not($contains(action, "left_segment"))].{"account_segments": inputData.account_segments},
+                    $[$contains(entityType, /user$/)].$[($contains(action, "attribute_updated"))].{"account_attributes": inputData.account_attributes},
+                    $[$contains(entityType, /user$/)].$[($contains(action, "attribute_updated"))].{"user_attributes": inputData.user_attributes},
+                    $[$contains(entityType, /user$/)].$[$contains(action, "entered_segment")].{"entered_user_segments": inputData.user_segments},
+                    $[$contains(entityType, /user$/)].$[$contains(action, "left_segment")].{"left_user_segments": inputData.user_segments},
+                    $[$contains(entityType, /user$/)].$[$contains(action, "created")].{"is_new": true},
+                    $[$contains(entityType, /user_event$/)].$[$contains(action, "created")].{"user_events": inputData.user_events},
+                    
+                    $[$contains(entityType, /account$/)].$[$not($contains(action, "entered_segment"))].$[$not($contains(action, "left_segment"))].{"account_segments": inputData.account_segments},
+                    $[$contains(entityType, /account$/)].$[($contains(action, "attribute_updated"))].{"account_attributes": inputData.account_attributes},
+                    $[$contains(entityType, /account$/)].$[$contains(action, "entered_segment")].{"entered_account_segments": inputData.account_segments},
+                    $[$contains(entityType, /account$/)].$[$contains(action, "left_segment")].{"left_account_segments": inputData.account_segments},
+                    $[$contains(entityType, /account$/)].$[$contains(action, "created")].{"is_new": true}
+                   ])
+              }
+          ])`, input("body"))),
         settingsUpdate({
           triggers:
-            ld("uniqBy", ld("concat", settings("triggers"), input("body")), "url")
+            ld("uniqBy", ld("concat", settings("triggers"), "${transformedTrigger}"), "serviceAction.webhook")
         })
       ])], {
       data: {
@@ -266,10 +291,10 @@ const glue = {
     }
   ),
   unsubscribe: returnValue([
-      ifL(not(ld("isEmpty", route("subscriptionRegisteredInHull"))), [
+      ifL(not(ld("isEmpty", route("subscriptionRegisteredInHull", { url: input("body.url") }))), [
         settingsUpdate({
           triggers:
-            notFilter({ url: input("body.url") }, settings("triggers"))
+            notFilter({ serviceAction: { webhook: input("body.url") } }, settings("triggers"))
         })
       ])], {
       data: {

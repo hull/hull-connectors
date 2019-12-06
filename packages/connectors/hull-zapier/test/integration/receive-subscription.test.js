@@ -26,7 +26,9 @@ it("Receive New Subscription", () => {
               "url": "https://hooks.zapier.com/hooks/standard/1/1/",
               "action": "entered_segment",
               "entityType": "user",
-              "inputData": {}
+              "inputData": {
+                "user_segments": [ "segment_1" ]
+              }
             }
           );
       },
@@ -46,10 +48,12 @@ it("Receive New Subscription", () => {
           "private_settings": {
             "triggers": [
               {
-                "url": "https://hooks.zapier.com/hooks/standard/1/1/",
-                "action": "entered_segment",
-                "entityType": "user",
-                "inputData": {}
+                "serviceAction": {
+                  "webhook": "https://hooks.zapier.com/hooks/standard/1/1/"
+                },
+                "inputData": {
+                  "entered_user_segments": [ "segment_1" ]
+                }
               }
             ]
           },
@@ -69,10 +73,12 @@ it("Receive New Subscription And Merge With Existing Subscriptions", () => {
         private_settings: {
           triggers: [
             {
-              "url": "https://hooks.zapier.com/hooks/standard/1/1/",
-              "action": "entered_segment",
-              "entityType": "user",
-              "inputData": {}
+              "serviceAction": {
+                "webhook": "https://hooks.zapier.com/hooks/standard/1/1/"
+              },
+              "inputData": {
+                "entered_user_segments": [ "segment_1" ]
+              }
             }
           ]
         }
@@ -87,7 +93,9 @@ it("Receive New Subscription And Merge With Existing Subscriptions", () => {
               "url": "https://hooks.zapier.com/hooks/standard/1/2/",
               "action": "entered_segment",
               "entityType": "user",
-              "inputData": {}
+              "inputData": {
+                "user_segments": [ "segment_2" ]
+              }
             }
           );
       },
@@ -107,16 +115,20 @@ it("Receive New Subscription And Merge With Existing Subscriptions", () => {
           "private_settings": {
             "triggers": [
               {
-                "url": "https://hooks.zapier.com/hooks/standard/1/1/",
-                "action": "entered_segment",
-                "entityType": "user",
-                "inputData": {}
+                "serviceAction": {
+                  "webhook": "https://hooks.zapier.com/hooks/standard/1/1/"
+                },
+                "inputData": {
+                  "entered_user_segments": [ "segment_1" ]
+                }
               },
               {
-                "url": "https://hooks.zapier.com/hooks/standard/1/2/",
-                "action": "entered_segment",
-                "entityType": "user",
-                "inputData": {}
+                "serviceAction": {
+                  "webhook": "https://hooks.zapier.com/hooks/standard/1/2/"
+                },
+                "inputData": {
+                  "entered_user_segments": [ "segment_2" ]
+                }
               }
             ]
           },
@@ -135,10 +147,12 @@ it("Receive New Subscription And Unable To Merge With Existing Subscriptions", (
         private_settings: {
           triggers: [
             {
-              "url": "https://hooks.zapier.com/hooks/standard/1/1/",
-              "action": "entered_segment",
-              "entityType": "user",
-              "inputData": {}
+              "serviceAction": {
+                "webhook": "https://hooks.zapier.com/hooks/standard/1/1/"
+              },
+              "inputData": {
+                "entered_user_segments": [ "segment_1" ]
+              }
             }
           ]
         }
@@ -153,7 +167,9 @@ it("Receive New Subscription And Unable To Merge With Existing Subscriptions", (
               "url": "https://hooks.zapier.com/hooks/standard/1/1/",
               "action": "entered_segment",
               "entityType": "user",
-              "inputData": {}
+              "inputData": {
+                "user_segments": [ "segment_2" ]
+              }
             }
           );
       },
