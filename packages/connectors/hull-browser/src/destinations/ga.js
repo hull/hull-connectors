@@ -3,7 +3,6 @@
 import type { Destination, PublicUpdate } from "../../types";
 // import { map } from "lodash";
 
-
 // https://developers.google.com/analytics/devguides/collection/analyticsjs/field-reference#customs
 
 export default function googleanalytics(

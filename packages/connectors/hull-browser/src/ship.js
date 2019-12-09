@@ -25,16 +25,13 @@ const onEmbed = (rootNode, deployment, hull) => {
   const debug = debugFactory("hull-browser");
   const scriptTag = document.querySelector("script[data-hull-endpoint]");
   let connectorId;
-  let platformId;
   let endpoint;
   if (hull && deployment) {
     const { ship: connector, platform } = deployment;
     if (platform) {
-      platformId = platform.id;
       connectorId = connector.id;
       endpoint = `${connector.source_url.replace(/\/$/, "")}`;
     } else if (connector && connector.index) {
-      platformId = "website";
       const shipSource = document.createElement("a");
       shipSource.href = deployment.ship.index;
       if (shipSource.hash.match(/^#[a-z0-9]{24}$/)) {
