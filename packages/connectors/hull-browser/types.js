@@ -68,7 +68,7 @@ export type PublicPayload = {|
   user: AttributesCollection,
   account: AttributesCollection,
   events: Events,
-  destinations: Destinations,
+  // destinations: Destinations,
   user_segments: Segments,
   account_segments: Segments,
   public_account_segments: Segments,

@@ -19,7 +19,7 @@ import getHullIds from "./lib/hull";
 import getIntercomIds from "./lib/intercom";
 import userUpdate from "./lib/user-update";
 import diff from "./lib/diff";
-import destinations from "./destinations";
+// import destinations from "./destinations";
 
 const onEmbed = (rootNode, deployment, hull) => {
   const debug = debugFactory("hull-browser");
@@ -56,7 +56,7 @@ const onEmbed = (rootNode, deployment, hull) => {
           verboseMemoryLeak: true
         });
 
-  destinations({ emitter });
+  // destinations({ emitter });
   if (!window.Hull) window.hullBrowser = emitter;
 
   function setup() {
@@ -103,6 +103,7 @@ const onEmbed = (rootNode, deployment, hull) => {
   setup();
 
   socket.on("user.update", async (payload = {}) => {
+    debug("user.update start", payload)
     const userId = _get(payload, "user.id");
     const previous = (await getLocalStorage()) || {};
     const changes = diff(payload, previous);

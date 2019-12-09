@@ -3,8 +3,8 @@
 import _ from "lodash";
 import type { HullContext, HullFetchedUser } from "hull";
 
-import ga from "../destinations/ga";
-import gtm from "../destinations/gtm";
+// import ga from "../destinations/ga";
+// import gtm from "../destinations/gtm";
 
 import type { Segments, Events, Payload } from "../../types";
 
@@ -62,10 +62,10 @@ export default function userPayload(
     message: "ok",
     user: { ...u, id: user.id },
     settings,
-    destinations: {
-      ga: ga({ user, settings }),
-      gtm: gtm({ user, settings })
-    },
+    // destinations: {
+    //   ga: ga({ user, settings }),
+    //   gtm: gtm({ user, settings })
+    // },
     // workaround to use the traits that contain both account and user traits, and leave the account object separate
     account: _.pick(
       { account },
