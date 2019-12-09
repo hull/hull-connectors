@@ -55,7 +55,7 @@ export default function onConnectionFactory({
   const { get, lru } = store;
 
   return async function onConnection(socket: any) {
-    async function onUserFetch({ connectorId, /* platformId, */ claims = {} }) {
+    async function onUserFetch({ connectorId, claims = {} }) {
       try {
         const logClose = loggerFactory(socket, Client);
         Client.logger.debug("incoming.connection.start", {});
@@ -126,22 +126,26 @@ export default function onConnectionFactory({
         userClient.logger.info("incoming.user.fetch.start", claims);
 
         try {
-          let message;
+          let payloads;
           // If we have a Hull ID, then can use LRU. Othwerwise, we wait for the Update to send through websockets.
           if (claims.id) {
-            message = await lru(connectorId).get(claims.id);
+            payloads = await lru(connectorId).get(claims.id);
           }
 
-          if (!message) {
+          if (!payloads) {
             socket.emit("cache.miss", { connectorId, claims });
-            message = await ctx.entities.users.get({ claims });
+            payloads = await ctx.entities.get({
+              claims,
+              entity: "user",
+              include: { events: false }
+            });
           }
 
-          if (!message || !message.data || !message.data.length) {
+          if (!payloads || !payloads.data || !payloads.data.length) {
             throw new Error("Can't find user");
           }
 
-          sendPayload(ctx, _.first(message.data), socket);
+          sendPayload(ctx, _.first(payloads.data), socket);
         } catch (err) {
           // Error happened, send no one.
           socket.emit("user.error", USER_NOT_FOUND);
@@ -154,7 +158,6 @@ export default function onConnectionFactory({
       }
       return true;
     }
-
     socket.on("user.fetch", onUserFetch);
   };
 }
