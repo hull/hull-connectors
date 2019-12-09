@@ -104,7 +104,7 @@
   "settings_sections": [
     {
       "title": "Setup",
-      "description": "If you use Hull.js, deploy this connector in the **platform** you installed directly. Otherwise, copy the code below and paste it in your page.",
+      "description": "Copy this URL and add it to the list of your Hull.js Website Connector snippets",
       "step": "credentials",
       "properties": [
         "json.credentials"
