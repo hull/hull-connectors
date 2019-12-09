@@ -93,7 +93,7 @@
       "name": "credentials",
       "url": "/credentials",
       "handler": "credentialsHandler",
-      "description": "If you're not using Hull.js, copy this snippet and paste it in your page",
+      "description": "Copy this snippet and add it to the Hull.js Website Connector",
       "format": "credentials",
       "type": "string"
     }
