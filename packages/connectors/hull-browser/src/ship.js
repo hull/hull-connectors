@@ -29,9 +29,19 @@ const onEmbed = (rootNode, deployment, hull) => {
   let endpoint;
   if (hull && deployment) {
     const { ship: connector, platform } = deployment;
-    platformId = platform.id;
-    connectorId = connector.id;
-    endpoint = `${connector.source_url.replace(/\/$/, "")}`;
+    if (platform) {
+      platformId = platform.id;
+      connectorId = connector.id;
+      endpoint = `${connector.source_url.replace(/\/$/, "")}`;
+    } else if (connector && connector.index) {
+      platformId = "website";
+      const shipSource = document.createElement("a");
+      shipSource.href = deployment.ship.index;
+      if (shipSource.hash.match(/^#[a-z0-9]{24}$/)) {
+        connectorId = shipSource.hash.substr(1);
+        endpoint = shipSource.origin;
+      }
+    }
   } else if (scriptTag) {
     connectorId = scriptTag.getAttribute("data-hull-id");
     endpoint = scriptTag.getAttribute("data-hull-endpoint");
@@ -85,10 +95,12 @@ const onEmbed = (rootNode, deployment, hull) => {
           if (!claims) return null;
           debug("Establishing connection with settings", {
             connectorId,
-            platformId,
             claims
           });
-          socket.emit("user.fetch", { connectorId, platformId, claims });
+          socket.emit("user.fetch", {
+            connectorId,
+            claims
+          });
           return true;
         },
         err => debug(err)
@@ -103,7 +115,7 @@ const onEmbed = (rootNode, deployment, hull) => {
   setup();
 
   socket.on("user.update", async (payload = {}) => {
-    debug("user.update start", payload)
+    debug("user.update start", payload);
     const userId = _get(payload, "user.id");
     const previous = (await getLocalStorage()) || {};
     const changes = diff(payload, previous);
