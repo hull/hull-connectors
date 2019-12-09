@@ -28,9 +28,11 @@ class HullRouter {
   serviceDefinitions: Object;
   transforms: Array<any>;
   ensureHook: string;
+  serviceName: string;
   filteredMessageCallback: Function;
 
-  constructor({ glue, services, transforms, ensureHook }: any, filteredMessageCallback?: Function) {
+  constructor({ serviceName, glue, services, transforms, ensureHook }: any, filteredMessageCallback?: Function) {
+    this.serviceName = serviceName;
     this.glue = glue;
 
     // don't assign hull service if it already exists...
@@ -85,7 +87,7 @@ class HullRouter {
     });
 
     _.forEach(_.get(manifest, "incoming", []), endpoint => {
-      _.set(handlers, `incoming.${endpoint.handler}`, this.createIncomingDispatchCallback(endpoint, () => {}));
+      _.set(handlers, `incoming.${endpoint.handler}`, this.createIncomingDispatchCallback(endpoint));
     });
 
     _.set(handlers, "private_settings.oauth", () => getServiceOAuthParams(manifest, this.serviceDefinitions));
@@ -130,7 +132,7 @@ class HullRouter {
         dataToSend = [];
         // break up data and send one by one
         _.forEach(data, message => {
-          if (toSendMessage(context, _.toLower(objectType.name), message)) {
+          if (toSendMessage(context, _.toLower(objectType.name), message, { serviceName: this.serviceName })) {
             dataToSend.push(message);
           } else {
             dataToSkip.push(message);
@@ -157,12 +159,11 @@ class HullRouter {
             jobName: `${_.upperFirst(direction)} Data`,
             type: _.toLower(objectType.name)
           });
-
           if (callback) {
             // TODO make sure this works if callback returns promise
             return Promise.resolve(callback(context, results))
           }
-          
+
           return Promise.resolve(results);
         }).catch(error => {
           dispatcher.close();

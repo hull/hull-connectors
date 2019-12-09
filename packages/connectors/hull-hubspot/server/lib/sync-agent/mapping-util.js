@@ -610,6 +610,8 @@ class MappingUtil {
 
         if (Array.isArray(value)) {
           value = value.join(";");
+        } else if (_.isPlainObject(value)) {
+          value = JSON.stringify(value);
         }
 
         if (value && mappingEntry.hubspot_property_type === "date") {
@@ -721,6 +723,8 @@ class MappingUtil {
 
         if (Array.isArray(value)) {
           value = value.join(";");
+        } else if (_.isPlainObject(value)) {
+          value = JSON.stringify(value);
         }
 
         if (value && mappingEntry.hubspot_property_type === "date") {

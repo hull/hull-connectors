@@ -189,26 +189,22 @@ it("should fetch user events on outgoing traffic", () => {
           ],
           ["debug", "trackEvents", expect.whatever(), expect.whatever()],
           [
-            "info",
-            "incoming.event.success",
+            "debug", "incoming.event.success",
             userClaims,
             expect.objectContaining({ action: "open" })
           ],
           [
-            "info",
-            "incoming.event.success",
+            "debug", "incoming.event.success",
             userClaims,
             expect.objectContaining({ action: "sent" })
           ],
           [
-            "info",
-            "incoming.event.success",
+            "debug", "incoming.event.success",
             userClaims,
             expect.objectContaining({ action: "mandrill_send" })
           ],
           [
-            "info",
-            "incoming.event.success",
+            "debug", "incoming.event.success",
             userClaims,
             expect.objectContaining({ action: "mandrill_open" })
           ]

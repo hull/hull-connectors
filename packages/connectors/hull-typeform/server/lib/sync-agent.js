@@ -254,7 +254,7 @@ class SyncAgent {
         );
         const asUser = this.hullClient.asUser(userClaims);
         if (Object.keys(userClaims).length === 0) {
-          asUser.logger.info("incoming.user.skip", {
+          asUser.logger.debug("incoming.user.skip", {
             reason:
               "No identification claims defined, please refer to Identification section of documentation",
             rawResponse: response
@@ -264,8 +264,8 @@ class SyncAgent {
 
         this.metric.increment("ship.incoming.users", 1);
 
-        asUser.logger.info("incoming.user.success", userAttributes);
-        asUser.logger.info("incoming.user-event.success", {
+        asUser.logger.debug("incoming.user.success", userAttributes);
+        asUser.logger.debug("incoming.user-event.success", {
           event: "Form Submitted",
           eventProperties,
           eventContext

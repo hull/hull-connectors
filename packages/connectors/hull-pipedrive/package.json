@@ -1,0 +1,14 @@
+{
+  "name": "hull-pipedrive",
+  "version": "0.1.11-monorepo",
+  "description": "Sync persons and organizations with Hull",
+  "scripts": {
+    "test": "yarn run test:integration",
+    "test:integration": "DEBUG=hull* NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}",
+    "documentation": "exit 0"
+  },
+  "dependencies": {
+    "passport-pipedrive": "^0.1.1"
+  },
+  "devDependencies": {}
+}

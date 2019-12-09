@@ -39,6 +39,7 @@ export const CHANGES = {};
 export const METRIC_CONNECTOR_REQUEST = ["increment", "connector.request", 1];
 export const METRIC_INCOMING_USER = ["increment", "ship.incoming.users", 1];
 export const METRIC_INCOMING_EVENT = ["increment", "ship.incoming.events", 1];
+export const METRIC_SERVICE_REQUEST = ["increment", "connector.service_api.call", 1];
 
 export const messageWithUser = ({
   user = USER,

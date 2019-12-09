@@ -25,6 +25,13 @@ function isServiceAttribute(attributeListParam: string, param: string) {
   };
 }
 
+function mappingExists(attributeListParam: string, truthy: Object) {
+  return (context) => {
+    const attributeList = context.get(`connector.private_settings.${attributeListParam}`);
+    return _.filter(attributeList, truthy).length > 0;
+  };
+}
+
 function not(method) {
   return (context, input) => {
     return !method(context, input);
@@ -59,6 +66,20 @@ function isNotEqual(param: string, value) {
   };
 }
 
+function inputIsEmpty(param: string) {
+  return (context, input) => {
+    const contextVariable = _.get(input, param);
+    return _.isEmpty(contextVariable);
+  };
+}
+
+function inputIsNotEmpty(param: string) {
+  return (context, input) => {
+    const contextVariable = _.get(input, param);
+    return !_.isEmpty(contextVariable);
+  };
+}
+
 function inputIsNotEqual(param: string, value) {
   return (context, input) => {
     const contextVariable = _.get(input, param);
@@ -82,6 +103,9 @@ module.exports = {
   doesContain,
   inputIsNotEqual,
   inputIsEqual,
+  inputIsNotEmpty,
+  inputIsEmpty,
   isServiceAttribute,
-  not
+  not,
+  mappingExists
 };

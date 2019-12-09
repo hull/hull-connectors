@@ -37,6 +37,7 @@ export default async function getEntity(
       error: "Can't search for an empty value"
     };
   }
+
   const isUser = entity === "user";
   try {
     const payloads = await ctx.entities.get({

@@ -10,6 +10,7 @@ import {
   NEXT_FLOW_CONTROL,
   USER,
   METRIC_CONNECTOR_REQUEST,
+  METRIC_SERVICE_REQUEST,
   messageWithUser
 } from "../../fixtures";
 
@@ -44,7 +45,7 @@ describe("Request library", () => {
           })
         ]
       ],
-      metrics: [METRIC_CONNECTOR_REQUEST]
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
     }));
   });
 
@@ -82,7 +83,7 @@ describe("Request library", () => {
           })
         ]
       ],
-      metrics: [METRIC_CONNECTOR_REQUEST]
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
     }));
   });
 
@@ -176,7 +177,7 @@ describe("Request library", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           expect.objectContaining({
@@ -187,7 +188,7 @@ describe("Request library", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.event.success",
           expect.whatever(),
           expect.objectContaining({
@@ -200,6 +201,7 @@ describe("Request library", () => {
       ],
       metrics: [
         METRIC_CONNECTOR_REQUEST,
+        METRIC_SERVICE_REQUEST,
         METRIC_INCOMING_USER,
         METRIC_INCOMING_EVENT
       ]
@@ -248,7 +250,7 @@ describe("Request library", () => {
           })
         ]
       ],
-      metrics: [METRIC_CONNECTOR_REQUEST]
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
     }));
   });
 
@@ -284,7 +286,7 @@ describe("Request library", () => {
           })
         ]
       ],
-      metrics: [METRIC_CONNECTOR_REQUEST]
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
     }));
   });
 
@@ -327,7 +329,7 @@ describe("Request library", () => {
           })
         ]
       ],
-      metrics: [METRIC_CONNECTOR_REQUEST]
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
     }));
   });
 });

@@ -8,6 +8,7 @@ import {
   METRIC_INCOMING_USER,
   NEXT_FLOW_CONTROL,
   USER,
+  METRIC_SERVICE_REQUEST,
   METRIC_CONNECTOR_REQUEST,
   messageWithUser
 } from "../../fixtures";
@@ -50,7 +51,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes, no_ops: {} }
@@ -103,7 +104,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes: { value: "foosball" }, no_ops: {} }
@@ -189,7 +190,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes: {}, no_ops: { identical: "identical value" } }
@@ -240,7 +241,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes, no_ops: { identical: "identical value" } }
@@ -285,10 +286,97 @@ describe("Basic Attributes manipulation", () => {
           attributes["foo"]
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes: {}, no_ops: { foo: "identical value" } }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+
+  it("recognizes Arrays of Objects as JSON Objects", () => {
+    const asUser = {
+      id: "1234"
+    };
+    const asAccount = {
+      id: "1234"
+    };
+    const obj = [{ bar: "baz" }];
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: asUser,
+        account: {}
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(
+        `hull.traits({ "foo": [{ "bar": "baz" }] })`
+      ),
+      firehoseEvents: [
+        ["traits", { asUser, subjectType: "user" }, { foo: obj }]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [[asUser, { foo: obj }]]
+          })
+        ],
+        ["info", 'Nested object found in key "foo"', expect.whatever(), obj],
+        [
+          "debug",
+          "incoming.user.success",
+          expect.whatever(),
+          { attributes: { foo: obj }, no_ops: {} }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+
+  it("doesn't confuse Arrays for JSON Objects", () => {
+    const asUser = {
+      id: "1234"
+    };
+    const asAccount = {
+      id: "1234"
+    };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: asUser,
+        account: {}
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(`hull.traits({ "foo": ["bar","baz"] })`),
+      firehoseEvents: [
+        [
+          "traits",
+          {
+            asUser,
+            subjectType: "user"
+          },
+          {
+            foo: ["bar", "baz"]
+          }
+        ]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [[asUser, { foo: ["bar", "baz"] }]]
+          })
+        ],
+        [
+          "debug",
+          "incoming.user.success",
+          expect.whatever(),
+          { attributes: { foo: ["bar", "baz"] }, no_ops: {} }
         ]
       ],
       metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
@@ -341,7 +429,7 @@ describe("Basic Attributes manipulation", () => {
           attributes["foo"]
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes, no_ops: {} }
@@ -392,7 +480,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes, no_ops: {} }
@@ -420,7 +508,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           {
@@ -464,7 +552,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           {
@@ -509,7 +597,7 @@ describe("Basic Attributes manipulation", () => {
           attributes["group/group"]
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes, no_ops: {} }
@@ -560,7 +648,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.event.success",
           expect.whatever(),
           {
@@ -613,7 +701,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.account.link.success",
           expect.whatever(),
           {
@@ -646,7 +734,10 @@ describe("Request Methods", () => {
       handlerType: handlers.notificationHandler,
       externalApiMock: () => {
         const scope = nock("https://foo.com");
-        scope.get("/").socketDelay(35000).reply(500, { boom: true });
+        scope
+          .get("/")
+          .socketDelay(35000)
+          .reply(500, { boom: true });
         return scope;
       },
       connector: connectorWithCode(
@@ -672,7 +763,7 @@ describe("Request Methods", () => {
           }
         ]
       ],
-      metrics: [METRIC_CONNECTOR_REQUEST]
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
     }));
   });
   it("should handle request errors", () => {
@@ -708,7 +799,7 @@ describe("Request Methods", () => {
           }
         ]
       ],
-      metrics: [METRIC_CONNECTOR_REQUEST]
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
     }));
   });
 });

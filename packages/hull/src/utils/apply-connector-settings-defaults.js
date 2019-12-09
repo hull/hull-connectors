@@ -1,5 +1,5 @@
 // @flow
-import _ from "lodash";
+
 import type { HullManifest, HullConnector } from "../types";
 
 const debug = require("debug")("hull:apply-connector-settings-default");
@@ -7,7 +7,7 @@ const debug = require("debug")("hull:apply-connector-settings-default");
 function applyDefaults(
   manifestSettings = [],
   connectorSettings = {},
-  manifest
+  _manifest
 ) {
   manifestSettings.forEach(setting => {
     if (!setting.name || !setting.default) {
@@ -16,13 +16,15 @@ function applyDefaults(
     if (connectorSettings[setting.name] !== undefined) {
       return;
     }
-    const def =
-      _.isString(setting.default) && setting.default.indexOf("#/") === 0
-        ? _.get(
-            manifest,
-            setting.default.replace(/^#\//, "").replace(/\//g, ".")
-          )
-        : setting.default;
+    // TODO: Disabled for now while we wait for the manifest to support top level mappings
+    // const def =
+    //   _.isString(setting.default) && setting.default.indexOf("#/") === 0
+    //     ? _.get(
+    //         manifest,
+    //         setting.default.replace(/^#\//, "").replace(/\//g, ".")
+    //       )
+    //     : setting.default;
+    const def = setting.default;
     debug("applying default", {
       name: setting.name,
       currentValue: typeof connectorSettings[setting.name],

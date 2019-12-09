@@ -46,8 +46,9 @@ type EventSignature = {
 const logIfNested = (client, attrs) => {
   _.map(attrs, (v, k: string) => {
     if (
-      _.isObject(v) &&
-      !_.isEqual(_.sortBy(_.keys(v)), ["operation", "value"])
+      (_.isPlainObject(v) &&
+        !_.isEqual(_.sortBy(_.keys(v)), ["operation", "value"])) ||
+      (_.isArray(v) && _.some(v, vv => _.isObject(vv)))
     ) {
       client.logger.info(`Nested object found in key "${k}"`, v);
     }
@@ -88,7 +89,7 @@ export const callTraits = async ({
             await client.traits(attributes);
           }
           successful += 1;
-          return client.logger.info(`incoming.${entity}.success`, {
+          return client.logger.debug(`incoming.${entity}.success`, {
             attributes,
             no_ops
           });
@@ -128,7 +129,7 @@ export const callEvents = async ({
             source: "code",
             ...context
           });
-          return client.logger.info("incoming.event.success", {
+          return client.logger.debug("incoming.event.success", {
             eventName,
             properties
           });
@@ -171,7 +172,7 @@ export const callLinks = async ({
         try {
           successful += 1;
           await client.account(accountClaims).traits({});
-          return client.logger.info(`incoming.${entity}.link.success`, {
+          return client.logger.debug(`incoming.${entity}.link.success`, {
             accountClaims,
             userClaims
           });

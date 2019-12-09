@@ -222,7 +222,7 @@ class SyncAgent {
         if (!_.isEmpty(message.user.email)) {
           return true;
         }
-        this.client.asUser(message.user).logger.info("outgoing.user.skip", {
+        this.client.asUser(message.user).logger.debug("outgoing.user.skip", {
           reason: "doesn't have an email address"
         });
         return false;
@@ -242,7 +242,7 @@ class SyncAgent {
         ) {
           return true;
         }
-        this.client.asUser(message.user).logger.info("outgoing.user.skip", {
+        this.client.asUser(message.user).logger.debug("outgoing.user.skip", {
           reason: "doesn't match whitelist"
         });
         return false;

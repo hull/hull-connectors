@@ -194,7 +194,7 @@ class EventsAgent {
             })
             .then(
               () => {
-                asUser.logger.info("incoming.event.success", {
+                asUser.logger.debug("incoming.event.success", {
                   email: email.email_address,
                   action: a.action,
                   timestamp: a.timestamp,

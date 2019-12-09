@@ -176,6 +176,40 @@ const service = ({ clientID, clientSecret } : {
       operation: "post",
       endpointType: "create"
     },
+    getUsers: {
+      url: "/users/",
+      operation: "get",
+      endpointType: "fetchAll"
+    },
+    getStages: {
+      url: "/stages/",
+      operation: "get",
+      endpointType: "fetchAll"
+    },
+    getEvents: {
+      url: "/events/",
+      operation: "get",
+      endpointType: "byProperty",
+      query: "page[limit]=1000"
+    },
+    getEventsPaged: {
+      url: "/events/",
+      operation: "get",
+      endpointType: "byProperty",
+      query: "page[limit]=${page_limit}&filter[id]=${id_offset}..inf"
+    },
+    getRecentEvents: {
+      url: "/events/",
+      operation: "get",
+      endpointType: "byProperty",
+      query: "filter[eventAt]=${filterLimits}&sort=-eventAt&page[limit]=1000"
+    },
+    getEventsOffset: {
+      url: "/events/",
+      operation: "get",
+      endpointType: "byProperty",
+      query: "${offsetQuery}"
+    }
   },
   superagent: {
     settings: [

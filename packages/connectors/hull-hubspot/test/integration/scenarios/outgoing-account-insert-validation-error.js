@@ -10,7 +10,10 @@ process.env.CLIENT_SECRET = "123";
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_account_segments: ["hullSegmentId"]
+    synchronized_account_segments: ["hullSegmentId"],
+    outgoing_account_attributes: [
+      { hull: "name", service: "name", overwrite: true }
+    ]
   }
 };
 const accountsSegments = [
@@ -41,13 +44,20 @@ it("should send out a new hull account to hubspot insert validation error", () =
           results: []
         });
         scope.post("/companies/v2/companies/?auditId=Hull", {
-          "properties": [{
-            "name": "hull_segments",
-            "value": "testSegment"
-          }, {
-            "name": "domain",
-            "value": "hull.io"
-          }]
+          "properties": [
+            {
+              "name": "name",
+              "value": "New Name"
+            },
+            {
+              "name": "hull_segments",
+              "value": "testSegment"
+            },
+            {
+              "name": "domain",
+              "value": "hull.io"
+          }
+        ]
         }).reply(400, require("../fixtures/post-companies-nonexisting-property"));
         return scope;
       },
@@ -56,7 +66,20 @@ it("should send out a new hull account to hubspot insert validation error", () =
       accountsSegments,
       messages: [
         {
+          changes: {
+            is_new: false,
+            user: {},
+            account: {
+              name: [
+                "old",
+                "New Name"
+              ]
+            },
+            segments: {},
+            account_segments: {}
+          },
           account: {
+            name: "New Name",
             domain
           },
           account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
@@ -74,30 +97,6 @@ it("should send out a new hull account to hubspot insert validation error", () =
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
-        [
-          "info",
-          "outgoing.account.skip",
-          {
-            "subject_type": "account",
-            "request_id": expect.whatever(),
-            "account_domain": "hull.io"
-          },
-          {
-            "reason": "There are no outgoing attributes to synchronize for account.  Please go to the settings page and add outgoing account attributes to synchronize"
-          }
-        ],
-        [
-          "info",
-          "outgoing.account.skipcandidate",
-          {
-            "subject_type": "account",
-            "request_id": expect.whatever(),
-            "account_domain": "hull.io"
-          },
-          {
-            "reason": "attribute change not found"
-          }
-        ],
         [
           "debug",
           "connector.service_api.call",
@@ -125,13 +124,19 @@ it("should send out a new hull account to hubspot insert validation error", () =
               "requestId": "156dd7c3965247bc8c073a02ab1d2f9b"
             },
             hubspotWriteCompany: {
-              "properties": [{
-                "name": "hull_segments",
-                "value": "testSegment"
-              }, {
-                "name": "domain",
-                "value": "hull.io"
-              }]
+              "properties": [
+                {
+                  "name": "name",
+                  "value": "New Name"
+                },
+                {
+                  "name": "hull_segments",
+                  "value": "testSegment"
+                }, {
+                  "name": "domain",
+                  "value": "hull.io"
+                }
+              ]
             },
             operation: "insert"
           }

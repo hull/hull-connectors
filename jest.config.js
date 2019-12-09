@@ -7,10 +7,14 @@ module.exports = {
     "<rootDir>/packages/connectors/hull-warehouse/test/**/*.(test|spec).js",
     "<rootDir>/packages/connectors/hull-customerio/test/**/*.(test|spec).js",
     "<rootDir>/packages/connectors/hull-slack/test/**/*.(test|spec).js",
-    "<rootDir>/packages/hull-connector-framework/test/**/*.(test|spec).js"
+    "<rootDir>/packages/hull-connector-framework/test/**/*.(test|spec).js",
+    "<rootDir>/packages/connectors/hull-pipedrive/test/**/*.(test|spec).js",
+    "<rootDir>/packages/connectors/hull-zapier/test/**/*.(test|spec).js"
   ],
   collectCoverageFrom: [
     "<rootDir>/packages/connectors/hull-typeform/server/**/*.js",
+    "<rootDir>/packages/connectors/hull-pipedrive/server/**/*.js",
+    "<rootDir>/packages/connectors/hull-zapier/server/**/*.js",
     "<rootDir>/packages/connectors/hull-outreach/server/**/*.js",
     "<rootDir>/packages/connectors/hull-marketo/server/**/*.js",
     "<rootDir>/packages/connectors/hull-warehouse/server/**/*.js",

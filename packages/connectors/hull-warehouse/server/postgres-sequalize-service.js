@@ -165,10 +165,27 @@ class SequalizeSdk {
     return EVENT_SCHEMA;
   }
 
-  async initSchema(params: { schema: any, tableName: string } ) {
+  /**
+   * MUST return a new object, and not a reference object
+   * sequalize mutates this when you pass it in
+   * @returns {Promise<{indexes: {unique: string, fields: string[]}[]}>}
+   */
+  async createEventIndexes() {
+    return {
+      indexes:[
+        {
+          unique: false ,
+          fields:['user_id']
+        }
+      ]
+    };
+  }
+
+  async initSchema(params: { schema: any, tableName: string, indexes: Object } ) {
     return this.getSequelizeConnection().define(
       params.tableName,
-      params.schema
+      params.schema,
+      params.indexes
     );
   }
 

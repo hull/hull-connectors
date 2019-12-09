@@ -95,6 +95,27 @@ describe("Clearbit Reveal Tests", () => {
             action: "reveal",
             params: { ip: "100.0.0.0" }
           }
+        ],
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  message: "Cannot Enrich because missing email",
+                  should: false
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: true
+                },
+                revealResult: undefined
+              }
+            ]
+          }
         ]
       ],
       firehoseEvents: [
@@ -182,6 +203,27 @@ describe("Clearbit Reveal Tests", () => {
             action: "reveal",
             params: { ip: "100.0.0.0" }
           }
+        ],
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  message: "Cannot Enrich because missing email",
+                  should: false
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: true
+                },
+                revealResult: undefined
+              }
+            ]
+          }
         ]
       ],
       firehoseEvents: [
@@ -233,6 +275,30 @@ describe("Clearbit Reveal Tests", () => {
           account: {},
           segments: []
         }
+      ],
+      logs: [
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  message: "Cannot Enrich because missing email",
+                  should: false
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: false,
+                  message: "revealed_at present"
+                },
+                revealResult: false
+              }
+            ]
+          }
+        ]
       ]
     })));
 
@@ -247,6 +313,30 @@ describe("Clearbit Reveal Tests", () => {
           account: {},
           segments: []
         }
+      ],
+      logs: [
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  message: "Cannot Enrich because missing email",
+                  should: false
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: false,
+                  message: "Cannot reveal because missing IP"
+                },
+                revealResult: false
+              }
+            ]
+          }
+        ]
       ]
     })));
 
@@ -275,7 +365,30 @@ describe("Clearbit Reveal Tests", () => {
           type: "next"
         }
       },
-      logs: [],
+      logs: [
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  message: "Cannot Enrich because missing email",
+                  should: false
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: false,
+                  message: "User not in any Reveal segment whitelist"
+                },
+                revealResult: false
+              }
+            ]
+          }
+        ]
+      ],
       firehoseEvents: [],
       metrics: [["increment", "connector.request", 1]],
       platformApiCalls: []
@@ -292,6 +405,30 @@ describe("Clearbit Reveal Tests", () => {
           account: {},
           segments: []
         }
+      ],
+      logs: [
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  message: "Cannot Enrich because missing email",
+                  should: false
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: false,
+                  message: "User not in any Reveal segment whitelist"
+                },
+                revealResult: false
+              }
+            ]
+          }
+        ]
       ]
     })));
 
@@ -307,6 +444,30 @@ describe("Clearbit Reveal Tests", () => {
           account: {},
           segments: [{ id: "reveal" }]
         }
+      ],
+      logs: [
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  message: "Cannot Enrich because missing email",
+                  should: false
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: false,
+                  message: "Reveal doesn't work on Batch updates"
+                },
+                revealResult: false
+              }
+            ]
+          }
+        ]
       ]
     })));
 
@@ -321,6 +482,30 @@ describe("Clearbit Reveal Tests", () => {
           account: {},
           segments: [{ id: "reveal" }, { id: "exclusion" }]
         }
+      ],
+      logs: [
+        [
+          "info",
+          "outgoing.user.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                user_id: "1234",
+                enrichAction: {
+                  message: "Cannot Enrich because missing email",
+                  should: false
+                },
+                enrichResult: false,
+                revealAction: {
+                  should: false,
+                  message: "User in Reveal segment blacklist"
+                },
+                revealResult: false
+              }
+            ]
+          }
+        ]
       ]
     })));
 });

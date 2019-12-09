@@ -101,13 +101,13 @@ test("send batch user update to outreach", () => {
         ["info", "outgoing.user.success", {"request_id": expect.whatever(), "subject_type": "user", "user_email": "darth@darksideinc.com", "user_id": "5bd329d5e2bcf3eeaf000099"}, expect.objectContaining({"type": "Prospect"})],
         ["debug", "connector.service_api.call", expect.whatever(), {"method": "POST", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/", "vars": {}}],
         ["info", "outgoing.user.success", {"request_id": expect.whatever(), "subject_type": "user", "user_email": "fettisbest@gmail.com", "user_id": expect.whatever()}, expect.objectContaining({"type": "Prospect"})],
-        ["info", "incoming.user.success", {
+        ["debug", "incoming.user.success", {
           "subject_type": "user",
           "request_id": expect.whatever(),
           "user_email": "darth@darksideinc.com",
           "user_anonymous_id": "outreach:16"
         }, {"data": expect.whatever(), "type": "Prospect"}],
-        ["info", "incoming.user.success", {
+        ["debug", "incoming.user.success", {
           "subject_type": "user",
           "request_id": expect.whatever(),
           "user_email": "darth@darksideinc.com",
@@ -127,6 +127,7 @@ test("send batch user update to outreach", () => {
             subjectType: "user"
           },
           {
+            "outreach/custom1": { "operation": "set", "value": null },
             "outreach/id": { operation: "set", value: 16 },
             "outreach/personalNote1": {
               operation: "set",
@@ -144,6 +145,7 @@ test("send batch user update to outreach", () => {
             subjectType: "user"
           },
           {
+            "outreach/custom1": { "operation": "set", "value": null },
             "outreach/id": { operation: "set", value: 16 },
             "outreach/personalNote1": {
               operation: "set",

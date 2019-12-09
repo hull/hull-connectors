@@ -27,6 +27,7 @@ export type HullConnector = {|
   homepage_url: string,
   manifest_url: string,
   manifest: HullManifest,
+  accept_incoming_webhooks?: boolean,
   settings: HullConnectorSettings,
   private_settings: HullConnectorSettings,
   status: Object

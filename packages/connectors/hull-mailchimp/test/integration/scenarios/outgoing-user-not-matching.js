@@ -77,9 +77,7 @@ it("should skip user who doesn't match the filter", () => {
             { changes: {}, events: [], segments: ["otherTestSegment"] }
           ],
           ["debug", "outgoing.job.start", expect.whatever(), { messages: 1 }],
-          [
-            "info",
-            "outgoing.user.skip",
+          ["debug", "outgoing.user.skip",
             expect.objectContaining({
               subject_type: "user",
               user_email: email
