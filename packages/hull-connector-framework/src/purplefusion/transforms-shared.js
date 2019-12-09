@@ -169,9 +169,10 @@ const transformsShared: ServiceTransforms = [
   {
     input: ServiceAccountRaw,
     output: HullIncomingAccount,
-    strategy: "AtomicReaction",
     direction: "incoming",
-    transforms: [
+    strategy: "AtomicReaction",
+    target: { component: "new" },
+    then: [
       {
         operateOn: "connector.private_settings.incoming_account_attributes",
         expand: { valueName: "mapping" },
@@ -180,20 +181,6 @@ const transformsShared: ServiceTransforms = [
           writeTo: { path: "attributes.${mapping.hull}" }
         }
       },
-      // {
-      //   mapping: { type: "input" },
-      //   condition: [
-      //     isEqual("connector.private_settings.fetch_all_attributes", true),
-      //     not(isServiceAttribute("connector.private_settings.incoming_account_attributes", "service_field_name")),
-      //     not(isEqual("service_field_name", "hull_events"))
-      //   ],
-      //   inputPath: "${service_field_name}",
-      //   outputPath: "attributes.${service_name}/${hull_field_name}",
-      //   outputFormat: {
-      //     value: "${value}",
-      //     operation: "set"
-      //   }
-      // },
       {
         operateOn: { component: "input", select: "id" },
         then:[
@@ -212,9 +199,10 @@ const transformsShared: ServiceTransforms = [
   {
     input: ServiceOpportunityRaw,
     output: HullIncomingOpportunity,
-    strategy: "AtomicReaction",
     direction: "incoming",
-    transforms: [
+    strategy: "AtomicReaction",
+    target: { component: "new" },
+    then: [
       {
         operateOn: { component: "input", select: "hull_service_accountId" },
         validation: { error: "BreakLoop", message: "Opp doesn't have company", condition: [ inputIsNotEqual("company_id", null), inputIsNotEqual("company_id", undefined) ] },
@@ -225,7 +213,7 @@ const transformsShared: ServiceTransforms = [
         writeTo: { path: "ident.anonymous_id", format: "${service_name}:${operateOn}" },
       },
       {
-        operateOn: {component: "input", select: "${connector.private_settings.opportunity_type}", name: "opportunityType"},
+        operateOn: { component: "input", select: "${connector.private_settings.opportunity_type}", name: "opportunityType"},
         then: [
           {
             operateOn: { component: "input", select: "id" },
@@ -238,7 +226,7 @@ const transformsShared: ServiceTransforms = [
             }
           },
           {
-            operateOn: "connector.private_settings.incoming_opportunity_attributes",
+            operateOn: "${connector.private_settings.incoming_opportunity_attributes}",
             expand: { valueName: "mapping" },
             then: {
               operateOn: { component: "input", select: "${mapping.service}"},
@@ -252,21 +240,7 @@ const transformsShared: ServiceTransforms = [
             }
           }
         ]
-      },
-      // {
-      //   mapping: { type: "input" },
-      //   condition: [
-      //     isEqual("connector.private_settings.fetch_all_attributes", true),
-      //     not(isServiceAttribute("connector.private_settings.incoming_account_attributes", "service_field_name")),
-      //     not(isEqual("service_field_name", "hull_events"))
-      //   ],
-      //   inputPath: "${service_field_name}",
-      //   outputPath: "attributes.${service_name}/${hull_field_name}",
-      //   outputFormat: {
-      //     value: "${value}",
-      //     operation: "set"
-      //   }
-      // },
+      }
     ]
   },
   {

@@ -1,13 +1,11 @@
 const { isUndefinedOrNull } = require("./utils");
-const { isEqual } = require("./conditionals");
+const { isEqual, isNotEqual } = require("./conditionals");
 
 function createIncomingServiceUserTransform(entityType) {
-  return [
-    {
-      target: { component: "new" },
-      then: serviceUserTransforms(entityType)
-    }
-  ]
+  return {
+    target: { component: "new" },
+    then: serviceUserTransforms(entityType)
+  };
 }
 
 function serviceUserTransforms(entityType) {
@@ -24,10 +22,11 @@ function serviceUserTransforms(entityType) {
   }
   return [
     {
-      operateOn: `connector.private_settings.${attributeName}_claims`,
+      operateOn: `\${connector.private_settings.${attributeName}_claims}`,
       expand: { valueName: "mapping" },
       then: {
-        operateOn: { component: "input", select: "${mapping.service}"},
+        operateOn: { component: "input", select: "${mapping.service}", name: "serviceValue" },
+        condition: isNotEqual("serviceValue", undefined),
         writeTo: {
           // should expose specific identity mappings like "primaryEmail" if there are service specific rules/attributes...
           path: "ident.${mapping.hull}"
@@ -35,12 +34,17 @@ function serviceUserTransforms(entityType) {
       }
     },
     {
-      operateOn: `connector.private_settings.incoming_${attributeName}_attributes`,
+      operateOn: `\${connector.private_settings.incoming_${attributeName}_attributes}`,
       expand: { valueName: "mapping" },
       then: {
-        operateOn: { component: "input", select: "${mapping.service}"},
+        operateOn: { component: "input", select: "${mapping.service}", name: "serviceValue" },
+        condition: isNotEqual("serviceValue", undefined),
         writeTo: {
-          path: "attributes.${mapping.hull}"
+          path: "attributes.${mapping.hull}",
+          value: {
+            operation: "set",
+            value: "${serviceValue}"
+          }
         }
       }
     },
@@ -52,7 +56,7 @@ function serviceUserTransforms(entityType) {
           writeTo: {
             path: `attributes.\${service_name}${anonymousIdAttributePostfix}/id`,
             format: {
-              value: "${value}",
+              value: "${operateOn}",
               operation: "set"
             }
           }

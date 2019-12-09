@@ -9,7 +9,8 @@ const jsonata = require("jsonata");
 const HullVariableContext = require("./variable-context");
 const { hasVariables } = require("./variable-utils");
 const transformationsShared = require("./transforms-shared");
-const { performTransformation, toTransform } = require("../../src/purplefusion/transform-utils");
+const { toTransform } = require("../../src/purplefusion/transform-utils");
+const { performTransformation } = require("../../src/purplefusion/transform-atomic-reaction");
 
 const {
   isUndefinedOrNull,

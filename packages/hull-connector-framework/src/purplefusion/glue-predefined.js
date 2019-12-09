@@ -85,7 +85,7 @@ function fetchAllByDate({ serviceName, fetchEndpoint, incomingType, datePathOnEn
 
         set("page", new Svc({ name: serviceName, op: fetchEndpoint })),
 
-        iterateL("${page}", { key: "entity", async: true }, hull(hullCommand, cast(incomingType, "${entity}"))),
+        iterateL("${page}", { key: "entity" }, hull(hullCommand, cast(incomingType, "${entity}"))),
 
         set("dateOffset", get(datePathOnEntity, ld("last", "${page}"))),
         ifL(cond("lessThan", "${page.length}", pageSize), loopEndL()),

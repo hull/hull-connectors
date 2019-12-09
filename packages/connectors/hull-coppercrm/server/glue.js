@@ -39,7 +39,7 @@ const {
   HullConnectorAttributeDefinition
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
-const { fetchAllByDate, fetchRecentByDate } = require("hull-connector-framework/src/purplefusion/glue-utils");
+const { fetchAllByDate, fetchRecentByDate } = require("hull-connector-framework/src/purplefusion/glue-predefined");
 
 const {
   CopperCRMIncomingLead,
@@ -69,9 +69,9 @@ const glue = {
 
 
   // Setup marketo api from the configured values
-  ensure:
-    ifL(route("isConfigured"), [
-    ]),
+  ensure:[
+    set("service_name", "coppercrm")
+  ],
 
   //don't do anything on ship update
   shipUpdate: {},
@@ -139,13 +139,13 @@ const glue = {
   attributesPeopleIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, ld("concat", require("./fields/people_fields"), route("customPeopleFields")))),
   attributesCompaniesIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, ld("concat", require("./fields/company_fields"), route("customPeopleFields")))),
   attributesOpportunitiesIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, ld("concat", require("./fields/opportunity_fields"), route("customOpportunityFields")))),
-  customLeadFields: jsonata("$[\"lead\" in available_on].{\"label\": name, \"name\": name, \"type\": data_type, \"readOnly\": false}", cacheWrap(6000, coppercrm("getCustomFields"))),
-  customPeopleFields: jsonata("$[\"people\" in available_on].{\"label\": name, \"name\": name, \"type\": data_type, \"readOnly\": false}", cacheWrap(6000, coppercrm("getCustomFields"))),
-  customCompanyFields: jsonata("$[\"company\" in available_on].{\"label\": name, \"name\": name, \"type\": data_type, \"readOnly\": false}", cacheWrap(6000, coppercrm("getCustomFields"))),
-  customOpportunityFields: jsonata("$[\"company\" in available_on].{\"label\": name, \"name\": name, \"type\": data_type, \"readOnly\": false}", cacheWrap(6000, coppercrm("getCustomFields"))),
-  getAssignees: cacheWrap(6000, coppercrm("getUsers")),
+  customLeadFields: jsonata(`$["lead" in available_on].{"label": name, "name": name, "type": data_type, "readOnly": false}`, cacheWrap(6000, coppercrm("getCustomFields"))),
+  customPeopleFields: jsonata(`$["people" in available_on].{"label": name, "name": name, "type": data_type, "readOnly": false}`, cacheWrap(6000, coppercrm("getCustomFields"))),
+  customCompanyFields: jsonata(`$["company" in available_on].{"label": name, "name": name, "type": data_type, "readOnly": false}`, cacheWrap(6000, coppercrm("getCustomFields"))),
+  customOpportunityFields: jsonata(`$["opportunity" in available_on].{"label": name, "name": name, "type": data_type, "readOnly": false}`, cacheWrap(6000, coppercrm("getCustomFields"))),
+  getAssignees: jsonata(`$ {$string(id): email}`, cacheWrap(6000, coppercrm("getUsers"))),
   getContactTypes: cacheWrap(6000, coppercrm("getContactTypes")),
-  getCustomerSources: cacheWrap(6000, coppercrm("getCustomerSources")),
+  getCustomerSources: jsonata(`$ {$string(id): name}`, cacheWrap(6000, coppercrm("getCustomerSources"))),
   getLossReason: cacheWrap(6000, coppercrm("getLossReason")),
   getPipelines: cacheWrap(6000, coppercrm("getPipelines")),
   getPipelineStages: cacheWrap(6000, coppercrm("getPipelineStages")),

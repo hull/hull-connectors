@@ -30,6 +30,9 @@ class HullVariableContext {
   }
 
   get(key: string) {
+    // TODO might potentially try to detect if the first object on the path exists as a key in the context
+    // may not have the whole path, but if just top level is there, return undefined
+    // same thing for keys whose value is explicitly "undefined" where we may want to return that...
     for (let i = this.localContext.length - 1; i >= 0; i -= 1) {
       const value = _.get(this.localContext[i], key);
       if (value !== undefined) {

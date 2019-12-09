@@ -37,12 +37,11 @@ const service = ({ clientID, clientSecret } : {
   endpoints: {
     getUsers: {
       url: "/v1/users/search",
-      operation: "get",
+      operation: "post",
       endpointType: "lastFetch",
       query: {
-        "sort_by": "date_created",
-        "sort_direction": "asc",
-        "page_size": 200
+        "page_size": 200,
+        "page_number": 1
       }
     },
     getLeadStatuses: {

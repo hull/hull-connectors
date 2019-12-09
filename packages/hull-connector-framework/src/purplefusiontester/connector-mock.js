@@ -25,17 +25,28 @@ class ContextMock {
       value: jest.fn((name, value) => console.log(name, value))
     };
     this.notification = {};
+    this.cacheWrap = {};
+    this.cacheStore = {};
     this.cache = {
       wrap: jest.fn((key, cb) => {
-        return Promise.resolve(cb());
+        if (this.cacheWrap[key]) {
+          return this.cacheWrap[key];
+        } else {
+          const promise = cb();
+          this.cacheWrap[key] = promise;
+          return promise;
+        }
+        // return Promise.resolve(cb());
       }),
-      get: jest.fn(() => {
+      get: jest.fn((key) => {
+        return Promise.resolve(this.cacheStore[key]);
+      }),
+      set: jest.fn((key, value) => {
+        this.cacheStore[key] = value;
         return Promise.resolve();
       }),
-      set: jest.fn(() => {
-        return Promise.resolve();
-      }),
-      del: jest.fn(() => {
+      del: jest.fn((key) => {
+        _.unset(this.cacheStore, key);
         return Promise.resolve();
       })
     };
