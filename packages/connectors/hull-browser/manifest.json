@@ -159,7 +159,7 @@
           "handler": "connectorUpdate"
         },
         {
-          "channel": "user_update:update",
+          "channel": "user:update",
           "handler": "userUpdate"
         }
       ]
