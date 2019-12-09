@@ -128,7 +128,7 @@
       "title": "Code",
       "description": "The code you write below will run in the page whenever new data is sent client-side. we suggest you read the documentation to see the available data and the connector's behaviour",
       "properties": [
-        "settings.code"
+        "settings.script"
       ]
     }
   ],
