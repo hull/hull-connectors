@@ -34,9 +34,8 @@ export default function userPayload(
 
   const segmentIds = _.map(segments, "id");
 
-  // No Segment: Everyone goes there
   if (
-    synchronized_segments.length &&
+    !_.includes(synchronized_segments, "ALL") &&
     !_.intersection(synchronized_segments, segmentIds).length
   ) {
     return { message: "private", user: { id: user.id }, segments: {} };
