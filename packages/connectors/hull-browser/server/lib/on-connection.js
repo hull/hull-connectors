@@ -152,7 +152,8 @@ export default function onConnectionFactory({
         }
       } catch (err) {
         Client.logger.error("incoming.user.fetch.error", { message: err });
-        throw err;
+        // Don't throw this error, just return silently
+        // throw err;
       }
       return true;
     }
