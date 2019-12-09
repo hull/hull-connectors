@@ -1,197 +1,209 @@
 module.exports =
   [
     {
-      "label": "Name",
+      "display": "Name",
       "name": "name",
       "type": "string",
       "readOnly": false
     },
     {
-      "label": "Prefix",
+      "display": "Prefix",
       "name": "prefix",
       "type": "string",
       "readOnly": false
     },
     {
-      "label": "First Name",
+      "display": "First Name",
       "name": "first_name",
       "type": "string",
       "readOnly": false
     },
     {
-      "label": "last_name",
+      "display": "Last Name",
       "name": "last_name",
       "type": "string",
       "readOnly": false
     },
     {
-      "label": "middle_name",
+      "display": "Middle Name",
       "name": "middle_name",
       "type": "string",
       "readOnly": false
     },
     {
-      "label": "suffix",
-      "name": "string",
+      "display": "Suffix",
+      "name": "suffix",
       "type": "type",
       "readOnly": false
     },
     {
-      "label": "Address Street",
+      "display": "Address Street",
       "name": "addressStreet",
       "type": "string",
       "readOnly": false
     },
     {
-      "label": "Address City",
+      "display": "Address City",
       "name": "addressCity",
       "type": "string",
       "readOnly": false
     },
     {
-      "label": "Address State",
+      "display": "Address State",
       "name": "addressState",
       "type": "string",
       "readOnly": false
     },
     {
-      "label": "Address Postal Code",
+      "display": "Address Postal Code",
       "name": "addressPostalCode",
       "type": "string",
       "readOnly": false
     },
     {
-      "label": "Address Country",
+      "display": "Address Country",
       "name": "addressCountry",
       "type": "string",
       "readOnly": false
     },
     {
-      "label": "Assignee Id",
+      "display": "Assignee Id",
       "name": "assignee_id",
       "type": "number",
       "readOnly": false
     },
     {
-      "label": "Company Name",
+      "display": "Assignee Email",
+      "name": "assigneeEmail",
+      "type": "string",
+      "readOnly": false
+    },
+    {
+      "display": "Company Name",
       "name": "company_name",
       "type": "string",
       "readOnly": false
     },
     {
-      "label": "Customer Source Id",
+      "display": "Customer Source Id",
       "name": "customer_source_id",
       // TODO not sure?
       "type": "string",
       "readOnly": false
     },
     {
-      "label": "Details",
+      "display": "Customer Source Name",
+      "name": "customerSource",
+      // TODO not sure?
+      "type": "string",
+      "readOnly": false
+    },
+    {
+      "display": "Details",
       "name": "details",
       "type": "string",
       "readOnly": false
     },
+    // {
+    //   "display": "Email",
+    //   "name": "email",
+    //   "type": "string",
+    //   "readOnly": false
+    // },
     {
-      "label": "Email",
-      "name": "email",
-      "type": "string",
-      "readOnly": false
-    },
-    {
-      "label": "Interaction Count",
+      "display": "Interaction Count",
       "name": "interaction_count",
       "type": "number",
       "readOnly": false
     },
     {
       // TODO not sure?
-      "label": "Monetary Unit",
+      "display": "Monetary Unit",
       "name": "monetary_unit",
       "type": "string",
       "readOnly": false
     },
     {
       // TODO not sure?
-      "label": "Monetary Value",
+      "display": "Monetary Value",
       "name": "monetary_value",
       "type": "number",
       "readOnly": false
     },
     {
-      "label": "Converted Unit",
+      "display": "Converted Unit",
       "name": "converted_unit",
       "type": "type",
       "readOnly": false
     },
     {
-      "label": "Converted Value",
+      "display": "Converted Value",
       "name": "converted_value",
       "type": "type",
       "readOnly": false
     },
     {
-      "label": "Socials",
+      "display": "Socials",
       "name": "socials",
       "type": "type",
       "readOnly": false
     },
     {
-      "label": "Status",
+      "display": "Status",
       "name": "status",
       "type": "type",
       "readOnly": false
     },
     {
-      "label": "Status Id",
+      "display": "Status Id",
       "name": "status_id",
       "type": "type",
       "readOnly": false
     },
     {
-      "label": "Tags",
+      "display": "Tags",
       "name": "tags",
       "type": "type",
       "readOnly": false
     },
     {
-      "label": "Title",
+      "display": "Title",
       "name": "title",
       "type": "type",
       "readOnly": false
     },
     {
-      "label": "Websites",
+      "display": "Websites",
       "name": "websites",
       "type": "type",
       "readOnly": false
     },
     {
-      "label": "Phone Numbers",
+      "display": "Phone Numbers",
       "name": "phone_numbers",
       "type": "type",
       "readOnly": false
     },
-    // handled separately
-    // {
-    //   "label": "custom_fields",
-    //   "name": "custom_fields",
-    //   "type": "type",
-    //   "readOnly": false
-    // },
     {
-      "label": "Date Created",
+      "display": "Primary Email",
+      "name": "primaryEmail",
+      "type": "string",
+      "readOnly": false
+    },
+    {
+      "display": "Date Created",
       "name": "date_created",
       "type": "type",
       "readOnly": false
     },
     {
-      "label": "Date Modified",
+      "display": "Date Modified",
       "name": "date_modified",
       "type": "type",
       "readOnly": false
     },
     {
-      "label": "Date Last Contacted",
+      "display": "Date Last Contacted",
       "name": "date_last_contacted",
       "type": "type",
       "readOnly": false

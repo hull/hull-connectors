@@ -68,7 +68,7 @@ function serviceUserTransforms(entityType) {
       writeTo: { path: "ident.anonymous_ids" }
     },
     {
-      condition: isEqual("connector.private_settings.link_users_in_hull", true),
+      condition: isEqual(`\${connector.private_settings.link_${attributeName}_in_hull}`, true),
       then: [
         {
           operateOn: { component: "input", select: "hull_service_accountId" },

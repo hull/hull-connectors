@@ -1,3 +1,4 @@
+const _ = require("lodash");
 const { ClientMock } = require("./client-mock");
 
 class ConnectorMock {

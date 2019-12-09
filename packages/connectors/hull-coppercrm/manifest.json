@@ -39,7 +39,7 @@
         "properties": {
           "service": {
             "title": "Lead Field ID",
-            "enum": ["email"]
+            "enum": ["primaryEmail"]
           },
           "hull": {
             "title": "Hull User Ident",
@@ -50,7 +50,7 @@
       "default": [
         {
           "hull": "email",
-          "service": "email"
+          "service": "primaryEmail"
         }
       ]
     },
@@ -69,7 +69,7 @@
       }
     },
     {
-      "name": "user_claims",
+      "name": "person_claims",
       "title": "Person Identity",
       "type": "array",
       "format": "table",
@@ -78,7 +78,7 @@
         "properties": {
           "service": {
             "title": "Person Field ID",
-            "enum": ["email"]
+            "enum": ["primaryEmail"]
           },
           "hull": {
             "title": "Hull User Ident",
@@ -89,7 +89,7 @@
       "default": [
         {
           "hull": "email",
-          "service": "email"
+          "service": "primaryEmail"
         }
       ]
     },
@@ -108,8 +108,8 @@
       }
     },
     {
-      "name": "link_users_in_hull",
-      "title": "Link Users to Accounts in Hull",
+      "name": "link_person_in_hull",
+      "title": "Link People to Accounts in Hull",
       "description": "Do you want to let CopperCrm update links between Users and Accounts in Hull? Be careful about conflicts with other connectors that would link users too.\n\n**IMPORTANT:** when this checkbox is checked the connector will create a Hull Account for EVERY CopperCrm Account any Prospect is linked to (refer to documentation for more details).",
       "type": "boolean",
       "default": false
@@ -360,7 +360,7 @@
       "title": "User - Fetching People from CopperCRM",
       "description": "Hull gives it's customers the ability to capture changes on specific data fields so that they are kept up to date in real-time.  Please configure the fields that you would like pulled from CopperCrm below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
       "properties": [
-        "private_settings.incoming_user_attributes",
+        "private_settings.incoming_person_attributes",
         "json.fetch_all_people"
       ]
     },

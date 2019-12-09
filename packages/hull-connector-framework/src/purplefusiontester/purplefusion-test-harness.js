@@ -94,7 +94,7 @@ function createServiceMock(service, possibleMockRequests) {
 
 
         // remove the endpoint from the list because it's been called
-        _.pull(serviceWrapper.requestedMocks, identifiedResult);
+        _.pullAt(serviceWrapper.requestedMocks, _.indexOf(identifiedResult));
 
         // now return the appropriate result
         const result = identifiedResult.result;

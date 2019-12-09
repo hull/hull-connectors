@@ -1,60 +1,60 @@
 module.exports = [
   {
-    "label": "Name",
+    "display": "Name",
     "name": "name",
     "type": "string",
     "readOnly": false
   },
   {
-    "label": "Address Street",
+    "display": "Address Street",
     "name": "addressStreet",
     "type": "string",
     "readOnly": false
   },
   {
-    "label": "Address City",
+    "display": "Address City",
     "name": "addressCity",
     "type": "string",
     "readOnly": false
   },
   {
-    "label": "Address State",
+    "display": "Address State",
     "name": "addressState",
     "type": "string",
     "readOnly": false
   },
   {
-    "label": "Address Postal Code",
+    "display": "Address Postal Code",
     "name": "addressPostalCode",
     "type": "string",
     "readOnly": false
   },
   {
-    "label": "Address Country",
+    "display": "Address Country",
     "name": "addressCountry",
     "type": "string",
     "readOnly": false
   },
   {
-    "label": "Assignee Id",
+    "display": "Assignee Id",
     "name": "assignee_id",
     "type": "number",
     "readOnly": false
   },
   {
-    "label": "Contact Type Id",
+    "display": "Contact Type Id",
     "name": "contact_type_id",
     "type": "number",
     "readOnly": false
   },
   {
-    "label": "Details",
+    "display": "Details",
     "name": "details",
     "type": "string",
     "readOnly": false
   },
   {
-    "label": "Email Domain",
+    "display": "Email Domain",
     "name": "email_domain",
     "type": "string",
     "readOnly": false
@@ -89,19 +89,19 @@ module.exports = [
 //   }
 // ],
   {
-    "label": "Interaction Count",
+    "display": "Interaction Count",
     "name": "interaction_count",
     "type": "number",
     "readOnly": false
   },
   {
-    "label": "Date Created",
+    "display": "Date Created",
     "name": "date_created",
     "type": "type",
     "readOnly": false
   },
   {
-    "label": "Date Modified",
+    "display": "Date Modified",
     "name": "date_modified",
     "type": "type",
     "readOnly": false

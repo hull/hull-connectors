@@ -88,6 +88,9 @@ function fetchAllByDate({ serviceName, fetchEndpoint, incomingType, datePathOnEn
         iterateL("${page}", { key: "entity" }, hull(hullCommand, cast(incomingType, "${entity}"))),
 
         set("dateOffset", get(datePathOnEntity, ld("last", "${page}"))),
+
+        // Instruction after this gets executed too... loopEndL is only returned once the thing is fully evaluated
+        // should fix that and make loopEndL a first class citizen, used a lot...
         ifL(cond("lessThan", "${page.length}", pageSize), loopEndL()),
 
         // doing this if we know that the number of contacts on the same date_created is greater than the page size
@@ -100,12 +103,12 @@ function fetchAllByDate({ serviceName, fetchEndpoint, incomingType, datePathOnEn
   ]
 }
 
-function fetchRecentByDate({ serviceName, fetchEndpoint, incomingType, datePathOnEntity, hullCommand, timeFormat }) {
+function fetchRecentByDate({ serviceName, fetchEndpoint, incomingType, datePathOnEntity, pageSize, hullCommand, timeFormat }) {
   return cacheLock(fetchEndpoint, _.concat([
       set("dateOffset", settings(`last_${fetchEndpoint}`)),
       ifL(cond("isEmpty", "${dateOffset}"), set("dateOffset", ex(ex(moment(), "subtract", { hour: 1 }), timeFormat)))
     ],
-      fetchAllByDate({ serviceName, fetchEndpoint, incomingType, datePathOnEntity, hullCommand }),
+      fetchAllByDate({ serviceName, fetchEndpoint, incomingType, datePathOnEntity, pageSize, hullCommand }),
     [
       settingsUpdate({[`last_${fetchEndpoint}`]: "${dateOffset}"}),
     ]
