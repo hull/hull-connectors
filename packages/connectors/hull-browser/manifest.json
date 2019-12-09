@@ -102,9 +102,7 @@
       "description": "If you use Hull.js, deploy this connector in the **platform** you installed directly. Otherwise, copy the code below and paste it in your page.",
       "step": "credentials",
       "properties": [
-        "json.credentials",
-        "settings.use_gtm",
-        "settings.use_ga"
+        "json.credentials"
       ]
     },
     {
