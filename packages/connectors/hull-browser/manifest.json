@@ -53,6 +53,11 @@
       "description": "Only users from these segments will be sent",
       "type": "array",
       "default": [],
+      "options": {
+        "standard": {
+          "ALL": "All users"
+        }
+      },
       "format": "segment"
     },
     {
