@@ -95,9 +95,7 @@ export default function onConnectionFactory({
           );
         }
 
-        userClient.logger.debug("incoming.connection.check", {
-          origin: URI(origin).hostname()
-        });
+        userClient.logger.debug("incoming.connection.check", { origin });
 
         // Only continue if domain is whitelisted.
         const hostname = URI(origin).hostname();
