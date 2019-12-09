@@ -34,14 +34,14 @@ export default function connectorConfig(): HullConnectorConfig {
     port: PORT || 8082,
     timeout: "25s",
     handlers: handlers({
-      flow_size: parseInt(FLOW_CONTROL_SIZE || 100, 1),
-      flow_in: parseInt(FLOW_CONTROL_IN || 10, 1)
+      flow_size: FLOW_CONTROL_SIZE || 100,
+      flow_in: FLOW_CONTROL_IN || 10
     }),
     middlewares: [],
     cacheConfig: {
       ...cacheConfig,
-      ttl: parseInt(SHIP_CACHE_TTL || 60, 1),
-      max: parseInt(SHIP_CACHE_MAX || 100, 1)
+      ttl: SHIP_CACHE_TTL || 60,
+      max: SHIP_CACHE_MAX || 100
     },
     logsConfig: {
       logLevel: LOG_LEVEL
