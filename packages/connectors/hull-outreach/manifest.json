@@ -41,7 +41,8 @@
             "users.read",
             "stages.read",
             "events.all",
-            "mailings.read"
+            "mailings.read",
+            "sequences.read"
           ]
         }
       }

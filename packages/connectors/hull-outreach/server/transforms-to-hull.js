@@ -1,7 +1,7 @@
 /* @flow */
 import type { ServiceTransforms } from "hull-connector-framework/src/purplefusion/types";
 
-const { doesNotContain, isEqual, doesContain, isNotEqual, isServiceAttribute, mappingExists } = require("hull-connector-framework/src/purplefusion/conditionals");
+const { doesNotContain, isEqual, doesContain, isNotEqual, isServiceAttribute, mappingExists, notNull } = require("hull-connector-framework/src/purplefusion/conditionals");
 
 
 const {
@@ -459,6 +459,16 @@ const transformsToHull: ServiceTransforms =
             //       mappingExists("events_to_fetch", "eventInput.hull_events[0].eventName")
             //   }
             // },
+            {
+              condition: notNull("eventInput.hull_events[0].properties.email_id"),
+              target: { component: "input", name: "mailingId", select: "${eventInput.hull_events[0].properties.email_id}"},
+              then: [
+                {
+                  operateOn: {component: "glue", route: "getMailingDetails", name: "${eventInput.hull_events[0].properties.email_id}"},
+                  writeTo: { path: "eventInput.hull_events[0].properties" }
+                }
+              ]
+            },
             {
               operateOn: {
                 component: "static",

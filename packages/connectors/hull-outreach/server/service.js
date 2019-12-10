@@ -196,7 +196,7 @@ const service = ({ clientID, clientSecret } : {
       url: "/events/",
       operation: "get",
       endpointType: "byProperty",
-      query: "page[limit]=${page_limit}&filter[id]=${id_offset}..inf"
+      query: "page[limit]=${page_limit}&filter[id]=${id_offset}..inf&filter[name]=message_opened"
     },
     getRecentEvents: {
       url: "/events/",
@@ -209,6 +209,10 @@ const service = ({ clientID, clientSecret } : {
       operation: "get",
       endpointType: "byProperty",
       query: "${offsetQuery}"
+    },
+    getMailingDetails: {
+      url: "/mailings/{mailingId}/",
+      operation: "get"
     }
   },
   superagent: {
