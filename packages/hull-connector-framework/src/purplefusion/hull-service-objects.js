@@ -121,11 +121,6 @@ const HullUserSegmentChangedTrigger: ServiceObjectDefinition = {
   name: "User"
 };
 
-const HullUserCreatedTrigger: ServiceObjectDefinition = {
-  service_name: "HullUserCreatedTrigger",
-  name: "User"
-};
-
 const HullUserEventTrigger: ServiceObjectDefinition = {
   service_name: "HullUserEventTrigger",
   name: "User"
@@ -141,9 +136,9 @@ const HullAccountSegmentChangedTrigger: ServiceObjectDefinition = {
   name: "Account"
 };
 
-const HullAccountCreatedTrigger: ServiceObjectDefinition = {
-  service_name: "HullAccountCreatedTrigger",
-  name: "Account"
+const EntityCreatedTrigger: ServiceObjectDefinition = {
+  service_name: "EntityCreatedTrigger",
+  name: "Entity"
 };
 
 module.exports = {
@@ -155,10 +150,9 @@ module.exports = {
   HullOutgoingAccount,
   HullUserAttributeChangedTrigger,
   HullUserSegmentChangedTrigger,
-  HullUserCreatedTrigger,
   HullAccountAttributeChangedTrigger,
   HullAccountSegmentChangedTrigger,
-  HullAccountCreatedTrigger,
+  EntityCreatedTrigger,
   HullUserEventTrigger,
   HullApiAttributeDefinition,
   HullConnectorAttributeDefinition,

@@ -31,7 +31,8 @@ There are 9 triggers that can be configured:
       - Account can be in any or no segments if the global _all_segments_ is defined
       
     - A whitelisted user attribute was updated or a whitelisted account (on the user) 
-    attribute was updated
+    attribute was updated. If both user attributes and account attributes are defined,
+    the trigger will only be activated if both changes are made in the same message.
    
  4. User Event Created
      

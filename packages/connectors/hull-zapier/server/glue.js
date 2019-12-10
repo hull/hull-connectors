@@ -42,53 +42,18 @@ function zapier(op: string, param?: any): Svc {
 const glue = {
   userUpdate: [],
   accountUpdate: [],
-  isValidateInputData: [
-    /*
-    validate input data:
-    {
-      user_entered_segment: [ "user_segments" ],
-      user_left_segment: [ "user_segments" ],
-      user_created: [ "user_segments" ],
-      user_event_created: [ "user_segments", "account_segments", "user_event" ],
-      user_attribute_updated: [ "user_segments", "account_segments", ("'user_attributes' AND/OR 'account_attributes'") ],
-    }
-     */
-  ],
   performTrigger: [
     iterateL(input(), { key: "message", async: true }, [
-      set("entityType", get("entityType", "${message}")),
-      set("action", get("action", "${message}")),
-
-      ifL(or([
-          cond("isEqual", "${entityType}", "user"),
-          cond("isEqual", "${entityType}", "user_event")
-        ]), [
-        set("outgoingEntity", cast(HullOutgoingUser, get("cleanedEntity", "${message}"))),
-      ]),
-
-      ifL(cond("isEqual", "${entityType}", "account"), [
-        set("outgoingEntity", cast(HullOutgoingAccount, get("cleanedEntity", "${message}"))),
-      ]),
-
-      set("filteredZaps", route("filterZaps", {
-        zaps: filter({
-            entityType: "${entityType}",
-            action:"${action}",
-          }, settings("triggers")),
-        data: "${outgoingEntity}"
-      })),
-
+      set("outgoingEntity", get("cleanedEntity", "${message}")),
       route("sendZaps", {
-        filteredZaps: "${filteredZaps}",
+        webhook: "${message.serviceAction.webhook}",
         data: "${outgoingEntity}"
       })
     ])
   ],
   sendZaps: [
-    iterateL(input("filteredZaps"), { key: "zap", async: true }, [
-      set("zap_url", "${zap.url}"),
-      zapier("sendZap", input("data"))
-    ])
+    set("zap_url", input("webhook")),
+    zapier("sendZap", input("data"))
   ],
   filterZaps: returnValue([
     set("filteredZaps", []),
@@ -258,21 +223,21 @@ const glue = {
         // TODO terrible. move over to new transformation layer
         set("transformedTrigger", jsonata(`
           $merge([
-              {"serviceAction": {"webhook": url}}, 
+              {"serviceAction": {"webhook": url}},
               {
-                "inputData": 
+                "inputData":
                   $merge([
                     $[$contains(entityType, /user/)].$[$not($contains(action, "entered_segment"))].$[$not($contains(action, "left_segment"))].{"user_segments": inputData.user_segments},
                     $[$contains(entityType, /user/)].$[$not($contains(action, "entered_segment"))].$[$not($contains(action, "left_segment"))].{"account_segments": inputData.account_segments},
-                    $[$contains(entityType, /user$/)].$[($contains(action, "attribute_updated"))].{"account_attributes": inputData.account_attributes},
-                    $[$contains(entityType, /user$/)].$[($contains(action, "attribute_updated"))].{"user_attributes": inputData.user_attributes},
+                    $[$contains(entityType, /user$/)].$[($contains(action, "attribute_updated"))].{"account_attribute_updated": inputData.account_attributes},
+                    $[$contains(entityType, /user$/)].$[($contains(action, "attribute_updated"))].{"user_attribute_updated": inputData.user_attributes},
                     $[$contains(entityType, /user$/)].$[$contains(action, "entered_segment")].{"entered_user_segments": inputData.user_segments},
                     $[$contains(entityType, /user$/)].$[$contains(action, "left_segment")].{"left_user_segments": inputData.user_segments},
                     $[$contains(entityType, /user$/)].$[$contains(action, "created")].{"is_new": true},
                     $[$contains(entityType, /user_event$/)].$[$contains(action, "created")].{"user_events": inputData.user_events},
-                    
+
                     $[$contains(entityType, /account$/)].$[$not($contains(action, "entered_segment"))].$[$not($contains(action, "left_segment"))].{"account_segments": inputData.account_segments},
-                    $[$contains(entityType, /account$/)].$[($contains(action, "attribute_updated"))].{"account_attributes": inputData.account_attributes},
+                    $[$contains(entityType, /account$/)].$[($contains(action, "attribute_updated"))].{"account_attribute_updated": inputData.account_attributes},
                     $[$contains(entityType, /account$/)].$[$contains(action, "entered_segment")].{"entered_account_segments": inputData.account_segments},
                     $[$contains(entityType, /account$/)].$[$contains(action, "left_segment")].{"left_account_segments": inputData.account_segments},
                     $[$contains(entityType, /account$/)].$[$contains(action, "created")].{"is_new": true}

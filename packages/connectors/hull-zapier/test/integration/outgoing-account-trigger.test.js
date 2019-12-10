@@ -13,13 +13,13 @@ describe("Outgoing Account Tests", () => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
-        "triggers": [
+        triggers: [
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1",
-            "action": "entered_segment",
-            "entityType": "account",
-            "inputData": {
-              "account_segments": [ "account_segment_1", "account_segment_212341324" ]
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1"
+            },
+            inputData: {
+              entered_account_segments: [ "account_segment_1", "account_segment_212341324" ]
             }
           }
         ]
@@ -102,13 +102,13 @@ describe("Outgoing Account Tests", () => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
-        "triggers": [
+        triggers: [
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1",
-            "action": "left_segment",
-            "entityType": "account",
-            "inputData": {
-              "account_segments": [ "account_segment_1", "account_segment_212341324" ]
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1"
+            },
+            inputData: {
+              left_account_segments: [ "account_segment_1", "account_segment_212341324" ]
             }
           }
         ]
@@ -191,44 +191,23 @@ describe("Outgoing Account Tests", () => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
-        "triggers": [
+        triggers: [
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/user-attribute-updated/1",
-            "action": "attribute_updated",
-            "entityType": "user",
-            "inputData": {
-              "user_attributes": [ "pipedrive/department", "pipedrive/description" ],
-              "user_segments": [ "user_segment_1" ],
-              "account_attributes": [],
-              "account_segments": [ "all_segments" ]
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated/1"
+            },
+            inputData: {
+              account_attribute_updated: [ "pipedrive/industry" ],
+              account_segments: [ "all_segments" ]
             }
           },
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/user-attribute-updated/2",
-            "action": "attribute_updated",
-            "entityType": "user",
-            "inputData": {
-              "user_attributes": [ "pipedrive/status", "pipedrive/random" ],
-              "user_segments": [ "user_segment_1" ],
-              "account_attributes": [],
-              "account_segments": [ "all_segments" ]
-            }
-          },
-          {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated/1",
-            "action": "attribute_updated",
-            "entityType": "account",
-            "inputData": {
-              "account_attributes": [ "pipedrive/industry" ],
-              "account_segments": [ "all_segments" ]
-            }
-          },
-          {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/user-entered-segment/1",
-            "action": "entered_segment",
-            "entityType": "user",
-            "inputData": {
-              "user_segments": [ "user_segment_1", "user_segment_2" ]
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated/1"
+            },
+            inputData: {
+              account_attribute_updated: [ "random" ],
+              account_segments: [ "all_segments" ]
             }
           }
         ]
@@ -308,54 +287,32 @@ describe("Outgoing Account Tests", () => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
-        "triggers": [
+        triggers: [
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-created/1",
-            "action": "created",
-            "entityType": "account",
-            "inputData": {
-              "account_segments": [ "account_segment_1", "account_segment_3" ]
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated/1"
+            },
+            inputData: {
+              account_attribute_updated: [ "random" ],
+              account_segments: [ "account_segment_1", "account_segment_3" ]
             }
           },
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-created/2",
-            "action": "created",
-            "entityType": "account",
-            "inputData": {
-              "account_segments": ["account_segment_2", "account_segment_500"]
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/account-created/1"
+            },
+            inputData: {
+              is_new: true,
+              account_segments: [ "account_segment_1", "account_segment_3" ]
             }
           },
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-created/3",
-            "action": "created",
-            "entityType": "account",
-            "inputData": {
-              "account_segments": [ "account_segment_6", "account_segment_7" ]
-            }
-          },
-          {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated",
-            "action": "attribute_updated",
-            "entityType": "account",
-            "inputData": {
-              "account_attributes": [ "pipedrive/industry" ],
-              "account_segments": [ "account_segment_id_12213" ]
-            }
-          },
-          {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1",
-            "action": "entered_segment",
-            "entityType": "account",
-            "inputData": {
-              "account_segments": [ "account_segment_112341234", "account_segment_212341324" ]
-            }
-          },
-          {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1",
-            "action": "left_segment",
-            "entityType": "account",
-            "inputData": {
-              "account_segments": [ "account_segment_1123414", "account_segment_212341234" ]
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/account-created/2"
+            },
+            inputData: {
+              is_new: true,
+              account_segments: ["account_segment_2", "account_segment_500"]
             }
           }
         ]
@@ -463,39 +420,39 @@ describe("Outgoing Account Tests", () => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
-        "triggers": [
+        triggers: [
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated/1",
-            "action": "attribute_updated",
-            "entityType": "account",
-            "inputData": {
-              "account_attributes": [ "pipedrive/industry" ],
-              "account_segments": [ "account_segment_1", "account_segment_2" ]
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated/1"
+            },
+            inputData: {
+              account_attribute_updated: [ "pipedrive/industry" ],
+              account_segments: [ "account_segment_1", "account_segment_2" ]
             }
           },
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated/2",
-            "action": "attribute_updated",
-            "entityType": "account",
-            "inputData": {
-              "account_attributes": [ "pipedrive/industry" ],
-              "account_segments": [ "account_segment_11", "account_segment_12" ]
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated/2"
+            },
+            inputData: {
+              account_attribute_updated: [ "pipedrive/industry" ],
+              account_segments: [ "random", "random_1" ]
             }
           },
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1",
-            "action": "entered_segment",
-            "entityType": "account",
-            "inputData": {
-              "account_segments": [ "all_segments" ]
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1"
+            },
+            inputData: {
+              entered_account_segments: [ "all_segments" ]
             }
           },
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1",
-            "action": "left_segment",
-            "entityType": "account",
-            "inputData": {
-              "account_segments": [ "all_segments" ]
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1"
+            },
+            inputData: {
+              left_account_segments: [ "all_segments" ]
             }
           }
         ]
@@ -626,39 +583,39 @@ describe("Outgoing Account Tests", () => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
-        "triggers": [
+        triggers: [
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated/1",
-            "action": "attribute_updated",
-            "entityType": "account",
-            "inputData": {
-              "account_attributes": [ "pipedrive/industry" ],
-              "account_segments": [ "account_segment_1", "account_segment_2" ]
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated/1"
+            },
+            inputData: {
+              account_attribute_updated: [ "pipedrive/industry" ],
+              account_segments: [ "account_segment_1", "account_segment_2" ]
             }
           },
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated/2",
-            "action": "attribute_updated",
-            "entityType": "account",
-            "inputData": {
-              "account_attributes": [ "pipedrive/industry" ],
-              "account_segments": [ "account_segment_11", "account_segment_22" ]
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated/2"
+            },
+            inputData: {
+              account_attribute_updated: [ "pipedrive/industry" ],
+              account_segments: [ "account_segment_11", "account_segment_12" ]
             }
           },
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1",
-            "action": "entered_segment",
-            "entityType": "account",
-            "inputData": {
-              "account_segments": [ "account_segment_1", "account_segment_2" ]
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1"
+            },
+            inputData: {
+              entered_account_segments: [ "account_segment_1", "account_segment_2" ]
             }
           },
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1",
-            "action": "left_segment",
-            "entityType": "account",
-            "inputData": {
-              "account_segments": [ "account_segment_1", "account_segment_3" ]
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1"
+            },
+            inputData: {
+              left_account_segments: [ "account_segment_1", "account_segment_3" ]
             }
           }
         ]
@@ -804,112 +761,13 @@ describe("Outgoing Account Tests", () => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
-        "triggers": [
+        triggers: [
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated/1",
-            "action": "attribute_updated",
-            "entityType": "account",
-            "inputData": {
-              "account_attributes": [ "pipedrive/industry" ],
-              "account_segments": [ "account_segment_1", "account_segment_2" ]
-            }
-          },
-          {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated",
-            "action": "attribute_updated",
-            "entityType": "account",
-            "inputData": {
-              "account_attributes": [ "pipedrive/industry" ],
-              "account_segments": [ "account_segment_id_11" ]
-            }
-          },
-          {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1",
-            "action": "entered_segment",
-            "entityType": "account",
-            "inputData": {
-              "account_segments": [ "account_segment_1", "account_segment_2" ]
-            }
-          },
-          {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1",
-            "action": "left_segment",
-            "entityType": "account",
-            "inputData": {
-              "account_segments": [ "account_segment_1", "account_segment_2", "account_segment_3" ]
-            }
-          }
-        ]
-      };
-      const message1 =
-        {
-          "changes": {
-            "is_new": false,
-            "account": {},
-            "user": {},
-            "segments": {},
-            "account_segments": {
-              "left": [],
-              "entered": [
-                {
-                  "id": "account_segment_3",
-                  "name": "AccountSegment3"
-                }
-              ]
-            }
-          },
-          "user": {},
-          "account": {
-            "id": "5bd329d5e2bcf3eeaf000099",
-            "domain": "apple.com"
-          },
-          "segments": [],
-          "account_segments": [
-            {
-              "id": "account_segment_1",
-              "name": "AccountSegment1",
-              "type": "accounts_segment",
-            }
-          ],
-          "message_id": "message_1"
-        };
-
-      _.set(updateMessages, "messages", [
-        message1
-      ]);
-      _.set(updateMessages.connector, "private_settings", private_settings);
-      return _.assign(updateMessages, {
-        handlerType: handlers.notificationHandler,
-        handlerUrl: "smart-notifier",
-        channel: "account:update",
-        externalApiMock: () => {},
-        response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
-        logs: [
-          ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }],
-          ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }]
-        ],
-        firehoseEvents:[],
-        metrics: [
-          ["increment", "connector.request", 1,],
-        ],
-        platformApiCalls: []
-      });
-    });
-  });
-
-  it("There are no whitelisted attributes. Should not send to zapier.", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
-      const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-account"));
-      const private_settings = {
-        ...updateMessages.connector.private_settings,
-        "triggers": [
-          {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated/1",
-            "action": "attribute_updated",
-            "entityType": "account",
-            "inputData": {
-              "account_attributes": [],
-              "account_segments": [ "account_segment_1", "account_segment_2" ]
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1"
+            },
+            inputData: {
+              entered_account_segments: [ "account_segment_1", "account_segment_2" ]
             }
           }
         ]

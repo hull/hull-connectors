@@ -132,7 +132,9 @@ class HullRouter {
       if (isTrigger && (objectType === HullOutgoingUser || objectType === HullOutgoingAccount)) {
         const dataToSend = Array.isArray(data) ? data : [data];
         _.forEach(dataToSend, message => {
-          const triggers = getEntityTriggers(route, message);
+
+          const triggers = getEntityTriggers(context, route, message);
+
           _.forEach(triggers, (trigger) => {
             dispatchPromises.push(dispatcher.dispatchWithData(context, "performTrigger", objectType, [ trigger ]));
           });

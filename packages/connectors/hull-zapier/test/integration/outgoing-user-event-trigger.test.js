@@ -15,13 +15,13 @@ describe("Outgoing User Event Tests", () => {
         ...updateMessages.connector.private_settings,
         triggers: [
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/user-event-created/1",
-            "action": "created",
-            "entityType": "user_event",
-            "inputData": {
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/user-event-created/1"
+            },
+            inputData: {
               "account_segments": [ 'all_segments' ],
               "user_segments": [ 'user_segment_1' ],
-              "user_event": [ 'Email Opened' ]
+              "user_events": [ 'Email Opened' ]
             }
           }
         ]
@@ -118,13 +118,13 @@ describe("Outgoing User Event Tests", () => {
         ...updateMessages.connector.private_settings,
         triggers: [
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/user-event-created/1",
-            "action": "created",
-            "entityType": "user_event",
-            "inputData": {
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/user-event-created/1"
+            },
+            inputData: {
               "account_segments": [ 'all_segments' ],
               "user_segments": [ 'user_segment_1' ],
-              "user_event": [ 'Email Sent' ]
+              "user_events": [ 'Email Sent' ]
             }
           }
         ]
