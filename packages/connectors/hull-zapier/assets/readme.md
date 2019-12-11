@@ -14,25 +14,17 @@ There are 9 triggers that can be configured:
 
  1. User Enters Segment
     
-    - User enters one or more of the whitelisted user segments
-    
-      - User can enter any segment if the global _all_segments_ is defined
+    - User enters one or more of the whitelisted user segments*
 
  2. User Leaves Segment
     
     - User leaves one or more of the whitelisted user segments
     
-      - User can leave any segment if the global _all_segments_ is defined
-    
  3. User Attribute Updated
     
     - User is in one or more of the whitelisted user segments
-    
-      - User can be in any or no segments if the global _all_segments_ is defined
 
     - Account on the user is in one or more of the whitelisted account segments
-        
-      - Account can be in any or no segments if the global _all_segments_ is defined
       
     - A whitelisted user attribute was updated or a whitelisted account (on the user) 
     attribute was updated
@@ -41,47 +33,39 @@ There are 9 triggers that can be configured:
      
     - User is in one or more of the whitelisted user segments
       
-      - User can be in any or no segments if the global _all_segments_ is defined
-      
     - Account on the user is in one or more of the whitelisted account segments
-    
-      - Account can be in any or no segments if the global _all_segments_ is defined
       
     - Event name matches an event on the user
 
  5. Account Enters Segment
       
     - Account enters one or more of the whitelisted account segments
-    
-      - Account can enter any segment if the global _all_segments_ is defined
       
  6. Account Leaves Segment
     
-    - Account leaves one or more of the whitelisted user segments
-        
-      - Account can leave any segment if the global _all_segments_ is defined
+    - Account leaves one or more of the whitelisted account segments
 
  7. Account Attribute Update
       
-    - Account is in one or more of the whitelisted user segments
-    
-      - Account can be in any or no segments if the global _all_segments_ is defined
+    - Account is in one or more of the whitelisted account segments
       
     - A whitelisted account attribute was updated
 
  8. User is created
       
     - A newly created user is in one or more of the whitelisted user segments
-    
-      - User can be in any or no segments if the global _all_segments_ is defined
 
  9. Account is created
       
     - A newly created account is in one or more of the whitelisted account segments
-    
-      - Account can be in any or no segments if the global _all_segments_ is defined
       
+For all segment fields, we provide the option to select 'all_segments'. When selected, the entity can be in any or no 
+segments at all. For entity segment changes, the entity can enter or leave any segment, but must have at least one
+segment change.
+
 If a payload matches any of the configured triggers, the full object will be sent to the Zap(s)
+
+----
 
 ```json
 {
