@@ -9,6 +9,12 @@ module.exports = _.concat(require("./lead_fields"),
       "readOnly": false
     },
     {
+      "display": "Contact Type Id",
+      "name": "contact_type_id",
+      "type": "number",
+      "readOnly": false
+    },
+    {
       "display": "Contact Type",
       "name": "contactType",
       "type": "string",

@@ -45,67 +45,67 @@ module.exports =
       "readOnly": false
     },
     {
-      "display": "contact_type_id",
+      "display": "Contact Type Id",
       "name": "contact_type_id",
       "type": "number",
       "readOnly": false
     },
     {
-      "display": "contact_type",
-      "name": "contact_type",
+      "display": "Contact Type",
+      "name": "contactType",
       "type": "string",
       "readOnly": false
     },
     {
-      "display": "details",
+      "display": "Details",
       "name": "details",
       "type": "string",
       "readOnly": false
     },
     {
-      "display": "email_domain",
+      "display": "Email Domain",
       "name": "email_domain",
       "type": "string",
       "readOnly": false
     },
     {
-      "display": "phone_numbers",
+      "display": "Phone Numbers",
       "name": "phone_numbers",
       "type": "list",
       "readOnly": false
     },
     {
-      "display": "socials",
+      "display": "Socials",
       "name": "socials",
       "type": "list",
       "readOnly": false
     },
     {
-      "display": "tags",
+      "display": "Tags",
       "name": "tags",
       "type": "list",
       "readOnly": false
     },
     {
-      "display": "websites",
+      "display": "Websites",
       "name": "websites",
       "type": "list",
       "readOnly": false
     },
     {
-      "display": "interaction_count",
+      "display": "Interaction Count",
       "name": "interaction_count",
       "type": "number",
       "readOnly": false
     },
     {
-      "display": "date_created",
+      "display": "Date Created",
       "name": "date_created",
       "type": "number",
       "readOnly": false
     },
     {
-      "display": "date_modified",
+      "display": "Date Modified",
       "name": "date_modified",
       "type": "number",
       "readOnly": false

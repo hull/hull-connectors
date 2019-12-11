@@ -17,7 +17,7 @@ const { createIncomingServiceUserTransform }  = require("hull-connector-framewor
 const {
   CopperCRMIncomingLead,
   CopperCRMIncomingPerson,
-  CopperCRMIncomingAccount,
+  CopperCRMIncomingCompany,
   CopperCRMIncomingOpportunity
 } = require("./service-objects");
 
@@ -124,71 +124,63 @@ const transformsToHull: ServiceTransforms = [
     ]
   },
   {
-    input: CopperCRMIncomingAccount,
+    input: CopperCRMIncomingCompany,
     output: ServiceAccountRaw,
     direction: "incoming",
     strategy: "AtomicReaction",
-    transforms: [
-      {
-        target: { component: "cloneInitialInput" },
-        then: _.concat(addressTransform, customFieldsTransform, assigneesTransform,
-          [
-            {
-              operateOn: { component: "glue", route: "getContactTypes", select: { component: "input", select: "contact_type_id" } },
-              writeTo: "contactType"
-            }
-          ])
-      }
-    ]
+    target: { component: "cloneInitialInput" },
+    then: _.concat(addressTransform, customFieldsTransform, assigneesTransform,
+      [
+        {
+          operateOn: { component: "glue", route: "getContactTypes", select: { component: "input", select: "contact_type_id" } },
+          writeTo: "contactType"
+        }
+      ])
   },
   {
     input: CopperCRMIncomingOpportunity,
     output: ServiceOpportunityRaw,
     direction: "incoming",
     strategy: "AtomicReaction",
-    transforms: [
+    target: { component: "cloneInitialInput" },
+    then: _.concat(customFieldsTransform, assigneesTransform, [
       {
-        target: { component: "cloneInitialInput" },
-        then: _.concat(customFieldsTransform, assigneesTransform, [
-          {
-            operateOn: { component: "input", select: "company_id" },
-            writeTo: "hull_service_accountId"
-          },
-          {
-            operateOn: { component: "input", select: "primary_contact_id" },
-            writeTo: "hull_service_userId"
-          },
-          {
-            operateOn: { component: "glue", route: "getContactTypes", select: { component: "input", select: "contact_type_id" } },
-            writeTo: "contactType"
-          },
-          {
-            operateOn: { component: "glue", route: "getCustomerSources", select: { component: "input", select: "customer_source_id" } },
-            // default null?
-            writeTo: "customerSource"
-          },
-          {
-            operateOn: { component: "glue", route: "getLossReason", select: { component: "input", select: "loss_reason_id" }, onUndefined: null },
-            writeTo: "lossReason"
-          },
-          {
-            operateOn: { component: "glue", route: "getPipelines", select: { component: "input", select: "pipeline_id" } },
-            // default null?
-            writeTo: "pipeline"
-          },
-          {
-            operateOn: { component: "glue", route: "getPipelineStages", select: { component: "input", select: "pipeline_stage_id" } },
-            // default null?
-            writeTo: "pipelineStage"
-          },
-          {
-            operateOn: { component: "glue", route: "getAssignees", select: { component: "input", select: "primary_contact_id" } },
-            // default null?
-            writeTo: "primaryContactEmail"
-          }
-        ])
+        operateOn: { component: "input", select: "company_id" },
+        writeTo: "hull_service_accountId"
+      },
+      {
+        operateOn: { component: "input", select: "primary_contact_id" },
+        writeTo: "hull_service_userId"
+      },
+      {
+        operateOn: { component: "glue", route: "getContactTypes", select: { component: "input", select: "contact_type_id" } },
+        writeTo: "contactType"
+      },
+      {
+        operateOn: { component: "glue", route: "getCustomerSources", select: { component: "input", select: "customer_source_id" } },
+        // default null?
+        writeTo: "customerSource"
+      },
+      {
+        operateOn: { component: "glue", route: "getLossReason", select: { component: "input", select: "loss_reason_id" }, onUndefined: null },
+        writeTo: "lossReason"
+      },
+      {
+        operateOn: { component: "glue", route: "getPipelines", select: { component: "input", select: "pipeline_id" } },
+        // default null?
+        writeTo: "pipeline"
+      },
+      {
+        operateOn: { component: "glue", route: "getPipelineStages", select: { component: "input", select: "pipeline_stage_id" } },
+        // default null?
+        writeTo: "pipelineStage"
+      },
+      {
+        operateOn: { component: "glue", route: "getAssignees", select: { component: "input", select: "primary_contact_id" } },
+        // default null?
+        writeTo: "primaryContactEmail"
       }
-    ]
+    ])
   }
 ];
 

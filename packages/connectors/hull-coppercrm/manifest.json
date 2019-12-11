@@ -149,7 +149,7 @@
         "showOverwriteToggle": false,
         "placeholder": "CopperCrm Company Field",
         "allowCreate": true,
-        "loadOptions": "/attributes-company-incoming",
+        "loadOptions": "/attributes-companies-incoming",
         "source": "coppercrm"
       }
     },
@@ -169,12 +169,19 @@
         "showOverwriteToggle": false,
         "placeholder": "CopperCrm Company Field",
         "allowCreate": true,
-        "loadOptions": "/attributes-opportunity-incoming",
+        "loadOptions": "/attributes-opportunities-incoming",
         "source": "coppercrm_opportunity"
       }
     },
     {
       "name": "flow_control_user_update_success_size",
+      "title": "Flow control setting for success on user update",
+      "type": "string",
+      "default": "100",
+      "format": "hidden"
+    },
+    {
+      "name": "flow_control_account_update_success_size",
       "title": "Flow control setting for success on user update",
       "type": "string",
       "default": "100",
@@ -372,11 +379,26 @@
       ]
     },
     {
-      "title": "User - Fetching Companies from CopperCRM",
+      "title": "Companies - Fetching Companies from CopperCRM",
       "description": "Hull gives it's customers the ability to capture changes on specific data fields so that they are kept up to date in real-time.  Please configure the fields that you would like pulled from CopperCrm below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
       "properties": [
         "private_settings.incoming_account_attributes",
         "json.fetch_all_companies"
+      ]
+    },
+    {
+      "title": "Opportunities - Identity",
+      "description": "<b>Identity</b> is one of the most important concepts in Hull.",
+      "properties": [
+        "private_settings.incoming_opportunity_type"
+      ]
+    },
+    {
+      "title": "Opportunities - Fetching Opportunities from CopperCRM",
+      "description": "Hull gives it's customers the ability to capture changes on specific data fields so that they are kept up to date in real-time.  Please configure the fields that you would like pulled from CopperCrm below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
+      "properties": [
+        "private_settings.incoming_opportunity_attributes",
+        "json.fetch_all_opportunities"
       ]
     }
   ]

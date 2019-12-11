@@ -174,11 +174,19 @@ const transformsShared: ServiceTransforms = [
     target: { component: "new" },
     then: [
       {
-        operateOn: "connector.private_settings.incoming_account_attributes",
+        operateOn: "${connector.private_settings.incoming_account_attributes}",
         expand: { valueName: "mapping" },
         then: {
           operateOn: { component: "input", select: "${mapping.service}"},
           writeTo: { path: "attributes.${mapping.hull}" }
+        }
+      },
+      {
+        operateOn: "${connector.private_settings.account_claims}",
+        expand: { valueName: "mapping" },
+        then: {
+          operateOn: { component: "input", select: "${mapping.service}"},
+          writeTo: { path: "ident.${mapping.hull}" }
         }
       },
       {
@@ -187,12 +195,6 @@ const transformsShared: ServiceTransforms = [
           { writeTo: { path: "ident.anonymous_id", format: "${service_name}:${operateOn}" } },
           { writeTo: { path: "attributes.${service_name}/id", format: { operation: "set", value: "${operateOn}" } } }
         ]
-      },
-      {
-        arrayStrategy: "pick_first",
-        mapping: "connector.private_settings.account_claims",
-        inputPath: "${service_field_name}",
-        outputPath: "ident.${hull_field_name}"
       }
     ]
   },

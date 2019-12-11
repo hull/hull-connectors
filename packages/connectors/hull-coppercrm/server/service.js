@@ -127,7 +127,7 @@ const service = ({ clientID, clientSecret } : {
       }
     },
     fetchRecentCompanies: {
-      url: "/v1/company/search",
+      url: "/v1/companies/search",
       operation: "post",
       endpointType: "lastFetch",
       output: CopperCRMIncomingCompany,
@@ -139,8 +139,8 @@ const service = ({ clientID, clientSecret } : {
         "minimum_modified_date": "${dateOffset}"
       },
     },
-    fetchAllAccounts: {
-      url: "/v1/company/search",
+    fetchAllCompanies: {
+      url: "/v1/companies/search",
       operation: "post",
       endpointType: "lastFetch",
       output: CopperCRMIncomingCompany,
@@ -153,7 +153,7 @@ const service = ({ clientID, clientSecret } : {
       }
     },
     fetchRecentOpportunities: {
-      url: "/v1/opportunity/search",
+      url: "/v1/opportunities/search",
       operation: "post",
       endpointType: "lastFetch",
       output: CopperCRMIncomingOpportunity,
@@ -166,7 +166,7 @@ const service = ({ clientID, clientSecret } : {
       }
     },
     fetchAllOpportunities: {
-      url: "/v1/opportunity/search",
+      url: "/v1/opportunities/search",
       operation: "post",
       endpointType: "lastFetch",
       output: CopperCRMIncomingOpportunity,
