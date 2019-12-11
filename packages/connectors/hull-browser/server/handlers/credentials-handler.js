@@ -5,13 +5,13 @@ import type {
   HullCredentialsResponse
 } from "hull";
 
-const HULL_JS_URL = 'https://js.hull.io/0.10.0/hull.js.gz';
+const HULL_JS_URL = "https://js.hull.io/0.10.0/hull.js.gz";
 
 const credentialsHandler = (
   ctx: HullContext,
   _message: HullIncomingHandlerMessage
 ): HullCredentialsResponse => {
-  const { hostname, clientCredentials } = ctx;
+  const { clientCredentials } = ctx;
   const { id, organization } = clientCredentials;
   return {
     status: 200,
