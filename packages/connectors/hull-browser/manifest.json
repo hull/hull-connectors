@@ -31,13 +31,29 @@
       "name": "use_gtm",
       "format": "checkbox",
       "type": "boolean"
+    },
+    {
+      "name": "load_scripts",
+      "title": "External scripts",
+      "description": "List of additional external JS files which will be loaded and run by Hull tracking tag on each page load. Paste full url.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    {
+      "name": "init_script",
+      "title": "Custom script",
+      "description": "Write custom javascript code which will be run by Hull tracking tag on each page load. No `script` tag is needed here.",
+      "type": "string",
+      "format": "code"
     }
   ],
   "private_settings": [
     {
       "name": "whitelisted_domains",
-      "title": "Authorized Websites. (Domain only, without https://)",
-      "description": "The connector will only load for the websites you list here",
+      "title": "Whitelisted Domains",
+      "description": "The connector will only load for the webpages served under domains here. We treat them as wildcards so all subdomains will be whitelisted too.",
       "type": "array",
       "format": "table",
       "items": {
@@ -86,6 +102,19 @@
       "format": "accountSegment",
       "description": "Only these segment names will be sent.",
       "default": []
+    },
+    {
+      "name": "track_page_inits",
+      "title": "Track page views events automatically",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "script_enabled",
+      "title": "Load additional scripts",
+      "description": "When enabled all external scripts and custom script below will be loaded and run.",
+      "type": "boolean",
+      "default": false
     }
   ],
   "json": [
@@ -93,7 +122,7 @@
       "name": "credentials",
       "url": "/credentials",
       "handler": "credentialsHandler",
-      "description": "Copy this snippet and add it to the Hull.js Website Connector",
+      "description": "Copy and paste the script tag in the `head` section in your website.",
       "format": "credentials",
       "type": "string"
     }
@@ -103,34 +132,38 @@
   "ui": false,
   "settings_sections": [
     {
-      "title": "Setup",
-      "description": "Copy this URL and add it to the list of your Hull.js Website Connector snippets",
+      "title": "Installation",
+      "description": "To install Hull tracking library in your website start by whitelisting all domains it will be loaded on.<br />Then copy and paste the tracking tag in the `head` section of the HTML on each page you would like to track.",
       "step": "credentials",
       "properties": [
+        "private_settings.whitelisted_domains",
         "json.credentials"
       ]
     },
     {
-      "title": "Filters",
-      "description": "This section defines the required conditions for a user to be sent client-side",
+      "title": "Tracking",
+      "description": "Configure the tracking library. By default it tracks all page view events, you can turn it off below.",
       "properties": [
-        "private_settings.whitelisted_domains",
-        "private_settings.synchronized_segments"
+        "private_settings.track_page_inits"
       ]
     },
     {
-      "title": "Exposed Data",
-      "description": "This section defines the data that will be visible client-side. This way you can avoid exposing sensitive values",
+      "title": "Additional scripts",
+      "description": "This sections allows to quickly load additional scripts in your webpage wherever Hull tracking tag is present.<br />Although any javascript file can be loaded, this section is especially handy when deploying client parts of other connectors from Hull organization. Refer specific connector documentation to find link to paste here.",
       "properties": [
+        "private_settings.script_enabled",
+        "settings.load_scripts",
+        "settings.init_script"
+      ]
+    },
+    {
+      "title": "Personalization",
+      "description": "This section allows to personalize content on of the website based on data send back from Hull as we dected changes on identified user.<br /> - First start by defining conditions for a user to be sent client-side, by whitelisting some segments.<br /> - Then select which data will be visible client-side. That way you can avoid exposing sensitive values. <br /> - Finally write the code which will run in the page whenever new data is sent client-side. We suggest checking the documentation to see the available data and the connector's behaviour",
+      "properties": [
+        "private_settings.synchronized_segments",
         "private_settings.public_traits",
         "private_settings.public_segments",
-        "private_settings.public_account_segments"
-      ]
-    },
-    {
-      "title": "Code",
-      "description": "The code you write below will run in the page whenever new data is sent client-side. we suggest you read the documentation to see the available data and the connector's behaviour",
-      "properties": [
+        "private_settings.public_account_segments",
         "settings.script"
       ]
     }

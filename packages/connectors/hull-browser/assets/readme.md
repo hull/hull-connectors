@@ -1,7 +1,13 @@
 # Browser access to User data
 
 This connector makes data from Hull accessible in the browser,
-so you can use it to personalize the page in realtime.
+so you can use data coming from other services to personalize the page in realtime.
+
+# Installation
+
+
+
+# Getting Started
 
 To use it:
 
@@ -14,16 +20,15 @@ To use it:
 The Script will have access to an object `user` and an object `segments` with the following shapes:
 
 ```javascript
-  console.log(
-    user, /* ...whitelisted User properties */
-    segments, /* whitelisted user segments */
-    account, /* ...whitelisted account properties */
-    account_segments, /* whitelisted account segments */
-    events, /* whitelisted events */
-    changes /* changes since last update */
+console.log(
+  user, /* ...whitelisted User properties */
+  segments, /* whitelisted user segments */
+  account, /* ...whitelisted account properties */
+  account_segments, /* whitelisted account segments */
+  events, /* whitelisted events */
+  changes /* changes since last update */
 );
 ```
-
 
 We encourage you to write the script so that it can run multiple times without side effects (Be Idempotent). Users will come in multiple times.
 
@@ -31,11 +36,11 @@ Let's say you want to tag the User with a custom Facebook Event for each segment
 You'd then write:
 
 ```js
-segments.map(function(segment){
+segments.map(function(segment) {
   fbq('trackCustom', 'In Segment '+segment, {
     metrics_raised: user.clearbit_company.metrics_raised
   });
-})
+});
 ```
 
 # Listening to events
@@ -46,32 +51,15 @@ If you have the Hull library present in the page, the syntax is the following:
 
 ```js
 Hull.on("user.update", function({
-    user,
-    segments,
-    account,
-    account_segments,
-    events,
-    changes
-  }){
+  user,
+  segments,
+  account,
+  account_segments,
+  events,
+  changes
+}) {
 
-  })
-);
-```
-
-if you don't have the Hull library in the page, you can access the Event emitter like so:
-
-```js
-hullBrowser.on("user.update",  function({
-    user,
-    segments,
-    account,
-    account_segments,
-    events,
-    changes
-  }){
-    console.log("Your Code here", user)
-  })
-);
+}));
 ```
 
 We use https://github.com/EventEmitter2/EventEmitter2 so you can read it's documentation to view the full set of possibilities
@@ -100,12 +88,4 @@ On a new page load, the `changes` object will be `undefined`. You can rely on it
 
 # Identity Resolution
 
-When installed from `Hull.js`, the connector fetches the user ID from Hull.
-
-When installed as a code snippet, the connector will look for identifiers, in the following order:
-
-- A variable called `hull_browser`, with JSON-serialized `{ id }` field in Local Storage
-- `ajs_email`, `ajs_uid`, `ajs_aid` fields in the Querystring (Segments's Querystring API)
-- Intercom's `visitor ID`
-- Hull's `anonymousId`, `externalId`, `hullId`, `email`
-- Segment's `userId`, `anonymousId`, `email`
+Our strategy of discovering user ID is described in details in [Hull.js reference](https://www.hull.io/docs/reference/hull_js/)
