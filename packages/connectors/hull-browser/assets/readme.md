@@ -1,13 +1,32 @@
-# Browser access to User data
+# Website connector
 
-This connector makes data from Hull accessible in the browser,
-so you can use data coming from other services to personalize the page in realtime.
+This connector integrates website with Hull organization.
+It allows to track the website traffic and merge it with data coming from other services.
+Also it makes data from Hull accessible in the browser, so you can use data coming from other services to personalize the page in realtime.
 
 # Installation
 
+This connector integrates with website through a single HTML tag which enables all features.
 
+Go to connectors settings pane first and whitelist all domains you would like to get traffic and send data back.
+For each domain entry we whitelist the domain itself plus all subdomains.
 
-# Getting Started
+**Example:** whitelisting website.com will also whitelist en.website.com.
+
+# Tracking
+
+Tracking of web traffic is captured by low level library Hull.js.
+
+By default this connector provides basic tracking of pageviews and default identity resolution.
+
+Default page views tracking can be disabled and custom script may be deployed to your website.
+
+Additional customization capabilities are described in [Hull.js reference](https://www.hull.io/docs/reference/hull_js/).
+If you need to deploy custom scripts you can use "Additonal scripts" sections of the settings.
+
+# Personalization
+
+## Getting Started
 
 To use it:
 
@@ -43,11 +62,9 @@ segments.map(function(segment) {
 });
 ```
 
-# Listening to events
+## Listening to events
 
-Alternatively, you can subscribe to an event emitter that will emit a new event everytime we receive updated data from the server.
-
-If you have the Hull library present in the page, the syntax is the following:
+Alternatively, you can subscribe to an event emitter that will emit a new event every time we receive updated data from the server.
 
 ```js
 Hull.on("user.update", function({
@@ -64,7 +81,7 @@ Hull.on("user.update", function({
 
 We use https://github.com/EventEmitter2/EventEmitter2 so you can read it's documentation to view the full set of possibilities
 
-# Running code on data changed:
+## Running code on data changed:
 
 The `changes` object will return the values that changed between the previous update and the current one.
 Since Hull works somewhat like an Event Loop, the first payload you will receive might not have all the enrichments from other connectors. Subsequent payloads could contain more data. The Changes object will tell you what changed.
@@ -82,10 +99,13 @@ var changes = {
 }
 ```
 
-# Running code only on page load:
+## Running code only on page load:
 
 On a new page load, the `changes` object will be `undefined`. You can rely on it's value to trigger events only on page load.
 
-# Identity Resolution
+# Additonal scripts
 
-Our strategy of discovering user ID is described in details in [Hull.js reference](https://www.hull.io/docs/reference/hull_js/)
+Website connector allows you to quickly inject additional javascript files and code.
+This is especially helpful to integrate front-end libraries of other integrations.
+
+Please check other connectors documentation to see if client-side integration is available.

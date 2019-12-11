@@ -1,6 +1,6 @@
 {
-  "name": "Browser Personalization",
-  "description": "Get access to whitelisted attributes and segments from the Browser in realtime",
+  "name": "Website",
+  "description": "Track web traffic, personalize web content and integrate with other front-end libraries",
   "picture": "picture.png",
   "index": "ship.js",
   "version": "0.1.11-monorepo",
@@ -149,18 +149,9 @@
     },
     {
       "title": "Tracking",
-      "description": "Configure the tracking library. By default it tracks all page view events, you can turn it off below.",
+      "description": "Configure the tracking library. By default it tracks all page view events, you can turn it off below.<br />Additional customization capabilities are described in [Hull.js reference](https://www.hull.io/docs/reference/hull_js/). If you need to deploy custom scripts you can use Addtional scripts section below.",
       "properties": [
         "private_settings.track_page_inits"
-      ]
-    },
-    {
-      "title": "Additional scripts",
-      "description": "This sections allows to quickly load additional scripts in your webpage wherever Hull tracking tag is present.<br />Although any javascript file can be loaded, this section is especially handy when deploying client parts of other connectors from Hull organization. Refer specific connector documentation to find link to paste here.",
-      "properties": [
-        "private_settings.script_enabled",
-        "settings.load_scripts",
-        "settings.init_script"
       ]
     },
     {
@@ -174,7 +165,16 @@
         "private_settings.public_account_segments",
         "settings.script"
       ]
-    }
+    },
+    {
+      "title": "Additional scripts",
+      "description": "This sections allows to quickly load additional scripts in your webpage wherever Hull tracking tag is present.<br />Although any javascript file can be loaded, this section is especially handy when deploying client parts of other connectors from Hull organization. Refer specific connector documentation to find link to paste here.",
+      "properties": [
+        "private_settings.script_enabled",
+        "settings.load_scripts",
+        "settings.init_script"
+      ]
+    },
   ],
   "subscriptions": [
     {
