@@ -21,7 +21,7 @@ export type ConnectorPrivateSettings = {
   whitelisted_domains: Array<string>
 };
 
-export type BrowserConnector = {|
+export type WebsiteConnector = {|
   ...HullConnector,
   private_settings: ConnectorPrivateSettings,
   settings: ConnectorPublicSettings

@@ -1,7 +1,7 @@
 {
-  "name": "Hull Browser",
-  "description": "A Hull Integration for Browser Personalization.",
-  "repository": "https://github.com/hull-ships/hull-browser",
+  "name": "Hull Website",
+  "description": "Track web traffic and integrate with other client side services.",
+  "repository": "https://github.com/hull/hull-connectors",
   "website": "http://www.hull.io",
   "success_url": "/readme",
   "env": {

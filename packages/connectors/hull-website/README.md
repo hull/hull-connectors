@@ -1,4 +1,9 @@
-# Hull Browser Personalization
+# Hull Website
+
+## Personalization technical docs (former Browser connector)
+
+**IMPORTANT:** At some point we had experimental browser connector, which we merged with new website connector replacing platforms feature. The documentation below applies to the former browser connector, which is now part of website connector.
+
 # Installing
 
 Sends Hull customer data back in the page, so you can use it for personalization, segmentation and ad targeting.
