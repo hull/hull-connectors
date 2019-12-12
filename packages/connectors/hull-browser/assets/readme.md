@@ -1,111 +1,58 @@
 # Website connector
 
-This connector integrates website with Hull organization.
+This connector integrates website with Hull using Hull.js library.
 It allows to track the website traffic and merge it with data coming from other services.
-Also it makes data from Hull accessible in the browser, so you can use data coming from other services to personalize the page in realtime.
 
 # Installation
 
 This connector integrates with website through a single HTML tag which enables all features.
 
 Go to connectors settings pane first and whitelist all domains you would like to get traffic and send data back.
-For each domain entry we whitelist the domain itself plus all subdomains.
+You can use the wildcard entry to whitelist all subdomains of specific domain.
 
-**Example:** whitelisting website.com will also whitelist en.website.com.
+**Example:** whitelisting \*.website.com will whitelist en.website.com, de.website.com, fr.website... etc.
+
+Then copy the HTML tag available below the whitelist and paste it in the `\<head\>` section of your website.
+You may need to refer to your website system to know how to embed the code, but below we provide guides for common systems.
+
+[Setting up Hull.js with Google Tag Manager](https://www.hull.io/docs/guides/getting-started/setting-up-hull-js-with-google-tag-manager/)
 
 # Tracking
 
-Tracking of web traffic is captured by low level library Hull.js.
+Tracking of web traffic is captured by low level library Hull.js. To learn more about the internals refer [Hull.js
+ reference](https://www.hull.io/docs/reference/hull_js/).
 
-By default this connector provides basic tracking of pageviews and default identity resolution.
+By default this connector provides basic tracking of page view events and default identity resolution.
+Default tracking can be disabled in the settings of the Website connector and custom tracking can be implemented through additional javscript code deployed to the website.
+Further customization capabilities are described at length in [Hull.js reference](https://www.hull.io/docs/reference/hull_js/).
 
-Default page views tracking can be disabled and custom script may be deployed to your website.
+To make the customization easier the connector comes with Script feature allow to quickly deploy additional javascript code, see section below to learn more.
 
-Additional customization capabilities are described in [Hull.js reference](https://www.hull.io/docs/reference/hull_js/).
-If you need to deploy custom scripts you can use "Additonal scripts" sections of the settings.
+# Scripts
 
-# Personalization
+Script allows to quickly deploy embedded script and external scripts to the website Hull connector is installed in. This allows to adjust the tracking plan without constant updates to the website. This is also the recommended way of deploying client-side parts of other connectors to integrate with external services not only on the back-end but also on the front-end.
 
-## Getting Started
+## Client-side connectors
 
-To use it:
+| connector | url |
+| --- | --- |
+| intercom | https://hull-intercom.herokuapp.com/ship.js |
 
-1. Whitelist the web pages from which this connector should be allowed to launch.
-1. In the Settings tab, choose which users will be forwarded by selecting one or more segments
-2. Choose which attributes and segment names will be accessible client-side.
-3. Paste the snippet in the page
-4. In the Settings tab, write some javascript that will be run whenever the user is updated.
 
-The Script will have access to an object `user` and an object `segments` with the following shapes:
+## Best practises
 
-```javascript
-console.log(
-  user, /* ...whitelisted User properties */
-  segments, /* whitelisted user segments */
-  account, /* ...whitelisted account properties */
-  account_segments, /* whitelisted account segments */
-  events, /* whitelisted events */
-  changes /* changes since last update */
-);
+Deploying javascript code to website when using Hull connector is easy, but it's important to keep in mind some best practises to avoid problems with front-end code.
+
+**Wrap code in self-executing functions**
+It's very easy to pollute website global namespace which leads to risk of overwriting existing variables and function names.
+So it's recommended to wrap every custom code deployed to website with self-executing or self-invoking function.
+
 ```
+// not wrapped code, pollutes global namespace
+var foo = 'Hello';
 
-We encourage you to write the script so that it can run multiple times without side effects (Be Idempotent). Users will come in multiple times.
-
-Let's say you want to tag the User with a custom Facebook Event for each segment they belong to and the name of their company.
-You'd then write:
-
-```js
-segments.map(function(segment) {
-  fbq('trackCustom', 'In Segment '+segment, {
-    metrics_raised: user.clearbit_company.metrics_raised
-  });
-});
+// wrapped function, no risk of collision
+(function() {
+  var foo = 'Hello';
+})();
 ```
-
-## Listening to events
-
-Alternatively, you can subscribe to an event emitter that will emit a new event every time we receive updated data from the server.
-
-```js
-Hull.on("user.update", function({
-  user,
-  segments,
-  account,
-  account_segments,
-  events,
-  changes
-}) {
-
-}));
-```
-
-We use https://github.com/EventEmitter2/EventEmitter2 so you can read it's documentation to view the full set of possibilities
-
-## Running code on data changed:
-
-The `changes` object will return the values that changed between the previous update and the current one.
-Since Hull works somewhat like an Event Loop, the first payload you will receive might not have all the enrichments from other connectors. Subsequent payloads could contain more data. The Changes object will tell you what changed.
-
-The `changes` object has the following format:
-
-```js
-var changes = {
-  user: {
-    foo: [previous_value, new_value]
-  },
-  account: {
-    bar: [previous_value, new_value]
-  }
-}
-```
-
-## Running code only on page load:
-
-On a new page load, the `changes` object will be `undefined`. You can rely on it's value to trigger events only on page load.
-
-# Additonal scripts
-
-Website connector allows you to quickly inject additional javascript files and code.
-This is especially helpful to integrate front-end libraries of other integrations.
-
-Please check other connectors documentation to see if client-side integration is available.

@@ -1,6 +1,6 @@
 {
   "name": "Website",
-  "description": "Track web traffic, personalize web content and integrate with other front-end libraries",
+  "description": "Track web traffic and integrate with other front-end libraries",
   "picture": "picture.png",
   "index": "ship.js",
   "version": "0.1.11-monorepo",
@@ -43,7 +43,7 @@
     },
     {
       "name": "init_script",
-      "title": "Custom script",
+      "title": "Embedded script",
       "description": "Write custom javascript code which will be run by Hull tracking tag on each page load. No `script` tag is needed here.",
       "type": "string",
       "format": "code"
@@ -53,7 +53,7 @@
     {
       "name": "whitelisted_domains",
       "title": "Whitelisted Domains",
-      "description": "The connector will only load for the webpages served under domains here. We treat them as wildcards so all subdomains will be whitelisted too.",
+      "description": "The connector will only load for the webpages served under domains here.",
       "type": "array",
       "format": "table",
       "items": {
@@ -111,8 +111,8 @@
     },
     {
       "name": "script_enabled",
-      "title": "Load additional scripts",
-      "description": "When enabled all external scripts and custom script below will be loaded and run.",
+      "title": "Load scripts",
+      "description": "When enabled, all external scripts and embedded script below will be injected and executed every time page with Hull.js is loaded.",
       "type": "boolean",
       "default": false
     },
@@ -155,26 +155,14 @@
       ]
     },
     {
-      "title": "Personalization",
-      "description": "This section allows to personalize content on of the website based on data send back from Hull as we dected changes on identified user.<br /> - start by enabling the feature toggle<br /> - define conditions for a user to be sent client-side, by whitelisting some segments<br /> - select which data will be visible client-side. That way you can avoid exposing sensitive values. <br /> - finally write the code which will run in the page whenever new data is sent client-side. We suggest checking the documentation to see the available data and the connector's behaviour",
-      "properties": [
-        "private_settings.subscribe_to_user_updates",
-        "private_settings.synchronized_segments",
-        "private_settings.public_traits",
-        "private_settings.public_segments",
-        "private_settings.public_account_segments",
-        "settings.script"
-      ]
-    },
-    {
-      "title": "Additional scripts",
+      "title": "Scripts",
       "description": "This sections allows to quickly load additional scripts in your webpage wherever Hull tracking tag is present.<br />Although any javascript file can be loaded, this section is especially handy when deploying client parts of other connectors from Hull organization. Refer specific connector documentation to find link to paste here.",
       "properties": [
         "private_settings.script_enabled",
         "settings.load_scripts",
         "settings.init_script"
       ]
-    },
+    }
   ],
   "subscriptions": [
     {

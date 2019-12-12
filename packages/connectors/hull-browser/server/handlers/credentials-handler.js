@@ -16,7 +16,7 @@ const credentialsHandler = (
   return {
     status: 200,
     data: {
-      url: `<script async id='hull-js-sdk' ship-id='${id}' org-url='https://${organization}' src='${HULL_JS_URL}'></script>`
+      url: `<script async id='hull-js-sdk' app-id='${id}' org-url='https://${organization}' src='${HULL_JS_URL}'></script>`
     }
   };
 };

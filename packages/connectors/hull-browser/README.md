@@ -17,7 +17,7 @@ If you want your own instance: [![Deploy](https://www.herokucdn.com/deploy/butto
 git clone git@github.com:hull-ships/hull-browser.git
 cd hull-browser
 yarn
-yarn dev # Serves connector on `https://hull-browser.eu.ngrok.io` - See `package.json` 
+yarn dev # Serves connector on `https://hull-browser.eu.ngrok.io` - See `package.json`
 yarn build # builds the app
 ```
 
@@ -65,3 +65,115 @@ It's not mandatory since we use Redis behind the scenes for a LRU and a Config c
 
 https://devcenter.heroku.com/articles/session-affinity
 https://socket.io/docs/using-multiple-nodes/
+
+
+## Personalization settings sections
+
+If we need to enable part of settings related to personalization we need to paste this section in the manifest:
+
+```json
+{
+  "title": "Personalization",
+  "description": "This section allows to personalize content on of the website based on data send back from Hull as we dected changes on identified user.<br /> - start by enabling the feature toggle<br /> - define conditions for a user to be sent client-side, by whitelisting some segments<br /> - select which data will be visible client-side. That way you can avoid exposing sensitive values. <br /> - finally write the code which will run in the page whenever new data is sent client-side. We suggest checking the documentation to see the available data and the connector's behaviour",
+  "properties": [
+    "private_settings.subscribe_to_user_updates",
+    "private_settings.synchronized_segments",
+    "private_settings.public_traits",
+    "private_settings.public_segments",
+    "private_settings.public_account_segments",
+    "settings.script"
+  ]
+}
+```
+
+## Personalization documentation
+
+**From top section:**
+
+Also it makes data from Hull accessible in the browser, so you can use data coming from other services to personalize the page in realtime.
+
+# Personalization
+
+## Getting Started
+
+To use it:
+
+1. Whitelist the web pages from which this connector should be allowed to launch.
+1. In the Settings tab, choose which users will be forwarded by selecting one or more segments
+2. Choose which attributes and segment names will be accessible client-side.
+3. Paste the snippet in the page
+4. In the Settings tab, write some javascript that will be run whenever the user is updated.
+
+The Script will have access to an object `user` and an object `segments` with the following shapes:
+
+```javascript
+console.log(
+  user, /* ...whitelisted User properties */
+  segments, /* whitelisted user segments */
+  account, /* ...whitelisted account properties */
+  account_segments, /* whitelisted account segments */
+  events, /* whitelisted events */
+  changes /* changes since last update */
+);
+```
+
+We encourage you to write the script so that it can run multiple times without side effects (Be Idempotent). Users will come in multiple times.
+
+Let's say you want to tag the User with a custom Facebook Event for each segment they belong to and the name of their company.
+You'd then write:
+
+```js
+segments.map(function(segment) {
+  fbq('trackCustom', 'In Segment '+segment, {
+    metrics_raised: user.clearbit_company.metrics_raised
+  });
+});
+```
+
+## Listening to events
+
+Alternatively, you can subscribe to an event emitter that will emit a new event every time we receive updated data from the server.
+
+```js
+Hull.on("user.update", function({
+  user,
+  segments,
+  account,
+  account_segments,
+  events,
+  changes
+}) {
+
+}));
+```
+
+We use https://github.com/EventEmitter2/EventEmitter2 so you can read it's documentation to view the full set of possibilities
+
+## Running code on data changed:
+
+The `changes` object will return the values that changed between the previous update and the current one.
+Since Hull works somewhat like an Event Loop, the first payload you will receive might not have all the enrichments from other connectors. Subsequent payloads could contain more data. The Changes object will tell you what changed.
+
+The `changes` object has the following format:
+
+```js
+var changes = {
+  user: {
+    foo: [previous_value, new_value]
+  },
+  account: {
+    bar: [previous_value, new_value]
+  }
+}
+```
+
+## Running code only on page load:
+
+If an existing user was found in Hull for discovered identifiers, on a new page load, the `changes` object will be `undefined`. You can rely on it's value to trigger events only on page load.
+
+# Additonal scripts
+
+Website connector allows you to quickly inject additional javascript files and code.
+This is especially helpful to integrate front-end libraries of other integrations.
+
+Please check other connectors documentation to see if client-side integration is available.
