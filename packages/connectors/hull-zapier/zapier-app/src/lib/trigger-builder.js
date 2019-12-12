@@ -10,12 +10,14 @@ function getSample({ sample }) {
 
 function triggerBuilder({
   getInputFields,
+  getOutputFields,
   performTrigger,
   entityType,
   action,
   description,
   sample,
-  important = false
+  important = false,
+  hidden = false,
 }) {
   const titleAction = _.startCase(action);
   const titleNoun = _.startCase(entityType);
@@ -27,11 +29,12 @@ function triggerBuilder({
       perform: performTrigger({ entityType, action }),
       performSubscribe: subscribe({ entityType, action }),
       performUnsubscribe: unsubscribe({ entityType, action }),
-      inputFields: [getInputFields]
+      inputFields: [getInputFields],
+      outputFields: [getOutputFields]
     },
     noun: entityType,
     display: {
-      hidden: false,
+      hidden: hidden,
       important,
       description,
       label: `${titleNoun} ${titleAction}`

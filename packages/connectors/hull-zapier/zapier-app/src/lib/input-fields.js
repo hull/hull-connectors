@@ -1,6 +1,8 @@
 const _ = require("lodash");
-const { post } = require("./request");
-const { segmentsUrl, schemaUrl } = require("../config");
+const jsonata = require("jsonata");
+const { getEntityAttributes, getEntitySegments } = require("./hull-service");
+
+const attributeTransformation = jsonata(`[$.{"label": $substringAfter(name, "."), "value": $substringAfter(name, ".")}]`);
 
 function getEntityParent(entityType) {
   if (entityType === "user_event") {
@@ -25,12 +27,7 @@ function segments(entityType, { list } = {}) {
     if (entityType !== "user" && entityType !== "account") {
       return [];
     }
-    const segment_choices = await post(z, {
-      url: segmentsUrl,
-      body: {
-        entityType
-      }
-    });
+    const segment_choices = await getEntitySegments(z, entityType);
 
     return [
       {
@@ -59,35 +56,25 @@ async function getInputFields(
 
   if (entityType === "user" || entityType === "account") {
     if (fetch_attributes) {
-      const choices = await post(z, {
-        url: schemaUrl,
-        body: {
-          entityType
-        }
-      });
+      const choices = await getEntityAttributes(z, entityType);
       inputFields = _.concat(inputFields, {
         key: `${entityType}_attributes`,
         required: attributes_required,
         label: `${_.startCase(entityType)} Attributes`,
         list,
-        choices: choices
+        choices: attributeTransformation.evaluate(choices)
       });
     }
   }
 
   if (entityType === "user_event") {
-    const choices = await post(z, {
-      url: schemaUrl,
-      body: {
-        entityType
-      }
-    });
+    const choices = await getEntityAttributes(z, entityType);
     inputFields = _.concat(inputFields, {
       key: entityType,
       required: true,
       label: inputType,
       list,
-      choices: choices
+      choices: attributeTransformation.evaluate(choices)
     });
   }
 
@@ -109,24 +96,24 @@ function schema(entityType, { list, fetch_attributes, attributes_required, input
   };
 }
 
-const getUserSegments = segments("user", { list: true });
-const getAccountSegments = segments("account", { list: true });
+const getUserSegmentInputFields = segments("user", { list: true });
+const getAccountSegmentInputFields = segments("account", { list: true });
 
-const getUserAttributes = schema("user", {
+const getUserAttributeInputFields = schema("user", {
   list: true,
   fetch_attributes: true,
   attributes_required: false,
   inputType: "User Attributes"
 });
 
-const getAccountAttributes = schema("account", {
+const getAccountAttributeInputFields = schema("account", {
   list: true,
   fetch_attributes: true,
   attributes_required: true,
   inputType: "Account Attributes"
 });
 
-const getUserEventSchema = schema("user_event", {
+const getUserEventInputFields = schema("user_event", {
   list: true,
   fetch_attributes: false,
   inputType: "User Events"
@@ -142,9 +129,9 @@ const getEmpty = empty();
 
 module.exports = {
   getEmpty,
-  getUserSegments,
-  getUserAttributes,
-  getUserEventSchema,
-  getAccountSegments,
-  getAccountAttributes
+  getUserSegmentInputFields,
+  getUserAttributeInputFields,
+  getUserEventInputFields,
+  getAccountSegmentInputFields,
+  getAccountAttributeInputFields
 };

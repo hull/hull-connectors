@@ -17,7 +17,7 @@ const user_event = {
   noun: "User Event",
 
   display: {
-    // What the user will see in the Zap Editor when selecting an action
+    hidden: true,
     label: "Create User Event",
     description:
       "Adds an Event to the user identified by an email. Will create the User if not created already"
