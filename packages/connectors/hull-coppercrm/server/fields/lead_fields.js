@@ -133,13 +133,13 @@ module.exports =
     {
       "display": "Converted Unit",
       "name": "converted_unit",
-      "type": "type",
+      "type": "string",
       "readOnly": false
     },
     {
       "display": "Converted Value",
       "name": "converted_value",
-      "type": "type",
+      "type": "string",
       "readOnly": false
     },
     {

@@ -45,6 +45,12 @@ module.exports =
       "readOnly": false
     },
     {
+      "display": "Assignee Email",
+      "name": "assigneeEmail",
+      "type": "string",
+      "readOnly": false
+    },
+    {
       "display": "Contact Type Id",
       "name": "contact_type_id",
       "type": "number",

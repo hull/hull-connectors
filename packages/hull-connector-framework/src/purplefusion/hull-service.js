@@ -11,6 +11,7 @@ const _ = require("lodash");
 const {
   HullIncomingUser,
   HullIncomingAccount,
+  HullIncomingOpportunity,
   HullApiAttributeDefinition,
   HullIncomingUserImportApi,
   HullApiSegmentDefinition,
@@ -174,6 +175,25 @@ class HullSdk {
     return this.client.asAccount(account.ident).traits(account.attributes);
   }
 
+  upsertHullOpportunity(opportunity: HullIncomingOpportunity) {
+    let opportunityPromise = Promise.resolve();
+
+    if (!_.isEmpty(opportunity.attributes)) {
+      if (!_.isEmpty(opportunity.accountIdent)) {
+        opportunityPromise = opportunityPromise.then(() => {
+          return this.client.asAccount(opportunity.accountIdent).traits(opportunity.attributes)
+        });
+      }
+      if (!_.isEmpty(opportunity.userIdent)) {
+        opportunityPromise = opportunityPromise.then(() => {
+          return this.client.asUser(opportunity.userIdent).traits(opportunity.attributes)
+        });
+      }
+    }
+
+    return opportunityPromise;
+  }
+
   connectorSettingsUpdate(settings: any) {
     return this.helpers.settingsUpdate(settings);
   }
@@ -257,6 +277,11 @@ const hullService: CustomApi = {
       method: "upsertHullAccount",
       endpointType: "upsert",
       input: HullIncomingAccount
+    },
+    asOpportunity: {
+      method: "upsertHullOpportunity",
+      endpointType: "upsert",
+      input: HullIncomingOpportunity
     },
     settingsUpdate: {
       method: "connectorSettingsUpdate",

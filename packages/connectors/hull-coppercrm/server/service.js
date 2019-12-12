@@ -44,6 +44,11 @@ const service = ({ clientID, clientSecret } : {
         "page_number": 1
       }
     },
+    getCustomFields: {
+      url: "/v1/custom_field_definitions",
+      operation: "get",
+      endpointType: "lastFetch"
+    },
     getLeadStatuses: {
       url: "/v1/lead_statuses",
       operation: "get",
@@ -147,7 +152,7 @@ const service = ({ clientID, clientSecret } : {
       query: {
         "sort_by": "date_created",
         "sort_direction": "asc",
-        "page_size": "1",
+        "page_size": "${pageSize}",
         "page_number": "${pageOffset}",
         "minimum_created_date": "${dateOffset}"
       }
@@ -171,9 +176,9 @@ const service = ({ clientID, clientSecret } : {
       endpointType: "lastFetch",
       output: CopperCRMIncomingOpportunity,
       query: {
-        "sort_by": "date_modified",
+        "sort_by": "date_created",
         "sort_direction": "asc",
-        "page_size": "1",
+        "page_size": "${pageSize}",
         "page_number": "${pageOffset}",
         "minimum_created_date": "${dateOffset}"
       }

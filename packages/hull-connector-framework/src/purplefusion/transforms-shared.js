@@ -9,7 +9,8 @@ const {
   inputIsNotEqual,
   isNotEqual,
   isServiceAttribute,
-  not
+  not,
+  notNull
 } = require("./conditionals");
 
 const {
@@ -212,15 +213,16 @@ const transformsShared: ServiceTransforms = [
       },
       {
         operateOn: { component: "input", select: "hull_service_userId" },
-        writeTo: { path: "ident.anonymous_id", format: "${service_name}:${operateOn}" },
+        writeTo: { path: "userIdent.anonymous_id", format: "${service_name}:${operateOn}" },
       },
       {
-        operateOn: { component: "input", select: "${connector.private_settings.opportunity_type}", name: "opportunityType"},
+        operateOn: { component: "input", select: "${connector.private_settings.incoming_opportunity_type}", name: "opportunityType"},
+        condition: notNull("opportunityType", undefined),
         then: [
           {
             operateOn: { component: "input", select: "id" },
             writeTo: {
-              path: "attributes.${service_name}_opportunity_${opportunityType}/id",
+              path: "attributes.${service_name}_${opportunityType}/id",
               format: {
                 value: "${value}",
                 operation: "set"

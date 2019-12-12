@@ -10,7 +10,7 @@ const {
 
 const { createIncomingServiceUserTransform }  = require("hull-connector-framework/src/purplefusion/transform-predefined");
 
-
+const { doesContain, doesNotContain }  = require("hull-connector-framework/src/purplefusion/conditionals");
 
 
 
@@ -31,13 +31,42 @@ const addressTransform = [
 ];
 
 
+const enumFields = ["Dropdown", "MultiSelect"];
+const arrayEnumFields = ["MultiSelect"];
+
 const customFieldsTransform = [
   {
     operateOn: { component: "input", select: "custom_fields" },
     expand: { valueName: "customField" },
     then: {
-      operateOn: { component: "glue", route: "getCustomFields", select: "${customField.custom_field_definition_id}" },
-      writeTo: { path: "${operateOn}", value: "${customField.value}" }
+      operateOn: { component: "glue", route: "getCustomFieldMap", select: "${customField.custom_field_definition_id}", name: "customFieldPath" },
+      then: [
+        {
+          operateOn: { component: "glue", route: "getCustomFieldMapAll", select: "${customField.custom_field_definition_id}.type", name: "customType" },
+          condition: doesContain(enumFields, "customType"),
+          then: [
+            {
+              operateOn: "${customField.value}",
+              expand: true,
+              condition: doesContain(arrayEnumFields, "customType"),
+              then: {
+                operateOn: { component: "glue", route: "getCustomFieldValueMap", select: "${operateOn}", name: "customFieldValue" },
+                writeTo: { path: "${customFieldPath}", value: "${customFieldValue}", appendToArray: "unique" }
+              }
+            },
+            {
+              operateOn: { component: "glue", route: "getCustomFieldValueMap", select: "${customField.value}", name: "customFieldValue" },
+              condition: doesNotContain(arrayEnumFields, "customType"),
+              writeTo: { path: "${customFieldPath}", value: "${customFieldValue}" }
+            }
+          ]
+        },
+        {
+          operateOn: { component: "glue", route: "getCustomFieldMapAll", select: "${customField.custom_field_definition_id}.type", name: "customType" },
+          condition: doesNotContain(enumFields, "customType"),
+          writeTo: { path: "${customFieldPath}", value: "${customField.value}" }
+        }
+      ]
     }
   }
 ];

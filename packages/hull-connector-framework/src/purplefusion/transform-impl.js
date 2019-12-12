@@ -158,7 +158,7 @@ class TransformImpl {
         return this.transformInput(variableContext, input, unqualifiedTransformations[0]);
       }
 
-      debug(`No Transforms found from: ${inputClass} to ${desiredOutputClass}`);
+      debug(`No Transforms found from: ${JSON.stringify(inputClass)} to ${JSON.stringify(desiredOutputClass)}`);
 
       // TODO not sure if this is right... if we're looking to transform into another object, but can't
       // then maybe we should throw an error or something...

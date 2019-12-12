@@ -41,6 +41,10 @@ describe("CopperCRM Lead Tests", () => {
   //   return harness.runTest(require("./fixtures/fetch-all-leads"));
   // });
 
+  it("fetch all coppercrm", () => {
+    return harness.runTest(require("./fixtures/fetch-recent-accounts"));
+  });
+
   it("fetch recent coppercrm", () => {
     const why = require("./fixtures/fetch-recent-leads");
     return harness.runTest(why);

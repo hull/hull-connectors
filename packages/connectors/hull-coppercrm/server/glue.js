@@ -143,7 +143,8 @@ const glue = {
       incomingType: CopperCRMIncomingOpportunity,
       datePathOnEntity: "date_created",
       pageSize: 100,
-      hullCommand: "asAccount"
+      hullCommand: "asOpportunity",
+      timeFormat: "unix"
     }),
   fetchRecentOpportunities:
     fetchRecentByDate({
@@ -152,21 +153,25 @@ const glue = {
       incomingType: CopperCRMIncomingOpportunity,
       datePathOnEntity: "date_modified",
       pageSize: 100,
-      hullCommand: "asAccount",
+      hullCommand: "asOpportunity",
       timeFormat: "unix"
     }),
   attributesLeadsIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, ld("concat", require("./fields/lead_fields"), route("customLeadFields")))),
   attributesPeopleIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, ld("concat", require("./fields/people_fields"), route("customPeopleFields")))),
-  attributesCompaniesIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, ld("concat", require("./fields/company_fields"), route("customPeopleFields")))),
+  attributesCompaniesIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, ld("concat", require("./fields/company_fields"), route("customCompanyFields")))),
   attributesOpportunitiesIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, ld("concat", require("./fields/opportunity_fields"), route("customOpportunityFields")))),
-  customLeadFields: jsonata(`$["lead" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, cacheWrap(6000, coppercrm("getCustomFields"))),
-  customPeopleFields: jsonata(`$["people" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, cacheWrap(6000, coppercrm("getCustomFields"))),
-  customCompanyFields: jsonata(`$["company" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, cacheWrap(6000, coppercrm("getCustomFields"))),
-  customOpportunityFields: jsonata(`$["opportunity" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, cacheWrap(6000, coppercrm("getCustomFields"))),
+  customLeadFields: jsonata(`$["lead" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, route("getCustomFields")),
+  customPeopleFields: jsonata(`$["people" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, route("getCustomFields")),
+  customCompanyFields: jsonata(`$["company" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, route("getCustomFields")),
+  customOpportunityFields: jsonata(`$["opportunity" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, route("getCustomFields")),
+  getCustomFieldMap: jsonata(`$ {$string(id): name}`, route("getCustomFields")),
+  getCustomFieldMapAll: jsonata(`$ {$string(id): {"name": name, "type": data_type }}`, route("getCustomFields")),
+  getCustomFieldValueMap: jsonata(`$.options{$string(id): name}`, route("getCustomFields")),
+  getCustomFields: cacheWrap(6000, coppercrm("getCustomFields")),
   getAssignees: jsonata(`$ {$string(id): email}`, cacheWrap(6000, coppercrm("getUsers"))),
   getContactTypes: jsonata(`$ {$string(id): name}`, cacheWrap(6000, coppercrm("getContactTypes"))),
   getCustomerSources: jsonata(`$ {$string(id): name}`, cacheWrap(6000, coppercrm("getCustomerSources"))),
-  getLossReason: jsonata(`$ {$string(id): name}`, cacheWrap(6000, coppercrm("getLossReason"))),
+  getLossReason: jsonata(`$ {$string(id): name}`, cacheWrap(6000, coppercrm("getLossReasons"))),
   getPipelines: jsonata(`$ {$string(id): name}`, cacheWrap(6000, coppercrm("getPipelines"))),
   // hitting the getPipelines endpoint and using jsonata to extract stages, could also hit pipelinestages endpoint, but no need to hit more than getPipelines for now
   getPipelineStages: jsonata(`$.stages{$string(id): name}`, cacheWrap(6000, coppercrm("getPipelines"))),

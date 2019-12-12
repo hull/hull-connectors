@@ -157,7 +157,11 @@
       "name": "incoming_opportunity_type",
       "title": "Choose an field to differentiate between opportunity types",
       "format": "trait",
-      "type": "string"
+      "type": "string",
+      "options": {
+        "placeholder": "Pick a Field for Opportunity Type",
+        "loadOptions": "/attributes-opportunities-incoming"
+      }
     },
     {
       "name": "incoming_opportunity_attributes",
@@ -274,7 +278,7 @@
       "handler": "attributesCompaniesIncoming"
     },
     {
-      "url": "/attributes-opportunity-incoming",
+      "url": "/attributes-opportunities-incoming",
       "handler": "attributesOpportunitiesIncoming"
     }
   ],

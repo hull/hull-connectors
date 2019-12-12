@@ -76,7 +76,7 @@ async function transformToTarget({ dispatcher, context, input, transformation, t
         if (_.get(transformation, "expand.setAsTarget" === true)) {
           expandTarget = value;
         }
-
+        context.set("operateOn", value);
         // can't really return anything relevant on an expand, so don't set toReturn
         // always return the target
         await resolveTransform(dispatcher, context, input, expandTarget, transformation, value);
@@ -182,7 +182,27 @@ async function performWrite(dispatcher, context, input, target, writeTo, operati
 
     // if undefined, my be trying to unset things, so don't do an undefined check (no use cases yet, add unit test)
     // if null, then definitely could be setting something to null
-    _.set(target, keyPath, valueToOutput);
+
+    if (writeTo.appendToArray) {
+      let array = _.get(target, keyPath);
+      if (isUndefinedOrNull(array) || !Array.isArray(array)) {
+        array = [valueToOutput];
+      } else {
+
+        if (writeTo.appendToArray === "unique") {
+          if (array.indexOf(valueToOutput) < 0) {
+            array.push(valueToOutput);
+          }
+        } else {
+          array.push(valueToOutput);
+        }
+
+      }
+
+      _.set(target, keyPath, array);
+    } else {
+      _.set(target, keyPath, valueToOutput);
+    }
   }
 
 }

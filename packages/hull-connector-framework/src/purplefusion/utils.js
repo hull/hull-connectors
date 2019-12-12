@@ -9,7 +9,8 @@ const {
   HullOutgoingUser,
   HullOutgoingAccount,
   HullIncomingUser,
-  HullIncomingAccount
+  HullIncomingAccount,
+  HullIncomingOpportunity
 } = require("./hull-service-objects");
 
 // Using this method of defining a property which is not enumerable to set the datatype on a data object
@@ -76,7 +77,8 @@ function getHullPlatformTypeName(classType: ServiceObjectDefinition) {
     sameHullDataType(classType, HullOutgoingUser)
     || sameHullDataType(classType, HullIncomingUser)
     || sameHullDataType(classType, HullOutgoingAccount)
-    || sameHullDataType(classType, HullIncomingAccount)) {
+    || sameHullDataType(classType, HullIncomingAccount)
+    || sameHullDataType(classType, HullIncomingOpportunity)) {
     return classType.name;
   }
 
@@ -96,15 +98,15 @@ function parseIntOrDefault(intString: string, defaultInt: number) {
 function getAttributeNamespace(hullName: string) {
   const parts = _.split(hullName, "/");
   if (parts.length > 1) {
-    return _.last(parts);
+    return _.first(parts);
   }
   return undefined;
 }
 
 function getAttributeName(hullName: string) {
   const parts = _.split(hullName, "/");
-  if (parts.length === 2) {
-    return parts[1];
+  if (parts.length > 1) {
+    return _.last(parts);
   }
   return hullName;
 }
