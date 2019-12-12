@@ -35,7 +35,7 @@
     {
       "name": "load_scripts",
       "title": "External scripts",
-      "description": "List of additional external JS files which will be loaded and run by Hull tracking tag on each page load. Paste full url.",
+      "description": "Paste full urls here.",
       "type": "array",
       "items": {
         "type": "string"
@@ -44,7 +44,7 @@
     {
       "name": "init_script",
       "title": "Embedded script",
-      "description": "Write custom javascript code which will be run by Hull tracking tag on each page load. No `script` tag is needed here.",
+      "description": "No `script` tag is needed here, just javascript code. See documentation for best practises.",
       "type": "string",
       "format": "code"
     }
@@ -53,7 +53,7 @@
     {
       "name": "whitelisted_domains",
       "title": "Whitelisted Domains",
-      "description": "The connector will only load for the webpages served under domains here.",
+      "description": "You can use `*` character to whitelist subdomains.",
       "type": "array",
       "format": "table",
       "items": {
@@ -112,7 +112,7 @@
     {
       "name": "script_enabled",
       "title": "Load scripts",
-      "description": "When enabled, all external scripts and embedded script below will be injected and executed every time page with Hull.js is loaded.",
+      "description": "When enabled, all external scripts and embedded script below will be injected and executed every time page with Hull.js tag is loaded.",
       "type": "boolean",
       "default": false
     },
@@ -129,7 +129,7 @@
       "name": "credentials",
       "url": "/credentials",
       "handler": "credentialsHandler",
-      "description": "Copy and paste the script tag in the `head` section in your website.",
+      "description": "Copy and paste the HTML tag in the `head` section in your website.",
       "format": "credentials",
       "type": "string"
     }
@@ -149,14 +149,14 @@
     },
     {
       "title": "Tracking",
-      "description": "Configure the tracking library. By default it tracks all page view events, you can turn it off below.<br />Additional customization capabilities are described in [Hull.js reference](https://www.hull.io/docs/reference/hull_js/). If you need to deploy custom scripts you can use Addtional scripts section below.",
+      "description": "Configure the tracking library. By default it tracks all page view events, you can turn it off below.<br />Additional customization capabilities are described in [Hull.js reference](https://www.hull.io/docs/reference/hull_js/). If you need to deploy custom scripts you can use **Scripts** section below.",
       "properties": [
         "private_settings.track_page_inits"
       ]
     },
     {
       "title": "Scripts",
-      "description": "This sections allows to quickly load additional scripts in your webpage wherever Hull tracking tag is present.<br />Although any javascript file can be loaded, this section is especially handy when deploying client parts of other connectors from Hull organization. Refer specific connector documentation to find link to paste here.",
+      "description": "This sections allows to quickly load additional scripts in your webpage wherever Hull tracking tag is present.<br />Although any javascript file can be loaded, this section is especially handy when deploying client parts of other connectors from Hull organization. Check documentation to find urls to paste here.<br />All custom scripts will be injected and executed on every page load wherver the Hull Website tag is installed.",
       "properties": [
         "private_settings.script_enabled",
         "settings.load_scripts",
