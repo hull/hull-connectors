@@ -8,7 +8,7 @@
     </defs>
     <g id="website/picture" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <rect id="Rectangle" fill="#FFFFFF" x="0" y="0" width="640" height="360"></rect>
-        <g id="Group" transform="translate(65.000000, 138.000000)">
+        <g id="Group" transform="translate(178.000000, 138.000000)">
             <mask id="mask-2" fill="white">
                 <use xlink:href="#path-1"></use>
             </mask>
@@ -17,7 +17,7 @@
             <path d="M48.5908989,1.00005785 C66.1994671,5.19068195 79.2953279,21.0231616 79.2953279,39.9143434 C79.2953279,62.0057334 61.3867179,79.9143434 39.2953279,79.9143434 C26.6233208,79.9143434 15.3276031,74.0217482 7.99880659,64.8271897 C10.981991,65.5384459 14.0947617,65.9143434 17.2953279,65.9143434 C39.3867179,65.9143434 57.2953279,48.0057334 57.2953279,25.9143434 C57.2953279,16.6359596 54.1362491,8.09541822 48.8350108,1.3096385 Z" id="Combined-Shape" fill="#FF4C4C" mask="url(#mask-2)"></path>
         </g>
         <text id="Website" font-family="NittiGrotesk-Bold, Nitti Grotesk" font-size="52" font-weight="bold" fill="#FF4C4C">
-            <tspan x="174" y="195">Website</tspan>
+            <tspan x="287" y="194">Website</tspan>
         </text>
     </g>
 </svg>

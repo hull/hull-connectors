@@ -20,6 +20,16 @@ You may need to refer to your website system to know how to embed the code, but 
 > Note: If you are using Google Tag Manager, make sure to checkout the Guide on [how to set up Hull.js with Google Tag Manager](https://www.hull.io/docs/guides/getting-started/setting-up-hull-js-with-google-tag-manager/)
 
 
+## General notes
+
+**Caching**
+
+Due to performance reasons the configuration of the Hull Website tag is cached for 5 minutes, so you may need to wait for your changes to take effect. This affects all settings of the connector.
+
+**Deactivation**
+
+When website connector is deactivated the Hull.js snippet won't run at all. No tracking will be performed and none of the additional scripts will be loaded to the page.
+
 # Tracking
 
 Tracking of web traffic is performed by Hull.js. To learn more about how it works, checkout the [Hull.js
@@ -35,7 +45,7 @@ Further customization capabilities are described at length in the [Hull.js refer
 
 # Embedded and External Scripts
 
-To make the customization easier the connector comes with support for `Embedded Scripts` and `External Scripts`, allowing you to quickly and easily deploy additional javascript code.
+To make the customization easier the connector comes with support for `Embedded Script` and `External Scripts`, allowing you to quickly and easily deploy additional javascript code.
 
 - `External Scripts` let you load additional code libraries without having to edit your website. Hull will load them asynchronously, without blocking the page. This is also the recommended way of deploying client-side parts of other connectors to integrate with external services not only on the back-end but also on the front-end.
 
