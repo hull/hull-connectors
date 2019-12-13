@@ -105,18 +105,21 @@ class HullSdk {
     }
 
     // combine all anonymous ids if they exist
-    if (identity.anonymous_ids) {
-      if (!Array.isArray(identity.anonymous_ids)) {
-        // remove it if it is not an array, not valid syntax
-        _.unset(identity, "anonymous_ids");
-      } else {
-        const anonymousId = _.get(identity, "anonymous_id");
-        if (anonymousId && _.indexOf(identity.anonymous_ids, anonymousId) < 0) {
-          identity.anonymous_ids.push(anonymousId)
-        }
-        _.unset(identity, "anonymous_id");
-      }
-    }
+    // TODO this isn't a valid syntax right now
+    // so unset for now
+    _.unset(identity, "anonymous_ids");
+    // if (identity.anonymous_ids) {
+    //   if (!Array.isArray(identity.anonymous_ids) || _.isEmpty(identity.anonymous_ids)) {
+    //     // remove it if it is not an array, not valid syntax
+    //     _.unset(identity, "anonymous_ids");
+    //   } else {
+    //     const anonymousId = _.get(identity, "anonymous_id");
+    //     if (anonymousId && _.indexOf(identity.anonymous_ids, anonymousId) < 0) {
+    //       identity.anonymous_ids.push(anonymousId)
+    //     }
+    //     _.unset(identity, "anonymous_id");
+    //   }
+    // }
 
     // Might think about adding some validation here or somewhere else
     // for now throwing errors, which I'm not sure is wrong
