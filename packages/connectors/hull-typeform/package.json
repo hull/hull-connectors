@@ -1,6 +1,6 @@
 {
   "name": "hull-typeform",
-  "version": "0.1.11-monorepo",
+  "version": "0.1.12-monorepo",
   "description": "Hull Typeform integration",
   "main": "index.js",
   "scripts": {
