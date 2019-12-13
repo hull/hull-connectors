@@ -1571,7 +1571,7 @@
           "ALL": "All Accounts"
         }
       },
-      "format": "segment"
+      "format": "accountSegment"
     },
     {
       "name": "prospect_account_segments_exclusion",
@@ -1579,7 +1579,7 @@
       "description": "Accounts in those segments will be excluded from Prospector. Takes precedence over the whitelist",
       "type": "array",
       "default": [],
-      "format": "segment"
+      "format": "accountSegment"
     },
     {
       "name": "prospect_limit_count",

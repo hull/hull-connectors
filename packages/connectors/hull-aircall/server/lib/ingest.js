@@ -1,7 +1,7 @@
 // @flow
 import _ from "lodash";
 import type { HullContext } from "hull";
-import type { Event } from "../types";
+import type { CallEvent } from "../types";
 import {
   getEventName,
   getAttributes,
@@ -10,7 +10,7 @@ import {
   getEventContext
 } from "./event-map";
 
-export default async function ingest(ctx: HullContext, event: Event) {
+export default async function ingest(ctx: HullContext, event: CallEvent) {
   const { connector, client } = ctx;
   const { private_settings } = connector;
   const { /* api_key,  */ preferred_email = "" } = private_settings;

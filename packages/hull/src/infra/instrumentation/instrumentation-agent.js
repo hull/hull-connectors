@@ -185,7 +185,7 @@ class InstrumentationAgent {
           body: req.body,
           query: req.query,
           method: req.method,
-          url: url.parse(req.url).pathname
+          url: req.url ? url.parse(req.url).pathname : undefined
         }
       });
     }
