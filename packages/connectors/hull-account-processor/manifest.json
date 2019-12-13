@@ -124,7 +124,7 @@
           ]
         },
         "segments": {
-          "account:update": "private_settings.synchronized_account_segments"
+          "account:update": ["private_settings.synchronized_account_segments"]
         }
       },
       "channels": [
