@@ -3,7 +3,7 @@
   "description": "Track web traffic and integrate with other client side services.",
   "picture": "picture.png",
   "index": "ship.js",
-  "version": "0.1.11-monorepo",
+  "version": "0.1.12-monorepo",
   "tags": [
     "smart-notifier",
     "incoming",
