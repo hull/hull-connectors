@@ -28,18 +28,8 @@ export default function userPayload(
     public_traits = [],
     public_events = [],
     public_segments = [],
-    public_account_segments = [],
-    synchronized_segments = []
+    public_account_segments = []
   } = private_settings;
-
-  const segmentIds = _.map(segments, "id");
-
-  if (
-    !_.includes(synchronized_segments, "ALL") &&
-    !_.intersection(synchronized_segments, segmentIds).length
-  ) {
-    return { message: "private", user: { id: user.id }, segments: {} };
-  }
 
   const u = client.utils.traits.group(
     _.pick(_.omit(user, "segments"), public_traits)

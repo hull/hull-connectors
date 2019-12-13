@@ -34,7 +34,7 @@
     },
     {
       "name": "load_scripts",
-      "title": "External scripts",
+      "title": "External Scripts",
       "description": "Paste full urls here.",
       "type": "array",
       "items": {
@@ -53,7 +53,7 @@
     {
       "name": "whitelisted_domains",
       "title": "Whitelisted Domains",
-      "description": "You can use `*` character to whitelist subdomains.",
+      "description": "You can use the `*` character to whitelist subdomains.",
       "type": "array",
       "format": "table",
       "items": {
@@ -162,6 +162,22 @@
         "settings.load_scripts",
         "settings.init_script"
       ]
+    }
+  ],
+  "status": {
+    "initial_value": "ok",
+    "url": "/status",
+    "type": "cron",
+    "value": "*/30 * * * *",
+    "handler": "statusHandler"
+  },
+  "statuses": [
+    {
+      "initial_value": "ok",
+      "url": "/status",
+      "type": "cron",
+      "value": "*/30 * * * *",
+      "handler": "statusHandler"
     }
   ],
   "subscriptions": [
