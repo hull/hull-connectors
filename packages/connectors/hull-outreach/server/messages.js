@@ -95,7 +95,7 @@ const MESSAGES = {
     return {
       id: "ServiceValidationError",
       message:
-        "Outreach has rejected the objects being sent, please review attributes that you have in your filters to make sure that you've selected all the fields that outreach requires, if you think this is not correct, please contact Hull support",
+        "Outreach has rejected the objects being sent, please review attributes that you have in your filters to make sure that you've selected all the fields that outreach requires, if you think this is correct, please contact Hull support",
       level: "Error",
       channel: "Operation",
       category: "DataFlow"
@@ -105,7 +105,7 @@ const MESSAGES = {
     return {
       id: "ResourceRequestError",
       message:
-        "Outreach has rejected the objects being sent, please review the object for any old relationships that may not exist anymore. If you think this is not correct, please contact Hull support",
+        "Outreach has rejected the objects being sent, please review the object for any old relationships that may not exist anymore. If you think this is correct, please contact Hull support",
       level: "Error",
       channel: "Operation",
       category: "DataFlow"
