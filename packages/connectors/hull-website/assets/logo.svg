@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="257px" height="257px" viewBox="0 0 257 257" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 61 (89581) - https://sketch.com -->
+    <title>website/logo</title>
+    <desc>Created with Sketch.</desc>
+    <g id="website/logo" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect fill="#FFDBDB" x="0" y="0" width="257" height="257"></rect>
+        <path d="M257,0 L257,257 L117.989482,257.002728 C133.092162,236.224352 142,210.652444 142,183 C142,113.412122 85.5878785,57 16,57 C10.5793799,57 5.23870749,57.3422971 -0.00158114386,58.0064553 L-2.84217094e-14,0 L257,0 Z" id="Combined-Shape" fill="#FFA2A2"></path>
+        <path d="M257,-5.32907052e-15 L257,257 L0,257 L-0.000654834757,196.8242 C17.8389027,206.503014 38.2775065,212 60,212 C129.587878,212 186,155.587878 186,86 C186,52.753385 173.123433,22.5142535 152.085395,-0.00229693062 L257,-5.32907052e-15 Z" id="Combined-Shape" fill="#FF4C4C"></path>
+    </g>
+</svg>

@@ -34,8 +34,8 @@ export default function connectorConfig(): HullConnectorConfig {
     port: PORT || 8082,
     timeout: "25s",
     handlers: handlers({
-      flow_size: FLOW_CONTROL_SIZE,
-      flow_in: FLOW_CONTROL_IN
+      flow_size: FLOW_CONTROL_SIZE || 100,
+      flow_in: FLOW_CONTROL_IN || 10
     }),
     middlewares: [],
     cacheConfig: {
