@@ -1,0 +1,22 @@
+{
+  "name": "hull-browser",
+  "version": "0.1.11-monorepo",
+  "description": "Synchronize Data with Browser",
+  "main": "index.js",
+  "homepage": "https://github.com/hull/hull-connectors",
+  "scripts": {
+    "test": "exit 0; echo 'No Tests here' Sad Panda"
+  },
+  "dependencies": {
+    "bluebird": "^3.5.3",
+    "eventemitter2": "^5.0.1",
+    "jwt-simple": "^0.5.1",
+    "query-string": "^5.0.1",
+    "redis": "^2.8.0",
+    "redis-lru": "^0.5.0",
+    "socket.io": "^2.0.4",
+    "socket.io-client": "^2.0.4",
+    "socket.io-redis": "^5.2.0"
+  },
+  "devDependencies": {}
+}

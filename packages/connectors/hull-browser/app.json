@@ -1,0 +1,20 @@
+{
+  "name": "Hull Browser",
+  "description": "A Hull Integration for Browser Personalization.",
+  "repository": "https://github.com/hull-ships/hull-browser",
+  "website": "http://www.hull.io",
+  "success_url": "/readme",
+  "env": {
+    "SECRET" : {
+      "description" : "A Secret key to encrypt. Keep it long",
+      "generator" : "secret"
+    }
+  },
+  "scripts": {},
+  "addons": [
+    {
+      "plan": "heroku-redis:hobby-dev",
+      "as": "REDIS"
+    }
+  ]
+}

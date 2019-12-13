@@ -14,7 +14,7 @@ import {
 import configData from "./config-data";
 import accountUpdate from "./account-update";
 
-type HandlerType = { flow_size: number, flow_in: number };
+type HandlerType = { flow_size?: number, flow_in?: number };
 const handler = ({ flow_size, flow_in }: HandlerType) => (
   _connector: Connector
 ): HullHandlersConfiguration => {

@@ -7,7 +7,7 @@ import type {
   HullExternalResponse
 } from "hull";
 import ingest from "../lib/ingest";
-import type { CallEvent } from "../types";
+import type { Event } from "../types";
 
 const handler = async (
   ctx: HullContext,
@@ -15,7 +15,7 @@ const handler = async (
 ): HullExternalResponse => {
   const { metric } = ctx;
   // $FlowFixMe
-  const event: CallEvent = message.body;
+  const event: Event = message.body;
 
   metric.increment("ship.service_api.call");
   ingest(ctx, event);
