@@ -13,9 +13,9 @@ import type {
 export type HullFetchedUser = {|
   user: HullUser,
   segments: Array<HullUserSegment>,
-  events?: Array<HullEvent>,
   segment_ids: Array<string>,
-  account: HullAccount,
+  events?: Array<HullEvent>,
+  account?: HullAccount,
   account_segments?: Array<HullAccountSegment>,
   account_segment_ids?: Array<string>
 |};

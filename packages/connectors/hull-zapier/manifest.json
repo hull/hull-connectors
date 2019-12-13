@@ -11,7 +11,7 @@
   "picture": "picture.png",
   "ui": false,
   "readme": "readme.md",
-  "version": "0.1.12-monorepo",
+  "version": "0.1.11-monorepo",
   "private_settings": [
     {
       "name": "subscriptions",

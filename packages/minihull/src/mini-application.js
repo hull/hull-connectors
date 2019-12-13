@@ -14,7 +14,7 @@ const shell = require("shelljs");
 
 /*::
 export interface MiniApplicationInterface {
-  app: $Call<typeof express>;
+  app: express;
   db: low;
   requests: Object;
   server: Object;
@@ -28,7 +28,7 @@ export interface MiniApplicationInterface {
  * Can be extended to provide custom functionality.
  */
 class MiniApplication extends EventEmitter /*:: implements MiniApplicationInterface */ {
-  /*:: app: $Call<typeof express> */
+  /*:: app: express */
   /*:: db: low */
   /*:: requests: Object */
   /*:: server: Object */
@@ -44,11 +44,7 @@ class MiniApplication extends EventEmitter /*:: implements MiniApplicationInterf
 
     // Setup Express application
     this.app.use(bodyParser.json());
-    const emitterMiddleware: express$Middleware = (
-      req,
-      res,
-      next: () => any
-    ) => {
+    this.app.use((req, res, next) => {
       this.requests
         .get("incoming")
         .push(
@@ -61,13 +57,12 @@ class MiniApplication extends EventEmitter /*:: implements MiniApplicationInterf
       this.emit(`incoming.request@${req.url}`, req, count);
       this.emit(`incoming.request@${req.method}${req.url}`, req, count);
       next();
-    };
-    this.app.use(emitterMiddleware);
+    });
 
     sinon.addBehavior("respond", this._respond);
     sinon.stub(this, "_stubMiddleware");
     this._stubMiddleware.callThrough();
-    const stubMiddleware: express$Middleware = (req, res, next: () => any) => {
+    this.app.use((req, res, next) => {
       this._stubMiddleware(
         req,
         res,
@@ -77,8 +72,7 @@ class MiniApplication extends EventEmitter /*:: implements MiniApplicationInterf
         req.query,
         req.body
       );
-    };
-    this.app.use(stubMiddleware);
+    });
     return this;
   }
 
