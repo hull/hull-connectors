@@ -39,13 +39,16 @@ function serviceUserTransforms(entityType) {
       then: {
         operateOn: { component: "input", select: "${mapping.service}", name: "serviceValue" },
         condition: isNotEqual("serviceValue", undefined),
-        writeTo: {
-          path: "attributes.${mapping.hull}",
-          value: {
-            operation: "set",
-            value: "${serviceValue}"
+        then: [
+          {
+            condition: isEqual("mapping.overwrite", false),
+            writeTo: { path: "attributes.${mapping.hull}", format: { operation: "setIfNull", value: "${operateOn}" } }
+          },
+          {
+            condition: isEqual("mapping.overwrite", true),
+            writeTo: { path: "attributes.${mapping.hull}", format: { operation: "set", value: "${operateOn}" } }
           }
-        }
+        ]
       }
     },
     {

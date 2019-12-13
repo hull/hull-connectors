@@ -50,8 +50,8 @@ const customFieldsTransform = [
               expand: true,
               condition: doesContain(arrayEnumFields, "customType"),
               then: {
-                operateOn: { component: "glue", route: "getCustomFieldValueMap", select: "${operateOn}", name: "customFieldValue" },
-                writeTo: { path: "${customFieldPath}", value: "${customFieldValue}", appendToArray: "unique" }
+                operateOn: { component: "glue", route: "getCustomFieldValueMap", select: "${operateOn}" },
+                writeTo: { path: "${customFieldPath}", appendToArray: "unique" }
               }
             },
             {
@@ -179,7 +179,7 @@ const transformsToHull: ServiceTransforms = [
       },
       {
         operateOn: { component: "input", select: "primary_contact_id" },
-        writeTo: "hull_service_userId"
+        writeTo: { path: "hull_raw_service_userId", value: "${service_name}-person:person-${operateOn}" }
       },
       {
         operateOn: { component: "glue", route: "getContactTypes", select: { component: "input", select: "contact_type_id" } },
@@ -191,7 +191,7 @@ const transformsToHull: ServiceTransforms = [
         writeTo: "customerSource"
       },
       {
-        operateOn: { component: "glue", route: "getLossReason", select: { component: "input", select: "loss_reason_id" }, onUndefined: null },
+        operateOn: { component: "glue", route: "getLossReason", select: { component: "input", select: "loss_reason_id" } },
         writeTo: "lossReason"
       },
       {

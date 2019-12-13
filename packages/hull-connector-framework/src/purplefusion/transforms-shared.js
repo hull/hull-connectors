@@ -178,8 +178,18 @@ const transformsShared: ServiceTransforms = [
         operateOn: "${connector.private_settings.incoming_account_attributes}",
         expand: { valueName: "mapping" },
         then: {
-          operateOn: { component: "input", select: "${mapping.service}"},
-          writeTo: { path: "attributes.${mapping.hull}" }
+          operateOn: { component: "input", select: "${mapping.service}", name: "serviceValue"},
+          condition: isNotEqual("serviceValue", undefined),
+          then: [
+            {
+              condition: isEqual("mapping.overwrite", false),
+              writeTo: { path: "attributes.${mapping.hull}", format: { operation: "setIfNull", value: "${operateOn}" } }
+            },
+            {
+              condition: isEqual("mapping.overwrite", true),
+              writeTo: { path: "attributes.${mapping.hull}", format: { operation: "set", value: "${operateOn}" } }
+            }
+          ]
         }
       },
       {
@@ -208,12 +218,20 @@ const transformsShared: ServiceTransforms = [
     then: [
       {
         operateOn: { component: "input", select: "hull_service_accountId" },
-        validation: { error: "BreakLoop", message: "Opp doesn't have company", condition: [ inputIsNotEqual("company_id", null), inputIsNotEqual("company_id", undefined) ] },
+        // validation: { error: "BreakLoop", message: "Opp doesn't have company", condition: [ inputIsNotEqual("company_id", null), inputIsNotEqual("company_id", undefined) ] },
         writeTo: { path: "accountIdent.anonymous_id", format: "${service_name}:${operateOn}" },
       },
+      // {
+      //   operateOn: { component: "input", select: "hull_raw_service_accountId" },
+      //   writeTo: { path: "accountIdent.anonymous_id", format: "${service_name}:${operateOn}" },
+      // },
       {
         operateOn: { component: "input", select: "hull_service_userId" },
         writeTo: { path: "userIdent.anonymous_id", format: "${service_name}:${operateOn}" },
+      },
+      {
+        operateOn: { component: "input", select: "hull_raw_service_userId" },
+        writeTo: { path: "userIdent.anonymous_id" },
       },
       {
         operateOn: { component: "input", select: "${connector.private_settings.incoming_opportunity_type}", name: "opportunityType"},
@@ -222,9 +240,9 @@ const transformsShared: ServiceTransforms = [
           {
             operateOn: { component: "input", select: "id" },
             writeTo: {
-              path: "attributes.${service_name}_${opportunityType}/id",
+              path: "attributes.${service_name}_opportunity_${opportunityType}/id",
               format: {
-                value: "${value}",
+                value: "${operateOn}",
                 operation: "set"
               }
             }
@@ -233,14 +251,30 @@ const transformsShared: ServiceTransforms = [
             operateOn: "${connector.private_settings.incoming_opportunity_attributes}",
             expand: { valueName: "mapping" },
             then: {
-              operateOn: { component: "input", select: "${mapping.service}"},
-              writeTo: {
-                path: "${mapping.hull}",
-                pathFormatter: (path, context) => {
-                  return `attributes.${getAttributeNamespace(path)}_${context.get("opportunityType")}/${getAttributeName(path)}`;
+              operateOn: { component: "input", select: "${mapping.service}", name: "serviceValue"},
+              condition: isNotEqual("serviceValue", undefined),
+              then: [
+                {
+                  condition: isEqual("mapping.overwrite", true),
+                  writeTo: {
+                    path: "${mapping.hull}",
+                    pathFormatter: (path, context) => {
+                      return `attributes.${getAttributeNamespace(path)}_${context.get("opportunityType")}/${getAttributeName(path)}`;
+                    },
+                    format: { operation: "set", value: "${operateOn}" }
+                  }
                 },
-                format: { operation: "set", value: "${operateOn}" }
-              }
+                {
+                  condition: isEqual("mapping.overwrite", false),
+                  writeTo: {
+                    path: "${mapping.hull}",
+                    pathFormatter: (path, context) => {
+                      return `attributes.${getAttributeNamespace(path)}_${context.get("opportunityType")}/${getAttributeName(path)}`;
+                    },
+                    format: { operation: "setIfNull", value: "${operateOn}" }
+                  }
+                }
+              ]
             }
           }
         ]

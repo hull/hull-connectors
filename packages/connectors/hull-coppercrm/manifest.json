@@ -61,7 +61,7 @@
       "format": "traitMapping",
       "options": {
         "direction": "incoming",
-        "showOverwriteToggle": false,
+        "showOverwriteToggle": true,
         "placeholder": "CopperCrm Lead Field",
         "allowCreate": true,
         "loadOptions": "/attributes-leads-incoming",
@@ -100,7 +100,7 @@
       "format": "traitMapping",
       "options": {
         "direction": "incoming",
-        "showOverwriteToggle": false,
+        "showOverwriteToggle": true,
         "placeholder": "CopperCrm People Field",
         "allowCreate": true,
         "loadOptions": "/attributes-people-incoming",
@@ -146,7 +146,7 @@
       "format": "traitMapping",
       "options": {
         "direction": "incoming",
-        "showOverwriteToggle": false,
+        "showOverwriteToggle": true,
         "placeholder": "CopperCrm Company Field",
         "allowCreate": true,
         "loadOptions": "/attributes-companies-incoming",
@@ -170,7 +170,7 @@
       "format": "traitMapping",
       "options": {
         "direction": "incoming",
-        "showOverwriteToggle": false,
+        "showOverwriteToggle": true,
         "placeholder": "CopperCrm Company Field",
         "allowCreate": true,
         "loadOptions": "/attributes-opportunities-incoming",
