@@ -1,8 +1,5 @@
 # CHANGELOG
 
-## v0.1.12-monorepo
-- release of the new website connector
-
 ## v0.1.11-monorepo
 - Moved new and improved code connectors to monorepo master
 - added outreach event support
