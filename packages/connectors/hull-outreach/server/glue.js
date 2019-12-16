@@ -346,6 +346,8 @@ const glue = {
     ]),
   getStageIdMap: jsonata("data{ $string(id): attributes.name }", cacheWrap(600, outreach("getStages"))),
   getOwnerIdToEmailMap: jsonata("data{ $string(id): attributes.email }", cacheWrap(600, outreach("getUsers"))),
+  getMailingDetails: jsonata("{\"email_subject\": data.attributes.subject, \"sequence_id\": data.relationships.sequence.data.id}", outreach("getMailingDetails")),
+  getSequences: jsonata("$ {$string(id): attributes.name}", cacheWrap(6000, outreach("getSequences"))),
   eventsFetchAll:
     ifL(cond("notEmpty", set("eventsToFetch", ld("filter", settings("events_to_fetch"), elem => elem !== "prospect_stage_changed"))), [
       set("id_offset", 0),
@@ -354,9 +356,7 @@ const glue = {
       loopL([
         set("outreachEvents", outreach("getEventsPaged")),
         iterateL("${outreachEvents.data}", { key: "outreachEvent", async: true },
-          ifL(cond("greaterThan", ld("indexOf", "${eventsToFetch}", "${outreachEvent.attributes.name}"), -1),
-            hull("asUser", cast(OutreachEventRead, "${outreachEvent}")),
-          )
+          hull("asUser", cast(OutreachEventRead, "${outreachEvent}")),
         ),
         ifL(cond("isEqual", ld("size", "${outreachEvents.data}"), 1000), {
           do: set("id_offset", "${outreachEvents.data[999].id}"),
