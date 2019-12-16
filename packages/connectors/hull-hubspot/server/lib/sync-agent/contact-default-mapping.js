@@ -10,6 +10,13 @@ const DEFAULT_MAPPING: Array<HubspotDefaultContactMapping> = [
     read_only: false
   },
   {
+    name: "email",
+    hull: "hubspot/email",
+    type: "string",
+    title: "Email",
+    read_only: false
+  },
+  {
     name: "salutation",
     hull: "hubspot/salutation",
     type: "string",
