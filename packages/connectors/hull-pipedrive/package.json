@@ -1,6 +1,6 @@
 {
   "name": "hull-pipedrive",
-  "version": "0.1.11-monorepo",
+  "version": "0.1.12-monorepo",
   "description": "Sync persons and organizations with Hull",
   "scripts": {
     "test": "yarn run test:integration",
