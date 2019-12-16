@@ -209,6 +209,15 @@ const service = ({ clientID, clientSecret } : {
       operation: "get",
       endpointType: "byProperty",
       query: "${offsetQuery}"
+    },
+    getMailingDetails: {
+      url: "/mailings/${mailingId}/",
+      operation: "get"
+    },
+    getSequences: {
+      url: "/sequences/",
+      operation: "get",
+      returnObj: "body.data"
     }
   },
   superagent: {

@@ -404,7 +404,13 @@ class HullDispatcher {
             if (setKey) {
               shallowContextClone.set(setKey, resolvedParams[key]);
             }
-            return this.resolve(shallowContextClone, instructionOptions.instructions, serviceData);
+            return this.resolve(shallowContextClone, instructionOptions.instructions, serviceData)
+              .catch(err => {
+                if (err.code === "BreakToLoop") {
+                  return Promise.resolve();
+                }
+                return Promise.reject(err);
+              });
           }));
         }
 
@@ -454,7 +460,7 @@ class HullDispatcher {
               finalInstruction = instructionResults;
             }
           } catch(err) {
-            if (typeof err !== "BreakToLoop") {
+            if (err.code !== "BreakToLoop") {
               throw err;
             }
           }
