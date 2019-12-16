@@ -1,7 +1,15 @@
 /* @flow */
 import type { ServiceTransforms } from "hull-connector-framework/src/purplefusion/types";
 
-const { doesNotContain, isEqual, doesContain, isNotEqual, isServiceAttribute, mappingExists, notNull } = require("hull-connector-framework/src/purplefusion/conditionals");
+const {
+  doesNotContain,
+  isEqual,
+  mappingExists,
+  notNull,
+  isNull,
+  not,
+  resolveIndexOf
+} = require("hull-connector-framework/src/purplefusion/conditionals");
 
 
 const {
@@ -407,6 +415,28 @@ const transformsToHull: ServiceTransforms =
       strategy: "MixedTransforms",
       transforms: [
         {
+          strategy: "AtomicReaction",
+          target: { component: "input", name: "eventInput" },
+          validation:
+            {
+              error: "BreakProcess",
+              message: "Event has never been seen before by the connector, please report issue to your Hull Support representative",
+              condition:
+                doesNotContain(require("./events.json"), "eventInput.attributes.name")
+            }
+        },
+        {
+          strategy: "AtomicReaction",
+          target: { component: "input", name: "eventInput" },
+          validation:
+            {
+              error: "BreakToLoop",
+              message: "Event has not been whitelisted by the connector settings, please see the \"Events To Fetch\" in the settings to add this event type",
+              condition:
+                not(resolveIndexOf("connector.private_settings.events_to_fetch", "eventInput.attributes.name"))
+            }
+        },
+        {
           strategy: "Jsonata",
           direction: "incoming",
           transforms: [
@@ -444,29 +474,27 @@ const transformsToHull: ServiceTransforms =
           target: { component: "input", name: "eventInput" },
           then: [
             {
-              validation: {
-                error: "BreakProcess",
-                message: "Event has never been seen before by the connector, please report issue to your Hull Support representative",
-                condition:
-                  doesNotContain(require("./events.json"), "eventInput.hull_events[0].eventName")
-              }
-            },
-            // {
-            //   validation: {
-            //     error: "BreakToLoop",
-            //     message: "Event has not been whitelisted by the connector settings, please see the \"Events To Fetch\" in the settings to add this event type",
-            //     condition:
-            //       mappingExists("events_to_fetch", "eventInput.hull_events[0].eventName")
-            //   }
-            // },
-            {
+              //target: { component: "input", select: "hullEvents[0]"},
               condition: notNull("eventInput.hull_events[0].properties.email_id"),
-              target: { component: "input", name: "mailingId", select: "${eventInput.hull_events[0].properties.email_id}"},
+              operateOn: { component: "input", name: "mailingId", select: "hull_events[0].properties.email_id" },
               then: [
                 {
-                  operateOn: {component: "glue", route: "getMailingDetails", name: "${eventInput.hull_events[0].properties.email_id}"},
-                  writeTo: { path: "eventInput.hull_events[0].properties" }
-                }
+                  operateOn: { component: "glue", route: "getMailingDetails", name: "enrichedEmail" },
+                  // writeTo: { path: "hull_events[0].properties.email_subject", format: "${enrichedEmail.email_subject}" },
+                  then: [
+                    {
+                      writeTo: { path: "hull_events[0].properties.email_subject", format: "${enrichedEmail.email_subject}" }
+                    },
+                    {
+                      writeTo: { path: "hull_events[0].properties.sequence_id", format: "${enrichedEmail.sequence_id}" },
+                    },
+                    {
+                      // condition: notNull("${enrichedEmail.sequence_id}"),
+                      operateOn: { component: "glue", route: "getSequences", select: "${enrichedEmail.sequence_id}" },
+                      writeTo: { path: "hull_events[0].properties.sequence_name" }
+                    },
+                  ]
+                },
               ]
             },
             {
@@ -484,9 +512,13 @@ const transformsToHull: ServiceTransforms =
                 select: "${eventInput.hull_events[0].eventName}",
                 name: "eventName"
               },
-              // validation: { error: "BreakProcess", condition: [
-              //     isUndefinedOrNull("${eventName}"),
-              //   ]},
+              then: [
+                {
+                  validation: { error: "BreakToLoop", condition: [
+                      isNull("eventName"),
+                    ]},
+                }
+              ],
               writeTo: {
                 path: "hull_events[0].eventName"
               }
