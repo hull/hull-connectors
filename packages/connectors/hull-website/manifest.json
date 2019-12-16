@@ -1,0 +1,184 @@
+{
+  "name": "Website",
+  "description": "Track web traffic and integrate with other client side services.",
+  "picture": "picture.png",
+  "index": "ship.js",
+  "version": "0.1.11-monorepo",
+  "tags": [
+    "smart-notifier",
+    "incoming",
+    "outgoing",
+    "oneColumn"
+  ],
+  "settings": [
+    {
+      "name": "script",
+      "title": "Code to be run everytime user is updated",
+      "type": "string",
+      "format": "code",
+      "default": "console.log('Received Data from Browser connector', user, segments, account, account_segments, events, changes);"
+    },
+    {
+      "title": "Send to Google Analytics",
+      "description": "Send the attributes and events to Google Analytics in the page",
+      "name": "use_ga",
+      "format": "checkbox",
+      "type": "boolean"
+    },
+    {
+      "title": "Send to Google Tag Manager",
+      "description": "Send the attributes and events to Google Tag Manager in the page",
+      "name": "use_gtm",
+      "format": "checkbox",
+      "type": "boolean"
+    },
+    {
+      "name": "load_scripts",
+      "title": "External Scripts",
+      "description": "Paste full urls here.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    {
+      "name": "init_script",
+      "title": "Embedded script",
+      "description": "No `script` tag is needed here, just javascript code. See documentation for best practises.",
+      "type": "string",
+      "format": "code"
+    }
+  ],
+  "private_settings": [
+    {
+      "name": "whitelisted_domains",
+      "title": "Whitelisted Domains",
+      "description": "You can use the `*` character to whitelist subdomains.",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "hull.io"
+      ]
+    },
+    {
+      "name": "synchronized_segments",
+      "title": "Segment Filter",
+      "description": "Only users from these segments will be sent",
+      "type": "array",
+      "default": [],
+      "options": {
+        "standard": {
+          "ALL": "All users"
+        }
+      },
+      "format": "segment"
+    },
+    {
+      "name": "public_traits",
+      "title": "Attributes that will be sent",
+      "type": "array",
+      "description": "Only these attributes will be sent.",
+      "format": "trait",
+      "default": [
+        "domain",
+        "email"
+      ]
+    },
+    {
+      "name": "public_segments",
+      "title": "User Segments that will be sent",
+      "description": "Only these segment names will be sent.",
+      "type": "array",
+      "format": "segment",
+      "default": []
+    },
+    {
+      "name": "public_account_segments",
+      "title": "Account Segments that will be sent",
+      "type": "array",
+      "format": "accountSegment",
+      "description": "Only these segment names will be sent.",
+      "default": []
+    },
+    {
+      "name": "track_page_inits",
+      "title": "Track page views events automatically",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "script_enabled",
+      "title": "Load scripts",
+      "description": "When enabled, all external scripts and embedded script below will be injected and executed every time page with Hull.js tag is loaded.",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "subscribe_to_user_updates",
+      "title": "Enable Personalization",
+      "description": "",
+      "type": "boolean",
+      "default": false
+    }
+  ],
+  "json": [
+    {
+      "name": "credentials",
+      "url": "/credentials",
+      "handler": "credentialsHandler",
+      "description": "Copy and paste the HTML tag in the `head` section in your website.",
+      "format": "credentials",
+      "type": "string"
+    }
+  ],
+  "resources": [],
+  "readme": "readme.md",
+  "ui": false,
+  "settings_sections": [
+    {
+      "title": "Installation",
+      "description": "To install Hull tracking library in your website start by whitelisting all domains it will be loaded on.<br />Then copy and paste the tracking tag in the `head` section of the HTML on each page you would like to track.",
+      "step": "credentials",
+      "properties": [
+        "private_settings.whitelisted_domains",
+        "json.credentials"
+      ]
+    },
+    {
+      "title": "Tracking",
+      "description": "Configure the tracking library. By default it tracks all page view events, you can turn it off below.<br />Additional customization capabilities are described in [Hull.js reference](https://www.hull.io/docs/reference/hull_js/). If you need to deploy custom scripts you can use **Scripts** section below.",
+      "properties": [
+        "private_settings.track_page_inits"
+      ]
+    },
+    {
+      "title": "Scripts",
+      "description": "This sections allows to quickly load additional scripts in your webpage wherever Hull tracking tag is present.<br />Although any javascript file can be loaded, this section is especially handy when deploying client parts of other connectors from Hull organization. Check documentation to find urls to paste here.<br />All custom scripts will be injected and executed on every page load wherver the Hull Website tag is installed.",
+      "properties": [
+        "private_settings.script_enabled",
+        "settings.load_scripts",
+        "settings.init_script"
+      ]
+    }
+  ],
+  "status": {
+    "initial_value": "ok",
+    "url": "/status",
+    "type": "cron",
+    "value": "*/30 * * * *",
+    "handler": "statusHandler"
+  },
+  "statuses": [
+    {
+      "initial_value": "ok",
+      "url": "/status",
+      "type": "cron",
+      "value": "*/30 * * * *",
+      "handler": "statusHandler"
+    }
+  ],
+  "subscriptions": []
+}

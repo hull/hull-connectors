@@ -1,6 +1,11 @@
 /* @flow */
 const _ = require("lodash");
 
+const { isUndefinedOrNull, asyncForEach } = require("./utils");
+const { Route } = require("./language");
+const { SkippableError, ValidationError } = require("hull/src/errors");
+
+
 function toUnixTimestamp() {
   return (date) => {
     const closeDate = new Date(date);
@@ -8,7 +13,11 @@ function toUnixTimestamp() {
   }
 }
 
-function evaluateCondition(conditions, context, input): boolean {
+function evaluateCondition(transform, context, input): boolean {
+  if (!_.isPlainObject(transform) || !transform.condition) {
+    return true;
+  }
+  const conditions = transform.condition;
   let conditionArray = [];
   if (!Array.isArray(conditions)) {
     conditionArray.push(conditions);
@@ -36,31 +45,21 @@ function evaluateCondition(conditions, context, input): boolean {
 
 function evaluateValidation(transform, context, input) {
   if (transform.validation) {
-    if (evaluateCondition(transform.validation.condition, context, input)) {
+    if (evaluateCondition(transform.validation, context, input)) {
       if (transform.validation.error === "BreakProcess") {
         throw new Error(`Validation didn't pass for transform: ${transform.validation.message}\n ${JSON.stringify(transform, null, 2)}\n input: ${JSON.stringify(input, null, 2)}`);
       } else if (transform.validation.error === "Skip") {
         throw new SkippableError(`Validation didn't pass for transform: ${transform.validation.message} ${JSON.stringify(transform, null, 2)}`);
+      } else if (transform.validation.error === "BreakToLoop") {
+        throw new ValidationError(`Validation didn't pass for transform: ${transform.validation.message} ${JSON.stringify(transform, null, 2)}`, "BreakToLoop", 200);
       }
     }
-    //evaluate transforma.validation.condition
-    //if true
-    // look at transform.validation.error
-    //if error === "breakeverything"
   }
 }
 
 function toTransform(transform, context, input) {
-  if (!_.isPlainObject(transform) || !transform.condition) {
-    evaluateValidation(transform, context, input);
-    return true;
-  }
-
-  if (evaluateCondition(transform.condition, context, input)) {
-    evaluateValidation(transform, context, input);
-    return true;
-  }
-  return false;
+  evaluateValidation(transform, context, input);
+  return evaluateCondition(transform, context, input);
 }
 
 module.exports = {

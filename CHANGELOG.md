@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.1.11-monorepo
+- Moved new and improved code connectors to monorepo master
+- added outreach event support
+- added zapier connector to master
+
+## v0.1.10-monorepo
+- Moved all incoming logging on all connectors to debug level
+- Moved outgoing.skip logging to debug for all connectors
+- hull-connector-framework removed the replacement of variables by default when no desired output class
+
 ## v0.1.9-monorepo
 - [hull-pipedrive] New Connector!
 - [hull-hubspot] Enhanced fetching reduces number of api calls and number of fetches running in parallel

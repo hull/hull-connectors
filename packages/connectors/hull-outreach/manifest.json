@@ -4,7 +4,7 @@
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.9-monorepo",
+  "version": "0.1.11-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -40,7 +40,9 @@
             "webhooks.all",
             "users.read",
             "stages.read",
-            "events.all"
+            "events.all",
+            "mailings.read",
+            "sequences.read"
           ]
         }
       }
@@ -378,9 +380,9 @@
       "url": "/fetch-all-events",
       "handler": "eventsFetchAll",
       "format": "action",
-      "title": "Fetch All Events",
+      "title": "Fetch Historical Events",
       "name": "fetch_all_events",
-      "description": "Due to API limitations from Outreach, fetching all events will not pull in the \"Prospect Stage Changed\" events. Instead, the connector will only be able to ingest the \"Prospect Stage Changed\" event going onward after selecting that event in the dropdown above.",
+      "description": "Due to Outreach API limitations, this operation won't fetch historical \"Prospect Stage Changed\" events. If you have whitelisted this event above you will only get new occurrences going forward.",
       "options": {
         "fireAndForget": true,
         "confirm": {
@@ -490,7 +492,7 @@
     },
     {
       "title": "Events - Fetching from Outreach",
-      "description": "Fetch events from Outreach. Identity resolution in Outreach events is achieved by using the anonymous_id only. Beware, if you don't pull your Prospects first, you will end up having users in Hull with blank names. They will eventually be enriched if these Prospects are updated in Outreach.",
+      "description": "This section configures and activates the ongoing fetch of Outreach Events. Start by picking which events you would like to fetch in the dropdown below. Then use the button to optionally fetch some historical events (see further explanation below).\nIncoming events are identified by Outreach Prospect ID only, so the best practice is to fetch all Prospects before fetching Events, otherwise empty User profiles without attributes and other identifiers may be created.",
       "properties": [
         "private_settings.events_to_fetch",
         "json.fetch_all_events"
