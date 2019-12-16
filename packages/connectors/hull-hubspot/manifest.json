@@ -628,7 +628,6 @@
       "title": "User - Sending to Hubspot",
       "description": "Configuring this section will result in automated data flows which will insert/update your prospects in Hubspot. That's why we provide fine grain control over the updates that you send to Hubspot. Because of the limitations of the Hubspot api, <b>outgoing users will only be synchronized based on email</b>. Users without email will be rejected. <br /><br />  First configure a \"Segment\" as a user filter to control which users get sent to Hubspot. Then configure the attributes you want synchronized. You may always go to a user page and click \"Send to\" in order to override the filter and send specific users manually. <br /><br /><b>Please be careful to map similar data types. ie. Not boolean to date</b>",
       "properties": [
-        "private_settings.ignore_deleted_users",
         "private_settings.synchronized_user_segments",
         "private_settings.outgoing_user_attributes",
         "private_settings.link_users_in_service"
@@ -649,7 +648,6 @@
       "title": "Account - Sending to Hubspot",
       "description": "Configuring this section will result in automated data flows which will insert/update your companies in Hubspot. That's why we provide fine grain control over the updates that you send to Hubspot. Because of the limitations of the Hubspot api, <b>outgoing accounts will only be synchronized based on domain</b>. Accounts without domain will be rejected. <br /><br />  First configure a \"Segment\" as an account filter to control which accounts get sent to Hubspot. Then configure the attributes you want synchronized. You may always go to a account page and click \"Send to\" in order to override the filter and send specific users manually. <br /><br /><b>Please be careful to map similar data types. ie. Not boolean to date</b>",
       "properties": [
-        "private_settings.ignore_deleted_accounts",
         "private_settings.synchronized_account_segments",
         "private_settings.outgoing_account_attributes"
       ]
