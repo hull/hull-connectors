@@ -76,15 +76,8 @@ class HullSdk {
     _.set(entity, `attributes.${service_name}/id`, null);
 
     const upsert = _.bind(upsertEntity, this, entity);
-    let entityPromise = upsert();
 
-    const anonymous_id = _.get(identity, "anonymous_id", null);
-    if (!_.isNil(anonymous_id)) {
-      entityPromise = entityPromise.then(() => {
-        return asHullEntity.unalias({ "anonymous_id": anonymous_id })
-      });
-    }
-    return entityPromise;
+    return upsert();
   }
 
   detachHullUserFromService(user: HullIncomingUser) {
