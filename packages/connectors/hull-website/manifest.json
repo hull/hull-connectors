@@ -180,37 +180,5 @@
       "handler": "statusHandler"
     }
   ],
-  "subscriptions": [
-    {
-      "url": "/smart-notifier",
-      "conditions": {
-        "channels": {
-          "only": [
-            "user:update",
-            "ship:update",
-            "users_segment:update"
-          ]
-        },
-        "segments": {
-          "user:update": [
-            "private_settings.synchronized_segments"
-          ]
-        }
-      },
-      "channels": [
-        {
-          "channel": "ship:update",
-          "handler": "connectorUpdate"
-        },
-        {
-          "channel": "users_segment:update",
-          "handler": "connectorUpdate"
-        },
-        {
-          "channel": "user:update",
-          "handler": "userUpdate"
-        }
-      ]
-    }
-  ]
+  "subscriptions": []
 }

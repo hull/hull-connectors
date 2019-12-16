@@ -79,7 +79,7 @@ If we need to enable part of settings related to personalization we need to past
 ```json
 {
   "title": "Personalization",
-  "description": "This section allows to personalize content on of the website based on data send back from Hull as we dected changes on identified user.<br /> - start by enabling the feature toggle<br /> - define conditions for a user to be sent client-side, by whitelisting some segments<br /> - select which data will be visible client-side. That way you can avoid exposing sensitive values. <br /> - finally write the code which will run in the page whenever new data is sent client-side. We suggest checking the documentation to see the available data and the connector's behaviour",
+  "description": "This section allows to personalize content on of the website based on data send back from Hull as we detect changes on identified user.<br /> - start by enabling the feature toggle<br /> - define conditions for a user to be sent client-side, by whitelisting some segments<br /> - select which data will be visible client-side. That way you can avoid exposing sensitive values. <br /> - finally write the code which will run in the page whenever new data is sent client-side. We suggest checking the documentation to see the available data and the connector's behaviour",
   "properties": [
     "private_settings.subscribe_to_user_updates",
     "private_settings.synchronized_segments",
@@ -87,6 +87,42 @@ If we need to enable part of settings related to personalization we need to past
     "private_settings.public_segments",
     "private_settings.public_account_segments",
     "settings.script"
+  ]
+}
+```
+
+and enable subscriptions in kraken by adding following object to the `subscriptions` array:
+
+```json
+{
+  "url": "/smart-notifier",
+  "conditions": {
+    "channels": {
+      "only": [
+        "user:update",
+        "ship:update",
+        "users_segment:update"
+      ]
+    },
+    "segments": {
+      "user:update": [
+        "private_settings.synchronized_segments"
+      ]
+    }
+  },
+  "channels": [
+    {
+      "channel": "ship:update",
+      "handler": "connectorUpdate"
+    },
+    {
+      "channel": "users_segment:update",
+      "handler": "connectorUpdate"
+    },
+    {
+      "channel": "user:update",
+      "handler": "userUpdate"
+    }
   ]
 }
 ```
