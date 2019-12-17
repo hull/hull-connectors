@@ -352,6 +352,11 @@ class SyncAgent {
           });
         }
 
+        const mergedVids = _.get(contact, "merged-vids", []);
+        _.forEach(mergedVids, vid => {
+          asUser.alias({ anonymous_id: `hubspot:${vid}` });
+        });
+
         if (this.connector.private_settings.link_users_in_hull === true) {
           if (contact.properties.associatedcompanyid) {
             const linkingClient = this.hullClient.asUser(ident.claims).account({
