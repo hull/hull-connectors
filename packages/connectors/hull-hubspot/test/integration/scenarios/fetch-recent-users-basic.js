@@ -19,7 +19,9 @@ const incomingData = require("../fixtures/get-contacts-recently-updated");
 const connector = {
   private_settings: {
     token: "hubToken",
-    last_fetch_at: 1419967066626
+    last_fetch_at: 1419967066626,
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 
@@ -212,7 +214,9 @@ it("should fetch recent users using settings", () => {
             "private_settings": {
               "last_fetch_timestamp": expect.any(Number),
               "last_fetch_at": expect.whatever(),
-              "token": "hubToken"
+              "token": "hubToken",
+              "mark_deleted_contacts": false,
+              "mark_deleted_companies": false
             },
             "refresh_status": false
           }

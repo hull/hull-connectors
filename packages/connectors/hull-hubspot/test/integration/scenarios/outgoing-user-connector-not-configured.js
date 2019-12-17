@@ -15,6 +15,8 @@ process.env.OVERRIDE_HUBSPOT_URL = "";
 
 const connector = {
   private_settings: {
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const usersSegments = [

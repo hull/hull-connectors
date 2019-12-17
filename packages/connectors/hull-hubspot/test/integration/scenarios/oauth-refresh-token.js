@@ -20,7 +20,9 @@ const connector = {
   private_settings: {
     token: "hubToken",
     token_fetched_at: 1419967066626,
-    expires_in: 10
+    expires_in: 10,
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 
