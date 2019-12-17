@@ -15,8 +15,7 @@
       "name": "script",
       "title": "Code to be run everytime user is updated",
       "type": "string",
-      "format": "code",
-      "default": "console.log('Received Data from Browser connector', user, segments, account, account_segments, events, changes);"
+      "format": "code"
     },
     {
       "title": "Send to Google Analytics",
@@ -53,15 +52,13 @@
     {
       "name": "whitelisted_domains",
       "title": "Whitelisted Domains",
-      "description": "You can use the `*` character to whitelist subdomains.",
+      "description": "You can use the `*` character to whitelist subdomains. See documentation for reference.",
       "type": "array",
       "format": "table",
       "items": {
         "type": "string"
       },
-      "default": [
-        "hull.io"
-      ]
+      "default": []
     },
     {
       "name": "synchronized_segments",
@@ -180,5 +177,37 @@
       "handler": "statusHandler"
     }
   ],
-  "subscriptions": []
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "conditions": {
+        "channels": {
+          "only": [
+            "user:update",
+            "ship:update",
+            "users_segment:update"
+          ]
+        },
+        "segments": {
+          "user:update": [
+            "private_settings.synchronized_segments"
+          ]
+        }
+      },
+      "channels": [
+        {
+          "channel": "ship:update",
+          "handler": "connectorUpdate"
+        },
+        {
+          "channel": "users_segment:update",
+          "handler": "connectorUpdate"
+        },
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ]
+    }
+  ]
 }
