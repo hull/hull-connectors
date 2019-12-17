@@ -17,6 +17,8 @@ const connector = {
     token_fetched_at: 1419967066626,
     expires_in: 10,
     refresh_token: "123",
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false,
     synchronized_account_segments: [
       "5bffc38f625718d58b000004"
     ]

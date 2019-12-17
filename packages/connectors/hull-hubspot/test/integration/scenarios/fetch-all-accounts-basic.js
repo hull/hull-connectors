@@ -12,7 +12,9 @@ const incomingData = require("../fixtures/get-companies-recent-modified");
 const connector = {
   private_settings: {
     token: "hubToken",
-    handle_accounts: true
+    handle_accounts: true,
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 

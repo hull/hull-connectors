@@ -21,7 +21,9 @@ const connector = {
       { hull: "account.id", service: "custom_hubspot_account_id", overwrite: true },
       { hull: "account.domain", service: "custom_hubspot_account_domain", overwrite: true }
     ],
-    link_users_in_service: true
+    link_users_in_service: true,
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const usersSegments = [
