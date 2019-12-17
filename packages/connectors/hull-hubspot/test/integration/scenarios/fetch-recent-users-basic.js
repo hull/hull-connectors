@@ -229,7 +229,9 @@ it("should fetch recent users using settings", () => {
           {
             "private_settings": {
               "last_fetch_at": null,
-              "token": "hubToken"
+              "token": "hubToken",
+              "mark_deleted_contacts": false,
+              "mark_deleted_companies": false
             },
             "refresh_status": false
           }
