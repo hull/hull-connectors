@@ -11,7 +11,7 @@
   "picture": "picture.png",
   "ui": false,
   "readme": "readme.md",
-  "version": "0.1.11-monorepo",
+  "version": "0.1.12-monorepo",
   "private_settings": [
     {
       "name": "triggers",
@@ -36,6 +36,11 @@
       "type": "boolean",
       "default": true,
       "format": "hidden"
+    },
+    {
+      "name": "invitation",
+      "default": "https://zapier.com/developer/public-invite/5710/d4334f38188deb9272c7fc7b0d0b5cfa",
+      "type": "string"
     },
     {
       "name": "synchronized_user_segments",
@@ -70,6 +75,13 @@
   ],
   "resources": [],
   "settings_sections": [
+    {
+      "title": "Connect to Zapier",
+      "description": "Please follow the link to begin using our Zapier integration",
+      "properties": [
+        "private_settings.invitation"
+      ]
+    },
     {
       "title": "Credentials",
       "description": "Copy this token and paste it when in the Zapier authentication window",
@@ -154,8 +166,8 @@
           ]
         },
         "segments": {
-          "user:update": "private_settings.synchronized_user_segments",
-          "account:update": "private_settings.synchronized_account_segments"
+          "user:update": ["private_settings.synchronized_user_segments"],
+          "account:update": ["private_settings.synchronized_account_segments"]
         }
       },
       "channels": [

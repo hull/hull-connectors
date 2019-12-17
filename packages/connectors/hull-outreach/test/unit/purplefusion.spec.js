@@ -31,4 +31,8 @@ describe("Outreach User Tests", () => {
   it("delete outreach bad webhooks", () => {
     return harness.runTest(require("./fixtures/delete-bad-webhooks"));
   });
+
+  it("fetch all events", () => {
+    return harness.runTest(require("./fixtures/getEvents"));
+  });
 });

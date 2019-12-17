@@ -21,7 +21,7 @@
     }
   ],
   "readme": "readme.md",
-  "version": "0.1.11-monorepo",
+  "version": "0.1.12-monorepo",
   "private_settings": [
     {
       "name": "sentry_dsn",
@@ -124,7 +124,7 @@
           ]
         },
         "segments": {
-          "user:update": "private_settings.synchronized_user_segments"
+          "user:update": ["private_settings.synchronized_user_segments"]
         }
       },
       "channels": [

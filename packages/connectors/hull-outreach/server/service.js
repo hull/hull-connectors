@@ -209,6 +209,15 @@ const service = ({ clientID, clientSecret } : {
       operation: "get",
       endpointType: "byProperty",
       query: "${offsetQuery}"
+    },
+    getMailingDetails: {
+      url: "/mailings/${mailingId}/",
+      operation: "get"
+    },
+    getSequences: {
+      url: "/sequences/",
+      operation: "get",
+      returnObj: "body.data"
     }
   },
   superagent: {
@@ -305,6 +314,11 @@ const service = ({ clientID, clientSecret } : {
         truthy: { status: 422 },
         errorType: SkippableError,
         message: MESSAGES.SERVICE_VALIDATION_ERROR
+      },
+      {
+        truthy: { status: 400 },
+        errorType: SkippableError,
+        message: MESSAGES.BAD_RESOURCE_REQUEST_ERROR
       }
     ]
 

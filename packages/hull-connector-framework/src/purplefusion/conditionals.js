@@ -52,6 +52,14 @@ function doesNotContain(listValues, param: string) {
   };
 }
 
+function resolveIndexOf(listName, paramName) {
+  return (context) => {
+    const param = context.get(paramName);
+    const list = context.get(listName);
+    return _.indexOf(list, param) >= 0;
+  };
+}
+
 function isEqual(param: string, value) {
   return (context) => {
     const contextVariable = context.get(param);
@@ -107,5 +115,6 @@ module.exports = {
   inputIsEmpty,
   isServiceAttribute,
   not,
-  mappingExists
+  mappingExists,
+  resolveIndexOf
 };
