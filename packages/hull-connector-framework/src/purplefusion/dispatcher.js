@@ -120,9 +120,12 @@ class HullDispatcher {
     if (!_.isEmpty(this.ensure)) {
       if (isUndefinedOrNull(this.ensurePromise)) {
         this.ensurePromise = this.resolve(context, new Route(this.ensure), data);
-        await this.ensurePromise;
-      } else {
-        await this.ensurePromise;
+      }
+      const toContinue = await this.ensurePromise;
+
+      if (toContinue === false) {
+        debug("Ensure is returning false, which means we are not configured to continue");
+        return toContinue;
       }
     }
     return await this.resolve(context, new Route(route), data);

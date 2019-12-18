@@ -21,6 +21,8 @@ const {
   cacheSet,
   cacheGet,
   cacheLock,
+  cacheDel,
+  returnValue,
   transformTo,
   jsonata,
   ld,
@@ -70,9 +72,12 @@ const glue = {
 
 
   // Setup marketo api from the configured values
-  ensure:[
-    set("service_name", "coppercrm")
-  ],
+  ensure: returnValue(
+    [
+      set("service_name", "coppercrm")
+    ],
+    route("isConfigured")
+  ),
 
   //don't do anything on ship update
   shipUpdate: {},
@@ -164,17 +169,38 @@ const glue = {
   customPeopleFields: jsonata(`$["people" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, route("getCustomFields")),
   customCompanyFields: jsonata(`$["company" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, route("getCustomFields")),
   customOpportunityFields: jsonata(`$["opportunity" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, route("getCustomFields")),
+
   getCustomFieldMap: jsonata(`$ {$string(id): name}`, route("getCustomFields")),
+  forceGetCustomFieldMap: returnValue(cacheDel(coppercrm("getCustomFields")), route("getCustomFieldMap")),
+
   getCustomFieldMapAll: jsonata(`$ {$string(id): {"name": name, "type": data_type }}`, route("getCustomFields")),
+  forceGetCustomFieldMapAll: returnValue(cacheDel(coppercrm("getCustomFields")), route("getCustomFieldMapAll")),
+
   getCustomFieldValueMap: jsonata(`$.options{$string(id): name}`, route("getCustomFields")),
+  forceGetCustomFieldValueMap: returnValue(cacheDel(coppercrm("getCustomFields")), route("getCustomFieldValueMap")),
+
   getCustomFields: cacheWrap(6000, coppercrm("getCustomFields")),
+
   getAssignees: jsonata(`$ {$string(id): email}`, cacheWrap(6000, coppercrm("getUsers"))),
+  forceGetAssignees: returnValue(cacheDel(coppercrm("getUsers")), route("getAssignees")),
+
   getContactTypes: jsonata(`$ {$string(id): name}`, cacheWrap(6000, coppercrm("getContactTypes"))),
+  forceGetContactTypes: returnValue(cacheDel(coppercrm("getContactTypes")), route("getContactTypes")),
+
+  getPersonEmailById: jsonata(`$ {$string(id): emails[0].email}`, coppercrm("getPersonById")),
+
   getCustomerSources: jsonata(`$ {$string(id): name}`, cacheWrap(6000, coppercrm("getCustomerSources"))),
-  getLossReason: jsonata(`$ {$string(id): name}`, cacheWrap(6000, coppercrm("getLossReasons"))),
+  forceGetCustomerSources: returnValue(cacheDel(coppercrm("getCustomerSources")), route("getCustomerSources")),
+
+  getLossReasons: jsonata(`$ {$string(id): name}`, cacheWrap(6000, coppercrm("getLossReasons"))),
+  forceGetLossReason: returnValue(cacheDel(coppercrm("getLossReasons")), route("getLossReasons")),
+
   getPipelines: jsonata(`$ {$string(id): name}`, cacheWrap(6000, coppercrm("getPipelines"))),
+  forceGetPipelines: returnValue(cacheDel(coppercrm("getPipelines")), route("getPipelines")),
+
   // hitting the getPipelines endpoint and using jsonata to extract stages, could also hit pipelinestages endpoint, but no need to hit more than getPipelines for now
   getPipelineStages: jsonata(`$.stages{$string(id): name}`, cacheWrap(6000, coppercrm("getPipelines"))),
+  forceGetPipelineStages: returnValue(cacheDel(coppercrm("getPipelines")), route("getPipelineStages"))
 
 
 };

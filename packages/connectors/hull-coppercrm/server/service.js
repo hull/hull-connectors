@@ -22,9 +22,6 @@ const {
 
 const { SuperagentApi } = require("hull-connector-framework/src/purplefusion/superagent-api");
 
-const { isUndefinedOrNull } = require("hull-connector-framework/src/purplefusion/utils");
-const { isNull, notNull } = require("hull-connector-framework/src/purplefusion/conditionals");
-
 
 const service = ({ clientID, clientSecret } : {
   clientID: string,
@@ -78,6 +75,11 @@ const service = ({ clientID, clientSecret } : {
       url: "/v1/pipeline_stages",
       operation: "get",
       endpointType: "lastFetch"
+    },
+    getPersonById: {
+      url: "/v1/people/${attributeId}",
+      operation: "get",
+      endpointType: "lastFetch",
     },
     fetchRecentLeads: {
       url: "/v1/leads/search",

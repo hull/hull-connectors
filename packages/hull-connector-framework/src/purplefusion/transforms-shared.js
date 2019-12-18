@@ -10,7 +10,8 @@ const {
   isNotEqual,
   isServiceAttribute,
   not,
-  notNull
+  notNull,
+  varUndefinedOrNull
 } = require("./conditionals");
 
 const {
@@ -218,6 +219,7 @@ const transformsShared: ServiceTransforms = [
     then: [
       {
         operateOn: { component: "input", select: "hull_service_accountId" },
+        condition: not(varUndefinedOrNull("operateOn")),
         // validation: { error: "BreakLoop", message: "Opp doesn't have company", condition: [ inputIsNotEqual("company_id", null), inputIsNotEqual("company_id", undefined) ] },
         writeTo: { path: "accountIdent.anonymous_id", format: "${service_name}:${operateOn}" },
       },
@@ -227,6 +229,7 @@ const transformsShared: ServiceTransforms = [
       // },
       {
         operateOn: { component: "input", select: "hull_service_userId" },
+        condition: not(varUndefinedOrNull("operateOn")),
         writeTo: { path: "userIdent.anonymous_id", format: "${service_name}:${operateOn}" },
       },
       {

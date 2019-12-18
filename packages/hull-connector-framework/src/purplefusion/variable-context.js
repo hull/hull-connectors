@@ -46,6 +46,12 @@ class HullVariableContext {
         return value;
       }
 
+      const keys = Object.keys(currentContext);
+      if (keys.indexOf(rootKey) >= 0) {
+        console.log(`Returning undefined because root key is present in context: ${rootKey} for ${key}`);
+        return value;
+      }
+
       foundRootObject = this.logBadBehavior(currentContext, value, rootKey, key, foundRootObject, i);
     }
 

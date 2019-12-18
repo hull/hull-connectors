@@ -3,6 +3,7 @@
 import type { ServiceObjectDefinition } from "./types";
 
 const _ = require("lodash");
+const hash = require('object-hash');
 
 class HullInstruction {
 
@@ -494,7 +495,15 @@ function cacheWrap(expiration: number, param: any) {
   //     eldo: "${hull-internal-cacheWrappedValue}"
   //   });
   //TODO key could be JSON.stringify(param) -> then could MD5 that....
-  return new Cache({name: "wrap", key: `${param.type}|${param.options.name}|${param.options.op}`, ttl: expiration, instruction: param });
+  return new Cache({name: "wrap", key: cacheKeyForInstruction(param), ttl: expiration, instruction: param });
+}
+
+function cacheDel(param: any) {
+  return new Cache({ name: "del", key: cacheKeyForInstruction(param) });
+}
+
+function cacheKeyForInstruction(instruction: any) {
+  return hash(instruction);
 }
 
 function cacheGet(key: string) {
@@ -576,6 +585,7 @@ module.exports = {
   cacheSet,
   cacheGet,
   cacheLock,
+  cacheDel,
   transformTo,
   jsonata,
   ld,

@@ -1,5 +1,5 @@
 const { isUndefinedOrNull } = require("./utils");
-const { isEqual, isNotEqual } = require("./conditionals");
+const { isEqual, isNotEqual, isServiceAttributeInVarList, varNull } = require("./conditionals");
 
 function createIncomingServiceUserTransform(entityType) {
   return {
@@ -86,6 +86,30 @@ function serviceUserTransforms(entityType) {
   ];
 }
 
+function createEnumTransform({ attribute, attributeId, attributeList, route, forceRoute }) {
+  return {
+    condition: isServiceAttributeInVarList(attribute, attributeList),
+    then: [
+      {
+        operateOn: {
+          component: "glue",
+          route: route,
+          select: { component: "input", select: attributeId, name: "attributeId" },
+          onUndefined: { component: "glue", route: forceRoute, select: "${attributeId}"}
+        },
+        // default null?
+        writeTo: attribute
+      },
+      {
+        operateOn: { component: "input", select: attributeId },
+        condition: varNull("operateOn"),
+        writeTo: attribute
+      }
+    ]
+  }
+}
+
 module.exports = {
-  createIncomingServiceUserTransform
+  createIncomingServiceUserTransform,
+  createEnumTransform
 };

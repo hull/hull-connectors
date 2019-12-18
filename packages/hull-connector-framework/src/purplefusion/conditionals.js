@@ -3,6 +3,65 @@ const _ = require("lodash");
 
 const { isUndefinedOrNull } = require("./utils");
 
+/*** Trying to enforce some standards here with this simple convention.... probably won't hold, but better than wild wet ***/
+function not(method) {
+  return (context, input) => {
+    return !method(context, input);
+  }
+}
+
+function varUndefined(param: string) {
+  return (context) => {
+    const contextVariable = context.get(param);
+    return contextVariable === undefined;
+  };
+}
+
+function varNull(param: string) {
+  return (context) => {
+    const contextVariable = context.get(param);
+    return contextVariable === null;
+  };
+}
+
+function varUndefinedOrNull(param: string) {
+  return (context) => {
+    const contextVariable = context.get(param);
+    return isUndefinedOrNull(contextVariable);
+  };
+}
+
+function varEqual(param: string, object: any) {
+  return (context) => {
+    const contextVariable = context.get(param);
+    return _.isEqual(contextVariable, object)
+  };
+}
+
+function varInArray(param: string, listValues) {
+  return (context) => {
+    const contextVariable = context.get(param);
+    return listValues.indexOf(contextVariable) > -1;
+  };
+}
+
+function isServiceAttributeInVarList(serviceName: string, varListName: string) {
+  return (context) => {
+    const list = context.get(`connector.private_settings.${varListName}`);
+    return _.filter(list, { service: serviceName }).length > 0;
+  };
+}
+
+function isVarServiceAttributeInVarList(varServiceName: string, varListName: string) {
+  return (context) => {
+    const serviceName = context.get(varServiceName);
+    const list = context.get(`connector.private_settings.${varListName}`);
+    return _.filter(list, { service: serviceName }).length > 0;
+  };
+}
+
+/***************************/
+
 function notNull(param: string) {
   return (context) => {
     const contextVariable = context.get(param);
@@ -14,6 +73,20 @@ function isNull(param: string) {
   return (context) => {
     const contextVariable = context.get(param);
     return isUndefinedOrNull(contextVariable);
+  };
+}
+
+function doesContain(listValues, param: string) {
+  return (context) => {
+    const contextVariable = context.get(param);
+    return listValues.indexOf(contextVariable) > -1;
+  };
+}
+
+function doesNotContain(listValues, param: string) {
+  return (context) => {
+    const contextVariable = context.get(param);
+    return listValues.indexOf(contextVariable) < 0;
   };
 }
 
@@ -32,25 +105,6 @@ function mappingExists(attributeListParam: string, truthy: Object) {
   };
 }
 
-function not(method) {
-  return (context, input) => {
-    return !method(context, input);
-  }
-}
-
-function doesContain(listValues, param: string) {
-  return (context) => {
-    const contextVariable = context.get(param);
-    return listValues.indexOf(contextVariable) > -1;
-  };
-}
-
-function doesNotContain(listValues, param: string) {
-  return (context) => {
-    const contextVariable = context.get(param);
-    return listValues.indexOf(contextVariable) < 0;
-  };
-}
 
 function resolveIndexOf(listName, paramName) {
   return (context) => {
@@ -116,5 +170,12 @@ module.exports = {
   isServiceAttribute,
   not,
   mappingExists,
-  resolveIndexOf
+  resolveIndexOf,
+  varUndefined,
+  varNull,
+  varUndefinedOrNull,
+  varEqual,
+  varInArray,
+  isServiceAttributeInVarList,
+  isVarServiceAttributeInVarList
 };

@@ -273,7 +273,11 @@ async function resolve(dispatcher, context, input, target, identifier) {
     selectors = await resolveIdentifier(dispatcher, context, input, target, selectorsToResolve);
   }
 
-  if (type === "context") {
+  if (_.some(selectors, isUndefinedOrNull)) {
+    // if selectors are null or undefined, then resolved object is undefined
+    // don't attempt to resolve it as a efficiency gain
+    resolvedObject = undefined;
+  } else if (type === "context") {
     if (!isUndefinedOrNull(selectors) && !_.isEmpty(selectors)) {
       if (typeof selectors[0] !== "string") {
         throw new Error(`Must have path as first selector into context. Cannot index into the context with: ${JSON.stringify(selectors)}`);
@@ -310,24 +314,27 @@ async function resolve(dispatcher, context, input, target, identifier) {
     return {};
   }
 
-  if (_.some(selectors, isUndefinedOrNull)) {
-    // Invalid selector, don't do anything
-    return undefined;
+  // if resolved Object is null or undefined, no use in trying to select into it...
+  if (!isUndefinedOrNull(resolvedObject)) {
+    // otherwise resolve the selectors here
+    _.forEach(selectors, selector => {
+      debug(`Selecting: ${JSON.stringify(selector)} from: ${JSON.stringify(resolvedObject)}`);
+      // if it's a string, use to index in, otherwise use this as a truthy
+      if (typeof selector === "string" || typeof selector === "number") {
+        resolvedObject = _.get(resolvedObject, selector);
+      } else {
+        resolvedObject = _.filter(resolvedObject, selector);
+      }
+    });
   }
-
-  _.forEach(selectors, selector => {
-    debug(`Selecting: ${JSON.stringify(selector)} from: ${JSON.stringify(resolvedObject)}`);
-    // if it's a string, use to index in, otherwise use this as a truthy
-    if (typeof selector === "string" || typeof selector === "number") {
-      resolvedObject = _.get(resolvedObject, selector);
-    } else {
-      resolvedObject = _.filter(resolvedObject, selector);
-    }
-  });
 
   if (name) {
     context.set(name, resolvedObject);
   }
+
+  // TODO selector/route retry? On undefined?
+  // recovery route... bust cache then retry
+  // specific probably to glue....
 
   if (resolvedObject === undefined && identifier.onUndefined !== undefined) {
     return await resolveIdentifier(dispatcher, context, input, target, identifier.onUndefined);
