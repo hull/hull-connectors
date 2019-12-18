@@ -13,7 +13,9 @@ const connector = {
     synchronized_account_segments: ["hullSegmentId"],
     outgoing_account_attributes: [
       { hull: "name", service: "name", overwrite: true }
-    ]
+    ],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const accountsSegments = [
