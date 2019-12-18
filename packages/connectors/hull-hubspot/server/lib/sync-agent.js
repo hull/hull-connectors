@@ -916,6 +916,13 @@ class SyncAgent {
           });
         }
 
+        const { mergeAudits } = company;
+        if (!_.isNil(mergeAudits)) {
+          _.forEach(_.map(mergeAudits, "mergedCompanyId"), companyId => {
+            asAccount.alias({ anonymous_id: `hubspot:${companyId}` });
+          });
+        }
+
         await asAccount.traits(traits).then(
           () => asAccount.logger.debug("incoming.account.success", { traits }),
           error =>
