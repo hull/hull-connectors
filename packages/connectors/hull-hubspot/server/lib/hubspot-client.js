@@ -264,7 +264,9 @@ class HubspotClient {
     offset: ?string = null
   ): Promise<HubspotGetAllCompaniesResponse> {
     return this.retryUnauthorized(() => {
+      const includeMergeAudits = true;
       return this.agent.get("/companies/v2/companies/paged").query({
+        includeMergeAudits,
         limit,
         offset,
         properties
