@@ -1,18 +1,6 @@
 {
   "user": {
-    "id": "124123",
-    "email": "test@hull.io",
-    "name": "Test User",
-    "anonymous_ids": [
-      "outreach:184823"
-    ],
-    "domain": "hull.com",
-    "indexed_at": "2019-05-02T17:14:34+00:00",
-    "created_at": "2019-04-30T21:50:39Z",
-    "is_approved": false,
-    "segment_ids": [
-      "5cc98a004c5202e276001ac0"
-    ]
+    "id": "124123"
   },
   "changes": {
     "is_new": false,
@@ -31,9 +19,7 @@
     },
     "account_segments": {}
   },
-  "account": {
-    "outreach/account_name": "some account"
-  },
+  "account": {},
   "segments": [
     {
       "id": "5cc98a004c5202e276001ac0",
@@ -45,6 +31,5 @@
   ],
   "events": [],
   "account_segments": [],
-  "message_id": "cdc8ddfa05056c0d7317db7bf66e1730012aa357",
-  "matchesFilter": true
+  "message_id": "cdc8ddfa05056c0d7317db7bf66e1730012aa357"
 }

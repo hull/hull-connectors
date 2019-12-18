@@ -1,5 +1,6 @@
 [
   "account_created",
+  "account_destroyed",
   "account_owner_changed",
   "account_prospect_added",
   "account_prospect_removed",
@@ -25,6 +26,7 @@
   "emails_opt_out_revert",
   "favorite_created",
   "favorite_destroyed",
+  "import_created",
   "inbound_call_completed",
   "inbound_call_no_answer",
   "inbound_message",

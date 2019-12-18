@@ -1,6 +1,7 @@
 const sample = require("../../samples/user-left-segment");
 const { triggerBuilder } = require("../lib");
-const { getUserSegments } = require("../lib/input-fields");
+const { getUserSegmentInputFields } = require("../lib/input-fields");
+const { getUserAttributeOutputFields } = require("../lib/output-fields");
 const { performTrigger } = require("../lib/perform-trigger");
 const { validateSegments, required } = require("../lib/validate");
 
@@ -9,7 +10,8 @@ const validations = {
 };
 
 const user_left_segment = triggerBuilder({
-  getInputFields: getUserSegments,
+  getInputFields: getUserSegmentInputFields,
+  getOutputFields: getUserAttributeOutputFields,
   performTrigger: performTrigger(validations),
   sample,
   description: "Triggers when a user leaves a segment.",

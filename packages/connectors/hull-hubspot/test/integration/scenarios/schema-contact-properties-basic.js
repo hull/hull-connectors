@@ -10,7 +10,9 @@ process.env.CLIENT_SECRET = "1234";
 
 const connector = {
   private_settings: {
-    token: "hubToken"
+    token: "hubToken",
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 

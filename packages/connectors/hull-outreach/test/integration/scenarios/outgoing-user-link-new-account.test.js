@@ -89,7 +89,7 @@ test("send smart-notifier user update to outreach and link account", () => {
         ],
         [
           "error",
-          "outgoing.account.skip",
+          "outgoing.account.error",
           {
             account_domain: "afterlife.com",
             account_id: "5c0fd68ad884b4373800011a",

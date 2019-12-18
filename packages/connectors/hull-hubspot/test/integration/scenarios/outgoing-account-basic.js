@@ -18,6 +18,8 @@ const connector = {
         "service": "domain"
       }
     ],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const accountsSegments = [

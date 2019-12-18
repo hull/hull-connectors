@@ -7,7 +7,8 @@ const user_deleted = triggerBuilder({
   sample,
   description: "Triggers when a user is deleted",
   entityType: "user",
-  action: "deleted"
+  action: "deleted",
+  hidden: true
 });
 
 module.exports = {
