@@ -916,11 +916,6 @@ class SyncAgent {
           });
         }
 
-        const mergedVids = _.get(company, "merged-vids", []);
-          _.forEach(mergedVids, vid => {
-            asAccount.alias({ anonymous_id: `hubspot:${vid}` });
-        });
-
         await asAccount.traits(traits).then(
           () => asAccount.logger.debug("incoming.account.success", { traits }),
           error =>
