@@ -38,6 +38,13 @@
       }
     },
     {
+      "url": "/call",
+      "handler": "callHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
+    },
+    {
       "url": "/preview",
       "handler": "previewHandler",
       "options": {

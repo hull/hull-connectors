@@ -46,20 +46,8 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
     ...this.props.engine.getState()
   };
 
-  handleEntryChange = e => {
-    const query = e.target.value;
-    const { engine } = this.props;
-    engine.updateSearch(query);
-  };
-
-  handleEntityChange = e => {
-    const entity = e.target.value;
-    const { engine } = this.props;
-    engine.updateEntity(entity);
-  };
-
-  handleSelect = index => {
-    this.props.engine.selectEntity(index);
+  handleRunCode = () => {
+    this.props.engine.callAPI();
   };
 
   getError = () => {
@@ -74,23 +62,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
   };
 
   render() {
-    const {
-      data = [],
-      selected,
-      selectedIndex,
-      current,
-      fetching,
-      initialized,
-      recent,
-      computing,
-      showBindings,
-      events,
-      error,
-      entity,
-      search
-    } = this.state;
-
-    const { strings } = this.props;
+    const { current, computing, showBindings, error, entity } = this.state;
 
     if (!current) {
       return (
@@ -104,66 +76,17 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
       <Fragment>
         <KeyBindings show={showBindings} onHide={this.hideBindings} />
         <div className="main-container row no-gutters">
-          <div className="col-3 vm-column">
-            <Header>
-              <EntitySelector
-                loading={computing || fetching}
-                current={current}
-                defaultValue={entity}
-                title={strings.leftColumnTitle}
-                recent={recent}
-                onChange={this.handleEntityChange}
-              >
-                <div className="spinner">
-                  {fetching || computing ? (
-                    <Spinner
-                      style={{ marginLeft: "1rem" }}
-                      className="loading-spinner"
-                    />
-                  ) : null}
-                </div>
-              </EntitySelector>
-            </Header>
-            <CodeTitle title="Payload" />
-            <EntityRows
-              selectedIndex={selectedIndex}
-              onClick={this.handleSelect}
-              entity={entity}
-              data={data}
-            />
-          </div>
           <div className="col vm-column code-column">
-            <Header>
-              <EntrySelector
-                loading={computing || fetching}
-                current={current}
-                defaultValue={search}
-                title={strings.leftColumnTitle}
-                recent={recent}
-                onChange={this.handleEntryChange}
-              >
-                <div className="spinner">
-                  {fetching || computing ? (
-                    <Spinner
-                      style={{ marginLeft: "1rem" }}
-                      className="loading-spinner"
-                    />
-                  ) : null}
-                </div>
-              </EntrySelector>
+            <Header title="Code to run">
+              <Button variant="primary" onClick={this.handleRunCode}>
+                Run ▶
+              </Button>
             </Header>
-            <CodeTitle
-              title={`Code ${
-                !current.editable
-                  ? "(disabled - first search for something on the left panel)"
-                  : ""
-              }`}
-            />
             <Code
               focusOnLoad={true}
               computing={computing}
               code={current.code}
-              readOnly={!current.editable}
+              readOnly={false}
               onChange={this.handleCodeUpdate}
             />
           </div>

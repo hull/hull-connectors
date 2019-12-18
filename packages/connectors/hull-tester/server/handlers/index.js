@@ -12,7 +12,7 @@ import {
   previewHandler
 } from "hull-vm";
 import configData from "./config-data";
-import accountUpdate from "./account-update";
+import callHandler from "./call-handler";
 
 type HandlerType = { flow_size?: number, flow_in?: number };
 const handler = ({ flow_size, flow_in }: HandlerType) => (
@@ -22,11 +22,10 @@ const handler = ({ flow_size, flow_in }: HandlerType) => (
     tabs: {
       admin: (): HullExternalResponse => ({ pageLocation: "admin.html" })
     },
-    subscriptions: {
-      accountUpdate: accountUpdate({ flow_size, flow_in })
-    },
+    subscriptions: {},
     statuses: { statusHandler },
     json: {
+      callHandler,
       configHandler: configHandler(configData),
       entityListHandler,
       previewHandler
