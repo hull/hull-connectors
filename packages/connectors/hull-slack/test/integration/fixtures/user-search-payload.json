@@ -1,0 +1,71 @@
+{
+  "user": {
+    "id": "5da7886d1fd97bf506026abf",
+    "created_at": "2019-10-16T21:15:25Z",
+    "email": "ron@hull.com",
+    "domain": "hull.com",
+    "name": "Ron Donaldson",
+    "last_name": "Donaldson",
+    "first_name": "Ron",
+    "is_approved": false,
+    "anonymous_ids": [
+      "pipedrive:17"
+    ],
+    "segment_ids": [
+      "5ccc40117dd61d9b680099e0",
+      "5da483e89c18c43e55010535"
+    ],
+    "traits_pipedrive/department": "sales",
+    "traits_pipedrive/id": 17,
+    "traits_pipedrive/name": "Ron Donaldson",
+    "indexed_at": "2019-11-05T17:19:30Z"
+  },
+  "segments": [
+    {
+      "id": "5ccc40117dd61d9b680099e0",
+      "name": "UserSegment3",
+      "type": "users_segment",
+      "updated_at": "2019-11-04T18:38:18Z",
+      "created_at": "2019-05-03T13:20:17Z"
+    },
+    {
+      "id": "5da483e89c18c43e55010535",
+      "name": "Ron",
+      "type": "users_segment",
+      "updated_at": "2019-10-14T14:19:20Z",
+      "created_at": "2019-10-14T14:19:20Z"
+    }
+  ],
+  "segment_ids": [
+    "5ccc40117dd61d9b680099e0",
+    "5da483e89c18c43e55010535"
+  ],
+  "account": {
+    "address": "123 address lane",
+    "salesforce/account_department": "sales",
+    "salesforce/id": "0014P000026SCAbQAO",
+    "salesforce/website": "google.com",
+    "domain": "google.com",
+    "name": "Google",
+    "created_at": "2019-05-30T18:00:12Z",
+    "updated_at": "2019-10-07T15:02:44Z",
+    "anonymous_ids": [
+      "salesforce:0014P000026SCAbQAO"
+    ],
+    "indexed_at": "2019-11-05T17:19:30+00:00",
+    "id": "5cf01a2c003afc9b1601236c",
+    "doctype": "account_report"
+  },
+  "account_segments": [
+    {
+      "id": "5cc8c55a7bee00428d000398",
+      "name": "Segment2",
+      "type": "accounts_segment",
+      "updated_at": "2019-10-15T17:19:58Z",
+      "created_at": "2019-04-30T21:59:54Z"
+    }
+  ],
+  "account_segment_ids": [
+    "5cc8c55a7bee00428d000398"
+  ]
+}
