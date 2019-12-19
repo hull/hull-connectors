@@ -41,7 +41,7 @@ const {
   HullConnectorAttributeDefinition
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
-const { fetchAllByDate, fetchRecentByDate } = require("hull-connector-framework/src/purplefusion/glue-predefined");
+const { fetchAllByStaticDateAscFilteredWithPaging, fetchRecentModifiedAscFilteredWithPaging, fetchRecentModifiedDescWithPaging } = require("hull-connector-framework/src/purplefusion/glue-predefined");
 
 const {
   CopperCRMIncomingLead,
@@ -56,44 +56,89 @@ function coppercrm(op: string, param?: any): Svc {
   return new Svc({ name: "coppercrm", op }, param);
 }
 
+function ensureWebhook(webhookIdAttribute, webhookTruthy) {
+  return ifL(cond("isEmpty", settings(webhookIdAttribute)),[
+    iterateL("${webhooks}", "webhook",
+      ifL(ld("isMatch", "${webhook}", webhookTruthy),
+        ifL(ld("isMatch", "${webhook}", { target: "${webhookUrl}"}), {
+          do: set("existingWebook", "${webhook}"),
+          eldo:
+            ifL(ex("${webhook.target}", "includes", utils("getConnectorOrganization")),
+              coppercrm("deleteWebhook")
+            )
+        })
+      )
+    ),
+    ifL(cond("isEmpty", "${existingWebhook}"),
+      set("existingWebhook", coppercrm("createWebhook", { target: "${webhookUrl}", ...webhookTruthy }))
+    ),
+    settingsUpdate({ [webhookIdAttribute]: "${existingWebhook.id}" })
+  ])
+}
+
 
 const glue = {
-  // Simple status which will return setup required if we don't have credentials filled out
-  // TODO need to make a call to marketo to confirm it works...
-  status: {},
+  status: ifL(route("isConfigured"), {
+    do: ifL(cond("isEmpty", coppercrm("getUsers")), {
+      do: {
+        status: "warning",
+        message: "No users associated with CopperCRM instance"
+      }
+    }),
+    eldo: {
+      status: "setupRequired",
+      message: "'Connector has not been authenticated. Please make sure to allow Hull to access your Outreach data by going to the \"Settings\" tab and clicking \"Login to your Outreach account\" in the \"Connect to Outreach\" section'"
+    }
+  }),
 
   // Hmmmm this is configured logic seems to be a prerequisite to do anything
   // maybe the ensure route needs to call it automatically and stop it
   // that being said, it shouldn't stop it for "status" endpoint
   isConfigured: cond("allTrue", [
     cond("notEmpty", settings("coppercrm_api_key")),
-    cond("notEmpty", settings("coopercrm_email"))
+    cond("notEmpty", settings("coppercrm_email"))
   ]),
 
 
   // Setup marketo api from the configured values
-  ensure: returnValue(
-    [
-      set("service_name", "coppercrm")
-    ],
-    route("isConfigured")
-  ),
+  ensure: set("service_name", "coppercrm"),
 
   //don't do anything on ship update
   shipUpdate: {},
 
+  webhooks: ifL(cond("isEqual", input("event"), "delete"),
+    ifL(cond("isEqual", input("type"), "lead"), {
+      do: [
+        // have to set service_name, because it's the value we try to use as a prefix for deleted_at
+        set("service_name", "coppercrm_lead"),
+        iterateL(input("ids"), "id", hull("userDeletedInService", { ident: { anonymous_id: "coppercrm-lead:lead-${id}" } }))
+      ],
+      elif: [
+        ifL(cond("isEqual", input("type"), "person"),[
+          // have to set service_name, because it's the value we try to use as a prefix for deleted_at
+          set("service_name", "coppercrm_person"),
+          iterateL(input("ids"), "id", hull("userDeletedInService", { ident: { anonymous_id: "coppercrm-person:person-${id}" } }))
+        ]),
+        ifL(cond("isEqual", input("type"), "account"),
+          iterateL(input("ids"), "id", hull("accountDeletedInService", { ident: { anonymous_id: "coppercrm:${id}" } }))
+        )
+      ]
+    })
+  ),
+
   // Incremental polling logic
-  fetchAllLeads:
-    fetchAllByDate({
+  fetchAllLeads: ifL(route("isConfigured"),
+    fetchAllByStaticDateAscFilteredWithPaging({
       serviceName: "coppercrm",
       fetchEndpoint: "fetchAllLeads",
       incomingType: CopperCRMIncomingLead,
       datePathOnEntity: "date_created",
       pageSize: 100,
       hullCommand: "asUser"
-    }),
-  fetchRecentLeads:
-    fetchRecentByDate({
+    })
+  ),
+  fetchRecentLeads: ifL(route("isConfigured"),
+    fetchRecentModifiedAscFilteredWithPaging({
       serviceName: "coppercrm",
       fetchEndpoint: "fetchRecentLeads",
       incomingType: CopperCRMIncomingLead,
@@ -101,19 +146,21 @@ const glue = {
       pageSize: 100,
       hullCommand: "asUser",
       timeFormat: "unix"
-    }),
+    })
+  ),
 
-  fetchAllPeople:
-    fetchAllByDate({
+  fetchAllPeople: ifL(route("isConfigured"),
+    fetchAllByStaticDateAscFilteredWithPaging({
       serviceName: "coppercrm",
       fetchEndpoint: "fetchAllPeople",
       incomingType: CopperCRMIncomingPerson,
       datePathOnEntity: "date_created",
       pageSize: 100,
       hullCommand: "asUser"
-    }),
-  fetchRecentPeople:
-    fetchRecentByDate({
+    })
+  ),
+  fetchRecentPeople: ifL(route("isConfigured"),
+    fetchRecentModifiedAscFilteredWithPaging({
       serviceName: "coppercrm",
       fetchEndpoint: "fetchRecentPeople",
       incomingType: CopperCRMIncomingPerson,
@@ -121,18 +168,20 @@ const glue = {
       pageSize: 100,
       hullCommand: "asUser",
       timeFormat: "unix"
-    }),
-  fetchAllCompanies:
-    fetchAllByDate({
+    })
+  ),
+  fetchAllCompanies: ifL(route("isConfigured"),
+    fetchAllByStaticDateAscFilteredWithPaging({
       serviceName: "coppercrm",
       fetchEndpoint: "fetchAllCompanies",
       incomingType: CopperCRMIncomingCompany,
       datePathOnEntity: "date_created",
       pageSize: 100,
       hullCommand: "asAccount"
-    }),
-  fetchRecentCompanies:
-    fetchRecentByDate({
+    })
+  ),
+  fetchRecentCompanies: ifL(route("isConfigured"),
+    fetchRecentModifiedAscFilteredWithPaging({
       serviceName: "coppercrm",
       fetchEndpoint: "fetchRecentCompanies",
       incomingType: CopperCRMIncomingCompany,
@@ -140,9 +189,10 @@ const glue = {
       pageSize: 100,
       hullCommand: "asAccount",
       timeFormat: "unix"
-    }),
-  fetchAllOpportunities:
-    fetchAllByDate({
+    })
+  ),
+  fetchAllOpportunities: ifL(route("isConfigured"),
+    fetchAllByStaticDateAscFilteredWithPaging({
       serviceName: "coppercrm",
       fetchEndpoint: "fetchAllOpportunities",
       incomingType: CopperCRMIncomingOpportunity,
@@ -150,9 +200,10 @@ const glue = {
       pageSize: 100,
       hullCommand: "asOpportunity",
       timeFormat: "unix"
-    }),
-  fetchRecentOpportunities:
-    fetchRecentByDate({
+    })
+  ),
+  fetchRecentOpportunities: ifL(route("isConfigured"),
+    fetchRecentModifiedAscFilteredWithPaging({
       serviceName: "coppercrm",
       fetchEndpoint: "fetchRecentOpportunities",
       incomingType: CopperCRMIncomingOpportunity,
@@ -160,7 +211,47 @@ const glue = {
       pageSize: 100,
       hullCommand: "asOpportunity",
       timeFormat: "unix"
-    }),
+    })
+  ),
+  fetchAllActivities: ifL(route("isConfigured"),
+    ifL(route("toFetchActivities"),
+      fetchAllByStaticDateAscFilteredWithPaging({
+        serviceName: "coppercrm",
+        fetchEndpoint: "fetchAllActivities",
+        incomingType: CopperCRMIncomingActivity,
+        datePathOnEntity: "activity_date",
+        pageSize: 100,
+        hullCommand: "asUser",
+        timeFormat: "unix",
+        fetchBody: { activity_types: "${activityTypes}" }
+      })
+    )
+  ),
+  fetchRecentActivities: ifL(route("isConfigured"),
+    ifL(route("toFetchActivities"),
+      fetchRecentModifiedDescWithPaging({
+        serviceName: "coppercrm",
+        fetchEndpoint: "fetchRecentActivities",
+        incomingType: CopperCRMIncomingActivity,
+        datePathOnEntity: "date_modified",
+        pageSize: 100,
+        hullCommand: "asUser",
+        timeFormat: "unix",
+        fetchBody: { activity_types: "${activityTypes}" }
+      })
+    )
+  ),
+  toFetchActivities: ifL(cond("isEmpty", settings("activities_to_fetch")), {
+    do: false,
+    eldo: returnValue(
+      set("activityTypes", jsonata(`user.{ "id": id, "category": category`, route("getActivityTypes"))),
+      true
+    )
+  }),
+  attributesActivityTypes: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, route("getUserActivityTypes"))),
+  getUserActivityTypes: jsonata(`user.{ "name": id, "display": name}`, route("getActivityTypes")),
+  getActivityTypes: cacheWrap(6000, coppercrm("getActivityTypes")),
+
   attributesLeadsIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, ld("concat", require("./fields/lead_fields"), route("customLeadFields")))),
   attributesPeopleIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, ld("concat", require("./fields/people_fields"), route("customPeopleFields")))),
   attributesCompaniesIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, ld("concat", require("./fields/company_fields"), route("customCompanyFields")))),
@@ -170,37 +261,50 @@ const glue = {
   customCompanyFields: jsonata(`$["company" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, route("getCustomFields")),
   customOpportunityFields: jsonata(`$["opportunity" in available_on].{"display": name, "name": name, "type": data_type, "readOnly": false}`, route("getCustomFields")),
 
-  getCustomFieldMap: jsonata(`$ {$string(id): name}`, route("getCustomFields")),
+  getCustomFieldMap: jsonata("${$string(id): name}", route("getCustomFields")),
   forceGetCustomFieldMap: returnValue(cacheDel(coppercrm("getCustomFields")), route("getCustomFieldMap")),
 
-  getCustomFieldMapAll: jsonata(`$ {$string(id): {"name": name, "type": data_type }}`, route("getCustomFields")),
+  getCustomFieldMapAll: jsonata("${$string(id): {\"name\": name, \"type\": data_type }}", route("getCustomFields")),
   forceGetCustomFieldMapAll: returnValue(cacheDel(coppercrm("getCustomFields")), route("getCustomFieldMapAll")),
 
-  getCustomFieldValueMap: jsonata(`$.options{$string(id): name}`, route("getCustomFields")),
+  getCustomFieldValueMap: jsonata("$.options{$string(id): name}", route("getCustomFields")),
   forceGetCustomFieldValueMap: returnValue(cacheDel(coppercrm("getCustomFields")), route("getCustomFieldValueMap")),
 
-  getCustomFields: cacheWrap(6000, coppercrm("getCustomFields")),
+  getCustomFields: ifL(route("isConfigured"), {
+    do: cacheWrap(6000, coppercrm("getCustomFields")),
+    eldo: []
+  }),
 
-  getAssignees: jsonata(`$ {$string(id): email}`, cacheWrap(6000, coppercrm("getUsers"))),
+  getAssignees: jsonata("${$string(id): email}", cacheWrap(6000, coppercrm("getUsers"))),
   forceGetAssignees: returnValue(cacheDel(coppercrm("getUsers")), route("getAssignees")),
 
-  getContactTypes: jsonata(`$ {$string(id): name}`, cacheWrap(6000, coppercrm("getContactTypes"))),
+  getContactTypes: jsonata("${$string(id): name}", cacheWrap(6000, coppercrm("getContactTypes"))),
   forceGetContactTypes: returnValue(cacheDel(coppercrm("getContactTypes")), route("getContactTypes")),
 
-  getPersonEmailById: jsonata(`$ {$string(id): emails[0].email}`, coppercrm("getPersonById")),
+  getPersonEmailById: jsonata("${$string(id): emails[0].email}", coppercrm("getPersonById")),
 
-  getCustomerSources: jsonata(`$ {$string(id): name}`, cacheWrap(6000, coppercrm("getCustomerSources"))),
+  getCustomerSources: jsonata("${$string(id): name}", cacheWrap(6000, coppercrm("getCustomerSources"))),
   forceGetCustomerSources: returnValue(cacheDel(coppercrm("getCustomerSources")), route("getCustomerSources")),
 
-  getLossReasons: jsonata(`$ {$string(id): name}`, cacheWrap(6000, coppercrm("getLossReasons"))),
+  getLossReasons: jsonata("${$string(id): name}", cacheWrap(6000, coppercrm("getLossReasons"))),
   forceGetLossReason: returnValue(cacheDel(coppercrm("getLossReasons")), route("getLossReasons")),
 
-  getPipelines: jsonata(`$ {$string(id): name}`, cacheWrap(6000, coppercrm("getPipelines"))),
+  getPipelines: jsonata("${$string(id): name}", cacheWrap(6000, coppercrm("getPipelines"))),
   forceGetPipelines: returnValue(cacheDel(coppercrm("getPipelines")), route("getPipelines")),
 
   // hitting the getPipelines endpoint and using jsonata to extract stages, could also hit pipelinestages endpoint, but no need to hit more than getPipelines for now
-  getPipelineStages: jsonata(`$.stages{$string(id): name}`, cacheWrap(6000, coppercrm("getPipelines"))),
-  forceGetPipelineStages: returnValue(cacheDel(coppercrm("getPipelines")), route("getPipelineStages"))
+  getPipelineStages: jsonata("$.stages{$string(id): name}", cacheWrap(6000, coppercrm("getPipelines"))),
+  forceGetPipelineStages: returnValue(cacheDel(coppercrm("getPipelines")), route("getPipelineStages")),
+
+  createDeleteWebhooks:
+[
+  set("webhookUrl", utils("getWebhookUrl")),
+  set("webhooks", coppercrm("getAllWebhooks")),
+  ensureWebhook("deleteLeadWebhookId", { type: "lead", event: "delete" }),
+  ensureWebhook("deletePersonWebhookId", { type: "person", event: "delete" }),
+  ensureWebhook("deleteCompanyWebhookId", { type: "company", event: "delete" }),
+  ensureWebhook("deleteOpportunityWebhookId", { type: "opportunity", event: "delete" }),
+]
 
 
 };

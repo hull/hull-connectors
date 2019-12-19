@@ -35,6 +35,8 @@ const {
 
 /**
  * Fetch All Logic
+ *
+ * ALL: { sortbystaticdate, asc/desc, paging, filterbystaticdate }
 
  Page by id (sorted by created or id)
  -> great…
@@ -58,15 +60,21 @@ const {
  Also have the export endpoints, but those are all pretty custom…
 
  Incremental Updates
+ *
+ *
  -> in all cases, need to verify that the attributes that you are pulling that when they “change” it either fires a web hook or changes the updated_at field
  Not all fields are equal. Sometimes there will be limitations based on how they’ve implemented things in the backend.  Particularly things that are probably in a separate table like relationships… 
  Webhooks
  -> Make sure there’s an id to tie back to original user/account
  -> not all attributes are always included in web hook firing
 
+ Incremental Poll: { sortbyupdateddate, asc/desc, paging, filterbyupdatedate }
  Fetch Since Last Modified
  -> Specialized endpoint which gets recent modifications
  -> Entity endpoint with ability to sort by “updated_at”
+ -> if no ability to set "updated_since", but can only sort, then need to look at data set
+-> if only asc -> need ability to "updated_since" if not dead
+-> if only desc -> no updated_since need to look at dataset and stop when got to the last know timestamp
 
  Fetch All Endpoint, but looking at “updated_at”
  -> Sometimes you may not have any endpoint where you can sort by “updated_at”
@@ -77,13 +85,21 @@ const {
  */
 
 
-function fetchAllByDate({ serviceName, fetchEndpoint, incomingType, datePathOnEntity, hullCommand, pageSize }) {
+/**
+ * all
+ * sorted_by_static_date: true
+ * sortOrder: asc
+ * filter_by_static_date: true
+ * paging: true
+ */
+function fetchAllByStaticDateAscFilteredWithPaging({ serviceName, fetchEndpoint, incomingType, datePathOnEntity, hullCommand, pageSize, fetchBody }) {
   return [
     set("pageOffset", 1),
     set("pageSize", pageSize),
+    set("datePathOnEntity", datePathOnEntity),
       loopL([
 
-        set("page", new Svc({ name: serviceName, op: fetchEndpoint })),
+        set("page", new Svc({ name: serviceName, op: fetchEndpoint }, fetchBody)),
 
         iterateL("${page}", { key: "entity" }, hull(hullCommand, cast(incomingType, "${entity}"))),
 
@@ -103,64 +119,97 @@ function fetchAllByDate({ serviceName, fetchEndpoint, incomingType, datePathOnEn
   ]
 }
 
-function fetchRecentByDate({ serviceName, fetchEndpoint, incomingType, datePathOnEntity, pageSize, hullCommand, timeFormat }) {
+
+/**
+ * Recent
+ * sorted_by_update_date: true
+ * sortOrder: asc
+ * filter_by_update_date: true
+ * paging: true
+ */
+function fetchRecentModifiedAscFilteredWithPaging({ serviceName, fetchEndpoint, incomingType, datePathOnEntity, pageSize, hullCommand, timeFormat, fetchBody }) {
   return cacheLock(fetchEndpoint, _.concat([
+      set("datePathOnEntity", datePathOnEntity),
       set("dateOffset", settings(`last_${fetchEndpoint}`)),
       ifL(cond("isEmpty", "${dateOffset}"), set("dateOffset", ex(ex(moment(), "subtract", { hour: 1 }), timeFormat)))
     ],
-      fetchAllByDate({ serviceName, fetchEndpoint, incomingType, datePathOnEntity, pageSize, hullCommand }),
+    fetchAllByStaticDateAscFilteredWithPaging({ serviceName, fetchEndpoint, incomingType, datePathOnEntity, pageSize, hullCommand, fetchBody }),
     [
       settingsUpdate({[`last_${fetchEndpoint}`]: "${dateOffset}"}),
     ]
   ));
 }
 
-// fetchAllLeads:[
-//   set("pageOffset", 1),
-//   loopL([
-//
-//     set("leadPage", coppercrm("fetchAllLeads")),
-//
-//     iterateL("${leadPage}", { key: "lead", async: true }, hull("asUser", cast(CopperCRMIncomingLead, "${lead}"))),
-//
-//     set("createdAtOffset", get("date_created", ld("last", "${leadPage}"))),
-//     ifL(cond("lessThan", "${leadPage.length}", 1), loopEndL()),
-//
-//     // doing this if we know that the number of contacts on the same date_created is greater than the page size
-//     // will avoid loops
-//     ifL(cond("isEqual", get("date_created", ld("first", "${leadPage}")), get("date_created", ld("last", "${leadPage}"))), {
-//       do: set("pageOffset", inc("${pageOffset}")),
-//       eldo: set("pageOffset", 1)
-//     })
-//   ])
-// ],
-//   fetchRecentLeads: cacheLock("fetchRecentLeads", [
-//
-//   set("modifiedAtOffset", settings("last_fetch_timestamp")),
-//   ifL(cond("isEmpty", "${modifiedAtOffset}"), set("modifiedAtOffset", ex(ex(moment(), "subtract", { hour: 1 }), "unix"))),
-//   set("pageOffset", 1),
-//
-//   loopL([
-//     set("leadPage", coppercrm("fetchRecentLeads")),
-//
-//     iterateL("${leadPage}", { key: "lead", async: true }, hull("asUser", cast(CopperCRMIncomingLead, "${lead}"))),
-//
-//     // TODO if leadPage is empty, we'll going to have an issue
-//     set("modifiedAtOffset", get("date_modified", ld("last", "${leadPage}"))),
-//
-//     ifL(cond("lessThan", "${leadPage.length}", 1), loopEndL()),
-//     // doing this if we know that the number of contacts on the same date_created is greater than the page size
-//     // will avoid loops
-//     ifL(cond("isEqual", get("date_modified", ld("first", "${leadPage}")), get("date_modified", ld("last", "${leadPage}"))), {
-//       do: set("pageOffset", inc("${pageOffset}")),
-//       eldo: set("pageOffset", 1)
-//     })
-//   ]),
-//
-//   settingsUpdate({last_fetch_timestamp: "${modifiedAtOffset}"}),
-// ]),
+/**
+ * Incremental
+ * sorted_by_update_date: true
+ * sortOrder: desc
+ * filter_by_update_date: false
+ * paging: true
+ */
+function fetchRecentModifiedDescWithPaging({ serviceName, fetchEndpoint, incomingType, datePathOnEntity, hullCommand, pageSize, timeFormat, fetchBody }) {
+  return cacheLock(fetchEndpoint, [
+    set("lastFetchedDate", settings(`last_${fetchEndpoint}`)),
+    ifL(cond("isEmpty", "${lastFetchedDate}"), set("lastFetchedDate", ex(ex(moment(), "subtract", { hour: 1 }), timeFormat)))
+    set("pageOffset", 1),
+    set("pageSize", pageSize),
+    set("datePathOnEntity", datePathOnEntity),
+    loopL([
+
+      set("page", new Svc({ name: serviceName, op: fetchEndpoint }, fetchBody)),
+
+      ifL(cond("isEmpty", "${latestModifiedDate}"),
+        set("latestModifiedDate", get(datePathOnEntity, ld("first", "${page}"))),
+      ),
+
+      iterateL("${page}", { key: "entity" },
+        ifL(cond("lessThan", "${lastFetchedDate}", `\${entity.${datePathOnEntity}}`),
+          hull(hullCommand, cast(incomingType, "${entity}"))
+        )
+      ),
+
+      set("currentDateOffset", get(datePathOnEntity, ld("last", "${page}"))),
+      ifL(cond("lessThan", "${currentDateOffset}", "${lastFetchedDate}"), loopEndL()),
+      set("pageOffset", inc("${pageOffset}"))
+    ]),
+    settingsUpdate({[`last_${fetchEndpoint}`]: "${latestModifiedDate}"}),
+  ])
+}
+
+
+/**
+ * All
+ * sorted_by_static_date: true
+ * sortOrder: desc
+ * sorted_by_static_date: true
+ * paging: true
+ */
+function fetchAllDescWithFilterAndPaging({ serviceName, fetchEndpoint, incomingType, datePathOnEntity, hullCommand, pageSize }) {
+  return cacheLock(fetchEndpoint, [
+    set("pageOffset", 1),
+    set("pageSize", pageSize),
+    set("datePathOnEntity", datePathOnEntity),
+    loopL([
+
+      set("page", new Svc({ name: serviceName, op: fetchEndpoint })),
+
+      iterateL("${page}", { key: "entity" }, hull(hullCommand, cast(incomingType, "${entity}"))),
+
+      set("dateOffset", get(datePathOnEntity, ld("last", "${page}"))),
+
+      ifL(cond("lessThan", "${page.length}", pageSize), loopEndL()),
+
+      ifL(cond("isEqual", get(datePathOnEntity, ld("first", "${page}")), get(datePathOnEntity, ld("last", "${page}"))), {
+        do: set("pageOffset", inc("${pageOffset}")),
+        eldo: set("pageOffset", 1)
+      })
+    ])
+  ])
+}
 
 module.exports = {
-  fetchAllByDate,
-  fetchRecentByDate
+  fetchAllByStaticDateAscFilteredWithPaging,
+  fetchRecentModifiedAscFilteredWithPaging,
+  fetchRecentModifiedDescWithPaging,
+  fetchAllDescWithFilterAndPaging
 }

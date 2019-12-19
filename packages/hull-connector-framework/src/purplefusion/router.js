@@ -170,7 +170,7 @@ class HullRouter {
 
           if (errorCallback) {
             // TODO make sure this works if callback returns promise
-            return Promise.resolve(callback(context, error))
+            return Promise.resolve(errorCallback(context, error))
           }
 
           context.client.logger.error(`${_.toLower(direction)}.job.error`, {

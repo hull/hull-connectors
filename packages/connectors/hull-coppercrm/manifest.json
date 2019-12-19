@@ -190,12 +190,53 @@
       "type": "string",
       "default": "100",
       "format": "hidden"
+    },
+    {
+      "default": [],
+      "format": "select",
+      "items": {
+        "type": "string",
+        "enum": [
+          "bounced_message",
+          "emails_opt_out",
+          "inbound_message",
+          "message_clicked",
+          "message_opened",
+          "message_opened_sender",
+          "outbound_message",
+          "prospect_stage_changed"
+        ],
+        "enumNames": [
+          "Bounced Message",
+          "Emails Opt Out",
+          "Inbound Message",
+          "Message Clicked",
+          "Message Opened",
+          "Message Opened Sender",
+          "Outbound Message",
+          "Prospect Stage Changed"
+        ]
+      },
+      "title": "Activities To Fetch From CopperCrm",
+      "name": "activities_to_fetch",
+      "type": "array",
+      "uniqueItems": true
     }
   ],
   "settings": [],
   "resources": [],
   "readme": "readme.md",
   "ui": false,
+  "incoming": [
+    {
+      "url": "/webhooks",
+      "handler": "webhooks",
+      "options": {
+        "credentialsFromQuery": true,
+        "bodyParser": "json"
+      }
+    }
+  ],
   "json": [
     {
       "url": "/fetchAllLeads",
@@ -266,6 +307,23 @@
       }
     },
     {
+      "url": "/fetch-all-activities",
+      "handler": "fetchAllActivities",
+      "format": "action",
+      "title": "Fetch Historical Activities",
+      "name": "fetch_all_activities",
+      "description": "",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all events from CopperCrm into Hull.",
+          "button": "Start Fetching Events",
+          "entity": "events"
+        }
+      }
+    },
+    {
       "url": "/attributes-leads-incoming",
       "handler": "attributesLeadsIncoming"
     },
@@ -330,6 +388,15 @@
       "options": {
         "fireAndForget": true
       }
+    },
+    {
+      "url": "/fetch-recent-activities",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentActivities",
+      "options": {
+        "fireAndForget": true
+      }
     }
   ],
   "statuses": [
@@ -351,7 +418,7 @@
   "settings_sections": [
     {
       "title": "Connect with CopperCrm",
-      "description": "The following information is required in order to connect with your CopperCrm instance.",
+      "description": "The following information is required in order to connect with your CopperCrm instance.  You can find these values in your CopperCrm instance by clicking `Settings` then in the `Integrations` section click `API Keys`",
       "properties": [
         "private_settings.coppercrm_api_key",
         "private_settings.coppercrm_email"
@@ -359,7 +426,7 @@
     },
     {
       "title": "Lead - Identity",
-      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to CopperCrm as well as the data we pull from CopperCrm.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios.",
+      "description": "<b>Identity</b> is one of the most important concepts in Hull.  Try to configure the identity before doing anything else.  By default email is configured as the primary identifier for leads.  If you need another identifier please contact your Hull customer success representative",
       "properties": [
         "private_settings.lead_claims"
       ]
@@ -374,7 +441,7 @@
     },
     {
       "title": "Person - Identity",
-      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to CopperCrm as well as the data we pull from CopperCrm.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios.",
+      "description": "<b>Identity</b> is one of the most important concepts in Hull.  Try to configure the identity before doing anything else.  By default email is configured as the primary identifier for people.  If you need another identifier please contact your Hull customer success representative",
       "properties": [
         "private_settings.person_claims"
       ]
@@ -384,12 +451,13 @@
       "description": "Hull gives it's customers the ability to capture changes on specific data fields so that they are kept up to date in real-time.  Please configure the fields that you would like pulled from CopperCrm below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
       "properties": [
         "private_settings.incoming_person_attributes",
+        "private_settings.link_person_in_hull",
         "json.fetch_all_people"
       ]
     },
     {
       "title": "Company - Identity",
-      "description": "<b>Identity</b> is one of the most important concepts in Hull.  The field mapping for user identity should correspond to unique fields across systems.  This identity applies to both the data we send to CopperCrm as well as the data we pull from CopperCrm.  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases.  Ideally there is an unique identifier (external_id) that can be used across systems.  Try to configure the identity before doing anything else.  Changes to the identity after the data flow is already setup could result in irreconcilable scenarios.",
+      "description": "<b>Identity</b> is one of the most important concepts in Hull.  Try to configure the identity before doing anything else.  By default email_domain is configured as the primary identifier for companies.  If you need another identifier please contact your Hull customer success representative",
       "properties": [
         "private_settings.account_claims"
       ]
@@ -415,6 +483,14 @@
       "properties": [
         "private_settings.incoming_opportunity_attributes",
         "json.fetch_all_opportunities"
+      ]
+    },
+    {
+      "title": "Activities - Fetching Activities from CopperCrm",
+      "description": "",
+      "properties": [
+        "private_settings.activities_to_fetch",
+        "json.fetch_all_activities"
       ]
     }
   ]

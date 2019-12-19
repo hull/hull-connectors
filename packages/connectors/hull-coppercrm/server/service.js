@@ -17,7 +17,8 @@ const {
   CopperCRMIncomingLead,
   CopperCRMIncomingPerson,
   CopperCRMIncomingCompany,
-  CopperCRMIncomingOpportunity
+  CopperCRMIncomingOpportunity,
+  CopperCRMIncomingActivity
   } = require("./service-objects");
 
 const { SuperagentApi } = require("hull-connector-framework/src/purplefusion/superagent-api");
@@ -35,56 +36,50 @@ const service = ({ clientID, clientSecret } : {
     getUsers: {
       url: "/v1/users/search",
       operation: "post",
-      endpointType: "lastFetch",
       query: {
         "page_size": 200,
         "page_number": 1
       }
     },
+    getActivityTypes: {
+      url: "/v1/activity_types",
+      operation: "get"
+    },
     getCustomFields: {
       url: "/v1/custom_field_definitions",
-      operation: "get",
-      endpointType: "lastFetch"
+      operation: "get"
     },
     getLeadStatuses: {
       url: "/v1/lead_statuses",
-      operation: "get",
-      endpointType: "lastFetch"
+      operation: "get"
     },
     getCustomerSources: {
       url: "/v1/customer_sources",
-      operation: "get",
-      endpointType: "lastFetch"
+      operation: "get"
     },
     getContactTypes: {
       url: "/v1/contact_types",
-      operation: "get",
-      endpointType: "lastFetch"
+      operation: "get"
     },
     getLossReasons: {
       url: "/v1/loss_reasons",
-      operation: "get",
-      endpointType: "lastFetch"
+      operation: "get"
     },
     getPipelines: {
       url: "/v1/pipelines",
-      operation: "get",
-      endpointType: "lastFetch"
+      operation: "get"
     },
     getPipelineStages: {
       url: "/v1/pipeline_stages",
-      operation: "get",
-      endpointType: "lastFetch"
+      operation: "get"
     },
     getPersonById: {
       url: "/v1/people/${attributeId}",
-      operation: "get",
-      endpointType: "lastFetch",
+      operation: "get"
     },
     fetchRecentLeads: {
       url: "/v1/leads/search",
       operation: "post",
-      endpointType: "lastFetch",
       output: CopperCRMIncomingLead,
       query: {
         "sort_by": "date_modified",
@@ -97,7 +92,6 @@ const service = ({ clientID, clientSecret } : {
     fetchAllLeads: {
       url: "/v1/leads/search",
       operation: "post",
-      endpointType: "lastFetch",
       output: CopperCRMIncomingLead,
       query: {
         "sort_by": "date_created",
@@ -110,7 +104,6 @@ const service = ({ clientID, clientSecret } : {
     fetchRecentPeople: {
       url: "/v1/people/search",
       operation: "post",
-      endpointType: "lastFetch",
       output: CopperCRMIncomingPerson,
       query: {
         "sort_by": "date_modified",
@@ -123,7 +116,6 @@ const service = ({ clientID, clientSecret } : {
     fetchAllPeople: {
       url: "/v1/people/search?sort_by=date_modified&sort_direction=desc",
       operation: "post",
-      endpointType: "fetchAll",
       output: CopperCRMIncomingPerson,
       query: {
         "sort_by": "date_created",
@@ -136,7 +128,6 @@ const service = ({ clientID, clientSecret } : {
     fetchRecentCompanies: {
       url: "/v1/companies/search",
       operation: "post",
-      endpointType: "lastFetch",
       output: CopperCRMIncomingCompany,
       query: {
         "sort_by": "date_modified",
@@ -149,7 +140,6 @@ const service = ({ clientID, clientSecret } : {
     fetchAllCompanies: {
       url: "/v1/companies/search",
       operation: "post",
-      endpointType: "lastFetch",
       output: CopperCRMIncomingCompany,
       query: {
         "sort_by": "date_created",
@@ -162,7 +152,6 @@ const service = ({ clientID, clientSecret } : {
     fetchRecentOpportunities: {
       url: "/v1/opportunities/search",
       operation: "post",
-      endpointType: "lastFetch",
       output: CopperCRMIncomingOpportunity,
       query: {
         "sort_by": "date_modified",
@@ -175,7 +164,6 @@ const service = ({ clientID, clientSecret } : {
     fetchAllOpportunities: {
       url: "/v1/opportunities/search",
       operation: "post",
-      endpointType: "lastFetch",
       output: CopperCRMIncomingOpportunity,
       query: {
         "sort_by": "date_created",
@@ -184,6 +172,41 @@ const service = ({ clientID, clientSecret } : {
         "page_number": "${pageOffset}",
         "minimum_created_date": "${dateOffset}"
       }
+    },
+    fetchRecentActivities: {
+      url: "/v1/activities/search",
+      operation: "post",
+      output: CopperCRMIncomingActivity,
+      query: {
+        "sort_by": "${datePathOnEntity}",
+        "sort_direction": "desc",
+        "page_size": "${pageSize}",
+        "page_number": "${pageOffset}"
+      }
+    },
+    fetchAllActivities: {
+      url: "/v1/activities/search",
+      operation: "post",
+      output: CopperCRMIncomingActivity,
+      query: {
+        "sort_by": "${datePathOnEntity}",
+        "sort_direction": "asc",
+        "page_size": "${pageSize}",
+        "page_number": "${pageOffset}",
+        "minimum_activity_date": "${dateOffset}"
+      }
+    },
+    getAllWebhooks: {
+      url: "/v1/webhooks",
+      operation: "get"
+    },
+    deleteWebhook: {
+      url: "/v1/webhooks/${webhook.id}",
+      operation: "delete"
+    },
+    createWebhook: {
+      url: "/v1/webhooks",
+      operation: "post"
     }
   },
   superagent: {
