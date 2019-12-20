@@ -94,7 +94,7 @@
     },
     {
       "title": "Credentials",
-      "description": "Copy this token and paste it when in the Zapier authentication window",
+      "description": "Copy this token and paste it in the Zapier authentication window",
       "step": "credentials",
       "properties": [
         "json.credentials"
