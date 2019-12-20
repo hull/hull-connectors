@@ -20,7 +20,9 @@ const connector = {
     ],
     synchronized_account_segments: [
       "5bffc38f625718d58b000005"
-    ]
+    ],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 

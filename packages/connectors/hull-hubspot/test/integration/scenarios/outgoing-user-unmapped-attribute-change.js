@@ -19,7 +19,9 @@ const connector = {
     outgoing_user_attributes: [
       { hull: "traits_outreach/title", service: "jobtitle" }
     ],
-    link_users_in_service: true
+    link_users_in_service: true,
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const usersSegments = [
