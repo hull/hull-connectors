@@ -29,6 +29,12 @@ describe("Outgoing Users Tests", () => {
         {
           "changes": {
             "is_new": true,
+            "user": {
+              "pipedrive/department": ["marketing", "sales"],
+              "blacklistattr_1": ["", "1"],
+              "blacklistattr_2": ["", "1"],
+              "blacklistattr_3": ["", "1"]
+            },
           },
           "account": {},
           "user": {
@@ -116,6 +122,10 @@ describe("Outgoing Users Tests", () => {
                 {
                   "id": "user_segment_1",
                   "name": "UserSegment1"
+                },
+                {
+                  "id": "random",
+                  "name": "RandomSegment1"
                 }
               ]
             }
@@ -239,6 +249,16 @@ describe("Outgoing Users Tests", () => {
                 {
                   "id": "user_segment_1",
                   "name": "UserSegment1"
+                },
+                {
+                  "id": "random",
+                  "name": "RandomSegment1"
+                }
+              ],
+              "entered": [
+                {
+                  "id": "random2",
+                  "name": "RandomSegment2"
                 }
               ]
             }
@@ -430,18 +450,6 @@ describe("Outgoing Users Tests", () => {
                     "pipedrive/department": [
                       "marketing",
                       "sales"
-                    ],
-                    "blacklistattr_1": [
-                      "",
-                      "1"
-                    ],
-                    "blacklistattr_2": [
-                      "",
-                      "1"
-                    ],
-                    "blacklistattr_3": [
-                      "",
-                      "1"
                     ]
                   }
                 }
@@ -519,7 +527,7 @@ describe("Outgoing Users Tests", () => {
       const message1 =
         {
           "changes": {
-            "is_new": true,
+            "is_new": true
           },
           "account": {},
           "user": {

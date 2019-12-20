@@ -3,7 +3,6 @@
 import type { ServiceObjectDefinition } from "./types";
 import type { HullAccountUpdateMessage, HullContext, HullEntityName, HullUserUpdateMessage } from "hull";
 const _ = require("lodash");
-const { triggers } = require("./triggers");
 const debug = require("debug")("hull-shared:utils");
 const {
   HullOutgoingUser,
@@ -484,118 +483,6 @@ function toSendMessage(
   return true;
 }
 
-function isValidMessageEntity(entity: Object, rules: Array<Object>, whitelist: Array<string>): Array<string> {
-  for (let j = 0; j < rules.length; j++) {
-    const rule = rules[j];
-
-    if (_.isFunction(rule) && !rule(entity, whitelist)) {
-      return false;
-    }
-
-    if (!_.isFunction(rule) && _.isObject(rule)) {
-      const filter = _.filter([entity], rule);
-
-      if (_.isEmpty(filter)) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
-function isValidMessage(message: Object, validations: Object, whitelist: Array<string>) {
-  const entitiesToValidate = _.keys(validations);
-
-  for (let k = 0; k < entitiesToValidate.length; k++) {
-    const entity = _.get(message, entitiesToValidate[k]);
-    const rawRules = _.get(validations, entitiesToValidate[k]);
-
-    const rules = !_.isArray(rawRules) ? [rawRules] : rawRules;
-
-    if (!isValidMessageEntity(entity, rules, whitelist)) {
-      return false;
-    }
-  }
-  return true;
-}
-
-function isValidTrigger(message, triggerInputData): boolean {
-  const triggerKeys = _.keys(triggerInputData);
-  for (let i = 0; i < triggerKeys.length; i++) {
-    const action = triggerKeys[i];
-
-    const whitelist = _.get(triggerInputData, action);
-    const triggerDefinition = _.get(triggers, action, {});
-
-    const { validations } = triggerDefinition;
-
-    if (!isValidMessage(message, validations, whitelist)) {
-      return false;
-    }
-  }
-  return true;
-}
-
-function getTriggerFilters(triggerInputData): Array<string>  {
-  const standardFilter = [
-    "user",
-    "account",
-    "segments",
-    "account_segments",
-    "message_id"
-  ];
-
-  let filters = [];
-  const triggerKeys = _.keys(triggerInputData);
-  for (let i = 0; i < triggerKeys.length; i++) {
-    const action = triggerKeys[i];
-    if (_.isNil(action) || _.isEmpty(action)) {
-      return [];
-    }
-
-    const actionDefinition = _.get(triggers, action, {});
-
-    const { validations } = actionDefinition;
-
-    filters = _.concat(filters, _.keys(validations));
-
-  }
-  return _.concat(standardFilter, filters);
-}
-
-function getEntityTriggers(context: Object, entityAction: string, entity: Object): Array<string> {
-  const filteredTriggers = [];
-
-  const savedTriggers = context.connector.private_settings.triggers;
-  _.forEach(savedTriggers, trigger => {
-    if (isValidTrigger(entity, trigger.inputData)) {
-      const rawEntity = entity;
-
-      const triggerFilters = getTriggerFilters(trigger.inputData);
-
-      const cleanedEntity = _.pick(entity, triggerFilters);
-      let entityDataType = null;
-      if (!_.isEmpty(_.get(entity, "user"))) {
-        entityDataType = HullOutgoingUser;
-      }
-
-      if (!_.isEmpty(_.get(entity, "account")) && _.isEmpty(_.get(entity, "user"))) {
-        entityDataType = HullOutgoingAccount;
-      }
-
-      if (!_.isNil(entityDataType)) {
-        setHullDataType(cleanedEntity, entityDataType);
-
-        const serviceAction = trigger.serviceAction;
-
-        filteredTriggers.push({ serviceAction, cleanedEntity, rawEntity });
-      }
-    }
-  });
-
-  return filteredTriggers;
-}
-
 module.exports = {
   isUndefinedOrNull,
   parseIntOrDefault,
@@ -606,6 +493,5 @@ module.exports = {
   createAnonymizedObject,
   getHullPlatformTypeName,
   sameHullDataType,
-  asyncForEach,
-  getEntityTriggers
+  asyncForEach
 };

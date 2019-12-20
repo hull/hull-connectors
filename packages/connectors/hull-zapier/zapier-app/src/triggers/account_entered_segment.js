@@ -16,8 +16,7 @@ const account_entered_segment = triggerBuilder({
   sample,
   description: "Triggers when an account enters a segment.",
   entityType: "account",
-  action: "entered_segment",
-  hidden: true
+  action: "entered_segment"
 });
 
 module.exports = {

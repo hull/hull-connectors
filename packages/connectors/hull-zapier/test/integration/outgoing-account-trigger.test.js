@@ -36,6 +36,10 @@ describe("Outgoing Account Tests", () => {
                 {
                   "id": "account_segment_1",
                   "name": "AccountSegment1"
+                },
+                {
+                  "id": "random",
+                  "name": "RandomSegment1"
                 }
               ]
             }
@@ -86,7 +90,30 @@ describe("Outgoing Account Tests", () => {
           ],
           ["info", "outgoing.account.success",
             expect.objectContaining({ "subject_type": "account", "account_id": "5bd329d5e2bcf3eeaf000099" }),
-            expect.objectContaining({ "data": expect.objectContaining({"message_id": "message_1"}), "type": "Account" })
+            expect.objectContaining({ "data": {
+                "changes": {
+                  "account_segments": {
+                    "entered": [
+                      {
+                        "id": "account_segment_1",
+                        "name": "AccountSegment1"
+                      }
+                    ]
+                  }
+                },
+                "account": {
+                  "id": "5bd329d5e2bcf3eeaf000099",
+                  "domain": "apple.com",
+                },
+                "account_segments": [
+                  {
+                    "id": "account_segment_1",
+                    "name": "AccountSegment1",
+                    "type": "accounts_segment",
+                  }
+                ],
+                "message_id": "message_1"
+              }, "type": "Account" })
           ],
           ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }]
         ],
@@ -175,7 +202,30 @@ describe("Outgoing Account Tests", () => {
           ],
           ["info", "outgoing.account.success",
             expect.objectContaining({ "subject_type": "account", "account_id": "5bd329d5e2bcf3eeaf000099" }),
-            expect.objectContaining({ "data": expect.objectContaining({"message_id": "message_1"}), "type": "Account" })
+            expect.objectContaining({ "data": {
+                "changes": {
+                  "account_segments": {
+                    "left": [
+                      {
+                        "id": "account_segment_1",
+                        "name": "AccountSegment1"
+                      }
+                    ]
+                  }
+                },
+                "account": {
+                  "id": "5bd329d5e2bcf3eeaf000099",
+                  "domain": "apple.com",
+                },
+                "account_segments": [
+                  {
+                    "id": "account_segment_2",
+                    "name": "AccountSegment2",
+                    "type": "accounts_segment",
+                  }
+                ],
+                "message_id": "message_1"
+              }, "type": "Account" })
           ],
           ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }]
         ],
@@ -217,7 +267,10 @@ describe("Outgoing Account Tests", () => {
           "changes": {
             "is_new": false,
             "account": {
-              "pipedrive/industry": ["something", "it"]
+              "pipedrive/industry": ["something", "it"],
+              "pipedrive/rand_1": ["something", "it"],
+              "pipedrive/rand_2": ["something", "it"],
+              "pipedrive/rand_3": ["something", "it"]
             },
             "user": {},
             "account_segments": {},
@@ -271,7 +324,27 @@ describe("Outgoing Account Tests", () => {
           ],
           ["info", "outgoing.account.success",
             expect.objectContaining({ "subject_type": "account", "account_id": "5bd329d5e2bcf3eeaf000099" }),
-            expect.objectContaining({ "data": expect.objectContaining({"message_id": "message_1"}), "type": "Account" })
+            expect.objectContaining({ "data": {
+                "changes": {
+                  "account": {
+                    "pipedrive/industry": ["something", "it"]
+                  }
+                },
+                "account": {
+                  "id": "5bd329d5e2bcf3eeaf000099",
+                  "name": "Apple",
+                  "email": "apple.com",
+                  "pipedrive/industry": "it"
+                },
+                "account_segments": [
+                  {
+                    "id": "account_segment_1",
+                    "name": "AccountSegment1",
+                    "type": "accounts_segment",
+                  }
+                ],
+                "message_id": "message_1"
+              }, "type": "Account" })
           ],
           ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }]
         ],
@@ -321,6 +394,15 @@ describe("Outgoing Account Tests", () => {
         {
           "changes": {
             "is_new": true,
+            "account": {
+              "pipedrive/industry": ["something", "it"],
+              "pipedrive/rand_1": ["something", "it"],
+              "pipedrive/rand_2": ["something", "it"],
+              "pipedrive/rand_3": ["something", "it"]
+            },
+            "user": {},
+            "account_segments": {},
+            "segments": {}
           },
           "user": {},
           "account": {
@@ -400,7 +482,43 @@ describe("Outgoing Account Tests", () => {
           ],
           ["info", "outgoing.account.success",
             expect.objectContaining({ "subject_type": "account", "account_id": "5bd329d5e2bcf3eeaf000099" }),
-            expect.objectContaining({ "data": expect.objectContaining({"message_id": "message_1"}), "type": "Account" })
+            expect.objectContaining({ "data": {
+                "changes": {
+                  "is_new": true
+                },
+                "account": {
+                  "id": "5bd329d5e2bcf3eeaf000099",
+                  "domain": "apple.com",
+                },
+                "account_segments": [
+                  {
+                    "id": "account_segment_1",
+                    "name": "AccountSegment1",
+                    "type": "accounts_segment",
+                  },
+                  {
+                    "id": "account_segment_2",
+                    "name": "AccountSegment2",
+                    "type": "accounts_segment",
+                  },
+                  {
+                    "id": "account_segment_3",
+                    "name": "AccountSegment3",
+                    "type": "accounts_segment",
+                  },
+                  {
+                    "id": "account_segment_4",
+                    "name": "AccountSegment5",
+                    "type": "accounts_segment",
+                  },
+                  {
+                    "id": "account_segment_5",
+                    "name": "AccountSegment5",
+                    "type": "accounts_segment",
+                  }
+                ],
+                "message_id": "message_1"
+              }, "type": "Account" })
           ],
           ["info", "outgoing.account.success",
             expect.objectContaining({ "subject_type": "account", "account_id": "5bd329d5e2bcf3eeaf000099" }),

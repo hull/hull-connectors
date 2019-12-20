@@ -18,7 +18,8 @@ const { HullDispatcher } = require("./dispatcher");
 
 const { hullService } = require("./hull-service");
 
-const { toSendMessage, getEntityTriggers } = require("./utils");
+const { toSendMessage } = require("./utils");
+const { getEntityTriggers } = require("./triggers/trigger-utils");
 const { statusCallback, statusErrorCallback, resolveServiceDefinition } = require("./router-utils");
 const { getServiceOAuthParams } = require("./auth/auth-utils");
 
@@ -133,7 +134,7 @@ class HullRouter {
         const dataToSend = Array.isArray(data) ? data : [data];
         _.forEach(dataToSend, message => {
 
-          const triggers = getEntityTriggers(context, route, message);
+          const triggers = getEntityTriggers(context, message);
 
           _.forEach(triggers, (trigger) => {
             dispatchPromises.push(dispatcher.dispatchWithData(context, "performTrigger", objectType, [ trigger ]));
