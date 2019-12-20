@@ -8,15 +8,25 @@ const {
   ServiceOpportunityRaw
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
-const { createIncomingServiceUserTransform, createEnumTransform }  = require("hull-connector-framework/src/purplefusion/transform-predefined");
+const {
+  createIncomingServiceUserTransform,
+  createEnumTransformWithAttributeList,
+  createEnumTransform
+}  = require("hull-connector-framework/src/purplefusion/transform-predefined");
 
-const { varNull, varInArray, not, isVarServiceAttributeInVarList }  = require("hull-connector-framework/src/purplefusion/conditionals");
+const {
+  varNull,
+  varInArray,
+  not,
+  isVarServiceAttributeInVarList
+}  = require("hull-connector-framework/src/purplefusion/conditionals");
 
 const {
   CopperCRMIncomingLead,
   CopperCRMIncomingPerson,
   CopperCRMIncomingCompany,
-  CopperCRMIncomingOpportunity
+  CopperCRMIncomingOpportunity,
+  CopperCRMIncomingActivity
 } = require("./service-objects");
 
 
@@ -96,14 +106,14 @@ const transformsToHull: ServiceTransforms = [
         target: { component: "input" },
         then: _.concat(addressTransform, [
             customFieldsTransform("incoming_lead_attributes"),
-            createEnumTransform({
+            createEnumTransformWithAttributeList({
               attribute: "customerSource",
               attributeId: "customer_source_id",
               attributeList: "incoming_lead_attributes",
               route: "getCustomerSources",
               forceRoute: "forceGetCustomerSources"
             }),
-            createEnumTransform({
+            createEnumTransformWithAttributeList({
               attribute: "assigneeEmail",
               attributeId: "assignee_id",
               attributeList: "incoming_lead_attributes",
@@ -130,14 +140,14 @@ const transformsToHull: ServiceTransforms = [
       {
         target: { component: "input" },
         then: _.concat(addressTransform, customFieldsTransform("incoming_person_attributes"), [
-          createEnumTransform({
+          createEnumTransformWithAttributeList({
             attribute: "contactType",
             attributeId: "contact_type_id",
             attributeList: "incoming_person_attributes",
             route: "getContactTypes",
             forceRoute: "forceGetContactTypes"
           }),
-          createEnumTransform({
+          createEnumTransformWithAttributeList({
             attribute: "assigneeEmail",
             attributeId: "assignee_id",
             attributeList: "incoming_person_attributes",
@@ -175,14 +185,14 @@ const transformsToHull: ServiceTransforms = [
     then: _.concat(addressTransform,
       [
         customFieldsTransform("incoming_account_attributes"),
-        createEnumTransform({
+        createEnumTransformWithAttributeList({
           attribute: "contactType",
           attributeId: "contact_type_id",
           attributeList: "incoming_account_attributes",
           route: "getContactTypes",
           forceRoute: "forceGetContactTypes"
         }),
-        createEnumTransform({
+        createEnumTransformWithAttributeList({
           attribute: "assigneeEmail",
           attributeId: "assignee_id",
           attributeList: "incoming_account_attributes",
@@ -208,49 +218,49 @@ const transformsToHull: ServiceTransforms = [
         writeTo: { path: "hull_raw_service_userId", value: "${service_name}-person:person-${operateOn}" }
       },
       customFieldsTransform("incoming_opportunity_attributes"),
-      createEnumTransform({
+      createEnumTransformWithAttributeList({
         attribute: "assigneeEmail",
         attributeId: "assignee_id",
         attributeList: "incoming_opportunity_attributes",
         route: "getAssignees",
         forceRoute: "forceGetAssignees"
       }),
-      createEnumTransform({
+      createEnumTransformWithAttributeList({
         attribute: "contactType",
         attributeId: "contact_type_id",
         attributeList: "incoming_opportunity_attributes",
         route: "getContactTypes",
         forceRoute: "forceGetContactTypes"
       }),
-      createEnumTransform({
+      createEnumTransformWithAttributeList({
         attribute: "customerSource",
         attributeId: "customer_source_id",
         attributeList: "incoming_opportunity_attributes",
         route: "getCustomerSources",
         forceRoute: "forceGetCustomerSources"
       }),
-      createEnumTransform({
+      createEnumTransformWithAttributeList({
         attribute: "lossReason",
         attributeId: "loss_reason_id",
         attributeList: "incoming_opportunity_attributes",
         route: "getLossReason",
         forceRoute: "forceGetLossReason"
       }),
-      createEnumTransform({
+      createEnumTransformWithAttributeList({
         attribute: "pipeline",
         attributeId: "pipeline_id",
         attributeList: "incoming_opportunity_attributes",
         route: "getPipelines",
         forceRoute: "forceGetPipelines"
       }),
-      createEnumTransform({
+      createEnumTransformWithAttributeList({
         attribute: "pipelineStage",
         attributeId: "pipeline_stage_id",
         attributeList: "incoming_opportunity_attributes",
         route: "getPipelineStages",
         forceRoute: "forceGetPipelineStages"
       }),
-      createEnumTransform({
+      createEnumTransformWithAttributeList({
         attribute: "primaryContactEmail",
         attributeId: "primary_contact_id",
         attributeList: "incoming_opportunity_attributes",
@@ -258,7 +268,49 @@ const transformsToHull: ServiceTransforms = [
         forceRoute: "forceGetPersonEmailById"
       })
     ]
+  },
+  {
+    input: CopperCRMIncomingActivity,
+    output: HullIncomingUser,
+    direction: "incoming",
+    strategy: "AtomicReaction",
+    target: { component: "new" },
+    then: {
+      operateOn: { component: "input", select: "parent.type", name: "eventEntity" },
+      condition: varInArray("eventEntity", ["person", "lead"]),
+      then: [
+        {
+          operateOn: { component: "input", select: "parent.id" },
+          writeTo: { path: "ident.anonymous_id", value: "coppercrm-${eventEntity}:${eventEntity}-${operateOn}" }
+        },
+        {
+          operateOn: { component: "input", select: "activity_date" },
+          writeTo: { path: "hull_events[0].context.created_at" }
+        },
+        {
+          operateOn: { component: "input", select: "id" },
+          writeTo: { path: "hull_events[0].context.event_id" }
+        },
+        {
+          operateOn: { component: "input", select: "details" },
+          writeTo: { path: "hull_events[0].properties.details" }
+        },
+        createEnumTransform({
+          attribute: "hull_events[0].properties.assigneeEmail",
+          attributeId: "user_id",
+          route: "getAssignees",
+          forceRoute: "forceGetAssignees"
+        }),
+        createEnumTransform({
+          attribute: "hull_events[0].eventName",
+          attributeId: "type.id",
+          route: "getActivityTypesMap",
+          forceRoute: "forceGetActivityTypesMap"
+        })
+      ]
+    }
   }
 ];
+
 
 module.exports = transformsToHull;

@@ -150,7 +150,7 @@ function fetchRecentModifiedAscFilteredWithPaging({ serviceName, fetchEndpoint, 
 function fetchRecentModifiedDescWithPaging({ serviceName, fetchEndpoint, incomingType, datePathOnEntity, hullCommand, pageSize, timeFormat, fetchBody }) {
   return cacheLock(fetchEndpoint, [
     set("lastFetchedDate", settings(`last_${fetchEndpoint}`)),
-    ifL(cond("isEmpty", "${lastFetchedDate}"), set("lastFetchedDate", ex(ex(moment(), "subtract", { hour: 1 }), timeFormat)))
+    ifL(cond("isEmpty", "${lastFetchedDate}"), set("lastFetchedDate", ex(ex(moment(), "subtract", { hour: 1 }), timeFormat))),
     set("pageOffset", 1),
     set("pageSize", pageSize),
     set("datePathOnEntity", datePathOnEntity),

@@ -285,7 +285,7 @@ function ifL(params: any, results: any | { do: any, eldo?: any, elif?: any }): I
   let toEvaluate = results;
   // if do isn't present in the results, then build one to make the underlying evaluation code simpler
   // this is just a way to give the instruction syntax simplicity on top, so that if only a "do" exists, then we just can pass the next instruction
-  if (!results.do) {
+  if (results.do === undefined) {
     toEvaluate = { do: toEvaluate };
   }
 
@@ -449,9 +449,10 @@ function settingsSet(key: any, value?: any) {
       obj[`connector.private_settings.${name}`] = value;
     });
 
-    return new Op({ name: "set", key: obj });
+    return new Op({ name: "setOnHullContext", key: obj });
   } else {
-    return set(key, value);
+    // return set(key, value);
+    return new Op({ name: "setOnHullContext", key }, value);
   }
 }
 

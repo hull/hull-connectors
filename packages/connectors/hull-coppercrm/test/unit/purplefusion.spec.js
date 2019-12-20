@@ -37,33 +37,37 @@ describe("CopperCRM Lead Tests", () => {
   });
 
 
-  // it("fetch all coppercrm", () => {
-  //   return harness.runTest(require("./fixtures/fetch-all-leads"));
-  // });
-
-  it("fetch all coppercrm", () => {
-    return harness.runTest(require("./fixtures/fetch-recent-accounts"));
+  it("fetch all leads coppercrm", () => {
+    return harness.runTest(require("./fixtures/fetch-all-leads"));
   });
 
-  it("fetch recent coppercrm", () => {
-    const why = require("./fixtures/fetch-recent-leads");
-    return harness.runTest(why);
-  //   const requestTrace = require("./fixtures/fetch-recent-leads");
-  // const context = new ContextMock(requestTrace.configuration);
-  //
-  // let request = requestTrace.input;
-  // if (request && request.classType && request.data) {
-  //   const classType = request.classType;
-  //   const data = request.data;
-  //   setHullDataType(data, classType);
-  //   request = data;
-  // }
-  //
-  // return router.dispatcher().dispatch(context, requestTrace.route, request).catch(error => {
-  //   console.log(error.message);
-  //   console.log(error.stack);
-  //   return Promise.reject(error);
+  // it("fetch recent leads coppercrm", () => {
+  //   return harness.runTest(require("./fixtures/fetch-recent-leads"));
   // });
-});
+
+  it("fetch all activities coppercrm", () => {
+    return harness.runTest(require("./fixtures/fetchAllActivities"));
+  });
+
+//   it("fetch recent coppercrm", () => {
+//     const requestTrace = require("./fixtures/fetchAllActivities");
+//     return harness.runTest(requestTrace);
+//     // const requestTrace = require("./fixtures/fetch-recent-leads");
+//   // const context = new ContextMock(requestTrace.configuration);
+//   //
+//   // let request = requestTrace.input;
+//   // if (request && request.classType && request.data) {
+//   //   const classType = request.classType;
+//   //   const data = request.data;
+//   //   setHullDataType(data, classType);
+//   //   request = data;
+//   // }
+//   //
+//   // return router.dispatcher().dispatch(context, requestTrace.route, request).catch(error => {
+//   //   console.log(error.message);
+//   //   console.log(error.stack);
+//   //   return Promise.reject(error);
+//   // });
+// });
 
 });

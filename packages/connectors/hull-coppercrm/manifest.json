@@ -192,35 +192,16 @@
       "format": "hidden"
     },
     {
-      "default": [],
-      "format": "select",
-      "items": {
-        "type": "string",
-        "enum": [
-          "bounced_message",
-          "emails_opt_out",
-          "inbound_message",
-          "message_clicked",
-          "message_opened",
-          "message_opened_sender",
-          "outbound_message",
-          "prospect_stage_changed"
-        ],
-        "enumNames": [
-          "Bounced Message",
-          "Emails Opt Out",
-          "Inbound Message",
-          "Message Clicked",
-          "Message Opened",
-          "Message Opened Sender",
-          "Outbound Message",
-          "Prospect Stage Changed"
-        ]
-      },
       "title": "Activities To Fetch From CopperCrm",
       "name": "activities_to_fetch",
       "type": "array",
-      "uniqueItems": true
+      "format": "select",
+      "uniqueItems": true,
+      "default": [],
+      "options": {
+        "placeholder": "Choose which types of activities to fetch",
+        "loadOptions": "/attributes-activities-incoming"
+      }
     }
   ],
   "settings": [],
@@ -338,6 +319,10 @@
     {
       "url": "/attributes-opportunities-incoming",
       "handler": "attributesOpportunitiesIncoming"
+    },
+    {
+      "url": "/attributes-activities-incoming",
+      "handler": "attributesActivitiesIncoming"
     }
   ],
   "subscriptions": [

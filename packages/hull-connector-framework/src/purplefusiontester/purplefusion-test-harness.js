@@ -88,13 +88,22 @@ function createServiceMock(service, possibleMockRequests) {
           // local context must be equal or using a jest equivalence object
           expect(currentLocalContext).toEqual(flattenArray(identifiedResult.localContext));
           // input must be equal or using a jest equivalence object
-          expect(data).toEqual(identifiedResult.input);
+          // do a lodash comparison first... may need to do this with everything
+          // jest has a bug where it compares enumerable=false properties too
+          // so even though the objects look the same, jest is throwing an error
+          // experiencing it specifically with arrays with sequence: true as a hidden value
+          // versus my test data
+          // or could use "object containing syntax where it's an issue...
+          // expect.arrayContaining(
+          // if (!_.isEqual(data, identifiedResult.input)) {
+            expect(data).toEqual(identifiedResult.input);
+          // }
         }
 
 
 
         // remove the endpoint from the list because it's been called
-        _.pullAt(serviceWrapper.requestedMocks, _.indexOf(identifiedResult));
+        _.pullAt(serviceWrapper.requestedMocks, _.indexOf(serviceWrapper.requestedMocks, identifiedResult));
 
         // now return the appropriate result
         const result = identifiedResult.result;

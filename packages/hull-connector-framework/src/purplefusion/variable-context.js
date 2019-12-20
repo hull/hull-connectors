@@ -95,6 +95,10 @@ class HullVariableContext {
     }
   }
 
+  setOnHullContext(key: string, value: any) {
+    _.set(this.hullContext, key, value);
+  }
+
   reqContext() {
     return this.hullContext;
   }

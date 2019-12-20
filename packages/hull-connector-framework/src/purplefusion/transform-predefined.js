@@ -86,9 +86,8 @@ function serviceUserTransforms(entityType) {
   ];
 }
 
-function createEnumTransform({ attribute, attributeId, attributeList, route, forceRoute }) {
+function createEnumTransform({ attribute, attributeId, route, forceRoute }) {
   return {
-    condition: isServiceAttributeInVarList(attribute, attributeList),
     then: [
       {
         operateOn: {
@@ -106,10 +105,19 @@ function createEnumTransform({ attribute, attributeId, attributeList, route, for
         writeTo: attribute
       }
     ]
+  };
+}
+
+function createEnumTransformWithAttributeList({ attribute, attributeId, attributeList, route, forceRoute }) {
+  return {
+    condition: isServiceAttributeInVarList(attribute, attributeList),
+    then: createEnumTransform({ attribute, attributeId, route, forceRoute })
   }
 }
 
+
 module.exports = {
   createIncomingServiceUserTransform,
+  createEnumTransformWithAttributeList,
   createEnumTransform
 };
