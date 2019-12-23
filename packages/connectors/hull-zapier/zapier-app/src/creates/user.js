@@ -24,6 +24,7 @@ const user = {
   noun: "User",
 
   display: {
+    hidden: true,
     label: "Create or Update a User",
     description:
       "Sends Attribute updates to the user identified by an email. Will create the user if not created already."

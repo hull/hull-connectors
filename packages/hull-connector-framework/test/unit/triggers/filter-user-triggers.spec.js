@@ -23,7 +23,7 @@ describe("Outgoing User Entered Segment Filtering Tests", () => {
       ]
     }});
     const message = {
-      "changes": { "segments": { "entered": [{ "id": "user_segment_1" }] }
+      "changes": { "segments": { "entered": [{ "id": "user_segment_1" }, { "id": "user_segment_3" }] }
       },
       "account": {},
       "user": {
@@ -31,7 +31,7 @@ describe("Outgoing User Entered Segment Filtering Tests", () => {
       },
       "events": [],
       "account_segments": [],
-      "segments": [],
+      "segments": [{ "id": "user_segment_1" }],
       "message_id": "message_1"
     };
     const triggers = getEntityTriggers(context, message);
@@ -44,7 +44,7 @@ describe("Outgoing User Entered Segment Filtering Tests", () => {
       "account": {},
       "user": { "id": "1" },
       "account_segments": [],
-      "segments": [],
+      "segments": [{ "id": "user_segment_1" }],
       "message_id": "message_1"
     });
     expect(serviceAction.webhook).toEqual("https://hooks.zapier.com/hooks/standard/5687326/user-entered-segment/1");
@@ -78,7 +78,7 @@ describe("Outgoing User Entered Segment Filtering Tests", () => {
       },
       "events": [],
       "account_segments": [],
-      "segments": [],
+      "segments": [{ "id": "user_segment_1" }, { "id": "user_segment_2" }],
       "message_id": "message_1"
     };
     const triggers = getEntityTriggers(context, message);
@@ -91,7 +91,7 @@ describe("Outgoing User Entered Segment Filtering Tests", () => {
       "account": {},
       "user": { "id": "1" },
       "account_segments": [],
-      "segments": [],
+      "segments": [{ "id": "user_segment_1" }, { "id": "user_segment_2" }],
       "message_id": "message_1"
     });
     expect(serviceAction.webhook).toEqual("https://hooks.zapier.com/hooks/standard/5687326/user-entered-segment/1");
@@ -154,7 +154,7 @@ describe("Outgoing User Entered Segment Filtering Tests", () => {
       },
       "events": [],
       "account_segments": [],
-      "segments": [],
+      "segments": [{ "id": "user_segment_1", "name": "1" }, { "id": "user_segment_2", "name": "2" }, { "id": "user_segment_4", "name": "4" }],
       "message_id": "message_1"
     };
     const triggers = getEntityTriggers(context, message);
@@ -167,7 +167,7 @@ describe("Outgoing User Entered Segment Filtering Tests", () => {
       "account": {},
       "user": { "id": "1" },
       "account_segments": [],
-      "segments": [],
+      "segments": [{ "id": "user_segment_1", "name": "1" }, { "id": "user_segment_2", "name": "2" }, { "id": "user_segment_4", "name": "4" }],
       "message_id": "message_1"
     });
     expect(serviceAction.webhook).toEqual("https://hooks.zapier.com/hooks/standard/5687326/user-entered-segment/1");
@@ -237,7 +237,7 @@ describe("Outgoing User Left Segment Filtering Tests", () => {
       },
       "events": [],
       "account_segments": [],
-      "segments": [],
+      "segments": [{ "id": "user_segment_2" }],
       "message_id": "message_1"
     };
     const triggers = getEntityTriggers(context, message);
@@ -250,7 +250,7 @@ describe("Outgoing User Left Segment Filtering Tests", () => {
       "account": {},
       "user": { "id": "1" },
       "account_segments": [],
-      "segments": [],
+      "segments": [{ "id": "user_segment_2" }],
       "message_id": "message_1"
     });
     expect(serviceAction.webhook).toEqual("https://hooks.zapier.com/hooks/standard/5687326/user-left-segment/1");
@@ -280,7 +280,7 @@ describe("Outgoing User Left Segment Filtering Tests", () => {
       },
       "events": [],
       "account_segments": [],
-      "segments": [],
+      "segments": [{ "id": "user_segment_3" }],
       "message_id": "message_1"
     };
     const triggers = getEntityTriggers(context, message);
@@ -293,7 +293,7 @@ describe("Outgoing User Left Segment Filtering Tests", () => {
       "account": {},
       "user": { "id": "1" },
       "account_segments": [],
-      "segments": [],
+      "segments": [{ "id": "user_segment_3" }],
       "message_id": "message_1"
     });
     expect(serviceAction.webhook).toEqual("https://hooks.zapier.com/hooks/standard/5687326/user-left-segment/1");
@@ -797,7 +797,7 @@ describe("Outgoing User Created Filtering Tests", () => {
               webhook: "https://hooks.zapier.com/hooks/standard/5687326/user-created/1"
             },
             inputData: {
-              is_new: true,
+              is_new_user: true,
               user_segments: [ "user_segment_1" ]
             }
           }
@@ -844,7 +844,7 @@ describe("Outgoing User Created Filtering Tests", () => {
               webhook: "https://hooks.zapier.com/hooks/standard/5687326/user-created/1"
             },
             inputData: {
-              is_new: true,
+              is_new_user: true,
               user_segments: [ "user_segment_1" ]
             }
           }
@@ -880,7 +880,7 @@ describe("Outgoing User Created Filtering Tests", () => {
               webhook: "https://hooks.zapier.com/hooks/standard/5687326/user-created/1"
             },
             inputData: {
-              is_new: true,
+              is_new_user: true,
               user_segments: [ "user_segment_1" ]
             }
           }

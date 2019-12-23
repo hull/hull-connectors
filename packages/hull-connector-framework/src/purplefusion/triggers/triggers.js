@@ -14,94 +14,112 @@ const {
   required,
 } = require("./validations");
 
+const {
+  filterSegments,
+  filterAttributeChanges,
+  filterEvents,
+  filterNew,
+  filterNone
+} = require("./filters");
+
 const triggers = {
   user_segments: {
     type: HullUserSegmentChangedTrigger,
-    filter: [
-      "segments"
-    ],
+    filters: {
+      "segments": [filterNone]
+    },
     validations: {
       "segments": [validateSegments]
     }
   },
   entered_user_segments: {
     type: HullUserSegmentChangedTrigger,
-    filter: [
-      "changes.segments.entered"
-    ],
+    filters: {
+      "changes.segments.entered": [filterSegments]
+    },
     validations: {
       "changes.segments.entered": [required, validateSegments]
     }
   },
   left_user_segments: {
     type: HullUserSegmentChangedTrigger,
-    filter: [
-      "changes.segments.left"
-    ],
+    filters: {
+      "changes.segments.left": [filterSegments]
+    },
     validations: {
       "changes.segments.left": [required, validateSegments]
     }
   },
   user_attribute_updated: {
     type: HullUserAttributeChangedTrigger,
-    filter: [
-      "changes.user"
-    ],
+    filters: {
+      "changes.user": [filterAttributeChanges]
+    },
     validations: {
       "changes.user": [required, validateChanges]
     }
   },
   user_events: {
     type: HullUserEventTrigger,
-    filter: [
-      "events"
-    ],
+    filters: {
+      "events": [filterEvents]
+    },
     validations: {
       "events": [validateEvents]
     }
   },
-  is_new: {
+  is_new_user: {
     type: EntityCreatedTrigger,
-    filter: [
-      "changes.is_new"
-    ],
+    filters: {
+      "changes.is_new": [filterNew]
+    },
     validations: {
+      user: [required],
+      changes: { is_new: true },
+    }
+  },
+  is_new_account: {
+    type: EntityCreatedTrigger,
+    filters: {
+      "changes.is_new": [filterNew]
+    },
+    validations: {
+      account: [required],
       changes: { is_new: true }
     }
   },
-
   account_segments: {
     type: HullUserSegmentChangedTrigger,
-    filter: [
-      "account_segments"
-    ],
+    filters: {
+      "account_segments": [filterNone]
+    },
     validations: {
       "account_segments": [validateSegments]
     }
   },
   account_attribute_updated: {
     type: HullAccountAttributeChangedTrigger,
-    filter: [
-      "changes.account"
-    ],
+    filters: {
+      "changes.account": [filterAttributeChanges]
+    },
     validations: {
       "changes.account": [required, validateChanges]
     }
   },
   entered_account_segments: {
     type: HullAccountSegmentChangedTrigger,
-    filter: [
-      "changes.account_segments.entered"
-    ],
+    filters: {
+      "changes.account_segments.entered": [filterSegments]
+    },
     validations: {
       "changes.account_segments.entered": [required, validateSegments]
     }
   },
   left_account_segments: {
     type: HullAccountSegmentChangedTrigger,
-    filter: [
-      "changes.account_segments.left"
-    ],
+    filters: {
+      "changes.account_segments.left": [filterSegments]
+    },
     validations: {
       "changes.account_segments.left": [required, validateSegments]
     }

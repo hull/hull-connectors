@@ -73,14 +73,14 @@ const glue = {
                     $[$contains(entityType, /user$/)].$[($contains(action, "attribute_updated"))].{"user_attribute_updated": inputData.user_attributes},
                     $[$contains(entityType, /user$/)].$[$contains(action, "entered_segment")].{"entered_user_segments": inputData.user_segments},
                     $[$contains(entityType, /user$/)].$[$contains(action, "left_segment")].{"left_user_segments": inputData.user_segments},
-                    $[$contains(entityType, /user$/)].$[$contains(action, "created")].{"is_new": true},
+                    $[$contains(entityType, /user$/)].$[$contains(action, "created")].{"is_new_user": true},
                     $[$contains(entityType, /user_event$/)].$[$contains(action, "created")].{"user_events": inputData.user_events},
 
                     $[$contains(entityType, /account$/)].$[$not($contains(action, "entered_segment"))].$[$not($contains(action, "left_segment"))].{"account_segments": inputData.account_segments},
                     $[$contains(entityType, /account$/)].$[($contains(action, "attribute_updated"))].{"account_attribute_updated": inputData.account_attributes},
                     $[$contains(entityType, /account$/)].$[$contains(action, "entered_segment")].{"entered_account_segments": inputData.account_segments},
                     $[$contains(entityType, /account$/)].$[$contains(action, "left_segment")].{"left_account_segments": inputData.account_segments},
-                    $[$contains(entityType, /account$/)].$[$contains(action, "created")].{"is_new": true}
+                    $[$contains(entityType, /account$/)].$[$contains(action, "created")].{"is_new_account": true}
                    ])
               }
           ])`, input("body"))),
@@ -115,7 +115,7 @@ const glue = {
       hull("asAccount", jsonata(`$.{"ident": {"external_id": claims.external_id, "domain": claims.domain}, "attributes": attributes}`, input("body")))
     ]),
     ifL(cond("isEqual", "${entityType}", "user"), [
-      set("RESPONSE", hull("asUser", jsonata(`$.{"ident": {"external_id": claims.external_id, "email": claims.email}, "attributes": attributes}`, input("body"))))
+      hull("asUser", jsonata(`$.{"ident": {"external_id": claims.external_id, "email": claims.email}, "attributes": attributes}`, input("body")))
     ]),
     ifL(cond("isEqual", "${entityType}", "user_event"), [
       hull("asUser", jsonata(`{"ident":{"external_id": claims.external_id, "email": claims.email},"attributes": attributes, "events": [$merge({"eventName": event_name, "context": {"source": "zapier"}, "properties": properties})]}`, input("body")))

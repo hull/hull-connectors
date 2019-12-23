@@ -7,8 +7,37 @@ const {
   HullOutgoingAccount
 } = require("../hull-service-objects");
 const { setHullDataType } = require("../utils");
-const { filter } = require("./filter");
+const { filterMessage } = require("./filters");
 const { isValidTrigger } = require("./validations");
+
+function getCleanedMessage(message: Object, triggerInputData: Object): Array<string> {
+
+  const standardFilter = _.concat(
+    !_.isEmpty(_.get(message, "user", {})) ? [ "user", "segments" ] : [],
+    [ "account", "account_segments", "message_id"]
+  );
+  let filteredEntity = _.pick(message, standardFilter);
+
+  _.forEach(_.keys(triggerInputData), action => {
+    const whitelist = _.get(triggerInputData, action);
+
+    if (_.isNil(action) || _.isEmpty(action)) {
+      return {};
+    }
+
+    const triggerDefinition = _.get(triggers, action, {});
+
+    const { filters } = triggerDefinition;
+
+    const filteredEntity = filterMessage(message, filters, whitelist);
+
+    _.reduce(filters, (result, value, key) => {
+      _.set(result, key, _.get(filteredEntity, key));
+    }, filteredEntity);
+  });
+
+  return filteredEntity;
+}
 
 function getEntityTriggers(context: Object, entity: Object): Array<string> {
   const filteredTriggers = [];
@@ -17,7 +46,7 @@ function getEntityTriggers(context: Object, entity: Object): Array<string> {
     if (isValidTrigger(triggers, entity, activeTrigger.inputData)) {
       const rawEntity = entity;
 
-      const cleanedEntity = filter(entity, activeTrigger.inputData);
+      const cleanedEntity = getCleanedMessage(entity, activeTrigger.inputData);
 
       let entityDataType = null;
       if (!_.isEmpty(_.get(entity, "user"))) {
@@ -41,6 +70,8 @@ function getEntityTriggers(context: Object, entity: Object): Array<string> {
   return filteredTriggers;
 }
 
+
 module.exports = {
-  getEntityTriggers
+  getEntityTriggers,
+  getCleanedMessage
 };

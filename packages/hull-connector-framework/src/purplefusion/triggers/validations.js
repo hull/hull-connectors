@@ -66,7 +66,7 @@ const isValidMessage = (message: Object, validations: Object, whitelist: Array<s
   return valid;
 };
 
-const isValidTrigger = (triggerDefinitions, message, triggerInputData): boolean => {
+const isValidTrigger = (triggerDefinitions: Object, message: Object, triggerInputData: Object): boolean => {
   let valid = true;
   _.forEach(_.keys(triggerInputData), action => {
 

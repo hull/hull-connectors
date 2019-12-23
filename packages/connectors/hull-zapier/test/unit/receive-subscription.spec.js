@@ -218,7 +218,7 @@ describe("Zapier Subscription Tests", () => {
             "webhook": "https://hooks.zapier.com/hooks/standard/1/1/"
           },
           "inputData": {
-            "is_new": true,
+            "is_new_user": true,
             "user_segments": [ "segment_1" ]
           }
         }
@@ -329,7 +329,7 @@ describe("Zapier Subscription Tests", () => {
             "webhook": "https://hooks.zapier.com/hooks/standard/1/1/"
           },
           "inputData": {
-            "is_new": true,
+            "is_new_account": true,
             "account_segments": [ "segment_1" ]
           }
         }

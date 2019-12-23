@@ -19,7 +19,7 @@ describe("Outgoing Users Tests", () => {
               webhook: "https://hooks.zapier.com/hooks/standard/5687326/user-created/1"
             },
             inputData: {
-              is_new: true,
+              is_new_user: true,
               user_segments: [ "user_segment_1", "user_segment_3" ]
             }
           }
@@ -475,7 +475,7 @@ describe("Outgoing Users Tests", () => {
               webhook: "https://hooks.zapier.com/hooks/standard/5687326/user-created/1"
             },
             inputData: {
-              is_new: true,
+              is_new_user: true,
               user_segments: [ "user_segment_1", "user_segment_3" ]
             }
           },
@@ -484,7 +484,7 @@ describe("Outgoing Users Tests", () => {
               webhook: "https://hooks.zapier.com/hooks/standard/5687326/user-created/2"
             },
             inputData: {
-              is_new: true,
+              is_new_user: true,
               user_segments: ["user_segment_2", "user_segment_500"]
             }
           },
@@ -501,7 +501,7 @@ describe("Outgoing Users Tests", () => {
               webhook: "https://hooks.zapier.com/hooks/standard/5687326/user-entered-segment/1"
             },
             inputData: {
-              entered_user_segments: [ "user_segment_112341234", "user_segment_212341324" ]
+              entered_user_segments: [ "all_segments" ]
             }
           },
           {
@@ -518,7 +518,7 @@ describe("Outgoing Users Tests", () => {
               webhook: "https://hooks.zapier.com/hooks/standard/5687326/user-created/3"
             },
             inputData: {
-              is_new: true,
+              is_new_user: true,
               user_segments: [ "user_segment_6", "user_segment_7" ]
             }
           }
@@ -527,7 +527,11 @@ describe("Outgoing Users Tests", () => {
       const message1 =
         {
           "changes": {
-            "is_new": true
+            "is_new": true,
+            "user": {},
+            "account": {},
+            "segments": {},
+            "account_segments": {}
           },
           "account": {},
           "user": {

@@ -375,7 +375,7 @@ describe("Outgoing Account Tests", () => {
               webhook: "https://hooks.zapier.com/hooks/standard/5687326/account-created/1"
             },
             inputData: {
-              is_new: true,
+              is_new_account: true,
               account_segments: [ "account_segment_1", "account_segment_3" ]
             }
           },
@@ -384,7 +384,7 @@ describe("Outgoing Account Tests", () => {
               webhook: "https://hooks.zapier.com/hooks/standard/5687326/account-created/2"
             },
             inputData: {
-              is_new: true,
+              is_new_account: true,
               account_segments: ["account_segment_2", "account_segment_500"]
             }
           }
