@@ -33,6 +33,7 @@ function getCleanedMessage(message: Object, inputData: Object): Array<string> {
 
     _.reduce(filters, (result, value, key) => {
       _.set(result, key, _.get(filteredSubEntity, key));
+      return result;
     }, filteredEntity);
   });
 
