@@ -40,12 +40,6 @@ const filterEntity = (entity: Object, rules: Array<Object>, whitelist: Array<str
     if (!_.isFunction(rule) && _.isObject(rule)) {
       filteredSubEntity = _.filter([filteredSubEntity], rule);
     }
-
-    if (_.isBoolean(rule) || _.isString(rule)) {
-      if (whitelist === rule) {
-        filteredSubEntity = entity;
-      }
-    }
   });
   return filteredSubEntity;
 };
