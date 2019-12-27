@@ -1,7 +1,6 @@
 /* @flow */
 
 const _ = require("lodash");
-const { triggers } = require("./triggers");
 const {
   HullOutgoingUser,
   HullOutgoingAccount
@@ -9,8 +8,9 @@ const {
 const { setHullDataType } = require("../utils");
 const { filterMessage } = require("./filters");
 const { isValidTrigger } = require("./validations");
+const triggerDefinitions = require("./triggers");
 
-function getCleanedMessage(message: Object, inputData: Object): Array<string> {
+function getCleanedMessage(message: Object, inputData: Object, triggers: Object): Array<string> {
 
   const standardFilter = _.concat(
     !_.isEmpty(_.get(message, "user", {})) ? [ "user", "segments" ] : [],
@@ -41,13 +41,14 @@ function getCleanedMessage(message: Object, inputData: Object): Array<string> {
 }
 
 function getEntityTriggers(context: Object, entity: Object): Array<string> {
+  const { triggers } = triggerDefinitions;
   const filteredTriggers = [];
 
   _.forEach(_.get(context, "connector.private_settings.triggers", []), activeTrigger => {
     if (isValidTrigger(triggers, entity, activeTrigger.inputData)) {
       const rawEntity = entity;
 
-      const cleanedEntity = getCleanedMessage(entity, activeTrigger.inputData);
+      const cleanedEntity = getCleanedMessage(entity, activeTrigger.inputData, triggers);
 
       let entityDataType = null;
       if (!_.isEmpty(_.get(entity, "user"))) {
