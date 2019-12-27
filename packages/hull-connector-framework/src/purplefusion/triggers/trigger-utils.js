@@ -10,7 +10,7 @@ const { setHullDataType } = require("../utils");
 const { filterMessage } = require("./filters");
 const { isValidTrigger } = require("./validations");
 
-function getCleanedMessage(message: Object, triggerInputData: Object): Array<string> {
+function getCleanedMessage(message: Object, inputData: Object): Array<string> {
 
   const standardFilter = _.concat(
     !_.isEmpty(_.get(message, "user", {})) ? [ "user", "segments" ] : [],
@@ -18,8 +18,8 @@ function getCleanedMessage(message: Object, triggerInputData: Object): Array<str
   );
   let filteredEntity = _.pick(message, standardFilter);
 
-  _.forEach(_.keys(triggerInputData), action => {
-    const whitelist = _.get(triggerInputData, action);
+  _.forEach(_.keys(inputData), action => {
+    const whitelist = _.get(inputData, action);
 
     if (_.isNil(action) || _.isEmpty(action)) {
       return {};
@@ -29,10 +29,10 @@ function getCleanedMessage(message: Object, triggerInputData: Object): Array<str
 
     const { filters } = triggerDefinition;
 
-    const filteredEntity = filterMessage(message, filters, whitelist);
+    const filteredSubEntity = filterMessage(message, filters, whitelist);
 
     _.reduce(filters, (result, value, key) => {
-      _.set(result, key, _.get(filteredEntity, key));
+      _.set(result, key, _.get(filteredSubEntity, key));
     }, filteredEntity);
   });
 

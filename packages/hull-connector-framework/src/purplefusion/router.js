@@ -15,11 +15,11 @@ const {
 } = require("./hull-service-objects");
 
 const { HullDispatcher } = require("./dispatcher");
+const { getEntityTriggers } = require("./triggers/trigger-utils");
 
 const { hullService } = require("./hull-service");
 
 const { toSendMessage } = require("./utils");
-const { getEntityTriggers } = require("./triggers/trigger-utils");
 const { statusCallback, statusErrorCallback, resolveServiceDefinition } = require("./router-utils");
 const { getServiceOAuthParams } = require("./auth/auth-utils");
 
@@ -129,51 +129,37 @@ class HullRouter {
       const connectorOptions = _.get(context, "connectorConfig.options", {});
       const isTrigger = _.get(connectorOptions, "outgoingMechanism", "sync") === "trigger" && direction === "outgoing";
 
-      let dispatchPromises = [];
       if (isTrigger && (objectType === HullOutgoingUser || objectType === HullOutgoingAccount)) {
-        const dataToSend = Array.isArray(data) ? data : [data];
-        _.forEach(dataToSend, message => {
+        return this.dispatchTrigger(context, dispatcher, objectType, data);
+      }
 
-          const triggers = getEntityTriggers(context, message);
+      let dataToSend;
+      const dataToSkip = [];
 
-          _.forEach(triggers, (trigger) => {
-            dispatchPromises.push(dispatcher.dispatchWithData(context, "performTrigger", objectType, [ trigger ]));
-          });
+      if (Array.isArray(data) && (objectType === HullOutgoingUser || objectType === HullOutgoingAccount)) {
+        dataToSend = [];
+        // break up data and send one by one
+        _.forEach(data, message => {
+          if (toSendMessage(context, _.toLower(objectType.name), message, { serviceName: this.serviceName })) {
+            dataToSend.push(message);
+          } else {
+            dataToSkip.push(message);
+          }
         });
+      } else {
+        dataToSend = data;
       }
 
-      if (!isTrigger) {
+      // I like getting rid of the splitting here, and always passing in the data
+      // glue can handle the split if needed
+      // TODO need to test sending an empty array, or decide if we need extra logic here...
+      let dispatchPromise = dispatcher.dispatchWithData(context, route, objectType, dataToSend);
 
-        let dataToSend;
-        const dataToSkip = [];
-
-        if (Array.isArray(data) && (objectType === HullOutgoingUser || objectType === HullOutgoingAccount)) {
-          dataToSend = [];
-          // break up data and send one by one
-          _.forEach(data, message => {
-            if (toSendMessage(context, _.toLower(objectType.name), message)) {
-              dataToSend.push(message);
-            } else {
-              dataToSkip.push(message);
-            }
-          });
-        } else {
-          dataToSend = data;
-        }
-
-        // I like getting rid of the splitting here, and always passing in the data
-        // glue can handle the split if needed
-        // TODO need to test sending an empty array, or decide if we need extra logic here...
-        let dispatchPromise = dispatcher.dispatchWithData(context, route, objectType, dataToSend);
-
-        if (this.filteredMessageCallback) {
-          dispatchPromise = this.filteredMessageCallback(context, dispatcher, dispatchPromise, objectType, dataToSkip);
-        }
-
-        dispatchPromises = [ dispatchPromise ];
+      if (this.filteredMessageCallback) {
+        dispatchPromise = this.filteredMessageCallback(context, dispatcher, dispatchPromise, objectType, dataToSkip);
       }
 
-      return Promise.all(dispatchPromises)
+      return dispatchPromise
         .then(results => {
           dispatcher.close();
 
@@ -205,7 +191,40 @@ class HullRouter {
     };
   }
 
+  dispatchTrigger(context: Object, dispatcher: HullDispatcher, objectType: ServiceObjectDefinition, data: Object) {
 
+    let triggerPromises = [];
+
+    const dataToSend = Array.isArray(data) ? data : [data];
+    _.forEach(dataToSend, message => {
+
+      const triggers = getEntityTriggers(context, message);
+
+      _.forEach(triggers, (trigger) => {
+        triggerPromises.push(dispatcher.dispatchWithData(context, "performTrigger", objectType, [ trigger ]));
+      });
+    });
+
+    return Promise.all(triggerPromises)
+      .then(results => {
+        dispatcher.close();
+
+        context.client.logger.info("outgoing.job.success", {
+          jobName: "Outgoing Data",
+          type: _.toLower(objectType.name)
+        });
+        return Promise.resolve(results);
+      }).catch(error => {
+        dispatcher.close();
+
+        context.client.logger.error("outgoing.job.error", {
+          jobName: "Outgoing Data",
+          error: error.message,
+          type: _.toLower(objectType.name)
+        });
+        return Promise.reject(error);
+      });
+  }
 }
 
 module.exports = HullRouter;
