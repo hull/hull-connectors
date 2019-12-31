@@ -5,7 +5,8 @@
     "batch",
     "batch-accounts",
     "smart-notifier",
-    "kraken-exports"
+    "kraken-exports",
+    "first-install"
   ],
   "logo": "logo.png",
   "picture": "picture.png",
