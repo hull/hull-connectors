@@ -508,8 +508,8 @@ class MappingUtil {
           ) {
             val = val.split(";");
           }
-          traits[hullTraitName] = val;
         }
+        traits[hullTraitName] = val;
 
         return traits;
       },
