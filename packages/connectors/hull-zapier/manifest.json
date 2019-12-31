@@ -5,7 +5,8 @@
     "batch",
     "batch-accounts",
     "smart-notifier",
-    "kraken-exports"
+    "kraken-exports",
+    "first-install"
   ],
   "logo": "logo.png",
   "picture": "picture.png",
@@ -94,7 +95,7 @@
     },
     {
       "title": "Credentials",
-      "description": "Copy this token and paste it when in the Zapier authentication window",
+      "description": "Copy this token and paste it in the Zapier authentication window",
       "step": "credentials",
       "properties": [
         "json.credentials"

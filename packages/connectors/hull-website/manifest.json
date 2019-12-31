@@ -8,7 +8,8 @@
     "smart-notifier",
     "incoming",
     "outgoing",
-    "oneColumn"
+    "oneColumn",
+    "first-install"
   ],
   "settings": [
     {

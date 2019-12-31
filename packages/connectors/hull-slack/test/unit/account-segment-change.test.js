@@ -1,26 +1,26 @@
 const { getSegmentChanges } = require("../../server/utils/get-segment-changes");
 
-describe("Slack User Entered Segment Tests", () => {
+describe("Slack Account Entered Segment Tests", () => {
 
-  it("User enters whitelisted segment. Should return event", () => {
+  it("Account enters whitelisted segment. Should return event", () => {
     const changes = {
       is_new: false,
-      account: {},
-      user: { id: "1" },
-      segments: {
+      user: {},
+      account: { id: "1" },
+      account_segments: {
         entered: [
           {
             id: "segment_1",
             name: "Segment1",
             updated_at: "2019-04-24T17:54:46Z",
-            type: "user_segment",
+            type: "account_segment",
           },
         ],
       },
-      account_segments: {}
+      segments: {},
     };
 
-    const event = "ENTERED_USER_SEGMENT";
+    const event = "ENTERED_ACCOUNT_SEGMENT";
     const synchronized_segment = "segment_1";
     const segmentMatches = getSegmentChanges({ event, synchronized_segment, changes });
 
@@ -28,43 +28,43 @@ describe("Slack User Entered Segment Tests", () => {
     expect(segmentMatches).toEqual([
       {
         "event": {
-          "event": "Entered User Segment"
+          "event": "Entered Account Segment"
         },
         "segment": {
           "id": "segment_1",
           "name": "Segment1",
           "updated_at": "2019-04-24T17:54:46Z",
-          "type": "user_segment"
+          "type": "account_segment",
         }
       }
     ]);
   });
 
-  it("User enters 'ALL' whitelisted segment. Should return multiple events", () => {
+  it("Account enters 'ALL' whitelisted segment. Should return multiple events", () => {
     const changes = {
       is_new: false,
-      account: {},
-      user: { id: "1" },
-      segments: {
+      user: {},
+      account: { id: "1" },
+      account_segments: {
         entered: [
           {
             id: "segment_1",
             name: "Segment1",
             updated_at: "2019-04-24T17:54:46Z",
-            type: "user_segment",
+            type: "account_segment",
           },
           {
             id: "segment_2",
             name: "Segment2",
             updated_at: "2019-04-24T17:54:46Z",
-            type: "user_segment",
+            type: "account_segment",
           }
         ],
       },
-      account_segments: {}
+      segments: {},
     };
 
-    const event = "ENTERED_USER_SEGMENT";
+    const event = "ENTERED_ACCOUNT_SEGMENT";
     const synchronized_segment = "ALL";
     const segmentMatches = getSegmentChanges({ event, synchronized_segment, changes });
 
@@ -72,48 +72,48 @@ describe("Slack User Entered Segment Tests", () => {
     expect(segmentMatches).toEqual([
       {
         "event": {
-          "event": "Entered User Segment"
+          "event": "Entered Account Segment"
         },
         "segment": {
           "id": "segment_1",
           "name": "Segment1",
           "updated_at": "2019-04-24T17:54:46Z",
-          "type": "user_segment"
+          "type": "account_segment",
         }
       },
       {
         "event": {
-          "event": "Entered User Segment"
+          "event": "Entered Account Segment"
         },
         "segment": {
           "id": "segment_2",
           "name": "Segment2",
           "updated_at": "2019-04-24T17:54:46Z",
-          "type": "user_segment"
+          "type": "account_segment",
         }
       }
     ]);
   });
 
-  it("User enters 'ALL' segment. Should return event", () => {
+  it("Account enters 'ALL' segment. Should return event", () => {
     const changes = {
       is_new: false,
-      account: {},
-      user: { id: "1" },
-      segments: {
+      user: {},
+      account: { id: "1" },
+      account_segments: {
         entered: [
           {
-            id: "user_segment_1",
+            id: "account_segment_1",
             name: "Smugglers",
             updated_at: "2019-04-24T17:54:46Z",
-            type: "user_segment",
+            type: "account_segment",
           },
         ],
       },
-      account_segments: {}
+      segments: {},
     };
 
-    const event = "ENTERED_USER_SEGMENT";
+    const event = "ENTERED_ACCOUNT_SEGMENT";
     const synchronized_segment = "ALL";
     const segmentMatches = getSegmentChanges({ event, synchronized_segment, changes });
 
@@ -121,37 +121,37 @@ describe("Slack User Entered Segment Tests", () => {
     expect(segmentMatches).toEqual([
       {
         "event": {
-          "event": "Entered User Segment"
+          "event": "Entered Account Segment"
         },
         "segment": {
-          "id": "user_segment_1",
+          "id": "account_segment_1",
           "name": "Smugglers",
           "updated_at": "2019-04-24T17:54:46Z",
-          "type": "user_segment"
+          "type": "account_segment",
         }
       }
     ]);
   });
 
-  it("User enters non whitelisted segment. Should not return event", () => {
+  it("Account enters non whitelisted segment. Should not return event", () => {
     const changes = {
       is_new: false,
-      account: {},
-      user: { id: "1" },
-      segments: {
+      user: {},
+      account: { id: "1" },
+      account_segments: {
         entered: [
           {
             id: "segment_1",
             name: "Segment1",
             updated_at: "2019-04-24T17:54:46Z",
-            type: "user_segment",
+            type: "account_segment",
           },
         ],
       },
-      account_segments: {}
+      segments: {},
     };
 
-    const event = "ENTERED_USER_SEGMENT";
+    const event = "ENTERED_ACCOUNT_SEGMENT";
     const synchronized_segment = "random";
     const segmentMatches = getSegmentChanges({ event, synchronized_segment, changes });
 
@@ -160,27 +160,27 @@ describe("Slack User Entered Segment Tests", () => {
   });
 });
 
-describe("Slack User Left Segment Tests", () => {
+describe("Slack Account Left Segment Tests", () => {
 
-  it("User left whitelisted segment. Should return event", () => {
+  it("Account left whitelisted segment. Should return event", () => {
     const changes = {
       is_new: false,
-      account: {},
-      user: { id: "1" },
-      segments: {
+      user: {},
+      account: { id: "1" },
+      account_segments: {
         left: [
           {
             id: "segment_1",
             name: "Segment1",
             updated_at: "2019-04-24T17:54:46Z",
-            type: "user_segment",
+            type: "account_segment",
           },
         ],
       },
-      account_segments: {}
+      segments: {},
     };
 
-    const event = "LEFT_USER_SEGMENT";
+    const event = "LEFT_ACCOUNT_SEGMENT";
     const synchronized_segment = "segment_1";
     const segmentMatches = getSegmentChanges({ event, synchronized_segment, changes });
 
@@ -188,43 +188,43 @@ describe("Slack User Left Segment Tests", () => {
     expect(segmentMatches).toEqual([
       {
         "event": {
-          "event": "Left User Segment"
+          "event": "Left Account Segment"
         },
         "segment": {
           "id": "segment_1",
           "name": "Segment1",
           "updated_at": "2019-04-24T17:54:46Z",
-          "type": "user_segment"
+          "type": "account_segment",
         }
       }
     ]);
   });
 
-  it("User leaves 'ALL' whitelisted segment. Should return multiple events", () => {
+  it("Account leaves 'ALL' whitelisted segment. Should return multiple events", () => {
     const changes = {
       is_new: false,
-      account: {},
-      user: { id: "1" },
-      segments: {
+      user: {},
+      account: { id: "1" },
+      account_segments: {
         left: [
           {
             id: "segment_1",
             name: "Segment1",
             updated_at: "2019-04-24T17:54:46Z",
-            type: "user_segment",
+            type: "account_segment",
           },
           {
             id: "segment_2",
             name: "Segment2",
             updated_at: "2019-04-24T17:54:46Z",
-            type: "user_segment",
+            type: "account_segment",
           }
         ],
       },
-      account_segments: {}
+      segments: {},
     };
 
-    const event = "LEFT_USER_SEGMENT";
+    const event = "LEFT_ACCOUNT_SEGMENT";
     const synchronized_segment = "ALL";
     const segmentMatches = getSegmentChanges({ event, synchronized_segment, changes });
 
@@ -232,48 +232,48 @@ describe("Slack User Left Segment Tests", () => {
     expect(segmentMatches).toEqual([
       {
         "event": {
-          "event": "Left User Segment"
+          "event": "Left Account Segment"
         },
         "segment": {
           "id": "segment_1",
           "name": "Segment1",
           "updated_at": "2019-04-24T17:54:46Z",
-          "type": "user_segment"
+          "type": "account_segment",
         }
       },
       {
         "event": {
-          "event": "Left User Segment"
+          "event": "Left Account Segment"
         },
         "segment": {
           "id": "segment_2",
           "name": "Segment2",
           "updated_at": "2019-04-24T17:54:46Z",
-          "type": "user_segment"
+          "type": "account_segment",
         }
       }
     ]);
   });
 
-  it("User leaves 'ALL' segment. Should return event", () => {
+  it("Account leaves 'ALL' segment. Should return event", () => {
     const changes = {
       is_new: false,
-      account: {},
-      user: { id: "1" },
-      segments: {
+      user: {},
+      account: { id: "1" },
+      account_segments: {
         left: [
           {
-            id: "user_segment_1",
+            id: "account_segment_1",
             name: "Smugglers",
             updated_at: "2019-04-24T17:54:46Z",
-            type: "user_segment",
+            type: "account_segment",
           },
         ],
       },
-      account_segments: {}
+      segments: {},
     };
 
-    const event = "LEFT_USER_SEGMENT";
+    const event = "LEFT_ACCOUNT_SEGMENT";
     const synchronized_segment = "ALL";
     const segmentMatches = getSegmentChanges({ event, synchronized_segment, changes });
 
@@ -281,37 +281,37 @@ describe("Slack User Left Segment Tests", () => {
     expect(segmentMatches).toEqual([
       {
         "event": {
-          "event": "Left User Segment"
+          "event": "Left Account Segment"
         },
         "segment": {
-          "id": "user_segment_1",
+          "id": "account_segment_1",
           "name": "Smugglers",
           "updated_at": "2019-04-24T17:54:46Z",
-          "type": "user_segment"
+          "type": "account_segment",
         }
       }
     ]);
   });
 
-  it("User leaves non whitelisted segment. Should not return event", () => {
+  it("Account leaves non whitelisted segment. Should not return event", () => {
     const changes = {
       is_new: false,
-      account: {},
-      user: { id: "1" },
-      segments: {
+      user: {},
+      account: { id: "1" },
+      account_segments: {
         left: [
           {
             id: "segment_1",
             name: "Segment1",
             updated_at: "2019-04-24T17:54:46Z",
-            type: "user_segment",
+            type: "account_segment",
           },
         ],
       },
-      account_segments: {}
+      segments: {},
     };
 
-    const event = "LEFT_USER_SEGMENT";
+    const event = "LEFT_ACCOUNT_SEGMENT";
     const synchronized_segment = "random";
     const segmentMatches = getSegmentChanges({ event, synchronized_segment, changes });
 
