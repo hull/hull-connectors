@@ -19,12 +19,12 @@ import type {
 const _ = require("lodash");
 const moment = require("moment");
 const debug = require("debug")("hull-hubspot:sync-agent");
-const { contactMetaGroup } = require("./sync-agent/contact-meta-group");
 
 const { pipeStreamToPromise } = require("hull/src/utils");
 const {
   toSendMessage
 } = require("hull-connector-framework/src/purplefusion/utils");
+const { contactMetaGroup } = require("./sync-agent/contact-meta-group");
 
 const HubspotClient = require("./hubspot-client");
 const ContactPropertyUtil = require("./sync-agent/contact-property-util");
