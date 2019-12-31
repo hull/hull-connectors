@@ -1,7 +1,7 @@
 /* @flow */
 const _ = require("lodash");
 
-const { performTransformation } = require("../../src/purplefusion/transform-utils");
+const { performTransformation } = require("../../src/purplefusion/transform-atomic-reaction");
 const { setHullDataType } = require("../../src/purplefusion/utils");
 const HullVariableContext = require("../../src/purplefusion/variable-context");
 const { TransformImpl } = require("../../src/purplefusion/transform-impl");
