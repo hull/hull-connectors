@@ -29,6 +29,18 @@ class FrameworkUtils {
     return organization;
   }
 
+  getConnectorId(context: Object, params: any): string {
+    const client = context.client;
+    const { id } = client.configuration();
+    return id;
+  }
+
+  getConnectorSecret(context: Object, params: any): string {
+    const client = context.client;
+    const { secret } = client.configuration();
+    return secret;
+  }
+
   moment(context: Object): Object {
     return momentConstructor();
   }

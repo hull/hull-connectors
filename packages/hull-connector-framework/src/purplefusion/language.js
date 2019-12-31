@@ -581,6 +581,7 @@ module.exports = {
   loopEndL,
   filterL,
   settings,
+  settingsSet,
   settingsUpdate,
   cacheWrap,
   cacheSet,

@@ -10,7 +10,7 @@ const {
   input,
   Svc,
   settings,
-  settingsUpdate,
+  settingsSet,
   cacheWrap,
   cacheDel,
   returnValue,
@@ -19,12 +19,16 @@ const {
   ld,
   ex,
   cast,
-  utils
+  utils,
+  not,
+  moment
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
   HullIncomingDropdownOption,
-  HullConnectorAttributeDefinition
+  HullConnectorAttributeDefinition,
+  HullIncomingUser,
+  HullIncomingAccount
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const {
@@ -67,9 +71,19 @@ function ensureWebhook(webhookAttribute, webhookTruthy) {
     ),
 
     ifL(cond("isEmpty", `\${${webhookAttribute}}`),
-      set(webhookAttribute, coppercrm("createWebhook", { target: "${webhookUrl}", ...webhookTruthy }))
+      set(webhookAttribute, coppercrm("createWebhook",
+        {
+          target: "${webhookUrl}",
+          secret: {
+            organization: utils("getConnectorOrganization"),
+            ship: utils("getConnectorId"),
+            secret: utils("getConnectorSecret")
+          },
+          ...webhookTruthy
+        }))
     ),
-    settingsUpdate({ [webhookIdAttribute]: `\${${webhookAttribute}.id}` })
+    settingsSet(webhookIdAttribute, `\${${webhookAttribute}.id}`),
+    set(`settingsWebhookIds.${webhookIdAttribute}`, `\${${webhookAttribute}.id}`)
   ])
 }
 
@@ -106,21 +120,25 @@ const glue = {
   //don't do anything on ship update
   shipUpdate: {},
 
-  webhooks: ifL(cond("isEqual", input("event"), "delete"),
+  webhooks: route("handleWebhook", input("body")),
+  handleWebhook: ifL(cond("isEqual", input("event"), "delete"),
     ifL(cond("isEqual", input("type"), "lead"), {
       do: [
         // have to set service_name, because it's the value we try to use as a prefix for deleted_at
         set("service_name", "coppercrm_lead"),
-        iterateL(input("ids"), "id", hull("userDeletedInService", { ident: { anonymous_id: "coppercrm-lead:lead-${id}" } }))
+        iterateL(input("ids"), "id", hull("userDeletedInService",
+          cast(HullIncomingUser, { ident: { anonymous_id: "coppercrm-lead:lead-${id}" }, attributes: { "${service_name}/deleted_at": ex(moment(), "valueOf") } })))
       ],
       elif: [
         ifL(cond("isEqual", input("type"), "person"),[
           // have to set service_name, because it's the value we try to use as a prefix for deleted_at
           set("service_name", "coppercrm_person"),
-          iterateL(input("ids"), "id", hull("userDeletedInService", { ident: { anonymous_id: "coppercrm-person:person-${id}" } }))
+          iterateL(input("ids"), "id", hull("userDeletedInService",
+            cast(HullIncomingUser, { ident: { anonymous_id: "coppercrm-person:person-${id}" }, attributes: { "${service_name}/deleted_at": ex(moment(), "valueOf") }  })))
         ]),
         ifL(cond("isEqual", input("type"), "account"),
-          iterateL(input("ids"), "id", hull("accountDeletedInService", { ident: { anonymous_id: "coppercrm:${id}" } }))
+          iterateL(input("ids"), "id", hull("accountDeletedInService",
+            cast(HullIncomingAccount, { ident: { anonymous_id: "coppercrm:${id}" }, attributes: { "${service_name}/deleted_at": ex(moment(), "valueOf") }  })))
         )
       ]
     })
@@ -300,10 +318,11 @@ const glue = {
 
   createDeleteWebhooks: [
     set("webhookUrl", utils("createWebhookUrl")),
-    ensureWebhook("deleteLeadWebhook", { type: "lead", event: "delete" }),
-    ensureWebhook("deletePersonWebhook", { type: "person", event: "delete" }),
-    ensureWebhook("deleteCompanyWebhook", { type: "company", event: "delete" }),
-    ensureWebhook("deleteOpportunityWebhook", { type: "opportunity", event: "delete" }),
+    // ensureWebhook("deleteLeadWebhook", { type: "lead", event: "delete" }),
+    // ensureWebhook("deletePersonWebhook", { type: "person", event: "delete" }),
+    // ensureWebhook("deleteCompanyWebhook", { type: "company", event: "delete" }),
+    // ensureWebhook("deleteOpportunityWebhook", { type: "opportunity", event: "delete" }),
+    // ifL(not(cond("isEmpty", "${settingsWebhookIds}")), hull("settingsUpdate", "${settingsWebhookIds}"))
   ]
 
 

@@ -248,8 +248,8 @@ const transformsToHull: ServiceTransforms = [
         attribute: "lossReason",
         attributeId: "loss_reason_id",
         attributeList: "incoming_opportunity_attributes",
-        route: "getLossReason",
-        forceRoute: "forceGetLossReason"
+        route: "getLossReasons",
+        forceRoute: "forceGetLossReasons"
       }),
       createEnumTransformWithAttributeList({
         attribute: "pipeline",

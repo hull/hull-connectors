@@ -228,7 +228,7 @@ module.exports = {
               { "custom_field_definition_id": 378435, "value": 24.0 },
               { "custom_field_definition_id": 378436, "value": 34 },
               { "custom_field_definition_id": 378437, "value": "asdf" },
-              { "custom_field_definition_id": 378438, "value": "www.urjanet.com" }
+              { "custom_field_definition_id": 378438, "value": "www.somecompany.com" }
             ],
             "interaction_count": 1,
             "date_created": 1577804582,
@@ -270,7 +270,7 @@ module.exports = {
               { "custom_field_definition_id": 378435, "value": 45.0 },
               { "custom_field_definition_id": 378436, "value": null },
               { "custom_field_definition_id": 378437, "value": "some textasdf" },
-              { "custom_field_definition_id": 378438, "value": "www.urjanet.com" }
+              { "custom_field_definition_id": 378438, "value": "www.somecompany.com" }
             ],
             "interaction_count": 1,
             "date_created": 1577804582,
@@ -651,7 +651,7 @@ module.exports = {
           },
           "coppercrm/urlfield": {
             "operation": "set",
-            "value": "www.urjanet.com"
+            "value": "www.somecompany.com"
           },
           "coppercrm/id": {
             "operation": "set",
@@ -800,7 +800,7 @@ module.exports = {
           },
           "coppercrm/urlfield": {
             "operation": "set",
-            "value": "www.urjanet.com"
+            "value": "www.somecompany.com"
           },
           "coppercrm/id": {
             "operation": "set",
