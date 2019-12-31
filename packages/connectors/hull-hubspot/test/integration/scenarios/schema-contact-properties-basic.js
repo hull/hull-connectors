@@ -16,7 +16,7 @@ const connector = {
   }
 };
 
-it("should send out a new hull account to hubspot schema contact properties basic", () => {
+it("Should fetch contact groups and properties and transform it to attribute mapping", () => {
   const domain = "hull.io";
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
@@ -26,11 +26,41 @@ it("should send out a new hull account to hubspot schema contact properties basi
         const scope = nock("https://api.hubapi.com");
         scope.get("/contacts/v2/groups?includeProperties=true").reply(200, [
           {
-            displayName: "display",
-            properties: [
+            "name": "contactinformation",
+            "displayName": "Contact Information",
+            "properties": [
               {
-                label: "coke",
-                name: "shortName"
+                "name": "job_function",
+                "label": "Job function",
+                "groupName": "contactinformation",
+                "type": "string",
+                "fieldType": "text",
+                "formField": true,
+                "readOnlyValue": false
+              }
+            ]
+          },
+          {
+            "name": "hull",
+            "displayName": "Hull Properties",
+            "properties": [
+              {
+                "name": "hull_segments",
+                "label": "Hull Segments",
+                "groupName": "hull",
+                "type": "enumeration",
+                "fieldType": "checkbox",
+                "hidden": false,
+                "options": [
+                  {
+                    "readOnly": false,
+                    "label": "HubspotUsers",
+                    "hidden": false,
+                    "value": "HubspotUsers",
+                  }
+                ],
+                "formField": false,
+                "readOnlyValue": false
               }
             ]
           }
@@ -43,11 +73,29 @@ it("should send out a new hull account to hubspot schema contact properties basi
       response: {
         options: [
           {
-            label: "display",
+            label: "Contact Information",
             options: [
               {
-                label: "coke",
-                value: "shortName"
+                label: "Job function",
+                value: "job_function"
+              }
+            ]
+          },
+          {
+            label: "Hull Properties",
+            options: [
+              {
+                label: "Hull Segments",
+                value: "hull_segments"
+              }
+            ]
+          },
+          {
+            label: "Contact Meta",
+            options: [
+              {
+                label: "Merged Vids",
+                value: "contact_meta.merged-vids"
               }
             ]
           }
