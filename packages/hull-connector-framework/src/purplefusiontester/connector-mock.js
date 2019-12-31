@@ -26,15 +26,14 @@ class ContextMock {
       value: jest.fn((name, value) => console.log(name, value))
     };
     this.notification = {};
-    this.cacheWrap = {};
     this.cacheStore = {};
     this.cache = {
       wrap: jest.fn((key, cb) => {
-        if (this.cacheWrap[key]) {
-          return this.cacheWrap[key];
+        if (this.cacheStore[key]) {
+          return this.cacheStore[key];
         } else {
           const promise = cb();
-          this.cacheWrap[key] = promise;
+          this.cacheStore[key] = promise;
           return promise;
         }
         // return Promise.resolve(cb());

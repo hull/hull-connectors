@@ -41,12 +41,16 @@ describe("CopperCRM Lead Tests", () => {
     return harness.runTest(require("./fixtures/fetch-all-leads"));
   });
 
-  // it("fetch recent leads coppercrm", () => {
-  //   return harness.runTest(require("./fixtures/fetch-recent-leads"));
-  // });
+  it("fetch recent leads coppercrm", () => {
+    return harness.runTest(require("./fixtures/fetch-recent-leads"));
+  });
 
   it("fetch all activities coppercrm", () => {
     return harness.runTest(require("./fixtures/fetchAllActivities"));
+  });
+
+  it("fetch all companies coppercrm", () => {
+    return harness.runTest(require("./fixtures/fetchAllCompanies"));
   });
 
 //   it("fetch recent coppercrm", () => {

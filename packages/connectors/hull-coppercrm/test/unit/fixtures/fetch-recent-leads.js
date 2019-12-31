@@ -31,15 +31,18 @@ module.exports = {
       incoming_lead_attributes: [
         {
           hull: "coppercrm_lead/addressstreet",
-          service: "addressStreet"
+          service: "addressStreet",
+          overwrite: true
         },
         {
           hull: "coppercrm_lead/first_name",
-          service: "first_name"
+          service: "first_name",
+          overwrite: false
         },
         {
           hull: "coppercrm_lead/assigneeEmail",
-          service: "assigneeEmail"
+          service: "assigneeEmail",
+          overwrite: true
         }
       ]
     }
@@ -50,33 +53,11 @@ module.exports = {
       {
         localContext: expect.anything(),
         name: "coppercrm",
-        op: "getUsers",
-        input: undefined,
-        result: {
-          body: [{ id: 806394, name: "Tim Liu", email: "timliuhull2@gmail.com" }]
-        }
-      },
-      {
-        localContext: expect.anything(),
-        name: "coppercrm",
-        op: "getCustomerSources",
-        input: undefined,
-        result: {
-          body: [
-            { id: 1046842, name: "Advertising" },
-            { id: 1046841, name: "Cold Call" },
-            { id: 1046840, name: "Email" }
-          ]
-        }
-      },
-      {
-        localContext: expect.anything(),
-        name: "coppercrm",
         op: "fetchRecentLeads",
         input: undefined,
         result: {
           body:
-            new Array(100).fill({ id: 50307894, first_name: "Samantha Summers (Sample - Try me!)", date_created: 1575663576, date_modified: 1575669574 })
+            new Array(100).fill({ id: 50307894, addressStreet: null, first_name: "Samantha Summers (Sample - Try me!)", date_created: 1575663576, date_modified: 1575669574 })
         }
       },
       {
@@ -86,7 +67,7 @@ module.exports = {
         input: undefined,
         result: {
           body: [
-            { id: 50307894, first_name: "Samantha Summers (Sample - Try me!)", date_created: 1575663576, date_modified: 1575669574 }
+            { id: 50307894, addressStreet: null, first_name: "Samantha Summers (Sample - Try me!)", date_created: 1575663576, date_modified: 1575669574 }
           ],
 
         }
@@ -102,14 +83,28 @@ module.exports = {
         },
         attributes: {
           "coppercrm_lead/first_name": {
-            operation: "set",
+            operation: "setIfNull",
             value: "Samantha Summers (Sample - Try me!)"
+          },
+          "coppercrm_lead/addressstreet": {
+            operation: "set",
+            value: null
           },
           "coppercrm_lead/id": { value: 50307894, operation: "set" }
         }
       },
       result: {}
-    })
+    }),
+    [
+      {
+        name: "hull",
+        op: "settingsUpdate",
+        localContext: expect.anything(),
+        input: {
+          "last_fetchRecentLeads": 1575669574
+        }
+      }
+    ]
   ),
   result: expect.anything()
 };

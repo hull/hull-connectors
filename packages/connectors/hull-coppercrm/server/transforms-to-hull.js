@@ -60,14 +60,19 @@ const customFieldsTransform = (attributeList) => {
               expand: true,
               condition: varInArray("customType", arrayEnumValueFields),
               then: {
-                operateOn: { component: "glue", route: "getCustomFieldValueMap", select: "${operateOn}" },
+                operateOn: { component: "glue", route: "getCustomFieldValueMap", select: "${operateOn}", onUndefined: { component: "glue", route: "forceGetCustomFieldValueMap", select: "${operateOn}"} },
                 writeTo: { path: "${customFieldPath}", appendToArray: "unique" }
               }
             },
             {
-              operateOn: { component: "glue", route: "getCustomFieldValueMap", select: "${customField.value}", name: "customFieldValue" },
               condition: varInArray("customType", enumValueFields),
-              writeTo: { path: "${customFieldPath}", value: "${customFieldValue}" }
+              // wrapped the following logic in an additional "then" because condition is evaluated after the operateOn
+              // which is fine, but a little inefficient in this case, because we don't have to evaluate it to know we don't want to do it
+              // so evaluate the condition field outside first
+              then: {
+                operateOn: { component: "glue", route: "getCustomFieldValueMap", select: "${customField.value}", name: "customFieldValue", onUndefined: { component: "glue", route: "forceGetCustomFieldValueMap", select: "${customFieldValue}"} },
+                writeTo: { path: "${customFieldPath}", value: "${customFieldValue}" }
+              }
             },
             {
               condition: [ not(varInArray("customType", enumValueFields)), not(varInArray("customType", arrayEnumValueFields)) ],
