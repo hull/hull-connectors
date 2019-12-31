@@ -93,17 +93,17 @@
     },
     {
       "name": "send_all_user_attributes",
-      "title": "Sending all user attributes by default",
+      "title": "Send all user attributes",
+      "description": "When enabled all current and future attributes will be send to the Warehouse and Attributes Mapping below will be ignored.",
       "type": "boolean",
-      "default": true,
-      "format": "hidden"
+      "default": true
     },
     {
       "name": "send_all_account_attributes",
-      "title": "Sending all account attributes by default",
+      "title": "Send all account attributes",
+      "description": "When enabled all current and future attributes will be send to the Warehouse and Attributes Mapping below will be ignored.",
       "type": "boolean",
-      "default": true,
-      "format": "hidden"
+      "default": true
     },
     {
       "name": "account_outgoing_synch_title",
@@ -181,6 +181,36 @@
       "title": "When creating the table schema, use the native postgres json field type instead of a varchar(255)",
       "description": "We store nested json values as strings by default.  Enable this option to use postgres's native json column type.  If your tables already exist, you'll have to either drop the table or specify a new table for it to be rebuilt properly",
       "default": false
+    },
+    {
+      "name": "outgoing_user_attributes",
+      "title": "User Attributes to send to Warehouse",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": true,
+        "placeholder": "Warehouse user field",
+        "allowCreate": true
+      }
+    },
+    {
+      "name": "outgoing_account_attributes",
+      "title": "Account Attributes to send to Warehouse",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": true,
+        "placeholder": "Warehouse account field",
+        "allowCreate": true
+      }
+    },
+    {
+      "name": "send_if_any_segment_change",
+      "type": "boolean",
+      "format": "hidden",
+      "default": true
     }
   ],
   "settings": [],
@@ -280,12 +310,22 @@
       ]
     },
     {
-      "title": "User/Account Filter Setup",
-      "description": "There are a variety of ways to configure subsets of data to be sent to your warehouse.  By defining a user/account segments, then specifying them in this section, you can control which users(and their events) and accounts are sent to your warehouse.  If you want all data sent, there is an option to send \"All\" users and/or accounts in each dropdown",
+      "title": "User Filter Setup",
+      "description": "This section configures what User data will be send out to Warehouse, start by whitelisting User segments and then decide which attributes to send.",
       "properties": [
         "private_settings.synchronized_user_segments",
-        "private_settings.synchronized_account_segments"
-        ]
+        "private_settings.send_all_user_attributes",
+        "private_settings.outgoing_user_attributes"
+      ]
+    },
+    {
+      "title": "Account Filter Setup",
+      "description": "This section configures what Account data will be send out to Warehouse, start by whitelisting Account segments and then decide which attributes to send.",
+      "properties": [
+        "private_settings.synchronized_account_segments",
+        "private_settings.send_all_account_attributes",
+        "private_settings.outgoing_account_attributes"
+      ]
     }
   ]
 }

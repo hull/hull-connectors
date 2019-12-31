@@ -367,7 +367,8 @@ function toSendMessage(
 
   // Do not have to normalize this field with regard to array index at the end [1]...
   // because this field does not do the diff like the other fields, it gives a { left: [{}...], entered:} syntax
-  if (_.get(options, "sendOnAnySegmentChanges", false) === true) {
+  if (_.get(options, "sendOnAnySegmentChanges", false) === true
+      || _.get(context, "connector.private_settings.send_if_any_segment_change", false) === true) {
     const segmentChanges = _.get(message.changes, segmentAttribute);
     if (!_.isEmpty(segmentChanges)) {
       return true;

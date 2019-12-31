@@ -16,13 +16,19 @@ const {
   settings,
   obj,
   cast,
-  ld
+  ld,
+  transformTo
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
   HullOutgoingAccount,
   HullOutgoingUser
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
+
+const {
+  PostgresUserSchema,
+  PostgresAccountSchema
+} = require("./service-objects");
 
 const _ = require("lodash");
 
@@ -121,25 +127,39 @@ const glue = {
         cacheSet({ key: "databaseSettings", ttl: 99999999 }, "${currentDatabaseSettings}")
       ]),
       elif: [
-        ifL([
-            cond("notEmpty", input("[0].user")),
+        ifL(cond("notEmpty", input("[0].user")),[
+          ifL( [
+            settings("send_all_user_attributes"),
             postgresJdbc("containsNewAttribute", {
               messages: obj(input()),
               schema: cacheGet("userSchema"),
               path: "user"
-            }),
-          ],
-          lockL("${connector.id}", route("userSchemaUpdateStart"))
+            })], {
+              do: lockL("${connector.id}", route("userSchemaUpdateStart")),
+              eldo:
+                ifL(cond("notEqual"), settings("outgoing_user_attributes"), cacheGet("userAttributes"), [
+                  cacheSet("userAttributes", settings("outgoing_user_attributes")),
+                  lockL("${connector.id}", route("userSchemaUpdateStart")),
+                ])
+            }
+          )]
         ),
-        ifL([
-            cond("notEmpty", input("[0].account")),
-            postgresJdbc("containsNewAttribute", {
-              messages: obj(input()),
-              schema: cacheGet("accountSchema"),
-              path: "account"
-            }),
-          ],
-          lockL("${connector.id}", route("accountSchemaUpdateStart"))
+        ifL(cond("notEmpty", input("[0].account")), [
+          ifL([
+              settings("send_all_account_attributes"),
+              postgresJdbc("containsNewAttribute", {
+                messages: obj(input()),
+                schema: cacheGet("accountSchema"),
+                path: "account"
+              })], {
+            do: lockL("${connector.id}", route("accountSchemaUpdateStart")),
+            eldo:
+              ifL(cond("notEqual"), settings("outgoing_account_attributes"), cacheGet("accountAttributes"), [
+                cacheSet("accountAttributes", settings("outgoing_account_attributes")),
+                lockL("${connector.id}", route("accountSchemaUpdateStart")),
+              ])
+            }
+          )]
         )
       ]
     })

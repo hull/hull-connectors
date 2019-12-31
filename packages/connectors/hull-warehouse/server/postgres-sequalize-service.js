@@ -19,6 +19,11 @@ const Sequelize = require("sequelize");
 
 const HullVariableContext = require("hull-connector-framework/src/purplefusion/variable-context");
 
+const {
+  PostgresUserSchema,
+  PostgresAccountSchema
+} = require("./service-objects");
+
 // class UserModel extends Sequelize.Model {};
 // class AccountModel extends Sequelize.Model {};
 
@@ -440,6 +445,18 @@ const postgresSdk = ({ clientID, clientSecret } : {
   clientSecret: string
 }): CustomApi => ({
   initialize: (context, api) => new SequalizeSdk(context, api),
+  endpoints: {
+    createUserSchema: {
+      method: "createUserSchema",
+      endpointType: "upsert",
+      input: PostgresUserSchema
+    },
+    createAccountSchema: {
+      method: "createAccountSchema",
+      endpointType: "upsert",
+      input: PostgresAccountSchema
+    }
+  },
   error: {
     templates: [
       {
