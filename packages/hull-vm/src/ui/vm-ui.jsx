@@ -23,7 +23,7 @@ type Props = {
   engine: Engine,
   strings: {
     [string]: string
-  },
+  }
 };
 
 type State = EngineState & {
