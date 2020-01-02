@@ -1,5 +1,5 @@
 {
-  "name": "hull-repl",
+  "name": "hullrepl",
   "version": "0.1.12-monorepo",
   "description": "",
   "main": "src/index.js",
@@ -8,7 +8,7 @@
     "documentation": "exit 0"
   },
   "bin": {
-    "hull-repl": "src/index.js"
+    "hullrepl": "src/index.js"
   },
   "author": "",
   "license": "MIT",
