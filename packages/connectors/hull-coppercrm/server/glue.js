@@ -63,7 +63,7 @@ function ensureWebhook(webhookAttribute, webhookTruthy) {
         ifL(ld("isMatch", "${webhook}", { target: "${webhookUrl}"}), {
           do: set(webhookAttribute, "${webhook}"),
           eldo:
-            ifL(ex("${webhook.target}", "includes", utils("getConnectorOrganization")),
+            ifL(ld("isEqual", "${webhook.secret.hullOrganization}", utils("getConnectorOrganization")),
               coppercrm("deleteWebhook")
             )
         })
@@ -75,9 +75,8 @@ function ensureWebhook(webhookAttribute, webhookTruthy) {
         {
           target: "${webhookUrl}",
           secret: {
-            organization: utils("getConnectorOrganization"),
-            ship: utils("getConnectorId"),
-            secret: utils("getConnectorSecret")
+            hullToken: utils("getConnectorEncryptedToken"),
+            hullOrganization: utils("getConnectorOrganization")
           },
           ...webhookTruthy
         }))
@@ -136,7 +135,7 @@ const glue = {
           iterateL(input("ids"), "id", hull("userDeletedInService",
             cast(HullIncomingUser, { ident: { anonymous_id: "coppercrm-person:person-${id}" }, attributes: { "${service_name}/deleted_at": ex(moment(), "valueOf") }  })))
         ]),
-        ifL(cond("isEqual", input("type"), "account"),
+        ifL(cond("isEqual", input("type"), "company"),
           iterateL(input("ids"), "id", hull("accountDeletedInService",
             cast(HullIncomingAccount, { ident: { anonymous_id: "coppercrm:${id}" }, attributes: { "${service_name}/deleted_at": ex(moment(), "valueOf") }  })))
         )
@@ -251,7 +250,11 @@ const glue = {
         serviceName: "coppercrm",
         fetchEndpoint: "fetchRecentActivities",
         incomingType: CopperCRMIncomingActivity,
-        datePathOnEntity: "date_modified",
+        // issue with modified is that it's the same as activitiy date
+        // so if you add a new note, and set the date to be a week ago, it's modified will show a week ago
+        // and we don't get it, but date_created is true.  though that means we don't get updates to activities...
+        // datePathOnEntity: "date_modified",
+        datePathOnEntity: "date_created",
         pageSize: 100,
         hullCommand: "asUser",
         timeFormat: "unix",
@@ -317,12 +320,12 @@ const glue = {
   forceGetPipelineStages: returnValue(cacheDel(coppercrm("getPipelines")), route("getPipelineStages")),
 
   createDeleteWebhooks: [
-    set("webhookUrl", utils("createWebhookUrl")),
-    // ensureWebhook("deleteLeadWebhook", { type: "lead", event: "delete" }),
-    // ensureWebhook("deletePersonWebhook", { type: "person", event: "delete" }),
-    // ensureWebhook("deleteCompanyWebhook", { type: "company", event: "delete" }),
-    // ensureWebhook("deleteOpportunityWebhook", { type: "opportunity", event: "delete" }),
-    // ifL(not(cond("isEmpty", "${settingsWebhookIds}")), hull("settingsUpdate", "${settingsWebhookIds}"))
+    set("webhookUrl", utils("createWebhookUrlWithEncryptedToken")),
+    ensureWebhook("deleteLeadWebhook", { type: "lead", event: "delete" }),
+    ensureWebhook("deletePersonWebhook", { type: "person", event: "delete" }),
+    ensureWebhook("deleteCompanyWebhook", { type: "company", event: "delete" }),
+    ensureWebhook("deleteOpportunityWebhook", { type: "opportunity", event: "delete" }),
+    ifL(not(cond("isEmpty", "${settingsWebhookIds}")), hull("settingsUpdate", "${settingsWebhookIds}"))
   ]
 
 

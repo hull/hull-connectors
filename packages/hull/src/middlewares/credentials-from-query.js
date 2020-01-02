@@ -79,6 +79,7 @@ function credentialsFromQueryMiddlewareFactory() {
         parseToken(req.hull.clientCredentialsEncryptedToken, hostSecret) ||
         parseToken(req.hull.clientCredentialsToken, hostSecret) ||
         parseToken(getToken(req.query), hostSecret) ||
+        parseToken(getToken(req.body), hostSecret) ||
         parseQueryString(req.query);
 
       if (clientCredentials === undefined) {

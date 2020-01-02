@@ -4,6 +4,7 @@ module.exports = {
     "secret": "shhh",
     "organization": "organization.hullapp.io",
     "hostname": "connectortest.connectordomain.io",
+    "clientCredentialsEncryptedToken": "shhhclientCredentialsEncryptedToken",
     "private_settings": {
       "deletePersonWebhookId": 113241,
       "flow_control_user_update_success_size": "100",
@@ -187,15 +188,7 @@ module.exports = {
   },
   "serviceRequests": [
     {
-      "localContext": [
-        {
-          "service_name": "coppercrm",
-          "webhookUrl": "https://connectortest.connectordomain.io/webhooks?organization=organization.hullapp.io&secret=shhh&ship=5c092905c36af496c700012e",
-          "pageOffset": 1,
-          "pageSize": 100,
-          "datePathOnEntity": "date_created"
-        }
-      ],
+      "localContext": expect.anything(),
       "name": "coppercrm",
       "op": "fetchAllCompanies",
       "result": {

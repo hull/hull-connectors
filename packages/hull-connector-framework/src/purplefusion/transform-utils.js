@@ -49,6 +49,10 @@ function evaluateCondition(transform, context, input): boolean {
 }
 
 function evaluateValidation(transform, context, input) {
+  // Not sure I like this pattern in all cases, it makes the glue easier
+  // but it also puts the transformation in control of the code flow much more
+  // not sure that's a good practice.  Similar to management by exception... burying some of the control flow logic
+  // though it simplifies the code in many situations....
   if (transform.validation) {
     if (evaluateCondition(transform.validation, context, input)) {
       if (transform.validation.error === "BreakProcess") {

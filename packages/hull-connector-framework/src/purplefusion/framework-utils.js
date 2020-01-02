@@ -1,4 +1,7 @@
 /* @flow */
+
+import Hull from "hull";
+
 const _ = require("lodash");
 const momentConstructor = require("moment");
 
@@ -13,6 +16,16 @@ class FrameworkUtils {
       organization,
       secret,
       ship: id
+    };
+    return uri(`https://${context.hostname}/webhooks`)
+      .search(search)
+      .toString();
+  }
+
+  createWebhookUrlWithEncryptedToken(context: Object, params: any): string {
+    const clientCredentialsEncryptedToken = _.get(context, "clientCredentialsEncryptedToken");
+    const search = {
+      hullToken: clientCredentialsEncryptedToken
     };
     return uri(`https://${context.hostname}/webhooks`)
       .search(search)
@@ -39,6 +52,10 @@ class FrameworkUtils {
     const client = context.client;
     const { secret } = client.configuration();
     return secret;
+  }
+
+  getConnectorEncryptedToken(context: Object): string {
+    return _.get(context, "clientCredentialsEncryptedToken");
   }
 
   moment(context: Object): Object {

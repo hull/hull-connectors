@@ -1,6 +1,6 @@
 {
   "name": "hull",
-  "version": "0.1.11-monorepo",
+  "version": "0.1.13-monorepo",
   "description": "A Node.js client for hull.io",
   "main": "src",
   "author": "Romain Dardour <romain@hull.io>",

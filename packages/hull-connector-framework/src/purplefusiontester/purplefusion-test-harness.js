@@ -106,6 +106,9 @@ function createServiceMock(service, possibleMockRequests) {
           // versus my test data
           // or could use "object containing syntax where it's an issue...
           // expect.arrayContaining(
+          // really there could be an array at any level that could be causing this
+          // may need to build out the object with expect.arrayContaining( everywhere
+          // eg: {"activity_types": expect.arrayContaining([{"category": "user", "id": 0}...])
           // if (!_.isEqual(data, identifiedResult.input)) {
             expect(data).toEqual(identifiedResult.input);
           // }

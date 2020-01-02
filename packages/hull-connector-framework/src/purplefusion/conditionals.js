@@ -10,6 +10,14 @@ function not(method) {
   }
 }
 
+function or(...conditions) {
+  return (context, input) => {
+    return _.some(conditions, method => {
+      return method(context, input);
+    });
+  }
+}
+
 function varUndefined(param: string) {
   return (context) => {
     const contextVariable = context.get(param);
@@ -35,6 +43,14 @@ function varEqual(param: string, object: any) {
   return (context) => {
     const contextVariable = context.get(param);
     return _.isEqual(contextVariable, object)
+  };
+}
+
+function varEqualVar(param: string, param2: any) {
+  return (context) => {
+    const contextVariable = context.get(param);
+    const contextVariable2 = context.get(param2);
+    return _.isEqual(contextVariable, contextVariable2)
   };
 }
 
@@ -175,7 +191,9 @@ module.exports = {
   varNull,
   varUndefinedOrNull,
   varEqual,
+  varEqualVar,
   varInArray,
   isServiceAttributeInVarList,
-  isVarServiceAttributeInVarList
+  isVarServiceAttributeInVarList,
+  or
 };

@@ -11,11 +11,18 @@ class ConnectorMock {
 
 class ContextMock {
   constructor(configuration) {
-    const { id, hostname, private_settings, accept_incoming_webhooks = true } = configuration;
+    const {
+      id,
+      hostname,
+      private_settings,
+      accept_incoming_webhooks = true,
+      clientCredentialsEncryptedToken = "shhhclientCredentialsEncryptedToken",
+    } = configuration;
     this.hostname = hostname;
     this.ship = new ConnectorMock(id, private_settings);
     this.connector = new ConnectorMock(id, private_settings);
     this.client = new ClientMock(configuration);
+    this.clientCredentialsEncryptedToken = clientCredentialsEncryptedToken;
 
     this.helpers = {
       settingsUpdate: this.client.utils.settings.update

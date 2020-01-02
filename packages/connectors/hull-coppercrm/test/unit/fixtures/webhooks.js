@@ -1,9 +1,10 @@
-{
+module.exports = {
   "configuration": {
     "id": "5c092905c36af496c700012e",
     "secret": "shhh",
     "organization": "organization.hullapp.io",
     "hostname": "connectortest.connectordomain.io",
+    "clientCredentialsEncryptedToken": "shhhclientCredentialsEncryptedToken",
     "private_settings": {
       "lead_claims": [
         {
@@ -29,23 +30,23 @@
       "activities_to_fetch": [],
       "coppercrm_api_key": "apikeyshhh",
       "coppercrm_email": "timliuhull3@gmail.com",
-      "deleteLeadWebhookId": 113267,
-      "deletePersonWebhookId": 113268,
-      "deleteCompanyWebhookId": 113269,
-      "deleteOpportunityWebhookId": 113270
+      "deleteLeadWebhookId": 113343,
+      "deletePersonWebhookId": 113344,
+      "deleteCompanyWebhookId": 113345,
+      "deleteOpportunityWebhookId": 113346
     }
   },
   "route": "webhooks",
   "input": {
+    "data": {
       "body": {
-        "organization": "organization.hullapp.io",
-        "ship": "5c092905c36af496c700012e",
-        "secret": "shhh",
-        "subscription_id": 113267,
+        "hullToken": "shhhclientCredentialsEncryptedToken",
+        "hullOrganization": "organization.hullapp.io",
+        "subscription_id": 113343,
         "event": "delete",
         "type": "lead",
         "ids": [
-          50821143
+          50841310
         ],
         "updated_attributes": {}
       }
@@ -60,19 +61,18 @@
       "localContext": [
         {
           "service_name": "coppercrm_lead",
-          "webhookUrl": "https://connectortest.connectordomain.io/webhooks?organization=organization.hullapp.io&secret=shhh&ship=5c092905c36af496c700012e",
-          "id": 50821143
+          "webhookUrl": "https://connectortest.connectordomain.io/webhooks?hullToken=shhhclientCredentialsEncryptedToken",
+          "id": 50841310
         }
       ],
       "name": "hull",
       "op": "userDeletedInService",
       "input": {
         "ident": {
-          "anonymous_id": "coppercrm-lead:lead-50821143"
+          "anonymous_id": "coppercrm-lead:lead-50841310"
         },
         "attributes": {
-          "coppercrm_lead/deleted_at": 1577832005666,
-          "coppercrm_lead/id": null
+          "coppercrm_lead/deleted_at": expect.toBeWithinRange(Date.now(), Date.now() + 5000)
         }
       },
       "result": {}

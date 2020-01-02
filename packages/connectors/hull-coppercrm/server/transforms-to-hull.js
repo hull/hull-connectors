@@ -1,6 +1,7 @@
 /* @flow */
 import type { ServiceTransforms } from "hull-connector-framework/src/purplefusion/types";
 const _ = require("lodash");
+const moment = require("moment");
 
 const {
   HullIncomingUser,
@@ -17,8 +18,10 @@ const {
 const {
   varNull,
   varInArray,
+  varEqualVar,
   not,
-  isVarServiceAttributeInVarList
+  isVarServiceAttributeInVarList,
+  or
 }  = require("hull-connector-framework/src/purplefusion/conditionals");
 
 const {
@@ -51,7 +54,7 @@ const customFieldsTransform = (attributeList) => {
         name: "customFieldPath"
       },
       then: {
-        condition: isVarServiceAttributeInVarList("customFieldPath", attributeList),
+        condition: or(isVarServiceAttributeInVarList("customFieldPath", attributeList), varEqualVar("customFieldPath", "connector.private_settings.incoming_opportunity_type")),
         then: {
           operateOn: { component: "glue", route: "getCustomFieldMapAll", select: "${customField.custom_field_definition_id}.type", name: "customType" },
           then: [
@@ -282,7 +285,11 @@ const transformsToHull: ServiceTransforms = [
     target: { component: "new" },
     then: {
       operateOn: { component: "input", select: "parent.type", name: "eventEntity" },
-      condition: varInArray("eventEntity", ["person", "lead"]),
+      validation: {
+        condition: not(varInArray("eventEntity", ["person", "lead"])),
+        error: "BreakToLoop",
+        message: "Event is not owned by a person or a lead"
+      },
       then: [
         {
           operateOn: { component: "input", select: "parent.id" },
@@ -290,24 +297,27 @@ const transformsToHull: ServiceTransforms = [
         },
         {
           operateOn: { component: "input", select: "activity_date" },
-          writeTo: { path: "hull_events[0].context.created_at" }
+          then: [
+            { writeTo: { path: "events[0].context.created_at", formatter: value => moment.unix(value).toISOString() } },
+            { writeTo: { path: "events[0].properties.created_at", formatter: value => moment.unix(value).toISOString() } },
+          ]
         },
         {
           operateOn: { component: "input", select: "id" },
-          writeTo: { path: "hull_events[0].context.event_id" }
+          writeTo: { path: "events[0].context.event_id" }
         },
         {
           operateOn: { component: "input", select: "details" },
-          writeTo: { path: "hull_events[0].properties.details" }
+          writeTo: { path: "events[0].properties.details" }
         },
         createEnumTransform({
-          attribute: "hull_events[0].properties.assigneeEmail",
+          attribute: "events[0].properties.assigneeEmail",
           attributeId: "user_id",
           route: "getAssignees",
           forceRoute: "forceGetAssignees"
         }),
         createEnumTransform({
-          attribute: "hull_events[0].eventName",
+          attribute: "events[0].eventName",
           attributeId: "type.id",
           route: "getActivityTypesMap",
           forceRoute: "forceGetActivityTypesMap"

@@ -51,7 +51,9 @@ it("send batch account update to hubspot in a batch", () => {
           expires_in: 21600,
           portal_id: 5088166,
           synchronized_account_segments: ["5bd7201aa682bc4a4d00001e"],
-          link_users_in_hull: false
+          link_users_in_hull: false,
+          mark_deleted_contacts: false,
+          mark_deleted_companies: false
         }
       },
       externalApiMock: () => {

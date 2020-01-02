@@ -103,6 +103,10 @@ function fetchAllByStaticDateAscFilteredWithPaging({ serviceName, fetchEndpoint,
 
         iterateL("${page}", { key: "entity" }, hull(hullCommand, cast(incomingType, "${entity}"))),
 
+        // Downside of doing this is that we get a send a duplicate entry on every page boundary because we do >=
+        // but if there are 2 entries with the same date and it's on the page boundary then we could miss an entry otherwise
+        // if you think it doesn't matter you can inc() the date offset everytime
+        // please be careful, doing offsets are done in seconds in copper, so likely there are modifications with same dates...
         set("dateOffset", get(datePathOnEntity, ld("last", "${page}"))),
 
         // Instruction after this gets executed too... loopEndL is only returned once the thing is fully evaluated

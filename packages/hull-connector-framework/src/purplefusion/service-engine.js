@@ -390,14 +390,18 @@ class ServiceEngine {
       return Promise.resolve(results);
 
     }).catch(error => {
-      const entityStatus = error instanceof SkippableError ? "skip" : "error";
-      const systemMessage = `${action}.${entityStatus}`;
+      // everything here is logged as error, but only some are skippable
+      const systemMessage = `${action}.error`;
       this.logMessage(context, systemMessage, { dataToLog, hullEntityToLog }, error);
 
       // TODO this type of change of logical flow should not be in the log message logic
       // should be somewhere more clear
       // if the issue was not an error, resolve, in cases where we marked it as a skippable error
-      return entityStatus === "error" ? Promise.reject(error) : Promise.resolve({});
+      if (error instanceof SkippableError) {
+        return Promise.resolve({});
+      }
+
+      return Promise.reject(error);
     });
   }
 
