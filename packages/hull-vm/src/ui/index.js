@@ -12,4 +12,4 @@ export { default as Preview } from "./preview";
 export { default as RecentEntriesUI } from "./recent-ui";
 export { default as VirtualMachineUI } from "./vm-ui";
 export { default as ProcessorUI } from "./processor-ui";
-export { default as TesterUI } from "./tester-ui";
+export { default as ReplUI } from "./repl-ui";

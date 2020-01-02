@@ -2,7 +2,7 @@
 
 import Engine from "./engine";
 
-export default class TesterEngine extends Engine {
+export default class ReplEngine extends Engine {
   state: {
     current: {
       code: string,

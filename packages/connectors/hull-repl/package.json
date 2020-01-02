@@ -1,5 +1,5 @@
 {
-  "name": "hull-tester",
+  "name": "hull-repl",
   "description": "Send test data to debug your flows",
   "version": "0.1.11-monorepo",
   "homepage": "https://github.com/hull/hull-connectors",

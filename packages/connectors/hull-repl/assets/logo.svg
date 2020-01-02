@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="257px" height="257px" viewBox="0 0 257 257" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 61 (89581) - https://sketch.com -->
+    <title>repl/logo</title>
+    <desc>Created with Sketch.</desc>
+    <g id="repl/logo" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <circle id="Oval-2" fill="#D3EFFF" transform="translate(128.500000, 128.500000) rotate(-270.000000) translate(-128.500000, -128.500000) " cx="128.5" cy="128.5" r="125.5"></circle>
+        <path d="M39.6628692,279.337131 L149.845319,169.154681 C152.188465,166.811535 152.188465,163.012545 149.845319,160.669399 L40.0074433,50.8315229 C55.8066074,43.6579074 73.3553235,39.6628692 91.8371308,39.6628692 C161.148867,39.6628692 217.337131,95.8511331 217.337131,165.162869 C217.337131,234.474605 161.148867,290.662869 91.8371308,290.662869 C73.2208545,290.662869 55.5512967,286.609486 39.6628692,279.337131 L39.6628692,279.337131 Z" id="Combined-Shape" fill="#AFE5FF" transform="translate(128.500000, 165.162869) rotate(-270.000000) translate(-128.500000, -165.162869) "></path>
+        <circle id="Oval-5" fill="#22A5FF" transform="translate(128.500000, 127.500000) rotate(-270.000000) translate(-128.500000, -127.500000) " cx="128.5" cy="127.5" r="62.5"></circle>
+    </g>
+</svg>

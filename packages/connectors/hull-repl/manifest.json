@@ -1,13 +1,13 @@
 {
-  "name": "Tester",
-  "description": "Send test data to Hull to test your flows",
+  "name": "REPL - Interactive Commandline",
+  "description": "A command line / REPL to send data to Hull",
   "tags": [],
   "logo": "logo.png",
   "picture": "picture.png",
   "ui": false,
   "tabs": [
     {
-      "title": "Workspace",
+      "title": "Code Editor",
       "url": "/admin.html",
       "size": "large",
       "setup": false,

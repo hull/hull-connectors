@@ -20,7 +20,7 @@ export default async function handler(
 
   try {
     const result = await asyncComputeAndIngest(ctx, {
-      source: "tester",
+      source: "repl",
       payload: {
         variables: varsFromSettings(ctx)
       },
