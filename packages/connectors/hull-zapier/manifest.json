@@ -40,7 +40,7 @@
     },
     {
       "name": "invitation",
-      "default": "https://zapier.com/developer/public-invite/5710/d4334f38188deb9272c7fc7b0d0b5cfa",
+      "default": "https://zapier.com/apps/hull/integrations",
       "type": "string"
     },
     {
