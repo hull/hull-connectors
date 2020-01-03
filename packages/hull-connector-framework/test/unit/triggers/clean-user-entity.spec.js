@@ -247,7 +247,7 @@ describe("Outgoing User Filtering Tests", () => {
       "segments": [{ "id": "user_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
+    const cleanedMessage = getCleanedMessage(userTriggers, message, inputData);
     expect(cleanedMessage).toEqual({
       "events": [
         "Email Opened",
