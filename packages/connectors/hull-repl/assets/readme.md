@@ -27,9 +27,7 @@ Before writing your first line of code, it is vital to have a good understanding
 
 - The REPL environment only actually runs when you click the `RUN` button in the UI. No automatic calls will be made.
 
-## How to set Account attributes
-
-Lets first explore how you can **change attributes for an account**. As you already know from the Input - Account section above, there are two types of attributes, ungrouped and grouped attributes. ***ungrouped attributes*** can be set with the not-overloaded function call
+## How to send data
 
 ```javascript
   hull.asUser({ USER_CLAIMS }).traits({ ATTRIBUTE_NAME: <value> });
@@ -79,12 +77,6 @@ If you want to “delete” an attribute, you can use the same function calls as
 ### Incrementing and decrementing values (Atomic Operations)
 
 Given the distributed nature of computation, if you want to increment or decrement a counter, you need to take special care. Since the code might run multiple times in parallel, the following operation will not be reliable:
-
-_DO NOT DO THIS_:
-
-```javascript
-  hull.asUser({ USER_CLAIMS }).traits({ coconuts: account.coconuts+1 });
-```
 
 To get reliable results, you need to use `atomic operations`. Here's the correct way to do so:
 
