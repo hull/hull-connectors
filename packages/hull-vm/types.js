@@ -11,8 +11,8 @@ import type {
   HullUserUpdateMessage,
   HullAccountUpdateMessage,
   HullAttributeContext,
+  HullFetchedUser,
   HullEntityName,
-  HullFetchedUser
 } from "hull";
 import { Map } from "immutable";
 
@@ -116,9 +116,12 @@ export type SerializedResult = {
   success: boolean
 };
 
+export type SupportedLanguage = "javascript" | "jsonata";
+
 export type PreviewRequest = {
   payload: Payload,
   entity?: HullEntityName,
+  language?: SupportedLanguage,
   claims?: {},
   code: string
 };
@@ -136,6 +139,7 @@ export type Entry = {
 
 export type ComputeOptions = {
   code: string,
+  language?: SupportedLanguage,
   claims?: HullEntityClaims,
   entity?: HullEntityName,
   preview: boolean,

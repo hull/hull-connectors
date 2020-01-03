@@ -17,7 +17,7 @@ const update = ({ flow_size, flow_in }: FlowControl) => async (
 ): HullNotificationResponse => {
   const { connector, client } = ctx;
   const { private_settings = {} } = connector;
-  const { code = "" } = private_settings;
+  const { code = "", language = "javascript" } = private_settings;
   const { group } = client.utils.traits;
 
   // const user_ids = _.map(messages, "user.id");
@@ -35,6 +35,7 @@ const update = ({ flow_size, flow_in }: FlowControl) => async (
             _.isUndefined
           ),
           source: "processor",
+          language,
           code,
           claims: getClaims("account", payload),
           entity: "account",

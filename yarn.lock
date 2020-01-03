@@ -8719,7 +8719,12 @@ json5@^2.1.0:
   dependencies:
     minimist "^1.2.0"
 
-jsonata@^1.6.4, jsonata@^1.7.0:
+jsonata@^1.6.4, jsonata@^1.6.5:
+  version "1.6.5"
+  resolved "https://registry.yarnpkg.com/jsonata/-/jsonata-1.6.5.tgz#845d0497473e7a18e7fe7bd5a9ee8c88620b5db4"
+  integrity sha512-iRx9U6AkvsjrRdFf9MMbQmGVAL3bXVANR12vbVxjgXouMPU9VJQEcFnLWUCaW8IDmOzdxsaxK4Xe7SGlBYr5Bg==
+
+jsonata@^1.7.0:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/jsonata/-/jsonata-1.7.0.tgz#26e405fc306f582db981fc98f538fc60170c9ce3"
   integrity sha512-W1qxnGXtbaboFFA8DMLL2GZgiWoeFuMo0Yf3J23o03omzIuW9a9hgowgfUChQq8bfMfh/zmQJpwn/gQirn46ew==

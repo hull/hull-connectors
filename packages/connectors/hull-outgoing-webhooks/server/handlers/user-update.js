@@ -38,7 +38,7 @@ const update = ({ flow_in, flow_size }: FlowControl) => async (
       messages.map(async message => {
         const payload = {
           ...message,
-          user: _.pick(message.user, synchronized_attributes)
+          user: group(_.pick(message.user, synchronized_attributes))
         };
         if (shouldSendMessage(private_settings, message)) {
           const response = await request
