@@ -10,7 +10,7 @@ const { filterMessage } = require("./filters");
 const { isValidTrigger } = require("./validations");
 const triggerDefinitions = require("./triggers");
 
-function getCleanedMessage(message: Object, inputData: Object, triggers: Object): Array<string> {
+function getCleanedMessage(triggers: Object, message: Object, inputData: Object): Array<string> {
 
   const standardFilter = _.concat(
     !_.isEmpty(_.get(message, "user", {})) ? [ "user", "segments" ] : [],
@@ -48,7 +48,7 @@ function getEntityTriggers(context: Object, entity: Object): Array<string> {
     if (isValidTrigger(triggers, entity, activeTrigger.inputData)) {
       const rawEntity = entity;
 
-      const cleanedEntity = getCleanedMessage(entity, activeTrigger.inputData, triggers);
+      const cleanedEntity = getCleanedMessage(triggers, entity, activeTrigger.inputData);
 
       let entityDataType = null;
       if (!_.isEmpty(_.get(entity, "user"))) {

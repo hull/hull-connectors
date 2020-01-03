@@ -21,7 +21,7 @@ describe("Outgoing User Filtering Tests", () => {
       "segments": [{ "id": "user_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(message, inputData, triggers);
+    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": { "segments": { "entered": [{ "id": "user_segment_1" }, { "id": "user_segment_2" }] } },
       "account": {},
@@ -45,7 +45,7 @@ describe("Outgoing User Filtering Tests", () => {
       "segments": [{ "id": "user_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(message, inputData, triggers);
+    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": { "segments": { "entered": [] } },
       "account": {},
@@ -69,7 +69,7 @@ describe("Outgoing User Filtering Tests", () => {
       "segments": [{ "id": "user_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(message, inputData, triggers);
+    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": { "segments": { "left": [{ "id": "user_segment_1" }, { "id": "user_segment_2" }] } },
       "account": {},
@@ -103,7 +103,7 @@ describe("Outgoing User Filtering Tests", () => {
       "segments": [{ "id": "user_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(message, inputData, triggers);
+    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": {
         "user": {
@@ -145,7 +145,7 @@ describe("Outgoing User Filtering Tests", () => {
       "segments": [{ "id": "user_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(message, inputData, triggers);
+    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
     expect(cleanedMessage).toEqual({
       "account": {},
       "user": { "id": "1" },
@@ -185,7 +185,7 @@ describe("Outgoing User Filtering Tests", () => {
       "segments": [{ "id": "user_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(message, inputData, triggers);
+    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": { "is_new": true },
       "account": { "id": "0" },
@@ -247,7 +247,7 @@ describe("Outgoing User Filtering Tests", () => {
       "segments": [{ "id": "user_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(message, inputData, userTriggers);
+    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
     expect(cleanedMessage).toEqual({
       "events": [
         "Email Opened",
