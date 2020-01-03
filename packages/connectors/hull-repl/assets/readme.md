@@ -1,30 +1,23 @@
-# Hull Account Processor
+# Hull REPL
 
-The Account Processor enables you to run your own logic on attributes associated to Accounts by writing Javascript.
+The REPL connector enables you to run your own logic and manually send data to Hull, using a simple Javascript environment
 
 ## Getting Started
 
-Go to the Connectors page of your Hull organization, click the button “Add Connector” and click “Install” on the Account Processor card. After installation, you will be presented with the three column Dashboard layout. The left column displays the **Input** which is an Account with, segments and attributes, the middle column will hold your Javascript **Code** that transforms it to the **Output** of the right column. The Output itself displays the changed attributes of the account.
+Go to the Connectors page of your Hull organization, click the button “Add Connector” and click “Install” on the REPL card. After installation, you will be presented with a two column Dashboard layout. The left column will hold your Javascript **Code** that will be run when you click the "RUN" button. The actual data that will be sent is previewed in the **Output** of the right column.
 
 You can begin writing your own code right away, but you probably might want to gather some useful background information first. We recommend to start with the [execution model](#Execution-Model) which clarifies when your code is run before you move on to the data that is available as Input:
 
-- [Changes](#Input---Changes)
-- [Account](#Input---Account)
-- [Account Segments](#Input---Account-Segments)
-
-Read more about writing code:
-
 - [Code basics](#Code-basics)
 - [External libraries](#External-Libraries)
-- [Golden Rules](#Golden-Rules)
 
 ## Features
 
-The Hull Account Processor allows your team to write Javascript and transform data in Hull for accounts. You can emit events based of attribute changes or calculate a lead score, the Processor is your multi-tool when it comes to data in Hull.
+The Hull REPL allows your team to write Javascript that results in calling the Hull API to create or update users and accounts. It's a useful way to update the data in your Hull instance.
 
-The Processor can `add traits`, `update traits` for accounts.
+The REPL connector can `add traits`, `update traits`, `alias` and `unalias` users and accounts and `emitevents` for Users
 
-You can use the `request` library ([https://github.com/request/request](https://github.com/request/request)) to call external services or send data to webhooks.
+Should you need it, You can use the `request` library ([https://github.com/request/request](https://github.com/request/request)) to call external services or send data to webhooks. We advise to avoid high volume calls here.
 
 Async/await and ES6 are supported by the connector, allowing you to write elegant code.
 
@@ -32,128 +25,22 @@ Async/await and ES6 are supported by the connector, allowing you to write elegan
 
 Before writing your first line of code, it is vital to have a good understanding when this code will be executed:
 
-- The Processor runs on micro-batched data, which means that not every changed attribute and newly added event will lead to a run of the Processor.
-- The Processor receives events exactly once, or in other words the exposed events are the ones between now and the last run of the Processor.
+- The REPL environment only actually runs when you click the `RUN` button in the UI. No automatic calls will be made.
 
-## Input - Changes
-
-The `changes` object represents all changes to an account that triggered the execution of this processor and contains information about all modified data since the last re-compute of the account. Changes itself is an object in Javascript which exposes the following top-level properties:
-
-- `changes.is_new` indicates whether the account created is new and has just been created or not.
-- `changes.account_segments`, which holds all account segments the Account has entered and left since the last recompute, accessible via `changes.account_segments.entered` and `changes.account_segments.left`. Each segment is an object itself composed of the following properties `created_at` , `id`, `name`, `type`and `updated_at`.
-- `changes.account` which is an object that is exposes each changed attribute as property whose value is an array. The array has the old value as the first argument and the new one as the second. For example, if the email is set the first time, you can access it via `changes.account.domain` and the value will look like this `[null,"www.hull.io"]`
-
-The following code shows an example of changes:
+## How to send data
 
 ```javascript
-    {
-      changes: {
-        is_new: false,
-        account_segments: {
-          entered: [
-            {
-              created_at: "2017-09-01 09:30:22.458Z",
-              id: "dfbdd69d-1e6d-4a58-8031-c721a88f71f6",
-              name: "All Accounts",
-              type: "account",
-              updated_at: "2017-09-01 10:04:01.938Z",
-            },
-            // more segments if applicable
-          ],
-          left: [
-            // omitted for brevity
-          ]
-        },
-        account: {
-          name: [null, "Hull"],
-          domain: [null, "www.hull.io"],
-          mrr: [null, "500"]
-        }
-      }
-    }
-```
+  hull.asUser({ USER_CLAIMS }).traits({ ATTRIBUTE_NAME: <value> });
+  hull.asUser({ USER_CLAIMS }).track("New Event", { PROPERTY_NAME: <value> });
+  hull.asUser({ USER_CLAIMS }).alias({ anonymous_id: NEW_IDENTIFIER });
+  hull.asUser({ USER_CLAIMS }).unalias({ anonymous_id: IDENTIFIER_TO_REMOVE });
 
+  hull.asAccount({ ACCOUNT_CLAIMS }).traits({ ATTRIBUTE_NAME: <value> });
+  hull.asAccount({ ACCOUNT_CLAIMS }).alias({ anonymous_id: NEW_IDENTIFIER });
+  hull.asAccount({ ACCOUNT_CLAIMS }).unalias({ anonymous_id: IDENTIFIER_TO_REMOVE });
 
-## Input - Account
-
-The account object consists of a nested trait hierarchy. This means you can access all traits directly by their name, e.g. to get the name of an account, just use `account.name` in the code.
-Accounts do have various identifiers: the Hull ID (`account.id`), an External ID (`account.external_id` ) and Domain (`account.domain`).
-The following snippet shows an example of an account:
-
-```javascript
-    {
-      account: {
-        id: "7ad5524d-14ce-41fb-8de4-59ba9ccf130a",
-        external_id: "8476c4c7-fe7d-45b1-a30d-cd532621325b",
-        domain: "hull.io",
-        name: "Hull Inc.",
-        clearbit: {
-          name: "Hull Inc."
-        },
-        ... // more attributes in nested hierarchy
-      },
-      [...] // omitted for clarity
-    }
-```
-
-Please note that the `external_id` is only present if the account has been created via another connector such as the SQL importer or Segment.
-
-## Input - Account Segments
-
-You can access the segments for the Account via `account_segments` which is an array of objects itself. Each segment object has an identifier and name that can be accessed via `id` and `name` and metadata such as `type`, `updated_at` and `created_at`.
-
-The following code shows an example of the `account_segments` data:
-
-```javascript
-    {
-      "account_segments": [
-        {
-          "id": "59b14b212fa9835d5d004825",
-          "name": "Valuable Accounts",
-          "type": "accounts_segment",
-          "updated_at": "2017-09-07T13:35:29Z",
-          "created_at": "2017-09-07T13:35:29Z"
-        },
-        {
-          "id": "5995ce9f38b35ffd2100ecf4",
-          "name": "New Customers",
-          "type": "accounts_segment",
-          "updated_at": "2017-08-17T17:13:03Z",
-          "created_at": "2017-08-17T17:13:03Z"
-        },
-        // additional segments
-      ]
-    }
-```
-
-
-## Code basics
-
-You can access the **input data** as described above, here is the summary of available Javascript objects:
-
-| Variable Name                      | Description                                                                    |
-| ---------------------------------- | ------------------------------------------------------------------------------ |
-| `account`                          | Provides access to the account’s attributes.                                   |
-| `changes`                          | Represents all changes in account attributes since the last re-computation.       |
-| `account_segments`                 |  Provides a list of all account segments the Account belongs to |
-
-Please note that some of the input data shown on the left might be fake data that showcases additional fields available in your organization but that might not be applicable to all accounts.
-
-In addition to the input, you can also access the **settings** of the processor:
-
-|**Variable Name**| **Description**                                                                                                                                                |
-|-----------------| ---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|`connector`           | Provides access to processor settings, e.g. `connector.private_settings` gives you access to the settings specified in `manifest.json` as shown in the Advanced tab.|
-|`variables`           | Provides the values that you can store in the `Settings` tab of the connector. Usually to avoid storing Access Keys in the code itself |
-
-Now that you have a good overview of which variables you can access to obtain information, let’s move on to the functions that allow you to **manipulate data**.
-
-## How to set Account attributes
-
-Lets first explore how you can **change attributes for an account**. As you already know from the Input - Account section above, there are two types of attributes, ungrouped and grouped attributes. ***ungrouped attributes*** can be set with the not-overloaded function call
-
-```javascript
-  hull.traits({ ATTRIBUTE_NAME: <value> })
+  // Link User and Account
+  hull.asUser({ USER_CLAIMS }).account({ ACCOUNT_CLAIMS });
 ```
 
 For naming conventions, see the Golden Rules section below.
@@ -161,29 +48,29 @@ For naming conventions, see the Golden Rules section below.
 Of course you can set multiple attributes at once by passing a more complex object like:
 
 ```javascript
-  hull.traits({ ATTRIBUTE_NAME: <value>, ATTRIBUTE2_NAME: <value> })
+  hull.asUser({ USER_CLAIMS }).traits({ ATTRIBUTE_NAME: <value>, ATTRIBUTE2_NAME: <value> })
 ```
 
-Using this function signature, these attributes are stored at the top level for the target Account
+Using this function signature, these attributes are stored at the top level for the target Entity
 
 ### Attribute Groups
 
 If you want to make use of ***grouped attributes***, you can use the overloaded signature of the function, passing the group name as source in the second parameter:
 
 ```javascript
-  hull.traits({ bar: "baz" }, { source: "foo" })
+  hull.asUser({ USER_CLAIMS }).traits({ bar: "baz" }, { source: "foo" })
 ```
 
 Alternatively, you can pass the fully qualified name for the grouped attribute. Those two signatures will have the same results
 
 ```javascript
-  hull.traits({ "foo/bar": baz });
+  hull.asUser({ USER_CLAIMS }).traits({ "foo/bar": baz });
 ```
 
 If you want to “delete” an attribute, you can use the same function calls as described above and simply set `null`  as value.
 
 ```javascript
-  hull.traits({ foo: null });
+  hull.asUser({ USER_CLAIMS }).traits({ foo: null });
 ```
 
 
@@ -191,18 +78,12 @@ If you want to “delete” an attribute, you can use the same function calls as
 
 Given the distributed nature of computation, if you want to increment or decrement a counter, you need to take special care. Since the code might run multiple times in parallel, the following operation will not be reliable:
 
-_DO NOT DO THIS_:
-
-```javascript
-  hull.traits({ coconuts: account.coconuts+1 });
-```
-
 To get reliable results, you need to use `atomic operations`. Here's the correct way to do so:
 
 _DO THIS INSTEAD_:
 
 ```javascript
- hull.traits({ coconuts: { operation: 'inc', value: 1 } })
+ hull.asUser({ USER_CLAIMS }).traits({ coconuts: { operation: 'inc', value: 1 } })
 ```
 
 Where:
@@ -212,16 +93,6 @@ Where:
 ### Limitations
 
 The Platform refuses to store Domains in accounts with a domain being a Generic Email Domain - See the list of email domains we refuse here: https://github.com/smudge/freemail/tree/master/data  - This helps preventing accounts with thousands of users under domains like `gmail.com` because you'd have written the following code:
-
-
-## Utility Methods
-The processor provides the following methods to help you:
-
-| **Function Name**                                  | **Description**                                                                                                                                                                                                                                                                        |
-| ---------------------------------------------------| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `isInAccountSegment(<name>)`                              | Returns `true` if the account is in the segment with the specified name; otherwise `false`. Please note that the name is case-sensitive.                                                                                                                                                  |
-| `enteredAccountSegment(<name>)`                              | Returns the segment object if the account just entered the segment with the specified name; otherwise `null`. Please note that the name is case-sensitive.                                                                                                                                                  |
-| `leftAccountSegment(<name>)`                              | Returns the segment object if the account just left the segment with the specified name; otherwise `null`. Please note that the name is case-sensitive.                                                                                                                                                  |
 
 ## External Libraries
 
@@ -235,7 +106,6 @@ The processor exposes several external libraries that can be used:
 |`request`   | The simplified request client (https://github.com/request/request)|
 
 Please visit the linked pages for documentation and further information about these third party libraries.
-
 
 ## Using Request.
 
