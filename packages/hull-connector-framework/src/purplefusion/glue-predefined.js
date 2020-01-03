@@ -101,7 +101,7 @@ function fetchAllByStaticDateAscFilteredWithPaging({ serviceName, fetchEndpoint,
 
         set("page", new Svc({ name: serviceName, op: fetchEndpoint }, fetchBody)),
 
-        iterateL("${page}", { key: "entity" }, hull(hullCommand, cast(incomingType, "${entity}"))),
+        iterateL("${page}", { key: "entity", async: true }, hull(hullCommand, cast(incomingType, "${entity}"))),
 
         // Downside of doing this is that we get a send a duplicate entry on every page boundary because we do >=
         // but if there are 2 entries with the same date and it's on the page boundary then we could miss an entry otherwise
@@ -166,7 +166,7 @@ function fetchRecentModifiedDescWithPaging({ serviceName, fetchEndpoint, incomin
         set("latestModifiedDate", get(datePathOnEntity, ld("first", "${page}"))),
       ),
 
-      iterateL("${page}", { key: "entity" },
+      iterateL("${page}", { key: "entity", async: true },
         ifL(cond("lessThan", "${lastFetchedDate}", `\${entity.${datePathOnEntity}}`),
           hull(hullCommand, cast(incomingType, "${entity}"))
         )
@@ -197,7 +197,7 @@ function fetchAllDescWithFilterAndPaging({ serviceName, fetchEndpoint, incomingT
 
       set("page", new Svc({ name: serviceName, op: fetchEndpoint })),
 
-      iterateL("${page}", { key: "entity" }, hull(hullCommand, cast(incomingType, "${entity}"))),
+      iterateL("${page}", { key: "entity", async: true }, hull(hullCommand, cast(incomingType, "${entity}"))),
 
       set("dateOffset", get(datePathOnEntity, ld("last", "${page}"))),
 

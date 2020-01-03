@@ -190,6 +190,7 @@ const transformsToHull: ServiceTransforms = [
     direction: "incoming",
     strategy: "AtomicReaction",
     target: { component: "cloneInitialInput" },
+    asPipeline: true,
     then: _.concat(addressTransform,
       [
         customFieldsTransform("incoming_account_attributes"),
