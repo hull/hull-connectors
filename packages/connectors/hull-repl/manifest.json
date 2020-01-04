@@ -30,14 +30,6 @@
       }
     },
     {
-      "url": "/entries",
-      "handler": "entityListHandler",
-      "options": {
-        "cacheContextFetch": false,
-        "respondWithError": true
-      }
-    },
-    {
       "url": "/call",
       "handler": "callHandler",
       "options": {

@@ -5,12 +5,7 @@ import type {
   Connector
 } from "hull";
 
-import {
-  entityListHandler,
-  configHandler,
-  statusHandler,
-  previewHandler
-} from "hull-vm";
+import { configHandler, statusHandler, previewHandler } from "hull-vm";
 import configData from "./config-data";
 import callHandler from "./call-handler";
 
@@ -24,7 +19,6 @@ const handler = (_connector: Connector): HullHandlersConfiguration => {
     json: {
       callHandler,
       configHandler: configHandler(configData),
-      entityListHandler,
       previewHandler
     }
   };
