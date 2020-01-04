@@ -14,10 +14,7 @@ import {
 import configData from "./config-data";
 import callHandler from "./call-handler";
 
-type HandlerType = { flow_size?: number, flow_in?: number };
-const handler = ({ flow_size, flow_in }: HandlerType) => (
-  _connector: Connector
-): HullHandlersConfiguration => {
+const handler = (_connector: Connector): HullHandlersConfiguration => {
   return {
     tabs: {
       admin: (): HullExternalResponse => ({ pageLocation: "admin.html" })
