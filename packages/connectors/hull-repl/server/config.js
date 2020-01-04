@@ -13,9 +13,7 @@ export default function connectorConfig(): HullConnectorConfig {
     OVERRIDE_FIREHOSE_URL,
     REDIS_URL,
     SHIP_CACHE_TTL = 60,
-    SHIP_CACHE_MAX = 100,
-    FLOW_CONTROL_IN,
-    FLOW_CONTROL_SIZE
+    SHIP_CACHE_MAX = 100
   } = process.env;
 
   const hostSecret = SECRET || "1234";
@@ -33,10 +31,7 @@ export default function connectorConfig(): HullConnectorConfig {
     devMode: NODE_ENV === "development",
     port: PORT || 8082,
     timeout: "25s",
-    handlers: handlers({
-      flow_size: FLOW_CONTROL_SIZE,
-      flow_in: FLOW_CONTROL_IN
-    }),
+    handlers,
     middlewares: [],
     cacheConfig: {
       ...cacheConfig,
