@@ -7,6 +7,7 @@ import Area from "./area";
 import CodeTitle from "./code-title";
 import type { ResultBase } from "../../types";
 import ListGroup from "react-bootstrap/ListGroup";
+import Badge from "react-bootstrap/Badge";
 
 const nice = obj => {
   if (obj === undefined) return "undefined";
@@ -32,7 +33,7 @@ type Props = {
 
 const Preview = ({ result = {}, url, headers }: Props) => {
   const { data = {}, errors = [], logs = [] } = result;
-  console.log({ url, headers });
+
   const hasErrors = _.size(errors);
 
   return hasErrors ? (
@@ -50,13 +51,19 @@ const Preview = ({ result = {}, url, headers }: Props) => {
     </Fragment>
   ) : (
     <Fragment>
-      <CodeTitle title="URL (Visit settings to update)" />
+      <CodeTitle title="URL (Update in Settings tab)" />
       <ListGroup>
         <ListGroup.Item>
-          <code>{url}</code>
+          {url ? (
+            <Fragment>
+              <Badge variant="success">POST</Badge>  <code>{url}</code>
+            </Fragment>
+          ) : (
+            "Go to the Settings tab to enter a destination URL"
+          )}
         </ListGroup.Item>
       </ListGroup>
-      <CodeTitle title="Headers (Visit settings to update)" />
+      <CodeTitle title="Headers (Update in Settings tab)" />
       <ListGroup>
         {_.map(headers, (v, k) => (
           <ListGroup.Item key={k}>
@@ -66,7 +73,7 @@ const Preview = ({ result = {}, url, headers }: Props) => {
           </ListGroup.Item>
         ))}
       </ListGroup>
-      <CodeTitle title="Data" />
+      <CodeTitle title="Body" />
       <Area
         aceOptions={{
           wrapMethod: "text",

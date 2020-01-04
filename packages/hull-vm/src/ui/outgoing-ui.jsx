@@ -116,7 +116,7 @@ export default class OutgoingUI extends VirtualMachineUI<Props, State> {
                 </div>
               </EntrySelector>
             </Header>
-            <CodeTitle title="Payload" />
+            <CodeTitle title="Notification Content" />
             <Area
               id="code-payload"
               mode="json"
@@ -136,11 +136,18 @@ export default class OutgoingUI extends VirtualMachineUI<Props, State> {
               )}
             </Header>
             <CodeTitle
-              title={`Code - (${language}) ${
-                !current.editable
-                  ? "(disabled - first search for something on the left panel)"
-                  : ""
-              }`}
+              title={
+                <span>
+                  {`Body (${language} supported) `}
+                  {!current.editable ? (
+                    <small style={{ opacity: 0.5 }}>
+                      (disabled - first search for something on the left panel)
+                    </small>
+                  ) : (
+                    ""
+                  )}
+                </span>
+              }
             />
             <Code
               focusOnLoad={true}
