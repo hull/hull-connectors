@@ -83,7 +83,7 @@ const Preview = ({ result = {}, url, headers }: Props) => {
         value={data}
         mode="json"
       />
-      <CodeTitle title="Console" />
+      {/* <CodeTitle title="Console" />
       <Area
         aceOptions={{
           wrapMethod: "text",
@@ -92,7 +92,7 @@ const Preview = ({ result = {}, url, headers }: Props) => {
         id="code-console"
         value={renderLogs(logs)}
         mode="javascript"
-      />
+      /> */}
     </Fragment>
   );
 };

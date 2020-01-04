@@ -13,17 +13,21 @@ import {
 } from "hull-vm";
 import configData from "./config-data";
 import userUpdate from "./user-update";
+import shipUpdate from "./ship-update";
+import throttlePoolFactory from "../lib/throttle-pool";
 
 type HandlerType = { flow_size?: number, flow_in?: number };
 const handler = ({ flow_size, flow_in }: HandlerType) => (
   _connector: Connector
 ): HullHandlersConfiguration => {
+  const getThrottle = throttlePoolFactory();
   return {
     tabs: {
       admin: (): HullExternalResponse => ({ pageLocation: "admin.html" })
     },
     subscriptions: {
-      userUpdate: userUpdate({ flow_in, flow_size })
+      userUpdate: userUpdate({ flow_in, flow_size }, getThrottle),
+      shipUpdate: shipUpdate(getThrottle)
     },
     statuses: { statusHandler },
     json: {

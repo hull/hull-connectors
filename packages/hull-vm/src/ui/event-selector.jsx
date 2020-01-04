@@ -62,6 +62,10 @@ const styles = {
       backgroundColor: isDisabled ? disabled : dark
     }
   }),
+  singleValue: (s, { data }) => ({
+    ...s,
+    color: "#FFFFFF"
+  }),
   multiValue: (s, { data }) => ({
     ...s,
     backgroundColor: "#ffffff22",

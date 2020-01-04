@@ -54,6 +54,7 @@ export default class ProcessorEngine extends Engine {
     const { entity } = this.state;
     const current = {
       ...entry,
+      language: this.state.language,
       code: newCode,
       editable: true,
       claims,

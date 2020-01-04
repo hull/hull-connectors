@@ -1,5 +1,6 @@
 // @flow
 
+import _ from "lodash";
 import React, { Fragment } from "react";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Button from "react-bootstrap/Button";
@@ -52,7 +53,7 @@ export default class OutgoingUI extends VirtualMachineUI<Props, State> {
 
   handleUpdateEvents = events => {
     const { engine } = this.props;
-    engine.updateEvents(events);
+    engine.updateEvents(_.isArray(events) ? events : [events]);
   };
 
   getError = () => {
