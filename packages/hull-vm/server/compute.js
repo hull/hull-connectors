@@ -77,6 +77,5 @@ export default async function compute(
       result.errors.push(err.stack.split("at new Script")[0]);
     }
   }
-  console.log(result)
   return result;
 }

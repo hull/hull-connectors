@@ -2,7 +2,6 @@
 /* :: export type * from "../types"; */
 
 export { default as compute } from "./compute";
-export { default as jsonata } from "./backends/jsonata";
 export { default as javascript } from "./backends/javascript";
 export { default as ingest } from "./ingest";
 export { default as getClaims } from "./lib/get-claims";
