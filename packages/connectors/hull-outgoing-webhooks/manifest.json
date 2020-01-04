@@ -146,6 +146,30 @@
       ]
     }
   ],
+  "json": [
+    {
+      "url": "/config",
+      "handler": "configHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
+    },
+    {
+      "url": "/entry",
+      "handler": "entityHandler",
+      "options": {
+        "cacheContextFetch": false,
+        "respondWithError": true
+      }
+    },
+    {
+      "url": "/preview",
+      "handler": "previewHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
+    }
+  ],
   "deployment_settings": [],
   "readme": "readme.md",
   "ui": false,
@@ -153,6 +177,12 @@
   "subscriptions": [
     {
       "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ],
       "conditions": {
         "segments": {
           "user:update": [
@@ -162,9 +192,7 @@
         "channels": {
           "only": [
             "user:update",
-            "ship:update",
-            "users_segment:update",
-            "segment:update"
+            "ship:update"
           ]
         }
       }

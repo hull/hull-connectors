@@ -6,7 +6,7 @@ import type {
 } from "hull";
 
 import {
-  entityListHandler,
+  entityHandler,
   configHandler,
   statusHandler,
   previewHandler
@@ -28,7 +28,7 @@ const handler = ({ flow_size, flow_in }: HandlerType) => (
     statuses: { statusHandler },
     json: {
       configHandler: configHandler(configData),
-      entityListHandler,
+      entityHandler,
       previewHandler
     }
   };

@@ -4,7 +4,7 @@ import React, { Fragment } from "react";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Button from "react-bootstrap/Button";
 import Code from "./code";
-import Preview from "./preview";
+import Preview from "./outgoing-preview";
 import KeyBindings from "./key-bindings";
 import EntrySelector from "./entry-selector";
 import EventSelector from "./event-selector";
@@ -31,7 +31,7 @@ const DEFAULT_STATE = {
   activeTab: "Current"
 };
 
-export default class ProcessorUI extends VirtualMachineUI<Props, State> {
+export default class OutgoingUI extends VirtualMachineUI<Props, State> {
   static leftColumnTitle = "leftColumnTitle";
 
   static tabCurrent = "tabCurrent";
@@ -68,6 +68,8 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
 
   render() {
     const {
+      url,
+      headers,
       current,
       fetching,
       initialized,
@@ -77,9 +79,9 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
       events,
       error,
       entity,
-      search
+      search,
+      language
     } = this.state;
-
     const { strings } = this.props;
 
     if (!current) {
@@ -134,7 +136,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
               )}
             </Header>
             <CodeTitle
-              title={`Code ${
+              title={`Code - (${language}) ${
                 !current.editable
                   ? "(disabled - first search for something on the left panel)"
                   : ""
@@ -143,6 +145,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
             <Code
               focusOnLoad={true}
               computing={computing}
+              mode={language}
               code={current.code}
               readOnly={!current.editable}
               onChange={this.handleCodeUpdate}
@@ -159,8 +162,8 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
 
             <Preview
               title="Preview"
-              scoped={true}
-              entity={entity}
+              url={url}
+              headers={headers}
               result={error ? {} : current.result}
               computing={computing}
             />

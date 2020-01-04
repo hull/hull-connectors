@@ -1,16 +1,41 @@
 // @flow
 
+import _ from "lodash";
 import type { HullContext } from "hull";
-import jsonata from "jsonata";
-import type { Result, ComputeOptions } from "../../types";
+import jsonataEngine from "jsonata";
+import type { ComputeOptions } from "../../types";
 
-export default async function(
+export async function jsonata(
   ctx: HullContext,
-  { claims, code, payload, entity }: ComputeOptions,
-  result: Result,
-  hull: any
+  { code, payload }: ComputeOptions
 ) {
-  const data = jsonata(code).evaluate(payload);
-  (entity === "account" ? hull.asAccount : hull.asUser)(claims).traits(data);
-  return result;
+  try {
+    return jsonataEngine(code).evaluate(payload);
+  } catch (err) {
+    throw new JsonataError(
+      err.message,
+      _.pick(err, "message", "code", "position", "token", "value")
+    );
+  }
+}
+type Context = {
+  code?: string,
+  position?: string,
+  token?: string,
+  value?: string
+};
+
+export class JsonataError extends Error {
+  code: string;
+
+  context: Context;
+
+  constructor(message: string, context: Context) {
+    super(message);
+    this.name = "JsonataError"; // compatible with http-errors library
+    this.code = "JSONATA_ERROR"; // compatible with internal node error
+    this.context = context;
+
+    Error.captureStackTrace(this, JsonataError);
+  }
 }

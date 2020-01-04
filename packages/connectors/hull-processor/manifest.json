@@ -98,8 +98,7 @@
       "description": "Configure the way the processor runs",
       "properties": [
         "private_settings.synchronized_user_segments",
-        "private_settings.variables",
-        "private_settings.language"
+        "private_settings.variables"
       ]
     }
   ],

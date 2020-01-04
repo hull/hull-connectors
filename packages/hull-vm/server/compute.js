@@ -5,39 +5,46 @@ import _ from "lodash";
 // import request from "request-promise";
 import { Map } from "immutable";
 import errors from "request-promise/errors";
-import type { Result, ComputeOptions } from "../types";
+import type { Result, ResultBase, ComputeOptions } from "../types";
 import getHullContext from "./sandbox/hull";
 import javascript from "./backends/javascript";
-import jsonata from "./backends/jsonata";
+import { jsonata, JsonataError } from "./backends/jsonata";
 
 export default async function compute(
   ctx: HullContext,
   { language, payload, code, preview, claims, source, entity }: ComputeOptions
-): Promise<Result> {
+): Promise<Result | ResultBase> {
   const { client } = ctx;
   const result: Result = {
     logs: [],
     logsForLogger: [],
     errors: [],
-    userTraits: Map({}),
-    userAliases: Map({}),
-    accountTraits: Map({}),
+    data: {},
+    success: false,
+    isAsync: false,
     accountAliases: Map({}),
     accountLinks: Map({}),
+    accountTraits: Map({}),
     events: [],
+    userAliases: Map({}),
+    userTraits: Map({}),
     claims,
-    entity,
-    success: false,
-    isAsync: false
+    entity
   };
 
-  const hull = getHullContext(client, result, source);
   const computeOptions = { source, payload, code, preview, claims, entity };
   try {
     if (language === "jsonata") {
-      await jsonata(ctx, computeOptions, result, hull);
+      const data = await jsonata(ctx, computeOptions);
+      console.log("'''", data);
+      result.data = { ...data };
     } else {
-      await javascript(ctx, computeOptions, result, hull);
+      const hull = getHullContext(client, result, source);
+      const scopedClient =
+        claims && _.size(claims)
+          ? (entity === "account" ? hull.asAccount : hull.asUser)(claims)
+          : undefined;
+      await javascript(ctx, computeOptions, scopedClient, result, hull);
     }
     // If we returned a Promise, await until we've got resolved it.
     // If it's not a promise we'll continue immediately
@@ -54,6 +61,7 @@ export default async function compute(
     result.events = _.slice(result.events, 0, 10);
     result.success = true;
   } catch (err) {
+    console.log(err);
     if (
       err.error ||
       err instanceof errors.RequestError ||
@@ -63,10 +71,12 @@ export default async function compute(
       result.errors.push(
         err.message === "Error: ESOCKETTIMEDOUT" ? err.message : err.error
       );
+    } else if (err instanceof JsonataError) {
+      result.errors.push(err.message);
     } else {
       result.errors.push(err.stack.split("at new Script")[0]);
     }
   }
-
+  console.log(result)
   return result;
 }

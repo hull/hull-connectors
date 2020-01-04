@@ -4,7 +4,8 @@ import type {
   HullUserUpdateMessage,
   HullNotificationResponse
 } from "hull";
-import _ from "lodash";
+import { compute } from "hull-vm";
+
 import SuperagentThrottle from "superagent-throttle";
 import shouldSendMessage from "../lib/should-send-message";
 
@@ -24,35 +25,45 @@ const update = ({ flow_in, flow_size }: FlowControl) => async (
     throttle_per_rate,
     concurrency,
     headers,
-    synchronized_attributes,
     url
   } = private_settings;
   const { group } = client.utils.traits;
-  const throttle = new SuperagentThrottle({
-    rate: throttle_rate,
-    ratePer: throttle_per_rate,
-    concurrent: concurrency
-  });
+  // const throttle = new SuperagentThrottle({
+  //   rate: throttle_rate,
+  //   ratePer: throttle_per_rate,
+  //   concurrent: concurrency
+  // });
+
   try {
     await Promise.all(
       messages.map(async message => {
-        const payload = {
-          ...message,
-          user: group(_.pick(message.user, synchronized_attributes))
-        };
+        const result = await compute(ctx, {
+          source: "outgoing-webhooks",
+          language: "jsonata",
+          payload: {
+            variables: {},
+            ...message,
+            user: group(message.user),
+            account: group(message.account)
+          },
+          entity: "user",
+          preview: false,
+          code
+        });
         if (shouldSendMessage(private_settings, message)) {
-          const response = await request
-            .set(headers || {})
-            .send(payload)
-            .post(url)
-            .use(throttle.plugin());
-
-          if (!response || response.error || response.status > 400) {
-            throw new Error(response.error);
-          }
+          console.log("Send Payload", { headers, url, result });
+          // const response = await request
+          //   .set(headers || {})
+          //   .send(result.data)
+          //   .post(url)
+          //   .use(throttle.plugin());
+          // if (!response || response.error || response.status > 400) {
+          //   throw new Error(response.error);
+          // }
         }
       })
     );
+    // TODO: Refine Kraken response based on Customer Settings for throttle rate
     return {
       status: 200,
       flow_control: {
