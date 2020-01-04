@@ -44,19 +44,6 @@
       }
     }
   ],
-  "subscriptions": [
-    {
-      "url": "/smart-notifier",
-      "conditions": {
-        "channels": {
-          "only": [
-            "ship:update"
-          ]
-        }
-      },
-      "channels": []
-    }
-  ],
   "status": {
     "initial_value": "ok",
     "url": "/status",
