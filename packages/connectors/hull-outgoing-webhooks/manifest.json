@@ -47,7 +47,7 @@
       "title": "Code",
       "description": "Enter JSON mapping code here",
       "type": "string",
-      "default": "{}",
+      "default": "{\n \"email\": user.email,\n \"event_name\": events[event=\"Viewed Page\"].event,\n \"event_time\": events[event=\"Viewed Page\"].created_at\n }",
       "format": "hidden"
     },
     {
@@ -87,7 +87,9 @@
       "description": "Event that triggers a notification",
       "type": "array",
       "format": "event",
-      "default": [],
+      "default": [
+        "ENTERED_SEGMENT"
+      ],
       "options": {
         "standard": {
           "ENTERED_SEGMENT": "Entered Segment",
@@ -102,7 +104,9 @@
       "title": "Applicable User Segments",
       "description": "User segments in which user events must occur in or on",
       "type": "array",
-      "default": ["ALL"],
+      "default": [
+        "ALL"
+      ],
       "format": "segment",
       "options": {
         "standard": {
