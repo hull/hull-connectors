@@ -28,11 +28,11 @@ const update = ({ flow_in, flow_size }: FlowControl) => async (
     url
   } = private_settings;
   const { group } = client.utils.traits;
-  // const throttle = new SuperagentThrottle({
-  //   rate: throttle_rate,
-  //   ratePer: throttle_per_rate,
-  //   concurrent: concurrency
-  // });
+  const throttle = new SuperagentThrottle({
+    rate: throttle_rate,
+    ratePer: throttle_per_rate,
+    concurrent: concurrency
+  });
 
   try {
     await Promise.all(
@@ -51,15 +51,14 @@ const update = ({ flow_in, flow_size }: FlowControl) => async (
           code
         });
         if (shouldSendMessage(private_settings, message)) {
-          console.log("Send Payload", { headers, url, result });
-          // const response = await request
-          //   .set(headers || {})
-          //   .send(result.data)
-          //   .post(url)
-          //   .use(throttle.plugin());
-          // if (!response || response.error || response.status > 400) {
-          //   throw new Error(response.error);
-          // }
+          const response = await request
+            .set(headers || {})
+            .send(result.data)
+            .post(url)
+            .use(throttle.plugin());
+          if (!response || response.error || response.status > 400) {
+            throw new Error(response.error);
+          }
         }
       })
     );

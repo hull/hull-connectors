@@ -55,6 +55,12 @@
       "title": "Header Array",
       "type": "array",
       "format": "table",
+      "default": [
+        {
+          "key": "Accept",
+          "value": "application/json"
+        }
+      ],
       "items": {
         "type": "object",
         "required": [
@@ -96,7 +102,7 @@
       "title": "Applicable User Segments",
       "description": "User segments in which user events must occur in or on",
       "type": "array",
-      "default": "ALL",
+      "default": ["ALL"],
       "format": "segment",
       "options": {
         "standard": {
