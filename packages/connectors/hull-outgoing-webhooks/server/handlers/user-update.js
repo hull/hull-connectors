@@ -25,6 +25,7 @@ const update = ({ flow_in, flow_size }: FlowControl, getThrottle: Function) => {
       throttle_rate,
       throttle_per_rate,
       concurrency,
+      headers,
       url
     } = private_settings;
 
@@ -58,8 +59,23 @@ const update = ({ flow_in, flow_size }: FlowControl, getThrottle: Function) => {
                 .post(url);
 
               if (!response || response.error || response.status >= 400) {
+                client.logger.error("outgoing.user.error", {
+                  url,
+                  headers,
+                  code,
+                  payload,
+                  body: response.body,
+                  message: response.error,
+                  status: response.status
+                });
                 throw new Error(response.error);
               }
+              client.logger.info("outgoing.user.success", {
+                url,
+                headers,
+                payload,
+                message: response.body
+              });
               return response;
             })
           )
