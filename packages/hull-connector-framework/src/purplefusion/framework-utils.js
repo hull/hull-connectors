@@ -1,6 +1,7 @@
 /* @flow */
 const _ = require("lodash");
 const momentConstructor = require("moment");
+const hash = require('object-hash');
 
 const uri = require("urijs");
 
@@ -41,7 +42,11 @@ class FrameworkUtils {
     return Buffer.from(params).toString('base64');
   }
 
+  hashObject(context: Object, params: any) {
+    return hash(params);
+  }
+
 }
 module.exports = {
   FrameworkUtils
-}
+};
