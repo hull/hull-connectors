@@ -70,7 +70,8 @@
       "name": "db_password",
       "type": "string",
       "title": "Password",
-      "required" : true
+      "required" : true,
+      "format": "password"
     },
     {
       "name": "user_outgoing_sync_title",
@@ -198,7 +199,7 @@
       "name": "outgoing_account_attributes",
       "title": "Account Attributes to send to Warehouse",
       "type": "array",
-      "format": "traitMapping",
+      "format": "accountTraitMapping",
       "options": {
         "direction": "outgoing",
         "showOverwriteToggle": true,
