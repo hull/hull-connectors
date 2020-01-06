@@ -64,6 +64,9 @@ Opportunities are fetched by either clicking the respective "Fetch All" buttons 
 ### Incoming Activities
 The current implementation supports the ingestion of a subset of activities from Copper.  The types of activities supported are copper account specific.  TO view your supported click the dropdown for "Activities to Fetch".  Limitations exist around the types of activities we can fetch as well as the objects we can attach them to.  Please see the Edge Case section for a more detailed explanation"
 
+### Outgoing Data
+We do not currently support the ability to send data to CopperCRM.  But that's not because we don't want to!  If you've got a need to send data to Copper, we would love to work with you to develop this feature and support your specific use case.  Please contact us at support@hull.io to request more information.
+
 ## Supported Objects
 The CopperCrm connector allows you to pull data into Hull from CopperCrm for the following objects:
 
