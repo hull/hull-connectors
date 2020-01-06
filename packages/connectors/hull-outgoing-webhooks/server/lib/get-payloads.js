@@ -29,7 +29,7 @@ const getPayloads = (
 
   const hasTrigger = t => _.includes(trigger, t);
   const hasChange = values => change =>
-    _.intersection(_.keys(_.get(changes, change)), values).length;
+    !!_.intersection(_.keys(_.get(changes, change)), values).length;
   const hasAttributeChange = hasChange(synchronized_attributes);
   const hasSegmentChange = hasChange(synchronized_segments);
 
