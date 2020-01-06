@@ -82,42 +82,36 @@
       }
     },
     {
-      "name": "trigger",
-      "title": "Trigger",
-      "description": "Event that triggers a notification",
+      "name": "synchronized_events",
+      "title": "Emit on new Event",
       "type": "array",
       "format": "event",
-      "default": [
-        "ENTERED_SEGMENT"
-      ],
+      "default": [],
       "options": {
         "standard": {
-          "ENTERED_SEGMENT": "Entered Segment",
-          "LEFT_SEGMENT": "Left Segment",
-          "ATTRIBUTE_CHANGE": "Attribute value changed",
           "CREATED": "User Created"
         }
       }
     },
     {
-      "name": "synchronized_segments",
-      "title": "Applicable User Segments",
-      "description": "User segments in which user events must occur in or on",
+      "name": "synchronized_segments_enter",
+      "title": "Emit on Entering these segments",
       "type": "array",
-      "default": [
-        "ALL"
-      ],
+      "default": [],
       "format": "segment",
-      "options": {
-        "standard": {
-          "ALL": "All Users"
-        }
-      }
+      "options": {}
+    },
+    {
+      "name": "synchronized_segments_leave",
+      "title": "Emit on Leaving these segments",
+      "type": "array",
+      "default": [],
+      "format": "segment",
+      "options": {}
     },
     {
       "name": "synchronized_attributes",
-      "title": "Attributes",
-      "description": "Attributes to send",
+      "title": "Emit on Attribute change",
       "type": "array",
       "format": "trait",
       "default": []
@@ -136,23 +130,21 @@
       "title": "Requests",
       "description": "",
       "properties": [
+        "private_settings.url",
+        "private_settings.headers",
         "private_settings.throttle_rate",
         "private_settings.throttle_per_rate",
-        "private_settings.concurrency",
-        "private_settings.headers",
-        "private_settings.url"
+        "private_settings.concurrency"
       ]
     },
     {
-      "title": "Users",
-      "description": "",
+      "title": "Triggers",
+      "description": "This section defines the conditions for emitting a Webhook. Any of those being true will result in a webhook being sent. Only one webhook will be sent if multiple conditions match",
       "properties": [
-        "private_settings.trigger",
-        "private_settings.synchronized_segments",
-        "private_settings.synchronized_attributes",
-        "private_settings.webhooks_url",
-        "private_settings.webhooks_events",
-        "private_settings.webhooks_attributes"
+        "private_settings.synchronized_events",
+        "private_settings.synchronized_segments_enter",
+        "private_settings.synchronized_segments_leave",
+        "private_settings.synchronized_attributes"
       ]
     }
   ],
@@ -196,7 +188,8 @@
       "conditions": {
         "segments": {
           "user:update": [
-            "private_settings.synchronized_segments"
+            "private_settings.synchronized_segments_enter",
+            "private_settings.synchronized_segments_leave"
           ]
         },
         "channels": {

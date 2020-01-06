@@ -21,37 +21,32 @@ const getPayloads = (
   const { private_settings } = connector;
   const { group } = client.utils.traits;
   const {
-    trigger,
-    synchronized_segments,
+    synchronized_events,
+    synchronized_segments_enter,
+    synchronized_segments_leave,
     synchronized_attributes
   } = private_settings;
   const { changes, events = [] } = message;
 
-  const hasTrigger = t => _.includes(trigger, t);
+  const hasEvent = t => _.includes(synchronized_events, t);
   const hasChange = values => change =>
     !!_.intersection(_.keys(_.get(changes, change)), values).length;
-  const hasAttributeChange = hasChange(synchronized_attributes);
-  const hasSegmentChange = hasChange(synchronized_segments);
+  const changedAttributes = hasChange(synchronized_attributes)("user");
+  const enteredSegments = hasChange(synchronized_segments_enter)(
+    "segments.entered"
+  );
+  const leftSegments = hasChange(synchronized_segments_leave)("segments.left");
 
   const payloads = [];
 
   const matchingEvents = _.filter(events, e =>
-    _.includes(
-      _.omit(
-        events,
-        "ATTRIBUTE_CHANGE",
-        "ENTERED_SEGMENT",
-        "LEFT_SEGMENT",
-        "CREATED"
-      ),
-      e.event
-    )
+    _.includes(_.omit(events, "ATTRIBUTE_CHANGE", "CREATED"), e.event)
   );
   if (
-    (hasTrigger("ATTRIBUTE_CHANGE") && hasAttributeChange("user")) ||
-    (hasTrigger("ENTERED_SEGMENT") && hasSegmentChange("segments.entered")) ||
-    (hasTrigger("LEFT_SEGMENT") && hasSegmentChange("segments.left")) ||
-    (hasTrigger("CREATED") && changes.is_new) ||
+    enteredSegments ||
+    leftSegments ||
+    changedAttributes ||
+    (hasEvent("CREATED") && changes.is_new) ||
     matchingEvents.length
   ) {
     payloads.push(
