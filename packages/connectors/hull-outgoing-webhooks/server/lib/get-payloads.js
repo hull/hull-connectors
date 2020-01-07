@@ -17,7 +17,7 @@ const getPayloads = (
   ctx: HullContext,
   message: HullUserUpdateMessage
 ): Array<{}> => {
-  const { client, connector } = ctx;
+  const { client, connector, isBatch } = ctx;
   const { private_settings } = connector;
   const { group } = client.utils.traits;
   const {
@@ -43,6 +43,7 @@ const getPayloads = (
     _.includes(_.omit(events, "ATTRIBUTE_CHANGE", "CREATED"), e.event)
   );
   if (
+    isBatch ||
     enteredSegments ||
     leftSegments ||
     changedAttributes ||

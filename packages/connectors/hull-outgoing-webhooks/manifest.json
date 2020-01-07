@@ -3,7 +3,6 @@
   "description": "Send Hull Users updates as Webhooks",
   "tags": [
     "batch",
-    "batch-accounts",
     "smart-notifier",
     "kraken-exports"
   ],
