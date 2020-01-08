@@ -465,10 +465,16 @@ class MappingUtil {
    * @return {Object}          Hull user traits
    */
   getHullUserTraits(userData: HubspotReadContact): HullUserAttributes {
+    const properties = userData.properties;
     const hullTraits = _.reduce(
       this.contactIncomingMapping,
       (traits, mappingEntry) => {
-        if (!mappingEntry.hubspot_property_name) {
+        const hullTraitName = mappingEntry.hull_trait_name;
+        const hsPropertyName = mappingEntry.hubspot_property_name;
+        const hsPropertyType = mappingEntry.hubspot_property_type;
+        const hsPropertyFieldType = mappingEntry.hubspot_property_field_type;
+
+        if (_.isNil(hsPropertyName)) {
           this.hullClient
             .asUser(_.pick(userData, ["id", "external_id", "email"]))
             .logger.warn("incoming.user.warning", {
@@ -476,15 +482,18 @@ class MappingUtil {
               mappingEntry
             });
         }
-        if (
-          userData.properties &&
-          _.has(userData.properties, mappingEntry.hubspot_property_name)
-        ) {
-          let val = _.get(
-            userData,
-            `properties[${mappingEntry.hubspot_property_name}].value`
-          );
-          if (mappingEntry.hubspot_property_type === "number") {
+
+        let val = null;
+        if (_.startsWith(hsPropertyName, "contact_meta.")) {
+          const metaKey = hsPropertyName.split("contact_meta.")[1];
+          val = _.get(userData, metaKey, null);
+        } else if (properties && _.has(properties, hsPropertyName)) {
+          const propertiesKey = `properties[${hsPropertyName}].value`;
+          val = _.get(userData, propertiesKey, null);
+        }
+
+        if (!_.isNil(val)) {
+          if (hsPropertyType === "number") {
             const numVal = parseFloat(val);
             // eslint-disable-next-line no-restricted-globals
             if (!isNaN(val)) {
@@ -493,14 +502,15 @@ class MappingUtil {
           }
 
           if (
-            mappingEntry.hubspot_property_type === "enumeration" &&
-            mappingEntry.hubspot_property_field_type === "checkbox" &&
+            hsPropertyType === "enumeration" &&
+            hsPropertyFieldType === "checkbox" &&
             typeof val === "string"
           ) {
             val = val.split(";");
           }
-          traits[mappingEntry.hull_trait_name] = val;
         }
+        traits[hullTraitName] = val;
+
         return traits;
       },
       {}
