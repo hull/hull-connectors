@@ -281,8 +281,7 @@ class HullDispatcher {
 
       if (instructionName === 'return') {
         await this.resolve(context, instructionOptions.instructions, serviceData);
-        const a = await this.resolve(context, instructionOptions.returnValue, serviceData);
-        return a;
+        return this.resolve(context, instructionOptions.returnValue, serviceData);
       } else if (instructionName === 'if') {
 
         // if this instructions doesn't have any params, it's just a "do"

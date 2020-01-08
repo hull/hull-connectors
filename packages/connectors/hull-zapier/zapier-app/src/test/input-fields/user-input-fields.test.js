@@ -316,7 +316,7 @@ describe('User Input Fields Test', () => {
 
     results.should.deepEqual([
       {
-        "key": "user_event",
+        "key": "user_events",
         "required": true,
         "label": "User Events",
         "list": true,

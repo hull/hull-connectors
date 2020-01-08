@@ -12,9 +12,10 @@ const {
 } = require("hull/src/errors");
 
 const {
-  ZapierUserWrite,
-  HullOutgoingUser
+  ZapierOutgoingEntity
 } = require("./service-objects");
+
+const { HullOutgoingUser } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const {
   SuperagentApi
@@ -29,8 +30,7 @@ const service = (): RawRestApi => ({
       url: "${zap_url}",
       operation: "post",
       endpointType: "create",
-      returnObj: "body.data",
-      input: HullOutgoingUser
+      returnObj: "body.data"
     }
   },
   superagent: {},
