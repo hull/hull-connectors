@@ -490,6 +490,25 @@ describe("Basic Attributes manipulation", () => {
     }));
   });
 
+  it("should handle empty events at top level", () => {
+
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser(),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(`if(events) { console.log("hi"); }`),
+      firehoseEvents: [],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.whatever()
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST]
+    }));
+  });
+
   it("should apply a simple attribute to a user", () => {
     const asUser = { id: "1234" };
     const attributes = { foo: "bar" };
