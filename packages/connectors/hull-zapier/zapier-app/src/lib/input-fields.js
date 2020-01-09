@@ -70,7 +70,7 @@ async function getInputFields(
   if (entityType === "user_event") {
     const choices = await getEntityAttributes(z, entityType);
     inputFields = _.concat(inputFields, {
-      key: entityType,
+      key: `${entityType}s`,
       required: true,
       label: inputType,
       list,

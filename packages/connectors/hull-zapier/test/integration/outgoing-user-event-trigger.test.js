@@ -13,15 +13,15 @@ describe("Outgoing User Event Tests", () => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-user"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
-        subscriptions: [
+        triggers: [
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/user-event-created/1",
-            "action": "created",
-            "entityType": "user_event",
-            "inputData": {
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/user-event-created/1"
+            },
+            inputData: {
               "account_segments": [ 'all_segments' ],
               "user_segments": [ 'user_segment_1' ],
-              "user_event": [ 'Email Opened' ]
+              "user_events": [ 'Email Opened' ]
             }
           }
         ]
@@ -57,6 +57,17 @@ describe("Outgoing User Event Tests", () => {
             {
               "event": "Email Opened",
               "event_id": "email_opened_1",
+              "user_id": "user_id_1",
+              "properties": {
+                "emailCampaignId": "837382",
+                "created": "1563746708853"
+              },
+              "event_source": "hubspot",
+              "context": {}
+            },
+            {
+              "event": "Random Event",
+              "event_id": "random",
               "user_id": "user_id_1",
               "properties": {
                 "emailCampaignId": "837382",
@@ -100,7 +111,41 @@ describe("Outgoing User Event Tests", () => {
           ],
           ["info", "outgoing.user.success",
             expect.objectContaining({ "subject_type": "user", "user_id": "5bd329d5e2bcf3eeaf000099", "user_email": "bob@bobby.com" }),
-            expect.objectContaining({ "data": expect.objectContaining({"message_id": "message_1"}), "type": "User" })
+            expect.objectContaining({ "data": {
+                "user": {
+                  "id": "5bd329d5e2bcf3eeaf000099",
+                  "email": "bob@bobby.com",
+                  "segment_ids": [
+                    "user_segment_1"
+                  ]
+                },
+                "account": {},
+                "segments": [
+                  {
+                    "id": "user_segment_1",
+                    "name": "UserSegment1"
+                  },
+                  {
+                    "id": "user_segment_2",
+                    "name": "UserSegment2"
+                  }
+                ],
+                "events": [
+                  {
+                    "event": "Email Opened",
+                    "event_id": "email_opened_1",
+                    "user_id": "user_id_1",
+                    "properties": {
+                      "emailCampaignId": "837382",
+                      "created": "1563746708853"
+                    },
+                    "event_source": "hubspot",
+                    "context": {}
+                  }
+                ],
+                "account_segments": [],
+                "message_id": "message_1",
+              }, "type": "User" })
           ],
           ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "user" }]
         ],
@@ -116,15 +161,15 @@ describe("Outgoing User Event Tests", () => {
       const updateMessages = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-user"));
       const private_settings = {
         ...updateMessages.connector.private_settings,
-        subscriptions: [
+        triggers: [
           {
-            "url": "https://hooks.zapier.com/hooks/standard/5687326/user-event-created/1",
-            "action": "created",
-            "entityType": "user_event",
-            "inputData": {
+            serviceAction: {
+              webhook: "https://hooks.zapier.com/hooks/standard/5687326/user-event-created/1"
+            },
+            inputData: {
               "account_segments": [ 'all_segments' ],
               "user_segments": [ 'user_segment_1' ],
-              "user_event": [ 'Email Sent' ]
+              "user_events": [ 'Email Sent' ]
             }
           }
         ]

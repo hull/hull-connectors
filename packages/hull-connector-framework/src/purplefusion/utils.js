@@ -2,7 +2,6 @@
 
 import type { ServiceObjectDefinition } from "./types";
 import type { HullAccountUpdateMessage, HullContext, HullEntityName, HullUserUpdateMessage } from "hull";
-
 const _ = require("lodash");
 const debug = require("debug")("hull-shared:utils");
 const {
@@ -495,4 +494,4 @@ module.exports = {
   getHullPlatformTypeName,
   sameHullDataType,
   asyncForEach
-}
+};

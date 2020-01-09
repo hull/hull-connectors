@@ -12,25 +12,15 @@
   "picture": "picture.png",
   "ui": false,
   "readme": "readme.md",
-  "version": "0.1.14-monorepo",
+  "version": "0.1.15-monorepo",
   "private_settings": [
     {
-      "name": "subscriptions",
+      "name": "triggers",
       "title": "Rest Hook Subscriptions",
       "type": "array",
       "items": {
         "type": "object",
-        "properties": {
-          "url": {
-            "type": "string"
-          },
-          "action": {
-            "type": "string"
-          },
-          "entityType": {
-            "type": "string"
-          }
-        }
+        "properties": {}
       },
       "default": []
     },
