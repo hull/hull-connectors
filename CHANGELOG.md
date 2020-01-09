@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.1.15-monorepo
+- [hull-connector-framework] add triggers
+
 ## v0.1.14-monorepo
 - [hull-hubspot] map contact meta data
 - [hull-slack] fix account trigger bug

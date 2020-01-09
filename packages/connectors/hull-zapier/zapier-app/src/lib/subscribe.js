@@ -2,23 +2,6 @@ const _ = require("lodash");
 const { subscribeUrl } = require("../config");
 
 function getInputData(inputData, { entityType, action }) {
-
-  if (entityType === "user") {
-
-    const user_segments = _.get(inputData, "user_segments", []);
-    const user_attributes = _.get(inputData, "user_attributes", []);
-    const account_segments = _.get(inputData, "account_segments", []);
-    const account_attributes = _.get(inputData, "account_attributes", []);
-
-    if (action === "attribute_updated") {
-      return {
-        user_segments,
-        user_attributes,
-        account_segments,
-        account_attributes
-      }
-    }
-  }
   return inputData;
 }
 
