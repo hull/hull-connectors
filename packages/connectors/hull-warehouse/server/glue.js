@@ -17,6 +17,7 @@ const {
   obj,
   cast,
   ld,
+  utils,
   transformTo
 } = require("hull-connector-framework/src/purplefusion/language");
 
@@ -27,7 +28,9 @@ const {
 
 const {
   PostgresUserSchema,
-  PostgresAccountSchema
+  PostgresAccountSchema,
+  WarehouseUserWrite,
+  WarehouseAccountWrite
 } = require("./service-objects");
 
 const _ = require("lodash");
@@ -89,13 +92,13 @@ const glue = {
 
   accountUpdate: ifL(route("hasRequiredFields"),
     iterateL(input(), { key: "message", async: true }, [
-      postgresJdbc("upsertHullAccount", cast(HullOutgoingAccount, "${message}")),
+      postgresJdbc("upsertHullAccount", transformTo(WarehouseAccountWrite, cast(HullOutgoingAccount,"${message}"))),
     ])
   ),
   userUpdate: ifL(route("hasRequiredFields"),
     iterateL(input(), { key: "message", async: true }, [
 
-      postgresJdbc("upsertHullUser", cast(HullOutgoingUser, "${message}")),
+      postgresJdbc("upsertHullUser", transformTo(WarehouseUserWrite, cast(HullOutgoingUser,"${message}"))),
 
       iterateL(ld("filter", "${message.events}", { event_type: "user_merged" }), "event",
         postgresJdbc("mergeHullUser", {previous: "${event.properties.merged_id}", merged: "${event.user_id}"})
@@ -103,6 +106,8 @@ const glue = {
     ])
   ),
   ensureHook: ifL(route("hasRequiredFields"), [
+    set("userAttributesHash", utils("hashObject", settings("outgoing_user_attributes"))),
+    set("accountAttributesHash", utils("hashObject", settings("outgoing_account_attributes"))),
     set("currentDatabaseSettings",
       "${connector.private_settings.db_username}|" +
       "${connector.private_settings.db_password}|" +
@@ -111,7 +116,11 @@ const glue = {
       "${connector.private_settings.db_name}|" +
       "${connector.private_settings.db_account_table_name}|" +
       "${connector.private_settings.db_user_table_name}|" +
-      "${connector.private_settings.db_events_table_name}"),
+      "${connector.private_settings.db_events_table_name}|" +
+      "${connector.private_settings.send_all_user_attributes}|" +
+      "${connector.private_settings.send_all_account_attributes}|" +
+      "${userAttributesHash}|" +
+      "${accountAttributesHash}"),
 
     // This condition checks for both if the databaseUrl has been set or if it's not equal to the existing one
     // in either case have to schema update both account and user and set the databaseUrl
@@ -127,39 +136,25 @@ const glue = {
         cacheSet({ key: "databaseSettings", ttl: 99999999 }, "${currentDatabaseSettings}")
       ]),
       elif: [
-        ifL(cond("notEmpty", input("[0].user")),[
-          ifL( [
-            settings("send_all_user_attributes"),
+        ifL([
+            cond("notEmpty", input("[0].user")),
             postgresJdbc("containsNewAttribute", {
               messages: obj(input()),
               schema: cacheGet("userSchema"),
               path: "user"
-            })], {
-              do: lockL("${connector.id}", route("userSchemaUpdateStart")),
-              eldo:
-                ifL(cond("notEqual"), settings("outgoing_user_attributes"), cacheGet("userAttributes"), [
-                  cacheSet("userAttributes", settings("outgoing_user_attributes")),
-                  lockL("${connector.id}", route("userSchemaUpdateStart")),
-                ])
-            }
-          )]
+            }),
+          ],
+          lockL("${connector.id}", route("userSchemaUpdateStart"))
         ),
-        ifL(cond("notEmpty", input("[0].account")), [
-          ifL([
-              settings("send_all_account_attributes"),
-              postgresJdbc("containsNewAttribute", {
-                messages: obj(input()),
-                schema: cacheGet("accountSchema"),
-                path: "account"
-              })], {
-            do: lockL("${connector.id}", route("accountSchemaUpdateStart")),
-            eldo:
-              ifL(cond("notEqual"), settings("outgoing_account_attributes"), cacheGet("accountAttributes"), [
-                cacheSet("accountAttributes", settings("outgoing_account_attributes")),
-                lockL("${connector.id}", route("accountSchemaUpdateStart")),
-              ])
-            }
-          )]
+        ifL([
+            cond("notEmpty", input("[0].account")),
+            postgresJdbc("containsNewAttribute", {
+              messages: obj(input()),
+              schema: cacheGet("accountSchema"),
+              path: "account"
+            }),
+          ],
+          lockL("${connector.id}", route("accountSchemaUpdateStart"))
         )
       ]
     })

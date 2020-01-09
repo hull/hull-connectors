@@ -214,7 +214,11 @@ class SequalizeSdk {
     }
   }
 
-  generateSequelizeSchema(hullSchema: Array<any>) {
+  generateSequelizeSchema(schemaObject: any) {
+    let hullSchema = schemaObject;
+    if (!Array.isArray(hullSchema)) {
+      hullSchema = hullSchema.arrayOfAttributes;
+    }
     const fields = {};
 
     _.forEach(hullSchema, attribute => {
@@ -449,11 +453,13 @@ const postgresSdk = ({ clientID, clientSecret } : {
     createUserSchema: {
       method: "createUserSchema",
       endpointType: "upsert",
+      batch: true,
       input: PostgresUserSchema
     },
     createAccountSchema: {
       method: "createAccountSchema",
       endpointType: "upsert",
+      batch: true,
       input: PostgresAccountSchema
     }
   },

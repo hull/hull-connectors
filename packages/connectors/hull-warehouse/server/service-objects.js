@@ -4,12 +4,12 @@ import type { ServiceObjectDefinition } from "hull-connector-framework/src/purpl
 
 const WarehouseUserWrite: ServiceObjectDefinition = {
   service_name: "warehouse_outgoing_user",
-  name: "User"
+  name: "WarehouseUser"
 };
 
 const WarehouseAccountWrite: ServiceObjectDefinition = {
   service_name: "warehouse_outgoing_account",
-  name: "Account"
+  name: "WarehouseAccount"
 };
 
 const PostgresUserSchema: ServiceObjectDefinition = {

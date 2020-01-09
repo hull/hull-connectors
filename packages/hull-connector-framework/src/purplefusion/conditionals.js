@@ -60,6 +60,13 @@ function isVarServiceAttributeInVarList(varServiceName: string, varListName: str
   };
 }
 
+function varStartsWithString(param: string, stringStart: string) {
+  return (context) => {
+    const contextVariable = context.get(param);
+    return contextVariable.startsWith(stringStart);
+  }
+}
+
 /***************************/
 
 function notNull(param: string) {
@@ -177,5 +184,6 @@ module.exports = {
   varEqual,
   varInArray,
   isServiceAttributeInVarList,
-  isVarServiceAttributeInVarList
+  isVarServiceAttributeInVarList,
+  varStartsWithString
 };

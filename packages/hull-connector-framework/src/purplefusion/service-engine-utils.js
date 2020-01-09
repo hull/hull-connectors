@@ -387,7 +387,7 @@ function parseError(error: any, parser: any, output: Object): Object {
 }
 
 function findErrorTemplate(context: Object, serviceDefinition: any, error: any) {
-  if (!_.isEmpty(serviceDefinition.error.templates)) {
+  if (error && !_.isEmpty(_.get(serviceDefinition, error.templates))) {
 
     return _.find(serviceDefinition.error.templates, template => {
       let truthy = template.truthy;
