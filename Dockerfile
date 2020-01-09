@@ -53,6 +53,7 @@ COPY packages/hull-repl/ /app/packages/hull-repl/
 COPY ./scripts /app/scripts/
 
 # build the project
-RUN yarn build
+RUN yarn build-connector
 
+EXPOSE 8082
 ENTRYPOINT node --optimize_for_size -r newrelic "dist/${CONNECTOR}/server"
