@@ -39,8 +39,6 @@ COPY packages/connectors/hull-zapier/package.json /app/packages/connectors/hull-
 COPY newrelic.js /app/
 COPY babel.config.js /app/
 
-COPY webpack /app/
-
 # install dependencies
 RUN yarn cache clean && yarn
 
