@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "domready": "^1.0.8",
-    "mongoose": "5.4.16",
+    "mongoose": "5.8.6",
     "syntax-error": "^1.4.0"
   },
   "devDependencies": {}
