@@ -4,7 +4,7 @@
   "source": "hubspot",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.11-monorepo",
+  "version": "0.1.12-monorepo",
   "tags": [
     "outgoing",
     "incoming",
@@ -37,14 +37,14 @@
       "title": "Mark Deleted Contacts",
       "description": "If a contact has been deleted in Hubspot, mark it as such in Hull.",
       "type": "boolean",
-      "default": false
+      "default": true
     },
     {
       "name": "mark_deleted_companies",
       "title": "Mark Deleted Companies",
       "description": "If a company has been deleted in Hubspot, mark it as such in Hull.",
       "type": "boolean",
-      "default": false
+      "default": true
     },
     {
       "name": "oauth",
@@ -617,7 +617,6 @@
       "title": "User - Fetching from Hubspot",
       "description": "<b>Identity</b> is one of the most important concepts in Hull. The field mapping for user identity should correspond to unique fields across systems. The \"User Identity\" section defines which fields are used to resolve users as the come into Hull. <b>Please note this does not affect the outgoing user flow.</b> To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Email</b> is typically a fairly stable identifier, but can be vulnerable to edge cases. Ideally there is an unique identifier (external_id) that can be used across systems. Try to configure the identity before doing anything else. Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /> Hull captures many of the standard contact fields by default. Refer to the connector documentation in the \"Docs\" tab to view the default mappings. If you have any additional custom fields to capture, you may define these mappings in the \"Incoming Custom Attribute Mapping\" section by clicking \"Map another attribute\". To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
       "properties": [
-        "private_settings.mark_deleted_contacts",
         "private_settings.incoming_user_claims",
         "private_settings.incoming_user_attributes",
         "private_settings.link_users_in_hull",
@@ -639,7 +638,6 @@
       "description": "<b>Identity</b> is one of the most important concepts in Hull. The \"Account Identity\" section defines which fields are used to resolve accounts as the come into Hull. <b>Please note this does not affect the outgoing account flow.</b>  To read more about identity resolution please click [here](https://help.hull.io/hc/en-us/articles/360030051471 \"Identity Resolution Explained\") <br /><br /><b>Domain</b> can be a good identifier, but be careful because Hull will use the normalized top level domain to match with other accounts. Ideally there is an unique identifier (external_id) that can be used across systems. Try to configure the identity before doing anything else. Changes to the identity after the data flow is already setup could result in irreconcilable scenarios. <br /><br /> Hull captures many of the standard company fields by default. Refer to the connector documentation in the \"Docs\" tab to view the default mappings. If you have any additional custom fields to capture, you may define these mappings in the \"Incoming Custom Attribute Mapping\" section by clicking \"Map another attribute\". To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
       "properties": [
         "private_settings.handle_accounts",
-        "private_settings.mark_deleted_companies",
         "private_settings.incoming_account_claims",
         "private_settings.incoming_account_attributes",
         "json.fetch_all_companies"

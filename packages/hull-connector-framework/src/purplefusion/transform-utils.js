@@ -5,6 +5,8 @@ const { isUndefinedOrNull, asyncForEach } = require("./utils");
 const { Route } = require("./language");
 const { SkippableError, ValidationError } = require("hull/src/errors");
 
+const debug = require("debug")("hull-shared:AtomicReaction");
+
 
 function toUnixTimestamp() {
   return (date) => {
@@ -36,7 +38,10 @@ function evaluateCondition(transform, context, input): boolean {
       }
     } else if (typeof condition === 'function') {
       if (!condition(context, input)) {
+        debug("Failed condition, skipping");
         return false;
+      } else {
+        debug("Passed condition, continuing");
       }
     }
   }
@@ -44,6 +49,10 @@ function evaluateCondition(transform, context, input): boolean {
 }
 
 function evaluateValidation(transform, context, input) {
+  // Not sure I like this pattern in all cases, it makes the glue easier
+  // but it also puts the transformation in control of the code flow much more
+  // not sure that's a good practice.  Similar to management by exception... burying some of the control flow logic
+  // though it simplifies the code in many situations....
   if (transform.validation) {
     if (evaluateCondition(transform.validation, context, input)) {
       if (transform.validation.error === "BreakProcess") {

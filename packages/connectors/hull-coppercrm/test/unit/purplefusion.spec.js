@@ -6,7 +6,7 @@ const { ContextMock } = require("hull-connector-framework/src/purplefusiontester
 const { setHullDataType } = require("hull-connector-framework/src/purplefusion/utils");
 const HullRouter = require("hull-connector-framework/src/purplefusion/router");
 
-describe("CopperCRM Lead Tests", () => {
+describe("CopperCRM Incoming Tests", () => {
 
   const harness = new PurpleFusionTestHarness(
     require("../../server/glue"),
@@ -22,18 +22,37 @@ describe("CopperCRM Lead Tests", () => {
     ),
     "ensure");
 
-  const router = new HullRouter({
-    glue: require("../../server/glue"),
-    services: { coppercrm:  require("../../server/service")({
-        clientID: "clientId",
-        clientSecret: "clientSecret"
-      })
+  // const router = new HullRouter({
+  //   glue: require("../../server/glue"),
+  //   services: { coppercrm:  require("../../server/service")({
+  //       clientID: "clientId",
+  //       clientSecret: "clientSecret"
+  //     })
+  //   },
+  //   transforms: _.concat(
+  //     require("../../server/transforms-to-hull"),
+  //     require("../../server/transforms-to-service")
+  //   ),
+  //   ensureHook: "ensure"
+  // });
+
+  expect.extend({
+    toBeWithinRange(received, floor, ceiling) {
+      const pass = received >= floor && received <= ceiling;
+      if (pass) {
+        return {
+          message: () =>
+            `expected ${received} not to be within range ${floor} - ${ceiling}`,
+          pass: true,
+        };
+      } else {
+        return {
+          message: () =>
+            `expected ${received} to be within range ${floor} - ${ceiling}`,
+          pass: false,
+        };
+      }
     },
-    transforms: _.concat(
-      require("../../server/transforms-to-hull"),
-      require("../../server/transforms-to-service")
-    ),
-    ensureHook: "ensure"
   });
 
 
@@ -41,12 +60,41 @@ describe("CopperCRM Lead Tests", () => {
     return harness.runTest(require("./fixtures/fetch-all-leads"));
   });
 
-  // it("fetch recent leads coppercrm", () => {
-  //   return harness.runTest(require("./fixtures/fetch-recent-leads"));
-  // });
+  it("fetch recent leads coppercrm", () => {
+    return harness.runTest(require("./fixtures/fetch-recent-leads"));
+  });
+
+  it("fetch all people coppercrm", () => {
+    return harness.runTest(require("./fixtures/fetchAllPeople"));
+  });
+
+  it("fetch all companies coppercrm", () => {
+    return harness.runTest(require("./fixtures/fetchAllCompanies"));
+  });
+
+  it("fetch all opportunities coppercrm", () => {
+    return harness.runTest(require("./fixtures/fetchAllOpportunities"));
+  });
+
+  it("fetch recent opportunities coppercrm", () => {
+    return harness.runTest(require("./fixtures/fetchRecentOpportunities"));
+  });
+
 
   it("fetch all activities coppercrm", () => {
     return harness.runTest(require("./fixtures/fetchAllActivities"));
+  });
+
+  it("ship update to resolve webhooks", () => {
+    return harness.runTest(require("./fixtures/shipUpdate"));
+  });
+
+  it("webhook for lead deleted", () => {
+    return harness.runTest(require("./fixtures/webhooks"));
+  });
+
+  it("webhook for deleted accounts", () => {
+    return harness.runTest(require("./fixtures/webhooks-deleted-account"));
   });
 
 //   it("fetch recent coppercrm", () => {

@@ -314,6 +314,11 @@ const service = ({ clientID, clientSecret } : {
         truthy: { status: 422 },
         errorType: SkippableError,
         message: MESSAGES.SERVICE_VALIDATION_ERROR
+      },
+      {
+        truthy: { status: 400 },
+        errorType: SkippableError,
+        message: MESSAGES.BAD_RESOURCE_REQUEST_ERROR
       }
     ]
 

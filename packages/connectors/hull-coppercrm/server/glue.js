@@ -5,39 +5,30 @@ const {
   cond,
   hull,
   set,
-  get,
-  filter,
-  notFilter,
-  filterL,
   ifL,
   iterateL,
-  loopL,
-  loopEndL,
   input,
   Svc,
   settings,
-  settingsUpdate,
+  settingsSet,
   cacheWrap,
-  cacheSet,
-  cacheGet,
-  cacheLock,
   cacheDel,
   returnValue,
   transformTo,
   jsonata,
   ld,
-  inc,
-  moment,
   ex,
   cast,
   utils,
   not,
-  or
+  moment
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
   HullIncomingDropdownOption,
-  HullConnectorAttributeDefinition
+  HullConnectorAttributeDefinition,
+  HullIncomingUser,
+  HullIncomingAccount
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const {
@@ -54,6 +45,9 @@ const {
   CopperCRMIncomingActivity
 } = require("./service-objects");
 
+// in seconds for in memory cache and redis cache
+const StandardEnumTimeout = 50;
+
 function coppercrm(op: string, param?: any): Svc {
   return new Svc({ name: "coppercrm", op }, param);
 }
@@ -69,7 +63,7 @@ function ensureWebhook(webhookAttribute, webhookTruthy) {
         ifL(ld("isMatch", "${webhook}", { target: "${webhookUrl}"}), {
           do: set(webhookAttribute, "${webhook}"),
           eldo:
-            ifL(ex("${webhook.target}", "includes", utils("getConnectorOrganization")),
+            ifL(ld("isEqual", "${webhook.secret.hullOrganization}", utils("getConnectorOrganization")),
               coppercrm("deleteWebhook")
             )
         })
@@ -77,9 +71,18 @@ function ensureWebhook(webhookAttribute, webhookTruthy) {
     ),
 
     ifL(cond("isEmpty", `\${${webhookAttribute}}`),
-      set(webhookAttribute, coppercrm("createWebhook", { target: "${webhookUrl}", ...webhookTruthy }))
+      set(webhookAttribute, coppercrm("createWebhook",
+        {
+          target: "${webhookUrl}",
+          secret: {
+            hullToken: utils("getConnectorEncryptedToken"),
+            hullOrganization: utils("getConnectorOrganization")
+          },
+          ...webhookTruthy
+        }))
     ),
-    settingsUpdate({ [webhookIdAttribute]: `\${${webhookAttribute}.id}` })
+    settingsSet(webhookIdAttribute, `\${${webhookAttribute}.id}`),
+    set(`settingsWebhookIds.${webhookIdAttribute}`, `\${${webhookAttribute}.id}`)
   ])
 }
 
@@ -110,27 +113,31 @@ const glue = {
   // Setup marketo api from the configured values
   ensure: [
     set("service_name", "coppercrm"),
-    route("createDeleteWebhooks")
+    ifL(route("isConfigured"), route("createDeleteWebhooks"))
   ],
 
   //don't do anything on ship update
   shipUpdate: {},
 
-  webhooks: ifL(cond("isEqual", input("event"), "delete"),
+  webhooks: route("handleWebhook", input("body")),
+  handleWebhook: ifL(cond("isEqual", input("event"), "delete"),
     ifL(cond("isEqual", input("type"), "lead"), {
       do: [
         // have to set service_name, because it's the value we try to use as a prefix for deleted_at
         set("service_name", "coppercrm_lead"),
-        iterateL(input("ids"), "id", hull("userDeletedInService", { ident: { anonymous_id: "coppercrm-lead:lead-${id}" } }))
+        iterateL(input("ids"), "id", hull("userDeletedInService",
+          cast(HullIncomingUser, { ident: { anonymous_id: "coppercrm-lead:lead-${id}" }, attributes: { "${service_name}/deleted_at": ex(moment(), "valueOf") } })))
       ],
       elif: [
         ifL(cond("isEqual", input("type"), "person"),[
           // have to set service_name, because it's the value we try to use as a prefix for deleted_at
           set("service_name", "coppercrm_person"),
-          iterateL(input("ids"), "id", hull("userDeletedInService", { ident: { anonymous_id: "coppercrm-person:person-${id}" } }))
+          iterateL(input("ids"), "id", hull("userDeletedInService",
+            cast(HullIncomingUser, { ident: { anonymous_id: "coppercrm-person:person-${id}" }, attributes: { "${service_name}/deleted_at": ex(moment(), "valueOf") }  })))
         ]),
-        ifL(cond("isEqual", input("type"), "account"),
-          iterateL(input("ids"), "id", hull("accountDeletedInService", { ident: { anonymous_id: "coppercrm:${id}" } }))
+        ifL(cond("isEqual", input("type"), "company"),
+          iterateL(input("ids"), "id", hull("accountDeletedInService",
+            cast(HullIncomingAccount, { ident: { anonymous_id: "coppercrm:${id}" }, attributes: { "${service_name}/deleted_at": ex(moment(), "valueOf") }  })))
         )
       ]
     })
@@ -243,7 +250,11 @@ const glue = {
         serviceName: "coppercrm",
         fetchEndpoint: "fetchRecentActivities",
         incomingType: CopperCRMIncomingActivity,
-        datePathOnEntity: "date_modified",
+        // issue with modified is that it's the same as activitiy date
+        // so if you add a new note, and set the date to be a week ago, it's modified will show a week ago
+        // and we don't get it, but date_created is true.  though that means we don't get updates to activities...
+        // datePathOnEntity: "date_modified",
+        datePathOnEntity: "date_created",
         pageSize: 100,
         hullCommand: "asUser",
         timeFormat: "unix",
@@ -262,7 +273,7 @@ const glue = {
   getUserActivityTypes: jsonata(`user.{ "name": $string(id), "display": name}`, route("getActivityTypes")),
   getActivityTypesMap: jsonata(`user{ $string(id): name}`, route("getActivityTypes")),
   forceGetActivityTypesMap: returnValue(cacheDel(coppercrm("getActivityTypes")), route("getActivityTypesMap")),
-  getActivityTypes: cacheWrap(6000, coppercrm("getActivityTypes")),
+  getActivityTypes: cacheWrap(StandardEnumTimeout, coppercrm("getActivityTypes")),
 
   attributesLeadsIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, ld("concat", require("./fields/lead_fields"), route("customLeadFields")))),
   attributesPeopleIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, ld("concat", require("./fields/people_fields"), route("customPeopleFields")))),
@@ -283,37 +294,38 @@ const glue = {
   forceGetCustomFieldValueMap: returnValue(cacheDel(coppercrm("getCustomFields")), route("getCustomFieldValueMap")),
 
   getCustomFields: ifL(route("isConfigured"), {
-    do: cacheWrap(6000, coppercrm("getCustomFields")),
+    do: cacheWrap(StandardEnumTimeout, coppercrm("getCustomFields")),
     eldo: []
   }),
 
-  getAssignees: jsonata("$ {$string(id): email}", cacheWrap(6000, coppercrm("getUsers"))),
+  getAssignees: jsonata("$ {$string(id): email}", cacheWrap(StandardEnumTimeout, coppercrm("getUsers"))),
   forceGetAssignees: returnValue(cacheDel(coppercrm("getUsers")), route("getAssignees")),
 
-  getContactTypes: jsonata("$ {$string(id): name}", cacheWrap(6000, coppercrm("getContactTypes"))),
+  getContactTypes: jsonata("$ {$string(id): name}", cacheWrap(StandardEnumTimeout, coppercrm("getContactTypes"))),
   forceGetContactTypes: returnValue(cacheDel(coppercrm("getContactTypes")), route("getContactTypes")),
 
   getPersonEmailById: jsonata("$ {$string(id): emails[0].email}", coppercrm("getPersonById")),
 
-  getCustomerSources: jsonata("$ {$string(id): name}", cacheWrap(6000, coppercrm("getCustomerSources"))),
+  getCustomerSources: jsonata("$ {$string(id): name}", cacheWrap(StandardEnumTimeout, coppercrm("getCustomerSources"))),
   forceGetCustomerSources: returnValue(cacheDel(coppercrm("getCustomerSources")), route("getCustomerSources")),
 
-  getLossReasons: jsonata("$ {$string(id): name}", cacheWrap(6000, coppercrm("getLossReasons"))),
+  getLossReasons: jsonata("$ {$string(id): name}", cacheWrap(StandardEnumTimeout, coppercrm("getLossReasons"))),
   forceGetLossReason: returnValue(cacheDel(coppercrm("getLossReasons")), route("getLossReasons")),
 
-  getPipelines: jsonata("$ {$string(id): name}", cacheWrap(6000, coppercrm("getPipelines"))),
+  getPipelines: jsonata("$ {$string(id): name}", cacheWrap(StandardEnumTimeout, coppercrm("getPipelines"))),
   forceGetPipelines: returnValue(cacheDel(coppercrm("getPipelines")), route("getPipelines")),
 
   // hitting the getPipelines endpoint and using jsonata to extract stages, could also hit pipelinestages endpoint, but no need to hit more than getPipelines for now
-  getPipelineStages: jsonata("$.stages{$string(id): name}", cacheWrap(6000, coppercrm("getPipelines"))),
+  getPipelineStages: jsonata("$.stages{$string(id): name}", cacheWrap(StandardEnumTimeout, coppercrm("getPipelines"))),
   forceGetPipelineStages: returnValue(cacheDel(coppercrm("getPipelines")), route("getPipelineStages")),
 
   createDeleteWebhooks: [
-    set("webhookUrl", utils("createWebhookUrl")),
+    set("webhookUrl", utils("createWebhookUrlWithEncryptedToken")),
     ensureWebhook("deleteLeadWebhook", { type: "lead", event: "delete" }),
     ensureWebhook("deletePersonWebhook", { type: "person", event: "delete" }),
     ensureWebhook("deleteCompanyWebhook", { type: "company", event: "delete" }),
     ensureWebhook("deleteOpportunityWebhook", { type: "opportunity", event: "delete" }),
+    ifL(not(cond("isEmpty", "${settingsWebhookIds}")), hull("settingsUpdate", "${settingsWebhookIds}"))
   ]
 
 

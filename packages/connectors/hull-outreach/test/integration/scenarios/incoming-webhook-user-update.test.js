@@ -97,9 +97,9 @@ test("process incoming user update webhook from outreach", () => {
         scope
           .post("/api/v2/webhooks/")
           .reply(201, require("../fixtures/api-responses/create-webhook.json"));
-        scope
-          .get("/api/v2/users/")
-          .reply(201, { data: [ { id: 1, attributes: { email: "andy@hull.io" } }, { id: 0, attributes: { email: "tim@hull.io" }}]});
+        // scope
+        //   .get("/api/v2/users/")
+        //   .reply(201, { data: [ { id: 1, attributes: { email: "andy@hull.io" } }, { id: 0, attributes: { email: "tim@hull.io" }}]});
         scope
           .get("/api/v2/stages/")
           .reply(201, { data: [ { id: 1, attributes: { name: "New Stage" } }, { id: 0, attributes: { name: "Cool Stage" }}]});
@@ -120,7 +120,7 @@ test("process incoming user update webhook from outreach", () => {
         ],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
-        ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 201, "url": "/users/", "vars": {}}],
+        // ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 201, "url": "/users/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 201, "url": "/stages/", "vars": {}}],
         ["debug", "incoming.user.success", {
           "subject_type": "user",
@@ -137,13 +137,13 @@ test("process incoming user update webhook from outreach", () => {
         ]
       ],
       firehoseEvents: [
-        ["traits", {"asUser": {"anonymous_id": "outreach:3"}, "subjectType": "user"}, {"outreach/owner": {"operation": "set", "value": null}, "outreach/someStage": {"operation": "set", "value": null}, "outreach/stage": {"operation": "set", "value": null}, "outreach/sdrEmail": {"operation": "set", "value": null}, "outreach/someStageName": {"operation": "set", "value": null}, "outreach/addressStreet": {"operation": "set", "value": "345 Tattooine Way"}, "outreach/id": {"operation": "set", "value": 3}, "outreach/personalNote1": {"operation": "set", "value": "His father is Darth Vader.  Don't bring it up..."}}]
+        ["traits", {"asUser": {"anonymous_id": "outreach:3"}, "subjectType": "user"}, {"outreach/owner": {"operation": "set", "value": null}, "outreach/someStage": {"operation": "set", "value": 0}, "outreach/stage": {"operation": "set", "value": 0}, "outreach/sdrEmail": {"operation": "set", "value": null}, "outreach/someStageName": {"operation": "set", "value": "Cool Stage"}, "outreach/addressStreet": {"operation": "set", "value": "345 Tattooine Way"}, "outreach/id": {"operation": "set", "value": 3}, "outreach/personalNote1": {"operation": "set", "value": "His father is Darth Vader.  Don't bring it up..."}}]
       ],
       metrics: [
         ["increment", "connector.request", 1],
         ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.whatever()],
-        ["increment", "ship.service_api.call", 1],
+        // ["value", "connector.service_api.response_time", expect.whatever()],
+        // ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()],
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()],

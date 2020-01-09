@@ -1,5 +1,5 @@
 const { isUndefinedOrNull } = require("./utils");
-const { isEqual, isNotEqual, isServiceAttributeInVarList, varNull } = require("./conditionals");
+const { varEqual, not, isServiceAttributeInVarList, varNull } = require("./conditionals");
 
 function createIncomingServiceUserTransform(entityType) {
   return {
@@ -26,7 +26,7 @@ function serviceUserTransforms(entityType) {
       expand: { valueName: "mapping" },
       then: {
         operateOn: { component: "input", select: "${mapping.service}", name: "serviceValue" },
-        condition: isNotEqual("serviceValue", undefined),
+        condition: not(varEqual("serviceValue", undefined)),
         writeTo: {
           // should expose specific identity mappings like "primaryEmail" if there are service specific rules/attributes...
           path: "ident.${mapping.hull}"
@@ -38,14 +38,14 @@ function serviceUserTransforms(entityType) {
       expand: { valueName: "mapping" },
       then: {
         operateOn: { component: "input", select: "${mapping.service}", name: "serviceValue" },
-        condition: isNotEqual("serviceValue", undefined),
+        condition: not(varEqual("serviceValue", undefined)),
         then: [
           {
-            condition: isEqual("mapping.overwrite", false),
+            condition: varEqual("mapping.overwrite", false),
             writeTo: { path: "attributes.${mapping.hull}", format: { operation: "setIfNull", value: "${operateOn}" } }
           },
           {
-            condition: isEqual("mapping.overwrite", true),
+            condition: varEqual("mapping.overwrite", true),
             writeTo: { path: "attributes.${mapping.hull}", format: { operation: "set", value: "${operateOn}" } }
           }
         ]
@@ -71,7 +71,7 @@ function serviceUserTransforms(entityType) {
       writeTo: { path: "ident.anonymous_ids" }
     },
     {
-      condition: isEqual(`\${connector.private_settings.link_${attributeName}_in_hull}`, true),
+      condition: varEqual(`connector.private_settings.link_${attributeName}_in_hull`, true),
       then: [
         {
           operateOn: { component: "input", select: "hull_service_accountId" },
@@ -94,7 +94,7 @@ function createEnumTransform({ attribute, attributeId, route, forceRoute }) {
           component: "glue",
           route: route,
           select: { component: "input", select: attributeId, name: "attributeId" },
-          onUndefined: { component: "glue", route: forceRoute, select: "${attributeId}"}
+          onUndefined: { component: "glue", route: forceRoute, select: "${attributeId}" }
         },
         // default null?
         writeTo: attribute

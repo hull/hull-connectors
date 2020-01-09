@@ -91,42 +91,6 @@ If we need to enable part of settings related to personalization we need to past
 }
 ```
 
-and enable subscriptions in kraken by adding following object to the `subscriptions` array:
-
-```json
-{
-  "url": "/smart-notifier",
-  "conditions": {
-    "channels": {
-      "only": [
-        "user:update",
-        "ship:update",
-        "users_segment:update"
-      ]
-    },
-    "segments": {
-      "user:update": [
-        "private_settings.synchronized_segments"
-      ]
-    }
-  },
-  "channels": [
-    {
-      "channel": "ship:update",
-      "handler": "connectorUpdate"
-    },
-    {
-      "channel": "users_segment:update",
-      "handler": "connectorUpdate"
-    },
-    {
-      "channel": "user:update",
-      "handler": "userUpdate"
-    }
-  ]
-}
-```
-
 ## Personalization documentation
 
 **From top section:**

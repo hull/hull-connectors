@@ -46,7 +46,9 @@ const connector = {
       { hull: "account.custom_undefined", service: "custom_hubspot_account_undefined", overwrite: true },
       { hull: "account.custom_date_at", service: "custom_hubspot_account_date_at", overwrite: true }
     ],
-    link_users_in_service: true
+    link_users_in_service: true,
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const usersSegments = [

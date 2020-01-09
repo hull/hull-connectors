@@ -15,7 +15,9 @@ process.env.OVERRIDE_HUBSPOT_URL = "";
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_user_segments: []
+    synchronized_user_segments: [],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 

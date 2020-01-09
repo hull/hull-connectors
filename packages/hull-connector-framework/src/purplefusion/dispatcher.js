@@ -537,6 +537,10 @@ class HullDispatcher {
           { ttl: instructionOptions.ttl }
         );
 
+      } else if (instructionOptions.name === "del") {
+
+        return await cache.del(cacheKey);
+
       } else if (instructionOptions.name === "lock") {
 
         const lockCacheKey = `HULL-CACHE-LOCK(${cacheKey})`;

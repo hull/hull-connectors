@@ -61,6 +61,12 @@ Opportunities are fetched by either clicking the respective "Fetch All" buttons 
 
 - **incoming opportunity attributes** - defines which `CopperCrm Opportunity Properties` are stored in Hull
 
+### Incoming Activities
+The current implementation supports the ingestion of a subset of activities from Copper.  The types of activities supported are copper account specific.  TO view your supported click the dropdown for "Activities to Fetch".  Limitations exist around the types of activities we can fetch as well as the objects we can attach them to.  Please see the Edge Case section for a more detailed explanation"
+
+### Outgoing Data
+We do not currently support the ability to send data to CopperCRM.  But that's not because we don't want to!  If you've got a need to send data to Copper, we would love to work with you to develop this feature and support your specific use case.  Please contact us at support@hull.io to request more information.
+
 ## Supported Objects
 The CopperCrm connector allows you to pull data into Hull from CopperCrm for the following objects:
 
@@ -71,6 +77,7 @@ The CopperCrm connector allows you to pull data into Hull from CopperCrm for the
 |Account    |Company       |
 |Account    |Opportunity   |
 |User       |Opportunity   |
+|Event       |Activity   |
 
 No other objects besides the ones listed above are supported. If you need to synchronize additional objects please reach out to our customer success team to explore the options on a case-by-case basis.
 
@@ -100,6 +107,16 @@ The current implementation does not fully support custom "currency".  The moneta
 ### Custom Relationships
 The current implementation does not support pulling "Custom Relationship" fields.  We can pull the id of the relationship, but not any type of resolved value.  Please contact your Hull representative if this is a critical feature.
 
+### Deletion of Opportunities
+The current implementation does not support opportunity deletion.  If your opportunity is deleted, the data will still remain on the contact or account it was associated until a new opportunity overwrites that data
+
+### Activities Supported
+The current implementation does not support "system" level activities.  It only supports user generated activities.  The difference may be different by copper instance.  In order to see your supported activities, click on the "Activities to Fetch" and your supported activities should be selectable.
+
+Additionally, latest activities are ingested only by created date.  If the activity itself is updated, it is not updated in hull.  In order to get the latest state of all of your activities, you must manually click the "Fetch All Historical Activities button"
+
+Activities related specifically to Copper Companies or Opportunities are not supported
+
 ## Troubleshooting
 
 ### I don’t get any CopperCrm lead/person/company/opportunity data in Hull
@@ -112,7 +129,6 @@ Check your connector logs for any `incoming.job.error`. If you see any with `Una
 
 If the keys were the issue, the incoming dataflow should be resumed once the correct keys are entered. You can verify that by searching for any `incoming.user.success` or `incoming.account.success` log lines (it can take around 5 minutes to show up).
 To fill in any missing data you can use the approprivate `Fetch All` button.  Be careful if you have a lot of data, this action will trigger a full fetch from CopperCrm
-
 
 ### I get empty Accounts
 First check to see that the incoming account attributes are set.  You may not have set any attributes to pull into Hull.  In this case, we only pull in the CopperCrm identifier so that can later associate attributes if you choose to import more attributes later.
