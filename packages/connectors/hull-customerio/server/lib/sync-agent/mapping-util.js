@@ -138,7 +138,9 @@ class MappingUtil {
       const referrerUrl = properties.referrer_url || context.referrer_url;
 
       _.set(serviceEvent, "name", eventName);
-      _.set(serviceEvent, "data.referrer", referrerUrl);
+      if (!_.isNil(referrerUrl)) {
+        _.set(serviceEvent, "data.referrer", referrerUrl);
+      }
       _.set(serviceEvent, "type", "page");
     }
 

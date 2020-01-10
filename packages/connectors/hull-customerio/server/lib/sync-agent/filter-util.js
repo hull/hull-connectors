@@ -267,7 +267,9 @@ class FilterUtil {
     };
 
     events.forEach((e: ICustomerIoEvent) => {
-      if (!_.includes(this.synchronizedEvents, e.name)) {
+      if (!_.includes(this.synchronizedEvents, e.name) &&
+        e.type === "page" && !_.includes(this.synchronizedEvents, e.type)
+      ) {
         return results.toSkip.push(e);
       }
       return results.toInsert.push(e);

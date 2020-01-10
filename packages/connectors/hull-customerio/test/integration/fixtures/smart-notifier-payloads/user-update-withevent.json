@@ -485,7 +485,7 @@
                 {
                     "properties": {
                         "path": "/pricing/",
-                        "referrer": "http://beta.hull.io/connectors/",
+                        "referrer_url": "http://beta.hull.io/connectors/",
                         "title": "Pricing | Hull",
                         "url": "http://beta.hull.io/pricing/"
                     },

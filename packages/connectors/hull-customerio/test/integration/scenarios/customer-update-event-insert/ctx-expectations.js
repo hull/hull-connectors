@@ -35,6 +35,7 @@ module.exports = (ctxMock) => {
   expect(ctxMock.client.asUser.mock.calls[0])
     .toEqual([userData]);
 
+  const c = ctxMock.client.traits.mock.calls;
   expect(_.omit(ctxMock.client.traits.mock.calls[0][0], "customerio/synced_at", "customerio/hash", "customerio/deleted_at"))
     .toEqual(_.omit(hullDataX, "customerio/email", "hull_segments"));
   expect(ctxMock.client.traits.mock.calls[0][0])
@@ -67,7 +68,7 @@ module.exports = (ctxMock) => {
 
   const hullEvent = _.get(smartNotifierPayload, "messages[0].events[0]", {});
   const eventsCustomerLogData = [
-    hullEvent.event
+    hullEvent.properties.url
   ];
 
   expect(ctxMock.client.logger.info.mock.calls).toHaveLength(2);
