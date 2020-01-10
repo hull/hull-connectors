@@ -228,10 +228,12 @@ export const callAlias = async ({
               return [a, operation];
             })
           );
-          return client.logger.info(`incoming.${entity}.alias.success`, {
-            claims,
-            operations: opLog
-          });
+          if (successful) {
+            return client.logger.info(`incoming.${entity}.alias.success`, {
+              claims,
+              operations: opLog
+            });
+          }
         } catch (err) {
           console.log(err);
           return client.logger.info(`incoming.${entity}.alias.error`, {
