@@ -133,6 +133,13 @@ class MappingUtil {
     };
 
     if (event.event === "page") {
+      const propertyUrl = _.get(event, "property.url", null);
+      const contextUrl = _.get(event, "context.page_url", null);
+      const referrerUrl = _.get(event, "context.referrer_url", null);
+
+      const eventName = propertyUrl || contextUrl;
+      _.set(serviceEvent, "name", eventName);
+      _.set(serviceEvent, "properties.referrer_url", referrerUrl);
       _.set(serviceEvent, "type", "page");
     }
 
