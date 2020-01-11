@@ -11,7 +11,7 @@ export default function connectorConfig(): HullConnectorConfig {
   const {
     LOG_LEVEL,
     SECRET,
-    PORT = 8082,
+    PORT0,
     NODE_ENV,
     OVERRIDE_FIREHOSE_URL
   } = process.env;
@@ -31,7 +31,7 @@ export default function connectorConfig(): HullConnectorConfig {
     }).createHandler,
     hostSecret: SECRET || "1234",
     devMode: NODE_ENV === "development",
-    port: PORT || 8082,
+    port: PORT0,
     middlewares: [],
     logsConfig: {
       logLevel: LOG_LEVEL
