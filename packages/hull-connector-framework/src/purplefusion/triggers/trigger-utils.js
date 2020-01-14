@@ -8,7 +8,7 @@ const {
 const { setHullDataType } = require("../utils");
 const { filterMessage } = require("./filters");
 const { isValidTrigger } = require("./validations");
-const triggerDefinitions = require("./triggers");
+const { triggers } = require("./triggers");
 
 function getCleanedMessage(triggers: Object, message: Object, inputData: Object): Array<string> {
 
@@ -41,7 +41,6 @@ function getCleanedMessage(triggers: Object, message: Object, inputData: Object)
 }
 
 function getEntityTriggers(context: Object, entity: Object): Array<string> {
-  const { triggers } = triggerDefinitions;
   const filteredTriggers = [];
 
   _.forEach(_.get(context, "connector.private_settings.triggers", []), activeTrigger => {

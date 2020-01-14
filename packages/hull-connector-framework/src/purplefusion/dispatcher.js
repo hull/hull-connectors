@@ -197,7 +197,7 @@ class HullDispatcher {
 
         let paramString = JSON.stringify(resolvedParams);
         if (paramString && paramString.length > 120) {
-          paramString = `${paramString.substring(0, 120)}...`;
+          // paramString = `${paramString.substring(0, 120)}...`;
         }
 
         if (paramName === null) {

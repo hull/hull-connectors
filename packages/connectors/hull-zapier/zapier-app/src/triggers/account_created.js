@@ -19,7 +19,7 @@ const account_created = triggerBuilder({
   description: "Triggers when an account is created.",
   entityType: "account",
   action: "created",
-  hidden: true
+  hidden: false
 });
 
 module.exports = {

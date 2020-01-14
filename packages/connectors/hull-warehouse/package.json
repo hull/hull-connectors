@@ -1,6 +1,6 @@
 {
   "name": "hull-warehouse",
-  "version": "0.1.14-monorepo",
+  "version": "0.1.15-monorepo",
   "description": "Connector description",
   "scripts": {
     "test": "exit 0; echo 'tests are run by global jest'",

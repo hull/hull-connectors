@@ -24,7 +24,7 @@ const account = {
   noun: "Account",
 
   display: {
-    hidden: true,
+    hidden: false,
     label: "Create or Update an Account",
     description:
       "Sends Attribute updates to the account identified by a domain. Will create the account if not created already."
