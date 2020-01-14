@@ -1,14 +1,17 @@
 # Customer.io Connector
 
-The Customer.io Connector enables your team to synchronize users from Hull with Customer.io to automate customer lifecycle emails and campaigns. It also allows to get back email activity events back to Hull.
+The Customer.io Connector enables your team to automate customer lifecycle emails and campaigns by synchronizing users from Hull with Customer.io. 
+It also has the ability to send email activity events to Hull.
 
 ## Features
 
-The customer.io connector allows you to synchronize users from Hull with persons in customer.io to automate customer lifecycle emails and campaigns. You can also forward events/activities from Hull to customer.io to use this behavior data to trigger powerful workflows to send emails, SMS and more.
+The Customer.io Connector allows you to:
 
-You can also feed events related to email activity back from customer.io into Hull to leverage this information in your other connected tools.
+1. Synchronize users in Hull with persons in Customer.io to automate customer lifecycle emails and campaigns
+2. Forward events/activities from Hull to Customer.io to trigger powerful workflows such as sending emails, SMS and more
+3. Feed events related to email activity from Customer.io into Hull where you are able leverage this information in your other connected tools.
 
-The Customer.io Connector supports to `update traits` and `create events`.
+The Customer.io Connector supports the actions `update traits` and `create events`.
 
 ## Getting Started
 
@@ -54,34 +57,40 @@ When connector is authorized against Customer.io API, it's time to define what d
 
 Start with Outgoing Mapping section in the settings.
 
-The most important decision you have to make here is **which user attribute to send as the** `**customerId**` to customer.io which is the unique identifier within customer.io. Our recommendation is to either use the `external_id` if you assign your own identifier to users in Hull or use the Hull `id`.
+The most important decision you have to make here is **which user attribute to send as the** `**customerId**` to Customer.io which is the unique identifier within Customer.io. Our recommendation is to either use the `external_id` if you assign your own identifier to users in Hull or use the Hull `id`.
 
-In order to send out some users, you need to determine the **whitelisted segments** which a user needs to belong to in order to send it to Customer.io. If you don’t specify any segments, no user will be send to Customer.io.
-
-Next step of the setup is to specify the attributes to send from Hull to Customer.io. In addition to any attributes you select here we always send out `email`, `customerId` and an attribute called `hull_segments` that contains the names of all the segments the User belongs to.
+To send users to Customer.io, first define which **whitelisted segments** users will need to belong to. If the segments are not specified, users will not be sent to Customer.io.
+Second, specify which attributes will be sent from Hull to Customer.io. By default,
+the attributes `email`, `customerId` and `hull_segments` (all the segments the user belongs to) will be sent to Customer.io.
 
 > **IMPORTANT**: Please keep in mind that Customer.io API allows to send maximum 30 attributes per API call so bigger number of selected attributes will double the number of API calls and can make the connector slower.
 
-You can also determine how to handle when a user leaves a segment. When you **enable user deletion**, the connector will automatically remove users from Customer.io if they no longer belong to any of the whitelisted segments. Otherwise if a user leaves all whitelisted segment it will be kept in Customer.io without any further updated.
+When users leave all whitelisted segments, you have to ability to remove that user from Customer.io. To enable this feature, 
+toggle on **enable user deletion** and the connector will automatically remove users from Customer.io if they no longer belong to any of the whitelisted segments. 
+Otherwise, if a user leaves all whitelisted segment it will be kept in Customer.io, but will no longer receive updates.
 
-Furthermore, you can specify which **events** shall be send to customer.io by selecting the events from the dropdown list. By default no events are sent.
-Each outgoing event will create a new activity in Customer.io, the type will be set to Event and Activity Name will have the same name as Hull Event, which allows basic segmentation in Customer.io. Page view events are working differently, see details below.
+Furthermore, you can specify which **events** will be sent to Customer.io by selecting the events from the dropdown list. By default no events are sent. 
+Each outgoing event will create a new activity in Customer.io. For all events except Page View Events (see below), the activity type will be set to "Event" and the 
+activity name will have the same name as the Hull event, which allows basic segmentation in Customer.io.
 
 ### Sending Page View Events
 
-Customer.io allows to handle Page Views differently than generic events. As soon as you whitelist `page` event in the connector settings the connector will start to send them and create new Activities in Customer.io, but this time the Type of Activity will be set to Page View and the name of the activity will be the url of the Page View. This is aligned with Customer.io [documentation on tracking page views](https://customer.io/docs/pageviews) and allows to build more fine grained segments in Customer.io.
-The url of the Page View activity will be picked from Hull Event url property, if not found it will fall back to page_url context property. Additionally a referrer will be added to the Customer.io will be added.
+Customer.io allows you the option to handle Page View Events differently than generic events. 
+To begin sending these events to Customer.io, in the connector settings, add the `page` event to whitelisted events list. The connector will then send all future Page View Events to Customer.io 
+as activities. Unlike generic events, the type of the activity will be set to "Page" and the name of the activity will be the url of the Page View.
+This is aligned with Customer.io [documentation on tracking page views](https://Customer.io/docs/pageviews) and allows you to build more fine grained segments in Customer.io.
+The url of the Page View activity will be picked from Hull Event url property, or, if not available, will fall back to the page_url context property. Additionally, a referrer will be added to the Customer.io activity.
 
 
 ### Sending Anonymous Events
 
-You can also activate **Anonymous Events**, which is an advanced feature in Customer.io. If you are not familiar with this feature, you can read more in Customer.io’s own [documentation](https://customer.io/docs/anonymous-invite-emails).
+You can also activate **Anonymous Events**, which is an advanced feature in Customer.io. If you are not familiar with this feature, please refer to Customer.io’s [documentation](https://Customer.io/docs/anonymous-invite-emails).
 
 ## Optional - receiving subset of Customer.io events
 
-Optionally, You can choose to limit the events Hull will receive from Customer.io. The list of all events is available in the Customer.io docs under [https://customer.io/docs/webhooks#events](https://customer.io/docs/webhooks#events).
+You are able to limit the events Hull will receive from Customer.io. The list of all events is available in the Customer.io docs under [https://Customer.io/docs/webhooks#events](https://Customer.io/docs/webhooks#events).
 
-To customize this list, navigate to your Customer.io dashboard, select **Integrations** from the menu to the left side of your screen and click **Email Activity Webhook** card:
+To customize this list, navigate to your Customer.io dashboard, select **Integrations** from the menu on the left, and navigate to **Email Activity Webhook** card:
 
 ![Webhook Events Step 1](./docs/webhook02.png)
 
