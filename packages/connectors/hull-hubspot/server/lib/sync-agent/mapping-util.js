@@ -591,6 +591,7 @@ class MappingUtil {
     const userData = userMessage.user;
     debug("getHubspotContactProperties", this.contactOutgoingMapping);
     // const userSegments = this.userSegments;
+    const userChanges = _.get(userMessage, "changes.user", null);
     const contactProps = _.reduce(
       this.contactOutgoingMapping,
       (contactProperties, mappingEntry) => {
@@ -652,6 +653,18 @@ class MappingUtil {
             value
           });
         }
+        if (userChanges) {
+          const userChange = _.get(
+            userChanges,
+            mappingEntry.hubspot_property_name,
+            null
+          );
+          if (_.isArray(userChange) && userChange[1] === null) {
+            this.hullClient.logger.log(
+              `Setting NULL for user attribute ${mappingEntry.hubspot_property_name}`
+            );
+          }
+        }
         return contactProperties;
       },
       []
@@ -699,6 +712,7 @@ class MappingUtil {
     debug("getHubspotCompanyProperties", this.companyOutgoingMapping);
     // const userSegments = this.userSegments;
     const accountData = message.account;
+    const accountChanges = _.get(message, "changes.account", null);
     const contactProps = _.reduce(
       this.companyOutgoingMapping,
       (contactProperties, mappingEntry) => {
@@ -766,6 +780,18 @@ class MappingUtil {
             name: mappingEntry.hubspot_property_name,
             value
           });
+        }
+        if (accountChanges) {
+          const accountChange = _.get(
+            accountChanges,
+            mappingEntry.hubspot_property_name,
+            null
+          );
+          if (_.isArray(accountChange) && accountChange[1] === null) {
+            this.hullClient.logger.log(
+              `Setting NULL for account attribute ${mappingEntry.hubspot_property_name}`
+            );
+          }
         }
         return contactProperties;
       },
