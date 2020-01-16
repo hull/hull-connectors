@@ -425,6 +425,7 @@
       ],
       "conditions": {
         "segments": {
+          "user:update": ["private_settings.synchronized_user_segments"],
           "account:update": ["private_settings.synchronized_account_segments"]
         },
         "channels": {
