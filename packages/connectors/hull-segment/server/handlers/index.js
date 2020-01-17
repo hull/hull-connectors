@@ -1,19 +1,24 @@
 // @flow
 import type { HullHandlersConfiguration } from "hull";
-import userUpdateFactory from "./user";
-import accountUpdateFactory from "./account";
-import statusUpdate from "./status";
-import incomingHandler from "./incoming";
+import userUpdate from "./user-update";
+// import accountUpdate from "./account-update";
+import statusUpdate from "./status-handler";
+import incomingHandler from "./incoming-handler";
 import admin from "./admin";
-import analyticsClientFactory from "../analytics-client";
 
-export default function(): HullHandlersConfiguration {
-  const analyticsClient = analyticsClientFactory();
-  const userUpdate = userUpdateFactory(analyticsClient);
-  const accountUpdate = accountUpdateFactory(analyticsClient);
+export default function({
+  flow_size,
+  flow_in
+}: {
+  flow_size: string | number,
+  flow_in: string | number
+}): HullHandlersConfiguration {
   return {
-    batches: { userUpdate, accountUpdate },
-    subscriptions: { userUpdate, accountUpdate },
+    subscriptions: {
+      userUpdate: userUpdate({ flow_in, flow_size })
+      // Can't rely on AccountUpdate since we don't have a UserID available
+      // accountUpdate: accountUpdate({ flow_in, flow_size })
+    },
     incoming: { incomingHandler },
     statuses: { statusUpdate },
     tabs: { admin }

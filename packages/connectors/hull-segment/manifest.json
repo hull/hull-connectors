@@ -1,7 +1,11 @@
 {
   "name": "Segment",
   "description": "Complete control over your customer data with Hull and Segment",
-  "tags": ["batch", "batch-accounts", "kraken"],
+  "tags": [
+    "batch",
+    "kraken-exports",
+    "smart-notifier"
+  ],
   "index": "ship.js",
   "source": "segment",
   "logo": "logo.png",
@@ -51,7 +55,9 @@
       "items": {
         "type": "string"
       },
-      "default": ["email"]
+      "default": [
+        "email"
+      ]
     },
     {
       "name": "send_events",
@@ -88,7 +94,9 @@
       "items": {
         "type": "string"
       },
-      "default": ["domain"]
+      "default": [
+        "domain"
+      ]
     }
   ],
   "settings": [
@@ -112,7 +120,11 @@
       "title": "User ID",
       "description": "Attribute to use as `userId` in the segment payload. Warning: This can affect your MTUs.",
       "type": "string",
-      "enum": ["id", "external_id", "email"],
+      "enum": [
+        "id",
+        "external_id",
+        "email"
+      ],
       "default": "external_id",
       "format": "hidden"
     },
@@ -121,7 +133,11 @@
       "title": "Public Account ID Field",
       "description": "Account field to use as the groupId for data sent to segment",
       "type": "string",
-      "enum": ["id", "external_id", "domain"],
+      "enum": [
+        "id",
+        "external_id",
+        "domain"
+      ],
       "default": "external_id",
       "format": "hidden"
     },
@@ -184,44 +200,20 @@
   "subscriptions": [
     {
       "url": "/notifier",
-      "channels": {
-        "user:update": {
-          "handler": "userUpdate",
-          "options": {}
-        },
-        "account:update": {
-          "handler": "accountUpdate",
-          "options": {}
+      "conditions": {
+        "segments": {
+          "user:update": [
+            "private_settings.synchronized_user_segments"
+          ],
+          "account:update": [
+            "private_settings.synchronized_account_segments"
+          ]
         }
-      }
-    }
-  ],
-  "batches": [
-    {
-      "url": "/batch",
+      },
       "channels": [
         {
           "channel": "user:update",
-          "handler": "userUpdate",
-          "options": {
-            "filter": {
-              "user_segments": "private_settings.synchronized_segments"
-            }
-          }
-        }
-      ]
-    },
-    {
-      "url": "/batch-accounts",
-      "channels": [
-        {
-          "channel": "account:update",
-          "handler": "accountUpdate",
-          "options": {
-            "filter": {
-              "account_segments": "private_settings.synchronized_account_segments"
-            }
-          }
+          "handler": "userUpdate"
         }
       ]
     }

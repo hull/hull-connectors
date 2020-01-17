@@ -2,8 +2,6 @@
 import type { NextFunction, $Request, $Response } from "express";
 import type { StatusError } from "../types";
 
-const debug = require("debug")("hull-segment:error-handler");
-
 type EnhancedRequest = $Request & {
   segment: any
 };

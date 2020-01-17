@@ -158,7 +158,6 @@ export type SegmentClient = {
   group: SegmentOutgoingGroup => void,
   identify: SegmentOutgoingIdentify => void
 };
-export type SegmentClientFactory = string => SegmentClient;
 
 export type SegmentConnectorSettings = {
   settings: {

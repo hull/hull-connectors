@@ -9,25 +9,25 @@ import type {
   SegmentClient
 } from "../types";
 
+const integrations = { Hull: false };
+
 type Payload = {
   analytics: SegmentClient,
   anonymousId?: ?string,
   event: HullEvent,
   userId?: ?string,
   groupId?: ?string,
-  integrations: {},
   traits: {}
 };
 
-module.exports = function segmentEvent({
+module.exports = async function segmentEvent({
   analytics,
   anonymousId,
   event,
   userId,
   groupId,
-  traits,
-  integrations
-}: Payload): SegmentOutgoingPayload {
+  traits
+}: Payload): Promise<SegmentOutgoingPayload> {
   const {
     created_at,
     event_id,
@@ -42,7 +42,7 @@ module.exports = function segmentEvent({
 
   const { url: referrer_url } = referrer || {};
 
-  const ctx = {
+  const segmentContext = {
     ip,
     groupId,
     os: { ...os },
@@ -59,7 +59,7 @@ module.exports = function segmentEvent({
     userId,
     properties,
     integrations,
-    context: ctx
+    context: segmentContext
   };
 
   const type =
@@ -68,7 +68,7 @@ module.exports = function segmentEvent({
   // Page-specific formatting
   if (type === "page") {
     const p = {
-      ...ctx.page,
+      ...segmentContext.page,
       ...properties
     };
     const ret: SegmentOutgoingPage = {
@@ -77,7 +77,7 @@ module.exports = function segmentEvent({
       channel: "browser",
       properties: p,
       context: {
-        ...ctx,
+        ...segmentContext,
         page: p
       }
     };
@@ -103,6 +103,6 @@ module.exports = function segmentEvent({
     event: eventName,
     category
   };
-  analytics.track(ret);
+  await analytics.track(ret);
   return ret;
 };

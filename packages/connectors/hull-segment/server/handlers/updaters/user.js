@@ -1,0 +1,130 @@
+// @flow
+
+import type { HullContext, HullUserUpdateMessage } from "hull";
+import _ from "lodash";
+import type { SegmentContext } from "../../types";
+
+import {
+  getfirstNonNull,
+  getFirstAnonymousIdFromEvents
+} from "../../lib/utils";
+import handleEvent from "./event";
+import handleAccount from "./account";
+
+const segmentContext: SegmentContext = { active: false, ip: 0 };
+const integrations = { Hull: false };
+
+const userUpdate = (ctx: HullContext, analytics: any) => async (
+  message: HullUserUpdateMessage
+): any => {
+  const { client, connector, metric } = ctx;
+  const { settings = {}, private_settings = {} } = connector;
+  const { synchronized_properties = [] } = private_settings;
+  const { public_id_field } = settings;
+  const { user, segments, account, events } = message;
+
+  // Empty payload ?
+  if (!user.id || !connector.id) {
+    throw new Error("Missing User or connector");
+  }
+
+  const asUser = client.asUser(user);
+
+  // Look for an anonymousId
+  // if we have events in the payload, we take the annymousId of the first event
+  // Otherwise, we look for known anonymousIds attached to the user and we take the first one
+  const anonymousId =
+    getFirstAnonymousIdFromEvents(events) ||
+    getfirstNonNull(user.anonymous_ids);
+
+  // $FlowFixMe
+  const userId: void | null | string = user[public_id_field];
+  const groupId: void | null | string = account.id;
+
+  // We have no identifier for the user, we have to skip
+  if (!userId && !anonymousId) {
+    asUser.logger.info("outgoing.user.skip", {
+      message: "No Identifier available",
+      anonymousId,
+      userId,
+      public_id_field,
+      anonymousIds: user.anonymous_ids
+    });
+  }
+
+  const traits = _.reduce(
+    synchronized_properties,
+    (tts, attribute) => {
+      if (attribute.indexOf("account.") === 0) {
+        // Account attribute at User Level
+        const t = attribute.replace(/^account\./, "");
+        tts[`account_${t.replace("/", "_")}`] = _.get(account, t);
+      } else {
+        // Trait
+        tts[attribute.replace(/^traits_/, "").replace("/", "_")] = _.get(
+          user,
+          attribute
+        );
+      }
+      return tts;
+    },
+    {
+      hull_segments: _.map(segments, "name")
+    }
+  );
+
+  const promises = [];
+  try {
+    promises.push(
+      analytics.identify({
+        anonymousId,
+        userId,
+        traits,
+        context: segmentContext,
+        integrations
+      })
+    );
+  } catch (err) {
+    err.reason = "Error sending events to Segment.com";
+    err.data = { userId, user };
+    throw err;
+  }
+
+  metric.increment("ship.service_api.call", 1, ["type:identify"]);
+
+  try {
+    promises.push(
+      ...events.map(
+        handleEvent({
+          ctx,
+          traits,
+          analytics,
+          anonymousId,
+          userId,
+          groupId
+        })
+      )
+    );
+  } catch (err) {
+    err.reason = "Error sending events to Segment.com";
+    throw err;
+  }
+
+  const accountUpdateHandler = handleAccount(ctx, analytics);
+  try {
+    promises.push(accountUpdateHandler(message, userId, anonymousId));
+  } catch (err) {
+    err.reason = "Error sending account to Segment.com";
+  }
+
+  try {
+    await Promise.all(promises);
+  } catch (err) {
+    err.reason = "Error sending events and Users to segment";
+    throw err;
+  }
+
+  return undefined;
+};
+
+export default userUpdate;
