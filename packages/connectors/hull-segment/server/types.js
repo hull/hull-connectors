@@ -106,6 +106,8 @@ export type SegmentIncomingGroup = {
 };
 
 export type SegmentIncomingPayload =
+  // | SegmentIncomingAlias
+  | SegmentIncomingIdentify
   | SegmentIncomingPage
   | SegmentIncomingScreen
   | SegmentIncomingTrack

@@ -9,8 +9,8 @@ import type {
   SegmentIncomingScreen
 } from "../types";
 
-export default function handleTrack(
-  { connector, metric, client }: HullContext,
+export default async function handleTrack(
+  ctx: HullContext,
   message: SegmentIncomingTrack | SegmentIncomingPage | SegmentIncomingScreen
 ) {
   const {
@@ -23,9 +23,10 @@ export default function handleTrack(
     timestamp,
     originalTimestamp,
     sentAt,
-    receivedAt,
-    integrations = {}
+    receivedAt
   } = message;
+  const { connector, metric, client } = ctx;
+  const { settings } = connector;
 
   const { page = {}, location = {}, userAgent, ip = "0" } = context;
   const { url, referrer } = page;
@@ -63,24 +64,31 @@ export default function handleTrack(
     {}
   );
 
-  const useHullId = integrations.Hull && integrations.Hull.id === true;
+  const errorPayload = { userId, anonymousId };
 
-  const asUser = scoped(client, message, useHullId, connector.settings, {});
   try {
-    if (!event) {
-      throw new Error("Event name is empty, can't track!");
-    }
-    return asUser.track(event, properties, trackContext).then(result => {
+    const asUser = scoped(client, message, settings, {});
+    try {
+      if (!event) {
+        throw new Error("Event name is empty, can't track!");
+      }
+      const result = await asUser.track(event, properties, trackContext);
       asUser.logger.info("incoming.track.success", {
-        trackContext,
         event,
+        context: trackContext,
         properties
       });
-      return result;
-    });
-  } catch (err) {
-    metric.increment("request.track.error");
-    client.logger.error("incoming.track.error", { errors: message });
-    return Promise.reject();
+      return undefined;
+    } catch (err) {
+      asUser.logger.error("incoming.track.error", {
+        ...errorPayload,
+        message: err.message,
+        errors: err
+      });
+      metric.increment("request.track.error");
+    }
+  } catch (e) {
+    client.logger.error("incoming.user.error", { message: e.message });
   }
+  return undefined;
 }

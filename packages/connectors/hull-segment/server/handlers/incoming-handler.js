@@ -1,15 +1,19 @@
 // @flow
 
 import _ from "lodash";
-import type { HullExternalResponse, HullIncomingHandlerMessage } from "hull";
+import type {
+  HullContext,
+  HullExternalResponse,
+  HullIncomingHandlerMessage
+} from "hull";
 import { ValidationError } from "hull/src/errors";
-import type { HullContext, SegmentIncomingPayload } from "../types";
+import type { SegmentIncomingPayload } from "../types";
 // const debug = require("debug")("hull-segment:segment-handler");
 import events from "../events";
 
 const camelize = message => _.mapKeys(message, (v, k) => _.camelCase(k));
 
-module.exports = (
+const incomingHandler = async (
   ctx: HullContext,
   message: HullIncomingHandlerMessage
 ): HullExternalResponse => {
@@ -26,6 +30,7 @@ module.exports = (
   if (!body) {
     throw new ValidationError("Empty Payload", "SEGMENT_EMPTY_CONTENT", 501);
   }
+  // $FlowFixMe
   const payload: SegmentIncomingPayload = body || {};
   const { type } = payload;
   const handler = events[type];
@@ -38,11 +43,19 @@ module.exports = (
     throw new ValidationError("Not Supported", "SEGMENT_NO_HANDLER", 501);
   }
   const { integrations = {} } = payload;
-  if (integrations.Hull !== false) {
-    handler(ctx, camelize(message));
+  try {
+    if (integrations.Hull !== false) {
+      await handler(ctx, camelize(message));
+    }
+  } catch (e) {
+    return {
+      status: 500,
+      text: e.message
+    };
   }
   return {
     status: 200,
     text: "thanks"
   };
 };
+export default incomingHandler;

@@ -19,65 +19,14 @@ const IGNORED_TRAITS = [
   "visitToken"
 ];
 
-function update(client, message, useHullId, shipSettings, active) {
-  try {
-    const { userId, anonymousId, traits = {} } = message;
-    const { email } = traits || {};
-
-    const asUser = client.asUser({
-      external_id: userId,
-      email,
-      anonymous_id: anonymousId
-    });
-
-    if (shipSettings.ignore_segment_userId === true && !email && !anonymousId) {
-      const logPayload = { userID: message.userId, anonymousId, email };
-      const reason =
-        "No email address or anonymous ID present when ignoring segment's user ID.";
-      asUser.logger.info("incoming.user.skip", {
-        reason,
-        logPayload
-      });
-      return Promise.reject(reason);
-    }
-    if (!userId && !anonymousId) {
-      const logPayload = { userID: message.userId, userId, anonymousId };
-      const reason = "No user ID or anonymous ID present.";
-      asUser.logger.info("incoming.user.skip", {
-        reason,
-        logPayload
-      });
-      return Promise.reject(reason);
-    }
-
-    return scoped(client, message, useHullId, shipSettings, { active })
-      .traits(traits)
-      .then(
-        (/* response */) => {
-          return { traits };
-        },
-        error => {
-          error.params = traits;
-          throw error;
-        }
-      );
-  } catch (err) {
-    return Promise.reject(err);
-  }
-}
-
-export default function handleIdentify(
+export default async function handleIdentify(
   ctx: HullContext,
   message: SegmentIncomingIdentify
 ) {
   const { client, connector, metric } = ctx;
-  const {
-    context,
-    traits = {},
-    userId,
-    anonymousId,
-    integrations = {}
-  } = message;
+  const { settings } = connector;
+  const { context, traits = {}, userId, anonymousId } = message;
+  const { email } = traits;
   const { active = false } = context || {};
 
   const user = reduce(
@@ -94,36 +43,31 @@ export default function handleIdentify(
     { userId, anonymousId, traits: {} }
   );
 
-  if (!isEmpty(user.traits)) {
-    const useHullId = integrations.Hull && integrations.Hull.id === true;
-    const updating = update(
-      client,
-      user,
-      useHullId,
-      connector.settings,
-      active
-    );
+  const errorPayload = { userId, anonymousId, email };
 
-    updating.then(
-      ({ tt = {} }) => {
-        metric.increment("request.identify.updateUser");
-        client
-          .asUser({
-            email: tt.email,
-            external_id: userId,
-            anonymous_id: anonymousId
-          })
-          .logger.info("incoming.user.success", { traits: tt });
-      },
-      error => {
-        metric.increment("request.identify.updateUser.error");
-        client
-          .asUser({ external_id: userId, anonymous_id: anonymousId })
-          .logger.error("incoming.user.error", { errors: error });
+  try {
+    const asUser = scoped(client, message, settings, { active });
+    try {
+      if (isEmpty(user.traits)) {
+        return asUser.logger.info("incoming.user.skip", {
+          message: "No traits found in Segment payload",
+          traits: user.traits
+        });
       }
-    );
-
-    return updating;
+      await asUser.traits(user.traits);
+      asUser.logger.info("incoming.user.success", { traits });
+      metric.increment("request.identify.updateUser");
+      return undefined;
+    } catch (err) {
+      asUser.logger.error("incoming.user.error", {
+        ...errorPayload,
+        message: err.message,
+        errors: err
+      });
+      metric.increment("request.identify.updateUser.error");
+    }
+  } catch (e) {
+    client.logger.error("incoming.user.error", { message: e.message });
   }
-  return user;
+  return undefined;
 }
