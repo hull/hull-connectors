@@ -188,15 +188,13 @@
       }
     }
   ],
-  "schedules": [
-    {
-      "url": "/status",
-      "handler": "statusUpdate",
-      "options": {
-        "interval": "5"
-      }
+  "status": {
+    "url": "/status",
+    "handler": "statusUpdate",
+    "options": {
+      "interval": "5"
     }
-  ],
+  },
   "subscriptions": [
     {
       "url": "/notifier",
@@ -221,7 +219,7 @@
   "incoming": [
     {
       "url": "/segment",
-      "method": "POST",
+      "method": "post",
       "handler": "incomingHandler",
       "options": {
         "credentialsFromQuery": true
