@@ -8,7 +8,8 @@ const {
   notNull,
   isNull,
   not,
-  resolveIndexOf
+  resolveIndexOf,
+  inputIsEqual
 } = require("hull-connector-framework/src/purplefusion/conditionals");
 
 
@@ -174,7 +175,10 @@ const transformsToHull: ServiceTransforms =
         {
           strategy: "AtomicReaction",
           target: { component: "cloneInitialInput" },
-          condition: mappingExists("incoming_user_attributes", { service: "stageName" }),
+          condition: [
+            mappingExists("incoming_user_attributes", { service: "stageName" }),
+            not(inputIsEqual("data.relationships.stage.id", undefined))
+          ],
           operateOn: { component: "input", select: "data.relationships.stage.id", name: "stageId" },
           then: [
             {
@@ -200,7 +204,10 @@ const transformsToHull: ServiceTransforms =
         {
           strategy: "AtomicReaction",
           target: { component: "cloneInitialInput" },
-          condition: mappingExists("incoming_user_attributes", { service: "ownerEmail" }),
+          condition: [
+            mappingExists("incoming_user_attributes", { service: "ownerEmail" }),
+            not(inputIsEqual("data.relationships.owner.id", undefined))
+          ],
           operateOn: { component: "input", select: "data.relationships.owner.id", name: "ownerId" },
           then: [
             {
