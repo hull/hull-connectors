@@ -660,9 +660,10 @@ class MappingUtil {
             null
           );
           if (_.isArray(userChange) && userChange[1] === null) {
-            this.hullClient.logger.log(
-              `Setting NULL for user attribute ${mappingEntry.hubspot_property_name}`
-            );
+            this.hullClient.logger.debug("Setting NULL for user attribute", {
+              hull_trait_name: mappingEntry.hull_trait_name,
+              hubspot_property_name: mappingEntry.hubspot_property_name
+            });
           }
         }
         return contactProperties;
@@ -788,9 +789,10 @@ class MappingUtil {
             null
           );
           if (_.isArray(accountChange) && accountChange[1] === null) {
-            this.hullClient.logger.log(
-              `Setting NULL for account attribute ${mappingEntry.hubspot_property_name}`
-            );
+            this.hullClient.logger.debug("Setting NULL for account attribute", {
+              hull_trait_name: mappingEntry.hull_trait_name,
+              hubspot_property_name: mappingEntry.hubspot_property_name
+            });
           }
         }
         return contactProperties;
