@@ -1,7 +1,6 @@
 // @flow
 
 import type { HullContext, HullUserUpdateMessage } from "hull";
-import _ from "lodash";
 import type { SegmentContext } from "../../types";
 
 import {

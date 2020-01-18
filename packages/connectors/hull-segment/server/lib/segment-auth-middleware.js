@@ -1,7 +1,7 @@
 // @flow
 
-import type { $Application, $Request, $Response, NextFunction } from "express";
-import type { StatusError, HullRequest } from "../types";
+import type { $Request, $Response, NextFunction } from "express";
+import type { StatusError } from "../types";
 
 const debug = require("debug")("hull-segment:auth-middleware");
 /*
