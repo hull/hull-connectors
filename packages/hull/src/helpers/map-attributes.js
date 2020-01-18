@@ -12,9 +12,11 @@ const noDotInPath = str => str.indexOf(".") === -1;
 const mapAttributes = (ctx: HullContext) => ({
   payload,
   mapping,
+  entity = "user",
   direction = "incoming"
 }: {
   payload: {},
+  entity?: "user" | "account",
   direction?: "incoming" | "outgoing",
   mapping: Array<HullAttributeMapping>
 }): HullEntityAttributes => {
@@ -34,7 +36,7 @@ const mapAttributes = (ctx: HullContext) => ({
             }
           : {
               target: service,
-              source: noDotInPath(hull) ? `user.${hull}` : hull
+              source: noDotInPath(hull) ? `${entity}.${hull}` : hull
             };
       _.set(
         m,

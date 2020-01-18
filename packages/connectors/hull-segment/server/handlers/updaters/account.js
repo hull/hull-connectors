@@ -11,12 +11,10 @@ const accountUpdate = (ctx: HullContext, analytics: any) => async (
   userId?: string | void | null,
   anonymousId?: string | void | null
 ): any => {
-  const { client, connector, metric, isBatch } = ctx;
+  const { client, connector, metric, isBatch, helpers } = ctx;
+  const { mapAttributes } = helpers;
   const { settings = {}, private_settings = {} } = connector;
-  const {
-    synchronized_account_segments = [],
-    synchronized_account_properties = []
-  } = private_settings;
+  const { synchronized_account_segments = [] } = private_settings;
   const { handle_accounts, public_account_id_field } = settings;
   const { account, account_segments } = message;
   // Empty payload ?
@@ -58,16 +56,12 @@ const accountUpdate = (ctx: HullContext, analytics: any) => async (
     });
   }
 
-  const traits = _.reduce(
-    synchronized_account_properties.map(k => k.replace(/^account\./, "")),
-    (tt, attribute) => {
-      tt[attribute.replace("/", "_")] = account[attribute];
-      return tt;
-    },
-    {
-      hull_segments: _.map(account_segments, "name")
-    }
-  );
+  const traits = mapAttributes({
+    payload: message,
+    mapping: connector.private_settings.outgoing_account_attribute_mapping,
+    direction: "outgoing",
+    entity: "account"
+  });
 
   try {
     const payload = {

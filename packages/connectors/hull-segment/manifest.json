@@ -16,8 +16,7 @@
   "version": "0.2.0",
   "mappings": {
     "identify": {
-      "outgoing": {
-      }
+      "outgoing": {}
     }
   },
   "private_settings": [
@@ -55,13 +54,13 @@
         },
         {
           "hull": "segments.name",
-          "service": "segments",
+          "service": "hull_segments",
           "overwrite": true,
           "readOnly": true
         },
         {
           "hull": "account_segments.name",
-          "service": "account_segments",
+          "service": "hull_account_segments",
           "overwrite": true,
           "readOnly": true
         }
@@ -83,18 +82,18 @@
       "default": [
         {
           "service": "domain",
-          "hull": "domain",
+          "hull": "account.domain",
           "overwrite": true,
           "readOnly": true
         },
         {
           "service": "groupId",
-          "hull": "external_id",
+          "hull": "account.external_id",
           "overwrite": true,
           "readOnly": true
         },
         {
-          "service": "segments",
+          "service": "hull_segments",
           "hull": "account_segments.name",
           "overwrite": true,
           "readOnly": true

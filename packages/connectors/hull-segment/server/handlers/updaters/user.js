@@ -20,11 +20,10 @@ const userUpdate = (ctx: HullContext, analytics: any) => async (
   message: HullUserUpdateMessage
 ): any => {
   const { client, connector, metric, helpers } = ctx;
-  const { mapAttributes, getStandardMapping } = helpers;
-  const { settings = {}, private_settings = {} } = connector;
-  const { synchronized_properties = [] } = private_settings;
+  const { mapAttributes } = helpers;
+  const { settings = {} } = connector;
   const { public_id_field } = settings;
-  const { user, segments, account, events } = message;
+  const { user, account, events } = message;
 
   // Empty payload ?
   if (!user.id || !connector.id) {
@@ -55,33 +54,9 @@ const userUpdate = (ctx: HullContext, analytics: any) => async (
     });
   }
 
-  // const traits = _.reduce(
-  //   synchronized_properties,
-  //   (tts, attribute) => {
-  //     if (attribute.indexOf("account.") === 0) {
-  //       // Account attribute at User Level
-  //       const t = attribute.replace(/^account\./, "");
-  //       tts[`account_${t.replace("/", "_")}`] = _.get(account, t);
-  //     } else {
-  //       // Trait
-  //       tts[attribute.replace(/^traits_/, "").replace("/", "_")] = _.get(
-  //         user,
-  //         attribute
-  //       );
-  //     }
-  //     return tts;
-  //   },
-  //   {
-  //     hull_segments: _.map(segments, "name")
-  //   }
-  // );
-
   const traits = mapAttributes({
     payload: message,
-    mapping: [
-      ...connector.private_settings.outgoing_user_attribute_mapping,
-      ...getStandardMapping({ type: "identify", direction: "outgoing" })
-    ],
+    mapping: connector.private_settings.outgoing_user_attribute_mapping,
     direction: "outgoing"
   });
 
