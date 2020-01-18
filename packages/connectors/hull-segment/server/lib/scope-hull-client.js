@@ -1,7 +1,10 @@
 // @flow
 import _ from "lodash";
 import type { HullClient, HullAdditionalClaims } from "hull";
-import type { SegmentConnectorSettings, SegmentIncomingPayload } from "./types";
+import type {
+  SegmentConnectorSettings,
+  SegmentIncomingPayload
+} from "../types";
 
 const EMAIL_REGEXP = /([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})/i;
 
@@ -21,7 +24,7 @@ export default function scope(
   }: $PropertyType<SegmentConnectorSettings, "settings">,
   additionalClaims: HullAdditionalClaims
 ) {
-  const { integrations, userId, anonymousId, traits = {} } = message;
+  const { integrations = {}, userId, anonymousId, traits = {} } = message;
   const { email } = traits || {};
   const useHullId = integrations.Hull && integrations.Hull.id === true;
 

@@ -45,7 +45,7 @@ const incomingHandler = async (
   const { integrations = {} } = payload;
   try {
     if (integrations.Hull !== false) {
-      await handler(ctx, camelize(message));
+      await handler(ctx, camelize(body));
     }
   } catch (e) {
     return {

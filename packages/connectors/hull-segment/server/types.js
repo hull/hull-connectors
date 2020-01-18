@@ -172,11 +172,11 @@ export type SegmentConnectorSettings = {
     handle_accounts: boolean
   },
   private_settings: {
+    synchronized_events: Array<string>,
     synchronized_segments: Array<string>,
     synchronized_properties: Array<string>,
     synchronized_account_segments: Array<string>,
     synchronized_account_properties: Array<string>,
-    forward_events: boolean,
-    send_events: Array<string>
+    forward_events: boolean
   }
 };

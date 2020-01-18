@@ -19,13 +19,13 @@ module.exports = function authTokenMiddleware(
     const [authType, token64] = authorization.split(" ");
     if (authType === "Basic" && token64) {
       try {
-        const token = new Buffer(token64, "base64")
+        const token = new Buffer.from(token64, "base64")
           .toString()
           .split(":")[0]
           .trim();
-        req.hull.clientCredentialsToken = token;
+        req.hull.clientCredentialsEncryptedToken = token;
         // req.hull.clientCredentials = false;
-        debug("wrote token", req.hull.clientCredentialsToken);
+        debug("wrote token", req.hull.clientCredentialsEncryptedToken);
       } catch (err) {
         const e: StatusError = new Error("Invalid Basic Auth Header");
         e.status = 401;

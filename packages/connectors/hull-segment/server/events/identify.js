@@ -2,7 +2,7 @@
 
 import { isEmpty, reduce, includes } from "lodash";
 import type { HullContext } from "hull";
-import scoped from "../scope-hull-client";
+import scoped from "../lib/scope-hull-client";
 import type { SegmentIncomingIdentify } from "../types";
 
 const ALIASED_FIELDS = {

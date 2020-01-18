@@ -17,17 +17,22 @@ const accountUpdate = (ctx: HullContext, analytics: any) => async (
     synchronized_account_segments = [],
     synchronized_account_properties = []
   } = private_settings;
-  const { public_account_id_field } = settings;
+  const { handle_accounts, public_account_id_field } = settings;
   const { account, account_segments } = message;
   // Empty payload ?
   if (!account || !account.id || !connector.id) {
     return undefined;
   }
-  const asAccount = client.asAccount(account);
+
+  // Group calls disabled
+  if (!handle_accounts) {
+    return undefined;
+  }
 
   // We do the check here since we're not relying on Account update messages but User update messages instead - so Kraken filtering can't help us
   if (
     !isBatch &&
+    !_.includes(synchronized_account_segments, "ALL") &&
     !_.intersection(
       _.map(account_segments, "id"),
       synchronized_account_segments
@@ -40,9 +45,10 @@ const accountUpdate = (ctx: HullContext, analytics: any) => async (
   // Otherwise, we look for known anonymousIds attached to the user and we take the first one
   // const anonymousId = getfirstNonNull(account.anonymous_ids);
   const groupId: ?string = _.get(account, public_account_id_field);
+  const asAccount = client.asAccount(account);
 
   // We have no identifier for the user, we have to skip
-  if (!groupId && !anonymousId) {
+  if (!groupId || (!anonymousId && !userId)) {
     return asAccount.logger.info("outgoing.account.skip", {
       message: "No Identifier available",
       anonymousId,

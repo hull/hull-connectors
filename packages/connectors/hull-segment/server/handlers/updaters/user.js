@@ -11,13 +11,16 @@ import {
 import handleEvent from "./event";
 import handleAccount from "./account";
 
+const debug = require("debug")("hull-segment:user-updater");
+
 const segmentContext: SegmentContext = { active: false, ip: 0 };
 const integrations = { Hull: false };
 
 const userUpdate = (ctx: HullContext, analytics: any) => async (
   message: HullUserUpdateMessage
 ): any => {
-  const { client, connector, metric } = ctx;
+  const { client, connector, metric, helpers } = ctx;
+  const { mapAttributes, getStandardMapping } = helpers;
   const { settings = {}, private_settings = {} } = connector;
   const { synchronized_properties = [] } = private_settings;
   const { public_id_field } = settings;
@@ -52,28 +55,38 @@ const userUpdate = (ctx: HullContext, analytics: any) => async (
     });
   }
 
-  const traits = _.reduce(
-    synchronized_properties,
-    (tts, attribute) => {
-      if (attribute.indexOf("account.") === 0) {
-        // Account attribute at User Level
-        const t = attribute.replace(/^account\./, "");
-        tts[`account_${t.replace("/", "_")}`] = _.get(account, t);
-      } else {
-        // Trait
-        tts[attribute.replace(/^traits_/, "").replace("/", "_")] = _.get(
-          user,
-          attribute
-        );
-      }
-      return tts;
-    },
-    {
-      hull_segments: _.map(segments, "name")
-    }
-  );
+  // const traits = _.reduce(
+  //   synchronized_properties,
+  //   (tts, attribute) => {
+  //     if (attribute.indexOf("account.") === 0) {
+  //       // Account attribute at User Level
+  //       const t = attribute.replace(/^account\./, "");
+  //       tts[`account_${t.replace("/", "_")}`] = _.get(account, t);
+  //     } else {
+  //       // Trait
+  //       tts[attribute.replace(/^traits_/, "").replace("/", "_")] = _.get(
+  //         user,
+  //         attribute
+  //       );
+  //     }
+  //     return tts;
+  //   },
+  //   {
+  //     hull_segments: _.map(segments, "name")
+  //   }
+  // );
+
+  const traits = mapAttributes({
+    payload: message,
+    mapping: [
+      ...connector.private_settings.outgoing_user_attribute_mapping,
+      ...getStandardMapping({ type: "identify", direction: "outgoing" })
+    ],
+    direction: "outgoing"
+  });
 
   const promises = [];
+
   try {
     promises.push(
       analytics.identify({
@@ -85,7 +98,8 @@ const userUpdate = (ctx: HullContext, analytics: any) => async (
       })
     );
   } catch (err) {
-    err.reason = "Error sending events to Segment.com";
+    debug("Error in Identify handler", { message, err });
+    err.reason = "Error sending Identify to Segment.com";
     err.data = { userId, user };
     throw err;
   }
@@ -106,7 +120,8 @@ const userUpdate = (ctx: HullContext, analytics: any) => async (
       )
     );
   } catch (err) {
-    err.reason = "Error sending events to Segment.com";
+    debug("Error in Event handler", { message, err });
+    err.reason = "Error sending Tracks to Segment.com";
     throw err;
   }
 
@@ -114,12 +129,14 @@ const userUpdate = (ctx: HullContext, analytics: any) => async (
   try {
     promises.push(accountUpdateHandler(message, userId, anonymousId));
   } catch (err) {
-    err.reason = "Error sending account to Segment.com";
+    debug("Error in Account Update Handler", { message, err });
+    err.reason = "Error sending group to Segment.com";
   }
 
   try {
     await Promise.all(promises);
   } catch (err) {
+    debug("Error in Promise callback Handler", { message, err });
     err.reason = "Error sending events and Users to segment";
     throw err;
   }

@@ -993,12 +993,32 @@ Apply Mapping (JSONata expressions)
 ```js
 //@flow
 const { helpers } = ctx;
-const { mapAttributes } = helpers;
+const { getStandardMapping, mapAttributes } = helpers;
 
-hull.asUser({...}).traits(mapAttributes({
-  entity: { ..company object },
-  mapping: "incoming_company_mapping",
-  type: "company",
-  direction: "incoming"
-}));
+const standardMappings = getStandardMapping({ type: "identify", direction: "outgoing" });
+const mapping = [
+  ...connector.private_settings.outgoing_user_attribute_mapping,
+  ...standardMappings
+]
+const traits = mapAttributes({
+  payload: message,
+  mapping,
+  direction: "outgoing"
+});
+
+hull.asUser({...}).traits(traits);
+
+//////////////////
+//////////////////
+
+const traits = mapAttributes({
+  payload: prospect,
+  direction: "incoming",
+  mapping: [
+    ...connector.private_settings.incoming_prospect_mapping,
+    ...getStandardMapping({ type: "prospect", direction: "incoming" })
+  ]
+});
+
+
 ```

@@ -3,40 +3,43 @@
 import _ from "lodash";
 import type {
   HullContext,
-  HullEntityAttributes,
-  HullAttributeMapping
+  HullAttributeMapping,
+  HullEntityAttributes
 } from "hull";
 import jsonata from "jsonata";
 
+const noDotInPath = str => str.indexOf(".") === -1;
 const mapAttributes = (ctx: HullContext) => ({
-  entity,
-  type,
+  payload,
   mapping,
-  direction
+  direction = "incoming"
 }: {
-  entity: {},
-  mapping: string,
-  type: string,
-  direction: string
+  payload: {},
+  direction?: "incoming" | "outgoing",
+  mapping: Array<HullAttributeMapping>
 }): HullEntityAttributes => {
-  const { connectorConfig, helpers, connector } = ctx;
+  const { helpers } = ctx;
   const { operations } = helpers;
   // manifest from ConnectorConfig is the one committed with the repository
-  const { manifest } = connectorConfig;
   const { setIfNull } = operations;
-  const mappings: {
-    top_level?: Array<HullAttributeMapping>
-  } = _.get(manifest, ["mappings", type, direction]);
-  const settings =
-    connector.private_settings[mapping] || connector.settings[mapping];
-  const { top_level = [] } = mappings;
+
   const transform = _.reduce(
-    [...settings, ...top_level],
+    mapping,
     (m, { service, hull, overwrite }) => {
+      const { source, target } =
+        direction === "incoming"
+          ? {
+              target: hull,
+              source: service
+            }
+          : {
+              target: service,
+              source: noDotInPath(hull) ? `user.${hull}` : hull
+            };
       _.set(
         m,
-        hull,
-        overwrite ? `_{{${service}}}_` : setIfNull(`_{{${service}}}_`)
+        target,
+        overwrite ? `_{{${source}}}_` : setIfNull(`_{{${source}}}_`)
       );
       return m;
     },
@@ -44,7 +47,7 @@ const mapAttributes = (ctx: HullContext) => ({
   );
 
   const transformed = JSON.stringify(transform).replace(/"_{{(.*?)}}_"/g, "$1");
-  const response = jsonata(transformed).evaluate(entity);
+  const response = jsonata(transformed).evaluate(payload);
   return response;
 };
 

@@ -23,7 +23,7 @@ module.exports = function statusCheck(ctx: HullContext): HullStatusResponse {
     public_account_id_field
   } = settings;
   const {
-    send_events,
+    synchronized_events,
     synchronized_account_properties,
     synchronized_properties,
     synchronized_account_segments,
@@ -48,7 +48,7 @@ module.exports = function statusCheck(ctx: HullContext): HullStatusResponse {
     write_key &&
     (!_.size(synchronized_properties) &&
       !_.size(synchronized_account_properties) &&
-      !_.size(send_events))
+      !_.size(synchronized_events))
   ) {
     status = "warning";
     messages.push(

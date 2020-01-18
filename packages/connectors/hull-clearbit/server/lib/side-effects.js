@@ -29,15 +29,17 @@ export async function saveProspect({
   account: HullAccount | { domain?: string },
   prospect: ClearbitProspect
 }): Promise<any> {
-  const { client, metric, helpers } = ctx;
-  const { mapAttributes } = helpers;
+  const { connector, client, metric, helpers } = ctx;
+  const { mapAttributes, getStandardMapping } = helpers;
   const { id, email } = prospect;
   try {
     const traits = mapAttributes({
-      entity: prospect,
-      mapping: "incoming_prospect_mapping",
-      type: "prospect",
-      direction: "incoming"
+      payload: prospect,
+      direction: "incoming",
+      mapping: [
+        ...connector.private_settings.incoming_prospect_mapping,
+        ...getStandardMapping({ type: "prospect", direction: "incoming" })
+      ]
     });
 
     // as a new user
@@ -133,17 +135,19 @@ export async function saveAccount(
   }
 ) {
   // meta?: {} = {}
-  const { client, metric, helpers } = ctx;
-  const { mapAttributes, operations } = helpers;
+  const { connector, client, metric, helpers } = ctx;
+  const { mapAttributes, getStandardMapping, operations } = helpers;
   const { setIfNull } = operations;
 
   const timestamp = now();
   const traits = {
     ...mapAttributes({
-      entity: company,
-      mapping: "incoming_company_mapping",
-      type: "company",
-      direction: "incoming"
+      payload: company,
+      direction: "incoming",
+      mapping: [
+        ...connector.private_settings.incoming_company_mapping,
+        ...getStandardMapping({ type: "company", direction: "incoming" })
+      ]
     }),
     "clearbit/id": company.id,
     "clearbit/fetched_at": timestamp,
@@ -197,8 +201,8 @@ export async function saveUser(
   }
 ) {
   // meta?: {} = {}
-  const { client, metric, helpers } = ctx;
-  const { mapAttributes, operations } = helpers;
+  const { connector, client, metric, helpers } = ctx;
+  const { mapAttributes, getStandardMapping, operations } = helpers;
   const { setIfNull } = operations;
 
   // Never ever change the email address (Clearbit strips +xxx parts, so we end up
@@ -218,10 +222,12 @@ export async function saveUser(
   const traits = {
     ...(person
       ? mapAttributes({
-          entity: person,
-          type: "person",
-          mapping: "incoming_person_mapping",
-          direction: "incoming"
+          payload: person,
+          direction: "incoming",
+          mapping: [
+            ...connector.private_settings.incoming_person_mapping,
+            ...getStandardMapping({ type: "person", direction: "incoming" })
+          ]
         })
       : {}),
     "clearbit/fetched_at": timestamp,

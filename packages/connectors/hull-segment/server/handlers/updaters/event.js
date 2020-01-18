@@ -21,7 +21,7 @@ const eventUpdate = ({
 }) => async (event: HullEvent) => {
   const { connector, metric } = ctx;
   const { private_settings } = connector;
-  const { forward_events, send_events } = private_settings;
+  const { forward_events, synchronized_events } = private_settings;
   const { event: eventName, event_source } = event;
 
   if (event_source === "segment" && !forward_events) {
@@ -37,7 +37,10 @@ const eventUpdate = ({
     // };
   }
 
-  if (!_.includes(send_events, eventName)) {
+  if (
+    !_.includes(synchronized_events, eventName) &&
+    !_.includes(synchronized_events, "ALL")
+  ) {
     return undefined;
     // return {
     //   message_id,

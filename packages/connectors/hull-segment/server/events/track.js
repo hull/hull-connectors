@@ -2,7 +2,7 @@
 
 import { reduce } from "lodash";
 import type { HullContext } from "hull";
-import scoped from "../scope-hull-client";
+import scoped from "../lib/scope-hull-client";
 import type {
   SegmentIncomingTrack,
   SegmentIncomingPage,
@@ -72,7 +72,7 @@ export default async function handleTrack(
       if (!event) {
         throw new Error("Event name is empty, can't track!");
       }
-      const result = await asUser.track(event, properties, trackContext);
+      await asUser.track(event, properties, trackContext);
       asUser.logger.info("incoming.track.success", {
         event,
         context: trackContext,
@@ -83,12 +83,17 @@ export default async function handleTrack(
       asUser.logger.error("incoming.track.error", {
         ...errorPayload,
         message: err.message,
-        errors: err
+        error: err
       });
       metric.increment("request.track.error");
+      throw err;
     }
   } catch (e) {
-    client.logger.error("incoming.user.error", { message: e.message });
+    client.logger.error("incoming.user.error", {
+      message: e.message,
+      error: e
+    });
+    throw e;
   }
-  return undefined;
+  // return undefined;
 }

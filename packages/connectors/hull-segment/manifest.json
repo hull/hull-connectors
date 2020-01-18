@@ -14,37 +14,92 @@
   "admin": "admin.html",
   "readme": "readme.md",
   "version": "0.2.0",
-  "deployment_settings": [
-    {
-      "name": "_selector",
-      "default": "body",
-      "type": "string",
-      "format": "string"
-    },
-    {
-      "name": "_placement",
-      "default": "append",
-      "type": "string",
-      "format": "string"
+  "mappings": {
+    "identify": {
+      "outgoing": {
+      }
     }
-  ],
+  },
   "private_settings": [
-    {
-      "name": "sync_out_info",
-      "title": "Hull ➞ Segment",
-      "format": "title",
-      "type": "string"
-    },
     {
       "name": "synchronized_segments",
       "title": "Users to send",
       "description": "List segments for which to send Users to Segment",
       "type": "array",
       "format": "segment",
-      "items": {
-        "type": "string"
+      "options": {
+        "standard": {
+          "ALL": "All Users"
+        }
+      }
+    },
+    {
+      "name": "outgoing_user_attribute_mapping",
+      "title": "User Attributes Mapping",
+      "description": "How we map Hull User Attributes to Segment Identify Calls",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "allowCreate": true,
+        "placeholder": "Segment Name",
+        "source": ""
       },
-      "default": []
+      "default": [
+        {
+          "hull": "email",
+          "service": "email",
+          "overwrite": true,
+          "readOnly": true
+        },
+        {
+          "hull": "segments.name",
+          "service": "segments",
+          "overwrite": true,
+          "readOnly": true
+        },
+        {
+          "hull": "account_segments.name",
+          "service": "account_segments",
+          "overwrite": true,
+          "readOnly": true
+        }
+      ]
+    },
+    {
+      "name": "outgoing_account_attribute_mapping",
+      "title": "Account Attributes Mapping",
+      "description": "How we map Hull Account Attributes to Segment Group Calls",
+      "type": "array",
+      "format": "accountTraitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "allowCreate": true,
+        "placeholder": "Segment Name",
+        "source": ""
+      },
+      "default": [
+        {
+          "service": "domain",
+          "hull": "domain",
+          "overwrite": true,
+          "readOnly": true
+        },
+        {
+          "service": "groupId",
+          "hull": "external_id",
+          "overwrite": true,
+          "readOnly": true
+        },
+        {
+          "service": "segments",
+          "hull": "account_segments.name",
+          "overwrite": true,
+          "readOnly": true
+        }
+      ]
     },
     {
       "name": "synchronized_properties",
@@ -60,12 +115,23 @@
       ]
     },
     {
-      "name": "send_events",
+      "name": "link_users_in_hull",
+      "title": "Link users in Hull",
+      "description": "This option allows you to capture the link between contacts and companies in Segment. Use this option if you know Segment is your \"Leading System\" which will control the linkage between users and accounts. If you do enable this option, any similar option on any other connectors should be disabled so that the configurations will not result in an infinite account re-linking loop.",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "synchronized_events",
       "title": "Events to send",
       "description": "*By Default, all events are sent to Segment.com as `analytics.track()` calls. If you specify events above, only those will be sent.*",
       "type": "array",
       "format": "event",
-      "default": []
+      "options": {
+        "standard": {
+          "ALL": "All Events"
+        }
+      }
     },
     {
       "name": "forward_events",
@@ -79,11 +145,12 @@
       "title": "Accounts to send",
       "description": "List segments for which to send Account to segment",
       "type": "array",
-      "format": "account_segment",
-      "items": {
-        "type": "string"
-      },
-      "default": []
+      "format": "accountSegment",
+      "options": {
+        "standard": {
+          "ALL": "All Accounts"
+        }
+      }
     },
     {
       "name": "synchronized_account_properties",
@@ -103,7 +170,7 @@
     {
       "name": "write_key",
       "title": "Write Key to send data to Segment.com API",
-      "description": "Find it under Settings > API Keys > Write Key in your Segment.com workspace.",
+      "description": "If you want to use this connector to SEND data to Segment, you can enter the Write Key for the Segment Source to send to. Find it under Settings > API Keys > Write Key in your Segment.com workspace.",
       "type": "string",
       "format": "text"
     },
@@ -142,21 +209,8 @@
       "format": "hidden"
     },
     {
-      "name": "sending_hero",
-      "title": "Important Note",
-      "headerTemplate": "**Users and Accounts are only sent to segment.com when at least one identifier is present, this can be either the `External ID` or one or more `Anonymous IDs`.**",
-      "format": "information",
-      "type": "string"
-    },
-    {
-      "name": "sync_in_info",
-      "title": "Segment ➞ Hull",
-      "format": "title",
-      "type": "string"
-    },
-    {
       "name": "handle_pages",
-      "title": "Handle Page Calls",
+      "title": "Capture Page Calls",
       "description": "Record whenever a user sees a page of your website.",
       "type": "boolean",
       "default": true
@@ -176,16 +230,18 @@
       "default": false
     }
   ],
-  "actions": [],
-  "tabs": [
+  "deployment_settings": [
     {
-      "url": "admin.html",
-      "handler": "admin",
-      "title": "Credentials",
-      "options": {
-        "size": "small",
-        "editable": false
-      }
+      "name": "_selector",
+      "default": "body",
+      "type": "string",
+      "format": "string"
+    },
+    {
+      "name": "_placement",
+      "default": "append",
+      "type": "string",
+      "format": "string"
     }
   ],
   "status": {
@@ -195,16 +251,30 @@
       "interval": "5"
     }
   },
+  "json": [
+    {
+      "name": "credentials",
+      "handler": "credentialsHandler",
+      "url": "/credentials",
+      "title": "Segment API Key",
+      "description": "Copy this Api Key, [Install the Hull Destination by clicking here](https://app.segment.com/enable?integration=hull) and paste it in Segment",
+      "format": "credentials",
+      "type": "string"
+    }
+  ],
   "subscriptions": [
     {
       "url": "/notifier",
       "conditions": {
+        "channels": {
+          "only": [
+            "ship:update",
+            "user:update"
+          ]
+        },
         "segments": {
           "user:update": [
-            "private_settings.synchronized_user_segments"
-          ],
-          "account:update": [
-            "private_settings.synchronized_account_segments"
+            "private_settings.synchronized_segments"
           ]
         }
       },
@@ -216,13 +286,56 @@
       ]
     }
   ],
+  "settings_sections": [
+    {
+      "title": "Credentials",
+      "description": "In **Segment.com**, go to `Destinations → Hull` and paste the following api key",
+      "properties": [
+        "json.credentials",
+        "settings.write_key"
+      ]
+    },
+    {
+      "title": "Incoming traffic",
+      "description": "",
+      "properties": [
+        "settings.handle_pages",
+        "settings.handle_screens",
+        "settings.handle_accounts",
+        "private_settings.link_users_in_hull",
+        "private_settings.ignore_segment_userId"
+      ]
+    },
+    {
+      "title": "Outgoing Users",
+      "description": "Users are only sent to segment.com when at least one identifier is present, this can be either the `External ID` or one or more `Anonymous IDs`.",
+      "properties": [
+        "private_settings.synchronized_segments",
+        "private_settings.outgoing_user_attribute_mapping"
+      ]
+    },
+    {
+      "title": "Outgoing Events",
+      "properties": [
+        "private_settings.synchronized_events",
+        "private_settings.forward_events"
+      ]
+    },
+    {
+      "title": "Outgoing Accounts",
+      "properties": [
+        "private_settings.synchronized_account_segments",
+        "private_settings.outgoing_account_attribute_mapping"
+      ]
+    }
+  ],
   "incoming": [
     {
       "url": "/segment",
-      "method": "post",
       "handler": "incomingHandler",
       "options": {
-        "credentialsFromQuery": true
+        "dropIfConnectorDisabled": true,
+        "respondWithError": true
       }
     }
   ]
