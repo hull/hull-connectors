@@ -12,25 +12,15 @@
   "picture": "picture.png",
   "ui": false,
   "readme": "readme.md",
-  "version": "0.1.12-monorepo",
+  "version": "0.1.15-monorepo",
   "private_settings": [
     {
-      "name": "subscriptions",
+      "name": "triggers",
       "title": "Rest Hook Subscriptions",
       "type": "array",
       "items": {
         "type": "object",
-        "properties": {
-          "url": {
-            "type": "string"
-          },
-          "action": {
-            "type": "string"
-          },
-          "entityType": {
-            "type": "string"
-          }
-        }
+        "properties": {}
       },
       "default": []
     },
@@ -50,7 +40,7 @@
     },
     {
       "name": "invitation",
-      "default": "https://zapier.com/developer/public-invite/5710/d4334f38188deb9272c7fc7b0d0b5cfa",
+      "default": "https://zapier.com/apps/hull/integrations",
       "type": "string"
     },
     {

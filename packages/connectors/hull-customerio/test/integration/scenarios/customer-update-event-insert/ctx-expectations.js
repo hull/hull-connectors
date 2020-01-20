@@ -67,7 +67,7 @@ module.exports = (ctxMock) => {
 
   const hullEvent = _.get(smartNotifierPayload, "messages[0].events[0]", {});
   const eventsCustomerLogData = [
-    hullEvent.event
+    hullEvent.properties.url
   ];
 
   expect(ctxMock.client.logger.info.mock.calls).toHaveLength(2);
