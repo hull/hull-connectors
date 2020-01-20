@@ -37,7 +37,7 @@ const {
 const dateFormatter = (value) => {
   if (value === null)
     return value;
-  return moment(value).toISOString();
+  return moment(value).valueOf();
 };
 
 // only date currently needing conversion is "closedate"
