@@ -444,6 +444,17 @@ const transformsToHull: ServiceTransforms =
             }
         },
         {
+          strategy: "AtomicReaction",
+          target: { component: "input", name: "eventInput" },
+          validation:
+            {
+              error: "BreakToLoop",
+              message: "Event isn't related to a Prospect, skipping",
+              condition:
+                isNull("eventInput.relationships.prospect.data.id")
+            }
+        },
+        {
           strategy: "Jsonata",
           direction: "incoming",
           transforms: [
