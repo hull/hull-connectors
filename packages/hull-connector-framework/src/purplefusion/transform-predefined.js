@@ -87,6 +87,8 @@ function serviceUserTransforms(entityType) {
 }
 
 function createEnumTransform({ attribute, attributeId, route, forceRoute }) {
+  const onUndefined = forceRoute ? { component: "glue", route: forceRoute, select: "${attributeId}" } : undefined;
+
   return {
     then: [
       {
@@ -94,7 +96,7 @@ function createEnumTransform({ attribute, attributeId, route, forceRoute }) {
           component: "glue",
           route: route,
           select: { component: "input", select: attributeId, name: "attributeId" },
-          onUndefined: { component: "glue", route: forceRoute, select: "${attributeId}" }
+          onUndefined
         },
         // default null?
         writeTo: attribute
