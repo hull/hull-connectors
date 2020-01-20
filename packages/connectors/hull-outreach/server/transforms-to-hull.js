@@ -509,7 +509,6 @@ const transformsToHull: ServiceTransforms =
                 component: "static",
                 object: {
                   "bounced_message": "Bounced Message",
-                  "emails_opt_out": "Emails Opt Out",
                   "inbound_message": "Inbound Message",
                   "message_clicked": "Message Clicked",
                   "message_opened": "Message Opened",
