@@ -312,8 +312,7 @@ const transformsToHull: ServiceTransforms = [
             attribute: "primaryContactEmail",
             attributeId: "primary_contact_id",
             attributeList: "incoming_opportunity_attributes",
-            route: "getPersonEmailById",
-            forceRoute: "forceGetPersonEmailById"
+            route: "getPersonEmailById"
           })
         ]
       }

@@ -429,7 +429,7 @@ module.exports = {
       "op": "getPersonById",
       "result": {
         "status": 200,
-        "text": "{\"id\":94693339,\"name\":\"Jon Lee (Sample - Try me!)\",\"prefix\":null,\"first_name\":\"Jon Lee (Sample - Try me!)\",\"middle_name\":null,\"last_name\":null,\"suffix\":null,\"address\":{\"street\":\"301 Howard Street\",\"city\":\"San Francisco\",\"state\":\"CA\",\"postal_code\":\"94105\",\"country\":null},\"assignee_id\":null,\"company_id\":42412878,\"company_name\":\"Copper\",\"contact_type_id\":1427442,\"details\":\"Jon started Copper to give every company tools they will actually use to help them grow.\",\"emails\":[{\"email\":\"jonl@copper.com\",\"category\":\"work\"}],\"phone_numbers\":[{\"number\":\"4153554776\",\"category\":\"work\"}],\"socials\":[{\"url\":\"https://www.linkedin.com/in/jonlee168\",\"category\":\"linkedin\"}],\"tags\":[\"sample\"],\"title\":\"Co-Founder\",\"websites\":[{\"url\":\"www.copper.com\",\"category\":\"work\"}],\"custom_fields\":[{\"custom_field_definition_id\":378436,\"value\":null},{\"custom_field_definition_id\":378438,\"value\":null},{\"custom_field_definition_id\":378437,\"value\":null},{\"custom_field_definition_id\":378435,\"value\":null},{\"custom_field_definition_id\":378434,\"value\":[]},{\"custom_field_definition_id\":378433,\"value\":null},{\"custom_field_definition_id\":378432,\"value\":null},{\"custom_field_definition_id\":378431,\"value\":null},{\"custom_field_definition_id\":378430,\"value\":false}],\"date_created\":1577804581,\"date_modified\":1577804586,\"date_last_contacted\":null,\"interaction_count\":0,\"leads_converted_from\":[],\"date_lead_created\":null}"
+        "text": "{\"id\":94693339,\"name\":\"Jon Lee (Sample - Try me!)\",\"prefix\":null,\"first_name\":\"Jon Lee (Sample - Try me!)\",\"middle_name\":null,\"last_name\":null,\"suffix\":null,\"address\":{\"street\":\"301 Howard Street\",\"city\":\"San Francisco\",\"state\":\"CA\",\"postal_code\":\"94105\",\"country\":null},\"assignee_id\":null,\"company_id\":42412878,\"company_name\":\"Copper\",\"contact_type_id\":1427442,\"details\":\"Jon started Copper to give every company tools they will actually use to help them grow.\",\"emails\":[],\"phone_numbers\":[{\"number\":\"4153554776\",\"category\":\"work\"}],\"socials\":[{\"url\":\"https://www.linkedin.com/in/jonlee168\",\"category\":\"linkedin\"}],\"tags\":[\"sample\"],\"title\":\"Co-Founder\",\"websites\":[{\"url\":\"www.copper.com\",\"category\":\"work\"}],\"custom_fields\":[{\"custom_field_definition_id\":378436,\"value\":null},{\"custom_field_definition_id\":378438,\"value\":null},{\"custom_field_definition_id\":378437,\"value\":null},{\"custom_field_definition_id\":378435,\"value\":null},{\"custom_field_definition_id\":378434,\"value\":[]},{\"custom_field_definition_id\":378433,\"value\":null},{\"custom_field_definition_id\":378432,\"value\":null},{\"custom_field_definition_id\":378431,\"value\":null},{\"custom_field_definition_id\":378430,\"value\":false}],\"date_created\":1577804581,\"date_modified\":1577804586,\"date_last_contacted\":null,\"interaction_count\":0,\"leads_converted_from\":[],\"date_lead_created\":null}"
       }
     },
     {
@@ -713,10 +713,11 @@ module.exports = {
             "operation": "set",
             "value": 94693339
           },
-          "coppercrm_opportunity_New Business/primarycontactemail": {
-            "operation": "set",
-            "value": "jonl@copper.com"
-          },
+          // commenting out to test scenario when the user does not have email
+          // "coppercrm_opportunity_New Business/primarycontactemail": {
+          //   "operation": "set",
+          //   "value": "jonl@copper.com"
+          // },
           "coppercrm_opportunity_New Business/priority": {
             "operation": "set",
             "value": "Low"
