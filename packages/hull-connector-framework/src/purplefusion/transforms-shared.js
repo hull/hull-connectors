@@ -260,20 +260,14 @@ const transformsShared: ServiceTransforms = [
                 {
                   condition: isEqual("mapping.overwrite", true),
                   writeTo: {
-                    path: "${mapping.hull}",
-                    pathFormatter: (path, context) => {
-                      return `attributes.${getAttributeNamespace(path)}_${context.get("opportunityType")}/${getAttributeName(path)}`;
-                    },
+                    path: "attributes.${service_name}_opportunity_${opportunityType}/${mapping.hull}",
                     format: { operation: "set", value: "${operateOn}" }
                   }
                 },
                 {
                   condition: isEqual("mapping.overwrite", false),
                   writeTo: {
-                    path: "${mapping.hull}",
-                    pathFormatter: (path, context) => {
-                      return `attributes.${getAttributeNamespace(path)}_${context.get("opportunityType")}/${getAttributeName(path)}`;
-                    },
+                    path: "attributes.${service_name}_opportunity_${opportunityType}/${mapping.hull}",
                     format: { operation: "setIfNull", value: "${operateOn}" }
                   }
                 }

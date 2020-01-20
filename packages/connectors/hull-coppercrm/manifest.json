@@ -156,8 +156,8 @@
     {
       "name": "incoming_opportunity_type",
       "title": "Choose an field to differentiate between opportunity types",
-      "format": "trait",
       "type": "string",
+      "format": "select",
       "options": {
         "placeholder": "Pick a Field for Opportunity Type",
         "loadOptions": "/attributes-opportunities-incoming"
@@ -167,14 +167,33 @@
       "name": "incoming_opportunity_attributes",
       "title": "Incoming Opportunity Fields to Sync (CopperCrm to Hull)",
       "type": "array",
-      "format": "traitMapping",
-      "options": {
-        "direction": "incoming",
-        "showOverwriteToggle": true,
-        "placeholder": "CopperCrm Company Field",
-        "allowCreate": true,
-        "loadOptions": "/attributes-opportunities-incoming",
-        "source": "coppercrm_opportunity"
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "title": "Opportunity Attribute",
+            "type": "string",
+            "format": "select",
+            "options": {
+              "allowCreate": false,
+              "loadOptions": "/attributes-opportunities-incoming"
+            }
+          },
+          "hull": {
+            "title": "Hull Identifier",
+            "allowCreate": true,
+            "format": "string",
+            "type": "string"
+          },
+          "overwrite": {
+            "type": "boolean",
+            "title": "Overwrite In Hull",
+            "format": "select",
+            "required": true,
+            "default": true
+          }
+        }
       }
     },
     {

@@ -18,6 +18,7 @@ const {
 const {
   varNull,
   varInArray,
+  varEqual,
   varEqualVar,
   not,
   isVarServiceAttributeInVarList,
@@ -31,6 +32,31 @@ const {
   CopperCRMIncomingOpportunity,
   CopperCRMIncomingActivity
 } = require("./service-objects");
+
+
+const dateFormatter = (value) => {
+  if (value === null)
+    return value;
+  return moment(value).toISOString();
+};
+
+// only date currently needing conversion is "closedate"
+// if a dynamic set needs it in the future, can use this...
+const convertDatesUsingSchema = (schemaRoute) => {
+  return {
+    target: { component: "input" },
+    operateOn: { component: "glue", route: schemaRoute },
+    expand: { valueName: "attribute" },
+    then: {
+      operateOn: { component: "input", select: "${attribute.name}" },
+      condition: varEqual("attribute.type", "date"),
+      writeTo: {
+        path: "${attribute.name}",
+        formatter: dateFormatter
+      }
+    }
+  }
+};
 
 
 /**
@@ -216,66 +242,77 @@ const transformsToHull: ServiceTransforms = [
     direction: "incoming",
     strategy: "AtomicReaction",
     target: { component: "cloneInitialInput" },
+    asPipeline: true,
     then: [
       {
-        operateOn: { component: "input", select: "company_id" },
-        writeTo: "hull_service_accountId"
-      },
-      {
-        operateOn: { component: "input", select: "primary_contact_id" },
-        condition: not(varNull("operateOn")),
-        writeTo: { path: "hull_raw_service_userId", value: "${service_name}-person:person-${operateOn}" }
-      },
-      customFieldsTransform("incoming_opportunity_attributes"),
-      createEnumTransformWithAttributeList({
-        attribute: "assigneeEmail",
-        attributeId: "assignee_id",
-        attributeList: "incoming_opportunity_attributes",
-        route: "getAssignees",
-        forceRoute: "forceGetAssignees"
-      }),
-      createEnumTransformWithAttributeList({
-        attribute: "contactType",
-        attributeId: "contact_type_id",
-        attributeList: "incoming_opportunity_attributes",
-        route: "getContactTypes",
-        forceRoute: "forceGetContactTypes"
-      }),
-      createEnumTransformWithAttributeList({
-        attribute: "customerSource",
-        attributeId: "customer_source_id",
-        attributeList: "incoming_opportunity_attributes",
-        route: "getCustomerSources",
-        forceRoute: "forceGetCustomerSources"
-      }),
-      createEnumTransformWithAttributeList({
-        attribute: "lossReason",
-        attributeId: "loss_reason_id",
-        attributeList: "incoming_opportunity_attributes",
-        route: "getLossReasons",
-        forceRoute: "forceGetLossReasons"
-      }),
-      createEnumTransformWithAttributeList({
-        attribute: "pipeline",
-        attributeId: "pipeline_id",
-        attributeList: "incoming_opportunity_attributes",
-        route: "getPipelines",
-        forceRoute: "forceGetPipelines"
-      }),
-      createEnumTransformWithAttributeList({
-        attribute: "pipelineStage",
-        attributeId: "pipeline_stage_id",
-        attributeList: "incoming_opportunity_attributes",
-        route: "getPipelineStages",
-        forceRoute: "forceGetPipelineStages"
-      }),
-      createEnumTransformWithAttributeList({
-        attribute: "primaryContactEmail",
-        attributeId: "primary_contact_id",
-        attributeList: "incoming_opportunity_attributes",
-        route: "getPersonEmailById",
-        forceRoute: "forceGetPersonEmailById"
-      })
+        target: { component: "input" },
+        then: [
+          {
+            operateOn: { component: "input", select: "company_id" },
+            writeTo: "hull_service_accountId"
+          },
+          {
+            operateOn: { component: "input", select: "primary_contact_id" },
+            condition: not(varNull("operateOn")),
+            writeTo: { path: "hull_raw_service_userId", value: "${service_name}-person:person-${operateOn}" }
+          },
+          {
+            operateOn: { component: "input", select: "close_date" },
+            writeTo: { path: "close_date", formatter: dateFormatter }
+          },
+          customFieldsTransform("incoming_opportunity_attributes"),
+          createEnumTransformWithAttributeList({
+            attribute: "assigneeEmail",
+            attributeId: "assignee_id",
+            attributeList: "incoming_opportunity_attributes",
+            route: "getAssignees",
+            forceRoute: "forceGetAssignees"
+          }),
+          createEnumTransformWithAttributeList({
+            attribute: "contactType",
+            attributeId: "contact_type_id",
+            attributeList: "incoming_opportunity_attributes",
+            route: "getContactTypes",
+            forceRoute: "forceGetContactTypes"
+          }),
+          createEnumTransformWithAttributeList({
+            attribute: "customerSource",
+            attributeId: "customer_source_id",
+            attributeList: "incoming_opportunity_attributes",
+            route: "getCustomerSources",
+            forceRoute: "forceGetCustomerSources"
+          }),
+          createEnumTransformWithAttributeList({
+            attribute: "lossReason",
+            attributeId: "loss_reason_id",
+            attributeList: "incoming_opportunity_attributes",
+            route: "getLossReasons",
+            forceRoute: "forceGetLossReasons"
+          }),
+          createEnumTransformWithAttributeList({
+            attribute: "pipeline",
+            attributeId: "pipeline_id",
+            attributeList: "incoming_opportunity_attributes",
+            route: "getPipelines",
+            forceRoute: "forceGetPipelines"
+          }),
+          createEnumTransformWithAttributeList({
+            attribute: "pipelineStage",
+            attributeId: "pipeline_stage_id",
+            attributeList: "incoming_opportunity_attributes",
+            route: "getPipelineStages",
+            forceRoute: "forceGetPipelineStages"
+          }),
+          createEnumTransformWithAttributeList({
+            attribute: "primaryContactEmail",
+            attributeId: "primary_contact_id",
+            attributeList: "incoming_opportunity_attributes",
+            route: "getPersonEmailById",
+            forceRoute: "forceGetPersonEmailById"
+          })
+        ]
+      }
+      // convertDatesUsingSchema("opportunitySchema")
     ]
   },
   {

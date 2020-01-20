@@ -40,207 +40,207 @@ module.exports = {
       "incoming_opportunity_attributes": [
         {
           "service": "name",
-          "hull": "coppercrm_opportunity/oppname",
+          "hull": "oppname",
           "overwrite": true
         },
         {
           "service": "assignee_id",
-          "hull": "coppercrm_opportunity/assigneeid",
+          "hull": "assigneeid",
           "overwrite": true
         },
         {
           "service": "assigneeEmail",
-          "hull": "coppercrm_opportunity/assigneeemail",
+          "hull": "assigneeemail",
           "overwrite": true
         },
         {
           "service": "close_date",
-          "hull": "coppercrm_opportunity/closedate_at",
+          "hull": "closedate_at",
           "overwrite": true
         },
         {
           "service": "company_id",
-          "hull": "coppercrm_opportunity/company_id",
+          "hull": "company_id",
           "overwrite": true
         },
         {
           "service": "company_name",
-          "hull": "coppercrm_opportunity/companyname",
+          "hull": "companyname",
           "overwrite": true
         },
         {
           "service": "customer_source_id",
-          "hull": "coppercrm_opportunity/customersourceid",
+          "hull": "customersourceid",
           "overwrite": true
         },
         {
           "service": "customerSource",
-          "hull": "coppercrm_opportunity/customersource",
+          "hull": "customersource",
           "overwrite": false
         },
         {
           "service": "details",
-          "hull": "coppercrm_opportunity/details",
+          "hull": "details",
           "overwrite": true
         },
         {
           "service": "loss_reason_id",
-          "hull": "coppercrm_opportunity/lossreasonid",
+          "hull": "lossreasonid",
           "overwrite": true
         },
         {
           "service": "lossReason",
-          "hull": "coppercrm_opportunity/lossreasonname",
+          "hull": "lossreasonname",
           "overwrite": true
         },
         {
           "service": "pipeline_id",
-          "hull": "coppercrm_opportunity/pipelineid",
+          "hull": "pipelineid",
           "overwrite": true
         },
         {
           "service": "pipeline",
-          "hull": "coppercrm_opportunity/pipelinename",
+          "hull": "pipelinename",
           "overwrite": true
         },
         {
           "service": "pipeline_stage_id",
-          "hull": "coppercrm_opportunity/pipelinestageid",
+          "hull": "pipelinestageid",
           "overwrite": true
         },
         {
           "service": "pipelineStage",
-          "hull": "coppercrm_opportunity/pipelinestagename",
+          "hull": "pipelinestagename",
           "overwrite": true
         },
         {
           "service": "primary_contact_id",
-          "hull": "coppercrm_opportunity/primarycontactid",
+          "hull": "primarycontactid",
           "overwrite": true
         },
         {
           "service": "primaryContactEmail",
-          "hull": "coppercrm_opportunity/primarycontactemail",
+          "hull": "primarycontactemail",
           "overwrite": true
         },
         {
           "service": "priority",
-          "hull": "coppercrm_opportunity/priority",
+          "hull": "priority",
           "overwrite": true
         },
         {
           "service": "status",
-          "hull": "coppercrm_opportunity/status",
+          "hull": "status",
           "overwrite": true
         },
         {
           "service": "tags",
-          "hull": "coppercrm_opportunity/tags",
+          "hull": "tags",
           "overwrite": true
         },
         {
           "service": "interaction_count",
-          "hull": "coppercrm_opportunity/interactioncount",
+          "hull": "interactioncount",
           "overwrite": true
         },
         {
           "service": "monetary_unit",
-          "hull": "coppercrm_opportunity/monitaryunit",
+          "hull": "monitaryunit",
           "overwrite": true
         },
         {
           "service": "monetary_value",
-          "hull": "coppercrm_opportunity/monetary_value",
+          "hull": "monetary_value",
           "overwrite": true
         },
         {
           "service": "converted_unit",
-          "hull": "coppercrm_opportunity/convertedunit",
+          "hull": "convertedunit",
           "overwrite": true
         },
         {
           "service": "converted_value",
-          "hull": "coppercrm_opportunity/convertedvalue",
+          "hull": "convertedvalue",
           "overwrite": true
         },
         {
           "service": "win_probability",
-          "hull": "coppercrm_opportunity/winprobability",
+          "hull": "winprobability",
           "overwrite": false
         },
         {
           "service": "date_stage_changed",
-          "hull": "coppercrm_opportunity/datestagechanged_at",
+          "hull": "datestagechanged_at",
           "overwrite": true
         },
         {
           "service": "date_last_contacted",
-          "hull": "coppercrm_opportunity/datelastcontacted_at",
+          "hull": "datelastcontacted_at",
           "overwrite": true
         },
         {
           "service": "date_lead_created",
-          "hull": "coppercrm_opportunity/dateleadcreated_at",
+          "hull": "dateleadcreated_at",
           "overwrite": false
         },
         {
           "service": "date_created",
-          "hull": "coppercrm_opportunity/datecreated",
+          "hull": "datecreated",
           "overwrite": true
         },
         {
           "service": "date_modified",
-          "hull": "coppercrm_opportunity/datemodified_at",
+          "hull": "datemodified_at",
           "overwrite": false
         },
         {
           "service": "Checkbox",
-          "hull": "coppercrm_opportunity/checkbox",
+          "hull": "checkbox",
           "overwrite": true
         },
         {
           "service": "Currency Field",
-          "hull": "coppercrm_opportunity/currencyfield",
+          "hull": "currencyfield",
           "overwrite": true
         },
         {
           "service": "Date Field",
-          "hull": "coppercrm_opportunity/datefield",
+          "hull": "datefield",
           "overwrite": true
         },
         {
           "service": "Dropdown Field",
-          "hull": "coppercrm_opportunity/dropdownfield",
+          "hull": "dropdownfield",
           "overwrite": true
         },
         {
           "service": "Multi Select Dropdown Field",
-          "hull": "coppercrm_opportunity/multiselectfield",
+          "hull": "multiselectfield",
           "overwrite": false
         },
         {
           "service": "Number Field",
-          "hull": "coppercrm_opportunity/numberfield",
+          "hull": "numberfield",
           "overwrite": true
         },
         {
           "service": "Percentage Field",
-          "hull": "coppercrm_opportunity/percentagefield",
+          "hull": "percentagefield",
           "overwrite": true
         },
         {
           "service": "Text Area Field",
-          "hull": "coppercrm_opportunity/textareafield",
+          "hull": "textareafield",
           "overwrite": true
         },
         {
           "service": "Url Field",
-          "hull": "coppercrm_opportunity/urlfield",
+          "hull": "urlfield",
           "overwrite": true
         },
         {
           "service": "Opportunity Type",
-          "hull": "coppercrm_opportunity/opportunitytype",
+          "hull": "opportunitytype",
           "overwrite": true
         }
       ]
@@ -462,7 +462,7 @@ module.exports = {
           },
           "coppercrm_opportunity_New Business/closedate_at": {
             "operation": "set",
-            "value": "1/14/2020"
+            "value": "2020-01-14T05:00:00.000Z"
           },
           "coppercrm_opportunity_New Business/company_id": {
             "operation": "set",
@@ -664,7 +664,7 @@ module.exports = {
           },
           "coppercrm_opportunity_Upsell/closedate_at": {
             "operation": "set",
-            "value": "1/7/2020"
+            "value": "2020-01-07T05:00:00.000Z"
           },
           "coppercrm_opportunity_Upsell/company_id": {
             "operation": "set",

@@ -46,12 +46,12 @@ module.exports = {
       "incoming_opportunity_attributes": [
         {
           "service": "customer_source_id",
-          "hull": "coppercrm_opportunity/sourceid",
+          "hull": "sourceid",
           "overwrite": true
         },
         {
           "service": "customerSource",
-          "hull": "coppercrm_opportunity/customersourcename",
+          "hull": "customersourcename",
           "overwrite": true
         }
       ],
