@@ -107,8 +107,8 @@ const glue = {
     ])
   ),
   ensureHook: ifL(route("hasRequiredFields"), [
-    ifL(not("${connector.private_settings.send_all_user_attributes}"), set("userAttributesHash", utils("hashObject", settings("outgoing_user_attributes")))),
-    ifL(not("${connector.private_settings.send_all_account_attributes}"), set("accountAttributesHash", utils("hashObject", settings("outgoing_account_attributes")))),
+    ifL(cond("isEqual", "${connector.private_settings.send_all_user_attributes}", false), set("userAttributesHash", utils("hashObject", settings("outgoing_user_attributes")))),
+    ifL(cond("isEqual", "${connector.private_settings.send_all_account_attributes}", false), set("accountAttributesHash", utils("hashObject", settings("outgoing_account_attributes")))),
     set("currentDatabaseSettings",
       "${connector.private_settings.db_username}|" +
       "${connector.private_settings.db_password}|" +
