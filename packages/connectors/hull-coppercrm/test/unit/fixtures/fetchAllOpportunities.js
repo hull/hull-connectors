@@ -433,195 +433,6 @@ module.exports = {
       }
     },
     {
-      "localContext": expect.anything(),
-      "name": "hull",
-      "op": "asOpportunity",
-      "input": {
-        "accountIdent": {
-          "anonymous_id": "coppercrm:42412878"
-        },
-        "userIdent": {
-          "anonymous_id": "coppercrm-person:person-94693339"
-        },
-        "attributes": {
-          "coppercrm_opportunity_New Business/id": {
-            "value": 19438258,
-            "operation": "set"
-          },
-          "coppercrm_opportunity_New Business/oppname": {
-            "operation": "set",
-            "value": "8 New Copy Machines (Sample - Try me!)"
-          },
-          "coppercrm_opportunity_New Business/assigneeid": {
-            "operation": "set",
-            "value": 811206
-          },
-          "coppercrm_opportunity_New Business/assigneeemail": {
-            "operation": "set",
-            "value": "timliuhull3@gmail.com"
-          },
-          "coppercrm_opportunity_New Business/closedate_at": {
-            "operation": "set",
-            "value": "2020-01-14T05:00:00.000Z"
-          },
-          "coppercrm_opportunity_New Business/company_id": {
-            "operation": "set",
-            "value": 42412878
-          },
-          "coppercrm_opportunity_New Business/companyname": {
-            "operation": "set",
-            "value": "Copper"
-          },
-          "coppercrm_opportunity_New Business/customersourceid": {
-            "operation": "set",
-            "value": 1057492
-          },
-          "coppercrm_opportunity_New Business/customersource": {
-            "operation": "setIfNull",
-            "value": "Cold Call"
-          },
-          "coppercrm_opportunity_New Business/details": {
-            "operation": "set",
-            "value": "Opportunities are created for People and Companies that are interested in buying your products or services. Create Opportunities for People and Companies to move them through one of your Pipelines."
-          },
-          "coppercrm_opportunity_New Business/lossreasonid": {
-            "operation": "set",
-            "value": 973750
-          },
-          "coppercrm_opportunity_New Business/lossreasonname": {
-            "operation": "set",
-            "value": "Features"
-          },
-          "coppercrm_opportunity_New Business/pipelineid": {
-            "operation": "set",
-            "value": 685744
-          },
-          "coppercrm_opportunity_New Business/pipelinename": {
-            "operation": "set",
-            "value": "Sales"
-          },
-          "coppercrm_opportunity_New Business/pipelinestageid": {
-            "operation": "set",
-            "value": 3211979
-          },
-          "coppercrm_opportunity_New Business/pipelinestagename": {
-            "operation": "set",
-            "value": "Presentation"
-          },
-          "coppercrm_opportunity_New Business/primarycontactid": {
-            "operation": "set",
-            "value": 94693339
-          },
-          "coppercrm_opportunity_New Business/primarycontactemail": {
-            "operation": "set",
-            "value": "jonl@copper.com"
-          },
-          "coppercrm_opportunity_New Business/priority": {
-            "operation": "set",
-            "value": "Low"
-          },
-          "coppercrm_opportunity_New Business/status": {
-            "operation": "set",
-            "value": "Open"
-          },
-          "coppercrm_opportunity_New Business/tags": {
-            "operation": "set",
-            "value": [
-              "sample"
-            ]
-          },
-          "coppercrm_opportunity_New Business/interactioncount": {
-            "operation": "set",
-            "value": 0
-          },
-          "coppercrm_opportunity_New Business/monitaryunit": {
-            "operation": "set",
-            "value": "USD"
-          },
-          "coppercrm_opportunity_New Business/monetary_value": {
-            "operation": "set",
-            "value": 250000
-          },
-          "coppercrm_opportunity_New Business/convertedunit": {
-            "operation": "set",
-            "value": "USD"
-          },
-          "coppercrm_opportunity_New Business/convertedvalue": {
-            "operation": "set",
-            "value": "250000.0"
-          },
-          "coppercrm_opportunity_New Business/winprobability": {
-            "operation": "setIfNull",
-            "value": 20
-          },
-          "coppercrm_opportunity_New Business/datestagechanged_at": {
-            "operation": "set",
-            "value": 1577821902
-          },
-          "coppercrm_opportunity_New Business/datelastcontacted_at": {
-            "operation": "set",
-            "value": null
-          },
-          "coppercrm_opportunity_New Business/dateleadcreated_at": {
-            "operation": "setIfNull",
-            "value": null
-          },
-          "coppercrm_opportunity_New Business/datecreated": {
-            "operation": "set",
-            "value": 1577804583
-          },
-          "coppercrm_opportunity_New Business/datemodified_at": {
-            "operation": "setIfNull",
-            "value": 1577821958
-          },
-          "coppercrm_opportunity_New Business/checkbox": {
-            "operation": "set",
-            "value": true
-          },
-          "coppercrm_opportunity_New Business/currencyfield": {
-            "operation": "set",
-            "value": 567
-          },
-          "coppercrm_opportunity_New Business/datefield": {
-            "operation": "set",
-            "value": 1575446400
-          },
-          "coppercrm_opportunity_New Business/dropdownfield": {
-            "operation": "set",
-            "value": "Option 1"
-          },
-          "coppercrm_opportunity_New Business/multiselectfield": {
-            "operation": "setIfNull",
-            "value": [
-              "Option 1",
-              "Option 3"
-            ]
-          },
-          "coppercrm_opportunity_New Business/numberfield": {
-            "operation": "set",
-            "value": 1232
-          },
-          "coppercrm_opportunity_New Business/percentagefield": {
-            "operation": "set",
-            "value": 23
-          },
-          "coppercrm_opportunity_New Business/textareafield": {
-            "operation": "set",
-            "value": "some text"
-          },
-          "coppercrm_opportunity_New Business/urlfield": {
-            "operation": "set",
-            "value": "www.somecompany.com"
-          },
-          "coppercrm_opportunity_New Business/opportunitytype": {
-            "operation": "set",
-            "value": "New Business"
-          }
-        }
-      },
-      "result": {}
-    },
-    {
       "localContext": expect.objectContaining({ "attributeId": 94693340 }),
       "name": "coppercrm",
       "op": "getPersonById",
@@ -817,6 +628,195 @@ module.exports = {
           "coppercrm_opportunity_Upsell/opportunitytype": {
             "operation": "set",
             "value": "Upsell"
+          }
+        }
+      },
+      "result": {}
+    },
+    {
+      "localContext": expect.anything(),
+      "name": "hull",
+      "op": "asOpportunity",
+      "input": {
+        "accountIdent": {
+          "anonymous_id": "coppercrm:42412878"
+        },
+        "userIdent": {
+          "anonymous_id": "coppercrm-person:person-94693339"
+        },
+        "attributes": {
+          "coppercrm_opportunity_New Business/id": {
+            "value": 19438258,
+            "operation": "set"
+          },
+          "coppercrm_opportunity_New Business/oppname": {
+            "operation": "set",
+            "value": "8 New Copy Machines (Sample - Try me!)"
+          },
+          "coppercrm_opportunity_New Business/assigneeid": {
+            "operation": "set",
+            "value": 811206
+          },
+          "coppercrm_opportunity_New Business/assigneeemail": {
+            "operation": "set",
+            "value": "timliuhull3@gmail.com"
+          },
+          "coppercrm_opportunity_New Business/closedate_at": {
+            "operation": "set",
+            "value": "2020-01-14T05:00:00.000Z"
+          },
+          "coppercrm_opportunity_New Business/company_id": {
+            "operation": "set",
+            "value": 42412878
+          },
+          "coppercrm_opportunity_New Business/companyname": {
+            "operation": "set",
+            "value": "Copper"
+          },
+          "coppercrm_opportunity_New Business/customersourceid": {
+            "operation": "set",
+            "value": 1057492
+          },
+          "coppercrm_opportunity_New Business/customersource": {
+            "operation": "setIfNull",
+            "value": "Cold Call"
+          },
+          "coppercrm_opportunity_New Business/details": {
+            "operation": "set",
+            "value": "Opportunities are created for People and Companies that are interested in buying your products or services. Create Opportunities for People and Companies to move them through one of your Pipelines."
+          },
+          "coppercrm_opportunity_New Business/lossreasonid": {
+            "operation": "set",
+            "value": 973750
+          },
+          "coppercrm_opportunity_New Business/lossreasonname": {
+            "operation": "set",
+            "value": "Features"
+          },
+          "coppercrm_opportunity_New Business/pipelineid": {
+            "operation": "set",
+            "value": 685744
+          },
+          "coppercrm_opportunity_New Business/pipelinename": {
+            "operation": "set",
+            "value": "Sales"
+          },
+          "coppercrm_opportunity_New Business/pipelinestageid": {
+            "operation": "set",
+            "value": 3211979
+          },
+          "coppercrm_opportunity_New Business/pipelinestagename": {
+            "operation": "set",
+            "value": "Presentation"
+          },
+          "coppercrm_opportunity_New Business/primarycontactid": {
+            "operation": "set",
+            "value": 94693339
+          },
+          "coppercrm_opportunity_New Business/primarycontactemail": {
+            "operation": "set",
+            "value": "jonl@copper.com"
+          },
+          "coppercrm_opportunity_New Business/priority": {
+            "operation": "set",
+            "value": "Low"
+          },
+          "coppercrm_opportunity_New Business/status": {
+            "operation": "set",
+            "value": "Open"
+          },
+          "coppercrm_opportunity_New Business/tags": {
+            "operation": "set",
+            "value": [
+              "sample"
+            ]
+          },
+          "coppercrm_opportunity_New Business/interactioncount": {
+            "operation": "set",
+            "value": 0
+          },
+          "coppercrm_opportunity_New Business/monitaryunit": {
+            "operation": "set",
+            "value": "USD"
+          },
+          "coppercrm_opportunity_New Business/monetary_value": {
+            "operation": "set",
+            "value": 250000
+          },
+          "coppercrm_opportunity_New Business/convertedunit": {
+            "operation": "set",
+            "value": "USD"
+          },
+          "coppercrm_opportunity_New Business/convertedvalue": {
+            "operation": "set",
+            "value": "250000.0"
+          },
+          "coppercrm_opportunity_New Business/winprobability": {
+            "operation": "setIfNull",
+            "value": 20
+          },
+          "coppercrm_opportunity_New Business/datestagechanged_at": {
+            "operation": "set",
+            "value": 1577821902
+          },
+          "coppercrm_opportunity_New Business/datelastcontacted_at": {
+            "operation": "set",
+            "value": null
+          },
+          "coppercrm_opportunity_New Business/dateleadcreated_at": {
+            "operation": "setIfNull",
+            "value": null
+          },
+          "coppercrm_opportunity_New Business/datecreated": {
+            "operation": "set",
+            "value": 1577804583
+          },
+          "coppercrm_opportunity_New Business/datemodified_at": {
+            "operation": "setIfNull",
+            "value": 1577821958
+          },
+          "coppercrm_opportunity_New Business/checkbox": {
+            "operation": "set",
+            "value": true
+          },
+          "coppercrm_opportunity_New Business/currencyfield": {
+            "operation": "set",
+            "value": 567
+          },
+          "coppercrm_opportunity_New Business/datefield": {
+            "operation": "set",
+            "value": 1575446400
+          },
+          "coppercrm_opportunity_New Business/dropdownfield": {
+            "operation": "set",
+            "value": "Option 1"
+          },
+          "coppercrm_opportunity_New Business/multiselectfield": {
+            "operation": "setIfNull",
+            "value": [
+              "Option 1",
+              "Option 3"
+            ]
+          },
+          "coppercrm_opportunity_New Business/numberfield": {
+            "operation": "set",
+            "value": 1232
+          },
+          "coppercrm_opportunity_New Business/percentagefield": {
+            "operation": "set",
+            "value": 23
+          },
+          "coppercrm_opportunity_New Business/textareafield": {
+            "operation": "set",
+            "value": "some text"
+          },
+          "coppercrm_opportunity_New Business/urlfield": {
+            "operation": "set",
+            "value": "www.somecompany.com"
+          },
+          "coppercrm_opportunity_New Business/opportunitytype": {
+            "operation": "set",
+            "value": "New Business"
           }
         }
       },
