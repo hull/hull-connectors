@@ -475,7 +475,7 @@ module.exports = {
           },
           "coppercrm_opportunity_Upsell/closedate_at": {
             "operation": "set",
-            "value": 1578373200000
+            "value": "2020-1-7"
           },
           "coppercrm_opportunity_Upsell/company_id": {
             "operation": "set",
@@ -663,7 +663,7 @@ module.exports = {
           },
           "coppercrm_opportunity_New Business/closedate_at": {
             "operation": "set",
-            "value": 1578978000000
+            "value": "2020-1-14"
           },
           "coppercrm_opportunity_New Business/company_id": {
             "operation": "set",

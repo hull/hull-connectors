@@ -33,11 +33,16 @@ const {
   CopperCRMIncomingActivity
 } = require("./service-objects");
 
+const {
+  isUndefinedOrNull
+} = require("hull-connector-framework/src/purplefusion/utils");
+
 
 const dateFormatter = (value) => {
-  if (value === null)
+  if (isUndefinedOrNull(value))
     return value;
-  return moment(value).valueOf();
+  const date = new Date(value);
+  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 };
 
 // only date currently needing conversion is "closedate"
