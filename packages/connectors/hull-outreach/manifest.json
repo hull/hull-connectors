@@ -243,7 +243,6 @@
         "type": "string",
         "enum": [
           "bounced_message",
-          "emails_opt_out",
           "inbound_message",
           "message_clicked",
           "message_opened",
@@ -253,7 +252,6 @@
         ],
         "enumNames": [
           "Bounced Message",
-          "Emails Opt Out",
           "Inbound Message",
           "Message Clicked",
           "Message Opened",
