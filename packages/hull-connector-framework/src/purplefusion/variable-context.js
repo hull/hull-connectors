@@ -36,7 +36,7 @@ class HullVariableContext {
     // same thing for keys whose value is explicitly "undefined" where we may want to return that...
 
     const rootKey = _.first(_.split(key, "."));
-    let foundRootObject = false;
+    // let foundRootObject = false;
 
     for (let i = this.localContext.length - 1; i >= 0; i -= 1) {
 
@@ -48,16 +48,16 @@ class HullVariableContext {
 
       const keys = Object.keys(currentContext);
       if (keys.indexOf(rootKey) >= 0) {
-        console.log(`Returning undefined because root key is present in context: ${rootKey} for ${key}`);
+        // console.log(`Returning undefined because root key is present in context: ${rootKey} for ${key}`);
         return value;
       }
 
-      foundRootObject = this.logBadBehavior(currentContext, value, rootKey, key, foundRootObject, i);
+      // foundRootObject = this.logBadBehavior(currentContext, value, rootKey, key, foundRootObject, i);
     }
 
     const hullValue = _.get(this.hullContext, key);
 
-    this.logBadBehavior(this.hullContext, hullValue, rootKey, key, foundRootObject);
+    // this.logBadBehavior(this.hullContext, hullValue, rootKey, key, foundRootObject);
 
     return hullValue;
   }
