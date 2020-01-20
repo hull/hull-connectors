@@ -17,7 +17,7 @@ const incomingHandler = async (
   ctx: HullContext,
   message: HullIncomingHandlerMessage
 ): HullExternalResponse => {
-  const { client, connector, clientCredentialsToken, metric } = ctx;
+  const { client, connector, metric } = ctx;
   // $FlowFixMe
   if (!client || !connector) {
     throw new ValidationError(
@@ -28,21 +28,28 @@ const incomingHandler = async (
   }
   const { body } = message;
   if (!body) {
-    throw new ValidationError("Empty Payload", "SEGMENT_EMPTY_CONTENT", 501);
+    return {
+      status: 500,
+      data: { message: "Empty Payload" }
+    };
+    // throw new ValidationError("Empty Payload", "SEGMENT_EMPTY_CONTENT", 501);
   }
   // $FlowFixMe
   const payload: SegmentIncomingPayload = body || {};
   const { type } = payload;
   const handler = events[type];
-  client.logger.debug(`incoming.${type}.start`, {
-    payload,
-    clientCredentialsToken
-  });
-  metric.increment(`request.${type}`);
   if (!handler) {
-    throw new ValidationError("Not Supported", "SEGMENT_NO_HANDLER", 501);
+    metric.increment(`request.error.${type}`);
+    return {
+      status: 501,
+      data: { message: "Not Supported" }
+    };
+    // throw new ValidationError("Not Supported", "SEGMENT_NO_HANDLER", 501);
   }
+  metric.increment(`request.${type}`);
+  client.logger.debug(`incoming.${type}.start`, { payload });
   const { integrations = {} } = payload;
+  // TODO: response 429 - too many requests. Can we measure requests in flight ?
   try {
     if (integrations.Hull !== false) {
       await handler(ctx, camelize(body));
@@ -50,12 +57,12 @@ const incomingHandler = async (
   } catch (e) {
     return {
       status: 500,
-      text: e.message
+      data: { message: e.message }
     };
   }
   return {
     status: 200,
-    text: "thanks"
+    data: { message: "thanks" }
   };
 };
 export default incomingHandler;

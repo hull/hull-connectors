@@ -47,7 +47,10 @@ function errorHandlerMiddlewareFactory({
 
     // How do we want to respond?  With json?
     res.status(status);
-    res.json({ error: respondWithError ? errorString : true });
+    res.json({
+      message: respondWithError ? errorString : true,
+      error: respondWithError ? errorString : true
+    });
     metric.captureException(err);
 
     // if we have non transient error

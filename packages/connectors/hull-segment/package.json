@@ -11,9 +11,9 @@
     "url": "https://github.com/hull"
   },
   "scripts": {
-    "test": "yarn test:units",
-    "test:modules": "npm outdated --depth=0",
-    "test:units": "NODE_ENV=test jest ./tests"
+    "test": "yarn test:unit && yarn test:integration",
+    "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit",
+    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
   },
   "dependencies": {
     "analytics-node": "^3.3.0",
