@@ -3,13 +3,14 @@ const sample = require("../../samples/account.json");
 const { schemaUrl, searchUrl } = require("../config");
 const { post } = require("../lib/request");
 const { isValidClaim } = require("../lib/utils");
+const { getAccountAttributeOutputFields } = require("../lib/output-fields");
 
 const perform = async (z, { inputData }) => {
   const { domain, external_id } = inputData;
   const claims = { domain, external_id };
 
   if (!isValidClaim({ external_id, domain })) {
-    return Promise.resolve([{ error: "invalid claims" }]);
+    throw new z.errors.HaltedError("Invalid Claims");
   }
 
   const res = await post(z,{
@@ -18,7 +19,7 @@ const perform = async (z, { inputData }) => {
   });
 
   if (_.get(res, "error", false)) {
-    return Promise.resolve([{ error: `Account with claims ${JSON.stringify(claims)} not found.`}]);
+    throw new z.errors.HaltedError([{ error: `Account with claims ${JSON.stringify(claims)} not found.`}]);
   }
 
   return res;
@@ -31,7 +32,6 @@ const account = {
   key: "account",
   noun: "Account",
   display: {
-    hidden: true,
     label: "Find an Account",
     description: "Search for an Account by domain or external_id"
   },
@@ -53,7 +53,7 @@ const account = {
     ],
     perform,
     sample,
-    outputFields: [schema]
+    outputFields: [getAccountAttributeOutputFields]
   }
 };
 

@@ -3,12 +3,13 @@ const sample = require("../../samples/user");
 const { createUrl } = require("../config");
 const { post } = require("../lib/request");
 const { isValidClaim } = require("../lib/utils");
+const { getUserAttributeOutputFields } = require("../lib/output-fields");
 
 const perform = async (z, { inputData }) => {
   const { external_id, email, attributes } = inputData;
 
   if (!isValidClaim({ external_id, email })) {
-    return Promise.resolve({ error: "invalid claims" });
+    throw new z.errors.HaltedError("Invalid Claims");
   }
 
   const claims = _.pickBy({ email, external_id }, (v, _k) => !_.isEmpty(v));
@@ -23,12 +24,14 @@ const user = {
   noun: "User",
 
   display: {
-    label: "Create or Update a Hull User",
+    hidden: false,
+    label: "Create or Update a User",
     description:
       "Sends Attribute updates to the user identified by an email. Will create the user if not created already."
   },
 
   operation: {
+    outputFields: [getUserAttributeOutputFields],
     inputFields: [
       {
         required: false,

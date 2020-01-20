@@ -32,7 +32,7 @@ import type { ServiceObjectDefinition } from "./types";
 const HullEnumMap: ServiceObjectDefinition = {
   service_name: "hull_enum_map",
   name: "HullEnumMap"
-}
+};
 
 const WebPayload: ServiceObjectDefinition = {
   service_name: "incoming_webpayload",
@@ -130,6 +130,37 @@ const HullApiEventDefinition: ServiceObjectDefinition = {
 };
 
 
+// Triggers
+const HullUserAttributeChangedTrigger: ServiceObjectDefinition = {
+  service_name: "HullUserAttributeChangedTrigger",
+  name: "User"
+};
+
+const HullUserSegmentChangedTrigger: ServiceObjectDefinition = {
+  service_name: "HullUserSegmentChangedTrigger",
+  name: "User"
+};
+
+const HullUserEventTrigger: ServiceObjectDefinition = {
+  service_name: "HullUserEventTrigger",
+  name: "User"
+};
+
+const HullAccountAttributeChangedTrigger: ServiceObjectDefinition = {
+  service_name: "HullAccountAttributeChangedTrigger",
+  name: "Account"
+};
+
+const HullAccountSegmentChangedTrigger: ServiceObjectDefinition = {
+  service_name: "HullAccountSegmentChangedTrigger",
+  name: "Account"
+};
+
+const EntityCreatedTrigger: ServiceObjectDefinition = {
+  service_name: "EntityCreatedTrigger",
+  name: "Entity"
+};
+
 module.exports = {
   HullEnumMap,
   WebPayload,
@@ -137,6 +168,12 @@ module.exports = {
   HullIncomingAccount,
   HullOutgoingUser,
   HullOutgoingAccount,
+  HullUserAttributeChangedTrigger,
+  HullUserSegmentChangedTrigger,
+  HullAccountAttributeChangedTrigger,
+  HullAccountSegmentChangedTrigger,
+  EntityCreatedTrigger,
+  HullUserEventTrigger,
   HullApiAttributeDefinition,
   HullConnectorAttributeDefinition,
   HullIncomingDropdownOption,

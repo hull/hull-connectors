@@ -17,7 +17,7 @@
       "synchronized_account_segments": [
         "ALL"
       ],
-      "subscriptions": []
+      "triggers": []
     },
     "name": "zapier",
     "type": "ship",
