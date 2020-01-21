@@ -60,7 +60,7 @@ it("should handle refresh token errors", () => {
       response: {
         error: {
           code: "HULL_ERR_CONFIGURATION",
-          message: "Failed to refresh access token, try to reauthorize the connector (error message: \"missing or unknown hub id\"\")",
+          message: "Failed to refresh access token, try to reauthorize the connector",
           name: "ConfigurationError",
         },
         flow_control: {
@@ -80,7 +80,7 @@ it("should handle refresh token errors", () => {
           "outgoing.job.error",
           expect.whatever(),
           {
-            error: "Failed to refresh access token, try to reauthorize the connector (error message: \"missing or unknown hub id\"\")"
+            error: "Failed to refresh access token, try to reauthorize the connector"
           }
         ]
       ],

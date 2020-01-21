@@ -37,7 +37,8 @@ it("should handle error during token refresh", () => {
       ],
       firehoseEvents: [],
       metrics: [
-        ["increment", "connector.request", 1]
+        ["increment", "connector.request", 1],
+        ["increment", "connector.transient_error", 1]
       ],
       platformApiCalls: []
     };
