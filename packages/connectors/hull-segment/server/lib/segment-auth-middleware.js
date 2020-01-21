@@ -26,13 +26,14 @@ module.exports = function authTokenMiddleware(
         req.hull.clientCredentialsEncryptedToken = token;
         // req.hull.clientCredentials = false;
         debug("wrote token", req.hull.clientCredentialsEncryptedToken);
+        return next();
       } catch (err) {
         const e: StatusError = new Error("Invalid Basic Auth Header");
-        e.status = 401;
-        throw e;
-        // return next(e);
+        return next(e);
       }
     }
   }
-  return next();
+  const e: StatusError = new Error("No Authorization Headers");
+  e.status = 400;
+  return next(e);
 };

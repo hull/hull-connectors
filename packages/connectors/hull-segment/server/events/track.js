@@ -25,6 +25,7 @@ export default async function handleTrack(
     sentAt,
     receivedAt
   } = message;
+  console.log("MESSAGE", message)
   const { connector, metric, client } = ctx;
   const { settings } = connector;
 

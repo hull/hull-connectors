@@ -37,15 +37,31 @@ const incomingHandler = async (
   // $FlowFixMe
   const payload: SegmentIncomingPayload = body || {};
   const { type } = payload;
+
+  if (!type) {
+    metric.increment("request.error");
+    client.logger.debug("incoming.request.error", {
+      message: "Can't find Type in Payload",
+      payload
+    });
+    return {
+      status: 501,
+      data: {
+        message: "Not Supported"
+      }
+    };
+  }
+
   const handler = events[type];
   if (!handler) {
-    metric.increment(`request.error.${type}`);
+    metric.increment("request.error");
+    client.logger.debug(`incoming.${type}.error`, { payload });
     return {
       status: 501,
       data: { message: "Not Supported" }
     };
-    // throw new ValidationError("Not Supported", "SEGMENT_NO_HANDLER", 501);
   }
+
   metric.increment(`request.${type}`);
   client.logger.debug(`incoming.${type}.start`, { payload });
   const { integrations = {} } = payload;
