@@ -109,6 +109,13 @@ class HubspotClient {
         client_secret: process.env.CLIENT_SECRET,
         redirect_uri: "",
         grant_type: "refresh_token"
+      })
+      .catch(() => {
+        return Promise.reject(
+          new ConfigurationError(
+            "Failed to refresh access token, try to reauthorize the connector"
+          )
+        );
       });
   }
 

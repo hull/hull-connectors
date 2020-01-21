@@ -7,12 +7,6 @@ import type {
   HullResponse
 } from "../types";
 import getMessage from "../utils/get-message-from-request";
-import {
-  TransientError,
-  ConfigurationError,
-  ConnectorNotFoundError,
-  PaymentRequiredError
-} from "../errors";
 
 const debug = require("debug")("hull-connector:external-handler");
 
@@ -120,23 +114,6 @@ const handlerFactory = ({
     }
     return res.end();
   } catch (err) {
-    if (err instanceof ConfigurationError) {
-      res.status(503);
-      return res.end("configuration-error");
-    }
-    if (err instanceof TransientError) {
-      res.status(503);
-      return res.end("transient-error");
-    }
-    if (err instanceof ConnectorNotFoundError) {
-      res.status(404);
-      return res.end("not-found");
-    }
-    if (err instanceof PaymentRequiredError) {
-      res.status(402);
-      return res.end("payment-required");
-    }
-
     return next(err);
   }
 };
