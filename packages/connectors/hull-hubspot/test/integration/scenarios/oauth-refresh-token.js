@@ -1,9 +1,20 @@
 // @flow
+
+
+
+
+
+
+
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const _ = require("lodash");
 import connectorConfig from "../../../server/config";
 
+
 process.env.OVERRIDE_HUBSPOT_URL = "";
+
+const incomingData = require("../fixtures/get-contacts-recently-updated");
 
 const connector = {
   private_settings: {
@@ -21,7 +32,8 @@ it("should handle error during token refresh", () => {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "monitor/checkToken",
       externalApiMock: () => {
-        return nock("https://api.hubapi.com");
+        const scope = nock("https://api.hubapi.com");
+        return scope;
       },
       connector,
       usersSegments: [],
