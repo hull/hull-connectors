@@ -20,7 +20,6 @@ export default async function handleGroup(
         .account({ external_id: groupId })
     : client.asAccount({ external_id: groupId });
   await scopedClient.traits(traits);
-  scopedClient.logger.info("incoming.account.success", traits);
-  metric.increment("request.group.success");
+  metric.increment("request.group");
   return undefined;
 }

@@ -1,11 +1,14 @@
 const expect = require("expect");
 import { encrypt } from "hull/src/utils/crypto";
+import _ from "lodash";
 import {
   groupPayload,
   identifyPayload,
+  identifyOutput,
   pagePayload,
   pageOutput,
   screenPayload,
+  screenOutput,
   trackPayload,
   trackOutput
 } from "./fixtures";
@@ -22,6 +25,8 @@ expect.extend({
 const INCREMENT_REQUEST = ["increment", "connector.request", 1];
 const INCREMENT_TRACK = ["increment", "request.track", 1];
 const INCREMENT_PAGE = ["increment", "request.page", 1];
+const INCREMENT_IDENTIFY = ["increment", "request.identify", 1];
+const INCREMENT_SCREEN = ["increment", "request.screen", 1];
 const STANDARD_EVENT_PROPS = {
   _bid: expect.whatever(),
   _sid: expect.whatever(),
@@ -104,14 +109,8 @@ const addWhatever = key => payload => ({
   ...payload,
   [key]: expect.whatever()
 });
-const whateverEventId = addWhatever("event_id")
+const whateverEventId = addWhatever("event_id");
 
-const LOG_TRACK = [
-  "info",
-  "incoming.track.success",
-  expect.whatever(),
-  whateverEventId(trackOutput.data)
-];
 const FIREHOSE_TRACK = [
   "track",
   claimsFactory({
@@ -121,12 +120,15 @@ const FIREHOSE_TRACK = [
   whateverEventId(trackOutput.data)
 ];
 
-const LOG_PAGE = [
-  "info",
-  "incoming.track.success",
-  expect.whatever(),
-  whateverEventId(pageOutput.data)
+const FIREHOSE_SCREEN = [
+  "track",
+  claimsFactory({
+    subjectType: "user",
+    claims: screenOutput.claims
+  }),
+  whateverEventId(screenOutput.data)
 ];
+
 const FIREHOSE_PAGE = [
   "track",
   claimsFactory({
@@ -134,6 +136,14 @@ const FIREHOSE_PAGE = [
     claims: pageOutput.claims
   }),
   whateverEventId(pageOutput.data)
+];
+const FIREHOSE_IDENTIFY = [
+  "traits",
+  claimsFactory({
+    subjectType: "user",
+    claims: identifyOutput.claims
+  }),
+  identifyOutput.data
 ];
 
 const TESTS = [
@@ -176,9 +186,14 @@ const TESTS = [
       private_settings,
       settings
     },
-    headers: ({ config, plainCredentials }) => headers({ config, plainCredentials: {
-      ...plainCredentials, ship: "not_found"
-    }}),
+    headers: ({ config, plainCredentials }) =>
+      headers({
+        config,
+        plainCredentials: {
+          ...plainCredentials,
+          ship: "not_found"
+        }
+      }),
     platformApiCalls: [],
     logs: [],
     metrics: [],
@@ -258,10 +273,7 @@ const TESTS = [
       Authorization: `Basic ${encryptedToken({ config, plainCredentials })} `
     }),
     platformApiCalls,
-    logs: [
-      ["debug", "incoming.track.start", {}, { payload: trackPayload }],
-      LOG_TRACK
-    ],
+    logs: [["debug", "incoming.track.start", {}, { payload: trackPayload }]],
     metrics: [INCREMENT_REQUEST, INCREMENT_TRACK],
     response: { message: "thanks" },
     responseStatusCode: 200,
@@ -296,10 +308,7 @@ const TESTS = [
     },
     headers,
     platformApiCalls,
-    logs: [
-      ["debug", "incoming.track.start", {}, { payload: trackPayload }],
-      LOG_TRACK
-    ],
+    logs: [["debug", "incoming.track.start", {}, { payload: trackPayload }]],
     metrics: [INCREMENT_REQUEST, INCREMENT_TRACK],
     response: { message: "thanks" },
     responseStatusCode: 200,
@@ -314,14 +323,111 @@ const TESTS = [
     },
     headers,
     platformApiCalls,
-    logs: [
-      ["debug", "incoming.page.start", {}, { payload: pagePayload }],
-      LOG_PAGE
-    ],
+    logs: [["debug", "incoming.page.start", {}, { payload: pagePayload }]],
     metrics: [INCREMENT_REQUEST, INCREMENT_PAGE],
     response: { message: "thanks" },
     responseStatusCode: 200,
     firehoseEvents: [FIREHOSE_PAGE]
+  },
+  {
+    title: "should Hull.track on screen event by default",
+    body: screenPayload,
+    connector: {
+      private_settings,
+      settings
+    },
+    headers,
+    platformApiCalls,
+    logs: [["debug", "incoming.screen.start", {}, { payload: screenPayload }]],
+    metrics: [INCREMENT_REQUEST, INCREMENT_SCREEN],
+    response: { message: "thanks" },
+    responseStatusCode: 200,
+    firehoseEvents: [FIREHOSE_SCREEN]
+  },
+  {
+    title: "should Hull.traits on identify event by - with edge cases",
+    body: identifyPayload,
+    connector: {
+      private_settings,
+      settings
+    },
+    headers,
+    platformApiCalls,
+    logs: [
+      ["debug", "incoming.identify.start", {}, { payload: identifyPayload }]
+    ],
+    metrics: [INCREMENT_REQUEST, INCREMENT_IDENTIFY],
+    response: { message: "thanks" },
+    responseStatusCode: 200,
+    firehoseEvents: [FIREHOSE_IDENTIFY]
+  },
+  {
+    title: "Ignores incoming userId if settings.ignore_segment_userId is true",
+    body: identifyPayload,
+    connector: {
+      private_settings,
+      settings: { ...settings, ignore_segment_userId: true }
+    },
+    headers,
+    platformApiCalls,
+    logs: [
+      ["debug", "incoming.identify.start", {}, { payload: identifyPayload }]
+    ],
+    metrics: [INCREMENT_REQUEST, INCREMENT_IDENTIFY],
+    response: { message: "thanks" },
+    responseStatusCode: 200,
+    firehoseEvents: [
+      [
+        "traits",
+        claimsFactory({
+          subjectType: "user",
+          claims: _.omit(identifyOutput.claims, "external_id")
+        }),
+        identifyOutput.data
+      ]
+    ]
+  },
+  {
+    title:
+      "Skip if settings.ignore_segment_userId is true and we have no email",
+    body: {
+      ..._.omit(identifyPayload, "anonymousId"),
+      traits: _.omit(identifyPayload.traits, "email")
+    },
+    connector: {
+      private_settings,
+      settings: { ...settings, ignore_segment_userId: true }
+    },
+    headers,
+    platformApiCalls,
+    logs: [
+      [
+        "debug",
+        "incoming.identify.start",
+        {},
+        {
+          payload: {
+            ..._.omit(identifyPayload, "anonymousId"),
+            traits: _.omit(identifyPayload.traits, "email")
+          }
+        }
+      ],
+      [
+        "error",
+        "incoming.user.error",
+        {},
+        {
+          message:
+            "No email address or anonymous ID present when ignoring segment's user ID."
+        }
+      ]
+    ],
+    metrics: [INCREMENT_REQUEST, INCREMENT_IDENTIFY],
+    response: {
+      message: "thanks"
+    },
+    responseStatusCode: 200,
+    firehoseEvents: []
   }
 ];
 

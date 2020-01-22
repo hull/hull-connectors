@@ -28,16 +28,16 @@
     "version": "lo"
   },
   "integrations": {},
-  "message_id": "4507617c-50bd-5b42-9718-9fc3c70a64a6",
-  "project_id": "394529b2",
-  "received_at": "2016-04-12T14:04:36.719Z",
-  "sent_at": "2016-04-12T14:03:36.719Z",
+  "messageId": "4507617c-50bd-5b42-9718-9fc3c70a64a6",
+  "projectId": "394529b2",
+  "receivedAt": "2016-04-12T14:04:36.719Z",
+  "sentAt": "2016-04-12T14:03:36.719Z",
   "timestamp": "2016-04-12T14:03:36.719Z",
   "traits": {
     "address": {
       "city": "Abpoha",
       "country": "Serbia",
-      "postal_code": "65120",
+      "postalCode": "65120",
       "state": "Sohakuc",
       "street": "1668 Mapa Heights"
     },
@@ -46,14 +46,20 @@
     "birthday": "1961-03-23T04:32:56.773Z",
     "description": "Wenwuhov wohra vuwi an cujedra gozbak dububuze ve vewwo vewez go me duhen.",
     "email": "dug@hef.org",
-    "first_name": "Joshua",
+    "firstName": "Joshua",
     "gender": "Male",
     "id": "73a60b59",
-    "last_name": "Williamson",
+    "external_id": "foobar",
+    "guest_id": "foobar",
+    "uniq_token": "foobar",
+    "visit_token": "foobar",
+    "createdAt": "now",
+    "lastName": "Williamson",
     "name": "Clyde Schmidt",
     "title": "Designer"
   },
   "type": "identify",
-  "user_id": "05a70e72",
+  "anonymousId": "d765ba53-000-5527-8cd1-30c96a636a78",
+  "userId": "05a70e72",
   "version": "2"
 }

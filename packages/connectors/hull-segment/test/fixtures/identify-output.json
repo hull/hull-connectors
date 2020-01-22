@@ -1,0 +1,30 @@
+{
+  "claims": {
+    "anonymous_id": "d765ba53-000-5527-8cd1-30c96a636a78",
+    "email": "dug@hef.org",
+    "external_id": "05a70e72"
+  },
+  "data": {
+    "address": {
+      "city": "Abpoha",
+      "country": "Serbia",
+      "postalCode": "65120",
+      "state": "Sohakuc",
+      "street": "1668 Mapa Heights"
+    },
+    "age": 26,
+    "avatar": "http://olkep.gov/ra",
+    "birthday": "1961-03-23T04:32:56.773Z",
+    "description": "Wenwuhov wohra vuwi an cujedra gozbak dububuze ve vewwo vewez go me duhen.",
+    "email": "dug@hef.org",
+    "guest_id": "foobar",
+    "first_name": "Joshua",
+    "last_name": "Williamson",
+    "created_at": "now",
+    "gender": "Male",
+    "uniq_token": "foobar",
+    "visit_token": "foobar",
+    "name": "Clyde Schmidt",
+    "title": "Designer"
+  }
+}

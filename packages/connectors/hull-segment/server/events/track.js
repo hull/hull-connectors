@@ -74,11 +74,6 @@ export default async function handleTrack(
         throw new Error("Event name is empty, can't track!");
       }
       await asUser.track(event, properties, trackContext);
-      asUser.logger.info("incoming.track.success", {
-        event,
-        properties,
-        ...trackContext
-      });
       return undefined;
     } catch (err) {
       asUser.logger.error("incoming.track.error", {

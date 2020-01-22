@@ -11,13 +11,7 @@ const ALIASED_FIELDS = {
   createdat: "created_at"
 };
 
-const IGNORED_TRAITS = [
-  "id",
-  "external_id",
-  "guest_id",
-  "uniqToken",
-  "visitToken"
-];
+const IGNORED_TRAITS = ["id", "external_id"];
 
 export default async function handleIdentify(
   ctx: HullContext,
@@ -29,35 +23,32 @@ export default async function handleIdentify(
   const { email } = traits;
   const { active = false } = context || {};
 
-  const user = reduce(
-    traits || {},
-    (u, v, k) => {
-      if (v == null) return u;
-      if (ALIASED_FIELDS[k.toLowerCase()]) {
-        u.traits[ALIASED_FIELDS[k.toLowerCase()]] = v;
-      } else if (!includes(IGNORED_TRAITS, k)) {
-        u.traits[k] = v;
-      }
-      return u;
-    },
-    { userId, anonymousId, traits: {} }
-  );
-
   const errorPayload = { userId, anonymousId, email };
 
   try {
     const asUser = scoped(client, message, settings, { active });
     try {
+      const user = reduce(
+        traits || {},
+        (u, v, k) => {
+          if (v == null) return u;
+          if (ALIASED_FIELDS[k.toLowerCase()]) {
+            u.traits[ALIASED_FIELDS[k.toLowerCase()]] = v;
+          } else if (!includes(IGNORED_TRAITS, k)) {
+            u.traits[k] = v;
+          }
+          return u;
+        },
+        { userId, anonymousId, traits: {} }
+      );
+
       if (isEmpty(user.traits)) {
         return asUser.logger.info("incoming.user.skip", {
           message: "No traits found in Segment payload",
           traits: user.traits
         });
       }
-      await asUser.traits(user.traits);
-      asUser.logger.info("incoming.user.success", { traits });
-      metric.increment("request.identify.updateUser");
-      return undefined;
+      return await asUser.traits(user.traits);
     } catch (err) {
       asUser.logger.error("incoming.user.error", {
         ...errorPayload,
