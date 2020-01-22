@@ -16,11 +16,12 @@ export default function handlePage(
 
   const { properties = {} } = message;
 
+  const name = properties.name || message.name;
   const page: SegmentIncomingPage = {
     ...message,
     properties: {
       ...properties,
-      name: properties.name || message.name
+      ...(name ? { name } : {})
     },
     event: "page",
     active: true

@@ -25,12 +25,12 @@ export default async function handleTrack(
     sentAt,
     receivedAt
   } = message;
-  console.log("MESSAGE", message)
+
   const { connector, metric, client } = ctx;
   const { settings } = connector;
 
   const { page = {}, location = {}, userAgent, ip = "0" } = context;
-  const { url, referrer } = page;
+  const { url, referrer: referer } = page;
   const { latitude, longitude } = location;
 
   const created_at = timestamp || receivedAt || sentAt || originalTimestamp;
@@ -49,7 +49,7 @@ export default async function handleTrack(
       _bid,
       _sid,
       url,
-      referrer,
+      referer,
       useragent: userAgent,
       ip,
       latitude,
@@ -76,8 +76,8 @@ export default async function handleTrack(
       await asUser.track(event, properties, trackContext);
       asUser.logger.info("incoming.track.success", {
         event,
-        context: trackContext,
-        properties
+        properties,
+        ...trackContext
       });
       return undefined;
     } catch (err) {

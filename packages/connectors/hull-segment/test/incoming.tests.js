@@ -21,6 +21,7 @@ expect.extend({
 
 const INCREMENT_REQUEST = ["increment", "connector.request", 1];
 const INCREMENT_TRACK = ["increment", "request.track", 1];
+const INCREMENT_PAGE = ["increment", "request.page", 1];
 const STANDARD_EVENT_PROPS = {
   _bid: expect.whatever(),
   _sid: expect.whatever(),
@@ -98,233 +99,212 @@ const settings = {
   handle_screens: true,
   handle_accounts: true
 };
-const logTrack = expect => [
+
+const addWhatever = key => payload => ({
+  ...payload,
+  [key]: expect.whatever()
+});
+const whateverEventId = addWhatever("event_id")
+
+const LOG_TRACK = [
   "info",
   "incoming.track.success",
   expect.whatever(),
-  {
-    ...trackOutput,
-    context: {
-      ...trackOutput.context,
-      event_id: expect.whatever()
-    }
-  }
+  whateverEventId(trackOutput.data)
 ];
-const logPage = expect => [
-  "info",
-  "incoming.track.success",
-  expect.whatever(),
-  {
-    ...pageOutput,
-    context: {
-      ...pageOutput.context,
-      event_id: expect.whatever()
-    }
-  }
+const FIREHOSE_TRACK = [
+  "track",
+  claimsFactory({
+    subjectType: "user",
+    claims: trackOutput.claims
+  }),
+  whateverEventId(trackOutput.data)
 ];
 
-const firehoseTrack = expect => [
-  "track",
-  claimsFactory({
-    subjectType: "user",
-    claims: {
-      anonymous_id: trackPayload.anonymous_id,
-      external_id: trackPayload.user_id
-    }
-  }),
-  {
-    ...trackOutput.context,
-    event_id: expect.whatever(),
-    event: trackOutput.event,
-    properties: trackOutput.properties
-  }
+const LOG_PAGE = [
+  "info",
+  "incoming.track.success",
+  expect.whatever(),
+  whateverEventId(pageOutput.data)
 ];
-const firehosePage = expect => [
+const FIREHOSE_PAGE = [
   "track",
   claimsFactory({
     subjectType: "user",
-    claims: {
-      anonymous_id: pagePayload.anonymous_id,
-      external_id: pagePayload.user_id
-    }
+    claims: pageOutput.claims
   }),
-  {
-    ...pageOutput.context,
-    event_id: expect.whatever(),
-    event: pageOutput.event,
-    properties: pageOutput.properties
-  }
+  whateverEventId(pageOutput.data)
 ];
 
 const TESTS = [
-  // {
-  //   title: "Should return 401 on No Token",
-  //   body: trackPayload,
-  //   connector: {
-  //     private_settings,
-  //     settings
-  //   },
-  //   headers: ({ config, plainCredentials }) => ({}),
-  //   platformApiCalls: [],
-  //   logs: [],
-  //   metrics: [],
-  //   response: { message: "No Authorization Headers" },
-  //   responseStatusCode: 400,
-  //   firehoseEvents: []
-  // },
-  // {
-  //   title: "Should return 401 on Invalid Token",
-  //   body: trackPayload,
-  //   connector: {
-  //     private_settings,
-  //     settings
-  //   },
-  //   headers: ({ config, plainCredentials }) => ({
-  //     Authorization: `Basic SU5WQUxJRA==`
-  //   }),
-  //   platformApiCalls: [],
-  //   logs: [],
-  //   metrics: [],
-  //   response: { error: "Invalid Token", message: "Invalid Token" },
-  //   responseStatusCode: 401,
-  //   firehoseEvents: []
-  // },
-  // {
-  //   title: "Should return 401 if Connector is not found",
-  //   body: trackPayload,
-  //   connector: {
-  //     private_settings,
-  //     settings
-  //   },
-  //   headers: ({ config, plainCredentials }) => headers({ config, plainCredentials: {
-  //     ...plainCredentials, ship: "not_found"
-  //   }}),
-  //   platformApiCalls: [],
-  //   logs: [],
-  //   metrics: [],
-  //   response: {
-  //     error: "id property in Configuration is invalid: not_found",
-  //     message: "id property in Configuration is invalid: not_found"
-  //   },
-  //   responseStatusCode: 401,
-  //   firehoseEvents: []
-  // },
-  // {
-  //   title: "Should return 401 on missing claims in valid token",
-  //   body: trackPayload,
-  //   connector: {
-  //     private_settings,
-  //     settings
-  //   },
-  //   headers: ({ config, plainCredentials }) =>
-  //     headers({ config, plainCredentials: {} }),
-  //   platformApiCalls: [],
-  //   logs: [],
-  //   metrics: [],
-  //   response: {
-  //     error: "Configuration is missing required property: id",
-  //     message: "Configuration is missing required property: id"
-  //   },
-  //   responseStatusCode: 401,
-  //   firehoseEvents: []
-  // },
-  // {
-  //   title: "Should return 501 on No Type",
-  //   body: {},
-  //   connector: {
-  //     private_settings,
-  //     settings
-  //   },
-  //   headers,
-  //   platformApiCalls,
-  //   logs: [
-  //     [
-  //       "debug",
-  //       "incoming.request.error",
-  //       {},
-  //       { message: "Can't find Type in Payload", payload: {} }
-  //     ]
-  //   ],
-  //   metrics: [INCREMENT_REQUEST, ["increment", "request.error", 1]],
-  //   response: { message: "Not Supported" },
-  //   responseStatusCode: 501,
-  //   firehoseEvents: []
-  // },
-  // {
-  //   title: "Should return 501 on invalid Type",
-  //   body: { type: "bogus" },
-  //   connector: {
-  //     private_settings,
-  //     settings
-  //   },
-  //   headers,
-  //   platformApiCalls,
-  //   logs: [
-  //     ["debug", "incoming.bogus.error", {}, { payload: { type: "bogus" } }]
-  //   ],
-  //   metrics: [INCREMENT_REQUEST, ["increment", "request.error", 1]],
-  //   response: { message: "Not Supported" },
-  //   responseStatusCode: 501,
-  //   firehoseEvents: []
-  // },
-  // {
-  //   title: "Should trim the token when passed with extra spaces",
-  //   body: trackPayload,
-  //   connector: {
-  //     private_settings,
-  //     settings
-  //   },
-  //   headers: ({ config, plainCredentials }) => ({
-  //     Authorization: `Basic ${encryptedToken({ config, plainCredentials })} `
-  //   }),
-  //   platformApiCalls,
-  //   logs: [
-  //     ["debug", "incoming.track.start", {}, { payload: trackPayload }],
-  //     logTrack(expect)
-  //   ],
-  //   metrics: [INCREMENT_REQUEST, INCREMENT_TRACK],
-  //   response: { message: "thanks" },
-  //   responseStatusCode: 200,
-  //   firehoseEvents: [firehoseTrack(expect)]
-  // },
-  // {
-  //   title: "Should return invalid token when token has invalid signature",
-  //   body: trackPayload,
-  //   connector: {
-  //     private_settings,
-  //     settings
-  //   },
-  //   headers: ({ config, plainCredentials }) => ({
-  //     Authorization: `Basic INVALID${encryptedToken({
-  //       config,
-  //       plainCredentials
-  //     })}`
-  //   }),
-  //   platformApiCalls: [],
-  //   logs: [],
-  //   metrics: [],
-  //   response: { error: "Invalid Token", message: "Invalid Token" },
-  //   responseStatusCode: 401,
-  //   firehoseEvents: []
-  // },
-  // {
-  //   title: "Should capture a simple Tracking Call",
-  //   body: trackPayload,
-  //   connector: {
-  //     private_settings,
-  //     settings
-  //   },
-  //   headers,
-  //   platformApiCalls,
-  //   logs: [
-  //     ["debug", "incoming.track.start", {}, { payload: trackPayload }],
-  //     logTrack(expect)
-  //   ],
-  //   metrics: [INCREMENT_REQUEST, INCREMENT_TRACK],
-  //   response: { message: "thanks" },
-  //   responseStatusCode: 200,
-  //   firehoseEvents: [firehoseTrack(expect)]
-  // },
+  {
+    title: "Should return 401 on No Token",
+    body: trackPayload,
+    connector: {
+      private_settings,
+      settings
+    },
+    headers: ({ config, plainCredentials }) => ({}),
+    platformApiCalls: [],
+    logs: [],
+    metrics: [],
+    response: { message: "No Authorization Headers" },
+    responseStatusCode: 400,
+    firehoseEvents: []
+  },
+  {
+    title: "Should return 401 on Invalid Token",
+    body: trackPayload,
+    connector: {
+      private_settings,
+      settings
+    },
+    headers: ({ config, plainCredentials }) => ({
+      Authorization: `Basic SU5WQUxJRA==`
+    }),
+    platformApiCalls: [],
+    logs: [],
+    metrics: [],
+    response: { error: "Invalid Token", message: "Invalid Token" },
+    responseStatusCode: 401,
+    firehoseEvents: []
+  },
+  {
+    title: "Should return 401 if Connector is not found",
+    body: trackPayload,
+    connector: {
+      private_settings,
+      settings
+    },
+    headers: ({ config, plainCredentials }) => headers({ config, plainCredentials: {
+      ...plainCredentials, ship: "not_found"
+    }}),
+    platformApiCalls: [],
+    logs: [],
+    metrics: [],
+    response: {
+      error: "id property in Configuration is invalid: not_found",
+      message: "id property in Configuration is invalid: not_found"
+    },
+    responseStatusCode: 401,
+    firehoseEvents: []
+  },
+  {
+    title: "Should return 401 on missing claims in valid token",
+    body: trackPayload,
+    connector: {
+      private_settings,
+      settings
+    },
+    headers: ({ config, plainCredentials }) =>
+      headers({ config, plainCredentials: {} }),
+    platformApiCalls: [],
+    logs: [],
+    metrics: [],
+    response: {
+      error: "Configuration is missing required property: id",
+      message: "Configuration is missing required property: id"
+    },
+    responseStatusCode: 401,
+    firehoseEvents: []
+  },
+  {
+    title: "Should return 501 on No Type",
+    body: {},
+    connector: {
+      private_settings,
+      settings
+    },
+    headers,
+    platformApiCalls,
+    logs: [
+      [
+        "debug",
+        "incoming.request.error",
+        {},
+        { message: "Can't find Type in Payload", payload: {} }
+      ]
+    ],
+    metrics: [INCREMENT_REQUEST, ["increment", "request.error", 1]],
+    response: { message: "Not Supported" },
+    responseStatusCode: 501,
+    firehoseEvents: []
+  },
+  {
+    title: "Should return 501 on invalid Type",
+    body: { type: "bogus" },
+    connector: {
+      private_settings,
+      settings
+    },
+    headers,
+    platformApiCalls,
+    logs: [
+      ["debug", "incoming.bogus.error", {}, { payload: { type: "bogus" } }]
+    ],
+    metrics: [INCREMENT_REQUEST, ["increment", "request.error", 1]],
+    response: { message: "Not Supported" },
+    responseStatusCode: 501,
+    firehoseEvents: []
+  },
+  {
+    title: "Should trim the token when passed with extra spaces",
+    body: trackPayload,
+    connector: {
+      private_settings,
+      settings
+    },
+    headers: ({ config, plainCredentials }) => ({
+      Authorization: `Basic ${encryptedToken({ config, plainCredentials })} `
+    }),
+    platformApiCalls,
+    logs: [
+      ["debug", "incoming.track.start", {}, { payload: trackPayload }],
+      LOG_TRACK
+    ],
+    metrics: [INCREMENT_REQUEST, INCREMENT_TRACK],
+    response: { message: "thanks" },
+    responseStatusCode: 200,
+    firehoseEvents: [FIREHOSE_TRACK]
+  },
+  {
+    title: "Should return invalid token when token has invalid signature",
+    body: trackPayload,
+    connector: {
+      private_settings,
+      settings
+    },
+    headers: ({ config, plainCredentials }) => ({
+      Authorization: `Basic INVALID${encryptedToken({
+        config,
+        plainCredentials
+      })}`
+    }),
+    platformApiCalls: [],
+    logs: [],
+    metrics: [],
+    response: { error: "Invalid Token", message: "Invalid Token" },
+    responseStatusCode: 401,
+    firehoseEvents: []
+  },
+  {
+    title: "Should capture a simple Tracking Call",
+    body: trackPayload,
+    connector: {
+      private_settings,
+      settings
+    },
+    headers,
+    platformApiCalls,
+    logs: [
+      ["debug", "incoming.track.start", {}, { payload: trackPayload }],
+      LOG_TRACK
+    ],
+    metrics: [INCREMENT_REQUEST, INCREMENT_TRACK],
+    response: { message: "thanks" },
+    responseStatusCode: 200,
+    firehoseEvents: [FIREHOSE_TRACK]
+  },
   {
     title: "should Hull.track on page event by default",
     body: pagePayload,
@@ -335,13 +315,13 @@ const TESTS = [
     headers,
     platformApiCalls,
     logs: [
-      ["debug", "incoming.track.start", {}, { payload: pagePayload }],
-      logPage(expect)
+      ["debug", "incoming.page.start", {}, { payload: pagePayload }],
+      LOG_PAGE
     ],
-    metrics: [INCREMENT_REQUEST, INCREMENT_TRACK],
+    metrics: [INCREMENT_REQUEST, INCREMENT_PAGE],
     response: { message: "thanks" },
     responseStatusCode: 200,
-    firehoseEvents: [firehosePage(expect)]
+    firehoseEvents: [FIREHOSE_PAGE]
   }
 ];
 
