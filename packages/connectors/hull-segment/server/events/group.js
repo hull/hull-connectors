@@ -1,6 +1,6 @@
 // @flow
 
-import type { HullContext } from "hull";
+import type { HullContext, HullAccountClaims } from "hull";
 import type { SegmentIncomingGroup } from "../types";
 
 export default async function handleGroup(
@@ -13,13 +13,12 @@ export default async function handleGroup(
   const { domain } = traits;
   if (!message || !groupId) return null;
 
-  const accountClaims = {
+  const accountClaims: HullAccountClaims = {
     external_id: groupId
   };
   if (domain) {
     accountClaims.domain = domain;
   }
-  console.log(domain, accountClaims)
 
   const scopedClient = link_users_in_hull
     ? client
