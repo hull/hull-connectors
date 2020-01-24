@@ -275,7 +275,7 @@ const TESTS = [
   },
   // "should call Hull.asUser.track on page event by default",
   {
-    title: "should call Hull.asUser.track on page event by default",
+    title: "Should call Hull.asUser.track on page event by default",
     body: pagePayload,
     connector: {
       private_settings,
@@ -291,7 +291,7 @@ const TESTS = [
   },
   // "should Hull.asAccount.traits and link if link_users_in_hull=true",
   {
-    title: "should Hull.asAccount.traits and link if link_users_in_hull=true",
+    title: "Should Hull.asAccount.traits and link if link_users_in_hull=true",
     body: groupPayload,
     connector: {
       private_settings,
@@ -308,7 +308,7 @@ const TESTS = [
   // "should Hull.asAccount.traits on Group Call",
   {
     title:
-      "should Hull.asAccount.traits and NOT link if link_users_in_hull=false",
+      "Should Hull.asAccount.traits and NOT link if link_users_in_hull=false",
     body: groupPayload,
     connector: {
       private_settings: { ...private_settings, link_users_in_hull: false },
@@ -324,7 +324,7 @@ const TESTS = [
   },
   // "should use Domain from Traits",
   {
-    title: "should use Domain from Traits",
+    title: "Should use Domain from Traits",
     body: {
       ...groupPayload,
       traits: { ...groupPayload.traits, domain: "foo.com" }

@@ -87,30 +87,11 @@
           "readOnly": true
         },
         {
-          "service": "groupId",
-          "hull": "account.external_id",
-          "overwrite": true,
-          "readOnly": true
-        },
-        {
           "service": "hull_segments",
           "hull": "account_segments.name",
           "overwrite": true,
           "readOnly": true
         }
-      ]
-    },
-    {
-      "name": "synchronized_properties",
-      "title": "Attributes to send in Users",
-      "description": "*By default, only `email` and `hull_segments` are sent to Segment.com in `analytics.identify()` calls*",
-      "type": "array",
-      "format": "trait",
-      "items": {
-        "type": "string"
-      },
-      "default": [
-        "email"
       ]
     },
     {
@@ -128,9 +109,14 @@
       "format": "event",
       "options": {
         "standard": {
-          "ALL": "All Events"
+          "ALL": "All Events",
+          "ENTERED_SEGMENT": "Entered Segment",
+          "LEFT_SEGMENT": "Left Segment"
         }
-      }
+      },
+      "default": [
+        "ALL"
+      ]
     },
     {
       "name": "forward_events",
@@ -142,7 +128,7 @@
     {
       "name": "synchronized_account_segments",
       "title": "Accounts to send",
-      "description": "List segments for which to send Account to segment",
+      "description": "List segments for which to send Account to Segment.com. **WARNING** Due to Segment's limitations, Accounts will be sent only when a User from this account is updated. We can't send an account without a user attached. This also means that only Accounts for which users are whitelisted will be sent",
       "type": "array",
       "format": "accountSegment",
       "options": {
@@ -150,19 +136,6 @@
           "ALL": "All Accounts"
         }
       }
-    },
-    {
-      "name": "synchronized_account_properties",
-      "title": "Attributes to send in Accounts",
-      "description": "*By default, only `domain` is sent to Segment.com in `analytics.group()` calls*",
-      "type": "array",
-      "format": "accountTrait",
-      "items": {
-        "type": "string"
-      },
-      "default": [
-        "domain"
-      ]
     }
   ],
   "settings": [

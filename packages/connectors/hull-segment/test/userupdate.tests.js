@@ -18,6 +18,7 @@ import {
   CONNECTOR,
   STANDARD_USER_SEGMENTS,
   STANDARD_ACCOUNT_SEGMENTS,
+  STANDARD_EVENT_PROPS,
   // METRIC_INCOMING_USER,
   // METRIC_SERVICE_REQUEST,
   // METRIC_CONNECTOR_REQUEST,
@@ -52,7 +53,20 @@ const private_settings = {
       readOnly: true
     }
   ],
-  outgoing_account_attribute_mapping: [],
+  outgoing_account_attribute_mapping: [
+    {
+      service: "domain",
+      hull: "account.domain",
+      overwrite: true,
+      readOnly: true
+    },
+    {
+      service: "hull_segments",
+      hull: "account_segments.name",
+      overwrite: true,
+      readOnly: true
+    }
+  ],
   synchronized_properties: [],
   link_users_in_hull: true,
   synchronized_events: [],
@@ -147,22 +161,23 @@ const FIREHOSE_ACCOUNT_LINK_IDENTIFY = [
   groupOutput.data
 ];
 
-const segment_payload = payloads => ({
-  batch: payloads.map(p => ({
-    _metadata: { nodeVersion: "10.16.0" },
+const segment_payload = payloads =>
+  payloads.map(payload => ({
+    batch: payload.map(p => ({
+      _metadata: { nodeVersion: "10.16.0" },
+      timestamp: /.*/,
+      messageId: /.*/,
+      ...p,
+      context: {
+        active: false,
+        ip: 0,
+        library: { name: "analytics-node", version: "3.3.0" },
+        ...p.context
+      }
+    })),
     timestamp: /.*/,
-    messageId: /.*/,
-    ...p,
-    context: {
-      active: false,
-      ip: 0,
-      library: { name: "analytics-node", version: "3.3.0" },
-      ...p.context
-    }
-  })),
-  timestamp: /.*/,
-  sentAt: /.*/
-});
+    sentAt: /.*/
+  }));
 
 const TESTS = [
   // "Reject if no Anonymous ID nor UserId nor Email",
@@ -172,7 +187,9 @@ const TESTS = [
       private_settings,
       settings: { ...settings, ignore_segment_userId: true }
     },
-    message: messageWithUser({}),
+    message: messageWithUser({
+      user: { ...USER, anonymous_ids: [] }
+    }),
     platformApiCalls: [],
     usersSegments: STANDARD_USER_SEGMENTS,
     accountsSegments: STANDARD_ACCOUNT_SEGMENTS,
@@ -208,22 +225,23 @@ const TESTS = [
     message: messageWithUser({
       user: {
         ...USER,
-        email: "foo@bar.com",
-        anonymous_ids: ["1234"]
+        email: "foo@bar.com"
       }
     }),
     body: segment_payload([
-      {
-        anonymousId: "1234",
-        traits: {
-          email: "foo@bar.com",
-          hull_segments: "standard_segment",
-          hull_account_segments: "standard_segment"
-        },
-        context: {},
-        integrations: { Hull: false },
-        type: "identify"
-      }
+      [
+        {
+          anonymousId: "1234",
+          traits: {
+            email: "foo@bar.com",
+            hull_segments: "standard_segment",
+            hull_account_segments: "standard_segment"
+          },
+          context: {},
+          integrations: { Hull: false },
+          type: "identify"
+        }
+      ]
     ]),
     platformApiCalls: [],
     usersSegments: STANDARD_USER_SEGMENTS,
@@ -254,13 +272,13 @@ const TESTS = [
     title: "Send to Segment a simple User, map Segments, and send account",
     connector: {
       private_settings,
-      settings: { ...settings, ignore_segment_userId: true }
+      settings
     },
     message: messageWithUser({
       user: {
         ...USER,
-        email: "foo@bar.com",
-        anonymous_ids: ["1234"]
+        external_id: "exexe",
+        email: "foo@bar.com"
       },
       account: {
         ...ACCOUNT,
@@ -268,9 +286,10 @@ const TESTS = [
         anonymous_ids: ["anon:1234"]
       }
     }),
-    body: segment_payload(
+    body: segment_payload([
       [
         {
+          userId: "exexe",
           anonymousId: "1234",
           traits: {
             email: "foo@bar.com",
@@ -285,15 +304,18 @@ const TESTS = [
       [
         {
           groupId: "abcd",
+          userId: "exexe",
+          anonymousId: "1234",
           traits: {
-            hull_account_segments: "standard_segment"
+            domain: ACCOUNT.domain,
+            hull_segments: "standard_segment"
           },
           context: {},
           integrations: { Hull: false },
           type: "group"
         }
       ]
-    ),
+    ]),
     platformApiCalls: [],
     usersSegments: STANDARD_USER_SEGMENTS,
     accountsSegments: STANDARD_ACCOUNT_SEGMENTS,
@@ -309,31 +331,34 @@ const TESTS = [
     responseStatusCode: 200,
     firehoseEvents: []
   },
-  // "",
+  // "Only send whitelisted events",
   {
-    title: "Send to Segment a simple User, map Segments, and send account",
+    title: "Only send whitelisted events",
     connector: {
-      private_settings,
-      settings: { ...settings, ignore_segment_userId: true }
+      private_settings: { ...private_settings, synchronized_events: ["Foo"] },
+      settings
     },
     message: messageWithUser({
-      user: {
-        ...USER,
-        email: "foo@bar.com",
-        anonymous_ids: ["1234"]
-      },
-      account: {
-        ...ACCOUNT,
-        external_id: "abcd",
-        anonymous_ids: ["anon:1234"]
-      }
+      events: [
+        {
+          ...STANDARD_EVENT_PROPS,
+          event: "Foo",
+          properties: {},
+          context: {}
+        },
+        {
+          ...STANDARD_EVENT_PROPS,
+          event: "Bar",
+          properties: {},
+          context: {}
+        }
+      ]
     }),
-    body: segment_payload(
+    body: segment_payload([
       [
         {
           anonymousId: "1234",
           traits: {
-            email: "foo@bar.com",
             hull_segments: "standard_segment",
             hull_account_segments: "standard_segment"
           },
@@ -344,20 +369,179 @@ const TESTS = [
       ],
       [
         {
-          groupId: "abcd",
+          anonymousId: "1234",
+          timestamp: null,
+          event: "Foo",
+          properties:{},
+          context: {
+            active: true,
+            traits: {
+              hull_segments: "standard_segment",
+              hull_account_segments: "standard_segment"
+            },
+            os: {},
+            page: {},
+            location: {}
+          },
+          integrations: { Hull: false },
+          type: "track"
+        }
+      ]
+    ]),
+    platformApiCalls: [],
+    usersSegments: STANDARD_USER_SEGMENTS,
+    accountsSegments: STANDARD_ACCOUNT_SEGMENTS,
+    logs: [
+      [
+        "info",
+        "outgoing.account.skip",
+        expect.whatever(),
+        {
+          anonymousId: "1234",
+          groupId: undefined,
+          anonymousIds: undefined,
+          public_account_id_field: "external_id",
+          message: "No Identifier available"
+        }
+      ]
+    ],
+    metrics: [
+      METRIC_INCREMENT_REQUEST,
+      METRIC_INCREMENT_SERVICE,
+      METRIC_INCREMENT_SERVICE
+    ],
+    response: {
+      ...NEXT_FLOW_CONTROL
+    },
+    responseStatusCode: 200,
+    firehoseEvents: []
+  },
+  // "Find an anonymousId from the Events to perform Identify",
+  {
+    title: "Find an anonymousId from the Events to perform Identify",
+    connector: {
+      private_settings,
+      settings
+    },
+    message: messageWithUser({
+      user: {
+        id: "0000",
+        anonymous_ids: []
+      },
+      events: [
+        {
+          event: "Foo",
+          anonymous_id: "1234"
+        }
+      ]
+    }),
+    body: segment_payload([
+      [
+        {
+          anonymousId: "1234",
           traits: {
+            hull_segments: "standard_segment",
             hull_account_segments: "standard_segment"
           },
           context: {},
           integrations: { Hull: false },
-          type: "group"
+          type: "identify"
         }
       ]
-    ),
+    ]),
     platformApiCalls: [],
     usersSegments: STANDARD_USER_SEGMENTS,
     accountsSegments: STANDARD_ACCOUNT_SEGMENTS,
-    logs: [],
+    logs: [
+      [
+        "info",
+        "outgoing.account.skip",
+        expect.whatever(),
+        {
+          anonymousId: "1234",
+          groupId: undefined,
+          anonymousIds: undefined,
+          public_account_id_field: "external_id",
+          message: "No Identifier available"
+        }
+      ]
+    ],
+    metrics: [METRIC_INCREMENT_REQUEST, METRIC_INCREMENT_SERVICE],
+    response: {
+      ...NEXT_FLOW_CONTROL
+    },
+    responseStatusCode: 200,
+    firehoseEvents: []
+  },
+  // "Send events with the right anonymousId",
+  {
+    title: "Send events with the right anonymousId",
+    connector: {
+      private_settings: { ...private_settings, synchronized_events: ["Foo"] },
+      settings
+    },
+    message: messageWithUser({
+      user: {
+        id: "0000",
+        anonymous_ids: ["abcd", "1234"]
+      },
+      events: [
+        {
+          event: "Foo",
+          anonymous_id: "1234"
+        }
+      ]
+    }),
+    body: segment_payload([
+      [
+        {
+          anonymousId: "1234",
+          traits: {
+            hull_segments: "standard_segment",
+            hull_account_segments: "standard_segment"
+          },
+          context: {},
+          integrations: { Hull: false },
+          type: "identify"
+        }
+      ],
+      [
+        {
+          anonymousId: "1234",
+          timestamp: null,
+          event: "Foo",
+          context: {
+            active: true,
+            traits: {
+              hull_segments: "standard_segment",
+              hull_account_segments: "standard_segment"
+            },
+            os: {},
+            page: {},
+            location: {}
+          },
+          integrations: { Hull: false },
+          type: "track"
+        }
+      ]
+    ]),
+    platformApiCalls: [],
+    usersSegments: STANDARD_USER_SEGMENTS,
+    accountsSegments: STANDARD_ACCOUNT_SEGMENTS,
+    logs: [
+      [
+        "info",
+        "outgoing.account.skip",
+        expect.whatever(),
+        {
+          anonymousId: "1234",
+          groupId: undefined,
+          anonymousIds: undefined,
+          public_account_id_field: "external_id",
+          message: "No Identifier available"
+        }
+      ]
+    ],
     metrics: [
       METRIC_INCREMENT_REQUEST,
       METRIC_INCREMENT_SERVICE,

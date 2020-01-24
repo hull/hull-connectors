@@ -42,11 +42,11 @@ export const NEXT_FLOW_CONTROL = {
 
 export const USER = {
   id: "1234",
-  anonymous_ids: [],
+  anonymous_ids: ["1234"],
   external_id: undefined,
   segment_ids: []
 };
-export const ACCOUNT = { id: "1234", domain: "bar.com", segment_ids: [] };
+export const ACCOUNT = { id: "a1234", domain: "bar.com", segment_ids: [] };
 export const EVENTS = [];
 export const CHANGES = {};
 

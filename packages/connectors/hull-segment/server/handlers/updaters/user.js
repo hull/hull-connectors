@@ -2,6 +2,7 @@
 
 import type { HullContext, HullUserUpdateMessage } from "hull";
 import type { SegmentContext } from "../../types";
+import _ from "lodash";
 
 import {
   getfirstNonNull,
@@ -21,7 +22,7 @@ const userUpdate = (ctx: HullContext, analytics: any) => async (
   const { client, connector, metric, helpers } = ctx;
   const { mapAttributes } = helpers;
   const { settings = {} } = connector;
-  const { public_id_field } = settings;
+  const { public_id_field, public_account_id_field } = settings;
   const { user, account, events = [] } = message;
 
   // Empty payload ?
@@ -39,8 +40,9 @@ const userUpdate = (ctx: HullContext, analytics: any) => async (
     getfirstNonNull(user.anonymous_ids);
 
   // $FlowFixMe
-  const userId: void | null | string = user[public_id_field];
-  const groupId: void | null | string = account.id;
+  const userId: void | null | string = _.get(user, public_id_field);
+  // const groupId: void | null | string = account.id;
+  const groupId: ?string = _.get(account, public_account_id_field);
 
   // We have no identifier for the user, we have to skip
   if (!userId && !anonymousId) {
@@ -101,7 +103,7 @@ const userUpdate = (ctx: HullContext, analytics: any) => async (
 
   const accountUpdateHandler = handleAccount(ctx, analytics);
   try {
-    promises.push(accountUpdateHandler(message, userId, anonymousId));
+    promises.push(accountUpdateHandler(message, userId, anonymousId, groupId));
   } catch (err) {
     debug("Error in Account Update Handler", { message, err });
     err.reason = "Error sending group to Segment.com";

@@ -10,7 +10,7 @@ import TESTS from "../userupdate.tests";
 TESTS.map(function performTest({
   title,
   message,
-  body,
+  body = [],
   connector,
   response,
   usersSegments,
@@ -26,10 +26,14 @@ TESTS.map(function performTest({
       ...message,
       handlerType: handlers.notificationHandler,
       externalApiMock: () => {
-        const scope = nock("https://api.segment.io")
-          // .log(console.log)
-          .post("/v1/batch", body)
-          .reply(200, "OK");
+        let scope = nock("https://api.segment.io")
+          .log(console.log)
+        body.map(b => {
+          scope = scope.post("/v1/batch", b)
+          .reply(200, "OK")
+        })
+        // scope.persist()
+        return scope
       },
       connector,
       usersSegments,

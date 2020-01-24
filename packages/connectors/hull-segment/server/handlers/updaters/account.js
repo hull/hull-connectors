@@ -9,7 +9,8 @@ const integrations = { Hull: false };
 const accountUpdate = (ctx: HullContext, analytics: any) => async (
   message: HullUserUpdateMessage,
   userId?: string | void | null,
-  anonymousId?: string | void | null
+  anonymousId?: string | void | null,
+  groupId?: string | void | null
 ): any => {
   const { client, connector, metric, isBatch, helpers } = ctx;
   const { mapAttributes } = helpers;
@@ -42,7 +43,7 @@ const accountUpdate = (ctx: HullContext, analytics: any) => async (
   // if we have events in the payload, we take the annymousId of the first event
   // Otherwise, we look for known anonymousIds attached to the user and we take the first one
   // const anonymousId = getfirstNonNull(account.anonymous_ids);
-  const groupId: ?string = _.get(account, public_account_id_field);
+  // const groupId: ?string = _.get(account, public_account_id_field);
   const asAccount = client.asAccount(account);
 
   // We have no identifier for the user, we have to skip
@@ -70,10 +71,12 @@ const accountUpdate = (ctx: HullContext, analytics: any) => async (
       context: segmentContext,
       integrations
     };
+
     await analytics.group(
       userId
         ? {
             userId,
+            anonymousId,
             ...payload
           }
         : {
