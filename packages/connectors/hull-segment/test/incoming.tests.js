@@ -322,6 +322,52 @@ const TESTS = [
     responseStatusCode: 200,
     firehoseEvents: [FIREHOSE_ACCOUNT_IDENTIFY]
   },
+  // "should use Domain from Traits",
+  {
+    title: "should use Domain from Traits",
+    body: {
+      ...groupPayload,
+      traits: { ...groupPayload.traits, domain: "foo.com" }
+    },
+    connector: {
+      private_settings: { ...private_settings, link_users_in_hull: false },
+      settings
+    },
+    headers,
+    platformApiCalls,
+    logs: [
+      [
+        "debug",
+        "incoming.group.start",
+        {},
+        {
+          payload: {
+            ...groupPayload,
+            traits: { ...groupPayload.traits, domain: "foo.com" }
+          }
+        }
+      ]
+    ],
+    metrics: [METRIC_INCREMENT_REQUEST, METRIC_INCREMENT_GROUP],
+    response: { message: "thanks" },
+    responseStatusCode: 200,
+    firehoseEvents: [
+      [
+        "traits",
+        {
+          subjectType: "account",
+          asAccount: {
+            ...groupOutput.asAccount,
+            domain: "foo.com"
+          }
+        },
+        {
+          ...groupOutput.data,
+          domain: "foo.com"
+        }
+      ]
+    ]
+  },
   // "should call Hull.asUser.track on screen event by default",
   {
     title: "should call Hull.asUser.track on screen event by default",
