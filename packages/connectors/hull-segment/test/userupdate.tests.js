@@ -34,22 +34,22 @@ const private_settings = {
   synchronized_segments: [],
   outgoing_user_attribute_mapping: [
     {
-      "hull": "email",
-      "service": "email",
-      "overwrite": true,
-      "readOnly": true
+      hull: "email",
+      service: "email",
+      overwrite: true,
+      readOnly: true
     },
     {
-      "hull": "segments.name",
-      "service": "hull_segments",
-      "overwrite": true,
-      "readOnly": true
+      hull: "segments.name",
+      service: "hull_segments",
+      overwrite: true,
+      readOnly: true
     },
     {
-      "hull": "account_segments.name",
-      "service": "hull_account_segments",
-      "overwrite": true,
-      "readOnly": true
+      hull: "account_segments.name",
+      service: "hull_account_segments",
+      overwrite: true,
+      readOnly: true
     }
   ],
   outgoing_account_attribute_mapping: [],
@@ -199,7 +199,8 @@ const TESTS = [
   },
   // "Send to Segment a simple User, map Segments, but skip empty account",
   {
-    title: "Send to Segment a simple User, map Segments, but skip empty account",
+    title:
+      "Send to Segment a simple User, map Segments, but skip empty account",
     connector: {
       private_settings,
       settings: { ...settings, ignore_segment_userId: true }
@@ -248,7 +249,7 @@ const TESTS = [
     responseStatusCode: 200,
     firehoseEvents: []
   },
-  // "Send to Segment a simple User",
+  // "Send to Segment a simple User, map Segments, and send account",
   {
     title: "Send to Segment a simple User, map Segments, and send account",
     connector: {
@@ -267,35 +268,101 @@ const TESTS = [
         anonymous_ids: ["anon:1234"]
       }
     }),
-    body: segment_payload([
-      {
-        anonymousId: "1234",
-        traits: {
-          email: "foo@bar.com",
-          hull_segments: "standard_segment",
-          hull_account_segments: "standard_segment"
-        },
-        context: {},
-        integrations: { Hull: false },
-        type: "identify"
-      }
-    ],[
-      {
-        groupId: "abcd",
-        traits: {
-          hull_account_segments: "standard_segment"
-        },
-        context: {},
-        integrations: { Hull: false },
-        type: "group"
-      }
-    ]),
+    body: segment_payload(
+      [
+        {
+          anonymousId: "1234",
+          traits: {
+            email: "foo@bar.com",
+            hull_segments: "standard_segment",
+            hull_account_segments: "standard_segment"
+          },
+          context: {},
+          integrations: { Hull: false },
+          type: "identify"
+        }
+      ],
+      [
+        {
+          groupId: "abcd",
+          traits: {
+            hull_account_segments: "standard_segment"
+          },
+          context: {},
+          integrations: { Hull: false },
+          type: "group"
+        }
+      ]
+    ),
     platformApiCalls: [],
     usersSegments: STANDARD_USER_SEGMENTS,
     accountsSegments: STANDARD_ACCOUNT_SEGMENTS,
-    logs: [
+    logs: [],
+    metrics: [
+      METRIC_INCREMENT_REQUEST,
+      METRIC_INCREMENT_SERVICE,
+      METRIC_INCREMENT_SERVICE
     ],
-    metrics: [METRIC_INCREMENT_REQUEST, METRIC_INCREMENT_SERVICE, METRIC_INCREMENT_SERVICE],
+    response: {
+      ...NEXT_FLOW_CONTROL
+    },
+    responseStatusCode: 200,
+    firehoseEvents: []
+  },
+  // "",
+  {
+    title: "Send to Segment a simple User, map Segments, and send account",
+    connector: {
+      private_settings,
+      settings: { ...settings, ignore_segment_userId: true }
+    },
+    message: messageWithUser({
+      user: {
+        ...USER,
+        email: "foo@bar.com",
+        anonymous_ids: ["1234"]
+      },
+      account: {
+        ...ACCOUNT,
+        external_id: "abcd",
+        anonymous_ids: ["anon:1234"]
+      }
+    }),
+    body: segment_payload(
+      [
+        {
+          anonymousId: "1234",
+          traits: {
+            email: "foo@bar.com",
+            hull_segments: "standard_segment",
+            hull_account_segments: "standard_segment"
+          },
+          context: {},
+          integrations: { Hull: false },
+          type: "identify"
+        }
+      ],
+      [
+        {
+          groupId: "abcd",
+          traits: {
+            hull_account_segments: "standard_segment"
+          },
+          context: {},
+          integrations: { Hull: false },
+          type: "group"
+        }
+      ]
+    ),
+    platformApiCalls: [],
+    usersSegments: STANDARD_USER_SEGMENTS,
+    accountsSegments: STANDARD_ACCOUNT_SEGMENTS,
+    logs: [],
+    metrics: [
+      METRIC_INCREMENT_REQUEST,
+      METRIC_INCREMENT_SERVICE,
+      METRIC_INCREMENT_SERVICE
+    ],
     response: {
       ...NEXT_FLOW_CONTROL
     },
