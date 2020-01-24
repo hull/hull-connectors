@@ -1,5 +1,5 @@
 {
-  "claims": {
+  "asUser": {
     "anonymous_id": "d765ba53-000-5527-8cd1-30c96a636a78",
     "email": "dug@hef.org",
     "external_id": "05a70e72"

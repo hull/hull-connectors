@@ -263,7 +263,7 @@
   ],
   "subscriptions": [
     {
-      "url": "/notifier",
+      "url": "/smart-notifier",
       "conditions": {
         "channels": {
           "only": [

@@ -12,6 +12,10 @@ module.exports = function authTokenMiddleware(
   res: $Response,
   next: NextFunction
 ) {
+  // Only proceed if we're on the Incoming route
+  if (req.url.indexOf("/segment") !== 0) {
+    return next();
+  }
   req.hull = req.hull || {};
   const authorization = req.get("Authorization");
   if (authorization) {

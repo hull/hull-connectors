@@ -22,7 +22,7 @@ const userUpdate = (ctx: HullContext, analytics: any) => async (
   const { mapAttributes } = helpers;
   const { settings = {} } = connector;
   const { public_id_field } = settings;
-  const { user, account, events } = message;
+  const { user, account, events = [] } = message;
 
   // Empty payload ?
   if (!user.id || !connector.id) {
@@ -44,7 +44,7 @@ const userUpdate = (ctx: HullContext, analytics: any) => async (
 
   // We have no identifier for the user, we have to skip
   if (!userId && !anonymousId) {
-    asUser.logger.info("outgoing.user.skip", {
+    return asUser.logger.info("outgoing.user.skip", {
       message: "No Identifier available",
       anonymousId,
       userId,

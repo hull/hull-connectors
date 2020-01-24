@@ -4,7 +4,7 @@ import type { HullContext } from "hull";
 import type { SegmentIncomingGroup } from "../types";
 
 export default async function handleGroup(
-  { client, metric, connector }: HullContext,
+  { client, connector }: HullContext,
   message: SegmentIncomingGroup
 ) {
   const { private_settings } = connector;
@@ -20,6 +20,5 @@ export default async function handleGroup(
         .account({ external_id: groupId })
     : client.asAccount({ external_id: groupId });
   await scopedClient.traits(traits);
-  metric.increment("request.group");
   return undefined;
 }

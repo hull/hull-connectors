@@ -15,12 +15,13 @@ const userUpdate = ({
   flow_in
 }: {
   flow_size: string | number,
-  flow_in: string | number
+  flow_in: string | number,
+  analytics_opts?: {}
 }) => async (
   ctx: HullContext,
   messages: Array<HullUserUpdateMessage>
 ): HullNotificationResponse => {
-  const { connector } = ctx;
+  const { connector, client } = ctx;
   const { settings = {} }: SegmentConnectorSettings = connector;
 
   const { write_key } = settings;
@@ -33,6 +34,7 @@ const userUpdate = ({
       in_time: 0
     }
   };
+
   if (!write_key) {
     return flowNext;
   }
@@ -43,11 +45,12 @@ const userUpdate = ({
     const handle = handleUserUpdate(ctx, analytics);
     await Promise.all(messages.map(handle));
   } catch (err) {
-    ctx.client.logger.error("outgoing.user.error", {
+    client.logger.error("outgoing.user.error", {
       message: err.message,
       reason: err.reason,
       data: err.data
     });
+    console.log(err)
     return {
       flow_control: {
         type: "retry",

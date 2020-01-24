@@ -2,7 +2,9 @@
 
 const fixtures = {
   aliasPayload: require("./alias.json"),
+
   groupPayload: require("./group.json"),
+  groupOutput: require("./group-output.json"),
 
   identifyPayload: require("./identify.json"),
   identifyOutput: require("./identify-output.json"),
