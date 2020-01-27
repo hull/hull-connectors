@@ -200,36 +200,9 @@ it("should fetch recent users using settings", () => {
         ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
         ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}],
         ["GET", "/api/v1/app", {}, {}],
-        [
-          "PUT",
-          "/api/v1/9993743b22d60dd829001999",
-          {},
-          {
-            "private_settings": {
-              "last_fetch_timestamp": expect.any(Number),
-              "last_fetch_at": expect.whatever(),
-              "token": "hubToken",
-              "mark_deleted_contacts": false,
-              "mark_deleted_companies": false
-            },
-            "refresh_status": false
-          }
-        ],
+        ["PUT", "/api/v1/9993743b22d60dd829001999", {}, expect.objectContaining({"private_settings": expect.whatever()})],
         ["GET", "/api/v1/app", {}, {}],
-        [
-          "PUT",
-          "/api/v1/9993743b22d60dd829001999",
-          {},
-          {
-            "private_settings": {
-              "last_fetch_at": null,
-              "token": "hubToken",
-              "mark_deleted_contacts": false,
-              "mark_deleted_companies": false
-            },
-            "refresh_status": false
-          }
-        ]
+        ["PUT", "/api/v1/9993743b22d60dd829001999", {}, expect.objectContaining({"private_settings": expect.whatever()})]
       ]
     };
   });
@@ -372,56 +345,156 @@ it("Should Fetch Contact With Mapped Incoming Attributes", () => {
         ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
         ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}],
         ["GET", "/api/v1/app", {}, {}],
-        [
-          "PUT",
-          "/api/v1/9993743b22d60dd829001999",
-          {},
-          {
-            "private_settings": {
-              "token": "hubToken",
-              "last_fetch_at": expect.whatever(),
-              "mark_deleted_contacts": false,
-              "mark_deleted_companies": false,
-              "incoming_user_attributes": [
-                {
-                  "service": "job_function",
-                  "hull": "traits_hubspot/job_function",
-                  "overwrite": false
-                },
-                {
-                  "service": "contact_meta.merged-vids",
-                  "hull": "traits_hubspot/merged_vids",
-                  "overwrite": false
-                }
-              ],
-              "last_fetch_timestamp": expect.whatever()
-            },
-            "refresh_status": false
-          }
-        ],
+        ["PUT", "/api/v1/9993743b22d60dd829001999", {}, expect.objectContaining({"private_settings": expect.whatever()})],
         ["GET", "/api/v1/app", {}, {}],
-        ["PUT", "/api/v1/9993743b22d60dd829001999", {},
-          {
-            "private_settings": {
-              "token": "hubToken",
-              "last_fetch_at": null,
-              "mark_deleted_contacts": false,
-              "mark_deleted_companies": false,
-              "incoming_user_attributes": [
+        ["PUT", "/api/v1/9993743b22d60dd829001999", {}, expect.objectContaining({"private_settings": expect.whatever()})]
+      ]
+    };
+  });
+});
+
+
+it("Should Fetch Contact With Missing Optional Claims", () => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+    return {
+      handlerType: handlers.scheduleHandler,
+      handlerUrl: "fetch-recent-contacts",
+      externalApiMock: () => {
+        const scope = nock("https://api.hubapi.com");
+        scope.get("/contacts/v2/groups?includeProperties=true")
+          .reply(200, [
+            {
+              "name": "contactinformation",
+              "displayName": "Contact Information",
+              "properties": [
                 {
-                  "service": "job_function",
-                  "hull": "traits_hubspot/job_function",
-                  "overwrite": false
-                },
-                {
-                  "service": "contact_meta.merged-vids",
-                  "hull": "traits_hubspot/merged_vids",
-                  "overwrite": false
+                  "name": "job_function",
+                  "label": "Job function",
+                  "groupName": "contactinformation",
+                  "type": "string",
+                  "fieldType": "text",
+                  "formField": true,
+                  "readOnlyValue": false
                 }
               ]
-            },
-            "refresh_status": false
-          }]
+            }
+          ]);
+        scope.get("/properties/v1/companies/groups?includeProperties=true")
+          .reply(200, []);
+        scope.get("/contacts/v1/lists/recently_updated/contacts/recent?property=job_function&property=email&count=100")
+          .reply(200, {
+              "contacts": [
+                {
+                  "vid": 1,
+                  "portal-id": 6925922,
+                  "properties": {
+                    "job_function": {
+                      "value": "a value"
+                    }
+                  }
+                }
+              ],
+              "has-more": true,
+              "vid-offset": 3714024,
+              "time-offset": 1484854580823
+            }
+          );
+        scope.get("/contacts/v1/lists/recently_updated/contacts/recent?vidOffset=3714024&timeOffset=1484854580823&property=job_function&property=email&count=100")
+          .reply(200, { contacts: [], "has-more": false, "time-offset": 0 });
+        return scope;
+      },
+      connector: {
+        private_settings: {
+          token: "hubToken",
+          last_fetch_at: 1419967066626,
+          mark_deleted_contacts: false,
+          mark_deleted_companies: false,
+          incoming_user_claims:
+            [{ hull: 'email',
+                service: 'properties.email.value',
+                required: false } ],
+          incoming_user_attributes:
+            [
+              {
+                service: 'job_function',
+                hull: 'traits_hubspot/job_function',
+                overwrite: false
+              }
+            ]
+        }
+      },
+      usersSegments: [],
+      accountsSegments: [],
+      response: { "status": "deferred" },
+      logs: [
+        ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" }],
+        ["debug", "connector.service_api.call", {}, {
+          "responseTime": expect.whatever(),
+          "method": "GET",
+          "url": "/contacts/v2/groups",
+          "status": 200,
+          "vars": {}
+        }],
+        ["debug", "connector.service_api.call", {}, {
+          "responseTime": expect.whatever(),
+          "method": "GET",
+          "url": "/properties/v1/companies/groups",
+          "status": 200,
+          "vars": {}
+        }],
+        ["debug", "connector.service_api.call", {}, {
+          "responseTime": expect.whatever(),
+          "method": "GET",
+          "url": "/contacts/v1/lists/recently_updated/contacts/recent",
+          "status": 200,
+          "vars": {}
+        }],
+        ["debug", "saveContacts", {}, 1],
+        ["debug", "incoming.user", {}, {
+          "claims": { "anonymous_id": "hubspot:1" },
+          "traits": { "hubspot/job_function": "a value", "hubspot/id": 1 }
+        }],
+        ["debug", "incoming.account.link.skip", {
+          "subject_type": "user",
+          "user_anonymous_id": "hubspot:1"
+        }, { "reason": "incoming linking is disabled, you can enabled it in the settings" }],
+        ["debug", "incoming.user.success", {
+          "subject_type": "user",
+          "user_anonymous_id": "hubspot:1"
+        }, { "traits": { "hubspot/job_function": "a value", "hubspot/id": 1 } }],
+        ["debug", "connector.service_api.call", {}, {
+          "responseTime": expect.whatever(),
+          "method": "GET",
+          "url": "/contacts/v1/lists/recently_updated/contacts/recent",
+          "status": 200,
+          "vars": {}
+        }],
+        ["info", "incoming.job.success", {}, { "jobName": "Incoming Data", "type": "webpayload" }]
+      ],
+      firehoseEvents: [
+        ["traits", {
+          "asUser": { "anonymous_id": "hubspot:1" },
+          "subjectType": "user"
+        }, { "hubspot/job_function": "a value", "hubspot/id": 1 }]
+      ],
+      metrics: [
+        ["increment", "connector.request", 1],
+        ["increment", "ship.service_api.call", 1],
+        ["value", "connector.service_api.response_time", expect.whatever()],
+        ["increment", "ship.service_api.call", 1],
+        ["value", "connector.service_api.response_time", expect.whatever()],
+        ["increment", "ship.service_api.call", 1],
+        ["value", "connector.service_api.response_time", expect.whatever()],
+        ["increment", "ship.incoming.users", 1],
+        ["increment", "ship.service_api.call", 1], ["value", "connector.service_api.response_time", expect.whatever()]
+      ],
+      platformApiCalls: [
+        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
+        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}],
+        ["GET", "/api/v1/app", {}, {}],
+        ["PUT", "/api/v1/9993743b22d60dd829001999", {}, expect.objectContaining({"private_settings": expect.whatever()})],
+        ["GET", "/api/v1/app", {}, {}],
+        ["PUT", "/api/v1/9993743b22d60dd829001999", {}, expect.objectContaining({"private_settings": expect.whatever()})]
       ]
     };
   });
