@@ -112,8 +112,8 @@ const incomingClaims = (ctx: HullContext) => (
         .join(", ");
       throw new Error(
         `All configured fields for claims are empty: anonymous_id${
-          _.isEmpty(allServiceKeys) ? "" : ","
-        } ${allServiceKeys}`
+          _.isEmpty(allServiceKeys) ? "" : ", "
+        }${allServiceKeys}`
       );
     }
 
