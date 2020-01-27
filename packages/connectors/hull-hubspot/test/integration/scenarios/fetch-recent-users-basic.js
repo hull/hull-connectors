@@ -200,36 +200,9 @@ it("should fetch recent users using settings", () => {
         ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
         ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}],
         ["GET", "/api/v1/app", {}, {}],
-        [
-          "PUT",
-          "/api/v1/9993743b22d60dd829001999",
-          {},
-          {
-            "private_settings": {
-              "last_fetch_timestamp": expect.any(Number),
-              "last_fetch_at": expect.whatever(),
-              "token": "hubToken",
-              "mark_deleted_contacts": false,
-              "mark_deleted_companies": false
-            },
-            "refresh_status": false
-          }
-        ],
+        ["PUT", "/api/v1/9993743b22d60dd829001999", {}, expect.objectContaining({"private_settings": expect.whatever()})],
         ["GET", "/api/v1/app", {}, {}],
-        [
-          "PUT",
-          "/api/v1/9993743b22d60dd829001999",
-          {},
-          {
-            "private_settings": {
-              "last_fetch_at": null,
-              "token": "hubToken",
-              "mark_deleted_contacts": false,
-              "mark_deleted_companies": false
-            },
-            "refresh_status": false
-          }
-        ]
+        ["PUT", "/api/v1/9993743b22d60dd829001999", {}, expect.objectContaining({"private_settings": expect.whatever()})]
       ]
     };
   });
@@ -372,56 +345,9 @@ it("Should Fetch Contact With Mapped Incoming Attributes", () => {
         ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
         ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}],
         ["GET", "/api/v1/app", {}, {}],
-        [
-          "PUT",
-          "/api/v1/9993743b22d60dd829001999",
-          {},
-          {
-            "private_settings": {
-              "token": "hubToken",
-              "last_fetch_at": expect.whatever(),
-              "mark_deleted_contacts": false,
-              "mark_deleted_companies": false,
-              "incoming_user_attributes": [
-                {
-                  "service": "job_function",
-                  "hull": "traits_hubspot/job_function",
-                  "overwrite": false
-                },
-                {
-                  "service": "contact_meta.merged-vids",
-                  "hull": "traits_hubspot/merged_vids",
-                  "overwrite": false
-                }
-              ],
-              "last_fetch_timestamp": expect.whatever()
-            },
-            "refresh_status": false
-          }
-        ],
+        ["PUT", "/api/v1/9993743b22d60dd829001999", {}, expect.objectContaining({"private_settings": expect.whatever()})],
         ["GET", "/api/v1/app", {}, {}],
-        ["PUT", "/api/v1/9993743b22d60dd829001999", {},
-          {
-            "private_settings": {
-              "token": "hubToken",
-              "last_fetch_at": null,
-              "mark_deleted_contacts": false,
-              "mark_deleted_companies": false,
-              "incoming_user_attributes": [
-                {
-                  "service": "job_function",
-                  "hull": "traits_hubspot/job_function",
-                  "overwrite": false
-                },
-                {
-                  "service": "contact_meta.merged-vids",
-                  "hull": "traits_hubspot/merged_vids",
-                  "overwrite": false
-                }
-              ]
-            },
-            "refresh_status": false
-          }]
+        ["PUT", "/api/v1/9993743b22d60dd829001999", {}, expect.objectContaining({"private_settings": expect.whatever()})]
       ]
     };
   });
@@ -448,30 +374,6 @@ it("Should Fetch Contact With Missing Optional Claims", () => {
                   "type": "string",
                   "fieldType": "text",
                   "formField": true,
-                  "readOnlyValue": false
-                }
-              ]
-            },
-            {
-              "name": "hull",
-              "displayName": "Hull Properties",
-              "properties": [
-                {
-                  "name": "hull_segments",
-                  "label": "Hull Segments",
-                  "groupName": "hull",
-                  "type": "enumeration",
-                  "fieldType": "checkbox",
-                  "hidden": false,
-                  "options": [
-                    {
-                      "readOnly": false,
-                      "label": "HubspotUsers",
-                      "hidden": false,
-                      "value": "HubspotUsers",
-                    }
-                  ],
-                  "formField": false,
                   "readOnlyValue": false
                 }
               ]
@@ -508,10 +410,7 @@ it("Should Fetch Contact With Missing Optional Claims", () => {
           mark_deleted_contacts: false,
           mark_deleted_companies: false,
           incoming_user_claims:
-            [ { hull: 'email',
-              service: '$[\'identity-profiles\'][*].identities[?(@.type === \'EMAIL\')].value',
-              required: false },
-              { hull: 'email',
+            [{ hull: 'email',
                 service: 'properties.email.value',
                 required: false } ],
           incoming_user_attributes:
@@ -593,60 +492,9 @@ it("Should Fetch Contact With Missing Optional Claims", () => {
         ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
         ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}],
         ["GET", "/api/v1/app", {}, {}],
-        [
-          "PUT",
-          "/api/v1/9993743b22d60dd829001999",
-          {},
-          {
-            "private_settings": {
-              "token": "hubToken",
-              "last_fetch_at": expect.whatever(),
-              "mark_deleted_contacts": false,
-              "mark_deleted_companies": false,
-              "incoming_user_claims":
-                [ { "hull": 'email',
-                  "service": '$[\'identity-profiles\'][*].identities[?(@.type === \'EMAIL\')].value',
-                  "required": false },
-                  { "hull": 'email',
-                    "service": 'properties.email.value',
-                    "required": false } ],
-              "incoming_user_attributes": [
-                {
-                  "service": "job_function",
-                  "hull": "traits_hubspot/job_function",
-                  "overwrite": false
-                }
-              ],
-              "last_fetch_timestamp": expect.whatever()
-            },
-            "refresh_status": false
-          }
-        ],
+        ["PUT", "/api/v1/9993743b22d60dd829001999", {}, expect.objectContaining({"private_settings": expect.whatever()})],
         ["GET", "/api/v1/app", {}, {}],
-        ["PUT", "/api/v1/9993743b22d60dd829001999", {},
-          {
-            "private_settings": {
-              "token": "hubToken",
-              "last_fetch_at": null,
-              "mark_deleted_contacts": false,
-              "mark_deleted_companies": false,
-              "incoming_user_claims":
-                [ { "hull": 'email',
-                  "service": '$[\'identity-profiles\'][*].identities[?(@.type === \'EMAIL\')].value',
-                  "required": false },
-                  { "hull": 'email',
-                    "service": 'properties.email.value',
-                    "required": false } ],
-              "incoming_user_attributes": [
-                {
-                  "service": "job_function",
-                  "hull": "traits_hubspot/job_function",
-                  "overwrite": false
-                }
-              ]
-            },
-            "refresh_status": false
-          }]
+        ["PUT", "/api/v1/9993743b22d60dd829001999", {}, expect.objectContaining({"private_settings": expect.whatever()})]
       ]
     };
   });
