@@ -138,6 +138,10 @@ module.exports = {
           "anonymous_ids": []
         },
         "attributes": {
+          "name": {
+            "operation": "setIfNull",
+            "value": "Jon Lee (Sample - Try me!)"
+          },
           "coppercrm_person/name": {
             "operation": "set",
             "value": "Jon Lee (Sample - Try me!)"
@@ -195,6 +199,10 @@ module.exports = {
           "anonymous_ids": []
         },
         "attributes": {
+          "name": {
+            "operation": "setIfNull",
+            "value": "Liz García (Sample - Try me!)"
+          },
           "coppercrm_person/name": {
             "operation": "set",
             "value": "Liz García (Sample - Try me!)"
@@ -252,6 +260,10 @@ module.exports = {
           "anonymous_ids": []
         },
         "attributes": {
+          "name": {
+            "operation": "setIfNull",
+            "value": "Siena West (Sample - Try me!)"
+          },
           "coppercrm_person/name": {
             "operation": "set",
             "value": "Siena West (Sample - Try me!)"
@@ -309,6 +321,10 @@ module.exports = {
           "anonymous_ids": []
         },
         "attributes": {
+          "name": {
+            "operation": "setIfNull",
+            "value": "Brittany Hughes (Sample - Try me!)"
+          },
           "coppercrm_person/name": {
             "operation": "set",
             "value": "Brittany Hughes (Sample - Try me!)"
@@ -366,6 +382,10 @@ module.exports = {
           "anonymous_ids": []
         },
         "attributes": {
+          "name": {
+            "operation": "setIfNull",
+            "value": "Jason Hoyt (Sample - Try me!)"
+          },
           "coppercrm_person/name": {
             "operation": "set",
             "value": "Jason Hoyt (Sample - Try me!)"

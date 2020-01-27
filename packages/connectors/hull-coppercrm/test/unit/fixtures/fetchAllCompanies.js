@@ -528,6 +528,10 @@ module.exports = {
       "op": "asAccount",
       "input": {
         "attributes": {
+          "name": {
+            "operation": "setIfNull",
+            "value": "Copper"
+          },
           "coppercrm/name": {
             "operation": "setIfNull",
             "value": "Copper"
@@ -664,6 +668,10 @@ module.exports = {
       "op": "asAccount",
       "input": {
         "attributes": {
+          "name": {
+            "operation": "setIfNull",
+            "value": "Dunder Mifflin (Sample - Try me!)"
+          },
           "coppercrm/name": {
             "operation": "setIfNull",
             "value": "Dunder Mifflin (Sample - Try me!)"
@@ -813,6 +821,10 @@ module.exports = {
       "op": "asAccount",
       "input": {
         "attributes": {
+          "name": {
+            "operation": "setIfNull",
+            "value": "Sabre Inc (Sample - Try me!)"
+          },
           "coppercrm/name": {
             "operation": "setIfNull",
             "value": "Sabre Inc (Sample - Try me!)"

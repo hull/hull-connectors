@@ -207,6 +207,11 @@ const transformsShared: ServiceTransforms = [
           { writeTo: { path: "ident.anonymous_id", format: "${service_name}:${operateOn}" } },
           { writeTo: { path: "attributes.${service_name}/id", format: { operation: "set", value: "${operateOn}" } } }
         ]
+      },
+      {
+        operateOn: { component: "input", select: "name" },
+        condition: not(varUndefinedOrNull("operateOn")),
+        writeTo: { path: "attributes.name", format: { operation: "setIfNull", value: "${operateOn}" } }
       }
     ]
   },

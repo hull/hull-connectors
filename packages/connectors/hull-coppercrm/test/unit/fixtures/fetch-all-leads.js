@@ -52,14 +52,14 @@ module.exports = {
       "localContext": expect.anything(),
       "name": "hull",
       "op": "asUser",
-      "input": {"ident":{"email":"samanthas@copper.com","anonymous_id":"coppercrm-lead:lead-50307894"},"attributes":{"coppercrm_lead/addressstreet":{"operation":"set","value":"1234 Happy Ln"},"coppercrm_lead/first_name":{"operation":"set","value":"Samantha Summers (Sample - Try me!)"},"coppercrm_lead/assigneeEmail":{"operation":"set","value":null}, "coppercrm_lead/id":{"value":50307894,"operation":"set"}}},
+      "input": {"ident":{"email":"samanthas@copper.com","anonymous_id":"coppercrm-lead:lead-50307894"},"attributes":{"name": { "operation": "setIfNull", "value": "Samantha Summers (Sample - Try me!)" }, "coppercrm_lead/addressstreet":{"operation":"set","value":"1234 Happy Ln"},"coppercrm_lead/first_name":{"operation":"set","value":"Samantha Summers (Sample - Try me!)"},"coppercrm_lead/assigneeEmail":{"operation":"set","value":null}, "coppercrm_lead/id":{"value":50307894,"operation":"set"}}},
       "result": {}
     },
     {
       "localContext": expect.anything(),
       "name": "hull",
       "op": "asUser",
-      "input": {"ident":{"email":"andrews@copper.com","anonymous_id":"coppercrm-lead:lead-50307895"},"attributes":{"coppercrm_lead/addressstreet":{"operation":"set","value":"301 Howard Street"},"coppercrm_lead/first_name":{"operation":"set","value":"Andrew Sung (Sample - Try me!)"},"coppercrm_lead/assigneeEmail":{"operation":"set","value":"timliuhull2@gmail.com"},"coppercrm_lead/id":{"value":50307895,"operation":"set"}}},
+      "input": {"ident":{"email":"andrews@copper.com","anonymous_id":"coppercrm-lead:lead-50307895"},"attributes":{"name": { "operation": "setIfNull", "value": "Andrew Sung (Sample - Try me!)" }, "coppercrm_lead/addressstreet":{"operation":"set","value":"301 Howard Street"},"coppercrm_lead/first_name":{"operation":"set","value":"Andrew Sung (Sample - Try me!)"},"coppercrm_lead/assigneeEmail":{"operation":"set","value":"timliuhull2@gmail.com"},"coppercrm_lead/id":{"value":50307895,"operation":"set"}}},
       "result": {}
     },
     {

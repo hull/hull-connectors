@@ -1,5 +1,5 @@
 const { isUndefinedOrNull } = require("./utils");
-const { varEqual, not, isServiceAttributeInVarList, varNull } = require("./conditionals");
+const { varEqual, not, isServiceAttributeInVarList, varNull, varUndefinedOrNull } = require("./conditionals");
 
 function createIncomingServiceUserTransform(entityType) {
   return {
@@ -69,6 +69,11 @@ function serviceUserTransforms(entityType) {
     {
       operateOn: { component: "input", select: "hull_multiple_anonymous_ids" },
       writeTo: { path: "ident.anonymous_ids" }
+    },
+    {
+      operateOn: { component: "input", select: "name" },
+      condition: not(varUndefinedOrNull("operateOn")),
+      writeTo: { path: "attributes.name", format: { operation: "setIfNull", value: "${operateOn}" } }
     },
     {
       condition: varEqual(`connector.private_settings.link_${attributeName}_in_hull`, true),
