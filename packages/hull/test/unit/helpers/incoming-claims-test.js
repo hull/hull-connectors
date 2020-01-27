@@ -77,17 +77,20 @@ describe("incoming claims builder", () => {
       incoming_account_claims: [{
         hull: "external_id",
         service: "custom_id",
+        required: false
       }, {
         hull: "domain",
-        service: "some_domain"
+        service: "some_domain",
+        required: false
       }, {
         hull: "anonymous_id",
-        service: "some_anonymous_id"
+        service: "some_anonymous_id",
+        required: false
       }]
     });
     const accountClaims = incomingClaims(ctx)("account", { custom_id: null, some_domain: "   " });
     expect(accountClaims).to.eql({
-      error: "All configured fields for claims are empty: custom_id, some_domain, some_anonymous_id"
+      error: "All configured fields for claims are empty: anonymous_id, custom_id, some_domain, some_anonymous_id"
     });
   });
 
@@ -96,17 +99,20 @@ describe("incoming claims builder", () => {
       incoming_account_claims: [{
         hull: "external_id",
         service: "custom_id",
+        required: false
       }, {
         hull: "domain",
-        service: "some_domain"
+        service: "some_domain",
+        required: false
       }, {
         hull: "anonymous_id",
-        service: "some_anonymous_id"
+        service: "some_anonymous_id",
+        required: false
       }]
     });
     const accountClaims = incomingClaims(ctx)("account", { custom_id: true, domain: new Date(), some_anonymous_id: [{ key: "value" }] });
     expect(accountClaims).to.eql({
-      error: "All configured fields for claims are empty: custom_id, some_domain, some_anonymous_id"
+      error: "All configured fields for claims are empty: anonymous_id, custom_id, some_domain, some_anonymous_id"
     });
   })
 
@@ -115,14 +121,16 @@ describe("incoming claims builder", () => {
       incoming_account_claims: [{
         hull: "external_id",
         service: "custom_id",
+        required: false
       }, {
         hull: "domain",
-        service: "some_domain"
+        service: "some_domain",
+        required: false
       }]
     });
     const accountClaims = incomingClaims(ctx)("account", {});
     expect(accountClaims).to.eql({
-      error: "All configured fields for claims are empty: custom_id, some_domain"
+      error: "All configured fields for claims are empty: anonymous_id, custom_id, some_domain"
     });
   });
 
@@ -223,7 +231,7 @@ describe("incoming claims builder", () => {
       third_place_to_look: undefined
     });
     expect(userClaims3).to.eql({
-      error: "All configured fields for claims are empty: first_place_to_look, second_place_to_look, third_place_to_look"
+      error: "All configured fields for claims are empty: anonymous_id, first_place_to_look, second_place_to_look, third_place_to_look"
     });
   });
 
@@ -232,7 +240,8 @@ describe("incoming claims builder", () => {
       incoming_user_claims: [
         {
           "hull": "email",
-          "service": "custom_email"
+          "service": "custom_email",
+          required: false
         }
       ]
     });
@@ -264,7 +273,47 @@ describe("incoming claims builder", () => {
       custom_anonymous_id: "anonymousIdValue"
     }, { anonymous_id_service: "custom_anonymous_id" });
     expect(userClaims2).to.eql({
-      error: "All configured fields for claims are empty: custom_email"
+      "claims": {
+        "anonymous_id": "anonymousIdValue"
+     }
+    });
+  });
+
+  it("Optional claims not found on incoming user. Should create user", () => {
+    const ctx = buildCtx({
+      incoming_user_claims: [
+        {
+          "hull": "email",
+          "service": "custom_email",
+          "required": false
+        }
+      ]
+    });
+    const userClaims = incomingClaims(ctx)("user", {
+      custom_anonymous_id: "anonymousIdValue"
+    }, { anonymous_id_service: "custom_anonymous_id", anonymous_id_prefix: "customPrefix" });
+    expect(userClaims).to.eql({
+      claims: {
+        anonymous_id: "customPrefix:anonymousIdValue",
+      }
+    });
+    const userClaims1 = incomingClaims(ctx)("user", {
+      custom_email: "foo@bar.com",
+      custom_anonymous_id: "anonymousIdValue"
+    }, { anonymous_id_service: "custom_anonymous_id" });
+    expect(userClaims1).to.eql({
+      claims: {
+        anonymous_id: "anonymousIdValue",
+        email: "foo@bar.com"
+      }
+    });
+    const userClaims2 = incomingClaims(ctx)("user", {
+      custom_anonymous_id: "anonymousIdValue"
+    }, { anonymous_id_service: "custom_anonymous_id" });
+    expect(userClaims2).to.eql({
+      "claims": {
+        "anonymous_id": "anonymousIdValue"
+      }
     });
   });
 });
