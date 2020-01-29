@@ -8,7 +8,8 @@ import type {
 import {
   TransientError,
   ConnectorNotFoundError,
-  PaymentRequiredError
+  PaymentRequiredError,
+  ConfigurationError
 } from "../errors";
 
 const debug = require("debug")("hull-connector:error-handler");
@@ -30,6 +31,10 @@ function errorHandlerMiddlewareFactory({
     res.json({ error: respondWithError ? errorString : true });
 
     // if we have a transient error
+    if (err instanceof ConfigurationError) {
+      res.status(503);
+      return res.end("configuration-error");
+    }
     if (err instanceof TransientError) {
       res.status(503);
       return res.end("transient-error");
