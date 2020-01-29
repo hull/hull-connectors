@@ -116,7 +116,8 @@ export type HullContext = {|
     mapAttributes: $Call<typeof mapAttributes, HullContext>,
     getStandardMapping: $Call<typeof getStandardMapping, HullContext>,
     segmentChangesToEvents: (
-      HullAccountUpdateMessage | HullUserUpdateMessage
+      HullAccountUpdateMessage | HullUserUpdateMessage,
+      Array<HullSegment>
     ) => Array<HullEvent>,
     operations: $Call<typeof operations, HullContext>
   }

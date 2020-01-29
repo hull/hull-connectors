@@ -21,7 +21,11 @@ const userUpdate = (ctx: HullContext, analytics: any) => async (
 ): any => {
   const { client, connector, metric, helpers } = ctx;
   const { segmentChangesToEvents, mapAttributes } = helpers;
-  const { settings = {} } = connector;
+  const { settings = {}, private_settings = {} } = connector;
+  const {
+    synchronized_segments,
+    synchronized_account_segments
+  } = private_settings;
   const { public_id_field, public_account_id_field } = settings;
   const { user, account, events = [] } = message;
 
@@ -105,7 +109,10 @@ const userUpdate = (ctx: HullContext, analytics: any) => async (
 
   try {
     promises.push(
-      ...segmentChangesToEvents(message).map(
+      ...segmentChangesToEvents(
+        message,
+        _.concat(synchronized_segments, synchronized_account_segments)
+      ).map(
         handleEvent({
           ctx,
           asUser,
