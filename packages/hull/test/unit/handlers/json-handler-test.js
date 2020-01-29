@@ -71,4 +71,28 @@ describe("jsonHandler", () => {
       done();
     });
   });
+
+  it("should support status codes in thrown errors", done => {
+    const request = httpMocks.createRequest({
+      method: "POST",
+      url: "/"
+    });
+    request.hull = buildContextBaseStub();
+    const response = httpMocks.createResponse({ eventEmitter: EventEmitter });
+    actionHandler({
+      method: "POST",
+      callback: () => {
+        const err = new Error("thrown error")
+        err.status = 402
+        throw err;
+      },
+      options: { respondWithError: true }
+    }).router.handle(request, response, () => {});
+    response.on("end", () => {
+      expect(response._isEndCalled()).to.be.ok;
+      expect(response.statusCode).to.equal(402);
+      expect(response._getData()).to.equal('{"message":"thrown error","error":"thrown error"}');
+      done();
+    });
+  });
 });
