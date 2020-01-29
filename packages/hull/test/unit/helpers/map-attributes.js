@@ -10,19 +10,6 @@ function buildCtx(settings) {
     },
     connectorConfig: {
       manifest: {
-        mappings: {
-          person: {
-            incoming: {
-              mapping: [
-                {
-                  service: "gravatar.avatars.url",
-                  hull: "gravatars",
-                  overwrite: true
-                }
-              ]
-            }
-          }
-        },
         private_settings: {
           name: "incoming_prospect_mapping",
           title: "Clearbit Prospect Mapping",
@@ -37,7 +24,13 @@ function buildCtx(settings) {
             loadOptions: "/schema/prospect_properties",
             source: "clearbit"
           },
-          default: "#/mappings/prospect/incoming/mapping"
+          default: [
+            {
+              service: "gravatar.avatars.url",
+              hull: "gravatars",
+              overwrite: true
+            }
+          ]
         }
       }
     },
