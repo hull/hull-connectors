@@ -50,7 +50,6 @@ const userUpdate = ({
       reason: err.reason,
       data: err.data
     });
-    console.log(err)
     return {
       flow_control: {
         type: "retry",
