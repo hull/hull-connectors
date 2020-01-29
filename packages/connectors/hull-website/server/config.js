@@ -42,7 +42,7 @@ export default function connectorConfig(): HullConnectorConfig {
   return {
     manifest,
     hostSecret,
-    devMode: DISABLE_DEV_MODE ? false : (NODE_ENV === "development"),
+    devMode: DISABLE_DEV_MODE ? false : NODE_ENV === "development",
     port: PORT || 8082,
     handlers: handlers({
       redisUri: REDIS_URL,

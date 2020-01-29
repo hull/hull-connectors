@@ -43,7 +43,7 @@ function renderRemote(res, { allowed_domains = [], app }) {
   <meta charset="utf-8">
   <title>Hull Remote</title>
   <script src="${HULL_JS_URL}"></script>
-  <script>  
+  <script>
     var searchParams = new URLSearchParams(document.location.search);
     var _bid = searchParams.get('_bid');
     var _sid = searchParams.get('_sid');

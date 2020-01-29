@@ -30,7 +30,7 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
     if (remoteDomain.join(".") !== REMOTE_DOMAIN) {
       return next(new RemoteDomainMismatchError(req.hostname));
     }
-    next();
+    return next();
   });
 
   app.get("/:id/remote.html", remoteHandler());

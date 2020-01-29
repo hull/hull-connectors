@@ -22,11 +22,11 @@ bluebird.promisifyAll(Redis.RedisClient.prototype);
 bluebird.promisifyAll(Redis.Multi.prototype);
 
 const handlers = ({
-  redisUri,
-  firehoseTransport,
-  HULL_DOMAIN,
-  REMOTE_DOMAIN
-}: {
+                    redisUri,
+                    firehoseTransport,
+                    HULL_DOMAIN,
+                    REMOTE_DOMAIN
+                  }: {
   redisUri: string,
   firehoseTransport: HullFirehoseKafkaTransport
 }) => async (connector: Connector): HullHandlersConfiguration => {
