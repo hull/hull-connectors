@@ -2,7 +2,7 @@
 
 export default (req, res) => {
   const { url, referer, event, properties } = req.body;
-  
+
   const context = {
     _bid: req.cookies._bid,
     _sid: req.cookies._sid,
