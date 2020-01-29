@@ -31,7 +31,6 @@ import {
   mappingToOptions,
   mapAttributes,
   getStandardMapping,
-  segmentChangesToEvents,
   operations
 } from "../helpers";
 
