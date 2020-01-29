@@ -93,7 +93,7 @@ function getInstance(firehoseTransport: HullFirehoseKafkaTransport, config: Hull
     throw new Error("Invalid kafka configuration: missinsg topic");
   }
 
-  const organization = new URL(config.organization).hostname;
+  const { organization } = config;
   return ({ type, requestId, body }: FirehoseCallArguments) => {
     if (IS_EXITING) throw new Error("Process is shutting down. Not accepting connections anymore");
 

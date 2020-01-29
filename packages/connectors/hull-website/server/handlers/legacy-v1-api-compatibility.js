@@ -15,7 +15,7 @@ export default (firehoseTransport) => {
   app.use((req, res, next) => {
     const appId = req.get("hull-app-id");
     const anonymous_id = req.cookies._bid;
-    const organization = req.get("origin");
+    const organization = new URL(req.get("origin")).hostname;
     const remoteUrl = req.get("referer");
 
     const clientParams = {
@@ -42,6 +42,3 @@ export default (firehoseTransport) => {
   app.post("/me/alias", aliasHandler);
   return app;
 }
-
-
-
