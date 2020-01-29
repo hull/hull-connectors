@@ -4,12 +4,8 @@ import type { HullConnector } from "../types";
 const debug = require("debug")("hull:trim-traits-prefix");
 const _ = require("lodash");
 
-// function prefix(key: string = ""): string {
-//   return key.indexOf(".") !== -1 ? key : `user.${key}`;
-// }
 function replace(key: string): string {
   return (key || "").replace(/^traits_/, "");
-  // return prefix((key || "").replace(/^traits_/, ""));
 }
 
 function performTrim(manifest = {}, connector = {}) {
