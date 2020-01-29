@@ -60,6 +60,7 @@ export const METRIC_SERVICE_REQUEST = [
 ];
 
 export const messageWithUser = ({
+  message_id = "messageID_0000",
   user = USER,
   changes = CHANGES,
   segments = STANDARD_USER_SEGMENTS,
@@ -76,6 +77,7 @@ export const messageWithUser = ({
   accountsSegments: [],
   messages: [
     {
+      message_id,
       user,
       changes,
       account,

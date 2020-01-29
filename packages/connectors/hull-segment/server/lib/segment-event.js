@@ -12,6 +12,7 @@ import type {
 const integrations = { Hull: false };
 
 type Payload = {
+  active?: boolean,
   analytics: SegmentClient,
   anonymousId?: ?string,
   event: HullEvent,
@@ -26,6 +27,7 @@ module.exports = async function segmentEvent({
   event,
   userId,
   groupId,
+  active = true,
   traits
 }: Payload): Promise<SegmentOutgoingPayload> {
   const {
@@ -44,13 +46,13 @@ module.exports = async function segmentEvent({
 
   const segmentContext = {
     ip,
+    active,
     groupId,
     os: { ...os },
     page: { ...page, referrer: referrer_url },
     traits,
     location: { ...location },
-    userAgent: useragent,
-    active: true
+    userAgent: useragent
   };
   const payload = {
     anonymousId: anonymous_id || anonymousId,

@@ -44,11 +44,10 @@ const accountUpdate = (ctx: HullContext, analytics: any) => async (
   // Otherwise, we look for known anonymousIds attached to the user and we take the first one
   // const anonymousId = getfirstNonNull(account.anonymous_ids);
   // const groupId: ?string = _.get(account, public_account_id_field);
-  const asAccount = client.asAccount(account);
 
   // We have no identifier for the user, we have to skip
   if (!groupId || (!anonymousId && !userId)) {
-    return asAccount.logger.info("outgoing.account.skip", {
+    return client.asAccount(account).logger.debug("outgoing.account.skip", {
       message: "No Identifier available",
       anonymousId,
       groupId,

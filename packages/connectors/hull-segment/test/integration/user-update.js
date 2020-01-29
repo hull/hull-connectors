@@ -27,7 +27,7 @@ TESTS.map(function performTest({
       handlerType: handlers.notificationHandler,
       externalApiMock: () => {
         let scope = nock("https://api.segment.io")
-          .log(console.log)
+          // .log(console.log)
         body.map(b => {
           scope = scope.post("/v1/batch", b)
           .reply(200, "OK")

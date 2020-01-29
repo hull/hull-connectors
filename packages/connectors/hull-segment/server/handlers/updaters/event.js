@@ -1,19 +1,23 @@
 // @flow
 
-import type { HullContext, HullEvent } from "hull";
+import type { HullClient, HullContext, HullEvent } from "hull";
 import _ from "lodash";
 import segmentEvent from "../../lib/segment-event";
 
 const eventUpdate = ({
   ctx,
+  asUser,
   traits = {},
   analytics,
+  active,
   anonymousId,
   userId,
   groupId
 }: {
   ctx: HullContext,
   traits: {},
+  active?: boolean,
+  asUser: HullClient,
   analytics: any,
   anonymousId?: null | string,
   userId?: null | string,
@@ -26,35 +30,37 @@ const eventUpdate = ({
 
   if (event_source === "segment" && !forward_events) {
     // Skip event if it comes from Segment and we're not forwarding events
-    return undefined;
-    // return {
-    //   message_id,
-    //   action: "skip",
-    //   message: "Event comes from segment and forward_events is disabled",
-    //   id: user.id,
-    //   type: "user",
-    //   data: { anonymousId, userId, event_id }
-    // };
+    return asUser.logger.debug("outgoing.event.skip", {
+      message: "Not forwarding Events from Segment",
+      forward_events,
+      event_source,
+      eventName
+    });
   }
 
   if (
     !_.includes(synchronized_events, eventName) &&
-    !_.includes(synchronized_events, "ALL")
+    !_.includes(synchronized_events, "ALL") &&
+    !(
+      eventName === "Entered Segment" &&
+      _.includes(synchronized_events, "ENTERED_SEGMENT")
+    ) &&
+    !(
+      eventName === "Left Segment" &&
+      _.includes(synchronized_events, "LEFT_SEGMENT")
+    )
   ) {
-    return undefined;
-    // return {
-    //   message_id,
-    //   action: "skip",
-    //   message: "Event not in whitelisted list",
-    //   id: user.id,
-    //   type: "user",
-    //   data: { anonymousId, userId, event_id }
-    // };
+    return asUser.logger.debug("outgoing.event.skip", {
+      message: "Event isn't in whitelist",
+      synchronized_events,
+      eventName
+    });
   }
 
   const track = await segmentEvent({
     analytics,
     event,
+    active,
     anonymousId,
     userId,
     groupId,

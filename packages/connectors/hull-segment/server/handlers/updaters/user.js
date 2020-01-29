@@ -1,8 +1,8 @@
 // @flow
 
 import type { HullContext, HullUserUpdateMessage } from "hull";
-import type { SegmentContext } from "../../types";
 import _ from "lodash";
+import type { SegmentContext } from "../../types";
 
 import {
   getfirstNonNull,
@@ -20,7 +20,7 @@ const userUpdate = (ctx: HullContext, analytics: any) => async (
   message: HullUserUpdateMessage
 ): any => {
   const { client, connector, metric, helpers } = ctx;
-  const { mapAttributes } = helpers;
+  const { segmentChangesToEvents, mapAttributes } = helpers;
   const { settings = {} } = connector;
   const { public_id_field, public_account_id_field } = settings;
   const { user, account, events = [] } = message;
@@ -87,6 +87,8 @@ const userUpdate = (ctx: HullContext, analytics: any) => async (
       ...events.map(
         handleEvent({
           ctx,
+          asUser,
+          active: true,
           traits,
           analytics,
           anonymousId,
@@ -97,6 +99,27 @@ const userUpdate = (ctx: HullContext, analytics: any) => async (
     );
   } catch (err) {
     debug("Error in Event handler", { message, err });
+    err.reason = "Error sending Tracks to Segment.com";
+    throw err;
+  }
+
+  try {
+    promises.push(
+      ...segmentChangesToEvents(message).map(
+        handleEvent({
+          ctx,
+          asUser,
+          active: false,
+          traits,
+          analytics,
+          anonymousId,
+          userId,
+          groupId
+        })
+      )
+    );
+  } catch (err) {
+    debug("Error in Segment Change handler", { message, err });
     err.reason = "Error sending Tracks to Segment.com";
     throw err;
   }

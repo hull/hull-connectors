@@ -118,6 +118,17 @@ const RETRY_FLOW_CONTROL = {
   }
 };
 
+const SEGMENT_USER_PAYLOAD = {
+  anonymousId: "1234",
+  traits: {
+    hull_segments: "standard_segment",
+    hull_account_segments: "standard_segment"
+  },
+  context: {},
+  integrations: { Hull: false },
+  type: "identify"
+};
+
 const encryptedToken = ({ config, plainCredentials }) =>
   Buffer.from(encrypt(plainCredentials, config.hostSecret)).toString("base64");
 const headers = ({ config, plainCredentials }) => ({
@@ -248,7 +259,7 @@ const TESTS = [
     accountsSegments: STANDARD_ACCOUNT_SEGMENTS,
     logs: [
       [
-        "info",
+        "debug",
         "outgoing.account.skip",
         expect.whatever(),
         {
@@ -355,24 +366,215 @@ const TESTS = [
       ]
     }),
     body: segment_payload([
+      [SEGMENT_USER_PAYLOAD],
       [
         {
           anonymousId: "1234",
-          traits: {
-            hull_segments: "standard_segment",
-            hull_account_segments: "standard_segment"
-          },
-          context: {},
+          timestamp: null,
+          event: "Foo",
+          properties: {},
           integrations: { Hull: false },
-          type: "identify"
+          context: {
+            active: true,
+            traits: {
+              hull_segments: "standard_segment",
+              hull_account_segments: "standard_segment"
+            },
+            os: {},
+            page: {},
+            location: {}
+          },
+          type: "track"
+        }
+      ]
+    ]),
+    platformApiCalls: [],
+    usersSegments: STANDARD_USER_SEGMENTS,
+    accountsSegments: STANDARD_ACCOUNT_SEGMENTS,
+    logs: [
+      [
+        "debug",
+        "outgoing.account.skip",
+        expect.whatever(),
+        {
+          anonymousId: "1234",
+          groupId: undefined,
+          anonymousIds: undefined,
+          public_account_id_field: "external_id",
+          message: "No Identifier available"
+        }
+      ],
+      [
+        "debug",
+        "outgoing.event.skip",
+        expect.whatever(),
+        {
+          eventName: "Bar",
+          message: "Event isn't in whitelist",
+          synchronized_events: ["Foo"]
+        }
+      ]
+    ],
+    metrics: [
+      METRIC_INCREMENT_REQUEST,
+      METRIC_INCREMENT_SERVICE,
+      METRIC_INCREMENT_SERVICE
+    ],
+    response: {
+      ...NEXT_FLOW_CONTROL
+    },
+    responseStatusCode: 200,
+    firehoseEvents: []
+  },
+  // "Send Entered Segment events",
+  {
+    title: "Send Entered Segment events",
+    connector: {
+      private_settings: {
+        ...private_settings,
+        synchronized_segments: ["hullSegmentId"],
+        synchronized_events: ["ENTERED_SEGMENT"]
+      },
+      settings
+    },
+    message: messageWithUser({
+      message_id: "messageIdABCD",
+      changes: {
+        segments: {
+          entered: [
+            {
+              id: "hullSegmentId",
+              name: "standard_segment",
+              created_at: "2019-01-01",
+              updated_at: "2019-01-07",
+              type: "users_segment"
+            }
+          ]
+        }
+      }
+    }),
+    body: segment_payload([
+      [SEGMENT_USER_PAYLOAD],
+      [
+        {
+          anonymousId: "1234",
+          messageId: "messageIdABCD-hullSegmentId",
+          timestamp: "2019-01-01T00:00:00.000Z",
+          properties: {
+            direction: "entered",
+            type: "users_segment",
+            id: "hullSegmentId",
+            name: "standard_segment",
+            created_at: "2019-01-01",
+            updated_at: "2019-01-07"
+          },
+          integrations: {
+            Hull: false
+          },
+          context: {
+            active: false,
+            os: {},
+            page: {},
+            traits: {
+              hull_segments: "standard_segment",
+              hull_account_segments: "standard_segment"
+            },
+            location: {}
+          },
+          event: "Entered Segment",
+          type: "track"
+        }
+      ]
+    ]),
+    platformApiCalls: [],
+    usersSegments: STANDARD_USER_SEGMENTS,
+    accountsSegments: STANDARD_ACCOUNT_SEGMENTS,
+    logs: [
+      [
+        "debug",
+        "outgoing.account.skip",
+        expect.whatever(),
+        {
+          anonymousId: "1234",
+          groupId: undefined,
+          anonymousIds: undefined,
+          public_account_id_field: "external_id",
+          message: "No Identifier available"
+        }
+      ]
+    ],
+    metrics: [
+      METRIC_INCREMENT_REQUEST,
+      METRIC_INCREMENT_SERVICE,
+      METRIC_INCREMENT_SERVICE
+    ],
+    response: {
+      ...NEXT_FLOW_CONTROL
+    },
+    responseStatusCode: 200,
+    firehoseEvents: []
+  },
+  // "Send all events (except segment ones), if 'ALL' selected",
+  {
+    title: "Send all events (except segment ones), if 'ALL' selected",
+    connector: {
+      private_settings: {
+        ...private_settings,
+        synchronized_events: ["ALL", "Foo"]
+      },
+      settings
+    },
+    message: messageWithUser({
+      events: [
+        {
+          ...STANDARD_EVENT_PROPS,
+          event: "Foobar",
+          properties: {},
+          context: {}
+        },
+        {
+          ...STANDARD_EVENT_PROPS,
+          event: "Bar",
+          event_source: "segment",
+          properties: {},
+          context: {}
+        },
+        {
+          ...STANDARD_EVENT_PROPS,
+          event: "Baz",
+          properties: {},
+          context: {}
+        }
+      ]
+    }),
+    body: segment_payload([
+      [SEGMENT_USER_PAYLOAD],
+      [
+        {
+          anonymousId: "1234",
+          timestamp: null,
+          event: "Foobar",
+          properties: {},
+          context: {
+            active: true,
+            traits: {
+              hull_segments: "standard_segment",
+              hull_account_segments: "standard_segment"
+            },
+            os: {},
+            page: {},
+            location: {}
+          },
+          integrations: { Hull: false },
+          type: "track"
         }
       ],
       [
         {
           anonymousId: "1234",
           timestamp: null,
-          event: "Foo",
-          properties:{},
+          event: "Baz",
+          properties: {},
           context: {
             active: true,
             traits: {
@@ -393,7 +595,7 @@ const TESTS = [
     accountsSegments: STANDARD_ACCOUNT_SEGMENTS,
     logs: [
       [
-        "info",
+        "debug",
         "outgoing.account.skip",
         expect.whatever(),
         {
@@ -403,10 +605,22 @@ const TESTS = [
           public_account_id_field: "external_id",
           message: "No Identifier available"
         }
+      ],
+      [
+        "debug",
+        "outgoing.event.skip",
+        expect.whatever(),
+        {
+          eventName: "Bar",
+          event_source: "segment",
+          message: "Not forwarding Events from Segment",
+          forward_events: false
+        }
       ]
     ],
     metrics: [
       METRIC_INCREMENT_REQUEST,
+      METRIC_INCREMENT_SERVICE,
       METRIC_INCREMENT_SERVICE,
       METRIC_INCREMENT_SERVICE
     ],
@@ -435,26 +649,13 @@ const TESTS = [
         }
       ]
     }),
-    body: segment_payload([
-      [
-        {
-          anonymousId: "1234",
-          traits: {
-            hull_segments: "standard_segment",
-            hull_account_segments: "standard_segment"
-          },
-          context: {},
-          integrations: { Hull: false },
-          type: "identify"
-        }
-      ]
-    ]),
+    body: segment_payload([[SEGMENT_USER_PAYLOAD]]),
     platformApiCalls: [],
     usersSegments: STANDARD_USER_SEGMENTS,
     accountsSegments: STANDARD_ACCOUNT_SEGMENTS,
     logs: [
       [
-        "info",
+        "debug",
         "outgoing.account.skip",
         expect.whatever(),
         {
@@ -463,6 +664,16 @@ const TESTS = [
           anonymousIds: undefined,
           public_account_id_field: "external_id",
           message: "No Identifier available"
+        }
+      ],
+      [
+        "debug",
+        "outgoing.event.skip",
+        expect.whatever(),
+        {
+          eventName: "Foo",
+          message: "Event isn't in whitelist",
+          synchronized_events: []
         }
       ]
     ],
@@ -493,18 +704,7 @@ const TESTS = [
       ]
     }),
     body: segment_payload([
-      [
-        {
-          anonymousId: "1234",
-          traits: {
-            hull_segments: "standard_segment",
-            hull_account_segments: "standard_segment"
-          },
-          context: {},
-          integrations: { Hull: false },
-          type: "identify"
-        }
-      ],
+      [SEGMENT_USER_PAYLOAD],
       [
         {
           anonymousId: "1234",
@@ -530,7 +730,7 @@ const TESTS = [
     accountsSegments: STANDARD_ACCOUNT_SEGMENTS,
     logs: [
       [
-        "info",
+        "debug",
         "outgoing.account.skip",
         expect.whatever(),
         {
@@ -550,6 +750,130 @@ const TESTS = [
     response: {
       ...NEXT_FLOW_CONTROL
     },
+    responseStatusCode: 200,
+    firehoseEvents: []
+  },
+  // "Skip segments coming from Segment by default",
+  {
+    title: "Skip segments coming from Segment by default",
+    connector: {
+      private_settings: {
+        ...private_settings,
+        synchronized_events: ["Foo"]
+      },
+      settings
+    },
+    message: messageWithUser({
+      user: USER,
+      events: [
+        {
+          event: "Foo",
+          event_source: "segment",
+          properties: {}
+        }
+      ]
+    }),
+    body: segment_payload([[SEGMENT_USER_PAYLOAD]]),
+    platformApiCalls: [],
+    usersSegments: STANDARD_USER_SEGMENTS,
+    accountsSegments: STANDARD_ACCOUNT_SEGMENTS,
+    logs: [
+      [
+        "debug",
+        "outgoing.event.skip",
+        expect.whatever(),
+        {
+          eventName: "Foo",
+          event_source: "segment",
+          message: "Not forwarding Events from Segment",
+          forward_events: false
+        }
+      ],
+      [
+        "debug",
+        "outgoing.account.skip",
+        expect.whatever(),
+        {
+          anonymousId: "1234",
+          groupId: undefined,
+          anonymousIds: undefined,
+          public_account_id_field: "external_id",
+          message: "No Identifier available"
+        }
+      ]
+    ],
+    metrics: [METRIC_INCREMENT_REQUEST, METRIC_INCREMENT_SERVICE],
+    response: NEXT_FLOW_CONTROL,
+    responseStatusCode: 200,
+    firehoseEvents: []
+  },
+  // "Skip segments coming from Segment by default",
+  {
+    title: "Send segments coming from Segment if forward_events=true",
+    connector: {
+      private_settings: {
+        ...private_settings,
+        forward_events: true,
+        synchronized_events: ["Foo"]
+      },
+      settings
+    },
+    message: messageWithUser({
+      user: USER,
+      events: [
+        {
+          event: "Foo",
+          event_source: "segment",
+          properties: {}
+        }
+      ]
+    }),
+    body: segment_payload([
+      [SEGMENT_USER_PAYLOAD],
+      [
+        {
+          anonymousId: "1234",
+          event: "Foo",
+          timestamp: null,
+          properties: {},
+          context: {
+            os: {},
+            page: {},
+            location: {},
+            active: true,
+            traits: {
+              hull_segments: "standard_segment",
+              hull_account_segments: "standard_segment"
+            }
+          },
+          integrations: { Hull: false },
+          type: "track"
+        }
+      ]
+    ]),
+    platformApiCalls: [],
+    usersSegments: STANDARD_USER_SEGMENTS,
+    accountsSegments: STANDARD_ACCOUNT_SEGMENTS,
+    logs: [
+      [
+        "debug",
+        "outgoing.account.skip",
+        expect.whatever(),
+        {
+          anonymousId: "1234",
+          groupId: undefined,
+          anonymousIds: undefined,
+          public_account_id_field: "external_id",
+          message: "No Identifier available"
+        }
+      ]
+    ],
+    metrics: [
+      METRIC_INCREMENT_REQUEST,
+      METRIC_INCREMENT_SERVICE,
+      METRIC_INCREMENT_SERVICE
+    ],
+    response: NEXT_FLOW_CONTROL,
     responseStatusCode: 200,
     firehoseEvents: []
   }
