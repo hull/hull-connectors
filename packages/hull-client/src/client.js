@@ -1,7 +1,8 @@
 // @flow
 
 import type {
-  HullClientConfig,
+  HullClientCredentials,
+  HullClientInstanceConfig,
   HullEntityAttributes,
   HullUserEventName,
   HullUserEventProperties,
@@ -14,7 +15,8 @@ import type {
   HullEntityClaims,
   HullClientLogger,
   HullClientUtils,
-  HullClientStaticLogger
+  HullClientStaticLogger,
+  HullFirehoseKafkaTransport
 } from "./types";
 
 const _ = require("lodash");
@@ -25,17 +27,12 @@ const Configuration = require("./lib/configuration");
 const restAPI = require("./lib/rest-api");
 const crypto = require("./lib/crypto");
 const Firehose = require("./lib/firehose");
+const FirehoseKafka = require("./lib/firehose-kafka");
 
 const traitsUtils = require("./utils/traits");
 const claimsUtils = require("./utils/claims");
 const settingsUtils = require("./utils/settings");
 const propertiesUtils = require("./utils/properties");
-
-type HullClientCredentials = {
-  id: string,
-  secret: string,
-  organization: string
-};
 
 const logger = new winston.Logger({
   transports: [
@@ -81,7 +78,7 @@ const logger = new winston.Logger({
  * @public
  */
 class HullClient {
-  config: HullClientConfig;
+  config: HullClientInstanceConfig;
 
   clientConfig: Configuration;
 
@@ -95,7 +92,13 @@ class HullClient {
 
   static logger: HullClientStaticLogger;
 
-  constructor(config: HullClientConfig | HullClientCredentials) {
+  static exit() {
+    return Promise
+      .all([Firehose.exit(), FirehoseKafka.exit()])
+      .then(flushed => console.warn("Done flushing Firehose queues", flushed));
+  }
+
+  constructor(config: HullClientInstanceConfig) {
     if (config.captureLogs === true) {
       config.logs = config.logs || [];
     }
@@ -137,20 +140,33 @@ class HullClient {
         return Promise.resolve();
       };
     } else {
-      const clientConfig: HullClientConfig = this.clientConfig.get();
-      this.batch = Firehose.getInstance(clientConfig, (params, batcher) => {
-        const {
-          timeout,
-          retry,
-          domain = "",
-          protocol = "",
-          firehoseUrl = `${protocol}://firehose.${domain}`
-        } = clientConfig;
-        return restAPI(this, batcher.config, firehoseUrl, "post", params, {
-          timeout,
-          retry
+      const clientConfig: HullClientInstanceConfig = this.clientConfig.getAll();
+      if (
+        clientConfig.firehoseTransport &&
+        clientConfig.firehoseTransport.type === "kafka"
+      ) {
+        const transport: HullFirehoseKafkaTransport = clientConfig.firehoseTransport;
+        this.batch = FirehoseKafka.getInstance(
+          transport,
+          clientConfig,
+          this.logger
+        );
+      } else {
+        this.batch = Firehose.getInstance(clientConfig, (params, batcher) => {
+          const {
+            timeout,
+            retry,
+            domain = "",
+            protocol = "",
+            firehoseUrl = `${protocol}://firehose.${domain}`
+          } = clientConfig;
+          return restAPI(this, batcher.config, firehoseUrl, "post", params, {
+            timeout,
+            retry,
+            isFirehose: true
+          });
         });
-      });
+      }
     }
 
     /**
@@ -294,7 +310,7 @@ class HullClient {
    *   version: "0.13.10"
    * };
    */
-  configuration = (): HullClientConfig => this.clientConfig.getAll();
+  configuration = (): HullClientInstanceConfig => this.clientConfig.getAll();
 
   /**
    * Performs a HTTP request on selected url of Hull REST API (prefixed with `prefix` param of the constructor)
@@ -507,9 +523,7 @@ class EntityScopedHullClient extends HullClient {
    */
   traits = (
     traits: HullEntityAttributes,
-    context: {
-      source?: string
-    } = {}
+    context: { source?: string } = {}
   ): Promise<*> => {
     const body =
       context && context.source

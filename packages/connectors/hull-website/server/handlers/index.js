@@ -12,13 +12,16 @@ import onConnectionFactory from "../lib/on-connection";
 import sendPayloadFactory from "../lib/send-payload";
 import credentialsHandler from "./credentials-handler";
 
+import legacyV1ApiCompatibility from "./legacy-v1-api-compatibility";
+import { HullFirehoseKafkaTransport } from "hull-client/src/types";
+
 bluebird.promisifyAll(Redis.RedisClient.prototype);
 bluebird.promisifyAll(Redis.Multi.prototype);
 
-const handlers = ({ redisUri }: { redisUri: string }) => async (
+const handlers = ({ redisUri, firehoseTransport }: { redisUri: string, firehoseTransport: HullFirehoseKafkaTransport }) => async (
   connector: Connector
 ): HullHandlersConfiguration => {
-  const { server, Client, getContext } = connector;
+  const { app, server, Client, getContext } = connector;
   const redis = Redis.createClient(redisUri);
   const store = Store(redis);
   const io = SocketIO(server, {
@@ -34,6 +37,8 @@ const handlers = ({ redisUri }: { redisUri: string }) => async (
   });
   const connectorUpdate = connectorUpdateFactory({ store, onConnection, io });
   const userUpdate = userUpdateFactory({ connectorUpdate, sendPayload, store });
+
+  app.use("/api/v1", legacyV1ApiCompatibility(firehoseTransport));
 
   return {
     statuses: {

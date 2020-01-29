@@ -6,6 +6,19 @@ const BATCHERS = {};
 global.setImmediate = global.setImmediate || process.nextTick.bind(process);
 
 class FirehoseBatcher {
+
+  static exit() {
+    FirehoseBatcher.exiting = true;
+    const cb = k => (err, ok) => {
+      const msg = `Flushed batcher ${k} -- ok=${ok} -- err=${err}`;
+      return msg;
+    }
+    const flushed = _.map(BATCHERS, (b, k) => {
+      b.flush(cb(k));
+    });
+    return Promise.all(flushed);
+  }
+
   static getInstance(config, handler) {
     const { id, secret, organization, accessToken } = config;
     const key = [organization, id, secret].join("/");
@@ -23,7 +36,7 @@ class FirehoseBatcher {
   constructor(config, handler) {
     this.handler = handler;
     this.flushAt = Math.max(config.flushAt, 1) || 50;
-    this.flushAfter = config.flushAfter || 1000;
+    this.flushAfter = config.flushAfter || 10000;
     this.config = new Configuration(
       _.omit(config, "userId", "accessToken", "sudo")
     );
@@ -51,7 +64,7 @@ class FirehoseBatcher {
 
   flush(fn) {
     fn = fn || (() => {});
-    if (!this.queue.length) return setImmediate(fn);
+    if (!this.queue.length) return Promise.resolve(fn);
 
     const items = this.queue.splice(0, this.flushAt);
     const fns = items.map(i => i.callback);
@@ -63,18 +76,14 @@ class FirehoseBatcher {
       sentAt: new Date()
     };
 
-    return this.handler(params, this).then(
+
+    const flushed = this.handler(params, this);
+    flushed.then(
       ok => fns.forEach(func => func(null, ok)),
       err => fns.forEach(func => func(err, null))
     );
+    return flushed.then(fn, fn);
   }
 }
-
-function handleBeforeExit() {
-  FirehoseBatcher.exiting = true;
-  _.map(BATCHERS, b => b.flush());
-}
-
-process.on("beforeExit", handleBeforeExit);
 
 module.exports = FirehoseBatcher;

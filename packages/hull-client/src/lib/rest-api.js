@@ -102,6 +102,11 @@ module.exports = function restAPI(
   params,
   options = {}
 ) {
+
+  if (!options.isFirehose && config.get("trackingOnly")) {
+    throw new Error("REST API disabled: This hull client is configured for trackingOnly");
+  }
+
   const token = config.get("sudo")
     ? config.get("secret")
     : config.get("accessToken") || config.get("secret");

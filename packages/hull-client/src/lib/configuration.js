@@ -1,6 +1,7 @@
 // @flow
+
 import type {
-  HullClientConfig,
+  HullClientInstanceConfig,
   HullEntityClaims,
   HullEntityName,
   HullAdditionalClaims
@@ -41,17 +42,24 @@ const VALID = {
   },
   array(arr) {
     return _.isArray(arr);
+  },
+  transport(t) {
+    const valid = t.type === "kafka" &&
+      _.isString(t.topic) &&
+      _.isArray(t.brokersList);
+    if (t && !valid) throw new Error("Invalid Firehose transport configuration");
   }
 };
 
 const REQUIRED_PROPS = {
   id: VALID.objectId,
-  secret: VALID.string,
   organization: VALID.string
 };
 
 const VALID_PROPS = {
   ...REQUIRED_PROPS,
+  secret: VALID.string,
+  trackingOnly: VALID.boolean,
   prefix: VALID.string,
   domain: VALID.string,
   firehoseUrl: VALID.string,
@@ -69,16 +77,17 @@ const VALID_PROPS = {
   connectorName: VALID.string,
   requestId: VALID.string,
   logs: VALID.array,
-  firehoseEvents: VALID.array
+  firehoseEvents: VALID.array,
+  firehoseTransport: VALID.transport
 };
 
 /**
  * Class containing configuration
  */
 class Configuration {
-  _state: HullClientConfig;
+  _state: HullClientInstanceConfig;
 
-  constructor(config: HullClientConfig) {
+  constructor(config: HullClientInstanceConfig) {
     if (!_.isObject(config) || !_.size(config)) {
       throw new Error(
         "Configuration is invalid, it should be a non-empty object"
@@ -100,16 +109,20 @@ class Configuration {
         );
       }
 
-      const accessToken = crypto.lookupToken(
-        config,
-        config.subjectType,
-        {
-          user: config.userClaim,
-          account: config.accountClaim
-        },
-        config.additionalClaims
-      );
-      config = { ...config, accessToken };
+      if (config.secret) {
+        const accessToken = crypto.lookupToken(
+          config,
+          config.subjectType,
+          {
+            user: config.userClaim,
+            account: config.accountClaim
+          },
+          config.additionalClaims
+        );
+        config = { ...config, accessToken };
+      } else if (!config.trackingOnly) {
+        throw new Error(`Client requires a secret unless trackingOnly is set to true`);
+      }
     }
 
     this._state = { ...GLOBALS };
@@ -149,7 +162,7 @@ class Configuration {
     this._state.version = pkg.version;
   }
 
-  set(key: string, value: $Values<HullClientConfig>): void {
+  set(key: string, value: $Values<HullClientInstanceConfig>): void {
     this._state[key] = value;
   }
 
@@ -162,7 +175,7 @@ class Configuration {
     | HullEntityName
     | HullEntityClaims
     | HullAdditionalClaims
-    | HullClientConfig
+    | HullClientInstanceConfig
     | void {
     if (key !== undefined) {
       return this._state[key];
@@ -170,7 +183,7 @@ class Configuration {
     return this.getAll();
   }
 
-  getAll(): HullClientConfig {
+  getAll(): HullClientInstanceConfig {
     return JSON.parse(JSON.stringify(this._state));
   }
 }
