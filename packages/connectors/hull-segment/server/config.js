@@ -1,6 +1,6 @@
 // @flow
 
-import type { HullConnectorConfig } from "hull";
+import type { HullConnectorConfig, HullFirehoseTransport } from "hull";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
 import authMiddleware from "./lib/segment-auth-middleware";
@@ -15,10 +15,21 @@ export default function connectorConfig(): HullConnectorConfig {
     FLOW_CONTROL_SIZE,
     OVERRIDE_FIREHOSE_URL,
     REDIS_URL = "",
-    SHIP_CACHE_TTL = 60
+    SHIP_CACHE_TTL = 60,
+    FIREHOSE_KAFKA_BROKERS,
+    FIREHOSE_KAFKA_TOPIC
   } = process.env;
 
   const hostSecret = SECRET || "1234";
+
+  const firehoseTransport: HullFirehoseTransport =
+    FIREHOSE_KAFKA_BROKERS && FIREHOSE_KAFKA_TOPIC
+      ? {
+          type: "kafka",
+          brokersList: FIREHOSE_KAFKA_BROKERS.split(","),
+          topic: FIREHOSE_KAFKA_TOPIC
+        }
+      : undefined;
 
   return {
     manifest,
@@ -32,7 +43,8 @@ export default function connectorConfig(): HullConnectorConfig {
     }),
     middlewares: [authMiddleware],
     clientConfig: {
-      firehoseUrl: OVERRIDE_FIREHOSE_URL
+      firehoseUrl: OVERRIDE_FIREHOSE_URL,
+      ...(firehoseTransport ? { firehoseTransport } : {})
     },
     cache: REDIS_URL && {
       store: "redis",
