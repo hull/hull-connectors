@@ -218,7 +218,11 @@ class HullConnector {
 
     if (disableOnExit !== true) {
       onExit(() => {
-        return Promise.all([Batcher.exit(), this.queue.exit(), dependencies.Client.exit()])
+        return Promise.all([
+          Batcher.exit(),
+          this.queue.exit(),
+          dependencies.Client.exit()
+        ]);
       });
     }
   }

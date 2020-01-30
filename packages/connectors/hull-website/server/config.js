@@ -24,7 +24,7 @@ export default function connectorConfig(): HullConnectorConfig {
     throw new Error("Missing FIREHOSE_KAFKA_TOPIC environment variable");
   }
 
-  if (!SECRET && NODE_ENV != "development") {
+  if (!SECRET && NODE_ENV !== "development") {
     throw new Error("Missing SECRET environment variable");
   }
 

@@ -36,16 +36,6 @@ type FirehoseMessageClaims = {
 const PRODUCERS = {};
 let IS_EXITING = false;
 
-function getProducer(
-  transport: HullFirehoseKafkaTransport,
-  connectorName: string
-) {
-  const brokers = transport.brokersList.join(",");
-  PRODUCERS[brokers] =
-    PRODUCERS[brokers] || buildProducer(transport, connectorName);
-  return PRODUCERS[brokers].ready;
-}
-
 function buildProducer(
   transport: HullFirehoseKafkaTransport,
   connectorName: string
@@ -94,6 +84,16 @@ function buildProducer(
   });
 
   return { producer, ready };
+}
+
+function getProducer(
+  transport: HullFirehoseKafkaTransport,
+  connectorName: string
+) {
+  const brokers = transport.brokersList.join(",");
+  PRODUCERS[brokers] =
+    PRODUCERS[brokers] || buildProducer(transport, connectorName);
+  return PRODUCERS[brokers].ready;
 }
 
 function getInstance(
@@ -156,7 +156,7 @@ function getInstance(
                 clientError.message = "Backend publication error";
                 return reject(clientError);
               }
-              resolve({ ok: true, offset });
+              return resolve({ ok: true, offset });
             }
           );
         });

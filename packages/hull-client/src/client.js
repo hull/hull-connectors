@@ -1,7 +1,6 @@
 // @flow
 
 import type {
-  HullClientCredentials,
   HullClientInstanceConfig,
   HullEntityAttributes,
   HullUserEventName,
@@ -93,9 +92,9 @@ class HullClient {
   static logger: HullClientStaticLogger;
 
   static exit() {
-    return Promise
-      .all([Firehose.exit(), FirehoseKafka.exit()])
-      .then(flushed => console.warn("Done flushing Firehose queues", flushed));
+    return Promise.all([Firehose.exit(), FirehoseKafka.exit()]).then(flushed =>
+      console.warn("Done flushing Firehose queues", flushed)
+    );
   }
 
   constructor(config: HullClientInstanceConfig) {
@@ -145,7 +144,8 @@ class HullClient {
         clientConfig.firehoseTransport &&
         clientConfig.firehoseTransport.type === "kafka"
       ) {
-        const transport: HullFirehoseKafkaTransport = clientConfig.firehoseTransport;
+        const transport: HullFirehoseKafkaTransport =
+          clientConfig.firehoseTransport;
         this.batch = FirehoseKafka.getInstance(
           transport,
           clientConfig,

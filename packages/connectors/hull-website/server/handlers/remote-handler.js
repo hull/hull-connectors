@@ -1,6 +1,7 @@
 // @flow
 
 const uuid = require("uuid/v1");
+
 const HULL_JS_URL = "https://js.hull.io/0.10.0/hull.js.gz";
 const TEN_YEARS = 18 * 365 * 24 * 3600000;
 const THIRTY_MINUTES = 1800000;
