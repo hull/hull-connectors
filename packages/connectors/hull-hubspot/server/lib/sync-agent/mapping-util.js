@@ -631,6 +631,7 @@ class MappingUtil {
               .hours(0)
               .minutes(0)
               .seconds(0)
+              .milliseconds(0)
               .format("x");
           } else {
             this.hullClient
