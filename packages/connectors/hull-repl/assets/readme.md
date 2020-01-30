@@ -4,9 +4,9 @@ The REPL connector enables you to run your own logic and manually send data to H
 
 ## Getting Started
 
-Go to the Connectors page of your Hull organization, click the button “Add Connector” and click “Install” on the REPL card. After installation, you will be presented with a two column Dashboard layout. The left column will hold your Javascript **Code** that will be run when you click the "RUN" button. The actual data that will be sent is previewed in the **Output** of the right column.
+Go to the Connectors page of your Hull organization, click the button “Add Connector” and click “Install” on the REPL card. After installation, click on the "Code Editor" button on your connector's home screen.  You will be presented with a two column Dashboard layout. The left column will hold your Javascript **Code** that will be run when you click the "RUN" button. The actual data that will be sent is previewed in the **Output** of the right column.
 
-You can begin writing your own code right away, but you probably might want to gather some useful background information first. We recommend to start with the [execution model](#Execution-Model) which clarifies when your code is run before you move on to the data that is available as Input:
+You can begin writing your own code right away, but you probably will want to gather some useful background information first. We recommend to start with the [execution model](#Execution-Model) which clarifies when your code is run before you move on to the data that is available as Input:
 
 - [Code basics](#Code-basics)
 - [External libraries](#External-Libraries)
@@ -25,7 +25,7 @@ Async/await and ES6 are supported by the connector, allowing you to write elegan
 
 Before writing your first line of code, it is vital to have a good understanding when this code will be executed:
 
-- The REPL environment only actually runs when you click the `RUN` button in the UI. No automatic calls will be made.
+- The REPL environment only runs when you click the `RUN` button in the UI. No automatic calls will be made.
 
 ## How to send data
 
