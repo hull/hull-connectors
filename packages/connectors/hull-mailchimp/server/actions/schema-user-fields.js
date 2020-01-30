@@ -3,21 +3,23 @@ import type { HullContext } from "hull";
 
 const shipAppFactory = require("../lib/ship-app-factory");
 
-function schemaUserFields(ctx: HullContext) {
-  return shipAppFactory(ctx)
-    .mailchimpAgent.getMergeFields()
-    .then(
-      resBody => {
-        return {
-          options: resBody.merge_fields.map(f => {
-            return { label: f.name, value: f.tag };
+async function schemaUserFields(ctx: HullContext) {
+  try {
+    const res = await shipAppFactory(ctx).mailchimpAgent.getMergeFields();
+    return {
+      status: 200,
+      data: {
+        options: (res.merge_fields || []).map(
+          ({ name: label, tag: value }) => ({
+            label,
+            value
           })
-        };
-      },
-      () => {
-        return { options: [] };
+        )
       }
-    );
+    };
+  } catch (err) {
+    return { status: 500, data: { options: [], error: err.message } };
+  }
 }
 
 module.exports = schemaUserFields;

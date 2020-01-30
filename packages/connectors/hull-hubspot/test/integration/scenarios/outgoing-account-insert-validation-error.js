@@ -1,15 +1,21 @@
 // @flow
-/* global describe, it, beforeEach, afterEach */
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
+
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
+process.env.CLIENT_ID = "123";
+process.env.CLIENT_SECRET = "123";
 
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_account_segments: ["hullSegmentId"]
+    synchronized_account_segments: ["hullSegmentId"],
+    outgoing_account_attributes: [
+      { hull: "name", service: "name", overwrite: true }
+    ],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const accountsSegments = [
@@ -19,9 +25,9 @@ const accountsSegments = [
   }
 ];
 
-it("should send out a new hull account to hubspot", () => {
+it("should send out a new hull account to hubspot insert validation error", () => {
   const domain = "hull.io";
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -40,13 +46,20 @@ it("should send out a new hull account to hubspot", () => {
           results: []
         });
         scope.post("/companies/v2/companies/?auditId=Hull", {
-          "properties": [{
-            "name": "hull_segments",
-            "value": "testSegment"
-          }, {
-            "name": "domain",
-            "value": "hull.io"
-          }]
+          "properties": [
+            {
+              "name": "name",
+              "value": "New Name"
+            },
+            {
+              "name": "hull_segments",
+              "value": "testSegment"
+            },
+            {
+              "name": "domain",
+              "value": "hull.io"
+          }
+        ]
         }).reply(400, require("../fixtures/post-companies-nonexisting-property"));
         return scope;
       },
@@ -55,7 +68,20 @@ it("should send out a new hull account to hubspot", () => {
       accountsSegments,
       messages: [
         {
+          changes: {
+            is_new: false,
+            user: {},
+            account: {
+              name: [
+                "old",
+                "New Name"
+              ]
+            },
+            segments: {},
+            account_segments: {}
+          },
           account: {
+            name: "New Name",
             domain
           },
           account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
@@ -100,13 +126,19 @@ it("should send out a new hull account to hubspot", () => {
               "requestId": "156dd7c3965247bc8c073a02ab1d2f9b"
             },
             hubspotWriteCompany: {
-              "properties": [{
-                "name": "hull_segments",
-                "value": "testSegment"
-              }, {
-                "name": "domain",
-                "value": "hull.io"
-              }]
+              "properties": [
+                {
+                  "name": "name",
+                  "value": "New Name"
+                },
+                {
+                  "name": "hull_segments",
+                  "value": "testSegment"
+                }, {
+                  "name": "domain",
+                  "value": "hull.io"
+                }
+              ]
             },
             operation: "insert"
           }

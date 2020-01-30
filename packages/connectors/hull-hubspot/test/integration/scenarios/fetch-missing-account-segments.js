@@ -6,8 +6,7 @@ const _ = require("lodash");
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
 
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
 const incomingData = require("../fixtures/get-contacts-groups");
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
@@ -17,6 +16,8 @@ const connector = {
     token: "hubToken",
     token_fetched_at: 1419967066626,
     expires_in: 10,
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false,
     refresh_token: "123",
     synchronized_user_segments: [
       "5bffc38f625718d58b000004"
@@ -24,8 +25,8 @@ const connector = {
   }
 };
 
-it("Should return a synchronized user/account segments \"ok\" message when no account segments are given in the manifest", () => {
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+it("Should return a synchronized account segments \"ok\" message when no account segments are given in the manifest", () => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "status",
@@ -38,7 +39,7 @@ it("Should return a synchronized user/account segments \"ok\" message when no ac
       connector,
       usersSegments: [],
       accountsSegments: [],
-      response: {"messages": ['No users or accounts will be sent from Hull to Hubspot because there are no whitelisted segments configured. If you want to enable outgoing traffic, please visit the connector settings page and add segments to be sent to Hubspot, otherwise please ignore this notification.'], "status": "ok"},
+      response: {"messages": ['No accounts will be sent from Hull to Hubspot because there are no whitelisted segments configured. If you want to enable outgoing account traffic, please visit the connector settings page and add account segments to be sent to Hubspot, otherwise please ignore this notification.'], "status": "ok"},
       logs: [
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/contacts/v2/groups", "vars": {}}]
       ],
@@ -53,7 +54,7 @@ it("Should return a synchronized user/account segments \"ok\" message when no ac
           {
             "messages":
               [
-                'No users or accounts will be sent from Hull to Hubspot because there are no whitelisted segments configured. If you want to enable outgoing traffic, please visit the connector settings page and add segments to be sent to Hubspot, otherwise please ignore this notification.'
+                'No accounts will be sent from Hull to Hubspot because there are no whitelisted segments configured. If you want to enable outgoing account traffic, please visit the connector settings page and add account segments to be sent to Hubspot, otherwise please ignore this notification.'
               ],
             "status": "ok"
           }

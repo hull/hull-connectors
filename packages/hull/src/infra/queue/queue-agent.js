@@ -1,3 +1,7 @@
+// @flow
+
+import type { HullContext } from "../../types";
+
 const enqueue = require("./enqueue");
 const MemoryAdapter = require("./adapter/memory");
 
@@ -44,7 +48,9 @@ const MemoryAdapter = require("./adapter/memory");
  * ```
  */
 class QueueAgent {
-  constructor(adapter) {
+  adapter: any;
+
+  constructor(adapter: any) {
     this.adapter = adapter;
     if (!this.adapter) {
       this.adapter = new MemoryAdapter();
@@ -53,10 +59,7 @@ class QueueAgent {
     this.getEnqueue = this.getEnqueue.bind(this);
   }
 
-  getEnqueue(ctx) {
-    // eslint-disable-line class-methods-use-this
-    return enqueue.bind(null, this.adapter, ctx);
-  }
+  getEnqueue = (ctx: HullContext) => enqueue.bind(null, this.adapter, ctx);
 
   exit() {
     return this.adapter.exit();

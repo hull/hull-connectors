@@ -1,14 +1,12 @@
 {
   "name": "hull-outreach",
-  "version": "0.0.20-monorepo",
+  "version": "0.1.15-monorepo",
   "description": "Connector description",
   "scripts": {
     "test": "exit 0; echo 'tests are run by global jest'",
     "documentation": "exit 0"
   },
   "dependencies": {
-    "hull": "link:../../hull",
-    "hull-connector-framework": "link:../../hull-connector-framework",
     "luxon": "^1.3.0",
     "passport-oauth2": "1.4.0",
     "superagent-prefix": "^0.0.2",

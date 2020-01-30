@@ -1,16 +1,12 @@
 /* @flow */
-import type { RawRestApi, EndpointType, RequestType } from "./shared/types";
+import type { RawRestApi, EndpointType, RequestType } from "hull-connector-framework/src/purplefusion/types";
 
 const _ = require("lodash");
 
 const {
   ConfigurationError,
-  RateLimitError,
-  RecoverableError,
   TransientError,
-  SkippableError,
-  LogicError,
-  NotificationValidationError
+  SkippableError
 } = require("hull/src/errors");
 
 
@@ -19,19 +15,21 @@ const {
   OutreachProspectWrite,
   OutreachProspectRead,
   OutreachAccountWrite,
-  OutreachAccountRead,
-  OutreachWebhookWrite
+  OutreachAccountRead
   } = require("./service-objects");
 
-const { SuperagentApi } = require("./shared/superagent-api");
+const { SuperagentApi } = require("hull-connector-framework/src/purplefusion/superagent-api");
 const MESSAGES = require("./messages");
-const { isUndefinedOrNull } = require("./shared/utils");
-const { isNull, notNull } = require("./shared/conditionals");
+const { isNull, notNull } = require("hull-connector-framework/src/purplefusion/conditionals");
 
-// What about linking calls?
-const service: RawRestApi = {
+
+const service = ({ clientID, clientSecret } : {
+  clientID: string,
+  clientSecret: string
+}): RawRestApi => ({
   initialize: (context, api) => new SuperagentApi(context, api),
   prefix: "https://api.outreach.io/api/v2",
+  defaultReturnObj: "body",
   endpoints: {
     getAccountById: {
       url: "/accounts/${accountId}",
@@ -121,7 +119,6 @@ const service: RawRestApi = {
       url: "/prospects/",
       operation: "get",
       query: "filter[emails]=${userEmail}",
-      returnObj: "body.data[0]",
       endpointType: "byProperty",
       returnObj: "body.data",
       output: OutreachProspectRead
@@ -179,6 +176,49 @@ const service: RawRestApi = {
       operation: "post",
       endpointType: "create"
     },
+    getUsers: {
+      url: "/users/",
+      operation: "get",
+      endpointType: "fetchAll"
+    },
+    getStages: {
+      url: "/stages/",
+      operation: "get",
+      endpointType: "fetchAll"
+    },
+    getEvents: {
+      url: "/events/",
+      operation: "get",
+      endpointType: "byProperty",
+      query: "page[limit]=1000"
+    },
+    getEventsPaged: {
+      url: "/events/",
+      operation: "get",
+      endpointType: "byProperty",
+      query: "page[limit]=${page_limit}&filter[id]=${id_offset}..inf"
+    },
+    getRecentEvents: {
+      url: "/events/",
+      operation: "get",
+      endpointType: "byProperty",
+      query: "filter[eventAt]=${filterLimits}&sort=-eventAt&page[limit]=1000"
+    },
+    getEventsOffset: {
+      url: "/events/",
+      operation: "get",
+      endpointType: "byProperty",
+      query: "${offsetQuery}"
+    },
+    getMailingDetails: {
+      url: "/mailings/${mailingId}/",
+      operation: "get"
+    },
+    getSequences: {
+      url: "/sequences/",
+      operation: "get",
+      returnObj: "body.data"
+    }
   },
   superagent: {
     settings: [
@@ -193,25 +233,9 @@ const service: RawRestApi = {
   authentication: {
     strategy: "oauth2",
     params: {
-      name: "Outreach",
       Strategy: OAuth2Strategy,
-      tokenInUrl: true,
-      options: {
-        clientID: process.env.CLIENT_ID,
-        clientSecret: process.env.CLIENT_SECRET,
-        authorizationURL: "https://api.outreach.io/oauth/authorize",
-        tokenURL: "https://api.outreach.io/oauth/token",
-        grant_type: "authorization_code",
-        scope: [
-          "create_prospects",
-          "prospects.all",
-          "create_accounts",
-          "accounts.all",
-          "webhooks.all",
-          "stages.all",
-          "users.all"
-        ] // App Scope
-      }
+      clientID,
+      clientSecret,
     }
   },
   error: {
@@ -252,7 +276,12 @@ const service: RawRestApi = {
         errorType: SkippableError,
         message: MESSAGES.OUTREACH_ENTITY_NOT_FOUND,
       },
-
+      {
+        truthy: { status: 404 , response: { request: { method: "GET" } } },
+        errorType: SkippableError,
+        message: MESSAGES.OUTREACH_ENTITY_NOT_FOUND,
+        retryAttempts: 1
+      },
       {
         truthy: { status: 404 },
         errorType: TransientError,
@@ -285,13 +314,16 @@ const service: RawRestApi = {
         truthy: { status: 422 },
         errorType: SkippableError,
         message: MESSAGES.SERVICE_VALIDATION_ERROR
+      },
+      {
+        truthy: { status: 400 },
+        errorType: SkippableError,
+        message: MESSAGES.BAD_RESOURCE_REQUEST_ERROR
       }
     ]
 
   }
-};
+});
 
 
-module.exports = {
-  service
-};
+module.exports = service;

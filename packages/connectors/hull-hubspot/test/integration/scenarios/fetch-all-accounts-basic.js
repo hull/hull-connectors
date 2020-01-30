@@ -1,10 +1,9 @@
 // @flow
-/* global describe, it, beforeEach, afterEach */
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const _ = require("lodash");
 
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
@@ -13,12 +12,14 @@ const incomingData = require("../fixtures/get-companies-recent-modified");
 const connector = {
   private_settings: {
     token: "hubToken",
-    handle_accounts: true
+    handle_accounts: true,
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 
 it.skip("should fetch all companies", () => {
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "fetch-recent-companies",
@@ -73,8 +74,7 @@ it.skip("should fetch all companies", () => {
           }
         ],
         [
-          "info",
-          "incoming.account.success",
+          "debug", "incoming.account.success",
           expect.objectContaining({ "subject_type": "account", "account_domain": "foo.com" }),
           {
             traits: {
@@ -87,8 +87,7 @@ it.skip("should fetch all companies", () => {
           }
         ],
         [
-          "info",
-          "incoming.account.link.skip",
+          "debug", "incoming.account.link.skip",
           {
             account_domain: "foo.com",
             subject_type: "account"

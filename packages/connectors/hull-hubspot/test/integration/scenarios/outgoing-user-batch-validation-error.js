@@ -1,15 +1,23 @@
 // @flow
-/* global describe, it, beforeEach, afterEach */
+
+
+
+
+
+
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
+
 
 process.env.CLIENT_ID = "123";
 
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_user_segments: ["hullSegmentId"]
+    synchronized_user_segments: ["hullSegmentId"],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const usersSegments = [
@@ -19,13 +27,14 @@ const usersSegments = [
   }
 ];
 
-it("should send out a new hull user to hubspot", () => {
+it("should send out a new hull user to hubspot via batch", () => {
   const email = "email@email.com";
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
-      handlerType: handlers.batchHandler,
-      handlerUrl: "batch",
+      handlerType: handlers.notificationHandler,
+      handlerUrl: "smart-notifier",
       channel: "user:update",
+      is_export: true,
       externalApiMock: () => {
         const scope = nock("https://api.hubapi.com");
         scope.get("/contacts/v2/groups?includeProperties=true")
@@ -38,7 +47,7 @@ it("should send out a new hull user to hubspot", () => {
             "value": "testSegment"
           }],
           "email": "non-existing-property@hull.io"
-        }, {
+          }, {
           "properties": [{
             "property": "hull_segments",
             "value": "testSegment"
@@ -60,15 +69,35 @@ it("should send out a new hull user to hubspot", () => {
       accountsSegments: [],
       messages: [
         {
-          email: "non-existing-property@hull.io",
-          segment_ids: ["hullSegmentId"]
+          "user": {
+            email: "non-existing-property@hull.io"
+          },
+          "segments": [
+            {
+              "id": "hullSegmentId",
+              "name": "",
+              "updated_at": "2018-12-06T15:30:50Z",
+              "type": "users_segment",
+              "created_at": "2018-11-29T10:46:39Z"
+            }
+          ]
         },
         {
-          email,
-          segment_ids: ["hullSegmentId"]
+          "user": {
+            email: email
+          },
+          "segments": [
+            {
+              "id": "hullSegmentId",
+              "name": "",
+              "updated_at": "2018-12-06T15:30:50Z",
+              "type": "users_segment",
+              "created_at": "2018-11-29T10:46:39Z"
+            }
+          ]
         }
       ],
-      response: {},
+      response: {"flow_control": {"in": 5, "in_time": 10, "size": 10, "type": "next"}},
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
@@ -114,7 +143,6 @@ it("should send out a new hull user to hubspot", () => {
         ["value", "connector.service_api.response_time", expect.any(Number)]
       ],
       platformApiCalls: [
-        ["GET", "/_users_batch", {}, {}],
         ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
         ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
       ]

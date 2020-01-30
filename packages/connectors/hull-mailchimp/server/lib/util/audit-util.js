@@ -1,5 +1,6 @@
 /* @flow */
 import type { HullSegment, HullContext } from "hull";
+// import shipAppFactory from "../ship-app-factory";
 
 const Promise = require("bluebird");
 const _ = require("lodash");
@@ -39,11 +40,10 @@ class AuditUtil {
 
   synchronizedSegments: Array<string>;
 
-  constructor(ctx: HullContext) {
+  constructor(ctx: HullContext, mailchimpClient) {
     this.segments = _.get(ctx, "segments", []);
     this.hullClient = ctx.client;
-    // $FlowFixMe
-    this.mailchimpClient = ctx.shipApp.mailchimpClient;
+    this.mailchimpClient = mailchimpClient;
     this.interestCatId = _.get(
       ctx,
       "connector.private_settings.interest_category_id",
@@ -89,7 +89,7 @@ class AuditUtil {
     const aggs = this.getAggregations();
     return this.hullClient.post("search/user_reports", {
       query,
-      search_type: "count",
+      per_page: 0,
       aggs
     });
   }
@@ -100,13 +100,31 @@ class AuditUtil {
         term: { "traits_mailchimp/status.raw": "subscribed" }
       }),
       this.postSearchUserReports({
-        missing: { field: "traits_mailchimp/status" }
+        bool: {
+          must_not: {
+            exists: {
+              field: "traits_mailchimp/status"
+            }
+          }
+        }
       }),
       this.postSearchUserReports({
-        and: {
-          filters: [
-            { exists: { field: "traits_mailchimp/status" } },
-            { not: { term: { "traits_mailchimp/status.raw": "subscribed" } } }
+        bool: {
+          filter: [
+            {
+              exists: {
+                field: "traits_mailchimp/status"
+              }
+            },
+            {
+              bool: {
+                must_not: {
+                  term: {
+                    "traits_mailchimp/status.raw": "subscribed"
+                  }
+                }
+              }
+            }
           ]
         }
       }),

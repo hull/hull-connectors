@@ -16,9 +16,9 @@ To install the HubSpot integration, you must have a HubSpot admin permissions to
 2. Choose **Add a Connector**
 3. Click on **HubSpot**
 4. Confirm by clicking **Install**
-5. Within the Connector, click on **Credentials & Actions**. You will need to login with your HubSpot credentials to connect your HubSpot instance.
+5. Within the Connector, click on the **Settings** tab. You will need to login with your HubSpot credentials to connect your HubSpot instance.
 
-![oAuth flow first step](./docs/oauth-flow-1.png)
+![OAuth flow first step](./docs/oauth-flow-1.png)
 
 ### Configure your HubSpot Connector Settings
 
@@ -52,6 +52,44 @@ Hull can sync the following objects to HubSpot. New data is upserted in both dir
 | Company     | [Account](https://www.hull.io/docs/concepts/accounts/) | Company |
 
 > **Note:** HubSpot Companies are not handled by default. You must configure this.
+
+### Fetching HubSpot Marketing Emails into Hull
+
+Hubspot Marketing Emails will be imported into Hull manually or on a schedule. Users have the option to fetch all email events created in the last 24 hours or fetch all email events in their Hubspot instance. Email events can also be fetched by Hull on a 5 minute schedule by turning on the toggle "Fetch Email Events". The fetch buttons will fetch email events whether or not this toggle is on or off.
+
+For an email event to be successfully fetched by Hull, the email must be a part of a marketing email campaign.
+
+Hull will only retrieve the email events that the user has selected. The available events to retrieve are:
+
+|  |
+| ----------- |
+| Email Sent      |
+| Email Dropped    |
+| Email Processed     |
+| Email Delivered     |
+| Email Deferred     |
+| Email Bounced     |
+| Email Opened      |
+| Email Link Clicked     |
+| Unsubscribed / Subscribed    |
+| Email Marked as Spam      |
+
+
+Hull will retrieve the following fields from a marketing email: 
+
+|  |
+| ----------- |
+| Email Campaign Id      |
+| Portal Id     |
+| Email Id     |
+| Link Url     |
+| Sent By     |
+| Recipient     |
+| Created At     |
+| Email Subject     |
+| Email Body     |
+
+The email body will only be retrieved if it is a plaintext html body.
 
 
 ### Fetching HubSpot Contacts into Hull
@@ -101,6 +139,16 @@ Hull will link Users with Accounts if:
 
 If the HubSpot Company does not have a required identifier, the User will be associated with an empty Hull Account.
 
+### Deleting HubSpot Contacts & Companies in Hull
+
+When a Hubspot Contact or Company is deleted in Hubspot, you will have the option to mark the associated Hull User
+or Hull Account as deleted in Hull. This action will remove the hubspot id from the associated entity in Hull and
+the field "hubspot/deleted_at" will be added with the timestamp of the deletion.
+
+By default, Hull will not send out Hull Users or Hull Accounts to Hubspot that have the field "hubspot/deleted_at" set. If you
+would like to send those entities back out to Hubspot, which will create a new Hubspot Contact or Company, you may turn off the
+toggles "Ignore Deleted Contacts" and/or "Ignore Deleted Companies".
+
 ### Creating & Updating HubSpot Contacts
 
 Hull Users must be in a whitelisted [User Segment](https://www.hull.io/docs/concepts/segments/) to be synced to HubSpot. By default, no Users are synced.
@@ -135,11 +183,152 @@ Hull will link Contacts & Companies in HubSpot if:
 - Hull User is associated with a Hull Account
 - Hull Account is already synchronized with a HubSpot Company
 
-## Data Mapping
+## Data types mapping
 
 Filter which Users & Accounts are synced to HubSpot with [User & Account Segments](https://www.hull.io/docs/concepts/segments/) in the Connector Settings.
 
 Map which User & Account attributes are synced to and from HubSpot with the field mappers in the Connector Settings.
+
+### Hull Data types
+
+Quoted from Hull's [documentation](https://www.hull.io/docs/data_lifecycle/ingest/):
+```text
+Supported Attribute values include:
+
+- Strings
+- Array of strings
+- Numeric
+- Booleans
+- Dates (ISO-8601 formatted strings or UNIX timestamps)
+- Nested JSON Object (experimental support, use carefully)
+```
+
+### Hubspot Data types
+
+- Strings
+- Numbers
+- Booleans
+- Dates -> [Hubspot documentation](https://developers.hubspot.com/docs/faq/how-should-timestamps-be-formatted-for-hubspots-apis)
+  ```text
+    Date properties will only store the date, and must be set to midnight UTC for the date you want.
+    For example, May 1 2015 would be 1430438400000 (01 May 2015 00:00:00 UTC).
+  ```
+  Hull stores dates using hours, minutes, and seconds. The connector will convert a date to the appropriate format that
+  Hubspot expects by removing the hours, minutes, seconds of the related date. As a result, if you send a Hull Date such
+  as 15 June 2019 10:05:22 UTC, a Hubspot Date field will receive it as 15 June 2019 00:00:00 UTC.
+  This limitation comes from Hubspot itself, since you only use the day, month and year when you pick a date on the Dashboard.
+  See the example below.
+  ![Hubspot Date picker](./docs/Hubspot_Date_Picker.png)
+
+ - Datetimes -> [Hubspot documentation](https://developers.hubspot.com/docs/faq/how-should-timestamps-be-formatted-for-hubspots-apis)
+  ```text
+    Datetime properties can store any time, so any valid millisecond timestamp would be accepted.
+    In HubSpot, datetime properties are displayed based on the time zone of the user viewing the record,
+    so the value will be converted to the local time zone of the user.
+  ``` 
+  Here the Hubspot's `Datetime` format is exactly the same as Hull's `Date` format.
+
+- Enumeration (made of above types), mostly used as a *"choose your value(s)"* from a dropdown list.
+  In this data type, you can end up having an array of the selected type.
+  Such a thing is happening for the `Hull segments` field that you can notice in any Hubspot contact imported from Hull.
+  
+*📚 Other links used for that documentation*
+  - [*Contact Properties Overview*](https://developers.hubspot.com/docs/methods/contacts/contact-properties-overview)
+  - [*Company Properties Overview*](https://developers.hubspot.com/docs/methods/companies/company-properties-overview)
+
+### Data mapping
+
+Here you will find what type conversions are supported in the table below.
+- ✅ : Works and is intuitive to convert 
+- ⚠️ : Can work but under certain condition(s)
+- ❌ : Cannot be converted or would not make sense to
+
+#### Outgoing - From Hull to Hubspot data types
+| Hull Type               | Hubspot String |  Hubspot Number  |         Hubspot Bool        |          Hubspot Date         | Hubspot Datetime | Hubspot Enumeration |
+|-------------------------|:--------------:|:----------------:|:---------------------------:|:-----------------------------:|:----------------:|:-------------------:|
+| String                  |        ✅       |        ✅       |            ⚠️¹             |               ❌               |        ❌       |          ❌         |
+| String_Array            |        ❌       |        ❌       |             ❌             |               ❌               |        ❌       |          ✅         |
+| Numeric                 |        ✅       |        ✅       |            ⚠️²             |               ❌               |        ❌       |          ❌         |
+| Boolean                 |        ✅       |        ✅       |             ✅             |               ❌               |        ❌       |          ❌         |
+| Date                    |        ✅       |        ✅       |             ❌             |              ⚠️³               |        ✅       |          ❌         |
+| JSON                    |        ❌       |        ❌       |             ❌             |               ❌               |        ❌       |          ❌         |
+
+  1. Hull String must be "True" or "False"
+  2. Hull Number must be 0 or 1
+  3. Hours:Minutes:Seconds will be removed
+
+#### Incoming - From Hubspot to Hull data types
+
+| Hubspot type | Hull String | Hull Array of strings | Hull Boolean | Hull Date | Hull JSON |
+|--------------|:-----------:|:---------------------:|:------------:|:---------:|:---------:|
+| String       |      ✅     |           ❌          |     ⚠️¹     |     ✅    |     ❌    |
+| Number       |      ✅     |           ❌          |     ⚠️²     |     ❌    |     ❌    |
+| Bool         |      ✅     |           ❌          |     ✅      |     ❌    |     ❌    |
+| Date         |      ✅     |           ❌          |     ❌      |     ✅    |     ❌    |
+| Datetime     |      ✅     |           ❌          |     ❌      |    ️✅    |     ❌    |
+| Enumeration  |      ❌     |           ✅          |     ❌      |     ❌    |     ❌    |
+
+1. Hubspot String must be "True" or "False"
+2. Hubspot Number must be 0 or 1
+
+### Special cases
+
+#### Hubspot - Picklist
+##### How to use them
+A Hubspot "Picklist" is a Hubspot field with a customizable format. Most of the time, you will encounter them under
+the format of a dropdown field with a list of checkboxes. To reach that result, picklists have in their definitions
+the `enumeration` Hubspot `"type"`, and the `checkbox` Hubspot `"fieldType"` .
+More information can be found in Hubspot's API [documentation](https://developers.hubspot.com/docs/methods/contacts/v2/create_contacts_property)
+
+Here is what would be the definition of an `Enumeration` using that dropdown of checkboxes:
+```json
+{
+    	"name": "hull_test_enum",
+    	"label": "Test Enumeration",
+    	"groupName": "hull",
+    	"type": "enumeration",
+    	"fieldType": "checkbox",
+    	"options": [
+        {
+          "label": 1,
+          "value": 1
+        },
+        {
+          "label": "Option 2",
+          "value": 2
+        },
+        {
+          "label": 333,
+          "value": "3"
+        },
+        {
+          "label": "Big Number",
+          "value": 1565354818310
+        }
+      ]
+    }
+```
+You can customize the name of each element in the `"options"` by changing the `"label"`, however the `"value"` holds the
+true content for each option.
+
+This enum results in the following Hubspot UI element:
+![Hubspot Enumeration example](./docs/Hubspot_Test_Enumeration.png)
+
+All the selected options in that field will be stored in the contact properties using the following format:
+```json
+{
+ "value": "1;3;1565354818310"
+}
+```
+Again, note here that the selected options are referred with the `"value"` fields defined above, not as their `"label"`.
+
+##### Conversion
+The Hull - string array <=> Hubspot - Enum conversion works in both directions, by parsing each values separated
+by a `;` for incoming data.
+
+In the case of outgoing data, for each element in the Hull - string array, `"value"` and `"label"` fields  will share
+the same value when creating the definition of the Hubspot enumeration. You will not be able to customise the label if
+you export a Hull - string array to Hubspot.
 
 ### Data types supported
 
@@ -171,6 +360,137 @@ You can sync Hull [User & Account Segments](https://www.hull.io/docs/concepts/se
 | Groups of people    | User Segments    | `Hull_Segments` contact property |
 | Groups of companies | Account Segments | `Hull_Segments` company property |
 
+### Default Contact Mappings
+
+| Hubspot                                         | Hull                                       | Type    | Title                                   | Read Only |
+| :---                                          | :---:                                      | :---:   | :---:                                   | ---:      |
+| email                                         | email                                      | string  | Email                                   | false     |  
+| salutation                                    | hubspot/salutation                         | string  | Salutation                              | false     |  
+| firstname                                     | hubspot/first_name                         | string  | First Name                              | false     |  
+| lastname                                      | hubspot/last_name                          | string  | Last Name                               | false     |  
+| phone                                         | hubspot/phone                              | string  | Phone number                            | false     |  
+| mobilephone                                   | hubspot/mobile_phone                       | string  | Mobile Phone number                     | false     |  
+| address                                       | hubspot/address_street                     | string  | Street Address                          | false     |  
+| city                                          | hubspot/address_city                       | string  | City                                    | false     |  
+| zip                                           | hubspot/address_postal_code                | string  | Postal Code                             | false     |  
+| state                                         | hubspot/address_state                      | string  | State/Region                            | false     |  
+| country                                       | hubspot/address_country                    | string  | Country                                 | false     |  
+| fax                                           | hubspot/fax                                | string  | Fax number                              | false     |  
+| company                                       | hubspot/company                            | string  | Company Name                            | false     |  
+| industry                                      | hubspot/industry                           | string  | Industry                                | false     |  
+| jobtitle                                      | hubspot/job_title                          | string  | Job Title                               | false     |  
+| numemployees                                  | hubspot/employees_count                    | number  | Number of Employees                     | false     |  
+| website                                       | hubspot/website                            | string  | Website URL                             | false     |  
+| createdate                                    | hubspot/created_at                         | date    | Create Date                             | false     |  
+| closedate                                     | hubspot/closed_at                          | date    | Close Date                              | false     |  
+| lastmodifieddate                              | hubspot/updated_at                         | date    | Last Modified Date                      | false     |  
+| annualrevenue                                 | hubspot/annual_revenue                     | number  | Annual Revenue                          | false     |  
+| total_revenue                                 | hubspot/total_revenue                      | number  | Total Revenue                           | false     |  
+| lifecyclestage                                | hubspot/lifecycle_stage                    | string  | Lifecycle Stage                         | false     |  
+| days_to_close                                 | hubspot/days_to_close                      | number  | Days To Close                           | true      |  
+| first_deal_created_date                       | hubspot/first_deal_created_at              | date    | First Deal Created Date                 | false     |  
+| num_associated_deals                          | hubspot/associated_deals_count             | number  | Associated Deals                        | true      |  
+| hubspot_owner_id                              | hubspot/hubspot_owner_id                   | string  | HubSpot Owner                           | false     |  
+| hs_email_optout                               | hubspot/email_optout                       | boolean | Opted out of all email                  | true      |  
+| blog_default_hubspot_blog_subscription        | hubspot/default_hubspot_blog_subscription  | boolean | Default HubSpot Blog Email Subscription | false     |  
+| message                                       | hubspot/message                            | string  | Message                                 | false     |  
+| recent_deal_amount                            | hubspot/recent_deal_amount                 | number  | Recent Deal Amount                      | false     |  
+| recent_deal_close_date                        | hubspot/recent_deal_closed_at              | date    | Recent Deal Close Date                  | false     |  
+| num_notes                                     | hubspot/notes_count                        | number  | Number of Sales Activities              | true      |  
+| num_contacted_notes                           | hubspot/contacted_notes_count              | string  | Number of times contacted               | true      |  
+| notes_last_contacted                          | hubspot/notes_last_contacted_at            | date    | Last Contacted                          | false     |  
+| notes_last_updated                            | hubspot/last_activity_at                   | date    | Last Activity Date                      | false     |  
+| notes_next_activity_date                      | hubspot/next_activity_at                   | date    | Next Activity Date                      | false     |  
+| hubspot_owner_assigneddate                    | hubspot/owner_assigned_at                  | date    | Owner Assigned Date                     | false     |  
+| hs_lead_status                                | hubspot/lead_status                        | string  | Lead Status                             | false     |  
+| hs_lifecyclestage_customer_date               | hubspot/became_customer_at                 | date    | Became a Customer Date                  | false     |  
+| hs_lifecyclestage_lead_date                   | hubspot/became_lead_at                     | date    | Became a Lead Date                      | false     |  
+| hs_lifecyclestage_marketingqualifiedlead_date | hubspot/became_marketing_qualified_lead_at | date    | Became a Marketing Qualified Lead Date  | false     |  
+| hs_lifecyclestage_salesqualifiedlead_date     | hubspot/became_sales_qualified_lead_at     | date    | Became a Sales Qualified Lead Date      | false     |  
+| hs_lifecyclestage_subscriber_date             | hubspot/became_subscriber_at               | date    | Became a Subscriber Date                | false     |  
+| hs_lifecyclestage_evangelist_date             | hubspot/became_evangelist_at               | date    | Became an Evangelist Date               | false     |  
+| hs_lifecyclestage_opportunity_date            | hubspot/became_opportunity_at              | date    | Became an Opportunity Date              | false     |  
+| hs_lifecyclestage_other_date                  | hubspot/became_other_at                    | date    | Beame an Other Lifecycle Date           | false     |  
+| hs_email_bounce                               | hubspot/emails_bounced_count               | number  |                                         | true      |  
+| hs_email_open                                 | hubspot/opened_count                       | number  |                                         | true      |  
+| associatedcompanyid                           | hubspot/associatedcompanyid                | string  |                                         | false     |  
+
+
+### Default Company Mappings
+
+
+| Hubspot                                      |  Hull                                                 | Type        | Title                           | Read Only |
+| :---                                         | :---:                                                 | :---:       | :---:                           | ---:      |
+| about_us                                     | hubspot/about_us                                      | string      | About Us                        | false     |
+| first_deal_created_date                      | hubspot/first_deal_created_date                       | datetime    | First Deal Created Date         | true      |
+| founded_year                                 | hubspot/founded_year                                  | string      | Year Founded                    | false     |
+| hs_avatar_filemanager_key                    | hubspot/hs_avatar_filemanager_key                     | string      | Avatar FileManager key          | true      |
+| hs_lastmodifieddate                          | hubspot/hs_lastmodified_date                          | datetime    | Last Modified Date              | true      |
+| hs_predictivecontactscore_v2                 | hubspot/hs_predictivecontactscore_v2                  | number      | Likelihood to close             | true      |
+| hubspot_owner_assigneddate                   | hubspot/hubspot_owner_assigned_date                   | datetime    | Owner Assigned Date             | true      |
+| is_public                                    | hubspot/is_public                                     | bool        | Is Public                       | false     |
+| num_associated_contacts                      | hubspot/num_associated_contacts                       | number      | Associated Contacts             | true      |
+| num_associated_deals                         | hubspot/num_associated_deals                          | number      | Associated Deals                | true      |
+| recent_deal_amount                           | hubspot/recent_deal_amount                            | number      | Recent Deal Amount              | true      |
+| recent_deal_close_date                       | hubspot/recent_deal_close_date                        | datetime    | Recent Deal Close Date          | true      |
+| timezone                                     | hubspot/timezone                                      | string      | Time Zone                       | false     |
+| total_money_raised                           | hubspot/total_money_raised                            | string      | Total Money Raised              | false     |
+| total_revenue                                | hubspot/total_revenue                                 | number      | Total Revenue                   | true      |
+| name                                         | hubspot/name                                          | string      | Name                            | false     |
+| phone                                        | hubspot/phone                                         | string      | Phone Number                    | false     |
+| address                                      | hubspot/address                                       | string      | Street Address                  | false     |
+| address2                                     | hubspot/address2                                      | string      | Street Address 2                | false     |
+| city                                         | hubspot/city                                          | string      | City                            | false     |
+| state                                        | hubspot/state                                         | string      | State/Region                    | false     |
+| hs_sales_email_last_replied                  | hubspot/hs_sales_email_last_replied                   | datetime    | Recent Sales Email Replied Date | true      |
+| hubspot_owner_id                             | hubspot/hubspot_owner_id                              | enumeration | Company owner                   | false     |
+| notes_last_contacted                         | hubspot/notes_last_contacted_at                       | datetime    | Last Contacted                  | true      |
+| notes_last_updated                           | hubspot/notes_last_updated_at                         | datetime    | Last Activity Date              | true      |
+| notes_next_activity_date                     | hubspot/notes_next_activity_date                      | datetime    | Next Activity Date              | true      |
+| num_contacted_notes                          | hubspot/num_contacted_notes                           | number      | Number of times contacted       | true      |
+| num_notes                                    | hubspot/num_notes                                     | number      | Number of Sales Activities      | true      |
+| zip                                          | hubspot/zip                                           | string      | Postal Code                     | false     |
+| country                                      | hubspot/country                                       | string      | Country                         | false     |
+| hubspot_team_id                              | hubspot/hubspot_team_id                               | enumeration | HubSpot Team                    | true      |
+| hs_all_owner_ids                             | hubspot/hs_all_owner_ids                              | enumeration | All owner ids                   | true      |
+| website                                      | hubspot/website                                       | string      | Website URL                     | false     |
+| domain                                       | hubspot/domain                                        | string      | Company Domain Name             | false     |
+| hs_all_team_ids                              | hubspot/hs_all_team_ids                               | enumeration | All team ids                    | true      |
+| hs_all_accessible_team_ids                   | hubspot/hs_all_accessible_team_ids                    | enumeration | All accessible team ids         | true      |
+| numberofemployees                            | hubspot/numberofemployees                             | number      | Number of Employees             | false     |
+| industry                                     | hubspot/industry                                      | enumeration | Industry                        | false     |
+| annualrevenue                                | hubspot/annualrevenue                                 | number      | Annual Revenue                  | false     |
+| lifecyclestage                               | hubspot/lifecyclestage                                | enumeration | Lifecycle Stage                 | false     |
+| hs_lead_status                               | hubspot/hs_lead_status                                | enumeration | Lead Status                     | false     |
+| hs_parent_company_id                         | hubspot/hs_parent_company_id                          | number      | Parent Company                  | true      |
+| type                                         | hubspot/type                                          | enumeration | Type                            | false     |
+| description                                  | hubspot/description                                   | string      | Description                     | false     |
+| hs_num_child_companies                       | hubspot/hs_num_child_companies                        | number      | Number of child companies       | true      |
+| createdate                                   | hubspot/create_date                                   | datetime    | Create Date                     | true      |
+| closedate                                    | hubspot/close_date                                    | datetime    | Close Date                      | false     |
+| first_contact_createdate                     | hubspot/first_contact_create_date                     | datetime    | First Contact Create Date       | true      |
+| web_technologies                             | hubspot/web_technologies                              | enumeration | Web Technologies                | false     |
+| facebookfans                                 | hubspot/facebookfans                                  | number      | Facebook Fans                   | false     |
+| twitterhandle                                | hubspot/twitterhandle                                 | string      | Twitter Handle                  | false     |
+| twitterbio                                   | hubspot/twitterbio                                    | string      | Twitter Bio                     | false     |
+| twitterfollowers                             | hubspot/twitterfollowers                              | number      | Twitter Followers               | false     |
+| facebook_company_page                        | hubspot/facebook_company_page                         | string      | Facebook Company Page           | false     |
+| linkedin_company_page                        | hubspot/linkedin_company_page                         | string      | LinkedIn Company Page           | false     |
+| linkedinbio                                  | hubspot/linkedinbio                                   | string      | LinkedIn Bio                    | false     |
+| googleplus_page                              | hubspot/googleplus_page                               | string      | Google Plus Page                | false     |
+| hs_analytics_first_timestamp                 | hubspot/hs_analytics_first_timestamp                  | datetime    | Time First Seen                 | true      |
+| hs_analytics_first_touch_converting_campaign | hubspot/hs_analytics_first_touch_converting_campaign  | string      | First Touch Converting Campaign | true      |
+| hs_analytics_first_visit_timestamp           | hubspot/hs_analytics_first_visit_timestamp            | datetime    | Time of First Visit             | true      |
+| hs_analytics_last_timestamp                  | hubspot/hs_analytics_last_timestamp                   | datetime    | Time Last Seen                  | true      |
+| hs_analytics_last_touch_converting_campaign  | hubspot/hs_analytics_last_touch_converting_campaign   | string      | Last Touch Converting Campaign  | true      |
+| hs_analytics_last_visit_timestamp            | hubspot/hs_analytics_last_visit_timestamp             | datetime    | Time of Last Session            | true      |
+| hs_analytics_num_page_views                  | hubspot/hs_analytics_num_page_views                   | number      | Number of Pageviews             | true      |
+| hs_analytics_num_visits                      | hubspot/hs_analytics_num_visits                       | number      | Number of Visits                | true      |
+| hs_analytics_source                          | hubspot/hs_analytics_source                           | enumeration | Original Source Type            | true      |
+| hs_analytics_source_data_1                   | hubspot/hs_analytics_source_data_1                    | string      | Original Source Data 1          | true      |
+| hs_analytics_source_data_2                   | hubspot/hs_analytics_source_data_2                    | string      | Original Source Data 2          | true      |
+| days_to_close                                | hubspot/days_to_close                                 | number      | Days to Close                   | true      |
+  
 
 ## Sync Frequency & Limitations
 
@@ -193,7 +513,7 @@ Check you have setup identifiers for accounts. See [data mapping](#data-mapping)
 
 ### I don’t get updates of recently updated Contacts or Companies into Hull
 
-Check your connector logs for any `incoming.job.error`. If you see any with `Permission error`, you need to re-authenticate the HubSpot Connector. Go to the **Credentials & Actions** and perform the oAuth flow authorization again using the **Start over** button.
+Check your connector logs for any `incoming.job.error`. If you see any with `Permission error`, you need to re-authenticate the HubSpot Connector. Go to the **Credentials & Actions** and perform the OAuth flow authorization again using the **Start over** button.
 
 All your connector settings (including data mapping) will remain the same.
 

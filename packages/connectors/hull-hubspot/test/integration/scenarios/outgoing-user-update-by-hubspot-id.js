@@ -1,15 +1,25 @@
 // @flow
-/* global describe, it, beforeEach, afterEach */
+
+
+
+
+
+
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
+
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
+process.env.CLIENT_ID = "123";
+process.env.CLIENT_SECRET = "abc";
 
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_user_segments: ["hullSegmentId"]
+    synchronized_user_segments: ["hullSegmentId"],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const usersSegments = [
@@ -21,7 +31,7 @@ const usersSegments = [
 
 it("should send out a hull user to hubspot using known hubspot id", () => {
   const email = "email@email.com";
-  return testScenario({ connectorServer, connectorManifest}, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -37,7 +47,8 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
             "property": "hull_segments",
             "value": "testSegment"
           }],
-          "vid": "existingContactId"
+          "vid": "existingContactId",
+          "email": "email@email.com"
           }]
         ).reply(202);
         return scope;
@@ -51,7 +62,26 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
             email,
             "hubspot/id": "existingContactId"
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          // added this change of left segment so would trigger a push
+          // otherwise nothing will be pushed because no mapped attributes
+          changes: {
+            is_new: false,
+            user: {},
+            account: {},
+            segments: {
+              left: [
+                {
+                  id: "5bffc38f625718d58b000004",
+                  name: "Smugglers",
+                  updated_at: "2018-12-06T14:23:38Z",
+                  type: "users_segment",
+                  created_at: "2018-11-29T10:46:39Z"
+                }
+              ]
+            },
+            account_segments: {}
+          }
         }
       ],
       response: {
@@ -71,7 +101,8 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
           "info",
           "outgoing.user.success",
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {"vid": "existingContactId", "properties": [{"property": "hull_segments", "value": "testSegment"}]}
+          {"vid": "existingContactId", "email": "email@email.com",
+            "properties": [{"property": "hull_segments", "value": "testSegment"}]}
         ]
       ],
       firehoseEvents: [],

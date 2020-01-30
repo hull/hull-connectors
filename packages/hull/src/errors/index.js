@@ -11,7 +11,11 @@ module.exports = {
   RateLimitError: require("./rate-limit-error"),
   RecoverableError: require("./recoverable-error"),
   TransientError: require("./transient-error"),
+  MissingHandlerError: require("./missing-handler-error"),
+  ConnectorNotFoundError: require("./connector-not-found"),
   LogicError: require("./logic-error"),
   NotificationValidationError: require("./notification-validation-error"),
-  SkippableError: require("./skippable-error")
+  ValidationError: require("./validation-error"),
+  SkippableError: require("./skippable-error"),
+  PaymentRequiredError: require("./payment-required-error")
 };

@@ -6,8 +6,7 @@ const _ = require("lodash");
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
 
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
 // Clone deep otherwise changes will affect other subsequent tests
 const incomingData = _.cloneDeep(require("../fixtures/get-contacts-groups"));
 
@@ -21,12 +20,14 @@ const connector = {
     token: "hubToken",
     token_fetched_at: 1419967066626,
     expires_in: 10,
-    refresh_token: "123"
+    refresh_token: "123",
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 
 it("Should return a custom attribute warning when missing the hull segments property", () => {
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "status",

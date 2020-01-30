@@ -1,9 +1,16 @@
 // @flow
-/* global describe, it, beforeEach, afterEach */
+
+
+
+
+
+
+
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const _ = require("lodash");
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
+
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
@@ -13,12 +20,14 @@ const connector = {
   private_settings: {
     token: "hubToken",
     token_fetched_at: 1419967066626,
-    expires_in: 10
+    expires_in: 10,
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 
 it("should handle error during token refresh", () => {
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "monitor/checkToken",

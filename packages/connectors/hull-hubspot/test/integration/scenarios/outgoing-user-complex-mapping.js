@@ -1,8 +1,7 @@
 // @flow
-/* global describe, it, beforeEach, afterEach */
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
+
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
@@ -44,7 +43,9 @@ const connector = {
       { hull: "account.custom_zero", service: "custom_hubspot_account_zero", overwrite: true },
       { hull: "account.custom_undefined", service: "custom_hubspot_account_undefined", overwrite: true },
       { hull: "account.custom_date_at", service: "custom_hubspot_account_date_at", overwrite: true }
-    ]
+    ],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const usersSegments = [
@@ -56,7 +57,7 @@ const usersSegments = [
 
 it("should send out a new hull user to hubspot with complex fields mapping", () => {
   const email = "email@email.com";
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -162,7 +163,19 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
             // custom_undefined: "", -> this is not present
             custom_date_at: "2018-10-24T09:47:39Z",
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          changes: {
+            is_new: false,
+            user: {
+              traits_custom_numeric: [
+                null,
+                123
+              ]
+            },
+            account: {},
+            segments: {},
+            account_segments: {}
+          },
         }
       ],
       response: {

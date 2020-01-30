@@ -1,25 +1,29 @@
 // @flow
-import type { HullUserUpdateMessage } from "hull-client";
+import type {
+  HullUser,
+  HullUserChanges,
+  HullUserUpdateMessage
+} from "../types";
 
 const _ = require("lodash");
 
-function replace(value, key) {
-  return key.replace(/^traits_/, "");
-}
+const replace = (value, key) => key.replace(/^traits_/, "");
 
-function trimTraitsPrefixFromUserMessage(
-  userMessage: HullUserUpdateMessage
-): HullUserUpdateMessage {
-  const clonedUserMessage = _.cloneDeep(userMessage);
-  clonedUserMessage.user = _.mapKeys(clonedUserMessage.user, replace);
-
-  if (clonedUserMessage.changes && clonedUserMessage.changes.user) {
-    clonedUserMessage.changes.user = _.mapKeys(
-      clonedUserMessage.changes.user,
-      replace
-    );
+function trimTraitsPrefixFromUserMessage(userMessage: {
+  user: HullUser,
+  changes: HullUserChanges
+}): HullUserUpdateMessage {
+  const res = {
+    ...userMessage
+  };
+  res.user = _.mapKeys(userMessage.user, replace);
+  if (userMessage.changes && userMessage.changes.user) {
+    res.changes = {
+      ...userMessage.changes,
+      user: _.mapKeys(userMessage.changes.user, replace)
+    };
   }
-  return clonedUserMessage;
+  return res;
 }
 
 module.exports = trimTraitsPrefixFromUserMessage;

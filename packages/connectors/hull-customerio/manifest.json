@@ -4,13 +4,14 @@
   "source": "customerio",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.0.21-monorepo",
+  "version": "0.1.15-monorepo",
   "tags": [
     "outgoing",
     "batch",
     "oneColumn",
     "smart-notifier",
-    "single-install"
+    "single-install",
+    "kraken-exports"
   ],
   "private_settings": [
     {
@@ -21,13 +22,16 @@
     },
     {
       "name": "site_id",
-      "title": "Customer.io Site ID",
-      "type": "string"
+      "title": "Customer.io SITE ID",
+      "type": "string",
+      "description": "Paste value from Customer.io dashboard."
     },
     {
       "name": "api_key",
-      "title": "Customer.io API Key",
-      "type": "string"
+      "title": "Customer.io API KEY",
+      "type": "string",
+      "format": "password",
+      "description": "Paste value from Customer.io dashboard."
     },
     {
       "name": "configuration_title",
@@ -37,7 +41,7 @@
     },
     {
       "name": "synchronized_segments",
-      "title" : "User Filter",
+      "title": "User Filter",
       "description": "Send users to Customer.io when belonging to one of these segments. By default, no user is sent",
       "type": "array",
       "default": [],
@@ -66,8 +70,8 @@
     },
     {
       "name": "user_id_mapping",
-      "title": "Which user attribute to send as 'customerId'",
-      "description": "Customer.io requires a unique main identifer for each user. The best practice is to use the `external_id` because it can never change, but in specific cases you might want to use another attribute. This is an advanced setting. We advise to contact us before changing",
+      "title": "customerId mapping",
+      "description": "Customer.io requires a unique main identifer for each user called `customerId`. The best practice is to use the `external_id` because it can never change, but in specific cases you might want to use another attribute. This is an advanced setting. We advise to contact us before changing.",
       "type": "string",
       "format": "trait",
       "default": "external_id"
@@ -103,25 +107,96 @@
   ],
   "resources": [],
   "readme": "readme.md",
-  "tabs": [
-    {
-      "title": "Setup",
-      "url": "admin.html",
-      "size": "small",
-      "editable": false
-    }
-  ],
   "ui": false,
   "subscriptions": [
     {
-      "url": "/smart-notifier"
+      "url": "/smart-notifier",
+      "conditions": {
+        "channels": {
+          "only": [
+            "user:update"
+          ]
+        },
+        "segments": {
+          "user:update": [
+            "private_settings.synchronized_segments"
+          ]
+        }
+      },
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "updateUser"
+        }
+      ]
     }
   ],
-  "schedules" : [
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "updateUser"
+        }
+      ]
+    }
+  ],
+  "incoming": [
+    {
+      "url": "/webhook",
+      "handler": "webhookHandler",
+      "description": "",
+      "format": "credentials",
+      "type": "string"
+    }
+  ],
+  "json": [
+    {
+      "name": "credentials",
+      "handler": "credentialsHandler",
+      "url": "/credentials",
+      "title": "Customer.io Webhook url",
+      "description": "In **Customer.io**, go to **Integrations** and **Email Activity Webhooks** and paste at the following url in `WEBHOOK ENDPOINT`",
+      "format": "credentials",
+      "type": "string"
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Credentials",
+      "description": "This section authorize connector against Customerio.io API. Two API credentials are needed to enable outgoing traffic, additional webhook url can be added in Customer.io settings to enable incoming events.<br /><br />To get `SITE ID` and `API KEY` go to **Customer.io**, then **Integrations** and select **Customer.io API**, credentials are available at the top of the screen.<br />To enable incoming events copy the webhook url below and in **Customer.io**, go to **Integrations** and find **Email Activity Webhook**. Then paste at the url in `WEBHOOK ENDPOINT`",
+      "properties": [
+        "private_settings.site_id",
+        "private_settings.api_key",
+        "json.credentials"
+      ]
+    },
+    {
+      "title": "Outgoing Mapping",
+      "step": "mapping",
+      "properties": [
+        "private_settings.user_id_mapping",
+        "private_settings.synchronized_segments",
+        "private_settings.synchronized_attributes",
+        "private_settings.enable_user_deletion",
+        "private_settings.events_filter",
+        "private_settings.anonymous_events"
+      ]
+    }
+  ],
+  "statuses": [
     {
       "url": "/status",
       "type": "cron",
-      "value": "*/30 * * * *"
+      "value": "*/30 * * * *",
+      "handler": "statusCheck"
     }
-  ]
+  ],
+  "status": {
+    "url": "/status",
+    "type": "cron",
+    "value": "*/30 * * * *",
+    "handler": "statusCheck"
+  }
 }

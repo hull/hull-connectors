@@ -1,10 +1,10 @@
 const _ = require("lodash");
 const Promise = require("bluebird");
 const lodashId = require("lodash-id");
-const MiniApplication = require("mini-application");
 const crypto = require("crypto");
 const faker = require("faker");
 const shell = require("shelljs");
+const MiniApplication = require("./mini-application");
 
 const minihullRouter = require("./router");
 
@@ -173,6 +173,7 @@ class MiniHull extends MiniApplication {
    * @param  {Array}  messages  Array of messages
    * @param  {Array}  usersSegments  Array of segments
    * @param  {Array}  accountsSegments  Array of segments
+   * @param  {boolean}  is_export  boolean is payload batch
    * @return {superagent} SuperAgent instance
    */
   notifyConnector(
@@ -181,7 +182,8 @@ class MiniHull extends MiniApplication {
     channel,
     messages,
     usersSegments = [],
-    accountsSegments = []
+    accountsSegments = [],
+    is_export = false
   ) {
     if (typeof connector === "string") {
       throw new Error(
@@ -200,9 +202,9 @@ class MiniHull extends MiniApplication {
       users_segments: usersSegments,
       accounts_segments: accountsSegments,
       channel,
-      messages
+      messages,
+      is_export
     };
-
     return this.post(url)
       .set("x-hull-smart-notifier", "dummy")
       .send(body)

@@ -3,7 +3,8 @@ import type {
   HullAccountAttributes,
   HullUserAttributes,
   HullConnector,
-  HullSegment,
+  HullAccountSegment,
+  HullUserSegment,
   HullUserUpdateMessage,
   HullAccountUpdateMessage,
   HullIncomingClaimsSetting
@@ -44,9 +45,9 @@ class MappingUtil {
 
   logger: Object;
 
-  usersSegments: Array<HullSegment>;
+  usersSegments: Array<HullUserSegment>;
 
-  accountsSegments: Array<HullSegment>;
+  accountsSegments: Array<HullAccountSegment>;
 
   hubspotContactProperties: Array<HubspotContactProperty>;
 
@@ -56,21 +57,13 @@ class MappingUtil {
 
   hullAccountProperties: { [string]: HullProperty };
 
-  contactAttributesIncomingSettings: Array<
-    HubspotContactAttributesIncomingSetting
-  >;
+  contactAttributesIncomingSettings: Array<HubspotContactAttributesIncomingSetting>;
 
-  contactAttributesOutgoingSettings: Array<
-    HubspotContactAttributesOutgoingSetting
-  >;
+  contactAttributesOutgoingSettings: Array<HubspotContactAttributesOutgoingSetting>;
 
-  companyAttributesIncomingSettings: Array<
-    HubspotCompanyAttributesIncomingSetting
-  >;
+  companyAttributesIncomingSettings: Array<HubspotCompanyAttributesIncomingSetting>;
 
-  companyAttributesOutgoingSettings: Array<
-    HubspotCompanyAttributesOutgoingSetting
-  >;
+  companyAttributesOutgoingSettings: Array<HubspotCompanyAttributesOutgoingSetting>;
 
   outgoingLinking: boolean;
 
@@ -472,10 +465,16 @@ class MappingUtil {
    * @return {Object}          Hull user traits
    */
   getHullUserTraits(userData: HubspotReadContact): HullUserAttributes {
+    const properties = userData.properties;
     const hullTraits = _.reduce(
       this.contactIncomingMapping,
       (traits, mappingEntry) => {
-        if (!mappingEntry.hubspot_property_name) {
+        const hullTraitName = mappingEntry.hull_trait_name;
+        const hsPropertyName = mappingEntry.hubspot_property_name;
+        const hsPropertyType = mappingEntry.hubspot_property_type;
+        const hsPropertyFieldType = mappingEntry.hubspot_property_field_type;
+
+        if (_.isNil(hsPropertyName)) {
           this.hullClient
             .asUser(_.pick(userData, ["id", "external_id", "email"]))
             .logger.warn("incoming.user.warning", {
@@ -483,15 +482,18 @@ class MappingUtil {
               mappingEntry
             });
         }
-        if (
-          userData.properties &&
-          _.has(userData.properties, mappingEntry.hubspot_property_name)
-        ) {
-          let val = _.get(
-            userData,
-            `properties[${mappingEntry.hubspot_property_name}].value`
-          );
-          if (mappingEntry.hubspot_property_type === "number") {
+
+        let val = null;
+        if (_.startsWith(hsPropertyName, "contact_meta.")) {
+          const metaKey = hsPropertyName.split("contact_meta.")[1];
+          val = _.get(userData, metaKey, null);
+        } else if (properties && _.has(properties, hsPropertyName)) {
+          const propertiesKey = `properties[${hsPropertyName}].value`;
+          val = _.get(userData, propertiesKey, null);
+        }
+
+        if (!_.isNil(val)) {
+          if (hsPropertyType === "number") {
             const numVal = parseFloat(val);
             // eslint-disable-next-line no-restricted-globals
             if (!isNaN(val)) {
@@ -500,14 +502,15 @@ class MappingUtil {
           }
 
           if (
-            mappingEntry.hubspot_property_type === "enumeration" &&
-            mappingEntry.hubspot_property_field_type === "checkbox" &&
+            hsPropertyType === "enumeration" &&
+            hsPropertyFieldType === "checkbox" &&
             typeof val === "string"
           ) {
             val = val.split(";");
           }
-          traits[mappingEntry.hull_trait_name] = val;
         }
+        traits[hullTraitName] = val;
+
         return traits;
       },
       {}
@@ -537,12 +540,11 @@ class MappingUtil {
     const hubspotWriteContact: HubspotWriteContact = {
       properties: hubspotWriteProperties
     };
-    if (
-      message.user["hubspot/id"] &&
-      typeof message.user["hubspot/id"] === "string"
-    ) {
+    if (message.user["hubspot/id"]) {
       hubspotWriteContact.vid = message.user["hubspot/id"];
-    } else {
+    }
+
+    if (message.user.email) {
       hubspotWriteContact.email = message.user.email;
     }
     return hubspotWriteContact;
@@ -560,10 +562,16 @@ class MappingUtil {
       hubspotWriteCompany.objectId = message.account["hubspot/id"].toString();
     }
 
-    hubspotWriteCompany.properties.push({
-      name: "domain",
-      value: message.account.domain
+    const domainProperties = _.filter(hubspotWriteCompany.properties, {
+      name: "domain"
     });
+
+    if (domainProperties.length === 0) {
+      hubspotWriteCompany.properties.push({
+        name: "domain",
+        value: message.account.domain
+      });
+    }
 
     return hubspotWriteCompany;
   }
@@ -582,6 +590,7 @@ class MappingUtil {
     const userData = userMessage.user;
     debug("getHubspotContactProperties", this.contactOutgoingMapping);
     // const userSegments = this.userSegments;
+    const userChanges = _.get(userMessage, "changes.user", null);
     const contactProps = _.reduce(
       this.contactOutgoingMapping,
       (contactProperties, mappingEntry) => {
@@ -611,6 +620,8 @@ class MappingUtil {
 
         if (Array.isArray(value)) {
           value = value.join(";");
+        } else if (_.isPlainObject(value)) {
+          value = JSON.stringify(value);
         }
 
         if (value && mappingEntry.hubspot_property_type === "date") {
@@ -641,13 +652,28 @@ class MappingUtil {
             value
           });
         }
+        if (userChanges) {
+          const userChange = _.get(
+            userChanges,
+            mappingEntry.hubspot_property_name,
+            null
+          );
+          if (_.isArray(userChange) && userChange[1] === null) {
+            this.hullClient.logger.debug("Setting NULL for user attribute", {
+              hull_trait_name: mappingEntry.hull_trait_name,
+              hubspot_property_name: mappingEntry.hubspot_property_name
+            });
+          }
+        }
         return contactProperties;
       },
       []
     );
 
     // handle segments
-    const userSegments: Array<HullSegment> = Array.isArray(userMessage.segments)
+    const userSegments: Array<HullUserSegment> = Array.isArray(
+      userMessage.segments
+    )
       ? userMessage.segments
       : [];
     debug("userSegments", userMessage.segments);
@@ -686,6 +712,7 @@ class MappingUtil {
     debug("getHubspotCompanyProperties", this.companyOutgoingMapping);
     // const userSegments = this.userSegments;
     const accountData = message.account;
+    const accountChanges = _.get(message, "changes.account", null);
     const contactProps = _.reduce(
       this.companyOutgoingMapping,
       (contactProperties, mappingEntry) => {
@@ -720,6 +747,8 @@ class MappingUtil {
 
         if (Array.isArray(value)) {
           value = value.join(";");
+        } else if (_.isPlainObject(value)) {
+          value = JSON.stringify(value);
         }
 
         if (value && mappingEntry.hubspot_property_type === "date") {
@@ -752,12 +781,25 @@ class MappingUtil {
             value
           });
         }
+        if (accountChanges) {
+          const accountChange = _.get(
+            accountChanges,
+            mappingEntry.hubspot_property_name,
+            null
+          );
+          if (_.isArray(accountChange) && accountChange[1] === null) {
+            this.hullClient.logger.debug("Setting NULL for account attribute", {
+              hull_trait_name: mappingEntry.hull_trait_name,
+              hubspot_property_name: mappingEntry.hubspot_property_name
+            });
+          }
+        }
         return contactProperties;
       },
       []
     );
 
-    const accountSegments: Array<HullSegment> = Array.isArray(
+    const accountSegments: Array<HullAccountSegment> = Array.isArray(
       message.account_segments
     )
       ? message.account_segments

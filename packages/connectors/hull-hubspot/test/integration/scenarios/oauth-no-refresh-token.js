@@ -6,8 +6,7 @@ const _ = require("lodash");
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
 
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
@@ -15,12 +14,14 @@ const connector = {
   private_settings: {
     token: "hubToken",
     token_fetched_at: 1419967066626,
-    expires_in: 10
+    expires_in: 10,
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 
 it("Should return the no OAuth credentials error when calling the connector's API without a refresh token", () => {
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "status",
@@ -33,7 +34,7 @@ it("Should return the no OAuth credentials error when calling the connector's AP
       connector,
       usersSegments: [],
       accountsSegments: [],
-      response: {"messages": ['Error in authenticating with Hubspot.  Hubspot service did not return the proper OAuth Credentials.  Please reauthenticate with Hubspot by clicking "Credentials & Actions" and then click "Start Over".  If it happens again, please contact Hull Support.', 'Could not get response from Hubspot due to error Refresh token is not set.'], "status": "error"},
+      response: {"messages": ['Error in authenticating with Hubspot.  Hubspot service did not return the proper OAuth Credentials.  Please reauthenticate with Hubspot by clicking "Credentials & Actions" and then click "Start Over".  If it happens again, please contact Hull Support.'], "status": "setupRequired"},
       logs: [
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 401, "url": "/contacts/v2/groups", "vars": {}}],
         ["debug", "retrying query", {}, []],
@@ -52,9 +53,8 @@ it("Should return the no OAuth credentials error when calling the connector's AP
             "messages":
               [
                 'Error in authenticating with Hubspot.  Hubspot service did not return the proper OAuth Credentials.  Please reauthenticate with Hubspot by clicking "Credentials & Actions" and then click "Start Over".  If it happens again, please contact Hull Support.',
-                'Could not get response from Hubspot due to error Refresh token is not set.'
               ],
-            "status": "error"
+            "status": "setupRequired"
           }
         ]
       ]

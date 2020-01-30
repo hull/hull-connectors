@@ -1,0 +1,202 @@
+{
+  "name": "Zapier",
+  "description": "Zapier Connector",
+  "tags": [
+    "batch",
+    "batch-accounts",
+    "smart-notifier",
+    "kraken-exports",
+    "first-install"
+  ],
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "ui": false,
+  "readme": "readme.md",
+  "version": "0.1.15-monorepo",
+  "private_settings": [
+    {
+      "name": "triggers",
+      "title": "Rest Hook Subscriptions",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {}
+      },
+      "default": []
+    },
+    {
+      "name": "send_all_user_attributes",
+      "title": "Sending all user attributes by default",
+      "type": "boolean",
+      "default": true,
+      "format": "hidden"
+    },
+    {
+      "name": "send_all_account_attributes",
+      "title": "Sending all account attributes by default",
+      "type": "boolean",
+      "default": true,
+      "format": "hidden"
+    },
+    {
+      "name": "invitation",
+      "default": "https://zapier.com/apps/hull/integrations",
+      "type": "string"
+    },
+    {
+      "name": "synchronized_user_segments",
+      "title": "User Filter",
+      "description": "Which users are sent to Zapier",
+      "type": "array",
+      "format": "segment",
+      "options": {
+        "standard": {
+          "ALL": "All Users"
+        }
+      },
+      "default": [
+        "ALL"
+      ]
+    },
+    {
+      "name": "synchronized_account_segments",
+      "title": "Account Filter",
+      "description": "Which accounts are sent to Zapier",
+      "type": "array",
+      "format": "accountSegment",
+      "options": {
+        "standard": {
+          "ALL": "All Accounts"
+        }
+      },
+      "default": [
+        "ALL"
+      ]
+    }
+  ],
+  "resources": [],
+  "settings_sections": [
+    {
+      "title": "Connect to Zapier",
+      "description": "Please follow the link to begin using our Zapier integration",
+      "properties": [
+        "private_settings.invitation"
+      ]
+    },
+    {
+      "title": "Credentials",
+      "description": "Copy this token and paste it in the Zapier authentication window",
+      "step": "credentials",
+      "properties": [
+        "json.credentials"
+      ]
+    }
+  ],
+  "incoming": [
+    {
+      "url": "/subscribe",
+      "handler": "subscribe",
+      "options": {
+        "credentialsFromQuery": true,
+        "bodyParser": "json"
+      }
+    },
+    {
+      "url": "/unsubscribe",
+      "handler": "unsubscribe",
+      "options": {
+        "credentialsFromQuery": true,
+        "bodyParser": "json"
+      }
+    },
+    {
+      "url": "/create",
+      "handler": "create",
+      "options": {
+        "credentialsFromQuery": true,
+        "bodyParser": "json"
+      }
+    },
+    {
+      "url": "/search",
+      "handler": "search",
+      "options": {
+        "credentialsFromQuery": true,
+        "bodyParser": "json"
+      }
+    }
+  ],
+  "json": [
+    {
+      "url": "/auth",
+      "handler": "auth"
+    },
+    {
+      "url": "/segments",
+      "handler": "segments",
+      "options": {
+        "respondWithError": true
+      }
+    },
+    {
+      "url": "/schema",
+      "handler": "schema",
+      "options": {
+        "respondWithError": true
+      }
+    },
+    {
+      "url": "/credentials",
+      "name": "credentials",
+      "format": "credentials",
+      "title": "Credentials",
+      "description": "The Token to pass to Zapier",
+      "type": "string",
+      "handler": "credentials"
+    }
+  ],
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "conditions": {
+        "channels": {
+          "only": [
+            "user:update",
+            "ship:update",
+            "account:update"
+          ]
+        },
+        "segments": {
+          "user:update": ["private_settings.synchronized_user_segments"],
+          "account:update": ["private_settings.synchronized_account_segments"]
+        }
+      },
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
+        {
+          "channel": "account:update",
+          "handler": "accountUpdate"
+        }
+      ]
+    }
+  ],
+  "status": {
+    "initial_value": "ok",
+    "url": "/status",
+    "type": "cron",
+    "value": "*/30 * * * *",
+    "handler": "statusHandler"
+  },
+  "statuses": [
+    {
+      "initial_value": "ok",
+      "url": "/status",
+      "type": "cron",
+      "value": "*/30 * * * *",
+      "handler": "statusHandler"
+    }
+  ]
+}

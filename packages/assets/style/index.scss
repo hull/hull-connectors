@@ -1,0 +1,41 @@
+@import "~bootstrap/dist/css/bootstrap.css";
+@import "./icons.scss";
+@import "./margins.scss";
+@import "./buttons.scss";
+@import "./swal.scss";
+@import "./checkbox.scss";
+@import "./flex-helpers.scss";
+@import "./fonts.scss";
+@import "./dark.scss";
+
+:root {
+  --font-family-sans-serif: "Nitti Grotesk", "Helvetica Neue", Helvetica, Roboto,
+    Arial;
+  --font-family-monospace: "Nitti Pro", Consolas, "Liberation Mono", Courier,
+    monospace;
+}
+
+body {
+  font-family: var(--font-family-sans-serif);
+}
+
+legend {
+  border-bottom-color: #ced7e4;
+  height: 8px;
+}
+legend small {
+  background-color: white;
+  padding: 0 5px;
+  font-size: 13px;
+}
+.input-group-addon {
+  padding: 0;
+}
+.input-group-addon .btn {
+  height: 40px;
+  padding-top: 12px;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+}

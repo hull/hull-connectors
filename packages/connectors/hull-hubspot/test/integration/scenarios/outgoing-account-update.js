@@ -1,15 +1,29 @@
 // @flow
-/* global describe, it, beforeEach, afterEach */
+
+
+
+
+
+
+
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
+
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
+process.env.CLIENT_ID = "1234";
+process.env.CLIENT_SECRET = "1234";
 
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_account_segments: ["hullSegmentId"]
+    synchronized_account_segments: ["hullSegmentId"],
+    outgoing_account_attributes: [
+      { hull: "name", service: "name", overwrite: true }
+    ],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const accountsSegments = [
@@ -19,9 +33,9 @@ const accountsSegments = [
   }
 ];
 
-it("should send out a new hull account to hubspot", () => {
+it("should send out a new hull account to hubspot account update", () => {
   const domain = "hull.io";
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -33,13 +47,19 @@ it("should send out a new hull account to hubspot", () => {
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, []);
           scope.post("/companies/v1/batch-async/update?auditId=Hull", [{
-            "properties": [{
-              "name": "hull_segments",
-              "value": "testSegment"
-            }, {
-              "name": "domain",
-              "value": "hull.io"
-            }],
+            "properties": [
+              {
+                name: "name",
+                value: "New Name"
+              },
+              {
+                "name": "hull_segments",
+                "value": "testSegment"
+              }, {
+                "name": "domain",
+                "value": "hull.io"
+              }
+            ],
             objectId: "companyHubspotId123"
           }]).reply(202);
         return scope;
@@ -49,8 +69,21 @@ it("should send out a new hull account to hubspot", () => {
       accountsSegments,
       messages: [
         {
+          changes: {
+            is_new: false,
+            user: {},
+            account: {
+              name: [
+                "old",
+                "New Name"
+              ]
+            },
+            segments: {},
+            account_segments: {}
+          },
           account: {
             domain,
+            name: "New Name",
             "hubspot/id": "companyHubspotId123"
           },
           account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
@@ -75,13 +108,19 @@ it("should send out a new hull account to hubspot", () => {
           expect.objectContaining({ "subject_type": "account", "account_domain": domain }),
           {
             hubspotWriteCompany: {
-              "properties": [{
-                "name": "hull_segments",
-                "value": "testSegment"
-              }, {
-                "name": "domain",
-                "value": "hull.io"
-              }],
+              "properties": [
+                {
+                  name: "name",
+                  value: "New Name"
+                },
+                {
+                  "name": "hull_segments",
+                  "value": "testSegment"
+                }, {
+                  "name": "domain",
+                  "value": "hull.io"
+                }
+              ],
               objectId: "companyHubspotId123"
             },
             operation: "update"

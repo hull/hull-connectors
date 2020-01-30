@@ -1,6 +1,5 @@
 // @flow
-import type { HullSegment } from "hull-client";
-import type { HullContext } from "../types";
+import type { HullSegment, HullContext } from "../types";
 
 export type HullHelperExtractRequestOptions = {
   segment?: null | HullSegment,
@@ -8,6 +7,18 @@ export type HullHelperExtractRequestOptions = {
   path?: string,
   fields?: Array<string>,
   additionalQuery?: Object
+};
+
+const getSegmentQuery = (client, segment): { query: {} } => {
+  if (segment == null) {
+    return { query: {} };
+  }
+
+  // TODO: What's the exact format of a Segment message? do we have the query there ?
+  if (segment.query) {
+    return segment;
+  }
+  return client.get(segment.id, {});
 };
 
 const Promise = require("bluebird");
@@ -32,17 +43,13 @@ const _ = require("lodash");
  * @example
  * req.hull.helpers.requestExtract({ segment = null, path, fields = [], additionalQuery = {} });
  */
-function extractRequest(
-  ctx: HullContext,
-  {
-    // $FlowFixMe
-    segment = null,
-    format = "json",
-    path = "batch",
-    fields = [],
-    additionalQuery = {}
-  }: HullHelperExtractRequestOptions = {}
-) {
+const extractRequest = (ctx: HullContext) => async ({
+  format = "json",
+  segment,
+  path = "batch",
+  fields = [],
+  additionalQuery = {}
+}: HullHelperExtractRequestOptions = {}): Promise<any> => {
   const { client, hostname } = ctx;
   const conf = client.configuration();
   const search = _.merge(
@@ -63,22 +70,10 @@ function extractRequest(
     .search(search)
     .toString();
 
-  return (() => {
-    if (segment == null) {
-      return Promise.resolve({
-        query: {}
-      });
-    }
-
-    if (segment.query) {
-      return Promise.resolve(segment);
-    }
-    return client.get(segment.id, {});
-  })().then(({ query }) => {
-    const params = { query, format, url, fields };
-    client.logger.debug("connector.requestExtract.params", params);
-    return client.post("extract/user_reports", params);
-  });
-}
+  const { query } = await getSegmentQuery(client, segment);
+  const params = { query, format, url, fields };
+  client.logger.debug("connector.requestExtract.params", params);
+  return client.post("extract/user_reports", params);
+};
 
 module.exports = extractRequest;

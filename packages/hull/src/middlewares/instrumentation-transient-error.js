@@ -5,7 +5,7 @@ const { TransientError } = require("../errors");
 function instrumentationTransientErrorFactory() {
   return function instrumentationTransientError(err, req, res, next) {
     if (err instanceof TransientError) {
-      debug("transient-error metric");
+      debug("transient-error", { err: err.message });
       req.hull.metric.increment("connector.transient_error", 1, [
         `error_name:${_.snakeCase(err.name)}`,
         `error_message:${_.snakeCase(err.message)}`

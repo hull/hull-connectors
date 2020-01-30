@@ -1,10 +1,28 @@
 // @flow
-import type { $Response, NextFunction } from "express";
-import type { HullRequestBase } from "../types";
+import type { NextFunction } from "express";
+import type {
+  HullRequest,
+  HullResponse,
+  HullClientCredentials
+} from "../types";
+import getBody from "../utils/get-json-body";
 
-const debug = require("debug")("hull-connector:credentials-from-notification");
-const bodyParser = require("body-parser");
 const NotificationValidator = require("../utils/notification-validator");
+
+function getTimestamp() {
+  return Math.floor(new Date().getTime() / 1000);
+}
+
+function ensureRequestId(req: HullRequest) {
+  const { hull } = req;
+  const { notification_id = null } = getBody(req.body);
+
+  if (hull.requestId) return hull.requestId;
+  if (notification_id) {
+    return ["smart-notifier", getTimestamp(), notification_id].join(":");
+  }
+  return undefined;
+}
 
 /**
  * This middleware is responsible for parsing incoming notification, validating it
@@ -12,15 +30,17 @@ const NotificationValidator = require("../utils/notification-validator");
  * As a result it sets `req.hull.clientCredentials`.
  */
 function credentialsFromNotificationMiddlewareFactory() {
-  return function credentialsFromNotificationMiddleware(
-    req: HullRequestBase,
-    res: $Response,
+  return async function credentialsFromNotificationMiddleware(
+    req: HullRequest,
+    res: HullResponse,
     next: NextFunction
   ) {
+    const { hull, body } = req;
     const {
       skipSignatureValidation,
       notificationValidatorHttpClient
-    } = req.hull.connectorConfig;
+    } = hull.connectorConfig;
+
     const notificationValidator = new NotificationValidator(
       notificationValidatorHttpClient
     );
@@ -32,48 +52,33 @@ function credentialsFromNotificationMiddlewareFactory() {
       }
     }
 
-    return bodyParser.json({ limit: "10mb" })(req, res, err => {
-      debug("parsed json body", { skipSignatureValidation }, req.body);
-      if (err !== undefined) {
-        return next(err);
+    const payloadError = notificationValidator.validatePayload(req);
+    if (payloadError !== null) {
+      return next(payloadError);
+    }
+    try {
+      const error = await (skipSignatureValidation
+        ? Promise.resolve()
+        : notificationValidator.validateSignature(req));
+      if (error) {
+        throw error;
       }
-      const payloadError = notificationValidator.validatePayload(req);
-      if (payloadError !== null) {
-        return next(payloadError);
+      if (body === null || typeof body !== "object") {
+        throw new Error("Missing Payload Body");
       }
-
-      return (() => {
-        if (skipSignatureValidation) {
-          return Promise.resolve();
-        }
-        return notificationValidator.validateSignature(req);
-      })()
-        .then(() => {
-          const { body } = req;
-          if (body === null || typeof body !== "object") {
-            return next(new Error("Missing payload body"));
-          }
-          const clientCredentials = body.configuration;
-          if (!req.hull.requestId && body.notification_id) {
-            const timestamp = Math.floor(new Date().getTime() / 1000);
-            req.hull.requestId = [
-              "smart-notifier",
-              timestamp,
-              body.notification_id
-            ].join(":");
-          }
-          // $FlowFixMe
-          req.hull = Object.assign(req.hull, {
-            // $FlowFixMe
-            clientCredentials
-          });
-          return next();
-        })
-        .catch(error => {
-          next(error);
-        });
-    });
+      const {
+        configuration: clientCredentials = {}
+      }: {
+        configuration: HullClientCredentials
+      } = body;
+      req.hull = Object.assign(req.hull, {
+        requestId: ensureRequestId(req),
+        clientCredentials
+      });
+      return next();
+    } catch (err) {
+      return next(err);
+    }
   };
 }
-
 module.exports = credentialsFromNotificationMiddlewareFactory;

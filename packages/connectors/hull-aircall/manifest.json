@@ -1,0 +1,74 @@
+{
+  "name": "Aircall",
+  "description": "Capture Aircall Events",
+  "tags": [
+    "incoming",
+    "oneColumn"
+  ],
+  "picture": "picture.png",
+  "ui": false,
+  "readme": "readme.md",
+  "version": "0.1.15-monorepo",
+  "private_settings": [
+    {
+      "title": "Preferred email Label",
+      "description": "Enter the label of the email you want to use as the main identifier (For instance 'Work' or 'Main'). If contact doesn't have it, we'll fetch the first email we find",
+      "name": "preferred_email",
+      "format": "string",
+      "type": "string"
+    }
+  ],
+  "subscriptions": [],
+  "settings_sections": [
+    {
+      "title": "Credentials",
+      "description": "Setup Aircall Webhook to capture events",
+      "step": "credentials",
+      "properties": [
+        "json.credentials"
+      ]
+    },
+    {
+      "title": "Configuration",
+      "description": "Configure how we resolve identites and associate events to Users",
+      "properties": [
+        "private_settings.preferred_email"
+      ]
+    }
+  ],
+  "json": [
+    {
+      "url": "/url",
+      "name": "credentials",
+      "format": "credentials",
+      "title": "Webhook URL",
+      "description": "Copy this webhook and install it in [Aircall's dashboard](https://dashboard-v2.aircall.io/integrations) to setup your Webhook. Read this connector's Docs for detailed instructions",
+      "handler": "credentialsHandler"
+    }
+  ],
+  "incoming": [
+    {
+      "url": "/webhooks/:connectorId/:token",
+      "handler": "incomingHandler"
+    },
+    {
+      "url": "/webhooks/:connectorId",
+      "handler": "incomingHandler"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "cron",
+    "value": "*/30 * * * *",
+    "handler": "statusHandler"
+  },
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "cron",
+      "value": "*/30 * * * *",
+      "handler": "statusHandler"
+    }
+  ]
+}

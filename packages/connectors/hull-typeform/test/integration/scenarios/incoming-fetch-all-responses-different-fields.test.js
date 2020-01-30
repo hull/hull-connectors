@@ -1,14 +1,21 @@
 // @flow
 
+
+
+
+
+
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 // workaround to allow connector start
 process.env.CLIENT_ID = "123";
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+process.env.CLIENT_SECRET = "abc";
+
+import connectorConfig from "../../../server/config";
 
 test("incoming fetch all responses basic", () => {
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, requireFixture, expect, nock }) => {
+  return testScenario({ connectorConfig }, ({ handlers, requireFixture, expect, nock }) => {
     return {
       handlerType: handlers.scheduleHandler,
       handlerUrl: "fetch-all-responses",
@@ -35,13 +42,13 @@ test("incoming fetch all responses basic", () => {
       },
       usersSegments: [],
       accountsSegments: [],
-      response: { response: "ok" },
+      response: { status: "deferred" },
       logs: [
         ["info", "incoming.job.start", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["info", "incoming.job.progress", expect.whatever(), { progress: 4 }],
-        ["info", "incoming.user.success", { subject_type: "user", user_email: "lian1078@other.com" }, {
+        ["debug", "incoming.user.success", { subject_type: "user", user_email: "lian1078@other.com" }, {
           array_trait: [ "New York", "Tokyo" ],
           boolean_trait: false,
           date_trait_at: "2012-03-20T00:00:00Z",
@@ -51,8 +58,7 @@ test("incoming fetch all responses basic", () => {
           calculated_score_trait: 2
         }],
         [
-          "info",
-          "incoming.user-event.success",
+          "debug", "incoming.user-event.success",
           { subject_type: "user", user_email: "lian1078@other.com" },
           {
             event: "Form Submitted",
@@ -65,8 +71,7 @@ test("incoming fetch all responses basic", () => {
           }
         ],
         [
-          "info",
-          "incoming.user.success",
+          "debug", "incoming.user.success",
           {
             "subject_type": "user",
             "user_email": "sarahbsmith@example.com"
@@ -82,8 +87,7 @@ test("incoming fetch all responses basic", () => {
           }
         ],
         [
-          "info",
-          "incoming.user-event.success",
+          "debug", "incoming.user-event.success",
           {
             "subject_type": "user",
             "user_email": "sarahbsmith@example.com"
@@ -99,8 +103,7 @@ test("incoming fetch all responses basic", () => {
           }
         ],
         [
-          "info",
-          "incoming.user.skip",
+          "debug", "incoming.user.skip",
           {
             "subject_type": "user"
           },
@@ -110,8 +113,7 @@ test("incoming fetch all responses basic", () => {
           }
         ],
         [
-          "info",
-          "incoming.user.skip",
+          "debug", "incoming.user.skip",
           {
             "subject_type": "user"
           },
@@ -190,9 +192,10 @@ test("incoming fetch all responses basic", () => {
         ]
       ],
       platformApiCalls: [
-        ["GET", "/api/v1/app", {}, {}],
-        ["GET", "/api/v1/users_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}],
-        ["GET", "/api/v1/accounts_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}]
+        //@TODO Do we still expect to hit the platform if we had the data in the body
+        // ["GET", "/api/v1/app", {}, {}],
+        // ["GET", "/api/v1/users_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}],
+        // ["GET", "/api/v1/accounts_segments?shipId=9993743b22d60dd829001999", {"shipId": "9993743b22d60dd829001999"}, {}]
       ]
     };
   });

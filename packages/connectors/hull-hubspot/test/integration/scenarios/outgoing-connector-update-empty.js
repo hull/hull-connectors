@@ -1,20 +1,22 @@
 // @flow
-/* global describe, it, beforeEach, afterEach */
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
+
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
 const connector = {
   private_settings: {
-    token: "hubToken"
+    token: "hubToken",
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 
 it("should not create fields on 3rd party if no segments are in the org", () => {
   const domain = "hull.io";
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",

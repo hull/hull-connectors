@@ -1,8 +1,14 @@
 // @flow
-/* global describe, it, beforeEach, afterEach */
+
+
+
+
+
+
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
+
 
 process.env.CLIENT_ID = "123",
 process.env.CLIENT_SECRET = "abc";
@@ -13,7 +19,9 @@ const connector = {
     refresh_token: "refreshToken",
     token_fetched_at: "1541670608956",
     expires_in: 10000,
-    synchronized_user_segments: ["hullSegmentId"]
+    synchronized_user_segments: ["hullSegmentId"],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const usersSegments = [
@@ -25,7 +33,7 @@ const usersSegments = [
 
 it("should refresh token and perform standard operation in case of token expired", () => {
   const email = "email@email.com";
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -68,7 +76,24 @@ it("should refresh token and perform standard operation in case of token expired
           user: {
             email
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          changes: {
+            is_new: false,
+            user: {},
+            account: {},
+            segments: {
+              entered: [
+                {
+                  id: "hullSegmentId",
+                  name: "hullSegmentName",
+                  updated_at: "2018-12-06T14:23:38Z",
+                  type: "users_segment",
+                  created_at: "2018-11-29T10:46:39Z"
+                }
+              ]
+            },
+            account_segments: {}
+          }
         }
       ],
       response: {
@@ -125,8 +150,11 @@ it("should refresh token and perform standard operation in case of token expired
                 "hullSegmentId",
               ],
               token: "newAccessToken",
-              token_fetched_at: expect.any(String)
-            }
+              token_fetched_at: expect.any(String),
+              mark_deleted_contacts: false,
+              mark_deleted_companies: false
+            },
+            "refresh_status": false
           }
         ],
         ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],

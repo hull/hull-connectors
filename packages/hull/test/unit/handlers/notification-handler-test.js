@@ -10,6 +10,6 @@ describe("notificationHandler", () => {
     const testInstance = notificationHandler({
       "user:update": () => {}
     });
-    expect(typeof testInstance).to.equal("function");
+    expect(typeof testInstance.router).to.equal("function");
   });
 });

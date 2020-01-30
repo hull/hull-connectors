@@ -1,0 +1,123 @@
+@import "../../../assets/style/index.scss";
+@import "~select2/dist/css/select2.css";
+@import "~select2-bootstrap-theme/dist/select2-bootstrap.css";
+@import "~bootstrap-table/dist/bootstrap-table.css";
+
+.bootstrap-table .fixed-table-container.fixed-height:not(.has-footer) {
+  border-bottom: 0;
+}
+
+@mixin formField {
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgb(234, 234, 234);
+  border-image: initial;
+  box-shadow: rgba(216, 216, 216, 0.5) 0px 1px 2px 0px;
+  background: rgb(255, 255, 255);
+  border-radius: 8px;
+}
+
+.select2-container--bootstrap .select2-selection {
+  @include formField;
+}
+
+.select2-container--bootstrap
+  .select2-selection--multiple
+  .select2-search--inline
+  .select2-search__field {
+  height: 38px;
+}
+
+input.form-control {
+  @include formField;
+  height: 40px;
+}
+
+.select2-container--bootstrap
+  .select2-results__option--highlighted[aria-selected] {
+  background: white;
+  color: #0093e6;
+}
+
+.select2-dropdown {
+  border-radius: 8px;
+}
+
+.select2-container--bootstrap
+  .select2-selection--multiple
+  .select2-selection__choice {
+  margin: 7px 0 0 9px;
+  border: 0;
+  align-items: center;
+  cursor: default;
+  display: flex;
+  height: 24px;
+  user-select: none;
+  background: rgb(245, 225, 255);
+  border-radius: 13px;
+  padding: 0px 10px 0 5px;
+  color: rgb(134, 22, 189);
+}
+
+.select2-container--bootstrap.select2-container--focus .select2-selection,
+.select2-container--bootstrap.select2-container--open .select2-selection {
+  box-shadow: none;
+}
+
+.select2-container--bootstrap
+  .select2-selection--multiple
+  .select2-selection__choice__remove {
+  cursor: pointer;
+  font-weight: 600;
+  color: #fff;
+  background: #d47eff;
+  border-radius: 100px;
+  width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  padding: 0;
+  height: 16px;
+}
+
+.form-label {
+  font-size: 16px;
+  font-weight: 500;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: left;
+  color: #212121;
+}
+
+h5 small {
+  opacity: 0.5;
+}
+
+.btn {
+  background: #0090e9;
+  border-radius: 6px;
+  font-size: 18px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.12);
+}
+
+.th-inner {
+  font-size: 16px;
+  font-weight: 500;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: 0.2px;
+  text-align: left;
+  color: #4e4e4e;
+}
+.bootstrap-table .fixed-table-container.fixed-height .table thead th {
+  border-bottom: 1px solid e4e4e4;
+}
+
+.table th,
+.table td {
+  font-size: 16px;
+}

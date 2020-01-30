@@ -3,7 +3,8 @@ import type {
   HullUserUpdateMessage,
   HullConnector,
   HullContext,
-  HullSegment,
+  HullAccountSegment,
+  HullUserSegment,
   HullAccountUpdateMessage
 } from "hull";
 
@@ -20,6 +21,11 @@ const moment = require("moment");
 const debug = require("debug")("hull-hubspot:sync-agent");
 
 const { pipeStreamToPromise } = require("hull/src/utils");
+const {
+  toSendMessage
+} = require("hull-connector-framework/src/purplefusion/utils");
+const { contactMetaGroup } = require("./sync-agent/contact-meta-group");
+
 const HubspotClient = require("./hubspot-client");
 const ContactPropertyUtil = require("./sync-agent/contact-property-util");
 const CompanyPropertyUtil = require("./sync-agent/company-property-util");
@@ -52,15 +58,17 @@ class SyncAgent {
 
   logger: Object;
 
-  usersSegments: Array<HullSegment>;
+  usersSegments: Array<HullUserSegment>;
 
-  accountsSegments: Array<HullSegment>;
+  accountsSegments: Array<HullAccountSegment>;
 
   cache: Object;
 
   isBatch: boolean;
 
   fetchAccounts: boolean;
+
+  ctx: HullContext;
 
   constructor(ctx: HullContext) {
     const {
@@ -87,6 +95,7 @@ class SyncAgent {
     // TODO: `handle_accounts` name chosen for hull-salesforce
     // compatibility
     this.fetchAccounts = ctx.connector.private_settings.handle_accounts;
+    this.ctx = ctx;
   }
 
   isInitialized(): boolean {
@@ -112,7 +121,7 @@ class SyncAgent {
     const hubspotContactProperties = await this.cache.wrap(
       "hubspotContactProperties",
       () => {
-        return this.hubspotClient.getContactPropertyGroups();
+        return this.getContactPropertyGroups();
       }
     );
     const hubspotCompanyProperties = await this.cache.wrap(
@@ -192,113 +201,98 @@ class SyncAgent {
     return this.hubspotClient.checkToken();
   }
 
-  getContactProperties() {
-    return this.cache
-      .wrap("contact_properties", () => {
-        return this.hubspotClient.getContactPropertyGroups();
-      })
-      .then(groups => {
-        return {
-          options: groups.map(group => {
-            return {
-              label: group.displayName,
-              options: _.chain(group.properties)
-                .map(prop => {
-                  return {
-                    label: prop.label,
-                    value: prop.name
-                  };
-                })
-                .value()
-            };
-          })
-        };
-      })
-      .catch(() => {
-        return { options: [] };
-      });
+  getPortalInformation() {
+    try {
+      return this.hubspotClient.getPortalInformation();
+    } catch (err) {
+      return Promise.resolve();
+    }
   }
 
-  getIncomingUserClaims() {
-    return this.getContactProperties().then(contactProperties => {
-      const claimsProperties = contactProperties.options.map(group => {
-        return {
-          label: group.label,
-          options: group.options.map(option => {
-            return {
-              label: option.label,
-              value: `properties.${option.value}.value`
-            };
-          })
-        };
-      });
+  async getContactPropertyGroups() {
+    const propertyGroups = await this.hubspotClient.getContactPropertyGroups();
+    return _.concat(propertyGroups, contactMetaGroup);
+  }
+
+  async getContactProperties() {
+    try {
+      const groups = await this.cache.wrap("contact_properties", () =>
+        this.getContactPropertyGroups()
+      );
       return {
-        options: [
-          {
-            label: "Identity profile Email",
-            value:
-              "$['identity-profiles'][*].identities[?(@.type === 'EMAIL')].value"
-          },
-          {
-            label: "VID",
-            value: "vid"
-          },
-          ...claimsProperties
-        ]
+        options: groups.map(group => ({
+          label: group.displayName,
+          options: _.chain(group.properties)
+            .map(({ label, name: value }) => ({ label, value }))
+            .value()
+        }))
       };
-    });
+    } catch (err) {
+      return { options: [] };
+    }
   }
 
-  getIncomingAccountClaims() {
-    return this.getCompanyProperties().then(companyProperties => {
-      const claimsProperties = companyProperties.options.map(group => {
-        return {
-          label: group.label,
-          options: group.options.map(option => {
-            return {
-              label: option.label,
-              value: `properties.${option.value}.value`
-            };
-          })
-        };
-      });
+  async getIncomingUserClaims() {
+    const contactProperties = await this.getContactProperties();
+    return {
+      options: [
+        {
+          label: "Identity profile Email",
+          value:
+            "$['identity-profiles'][*].identities[?(@.type === 'EMAIL')].value"
+        },
+        {
+          label: "VID",
+          value: "vid"
+        },
+        ...contactProperties.options.map(({ label, options }) => ({
+          label,
+          options: options.map(({ label: optionLabel, value }) => ({
+            label: optionLabel,
+            value: `properties.${value}.value`
+          }))
+        }))
+      ]
+    };
+  }
+
+  async getIncomingAccountClaims() {
+    const companyProperties = await this.getCompanyProperties();
+    return {
+      options: [
+        {
+          label: "companyId",
+          value: "companyId"
+        },
+        ...companyProperties.options.map(({ label, options }) => ({
+          label,
+          options: options.map(({ label: optionLabel, value }) => ({
+            label: optionLabel,
+            value: `properties.${value}.value`
+          }))
+        }))
+      ]
+    };
+  }
+
+  async getCompanyProperties() {
+    try {
+      const groups = await this.cache.wrap("company_properties", () =>
+        this.hubspotClient.getCompanyPropertyGroups()
+      );
       return {
-        options: [
-          {
-            label: "companyId",
-            value: "companyId"
-          },
-          ...claimsProperties
-        ]
+        options: groups.map(({ displayName, properties }) => {
+          return {
+            label: displayName,
+            options: _.chain(properties)
+              .map(({ label, name }) => ({ label, value: name }))
+              .value()
+          };
+        })
       };
-    });
-  }
-
-  getCompanyProperties() {
-    return this.cache
-      .wrap("company_properties", () => {
-        return this.hubspotClient.getCompanyPropertyGroups();
-      })
-      .then(groups => {
-        return {
-          options: groups.map(group => {
-            return {
-              label: group.displayName,
-              options: _.chain(group.properties)
-                .map(prop => {
-                  return {
-                    label: prop.label,
-                    value: prop.name
-                  };
-                })
-                .value()
-            };
-          })
-        };
-      })
-      .catch(() => {
-        return { options: [] };
-      });
+    } catch (err) {
+      return { options: [] };
+    }
   }
 
   /**
@@ -348,7 +342,7 @@ class SyncAgent {
           anonymous_id_service: "vid"
         });
         if (ident.error) {
-          return this.logger.info("incoming.user.skip", {
+          return this.logger.info("incoming.user.error", {
             contact,
             reason: ident.error
           });
@@ -358,41 +352,50 @@ class SyncAgent {
         try {
           asUser = this.hullClient.asUser(ident.claims);
         } catch (error) {
-          return this.logger.info("incoming.user.skip", {
+          return this.logger.info("incoming.user.error", {
             contact,
             error
           });
         }
 
-        if (
-          this.connector.private_settings.link_users_in_hull === true &&
-          contact.properties.associatedcompanyid
-        ) {
-          const linkingClient = this.hullClient.asUser(ident.claims).account({
-            anonymous_id: `hubspot:${
-              contact.properties.associatedcompanyid.value
-            }`
-          });
-          await linkingClient
-            .traits({})
-            .then(() => {
-              return linkingClient.logger.info("incoming.account.link.success");
-            })
-            .catch(error => {
-              return linkingClient.logger.error(
-                "incoming.account.link.error",
-                error
-              );
+        const mergedVids = _.get(contact, "merged-vids", []);
+        _.forEach(mergedVids, vid => {
+          asUser.alias({ anonymous_id: `hubspot:${vid}` });
+        });
+
+        if (this.connector.private_settings.link_users_in_hull === true) {
+          if (contact.properties.associatedcompanyid) {
+            const linkingClient = this.hullClient.asUser(ident.claims).account({
+              anonymous_id: `hubspot:${contact.properties.associatedcompanyid.value}`
             });
+            await linkingClient
+              .traits({})
+              .then(() => {
+                return linkingClient.logger.info(
+                  "incoming.account.link.success"
+                );
+              })
+              .catch(error => {
+                return linkingClient.logger.error(
+                  "incoming.account.link.error",
+                  error
+                );
+              });
+          } else {
+            // asUser.logger.debug("incoming.account.link.skip", {
+            //   reason:
+            //     "No associatedcompanyid field found in user to link account"
+            // });
+          }
         } else {
-          asUser.logger.info("incoming.account.link.skip", {
+          asUser.logger.debug("incoming.account.link.skip", {
             reason:
               "incoming linking is disabled, you can enabled it in the settings"
           });
         }
 
         return asUser.traits(traits).then(
-          () => asUser.logger.info("incoming.user.success", { traits }),
+          () => asUser.logger.debug("incoming.user.success", { traits }),
           error =>
             asUser.logger.error("incoming.user.error", {
               hull_summary: `Fetching data from Hubspot returned an error: ${_.get(
@@ -445,8 +448,35 @@ class SyncAgent {
     filterResults.toSkip.forEach(envelope => {
       this.hullClient
         .asUser(envelope.message.user)
-        .logger.info("outgoing.user.skip", { reason: envelope.skipReason });
+        .logger.debug("outgoing.user.skip", { reason: envelope.skipReason });
     });
+
+    try {
+      const noChangesSkip = [];
+
+      filterResults.toInsert.forEach(envelope => {
+        const toSend = toSendMessage(this.ctx, "user", envelope.message, {
+          serviceName: "hubspot",
+          sendOnAnySegmentChanges: true
+        });
+        if (!toSend) {
+          // this.hullClient
+          //   .asUser(envelope.message.user)
+          //   .logger.debug("outgoing.user.skipcandidate", {
+          //     reason: "attribute change not found",
+          //     changes: _.get(envelope, "message.changes")
+          //   });
+          // add this when ready to enable
+          noChangesSkip.push(envelope);
+        }
+      });
+
+      noChangesSkip.forEach(envelope => {
+        _.pull(filterResults.toInsert, envelope);
+      });
+    } catch (err) {
+      console.log(err);
+    }
 
     const envelopesToUpsert = filterResults.toInsert.concat(
       filterResults.toUpdate
@@ -518,8 +548,41 @@ class SyncAgent {
     filterResults.toSkip.forEach(envelope => {
       this.hullClient
         .asAccount(envelope.message.account)
-        .logger.info("outgoing.account.skip", { reason: envelope.skipReason });
+        .logger.debug("outgoing.account.skip", { reason: envelope.skipReason });
     });
+
+    try {
+      const noChangesSkip = [];
+      const upsertResults = _.concat(
+        filterResults.toInsert,
+        filterResults.toUpdate
+      );
+      upsertResults.forEach(envelope => {
+        const toSend = toSendMessage(this.ctx, "account", envelope.message, {
+          serviceName: "hubspot",
+          sendOnAnySegmentChanges: true
+        });
+        if (!toSend) {
+          /*
+          this.hullClient
+            .asAccount(envelope.message.account)
+            .logger.debug("outgoing.account.skipcandidate", {
+              reason: "attribute change not found",
+              changes: _.get(envelope, "message.changes")
+            });
+          */
+          // add this when ready to enable
+          noChangesSkip.push(envelope);
+        }
+      });
+
+      noChangesSkip.forEach(envelope => {
+        _.pull(filterResults.toInsert, envelope);
+        _.pull(filterResults.toUpdate, envelope);
+      });
+    } catch (err) {
+      console.log(err);
+    }
 
     const accountsToUpdate = filterResults.toUpdate;
     const accountsToInsert = [];
@@ -527,7 +590,8 @@ class SyncAgent {
       // first perform search for companies to be updated
       await Promise.all(
         filterResults.toInsert.map(async envelopeToInsert => {
-          const domain = envelopeToInsert.message.account.domain; // TODO
+          // @TODO domains seems to be empty in some cases - fix flow or fix code?
+          const domain = envelopeToInsert.message.account.domain;
           const results = await this.hubspotClient.postCompanyDomainSearch(
             domain
           );
@@ -619,6 +683,10 @@ class SyncAgent {
     };
   }
 
+  async getContactPropertiesKeys() {
+    return this.mappingUtil.getHubspotContactPropertiesKeys();
+  }
+
   /**
    * Handles operation for automatic sync changes of hubspot profiles
    * to hull users.
@@ -694,27 +762,32 @@ class SyncAgent {
       propertiesToFetch
     );
 
-    return pipeStreamToPromise(streamOfIncomingContacts, contacts => {
-      progress += contacts.length;
-      this.progressUtil.update(progress);
-      this.hullClient.logger.info("incoming.job.progress", {
-        jobName: "fetchAllContacts",
-        type: "user",
-        progress
-      });
-      return this.saveContacts(contacts);
-    })
-      .then(() => {
-        this.hullClient.logger.info("incoming.job.success", {
-          jobName: "fetchAllContacts"
-        });
-      })
-      .catch(error => {
-        this.hullClient.logger.info("incoming.job.error", {
+    try {
+      await pipeStreamToPromise(streamOfIncomingContacts, contacts => {
+        progress += contacts.length;
+        this.progressUtil.update(progress);
+        this.hullClient.logger.info("incoming.job.progress", {
           jobName: "fetchAllContacts",
-          error: error.message
+          type: "user",
+          progress
         });
+        return this.saveContacts(contacts);
       });
+      this.hullClient.logger.info("incoming.job.success", {
+        jobName: "fetchAllContacts"
+      });
+      return {
+        status: "ok"
+      };
+    } catch (error) {
+      this.hullClient.logger.info("incoming.job.error", {
+        jobName: "fetchAllContacts",
+        error: error.message
+      });
+      return {
+        error: error.message
+      };
+    }
   }
 
   /**
@@ -749,26 +822,31 @@ class SyncAgent {
       propertiesToFetch
     );
 
-    return pipeStreamToPromise(streamOfIncomingCompanies, companies => {
-      progress += companies.length;
-      this.hullClient.logger.info("incoming.job.progress", {
-        jobName: "fetch",
-        type: "account",
-        progress
-      });
-      return this.saveCompanies(companies);
-    })
-      .then(() => {
-        this.hullClient.logger.info("incoming.job.success", {
-          jobName: "fetch"
-        });
-      })
-      .catch(error => {
-        this.hullClient.logger.info("incoming.job.error", {
+    try {
+      await pipeStreamToPromise(streamOfIncomingCompanies, companies => {
+        progress += companies.length;
+        this.hullClient.logger.info("incoming.job.progress", {
           jobName: "fetch",
-          error
+          type: "account",
+          progress
         });
+        return this.saveCompanies(companies);
       });
+      this.hullClient.logger.info("incoming.job.success", {
+        jobName: "fetch"
+      });
+      return {
+        status: "ok"
+      };
+    } catch (error) {
+      this.hullClient.logger.info("incoming.job.error", {
+        jobName: "fetch",
+        error
+      });
+      return {
+        error: error.message
+      };
+    }
   }
 
   async fetchAllCompanies(): Promise<any> {
@@ -786,26 +864,32 @@ class SyncAgent {
       propertiesToFetch
     );
 
-    return pipeStreamToPromise(streamOfIncomingCompanies, companies => {
-      progress += companies.length;
-      this.hullClient.logger.info("incoming.job.progress", {
-        jobName: "fetchAllCompanies",
-        type: "account",
-        progress
-      });
-      return this.saveCompanies(companies);
-    })
-      .then(() => {
-        this.hullClient.logger.info("incoming.job.success", {
-          jobName: "fetchAllCompanies"
-        });
-      })
-      .catch(error => {
-        this.hullClient.logger.info("incoming.job.error", {
+    try {
+      await pipeStreamToPromise(streamOfIncomingCompanies, companies => {
+        progress += companies.length;
+        this.progressUtil.updateAccount(progress);
+        this.hullClient.logger.info("incoming.job.progress", {
           jobName: "fetchAllCompanies",
-          error: error.message
+          type: "account",
+          progress
         });
+        return this.saveCompanies(companies);
       });
+      this.hullClient.logger.info("incoming.job.success", {
+        jobName: "fetchAllCompanies"
+      });
+      return {
+        status: "ok"
+      };
+    } catch (error) {
+      this.hullClient.logger.info("incoming.job.error", {
+        jobName: "fetchAllCompanies",
+        error: error.message
+      });
+      return {
+        error: error.message
+      };
+    }
   }
 
   saveCompanies(companies: Array<HubspotReadCompany>): Promise<any> {
@@ -838,8 +922,15 @@ class SyncAgent {
           });
         }
 
+        const { mergeAudits } = company;
+        if (!_.isNil(mergeAudits)) {
+          _.forEach(_.map(mergeAudits, "mergedCompanyId"), companyId => {
+            asAccount.alias({ anonymous_id: `hubspot:${companyId}` });
+          });
+        }
+
         await asAccount.traits(traits).then(
-          () => asAccount.logger.info("incoming.account.success", { traits }),
+          () => asAccount.logger.debug("incoming.account.success", { traits }),
           error =>
             asAccount.logger.error("incoming.account.error", {
               hull_summary: `Fetching data from Hubspot returned an error: ${_.get(
@@ -851,38 +942,44 @@ class SyncAgent {
               errors: error
             })
         );
-        if (this.connector.private_settings.link_users_in_hull !== true) {
-          asAccount.logger.info("incoming.account.link.skip", {
-            reason:
-              "incoming linking is disabled, you can enabled it in the settings"
-          });
-          return Promise.resolve();
-        }
-        const companyVidsStream = this.hubspotClient.getCompanyVidsStream(
-          company.companyId
-        );
-        return pipeStreamToPromise(companyVidsStream, vids => {
-          return Promise.all(
-            vids.map(vid => {
-              const linkingClient = this.hullClient
-                .asUser({ anonymous_id: `hubspot:${vid}` })
-                .account(ident.claims);
-              return linkingClient
-                .traits({})
-                .then(() => {
-                  return linkingClient.logger.info(
-                    "incoming.account.link.success"
-                  );
-                })
-                .catch(error => {
-                  return linkingClient.logger.error(
-                    "incoming.account.link.error",
-                    error
-                  );
-                });
-            })
-          );
-        });
+
+        // don't get all of the users any more for the company
+        // doesn't work very well anyway because we get: "You have reached your secondly limit."
+        // in the future, this linking is only done on user fetch
+        return Promise.resolve();
+
+        // if (this.connector.private_settings.link_users_in_hull !== true) {
+        //   asAccount.logger.debug("incoming.account.link.skip", {
+        //     reason:
+        //       "incoming linking is disabled, you can enabled it in the settings"
+        //   });
+        //   return Promise.resolve();
+        // }
+        // const companyVidsStream = this.hubspotClient.getCompanyVidsStream(
+        //   company.companyId
+        // );
+        // return pipeStreamToPromise(companyVidsStream, vids => {
+        //   return Promise.all(
+        //     vids.map(vid => {
+        //       const linkingClient = this.hullClient
+        //         .asUser({ anonymous_id: `hubspot:${vid}` })
+        //         .account(ident.claims);
+        //       return linkingClient
+        //         .traits({})
+        //         .then(() => {
+        //           return linkingClient.logger.info(
+        //             "incoming.account.link.success"
+        //           );
+        //         })
+        //         .catch(error => {
+        //           return linkingClient.logger.error(
+        //             "incoming.account.link.error",
+        //             error
+        //           );
+        //         });
+        //     })
+        //   );
+        // });
       })
     );
   }

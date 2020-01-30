@@ -1,15 +1,25 @@
 // @flow
-/* global describe, it, beforeEach, afterEach */
+
+
+
+
+
+
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
+import connectorConfig from "../../../server/config";
+
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
+process.env.CLIENT_ID = "123";
+process.env.CLIENT_SECRET = "abc";
 
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_user_segments: ["hullSegmentId"]
+    synchronized_user_segments: ["hullSegmentId"],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const usersSegments = [
@@ -19,9 +29,9 @@ const usersSegments = [
   }
 ];
 
-it("should send out a new hull user to hubspot", () => {
+it("should send out a new hull user to hubspot - validation error", () => {
   const email = "email@email.com";
-  return testScenario({ connectorServer, connectorManifest }, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -63,13 +73,45 @@ it("should send out a new hull user to hubspot", () => {
           user: {
             email: "non-existing-property@hull.io"
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          // added this change of entered segment so would trigger a push
+          // otherwise nothing will be pushed because no mapped attributes
+          changes: {
+            is_new: false,
+            user: {},
+            account: {},
+            segments: {
+              entered: [
+                {
+                  id: "hullSegmentId",
+                  name: "hullSegmentName",
+                  type: "users_segment"
+                }
+              ]
+            },
+            account_segments: {}
+          }
         },
         {
           user: {
             email
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          changes: {
+            is_new: false,
+            user: {},
+            account: {},
+            segments: {
+              entered: [
+                {
+                  id: "hullSegmentId",
+                  name: "hullSegmentName",
+                  type: "users_segment"
+                }
+              ]
+            },
+            account_segments: {}
+          }
         }
       ],
       response: {

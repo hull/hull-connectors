@@ -1,11 +1,11 @@
 // @flow
-/* global describe, it, beforeEach, afterEach */
+import connectorConfig from "../../../server/config";
+
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const connectorServer = require("../../../server/server");
-const connectorManifest = require("../../../manifest");
 
 process.env.MAILCHIMP_CLIENT_ID = "1234";
 process.env.MAILCHIMP_CLIENT_SECRET = "1234";
+process.env.COMBINED = "true";
 
 const connector = {
   id: "123456789012345678901234",
@@ -32,7 +32,7 @@ const usersSegments = [
 
 it("Api token invalid", () => {
   const email = "email@email.com";
-  return testScenario({ connectorServer, connectorManifest}, ({ handlers, nock, expect }) => {
+  return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -42,14 +42,15 @@ it("Api token invalid", () => {
       accountsSegments: [],
       externalApiMock: () => {
         const scope = nock("https://mock.api.mailchimp.com/3.0");
-        scope.get("/lists/1/webhooks")
-          .reply(401, {
-            type: "http://developer.mailchimp.com/documentation/mailchimp/guides/error-glossary/",
-            title: "API Key Invalid",
-            status: 401,
-            detail: "Your API key may be invalid, or you've attempted to access the wrong datacenter.",
-            instance: "c9e2c425-29d5-4cf9-8a96-2966b53315b6"
-          });
+        scope.get("/lists/1/webhooks").reply(401, {
+          type:
+            "http://developer.mailchimp.com/documentation/mailchimp/guides/error-glossary/",
+          title: "API Key Invalid",
+          status: 401,
+          detail:
+            "Your API key may be invalid, or you've attempted to access the wrong datacenter.",
+          instance: "c9e2c425-29d5-4cf9-8a96-2966b53315b6"
+        });
         return scope;
       },
       messages: [
@@ -65,7 +66,7 @@ it("Api token invalid", () => {
           type: "retry",
           in: 10,
           in_time: 30000,
-          size: 50,
+          size: 50
         }
       },
       logs: [
@@ -76,7 +77,15 @@ it("Api token invalid", () => {
           { changes: {}, events: [], segments: ["hullSegmentName"] }
         ],
         ["debug", "outgoing.job.start", expect.whatever(), { messages: 1 }],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ method: "GET", url: "/lists/{{listId}}/webhooks" })],
+        [
+          "debug",
+          "connector.service_api.call",
+          expect.whatever(),
+          expect.objectContaining({
+            method: "GET",
+            url: "/lists/{{listId}}/webhooks"
+          })
+        ],
         [
           "warn",
           "webhook.error",
@@ -93,7 +102,7 @@ it("Api token invalid", () => {
           {
             error: "Invalid API key",
             stack: expect.any(String),
-            type: "notification",
+            type: "notification"
           }
         ]
       ],

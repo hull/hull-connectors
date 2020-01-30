@@ -1,0 +1,44 @@
+{
+  "notification_id": "38108659-4d7b-46cc-861b-3da772d1fec2",
+  "configuration": {
+    "id": "123456789012345678901234",
+    "organization": "c5011027.hullbeta.io",
+    "secret": "shhhh"
+  },
+  "connector": {
+    "source_url": "https://zapier-connector.com",
+    "private_settings": {
+      "send_all_user_attributes": true,
+      "send_all_account_attributes": true,
+      "outgoing_account_attributes": [],
+      "synchronized_user_segments": [
+        "ALL"
+      ],
+      "synchronized_account_segments": [
+        "ALL"
+      ],
+      "triggers": []
+    },
+    "name": "zapier",
+    "type": "ship",
+    "secret": "shhh",
+    "id": "123456789012345678901234"
+  },
+  "channel": "user:update",
+  "messages": [
+    {
+      "changes": {
+        "is_new": false,
+        "account": {},
+        "user": {},
+        "account_segments": {},
+        "segments": {}
+      },
+      "account": {},
+      "user": {},
+      "account_segments": [],
+      "segments": [],
+      "message_id": "message_1"
+    }
+  ]
+}

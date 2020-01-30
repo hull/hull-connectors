@@ -3,7 +3,7 @@
 ## Authorization
 
 After connector installation click "Workspace" button and then "Continue with Typeform".
-This will trigger an oAuth authorization flow. You will be redirected to your Typeform
+This will trigger an OAuth authorization flow. You will be redirected to your Typeform
 account with information about requested permissions. Pay attention to the information
 which Typeform account will be linked, if needed use "Choose a different account." to switch
 to the correct one.

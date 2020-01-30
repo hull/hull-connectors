@@ -1,6 +1,6 @@
 // @flow
 
-import type { HullContextFull, HullNotificationFlowControl } from "../types";
+import type { HullContext, HullNotificationFlowControl } from "../types";
 
 type HullNotificationResult =
   | "success"
@@ -13,13 +13,13 @@ const _ = require("lodash");
 /**
  * A utility which picks default notification flow control.
  * It picks from FLOW_CONTROL_USER_UPDATE_SUCCESS_SIZE
- * @param  {[type]} ctx:     HullContextFull     [description]
+ * @param  {[type]} ctx:     HullContext     [description]
  * @param  {[type]} channel: string              [description]
  * @param  {[type]} result:  HullNotificationResult [description]
  * @return {[type]}          [description]
  */
 function notificationDefaultFlowControl(
-  ctx: HullContextFull,
+  ctx: HullContext,
   channel: string,
   result: HullNotificationResult
 ): HullNotificationFlowControl {

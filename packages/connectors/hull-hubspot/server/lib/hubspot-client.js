@@ -1,7 +1,7 @@
 // @flow
 import type { IncomingMessage } from "http";
 import type { Readable } from "stream";
-import type { HullConnector, HullRequest } from "hull";
+import type { HullConnector, HullContext } from "hull";
 import type {
   HubspotUserUpdateMessageEnvelope,
   HubspotAccountUpdateMessageEnvelope,
@@ -65,7 +65,7 @@ class HubspotClient {
 
   incomingAccountIdentService: string;
 
-  constructor(ctx: HullRequest) {
+  constructor(ctx: HullContext) {
     this.connector = ctx.connector;
     this.client = ctx.client;
     this.metric = ctx.metric;
@@ -88,7 +88,7 @@ class HubspotClient {
       )
       .set("Authorization", `Bearer ${accessToken}`)
       .timeout({
-        response: 5000
+        response: 10000
       });
   }
 
@@ -109,6 +109,15 @@ class HubspotClient {
         client_secret: process.env.CLIENT_SECRET,
         redirect_uri: "",
         grant_type: "refresh_token"
+      })
+      .catch(error => {
+        if (error.response) {
+          const details =
+            (error.response.body && error.response.body.message) || "unknown";
+          const errorMessage = `Failed to refresh access token, try to reauthorize the connector (error message: "${details}"")`;
+          return Promise.reject(new ConfigurationError(errorMessage));
+        }
+        return Promise.reject(error);
       });
   }
 
@@ -130,16 +139,11 @@ class HubspotClient {
           force: true
         })
           .catch(error => {
-            if (error.response) {
-              const details =
-                (error.response.body && error.response.body.message) ||
-                "unknown";
-              const errorMessage = `Failed to refresh access token, try to reauthorize the connector (error message: "${details}"")`;
-              return Promise.reject(new ConfigurationError(errorMessage));
-            }
             return Promise.reject(error);
           })
-          .then(() => promise());
+          .then(() => {
+            return promise();
+          });
       }
       return Promise.reject(err);
     });
@@ -187,6 +191,14 @@ class HubspotClient {
       });
     }
     return Promise.resolve("valid");
+  }
+
+  getPortalInformation(): Promise<*> {
+    return this.retryUnauthorized(() => {
+      return this.agent.get("/integrations/v1/me").then(response => {
+        return Promise.resolve(response.body);
+      });
+    });
   }
 
   /**
@@ -256,7 +268,9 @@ class HubspotClient {
     offset: ?string = null
   ): Promise<HubspotGetAllCompaniesResponse> {
     return this.retryUnauthorized(() => {
+      const includeMergeAudits = true;
       return this.agent.get("/companies/v2/companies/paged").query({
+        includeMergeAudits,
         limit,
         offset,
         properties
@@ -304,14 +318,14 @@ class HubspotClient {
   getRecentlyUpdatedContacts(
     properties: Array<string> = [],
     count: number = 100,
-    offset: ?string = null
+    offset: ?number = null
   ): Promise<HubspotGetAllContactsResponse> {
     return this.retryUnauthorized(() => {
       return this.agent
         .get("/contacts/v1/lists/recently_updated/contacts/recent")
         .query({
           count,
-          vidOffset: offset,
+          timeOffset: offset,
           property: properties
         });
     });
@@ -347,13 +361,13 @@ class HubspotClient {
             );
           });
           const hasMore = response.body["has-more"];
-          const vidOffset = response.body["vid-offset"];
-          // const timeOffset = response.body["time-offset"];
+          // const vidOffset = response.body["vid-offset"];
+          const timeOffset = response.body["time-offset"];
           if (contacts.length > 0) {
             push(contacts);
           }
-          if (hasMore) {
-            return getRecentContactsPage(vidOffset);
+          if (hasMore && moment(lastFetchAt).valueOf() <= timeOffset) {
+            return getRecentContactsPage(timeOffset);
           }
 
           return Promise.resolve();

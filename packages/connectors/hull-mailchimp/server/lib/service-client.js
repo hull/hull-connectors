@@ -153,9 +153,7 @@ class ServiceClient {
   exportCampaignSubscriberActivity() {
     return this.agent
       .get(
-        `https://${
-          this.domain
-        }.api.mailchimp.com/export/1.0/campaignSubscriberActivity`
+        `https://${this.domain}.api.mailchimp.com/export/1.0/campaignSubscriberActivity`
       )
       .query({
         apikey: this.apiKey,
