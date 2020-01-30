@@ -87,7 +87,7 @@ Marketo can generate a lot of traffic as campaigns are activated, or attributes 
 - Check the identifiers which you specified in the settings.  Do those identifiers exist in Marketo?
 - Make sure you've specified attributes in the incoming attributes in the settings page.  If you set the attributes after you performed a full fetch, you may have to perform a full fetch again to retrieve all of the newly mapped attributes.
 - Check the logs for incoming.user/account.error or incoming.user/account.skip to ensure that there wasn't any additional circumstance which filtered the data
-- If you've waited for over 15 minutes, and have checked the above suggestions, please check the Hull Status page at: http://status.hull.io/
+- If you've waited for over 15 minutes, and have checked the above suggestions, please check the Hull Status page at: https://status.hull.io/
 
 ### I don’t get updates of recently updated Leads into Hull
 Check your connector logs for any `incoming.job.error`. If you see any with `Unauthorized` go to the `Settings` Tab, and confirm that the credentials are correct under the `Connecto to Marketo` section.  Also ensure that the user you've specified has permissions to do user exports and use the API.
