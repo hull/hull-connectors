@@ -2,8 +2,13 @@
 
 import Kafka from "node-rdkafka";
 
-import type { EntityScopedClient } from "../client";
-import type { HullClientInstanceConfig, HullClientLogger, HullFirehoseKafkaTransport, HullUserClaims, HullAccountClaims } from "../types";
+import type {
+  HullClientInstanceConfig,
+  HullClientLogger,
+  HullFirehoseKafkaTransport,
+  HullUserClaims,
+  HullAccountClaims
+} from "../types";
 
 type FirehoseMessage = {
   type: "track" | "traits" | "alias",
@@ -14,31 +19,37 @@ type FirehoseMessage = {
   timestamp: Date,
   accessToken?: string,
   claims?: any
-}
+};
 
 type FirehoseCallArguments = {
   type: "track" | "traits" | "alias",
   body: any,
   requestId: string
-}
+};
 
 type FirehoseMessageClaims = {
   "io.hull.subjectType": "user" | "account",
   "io.hull.asUser"?: HullUserClaims,
-  "io.hull.asAccount"?: HullAccountClaims,
-}
+  "io.hull.asAccount"?: HullAccountClaims
+};
 
 const PRODUCERS = {};
 let IS_EXITING = false;
 
-function getProducer(transport: HullFirehoseKafkaTransport, connectorName: string) {
+function getProducer(
+  transport: HullFirehoseKafkaTransport,
+  connectorName: string
+) {
   const brokers = transport.brokersList.join(",");
-  PRODUCERS[brokers] = PRODUCERS[brokers] || buildProducer(transport, connectorName);
+  PRODUCERS[brokers] =
+    PRODUCERS[brokers] || buildProducer(transport, connectorName);
   return PRODUCERS[brokers].ready;
 }
 
-function buildProducer(transport: HullFirehoseKafkaTransport, connectorName: string) {
-
+function buildProducer(
+  transport: HullFirehoseKafkaTransport,
+  connectorName: string
+) {
   const kafkaBrokersList: Array<string> = transport.brokersList;
   const kafkaTopic: string = transport.topic;
 
@@ -85,8 +96,11 @@ function buildProducer(transport: HullFirehoseKafkaTransport, connectorName: str
   return { producer, ready };
 }
 
-function getInstance(firehoseTransport: HullFirehoseKafkaTransport, config: HullClientInstanceConfig, logger: HullClientLogger) {
-
+function getInstance(
+  firehoseTransport: HullFirehoseKafkaTransport,
+  config: HullClientInstanceConfig,
+  logger: HullClientLogger
+) {
   const kafkaTopic = firehoseTransport.topic;
 
   if (!kafkaTopic) {
@@ -95,7 +109,10 @@ function getInstance(firehoseTransport: HullFirehoseKafkaTransport, config: Hull
 
   const { organization } = config;
   return ({ type, requestId, body }: FirehoseCallArguments) => {
-    if (IS_EXITING) throw new Error("Process is shutting down. Not accepting connections anymore");
+    if (IS_EXITING)
+      throw new Error(
+        "Process is shutting down. Not accepting connections anymore"
+      );
 
     const message: FirehoseMessage = {
       type,
@@ -107,10 +124,13 @@ function getInstance(firehoseTransport: HullFirehoseKafkaTransport, config: Hull
     };
     if (config.accessToken) {
       message.accessToken = config.accessToken;
-    } else if (config.subjectType != undefined) {
-      const claims: FirehoseMessageClaims = { "io.hull.subjectType": config.subjectType };
+    } else if (config.subjectType !== undefined) {
+      const claims: FirehoseMessageClaims = {
+        "io.hull.subjectType": config.subjectType
+      };
       if (config.userClaim) claims["io.hull.asUser"] = config.userClaim;
-      if (config.accountClaim) claims["io.hull.asAccount"] = config.accountClaim;
+      if (config.accountClaim)
+        claims["io.hull.asAccount"] = config.accountClaim;
       message.claims = claims;
     }
 
@@ -137,7 +157,8 @@ function getInstance(firehoseTransport: HullFirehoseKafkaTransport, config: Hull
                 return reject(clientError);
               }
               resolve({ ok: true, offset });
-            });
+            }
+          );
         });
       },
       () => {
@@ -170,6 +191,5 @@ function exit() {
   );
   return Promise.all(flushes);
 }
-
 
 module.exports = { getInstance, exit };

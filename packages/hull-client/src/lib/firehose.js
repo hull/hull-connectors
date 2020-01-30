@@ -6,13 +6,12 @@ const BATCHERS = {};
 global.setImmediate = global.setImmediate || process.nextTick.bind(process);
 
 class FirehoseBatcher {
-
   static exit() {
     FirehoseBatcher.exiting = true;
     const cb = k => (err, ok) => {
       const msg = `Flushed batcher ${k} -- ok=${ok} -- err=${err}`;
       return msg;
-    }
+    };
     const flushed = _.map(BATCHERS, (b, k) => {
       b.flush(cb(k));
     });
@@ -75,7 +74,6 @@ class FirehoseBatcher {
       timestamp: new Date(),
       sentAt: new Date()
     };
-
 
     const flushed = this.handler(params, this);
     flushed.then(

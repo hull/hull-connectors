@@ -1,4 +1,3 @@
-// const rest = require("restler");
 const superagent = require("superagent");
 const pkg = require("../../package.json");
 
@@ -102,9 +101,10 @@ module.exports = function restAPI(
   params,
   options = {}
 ) {
-
   if (!options.isFirehose && config.get("trackingOnly")) {
-    throw new Error("REST API disabled: This hull client is configured for trackingOnly");
+    throw new Error(
+      "REST API disabled: This hull client is configured for trackingOnly"
+    );
   }
 
   const token = config.get("sudo")

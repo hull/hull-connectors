@@ -1,5 +1,9 @@
 // @flow
-import type { HullHandlersConfiguration, Connector } from "hull";
+import type {
+  HullHandlersConfiguration,
+  Connector,
+  HullFirehoseKafkaTransport
+} from "hull";
 import bluebird from "bluebird";
 import Redis from "redis";
 import SocketIO from "socket.io";
@@ -13,14 +17,17 @@ import sendPayloadFactory from "../lib/send-payload";
 import credentialsHandler from "./credentials-handler";
 
 import legacyV1ApiCompatibility from "./legacy-v1-api-compatibility";
-import { HullFirehoseKafkaTransport } from "hull-client/src/types";
 
 bluebird.promisifyAll(Redis.RedisClient.prototype);
 bluebird.promisifyAll(Redis.Multi.prototype);
 
-const handlers = ({ redisUri, firehoseTransport }: { redisUri: string, firehoseTransport: HullFirehoseKafkaTransport }) => async (
-  connector: Connector
-): HullHandlersConfiguration => {
+const handlers = ({
+  redisUri,
+  firehoseTransport
+}: {
+  redisUri: string,
+  firehoseTransport: HullFirehoseKafkaTransport
+}) => async (connector: Connector): HullHandlersConfiguration => {
   const { app, server, Client, getContext } = connector;
   const redis = Redis.createClient(redisUri);
   const store = Store(redis);

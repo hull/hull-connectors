@@ -44,10 +44,9 @@ const VALID = {
     return _.isArray(arr);
   },
   transport(t) {
-    const valid = t.type === "kafka" &&
-      _.isString(t.topic) &&
-      _.isArray(t.brokersList);
-    if (t && !valid) throw new Error("Invalid Firehose transport configuration");
+    return (
+      t.type === "kafka" && _.isString(t.topic) && _.isArray(t.brokersList)
+    );
   }
 };
 
@@ -121,28 +120,23 @@ class Configuration {
         );
         config = { ...config, accessToken };
       } else if (!config.trackingOnly) {
-        throw new Error(`Client requires a secret unless trackingOnly is set to true`);
+        const err = new Error(
+          "Client requires a secret unless trackingOnly is set to true"
+        );
+        err.status = 400;
+        throw err;
       }
     }
-
     this._state = { ...GLOBALS };
 
     _.each(REQUIRED_PROPS, (test, prop) => {
       if (!Object.prototype.hasOwnProperty.call(config, prop)) {
-        const err = new Error(
-          `Configuration is missing required property: ${prop}`
-        );
-        // $FlowFixMe
-        err.status = 401;
-        throw err;
+        throw new Error(`Configuration is missing required property: ${prop}`);
       }
       if (!test(config[prop])) {
-        const err = new Error(
+        throw new Error(
           `${prop} property in Configuration is invalid: ${config[prop]}`
         );
-        // $FlowFixMe
-        err.status = 401;
-        throw err;
       }
     });
 

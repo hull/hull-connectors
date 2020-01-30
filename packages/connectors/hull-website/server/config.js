@@ -4,7 +4,6 @@ import manifest from "../manifest.json";
 import handlers from "./handlers";
 
 export default function connectorConfig(): HullConnectorConfig {
-
   const {
     SECRET,
     NODE_ENV,
@@ -47,8 +46,7 @@ export default function connectorConfig(): HullConnectorConfig {
     logsConfig: {
       logLevel: LOG_LEVEL
     },
-    clientConfig: {
-    },
+    clientConfig: {},
     serverConfig: {
       start: true
     }

@@ -1,12 +1,12 @@
-import HullClient from "hull-client/src";
+import cookieParser from "cookie-parser";
 import { Router } from "express";
+import HullClient from "hull-client/src";
 import aliasHandler from "./alias-handler";
 import trackHandler from "./track-handler";
 import traitsHandler from "./traits-handler";
 import remoteHandler from "./remote-handler";
-import cookieParser from "cookie-parser";
 
-export default (firehoseTransport) => {
+export default firehoseTransport => {
   const app = Router();
 
   app.use(cookieParser());
@@ -36,9 +36,9 @@ export default (firehoseTransport) => {
     next();
   });
 
-// Legacy hull-js tracking routes
+  // Legacy hull-js tracking routes
   app.post("/t", trackHandler);
   app.put("/me/traits", traitsHandler);
   app.post("/me/alias", aliasHandler);
   return app;
-}
+};

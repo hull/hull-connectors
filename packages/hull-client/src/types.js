@@ -318,7 +318,7 @@ export type HullClientCredentials = {|
 export type HullClientInstanceConfig = {
   ...$Exact<HullClientConfig>,
   ...$Exact<HullClientCredentials>
-}
+};
 
 /**
  * Definition of logger object on HullClient instance
