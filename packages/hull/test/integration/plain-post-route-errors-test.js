@@ -121,7 +121,7 @@ describe("plain post routes", () => {
         console.log(err.response.text);
         console.log("++++++++++++");
         expect(stopMiddleware.called).to.be.true;
-        expect(err.response.statusCode).to.equal(500);
+        expect(err.response.statusCode).to.equal(401);
         expect(err.response.text).to.equal("unhandled-error");
       });
   });
@@ -129,7 +129,7 @@ describe("plain post routes", () => {
     return miniHull.postConnector(connectorId, "localhost:9091/transientErrorEndpoint")
       .catch((err) => {
         expect(stopMiddleware.called).to.be.true;
-        expect(err.response.statusCode).to.equal(500);
+        expect(err.response.statusCode).to.equal(401);
         expect(err.response.text).to.equal("unhandled-error");
       });
   });
@@ -137,7 +137,7 @@ describe("plain post routes", () => {
     return miniHull.postConnector(connectorId, "localhost:9091/configurationErrorEndpoint")
       .catch((err) => {
         expect(stopMiddleware.called).to.be.true;
-        expect(err.response.statusCode).to.equal(500);
+        expect(err.response.statusCode).to.equal(401);
         expect(err.response.text).to.equal("unhandled-error");
       });
   });

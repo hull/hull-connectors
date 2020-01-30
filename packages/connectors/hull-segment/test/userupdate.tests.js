@@ -134,8 +134,7 @@ const encryptedToken = ({ config, plainCredentials }) =>
 const headers = ({ config, plainCredentials }) => ({
   Authorization: `Basic ${encryptedToken({ config, plainCredentials })}`
 });
-const addWhatever = key => pld => ({ ...pld, [key]: expect.whatever() });
-const whateverEventId = addWhatever("event_id");
+const whateverEventId = pld => ({ ...pld, event_id: expect.whatever() });
 
 const FIREHOSE_TRACK = [
   "track",
