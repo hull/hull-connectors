@@ -517,7 +517,6 @@
       "handler": "fetchAll",
       "options": {
         "fireAndForget": true,
-        "disableErrorHandling": true,
         "confirm": {
           "action": "fetch",
           "text": "You are about to pull all contacts from Hubspot into Hull. Please make sure you've configured your user identity properly, and that you have the attributes you'd like pulled configured. Be careful when clicking this multiple times, it can result in long operations. Check out the \"Logs\" tab to track incoming.user.success messages as users are ingested",

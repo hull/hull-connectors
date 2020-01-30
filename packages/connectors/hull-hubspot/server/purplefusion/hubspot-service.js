@@ -9,7 +9,7 @@ const {
 const MetricAgent = require("hull/src/infra/instrumentation/metric-agent");
 const { Client } = require("hull");
 
-const { SkippableError } = require("hull/src/errors");
+const { SkippableError, ConfigurationError } = require("hull/src/errors");
 
 const _ = require("lodash");
 const HullVariableContext = require("hull-connector-framework/src/purplefusion/variable-context");
@@ -68,6 +68,11 @@ const hubspotSdk: CustomApi = {
   initialize: (context, api) => new HubspotSdk(context, api),
   error: {
     templates: [
+      {
+        truthy: { name: "ConfigurationError" },
+        errorType: ConfigurationError,
+        message: "Configuration Error"
+      },
       {
         truthy: { name: "ErrorTemplateMessage" },
         errorType: SkippableError,
