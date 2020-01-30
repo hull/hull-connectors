@@ -47,7 +47,13 @@ it("should allow through with mapped account attribute changes", () => {
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, require("../fixtures/get-properties-companies-groups"));
         scope.post("/contacts/v1/contact/batch/?auditId=Hull",
-          [{"properties":[{"property":"hull_custom_hubspot_account_id","value":"acc123"},{"property":"hull_custom_hubspot_account_domain","value":"doe.com"},{"property":"hull_segments","value":"testSegment"}],"email":"email@email.com"}]
+          [{"properties":[
+            {"property":"hull_custom_hubspot_account_id","value":"acc123"},
+              {"property":"hull_custom_hubspot_account_domain","value":"doe.com"},
+              {"property":"hull_segments","value":"testSegment"}
+            ],
+            "email":"email@email.com",
+            "vid": 5677}]
         ).reply(202);
         return scope;
       },
@@ -128,6 +134,7 @@ it("should allow through with mapped account attribute changes", () => {
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
           {
             "email": "email@email.com",
+            "vid": 5677,
             "properties": [{
               "property": "hull_custom_hubspot_account_id",
               "value": "acc123"
