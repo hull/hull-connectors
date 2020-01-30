@@ -540,12 +540,11 @@ class MappingUtil {
     const hubspotWriteContact: HubspotWriteContact = {
       properties: hubspotWriteProperties
     };
-    if (
-      message.user["hubspot/id"] &&
-      typeof message.user["hubspot/id"] === "string"
-    ) {
+    if (message.user["hubspot/id"]) {
       hubspotWriteContact.vid = message.user["hubspot/id"];
-    } else if (message.user.email) {
+    }
+
+    if (message.user.email) {
       hubspotWriteContact.email = message.user.email;
     }
     return hubspotWriteContact;
