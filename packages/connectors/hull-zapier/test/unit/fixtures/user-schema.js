@@ -12,7 +12,7 @@ module.exports = {
       "synchronized_user_segments": [],
       "synchronized_account_segments": [],
       "synchronized_events": [],
-      "subscriptions": []
+      "triggers": []
     },
   },
   "route": "schema",

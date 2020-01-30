@@ -24,6 +24,7 @@ const { pipeStreamToPromise } = require("hull/src/utils");
 const {
   toSendMessage
 } = require("hull-connector-framework/src/purplefusion/utils");
+const { contactMetaGroup } = require("./sync-agent/contact-meta-group");
 
 const HubspotClient = require("./hubspot-client");
 const ContactPropertyUtil = require("./sync-agent/contact-property-util");
@@ -120,7 +121,7 @@ class SyncAgent {
     const hubspotContactProperties = await this.cache.wrap(
       "hubspotContactProperties",
       () => {
-        return this.hubspotClient.getContactPropertyGroups();
+        return this.getContactPropertyGroups();
       }
     );
     const hubspotCompanyProperties = await this.cache.wrap(
@@ -208,10 +209,15 @@ class SyncAgent {
     }
   }
 
+  async getContactPropertyGroups() {
+    const propertyGroups = await this.hubspotClient.getContactPropertyGroups();
+    return _.concat(propertyGroups, contactMetaGroup);
+  }
+
   async getContactProperties() {
     try {
       const groups = await this.cache.wrap("contact_properties", () =>
-        this.hubspotClient.getContactPropertyGroups()
+        this.getContactPropertyGroups()
       );
       return {
         options: groups.map(group => ({

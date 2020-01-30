@@ -3,13 +3,14 @@ const sample = require("../../samples/user.json");
 const { schemaUrl, searchUrl } = require("../config");
 const { post } = require("../lib/request");
 const { isValidClaim } = require("../lib/utils");
+const { getUserAttributeOutputFields } = require("../lib/output-fields");
 
 const perform = async (z, { inputData }) => {
   const { email, external_id } = inputData;
   const claims = { email, external_id };
 
   if (!isValidClaim({ external_id, email })) {
-    return Promise.resolve([{ error: "invalid claims" }]);
+    throw new z.errors.HaltedError("Invalid Claims");
   }
 
   const res = await post(z,{
@@ -18,7 +19,7 @@ const perform = async (z, { inputData }) => {
   });
 
   if (_.get(res, "error", false)) {
-    return Promise.resolve([{ error: `User with claims ${JSON.stringify(claims)} not found.`}]);
+    throw new z.errors.HaltedError([{ error: `User with claims ${JSON.stringify(claims)} not found.`}]);
   }
 
   return res;
@@ -52,7 +53,7 @@ const user = {
     ],
     perform,
     sample,
-    outputFields: [schema]
+    outputFields: [getUserAttributeOutputFields]
   }
 };
 

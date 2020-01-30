@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.1.15-monorepo
+- [hull-connector-framework] add triggers
+
+## v0.1.14-monorepo
+- [hull-hubspot] map contact meta data
+- [hull-slack] fix account trigger bug
+
 ## v0.1.13-monorepo
 - [hull-hubspot] store email in Hubspot group
 - [hull-hubspot] do not unalias on deletion
