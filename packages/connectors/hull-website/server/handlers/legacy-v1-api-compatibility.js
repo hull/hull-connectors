@@ -10,7 +10,8 @@ export default (firehoseTransport, HULL_DOMAIN) => {
   const app = Router();
 
   app.use(cookieParser());
-  app.get("/:id/remote.html", remoteHandler);
+
+  app.get("/:id/remote.html", remoteHandler(HULL_DOMAIN));
 
   app.use((req, res, next) => {
     const appId = req.get("hull-app-id");

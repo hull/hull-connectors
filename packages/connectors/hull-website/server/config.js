@@ -25,7 +25,7 @@ export default function connectorConfig(): HullConnectorConfig {
     throw new Error("Missing FIREHOSE_KAFKA_TOPIC environment variable");
   }
   if (!HULL_DOMAIN) {
-    throw new Error("Missing HULL_DOMAIN environment variable. Top level domain for Hull environment: hullapp.io or hullbeta.io");
+    throw new Error("Missing HULL_DOMAIN environment variable");
   }
 
   if (!SECRET && NODE_ENV !== "development") {
