@@ -6,22 +6,42 @@ import trackHandler from "./track-handler";
 import traitsHandler from "./traits-handler";
 import remoteHandler from "./remote-handler";
 
-export default (firehoseTransport, HULL_DOMAIN) => {
+class RemoteDomainMismatchError extends Error {
+  status = 403;
+
+  stack = [];
+
+  message = "Remote domain mismatch";
+
+  constructor(domain) {
+    super();
+    this.stack = [`Remote domain mismatch: ${domain}`];
+  }
+}
+
+export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
   const app = Router();
 
   app.use(cookieParser());
 
-  app.get("/:id/remote.html", remoteHandler(HULL_DOMAIN));
+  app.use((req, res, next) => {
+    const [namespace, ...remoteDomain] = req.hostname.split(".");
+    req.organization = `${namespace}.${HULL_DOMAIN}`;
+    if (remoteDomain.join(".") !== REMOTE_DOMAIN) {
+      return next(new RemoteDomainMismatchError(req.hostname));
+    }
+    next();
+  });
+
+  app.get("/:id/remote.html", remoteHandler());
 
   app.use((req, res, next) => {
     const appId = req.get("hull-app-id");
     const anonymous_id = req.cookies._bid;
-    const namespace = new URL(req.get("origin")).hostname.split(".")[0];
-    const organization = `${namespace}.${HULL_DOMAIN}`;
     const remoteUrl = req.get("referer");
     const clientParams = {
       id: appId,
-      organization,
+      organization: req.organization,
       trackingOnly: true,
       firehoseTransport
     };

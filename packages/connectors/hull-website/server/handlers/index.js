@@ -24,7 +24,8 @@ bluebird.promisifyAll(Redis.Multi.prototype);
 const handlers = ({
   redisUri,
   firehoseTransport,
-  HULL_DOMAIN
+  HULL_DOMAIN,
+  REMOTE_DOMAIN
 }: {
   redisUri: string,
   firehoseTransport: HullFirehoseKafkaTransport
@@ -46,7 +47,10 @@ const handlers = ({
   const connectorUpdate = connectorUpdateFactory({ store, onConnection, io });
   const userUpdate = userUpdateFactory({ connectorUpdate, sendPayload, store });
 
-  app.use("/api/v1", legacyV1ApiCompatibility(firehoseTransport, HULL_DOMAIN));
+  app.use(
+    "/api/v1",
+    legacyV1ApiCompatibility(firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN)
+  );
 
   return {
     statuses: {
@@ -57,7 +61,7 @@ const handlers = ({
       userUpdate
     },
     json: {
-      credentialsHandler
+      credentialsHandler: credentialsHandler(REMOTE_DOMAIN)
     }
   };
 };

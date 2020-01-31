@@ -12,7 +12,9 @@ export default function connectorConfig(): HullConnectorConfig {
     LOG_LEVEL,
     PORT,
     REDIS_URL,
-    HULL_DOMAIN
+    HULL_DOMAIN,
+    REMOTE_DOMAIN,
+    DISABLE_DEV_MODE = false
   } = process.env;
 
   if (!REDIS_URL) {
@@ -28,6 +30,10 @@ export default function connectorConfig(): HullConnectorConfig {
     throw new Error("Missing HULL_DOMAIN environment variable");
   }
 
+  if (!REMOTE_DOMAIN) {
+    throw new Error("Missing REMOTE_DOMAIN environment variable");
+  }
+
   if (!SECRET && NODE_ENV !== "development") {
     throw new Error("Missing SECRET environment variable");
   }
@@ -36,11 +42,12 @@ export default function connectorConfig(): HullConnectorConfig {
   return {
     manifest,
     hostSecret,
-    devMode: NODE_ENV === "development",
+    devMode: DISABLE_DEV_MODE ? false : (NODE_ENV === "development"),
     port: PORT || 8082,
     handlers: handlers({
       redisUri: REDIS_URL,
       HULL_DOMAIN,
+      REMOTE_DOMAIN,
       firehoseTransport: {
         type: "kafka",
         brokersList: FIREHOSE_KAFKA_BROKERS.split(","),

@@ -60,14 +60,12 @@ function renderError() {
   return "<script>//Remote failed to load</script>";
 }
 
-const remoteHandler = HULL_DOMAIN => {
+const remoteHandler = () => {
   const CACHE = cacheManager.caching({ store: "memory", max: 1000, ttl: 10 });
   return (req, res) => {
     const appId = req.params.id;
     const browserId = req.cookies._bid || uuid();
     const sessionId = req.cookies._sid || uuid();
-    const namespace = req.hostname.split(".")[0];
-    const organization = `${namespace}.${HULL_DOMAIN}`;
 
     res.cookie("_bid", browserId, {
       secure: true,
@@ -83,7 +81,7 @@ const remoteHandler = HULL_DOMAIN => {
       httpOnly: true
     });
 
-    fetchRemoteConfig(CACHE, organization, appId).then(
+    fetchRemoteConfig(CACHE, req.organization, appId).then(
       remoteConfig => renderRemote(res, remoteConfig),
       err => res.status(err.status || 500).send(renderError(err))
     );
