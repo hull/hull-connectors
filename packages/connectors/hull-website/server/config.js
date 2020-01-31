@@ -10,8 +10,9 @@ export default function connectorConfig(): HullConnectorConfig {
     FIREHOSE_KAFKA_BROKERS,
     FIREHOSE_KAFKA_TOPIC,
     LOG_LEVEL,
-    PORT = 8082,
-    REDIS_URL
+    PORT,
+    REDIS_URL,
+    HULL_DOMAIN
   } = process.env;
 
   if (!REDIS_URL) {
@@ -23,6 +24,9 @@ export default function connectorConfig(): HullConnectorConfig {
   if (!FIREHOSE_KAFKA_TOPIC) {
     throw new Error("Missing FIREHOSE_KAFKA_TOPIC environment variable");
   }
+  if (!HULL_DOMAIN) {
+    throw new Error("Missing HULL_DOMAIN environment variable. Top level domain for Hull environment: hullapp.io or hullbeta.io");
+  }
 
   if (!SECRET && NODE_ENV !== "development") {
     throw new Error("Missing SECRET environment variable");
@@ -33,9 +37,10 @@ export default function connectorConfig(): HullConnectorConfig {
     manifest,
     hostSecret,
     devMode: NODE_ENV === "development",
-    port: PORT,
+    port: PORT || 8082,
     handlers: handlers({
       redisUri: REDIS_URL,
+      HULL_DOMAIN,
       firehoseTransport: {
         type: "kafka",
         brokersList: FIREHOSE_KAFKA_BROKERS.split(","),

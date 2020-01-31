@@ -6,7 +6,7 @@ import trackHandler from "./track-handler";
 import traitsHandler from "./traits-handler";
 import remoteHandler from "./remote-handler";
 
-export default firehoseTransport => {
+export default (firehoseTransport, HULL_DOMAIN) => {
   const app = Router();
 
   app.use(cookieParser());
@@ -15,9 +15,9 @@ export default firehoseTransport => {
   app.use((req, res, next) => {
     const appId = req.get("hull-app-id");
     const anonymous_id = req.cookies._bid;
-    const organization = new URL(req.get("origin")).hostname;
+    const namespace = new URL(req.get("origin")).hostname.split(".")[0];
+    const organization = `${namespace}.${HULL_DOMAIN}`;
     const remoteUrl = req.get("referer");
-
     const clientParams = {
       id: appId,
       organization,
