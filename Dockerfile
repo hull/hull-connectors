@@ -14,7 +14,7 @@ COPY newrelic.js /app/
 COPY babel.config.js /app/
 COPY package.json /app/
 COPY yarn.lock /app/
-#
+
 # COPY packages/hull/package.json /app/packages/hull/
 # COPY packages/hull-client/package.json /app/packages/hull-client/
 # COPY packages/hull-connector-framework/package.json /app/packages/hull-connector-framework/
