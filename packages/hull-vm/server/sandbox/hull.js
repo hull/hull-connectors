@@ -2,12 +2,14 @@
 import type {
   HullAccountClaims,
   HullUserClaims,
+  HullEntityName,
   HullClient,
   HullAttributeContext,
   HullEventProperties,
   HullEventContext
 } from "hull";
 import { Map } from "immutable";
+import _ from "lodash";
 import type {
   HullAliasOperation,
   Attributes,
@@ -24,11 +26,21 @@ import {
 const { applyContext } = require("hull-client/src/utils/traits");
 const { filterEntityClaims } = require("hull-client/src/lib/filter-claims");
 
-const buildHullContext = (
+const buildHullContext = ({
+  client,
+  result,
+  source,
+  claims: scopedClaims,
+  entity
+}: {
   client: HullClient,
   result: Result,
-  eventsource?: string
-) => {
+  source?: string,
+  claims?: HullUserClaims | HullAccountClaims,
+  entity?: HullEntityName
+}) => {
+  const hasScopedClaims = scopedClaims && _.size(scopedClaims) && !!entity;
+
   const errorLogger = (message, method, validation) => {
     client.logger.debug(`incoming.${message}.skip`, {
       method,
@@ -52,7 +64,7 @@ const buildHullContext = (
       event: {
         eventName,
         properties,
-        context: { source: eventsource, ...context }
+        context: { source, ...context }
       }
     });
   };
@@ -121,6 +133,11 @@ const buildHullContext = (
     if (!account.traits) {
       return {};
     }
+    if (hasScopedClaims && !_.isEqual(claims, scopedClaims)) {
+      deprecationLogger(
+        "You're using hull.asAccount() inside a Processor, This is an advanced and unsafe method that might generate infinite loops. If you're just trying to update the current account, please use hull.traits() and hull.track() instead"
+      );
+    }
     result.accountLinks = result.accountLinks.set(
       Map(filterEntityClaims("user", claims)),
       Map(filterEntityClaims("account", accountClaims))
@@ -138,6 +155,11 @@ const buildHullContext = (
       return {};
     }
     deprecationLogger(message);
+    if (hasScopedClaims && !_.isEqual(claims, scopedClaims)) {
+      deprecationLogger(
+        "You're using hull.asUser() inside a Processor, This is an advanced and unsafe method that might generate infinite loops. If you're just trying to update the current user, please use hull.traits() and hull.track() instead"
+      );
+    }
     const track = trackFactory(claims, "events");
     const alias = aliasFactory(claims, "alias", "userAliases");
     const unalias = aliasFactory(claims, "unalias", "userAliases");
@@ -153,13 +175,26 @@ const buildHullContext = (
     };
   }
 
-  return {
+  const hull = {
     /* Deprecated Syntax */
     user: asUser,
     account: asAccount,
     /* Proper Syntax */
     asUser,
     asAccount
+  };
+  if (!hasScopedClaims) {
+    return hull;
+  }
+  if (entity === "account") {
+    return {
+      ...hull,
+      ...hull.asAccount(scopedClaims)
+    };
+  }
+  return {
+    ...hull,
+    ...hull.asUser(scopedClaims)
   };
 };
 
