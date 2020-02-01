@@ -29,7 +29,6 @@
   "scripts": {
     "duplicated-dependencies": "syncpack-list-mismatches -s 'packages/*/package.json' -s 'packages/connectors/*/package.json'",
     "build": "sh scripts/build-connectors.sh",
-    "build-connector": "sh scripts/build-connector.sh",
     "repl": "NODE_ENV=development sh scripts/repl.sh",
     "clean": "sh scripts/clean-connectors.sh",
     "combined": "sh scripts/combined-start.sh",
