@@ -5,11 +5,12 @@ RUN apk add --no-cache rsync
 # basic settings
 WORKDIR /app
 
-ARG CONNECTOR=''
-ENV CONNECTOR=${CONNECTOR}
-
+# # By copying the package.json files separately we speed up greatly the build phase.
+COPY newrelic.js /app/
+COPY babel.config.js /app/
 COPY package.json /app/
 COPY yarn.lock /app/
+
 COPY packages/hull/package.json /app/packages/hull/
 COPY packages/hull-client/package.json /app/packages/hull-client/
 COPY packages/hull-connector-framework/package.json /app/packages/hull-connector-framework/
@@ -35,24 +36,17 @@ COPY packages/connectors/hull-typeform/package.json /app/packages/connectors/hul
 COPY packages/connectors/hull-warehouse/package.json /app/packages/connectors/hull-warehouse/package.json
 COPY packages/connectors/hull-website/package.json /app/packages/connectors/hull-website/package.json
 COPY packages/connectors/hull-zapier/package.json /app/packages/connectors/hull-zapier/package.json
+# CMD rsync -mrv --include="*/" --include="package.json" --exclude="*" ./ /app/
 
-COPY newrelic.js /app/
-COPY babel.config.js /app/
+COPY ./ /app/
 
 # install dependencies
-RUN yarn cache clean && yarn
+# RUN yarn cache clean && yarn
 
-COPY packages/connectors/${CONNECTOR}/ /app/packages/connectors/${CONNECTOR}
-COPY packages/assets/ /app/packages/assets/
-COPY packages/hull/ /app/packages/hull/
-COPY packages/hull-client/ /app/packages/hull-client/
-COPY packages/hull-vm/ /app/packages/hull-vm/
-COPY packages/hull-connector-framework/ /app/packages/hull-connector-framework/
-COPY packages/hull-repl/ /app/packages/hull-repl/
-
-COPY ./scripts /app/scripts/
+# If no package.json changed. then we start here.
 
 # build the project
-RUN yarn build-connector
+# RUN yarn build
 
-ENTRYPOINT node --optimize_for_size -r newrelic "dist/${CONNECTOR}/server"
+# This is preferred over ENTRYPOINT as it allows to override the default command in docker run -it
+CMD [ "sh", "scripts/bash-entrypoint.sh" ]

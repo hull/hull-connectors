@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-CONNECTOR=$1
+CONNECTOR=${CONNECTOR:=$1}
 
-: "${CONNECTOR:?CONNECTOR variable not set or empty. Should be set to \`hull-\*\`}"
+: "${CONNECTOR:?CONNECTOR environment variable not set or empty. Should be set to the name of a valid connector such in the form \`hull-*\`}"
 
-CONNECTORS=($(ls -1 dist/connectors))
+CONNECTORS=`ls -1 packages/connectors`
 
-if [[ ! " ${CONNECTORS[@]} " =~ " ${CONNECTOR} " ]]; then
+if [[ ! -d "dist/connectors/$CONNECTOR" ]]; then
   echo "$CONNECTOR is not a valid connector name"
   exit 1
 fi
@@ -18,6 +18,6 @@ if [ ! -d $PATH_TO_CONNECTOR ]; then
   exit 1
 fi
 
-echo "starting $PATH_TO_CONNECTOR";
+echo "Starting $PATH_TO_CONNECTOR";
 
 exec node --optimize_for_size --max_old_space_size=$MEMORY_AVAILABLE -r newrelic $PATH_TO_CONNECTOR
