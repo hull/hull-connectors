@@ -127,12 +127,20 @@ class MappingUtil {
    * @memberof MappingUtil
    */
   mapToServiceEvent(event: HullEvent): ICustomerIoEvent {
+    const { context, properties } = event;
     const serviceEvent = {
       name: event.event,
       data: _.get(event, "properties")
     };
 
     if (event.event === "page") {
+      const eventName = properties.url || context.page_url || event.event;
+      const referrerUrl = properties.referrer || context.referrer_url;
+
+      _.set(serviceEvent, "name", eventName);
+      if (!_.isNil(referrerUrl)) {
+        _.set(serviceEvent, "data.referrer", referrerUrl);
+      }
       _.set(serviceEvent, "type", "page");
     }
 

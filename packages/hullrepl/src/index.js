@@ -7,6 +7,7 @@ export default async function getRepl({ credentials, middlewares }) {
   const replServer = repl.start({
     prompt: "hull > ",
     useColors: true,
+    terminal: true,
     eval(cmd, context, filename, callback) {
       const result = vm.runInContext(cmd, context);
       if (result && result.then instanceof Function) {
