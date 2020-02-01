@@ -80,6 +80,7 @@ export const assertEntityClaimsValidity = (
       typeof object !== "object" ||
       _.intersection(_.keys(object), claimsToCheck).length === 0
     ) {
+      console.log("assertEntityClaimsValidity", { object })
       throw new Error(
         `You need to pass an ${type} hash with an ${claimsToCheck.join(
           ", "

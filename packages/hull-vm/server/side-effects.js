@@ -1,7 +1,7 @@
 // @flow
 import type { HullUser, HullAccount, HullClient, HullContext } from "hull";
 import _ from "lodash";
-import type { SerializedResult, HullClaims } from "../types";
+import type { SerializedResult, HullSerializedClaims } from "../types";
 
 type EventSignature = {
   client: HullClient,
@@ -54,12 +54,20 @@ const logIfNested = (client, attrs) => {
   });
 };
 
-export const getClient = (client: HullClient, claims: HullClaims) => {
-  const { asUser, asAccount, subject } = claims;
-  if (subject === "user") {
-    return client.asUser(asUser);
+export const getClient = (client: HullClient, claims: HullSerializedClaims) => {
+  const { asUser, asAccount, subjectType } = claims;
+  if (subjectType === "user") {
+    return _.size(asAccount)
+      ? client.asUser(asUser, {}, asAccount)
+      : client.asUser(asUser);
   }
 
+  if (!_.size(asUser) && !_.size(asAccount)) {
+    throw new Error("Can't find Claims to build a client");
+  }
+  if (subjectType === "user" && !_.size(asUser)) {
+    throw new Error("Can't find User Claims to build a user client");
+  }
   return _.size(asUser)
     ? client.asUser(asUser).account(asAccount)
     : client.asAccount(asAccount);
@@ -76,7 +84,7 @@ export const callIdentify = async ({
   try {
     const responses = await Promise.all(
       data.map(async ([claims, attrs]) => {
-        const { subject } = claims;
+        const { subjectType } = claims;
         const scoped = getClient(client, claims);
         try {
           logIfNested(scoped, attrs);
@@ -98,12 +106,13 @@ export const callIdentify = async ({
             await scoped.traits(attributes);
           }
           successful += 1;
-          return client.logger.debug(`incoming.${subject}.success`, {
+          return scoped.logger.debug(`incoming.${subjectType}.success`, {
             attributes,
             no_ops
           });
         } catch (err) {
-          return scoped.logger.error(`incoming.${subject}.error`, {
+          console.log("Error", err);
+          return scoped.logger.error(`incoming.${subjectType}.error`, {
             hull_summary: `Error saving Attributes: ${err.message ||
               "Unexpected error"}`,
             claims,
@@ -156,41 +165,40 @@ export const callEvents = async ({
     if (successful) metric.increment(`ship.incoming.${entity}s`, successful);
     return responses;
   } catch (err) {
-    return Promise.reject(err);
+    console.log(err);
+    throw err;
   }
 };
 
 export const callLinks = async ({
-  hullClient,
+  client,
   data,
   entity,
   metric
 }: {
-  hullClient: $PropertyType<HullClient, "asUser">,
-  data: $PropertyType<Result, "accountLinks">,
+  client: $PropertyType<HullClient, "asUser">,
+  data: $PropertyType<SerializedResult, "accountLinks">,
   entity: "account",
   metric: $PropertyType<HullContext, "metric">
 }): Promise<any> => {
   try {
     let successful = 0;
     const responses = await Promise.all(
-      data.toArray().map(async ([userClaimsMap, accountClaimsMap]) => {
-        const accountClaims = accountClaimsMap.toObject();
-        const userClaims = userClaimsMap.toObject();
-        const client = hullClient(userClaims);
+      data.map(async ([claims, asAccount]) => {
+        const scoped = getClient(client, { ...claims, asAccount });
         try {
           successful += 1;
-          await client.account(accountClaims).traits({});
-          return client.logger.debug(`incoming.${entity}.link.success`, {
-            accountClaims,
-            userClaims
+          await scoped.traits({});
+          return scoped.logger.debug(`incoming.${entity}.link.success`, {
+            asAccount,
+            claims
           });
         } catch (err) {
           return client.logger.error(`incoming.${entity}.link.error`, {
             hull_summary: `Error Linking User and account: ${err.message ||
               "Unexpected error"}`,
-            user: userClaims,
-            account: accountClaims,
+            user: claims,
+            account: asAccount,
             errors: err
           });
         }
@@ -200,7 +208,8 @@ export const callLinks = async ({
       metric.increment(`ship.incoming.${entity}s.link`, successful);
     return responses;
   } catch (err) {
-    return Promise.reject(err);
+    console.log(err);
+    throw err;
   }
 };
 
@@ -215,7 +224,7 @@ export const callAlias = async ({
   try {
     const responses = await Promise.all(
       data.map(async ([claims, aliases]) => {
-        const { subject: entity } = claims;
+        const { subjectType } = claims;
         const scoped = getClient(client, claims);
         try {
           const opLog = await Promise.all(
@@ -236,13 +245,13 @@ export const callAlias = async ({
               return { claim, operation };
             })
           );
-          return scoped.logger.info(`incoming.${entity}.alias.success`, {
+          return scoped.logger.info(`incoming.${subjectType}.alias.success`, {
             claims,
             aliases: opLog
           });
         } catch (err) {
-          console.log(err);
-          return scoped.logger.info(`incoming.${entity}.alias.error`, {
+          console.log("Error", err);
+          return scoped.logger.error(`incoming.${subjectType}.alias.error`, {
             claims,
             aliases
           });
@@ -253,7 +262,7 @@ export const callAlias = async ({
       metric.increment(`ship.incoming.${subjects}s.alias`, successful);
     return responses;
   } catch (err) {
-    console.log(err);
+    console.log("Error", err);
     return Promise.reject(err);
   }
 };

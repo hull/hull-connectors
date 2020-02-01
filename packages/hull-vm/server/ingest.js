@@ -7,7 +7,7 @@ import type {
   HullAccount,
   HullEntityClaims
 } from "hull";
-import { callAlias, callEvents, callIdentify } from "./side-effects";
+import { callLinks, callAlias, callEvents, callIdentify } from "./side-effects";
 import type { Payload, SerializedResult } from "../types";
 
 const debug = require("debug")("hull-incoming-webhooks:ingest");
@@ -27,6 +27,7 @@ export default async function ingest(
     events,
     userTraits,
     accountTraits,
+    accountLinks,
     userAliases,
     accountAliases,
     logsForLogger,
@@ -80,6 +81,18 @@ export default async function ingest(
         payload: account,
         data: accountTraits,
         subjects: "account",
+        metric
+      })
+    );
+  }
+
+  // Update account links
+  if (_.size(accountLinks)) {
+    promises.push(
+      callLinks({
+        client,
+        data: accountLinks,
+        entity: "account",
         metric
       })
     );

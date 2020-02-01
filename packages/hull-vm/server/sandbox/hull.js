@@ -9,14 +9,13 @@ import type {
   HullEventProperties,
   HullEventContext
 } from "hull";
-import { Map, Record } from "immutable";
-import type { RecordFactory, RecordOf } from "immutable";
+import { Map } from "immutable";
 
 import _ from "lodash";
 import type {
   HullAliasOperation,
   Attributes,
-  HullClaimsRecord,
+  HullClaims,
   // Event,
   Result
 } from "../../types";
@@ -34,19 +33,6 @@ type Claims = {
 
 const { applyContext } = require("hull-client/src/utils/traits");
 const { filterEntityClaims } = require("hull-client/src/lib/filter-claims");
-
-type ClaimsRecordProps = {
-  asUser: HullUserClaims,
-  asAccount: HullAccountClaims,
-  subject: HullEntityName
-};
-type ClaimRecord = RecordOf<ClaimsRecordProps>;
-
-const recordFactory: RecordFactory<ClaimsRecordProps> = Record({
-  asUser: undefined,
-  asAccount: undefined,
-  subject: "user"
-});
 
 const buildHullContext = ({
   client,
@@ -82,26 +68,28 @@ const buildHullContext = ({
   }: {
     asUser?: HullUserClaims,
     asAccount?: HullAccountClaims
-  }): HullClaimsRecord => {
-    return new recordFactory(
-      _.omitBy(
-        {
-          asUser: filterEntityClaims("user", asUser),
-          asAccount: filterEntityClaims("user", asAccount),
-          subject: asUser ? "user" : "account"
-        },
-        _.isEmpty
-      )
+  }): HullClaims => {
+    const filteredAsAccount = filterEntityClaims("account", asAccount);
+    const filteredAsUser = filterEntityClaims("user", asUser);
+    const rec = _.omitBy(
+      {
+        ...(filteredAsUser ? { asUser: Map(filteredAsUser) } : {}),
+        ...(filteredAsAccount ? { asAccount: Map(filteredAsAccount) } : {}),
+        subjectType: asUser ? "user" : "account"
+      },
+      _.isEmpty
     );
+    return Map(rec);
   };
 
-  const trackFactory = (asUser: HullUserClaims, _subject: HullEntityType) => (
+  const trackFactory = (
+    { asUser }: { asUser: HullUserClaims },
+    _subjectType: HullEntityName
+  ) => (
     eventName: string,
     properties: HullEventProperties = {},
     context: HullEventContext = {}
   ) => {
-    console.log("EVENT", asUser, claimsMap({ asUser }));
-    // const target = "events";
     result.events.push({
       claims: claimsMap({ asUser }),
       event: {
@@ -113,7 +101,7 @@ const buildHullContext = ({
   };
   const aliasFactory = (
     { asUser, asAccount }: Claims,
-    subject: HullEntityType,
+    subject: HullEntityName,
     operation: HullAliasOperation
   ) => (alias: HullEntityClaims) => {
     const target = subject === "user" ? "userAliases" : "accountAliases";
@@ -127,13 +115,13 @@ const buildHullContext = ({
 
   const identifyFactory = (
     { asUser, asAccount }: Claims,
-    subject: HullEntityType
+    subject: HullEntityName
   ) => (attributes: Attributes, context?: HullAttributeContext = {}) => {
-    console.log("IDENTIFY", { asUser, asAccount, subject });
     const target = subject === "user" ? "userTraits" : "accountTraits";
     // ensures the claims and calls are properly collapsed and aggregated
+    const claims = claimsMap({ asUser, asAccount });
     result[target] = result[target].mergeDeepIn(
-      [claimsMap({ asUser, asAccount })],
+      [claims],
       Map(applyContext(attributes, context))
     );
   };
@@ -160,7 +148,7 @@ const buildHullContext = ({
     return { identify, traits: identify, alias, unalias };
   }
 
-  const accountLinkFactory = (asUser: HullUserClaims) => (
+  const accountLinkFactory = ({ asUser }: { asUser: HullUserClaims }) => (
     asAccount: HullAccountClaims
   ) => {
     const account = asAccountFactory({ asUser, asAccount });
@@ -175,7 +163,7 @@ const buildHullContext = ({
     }
 
     result.accountLinks = result.accountLinks.set(
-      Map(filterEntityClaims("user", asUser)),
+      claimsMap({ asUser }),
       Map(filterEntityClaims("account", asAccount))
     );
 

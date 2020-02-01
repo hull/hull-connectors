@@ -79,29 +79,20 @@ export type HullAliasOperations = Array<
   Map<HullEntityClaims, HullAliasOperation>
 >;
 
-type UserClaim = {
-  asUser: HullUserClaimsMap,
-  subject: "user"
-};
-type AccountClaim = {
-  asUser?: HullUserClaimsMap,
-  asAccount: HullAccountClaimsMap,
-  subject: "account"
-};
-
 export type HullClaims = {
   asUser?: HullUserClaimsMap,
   asAccount?: HullAccountClaimsMap,
-  subject: "user" | "account"
+  subjectType: "user" | "account"
 };
 
-export type HullUserClaimsRecord = RecordOf<UserClaim>;
-export type HullAccountClaimsRecord = RecordOf<AccountClaim>;
-export type HullClaimsRecord = RecordOf<HullClaims>;
-// type Claim = UserClaim | AccountClaim;
+export type HullSerializedClaims = {
+  asUser?: HullUserClaims,
+  asAccount?: HullAccountClaims,
+  subjectType: "user" | "account"
+};
 
 export type Event = {
-  claims: HullClaimsRecord,
+  claims: HullClaims,
   event: {
     eventName: string,
     properties?: {},
@@ -122,14 +113,12 @@ export type Result = {
   logsForLogger: Array<string>,
   logs: Array<string | any>,
   errors: Array<string>,
-  userTraits: Map<HullUserClaimsRecord, HullAttributesMap>,
-  userAliases: Map<
-    HullUserClaimsRecord,
-    Map<HullUserClaimsMap, HullAliasOperation>
-  >,
-  accountTraits: Map<HullAccountClaimsRecord, HullAttributesMap>,
+  userTraits: Map<HullClaims, HullAttributesMap>,
+  userAliases: Map<HullClaims, Map<HullUserClaimsMap, HullAliasOperation>>,
+  accountTraits: Map<HullClaims, HullAttributesMap>,
+  accountLinks: Map<HullClaims, HullAttributesMap>,
   accountAliases: Map<
-    HullAccountClaimsRecord,
+    HullClaims,
     Map<HullAccountClaimsMap, HullAliasOperation>
   >,
   events: Array<Event>,
@@ -143,6 +132,7 @@ export type SerializedResult = {
   logs: Array<string | any>,
   errors: Array<string>,
   userTraits: Array<[HullClaims, Attributes]>,
+  accountLinks: Array<[HullClaims, HullClaims]>,
   accountTraits: Array<[HullClaims, Attributes]>,
   userAliases: Array<
     [

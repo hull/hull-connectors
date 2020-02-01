@@ -29,6 +29,7 @@ export default async function compute(
     userTraits: Map({}),
     userAliases: Map({}),
     accountTraits: Map({}),
+    accountLinks: Map({}),
     accountAliases: Map({}),
     events: [],
     claims,
