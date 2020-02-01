@@ -4,10 +4,10 @@ CONNECTOR=${CONNECTOR:=$1}
 
 : "${CONNECTOR:?CONNECTOR environment variable not set or empty. Should be set to the name of a valid connector such in the form \`hull-*\`}"
 
-CONNECTORS=`ls -1 packages/connectors`
+CONNECTORS=`ls -1 dist/connectors`
 
 if [[ ! -d "dist/connectors/$CONNECTOR" ]]; then
-  echo "$CONNECTOR is not a valid connector name"
+  echo "$CONNECTOR is not a valid connector name - can't find dist/connectors/$CONNECTOR"
   exit 1
 fi
 
