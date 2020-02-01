@@ -3,7 +3,7 @@ on open location hullReplURL
     tell current window
       create tab with default profile
       tell current session
-        write text "hull-repl --url \"" & hullReplURL & "\""
+        write text "hullrepl --url \"" & hullReplURL & "\""
       end tell
     end tell
   end tell

@@ -4,7 +4,7 @@ import type { $Application, Middleware } from "express";
 import _ from "lodash";
 import type { Server } from "http";
 import express from "express";
-import repl from "hull-repl";
+import repl from "hullrepl";
 import minimist from "minimist";
 import type {
   HullContext,
