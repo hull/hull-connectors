@@ -41,14 +41,13 @@ export default async function compute(
     responses: [],
     errors: result.errors
   };
-  const hull = getHullContext(client, result, source);
-  const scopedClient = entity === "account" ? hull.asAccount : hull.asUser;
+  const hull = getHullContext({ client, result, source, claims, entity });
   const frozen = {
     ...payload,
     ...LIBS,
     ...(claims ? scopedUserMethods(payload) : {}),
     request: getRequest(ctx, result),
-    hull: _.size(claims) ? scopedClient(claims) : hull,
+    hull,
     console: getConsole(result, preview),
     connector,
     ship: connector
@@ -62,18 +61,15 @@ export default async function compute(
     _.map(frozen, (lib, key: string) => vm.freeze(lib, key));
     // For Processor keep backwards-compatible signature of having `traits` and `track` at top level
     if (_.size(claims)) {
-      _.map(
-        _.pick(scopedClient(claims), "traits", "track"),
-        (lib, key: string) => {
-          const l = function l(...args) {
-            result.logs.unshift(
-              `Warning. You are using a deprecated method: "${key}()". Please use "hull.${key}()" instead`
-            );
-            lib(...args);
-          };
-          vm.freeze(l, key);
-        }
-      );
+      _.map(_.pick(hull, "traits", "track"), (lib, key: string) => {
+        const l = function l(...args) {
+          result.logs.unshift(
+            `Warning. You are using a deprecated method: "${key}()". Please use "hull.${key}()" instead`
+          );
+          lib(...args);
+        };
+        vm.freeze(l, key);
+      });
     }
 
     await vm.run(check.wrapCode(code));

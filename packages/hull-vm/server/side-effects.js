@@ -98,7 +98,7 @@ export const callIdentify = async ({
             await scoped.traits(attributes);
           }
           successful += 1;
-          return client.logger.debug(`incoming.${entity}.success`, {
+          return client.logger.debug(`incoming.${subject}.success`, {
             attributes,
             no_ops
           });
@@ -215,7 +215,7 @@ export const callAlias = async ({
   try {
     const responses = await Promise.all(
       data.map(async ([claims, aliases]) => {
-        const { subject } = claims;
+        const { subject: entity } = claims;
         const scoped = getClient(client, claims);
         try {
           const opLog = await Promise.all(
@@ -236,13 +236,13 @@ export const callAlias = async ({
               return { claim, operation };
             })
           );
-          return scoped.logger.info(`incoming.${subject}.alias.success`, {
+          return scoped.logger.info(`incoming.${entity}.alias.success`, {
             claims,
             aliases: opLog
           });
         } catch (err) {
           console.log(err);
-          return scoped.logger.info(`incoming.${subject}.alias.error`, {
+          return scoped.logger.info(`incoming.${entity}.alias.error`, {
             claims,
             aliases
           });

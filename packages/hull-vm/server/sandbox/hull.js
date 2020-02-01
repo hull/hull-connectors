@@ -3,13 +3,16 @@ import type {
   HullAccountClaims,
   HullUserClaims,
   HullEntityClaims,
-  HullEntityType,
+  HullEntityName,
   HullClient,
   HullAttributeContext,
   HullEventProperties,
   HullEventContext
 } from "hull";
 import { Map, Record } from "immutable";
+import type { RecordFactory, RecordOf } from "immutable";
+
+import _ from "lodash";
 import type {
   HullAliasOperation,
   Attributes,
@@ -32,17 +35,34 @@ type Claims = {
 const { applyContext } = require("hull-client/src/utils/traits");
 const { filterEntityClaims } = require("hull-client/src/lib/filter-claims");
 
-const recordFactory = Record({
+type ClaimsRecordProps = {
+  asUser: HullUserClaims,
+  asAccount: HullAccountClaims,
+  subject: HullEntityName
+};
+type ClaimRecord = RecordOf<ClaimsRecordProps>;
+
+const recordFactory: RecordFactory<ClaimsRecordProps> = Record({
   asUser: undefined,
   asAccount: undefined,
   subject: "user"
 });
 
-const buildHullContext = (
+const buildHullContext = ({
+  client,
+  result,
+  source,
+  claims: scopedClaims,
+  entity
+}: {
   client: HullClient,
   result: Result,
-  eventsource?: string
-) => {
+  source?: string,
+  claims?: HullUserClaims | HullAccountClaims,
+  entity?: HullEntityName
+}) => {
+  const hasScopedClaims = scopedClaims && _.size(scopedClaims) && !!entity;
+
   const errorLogger = (message, method, validation) => {
     client.logger.debug(`incoming.${message}.skip`, {
       method,
@@ -63,11 +83,16 @@ const buildHullContext = (
     asUser?: HullUserClaims,
     asAccount?: HullAccountClaims
   }): HullClaimsRecord => {
-    return new recordFactory({
-      asUser: filterEntityClaims("user", asUser),
-      asAccount: filterEntityClaims("user", asAccount),
-      subject: asUser ? "user" : "account"
-    });
+    return new recordFactory(
+      _.omitBy(
+        {
+          asUser: filterEntityClaims("user", asUser),
+          asAccount: filterEntityClaims("user", asAccount),
+          subject: asUser ? "user" : "account"
+        },
+        _.isEmpty
+      )
+    );
   };
 
   const trackFactory = (asUser: HullUserClaims, _subject: HullEntityType) => (
@@ -82,7 +107,7 @@ const buildHullContext = (
       event: {
         eventName,
         properties,
-        context: { source: eventsource, ...context }
+        context: { source, ...context }
       }
     });
   };
@@ -104,6 +129,7 @@ const buildHullContext = (
     { asUser, asAccount }: Claims,
     subject: HullEntityType
   ) => (attributes: Attributes, context?: HullAttributeContext = {}) => {
+    console.log("IDENTIFY", { asUser, asAccount, subject });
     const target = subject === "user" ? "userTraits" : "accountTraits";
     // ensures the claims and calls are properly collapsed and aggregated
     result[target] = result[target].mergeDeepIn(
@@ -141,13 +167,18 @@ const buildHullContext = (
     if (!account.traits) {
       return {};
     }
-    // result.accountLinks = result.accountLinks.set(
-    //   claimsMap({ asUser }),
-    //   Map(filterEntityClaims("user", asAccount))
-    // );
-    // With the new signature, ensure we have at least an empty traits call.
-    // Subjsequent calls will add to the same data structure
-    account.traits({});
+
+    if (hasScopedClaims && !_.isEqual(asUser, scopedClaims)) {
+      deprecationLogger(
+        "You're using hull.asAccount() inside a Processor, This is an advanced and unsafe method that might generate infinite loops. If you're just trying to update the current account, please use hull.traits() and hull.track() instead"
+      );
+    }
+
+    result.accountLinks = result.accountLinks.set(
+      Map(filterEntityClaims("user", asUser)),
+      Map(filterEntityClaims("account", asAccount))
+    );
+
     return account;
   };
 
@@ -162,11 +193,17 @@ const buildHullContext = (
       return {};
     }
     deprecationLogger(message);
+    if (hasScopedClaims && !_.isEqual(asUser, scopedClaims)) {
+      deprecationLogger(
+        "You're using hull.asUser() inside a Processor, This is an advanced and unsafe method that might generate infinite loops. If you're just trying to update the current user, please use hull.traits() and hull.track() instead"
+      );
+    }
     const track = trackFactory({ asUser }, "user");
     const alias = aliasFactory({ asUser }, "user", "alias");
     const unalias = aliasFactory({ asUser }, "user", "unalias");
     const identify = identifyFactory({ asUser }, "user");
     const link = accountLinkFactory({ asUser });
+
     return {
       traits: identify,
       account: link,
@@ -177,13 +214,26 @@ const buildHullContext = (
     };
   }
 
-  return {
+  const hull = {
     /* Deprecated Syntax */
     user: asUserCollector,
     account: asAccountCollector,
     /* Proper Syntax */
     asUser: asUserCollector,
     asAccount: asAccountCollector
+  };
+  if (!hasScopedClaims) {
+    return hull;
+  }
+  if (entity === "account") {
+    return {
+      ...hull,
+      ...hull.asAccount(scopedClaims)
+    };
+  }
+  return {
+    ...hull,
+    ...hull.asUser(scopedClaims)
   };
 };
 
