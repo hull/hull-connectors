@@ -13,11 +13,14 @@ it("Receive Unsubscribe", () => {
       handlerType: handlers.incomingRequestHandler,
       connector: {
         private_settings: {
-          subscriptions: [
+          triggers: [
             {
-              "url": "https://hooks.zapier.com/hooks/standard/1/1/",
-              "action": "entered_segment",
-              "entityType": "user"
+              "serviceAction": {
+                "webhook": "https://hooks.zapier.com/hooks/standard/1/1/"
+              },
+              "inputData": {
+                "entered_user_segments": [ "all_segments" ]
+              }
             }
           ]
         }
@@ -49,7 +52,7 @@ it("Receive Unsubscribe", () => {
         ["GET", "/api/v1/app", {}, {}],
         ["PUT", "/api/v1/9993743b22d60dd829001999", {}, {
           "private_settings": {
-            "subscriptions": []
+            "triggers": []
           },
           "refresh_status": false
         }]
@@ -65,21 +68,30 @@ it("Receive Unsubscribe And Remove From Existing Subscriptions", () => {
       handlerType: handlers.incomingRequestHandler,
       connector: {
         private_settings: {
-          subscriptions: [
+          triggers: [
             {
-              "url": "https://hooks.zapier.com/hooks/standard/user-entered-segment/1/",
-              "action": "entered_segment",
-              "entityType": "user"
+              "serviceAction": {
+                "webhook": "https://hooks.zapier.com/hooks/standard/user-entered-segment/1/"
+              },
+              "inputData": {
+                "entered_user_segments": [ "all_segments" ]
+              }
             },
             {
-              "url": "https://hooks.zapier.com/hooks/standard/user-left-segment/1/",
-              "action": "left_segment",
-              "entityType": "user"
+              "serviceAction": {
+                "webhook": "https://hooks.zapier.com/hooks/standard/user-left-segment/1/"
+              },
+              "inputData": {
+                "left_user_segments": [ "all_segments" ]
+              }
             },
             {
-              "url": "https://hooks.zapier.com/hooks/standard/account-entered-segment/1/",
-              "action": "entered_segment",
-              "entityType": "account"
+              "serviceAction": {
+                "webhook": "https://hooks.zapier.com/hooks/standard/account-entered-segment/1/"
+              },
+              "inputData": {
+                "entered_account_segments": [ "all_segments" ]
+              }
             }
           ]
         }
@@ -111,16 +123,22 @@ it("Receive Unsubscribe And Remove From Existing Subscriptions", () => {
         ["GET", "/api/v1/app", {}, {}],
         ["PUT", "/api/v1/9993743b22d60dd829001999", {}, {
           "private_settings": {
-            "subscriptions": [
+            "triggers": [
               {
-                "url": "https://hooks.zapier.com/hooks/standard/user-entered-segment/1/",
-                "action": "entered_segment",
-                "entityType": "user"
+                "serviceAction": {
+                  "webhook": "https://hooks.zapier.com/hooks/standard/user-entered-segment/1/"
+                },
+                "inputData": {
+                  "entered_user_segments": [ "all_segments" ]
+                }
               },
               {
-                "url": "https://hooks.zapier.com/hooks/standard/account-entered-segment/1/",
-                "action": "entered_segment",
-                "entityType": "account"
+                "serviceAction": {
+                  "webhook": "https://hooks.zapier.com/hooks/standard/account-entered-segment/1/"
+                },
+                "inputData": {
+                  "entered_account_segments": [ "all_segments" ]
+                }
               }
             ]
           },
@@ -138,21 +156,30 @@ it("Receive unsubscribe that does not exist in Hull", () => {
       handlerType: handlers.incomingRequestHandler,
       connector: {
         private_settings: {
-          subscriptions: [
+          triggers: [
             {
-              "url": "https://hooks.zapier.com/hooks/standard/user-entered-segment/1/",
-              "action": "entered_segment",
-              "entityType": "user"
+              "serviceAction": {
+                "webhook": "https://hooks.zapier.com/hooks/standard/user-entered-segment/1/"
+              },
+              "inputData": {
+                "entered_user_segments": [ "all_segments" ]
+              }
             },
             {
-              "url": "https://hooks.zapier.com/hooks/standard/user-left-segment/1/",
-              "action": "left_segment",
-              "entityType": "user"
+              "serviceAction": {
+                "webhook": "https://hooks.zapier.com/hooks/standard/user-left-segment/1/"
+              },
+              "inputData": {
+                "left_user_segments": [ "all_segments" ]
+              }
             },
             {
-              "url": "https://hooks.zapier.com/hooks/standard/account-entered-segment/1/",
-              "action": "entered_segment",
-              "entityType": "account"
+              "serviceAction": {
+                "webhook": "https://hooks.zapier.com/hooks/standard/account-entered-segment/1/"
+              },
+              "inputData": {
+                "entered_account_segments": [ "all_segments" ]
+              }
             }
           ]
         }

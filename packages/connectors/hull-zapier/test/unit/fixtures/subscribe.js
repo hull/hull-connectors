@@ -11,7 +11,7 @@ module.exports = {
       "outgoing_account_attributes": [],
       "synchronized_user_segments": [],
       "synchronized_account_segments": [],
-      "subscriptions": []
+      "triggers": []
     },
   },
   "route": "subscribe",

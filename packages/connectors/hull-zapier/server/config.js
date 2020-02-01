@@ -41,6 +41,9 @@ export default function connectorConfig(): HullConnectorConfig {
     },
     serverConfig: {
       start: true
+    },
+    options: {
+      outgoingMechanism: "trigger"
     }
   };
 }

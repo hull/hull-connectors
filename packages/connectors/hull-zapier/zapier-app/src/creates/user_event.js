@@ -17,7 +17,7 @@ const user_event = {
   noun: "User Event",
 
   display: {
-    hidden: true,
+    hidden: false,
     label: "Create User Event",
     description:
       "Adds an Event to the user identified by an email. Will create the User if not created already"

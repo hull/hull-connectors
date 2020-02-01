@@ -5,7 +5,7 @@ module.exports = {
       label: "Token",
       required: true,
       type: "string",
-      helpText: "This is found in your Zapier connector settings page in Hull."
+      helpText: "This is found in your Zapier Connector settings page in Hull. Please refer to the Zapier Connector [documentation](https://www.hull.io/docs/connectors/zapier/) for more information."
     }
   ],
   test: {
