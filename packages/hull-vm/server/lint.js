@@ -10,14 +10,24 @@ const LIBS = [
   "console",
   "isInSegment",
   "enteredSegment",
+  "enteredAccountSegment",
   "leftSegment",
+  "leftAccountSegment",
   "isGenericEmail",
   "isGenericDomain",
   "request",
   "captureException",
   "captureMessage"
 ];
-const COMMON_VARS = ["ship", "results", "errors", "logs", "track", "traits"];
+const COMMON_VARS = [
+  "ship",
+  "connector",
+  "results",
+  "errors",
+  "logs",
+  "track",
+  "traits"
+];
 const linter = new Linter();
 
 const getGlobals = (vars: Array<Array<string>>) =>

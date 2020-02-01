@@ -5,7 +5,7 @@
   "picture": "picture.png",
   "ui": false,
   "readme": "readme.md",
-  "version": "0.1.8-monorepo",
+  "version": "0.1.15-monorepo",
   "private_settings": [
     {
       "title": "Preferred email Label",
@@ -15,7 +15,6 @@
       "type": "string"
     }
   ],
-  "resources": [],
   "subscriptions": [],
   "settings_sections": [
     {

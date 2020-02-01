@@ -2,7 +2,7 @@
 import type {
   HullClientConfig,
   HullEntityClaims,
-  HullEntityType,
+  HullEntityName,
   HullAdditionalClaims
 } from "../types";
 
@@ -151,7 +151,7 @@ class Configuration {
     | string
     | number
     | Array<Object>
-    | HullEntityType
+    | HullEntityName
     | HullEntityClaims
     | HullAdditionalClaims
     | HullClientConfig

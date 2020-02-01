@@ -15,7 +15,9 @@ const connector = {
     token: "hubToken",
     token_fetched_at: 1419967066626,
     expires_in: 10,
-    refresh_token: "123"
+    refresh_token: "123",
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 

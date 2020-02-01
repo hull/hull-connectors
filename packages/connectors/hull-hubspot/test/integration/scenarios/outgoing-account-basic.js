@@ -14,10 +14,12 @@ const connector = {
     synchronized_account_segments: ["hullSegmentId"],
     outgoing_account_attributes: [
       {
-        hull: "domain",
-        service: "domain"
+        "hull": "domain",
+        "service": "domain"
       }
-    ]
+    ],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const accountsSegments = [
@@ -102,18 +104,6 @@ it("should send out a new hull account to hubspot", () => {
           "outgoing.job.start",
           expect.whatever(),
           { toInsert: 1, toSkip: 0, toUpdate: 0 }
-        ],
-        [
-          "info",
-          "outgoing.account.send",
-          {
-            subject_type: "account",
-            request_id: expect.whatever(),
-            account_domain: "hull.io"
-          },
-          {
-            reason: "does not have service id"
-          }
         ],
         [
           "debug",

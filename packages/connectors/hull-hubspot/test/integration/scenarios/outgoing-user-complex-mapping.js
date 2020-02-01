@@ -43,7 +43,9 @@ const connector = {
       { hull: "account.custom_zero", service: "custom_hubspot_account_zero", overwrite: true },
       { hull: "account.custom_undefined", service: "custom_hubspot_account_undefined", overwrite: true },
       { hull: "account.custom_date_at", service: "custom_hubspot_account_date_at", overwrite: true }
-    ]
+    ],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const usersSegments = [
@@ -189,13 +191,6 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "POST", "status": 202, "url": "/contacts/v1/contact/batch/" })],
-        [
-          "info",
-          "outgoing.user.send",
-          expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {
-            reason: "does not have service id"
-          }],
         [
           "info",
           "outgoing.user.success",

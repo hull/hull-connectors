@@ -45,8 +45,9 @@ type AliasSignature =
 const logIfNested = (client, attrs) => {
   _.map(attrs, (v, k: string) => {
     if (
-      _.isObject(v) &&
-      !_.isEqual(_.sortBy(_.keys(v)), ["operation", "value"])
+      (_.isPlainObject(v) &&
+        !_.isEqual(_.sortBy(_.keys(v)), ["operation", "value"])) ||
+      (_.isArray(v) && _.some(v, vv => _.isObject(vv)))
     ) {
       client.logger.info(`Nested object found in key "${k}"`, v);
     }
@@ -97,7 +98,7 @@ export const callIdentify = async ({
             await scoped.traits(attributes);
           }
           successful += 1;
-          return scoped.logger.info(`incoming.${subject}.success`, {
+          return client.logger.debug(`incoming.${entity}.success`, {
             attributes,
             no_ops
           });
@@ -137,7 +138,7 @@ export const callEvents = async ({
             source: "code",
             ...context
           });
-          return scoped.logger.info("incoming.event.success", {
+          return client.logger.debug("incoming.event.success", {
             eventName,
             properties
           });
@@ -153,6 +154,50 @@ export const callEvents = async ({
       })
     );
     if (successful) metric.increment(`ship.incoming.${entity}s`, successful);
+    return responses;
+  } catch (err) {
+    return Promise.reject(err);
+  }
+};
+
+export const callLinks = async ({
+  hullClient,
+  data,
+  entity,
+  metric
+}: {
+  hullClient: $PropertyType<HullClient, "asUser">,
+  data: $PropertyType<Result, "accountLinks">,
+  entity: "account",
+  metric: $PropertyType<HullContext, "metric">
+}): Promise<any> => {
+  try {
+    let successful = 0;
+    const responses = await Promise.all(
+      data.toArray().map(async ([userClaimsMap, accountClaimsMap]) => {
+        const accountClaims = accountClaimsMap.toObject();
+        const userClaims = userClaimsMap.toObject();
+        const client = hullClient(userClaims);
+        try {
+          successful += 1;
+          await client.account(accountClaims).traits({});
+          return client.logger.debug(`incoming.${entity}.link.success`, {
+            accountClaims,
+            userClaims
+          });
+        } catch (err) {
+          return client.logger.error(`incoming.${entity}.link.error`, {
+            hull_summary: `Error Linking User and account: ${err.message ||
+              "Unexpected error"}`,
+            user: userClaims,
+            account: accountClaims,
+            errors: err
+          });
+        }
+      })
+    );
+    if (successful)
+      metric.increment(`ship.incoming.${entity}s.link`, successful);
     return responses;
   } catch (err) {
     return Promise.reject(err);

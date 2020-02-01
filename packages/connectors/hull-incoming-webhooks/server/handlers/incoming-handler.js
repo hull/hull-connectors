@@ -7,7 +7,11 @@ import type {
   HullIncomingHandlerMessage,
   HullExternalResponse
 } from "hull";
-import { pickValuesFromRequest, asyncComputeAndIngest } from "hull-vm";
+import {
+  pickValuesFromRequest,
+  asyncComputeAndIngest,
+  varsFromSettings
+} from "hull-vm";
 
 export default function handler(EntryModel: Object) {
   return async (
@@ -39,7 +43,10 @@ export default function handler(EntryModel: Object) {
     asyncComputeAndIngest(ctx, {
       source: "incoming-webhooks",
       EntryModel,
-      payload,
+      payload: {
+        ...payload,
+        variables: varsFromSettings(ctx)
+      },
       code
     });
 

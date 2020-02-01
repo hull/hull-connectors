@@ -1,11 +1,13 @@
 // @flow
 
 import _ from "lodash";
+import type { HullEntityName } from "hull";
 import type { EventSelect, Entry, ProcessorEngineState } from "hull-vm";
 import Engine from "./engine";
 
 type QueryParams = {
-  claim?: string,
+  search?: string,
+  entity: HullEntityName,
   selectedEvents: Array<EventSelect>
 };
 
@@ -14,19 +16,19 @@ export default class ProcessorEngine extends Engine {
 
   constructor() {
     super();
-    this.state.claim = this.getSearchCache();
+    this.state.search = this.getSearchCache();
     this.fetchEntry(this.state);
   }
 
   getSearchCache = (): string =>
-    localStorage.getItem(`claim-${this.state.config.id}`);
+    localStorage.getItem(`search-${this.state.config.id}`);
 
   setSearchCache = (value: string) =>
-    localStorage.setItem(`claim-${this.state.config.id}`, value);
+    localStorage.setItem(`search-${this.state.config.id}`, value);
 
   // This methods finishes the init Sequence
   saveConfig = response => {
-    const { eventSchema = [], entityType } = response;
+    const { eventSchema = [], entity } = response;
     const events = _.sortBy(
       eventSchema.map(e => ({ value: e.name, label: e.name })),
       e => e.label
@@ -34,7 +36,7 @@ export default class ProcessorEngine extends Engine {
     this.setState({
       error: "empty",
       initialized: true,
-      entityType,
+      entity,
       ...response,
       events
     });
@@ -49,13 +51,13 @@ export default class ProcessorEngine extends Engine {
     const { code } = this.state.current || {};
     const newCode = code !== undefined ? code : entry.code;
     const claims = _.get(entry, "result.claims");
-    const { entityType } = this.state;
+    const { entity } = this.state;
     const current = {
       ...entry,
       code: newCode,
       editable: true,
       claims,
-      entityType
+      entity
     };
     this.setState({ error: undefined, current });
     if (_.size(claims)) {
@@ -63,11 +65,11 @@ export default class ProcessorEngine extends Engine {
     }
   };
 
-  updateSearch = async (claim: string) => {
-    const { claim: oldClaim, current } = this.state;
-    this.setSearchCache(claim);
-    this.setState({ claim });
-    if (current && oldClaim !== claim) {
+  updateSearch = async (search: string) => {
+    const { search: oldSearch, current } = this.state;
+    this.setSearchCache(search);
+    this.setState({ search });
+    if (current && oldSearch !== search) {
       this.fetchEntryDebounced();
     }
   };
@@ -91,25 +93,35 @@ export default class ProcessorEngine extends Engine {
   );
 
   fetchEntry = async ({
-    claim = "",
-    entityType = "",
+    search = "",
+    entity,
     selectedEvents = []
   }: QueryParams) => {
+    if (!entity) {
+      return;
+    }
     this.setState({ fetching: true });
     try {
       const entry: Entry = await this.request({
         url: "entry",
         method: "post",
         data: {
-          claim,
-          entityType,
-          events: selectedEvents
+          search,
+          entity,
+          include: {
+            events: {
+              names: selectedEvents
+            }
+          }
         }
       });
       this.setState({ error: undefined, fetching: false });
       if (entry.error) {
         if (entry.error === "Can't search for an empty value") {
           throw new Error("empty");
+        }
+        if (entry.error === "No entity found") {
+          throw new Error("notfound");
         }
         throw new Error(entry.error);
       }
@@ -126,6 +138,5 @@ export default class ProcessorEngine extends Engine {
         }
       });
     }
-    return undefined;
   };
 }

@@ -20,6 +20,8 @@ const connector = {
   private_settings: {
     token: "hubToken",
     companies_last_fetch_at: 1419967066626,
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false,
     handle_accounts: true
   }
 };
@@ -80,8 +82,7 @@ it("should fetch recent companies using settings", () => {
           }
         ],
         [
-          "info",
-          "incoming.account.success",
+          "debug", "incoming.account.success",
           expect.objectContaining({
             "subject_type": "account",
             "account_domain": "foo.com",
@@ -160,7 +161,9 @@ it("should fetch recent companies using settings", () => {
             "private_settings": {
               "companies_last_fetch_at": expect.whatever(),
               "handle_accounts": true,
-              "token": "hubToken"
+              "token": "hubToken",
+              "mark_deleted_contacts": false,
+              "mark_deleted_companies": false
             },
             "refresh_status": false
           }

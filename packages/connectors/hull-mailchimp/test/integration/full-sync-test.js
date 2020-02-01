@@ -189,8 +189,7 @@ it("Performing sync", () => {
             { jobName: "mailchimp-batch-job" }
           ],
           [
-            "info",
-            "incoming.user.success",
+            "debug", "incoming.user.success",
             {
               subject_type: "user",
               user_anonymous_id: "mailchimp:882e9bec19",
@@ -219,8 +218,7 @@ it("Performing sync", () => {
             }
           ],
           [
-            "info",
-            "incoming.user.success",
+            "debug", "incoming.user.success",
             {
               subject_type: "user",
               user_anonymous_id: "mailchimp:083ae0451e",
@@ -249,8 +247,7 @@ it("Performing sync", () => {
             }
           ],
           [
-            "info",
-            "incoming.user.success",
+            "debug", "incoming.user.success",
             {
               subject_type: "user",
               user_anonymous_id: "mailchimp:6ad2993d47",

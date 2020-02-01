@@ -19,7 +19,9 @@ const connector = {
     outgoing_user_attributes: [
       { hull: "traits_outreach/title", service: "jobtitle" }
     ],
-    link_users_in_service: true
+    link_users_in_service: true,
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const usersSegments = [
@@ -111,7 +113,7 @@ it("should filter because none of the mapped attributes have changed", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 1, "toSkip": 0, "toUpdate": 0}],
         [
-          "info",
+          "debug",
           "outgoing.user.skip",
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
           {

@@ -1,0 +1,98 @@
+{
+  "notification_id": "38108659-4d7b-46cc-861b-3da772d1fec2",
+  "configuration": {
+    "id": "123456789012345678901234",
+    "organization": "c5011027.hullbeta.io",
+    "secret": "shhhh"
+  },
+  "connector": {
+    "source_url": "https://zapier-connector.com",
+    "private_settings": {
+      "send_all_user_attributes": true,
+      "send_all_account_attributes": true,
+      "outgoing_account_attributes": [],
+      "synchronized_user_segments": [
+        "ALL"
+      ],
+      "synchronized_account_segments": [
+        "ALL"
+      ],
+      "triggers": [
+        {
+          "url": "https://hooks.zapier.com/hooks/standard/5687326/user-attribute-updated/1",
+          "action": "attribute_updated",
+          "entityType": "user",
+          "inputData": {
+            "user_attributes": [ "pipedrive/department", "pipedrive/description" ],
+            "account_attributes": [ "pipedrive/industry" ],
+            "account_segments": [ "account_segment_id_1", "all_segments" ],
+            "user_segments": [ "user_segment_1" ]
+          }
+        },
+        {
+          "url": "https://hooks.zapier.com/hooks/standard/5687326/account-attribute-updated/1",
+          "action": "attribute_updated",
+          "entityType": "account",
+          "inputData": {
+            "account_attributes": [ "pipedrive/industry" ],
+            "account_segments": [ "account_segment_id_1", "all_segments" ]
+          }
+        },
+        {
+          "url": "https://hooks.zapier.com/hooks/standard/5687326/user-entered-segment/1",
+          "action": "entered_segment",
+          "entityType": "user",
+          "inputData": {
+            "user_segments": [ "user_segment_1", "user_segment_2" ]
+          }
+        }
+      ]
+    },
+    "name": "zapier",
+    "type": "ship",
+    "secret": "shhh",
+    "id": "123456789012345678901234"
+  },
+  "channel": "user:update",
+  "messages": [
+    {
+      "changes": {
+        "is_new": false,
+        "account": {},
+        "user": {
+          "address": [
+            "123 Pl",
+            "1234 Hull Pl"
+          ]
+        },
+        "account_segments": {},
+        "segments": {
+          "left": [
+            {
+              "id": "user_segment_2",
+              "name": "UserSegment2"
+            }
+          ]
+        }
+      },
+      "account": {},
+      "user": {
+        "id": "5bd329d5e2bcf3eeaf000099",
+        "name": "Bob Bobby",
+        "email": "bob@bobby.com",
+        "address": "1234 Hull Pl"
+      },
+      "account_segments": [],
+      "segments": [
+        {
+          "id": "user_segment_1",
+          "name": "UserSegment1",
+          "updated_at": "2018-12-09T12:05:12Z",
+          "type": "users_segment",
+          "created_at": "2018-10-29T14:58:34Z"
+        }
+      ],
+      "message_id": "message_1"
+    }
+  ]
+}

@@ -9,6 +9,7 @@ import type {
 const propertiesUtils = require("./utils/properties");
 const settingsUtils = require("./utils/settings");
 const traitsUtils = require("./utils/traits");
+const claimsUtils = require("./utils/claims");
 
 export type HullEntityScopedClient =
   | EntityScopedClient
@@ -41,7 +42,7 @@ export type HullAttributeOperation = {|
 /**
  * Possible entity types
  */
-export type HullEntityType = "user" | "account";
+export type HullEntityName = "user" | "account";
 export type HullSegmentType = "users_segment" | "accounts_segment";
 
 /**
@@ -186,6 +187,7 @@ export type HullUser = {
   id: string,
   email?: ?string,
   contact_email?: ?string,
+  last_known_ip?: string,
   external_id: ?string,
   anonymous_ids: ?Array<string>,
   account?: HullAccount,
@@ -287,7 +289,7 @@ export type HullClientConfig = {
   logLevel?: "info" | "error" | "warn" | "debug",
   userClaim?: string | HullUserClaims,
   accountClaim?: string | HullAccountClaims,
-  subjectType?: HullEntityType,
+  subjectType?: HullEntityName,
   additionalClaims?: HullAdditionalClaims,
   accessToken?: string,
   hostSecret?: string,
@@ -325,6 +327,7 @@ export type HullClientStaticLogger = {|
  */
 export type HullClientUtils = {|
   traits: typeof traitsUtils,
+  claims: typeof claimsUtils,
   settings: typeof settingsUtils,
   properties: typeof propertiesUtils
 |};

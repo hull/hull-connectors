@@ -3,30 +3,46 @@
 import ready from "domready";
 import React from "react";
 import ReactDOM from "react-dom";
+import { AppContainer } from "react-hot-loader";
 import Engine from "./app/engine";
 import App from "./app";
 
-const emptyMessageForEntity = (
-  entityType = "user"
-) => `Please enter the identifier of an Account in the field above.
-
-Valid identifiers are:
+const VALID = `Valid identifiers are:
 - external_id
 - anonymous_id
-- ${entityType === "user" ? "email" : "domain"}
-- Hull ID
-`;
-ready(() => {
+- domain
+- Hull ID`;
+
+const EMPTY = `Please enter the identifier of an Account in the field above.
+${VALID}`;
+
+const NOT_FOUND = `We couldn't find a matching Account.
+Did you use the right identifiers?
+
+${VALID}`;
+
+const render = Component => {
   const root = document.getElementById("app");
   const engine = new Engine();
   ReactDOM.render(
-    <App
-      engine={engine}
-      strings={{
-        leftColumnTitle: "Enter Domain or ID to preview Account",
-        leftColumnPreview: emptyMessageForEntity("account")
-      }}
-    />,
+    <AppContainer>
+      <Component
+        engine={engine}
+        strings={{
+          leftColumnTitle: "Enter Domain or ID to preview Account",
+          leftColumnPreview: EMPTY,
+          leftColumnEmpty: NOT_FOUND
+        }}
+      />
+    </AppContainer>,
     root
   );
-});
+};
+
+ready(() => render(App));
+
+if (module.hot) {
+  module.hot.accept("./app", () => {
+    render(App);
+  });
+}

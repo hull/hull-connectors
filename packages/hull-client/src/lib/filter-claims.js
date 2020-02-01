@@ -5,7 +5,7 @@ import type {
   HullUser,
   HullAccount,
   HullEntityClaims,
-  HullEntityType
+  HullEntityName
 } from "../types";
 
 /**
@@ -49,10 +49,10 @@ const normalize = (claims: HullUser | HullAccount | Object): HullEntityClaims =>
       );
 
 export const filterEntityClaims = (
-  subject: HullEntityType,
+  type: HullEntityName,
   claims: void | string | HullUser | HullAccount | Object
 ): HullEntityClaims => {
-  const claimsToFilter = subject === "user" ? USER_CLAIMS : ACCOUNT_CLAIMS;
+  const claimsToFilter = type === "user" ? USER_CLAIMS : ACCOUNT_CLAIMS;
   return normalize(
     typeof claims === "string" ? { id: claims } : _.pick(claims, claimsToFilter)
   );
@@ -66,7 +66,7 @@ export const filterEntityClaims = (
  * @throws Error
  */
 export const assertEntityClaimsValidity = (
-  type: HullEntityType,
+  type: HullEntityName,
   object: void | string | HullEntityClaims
 ): void => {
   const claimsToCheck = type === "user" ? USER_CLAIMS : ACCOUNT_CLAIMS;

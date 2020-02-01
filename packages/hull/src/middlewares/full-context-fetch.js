@@ -29,25 +29,25 @@ async function fetchConnector(ctx, cache): Promise<*> {
   );
 }
 
-async function fetchSegments(ctx, entityType = "user", cache) {
-  debug("fetchSegments", entityType, typeof ctx[`${entityType}sSegments`]);
-  const entity = `${entityType}s_segments`;
-  const ctxEntity = `${entityType}sSegments`;
+async function fetchSegments(ctx, entity = "user", cache) {
+  debug("fetchSegments", entity, typeof ctx[`${entity}sSegments`]);
+  const entitySegments = `${entity}s_segments`;
+  const ctxEntity = `${entity}sSegments`;
   const segments = ctx[ctxEntity];
   if (segments) {
-    await ctx.cache.set(entity, segments);
+    await ctx.cache.set(entitySegments, segments);
     return segments;
   }
   const { id } = ctx.client.configuration();
   const getSegments = () =>
     ctx.client.get(
-      `/${entity}`,
+      `/${entitySegments}`,
       { shipId: id },
       { timeout: 5000, retry: 1000 }
     );
   if (!cache) return getSegments();
   return ctx.cache.wrap(
-    entity,
+    entitySegments,
     () => {
       if (ctx.client === undefined) {
         return Promise.reject(new Error("Missing client"));

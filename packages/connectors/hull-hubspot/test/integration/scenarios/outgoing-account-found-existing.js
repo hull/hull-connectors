@@ -10,7 +10,12 @@ process.env.CLIENT_SECRET = "123";
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_account_segments: ["hullSegmentId"]
+    synchronized_account_segments: ["hullSegmentId"],
+    outgoing_account_attributes: [
+      { hull: "name", service: "name", overwrite: true }
+    ],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const accountsSegments = [
@@ -45,6 +50,10 @@ it("should send out a new hull account to hubspot found existing", () => {
             {
               properties: [
                 {
+                  name: "name",
+                  value: "New Name"
+                },
+                {
                   name: "hull_segments",
                   value: "testSegment"
                 },
@@ -64,8 +73,21 @@ it("should send out a new hull account to hubspot found existing", () => {
       accountsSegments,
       messages: [
         {
+          changes: {
+            is_new: false,
+            user: {},
+            account: {
+              name: [
+                "old",
+                "New Name"
+              ]
+            },
+            segments: {},
+            account_segments: {}
+          },
           account: {
-            domain
+            domain,
+            name: "New Name"
           },
           account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
         }
@@ -120,31 +142,6 @@ it("should send out a new hull account to hubspot found existing", () => {
         ],
         [
           "info",
-          "outgoing.account.skip",
-          {
-            subject_type: "account",
-            request_id: expect.whatever(),
-            account_domain: "hull.io"
-          },
-          {
-            reason:
-              "There are no outgoing attributes to synchronize for account.  Please go to the settings page and add outgoing account attributes to synchronize"
-          }
-        ],
-        [
-          "info",
-          "outgoing.account.skipcandidate",
-          {
-            subject_type: "account",
-            request_id: expect.whatever(),
-            account_domain: "hull.io"
-          },
-          {
-            reason: "attribute change not found"
-          }
-        ],
-        [
-          "info",
           "outgoing.account.success",
           expect.objectContaining({
             subject_type: "account",
@@ -153,6 +150,10 @@ it("should send out a new hull account to hubspot found existing", () => {
           {
             hubspotWriteCompany: {
               properties: [
+                {
+                  name: "name",
+                  value: "New Name"
+                },
                 {
                   name: "hull_segments",
                   value: "testSegment"

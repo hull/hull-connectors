@@ -1,0 +1,185 @@
+<html>
+  <head>
+    <title>Hull Clearbit</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/index.js"></script>
+  </head>
+  <body style="display: flex; align-items: center; justify-content: center;">
+    <div class="container-fluid">
+      <div class="row mb-5">
+        <div class="col-lg-12 text-center">
+          <h1 class="mb-0 mt-05">
+            <i class="icon icon-hull" style="font-size:64px;"></i>
+          </h1>
+        </div>
+      </div>
+      <div class="row mt-1 justify-content-md-center">
+        <div class="col-sm-12 col-md-3">
+          <div class="mb-4">
+            <h5
+              class=" mt-05 mb-05"
+              style="display: flex; align-items: center;"
+            >
+              <img
+                src="/logo.svg"
+                alt=""
+                width="32"
+                style="position: absolute"
+              />
+              <span style="margin-left: 40px;">Lead Prospector</span>
+            </h5>
+          </div>
+          <form id="prospect-form">
+            <!-- role, seniority, titles -->
+
+            <div class="form-group">
+              <label class="form-label" for="domains">Domains (required)</label>
+              <select
+                name="domains"
+                id="domains"
+                class="form-control"
+                multiple="multiple"
+              ></select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="titles">Title (required)</label>
+              <select
+                name="titles"
+                id="titles"
+                class="form-control"
+                multiple="multiple"
+              ></select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="role">Role</label>
+              <select
+                name="role"
+                id="role"
+                rows="5"
+                class="form-control"
+                multiple="multiple"
+              >
+                <option value="">any</option>
+                <option>ceo</option>
+                <option>communications</option>
+                <option>consulting</option>
+                <option>customer_service</option>
+                <option>education</option>
+                <option>engineering</option>
+                <option>finance</option>
+                <option>founder</option>
+                <option>health_professional</option>
+                <option>human_resources</option>
+                <option>information_technology</option>
+                <option>legal</option>
+                <option>marketing</option>
+                <option>operations</option>
+                <option>owner</option>
+                <option>president</option>
+                <option>product</option>
+                <option>public_relations</option>
+                <option>real_estate</option>
+                <option>recruiting</option>
+                <option>research</option>
+                <option>sales</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="seniority">Seniority</label>
+              <select
+                name="seniority"
+                id="seniority"
+                rows="5"
+                class="form-control"
+                multiple="multiple"
+              >
+                <option value="">any</option>
+                <option>executive</option>
+                <option>director</option>
+                <option>manager</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="limit">Limit (per domain)</label>
+              <input
+                type="number"
+                name="limit"
+                id="limit"
+                class="form-control"
+                value="10"
+              />
+            </div>
+
+            <div class="mt-4">
+              <button
+                type="submit"
+                id="prospect"
+                class="btn btn-block btn-primary"
+              >
+                Prospect new leads
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="col-sm-12 col-lg-7 col-md-8 offset-md-0 offset-lg-1">
+          <div class="mb-5" style="display: flex; align-items: center; justify-content: space-between;">
+            <h5 class=" mt-05 mb-1">
+              Results
+              <small>
+                Search for prospects on the left and they will be imported as
+                users
+              </small>
+            </h5>
+            <button
+              type="submit"
+              id="import"
+              class="btn btn-primary"
+            >
+              Import to Hull
+            </button>
+          </div>
+          <div class="alert alert-danger" role="alert" id="errors"></div>
+          <table
+            id="results"
+            data-sortable="true"
+            data-toggle="table"
+            data-height="460"
+            data-group-by="true"
+            data-group-by-field="domain"
+            data-click-to-select="true"
+          >
+            <thead>
+              <tr>
+                <th data-field="state" data-checkbox="true"></th>
+                <!-- <th data-field="fullName">Full Name</th> -->
+                <th data-field="name" data-formatter='nameFormatter'>Name</th>
+                <th data-field="email">Email</th>
+                <th data-field="role">Role</th>
+                <th data-field="seniority">Seniority</th>
+                <th data-field="title">Title</th>
+                <th data-field="domain">Domain</th>
+              </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <style type="text/css" media="screen">
+      .table {
+        font-size: 14px;
+      }
+      .select2-search:before {
+        display: none;
+      }
+      .select2-search {
+        z-index: auto;
+      }
+      .select2-container {
+        width: 100% !important;
+      }
+    </style>
+  </body>
+</html>

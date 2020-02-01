@@ -21,12 +21,11 @@ module.exports = (ctxMock) => {
 
   expect(ctxMock.metric.increment.mock.calls).toHaveLength(0);
 
-  expect(ctxMock.client.logger.debug.mock.calls).toHaveLength(1); // debug call - counters toSkip, etc.
+  expect(ctxMock.client.logger.debug.mock.calls).toHaveLength(2); // debug call - counters toSkip, etc.
   expect(ctxMock.client.logger.error.mock.calls).toHaveLength(0);
 
-  expect(ctxMock.client.logger.info.mock.calls).toHaveLength(1);
-  expect(ctxMock.client.logger.info.mock.calls[0][0])
+  expect(ctxMock.client.logger.debug.mock.calls[1][0])
     .toEqual("outgoing.user.skip");
-  expect(ctxMock.client.logger.info.mock.calls[0][1])
+  expect(ctxMock.client.logger.debug.mock.calls[1][1])
     .toEqual({ reason: SHARED_MESSAGES.SKIP_NOIDVALUE });
 };

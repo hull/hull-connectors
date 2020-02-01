@@ -1,17 +1,17 @@
 // @flow
 
-import type { HullClient, HullEntityClaims, HullEntityType } from "hull";
+import type { HullClient, HullEntityClaims, HullEntityName } from "hull";
 import _ from "lodash";
 import type { ClaimsValidation } from "../types";
 
 export const isValidClaim = (
   claims: HullEntityClaims,
   client: HullClient,
-  entityType: HullEntityType,
+  entity: HullEntityName,
   acceptsEmpty: boolean
 ): ClaimsValidation => {
   try {
-    const method = entityType === "account" ? client.asAccount : client.asUser;
+    const method = entity === "account" ? client.asAccount : client.asUser;
     if (acceptsEmpty && (!claims || _.isEmpty(claims))) {
       const message =
         'Using Empty claims in ".account()" call. This is a deprecated syntax, please specify some claims';
@@ -20,7 +20,7 @@ export const isValidClaim = (
         error: undefined,
         message,
         claims,
-        entityType
+        entity
       };
     }
     // $FlowFixMe
@@ -31,22 +31,22 @@ export const isValidClaim = (
       message: undefined,
       // $FlowFixMe
       claims,
-      entityType
+      entity
     };
   } catch (err) {
     return {
       valid: false,
-      message: `Invalid Claims for ${entityType}`,
+      message: `Invalid Claims for ${entity}`,
       error: err.toString(),
       // $FlowFixMe
       claims,
-      entityType
+      entity
     };
   }
 };
 
 export const hasValidClaims = (
-  entity: HullEntityType,
+  entity: HullEntityName,
   acceptsEmpty: boolean
 ) => (claims: HullEntityClaims, client: HullClient) =>
   isValidClaim(claims, client, entity, acceptsEmpty);

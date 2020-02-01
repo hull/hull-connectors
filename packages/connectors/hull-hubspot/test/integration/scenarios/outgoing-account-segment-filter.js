@@ -9,7 +9,9 @@ process.env.OVERRIDE_HUBSPOT_URL = "";
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_account_segments: ["someOtherSegment"]
+    synchronized_account_segments: ["someOtherSegment"],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const accountsSegments = [
@@ -58,7 +60,7 @@ it("should filter out accounts based on segments", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 0, "toSkip": 1, "toUpdate": 0}],
         [
-          "info",
+          "debug",
           "outgoing.account.skip",
           expect.objectContaining({ "subject_type": "account", "account_domain": domain }),
           {

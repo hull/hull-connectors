@@ -16,7 +16,9 @@ process.env.OVERRIDE_HUBSPOT_URL = "";
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_user_segments: ["someOtherSegment"]
+    synchronized_user_segments: ["someOtherSegment"],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const usersSegments = [
@@ -65,7 +67,7 @@ it("should send out an user to hubspot filtering them based on segment", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "outgoing.job.start", expect.whatever(), {"toInsert": 0, "toSkip": 1, "toUpdate": 0}],
         [
-          "info",
+          "debug",
           "outgoing.user.skip",
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
           {"reason": "User doesn't match outgoing filter"}

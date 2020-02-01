@@ -10,7 +10,12 @@ process.env.CLIENT_SECRET = "1234";
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_account_segments: ["hullSegmentId"]
+    synchronized_account_segments: ["hullSegmentId"],
+    outgoing_account_attributes: [
+      { hull: "name", service: "name", overwrite: true }
+    ],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const accountsSegments = [
@@ -38,6 +43,10 @@ it("should send out a new hull account to hubspot update validation error", () =
             {
               properties: [
                 {
+                  name: "name",
+                  value: "New Name"
+                },
+                {
                   name: "hull_segments",
                   value: "testSegment"
                 },
@@ -50,6 +59,10 @@ it("should send out a new hull account to hubspot update validation error", () =
             },
             {
               properties: [
+                {
+                  name: "name",
+                  value: "New Name"
+                },
                 {
                   name: "hull_segments",
                   value: "testSegment"
@@ -71,6 +84,10 @@ it("should send out a new hull account to hubspot update validation error", () =
             {
               properties: [
                 {
+                  name: "name",
+                  value: "New Name"
+                },
+                {
                   name: "hull_segments",
                   value: "testSegment"
                 },
@@ -90,15 +107,41 @@ it("should send out a new hull account to hubspot update validation error", () =
       accountsSegments,
       messages: [
         {
+          changes: {
+            is_new: false,
+            user: {},
+            account: {
+              name: [
+                "old",
+                "New Name"
+              ]
+            },
+            segments: {},
+            account_segments: {}
+          },
           account: {
             domain,
+            name: "New Name",
             "hubspot/id": "companyHubspotId123"
           },
           account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
         },
         {
+          changes: {
+            is_new: false,
+            user: {},
+            account: {
+              name: [
+                "old",
+                "New Name"
+              ]
+            },
+            segments: {},
+            account_segments: {}
+          },
           account: {
             domain: "non-existing.com",
+            name: "New Name",
             "hubspot/id": "companyObjectIdNonExisting"
           },
           account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
@@ -132,56 +175,6 @@ it("should send out a new hull account to hubspot update validation error", () =
           { toInsert: 0, toSkip: 0, toUpdate: 2 }
         ],
         [
-          "info",
-          "outgoing.account.skip",
-          {
-            subject_type: "account",
-            request_id: expect.whatever(),
-            account_domain: "hull.io"
-          },
-          {
-            reason:
-              "There are no outgoing attributes to synchronize for account.  Please go to the settings page and add outgoing account attributes to synchronize"
-          }
-        ],
-        [
-          "info",
-          "outgoing.account.skipcandidate",
-          {
-            subject_type: "account",
-            request_id: expect.whatever(),
-            account_domain: "hull.io"
-          },
-          {
-            reason: "attribute change not found"
-          }
-        ],
-        [
-          "info",
-          "outgoing.account.skip",
-          {
-            subject_type: "account",
-            request_id: expect.whatever(),
-            account_domain: "non-existing.com"
-          },
-          {
-            reason:
-              "There are no outgoing attributes to synchronize for account.  Please go to the settings page and add outgoing account attributes to synchronize"
-          }
-        ],
-        [
-          "info",
-          "outgoing.account.skipcandidate",
-          {
-            subject_type: "account",
-            request_id: expect.whatever(),
-            account_domain: "non-existing.com"
-          },
-          {
-            reason: "attribute change not found"
-          }
-        ],
-        [
           "debug",
           "connector.service_api.call",
           expect.whatever(),
@@ -212,6 +205,10 @@ it("should send out a new hull account to hubspot update validation error", () =
             hubspotWriteCompany: {
               properties: [
                 {
+                  name: "name",
+                  value: "New Name"
+                },
+                {
                   name: "hull_segments",
                   value: "testSegment"
                 },
@@ -236,6 +233,10 @@ it("should send out a new hull account to hubspot update validation error", () =
             error: 'Property "non-existing-property" does not exist',
             hubspotWriteCompany: {
               properties: [
+                {
+                  name: "name",
+                  value: "New Name"
+                },
                 {
                   name: "hull_segments",
                   value: "testSegment"

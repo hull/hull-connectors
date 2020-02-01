@@ -24,6 +24,15 @@ Forwarding                    http://hull-incoming-webhooks.eu.ngrok.io -> http:
 Forwarding                    https://hull-incoming-webhooks.eu.ngrok.io -> http://localhost:8082
 ```
 
+## Combined Start
+
+Starts NGROK and the connector with one command:
+
+```
+yarn combined hull-incoming-webhooks
+# Starts Ngrok & the Connector
+```
+
 ### Run specified tests
 
 `yarn run-test path_to_test_file(s)`
@@ -742,13 +751,23 @@ const data = await ctx.entities.users.get({
 });
 // Response =>
 {
-  user,
-  events, //only if events included
-  account, //except if include.account===false
-  segments,
-  segment_ids,
-  account_segments,
-  account_segment_ids,
+  "pagination": {
+     "total": 1,
+     "page": 1,
+     "pages": 1,
+     "per_page": 1
+   },
+   "data": [
+    {
+      user,
+      events, //only if events included
+      account, //except if include.account===false
+      segments,
+      segment_ids,
+      account_segments,
+      account_segment_ids,
+    }
+  ]
 }
 const data = await ctx.entities.events.get({
   claims: { email: "foo@bar.com" }
@@ -764,41 +783,51 @@ const data = await ctx.entities.events.get({
 });
 // Response =>
 {
-    "event": "Updated email address",
-    "created_at": "2019-03-15T09:48:15Z",
-    "properties": {
-      "email": "romain@hull.io",
-      "topic": "contact.added_email",
-      "event": "Updated email address"
-    },
-    "event_source": "intercom",
-    "event_type": "track",
-    "context": {
-      "useragent": "Hull Node Client version: 2.0.0-beta.1",
-      "device": {
-        "name": "Other"
+  "pagination": {
+     "total": 1,
+     "page": 1,
+     "pages": 1,
+     "per_page": 1
+   },
+  data: [
+    {
+      "event": "Updated email address",
+      "created_at": "2019-03-15T09:48:15Z",
+      "properties": {
+        "email": "romain@hull.io",
+        "topic": "contact.added_email",
+        "event": "Updated email address"
       },
-      "referrer": {},
-      "os": {
-        "name": "Other"
-      },
-      "browser": {
-        "name": "Other"
-      },
-      "location": {
-        "country": "US",
-        "city": "Mountain View",
-        "timezone": "America/Los_Angeles",
-        "region": "CA",
-        "countryname": "United States",
-        "regionname": "California",
-        "zipcode": "94035"
-      },
-      "campaign": {},
-      "ip": "216.239.36.21",
-      "page": {}
+      "event_source": "intercom",
+      "event_type": "track",
+      "context": {
+        "useragent": "Hull Node Client version: 2.0.0-beta.1",
+        "device": {
+          "name": "Other"
+        },
+        "referrer": {},
+        "os": {
+          "name": "Other"
+        },
+        "browser": {
+          "name": "Other"
+        },
+        "location": {
+          "country": "US",
+          "city": "Mountain View",
+          "timezone": "America/Los_Angeles",
+          "region": "CA",
+          "countryname": "United States",
+          "regionname": "California",
+          "zipcode": "94035"
+        },
+        "campaign": {},
+        "ip": "216.239.36.21",
+        "page": {}
+      }
     }
-  }
+  ]
+}
 
 const data = await ctx.entities.accounts.get({
   claims: { domain: "foo.com" }
@@ -821,7 +850,7 @@ Then, once boot is complete:
 hull > ctx.client.get("app")
 ```
 
-## Import util
+### Import util
 
 In authorized repl you can execute following line to generate 10 faked users with name and email:
 
@@ -835,21 +864,21 @@ Then import it to the organization of the ship:
 hull > importFile("name_of_the_file.json")
 ```
 
-## `ctx`
+### `ctx`
 
 Hull Context object (see docs)
 
-## `utils`
+### `utils`
 
 Hull Utils object
 
-## `updatePrivateSettings` helper to update settings for this connector instance. use like this:
+### `updatePrivateSettings` helper to update settings for this connector instance. use like this:
 
 ```js
 updatePrivateSettings({ foo: "bar" });
 ```
 
-## utilities libs
+### utilities libs
 
 - moment: `moment`
 - lodash: `lo`
@@ -858,7 +887,7 @@ updatePrivateSettings({ foo: "bar" });
 - highland: `highland`
 - sourceUrl: Connector's source URL
 
-## superagent: `agent`
+### superagent: `agent`
 
 use like this:
 
@@ -866,12 +895,110 @@ use like this:
 agent.get("/some_connector_url") -> credentials will be added for you
 ```
 
-## fakeUsers
+### fakeUsers
 
-## fakeAccounts
+### fakeAccounts
 
-## importFile
+## Run a single or a few tests only
+
+`yarn run-test packages/connectors/hull-processor/test/integration/scenarios/request-tests.js`
+`yarn run-test packages/connectors/hull-processor/test/integration/scenarios/*`
+
+### Get a Service Identifier in a stable way:
 
 ```
+const clearbit_id = ctx.client.utils.claims.getServiceId("clearbit", account);
+// -> First anonymous_id with the format: `clearbit:xxx`
+```
 
+### Mapping Helpers.
+
+We now support a new top-level entry in the manifest: "mappings", with the following format:
+
+```js
+"mappings": {
+  "prospect": {
+    "incoming": {
+      //Top level Mappings
+      "top_level": [
+        {
+          "service": "email",
+          "hull": "email",
+          "overwrite": false
+        },
+        {
+          "service": "name.familyName",
+          "hull": "last_name",
+          "overwrite": false
+        }
+      ],
+      //Grouped mappings
+      "mapping": [
+        {
+          "service": "id",
+          "hull": "traits_clearbit/id",
+          "readOnly": true,
+          "overwrite": true
+        }
+      ]
+    }
+  },
+  "outgoing": {...}
+}
+```
+
+You can then use them as references as defaults:
+
+```js
+{
+  "name": "incoming_prospect_mapping",
+  "title": "Clearbit Prospect Mapping",
+  "description": "How we map Clearbit Prospects to Hull Users",
+  "type": "array",
+  "format": "traitMapping",
+  "options": {
+    "direction": "incoming",
+    "showOverwriteToggle": true,
+    "allowCreate": true,
+    "placeholder": "Clearbit Person Field",
+    "loadOptions": "/schema/prospect_properties",
+    "source": "clearbit"
+  },
+  "default": "#/mappings/prospect/incoming/mapping"
+}
+```
+
+To use it to prefill a list of options in the dashboard, you can use the `mappingToOptions` method
+
+```js
+// @flow
+import type { HullContext, HullUISelectResponse } from "hull";
+
+const prospect = async (ctx: HullContext): HullUISelectResponse => {
+  const { mappingToOptions } = ctx.helpers;
+  return {
+    status: 200,
+    data: mappingToOptions({
+      type: "prospect",
+      direction: "incoming",
+      label: "Clearbit Prospect"
+    })
+  };
+};
+export default prospect;
+```
+
+Apply Mapping (JSONata expressions)
+
+```js
+//@flow
+const { helpers } = ctx;
+const { mapAttributes } = helpers;
+
+hull.asUser({...}).traits(mapAttributes({
+  entity: { ..company object },
+  mapping: "incoming_company_mapping",
+  type: "company",
+  direction: "incoming"
+}));
 ```

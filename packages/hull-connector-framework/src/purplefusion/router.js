@@ -15,6 +15,7 @@ const {
 } = require("./hull-service-objects");
 
 const { HullDispatcher } = require("./dispatcher");
+const { getEntityTriggers } = require("./triggers/trigger-utils");
 
 const { hullService } = require("./hull-service");
 
@@ -28,9 +29,11 @@ class HullRouter {
   serviceDefinitions: Object;
   transforms: Array<any>;
   ensureHook: string;
+  serviceName: string;
   filteredMessageCallback: Function;
 
-  constructor({ glue, services, transforms, ensureHook }: any, filteredMessageCallback?: Function) {
+  constructor({ serviceName, glue, services, transforms, ensureHook }: any, filteredMessageCallback?: Function) {
+    this.serviceName = serviceName;
     this.glue = glue;
 
     // don't assign hull service if it already exists...
@@ -85,7 +88,7 @@ class HullRouter {
     });
 
     _.forEach(_.get(manifest, "incoming", []), endpoint => {
-      _.set(handlers, `incoming.${endpoint.handler}`, this.createIncomingDispatchCallback(endpoint, () => {}));
+      _.set(handlers, `incoming.${endpoint.handler}`, this.createIncomingDispatchCallback(endpoint));
     });
 
     _.set(handlers, "private_settings.oauth", () => getServiceOAuthParams(manifest, this.serviceDefinitions));
@@ -123,6 +126,13 @@ class HullRouter {
         type: _.toLower(objectType.name)
       });
 
+      const connectorOptions = _.get(context, "connectorConfig.options", {});
+      const isTrigger = _.get(connectorOptions, "outgoingMechanism", "sync") === "trigger" && direction === "outgoing";
+
+      if (isTrigger && (objectType === HullOutgoingUser || objectType === HullOutgoingAccount)) {
+        return this.dispatchTrigger(context, dispatcher, objectType, data);
+      }
+
       let dataToSend;
       const dataToSkip = [];
 
@@ -130,7 +140,7 @@ class HullRouter {
         dataToSend = [];
         // break up data and send one by one
         _.forEach(data, message => {
-          if (toSendMessage(context, _.toLower(objectType.name), message)) {
+          if (toSendMessage(context, _.toLower(objectType.name), message, { serviceName: this.serviceName })) {
             dataToSend.push(message);
           } else {
             dataToSkip.push(message);
@@ -157,12 +167,11 @@ class HullRouter {
             jobName: `${_.upperFirst(direction)} Data`,
             type: _.toLower(objectType.name)
           });
-
           if (callback) {
             // TODO make sure this works if callback returns promise
             return Promise.resolve(callback(context, results))
           }
-          
+
           return Promise.resolve(results);
         }).catch(error => {
           dispatcher.close();
@@ -182,7 +191,40 @@ class HullRouter {
     };
   }
 
+  dispatchTrigger(context: Object, dispatcher: HullDispatcher, objectType: ServiceObjectDefinition, data: Object) {
 
+    let triggerPromises = [];
+
+    const dataToSend = Array.isArray(data) ? data : [data];
+    _.forEach(dataToSend, message => {
+
+      const triggers = getEntityTriggers(context, message);
+
+      _.forEach(triggers, (trigger) => {
+        triggerPromises.push(dispatcher.dispatchWithData(context, "performTrigger", objectType, [ trigger ]));
+      });
+    });
+
+    return Promise.all(triggerPromises)
+      .then(results => {
+        dispatcher.close();
+
+        context.client.logger.info("outgoing.job.success", {
+          jobName: "Outgoing Data",
+          type: _.toLower(objectType.name)
+        });
+        return Promise.resolve(results);
+      }).catch(error => {
+        dispatcher.close();
+
+        context.client.logger.error("outgoing.job.error", {
+          jobName: "Outgoing Data",
+          error: error.message,
+          type: _.toLower(objectType.name)
+        });
+        return Promise.reject(error);
+      });
+  }
 }
 
 module.exports = HullRouter;

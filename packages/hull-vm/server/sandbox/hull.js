@@ -44,7 +44,7 @@ const buildHullContext = (
   eventsource?: string
 ) => {
   const errorLogger = (message, method, validation) => {
-    client.logger.info(`incoming.${message}.skip`, {
+    client.logger.debug(`incoming.${message}.skip`, {
       method,
       validation
     });

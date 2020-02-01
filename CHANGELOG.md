@@ -1,5 +1,37 @@
 # CHANGELOG
 
+## v0.1.15-monorepo
+- [hull-connector-framework] add triggers
+
+## v0.1.14-monorepo
+- [hull-hubspot] map contact meta data
+- [hull-slack] fix account trigger bug
+
+## v0.1.13-monorepo
+- [hull-hubspot] store email in Hubspot group
+- [hull-hubspot] do not unalias on deletion
+- [hull-hubspot] merge contacts and accounts
+
+## v0.1.12-monorepo
+- release of the new website connector
+
+## v0.1.11-monorepo
+- Moved new and improved code connectors to monorepo master
+- added outreach event support
+- added zapier connector to master
+
+## v0.1.10-monorepo
+- Moved all incoming logging on all connectors to debug level
+- Moved outgoing.skip logging to debug for all connectors
+- hull-connector-framework removed the replacement of variables by default when no desired output class
+
+## v0.1.9-monorepo
+- [hull-pipedrive] New Connector!
+- [hull-hubspot] Enhanced fetching reduces number of api calls and number of fetches running in parallel
+- [hull-node] Upped timeout to avoid aborted issues when there are many requests in flight
+- [hull-outreach] Added ability to pull stageName and ownerEmail
+- [hull-connector-framework] Refactored service engine, also added new transform logic
+
 ## v0.1.8-monorepo
 
 - [hull-hubspot] support entity deletions

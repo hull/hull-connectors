@@ -19,7 +19,7 @@ import scopedUserMethods from "./sandbox/user_methods";
 const LIBS = { _, moment, urijs };
 export default async function compute(
   ctx: HullContext,
-  { payload, code, preview, claims, source, entityType }: ComputeOptions
+  { payload, code, preview, claims, source, entity }: ComputeOptions
 ): Promise<SerializedResult> {
   const { connector, client } = ctx;
   const result: Result = {
@@ -32,7 +32,7 @@ export default async function compute(
     accountAliases: Map({}),
     events: [],
     claims,
-    entityType,
+    entity,
     success: false,
     isAsync: false
   };
@@ -42,14 +42,13 @@ export default async function compute(
     errors: result.errors
   };
   const hull = getHullContext(client, result, source);
+  const scopedClient = entity === "account" ? hull.asAccount : hull.asUser;
   const frozen = {
     ...payload,
     ...LIBS,
     ...(claims ? scopedUserMethods(payload) : {}),
-    request: getRequest(result),
-    hull: _.size(claims)
-      ? (entityType === "account" ? hull.asAccount : hull.asUser)(claims)
-      : hull,
+    request: getRequest(ctx, result),
+    hull: _.size(claims) ? scopedClient(claims) : hull,
     console: getConsole(result, preview),
     connector,
     ship: connector
@@ -64,11 +63,7 @@ export default async function compute(
     // For Processor keep backwards-compatible signature of having `traits` and `track` at top level
     if (_.size(claims)) {
       _.map(
-        _.pick(
-          (entityType === "account" ? hull.asAccount : hull.asUser)(claims),
-          "traits",
-          "track"
-        ),
+        _.pick(scopedClient(claims), "traits", "track"),
         (lib, key: string) => {
           const l = function l(...args) {
             result.logs.unshift(

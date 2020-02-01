@@ -100,7 +100,7 @@ module.exports = [
           userTraits: [[{ id: "123" }, { "my-group/customerioid": "321" }]],
           accountTraits: [],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           accountLinks: [],
           accountAliases: [],
           userAliases: [],
@@ -110,8 +110,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -231,7 +230,7 @@ module.exports = [
             ]
           ],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           events: [
             {
               claims: {
@@ -256,8 +255,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -270,7 +268,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -284,7 +282,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -298,8 +296,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.event.success",
+        "debug", "incoming.event.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -312,8 +309,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.account.link.success",
+        "debug", "incoming.account.link.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -459,7 +455,7 @@ module.exports = [
             ]
           ],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           accountAliases: [],
           userAliases: [],
           events: [
@@ -493,8 +489,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -507,7 +502,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -521,7 +516,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -535,8 +530,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.event.success",
+        "debug", "incoming.event.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -549,8 +543,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.account.link.success",
+        "debug", "incoming.account.link.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -655,7 +648,7 @@ module.exports = [
           ],
           accountTraits: [],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           events: [
             {
               claims: {
@@ -680,8 +673,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -694,8 +686,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.event.success",
+        "debug", "incoming.event.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -777,7 +768,7 @@ module.exports = [
             ]
           ],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           events: [],
           accountLinks: [],
           accountAliases: [],
@@ -787,7 +778,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -860,7 +851,7 @@ module.exports = [
             ]
           ],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           events: [],
           accountLinks: [],
           accountAliases: [],
@@ -870,7 +861,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -938,7 +929,7 @@ module.exports = [
           userTraits: [[{ id: "123" }, { foo: "bar" }]],
           accountTraits: [],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           accountLinks: [],
           accountAliases: [],
           userAliases: [],
@@ -948,8 +939,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -1007,7 +997,7 @@ module.exports = [
           userTraits: [],
           accountTraits: [],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           accountLinks: [],
           accountAliases: [
             [

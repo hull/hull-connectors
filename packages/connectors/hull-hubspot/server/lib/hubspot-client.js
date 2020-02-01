@@ -264,7 +264,9 @@ class HubspotClient {
     offset: ?string = null
   ): Promise<HubspotGetAllCompaniesResponse> {
     return this.retryUnauthorized(() => {
+      const includeMergeAudits = true;
       return this.agent.get("/companies/v2/companies/paged").query({
+        includeMergeAudits,
         limit,
         offset,
         properties
@@ -312,14 +314,14 @@ class HubspotClient {
   getRecentlyUpdatedContacts(
     properties: Array<string> = [],
     count: number = 100,
-    offset: ?string = null
+    offset: ?number = null
   ): Promise<HubspotGetAllContactsResponse> {
     return this.retryUnauthorized(() => {
       return this.agent
         .get("/contacts/v1/lists/recently_updated/contacts/recent")
         .query({
           count,
-          vidOffset: offset,
+          timeOffset: offset,
           property: properties
         });
     });
@@ -355,13 +357,13 @@ class HubspotClient {
             );
           });
           const hasMore = response.body["has-more"];
-          const vidOffset = response.body["vid-offset"];
-          // const timeOffset = response.body["time-offset"];
+          // const vidOffset = response.body["vid-offset"];
+          const timeOffset = response.body["time-offset"];
           if (contacts.length > 0) {
             push(contacts);
           }
-          if (hasMore) {
-            return getRecentContactsPage(vidOffset);
+          if (hasMore && moment(lastFetchAt).valueOf() <= timeOffset) {
+            return getRecentContactsPage(timeOffset);
           }
 
           return Promise.resolve();

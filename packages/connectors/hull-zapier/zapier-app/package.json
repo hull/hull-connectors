@@ -1,0 +1,50 @@
+{
+  "name": "hull-zapier-app",
+  "version": "1.0.5",
+  "description": "A Hull app for the Zapier platform",
+  "repository": "hull-ships/hull-zapier",
+  "homepage": "https://hull.io/",
+  "author": "Romain Dardour <romain@hull.io>",
+  "license": "BSD-3-Clause",
+  "main": "index.js",
+  "scripts": {
+    "zapier-build": "rm -rf lib && babel src --out-dir lib",
+    "zapier-dev": "rm -rf lib && babel src --out-dir lib --watch",
+    "zapier-push": "npm run zapier-build && zapier push",
+    "prepare": "npm run zapier-build",
+    "pretest": "npm run zapier-build",
+    "test": "source .env && mocha --recursive lib/test/ --require babel-polyfill"
+  },
+  "engines": {
+    "node": ">=8.10.0",
+    "npm": ">=5.6.0"
+  },
+  "dependencies": {
+    "jsonata": "^1.7.0",
+    "@babel/runtime": "^7.6.0",
+    "babel-polyfill": "^6.26.0",
+    "zapier-platform-core": "8.4.1"
+  },
+  "devDependencies": {
+    "dotenv": "8.2.0",
+    "@babel/cli": "^7.6.0",
+    "@babel/core": "^7.6.0",
+    "@babel/node": "^7.6.1",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-syntax-export-default-from": "^7.2.0",
+    "@babel/plugin-syntax-object-rest-spread": "^7.2.0",
+    "@babel/plugin-transform-flow-strip-types": "^7.4.4",
+    "@babel/plugin-transform-regenerator": "^7.4.5",
+    "@babel/plugin-transform-runtime": "^7.6.0",
+    "@babel/preset-env": "^7.6.0",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/register": "^7.6.0",
+    "babel-eslint": "^10.0.3",
+    "babel-jest": "^24.9.0",
+    "babel-loader": "^8.0.6",
+    "babel-plugin-lodash": "^3.3.4",
+    "mocha": "^6.2.0",
+    "nock": "10.0.6",
+    "should": "^13.2.3"
+  }
+}

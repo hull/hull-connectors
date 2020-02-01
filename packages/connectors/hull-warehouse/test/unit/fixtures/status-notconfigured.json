@@ -25,7 +25,7 @@
       "message": "Please specify hostname in the settings as it is a required field"
     },
     {
-      "status": "stop"
+      "hullDispatcherStatus": "stop"
     },
     {
       "status": "setupRequired",
@@ -40,7 +40,7 @@
       "message": "Please specify password in the settings as it is a required field"
     },
     {
-      "status": "stop"
+      "hullDispatcherStatus": "stop"
     }
   ]
 }

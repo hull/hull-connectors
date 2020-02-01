@@ -43,7 +43,7 @@ export default class VirtualMachineUI extends Component<Props, State> {
     ...this.props.engine.getState()
   };
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     const { engine } = this.props;
     engine.addChangeListener(this._onChange);
   }

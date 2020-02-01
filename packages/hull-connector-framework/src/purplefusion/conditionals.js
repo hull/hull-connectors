@@ -25,6 +25,13 @@ function isServiceAttribute(attributeListParam: string, param: string) {
   };
 }
 
+function mappingExists(attributeListParam: string, truthy: Object) {
+  return (context) => {
+    const attributeList = context.get(`connector.private_settings.${attributeListParam}`);
+    return _.filter(attributeList, truthy).length > 0;
+  };
+}
+
 function not(method) {
   return (context, input) => {
     return !method(context, input);
@@ -45,6 +52,14 @@ function doesNotContain(listValues, param: string) {
   };
 }
 
+function resolveIndexOf(listName, paramName) {
+  return (context) => {
+    const param = context.get(paramName);
+    const list = context.get(listName);
+    return _.indexOf(list, param) >= 0;
+  };
+}
+
 function isEqual(param: string, value) {
   return (context) => {
     const contextVariable = context.get(param);
@@ -56,6 +71,20 @@ function isNotEqual(param: string, value) {
   return (context) => {
     const contextVariable = context.get(param);
     return contextVariable !== value;
+  };
+}
+
+function inputIsEmpty(param: string) {
+  return (context, input) => {
+    const contextVariable = _.get(input, param);
+    return _.isEmpty(contextVariable);
+  };
+}
+
+function inputIsNotEmpty(param: string) {
+  return (context, input) => {
+    const contextVariable = _.get(input, param);
+    return !_.isEmpty(contextVariable);
   };
 }
 
@@ -82,6 +111,10 @@ module.exports = {
   doesContain,
   inputIsNotEqual,
   inputIsEqual,
+  inputIsNotEmpty,
+  inputIsEmpty,
   isServiceAttribute,
-  not
+  not,
+  mappingExists,
+  resolveIndexOf
 };

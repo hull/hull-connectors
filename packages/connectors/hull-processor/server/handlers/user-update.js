@@ -5,7 +5,7 @@ import type {
   HullNotificationResponse
 } from "hull";
 import _ from "lodash";
-import { asyncComputeAndIngest, getClaims } from "hull-vm";
+import { asyncComputeAndIngest, getClaims, varsFromSettings } from "hull-vm";
 
 type FlowControl = {
   flow_size?: number,
@@ -27,7 +27,10 @@ const update = ({ flow_size = 100, flow_in = 10 }: FlowControl) => async (
         asyncComputeAndIngest(ctx, {
           payload: _.omitBy(
             {
+              changes: {},
+              events: [],
               ...payload,
+              variables: varsFromSettings(ctx),
               user: group(payload.user),
               account: group(payload.account)
             },
@@ -36,7 +39,7 @@ const update = ({ flow_size = 100, flow_in = 10 }: FlowControl) => async (
           source: "processor",
           code,
           claims: getClaims("user", payload),
-          entityType: "user",
+          entity: "user",
           preview: false
         })
       )
