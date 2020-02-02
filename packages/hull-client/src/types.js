@@ -28,7 +28,15 @@ export type HullAttributeName = string;
 /**
  * These are possible values
  */
-export type HullAttributeValue = string | boolean | Array<string> | number;
+export type HullAttributeValue =
+  | string
+  | number
+  | boolean
+  | void
+  | null
+  | Array<string>
+  | Array<any>
+  | {};
 
 /**
  * When writing attributes we can specify both the value with operation
@@ -166,6 +174,9 @@ export type HullUserEventContext = {
  * --- Data Structures To Use When Reading From Platform ---
  */
 
+type SegmentArray = Array<string> | null;
+type AnonymousIDArray = Array<string> | null;
+
 /**
  * Combined ident and attributes object for account coming from platform
  */
@@ -173,8 +184,8 @@ export type HullAccount = {
   id?: string,
   domain?: ?string,
   external_id?: ?string,
-  segment_ids: Array<string> | null,
-  anonymous_ids?: ?Array<string>,
+  segment_ids?: SegmentArray,
+  anonymous_ids?: ?AnonymousIDArray,
   anonymous_id?: ?string, // @TODO: Flow Workaround -> force anonymous_id to be recognized as a ?string, Should be forced on Platform for safety
   name?: ?string,
   [HullAttributeName]: HullAttributeValue
@@ -188,12 +199,12 @@ export type HullUser = {
   email?: ?string,
   contact_email?: ?string,
   last_known_ip?: string,
-  external_id: ?string,
-  anonymous_ids: ?Array<string>,
+  external_id?: ?string,
+  anonymous_ids?: ?AnonymousIDArray,
   account?: HullAccount,
   // @TODO: Flow Workaround -> force anonymous_id to be recognized as a ?string, Should be forced on Platform for safety
   anonymous_id?: ?string,
-  segment_ids: Array<string> | null,
+  segment_ids?: SegmentArray,
   domain?: ?string,
   [HullAttributeName]: HullAttributeValue
 };

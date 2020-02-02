@@ -28,7 +28,8 @@ import {
 
 type Claims = {
   asUser?: HullUserClaims,
-  asAccount?: HullAccountClaims
+  asAccount?: HullAccountClaims,
+  subjectType?: HullEntityName
 };
 
 const { applyContext } = require("hull-client/src/utils/traits");
@@ -64,34 +65,33 @@ const buildHullContext = ({
 
   const claimsMap = ({
     asUser,
-    asAccount
+    asAccount,
+    subjectType
   }: {
     asUser?: HullUserClaims,
-    asAccount?: HullAccountClaims
+    asAccount?: HullAccountClaims,
+    subjectType?: HullEntityName
   }): HullClaims => {
-    const filteredAsAccount = filterEntityClaims("account", asAccount);
     const filteredAsUser = filterEntityClaims("user", asUser);
+    const filteredAsAccount = filterEntityClaims("account", asAccount);
     const rec = _.omitBy(
       {
         ...(filteredAsUser ? { asUser: Map(filteredAsUser) } : {}),
         ...(filteredAsAccount ? { asAccount: Map(filteredAsAccount) } : {}),
-        subjectType: asUser ? "user" : "account"
+        subjectType: subjectType || (asUser ? "user" : "account")
       },
       _.isEmpty
     );
     return Map(rec);
   };
 
-  const trackFactory = (
-    { asUser }: { asUser: HullUserClaims },
-    _subjectType: HullEntityName
-  ) => (
+  const trackFactory = ({ asUser, subjectType }: Claims) => (
     eventName: string,
     properties: HullEventProperties = {},
     context: HullEventContext = {}
   ) => {
     result.events.push({
-      claims: claimsMap({ asUser }),
+      claims: claimsMap({ asUser, subjectType }),
       event: {
         eventName,
         properties,
@@ -100,28 +100,26 @@ const buildHullContext = ({
     });
   };
   const aliasFactory = (
-    { asUser, asAccount }: Claims,
-    subject: HullEntityName,
+    { asUser, asAccount, subjectType }: Claims,
     operation: HullAliasOperation
   ) => (alias: HullEntityClaims) => {
-    const target = subject === "user" ? "userAliases" : "accountAliases";
+    const target = subjectType === "user" ? "userAliases" : "accountAliases";
     // sets the rigth operation for the claim and the given alias.
     // perform deep value equality checks.
     result[target] = result[target].setIn(
-      [claimsMap({ asUser, asAccount }), Map({ ...alias })],
+      [claimsMap({ asUser, asAccount, subjectType }), Map({ ...alias })],
       operation
     );
   };
 
-  const identifyFactory = (
-    { asUser, asAccount }: Claims,
-    subject: HullEntityName
-  ) => (attributes: Attributes, context?: HullAttributeContext = {}) => {
-    const target = subject === "user" ? "userTraits" : "accountTraits";
+  const identifyFactory = ({ asUser, asAccount, subjectType }: Claims) => (
+    attributes: Attributes,
+    context?: HullAttributeContext = {}
+  ) => {
+    const target = subjectType === "user" ? "userTraits" : "accountTraits";
     // ensures the claims and calls are properly collapsed and aggregated
-    const claims = claimsMap({ asUser, asAccount });
     result[target] = result[target].mergeDeepIn(
-      [claims],
+      [claimsMap({ asUser, asAccount, subjectType })],
       Map(applyContext(attributes, context))
     );
   };
@@ -142,13 +140,23 @@ const buildHullContext = ({
       return {};
     }
     deprecationLogger(message);
-    const identify = identifyFactory({ asUser, asAccount }, "account");
-    const alias = aliasFactory({ asUser, asAccount }, "account", "alias");
-    const unalias = aliasFactory({ asUser, asAccount }, "account", "unalias");
+    const identify = identifyFactory({
+      asUser,
+      asAccount,
+      subjectType: "account"
+    });
+    const alias = aliasFactory(
+      { asUser, asAccount, subjectType: "account" },
+      "alias"
+    );
+    const unalias = aliasFactory(
+      { asUser, asAccount, subjectType: "account" },
+      "unalias"
+    );
     return { identify, traits: identify, alias, unalias };
   }
 
-  const accountLinkFactory = ({ asUser }: { asUser: HullUserClaims }) => (
+  const accountLinkFactory = ({ asUser, subjectType }: Claims) => (
     asAccount: HullAccountClaims
   ) => {
     const account = asAccountFactory({ asUser, asAccount });
@@ -163,7 +171,7 @@ const buildHullContext = ({
     }
 
     result.accountLinks = result.accountLinks.set(
-      claimsMap({ asUser }),
+      claimsMap({ asUser, subjectType }),
       Map(filterEntityClaims("account", asAccount))
     );
 
@@ -186,11 +194,11 @@ const buildHullContext = ({
         "You're using hull.asUser() inside a Processor, This is an advanced and unsafe method that might generate infinite loops. If you're just trying to update the current user, please use hull.traits() and hull.track() instead"
       );
     }
-    const track = trackFactory({ asUser }, "user");
-    const alias = aliasFactory({ asUser }, "user", "alias");
-    const unalias = aliasFactory({ asUser }, "user", "unalias");
-    const identify = identifyFactory({ asUser }, "user");
-    const link = accountLinkFactory({ asUser });
+    const track = trackFactory({ asUser, subjectType: "user" });
+    const alias = aliasFactory({ asUser, subjectType: "user" }, "alias");
+    const unalias = aliasFactory({ asUser, subjectType: "user" }, "unalias");
+    const identify = identifyFactory({ asUser, subjectType: "user" });
+    const link = accountLinkFactory({ asUser, subjectType: "user" });
 
     return {
       traits: identify,

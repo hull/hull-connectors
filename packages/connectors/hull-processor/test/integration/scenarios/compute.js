@@ -4,8 +4,9 @@ import connectorConfig from "../../../server/config";
 import {
   CONNECTOR,
   connectorWithCode,
-  STANDARD_SEGMENTS,
   METRIC_INCOMING_USER,
+  METRIC_INCOMING_ACCOUNT,
+  METRIC_INCOMING_LINK,
   NEXT_FLOW_CONTROL,
   USER,
   METRIC_SERVICE_REQUEST,
@@ -15,6 +16,11 @@ import {
 
 const path = require("path");
 const testScenario = require("hull-connector-framework/src/test-scenario");
+
+const ENTITY_BOILERPLATE = {
+  segment_ids: [],
+  anonymous_ids: []
+};
 
 describe("Basic Attributes manipulation", () => {
   it("should group user attributes properly", () => {
@@ -28,10 +34,12 @@ describe("Basic Attributes manipulation", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
         user: {
+          ...ENTITY_BOILERPLATE,
           ...asUser,
           "foo/bar": "baz"
         },
         account: {
+          ...ENTITY_BOILERPLATE,
           ...asAccount,
           "foo/bar": "ball"
         }
@@ -39,459 +47,6 @@ describe("Basic Attributes manipulation", () => {
       handlerType: handlers.notificationHandler,
       connector: connectorWithCode(
         `hull.traits({ userValue: user.foo.bar, accountValue: account.foo.bar })`
-      ),
-      firehoseEvents: [["traits", { asUser, subjectType: "user" }, attributes]],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [[{ asUser, subjectType: "user" }, attributes]]
-          })
-        ],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          { attributes, no_ops: {} }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
-  });
-
-  it("should use all the possible claims to refine resolution", () => {
-    const asUser = {
-      anonymous_ids: ["one", "two"],
-      id: "1234",
-      external_id: "foobar",
-      email: "foo@bar.com"
-    };
-    const expectedClaims = {
-      id: "1234",
-      external_id: "foobar",
-      email: "foo@bar.com",
-      anonymous_id: "one"
-    };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: {
-          ...asUser,
-          "foo/bar": "baz"
-        },
-        account: {}
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(`hull.traits({ value: "foosball" })`),
-      firehoseEvents: [
-        [
-          "traits",
-          {
-            asUser: expectedClaims,
-            subjectType: "user"
-          },
-          { value: "foosball" }
-        ]
-      ],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [
-              [
-                { asUser: expectedClaims, subjectType: "user" },
-                { value: "foosball" }
-              ]
-            ]
-          })
-        ],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          { attributes: { value: "foosball" }, no_ops: {} }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
-  });
-
-  it("locally omit unneeded aliases", () => {
-    const asUser = {
-      id: "1234",
-      anonymous_ids: ["foo", "bar"]
-    };
-    const claims = {
-      id: "1234",
-      anonymous_id: "foo"
-    };
-    const asAccount = {
-      id: "1234"
-    };
-    const attributes = { identical: "value" };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: {
-          ...asUser
-        },
-        account: {}
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(`hull.alias({ anonymous_id: "bar" })`),
-      firehoseEvents: [],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [],
-            userAliases: [
-              [
-                {
-                  asAccount: undefined,
-                  asUser: { anonymous_id: "foo", id: "1234" },
-                  subjectType: "user"
-                },
-                [{ claim: { anonymous_id: "bar" }, operation: "alias" }]
-              ]
-            ]
-          })
-        ],
-        [
-          "info",
-          "incoming.user.alias.success",
-          expect.whatever(),
-          {
-            aliases: [[]],
-            claims: {
-              asUser: { anonymous_id: "foo", id: "1234" },
-              subjectType: "user"
-            }
-          }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST]
-    }));
-  });
-
-  it("locally omit identical attributes to reduce calls", () => {
-    const asUser = {
-      id: "1234"
-    };
-    const asAccount = {
-      id: "1234"
-    };
-    const attributes = { identical: "value" };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: {
-          ...asUser,
-          ...attributes
-        },
-        account: {}
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(`hull.traits({ identical: "value" })`),
-      firehoseEvents: [],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [[{ asUser, subjectType: "user" }, attributes]]
-          })
-        ],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          { attributes: {}, no_ops: { identical: "identical value" } }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
-  });
-
-  it("locally omit ONLY identical attributes to reduce calls", () => {
-    const asUser = {
-      id: "1234"
-    };
-    const asAccount = {
-      id: "1234"
-    };
-    const attributes = { different: "1234" };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: {
-          ...asUser,
-          identical: "value",
-          different: 1234
-        },
-        account: {}
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(
-        `hull.traits({ different: "1234", identical: "value" })`
-      ),
-      firehoseEvents: [
-        [
-          "traits",
-          {
-            asUser,
-            subjectType: "user"
-          },
-          attributes
-        ]
-      ],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [
-              [
-                { asUser, subjectType: "user" },
-                { ...attributes, identical: "value" }
-              ]
-            ]
-          })
-        ],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          { attributes, no_ops: { identical: "identical value" } }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
-  });
-
-  it("be able to skip identical JSON payloads", () => {
-    const asUser = {
-      id: "1234"
-    };
-    const asAccount = {
-      id: "1234"
-    };
-    const attributes = { foo: { bar: "baz" } };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: {
-          ...asUser,
-          ...attributes
-        },
-        account: {}
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(`hull.traits({ "foo": { "bar": "baz" } })`),
-      firehoseEvents: [],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [[{ asUser, subjectType: "user" }, attributes]]
-          })
-        ],
-        [
-          "info",
-          'Nested object found in key "foo"',
-          expect.whatever(),
-          attributes["foo"]
-        ],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          { attributes: {}, no_ops: { foo: "identical value" } }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
-  });
-
-  it("recognizes Arrays of Objects as JSON Objects", () => {
-    const asUser = {
-      id: "1234"
-    };
-    const asAccount = {
-      id: "1234"
-    };
-    const obj = [{ bar: "baz" }];
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: asUser,
-        account: {}
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(
-        `hull.traits({ "foo": [{ "bar": "baz" }] })`
-      ),
-      firehoseEvents: [
-        ["traits", { asUser, subjectType: "user" }, { foo: obj }]
-      ],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [[{ asUser, subjectType: "user" }, { foo: obj }]]
-          })
-        ],
-        ["info", 'Nested object found in key "foo"', expect.whatever(), obj],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          { attributes: { foo: obj }, no_ops: {} }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
-  });
-
-  it("doesn't confuse Arrays for JSON Objects", () => {
-    const asUser = {
-      id: "1234"
-    };
-    const asAccount = {
-      id: "1234"
-    };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: asUser,
-        account: {}
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(`hull.traits({ "foo": ["bar","baz"] })`),
-      firehoseEvents: [
-        [
-          "traits",
-          {
-            asUser,
-            subjectType: "user"
-          },
-          {
-            foo: ["bar", "baz"]
-          }
-        ]
-      ],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [
-              [{ asUser, subjectType: "user" }, { foo: ["bar", "baz"] }]
-            ]
-          })
-        ],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          { attributes: { foo: ["bar", "baz"] }, no_ops: {} }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
-  });
-
-  it("be able to identify differences in JSON objects and send the full payload", () => {
-    const asUser = {
-      id: "1234"
-    };
-    const asAccount = {
-      id: "1234"
-    };
-    const attributes = { foo: { bar: { baz: "ball" } } };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: {
-          ...asUser,
-          foo: { bar: { baz: "ball", bim: "bam" } }
-        },
-        account: {}
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(
-        `hull.traits({ foo: { bar: { baz: "ball" } } })`
-      ),
-      firehoseEvents: [
-        [
-          "traits",
-          {
-            asUser,
-            subjectType: "user"
-          },
-          attributes
-        ]
-      ],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.objectContaining({
-            userTraits: [[{ asUser, subjectType: "user" }, attributes]]
-          })
-        ],
-        [
-          "info",
-          'Nested object found in key "foo"',
-          expect.whatever(),
-          attributes["foo"]
-        ],
-        [
-          "debug",
-          "incoming.user.success",
-          expect.whatever(),
-          { attributes, no_ops: {} }
-        ]
-      ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
-    }));
-  });
-
-  // it("locally omit identical attributes on Accounts to reduce calls ????", () => {
-  // });
-
-  it("should handle JSON Objects", () => {
-    const asUser = {
-      id: "1234"
-    };
-    const asAccount = {
-      id: "1234"
-    };
-    const attributes = { userValue: "bat", accountValue: "ball" };
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({
-        user: {
-          ...asUser,
-          "foo/bar": {
-            baz: "bat"
-          }
-        },
-        account: {
-          ...asAccount,
-          "foo/bar": {
-            baz: "ball"
-          }
-        }
-      }),
-      handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(
-        "hull.traits({ userValue: user.foo.bar.baz, accountValue: account.foo.bar.baz })"
       ),
       firehoseEvents: [["traits", { asUser, subjectType: "user" }, attributes]],
       logs: [
@@ -558,6 +113,67 @@ describe("Basic Attributes manipulation", () => {
     }));
   });
 
+  it("should apply a simple event to a user", () => {
+    const asUser = { id: "1234" };
+    const attributes = { foo: "bar" };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser(),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode('hull.track("New Event", { foo: "bar" })'),
+      firehoseEvents: [
+        [
+          "track",
+          { asUser, subjectType: "user" },
+          {
+            event: "New Event",
+            event_id: expect.anything(),
+            ip: "0",
+            referer: null,
+            url: null,
+            source: "processor",
+            properties: { foo: "bar" }
+          }
+        ]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            events: [
+              {
+                claims: { asUser: { id: "1234" }, subjectType: "user" },
+                event: {
+                  properties: { foo: "bar" },
+                  context: { source: "processor" },
+                  eventName: "New Event"
+                }
+              }
+            ]
+          })
+        ],
+        [
+          "debug",
+          "incoming.event.success",
+          expect.whatever(),
+          {
+            eventName: "New Event",
+            properties: {
+              foo: "bar"
+            }
+          }
+        ]
+      ],
+      metrics: [
+        METRIC_CONNECTOR_REQUEST,
+        ["increment", "ship.incoming.events", 1]
+      ]
+    }));
+  });
+});
+
+describe("Legacy Support", () => {
   it("should work as top level or scoped methods", () => {
     const asUser = { id: "1234" };
     const attributes = { foo: "bar" };
@@ -607,7 +223,590 @@ describe("Basic Attributes manipulation", () => {
       metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
     }));
   });
+});
 
+describe("Identity Resolution", () => {
+  const asUser = {
+    anonymous_ids: ["one", "two"],
+    id: "1234",
+    external_id: "foobar",
+    email: "foo@bar.com"
+  };
+  const expectedClaims = {
+    id: "1234",
+    external_id: "foobar",
+    email: "foo@bar.com",
+    anonymous_id: "one"
+  };
+  const asAccount = { domain: "foosball.com" };
+  const attributes = {
+    foo: "bar"
+  }
+
+  it("should use all the possible claims to refine resolution", () => {
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: {
+          ...ENTITY_BOILERPLATE,
+          ...asUser,
+          "foo/bar": "baz"
+        },
+        account: {}
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(`hull.traits({ value: "foosball" })`),
+      firehoseEvents: [
+        [
+          "traits",
+          {
+            asUser: expectedClaims,
+            subjectType: "user"
+          },
+          { value: "foosball" }
+        ]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [
+              [
+                { asUser: expectedClaims, subjectType: "user" },
+                { value: "foosball" }
+              ]
+            ]
+          })
+        ],
+        [
+          "debug",
+          "incoming.user.success",
+          expect.whatever(),
+          { attributes: { value: "foosball" }, no_ops: {} }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+
+  it("should have the right claims when sending asUser().account().traits calls", () => {
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: {
+          ...ENTITY_BOILERPLATE,
+          ...asUser,
+          "foo/bar": "baz"
+        },
+        account: {}
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(`hull.account(${JSON.stringify(asAccount)})`),
+      firehoseEvents: [
+        [
+          "traits",
+          {
+            asUser: expectedClaims,
+            asAccount,
+            subjectType: "user"
+          },
+          {}
+        ]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            accountLinks: [
+              [
+                { asUser: expectedClaims, subjectType: "user" },
+                asAccount
+              ]
+            ]
+          })
+        ],
+        [
+          "debug",
+          "incoming.account.link.success",
+          expect.objectContaining({
+            request_id:expect.whatever(),
+            account_domain: asAccount.domain,
+            subject_type: "user",
+            user_anonymous_id: asUser.anonymous_ids[0],
+            user_email: asUser.email,
+            user_id: asUser.id,
+            user_external_id: asUser.external_id,
+          }),
+          { asAccount, claims: { asUser: expectedClaims, subjectType: "user" } }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_LINK]
+    }));
+  });
+
+  it("should have the proper claims when called with .account()", () => {
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: {
+          ...ENTITY_BOILERPLATE,
+          ...asUser,
+          "foo/bar": "baz"
+        },
+        account: {}
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(`hull.account(${JSON.stringify(asAccount)}).traits(${JSON.stringify(attributes)})`),
+      firehoseEvents: [
+        [
+          "traits",
+          {
+            asUser: expectedClaims,
+            asAccount,
+            subjectType: "user"
+          },
+          {}
+        ],
+        [
+          "traits",
+          {
+            asUser: expectedClaims,
+            asAccount,
+            subjectType: "account"
+          },
+          attributes
+        ],
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            accountTraits: [
+              [
+                { asAccount, asUser: expectedClaims, subjectType: "account"},
+                attributes
+              ]
+            ],
+            accountLinks: [
+              [
+                { asUser: expectedClaims, subjectType: "user" },
+                asAccount
+              ]
+            ]
+          })
+        ],
+        [
+          "debug",
+          "incoming.account.success",
+          expect.objectContaining({
+            request_id:expect.whatever(),
+            account_domain: asAccount.domain,
+            subject_type: "account",
+            user_anonymous_id: asUser.anonymous_ids[0],
+            user_email: asUser.email,
+            user_id: asUser.id,
+            user_external_id: asUser.external_id,
+          }),
+          { attributes, no_ops: {}}
+        ],
+        [
+          "debug",
+          "incoming.account.link.success",
+          expect.objectContaining({
+            request_id:expect.whatever(),
+            account_domain: asAccount.domain,
+            subject_type: "user",
+            user_anonymous_id: asUser.anonymous_ids[0],
+            user_email: asUser.email,
+            user_id: asUser.id,
+            user_external_id: asUser.external_id,
+          }),
+          { asAccount, claims: { asUser: expectedClaims, subjectType: "user" } }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_ACCOUNT, METRIC_INCOMING_LINK]
+    }));
+  });
+
+  it("should have the proper claims when called with .asUser.account().traits()", () => {
+    const otherUser = { email: "foo@bar.com"};
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: {
+          ...ENTITY_BOILERPLATE,
+          ...asUser,
+          "foo/bar": "baz"
+        },
+        account: {}
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(`hull.asUser(${JSON.stringify({ email: "foo@bar.com" })}).account(${JSON.stringify(asAccount)}).traits(${JSON.stringify(attributes)})`),
+      firehoseEvents: [
+        [
+          "traits",
+          {
+            asUser: otherUser,
+            asAccount,
+            subjectType: "user"
+          },
+          {}
+        ],
+        [
+          "traits",
+          {
+            asUser: otherUser,
+            asAccount,
+            subjectType: "account"
+          },
+          attributes
+        ],
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            accountTraits: [
+              [
+                { asAccount, asUser: otherUser, subjectType: "account"},
+                attributes
+              ]
+            ],
+            accountLinks: [
+              [
+                { asUser: otherUser, subjectType: "user" },
+                asAccount
+              ]
+            ]
+          })
+        ],
+        [
+          "debug",
+          "incoming.account.success",
+          expect.objectContaining({
+            request_id:expect.whatever(),
+            account_domain: asAccount.domain,
+            subject_type: "account",
+            user_email: otherUser.email
+          }),
+          { attributes, no_ops: {}}
+        ],
+        [
+          "debug",
+          "incoming.account.link.success",
+          expect.objectContaining({
+            request_id:expect.whatever(),
+            account_domain: asAccount.domain,
+            subject_type: "user",
+            user_email: otherUser.email
+          }),
+          { asAccount, claims: { asUser: otherUser, subjectType: "user" } }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_ACCOUNT, METRIC_INCOMING_LINK]
+    }));
+  });
+});
+
+describe("JSON Object Handling", () => {
+  it("should handle JSON Objects", () => {
+    const asUser = {
+      id: "1234"
+    };
+    const asAccount = {
+      id: "1234"
+    };
+    const attributes = { userValue: "bat", accountValue: "ball" };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: {
+          ...ENTITY_BOILERPLATE,
+          ...asUser,
+          "foo/bar": {
+            baz: "bat"
+          }
+        },
+        account: {
+          ...ENTITY_BOILERPLATE,
+          ...asAccount,
+          "foo/bar": {
+            baz: "ball"
+          }
+        }
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(
+        "hull.traits({ userValue: user.foo.bar.baz, accountValue: account.foo.bar.baz })"
+      ),
+      firehoseEvents: [["traits", { asUser, subjectType: "user" }, attributes]],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [[{ asUser, subjectType: "user" }, attributes]]
+          })
+        ],
+        [
+          "debug",
+          "incoming.user.success",
+          expect.whatever(),
+          { attributes, no_ops: {} }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+
+  it("be able to skip identical JSON payloads", () => {
+    const asUser = {
+      id: "1234"
+    };
+    const asAccount = {
+      id: "1234"
+    };
+    const attributes = { foo: { bar: "baz" } };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: {
+          ...ENTITY_BOILERPLATE,
+          ...asUser,
+          ...attributes
+        },
+        account: {}
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(`hull.traits({ "foo": { "bar": "baz" } })`),
+      firehoseEvents: [],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [[{ asUser, subjectType: "user" }, attributes]]
+          })
+        ],
+        [
+          "info",
+          'Nested object found in key "foo"',
+          expect.whatever(),
+          attributes["foo"]
+        ],
+        [
+          "debug",
+          "incoming.user.success",
+          expect.whatever(),
+          { attributes: {}, no_ops: { foo: "identical value" } }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+
+  it("recognizes Arrays of Objects as JSON Objects", () => {
+    const asUser = {
+      id: "1234"
+    };
+    const asAccount = {
+      id: "1234"
+    };
+    const obj = [{ bar: "baz" }];
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: {
+          ...ENTITY_BOILERPLATE,
+          ...asUser
+        },
+        account: {}
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(
+        `hull.traits({ "foo": [{ "bar": "baz" }] })`
+      ),
+      firehoseEvents: [
+        ["traits", { asUser, subjectType: "user" }, { foo: obj }]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [[{ asUser, subjectType: "user" }, { foo: obj }]]
+          })
+        ],
+        ["info", 'Nested object found in key "foo"', expect.whatever(), obj],
+        [
+          "debug",
+          "incoming.user.success",
+          expect.whatever(),
+          { attributes: { foo: obj }, no_ops: {} }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+
+  it("doesn't confuse Arrays for JSON Objects", () => {
+    const asUser = {
+      id: "1234"
+    };
+    const asAccount = {
+      id: "1234"
+    };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: {
+          ...ENTITY_BOILERPLATE,
+          ...asUser
+        },
+        account: {}
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(`hull.traits({ "foo": ["bar","baz"] })`),
+      firehoseEvents: [
+        [
+          "traits",
+          {
+            asUser,
+            subjectType: "user"
+          },
+          {
+            foo: ["bar", "baz"]
+          }
+        ]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [
+              [{ asUser, subjectType: "user" }, { foo: ["bar", "baz"] }]
+            ]
+          })
+        ],
+        [
+          "debug",
+          "incoming.user.success",
+          expect.whatever(),
+          { attributes: { foo: ["bar", "baz"] }, no_ops: {} }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+
+  it("be able to identify differences in JSON objects and send the full payload", () => {
+    const asUser = {
+      id: "1234"
+    };
+    const asAccount = {
+      id: "1234"
+    };
+    const attributes = { foo: { bar: { baz: "ball" } } };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: {
+          ...ENTITY_BOILERPLATE,
+          ...asUser,
+          foo: { bar: { baz: "ball", bim: "bam" } }
+        },
+        account: {}
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(
+        `hull.traits({ foo: { bar: { baz: "ball" } } })`
+      ),
+      firehoseEvents: [
+        [
+          "traits",
+          {
+            asUser,
+            subjectType: "user"
+          },
+          attributes
+        ]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [[{ asUser, subjectType: "user" }, attributes]]
+          })
+        ],
+        [
+          "info",
+          'Nested object found in key "foo"',
+          expect.whatever(),
+          attributes["foo"]
+        ],
+        [
+          "debug",
+          "incoming.user.success",
+          expect.whatever(),
+          { attributes, no_ops: {} }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+
+  it("should flatten a single level deep to preserve JSON", () => {
+    const asUser = { id: "1234" };
+    const attributes = {
+      "group/value": "val0",
+      "group/group": {
+        value: "val1",
+        group: {
+          value: "val2"
+        }
+      }
+    };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser(),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(
+        "hull.traits({ value: 'val0', group: { value: 'val1', group: { value: 'val2' } } }, { source: 'group' });"
+      ),
+      firehoseEvents: [["traits", { asUser, subjectType: "user" }, attributes]],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [[{ asUser, subjectType: "user" }, attributes]]
+          })
+        ],
+        [
+          "info",
+          'Nested object found in key "group/group"',
+          expect.whatever(),
+          attributes["group/group"]
+        ],
+        [
+          "debug",
+          "incoming.user.success",
+          expect.whatever(),
+          { attributes, no_ops: {} }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+});
+
+describe("Impersonation Support", () => {
   it("should support impersonation from User processor to another User", () => {
     const asUser = { id: "1234" };
     const asImpersonatedUser = { email: "foo@bar.com" };
@@ -755,25 +954,89 @@ describe("Basic Attributes manipulation", () => {
       ]
     }));
   });
+});
 
-  it("should flatten a single level deep", () => {
-    const asUser = { id: "1234" };
-    const attributes = {
-      "group/value": "val0",
-      "group/group": {
-        value: "val1",
-        group: {
-          value: "val2"
-        }
-      }
+describe("Local Optimizations", () => {
+  it("locally omit unneeded aliases", () => {
+    const asUser = {
+      id: "1234",
+      anonymous_ids: ["foo", "bar"]
     };
+    const claims = {
+      id: "1234",
+      anonymous_id: "foo"
+    };
+    const asAccount = {
+      id: "1234"
+    };
+    const attributes = { identical: "value" };
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser(),
+      ...messageWithUser({
+        user: {
+          ...ENTITY_BOILERPLATE,
+          ...asUser
+        },
+        account: {}
+      }),
       handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(
-        "hull.traits({ value: 'val0', group: { value: 'val1', group: { value: 'val2' } } }, { source: 'group' });"
-      ),
-      firehoseEvents: [["traits", { asUser, subjectType: "user" }, attributes]],
+      connector: connectorWithCode(`hull.alias({ anonymous_id: "bar" })`),
+      firehoseEvents: [],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [],
+            userAliases: [
+              [
+                {
+                  asAccount: undefined,
+                  asUser: { anonymous_id: "foo", id: "1234" },
+                  subjectType: "user"
+                },
+                [{ claim: { anonymous_id: "bar" }, operation: "alias" }]
+              ]
+            ]
+          })
+        ],
+        [
+          "info",
+          "incoming.user.alias.success",
+          expect.whatever(),
+          {
+            aliases: [[]],
+            claims: {
+              asUser: { anonymous_id: "foo", id: "1234" },
+              subjectType: "user"
+            }
+          }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST]
+    }));
+  });
+
+  it("locally omit identical attributes to reduce calls", () => {
+    const asUser = {
+      id: "1234"
+    };
+    const asAccount = {
+      id: "1234"
+    };
+    const attributes = { identical: "value" };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: {
+          ...ENTITY_BOILERPLATE,
+          ...asUser,
+          ...attributes
+        },
+        account: {}
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(`hull.traits({ identical: "value" })`),
+      firehoseEvents: [],
       logs: [
         [
           "debug",
@@ -784,42 +1047,46 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
-          'Nested object found in key "group/group"',
-          expect.whatever(),
-          attributes["group/group"]
-        ],
-        [
           "debug",
           "incoming.user.success",
           expect.whatever(),
-          { attributes, no_ops: {} }
+          { attributes: {}, no_ops: { identical: "identical value" } }
         ]
       ],
       metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
     }));
   });
 
-  it("should apply a simple event to a user", () => {
-    const asUser = { id: "1234" };
-    const attributes = { foo: "bar" };
+  it("locally omit ONLY identical attributes to reduce calls", () => {
+    const asUser = {
+      id: "1234"
+    };
+    const asAccount = {
+      id: "1234"
+    };
+    const attributes = { different: "1234" };
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser(),
+      ...messageWithUser({
+        user: {
+          ...ENTITY_BOILERPLATE,
+          ...asUser,
+          identical: "value",
+          different: 1234
+        },
+        account: {}
+      }),
       handlerType: handlers.notificationHandler,
-      connector: connectorWithCode('hull.track("New Event", { foo: "bar" })'),
+      connector: connectorWithCode(
+        `hull.traits({ different: "1234", identical: "value" })`
+      ),
       firehoseEvents: [
         [
-          "track",
-          { asUser, subjectType: "user" },
+          "traits",
           {
-            event: "New Event",
-            event_id: expect.anything(),
-            ip: "0",
-            referer: null,
-            url: null,
-            source: "processor",
-            properties: { foo: "bar" }
-          }
+            asUser,
+            subjectType: "user"
+          },
+          attributes
         ]
       ],
       logs: [
@@ -828,37 +1095,27 @@ describe("Basic Attributes manipulation", () => {
           "compute.debug",
           expect.whatever(),
           expect.objectContaining({
-            events: [
-              {
-                claims: { asUser: { id: "1234" }, subjectType: "user" },
-                event: {
-                  properties: { foo: "bar" },
-                  context: { source: "processor" },
-                  eventName: "New Event"
-                }
-              }
+            userTraits: [
+              [
+                { asUser, subjectType: "user" },
+                { ...attributes, identical: "value" }
+              ]
             ]
           })
         ],
         [
           "debug",
-          "incoming.event.success",
+          "incoming.user.success",
           expect.whatever(),
-          {
-            eventName: "New Event",
-            properties: {
-              foo: "bar"
-            }
-          }
+          { attributes, no_ops: { identical: "identical value" } }
         ]
       ],
-      metrics: [
-        METRIC_CONNECTOR_REQUEST,
-        ["increment", "ship.incoming.events", 1]
-      ]
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
     }));
   });
+});
 
+describe("Linking support", () => {
   it("should send an account link to the firehose", () => {
     const asUser = { external_id: "1234" };
     const attributes = { foo: "bar" };
@@ -866,6 +1123,7 @@ describe("Basic Attributes manipulation", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
         user: {
+          ...ENTITY_BOILERPLATE,
           ...asUser,
           domain: "bar.com"
         }
@@ -925,7 +1183,10 @@ describe("Request Methods", () => {
   it("should handle request timeouts", () => {
     const error_message = "Error: ESOCKETTIMEDOUT";
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({ user, account }),
+      ...messageWithUser({
+        user: { ...ENTITY_BOILERPLATE, ...user },
+        account: { ...ENTITY_BOILERPLATE, ...account }
+      }),
       handlerType: handlers.notificationHandler,
       externalApiMock: () => {
         const scope = nock("https://foo.com");
@@ -964,7 +1225,10 @@ describe("Request Methods", () => {
   it("should handle request errors", () => {
     const error_message = '{"boom":true}';
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
-      ...messageWithUser({ user, account }),
+      ...messageWithUser({
+        user: { ...ENTITY_BOILERPLATE, ...user },
+        account: { ...ENTITY_BOILERPLATE, ...account }
+      }),
       handlerType: handlers.notificationHandler,
       externalApiMock: () => {
         const scope = nock("https://foo.com");
