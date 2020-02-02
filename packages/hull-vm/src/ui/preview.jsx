@@ -2,10 +2,10 @@
 import React, { Fragment } from "react";
 import _ from "lodash";
 import fp from "lodash/fp";
+import type { HullEntityName } from "hull";
 import Area from "./area";
 import CodeTitle from "./code-title";
 import type { Result } from "../../types";
-import type { HullEntityName } from "hull";
 
 const nice = obj => {
   if (obj === undefined) return "undefined";
@@ -20,8 +20,9 @@ const nice = obj => {
 // };
 const joinLines = fp.join("\n");
 
-const renderUserClaim = claims => `hull.asUser(${nice(claims)})`;
-const renderAccountClaim = claims => `hull.asAccount(${nice(claims)})`;
+const renderUserClaim = claims => `hull.asUser(${nice(claims.asUser)})`;
+const renderAccountClaim = claims =>
+  `hull.asAccount(${nice(claims.asAccount)})`;
 
 const renderShortTraits = ([_claims, attributes]) => `traits(${nice(
   attributes
@@ -31,15 +32,14 @@ const renderShortAlias = (operation, aliases) => `${operation}(${nice(
   aliases
 )});
 `;
-const renderTraits = (claimRender, scoped) => ([claims, attributes]) =>
-  (scoped ? "" : `${claimRender(claims)}.`) +
-  renderShortTraits([claims, attributes]);
-const renderAlias = (claimRender, scoped) => ([claims, alias]) =>
+const renderTraits = claimRenderer => ([claims, attributes]) =>
+  `${claimRenderer(claims)}.${renderShortTraits([claims, attributes])}`;
+
+const renderAlias = claimRenderer => ([claims, alias]) =>
   _.map(
     alias,
     ([aliasClaim, operation]) =>
-      (scoped ? "" : `${claimRender(claims)}.`) +
-      renderShortAlias(operation, aliasClaim)
+      `${claimRenderer(claims)}.${renderShortAlias(operation, aliasClaim)}`
   ).join("\n");
 
 const mapTraits = method =>
@@ -60,33 +60,32 @@ const renderLogs = fp.flow(
   joinLines
 );
 
-// const mapAccountLinks = fp.flow(
-//   fp.map(
-//     ([claims, accountClaims]) => `//★ User → ${nice(claims)}
-// //★ Account → ${nice(accountClaims)}
-//
-// `
-//   ),
-//   joinLines
-// );
+const mapAccountLinks = fp.flow(
+  fp.map(
+    ([claims, accountClaims]) => `//★ User → ${nice(claims.asUser)}
+//★ Account → ${nice(accountClaims)}
+
+`
+  ),
+  joinLines
+);
 
 const renderEventBody = ({ eventName, context, properties }) =>
   `"${eventName}", ${nice(properties)}, ${nice(context)}`;
 
-const renderEvent = payloadClaims => ({ event, claims }) => `//★ Event →
-${renderUserClaim(payloadClaims || claims)}
+const renderEvent = ({ event, claims }) => `//★ Event →
+${renderUserClaim(claims)}
 .track(${renderEventBody(event)});
 `;
 // const renderScopedEvent = _claims => ({ event }) => `//★ Event →
 // track(${renderEventBody(event)});
 // `;
 
-const mapEvents = claims =>
-  fp.flow(
-    // fp.map(claims ? renderScopedEvent(claims) : renderEvent(claims)),
-    fp.map(renderEvent(claims)),
-    joinLines
-  );
+const mapEvents = fp.flow(
+  // fp.map(claims ? renderScopedEvent(claims) : renderEvent(claims)),
+  fp.map(renderEvent),
+  joinLines
+);
 
 type Props = {
   result?: Result,
@@ -114,10 +113,10 @@ const Preview = ({ result, scoped, entity }: Props) => {
   const {
     userTraits = [],
     accountTraits = [],
-    // accountLinks = [],
+    accountLinks = [],
     accountAliases = [],
     userAliases = [],
-    claims,
+    // claims,
     errors = [],
     events = [],
     logs = []
@@ -126,16 +125,14 @@ const Preview = ({ result, scoped, entity }: Props) => {
   const hasErrors = _.size(errors);
 
   const output = {
-    "User Attributes": mapTraits(renderTraits(renderUserClaim, false))(
-      userTraits
-    ),
-    "Account Attributes": mapTraits(renderTraits(renderAccountClaim, false))(
+    "User Attributes": mapTraits(renderTraits(renderUserClaim))(userTraits),
+    "Account Attributes": mapTraits(renderTraits(renderAccountClaim))(
       accountTraits
     ),
-    // "User-Account Links": mapAccountLinks(accountLinks),
-    "User Events": mapEvents(claims)(events),
-    "User Aliases": mapTraits(renderAlias(renderUserClaim, false))(userAliases),
-    "Account Aliases": mapTraits(renderAlias(renderAccountClaim, false))(
+    "User-Account Links": mapAccountLinks(accountLinks),
+    "User Events": mapEvents(events),
+    "User Aliases": mapTraits(renderAlias(renderUserClaim))(userAliases),
+    "Account Aliases": mapTraits(renderAlias(renderAccountClaim))(
       accountAliases
     )
   };
