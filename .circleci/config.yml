@@ -1,30 +1,30 @@
 version: 2
 jobs:
-  build:
+  test-connectors:
     docker:
       - image: circleci/node:10.15
       - image: circleci/mongo:3.6.12
       - image: circleci/redis:5.0.4
     steps:
       - checkout
-      - run:
-          name: Upgrade Yarn
-          command: sudo npm i -g yarn@$(node -p 'require("./package.json").engines.yarn')
-      - restore_cache:
-          name: Restore Yarn cache
-          keys:
-            - yarn-packages-{{ checksum "yarn.lock" }}
-      - run:
-          name: Install Dependencies
-          command: yarn
-      - save_cache:
-          name: Save Yarn Package cache
-          key: yarn-packages-{{ checksum "yarn.lock" }}
-          paths:
-            - ~/.cache/yarn
-      - run:
-          name: Run tests
-          command: yarn test:ci
+#      - run:
+#          name: Upgrade Yarn
+#          command: sudo npm i -g yarn@$(node -p 'require("./package.json").engines.yarn')
+#      - restore_cache:
+#          name: Restore Yarn cache
+#          keys:
+#            - yarn-packages-{{ checksum "yarn.lock" }}
+#      - run:
+#          name: Install Dependencies
+#          command: yarn
+#      - save_cache:
+#          name: Save Yarn Package cache
+#          key: yarn-packages-{{ checksum "yarn.lock" }}
+#          paths:
+#            - ~/.cache/yarn
+#      - run:
+#          name: Run tests
+#          command: yarn test:ci
       # Don't try building connectors if not in branch master or develop
 #      - run:
 #          name: Check branch
@@ -33,14 +33,30 @@ jobs:
 #              circleci-agent step halt
 #              echo "Skipping build, current branch not master or develop"
 #            fi
+  build-deploy-connectors:
+    machine: true
+    steps:
+      - checkout
       - setup_remote_docker
+      - run: |
+          echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
       - run:
-          branches:
-            only:
-              - master
-              - develop
-              - feature/docker-single
           name: Build connectors
           command: |
             docker build . -t hull-connectors
+      - run:
+          name: Deploy connectors
+          command: |
             docker push hull/hull-connectors:hull-connectors
+
+workflows:
+  version: 2
+  test-build-deploy:
+    jobs:
+#      - test-connectors
+      - build-deploy-connectors:
+          filters:
+            branches:
+              only:
+                - master
+                - develop
