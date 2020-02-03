@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  test-connectors:
+  build:
     docker:
       - image: circleci/node:10.15
       - image: circleci/mongo:3.6.12
@@ -26,17 +26,13 @@ jobs:
 #          name: Run tests
 #          command: yarn test:ci
       # Don't try building connectors if not in branch master or develop
-#      - run:
-#          name: Check branch
-#          command: |
-#            if [ "$CIRCLE_BRANCH" != "develop" ] && [ "$CIRCLE_BRANCH" != "master" ] && [ "$CIRCLE_BRANCH" != "feature/circleci-docker" ]; then
-#              circleci-agent step halt
-#              echo "Skipping build, current branch not master or develop"
-#            fi
-  build-deploy-connectors:
-    machine: true
-    steps:
-      - checkout
+      - run:
+          name: Check branch
+          command: |
+            if [ "$CIRCLE_BRANCH" != "develop" ] && [ "$CIRCLE_BRANCH" != "master" ] && [ "$CIRCLE_BRANCH" != "feature/docker-single" ]; then
+              circleci-agent step halt
+              echo "Skipping build, current branch not master or develop"
+            fi
       - setup_remote_docker
       - run: |
           echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
@@ -48,15 +44,3 @@ jobs:
           name: Deploy connectors
           command: |
             docker push hull/hull-connectors:hull-connectors
-
-workflows:
-  version: 2
-  test-build-deploy:
-    jobs:
-#      - test-connectors
-      - build-deploy-connectors:
-          filters:
-            branches:
-              only:
-                - master
-                - develop
