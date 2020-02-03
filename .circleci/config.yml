@@ -37,6 +37,7 @@ jobs:
               tag="production"
             else
               tag="staging"
+            fi
             echo "export CONNECTORS_TAG=${tag}" >> $BASH_ENV
       - setup_remote_docker
       - run: |
