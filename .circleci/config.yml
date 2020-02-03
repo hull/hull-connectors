@@ -39,8 +39,8 @@ jobs:
       - run:
           name: Build connectors
           command: |
-            docker build . -t hull-connectors
+            docker build . -t hull/hull-connectors
       - run:
           name: Deploy connectors
           command: |
-            docker push hull/hull-connectors:hull-connectors
+            docker push hull/hull-connectors
