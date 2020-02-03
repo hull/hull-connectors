@@ -25,12 +25,22 @@ jobs:
       - run:
           name: Run tests
           command: yarn test:ci
-      # - setup_remote_docker
-      # - run:
-      #     name: Deploy all connectors
-      #     command: |
-      #       echo $DEPLOYMENT_CONFIG_JS | base64 -d > deployment.config.js
-      #       CONNECTORS=`BRANCH=$CIRCLE_BRANCH sh scripts/get-connectors-to-deploy.sh`
-      #       docker login -u _ -p $HEROKU_API_KEY registry.heroku.com
-      #       echo $CONNECTORS
-      #       echo "$CONNECTORS" | while IFS= read -r C ; do CONNECTOR=$C BRANCH=$CIRCLE_BRANCH sh scripts/deploy-to-heroku.sh; done
+      # Don't try building connectors if not in branch master or develop
+#      - run:
+#          name: Check branch
+#          command: |
+#            if [ "$CIRCLE_BRANCH" != "develop" ] && [ "$CIRCLE_BRANCH" != "master" ] && [ "$CIRCLE_BRANCH" != "feature/circleci-docker" ]; then
+#              circleci-agent step halt
+#              echo "Skipping build, current branch not master or develop"
+#            fi
+      - setup_remote_docker
+      - run:
+          branches:
+            only:
+              - master
+              - develop
+              - feature/docker-single
+          name: Build connectors
+          command: |
+            docker build . -t hull-connectors
+            docker push hull/hull-connectors:hull-connectors
