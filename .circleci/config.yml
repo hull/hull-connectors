@@ -33,14 +33,19 @@ jobs:
               circleci-agent step halt
               echo "Skipping build, current branch not master or develop"
             fi
+            if [ "$CIRCLE_BRANCH" == "master" ]; then
+              tag="production"
+            else
+              tag="staging"
+            echo "export CONNECTORS_TAG=${tag}" >> $BASH_ENV
       - setup_remote_docker
       - run: |
           echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
       - run:
           name: Build connectors
           command: |
-            docker build . -t hull/hull-connectors
+            docker build . -t hull/hull-connectors:$CONNECTORS_TAG
       - run:
           name: Deploy connectors
           command: |
-            docker push hull/hull-connectors
+            docker push hull/hull-connectors:$CONNECTORS_TAG
