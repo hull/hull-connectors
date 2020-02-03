@@ -57,11 +57,11 @@ function renderRemote(res, { allowed_domains = [], app }) {
 }
 
 function renderError() {
-  return "<script>//Remote failed to load</script>";
+  return "<script>// Remote failed to load</script>";
 }
 
 const remoteHandler = () => {
-  const CACHE = cacheManager.caching({ store: "memory", max: 1000, ttl: 10 });
+  const CACHE = cacheManager.caching({ store: "memory", max: 1000, ttl: 60 });
   return (req, res) => {
     const appId = req.params.id;
     const browserId = req.cookies._bid || uuid();

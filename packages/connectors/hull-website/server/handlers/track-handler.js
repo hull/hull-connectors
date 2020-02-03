@@ -2,11 +2,13 @@
 
 export default (req, res) => {
   const { url, referer, event, properties } = req.body;
+  
   const context = {
+    _bid: req.cookies._bid,
     _sid: req.cookies._sid,
     url,
     referer,
-    ip: req.get("x-real-ip"),
+    ip: req.ip,
     useragent: req.get("user-agent"),
     created_at: Date.now()
   };
