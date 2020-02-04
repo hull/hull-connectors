@@ -146,15 +146,6 @@ describe("Basic Attributes manipulation", () => {
             userTraits: [],
             userAliases: [[claims, [[{ anonymous_id: "bar" }, "alias"]]]]
           })
-        ],
-        [
-          "info",
-          "incoming.user.alias.success",
-          expect.whatever(),
-          {
-            claims: { anonymous_id: "foo", id: "1234" },
-            operations: [[]]
-          }
         ]
       ],
       metrics: [METRIC_CONNECTOR_REQUEST]
