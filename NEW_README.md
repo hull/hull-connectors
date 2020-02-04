@@ -1047,3 +1047,29 @@ pseudoEvents = {
   }
 };
 ```
+
+## Docker Image
+
+### Rebuilding:
+
+```sh
+docker build . -t hull-connectors
+```
+
+### Start
+
+```sh
+> docker run -it -p 8082:8082 -e CONNECTOR=hull-zapier -e MEMORY_AVAILABLE=512 -e SERVER=true hull-connectors:latest
+```
+
+### Start with DEBUG enabled
+
+```
+> docker run -it -p 8082:8082 -e DEBUG='*' -e CONNECTOR=hull-processor -e MEMORY_AVAILABLE=512 -e SERVER=true hull-connectors:latest
+```
+
+### Log in to running container
+
+```
+docker exec -it CONTAINER_ID /bin/sh
+```

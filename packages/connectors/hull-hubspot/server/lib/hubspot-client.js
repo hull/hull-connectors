@@ -109,6 +109,15 @@ class HubspotClient {
         client_secret: process.env.CLIENT_SECRET,
         redirect_uri: "",
         grant_type: "refresh_token"
+      })
+      .catch(error => {
+        if (error.response) {
+          const details =
+            (error.response.body && error.response.body.message) || "unknown";
+          const errorMessage = `Failed to refresh access token, try to reauthorize the connector (error message: "${details}"")`;
+          return Promise.reject(new ConfigurationError(errorMessage));
+        }
+        return Promise.reject(error);
       });
   }
 
@@ -130,16 +139,11 @@ class HubspotClient {
           force: true
         })
           .catch(error => {
-            if (error.response) {
-              const details =
-                (error.response.body && error.response.body.message) ||
-                "unknown";
-              const errorMessage = `Failed to refresh access token, try to reauthorize the connector (error message: "${details}"")`;
-              return Promise.reject(new ConfigurationError(errorMessage));
-            }
             return Promise.reject(error);
           })
-          .then(() => promise());
+          .then(() => {
+            return promise();
+          });
       }
       return Promise.reject(err);
     });
