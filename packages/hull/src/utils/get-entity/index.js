@@ -11,12 +11,16 @@ import type {
 import { getAccountPayload, getUserPayload } from "./get-payload";
 import getQuery from "./queries";
 
+const debug = require("debug")("hull-connector:get-entity");
+
 const getEntities = async (
   ctx: HullContext,
   query: {},
   entity: HullEntityName = "user"
 ): Promise<HullGetUserResponse | HullGetAccountResponse> => {
+  debug("getEntities", { query, entity });
   const response = await ctx.client.post(`search/${entity}_reports`, query);
+  debug("getEntities response", { query, entity, response });
   const { data = [] } = response;
   if (!data.length) {
     throw new Error("No entity found");
@@ -68,6 +72,7 @@ export const getEntity = (ctx: HullContext) => async ({
       page
     }
   });
+  debug("getEntity query", { query });
   if (!query) {
     throw new Error("Invalid Query Type - no Claims and no Search");
   }

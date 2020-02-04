@@ -11,7 +11,7 @@ async function fetchAction(ctx: HullContext): HullExternalResponse {
   const route = "fetchRecentContacts";
 
   const router = new HubspotPurpleFusionRouter(route);
-  router.invokeRoute(ctx);
+  await router.invokeRoute(ctx);
 
   return {
     status: 200,
