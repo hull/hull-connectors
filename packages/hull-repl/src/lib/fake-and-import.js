@@ -49,7 +49,7 @@ function importFile(
       notify,
       emitEvent,
       importType,
-      s3KeyTemplate: "hull-repl/<%= partIndex %>.json"
+      s3KeyTemplate: "hullrepl/<%= partIndex %>.json"
     }
   );
 
