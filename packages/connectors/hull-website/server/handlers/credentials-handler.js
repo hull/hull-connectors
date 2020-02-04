@@ -1,8 +1,5 @@
 // @flow
-import type {
-  HullContext,
-  HullCredentialsResponse
-} from "hull";
+import type { HullContext, HullCredentialsResponse } from "hull";
 
 const HULL_JS_URL = "https://js.hull.io/0.10.0/hull.js.gz";
 
