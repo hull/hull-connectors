@@ -1,0 +1,82 @@
+{
+  "env": {
+    "FIREHOSE_KAFKA_BROKERS": "kafka.local:9092",
+    "HOST": "connectors.hullapp.net",
+    "DEBUG": "hull-shared*",
+    "CONNECTOR": "hull-$CONNECTOR",
+    "LOG_LEVEL": "debug",
+    "PORT": "8082",
+    "REDIS_URL": "redis://redis:6379",
+    "FIREHOSE_KAFKA_TOPIC": ""
+  },
+  "labels": {
+    "HAPROXY_0_USE_HSTS": "true",
+    "HAPROXY_0_BACKEND_WEIGHT": "-1",
+    "HAPROXY_GROUP": "external",
+    "HAPROXY_0_VHOST": "$CONNECTOR.connectors.hullapp.net"
+  },
+  "id": "/staging/connectors/$CONNECTOR",
+  "backoffFactor": 1.15,
+  "backoffSeconds": 1,
+  "container": {
+    "portMappings": [
+      {
+        "containerPort": 0,
+        "hostPort": 0,
+        "protocol": "tcp",
+        "name": "default"
+      }
+    ],
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "hull/hull-connectors:$COMMIT_SHA1",
+      "forcePullImage": false,
+      "privileged": false,
+      "parameters": []
+    }
+  },
+  "cpus": 0.5,
+  "disk": 0,
+  "fetch": [
+    {
+      "uri": "docker.too.tz?with=credentials",
+      "extract": true,
+      "executable": false,
+      "cache": false
+    }
+  ],
+  "healthChecks": [
+    {
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "maxConsecutiveFailures": 3,
+      "portIndex": 0,
+      "timeoutSeconds": 20,
+      "delaySeconds": 15,
+      "protocol": "MESOS_HTTP",
+      "path": "/manifest.json",
+      "ipProtocol": "IPv4"
+    }
+  ],
+  "instances": 1,
+  "maxLaunchDelaySeconds": 300,
+  "mem": 512,
+  "gpus": 0,
+  "networks": [
+    {
+      "mode": "container/bridge"
+    }
+  ],
+  "requirePorts": false,
+  "upgradeStrategy": {
+    "maximumOverCapacity": 1,
+    "minimumHealthCapacity": 1
+  },
+  "killSelection": "YOUNGEST_FIRST",
+  "unreachableStrategy": {
+    "inactiveAfterSeconds": 0,
+    "expungeAfterSeconds": 0
+  },
+  "constraints": []
+}
