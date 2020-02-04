@@ -26,7 +26,7 @@ TESTS.map(function performTest({
       ...message,
       handlerType: handlers.notificationHandler,
       externalApiMock: () => {
-        let scope = nock("https://api.segment.io")
+        let scope = nock("https://api.segment.io:443")
           // .log(console.log)
         body.map(b => {
           scope = scope.post("/v1/batch", b)
