@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.1.16-monorepo
+- [hull-hubspot] handle empty contact identity claims
+- [hull-hubspot] use vid on contact upsert
+
 ## v0.1.15-monorepo
 - [hull-connector-framework] add triggers
 
