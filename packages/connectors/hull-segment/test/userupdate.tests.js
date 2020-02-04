@@ -118,17 +118,6 @@ const RETRY_FLOW_CONTROL = {
   }
 };
 
-const SEGMENT_USER_PAYLOAD = {
-  anonymousId: "1234",
-  traits: {
-    hull_segments: "standard_segment",
-    hull_account_segments: "standard_segment"
-  },
-  context: {},
-  integrations: { Hull: false },
-  type: "identify"
-};
-
 const encryptedToken = ({ config, plainCredentials }) =>
   Buffer.from(encrypt(plainCredentials, config.hostSecret)).toString("base64");
 const headers = ({ config, plainCredentials }) => ({
@@ -171,10 +160,22 @@ const FIREHOSE_ACCOUNT_LINK_IDENTIFY = [
   groupOutput.data
 ];
 
+
+const SEGMENT_USER_PAYLOAD = {
+  anonymousId: "1234",
+  traits: {
+    hull_segments: "standard_segment",
+    hull_account_segments: "standard_segment"
+  },
+  context: {},
+  integrations: { Hull: false },
+  type: "identify"
+};
+
 const segment_payload = payloads =>
   payloads.map(payload => ({
     batch: payload.map(p => ({
-      _metadata: { nodeVersion: "10.16.0" },
+      _metadata: { nodeVersion:  /.*/ },
       timestamp: /.*/,
       messageId: /.*/,
       ...p,
