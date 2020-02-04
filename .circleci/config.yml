@@ -63,5 +63,6 @@ workflows:
               only:
                 - master
                 - develop
+                - feature/docker-single
         requires:
           - build
