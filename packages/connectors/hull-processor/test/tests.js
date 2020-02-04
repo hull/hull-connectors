@@ -106,6 +106,7 @@ module.exports = [
           accountTraits: [],
           events: [],
           accountLinks: [],
+          data: {},
           success: true,
           isAsync: false
         }

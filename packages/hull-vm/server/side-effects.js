@@ -234,7 +234,7 @@ export const callAlias = async ({
               operations: opLog
             });
           }
-          return [];
+          return undefined;
         } catch (err) {
           console.log(err);
           return client.logger.info(`incoming.${entity}.alias.error`, {
