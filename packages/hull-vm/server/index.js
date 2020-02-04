@@ -2,6 +2,7 @@
 /* :: export type * from "../types"; */
 
 export { default as compute } from "./compute";
+export { default as javascript } from "./backends/javascript";
 export { default as ingest } from "./ingest";
 export { default as getClaims } from "./lib/get-claims";
 export { default as varsFromSettings } from "./lib/vars-from-settings";

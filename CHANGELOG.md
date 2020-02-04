@@ -12,6 +12,7 @@
 - [hull-slack] fix account trigger bug
 
 ## v0.1.13-monorepo
+
 - [hull-hubspot] store email in Hubspot group
 - [hull-hubspot] do not unalias on deletion
 - [hull-hubspot] merge contacts and accounts

@@ -890,6 +890,7 @@ module.exports = [
           entity: undefined,
           events: [],
           accountLinks: [],
+          data: {},
           success: true,
           isAsync: false
         }
