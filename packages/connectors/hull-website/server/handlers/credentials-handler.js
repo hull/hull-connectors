@@ -1,7 +1,6 @@
 // @flow
 import type {
   HullContext,
-  HullIncomingHandlerMessage,
   HullCredentialsResponse
 } from "hull";
 
