@@ -1,8 +1,13 @@
 // @flow
 
-import type { HullEntityClaims, HullEntityName, HullContext } from "hull";
+import type {
+  HullUserClaims,
+  HullAccountClaims,
+  HullEntityName,
+  HullContext
+} from "hull";
 import _ from "lodash";
-import type { Payload } from "../types";
+import type { Payload, SupportedLanguage } from "../types";
 import compute from "./compute";
 import ingest from "./ingest";
 import saveRecent from "./save-recent";
@@ -13,6 +18,7 @@ const asyncComputeAndIngest = async (
     EntryModel,
     payload,
     source,
+    language,
     code,
     claims,
     entity,
@@ -20,8 +26,9 @@ const asyncComputeAndIngest = async (
   }: {
     source: string,
     code: string,
+    language?: SupportedLanguage,
     entity?: HullEntityName,
-    claims?: HullEntityClaims,
+    claims: HullUserClaims | HullAccountClaims,
     payload: Payload,
     EntryModel?: Object,
     preview?: boolean
@@ -31,6 +38,7 @@ const asyncComputeAndIngest = async (
   try {
     const result = await compute(ctx, {
       source,
+      language,
       claims,
       payload,
       entity,

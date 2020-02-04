@@ -1,6 +1,11 @@
 {
+<<<<<<< HEAD:packages/hull-repl/package.json
   "name": "hull-repl",
   "version": "0.1.16-monorepo",
+=======
+  "name": "hullrepl",
+  "version": "0.1.15-monorepo",
+>>>>>>> develop:packages/hullrepl/package.json
   "description": "",
   "main": "src/index.js",
   "scripts": {
@@ -8,7 +13,7 @@
     "documentation": "exit 0"
   },
   "bin": {
-    "hull-repl": "src/index.js"
+    "hullrepl": "src/index.js"
   },
   "author": "",
   "license": "MIT",

@@ -29,10 +29,10 @@
     <array>
       <dict>
         <key>CFBundleURLName</key>
-        <string>Open hull-repl</string>
+        <string>Open hullrepl</string>
         <key>CFBundleURLSchemes</key>
         <array>
-            <string>hull-repl</string>
+            <string>hullrepl</string>
         </array>
       </dict>
     </array>
