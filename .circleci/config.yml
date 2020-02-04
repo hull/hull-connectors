@@ -41,17 +41,17 @@ jobs:
       - image: hull/dcos-deploy:latest
     steps:
       - run:
-        name: Push Docker Image & Deploy to Marathon
-        command: |
-          DOCKER_IMAGE=hull/hull-connectors:$CIRCLE_SHA1
-          if [ "$CIRCLE_BRANCH" = "master" ]; then
-             APP_ENV="production"
-          else
-            APP_ENV="staging"
-          fi
+          name: Push Docker Image & Deploy to Marathon
+          command: |
+            DOCKER_IMAGE=hull/hull-connectors:$CIRCLE_SHA1
+            if [ "$CIRCLE_BRANCH" = "master" ]; then
+              APP_ENV="production"
+            else
+              APP_ENV="staging"
+            fi
 
-          ci-login-to-dcos $DCOS_CLUSTER_URL
-          marathon-deploy-group /$APP_ENV/connectors $DOCKER_IMAGE
+            ci-login-to-dcos $DCOS_CLUSTER_URL
+            marathon-deploy-group /$APP_ENV/connectors $DOCKER_IMAGE
 workflows:
   version: 2
   build_and_test:
