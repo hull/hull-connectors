@@ -26,27 +26,42 @@ jobs:
           name: Run tests
           command: yarn test:ci
       # Don't try building connectors if not in branch master or develop
-      - run:
-          name: Check branch
-          command: |
-            if [ "$CIRCLE_BRANCH" != "develop" ] && [ "$CIRCLE_BRANCH" != "master" ] && [ "$CIRCLE_BRANCH" != "feature/docker-single" ]; then
-              circleci-agent step halt
-              echo "Skipping build, current branch not master or develop"
-            fi
-            if [ "$CIRCLE_BRANCH" == "master" ]; then
-              tag="production"
-            else
-              tag="staging"
-            fi
-            echo "export CONNECTORS_TAG=${tag}" >> $BASH_ENV
       - setup_remote_docker
-      - run: |
-          echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
       - run:
-          name: Build connectors
+          name: Build docker image
           command: |
-            docker build . -t hull/hull-connectors:$CONNECTORS_TAG
+            echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+            docker build . -t hull/hull-connectors:$CIRCLE_SHA1
       - run:
-          name: Deploy connectors
+          name: Publish to docker
           command: |
-            docker push hull/hull-connectors:$CONNECTORS_TAG
+            docker push hull/hull-connectors:$CIRCLE_SHA1
+    deploy:
+      docker:
+        - image: hull/dcos-deploy:latest
+      steps:
+        - run:
+            name: Push Docker Image & Deploy to Marathon
+            command: |
+              DOCKER_IMAGE=hull/hull-connectors:$CIRCLE_SHA1
+              if [ "$CIRCLE_BRANCH" = "master" ]; then
+                APP_ENV="production"
+              else
+                APP_ENV="staging"
+              fi
+
+              ci-login-to-dcos $DCOS_CLUSTER_URL
+              marathon-deploy-group /$APP_ENV/connectors $DOCKER_IMAGE
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build
+      - deploy:
+          filters:
+            branches:
+              only:
+                - master
+                - develop
+        requires:
+          - build
