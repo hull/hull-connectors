@@ -1,7 +1,7 @@
 {
   "name": "hull-scheduled-calls",
   "description": "Call an API at regular intervals and pass response to Hull",
-  "version": "0.1.15-monorepo",
+  "version": "0.1.16-monorepo",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {
     "test": "yarn test:unit && yarn test:integration",
