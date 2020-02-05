@@ -238,6 +238,7 @@ class HullClient {
               [
                 "request_id",
                 "connector_name",
+                "connector",
                 "user_id",
                 "user_anonymous_id",
                 "user_external_id",

@@ -2,6 +2,7 @@
 const { expect } = require("chai");
 const sinon = require("sinon");
 const jwt = require("jwt-simple");
+const _ = require("lodash");
 
 const Hull = require("../../src");
 
@@ -19,16 +20,17 @@ describe("Hull Logger", () => {
     const hull = new Hull({ id: "562123b470df84b740000042", secret: "1234", organization: "test" });
     hull.logger.info("test", { foo: "bar" });
     process.stdout.write = originalWrite;
-    expect(JSON.parse(result)).to.be.eql({
-      context: {
-        id: "562123b470df84b740000042",
-        organization: "test"
-      },
+    expect(_.omit(JSON.parse(result), "@timestamp")).to.be.eql({
+      "@version": "1",
+      connector: "562123b470df84b740000042",
+      organization: "test",
       level: "info",
       message: "test",
       data: {
         foo: "bar"
-      }
+      },
+      label: "",
+      summary: ""
     });
 
   });
@@ -37,19 +39,20 @@ describe("Hull Logger", () => {
     const hull = new Hull({ id: "562123b470df84b740000042", secret: "1234", organization: "test" });
     hull.asUser({ email: "bob@bob.com", anonymous_id: "123" }).logger.info("test", { foo: "bar" });
     process.stdout.write = originalWrite;
-    expect(JSON.parse(result)).to.be.eql({
-      context: {
-        id: "562123b470df84b740000042",
-        organization: "test",
-        subject_type: "user",
-        user_email: "bob@bob.com",
-        user_anonymous_id: "123"
-      },
+    expect(_.omit(JSON.parse(result), "@timestamp")).to.be.eql({
+      "@version": "1",
+      connector: "562123b470df84b740000042",
+      organization: "test",
+      subject_type: "user",
+      user_email: "bob@bob.com",
+      user_anonymous_id: "123",
       level: "info",
       message: "test",
       data: {
         foo: "bar"
-      }
+      },
+      label: "",
+      summary: ""
     });
   });
 
@@ -57,20 +60,21 @@ describe("Hull Logger", () => {
     const hull = new Hull({ id: "562123b470df84b740000042", secret: "1234", organization: "test" });
     hull.asUser({ email: "bob@bob.com", anonymous_id: "123" }).account({ domain: "bob.com" }).logger.info("test", { foo: "bar" });
     process.stdout.write = originalWrite;
-    expect(JSON.parse(result)).to.be.eql({
-      context: {
-        id: "562123b470df84b740000042",
-        organization: "test",
-        subject_type: "account",
-        account_domain: "bob.com",
-        user_email: "bob@bob.com",
-        user_anonymous_id: "123"
-      },
+    expect(_.omit(JSON.parse(result), "@timestamp")).to.be.eql({
+      "@version": "1",
+      connector: "562123b470df84b740000042",
+      organization: "test",
+      subject_type: "account",
+      account_domain: "bob.com",
+      user_email: "bob@bob.com",
+      user_anonymous_id: "123",
       level: "info",
       message: "test",
       data: {
         foo: "bar"
-      }
+      },
+      label: "",
+      summary: ""
     });
   });
 
@@ -78,17 +82,18 @@ describe("Hull Logger", () => {
     const hull = new Hull({ id: "562123b470df84b740000042", secret: "1234", organization: "test", connectorName: "testing" });
     hull.logger.info("test", { foo: "bar" });
     process.stdout.write = originalWrite;
-    expect(JSON.parse(result)).to.be.eql({
-      context: {
-        id: "562123b470df84b740000042",
-        organization: "test",
-        connector_name: "testing"
-      },
+    expect(_.omit(JSON.parse(result), "@timestamp")).to.be.eql({
+      "@version": "1",
+      connector: "562123b470df84b740000042",
+      organization: "test",
+      connector_name: "testing",
       level: "info",
       message: "test",
       data: {
         foo: "bar"
-      }
+      },
+      label: "",
+      summary: ""
     });
   });
 
