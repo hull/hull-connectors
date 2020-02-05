@@ -54,7 +54,6 @@ describe("HullClient array capture feature", () => {
     const clock = sinon.useFakeTimers();
     const hullClient = new HullClient({ ...config, captureLogs: true });
     hullClient.logger.info("test", { foo: "bar" });
-    const b =hullClient.configuration().logs;
     expect(hullClient.configuration().logs).to.eql([
       {
         context: {
