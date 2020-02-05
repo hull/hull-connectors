@@ -150,8 +150,8 @@
       }
     },
     {
-      "name": "outgoing_user_segments",
-      "title": "Outgoing User Segments",
+      "name": "prospect_outgoing_user_segments",
+      "title": "Prospect Outgoing User Segments",
       "description": "Select a Prospect attribute where Hull will push a list of concatenated User Segments from a given Hull User",
       "type": "string",
       "format": "select",
@@ -159,6 +159,18 @@
         "placeholder": "Outreach Prospect Field",
         "allowCreate": false,
         "loadOptions": "/fields-outreach-prospect-out"
+      }
+    },
+    {
+      "name": "prospect_outgoing_account_segments",
+      "title": "Prospect Outgoing Account Segments",
+      "description": "Select a Prospect attribute where Hull will push a list of concatenated Account Segments from a given Hull User",
+      "type": "string",
+      "format": "select",
+      "options": {
+        "placeholder": "Outreach Account Field",
+        "allowCreate": false,
+        "loadOptions": "/fields-outreach-account-out"
       }
     },
     {
@@ -488,7 +500,8 @@
       "properties": [
         "private_settings.synchronized_user_segments",
         "private_settings.outgoing_user_attributes",
-        "private_settings.outgoing_user_segments",
+        "private_settings.prospect_outgoing_user_segments",
+        "private_settings.prospect_outgoing_account_segments",
         "private_settings.link_users_in_service"
       ]
     },

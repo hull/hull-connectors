@@ -21,7 +21,8 @@ const transformsToService: ServiceTransforms = [
             expression: "$merge([\n" +
               "    $spread(),\n" +
               "    {\n" +
-              "        \"flattened_segments\" : segments.name\n" +
+              "        \"flattened_segments\" : segments.name,\n" +
+              "        \"flattened_account_segments\": account_segments.name\n" +
               "    }\n" +
               "])"
           }
@@ -105,9 +106,15 @@ const transformsToService: ServiceTransforms = [
           },
           {
             arrayStrategy: "json_stringify",
-            condition: notNull("connector.private_settings.outgoing_user_segments"),
+            condition: notNull("connector.private_settings.prospect_outgoing_user_segments"),
             inputPath: "flattened_segments",
-            outputPath: "data.attributes.${connector.private_settings.outgoing_user_segments}",
+            outputPath: "data.attributes.${connector.private_settings.prospect_outgoing_user_segments}",
+          },
+          {
+            arrayStrategy: "json_stringify",
+            condition: notNull("connector.private_settings.prospect_outgoing_account_segments"),
+            inputPath: "flattened_account_segments",
+            outputPath: "data.attributes.${connector.private_settings.prospect_outgoing_account_segments}",
           }
         ]
       },
