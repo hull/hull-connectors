@@ -190,6 +190,7 @@ class HullClient {
         account_external_id: ctxe.account_external_id,
         connector: ctxe.id,
         organization: ctxe.organization,
+        subject_type: ctxe.subject_type,
         data,
         message,
         label,
@@ -228,10 +229,26 @@ class HullClient {
       logger.removeAllListeners();
       logger.on("logged", (level, message, payload) => {
         logsArray.push({
-          message,
-          level,
+          message: payload.message,
+          level: payload.level,
           data: payload.data,
-          context: payload.context,
+          context: _.pickBy(payload, (v, k) => {
+            return (
+              [
+                "request_id",
+                "connector_name",
+                "user_id",
+                "user_anonymous_id",
+                "user_external_id",
+                "user_email",
+                "account_id",
+                "account_domain",
+                "account_external_id",
+                "subject_type",
+                "organization"
+              ].includes(k) && !_.isNil(v)
+            );
+          }),
           timestamp: new Date().toISOString()
         });
       });
