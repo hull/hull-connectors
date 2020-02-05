@@ -188,6 +188,7 @@ class HullClient {
         account_id: ctxe.account_id,
         account_domain: ctxe.account_domain,
         account_external_id: ctxe.account_external_id,
+        account_anonymous_id: ctxe.account_anonymous_id,
         connector: ctxe.id,
         organization: ctxe.organization,
         subject_type: ctxe.subject_type,
@@ -244,6 +245,7 @@ class HullClient {
                 "account_id",
                 "account_domain",
                 "account_external_id",
+                "account_anonymous_id",
                 "subject_type",
                 "organization"
               ].includes(k) && !_.isNil(v)
