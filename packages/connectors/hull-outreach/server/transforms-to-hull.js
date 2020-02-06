@@ -475,7 +475,8 @@ const transformsToHull: ServiceTransforms =
                 "                \"user_agent\": attributes.requestDevice,\n" +
                 "                \"ip\": attributes.requestHost,\n" +
                 "                \"request_proxied\": attributes.requestProxied,\n" +
-                "                \"request_region\": attributes.requestRegion\n" +
+                "                \"request_region\": attributes.requestRegion,\n" +
+                "                \"user_id\": relationships.user.data.id\n" +
                 "            },\n" +
                 "\t\t\t\"context\": {\n" +
                 "\t\t\t\t\"event_id\": id,\n" +
@@ -507,6 +508,9 @@ const transformsToHull: ServiceTransforms =
                       writeTo: { path: "hull_events[0].properties.sequence_id", format: "${enrichedEmail.sequence_id}" },
                     },
                     {
+                      writeTo: { path: "hull_events[0].properties.sequence_step", format: "${enrichedEmail.sequence_step}" },
+                    },
+                    {
                       // condition: notNull("${enrichedEmail.sequence_id}"),
                       operateOn: { component: "glue", route: "getSequences", select: "${enrichedEmail.sequence_id}" },
                       writeTo: { path: "hull_events[0].properties.sequence_name" }
@@ -521,10 +525,14 @@ const transformsToHull: ServiceTransforms =
                 object: {
                   "bounced_message": "Bounced Message",
                   "emails_opt_out": "Emails Opt Out",
+                  "inbound_call_completed": "Inbound Call Completed",
+                  "inbound_call_no_answer": "Inbound Call No Answer",
                   "inbound_message": "Inbound Message",
                   "message_clicked": "Message Clicked",
                   "message_opened": "Message Opened",
                   "message_opened_sender": "Message Opened Sender",
+                  "outbound_call_completed": "Outbound Call Completed",
+                  "outbound_call_no_answer": "Outbound Call No Answer",
                   "outbound_message": "Outbound Message"
                 },
                 select: "${eventInput.hull_events[0].eventName}",
