@@ -21,7 +21,9 @@ const connector = {
       { hull: "account.id", service: "custom_hubspot_account_id", overwrite: true },
       { hull: "account.domain", service: "custom_hubspot_account_domain", overwrite: true }
     ],
-    link_users_in_service: true
+    link_users_in_service: true,
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const usersSegments = [
@@ -45,7 +47,13 @@ it("should allow through with mapped account attribute changes", () => {
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, require("../fixtures/get-properties-companies-groups"));
         scope.post("/contacts/v1/contact/batch/?auditId=Hull",
-          [{"properties":[{"property":"hull_custom_hubspot_account_id","value":"acc123"},{"property":"hull_custom_hubspot_account_domain","value":"doe.com"},{"property":"hull_segments","value":"testSegment"}],"email":"email@email.com"}]
+          [{"properties":[
+            {"property":"hull_custom_hubspot_account_id","value":"acc123"},
+              {"property":"hull_custom_hubspot_account_domain","value":"doe.com"},
+              {"property":"hull_segments","value":"testSegment"}
+            ],
+            "email":"email@email.com",
+            "vid": 5677}]
         ).reply(202);
         return scope;
       },
@@ -126,6 +134,7 @@ it("should allow through with mapped account attribute changes", () => {
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
           {
             "email": "email@email.com",
+            "vid": 5677,
             "properties": [{
               "property": "hull_custom_hubspot_account_id",
               "value": "acc123"

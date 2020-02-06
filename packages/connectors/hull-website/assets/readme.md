@@ -9,8 +9,12 @@ This connector integrates with a website through a single HTML tag which then le
 
 1. First, go to the settings pane and whitelist the domains you would like to authorize and get data from.
 
-> Note: You can use the wildcard entry to whitelist all subdomains of specific domain.
+> Note 1: You can use the wildcard entry to whitelist all subdomains of specific domain.
   **Example:** whitelisting `*.website.com` will whitelist `en.website.com`, `de.website.com`, `fr.website.com`... etc.
+
+> Note 2: By default connector expects HTTPS to be available on whitelisted domains, if you want to allow non-https website to load Hull.js you need
+  to explicitly add `http://` protocol in front of the domain in the whitelist.
+
 
 2. Then, copy the HTML tag show below the whitelist and paste it in the `<head>` section of your website.
 You may need to refer to your website system to know how to embed the code, but below we provide guides for common systems.
@@ -22,13 +26,19 @@ You may need to refer to your website system to know how to embed the code, but 
 
 ## General notes
 
+**Whitelist reference**
+
+The domain whitelist controls Content Security Policy header used for the Hull.js library.
+Check [header reference](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors) for all possible configuration options.
+
 **Caching**
 
-Due to performance reasons the configuration of the Hull Website tag is cached for 5 minutes, so you may need to wait for your changes to take effect. This affects all settings of the connector.
+Due to performance reasons the configuration of the Hull Website tag is cached for 5 minutes, so you may need to wait for your changes to take effect. This affects all settings of the connector. On your own browser you can clean the cache or hot-reload the page to see the changes immediately.
 
 **Deactivation**
 
 When website connector is deactivated the Hull.js snippet won't run at all. No tracking will be performed and none of the additional scripts will be loaded to the page.
+
 
 # Tracking
 

@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## v0.1.16-monorepo
+- [hull-hubspot] handle empty contact identity claims
+- [hull-hubspot] use vid on contact upsert
+
+## v0.1.15-monorepo
+- [hull-connector-framework] add triggers
+
+## v0.1.14-monorepo
+- [hull-hubspot] map contact meta data
+- [hull-slack] fix account trigger bug
+
+## v0.1.13-monorepo
+- [hull-hubspot] store email in Hubspot group
+- [hull-hubspot] do not unalias on deletion
+- [hull-hubspot] merge contacts and accounts
+
+## v0.1.12-monorepo
+- release of the new website connector
+
 ## v0.1.11-monorepo
 - Moved new and improved code connectors to monorepo master
 - added outreach event support

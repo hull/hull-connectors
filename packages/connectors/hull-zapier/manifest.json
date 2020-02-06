@@ -5,31 +5,22 @@
     "batch",
     "batch-accounts",
     "smart-notifier",
-    "kraken-exports"
+    "kraken-exports",
+    "first-install"
   ],
   "logo": "logo.png",
   "picture": "picture.png",
   "ui": false,
   "readme": "readme.md",
-  "version": "0.1.11-monorepo",
+  "version": "0.1.15-monorepo",
   "private_settings": [
     {
-      "name": "subscriptions",
+      "name": "triggers",
       "title": "Rest Hook Subscriptions",
       "type": "array",
       "items": {
         "type": "object",
-        "properties": {
-          "url": {
-            "type": "string"
-          },
-          "action": {
-            "type": "string"
-          },
-          "entityType": {
-            "type": "string"
-          }
-        }
+        "properties": {}
       },
       "default": []
     },
@@ -49,7 +40,7 @@
     },
     {
       "name": "invitation",
-      "default": "https://zapier.com/developer/public-invite/5710/d4334f38188deb9272c7fc7b0d0b5cfa",
+      "default": "https://zapier.com/apps/hull/integrations",
       "type": "string"
     },
     {
@@ -94,7 +85,7 @@
     },
     {
       "title": "Credentials",
-      "description": "Copy this token and paste it when in the Zapier authentication window",
+      "description": "Copy this token and paste it in the Zapier authentication window",
       "step": "credentials",
       "properties": [
         "json.credentials"

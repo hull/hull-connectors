@@ -14,7 +14,7 @@ There are 9 triggers that can be configured:
 
  1. User Enters Segment
     
-    - User enters one or more of the whitelisted user segments*
+    - User enters one or more of the whitelisted user segments
 
  2. User Leaves Segment
     
@@ -27,7 +27,8 @@ There are 9 triggers that can be configured:
     - Account on the user is in one or more of the whitelisted account segments
       
     - A whitelisted user attribute was updated or a whitelisted account (on the user) 
-    attribute was updated
+    attribute was updated. If both user attributes and account attributes are defined,
+    the trigger will only be activated if both changes are made in the same message.
    
  4. User Event Created
      

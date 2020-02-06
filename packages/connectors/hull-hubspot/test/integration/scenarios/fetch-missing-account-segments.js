@@ -16,6 +16,8 @@ const connector = {
     token: "hubToken",
     token_fetched_at: 1419967066626,
     expires_in: 10,
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false,
     refresh_token: "123",
     synchronized_user_segments: [
       "5bffc38f625718d58b000004"

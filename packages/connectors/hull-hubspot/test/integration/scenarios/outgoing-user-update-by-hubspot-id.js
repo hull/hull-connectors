@@ -17,7 +17,9 @@ process.env.CLIENT_SECRET = "abc";
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_user_segments: ["hullSegmentId"]
+    synchronized_user_segments: ["hullSegmentId"],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const usersSegments = [
@@ -45,7 +47,8 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
             "property": "hull_segments",
             "value": "testSegment"
           }],
-          "vid": "existingContactId"
+          "vid": "existingContactId",
+          "email": "email@email.com"
           }]
         ).reply(202);
         return scope;
@@ -98,7 +101,8 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
           "info",
           "outgoing.user.success",
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {"vid": "existingContactId", "properties": [{"property": "hull_segments", "value": "testSegment"}]}
+          {"vid": "existingContactId", "email": "email@email.com",
+            "properties": [{"property": "hull_segments", "value": "testSegment"}]}
         ]
       ],
       firehoseEvents: [],

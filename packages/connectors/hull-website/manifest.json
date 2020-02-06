@@ -3,20 +3,20 @@
   "description": "Track web traffic and integrate with other client side services.",
   "picture": "picture.png",
   "index": "ship.js",
-  "version": "0.1.11-monorepo",
+  "version": "0.1.15-monorepo",
   "tags": [
     "smart-notifier",
     "incoming",
     "outgoing",
-    "oneColumn"
+    "oneColumn",
+    "first-install"
   ],
   "settings": [
     {
       "name": "script",
       "title": "Code to be run everytime user is updated",
       "type": "string",
-      "format": "code",
-      "default": "console.log('Received Data from Browser connector', user, segments, account, account_segments, events, changes);"
+      "format": "code"
     },
     {
       "title": "Send to Google Analytics",
@@ -53,15 +53,13 @@
     {
       "name": "whitelisted_domains",
       "title": "Whitelisted Domains",
-      "description": "You can use the `*` character to whitelist subdomains.",
+      "description": "You can use the `*` character to whitelist subdomains. See documentation for reference.",
       "type": "array",
       "format": "table",
       "items": {
         "type": "string"
       },
-      "default": [
-        "hull.io"
-      ]
+      "default": []
     },
     {
       "name": "synchronized_segments",
