@@ -72,7 +72,8 @@
                     "service": "customId"
                 }
             ],
-            "webhook_id": 31
+            "webhook_id": 31,
+            "prospect_outgoing_user_segments": "custom10"
         },
         "index": "https://dev-hull-outreach.ngrok.io/",
         "name": "dev-hull-outreach.ngrok.io",
