@@ -1,7 +1,7 @@
 {
   "name": "hull-vm",
   "description": "Hull VM Base",
-  "version": "0.1.15-monorepo",
+  "version": "0.1.16-monorepo",
   "homepage": "https://github.com/hull/hull-connectors",
   "main": "server/index.js",
   "scripts": {
@@ -12,6 +12,7 @@
     "deep-freeze": "0.0.1",
     "eslint": "^6.2.2",
     "json-stable-stringify": "^1.0.1",
+    "jsonata": "^1.6.5",
     "react-ace": "^7.0.2",
     "react-bootstrap": "^1.0.0-beta.8",
     "request": "^2.88.0",

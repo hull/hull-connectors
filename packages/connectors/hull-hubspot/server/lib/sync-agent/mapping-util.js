@@ -540,12 +540,11 @@ class MappingUtil {
     const hubspotWriteContact: HubspotWriteContact = {
       properties: hubspotWriteProperties
     };
-    if (
-      message.user["hubspot/id"] &&
-      typeof message.user["hubspot/id"] === "string"
-    ) {
+    if (message.user["hubspot/id"]) {
       hubspotWriteContact.vid = message.user["hubspot/id"];
-    } else if (message.user.email) {
+    }
+
+    if (message.user.email) {
       hubspotWriteContact.email = message.user.email;
     }
     return hubspotWriteContact;
@@ -591,6 +590,7 @@ class MappingUtil {
     const userData = userMessage.user;
     debug("getHubspotContactProperties", this.contactOutgoingMapping);
     // const userSegments = this.userSegments;
+    const userChanges = _.get(userMessage, "changes.user", null);
     const contactProps = _.reduce(
       this.contactOutgoingMapping,
       (contactProperties, mappingEntry) => {
@@ -631,6 +631,7 @@ class MappingUtil {
               .hours(0)
               .minutes(0)
               .seconds(0)
+              .milliseconds(0)
               .format("x");
           } else {
             this.hullClient
@@ -651,6 +652,19 @@ class MappingUtil {
             property: mappingEntry.hubspot_property_name,
             value
           });
+        }
+        if (userChanges) {
+          const userChange = _.get(
+            userChanges,
+            mappingEntry.hubspot_property_name,
+            null
+          );
+          if (_.isArray(userChange) && userChange[1] === null) {
+            this.hullClient.logger.debug("Setting NULL for user attribute", {
+              hull_trait_name: mappingEntry.hull_trait_name,
+              hubspot_property_name: mappingEntry.hubspot_property_name
+            });
+          }
         }
         return contactProperties;
       },
@@ -699,6 +713,7 @@ class MappingUtil {
     debug("getHubspotCompanyProperties", this.companyOutgoingMapping);
     // const userSegments = this.userSegments;
     const accountData = message.account;
+    const accountChanges = _.get(message, "changes.account", null);
     const contactProps = _.reduce(
       this.companyOutgoingMapping,
       (contactProperties, mappingEntry) => {
@@ -766,6 +781,19 @@ class MappingUtil {
             name: mappingEntry.hubspot_property_name,
             value
           });
+        }
+        if (accountChanges) {
+          const accountChange = _.get(
+            accountChanges,
+            mappingEntry.hubspot_property_name,
+            null
+          );
+          if (_.isArray(accountChange) && accountChange[1] === null) {
+            this.hullClient.logger.debug("Setting NULL for account attribute", {
+              hull_trait_name: mappingEntry.hull_trait_name,
+              hubspot_property_name: mappingEntry.hubspot_property_name
+            });
+          }
         }
         return contactProperties;
       },

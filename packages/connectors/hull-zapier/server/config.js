@@ -6,7 +6,6 @@ import manifest from "../manifest.json";
 const _ = require("lodash");
 const HullRouter = require("hull-connector-framework/src/purplefusion/router");
 
-
 export default function connectorConfig(): HullConnectorConfig {
   const {
     LOG_LEVEL,

@@ -93,7 +93,7 @@ In Pipedrive, you may assign a Person multiple email addresses. By default we pi
 - Check the identifiers which you specified in the settings. Do those identifiers exist in Pipedrive?
 - Make sure you've specified attributes in the incoming attributes in the settings page. If you set the attributes after you performed a full fetch, you may have to perform a full fetch again to retrieve all of the newly mapped attributes.
 - Check the logs for incoming.user/account.error or incoming.user/account.skip to ensure that there wasn't any additional circumstance which filtered the data
-- If you've waited for over 15 minutes, and have checked the above suggestions, please check the Hull Status page at: http://status.hull.io/
+- If you've waited for over 15 minutes, and have checked the above suggestions, please check the Hull Status page at: https://status.hull.io/
 
 ### I didn't get any updates from recently updated Persons or Organizations into Hull
 Check your connector logs for any `incoming.job.error`. If you see any with `Unauthorized` go to the `Credentials` Tab and perform the OAuth flow authorization again. Make sure that you are linking the connector again to the same Pipedrive account. Changing the account on a once installed connector can lead to data corruption. This operation does not reset any settings from the connector.
