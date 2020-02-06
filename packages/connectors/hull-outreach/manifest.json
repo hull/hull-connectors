@@ -168,9 +168,9 @@
       "type": "string",
       "format": "select",
       "options": {
-        "placeholder": "Outreach Account Field",
+        "placeholder": "Outreach Prospect Field",
         "allowCreate": false,
-        "loadOptions": "/fields-outreach-account-out"
+        "loadOptions": "/fields-outreach-prospect-out"
       }
     },
     {
