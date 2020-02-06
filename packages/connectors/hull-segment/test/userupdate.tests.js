@@ -43,12 +43,14 @@ const private_settings = {
     {
       hull: "segments.name",
       service: "hull_segments",
+      castAs: "array",
       overwrite: true,
       readOnly: true
     },
     {
       hull: "account_segments.name",
       service: "hull_account_segments",
+      castAs: "array",
       overwrite: true,
       readOnly: true
     }
@@ -63,6 +65,7 @@ const private_settings = {
     {
       service: "hull_segments",
       hull: "account_segments.name",
+      castAs: "array",
       overwrite: true,
       readOnly: true
     }
@@ -160,12 +163,11 @@ const FIREHOSE_ACCOUNT_LINK_IDENTIFY = [
   groupOutput.data
 ];
 
-
 const SEGMENT_USER_PAYLOAD = {
   anonymousId: "1234",
   traits: {
-    hull_segments: "standard_segment",
-    hull_account_segments: "standard_segment"
+    hull_segments: ["standard_segment"],
+    hull_account_segments: ["standard_segment"]
   },
   context: {},
   integrations: { Hull: false },
@@ -175,9 +177,12 @@ const SEGMENT_USER_PAYLOAD = {
 const segment_payload = payloads =>
   payloads.map(payload => ({
     batch: payload.map(p => ({
-      _metadata: { nodeVersion:  /.*/ },
+      _metadata: { nodeVersion: /.*/ },
       timestamp: /.*/,
       messageId: /.*/,
+      integrations: {
+        Hull: false
+      },
       ...p,
       context: {
         active: false,
@@ -245,8 +250,8 @@ const TESTS = [
           anonymousId: "1234",
           traits: {
             email: "foo@bar.com",
-            hull_segments: "standard_segment",
-            hull_account_segments: "standard_segment"
+            hull_segments: ["standard_segment"],
+            hull_account_segments: ["standard_segment"]
           },
           context: {},
           integrations: { Hull: false },
@@ -304,8 +309,8 @@ const TESTS = [
           anonymousId: "1234",
           traits: {
             email: "foo@bar.com",
-            hull_segments: "standard_segment",
-            hull_account_segments: "standard_segment"
+            hull_segments: ["standard_segment"],
+            hull_account_segments: ["standard_segment"]
           },
           context: {},
           integrations: { Hull: false },
@@ -319,7 +324,7 @@ const TESTS = [
           anonymousId: "1234",
           traits: {
             domain: ACCOUNT.domain,
-            hull_segments: "standard_segment"
+            hull_segments: ["standard_segment"]
           },
           context: {},
           integrations: { Hull: false },
@@ -377,8 +382,8 @@ const TESTS = [
           context: {
             active: true,
             traits: {
-              hull_segments: "standard_segment",
-              hull_account_segments: "standard_segment"
+              hull_segments: ["standard_segment"],
+              hull_account_segments: ["standard_segment"]
             },
             os: {},
             page: {},
@@ -476,8 +481,8 @@ const TESTS = [
             os: {},
             page: {},
             traits: {
-              hull_segments: "standard_segment",
-              hull_account_segments: "standard_segment"
+              hull_segments: ["standard_segment"],
+              hull_account_segments: ["standard_segment"]
             },
             location: {}
           },
@@ -505,6 +510,136 @@ const TESTS = [
     ],
     metrics: [
       METRIC_INCREMENT_REQUEST,
+      METRIC_INCREMENT_SERVICE,
+      METRIC_INCREMENT_SERVICE
+    ],
+    response: {
+      ...NEXT_FLOW_CONTROL
+    },
+    responseStatusCode: 200,
+    firehoseEvents: []
+  },
+  // "Send all Entered and Left segments if sending `ALL`",
+  {
+    title: "Send all Entered segments if sending `ALL`",
+    connector: {
+      private_settings: {
+        ...private_settings,
+        synchronized_segments: ["ALL"],
+        synchronized_account_segments: ["ALL"],
+        synchronized_events: ["ENTERED_SEGMENT"]
+      },
+      settings
+    },
+    message: messageWithUser({
+      message_id: "messageIdABCD",
+      changes: {
+        segments: {
+          entered: [
+            {
+              id: "hullSegmentId",
+              name: "standard_segment",
+              created_at: "2019-01-01",
+              updated_at: "2019-01-07",
+              type: "users_segment"
+            },
+            {
+              id: "alsoIncluded",
+              name: "standard_segment_2",
+              created_at: "2019-01-12",
+              updated_at: "2019-01-18",
+              type: "users_segment"
+            }
+          ]
+        }
+      }
+    }),
+    body: segment_payload([
+      [
+        {
+          anonymousId: "1234",
+          traits: {
+            hull_segments: ["standard_segment"],
+            hull_account_segments: ["standard_segment"]
+          },
+          context: {},
+          integrations: { Hull: false },
+          type: "identify"
+        }
+      ],
+      [
+        {
+          anonymousId: "1234",
+          messageId: "messageIdABCD-hullSegmentId",
+          properties: {
+            direction: "entered",
+            type: "users_segment",
+            id: "hullSegmentId",
+            name: "standard_segment",
+            created_at: "2019-01-01",
+            updated_at: "2019-01-07"
+          },
+          context: {
+            active: false,
+            os: {},
+            page: {},
+            traits: {
+              hull_segments: ["standard_segment"],
+              hull_account_segments: ["standard_segment"]
+            },
+            location: {}
+          },
+          event: "Entered Segment",
+          type: "track"
+        }
+      ],
+      [
+        {
+          anonymousId: "1234",
+          messageId: "messageIdABCD-alsoIncluded",
+          properties: {
+            direction: "entered",
+            type: "users_segment",
+            id: "alsoIncluded",
+            name: "standard_segment_2",
+            created_at: "2019-01-12",
+            updated_at: "2019-01-18"
+          },
+          context: {
+            active: false,
+            os: {},
+            page: {},
+            traits: {
+              hull_segments: ["standard_segment"],
+              hull_account_segments: ["standard_segment"]
+            },
+            location: {}
+          },
+          event: "Entered Segment",
+          type: "track"
+        }
+      ]
+    ]),
+    platformApiCalls: [],
+    usersSegments: STANDARD_USER_SEGMENTS,
+    accountsSegments: STANDARD_ACCOUNT_SEGMENTS,
+    logs: [
+      [
+        "debug",
+        "outgoing.account.skip",
+        expect.whatever(),
+        {
+          anonymousId: "1234",
+          groupId: undefined,
+          anonymousIds: undefined,
+          public_account_id_field: "external_id",
+          message: "No Identifier available"
+        }
+      ]
+    ],
+    metrics: [
+      METRIC_INCREMENT_REQUEST,
+      METRIC_INCREMENT_SERVICE,
       METRIC_INCREMENT_SERVICE,
       METRIC_INCREMENT_SERVICE
     ],
@@ -571,8 +706,8 @@ const TESTS = [
             os: {},
             page: {},
             traits: {
-              hull_segments: "standard_segment",
-              hull_account_segments: "standard_segment"
+              hull_segments: ["standard_segment"],
+              hull_account_segments: ["standard_segment"]
             },
             location: {}
           },
@@ -673,8 +808,8 @@ const TESTS = [
             os: {},
             page: {},
             traits: {
-              hull_segments: "standard_segment",
-              hull_account_segments: "standard_segment"
+              hull_segments: ["standard_segment"],
+              hull_account_segments: ["standard_segment"]
             },
             location: {}
           },
@@ -755,8 +890,8 @@ const TESTS = [
           context: {
             active: true,
             traits: {
-              hull_segments: "standard_segment",
-              hull_account_segments: "standard_segment"
+              hull_segments: ["standard_segment"],
+              hull_account_segments: ["standard_segment"]
             },
             os: {},
             page: {},
@@ -775,8 +910,8 @@ const TESTS = [
           context: {
             active: true,
             traits: {
-              hull_segments: "standard_segment",
-              hull_account_segments: "standard_segment"
+              hull_segments: ["standard_segment"],
+              hull_account_segments: ["standard_segment"]
             },
             os: {},
             page: {},
@@ -910,8 +1045,8 @@ const TESTS = [
           context: {
             active: true,
             traits: {
-              hull_segments: "standard_segment",
-              hull_account_segments: "standard_segment"
+              hull_segments: ["standard_segment"],
+              hull_account_segments: ["standard_segment"]
             },
             os: {},
             page: {},
@@ -1039,8 +1174,8 @@ const TESTS = [
             location: {},
             active: true,
             traits: {
-              hull_segments: "standard_segment",
-              hull_account_segments: "standard_segment"
+              hull_segments: ["standard_segment"],
+              hull_account_segments: ["standard_segment"]
             }
           },
           integrations: { Hull: false },

@@ -54,12 +54,14 @@
         {
           "hull": "segments.name",
           "service": "hull_segments",
+          "castAs": "array",
           "overwrite": true,
           "readOnly": true
         },
         {
           "hull": "account_segments.name",
           "service": "hull_account_segments",
+          "castAs": "array",
           "overwrite": true,
           "readOnly": true
         }
@@ -82,12 +84,14 @@
         {
           "service": "domain",
           "hull": "account.domain",
+          "castAs": "array",
           "overwrite": true,
           "readOnly": true
         },
         {
           "service": "hull_segments",
           "hull": "account_segments.name",
+          "castAs": "array",
           "overwrite": true,
           "readOnly": true
         }

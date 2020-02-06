@@ -30,7 +30,10 @@ const segmentChangeToEvent = (
 const filteredSegments = (
   segments: Array<HullSegment>,
   whitelist: Array<string>
-) => _.filter(segments, s => whitelist.indexOf(s.id) !== -1);
+) =>
+  whitelist.indexOf("ALL") > -1
+    ? segments
+    : _.filter(segments, s => whitelist.indexOf(s.id) !== -1);
 
 // We're using _.get here to handle the multiple levels
 // of undefined values that can happen
