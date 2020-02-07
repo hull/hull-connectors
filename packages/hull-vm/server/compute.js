@@ -2,7 +2,6 @@
 
 import type { HullContext } from "hull";
 import _ from "lodash";
-// import request from "request-promise";
 import { Map } from "immutable";
 import errors from "request-promise/errors";
 import type { Result, ResultBase, ComputeOptions } from "../types";
@@ -14,7 +13,7 @@ export default async function compute(
   ctx: HullContext,
   { language, payload, code, preview, claims, source, entity }: ComputeOptions
 ): Promise<Result | ResultBase> {
-  const { client } = ctx;
+  const { connector, client } = ctx;
   const result: Result = {
     logs: [],
     logsForLogger: [],
@@ -22,12 +21,12 @@ export default async function compute(
     data: {},
     success: false,
     isAsync: false,
+    userTraits: Map({}),
+    userAliases: Map({}),
+    accountTraits: Map({}),
     accountAliases: Map({}),
     accountLinks: Map({}),
-    accountTraits: Map({}),
     events: [],
-    userAliases: Map({}),
-    userTraits: Map({}),
     claims,
     entity
   };
