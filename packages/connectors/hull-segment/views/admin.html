@@ -1,0 +1,98 @@
+<html>
+  <head>
+    <title>Hull Segment</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body class="container">
+    <div class=" mt-1 col-md-8 col-md-offset-2">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title text-center">Setup Instructions</h3>
+        </div>
+        <div class="panel-body text-center">
+          <fieldset class="text-center pt-05 mb-1">
+            <span id="segment-enable-button" target="segment"></span>
+          </fieldset>
+          <fieldset class="text-center mt-1 pt-05">
+            <legend class="text-muted"><small>OR</small></legend>
+          </fieldset>
+          <p>
+            Go to
+            <strong
+              ><a href="https://segment.com" target="_blank">Segment.com</a> →
+              Destinations → Hull</strong
+            >
+            and copy the API key below into the Connection Settings
+          </p>
+          <div class="input-group mb-1">
+            <input
+              id="apiKey"
+              type="text"
+              class="form-control"
+              value="<%= apiKey %>"
+            />
+            <span class="input-group-addon">
+              <a
+                id="copy"
+                class="btn"
+                type="button"
+                data-clipboard-demo=""
+                data-clipboard-target="#apiKey"
+              >
+                <img
+                  class="clippy"
+                  src="/clippy.svg"
+                  width="13"
+                  alt="Copy to clipboard"
+                />
+              </a>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h4 class="panel-title text-center" role="tab">
+            Setup instructions for self-hosted Connectors
+          </h4>
+        </div>
+        <div class="panel-body">
+          If you host this Connector yourself, you need to configure a webhook
+          as Destination in your Segment.com workspace. Use the following
+          parameters to set up a webhook:
+          <div class="form">
+            <div class="form-group">
+              <label>Webhook Url</label>
+              <input
+                type="text"
+                class="form-control mb-1"
+                value="https://<%= hostname %>/segment/"
+                readonly
+              />
+            </div>
+            <div class="form-group">
+              <label>Header Name</label>
+              <input
+                type="text"
+                class="form-control mb-1"
+                value="Authorization"
+                readonly
+              />
+            </div>
+            <div class="form-group">
+              <label>Header Value</label>
+              <input
+                type="text"
+                class="form-control mb-1"
+                value="Basic <%= encoded %>"
+                readonly
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="//static.segment.com/enable-button/v1/index.js"></script>
+  </body>
+</html>
