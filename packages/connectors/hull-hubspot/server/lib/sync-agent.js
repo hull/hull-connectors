@@ -19,7 +19,6 @@ import type {
 const _ = require("lodash");
 const moment = require("moment");
 const debug = require("debug")("hull-hubspot:sync-agent");
-const { ConfigurationError } = require("hull/src/errors");
 
 const { pipeStreamToPromise } = require("hull/src/utils");
 const {
