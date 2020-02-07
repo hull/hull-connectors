@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.1.17-monorepo
+- [hull-outreach] send users and accounts segments as attributes to Outreach
+- [hull-segment] Migrate to monorepo
+- [hull-connectors] CircleCI config now publishes docker images and deploys to DCOS
+- [hull-repl] Release of Repl connector
+
 ## v0.1.16-monorepo
 - [hull-hubspot] handle empty contact identity claims
 - [hull-hubspot] use vid on contact upsert
