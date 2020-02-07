@@ -76,10 +76,11 @@ export default function boot() {
     const $btn_import = $("button#import");
     const $domains = $("#domains");
     const $titles = $("#titles");
-    const $roles = $("#roles");
-    const $seniorities = $("#seniorities");
     const $cities = $("#cities");
     const $states = $("#states");
+
+    const $roles = $("#roles");
+    const $seniorities = $("#seniorities");
     // const $limit = $("#limit");
     updateImportButtonStatus($btn_import, 0);
 
@@ -130,15 +131,10 @@ export default function boot() {
     $roles
       .select2({ theme: "bootstrap", closeOnSelect: false })
       .on("change", updateState);
-    $cities
-      .select2({ theme: "bootstrap", closeOnSelect: false })
-      .on("change", updateState);
-    $states
-      .select2({ theme: "bootstrap", closeOnSelect: false })
-      .on("change", updateState);
     $seniorities
       .select2({ theme: "bootstrap", closeOnSelect: false })
       .on("change", updateState);
+
     $domains
       .select2({
         theme: "bootstrap",
@@ -153,6 +149,22 @@ export default function boot() {
         theme: "bootstrap",
         tags: true,
         placeholder: STRINGS.TITLES_PLACEHOLDER,
+        closeOnSelect: true
+      })
+      .on("change", updateState);
+    $states
+      .select2({
+        theme: "bootstrap",
+        tags: true,
+        placeholder: STRINGS.STATES_PLACEHOLDER,
+        closeOnSelect: true
+      })
+      .on("change", updateState);
+    $cities
+      .select2({
+        theme: "bootstrap",
+        tags: true,
+        placeholder: STRINGS.CITIES_PLACEHOLDER,
         closeOnSelect: true
       })
       .on("change", updateState);
