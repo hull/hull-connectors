@@ -1610,7 +1610,7 @@
     },
     {
       "name": "prospect_filter_roles",
-      "title": "Filter for a certain Role",
+      "title": "Filter for specific Roles",
       "format": "select",
       "type": "array",
       "uniqueItems": true,
@@ -1641,11 +1641,11 @@
           "sales"
         ]
       },
-      "description": "Specify a certain role or leave blank to search without restriction."
+      "description": "Filter based on roles or leave blank to search without restriction."
     },
     {
       "name": "prospect_filter_seniorities",
-      "title": "Filter for specific Seniority",
+      "title": "Filter for specific Seniorities",
       "type": "array",
       "format": "select",
       "uniqueItems": true,
@@ -1657,7 +1657,7 @@
           "manager"
         ]
       },
-      "description": "Define a specific seniority or leave blank if you don't want to restrict your search."
+      "description": "Filter based on Seniority or leave blank to search without restriction."
     },
     {
       "name": "prospect_filter_cities",
