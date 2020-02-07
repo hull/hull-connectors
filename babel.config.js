@@ -7,9 +7,10 @@ module.exports = api => {
       "packages/connectors/*/src",
       "packages/minihull/src",
       "packages/hull/src",
+      "packages/hull/test",
       "packages/hull-vm/server",
       "packages/hull-vm/src",
-      "packages/hull-repl/src",
+      "packages/hullrepl/src",
       "packages/hull-client/src",
       "packages/hull-connector-framework/src",
       "packages/hull-connector-framework/test"

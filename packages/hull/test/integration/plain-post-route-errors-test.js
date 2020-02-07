@@ -121,24 +121,24 @@ describe("plain post routes", () => {
         console.log(err.response.text);
         console.log("++++++++++++");
         expect(stopMiddleware.called).to.be.true;
-        expect(err.response.statusCode).to.equal(500);
-        expect(err.response.text).to.equal("unhandled-error");
+        expect(err.response.statusCode).to.equal(401);
+        expect(err.response.text).to.equal('{"message":true,"error":true}');
       });
   });
   it("transient error", () => {
     return miniHull.postConnector(connectorId, "localhost:9091/transientErrorEndpoint")
       .catch((err) => {
         expect(stopMiddleware.called).to.be.true;
-        expect(err.response.statusCode).to.equal(500);
-        expect(err.response.text).to.equal("unhandled-error");
+        expect(err.response.statusCode).to.equal(401);
+        expect(err.response.text).to.equal('{"message":true,"error":true}');
       });
   });
   it("configuration error", () => {
     return miniHull.postConnector(connectorId, "localhost:9091/configurationErrorEndpoint")
       .catch((err) => {
         expect(stopMiddleware.called).to.be.true;
-        expect(err.response.statusCode).to.equal(500);
-        expect(err.response.text).to.equal("unhandled-error");
+        expect(err.response.statusCode).to.equal(401);
+        expect(err.response.text).to.equal('{"message":true,"error":true}');
       });
   });
   it("should handle timeout error", function test(done) {
@@ -146,7 +146,7 @@ describe("plain post routes", () => {
       .catch((err) => {
         expect(stopMiddleware.called).to.be.true;
         expect(err.response.statusCode).to.equal(500);
-        expect(err.response.text).to.equal("unhandled-error");
+        expect(err.response.text).to.equal('{"message":true,"error":true}');
       });
     setTimeout(() => {
       done();

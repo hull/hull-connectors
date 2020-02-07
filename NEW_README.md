@@ -993,12 +993,83 @@ Apply Mapping (JSONata expressions)
 ```js
 //@flow
 const { helpers } = ctx;
-const { mapAttributes } = helpers;
+const { getStandardMapping, mapAttributes } = helpers;
 
-hull.asUser({...}).traits(mapAttributes({
-  entity: { ..company object },
-  mapping: "incoming_company_mapping",
-  type: "company",
-  direction: "incoming"
-}));
+const standardMappings = getStandardMapping({ type: "identify", direction: "outgoing" });
+const mapping = [
+  ...connector.private_settings.outgoing_user_attribute_mapping,
+  ...standardMappings
+]
+const traits = mapAttributes({
+  payload: message,
+  mapping,
+  direction: "outgoing"
+});
+
+hull.asUser({...}).traits(traits);
+
+//////////////////
+//////////////////
+
+const traits = mapAttributes({
+  payload: prospect,
+  direction: "incoming",
+  mapping: [
+    ...connector.private_settings.incoming_prospect_mapping,
+    ...getStandardMapping({ type: "prospect", direction: "incoming" })
+  ]
+});
+
+
+```
+
+### Get Pseudo-events from Segment Changes
+
+```js
+const { segmentChangesToEvents } = ctx.helpers;
+const pseudoEvents = segmentChangesToEvents(message);
+console.log(pseudoEvents);
+pseudoEvents = {
+  event: "Entered Segment",
+  event_source: "hull",
+  created_at: "2018-02-12T09:11:42Z",
+  context: {
+    ip: 0,
+    active: false
+  },
+  properties: {
+    direction: "entered",
+    id: "5a815a3fd57fdbb78a000003",
+    name: "Anonymous Users",
+    type: "users_segment",
+    created_at: "2018-02-12T09:11:42Z",
+    updated_at: "2018-02-12T09:16:33Z"
+  }
+};
+```
+
+## Docker Image
+
+### Rebuilding:
+
+```sh
+docker build . -t hull-connectors
+```
+
+### Start
+
+```sh
+> docker run -it -p 8082:8082 -e CONNECTOR=hull-zapier -e MEMORY_AVAILABLE=512 -e SERVER=true hull-connectors:latest
+```
+
+### Start with DEBUG enabled
+
+```
+> docker run -it -p 8082:8082 -e DEBUG='*' -e CONNECTOR=hull-processor -e MEMORY_AVAILABLE=512 -e SERVER=true hull-connectors:latest
+```
+
+### Log in to running container
+
+```
+docker exec -it CONTAINER_ID /bin/sh
 ```

@@ -150,6 +150,30 @@
       }
     },
     {
+      "name": "prospect_outgoing_user_segments",
+      "title": "Prospect Outgoing User Segments",
+      "description": "Select a Prospect attribute where Hull will push a list of concatenated User Segments from a given Hull User",
+      "type": "string",
+      "format": "select",
+      "options": {
+        "placeholder": "Outreach Prospect Field",
+        "allowCreate": false,
+        "loadOptions": "/fields-outreach-prospect-out"
+      }
+    },
+    {
+      "name": "prospect_outgoing_account_segments",
+      "title": "Prospect Outgoing Account Segments",
+      "description": "Select a Prospect attribute where Hull will push a list of concatenated Account Segments from a given Hull User",
+      "type": "string",
+      "format": "select",
+      "options": {
+        "placeholder": "Outreach Prospect Field",
+        "allowCreate": false,
+        "loadOptions": "/fields-outreach-prospect-out"
+      }
+    },
+    {
       "name": "account_claims",
       "title": "Fields to match for Account Identity Resolution",
       "type": "array",
@@ -230,6 +254,18 @@
       ]
     },
     {
+      "name": "outgoing_account_segments",
+      "title": "Outgoing Account Segments",
+      "description": "Select an Outreach Account attribute where Hull will push a list of concatenated Account Segments from a given Hull Account",
+      "type": "string",
+      "format": "select",
+      "options": {
+        "placeholder": "Outreach Account Field",
+        "allowCreate": false,
+        "loadOptions": "/fields-outreach-account-out"
+      }
+    },
+    {
       "name": "link_users_in_service",
       "title": "Link Prospects to Accounts in Outreach",
       "description": "Do you want to let Hull associate Contacts and Companies in Outreach?",
@@ -244,20 +280,28 @@
         "enum": [
           "bounced_message",
           "emails_opt_out",
+          "inbound_call_completed",
+          "inbound_call_no_answer",
           "inbound_message",
           "message_clicked",
           "message_opened",
           "message_opened_sender",
+          "outbound_call_completed",
+          "outbound_call_no_answer",
           "outbound_message",
           "prospect_stage_changed"
         ],
         "enumNames": [
           "Bounced Message",
           "Emails Opt Out",
+          "Inbound Call Completed",
+          "Inbound Call No Answer",
           "Inbound Message",
           "Message Clicked",
           "Message Opened",
           "Message Opened Sender",
+          "Outbound Call Completed",
+          "Outbound Call No Answer",
           "Outbound Message",
           "Prospect Stage Changed"
         ]
@@ -464,6 +508,8 @@
       "properties": [
         "private_settings.synchronized_user_segments",
         "private_settings.outgoing_user_attributes",
+        "private_settings.prospect_outgoing_user_segments",
+        "private_settings.prospect_outgoing_account_segments",
         "private_settings.link_users_in_service"
       ]
     },
@@ -487,7 +533,8 @@
       "description": "Configuring this section will result in automated data flows which will update your accounts in Outreach.  That's why we provide fine grain control over the updates that you send to Outreach.  First configure a \"Segment\" as an account filter to control which accounts get sent to Outreach.  Then configure the attributes you want synchronized.  You may always go to an account page and click \"Send to\" in order to override the filter and send specific accounts manually.  <br /><br /><b>Please be careful to map similar data types. ie. Not boolean to date</b>",
       "properties": [
         "private_settings.synchronized_account_segments",
-        "private_settings.outgoing_account_attributes"
+        "private_settings.outgoing_account_attributes",
+        "private_settings.outgoing_account_segments"
       ]
     },
     {

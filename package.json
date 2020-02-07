@@ -1,12 +1,12 @@
 {
   "name": "hull-connectors",
-  "version": "0.1.16-monorepo",
+  "version": "0.1.17-monorepo",
   "private": true,
   "workspaces": {
     "packages": [
       "packages/connectors/*",
       "packages/hull-connector-framework",
-      "packages/hull-repl",
+      "packages/hullrepl",
       "packages/hull-vm",
       "packages/hull",
       "packages/hull-client",

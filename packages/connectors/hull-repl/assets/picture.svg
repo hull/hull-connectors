@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="640px" height="360px" viewBox="0 0 640 360" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 61 (89581) - https://sketch.com -->
+    <title>repl/picture</title>
+    <desc>Created with Sketch.</desc>
+    <g id="repl/picture" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="Rectangle" fill="#FFFFFF" x="0" y="0" width="640" height="360"></rect>
+        <g id="Group-2-Copy-2" transform="translate(200.000000, 178.000000) rotate(-270.000000) translate(-200.000000, -178.000000) translate(160.000000, 138.000000)">
+            <circle id="Oval-2" fill="#D3EFFF" cx="40" cy="40" r="40"></circle>
+            <path d="M40,0 C62.09139,0 80,17.90861 80,40 C80,62.09139 62.09139,80 40,80 C34.1307813,80 28.5568056,78.7359147 23.5354739,76.4651452 L55.7573593,44.2426407 C58.0404244,41.9595756 58.0989645,38.2943679 55.9329797,35.9404237 L55.7573593,35.7573593 L23.5354739,3.53485477 C28.5568056,1.26408528 34.1307813,0 40,0 Z" id="Combined-Shape" fill="#AFE5FF"></path>
+            <circle id="Oval-5" fill="#22A5FF" cx="40" cy="40" r="21"></circle>
+        </g>
+        <text id="REPL" font-family="NittiGrotesk-Bold, Nitti Grotesk" font-size="52" font-weight="bold" fill="#22A5FF">
+            <tspan x="269" y="195">REPL</tspan>
+        </text>
+    </g>
+</svg>

@@ -71,6 +71,18 @@
       ]
     },
     {
+      "name": "language",
+      "title": "Processing language",
+      "description": "Choose which processing language to use. We support Javascript, and JSONata, which is an easy to use declarative mapping language",
+      "type": "string",
+      "format": "select",
+      "enum": [
+        "javascript",
+        "jsonata"
+      ],
+      "default": "javascript"
+    },
+    {
       "name": "code",
       "title": "Code",
       "description": "Enter Javascript code here, It will receive the data in the middle column, can emit `traits()`. Preview results on the right. Save when finished",
@@ -124,7 +136,9 @@
           ]
         },
         "segments": {
-          "account:update": ["private_settings.synchronized_account_segments"]
+          "account:update": [
+            "private_settings.synchronized_account_segments"
+          ]
         }
       },
       "channels": [

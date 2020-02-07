@@ -103,6 +103,7 @@ module.exports = [
           entity: undefined,
           accountLinks: [],
           accountAliases: [],
+          data: {},
           userAliases: [],
           events: [],
           success: true,
@@ -211,6 +212,7 @@ module.exports = [
               { "my-group/foo": "321" }
             ]
           ],
+          data: {},
           accountTraits: [
             [
               {
@@ -428,6 +430,7 @@ module.exports = [
           logs: [],
           logsForLogger: [],
           errors: [],
+          data: {},
           userTraits: [
             [
               {
@@ -636,6 +639,7 @@ module.exports = [
           logs: [],
           logsForLogger: [],
           errors: [],
+          data: {},
           userTraits: [
             [
               {
@@ -759,6 +763,7 @@ module.exports = [
           logsForLogger: [],
           errors: [],
           userTraits: [],
+          data: {},
           accountTraits: [
             [
               {
@@ -855,6 +860,7 @@ module.exports = [
           events: [],
           accountLinks: [],
           accountAliases: [],
+          data:{},
           userAliases: [],
           success: true,
           isAsync: false
@@ -932,6 +938,7 @@ module.exports = [
           entity: undefined,
           accountLinks: [],
           accountAliases: [],
+          data: {},
           userAliases: [],
           events: [],
           success: true,
@@ -995,6 +1002,7 @@ module.exports = [
           logsForLogger: [],
           errors: [],
           userTraits: [],
+          data: {},
           accountTraits: [],
           claims: undefined,
           entity: undefined,

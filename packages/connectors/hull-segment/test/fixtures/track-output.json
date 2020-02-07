@@ -1,0 +1,23 @@
+{
+  "asUser": {
+    "anonymous_id": "d765ba53-51aa-5527-8cd1-30c96a636a78",
+    "external_id": "1ff84aef"
+  },
+  "data": {
+    "_bid": "d765ba53-51aa-5527-8cd1-30c96a636a78",
+    "_sid": "d765ba53-51aa-5527-8cd1-30c96a636a78-2016-04-12",
+    "created_at": "2016-04-12T14:03:57.770Z",
+    "event_id": "2cd8517a-380b-4733-a0f9-321ae4e7cbcd",
+    "ip": "0",
+    "latitude": 40.2964197,
+    "longitude": -76.9411617,
+    "referer": "mekecwiw",
+    "source": "segment",
+    "url": "http://sikec.com/ateseoki",
+    "event": "Viewed Checkout Step",
+    "properties": {
+      "name": "zedwel",
+      "value": 401861146732.1344
+    }
+  }
+}
