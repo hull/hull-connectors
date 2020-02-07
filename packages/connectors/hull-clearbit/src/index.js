@@ -76,8 +76,10 @@ export default function boot() {
     const $btn_import = $("button#import");
     const $domains = $("#domains");
     const $titles = $("#titles");
-    const $role = $("#role");
-    const $seniority = $("#seniority");
+    const $roles = $("#roles");
+    const $seniorities = $("#seniorities");
+    const $cities = $("#cities");
+    const $states = $("#states");
     // const $limit = $("#limit");
     updateImportButtonStatus($btn_import, 0);
 
@@ -111,7 +113,7 @@ export default function boot() {
         .val()
         .map(d => d.trim())
         .filter(d => d.length > 0);
-      ["role", "seniority", "limit"].forEach(k => {
+      ["roles", "seniorities", "cities", "states", "limit"].forEach(k => {
         const val = $(`#${k}`).val();
         if (val && val.length > 0) {
           data[k] = val;
@@ -125,10 +127,16 @@ export default function boot() {
       return { domains, titles };
     };
 
-    $role
+    $roles
       .select2({ theme: "bootstrap", closeOnSelect: false })
       .on("change", updateState);
-    $seniority
+    $cities
+      .select2({ theme: "bootstrap", closeOnSelect: false })
+      .on("change", updateState);
+    $states
+      .select2({ theme: "bootstrap", closeOnSelect: false })
+      .on("change", updateState);
+    $seniorities
       .select2({ theme: "bootstrap", closeOnSelect: false })
       .on("change", updateState);
     $domains

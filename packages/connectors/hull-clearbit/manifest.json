@@ -1706,8 +1706,10 @@
         "private_settings.prospect_account_segments",
         "private_settings.prospect_account_segments_exclusion",
         "private_settings.prospect_filter_titles",
-        "private_settings.prospect_filter_role",
-        "private_settings.prospect_filter_seniority",
+        "private_settings.prospect_filter_roles",
+        "private_settings.prospect_filter_seniorities",
+        "private_settings.prospect_filter_states",
+        "private_settings.prospect_filter_cities",
         "private_settings.prospect_limit_count"
       ]
     }
