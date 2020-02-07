@@ -185,7 +185,8 @@ module.exports = {
               request_proxied: false,
               request_region: null,
               user_agent: null,
-              sequence_name: "Another one"
+              sequence_name: "Another one",
+              user_id: 1
             }
           }
         ],
