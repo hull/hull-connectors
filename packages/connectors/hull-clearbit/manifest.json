@@ -1609,7 +1609,7 @@
       "description": "Hit `Enter` after every title to make a Tag out of it, Restrict your search by specifying criteria for the prospect's title. If left blank, search is carried out without restriction."
     },
     {
-      "name": "prospect_filter_role",
+      "name": "prospect_filter_roles",
       "title": "Filter for a certain Role",
       "format": "select",
       "type": "array",
@@ -1644,7 +1644,7 @@
       "description": "Specify a certain role or leave blank to search without restriction."
     },
     {
-      "name": "prospect_filter_seniority",
+      "name": "prospect_filter_seniorities",
       "title": "Filter for specific Seniority",
       "type": "array",
       "format": "select",
@@ -1658,6 +1658,36 @@
         ]
       },
       "description": "Define a specific seniority or leave blank if you don't want to restrict your search."
+    },
+    {
+      "name": "prospect_filter_cities",
+      "title": "Filter for Cities",
+      "type": "array",
+      "format": "tags",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "options": {
+        "allowCreate": true
+      },
+      "description": "Hit `Enter` after every city to make a Tag out of it, Restrict your search by specifying criteria for the prospect's city. If left blank, search is carried out without restriction."
+    },
+    {
+      "name": "prospect_filter_states",
+      "title": "Filter for States",
+      "type": "array",
+      "format": "tags",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "options": {
+        "allowCreate": true
+      },
+      "description": "Hit `Enter` after every state to make a Tag out of it, Restrict your search by specifying criteria for the prospect's state. If left blank, search is carried out without restriction."
     }
   ],
   "settings_sections": [
