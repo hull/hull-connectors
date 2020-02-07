@@ -168,7 +168,8 @@ test("fetch recent events from outreach", () => {
               "request_city": null,
               "request_proxied": false,
               "request_region": null,
-              "user_agent": null
+              "user_agent": null,
+              "user_id": 1
             },
             "referer": null,
             "url": null
