@@ -202,12 +202,6 @@ class SyncAgent {
   }
 
   getPortalInformation() {
-    if (!this.isConfigured()) {
-      this.hullClient.logger.error("connector.configuration.error", {
-        errors: "connector is not configured"
-      });
-      return Promise.resolve({});
-    }
     return this.hubspotClient.getPortalInformation();
   }
 
