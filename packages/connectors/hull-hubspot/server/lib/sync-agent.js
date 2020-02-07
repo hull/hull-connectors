@@ -19,6 +19,7 @@ import type {
 const _ = require("lodash");
 const moment = require("moment");
 const debug = require("debug")("hull-hubspot:sync-agent");
+const { ConfigurationError } = require("hull/src/errors");
 
 const { pipeStreamToPromise } = require("hull/src/utils");
 const {
@@ -202,11 +203,13 @@ class SyncAgent {
   }
 
   getPortalInformation() {
-    try {
-      return this.hubspotClient.getPortalInformation();
-    } catch (err) {
-      return Promise.resolve();
+    if (!this.isConfigured()) {
+      this.hullClient.logger.error("connector.configuration.error", {
+        errors: "connector is not configured"
+      });
+      return Promise.resolve({});
     }
+    return this.hubspotClient.getPortalInformation();
   }
 
   async getContactPropertyGroups() {
