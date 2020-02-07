@@ -13,7 +13,7 @@ export default async function compute(
   ctx: HullContext,
   { language, payload, code, preview, claims, source, entity }: ComputeOptions
 ): Promise<Result | ResultBase> {
-  const { connector, client } = ctx;
+  const { client } = ctx;
   const result: Result = {
     logs: [],
     logsForLogger: [],
@@ -38,12 +38,8 @@ export default async function compute(
       console.log("'''", data);
       result.data = { ...data };
     } else {
-      const hull = getHullContext(client, result, source);
-      const scopedClient =
-        claims && _.size(claims)
-          ? (entity === "account" ? hull.asAccount : hull.asUser)(claims)
-          : undefined;
-      await javascript(ctx, computeOptions, scopedClient, result, hull);
+      const hull = getHullContext({ client, result, source, claims, entity });
+      await javascript(ctx, computeOptions, result, hull);
     }
     // If we returned a Promise, await until we've got resolved it.
     // If it's not a promise we'll continue immediately
