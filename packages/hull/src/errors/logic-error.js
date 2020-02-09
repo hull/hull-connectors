@@ -19,10 +19,13 @@ class LogicError extends Error {
 
   code: string;
 
+  status: number;
+
   constructor(message: string, action: string, payload: any) {
     super(message);
     this.name = "LogicError"; // compatible with http-errors library
     this.code = "HULL_ERR_LOGIC"; // compatible with internal node error
+    this.status = 500;
     this.action = action;
     this.payload = payload;
     Error.captureStackTrace(this, LogicError);

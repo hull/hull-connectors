@@ -11,11 +11,15 @@ class MissingHandlerError extends Error {
 
   code: string;
 
+  status: number;
+
   constructor(message: string, extra?: Object = {}) {
     super(message);
     this.name = "MissingHandlerError"; // compatible with http-errors library
     this.code = "HULL_ERR_MISSING_CHANNEL"; // compatible with internal node error
     this.extra = extra;
+    this.status = 404;
+
     Error.captureStackTrace(this, MissingHandlerError);
   }
 }
