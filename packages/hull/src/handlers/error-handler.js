@@ -24,11 +24,10 @@ function errorHandlerMiddlewareFactory({
     next: NextFunction
   ) {
     const { metric } = req.hull;
-    const errorString = err.message || err.toString();
+    // $FlowFixMe
+    const { message, status = 500 } = err;
+    const errorString = message || err.toString();
     debug("error", errorString, err.constructor.name, { respondWithError });
-
-    // How do we want to respond?  With json?
-    res.json({ error: respondWithError ? errorString : true });
 
     // if we have a transient error
     if (err instanceof ConfigurationError) {
@@ -36,18 +35,27 @@ function errorHandlerMiddlewareFactory({
       return res.end("configuration-error");
     }
     if (err instanceof TransientError) {
-      res.status(503);
+      console.log("TransientError");
+      res.status(status || 503);
       return res.end("transient-error");
     }
     if (err instanceof ConnectorNotFoundError) {
-      res.status(404);
+      console.log("COnnectorNotFound");
+      res.status(status || 404);
       return res.end("not-found");
     }
     if (err instanceof PaymentRequiredError) {
-      res.status(402);
+      console.log("PaymentRequired");
+      res.status(status || 402);
       return res.end("payment-required");
     }
 
+    // How do we want to respond?  With json?
+    res.status(status);
+    res.json({
+      message: respondWithError ? errorString : true,
+      error: respondWithError ? errorString : true
+    });
     metric.captureException(err);
 
     // if we have non transient error

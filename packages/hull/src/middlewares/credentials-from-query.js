@@ -49,7 +49,10 @@ function parseToken(token, secret) {
       const config = jwt.decode(token, secret);
       return config;
     } catch (encryptedErr) {
-      throw new Error("Invalid Token");
+      const e = new Error("Invalid Token");
+      // $FlowFixMe
+      e.status = 401;
+      throw e;
     }
   }
 }
@@ -84,7 +87,10 @@ function credentialsFromQueryMiddlewareFactory() {
         parseQueryString(req.query);
 
       if (clientCredentials === undefined) {
-        return next(new Error("Could not resolve clientCredentials"));
+        const e = new Error("Could not resolve clientCredentials");
+        // $FlowFixMe
+        e.status = 401;
+        return next(e);
       }
 
       // handle legacy naming

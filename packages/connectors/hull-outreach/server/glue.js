@@ -346,7 +346,7 @@ const glue = {
     ]),
   getStageIdMap: jsonata("data{ $string(id): attributes.name }", cacheWrap(600, outreach("getStages"))),
   getOwnerIdToEmailMap: jsonata("data{ $string(id): attributes.email }", cacheWrap(600, outreach("getUsers"))),
-  getMailingDetails: jsonata("{\"email_subject\": data.attributes.subject, \"sequence_id\": data.relationships.sequence.data.id}", outreach("getMailingDetails")),
+  getMailingDetails: jsonata("{\"email_subject\": data.attributes.subject, \"sequence_id\": data.relationships.sequence.data.id, \"sequence_step\": data.relationships.sequenceStep.data.id}", outreach("getMailingDetails")),
   getSequences: jsonata("$ {$string(id): attributes.name}", cacheWrap(6000, outreach("getSequences"))),
   eventsFetchAll:
     ifL(cond("notEmpty", set("eventsToFetch", ld("filter", settings("events_to_fetch"), elem => elem !== "prospect_stage_changed"))), [
