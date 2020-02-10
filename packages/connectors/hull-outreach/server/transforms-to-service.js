@@ -50,8 +50,8 @@ const transformsToService: ServiceTransforms = [
             expression: "$merge([\n" +
               "    $spread(),\n" +
               "    {\n" +
-              "        \"flattened_segments\" : [segments.name],\n" +
-              "        \"flattened_account_segments\": [account_segments.name]\n" +
+              "        \"flattened_segments\" : segments.name[],\n" +
+              "        \"flattened_account_segments\": account_segments.name[]\n" +
               "    }\n" +
               "])"
           }
@@ -155,7 +155,7 @@ const transformsToService: ServiceTransforms = [
             expression: "$merge([\n" +
               "    $spread(),\n" +
               "    {\n" +
-              "        \"flattened_account_segments\" : [account_segments.name]\n" +
+              "        \"flattened_account_segments\" : account_segments.name[]\n" +
               "    }\n" +
               "])"
           }
