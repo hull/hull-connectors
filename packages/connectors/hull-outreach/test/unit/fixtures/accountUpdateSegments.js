@@ -60,7 +60,7 @@ module.exports = {
           type: "account",
           id: 1,
           attributes: {
-            tags: ["Send Accounts To Intercom"]
+            tags: expect.arrayContaining(["Send Accounts To Intercom"])
           }
         }
       },
@@ -79,7 +79,7 @@ module.exports = {
           type: "account",
           id: 2,
           attributes: {
-            tags: ["Accounts With Email", "Send Accounts To Intercom"]
+            tags: expect.arrayContaining(["Accounts With Email", "Send Accounts To Intercom"])
           }
         }
       },

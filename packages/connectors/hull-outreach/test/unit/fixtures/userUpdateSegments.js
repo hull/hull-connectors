@@ -107,7 +107,7 @@ module.exports = {
           type: "prospect",
           id: 184849,
           attributes: {
-            tags: ["Send Leads To Intercom"],
+            tags: expect.arrayContaining(["Send Leads To Intercom"]),
             custom1: `["Send Accounts To Intercom"]`,
             title: "ceo"
           }
@@ -128,7 +128,7 @@ module.exports = {
           type: "prospect",
           id: 184850,
           attributes: {
-            tags: ["Users with email", "Send Leads To Intercom"],
+            tags: expect.arrayContaining(["Users with email", "Send Leads To Intercom"]),
             custom1: "[\"Accounts With Email\",\"Send Accounts To Intercom\"]",
             title: "cto"
           }
