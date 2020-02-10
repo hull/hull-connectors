@@ -10,7 +10,8 @@ const {
   HullOutgoingUser,
   HullOutgoingAccount,
   HullIncomingUser,
-  HullIncomingAccount
+  HullIncomingAccount,
+  HullIncomingOpportunity
 } = require("./hull-service-objects");
 
 const {
@@ -495,6 +496,17 @@ class ServiceEngine {
       // in the array for this log...
       if (!_.isEmpty(identity)) {
         return context.reqContext().client.asAccount(identity).logger;
+      }
+    }
+    else if (sameHullDataType(hullType, HullIncomingOpportunity)) {
+      const accountIdent = _.get(data, "accountIdent");
+      if (!_.isEmpty(accountIdent)) {
+        return context.reqContext().client.asAccount(accountIdent).logger;
+      }
+
+      const userIdent = _.get(data, "userIdent");
+      if (!_.isEmpty(userIdent)) {
+        return context.reqContext().client.asUser(userIdent).logger;
       }
     }
   }

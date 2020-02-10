@@ -80,9 +80,9 @@ test("fetch all accounts and prospects from outreach", () => {
         scope
           .get("/api/v2/users/")
           .reply(201, { data: [ { id: 1, attributes: { email: "andy@hull.io" } }, { id: 0, attributes: { email: "tim@hull.io" }}]});
-        scope
-          .get("/api/v2/stages/")
-          .reply(201, { data: [ { id: 1, attributes: { name: "New Stage" } }, { id: 0, attributes: { name: "Cool Stage" }}]});
+        // scope
+        //   .get("/api/v2/stages/")
+        //   .reply(201, { data: [ { id: 1, attributes: { name: "New Stage" } }, { id: 0, attributes: { name: "Cool Stage" }}]});
         scope
           .get("/api/v2/accounts/?sort=id&page[limit]=100&filter[id]=0..inf")
           .reply(200, require("../fixtures/api-responses/list-accounts.json"));
@@ -97,7 +97,7 @@ test("fetch all accounts and prospects from outreach", () => {
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "POST", "responseTime": expect.whatever(), "status": 201, "url": "/webhooks/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/accounts/", "vars": {}}],
-        ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 201, "url": "/stages/", "vars": {}}],
+        // ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 201, "url": "/stages/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 201, "url": "/users/", "vars": {}}],
         ["debug", "incoming.account.success", { "account_anonymous_id": "outreach:1", "account_domain": "somehullcompany.com", "subject_type": "account", }, {"data": expect.whatever(), "type": "Account"}],
         ["debug", "incoming.account.success", { "account_anonymous_id": "outreach:4", "account_domain": "noprospectshullcompany.com", "subject_type": "account", }, {"data": expect.whatever(), "type": "Account"}],
@@ -128,9 +128,6 @@ test("fetch all accounts and prospects from outreach", () => {
         ["value", "connector.service_api.response_time", expect.whatever()],
 
         // Get Users
-        ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.whatever()],
-
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()],
 
