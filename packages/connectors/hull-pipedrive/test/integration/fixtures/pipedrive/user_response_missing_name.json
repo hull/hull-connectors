@@ -1,0 +1,7 @@
+{
+  "success": false,
+  "error": "Name must be given.",
+  "error_info": "Please check developers.pipedrive.com for more information about Pipedrive API.",
+  "data": null,
+  "additional_data": null
+}
