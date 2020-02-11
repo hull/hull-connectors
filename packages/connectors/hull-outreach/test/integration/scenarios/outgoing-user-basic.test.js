@@ -21,7 +21,7 @@ test("send smart-notifier user update to outreach", () => {
           .get("/api/v2/prospects/?filter[emails]=alberto@close.io")
           .reply(200, require("../fixtures/api-responses/existing-prospect.json"));
         scope
-          .intercept('/api/v2/prospects/23', 'PATCH', {"data":{"type":"prospect","id":23,"relationships":{"account":{"data":{"type":"account","id":14}}}, "attributes":{"emails":["alberto@close.io", "albertoman9@gmail.com"],"title":"Sales","workPhones":["+18552567346"]}}})
+          .intercept('/api/v2/prospects/23', 'PATCH', {"data":{"type":"prospect","id":23,"relationships":{"account":{"data":{"type":"account","id":14}}}, "attributes":{"emails":["alberto@close.io", "albertoman9@gmail.com"],"title":"Sales","workPhones":["+18552567346"], "custom10": "[\"Smugglers\"]"}}})
           .reply(200, require("../fixtures/api-responses/existing-prospect-updated.json"));
         return scope;
       },

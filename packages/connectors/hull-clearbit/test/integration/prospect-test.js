@@ -422,6 +422,152 @@ describe("Clearbit Prospector Tests", () => {
       platformApiCalls: []
     })));
 
+  it("should support changing prospect role and seniority", async () =>
+    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...noOpResponse,
+      handlerType: handlers.notificationHandler,
+      connector: {
+        ...connector,
+        private_settings: {
+          ...connector.private_settings,
+          prospect_account_segments: ["ALL"],
+          lookup_domain: "other_domain",
+          prospect_filter_roles: ["communications"],
+          prospect_filter_cities: ["san francisco"],
+          prospect_filter_states: ["california"],
+          prospect_filter_seniorities: ["director"],
+          prospect_filter_titles: ["vp sales"]
+        }
+      },
+      messages: [
+        {
+          account: {
+            ...ACCOUNT,
+            domain: "alt.com",
+            other_domain: "foobar.com"
+          },
+          account_segments: []
+        }
+      ],
+      externalApiMock: () => {
+        const scope = nock("https://prospector.clearbit.com");
+        scope
+          // .log(console.log)
+          .get(/v1\/people\/search/)
+          .query({
+            domain: "foobar.com",
+            page: 1,
+            page_size: 5,
+            titles: ["vp sales"],
+            cities: ["san francisco"],
+            states: ["california"],
+            roles: ["communications"],
+            seniorities: ["director"]
+          })
+          .reply(200, PROSPECTOR_SUCCESS_RESPONSE);
+        return scope;
+      },
+      logs: [
+        [
+          "debug",
+          "clearbit.start",
+          expect.whatever(),
+          {
+            action: "prospect",
+            params: {
+              domain: "foobar.com",
+              titles: ["vp sales"],
+              cities: ["san francisco"],
+              states: ["california"],
+              roles: ["communications"],
+              seniorities: ["director"],
+              page: 1,
+              page_size: 5
+            }
+          }
+        ],
+        [
+          "info",
+          "outgoing.account.success",
+          expect.whatever(),
+          {
+            query: {
+              titles: ["vp sales"],
+              cities: ["san francisco"],
+              states: ["california"],
+              roles: ["communications"],
+              seniorities: ["director"]
+            },
+            source: "prospector",
+            domain: "foobar.com",
+            limit: 5,
+            message: "Found 1 new Prospects",
+            prospects: {
+              "harlow@clearbit.com": prospect
+            }
+          }
+        ],
+        [
+          "info",
+          "outgoing.account.info",
+          expect.whatever(),
+          {
+            actions: [
+              {
+                account_id: "1234",
+                enrichAction: {
+                  message: "No enrich segments defined for Account",
+                  should: false
+                },
+                enrichResult: false,
+                prospectAction: {
+                  should: true
+                },
+                prospectResult: expect.whatever()
+              }
+            ]
+          }
+        ]
+      ],
+      firehoseEvents: [
+        [
+          "traits",
+          {
+            asUser: {
+              anonymous_id: `clearbit-prospect:${prospect.id}`,
+              email: prospect.email
+            },
+            asAccount: {
+              domain: "alt.com",
+              id: "1234"
+            },
+            subjectType: "user"
+          },
+          prospect_attributes(expect)
+        ],
+        [
+          "traits",
+          {
+            asAccount: { id: "1234", domain: "alt.com" },
+            subjectType: "account"
+          },
+          {
+            "clearbit/prospected_users": { operation: "increment", value: 1 },
+            "clearbit/fetched_at": expect.whatever(),
+            "clearbit/prospected_at": expect.whatever(),
+            "clearbit/source": { value: "prospector", operation: "setIfNull" }
+          }
+        ]
+      ],
+      metrics: [
+        ["increment", "connector.request", 1],
+        ["increment", "prospect", 1],
+        ["increment", "ship.service_api.call", 1],
+        ["increment", "ship.incoming.users", 1]
+      ],
+      platformApiCalls: []
+    })));
+
   it("should not prospect accounts if they don't have a Domain", async () =>
     testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
       ...noOpResponse,

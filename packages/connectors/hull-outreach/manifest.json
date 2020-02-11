@@ -168,9 +168,9 @@
       "type": "string",
       "format": "select",
       "options": {
-        "placeholder": "Outreach Account Field",
+        "placeholder": "Outreach Prospect Field",
         "allowCreate": false,
-        "loadOptions": "/fields-outreach-account-out"
+        "loadOptions": "/fields-outreach-prospect-out"
       }
     },
     {
@@ -280,20 +280,28 @@
         "enum": [
           "bounced_message",
           "emails_opt_out",
+          "inbound_call_completed",
+          "inbound_call_no_answer",
           "inbound_message",
           "message_clicked",
           "message_opened",
           "message_opened_sender",
+          "outbound_call_completed",
+          "outbound_call_no_answer",
           "outbound_message",
           "prospect_stage_changed"
         ],
         "enumNames": [
           "Bounced Message",
           "Emails Opt Out",
+          "Inbound Call Completed",
+          "Inbound Call No Answer",
           "Inbound Message",
           "Message Clicked",
           "Message Opened",
           "Message Opened Sender",
+          "Outbound Call Completed",
+          "Outbound Call No Answer",
           "Outbound Message",
           "Prospect Stage Changed"
         ]

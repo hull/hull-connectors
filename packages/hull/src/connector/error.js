@@ -38,7 +38,11 @@ export default function errorHandler(
     if (!res.headersSent) {
       return res.status(status).send({ message });
     }
+    return null;
   }
   debug("unhandled-error", err.stack);
-  return res.status(status).send({ message: "undefined error" });
+  if (!res.headersSent) {
+    return res.status(status).send({ message: "undefined error" });
+  }
+  return undefined;
 }

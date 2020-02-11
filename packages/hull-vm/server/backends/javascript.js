@@ -15,8 +15,7 @@ const LIBS = { _, moment, urijs };
 
 export default async function(
   ctx: HullContext,
-  { payload, code, preview, claims }: ComputeOptions,
-  scopedClient: void | { track?: any, traits?: any },
+  { payload, code, preview, claims, entity }: ComputeOptions,
   result: Result,
   hull: any
 ) {
@@ -26,7 +25,7 @@ export default async function(
     ...LIBS,
     ...(claims ? scopedUserMethods(payload) : {}),
     request: getRequest(ctx, result),
-    hull: scopedClient || hull,
+    hull,
     console: getConsole(result, preview),
     connector,
     ship: connector
@@ -41,7 +40,10 @@ export default async function(
   });
   _.map(frozen, (lib, key: string) => vm.freeze(lib, key));
   // For Processor keep backwards-compatible signature of having `traits` and `track` at top level
-  if (scopedClient) {
+  if (_.size(claims)) {
+    const scopedClient = (entity === "account" ? hull.asAccount : hull.asUser)(
+      claims
+    );
     _.map(_.pick(scopedClient, "traits", "track"), (lib, key: string) => {
       const l = function l(...args) {
         result.logs.unshift(

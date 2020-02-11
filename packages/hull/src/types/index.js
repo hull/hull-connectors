@@ -53,8 +53,16 @@ export type HullConnectorSettings = {
   [HullConnectorSettingName: string]: any
 };
 
+export type HullJsonataType =
+  | "array"
+  | "string"
+  | "number"
+  | "boolean"
+  | "stringifiedArray";
+
 export type HullAttributeMapping = {
   hull: string,
   service: string,
+  castAs?: HullJsonataType,
   overwrite: boolean
 };

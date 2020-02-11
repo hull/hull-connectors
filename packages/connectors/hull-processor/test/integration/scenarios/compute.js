@@ -520,20 +520,12 @@ describe("Basic Attributes manipulation", () => {
   });
 
   it("should handle empty events at top level", () => {
-
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       handlerType: handlers.notificationHandler,
       connector: connectorWithCode(`if(events) { console.log("hi"); }`),
       firehoseEvents: [],
-      logs: [
-        [
-          "debug",
-          "compute.debug",
-          expect.whatever(),
-          expect.whatever()
-        ]
-      ],
+      logs: [["debug", "compute.debug", expect.whatever(), expect.whatever()]],
       metrics: [METRIC_CONNECTOR_REQUEST]
     }));
   });
@@ -610,6 +602,142 @@ describe("Basic Attributes manipulation", () => {
         ]
       ],
       metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+
+  it("should support impersonation from User processor to another User", () => {
+    const asUser = { id: "1234" };
+    const asImpersonatedUser = { email: "foo@bar.com" };
+    const attributes = { foo: "bar" };
+    const impersonatedAttributes = { boo: "booya" };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser(),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(
+        `hull.traits(${JSON.stringify(
+          attributes
+        )}); hull.asUser(${JSON.stringify(
+          asImpersonatedUser
+        )}).traits(${JSON.stringify(impersonatedAttributes)})`
+      ),
+      firehoseEvents: [
+        ["traits", { asUser, subjectType: "user" }, attributes],
+        [
+          "traits",
+          { asUser: asImpersonatedUser, subjectType: "user" },
+          impersonatedAttributes
+        ]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [
+              [asUser, attributes],
+              [asImpersonatedUser, impersonatedAttributes]
+            ]
+          })
+        ],
+        [
+          "debug",
+          "incoming.user.success",
+          {
+            request_id: expect.whatever(),
+            subject_type: "user",
+            user_id: "1234"
+          },
+          {
+            attributes,
+            no_ops: {}
+          }
+        ],
+        [
+          "debug",
+          "incoming.user.success",
+          {
+            request_id: expect.whatever(),
+            subject_type: "user",
+            user_email: asImpersonatedUser.email
+          },
+          {
+            attributes: impersonatedAttributes,
+            no_ops: {}
+          }
+        ]
+      ],
+      metrics: [
+        METRIC_CONNECTOR_REQUEST,
+        ["increment", "ship.incoming.users", 2]
+      ]
+    }));
+  });
+  it("should support impersonation from User processor to Account", () => {
+    const asUser = { id: "1234" };
+    const asImpersonatedAccount = { domain: "bar.com" };
+    const attributes = { foo: "bar" };
+    const impersonatedAttributes = { boo: "booya" };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser(),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(
+        `hull.traits(${JSON.stringify(
+          attributes
+        )}); hull.asAccount(${JSON.stringify(
+          asImpersonatedAccount
+        )}).traits(${JSON.stringify(impersonatedAttributes)})`
+      ),
+      firehoseEvents: [
+        ["traits", { asUser, subjectType: "user" }, attributes],
+        [
+          "traits",
+          { asAccount: asImpersonatedAccount, subjectType: "account" },
+          impersonatedAttributes
+        ]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [[asUser, attributes]],
+            accountTraits: [[asImpersonatedAccount, impersonatedAttributes]]
+          })
+        ],
+        [
+          "debug",
+          "incoming.user.success",
+          {
+            request_id: expect.whatever(),
+            subject_type: "user",
+            user_id: "1234"
+          },
+          {
+            attributes,
+            no_ops: {}
+          }
+        ],
+        [
+          "debug",
+          "incoming.account.success",
+          {
+            request_id: expect.whatever(),
+            subject_type: "account",
+            account_domain: asImpersonatedAccount.domain
+          },
+          {
+            attributes: impersonatedAttributes,
+            no_ops: {}
+          }
+        ]
+      ],
+      metrics: [
+        METRIC_CONNECTOR_REQUEST,
+        ["increment", "ship.incoming.users", 1],
+        ["increment", "ship.incoming.accounts", 1]
+      ]
     }));
   });
 

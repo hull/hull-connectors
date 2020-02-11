@@ -1,6 +1,6 @@
 // @flow
 
-import type { HullManifest, HullConnector } from "../types";
+import type { /* HullManifest,  */ HullConnector } from "../types";
 
 const debug = require("debug")("hull:apply-connector-settings-default");
 
@@ -35,8 +35,8 @@ function applyDefaults(
 }
 
 function applyConnectorSettingsDefaults(
-  connector: HullConnector,
-  staticManifest: HullManifest
+  connector: HullConnector
+  // staticManifest?: HullManifest
 ) {
   if (!connector || !connector.manifest) {
     debug("return early");
@@ -51,10 +51,10 @@ function applyConnectorSettingsDefaults(
 
   applyDefaults(
     manifest.private_settings,
-    connector.private_settings,
-    staticManifest
+    connector.private_settings
+    // staticManifest
   );
-  applyDefaults(manifest.settings, connector.settings, staticManifest);
+  applyDefaults(manifest.settings, connector.settings /* , staticManifest */);
 }
 
 module.exports = applyConnectorSettingsDefaults;

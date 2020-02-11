@@ -9,19 +9,34 @@ const {
   inputIsNotEqual,
   isNotEqual,
   isServiceAttribute,
-  not
+  not,
+  notNull,
+  varUndefinedOrNull
 } = require("./conditionals");
+
+const {
+  getAttributeName,
+  getAttributeNamespace
+} = require("./utils");
+
+const {
+  createIncomingServiceUserTransform
+} = require("./transform-predefined");
 
 const {
   HullUserRaw,
   ServiceUserRaw,
+  ServiceAccountRaw,
+  ServiceOpportunityRaw,
   HullIncomingUser,
+  HullIncomingAccount,
   HullOutgoingUser,
   HullIncomingUserImportApi,
   HullConnectorAttributeDefinition,
   HullIncomingDropdownOption,
   HullOutgoingDropdownOption,
-  HullApiAttributeDefinition
+  HullApiAttributeDefinition,
+  HullIncomingOpportunity
 } = require("./hull-service-objects");
 
 
@@ -143,8 +158,128 @@ const transformsShared: ServiceTransforms = [
       },
       {
         arrayStrategy: "send_raw_array",
+        inputPath: "hull_multiple_anonymous_ids",
+        outputPath: "ident.anonymous_ids"
+      },
+      {
+        arrayStrategy: "send_raw_array",
         inputPath: "hull_events",
         outputPath: "events"
+      }
+    ]
+  },
+  {
+    input: ServiceAccountRaw,
+    output: HullIncomingAccount,
+    direction: "incoming",
+    strategy: "AtomicReaction",
+    target: { component: "new" },
+    then: [
+      {
+        operateOn: "${connector.private_settings.incoming_account_attributes}",
+        expand: { valueName: "mapping" },
+        then: {
+          operateOn: { component: "input", select: "${mapping.service}", name: "serviceValue"},
+          condition: isNotEqual("serviceValue", undefined),
+          then: [
+            {
+              condition: isEqual("mapping.overwrite", false),
+              writeTo: { path: "attributes.${mapping.hull}", format: { operation: "setIfNull", value: "${operateOn}" } }
+            },
+            {
+              condition: isEqual("mapping.overwrite", true),
+              writeTo: { path: "attributes.${mapping.hull}", format: { operation: "set", value: "${operateOn}" } }
+            }
+          ]
+        }
+      },
+      {
+        operateOn: "${connector.private_settings.account_claims}",
+        expand: { valueName: "mapping" },
+        then: {
+          operateOn: { component: "input", select: "${mapping.service}"},
+          writeTo: { path: "ident.${mapping.hull}" }
+        }
+      },
+      {
+        operateOn: { component: "input", select: "id" },
+        then:[
+          { writeTo: { path: "ident.anonymous_id", format: "${service_name}:${operateOn}" } },
+          { writeTo: { path: "attributes.${service_name}/id", format: { operation: "set", value: "${operateOn}" } } }
+        ]
+      },
+      {
+        operateOn: { component: "input", select: "name" },
+        condition: not(varUndefinedOrNull("operateOn")),
+        writeTo: { path: "attributes.name", format: { operation: "setIfNull", value: "${operateOn}" } }
+      }
+    ]
+  },
+  {
+    input: ServiceOpportunityRaw,
+    output: HullIncomingOpportunity,
+    direction: "incoming",
+    strategy: "AtomicReaction",
+    target: { component: "new" },
+    then: [
+      {
+        operateOn: { component: "input", select: "hull_service_accountId" },
+        condition: not(varUndefinedOrNull("operateOn")),
+        // validation: { error: "BreakLoop", message: "Opp doesn't have company", condition: [ inputIsNotEqual("company_id", null), inputIsNotEqual("company_id", undefined) ] },
+        writeTo: { path: "accountIdent.anonymous_id", format: "${service_name}:${operateOn}" },
+      },
+      // {
+      //   operateOn: { component: "input", select: "hull_raw_service_accountId" },
+      //   writeTo: { path: "accountIdent.anonymous_id", format: "${service_name}:${operateOn}" },
+      // },
+      {
+        operateOn: { component: "input", select: "hull_service_userId" },
+        condition: not(varUndefinedOrNull("operateOn")),
+        writeTo: { path: "userIdent.anonymous_id", format: "${service_name}:${operateOn}" },
+      },
+      {
+        operateOn: { component: "input", select: "hull_raw_service_userId" },
+        writeTo: { path: "userIdent.anonymous_id" },
+      },
+      {
+        operateOn: { component: "input", select: "${connector.private_settings.incoming_opportunity_type}", name: "opportunityType"},
+        condition: notNull("opportunityType", undefined),
+        then: [
+          {
+            operateOn: { component: "input", select: "id" },
+            writeTo: {
+              path: "attributes.${service_name}_opportunity_${opportunityType}/id",
+              format: {
+                value: "${operateOn}",
+                operation: "set"
+              }
+            }
+          },
+          {
+            operateOn: "${connector.private_settings.incoming_opportunity_attributes}",
+            expand: { valueName: "mapping" },
+            then: {
+              operateOn: { component: "input", select: "${mapping.service}", name: "serviceValue"},
+              condition: isNotEqual("serviceValue", undefined),
+              then: [
+                {
+                  condition: isEqual("mapping.overwrite", true),
+                  writeTo: {
+                    path: "attributes.${service_name}_opportunity_${opportunityType}/${mapping.hull}",
+                    format: { operation: "set", value: "${operateOn}" }
+                  }
+                },
+                {
+                  condition: isEqual("mapping.overwrite", false),
+                  writeTo: {
+                    path: "attributes.${service_name}_opportunity_${opportunityType}/${mapping.hull}",
+                    format: { operation: "setIfNull", value: "${operateOn}" }
+                  }
+                }
+              ]
+            }
+          }
+        ]
       }
     ]
   },

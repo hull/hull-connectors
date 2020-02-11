@@ -76,8 +76,11 @@ export default function boot() {
     const $btn_import = $("button#import");
     const $domains = $("#domains");
     const $titles = $("#titles");
-    const $role = $("#role");
-    const $seniority = $("#seniority");
+    const $cities = $("#cities");
+    const $states = $("#states");
+
+    const $roles = $("#roles");
+    const $seniorities = $("#seniorities");
     // const $limit = $("#limit");
     updateImportButtonStatus($btn_import, 0);
 
@@ -111,7 +114,7 @@ export default function boot() {
         .val()
         .map(d => d.trim())
         .filter(d => d.length > 0);
-      ["role", "seniority", "limit"].forEach(k => {
+      ["roles", "seniorities", "cities", "states", "limit"].forEach(k => {
         const val = $(`#${k}`).val();
         if (val && val.length > 0) {
           data[k] = val;
@@ -125,12 +128,13 @@ export default function boot() {
       return { domains, titles };
     };
 
-    $role
+    $roles
       .select2({ theme: "bootstrap", closeOnSelect: false })
       .on("change", updateState);
-    $seniority
+    $seniorities
       .select2({ theme: "bootstrap", closeOnSelect: false })
       .on("change", updateState);
+
     $domains
       .select2({
         theme: "bootstrap",
@@ -145,6 +149,22 @@ export default function boot() {
         theme: "bootstrap",
         tags: true,
         placeholder: STRINGS.TITLES_PLACEHOLDER,
+        closeOnSelect: true
+      })
+      .on("change", updateState);
+    $states
+      .select2({
+        theme: "bootstrap",
+        tags: true,
+        placeholder: STRINGS.STATES_PLACEHOLDER,
+        closeOnSelect: true
+      })
+      .on("change", updateState);
+    $cities
+      .select2({
+        theme: "bootstrap",
+        tags: true,
+        placeholder: STRINGS.CITIES_PLACEHOLDER,
         closeOnSelect: true
       })
       .on("change", updateState);
