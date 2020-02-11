@@ -13,10 +13,13 @@ class PaymentRequiredError extends Error {
 
   code: string;
 
+  status: number;
+
   constructor(message: string, extra?: Object = {}) {
     super(message);
     this.name = "PaymentRequiredError";
     this.code = "";
+    this.status = 402;
     this.extra = extra;
     Error.captureStackTrace(this, PaymentRequiredError);
   }

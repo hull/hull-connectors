@@ -202,11 +202,7 @@ class SyncAgent {
   }
 
   getPortalInformation() {
-    try {
-      return this.hubspotClient.getPortalInformation();
-    } catch (err) {
-      return Promise.resolve();
-    }
+    return this.hubspotClient.getPortalInformation();
   }
 
   async getContactPropertyGroups() {

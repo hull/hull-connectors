@@ -74,7 +74,7 @@ class HullVariableContext {
 
           const rootValue = _.get(context, rootKey);
           if (isUndefinedOrNull(rootValue)) {
-            console.log(`[${index}]Undefined Root object: ${rootKey} is: ${rootValue} for keypath: ${fullKey}`);
+            // console.log(`[${index}]Undefined Root object: ${rootKey} is: ${rootValue} for keypath: ${fullKey}`);
           }
 
           return true;

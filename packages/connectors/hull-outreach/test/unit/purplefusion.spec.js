@@ -23,7 +23,6 @@ describe("Outreach User Tests", () => {
   it("outgoing outreach user", () => {
     return harness.runTest(require("./fixtures/userUpdateStart"));
   });
-
   it("incoming outreach webhook", () => {
     return harness.runTest(require("./fixtures/webhook"));
   });
@@ -34,5 +33,19 @@ describe("Outreach User Tests", () => {
 
   it("fetch all events", () => {
     return harness.runTest(require("./fixtures/getEvents"));
+  });
+
+  // outgoing segment property tests
+  it("outgoing outreach user with segments as tags and custom 1", () => {
+    return harness.runTest(require("./fixtures/userUpdateSegments"));
+  });
+  it("outgoing outreach user with segments as tags and custom 1 reversed user/accounts segments outgoing mapping", () => {
+    return harness.runTest(require("./fixtures/userUpdateSegments2"));
+  });
+  it("outgoing outreach accounts with segments as tags", () => {
+    return harness.runTest(require("./fixtures/accountUpdateSegments"));
+  });
+  it("outgoing outreach accounts with segments as custom1 which is a string", () => {
+    return harness.runTest(require("./fixtures/accountUpdateSegments2"));
   });
 });

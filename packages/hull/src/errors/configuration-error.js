@@ -13,6 +13,7 @@ class ConfigurationError extends TransientError {
     super(message, extra);
     this.name = "ConfigurationError"; // compatible with http-errors library
     this.code = "HULL_ERR_CONFIGURATION"; // compatible with internal node error
+    this.status = 401;
     Error.captureStackTrace(this, ConfigurationError);
   }
 }

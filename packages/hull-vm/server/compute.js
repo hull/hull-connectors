@@ -2,7 +2,6 @@
 
 import type { HullContext } from "hull";
 import _ from "lodash";
-// import request from "request-promise";
 import { Map } from "immutable";
 import errors from "request-promise/errors";
 import type { Result, ResultBase, ComputeOptions } from "../types";
@@ -22,12 +21,12 @@ export default async function compute(
     data: {},
     success: false,
     isAsync: false,
+    userTraits: Map({}),
+    userAliases: Map({}),
+    accountTraits: Map({}),
     accountAliases: Map({}),
     accountLinks: Map({}),
-    accountTraits: Map({}),
     events: [],
-    userAliases: Map({}),
-    userTraits: Map({}),
     claims,
     entity
   };
@@ -39,12 +38,8 @@ export default async function compute(
       console.log("'''", data);
       result.data = { ...data };
     } else {
-      const hull = getHullContext(client, result, source);
-      const scopedClient =
-        claims && _.size(claims)
-          ? (entity === "account" ? hull.asAccount : hull.asUser)(claims)
-          : undefined;
-      await javascript(ctx, computeOptions, scopedClient, result, hull);
+      const hull = getHullContext({ client, result, source, claims, entity });
+      await javascript(ctx, computeOptions, result, hull);
     }
     // If we returned a Promise, await until we've got resolved it.
     // If it's not a promise we'll continue immediately

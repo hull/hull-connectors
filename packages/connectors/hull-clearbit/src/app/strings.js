@@ -1,3 +1,5 @@
+export const CITIES_PLACEHOLDER = "Restrict to these Cities";
+export const STATES_PLACEHOLDER = "Restrict to these States";
 export const TITLES_PLACEHOLDER = "Enter one or more job titles";
 export const DOMAINS_PLACEHOLDER = "Enter one or more domain names (required)";
 export const FETCH_TIMEOUT =
