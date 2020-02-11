@@ -180,7 +180,9 @@ const service = ({ clientID, clientSecret }: {
       {
         truthy: { status: 400 },
         errorType: SkippableError,
-        message: ""
+        message: (error) => {
+          return { message: error.error };
+        }
       },
       {
         truthy: { status: 401 },
