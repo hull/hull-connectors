@@ -304,7 +304,9 @@ function createErrorException(context: Object, servicename: string, errorDefinit
     if (typeof errorTemplate.message === "string") {
       message = errorTemplate.message;
     } else {
-      message = errorTemplate.message().message;
+      message = _.has(error, "response.body") ?
+        errorTemplate.message(error.response.body).message :
+        errorTemplate.message().message;
     }
 
     if (!_.isEmpty(assembledServiceErrorDescription)) {
