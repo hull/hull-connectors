@@ -57,8 +57,7 @@ describe("HullClient array capture feature", () => {
     expect(hullClient.configuration().logs).to.eql([
       {
         context: {
-          "connector": "550964db687ee7866d000057",
-          organization: "hull-demos"
+          organization: "hull-demos", id: "550964db687ee7866d000057"
         },
         data: { foo: "bar" },
         level: "info",
@@ -72,8 +71,7 @@ describe("HullClient array capture feature", () => {
     expect(hullClient.configuration().logs).to.eql([
       {
         context: {
-          connector: "550964db687ee7866d000057",
-          organization: "hull-demos"
+          organization: "hull-demos", id: "550964db687ee7866d000057"
         },
         data: { foo: "bar" },
         level: "info",
@@ -85,8 +83,8 @@ describe("HullClient array capture feature", () => {
         level: "info",
         data: { baz: "bay" },
         context: {
-          connector: "550964db687ee7866d000057",
           organization: "hull-demos",
+          id: "550964db687ee7866d000057",
           subject_type: "user",
           user_email: "foo@bar.com"
         },
