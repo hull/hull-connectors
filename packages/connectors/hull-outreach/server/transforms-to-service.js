@@ -1,10 +1,39 @@
 /* @flow */
 import type { Transform, ServiceTransforms } from "hull-connector-framework/src/purplefusion/types";
 
-const { isNull, notNull, isEqual, doesNotContain } = require("hull-connector-framework/src/purplefusion/conditionals");
+const { isNull, notNull, isEqual, doesContain, doesNotContain } = require("hull-connector-framework/src/purplefusion/conditionals");
 
 const { HullOutgoingUser, HullOutgoingAccount } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 const { OutreachProspectWrite, OutreachAccountWrite } = require("./service-objects");
+
+const outreachProspectArrayFields = ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"];
+const outreachAccountArrayFields = ["tags"];
+
+// For sending an array via stringify, and excluding if attribute name is in blacklist
+const createStringifyTransform = (inputField, outgoingAttributeNameField, arrayFields) => {
+  return {
+    arrayStrategy: "json_stringify",
+    condition: [
+      notNull(outgoingAttributeNameField),
+      doesNotContain(arrayFields, outgoingAttributeNameField)
+    ],
+    inputPath: inputField,
+    outputPath: `data.attributes.\${${outgoingAttributeNameField}}`,
+  }
+};
+
+// For sending an array via raw array, and including if attribute name is in whitelist
+const createRawArrayTransform = (inputField, outgoingAttributeNameField, arrayFields) => {
+  return {
+    arrayStrategy: "send_raw_array",
+    condition: [
+      notNull(outgoingAttributeNameField),
+      doesContain(arrayFields, outgoingAttributeNameField)
+    ],
+    inputPath: inputField,
+    outputPath: `data.attributes.\${${outgoingAttributeNameField}}`,
+  }
+};
 
 const transformsToService: ServiceTransforms = [
   {
@@ -21,8 +50,8 @@ const transformsToService: ServiceTransforms = [
             expression: "$merge([\n" +
               "    $spread(),\n" +
               "    {\n" +
-              "        \"flattened_segments\" : segments.name,\n" +
-              "        \"flattened_account_segments\": account_segments.name\n" +
+              "        \"flattened_segments\" : segments.name[],\n" +
+              "        \"flattened_account_segments\": account_segments.name[]\n" +
               "    }\n" +
               "])"
           }
@@ -48,7 +77,7 @@ const transformsToService: ServiceTransforms = [
             condition: doesNotContain(["stage", "owner"], "service_field_name"),
             outputArrayFields: {
               checkField: "service_field_name",
-              fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"],
+              fields: outreachProspectArrayFields
             },
             inputPath: "user.${hull_field_name}",
             outputPath: "data.attributes.${service_field_name}",
@@ -58,7 +87,7 @@ const transformsToService: ServiceTransforms = [
             mapping: "connector.private_settings.outgoing_user_attributes",
             outputArrayFields: {
               checkField: "service_field_name",
-              fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"],
+              fields: outreachProspectArrayFields
             },
             inputPath: "${hull_field_name}",
             outputPath: "data.attributes.${service_field_name}",
@@ -99,23 +128,15 @@ const transformsToService: ServiceTransforms = [
             condition: isNull("userId"),
             outputArrayFields: {
               checkField: "service_field_name",
-              fields: ["emails", "homePhones", "mobilePhones", "otherPhones", "tags", "voipPhones", "workPhones"]
+              fields: outreachProspectArrayFields
             },
             inputPath: "user.${hull_field_name}",
             outputPath: "data.attributes.${service_field_name}",
           },
-          {
-            arrayStrategy: "json_stringify",
-            condition: notNull("connector.private_settings.prospect_outgoing_user_segments"),
-            inputPath: "flattened_segments",
-            outputPath: "data.attributes.${connector.private_settings.prospect_outgoing_user_segments}",
-          },
-          {
-            arrayStrategy: "json_stringify",
-            condition: notNull("connector.private_settings.prospect_outgoing_account_segments"),
-            inputPath: "flattened_account_segments",
-            outputPath: "data.attributes.${connector.private_settings.prospect_outgoing_account_segments}",
-          }
+          createStringifyTransform("flattened_segments", "connector.private_settings.prospect_outgoing_user_segments", outreachProspectArrayFields),
+          createStringifyTransform("flattened_account_segments", "connector.private_settings.prospect_outgoing_account_segments", outreachProspectArrayFields),
+          createRawArrayTransform("flattened_segments", "connector.private_settings.prospect_outgoing_user_segments", outreachProspectArrayFields),
+          createRawArrayTransform("flattened_account_segments", "connector.private_settings.prospect_outgoing_account_segments", outreachProspectArrayFields)
         ]
       },
     ],
@@ -134,7 +155,7 @@ const transformsToService: ServiceTransforms = [
             expression: "$merge([\n" +
               "    $spread(),\n" +
               "    {\n" +
-              "        \"flattened_account_segments\" : account_segments.name\n" +
+              "        \"flattened_account_segments\" : account_segments.name[]\n" +
               "    }\n" +
               "])"
           }
@@ -169,7 +190,9 @@ const transformsToService: ServiceTransforms = [
             condition: notNull("connector.private_settings.outgoing_account_segments"),
             inputPath: "flattened_account_segments",
             outputPath: "data.attributes.${connector.private_settings.outgoing_account_segments}",
-          }
+          },
+          createStringifyTransform("flattened_account_segments", "connector.private_settings.outgoing_account_segments", outreachAccountArrayFields),
+          createRawArrayTransform("flattened_account_segments", "connector.private_settings.outgoing_account_segments", outreachAccountArrayFields)
         ]
       }
     ]
