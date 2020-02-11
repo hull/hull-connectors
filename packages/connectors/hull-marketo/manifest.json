@@ -4,7 +4,7 @@
   "source": "marketo",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.15-monorepo",
+  "version": "0.1.17-monorepo",
 
   "tags": [
     "incoming",
