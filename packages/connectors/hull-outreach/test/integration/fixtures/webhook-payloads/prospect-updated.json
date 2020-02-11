@@ -9,7 +9,7 @@
         },
         "relationships": {
           "stage": {
-            "id": null
+            "id": 0
           },
           "owner": {
             "id": null

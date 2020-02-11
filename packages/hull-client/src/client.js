@@ -170,8 +170,43 @@ class HullClient {
       }
     };
 
-    const logFactory = level => (message: string, data: Object | null | void) =>
-      logger[level](message, { context: ctxe, data });
+    const logFactory = level => (
+      message: string,
+      data: Object | null | void
+    ) => {
+      if (this.config.esLogTransform) {
+        const timestamp = new Date().toISOString();
+        const label = "";
+        const summary = "";
+
+        const transformedLog = {
+          request_id: ctxe.request_id,
+          connector_name: ctxe.connector_name,
+          user_id: ctxe.user_id,
+          user_anonymous_id: ctxe.user_anonymous_id,
+          user_external_id: ctxe.user_external_id,
+          user_email: ctxe.user_email,
+          account_id: ctxe.account_id,
+          account_domain: ctxe.account_domain,
+          account_external_id: ctxe.account_external_id,
+          account_anonymous_id: ctxe.account_anonymous_id,
+          connector: ctxe.id,
+          organization: ctxe.organization,
+          subject_type: ctxe.subject_type,
+          data,
+          message,
+          label,
+          level,
+          summary,
+          "@version": "1",
+          "@timestamp": timestamp
+        };
+
+        logger[level](transformedLog);
+      } else {
+        logger[level](message, { context: ctxe, data });
+      }
+    };
     this.logger = {
       log: logFactory("info"),
       silly: logFactory("silly"),
@@ -199,13 +234,45 @@ class HullClient {
       }
       logger.removeAllListeners();
       logger.on("logged", (level, message, payload) => {
-        logsArray.push({
-          message,
-          level,
-          data: payload.data,
-          context: payload.context,
-          timestamp: new Date().toISOString()
-        });
+        let transformedLog;
+
+        if (this.config.esLogTransform) {
+          transformedLog = {
+            message: payload.message,
+            level: payload.level,
+            data: payload.data,
+            context: _.pickBy(payload, (v, k) => {
+              return (
+                [
+                  "request_id",
+                  "connector_name",
+                  "connector",
+                  "user_id",
+                  "user_anonymous_id",
+                  "user_external_id",
+                  "user_email",
+                  "account_id",
+                  "account_domain",
+                  "account_external_id",
+                  "account_anonymous_id",
+                  "subject_type",
+                  "organization"
+                ].includes(k) && !_.isNil(v)
+              );
+            }),
+            timestamp: new Date().toISOString()
+          };
+        } else {
+          transformedLog = {
+            message,
+            level,
+            data: payload.data,
+            context: payload.context,
+            timestamp: new Date().toISOString()
+          };
+        }
+
+        logsArray.push(transformedLog);
       });
     }
   }

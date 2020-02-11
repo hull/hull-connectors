@@ -16,13 +16,23 @@ const {
   settings,
   obj,
   cast,
-  ld
+  ld,
+  utils,
+  transformTo,
+  not
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
   HullOutgoingAccount,
   HullOutgoingUser
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
+
+const {
+  PostgresUserSchema,
+  PostgresAccountSchema,
+  WarehouseUserWrite,
+  WarehouseAccountWrite
+} = require("./service-objects");
 
 const _ = require("lodash");
 
@@ -83,13 +93,13 @@ const glue = {
 
   accountUpdate: ifL(route("hasRequiredFields"),
     iterateL(input(), { key: "message", async: true }, [
-      postgresJdbc("upsertHullAccount", cast(HullOutgoingAccount, "${message}")),
+      postgresJdbc("upsertHullAccount", transformTo(WarehouseAccountWrite, cast(HullOutgoingAccount,"${message}"))),
     ])
   ),
   userUpdate: ifL(route("hasRequiredFields"),
     iterateL(input(), { key: "message", async: true }, [
 
-      postgresJdbc("upsertHullUser", cast(HullOutgoingUser, "${message}")),
+      postgresJdbc("upsertHullUser", transformTo(WarehouseUserWrite, cast(HullOutgoingUser,"${message}"))),
 
       iterateL(ld("filter", "${message.events}", { event_type: "user_merged" }), "event",
         postgresJdbc("mergeHullUser", {previous: "${event.properties.merged_id}", merged: "${event.user_id}"})
@@ -97,6 +107,8 @@ const glue = {
     ])
   ),
   ensureHook: ifL(route("hasRequiredFields"), [
+    ifL(cond("isEqual", "${connector.private_settings.send_all_user_attributes}", false), set("userAttributesHash", utils("hashObject", settings("outgoing_user_attributes")))),
+    ifL(cond("isEqual", "${connector.private_settings.send_all_account_attributes}", false), set("accountAttributesHash", utils("hashObject", settings("outgoing_account_attributes")))),
     set("currentDatabaseSettings",
       "${connector.private_settings.db_username}|" +
       "${connector.private_settings.db_password}|" +
@@ -105,7 +117,11 @@ const glue = {
       "${connector.private_settings.db_name}|" +
       "${connector.private_settings.db_account_table_name}|" +
       "${connector.private_settings.db_user_table_name}|" +
-      "${connector.private_settings.db_events_table_name}"),
+      "${connector.private_settings.db_events_table_name}|" +
+      "${connector.private_settings.send_all_user_attributes}|" +
+      "${connector.private_settings.send_all_account_attributes}|" +
+      "${userAttributesHash}|" +
+      "${accountAttributesHash}"),
 
     // This condition checks for both if the databaseUrl has been set or if it's not equal to the existing one
     // in either case have to schema update both account and user and set the databaseUrl

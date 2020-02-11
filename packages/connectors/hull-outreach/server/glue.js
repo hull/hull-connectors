@@ -272,8 +272,8 @@ const glue = {
   prospectFetchAll: [
     set("id_offset", 0),
     loopL([
-      route("getStageIdMap"),
-      route("getOwnerIdToEmailMap"),
+      // route("getStageIdMap"),
+      // route("getOwnerIdToEmailMap"),
       set("outreachProspects", outreach("getAllProspectsPaged")),
       hull("asUser", "${outreachProspects}"),
       ifL(cond("lessThan", ld("size", "${outreachProspects}"), 100), {
