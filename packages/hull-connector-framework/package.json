@@ -10,10 +10,10 @@
     "csv-stream": "^0.2.0",
     "dev-null": "^0.1.1",
     "jsonata": "^1.6.4",
-    "object-hash": "^2.0.1",
     "promise-streams": "^1.0.1",
     "pump-promise": "^1.0.0",
-    "through2-map": "^3.0.0"
+    "through2-map": "^3.0.0",
+    "object-hash": "^2.0.1"
   },
   "devDependencies": {
     "mockdate": "^2.0.5"
