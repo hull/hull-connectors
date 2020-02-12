@@ -73,6 +73,17 @@ function createServiceMock(service, possibleMockRequests) {
           // throwing an error here because we did not find a valid endpoint for this call
           // expecting endpoint name and data to give the user more
           if (identifiedResult === null) {
+
+            // Run the same expectations as up to top print the specific diff that was different
+            // is a little easier to debug if we know exactly what the first comparison failure was
+            _.some(possibleEndpointMocks, possibleEndpoint => {
+                let storedLocalContext = flattenArray(possibleEndpoint.localContext);
+                expect(currentLocalContext).toEqual(storedLocalContext);
+                expect(data).toEqual(possibleEndpoint.input);
+                return true;
+            });
+            // it shouldn't be possible to hit this because we're in this because of an earlier failed expectation
+            // but to debug further, could comment out code right above this to see what all of the possible endpoints we were comparing against
             expect({ localContext: currentLocalContext, op: endpointName, input: data }).toEqual(possibleEndpointMocks);
           }
 
@@ -88,13 +99,25 @@ function createServiceMock(service, possibleMockRequests) {
           // local context must be equal or using a jest equivalence object
           expect(currentLocalContext).toEqual(flattenArray(identifiedResult.localContext));
           // input must be equal or using a jest equivalence object
-          expect(data).toEqual(identifiedResult.input);
+          // do a lodash comparison first... may need to do this with everything
+          // jest has a bug where it compares enumerable=false properties too
+          // so even though the objects look the same, jest is throwing an error
+          // experiencing it specifically with arrays with sequence: true as a hidden value
+          // versus my test data
+          // or could use "object containing syntax where it's an issue...
+          // expect.arrayContaining(
+          // really there could be an array at any level that could be causing this
+          // may need to build out the object with expect.arrayContaining( everywhere
+          // eg: {"activity_types": expect.arrayContaining([{"category": "user", "id": 0}...])
+          // if (!_.isEqual(data, identifiedResult.input)) {
+            expect(data).toEqual(identifiedResult.input);
+          // }
         }
 
 
 
         // remove the endpoint from the list because it's been called
-        _.pull(serviceWrapper.requestedMocks, identifiedResult);
+        _.pullAt(serviceWrapper.requestedMocks, _.indexOf(serviceWrapper.requestedMocks, identifiedResult));
 
         // now return the appropriate result
         const result = identifiedResult.result;

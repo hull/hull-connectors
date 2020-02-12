@@ -1,7 +1,7 @@
 /* @flow */
 const _ = require("lodash");
 
-const { performTransformation } = require("../../src/purplefusion/transform-utils");
+const { performTransformation } = require("../../src/purplefusion/transform-atomic-reaction");
 const { setHullDataType } = require("../../src/purplefusion/utils");
 const HullVariableContext = require("../../src/purplefusion/variable-context");
 const { TransformImpl } = require("../../src/purplefusion/transform-impl");
@@ -141,7 +141,7 @@ describe("Transformation tests", () => {
 
     const transformation = {
       target: { component: "input" },
-      transforms: [
+      then: [
         {
           operateOn: { component: "glue", route: "getInverseMap", select: { component: "input", select: "stage" } },
           writeTo: { path: "stage" }

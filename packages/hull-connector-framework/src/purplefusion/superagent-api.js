@@ -103,7 +103,13 @@ class SuperagentApi {
 
     if (endpoint.query) {
       const query = this.globalContext.resolveVariables(endpoint.query);
-      debug(`Created query: ${query}`);
+
+      if (_.isObject(query)) {
+        debug(`Created query: ${JSON.stringify(query)}`);
+      } else {
+        debug(`Created query: ${query}`);
+      }
+
       agentPromise = agentPromise.query(query);
     }
 

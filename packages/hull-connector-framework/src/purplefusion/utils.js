@@ -8,7 +8,8 @@ const {
   HullOutgoingUser,
   HullOutgoingAccount,
   HullIncomingUser,
-  HullIncomingAccount
+  HullIncomingAccount,
+  HullIncomingOpportunity
 } = require("./hull-service-objects");
 
 // Using this method of defining a property which is not enumerable to set the datatype on a data object
@@ -75,7 +76,8 @@ function getHullPlatformTypeName(classType: ServiceObjectDefinition) {
     sameHullDataType(classType, HullOutgoingUser)
     || sameHullDataType(classType, HullIncomingUser)
     || sameHullDataType(classType, HullOutgoingAccount)
-    || sameHullDataType(classType, HullIncomingAccount)) {
+    || sameHullDataType(classType, HullIncomingAccount)
+    || sameHullDataType(classType, HullIncomingOpportunity)) {
     return classType.name;
   }
 
@@ -92,6 +94,21 @@ function parseIntOrDefault(intString: string, defaultInt: number) {
   return defaultInt;
 }
 
+function getAttributeNamespace(hullName: string) {
+  const parts = _.split(hullName, "/");
+  if (parts.length > 1) {
+    return _.first(parts);
+  }
+  return undefined;
+}
+
+function getAttributeName(hullName: string) {
+  const parts = _.split(hullName, "/");
+  if (parts.length > 1) {
+    return _.last(parts);
+  }
+  return hullName;
+}
 
 function removeTraitsPrefix(attributeName: string) {
   if (!isUndefinedOrNull(attributeName) && attributeName.indexOf("traits_") === 0) {
@@ -349,7 +366,8 @@ function toSendMessage(
 
   // Do not have to normalize this field with regard to array index at the end [1]...
   // because this field does not do the diff like the other fields, it gives a { left: [{}...], entered:} syntax
-  if (_.get(options, "sendOnAnySegmentChanges", false) === true) {
+  if (_.get(options, "sendOnAnySegmentChanges", false) === true
+      || _.get(context, "connector.private_settings.send_if_any_segment_change", false) === true) {
     const segmentChanges = _.get(message.changes, segmentAttribute);
     if (!_.isEmpty(segmentChanges)) {
       return true;
@@ -493,5 +511,7 @@ module.exports = {
   createAnonymizedObject,
   getHullPlatformTypeName,
   sameHullDataType,
-  asyncForEach
+  asyncForEach,
+  getAttributeName,
+  getAttributeNamespace
 };
