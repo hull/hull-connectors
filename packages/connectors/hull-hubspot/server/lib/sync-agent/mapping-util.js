@@ -652,6 +652,17 @@ class MappingUtil {
             property: mappingEntry.hubspot_property_name,
             value
           });
+        } else if (
+          _.isNil(value) &&
+          mappingEntry.hubspot_property_read_only === false
+        ) {
+          this.hullClient.logger.debug(
+            "User attribute not found in hull notification",
+            {
+              hull_trait_name: mappingEntry.hull_trait_name,
+              hubspot_property_name: mappingEntry.hubspot_property_name
+            }
+          );
         }
         if (userChanges) {
           const userChange = _.get(
@@ -781,6 +792,17 @@ class MappingUtil {
             name: mappingEntry.hubspot_property_name,
             value
           });
+        } else if (
+          _.isNil(value) &&
+          mappingEntry.hubspot_property_read_only === false
+        ) {
+          this.hullClient.logger.debug(
+            "Account attribute not found in hull notification",
+            {
+              hull_trait_name: mappingEntry.hull_trait_name,
+              hubspot_property_name: mappingEntry.hubspot_property_name
+            }
+          );
         }
         if (accountChanges) {
           const accountChange = _.get(
