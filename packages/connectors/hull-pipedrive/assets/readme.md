@@ -50,11 +50,12 @@ This section outlines the steps in order to send users from Hull to Pipedrive (o
 ## Account Synchronization
 
 ### Account Identity
-The Pipedrive connector uses domain to resolve Hull Accounts to Pipedrive Organizations by default. This identification strategy can be configured in the "Account Identity" section in the settings. For example, if you would like to use another field to resolve accounts, you may click "Add new item" and map an Pipedrive field to ExternalId in Hull and your custom id will be used to resolve accounts.
+The Pipedrive connector uses domain or external id to resolve Hull Accounts in Pipedrive Organizations. 
+Due to limitations of the Pipedrive API, the Hull identifier field must map to the `Name` field on the Organization.
 
-For outgoing traffic (Hull -> Pipedrive) we first check to see if we have received the account from Pipedrive before. If so, we'll have the Pipedrive id for the account and we'll be able to update the account in Pipedrive. If the Pipedrive id does not exist, we look up the account by domain and any other attribute which may have been specified in the "Account Identity". If an account with the same identity exists in Pipedrive, we update that account. However if the account does not exist based on the lookup, we proceed to insert the account.
+For outgoing traffic (Hull -> Pipedrive) we first check to see if we have received the account from Pipedrive before. If so, we'll have the Pipedrive id for the account and we'll be able to update the account in Pipedrive. If the Pipedrive id does not exist, we look up the account by the `name` of the Pipedrive organization . If an account with the same identity exists in Pipedrive, we update that account. However, if the account does not exist based on the lookup, we proceed to insert the account.
 
-Once we've synchronized the account to Pipedrive, we read back the current state of the account in Pipedrive to hull. Only those attributes which are specified in the incoming account attributes are synchronized.
+Once the account is synchronized in Pipedrive, the current state of the account in Pipedrive is returned to Hull. Only those attributes which are specified in the incoming account attributes will be synchronized.
 
 ### Outgoing Accounts
 
@@ -83,6 +84,9 @@ The Pipedrive connector allows you to synchronize data between Hull and Pipedriv
 No other objects besides the ones listed above are supported. If you need to synchronize additional objects please reach out to our customer success team to explore the options on a case-by-case basis.
 
 ## Edge Cases
+### Name as an organization identifier
+In Pipedrive, organizations can only be looked up by the id and the name. Therefore, the account identity must be a mapping of the Hull domain or external id to the name of the organization.
+
 ### Email as an identifier
 In Pipedrive, you may assign a Person multiple email addresses. By default we pick the email marked as Primary in the list to be the representative email in Hull. So please be careful if you are shuffling the emails in Pipedrive.
 
