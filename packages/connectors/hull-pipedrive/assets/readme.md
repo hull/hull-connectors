@@ -85,7 +85,7 @@ No other objects besides the ones listed above are supported. If you need to syn
 
 ## Edge Cases
 ### Name as an organization identifier
-In Pipedrive, organizations can only be looked up by the id and the name. Therefore, the account identity must be a mapping of Hull domain or external id to the name of the organization.
+In Pipedrive, organizations can only be looked up by the id and the name. Therefore, the account identity must be a mapping of the Hull domain or external id to the name of the organization.
 
 ### Email as an identifier
 In Pipedrive, you may assign a Person multiple email addresses. By default we pick the email marked as Primary in the list to be the representative email in Hull. So please be careful if you are shuffling the emails in Pipedrive.
