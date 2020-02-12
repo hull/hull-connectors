@@ -55,7 +55,7 @@ Due to limitations of the Pipedrive API, the Hull identifier field must map to t
 
 For outgoing traffic (Hull -> Pipedrive) we first check to see if we have received the account from Pipedrive before. If so, we'll have the Pipedrive id for the account and we'll be able to update the account in Pipedrive. If the Pipedrive id does not exist, we look up the account by the `name` of the Pipedrive organization . If an account with the same identity exists in Pipedrive, we update that account. However, if the account does not exist based on the lookup, we proceed to insert the account.
 
-Once accounts are synchronized in Pipedrive, the current state of the account in Pipedrive is returned to Hull. Only those attributes which are specified in the incoming account attributes will be synchronized.
+Once the account is synchronized in Pipedrive, the current state of the account in Pipedrive is returned to Hull. Only those attributes which are specified in the incoming account attributes will be synchronized.
 
 ### Outgoing Accounts
 
