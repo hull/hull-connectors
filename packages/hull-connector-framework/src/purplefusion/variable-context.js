@@ -31,9 +31,12 @@ class HullVariableContext {
   }
 
   get(key: string) {
+    // TODO might potentially try to detect if the first object on the path exists as a key in the context
+    // may not have the whole path, but if just top level is there, return undefined
+    // same thing for keys whose value is explicitly "undefined" where we may want to return that...
 
     const rootKey = _.first(_.split(key, "."));
-    let foundRootObject = false;
+    // let foundRootObject = false;
 
     for (let i = this.localContext.length - 1; i >= 0; i -= 1) {
 
@@ -43,12 +46,18 @@ class HullVariableContext {
         return value;
       }
 
-      foundRootObject = this.logBadBehavior(currentContext, value, rootKey, key, foundRootObject, i);
+      const keys = Object.keys(currentContext);
+      if (keys.indexOf(rootKey) >= 0) {
+        // console.log(`Returning undefined because root key is present in context: ${rootKey} for ${key}`);
+        return value;
+      }
+
+      // foundRootObject = this.logBadBehavior(currentContext, value, rootKey, key, foundRootObject, i);
     }
 
     const hullValue = _.get(this.hullContext, key);
 
-    this.logBadBehavior(this.hullContext, hullValue, rootKey, key, foundRootObject);
+    // this.logBadBehavior(this.hullContext, hullValue, rootKey, key, foundRootObject);
 
     return hullValue;
   }
@@ -84,6 +93,10 @@ class HullVariableContext {
     } else {
       _.set(_.last(this.localContext), key, value);
     }
+  }
+
+  setOnHullContext(key: string, value: any) {
+    _.set(this.hullContext, key, value);
   }
 
   reqContext() {

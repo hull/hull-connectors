@@ -33,7 +33,7 @@ export default function connectorConfig(): HullConnectorConfig {
           clientSecret: CLIENT_SECRET
         })
       },
-      transforms: [],
+      transforms: require("./transforms-to-service"),
       ensureHook: "ensureHook"
     }).createHandler,
     hostSecret: SECRET || "1234",

@@ -3,6 +3,7 @@
 import type { ServiceObjectDefinition } from "./types";
 
 const _ = require("lodash");
+const hash = require('object-hash');
 
 class HullInstruction {
 
@@ -284,7 +285,7 @@ function ifL(params: any, results: any | { do: any, eldo?: any, elif?: any }): I
   let toEvaluate = results;
   // if do isn't present in the results, then build one to make the underlying evaluation code simpler
   // this is just a way to give the instruction syntax simplicity on top, so that if only a "do" exists, then we just can pass the next instruction
-  if (!results.do) {
+  if (results.do === undefined) {
     toEvaluate = { do: toEvaluate };
   }
 
@@ -448,9 +449,10 @@ function settingsSet(key: any, value?: any) {
       obj[`connector.private_settings.${name}`] = value;
     });
 
-    return new Op({ name: "set", key: obj });
+    return new Op({ name: "setOnHullContext", key: obj });
   } else {
-    return set(key, value);
+    // return set(key, value);
+    return new Op({ name: "setOnHullContext", key }, value);
   }
 }
 
@@ -487,12 +489,22 @@ function cacheWrap(expiration: number, param: any) {
 
   // TODO need to find a better way to do cache key for wrapping methods
   // just ran into a bug where the key wasn't unique enough... will cause really weird issues...
-  return ifL(
-    cond("isEmpty", set("hull-internal-cacheWrappedValue", cacheGet(`${param.type}|${param.options.name}|${param.options.op}`))),
-    {
-      do: cacheSet({ ttl: expiration, key: `${param.type}|${param.options.name}|${param.options.op}`}, param),
-      eldo: "${hull-internal-cacheWrappedValue}"
-    });
+  // return ifL(
+  //   cond("isEmpty", set("hull-internal-cacheWrappedValue", cacheGet(`${param.type}|${param.options.name}|${param.options.op}`))),
+  //   {
+  //     do: cacheSet({ ttl: expiration, key: `${param.type}|${param.options.name}|${param.options.op}`}, param),
+  //     eldo: "${hull-internal-cacheWrappedValue}"
+  //   });
+  //TODO key could be JSON.stringify(param) -> then could MD5 that....
+  return new Cache({name: "wrap", key: cacheKeyForInstruction(param), ttl: expiration, instruction: param });
+}
+
+function cacheDel(param: any) {
+  return new Cache({ name: "del", key: cacheKeyForInstruction(param) });
+}
+
+function cacheKeyForInstruction(instruction: any) {
+  return hash(instruction);
 }
 
 function cacheGet(key: string) {
@@ -569,11 +581,13 @@ module.exports = {
   loopEndL,
   filterL,
   settings,
+  settingsSet,
   settingsUpdate,
   cacheWrap,
   cacheSet,
   cacheGet,
   cacheLock,
+  cacheDel,
   transformTo,
   jsonata,
   ld,

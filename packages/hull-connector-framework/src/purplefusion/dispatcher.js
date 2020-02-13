@@ -120,10 +120,8 @@ class HullDispatcher {
     if (!_.isEmpty(this.ensure)) {
       if (isUndefinedOrNull(this.ensurePromise)) {
         this.ensurePromise = this.resolve(context, new Route(this.ensure), data);
-        await this.ensurePromise;
-      } else {
-        await this.ensurePromise;
       }
+      await this.ensurePromise;
     }
     return await this.resolve(context, new Route(route), data);
 
@@ -528,6 +526,20 @@ class HullDispatcher {
         setHullDataType(cacheValue, result.dataType);
         return cacheValue;
 
+      } else if (instructionOptions.name === "wrap") {
+
+        return await cache.wrap(
+          cacheKey,
+          () => {
+            return this.resolve(context, instructionOptions.instruction, serviceData);
+          },
+          { ttl: instructionOptions.ttl }
+        );
+
+      } else if (instructionOptions.name === "del") {
+
+        return await cache.del(cacheKey);
+
       } else if (instructionOptions.name === "lock") {
 
         const lockCacheKey = `HULL-CACHE-LOCK(${cacheKey})`;
@@ -656,7 +668,9 @@ class HullDispatcher {
 
         return _.get(obj, opInstruction.key);
 
-      } else if (opInstruction.name === "set") {
+      } else if (opInstruction.name === "set" || opInstruction.name === "setOnHullContext") {
+
+        const setOnHullContext = opInstruction.name === "setOnHullContext";
 
         // TODO NEED TO HAVE A GLOBAL SET WITH THIS NEW CONTEXT STUFF
         // otherwise could put the variables like new tokens in a local context...
@@ -669,8 +683,11 @@ class HullDispatcher {
         if (_.isPlainObject(opInstruction.key)) {
 
           _.forEach(opInstruction.key, (value, key) => {
-            // _.set(context, key, value);
-            context.set(key, value);
+            if (setOnHullContext) {
+              context.setOnHullContext(key, value);
+            } else {
+              context.set(key, value);
+            }
           });
 
         } else {
@@ -678,7 +695,11 @@ class HullDispatcher {
           // whereas get allows us to get keys on other objects...
           // TODO maybe we should add that to set?
           // _.set(context, opInstruction.key, resolvedParams);
-          context.set(opInstruction.key, resolvedParams);
+          if (setOnHullContext) {
+            context.setOnHullContext(opInstruction.key, resolvedParams);
+          } else {
+            context.set(opInstruction.key, resolvedParams);
+          }
         }
 
         return resolvedParams;
