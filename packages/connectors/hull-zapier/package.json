@@ -1,7 +1,7 @@
 {
   "name": "hull-zapier",
   "description": "A Hull <> Zapier Connector",
-  "version": "0.1.17-monorepo",
+  "version": "0.1.18-monorepo",
   "homepage": "https://github.com/hull-ships/hull-zapier",
   "license": "MIT",
   "main": "bin/start",

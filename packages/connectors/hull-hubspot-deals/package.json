@@ -1,6 +1,6 @@
 {
   "name": "hull-hubspot-deals",
-  "version": "0.1.17-monorepo",
+  "version": "0.1.18-monorepo",
   "description": "Connector description",
   "scripts": {
     "test": "exit 0; echo 'tests are run by global jest'",
