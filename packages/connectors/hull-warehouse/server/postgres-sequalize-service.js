@@ -9,8 +9,8 @@ const {
 } = require("hull-connector-framework/src/purplefusion/utils");
 
 const MetricAgent = require("hull/src/infra/instrumentation/metric-agent");
-const { getSshTunnelConfig, getDatabaseConfig } = require("./ssh-utils");
-const { SSHConnection } = require("./ssh-connection");
+const { getSshTunnelConfig, getDatabaseConfig } = require("hull-connector-framework/src/purplefusion/ssh/ssh-utils");
+const { SSHConnection } = require("hull-connector-framework/src/purplefusion/ssh/ssh-connection");
 const { Client } = require("hull");
 const { SkippableError } = require("hull/src/errors");
 
