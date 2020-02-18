@@ -1,10 +1,9 @@
 {
   "name": "hull-pipedrive",
-  "version": "0.1.17-monorepo",
+  "version": "0.1.18-monorepo",
   "description": "Sync persons and organizations with Hull",
   "scripts": {
-    "test": "exit 0",
-    "test:integration": "exit 0",
+    "test": "exit 0; echo 'tests are run by global jest'",
     "documentation": "exit 0"
   },
   "dependencies": {

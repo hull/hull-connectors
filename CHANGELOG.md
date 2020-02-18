@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.1.18-monorepo
+- [hull-coppercrm] merged coppercrm to master
+- [hull-hubspot] additional logging for null values
+
 ## v0.1.17-monorepo
 - [hull-outreach] send users and accounts segments as attributes to Outreach
 - [hull-segment] Migrate to monorepo
