@@ -660,7 +660,8 @@ class MappingUtil {
             "User attribute not found in hull notification",
             {
               hull_trait_name: mappingEntry.hull_trait_name,
-              hubspot_property_name: mappingEntry.hubspot_property_name
+              hubspot_property_name: mappingEntry.hubspot_property_name,
+              user_identity: userIdent
             }
           );
         }
@@ -815,7 +816,8 @@ class MappingUtil {
           if (_.isArray(accountChange) && accountChange[1] === null) {
             this.hullClient.logger.debug("Setting NULL for account attribute", {
               hull_trait_name: mappingEntry.hull_trait_name,
-              hubspot_property_name: mappingEntry.hubspot_property_name
+              hubspot_property_name: mappingEntry.hubspot_property_name,
+              account_identity: accountIdent
             });
           }
         }
