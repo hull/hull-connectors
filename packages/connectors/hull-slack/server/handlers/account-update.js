@@ -28,10 +28,16 @@ const update = (connectSlack: ConnectSlackFunction) => async (
   try {
     const { post, tellOperator } = await connectSlack(ctx);
     if (!post || !tellOperator) {
+      client.logger.error("Slack isn't setup properly", {
+        post: !!post,
+        tellOperator: !!tellOperator
+      });
       return {
-        flow_control: "next",
-        size: 100,
-        in: 1
+        flow_control: {
+          type: "next",
+          size: 100,
+          in: 0.1
+        }
       };
     }
     const responses = await Promise.all(
@@ -40,7 +46,14 @@ const update = (connectSlack: ConnectSlackFunction) => async (
 
         const scopedClient = client.asAccount(account);
         try {
-          _.map(notify_account_events, async ({ event, synchronized_segment, channel, text }: {
+          _.map(
+            notify_account_events,
+            async ({
+              event,
+              synchronized_segment,
+              channel,
+              text
+            }: {
               event: string,
               synchronized_segment: string,
               channel: string,
@@ -48,7 +61,11 @@ const update = (connectSlack: ConnectSlackFunction) => async (
             }) => {
               metric.increment("ship.outgoing.account");
               const { changes = {} } = message;
-              const segmentMatches = getSegmentChanges({ event, synchronized_segment, changes });
+              const segmentMatches = getSegmentChanges({
+                event,
+                synchronized_segment,
+                changes
+              });
               if (!segmentMatches.length) {
                 debug("Skipping Notification", {
                   event,
