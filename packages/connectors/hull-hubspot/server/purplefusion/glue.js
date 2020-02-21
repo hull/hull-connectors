@@ -163,7 +163,7 @@ const glue = {
       ifL(ld("includes", "${eventsToFetch}", get("${hubspotEmailEvent.type}", "${eventsMapping}")), {
         do: [
           set("emailCampaignId", get("emailCampaignId", "${hubspotEmailEvent}")),
-          ifL(cond("notEmpty", "${emailCampaignId}"), {
+          ifL([cond("notEmpty", "${emailCampaignId}"), not(cond("isEqual", 0, "${emailCampaignId}"))], {
             do: [
               set("event_created_at", ex(moment(get("created", "${hubspotEmailEvent}")), "toISOString")),
 
