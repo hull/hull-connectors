@@ -9,6 +9,8 @@ import getHullContext from "./sandbox/hull";
 import javascript from "./backends/javascript";
 import { jsonata, JsonataError } from "./backends/jsonata";
 
+const debug = require("debug")("hull-vm:compute");
+
 export default async function compute(
   ctx: HullContext,
   { language, payload, code, preview, claims, source, entity }: ComputeOptions
@@ -56,7 +58,7 @@ export default async function compute(
     result.events = _.slice(result.events, 0, 10);
     result.success = true;
   } catch (err) {
-    console.log(err);
+    debug("Error while running VM (Could be customer code)", err);
     if (
       err.error ||
       err instanceof errors.RequestError ||
