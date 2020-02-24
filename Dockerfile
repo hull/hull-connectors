@@ -4,22 +4,15 @@
 FROM node:10.18-alpine
 
 RUN apk --no-cache add \
-      .build-deps \
       bash \
-      bsd-compat-headers \
-      ca-certificates \
-      cyrus-sasl-dev \
       g++ \
-      gcc \
-      libc-dev \
+      ca-certificates \
       lz4-dev \
-      make \
       musl-dev \
+      cyrus-sasl-dev \
       openssl-dev \
-      py-setuptools \
-      python \
-      rsync \
-      zlib-dev
+      make \
+      python
 
 RUN apk add --no-cache --virtual .build-deps gcc zlib-dev libc-dev bsd-compat-headers py-setuptools rsync
 
