@@ -146,10 +146,10 @@ class Configuration {
       }
     });
 
-    _.each(VALID_PROPS, (test, key) => {
+    _.each(VALID_PROPS, (test, prop) => {
       // @TODO check that this is actually desired as a strict comparison to make sure falsy values are still validated
-      if (config[key] !== undefined) {
-        this._state[key] = config[key];
+      if (config[prop] !== undefined) {
+        this._state[prop] = config[prop];
       }
     });
 
