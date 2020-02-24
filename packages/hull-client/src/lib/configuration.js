@@ -134,9 +134,11 @@ class Configuration {
         throw new Error(`Configuration is missing required property: ${prop}`);
       }
       if (!test(config[prop])) {
-        throw new Error(
+        const err = new Error(
           `${prop} property in Configuration is invalid: ${config[prop]}`
         );
+        err.status = 400;
+        throw err;
       }
     });
 
