@@ -131,13 +131,15 @@ class Configuration {
 
     _.each(REQUIRED_PROPS, (test, prop) => {
       if (!Object.prototype.hasOwnProperty.call(config, prop)) {
-        throw new Error(`Configuration is missing required property: ${prop}`);
+        const err = new Error(`Configuration is missing required property: ${prop}`);
+        err.status = 401;
+        throw err;
       }
       if (!test(config[prop])) {
         const err = new Error(
           `${prop} property in Configuration is invalid: ${config[prop]}`
         );
-        err.status = 400;
+        err.status = 401;
         throw err;
       }
     });
