@@ -83,6 +83,19 @@ If on mocha run `yarn workspace hull-foo run test`.
 
 Run `eslint packages/connectors/hull-foo`
 
+**How to install node-rdkafka package on MacOS?**
+
+https://github.com/Blizzard/node-rdkafka#mac-os-high-sierra--mojave
+
+OpenSSL has been upgraded in High Sierra and homebrew does not overwrite default system libraries. That means when building node-rdkafka, because you are using openssl, you need to tell the linker where to find it:
+
+```
+export CPPFLAGS=-I/usr/local/opt/openssl/include
+export LDFLAGS=-L/usr/local/opt/openssl/lib
+```
+
+Then you can run yarn install to get it to build correctly.
+
 ## Client-side code
 
 
