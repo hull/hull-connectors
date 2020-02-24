@@ -8,7 +8,7 @@ const credentialsHandler = REMOTE_DOMAIN => (
 ): HullCredentialsResponse => {
   const { clientCredentials } = ctx;
   const { id, organization } = clientCredentials;
-  const namespace = organization.split(",")[0];
+  const namespace = organization.split(".")[0];
   return {
     status: 200,
     data: {
