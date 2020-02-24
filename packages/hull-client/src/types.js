@@ -277,7 +277,9 @@ export type HullFirehoseKafkaTransport = {
 
 type HullFirehoseRestTransport = void;
 
-export type HullFirehoseTransport = HullFirehoseKafkaTransport | HullFirehoseRestTransport;
+export type HullFirehoseTransport =
+  | HullFirehoseKafkaTransport
+  | HullFirehoseRestTransport;
 
 /**
  * Configuration which can be passed to the HullClient constructor
@@ -307,7 +309,7 @@ export type HullClientConfig = {|
   captureLogs?: boolean,
   firehoseEvents?: Array<Object>,
   captureFirehoseEvents?: boolean,
-  firehoseTransport?: HullFirehoseTransport
+  firehoseTransport?: HullFirehoseTransport,
   trackingOnly?: true
 |};
 

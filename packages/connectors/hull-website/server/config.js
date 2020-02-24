@@ -1,5 +1,5 @@
 // @flow
-import type {HullConnectorConfig} from "hull";
+import type { HullConnectorConfig } from "hull";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
 
