@@ -22,7 +22,8 @@ function notificationHandlerProcessingMiddlewareFactory(
     res: HullResponse,
     next: NextFunction
   ): mixed {
-    if (!req.hull.notification) {
+    const { notification } = req.hull;
+    if (!notification) {
       return next(new Error("Missing Notification payload"));
     }
     const {
@@ -31,7 +32,7 @@ function notificationHandlerProcessingMiddlewareFactory(
       accounts_segments: account_segments,
       connector,
       messages = []
-    } = req.hull.notification;
+    } = notification;
     debug("notification", {
       channel,
       messages: Array.isArray(messages) && messages.length
@@ -53,7 +54,7 @@ function notificationHandlerProcessingMiddlewareFactory(
         channel,
         "success"
       );
-      req.hull.isBatch = req.hull.notification.is_export || false;
+      req.hull.isBatch = notification.is_export || false;
       const process = processHullMessage({
         segments: {
           user_segments,
