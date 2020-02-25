@@ -29,6 +29,10 @@ const {
   OutreachWebEventRead
 } = require("./service-objects");
 
+const {
+  createEnumTransform
+}  = require("hull-connector-framework/src/purplefusion/transform-predefined");
+
 /**
  * On the way back still need the notion of putting into the identification
  * versus setting attributes
@@ -510,11 +514,17 @@ const transformsToHull: ServiceTransforms =
                     {
                       writeTo: { path: "hull_events[0].properties.sequence_step", format: "${enrichedEmail.sequence_step}" },
                     },
-                    {
-                      // condition: notNull("${enrichedEmail.sequence_id}"),
-                      operateOn: { component: "glue", route: "getSequences", select: "${enrichedEmail.sequence_id}" },
-                      writeTo: { path: "hull_events[0].properties.sequence_name" }
-                    },
+                    // {
+                    //   // condition: notNull("${enrichedEmail.sequence_id}"),
+                    //   operateOn: { component: "glue", route: "getSequences", select: "${enrichedEmail.sequence_id}" },
+                    //   writeTo: { path: "hull_events[0].properties.sequence_name" }
+                    // },
+                    createEnumTransform({
+                      attribute: "hull_events[0].properties.sequence_name",
+                      attributeId: "${enrichedEmail.sequence_id}",
+                      route: "getSequences",
+                      forceRoute: "forceGetSequences"
+                    }),
                   ]
                 },
               ]

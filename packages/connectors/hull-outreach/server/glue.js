@@ -26,7 +26,8 @@ const {
   not,
   jsonata,
   cacheWrap,
-  moment
+  moment,
+  cacheDel
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -347,7 +348,17 @@ const glue = {
   getStageIdMap: jsonata("data{ $string(id): attributes.name }", cacheWrap(600, outreach("getStages"))),
   getOwnerIdToEmailMap: jsonata("data{ $string(id): attributes.email }", cacheWrap(600, outreach("getUsers"))),
   getMailingDetails: jsonata("{\"email_subject\": data.attributes.subject, \"sequence_id\": data.relationships.sequence.data.id, \"sequence_step\": data.relationships.sequenceStep.data.id}", outreach("getMailingDetails")),
-  getSequences: jsonata("$ {$string(id): attributes.name}", cacheWrap(6000, outreach("getSequences"))),
+  getSequences: cacheWrap(6000, route("paginateSequences")),
+  forceGetSequences: returnValue(cacheDel(route("paginateSequences")), route("paginateSequences")),
+  paginateSequences:
+    returnValue(loopL([
+      ifL(cond("isEmpty", "${sequenceMap}"), {
+        do: set("sequenceMap", jsonata("$ {$string(id): attributes.name}", outreach("getSequences", { offset: "${someoffset}"}))),
+        else: ld("assign", "${sequenceMap}", jsonata("$ {$string(id): attributes.name}", outreach("getSequences", { offset: "${someoffset}"})))
+      })
+      // TODO increment the offset or end the loop
+    ]), "${sequenceMap}"),
+
   eventsFetchAll:
     ifL(cond("notEmpty", set("eventsToFetch", ld("filter", settings("events_to_fetch"), elem => elem !== "prospect_stage_changed"))), [
       set("id_offset", 0),
