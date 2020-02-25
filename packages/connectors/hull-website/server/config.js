@@ -14,7 +14,7 @@ export default function connectorConfig(): HullConnectorConfig {
     REDIS_URL,
     HULL_DOMAIN,
     REMOTE_DOMAIN,
-    DISABLE_DEV_MODE = false
+    DISABLE_WEBPACK = false
   } = process.env;
 
   if (!REDIS_URL) {
@@ -39,10 +39,12 @@ export default function connectorConfig(): HullConnectorConfig {
   }
 
   const hostSecret = SECRET || "1234";
+
   return {
     manifest,
     hostSecret,
-    devMode: DISABLE_DEV_MODE ? false : NODE_ENV === "development",
+    devMode: NODE_ENV === "development",
+    disableWebpack: DISABLE_WEBPACK === "true",
     port: PORT || 8082,
     handlers: handlers({
       redisUri: REDIS_URL,

@@ -118,6 +118,7 @@ export type HullConnectorConfig = {
   timeout?: number | string,
   disableOnExit?: boolean,
   devMode?: boolean,
+  disableWebpack?: boolean,
   instrumentation?: HullInstrumentation,
   queue?: void | HullQueue,
   handlers:
