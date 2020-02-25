@@ -236,7 +236,10 @@ class HullConnector {
     if (this.serverConfig.start) {
       const app = express();
       this.app = app;
-      if (this.connectorConfig.devMode && !this.connectorConfig.disableWebpack) {
+      if (
+        this.connectorConfig.devMode &&
+        !this.connectorConfig.disableWebpack
+      ) {
         debug("Starting Server in DevMode");
         // eslint-disable-next-line global-require
         const webpackDevMode = require("./dev-mode");
