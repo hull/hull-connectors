@@ -32,9 +32,11 @@ const update = (connectSlack: ConnectSlackFunction) => async (
     const { post, tellOperator } = await connectSlack(ctx);
     if (!post || !tellOperator) {
       return {
-        flow_control: "next",
-        size: 100,
-        in: 1
+        flow_control: {
+          type: "next",
+          size: 100,
+          in: 1
+        }
       };
     }
 
