@@ -37,7 +37,7 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
 
   app.use((req, res, next) => {
     const appId = req.get("hull-app-id");
-    const anonymous_id = req.cookies._bid;
+    const anonymous_id = req.get("hull-bid") || req.cookies._bid;
     const remoteUrl = req.get("referer");
     const clientParams = {
       id: appId,

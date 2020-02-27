@@ -5,7 +5,7 @@ import Hull from "hull-client/src";
 import cacheManager from "cache-manager";
 
 const HULL_JS_URL = "https://js.hull.io/0.10.0/hull.js.gz";
-const TEN_YEARS = 18 * 365 * 24 * 3600000;
+const ONE_YEAR = 365 * 24 * 3600000;
 const THIRTY_MINUTES = 1800000;
 
 const buildConfig = app => {
@@ -64,13 +64,17 @@ const remoteHandler = () => {
   const CACHE = cacheManager.caching({ store: "memory", max: 1000, ttl: 60 });
   return (req, res) => {
     const appId = req.params.id;
-    const browserId = req.cookies._bid || uuid();
-    const sessionId = req.cookies._sid || uuid();
+
+    const remoteUrl = new URL(req.url, `https://${res.hostname}`);
+    const browserId =
+      remoteUrl.searchParams.get("_bid") || req.cookies._bid || uuid();
+    const sessionId =
+      remoteUrl.searchParams.get("_sid") || req.cookies._sid || uuid();
 
     res.cookie("_bid", browserId, {
       secure: true,
       sameSite: "None",
-      maxAge: TEN_YEARS,
+      maxAge: ONE_YEAR,
       httpOnly: true
     });
 
