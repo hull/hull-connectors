@@ -12,7 +12,7 @@ export default (req, res) => {
     useragent: req.get("user-agent"),
     created_at: Date.now()
   };
-  
+
   return req.hull
     .track(event, properties, context)
     .then(
