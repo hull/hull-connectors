@@ -3,9 +3,10 @@
 import type {
   HullClientInstanceConfig,
   HullEntityAttributes,
+  HullFirehoseEventContext,
+  HullFirehoseTrackContext,
   HullUserEventName,
   HullUserEventProperties,
-  HullUserEventContext,
   HullAccount,
   HullUser,
   HullAccountClaims,
@@ -491,11 +492,12 @@ class EntityScopedHullClient extends HullClient {
    * @param  {Object} body
    * @return {Promise}
    */
-  alias = (body: Object) => {
+  alias = (body: Object, context: HullFirehoseEventContext) => {
     return this.batch({
       type: "alias",
       requestId: this.requestId,
-      body
+      body,
+      context
     });
   };
 
@@ -506,11 +508,12 @@ class EntityScopedHullClient extends HullClient {
    * @param  {Object} body
    * @return {Promise}
    */
-  unalias = (body: Object) => {
+  unalias = (body: Object, context: HullFirehoseEventContext) => {
     return this.batch({
       type: "unalias",
       requestId: this.requestId,
-      body
+      body,
+      context
     });
   };
 
@@ -523,7 +526,7 @@ class EntityScopedHullClient extends HullClient {
    */
   traits = (
     traits: HullEntityAttributes,
-    context: { source?: string } = {}
+    context: HullFirehoseEventContext
   ): Promise<*> => {
     const body =
       context && context.source
@@ -531,7 +534,12 @@ class EntityScopedHullClient extends HullClient {
         : {
             ...traits
           };
-    return this.batch({ type: "traits", body, requestId: this.requestId });
+    return this.batch({
+      type: "traits",
+      body,
+      context,
+      requestId: this.requestId
+    });
   };
 }
 
@@ -580,7 +588,7 @@ class UserScopedHullClient extends EntityScopedHullClient {
   track = (
     event: HullUserEventName,
     properties: HullUserEventProperties = {},
-    context: HullUserEventContext = {}
+    context: HullFirehoseTrackContext = {}
   ): Promise<*> => {
     _.defaults(context, {
       event_id: uuidV4()
@@ -588,6 +596,7 @@ class UserScopedHullClient extends EntityScopedHullClient {
     return this.batch({
       type: "track",
       requestId: this.requestId,
+      context, // transitional: firehose ingestion needs to adopt this convention
       body: {
         ...{}, // workaround @see https://github.com/facebook/flow/issues/1805#issuecomment-238650551
         ip: null,

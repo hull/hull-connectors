@@ -108,7 +108,7 @@ function getInstance(
   }
 
   const { organization } = config;
-  return ({ type, requestId, body }: FirehoseCallArguments) => {
+  return ({ type, requestId, body, context }: FirehoseCallArguments) => {
     if (IS_EXITING)
       throw new Error(
         "Process is shutting down. Not accepting connections anymore"
@@ -118,6 +118,7 @@ function getInstance(
       type,
       requestId,
       payload: body,
+      context,
       organization,
       appId: config.id,
       timestamp: new Date()

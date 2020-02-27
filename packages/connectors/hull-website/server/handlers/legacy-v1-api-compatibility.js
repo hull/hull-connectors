@@ -54,6 +54,18 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
       req.hull = new HullClient(clientParams).asUser({ anonymous_id });
     }
 
+    const { url, referer } = req.body;
+
+    req.firehoseEventContext = {
+      anonymousId: req.get("hull-bid") || req.cookies._bid,
+      sessionId: req.get("hull-sid") || req.cookies._sid,
+      ip: req.ip,
+      useragent: req.get("user-agent"),
+      created_at: Date.now(),
+      url,
+      referer
+    };
+
     next();
   });
 

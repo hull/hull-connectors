@@ -281,6 +281,22 @@ export type HullFirehoseTransport =
   | HullFirehoseKafkaTransport
   | HullFirehoseRestTransport;
 
+export type HullFirehoseEventContext = {
+  sessionId?: string,
+  page?: string,
+  referer?: string,
+  useragent?: string,
+  ip?: string,
+  source?: string,
+  type?: string
+};
+
+export type HullFirehoseTrackContext = {
+  created_at?: int,
+  event_id?: string
+} & HullFirehoseEventContext;
+
+
 /**
  * Configuration which can be passed to the HullClient constructor
  * We cannot use exact type here.
