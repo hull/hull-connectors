@@ -296,7 +296,6 @@ export type HullFirehoseTrackContext = {
   event_id?: string
 } & HullFirehoseEventContext;
 
-
 /**
  * Configuration which can be passed to the HullClient constructor
  * We cannot use exact type here.
