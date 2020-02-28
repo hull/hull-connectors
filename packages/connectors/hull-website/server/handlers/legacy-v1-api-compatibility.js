@@ -1,5 +1,7 @@
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import { Router } from "express";
+
 import HullClient from "hull-client/src";
 import aliasHandler from "./alias-handler";
 import trackHandler from "./track-handler";
@@ -32,6 +34,22 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
     }
     return next();
   });
+
+  app.use(
+    cors((req, callback) => {
+      const originHost = new URL(req.header("origin")).host;
+      const allowedHeaders = [
+        "content-type",
+        "hull-app-id",
+        "hull-bid",
+        "hull-sid"
+      ];
+      if (originHost === req.organization) {
+        return callback(null, { origin: true, allowedHeaders });
+      }
+      return callback(new Error("Unauthorized domain"), { origin: false });
+    })
+  );
 
   app.get("/:id/remote.html", remoteHandler());
 
