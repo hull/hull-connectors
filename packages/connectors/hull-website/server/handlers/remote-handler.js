@@ -31,7 +31,11 @@ function fetchRemoteConfig(cache, organization: string, id: string) {
   );
 }
 
-function renderRemote(res, { allowed_domains = [], app }, { browserId, sessionId }) {
+function renderRemote(
+  res,
+  { allowed_domains = [], app },
+  { browserId, sessionId }
+) {
   res.status(200);
   const domains = allowed_domains.join(" ");
   res.set("Content-Security-Policy", `frame-ancestors 'self' ${domains}`);
