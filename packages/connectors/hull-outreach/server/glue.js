@@ -27,7 +27,8 @@ const {
   jsonata,
   cacheWrap,
   moment,
-  cacheDel
+  cacheDel,
+  returnValue
 } = require("hull-connector-framework/src/purplefusion/language");
 
 const {
@@ -346,18 +347,58 @@ const glue = {
       )
     ]),
   getStageIdMap: jsonata("data{ $string(id): attributes.name }", cacheWrap(600, outreach("getStages"))),
-  getOwnerIdToEmailMap: jsonata("data{ $string(id): attributes.email }", cacheWrap(600, outreach("getUsers"))),
+  getOwnerIdToEmailMap:
+    returnValue([
+      loopL([
+        set("id_offset", 0),
+        set("page_limit", 100),
+        set("usersPage", outreach("getUsersPaged")),
+        ifL(cond("isEmpty", "${usersMap}"), {
+          do: set("usersMap", jsonata("data{ $string(id): attributes.email }", "${usersPage}")),
+          eldo: ld("assign", "${usersMap}", jsonata("data{ $string(id): attributes.email }", "${usersPage}"))
+        }),
+        ifL(cond("isEqual", ld("size", "${usersPage}"), 100), {
+          do: set("id_offset", "${usersPage.data[99].id}"),
+          eldo: loopEndL()
+        })
+      ])], "${usersMap}"),
+  // getOwnerIdToEmailMap: jsonata("data{ $string(id): attributes.email }", cacheWrap(600, outreach("getUsers"))),
+  forceGetOwnerIdToEmailMap: returnValue(cacheDel(route("getOwnerIdToEmailMap")), route("getOwnerIdToEmailMap")),
   getMailingDetails: jsonata("{\"email_subject\": data.attributes.subject, \"sequence_id\": data.relationships.sequence.data.id, \"sequence_step\": data.relationships.sequenceStep.data.id}", outreach("getMailingDetails")),
   getSequences: cacheWrap(6000, route("paginateSequences")),
   forceGetSequences: returnValue(cacheDel(route("paginateSequences")), route("paginateSequences")),
   paginateSequences:
-    returnValue(loopL([
-      ifL(cond("isEmpty", "${sequenceMap}"), {
-        do: set("sequenceMap", jsonata("$ {$string(id): attributes.name}", outreach("getSequences", { offset: "${someoffset}"}))),
-        else: ld("assign", "${sequenceMap}", jsonata("$ {$string(id): attributes.name}", outreach("getSequences", { offset: "${someoffset}"})))
-      })
-      // TODO increment the offset or end the loop
-    ]), "${sequenceMap}"),
+    returnValue([
+      loopL([
+        set("id_offset", 0),
+        set("page_limit", 50),
+        set("sequencesPage", outreach("getSequencesPaged")),
+        ifL(cond("isEmpty", "${sequenceMap}"), {
+          do: set("sequenceMap", jsonata("$ {$string(id): attributes.name}", "${sequencesPage}")),
+          eldo: ld("assign", "${sequenceMap}", jsonata("$ {$string(id): attributes.name}", "${sequencesPage}"))
+        }),
+        ifL(cond("isEqual", ld("size", "${sequencesPage}"), 50), {
+          do: set("id_offset", "${sequencesPage.data[49].id}"),
+          eldo: loopEndL()
+        })
+    ])], "${sequenceMap}"),
+  getSequenceSteps: cacheWrap(6000, route("paginateSequenceSteps")),
+  forceGetSequenceSteps: returnValue(cacheDel(route("paginateSequenceSteps")), route("paginateSequenceSteps")),
+  paginateSequenceSteps:
+    returnValue([
+      loopL([
+        set("id_offset", 0),
+        set("page_limit", 100),
+        set("sequenceStepsPage", outreach("getSequenceStepsPaged")),
+        ifL(cond("isEmpty", "${sequenceStepMap}"), {
+          do: set("sequenceStepMap", jsonata("$ {$string(id): attributes.displayName}", "${sequenceStepsPage}")),
+          eldo: ld("assign", "${sequenceStepMap}", jsonata("$ {$string(id): attributes.displayName}", "${sequenceStepsPage}"))
+        }),
+        ifL(cond("isEqual", ld("size", "${sequenceStepsPage}"), 100), {
+          do: set("id_offset", "${sequenceStepsPage.data[99].id}"),
+          eldo: loopEndL()
+        })
+    ])], "${sequenceStepMap}"),
 
   eventsFetchAll:
     ifL(cond("notEmpty", set("eventsToFetch", ld("filter", settings("events_to_fetch"), elem => elem !== "prospect_stage_changed"))), [

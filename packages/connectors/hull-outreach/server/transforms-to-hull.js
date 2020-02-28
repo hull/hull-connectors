@@ -471,7 +471,7 @@ const transformsToHull: ServiceTransforms =
                 "\t\t\t\"eventName\": attributes.name,\n" +
                 "\t\t\t\"properties\": {\n" +
                 "            \t\"body\": attributes.body,\n" +
-                "                \"created_at\": attributes.createdAt,\n" +
+                "                \"event_at\": attributes.eventAt,\n" +
                 "                \"external_url\": attributes.externalUrl,\n" +
                 "                \"email_id\": attributes.mailingId,\n" +
                 "                \"payload\": attributes.payload,\n" +
@@ -484,7 +484,8 @@ const transformsToHull: ServiceTransforms =
                 "            },\n" +
                 "\t\t\t\"context\": {\n" +
                 "\t\t\t\t\"event_id\": id,\n" +
-                "\t\t\t\t\"created_at\": attributes.eventAt\n" +
+                "\t\t\t\t\"created_at\": attributes.createdAt,\n" +
+                "\t\t\t\t\"source\": \"Outreach\"\n" +
                 "\t\t\t}\n" +
                 "\t\t}\n" +
                 "\t]\n" +
@@ -512,19 +513,30 @@ const transformsToHull: ServiceTransforms =
                       writeTo: { path: "hull_events[0].properties.sequence_id", format: "${enrichedEmail.sequence_id}" },
                     },
                     {
-                      writeTo: { path: "hull_events[0].properties.sequence_step", format: "${enrichedEmail.sequence_step}" },
+                       writeTo: { path: "hull_events[0].properties.sequence_step_id", format: "${enrichedEmail.sequence_step}" },
                     },
-                    // {
-                    //   // condition: notNull("${enrichedEmail.sequence_id}"),
-                    //   operateOn: { component: "glue", route: "getSequences", select: "${enrichedEmail.sequence_id}" },
-                    //   writeTo: { path: "hull_events[0].properties.sequence_name" }
-                    // },
                     createEnumTransform({
                       attribute: "hull_events[0].properties.sequence_name",
-                      attributeId: "${enrichedEmail.sequence_id}",
+                      attributeId: "hull_events[0].properties.sequence_id",
                       route: "getSequences",
                       forceRoute: "forceGetSequences"
                     }),
+                    createEnumTransform({
+                      attribute: "hull_events[0].properties.sequence_step_name",
+                      attributeId: "hull_events[0].properties.sequence_step_id",
+                      route: "getSequenceSteps",
+                      forceRoute: "forceGetSequenceSteps"
+                    }),
+                    createEnumTransform({
+                      attribute: "hull_events[0].properties.user_email",
+                      attributeId: "hull_events[0].properties.user_id",
+                      route: "getOwnerIdToEmailMap",
+                      forceRoute: "forceGetOwnerIdToEmailMap"
+                    }),
+                    // {
+                    //   operateOn: { component: "glue", route: "getOwnerIdToEmailMap", select: "${input.hull_events[0].properties.user_id}" },
+                    //   writeTo: { path: "hull_events[0].properties.user_email" }
+                    // }
                   ]
                 },
               ]

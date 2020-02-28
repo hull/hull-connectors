@@ -133,7 +133,7 @@ module.exports = {
     },
     {
       name: "outreach",
-      op: "getSequences",
+      op: "getSequencesPaged",
       localContext: expect.objectContaining({enrichedEmail: {sequence_id: 42, email_subject: "Very interesting subject"}}),
       result: {
         body: {
@@ -155,6 +155,23 @@ module.exports = {
       }
     },
     {
+      name: "outreach",
+      op: "getUsersPaged",
+      localContext: expect.anything(),
+      result: {
+        body: {
+          data: [
+            {
+              id: 1,
+              attributes: {
+                email: "testingemail@hull.io"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
       name: "hull",
       op: "asUser",
       localContext: expect.anything(),
@@ -169,12 +186,13 @@ module.exports = {
           {
             context: {
               created_at: "2019-12-04T13:58:13.000Z",
-              event_id: 186229
+              event_id: 186229,
+              source: "Outreach"
             },
             eventName: "Message Opened",
             properties: {
               body: null,
-              created_at: "2019-12-04T13:58:13.000Z",
+              event_at: "2019-12-04T13:58:13.000Z",
               email_id: 1,
               email_subject: "Very interesting subject",
               sequence_id: 42,
@@ -186,7 +204,8 @@ module.exports = {
               request_region: null,
               user_agent: null,
               sequence_name: "Another one",
-              user_id: 1
+              user_id: 1,
+              user_email: "testingemail@hull.io"
             }
           }
         ],

@@ -181,6 +181,12 @@ const service = ({ clientID, clientSecret } : {
       operation: "get",
       endpointType: "fetchAll"
     },
+    getUsersPaged: {
+      url: "/users/",
+      operation: "get",
+      endpointType: "fetchAll",
+      query: "page[limit]=${page_limit}&filter[id]=${id_offset}..inf"
+    },
     getStages: {
       url: "/stages/",
       operation: "get",
@@ -218,6 +224,18 @@ const service = ({ clientID, clientSecret } : {
       url: "/sequences/",
       operation: "get",
       returnObj: "body.data"
+    },
+    getSequencesPaged: {
+      url: "/sequences/",
+      operation: "get",
+      returnObj: "body.data",
+      query: "page[limit]=${page_limit}&filter[id]=${id_offset}..inf"
+    },
+    getSequenceStepsPaged: {
+      url: "/sequenceSteps/",
+      operation: "get",
+      returnObj: "body.data",
+      query: "page[limit]=${page_limit}&filter[id]=${id_offset}..inf"
     }
   },
   superagent: {
