@@ -43,7 +43,6 @@
             "events.all",
             "mailings.read",
             "sequences.read",
-            "tasks.read",
             "sequenceSteps.read"
           ]
         }
