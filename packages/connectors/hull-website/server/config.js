@@ -45,6 +45,7 @@ export default function connectorConfig(): HullConnectorConfig {
     hostSecret,
     devMode: NODE_ENV === "development",
     disableWebpack: DISABLE_WEBPACK === "true",
+    trustProxy: true,
     port: PORT || 8082,
     handlers: handlers({
       redisUri: REDIS_URL,

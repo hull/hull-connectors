@@ -235,6 +235,11 @@ class HullConnector {
     }
     if (this.serverConfig.start) {
       const app = express();
+
+      if (this.connectorConfig.trustProxy) {
+        app.set("trust proxy", this.connectorConfig.trustProxy);
+      }
+
       this.app = app;
       if (
         this.connectorConfig.devMode &&

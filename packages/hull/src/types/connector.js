@@ -119,6 +119,7 @@ export type HullConnectorConfig = {
   disableOnExit?: boolean,
   devMode?: boolean,
   disableWebpack?: boolean,
+  trustProxy?: boolean | string,
   instrumentation?: HullInstrumentation,
   queue?: void | HullQueue,
   handlers:
