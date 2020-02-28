@@ -1,6 +1,18 @@
 version: 2
 jobs:
   build:
+    - setup_remote_docker:
+        docker_layer_caching: true
+    - run:
+        name: Build docker image
+        command: |
+          echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+          docker build . -t hull/hull-connectors:$CIRCLE_SHA1
+    - run:
+        name: Publish to docker
+        command: |
+          docker push hull/hull-connectors:$CIRCLE_SHA1
+  test:
     docker:
       - image: circleci/node:10.15
       - image: circleci/mongo:3.6.12
@@ -25,18 +37,6 @@ jobs:
       - run:
           name: Run tests
           command: yarn test:ci
-      # Don't try building connectors if not in branch master or develop
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - run:
-          name: Build docker image
-          command: |
-            echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
-            docker build . -t hull/hull-connectors:$CIRCLE_SHA1
-      - run:
-          name: Publish to docker
-          command: |
-            docker push hull/hull-connectors:$CIRCLE_SHA1
   deploy:
     docker:
       - image: hull/dcos-deploy:latest
@@ -58,6 +58,7 @@ workflows:
   build_and_test:
     jobs:
       - build
+      - test
       - deploy:
           filters:
             branches:
@@ -66,4 +67,5 @@ workflows:
                 - develop
                 - feature/docker-single
           requires:
+            - test
             - build
