@@ -160,7 +160,7 @@ test("fetch recent events from outreach", () => {
             "ip": null,
             "properties": {
               "body": null,
-              "created_at": "2019-12-04T13:58:13.000Z",
+              "event_at": "2019-12-04T13:58:13.000Z",
               "email_id": null,
               "external_url": null,
               "ip": null,
@@ -172,7 +172,8 @@ test("fetch recent events from outreach", () => {
               "user_id": 1
             },
             "referer": null,
-            "url": null
+            "url": null,
+            "source": "Outreach"
           }
         ],
         [

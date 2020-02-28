@@ -94,7 +94,7 @@ test("receive incoming webhook for prospect creation from outreach", () => {
           .post("/api/v2/webhooks/")
           .reply(201, require("../fixtures/api-responses/create-webhook.json"));
         scope
-          .get("/api/v2/users/")
+          .get("/v2/users/?page[limit]=100&filter[id]=0..inf")
           .reply(201, { data: [ { id: 1, attributes: { email: "andy@hull.io" } }, { id: 0, attributes: { email: "tim@hull.io" }}]});
         scope
           .get("/api/v2/stages/")
