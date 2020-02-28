@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.1.19-monorepo
+- [hull-datawarehouse] support ssh tunnel
+
 ## v0.1.18-monorepo
 - [hull-coppercrm] merged coppercrm to master
 - [hull-hubspot] additional logging for null values
