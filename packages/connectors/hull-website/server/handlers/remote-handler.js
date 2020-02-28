@@ -31,7 +31,7 @@ function fetchRemoteConfig(cache, organization: string, id: string) {
   );
 }
 
-function renderRemote(res, { allowed_domains = [], app }) {
+function renderRemote(res, { allowed_domains = [], app }, { browserId, sessionId }) {
   res.status(200);
   const domains = allowed_domains.join(" ");
   res.set("Content-Security-Policy", `frame-ancestors 'self' ${domains}`);
@@ -45,8 +45,8 @@ function renderRemote(res, { allowed_domains = [], app }) {
   <script src="${HULL_JS_URL}"></script>
   <script>
     var searchParams = new URLSearchParams(document.location.search);
-    var _bid = searchParams.get('_bid');
-    var _sid = searchParams.get('_sid');
+    var _bid = searchParams.get('_bid') || "${browserId}";
+    var _sid = searchParams.get('_sid') || "${sessionId}";
     var config = ${JSON.stringify(buildConfig(app))};
     config.me = { id: _bid };
     config.identify = { browser: _bid, session: _sid };
@@ -86,7 +86,7 @@ const remoteHandler = () => {
     });
 
     fetchRemoteConfig(CACHE, req.organization, appId).then(
-      remoteConfig => renderRemote(res, remoteConfig),
+      remoteConfig => renderRemote(res, remoteConfig, { browserId, sessionId }),
       err => res.status(err.status || 500).send(renderError(err))
     );
   };
