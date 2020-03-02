@@ -213,6 +213,12 @@ class SyncAgent {
     messages: Array<HullUserUpdateMessage>,
     { useSegments = false, ignoreFilter = false }: Object = {}
   ): Promise<*> {
+    if (!this.isConfigured()) {
+      this.client.logger.error("connector.configuration.error", {
+        errors: "connector is not configured"
+      });
+      return Promise.resolve();
+    }
     const startTime = process.hrtime();
     this.client.logger.debug("outgoing.job.start", {
       messages: messages.length
