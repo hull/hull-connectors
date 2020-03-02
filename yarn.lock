@@ -14644,7 +14644,7 @@ split@0.3:
   dependencies:
     through "2"
 
-split@^1.0.0:
+split@^1.0.0, split@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/split/-/split-1.0.1.tgz#605bd9be303aa59fb35f9229fbea0ddec9ea07d9"
   integrity sha512-mTyOoPbrivtXnwnIxZRFYRrPNtEFKlpB2fvjSnCQUiAA6qAZzqwna5envK4uk6OIeP17CsdF3rSBGYVBsU0Tkg==
@@ -15355,7 +15355,7 @@ text-table@^0.2.0, text-table@~0.2.0:
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=
 
-throat@^4.0.0:
+throat@^4.0.0, throat@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/throat/-/throat-4.1.0.tgz#89037cbc92c56ab18926e6ba4cbb200e15672a6a"
   integrity sha1-iQN8vJLFarGJJua6TLsgDhVnKmo=
@@ -16771,6 +16771,21 @@ ws@~6.1.0:
   dependencies:
     async-limiter "~1.0.0"
 
+wsrun@^5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/wsrun/-/wsrun-5.2.0.tgz#a7c0587cb371ea29352f0b3cad002ea839a25b0f"
+  integrity sha512-48j1AltgQxEy3dwDrqWJTZIYSNYPGHtkZzTDjQiHPICXv2qtXPXFj+XutE4aZlCCWKZW+Lc+v6dUjBdH3yg8PQ==
+  dependencies:
+    bluebird "^3.5.1"
+    chalk "^2.3.0"
+    glob "^7.1.2"
+    jest-changed-files "^24.9.0"
+    lodash "^4.17.4"
+    minimatch "^3.0.4"
+    split "^1.0.1"
+    throat "^4.1.0"
+    yargs "^11.1.1"
+
 x-is-string@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/x-is-string/-/x-is-string-0.1.0.tgz#474b50865af3a49a9c4657f05acd145458f77d82"
@@ -16953,7 +16968,7 @@ yargs@13.3.0, yargs@^13.2.2, yargs@^13.3.0:
     y18n "^4.0.0"
     yargs-parser "^13.1.1"
 
-yargs@^11.0.0:
+yargs@^11.0.0, yargs@^11.1.1:
   version "11.1.1"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-11.1.1.tgz#5052efe3446a4df5ed669c995886cc0f13702766"
   integrity sha512-PRU7gJrJaXv3q3yQZ/+/X6KBswZiaQ+zOmdprZcouPYtQgvNU35i+68M4b1ZHLZtYFT5QObFLV+ZkmJYcwKdiw==
