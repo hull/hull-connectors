@@ -24,6 +24,6 @@ jobs:
       - name: Lint
         run: yarn test:lint
       - name: Jest
-        run: jest --maxWorkers=2
+        run: yarn test:lint
       - name: Tests
-        run: yarn wsrun --fast-exit --parallel --concurrency=2 test
+        run: yarn test:workspaces
