@@ -5,5 +5,5 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.0
+      - uses: actions/checkout@v2
       - run: docker build -t hull/hull-connectors:$GITHUB_SHA
