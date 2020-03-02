@@ -1,7 +1,7 @@
 # build: docker build .-t hull-connectors
 # launch shell: docker run -it hull-connectors /bin/sh
 
-FROM node:10.18-alpine AS build-image
+FROM node:10.18-alpine
 
 RUN apk --no-cache add bash \
       g++ \
@@ -53,13 +53,6 @@ COPY packages/connectors/hull-website/package.json /app/packages/connectors/hull
 COPY packages/connectors/hull-zapier/package.json /app/packages/connectors/hull-zapier/package.json
 
 RUN yarn install --frozen-lockfile --no-cache --production
-
-FROM node:10.18-alpine AS runtime-image
-
-RUN apk --no-cache add bash
-WORKDIR /app
-
-COPY --from=build-image /app /app
 
 # If no package.json changed. then we start here.
 COPY ./ /app/
