@@ -51,6 +51,9 @@ export default function connectorConfig(): HullConnectorConfig {
     },
     serverConfig: {
       start: true
+    },
+    httpClientConfig: {
+      throttle: false // disable generic throttling as it is handled by the connector
     }
   };
 }

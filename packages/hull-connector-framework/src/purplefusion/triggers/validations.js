@@ -50,7 +50,7 @@ const isValidSubEntity = (entity: Object, rules: Array<Object>, whitelist: Array
 };
 
 const isValidMessage = (message: Object, validations: Object, whitelist: Array<string>) => {
-  let valid = true;
+  let valid = !_.isEmpty(validations);
 
   _.forEach(_.keys(validations), entityToValidate => {
     const entity = _.get(message, entityToValidate);
