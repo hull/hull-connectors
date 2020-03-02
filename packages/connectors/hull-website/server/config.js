@@ -10,7 +10,7 @@ export default function connectorConfig(): HullConnectorConfig {
     FIREHOSE_KAFKA_BROKERS,
     FIREHOSE_KAFKA_TOPIC,
     LOG_LEVEL,
-    PORT,
+    PORT, PORT0,
     REDIS_URL,
     HULL_DOMAIN,
     REMOTE_DOMAIN,
@@ -46,7 +46,7 @@ export default function connectorConfig(): HullConnectorConfig {
     devMode: NODE_ENV === "development",
     disableWebpack: DISABLE_WEBPACK === "true",
     trustProxy: true,
-    port: PORT || 8082,
+    port: PORT || PORT0 || 8082,
     handlers: handlers({
       redisUri: REDIS_URL,
       HULL_DOMAIN,
