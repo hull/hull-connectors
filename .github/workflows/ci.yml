@@ -21,6 +21,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
       - run: yarn install
-      - run: yarn test:ci
-        env:
-          CI: true
+      - name: Lint
+        run: yarn test:lint
+      - name: Jest
+        run: jest --maxWorkers=2
+      - name: Tests
+        run: yarn wsrun --fast-exit --parallel --concurrency=2 test
