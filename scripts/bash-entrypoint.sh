@@ -18,6 +18,6 @@ if [ ! -d $PATH_TO_CONNECTOR ]; then
   exit 1
 fi
 
-echo "Starting $PATH_TO_CONNECTOR";
+echo "Starting $PATH_TO_CONNECTOR (with PORT=$PORT or PORT0=$PORT0)";
 
 exec node --optimize_for_size --max_old_space_size=$MEMORY_AVAILABLE -r newrelic $PATH_TO_CONNECTOR
