@@ -24,6 +24,6 @@ jobs:
       - name: Lint
         run: yarn test:lint
       - name: Jest
-        run: yarn test:lint
+        run: yarn test:jest
       - name: Tests
         run: yarn test:workspaces
