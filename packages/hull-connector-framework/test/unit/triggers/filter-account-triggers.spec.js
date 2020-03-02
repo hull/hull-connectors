@@ -33,7 +33,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
       "segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(message, context.private_settings.triggers);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     const { serviceAction, cleanedEntity } = triggers[0];
 
     expect(_.size(triggers)).toEqual(1);
@@ -77,7 +77,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
       "segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(message, context.private_settings.triggers);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     const { serviceAction, cleanedEntity } = triggers[0];
 
     expect(_.size(triggers)).toEqual(1);
@@ -117,7 +117,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
       "segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(message, context.private_settings.triggers);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
 
     expect(_.size(triggers)).toEqual(0);
   });
@@ -149,7 +149,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
       "segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(message, context.private_settings.triggers);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     const { serviceAction, cleanedEntity } = triggers[0];
 
     expect(_.size(triggers)).toEqual(1);
@@ -188,7 +188,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
       "segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(message, context.private_settings.triggers);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
 
     expect(_.size(triggers)).toEqual(0);
   });
@@ -228,7 +228,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
       "segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(message, context.private_settings.triggers);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     const { serviceAction, cleanedEntity } = triggers[0];
 
     expect(_.size(triggers)).toEqual(1);
@@ -268,7 +268,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
       "segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(message, context.private_settings.triggers);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     const { serviceAction, cleanedEntity } = triggers[0];
 
     expect(_.size(triggers)).toEqual(1);
@@ -308,7 +308,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
       "segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(message, context.private_settings.triggers);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
 
     expect(_.size(triggers)).toEqual(0);
   });
@@ -336,7 +336,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
       "account_segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(message, context.private_settings.triggers);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     const { serviceAction, cleanedEntity } = triggers[0];
 
     expect(_.size(triggers)).toEqual(1);
@@ -374,7 +374,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
       "account_segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(message, context.private_settings.triggers);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
 
     expect(_.size(triggers)).toEqual(0);
   });
@@ -416,7 +416,7 @@ describe("Outgoing Account Attribute Filtering Tests", () => {
       "account_segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(message, context.private_settings.triggers);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     const { serviceAction, cleanedEntity } = triggers[0];
 
     expect(_.size(triggers)).toEqual(1);
@@ -459,7 +459,7 @@ describe("Outgoing Account Attribute Filtering Tests", () => {
       "segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(message, context.private_settings.triggers);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     expect(_.size(triggers)).toEqual(0);
   });
 
@@ -492,7 +492,7 @@ describe("Outgoing Account Attribute Filtering Tests", () => {
       "segments": [{ "id": "account_segment_2" }],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(message, context.private_settings.triggers);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
 
     expect(_.size(triggers)).toEqual(0);
   });
@@ -526,7 +526,7 @@ describe("Outgoing Account Attribute Filtering Tests", () => {
       "segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(message, context.private_settings.triggers);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
 
     expect(_.size(triggers)).toEqual(0);
   });
@@ -561,7 +561,7 @@ describe("Outgoing Account Attribute Filtering Tests", () => {
       "segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(message, context.private_settings.triggers);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     const { serviceAction, cleanedEntity } = triggers[0];
 
     expect(_.size(triggers)).toEqual(1);
@@ -608,7 +608,7 @@ describe("Outgoing Account Created Filtering Tests", () => {
       "account_segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(message, context.private_settings.triggers);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     const { serviceAction, cleanedEntity } = triggers[0];
 
     expect(_.size(triggers)).toEqual(1);
@@ -652,7 +652,7 @@ describe("Outgoing Account Created Filtering Tests", () => {
       "segments": [{ "id": "account_segment_2" }],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(message, context.private_settings.triggers);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
 
     expect(_.size(triggers)).toEqual(0);
   });
@@ -687,7 +687,7 @@ describe("Outgoing Account Created Filtering Tests", () => {
       "segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(message, context.private_settings.triggers);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
 
     expect(_.size(triggers)).toEqual(0);
   });

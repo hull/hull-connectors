@@ -126,7 +126,7 @@
     {
       "name": "synchronized_account_segments",
       "title": "Account Filter",
-      "description": "As a precondition to the triggers being evaluated, the user must belong to one of the defined segments.",
+      "description": "As a precondition to the triggers being evaluated, the account must belong to one of the defined segments.",
       "type": "array",
       "default": [],
       "format": "accountSegment"
