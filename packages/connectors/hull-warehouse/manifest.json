@@ -4,7 +4,7 @@
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.18-monorepo",
+  "version": "0.1.19-monorepo",
 
   "tags": [
     "outgoing",
@@ -72,6 +72,28 @@
       "title": "Password",
       "required" : true,
       "format": "password"
+    },
+    {
+      "name": "ssh_host",
+      "type": "string",
+      "title": "SSH host"
+    },
+    {
+      "name": "ssh_port",
+      "type": "string",
+      "title": "SSH port",
+      "description": "Defaults to port 22"
+    },
+    {
+      "name": "ssh_username",
+      "type": "string",
+      "title": "SSH username"
+    },
+    {
+      "name": "ssh_private_key",
+      "type": "string",
+      "format": "textarea",
+      "title": "SSH private key"
     },
     {
       "name": "user_outgoing_sync_title",
@@ -297,6 +319,16 @@
       "properties": [
         "private_settings.db_username",
         "private_settings.db_password"
+      ]
+    },
+    {
+      "title": "SSH Tunnel Configuration",
+      "description": "If your connection must go through an ssh tunnel, please input the information here",
+      "properties": [
+        "private_settings.ssh_host",
+        "private_settings.ssh_port",
+        "private_settings.ssh_username",
+        "private_settings.ssh_private_key"
       ]
     },
     {

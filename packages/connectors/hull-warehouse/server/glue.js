@@ -134,7 +134,7 @@ const glue = {
         postgresJdbc("closeDatabaseConnectionIfExists"),
         route("accountSchemaUpdateStart"),
         route("userSchemaUpdateStart"),
-        cacheSet({ key: "databaseSettings", ttl: 99999999 }, "${currentDatabaseSettings}")
+        cacheSet({ key: "databaseSettings", ttl: 3600 }, "${currentDatabaseSettings}")
       ]),
       elif: [
         ifL([
