@@ -95,7 +95,10 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
       clientParams.accessToken = accessToken;
       req.hull = new HullClient(clientParams).asUser({}, { active: true });
     } else {
-      req.hull = new HullClient(clientParams).asUser({ anonymous_id }, { active: true });
+      req.hull = new HullClient(clientParams).asUser(
+        { anonymous_id },
+        { active: true }
+      );
     }
 
     const { url, referer } = req.body;

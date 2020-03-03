@@ -16,7 +16,10 @@ export default (req, res) => {
 
   if (traits.email && EMAIL_REGEXP.test(traits.email)) {
     const anonymous_id = req.get("hull-bid") || req.cookies._bid;
-    req.hull = req.hull.asUser({ email: traits.email, anonymous_id }, { active: true });
+    req.hull = req.hull.asUser(
+      { email: traits.email, anonymous_id },
+      { active: true }
+    );
   }
 
   return req.hull
