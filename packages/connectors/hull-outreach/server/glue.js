@@ -353,6 +353,7 @@ const glue = {
       set("dataPagingEndpoint", input("dataPagingEndpoint")),
       set("page_limit", input("page_limit")),
       set("dataMap", utils("emptyObject")),
+      set("id_offset", 0),
       loopL([
         set("dataPage", outreach("${dataPagingEndpoint}")),
         ld("assign", "${dataMap}", jsonata(input("jsonataExpression"), "${dataPage}")),
