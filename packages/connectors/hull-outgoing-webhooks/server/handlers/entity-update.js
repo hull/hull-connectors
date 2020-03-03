@@ -5,13 +5,17 @@ import type {
   HullNotificationResponse
 } from "hull";
 import { compute } from "hull-vm";
-import { getHeaders, getPayloads } from "hull-webhooks";
+
+import { getHeaders, getPayloads, getTriggers } from "hull-webhooks";
 
 type FlowControl = {
   flow_size?: number,
   flow_in?: number
 };
-const update = ({ flow_in, flow_size }: FlowControl, getThrottle: Function) => {
+const update = entityType => (
+  { flow_in, flow_size }: FlowControl,
+  getThrottle: Function
+) => {
   return async (
     ctx: HullContext,
     messages: Array<HullUserUpdateMessage>
@@ -37,46 +41,50 @@ const update = ({ flow_in, flow_size }: FlowControl, getThrottle: Function) => {
       }
     });
 
+    const triggers = getTriggers(entityType)(private_settings);
+
     try {
       await Promise.all(
         messages.map(async message =>
           Promise.all(
-            getPayloads(ctx, message, { entity: "user" }).map(async payload => {
-              const result = await compute(ctx, {
-                source: "outgoing-webhooks",
-                language: "jsonata",
-                payload,
-                entity: "user",
-                preview: false,
-                code
-              });
+            getPayloads({ ctx, message, entity: "user", triggers }).map(
+              async payload => {
+                const result = await compute(ctx, {
+                  source: "outgoing-webhooks",
+                  language: "jsonata",
+                  payload,
+                  entity: entityType,
+                  preview: false,
+                  code
+                });
 
-              const response = await request
-                .use(throttle.plugin())
-                .set(getHeaders(ctx) || {})
-                .send(result.data)
-                .post(url);
+                const response = await request
+                  .use(throttle.plugin())
+                  .post(url)
+                  .set(getHeaders(ctx) || {})
+                  .send(result.data);
 
-              if (!response || response.error || response.status >= 400) {
-                client.logger.error("outgoing.user.error", {
+                if (!response || response.error || response.status >= 400) {
+                  client.logger.error(`outgoing.${entityType}.error`, {
+                    url,
+                    headers,
+                    code,
+                    payload,
+                    body: response.body,
+                    message: response.error,
+                    status: response.status
+                  });
+                  throw new Error(response.error);
+                }
+                client.logger.info(`outgoing.${entityType}.success`, {
                   url,
                   headers,
-                  code,
                   payload,
-                  body: response.body,
-                  message: response.error,
-                  status: response.status
+                  message: response.body
                 });
-                throw new Error(response.error);
+                return response;
               }
-              client.logger.info("outgoing.user.success", {
-                url,
-                headers,
-                payload,
-                message: response.body
-              });
-              return response;
-            })
+            )
           )
         )
       );
