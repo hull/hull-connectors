@@ -93,9 +93,9 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
     const accessToken = new URL(remoteUrl).searchParams.get("access_token");
     if (accessToken) {
       clientParams.accessToken = accessToken;
-      req.hull = new HullClient(clientParams).asUser({});
+      req.hull = new HullClient(clientParams).asUser({}, { active: true });
     } else {
-      req.hull = new HullClient(clientParams).asUser({ anonymous_id });
+      req.hull = new HullClient(clientParams).asUser({ anonymous_id }, { active: true });
     }
 
     const { url, referer } = req.body;
