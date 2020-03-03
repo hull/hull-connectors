@@ -10,7 +10,7 @@ const { filterMessage } = require("./filters");
 const { isValidTrigger } = require("./validations");
 const { triggers } = require("./triggers");
 
-function getCleanedMessage(triggers: Object, message: Object, inputData: Object): Array<string> {
+function getCleanedMessage(definedTriggers: Object, message: Object, inputData: Object): Array<string> {
 
   const standardFilter = _.concat(
     !_.isEmpty(_.get(message, "user", {})) ? [ "user", "segments" ] : [],
@@ -25,7 +25,7 @@ function getCleanedMessage(triggers: Object, message: Object, inputData: Object)
       return {};
     }
 
-    const triggerDefinition = _.get(triggers, action, {});
+    const triggerDefinition = _.get(definedTriggers, action, {});
 
     const { filters } = triggerDefinition;
 
@@ -40,10 +40,21 @@ function getCleanedMessage(triggers: Object, message: Object, inputData: Object)
   return filteredEntity;
 }
 
-function getEntityTriggers(context: Object, entity: Object): Array<string> {
+function hasValidTrigger(entity: Object, activeTriggers: Array<Object>): boolean {
+  let isValid = false;
+  _.forEach(activeTriggers, activeTrigger => {
+    if (isValidTrigger(triggers, entity, activeTrigger.inputData)) {
+      return (isValid = true);
+    }
+  });
+
+  return isValid;
+}
+
+function getEntityTriggers(entity: Object, activeTriggers: Array<Object>): Array<string> {
   const filteredTriggers = [];
 
-  _.forEach(_.get(context, "connector.private_settings.triggers", []), activeTrigger => {
+  _.forEach(activeTriggers, activeTrigger => {
     if (isValidTrigger(triggers, entity, activeTrigger.inputData)) {
       const rawEntity = entity;
 
@@ -74,5 +85,6 @@ function getEntityTriggers(context: Object, entity: Object): Array<string> {
 
 module.exports = {
   getEntityTriggers,
-  getCleanedMessage
+  getCleanedMessage,
+  hasValidTrigger
 };

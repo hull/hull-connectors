@@ -7,12 +7,16 @@ import type {
 import { compute } from "hull-vm";
 import getHeaders from "../lib/get-headers";
 import getPayloads from "../lib/get-payloads";
+import getTriggers from "../lib/get-triggers";
 
 type FlowControl = {
   flow_size?: number,
   flow_in?: number
 };
-const update = ({ flow_in, flow_size }: FlowControl, getThrottle: Function) => {
+const update = entityType => (
+  { flow_in, flow_size }: FlowControl,
+  getThrottle: Function
+) => {
   return async (
     ctx: HullContext,
     messages: Array<HullUserUpdateMessage>
@@ -38,28 +42,30 @@ const update = ({ flow_in, flow_size }: FlowControl, getThrottle: Function) => {
       }
     });
 
+    const triggers = getTriggers(entityType)(private_settings);
+
     try {
       await Promise.all(
         messages.map(async message =>
           Promise.all(
-            getPayloads(ctx, message).map(async payload => {
+            getPayloads(ctx, message, triggers).map(async payload => {
               const result = await compute(ctx, {
                 source: "outgoing-webhooks",
                 language: "jsonata",
                 payload,
-                entity: "user",
+                entity: entityType,
                 preview: false,
                 code
               });
 
               const response = await request
                 .use(throttle.plugin())
+                .post(url)
                 .set(getHeaders(ctx) || {})
-                .send(result.data)
-                .post(url);
+                .send(result.data);
 
               if (!response || response.error || response.status >= 400) {
-                client.logger.error("outgoing.user.error", {
+                client.logger.error(`outgoing.${entityType}.error`, {
                   url,
                   headers,
                   code,
@@ -70,7 +76,7 @@ const update = ({ flow_in, flow_size }: FlowControl, getThrottle: Function) => {
                 });
                 throw new Error(response.error);
               }
-              client.logger.info("outgoing.user.success", {
+              client.logger.info(`outgoing.${entityType}.success`, {
                 url,
                 headers,
                 payload,

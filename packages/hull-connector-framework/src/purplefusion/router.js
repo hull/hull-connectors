@@ -198,7 +198,7 @@ class HullRouter {
     const dataToSend = Array.isArray(data) ? data : [data];
     _.forEach(dataToSend, message => {
 
-      const triggers = getEntityTriggers(context, message);
+      const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
 
       _.forEach(triggers, (trigger) => {
         triggerPromises.push(dispatcher.dispatchWithData(context, "performTrigger", objectType, [ trigger ]));
