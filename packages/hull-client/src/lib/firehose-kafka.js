@@ -1,6 +1,7 @@
 // @flow
 
 import Kafka from "node-rdkafka";
+import _ from "lodash";
 
 import type {
   HullClientInstanceConfig,
@@ -111,7 +112,7 @@ function getInstance(
     throw new Error("Invalid kafka configuration: missinsg topic");
   }
 
-  const { organization } = config;
+  const { organization, additionalClaims = {} } = config;
   return ({ type, requestId, body, context }: FirehoseCallArguments) => {
     if (IS_EXITING)
       throw new Error(
@@ -136,6 +137,19 @@ function getInstance(
       if (config.userClaim) claims["io.hull.asUser"] = config.userClaim;
       if (config.accountClaim)
         claims["io.hull.asAccount"] = config.accountClaim;
+
+      if (_.has(additionalClaims, "scopes")) {
+        claims.scopes = additionalClaims.scopes;
+      }
+
+      if (_.has(additionalClaims, "create")) {
+        claims["io.hull.create"] = additionalClaims.create;
+      }
+
+      if (_.has(additionalClaims, "active")) {
+        claims["io.hull.active"] = additionalClaims.active;
+      }
+
       message.claims = claims;
     }
 
