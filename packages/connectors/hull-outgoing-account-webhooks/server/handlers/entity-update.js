@@ -12,7 +12,7 @@ type FlowControl = {
   flow_size?: number,
   flow_in?: number
 };
-const update = entityType => (
+const entityUpdate = entity => (
   { flow_in, flow_size }: FlowControl,
   getThrottle: Function
 ) => {
@@ -41,19 +41,19 @@ const update = entityType => (
       }
     });
 
-    const triggers = getTriggers(entityType)(private_settings);
+    const triggers = getTriggers(entity)(private_settings);
 
     try {
       await Promise.all(
         messages.map(async message =>
           Promise.all(
-            getPayloads({ ctx, message, entity: "user", triggers }).map(
+            getPayloads({ ctx, message, entity, triggers }).map(
               async payload => {
                 const result = await compute(ctx, {
                   source: "outgoing-webhooks",
                   language: "jsonata",
                   payload,
-                  entity: entityType,
+                  entity,
                   preview: false,
                   code
                 });
@@ -65,7 +65,7 @@ const update = entityType => (
                   .send(result.data);
 
                 if (!response || response.error || response.status >= 400) {
-                  client.logger.error(`outgoing.${entityType}.error`, {
+                  client.logger.error(`outgoing.${entity}.error`, {
                     url,
                     headers,
                     code,
@@ -76,7 +76,7 @@ const update = entityType => (
                   });
                   throw new Error(response.error);
                 }
-                client.logger.info(`outgoing.${entityType}.success`, {
+                client.logger.info(`outgoing.${entity}.success`, {
                   url,
                   headers,
                   payload,
@@ -118,4 +118,4 @@ const update = entityType => (
   };
 };
 
-export default update;
+export default entityUpdate;

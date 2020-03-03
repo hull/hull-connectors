@@ -46,7 +46,7 @@
       "title": "Code",
       "description": "Enter JSON mapping code here",
       "type": "string",
-      "default": "{\n \"email\": user.email,\n \"event_name\": events[event=\"Viewed Page\"].event,\n \"event_time\": events[event=\"Viewed Page\"].created_at\n }",
+      "default": "{\n    \"changes\": changes,\n    \"user\": user,\n    \"account\": account,\n    \"account_segments\": account_segments,\n    \"segments\": segments,\n    \"events\": events,\n    \"message_id\": message_id\n}",
       "format": "hidden"
     },
     {
@@ -81,7 +81,7 @@
       }
     },
     {
-      "name": "synchronized_user_events",
+      "name": "synchronized_events",
       "title": "Emit on new Event",
       "type": "array",
       "format": "event",
@@ -93,7 +93,7 @@
       }
     },
     {
-      "name": "synchronized_user_segments",
+      "name": "synchronized_segments",
       "title": "User Filter",
       "description": "As a precondition to the triggers being evaluated, the user must belong to one of the defined segments.",
       "type": "array",
@@ -101,7 +101,7 @@
       "format": "segment"
     },
     {
-      "name": "synchronized_user_segments_enter",
+      "name": "synchronized_segments_enter",
       "title": "Emit on Entering these segments",
       "type": "array",
       "default": [],
@@ -109,7 +109,7 @@
       "options": {}
     },
     {
-      "name": "synchronized_user_segments_leave",
+      "name": "synchronized_segments_leave",
       "title": "Emit on Leaving these segments",
       "type": "array",
       "default": [],
@@ -117,41 +117,10 @@
       "options": {}
     },
     {
-      "name": "synchronized_user_attributes",
+      "name": "synchronized_attributes",
       "title": "Emit on Attribute change",
       "type": "array",
       "format": "trait",
-      "default": []
-    },
-    {
-      "name": "synchronized_account_segments",
-      "title": "Account Filter",
-      "description": "As a precondition to the triggers being evaluated, the account must belong to one of the defined segments.",
-      "type": "array",
-      "default": [],
-      "format": "accountSegment"
-    },
-    {
-      "name": "synchronized_account_segments_enter",
-      "title": "Emit on Entering these segments",
-      "type": "array",
-      "default": [],
-      "format": "accountSegment",
-      "options": {}
-    },
-    {
-      "name": "synchronized_account_segments_leave",
-      "title": "Emit on Leaving these segments",
-      "type": "array",
-      "default": [],
-      "format": "accountSegment",
-      "options": {}
-    },
-    {
-      "name": "synchronized_account_attributes",
-      "title": "Emit on Attribute change",
-      "type": "array",
-      "format": "accountTrait",
       "default": []
     },
     {
@@ -173,27 +142,6 @@
         "private_settings.throttle_rate",
         "private_settings.throttle_per_rate",
         "private_settings.concurrency"
-      ]
-    },
-    {
-      "title": "User Triggers",
-      "description": "This section defines the conditions for emitting a User Webhook. Any of those being true will result in a webhook being sent. Only one webhook will be sent if multiple conditions match",
-      "properties": [
-        "private_settings.synchronized_user_segments",
-        "private_settings.synchronized_user_events",
-        "private_settings.synchronized_user_segments_enter",
-        "private_settings.synchronized_user_segments_leave",
-        "private_settings.synchronized_user_attributes"
-      ]
-    },
-    {
-      "title": "Account Triggers",
-      "description": "This section defines the conditions for emitting an Account Webhook. Any of those being true will result in a webhook being sent. Only one webhook will be sent if multiple conditions match",
-      "properties": [
-        "private_settings.synchronized_account_segments",
-        "private_settings.synchronized_account_segments_enter",
-        "private_settings.synchronized_account_segments_leave",
-        "private_settings.synchronized_account_attributes"
       ]
     }
   ],
@@ -232,10 +180,6 @@
         {
           "channel": "user:update",
           "handler": "userUpdate"
-        },
-        {
-          "channel": "account:update",
-          "handler": "accountUpdate"
         }
       ],
       "conditions": {
@@ -248,7 +192,6 @@
         "channels": {
           "only": [
             "user:update",
-            "account:update",
             "ship:update"
           ]
         }

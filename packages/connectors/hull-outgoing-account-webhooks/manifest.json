@@ -7,7 +7,7 @@
     "kraken-exports"
   ],
   "picture": "picture.png",
-  "version": "0.1.18-monorepo",
+  "version": "0.1.19-monorepo",
   "tabs": [
     {
       "title": "Code Editor",
@@ -46,7 +46,7 @@
       "title": "Code",
       "description": "Enter JSON mapping code here",
       "type": "string",
-      "default": "{\n \"domain\": account.domain,\n \"event_name\": events[event=\"Entered Segment\"].event,\n \"event_time\": events[event=\"Entered Segment\"].created_at\n }",
+      "default": "{\n    \"changes\": changes,\n    \"user\": user,\n    \"account\": account,\n    \"account_segments\": account_segments,\n    \"segments\": segments,\n    \"events\": events,\n    \"message_id\": message_id\n}",
       "format": "hidden"
     },
     {

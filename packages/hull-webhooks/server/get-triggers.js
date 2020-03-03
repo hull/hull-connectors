@@ -10,7 +10,7 @@ const buildTriggers = ({
   const triggers = [];
   if (!_.isEmpty(synchronized_segments)) {
     _.map(inputData, (whitelist, action) => {
-      if (!_.isEmpty(whitelist)) {
+      if (whitelist === true || !_.isEmpty(whitelist)) {
         triggers.push({
           serviceAction: {
             url: serviceAction
@@ -32,25 +32,21 @@ const getTriggers = entityType => (private_settings: Object): Array<{}> => {
 
   const { url } = private_settings;
 
-  const synchronized_segments =
-    private_settings[`synchronized_${entityType}_segments`];
+  const synchronized_segments = private_settings.synchronized_segments;
 
   if (!_.isEmpty(synchronized_segments)) {
     const inputData = {
-      [`entered_${entityType}_segments`]: private_settings[
-        `synchronized_${entityType}_segments_enter`
-      ],
-      [`left_${entityType}_segments`]: private_settings[
-        `synchronized_${entityType}_segments_leave`
-      ],
-      [`${entityType}_attribute_updated`]: private_settings[
-        `synchronized_${entityType}_attributes`
-      ]
+      [`entered_${entityType}_segments`]: private_settings.synchronized_segments_enter,
+      [`left_${entityType}_segments`]: private_settings.synchronized_segments_leave,
+      [`${entityType}_attribute_updated`]: private_settings.synchronized_attributes,
+      [`${entityType}_events`]: private_settings.synchronized_events
     };
 
-    if (entityType === "user") {
-      inputData[`${entityType}_events`] =
-        private_settings[`synchronized_${entityType}_events`];
+    if (
+      _.includes(private_settings.synchronized_events, "User Created") ||
+      _.includes(private_settings.synchronized_events, "Account Created")
+    ) {
+      inputData[`is_new_${entityType}`] = true;
     }
 
     triggers = _.concat(

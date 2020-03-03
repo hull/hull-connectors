@@ -5,13 +5,17 @@ import type {
   HullNotificationResponse
 } from "hull";
 import { compute } from "hull-vm";
-import { getPayloads, getHeaders } from "hull-webhooks";
+
+import { getHeaders, getPayloads, getTriggers } from "hull-webhooks";
 
 type FlowControl = {
   flow_size?: number,
   flow_in?: number
 };
-const update = ({ flow_in, flow_size }: FlowControl, getThrottle: Function) => {
+const entityUpdate = entity => (
+  { flow_in, flow_size }: FlowControl,
+  getThrottle: Function
+) => {
   return async (
     ctx: HullContext,
     messages: Array<HullUserUpdateMessage>
@@ -37,29 +41,31 @@ const update = ({ flow_in, flow_size }: FlowControl, getThrottle: Function) => {
       }
     });
 
+    const triggers = getTriggers(entity)(private_settings);
+
     try {
       await Promise.all(
         messages.map(async message =>
           Promise.all(
-            getPayloads(ctx, message, { entity: "account" }).map(
+            getPayloads({ ctx, message, entity, triggers }).map(
               async payload => {
                 const result = await compute(ctx, {
                   source: "outgoing-webhooks",
                   language: "jsonata",
                   payload,
-                  entity: "account",
+                  entity,
                   preview: false,
                   code
                 });
 
                 const response = await request
                   .use(throttle.plugin())
+                  .post(url)
                   .set(getHeaders(ctx) || {})
-                  .send(result.data)
-                  .post(url);
+                  .send(result.data);
 
                 if (!response || response.error || response.status >= 400) {
-                  client.logger.error("outgoing.account.error", {
+                  client.logger.error(`outgoing.${entity}.error`, {
                     url,
                     headers,
                     code,
@@ -70,7 +76,7 @@ const update = ({ flow_in, flow_size }: FlowControl, getThrottle: Function) => {
                   });
                   throw new Error(response.error);
                 }
-                client.logger.info("outgoing.account.success", {
+                client.logger.info(`outgoing.${entity}.success`, {
                   url,
                   headers,
                   payload,
@@ -112,4 +118,4 @@ const update = ({ flow_in, flow_size }: FlowControl, getThrottle: Function) => {
   };
 };
 
-export default update;
+export default entityUpdate;

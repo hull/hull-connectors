@@ -2,17 +2,13 @@ const _ = require("lodash");
 const expect = require("expect");
 
 function createSimpleTriggerScenario({trigger, negative = false, settingsOverwrite = {}}) {
-  const scenario = _.cloneDeep(require("./integration/fixtures/notifier-payloads/update-single-entity"));
+  const scenario = _.cloneDeep(require("./fixtures/notifier-payloads/update-single-entity"));
 
-  let synchronized_user_events = [];
-  let synchronized_user_segments_enter = [];
-  let synchronized_user_segments_leave = [];
-  let synchronized_user_attributes = [];
-  let synchronized_account_segments_enter = [];
-  let synchronized_account_segments_leave = [];
-  let synchronized_account_attributes = [];
-  let synchronized_user_segments = [];
-  let synchronized_account_segments = [];
+  let synchronized_events = [];
+  let synchronized_segments_enter = [];
+  let synchronized_segments_leave = [];
+  let synchronized_attributes = [];
+  let synchronized_segments = [];
   let code;
   let message;
   if (_.startsWith(trigger, "user")) {
@@ -31,20 +27,35 @@ function createSimpleTriggerScenario({trigger, negative = false, settingsOverwri
   };
 
   switch (trigger) {
+
+    case "user_created": {
+      synchronized_events = ['User Created'];
+      synchronized_segments = ['user_segment_1'];
+
+      private_settings = {
+        ...private_settings,
+        synchronized_events,
+        synchronized_segments
+      };
+      _.set(message, "changes.is_new", true);
+
+      break;
+    }
+
     case "user_event": {
 
       if (!negative) {
-        synchronized_user_events = ['Email Opened'];
-        synchronized_user_segments = ['user_segment_1'];
+        synchronized_events = ['Email Opened'];
+        synchronized_segments = ['user_segment_1'];
       } else {
-        synchronized_user_events = ['Email Sent'];
-        synchronized_user_segments = ['user_segment_1'];
+        synchronized_events = ['Email Sent'];
+        synchronized_segments = ['user_segment_1'];
       }
 
       private_settings = {
         ...private_settings,
-        synchronized_user_events,
-        synchronized_user_segments
+        synchronized_events,
+        synchronized_segments
       };
       _.set(message, "events", [
         {
@@ -63,17 +74,17 @@ function createSimpleTriggerScenario({trigger, negative = false, settingsOverwri
     case "user_entered_segment": {
 
       if (!negative) {
-        synchronized_user_segments_enter = ['user_segment_1'];
-        synchronized_user_segments = ['user_segment_1'];
+        synchronized_segments_enter = ['user_segment_1'];
+        synchronized_segments = ['user_segment_1'];
       } else {
-        synchronized_user_segments_enter = ['user_segment_2'];
-        synchronized_user_segments = ['user_segment_1'];
+        synchronized_segments_enter = ['user_segment_2'];
+        synchronized_segments = ['user_segment_1'];
       }
 
       private_settings = {
         ...private_settings,
-        synchronized_user_segments_enter,
-        synchronized_user_segments
+        synchronized_segments_enter,
+        synchronized_segments
       };
       _.set(message, "changes.segments.entered", [{ "id": "user_segment_1", "name": "UserSegment1" }]);
       break;
@@ -82,17 +93,17 @@ function createSimpleTriggerScenario({trigger, negative = false, settingsOverwri
     case "user_left_segment": {
 
       if (!negative) {
-        synchronized_user_segments_leave = [ 'user_segment_2'];
-        synchronized_user_segments =[ 'user_segment_1' ];
+        synchronized_segments_leave = [ 'user_segment_2'];
+        synchronized_segments =[ 'user_segment_1' ];
       } else {
-        synchronized_user_segments_leave = [ 'user_segment_3'];
-        synchronized_user_segments =[ 'user_segment_1' ];
+        synchronized_segments_leave = [ 'user_segment_3'];
+        synchronized_segments =[ 'user_segment_1' ];
       }
 
       private_settings = {
         ...private_settings,
-        synchronized_user_segments_leave,
-        synchronized_user_segments
+        synchronized_segments_leave,
+        synchronized_segments
       };
       _.set(message, "changes.segments.left", [{ "id": "user_segment_2", "name": "UserSegment2" }]);
       break;
@@ -101,17 +112,17 @@ function createSimpleTriggerScenario({trigger, negative = false, settingsOverwri
     case "user_attribute_updated": {
 
       if (!negative) {
-        synchronized_user_attributes = [ 'description'];
-        synchronized_user_segments =[ 'user_segment_1' ];
+        synchronized_attributes = [ 'description'];
+        synchronized_segments =[ 'user_segment_1' ];
       } else {
-        synchronized_user_attributes = [ 'department'];
-        synchronized_user_segments =[ 'user_segment_1' ];
+        synchronized_attributes = [ 'department'];
+        synchronized_segments =[ 'user_segment_1' ];
       }
 
       private_settings = {
         ...private_settings,
-        synchronized_user_attributes,
-        synchronized_user_segments
+        synchronized_attributes,
+        synchronized_segments
       };
       _.set(message, "changes.user", { "description": ["1", "2"] });
       break;
@@ -120,26 +131,40 @@ function createSimpleTriggerScenario({trigger, negative = false, settingsOverwri
     case "user_synchronized_segment": {
       private_settings = {
         ...private_settings,
-        synchronized_user_segments: [ 'user_segment_1' ]
+        synchronized_segments: [ 'user_segment_1' ]
       };
       _.set(message, "segments", [{ "id": "user_segment_1", "name": "UserSegment1" }]);
+      break;
+    }
+
+    case "account_created": {
+      synchronized_events = ['Account Created'];
+      synchronized_segments = ['account_segment_1'];
+
+      private_settings = {
+        ...private_settings,
+        synchronized_events,
+        synchronized_segments
+      };
+      _.set(message, "changes.is_new", true);
+
       break;
     }
 
     case "account_entered_segment": {
 
       if (!negative) {
-        synchronized_account_segments_enter = [ 'account_segment_1'];
-        synchronized_account_segments =[ 'account_segment_1' ];
+        synchronized_segments_enter = [ 'account_segment_1'];
+        synchronized_segments =[ 'account_segment_1' ];
       } else {
-        synchronized_account_segments_enter = [ 'account_segment_2'];
-        synchronized_account_segments =[ 'account_segment_1' ];
+        synchronized_segments_enter = [ 'account_segment_2'];
+        synchronized_segments =[ 'account_segment_1' ];
       }
 
       private_settings = {
         ...private_settings,
-        synchronized_account_segments_enter,
-        synchronized_account_segments
+        synchronized_segments_enter,
+        synchronized_segments
       };
       _.set(message, "changes.account_segments.entered", [{ "id": "account_segment_1", "name": "AccountSegment1" }]);
       break;
@@ -148,17 +173,17 @@ function createSimpleTriggerScenario({trigger, negative = false, settingsOverwri
     case "account_left_segment": {
 
       if (!negative) {
-        synchronized_account_segments_leave = [ 'account_segment_2'];
-        synchronized_account_segments =[ 'account_segment_1' ];
+        synchronized_segments_leave = [ 'account_segment_2'];
+        synchronized_segments =[ 'account_segment_1' ];
       } else {
-        synchronized_account_segments_leave = [ 'account_segment_1'];
-        synchronized_account_segments =[ 'account_segment_1' ];
+        synchronized_segments_leave = [ 'account_segment_1'];
+        synchronized_segments =[ 'account_segment_1' ];
       }
 
       private_settings = {
         ...private_settings,
-        synchronized_account_segments_leave,
-        synchronized_account_segments
+        synchronized_segments_leave,
+        synchronized_segments
       };
       _.set(message, "changes.account_segments.left", [{ "id": "account_segment_2", "name": "AccountSegment2" }]);
       break;
@@ -167,17 +192,17 @@ function createSimpleTriggerScenario({trigger, negative = false, settingsOverwri
     case "account_attribute_updated": {
 
       if (!negative) {
-        synchronized_account_attributes = [ 'description'];
-        synchronized_account_segments =[ 'account_segment_1' ];
+        synchronized_attributes = [ 'description'];
+        synchronized_segments =[ 'account_segment_1' ];
       } else {
-        synchronized_account_attributes = [ 'industry'];
-        synchronized_account_segments =[ 'account_segment_1' ];
+        synchronized_attributes = [ 'industry'];
+        synchronized_segments =[ 'account_segment_1' ];
       }
 
       private_settings = {
         ...private_settings,
-        synchronized_account_attributes,
-        synchronized_account_segments
+        synchronized_attributes,
+        synchronized_segments
       };
       _.set(message, "changes.account", { "description": ["1", "2"] });
       break;
@@ -186,7 +211,7 @@ function createSimpleTriggerScenario({trigger, negative = false, settingsOverwri
     case "account_synchronized_segment": {
       private_settings = {
         ...private_settings,
-        synchronized_account_segments: [ 'account_segment_1' ]
+        synchronized_segments: [ 'account_segment_1' ]
       };
       _.set(message, "account_segments", [{ "id": "account_segment_1", "name": "AccountSegment1" }]);
       break;
@@ -254,14 +279,13 @@ class TriggerScenario {
           "url": "http://fake-url.io/mock",
           "headers": [{ "key": "Accept", "value": "application/json" }],
           "payload": {
-            "variables": {},
             "changes": this.getChanges(),
             "account": this.getAccount(),
             "user": this.getUser(),
             "account_segments": this.getAccountSegments(),
             "segments": this.getSegments(),
             "user_segments": this.getSegments(),
-            "events": this.getEvents(),
+            "events": expect.whatever(),
             "user_segment_ids": this.getSegmentIds(),
             "segment_ids": this.getSegmentIds(),
             "message_id": "message_1",

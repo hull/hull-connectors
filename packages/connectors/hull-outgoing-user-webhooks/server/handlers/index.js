@@ -26,10 +26,6 @@ const handler = ({ flow_size, flow_in }: HandlerType) => (
     },
     subscriptions: {
       userUpdate: entityUpdate("user")({ flow_in, flow_size }, getThrottle),
-      accountUpdate: entityUpdate("account")(
-        { flow_in, flow_size },
-        getThrottle
-      ),
       shipUpdate: shipUpdate(getThrottle)
     },
     statuses: { statusHandler },

@@ -4,10 +4,41 @@ const _ = require("lodash");
 process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const { createSimpleTriggerScenario } = require("../trigger-scenario");
+const { createSimpleTriggerScenario } = require("hull-webhooks/test/trigger-scenario");
 import connectorConfig from "../../server/config";
 
 describe("Outgoing Users Tests", () => {
+
+  it("User Created. Should Send Payload", () => {
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_created" });
+
+      return _.assign(triggerScenario.getScenarioDefinition(), {
+        handlerType: handlers.notificationHandler,
+        handlerUrl: "smart-notifier",
+        channel: "user:update",
+        externalApiMock: () => {
+          const scope = nock("http://fake-url.io");
+
+          scope
+            .post("/mock", {
+              email: "bob@bobby.com"
+            })
+            .reply(200, {
+              status: 200
+            });
+
+          return scope;
+        },
+        response: triggerScenario.getExpectedResponse(),
+        logs: triggerScenario.getExpectedLogs(),
+        firehoseEvents: triggerScenario.getExpectedFirehoseEvents(),
+        metrics: triggerScenario.getExpectedMetrics(),
+        platformApiCalls: triggerScenario.getExpectedPlatformApiCalls()
+      });
+    });
+  });
 
   it("User Entered Segment. Should Send Payload", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
@@ -203,7 +234,6 @@ describe("Outgoing Users Tests", () => {
     });
   });
    */
-
 
   // NEGATIVES
 
