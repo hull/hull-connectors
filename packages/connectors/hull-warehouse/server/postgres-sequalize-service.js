@@ -543,6 +543,11 @@ const postgresSdk = ({ clientID, clientSecret } : {
   error: {
     templates: [
       {
+        truthy: { name: "SequelizeDatabaseError" },
+        errorType: SkippableError,
+        message: "Unable to upsert entity"
+      },
+      {
         truthy: { name: "SequelizeConnectionRefusedError" },
         errorType: SkippableError,
         message: "Database not accessible"
