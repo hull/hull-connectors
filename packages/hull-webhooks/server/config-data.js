@@ -1,15 +1,18 @@
 // @flow
 import type { HullContext } from "hull";
-import getHeaders from "../lib/get-headers";
+import getHeaders from "./get-headers";
 
-const configHandler = async (ctx: HullContext): Promise<Object> => {
+const configHandler = (data: {}) => async (
+  ctx: HullContext
+): Promise<Object> => {
   const eventSchema = await ctx.entities.events.getSchema();
   return {
     eventSchema,
     url: ctx.connector.private_settings.url,
     headers: getHeaders(ctx),
     language: "jsonata",
-    entity: "user"
+    entity: "user",
+    ...data
   };
 };
 

@@ -4,8 +4,8 @@ import ready from "domready";
 import React from "react";
 import ReactDOM from "react-dom";
 import { AppContainer } from "react-hot-loader";
-import Engine from "hull-webhooks/src/app/engine";
-import { OutgoingUI } from "hull-vm/src/ui";
+import OutgoingUI from "./app";
+import Engine from "./engine";
 
 const renderApp = ({ empty, notFound, title }) => {
   const render = Component => {

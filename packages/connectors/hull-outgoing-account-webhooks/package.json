@@ -1,6 +1,6 @@
 {
   "name": "hull-outgoing-account-webhooks",
-  "description": "Outgoing Webhooks connector",
+  "description": "Outgoing Accounts Webhooks connector",
   "version": "0.1.18-monorepo",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {

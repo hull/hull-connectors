@@ -29,7 +29,7 @@ const handler = ({ flow_size, flow_in }: HandlerType) => (
     },
     statuses: { statusHandler },
     json: {
-      configHandler: configHandler(configData),
+      configHandler: configHandler(configData({ entity: "account" })),
       entityHandler,
       previewHandler
     }
