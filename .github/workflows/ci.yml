@@ -23,10 +23,10 @@ jobs:
       - uses: actions/cache@v1
         id: node-modules-cache
         with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/yarn.lock') }}
+          path: /home/runner/work/hull-connectors/hull-connectors/node_modules/
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node-modules-
+            ${{ runner.os }}-node_modules-
       - name: Get npm cache directory
         id: npm-cache-dir
         run: |
