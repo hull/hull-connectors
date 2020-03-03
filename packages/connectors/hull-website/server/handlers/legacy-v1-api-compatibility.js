@@ -21,6 +21,20 @@ class RemoteDomainMismatchError extends Error {
   }
 }
 
+class UnauthorizedDomainError extends Error {
+  status = 403;
+
+  stack = [];
+
+  message = "Unauthorized domain";
+
+  constructor(domain) {
+    super();
+    this.stack = [`Unauthorized domain: ${domain}`];
+  }
+
+}
+
 export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
   const app = Router();
 
@@ -29,6 +43,7 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
   app.use((req, res, next) => {
     const [namespace, ...remoteDomain] = req.hostname.split(".");
     req.organization = `${namespace}.${HULL_DOMAIN}`;
+    req.orgNamespace = namespace;
     if (remoteDomain.join(".") !== REMOTE_DOMAIN) {
       return next(new RemoteDomainMismatchError(req.hostname));
     }
@@ -37,17 +52,26 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
 
   app.use(
     cors((req, callback) => {
-      const originHost = new URL(req.header("origin")).host;
-      const allowedHeaders = [
-        "content-type",
-        "hull-app-id",
-        "hull-bid",
-        "hull-sid"
-      ];
-      if (originHost === req.organization) {
-        return callback(null, { origin: true, allowedHeaders });
+      const origin = req.header("origin");
+      if (origin) {
+        const originHost = new URL(req.header("origin")).host;
+        const allowedHeaders = [
+          "content-type",
+          "hull-app-id",
+          "hull-bid",
+          "hull-sid"
+        ];
+        if (
+          originHost === `${req.orgNamespace}.${HULL_DOMAIN}` ||
+          originHost === `${req.orgNamespace}.${REMOTE_DOMAIN}`
+        ) {
+          return callback(null, { origin: true, allowedHeaders });
+        }
+
+        return callback(new UnauthorizedDomainError(req.organization), { origin: false, originHost });
       }
-      return callback(new Error("Unauthorized domain"), { origin: false });
+
+      return callback(null, { origin: false });
     })
   );
 

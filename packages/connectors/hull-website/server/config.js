@@ -14,7 +14,8 @@ export default function connectorConfig(): HullConnectorConfig {
     REDIS_URL,
     HULL_DOMAIN,
     REMOTE_DOMAIN,
-    DISABLE_WEBPACK = false
+    DISABLE_WEBPACK = false,
+    FIREHOSE_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS = 200
   } = process.env;
 
   if (!REDIS_URL) {
@@ -54,7 +55,13 @@ export default function connectorConfig(): HullConnectorConfig {
       firehoseTransport: {
         type: "kafka",
         brokersList: FIREHOSE_KAFKA_BROKERS.split(","),
-        topic: FIREHOSE_KAFKA_TOPIC
+        topic: FIREHOSE_KAFKA_TOPIC,
+        producerConfig: {
+          "queue.buffering.max.ms": parseInt(
+            FIREHOSE_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS,
+            10
+          )
+        }
       }
     }),
     middlewares: [],

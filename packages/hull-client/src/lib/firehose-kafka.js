@@ -42,6 +42,7 @@ function buildProducer(
 ) {
   const kafkaBrokersList: Array<string> = transport.brokersList;
   const kafkaTopic: string = transport.topic;
+  const kafkaProducerConfig: Object = transport.producerConfig || {};
 
   if (!kafkaBrokersList || !kafkaBrokersList.length) {
     throw new Error("Configuration `kafkaBrokersList` is empty");
@@ -49,7 +50,7 @@ function buildProducer(
   if (!kafkaTopic) {
     throw new Error("Configuration `kafkaTopic` is empty");
   }
-  const producer = new Kafka.HighLevelProducer({
+  const producerConfig = {
     "client.id": connectorName,
     "metadata.broker.list": kafkaBrokersList.join(","),
     "retry.backoff.ms": 200,
@@ -57,9 +58,11 @@ function buildProducer(
     "socket.keepalive.enable": true,
     "queue.buffering.max.messages": 1000,
     "queue.buffering.max.ms": 1000,
-    "batch.num.messages": 10000,
-    dr_cb: true
-  });
+    "batch.num.messages": 1000,
+    dr_cb: true,
+    ...kafkaProducerConfig
+  };
+  const producer = new Kafka.HighLevelProducer(producerConfig);
 
   producer.setPollInterval(1000);
 
