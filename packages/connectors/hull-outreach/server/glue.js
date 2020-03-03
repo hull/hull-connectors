@@ -350,14 +350,13 @@ const glue = {
   getStageIdMap: jsonata("data{ $string(id): attributes.name }", cacheWrap(600, outreach("getStages"))),
   genericPagingMapper:
     returnValue([
-      set("dataPagingEndpoint", input("dataPagingEndpoint")),
-      set("page_limit", input("page_limit")),
       set("dataMap", utils("emptyObject")),
+      set("id_offset", 0),
       loopL([
-        set("dataPage", outreach("${dataPagingEndpoint}")),
+        set("dataPage", outreach(input("dataPagingEndpoint"))),
         ld("assign", "${dataMap}", jsonata(input("jsonataExpression"), "${dataPage}")),
         set("lastIndex", ld("findLastIndex", "${dataPage}")),
-        ifL(cond("isEqual", ld("size", "${dataPage}"), "${page_limit}"), {
+        ifL(cond("isEqual", ld("size", "${dataPage}"), input("page_limit")), {
           do: set("id_offset", "${dataPage[${lastIndex}].id}"),
           eldo: loopEndL()
         })

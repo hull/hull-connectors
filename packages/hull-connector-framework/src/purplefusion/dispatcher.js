@@ -785,8 +785,8 @@ class HullDispatcher {
       throw new Error(`Operation ${opInstruction.name} contains invalid format with params: ${JSON.stringify(resolvedParams)}`);
 
     } else if (type === 'service') {
-
-      return await this.services.resolveInstruction(context, instruction, resolvedParams);
+      const resolvedOptions = await this.resolve(context, instructionOptions, serviceData);
+      return await this.services.resolveInstruction(context, resolvedOptions.name, resolvedOptions.op, resolvedParams);
 
     } else {
       throw new Error("Unsupported type: " + type);

@@ -71,7 +71,7 @@ class ServiceEngine {
   }
 
 
-  async resolveInstruction(context: HullVariableContext, instruction: Object, param: any) {
+  async resolveInstruction(context: HullVariableContext, name: string, op: string, param: any) {
 
     let inputParamsDataType = getHullDataType(param);
     // seems like a confusion bomb waiting to happen... so taking out for now
@@ -80,9 +80,6 @@ class ServiceEngine {
     //   inputParams = inputParams[0];
     // }
 
-    const instructionOptions = instruction.options;
-    const name = instructionOptions.name;
-    const op = doVariableReplacement(context, instructionOptions.op);
     const serviceDefinition = this.services[name];
 
     if (isUndefinedOrNull(serviceDefinition))
