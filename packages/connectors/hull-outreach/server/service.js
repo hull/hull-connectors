@@ -185,7 +185,8 @@ const service = ({ clientID, clientSecret } : {
       url: "/users/",
       operation: "get",
       endpointType: "fetchAll",
-      query: "page[limit]=${page_limit}&filter[id]=${id_offset}..inf"
+      query: "page[limit]=${page_limit}&filter[id]=${id_offset}..inf",
+      returnObj: "body.data"
     },
     getStages: {
       url: "/stages/",
@@ -202,7 +203,7 @@ const service = ({ clientID, clientSecret } : {
       url: "/events/",
       operation: "get",
       endpointType: "byProperty",
-      query: "page[limit]=${page_limit}&filter[id]=${id_offset}..inf"
+      query: "page[limit]=${page_limit}&filter[id]=${id_offset}..inf&filter[name]=bounced_message"
     },
     getRecentEvents: {
       url: "/events/",

@@ -498,13 +498,11 @@ const transformsToHull: ServiceTransforms =
           target: { component: "input", name: "eventInput" },
           then: [
             {
-              //target: { component: "input", select: "hullEvents[0]"},
               condition: notNull("eventInput.hull_events[0].properties.email_id"),
               operateOn: { component: "input", name: "mailingId", select: "hull_events[0].properties.email_id" },
               then: [
                 {
                   operateOn: { component: "glue", route: "getMailingDetails", name: "enrichedEmail" },
-                  // writeTo: { path: "hull_events[0].properties.email_subject", format: "${enrichedEmail.email_subject}" },
                   then: [
                     {
                       writeTo: { path: "hull_events[0].properties.email_subject", format: "${enrichedEmail.email_subject}" }
@@ -533,10 +531,6 @@ const transformsToHull: ServiceTransforms =
                       route: "getOwnerIdToEmailMap",
                       forceRoute: "forceGetOwnerIdToEmailMap"
                     }),
-                    // {
-                    //   operateOn: { component: "glue", route: "getOwnerIdToEmailMap", select: "${input.hull_events[0].properties.user_id}" },
-                    //   writeTo: { path: "hull_events[0].properties.user_email" }
-                    // }
                   ]
                 },
               ]
