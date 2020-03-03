@@ -32,7 +32,6 @@ class UnauthorizedDomainError extends Error {
     super();
     this.stack = [`Unauthorized domain: ${domain}`];
   }
-
 }
 
 export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
@@ -68,7 +67,10 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
           return callback(null, { origin: true, allowedHeaders });
         }
 
-        return callback(new UnauthorizedDomainError(req.organization), { origin: false, originHost });
+        return callback(new UnauthorizedDomainError(req.organization), {
+          origin: false,
+          originHost
+        });
       }
 
       return callback(null, { origin: false });
