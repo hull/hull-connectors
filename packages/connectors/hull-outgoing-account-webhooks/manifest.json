@@ -1,13 +1,13 @@
 {
-  "name": "Outgoing User Webhooks",
-  "description": "Send Hull Users updates as Webhooks",
+  "name": "Outgoing Account Webhooks",
+  "description": "Send Hull Account updates as Webhooks",
   "tags": [
-    "batch",
+    "batch-accounts",
     "smart-notifier",
     "kraken-exports"
   ],
   "picture": "picture.png",
-  "version": "0.1.19-monorepo",
+  "version": "0.1.18-monorepo",
   "tabs": [
     {
       "title": "Code Editor",
@@ -46,7 +46,7 @@
       "title": "Code",
       "description": "Enter JSON mapping code here",
       "type": "string",
-      "default": "{\n \"email\": user.email,\n \"event_name\": events[event=\"Viewed Page\"].event,\n \"event_time\": events[event=\"Viewed Page\"].created_at\n }",
+      "default": "{\n \"domain\": account.domain,\n \"event_name\": events[event=\"Entered Segment\"].event,\n \"event_time\": events[event=\"Entered Segment\"].created_at\n }",
       "format": "hidden"
     },
     {
@@ -88,7 +88,7 @@
       "default": [],
       "options": {
         "standard": {
-          "CREATED": "User Created"
+          "CREATED": "Account Created"
         }
       }
     },
@@ -180,20 +180,20 @@
       "url": "/smart-notifier",
       "channels": [
         {
-          "channel": "user:update",
-          "handler": "userUpdate"
+          "channel": "account:update",
+          "handler": "accountUpdate"
         }
       ],
       "conditions": {
         "segments": {
-          "user:update": [
+          "account:update": [
             "private_settings.synchronized_segments_enter",
             "private_settings.synchronized_segments_leave"
           ]
         },
         "channels": {
           "only": [
-            "user:update",
+            "account:update",
             "ship:update"
           ]
         }

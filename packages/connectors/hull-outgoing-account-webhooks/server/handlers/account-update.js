@@ -5,7 +5,7 @@ import type {
   HullNotificationResponse
 } from "hull";
 import { compute } from "hull-vm";
-import { getHeaders, getPayloads } from "hull-webhooks";
+import { getPayloads, getHeaders } from "hull-webhooks";
 
 type FlowControl = {
   flow_size?: number,
@@ -41,42 +41,44 @@ const update = ({ flow_in, flow_size }: FlowControl, getThrottle: Function) => {
       await Promise.all(
         messages.map(async message =>
           Promise.all(
-            getPayloads(ctx, message, { entity: "user" }).map(async payload => {
-              const result = await compute(ctx, {
-                source: "outgoing-webhooks",
-                language: "jsonata",
-                payload,
-                entity: "user",
-                preview: false,
-                code
-              });
+            getPayloads(ctx, message, { entity: "account" }).map(
+              async payload => {
+                const result = await compute(ctx, {
+                  source: "outgoing-webhooks",
+                  language: "jsonata",
+                  payload,
+                  entity: "account",
+                  preview: false,
+                  code
+                });
 
-              const response = await request
-                .use(throttle.plugin())
-                .set(getHeaders(ctx) || {})
-                .send(result.data)
-                .post(url);
+                const response = await request
+                  .use(throttle.plugin())
+                  .set(getHeaders(ctx) || {})
+                  .send(result.data)
+                  .post(url);
 
-              if (!response || response.error || response.status >= 400) {
-                client.logger.error("outgoing.user.error", {
+                if (!response || response.error || response.status >= 400) {
+                  client.logger.error("outgoing.account.error", {
+                    url,
+                    headers,
+                    code,
+                    payload,
+                    body: response.body,
+                    message: response.error,
+                    status: response.status
+                  });
+                  throw new Error(response.error);
+                }
+                client.logger.info("outgoing.account.success", {
                   url,
                   headers,
-                  code,
                   payload,
-                  body: response.body,
-                  message: response.error,
-                  status: response.status
+                  message: response.body
                 });
-                throw new Error(response.error);
+                return response;
               }
-              client.logger.info("outgoing.user.success", {
-                url,
-                headers,
-                payload,
-                message: response.body
-              });
-              return response;
-            })
+            )
           )
         )
       );

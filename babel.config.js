@@ -10,6 +10,8 @@ module.exports = api => {
       "packages/hull/test",
       "packages/hull-vm/server",
       "packages/hull-vm/src",
+      "packages/hull-webhooks/src",
+      "packages/hull-webhooks/server",
       "packages/hullrepl/src",
       "packages/hull-client/src",
       "packages/hull-connector-framework/src",

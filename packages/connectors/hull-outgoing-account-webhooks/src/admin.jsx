@@ -3,15 +3,15 @@ import renderApp from "hull-webhooks/src/app";
 const VALID = `Valid identifiers are:
 - external_id
 - anonymous_id
-- email
+- domain
 - Hull ID`;
 
 renderApp({
-  empty: `Please enter the identifier of a User in the field above.
+  empty: `Please enter the identifier of an Account in the field above.
   ${VALID}`,
-  notFound: `We couldn't find a matching User.
+  notFound: `We couldn't find a matching Account.
   Did you use the right identifiers?
 
   ${VALID}`,
-  title: "Enter Email or ID to fetch User"
+  title: "Enter Domain or ID to select an Account"
 });

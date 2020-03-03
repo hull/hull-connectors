@@ -12,7 +12,7 @@ import {
   previewHandler
 } from "hull-vm";
 import { configData, shipUpdate, throttlePoolFactory } from "hull-webhooks";
-import userUpdate from "./user-update";
+import accountUpdate from "./account-update";
 
 type HandlerType = { flow_size?: number, flow_in?: number };
 const handler = ({ flow_size, flow_in }: HandlerType) => (
@@ -24,7 +24,7 @@ const handler = ({ flow_size, flow_in }: HandlerType) => (
       admin: (): HullExternalResponse => ({ pageLocation: "admin.html" })
     },
     subscriptions: {
-      userUpdate: userUpdate({ flow_in, flow_size }, getThrottle),
+      accountUpdate: accountUpdate({ flow_in, flow_size }, getThrottle),
       shipUpdate: shipUpdate(getThrottle)
     },
     statuses: { statusHandler },
