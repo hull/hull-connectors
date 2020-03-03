@@ -352,12 +352,10 @@ const glue = {
     returnValue([
       set("dataPagingEndpoint", input("dataPagingEndpoint")),
       set("page_limit", input("page_limit")),
+      set("dataMap", utils("emptyObject")),
       loopL([
         set("dataPage", outreach("${dataPagingEndpoint}")),
-        ifL(cond("isEmpty", "${dataMap}"), {
-          do: set("dataMap", jsonata(input("jsonataExpression"), "${dataPage}")),
-          eldo: ld("assign", "${dataMap}", jsonata(input("jsonataExpression"), "${dataPage}"))
-        }),
+        ld("assign", "${dataMap}", jsonata(input("jsonataExpression"), "${dataPage}")),
         set("lastIndex", ld("findLastIndex", "${dataPage}")),
         ifL(cond("isEqual", ld("size", "${dataPage}"), "${page_limit}"), {
           do: set("id_offset", "${dataPage[${lastIndex}].id}"),

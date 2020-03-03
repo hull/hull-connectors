@@ -67,6 +67,10 @@ class FrameworkUtils {
     return [];
   }
 
+  emptyObject(): Object {
+    return {};
+  }
+
   base64Encode(context: Object, params: any) {
     return Buffer.from(params).toString('base64');
   }
