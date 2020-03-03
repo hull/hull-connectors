@@ -57,8 +57,9 @@ function buildProducer(
     "message.send.max.retries": 10,
     "socket.keepalive.enable": true,
     "queue.buffering.max.messages": 1000,
-    "queue.buffering.max.ms": 1000,
+    "queue.buffering.max.ms": 100,
     "batch.num.messages": 1000,
+    "linger.ms": 10,
     dr_cb: true,
     ...kafkaProducerConfig
   };
