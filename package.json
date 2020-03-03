@@ -40,8 +40,8 @@
     "test": "yarn test:lint && jest && yarn wsrun --parallel test",
     "test:flow": "flow check",
     "test:lint": "eslint packages",
-    "test:jest": "jest --maxWorkers=4",
-    "test:workspaces": "yarn wsrun --fast-exit --parallel --concurrency=4 test",
+    "test:jest": "jest --maxWorkers=2",
+    "test:workspaces": "yarn wsrun --fast-exit --parallel --concurrency=2 test",
     "test:ci": "yarn test:lint && jest --maxWorkers=2 && yarn wsrun --fast-exit --parallel --concurrency=2 test",
     "heroku-postbuild": "yarn build",
     "heroku-prebuild": "rm -rf node_modules"
