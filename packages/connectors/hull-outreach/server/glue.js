@@ -351,6 +351,7 @@ const glue = {
   genericPagingMapper:
     returnValue([
       set("dataMap", utils("emptyObject")),
+      set("page_limit", input("page_limit")),
       set("id_offset", 0),
       loopL([
         set("dataPage", outreach(input("dataPagingEndpoint"))),
