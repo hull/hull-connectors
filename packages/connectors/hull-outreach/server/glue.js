@@ -356,26 +356,25 @@ const glue = {
       loopL([
         set("dataPage", outreach(input("dataPagingEndpoint"))),
         ld("assign", "${dataMap}", jsonata(input("jsonataExpression"), "${dataPage}")),
-        set("lastIndex", ld("findLastIndex", "${dataPage}")),
         ifL(cond("isEqual", ld("size", "${dataPage}"), input("page_limit")), {
-          do: set("id_offset", "${dataPage[${lastIndex}].id}"),
+          do: set("id_offset", inc(get("id", ld("last", "${dataPage}")))),
           eldo: loopEndL()
         })
       ])], "${dataMap}"),
   getOwnerIdToEmailMap: cacheWrap(6000, route("paginateUsers")),
   forceGetOwnerIdToEmailMap: returnValue(cacheDel(route("paginateUsers")), route("paginateUsers")),
   paginateUsers:
-    route("genericPagingMapper", {page_limit: 100, dataPagingEndpoint: "getUsersPaged", jsonataExpression: "$ {$string(id): attributes.email}"}),
+    route("genericPagingMapper", {page_limit: 1000, dataPagingEndpoint: "getUsersPaged", jsonataExpression: "$ {$string(id): attributes.email}"}),
 
   getSequences: cacheWrap(6000, route("paginateSequences")),
   forceGetSequences: returnValue(cacheDel(route("paginateSequences")), route("paginateSequences")),
   paginateSequences:
-    route("genericPagingMapper", {page_limit: 100, dataPagingEndpoint: "getSequencesPaged", jsonataExpression: "$ {$string(id): attributes.name}"}),
+    route("genericPagingMapper", {page_limit: 1000, dataPagingEndpoint: "getSequencesPaged", jsonataExpression: "$ {$string(id): attributes.name}"}),
 
   getSequenceSteps: cacheWrap(6000, route("paginateSequenceSteps")),
   forceGetSequenceSteps: returnValue(cacheDel(route("paginateSequenceSteps")), route("paginateSequenceSteps")),
   paginateSequenceSteps:
-    route("genericPagingMapper", {page_limit: 100, dataPagingEndpoint: "getSequenceStepsPaged", jsonataExpression: "$ {$string(id): attributes.displayName}"}),
+    route("genericPagingMapper", {page_limit: 1000, dataPagingEndpoint: "getSequenceStepsPaged", jsonataExpression: "$ {$string(id): attributes.displayName}"}),
 
   eventsFetchAll:
     ifL(cond("notEmpty", set("eventsToFetch", ld("filter", settings("events_to_fetch"), elem => elem !== "prospect_stage_changed"))), [
