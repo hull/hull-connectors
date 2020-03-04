@@ -203,7 +203,7 @@ const service = ({ clientID, clientSecret } : {
       url: "/events/",
       operation: "get",
       endpointType: "byProperty",
-      query: "page[limit]=${page_limit}&filter[id]=${id_offset}..inf&filter[name]=bounced_message"
+      query: "page[limit]=${page_limit}&filter[id]=${id_offset}..inf"
     },
     getRecentEvents: {
       url: "/events/",
