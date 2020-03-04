@@ -61,12 +61,3 @@ workflows:
     jobs:
       - build
       - test
-      - deploy:
-          filters:
-            branches:
-              only:
-                - master
-                - develop
-          requires:
-            - test
-            - build
