@@ -93,7 +93,11 @@ class HullClient {
   static logger: HullClientStaticLogger;
 
   static async exit() {
-    await Promise.all([Firehose.exit(), FirehoseKafka.exit()]);
+    try {
+      await Promise.all([Firehose.exit(), FirehoseKafka.exit()]);
+    } catch (err) {
+      console.warn("HullClient failed to gracefully exit: ", err.message);
+    }
   }
 
   constructor(config: HullClientInstanceConfig) {
