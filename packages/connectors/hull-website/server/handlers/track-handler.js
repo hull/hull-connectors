@@ -1,11 +1,6 @@
 // @flow
 
-export default (req, res) => {
+export default async req => {
   const { event, properties } = req.body;
-  return req.hull
-    .track(event, properties, req.firehoseEventContext)
-    .then(
-      ok => res.status(204).send({ ok: !!ok }),
-      error => res.status(503).send({ error })
-    );
+  return req.hull.track(event, properties, req.firehoseEventContext);
 };

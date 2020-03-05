@@ -92,10 +92,8 @@ class HullClient {
 
   static logger: HullClientStaticLogger;
 
-  static exit() {
-    return Promise.all([Firehose.exit(), FirehoseKafka.exit()]).then(flushed =>
-      console.warn("Done flushing Firehose queues", flushed)
-    );
+  static async exit() {
+    await Promise.all([Firehose.exit(), FirehoseKafka.exit()]);
   }
 
   constructor(config: HullClientInstanceConfig) {
@@ -150,7 +148,7 @@ class HullClient {
         this.batch = FirehoseKafka.getInstance(
           transport,
           clientConfig,
-          this.logger
+          logger
         );
       } else {
         this.batch = Firehose.getInstance(clientConfig, (params, batcher) => {

@@ -96,6 +96,11 @@ export LDFLAGS=-L/usr/local/opt/openssl/lib
 
 Then you can run yarn install to get it to build correctly.
 
+**How do I test the kafka firehose transport locally ?**
+
+The docker-compose.yml setup comes with a full setup to start a local Kafka broker.
+The easiest way to debug locally is to use a tool like kafkacat to tail the messages as they arrive in the destination topic.
+
 ## Client-side code
 
 

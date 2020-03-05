@@ -25,7 +25,7 @@ function getRemoteConfigFromHullApi(organization, id) {
   );
 }
 
-function fetchRemoteConfig(cache, organization: string, id: string) {
+async function fetchRemoteConfig(cache, organization: string, id: string) {
   return cache.wrap(`${organization}/${id}`, () =>
     getRemoteConfigFromHullApi(organization, id)
   );
@@ -66,7 +66,7 @@ function renderError() {
 
 const remoteHandler = () => {
   const CACHE = cacheManager.caching({ store: "memory", max: 1000, ttl: 60 });
-  return (req, res) => {
+  return async (req, res) => {
     const appId = req.params.id;
 
     const remoteUrl = new URL(req.url, `https://${res.hostname}`);
@@ -89,10 +89,16 @@ const remoteHandler = () => {
       httpOnly: true
     });
 
-    fetchRemoteConfig(CACHE, req.organization, appId).then(
-      remoteConfig => renderRemote(res, remoteConfig, { browserId, sessionId }),
-      err => res.status(err.status || 500).send(renderError(err))
-    );
+    try {
+      const remoteConfig = await fetchRemoteConfig(
+        CACHE,
+        req.organization,
+        appId
+      );
+      return renderRemote(res, remoteConfig, { browserId, sessionId });
+    } catch (err) {
+      return res.status(err.status || 500).send(renderError(err));
+    }
   };
 };
 
