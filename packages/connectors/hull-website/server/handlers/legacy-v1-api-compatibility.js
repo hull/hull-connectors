@@ -53,7 +53,7 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
     cors((req, callback) => {
       const origin = req.header("origin");
       if (origin) {
-        const originHost = new URL(req.header("origin")).host;
+        const originHost = new URL(origin).host;
         const allowedHeaders = [
           "content-type",
           "hull-app-id",
@@ -90,7 +90,11 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
       firehoseTransport
     };
 
-    const accessToken = new URL(remoteUrl).searchParams.get("access_token");
+    const accessToken =
+      remoteUrl &&
+      remoteUrl.match(HULL_DOMAIN) &&
+      new URL(remoteUrl).searchParams.get("access_token");
+
     if (accessToken) {
       clientParams.accessToken = accessToken;
       req.hull = new HullClient(clientParams).asUser({}, { active: true });
