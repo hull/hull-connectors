@@ -70,7 +70,9 @@ class FirehoseBatcher {
       fns.forEach(func => func(null, flushed));
       return { flushed, queue: this.queue.length };
     } catch (err) {
-      fns.forEach(func => func({ status: err.status, message: err.message }, null));
+      fns.forEach(func =>
+        func({ status: err.status, message: err.message }, null)
+      );
       return Promise.reject(err);
     }
   }
