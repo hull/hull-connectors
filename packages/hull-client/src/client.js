@@ -145,11 +145,7 @@ class HullClient {
       ) {
         const transport: HullFirehoseKafkaTransport =
           clientConfig.firehoseTransport;
-        this.batch = FirehoseKafka.getInstance(
-          transport,
-          clientConfig,
-          logger
-        );
+        this.batch = FirehoseKafka.getInstance(transport, clientConfig, logger);
       } else {
         this.batch = Firehose.getInstance(clientConfig, (params, batcher) => {
           const {

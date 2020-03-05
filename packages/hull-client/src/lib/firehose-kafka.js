@@ -71,7 +71,10 @@ function buildProducer(
 
   producer.on("delivery-report", (err, report) => {
     if (err) {
-      console.log("delivery-report", JSON.stringify({ err: err.message, report }));
+      console.log(
+        "delivery-report",
+        JSON.stringify({ err: err.message, report })
+      );
     }
   });
 
