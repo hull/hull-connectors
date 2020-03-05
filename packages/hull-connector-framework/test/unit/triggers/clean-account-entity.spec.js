@@ -1,8 +1,10 @@
 /* @flow */
+
+import TRIGGERS  from "../../../src/purplefusion/triggers/triggers";
+
 const _ = require("lodash");
 
 const { getCleanedMessage } = require("../../../src/purplefusion/triggers/trigger-utils");
-const { triggers } = require("../../../src/purplefusion/triggers/triggers");
 
 describe("Outgoing Account Filtering Tests", () => {
 
@@ -19,7 +21,7 @@ describe("Outgoing Account Filtering Tests", () => {
       "account_segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
+    const cleanedMessage = getCleanedMessage(TRIGGERS, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": { "account_segments": { "entered": [{ "id": "account_segment_1" }, { "id": "account_segment_2" }] } },
       "account": { "id": "1" },
@@ -41,7 +43,7 @@ describe("Outgoing Account Filtering Tests", () => {
       "account_segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
+    const cleanedMessage = getCleanedMessage(TRIGGERS, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": { "account_segments": { "entered": [] } },
       "account": { "id": "1" },
@@ -63,7 +65,7 @@ describe("Outgoing Account Filtering Tests", () => {
       "account_segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
+    const cleanedMessage = getCleanedMessage(TRIGGERS, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": { "account_segments": { "left": [{ "id": "account_segment_1" }, { "id": "account_segment_2" }] } },
       "account": { "id": "1" },
@@ -94,7 +96,7 @@ describe("Outgoing Account Filtering Tests", () => {
       "account_segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
+    const cleanedMessage = getCleanedMessage(TRIGGERS, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": {
         "account": {
@@ -132,7 +134,7 @@ describe("Outgoing Account Filtering Tests", () => {
       "segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
+    const cleanedMessage = getCleanedMessage(TRIGGERS, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": { "is_new": true },
       "account": { "id": "0" },

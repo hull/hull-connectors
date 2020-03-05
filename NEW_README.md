@@ -988,7 +988,7 @@ const prospect = async (ctx: HullContext): HullUISelectResponse => {
 export default prospect;
 ```
 
-Apply Mapping (JSONata expressions)
+### Apply Mapping (JSONata expressions)
 
 ```js
 //@flow
@@ -1046,6 +1046,47 @@ pseudoEvents = {
     updated_at: "2018-02-12T09:16:33Z"
   }
 };
+```
+
+### Know if a message matches whitelist and blacklist segments.
+
+```js
+const { hasMatchingSegments } = ctx.helpers;
+const doesItMatch = hasMatchingSegments({
+  matchOnBatch: true // Should we always send if we're in Batch mode
+  whitelist: ["ALL", "1234", "456"] // usually the result of ctx.connector.private_settings.synchronized_segments_whitelist,
+  blacklist: ["2342"]  // usually the result of ctx.connector.private_settings.synchronized_segments_blacklist,
+  entity: "user",
+  message: {...HullUserUpdateMessage}
+})
+```
+
+### Know if a message matches predefined triggers
+
+```js
+const { hasMatchingTriggers } = ctx.helpers;
+const doesItMatch = hasMatchingTriggers({
+  message, //HullUserUpdateMessage | HullAAccountUpdateMessage
+  triggers: {
+    VALIDATION_TYPE: ["123", "456"] //usually a list of segments, or events from connector.private_settings
+  }
+});
+```
+
+Where `VALIDATION_TYPE` is one of:
+
+```
+- user_segments
+- entered_user_segments
+- left_user_segments
+- user_attribute_updated
+- user_events
+- is_new_user
+- is_new_account
+- account_segments
+- account_attribute_updated
+- entered_account_segments
+- left_account_segments
 ```
 
 ## Docker Image

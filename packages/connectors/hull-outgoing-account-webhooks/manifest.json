@@ -84,20 +84,41 @@
       "name": "synchronized_events",
       "title": "Emit on new Event",
       "type": "array",
-      "format": "event",
+      "format": "select",
+      "items": {
+        "type": "string",
+        "enum": [
+          "CREATED"
+        ],
+        "enumNames": [
+          "Account Created"
+        ]
+      },
       "default": [],
-      "options": {
-        "standard": {
-          "CREATED": "Account Created"
-        }
-      }
+      "uniqueItems": true
+    },
+    {
+      "name": "synchronized_segments_whitelist",
+      "title": "Emit only when in one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "accountSegment",
+      "options": {}
+    },
+    {
+      "name": "synchronized_segments_blacklist",
+      "title": "Don't emit if in one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "accountSegment",
+      "options": {}
     },
     {
       "name": "synchronized_segments_enter",
       "title": "Emit on Entering these segments",
       "type": "array",
       "default": [],
-      "format": "segment",
+      "format": "accountSegment",
       "options": {}
     },
     {
@@ -105,14 +126,14 @@
       "title": "Emit on Leaving these segments",
       "type": "array",
       "default": [],
-      "format": "segment",
+      "format": "accountSegment",
       "options": {}
     },
     {
       "name": "synchronized_attributes",
       "title": "Emit on Attribute change",
       "type": "array",
-      "format": "trait",
+      "format": "accountTrait",
       "default": []
     },
     {
@@ -134,6 +155,14 @@
         "private_settings.throttle_rate",
         "private_settings.throttle_per_rate",
         "private_settings.concurrency"
+      ]
+    },
+    {
+      "title": "Filters",
+      "description": "This section defines the conditions for emitting a Webhook. Use the segment whitelist and blacklist to filter out which Accounts can be sent. Blacklist takes precedence over Whitelist",
+      "properties": [
+        "private_settings.synchronized_segments_whitelist",
+        "private_settings.synchronized_segments_blacklist"
       ]
     },
     {

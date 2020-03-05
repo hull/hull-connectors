@@ -1,6 +1,7 @@
 // @flow
 import type {
   HullContext,
+  HullEntityName,
   HullUserUpdateMessage,
   HullNotificationResponse
 } from "hull";
@@ -12,7 +13,7 @@ type FlowControl = {
   flow_size?: number,
   flow_in?: number
 };
-const entityUpdate = entity => (
+const entityUpdate = (entity: HullEntityName) => (
   { flow_in, flow_size }: FlowControl,
   getThrottle: Function
 ) => {

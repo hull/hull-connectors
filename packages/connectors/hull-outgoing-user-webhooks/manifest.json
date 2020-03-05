@@ -93,12 +93,20 @@
       }
     },
     {
-      "name": "synchronized_segments",
-      "title": "User Filter",
-      "description": "As a precondition to the triggers being evaluated, the user must belong to one of the defined segments.",
+      "name": "synchronized_segments_whitelist",
+      "title": "Emit only when in one of these segments",
       "type": "array",
       "default": [],
-      "format": "segment"
+      "format": "segment",
+      "options": {}
+    },
+    {
+      "name": "synchronized_segments_blacklist",
+      "title": "Don't emit if in one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "segment",
+      "options": {}
     },
     {
       "name": "synchronized_segments_enter",
@@ -142,6 +150,24 @@
         "private_settings.throttle_rate",
         "private_settings.throttle_per_rate",
         "private_settings.concurrency"
+      ]
+    },
+    {
+      "title": "Filters",
+      "description": "This section defines the conditions for emitting a Webhook. Use the segment whitelist and blacklist to filter out which Asers can be sent. Blacklist takes precedence over Whitelist",
+      "properties": [
+        "private_settings.synchronized_segments_whitelist",
+        "private_settings.synchronized_segments_blacklist"
+      ]
+    },
+    {
+      "title": "Triggers",
+      "description": "This section defines the conditions for emitting a Webhook. Any of those being true will result in a webhook being sent. Only one webhook will be sent if multiple conditions match",
+      "properties": [
+        "private_settings.synchronized_events",
+        "private_settings.synchronized_segments_enter",
+        "private_settings.synchronized_segments_leave",
+        "private_settings.synchronized_attributes"
       ]
     }
   ],

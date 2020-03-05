@@ -1,3 +1,5 @@
+// @flow
+
 const {
   HullUserAttributeChangedTrigger,
   HullUserSegmentChangedTrigger,
@@ -22,7 +24,7 @@ const {
   filterNone
 } = require("./filters");
 
-const triggers = {
+const TRIGGERS = {
   user_segments: {
     type: HullUserSegmentChangedTrigger,
     filters: {
@@ -126,6 +128,4 @@ const triggers = {
   }
 };
 
-module.exports = {
-  triggers
-};
+export default TRIGGERS;

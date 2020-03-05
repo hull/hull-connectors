@@ -36,7 +36,7 @@ import {
 
 const ConnectorCache = require("../infra/cache/connector-cache");
 const MetricAgent = require("../infra/instrumentation/metric-agent");
-
+import TRIGGERS from "../../../hull-connector-framework/src/purplefusion/triggers/triggers";
 // =====================================
 //   Hull Context
 // =====================================
@@ -115,6 +115,17 @@ export type HullContext = {|
     mappingToOptions: $Call<typeof mappingToOptions, HullContext>,
     mapAttributes: $Call<typeof mapAttributes, HullContext>,
     getStandardMapping: $Call<typeof getStandardMapping, HullContext>,
+    hasMatchingSegments: ({
+      matchOnBatch?: boolean,
+      whitelist: Array<string>,
+      blacklist: Array<string>,
+      message: HullUserUpdateMessage | HullAccountUpdateMessage,
+      entity: HullEntityName
+    }) => boolean,
+    hasMatchingTriggers: ({
+      message: HullUserUpdateMessage | HullAccountUpdateMessage,
+      triggers: { [string: $Keys<typeof TRIGGERS>]: Array<string> | boolean }
+    }) => boolean,
     segmentChangesToEvents: (
       HullAccountUpdateMessage | HullUserUpdateMessage,
       Array<HullSegment>

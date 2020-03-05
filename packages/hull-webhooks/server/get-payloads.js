@@ -1,10 +1,12 @@
 // @flow
 
 import _ from "lodash";
-
-const {
-  hasValidTrigger
-} = require("hull-connector-framework/src/purplefusion/triggers/trigger-utils");
+import type {
+  HullContext,
+  HullUserUpdateMessage,
+  HullAccountUpdateMessage,
+  HullEntityName
+} from "hull";
 
 const groupEntities = ({ group, message }) => ({
   ...message,
@@ -12,12 +14,30 @@ const groupEntities = ({ group, message }) => ({
   account: group(message.account)
 });
 
-const getPayloads = ({ ctx, message, entity, triggers }): Array<{}> => {
-  const { client, connector, isBatch, helpers } = ctx;
-  const { segmentChangesToEvents } = helpers;
+type GetPayloadParams = {
+  ctx: HullContext,
+  message: HullUserUpdateMessage | HullAccountUpdateMessage,
+  entity: HullEntityName,
+  triggers: {}
+};
+
+const getPayloads = ({
+  ctx,
+  message,
+  entity,
+  triggers
+}: GetPayloadParams): Array<{}> => {
+  const { client, connector, helpers } = ctx;
+  const {
+    segmentChangesToEvents,
+    hasMatchingSegments,
+    hasMatchingTriggers
+  } = helpers;
   const { private_settings } = connector;
   const { group } = client.utils.traits;
   const {
+    synchronized_segments_whitelist,
+    synchronized_segments_blacklist,
     synchronized_segments_enter,
     synchronized_segments_leave
   } = private_settings;
@@ -25,7 +45,16 @@ const getPayloads = ({ ctx, message, entity, triggers }): Array<{}> => {
   const { events = [] } = message;
 
   const payloads = [];
-  if (isBatch || hasValidTrigger(message, triggers)) {
+  if (
+    hasMatchingTriggers({ message, triggers }) &&
+    hasMatchingSegments({
+      matchOnBatch: true,
+      whitelist: synchronized_segments_whitelist,
+      blacklist: synchronized_segments_blacklist,
+      entity,
+      message
+    })
+  ) {
     const segmentEvents = segmentChangesToEvents(message, [
       ...synchronized_segments_enter,
       ...synchronized_segments_leave
