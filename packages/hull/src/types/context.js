@@ -22,6 +22,7 @@ import type {
   HullUserUpdateMessage,
   HullAccountUpdateMessage,
   HullEvent,
+  HullSegment,
   HullTriggerSet
 } from "./index";
 
@@ -34,8 +35,6 @@ import {
   getStandardMapping,
   operations
 } from "../helpers";
-
-import TRIGGERS from "../../../hull-connector-framework/src/purplefusion/triggers/triggers";
 
 const ConnectorCache = require("../infra/cache/connector-cache");
 const MetricAgent = require("../infra/instrumentation/metric-agent");
