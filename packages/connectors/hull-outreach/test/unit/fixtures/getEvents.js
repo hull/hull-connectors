@@ -111,12 +111,12 @@ module.exports = {
     },
     {
       name: "outreach",
-      op: "getMailingDetails",
-      localContext: expect.objectContaining({mailingId: 1}),
+      op: "getManyMailingDetails",
+      localContext: expect.objectContaining({mailingIds: 1}),
       result: {
         status: 200,
         body: {
-          data: {
+          data: [{
             attributes: {
               subject: "Very interesting subject"
             },
@@ -127,7 +127,7 @@ module.exports = {
                 }
               }
             }
-          }
+          }]
         }
       }
     },

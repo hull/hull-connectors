@@ -176,18 +176,6 @@ const service = ({ clientID, clientSecret } : {
       operation: "post",
       endpointType: "create"
     },
-    getUsers: {
-      url: "/users/",
-      operation: "get",
-      endpointType: "fetchAll"
-    },
-    getUsersPaged: {
-      url: "/users/",
-      operation: "get",
-      endpointType: "fetchAll",
-      query: "page[limit]=${page_limit}&filter[id]=${id_offset}..inf",
-      returnObj: "body.data"
-    },
     getStages: {
       url: "/stages/",
       operation: "get",
@@ -203,7 +191,7 @@ const service = ({ clientID, clientSecret } : {
       url: "/events/",
       operation: "get",
       endpointType: "byProperty",
-      query: "page[limit]=${page_limit}&filter[id]=${id_offset}..inf&filter[name]=bounced_message"
+      query: "sort=id&page[limit]=${page_limit}&filter[id]=${id_offset}..inf"
     },
     getRecentEvents: {
       url: "/events/",
@@ -221,6 +209,14 @@ const service = ({ clientID, clientSecret } : {
       url: "/mailings/${mailingId}/",
       operation: "get"
     },
+    getMailingDetailsBatch: {
+      url: "/mailings",
+      query: {
+        "filter[id]": "${mailingIds}",
+        "page[limit]": 1000
+      },
+      operation: "get"
+    },
     getSequences: {
       url: "/sequences/",
       operation: "get",
@@ -230,13 +226,25 @@ const service = ({ clientID, clientSecret } : {
       url: "/sequences/",
       operation: "get",
       returnObj: "body.data",
-      query: "page[limit]=${page_limit}&filter[id]=${id_offset}..inf"
+      query: "page[limit]=100&filter[id]=${offset}..inf"
     },
     getSequenceStepsPaged: {
       url: "/sequenceSteps/",
       operation: "get",
       returnObj: "body.data",
-      query: "page[limit]=${page_limit}&filter[id]=${id_offset}..inf"
+      query: "page[limit]=100&filter[id]=${offset}..inf"
+    },
+    getUsers: {
+      url: "/users/",
+      operation: "get",
+      endpointType: "fetchAll"
+    },
+    getUsersPaged: {
+      url: "/users/",
+      operation: "get",
+      endpointType: "fetchAll",
+      query: "page[limit]=100&filter[id]=${offset}..inf",
+      returnObj: "body.data"
     }
   },
   superagent: {
@@ -245,8 +253,8 @@ const service = ({ clientID, clientSecret } : {
     { method: "set", params: { "Authorization": "Bearer ${connector.private_settings.access_token}"}}
     ],
     headersToMetrics: {
-      "x-rate-limit-limit": "ship.service_api.remaining",
-      "x-rate-limit-remaining": "ship.service_api.limit"
+      "x-ratelimit-limit": "ship.service_api.limit",
+      "x-ratelimit-remaining": "ship.service_api.remaining"
     }
   },
   authentication: {

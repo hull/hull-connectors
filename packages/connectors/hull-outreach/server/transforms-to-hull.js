@@ -502,7 +502,8 @@ const transformsToHull: ServiceTransforms =
               operateOn: { component: "input", name: "mailingId", select: "hull_events[0].properties.email_id" },
               then: [
                 {
-                  operateOn: { component: "glue", route: "getMailingDetails", name: "enrichedEmail" },
+                  operateOn: { component: "context", select: "mailingDetails.${mailingId}", name: "enrichedEmail" },
+                  condition: notNull("enrichedEmail"),
                   then: [
                     {
                       writeTo: { path: "hull_events[0].properties.email_subject", format: "${enrichedEmail.email_subject}" }
@@ -516,14 +517,17 @@ const transformsToHull: ServiceTransforms =
                     createEnumTransform({
                       attribute: "hull_events[0].properties.sequence_name",
                       attributeId: "hull_events[0].properties.sequence_id",
-                      route: "getSequences",
-                      forceRoute: "forceGetSequences"
+                      route: "getSequences"
+                      // forceRoute: "forceGetSequences"
                     }),
                     createEnumTransform({
                       attribute: "hull_events[0].properties.sequence_step_name",
                       attributeId: "hull_events[0].properties.sequence_step_id",
-                      route: "getSequenceSteps",
-                      forceRoute: "forceGetSequenceSteps"
+                      route: "getSequenceSteps"
+                      // Some of the sequences don't appear to be in the endpoint, I imagine they've been deleted
+                      // this introduces a pretty serious concurrency problem for us as we'll delete the sequence steps (without concurrency protection), and try to fetch a lot again...
+                      // need to figure out the best way to handle this... maybe with a specific call for that sequence step??
+                      // forceRoute: "forceGetSequenceSteps"
                     }),
                     createEnumTransform({
                       attribute: "hull_events[0].properties.user_email",
