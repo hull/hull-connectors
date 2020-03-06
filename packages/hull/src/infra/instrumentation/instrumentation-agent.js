@@ -60,7 +60,8 @@ class InstrumentationAgent {
       this.metrics = new StatsdClient({
         port: options.statsd_port || 8125,
         host: options.statsd_host,
-        prefix: options.prefix || "connectors"
+        prefix: options.prefix || "connectors",
+        tags: options.tags || {}
       });
     } else if (process.env.DATADOG_API_KEY) {
       if (!process.env.DATADOG_HOST) {

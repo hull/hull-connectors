@@ -12,11 +12,42 @@ export default function connectorConfig(): HullConnectorConfig {
     SECRET,
     OVERRIDE_FIREHOSE_URL,
     FLOW_CONTROL_IN = 1,
-    FLOW_CONTROL_SIZE = 200
+    FLOW_CONTROL_SIZE = 200,
+    LIBPROCESS_IP,
+    MARATHON_APP_ID,
+    MARATHON_APP_DOCKER_IMAGE,
+    FIREHOSE_KAFKA_BROKERS,
+    FIREHOSE_KAFKA_TOPIC,
+    FIREHOSE_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS = 200
   } = process.env;
 
   // We're not using default assignments because "null" values makes Flow choke
   const hostSecret = SECRET || "1234";
+
+  const metricsConfig = {};
+  if (LIBPROCESS_IP) {
+    metricsConfig.statsd_host = LIBPROCESS_IP;
+    metricsConfig.statsd_port = 8125;
+    metricsConfig.tags = {
+      marathon_app_id: MARATHON_APP_ID,
+      docker_image: MARATHON_APP_DOCKER_IMAGE
+    };
+  }
+
+  const clientConfig = {};
+  if (FIREHOSE_KAFKA_BROKERS && FIREHOSE_KAFKA_TOPIC) {
+    clientConfig.firehoseTransport = {
+      type: "kafka",
+      brokersList: FIREHOSE_KAFKA_BROKERS.split(","),
+      topic: FIREHOSE_KAFKA_TOPIC,
+      producerConfig: {
+        "queue.buffering.max.ms": parseInt(
+          FIREHOSE_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS,
+          10
+        )
+      }
+    };
+  }
 
   return {
     manifest,
@@ -32,9 +63,8 @@ export default function connectorConfig(): HullConnectorConfig {
     logsConfig: {
       logLevel: LOG_LEVEL
     },
-    clientConfig: {
-      firehoseUrl: OVERRIDE_FIREHOSE_URL
-    },
+    metricsConfig,
+    clientConfig,
     serverConfig: {
       start: true
     }

@@ -66,11 +66,7 @@ class MetricAgent {
       return null;
     }
     try {
-      return this.metrics.gauge(
-        metric,
-        parseFloat(value),
-        tags
-      );
+      return this.metrics.gauge(metric, parseFloat(value), tags);
     } catch (err) {
       console.warn("metricVal.error", err);
     }
