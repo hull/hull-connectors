@@ -26,15 +26,6 @@ const {
 } = require("./filters");
 
 const TRIGGERS = {
-  user_segments: {
-    type: HullUserSegmentChangedTrigger,
-    filters: {
-      segments: [filterNone]
-    },
-    validations: {
-      segments: [validateSegments]
-    }
-  },
   user_segments_whitelist: {
     type: HullUserSegmentChangedTrigger,
     filters: {
@@ -109,15 +100,6 @@ const TRIGGERS = {
       changes: { is_new: true }
     }
   },
-  account_segments: {
-    type: HullUserSegmentChangedTrigger,
-    filters: {
-      account_segments: [filterNone]
-    },
-    validations: {
-      account_segments: [validateSegments]
-    }
-  },
   account_segments_whitelist: {
     type: HullUserSegmentChangedTrigger,
     filters: {
@@ -164,6 +146,24 @@ const TRIGGERS = {
     }
   },
   //TODO: Deprecate to have uniform naming
+  user_segments: {
+    type: HullUserSegmentChangedTrigger,
+    filters: {
+      segments: [filterNone]
+    },
+    validations: {
+      segments: [validateSegments]
+    }
+  },
+  account_segments: {
+    type: HullUserSegmentChangedTrigger,
+    filters: {
+      account_segments: [filterNone]
+    },
+    validations: {
+      account_segments: [validateSegments]
+    }
+  },
   entered_user_segments: {
     type: HullUserSegmentChangedTrigger,
     filters: {

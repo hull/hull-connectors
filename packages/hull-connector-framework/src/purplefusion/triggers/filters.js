@@ -3,12 +3,10 @@
 import type { HullSegment, HullEvent } from "hull";
 const _ = require("lodash");
 
-const filterNone = (entity, whitelist: Array<string>) => {
-  return entity;
-};
+const filterNone = (entity: any, whitelist: Array<string>) => entity;
 
 const filterSegments = (
-  segments: Array<HullSegment>,
+  segments: Array<HullSegment> = [],
   whitelist: Array<string>
 ) =>
   segments.filter(
@@ -19,11 +17,14 @@ const filterSegments = (
   );
 
 const filterAttributeChanges = (
-  attributeChanges: Object,
+  attributeChanges: Object = {},
   whitelist: Array<string>
 ) => _.pick(attributeChanges, whitelist);
 
-const filterEvents = (events: Array<HullEvent>, whitelist: Array<string>) =>
+const filterEvents = (
+  events: Array<HullEvent> = [],
+  whitelist: Array<string>
+) =>
   events.filter(
     event => whitelist.includes("ALL") || whitelist.includes(event.event)
   );

@@ -9,7 +9,7 @@ const { getCleanedMessage } = require("../../../src/purplefusion/triggers/trigge
 describe("Outgoing Account Filtering Tests", () => {
 
   it("Account Entered Valid Segment. Should filter out non whitelisted segments.", () => {
-    const inputData = { "entered_account_segments": ["account_segment_1", "account_segment_2", "account_segment_3"] };
+    const inputData = { "account_segments_entered": ["account_segment_1", "account_segment_2", "account_segment_3"] };
     const message = {
       "changes": { "account_segments": { "entered": [{ "id": "account_segment_1" }, { "id": "account_segment_2" }] } },
       "user": {},
@@ -31,7 +31,7 @@ describe("Outgoing Account Filtering Tests", () => {
   });
 
   it("Account did not enter a segment. Should return empty segments entered list.", () => {
-    const inputData = { "entered_account_segments": ["account_segment_1", "account_segment_2", "account_segment_3"] };
+    const inputData = { "account_segments_entered": ["account_segment_1", "account_segment_2", "account_segment_3"] };
     const message = {
       "changes": {},
       "user": {},
@@ -53,7 +53,7 @@ describe("Outgoing Account Filtering Tests", () => {
   });
 
   it("Account Left Valid Segment. Should filter out non whitelisted segments.", () => {
-    const inputData = { "left_account_segments": ["account_segment_1", "account_segment_2", "account_segment_3"] };
+    const inputData = { "account_segments_left": ["account_segment_1", "account_segment_2", "account_segment_3"] };
     const message = {
       "changes": { "account_segments": { "left": [{ "id": "account_segment_1" }, { "id": "account_segment_2" }] } },
       "user": {},
@@ -77,7 +77,7 @@ describe("Outgoing Account Filtering Tests", () => {
   it("Account Attribute Changed. Should filter out non whitelisted attributes.", () => {
     const inputData = {
       account_attribute_updated: [ "attr1", "attr2" ],
-      account_segments: [ "all_segments" ]
+      account_segments_whitelist: [ "all_segments" ]
     };
     const message = {
       "changes": {
