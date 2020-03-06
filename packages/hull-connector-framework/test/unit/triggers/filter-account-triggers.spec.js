@@ -14,7 +14,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
             "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1"
           },
           "inputData": {
-            "entered_account_segments": [
+            "account_segments_entered": [
               "account_segment_1",
               "account_segment_2"
             ]
@@ -55,7 +55,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
               "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1"
             },
             "inputData": {
-              "entered_account_segments": [
+              "account_segments_entered": [
                 "all_segments"
               ]
             }
@@ -99,7 +99,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
               "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1"
             },
             "inputData": {
-              "entered_account_segments": [
+              "account_segments_entered": [
                 "all_segments"
               ]
             }
@@ -130,7 +130,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
               "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1"
             },
             "inputData": {
-              "entered_account_segments": [
+              "account_segments_entered": [
                 "account_segment_1",
                 "account_segment_2",
               ]
@@ -171,7 +171,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
               "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1"
             },
             "inputData": {
-              "entered_account_segments": [
+              "account_segments_entered": [
                 "account_segment_1"
               ]
             }
@@ -205,7 +205,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
               "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1"
             },
             "inputData": {
-              "left_account_segments": [
+              "account_segments_left": [
                 "account_segment_1",
                 "account_segment_2"
               ]
@@ -250,7 +250,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
               "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1"
             },
             "inputData": {
-              "left_account_segments": [
+              "account_segments_left": [
                 "all_segments"
               ]
             }
@@ -290,7 +290,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
               "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1"
             },
             "inputData": {
-              "left_account_segments": [
+              "account_segments_left": [
                 "all_segments"
               ]
             }
@@ -321,7 +321,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
               "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1"
             },
             "inputData": {
-              "left_account_segments": [
+              "account_segments_left": [
                 "account_segment_1",
                 "account_segment_2",
               ]
@@ -358,7 +358,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
               "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1"
             },
             "inputData": {
-              "left_account_segments": [
+              "account_segments_left": [
                 "account_segment_1"
               ]
             }

@@ -1,10 +1,11 @@
 // @flow
-import type { HullEntityName } from "hull";
+import type { HullEntityName, HullTriggerSet } from "hull";
 import type { PrivateSettings } from "../types";
 
-const getTriggers = (entityType: HullEntityName) => (
+const getTriggers = (
+  entity: HullEntityName,
   private_settings: PrivateSettings
-): { [string]: Array<string> | boolean } => {
+): HullTriggerSet => {
   const {
     synchronized_segments_enter,
     synchronized_segments_leave,
@@ -15,12 +16,24 @@ const getTriggers = (entityType: HullEntityName) => (
   const include_new = synchronized_events.includes("CREATED");
 
   return {
-    [`entered_${entityType}_segments`]: synchronized_segments_enter,
-    [`left_${entityType}_segments`]: synchronized_segments_leave,
-    [`${entityType}_attribute_updated`]: synchronized_attributes,
-    [`${entityType}_events`]: synchronized_events,
-    ...(include_new ? { [`is_new_${entityType}`]: true } : {})
+    [`${entity}_segments_entered`]: synchronized_segments_enter,
+    [`${entity}_segments_left`]: synchronized_segments_leave,
+    [`${entity}_attribute_updated`]: synchronized_attributes,
+    [`${entity}_events`]: synchronized_events,
+    ...(include_new ? { [`is_new_${entity}`]: true } : {})
   };
+
+  // TODO: Support boolean logic
+  // {
+  //   and: [
+  //     {}
+  //     {}
+  //     {}
+  //     {
+  //       or: []
+  //     }
+  //   ]
+  // }
 };
 
 export default getTriggers;

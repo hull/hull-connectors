@@ -4,7 +4,7 @@ import type {
   HullTrigger,
   HullEvent,
   HullSegment,
-  HullTriggerWhitelist,
+  HullTriggerList,
   HullTriggerDefinitions,
   HullTriggerDefinition,
   HullTriggerValidations,
@@ -15,6 +15,17 @@ import type {
   HullAccountUpdateMessage
 } from "hull";
 
+const getSegmentIds = (segments: Array<HullSegment>) => [
+  "ALL",
+  "all_segments",
+  ..._.map(segments, "id")
+];
+
+const intersectionWithSegment = (
+  segments: Array<HullSegment>,
+  list: Array<string>
+) => _.intersection(getSegmentIds(segments), list);
+
 // TODO: generate global whitelist from whitelist
 const validateChanges: HullTriggerValidationFunction = (
   changes: $PropertyType<
@@ -22,34 +33,37 @@ const validateChanges: HullTriggerValidationFunction = (
     "user"
   >,
   whitelist: Array<string>
-): boolean => !_.isEmpty(_.intersection(whitelist, _.keys(changes)));
+): boolean %checks => !_.isEmpty(_.intersection(whitelist, _.keys(changes)));
 
 // TODO: generate global whitelist from whitelist
 const validateEvents: HullTriggerValidationFunction = (
   events: Array<HullEvent>,
   whitelist: Array<string>
-): boolean => !_.isEmpty(_.intersection(whitelist, _.map(events, "event")));
+): boolean %checks =>
+  !_.isEmpty(_.intersection(whitelist, _.map(events, "event")));
 
 // TODOANDY -> is this a custom entry? We already use `ALL` as a value everywhere else.
 // TODO: generate global whitelist from whitelist
 const validateSegments: HullTriggerValidationFunction = (
   segments: Array<HullSegment>,
   whitelist: Array<string>
-): boolean =>
-  !_.isEmpty(
-    _.intersection(whitelist, ["all_segments", ..._.map(segments, "id")])
-  );
+): boolean %checks => !_.isEmpty(intersectionWithSegment(segments, whitelist));
+
+const excludeSegments: HullTriggerValidationFunction = (
+  segments: Array<HullSegment>,
+  blacklist: Array<string>
+): boolean %checks => _.isEmpty(intersectionWithSegment(segments, blacklist));
 
 const required: HullTriggerValidationFunction = (
   obj,
   whitelist: Array<string>
-): boolean => !_.isEmpty(obj);
+): boolean %checks => !_.isEmpty(obj);
 
 const isValidSubEntity = (
   entity: {},
   rules: Array<HullTriggerValidation>,
-  whitelist: HullTriggerWhitelist
-): boolean =>
+  whitelist: HullTriggerList
+): boolean %checks =>
   _.every(rules, rule => {
     // TODOANY: Whitelisst could be a boolean, yet we assume in every validation function that it's an array of string...
     if (typeof rule === "function" && Array.isArray(whitelist)) {
@@ -69,8 +83,8 @@ const isValidSubEntity = (
 const isValidMessage = (
   message: HullUserUpdateMessage | HullAccountUpdateMessage,
   validations: HullTriggerValidations,
-  whitelist: HullTriggerWhitelist
-): boolean => {
+  whitelist: HullTriggerList
+): boolean %checks => {
   if (_.isEmpty(validations)) {
     return false;
   }
@@ -87,8 +101,8 @@ const isValidTrigger = (
   triggerDefinitions: HullTriggerDefinitions,
   message: HullUserUpdateMessage | HullAccountUpdateMessage,
   inputData: $PropertyType<HullTrigger, "inputData">
-): boolean =>
-  _.some(inputData, (whitelist: HullTriggerWhitelist, path: string) => {
+): boolean %checks =>
+  _.every(inputData, (whitelist: HullTriggerList, path: string) => {
     const triggerDefinition: HullTriggerDefinition = _.get(
       triggerDefinitions,
       path,
@@ -99,6 +113,7 @@ const isValidTrigger = (
   });
 
 module.exports = {
+  excludeSegments,
   isValidTrigger,
   isValidMessage,
   isValidSubEntity,

@@ -55,7 +55,7 @@ function getCleanedMessage(
 function getEntityTriggers(
   entity: Object,
   activeTriggers: Array<Object>
-): Array<string> {
+): Array<HullTrigger> {
   const filteredTriggers = [];
 
   _.forEach(activeTriggers, activeTrigger => {

@@ -6,14 +6,15 @@ const {
   EntityCreatedTrigger,
   HullUserEventTrigger,
   HullAccountAttributeChangedTrigger,
-  HullAccountSegmentChangedTrigger,
+  HullAccountSegmentChangedTrigger
 } = require("../hull-service-objects");
 
 const {
   validateSegments,
+  excludeSegments,
   validateChanges,
   validateEvents,
-  required,
+  required
 } = require("./validations");
 
 const {
@@ -28,13 +29,31 @@ const TRIGGERS = {
   user_segments: {
     type: HullUserSegmentChangedTrigger,
     filters: {
-      "segments": [filterNone]
+      segments: [filterNone]
     },
     validations: {
-      "segments": [validateSegments]
+      segments: [validateSegments]
     }
   },
-  entered_user_segments: {
+  user_segments_whitelist: {
+    type: HullUserSegmentChangedTrigger,
+    filters: {
+      segments: [filterNone]
+    },
+    validations: {
+      segments: [validateSegments]
+    }
+  },
+  user_segments_blacklist: {
+    type: HullUserSegmentChangedTrigger,
+    filters: {
+      segments: [filterNone]
+    },
+    validations: {
+      segments: [excludeSegments]
+    }
+  },
+  user_segments_entered: {
     type: HullUserSegmentChangedTrigger,
     filters: {
       "changes.segments.entered": [filterSegments]
@@ -43,7 +62,7 @@ const TRIGGERS = {
       "changes.segments.entered": [required, validateSegments]
     }
   },
-  left_user_segments: {
+  user_segments_left: {
     type: HullUserSegmentChangedTrigger,
     filters: {
       "changes.segments.left": [filterSegments]
@@ -64,10 +83,10 @@ const TRIGGERS = {
   user_events: {
     type: HullUserEventTrigger,
     filters: {
-      "events": [filterEvents]
+      events: [filterEvents]
     },
     validations: {
-      "events": [validateEvents]
+      events: [validateEvents]
     }
   },
   is_new_user: {
@@ -77,7 +96,7 @@ const TRIGGERS = {
     },
     validations: {
       user: [required],
-      changes: { is_new: true },
+      changes: { is_new: true }
     }
   },
   is_new_account: {
@@ -93,10 +112,28 @@ const TRIGGERS = {
   account_segments: {
     type: HullUserSegmentChangedTrigger,
     filters: {
-      "account_segments": [filterNone]
+      account_segments: [filterNone]
     },
     validations: {
-      "account_segments": [validateSegments]
+      account_segments: [validateSegments]
+    }
+  },
+  account_segments_whitelist: {
+    type: HullUserSegmentChangedTrigger,
+    filters: {
+      account_segments: [filterNone]
+    },
+    validations: {
+      account_segments: [validateSegments]
+    }
+  },
+  account_segments_blacklist: {
+    type: HullUserSegmentChangedTrigger,
+    filters: {
+      segments: [filterNone]
+    },
+    validations: {
+      account_segments: [excludeSegments]
     }
   },
   account_attribute_updated: {
@@ -108,6 +145,34 @@ const TRIGGERS = {
       "changes.account": [required, validateChanges]
     }
   },
+  account_segments_entered: {
+    type: HullAccountSegmentChangedTrigger,
+    filters: {
+      "changes.account_segments.entered": [filterSegments]
+    },
+    validations: {
+      "changes.account_segments.entered": [required, validateSegments]
+    }
+  },
+  account_segments_left: {
+    type: HullAccountSegmentChangedTrigger,
+    filters: {
+      "changes.account_segments.left": [filterSegments]
+    },
+    validations: {
+      "changes.account_segments.left": [required, validateSegments]
+    }
+  },
+  //TODO: Deprecate to have uniform naming
+  entered_user_segments: {
+    type: HullUserSegmentChangedTrigger,
+    filters: {
+      "changes.segments.entered": [filterSegments]
+    },
+    validations: {
+      "changes.segments.entered": [required, validateSegments]
+    }
+  },
   entered_account_segments: {
     type: HullAccountSegmentChangedTrigger,
     filters: {
@@ -115,6 +180,15 @@ const TRIGGERS = {
     },
     validations: {
       "changes.account_segments.entered": [required, validateSegments]
+    }
+  },
+  left_user_segments: {
+    type: HullUserSegmentChangedTrigger,
+    filters: {
+      "changes.segments.left": [filterSegments]
+    },
+    validations: {
+      "changes.segments.left": [required, validateSegments]
     }
   },
   left_account_segments: {

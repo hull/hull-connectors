@@ -1,4 +1,5 @@
 // @flow
+import TRIGGERS from "../../../hull-connector-framework/src/purplefusion/triggers/triggers";
 
 export type HullStreamType = "csv" | "json";
 
@@ -7,15 +8,17 @@ export type HullServiceObjectDefinition = {
   service_name: string,
   stream?: HullStreamType
 };
-export type HullTriggerWhitelist = boolean | Array<string>;
+export type HullTriggerList = boolean | Array<string>;
+export type HullTriggerSet = {
+  [string: $Keys<typeof TRIGGERS>]: HullTriggerList
+};
 
 export type HullTrigger = {
+  cleanedEntity: {},
   serviceAction: {
     url: string
   },
-  inputData: {
-    [string]: HullTriggerWhitelist
-  }
+  inputData: HullTriggerSet
 };
 
 export type HullTriggerValidationFunction = (any, Array<string>) => boolean;

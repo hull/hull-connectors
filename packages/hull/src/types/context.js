@@ -21,7 +21,8 @@ import type {
   HullClient,
   HullUserUpdateMessage,
   HullAccountUpdateMessage,
-  HullEvent
+  HullEvent,
+  HullTriggerSet
 } from "./index";
 
 import {
@@ -116,16 +117,11 @@ export type HullContext = {|
     mappingToOptions: $Call<typeof mappingToOptions, HullContext>,
     mapAttributes: $Call<typeof mapAttributes, HullContext>,
     getStandardMapping: $Call<typeof getStandardMapping, HullContext>,
-    hasMatchingSegments: ({
-      matchOnBatch?: boolean,
-      whitelist: Array<string>,
-      blacklist: Array<string>,
-      message: HullUserUpdateMessage | HullAccountUpdateMessage,
-      entity: HullEntityName
-    }) => boolean,
     hasMatchingTriggers: ({
+      matchOnBatch?: boolean,
+      mode: "any" | "all",
       message: HullUserUpdateMessage | HullAccountUpdateMessage,
-      triggers: { [string: $Keys<typeof TRIGGERS>]: Array<string> | boolean }
+      triggers: HullTriggerSet
     }) => boolean,
     segmentChangesToEvents: (
       HullAccountUpdateMessage | HullUserUpdateMessage,
