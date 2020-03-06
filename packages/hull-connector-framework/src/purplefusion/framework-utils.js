@@ -79,6 +79,10 @@ class FrameworkUtils {
     return hash(params);
   }
 
+  print(context: Object, params: any) {
+    return console.log(`PRINT: ${JSON.stringify(params)}`);
+  }
+
 }
 module.exports = {
   FrameworkUtils
