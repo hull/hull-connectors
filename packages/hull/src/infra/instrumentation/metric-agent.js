@@ -60,7 +60,8 @@ class MetricAgent {
    * @return {mixed}
    */
   value(metric: string, value: number = 1, additionalTags: Array<string> = []) {
-    this.logFunction("metric.value", { metric, value, additionalTags });
+    const tags = _.union(this.getMetricTagsArray(), additionalTags);
+    this.logFunction("metric.value", { metric, value, tags });
     if (!this.metrics) {
       return null;
     }
@@ -68,7 +69,7 @@ class MetricAgent {
       return this.metrics.gauge(
         metric,
         parseFloat(value),
-        _.union(this.getMetricTagsArray(), additionalTags)
+        tags
       );
     } catch (err) {
       console.warn("metricVal.error", err);
@@ -90,7 +91,8 @@ class MetricAgent {
     value: number = 1,
     additionalTags: Array<string> = []
   ) {
-    this.logFunction("metric.increment", { metric, value, additionalTags });
+    const tags = _.union(this.getMetricTagsArray(), additionalTags);
+    this.logFunction("metric.increment", { metric, value, tags });
     if (!this.metrics) {
       return null;
     }
@@ -98,7 +100,7 @@ class MetricAgent {
       return this.metrics.increment(
         metric,
         parseFloat(value),
-        _.union(this.getMetricTagsArray(), additionalTags)
+        tags
       );
     } catch (err) {
       console.warn("metricInc.error", err);
@@ -115,6 +117,7 @@ class MetricAgent {
    * @return {mixed}
    */
   event(title: string, text: string = "", properties: Object = {}) {
+    // TODO: deprecate calls to event as it's not supported by statsd
     this.logFunction("metric.event", { title, text, properties });
     if (!this.dogapi) {
       return null;

@@ -14738,6 +14738,11 @@ static-extend@^0.1.1:
     define-property "^0.2.5"
     object-copy "^0.1.0"
 
+statsd-client@^0.4.4:
+  version "0.4.4"
+  resolved "https://registry.yarnpkg.com/statsd-client/-/statsd-client-0.4.4.tgz#75b05717bd3d00ef296a9f3cb546bcb16596f77f"
+  integrity sha512-GjAReJDNZomTTTaIaDuDddWknHO2GXmXS/9JKy6iQFOHNSQ4yeaRGP18oNgahl+c3XTUfUWBYIUnipznNh5Vww==
+
 statuses@1, "statuses@>= 1.4.0 < 2", "statuses@>= 1.5.0 < 2", statuses@~1.5.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-1.5.0.tgz#161c7dac177659fd9811f43771fa99381478628c"

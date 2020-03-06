@@ -7,8 +7,9 @@ import type {
 } from "hull";
 
 const Raven = require("raven");
-const metrics = require("datadog-metrics");
+const DatadogMetrics = require("datadog-metrics");
 const dogapi = require("dogapi");
+const StatsdClient = require("statsd-client");
 const url = require("url");
 const debug = require("debug")("hull-connector:instrumentation-agent");
 
@@ -55,21 +56,25 @@ class InstrumentationAgent {
       this.nr = require("newrelic"); // eslint-disable-line global-require
     }
 
-    if (process.env.DATADOG_API_KEY) {
+    if (options.statsd_host) {
+      this.metrics = new StatsdClient({
+        port: options.statsd_port || 8125,
+        host: options.statsd_host,
+        prefix: options.prefix || "connectors"
+      });
+    } else if (process.env.DATADOG_API_KEY) {
       if (!process.env.DATADOG_HOST) {
         throw new Error(
           "To turn on Datadog integration you need to provide `DATADOG_HOST` env var"
         );
       }
-      this.metrics = metrics;
-      metrics.init({
+      this.metrics = DatadogMetrics;
+      DatadogMetrics.init({
         host: process.env.DATADOG_HOST
       });
       dogapi.initialize({ api_key: process.env.DATADOG_API_KEY });
       this.dogapi = dogapi;
-    }
-
-    if (captureMetrics !== undefined && Array.isArray(captureMetrics)) {
+    } else if (captureMetrics !== undefined && Array.isArray(captureMetrics)) {
       this.metrics = {
         gauge: (metric, value, tags) => {
           captureMetrics.push(["value", metric, value, tags]);

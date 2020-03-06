@@ -199,7 +199,7 @@ class HullConnector {
       instrumentation || new Instrumentation(this.metricsConfig, manifest);
     this.queue = queue || new Queue();
 
-    // Rebuild a sanitized and defaults-enriched Conenctor Config
+    // Rebuild a sanitized and defaults-enriched Connector Config
     this.connectorConfig = {
       ...resolvedConfig,
       clientConfig: this.clientConfig,
