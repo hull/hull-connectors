@@ -98,7 +98,11 @@
       "type": "array",
       "default": [],
       "format": "segment",
-      "options": {}
+      "options": {
+        "standard": {
+          "ALL": "All Segments"
+        }
+      }
     },
     {
       "name": "synchronized_segments_blacklist",
@@ -154,7 +158,7 @@
     },
     {
       "title": "Filters",
-      "description": "This section defines the conditions for emitting a Webhook. Use the segment whitelist and blacklist to filter out which Asers can be sent. Blacklist takes precedence over Whitelist",
+      "description": "This section defines the conditions for emitting a Webhook. Use the segment whitelist and blacklist to filter out which Users can be sent. Blacklist takes precedence over Whitelist",
       "properties": [
         "private_settings.synchronized_segments_whitelist",
         "private_settings.synchronized_segments_blacklist"
@@ -206,6 +210,10 @@
         {
           "channel": "user:update",
           "handler": "userUpdate"
+        },
+        {
+          "channel": "ship:update",
+          "handler": "shipUpdate"
         }
       ],
       "conditions": {

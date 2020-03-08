@@ -12,7 +12,7 @@ describe("Outgoing Account Tests", () => {
   it("Account Created. Should Send Payload", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
 
-      const triggerScenario = createSimpleTriggerScenario({ trigger: "account_created" });
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "is_new_account" });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,
@@ -43,7 +43,7 @@ describe("Outgoing Account Tests", () => {
   it("Account Entered Segment. Should Send Payload", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
 
-      const triggerScenario = createSimpleTriggerScenario({ trigger: "account_entered_segment" });
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "account_segments_entered" });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,
@@ -74,7 +74,7 @@ describe("Outgoing Account Tests", () => {
   it("Account Left Segment. Should Send Payload", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
 
-      const triggerScenario = createSimpleTriggerScenario({ trigger: "account_left_segment" });
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "account_segments_left" });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,
@@ -157,7 +157,7 @@ describe("Outgoing Account Tests", () => {
   it("Account Entered Segment. Should Not Send Payload", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
 
-      const triggerScenario = createSimpleTriggerScenario({ trigger: "account_entered_segment", negative: true });
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "account_segments_entered", negative: true });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,
@@ -176,7 +176,7 @@ describe("Outgoing Account Tests", () => {
   it("Account Left Segment. Should Not Send Payload", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
 
-      const triggerScenario = createSimpleTriggerScenario({ trigger: "account_left_segment", negative: true });
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "account_segments_left", negative: true });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,

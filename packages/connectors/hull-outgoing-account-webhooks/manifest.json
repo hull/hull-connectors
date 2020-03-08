@@ -103,7 +103,11 @@
       "type": "array",
       "default": [],
       "format": "accountSegment",
-      "options": {}
+      "options": {
+        "standard": {
+          "ALL": "All Segments"
+        }
+      }
     },
     {
       "name": "synchronized_segments_blacklist",
@@ -211,6 +215,10 @@
         {
           "channel": "account:update",
           "handler": "accountUpdate"
+        },
+        {
+          "channel": "ship:update",
+          "handler": "shipUpdate"
         }
       ],
       "conditions": {

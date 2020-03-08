@@ -8,10 +8,10 @@ function createSimpleTriggerScenario({trigger, negative = false, settingsOverwri
   let synchronized_segments_enter = [];
   let synchronized_segments_leave = [];
   let synchronized_attributes = [];
-  let synchronized_segments = [];
+  let synchronized_segments_whitelist = [];
   let code;
   let message;
-  if (_.startsWith(trigger, "user")) {
+  if (trigger.includes("user")) {
     code = "{'email': user.email}";
     message = scenario.user_message;
     _.unset(scenario, "account_message");
@@ -28,34 +28,34 @@ function createSimpleTriggerScenario({trigger, negative = false, settingsOverwri
 
   switch (trigger) {
 
-    case "user_created": {
-      synchronized_events = ['User Created'];
-      synchronized_segments = ['user_segment_1'];
+    case "is_new_user": {
+      synchronized_events = ['CREATED'];
+      synchronized_segments_whitelist = ['user_segment_1'];
 
       private_settings = {
         ...private_settings,
         synchronized_events,
-        synchronized_segments
+        synchronized_segments_whitelist
       };
       _.set(message, "changes.is_new", true);
 
       break;
     }
 
-    case "user_event": {
+    case "user_events": {
 
       if (!negative) {
         synchronized_events = ['Email Opened'];
-        synchronized_segments = ['user_segment_1'];
+        synchronized_segments_whitelist = ['user_segment_1'];
       } else {
         synchronized_events = ['Email Sent'];
-        synchronized_segments = ['user_segment_1'];
+        synchronized_segments_whitelist = ['user_segment_1'];
       }
 
       private_settings = {
         ...private_settings,
         synchronized_events,
-        synchronized_segments
+        synchronized_segments_whitelist
       };
       _.set(message, "events", [
         {
@@ -71,39 +71,39 @@ function createSimpleTriggerScenario({trigger, negative = false, settingsOverwri
       break;
     }
 
-    case "user_entered_segment": {
+    case "user_segments_entered": {
 
       if (!negative) {
         synchronized_segments_enter = ['user_segment_1'];
-        synchronized_segments = ['user_segment_1'];
+        synchronized_segments_whitelist = ['user_segment_1'];
       } else {
         synchronized_segments_enter = ['user_segment_2'];
-        synchronized_segments = ['user_segment_1'];
+        synchronized_segments_whitelist = ['user_segment_1'];
       }
 
       private_settings = {
         ...private_settings,
         synchronized_segments_enter,
-        synchronized_segments
+        synchronized_segments_whitelist
       };
       _.set(message, "changes.segments.entered", [{ "id": "user_segment_1", "name": "UserSegment1" }]);
       break;
     }
 
-    case "user_left_segment": {
+    case "user_segments_left": {
 
       if (!negative) {
         synchronized_segments_leave = [ 'user_segment_2'];
-        synchronized_segments =[ 'user_segment_1' ];
+        synchronized_segments_whitelist =[ 'user_segment_1' ];
       } else {
         synchronized_segments_leave = [ 'user_segment_3'];
-        synchronized_segments =[ 'user_segment_1' ];
+        synchronized_segments_whitelist =[ 'user_segment_1' ];
       }
 
       private_settings = {
         ...private_settings,
         synchronized_segments_leave,
-        synchronized_segments
+        synchronized_segments_whitelist
       };
       _.set(message, "changes.segments.left", [{ "id": "user_segment_2", "name": "UserSegment2" }]);
       break;
@@ -113,16 +113,16 @@ function createSimpleTriggerScenario({trigger, negative = false, settingsOverwri
 
       if (!negative) {
         synchronized_attributes = [ 'description'];
-        synchronized_segments =[ 'user_segment_1' ];
+        synchronized_segments_whitelist =[ 'user_segment_1' ];
       } else {
         synchronized_attributes = [ 'department'];
-        synchronized_segments =[ 'user_segment_1' ];
+        synchronized_segments_whitelist =[ 'user_segment_1' ];
       }
 
       private_settings = {
         ...private_settings,
         synchronized_attributes,
-        synchronized_segments
+        synchronized_segments_whitelist
       };
       _.set(message, "changes.user", { "description": ["1", "2"] });
       break;
@@ -131,59 +131,59 @@ function createSimpleTriggerScenario({trigger, negative = false, settingsOverwri
     case "user_synchronized_segment": {
       private_settings = {
         ...private_settings,
-        synchronized_segments: [ 'user_segment_1' ]
+        synchronized_segments_whitelist: [ 'user_segment_1' ]
       };
       _.set(message, "segments", [{ "id": "user_segment_1", "name": "UserSegment1" }]);
       break;
     }
 
-    case "account_created": {
-      synchronized_events = ['Account Created'];
-      synchronized_segments = ['account_segment_1'];
+    case "is_new_account": {
+      synchronized_events = ['CREATED'];
+      synchronized_segments_whitelist = ['account_segment_1'];
 
       private_settings = {
         ...private_settings,
         synchronized_events,
-        synchronized_segments
+        synchronized_segments_whitelist
       };
       _.set(message, "changes.is_new", true);
 
       break;
     }
 
-    case "account_entered_segment": {
+    case "account_segments_entered": {
 
       if (!negative) {
         synchronized_segments_enter = [ 'account_segment_1'];
-        synchronized_segments =[ 'account_segment_1' ];
+        synchronized_segments_whitelist =[ 'account_segment_1' ];
       } else {
         synchronized_segments_enter = [ 'account_segment_2'];
-        synchronized_segments =[ 'account_segment_1' ];
+        synchronized_segments_whitelist =[ 'account_segment_1' ];
       }
 
       private_settings = {
         ...private_settings,
         synchronized_segments_enter,
-        synchronized_segments
+        synchronized_segments_whitelist
       };
       _.set(message, "changes.account_segments.entered", [{ "id": "account_segment_1", "name": "AccountSegment1" }]);
       break;
     }
 
-    case "account_left_segment": {
+    case "account_segments_left": {
 
       if (!negative) {
         synchronized_segments_leave = [ 'account_segment_2'];
-        synchronized_segments =[ 'account_segment_1' ];
+        synchronized_segments_whitelist =[ 'account_segment_1' ];
       } else {
         synchronized_segments_leave = [ 'account_segment_1'];
-        synchronized_segments =[ 'account_segment_1' ];
+        synchronized_segments_whitelist =[ 'account_segment_1' ];
       }
 
       private_settings = {
         ...private_settings,
         synchronized_segments_leave,
-        synchronized_segments
+        synchronized_segments_whitelist
       };
       _.set(message, "changes.account_segments.left", [{ "id": "account_segment_2", "name": "AccountSegment2" }]);
       break;
@@ -193,16 +193,16 @@ function createSimpleTriggerScenario({trigger, negative = false, settingsOverwri
 
       if (!negative) {
         synchronized_attributes = [ 'description'];
-        synchronized_segments =[ 'account_segment_1' ];
+        synchronized_segments_whitelist =[ 'account_segment_1' ];
       } else {
         synchronized_attributes = [ 'industry'];
-        synchronized_segments =[ 'account_segment_1' ];
+        synchronized_segments_whitelist =[ 'account_segment_1' ];
       }
 
       private_settings = {
         ...private_settings,
         synchronized_attributes,
-        synchronized_segments
+        synchronized_segments_whitelist
       };
       _.set(message, "changes.account", { "description": ["1", "2"] });
       break;
@@ -211,7 +211,7 @@ function createSimpleTriggerScenario({trigger, negative = false, settingsOverwri
     case "account_synchronized_segment": {
       private_settings = {
         ...private_settings,
-        synchronized_segments: [ 'account_segment_1' ]
+        synchronized_segments_whitelist: [ 'account_segment_1' ]
       };
       _.set(message, "account_segments", [{ "id": "account_segment_1", "name": "AccountSegment1" }]);
       break;
