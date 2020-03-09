@@ -1,5 +1,6 @@
 /* @flow */
 
+import TRIGGERS from "./triggers";
 const _ = require("lodash");
 const {
   HullOutgoingUser,
@@ -8,13 +9,20 @@ const {
 const { setHullDataType } = require("../utils");
 const { filterMessage } = require("./filters");
 const { isValidTrigger } = require("./validations");
-const { triggers } = require("./triggers");
+import type {
+  HullUserUpdateMessage,
+  HullAccountUpdateMessage,
+  HullTrigger
+} from "hull";
 
-function getCleanedMessage(definedTriggers: Object, message: Object, inputData: Object): Array<string> {
-
+function getCleanedMessage(
+  definedTriggers: Object,
+  message: Object,
+  inputData: Object
+): Array<string> {
   const standardFilter = _.concat(
-    !_.isEmpty(_.get(message, "user", {})) ? [ "user", "segments" ] : [],
-    [ "account", "account_segments", "message_id"]
+    !_.isEmpty(_.get(message, "user", {})) ? ["user", "segments"] : [],
+    ["account", "account_segments", "message_id"]
   );
   let filteredEntity = _.pick(message, standardFilter);
 
@@ -31,41 +39,44 @@ function getCleanedMessage(definedTriggers: Object, message: Object, inputData: 
 
     const filteredSubEntity = filterMessage(message, filters, whitelist);
 
-    _.reduce(filters, (result, value, key) => {
-      _.set(result, key, _.get(filteredSubEntity, key));
-      return result;
-    }, filteredEntity);
+    _.reduce(
+      filters,
+      (result, value, key) => {
+        _.set(result, key, _.get(filteredSubEntity, key));
+        return result;
+      },
+      filteredEntity
+    );
   });
 
   return filteredEntity;
 }
 
-function hasValidTrigger(entity: Object, activeTriggers: Array<Object>): boolean {
-  let isValid = false;
-  _.forEach(activeTriggers, activeTrigger => {
-    if (isValidTrigger(triggers, entity, activeTrigger.inputData)) {
-      return (isValid = true);
-    }
-  });
-
-  return isValid;
-}
-
-function getEntityTriggers(entity: Object, activeTriggers: Array<Object>): Array<string> {
+function getEntityTriggers(
+  entity: Object,
+  activeTriggers: Array<Object>
+): Array<HullTrigger> {
   const filteredTriggers = [];
 
   _.forEach(activeTriggers, activeTrigger => {
-    if (isValidTrigger(triggers, entity, activeTrigger.inputData)) {
+    if (isValidTrigger(TRIGGERS, entity, activeTrigger.inputData)) {
       const rawEntity = entity;
 
-      const cleanedEntity = getCleanedMessage(triggers, entity, activeTrigger.inputData);
+      const cleanedEntity = getCleanedMessage(
+        TRIGGERS,
+        entity,
+        activeTrigger.inputData
+      );
 
       let entityDataType = null;
       if (!_.isEmpty(_.get(entity, "user"))) {
         entityDataType = HullOutgoingUser;
       }
 
-      if (!_.isEmpty(_.get(entity, "account")) && _.isEmpty(_.get(entity, "user"))) {
+      if (
+        !_.isEmpty(_.get(entity, "account")) &&
+        _.isEmpty(_.get(entity, "user"))
+      ) {
         entityDataType = HullOutgoingAccount;
       }
 
@@ -82,9 +93,7 @@ function getEntityTriggers(entity: Object, activeTriggers: Array<Object>): Array
   return filteredTriggers;
 }
 
-
 module.exports = {
   getEntityTriggers,
-  getCleanedMessage,
-  hasValidTrigger
+  getCleanedMessage
 };
