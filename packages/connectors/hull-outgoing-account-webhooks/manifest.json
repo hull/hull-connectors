@@ -224,8 +224,7 @@
       "conditions": {
         "segments": {
           "account:update": [
-            "private_settings.synchronized_segments_enter",
-            "private_settings.synchronized_segments_leave"
+            "private_settings.synchronized_segments_whitelist"
           ]
         },
         "channels": {
@@ -237,9 +236,13 @@
       }
     }
   ],
-  "status": {
-    "url": "/status",
-    "type": "interval",
-    "value": "60"
-  }
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "30",
+      "method": "all",
+      "handler": "statusHandler"
+    }
+  ]
 }
