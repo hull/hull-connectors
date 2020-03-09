@@ -438,6 +438,7 @@ const glue = {
       set("filterLimits", "${eventsLastFetch}..${sync_end}"),
       set("outreachEvents", outreach("getRecentEvents")),
       loopL([
+        route("setMailingDetails", { events: "${outreachEvents}"}),
         iterateL("${outreachEvents.data}", { key: "outreachEvent", async: true },
           ifL(cond("greaterThan", ld("indexOf", "${eventsToFetch}", "${outreachEvent.attributes.name}"), -1),
             hull("asUser", cast(OutreachEventRead, "${outreachEvent}")),
