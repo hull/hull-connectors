@@ -5,7 +5,7 @@ import type {
   Connector
 } from "hull";
 
-import { configHandler, statusHandler, previewHandler } from "hull-vm";
+import { configHandler, previewHandler } from "hull-vm";
 import configData from "./config-data";
 import callHandler from "./call-handler";
 
@@ -15,7 +15,7 @@ const handler = (_connector: Connector): HullHandlersConfiguration => {
       admin: (): HullExternalResponse => ({ pageLocation: "admin.html" })
     },
     subscriptions: {},
-    statuses: { statusHandler },
+    statuses: { statusHandler: _ctx => ({ status: "ok", messages: [] }) },
     json: {
       callHandler,
       configHandler: configHandler(configData),
