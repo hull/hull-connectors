@@ -39,6 +39,7 @@
       "format": "traitMapping",
       "options": {
         "direction": "outgoing",
+        "autoFill": true,
         "showOverwriteToggle": false,
         "allowCreate": true,
         "placeholder": "Segment Name",
@@ -75,6 +76,7 @@
       "format": "accountTraitMapping",
       "options": {
         "direction": "outgoing",
+        "autoFill": true,
         "showOverwriteToggle": false,
         "allowCreate": true,
         "placeholder": "Segment Name",
