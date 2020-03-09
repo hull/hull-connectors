@@ -14,7 +14,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
             "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1"
           },
           "inputData": {
-            "entered_account_segments": [
+            "account_segments_entered": [
               "account_segment_1",
               "account_segment_2"
             ]
@@ -33,7 +33,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
       "segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(context, message);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     const { serviceAction, cleanedEntity } = triggers[0];
 
     expect(_.size(triggers)).toEqual(1);
@@ -55,7 +55,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
               "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1"
             },
             "inputData": {
-              "entered_account_segments": [
+              "account_segments_entered": [
                 "all_segments"
               ]
             }
@@ -77,7 +77,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
       "segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(context, message);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     const { serviceAction, cleanedEntity } = triggers[0];
 
     expect(_.size(triggers)).toEqual(1);
@@ -99,7 +99,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
               "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1"
             },
             "inputData": {
-              "entered_account_segments": [
+              "account_segments_entered": [
                 "all_segments"
               ]
             }
@@ -117,7 +117,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
       "segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(context, message);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
 
     expect(_.size(triggers)).toEqual(0);
   });
@@ -130,7 +130,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
               "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1"
             },
             "inputData": {
-              "entered_account_segments": [
+              "account_segments_entered": [
                 "account_segment_1",
                 "account_segment_2",
               ]
@@ -149,7 +149,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
       "segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(context, message);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     const { serviceAction, cleanedEntity } = triggers[0];
 
     expect(_.size(triggers)).toEqual(1);
@@ -171,7 +171,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
               "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-entered-segment/1"
             },
             "inputData": {
-              "entered_account_segments": [
+              "account_segments_entered": [
                 "account_segment_1"
               ]
             }
@@ -188,7 +188,7 @@ describe("Outgoing Account Entered Segment Filtering Tests", () => {
       "segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(context, message);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
 
     expect(_.size(triggers)).toEqual(0);
   });
@@ -205,7 +205,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
               "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1"
             },
             "inputData": {
-              "left_account_segments": [
+              "account_segments_left": [
                 "account_segment_1",
                 "account_segment_2"
               ]
@@ -228,7 +228,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
       "segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(context, message);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     const { serviceAction, cleanedEntity } = triggers[0];
 
     expect(_.size(triggers)).toEqual(1);
@@ -250,7 +250,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
               "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1"
             },
             "inputData": {
-              "left_account_segments": [
+              "account_segments_left": [
                 "all_segments"
               ]
             }
@@ -268,7 +268,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
       "segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(context, message);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     const { serviceAction, cleanedEntity } = triggers[0];
 
     expect(_.size(triggers)).toEqual(1);
@@ -290,7 +290,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
               "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1"
             },
             "inputData": {
-              "left_account_segments": [
+              "account_segments_left": [
                 "all_segments"
               ]
             }
@@ -308,7 +308,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
       "segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(context, message);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
 
     expect(_.size(triggers)).toEqual(0);
   });
@@ -321,7 +321,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
               "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1"
             },
             "inputData": {
-              "left_account_segments": [
+              "account_segments_left": [
                 "account_segment_1",
                 "account_segment_2",
               ]
@@ -336,7 +336,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
       "account_segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(context, message);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     const { serviceAction, cleanedEntity } = triggers[0];
 
     expect(_.size(triggers)).toEqual(1);
@@ -358,7 +358,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
               "webhook": "https://hooks.zapier.com/hooks/standard/5687326/account-left-segment/1"
             },
             "inputData": {
-              "left_account_segments": [
+              "account_segments_left": [
                 "account_segment_1"
               ]
             }
@@ -374,7 +374,7 @@ describe("Outgoing Account Left Segment Filtering Tests", () => {
       "account_segments": [],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(context, message);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
 
     expect(_.size(triggers)).toEqual(0);
   });
@@ -416,7 +416,7 @@ describe("Outgoing Account Attribute Filtering Tests", () => {
       "account_segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(context, message);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     const { serviceAction, cleanedEntity } = triggers[0];
 
     expect(_.size(triggers)).toEqual(1);
@@ -459,7 +459,7 @@ describe("Outgoing Account Attribute Filtering Tests", () => {
       "segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(context, message);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     expect(_.size(triggers)).toEqual(0);
   });
 
@@ -492,7 +492,7 @@ describe("Outgoing Account Attribute Filtering Tests", () => {
       "segments": [{ "id": "account_segment_2" }],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(context, message);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
 
     expect(_.size(triggers)).toEqual(0);
   });
@@ -526,7 +526,7 @@ describe("Outgoing Account Attribute Filtering Tests", () => {
       "segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(context, message);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
 
     expect(_.size(triggers)).toEqual(0);
   });
@@ -561,7 +561,7 @@ describe("Outgoing Account Attribute Filtering Tests", () => {
       "segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(context, message);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     const { serviceAction, cleanedEntity } = triggers[0];
 
     expect(_.size(triggers)).toEqual(1);
@@ -608,7 +608,7 @@ describe("Outgoing Account Created Filtering Tests", () => {
       "account_segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(context, message);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
     const { serviceAction, cleanedEntity } = triggers[0];
 
     expect(_.size(triggers)).toEqual(1);
@@ -652,7 +652,7 @@ describe("Outgoing Account Created Filtering Tests", () => {
       "segments": [{ "id": "account_segment_2" }],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(context, message);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
 
     expect(_.size(triggers)).toEqual(0);
   });
@@ -687,7 +687,7 @@ describe("Outgoing Account Created Filtering Tests", () => {
       "segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const triggers = getEntityTriggers(context, message);
+    const triggers = getEntityTriggers(message, context.connector.private_settings.triggers);
 
     expect(_.size(triggers)).toEqual(0);
   });

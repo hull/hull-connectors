@@ -1,15 +1,17 @@
 /* @flow */
+
+import TRIGGERS  from "../../../src/purplefusion/triggers/triggers";
+
 const _ = require("lodash");
 
 const { getCleanedMessage } = require("../../../src/purplefusion/triggers/trigger-utils");
 const { filterMessage, filterEvents } = require("../../../src/purplefusion/triggers/filters");
 
-const { triggers } = require("../../../src/purplefusion/triggers/triggers");
 
 describe("Outgoing User Filtering Tests", () => {
 
   it("User Entered Valid Segment. Should filter out non whitelisted segments.", () => {
-    const inputData = { "entered_user_segments": ["user_segment_1", "user_segment_2", "user_segment_3"] };
+    const inputData = { "user_segments_entered": ["user_segment_1", "user_segment_2", "user_segment_3"] };
     const message = {
       "changes": { "segments": { "entered": [{ "id": "user_segment_1" }, { "id": "user_segment_2" }] } },
       "account": {},
@@ -21,7 +23,7 @@ describe("Outgoing User Filtering Tests", () => {
       "segments": [{ "id": "user_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
+    const cleanedMessage = getCleanedMessage(TRIGGERS, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": { "segments": { "entered": [{ "id": "user_segment_1" }, { "id": "user_segment_2" }] } },
       "account": {},
@@ -33,7 +35,7 @@ describe("Outgoing User Filtering Tests", () => {
   });
 
   it("User did not enter a segment. Should return empty segments entered list.", () => {
-    const inputData = { "entered_user_segments": ["user_segment_1", "user_segment_2", "user_segment_3"] };
+    const inputData = { "user_segments_entered": ["user_segment_1", "user_segment_2", "user_segment_3"] };
     const message = {
       "changes": {},
       "account": {},
@@ -45,7 +47,7 @@ describe("Outgoing User Filtering Tests", () => {
       "segments": [{ "id": "user_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
+    const cleanedMessage = getCleanedMessage(TRIGGERS, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": { "segments": { "entered": [] } },
       "account": {},
@@ -57,7 +59,7 @@ describe("Outgoing User Filtering Tests", () => {
   });
 
   it("User Left Valid Segment. Should filter out non whitelisted segments.", () => {
-    const inputData = { "left_user_segments": ["user_segment_1", "user_segment_2", "user_segment_3"] };
+    const inputData = { "user_segments_left": ["user_segment_1", "user_segment_2", "user_segment_3"] };
     const message = {
       "changes": { "segments": { "left": [{ "id": "user_segment_1" }, { "id": "user_segment_2" }] } },
       "account": {},
@@ -69,7 +71,7 @@ describe("Outgoing User Filtering Tests", () => {
       "segments": [{ "id": "user_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
+    const cleanedMessage = getCleanedMessage(TRIGGERS, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": { "segments": { "left": [{ "id": "user_segment_1" }, { "id": "user_segment_2" }] } },
       "account": {},
@@ -83,8 +85,8 @@ describe("Outgoing User Filtering Tests", () => {
   it("User Attribute Changed. Should filter out non whitelisted attributes.", () => {
     const inputData = {
       user_attribute_updated: [ "attr1", "attr2" ],
-      user_segments: [ "all_segments" ],
-      account_segments: [ "all_segments" ]
+      user_segments_whitelist: [ "all_segments" ],
+      account_segments_whitelist: [ "all_segments" ]
     };
     const message = {
       "changes": {
@@ -103,7 +105,7 @@ describe("Outgoing User Filtering Tests", () => {
       "segments": [{ "id": "user_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
+    const cleanedMessage = getCleanedMessage(TRIGGERS, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": {
         "user": {
@@ -121,8 +123,8 @@ describe("Outgoing User Filtering Tests", () => {
 
   it("User Event Created. Should filter out non whitelisted attributes.", () => {
     const inputData = {
-      "account_segments": [ 'all_segments' ],
-      "user_segments": [ 'user_segment_1' ],
+      "account_segments_whitelist": [ 'all_segments' ],
+      "user_segments_whitelist": [ 'user_segment_1' ],
       "user_events": [ 'Email Opened', 'Email Sent' ]
     };
     const message = {
@@ -145,7 +147,7 @@ describe("Outgoing User Filtering Tests", () => {
       "segments": [{ "id": "user_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
+    const cleanedMessage = getCleanedMessage(TRIGGERS, message, inputData);
     expect(cleanedMessage).toEqual({
       "account": {},
       "user": { "id": "1" },
@@ -185,7 +187,7 @@ describe("Outgoing User Filtering Tests", () => {
       "segments": [{ "id": "user_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
+    const cleanedMessage = getCleanedMessage(TRIGGERS, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": { "is_new": true },
       "account": { "id": "0" },
