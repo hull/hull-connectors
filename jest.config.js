@@ -10,6 +10,8 @@ module.exports = {
     "<rootDir>/packages/connectors/hull-typeform/test/**/*.(test|spec).js",
     "<rootDir>/packages/connectors/hull-warehouse/test/**/*.(test|spec).js",
     "<rootDir>/packages/connectors/hull-zapier/test/**/*.(test|spec).js",
+    "<rootDir>/packages/connectors/hull-outgoing-user-webhooks/test/**/*.(test|spec).js",
+    "<rootDir>/packages/connectors/hull-outgoing-account-webhooks/test/**/*.(test|spec).js",
     "<rootDir>/packages/hull-connector-framework/test/**/*.(test|spec).js"
   ],
   collectCoverageFrom: [
@@ -22,6 +24,8 @@ module.exports = {
     "<rootDir>/packages/connectors/hull-typeform/server/**/*.js",
     "<rootDir>/packages/connectors/hull-warehouse/server/**/*.js",
     "<rootDir>/packages/connectors/hull-zapier/server/**/*.js",
+    "<rootDir>/packages/connectors/hull-outgoing-user-webhooks/server/**/*.js",
+    "<rootDir>/packages/connectors/hull-outgoing-account-webhooks/server/**/*.js",
     "<rootDir>/packages/hull-connector-framework/src/**/*.js"
   ],
   collectCoverage: true,

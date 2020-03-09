@@ -37,7 +37,6 @@ export default async function compute(
   try {
     if (language === "jsonata") {
       const data = await jsonata(ctx, computeOptions);
-      console.log("'''", data);
       result.data = { ...data };
     } else {
       const hull = getHullContext({ client, result, source, claims, entity });
