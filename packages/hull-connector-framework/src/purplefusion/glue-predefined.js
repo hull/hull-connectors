@@ -219,9 +219,10 @@ function fetchAllIntoIdMap({ serviceName, fetchEndpoint, pageSize, offsetParamet
     loopL([
       set("page", new Svc({ name: serviceName, op: fetchEndpoint })),
       ld("assign", `\${${fetchEndpoint}-dataMap}`, jsonata(jsonExpression, "${page}")),
-      set("offset", get(offsetParameter, ld("last", "${page}"))),
+      set("offset", ld("add", "${offset}", 1000)),
       ifL(cond("lessThan", "${page.length}", pageSize), loopEndL())
-    ])], `\${${fetchEndpoint}-dataMap}`)
+    ])
+  ], `\${${fetchEndpoint}-dataMap}`)
 }
 
 module.exports = {

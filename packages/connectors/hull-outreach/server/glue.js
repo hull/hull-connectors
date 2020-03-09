@@ -355,11 +355,12 @@ const glue = {
   getOwnerIdToEmailMap: cacheWrap(60000, route("paginateUsers")),
   forceGetOwnerIdToEmailMap: returnValue(cacheDel(route("paginateUsers")), route("paginateUsers")),
 
+
   //route("genericPagingMapper", {page_limit: 100, dataPagingEndpoint: "getUsersPaged", jsonataExpression: "$ {$string(id): attributes.email}"}),
   paginateUsers: fetchAllIntoIdMap({
     serviceName: "outreach",
     fetchEndpoint: "getUsersPaged",
-    pageSize: 100,
+    pageSize: 1000,
     offsetParameter: "id",
     jsonExpression: "$ {$string(id): attributes.email}"
   }),
@@ -371,7 +372,7 @@ const glue = {
   paginateSequences: fetchAllIntoIdMap({
     serviceName: "outreach",
     fetchEndpoint: "getSequencesPaged",
-    pageSize: 100,
+    pageSize: 1000,
     offsetParameter: "id",
     jsonExpression: "$ {$string(id): attributes.name}"
   }),
@@ -384,7 +385,7 @@ const glue = {
   paginateSequenceSteps: fetchAllIntoIdMap({
     serviceName: "outreach",
     fetchEndpoint: "getSequenceStepsPaged",
-    pageSize: 100,
+    pageSize: 1000,
     offsetParameter: "id",
     jsonExpression: "$ {$string(id): attributes.displayName}"
   }),
@@ -403,7 +404,7 @@ const glue = {
             "}",
             outreach("getMailingDetailsBatch")))
       ]
-    ),
+    )
   ],
 
   eventsFetchAll:
@@ -414,7 +415,6 @@ const glue = {
       loopL([
         set("outreachEvents", outreach("getEventsPaged")),
         route("setMailingDetails", { events: "${outreachEvents}"}),
-        utils("print", "${mailingDetails}"),
         iterateL("${outreachEvents.data}", { key: "outreachEvent", async: true},
           hull("asUser", cast(OutreachEventRead, "${outreachEvent}")),
         ),

@@ -226,13 +226,13 @@ const service = ({ clientID, clientSecret } : {
       url: "/sequences/",
       operation: "get",
       returnObj: "body.data",
-      query: "page[limit]=100&filter[id]=${offset}..inf"
+      query: "page[limit]=1000&page[offset]=${offset}"
     },
     getSequenceStepsPaged: {
       url: "/sequenceSteps/",
       operation: "get",
       returnObj: "body.data",
-      query: "page[limit]=100&filter[id]=${offset}..inf"
+      query: "page[limit]=1000&page[offset]=${offset}"
     },
     getUsers: {
       url: "/users/",
@@ -243,7 +243,7 @@ const service = ({ clientID, clientSecret } : {
       url: "/users/",
       operation: "get",
       endpointType: "fetchAll",
-      query: "page[limit]=100&filter[id]=${offset}..inf",
+      query: "page[limit]=1000&page[offset]=${offset}",
       returnObj: "body.data"
     }
   },

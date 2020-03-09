@@ -528,17 +528,17 @@ const transformsToHull: ServiceTransforms =
                       // this introduces a pretty serious concurrency problem for us as we'll delete the sequence steps (without concurrency protection), and try to fetch a lot again...
                       // need to figure out the best way to handle this... maybe with a specific call for that sequence step??
                       // forceRoute: "forceGetSequenceSteps"
-                    }),
-                    createEnumTransform({
-                      attribute: "hull_events[0].properties.user_email",
-                      attributeId: "hull_events[0].properties.user_id",
-                      route: "getOwnerIdToEmailMap",
-                      forceRoute: "forceGetOwnerIdToEmailMap"
-                    }),
+                    })
                   ]
-                },
+                }
               ]
             },
+            createEnumTransform({
+              attribute: "hull_events[0].properties.user_email",
+              attributeId: "hull_events[0].properties.user_id",
+              route: "getOwnerIdToEmailMap",
+              forceRoute: "forceGetOwnerIdToEmailMap"
+            }),
             {
               operateOn: {
                 component: "static",
