@@ -34,6 +34,9 @@ test("fetch recent events from outreach", () => {
           .post("/api/v2/webhooks/")
           .reply(201, require("../fixtures/api-responses/create-webhook.json"));
         scope
+          .get("/api/v2/users/?page[limit]=1000&page[offset]=0")
+          .reply(201, { data: [ { id: 1, attributes: { email: "andy@hull.io" } }, { id: 0, attributes: { email: "tim@hull.io" }}]});
+        scope
           .get(/\/api\/v2\/events\/\?filter\[eventAt\]=2019-12-04T13:44:47Z\.\..+Z&sort=-eventAt&page\[limit\]=1000/)
           .reply(200, require("../fixtures/api-responses/list-recent-events"));
         return scope;
@@ -85,6 +88,7 @@ test("fetch recent events from outreach", () => {
             "vars": {}
           }
         ],
+        ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 201, "url": "/users/", "vars": {}}],
         [
           "debug",
           "incoming.user.success",
@@ -169,6 +173,7 @@ test("fetch recent events from outreach", () => {
               "request_proxied": false,
               "request_region": null,
               "user_agent": null,
+              "user_email": "andy@hull.io",
               "user_id": 1
             },
             "referer": null,
@@ -197,6 +202,16 @@ test("fetch recent events from outreach", () => {
           "increment",
           "connector.request",
           1
+        ],
+        [
+          "increment",
+          "ship.service_api.call",
+          1
+        ],
+        [
+          "value",
+          "connector.service_api.response_time",
+          expect.whatever()
         ],
         [
           "increment",

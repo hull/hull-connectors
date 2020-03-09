@@ -299,6 +299,12 @@ const service = ({ clientID, clientSecret } : {
         retryAttempts: 3
       },
       {
+        truthy: { status: 504 },
+        errorType: TransientError,
+        message: MESSAGES.INTERNAL_SERVICE_ERROR,
+        retryAttempts: 3
+      },
+      {
         truthy: { status: 404 , response: { request: { method: "PATCH" } } },
         errorType: SkippableError,
         message: MESSAGES.OUTREACH_ENTITY_NOT_FOUND,
