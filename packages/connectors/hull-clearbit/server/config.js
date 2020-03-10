@@ -10,7 +10,6 @@ export default function connectorConfig(): HullConnectorConfig {
     LOG_LEVEL,
     NODE_ENV,
     SECRET,
-    OVERRIDE_FIREHOSE_URL,
     FLOW_CONTROL_IN = 1,
     FLOW_CONTROL_SIZE = 200,
     LIBPROCESS_IP,
