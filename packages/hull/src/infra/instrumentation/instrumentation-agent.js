@@ -56,6 +56,7 @@ class InstrumentationAgent {
       this.nr = require("newrelic"); // eslint-disable-line global-require
     }
 
+    // TODO: refactor this mess
     if (options.statsd_host) {
       this.metrics = new StatsdClient({
         port: options.statsd_port || 8125,

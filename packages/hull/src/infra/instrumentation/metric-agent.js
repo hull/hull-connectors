@@ -43,6 +43,7 @@ class MetricAgent {
     );
     this.metrics = instrumentationAgent.metrics;
     this.dogapi = instrumentationAgent.dogapi;
+    this.flattenTags = !!this.dogapi;
     this.manifest = instrumentationAgent.manifest;
     this.ctx = ctx;
     this.logFunction = process.env.CONNECTOR_METRIC_LOGS
@@ -60,7 +61,7 @@ class MetricAgent {
    * @return {mixed}
    */
   value(metric: string, value: number = 1, additionalTags: Array<string> = []) {
-    const tags = _.union(this.getMetricTagsArray(), additionalTags);
+    const tags = this.getTags(additionalTags);
     this.logFunction("metric.value", { metric, value, tags });
     if (!this.metrics) {
       return null;
@@ -87,17 +88,13 @@ class MetricAgent {
     value: number = 1,
     additionalTags: Array<string> = []
   ) {
-    const tags = _.union(this.getMetricTagsArray(), additionalTags);
+    const tags = this.getTags(additionalTags);
     this.logFunction("metric.increment", { metric, value, tags });
     if (!this.metrics) {
       return null;
     }
     try {
-      return this.metrics.increment(
-        metric,
-        parseFloat(value),
-        tags
-      );
+      return this.metrics.increment(metric, parseFloat(value), tags);
     } catch (err) {
       console.warn("metricInc.error", err);
     }
@@ -135,9 +132,23 @@ class MetricAgent {
     );
   }
 
-  getMetricTagsObject() {
+  getTags(additionalTags: Array<string> = []) {
+    return this.flattenTags
+      ? this.getMetricTagsArray(additionalTags)
+      : this.getMetricTagsObject(additionalTags);
+  }
+
+  getMetricTagsObject(additionalTags: Array<string> = []) {
     const { organization = "none", id = "none" } =
       this.ctx.client !== undefined ? this.ctx.client.configuration() : {};
+    const moreTags = _.reduce(
+      additionalTags,
+      (ts, t) => {
+        const [k, v] = t.split(":");
+        return { ...ts, [k]: v };
+      },
+      {}
+    );
     const hullHost = organization
       .split(".")
       .slice(1)
@@ -157,11 +168,11 @@ class MetricAgent {
       connector: id,
       handler_name: this.ctx.handlerName || "none"
     };
-    return tags;
+    return { ...tags, ...moreTags };
   }
 
-  getMetricTagsArray() {
-    const tagsObject = this.getMetricTagsObject();
+  getMetricTagsArray(additionalTags: Array<string> = []) {
+    const tagsObject = this.getMetricTagsObject(additionalTags);
     return _.toPairs(tagsObject).map(([key, value]) => `${key}:${value}`);
   }
 }
