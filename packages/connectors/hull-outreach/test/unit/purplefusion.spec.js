@@ -35,6 +35,10 @@ describe("Outreach User Tests", () => {
     return harness.runTest(require("./fixtures/getEvents"));
   });
 
+  it("fetch recent events with paging", () => {
+    return harness.runTest(require("./fixtures/getRecentEvents"));
+  });
+
   it("Fetch different glue endpoints twice to test caching", () => {
     return harness.runTest(require("./fixtures/testCaching"));
   });
