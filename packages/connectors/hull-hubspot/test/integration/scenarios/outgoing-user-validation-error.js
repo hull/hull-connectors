@@ -13,8 +13,8 @@ const connector = {
     synchronized_user_segments: ["hullSegmentId"],
     outgoing_user_attributes: [
       {
-        hull: "traits_custom_date_at",
-        service: "close_date",
+        hull: "traits_custom_numeric",
+        service: "custom_hubspot_numeric",
         overwrite: true
       },
       {
@@ -59,8 +59,8 @@ it("should send out a new hull user to hubspot - validation error", () => {
               "hubspotDefined": true,
               "properties": [
                 {
-                  "name": "close_date",
-                  "label": "close_date",
+                  "name": "custom_hubspot_numeric",
+                  "label": "custom_hubspot_numeric",
                   "groupName": "contactinformation",
                   "type": "string",
                   "fieldType": "text"
@@ -81,8 +81,8 @@ it("should send out a new hull user to hubspot - validation error", () => {
           {
             "properties": [
               {
-                "property": "close_date",
-                "value": expect.whatever()
+                "property": "custom_hubspot_numeric",
+                "value": "1/1/1"
               },
               {
                 "property": "hull_segments",
@@ -107,8 +107,8 @@ it("should send out a new hull user to hubspot - validation error", () => {
           {
             "properties": [
               {
-                "property": "close_date",
-                "value": expect.whatever()
+                "property": "custom_hubspot_numeric",
+                "value": "2/2/2"
               },
               {
                 "property": "hull_segments",
@@ -128,7 +128,7 @@ it("should send out a new hull user to hubspot - validation error", () => {
                 "isValid": false,
                 "message": "1/1/1 was not a valid long.",
                 "error": "INVALID_LONG",
-                "name": "closedate"
+                "name": "custom_hubspot_numeric"
               }
             },
             {
@@ -223,8 +223,8 @@ it("should send out a new hull user to hubspot - validation error", () => {
           {
             "properties": [
               {
-                "property": "close_date",
-                "value": expect.whatever()
+                "property": "custom_hubspot_numeric",
+                "value": "2/2/2"
               },
               {
                 "property": "hull_segments",
@@ -243,7 +243,7 @@ it("should send out a new hull user to hubspot - validation error", () => {
         {
           user: {
             email: "bob@hull.io",
-            custom_date_at: "1/1/1"
+            custom_numeric: "1/1/1"
           },
           segments: [
             {
@@ -299,7 +299,7 @@ it("should send out a new hull user to hubspot - validation error", () => {
         {
           user: {
             email: "will@hull.io",
-            custom_date_at: "2/2/2"
+            custom_numeric: "2/2/2"
           },
           segments: [
             {
@@ -365,8 +365,8 @@ it("should send out a new hull user to hubspot - validation error", () => {
             "hubspotWriteContact": {
               "properties": [
                 {
-                  "property": "close_date",
-                  "value": expect.whatever()
+                  "property": "custom_hubspot_numeric",
+                  "value": "1/1/1"
                 },
                 {
                   "property": "hull_segments",
@@ -425,8 +425,8 @@ it("should send out a new hull user to hubspot - validation error", () => {
             "hubspotWriteContact": {
               "properties": [
                 {
-                  "property": "close_date",
-                  "value": expect.whatever()
+                  "property": "custom_hubspot_numeric",
+                  "value": "2/2/2"
                 },
                 {
                   "property": "hull_segments",
