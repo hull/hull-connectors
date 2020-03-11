@@ -191,10 +191,7 @@ class HullClient {
 
     const loggerTransport = this.clientConfig.get("loggerTransport");
 
-    if (
-      loggerTransport &&
-      loggerTransport.type === "kafka"
-    ) {
+    if (loggerTransport && loggerTransport.type === "kafka") {
       logger.add(new WinstonKafkaTransport(loggerTransport));
     }
 

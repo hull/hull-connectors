@@ -43,7 +43,7 @@ module.exports = class Kafka extends Transport {
 
     this.producer = producer;
 
-    producer.on("ready", function() {
+    producer.on("ready", () => {
       _isConnected = true;
     });
 
@@ -56,7 +56,7 @@ module.exports = class Kafka extends Transport {
       }
     });
 
-    producer.on("error", function(err) {
+    producer.on("error", err => {
       _isConnected = false;
       console.error("[winston-kafka] Cannot connect to Kafka", err);
     });
@@ -118,5 +118,5 @@ module.exports = class Kafka extends Transport {
     } else {
       console.warn("[winston-kafka] is not connected yet !");
     }
-  }
+  };
 };
