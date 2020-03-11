@@ -28,25 +28,22 @@ const restAPI = require("./lib/rest-api");
 const crypto = require("./lib/crypto");
 const Firehose = require("./lib/firehose");
 const FirehoseKafka = require("./lib/firehose-kafka");
-
-const WinstonKafkaTransport = require("./lib/winston-kafka");
-
 const traitsUtils = require("./utils/traits");
 const claimsUtils = require("./utils/claims");
 const settingsUtils = require("./utils/settings");
 const propertiesUtils = require("./utils/properties");
 
-const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || "info",
-  format: winston.format.json(),
-  transports: [
-    new winston.transports.Console({
-      level: "info",
-      json: true,
-      stringify: true
-    })
-  ]
-});
+const createLogger = options =>
+  winston.createLogger({
+    level: options.level || "info",
+    format: winston.format.json(),
+    transports: options.transports || [
+      new winston.transports.Console({
+        json: true,
+        stringify: true
+      })
+    ]
+  });
 
 /**
  * HullClient instance constructor - creates new instance to perform API calls, issue traits/track calls and log information
@@ -108,13 +105,22 @@ class HullClient {
     if (config.captureLogs === true) {
       config.logs = config.logs || [];
     }
+
     if (config.captureFirehoseEvents === true) {
       config.firehoseEvents = config.firehoseEvents || [];
     }
     this.config = config;
     this.clientConfig = new Configuration(config);
-
     const conf = this.configuration() || {};
+
+    const loggerOptions = {
+      level: conf.logLevel || process.env.LOG_LEVEL || "info",
+      transports: conf.loggerTransport
+    };
+
+    console.warn("Init logger with logLevel=", loggerOptions.level);
+
+    const logger = createLogger(loggerOptions);
     const ctxKeys = _.pick(conf, [
       "organization",
       "id",
@@ -188,12 +194,6 @@ class HullClient {
         update: settingsUtils.update.bind(this)
       }
     };
-
-    const loggerTransport = this.clientConfig.get("loggerTransport");
-
-    if (loggerTransport && loggerTransport.type === "kafka") {
-      logger.add(new WinstonKafkaTransport(loggerTransport));
-    }
 
     const logFactory = level => (
       message: string,
@@ -629,7 +629,7 @@ class UserScopedHullClient extends EntityScopedHullClient {
  */
 class AccountScopedHullClient extends EntityScopedHullClient {}
 
-HullClient.logger = logger;
+HullClient.logger = createLogger({ level: process.env.LOG_LEVEL });
 
 export type EntityScopedClient = EntityScopedHullClient;
 export type AccountScopedClient = AccountScopedHullClient;

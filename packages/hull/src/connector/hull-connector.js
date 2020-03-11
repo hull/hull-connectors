@@ -211,11 +211,7 @@ class HullConnector {
       logsConfig: this.logsConfig,
       cacheConfig: this.cacheConfig
     };
-
-    if (this.logsConfig.logLevel) {
-      this.Client.logger.transports.console.level = this.logsConfig.logLevel;
-    }
-
+    
     if (disableOnExit !== true) {
       onExit(() => {
         return Promise.all([

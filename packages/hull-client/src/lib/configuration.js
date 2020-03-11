@@ -76,9 +76,10 @@ const VALID_PROPS = {
   connectorName: VALID.string,
   requestId: VALID.string,
   logs: VALID.array,
+  logLevel: VALID.string,
   firehoseEvents: VALID.array,
   firehoseTransport: VALID.transport,
-  loggerTransport: VALID.transport
+  loggerTransport: VALID.array
 };
 
 /**
@@ -185,7 +186,7 @@ class Configuration {
   }
 
   getAll(): HullClientInstanceConfig {
-    return JSON.parse(JSON.stringify(this._state));
+    return _.clone(this._state);
   }
 }
 

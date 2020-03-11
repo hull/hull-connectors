@@ -5,16 +5,11 @@ import handlers from "./handlers";
 
 export default function connectorConfig(): HullConnectorConfig {
   const {
-    SECRET,
-    NODE_ENV,
     FIREHOSE_KAFKA_BROKERS,
     FIREHOSE_KAFKA_TOPIC,
-    LOG_LEVEL,
-    PORT,
     REDIS_URL,
     HULL_DOMAIN,
     REMOTE_DOMAIN,
-    DISABLE_WEBPACK = false,
     FIREHOSE_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS = 200
   } = process.env;
 
@@ -35,19 +30,9 @@ export default function connectorConfig(): HullConnectorConfig {
     throw new Error("Missing REMOTE_DOMAIN environment variable");
   }
 
-  if (!SECRET && NODE_ENV !== "development") {
-    throw new Error("Missing SECRET environment variable");
-  }
-
-  const hostSecret = SECRET || "1234";
-
   return {
     manifest,
-    hostSecret,
-    devMode: NODE_ENV === "development",
-    disableWebpack: DISABLE_WEBPACK === "true",
     trustProxy: true,
-    port: PORT || 8082,
     handlers: handlers({
       redisUri: REDIS_URL,
       HULL_DOMAIN,
@@ -63,14 +48,6 @@ export default function connectorConfig(): HullConnectorConfig {
           )
         }
       }
-    }),
-    middlewares: [],
-    logsConfig: {
-      logLevel: LOG_LEVEL
-    },
-    clientConfig: {},
-    serverConfig: {
-      start: true
-    }
+    })
   };
 }

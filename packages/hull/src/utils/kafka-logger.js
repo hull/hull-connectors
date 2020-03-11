@@ -4,8 +4,6 @@ const Transport = require("winston-transport");
 const { HighLevelProducer } = require("node-rdkafka");
 const _ = require("lodash");
 
-let _isConnected = false;
-
 /**
  * Transport for outputting to Kafka.
  * Inherits from WinstonTransport to take advantage of `.exceptions.handle()`.
@@ -13,9 +11,10 @@ let _isConnected = false;
  * @type {Kafka}
  * @extends {Transport}
  */
-module.exports = class Kafka extends Transport {
+module.exports = class KafkaLogger extends Transport {
   constructor(options) {
     super(options);
+    this._isConnected = false;
 
     if (!options.topic) {
       throw Error("You must explicitly set the Kafka topic");
@@ -44,7 +43,7 @@ module.exports = class Kafka extends Transport {
     this.producer = producer;
 
     producer.on("ready", () => {
-      _isConnected = true;
+      this._isConnected = true;
     });
 
     producer.on("delivery-report", (err, report) => {
@@ -57,7 +56,7 @@ module.exports = class Kafka extends Transport {
     });
 
     producer.on("error", err => {
-      _isConnected = false;
+      this._isConnected = false;
       console.error("[winston-kafka] Cannot connect to Kafka", err);
     });
 
@@ -67,7 +66,7 @@ module.exports = class Kafka extends Transport {
   log = async (info, cb) => {
     const { topic, producer } = this;
     const callback = cb || _.identity;
-    if (_isConnected) {
+    if (this._isConnected) {
       try {
         const ctxe = info.context;
         const now = Date.now();
