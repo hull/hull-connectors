@@ -58,12 +58,3 @@ workflows:
   build_and_test:
     jobs:
       - build
-      - deploy:
-          filters:
-            branches:
-              only:
-                - master
-                - develop
-                - feature/docker-single
-          requires:
-            - build

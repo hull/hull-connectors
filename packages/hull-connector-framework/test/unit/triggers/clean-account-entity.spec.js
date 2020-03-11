@@ -1,13 +1,15 @@
 /* @flow */
+
+import TRIGGERS  from "../../../src/purplefusion/triggers/triggers";
+
 const _ = require("lodash");
 
 const { getCleanedMessage } = require("../../../src/purplefusion/triggers/trigger-utils");
-const { triggers } = require("../../../src/purplefusion/triggers/triggers");
 
 describe("Outgoing Account Filtering Tests", () => {
 
   it("Account Entered Valid Segment. Should filter out non whitelisted segments.", () => {
-    const inputData = { "entered_account_segments": ["account_segment_1", "account_segment_2", "account_segment_3"] };
+    const inputData = { "account_segments_entered": ["account_segment_1", "account_segment_2", "account_segment_3"] };
     const message = {
       "changes": { "account_segments": { "entered": [{ "id": "account_segment_1" }, { "id": "account_segment_2" }] } },
       "user": {},
@@ -19,7 +21,7 @@ describe("Outgoing Account Filtering Tests", () => {
       "account_segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
+    const cleanedMessage = getCleanedMessage(TRIGGERS, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": { "account_segments": { "entered": [{ "id": "account_segment_1" }, { "id": "account_segment_2" }] } },
       "account": { "id": "1" },
@@ -29,7 +31,7 @@ describe("Outgoing Account Filtering Tests", () => {
   });
 
   it("Account did not enter a segment. Should return empty segments entered list.", () => {
-    const inputData = { "entered_account_segments": ["account_segment_1", "account_segment_2", "account_segment_3"] };
+    const inputData = { "account_segments_entered": ["account_segment_1", "account_segment_2", "account_segment_3"] };
     const message = {
       "changes": {},
       "user": {},
@@ -41,7 +43,7 @@ describe("Outgoing Account Filtering Tests", () => {
       "account_segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
+    const cleanedMessage = getCleanedMessage(TRIGGERS, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": { "account_segments": { "entered": [] } },
       "account": { "id": "1" },
@@ -51,7 +53,7 @@ describe("Outgoing Account Filtering Tests", () => {
   });
 
   it("Account Left Valid Segment. Should filter out non whitelisted segments.", () => {
-    const inputData = { "left_account_segments": ["account_segment_1", "account_segment_2", "account_segment_3"] };
+    const inputData = { "account_segments_left": ["account_segment_1", "account_segment_2", "account_segment_3"] };
     const message = {
       "changes": { "account_segments": { "left": [{ "id": "account_segment_1" }, { "id": "account_segment_2" }] } },
       "user": {},
@@ -63,7 +65,7 @@ describe("Outgoing Account Filtering Tests", () => {
       "account_segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
+    const cleanedMessage = getCleanedMessage(TRIGGERS, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": { "account_segments": { "left": [{ "id": "account_segment_1" }, { "id": "account_segment_2" }] } },
       "account": { "id": "1" },
@@ -75,7 +77,7 @@ describe("Outgoing Account Filtering Tests", () => {
   it("Account Attribute Changed. Should filter out non whitelisted attributes.", () => {
     const inputData = {
       account_attribute_updated: [ "attr1", "attr2" ],
-      account_segments: [ "all_segments" ]
+      account_segments_whitelist: [ "all_segments" ]
     };
     const message = {
       "changes": {
@@ -94,7 +96,7 @@ describe("Outgoing Account Filtering Tests", () => {
       "account_segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
+    const cleanedMessage = getCleanedMessage(TRIGGERS, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": {
         "account": {
@@ -132,7 +134,7 @@ describe("Outgoing Account Filtering Tests", () => {
       "segments": [{ "id": "account_segment_1" }],
       "message_id": "message_1"
     };
-    const cleanedMessage = getCleanedMessage(triggers, message, inputData);
+    const cleanedMessage = getCleanedMessage(TRIGGERS, message, inputData);
     expect(cleanedMessage).toEqual({
       "changes": { "is_new": true },
       "account": { "id": "0" },

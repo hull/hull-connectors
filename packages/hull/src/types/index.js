@@ -15,6 +15,7 @@
 /* :: export type * from "./settings"; */
 /* :: export type * from "./schema"; */
 /* :: export type * from "./get-entity"; */
+/* :: export type * from "./triggers"; */
 
 import type Cache from "../infra/cache/cache-agent";
 import type Queue from "../infra/queue/queue-agent";

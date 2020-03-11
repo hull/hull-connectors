@@ -138,6 +138,10 @@ const glue = {
       ]),
       elif: [
         ifL([
+          // only check if "containsNewAttribute" if we're sending everything
+          // otherwise, it wouldn't make sense to check because if we were selecting the attributes we know it's in the schema
+          // and we would have gotten a ship:update if the outgoing attributes were changed, so would have resync'd anyway
+            cond("isEqual", "${connector.private_settings.send_all_user_attributes}", true),
             cond("notEmpty", input("[0].user")),
             postgresJdbc("containsNewAttribute", {
               messages: obj(input()),
@@ -148,6 +152,7 @@ const glue = {
           lockL("${connector.id}", route("userSchemaUpdateStart"))
         ),
         ifL([
+            cond("isEqual", "${connector.private_settings.send_all_user_attributes}", true),
             cond("notEmpty", input("[0].account")),
             postgresJdbc("containsNewAttribute", {
               messages: obj(input()),
