@@ -29,12 +29,16 @@ const crypto = require("./lib/crypto");
 const Firehose = require("./lib/firehose");
 const FirehoseKafka = require("./lib/firehose-kafka");
 
+const WinstonKafkaTransport = require("./lib/winston-kafka");
+
 const traitsUtils = require("./utils/traits");
 const claimsUtils = require("./utils/claims");
 const settingsUtils = require("./utils/settings");
 const propertiesUtils = require("./utils/properties");
 
-const logger = new winston.Logger({
+const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || "info",
+  format: winston.format.json(),
   transports: [
     new winston.transports.Console({
       level: "info",
@@ -184,6 +188,15 @@ class HullClient {
         update: settingsUtils.update.bind(this)
       }
     };
+
+    const loggerTransport = this.clientConfig.get("loggerTransport");
+
+    if (
+      loggerTransport &&
+      loggerTransport.type === "kafka"
+    ) {
+      logger.add(new WinstonKafkaTransport(loggerTransport));
+    }
 
     const logFactory = level => (
       message: string,

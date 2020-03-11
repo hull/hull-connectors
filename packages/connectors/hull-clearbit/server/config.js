@@ -17,7 +17,9 @@ export default function connectorConfig(): HullConnectorConfig {
     MARATHON_APP_DOCKER_IMAGE,
     FIREHOSE_KAFKA_BROKERS,
     FIREHOSE_KAFKA_TOPIC,
-    FIREHOSE_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS = 200
+    FIREHOSE_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS = 200,
+    LOGGER_KAFKA_BROKERS,
+    LOGGER_KAFKA_TOPIC
   } = process.env;
 
   // We're not using default assignments because "null" values makes Flow choke
@@ -45,6 +47,15 @@ export default function connectorConfig(): HullConnectorConfig {
           10
         )
       }
+    };
+  }
+
+  if (LOGGER_KAFKA_BROKERS && LOGGER_KAFKA_TOPIC) {
+    clientConfig.loggerTransport = {
+      type: "kafka",
+      brokersList: LOGGER_KAFKA_BROKERS.split(","),
+      topic: LOGGER_KAFKA_TOPIC,
+      level: LOG_LEVEL
     };
   }
 

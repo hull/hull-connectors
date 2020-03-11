@@ -77,7 +77,8 @@ const VALID_PROPS = {
   requestId: VALID.string,
   logs: VALID.array,
   firehoseEvents: VALID.array,
-  firehoseTransport: VALID.transport
+  firehoseTransport: VALID.transport,
+  loggerTransport: VALID.transport
 };
 
 /**
