@@ -185,44 +185,6 @@ it("should send out a new hull account to hubspot update validation error", () =
           })
         ],
         [
-          "debug",
-          "connector.service_api.call",
-          expect.whatever(),
-          expect.objectContaining({
-            method: "POST",
-            status: 202,
-            url: "/companies/v1/batch-async/update"
-          })
-        ],
-        [
-          "info",
-          "outgoing.account.success",
-          expect.objectContaining({
-            subject_type: "account",
-            account_domain: domain
-          }),
-          {
-            hubspotWriteCompany: {
-              properties: [
-                {
-                  name: "name",
-                  value: "New Name"
-                },
-                {
-                  name: "hull_segments",
-                  value: "testSegment"
-                },
-                {
-                  name: "domain",
-                  value: "hull.io"
-                }
-              ],
-              objectId: "companyHubspotId123"
-            },
-            operation: "update"
-          }
-        ],
-        [
           "error",
           "outgoing.account.error",
           expect.objectContaining({
@@ -247,6 +209,43 @@ it("should send out a new hull account to hubspot update validation error", () =
                 }
               ],
               objectId: "companyObjectIdNonExisting"
+            }
+          }
+        ],
+        [
+          "debug",
+          "connector.service_api.call",
+          expect.whatever(),
+          expect.objectContaining({
+            method: "POST",
+            status: 202,
+            url: "/companies/v1/batch-async/update"
+          })
+        ],
+        [
+          "info",
+          "outgoing.account.success",
+          expect.objectContaining({
+            subject_type: "account",
+            account_domain: "hull.io"
+          }),
+          {
+            hubspotWriteCompany: {
+              properties: [
+                {
+                  name: "name",
+                  value: "New Name"
+                },
+                {
+                  name: "hull_segments",
+                  value: "testSegment"
+                },
+                {
+                  name: "domain",
+                  value: "hull.io"
+                }
+              ],
+              objectId: "companyHubspotId123"
             },
             operation: "update"
           }

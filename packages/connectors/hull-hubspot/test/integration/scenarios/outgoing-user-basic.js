@@ -125,8 +125,10 @@ it("should send out a new hull user to hubspot - user basic", () => {
             user_email: "email@email.com"
           }),
           {
-            email: "email@email.com",
-            properties: [{ property: "hull_segments", value: "testSegment" }]
+            hubspotWriteContact: {
+              email: "email@email.com",
+              properties: [{ property: "hull_segments", value: "testSegment" }]
+            }
           }
         ]
       ],

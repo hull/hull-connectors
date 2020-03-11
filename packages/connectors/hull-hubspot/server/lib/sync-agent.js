@@ -414,8 +414,8 @@ class SyncAgent {
    * "you pass an invalid email address, if a property in your request doesn't exist,
    * or if you pass an invalid property value."
    * @see http://developers.hubspot.com/docs/methods/contacts/batch_create_or_update
-   * @param  {Array} users users from Hull
    * @return {Promise}
+   * @param messages
    */
   async sendUserUpdateMessages(
     messages: Array<HullUserUpdateMessage>
@@ -456,13 +456,6 @@ class SyncAgent {
           sendOnAnySegmentChanges: true
         });
         if (!toSend) {
-          // this.hullClient
-          //   .asUser(envelope.message.user)
-          //   .logger.debug("outgoing.user.skipcandidate", {
-          //     reason: "attribute change not found",
-          //     changes: _.get(envelope, "message.changes")
-          //   });
-          // add this when ready to enable
           noChangesSkip.push(envelope);
         }
       });
@@ -477,32 +470,97 @@ class SyncAgent {
     const envelopesToUpsert = filterResults.toInsert.concat(
       filterResults.toUpdate
     );
+
+    try {
+      const upsertedEnvelopes = await this.postEnvelopes({
+        envelopes: envelopesToUpsert,
+        hullEntity: "user",
+        hubspotEntity: "contact",
+        retry: _.bind(this.retryPostEnvelopes, this)
+      });
+
+      if (!_.isEmpty(upsertedEnvelopes)) {
+        this.logSuccessfulUpsert({
+          envelopes: upsertedEnvelopes,
+          hullEntity: "user",
+          hubspotEntity: "contact"
+        });
+
+        return Promise.resolve(upsertedEnvelopes);
+      }
+    } catch (err) {
+      this.hullClient.logger.error("outgoing.job.error", {
+        error: err.message
+      });
+      return Promise.reject(err);
+    }
+
+    return Promise.resolve([]);
+  }
+
+  async postEnvelopes({ envelopes, hullEntity, hubspotEntity, retry }) {
+    let upsertedEnvelopes = [];
+
+    try {
+      upsertedEnvelopes = await this.hubspotClient.postEnvelopes({
+        envelopes,
+        hubspotEntity
+      });
+    } catch (error) {
+      upsertedEnvelopes = await retry({
+        envelopes,
+        hullEntity,
+        hubspotEntity,
+        error
+      });
+    }
+
+    return upsertedEnvelopes;
+  }
+
+  async retryPostEnvelopes({ envelopes, hullEntity, hubspotEntity, error }) {
+    const errorInfo = error.response.body;
+    if (errorInfo.status !== "error") {
+      const erroredOutEnvelopes = envelopes.map(envelope => {
+        envelope.error = "unknown response from hubspot";
+        return envelope;
+      });
+      return Promise.resolve(erroredOutEnvelopes);
+    }
+
+    const [
+      retryEnvelopes,
+      failedEnvelopes,
+      hullFailedEnvelopes
+    ] = this.filterFailedEnvelopes({
+      envelopes,
+      errorInfo,
+      hubspotEntity
+    });
+
+    this.logFailedUpsert({
+      envelopes: _.cloneDeep(failedEnvelopes),
+      hullEntity,
+      hubspotEntity
+    });
+
+    if (!_.isEmpty(hullFailedEnvelopes)) {
+      await this.syncConnector();
+      _.pullAll(hullFailedEnvelopes, failedEnvelopes);
+    }
+
     return this.hubspotClient
-      .postContactsEnvelopes(envelopesToUpsert)
-      .then(resultEnvelopes => {
-        resultEnvelopes.forEach(envelope => {
-          if (envelope.error === undefined) {
-            this.hullClient
-              .asUser(envelope.message.user)
-              .logger.info(
-                "outgoing.user.success",
-                envelope.hubspotWriteContact
-              );
-          } else {
-            this.hullClient
-              .asUser(envelope.message.user)
-              .logger.error("outgoing.user.error", {
-                error: envelope.error,
-                hubspotWriteContact: envelope.hubspotWriteContact
-              });
-          }
-        });
+      .postEnvelopes({
+        envelopes: [...retryEnvelopes, ...hullFailedEnvelopes],
+        hubspotEntity
       })
-      .catch(error => {
-        this.hullClient.logger.error("outgoing.job.error", {
-          error: error.message
+      .catch(errorResponse => {
+        const errorMessage = errorResponse.response.body.message;
+        const retryErroredOutEnvelopes = envelopes.map(envelope => {
+          envelope.error = `An unknown error was returned by Hubspot API when doing an update. Please contact our support team. Raw message: ${errorMessage}`;
+          return envelope;
         });
-        return Promise.reject(error);
+        return Promise.resolve(retryErroredOutEnvelopes);
       });
   }
 
@@ -559,15 +617,6 @@ class SyncAgent {
           sendOnAnySegmentChanges: true
         });
         if (!toSend) {
-          /*
-          this.hullClient
-            .asAccount(envelope.message.account)
-            .logger.debug("outgoing.account.skipcandidate", {
-              reason: "attribute change not found",
-              changes: _.get(envelope, "message.changes")
-            });
-          */
-          // add this when ready to enable
           noChangesSkip.push(envelope);
         }
       });
@@ -608,31 +657,25 @@ class SyncAgent {
       );
 
       // update companies
-      await this.hubspotClient
-        .postCompaniesUpdateEnvelopes(accountsToUpdate)
-        .then(resultEnvelopes => {
-          resultEnvelopes.forEach(envelope => {
-            if (envelope.error === undefined) {
-              return this.hullClient
-                .asAccount(envelope.message.account)
-                .logger.info("outgoing.account.success", {
-                  hubspotWriteCompany: envelope.hubspotWriteCompany,
-                  operation: "update"
-                });
-            }
-            return this.hullClient
-              .asAccount(envelope.message.account)
-              .logger.error("outgoing.account.error", {
-                error: envelope.error,
-                hubspotWriteCompany: envelope.hubspotWriteCompany,
-                operation: "update"
-              });
-          });
+      const updateEnvelopes = await this.postEnvelopes({
+        envelopes: accountsToUpdate,
+        hullEntity: "account",
+        hubspotEntity: "company",
+        retry: _.bind(this.retryPostEnvelopes, this)
+      });
+
+      if (!_.isEmpty(updateEnvelopes)) {
+        this.logSuccessfulUpsert({
+          envelopes: updateEnvelopes,
+          hullEntity: "account",
+          hubspotEntity: "company",
+          operation: "update"
         });
+      }
 
       // insert companies
       await this.hubspotClient
-        .postCompaniesEnvelopes(accountsToInsert)
+        .postCompaniesInsertEnvelopes({ envelopes: accountsToInsert })
         .then(resultEnvelopes => {
           resultEnvelopes.forEach(envelope => {
             if (envelope.error === undefined && envelope.hubspotReadCompany) {
@@ -939,45 +982,173 @@ class SyncAgent {
             })
         );
 
-        // don't get all of the users any more for the company
-        // doesn't work very well anyway because we get: "You have reached your secondly limit."
-        // in the future, this linking is only done on user fetch
         return Promise.resolve();
-
-        // if (this.connector.private_settings.link_users_in_hull !== true) {
-        //   asAccount.logger.debug("incoming.account.link.skip", {
-        //     reason:
-        //       "incoming linking is disabled, you can enabled it in the settings"
-        //   });
-        //   return Promise.resolve();
-        // }
-        // const companyVidsStream = this.hubspotClient.getCompanyVidsStream(
-        //   company.companyId
-        // );
-        // return pipeStreamToPromise(companyVidsStream, vids => {
-        //   return Promise.all(
-        //     vids.map(vid => {
-        //       const linkingClient = this.hullClient
-        //         .asUser({ anonymous_id: `hubspot:${vid}` })
-        //         .account(ident.claims);
-        //       return linkingClient
-        //         .traits({})
-        //         .then(() => {
-        //           return linkingClient.logger.info(
-        //             "incoming.account.link.success"
-        //           );
-        //         })
-        //         .catch(error => {
-        //           return linkingClient.logger.error(
-        //             "incoming.account.link.error",
-        //             error
-        //           );
-        //         });
-        //     })
-        //   );
-        // });
       })
     );
+  }
+
+  logSuccessfulUpsert({ envelopes, hullEntity, operation }) {
+    envelopes.forEach(envelope => {
+      if (!envelope.error) {
+        if (hullEntity === "user") {
+          this.hullClient
+            .asUser(envelope.message.user)
+            .logger.info("outgoing.user.success", {
+              hubspotWriteContact: envelope.hubspotWriteContact
+            });
+        } else {
+          this.hullClient
+            .asAccount(envelope.message.account)
+            .logger.info("outgoing.account.success", {
+              hubspotWriteCompany: envelope.hubspotWriteCompany,
+              operation
+            });
+        }
+      }
+    });
+  }
+
+  logFailedUpsert({ envelopes, hullEntity }) {
+    envelopes.forEach(erroredEnvelope => {
+      if (erroredEnvelope.error) {
+        if (hullEntity === "user") {
+          this.hullClient
+            .asUser(erroredEnvelope.message.user)
+            .logger.error("outgoing.user.error", {
+              error: erroredEnvelope.error,
+              hubspotWriteContact: erroredEnvelope.hubspotWriteContact
+            });
+        } else {
+          this.hullClient
+            .asAccount(erroredEnvelope.message.account)
+            .logger.error("outgoing.account.error", {
+              error: erroredEnvelope.error,
+              hubspotWriteCompany: erroredEnvelope.hubspotWriteCompany
+            });
+        }
+      }
+    });
+  }
+
+  filterFailedEnvelopes({ envelopes, errorInfo, hubspotEntity }) {
+    const { failureMessages, validationResults } = errorInfo;
+    let segmentSyncFailures = [];
+
+    if (hubspotEntity === "contact") {
+      segmentSyncFailures = _.filter(failureMessages, {
+        propertyValidationResult: { name: "hull_segments" }
+      });
+
+      if (!_.isEmpty(segmentSyncFailures)) {
+        _.pullAll(failureMessages, segmentSyncFailures);
+      }
+    }
+
+    if (hubspotEntity === "company") {
+      segmentSyncFailures = _.filter(validationResults, {
+        name: "hull_segments"
+      });
+
+      if (!_.isEmpty(segmentSyncFailures)) {
+        _.pullAll(validationResults, segmentSyncFailures);
+      }
+    }
+
+    return envelopes.reduce(
+      ([toRetry, rejected, hullSyncRejected], envelope, index) => {
+        let failureMessage;
+        let hullSyncFailureMessage;
+
+        if (hubspotEntity === "contact") {
+          failureMessage = _.find(failureMessages, { index });
+          hullSyncFailureMessage = _.find(segmentSyncFailures, {
+            index,
+            propertyValidationResult: { name: "hull_segments" }
+          });
+        }
+        if (hubspotEntity === "company") {
+          failureMessage = _.find(validationResults, {
+            id: envelope.hubspotWriteCompany.objectId
+          });
+          hullSyncFailureMessage = _.find(segmentSyncFailures, {
+            id: envelope.hubspotWriteCompany.objectId
+          });
+        }
+
+        if (!_.isNil(hullSyncFailureMessage)) {
+          hullSyncRejected.push(envelope);
+        }
+
+        if (!_.isNil(failureMessage)) {
+          const rejectedEnvelope = this.buildFailedEnvelope(
+            envelope,
+            failureMessage
+          );
+          rejected.push(rejectedEnvelope);
+        }
+
+        if (_.isNil(failureMessage) && _.isNil(hullSyncFailureMessage)) {
+          toRetry.push(envelope);
+        }
+
+        return [toRetry, rejected, hullSyncRejected];
+      },
+      [[], [], []]
+    );
+  }
+
+  buildFailedEnvelope(envelope, error) {
+    const hubspotMessage =
+      error.propertyValidationResult &&
+      _.truncate(error.propertyValidationResult.message, {
+        length: 100
+      });
+    const hubspotPropertyName =
+      error.propertyValidationResult && error.propertyValidationResult.name;
+    envelope.error = hubspotMessage || error.message || error.error.message;
+    envelope.errorProperty = hubspotPropertyName;
+
+    return envelope;
+  }
+
+  getFailedEnvelopes({ envelopes, errorInfo, hubspotEntity }) {
+    if (hubspotEntity === "contact") {
+      return _.get(errorInfo, "failureMessages", []).map(error => {
+        return this.buildFailedEnvelope(envelopes[error.index], error);
+      });
+    }
+
+    if (hubspotEntity === "company") {
+      return _.get(errorInfo, "validationResults", []).map(error => {
+        const envelope = _.find(envelopes, {
+          hubspotWriteCompany: {
+            objectId: error.id
+          }
+        });
+        return this.buildFailedEnvelope(envelope, error);
+      });
+    }
+
+    return [];
+  }
+
+  cleanFailedEnvelope(envelope) {
+    const { hubspotWriteContact, hubspotWriteCompany } = envelope;
+
+    _.unset(envelope, "error");
+    _.unset(envelope, "errorProperty");
+
+    if (hubspotWriteContact) {
+      _.remove(hubspotWriteContact.properties, mapping => {
+        return mapping.property !== "hull_segments";
+      });
+    }
+
+    if (hubspotWriteCompany) {
+      _.remove(hubspotWriteCompany.properties, mapping => {
+        return mapping.name !== "hull_segments";
+      });
+    }
   }
 }
 
