@@ -208,11 +208,11 @@ class TransformImpl {
           // unless reading back and can somehow do a natural key (or ordered) lookup/join
           result = await this.transformInput(dispatcher, variableContext, result, executeTransform);
         }
-
-        debug("Transform: " + JSON.stringify(result));
       });
 
     });
+
+    debug("Transform: " + JSON.stringify(result));
 
     if (!isUndefinedOrNull(result)) {
       setHullDataType(result, desiredOutputClass);
