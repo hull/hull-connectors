@@ -36,7 +36,7 @@ const buildConfigurationFromEnvironment = env => {
     SHIP_CACHE_MAX,
     REDIS_MAX_CONNECTIONS = 5,
     REDIS_MIN_CONNECTIONS = 1
-} = env;
+  } = env;
 
   const timeout = REQUEST_TIMEOUT;
 

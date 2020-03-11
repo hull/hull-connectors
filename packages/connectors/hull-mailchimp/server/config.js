@@ -16,7 +16,8 @@ export default function connectorConfig(): HullConnectorConfig {
     SERVER,
     MAILCHIMP_CLIENT_ID,
     MAILCHIMP_CLIENT_SECRET,
-    WORKER
+    WORKER,
+    SECRET
   } = process.env;
 
   if (COMBINED !== "true" && WORKER !== "true" && SERVER !== "true") {
@@ -31,6 +32,7 @@ export default function connectorConfig(): HullConnectorConfig {
     );
   }
 
+  const hostSecret = SECRET || "1234";
   const startServer = COMBINED === "true" || SERVER === "true";
   const startWorker = COMBINED === "true" || WORKER === "true";
   return {

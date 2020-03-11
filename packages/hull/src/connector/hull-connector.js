@@ -211,7 +211,7 @@ class HullConnector {
       logsConfig: this.logsConfig,
       cacheConfig: this.cacheConfig
     };
-    
+
     if (disableOnExit !== true) {
       onExit(() => {
         return Promise.all([
