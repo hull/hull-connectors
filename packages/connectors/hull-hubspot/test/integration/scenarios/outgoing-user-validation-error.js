@@ -82,7 +82,7 @@ it("should send out a new hull user to hubspot - validation error", () => {
             "properties": [
               {
                 "property": "close_date",
-                "value": 978325200000
+                "value": expect.whatever()
               },
               {
                 "property": "hull_segments",
@@ -108,7 +108,7 @@ it("should send out a new hull user to hubspot - validation error", () => {
             "properties": [
               {
                 "property": "close_date",
-                "value": 1012626000000
+                "value": expect.whatever()
               },
               {
                 "property": "hull_segments",
@@ -224,7 +224,7 @@ it("should send out a new hull user to hubspot - validation error", () => {
             "properties": [
               {
                 "property": "close_date",
-                "value": 1012626000000
+                "value": expect.whatever()
               },
               {
                 "property": "hull_segments",
@@ -366,7 +366,7 @@ it("should send out a new hull user to hubspot - validation error", () => {
               "properties": [
                 {
                   "property": "close_date",
-                  "value": 978325200000
+                  "value": expect.whatever()
                 },
                 {
                   "property": "hull_segments",
@@ -426,7 +426,7 @@ it("should send out a new hull user to hubspot - validation error", () => {
               "properties": [
                 {
                   "property": "close_date",
-                  "value": 1012626000000
+                  "value": expect.whatever()
                 },
                 {
                   "property": "hull_segments",
