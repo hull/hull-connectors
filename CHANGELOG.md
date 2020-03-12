@@ -1,6 +1,10 @@
 # CHANGELOG
 
 ## v0.1.20-monorepo
+- [hull-outreach] additional attributes fetched in Outreach events
+- [hull-outreach] optimized fetch operations of Outreach events
+
+## v0.1.20-monorepo
 - [hull-outgoing-user-webhooks] release
 - [hull-outgoing-account-webhooks] release
 
