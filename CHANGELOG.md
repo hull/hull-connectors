@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.1.20-monorepo
+- [hull-outgoing-user-webhooks] release
+- [hull-outgoing-account-webhooks] release
+
 ## v0.1.19-monorepo
 - [hull-datawarehouse] support ssh tunnel
 
