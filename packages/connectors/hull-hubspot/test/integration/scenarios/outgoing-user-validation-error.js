@@ -42,6 +42,13 @@ const usersSegments = [
   }
 ];
 
+
+/*
+tests:
+    1) valid user is resent
+    2) user with both hubspot data failures and hull sync failures is not resent
+    3) user with only hull sync failures is resent after connector sync
+ */
 it("should send out a new hull user to hubspot - validation error", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
@@ -439,7 +446,24 @@ it("should send out a new hull user to hubspot - validation error", () => {
         ])
       ],
       firehoseEvents: [],
-      metrics: [["increment","connector.request",1],["increment","ship.service_api.call",1],["value","connector.service_api.response_time",expect.whatever()],["increment","ship.service_api.call",1],["value","connector.service_api.response_time",expect.whatever()],["increment","ship.service_api.call",1],["value","connector.service_api.response_time",expect.whatever()],["increment","connector.service_api.error",1],["increment","ship.service_api.call",1],["value","connector.service_api.response_time",expect.whatever()],["increment","ship.service_api.call",1],["value","connector.service_api.response_time",expect.whatever()],["increment","ship.service_api.call",1],["value","connector.service_api.response_time",expect.whatever()],["increment","ship.service_api.call",1],["value","connector.service_api.response_time",expect.whatever()]],
+      metrics: [
+        ["increment","connector.request",1],
+        ["increment","ship.service_api.call",1],
+        ["value","connector.service_api.response_time",expect.whatever()],
+        ["increment","ship.service_api.call",1],
+        ["value","connector.service_api.response_time",expect.whatever()],
+        ["increment","ship.service_api.call",1],
+        ["value","connector.service_api.response_time",expect.whatever()],
+        ["increment","connector.service_api.error",1],
+        ["increment","ship.service_api.call",1],
+        ["value","connector.service_api.response_time",expect.whatever()],
+        ["increment","ship.service_api.call",1],
+        ["value","connector.service_api.response_time",expect.whatever()],
+        ["increment","ship.service_api.call",1],
+        ["value","connector.service_api.response_time",expect.whatever()],
+        ["increment","ship.service_api.call",1],
+        ["value","connector.service_api.response_time",expect.whatever()]
+      ],
       platformApiCalls: [
         ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
         ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]

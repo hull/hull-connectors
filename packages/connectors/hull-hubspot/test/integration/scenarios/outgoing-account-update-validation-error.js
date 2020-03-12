@@ -22,9 +22,23 @@ const accountsSegments = [
   {
     name: "testSegment",
     id: "hullSegmentId"
+  },
+  {
+    name: "Unsynced Segment 1",
+    id: "unsyncedSegment_1"
+  },
+  {
+    name: "Unsynced Segment 2",
+    id: "unsyncedSegment_2"
   }
 ];
 
+/*
+tests:
+    1) valid account is resent
+    2) account with both hubspot data failures and hull sync failures is not resent
+    3) account with only hull sync failures is resent after connector sync
+ */
 it("should send out a new hull account to hubspot update validation error", () => {
   const domain = "hull.io";
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
@@ -55,7 +69,7 @@ it("should send out a new hull account to hubspot update validation error", () =
                   value: "hull.io"
                 }
               ],
-              objectId: "companyHubspotId123"
+              objectId: "hubspot-company-1"
             },
             {
               properties: [
@@ -65,20 +79,127 @@ it("should send out a new hull account to hubspot update validation error", () =
                 },
                 {
                   name: "hull_segments",
-                  value: "testSegment"
+                  value: "testSegment;Unsynced Segment 1"
                 },
                 {
                   name: "domain",
                   value: "non-existing.com"
                 }
               ],
-              objectId: "companyObjectIdNonExisting"
+              objectId: "hubspot-company-2"
+            },
+            {
+              properties: [
+                {
+                  name: "name",
+                  value: "New Name"
+                },
+                {
+                  name: "hull_segments",
+                  value: "testSegment;Unsynced Segment 1;Unsynced Segment 2"
+                },
+                {
+                  name: "domain",
+                  value: "apple.com"
+                }
+              ],
+              objectId: "hubspot-company-3"
             }
           ])
-          .reply(
-            400,
-            require("../fixtures/post-companies-update-nonexisting-property")
+          .reply(400,
+            {
+              "status": "error",
+              "message": "Property values were not valid",
+              "correlationId": "d224cb01-46c7-40c3-aae9-223fe1ba3d82",
+              "validationResults": [
+                {
+                  "isValid": false,
+                  "message": "Property \"non-existing-property\" does not exist",
+                  "error": "PROPERTY_DOESNT_EXIST",
+                  "id": "hubspot-company-2",
+                  "name": "non-existing-property"
+                },
+                {
+                  "isValid": false,
+                  "message": "Unsynced Segment 1 was not one of the allowed options: ...",
+                  "error": "INVALID_OPTION",
+                  "id": "hubspot-company-2",
+                  "name": "hull_segments"
+                },
+                {
+                  "isValid": false,
+                  "message": "Unsynced Segment 1 was not one of the allowed options: ...",
+                  "error": "INVALID_OPTION",
+                  "id": "hubspot-company-3",
+                  "name": "hull_segments"
+                },
+                {
+                  "isValid": false,
+                  "message": "Unsynced Segment 2 was not one of the allowed options: ...",
+                  "error": "INVALID_OPTION",
+                  "id": "hubspot-company-3",
+                  "name": "hull_segments"
+                }
+              ],
+              "requestId": "9cf667571bf00917f0224ea7e3ba5acc"
+            }
           );
+
+        scope.post("/contacts/v2/groups", { name: "hull", displayName: "Hull Properties", displayOrder: 1}).reply(202);
+        scope.post("/properties/v1/companies/groups", { name: "hull", displayName: "Hull Properties", displayOrder: 1}).reply(202);
+        scope.post("/properties/v1/companies/properties",
+          {
+            "options": [
+              {
+                "hidden": false,
+                "description": null,
+                "value": "testSegment",
+                "readOnly": false,
+                "doubleData": 0,
+                "label": "testSegment",
+                "displayOrder": 0
+              },
+              {
+                "hidden": false,
+                "description": null,
+                "value": "Unsynced Segment 1",
+                "readOnly": false,
+                "doubleData": 0,
+                "label": "Unsynced Segment 1",
+                "displayOrder": 1
+              },
+              {
+                "hidden": false,
+                "description": null,
+                "value": "Unsynced Segment 2",
+                "readOnly": false,
+                "doubleData": 0,
+                "label": "Unsynced Segment 2",
+                "displayOrder": 2
+              }
+            ],
+            "description": "All the Segments the Account belongs to in Hull",
+            "label": "Hull Segments",
+            "groupName": "hull",
+            "fieldType": "checkbox",
+            "formField": false,
+            "name": "hull_segments",
+            "type": "enumeration",
+            "displayOrder": 0
+          }
+        ).reply(202);
+
+        scope.post("/properties/v1/companies/properties",
+          {
+            "type": "string",
+            "fieldType": "text",
+            "name": "name",
+            "label": "name",
+            "calculated": false,
+            "groupName": "hull",
+            "formField": false
+          }).reply(202);
+
         scope
           .post("/companies/v1/batch-async/update?auditId=Hull", [
             {
@@ -96,7 +217,24 @@ it("should send out a new hull account to hubspot update validation error", () =
                   value: "hull.io"
                 }
               ],
-              objectId: "companyHubspotId123"
+              objectId: "hubspot-company-1"
+            },
+            {
+              properties: [
+                {
+                  name: "name",
+                  value: "New Name"
+                },
+                {
+                  name: "hull_segments",
+                  value: "testSegment;Unsynced Segment 1;Unsynced Segment 2"
+                },
+                {
+                  name: "domain",
+                  value: "apple.com"
+                }
+              ],
+              objectId: "hubspot-company-3"
             }
           ])
           .reply(202);
@@ -122,7 +260,7 @@ it("should send out a new hull account to hubspot update validation error", () =
           account: {
             domain,
             name: "New Name",
-            "hubspot/id": "companyHubspotId123"
+            "hubspot/id": "hubspot-company-1"
           },
           account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
         },
@@ -142,9 +280,51 @@ it("should send out a new hull account to hubspot update validation error", () =
           account: {
             domain: "non-existing.com",
             name: "New Name",
-            "hubspot/id": "companyObjectIdNonExisting"
+            "hubspot/id": "hubspot-company-2"
           },
-          account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          account_segments: [
+            {
+              name: "testSegment",
+              id: "hullSegmentId"
+            },
+            {
+              name: "Unsynced Segment 1",
+              id: "unsyncedSegment_1"
+            }
+          ]
+        },
+        {
+          changes: {
+            is_new: false,
+            user: {},
+            account: {
+              name: [
+                "old",
+                "New Name"
+              ]
+            },
+            segments: {},
+            account_segments: {}
+          },
+          account: {
+            domain: "apple.com",
+            name: "New Name",
+            "hubspot/id": "hubspot-company-3"
+          },
+          account_segments: [
+            {
+              name: "testSegment",
+              id: "hullSegmentId"
+            },
+            {
+              name: "Unsynced Segment 1",
+              id: "unsyncedSegment_1"
+            },
+            {
+              name: "Unsynced Segment 2",
+              id: "unsyncedSegment_2"
+            }
+          ]
         }
       ],
       response: {
@@ -172,7 +352,7 @@ it("should send out a new hull account to hubspot update validation error", () =
           "debug",
           "outgoing.job.start",
           expect.whatever(),
-          { toInsert: 0, toSkip: 0, toUpdate: 2 }
+          { toInsert: 0, toSkip: 0, toUpdate: 3 }
         ],
         [
           "debug",
@@ -201,17 +381,39 @@ it("should send out a new hull account to hubspot update validation error", () =
                 },
                 {
                   name: "hull_segments",
-                  value: "testSegment"
+                  value: "testSegment;Unsynced Segment 1",
                 },
                 {
                   name: "domain",
                   value: "non-existing.com"
                 }
               ],
-              objectId: "companyObjectIdNonExisting"
+              objectId: "hubspot-company-2"
             }
           }
         ],
+        expect.arrayContaining([
+          "connector.service_api.call",
+          expect.objectContaining({ "method": "POST", "url": "/contacts/v2/groups", "status": 202, })
+        ]),
+        expect.arrayContaining([
+          "ContactProperty.ensureCustomProperties"
+        ]),
+        expect.arrayContaining([
+          "connector.service_api.call",
+          expect.objectContaining({ "method": "POST", "url": "/properties/v1/companies/groups", "status": 202, })
+        ]),
+        expect.arrayContaining([
+          "connector.service_api.call",
+          expect.objectContaining({ "method": "POST", "url": "/properties/v1/companies/properties", "status": 202, })
+        ]),
+        expect.arrayContaining([
+          "connector.service_api.call",
+          expect.objectContaining({ "method": "POST", "url": "/properties/v1/companies/properties", "status": 202, })
+        ]),
+        expect.arrayContaining([
+          "CompanyProperty.ensureCustomProperties"
+        ]),
         [
           "debug",
           "connector.service_api.call",
@@ -245,7 +447,35 @@ it("should send out a new hull account to hubspot update validation error", () =
                   value: "hull.io"
                 }
               ],
-              objectId: "companyHubspotId123"
+              objectId: "hubspot-company-1"
+            },
+            operation: "update"
+          }
+        ],
+        [
+          "info",
+          "outgoing.account.success",
+          expect.objectContaining({
+            subject_type: "account",
+            account_domain: "apple.com"
+          }),
+          {
+            hubspotWriteCompany: {
+              properties: [
+                {
+                  name: "name",
+                  value: "New Name"
+                },
+                {
+                  name: "hull_segments",
+                  value: "testSegment;Unsynced Segment 1;Unsynced Segment 2"
+                },
+                {
+                  name: "domain",
+                  value: "apple.com"
+                }
+              ],
+              objectId: "hubspot-company-3"
             },
             operation: "update"
           }
@@ -253,16 +483,24 @@ it("should send out a new hull account to hubspot update validation error", () =
       ],
       firehoseEvents: [],
       metrics: [
-        ["increment", "connector.request", 1],
-        ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.any(Number)],
-        ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.any(Number)],
-        ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.any(Number)],
-        ["increment", "connector.service_api.error", 1],
-        ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.any(Number)]
+          ["increment","connector.request",1],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","connector.service_api.error",1],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()]
       ],
       platformApiCalls: [
         ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
