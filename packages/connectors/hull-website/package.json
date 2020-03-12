@@ -1,6 +1,6 @@
 {
   "name": "hull-website",
-  "version": "0.1.19-monorepo",
+  "version": "0.1.21-monorepo",
   "description": "Track web traffic and integrate with other client side services.",
   "main": "index.js",
   "homepage": "https://github.com/hull/hull-connectors",

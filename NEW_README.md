@@ -988,7 +988,7 @@ const prospect = async (ctx: HullContext): HullUISelectResponse => {
 export default prospect;
 ```
 
-Apply Mapping (JSONata expressions)
+### Apply Mapping (JSONata expressions)
 
 ```js
 //@flow
@@ -1046,6 +1046,77 @@ pseudoEvents = {
     updated_at: "2018-02-12T09:16:33Z"
   }
 };
+```
+
+### Know if a message matches whitelist and blacklist segments.
+
+```js
+const { hasMatchingSegments } = ctx.helpers;
+const doesItMatch = hasMatchingSegments({
+  matchOnBatch: true // Should we always send if we're in Batch mode
+  whitelist: ["ALL", "1234", "456"] // usually the result of ctx.connector.private_settings.synchronized_segments_whitelist,
+  blacklist: ["2342"]  // usually the result of ctx.connector.private_settings.synchronized_segments_blacklist,
+  entity: "user",
+  message: {...HullUserUpdateMessage}
+})
+```
+
+### Know if a message matches predefined triggers
+
+```js
+const { hasMatchingTriggers } = ctx.helpers;
+const doesItMatch = hasMatchingTriggers({
+  matchOnBatch: true //If this is true, the function will return true in case of Batch Mode.
+  mode: "any" // 'any' or 'all' = to define how we evaluate the triggers. any will match if any of the triggers match, all requires all the triggers to match.
+  message, //HullUserUpdateMessage | HullAAccountUpdateMessage
+  triggers: {
+    VALIDATION_TYPE: ["123", "456"] //usually a list of segments, or events from connector.private_settings
+  }
+});
+```
+
+Where `VALIDATION_TYPE` is one of:
+
+```
+- user_segments_whitelist
+- user_segments_blacklist
+- user_segments_entered
+- user_segments_left
+- user_attribute_updated
+- user_events
+- is_new_user
+- is_new_account
+- account_segments_whitelist
+- account_segments_blacklist
+- account_attribute_updated
+- account_segments_entered
+- account_segments_left
+```
+
+You can use this helper to filter the entity on belonging to a segment (white & blacklist), or you can use this to match if some trigger is met;
+
+```js
+// Define if user should send based on belonging to Whitelist and not Blacklist
+const userMatchesFilter = hasMatchingTriggers({
+  matchOnBatch: true,
+  mode: "all",
+  message,
+  triggers: {
+    user_segments_blacklist: ["foo"],
+    user_segments_blacklist: ["bar"]
+  }
+});
+
+const userMatchesTrigger = hasMatchingTriggers({
+  matchOnBatch: true
+  mode: "any",
+  message,
+  triggers: {
+    user_events: ["Foo", "Bar"],
+    is_new_user: true,
+    account_segments_entered: ["New Segment"]
+  },
+});
 ```
 
 ## Docker Image

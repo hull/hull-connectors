@@ -4,7 +4,7 @@
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.19-monorepo",
+  "version": "0.1.21-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -42,7 +42,8 @@
             "stages.read",
             "events.all",
             "mailings.read",
-            "sequences.read"
+            "sequences.read",
+            "sequenceSteps.read"
           ]
         }
       }
