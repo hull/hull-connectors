@@ -29,6 +29,7 @@
   "import_created",
   "inbound_call_completed",
   "inbound_call_no_answer",
+  "inbound_call_updated",
   "inbound_message",
   "intercom:inbound_message",
   "intercom:new_conversation",

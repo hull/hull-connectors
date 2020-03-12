@@ -30,7 +30,8 @@ const {
   cast,
   utils,
   not,
-  or
+  or,
+  returnValue
 } = require("./language");
 
 /**
@@ -211,9 +212,23 @@ function fetchAllDescWithFilterAndPaging({ serviceName, fetchEndpoint, incomingT
   ])
 }
 
+function fetchAllIntoIdMap({ serviceName, fetchEndpoint, pageSize, offsetParameter, jsonExpression }) {
+  return returnValue([
+    set(`${fetchEndpoint}-dataMap`, utils("emptyObject")),
+    set("offset", 0),
+    loopL([
+      set("page", new Svc({ name: serviceName, op: fetchEndpoint })),
+      ld("assign", `\${${fetchEndpoint}-dataMap}`, jsonata(jsonExpression, "${page}")),
+      set("offset", ld("add", "${offset}", 1000)),
+      ifL(cond("lessThan", "${page.length}", pageSize), loopEndL())
+    ])
+  ], `\${${fetchEndpoint}-dataMap}`)
+}
+
 module.exports = {
   fetchAllByStaticDateAscFilteredWithPaging,
   fetchRecentModifiedAscFilteredWithPaging,
   fetchRecentModifiedDescWithPaging,
-  fetchAllDescWithFilterAndPaging
+  fetchAllDescWithFilterAndPaging,
+  fetchAllIntoIdMap
 }
