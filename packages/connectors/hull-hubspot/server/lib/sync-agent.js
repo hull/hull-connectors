@@ -472,22 +472,12 @@ class SyncAgent {
     );
 
     try {
-      const upsertedEnvelopes = await this.postEnvelopes({
+      await this.postEnvelopes({
         envelopes: envelopesToUpsert,
         hullEntity: "user",
         hubspotEntity: "contact",
-        retry: _.bind(this.retryPostEnvelopes, this)
+        retry: 1
       });
-
-      if (!_.isEmpty(upsertedEnvelopes)) {
-        this.logSuccessfulUpsert({
-          envelopes: upsertedEnvelopes,
-          hullEntity: "user",
-          hubspotEntity: "contact"
-        });
-
-        return Promise.resolve(upsertedEnvelopes);
-      }
     } catch (err) {
       this.hullClient.logger.error("outgoing.job.error", {
         error: err.message
@@ -498,69 +488,79 @@ class SyncAgent {
     return Promise.resolve([]);
   }
 
-  async postEnvelopes({ envelopes, hullEntity, hubspotEntity, retry }) {
-    let upsertedEnvelopes = [];
-
-    try {
-      upsertedEnvelopes = await this.hubspotClient.postEnvelopes({
-        envelopes,
-        hubspotEntity
-      });
-    } catch (error) {
-      upsertedEnvelopes = await retry({
-        envelopes,
-        hullEntity,
-        hubspotEntity,
-        error
-      });
-    }
-
-    return upsertedEnvelopes;
-  }
-
-  async retryPostEnvelopes({ envelopes, hullEntity, hubspotEntity, error }) {
-    const errorInfo = error.response.body;
-    if (errorInfo.status !== "error") {
-      const erroredOutEnvelopes = envelopes.map(envelope => {
-        envelope.error = "unknown response from hubspot";
-        return envelope;
-      });
-      return Promise.resolve(erroredOutEnvelopes);
-    }
-
-    const [
-      retryEnvelopes,
-      failedEnvelopes,
-      hullFailedEnvelopes
-    ] = this.filterFailedEnvelopes({
-      envelopes,
-      errorInfo,
-      hubspotEntity
-    });
-
-    this.logFailedUpsert({
-      envelopes: _.cloneDeep(failedEnvelopes),
-      hullEntity,
-      hubspotEntity
-    });
-
-    if (!_.isEmpty(hullFailedEnvelopes)) {
-      await this.syncConnector();
-      _.pullAll(hullFailedEnvelopes, failedEnvelopes);
-    }
-
+  async postEnvelopes({
+    envelopes,
+    hullEntity,
+    hubspotEntity,
+    retry,
+    operation
+  }) {
     return this.hubspotClient
       .postEnvelopes({
-        envelopes: [...retryEnvelopes, ...hullFailedEnvelopes],
+        envelopes,
         hubspotEntity
       })
-      .catch(errorResponse => {
-        const errorMessage = errorResponse.response.body.message;
-        const retryErroredOutEnvelopes = envelopes.map(envelope => {
-          envelope.error = `An unknown error was returned by Hubspot API when doing an update. Please contact our support team. Raw message: ${errorMessage}`;
-          return envelope;
+      .then(upsertedEnvelopes => {
+        this.logSuccessfulUpsert({
+          envelopes: upsertedEnvelopes,
+          hullEntity,
+          operation
         });
-        return Promise.resolve(retryErroredOutEnvelopes);
+      })
+      .catch(async error => {
+        const errorInfo = error.response.body;
+        if (errorInfo.status !== "error") {
+          envelopes.forEach(envelope => {
+            if (hullEntity === "user") {
+              this.hullClient
+                .asUser(envelope.message.user)
+                .logger.error("outgoing.user.error", {
+                  error: "unknown response from hubspot",
+                  hubspotWriteContact: envelope.hubspotWriteContact
+                });
+            } else {
+              this.hullClient
+                .asAccount(envelope.message.account)
+                .logger.error("outgoing.account.error", {
+                  error: "unknown response from hubspot",
+                  hubspotWriteCompany: envelope.hubspotWriteCompany
+                });
+            }
+          });
+          return Promise.resolve([]);
+        }
+
+        const [
+          retryEnvelopes,
+          failedEnvelopes,
+          hullFailedEnvelopes
+        ] = this.filterFailedEnvelopes({ envelopes, errorInfo, hubspotEntity });
+
+        this.logFailedUpsert({
+          envelopes: _.cloneDeep(failedEnvelopes),
+          hullEntity
+        });
+
+        if (!_.isEmpty(hullFailedEnvelopes)) {
+          await this.syncConnector();
+          _.pullAll(hullFailedEnvelopes, failedEnvelopes);
+        }
+
+        if (retry > 0) {
+          return this.postEnvelopes({
+            envelopes: [...retryEnvelopes, ...hullFailedEnvelopes],
+            hullEntity,
+            hubspotEntity,
+            operation,
+            retry: retry - 1
+          });
+        }
+
+        this.logFailedUpsert({
+          envelopes: [...retryEnvelopes, ...hullFailedEnvelopes],
+          hullEntity
+        });
+        return Promise.resolve([]);
       });
   }
 
@@ -657,21 +657,13 @@ class SyncAgent {
       );
 
       // update companies
-      const updateEnvelopes = await this.postEnvelopes({
+      await this.postEnvelopes({
         envelopes: accountsToUpdate,
         hullEntity: "account",
         hubspotEntity: "company",
-        retry: _.bind(this.retryPostEnvelopes, this)
+        operation: "update",
+        retry: 1
       });
-
-      if (!_.isEmpty(updateEnvelopes)) {
-        this.logSuccessfulUpsert({
-          envelopes: updateEnvelopes,
-          hullEntity: "account",
-          hubspotEntity: "company",
-          operation: "update"
-        });
-      }
 
       // insert companies
       await this.hubspotClient
@@ -989,43 +981,39 @@ class SyncAgent {
 
   logSuccessfulUpsert({ envelopes, hullEntity, operation }) {
     envelopes.forEach(envelope => {
-      if (!envelope.error) {
-        if (hullEntity === "user") {
-          this.hullClient
-            .asUser(envelope.message.user)
-            .logger.info("outgoing.user.success", {
-              hubspotWriteContact: envelope.hubspotWriteContact
-            });
-        } else {
-          this.hullClient
-            .asAccount(envelope.message.account)
-            .logger.info("outgoing.account.success", {
-              hubspotWriteCompany: envelope.hubspotWriteCompany,
-              operation
-            });
-        }
+      if (hullEntity === "user") {
+        this.hullClient
+          .asUser(envelope.message.user)
+          .logger.info("outgoing.user.success", {
+            hubspotWriteContact: envelope.hubspotWriteContact
+          });
+      } else {
+        this.hullClient
+          .asAccount(envelope.message.account)
+          .logger.info("outgoing.account.success", {
+            hubspotWriteCompany: envelope.hubspotWriteCompany,
+            operation
+          });
       }
     });
   }
 
   logFailedUpsert({ envelopes, hullEntity }) {
     envelopes.forEach(erroredEnvelope => {
-      if (erroredEnvelope.error) {
-        if (hullEntity === "user") {
-          this.hullClient
-            .asUser(erroredEnvelope.message.user)
-            .logger.error("outgoing.user.error", {
-              error: erroredEnvelope.error,
-              hubspotWriteContact: erroredEnvelope.hubspotWriteContact
-            });
-        } else {
-          this.hullClient
-            .asAccount(erroredEnvelope.message.account)
-            .logger.error("outgoing.account.error", {
-              error: erroredEnvelope.error,
-              hubspotWriteCompany: erroredEnvelope.hubspotWriteCompany
-            });
-        }
+      if (hullEntity === "user") {
+        this.hullClient
+          .asUser(erroredEnvelope.message.user)
+          .logger.error("outgoing.user.error", {
+            error: erroredEnvelope.error || "outgoing batch rejected",
+            hubspotWriteContact: erroredEnvelope.hubspotWriteContact
+          });
+      } else {
+        this.hullClient
+          .asAccount(erroredEnvelope.message.account)
+          .logger.error("outgoing.account.error", {
+            error: erroredEnvelope.error || "outgoing batch rejected",
+            hubspotWriteCompany: erroredEnvelope.hubspotWriteCompany
+          });
       }
     });
   }
@@ -1076,18 +1064,18 @@ class SyncAgent {
         }
 
         if (!_.isNil(hullSyncFailureMessage)) {
-          hullSyncRejected.push(envelope);
+          hullSyncRejected.push(
+            this.buildFailedEnvelope(envelope, hullSyncFailureMessage)
+          );
         }
 
         if (!_.isNil(failureMessage)) {
-          const rejectedEnvelope = this.buildFailedEnvelope(
-            envelope,
-            failureMessage
-          );
-          rejected.push(rejectedEnvelope);
+          rejected.push(this.buildFailedEnvelope(envelope, failureMessage));
         }
 
         if (_.isNil(failureMessage) && _.isNil(hullSyncFailureMessage)) {
+          _.unset(envelope, "error");
+          _.unset(envelope, "errorProperty");
           toRetry.push(envelope);
         }
 
