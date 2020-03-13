@@ -101,8 +101,8 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
           "info",
           "outgoing.user.success",
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {"vid": "existingContactId", "email": "email@email.com",
-            "properties": [{"property": "hull_segments", "value": "testSegment"}]}
+          { hubspotWriteContact: {"vid": "existingContactId", "email": "email@email.com",
+            "properties": [{"property": "hull_segments", "value": "testSegment"}]}}
         ]
       ],
       firehoseEvents: [],

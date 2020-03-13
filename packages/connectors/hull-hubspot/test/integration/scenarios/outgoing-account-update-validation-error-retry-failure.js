@@ -33,12 +33,6 @@ const accountsSegments = [
   }
 ];
 
-/*
-tests:
-    1) valid account is resent
-    2) account with both hubspot data failures and hull sync failures is not resent
-    3) account with only hull sync failures is resent after connector sync
- */
 it("should send out a new hull account to hubspot update validation error", () => {
   const domain = "hull.io";
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
@@ -237,7 +231,23 @@ it("should send out a new hull account to hubspot update validation error", () =
               objectId: "hubspot-company-3"
             }
           ])
-          .reply(202);
+          .reply(400,
+            {
+              "status": "error",
+              "message": "Property values were not valid",
+              "correlationId": "d224cb01-46c7-40c3-aae9-223fe1ba3d82",
+              "validationResults": [
+                {
+                  "isValid": false,
+                  "message": "some random error",
+                  "error": "PROPERTY_DOESNT_EXIST",
+                  "id": "hubspot-company-1",
+                  "name": "non-existing-property"
+                }
+              ],
+              "requestId": "9cf667571bf00917f0224ea7e3ba5acc"
+            }
+          );
         return scope;
       },
       connector,
@@ -420,18 +430,19 @@ it("should send out a new hull account to hubspot update validation error", () =
           expect.whatever(),
           expect.objectContaining({
             method: "POST",
-            status: 202,
+            status: 400,
             url: "/companies/v1/batch-async/update"
           })
         ],
         [
-          "info",
-          "outgoing.account.success",
+          "error",
+          "outgoing.account.error",
           expect.objectContaining({
-            subject_type: "account",
-            account_domain: "hull.io"
+            account_domain: "hull.io",
+            subject_type: "account"
           }),
           {
+            error: 'some random error',
             hubspotWriteCompany: {
               properties: [
                 {
@@ -448,18 +459,18 @@ it("should send out a new hull account to hubspot update validation error", () =
                 }
               ],
               objectId: "hubspot-company-1"
-            },
-            operation: "update"
+            }
           }
         ],
         [
-          "info",
-          "outgoing.account.success",
+          "error",
+          "outgoing.account.error",
           expect.objectContaining({
-            subject_type: "account",
-            account_domain: "apple.com"
+            account_domain: "apple.com",
+            subject_type: "account"
           }),
           {
+            error: 'outgoing batch rejected',
             hubspotWriteCompany: {
               properties: [
                 {
@@ -476,8 +487,7 @@ it("should send out a new hull account to hubspot update validation error", () =
                 }
               ],
               objectId: "hubspot-company-3"
-            },
-            operation: "update"
+            }
           }
         ]
       ],
@@ -500,7 +510,8 @@ it("should send out a new hull account to hubspot update validation error", () =
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],
-          ["value","connector.service_api.response_time",expect.whatever()]
+          ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","connector.service_api.error",1]
       ],
       platformApiCalls: [
         ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
