@@ -523,7 +523,7 @@ class HullConnector {
     return this;
   }
 
-  async startWorker(queueName?: string = "queueApp"): Promise<Worker> {
+  async startWorker(queueName: string = "queueApp"): Promise<Worker> {
     this.instrumentation.exitOnError = true;
     const { jobs } = await this.getHandlers();
     if (!jobs) {
