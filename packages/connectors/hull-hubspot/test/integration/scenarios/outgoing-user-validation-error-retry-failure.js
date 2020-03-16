@@ -42,13 +42,6 @@ const usersSegments = [
   }
 ];
 
-
-/*
-tests:
-    1) valid user is resent
-    2) user with both hubspot data failures and hull sync failures is not resent
-    3) user with only hull sync failures is resent after connector sync
- */
 it("should send out a new hull user to hubspot - validation error", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
@@ -240,7 +233,23 @@ it("should send out a new hull user to hubspot - validation error", () => {
             ],
             "email": "will@hull.io"
           }
-        ]).reply(202);
+        ]).reply(400, {
+          "status": "error",
+          "message": "Errors found processing batch update",
+          "correlationId": "ac4096b2-a40e-47f3-9ae6-70a049e98947",
+          "failureMessages": [
+            {
+              "index": 1,
+              "propertyValidationResult": {
+                "isValid": false,
+                "message": "some random error occurred",
+                "error": "INVALID_LONG",
+                "name": "custom_hubspot_numeric"
+              }
+            }
+          ],
+          "requestId": "fe5445de05208abe5718281daf6d2bca"
+        });
         return scope;
       },
       connector,
@@ -404,31 +413,13 @@ it("should send out a new hull user to hubspot - validation error", () => {
         ]),
         expect.arrayContaining([
           "connector.service_api.call",
-          expect.objectContaining({ "method": "POST", "url": "/contacts/v1/contact/batch/", "status": 202, })
+          expect.objectContaining({ "method": "POST", "url": "/contacts/v1/contact/batch/", "status": 400, })
         ]),
         expect.arrayContaining([
-          "outgoing.user.success",
-          expect.objectContaining({ "subject_type": "user", "user_email": "ron@hull.io" }),
-          expect.objectContaining({
-            "hubspotWriteContact": {
-              "properties": [
-                {
-                  "property": "score",
-                  "value": "some score"
-                },
-                {
-                  "property": "hull_segments",
-                  "value": "testSegment"
-                }
-              ],
-              "email": "ron@hull.io"
-            }
-          })
-        ]),
-        expect.arrayContaining([
-          "outgoing.user.success",
+          "outgoing.user.error",
           expect.objectContaining({ "subject_type": "user", "user_email": "will@hull.io" }),
           expect.objectContaining({
+            "error": "some random error occurred",
             "hubspotWriteContact": {
               "properties": [
                 {
@@ -441,6 +432,26 @@ it("should send out a new hull user to hubspot - validation error", () => {
                 }
               ],
               "email": "will@hull.io"
+            }
+          })
+        ]),
+        expect.arrayContaining([
+          "outgoing.user.error",
+          expect.objectContaining({ "subject_type": "user", "user_email": "ron@hull.io" }),
+          expect.objectContaining({
+            "error": "outgoing batch rejected",
+            "hubspotWriteContact": {
+              "properties": [
+                {
+                  "property": "score",
+                  "value": "some score"
+                },
+                {
+                  "property": "hull_segments",
+                  "value": "testSegment"
+                }
+              ],
+              "email": "ron@hull.io"
             }
           })
         ])
@@ -462,7 +473,8 @@ it("should send out a new hull user to hubspot - validation error", () => {
         ["increment","ship.service_api.call",1],
         ["value","connector.service_api.response_time",expect.whatever()],
         ["increment","ship.service_api.call",1],
-        ["value","connector.service_api.response_time",expect.whatever()]
+        ["value","connector.service_api.response_time",expect.whatever()],
+        ["increment","connector.service_api.error",1]
       ],
       platformApiCalls: [
         ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
