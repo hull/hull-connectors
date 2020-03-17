@@ -1,6 +1,9 @@
 # CHANGELOG
 
-## v0.1.20-monorepo
+## v0.1.22-monorepo
+- [hull-hubspot] sync connector if upsert fails due to mismatched segments
+
+## v0.1.21-monorepo
 - [hull-outreach] additional attributes fetched in Outreach events
 - [hull-outreach] optimized fetch operations of Outreach events
 

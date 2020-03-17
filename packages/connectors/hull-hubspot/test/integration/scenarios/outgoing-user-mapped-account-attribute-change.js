@@ -133,18 +133,20 @@ it("should allow through with mapped account attribute changes", () => {
           "outgoing.user.success",
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
           {
-            "email": "email@email.com",
-            "vid": 5677,
-            "properties": [{
-              "property": "hull_custom_hubspot_account_id",
-              "value": "acc123"
-            }, {
-              "property": "hull_custom_hubspot_account_domain",
-              "value": "doe.com"
-            }, {
-              "property": "hull_segments",
-              "value": "testSegment",
-            }]
+            hubspotWriteContact: {
+              "email": "email@email.com",
+              "vid": 5677,
+              "properties": [{
+                "property": "hull_custom_hubspot_account_id",
+                "value": "acc123"
+              }, {
+                "property": "hull_custom_hubspot_account_domain",
+                "value": "doe.com"
+              }, {
+                "property": "hull_segments",
+                "value": "testSegment",
+              }]
+            }
           }
         ]
       ],
