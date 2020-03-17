@@ -1,11 +1,5 @@
 // @flow
 
-
-
-
-
-
-
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
 
@@ -126,7 +120,7 @@ it("should send out a new hull user to hubspot via batch", () => {
           "info",
           "outgoing.user.success",
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {"email": "email@email.com", "properties": [{"property": "hull_segments", "value": "testSegment"}]}
+          { hubspotWriteContact: {"email": "email@email.com", "properties": [{"property": "hull_segments", "value": "testSegment"}]}}
         ]
       ],
       firehoseEvents: [],

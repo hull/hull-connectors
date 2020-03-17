@@ -117,7 +117,7 @@ it("should refresh token and perform standard operation in case of token expired
           "info",
           "outgoing.user.success",
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {"email": "email@email.com", "properties": [{"property": "hull_segments", "value": "testSegment"}]}
+          { hubspotWriteContact: {"email": "email@email.com", "properties": [{"property": "hull_segments", "value": "testSegment"}]}}
         ]
       ],
       firehoseEvents: [],
