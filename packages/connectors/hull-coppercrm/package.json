@@ -1,6 +1,6 @@
 {
   "name": "hull-coppercrm",
-  "version": "0.1.21-monorepo",
+  "version": "0.1.22-monorepo",
   "description": "Integration with CopperCRM",
   "scripts": {
     "test": "exit 0; echo 'tests are run by global jest'",
