@@ -610,7 +610,7 @@ class MappingUtil {
         let value = _.get(userData, mappingEntry.hull_trait_name);
 
         if (
-          (/_(at|date|timestamp)$/.test(mappingEntry.hull_trait_name) ||
+          (/_(at|date)$/.test(mappingEntry.hull_trait_name) ||
             mappingEntry.hubspot_property_type === "datetime") &&
           typeof value === "string"
         ) {
@@ -752,7 +752,7 @@ class MappingUtil {
           : _.get({ account: accountData }, mappingEntry.hull_trait_name);
 
         if (
-          /_(at|date|timestamp)$/.test(mappingEntry.hull_trait_name) ||
+          /_(at|date)$/.test(mappingEntry.hull_trait_name) ||
           mappingEntry.hubspot_property_type === "datetime"
         ) {
           const dateValue = new Date(value).getTime();
