@@ -74,13 +74,13 @@ export type ConnectedSlack = {
     teamChannels?: Array<SlackChannel>,
     teamMembers?: Array<SlackMember>
   }>,
-  post?: ({
+  post: ({
     scopedClient: Hull,
     payload: any,
     channel: string,
     entity: HullEntityName
   }) => any,
-  tellOperator?: ({
+  tellOperator: ({
     scopedClient: Hull,
     user_id: string,
     msg: string,

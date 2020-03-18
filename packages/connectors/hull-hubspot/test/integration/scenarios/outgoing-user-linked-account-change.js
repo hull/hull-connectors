@@ -165,8 +165,9 @@ it("should update hubspot because linked account has changed", () => {
           "outgoing.user.success",
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
           {
-            "email": "email@email.com",
-            "properties": [{
+            hubspotWriteContact: {
+              "email": "email@email.com",
+              "properties": [{
                 "property": "firstname",
                 "value": "John"
               }, {
@@ -218,6 +219,7 @@ it("should update hubspot because linked account has changed", () => {
                 "property": "associatedcompanyid",
                 "value": 5678
               }]
+            }
           }
         ]
       ],

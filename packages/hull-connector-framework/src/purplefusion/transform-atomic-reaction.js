@@ -55,7 +55,7 @@ async function transformToTarget({ dispatcher, context, input, transformation, t
 
       operateOn = await resolveIdentifier(dispatcher, context, input, currentTarget, transformation.operateOn);
       context.set("operateOn", operateOn);
-      debug(`Operating On (${JSON.stringify(operateOn)})`);
+      // debug(`Operating On (${JSON.stringify(operateOn)})`);
     }
 
     if (!toTransform(transformation, context, input)) {
@@ -176,9 +176,9 @@ async function performWrite(dispatcher, context, input, target, writeTo, operati
   }
 
   if (valueToOutput === undefined) {
-    debug(`Not Writing (${JSON.stringify(valueToOutput)}) to (${keyPath})}`)
+    // debug(`Not Writing (${JSON.stringify(valueToOutput)}) to (${keyPath})}`)
   } else {
-    debug(`Writing (${JSON.stringify(valueToOutput)}) to (${keyPath}) on ${JSON.stringify(target)}`);
+    // debug(`Writing (${JSON.stringify(valueToOutput)}) to (${keyPath}) on ${JSON.stringify(target)}`);
 
     // if undefined, my be trying to unset things, so don't do an undefined check (no use cases yet, add unit test)
     // if null, then definitely could be setting something to null
@@ -212,14 +212,14 @@ async function resolveIdentifier(dispatcher, context, input, target, identifier)
     const results = [];
     await asyncForEach(identifier, async (individualIdentifier) => {
       const result = await resolve(dispatcher, context, input, target, individualIdentifier);
-      debug(`Resolved (${JSON.stringify(result)}) for: ${JSON.stringify(individualIdentifier)}`);
+      // debug(`Resolved (${JSON.stringify(result)}) for: ${JSON.stringify(individualIdentifier)}`);
       results.push(result);
     });
     return results;
   }
 
   const result = await resolve(dispatcher, context, input, target, identifier);
-  debug(`Resolved (${JSON.stringify(result)}) for: ${JSON.stringify(identifier)}`);
+  // debug(`Resolved (${JSON.stringify(result)}) for: ${JSON.stringify(identifier)}`);
   return result;
 }
 
@@ -318,7 +318,7 @@ async function resolve(dispatcher, context, input, target, identifier) {
   if (!isUndefinedOrNull(resolvedObject)) {
     // otherwise resolve the selectors here
     _.forEach(selectors, selector => {
-      debug(`Selecting: ${JSON.stringify(selector)} from: ${JSON.stringify(resolvedObject)}`);
+      // debug(`Selecting: ${JSON.stringify(selector)} from: ${JSON.stringify(resolvedObject)}`);
       // if it's a string, use to index in, otherwise use this as a truthy
       if (typeof selector === "string" || typeof selector === "number") {
         resolvedObject = _.get(resolvedObject, selector);

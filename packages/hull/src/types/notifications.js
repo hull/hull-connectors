@@ -129,6 +129,11 @@ export type HullConnectorDeleteMessage = {|
   secret: string
 |};
 
+export type HullNotificationChannel =
+  | "user:update"
+  | "account:update"
+  | "segment:update"
+  | "ship:update";
 /**
  * The whole notification object
  */
@@ -141,7 +146,7 @@ export type HullNotification = {
   kraken: {
     retries: number
   },
-  channel: string,
+  channel: HullNotificationChannel,
   connector: HullConnector,
   segments: Array<HullUserSegment>,
   accounts_segments: Array<HullAccountSegment>,

@@ -1,38 +1,43 @@
 // @flow
 
+import type { HullSegment, HullEvent } from "hull";
 const _ = require("lodash");
 
-const filterNone = (entity, whitelist) => {
-  return entity;
-};
+const filterNone = (entity: any, whitelist: Array<string>) => entity;
 
-const filterSegments = (segments: Object, whitelist: Array<string>) => {
-  return _.filter(segments, (segment) => {
-    if (_.includes(whitelist, "all_segments")) {
-      return true;
-    }
-    return _.includes(whitelist, segment.id);
-  });
-};
+const filterSegments = (
+  segments: Array<HullSegment> = [],
+  whitelist: Array<string>
+) =>
+  segments.filter(
+    segment =>
+      whitelist.includes("all_segments") ||
+      whitelist.includes("ALL") ||
+      whitelist.includes(segment.id)
+  );
 
-const filterAttributeChanges = (attributeChanges: Object, whitelist: Array<string>) => {
-  return _.pick(attributeChanges, whitelist);
-};
+const filterAttributeChanges = (
+  attributeChanges: Object = {},
+  whitelist: Array<string>
+) => _.pick(attributeChanges, whitelist);
 
-const filterEvents = (createdEvents: Object, whitelist: Array<string>) => {
-  return _.filter(createdEvents, (event) => {
-    return _.includes(whitelist, event.event);
-  })
-};
+const filterEvents = (
+  events: Array<HullEvent> = [],
+  whitelist: Array<string>
+) =>
+  events.filter(
+    event => whitelist.includes("ALL") || whitelist.includes(event.event)
+  );
 
-const filterNew = (isNew: boolean, whitelist: boolean) => {
-  return isNew === whitelist;
-};
+const filterNew = (isNew: boolean, whitelist: boolean) => isNew === whitelist;
 
-const filterEntity = (entity: Object, rules: Array<Object>, whitelist: Array<string>): Array<string> => {
+const filterEntity = (
+  entity: Object,
+  rules: Array<Object>,
+  whitelist: Array<string>
+): Array<string> => {
   let filteredSubEntity = _.cloneDeep(entity);
   _.forEach(rules, rule => {
-
     if (_.isFunction(rule)) {
       filteredSubEntity = rule(filteredSubEntity, whitelist);
     }
@@ -44,7 +49,11 @@ const filterEntity = (entity: Object, rules: Array<Object>, whitelist: Array<str
   return filteredSubEntity;
 };
 
-const filterMessage = (message: Object, filters: Object, whitelist: Array<string>) => {
+const filterMessage = (
+  message: Object,
+  filters: Object,
+  whitelist: Array<string>
+) => {
   const filteredMessage = {};
   _.forEach(_.keys(filters), filter => {
     const entity = _.get(message, filter);
@@ -59,8 +68,6 @@ const filterMessage = (message: Object, filters: Object, whitelist: Array<string
   });
   return filteredMessage;
 };
-
-
 
 module.exports = {
   filterMessage,

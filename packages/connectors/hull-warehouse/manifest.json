@@ -4,8 +4,7 @@
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.18-monorepo",
-
+  "version": "0.1.22-monorepo",
   "tags": [
     "outgoing",
     "batch",
@@ -14,7 +13,6 @@
     "smart-notifier",
     "kraken-exports"
   ],
-
   "private_settings": [
     {
       "type": "string",
@@ -30,13 +28,13 @@
         "postgres"
       ],
       "default": "postgres",
-      "required" : true
+      "required": true
     },
     {
       "name": "db_hostname",
       "type": "string",
       "title": "Database Hostname",
-      "required" : true,
+      "required": true,
       "description": "The hostname of the postgres database to connect to"
     },
     {
@@ -44,14 +42,14 @@
       "type": "number",
       "title": "Database Port",
       "default": 5432,
-      "required" : true,
+      "required": true,
       "description": "The port that you want to connect to"
     },
     {
       "name": "db_name",
       "type": "string",
       "title": "Database Name",
-      "required" : true,
+      "required": true,
       "description": "The name of the database that you want to connect to"
     },
     {
@@ -64,14 +62,36 @@
       "name": "db_username",
       "type": "string",
       "title": "Username",
-      "required" : true
+      "required": true
     },
     {
       "name": "db_password",
       "type": "string",
       "title": "Password",
-      "required" : true,
+      "required": true,
       "format": "password"
+    },
+    {
+      "name": "ssh_host",
+      "type": "string",
+      "title": "SSH host"
+    },
+    {
+      "name": "ssh_port",
+      "type": "string",
+      "title": "SSH port",
+      "description": "Defaults to port 22"
+    },
+    {
+      "name": "ssh_username",
+      "type": "string",
+      "title": "SSH username"
+    },
+    {
+      "name": "ssh_private_key",
+      "type": "string",
+      "format": "textarea",
+      "title": "SSH private key"
     },
     {
       "name": "user_outgoing_sync_title",
@@ -136,7 +156,7 @@
       "type": "string",
       "title": "User Table Name",
       "default": "hullusers",
-      "required" : true,
+      "required": true,
       "description": "The User table will contain all user attributes in columns. You may join to the account table using the \"accountId\" field.  As new attributes are created in Hull, this connector adds columns to this table"
     },
     {
@@ -144,7 +164,7 @@
       "type": "string",
       "title": "Events Table Name",
       "default": "hullevents",
-      "required" : true,
+      "required": true,
       "description": "The Event table is a static schema which can be joined to the user table using the \"userId\" column.  The properties and context columns are JSON columns which contain attributes associated with the event"
     },
     {
@@ -152,7 +172,7 @@
       "type": "string",
       "title": "Account Table Name",
       "default": "hullaccounts",
-      "required" : true,
+      "required": true,
       "description": "The Account table will contain all account attributes in columns. As new attributes are created in Hull, this connector adds columns to this table"
     },
     {
@@ -190,6 +210,7 @@
       "format": "traitMapping",
       "options": {
         "direction": "outgoing",
+        "autoFill": true,
         "showOverwriteToggle": true,
         "placeholder": "Warehouse user field",
         "allowCreate": true
@@ -202,6 +223,7 @@
       "format": "accountTraitMapping",
       "options": {
         "direction": "outgoing",
+        "autoFill": true,
         "showOverwriteToggle": true,
         "placeholder": "Warehouse account field",
         "allowCreate": true
@@ -235,28 +257,30 @@
     "value": "5",
     "handler": "status"
   },
-  "subscriptions": [{
-    "url": "/smart-notifier",
-    "channels": [
-      {
-        "channel": "user:update",
-        "handler": "userUpdate"
-      },
-      {
-        "channel": "account:update",
-        "handler": "accountUpdate"
-      }
-    ],
-    "conditions": {
-      "channels": {
-        "only": [
-          "ship:update",
-          "user:update",
-          "account:update"
-        ]
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
+        {
+          "channel": "account:update",
+          "handler": "accountUpdate"
+        }
+      ],
+      "conditions": {
+        "channels": {
+          "only": [
+            "ship:update",
+            "user:update",
+            "account:update"
+          ]
+        }
       }
     }
-  }],
+  ],
   "batches": [
     {
       "url": "/batch",
@@ -287,7 +311,6 @@
         "private_settings.db_hostname",
         "private_settings.db_port",
         "private_settings.db_name"
-
       ]
     },
     {
@@ -297,6 +320,16 @@
       "properties": [
         "private_settings.db_username",
         "private_settings.db_password"
+      ]
+    },
+    {
+      "title": "SSH Tunnel Configuration",
+      "description": "If your connection must go through an ssh tunnel, please input the information here",
+      "properties": [
+        "private_settings.ssh_host",
+        "private_settings.ssh_port",
+        "private_settings.ssh_username",
+        "private_settings.ssh_private_key"
       ]
     },
     {

@@ -54,7 +54,7 @@ it("Basic fetch all email events - single event to fetch", () => {
           });
         return scope;
       },
-      response: { status : "ok"},
+      response: { status : "deferred"},
       logs: [
         ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" }],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/email/public/v1/events", "status": 200, "vars": {} }],

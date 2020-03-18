@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## v0.1.22-monorepo
+- [hull-hubspot] sync connector if upsert fails due to mismatched segments
+
+## v0.1.21-monorepo
+- [hull-outreach] additional attributes fetched in Outreach events
+- [hull-outreach] optimized fetch operations of Outreach events
+
+## v0.1.20-monorepo
+- [hull-outgoing-user-webhooks] release
+- [hull-outgoing-account-webhooks] release
+
+## v0.1.19-monorepo
+- [hull-datawarehouse] support ssh tunnel
+
 ## v0.1.18-monorepo
 - [hull-coppercrm] merged coppercrm to master
 - [hull-hubspot] additional logging for null values
