@@ -2,6 +2,7 @@
 import connectorConfig from "../../../server/config";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
+const companyPropertyGroups = require("../fixtures/get-properties-companies-groups");
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 process.env.CLIENT_ID = "123";
@@ -37,7 +38,7 @@ it("should send out a new hull account to hubspot found existing", () => {
         scope.get("/contacts/v2/groups?includeProperties=true").reply(200, []);
         scope
           .get("/properties/v1/companies/groups?includeProperties=true")
-          .reply(200, []);
+          .reply(200, companyPropertyGroups);
         scope
           .post("/companies/v2/domains/hull.io/companies", {
             requestOptions: {

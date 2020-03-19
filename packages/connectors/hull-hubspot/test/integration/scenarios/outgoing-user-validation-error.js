@@ -3,6 +3,8 @@
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
 
+const companyPropertyGroups = require("../fixtures/get-properties-companies-groups");
+
 process.env.OVERRIDE_HUBSPOT_URL = "";
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
@@ -83,7 +85,7 @@ it("should send out a new hull user to hubspot - validation error", () => {
             }
           ]);
         scope.get("/properties/v1/companies/groups?includeProperties=true")
-          .reply(200, []);
+          .reply(200, companyPropertyGroups);
         scope.post("/contacts/v1/contact/batch/?auditId=Hull", [
           {
             "properties": [

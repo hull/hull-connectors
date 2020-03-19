@@ -2,7 +2,24 @@
 import connectorConfig from "../../../server/config";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
+const companyPropertyGroups = require("../fixtures/get-properties-companies-groups");
 
+const contactPropertyGroups = [
+  ...require("../fixtures/get-contacts-groups"),
+  {
+    "name": "hull",
+    "displayName": "Hull Properties",
+    "properties": [
+      {
+        "name": "hull_segments",
+        "label": "Hull Segments",
+        "description": "All the Segments the Account belongs to in Hull",
+        "groupName": "hull",
+        "options": []
+      }
+    ]
+  }
+];
 process.env.OVERRIDE_HUBSPOT_URL = "";
 process.env.CLIENT_ID = "1234";
 process.env.CLIENT_SECRET = "1234";
@@ -33,7 +50,7 @@ const accountsSegments = [
   }
 ];
 
-it("should send out a new hull account to hubspot update validation error", () => {
+it("should send out a new hull account to hubspot update validation error and retry", () => {
   const domain = "hull.io";
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
@@ -42,10 +59,10 @@ it("should send out a new hull account to hubspot update validation error", () =
       channel: "account:update",
       externalApiMock: () => {
         const scope = nock("https://api.hubapi.com");
-        scope.get("/contacts/v2/groups?includeProperties=true").reply(200, []);
+        scope.get("/contacts/v2/groups?includeProperties=true").reply(200, contactPropertyGroups);
         scope
           .get("/properties/v1/companies/groups?includeProperties=true")
-          .reply(200, []);
+          .reply(200, companyPropertyGroups);
         scope
           .post("/companies/v1/batch-async/update?auditId=Hull", [
             {
@@ -139,7 +156,6 @@ it("should send out a new hull account to hubspot update validation error", () =
             }
           );
 
-        scope.post("/contacts/v2/groups", { name: "hull", displayName: "Hull Properties", displayOrder: 1}).reply(202);
         scope.post("/properties/v1/companies/groups", { name: "hull", displayName: "Hull Properties", displayOrder: 1}).reply(202);
         scope.post("/properties/v1/companies/properties",
           {
@@ -182,17 +198,6 @@ it("should send out a new hull account to hubspot update validation error", () =
             "displayOrder": 0
           }
         ).reply(202);
-
-        scope.post("/properties/v1/companies/properties",
-          {
-            "type": "string",
-            "fieldType": "text",
-            "name": "name",
-            "label": "name",
-            "calculated": false,
-            "groupName": "hull",
-            "formField": false
-          }).reply(202);
 
         scope
           .post("/companies/v1/batch-async/update?auditId=Hull", [
@@ -403,19 +408,11 @@ it("should send out a new hull account to hubspot update validation error", () =
           }
         ],
         expect.arrayContaining([
-          "connector.service_api.call",
-          expect.objectContaining({ "method": "POST", "url": "/contacts/v2/groups", "status": 202, })
-        ]),
-        expect.arrayContaining([
           "ContactProperty.ensureCustomProperties"
         ]),
         expect.arrayContaining([
           "connector.service_api.call",
           expect.objectContaining({ "method": "POST", "url": "/properties/v1/companies/groups", "status": 202, })
-        ]),
-        expect.arrayContaining([
-          "connector.service_api.call",
-          expect.objectContaining({ "method": "POST", "url": "/properties/v1/companies/properties", "status": 202, })
         ]),
         expect.arrayContaining([
           "connector.service_api.call",
@@ -501,10 +498,6 @@ it("should send out a new hull account to hubspot update validation error", () =
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","connector.service_api.error",1],
-          ["increment","ship.service_api.call",1],
-          ["value","connector.service_api.response_time",expect.whatever()],
-          ["increment","ship.service_api.call",1],
-          ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],

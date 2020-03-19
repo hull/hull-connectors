@@ -3,6 +3,7 @@
 import connectorConfig from "../../../server/config";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
+const companyPropertyGroups = require("../fixtures/get-properties-companies-groups");
 
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
@@ -62,7 +63,7 @@ it("send batch account update to hubspot in a batch", () => {
         scope.get("/contacts/v2/groups?includeProperties=true").reply(200, []);
         scope
           .get("/properties/v1/companies/groups?includeProperties=true")
-          .reply(200, []);
+          .reply(200, companyPropertyGroups);
 
         const updatedCompany = [
           {

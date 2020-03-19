@@ -35,9 +35,6 @@ const moment = require("moment");
 const slug = require("slug");
 const debug = require("debug")("hull-hubspot:mapping-util");
 
-const CONTACT_DEFAULT_MAPPING = require("./contact-default-mapping");
-const COMPANY_DEFAULT_MAPPING = require("./company-default-mapping");
-
 class MappingUtil {
   connector: HullConnector;
 
@@ -139,10 +136,6 @@ class MappingUtil {
         if ((!setting.name && !setting.service) || !setting.hull) {
           return outboundMapping;
         }
-        // let's find a default mapping
-        const defaultMapping = _.find(CONTACT_DEFAULT_MAPPING, {
-          name: setting.service || setting.name
-        });
 
         // let's generate a slug version of the hubspot property
         let hubspotPropertyName = slug(setting.service || setting.name, {
@@ -159,9 +152,7 @@ class MappingUtil {
         // we will prepend it with `hull_` and see if this was
         // a property created by this connector
         if (hubspotContactProperty === undefined) {
-          hubspotPropertyName =
-            (defaultMapping && defaultMapping.name) ||
-            `hull_${hubspotPropertyName}`;
+          hubspotPropertyName = `hull_${hubspotPropertyName}`;
           hubspotContactProperty = _.find(this.hubspotContactProperties, {
             name: hubspotPropertyName
           });
@@ -177,8 +168,7 @@ class MappingUtil {
         return outboundMapping.concat([
           {
             hull_trait_name: setting.hull,
-            hull_default_trait_name:
-              (defaultMapping && defaultMapping.hull) || null,
+            hull_default_trait_name: null,
             hull_trait_type: hullTrait.type,
             hubspot_property_name: hubspotPropertyName,
             hubspot_property_label: setting.service || setting.name,
@@ -198,55 +188,28 @@ class MappingUtil {
   }
 
   getContactIncomingMapping(): Array<HubspotContactIncomingMapping> {
-    const mappingFromDefault = CONTACT_DEFAULT_MAPPING.reduce(
-      (mapping, defaultMapping) => {
-        const hullTrait = this.hullUserProperties[defaultMapping.hull];
-        const hubspotContactProperty = _.find(this.hubspotContactProperties, {
-          name: defaultMapping.name
-        });
-
-        if (hubspotContactProperty === undefined) {
-          return mapping;
+    return this.contactAttributesIncomingSettings.reduce((mapping, setting) => {
+      if ((!setting.name && !setting.service) || !setting.hull) {
+        return mapping;
+      }
+      const hullTrait = this.hullUserProperties[setting.hull];
+      const hubspotContactProperty = _.find(this.hubspotContactProperties, {
+        name: setting.service || setting.name
+      });
+      if (hubspotContactProperty === undefined) {
+        return mapping;
+      }
+      return mapping.concat([
+        {
+          hull_trait_name: setting.hull,
+          hull_trait_type: hullTrait && hullTrait.type,
+          hubspot_property_name: setting.service || setting.name,
+          hubspot_property_read_only: hubspotContactProperty.readOnlyValue,
+          hubspot_property_type: hubspotContactProperty.type,
+          hubspot_property_field_type: hubspotContactProperty.fieldType
         }
-        return mapping.concat([
-          {
-            hull_trait_name: defaultMapping.hull,
-            hull_trait_type: hullTrait && hullTrait.type,
-            hubspot_property_name: defaultMapping.name,
-            hubspot_property_read_only: hubspotContactProperty.readOnlyValue,
-            hubspot_property_type: hubspotContactProperty.type,
-            hubspot_property_field_type: hubspotContactProperty.fieldType
-          }
-        ]);
-      },
-      []
-    );
-    const mappingFromSettings = this.contactAttributesIncomingSettings.reduce(
-      (mapping, setting) => {
-        if ((!setting.name && !setting.service) || !setting.hull) {
-          return mapping;
-        }
-        const hullTrait = this.hullUserProperties[setting.hull];
-        const hubspotContactProperty = _.find(this.hubspotContactProperties, {
-          name: setting.service || setting.name
-        });
-        if (hubspotContactProperty === undefined) {
-          return mapping;
-        }
-        return mapping.concat([
-          {
-            hull_trait_name: setting.hull,
-            hull_trait_type: hullTrait && hullTrait.type,
-            hubspot_property_name: setting.service || setting.name,
-            hubspot_property_read_only: hubspotContactProperty.readOnlyValue,
-            hubspot_property_type: hubspotContactProperty.type,
-            hubspot_property_field_type: hubspotContactProperty.fieldType
-          }
-        ]);
-      },
-      []
-    );
-    return mappingFromDefault.concat(mappingFromSettings);
+      ]);
+    }, []);
   }
 
   getCompanyOutgoingMapping(): Array<HubspotCompanyOutgoingMapping> {
@@ -255,10 +218,6 @@ class MappingUtil {
         if ((!setting.service && !setting.hubspot) || !setting.hull) {
           return outboundMapping;
         }
-
-        const defaultMapping = _.find(COMPANY_DEFAULT_MAPPING, {
-          hubspot: setting.service || setting.hubspot
-        });
 
         // let's generate a slug version of the hubspot property
         let hubspotPropertyName = slug(setting.service || setting.hubspot, {
@@ -275,9 +234,7 @@ class MappingUtil {
         // we will prepend it with `hull_` and see if this was
         // a property created by this connector
         if (hubspotCompanyProperty === undefined) {
-          hubspotPropertyName =
-            (defaultMapping && defaultMapping.hubspot) ||
-            `hull_${hubspotPropertyName}`;
+          hubspotPropertyName = `hull_${hubspotPropertyName}`;
           hubspotCompanyProperty = _.find(this.hubspotCompanyProperties, {
             name: hubspotPropertyName
           });
@@ -294,8 +251,7 @@ class MappingUtil {
         return outboundMapping.concat([
           {
             hull_trait_name: setting.hull,
-            hull_default_trait_name:
-              (defaultMapping && defaultMapping.hull) || null,
+            hull_default_trait_name: null,
             hull_trait_type: hullTrait.type,
             hubspot_property_name: hubspotPropertyName,
             hubspot_property_label: setting.service || setting.hubspot,
@@ -315,54 +271,28 @@ class MappingUtil {
   }
 
   getCompanyIncomingMapping(): Array<HubspotCompanyIncomingMapping> {
-    const mappingFromDefault = COMPANY_DEFAULT_MAPPING.reduce(
-      (mapping, defaultMapping) => {
-        const hullTrait = this.hullAccountProperties[defaultMapping.hull];
-        const hubspotCompanyProperty = _.find(this.hubspotCompanyProperties, {
-          name: defaultMapping.hubspot
-        });
-        if (hubspotCompanyProperty === undefined) {
-          return mapping;
+    return this.companyAttributesIncomingSettings.reduce((mapping, setting) => {
+      if ((!setting.hubspot && !setting.service) || !setting.hull) {
+        return mapping;
+      }
+      const hullTrait = this.hullAccountProperties[setting.hull];
+      const hubspotCompanyProperty = _.find(this.hubspotCompanyProperties, {
+        name: setting.service || setting.hubspot
+      });
+      if (hubspotCompanyProperty === undefined) {
+        return mapping;
+      }
+      return mapping.concat([
+        {
+          hull_trait_name: setting.hull,
+          hull_trait_type: hullTrait && hullTrait.type,
+          hubspot_property_name: setting.service || setting.hubspot,
+          hubspot_property_read_only: hubspotCompanyProperty.readOnlyValue,
+          hubspot_property_type: hubspotCompanyProperty.type,
+          hubspot_property_field_type: hubspotCompanyProperty.fieldType
         }
-        return mapping.concat([
-          {
-            hull_trait_name: defaultMapping.hull,
-            hull_trait_type: hullTrait && hullTrait.type,
-            hubspot_property_name: defaultMapping.hubspot,
-            hubspot_property_read_only: hubspotCompanyProperty.readOnlyValue,
-            hubspot_property_type: hubspotCompanyProperty.type,
-            hubspot_property_field_type: hubspotCompanyProperty.fieldType
-          }
-        ]);
-      },
-      []
-    );
-    const mappingFromSettings = this.companyAttributesIncomingSettings.reduce(
-      (mapping, setting) => {
-        if ((!setting.hubspot && !setting.service) || !setting.hull) {
-          return mapping;
-        }
-        const hullTrait = this.hullAccountProperties[setting.hull];
-        const hubspotCompanyProperty = _.find(this.hubspotCompanyProperties, {
-          name: setting.service || setting.hubspot
-        });
-        if (hubspotCompanyProperty === undefined) {
-          return mapping;
-        }
-        return mapping.concat([
-          {
-            hull_trait_name: setting.hull,
-            hull_trait_type: hullTrait && hullTrait.type,
-            hubspot_property_name: setting.service || setting.hubspot,
-            hubspot_property_read_only: hubspotCompanyProperty.readOnlyValue,
-            hubspot_property_type: hubspotCompanyProperty.type,
-            hubspot_property_field_type: hubspotCompanyProperty.fieldType
-          }
-        ]);
-      },
-      []
-    );
-    return mappingFromDefault.concat(mappingFromSettings);
+      ]);
+    }, []);
   }
 
   /**

@@ -7,8 +7,21 @@ process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
 
 import connectorConfig from "../../../server/config";
-const incomingData = require("../fixtures/get-contacts-groups");
-
+const incomingData = [
+  ...require("../fixtures/get-contacts-groups"),
+  {
+    "name": "hull",
+    "displayName": "Hull Properties",
+    "properties": [
+      {
+        "name": "hull_segments",
+        "label": "Hull Segments",
+        "description": "All the Segments the Account belongs to in Hull",
+        "groupName": "hull",
+        "options": []
+      }
+    ]
+  }];
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
 const connector = {
