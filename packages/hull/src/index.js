@@ -83,10 +83,10 @@ const buildConfigurationFromEnvironment = env => {
 
   const port = PORT;
 
-  if (!SECRET && NODE_ENV !== "development") {
+  if (!SECRET && NODE_ENV === "production") {
     throw new Error("Missing SECRET environment variable");
   }
-  const hostSecret = SECRET;
+  const hostSecret = SECRET || "please-change-me";
 
   // TODO: deprecate use of CACHE_REDIS_URL to make it consistent across all connectors
   const cacheAdapter =
