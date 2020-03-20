@@ -61,15 +61,15 @@ class MappingUtil {
   incomingAccountClaims: Array<HullIncomingClaimsSetting>;
 
   constructor({
-                connector,
-                hullClient,
-                usersSegments,
-                accountsSegments,
-                hubspotContactProperties,
-                hubspotCompanyProperties,
-                hullUserProperties,
-                hullAccountProperties
-              }: Object) {
+    connector,
+    hullClient,
+    usersSegments,
+    accountsSegments,
+    hubspotContactProperties,
+    hubspotCompanyProperties,
+    hullUserProperties,
+    hullAccountProperties
+  }: Object) {
     this.connector = connector;
     this.hullClient = hullClient;
     this.logger = hullClient.logger;
@@ -122,8 +122,10 @@ class MappingUtil {
 
   getOutgoingMapping(
     hubspotProperties: Array<HubspotContactProperty | HubspotCompanyProperty>,
-    outgoingMapping: Array<| HubspotContactAttributesOutgoingSetting
-      | HubspotCompanyAttributesOutgoingSetting>
+    outgoingMapping: Array<
+      | HubspotContactAttributesOutgoingSetting
+      | HubspotCompanyAttributesOutgoingSetting
+    >
   ): Array<HubspotContactOutgoingMapping> {
     return outgoingMapping.reduce((mappings, mapping) => {
       const { hull, service, name } = mapping;
@@ -146,7 +148,7 @@ class MappingUtil {
       }
 
       const { readOnlyValue, type, fieldType, displayOrder } =
-      hubspotProperty || {};
+        hubspotProperty || {};
       return mappings.concat([
         {
           hull_trait_name: hull,
@@ -164,8 +166,10 @@ class MappingUtil {
   getIncomingMapping(
     hubspotProperties: Array<HubspotContactProperty | HubspotCompanyProperty>,
     hullProperties: Array<HullProperty>,
-    incomingMapping: Array<| HubspotContactAttributesIncomingSetting
-      | HubspotCompanyAttributesIncomingSetting>
+    incomingMapping: Array<
+      | HubspotContactAttributesIncomingSetting
+      | HubspotCompanyAttributesIncomingSetting
+    >
   ): Array<HubspotContactIncomingMapping> {
     return incomingMapping.reduce((mapping, setting) => {
       if ((!setting.name && !setting.service) || !setting.hull) {
