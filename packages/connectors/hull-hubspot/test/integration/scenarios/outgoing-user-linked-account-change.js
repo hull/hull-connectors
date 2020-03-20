@@ -27,7 +27,6 @@ const connector = {
       { hull: "traits_custom_false", service: "custom_hubspot_false", overwrite: true },
       { hull: "traits_custom_null", service: "custom_hubspot_null", overwrite: true },
       { hull: "traits_custom_empty_string", service: "custom_hubspot_empty_string", overwrite: true },
-      { hull: "traits_custom_zero", service: "custom_hubspot_zero", overwrite: true },
       { hull: "traits_custom_undefined", service: "custom_hubspot_undefined", overwrite: true },
       { hull: "traits_custom_date_at", service: "custom_hubspot_date_at", overwrite: true },
 
@@ -42,7 +41,6 @@ const connector = {
       { hull: "account.custom_false", service: "custom_hubspot_account_false", overwrite: true },
       { hull: "account.custom_null", service: "custom_hubspot_account_null", overwrite: true },
       { hull: "account.custom_empty_string", service: "custom_hubspot_account_empty_string", overwrite: true },
-      { hull: "account.custom_zero", service: "custom_hubspot_account_zero", overwrite: true },
       { hull: "account.custom_undefined", service: "custom_hubspot_account_undefined", overwrite: true },
       { hull: "account.custom_date_at", service: "custom_hubspot_account_date_at", overwrite: true }
     ],
@@ -73,23 +71,24 @@ it("should update hubspot because linked account has changed", () => {
           .reply(200, require("../fixtures/get-properties-companies-groups"));
         scope.post("/contacts/v1/contact/batch/?auditId=Hull",
           [
-            {"properties":[{"property":"firstname","value":"John"},
-            {"property":"lastname","value":"NewLastName"},
-            {"property":"hull_custom_hubspot_score","value":456},
-            {"property":"hull_custom_hubspot_numeric","value":123},
-            {"property":"hull_custom_hubspot_array","value":"A;B"},
-            {"property":"hull_custom_hubspot_true","value":true},
-            {"property":"hull_custom_hubspot_false","value":false},
-            {"property":"hull_custom_hubspot_date_at","value":1540374459000},
-            {"property":"hull_custom_hubspot_account_id","value":"acc123"},
-            {"property":"hull_custom_hubspot_account_domain","value":"doe.com"},
-            {"property":"hull_custom_hubspot_account_group_created_at","value":1477302459000},
-            {"property":"hull_custom_hubspot_account_array","value":"A;B"},
-            {"property":"hull_custom_hubspot_account_true","value":true},
-            {"property":"hull_custom_hubspot_account_false","value":false},
-            {"property":"hull_custom_hubspot_account_date_at","value":1540374459000},
-            {"property":"hull_segments","value":"testSegment"},
-            {"property":"associatedcompanyid","value":5678}],"email":"email@email.com"}
+            {"properties":[
+              {"property":"firstname","value":"John"},
+              {"property":"lastname","value":"NewLastName"},
+              {"property":"hull_custom_hubspot_score","value":456},
+              {"property":"hull_custom_hubspot_numeric","value":123},
+              {"property":"hull_custom_hubspot_array","value":"A;B"},
+              {"property":"hull_custom_hubspot_true","value":true},
+              {"property":"hull_custom_hubspot_false","value":false},
+              {"property":"hull_custom_hubspot_date_at","value":1540374459000},
+              {"property":"hull_custom_hubspot_account_id","value":"acc123"},
+              {"property":"hull_custom_hubspot_account_domain","value":"doe.com"},
+              {"property":"hull_custom_hubspot_account_group_created_at","value":1477302459000},
+              {"property":"hull_custom_hubspot_account_array","value":"A;B"},
+              {"property":"hull_custom_hubspot_account_true","value":true},
+              {"property":"hull_custom_hubspot_account_false","value":false},
+              {"property":"hull_custom_hubspot_account_date_at","value":1540374459000},
+              {"property":"hull_segments","value":"testSegment"},
+              {"property":"associatedcompanyid","value":5678}],"email":"email@email.com"}
             ]
         ).reply(202);
         return scope;

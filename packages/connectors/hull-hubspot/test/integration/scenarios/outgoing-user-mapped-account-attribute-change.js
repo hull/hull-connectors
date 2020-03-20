@@ -46,15 +46,18 @@ it("should allow through with mapped account attribute changes", () => {
           .reply(200, require("../fixtures/get-contacts-groups"));
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, require("../fixtures/get-properties-companies-groups"));
-        scope.post("/contacts/v1/contact/batch/?auditId=Hull",
-          [{"properties":[
-            {"property":"hull_custom_hubspot_account_id","value":"acc123"},
-              {"property":"hull_custom_hubspot_account_domain","value":"doe.com"},
-              {"property":"hull_segments","value":"testSegment"}
+        scope.post("/contacts/v1/contact/batch/?auditId=Hull", [
+          {
+            "properties": [
+              { "property": "jobtitle", "value": "sometitle" },
+              { "property":"hull_custom_hubspot_account_id","value":"acc123" },
+              { "property":"hull_custom_hubspot_account_domain","value":"doe.com" },
+              { "property":"hull_segments","value":"testSegment" }
             ],
             "email":"email@email.com",
-            "vid": 5677}]
-        ).reply(202);
+            "vid": 5677
+          }
+        ]).reply(202);
         return scope;
       },
       connector,
@@ -136,16 +139,12 @@ it("should allow through with mapped account attribute changes", () => {
             hubspotWriteContact: {
               "email": "email@email.com",
               "vid": 5677,
-              "properties": [{
-                "property": "hull_custom_hubspot_account_id",
-                "value": "acc123"
-              }, {
-                "property": "hull_custom_hubspot_account_domain",
-                "value": "doe.com"
-              }, {
-                "property": "hull_segments",
-                "value": "testSegment",
-              }]
+              "properties": [
+                { "property": "jobtitle", "value": "sometitle" },
+                { "property": "hull_custom_hubspot_account_id", "value": "acc123" },
+                { "property": "hull_custom_hubspot_account_domain", "value": "doe.com" },
+                { "property": "hull_segments", "value": "testSegment", }
+              ]
             }
           }
         ]

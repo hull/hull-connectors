@@ -139,6 +139,8 @@
         "source": "hubspot"
       },
       "default": [
+        { "service": "email", "hull": "traits_hubspot/email", "readOnly": true, "overwrite": true },
+        { "service": "hs_object_id", "hull": "traits_hubspot/id", "readOnly": true, "overwrite": true },
         { "service": "annualrevenue", "hull": "traits_hubspot/annual_revenue" },
         { "service": "associatedcompanyid", "hull": "traits_hubspot/associatedcompanyid" },
         { "service": "num_associated_deals", "hull": "traits_hubspot/associated_deals_count" },
@@ -157,7 +159,6 @@
         { "service": "country", "hull": "traits_hubspot/address_country" },
         { "service": "createdate", "hull": "traits_hubspot/created_at" },
         { "service": "days_to_close", "hull": "traits_hubspot/days_to_close" },
-        { "service": "email", "hull": "traits_hubspot/email" },
         { "service": "fax", "hull": "traits_hubspot/fax" },
         { "service": "first_deal_created_date", "hull": "traits_hubspot/first_deal_created_at" },
         { "service": "firstname", "hull": "traits_hubspot/first_name" },
@@ -228,6 +229,7 @@
         { "service": "associatedcompanyid", "hull": "traits_hubspot/associatedcompanyid" },
         { "service": "closedate", "hull": "traits_hubspot/closed_at" },
         { "service": "company", "hull": "traits_hubspot/company" },
+        { "service": "email", "hull": "traits_hubspot/email" },
         { "service": "numemployees", "hull": "traits_hubspot/employees_count" },
         { "service": "fax", "hull": "traits_hubspot/fax" },
         { "service": "firstname", "hull": "traits_hubspot/first_name" },
@@ -312,6 +314,8 @@
         "source": "hubspot"
       },
       "default": [
+        { "service": "domain", "hull": "hubspot/domain", "readOnly": true, "overwrite": true },
+        { "service": "hs_object_id", "hull": "hubspot/id", "readOnly": true, "overwrite": true },
         { "service": "about_us", "hull": "hubspot/about_us" },
         { "service": "hs_all_accessible_team_ids", "hull": "hubspot/hs_all_accessible_team_ids" },
         { "service": "hs_all_owner_ids", "hull": "hubspot/hs_all_owner_ids" },

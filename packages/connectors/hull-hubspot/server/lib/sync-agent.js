@@ -332,7 +332,7 @@ class SyncAgent {
     this.metric.increment("ship.incoming.users", contacts.length);
     return Promise.all(
       contacts.map(async contact => {
-        const traits = this.mappingUtil.getHullUserTraits(contact);
+        const traits = this.mappingUtil.mapToHullEntity(contact, "user");
         const ident = this.helpers.incomingClaims("user", contact, {
           anonymous_id_prefix: "hubspot",
           anonymous_id_service: "vid"
@@ -429,7 +429,7 @@ class SyncAgent {
     await this.initialize();
 
     const envelopes = messages.map(message =>
-      this.buildUserUpdateMessageEnvelope(message)
+      this.buildUpdateMessageEnvelope(message, "contact")
     );
     const filterResults = this.filterUtil.filterUserUpdateMessageEnvelopes(
       envelopes
@@ -488,94 +488,6 @@ class SyncAgent {
     return Promise.resolve([]);
   }
 
-  async postEnvelopes({
-    envelopes,
-    hullEntity,
-    hubspotEntity,
-    retry,
-    operation
-  }) {
-    return this.hubspotClient
-      .postEnvelopes({
-        envelopes,
-        hubspotEntity
-      })
-      .then(upsertedEnvelopes => {
-        this.logSuccessfulUpsert({
-          envelopes: upsertedEnvelopes,
-          hullEntity,
-          operation
-        });
-      })
-      .catch(async error => {
-        const errorInfo = error.response.body;
-        if (errorInfo.status !== "error") {
-          envelopes.forEach(envelope => {
-            if (hullEntity === "user") {
-              this.hullClient
-                .asUser(envelope.message.user)
-                .logger.error("outgoing.user.error", {
-                  error: "unknown response from hubspot",
-                  hubspotWriteContact: envelope.hubspotWriteContact
-                });
-            } else {
-              this.hullClient
-                .asAccount(envelope.message.account)
-                .logger.error("outgoing.account.error", {
-                  error: "unknown response from hubspot",
-                  hubspotWriteCompany: envelope.hubspotWriteCompany
-                });
-            }
-          });
-          return Promise.resolve([]);
-        }
-
-        const [
-          retryEnvelopes,
-          failedEnvelopes,
-          hullFailedEnvelopes
-        ] = this.filterFailedEnvelopes({ envelopes, errorInfo, hubspotEntity });
-
-        this.logFailedUpsert({
-          envelopes: _.cloneDeep(failedEnvelopes),
-          hullEntity
-        });
-
-        if (!_.isEmpty(hullFailedEnvelopes)) {
-          await this.syncConnector();
-          _.pullAll(hullFailedEnvelopes, failedEnvelopes);
-        }
-
-        if (retry > 0) {
-          return this.postEnvelopes({
-            envelopes: [...retryEnvelopes, ...hullFailedEnvelopes],
-            hullEntity,
-            hubspotEntity,
-            operation,
-            retry: retry - 1
-          });
-        }
-
-        this.logFailedUpsert({
-          envelopes: [...retryEnvelopes, ...hullFailedEnvelopes],
-          hullEntity
-        });
-        return Promise.resolve([]);
-      });
-  }
-
-  buildUserUpdateMessageEnvelope(
-    message: HullUserUpdateMessage
-  ): HubspotUserUpdateMessageEnvelope {
-    // $FlowFixMe
-    message.user.account = message.account;
-    const hubspotWriteContact = this.mappingUtil.getHubspotContact(message);
-    return {
-      message,
-      hubspotWriteContact
-    };
-  }
-
   async sendAccountUpdateMessages(
     messages: Array<HullAccountUpdateMessage>
   ): Promise<*> {
@@ -587,7 +499,7 @@ class SyncAgent {
     }
     await this.initialize();
     const envelopes = messages.map(message =>
-      this.buildAccountUpdateMessageEnvelope(message)
+      this.buildUpdateMessageEnvelope(message, "company")
     );
     const filterResults = this.filterUtil.filterAccountUpdateMessageEnvelopes(
       envelopes
@@ -671,8 +583,9 @@ class SyncAgent {
         .then(resultEnvelopes => {
           resultEnvelopes.forEach(envelope => {
             if (envelope.error === undefined && envelope.hubspotReadCompany) {
-              const accountTraits = this.mappingUtil.getHullAccountTraits(
-                envelope.hubspotReadCompany
+              const accountTraits = this.mappingUtil.mapToHullEntity(
+                envelope.hubspotReadCompany,
+                "account"
               );
               return this.hullClient
                 .asAccount(envelope.message.account)
@@ -704,13 +617,99 @@ class SyncAgent {
     return Promise.resolve();
   }
 
-  buildAccountUpdateMessageEnvelope(
-    message: HullAccountUpdateMessage
-  ): HubspotAccountUpdateMessageEnvelope {
-    const hubspotWriteCompany = this.mappingUtil.getHubspotCompany(message);
+  async postEnvelopes({
+    envelopes,
+    hullEntity,
+    hubspotEntity,
+    retry,
+    operation
+  }) {
+    return this.hubspotClient
+      .postEnvelopes({
+        envelopes,
+        hubspotEntity
+      })
+      .then(upsertedEnvelopes => {
+        this.logSuccessfulUpsert({
+          envelopes: upsertedEnvelopes,
+          hullEntity,
+          operation
+        });
+      })
+      .catch(async error => {
+        const errorInfo = error.response.body;
+        if (errorInfo.status !== "error") {
+          envelopes.forEach(envelope => {
+            if (hullEntity === "user") {
+              this.hullClient
+                .asUser(envelope.message.user)
+                .logger.error("outgoing.user.error", {
+                  error: "unknown response from hubspot",
+                  hubspotWriteContact: envelope.hubspotWriteContact
+                });
+            } else {
+              this.hullClient
+                .asAccount(envelope.message.account)
+                .logger.error("outgoing.account.error", {
+                  error: "unknown response from hubspot",
+                  hubspotWriteCompany: envelope.hubspotWriteCompany
+                });
+            }
+          });
+          return Promise.resolve([]);
+        }
+
+        const [
+          retryEnvelopes,
+          failedEnvelopes,
+          hullFailedEnvelopes
+        ] = this.filterFailedEnvelopes({ envelopes, errorInfo, hubspotEntity });
+
+        this.logFailedUpsert({
+          envelopes: _.cloneDeep(failedEnvelopes),
+          hullEntity
+        });
+
+        if (!_.isEmpty(hullFailedEnvelopes)) {
+          await this.syncConnector();
+          _.pullAll(hullFailedEnvelopes, failedEnvelopes);
+        }
+
+        if (retry > 0) {
+          return this.postEnvelopes({
+            envelopes: [...retryEnvelopes, ...hullFailedEnvelopes],
+            hullEntity,
+            hubspotEntity,
+            operation,
+            retry: retry - 1
+          });
+        }
+
+        this.logFailedUpsert({
+          envelopes: [...retryEnvelopes, ...hullFailedEnvelopes],
+          hullEntity
+        });
+        return Promise.resolve([]);
+      });
+  }
+
+  buildUpdateMessageEnvelope(
+    message: HullUserUpdateMessage | HullAccountUpdateMessage,
+    serviceType: string
+  ): HubspotUserUpdateMessageEnvelope | HubspotAccountUpdateMessageEnvelope {
+
+    // TODO verify this is needed or not
+    if (serviceType === "contact") {
+      message.user.account = message.account;
+    }
+
+    const hubspotWriteEntity = this.mappingUtil.mapToHubspotEntity(
+      message,
+      serviceType
+    );
     return {
       message,
-      hubspotWriteCompany
+      [`hubspotWrite${_.upperFirst(serviceType)}`]: hubspotWriteEntity
     };
   }
 
@@ -931,7 +930,7 @@ class SyncAgent {
     this.metric.increment("ship.incoming.accounts", companies.length);
     return Promise.all(
       companies.map(async company => {
-        const traits = this.mappingUtil.getHullAccountTraits(company);
+        const traits = this.mappingUtil.mapToHullEntity(company, "account");
         const ident = this.helpers.incomingClaims("account", company, {
           anonymous_id_prefix: "hubspot",
           anonymous_id_service: "companyId"

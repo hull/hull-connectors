@@ -2,8 +2,37 @@
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
 
-
 process.env.OVERRIDE_HUBSPOT_URL = "";
+process.env.CLIENT_ID = "1";
+process.env.CLIENT_SECRET = "1";
+
+const contactGroups = [
+  ...require("../fixtures/get-contacts-groups"),
+  {
+    "name": "hull",
+    "displayName": "Hull Properties",
+    "properties": [
+      {
+        "name": "hull_custom_hubspot_score",
+        "label": "Custom Score",
+        "description": "",
+        "groupName": "hull",
+        "type": "string",
+        "fieldType": "text",
+        "options": [],
+        "displayOrder": -1,
+        "readOnlyValue": false
+      },
+      {
+        "name": "hull_segments",
+        "label": "Hull Segments",
+        "description": "All the Segments the Account belongs to in Hull",
+        "groupName": "hull",
+        "options": []
+      }
+    ]
+  }
+];
 
 /**
  * This tests if the overwrite field is true/false/notset
@@ -25,7 +54,6 @@ const connector = {
       { hull: "traits_custom_false", service: "custom_hubspot_false", overwrite: true },
       { hull: "traits_custom_null", service: "custom_hubspot_null", overwrite: true },
       { hull: "traits_custom_empty_string", service: "custom_hubspot_empty_string", overwrite: true },
-      { hull: "traits_custom_zero", service: "custom_hubspot_zero", overwrite: true },
       { hull: "traits_custom_undefined", service: "custom_hubspot_undefined", overwrite: true },
       { hull: "traits_custom_date_at", service: "custom_hubspot_date_at", overwrite: true },
 
@@ -40,7 +68,6 @@ const connector = {
       { hull: "account.custom_false", service: "custom_hubspot_account_false", overwrite: true },
       { hull: "account.custom_null", service: "custom_hubspot_account_null", overwrite: true },
       { hull: "account.custom_empty_string", service: "custom_hubspot_account_empty_string", overwrite: true },
-      { hull: "account.custom_zero", service: "custom_hubspot_account_zero", overwrite: true },
       { hull: "account.custom_undefined", service: "custom_hubspot_account_undefined", overwrite: true },
       { hull: "account.custom_date_at", service: "custom_hubspot_account_date_at", overwrite: true }
     ],
@@ -65,7 +92,7 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
       externalApiMock: () => {
         const scope = nock("https://api.hubapi.com");
         scope.get("/contacts/v2/groups?includeProperties=true")
-          .reply(200, require("../fixtures/get-contacts-groups"));
+          .reply(200, contactGroups);
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, require("../fixtures/get-properties-companies-groups"));
         scope.post("/contacts/v1/contact/batch/?auditId=Hull", [{

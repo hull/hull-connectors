@@ -70,15 +70,15 @@ it("send batch account update to hubspot in a batch", () => {
             properties: [
               { name: "about_us", value: "Wayne Enterprises (Sample Lead)" },
               { name: "industry", value: "Manufacturing" },
-              { name: "hull_segments", value: "Bad guys" },
+              { name: "hull_segments", value: "" },
               { name: "domain", value: "wayneenterprises.com" }
             ],
             objectId: "1778846597"
           }
         ];
         scope
-          .post("/companies/v1/batch-async/update?auditId=Hull")
-          .reply(202, updatedCompany);
+          .post("/companies/v1/batch-async/update?auditId=Hull", updatedCompany)
+          .reply(202);
 
         return scope;
       },
@@ -90,7 +90,6 @@ it("send batch account update to hubspot in a batch", () => {
           "type": "next",
         },
       },
-      // most of the remaining "whatevers" are returned from the nock endpoints or are tested in traits
       logs: [
         [
           "debug",
@@ -147,7 +146,7 @@ it("send batch account update to hubspot in a batch", () => {
           "outgoing.account.success",
           {
             account_domain: "wayneenterprises.com",
-            account_id: /* "5bf2e7bf064aee16a600092a"*/ expect.whatever(),
+            account_id: expect.whatever(),
             request_id: expect.whatever(),
             subject_type: "account"
           },
@@ -156,6 +155,7 @@ it("send batch account update to hubspot in a batch", () => {
               objectId: "1778846597",
               properties: [
                 { name: "about_us", value: "Wayne Enterprises (Sample Lead)" },
+                { name: "industry", value: "Manufacturing" },
                 { name: "hull_segments", value: "" },
                 { name: "domain", value: "wayneenterprises.com" }
               ]

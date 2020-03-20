@@ -47,6 +47,7 @@ it("should send out a hull user with all default fields", () => {
               {"property":"associatedcompanyid","value":"some value"},
               {"property":"closedate","value":"some value"},
               {"property":"company","value":"some value"},
+              {"property":"email","value":"email@email.com"},
               {"property":"numemployees","value":"some value"},
               {"property":"fax","value":"some value"},
               {"property":"firstname","value":"some value"},
@@ -77,6 +78,7 @@ it("should send out a hull user with all default fields", () => {
           user: {
             email,
             "hubspot/id": "existingContactId",
+            "hubspot/email": "email@email.com",
             "hubspot/days_to_close": "some value",
             "hubspot/first_deal_created_at": "some value",
             "hubspot/lead_status": "some value",
@@ -166,6 +168,7 @@ it("should send out a hull user with all default fields", () => {
                 {"property":"associatedcompanyid","value":"some value"},
                 {"property":"closedate","value":"some value"},
                 {"property":"company","value":"some value"},
+                {"property":"email","value":"email@email.com"},
                 {"property":"numemployees","value":"some value"},
                 {"property":"fax","value":"some value"},
                 {"property":"firstname","value":"some value"},
