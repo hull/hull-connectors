@@ -12,7 +12,8 @@ import type {
   HubspotAccountUpdateMessageEnvelope,
   HubspotUserUpdateMessageEnvelope,
   HubspotReadContact,
-  HubspotReadCompany
+  HubspotReadCompany,
+  ServiceType
 } from "../types";
 
 // const Promise = require("bluebird");
@@ -173,6 +174,7 @@ class SyncAgent {
     });
 
     this.mappingUtil = new MappingUtil({
+      ctx: this.ctx,
       connector: this.connector,
       hullClient: this.hullClient,
       usersSegments: this.usersSegments,
@@ -695,9 +697,8 @@ class SyncAgent {
 
   buildUpdateMessageEnvelope(
     message: HullUserUpdateMessage | HullAccountUpdateMessage,
-    serviceType: string
+    serviceType: ServiceType
   ): HubspotUserUpdateMessageEnvelope | HubspotAccountUpdateMessageEnvelope {
-
     // TODO verify this is needed or not
     if (serviceType === "contact") {
       message.user.account = message.account;

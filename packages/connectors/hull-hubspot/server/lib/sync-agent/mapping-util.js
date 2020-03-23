@@ -7,7 +7,8 @@ import type {
   HullUserSegment,
   HullUserUpdateMessage,
   HullAccountUpdateMessage,
-  HullIncomingClaimsSetting
+  HullIncomingClaimsSetting,
+  HullContext
 } from "hull";
 
 import type {
@@ -27,7 +28,9 @@ import type {
   HubspotCompanyOutgoingMapping,
   HubspotCompanyIncomingMapping,
   HubspotCompanyAttributesIncomingSetting,
-  HubspotCompanyAttributesOutgoingSetting
+  HubspotCompanyAttributesOutgoingSetting,
+  ServiceType,
+  HullType
 } from "../../types";
 
 const _ = require("lodash");
@@ -36,6 +39,8 @@ const slug = require("slug");
 const debug = require("debug")("hull-hubspot:mapping-util");
 
 class MappingUtil {
+  ctx: HullContext;
+
   connector: HullConnector;
 
   hullClient: Object;
@@ -61,6 +66,7 @@ class MappingUtil {
   incomingAccountClaims: Array<HullIncomingClaimsSetting>;
 
   constructor({
+    ctx,
     connector,
     hullClient,
     usersSegments,
@@ -70,6 +76,7 @@ class MappingUtil {
     hullUserProperties,
     hullAccountProperties
   }: Object) {
+    this.ctx = ctx;
     this.connector = connector;
     this.hullClient = hullClient;
     this.logger = hullClient.logger;
@@ -197,7 +204,7 @@ class MappingUtil {
 
   mapToHubspotEntity(
     hullObject: HubspotReadContact | HubspotReadCompany,
-    serviceType: string
+    serviceType: ServiceType
   ) {
     switch (serviceType) {
       case "contact":
@@ -317,11 +324,11 @@ class MappingUtil {
 
   /**
    * Maps Hubspot contact properties to Hull traits
-   * @param  {Object} userData Hubspot contact
-   * @return {Object}          Hull user traits
+   * @param hubspotReadContact
+   * @return {Object} Hull user traits
    */
-  mapToHullUser(userData: HubspotReadContact): HullUserAttributes {
-    const properties = userData.properties;
+  mapToHullUser(hubspotReadContact: HubspotReadContact): HullUserAttributes {
+    const properties = hubspotReadContact.properties;
     const hullTraits = _.reduce(
       this.contactIncomingMapping,
       (traits, mappingEntry) => {
@@ -335,10 +342,10 @@ class MappingUtil {
         let val = null;
         if (_.startsWith(hubspot_property_name, "contact_meta.")) {
           const metaKey = hubspot_property_name.split("contact_meta.")[1];
-          val = _.get(userData, metaKey, null);
+          val = _.get(hubspotReadContact, metaKey, null);
         } else if (properties && _.has(properties, hubspot_property_name)) {
           const propertiesKey = `properties[${hubspot_property_name}].value`;
-          val = _.get(userData, propertiesKey, null);
+          val = _.get(hubspotReadContact, propertiesKey, null);
         }
 
         if (!_.isNil(val)) {
@@ -365,7 +372,8 @@ class MappingUtil {
       {}
     );
 
-    hullTraits["hubspot/id"] = userData["canonical-vid"] || userData.vid;
+    hullTraits["hubspot/id"] =
+      hubspotReadContact["canonical-vid"] || hubspotReadContact.vid;
 
     if (hullTraits["hubspot/first_name"]) {
       hullTraits.first_name = {
@@ -386,11 +394,11 @@ class MappingUtil {
 
   mapToHubspotEntityProperties(
     message: HullUserUpdateMessage | HullAccountUpdateMessage,
-    hullType: string,
-    serviceType: string
+    hullType: HullType,
+    serviceType: ServiceType
   ): HubspotWriteContactProperties | HubspotWriteCompanyProperties {
     const hullEntity = _.get(message, hullType);
-    const field = serviceType === "contact" ? "property" : "name";
+    const apiFieldKey = serviceType === "contact" ? "property" : "name";
     const outgoingMapping = this[`${serviceType}OutgoingMapping`];
     const properties = _.reduce(
       outgoingMapping,
@@ -439,7 +447,7 @@ class MappingUtil {
 
         if (!_.isNil(value) && value !== "" && !hubspot_property_read_only) {
           hubspotProperties.push({
-            [`${field}`]: hubspot_property_name,
+            [`${apiFieldKey}`]: hubspot_property_name,
             value
           });
         }
@@ -461,7 +469,7 @@ class MappingUtil {
     );
 
     properties.push({
-      [`${field}`]: "hull_segments",
+      [`${apiFieldKey}`]: "hull_segments",
       value: segmentNames.join(";")
     });
 
@@ -473,7 +481,7 @@ class MappingUtil {
         message.account["hubspot/id"]
       ) {
         properties.push({
-          [`${field}`]: "associatedcompanyid",
+          [`${apiFieldKey}`]: "associatedcompanyid",
           value: message.account["hubspot/id"]
         });
       }

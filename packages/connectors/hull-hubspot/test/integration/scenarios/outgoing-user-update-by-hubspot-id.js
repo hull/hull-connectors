@@ -13,7 +13,33 @@ const connector = {
     token: "hubToken",
     synchronized_user_segments: ["user_segment_1"],
     mark_deleted_contacts: false,
-    mark_deleted_companies: false
+    mark_deleted_companies: false,
+    outgoing_user_attributes: [
+      { "service": "city", "hull": "traits_hubspot/address_city" },
+      { "service": "country", "hull": "traits_hubspot/address_country" },
+      { "service": "zip", "hull": "traits_hubspot/address_postal_code" },
+      { "service": "state", "hull": "traits_hubspot/address_state" },
+      { "service": "address", "hull": "traits_hubspot/address_street" },
+      { "service": "annualrevenue", "hull": "traits_hubspot/annual_revenue" },
+      { "service": "associatedcompanyid", "hull": "traits_hubspot/associatedcompanyid" },
+      { "service": "closedate", "hull": "traits_hubspot/closed_at" },
+      { "service": "company", "hull": "traits_hubspot/company" },
+      { "service": "email", "hull": "traits_hubspot/email" },
+      { "service": "numemployees", "hull": "traits_hubspot/employees_count" },
+      { "service": "fax", "hull": "traits_hubspot/fax" },
+      { "service": "firstname", "hull": "traits_hubspot/first_name" },
+      { "service": "hubspot_owner_id", "hull": "traits_hubspot/hubspot_owner_id" },
+      { "service": "industry", "hull": "traits_hubspot/industry" },
+      { "service": "jobtitle", "hull": "traits_hubspot/job_title" },
+      { "service": "lastname", "hull": "traits_hubspot/last_name" },
+      { "service": "hs_lead_status", "hull": "traits_hubspot/lead_status" },
+      { "service": "lifecyclestage", "hull": "traits_hubspot/lifecycle_stage" },
+      { "service": "message", "hull": "traits_hubspot/message" },
+      { "service": "mobilephone", "hull": "traits_hubspot/mobile_phone" },
+      { "service": "phone", "hull": "traits_hubspot/phone" },
+      { "service": "salutation", "hull": "traits_hubspot/salutation" },
+      { "service": "website", "hull": "traits_hubspot/website" }
+    ]
   }
 };
 const usersSegments = [
@@ -23,7 +49,7 @@ const usersSegments = [
   }
 ];
 
-it("should send out a hull user with all default fields", () => {
+it("should send out a hull user to hubspot using known hubspot id", () => {
   const email = "email@email.com";
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {

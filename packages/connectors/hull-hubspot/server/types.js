@@ -1,6 +1,9 @@
 // @flow
 import type { HullUserUpdateMessage, HullAccountUpdateMessage } from "hull";
 
+export type ServiceType = "contact" | "company";
+export type HullType = "user" | "account";
+
 export type HubspotError = {
   index: number,
   propertyValidationResult: {

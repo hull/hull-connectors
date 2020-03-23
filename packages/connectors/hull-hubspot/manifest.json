@@ -139,8 +139,8 @@
         "source": "hubspot"
       },
       "default": [
-        { "service": "email", "hull": "traits_hubspot/email", "readOnly": true, "overwrite": true },
-        { "service": "hs_object_id", "hull": "traits_hubspot/id", "readOnly": true, "overwrite": true },
+        { "service": "email", "hull": "traits_hubspot/email" },
+        { "service": "hs_object_id", "hull": "traits_hubspot/id" },
         { "service": "annualrevenue", "hull": "traits_hubspot/annual_revenue" },
         { "service": "associatedcompanyid", "hull": "traits_hubspot/associatedcompanyid" },
         { "service": "num_associated_deals", "hull": "traits_hubspot/associated_deals_count" },
@@ -219,32 +219,7 @@
         "allowCreate": true,
         "loadOptions": "/schema/contact_properties"
       },
-      "default": [
-        { "service": "city", "hull": "traits_hubspot/address_city" },
-        { "service": "country", "hull": "traits_hubspot/address_country" },
-        { "service": "zip", "hull": "traits_hubspot/address_postal_code" },
-        { "service": "state", "hull": "traits_hubspot/address_state" },
-        { "service": "address", "hull": "traits_hubspot/address_street" },
-        { "service": "annualrevenue", "hull": "traits_hubspot/annual_revenue" },
-        { "service": "associatedcompanyid", "hull": "traits_hubspot/associatedcompanyid" },
-        { "service": "closedate", "hull": "traits_hubspot/closed_at" },
-        { "service": "company", "hull": "traits_hubspot/company" },
-        { "service": "email", "hull": "traits_hubspot/email" },
-        { "service": "numemployees", "hull": "traits_hubspot/employees_count" },
-        { "service": "fax", "hull": "traits_hubspot/fax" },
-        { "service": "firstname", "hull": "traits_hubspot/first_name" },
-        { "service": "hubspot_owner_id", "hull": "traits_hubspot/hubspot_owner_id" },
-        { "service": "industry", "hull": "traits_hubspot/industry" },
-        { "service": "jobtitle", "hull": "traits_hubspot/job_title" },
-        { "service": "lastname", "hull": "traits_hubspot/last_name" },
-        { "service": "hs_lead_status", "hull": "traits_hubspot/lead_status" },
-        { "service": "lifecyclestage", "hull": "traits_hubspot/lifecycle_stage" },
-        { "service": "message", "hull": "traits_hubspot/message" },
-        { "service": "mobilephone", "hull": "traits_hubspot/mobile_phone" },
-        { "service": "phone", "hull": "traits_hubspot/phone" },
-        { "service": "salutation", "hull": "traits_hubspot/salutation" },
-        { "service": "website", "hull": "traits_hubspot/website" }
-      ]
+      "default": []
     },
     {
       "name": "incoming_account_title",
@@ -314,8 +289,8 @@
         "source": "hubspot"
       },
       "default": [
-        { "service": "domain", "hull": "hubspot/domain", "readOnly": true, "overwrite": true },
-        { "service": "hs_object_id", "hull": "hubspot/id", "readOnly": true, "overwrite": true },
+        { "service": "domain", "hull": "hubspot/domain" },
+        { "service": "hs_object_id", "hull": "hubspot/id" },
         { "service": "about_us", "hull": "hubspot/about_us" },
         { "service": "hs_all_accessible_team_ids", "hull": "hubspot/hs_all_accessible_team_ids" },
         { "service": "hs_all_owner_ids", "hull": "hubspot/hs_all_owner_ids" },
@@ -412,42 +387,7 @@
         "allowCreate": true,
         "loadOptions": "/schema/company_properties"
       },
-      "default": [
-        { "service": "about_us", "hull": "hubspot/about_us" },
-        { "service": "address", "hull": "hubspot/address" },
-        { "service": "address2", "hull": "hubspot/address2" },
-        { "service": "annualrevenue", "hull": "hubspot/annualrevenue" },
-        { "service": "city", "hull": "hubspot/city" },
-        { "service": "closedate", "hull": "hubspot/close_date" },
-        { "service": "country", "hull": "hubspot/country" },
-        { "service": "description", "hull": "hubspot/description" },
-        { "service": "domain", "hull": "hubspot/domain" },
-        { "service": "facebook_company_page", "hull": "hubspot/facebook_company_page" },
-        { "service": "facebookfans", "hull": "hubspot/facebookfans" },
-        { "service": "founded_year", "hull": "hubspot/founded_year" },
-        { "service": "googleplus_page", "hull": "hubspot/googleplus_page" },
-        { "service": "hs_analytics_source", "hull": "hubspot/hs_analytics_source" },
-        { "service": "hs_lead_status", "hull": "hubspot/hs_lead_status" },
-        { "service": "hubspot_owner_id", "hull": "hubspot/hubspot_owner_id" },
-        { "service": "industry", "hull": "hubspot/industry" },
-        { "service": "is_public", "hull": "hubspot/is_public" },
-        { "service": "lifecyclestage", "hull": "hubspot/lifecyclestage" },
-        { "service": "linkedin_company_page", "hull": "hubspot/linkedin_company_page" },
-        { "service": "linkedinbio", "hull": "hubspot/linkedinbio" },
-        { "service": "name", "hull": "hubspot/name" },
-        { "service": "numberofemployees", "hull": "hubspot/numberofemployees" },
-        { "service": "phone", "hull": "hubspot/phone" },
-        { "service": "state", "hull": "hubspot/state" },
-        { "service": "timezone", "hull": "hubspot/timezone" },
-        { "service": "total_money_raised", "hull": "hubspot/total_money_raised" },
-        { "service": "twitterbio", "hull": "hubspot/twitterbio" },
-        { "service": "twitterfollowers", "hull": "hubspot/twitterfollowers" },
-        { "service": "twitterhandle", "hull": "hubspot/twitterhandle" },
-        { "service": "type", "hull": "hubspot/type" },
-        { "service": "web_technologies", "hull": "hubspot/web_technologies" },
-        { "service": "website", "hull": "hubspot/website" },
-        { "service": "zip", "hull": "hubspot/zip" }
-      ]
+      "default": []
     },
     {
       "name": "link_users_in_service",
