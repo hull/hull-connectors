@@ -128,7 +128,6 @@ it("should send out a new hull account to hubspot", () => {
       firehoseEvents: [
         ["traits", { "asAccount": { "domain": "hull.io" }, "subjectType": "account" },
           {
-            "domain": "hull.io",
             "hubspot/create_date": "1584635613078",
             "hubspot/days_to_close": null,
             "hubspot/domain": "hull.io",
