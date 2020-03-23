@@ -33,7 +33,23 @@ it("should send out a new hull user to hubspot - user basic", () => {
       channel: "user:update",
       externalApiMock: () => {
         const scope = nock("https://api.hubapi.com");
-        scope.get("/contacts/v2/groups?includeProperties=true").reply(200, []);
+        scope.get("/contacts/v2/groups?includeProperties=true").reply(200, [
+          {
+            "name": "contactinformation",
+            "displayName": "Contact Information",
+            "properties": [
+              {
+                "name": "email",
+                "label": "Email",
+                "description": "A contact's email address",
+                "groupName": "contactinformation",
+                "type": "string",
+                "fieldType": "text",
+                "readOnlyValue": false
+              }
+            ]
+          }
+        ]);
         scope
           .get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, []);
