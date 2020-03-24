@@ -4,36 +4,34 @@ import type { HullUserUpdateMessage, HullAccountUpdateMessage } from "hull";
 export type ServiceType = "contact" | "company";
 export type HullType = "user" | "account";
 
-export type HubspotError = {
-  index: number,
-  propertyValidationResult: {
-    isValid: boolean,
-    message: string,
-    error: string,
-    name: string
-  }
-};
+export type HubspotSchema = Array<{
+  property: string,
+  type: string,
+  field_type: string,
+  read_only: boolean,
+  formatter: any
+}>;
 
-export type HubspotWriteContactProperties = Array<{
+export type HubspotWriteContactProperty = {
   property: string,
   value: mixed
-}>;
+};
 
 export type HubspotWriteContact = {
   vid?: string,
   email?: string,
-  properties: HubspotWriteContactProperties
+  properties: Array<HubspotWriteContactProperty>
 };
 
-export type HubspotWriteCompanyProperties = Array<{
+export type HubspotWriteCompanyProperty = {
   name: string,
   value: mixed
-}>;
+};
 
 export type HubspotWriteCompany = {
   objectId?: string,
   email?: string,
-  properties: HubspotWriteCompanyProperties
+  properties: Array<HubspotWriteCompanyProperty>
 };
 
 export type HubspotReadContact = {
@@ -104,7 +102,7 @@ export type FilterUtilResults<T> = {
   toSkip: Array<T>
 };
 
-export type HubspotContactProperty = {
+export type HubspotProperty = {
   name: string,
   label: string,
   description?: string,
@@ -138,8 +136,6 @@ export type HubspotContactProperty = {
   updatedUserId: null | any
 };
 
-export type HubspotCompanyProperty = HubspotContactProperty;
-
 export type HubspotContactPropertyWrite = {
   name: string,
   label: string,
@@ -153,26 +149,13 @@ export type HubspotContactPropertyWrite = {
   options?: Array<any>
 };
 
-export type HubspotContactPropertyGroup = {
+export type HubspotPropertyGroup = {
   name: string,
   displayName: string,
   displayOrder: number,
   hubspotDefined: boolean,
-  properties: Array<HubspotContactProperty>
+  properties: Array<HubspotProperty>
 };
-
-export type HubspotContactPropertyGroups = Array<HubspotContactPropertyGroup>;
-
-export type HubspotCompanyPropertyGroup = {
-  name: string,
-  displayName: string,
-  displayOrder: number,
-  hubspotDefined: boolean,
-  properties: Array<HubspotCompanyProperty>
-};
-
-export type HubspotCompanyPropertyWrite = HubspotContactPropertyWrite;
-export type HubspotCompanyPropertyGroups = Array<HubspotCompanyPropertyGroup>;
 
 export type HullProperty = {
   id: string,
@@ -183,97 +166,3 @@ export type HullProperty = {
   title: string,
   key: string
 };
-
-export type HubspotDefaultContactMapping = {
-  name: string,
-  hull: string,
-  type: string,
-  title: string,
-  read_only: boolean
-};
-
-export type HubspotContactAttributesIncomingSetting = {
-  name: string,
-  hull: string,
-  service: string
-};
-
-export type HubspotContactAttributesOutgoingSetting = {
-  hull: string,
-  name: string,
-  service: string
-};
-
-export type HubspotContactOutgoingMapping = {
-  hull_trait_name: $PropertyType<
-    HubspotContactAttributesOutgoingSetting,
-    "hull"
-  >,
-  hull_default_trait_name: $PropertyType<
-    HubspotDefaultContactMapping,
-    "hull"
-  > | null,
-  hull_trait_type: $PropertyType<HullProperty, "type">,
-  hubspot_property_name: $PropertyType<
-    HubspotContactAttributesOutgoingSetting,
-    "name"
-  >,
-  hubspot_property_label?: $PropertyType<HubspotContactProperty, "label">,
-  hubspot_property_read_only?: $PropertyType<
-    HubspotContactProperty,
-    "readOnlyValue"
-  >,
-  hubspot_property_type?: $PropertyType<HubspotContactProperty, "type">,
-  hubspot_property_field_type?: $PropertyType<
-    HubspotContactProperty,
-    "fieldType"
-  >,
-  hubspot_property_display_order?: $PropertyType<
-    HubspotContactProperty,
-    "displayOrder"
-  >
-};
-
-export type HubspotContactIncomingMapping = {
-  hull_trait_name: $PropertyType<
-    HubspotContactAttributesOutgoingSetting,
-    "hull"
-  >,
-  hull_trait_type?: $PropertyType<HullProperty, "type">,
-  hubspot_property_name: $PropertyType<
-    HubspotContactAttributesOutgoingSetting,
-    "name"
-  >,
-  hubspot_property_read_only: $PropertyType<
-    HubspotContactProperty,
-    "readOnlyValue"
-  >,
-  hubspot_property_type: $PropertyType<HubspotContactProperty, "type">,
-  hubspot_property_field_type: $PropertyType<
-    HubspotContactProperty,
-    "fieldType"
-  >
-};
-
-export type HubspotDefaultCompanyMapping = {
-  hubspot: string,
-  hull: string,
-  type: string,
-  title: string,
-  read_only: boolean
-};
-
-export type HubspotCompanyAttributesIncomingSetting = {
-  hubspot: string,
-  service: string,
-  hull: string
-};
-
-export type HubspotCompanyAttributesOutgoingSetting = {
-  hull: string,
-  service: string,
-  hubspot: string
-};
-
-export type HubspotCompanyOutgoingMapping = HubspotContactOutgoingMapping;
-export type HubspotCompanyIncomingMapping = HubspotContactIncomingMapping;

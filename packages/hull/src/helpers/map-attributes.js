@@ -18,12 +18,16 @@ const cast = (type?: HullJsonataType) => (value: any) => {
   return value;
 };
 
+// TODO what are the rules for attribute names?
+const rawHullTraitRegex = /^(account\.)?([A-Za-z]*\/[A-Za-z_]*)$/g;
 const noDotInPath = str => str.indexOf(".") === -1;
+const isRawTrait = trait => rawHullTraitRegex.test(trait);
 const mapAttributes = (ctx: HullContext) => ({
   payload,
   mapping,
   entity = "user",
-  direction = "incoming"
+  direction = "incoming",
+  serviceSchema = {}
 }: {
   payload: {},
   entity?: "user" | "account",
@@ -32,22 +36,23 @@ const mapAttributes = (ctx: HullContext) => ({
 }): HullEntityAttributes => {
   const { helpers } = ctx;
   const { operations } = helpers;
-  // manifest from ConnectorConfig is the one committed with the repository
   const { setIfNull } = operations;
 
   const transform = _.reduce(
     mapping,
     (m, { service, hull, overwrite, castAs }) => {
       const casted = cast(castAs);
+      const hullExpression = isRawTrait(hull)
+        ? hull.replace(rawHullTraitRegex, "$1'$2'")
+        : hull;
       const { source, target } =
         direction === "incoming"
-          ? {
-              target: hull,
-              source: service
-            }
+          ? { target: hull, source: service }
           : {
               target: service,
-              source: noDotInPath(hull) ? `${entity}.${hull}` : hull
+              source: noDotInPath(hull)
+                ? `${entity}.${hullExpression}`
+                : hullExpression
             };
       _.set(
         m,
@@ -63,7 +68,20 @@ const mapAttributes = (ctx: HullContext) => ({
 
   const transformed = JSON.stringify(transform).replace(/"_{{(.*?)}}_"/g, "$1");
   const response = jsonata(transformed).evaluate(payload);
-  return response;
+
+  /*  if (direction === "incoming") {
+    return response;
+  }*/
+  return _.reduce(
+    response,
+    (r, val, attribute) => {
+      const schema = _.get(serviceSchema, attribute, {});
+      const { formatter = v => v } = schema;
+      r[attribute] = formatter(val);
+      return r;
+    },
+    {}
+  );
 };
 
 module.exports = mapAttributes;

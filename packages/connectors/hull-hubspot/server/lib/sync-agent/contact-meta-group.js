@@ -3,7 +3,7 @@ const contactMetaGroup = {
   displayName: "Contact Meta",
   properties: [
     {
-      name: "contact_meta.merged-vids",
+      name: "merged-vids",
       label: "Merged Vids",
       type: "string",
       fieldType: "text",

@@ -2,7 +2,25 @@
 
 import connectorConfig from "../../../server/config";
 const testScenario = require("hull-connector-framework/src/test-scenario");
-const contactPropertyGroups = require("../fixtures/get-contacts-groups");
+const contactPropertyGroups = [
+  ...require("../fixtures/get-contacts-groups"),
+  {
+    "name": "hull",
+    "displayName": "Hull Properties",
+    "displayOrder": 1,
+    "hubspotDefined": false,
+    "properties": [
+      {
+        "name": "hull_segments",
+        "label": "Hull Segments",
+        "groupName": "hull",
+        "type": "enumeration",
+        "fieldType": "checkbox",
+        "options": [],
+        "readOnlyValue": false
+      }
+    ]
+  }];
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 process.env.CLIENT_ID = "123";
@@ -15,38 +33,18 @@ const connector = {
     mark_deleted_contacts: false,
     mark_deleted_companies: false,
     outgoing_user_attributes: [
-      { "service": "city", "hull": "traits_hubspot/address_city" },
-      { "service": "country", "hull": "traits_hubspot/address_country" },
-      { "service": "zip", "hull": "traits_hubspot/address_postal_code" },
-      { "service": "state", "hull": "traits_hubspot/address_state" },
-      { "service": "address", "hull": "traits_hubspot/address_street" },
-      { "service": "annualrevenue", "hull": "traits_hubspot/annual_revenue" },
-      { "service": "associatedcompanyid", "hull": "traits_hubspot/associatedcompanyid" },
-      { "service": "closedate", "hull": "traits_hubspot/closed_at" },
-      { "service": "company", "hull": "traits_hubspot/company" },
-      { "service": "email", "hull": "traits_hubspot/email" },
-      { "service": "numemployees", "hull": "traits_hubspot/employees_count" },
-      { "service": "fax", "hull": "traits_hubspot/fax" },
-      { "service": "firstname", "hull": "traits_hubspot/first_name" },
-      { "service": "hubspot_owner_id", "hull": "traits_hubspot/hubspot_owner_id" },
-      { "service": "industry", "hull": "traits_hubspot/industry" },
-      { "service": "jobtitle", "hull": "traits_hubspot/job_title" },
-      { "service": "lastname", "hull": "traits_hubspot/last_name" },
-      { "service": "hs_lead_status", "hull": "traits_hubspot/lead_status" },
-      { "service": "lifecyclestage", "hull": "traits_hubspot/lifecycle_stage" },
-      { "service": "message", "hull": "traits_hubspot/message" },
-      { "service": "mobilephone", "hull": "traits_hubspot/mobile_phone" },
-      { "service": "phone", "hull": "traits_hubspot/phone" },
-      { "service": "salutation", "hull": "traits_hubspot/salutation" },
-      { "service": "website", "hull": "traits_hubspot/website" }
+      { "hull": "'hubspot/email'", "service": "email", "overwrite": true },
+      { "hull": "'hubspot/lead_status'[]", "service": 'hs_lead_status', "overwrite": true },
+      { "hull": "traits_hubspot/hs_email_quarantined_reason", "service": "hs_email_quarantined_reason", "overwrite": true },
+      { "hull": "traits_hubspot/annualrevenue", "service": "annualrevenue", "overwrite": true },
+      { "hull": "account.hubspot/industry", "service": "industry", "overwrite": true },
+      { "hull": "segments.name[]", "service": "hull_segments", "overwrite": true }
     ]
   }
 };
 const usersSegments = [
-  {
-    name: "User Segment 1",
-    id: "user_segment_1"
-  }
+  { name: "User Segment 1", id: "user_segment_1" },
+  { name: "User Segment 2", id: "user_segment_2" }
 ];
 
 it("should send out a hull user to hubspot using known hubspot id", () => {
@@ -64,31 +62,11 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
           .reply(200, []);
         scope.post("/contacts/v1/contact/batch/?auditId=Hull", [{
             "properties": [
-              {"property":"city","value":"some value"},
-              {"property":"country","value":"some value"},
-              {"property":"zip","value":"some value"},
-              {"property":"state","value":"some value"},
-              {"property":"address","value":"some value"},
-              {"property":"annualrevenue","value":"some value"},
-              {"property":"associatedcompanyid","value":"some value"},
-              {"property":"closedate","value":"some value"},
-              {"property":"company","value":"some value"},
               {"property":"email","value":"email@email.com"},
-              {"property":"numemployees","value":"some value"},
-              {"property":"fax","value":"some value"},
-              {"property":"firstname","value":"some value"},
-              {"property":"hubspot_owner_id","value":"some value"},
-              {"property":"industry","value":"some value"},
-              {"property":"jobtitle","value":"some value"},
-              {"property":"lastname","value":"some value"},
-              {"property":"hs_lead_status","value":"some value"},
-              {"property":"lifecyclestage","value":"some value"},
-              {"property":"message","value":"some value"},
-              {"property":"mobilephone","value":"some value"},
-              {"property":"phone","value":"some value"},
-              {"property":"salutation","value":"some value"},
-              {"property":"website","value":"some value"},
-              {"property":"hull_segments","value":"User Segment 1"}
+              {"property":"hs_lead_status","value":"status 1"},
+              {"property":"hs_email_quarantined_reason","value":"reason 1;reason 2;reason 3"},
+              {"property":"industry","value":"software"},
+              {"property":"hull_segments","value":"User Segment 1;User Segment 2"}
             ],
             "vid": "existingContactId",
             "email": "email@email.com"
@@ -101,79 +79,21 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
       accountsSegments: [],
       messages: [
         {
+          account: {
+            "hubspot/industry": "software"
+          },
           user: {
             email,
-            "hubspot/id": "existingContactId",
-            "hubspot/email": "email@email.com",
-            "hubspot/days_to_close": "some value",
-            "hubspot/first_deal_created_at": "some value",
-            "hubspot/lead_status": "some value",
-            "hubspot/owner_assigned_at": "some value",
-            "hubspot/updated_at": "some value",
-            "hubspot/associated_deals_count": "some value",
-            "hubspot/recent_deal_amount": "some value",
-            "hubspot/recent_deal_closed_at": "some value",
-            "hubspot/total_revenue": "some value",
-            "hubspot/first_name": "some value",
-            "hubspot/last_name": "some value",
-            "hubspot/salutation": "some value",
-            "hubspot/mobile_phone": "some value",
-            "hubspot/phone": "some value",
-            "hubspot/fax": "some value",
-            "hubspot/address_street": "some value",
-            "hubspot/hubspot_owner_id": "some value",
-            "hubspot/notes_last_contacted_at": "some value",
-            "hubspot/last_activity_at": "some value",
-            "hubspot/next_activity_at": "some value",
-            "hubspot/contacted_notes_count": "some value",
-            "hubspot/notes_count": "some value",
-            "hubspot/address_city": "some value",
-            "hubspot/address_state": "some value",
-            "hubspot/address_postal_code": "some value",
-            "hubspot/address_country": "some value",
-            "hubspot/job_title": "some value",
-            "hubspot/message": "some value",
-            "hubspot/closed_at": "some value",
-            "hubspot/became_lead_at": "some value",
-            "hubspot/became_marketing_qualified_lead_at": "some value",
-            "hubspot/became_opportunity_at": "some value",
-            "hubspot/lifecycle_stage": "some value",
-            "hubspot/became_sales_qualified_lead_at": "some value",
-            "hubspot/created_at": "some value",
-            "hubspot/became_evangelist_at": "some value",
-            "hubspot/became_customer_at": "some value",
-            "hubspot/company": "some value",
-            "hubspot/became_subscriber_at": "some value",
-            "hubspot/became_other_at": "some value",
-            "hubspot/website": "some value",
-            "hubspot/employees_count": "some value",
-            "hubspot/annual_revenue": "some value",
-            "hubspot/industry": "some value",
-            "hubspot/associatedcompanyid": "some value",
-            "hubspot/opened_count": "some value",
-            "hubspot/emails_bounced_count": "some value",
-            "hubspot/email_optout": "some value"
+            "traits_hubspot/id": "existingContactId",
+            "traits_hubspot/email": "email@email.com",
+            "traits_hubspot/lead_status": "status 1",
+            "traits_hubspot/hs_email_quarantined_reason": ["reason 1", "reason 2", "reason 3"]
           },
-          segments: [{ id: "user_segment_1", name: "User Segment 1" }],
-          changes: {
-            is_new: false,
-            user: {},
-            account: {},
-            segments: {
-              left: [{ id: "5bffc38f625718d58b000004" }]
-            },
-            account_segments: {}
-          }
+          segments: [{ id: "user_segment_1", name: "User Segment 1" },{ id: "user_segment_2", name: "User Segment 2" }],
+          changes: { segments: { left: [{ id: "5bffc38f625718d58b000004" }] } }
         }
       ],
-      response: {
-        flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
-          type: "next"
-        }
-      },
+      response: { flow_control: { in: 5, in_time: 10, size: 10, type: "next" } },
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
@@ -185,31 +105,11 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
           { hubspotWriteContact: {"vid": "existingContactId", "email": "email@email.com",
               "properties": [
-                {"property":"city","value":"some value"},
-                {"property":"country","value":"some value"},
-                {"property":"zip","value":"some value"},
-                {"property":"state","value":"some value"},
-                {"property":"address","value":"some value"},
-                {"property":"annualrevenue","value":"some value"},
-                {"property":"associatedcompanyid","value":"some value"},
-                {"property":"closedate","value":"some value"},
-                {"property":"company","value":"some value"},
                 {"property":"email","value":"email@email.com"},
-                {"property":"numemployees","value":"some value"},
-                {"property":"fax","value":"some value"},
-                {"property":"firstname","value":"some value"},
-                {"property":"hubspot_owner_id","value":"some value"},
-                {"property":"industry","value":"some value"},
-                {"property":"jobtitle","value":"some value"},
-                {"property":"lastname","value":"some value"},
-                {"property":"hs_lead_status","value":"some value"},
-                {"property":"lifecyclestage","value":"some value"},
-                {"property":"message","value":"some value"},
-                {"property":"mobilephone","value":"some value"},
-                {"property":"phone","value":"some value"},
-                {"property":"salutation","value":"some value"},
-                {"property":"website","value":"some value"},
-                {"property":"hull_segments","value":"User Segment 1"}
+                {"property":"hs_lead_status","value":"status 1"},
+                {"property":"hs_email_quarantined_reason","value":"reason 1;reason 2;reason 3"},
+                {"property":"industry","value":"software"},
+                {"property":"hull_segments","value":"User Segment 1;User Segment 2"}
               ]
             }}
         ]

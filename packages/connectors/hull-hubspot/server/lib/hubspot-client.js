@@ -61,10 +61,6 @@ class HubspotClient {
 
   settingsUpdate: Function;
 
-  incomingAccountIdentHull: string;
-
-  incomingAccountIdentService: string;
-
   constructor(ctx: HullContext) {
     this.connector = ctx.connector;
     this.client = ctx.client;
@@ -206,6 +202,7 @@ class HubspotClient {
    * and getting another 100 - needs to be processed in one queue without
    * any concurrency
    * @see http://developers.hubspot.com/docs/methods/contacts/get_contacts
+   * @param properties
    * @param  {Number} [count=100]
    * @param  {Number} [offset=0]
    * @return {Promise}
@@ -258,7 +255,8 @@ class HubspotClient {
    * and getting another 100 - needs to be processed in one queue without
    * any concurrency
    * @see http://developers.hubspot.com/docs/methods/contacts/get_contacts
-   * @param  {Number} [count=100]
+   * @param properties
+   * @param limit
    * @param  {Number} [offset=0]
    * @return {Promise}
    */
@@ -309,8 +307,7 @@ class HubspotClient {
    * time if older that the lastFetchAt. If there are any contacts modified since
    * that time queues import of them and getting next chunk from hubspot API.
    * @see http://developers.hubspot.com/docs/methods/contacts/get_recently_updated_contacts
-   * @param  {Date} lastFetchAt
-   * @param  {Date} stopFetchAt
+   * @param properties
    * @param  {Number} [count=100]
    * @param  {Number} [offset=0]
    * @return {Promise -> Array}
@@ -540,38 +537,6 @@ class HubspotClient {
     });
   }
 
-  getCompanyVids(companyId: string, vidOffset?: string) {
-    return this.retryUnauthorized(() => {
-      return this.agent
-        .get("/companies/v2/companies/{{companyId}}/vids")
-        .tmplVar({
-          companyId
-        })
-        .query({
-          vidOffset
-        });
-    });
-  }
-
-  getCompanyVidsStream(companyId: string) {
-    return promiseToReadableStream(push => {
-      const getCompanyVidsPage = (offset?: string) => {
-        return this.getCompanyVids(companyId, offset).then(response => {
-          const vids = response.body.vids || [];
-          if (vids.length > 0) {
-            push(vids);
-          }
-          if (response.body.hasMore) {
-            return getCompanyVidsPage(response.body.vidOffset);
-          }
-          return Promise.resolve();
-        });
-      };
-
-      return getCompanyVidsPage();
-    });
-  }
-
   getRecentlyUpdatedCompanies(
     properties: Array<string>,
     count: number = 100,
@@ -616,7 +581,6 @@ class HubspotClient {
           });
           const hasMore = response.body.hasMore;
           const newOffset = response.body.offset;
-          // const timeOffset = response.body["time-offset"];
           if (companies.length > 0) {
             push(companies);
           }
@@ -628,12 +592,6 @@ class HubspotClient {
         });
       };
       return getRecentCompaniesPage(offset);
-    });
-  }
-
-  async getCompany(companyId: string): Promise<HubspotGetCompanyResponse> {
-    return this.retryUnauthorized(() => {
-      return this.agent.get(`/companies/v2/companies/${companyId}`);
     });
   }
 }

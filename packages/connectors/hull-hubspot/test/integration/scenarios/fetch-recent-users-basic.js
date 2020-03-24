@@ -2,6 +2,7 @@
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const _ = require("lodash");
+const contactPropertyGroups = require("../fixtures/get-contacts-groups");
 import connectorConfig from "../../../server/config";
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
@@ -27,24 +28,12 @@ it("should fetch recent users using settings", () => {
       externalApiMock: () => {
         const scope = nock("https://api.hubapi.com");
         scope.get("/contacts/v2/groups?includeProperties=true")
-          .reply(200, []);
+          .reply(200, contactPropertyGroups);
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, []);
-        scope.get("/contacts/v1/lists/recently_updated/contacts/recent")
-          .query({
-            // timeOffset: null,
-            // vidOffset: null,
-            property: "email",
-            count: 100
-          })
+        scope.get("/contacts/v1/lists/recently_updated/contacts/recent?property=email&property=annualrevenue&property=associatedcompanyid&property=num_associated_deals&property=hs_lifecyclestage_customer_date&property=hs_lifecyclestage_lead_date&property=hs_lifecyclestage_marketingqualifiedlead_date&property=hs_lifecyclestage_salesqualifiedlead_date&property=hs_lifecyclestage_subscriber_date&property=hs_lifecyclestage_evangelist_date&property=hs_lifecyclestage_opportunity_date&property=hs_lifecyclestage_other_date&property=city&property=closedate&property=company&property=hubspot_owner_id&property=country&property=createdate&property=days_to_close&property=fax&property=first_deal_created_date&property=firstname&property=industry&property=jobtitle&property=notes_last_updated&property=notes_last_contacted&property=lastmodifieddate&property=lastname&property=hs_lead_status&property=lifecyclestage&property=hs_email_bounce&property=hs_email_open&property=message&property=mobilephone&property=notes_next_activity_date&property=numemployees&property=num_notes&property=num_contacted_notes&property=hubspot_owner_assigneddate&property=phone&property=zip&property=recent_deal_amount&property=recent_deal_close_date&property=salutation&property=state&property=address&property=total_revenue&property=hs_email_optout&property=website&property=email&count=100")
           .reply(200, incomingData);
-        scope.get("/contacts/v1/lists/recently_updated/contacts/recent")
-          .query({
-            timeOffset: 1484854580823,
-            vidOffset: 3714024,
-            property: "email",
-            count: 100
-          })
+        scope.get("/contacts/v1/lists/recently_updated/contacts/recent?vidOffset=3714024&timeOffset=1484854580823&property=email&property=annualrevenue&property=associatedcompanyid&property=num_associated_deals&property=hs_lifecyclestage_customer_date&property=hs_lifecyclestage_lead_date&property=hs_lifecyclestage_marketingqualifiedlead_date&property=hs_lifecyclestage_salesqualifiedlead_date&property=hs_lifecyclestage_subscriber_date&property=hs_lifecyclestage_evangelist_date&property=hs_lifecyclestage_opportunity_date&property=hs_lifecyclestage_other_date&property=city&property=closedate&property=company&property=hubspot_owner_id&property=country&property=createdate&property=days_to_close&property=fax&property=first_deal_created_date&property=firstname&property=industry&property=jobtitle&property=notes_last_updated&property=notes_last_contacted&property=lastmodifieddate&property=lastname&property=hs_lead_status&property=lifecyclestage&property=hs_email_bounce&property=hs_email_open&property=message&property=mobilephone&property=notes_next_activity_date&property=numemployees&property=num_notes&property=num_contacted_notes&property=hubspot_owner_assigneddate&property=phone&property=zip&property=recent_deal_amount&property=recent_deal_close_date&property=salutation&property=state&property=address&property=total_revenue&property=hs_email_optout&property=website&property=email&count=100")
           .reply(200, { contacts: [], "has-more": false, "time-offset": 0 });
         return scope;
       },
@@ -54,10 +43,7 @@ it("should fetch recent users using settings", () => {
       response: {"status": "deferred"},
       logs: [
         ["info", "incoming.job.start", expect.whatever(), {jobName: "Incoming Data", type: "webpayload"}],
-        [
-          "debug",
-          "connector.service_api.call",
-          expect.whatever(),
+        ["debug", "connector.service_api.call", expect.whatever(),
           expect.objectContaining({
             method: "GET",
             status: 200,
@@ -67,121 +53,142 @@ it("should fetch recent users using settings", () => {
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "GET", "status": 200, "url": "/properties/v1/companies/groups" })],
         ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "GET", "status": 200, "url": "/contacts/v1/lists/recently_updated/contacts/recent" })],
         ["debug", "saveContacts", {}, 2],
-        [
-          "debug",
-          "incoming.user",
-          {},
+        ["debug", "incoming.user", {},
           {
-            claims: { email: "testingapis@hubspot.com", anonymous_id: "hubspot:3234574" },
-            traits: { "hubspot/id": 3234574 }
-          }
-        ],
-        [
-          "debug", "incoming.account.link.skip",
-          {
-            subject_type: "user", user_email: "testingapis@hubspot.com", user_anonymous_id: "hubspot:3234574"
-          },
-          {
-            reason: "incoming linking is disabled, you can enabled it in the settings"
-          }
-        ],
-        [
-          "debug",
-          "incoming.user",
-          {},
-          {
-            claims: {
-              anonymous_id: "hubspot:3714024",
-              email: "new-email@hubspot.com"
+            "claims": {
+              "email": "testingapis@hubspot.com",
+              "anonymous_id": "hubspot:3234574"
             },
-            traits: {
-              "hubspot/id": 3714024
+            "traits": {
+              "hubspot/id": 3234574,
+              "hubspot/company": "HubSpot",
+              "hubspot/first_name": "Jeff",
+              "hubspot/updated_at": "1484858431084",
+              "hubspot/last_name": "Testing",
+              "first_name": {
+                "operation": "setIfNull",
+                "value": "Jeff"
+              },
+              "last_name": {
+                "operation": "setIfNull",
+                "value": "Testing"
+              }
             }
           }
         ],
-        [
-          "debug", "incoming.account.link.skip",
-          {
-            subject_type: "user",
-            user_anonymous_id: "hubspot:3714024",
-            user_email: "new-email@hubspot.com",
-          },
-          {
-            reason: "incoming linking is disabled, you can enabled it in the settings"
-          }
+        ["debug", "incoming.account.link.skip",
+          { subject_type: "user", user_email: "testingapis@hubspot.com", user_anonymous_id: "hubspot:3234574" },
+          { reason: "incoming linking is disabled, you can enabled it in the settings" }
         ],
-        [
-          "debug", "incoming.user.success",
+        ["debug", "incoming.user", {},
           {
-            subject_type: "user",
-            user_anonymous_id: "hubspot:3234574",
-            user_email: "testingapis@hubspot.com",
-          },
-          {
-            traits: {
-              "hubspot/id": 3234574
+            "claims": {
+              "email": "new-email@hubspot.com",
+              "anonymous_id": "hubspot:3714024"
+            },
+            "traits": {
+              "hubspot/id": 3714024,
+              "hubspot/first_name": "Updated",
+              "hubspot/updated_at": "1484854580823",
+              "hubspot/last_name": "Record",
+              "first_name": {
+                "operation": "setIfNull",
+                "value": "Updated"
+              },
+              "last_name": {
+                "operation": "setIfNull",
+                "value": "Record"
+              }
             }
           }
         ],
-        [
-          "debug", "incoming.user.success",
-          {
-            subject_type: "user",
-            user_anonymous_id: "hubspot:3714024",
-            user_email: "new-email@hubspot.com",
-          },
+        ["debug", "incoming.account.link.skip",
+          { subject_type: "user", user_anonymous_id: "hubspot:3714024", user_email: "new-email@hubspot.com", },
+          { reason: "incoming linking is disabled, you can enabled it in the settings" }
+        ],
+        ["debug", "incoming.user.success",
+          { subject_type: "user", user_anonymous_id: "hubspot:3234574", user_email: "testingapis@hubspot.com", },
           {
             traits: {
-              "hubspot/id": 3714024
+              "hubspot/id": 3234574,
+              "hubspot/company": "HubSpot",
+              "hubspot/first_name": "Jeff",
+              "hubspot/updated_at": "1484858431084",
+              "hubspot/last_name": "Testing",
+              "first_name": {
+                "operation": "setIfNull",
+                "value": "Jeff"
+              },
+              "last_name": {
+                "operation": "setIfNull",
+                "value": "Testing"
+              }
             }
           }
         ],
-        [
-          "debug",
-          "connector.service_api.call",
-          {},
-          expect.objectContaining({
-            method: "GET",
-            status: 200,
-            url: "/contacts/v1/lists/recently_updated/contacts/recent"
-          })
-        ],
-        [
-          "info",
-          "incoming.job.success",
-          {},
+        ["debug", "incoming.user.success",
+          { subject_type: "user", user_anonymous_id: "hubspot:3714024", user_email: "new-email@hubspot.com", },
           {
-            "jobName": "Incoming Data",
-            "type": "webpayload"
+            "traits": {
+              "hubspot/id": 3714024,
+              "hubspot/first_name": "Updated",
+              "hubspot/updated_at": "1484854580823",
+              "hubspot/last_name": "Record",
+              "first_name": {
+                "operation": "setIfNull",
+                "value": "Updated"
+              },
+              "last_name": {
+                "operation": "setIfNull",
+                "value": "Record"
+              }
+            }
           }
-        ]
+        ],
+        ["debug", "connector.service_api.call", {}, expect.objectContaining({ method: "GET", status: 200, url: "/contacts/v1/lists/recently_updated/contacts/recent" })],
+        ["info", "incoming.job.success", {}, { "jobName": "Incoming Data", "type": "webpayload" }]
       ],
       firehoseEvents: [
-        [
-          "traits",
+        ["traits",
+          { "asUser": { "email": "testingapis@hubspot.com", "anonymous_id": "hubspot:3234574" }, "subjectType": "user" },
           {
-            "asUser": {
-              email: "testingapis@hubspot.com",
-              anonymous_id: "hubspot:3234574"
+            "hubspot/id": 3234574,
+            "hubspot/company": "HubSpot",
+            "hubspot/first_name": "Jeff",
+            "hubspot/updated_at": "1484858431084",
+            "hubspot/last_name": "Testing",
+            "first_name": {
+              "operation": "setIfNull",
+              "value": "Jeff"
             },
-            "subjectType": "user",
-          },
-          {
-            "hubspot/id": 3234574
+            "last_name": {
+              "operation": "setIfNull",
+              "value": "Testing"
+            }
           }
         ],
-        [
-          "traits",
+        ["traits",
           {
             "asUser": {
-              anonymous_id: "hubspot:3714024",
-              email: "new-email@hubspot.com"
+              "email": "new-email@hubspot.com",
+              "anonymous_id": "hubspot:3714024"
             },
-            subjectType: "user",
+            "subjectType": "user"
           },
           {
             "hubspot/id": 3714024,
-          },
+            "hubspot/first_name": "Updated",
+            "hubspot/updated_at": "1484854580823",
+            "hubspot/last_name": "Record",
+            "first_name": {
+              "operation": "setIfNull",
+              "value": "Updated"
+            },
+            "last_name": {
+              "operation": "setIfNull",
+              "value": "Record"
+            }
+          }
         ]
       ],
       metrics: [
@@ -243,6 +250,7 @@ it("Should Fetch Contact With Mapped Incoming Attributes", () => {
                   "type": "enumeration",
                   "fieldType": "checkbox",
                   "hidden": false,
+                  "readOnlyValue": false,
                   "options": [
                     {
                       "readOnly": false,
@@ -250,16 +258,14 @@ it("Should Fetch Contact With Mapped Incoming Attributes", () => {
                       "hidden": false,
                       "value": "HubspotUsers",
                     }
-                  ],
-                  "formField": false,
-                  "readOnlyValue": false
+                  ]
                 }
               ]
             }
           ]);
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, []);
-        scope.get("/contacts/v1/lists/recently_updated/contacts/recent?property=job_function&property=contact_meta.merged-vids&property=email&count=100")
+        scope.get("/contacts/v1/lists/recently_updated/contacts/recent?property=job_function&property=email&count=100")
           .reply(200, {
               "contacts": [
                 {
@@ -285,7 +291,7 @@ it("Should Fetch Contact With Mapped Incoming Attributes", () => {
               "time-offset": 1484854580823
             }
           );
-        scope.get("/contacts/v1/lists/recently_updated/contacts/recent?vidOffset=3714024&timeOffset=1484854580823&property=job_function&property=contact_meta.merged-vids&property=email&count=100")
+        scope.get("/contacts/v1/lists/recently_updated/contacts/recent?vidOffset=3714024&timeOffset=1484854580823&property=job_function&property=email&count=100")
           .reply(200, { contacts: [], "has-more": false, "time-offset": 0 });
         return scope;
       },
@@ -295,19 +301,18 @@ it("Should Fetch Contact With Mapped Incoming Attributes", () => {
           last_fetch_at: 1419967066626,
           mark_deleted_contacts: false,
           mark_deleted_companies: false,
-          incoming_user_attributes:
-            [
-              {
-                service: 'job_function',
-                hull: 'traits_hubspot/job_function',
-                overwrite: false
-              },
-              {
-                service: 'contact_meta.merged-vids',
-                hull: 'traits_hubspot/merged_vids',
-                overwrite: false
-              }
-            ]
+          incoming_user_attributes: [
+            {
+              service: '$.properties.job_function.value',
+              hull: 'traits_hubspot/job_function',
+              overwrite: true
+            },
+            {
+              service: '$.`merged-vids`',
+              hull: 'traits_hubspot/merged_vids',
+              overwrite: true
+            }
+          ]
         }
       },
       usersSegments: [],
@@ -409,18 +414,20 @@ it("Should Fetch Contact With Missing Optional Claims", () => {
           last_fetch_at: 1419967066626,
           mark_deleted_contacts: false,
           mark_deleted_companies: false,
-          incoming_user_claims:
-            [{ hull: 'email',
-                service: 'properties.email.value',
-                required: false } ],
-          incoming_user_attributes:
-            [
-              {
-                service: 'job_function',
-                hull: 'traits_hubspot/job_function',
-                overwrite: false
-              }
-            ]
+          incoming_user_claims: [
+            {
+              hull: 'email',
+              service: 'properties.email.value',
+              required: false
+            }
+          ],
+          incoming_user_attributes: [
+            {
+              service: '$.properties.job_function.value',
+              hull: 'traits_hubspot/job_function',
+              overwrite: true
+            }
+          ]
         }
       },
       usersSegments: [],

@@ -212,16 +212,89 @@ class SyncAgent {
     return _.concat(propertyGroups, contactMetaGroup);
   }
 
-  async getContactProperties() {
+  async getCompanyPropertyGroups() {
+    return this.hubspotClient.getContactPropertyGroups();
+  }
+
+  async getContactProperties(direction: string) {
+    const groups = await this.cache.wrap("contact_properties", () =>
+      this.getContactPropertyGroups()
+    );
+    if (direction === "incoming") {
+      return this.getIncomingProperties(groups);
+    }
+    if (direction === "outgoing") {
+      return this.getOutgoingProperties(groups);
+    }
+
+    return {};
+  }
+
+  async getCompanyProperties(direction: string) {
+    const groups = await this.cache.wrap("company_properties", () =>
+      this.getCompanyPropertyGroups()
+    );
+    if (direction === "incoming") {
+      return this.getIncomingProperties(groups);
+    }
+    if (direction === "outgoing") {
+      return this.getOutgoingProperties(groups);
+    }
+
+    return {};
+  }
+
+  async getOutgoingProperties(groups: Object) {
     try {
-      const groups = await this.cache.wrap("contact_properties", () =>
-        this.getContactPropertyGroups()
-      );
+      return {
+        options: groups.map(({ displayName, properties }) => {
+          return {
+            label: displayName,
+            options: _.chain(properties)
+              .map(({ label, name }) => ({ label, value: name }))
+              .value()
+          };
+        })
+      };
+    } catch (err) {
+      return { options: [] };
+    }
+  }
+
+  async getIncomingProperties(groups: Object) {
+    try {
       return {
         options: groups.map(group => ({
           label: group.displayName,
           options: _.chain(group.properties)
-            .map(({ label, name: value }) => ({ label, value }))
+            .map(({ label, name: value, type, fieldType }) => {
+              if (label === "Contact ID") {
+                return {
+                  label,
+                  value: "$.`canonical-vid` ? $.`canonical-vid` : $.`vid`"
+                };
+              }
+
+              if (label === "Company ID") {
+                return {
+                  label,
+                  value: "$.companyId"
+                };
+              }
+
+              if (group.name === "contactmeta") {
+                return { label, value: `$.\`${value}\`` };
+              }
+
+              if (type === "enumeration" && fieldType === "checkbox") {
+                return {
+                  label,
+                  value: `$.properties.${value}.value.$split(";")`
+                };
+              }
+
+              return { label, value: `$.properties.${value}.value` };
+            })
             .value()
         }))
       };
@@ -271,26 +344,6 @@ class SyncAgent {
         }))
       ]
     };
-  }
-
-  async getCompanyProperties() {
-    try {
-      const groups = await this.cache.wrap("company_properties", () =>
-        this.hubspotClient.getCompanyPropertyGroups()
-      );
-      return {
-        options: groups.map(({ displayName, properties }) => {
-          return {
-            label: displayName,
-            options: _.chain(properties)
-              .map(({ label, name }) => ({ label, value: name }))
-              .value()
-          };
-        })
-      };
-    } catch (err) {
-      return { options: [] };
-    }
   }
 
   /**
@@ -379,11 +432,6 @@ class SyncAgent {
                   error
                 );
               });
-          } else {
-            // asUser.logger.debug("incoming.account.link.skip", {
-            //   reason:
-            //     "No associatedcompanyid field found in user to link account"
-            // });
           }
         } else {
           asUser.logger.debug("incoming.account.link.skip", {
@@ -699,7 +747,6 @@ class SyncAgent {
     message: HullUserUpdateMessage | HullAccountUpdateMessage,
     serviceType: ServiceType
   ): HubspotUserUpdateMessageEnvelope | HubspotAccountUpdateMessageEnvelope {
-    // TODO verify this is needed or not
     if (serviceType === "contact") {
       message.user.account = message.account;
     }
@@ -715,7 +762,14 @@ class SyncAgent {
   }
 
   async getContactPropertiesKeys() {
-    return this.mappingUtil.getHubspotContactPropertiesKeys();
+    const {
+      incoming_user_claims,
+      incoming_user_attributes
+    } = this.connector.private_settings;
+    return this.mappingUtil.getHubspotPropertyKeys({
+      identityClaims: incoming_user_claims,
+      attributeMapping: incoming_user_attributes
+    });
   }
 
   /**
@@ -730,7 +784,14 @@ class SyncAgent {
         .subtract(1, "hour")
         .format();
     const stopFetchAt = moment().format();
-    const propertiesToFetch = this.mappingUtil.getHubspotContactPropertiesKeys();
+    const {
+      incoming_user_claims,
+      incoming_user_attributes
+    } = this.connector.private_settings;
+    const propertiesToFetch = this.mappingUtil.getHubspotPropertyKeys({
+      identityClaims: incoming_user_claims,
+      attributeMapping: incoming_user_attributes
+    });
     let progress = 0;
 
     this.hullClient.logger.info("incoming.job.start", {
@@ -780,7 +841,14 @@ class SyncAgent {
    */
   async fetchAllContacts(): Promise<any> {
     await this.initialize();
-    const propertiesToFetch = this.mappingUtil.getHubspotContactPropertiesKeys();
+    const {
+      incoming_account_claims,
+      incoming_account_attributes
+    } = this.connector.private_settings;
+    const propertiesToFetch = this.mappingUtil.getHubspotPropertyKeys({
+      identityClaims: incoming_account_claims,
+      attributeMapping: incoming_account_attributes
+    });
     let progress = 0;
 
     this.hullClient.logger.info("incoming.job.start", {
@@ -833,7 +901,14 @@ class SyncAgent {
         .subtract(1, "hour")
         .format();
     const stopFetchAt = moment().format();
-    const propertiesToFetch = this.mappingUtil.getHubspotCompanyPropertiesKeys();
+    const {
+      incoming_account_claims,
+      incoming_account_attributes
+    } = this.connector.private_settings;
+    const propertiesToFetch = this.mappingUtil.getHubspotPropertyKeys({
+      identityClaims: incoming_account_claims,
+      attributeMapping: incoming_account_attributes
+    });
     let progress = 0;
 
     this.hullClient.logger.info("incoming.job.start", {
