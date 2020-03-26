@@ -16,7 +16,7 @@ const incomingData = [
       {
         "name": "hull_segments",
         "label": "Hull Segments",
-        "description": "All the Segments the Account belongs to in Hull",
+        "description": "All the Segments the entity belongs to in Hull",
         "groupName": "hull",
         "options": []
       }

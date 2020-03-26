@@ -29,8 +29,7 @@ const defaultIncomingGroupMapping = require("./sync-agent/mapping/default-incomi
 const defaultOutgoingGroupMapping = require("./sync-agent/mapping/default-outgoing-group");
 
 const HubspotClient = require("./hubspot-client");
-const ContactPropertyUtil = require("./sync-agent/contact-property-util");
-const CompanyPropertyUtil = require("./sync-agent/company-property-util");
+const HubspotPropertyUtil = require("./sync-agent/hubspot-property-util");
 const MappingUtil = require("./sync-agent/mapping-util");
 const ProgressUtil = require("./sync-agent/progress-util");
 const FilterUtil = require("./sync-agent/filter-util");
@@ -40,9 +39,9 @@ const hullClientAccountPropertiesUtil = require("../hull-client-account-properti
 class SyncAgent {
   hubspotClient: HubspotClient;
 
-  contactPropertyUtil: ContactPropertyUtil;
+  contactPropertyUtil: HubspotPropertyUtil;
 
-  companyPropertyUtil: CompanyPropertyUtil;
+  companyPropertyUtil: HubspotPropertyUtil;
 
   mappingUtil: MappingUtil;
 
@@ -102,8 +101,8 @@ class SyncAgent {
 
   isInitialized(): boolean {
     return (
-      this.contactPropertyUtil instanceof ContactPropertyUtil &&
-      this.companyPropertyUtil instanceof CompanyPropertyUtil &&
+      this.contactPropertyUtil instanceof HubspotPropertyUtil &&
+      this.companyPropertyUtil instanceof HubspotPropertyUtil &&
       this.mappingUtil instanceof MappingUtil
     );
   }
@@ -148,28 +147,21 @@ class SyncAgent {
         });
       }
     );
-    debug("initialize", {
-      usersSegments: typeof this.usersSegments,
-      accountsSegments: typeof this.accountsSegments,
-      hubspotContactProperties: typeof hubspotContactProperties,
-      hubspotCompanyProperties: typeof hubspotCompanyProperties,
-      hullUserProperties: typeof hullUserProperties,
-      hullAccountProperties: typeof hullAccountProperties
-    });
-    this.contactPropertyUtil = new ContactPropertyUtil({
+
+    this.contactPropertyUtil = new HubspotPropertyUtil({
       hubspotClient: this.hubspotClient,
       logger: this.logger,
       metric: this.metric,
-      usersSegments: this.usersSegments,
+      segments: this.usersSegments,
       hubspotProperties: hubspotContactProperties,
       hullProperties: hullUserProperties
     });
 
-    this.companyPropertyUtil = new CompanyPropertyUtil({
+    this.companyPropertyUtil = new HubspotPropertyUtil({
       hubspotClient: this.hubspotClient,
       logger: this.logger,
       metric: this.metric,
-      accountsSegments: this.accountsSegments,
+      segments: this.accountsSegments,
       hubspotProperties: hubspotCompanyProperties,
       hullProperties: hullAccountProperties
     });
@@ -351,8 +343,14 @@ class SyncAgent {
     try {
       await this.initialize({ skipCache: true });
 
-      await this.contactPropertyUtil.sync(this.mappingUtil.contactSchema);
-      await this.companyPropertyUtil.sync(this.mappingUtil.companySchema);
+      await this.contactPropertyUtil.sync(
+        "contact",
+        this.mappingUtil.contactSchema
+      );
+      await this.companyPropertyUtil.sync(
+        "company",
+        this.mappingUtil.companySchema
+      );
     } catch (error) {
       this.hullClient.logger.error("outgoing.job.error", {
         error: error.message

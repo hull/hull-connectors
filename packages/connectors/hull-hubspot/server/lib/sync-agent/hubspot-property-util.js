@@ -5,7 +5,8 @@ import type {
   HubspotSchema,
   HubspotPropertyGroup,
   HubspotProperty,
-  HubspotPropertyWrite
+  HubspotPropertyWrite,
+  ServiceType
 } from "../../types";
 
 const _ = require("lodash");
@@ -41,14 +42,14 @@ const TYPES_MAPPING = {
   }
 };
 
-class CompanyPropertyUtil {
+class HubspotPropertyUtil {
   hubspotClient: Object;
 
   logger: Object;
 
   metric: Object;
 
-  accountsSegments: Array<HullSegment>;
+  segments: Array<HullSegment>;
 
   hubspotProperties: Array<HubspotPropertyGroup>;
 
@@ -58,28 +59,32 @@ class CompanyPropertyUtil {
     logger,
     metric,
     hubspotClient,
-    accountsSegments,
+    segments,
     hubspotProperties,
     hullProperties
   }: Object) {
     this.hubspotClient = hubspotClient;
     this.logger = logger;
     this.metric = metric;
-    this.accountsSegments = accountsSegments;
+    this.segments = segments;
 
     this.hubspotProperties = hubspotProperties;
     this.hullProperties = hullProperties;
   }
 
-  sync(outboundMapping: Array<HubspotSchema>): Promise<*> {
-    const uniqueSegments = _.uniqBy(this.accountsSegments, "name");
+  sync(
+    serviceType: ServiceType,
+    outboundMapping: Array<HubspotSchema>
+  ): Promise<*> {
+    const uniqueSegments = _.uniqBy(this.segments, "name");
     const expectedPropertiesList = this.getPropertiesList(
       uniqueSegments,
       outboundMapping
     );
-    return this.ensureHullGroup(this.hubspotProperties)
+    return this.ensureHullGroup(serviceType, this.hubspotProperties)
       .then(() =>
         this.ensureCustomProperties(
+          serviceType,
           this.hubspotProperties,
           expectedPropertiesList
         )
@@ -91,22 +96,26 @@ class CompanyPropertyUtil {
       });
   }
 
-  ensureHullGroup(hubspotProperties: Array<HubspotPropertyGroup>) {
+  ensureHullGroup(
+    serviceType: ServiceType,
+    hubspotProperties: Array<HubspotPropertyGroup>
+  ) {
     const group = _.find(hubspotProperties, g => g.name === "hull");
     if (group) {
       return Promise.resolve(group);
     }
-    return this.hubspotClient.agent
-      .post("/properties/v1/companies/groups")
-      .send({
-        name: "hull",
-        displayName: "Hull Properties",
-        displayOrder: 1
-      })
-      .then(res => res.body);
+    if (serviceType === "contact") {
+      return this.hubspotClient.postContactPropertyGroups();
+    }
+    if (serviceType === "company") {
+      return this.hubspotClient.postCompanyPropertyGroups();
+    }
+
+    return [];
   }
 
   ensureCustomProperties(
+    serviceType: ServiceType,
     hubspotGroupProperties: Array<HubspotPropertyGroup>,
     expectedPropertiesList: Array<HubspotPropertyWrite>
   ) {
@@ -117,17 +126,18 @@ class CompanyPropertyUtil {
     }, {});
     return Promise.all(
       expectedPropertiesList.map(property =>
-        this.ensureProperty(flattenProperties, property)
+        this.ensureProperty(serviceType, flattenProperties, property)
       )
     ).then((...props) =>
       this.logger.debug(
-        "CompanyProperty.ensureCustomProperties",
+        `${_.upperFirst(serviceType)}Property.ensureCustomProperties`,
         _.map(props[0], p => p.name)
       )
     );
   }
 
   shouldUpdateProperty(
+    serviceType: ServiceType,
     currentValue: HubspotProperty,
     newValue: HubspotPropertyWrite
   ): boolean {
@@ -142,6 +152,7 @@ class CompanyPropertyUtil {
   }
 
   ensureProperty(
+    serviceType: ServiceType,
     groupProperties: { [string]: HubspotProperty },
     property: HubspotPropertyWrite
   ) {
@@ -149,19 +160,25 @@ class CompanyPropertyUtil {
       groupProperties[property.name] ||
       groupProperties[property.name.replace(/^hull_/, "")];
     if (existing) {
-      if (this.shouldUpdateProperty(existing, property)) {
-        return this.hubspotClient.agent
-          .put(`/properties/v1/companies/properties/named/${property.name}`)
-          .send(property)
-          .then(res => res.body);
+      if (this.shouldUpdateProperty(serviceType, existing, property)) {
+        if (serviceType === "contact") {
+          return this.hubspotClient.updateContactProperty(property);
+        }
+        if (serviceType === "company") {
+          return this.hubspotClient.updateCompanyProperty(property);
+        }
       }
       return Promise.resolve(existing);
     }
 
-    return this.hubspotClient.agent
-      .post("/properties/v1/companies/properties")
-      .send(property)
-      .then(res => res.body);
+    if (serviceType === "contact") {
+      return this.hubspotClient.createContactProperty(property);
+    }
+    if (serviceType === "company") {
+      return this.hubspotClient.createCompanyProperty(property);
+    }
+
+    return [];
   }
 
   getPropertiesList(
@@ -221,7 +238,7 @@ class CompanyPropertyUtil {
     );
     return {
       options,
-      description: "All the Segments the Account belongs to in Hull",
+      description: "All the Segments the entity belongs to in Hull",
       label: "Hull Segments",
       groupName: "hull",
       fieldType: "checkbox",
@@ -245,4 +262,4 @@ class CompanyPropertyUtil {
   }
 }
 
-module.exports = CompanyPropertyUtil;
+module.exports = HubspotPropertyUtil;

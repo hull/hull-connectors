@@ -168,7 +168,7 @@ it("should send out a new hull user to hubspot - validation error", () => {
                 "displayOrder": 2
               }
             ],
-            "description": "All the Segments the User belongs to in Hull",
+            "description": "All the Segments the entity belongs to in Hull",
             "label": "Hull Segments",
             "groupName": "hull",
             "fieldType": "checkbox",

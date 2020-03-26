@@ -9,7 +9,8 @@ import type {
   HubspotReadContact,
   HubspotWriteContact,
   HubspotWriteCompany,
-  HubspotReadCompany
+  HubspotReadCompany,
+  HubspotProperty
 } from "../types";
 
 declare type HubspotGetAllContactsResponse = {
@@ -29,11 +30,6 @@ declare type HubspotGetAllCompaniesResponse = {
     "has-more": boolean,
     offset: string
   }
-};
-
-declare type HubspotGetCompanyResponse = {
-  ...IncomingMessage,
-  body: HubspotReadCompany
 };
 
 const _ = require("lodash");
@@ -534,6 +530,64 @@ class HubspotClient {
         })
         .then(response => response.body);
     });
+  }
+
+  postCompanyPropertyGroups(): Promise<Array<HubspotPropertyGroup>> {
+    return this.agent
+      .post("/properties/v1/companies/groups")
+      .send({
+        name: "hull",
+        displayName: "Hull Properties",
+        displayOrder: 1
+      })
+      .then(res => res.body);
+  }
+
+  postContactPropertyGroups(): Promise<Array<HubspotPropertyGroup>> {
+    return this.agent
+      .post("/contacts/v2/groups")
+      .send({
+        name: "hull",
+        displayName: "Hull Properties",
+        displayOrder: 1
+      })
+      .then(res => res.body);
+  }
+
+  updateCompanyProperty(
+    property: HubspotProperty
+  ): Promise<Array<HubspotPropertyGroup>> {
+    return this.agent
+      .put(`/properties/v1/companies/properties/named/${property.name}`)
+      .send(property)
+      .then(res => res.body);
+  }
+
+  updateContactProperty(
+    property: HubspotProperty
+  ): Promise<Array<HubspotPropertyGroup>> {
+    return this.agent
+      .put(`/contacts/v2/properties/named/${property.name}`)
+      .send(property)
+      .then(res => res.body);
+  }
+
+  createCompanyProperty(
+    property: HubspotProperty
+  ): Promise<Array<HubspotPropertyGroup>> {
+    return this.agent
+      .post("/properties/v1/companies/properties")
+      .send(property)
+      .then(res => res.body);
+  }
+
+  createContactProperty(
+    property: HubspotProperty
+  ): Promise<Array<HubspotPropertyGroup>> {
+    return this.agent
+      .post("/contacts/v2/properties")
+      .send(property)
+      .then(res => res.body);
   }
 
   getRecentlyUpdatedCompanies(

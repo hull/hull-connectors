@@ -13,7 +13,7 @@ const contactPropertyGroups = [
       {
         "name": "hull_segments",
         "label": "Hull Segments",
-        "description": "All the Segments the Account belongs to in Hull",
+        "description": "All the Segments the entity belongs to in Hull",
         "groupName": "hull",
         "options": []
       }
@@ -193,7 +193,7 @@ it("should send out a new hull account to hubspot update validation error", () =
                 "displayOrder": 2
               }
             ],
-            "description": "All the Segments the Account belongs to in Hull",
+            "description": "All the Segments the entity belongs to in Hull",
             "label": "Hull Segments",
             "groupName": "hull",
             "fieldType": "checkbox",
