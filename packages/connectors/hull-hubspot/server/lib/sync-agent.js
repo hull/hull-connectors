@@ -13,10 +13,10 @@ import type {
   HubspotUserUpdateMessageEnvelope,
   HubspotReadContact,
   HubspotReadCompany,
-  ServiceType
+  ServiceType,
+  HubspotPropertyGroup
 } from "../types";
 
-// const Promise = require("bluebird");
 const _ = require("lodash");
 const moment = require("moment");
 const debug = require("debug")("hull-hubspot:sync-agent");
@@ -25,7 +25,8 @@ const { pipeStreamToPromise } = require("hull/src/utils");
 const {
   toSendMessage
 } = require("hull-connector-framework/src/purplefusion/utils");
-const { contactMetaGroup } = require("./sync-agent/contact-meta-group");
+const defaultIncomingGroupMapping = require("./sync-agent/mapping/default-incoming-group");
+const defaultOutgoingGroupMapping = require("./sync-agent/mapping/default-outgoing-group");
 
 const HubspotClient = require("./hubspot-client");
 const ContactPropertyUtil = require("./sync-agent/contact-property-util");
@@ -203,59 +204,47 @@ class SyncAgent {
     return this.hubspotClient.checkToken();
   }
 
-  getPortalInformation() {
-    return this.hubspotClient.getPortalInformation();
-  }
-
-  async getContactPropertyGroups() {
-    const propertyGroups = await this.hubspotClient.getContactPropertyGroups();
-    return _.concat(propertyGroups, contactMetaGroup);
-  }
-
-  async getCompanyPropertyGroups() {
-    return this.hubspotClient.getContactPropertyGroups();
-  }
-
-  async getContactProperties(direction: string) {
+  async getContactProperties(direction: ?string) {
     const groups = await this.cache.wrap("contact_properties", () =>
       this.getContactPropertyGroups()
     );
-    if (direction === "incoming") {
-      return this.getIncomingProperties(groups);
-    }
-    if (direction === "outgoing") {
-      return this.getOutgoingProperties(groups);
-    }
-
-    return {};
+    return this.getHubspotEntityProperties({ groups, direction });
   }
 
-  async getCompanyProperties(direction: string) {
+  async getCompanyProperties(direction: ?string) {
     const groups = await this.cache.wrap("company_properties", () =>
       this.getCompanyPropertyGroups()
     );
-    if (direction === "incoming") {
-      return this.getIncomingProperties(groups);
-    }
-    if (direction === "outgoing") {
-      return this.getOutgoingProperties(groups);
-    }
-
-    return {};
+    return this.getHubspotEntityProperties({ groups, direction });
   }
 
   async getOutgoingProperties(groups: Object) {
     try {
-      return {
-        options: groups.map(({ displayName, properties }) => {
-          return {
-            label: displayName,
-            options: _.chain(properties)
-              .map(({ label, name }) => ({ label, value: name }))
-              .value()
-          };
-        })
-      };
+      const outgoingProps = _.reduce(
+        groups,
+        (formattedGroups, v) => {
+          const { displayName, properties } = v;
+          const duplicate = _.find(formattedGroups, entry => {
+            return entry.label === displayName;
+          });
+          if (_.isNil(duplicate)) {
+            formattedGroups.push({
+              label: displayName,
+              options: _.chain(properties)
+                .filter(({ readOnlyValue }) => {
+                  return !readOnlyValue;
+                })
+                .map(({ label, name }) => {
+                  return { label, value: name };
+                })
+                .value()
+            });
+          }
+          return formattedGroups;
+        },
+        []
+      );
+      return { options: outgoingProps };
     } catch (err) {
       return { options: [] };
     }
@@ -289,7 +278,7 @@ class SyncAgent {
               if (type === "enumeration" && fieldType === "checkbox") {
                 return {
                   label,
-                  value: `$.properties.${value}.value.$split(";")`
+                  value: `$.properties.${value}.value.$split(';')`
                 };
               }
 
@@ -318,10 +307,12 @@ class SyncAgent {
         },
         ...contactProperties.options.map(({ label, options }) => ({
           label,
-          options: options.map(({ label: optionLabel, value }) => ({
-            label: optionLabel,
-            value: `properties.${value}.value`
-          }))
+          options: options.map(({ label: optionLabel, value }) => {
+            return {
+              label: optionLabel,
+              value
+            };
+          })
         }))
       ]
     };
@@ -339,7 +330,7 @@ class SyncAgent {
           label,
           options: options.map(({ label: optionLabel, value }) => ({
             label: optionLabel,
-            value: `properties.${value}.value`
+            value
           }))
         }))
       ]
@@ -1170,44 +1161,27 @@ class SyncAgent {
     return envelope;
   }
 
-  getFailedEnvelopes({ envelopes, errorInfo, hubspotEntity }) {
-    if (hubspotEntity === "contact") {
-      return _.get(errorInfo, "failureMessages", []).map(error => {
-        return this.buildFailedEnvelope(envelopes[error.index], error);
-      });
-    }
-
-    if (hubspotEntity === "company") {
-      return _.get(errorInfo, "validationResults", []).map(error => {
-        const envelope = _.find(envelopes, {
-          hubspotWriteCompany: {
-            objectId: error.id
-          }
-        });
-        return this.buildFailedEnvelope(envelope, error);
-      });
-    }
-
-    return [];
+  getPortalInformation() {
+    return this.hubspotClient.getPortalInformation();
   }
 
-  cleanFailedEnvelope(envelope) {
-    const { hubspotWriteContact, hubspotWriteCompany } = envelope;
+  async getContactPropertyGroups() {
+    return this.hubspotClient.getContactPropertyGroups();
+  }
 
-    _.unset(envelope, "error");
-    _.unset(envelope, "errorProperty");
+  async getCompanyPropertyGroups() {
+    return this.hubspotClient.getCompanyPropertyGroups();
+  }
 
-    if (hubspotWriteContact) {
-      _.remove(hubspotWriteContact.properties, mapping => {
-        return mapping.property !== "hull_segments";
-      });
+  async getHubspotEntityProperties({ groups, direction }) {
+    if (direction === "outgoing") {
+      return this.getOutgoingProperties(
+        _.concat(groups, defaultOutgoingGroupMapping)
+      );
     }
-
-    if (hubspotWriteCompany) {
-      _.remove(hubspotWriteCompany.properties, mapping => {
-        return mapping.name !== "hull_segments";
-      });
-    }
+    return this.getIncomingProperties(
+      _.concat(groups, defaultIncomingGroupMapping)
+    );
   }
 }
 

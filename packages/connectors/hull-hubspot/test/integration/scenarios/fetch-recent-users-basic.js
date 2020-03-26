@@ -416,7 +416,7 @@ it("Should Fetch Contact With Missing Optional Claims", () => {
           incoming_user_claims: [
             {
               hull: 'email',
-              service: 'properties.email.value',
+              service: '$.properties.email.value',
               required: false
             }
           ],

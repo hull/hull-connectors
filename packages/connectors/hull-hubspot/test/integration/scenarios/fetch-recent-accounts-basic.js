@@ -108,7 +108,7 @@ it("should fetch recent companies using settings", () => {
         ["info", "incoming.account.skip", {},
           {
             company: incomingData.results[1],
-            reason: "Value of field \"properties.domain.value\" is empty, cannot map it to domain, but it's required."
+            reason: "Value of field \"$.properties.domain.value\" is empty, cannot map it to domain, but it's required."
           }
         ],
         ["debug", "incoming.account.success", expect.objectContaining({ "subject_type": "account", "account_domain": "foo.com", "account_anonymous_id": "hubspot:19411477" }),

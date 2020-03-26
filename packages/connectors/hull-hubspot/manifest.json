@@ -119,7 +119,7 @@
         },
         {
           "hull": "email",
-          "service": "properties.email.value",
+          "service": "$.properties.email.value",
           "required": false
         }
       ]
@@ -273,7 +273,7 @@
       "default": [
         {
           "hull": "domain",
-          "service": "properties.domain.value",
+          "service": "$.properties.domain.value",
           "required": true
         }
       ]
@@ -359,7 +359,7 @@
         { "service": "$.properties.twitterfollowers.value", "hull": "hubspot/twitterfollowers", "overwrite": true },
         { "service": "$.properties.twitterhandle.value", "hull": "hubspot/twitterhandle", "overwrite": true },
         { "service": "$.properties.type.value", "hull": "hubspot/type", "overwrite": true },
-        { "service": "$.properties.web_technologies.value", "hull": "hubspot/web_technologies", "overwrite": true },
+        { "service": "$.properties.web_technologies.value.$split(';')", "hull": "hubspot/web_technologies", "overwrite": true },
         { "service": "$.properties.website.value", "hull": "hubspot/website", "overwrite": true },
         { "service": "$.properties.founded_year.value", "hull": "hubspot/founded_year", "overwrite": true }
       ]

@@ -28,13 +28,13 @@ const mapAttributes = (ctx: HullContext) => ({
   entity = "user",
   direction = "incoming",
   serviceSchema = {},
-  defaultAttributeFormatter = v => v
+  attributeFormatter = v => v
 }: {
   payload: {},
   entity?: "user" | "account",
   direction?: "incoming" | "outgoing",
   mapping: Array<HullAttributeMapping>,
-  defaultAttributeFormatter: any
+  attributeFormatter: any
 }): HullEntityAttributes => {
   const { helpers } = ctx;
   const { operations } = helpers;
@@ -75,7 +75,7 @@ const mapAttributes = (ctx: HullContext) => ({
     response,
     (r, val, attribute) => {
       const schema = _.get(serviceSchema, attribute, {});
-      const { formatter = defaultAttributeFormatter } = schema;
+      const { formatter = attributeFormatter } = schema;
       r[attribute] = formatter(val);
       return r;
     },

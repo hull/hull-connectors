@@ -29,7 +29,7 @@ const _ = require("lodash");
 const moment = require("moment");
 const slug = require("slug");
 
-const defaultAttributeFormatter = value => {
+const attributeFormatter = value => {
   if (Array.isArray(value)) {
     value = value.join(";");
   } else if (_.isPlainObject(value)) {
@@ -265,7 +265,7 @@ class MappingUtil {
       direction: "outgoing",
       mapping: outgoingMapping,
       serviceSchema: this[`${_.toLower(serviceType)}Schema`],
-      defaultAttributeFormatter
+      attributeFormatter
     });
 
     const properties = _.reduce(
@@ -299,7 +299,7 @@ class MappingUtil {
     outgoingMapping: Array<HubspotSchema>
   ): Array<> {
     const formatter = (property, type) => value => {
-      value = defaultAttributeFormatter(value);
+      value = attributeFormatter(value);
 
       if (/_(at|date)$/.test(property) || type === "datetime") {
         const dateValue = new Date(value).getTime();
@@ -350,11 +350,7 @@ class MappingUtil {
   }
 
   getHubspotPropertyKeys({ identityClaims, attributeMapping }): Array<string> {
-    const propertiesFromClaims = identityClaims
-      .filter(entry => (entry.service || "").indexOf("properties.") === 0)
-      .map(entry => (entry.service || "").replace(/properties\./, ""))
-      .map(service => service.replace(/\.value/, ""));
-    return attributeMapping
+    return _.concat(attributeMapping, identityClaims)
       .filter(entry => entry.service.indexOf("$.properties.") === 0)
       .map(entry =>
         entry.service
@@ -363,8 +359,7 @@ class MappingUtil {
           .replace(/\.value/, "")
           .replace(/"/g, "")
           .replace(/`/g, "")
-      )
-      .concat(propertiesFromClaims);
+      );
   }
 }
 
