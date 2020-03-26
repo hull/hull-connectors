@@ -5,8 +5,7 @@ import type { HullConnector, HullContext } from "hull";
 import type {
   HubspotUserUpdateMessageEnvelope,
   HubspotAccountUpdateMessageEnvelope,
-  HubspotContactPropertyGroups,
-  HubspotCompanyPropertyGroups,
+  HubspotPropertyGroup,
   HubspotReadContact,
   HubspotWriteContact,
   HubspotWriteCompany,
@@ -515,7 +514,7 @@ class HubspotClient {
     });
   }
 
-  getContactPropertyGroups(): Promise<HubspotContactPropertyGroups> {
+  getContactPropertyGroups(): Promise<Array<HubspotPropertyGroup>> {
     return this.retryUnauthorized(() => {
       return this.agent
         .get("/contacts/v2/groups")
@@ -526,7 +525,7 @@ class HubspotClient {
     });
   }
 
-  getCompanyPropertyGroups(): Promise<HubspotCompanyPropertyGroups> {
+  getCompanyPropertyGroups(): Promise<Array<HubspotPropertyGroup>> {
     return this.retryUnauthorized(() => {
       return this.agent
         .get("/properties/v1/companies/groups")

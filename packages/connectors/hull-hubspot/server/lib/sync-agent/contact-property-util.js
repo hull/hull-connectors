@@ -169,7 +169,7 @@ class ContactPropertyUtil {
     segments: Array<HullSegment> = [],
     outboundMapping: Array<HubspotSchema>
   ): Array<HubspotPropertyWrite> {
-    const writeProperties = _.reduce(
+    return _.reduce(
       outboundMapping,
       (props, mapping, propertyName) => {
         let {
@@ -214,7 +214,6 @@ class ContactPropertyUtil {
       },
       []
     );
-    return writeProperties;
   }
 
   getHullSegmentsProperty(segments: Array<HullSegment> = []) {

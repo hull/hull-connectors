@@ -1165,11 +1165,11 @@ class SyncAgent {
     return this.hubspotClient.getPortalInformation();
   }
 
-  async getContactPropertyGroups() {
+  async getContactPropertyGroups(): Array<HubspotPropertyGroup> {
     return this.hubspotClient.getContactPropertyGroups();
   }
 
-  async getCompanyPropertyGroups() {
+  async getCompanyPropertyGroups(): Array<HubspotPropertyGroup> {
     return this.hubspotClient.getCompanyPropertyGroups();
   }
 
