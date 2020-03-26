@@ -6,7 +6,6 @@ import type {
   HubspotAccountUpdateMessageEnvelope
 } from "../../types";
 
-const debug = require("debug")("hull-hubspot:filter-util");
 const _ = require("lodash");
 
 class FilterUtil {
@@ -17,8 +16,6 @@ class FilterUtil {
   constructor(ctx: HullContext) {
     this.connector = ctx.connector;
     this.isBatch = ctx.isBatch;
-
-    debug("isBatch", this.isBatch);
   }
 
   isUserWhitelisted(envelope: HubspotUserUpdateMessageEnvelope): boolean {
@@ -29,10 +26,8 @@ class FilterUtil {
       [];
     if (Array.isArray(envelope.message.segments)) {
       return (
-        _.intersection(
-          segmentIds,
-          envelope.message.segments.map(s => s.id)
-        ).length > 0
+        _.intersection(segmentIds, envelope.message.segments.map(s => s.id))
+          .length > 0
       );
     }
     return false;
