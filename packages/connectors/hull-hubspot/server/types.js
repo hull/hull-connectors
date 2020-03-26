@@ -136,7 +136,7 @@ export type HubspotProperty = {
   updatedUserId: null | any
 };
 
-export type HubspotContactPropertyWrite = {
+export type HubspotPropertyWrite = {
   name: string,
   label: string,
   description?: string,

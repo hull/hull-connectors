@@ -29,6 +29,16 @@ const _ = require("lodash");
 const moment = require("moment");
 const slug = require("slug");
 
+const defaultAttributeFormatter = value => {
+  if (Array.isArray(value)) {
+    value = value.join(";");
+  } else if (_.isPlainObject(value)) {
+    value = JSON.stringify(value);
+  }
+
+  return value;
+};
+
 class MappingUtil {
   ctx: HullContext;
 
@@ -88,11 +98,6 @@ class MappingUtil {
 
     this.outgoingLinking = link_users_in_service || false;
     this.incomingUserClaims = incoming_user_claims;
-    this.incomingAccountClaims = incoming_account_claims;
-    this.contactOutgoingMapping = outgoing_user_attributes;
-    this.contactIncomingMapping = incoming_user_attributes;
-    this.companyOutgoingMapping = outgoing_account_attributes;
-    this.companyIncomingMapping = incoming_account_attributes;
 
     this.contactSchema = this.getServiceSchema(
       hubspotContactProperties,
@@ -103,6 +108,12 @@ class MappingUtil {
       hubspotCompanyProperties,
       outgoing_account_attributes
     );
+
+    this.incomingAccountClaims = incoming_account_claims;
+    this.contactOutgoingMapping = outgoing_user_attributes;
+    this.contactIncomingMapping = incoming_user_attributes;
+    this.companyOutgoingMapping = outgoing_account_attributes;
+    this.companyIncomingMapping = incoming_account_attributes;
   }
 
   mapToHubspotEntity(
@@ -253,12 +264,16 @@ class MappingUtil {
       payload: message,
       direction: "outgoing",
       mapping: outgoingMapping,
-      serviceSchema: this[`${_.toLower(serviceType)}Schema`]
+      serviceSchema: this[`${_.toLower(serviceType)}Schema`],
+      defaultAttributeFormatter
     });
 
     const properties = _.reduce(
       rawHubspotProperties,
       (r, value, property) => {
+        if (_.isNil(value) || value === "") {
+          return r;
+        }
         return [...r, transform({ property, value })];
       },
       []
@@ -284,10 +299,13 @@ class MappingUtil {
     outgoingMapping: Array<HubspotSchema>
   ): Array<> {
     const formatter = (property, type) => value => {
-      if (Array.isArray(value)) {
-        value = value.join(";");
-      } else if (_.isPlainObject(value)) {
-        value = JSON.stringify(value);
+      value = defaultAttributeFormatter(value);
+
+      if (/_(at|date)$/.test(property) || type === "datetime") {
+        const dateValue = new Date(value).getTime();
+        if (dateValue) {
+          value = dateValue;
+        }
       }
 
       if (value && type === "date" && moment(value).isValid()) {
@@ -307,31 +325,24 @@ class MappingUtil {
 
     return outgoingMapping.reduce((schema, mapping) => {
       const { service } = mapping;
-      let hubspotPropertyName = slug(service, {
+      const hubspotPropertyName = slug(service, {
         replacement: "_",
         lower: true
       });
 
-      let hubspotProperty = _.find(hubspotProperties, {
+      const hubspotProperty = _.find(hubspotProperties, {
         name: hubspotPropertyName
       });
 
-      if (_.isNil(hubspotProperty)) {
-        hubspotPropertyName = `hull_${hubspotPropertyName}`;
-        hubspotProperty = _.find(hubspotProperties, {
-          name: hubspotPropertyName
-        });
-      }
-
-      if (_.isNil(hubspotProperty)) {
-        return schema;
-      }
-
-      const { readOnlyValue, type, fieldType } = hubspotProperty || {};
+      const { name, label, displayOrder, readOnlyValue, type, fieldType } =
+        hubspotProperty || {};
       schema[hubspotPropertyName] = {
         type,
-        field_type: fieldType,
-        read_only: readOnlyValue,
+        name: name || hubspotPropertyName,
+        label: label || service,
+        displayOrder,
+        fieldType,
+        readOnlyValue,
         formatter: formatter(hubspotPropertyName, type)
       };
       return schema;

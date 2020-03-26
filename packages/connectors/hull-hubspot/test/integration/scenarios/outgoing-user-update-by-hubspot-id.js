@@ -38,6 +38,7 @@ const connector = {
       { "hull": "traits_hubspot/hs_email_quarantined_reason", "service": "hs_email_quarantined_reason", "overwrite": true },
       { "hull": "traits_hubspot/annualrevenue", "service": "annualrevenue", "overwrite": true },
       { "hull": "account.hubspot/industry", "service": "industry", "overwrite": true },
+      { "hull": "custom_attribute", "service": "hull_managed_attribute", "overwrite": true },
       { "hull": "segments.name[]", "service": "hull_segments", "overwrite": true }
     ]
   }
@@ -66,6 +67,7 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
               {"property":"hs_lead_status","value":"status 1"},
               {"property":"hs_email_quarantined_reason","value":"reason 1;reason 2;reason 3"},
               {"property":"industry","value":"software"},
+              {"property":"hull_managed_attribute","value":"some value"},
               {"property":"hull_segments","value":"User Segment 1;User Segment 2"}
             ],
             "vid": "existingContactId",
@@ -84,6 +86,7 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
           },
           user: {
             email,
+            "custom_attribute": "some value",
             "traits_hubspot/id": "existingContactId",
             "traits_hubspot/email": "email@email.com",
             "traits_hubspot/lead_status": "status 1",
@@ -109,6 +112,7 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
                 {"property":"hs_lead_status","value":"status 1"},
                 {"property":"hs_email_quarantined_reason","value":"reason 1;reason 2;reason 3"},
                 {"property":"industry","value":"software"},
+                {"property":"hull_managed_attribute","value":"some value"},
                 {"property":"hull_segments","value":"User Segment 1;User Segment 2"}
               ]
             }}

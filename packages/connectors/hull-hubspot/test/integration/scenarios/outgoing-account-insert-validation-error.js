@@ -12,7 +12,8 @@ const connector = {
     token: "hubToken",
     synchronized_account_segments: ["hullSegmentId"],
     outgoing_account_attributes: [
-      { hull: "name", service: "name", overwrite: true }
+      { hull: "name", service: "name", overwrite: true },
+      { "hull": "account_segments.name[]", "service": "hull_segments", "overwrite": true }
     ],
     mark_deleted_contacts: false,
     mark_deleted_companies: false
@@ -84,7 +85,7 @@ it("should send out a new hull account to hubspot insert validation error", () =
             name: "New Name",
             domain
           },
-          account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          account_segments: [{ id: "hullSegmentId", name: "testSegment" }]
         }
       ],
       response: {

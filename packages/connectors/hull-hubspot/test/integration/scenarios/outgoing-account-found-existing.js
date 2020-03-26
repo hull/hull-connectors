@@ -13,18 +13,14 @@ const connector = {
     token: "hubToken",
     synchronized_account_segments: ["hullSegmentId"],
     outgoing_account_attributes: [
-      { hull: "name", service: "name", overwrite: true }
+      { hull: "name", service: "name", overwrite: true },
+      { "hull": "account_segments.name[]", "service": "hull_segments", "overwrite": true }
     ],
     mark_deleted_contacts: false,
     mark_deleted_companies: false
   }
 };
-const accountsSegments = [
-  {
-    name: "testSegment",
-    id: "hullSegmentId"
-  }
-];
+const accountsSegments = [{ name: "testSegment", id: "hullSegmentId" }];
 
 it("should send out a new hull account to hubspot found existing", () => {
   const domain = "hull.io";
@@ -50,18 +46,9 @@ it("should send out a new hull account to hubspot found existing", () => {
           .post("/companies/v1/batch-async/update?auditId=Hull", [
             {
               properties: [
-                {
-                  name: "name",
-                  value: "New Name"
-                },
-                {
-                  name: "hull_segments",
-                  value: "testSegment"
-                },
-                {
-                  name: "domain",
-                  value: "hull.io"
-                }
+                { name: "name", value: "New Name" },
+                { name: "hull_segments", value: "testSegment" },
+                { name: "domain", value: "hull.io" }
               ],
               objectId: "184896670"
             }
@@ -90,7 +77,7 @@ it("should send out a new hull account to hubspot found existing", () => {
             domain,
             name: "New Name"
           },
-          account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          account_segments: [{ id: "hullSegmentId", name: "testSegment" }]
         }
       ],
       response: {

@@ -18,7 +18,7 @@ const cast = (type?: HullJsonataType) => (value: any) => {
   return value;
 };
 
-// TODO what are the rules for attribute names?
+// TODO clear up the rules for attribute names
 const rawHullTraitRegex = /^(account\.)?([A-Za-z]*\/[A-Za-z_]*)$/g;
 const noDotInPath = str => str.indexOf(".") === -1;
 const isRawTrait = trait => rawHullTraitRegex.test(trait);
@@ -27,12 +27,14 @@ const mapAttributes = (ctx: HullContext) => ({
   mapping,
   entity = "user",
   direction = "incoming",
-  serviceSchema = {}
+  serviceSchema = {},
+  defaultAttributeFormatter = v => v
 }: {
   payload: {},
   entity?: "user" | "account",
   direction?: "incoming" | "outgoing",
-  mapping: Array<HullAttributeMapping>
+  mapping: Array<HullAttributeMapping>,
+  defaultAttributeFormatter: any
 }): HullEntityAttributes => {
   const { helpers } = ctx;
   const { operations } = helpers;
@@ -57,7 +59,7 @@ const mapAttributes = (ctx: HullContext) => ({
       _.set(
         m,
         target,
-        overwrite
+        _.isNil(overwrite) || overwrite
           ? `_{{${casted(source)}}}_`
           : setIfNull(`_{{${casted(source)}}}_`)
       );
@@ -69,14 +71,11 @@ const mapAttributes = (ctx: HullContext) => ({
   const transformed = JSON.stringify(transform).replace(/"_{{(.*?)}}_"/g, "$1");
   const response = jsonata(transformed).evaluate(payload);
 
-  /*  if (direction === "incoming") {
-    return response;
-  }*/
   return _.reduce(
     response,
     (r, val, attribute) => {
       const schema = _.get(serviceSchema, attribute, {});
-      const { formatter = v => v } = schema;
+      const { formatter = defaultAttributeFormatter } = schema;
       r[attribute] = formatter(val);
       return r;
     },

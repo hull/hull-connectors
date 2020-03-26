@@ -45,31 +45,31 @@ const connector = {
     synchronized_user_segments: ["hullSegmentId"],
     outgoing_user_attributes: [
       { hull: "first_name", service: "firstname", overwrite: true },
-      { hull: "last_name", service: "lastname", overwrite: false },
-      { hull: "traits_group/custom_calculated_score", service: "custom_hubspot_score" },
-      { hull: "traits_custom_numeric", service: "custom_hubspot_numeric", overwrite: true },
-      { hull: "traits_custom_array", service: "custom_hubspot_array" },
-      { hull: "traits_custom_empty_array", service: "custom_hubspot_empty_array", overwrite: true },
-      { hull: "traits_custom_true", service: "custom_hubspot_true", overwrite: true },
-      { hull: "traits_custom_false", service: "custom_hubspot_false", overwrite: true },
-      { hull: "traits_custom_null", service: "custom_hubspot_null", overwrite: true },
-      { hull: "traits_custom_empty_string", service: "custom_hubspot_empty_string", overwrite: true },
-      { hull: "traits_custom_undefined", service: "custom_hubspot_undefined", overwrite: true },
-      { hull: "traits_custom_date_at", service: "custom_hubspot_date_at", overwrite: true },
+      { hull: "last_name", service: "lastname", overwrite: true },
+      { hull: "traits_group/custom_calculated_score", service: "hull_custom_hubspot_score" },
+      { hull: "traits_custom_numeric", service: "hull_custom_hubspot_numeric", overwrite: true },
+      { hull: "traits_custom_array", service: "hull_custom_hubspot_array" },
+      { hull: "traits_custom_empty_array", service: "hull_custom_hubspot_empty_array", overwrite: true },
+      { hull: "traits_custom_true", service: "hull_custom_hubspot_true", overwrite: true },
+      { hull: "traits_custom_false", service: "hull_custom_hubspot_false", overwrite: true },
+      { hull: "traits_custom_null", service: "hull_custom_hubspot_null", overwrite: true },
+      { hull: "traits_custom_empty_string", service: "hull_custom_hubspot_empty_string", overwrite: true },
+      { hull: "traits_custom_undefined", service: "hull_custom_hubspot_undefined", overwrite: true },
+      { hull: "traits_custom_date_at", service: "hull_custom_hubspot_date_at", overwrite: true },
 
-      { hull: "account.id", service: "custom_hubspot_account_id", overwrite: true },
-      { hull: "account.domain", service: "custom_hubspot_account_domain", overwrite: true },
-      { hull: "account.group/created_at", service: "custom_hubspot_account_group_created_at", overwrite: true },
-
-      { hull: "account.custom_numeric", service: "custom_hubspot_account_numeric", overwrite: true },
-      { hull: "account.custom_array", service: "custom_hubspot_account_array", overwrite: true },
-      { hull: "account.custom_empty_array", service: "custom_hubspot_account_empty_array", overwrite: true },
-      { hull: "account.custom_true", service: "custom_hubspot_account_true", overwrite: true },
-      { hull: "account.custom_false", service: "custom_hubspot_account_false", overwrite: true },
-      { hull: "account.custom_null", service: "custom_hubspot_account_null", overwrite: true },
-      { hull: "account.custom_empty_string", service: "custom_hubspot_account_empty_string", overwrite: true },
-      { hull: "account.custom_undefined", service: "custom_hubspot_account_undefined", overwrite: true },
-      { hull: "account.custom_date_at", service: "custom_hubspot_account_date_at", overwrite: true }
+      { hull: "account.id", service: "hull_custom_hubspot_account_id", overwrite: true },
+      { hull: "account.domain", service: "hull_custom_hubspot_account_domain", overwrite: true },
+      { hull: "account.group/created_at", service: "hull_custom_hubspot_account_group_created_at", overwrite: true },
+      { hull: "account.custom_numeric", service: "hull_custom_hubspot_account_numeric", overwrite: true },
+      { hull: "account.custom_array", service: "hull_custom_hubspot_account_array", overwrite: true },
+      { hull: "account.custom_empty_array", service: "hull_custom_hubspot_account_empty_array", overwrite: true },
+      { hull: "account.custom_true", service: "hull_custom_hubspot_account_true", overwrite: true },
+      { hull: "account.custom_false", service: "hull_custom_hubspot_account_false", overwrite: true },
+      { hull: "account.custom_null", service: "hull_custom_hubspot_account_null", overwrite: true },
+      { hull: "account.custom_empty_string", service: "hull_custom_hubspot_account_empty_string", overwrite: true },
+      { hull: "account.custom_undefined", service: "hull_custom_hubspot_account_undefined", overwrite: true },
+      { hull: "account.custom_date_at", service: "hull_custom_hubspot_account_date_at", overwrite: true },
+      { hull: "segments.name[]", service: "hull_segments", overwrite: true }
     ],
     mark_deleted_contacts: false,
     mark_deleted_companies: false
@@ -172,7 +172,6 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
             traits_custom_null: null,
             traits_custom_empty_string: "",
             traits_custom_zero: 0,
-            // traits_custom_undefined: "", -> this is not present
             traits_custom_date_at: "2018-10-24T09:47:39Z"
           },
           account: {
@@ -187,10 +186,9 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
             custom_null: null,
             custom_empty_string: "",
             custom_zero: 0,
-            // custom_undefined: "", -> this is not present
             custom_date_at: "2018-10-24T09:47:39Z",
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          segments: [{ id: "hullSegmentId", name: "testSegment" }],
           changes: {
             is_new: false,
             user: {

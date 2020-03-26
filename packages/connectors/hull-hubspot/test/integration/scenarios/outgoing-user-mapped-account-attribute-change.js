@@ -18,8 +18,9 @@ const connector = {
     synchronized_user_segments: ["hullSegmentId"],
     outgoing_user_attributes: [
       { hull: "traits_outreach/title", service: "jobtitle" },
-      { hull: "account.id", service: "custom_hubspot_account_id", overwrite: true },
-      { hull: "account.domain", service: "custom_hubspot_account_domain", overwrite: true }
+      { hull: "account.id", service: "hull_custom_hubspot_account_id", overwrite: true },
+      { hull: "account.domain", service: "hull_custom_hubspot_account_domain", overwrite: true },
+      { hull: "segments.name[]", service: "hull_segments", overwrite: true }
     ],
     link_users_in_service: true,
     mark_deleted_contacts: false,
@@ -27,10 +28,7 @@ const connector = {
   }
 };
 const usersSegments = [
-  {
-    name: "testSegment",
-    id: "hullSegmentId"
-  }
+  { name: "testSegment", id: "hullSegmentId" }
 ];
 
 it("should allow through with mapped account attribute changes", () => {
@@ -98,7 +96,7 @@ it("should allow through with mapped account attribute changes", () => {
             // custom_undefined: "", -> this is not present
             custom_date_at: "2018-10-24T09:47:39Z",
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          segments: [{ id: "hullSegmentId", name: "testSegment" }],
           changes: {
             "is_new": false,
             "user": {

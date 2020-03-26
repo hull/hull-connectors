@@ -29,8 +29,10 @@ class FilterUtil {
       [];
     if (Array.isArray(envelope.message.segments)) {
       return (
-        _.intersection(segmentIds, envelope.message.segments.map(s => s.id))
-          .length > 0
+        _.intersection(
+          segmentIds,
+          envelope.message.segments.map(s => s.id)
+        ).length > 0
       );
     }
     return false;

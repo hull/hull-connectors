@@ -18,10 +18,7 @@ const connector = {
   }
 };
 const usersSegments = [
-  {
-    name: "testSegment",
-    id: "hullSegmentId"
-  }
+  { name: "testSegment", id: "hullSegmentId" }
 ];
 
 it("should send out a new hull user to hubspot - user basic", () => {
@@ -76,7 +73,7 @@ it("should send out a new hull user to hubspot - user basic", () => {
           user: {
             email
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          segments: [{ id: "hullSegmentId", name: "testSegment" }],
           changes: {
             is_new: false,
             user: {},

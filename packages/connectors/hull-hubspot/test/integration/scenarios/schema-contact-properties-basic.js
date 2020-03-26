@@ -21,7 +21,7 @@ it("Should fetch contact groups and properties and transform it to attribute map
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.jsonHandler,
-      handlerUrl: "schema/contact_properties",
+      handlerUrl: "schema/incoming_contact_properties",
       externalApiMock: () => {
         const scope = nock("https://api.hubapi.com");
         scope.get("/contacts/v2/groups?includeProperties=true").reply(200, [
@@ -77,7 +77,7 @@ it("Should fetch contact groups and properties and transform it to attribute map
             options: [
               {
                 label: "Job function",
-                value: "job_function"
+                value: "$.properties.job_function.value"
               }
             ]
           },
@@ -86,7 +86,7 @@ it("Should fetch contact groups and properties and transform it to attribute map
             options: [
               {
                 label: "Hull Segments",
-                value: "hull_segments"
+                value: "$.properties.hull_segments.value.$split(\";\")"
               }
             ]
           },
@@ -95,7 +95,7 @@ it("Should fetch contact groups and properties and transform it to attribute map
             options: [
               {
                 label: "Merged Vids",
-                value: "contact_meta.merged-vids"
+                value: "$.`merged-vids`"
               }
             ]
           }

@@ -7,12 +7,10 @@ const companyPropertyGroups = require("../fixtures/get-properties-companies-grou
 
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
-
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
 it("send batch account update to hubspot in a batch", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
-    // const updateMessage = require("../fixtures/outgoin-account-batch");
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -24,14 +22,9 @@ it("send batch account update to hubspot in a batch", () => {
       connector: {
         private_settings: {
           outgoing_account_attributes: [
-            {
-              hull: "name",
-              service: "about_us"
-            },
-            {
-              hull: "closeio/industry_sample",
-              service: "industry"
-            }
+            { hull: "name", service: "about_us" },
+            { hull: "closeio/industry_sample", service: "industry" },
+            { "hull": "account_segments.name[]", "service": "hull_segments", "overwrite": true }
           ],
           handle_accounts: true,
           refresh_token: "refreshtoken",
@@ -70,7 +63,6 @@ it("send batch account update to hubspot in a batch", () => {
             properties: [
               { name: "about_us", value: "Wayne Enterprises (Sample Lead)" },
               { name: "industry", value: "Manufacturing" },
-              { name: "hull_segments", value: "" },
               { name: "domain", value: "wayneenterprises.com" }
             ],
             objectId: "1778846597"
@@ -156,7 +148,6 @@ it("send batch account update to hubspot in a batch", () => {
               properties: [
                 { name: "about_us", value: "Wayne Enterprises (Sample Lead)" },
                 { name: "industry", value: "Manufacturing" },
-                { name: "hull_segments", value: "" },
                 { name: "domain", value: "wayneenterprises.com" }
               ]
             },

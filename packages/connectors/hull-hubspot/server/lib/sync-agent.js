@@ -360,12 +360,8 @@ class SyncAgent {
     try {
       await this.initialize({ skipCache: true });
 
-      await this.contactPropertyUtil.sync(
-        this.mappingUtil.contactOutgoingMapping
-      );
-      await this.companyPropertyUtil.sync(
-        this.mappingUtil.companyOutgoingMapping
-      );
+      await this.contactPropertyUtil.sync(this.mappingUtil.contactSchema);
+      await this.companyPropertyUtil.sync(this.mappingUtil.companySchema);
     } catch (error) {
       this.hullClient.logger.error("outgoing.job.error", {
         error: error.message

@@ -65,7 +65,8 @@ const connector = {
       { "service": "type", "hull": "hubspot/type" },
       { "service": "web_technologies", "hull": "hubspot/web_technologies" },
       { "service": "website", "hull": "hubspot/website" },
-      { "service": "zip", "hull": "hubspot/zip" }
+      { "service": "zip", "hull": "hubspot/zip" },
+      { "service": "hull_segments", "hull": "account_segments.name[]", "overwrite": true }
     ]
   }
 };
@@ -199,6 +200,7 @@ it("should send out a new hull account to hubspot update validation error", () =
             "formField": false,
             "name": "hull_segments",
             "type": "enumeration",
+            "calculated": false,
             "displayOrder": 0
           }
         ).reply(202);
@@ -243,7 +245,7 @@ it("should send out a new hull account to hubspot update validation error", () =
             "hubspot/name": "New Name",
             "hubspot/id": "hubspot-company-1"
           },
-          account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          account_segments: [{ id: "hullSegmentId", name: "testSegment" }]
         },
         {
           changes: {

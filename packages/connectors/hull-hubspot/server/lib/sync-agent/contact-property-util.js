@@ -1,21 +1,21 @@
 // @flow
 import type { HullSegment } from "hull";
 import type {
-  HubspotContactOutgoingMapping,
-  HubspotContactProperty,
   HullProperty,
-  HubspotContactPropertyGroup,
-  HubspotContactPropertyWrite
+  HubspotPropertyWrite,
+  HubspotPropertyGroup,
+  HubspotProperty,
+  HubspotSchema
 } from "../../types";
 
 const _ = require("lodash");
 const Promise = require("bluebird");
-const debug = require("debug")("hull-hubspot:contact-property-util");
 
 const TYPES_MAPPING = {
   string: { type: "string", fieldType: "text" },
   number: { type: "number", fieldType: "text" },
   date: { type: "datetime", fieldType: "text" },
+  enumeration: { type: "enumeration", fieldType: "checkbox" },
   boolean: {
     type: "bool",
     fieldType: "booleancheckbox",
@@ -51,7 +51,7 @@ class ContactPropertyUtil {
 
   usersSegments: Array<HullSegment>;
 
-  hubspotProperties: Array<HubspotContactPropertyGroup>;
+  hubspotProperties: Array<HubspotPropertyGroup>;
 
   hullProperties: Array<HullProperty>;
 
@@ -72,17 +72,12 @@ class ContactPropertyUtil {
     this.hullProperties = hullProperties;
   }
 
-  sync(outboundMapping: Array<HubspotContactOutgoingMapping>): Promise<*> {
-    debug("outboundMapping %o", outboundMapping);
+  sync(outboundMapping: Array<HubspotSchema>): Promise<*> {
     const uniqueSegments = _.uniqBy(this.usersSegments, "name");
-    debug("uniqueSegments %o", uniqueSegments.map(s => s.name));
-    const expectedPropertiesList =
-      uniqueSegments.length === 0
-        ? this.getPropertiesList(outboundMapping)
-        : [this.getHullSegmentsProperty(uniqueSegments)].concat(
-            this.getPropertiesList(outboundMapping)
-          );
-    debug("expectedPropertiesList %o", expectedPropertiesList);
+    const expectedPropertiesList = this.getPropertiesList(
+      uniqueSegments,
+      outboundMapping
+    );
     return this.ensureHullGroup(this.hubspotProperties)
       .then(() =>
         this.ensureCustomProperties(
@@ -91,18 +86,13 @@ class ContactPropertyUtil {
         )
       )
       .catch(err => {
-        debug("sync error", err);
         this.logger.error("connector.sync.error", {
           error: err.response && err.response.body && err.response.body.message
         });
-        // this.metric.event({
-        //   title: "connector.sync.error",
-        //   text: JSON.stringify(err.response && err.response.body)
-        // });
       });
   }
 
-  ensureHullGroup(hubspotProperties: Array<HubspotContactPropertyGroup>) {
+  ensureHullGroup(hubspotProperties: Array<HubspotPropertyGroup>) {
     const group = _.find(hubspotProperties, g => g.name === "hull");
     if (group) {
       return Promise.resolve(group);
@@ -118,8 +108,8 @@ class ContactPropertyUtil {
   }
 
   ensureCustomProperties(
-    hubspotGroupProperties: Array<HubspotContactPropertyGroup>,
-    expectedPropertiesList: Array<HubspotContactPropertyWrite>
+    hubspotGroupProperties: Array<HubspotPropertyGroup>,
+    expectedPropertiesList: Array<HubspotPropertyWrite>
   ) {
     const flattenProperties = _.flatten(
       hubspotGroupProperties.map(g => g.properties)
@@ -139,11 +129,10 @@ class ContactPropertyUtil {
   }
 
   shouldUpdateProperty(
-    currentValue: HubspotContactProperty,
-    newValue: HubspotContactPropertyWrite
+    currentValue: HubspotProperty,
+    newValue: HubspotPropertyWrite
   ): boolean {
     if (newValue.name === "hull_segments") {
-      debug("shouldUpdateProperty", currentValue.name, newValue.name);
       const currentSegmentNames = (currentValue.options || [])
         .map(o => o.label)
         .sort();
@@ -154,16 +143,14 @@ class ContactPropertyUtil {
   }
 
   ensureProperty(
-    groupProperties: { [string]: HubspotContactProperty },
-    property: HubspotContactPropertyWrite
+    groupProperties: { [string]: HubspotProperty },
+    property: HubspotPropertyWrite
   ) {
     const existing =
       groupProperties[property.name] ||
       groupProperties[property.name.replace(/^hull_/, "")];
-    debug("ensureProperty %o", existing);
     if (existing) {
       if (this.shouldUpdateProperty(existing, property)) {
-        debug("ensureProperty %o", property);
         return this.hubspotClient.agent
           .put(`/contacts/v2/properties/named/${property.name}`)
           .send(property)
@@ -179,25 +166,55 @@ class ContactPropertyUtil {
   }
 
   getPropertiesList(
-    outboundMapping: Array<HubspotContactOutgoingMapping>
-  ): Array<HubspotContactPropertyWrite> {
-    return outboundMapping.map(mappingEntry => {
-      const name = mappingEntry.hubspot_property_name;
-      const label = mappingEntry.hubspot_property_label;
-      const displayOrder = mappingEntry.hubspot_property_display_order;
-      const propType = mappingEntry.hubspot_property_type
-        ? TYPES_MAPPING[mappingEntry.hubspot_property_type]
-        : TYPES_MAPPING.string;
-      return {
-        ...propType,
-        name,
-        label,
-        displayOrder,
-        calculated: false,
-        groupName: "hull",
-        formField: false
-      };
-    });
+    segments: Array<HullSegment> = [],
+    outboundMapping: Array<HubspotSchema>
+  ): Array<HubspotPropertyWrite> {
+    const writeProperties = _.reduce(
+      outboundMapping,
+      (props, mapping, propertyName) => {
+        let {
+          name,
+          label,
+          displayOrder,
+          fieldType,
+          type,
+          options = [],
+          description
+        } = mapping;
+        let propType = type ? TYPES_MAPPING[type] : TYPES_MAPPING.string;
+
+        if (propertyName === "hull_segments") {
+          if (_.isEmpty(segments)) {
+            return props;
+          }
+          const segmentProperty = this.getHullSegmentsProperty(segments);
+          options = segmentProperty.options;
+          description = segmentProperty.description;
+          label = segmentProperty.label;
+          fieldType = segmentProperty.fieldType;
+          name = segmentProperty.name;
+          type = segmentProperty.type;
+          displayOrder = segmentProperty.displayOrder;
+          propType = { type, fieldType };
+        }
+
+        props.push({
+          ...propType,
+          name,
+          label,
+          description,
+          options,
+          fieldType,
+          displayOrder,
+          formField: false,
+          calculated: false,
+          groupName: "hull"
+        });
+        return props;
+      },
+      []
+    );
+    return writeProperties;
   }
 
   getHullSegmentsProperty(segments: Array<HullSegment> = []) {

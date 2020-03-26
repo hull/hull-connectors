@@ -14,10 +14,8 @@ const connector = {
     token: "hubToken",
     synchronized_account_segments: ["hullSegmentId"],
     outgoing_account_attributes: [
-      {
-        "hull": "domain",
-        "service": "domain"
-      }
+      { "hull": "domain", "service": "domain" },
+      { "hull": "account_segments.name[]", "service": "hull_segments", "overwrite": true }
     ],
     mark_deleted_contacts: false,
     mark_deleted_companies: false
@@ -95,7 +93,7 @@ it("should send out a new hull account to hubspot", () => {
           account: {
             domain
           },
-          account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          account_segments: [{ id: "hullSegmentId", name: "testSegment" }]
         }
       ],
       response: {
@@ -129,7 +127,7 @@ it("should send out a new hull account to hubspot", () => {
         ["traits", { "asAccount": { "domain": "hull.io" }, "subjectType": "account" },
           {
             "hubspot/create_date": "1584635613078",
-            "hubspot/days_to_close": null,
+            "hubspot/days_to_close": "",
             "hubspot/domain": "hull.io",
             "hubspot/hs_lastmodified_date": "1584635613078",
             "hubspot/website": "hull.io",

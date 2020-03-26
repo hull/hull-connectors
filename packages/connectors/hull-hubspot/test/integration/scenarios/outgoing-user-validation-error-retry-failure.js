@@ -14,16 +14,9 @@ const connector = {
     token: "hubToken",
     synchronized_user_segments: ["hullSegmentId"],
     outgoing_user_attributes: [
-      {
-        hull: "traits_custom_numeric",
-        service: "custom_hubspot_numeric",
-        overwrite: true
-      },
-      {
-        hull: "traits_group/custom_calculated_score",
-        service: "score",
-        overwrite: true
-      }
+      { hull: "traits_custom_numeric", service: "custom_hubspot_numeric", overwrite: true },
+      { hull: "traits_group/custom_calculated_score", service: "score", overwrite: true },
+      { "hull": "segments.name[]", "service": "hull_segments", "overwrite": true }
     ],
     mark_deleted_contacts: false,
     mark_deleted_companies: false
@@ -203,6 +196,7 @@ it("should send out a new hull user to hubspot - validation error and retry", ()
             "formField": false,
             "name": "hull_segments",
             "type": "enumeration",
+            "calculated": false,
             "displayOrder": 0
           }).reply(202);
 
@@ -281,7 +275,7 @@ it("should send out a new hull user to hubspot - validation error and retry", ()
               entered: [
                 {
                   id: "hullSegmentId",
-                  name: "hullSegmentName",
+                  name: "testSegment",
                   type: "users_segment"
                 }
               ]
@@ -306,7 +300,7 @@ it("should send out a new hull user to hubspot - validation error and retry", ()
               entered: [
                 {
                   id: "hullSegmentId",
-                  name: "hullSegmentName",
+                  name: "testSegment",
                   type: "users_segment"
                 }
               ]
@@ -341,7 +335,7 @@ it("should send out a new hull user to hubspot - validation error and retry", ()
               entered: [
                 {
                   id: "hullSegmentId",
-                  name: "hullSegmentName",
+                  name: "testSegment",
                   type: "users_segment"
                 }
               ]

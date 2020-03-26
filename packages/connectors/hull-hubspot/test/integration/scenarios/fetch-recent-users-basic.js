@@ -305,7 +305,7 @@ it("Should Fetch Contact With Mapped Incoming Attributes", () => {
             {
               service: '$.properties.job_function.value',
               hull: 'traits_hubspot/job_function',
-              overwrite: true
+              overwrite: false
             },
             {
               service: '$.`merged-vids`',
@@ -324,16 +324,16 @@ it("Should Fetch Contact With Mapped Incoming Attributes", () => {
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/properties/v1/companies/groups", "status": 200, "vars": {} }],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/contacts/v1/lists/recently_updated/contacts/recent", "status": 200, "vars": {}}],
         ["debug", "saveContacts", {}, 1],
-        ["debug", "incoming.user", {}, { "claims": { "email": "coolrobot@hubspot.com", "anonymous_id": "hubspot:1" }, "traits": { "hubspot/job_function": "a value", "hubspot/merged_vids": [1, 51], "hubspot/id": 1 } }],
+        ["debug", "incoming.user", {}, { "claims": { "email": "coolrobot@hubspot.com", "anonymous_id": "hubspot:1" }, "traits": { "hubspot/job_function": { "operation": "setIfNull", "value": "a value" }, "hubspot/merged_vids": [1, 51], "hubspot/id": 1 } }],
         ["debug", "incoming.account.link.skip", { "subject_type": "user", "user_email": "coolrobot@hubspot.com", "user_anonymous_id": "hubspot:1" }, { "reason": "incoming linking is disabled, you can enabled it in the settings" }],
-        ["debug", "incoming.user.success", { "subject_type": "user", "user_email": "coolrobot@hubspot.com", "user_anonymous_id": "hubspot:1" }, { "traits": { "hubspot/job_function": "a value", "hubspot/merged_vids": [1, 51], "hubspot/id": 1 } }],
+        ["debug", "incoming.user.success", { "subject_type": "user", "user_email": "coolrobot@hubspot.com", "user_anonymous_id": "hubspot:1" }, { "traits": { "hubspot/job_function": { "operation": "setIfNull", "value": "a value" }, "hubspot/merged_vids": [1, 51], "hubspot/id": 1 } }],
         ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(), "method": "GET", "url": "/contacts/v1/lists/recently_updated/contacts/recent", "status": 200, "vars": {} }],
         ["info", "incoming.job.success", {}, { "jobName": "Incoming Data", "type": "webpayload" }]
       ],
       firehoseEvents: [
         ["alias", { "asUser": { "email": "coolrobot@hubspot.com", "anonymous_id": "hubspot:1" }, "subjectType": "user" }, { "anonymous_id": "hubspot:1" }],
         ["alias", { "asUser": { "email": "coolrobot@hubspot.com", "anonymous_id": "hubspot:1" }, "subjectType": "user" }, { "anonymous_id": "hubspot:51" }],
-        ["traits", { "asUser": { "email": "coolrobot@hubspot.com", "anonymous_id": "hubspot:1" }, "subjectType": "user" }, { "hubspot/job_function": "a value", "hubspot/merged_vids": [1, 51], "hubspot/id": 1 }]
+        ["traits", { "asUser": { "email": "coolrobot@hubspot.com", "anonymous_id": "hubspot:1" }, "subjectType": "user" }, { "hubspot/job_function": { "operation": "setIfNull", "value": "a value" }, "hubspot/merged_vids": [1, 51], "hubspot/id": 1 }]
       ],
       metrics: [
         ["increment", "connector.request", 1],
@@ -357,7 +357,6 @@ it("Should Fetch Contact With Mapped Incoming Attributes", () => {
     };
   });
 });
-
 
 it("Should Fetch Contact With Missing Optional Claims", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
