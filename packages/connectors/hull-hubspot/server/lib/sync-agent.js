@@ -19,7 +19,6 @@ import type {
 
 const _ = require("lodash");
 const moment = require("moment");
-const debug = require("debug")("hull-hubspot:sync-agent");
 
 const { pipeStreamToPromise } = require("hull/src/utils");
 const {
@@ -93,8 +92,6 @@ class SyncAgent {
     this.hubspotClient = new HubspotClient(ctx);
     this.progressUtil = new ProgressUtil(ctx);
     this.filterUtil = new FilterUtil(ctx);
-    // TODO: `handle_accounts` name chosen for hull-salesforce
-    // compatibility
     this.fetchAccounts = ctx.connector.private_settings.handle_accounts;
     this.ctx = ctx;
   }
@@ -154,7 +151,8 @@ class SyncAgent {
       metric: this.metric,
       segments: this.usersSegments,
       hubspotProperties: hubspotContactProperties,
-      hullProperties: hullUserProperties
+      hullProperties: hullUserProperties,
+      serviceType: "contact"
     });
 
     this.companyPropertyUtil = new HubspotPropertyUtil({
@@ -163,7 +161,8 @@ class SyncAgent {
       metric: this.metric,
       segments: this.accountsSegments,
       hubspotProperties: hubspotCompanyProperties,
-      hullProperties: hullAccountProperties
+      hullProperties: hullAccountProperties,
+      serviceType: "company"
     });
 
     this.mappingUtil = new MappingUtil({
@@ -343,14 +342,8 @@ class SyncAgent {
     try {
       await this.initialize({ skipCache: true });
 
-      await this.contactPropertyUtil.sync(
-        "contact",
-        this.mappingUtil.contactSchema
-      );
-      await this.companyPropertyUtil.sync(
-        "company",
-        this.mappingUtil.companySchema
-      );
+      await this.contactPropertyUtil.sync(this.mappingUtil.contactSchema);
+      await this.companyPropertyUtil.sync(this.mappingUtil.companySchema);
     } catch (error) {
       this.hullClient.logger.error("outgoing.job.error", {
         error: error.message

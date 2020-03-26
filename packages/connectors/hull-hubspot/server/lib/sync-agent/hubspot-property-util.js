@@ -55,36 +55,35 @@ class HubspotPropertyUtil {
 
   hullProperties: Array<HullProperty>;
 
+  serviceType: ServiceType;
+
   constructor({
     logger,
     metric,
     hubspotClient,
     segments,
     hubspotProperties,
-    hullProperties
+    hullProperties,
+    serviceType
   }: Object) {
     this.hubspotClient = hubspotClient;
     this.logger = logger;
     this.metric = metric;
     this.segments = segments;
-
+    this.serviceType = serviceType;
     this.hubspotProperties = hubspotProperties;
     this.hullProperties = hullProperties;
   }
 
-  sync(
-    serviceType: ServiceType,
-    outboundMapping: Array<HubspotSchema>
-  ): Promise<*> {
+  sync(outboundMapping: Array<HubspotSchema>): Promise<*> {
     const uniqueSegments = _.uniqBy(this.segments, "name");
     const expectedPropertiesList = this.getPropertiesList(
       uniqueSegments,
       outboundMapping
     );
-    return this.ensureHullGroup(serviceType, this.hubspotProperties)
+    return this.ensureHullGroup(this.hubspotProperties)
       .then(() =>
         this.ensureCustomProperties(
-          serviceType,
           this.hubspotProperties,
           expectedPropertiesList
         )
@@ -96,18 +95,15 @@ class HubspotPropertyUtil {
       });
   }
 
-  ensureHullGroup(
-    serviceType: ServiceType,
-    hubspotProperties: Array<HubspotPropertyGroup>
-  ) {
+  ensureHullGroup(hubspotProperties: Array<HubspotPropertyGroup>) {
     const group = _.find(hubspotProperties, g => g.name === "hull");
     if (group) {
       return Promise.resolve(group);
     }
-    if (serviceType === "contact") {
+    if (this.serviceType === "contact") {
       return this.hubspotClient.postContactPropertyGroups();
     }
-    if (serviceType === "company") {
+    if (this.serviceType === "company") {
       return this.hubspotClient.postCompanyPropertyGroups();
     }
 
@@ -115,7 +111,6 @@ class HubspotPropertyUtil {
   }
 
   ensureCustomProperties(
-    serviceType: ServiceType,
     hubspotGroupProperties: Array<HubspotPropertyGroup>,
     expectedPropertiesList: Array<HubspotPropertyWrite>
   ) {
@@ -126,18 +121,17 @@ class HubspotPropertyUtil {
     }, {});
     return Promise.all(
       expectedPropertiesList.map(property =>
-        this.ensureProperty(serviceType, flattenProperties, property)
+        this.ensureProperty(flattenProperties, property)
       )
     ).then((...props) =>
       this.logger.debug(
-        `${_.upperFirst(serviceType)}Property.ensureCustomProperties`,
+        `${_.upperFirst(this.serviceType)}Property.ensureCustomProperties`,
         _.map(props[0], p => p.name)
       )
     );
   }
 
   shouldUpdateProperty(
-    serviceType: ServiceType,
     currentValue: HubspotProperty,
     newValue: HubspotPropertyWrite
   ): boolean {
@@ -152,7 +146,6 @@ class HubspotPropertyUtil {
   }
 
   ensureProperty(
-    serviceType: ServiceType,
     groupProperties: { [string]: HubspotProperty },
     property: HubspotPropertyWrite
   ) {
@@ -160,21 +153,21 @@ class HubspotPropertyUtil {
       groupProperties[property.name] ||
       groupProperties[property.name.replace(/^hull_/, "")];
     if (existing) {
-      if (this.shouldUpdateProperty(serviceType, existing, property)) {
-        if (serviceType === "contact") {
+      if (this.shouldUpdateProperty(existing, property)) {
+        if (this.serviceType === "contact") {
           return this.hubspotClient.updateContactProperty(property);
         }
-        if (serviceType === "company") {
+        if (this.serviceType === "company") {
           return this.hubspotClient.updateCompanyProperty(property);
         }
       }
       return Promise.resolve(existing);
     }
 
-    if (serviceType === "contact") {
+    if (this.serviceType === "contact") {
       return this.hubspotClient.createContactProperty(property);
     }
-    if (serviceType === "company") {
+    if (this.serviceType === "company") {
       return this.hubspotClient.createCompanyProperty(property);
     }
 
