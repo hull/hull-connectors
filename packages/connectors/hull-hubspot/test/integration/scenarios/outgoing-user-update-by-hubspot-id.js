@@ -34,11 +34,11 @@ const connector = {
     mark_deleted_companies: false,
     outgoing_user_attributes: [
       { "hull": "'hubspot/email'", "service": "email", "overwrite": true },
-      { "hull": "'hubspot/lead_status'[]", "service": 'hs_lead_status', "overwrite": true },
-      { "hull": "traits_hubspot/hs_email_quarantined_reason", "service": "hs_email_quarantined_reason", "overwrite": true },
-      { "hull": "traits_hubspot/annualrevenue", "service": "annualrevenue", "overwrite": true },
-      { "hull": "account.hubspot/industry", "service": "industry", "overwrite": true },
-      { "hull": "custom_attribute", "service": "hull_managed_attribute", "overwrite": true },
+      { "hull": "'hubspot/lead_status'[]", "service": 'hs_lead_status', "overwrite": true }, // str -> arr -> str
+      { "hull": "traits_hubspot/hs_email_quarantined_reason", "service": "hs_email_quarantined_reason", "overwrite": true }, // arr -> str
+      { "hull": "traits_hubspot/annualrevenue", "service": "annualrevenue", "overwrite": true }, // not in user message
+      { "hull": "account.hubspot/industry", "service": "industry", "overwrite": true }, // single value arr -> str
+      { "hull": "custom_attribute", "service": "hull_managed_attribute", "overwrite": true }, // create hull managed attribute
       { "hull": "segments.name[]", "service": "hull_segments", "overwrite": true }
     ]
   }
@@ -82,7 +82,7 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
       messages: [
         {
           account: {
-            "hubspot/industry": "software"
+            "hubspot/industry": ["software"]
           },
           user: {
             email,
