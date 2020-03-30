@@ -303,12 +303,12 @@ it("Should Fetch Contact With Mapped Incoming Attributes", () => {
           mark_deleted_companies: false,
           incoming_user_attributes: [
             {
-              service: '$.properties.job_function.value',
+              service: 'properties.job_function.value',
               hull: 'traits_hubspot/job_function',
               overwrite: false
             },
             {
-              service: '$.`merged-vids`',
+              service: '`merged-vids`',
               hull: 'traits_hubspot/merged_vids',
               overwrite: true
             }
@@ -416,13 +416,13 @@ it("Should Fetch Contact With Missing Optional Claims", () => {
           incoming_user_claims: [
             {
               hull: 'email',
-              service: '$.properties.email.value',
+              service: 'properties.email.value',
               required: false
             }
           ],
           incoming_user_attributes: [
             {
-              service: '$.properties.job_function.value',
+              service: 'properties.job_function.value',
               hull: 'traits_hubspot/job_function',
               overwrite: true
             }

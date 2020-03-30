@@ -251,29 +251,29 @@ class SyncAgent {
               if (label === "Contact ID") {
                 return {
                   label,
-                  value: "$.`canonical-vid` ? $.`canonical-vid` : $.`vid`"
+                  value: "`canonical-vid` ? `canonical-vid` : `vid`"
                 };
               }
 
               if (label === "Company ID") {
                 return {
                   label,
-                  value: "$.companyId"
+                  value: "companyId"
                 };
               }
 
               if (group.name === "contactmeta") {
-                return { label, value: `$.\`${value}\`` };
+                return { label, value: `\`${value}\`` };
               }
 
               if (type === "enumeration" && fieldType === "checkbox") {
                 return {
                   label,
-                  value: `$.properties.${value}.value.$split(';')`
+                  value: `properties.${value}.value.$split(';')`
                 };
               }
 
-              return { label, value: `$.properties.${value}.value` };
+              return { label, value: `properties.${value}.value` };
             })
             .value()
         }))

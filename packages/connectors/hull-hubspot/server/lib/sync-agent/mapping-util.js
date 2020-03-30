@@ -351,7 +351,7 @@ class MappingUtil {
 
   getHubspotPropertyKeys({ identityClaims, attributeMapping }): Array<string> {
     return _.concat(attributeMapping, identityClaims)
-      .filter(entry => entry.service.indexOf("$.properties.") === 0)
+      .filter(entry => entry.service.indexOf("properties.") === 0)
       .map(entry =>
         entry.service
           .replace(/\$\./, "")

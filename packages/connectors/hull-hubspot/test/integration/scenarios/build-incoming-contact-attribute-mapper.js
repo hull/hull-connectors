@@ -87,11 +87,11 @@ describe("Should fetch contact groups and properties and transform it to incomin
               options: [
                 {
                   label: "Job function",
-                  value: "$.properties.job_function.value"
+                  value: "properties.job_function.value"
                 },
                 {
                   label: "Department",
-                  value: "$.properties.department.value"
+                  value: "properties.department.value"
                 }
               ]
             },
@@ -100,7 +100,7 @@ describe("Should fetch contact groups and properties and transform it to incomin
               options: [
                 {
                   label: "Hull Segments",
-                  value: "$.properties.hull_segments.value.$split(';')"
+                  value: "properties.hull_segments.value.$split(';')"
                 }
               ]
             },
@@ -109,7 +109,7 @@ describe("Should fetch contact groups and properties and transform it to incomin
               options: [
                 {
                   label: "Merged Vids",
-                  value: "$.`merged-vids`"
+                  value: "`merged-vids`"
                 }
               ]
             }
