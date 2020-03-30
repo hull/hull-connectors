@@ -15,6 +15,8 @@ const {
 
 const {
   CopperCRMIncomingLead,
+  CopperCRMOutgoingLead,
+  CopperCRMOutgoingExistingLead,
   CopperCRMIncomingPerson,
   CopperCRMIncomingCompany,
   CopperCRMIncomingOpportunity,
@@ -33,6 +35,18 @@ const service = ({ clientID, clientSecret } : {
   prefix: "https://api.prosperworks.com/developer_api",
   defaultReturnObj: "body",
   endpoints: {
+    updateLead: {
+      url: "/v1/leads/${leadId}",
+      operation: "put",
+      input: CopperCRMOutgoingExistingLead,
+      output: CopperCRMIncomingLead
+    },
+    upsertLead: {
+      url: "/v1/leads/upsert",
+      operation: "put",
+      input: CopperCRMOutgoingLead,
+      output: CopperCRMIncomingLead
+    },
     getUsers: {
       url: "/v1/users/search",
       operation: "post",

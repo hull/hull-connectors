@@ -19,7 +19,7 @@ const { getEntityTriggers } = require("./triggers/trigger-utils");
 
 const { hullService } = require("./hull-service");
 
-const { toSendMessage } = require("./utils");
+const { toSendMessage, isUndefinedOrNull } = require("./utils");
 const { statusCallback, statusErrorCallback, resolveServiceDefinition } = require("./router-utils");
 const { getServiceOAuthParams } = require("./auth/auth-utils");
 
@@ -134,26 +134,53 @@ class HullRouter {
       }
 
       let dataToSend;
-      const dataToSkip = [];
+      let leadDataToSend = [];
+      let dataToSkip = [];
 
       if (Array.isArray(data) && (objectType === HullOutgoingUser || objectType === HullOutgoingAccount)) {
+
+        let entityType = _.toLower(objectType.name);
+
         dataToSend = [];
         // break up data and send one by one
         _.forEach(data, message => {
-          if (toSendMessage(context, _.toLower(objectType.name), message, { serviceName: this.serviceName })) {
+          if (toSendMessage(context, entityType, message, { serviceName: this.serviceName })) {
             dataToSend.push(message);
           } else {
             dataToSkip.push(message);
           }
         });
+
+        if (entityType === "user") {
+          if (!isUndefinedOrNull(_.get(context, "connector.private_settings.synchronized_lead_segments"))) {
+            _.forEach(data, message => {
+              if (toSendMessage(context, "lead", message, { serviceName: this.serviceName })) {
+                leadDataToSend.push(message);
+              }
+            });
+
+            // TODO current prefer to send leads, so remove from being sent as a user
+            // not sure if this is always right, but it's the behavior of other connectors right now
+            dataToSend = _.difference(dataToSend, leadDataToSend);
+            dataToSkip = _.difference(dataToSkip, leadDataToSend);
+          }
+        }
+
       } else {
         dataToSend = data;
       }
+
 
       // I like getting rid of the splitting here, and always passing in the data
       // glue can handle the split if needed
       // TODO need to test sending an empty array, or decide if we need extra logic here...
       let dispatchPromise = dispatcher.dispatchWithData(context, route, objectType, dataToSend);
+
+      if (!_.isEmpty(leadDataToSend)) {
+        dispatchPromise = dispatchPromise.then((results) => {
+          return dispatcher.dispatchWithData(context, "leadUpdate", objectType, leadDataToSend);
+        });
+      }
 
       if (this.filteredMessageCallback) {
         dispatchPromise = this.filteredMessageCallback(context, dispatcher, dispatchPromise, objectType, dataToSkip);

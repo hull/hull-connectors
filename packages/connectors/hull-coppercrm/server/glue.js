@@ -7,6 +7,7 @@ const {
   set,
   ifL,
   iterateL,
+  loopEndL,
   input,
   Svc,
   settings,
@@ -26,9 +27,11 @@ const {
 
 const {
   HullIncomingDropdownOption,
+  HullOutgoingDropdownOption,
   HullConnectorAttributeDefinition,
   HullIncomingUser,
-  HullIncomingAccount
+  HullIncomingAccount,
+  HullOutgoingUser
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const {
@@ -142,6 +145,15 @@ const glue = {
       ]
     })
   ),
+  leadUpdate: ifL(route("isConfigured"),
+    iterateL(input(), { key: "message", async: true },
+      ifL(set("leadId", input("user.coppercrm_lead/id")), {
+        do: hull("asUser", coppercrm("updateLead", cast(HullOutgoingUser, "${message}"))),
+        eldo: hull("asUser", coppercrm("upsertLead", cast(HullOutgoingUser, "${message}"))),
+      })
+    )
+  ),
+  userUpdate: {},
 
   // Incremental polling logic
   fetchAllLeads: ifL(route("isConfigured"),
@@ -276,6 +288,7 @@ const glue = {
   getActivityTypes: cacheWrap(StandardEnumTimeout, coppercrm("getActivityTypes")),
 
   attributesLeadsIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, route("leadSchema"))),
+  attributesLeadsOutgoing: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, route("leadSchema"))),
   leadSchema: ld("concat", require("./fields/lead_fields"), route("customLeadFields")),
   attributesPeopleIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, route("personSchema"))),
   personSchema: ld("concat", require("./fields/people_fields"), route("customPeopleFields")),

@@ -25,6 +25,7 @@ const {
 
 const {
   HullUserRaw,
+  HullLeadRaw,
   ServiceUserRaw,
   ServiceAccountRaw,
   ServiceOpportunityRaw,
@@ -46,6 +47,60 @@ const {
  * @type {[type]}
  */
 const transformsShared: ServiceTransforms = [
+  {
+    input: HullOutgoingUser,
+    output: HullLeadRaw,
+    direction: "incoming",
+    strategy: "AtomicReaction",
+    target: { component: "new" },
+    then: [
+      {
+        operateOn: "${connector.private_settings.outgoing_lead_attributes}",
+        expand: { valueName: "mapping" },
+        then: [
+          {
+            operateOn: { component: "input", select: "user.${mapping.hull}" },
+            writeTo: { path: "attributes.${mapping.service}" }
+          },
+          {
+            // for account mappints
+            operateOn: { component: "input", select: "${mapping.hull}" },
+            writeTo: { path: "attributes.${mapping.service}" }
+          },
+        ]
+      },
+      // {
+      //   operateOn: { component: "input", select: "${service_name}_lead/id" },
+      //   condition: not(varUndefinedOrNull("${operateOn}")),
+      //   writeTo: {
+      //     appendToArray: true,
+      //     path: "ident",
+      //     format: {
+      //       hull: "${service_name}_lead/id",
+      //       service: "id",
+      //       value: "${operateOn}"
+      //     }
+      //   }
+      // },
+      {
+        operateOn: "${connector.private_settings.user_claims}",
+        expand: { valueName: "mapping" },
+        then: {
+          operateOn: { component: "input", select: "user.${mapping.service}"},
+          condition: not(varUndefinedOrNull("${operateOn}")),
+          writeTo: {
+            appendToArray: true,
+            path: "ident",
+            format: {
+              hull: "${mapping.hull}",
+              service: "${mapping.service}",
+              value: "${operateOn}"
+            }
+          }
+        }
+      },
+    ]
+  },
   {
     input: HullOutgoingUser,
     output: HullUserRaw,

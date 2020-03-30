@@ -224,6 +224,12 @@ function toSendMessage(
       "connector.private_settings.synchronized_account_segments"),
       (outgoingAttributesPath =
         "connector.private_settings.outgoing_account_attributes");
+  } else if (targetEntity === "lead") {
+    segmentAttribute = "segments";
+    (synchronizedSegmentPath =
+      "connector.private_settings.synchronized_lead_segments"),
+      (outgoingAttributesPath =
+        "connector.private_settings.outgoing_lead_attributes");
   } else {
     throw new Error(
       `Invalid input for target entity, option not supported: ${targetEntity}`

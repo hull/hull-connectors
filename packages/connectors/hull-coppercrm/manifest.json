@@ -69,6 +69,27 @@
       }
     },
     {
+      "name": "synchronized_lead_segments",
+      "title": "Lead Filter",
+      "description": "Send *Users* as Leads to CopperCrm when belonging to one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "segment"
+    },
+    {
+      "name": "outgoing_lead_attributes",
+      "title": "User Attributes to send to CopperCrm",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "CopperCRM Lead Field",
+        "allowCreate": false,
+        "loadOptions": "/attributes-leads-outgoing"
+      }
+    },
+    {
       "name": "person_claims",
       "title": "Person Identity",
       "type": "array",
@@ -328,6 +349,10 @@
       "handler": "attributesLeadsIncoming"
     },
     {
+      "url": "/attributes-leads-outgoing",
+      "handler": "attributesLeadsOutgoing"
+    },
+    {
       "url": "/attributes-people-incoming",
       "handler": "attributesPeopleIncoming"
     },
@@ -408,22 +433,34 @@
   "subscriptions": [
     {
       "url": "/smart-notifier",
+      "conditions" : {
+        "segments": {
+          "user:update": ["private_settings.synchronized_lead_segments"]
+        }
+      },
       "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
         {
           "channel": "ship:update",
           "handler": "shipUpdate"
         }
-      ],
-      "conditions": {
-        "channels": {
-          "only": [
-            "ship:update"
-          ]
-        }
-      }
+      ]
     }
   ],
-  "batches": [],
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ]
+    }
+  ],
   "settings_sections": [
     {
       "title": "Connect with CopperCrm",
@@ -445,6 +482,15 @@
       "description": "Hull gives it's customers the ability to capture changes on specific data fields so that they are kept up to date in real-time.  Please configure the fields that you would like pulled from CopperCrm below.  <br /> <br /> Add a mapping by clicking \"Map an attribute\".  To create a new attribute in Hull, you may type in the attribute name in the \"Hull Attribute\" box on the right and hit enter to create a new attribute.",
       "properties": [
         "private_settings.incoming_lead_attributes",
+        "json.fetch_all_leads"
+      ]
+    },
+    {
+      "title": "Lead - Send Leads tp CopperCrm",
+      "description": "Hull gives it's customers the ability to send leads to copper crm",
+      "properties": [
+        "private_settings.synchronized_lead_segments",
+        "private_settings.outgoing_lead_attributes",
         "json.fetch_all_leads"
       ]
     },
