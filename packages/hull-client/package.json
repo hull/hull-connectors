@@ -1,6 +1,6 @@
 {
   "name": "hull-client",
-  "version": "0.1.22-monorepo",
+  "version": "0.1.23-monorepo",
   "description": "A barebones Node.js API client for hull.io",
   "main": "src",
   "scripts": {
