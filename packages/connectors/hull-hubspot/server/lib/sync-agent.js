@@ -314,7 +314,7 @@ class SyncAgent {
     return {
       options: [
         {
-          label: "companyId",
+          label: "Company ID",
           value: "companyId"
         },
         ...companyProperties.options.map(({ label, options }) => ({
