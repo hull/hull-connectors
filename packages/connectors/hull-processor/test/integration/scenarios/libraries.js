@@ -16,7 +16,7 @@ const path = require("path");
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 describe("Basic Attributes manipulation", () => {
-  it("should expose lodash, console, moment, urijs", () => {
+  it("should expose lodash, console, moment, urijs, uuid", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
         user: {
@@ -68,6 +68,54 @@ describe("Basic Attributes manipulation", () => {
           expect.whatever(),
           expect.objectContaining({
             log: ["info"]
+          })
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST]
+    }));
+  });
+
+  it("should expose uuid", () => {
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser(),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(`
+        console.log("uuid", uuid());
+      `),
+      firehoseEvents: [],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            logs: [
+              ["uuid", expect.stringMatching(/(\w){8}-(\w){4}-(\w){4}-(\w){4}-(\w){12}/)],
+            ]
+          })
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST]
+    }));
+  });
+
+  it("should expose uuid with options", () => {
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser(),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(`
+        console.log("uuid", uuid());
+      `),
+      firehoseEvents: [],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            logs: [
+              ["uuid", expect.stringMatching(/(\w){8}-(\w){4}-(\w){4}-(\w){4}-(\w){12}/)],
+            ]
           })
         ]
       ],
