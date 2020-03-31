@@ -1,6 +1,6 @@
 {
   "name": "hull-activecampaign",
-  "version": "0.1.20-monorepo",
+  "version": "0.1.23-monorepo",
   "description": "Sync persons and organizations with Hull",
   "scripts": {
     "test": "exit 0;",
