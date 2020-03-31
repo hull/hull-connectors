@@ -4,7 +4,7 @@
   "source": "coppercrm",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.22-monorepo",
+  "version": "0.1.23-monorepo",
 
   "tags": [
     "incoming",

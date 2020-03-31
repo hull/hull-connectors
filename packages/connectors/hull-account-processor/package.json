@@ -1,7 +1,7 @@
 {
   "name": "hull-accounts-processor",
   "description": "Run code to update Account Properties",
-  "version": "0.1.22-monorepo",
+  "version": "0.1.23-monorepo",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {
     "test": "exit 0; echo 'No Tests here' Sad Panda",
