@@ -119,7 +119,6 @@ import "codemirror/mode/sql/sql";
     }
 
     button_import.click(() => {
-      console.log("CLICKED IMPORT");
       const query = editor.getValue();
 
       if (query === "") {
@@ -136,15 +135,14 @@ import "codemirror/mode/sql/sql";
       }
 
       return swal({
-        title: "Import the users from the current query? ",
+        title: "Import Query Results?",
         text:
-          "If you continue, we will import the users from the currently saved query.",
+          "If you continue, results will be imported into Hull",
         type: "warning",
         icon: "warning",
         buttons: true,
         dangerMode: true
       }).then(isConfirm => {
-        console.log(`IS CONFIRMED: ${isConfirm}`);
         if (isConfirm === true) {
           button_import.prop("disabled", true);
           button_import.text("Importing...");
