@@ -1,0 +1,26 @@
+{
+  "name": "hull-activecampaign",
+  "version": "0.1.20-monorepo",
+  "description": "Sync persons and organizations with Hull",
+  "scripts": {
+    "test": "exit 0;",
+    "tests": "npm run test:lint && npm run test:unit && npm run test:integration",
+    "test:lint": "eslint server",
+    "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit",
+    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}",
+    "test:flow": "flow check",
+    "documentation": "exit 0"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "pg-query-stream": "^3.0.4",
+    "hull-mariadb": "^1.0.0",
+    "tedious": "^8.2.0",
+    "bootstrap-sweetalert": "^1.0.1",
+    "codemirror": "^5.52.2",
+    "json-loader": "^0.5.7",
+    "s3-upload-stream": "^1.0.7",
+    "snowflake-sdk": "^1.5.0"
+  },
+  "devDependencies": {}
+}
