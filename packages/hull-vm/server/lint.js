@@ -20,6 +20,7 @@ const LIBS = [
   "captureMessage"
 ];
 const COMMON_VARS = [
+  "body",
   "ship",
   "connector",
   "results",

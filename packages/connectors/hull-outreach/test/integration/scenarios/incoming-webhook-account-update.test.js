@@ -18,7 +18,7 @@ test("process account update webhook from outreach", () => {
           .post(`${connectorUrl}/webhooks?ship=${plainCredentials.ship}&organization=${plainCredentials.organization}&secret=1234`)
           .send(require("../fixtures/webhook-payloads/account-updated.json"));
         scope
-          .get("/api/v2/users/")
+          .get("/api/v2/users/?page[limit]=1000&page[offset]=0")
           .reply(201, { data: [ { id: 1, attributes: { email: "andy@hull.io" } }, { id: 0, attributes: { email: "tim@hull.io" }}]});
         scope
           .get("/api/v2/stages/")

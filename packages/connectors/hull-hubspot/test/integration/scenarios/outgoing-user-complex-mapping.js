@@ -196,8 +196,9 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
           "outgoing.user.success",
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
           {
-            "email": "email@email.com",
-            "properties": [{
+            hubspotWriteContact: {
+              "email": "email@email.com",
+              "properties": [{
                 "property": "firstname",
                 "value": "John"
               }, {
@@ -249,6 +250,7 @@ it("should send out a new hull user to hubspot with complex fields mapping", () 
                 "property": "hull_segments",
                 "value": "testSegment"
               }]
+            }
           }
         ]
       ],

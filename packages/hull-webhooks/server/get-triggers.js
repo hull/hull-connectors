@@ -1,66 +1,39 @@
 // @flow
-import _ from "lodash";
+import type { HullEntityName, HullTriggerSet } from "hull";
+import type { PrivateSettings } from "../types";
 
-const buildTriggers = ({
-  entityType,
-  synchronized_segments,
-  inputData,
-  serviceAction
-}) => {
-  const triggers = [];
-  if (!_.isEmpty(synchronized_segments)) {
-    _.map(inputData, (whitelist, action) => {
-      if (whitelist === true || !_.isEmpty(whitelist)) {
-        triggers.push({
-          serviceAction: {
-            url: serviceAction
-          },
-          inputData: {
-            [`${entityType}_segments`]: synchronized_segments,
-            [action]: whitelist
-          }
-        });
-      }
-    });
-  }
+const getTriggers = (
+  entity: HullEntityName,
+  private_settings: PrivateSettings
+): HullTriggerSet => {
+  const {
+    synchronized_segments_enter,
+    synchronized_segments_leave,
+    synchronized_attributes,
+    synchronized_events
+  } = private_settings;
 
-  return triggers;
-};
+  const include_new = synchronized_events.includes("CREATED");
 
-const getTriggers = entityType => (private_settings: Object): Array<{}> => {
-  let triggers = [];
+  return {
+    [`${entity}_segments_entered`]: synchronized_segments_enter,
+    [`${entity}_segments_left`]: synchronized_segments_leave,
+    [`${entity}_attribute_updated`]: synchronized_attributes,
+    [`${entity}_events`]: synchronized_events,
+    ...(include_new ? { [`is_new_${entity}`]: true } : {})
+  };
 
-  const { url } = private_settings;
-
-  const synchronized_segments = private_settings.synchronized_segments;
-
-  if (!_.isEmpty(synchronized_segments)) {
-    const inputData = {
-      [`entered_${entityType}_segments`]: private_settings.synchronized_segments_enter,
-      [`left_${entityType}_segments`]: private_settings.synchronized_segments_leave,
-      [`${entityType}_attribute_updated`]: private_settings.synchronized_attributes,
-      [`${entityType}_events`]: private_settings.synchronized_events
-    };
-
-    if (
-      _.includes(private_settings.synchronized_events, "User Created") ||
-      _.includes(private_settings.synchronized_events, "Account Created")
-    ) {
-      inputData[`is_new_${entityType}`] = true;
-    }
-
-    triggers = _.concat(
-      triggers,
-      buildTriggers({
-        entityType,
-        synchronized_segments,
-        inputData,
-        serviceAction: url
-      })
-    );
-  }
-
-  return triggers;
+  // TODO: Support boolean logic
+  // {
+  //   and: [
+  //     {}
+  //     {}
+  //     {}
+  //     {
+  //       or: []
+  //     }
+  //   ]
+  // }
 };
 
 export default getTriggers;

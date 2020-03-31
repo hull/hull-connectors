@@ -12,7 +12,7 @@ describe("Outgoing Users Tests", () => {
   it("User Created. Should Send Payload", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
 
-      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_created" });
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "is_new_user" });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,
@@ -43,7 +43,7 @@ describe("Outgoing Users Tests", () => {
   it("User Entered Segment. Should Send Payload", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
 
-      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_entered_segment" });
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_segments_entered" });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,
@@ -74,7 +74,7 @@ describe("Outgoing Users Tests", () => {
   it("User Left Segment. Should Send Payload", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
 
-      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_left_segment" });
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_segments_left" });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,
@@ -136,7 +136,7 @@ describe("Outgoing Users Tests", () => {
   it("Whitelisted User Event Occurred. Should Send Payload", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
 
-      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_event" });
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_events" });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,
@@ -259,7 +259,7 @@ describe("Outgoing Users Tests", () => {
   it("User entered non synchronized segment. Should Not Send Payload", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
 
-      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_entered_segment", negative: true });
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_segments_entered", negative: true });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,
@@ -278,7 +278,7 @@ describe("Outgoing Users Tests", () => {
   it("User leaves non synchronized segment. Should Not Send Payload", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
 
-      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_left_segment", negative: true });
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_segments_left", negative: true });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,
@@ -316,7 +316,7 @@ describe("Outgoing Users Tests", () => {
   it("Not Whitelisted User Event Occurred. Should Send Payload", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
 
-      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_event", negative: true });
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_events", negative: true });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,

@@ -67,12 +67,20 @@ class FrameworkUtils {
     return [];
   }
 
+  emptyObject(): Object {
+    return {};
+  }
+
   base64Encode(context: Object, params: any) {
     return Buffer.from(params).toString('base64');
   }
 
   hashObject(context: Object, params: any) {
     return hash(params);
+  }
+
+  print(context: Object, params: any) {
+    return console.log(`PRINT: ${JSON.stringify(params)}`);
   }
 
 }

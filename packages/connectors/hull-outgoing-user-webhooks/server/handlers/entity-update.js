@@ -1,18 +1,26 @@
 // @flow
 import type {
   HullContext,
+  HullEntityName,
   HullUserUpdateMessage,
   HullNotificationResponse
 } from "hull";
 import { compute } from "hull-vm";
-
-import { getHeaders, getPayloads, getTriggers } from "hull-webhooks";
+import type { PrivateSettings } from "hull-webhooks/types";
+import {
+  getHeaders,
+  getPayloads,
+  getTriggers,
+  getFilters
+} from "hull-webhooks";
 
 type FlowControl = {
   flow_size?: number,
   flow_in?: number
 };
-const entityUpdate = entity => (
+
+// TODO move to outgoing-webhooks
+const entityUpdate = (entity: HullEntityName) => (
   { flow_in, flow_size }: FlowControl,
   getThrottle: Function
 ) => {
@@ -22,7 +30,9 @@ const entityUpdate = entity => (
   ): HullNotificationResponse => {
     const { client, connector, request, clientCredentials } = ctx;
     const { id } = clientCredentials;
-    const { private_settings = {} } = connector;
+    const {
+      private_settings = {}
+    }: { private_settings: PrivateSettings } = connector;
     const {
       code,
       throttle_rate,
@@ -41,13 +51,14 @@ const entityUpdate = entity => (
       }
     });
 
-    const triggers = getTriggers(entity)(private_settings);
+    const triggers = getTriggers(entity, private_settings);
+    const filters = getFilters(entity, private_settings);
 
     try {
       await Promise.all(
         messages.map(async message =>
           Promise.all(
-            getPayloads({ ctx, message, entity, triggers }).map(
+            getPayloads({ ctx, message, entity, triggers, filters }).map(
               async payload => {
                 const result = await compute(ctx, {
                   source: "outgoing-webhooks",

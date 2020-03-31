@@ -35,6 +35,14 @@ describe("Outreach User Tests", () => {
     return harness.runTest(require("./fixtures/getEvents"));
   });
 
+  it("fetch recent events with paging", () => {
+    return harness.runTest(require("./fixtures/getRecentEvents"));
+  });
+
+  it("Fetch different glue endpoints twice to test caching", () => {
+    return harness.runTest(require("./fixtures/testCaching"));
+  });
+
   // outgoing segment property tests
   it("outgoing outreach user with segments as tags and custom 1", () => {
     return harness.runTest(require("./fixtures/userUpdateSegments"));

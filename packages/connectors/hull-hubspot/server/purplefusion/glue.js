@@ -132,27 +132,28 @@ const glue = {
         "events": [...]
       }
      */
-    set("limit", 300),
-    ifL(cond("notEmpty", set("hubspotResponse", hubspot("${initialEndpoint}"))), [
+    cacheLock("getRecentEmailEventsLock",[
+      set("limit", 300),
+      set("last_sync", ex(moment(), "valueOf")),
+      ifL(cond("notEmpty", set("hubspotResponse", hubspot("${initialEndpoint}"))), [
 
-      set("hasMore", get("hasMore", "${hubspotResponse}")),
+        set("hasMore", get("hasMore", "${hubspotResponse}")),
 
-      loopL([
-        set("last_sync", ex(moment(), "valueOf")),
-        ifL([
-          "${hasMore}", cond("notEmpty", "${offset}")
-        ], [
-          set("hubspotResponse", hubspot("${offsetEndpoint}")),
-          set("hasMore", get("hasMore", "${hubspotResponse}")),
-        ]),
-        route("getEmailCampaignData"),
+        loopL([
+          ifL([
+            "${hasMore}", cond("notEmpty", "${offset}")
+          ], [
+            set("hubspotResponse", hubspot("${offsetEndpoint}")),
+            set("hasMore", get("hasMore", "${hubspotResponse}")),
+          ]),
+          route("getEmailCampaignData"),
 
-        ifL("${hasMore}", {
-          do: set("offset", get("offset", "${hubspotResponse}")),
-          eldo: loopEndL()
-        })
+          ifL("${hasMore}", {
+            do: set("offset", get("offset", "${hubspotResponse}")),
+            eldo: loopEndL()
+          })
+        ])
       ]),
-
       settingsUpdate({
         events_last_fetch_started_at: "${last_sync}"
       })
