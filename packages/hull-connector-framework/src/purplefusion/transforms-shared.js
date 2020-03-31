@@ -83,11 +83,11 @@ const transformsShared: ServiceTransforms = [
       //   }
       // },
       {
-        operateOn: "${connector.private_settings.user_claims}",
+        operateOn: "${connector.private_settings.lead_claims}",
         expand: { valueName: "mapping" },
         then: {
-          operateOn: { component: "input", select: "user.${mapping.service}"},
-          condition: not(varUndefinedOrNull("${operateOn}")),
+          operateOn: { component: "input", select: "user.${mapping.hull}"},
+          condition: not(varUndefinedOrNull("operateOn")),
           writeTo: {
             appendToArray: true,
             path: "ident",

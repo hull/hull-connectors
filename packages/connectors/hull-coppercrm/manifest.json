@@ -4,7 +4,7 @@
   "source": "coppercrm",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.22-monorepo",
+  "version": "0.1.23-monorepo",
 
   "tags": [
     "incoming",
@@ -486,12 +486,11 @@
       ]
     },
     {
-      "title": "Lead - Send Leads tp CopperCrm",
+      "title": "Lead - Send Leads to CopperCrm",
       "description": "Hull gives it's customers the ability to send leads to copper crm",
       "properties": [
         "private_settings.synchronized_lead_segments",
-        "private_settings.outgoing_lead_attributes",
-        "json.fetch_all_leads"
+        "private_settings.outgoing_lead_attributes"
       ]
     },
     {

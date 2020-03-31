@@ -151,6 +151,10 @@ class HullRouter {
           }
         });
 
+        // Right now this logic isn't quite right.  For batch scenarios, we'll default to sending leads if the user
+        // isn't in any segment.  This is ok for now, but ask product in the future if we want to change
+        // salesforce connector doesn't send at all if user is in neither segment, which might be ok
+        // we would have to extract the "send regardless" logic out to here, but that's probably where it belongs anyway
         if (entityType === "user") {
           if (!isUndefinedOrNull(_.get(context, "connector.private_settings.synchronized_lead_segments"))) {
             _.forEach(data, message => {

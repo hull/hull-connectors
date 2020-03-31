@@ -12,6 +12,7 @@ const {
 
 const {
   varUndefined,
+  varEqual,
   not
 }  = require("hull-connector-framework/src/purplefusion/conditionals");
 
@@ -26,27 +27,31 @@ const transformsToHull: ServiceTransforms = [
       {
         operateOn: { component: "input", select: "attributes" },
         expand: { keyName: "key", valueName: "value" },
-        then: {
-          writeTo: { path: "properties.${key}" }
-        }
-      },
-      {
-        operateOn: { component: "input", select: "attributes.email", name: "email" },
-        condition: not(varUndefined("email")),
-        writeTo: {
-          path: "properties.${key}",
-          format: {
-            email: "${email}",
-            category: "other"
+        then: [
+          {
+            condition: not(varEqual("key", "primaryEmail")),
+            writeTo: { path: "properties.${key}" }
+          },
+          {
+            condition: varEqual("key", "primaryEmail"),
+            writeTo: {
+              path: "properties.email",
+              format: {
+                email: "${value}",
+                category: "other"
+              }
+            }
           }
-        }
+        ]
       },
       {
         operateOn: { component: "input", select: "ident[0]" },
+        // For now only support resolution on email
+        condition: varEqual("operateOn.service", "primaryEmail"),
         writeTo: {
           path: "match",
           format: {
-            field_name: "${operateOn.service}",
+            field_name: "email",
             field_value: "${operateOn.value}"
           }
         }
@@ -63,10 +68,23 @@ const transformsToHull: ServiceTransforms = [
       {
         operateOn: { component: "input", select: "attributes" },
         expand: { keyName: "key", valueName: "value" },
-        then: {
-          writeTo: { path: "properties.${key}" }
-        }
-      }
+        then: [
+          {
+            condition: not(varEqual("key", "primaryEmail")),
+            writeTo: { path: "properties.${key}" }
+          },
+          {
+            condition: varEqual("key", "primaryEmail"),
+            writeTo: {
+              path: "properties.email",
+              format: {
+                email: "${value}",
+                category: "other"
+              }
+            }
+          }
+        ]
+      },
     ]
   }
 ];

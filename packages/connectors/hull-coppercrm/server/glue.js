@@ -145,14 +145,15 @@ const glue = {
       ]
     })
   ),
-  leadUpdate: ifL(route("isConfigured"),
+  leadUpdate: ifL(route("isConfigured"),[
+    set("service_name", "coppercrm"),
     iterateL(input(), { key: "message", async: true },
-      ifL(set("leadId", input("user.coppercrm_lead/id")), {
+      ifL(set("leadId", "${message.user.coppercrm_lead/id}"), {
         do: hull("asUser", coppercrm("updateLead", cast(HullOutgoingUser, "${message}"))),
         eldo: hull("asUser", coppercrm("upsertLead", cast(HullOutgoingUser, "${message}"))),
       })
     )
-  ),
+  ]),
   userUpdate: {},
 
   // Incremental polling logic
