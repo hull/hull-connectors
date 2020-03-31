@@ -33,7 +33,6 @@ const onAuthorize = async (
 
   return {
     private_settings: {
-      client_id: process.env.CLIENT_ID,
       portal_id: portalId,
       refresh_token: refreshToken,
       token: accessToken,

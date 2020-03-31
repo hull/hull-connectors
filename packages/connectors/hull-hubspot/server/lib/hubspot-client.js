@@ -93,11 +93,7 @@ class HubspotClient {
   }
 
   refreshAccessToken(): Promise<*> {
-    const refresh_token = this.connector.private_settings.refresh_token;
-    const client_id =
-      this.connector.private_settings.client_id || process.env.CLIENT_ID;
-    const client_secret =
-      process.env[`CLIENT_SECRET_${client_id}`] || process.env.CLIENT_SECRET;
+    const refreshToken = this.connector.private_settings.refresh_token;
     if (!refreshToken) {
       return Promise.reject(
         new ConfigurationError("Refresh token is not set.")
@@ -108,9 +104,9 @@ class HubspotClient {
       .post("/oauth/v1/token")
       .set("Content-Type", "application/x-www-form-urlencoded")
       .send({
-        refresh_token,
-        client_id,
-        client_secret,
+        refresh_token: refreshToken,
+        client_id: process.env.CLIENT_ID,
+        client_secret: process.env.CLIENT_SECRET,
         redirect_uri: "",
         grant_type: "refresh_token"
       })
