@@ -304,7 +304,9 @@ function createErrorException(context: Object, servicename: string, errorDefinit
     if (typeof errorTemplate.message === "string") {
       message = errorTemplate.message;
     } else {
-      message = errorTemplate.message().message;
+      message = _.has(error, "response.body") ?
+        errorTemplate.message(error.response.body).message :
+        errorTemplate.message().message;
     }
 
     if (!_.isEmpty(assembledServiceErrorDescription)) {
@@ -387,9 +389,11 @@ function parseError(error: any, parser: any, output: Object): Object {
 }
 
 function findErrorTemplate(context: Object, serviceDefinition: any, error: any) {
-  if (!_.isEmpty(serviceDefinition.error.templates)) {
+  const errorTemplates = _.get(serviceDefinition, "error.templates");
 
-    return _.find(serviceDefinition.error.templates, template => {
+  if (error && !_.isEmpty(errorTemplates)) {
+
+    return _.find(errorTemplates, template => {
       let truthy = template.truthy;
       let condition = template.condition;
 

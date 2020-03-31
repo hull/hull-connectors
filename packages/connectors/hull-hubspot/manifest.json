@@ -4,7 +4,7 @@
   "source": "hubspot",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.15-monorepo",
+  "version": "0.1.22-monorepo",
   "tags": [
     "outgoing",
     "incoming",
@@ -521,8 +521,8 @@
       "url": "/fetch-all-companies",
       "handler": "fetchAllCompanies",
       "options": {
+        "fireAndForget": true,
         "confirm": {
-          "fireAndForget": true,
           "action": "fetch",
           "text": "You are about to pull all companies from Hubspot into Hull. Please make sure you've configured your account identity properly, and that you have the attributes you'd like pulled configured. Be careful when clicking this multiple times, it can result in long operations. Check out the \"Logs\" tab to track incoming.account.success messages as accounts are ingested",
           "button": "Start Fetching Companies",
@@ -566,8 +566,8 @@
       "url": "/fetch-all-email-events",
       "handler": "fetchAllEmailEvents",
       "options": {
+        "fireAndForget": true,
         "confirm": {
-          "fireAndForget": true,
           "action": "fetch",
           "text": "You are about to pull all email events from Hubspot into Hull. Please make sure you've configured your account identity properly, and that you have the attributes you'd like pulled configured. Be careful when clicking this multiple times, it can result in long operations. Check out the \"Logs\" tab to track incoming.account.success messages as accounts are ingested",
           "button": "Start Fetching Email Events",
@@ -582,8 +582,8 @@
       "url": "/fetch-hot-off-the-press-events",
       "handler": "fetchHotOffThePressEvents",
       "options": {
+        "fireAndForget": true,
         "confirm": {
-          "fireAndForget": true,
           "action": "fetch",
           "text": "You are about to pull all email events of last the 24 hours from Hubspot into Hull. Please make sure you've configured your account identity properly, and that you have the attributes you'd like pulled configured. Be careful when clicking this multiple times, it can result in long operations. Check out the \"Logs\" tab to track incoming.account.success messages as accounts are ingested",
           "button": "Start Fetching Email Events",

@@ -73,13 +73,6 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
   }
 
   if (
-    _.get(connector, "private_settings.mark_deleted_contacts", false) ||
-    _.get(connector, "private_settings.mark_deleted_companies", false)
-  ) {
-    checkCachedCredentials(ctx);
-  }
-
-  if (
     _.isEmpty(
       _.get(connector, "private_settings.synchronized_user_segments", [])
     )
@@ -101,6 +94,17 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
       "ok",
       "No accounts will be sent from Hull to Hubspot because there are no whitelisted segments configured. If you want to enable outgoing account traffic, please visit the connector settings page and add account segments to be sent to Hubspot, otherwise please ignore this notification."
     );
+  }
+
+  if (
+    _.get(connector, "private_settings.mark_deleted_contacts", false) ||
+    _.get(connector, "private_settings.mark_deleted_companies", false)
+  ) {
+    try {
+      await checkCachedCredentials(ctx);
+    } catch (err) {
+      pushMessage("error", getMessageFromError(err));
+    }
   }
 
   const syncAgent = new SyncAgent(ctx);

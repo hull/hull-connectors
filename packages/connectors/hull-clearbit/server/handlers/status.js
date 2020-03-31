@@ -12,9 +12,9 @@ export default function statusCheck(ctx: HullContext) {
     enrich_user_segments,
     enrich_account_segments,
     reveal_user_segments,
-    prospect_filter_seniority,
+    prospect_filter_seniorities,
     prospect_filter_titles,
-    prospect_filter_role,
+    prospect_filter_roles,
     lookup_domain,
     lookup_email,
     prospect_account_segments,
@@ -48,7 +48,7 @@ export default function statusCheck(ctx: HullContext) {
       "Prospector enabled, but no Account segments are listed. No Account will trigger prospection"
     );
   }
-  if (_.size(prospect_filter_role)) {
+  if (_.size(prospect_filter_roles)) {
     status = "warning";
     messages.push(
       "Prospector enabled, but no Roles are listed. Prospection will be unpredictable"
@@ -64,7 +64,7 @@ export default function statusCheck(ctx: HullContext) {
     status = "error";
     messages.push("No 'User Email' set. We need to know what email to lookup");
   }
-  if (!prospect_filter_seniority) {
+  if (!prospect_filter_seniorities) {
     status = "ok";
     messages.push(
       "Prospector enabled, but no Seniority is listed. Prospection might return underqualified results"
@@ -76,7 +76,7 @@ export default function statusCheck(ctx: HullContext) {
       "Prospector enabled, but no Titles are listed. Prospection might return underqualified results"
     );
   }
-  if (!prospect_filter_role) {
+  if (!prospect_filter_roles) {
     status = "ok";
     messages.push(
       "Prospector enabled, but no Roles are listed. Prospection might return underqualified results"

@@ -11,8 +11,8 @@ import type {
   HullUserUpdateMessage,
   HullAccountUpdateMessage,
   HullAttributeContext,
-  HullEntityName,
-  HullFetchedUser
+  HullFetchedUser,
+  HullEntityName
 } from "hull";
 import type { Map, RecordOf } from "immutable";
 
@@ -109,7 +109,16 @@ export type SerializedEvent = {
   }
 };
 
-export type Result = {
+export type ResultBase = {|
+  data: {},
+  logsForLogger: Array<string>,
+  logs: Array<string | any>,
+  errors: Array<string>,
+  isAsync: boolean,
+  success: boolean
+|};
+
+export type IngestionResult = {|
   logsForLogger: Array<string>,
   logs: Array<string | any>,
   errors: Array<string>,
@@ -125,9 +134,9 @@ export type Result = {
   claims?: HullEntityClaims,
   isAsync: boolean,
   success: boolean
-};
+|};
 
-export type SerializedResult = {
+export type SerializedIngestionResult = {|
   logsForLogger: Array<string>,
   logs: Array<string | any>,
   errors: Array<string>,
@@ -150,12 +159,24 @@ export type SerializedResult = {
   claims?: HullEntityClaims,
   isAsync: boolean,
   success: boolean
+|};
+
+export type Result = {
+  ...$Exact<IngestionResult>,
+  ...$Exact<ResultBase>
 };
+export type SerializedResult = {
+  ...$Exact<SerializedIngestionResult>,
+  ...$Exact<ResultBase>
+};
+
+export type SupportedLanguage = "javascript" | "jsonata";
 
 export type PreviewRequest = {
   payload: Payload,
   entity?: HullEntityName,
-  claims?: {},
+  language?: SupportedLanguage,
+  claims?: HullEntityClaims,
   code: string
 };
 export type PreviewResponse = SerializedResult;
@@ -172,15 +193,18 @@ export type Entry = {
 
 export type ComputeOptions = {
   code: string,
+  language?: SupportedLanguage,
   claims?: HullEntityClaims,
   entity?: HullEntityName,
   preview: boolean,
   source: string,
-  payload: { variables: {} } & (
-    | Payload
-    | HullUserUpdateMessage
-    | HullAccountUpdateMessage
-  )
+  payload:
+    | {}
+    | ({ variables: {} } & (
+        | Payload
+        | HullUserUpdateMessage
+        | HullAccountUpdateMessage
+      ))
 };
 
 type AnyFunction = any => any;

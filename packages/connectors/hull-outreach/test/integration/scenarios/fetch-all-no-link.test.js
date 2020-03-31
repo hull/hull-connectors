@@ -76,11 +76,11 @@ test("fetch all accounts and prospects from outreach no user/account linking", (
           .post("/api/v2/webhooks/")
           .reply(201, require("../fixtures/api-responses/create-webhook.json"));
         scope
-          .get("/api/v2/users/")
+          .get("/api/v2/users/?page[limit]=1000&page[offset]=0")
           .reply(201, { data: [ { id: 1, attributes: { email: "andy@hull.io" } }, { id: 0, attributes: { email: "tim@hull.io" }}]});
-        scope
-          .get("/api/v2/stages/")
-          .reply(201, { data: [ { id: 1, attributes: { name: "New Stage" } }, { id: 0, attributes: { name: "Cool Stage" }}]});
+        // scope
+        //   .get("/api/v2/stages/")
+        //   .reply(201, { data: [ { id: 1, attributes: { name: "New Stage" } }, { id: 0, attributes: { name: "Cool Stage" }}]});
         scope
           .get("/api/v2/accounts/?sort=id&page[limit]=100&filter[id]=0..inf")
           .reply(200, require("../fixtures/api-responses/list-accounts.json"));
@@ -105,7 +105,7 @@ test("fetch all accounts and prospects from outreach no user/account linking", (
           "account_domain": "noprospectshullcompany.com",
           "account_anonymous_id": "outreach:4"
         }, {"data": expect.whatever(), "type": "Account" }],
-        ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 201, "url": "/stages/", "vars": {}}],
+        // ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 201, "url": "/stages/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 201, "url": "/users/", "vars": {}}],
         ["debug", "connector.service_api.call", {}, {"method": "GET", "responseTime": expect.whatever(), "status": 200, "url": "/prospects/", "vars": {}}],
         ["debug", "incoming.user.success", {
@@ -144,8 +144,8 @@ test("fetch all accounts and prospects from outreach no user/account linking", (
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()],
 
-        ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.whatever()],
+        // ["increment", "ship.service_api.call", 1],
+        // ["value", "connector.service_api.response_time", expect.whatever()],
 
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.whatever()],

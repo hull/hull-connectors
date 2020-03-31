@@ -233,9 +233,48 @@ The processor exposes several external libraries that can be used:
 |`moment`    | The Moment.js library(https://momentjs.com/)                      |
 |`urijs`     | The URI.js library (https://github.com/medialize/URI.js/)         |
 |`request`   | The simplified request client (https://github.com/request/request)|
+|`uuid`      | The uuid library (https://github.com/uuidjs/uuid)                 |
+|`LibPhoneNumber`      | The google-LibPhoneNumber library (https://ruimarinho.github.io/google-libphonenumber/)                 |
 
 Please visit the linked pages for documentation and further information about these third party libraries.
 
+### uuid Library
+
+The `uuid` library exposes the version 4 of the algorithm, and only accepts the first `options` argument - other arguments will be ignored. As a result, here's the way to use it:
+
+```js
+const user_id = uuid()
+//or
+const user_id = uuid({ random: [ 0x10, 0x91, 0x56, 0xbe, 0xc4, 0xfb, 0xc1, 0xea, 0x71, 0xb4, 0xef, 0xe1, 0x67, 0x1c, 0x58, 0x36, ] });
+```
+
+### LibPhoneNumber Library
+
+The `LibPhoneNumber` library exposes a subset of the `google-libphonenumber` library. Here's how to use it
+
+```js
+//PhoneNumberFormat is the PhoneNumberFormat object from the library;
+//PhoneNumberUtil is an INSTANCE of the PhoneNumberUtil methods
+const { CountrySourceCode, PhoneNumberType, PhoneNumberFormat, PhoneNumberUtil } = LibPhoneNumber;
+
+const number = PhoneNumberUtil.parseAndKeepRawInput('202-456-1414', 'US');
+console.log(number.getCountryCode()); //1
+// Print the phone's national number.
+console.log(number.getNationalNumber());
+// => 2024561414
+
+// Result from isPossibleNumber().
+console.log(PhoneNumberUtil.isPossibleNumber(number));
+// => true
+```
+
+### Supported Methods for `PhoneNumberUtil`
+
+Checkout `i18n.phonenumbers.PhoneNumberUtil`: https://ruimarinho.github.io/google-libphonenumber/#google-libphonenumber-methods-i18nphonenumbersphonenumberutil
+
+Calling `PhoneNumberUtil.parse("1234-1234")` will return an instance of `PhoneNumber`, which has the following methods: https://ruimarinho.github.io/google-libphonenumber/#google-libphonenumber-methods-i18nphonenumbersphonenumber
+
+Checkout the Docs for `CountryCodeSource`, `PhoneNumberFormat`, `PhoneNumberType` which are statics
 
 ## Using Request.
 

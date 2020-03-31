@@ -5,7 +5,7 @@ const { PurpleFusionTestHarness } = require("hull-connector-framework/src/purple
 
 describe("Warehouse User Tests", () => {
 
-  const harness = new PurpleFusionTestHarness(
+  let harness = new PurpleFusionTestHarness(
     require("../../server/glue"),
     { postgres: require("../../server/postgres-sequalize-service") },
     [],
@@ -18,5 +18,15 @@ describe("Warehouse User Tests", () => {
 
   it("test merge event", () => {
     return harness.runTest(require("./fixtures/outgoing-merge-event"));
+  });
+
+  harness = new PurpleFusionTestHarness(
+    require("../../server/glue"),
+    { postgres: require("../../server/postgres-sequalize-service") },
+    require("../../server/transforms-to-service"),
+    "");
+
+  it("test user upsert with filtered columns", () => {
+    return harness.runTest(require("./fixtures/upsert-account-filtered"))
   });
 });

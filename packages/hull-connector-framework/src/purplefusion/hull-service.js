@@ -11,6 +11,7 @@ const _ = require("lodash");
 const {
   HullIncomingUser,
   HullIncomingAccount,
+  HullIncomingOpportunity,
   HullApiAttributeDefinition,
   HullIncomingUserImportApi,
   HullApiSegmentDefinition,
@@ -96,6 +97,23 @@ class HullSdk {
       identity.id = hullUserId;
     }
 
+    // combine all anonymous ids if they exist
+    // TODO this isn't a valid syntax right now
+    // so unset for now
+    _.unset(identity, "anonymous_ids");
+    // if (identity.anonymous_ids) {
+    //   if (!Array.isArray(identity.anonymous_ids) || _.isEmpty(identity.anonymous_ids)) {
+    //     // remove it if it is not an array, not valid syntax
+    //     _.unset(identity, "anonymous_ids");
+    //   } else {
+    //     const anonymousId = _.get(identity, "anonymous_id");
+    //     if (anonymousId && _.indexOf(identity.anonymous_ids, anonymousId) < 0) {
+    //       identity.anonymous_ids.push(anonymousId)
+    //     }
+    //     _.unset(identity, "anonymous_id");
+    //   }
+    // }
+
     // Might think about adding some validation here or somewhere else
     // for now throwing errors, which I'm not sure is wrong
     // but it does make writing all the additional logic in the glue to validate more annoying
@@ -151,6 +169,25 @@ class HullSdk {
 
   upsertHullAccount(account: HullIncomingAccount) {
     return this.client.asAccount(account.ident).traits(account.attributes);
+  }
+
+  upsertHullOpportunity(opportunity: HullIncomingOpportunity) {
+    let opportunityPromise = Promise.resolve();
+
+    if (!_.isEmpty(opportunity.attributes)) {
+      if (!_.isEmpty(opportunity.accountIdent)) {
+        opportunityPromise = opportunityPromise.then(() => {
+          return this.client.asAccount(opportunity.accountIdent).traits(opportunity.attributes)
+        });
+      }
+      if (!_.isEmpty(opportunity.userIdent)) {
+        opportunityPromise = opportunityPromise.then(() => {
+          return this.client.asUser(opportunity.userIdent).traits(opportunity.attributes)
+        });
+      }
+    }
+
+    return opportunityPromise;
   }
 
   connectorSettingsUpdate(settings: any) {
@@ -236,6 +273,11 @@ const hullService: CustomApi = {
       method: "upsertHullAccount",
       endpointType: "upsert",
       input: HullIncomingAccount
+    },
+    asOpportunity: {
+      method: "upsertHullOpportunity",
+      endpointType: "upsert",
+      input: HullIncomingOpportunity
     },
     settingsUpdate: {
       method: "connectorSettingsUpdate",

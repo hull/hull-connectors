@@ -245,10 +245,13 @@ export const callAlias = async ({
               return { claim, operation };
             })
           );
-          return scoped.logger.info(`incoming.${subjectType}.alias.success`, {
-            claims,
-            aliases: opLog
-          });
+          if (successful) {
+            return scoped.logger.info(`incoming.${subjectType}.alias.success`, {
+              claims,
+              operations: opLog
+            });
+          }
+          return undefined;
         } catch (err) {
           console.log("Error", err);
           return scoped.logger.error(`incoming.${subjectType}.alias.error`, {

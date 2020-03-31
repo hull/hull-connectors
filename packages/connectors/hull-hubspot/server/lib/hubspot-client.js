@@ -389,78 +389,6 @@ class HubspotClient {
     });
   }
 
-  postContactsEnvelopes(
-    envelopes: Array<HubspotUserUpdateMessageEnvelope>
-  ): Promise<Array<HubspotUserUpdateMessageEnvelope>> {
-    if (envelopes.length === 0) {
-      return Promise.resolve([]);
-    }
-    const body = envelopes.map(envelope => envelope.hubspotWriteContact);
-
-    function handleSuccessResponse(res) {
-      if (res.statusCode === 202) {
-        return Promise.resolve(envelopes);
-      }
-      const erroredOutEnvelopes = envelopes.map(envelope => {
-        envelope.error = "unknown response from hubspot";
-        return envelope;
-      });
-      return Promise.resolve(erroredOutEnvelopes);
-    }
-
-    return this.postContacts(body)
-      .then(handleSuccessResponse)
-      .catch(responseError => {
-        const errorInfo = responseError.response.body;
-        if (errorInfo.status !== "error") {
-          const erroredOutEnvelopes = envelopes.map(envelope => {
-            envelope.error = "unknown response from hubspot";
-            return envelope;
-          });
-          return Promise.resolve(erroredOutEnvelopes);
-        }
-        const erroredOutEnvelopes = _.get(errorInfo, "failureMessages", []).map(
-          error => {
-            const envelope = envelopes[error.index];
-            const hubspotMessage =
-              error.propertyValidationResult &&
-              _.truncate(error.propertyValidationResult.message, {
-                length: 100
-              });
-            const hubspotPropertyName =
-              error.propertyValidationResult &&
-              error.propertyValidationResult.name;
-            envelope.error =
-              hubspotMessage || error.message || error.error.message;
-            envelope.errorProperty = hubspotPropertyName;
-            return envelope;
-          }
-        );
-
-        const retryEnvelopes = envelopes.filter((envelope, index) => {
-          return !_.find(errorInfo.failureMessages, {
-            index
-          });
-        });
-
-        if (retryEnvelopes.length === 0) {
-          return Promise.resolve(erroredOutEnvelopes);
-        }
-        const retryBody = retryEnvelopes.map(
-          envelope => envelope.hubspotWriteContact
-        );
-        return this.postContacts(retryBody)
-          .then(handleSuccessResponse)
-          .catch(() => {
-            const retryErroredOutEnvelopes = envelopes.map(envelope => {
-              envelope.error = "batch retry rejected";
-              return envelope;
-            });
-            return Promise.resolve(retryErroredOutEnvelopes);
-          });
-      });
-  }
-
   postCompanies(body: HubspotWriteCompany): Promise<*> {
     return this.retryUnauthorized(() => {
       return this.agent
@@ -473,9 +401,78 @@ class HubspotClient {
     });
   }
 
-  postCompaniesEnvelopes(
+  postEnvelopes({
+    envelopes,
+    hubspotEntity
+  }: {
+    envelopes: Array<
+      HubspotUserUpdateMessageEnvelope | HubspotAccountUpdateMessageEnvelope
+    >,
+    hubspotEntity: string
+  }): Promise<Array<HubspotUserUpdateMessageEnvelope>> {
+    if (hubspotEntity === "contact") {
+      return this.postContactsEnvelopes({ envelopes });
+    }
+
+    if (hubspotEntity === "company") {
+      return this.postCompaniesUpdateEnvelopes({ envelopes });
+    }
+
+    return Promise.resolve({});
+  }
+
+  handleSuccessResponse(envelopes) {
+    return res => {
+      if (res.statusCode === 202) {
+        return Promise.resolve(envelopes);
+      }
+      const erroredOutEnvelopes = envelopes.map(envelope => {
+        envelope.error = "unknown response from hubspot";
+        return envelope;
+      });
+      return Promise.resolve(erroredOutEnvelopes);
+    };
+  }
+
+  postContactsEnvelopes({
+    envelopes
+  }: {
+    envelopes: Array<HubspotUserUpdateMessageEnvelope>
+  }): Promise<Array<HubspotUserUpdateMessageEnvelope>> {
+    if (envelopes.length === 0) {
+      return Promise.resolve([]);
+    }
+    const body = envelopes.map(envelope => envelope.hubspotWriteContact);
+
+    return this.postContacts(body)
+      .then(this.handleSuccessResponse(envelopes))
+      .catch(responseError => {
+        return Promise.reject(responseError);
+      });
+  }
+
+  postCompaniesUpdateEnvelopes({
+    envelopes
+  }: {
     envelopes: Array<HubspotAccountUpdateMessageEnvelope>
-  ): Promise<Array<HubspotAccountUpdateMessageEnvelope>> {
+  }): Promise<Array<HubspotAccountUpdateMessageEnvelope>> {
+    if (envelopes.length === 0) {
+      return Promise.resolve([]);
+    }
+    const body = envelopes.map(envelope => envelope.hubspotWriteCompany);
+
+    return this.postCompaniesUpdate(body)
+      .then(this.handleSuccessResponse(envelopes))
+      .catch(responseError => {
+        return Promise.reject(responseError);
+      });
+  }
+
+  postCompaniesInsertEnvelopes({
+    envelopes
+  }: {
+    envelopes: Array<HubspotAccountUpdateMessageEnvelope>
+  }): Promise<Array<HubspotAccountUpdateMessageEnvelope>> {
     if (envelopes.length === 0) {
       return Promise.resolve([]);
     }
@@ -504,86 +501,6 @@ class HubspotClient {
         .set("Content-Type", "application/json")
         .send(body);
     });
-  }
-
-  postCompaniesUpdateEnvelopes(
-    envelopes: Array<HubspotAccountUpdateMessageEnvelope>
-  ): Promise<Array<HubspotAccountUpdateMessageEnvelope>> {
-    if (envelopes.length === 0) {
-      return Promise.resolve([]);
-    }
-    const body = envelopes.map(envelope => envelope.hubspotWriteCompany);
-
-    function handleSuccessResponse(res) {
-      if (res.statusCode === 202) {
-        return Promise.resolve(envelopes);
-      }
-      const erroredOutEnvelopes = envelopes.map(envelope => {
-        envelope.error = "unknown response from hubspot";
-        return envelope;
-      });
-      return Promise.resolve(erroredOutEnvelopes);
-    }
-    return this.postCompaniesUpdate(body)
-      .then(handleSuccessResponse)
-      .catch(responseError => {
-        const errorInfo = responseError.response.body;
-        if (errorInfo.status !== "error") {
-          const erroredOutEnvelopes = envelopes.map(envelope => {
-            envelope.error = "unknown response from hubspot";
-            return envelope;
-          });
-          return Promise.resolve(erroredOutEnvelopes);
-        }
-        const erroredOutEnvelopes = (errorInfo.validationResults || []).reduce(
-          (agg, error) => {
-            const envelope = _.find(envelopes, {
-              hubspotWriteCompany: {
-                objectId: error.id
-              }
-            });
-            if (envelope === undefined) {
-              return agg;
-            }
-            const hubspotMessage =
-              error.propertyValidationResult &&
-              _.truncate(error.propertyValidationResult.message, {
-                length: 100
-              });
-            const hubspotPropertyName =
-              error.propertyValidationResult &&
-              error.propertyValidationResult.name;
-            envelope.error =
-              hubspotMessage || error.message || error.error.message;
-            envelope.errorProperty = hubspotPropertyName;
-            return agg.concat([envelope]);
-          },
-          []
-        );
-
-        const retryEnvelopes = envelopes.filter(envelope => {
-          return !_.find(errorInfo.validationResults, {
-            id: envelope.hubspotWriteCompany.objectId
-          });
-        }, []);
-
-        if (retryEnvelopes.length === 0) {
-          return Promise.resolve(erroredOutEnvelopes);
-        }
-        const retryBody = retryEnvelopes.map(
-          envelope => envelope.hubspotWriteCompany
-        );
-        return this.postCompaniesUpdate(retryBody)
-          .then(handleSuccessResponse)
-          .catch(errorResponse => {
-            const errorMessage = errorResponse.response.body.message;
-            const retryErroredOutEnvelopes = envelopes.map(envelope => {
-              envelope.error = `An unknown error was returned by Hubspot API when doing an update. Please contact our support team. Raw message: ${errorMessage}`;
-              return envelope;
-            });
-            return Promise.resolve(retryErroredOutEnvelopes);
-          });
-      });
   }
 
   postCompanyDomainSearch(domain: string) {

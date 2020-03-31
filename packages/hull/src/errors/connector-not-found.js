@@ -13,11 +13,15 @@ class ConnectorNotFoundError extends Error {
 
   code: string;
 
+  status: number;
+
   constructor(message: string, extra?: Object = {}) {
     super(message);
     this.name = "ConnectorNotFoundError"; // compatible with http-errors library
     this.code = "HULL_CONNECTOR_NOT_FOUND"; // compatible with internal node error
     this.extra = extra;
+    this.status = 404;
+
     Error.captureStackTrace(this, ConnectorNotFoundError);
   }
 }

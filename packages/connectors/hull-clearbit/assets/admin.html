@@ -30,7 +30,7 @@
             </h5>
           </div>
           <form id="prospect-form">
-            <!-- role, seniority, titles -->
+            <!-- roles, seniorities, titles -->
 
             <div class="form-group">
               <label class="form-label" for="domains">Domains (required)</label>
@@ -53,10 +53,10 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="role">Role</label>
+              <label class="form-label" for="roles">Role</label>
               <select
-                name="role"
-                id="role"
+                name="roles"
+                id="roles"
                 rows="5"
                 class="form-control"
                 multiple="multiple"
@@ -88,10 +88,10 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="seniority">Seniority</label>
+              <label class="form-label" for="seniorities">Seniority</label>
               <select
-                name="seniority"
-                id="seniority"
+                name="seniorities"
+                id="seniorities"
                 rows="5"
                 class="form-control"
                 multiple="multiple"
@@ -101,6 +101,26 @@
                 <option>director</option>
                 <option>manager</option>
               </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="cities">States</label>
+              <select
+                name="states"
+                id="states"
+                class="form-control"
+                multiple="multiple"
+              ></select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="cities">Cities</label>
+              <select
+                name="cities"
+                id="cities"
+                class="form-control"
+                multiple="multiple"
+              ></select>
             </div>
 
             <div class="form-group">
@@ -159,6 +179,8 @@
                 <th data-field="name" data-formatter='nameFormatter'>Name</th>
                 <th data-field="email">Email</th>
                 <th data-field="role">Role</th>
+                <th data-field="city">City</th>
+                <th data-field="state">State</th>
                 <th data-field="seniority">Seniority</th>
                 <th data-field="title">Title</th>
                 <th data-field="domain">Domain</th>

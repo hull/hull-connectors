@@ -1,0 +1,63 @@
+{
+  "name": "REPL - Interactive Commandline",
+  "description": "A command line / REPL to send data to Hull",
+  "tags": [],
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "ui": false,
+  "tabs": [
+    {
+      "title": "Code Editor",
+      "url": "/admin.html",
+      "size": "large",
+      "setup": false,
+      "workspace": true,
+      "editable": true,
+      "handler": "admin"
+    }
+  ],
+  "readme": "readme.md",
+  "version": "0.1.22-monorepo",
+  "private_settings": [],
+  "resources": [],
+  "settings_sections": [],
+  "json": [
+    {
+      "url": "/config",
+      "handler": "configHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
+    },
+    {
+      "url": "/call",
+      "handler": "callHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
+    },
+    {
+      "url": "/preview",
+      "handler": "previewHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
+    }
+  ],
+  "status": {
+    "initial_value": "ok",
+    "url": "/status",
+    "type": "cron",
+    "value": "*/30 * * * *",
+    "handler": "statusHandler"
+  },
+  "statuses": [
+    {
+      "initial_value": "ok",
+      "url": "/status",
+      "type": "cron",
+      "value": "*/30 * * * *",
+      "handler": "statusHandler"
+    }
+  ]
+}

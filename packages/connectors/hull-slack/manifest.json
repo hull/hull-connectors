@@ -2,7 +2,7 @@
   "name": "Slack",
   "description": "Notify a Slack Channel whenever a User enters or leaves a Segment",
   "picture": "picture.png",
-  "version": "0.1.15-monorepo",
+  "version": "0.1.22-monorepo",
   "tags": ["kraken"],
   "private_settings": [
     {

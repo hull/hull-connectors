@@ -1,23 +1,29 @@
 /* @flow */
 import type { HullClientLogger, HullContext } from "hull";
 import type { CustomApi, RawRestApi } from "hull-connector-framework/src/purplefusion/types";
+import Sequelize from "sequelize";
+const getPort = require('get-port');
 
 const {
   isUndefinedOrNull
 } = require("hull-connector-framework/src/purplefusion/utils");
 
 const MetricAgent = require("hull/src/infra/instrumentation/metric-agent");
+const { getSshTunnelConfig, getDatabaseConfig } = require("hull-connector-framework/src/purplefusion/ssh/ssh-utils");
+const { SSHConnection } = require("hull-connector-framework/src/purplefusion/ssh/ssh-connection");
 const { Client } = require("hull");
-
 const { SkippableError } = require("hull/src/errors");
 
 const _ = require("lodash");
 
 const { normalizeFieldName } = require("./utils");
 
-const Sequelize = require("sequelize");
-
 const HullVariableContext = require("hull-connector-framework/src/purplefusion/variable-context");
+
+const {
+  PostgresUserSchema,
+  PostgresAccountSchema
+} = require("./service-objects");
 
 // class UserModel extends Sequelize.Model {};
 // class AccountModel extends Sequelize.Model {};
@@ -27,6 +33,7 @@ const HullVariableContext = require("hull-connector-framework/src/purplefusion/v
 // and maps the data back to account and traits calls....
 
 const databases = {};
+const sshConnections = {};
 
 const EVENT_SCHEMA = {
   event_id: {
@@ -104,12 +111,16 @@ class SequalizeSdk {
     this.metricsClient = reqContext.metric;
     this.helpers = reqContext.helpers;
     this.connectorId = reqContext.connector.id;
+    this.privateSettings = reqContext.connector.private_settings;
 
     const username = reqContext.connector.private_settings.db_username;
     const password = reqContext.connector.private_settings.db_password;
     const hostname = reqContext.connector.private_settings.db_hostname;
     const name = reqContext.connector.private_settings.db_name;
     const port = reqContext.connector.private_settings.db_port;
+
+    this.sshConfig = getSshTunnelConfig(this.privateSettings);
+    this.dbConfig = getDatabaseConfig(this.privateSettings);
     this.connectionString = `postgres://${username}:${password}@${hostname}:${port}/${name}?ssl=true`;
 
     this.userTableName =
@@ -121,26 +132,90 @@ class SequalizeSdk {
   }
 
   async closeDatabaseConnectionIfExists() {
-    if (databases[this.connectorId]) {
-      await databases[this.connectorId].close();
-      _.unset(databases, this.connectorId);
+    try {
+      if (databases[this.connectorId]) {
+        await databases[this.connectorId].close();
+        _.unset(databases, this.connectorId);
+      }
+    } catch (error) {
+      const message = _.get(error, "message", "Unknown Error Closing Database Connection");
+      this.loggerClient.error("incoming.job.error", { jobName: "sync", hull_summary: message });
+    }
+
+    try {
+      if (sshConnections[this.connectorId]) {
+        await sshConnections[this.connectorId].shutdown();
+        _.unset(sshConnections, this.connectorId);
+      }
+    } catch (error) {
+      const message = _.get(error, "message", "Unknown Error Closing SSH Client");
+      this.loggerClient.error("incoming.job.error", { jobName: "sync", hull_summary: message });
     }
   }
 
+  requireSshTunnel() {
+    return !_.isEmpty(_.get(this.privateSettings, "ssh_host"));
+  }
+
+  getSequelizeTunnelConnection(): Sequelize {
+    return getPort().then((portForward) => {
+      sshConnections[this.connectorId] = new SSHConnection({
+        endPort: this.sshConfig.port,
+        endHost: this.sshConfig.host,
+        username: this.sshConfig.user,
+        privateKey: this.sshConfig.privateKey
+      });
+
+      return sshConnections[this.connectorId].forward({
+        fromPort: portForward,
+        toPort: this.dbConfig.port,
+        toHost: this.dbConfig.host
+      }).then(() => {
+        const username = this.privateSettings.db_username;
+        const password = this.privateSettings.db_password;
+        const database = this.privateSettings.db_name;
+
+        return new Sequelize(database, username, password, {
+          host: '127.0.0.1',
+          port: portForward,
+          dialect: 'postgres',
+          define: {
+            freezeTableName: true
+          },
+          logging: false
+        });
+      });
+    });
+  }
 
   getSequelizeConnection(): Sequelize {
-    if (!databases[this.connectorId]) {
-      const opts = {
-        define: {
-          // prevent sequelize from pluralizing table names
-          freezeTableName: true
-        },
-        logging: false
-      };
-      databases[this.connectorId] = new Sequelize(this.connectionString, opts);
-    }
 
-    return databases[this.connectorId];
+    return new Promise((resolve, reject) => {
+      if (!databases[this.connectorId]) {
+        const opts = {
+          define: {
+            // prevent sequelize from pluralizing table names
+            freezeTableName: true
+          },
+          logging: false
+        };
+
+        if (this.requireSshTunnel()) {
+          try {
+            return this.getSequelizeTunnelConnection().then((sequelizeConnection) => {
+              databases[this.connectorId] = sequelizeConnection;
+              return resolve(databases[this.connectorId]);
+            });
+          } catch (error) {
+            reject(error);
+          }
+        } else {
+          databases[this.connectorId] = new Sequelize(this.connectionString, opts);
+        }
+      }
+
+      return resolve(databases[this.connectorId]);
+    });
   }
 
   async dispatch(methodName: string, params: any) {
@@ -182,22 +257,25 @@ class SequalizeSdk {
   }
 
   async initSchema(params: { schema: any, tableName: string, indexes: Object } ) {
-    return this.getSequelizeConnection().define(
-      params.tableName,
-      params.schema,
-      params.indexes
-    );
+    return this.getSequelizeConnection().then((sequelizeConnection) => {
+      return sequelizeConnection.define(
+        params.tableName,
+        params.schema,
+        params.indexes
+      );
+    });
   }
 
   async syncTableSchema(tableName: string) {
-    return this.getSequelizeConnection()
-      .model(tableName)
-      .sync(synchOptions);
+    return this.getSequelizeConnection().then((sequelizeConnection) => {
+      return sequelizeConnection.model(tableName).sync(synchOptions);
+    });
   }
 
   async databaseConnectionSuccess() {
     try {
-      const result = await this.getSequelizeConnection()
+      const sequelizeConnection = await this.getSequelizeConnection();
+      const result = await sequelizeConnection
         .model(this.accountTableName)
         .findAll({
           limit: 1,
@@ -209,7 +287,11 @@ class SequalizeSdk {
     }
   }
 
-  generateSequelizeSchema(hullSchema: Array<any>) {
+  generateSequelizeSchema(schemaObject: any) {
+    let hullSchema = schemaObject;
+    if (!Array.isArray(hullSchema)) {
+      hullSchema = hullSchema.arrayOfAttributes;
+    }
     const fields = {};
 
     _.forEach(hullSchema, attribute => {
@@ -336,9 +418,9 @@ class SequalizeSdk {
       });
       sequelizedAccount.segments = JSON.stringify(segments);
     }
-    return this.getSequelizeConnection()
-      .model(this.accountTableName)
-      .upsert(sequelizedAccount);
+    return this.getSequelizeConnection().then((sequelizeConnection) => {
+      return sequelizeConnection.model(this.accountTableName).upsert(sequelizedAccount);
+    });
   }
 
   async upsertHullUser(message: any) {
@@ -373,24 +455,25 @@ class SequalizeSdk {
     if (!sequelizedUser.id) {
       return Promise.resolve();
     }
-    return this.getSequelizeConnection()
-      .model(this.userTableName)
-      .upsert(sequelizedUser)
-      .then(() => {
-        if (message.events) {
-          return Promise.all(
-            message.events.map(event => {
-              if (typeof event.event !== "string") {
-                event.event = "Invalid Name";
-              }
-              return this.getSequelizeConnection()
-                .model(this.eventTableName)
-                .upsert(event);
-            })
-          );
-        }
-        return Promise.resolve();
-      });
+    return this.getSequelizeConnection().then((sequelizeConnection) => {
+      return sequelizeConnection.model(this.userTableName)
+        .upsert(sequelizedUser)
+        .then(() => {
+          if (message.events) {
+            return Promise.all(
+              message.events.map(event => {
+                if (typeof event.event !== "string") {
+                  event.event = "Invalid Name";
+                }
+                return this.getSequelizeConnection().then((sequelizeConnection) => {
+                  return sequelizeConnection.model(this.eventTableName).upsert(event);
+                });
+              })
+            );
+          }
+          return Promise.resolve();
+        });
+    })
   }
 
   async mergeHullUser(
@@ -402,36 +485,39 @@ class SequalizeSdk {
       merged: String
     }
   ) {
-    return this.getSequelizeConnection()
-      .model(this.eventTableName)
-      .update(
-        {
-          user_id: merged
-        },
-        {
-          where: {
-            user_id: previous
-          }
-        })
-      .then(() => {
-        this.getSequelizeConnection()
-          .model(this.userTableName)
-          .destroy({
+    return this.getSequelizeConnection().then((sequelizeConnection) => {
+      return sequelizeConnection.model(this.eventTableName)
+        .update(
+          {
+            user_id: merged
+          },
+          {
             where: {
-              id: previous
+              user_id: previous
             }
           })
-      });
+        .then(() => {
+          return this.getSequelizeConnection().then((sequelizeConnection) => {
+            return sequelizeConnection .model(this.userTableName)
+              .destroy({
+                where: {
+                  id: previous
+                }
+              });
+          })
+        });
+    });
   }
 
   async removeHullAccount(id: String) {
-    return this.getSequelizeConnection()
-      .model(this.accountTableName)
-      .destroy({
-        where: {
-          id
-        }
-      });
+    return this.getSequelizeConnection().then((sequelizeConnection) => {
+      return sequelizeConnection.model(this.accountTableName)
+        .destroy({
+          where: {
+            id
+          }
+        });
+    });
   }
 }
 
@@ -440,8 +526,27 @@ const postgresSdk = ({ clientID, clientSecret } : {
   clientSecret: string
 }): CustomApi => ({
   initialize: (context, api) => new SequalizeSdk(context, api),
+  endpoints: {
+    createUserSchema: {
+      method: "createUserSchema",
+      endpointType: "upsert",
+      batch: true,
+      input: PostgresUserSchema
+    },
+    createAccountSchema: {
+      method: "createAccountSchema",
+      endpointType: "upsert",
+      batch: true,
+      input: PostgresAccountSchema
+    }
+  },
   error: {
     templates: [
+      {
+        truthy: { name: "SequelizeDatabaseError" },
+        errorType: SkippableError,
+        message: "Unable to upsert entity"
+      },
       {
         truthy: { name: "SequelizeConnectionRefusedError" },
         errorType: SkippableError,

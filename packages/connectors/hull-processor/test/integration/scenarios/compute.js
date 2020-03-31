@@ -278,7 +278,28 @@ describe("Identity Resolution", () => {
               ]
             ]
           })
-        ],
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST]
+    }));
+  });
+
+  it("not make any call if user already has alias", () => {
+    const claims = { id: "1234", anonymous_id: "foo" };
+    const asAccount = { id: "1234" };
+    const attributes = { identical: "value" };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: {
+          id: "1234",
+          anonymous_ids: ["foo"]
+        },
+        account: {}
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(`hull.alias({ anonymous_id: "foo" })`),
+      firehoseEvents: [],
+      logs: [
         [
           "debug",
           "incoming.user.success",

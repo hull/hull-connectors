@@ -610,7 +610,7 @@ class MappingUtil {
         let value = _.get(userData, mappingEntry.hull_trait_name);
 
         if (
-          (/_at$|date$/.test(mappingEntry.hull_trait_name) ||
+          (/_(at|date)$/.test(mappingEntry.hull_trait_name) ||
             mappingEntry.hubspot_property_type === "datetime") &&
           typeof value === "string"
         ) {
@@ -652,6 +652,18 @@ class MappingUtil {
             property: mappingEntry.hubspot_property_name,
             value
           });
+        } else if (
+          _.isNil(value) &&
+          mappingEntry.hubspot_property_read_only === false
+        ) {
+          this.hullClient.logger.debug(
+            "User attribute not found in hull notification",
+            {
+              hull_trait_name: mappingEntry.hull_trait_name,
+              hubspot_property_name: mappingEntry.hubspot_property_name,
+              user_identity: userIdent
+            }
+          );
         }
         if (userChanges) {
           const userChange = _.get(
@@ -662,7 +674,8 @@ class MappingUtil {
           if (_.isArray(userChange) && userChange[1] === null) {
             this.hullClient.logger.debug("Setting NULL for user attribute", {
               hull_trait_name: mappingEntry.hull_trait_name,
-              hubspot_property_name: mappingEntry.hubspot_property_name
+              hubspot_property_name: mappingEntry.hubspot_property_name,
+              user_identity: userIdent
             });
           }
         }
@@ -739,7 +752,7 @@ class MappingUtil {
           : _.get({ account: accountData }, mappingEntry.hull_trait_name);
 
         if (
-          /_at$|date$/.test(mappingEntry.hull_trait_name) ||
+          /_(at|date)$/.test(mappingEntry.hull_trait_name) ||
           mappingEntry.hubspot_property_type === "datetime"
         ) {
           const dateValue = new Date(value).getTime();
@@ -781,6 +794,18 @@ class MappingUtil {
             name: mappingEntry.hubspot_property_name,
             value
           });
+        } else if (
+          _.isNil(value) &&
+          mappingEntry.hubspot_property_read_only === false
+        ) {
+          this.hullClient.logger.debug(
+            "Account attribute not found in hull notification",
+            {
+              hull_trait_name: mappingEntry.hull_trait_name,
+              hubspot_property_name: mappingEntry.hubspot_property_name,
+              account_identity: accountIdent
+            }
+          );
         }
         if (accountChanges) {
           const accountChange = _.get(
@@ -791,7 +816,8 @@ class MappingUtil {
           if (_.isArray(accountChange) && accountChange[1] === null) {
             this.hullClient.logger.debug("Setting NULL for account attribute", {
               hull_trait_name: mappingEntry.hull_trait_name,
-              hubspot_property_name: mappingEntry.hubspot_property_name
+              hubspot_property_name: mappingEntry.hubspot_property_name,
+              account_identity: accountIdent
             });
           }
         }

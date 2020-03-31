@@ -40,249 +40,249 @@
         "mapping": [
           {
             "service": "id",
-            "hull": "traits_clearbit/id",
+            "hull": "clearbit/id",
             "readOnly": true,
             "overwrite": true
           },
           {
             "service": "email",
-            "hull": "traits_clearbit/email",
+            "hull": "clearbit/email",
             "readOnly": true,
             "overwrite": true
           },
           {
             "service": "avatar",
-            "hull": "traits_clearbit/avatar",
+            "hull": "clearbit/avatar",
             "overwrite": true
           },
           {
             "service": "bio",
-            "hull": "traits_clearbit/bio",
+            "hull": "clearbit/bio",
             "overwrite": true
           },
           {
             "service": "emailProvider",
-            "hull": "traits_clearbit/email_provider",
+            "hull": "clearbit/email_provider",
             "overwrite": true
           },
           {
             "service": "gender",
-            "hull": "traits_clearbit/gender",
+            "hull": "clearbit/gender",
             "overwrite": true
           },
           {
             "service": "indexedAt",
-            "hull": "traits_clearbit/indexed_at",
+            "hull": "clearbit/indexed_at",
             "overwrite": true
           },
           {
             "service": "fuzzy",
-            "hull": "traits_clearbit/fuzzy",
+            "hull": "clearbit/fuzzy",
             "overwrite": true
           },
           {
             "service": "location",
-            "hull": "traits_clearbit/location",
+            "hull": "clearbit/location",
             "overwrite": true
           },
           {
             "service": "site",
-            "hull": "traits_clearbit/site",
+            "hull": "clearbit/site",
             "overwrite": true
           },
           {
             "service": "timeZone",
-            "hull": "traits_clearbit/time_zone",
+            "hull": "clearbit/time_zone",
             "overwrite": true
           },
           {
             "service": "utcOffset",
-            "hull": "traits_clearbit/utc_offset",
+            "hull": "clearbit/utc_offset",
             "overwrite": true
           },
           {
             "service": "aboutme.avatar",
-            "hull": "traits_clearbit/aboutme_avatar",
+            "hull": "clearbit/aboutme_avatar",
             "overwrite": true
           },
           {
             "service": "aboutme.bio",
-            "hull": "traits_clearbit/aboutme_bio",
+            "hull": "clearbit/aboutme_bio",
             "overwrite": true
           },
           {
             "service": "aboutme.handle",
-            "hull": "traits_clearbit/aboutme_handle",
+            "hull": "clearbit/aboutme_handle",
             "overwrite": true
           },
           {
             "service": "employment.domain",
-            "hull": "traits_clearbit/employment_domain",
+            "hull": "clearbit/employment_domain",
             "overwrite": true
           },
           {
             "service": "employment.name",
-            "hull": "traits_clearbit/employment_name",
+            "hull": "clearbit/employment_name",
             "overwrite": true
           },
           {
             "service": "employment.role",
-            "hull": "traits_clearbit/employment_role",
+            "hull": "clearbit/employment_role",
             "overwrite": true
           },
           {
             "service": "employment.subRole",
-            "hull": "traits_clearbit/employment_sub_role",
+            "hull": "clearbit/employment_sub_role",
             "overwrite": true
           },
           {
             "service": "employment.seniority",
-            "hull": "traits_clearbit/employment_seniority",
+            "hull": "clearbit/employment_seniority",
             "overwrite": true
           },
           {
             "service": "employment.title",
-            "hull": "traits_clearbit/employment_title",
+            "hull": "clearbit/employment_title",
             "overwrite": true
           },
           {
             "service": "facebook.handle",
-            "hull": "traits_clearbit/facebook_handle",
+            "hull": "clearbit/facebook_handle",
             "overwrite": true
           },
           {
             "service": "geo.city",
-            "hull": "traits_clearbit/geo_city",
+            "hull": "clearbit/geo_city",
             "overwrite": true
           },
           {
             "service": "geo.countryCode",
-            "hull": "traits_clearbit/country_code",
+            "hull": "clearbit/country_code",
             "overwrite": true
           },
           {
             "service": "geo.lat",
-            "hull": "traits_clearbit/lat",
+            "hull": "clearbit/lat",
             "overwrite": true
           },
           {
             "service": "geo.lng",
-            "hull": "traits_clearbit/lng",
+            "hull": "clearbit/lng",
             "overwrite": true
           },
           {
             "service": "geo.state",
-            "hull": "traits_clearbit/geo_state",
+            "hull": "clearbit/geo_state",
             "overwrite": true
           },
           {
             "service": "geo.stateCode",
-            "hull": "traits_clearbit/state_code",
+            "hull": "clearbit/state_code",
             "overwrite": true
           },
           {
             "service": "github.avatar",
-            "hull": "traits_clearbit/github_avatar",
+            "hull": "clearbit/github_avatar",
             "overwrite": true
           },
           {
             "service": "github.blog",
-            "hull": "traits_clearbit/github_blog",
+            "hull": "clearbit/github_blog",
             "overwrite": true
           },
           {
             "service": "github.company",
-            "hull": "traits_clearbit/github_company",
+            "hull": "clearbit/github_company",
             "overwrite": true
           },
           {
             "service": "github.followers",
-            "hull": "traits_clearbit/github_followers",
+            "hull": "clearbit/github_followers",
             "overwrite": true
           },
           {
             "service": "github.following",
-            "hull": "traits_clearbit/github_following",
+            "hull": "clearbit/github_following",
             "overwrite": true
           },
           {
             "service": "github.handle",
-            "hull": "traits_clearbit/github_handle",
+            "hull": "clearbit/github_handle",
             "overwrite": true
           },
           {
             "service": "googleplus.handle",
-            "hull": "traits_clearbit/googleplus_handle",
+            "hull": "clearbit/googleplus_handle",
             "overwrite": true
           },
           {
             "service": "gravatar.avatar",
-            "hull": "traits_clearbit/gravatar_avatar",
+            "hull": "clearbit/gravatar_avatar",
             "overwrite": true
           },
           {
             "service": "gravatar.handle",
-            "hull": "traits_clearbit/gravatar_handle",
+            "hull": "clearbit/gravatar_handle",
             "overwrite": true
           },
           {
             "service": "linkedin.handle",
-            "hull": "traits_clearbit/linkedin_handle",
+            "hull": "clearbit/linkedin_handle",
             "overwrite": true
           },
           {
             "service": "name.familyName",
-            "hull": "traits_clearbit/last_name",
+            "hull": "clearbit/last_name",
             "overwrite": true
           },
           {
             "service": "name.fullName",
-            "hull": "traits_clearbit/full_name",
+            "hull": "clearbit/full_name",
             "overwrite": true
           },
           {
             "service": "name.givenName",
-            "hull": "traits_clearbit/first_name",
+            "hull": "clearbit/first_name",
             "overwrite": true
           },
           {
             "service": "twitter.avatar",
-            "hull": "traits_clearbit/twitter_avatar",
+            "hull": "clearbit/twitter_avatar",
             "overwrite": true
           },
           {
             "service": "twitter.bio",
-            "hull": "traits_clearbit/twitter_bio",
+            "hull": "clearbit/twitter_bio",
             "overwrite": true
           },
           {
             "service": "twitter.followers",
-            "hull": "traits_clearbit/twitter_followers",
+            "hull": "clearbit/twitter_followers",
             "overwrite": true
           },
           {
             "service": "twitter.following",
-            "hull": "traits_clearbit/twitter_following",
+            "hull": "clearbit/twitter_following",
             "overwrite": true
           },
           {
             "service": "twitter.handle",
-            "hull": "traits_clearbit/twitter_handle",
+            "hull": "clearbit/twitter_handle",
             "overwrite": true
           },
           {
             "service": "twitter.id",
-            "hull": "traits_clearbit/twitter_id",
+            "hull": "clearbit/twitter_id",
             "overwrite": true
           },
           {
             "service": "twitter.location",
-            "hull": "traits_clearbit/twitter_location",
+            "hull": "clearbit/twitter_location",
             "overwrite": true
           },
           {
             "service": "twitter.site",
-            "hull": "traits_clearbit/twitter_site",
+            "hull": "clearbit/twitter_site",
             "overwrite": true
           }
         ]
@@ -315,64 +315,64 @@
         "mapping": [
           {
             "service": "email",
-            "hull": "traits_clearbit/email",
+            "hull": "clearbit/email",
             "readOnly": true,
             "overwrite": true
           },
           {
             "service": "id",
-            "hull": "traits_clearbit/prospect_id",
+            "hull": "clearbit/prospect_id",
             "readOnly": true,
             "overwrite": true
           },
           {
             "service": "phone",
-            "hull": "traits_clearbit/phone",
+            "hull": "clearbit/phone",
             "overwrite": true
           },
           {
             "service": "role",
-            "hull": "traits_clearbit/employment_role",
+            "hull": "clearbit/employment_role",
             "overwrite": true
           },
           {
             "service": "subRole",
-            "hull": "traits_clearbit/employment_sub_role",
+            "hull": "clearbit/employment_sub_role",
             "overwrite": true
           },
           {
             "service": "seniority",
-            "hull": "traits_clearbit/employment_seniority",
+            "hull": "clearbit/employment_seniority",
             "overwrite": true
           },
           {
             "service": "title",
-            "hull": "traits_clearbit/employment_title",
+            "hull": "clearbit/employment_title",
             "overwrite": true
           },
           {
             "service": "verified",
-            "hull": "traits_clearbit/verified",
+            "hull": "clearbit/verified",
             "overwrite": true
           },
           {
             "service": "name.familyName",
-            "hull": "traits_clearbit/last_name",
+            "hull": "clearbit/last_name",
             "overwrite": true
           },
           {
             "service": "name.fullName",
-            "hull": "traits_clearbit/full_name",
+            "hull": "clearbit/full_name",
             "overwrite": true
           },
           {
             "service": "name.givenName",
-            "hull": "traits_clearbit/first_name",
+            "hull": "clearbit/first_name",
             "overwrite": true
           },
           {
             "service": "company.name",
-            "hull": "traits_clearbit/company_name",
+            "hull": "clearbit/company_name",
             "overwrite": true
           }
         ]
@@ -381,6 +381,11 @@
     "company": {
       "incoming": {
         "top_level": [
+          {
+            "hull": "clearbit/id",
+            "service": "id",
+            "overwrite": "true"
+          },
           {
             "service": "name",
             "hull": "name",
@@ -744,7 +749,7 @@
   ],
   "source": "clearbit",
   "readme": "readme.md",
-  "version": "0.1.15-monorepo",
+  "version": "0.1.22-monorepo",
   "settings": [],
   "private_settings": [
     {
@@ -771,64 +776,64 @@
       "default": [
         {
           "service": "email",
-          "hull": "traits_clearbit/email",
+          "hull": "clearbit/email",
           "readOnly": true,
           "overwrite": true
         },
         {
           "service": "id",
-          "hull": "traits_clearbit/prospect_id",
+          "hull": "clearbit/prospect_id",
           "readOnly": true,
           "overwrite": true
         },
         {
           "service": "phone",
-          "hull": "traits_clearbit/phone",
+          "hull": "clearbit/phone",
           "overwrite": true
         },
         {
           "service": "role",
-          "hull": "traits_clearbit/employment_role",
+          "hull": "clearbit/employment_role",
           "overwrite": true
         },
         {
           "service": "subRole",
-          "hull": "traits_clearbit/employment_sub_role",
+          "hull": "clearbit/employment_sub_role",
           "overwrite": true
         },
         {
           "service": "seniority",
-          "hull": "traits_clearbit/employment_seniority",
+          "hull": "clearbit/employment_seniority",
           "overwrite": true
         },
         {
           "service": "title",
-          "hull": "traits_clearbit/employment_title",
+          "hull": "clearbit/employment_title",
           "overwrite": true
         },
         {
           "service": "verified",
-          "hull": "traits_clearbit/verified",
+          "hull": "clearbit/verified",
           "overwrite": true
         },
         {
           "service": "name.familyName",
-          "hull": "traits_clearbit/last_name",
+          "hull": "clearbit/last_name",
           "overwrite": true
         },
         {
           "service": "name.fullName",
-          "hull": "traits_clearbit/full_name",
+          "hull": "clearbit/full_name",
           "overwrite": true
         },
         {
           "service": "name.givenName",
-          "hull": "traits_clearbit/first_name",
+          "hull": "clearbit/first_name",
           "overwrite": true
         },
         {
           "service": "company.name",
-          "hull": "traits_clearbit/company_name",
+          "hull": "clearbit/company_name",
           "overwrite": true
         }
       ]
@@ -850,249 +855,249 @@
       "default": [
         {
           "service": "id",
-          "hull": "traits_clearbit/id",
+          "hull": "clearbit/id",
           "readOnly": true,
           "overwrite": true
         },
         {
           "service": "email",
-          "hull": "traits_clearbit/email",
+          "hull": "clearbit/email",
           "readOnly": true,
           "overwrite": true
         },
         {
           "service": "avatar",
-          "hull": "traits_clearbit/avatar",
+          "hull": "clearbit/avatar",
           "overwrite": true
         },
         {
           "service": "bio",
-          "hull": "traits_clearbit/bio",
+          "hull": "clearbit/bio",
           "overwrite": true
         },
         {
           "service": "emailProvider",
-          "hull": "traits_clearbit/email_provider",
+          "hull": "clearbit/email_provider",
           "overwrite": true
         },
         {
           "service": "gender",
-          "hull": "traits_clearbit/gender",
+          "hull": "clearbit/gender",
           "overwrite": true
         },
         {
           "service": "indexedAt",
-          "hull": "traits_clearbit/indexed_at",
+          "hull": "clearbit/indexed_at",
           "overwrite": true
         },
         {
           "service": "fuzzy",
-          "hull": "traits_clearbit/fuzzy",
+          "hull": "clearbit/fuzzy",
           "overwrite": true
         },
         {
           "service": "location",
-          "hull": "traits_clearbit/location",
+          "hull": "clearbit/location",
           "overwrite": true
         },
         {
           "service": "site",
-          "hull": "traits_clearbit/site",
+          "hull": "clearbit/site",
           "overwrite": true
         },
         {
           "service": "timeZone",
-          "hull": "traits_clearbit/time_zone",
+          "hull": "clearbit/time_zone",
           "overwrite": true
         },
         {
           "service": "utcOffset",
-          "hull": "traits_clearbit/utc_offset",
+          "hull": "clearbit/utc_offset",
           "overwrite": true
         },
         {
           "service": "aboutme.avatar",
-          "hull": "traits_clearbit/aboutme_avatar",
+          "hull": "clearbit/aboutme_avatar",
           "overwrite": true
         },
         {
           "service": "aboutme.bio",
-          "hull": "traits_clearbit/aboutme_bio",
+          "hull": "clearbit/aboutme_bio",
           "overwrite": true
         },
         {
           "service": "aboutme.handle",
-          "hull": "traits_clearbit/aboutme_handle",
+          "hull": "clearbit/aboutme_handle",
           "overwrite": true
         },
         {
           "service": "employment.domain",
-          "hull": "traits_clearbit/employment_domain",
+          "hull": "clearbit/employment_domain",
           "overwrite": true
         },
         {
           "service": "employment.name",
-          "hull": "traits_clearbit/employment_name",
+          "hull": "clearbit/employment_name",
           "overwrite": true
         },
         {
           "service": "employment.role",
-          "hull": "traits_clearbit/employment_role",
+          "hull": "clearbit/employment_role",
           "overwrite": true
         },
         {
           "service": "employment.subRole",
-          "hull": "traits_clearbit/employment_sub_role",
+          "hull": "clearbit/employment_sub_role",
           "overwrite": true
         },
         {
           "service": "employment.seniority",
-          "hull": "traits_clearbit/employment_seniority",
+          "hull": "clearbit/employment_seniority",
           "overwrite": true
         },
         {
           "service": "employment.title",
-          "hull": "traits_clearbit/employment_title",
+          "hull": "clearbit/employment_title",
           "overwrite": true
         },
         {
           "service": "facebook.handle",
-          "hull": "traits_clearbit/facebook_handle",
+          "hull": "clearbit/facebook_handle",
           "overwrite": true
         },
         {
           "service": "geo.city",
-          "hull": "traits_clearbit/geo_city",
+          "hull": "clearbit/geo_city",
           "overwrite": true
         },
         {
           "service": "geo.countryCode",
-          "hull": "traits_clearbit/country_code",
+          "hull": "clearbit/country_code",
           "overwrite": true
         },
         {
           "service": "geo.lat",
-          "hull": "traits_clearbit/lat",
+          "hull": "clearbit/lat",
           "overwrite": true
         },
         {
           "service": "geo.lng",
-          "hull": "traits_clearbit/lng",
+          "hull": "clearbit/lng",
           "overwrite": true
         },
         {
           "service": "geo.state",
-          "hull": "traits_clearbit/geo_state",
+          "hull": "clearbit/geo_state",
           "overwrite": true
         },
         {
           "service": "geo.stateCode",
-          "hull": "traits_clearbit/state_code",
+          "hull": "clearbit/state_code",
           "overwrite": true
         },
         {
           "service": "github.avatar",
-          "hull": "traits_clearbit/github_avatar",
+          "hull": "clearbit/github_avatar",
           "overwrite": true
         },
         {
           "service": "github.blog",
-          "hull": "traits_clearbit/github_blog",
+          "hull": "clearbit/github_blog",
           "overwrite": true
         },
         {
           "service": "github.company",
-          "hull": "traits_clearbit/github_company",
+          "hull": "clearbit/github_company",
           "overwrite": true
         },
         {
           "service": "github.followers",
-          "hull": "traits_clearbit/github_followers",
+          "hull": "clearbit/github_followers",
           "overwrite": true
         },
         {
           "service": "github.following",
-          "hull": "traits_clearbit/github_following",
+          "hull": "clearbit/github_following",
           "overwrite": true
         },
         {
           "service": "github.handle",
-          "hull": "traits_clearbit/github_handle",
+          "hull": "clearbit/github_handle",
           "overwrite": true
         },
         {
           "service": "googleplus.handle",
-          "hull": "traits_clearbit/googleplus_handle",
+          "hull": "clearbit/googleplus_handle",
           "overwrite": true
         },
         {
           "service": "gravatar.avatar",
-          "hull": "traits_clearbit/gravatar_avatar",
+          "hull": "clearbit/gravatar_avatar",
           "overwrite": true
         },
         {
           "service": "gravatar.handle",
-          "hull": "traits_clearbit/gravatar_handle",
+          "hull": "clearbit/gravatar_handle",
           "overwrite": true
         },
         {
           "service": "linkedin.handle",
-          "hull": "traits_clearbit/linkedin_handle",
+          "hull": "clearbit/linkedin_handle",
           "overwrite": true
         },
         {
           "service": "name.familyName",
-          "hull": "traits_clearbit/last_name",
+          "hull": "clearbit/last_name",
           "overwrite": true
         },
         {
           "service": "name.fullName",
-          "hull": "traits_clearbit/full_name",
+          "hull": "clearbit/full_name",
           "overwrite": true
         },
         {
           "service": "name.givenName",
-          "hull": "traits_clearbit/first_name",
+          "hull": "clearbit/first_name",
           "overwrite": true
         },
         {
           "service": "twitter.avatar",
-          "hull": "traits_clearbit/twitter_avatar",
+          "hull": "clearbit/twitter_avatar",
           "overwrite": true
         },
         {
           "service": "twitter.bio",
-          "hull": "traits_clearbit/twitter_bio",
+          "hull": "clearbit/twitter_bio",
           "overwrite": true
         },
         {
           "service": "twitter.followers",
-          "hull": "traits_clearbit/twitter_followers",
+          "hull": "clearbit/twitter_followers",
           "overwrite": true
         },
         {
           "service": "twitter.following",
-          "hull": "traits_clearbit/twitter_following",
+          "hull": "clearbit/twitter_following",
           "overwrite": true
         },
         {
           "service": "twitter.handle",
-          "hull": "traits_clearbit/twitter_handle",
+          "hull": "clearbit/twitter_handle",
           "overwrite": true
         },
         {
           "service": "twitter.id",
-          "hull": "traits_clearbit/twitter_id",
+          "hull": "clearbit/twitter_id",
           "overwrite": true
         },
         {
           "service": "twitter.location",
-          "hull": "traits_clearbit/twitter_location",
+          "hull": "clearbit/twitter_location",
           "overwrite": true
         },
         {
           "service": "twitter.site",
-          "hull": "traits_clearbit/twitter_site",
+          "hull": "clearbit/twitter_site",
           "overwrite": true
         }
       ]
@@ -1609,8 +1614,8 @@
       "description": "Hit `Enter` after every title to make a Tag out of it, Restrict your search by specifying criteria for the prospect's title. If left blank, search is carried out without restriction."
     },
     {
-      "name": "prospect_filter_role",
-      "title": "Filter for a certain Role",
+      "name": "prospect_filter_roles",
+      "title": "Filter for specific Roles",
       "format": "select",
       "type": "array",
       "uniqueItems": true,
@@ -1641,11 +1646,11 @@
           "sales"
         ]
       },
-      "description": "Specify a certain role or leave blank to search without restriction."
+      "description": "Filter based on roles or leave blank to search without restriction."
     },
     {
-      "name": "prospect_filter_seniority",
-      "title": "Filter for specific Seniority",
+      "name": "prospect_filter_seniorities",
+      "title": "Filter for specific Seniorities",
       "type": "array",
       "format": "select",
       "uniqueItems": true,
@@ -1657,7 +1662,37 @@
           "manager"
         ]
       },
-      "description": "Define a specific seniority or leave blank if you don't want to restrict your search."
+      "description": "Filter based on Seniority or leave blank to search without restriction."
+    },
+    {
+      "name": "prospect_filter_cities",
+      "title": "Filter for Cities",
+      "type": "array",
+      "format": "tags",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "options": {
+        "allowCreate": true
+      },
+      "description": "Hit `Enter` after every city to make a Tag out of it, Restrict your search by specifying criteria for the prospect's city. If left blank, search is carried out without restriction."
+    },
+    {
+      "name": "prospect_filter_states",
+      "title": "Filter for States",
+      "type": "array",
+      "format": "tags",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "options": {
+        "allowCreate": true
+      },
+      "description": "Hit `Enter` after every state to make a Tag out of it, Restrict your search by specifying criteria for the prospect's state. If left blank, search is carried out without restriction."
     }
   ],
   "settings_sections": [
@@ -1706,8 +1741,10 @@
         "private_settings.prospect_account_segments",
         "private_settings.prospect_account_segments_exclusion",
         "private_settings.prospect_filter_titles",
-        "private_settings.prospect_filter_role",
-        "private_settings.prospect_filter_seniority",
+        "private_settings.prospect_filter_roles",
+        "private_settings.prospect_filter_seniorities",
+        "private_settings.prospect_filter_states",
+        "private_settings.prospect_filter_cities",
         "private_settings.prospect_limit_count"
       ]
     }

@@ -29,6 +29,10 @@ const {
   OutreachWebEventRead
 } = require("./service-objects");
 
+const {
+  createEnumTransform
+}  = require("hull-connector-framework/src/purplefusion/transform-predefined");
+
 /**
  * On the way back still need the notion of putting into the identification
  * versus setting attributes
@@ -467,7 +471,7 @@ const transformsToHull: ServiceTransforms =
                 "\t\t\t\"eventName\": attributes.name,\n" +
                 "\t\t\t\"properties\": {\n" +
                 "            \t\"body\": attributes.body,\n" +
-                "                \"created_at\": attributes.createdAt,\n" +
+                "                \"event_at\": attributes.eventAt,\n" +
                 "                \"external_url\": attributes.externalUrl,\n" +
                 "                \"email_id\": attributes.mailingId,\n" +
                 "                \"payload\": attributes.payload,\n" +
@@ -475,11 +479,13 @@ const transformsToHull: ServiceTransforms =
                 "                \"user_agent\": attributes.requestDevice,\n" +
                 "                \"ip\": attributes.requestHost,\n" +
                 "                \"request_proxied\": attributes.requestProxied,\n" +
-                "                \"request_region\": attributes.requestRegion\n" +
+                "                \"request_region\": attributes.requestRegion,\n" +
+                "                \"user_id\": relationships.user.data.id\n" +
                 "            },\n" +
                 "\t\t\t\"context\": {\n" +
                 "\t\t\t\t\"event_id\": id,\n" +
-                "\t\t\t\t\"created_at\": attributes.eventAt\n" +
+                "\t\t\t\t\"created_at\": attributes.createdAt,\n" +
+                "\t\t\t\t\"source\": \"Outreach\"\n" +
                 "\t\t\t}\n" +
                 "\t\t}\n" +
                 "\t]\n" +
@@ -492,13 +498,12 @@ const transformsToHull: ServiceTransforms =
           target: { component: "input", name: "eventInput" },
           then: [
             {
-              //target: { component: "input", select: "hullEvents[0]"},
               condition: notNull("eventInput.hull_events[0].properties.email_id"),
               operateOn: { component: "input", name: "mailingId", select: "hull_events[0].properties.email_id" },
               then: [
                 {
-                  operateOn: { component: "glue", route: "getMailingDetails", name: "enrichedEmail" },
-                  // writeTo: { path: "hull_events[0].properties.email_subject", format: "${enrichedEmail.email_subject}" },
+                  operateOn: { component: "context", select: "mailingDetails.${mailingId}", name: "enrichedEmail" },
+                  condition: notNull("enrichedEmail"),
                   then: [
                     {
                       writeTo: { path: "hull_events[0].properties.email_subject", format: "${enrichedEmail.email_subject}" }
@@ -507,24 +512,47 @@ const transformsToHull: ServiceTransforms =
                       writeTo: { path: "hull_events[0].properties.sequence_id", format: "${enrichedEmail.sequence_id}" },
                     },
                     {
-                      // condition: notNull("${enrichedEmail.sequence_id}"),
-                      operateOn: { component: "glue", route: "getSequences", select: "${enrichedEmail.sequence_id}" },
-                      writeTo: { path: "hull_events[0].properties.sequence_name" }
+                       writeTo: { path: "hull_events[0].properties.sequence_step_id", format: "${enrichedEmail.sequence_step}" },
                     },
+                    createEnumTransform({
+                      attribute: "hull_events[0].properties.sequence_name",
+                      attributeId: "hull_events[0].properties.sequence_id",
+                      route: "getSequences"
+                      // forceRoute: "forceGetSequences"
+                    }),
+                    createEnumTransform({
+                      attribute: "hull_events[0].properties.sequence_step_name",
+                      attributeId: "hull_events[0].properties.sequence_step_id",
+                      route: "getSequenceSteps"
+                      // Some of the sequences don't appear to be in the endpoint, I imagine they've been deleted
+                      // this introduces a pretty serious concurrency problem for us as we'll delete the sequence steps (without concurrency protection), and try to fetch a lot again...
+                      // need to figure out the best way to handle this... maybe with a specific call for that sequence step??
+                      // forceRoute: "forceGetSequenceSteps"
+                    })
                   ]
-                },
+                }
               ]
             },
+            createEnumTransform({
+              attribute: "hull_events[0].properties.user_email",
+              attributeId: "hull_events[0].properties.user_id",
+              route: "getOwnerIdToEmailMap",
+              forceRoute: "forceGetOwnerIdToEmailMap"
+            }),
             {
               operateOn: {
                 component: "static",
                 object: {
                   "bounced_message": "Bounced Message",
                   "emails_opt_out": "Emails Opt Out",
+                  "inbound_call_completed": "Inbound Call Completed",
+                  "inbound_call_no_answer": "Inbound Call No Answer",
                   "inbound_message": "Inbound Message",
                   "message_clicked": "Message Clicked",
                   "message_opened": "Message Opened",
                   "message_opened_sender": "Message Opened Sender",
+                  "outbound_call_completed": "Outbound Call Completed",
+                  "outbound_call_no_answer": "Outbound Call No Answer",
                   "outbound_message": "Outbound Message"
                 },
                 select: "${eventInput.hull_events[0].eventName}",

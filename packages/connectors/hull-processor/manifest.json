@@ -21,7 +21,7 @@
     }
   ],
   "readme": "readme.md",
-  "version": "0.1.15-monorepo",
+  "version": "0.1.22-monorepo",
   "private_settings": [
     {
       "name": "sentry_dsn",
@@ -69,6 +69,18 @@
       "default": [
         "ALL"
       ]
+    },
+    {
+      "name": "language",
+      "title": "Processing language",
+      "description": "Choose which processing language to use. We support Javascript, and JSONata, which is an easy to use declarative mapping language",
+      "type": "string",
+      "format": "select",
+      "enum": [
+        "javascript",
+        "jsonata"
+      ],
+      "default": "javascript"
     },
     {
       "name": "code",
@@ -124,7 +136,9 @@
           ]
         },
         "segments": {
-          "user:update": ["private_settings.synchronized_user_segments"]
+          "user:update": [
+            "private_settings.synchronized_user_segments"
+          ]
         }
       },
       "channels": [

@@ -1,5 +1,29 @@
 # CHANGELOG
 
+## v0.1.22-monorepo
+- [hull-hubspot] sync connector if upsert fails due to mismatched segments
+
+## v0.1.21-monorepo
+- [hull-outreach] additional attributes fetched in Outreach events
+- [hull-outreach] optimized fetch operations of Outreach events
+
+## v0.1.20-monorepo
+- [hull-outgoing-user-webhooks] release
+- [hull-outgoing-account-webhooks] release
+
+## v0.1.19-monorepo
+- [hull-datawarehouse] support ssh tunnel
+
+## v0.1.18-monorepo
+- [hull-coppercrm] merged coppercrm to master
+- [hull-hubspot] additional logging for null values
+
+## v0.1.17-monorepo
+- [hull-outreach] send users and accounts segments as attributes to Outreach
+- [hull-segment] Migrate to monorepo
+- [hull-connectors] CircleCI config now publishes docker images and deploys to DCOS
+- [hull-repl] Release of Repl connector
+
 ## v0.1.16-monorepo
 - [hull-hubspot] handle empty contact identity claims
 - [hull-hubspot] use vid on contact upsert
@@ -12,24 +36,29 @@
 - [hull-slack] fix account trigger bug
 
 ## v0.1.13-monorepo
+
 - [hull-hubspot] store email in Hubspot group
 - [hull-hubspot] do not unalias on deletion
 - [hull-hubspot] merge contacts and accounts
 
 ## v0.1.12-monorepo
+
 - release of the new website connector
 
 ## v0.1.11-monorepo
+
 - Moved new and improved code connectors to monorepo master
 - added outreach event support
 - added zapier connector to master
 
 ## v0.1.10-monorepo
+
 - Moved all incoming logging on all connectors to debug level
 - Moved outgoing.skip logging to debug for all connectors
 - hull-connector-framework removed the replacement of variables by default when no desired output class
 
 ## v0.1.9-monorepo
+
 - [hull-pipedrive] New Connector!
 - [hull-hubspot] Enhanced fetching reduces number of api calls and number of fetches running in parallel
 - [hull-node] Upped timeout to avoid aborted issues when there are many requests in flight
@@ -167,7 +196,7 @@
 - [hull-mailchimp] moved into monorepo
 - [hull-connector-framework] test runner is able to test incoming webhooks and worker jobs
 - [hull-connector-framework] test runner verifies all `platformApiCalls`
-- [hull-repl] fix building the HullContext object
+- [hullrepl] fix building the HullContext object
 - [hull] debug whole unhandled error stack, not only the name
 - [hull] renamed `requestsBufferHandler` into `incomingRequestHandler` and simplify it's behavior
 - [hull] notification handler now responds 200 and retry in case of `ConfigurationError`

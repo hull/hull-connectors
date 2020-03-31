@@ -49,7 +49,6 @@ const buildHullContext = ({
   entity?: HullEntityName
 }) => {
   const hasScopedClaims = scopedClaims && _.size(scopedClaims) && !!entity;
-
   const errorLogger = (message, method, validation) => {
     client.logger.debug(`incoming.${message}.skip`, {
       method,
