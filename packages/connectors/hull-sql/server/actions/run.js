@@ -1,6 +1,7 @@
 /* @flow */
 import type { HullContext, HullExternalResponse } from "hull";
 import SyncAgent from "../lib/sync-agent";
+const _ = require("lodash");
 
 async function run(ctx: HullContext): HullExternalResponse {
   const { preview_timeout } = ctx.connectorConfig;
@@ -16,7 +17,7 @@ async function run(ctx: HullContext): HullExternalResponse {
     };
   }
 
-  const query = ctx.notification.query || agent.getQuery();
+  const query = _.get(ctx, "notification.query", agent.getQuery());
   if (!query) {
     return {
       status: 403,

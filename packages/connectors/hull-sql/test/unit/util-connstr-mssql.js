@@ -11,7 +11,7 @@ describe("Connection string util for MSSQL", () => {
       output_type: "s3",
       query: "SELECT * FROM users",
       db_host: "hullio.database.windows.net",
-      db_port: "1433",
+      db_port: 1433,
       db_name: "hulldb",
       db_user: "hulluser",
       db_password: "hullpwd",
@@ -20,8 +20,8 @@ describe("Connection string util for MSSQL", () => {
     };
 
     const tediousOpts = mssql.parseConnectionConfig(private_settings);
-    expect(tediousOpts.userName).to.be.equal(private_settings.db_user);
-    expect(tediousOpts.password).to.be.equal(private_settings.db_password);
+    expect(tediousOpts.authentication.options.userName).to.be.equal(private_settings.db_user);
+    expect(tediousOpts.authentication.options.password).to.be.equal(private_settings.db_password);
     expect(tediousOpts.server).to.be.equal(private_settings.db_host);
     expect(tediousOpts.options.encrypt).to.be.equal(true);
     expect(tediousOpts.options.port).to.be.equal(private_settings.db_port);
@@ -34,7 +34,7 @@ describe("Connection string util for MSSQL", () => {
       output_type: "s3",
       query: "SELECT * FROM users",
       db_host: "hullio.database.windows.net",
-      db_port: "1433",
+      db_port: 1433,
       db_name: "hulldb",
       db_user: "hulluser",
       db_password: "hullpwd",
@@ -42,8 +42,8 @@ describe("Connection string util for MSSQL", () => {
     };
 
     const tediousOpts = mssql.parseConnectionConfig(private_settings);
-    expect(tediousOpts.userName).to.be.equal(private_settings.db_user);
-    expect(tediousOpts.password).to.be.equal(private_settings.db_password);
+    expect(tediousOpts.authentication.options.userName).to.be.equal(private_settings.db_user);
+    expect(tediousOpts.authentication.options.password).to.be.equal(private_settings.db_password);
     expect(tediousOpts.server).to.be.equal(private_settings.db_host);
     expect(tediousOpts.options.port).to.be.equal(private_settings.db_port);
     expect(tediousOpts.options.database).to.be.equal(private_settings.db_name);

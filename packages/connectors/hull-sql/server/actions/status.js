@@ -21,9 +21,15 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
   let status = "ok";
   const messages = [];
 
-  const pushMessage = (message, changeStatusTo = "error") => {
-    status = changeStatusTo;
-    messages.push(message);
+  const pushMessage = (
+    status: "error" | "warning" | "ok" | "setupRequired",
+    message: string
+  ) => {
+
+    const existingMessage = _.find(messages, { message });
+    if (!existingMessage) {
+      messages.push({ status, message });
+    }
   };
   const promises = [];
   client.logger.debug("connector.statusCheck.start");
@@ -33,26 +39,27 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
       "setupRequired",
       "Connection parameters are not fully configured"
     );
+  } else {
+    promises.push(
+      agent.runQuery("SELECT 1 as test", { timeout: 3000 }).catch(err => {
+        pushMessage(
+          "error",
+          `Error when trying to connect with database. ${_.get(
+            err,
+            "message",
+            ""
+          )}`
+        );
+      })
+    );
   }
-  // check connection and response
-  promises.push(
-    agent.runQuery("SELECT 1 as test", { timeout: 3000 }).catch(err => {
-      pushMessage(
-        `Error when trying to connect with database. ${_.get(
-          err,
-          "message",
-          ""
-        )}`
-      );
-    })
-  );
 
   if (!agent.isQueryStringConfigured()) {
     let changeStatusTo = "ok";
     if (status === "error") {
       changeStatusTo = "error";
     }
-    pushMessage("Query is not configured", changeStatusTo);
+    pushMessage(changeStatusTo, "Query is not configured");
   }
 
   if (!agent.isEnabled()) {
@@ -60,7 +67,7 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
     if (status === "error") {
       changeStatusTo = "error";
     }
-    pushMessage("Sync is disabled. Enable it in settings.", changeStatusTo);
+    pushMessage(changeStatusTo, "Sync is disabled. Enable it in settings.");
   }
 
   if (
@@ -73,8 +80,8 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
       changeStatusTo = "error";
     }
     pushMessage(
-      "Interval syncing is enabled but interval time is less or equal zero.",
-      changeStatusTo
+      changeStatusTo,
+      "Interval syncing is enabled but interval time is less or equal zero."
     );
   }
 

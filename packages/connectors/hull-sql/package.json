@@ -3,12 +3,9 @@
   "version": "0.1.23-monorepo",
   "description": "Sync persons and organizations with Hull",
   "scripts": {
-    "test": "exit 0;",
-    "tests": "npm run test:lint && npm run test:unit && npm run test:integration",
-    "test:lint": "eslint server",
-    "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit/{*.js,**/*.js}",
     "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}",
-    "test:flow": "flow check",
     "documentation": "exit 0"
   },
   "dependencies": {

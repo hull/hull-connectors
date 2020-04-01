@@ -247,12 +247,22 @@
       "editable": true
     }
   ],
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "30",
+      "method": "all",
+      "handler": "status"
+    }
+  ],
   "status": {
-    "url": "/status",
-    "handler": "status",
     "initial_value": "setupRequired",
-    "type": "cron",
-    "value": "*/30 * * * *"
+    "url": "/status",
+    "type": "interval",
+    "value": "30",
+    "method": "all",
+    "handler": "status"
   },
   "ui": false,
   "schedules": [

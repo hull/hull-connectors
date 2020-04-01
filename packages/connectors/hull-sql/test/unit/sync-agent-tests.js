@@ -7,9 +7,10 @@ import stream from "stream";
 import SyncAgent from "../../server/lib/sync-agent.js";
 
 describe("SyncAgent", () => {
+
   it("should pass import_start_date to adapter", () => {
     const syncAgent = new SyncAgent({
-      ship: {
+      connector: {
         private_settings: {
           db_type: "filesystem",
           import_days: 10
@@ -35,7 +36,7 @@ describe("SyncAgent", () => {
         },
         post: () => Promise.resolve({})
       },
-      ship: {
+      connector: {
         private_settings: {
           db_type: "filesystem",
           import_days: 10
@@ -46,7 +47,6 @@ describe("SyncAgent", () => {
     mockStream.close = () => {};
 
     const closeStreamStub = sinon.stub(mockStream, "close");
-    const closeConnectionStub = sinon.stub(syncAgent.adapter.in, "closeConnection");
 
     syncAgent.sync(mockStream, new Date())
       .catch(err => {
@@ -56,7 +56,6 @@ describe("SyncAgent", () => {
 
     mockStream.emit("error", new Error("Expected"));
     expect(closeStreamStub.callCount).to.be.equal(1);
-    expect(closeConnectionStub.callCount).to.be.equal(1);
   });
 
   it("not fail when undefined stream error occurs", (done) => {
@@ -68,7 +67,7 @@ describe("SyncAgent", () => {
         },
         post: () => Promise.resolve({})
       },
-      ship: {
+      connector: {
         private_settings: {
           db_type: "filesystem",
           import_days: 10
@@ -99,7 +98,7 @@ describe("SyncAgent", () => {
         },
         post: () => Promise.resolve({})
       },
-      ship: {
+      connector: {
         private_settings: {
           db_type: "snowflake",
           import_days: 10
@@ -109,7 +108,7 @@ describe("SyncAgent", () => {
     const emptySyncAgent = new SyncAgent(initializationParameters);
     expect(emptySyncAgent.areConnectionParametersConfigured()).to.be.equal(false);
 
-    initializationParameters.ship.private_settings = {
+    initializationParameters.connector.private_settings = {
       db_type: "snowflake",
       db_account: "ab12345.us-east-1",
       db_region: "us-east-1",
@@ -121,7 +120,7 @@ describe("SyncAgent", () => {
     const badSyncAgent = new SyncAgent(initializationParameters);
     expect(badSyncAgent.areConnectionParametersConfigured()).to.be.equal(false);
 
-    initializationParameters.ship.private_settings.db_account = "ab12345";
+    initializationParameters.connector.private_settings.db_account = "ab12345";
     const goodSyncAgent = new SyncAgent(initializationParameters);
     expect(goodSyncAgent.areConnectionParametersConfigured()).to.be.equal(true);
 
@@ -138,7 +137,7 @@ describe("SyncAgent", () => {
         },
         post: () => Promise.resolve({})
       },
-      ship: {
+      connector: {
         private_settings: {
           db_type: "postgres",
           import_days: 10
@@ -148,7 +147,7 @@ describe("SyncAgent", () => {
     const emptySyncAgent = new SyncAgent(initializationParameters);
     expect(emptySyncAgent.areConnectionParametersConfigured()).to.be.equal(false);
 
-    initializationParameters.ship.private_settings = {
+    initializationParameters.connector.private_settings = {
       db_type: "postgres",
       db_host: "somehost.com",
       db_port: "5432",
@@ -159,7 +158,7 @@ describe("SyncAgent", () => {
     const badSyncAgent = new SyncAgent(initializationParameters);
     expect(badSyncAgent.areConnectionParametersConfigured()).to.be.equal(false);
 
-    initializationParameters.ship.private_settings.db_password = "somepass";
+    initializationParameters.connector.private_settings.db_password = "somepass";
     const goodSyncAgent = new SyncAgent(initializationParameters);
     expect(goodSyncAgent.areConnectionParametersConfigured()).to.be.equal(true);
 
@@ -169,19 +168,19 @@ describe("SyncAgent", () => {
 
   describe("idKey", () => {
     it("should return 'userId'", () => {
-      const syncAgent = new SyncAgent({ ship: { private_settings:
+      const syncAgent = new SyncAgent({ connector: { private_settings:
         { db_type: "filesystem", import_type: "users" } } });
       expect(syncAgent.idKey()).to.equal("userId");
     });
 
     it("should return 'accountId'", () => {
-      const syncAgent = new SyncAgent({ ship: { private_settings:
+      const syncAgent = new SyncAgent({ connector: { private_settings:
         { db_type: "filesystem", import_type: "accounts" } } });
       expect(syncAgent.idKey()).to.equal("accountId");
     });
 
     it("should return 'userId'", () => {
-      const syncAgent = new SyncAgent({ ship: { private_settings:
+      const syncAgent = new SyncAgent({ connector: { private_settings:
         { db_type: "filesystem", import_type: "events" } } });
       expect(syncAgent.idKey()).to.equal("userId");
     });
@@ -189,19 +188,19 @@ describe("SyncAgent", () => {
 
   describe("dataKey", () => {
     it("should return 'traits'", () => {
-      const syncAgent = new SyncAgent({ ship: { private_settings:
+      const syncAgent = new SyncAgent({ connector: { private_settings:
         { db_type: "filesystem", import_type: "users" } } });
       expect(syncAgent.dataKey()).to.equal("traits");
     });
 
     it("should return 'traits'", () => {
-      const syncAgent = new SyncAgent({ ship: { private_settings:
+      const syncAgent = new SyncAgent({ connector: { private_settings:
         { db_type: "filesystem", import_type: "accounts" } } });
       expect(syncAgent.dataKey()).to.equal("traits");
     });
 
     it("should return 'properties'", () => {
-      const syncAgent = new SyncAgent({ ship: { private_settings:
+      const syncAgent = new SyncAgent({ connector: { private_settings:
         { db_type: "filesystem", import_type: "events" } } });
       expect(syncAgent.dataKey()).to.equal("properties");
     });
@@ -209,19 +208,19 @@ describe("SyncAgent", () => {
 
   describe("getQuery", () => {
     it("should trim semicolon at the end of the string", () => {
-      const syncAgent = new SyncAgent({ ship: { private_settings:
+      const syncAgent = new SyncAgent({ connector: { private_settings:
         { db_type: "filesystem", query: "SELECT * FROM users;" } } });
       expect(syncAgent.getQuery()).to.equal("SELECT * FROM users");
     });
 
     it("should trim multiple semicolons at the end of the string", () => {
-      const syncAgent = new SyncAgent({ ship: { private_settings:
+      const syncAgent = new SyncAgent({ connector: { private_settings:
         { db_type: "filesystem", query: "SELECT * FROM users;;;;" } } });
       expect(syncAgent.getQuery()).to.equal("SELECT * FROM users");
     });
 
     it("should not remove semicolons from everything than end", () => {
-      const syncAgent = new SyncAgent({ ship: { private_settings:
+      const syncAgent = new SyncAgent({ connector: { private_settings:
         { db_type: "filesystem", query: ";SELECT; *; FROM; users;p;;" } } });
       expect(syncAgent.getQuery()).to.equal(";SELECT; *; FROM; users;p");
     });

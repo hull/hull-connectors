@@ -9,7 +9,7 @@ import importResults from "../actions/import-results";
 import startImport from "../jobs/start-import";
 import startSync from "../jobs/start-sync";
 
-const handler = (_connector: Connector): HullHandlersConfiguration => {
+const handler = (): HullHandlersConfiguration => {
   return {
     jobs: {
       startImport,
