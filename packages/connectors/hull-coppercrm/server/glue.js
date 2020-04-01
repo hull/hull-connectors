@@ -147,12 +147,15 @@ const glue = {
   ),
   leadUpdate: ifL(route("isConfigured"),[
     set("service_name", "coppercrm"),
-    iterateL(input(), { key: "message", async: true },
-      ifL(set("leadId", "${message.user.coppercrm_lead/id}"), {
-        do: hull("asUser", coppercrm("updateLead", cast(HullOutgoingUser, "${message}"))),
-        eldo: hull("asUser", coppercrm("upsertLead", cast(HullOutgoingUser, "${message}"))),
-      })
-    )
+    iterateL(input(), { key: "message", async: true }, [
+        ifL(set("leadId", "${message.user.coppercrm_lead/id}"), {
+          do: set("copperLead", coppercrm("updateLead", cast(HullOutgoingUser, "${message}"))),
+          eldo: set("copperLead", coppercrm("upsertLead", cast(HullOutgoingUser, "${message}"))),
+        }),
+        ifL("${copperLead.id}",
+          hull("asUser", "${copperLead}")
+        )
+    ])
   ]),
   userUpdate: {},
 
