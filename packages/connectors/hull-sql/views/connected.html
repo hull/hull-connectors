@@ -1,0 +1,193 @@
+<html><head>
+  <title>Hull SQL</title>
+  <link rel="stylesheet" href="//dd04rofzygnm0.cloudfront.net/releases/master/865f04865d2448286626bac92c518a8f8ea8bafe/stylesheets/neue.css">
+  <script src="/index.js" type="text/javascript" charset="utf-8" async defer></script>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="mb-1 ps-3">
+          <div class="media">
+            <div class="media-left">
+              <div class="media-object pr-1 pt-1">
+                <div class="check valid"><i class="icon icon-valid"></i></div>
+              </div>
+            </div>
+            <div class="media-body pt-1">
+              <h4 class="m-0 pt-025 text-muted">Connected to your <%= db_type %> database</h4>
+              <% if (last_sync_at) { %>
+                <small>Last Sync on <span data-time=""><%= last_sync_at %></span></small>
+              <% } %>
+            </div>
+          </div>
+          <hr>
+          <div class="row">
+            <div class="col-sm-12">
+
+              <div class="row">
+                <div class="col-sm-12 col-lg-9">
+                  <div class="flex-row">
+                    <h4 class="mt-05 mb-05">SQL Query for importing <%=import_type%> <small class="text-muted" id="changed-indicator">(Changed, unsaved)</small></h4>
+                    <div id="actions">
+                      <button id="button_preview" class="mb-05 btn-sm btn-success btn to-disable">Preview</button>
+                    </div>
+                  </div>
+                  <textarea name="" rows="15" id="querying" class="form-control"><%= query %></textarea>
+                  <div id="preview-query" class="alert alert-success">
+                    Click "Preview" to see what the query returns. You should preview to validate your query before you save
+                  </div>
+                  <div id="preview-loading" class="alert alert-warning">
+                    Loading. Please wait.
+                  </div>
+                  <div id="preview-error" class="alert alert-danger">
+                  </div>
+                </div>
+                <div class="col-sm-12 col-lg-3">
+                  <h4 class='mt-05 mb-1'>Preview &amp; Save queries</h4>
+                  <p>Every time you change your query, we <strong>strongly recommend</strong> running a successful preview by clicking the <strong>Preview</strong> button before <strong>Saving it</strong> (with the Save button on the top right of this screen)</p>
+                  <p>In preview mode, your query will be run with a <code>LIMIT 100</code> or <code>TOP(100)</code> in T-SQL</p>
+                  <p>Preview timeout is set at <%=parseInt(preview_timeout/1000, 10) %> seconds - Longer Queries won't complete successfully.</p>
+                </div>
+              </div>
+
+              <hr>
+
+
+
+
+              <div id="preview-results">
+                <div class="flex-row">
+                  <h4 class="mt-05 mb-05">Preview results</h4>
+                  <div id="actions">
+                    <button id="button_import"  class="mb-05 btn-sm btn-danger btn to-disable">Import</button>
+                  </div>
+                </div>
+                <div class="table-responsive" style="border: 1px solid #eee">
+                  <table id="result" class="table table-striped table-bordered table-condensed">
+                    <thead>
+                      <tr></tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="row mt-1">
+                <div class="col-sm-12 col-md-6">
+                  <h4 class='mt-05 mb-0'>Writing valid queries</h4>
+                  <% if (typeof import_type !== "undefined" && import_type == "accounts") { %>
+                    <p>
+                      Valid queries MUST expose an <code>external_id</code> column or a <code>domain</code> column. Lines with no <code>external_id</code> or <code>domain</code> will be ignored.
+                      All other fields will be imported as traits on the matching account.
+                      For example, the following query will map the column <code>account.id</code> to your Hull accounts' <code>external_id</code>.
+                      <pre><code>SELECT account_id as external_id, plan_name, monthly_amount FROM accounts_subscriptions</code></pre>
+                    </p>
+                  <% } else if (typeof import_type !== "undefined" && import_type == "events") { %>
+                    <p>
+                      Valid queries MUST expose an <code>external_id</code> column matching a user, an <code>event</code> colums specifying the event name or type and a <code>timestamp</code> column. Lines with no <code>external_id</code>, <code>event</code> and <code>timestamp</code> will be ignored.
+                      All other fields will be imported as event properties.
+                      For example, the following query will map the column <code>users.id</code> to your Hull users' <code>external_id</code>.
+                      <pre><code>SELECT user_id as external_id, event, timestamp FROM users_events</code></pre>
+                      You can also provide an <code>event_id</code> column to ensure event unicity.
+                    </p>
+                  <% } else { %>
+                    <p>
+                      Valid queries MUST expose an <code>external_id</code> column or an <code>email</code> column. Lines with no <code>external_id</code> or <code>email</code> will be ignored.
+                      All other fields will be imported as traits on the matching users.
+                      For example, the following query will map the column <code>users.id</code> to your Hull users' <code>external_id</code>.
+                      <pre><code>SELECT user_id as external_id, plan_name, monthly_amount FROM users_subscriptions</code></pre>
+                      You can also expose an <code>account_id</code> column to link users to an account. <code>account_id</code> will be used to resolve an account by its <code>external_id</code>.
+                    </p>
+                  <% } %>
+                </div>
+                <div class="col-sm-12 col-md-6">
+                  <h4 class='mt-05 mb-0'>Incremental Queries</h4>
+                  <p>
+                    To reduce load on your database, you can run incremental queries based on the number of days to import.
+                    <br />
+                    The query will be rewritten to replace <code>:import_start_date</code> with the date in past set according to Import Days setting.
+                    <br /><br />
+                    For example to import entries from a <code>users</code> table with a date column named <code>updated_at</code>, you can write :
+                    <pre><code>SELECT id as external_id, email as email, firstname as first_name FROM users WHERE updated_at >= :import_start_date</code></pre>
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <style type="text/css" media="screen">
+    body{
+      background: white;
+    }
+    #button_import{
+      margin-left: 1rem;
+    }
+    .alert {
+      border-radius: 0;
+    }
+    #preview-error, #preview-loading, #changed-indicator, #preview-results {
+      display: none;
+    }
+    #result {
+      font-family: monospace;
+      white-space: nowrap;
+    }
+    .check i.icon {
+      color: rgba(75, 222, 122, 0.52);
+      font-size: 2pc;
+      position: relative;
+      top: -11px;
+      left: 3px;
+    }
+    .check.valid {
+      border-color: rgba(75, 222, 122, 0.52);
+    }
+    .check {
+      border-radius: 100px;
+      border: 2px solid transparent;
+      padding: 0 5px;
+      height: 37px;
+      width: 37px;
+      position: relative;
+    }
+    th em {
+      color: #8091AD;
+      font-size: .8em;
+    }
+    #querying {
+      font-family:  Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size: 12px;
+    }
+    .CodeMirror {
+      border: 1px solid #e6e6e6;
+    }
+    th em {
+      display: block;
+    }
+    td pre {
+      margin: 0;
+    }
+    hr {
+      margin: 1rem 0;
+    }
+    h6 {
+      margin-top: 0;
+    }
+    .flex-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+    #actions{
+      margin: 0.5rem 0;
+      display: flex;
+      flex-direction: row;
+    }
+  </style>
+</body></html>

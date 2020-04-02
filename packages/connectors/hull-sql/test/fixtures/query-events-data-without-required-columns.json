@@ -1,0 +1,8 @@
+{
+  "rows": [
+    {"id": "2", "email": "bob@hull.io", "external_id": "1234"}
+  ],
+  "columns": [
+    { "name": "external_id" }, { "name": "email" }
+  ]
+}

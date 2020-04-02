@@ -1,0 +1,16 @@
+{ "rows": [
+  {"id": "1", "email": "email@email.com", "test": "{ \"test\": \"test\" }"}
+], "fields": [
+  {
+    "name": "id",
+    "dataTypeID": 123
+  },
+  {
+    "name": "email",
+    "dataTypeID": 123
+  },
+  {
+    "name": "test",
+    "dataTypeID": 114
+  }
+]}

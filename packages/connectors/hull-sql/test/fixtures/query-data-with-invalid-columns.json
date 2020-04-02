@@ -1,0 +1,5 @@
+{ "rows": [
+  {"id": "2", "name.invalid": "Luke", "email": "email@email.com"}
+], "columns": [
+  { "name": "id" }, { "name": "name.invalid" }, { "name": "email" }
+]}
