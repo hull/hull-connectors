@@ -21,7 +21,7 @@ fi
 echo "Starting $PATH_TO_CONNECTOR on PORT=$PORT";
 export MEMORY_AVAILABLE=`echo $MARATHON_APP_RESOURCE_MEM | awk '{print int(0.75 * int($1+0.5))}'`
 
-script/load-ssm-settings > .env
+./scripts/load-ssm-settings > .env
 source .env
 
 exec node --optimize_for_size --max_old_space_size=$MEMORY_AVAILABLE -r newrelic $PATH_TO_CONNECTOR
