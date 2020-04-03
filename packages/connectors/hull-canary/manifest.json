@@ -1,0 +1,52 @@
+{
+  "name": "hull-canary",
+  "description": "Synchronize Data with canary",
+  "tags": ["incoming", "outgoing", "oneColumn", "kraken"],
+  "ui": false,
+  "picture": "picture.png",
+  "readme": "readme.md",
+  "version": "0.0.1",
+  "private_settings": [],
+  "schedules": [
+    {
+      "url": "/canaries-start-scheduled",
+      "type": "interval",
+      "value": "60",
+      "handler": "canaryStart"
+    }
+  ],
+  "json": [
+    {
+      "url": "/canaries-status",
+      "handler": "canariesStatus"
+    },
+    {
+      "url": "/canaries-start",
+      "handler": "canaryStart"
+    }
+  ],
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "conditions": {
+        "channels": {
+          "only": [
+            "ship:update",
+            "user:update",
+            "account:update"
+          ]
+        }
+      },
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
+        {
+          "channel": "account:update",
+          "handler": "accountUpdate"
+        }
+      ]
+    }
+  ]
+}
