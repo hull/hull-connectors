@@ -16,7 +16,7 @@ const buildConfigurationFromEnvironment = env => {
   const {
     NODE_ENV,
     DISABLE_WEBPACK,
-    LOG_LEVEL,
+    LOG_LEVEL = "info",
     LIBPROCESS_IP,
     STATSD_HOST,
     STATSD_PORT,
