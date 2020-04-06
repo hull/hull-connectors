@@ -7,11 +7,11 @@ const canaries = [
   // require("./definitions/change-email-when-external-id-exists"),
   // require("./definitions/segment-entered-left-event"),
   // require("./definitions/segment-entered-left-attribute"),
-  // require("./definitions/link-account"),
+  require("./definitions/link-account"),
   require("./definitions/hidden-account-traits"),
   // require("./definitions/merge-accounts"),
-  // require("./definitions/sessions-on-user-merge"),
-  // require("./definitions/merge-users-then-track")
+  require("./definitions/sessions-on-user-merge"),
+  require("./definitions/merge-users-then-track")
 ];
 
 let currentCanaryIndex = -1;
@@ -204,7 +204,7 @@ async function identifyDefinitions(message, definitions, context) {
       let passes = true;
       if (typeof conditional === "function") {
         // console.log("function: " + propertyName + _.get(message, propertyName));
-        passes = await conditional(_.get(message, propertyName), context);
+        passes = await conditional(_.get(message, propertyName), context, message);
       } else {
         // console.log("strict equality" + propertyName);
         passes = _.get(message, propertyName) === conditional;
@@ -286,7 +286,11 @@ async function receiveUserUpdate(messages, context) {
     }
 
     if (!_.isEmpty(state.userUpdateDefinitions)) {
-      await removeMatchingDefinitions(message, state.userUpdateDefinitions, context);
+      await removeMatchingDefinitions(
+        message,
+        state.userUpdateDefinitions,
+        context
+      );
     }
   }
 }
@@ -320,7 +324,11 @@ async function receiveAccountUpdate(messages, context) {
     }
 
     if (!_.isEmpty(state.accountUpdateDefinitions)) {
-      await removeMatchingDefinitions(message, state.accountUpdateDefinitions, context);
+      await removeMatchingDefinitions(
+        message,
+        state.accountUpdateDefinitions,
+        context
+      );
     }
   }
 }

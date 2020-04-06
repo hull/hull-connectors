@@ -9,11 +9,13 @@ function setAttributeToEnterSegment(context) {
 
   // first account only has external id
   const externalIdUser = { external_id: `${timestamp}ExternalId` };
-  client.asUser(externalIdUser).traits({ "canary/segment_attribute": "somesegmentattribute" });
+  client
+    .asUser(externalIdUser)
+    .traits({ "canary/segment_attribute": "somesegmentattribute" });
 }
 
 function setAttributeToLeaveSegment(context) {
-  const client = context.hull;
+  const { client } = context;
   const externalIdUser = { external_id: `${timestamp}ExternalId` };
   client.asUser(externalIdUser).traits({ "canary/segment_attribute": null });
 }

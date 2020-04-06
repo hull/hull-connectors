@@ -1,3 +1,5 @@
+const _ = require("lodash");
+
 const {
   not,
   changedValueIsNew,
@@ -10,7 +12,7 @@ let timestamp;
 function initializeHiddenAccountTraits(context) {
   const { client } = context;
 
-  timestamp = new Date().toISOString();
+  timestamp = Date.now();
   console.log(`Now is ${timestamp}`);
 
   return Promise.all([
@@ -19,14 +21,14 @@ function initializeHiddenAccountTraits(context) {
   ]).then(() => {
     console.log("Finished putting traits, putting emails now");
     return client
-      .asUser({ email: `hiddenAccountTraitsUser@hull.io` })
+      .asUser({ email: "hiddenAccountTraitsUser@hull.io" })
       .account({ external_id: `hiddenAccountTraitsId${timestamp}-ExternalId` })
       .traits({ invisibletrait: `${timestamp}`, visibletrait: `${timestamp}` });
   });
 }
 
 async function checkESForTrait(propertyName, context) {
-  const client = context.client;
+  const { client } = context;
 
   const response = await client.api("/search/account_report", "post", {
     query: {
@@ -34,7 +36,7 @@ async function checkESForTrait(propertyName, context) {
         filter: [
           {
             terms: {
-              external_id: [`hiddenAccountTraitsId${timestamp}-ExternalId`]
+              "external_id.raw": [`hiddenAccountTraitsId${timestamp}-ExternalId`]
             }
           }
         ]
@@ -46,9 +48,12 @@ async function checkESForTrait(propertyName, context) {
     per_page: 2
   });
 
-  if (response) {
-    return true;
+  if (_.get(response, "data[0].external_id") === `hiddenAccountTraitsId${timestamp}-ExternalId`) {
+    if (response.data.length === 1) {
+      return true;
+    }
   }
+
   return false;
 }
 

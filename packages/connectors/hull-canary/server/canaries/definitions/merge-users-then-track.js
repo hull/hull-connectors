@@ -25,7 +25,7 @@ function twoUsers(context) {
 }
 
 function mergeUsersAndTrack(context) {
-  const client = context.hull;
+  const { client } = context;
 
   const emailUser = {
     email: `${timestamp}@somedomain.com`,
@@ -60,7 +60,7 @@ module.exports = {
       userAccountLinks: 0
     },
     {
-      userEvents: 1,
+      userEvents: 2,
       accountUpdates: 0,
       userAccountLinks: 0
     }

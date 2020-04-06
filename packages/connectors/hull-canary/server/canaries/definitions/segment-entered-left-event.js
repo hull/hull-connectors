@@ -9,11 +9,15 @@ function trackToEnterSegment(context) {
 
   // first account only has external id
   const externalIdUser = { external_id: `${timestamp}ExternalId` };
-  client.asUser(externalIdUser).track("Enter Canary Event", { "canary/event_property": "someeventproperty" });
+  client
+    .asUser(externalIdUser)
+    .track("Enter Canary Event", {
+      "canary/event_property": "someeventproperty"
+    });
 }
 
 function trackToLeaveSegment(context) {
-  const client = context.hull;
+  const { client } = context;
   const externalIdUser = { external_id: `${timestamp}ExternalId` };
   client.asUser(externalIdUser).track("Leave Canary Event", { "canary/event_property": "someeventproperty" });
 }

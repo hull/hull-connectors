@@ -50,7 +50,7 @@ function initializeMergeAccounts(context) {
 }
 
 function mergeAccounts(context) {
-  const client = context.hull;
+  const { client } = context;
 
   // then launch the call that will join the 2 accounts and verify in incoming requests after
   client

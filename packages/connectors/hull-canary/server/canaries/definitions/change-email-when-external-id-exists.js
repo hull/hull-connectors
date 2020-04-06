@@ -17,7 +17,7 @@ function createUserWithExternalIdAndEmail(context) {
 
 // TODO by design this shouldn't work, if want to change email pass as trait
 function changeEmail(context) {
-  const client = context.hull;
+  const { client } = context;
   const ident = {
     external_id: `${timestamp}ExternalId`,
     email: `${timestamp}@somealternatelead.com`

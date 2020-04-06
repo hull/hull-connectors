@@ -22,7 +22,7 @@ function firstUser(context) {
 }
 
 function secondUser(context) {
-  const client = context.hull;
+  const { client } = context;
   const emailUser = { email: `${timestamp}@somedomain.com` };
   client.asUser(emailUser).track(
     "pageview",
@@ -37,7 +37,7 @@ function secondUser(context) {
 }
 
 function mergeUsers(context) {
-  const client = context.hull;
+  const { client } = context;
 
   // then launch the call that will join the 2 accounts and verify in incoming requests after
   client

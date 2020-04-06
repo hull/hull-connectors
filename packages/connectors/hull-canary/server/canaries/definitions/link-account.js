@@ -1,5 +1,5 @@
 function initializeLinkUserToAccount(context) {
-  const { ship, client, metric, helpers } = context;
+  const { client } = context;
 
   const timestamp = Date.now();
 
