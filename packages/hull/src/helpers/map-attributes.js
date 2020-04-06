@@ -7,7 +7,10 @@ import type {
   HullJsonataType,
   HullEntityAttributes
 } from "hull";
+
 import jsonata from "jsonata";
+
+const { ConfigurationError } = require("hull/src/errors");
 
 const cast = (type?: HullJsonataType) => (value: any) => {
   if (!type) return value;
@@ -68,8 +71,17 @@ const mapAttributes = (ctx: HullContext) => ({
     {}
   );
 
-  const transformed = JSON.stringify(transform).replace(/"_{{(.*?)}}_"/g, "$1");
-  const response = jsonata(transformed).evaluate(payload);
+  let response = {};
+  try {
+    const transformed = JSON.stringify(transform).replace(
+      /"_{{(.*?)}}_"/g,
+      "$1"
+    );
+    response = jsonata(transformed).evaluate(payload);
+  } catch (error) {
+    const { message } = error;
+    throw new ConfigurationError(message);
+  }
 
   return _.reduce(
     response,

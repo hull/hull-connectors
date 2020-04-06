@@ -286,6 +286,7 @@
       "format": "accountTraitMapping",
       "options": {
         "direction": "incoming",
+        "allowExpression": true,
         "showOverwriteToggle": false,
         "placeholder": "Hubspot Company Field",
         "allowCreate": true,
@@ -386,6 +387,7 @@
       "format": "accountTraitMapping",
       "options": {
         "direction": "outgoing",
+        "allowExpression": true,
         "showOverwriteToggle": false,
         "placeholder": "Hubspot Company Field",
         "allowCreate": true,
