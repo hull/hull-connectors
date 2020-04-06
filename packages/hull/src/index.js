@@ -107,7 +107,7 @@ const buildConfigurationFromEnvironment = env => {
 
   const serverConfig = { start: true };
 
-  return {
+  const ret = {
     cacheConfig,
     clientConfig,
     devMode,
@@ -118,6 +118,13 @@ const buildConfigurationFromEnvironment = env => {
     timeout,
     serverConfig
   };
+
+  console.warn(
+    "Starting Hull.Connector with the following config:",
+    JSON.stringify(ret, " ", 2)
+  );
+
+  return ret;
 };
 
 export class Connector extends ConnectorClass {
