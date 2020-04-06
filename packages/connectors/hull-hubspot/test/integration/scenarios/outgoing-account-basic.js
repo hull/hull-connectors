@@ -127,7 +127,7 @@ it("should send out a new hull account to hubspot", () => {
         ["traits", { "asAccount": { "domain": "hull.io" }, "subjectType": "account" },
           {
             "hubspot/create_date": "1584635613078",
-            "hubspot/days_to_close": "",
+            "hubspot/days_to_close": null,
             "hubspot/domain": "hull.io",
             "hubspot/hs_lastmodified_date": "1584635613078",
             "hubspot/website": "hull.io",

@@ -5,14 +5,9 @@ const { Client } = require("hull");
 const { superagentUrlTemplatePlugin } = require("hull/src/utils");
 const superagent = require("superagent");
 const prefixPlugin = require("superagent-prefix");
+const fs = require("fs");
 
-const ships = [
-  {
-    ship: "",
-    secret: "",
-    organization: ""
-  }
-];
+const ships = [{ ship: "", secret: "", organization: "" }];
 
 const defaultAccountAttributes = [
   {
@@ -742,86 +737,211 @@ async function getCompanyPropertyGroups(hubspotAgent) {
     })
     .then(response => response.body);
 }
-
+const parentDirectory = "/Users/hubspot";
 (async () => {
-  _.forEach(ships, async ship => {
+  const backupDirectory = `${parentDirectory}/Backup`;
+  if (!fs.existsSync(backupDirectory)) {
+    fs.mkdirSync(backupDirectory);
+  }
+  // eslint-disable-next-line no-plusplus
+  for (let i = 0; i < ships.length; i++) {
+    const ship = ships[i];
     const hullClient = new Client({
       id: ship.ship,
       secret: ship.secret,
       organization: ship.organization
     });
 
-    hullClient.get("app").then(async connector => {
+    const fileName = `${ship.organization}.json`;
+
+    // eslint-disable-next-line no-await-in-loop,no-loop-func
+    await hullClient.get("app").then(async connector => {
+      console.log("--------------------------------------------------");
       const private_settings = _.cloneDeep(connector.private_settings);
+
+      if (!fs.existsSync(`${parentDirectory}/${ship.organization}`)) {
+        fs.mkdirSync(`${parentDirectory}/${ship.organization}`);
+      }
+
+      await fs.promises.writeFile(
+        `${parentDirectory}/${ship.organization}/old_${fileName}`,
+        JSON.stringify(private_settings, null, 4),
+        err => {
+          if (err) throw err;
+        }
+      );
+
+      await fs.promises.writeFile(
+        `${parentDirectory}/Backup/${fileName}`,
+        JSON.stringify(private_settings, null, 4),
+        err => {
+          if (err) throw err;
+        }
+      );
+
+      let {
+        incoming_user_attributes,
+        outgoing_user_attributes,
+        incoming_account_attributes,
+        outgoing_account_attributes,
+        synchronized_user_segments
+      } = private_settings;
+
       const {
+        synchronized_segments = [],
+        sync_fields_to_hull = [],
+        sync_fields_to_hubspot = [],
         incoming_user_claims = [],
-        incoming_user_attributes = [],
-        outgoing_user_attributes = [],
         incoming_account_claims = [],
-        incoming_account_attributes = [],
-        outgoing_account_attributes = [],
         token
       } = private_settings;
 
-      const hubspotAgent = superagent
-        .agent()
-        .use(superagentUrlTemplatePlugin({}))
-        .use(prefixPlugin("https://api.hubapi.com"))
-        .set("Authorization", `Bearer ${token}`)
-        .timeout({
-          response: 10000
+      // eslint-disable-next-line
+      if (_.isNil(synchronized_user_segments) && !_.isEmpty(synchronized_segments)) {
+        synchronized_user_segments = synchronized_segments;
+      }
+
+      // eslint-disable-next-line
+      if (_.isNil(incoming_user_attributes) && !_.isEmpty(sync_fields_to_hull)) {
+        incoming_user_attributes = _.map(sync_fields_to_hull, m => {
+          return {
+            hull: m.hull,
+            service: m.name,
+            overwrite: true
+          };
         });
+      }
 
-      const hubspotContactGroups = await getContactPropertyGroups(hubspotAgent);
-      const hubspotCompanyGroups = await getCompanyPropertyGroups(hubspotAgent);
+      // eslint-disable-next-line
+      if (_.isNil(outgoing_user_attributes) && !_.isEmpty(sync_fields_to_hubspot)) {
+        outgoing_user_attributes = _.map(sync_fields_to_hubspot, m => {
+          return {
+            hull: m.hull,
+            service: m.name,
+            overwrite: true
+          };
+        });
+      }
 
-      const hubspotContactProperties = _.flatten(
-        hubspotContactGroups.map(group => group.properties)
-      );
+      outgoing_account_attributes = outgoing_account_attributes.map(entry => {
+        return {
+          hull: entry.hull,
+          service: entry.service || entry.hubspot
+        };
+      });
+      incoming_account_attributes = incoming_account_attributes.map(entry => {
+        return {
+          hull: entry.hull,
+          service: entry.service || entry.hubspot
+        };
+      });
 
-      const hubspotCompanyProperties = _.flatten(
-        hubspotCompanyGroups.map(group => group.properties)
-      );
-      new_incoming_user_claims = transformIncomingClaims(incoming_user_claims);
+      try {
+        const hubspotAgent = superagent
+          .agent()
+          .use(superagentUrlTemplatePlugin({}))
+          .use(prefixPlugin("https://api.hubapi.com"))
+          .set("Authorization", `Bearer ${token}`)
+          .timeout({
+            response: 10000
+          });
 
-      new_incoming_account_claims = transformIncomingClaims(
-        incoming_account_claims
-      );
+        const hubspotContactGroups = await getContactPropertyGroups(
+          hubspotAgent
+        );
+        const hubspotCompanyGroups = await getCompanyPropertyGroups(
+          hubspotAgent
+        );
 
-      new_incoming_user_attributes = transformIncomingAttributes(
-        "user",
-        incoming_user_attributes,
-        defaultContactAttributes
-      );
-      new_incoming_account_attributes = transformIncomingAttributes(
-        "account",
-        incoming_account_attributes,
-        defaultAccountAttributes
-      );
-      new_outgoing_user_attributes = await transformOutgoingAttributes(
-        "user",
-        outgoing_user_attributes,
-        hubspotContactProperties
-      );
-      new_outgoing_account_attributes = await transformOutgoingAttributes(
-        "account",
-        outgoing_account_attributes,
-        hubspotCompanyProperties
-      );
+        const hubspotContactProperties = _.flatten(
+          hubspotContactGroups.map(group => group.properties)
+        );
 
-      const newPrivateSettings = {
-        ...private_settings,
-        incoming_user_claims: new_incoming_user_claims,
-        incoming_user_attributes: new_incoming_user_attributes,
-        outgoing_user_attributes: new_outgoing_user_attributes,
-        incoming_account_claims: new_incoming_account_claims,
-        incoming_account_attributes: new_incoming_account_attributes,
-        outgoing_account_attributes: new_outgoing_account_attributes
-      };
+        const hubspotCompanyProperties = _.flatten(
+          hubspotCompanyGroups.map(group => group.properties)
+        );
+        new_incoming_user_claims = transformIncomingClaims(
+          incoming_user_claims
+        );
 
-      return hullClient.utils.settings.update(newPrivateSettings);
+        new_incoming_account_claims = transformIncomingClaims(
+          incoming_account_claims
+        );
+
+        new_incoming_user_attributes = transformIncomingAttributes(
+          "user",
+          incoming_user_attributes,
+          defaultContactAttributes
+        );
+        new_incoming_account_attributes = transformIncomingAttributes(
+          "account",
+          incoming_account_attributes,
+          defaultAccountAttributes
+        );
+        new_outgoing_user_attributes = await transformOutgoingAttributes(
+          "user",
+          outgoing_user_attributes,
+          hubspotContactProperties
+        );
+        new_outgoing_account_attributes = await transformOutgoingAttributes(
+          "account",
+          outgoing_account_attributes,
+          hubspotCompanyProperties
+        );
+
+        const newPrivateSettings = {
+          ...private_settings,
+          incoming_user_claims: new_incoming_user_claims,
+          incoming_user_attributes: new_incoming_user_attributes,
+          outgoing_user_attributes: new_outgoing_user_attributes,
+          incoming_account_claims: new_incoming_account_claims,
+          incoming_account_attributes: new_incoming_account_attributes,
+          outgoing_account_attributes: new_outgoing_account_attributes,
+          synchronized_user_segments,
+          sync_fields_to_hull: undefined,
+          sync_fields_to_hubspot: undefined,
+          incoming_account_ident_service: undefined,
+          incoming_account_ident_hull: undefined,
+          synchronized_segments: undefined
+        };
+
+        await fs.promises.writeFile(
+          `${parentDirectory}/${ship.organization}/new_${fileName}`,
+          JSON.stringify(newPrivateSettings, null, 4),
+          err => {
+            if (err) throw err;
+          }
+        );
+
+        return hullClient.utils.settings.update(newPrivateSettings).then(() => {
+          console.log("Updated Settings Org:", `${ship.organization}`);
+          return superagent
+            .agent()
+            .post(
+              `https://${ship.organization}/api/v1/${ship.ship}/update_manifest`
+            )
+            .set("Hull-App-Id", ship.ship)
+            .set("Hull-Access-Token", ship.secret)
+            .then(updateManifestRes => {
+              console.log(
+                "Refresh Manifest:",
+                `org: ${ship.organization}`,
+                `status: ${updateManifestRes.status}`
+              );
+            });
+        });
+      } catch (error) {
+        const { status, message } = error;
+
+        console.error(
+          "ERROR",
+          `ship: ${ship.ship}`,
+          `org: ${ship.organization}`,
+          `status: ${status}`,
+          `message: ${message}`
+        );
+      }
+      return Promise.resolve();
     });
-  });
+  }
 })();
-
-console.log("Done");
