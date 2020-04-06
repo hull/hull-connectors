@@ -1,0 +1,10 @@
+{ "rows": [
+  {"id": "1", "name": "Michael", "email": "", "external_id": 4},
+  {"id": "2", "name": "Anna", "email": "", "external_id": 5},
+  {"id": "3", "name": "Victoria", "email": "", "external_id": 6}
+], "columns": [
+  { "name": "id" },
+  { "name": "name" },
+  { "name": "email" },
+  { "name": "external_id" }
+]}
