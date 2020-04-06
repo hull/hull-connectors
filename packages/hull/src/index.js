@@ -3,6 +3,7 @@
 /* :: export type * from "./types"; */
 
 import HullClient from "hull-client";
+import winston from "winston";
 import type { HullConnectorConfig } from "./types/connector";
 import { KafkaLogger } from "./utils";
 
@@ -71,13 +72,21 @@ const buildConfigurationFromEnvironment = env => {
 
   clientConfig.logLevel = LOG_LEVEL;
 
+  clientConfig.loggerTransport = [
+    new winston.transports.Console({
+      level: LOG_LEVEL,
+      format: winston.format.simple()
+    })
+  ];
+
   if (LOGGER_KAFKA_BROKERS && LOGGER_KAFKA_TOPIC) {
-    clientConfig.loggerTransport = [
+    clientConfig.loggerTransport.push(
       new KafkaLogger({
         brokersList: LOGGER_KAFKA_BROKERS.split(","),
-        topic: LOGGER_KAFKA_TOPIC
+        topic: LOGGER_KAFKA_TOPIC,
+        level: "info"
       })
-    ];
+    );
   }
   const disableWebpack = DISABLE_WEBPACK === "true";
 
@@ -107,7 +116,7 @@ const buildConfigurationFromEnvironment = env => {
 
   const serverConfig = { start: true };
 
-  const ret = {
+  return {
     cacheConfig,
     clientConfig,
     devMode,
@@ -118,13 +127,6 @@ const buildConfigurationFromEnvironment = env => {
     timeout,
     serverConfig
   };
-
-  console.warn(
-    "Starting Hull.Connector with the following config:",
-    JSON.stringify(ret, " ", 2)
-  );
-
-  return ret;
 };
 
 export class Connector extends ConnectorClass {
