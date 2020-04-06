@@ -607,6 +607,7 @@ function transformIncomingAttributes(
   });
 
   if (entity === "user") {
+    _.remove(new_attributes, attr => attr.service === "properties.email.value");
     custom_attributes.push({
       service: "`canonical-vid` ? `canonical-vid` : `vid`",
       hull: "traits_hubspot/id",
@@ -624,18 +625,22 @@ function transformIncomingAttributes(
       new_attributes,
       attr => attr.service === "properties.contact_meta.merged-vids.value"
     );
-    if (!_.isNil(existingMergedVidMapping)) {
+    if (!_.isEmpty(existingMergedVidMapping)) {
       custom_attributes.push({
         service: "`merged-vids`",
-        hull: existingMergedVidMapping.hull,
+        hull: existingMergedVidMapping[0].hull,
         overwrite: true
       });
     }
   }
 
   if (entity === "account") {
+    _.remove(
+      new_attributes,
+      attr => attr.service === "properties.domain.value"
+    );
     custom_attributes.push({
-      service: "properties.hs_object_id.value",
+      service: "companyId",
       hull: "hubspot/id",
       readOnly: true,
       overwrite: true
@@ -648,6 +653,11 @@ function transformIncomingAttributes(
       overwrite: true
     });
   }
+
+  _.remove(
+    new_attributes,
+    attr => attr.service === "properties.hs_object_id.value"
+  );
 
   _.forEach(defaultAttributeMapping, defaultMapping => {
     const existingAttribute = _.find(

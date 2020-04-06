@@ -39,6 +39,7 @@ const connector = {
       { "hull": "traits_hubspot/annualrevenue", "service": "annualrevenue", "overwrite": true }, // not in user message
       { "hull": "account.hubspot/industry", "service": "industry", "overwrite": true }, // single value arr -> str
       { "hull": "custom_attribute", "service": "hull_managed_attribute", "overwrite": true }, // create hull managed attribute
+      { "hull": "traits_salesforce_contact/department", "service": "department", "overwrite": true },
       { "hull": "segments.name[]", "service": "hull_segments", "overwrite": true }
     ]
   }
@@ -68,6 +69,7 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
               {"property":"hs_email_quarantined_reason","value":"reason 1;reason 2;reason 3"},
               {"property":"industry","value":"software"},
               {"property":"hull_managed_attribute","value":"some value"},
+              {"property":"department","value": "software"},
               {"property":"hull_segments","value":"User Segment 1;User Segment 2"}
             ],
             "vid": "existingContactId",
@@ -90,7 +92,8 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
             "traits_hubspot/id": "existingContactId",
             "traits_hubspot/email": "email@email.com",
             "traits_hubspot/lead_status": "status 1",
-            "traits_hubspot/hs_email_quarantined_reason": ["reason 1", "reason 2", "reason 3"]
+            "traits_hubspot/hs_email_quarantined_reason": ["reason 1", "reason 2", "reason 3"],
+            "salesforce_contact/department": "software"
           },
           segments: [{ id: "user_segment_1", name: "User Segment 1" },{ id: "user_segment_2", name: "User Segment 2" }],
           changes: { segments: { left: [{ id: "5bffc38f625718d58b000004" }] } }
@@ -113,6 +116,7 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
                 {"property":"hs_email_quarantined_reason","value":"reason 1;reason 2;reason 3"},
                 {"property":"industry","value":"software"},
                 {"property":"hull_managed_attribute","value":"some value"},
+                {"property":"department","value":"software"},
                 {"property":"hull_segments","value":"User Segment 1;User Segment 2"}
               ]
             }}

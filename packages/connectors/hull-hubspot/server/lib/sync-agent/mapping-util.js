@@ -150,7 +150,9 @@ class MappingUtil {
     const hullTraits = mapAttributes({
       payload: accountData,
       direction: "incoming",
-      mapping: this.connector.private_settings.incoming_account_attributes
+      mapping: this.connector.private_settings.incoming_account_attributes,
+      attributeFormatter: value =>
+        _.isNil(value) || _.isEmpty(value) ? null : value
     });
 
     hullTraits["hubspot/id"] = accountData.companyId;
@@ -171,7 +173,9 @@ class MappingUtil {
     const hullTraits = mapAttributes({
       payload: hubspotReadContact,
       direction: "incoming",
-      mapping: this.connector.private_settings.incoming_user_attributes
+      mapping: this.connector.private_settings.incoming_user_attributes,
+      attributeFormatter: value =>
+        _.isNil(value) || _.isEmpty(value) ? null : value
     });
 
     hullTraits["hubspot/id"] =

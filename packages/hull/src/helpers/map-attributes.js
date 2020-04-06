@@ -19,7 +19,7 @@ const cast = (type?: HullJsonataType) => (value: any) => {
 };
 
 // TODO clear up the rules for attribute names
-const rawHullTraitRegex = /^(account\.)?([A-Za-z]*\/[A-Za-z_]*)$/g;
+const rawHullTraitRegex = /^(account\.)?([A-Za-z_]*\/[A-Za-z_]*)$/g;
 const noDotInPath = str => str.indexOf(".") === -1;
 const isRawTrait = trait => rawHullTraitRegex.test(trait);
 const mapAttributes = (ctx: HullContext) => ({

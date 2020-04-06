@@ -820,12 +820,12 @@ class SyncAgent {
   async fetchAllContacts(): Promise<any> {
     await this.initialize();
     const {
-      incoming_account_claims,
-      incoming_account_attributes
+      incoming_user_claims,
+      incoming_user_attributes
     } = this.connector.private_settings;
     const propertiesToFetch = this.mappingUtil.getHubspotPropertyKeys({
-      identityClaims: incoming_account_claims,
-      attributeMapping: incoming_account_attributes
+      identityClaims: incoming_user_claims,
+      attributeMapping: incoming_user_attributes
     });
     let progress = 0;
 
