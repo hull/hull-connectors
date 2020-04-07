@@ -100,7 +100,7 @@
       "format": "segment",
       "options": {
         "standard": {
-          "ALL": "All Segments"
+          "ALL": "All Users"
         }
       }
     },
