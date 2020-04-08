@@ -13,21 +13,7 @@ const {
 
 const { canariesStartNext } = require("./handler");
 
-async function canaryNotify(updateChannel, context, messages) {
-  if (!hasStarted() || hasCompleted()) return;
-
-  let reportType = null;
-  let objectType = null;
-  if (updateChannel === "user:update") {
-    reportType = "user_report";
-    objectType = "user";
-    await receiveUserUpdate(messages, context);
-  } else if (updateChannel === "account:update") {
-    reportType = "account_report";
-    objectType = "account";
-    await receiveAccountUpdate(messages, context);
-  }
-
+async function verifyInEs(context, messages, reportType, objectType) {
   if (reportType !== null) {
     const { client } = context;
 
@@ -49,6 +35,7 @@ async function canaryNotify(updateChannel, context, messages) {
         page: 1,
         per_page: 2
       });
+
       if (response.data.length === 1) {
         const responseFromEs = response.data[0];
         const objectFromEs = _.reduce(
@@ -79,17 +66,49 @@ async function canaryNotify(updateChannel, context, messages) {
         );
 
         if (!isMatching) {
-          throw new Error("Objects are not equal!");
+          return {
+            reason: "Notification does not match Elastic Search",
+            objectFromEs,
+            objectFromKraken
+          };
         }
+      } else if (response.data.length < 1) {
+        return {
+          reason: "No object in ES found for kraken message",
+          message: messages[i]
+        };
       } else {
-        throw new Error("Objects are ambiguous!");
+        return {
+          reason: "Ambiguous objects found in Elastic Search",
+          esResponse: response
+        };
       }
     }
   }
 
+  return undefined;
+}
+
+async function canaryNotify(updateChannel, context, messages) {
+  if (!hasStarted() || hasCompleted()) return;
+
+  let reportType = null;
+  let objectType = null;
+  if (updateChannel === "user:update") {
+    reportType = "user_report";
+    objectType = "user";
+    await receiveUserUpdate(messages, context);
+  } else if (updateChannel === "account:update") {
+    reportType = "account_report";
+    objectType = "account";
+    await receiveAccountUpdate(messages, context);
+  }
+
+  const failedReason = await verifyInEs(context, messages, reportType, objectType);
+
   const stageStatus = getStageStatus();
-  if (stageStatus.failed) {
-    canariesStartNext(true);
+  if (stageStatus.failed || failedReason) {
+    canariesStartNext(true, failedReason);
   } else if (stageStatus.completed) {
     console.log("Current Stage Complete");
     const activeCanaryStage = getActiveStage();

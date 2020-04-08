@@ -36,7 +36,7 @@ function canaryTimeoutCallback() {
  * Could be called by the test directly in a case when the test completes early (fail or success)
  * Could also be called by a timeout
  */
-function canariesStartNext(previousFailed) {
+function canariesStartNext(previousFailed, reasonFailed) {
   if (hasCompleted()) return;
 
   if (canaryTimeoutReference != null) {
@@ -55,6 +55,7 @@ function canariesStartNext(previousFailed) {
     if (previousFailed) {
       allCanariesStatus[previousCanary.name] = {
         status: "fail",
+        reason: reasonFailed,
         final_state: getState(),
         timeToRun: Date.now() - canaryStartTime
       };
