@@ -35,7 +35,16 @@ type HullElasticEvent = {
 };
 
 const formatEvent = (e: HullElasticEvent): HullEvent => {
-  const { context = {}, props = {}, _id, event, created_at, source, type } = e;
+  const {
+    context = {},
+    props = {},
+    _id,
+    event,
+    created_at,
+    source,
+    session_id,
+    type
+  } = e;
   const properties = _.reduce(props, propsReducer, {});
   return {
     event_id: _id,
