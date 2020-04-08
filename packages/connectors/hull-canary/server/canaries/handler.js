@@ -15,6 +15,7 @@ const {
 let allCanariesStatus = {};
 
 let canaryTimeoutReference = null;
+let canaryStartTime = null;
 
 let latestContext;
 
@@ -54,17 +55,21 @@ function canariesStartNext(previousFailed) {
     if (previousFailed) {
       allCanariesStatus[previousCanary.name] = {
         status: "fail",
-        final_state: getState()
+        final_state: getState(),
+        timeToRun: Date.now() - canaryStartTime
       };
       // metric.value("canary.status.failed", 1, tags);
     } else {
       allCanariesStatus[previousCanary.name] = {
         status: "success",
-        final_state: getState()
+        final_state: getState(),
+        timeToRun: Date.now() - canaryStartTime
       };
       // metric.value("canary.status.success", 1, tags);
     }
   }
+
+  canaryStartTime = Date.now();
 
   canaryTimeoutReference = null;
 

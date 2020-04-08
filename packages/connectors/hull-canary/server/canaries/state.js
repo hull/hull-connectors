@@ -1,17 +1,16 @@
-const _  = require("lodash");
+const _ = require("lodash");
 
 const { hullReservedPrefix, hullReservedCounter } = require("./reserved");
 
 // eslint-disable-next-line global-require
 const canaries = [
-  // require("./definitions/change-email-when-external-id-exists"),
-  // require("./definitions/segment-entered-left-event"),
-  // require("./definitions/segment-entered-left-attribute"),
+  require("./definitions/change-email-when-external-id-exists"),
   require("./definitions/link-account"),
   require("./definitions/hidden-account-traits"),
-  // require("./definitions/merge-accounts"),
   require("./definitions/sessions-on-user-merge"),
-  require("./definitions/merge-users-then-track")
+  require("./definitions/merge-users-then-track"),
+  require("./definitions/segment-entered-left-event"),
+  require("./definitions/segment-entered-left-attribute"),
 ];
 
 let currentCanaryIndex = -1;

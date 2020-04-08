@@ -1,3 +1,5 @@
+const _ = require("lodash");
+
 const {
   hasStarted,
   hasCompleted,
@@ -11,34 +13,96 @@ const {
 
 const { canariesStartNext } = require("./handler");
 
-function canaryNotify(updateChannel, context, messages) {
+async function canaryNotify(updateChannel, context, messages) {
   if (!hasStarted() || hasCompleted()) return;
 
-  let updatePromise = Promise.resolve();
+  let reportType = null;
+  let objectType = null;
   if (updateChannel === "user:update") {
-    updatePromise = receiveUserUpdate(messages, context);
+    reportType = "user_report";
+    objectType = "user";
+    await receiveUserUpdate(messages, context);
   } else if (updateChannel === "account:update") {
-    updatePromise = receiveAccountUpdate(messages, context);
+    reportType = "account_report";
+    objectType = "account";
+    await receiveAccountUpdate(messages, context);
   }
 
-  return updatePromise.then(() => {
-    const stageStatus = getStageStatus();
-    if (stageStatus.failed) {
-      canariesStartNext(true);
-    } else if (stageStatus.completed) {
-      console.log("Current Stage Complete");
-      const activeCanaryStage = getActiveStage();
-      if (activeCanaryStage.successCallback) {
-        activeCanaryStage.successCallback(context);
-      }
+  if (reportType !== null) {
+    const { client } = context;
 
-      if (hasNextStage()) {
-        nextStage();
+    for (let i = 0; i < messages.length; i += 1) {
+      const response = await client.api(`/search/${reportType}`, "post", {
+        query: {
+          bool: {
+            filter: [
+              {
+                terms: {
+                  _id: [messages[i][objectType].id]
+                }
+              }
+            ]
+          }
+        },
+        sort: { created_at: "asc" },
+        raw: true,
+        page: 1,
+        per_page: 2
+      });
+      if (response.data.length === 1) {
+        const responseFromEs = response.data[0];
+        const objectFromEs = _.reduce(
+          responseFromEs,
+          (agg, value, key) => {
+            let newKey = key;
+            if (_.startsWith(newKey, "traits_")) {
+              newKey = key.substring("traits_".length);
+            }
+            agg[newKey] = value;
+            return agg;
+          },
+          {}
+        );
+
+        const objectFromKraken = messages[i][objectType];
+
+        const isMatching = _.isMatchWith(
+          objectFromEs,
+          objectFromKraken,
+          (objValue, srcValue, key, object, source) => {
+            // indexed_at isn't going to be equal because of timing, so return true to skip it in equality
+            if (key === "indexed_at") {
+              return true;
+            }
+            return undefined;
+          }
+        );
+
+        if (!isMatching) {
+          throw new Error("Objects are not equal!");
+        }
       } else {
-        canariesStartNext(false);
+        throw new Error("Objects are ambiguous!");
       }
     }
-  });
+  }
+
+  const stageStatus = getStageStatus();
+  if (stageStatus.failed) {
+    canariesStartNext(true);
+  } else if (stageStatus.completed) {
+    console.log("Current Stage Complete");
+    const activeCanaryStage = getActiveStage();
+    if (activeCanaryStage.successCallback) {
+      activeCanaryStage.successCallback(context);
+    }
+
+    if (hasNextStage()) {
+      nextStage();
+    } else {
+      canariesStartNext(false);
+    }
+  }
 }
 
 module.exports = {

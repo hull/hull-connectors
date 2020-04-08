@@ -19,14 +19,16 @@ function createUserWithExternalIdAndEmail(context) {
 function changeEmail(context) {
   const { client } = context;
   const ident = {
-    external_id: `${timestamp}ExternalId`,
-    email: `${timestamp}@somealternatelead.com`
+    external_id: `${timestamp}ExternalId`
   };
-  client.asUser(ident).traits({ "canary/someattribute": "differentattributevalue" });
+  client.asUser(ident).traits({
+    email: `${timestamp}@somealternatelead.com`,
+    "canary/someattribute": "differentattributevalue"
+  });
 }
 
 module.exports = {
-  name: "Test User entering and leaving segment based on attribute change",
+  name: "Test changing an email with a traits call",
   timeToComplete: 600000,
   initialize: createUserWithExternalIdAndEmail,
   stages: [
