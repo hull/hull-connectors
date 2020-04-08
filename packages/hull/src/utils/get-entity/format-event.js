@@ -39,6 +39,7 @@ const formatEvent = (e: HullElasticEvent): HullEvent => {
   const properties = _.reduce(props, propsReducer, {});
   return {
     event_id: _id,
+    session_id,
     event,
     created_at,
     properties,
