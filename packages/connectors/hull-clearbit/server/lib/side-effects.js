@@ -10,7 +10,8 @@ import type {
 
 import { now } from "./utils";
 
-const getClearbitAnonymousId = entity => entity.id && `clearbit:${entity.id}`;
+const getClearbitAnonymousId = entity =>
+  entity && entity.id && `clearbit:${entity.id}`;
 
 /**
  * Create a new user on Hull from a discovered Prospect
@@ -56,7 +57,7 @@ export async function saveProspect({
       ? { "clearbit/prospected_account_id": account.id }
       : {};
 
-    metric.increment("ship.incoming.users", 1, ["prospect"]);
+    metric.increment("ship.incoming.users", 1, ["handler:prospect"]);
     return asUser.traits({ ...traits, ...attribution, ...accountAttribution });
   } catch (err) {
     console.log("ERROR!-----------------", err);
@@ -184,7 +185,7 @@ export async function saveAccount(
   //   // traits
   // });
 
-  metric.increment("ship.incoming.accounts", 1, ["saveAccount"]);
+  metric.increment("ship.incoming.accounts", 1, ["handler:saveAccount"]);
   return company;
 }
 
@@ -240,7 +241,7 @@ export async function saveUser(
   };
 
   await asUser.traits(traits);
-  metric.increment("ship.incoming.users", 1, ["saveUser"]);
+  metric.increment("ship.incoming.users", 1, ["ship_action:saveUser"]);
   // asUser.logger.info("incoming.user.success", { ...meta, source });
   // return { traits, user, person };
 }

@@ -83,6 +83,24 @@ If on mocha run `yarn workspace hull-foo run test`.
 
 Run `eslint packages/connectors/hull-foo`
 
+**How to install node-rdkafka package on MacOS?**
+
+https://github.com/Blizzard/node-rdkafka#mac-os-high-sierra--mojave
+
+OpenSSL has been upgraded in High Sierra and homebrew does not overwrite default system libraries. That means when building node-rdkafka, because you are using openssl, you need to tell the linker where to find it:
+
+```
+export CPPFLAGS=-I/usr/local/opt/openssl/include
+export LDFLAGS=-L/usr/local/opt/openssl/lib
+```
+
+Then you can run yarn install to get it to build correctly.
+
+**How do I test the kafka firehose transport locally ?**
+
+The docker-compose.yml setup comes with a full setup to start a local Kafka broker.
+The easiest way to debug locally is to use a tool like kafkacat to tail the messages as they arrive in the destination topic.
+
 ## Client-side code
 
 

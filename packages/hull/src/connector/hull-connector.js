@@ -199,7 +199,7 @@ class HullConnector {
       instrumentation || new Instrumentation(this.metricsConfig, manifest);
     this.queue = queue || new Queue();
 
-    // Rebuild a sanitized and defaults-enriched Conenctor Config
+    // Rebuild a sanitized and defaults-enriched Connector Config
     this.connectorConfig = {
       ...resolvedConfig,
       clientConfig: this.clientConfig,
@@ -212,12 +212,14 @@ class HullConnector {
       cacheConfig: this.cacheConfig
     };
 
-    if (this.logsConfig.logLevel) {
-      this.Client.logger.transports.console.level = this.logsConfig.logLevel;
-    }
-
     if (disableOnExit !== true) {
-      onExit(() => Promise.all([Batcher.exit(), this.queue.exit()]));
+      onExit(() => {
+        return Promise.all([
+          Batcher.exit(),
+          this.queue.exit(),
+          dependencies.Client.exit()
+        ]);
+      });
     }
   }
 
@@ -229,8 +231,16 @@ class HullConnector {
     }
     if (this.serverConfig.start) {
       const app = express();
+
+      if (this.connectorConfig.trustProxy) {
+        app.set("trust proxy", this.connectorConfig.trustProxy);
+      }
+
       this.app = app;
-      if (this.connectorConfig.devMode) {
+      if (
+        this.connectorConfig.devMode &&
+        !this.connectorConfig.disableWebpack
+      ) {
         debug("Starting Server in DevMode");
         // eslint-disable-next-line global-require
         const webpackDevMode = require("./dev-mode");
@@ -513,7 +523,7 @@ class HullConnector {
     return this;
   }
 
-  async startWorker(queueName?: string = "queueApp"): Promise<Worker> {
+  async startWorker(queueName: string = "queueApp"): Promise<Worker> {
     this.instrumentation.exitOnError = true;
     const { jobs } = await this.getHandlers();
     if (!jobs) {
