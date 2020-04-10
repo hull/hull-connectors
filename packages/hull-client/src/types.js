@@ -254,6 +254,7 @@ export type HullEventContext = {
 export type HullEventProperties = {};
 export type HullEvent = {
   event_id: string,
+  session_id: string,
   event: HullEventName,
   created_at: string,
   event_source?: string,
