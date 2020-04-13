@@ -247,57 +247,25 @@ const parentDirectory = "/Users/hubspot";
       }
     );
 
-    let {
-      incoming_user_attributes,
-      outgoing_user_attributes,
-      incoming_account_attributes,
-      outgoing_account_attributes,
-      synchronized_user_segments
-    } = private_settings;
-
     const {
-      synchronized_segments = [],
-      sync_fields_to_hull = [],
-      sync_fields_to_hubspot = [],
       incoming_user_claims = [],
       incoming_account_claims = [],
+      incoming_user_attributes = [],
+      outgoing_user_attributes = [],
       token
     } = private_settings;
 
-    // eslint-disable-next-line
-      if (_.isNil(synchronized_user_segments) && !_.isEmpty(synchronized_segments)) {
-      synchronized_user_segments = synchronized_segments;
-    }
-
-    // eslint-disable-next-line
-      if (_.isNil(incoming_user_attributes) && !_.isEmpty(sync_fields_to_hull)) {
-      incoming_user_attributes = _.map(sync_fields_to_hull, m => {
-        return {
-          hull: m.hull,
-          service: m.name,
-          overwrite: true
-        };
-      });
-    }
-
-    // eslint-disable-next-line
-      if (_.isNil(outgoing_user_attributes) && !_.isEmpty(sync_fields_to_hubspot)) {
-      outgoing_user_attributes = _.map(sync_fields_to_hubspot, m => {
-        return {
-          hull: m.hull,
-          service: m.name,
-          overwrite: true
-        };
-      });
-    }
-
-    outgoing_account_attributes = outgoing_account_attributes.map(entry => {
+    const outgoing_account_attributes = (
+      private_settings.outgoing_account_attributes || []
+    ).map(entry => {
       return {
         hull: entry.hull,
         service: entry.service || entry.hubspot
       };
     });
-    incoming_account_attributes = incoming_account_attributes.map(entry => {
+    const incoming_account_attributes = (
+      private_settings.incoming_account_attributes || []
+    ).map(entry => {
       return {
         hull: entry.hull,
         service: entry.service || entry.hubspot
@@ -364,7 +332,6 @@ const parentDirectory = "/Users/hubspot";
         incoming_account_claims: new_incoming_account_claims,
         incoming_account_attributes: new_incoming_account_attributes,
         outgoing_account_attributes: new_outgoing_account_attributes,
-        synchronized_user_segments,
         sync_fields_to_hull: undefined,
         sync_fields_to_hubspot: undefined,
         incoming_account_ident_service: undefined,
