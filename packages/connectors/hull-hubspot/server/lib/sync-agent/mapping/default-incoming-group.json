@@ -1,15 +1,17 @@
-[
-  {
-    "name": "contactmeta",
-    "displayName": "Contact Meta",
-    "properties": [
-      {
-        "name": "merged-vids",
-        "label": "Merged Vids",
-        "type": "string",
-        "fieldType": "text",
-        "readOnlyValue": true
-      }
-    ]
-  }
-]
+{
+  "contact": [
+    {
+      "name": "contactmeta",
+      "displayName": "Contact Meta",
+      "properties": [
+        {
+          "name": "merged-vids",
+          "label": "Merged Vids",
+          "type": "string",
+          "fieldType": "text",
+          "readOnlyValue": true
+        }
+      ]
+    }
+  ]
+}

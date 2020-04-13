@@ -1,4 +1,3 @@
-
 const defaultContactAttributes = [
   {
     service: "properties.annualrevenue.value",

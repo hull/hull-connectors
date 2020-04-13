@@ -199,7 +199,13 @@ class SyncAgent {
     const groups = await this.cache.wrap("contact_properties", () =>
       this.getContactPropertyGroups()
     );
-    return this.getHubspotEntityProperties({ groups, direction });
+    return this.getHubspotEntityProperties({
+      groups:
+        direction === "incoming"
+          ? _.concat(groups, defaultIncomingGroupMapping.contact)
+          : groups,
+      direction
+    });
   }
 
   async getCompanyProperties(direction: ?string) {
@@ -1170,9 +1176,7 @@ class SyncAgent {
         _.concat(groups, defaultOutgoingGroupMapping)
       );
     }
-    return this.getIncomingProperties(
-      _.concat(groups, defaultIncomingGroupMapping)
-    );
+    return this.getIncomingProperties(groups);
   }
 }
 
