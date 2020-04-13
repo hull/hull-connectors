@@ -294,7 +294,7 @@
         "source": "hubspot"
       },
       "default": [
-        { "service": "properties.hs_object_id.value", "hull": "hubspot/id", "readOnly": true, "overwrite": true },
+        { "service": "companyId", "hull": "hubspot/id", "readOnly": true, "overwrite": true },
         { "service": "properties.domain.value", "hull": "hubspot/domain", "readOnly": true, "overwrite": true },
         { "service": "properties.about_us.value", "hull": "hubspot/about_us", "overwrite": true },
         { "service": "properties.hs_all_accessible_team_ids.value", "hull": "hubspot/hs_all_accessible_team_ids", "overwrite": true },
