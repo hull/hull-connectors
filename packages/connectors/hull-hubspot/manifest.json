@@ -222,7 +222,7 @@
         "loadOptions": "/schema/outgoing_contact_properties"
       },
       "default": [
-        { "hull": "segments.name[]", "service": "hull_segments", "readyOnly":  true, "overwrite": true }
+        { "hull": "segments.name[]", "service": "hull_segments", "readOnly":  true, "overwrite": true }
       ]
     },
     {
@@ -394,7 +394,7 @@
         "loadOptions": "/schema/outgoing_company_properties"
       },
       "default": [
-        { "hull": "account_segments.name[]", "service": "hull_segments", "readyOnly":  true, "overwrite": true }
+        { "hull": "account_segments.name[]", "service": "hull_segments", "readOnly":  true, "overwrite": true }
       ]
     },
     {
