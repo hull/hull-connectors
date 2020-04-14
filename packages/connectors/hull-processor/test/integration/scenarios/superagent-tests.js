@@ -11,13 +11,15 @@ import {
   USER,
   METRIC_CONNECTOR_REQUEST,
   METRIC_SERVICE_REQUEST,
+  METRIC_SERVICE_REQUEST_SHIP,
+  METRIC_SERVICE_REQUEST_ERROR,
   messageWithUser
 } from "../../fixtures";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
-describe("Request library", () => {
-  it("should expose request-promise and parse JSON when asked", () => {
+describe("Superagent library", () => {
+  it("should expose superagent and parse JSON when asked", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       externalApiMock: () => {
@@ -27,20 +29,23 @@ describe("Request library", () => {
       },
       handlerType: handlers.notificationHandler,
       connector: connectorWithCode(`
-        return request({
-          uri: "http://foobar.com/email",
-          json: true
-        }).then(res => {
-          console.log(res.email)
-        })
+        return superagent
+            .get("http://foobar.com/email")
+            .set('accept', 'json')
+            .then(res => {
+              console.log(res.body.email)
+            })
       `),
       firehoseEvents: [],
       logs: [
         [
-          "warn",
-          "Using deprecated request library. Please migrate to using superagent in your code.",
+          "debug",
+          "connector.service_api.call",
           expect.whatever(),
-          expect.whatever(),
+          expect.objectContaining({
+            url: "http://foobar.com/email",
+            method: "GET"
+          })
         ],
         [
           "debug",
@@ -51,7 +56,12 @@ describe("Request library", () => {
           })
         ]
       ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
+      metrics: [
+        METRIC_CONNECTOR_REQUEST,
+        METRIC_SERVICE_REQUEST,
+        METRIC_SERVICE_REQUEST_SHIP,
+        expect.whatever() // Response time metric
+      ]
     }));
   });
 
@@ -67,24 +77,26 @@ describe("Request library", () => {
       },
       handlerType: handlers.notificationHandler,
       connector: connectorWithCode(`
-        return request({
-          uri: "http://foobar.com/email",
-          method: "POST",
-          json: true,
-          body: {
+        return superagent
+          .post("http://foobar.com/email")
+          .set('accept', 'json')
+          .send({
             foo: "bar"
-          }
-        }).then(res => {
-          console.log(res.result)
-        })
+          })
+          .then(res => {
+            console.log(res.body.result)
+          })
       `),
       firehoseEvents: [],
       logs: [
         [
-          "warn",
-          "Using deprecated request library. Please migrate to using superagent in your code.",
+          "debug",
+          "connector.service_api.call",
           expect.whatever(),
-          expect.whatever(),
+          expect.objectContaining({
+            url: "http://foobar.com/email",
+            method: "POST"
+          })
         ],
         [
           "debug",
@@ -95,8 +107,12 @@ describe("Request library", () => {
           })
         ]
       ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
-    }));
+      metrics: [
+        METRIC_CONNECTOR_REQUEST,
+        METRIC_SERVICE_REQUEST,
+        METRIC_SERVICE_REQUEST_SHIP,
+        expect.whatever() // Response time metric
+      ]    }));
   });
 
   it("should handle async await", () => {
@@ -113,13 +129,12 @@ describe("Request library", () => {
       },
       handlerType: handlers.notificationHandler,
       connector: connectorWithCode(`
-        const response = await request({
-          uri: "http://foobar.com/success_out",
-          json: true
-        });
-        console.log(response);
-        hull.traits(response);
-        hull.track("Response", response);
+        const response = await superagent
+          .get("http://foobar.com/success_out")
+          .set('accept', 'json');
+        console.log(response.body);
+        hull.traits(response.body);
+        hull.track("Response", response.body);
       `),
       firehoseEvents: [
         [
@@ -153,10 +168,13 @@ describe("Request library", () => {
       ],
       logs: [
         [
-          "warn",
-          "Using deprecated request library. Please migrate to using superagent in your code.",
+          "debug",
+          "connector.service_api.call",
           expect.whatever(),
-          expect.whatever(),
+          expect.objectContaining({
+            url: "http://foobar.com/success_out",
+            method: "GET"
+          })
         ],
         [
           "debug",
@@ -220,6 +238,8 @@ describe("Request library", () => {
       metrics: [
         METRIC_CONNECTOR_REQUEST,
         METRIC_SERVICE_REQUEST,
+        METRIC_SERVICE_REQUEST_SHIP,
+        expect.whatever(), // Response time metric
         METRIC_INCOMING_USER,
         METRIC_INCOMING_EVENT
       ]
@@ -236,25 +256,19 @@ describe("Request library", () => {
       externalApiMock: () => {
         nock("http://foobar.com")
           .get("/error_out")
-          .replyWithError(error);
+          .replyWithError({ error });
       },
       handlerType: handlers.notificationHandler,
       connector: connectorWithCode(`
-        return request({
-          uri: "http://foobar.com/error_out",
-          json: true
-        }).then(res => {
-          console.log(res)
-        })
+        return superagent
+          .get("http://foobar.com/error_out")
+          .set('json', 'true')
+          .then(res => {
+            console.log(res.body)
+          })
       `),
       firehoseEvents: [],
       logs: [
-        [
-          "warn",
-          "Using deprecated request library. Please migrate to using superagent in your code.",
-          expect.whatever(),
-          expect.whatever(),
-        ],
         [
           "debug",
           "compute.debug",
@@ -263,6 +277,15 @@ describe("Request library", () => {
             errors: [error]
           })
         ],
+        // [
+        //   "debug",
+        //   "connector.service_api.call",
+        //   expect.whatever(),
+        //   expect.objectContaining({
+        //     url: "http://foobar.com/error_out",
+        //     method: "GET"
+        //   })
+        // ],
         [
           "error",
           "incoming.user.error",
@@ -274,7 +297,7 @@ describe("Request library", () => {
           })
         ]
       ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST, METRIC_SERVICE_REQUEST_ERROR]
     }));
   });
 
@@ -292,21 +315,15 @@ describe("Request library", () => {
       },
       handlerType: handlers.notificationHandler,
       connector: connectorWithCode(`
-        return request({
-          uri: "http://foobar.com/handlerror",
-          json: true
-        }).catch(res => {
-          console.log(res.error)
-        })
+        return superagent
+          .get("http://foobar.com/handlerror")
+          .set('json', 'true')
+          .catch(res => {
+            console.log(res)
+          })
       `),
       firehoseEvents: [],
       logs: [
-        [
-          "warn",
-          "Using deprecated request library. Please migrate to using superagent in your code.",
-          expect.whatever(),
-          expect.whatever(),
-        ],
         [
           "debug",
           "compute.debug",
@@ -316,12 +333,12 @@ describe("Request library", () => {
           })
         ]
       ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST, METRIC_SERVICE_REQUEST_ERROR]
     }));
   });
 
-  it("should return http 503 - gateway timeout in case of 3rd part API timeout", () => {
-    const error = "Error: ESOCKETTIMEDOUT";
+  it("should return abort error when calling 3rd party API that timeouts", () => {
+    const error = "Error: Aborted";
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       externalApiMock: () => {
@@ -329,30 +346,32 @@ describe("Request library", () => {
           .get("/timeout")
           .delay({ head: 3001 })
           .reply(503, "timeout");
+        nock("http://foobar.com")
+          .get("/timeout")
+          .delay({ head: 3001 })
+          .reply(503, "timeout");
+        nock("http://foobar.com")
+          .get("/timeout")
+          .delay({ head: 3001 })
+          .reply(503, "timeout");
       },
       handlerType: handlers.notificationHandler,
       connector: connectorWithCode(`
-        return request({
-          uri: "http://foobar.com/timeout",
-          json: true
-        }).then(res => {
-          console.log(JSON.stringify(res))
-        })
+        return superagent
+          .get("http://foobar.com/timeout")
+          .set('json', 'true')
+          .then(res => {
+            console.log(JSON.stringify(res))
+          })
       `),
       firehoseEvents: [],
       logs: [
-        [
-          "warn",
-          "Using deprecated request library. Please migrate to using superagent in your code.",
-          expect.whatever(),
-          expect.whatever(),
-        ],
         [
           "debug",
           "compute.debug",
           expect.whatever(),
           expect.objectContaining({
-            errors: [error]
+            errors: [expect.stringContaining(error)]
           })
         ],
         [
@@ -360,8 +379,8 @@ describe("Request library", () => {
           "incoming.user.error",
           expect.whatever(),
           expect.objectContaining({
-            errors: [error],
-            hull_summary: "Error Processing user: Error: ESOCKETTIMEDOUT"
+            errors: [expect.stringContaining(error)],
+            hull_summary: expect.stringContaining("Error Processing user: Error: Aborted")
           })
         ]
       ],
