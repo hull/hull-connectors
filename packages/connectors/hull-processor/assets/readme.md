@@ -676,6 +676,7 @@ To illustrate that, let's have a look at a code block using the deprecated reque
 
 ```javascript
 // Old request library
+
 const reqOpts = {
   method: "GET",
   uri: "http://www.omdbapi.com/?t=James+Bond"
