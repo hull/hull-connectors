@@ -11,9 +11,6 @@ export default async (
   ctx: HullContext,
   messages: Array<HullUserUpdateMessage>
 ): HullNotificationResponse => {
-  // if (ctx.smartNotifierResponse) {
-  //   ctx.smartNotifierResponse.setFlowControl();
-  // }
   try {
     const syncAgent = new SyncAgent(ctx);
     await syncAgent.sendUserUpdateMessages(messages);
