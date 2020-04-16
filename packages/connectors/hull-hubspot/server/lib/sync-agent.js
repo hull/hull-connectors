@@ -621,8 +621,16 @@ class SyncAgent {
                 envelope.hubspotReadCompany,
                 "account"
               );
+              const accountIdentity = this.helpers.incomingClaims(
+                "account",
+                envelope.hubspotReadCompany,
+                {
+                  anonymous_id_prefix: "hubspot",
+                  anonymous_id_service: "companyId"
+                }
+              );
               return this.hullClient
-                .asAccount(envelope.message.account)
+                .asAccount(accountIdentity.claims)
                 .traits(accountTraits)
                 .then(() => {
                   return this.hullClient

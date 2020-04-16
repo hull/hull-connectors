@@ -124,7 +124,11 @@ it("should send out a new hull account to hubspot", () => {
         ]
       ],
       firehoseEvents: [
-        ["traits", { "asAccount": { "domain": "hull.io" }, "subjectType": "account" },
+        ["traits",
+          {
+            "asAccount": { "domain": "hull.io", "anonymous_id": "hubspot:3223871663" },
+            "subjectType": "account"
+          },
           {
             "hubspot/create_date": "1584635613078",
             "hubspot/days_to_close": null,
