@@ -1,6 +1,8 @@
 // @flow
-import type { HullEntityType, HullEntityClaims } from "hull-client";
+import type { HullEntityName, HullEntityClaims } from "hull-client";
 import type { HullContext } from "../types";
+
+const _ = require("lodash");
 
 type IncomingClaimsResult = {
   claims?: HullEntityClaims,
@@ -49,16 +51,16 @@ function getSettingValue(ctx, settingName) {
  * 3. when there is not correct settings in the connector object
  */
 const incomingClaims = (ctx: HullContext) => (
-  entityType: HullEntityType,
+  entity: HullEntityName,
   objectToTransform: Object,
   options?: { anonymous_id_prefix?: string, anonymous_id_service: string }
 ): IncomingClaimsResult => {
   try {
-    const settingName = `incoming_${entityType}_claims`;
+    const settingName = `incoming_${entity}_claims`;
     const setting = getSettingValue(ctx, settingName);
     if (!setting) {
       throw new Error(
-        `The incoming claims configuration for ${entityType} is missing.`
+        `The incoming claims configuration for ${entity} is missing.`
       );
     }
 
@@ -84,15 +86,6 @@ const incomingClaims = (ctx: HullContext) => (
       claims[entry.hull] = valueFromObject;
       return claims;
     }, {});
-    if (Object.keys(readyClaims).length === 0) {
-      const allServiceKeys = setting
-        .map(s => s.service)
-        .filter(service => service)
-        .join(", ");
-      throw new Error(
-        `All configured fields for claims are empty: ${allServiceKeys}`
-      );
-    }
 
     // we got some correct claims, now we handle anonymoud_id
     if (options && options.anonymous_id_service) {
@@ -110,6 +103,18 @@ const incomingClaims = (ctx: HullContext) => (
           : valueForAnonymousId;
         readyClaims.anonymous_id = anonymousIdValue;
       }
+    }
+
+    if (Object.keys(readyClaims).length === 0) {
+      const allServiceKeys = setting
+        .map(s => s.service)
+        .filter(service => service)
+        .join(", ");
+      throw new Error(
+        `All configured fields for claims are empty: anonymous_id${
+          _.isEmpty(allServiceKeys) ? "" : ", "
+        }${allServiceKeys}`
+      );
     }
 
     return {

@@ -26,7 +26,7 @@ export default async function computeHandler(
   }
 
   // $FlowFixMe
-  const { payload, code, claims, entityType }: PreviewRequest = body;
+  const { payload, code, claims, entity, language }: PreviewRequest = body;
   // This condition ensures boot request does work:
   // When loading the page, the connector is client-side so what's passed to remote
   // doesn't have private_settings embedded
@@ -44,7 +44,8 @@ export default async function computeHandler(
   const result = await compute(ctx, {
     source: "processor",
     preview: true,
-    entityType,
+    entity,
+    language,
     claims,
     payload,
     code

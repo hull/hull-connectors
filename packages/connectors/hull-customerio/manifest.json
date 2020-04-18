@@ -4,7 +4,7 @@
   "source": "customerio",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.8-monorepo",
+  "version": "0.1.24-monorepo",
   "tags": [
     "outgoing",
     "batch",
@@ -22,13 +22,16 @@
     },
     {
       "name": "site_id",
-      "title": "Customer.io Site ID",
-      "type": "string"
+      "title": "Customer.io SITE ID",
+      "type": "string",
+      "description": "Paste value from Customer.io dashboard."
     },
     {
       "name": "api_key",
-      "title": "Customer.io API Key",
-      "type": "string"
+      "title": "Customer.io API KEY",
+      "type": "string",
+      "format": "password",
+      "description": "Paste value from Customer.io dashboard."
     },
     {
       "name": "configuration_title",
@@ -67,8 +70,8 @@
     },
     {
       "name": "user_id_mapping",
-      "title": "Which user attribute to send as 'customerId'",
-      "description": "Customer.io requires a unique main identifer for each user. The best practice is to use the `external_id` because it can never change, but in specific cases you might want to use another attribute. This is an advanced setting. We advise to contact us before changing",
+      "title": "customerId mapping",
+      "description": "Customer.io requires a unique main identifer for each user called `customerId`. The best practice is to use the `external_id` because it can never change, but in specific cases you might want to use another attribute. This is an advanced setting. We advise to contact us before changing.",
       "type": "string",
       "format": "trait",
       "default": "external_id"
@@ -108,10 +111,16 @@
   "subscriptions": [
     {
       "url": "/smart-notifier",
-      "conditions" : {
-        "channels": { "only": ["user:update"] },
+      "conditions": {
+        "channels": {
+          "only": [
+            "user:update"
+          ]
+        },
         "segments": {
-          "user:update": ["private_settings.synchronized_segments"]
+          "user:update": [
+            "private_settings.synchronized_segments"
+          ]
         }
       },
       "channels": [
@@ -137,7 +146,7 @@
     {
       "url": "/webhook",
       "handler": "webhookHandler",
-      "description": "In **Customer.io**, go to `Integrations > Email Activity Webhooks` and paste at the following url in `Webhook Endpoint`",
+      "description": "",
       "format": "credentials",
       "type": "string"
     }
@@ -147,8 +156,8 @@
       "name": "credentials",
       "handler": "credentialsHandler",
       "url": "/credentials",
-      "title": "Customer IO Credentials",
-      "description": "Copy this URL and paste it in Customer.io",
+      "title": "Customer.io Webhook url",
+      "description": "In **Customer.io**, go to **Integrations** and **Email Activity Webhooks** and paste at the following url in `WEBHOOK ENDPOINT`",
       "format": "credentials",
       "type": "string"
     }
@@ -156,12 +165,11 @@
   "settings_sections": [
     {
       "title": "Credentials",
-      "step": "credentials",
-      "description": "In **Customer.io**, go to `Integrations > Email Activity Webhooks` and paste at the following url in `Webhook Endpoint`",
+      "description": "This section authorize connector against Customerio.io API. Two API credentials are needed to enable outgoing traffic, additional webhook url can be added in Customer.io settings to enable incoming events.<br /><br />To get `SITE ID` and `API KEY` go to **Customer.io**, then **Integrations** and select **Customer.io API**, credentials are available at the top of the screen.<br />To enable incoming events copy the webhook url below and in **Customer.io**, go to **Integrations** and find **Email Activity Webhook**. Then paste at the url in `WEBHOOK ENDPOINT`",
       "properties": [
-        "json.credentials",
         "private_settings.site_id",
-        "private_settings.api_key"
+        "private_settings.api_key",
+        "json.credentials"
       ]
     },
     {
@@ -186,7 +194,6 @@
     }
   ],
   "status": {
-    "initial_value": "setupRequired",
     "url": "/status",
     "type": "cron",
     "value": "*/30 * * * *",

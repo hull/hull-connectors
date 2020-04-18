@@ -3,7 +3,7 @@ dist
 .env
 .env.*
 *.log
-
+tmp
 
 .DS_Store
 .env.sh
@@ -16,3 +16,5 @@ deployment.config.js
 
 .idea/
 _ignored/
+.cache
+.yarn

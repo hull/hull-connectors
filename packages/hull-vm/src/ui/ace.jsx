@@ -12,17 +12,26 @@ import "ace-builds/src-noconflict/snippets/json";
 import "ace-builds/src-noconflict/mode-json";
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/keybinding-sublime";
+import "../ace/src/vendor/jsonata/formatter";
+import "../ace/src/vendor/jsonata/mode-jsonata";
+import "../ace/src/vendor/jsonata/snippets-jsonata";
+// import "../ace/src/vendor/jsonata/worker-jsonata";
 
 import AceEditor from "react-ace";
 
 ace.require("ace/keyboard/sublime");
+ace.require("ace/theme/clouds_midnight");
+
 ace.require("ace/mode/javascript");
 ace.require("ace/mode/markdown");
 ace.require("ace/mode/json");
 ace.require("ace/mode/text");
+ace.require("ace/mode/jsonata");
+
 ace.require("ace/snippets/javascript");
+ace.require("ace/snippets/jsonata");
 ace.require("ace/snippets/json");
-ace.require("ace/theme/clouds_midnight");
+
 
 ace.require("ace/ext/beautify");
 ace.require("ace/ext/error_marker");

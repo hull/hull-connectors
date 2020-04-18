@@ -59,6 +59,10 @@ const buildConfig = ({ assets, files, destination, mode = "production" }) => ({
   module: {
     rules: [
       {
+        test: /\.css$/,
+        use: [{ loader: "style-loader" }, { loader: "css-loader" }]
+      },
+      {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: {

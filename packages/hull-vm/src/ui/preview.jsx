@@ -5,6 +5,7 @@ import fp from "lodash/fp";
 import Area from "./area";
 import CodeTitle from "./code-title";
 import type { Result } from "../../types";
+import type { HullEntityName } from "hull";
 
 const nice = obj => {
   if (obj === undefined) return "undefined";
@@ -84,11 +85,11 @@ const mapEvents = scoped =>
 
 type Props = {
   result?: Result,
-  entityType?: "user" | "account",
+  entity?: HullEntityName,
   scoped?: boolean
 };
 
-const Preview = ({ result, scoped, entityType }: Props) => {
+const Preview = ({ result, scoped, entity }: Props) => {
   if (!result)
     return (
       <Fragment>

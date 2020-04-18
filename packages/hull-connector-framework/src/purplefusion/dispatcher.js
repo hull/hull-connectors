@@ -45,7 +45,7 @@ class HullDispatcher {
   // could have multiple services in the future... maybe take in an array?
   // really, we could run all of them in the same place potentially
   constructor(glue: Object, services: Object, transforms: ServiceTransforms, ensure: string) {
-    this.glue = glue;
+    this.glue = _.assign({}, glue, require("./glue-shared"));
     this.services = new ServiceEngine(this, services, transforms);
     this.ensure = ensure;
     this.transforms = new TransformImpl(transforms);
@@ -120,10 +120,8 @@ class HullDispatcher {
     if (!_.isEmpty(this.ensure)) {
       if (isUndefinedOrNull(this.ensurePromise)) {
         this.ensurePromise = this.resolve(context, new Route(this.ensure), data);
-        await this.ensurePromise;
-      } else {
-        await this.ensurePromise;
       }
+      await this.ensurePromise;
     }
     return await this.resolve(context, new Route(route), data);
 
@@ -147,8 +145,14 @@ class HullDispatcher {
       const results = [];
 
       for (let index = 0; index < instruction.length; index++) {
-        const result = await this.resolve(context, instruction[index], serviceData);
-        results.push(result);
+        try {
+          const result = await this.resolve(context, instruction[index], serviceData);
+          results.push(result);
+        } catch(err) {
+          if (typeof err !== "SkippableArrayError") {
+            throw err;
+          }
+        }
       }
 
       return results;
@@ -273,7 +277,10 @@ class HullDispatcher {
 
     if (type === 'logic') {
 
-      if (instructionName === 'if') {
+      if (instructionName === 'return') {
+        await this.resolve(context, instructionOptions.instructions, serviceData);
+        return this.resolve(context, instructionOptions.returnValue, serviceData);
+      } else if (instructionName === 'if') {
 
         // if this instructions doesn't have any params, it's just a "do"
         let executeDo = true;
@@ -322,7 +329,7 @@ class HullDispatcher {
 
             // if we get stop, that means that there was an "if" condition
             // and it did not validate, which meant we return stop
-            if (elifResult.status !== "stop") {
+            if (elifResult.hullDispatcherStatus !== "stop") {
               return {};
             }
           }
@@ -334,7 +341,7 @@ class HullDispatcher {
           return await this.resolve(context, instructionOptions.eldo, serviceData);
         }
 
-        return { status: "stop" };
+        return { hullDispatcherStatus: "stop" };
 
       } else if (instructionName === "filter") {
 
@@ -394,7 +401,13 @@ class HullDispatcher {
             if (setKey) {
               shallowContextClone.set(setKey, resolvedParams[key]);
             }
-            return this.resolve(shallowContextClone, instructionOptions.instructions, serviceData);
+            return this.resolve(shallowContextClone, instructionOptions.instructions, serviceData)
+              .catch(err => {
+                if (err.code === "BreakToLoop") {
+                  return Promise.resolve();
+                }
+                return Promise.reject(err);
+              });
           }));
         }
 
@@ -422,26 +435,31 @@ class HullDispatcher {
 
             loopIndex += 1;
           }
+          try {
+            const instructionResults = await this.resolve(context, instructionOptions.instructions, serviceData);
+            //results.push(instructionResults);
+            // if results do not contain an end(), then continue to loop
+            let endInstruction;
+            const isEnd = (someResult) => {
+              return someResult instanceof HullInstruction && someResult.options.name === "end";
+            };
 
-          const instructionResults = await this.resolve(context, instructionOptions.instructions, serviceData);
-          //results.push(instructionResults);
-          // if results do not contain an end(), then continue to loop
-          let endInstruction;
-          const isEnd = (someResult) => {
-            return someResult instanceof HullInstruction && someResult.options.name === "end";
-          };
+            if (Array.isArray(instructionResults)) {
+              // check to see if includes an end, if so, then stop looping...
+              endInstruction = _.find(instructionResults, isEnd);
+            } else if (!isUndefinedOrNull(instructionResults) && isEnd(instructionResults)) {
+              endInstruction = instructionResults;
+            }
 
-          if (Array.isArray(instructionResults)) {
-            // check to see if includes an end, if so, then stop looping...
-            endInstruction = _.find(instructionResults, isEnd);
-          } else if (!isUndefinedOrNull(instructionResults) && isEnd(instructionResults)) {
-            endInstruction = instructionResults;
-          }
-
-          if (!isUndefinedOrNull(endInstruction)) {
-            break;
-          } else {
-            finalInstruction = instructionResults;
+            if (!isUndefinedOrNull(endInstruction)) {
+              break;
+            } else {
+              finalInstruction = instructionResults;
+            }
+          } catch(err) {
+            if (err.code !== "BreakToLoop") {
+              throw err;
+            }
           }
         }
 
@@ -507,6 +525,20 @@ class HullDispatcher {
         const cacheValue = result.cacheValue;
         setHullDataType(cacheValue, result.dataType);
         return cacheValue;
+
+      } else if (instructionOptions.name === "wrap") {
+
+        return await cache.wrap(
+          cacheKey,
+          () => {
+            return this.resolve(context, instructionOptions.instruction, serviceData);
+          },
+          { ttl: instructionOptions.ttl }
+        );
+
+      } else if (instructionOptions.name === "del") {
+
+        return await cache.del(cacheKey);
 
       } else if (instructionOptions.name === "lock") {
 
@@ -636,7 +668,9 @@ class HullDispatcher {
 
         return _.get(obj, opInstruction.key);
 
-      } else if (opInstruction.name === "set") {
+      } else if (opInstruction.name === "set" || opInstruction.name === "setOnHullContext") {
+
+        const setOnHullContext = opInstruction.name === "setOnHullContext";
 
         // TODO NEED TO HAVE A GLOBAL SET WITH THIS NEW CONTEXT STUFF
         // otherwise could put the variables like new tokens in a local context...
@@ -649,8 +683,11 @@ class HullDispatcher {
         if (_.isPlainObject(opInstruction.key)) {
 
           _.forEach(opInstruction.key, (value, key) => {
-            // _.set(context, key, value);
-            context.set(key, value);
+            if (setOnHullContext) {
+              context.setOnHullContext(key, value);
+            } else {
+              context.set(key, value);
+            }
           });
 
         } else {
@@ -658,7 +695,11 @@ class HullDispatcher {
           // whereas get allows us to get keys on other objects...
           // TODO maybe we should add that to set?
           // _.set(context, opInstruction.key, resolvedParams);
-          context.set(opInstruction.key, resolvedParams);
+          if (setOnHullContext) {
+            context.setOnHullContext(opInstruction.key, resolvedParams);
+          } else {
+            context.set(opInstruction.key, resolvedParams);
+          }
         }
 
         return resolvedParams;
@@ -689,7 +730,7 @@ class HullDispatcher {
         //   result = this.transforms.transform(context, obj, objType, opInstruction.resultType);
         // }
 
-        return this.transforms.transform(context, obj, opInstruction.resultType);
+        return await this.transforms.transform(this, context, obj, opInstruction.resultType);
 
       } else if (opInstruction.name === "jsonata") {
 

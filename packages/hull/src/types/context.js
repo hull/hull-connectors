@@ -2,10 +2,12 @@
 
 import type { agent } from "superagent";
 import type {
-  HullEntityClaims,
+  HullGetEntityParams,
+  HullIncludedEvents,
+  HullEntityName,
   HullFetchedEvent,
-  HullFetchedUser,
-  HullFetchedAccount,
+  HullGetUserResponse,
+  HullGetAccountResponse,
   HullAttributeSchemaEntry,
   HullEventSchemaEntry,
   HullClientCredentials,
@@ -16,19 +18,31 @@ import type {
   HullClientConfig,
   HullNotification,
   HullCredentialsObject,
-  HullClient
+  HullClient,
+  HullUserUpdateMessage,
+  HullAccountUpdateMessage,
+  HullEvent,
+  HullSegment,
+  HullTriggerSet
 } from "./index";
 
-import { incomingClaims, settingsUpdate, extractRequest } from "../helpers";
+import {
+  incomingClaims,
+  settingsUpdate,
+  extractRequest,
+  mappingToOptions,
+  mapAttributes,
+  getStandardMapping,
+  operations
+} from "../helpers";
 
 const ConnectorCache = require("../infra/cache/connector-cache");
 const MetricAgent = require("../infra/instrumentation/metric-agent");
-
 // =====================================
 //   Hull Context
 // =====================================
 
-export type HullContextBase = {
+export type HullContextBase = {|
   requestId?: string, // request id
   hostname: string, // req.hostname
   options: Object, // req.query
@@ -49,15 +63,15 @@ export type HullContextBase = {
     options?: Object
   ) => Promise<*>,
   ...HullCredentialsObject
-};
-export type HullContext = {
+|};
+export type HullContext = {|
   /**
    * Context added to the express app request by hull-node connector sdk.
    * Accessible via `req.hull` param.
    * @public
    * @memberof Types
    */
-  ...$Exact<HullContextBase>,
+  ...HullContextBase,
   metric: MetricAgent,
   hostname: string, // req.hostname
   handlerName?: string,
@@ -78,22 +92,40 @@ export type HullContext = {
   // @TODO => refine Superagent signature
   request: agent,
   entities: {
+    get: HullGetEntityParams => Promise<
+      HullGetUserResponse | HullGetAccountResponse
+    >,
+    getSchema: HullEntityName => Promise<Array<HullEventSchemaEntry>>,
     events: {
-      get: HullEntityClaims => Array<HullFetchedEvent>,
+      get: HullIncludedEvents => Promise<Array<HullFetchedEvent>>,
       getSchema: () => Promise<Array<HullEventSchemaEntry>>
     },
     users: {
-      get: HullEntityClaims => Promise<HullFetchedUser>,
+      get: HullGetEntityParams => Promise<HullGetUserResponse>,
       getSchema: () => Promise<Array<HullAttributeSchemaEntry>>
     },
     accounts: {
-      get: HullEntityClaims => Promise<HullFetchedAccount>,
+      get: HullGetEntityParams => Promise<HullGetAccountResponse>,
       getSchema: () => Promise<Array<HullAttributeSchemaEntry>>
     }
   },
   helpers: {
     settingsUpdate: $Call<typeof settingsUpdate, HullContext>,
     incomingClaims: $Call<typeof incomingClaims, HullContext>,
-    extractRequest: $Call<typeof extractRequest, HullContext>
+    extractRequest: $Call<typeof extractRequest, HullContext>,
+    mappingToOptions: $Call<typeof mappingToOptions, HullContext>,
+    mapAttributes: $Call<typeof mapAttributes, HullContext>,
+    getStandardMapping: $Call<typeof getStandardMapping, HullContext>,
+    hasMatchingTriggers: ({
+      matchOnBatch?: boolean,
+      mode: "any" | "all",
+      message: HullUserUpdateMessage | HullAccountUpdateMessage,
+      triggers: HullTriggerSet
+    }) => boolean,
+    segmentChangesToEvents: (
+      HullAccountUpdateMessage | HullUserUpdateMessage,
+      Array<HullSegment>
+    ) => Array<HullEvent>,
+    operations: $Call<typeof operations, HullContext>
   }
-};
+|};

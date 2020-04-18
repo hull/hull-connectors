@@ -1,26 +1,20 @@
 // @flow
 
-import React, { Component, Fragment } from "react";
-
-import Nav from "react-bootstrap/Nav";
+import React, { Fragment } from "react";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Button from "react-bootstrap/Button";
-
-import _ from "lodash";
-
 import Code from "./code";
 import Preview from "./preview";
 import KeyBindings from "./key-bindings";
 import EntrySelector from "./entry-selector";
 import EventSelector from "./event-selector";
-import ConfigurationModal from "./configuration-modal";
 import Area from "./area";
 import Header from "./header";
 import CodeTitle from "./code-title";
 import Spinner from "./spinner";
 
 import VirtualMachineUI from "./vm-ui";
-import type { EngineState, Entry, Result } from "../../types";
+import type { EngineState } from "../../types";
 import type ProcessorEngine from "../processor-engine";
 
 type Props = {
@@ -63,8 +57,11 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
 
   getError = () => {
     const { error } = this.state;
-    if (error === "empty" || error === "Not Found") {
+    if (error === "empty") {
       return this.props.strings.leftColumnPreview;
+    }
+    if (error === "notfound") {
+      return this.props.strings.leftColumnEmpty;
     }
     return error;
   };
@@ -79,8 +76,9 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
       showBindings,
       events,
       error,
-      entityType,
-      claim
+      entity,
+      search,
+      language
     } = this.state;
 
     const { strings } = this.props;
@@ -102,7 +100,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
               <EntrySelector
                 loading={computing || fetching}
                 current={current}
-                defaultValue={claim}
+                defaultValue={search}
                 title={strings.leftColumnTitle}
                 recent={recent}
                 onChange={this.handleUpdateQuery}
@@ -116,7 +114,6 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
                   ) : null}
                 </div>
               </EntrySelector>
-              <hr className="payload-divider" />
             </Header>
             <CodeTitle title="Payload" />
             <Area
@@ -127,7 +124,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
           </div>
           <div className="col vm-column code-column">
             <Header>
-              {entityType === "user" ? (
+              {entity === "user" ? (
                 <EventSelector
                   loading={!initialized && fetching}
                   onChange={this.handleUpdateEvents}
@@ -138,11 +135,16 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
               )}
             </Header>
             <CodeTitle
-              title={`Code ${!current.editable ? "(disabled)" : ""}`}
+              title={`Code - (${language}) ${
+                !current.editable
+                  ? "(disabled - first search for something on the left panel)"
+                  : ""
+              }`}
             />
             <Code
               focusOnLoad={true}
               computing={computing}
+              mode={language}
               code={current.code}
               readOnly={!current.editable}
               onChange={this.handleCodeUpdate}
@@ -160,7 +162,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
             <Preview
               title="Preview"
               scoped={true}
-              entityType={entityType}
+              entity={entity}
               result={error ? {} : current.result}
               computing={computing}
             />

@@ -1,5 +1,9 @@
 // @flow
-import type { HullUISelect, HullUISelectGroup, HullEntityType } from "./index";
+import type {
+  HullAttributeMapping,
+  HullUISelectOptions,
+  HullEntityName
+} from "./index";
 
 // =====================================
 //   Handler Responses
@@ -19,7 +23,7 @@ export type HullNotificationFlowControl = {
 
 export type HullKrakenResponse = void | {|
   action: "success" | "skip" | "error",
-  type: HullEntityType | "event",
+  type: HullEntityName | "event",
   message_id?: string,
   message?: string,
   id: ?string,
@@ -77,13 +81,17 @@ export type HullExternalResponse =
   | HullExternalResponseData
   | Promise<HullExternalResponseData>;
 
-export type HullUISelectResponseData = {
-  ...$Exact<HullExternalResponseData>,
-  status?: number,
-  data: {
-    options: Array<HullUISelect> | Array<HullUISelectGroup>
-  }
+export type HullUISelectData = {
+  label?: string,
+  options: HullUISelectOptions,
+  default: Array<HullAttributeMapping>
 };
+
+export type HullUISelectResponseData = {|
+  ...HullExternalResponseData,
+  status?: number,
+  data: HullUISelectData
+|};
 
 export type HullUISelectResponse =
   | HullUISelectResponseData

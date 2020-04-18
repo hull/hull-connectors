@@ -49,7 +49,10 @@ function parseToken(token, secret) {
       const config = jwt.decode(token, secret);
       return config;
     } catch (encryptedErr) {
-      throw new Error("Invalid Token");
+      const e = new Error("Invalid Token");
+      // $FlowFixMe
+      e.status = 401;
+      throw e;
     }
   }
 }
@@ -79,10 +82,15 @@ function credentialsFromQueryMiddlewareFactory() {
         parseToken(req.hull.clientCredentialsEncryptedToken, hostSecret) ||
         parseToken(req.hull.clientCredentialsToken, hostSecret) ||
         parseToken(getToken(req.query), hostSecret) ||
+        // also check the body to see if the tokens may be there
+        parseToken(getToken(req.body), hostSecret) ||
         parseQueryString(req.query);
 
       if (clientCredentials === undefined) {
-        return next(new Error("Could not resolve clientCredentials"));
+        const e = new Error("Could not resolve clientCredentials");
+        // $FlowFixMe
+        e.status = 401;
+        return next(e);
       }
 
       // handle legacy naming

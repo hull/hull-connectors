@@ -42,7 +42,7 @@ it("Receive Webhook - company deleted payload", () => {
       response: {},
       logs: [
         ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" }],
-        ["info", "incoming.account.success", { "subject_type": "account", "account_anonymous_id": "hubspot:123" },
+        ["debug", "incoming.account.success", { "subject_type": "account", "account_anonymous_id": "hubspot:123" },
           {
             "data": {
               "eventId": 1,
@@ -65,9 +65,7 @@ it("Receive Webhook - company deleted payload", () => {
           { "asAccount": { "anonymous_id": "hubspot:123" },
             "subjectType": "account" },
           { "hubspot/deleted_at": 1567689104280, "hubspot/id": null }
-        ],
-        ["unalias", { "asAccount":
-            { "anonymous_id": "hubspot:123" }, "subjectType": "account" }, { "anonymous_id": "hubspot:123" }]
+        ]
       ],
       metrics: [
         ["increment", "connector.request", 1,]

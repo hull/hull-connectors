@@ -3,6 +3,7 @@
 import type { ServiceObjectDefinition } from "./types";
 
 const _ = require("lodash");
+const hash = require('object-hash');
 
 class HullInstruction {
 
@@ -213,9 +214,22 @@ function inc(object: any): Op {
   return new Op({ name: "inc" }, object);
 }
 
+/**
+ * this uses lodash filter moethod
+ * @param truthyFilter
+ * @param toFilter
+ * @returns {Op}
+ */
 function filter(truthyFilter: any, toFilter: any): Op {
   return new Op({ name: "filter", truthyFilter }, toFilter);
 }
+
+/**
+ * This uses the lodash reject method
+ * @param truthyFilter
+ * @param toFilter
+ * @returns {Op}
+ */
 function notFilter(truthyFilter: any, toFilter: any): Op {
   return new Op({ name: "notFilter", truthyFilter }, toFilter);
 }
@@ -271,8 +285,8 @@ function ifL(params: any, results: any | { do: any, eldo?: any, elif?: any }): I
   let toEvaluate = results;
   // if do isn't present in the results, then build one to make the underlying evaluation code simpler
   // this is just a way to give the instruction syntax simplicity on top, so that if only a "do" exists, then we just can pass the next instruction
-  if (!results.do) {
-   toEvaluate = { do: toEvaluate };
+  if (results.do === undefined) {
+    toEvaluate = { do: toEvaluate };
   }
 
   return new Logic({ name: "if", if: params, ...toEvaluate });
@@ -302,6 +316,14 @@ function or(conditions: Array<any>) {
   });
 }
 
+/**
+ * This is a way to filter an array based on glue logic which is applied to each object in the array
+ *
+ * @param condition this is a glue instruction that must evaluate to true or false per object in the array traversed
+ * @param key this is the name of variable for the current object that we're traversing in the array
+ * @param array this is the array to traverse, and the result will be a filtered array where any object not matching the condition logic will be removed
+ * @returns {Logic} when this instruction ins evaluated, any object where the condition returns false, will be removed from the array
+ */
 function filterL(condition: any, key: string, array: any) {
   return new Logic({ name: "filter", key, condition }, array);
 }
@@ -395,6 +417,10 @@ function loopEndL(): Logic {
   return new Logic({ name: "end" });
 }
 
+function returnValue(instructions: any, returnValue: any) {
+  return new Logic({ name: "return", instructions, returnValue });
+}
+
 /**
  * helper function for easily referencing variables from the private settings
  * without having to call connector.private_settings from all over the place
@@ -423,9 +449,10 @@ function settingsSet(key: any, value?: any) {
       obj[`connector.private_settings.${name}`] = value;
     });
 
-    return new Op({ name: "set", key: obj });
+    return new Op({ name: "setOnHullContext", key: obj });
   } else {
-    return set(key, value);
+    // return set(key, value);
+    return new Op({ name: "setOnHullContext", key }, value);
   }
 }
 
@@ -462,12 +489,22 @@ function cacheWrap(expiration: number, param: any) {
 
   // TODO need to find a better way to do cache key for wrapping methods
   // just ran into a bug where the key wasn't unique enough... will cause really weird issues...
-  return ifL(
-    cond("isEmpty", set("hull-internal-cacheWrappedValue", cacheGet(`${param.type}|${param.options.name}|${param.options.op}`))),
-    {
-      do: cacheSet({ ttl: expiration, key: `${param.type}|${param.options.name}|${param.options.op}`}, param),
-      eldo: "${hull-internal-cacheWrappedValue}"
-    });
+  // return ifL(
+  //   cond("isEmpty", set("hull-internal-cacheWrappedValue", cacheGet(`${param.type}|${param.options.name}|${param.options.op}`))),
+  //   {
+  //     do: cacheSet({ ttl: expiration, key: `${param.type}|${param.options.name}|${param.options.op}`}, param),
+  //     eldo: "${hull-internal-cacheWrappedValue}"
+  //   });
+  //TODO key could be JSON.stringify(param) -> then could MD5 that....
+  return new Cache({name: "wrap", key: cacheKeyForInstruction(param), ttl: expiration, instruction: param });
+}
+
+function cacheDel(param: any) {
+  return new Cache({ name: "del", key: cacheKeyForInstruction(param) });
+}
+
+function cacheKeyForInstruction(instruction: any) {
+  return hash(instruction);
 }
 
 function cacheGet(key: string) {
@@ -516,6 +553,8 @@ function cacheLock(key: any, instructions: any) {
 }
 
 
+
+
 // not filter...
 
 module.exports = {
@@ -542,15 +581,18 @@ module.exports = {
   loopEndL,
   filterL,
   settings,
+  settingsSet,
   settingsUpdate,
   cacheWrap,
   cacheSet,
   cacheGet,
   cacheLock,
+  cacheDel,
   transformTo,
   jsonata,
   ld,
   moment,
   ex,
-  inc
+  inc,
+  returnValue
 };

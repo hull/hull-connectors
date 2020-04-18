@@ -18,17 +18,17 @@ const connector = {
     synchronized_user_segments: ["hullSegmentId"],
     outgoing_user_attributes: [
       { hull: "traits_outreach/title", service: "jobtitle" },
-      { hull: "account.id", service: "custom_hubspot_account_id", overwrite: true },
-      { hull: "account.domain", service: "custom_hubspot_account_domain", overwrite: true }
+      { hull: "account.id", service: "hull_custom_hubspot_account_id", overwrite: true },
+      { hull: "account.domain", service: "hull_custom_hubspot_account_domain", overwrite: true },
+      { hull: "segments.name[]", service: "hull_segments", overwrite: true }
     ],
-    link_users_in_service: true
+    link_users_in_service: true,
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const usersSegments = [
-  {
-    name: "testSegment",
-    id: "hullSegmentId"
-  }
+  { name: "testSegment", id: "hullSegmentId" }
 ];
 
 it("should allow through with mapped account attribute changes", () => {
@@ -44,9 +44,18 @@ it("should allow through with mapped account attribute changes", () => {
           .reply(200, require("../fixtures/get-contacts-groups"));
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, require("../fixtures/get-properties-companies-groups"));
-        scope.post("/contacts/v1/contact/batch/?auditId=Hull",
-          [{"properties":[{"property":"hull_custom_hubspot_account_id","value":"acc123"},{"property":"hull_custom_hubspot_account_domain","value":"doe.com"},{"property":"hull_segments","value":"testSegment"}],"email":"email@email.com"}]
-        ).reply(202);
+        scope.post("/contacts/v1/contact/batch/?auditId=Hull", [
+          {
+            "properties": [
+              { "property": "jobtitle", "value": "sometitle" },
+              { "property":"hull_custom_hubspot_account_id","value":"acc123" },
+              { "property":"hull_custom_hubspot_account_domain","value":"doe.com" },
+              { "property":"hull_segments","value":"testSegment" }
+            ],
+            "email":"email@email.com",
+            "vid": 5677
+          }
+        ]).reply(202);
         return scope;
       },
       connector,
@@ -87,7 +96,7 @@ it("should allow through with mapped account attribute changes", () => {
             // custom_undefined: "", -> this is not present
             custom_date_at: "2018-10-24T09:47:39Z",
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          segments: [{ id: "hullSegmentId", name: "testSegment" }],
           changes: {
             "is_new": false,
             "user": {
@@ -125,17 +134,16 @@ it("should allow through with mapped account attribute changes", () => {
           "outgoing.user.success",
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
           {
-            "email": "email@email.com",
-            "properties": [{
-              "property": "hull_custom_hubspot_account_id",
-              "value": "acc123"
-            }, {
-              "property": "hull_custom_hubspot_account_domain",
-              "value": "doe.com"
-            }, {
-              "property": "hull_segments",
-              "value": "testSegment",
-            }]
+            hubspotWriteContact: {
+              "email": "email@email.com",
+              "vid": 5677,
+              "properties": [
+                { "property": "jobtitle", "value": "sometitle" },
+                { "property": "hull_custom_hubspot_account_id", "value": "acc123" },
+                { "property": "hull_custom_hubspot_account_domain", "value": "doe.com" },
+                { "property": "hull_segments", "value": "testSegment", }
+              ]
+            }
           }
         ]
       ],

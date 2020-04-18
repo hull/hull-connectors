@@ -8,7 +8,7 @@ const { isUndefinedOrNull } = require("./utils");
 
 const _ = require("lodash");
 
-const debug = require("debug")("hull-outreach:service-client");
+const debug = require("debug")("hull-shared:service-client");
 
 const superagent = require("superagent");
 const prefixPlugin = require("superagent-prefix");
@@ -78,6 +78,12 @@ class SuperagentApi {
           const headerValue = _.get(res.header, key);
           if (typeof headerValue === 'number') {
             this.metricsClient.value(value, headerValue);
+          } else if (typeof headerValue === 'string') {
+            try {
+              this.metricsClient.value(value, parseInt(headerValue, 10));
+            } catch (err) {
+
+            }
           }
         });
       });
@@ -99,11 +105,18 @@ class SuperagentApi {
       this.agent[method](params);
     });
 
-    let agentPromise = this.agent[endpoint.operation](this.globalContext.resolveVariables(endpoint.url));
+    const url = this.globalContext.resolveVariables(endpoint.url);
+    let agentPromise = this.agent[endpoint.operation](url);
 
     if (endpoint.query) {
       const query = this.globalContext.resolveVariables(endpoint.query);
-      debug(`Created query: ${query}`);
+
+      if (_.isObject(query)) {
+        debug(`Created query: ${url}: ${JSON.stringify(query)}`);
+      } else {
+        debug(`Created query: ${url}: ${query}`);
+      }
+
       agentPromise = agentPromise.query(query);
     }
 

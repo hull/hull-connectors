@@ -1,5 +1,5 @@
 /* @flow */
-import type { HullUserUpdateMessage, HullUser } from "hull";
+import type { HullUserUpdateMessage, HullUser, HullContext } from "hull";
 
 export type TCustomerIoCustomerAttributeName = string;
 export type TCustomerIoCustomerAttributeValue =
@@ -17,10 +17,7 @@ export interface ILogger {
   debug(message: ?any, ...optionalParams: any[]): void;
 }
 
-export interface IMetricsClient {
-  increment(name: string, value: number): void;
-  value(name: string, value: number): void;
-}
+export type IMetricsClient = $PropertyType<HullContext, "metric">;
 
 export interface IServiceCredentials {
   username: string;

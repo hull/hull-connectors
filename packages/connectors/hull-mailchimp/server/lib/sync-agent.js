@@ -213,6 +213,12 @@ class SyncAgent {
     messages: Array<HullUserUpdateMessage>,
     { useSegments = false, ignoreFilter = false }: Object = {}
   ): Promise<*> {
+    if (!this.isConfigured()) {
+      this.client.logger.error("connector.configuration.error", {
+        errors: "connector is not configured"
+      });
+      return Promise.resolve();
+    }
     const startTime = process.hrtime();
     this.client.logger.debug("outgoing.job.start", {
       messages: messages.length
@@ -222,7 +228,7 @@ class SyncAgent {
         if (!_.isEmpty(message.user.email)) {
           return true;
         }
-        this.client.asUser(message.user).logger.info("outgoing.user.skip", {
+        this.client.asUser(message.user).logger.debug("outgoing.user.skip", {
           reason: "doesn't have an email address"
         });
         return false;
@@ -242,7 +248,7 @@ class SyncAgent {
         ) {
           return true;
         }
-        this.client.asUser(message.user).logger.info("outgoing.user.skip", {
+        this.client.asUser(message.user).logger.debug("outgoing.user.skip", {
           reason: "doesn't match whitelist"
         });
         return false;

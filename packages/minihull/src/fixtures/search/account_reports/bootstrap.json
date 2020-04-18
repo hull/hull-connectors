@@ -55,6 +55,16 @@
           ]
         }
       ]
+    },
+    {
+      "text": "Hubspot",
+      "children": [
+        {
+          "text": "name",
+          "id": "hubspot/name",
+          "type": "string"
+        }
+      ]
     }
   ]
 }

@@ -59,7 +59,7 @@ it("Receive Webhook - multiple contacts deleted payload", () => {
       response: {},
       logs: [
         ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" }],
-        ["info", "incoming.user.success", { "subject_type": "user", "user_anonymous_id": "hubspot:123" },
+        ["debug", "incoming.user.success", { "subject_type": "user", "user_anonymous_id": "hubspot:123" },
           {
             "data": {
               "eventId": 1,
@@ -75,7 +75,7 @@ it("Receive Webhook - multiple contacts deleted payload", () => {
             "type": "hubspot_webhook_payload"
           }
         ],
-        ["info", "incoming.user.success", { "subject_type": "user", "user_anonymous_id": "hubspot:124" },
+        ["debug", "incoming.user.success", { "subject_type": "user", "user_anonymous_id": "hubspot:124" },
           {
             "data": {
               "eventId": 2,
@@ -96,9 +96,7 @@ it("Receive Webhook - multiple contacts deleted payload", () => {
       ],
       firehoseEvents: [
         ["traits", { "asUser": { "anonymous_id": "hubspot:123" }, "subjectType": "user" }, { "hubspot/deleted_at": 1567689104280, "hubspot/id": null }],
-        ["traits", { "asUser": { "anonymous_id": "hubspot:124" }, "subjectType": "user" }, { "hubspot/deleted_at": 1567689104280, "hubspot/id": null }],
-        ["unalias", { "asUser": { "anonymous_id": "hubspot:123" }, "subjectType": "user" }, { "anonymous_id": "hubspot:123" }],
-        ["unalias", { "asUser": { "anonymous_id": "hubspot:124" }, "subjectType": "user" }, { "anonymous_id": "hubspot:124" }]
+        ["traits", { "asUser": { "anonymous_id": "hubspot:124" }, "subjectType": "user" }, { "hubspot/deleted_at": 1567689104280, "hubspot/id": null }]
       ],
       metrics: [
         ["increment", "connector.request", 1,]

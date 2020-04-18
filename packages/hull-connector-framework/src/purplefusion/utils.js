@@ -1,20 +1,35 @@
 /* @flow */
 
 import type { ServiceObjectDefinition } from "./types";
-import type { HullAccountUpdateMessage, HullContext, HullEntityType, HullUserUpdateMessage } from "hull";
-
+import type { HullAccountUpdateMessage, HullContext, HullEntityName, HullUserUpdateMessage } from "hull";
 const _ = require("lodash");
 const debug = require("debug")("hull-shared:utils");
 const {
   HullOutgoingUser,
   HullOutgoingAccount,
   HullIncomingUser,
-  HullIncomingAccount
+  HullIncomingAccount,
+  HullIncomingOpportunity
 } = require("./hull-service-objects");
 
 // Using this method of defining a property which is not enumerable to set the datatype on a data object
 // I don't like that we have to use a special reserved word, but logging a warning if it ever exists and is not a ServiceObjectDefinition
 const reservedHullDataTypeKey = "hull-connector-data-type";
+
+async function asyncForEach(toIterateOn, asyncCallback) {
+
+  if (
+    isUndefinedOrNull(toIterateOn) ||
+    isUndefinedOrNull(asyncCallback) ||
+    !Array.isArray(toIterateOn)) {
+    return;
+  }
+
+  for (let i = 0; i < toIterateOn.length; i += 1) {
+    await asyncCallback(toIterateOn[i], i);
+  }
+
+}
 
 function getHullDataType(object: any) {
   if (isUndefinedOrNull(object)) {
@@ -61,7 +76,8 @@ function getHullPlatformTypeName(classType: ServiceObjectDefinition) {
     sameHullDataType(classType, HullOutgoingUser)
     || sameHullDataType(classType, HullIncomingUser)
     || sameHullDataType(classType, HullOutgoingAccount)
-    || sameHullDataType(classType, HullIncomingAccount)) {
+    || sameHullDataType(classType, HullIncomingAccount)
+    || sameHullDataType(classType, HullIncomingOpportunity)) {
     return classType.name;
   }
 
@@ -78,6 +94,21 @@ function parseIntOrDefault(intString: string, defaultInt: number) {
   return defaultInt;
 }
 
+function getAttributeNamespace(hullName: string) {
+  const parts = _.split(hullName, "/");
+  if (parts.length > 1) {
+    return _.first(parts);
+  }
+  return undefined;
+}
+
+function getAttributeName(hullName: string) {
+  const parts = _.split(hullName, "/");
+  if (parts.length > 1) {
+    return _.last(parts);
+  }
+  return hullName;
+}
 
 function removeTraitsPrefix(attributeName: string) {
   if (!isUndefinedOrNull(attributeName) && attributeName.indexOf("traits_") === 0) {
@@ -146,7 +177,7 @@ function createAnonymizedObject(object, pathsToAnonymize = {
  */
 function toSendMessage(
   context: HullContext,
-  targetEntity: HullEntityType,
+  targetEntity: HullEntityName,
   message: HullUserUpdateMessage | HullAccountUpdateMessage,
   options?: {
     serviceName?: string,
@@ -202,7 +233,7 @@ function toSendMessage(
   const entity: any = _.get(message, targetEntity);
 
   const serviceName = _.get(options, "serviceName");
-  if (serviceName) {
+  if (!isUndefinedOrNull(serviceName)) {
     const isDeleted = _.get(message, `${targetEntity}.${serviceName}/deleted_at`, null);
 
     if (!isUndefinedOrNull(isDeleted)) {
@@ -217,12 +248,12 @@ function toSendMessage(
       );
 
       if (targetEntity === 'user' && ignoreDeletedUsers === true) {
-        context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "User has been deleted" });
+        context.client.asUser(entity).logger.debug("outgoing.user.skip", { reason: "User has been deleted" });
         return false;
       }
 
       if (targetEntity === 'account' && ignoreDeletedAccounts === true) {
-        context.client.asUser(entity).logger.info("outgoing.account.skip", { reason: "Account has been deleted" });
+        context.client.asUser(entity).logger.debug("outgoing.account.skip", { reason: "Account has been deleted" });
         return false;
       }
     }
@@ -269,10 +300,10 @@ function toSendMessage(
   if (!matchesSegments && !context.notification.is_export) {
     if (targetEntity === "user") {
       debug(`User does not match segment ${ JSON.stringify(entity) }`);
-      context.client.asUser(entity).logger.info("outgoing.user.skip", { reason: "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment" });
+      context.client.asUser(entity).logger.debug("outgoing.user.skip", { reason: "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment" });
     } else if (targetEntity === "account") {
       debug(`Account does not match segment ${ JSON.stringify(entity) }`);
-      context.client.asAccount(entity).logger.info("outgoing.account.skip", { reason: "Account is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the account is present in the settings page, or add the account to an existing synchronized segment" });
+      context.client.asAccount(entity).logger.debug("outgoing.account.skip", { reason: "Account is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the account is present in the settings page, or add the account to an existing synchronized segment" });
     }
     return false;
   }
@@ -298,7 +329,7 @@ function toSendMessage(
       }
 
       const serviceName = _.get(options, "serviceName");
-      if (serviceName) {
+      if (!isUndefinedOrNull(serviceName)) {
         // try to detect if the account id of the user is changing
         // If 2 users have been resolved to the same user, could result in loops
         // but as long as they don't keep changing it's ok we think... they'll eventually converge to 1
@@ -335,7 +366,8 @@ function toSendMessage(
 
   // Do not have to normalize this field with regard to array index at the end [1]...
   // because this field does not do the diff like the other fields, it gives a { left: [{}...], entered:} syntax
-  if (_.get(options, "sendOnAnySegmentChanges", false) === true) {
+  if (_.get(options, "sendOnAnySegmentChanges", false) === true
+      || _.get(context, "connector.private_settings.send_if_any_segment_change", false) === true) {
     const segmentChanges = _.get(message.changes, segmentAttribute);
     if (!_.isEmpty(segmentChanges)) {
       return true;
@@ -353,7 +385,7 @@ function toSendMessage(
 
     // if there are only account changes, then do not send user update message
     if (!_.isEmpty(accountChanges) && _.isEmpty(userChanges) && _.isEmpty(userEvents)) {
-      context.client.asUser(entity).logger.info("outgoing.user.skip", {
+      context.client.asUser(entity).logger.debug("outgoing.user.skip", {
         reason:
           "Has account changes but no user changes and no events"
       });
@@ -378,13 +410,13 @@ function toSendMessage(
   if (_.isEmpty(outgoingAttributes)) {
     if (targetEntity === "user") {
       debug(`No mapped attributes to synchronize ${JSON.stringify(entity)}`);
-      context.client.asUser(entity).logger.info("outgoing.user.skip", {
+      context.client.asUser(entity).logger.debug("outgoing.user.skip", {
         reason:
           "There are no outgoing attributes to synchronize for users.  Please go to the settings page and add outgoing user attributes to synchronize"
       });
     } else if (targetEntity === "account") {
       debug(`No mapped attributes to synchronize ${JSON.stringify(entity)}`);
-      context.client.asAccount(entity).logger.info("outgoing.account.skip", {
+      context.client.asAccount(entity).logger.debug("outgoing.account.skip", {
         reason:
           "There are no outgoing attributes to synchronize for account.  Please go to the settings page and add outgoing account attributes to synchronize"
       });
@@ -396,24 +428,9 @@ function toSendMessage(
   // send the user because we know it's in the list to send
   // this may be the result of pushing a full segment after it's creation
   // or could be because it's a new connector which we haven't done a full fetch
-  if (serviceName) {
+  if (!isUndefinedOrNull(serviceName)) {
     const serviceId = _.get(message, `${targetEntity}.${serviceName}/id`);
     if (isUndefinedOrNull(serviceId)) {
-
-      // log for now so we can find this scenario
-      // remove after we've audited
-      try {
-        if (targetEntity === "user") {
-          context.client.asUser(entity).logger.info("outgoing.user.send", {
-            reason: "does not have service id"
-          });
-        } else if (targetEntity === "account") {
-          context.client.asAccount(entity).logger.info("outgoing.account.send", {
-            reason: "does not have service id"
-          });
-        }
-      } catch (error) {}
-
       return true;
     }
   }
@@ -445,13 +462,13 @@ function toSendMessage(
     if (!hasAttributesToSync) {
       if (targetEntity === "user") {
         debug(`No mapped attributes to synchronize ${JSON.stringify(entity)}`);
-        context.client.asUser(entity).logger.info("outgoing.user.skip", {
+        context.client.asUser(entity).logger.debug("outgoing.user.skip", {
           reason:
             "No changes on any of the synchronized attributes for this user.  If you think this is a mistake, please check the settings page for the synchronized user attributes to ensure that the attribute which changed is in the synchronized outgoing attributes"
         });
       } else if (targetEntity === "account") {
         debug(`No mapped attributes to synchronize ${JSON.stringify(entity)}`);
-        context.client.asAccount(entity).logger.info("outgoing.account.skip", {
+        context.client.asAccount(entity).logger.debug("outgoing.account.skip", {
           reason:
             "No changes on any of the synchronized attributes for this account.  If you think this is a mistake, please check the settings page for the synchronized account attributes to ensure that the attribute which changed is in the synchronized outgoing attributes"
         });
@@ -465,7 +482,7 @@ function toSendMessage(
           entity
         )}`
       );
-      context.client.asUser(entity).logger.info("outgoing.user.skip", {
+      context.client.asUser(entity).logger.debug("outgoing.user.skip", {
         reason: "No changes on any of the attributes for this user."
       });
     } else if (targetEntity === "account") {
@@ -474,7 +491,7 @@ function toSendMessage(
           entity
         )}`
       );
-      context.client.asAccount(entity).logger.info("outgoing.account.skip", {
+      context.client.asAccount(entity).logger.debug("outgoing.account.skip", {
         reason: "No changes on any of the attributes for this account."
       });
     }
@@ -493,5 +510,8 @@ module.exports = {
   setHullDataType,
   createAnonymizedObject,
   getHullPlatformTypeName,
-  sameHullDataType
-}
+  sameHullDataType,
+  asyncForEach,
+  getAttributeName,
+  getAttributeNamespace
+};

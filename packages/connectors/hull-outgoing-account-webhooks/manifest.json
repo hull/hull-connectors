@@ -1,0 +1,248 @@
+{
+  "name": "Outgoing Account Webhooks",
+  "description": "Send Hull Account updates as Webhooks",
+  "tags": [
+    "batch-accounts",
+    "smart-notifier",
+    "kraken-exports"
+  ],
+  "picture": "picture.png",
+  "version": "0.1.24-monorepo",
+  "tabs": [
+    {
+      "title": "Code Editor",
+      "url": "/admin.html",
+      "size": "large",
+      "setup": false,
+      "workspace": true,
+      "editable": true,
+      "handler": "admin"
+    }
+  ],
+  "private_settings": [
+    {
+      "name": "throttle_rate",
+      "title": "Requests rate limit",
+      "description": "Number of requests done every Interval (as defined below)",
+      "default": 10,
+      "type": "number"
+    },
+    {
+      "name": "throttle_per_rate",
+      "title": "Interval for request throughput",
+      "description": "Set the number of milliseconds to define interval where above rate limit will be applied",
+      "default": 1000,
+      "type": "number"
+    },
+    {
+      "name": "concurrency",
+      "title": "Requests concurrency",
+      "description": "Number of maximum concurrent, in-flight requests done by connector",
+      "default": 10,
+      "type": "number"
+    },
+    {
+      "name": "code",
+      "title": "Code",
+      "description": "Enter JSON mapping code here",
+      "type": "string",
+      "default": "{\n    \"changes\": changes,\n    \"user\": user,\n    \"account\": account,\n    \"account_segments\": account_segments,\n    \"segments\": segments,\n    \"events\": events,\n    \"message_id\": message_id\n}",
+      "format": "hidden"
+    },
+    {
+      "name": "headers",
+      "title": "Header Array",
+      "type": "array",
+      "format": "table",
+      "default": [
+        {
+          "key": "Accept",
+          "value": "application/json"
+        }
+      ],
+      "items": {
+        "type": "object",
+        "required": [
+          "key",
+          "value"
+        ],
+        "properties": {
+          "key": {
+            "title": "Header Key",
+            "type": "string",
+            "format": "string"
+          },
+          "value": {
+            "title": "Header Value",
+            "type": "string",
+            "format": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "synchronized_events",
+      "title": "Emit on new Event",
+      "type": "array",
+      "format": "select",
+      "items": {
+        "type": "string",
+        "enum": [
+          "CREATED"
+        ],
+        "enumNames": [
+          "Account Created"
+        ]
+      },
+      "default": [],
+      "uniqueItems": true
+    },
+    {
+      "name": "synchronized_segments_whitelist",
+      "title": "Emit only when in one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "accountSegment",
+      "options": {
+        "standard": {
+          "ALL": "All Accounts"
+        }
+      }
+    },
+    {
+      "name": "synchronized_segments_blacklist",
+      "title": "Don't emit if in one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "accountSegment",
+      "options": {}
+    },
+    {
+      "name": "synchronized_segments_enter",
+      "title": "Emit on Entering these segments",
+      "type": "array",
+      "default": [],
+      "format": "accountSegment",
+      "options": {}
+    },
+    {
+      "name": "synchronized_segments_leave",
+      "title": "Emit on Leaving these segments",
+      "type": "array",
+      "default": [],
+      "format": "accountSegment",
+      "options": {}
+    },
+    {
+      "name": "synchronized_attributes",
+      "title": "Emit on Attribute change",
+      "type": "array",
+      "format": "accountTrait",
+      "default": []
+    },
+    {
+      "name": "url",
+      "title": "Webhook URL",
+      "description": "URL to send the Webhook to",
+      "default": "",
+      "type": "string",
+      "format": "string"
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Requests",
+      "description": "",
+      "properties": [
+        "private_settings.url",
+        "private_settings.headers",
+        "private_settings.throttle_rate",
+        "private_settings.throttle_per_rate",
+        "private_settings.concurrency"
+      ]
+    },
+    {
+      "title": "Filters",
+      "description": "This section defines the conditions for emitting a Webhook. Use the segment whitelist and blacklist to filter out which Accounts can be sent. Blacklist takes precedence over Whitelist",
+      "properties": [
+        "private_settings.synchronized_segments_whitelist",
+        "private_settings.synchronized_segments_blacklist"
+      ]
+    },
+    {
+      "title": "Triggers",
+      "description": "This section defines the conditions for emitting a Webhook. Any of those being true will result in a webhook being sent. Only one webhook will be sent if multiple conditions match",
+      "properties": [
+        "private_settings.synchronized_events",
+        "private_settings.synchronized_segments_enter",
+        "private_settings.synchronized_segments_leave",
+        "private_settings.synchronized_attributes"
+      ]
+    }
+  ],
+  "json": [
+    {
+      "url": "/config",
+      "handler": "configHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
+    },
+    {
+      "url": "/entry",
+      "handler": "entityHandler",
+      "options": {
+        "cacheContextFetch": false,
+        "respondWithError": true
+      }
+    },
+    {
+      "url": "/preview",
+      "handler": "previewHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
+    }
+  ],
+  "deployment_settings": [],
+  "readme": "readme.md",
+  "ui": false,
+  "resources": [],
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "account:update",
+          "handler": "accountUpdate"
+        },
+        {
+          "channel": "ship:update",
+          "handler": "shipUpdate"
+        }
+      ],
+      "conditions": {
+        "segments": {
+          "account:update": [
+            "private_settings.synchronized_segments_whitelist"
+          ]
+        },
+        "channels": {
+          "only": [
+            "account:update",
+            "ship:update"
+          ]
+        }
+      }
+    }
+  ],
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "30",
+      "method": "all",
+      "handler": "statusHandler"
+    }
+  ]
+}

@@ -1,19 +1,37 @@
 /* @flow */
 import type { ServiceTransforms } from "hull-connector-framework/src/purplefusion/types";
 
-const { doesNotContain, isEqual, doesContain, isNotEqual } = require("hull-connector-framework/src/purplefusion/conditionals");
+const {
+  doesNotContain,
+  isEqual,
+  mappingExists,
+  notNull,
+  isNull,
+  not,
+  resolveIndexOf,
+  inputIsEqual
+} = require("hull-connector-framework/src/purplefusion/conditionals");
 
 
 const {
   HullIncomingUser,
   HullIncomingAccount,
   WebPayload,
+  ServiceUserRaw
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
+
+const { isUndefinedOrNull } = require("hull-connector-framework/src/purplefusion/utils");
 
 const {
   OutreachProspectRead,
   OutreachAccountRead,
+  OutreachEventRead,
+  OutreachWebEventRead
 } = require("./service-objects");
+
+const {
+  createEnumTransform
+}  = require("hull-connector-framework/src/purplefusion/transform-predefined");
 
 /**
  * On the way back still need the notion of putting into the identification
@@ -25,167 +43,536 @@ const transformsToHull: ServiceTransforms =
     {
       input: OutreachProspectRead,
       output: HullIncomingUser,
-      strategy: "PropertyKeyedValue",
-      arrayStrategy: "append_index",
       direction: "incoming",
+      strategy: "MixedTransforms",
       transforms: [
-        { inputPath: "id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
         {
-          inputPath: "id",
-          outputPath: "attributes.outreach/id",
-          outputFormat: {
-            value: "${value}",
-            operation: "set"
+          strategy: "AtomicReaction",
+          target: { component: "cloneInitialInput" },
+          operateOn: { component: "input", select: "relationships.stage.data.id", name: "stageId" },
+          condition: mappingExists("incoming_user_attributes", { service: "stageName" }),
+          then: [
+            {
+              operateOn: { component: "glue", route: "getStageIdMap", select: "${stageId}" },
+              writeTo: { path: "attributes.stageName" }
+            },
+            {
+              writeTo: {
+                condition: isEqual("stageId", null),
+                path: "attributes.stageName"
+              }
             }
+          ]
         },
         {
-          condition: "connector.private_settings.link_users_in_hull",
-          inputPath: "relationships.account.data.id",
-          outputPath: "accountIdent.anonymous_id",
-          outputFormat: "outreach:${value}"
+          strategy: "AtomicReaction",
+          target: { component: "cloneInitialInput" },
+          operateOn: { component: "input", select: "relationships.stage.data.id" },
+          condition: mappingExists("incoming_user_attributes", { service: "stage" }),
+          writeTo: { path: "attributes.stage" }
         },
         {
-          mapping: "connector.private_settings.incoming_user_attributes",
-          condition: doesNotContain(["stage", "owner"], "service_field_name"),
-          inputPath: "attributes.${service_field_name}",
-          outputPath: "attributes.${hull_field_name}",
-          outputFormat: {
-            value: "${value}",
-            operation: "set"
-          }
+          strategy: "AtomicReaction",
+          target: { component: "cloneInitialInput" },
+          condition: mappingExists("incoming_user_attributes", { service: "ownerEmail" }),
+          operateOn: { component: "input", select: "relationships.owner.data.id", name: "ownerId" },
+          then: [
+            {
+              operateOn: { component: "glue", route: "getOwnerIdToEmailMap", select: "${ownerId}" },
+              writeTo: { path: "attributes.ownerEmail" }
+            },
+            {
+              writeTo: {
+                condition: isEqual("ownerId", null),
+                path: "attributes.ownerEmail"
+              }
+            }
+          ]
         },
         {
-          mapping: "connector.private_settings.incoming_user_attributes",
-          condition: doesContain(["stage", "owner"], "service_field_name"),
-          inputPath: "relationships.${service_field_name}.data.id",
-          outputPath: "attributes.${hull_field_name}",
-          outputFormat: {
-            value: "${value}",
-            operation: "set"
-          }
+          strategy: "AtomicReaction",
+          target: { component: "cloneInitialInput" },
+          operateOn: { component: "input", select: "relationships.owner.data.id" },
+          condition: mappingExists("incoming_user_attributes", { service: "owner" }),
+          writeTo: { path: "attributes.owner" }
         },
         {
-          arrayStrategy: "pick_first",
-          mapping: "connector.private_settings.user_claims",
-          inputPath: "attributes.${service_field_name}",
-          outputPath: "ident.${hull_field_name}",
+          strategy: "PropertyKeyedValue",
+          arrayStrategy: "append_index",
+          transforms: [
+            { inputPath: "id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
+            {
+              inputPath: "id",
+              outputPath: "attributes.outreach/id",
+              outputFormat: {
+                value: "${value}",
+                operation: "set"
+              }
+            },
+            {
+              condition: "connector.private_settings.link_users_in_hull",
+              inputPath: "relationships.account.data.id",
+              outputPath: "accountIdent.anonymous_id",
+              outputFormat: "outreach:${value}"
+            },
+            {
+              mapping: "connector.private_settings.incoming_user_attributes",
+              allowNull: true,
+              inputPath: "attributes.${service_field_name}",
+              outputPath: "attributes.${hull_field_name}",
+              outputFormat: {
+                value: "${value}",
+                operation: "set"
+              }
+            },
+            {
+              arrayStrategy: "pick_first",
+              mapping: "connector.private_settings.user_claims",
+              inputPath: "attributes.${service_field_name}",
+              outputPath: "ident.${hull_field_name}",
+            }
+          ]
+        }
+      ]
+    },
+    {
+      input: OutreachWebEventRead,
+      output: ServiceUserRaw,
+      direction: "incoming",
+      strategy: "MixedTransforms",
+      transforms: [
+        {
+          strategy: "AtomicReaction",
+          target: { component: "input" },
+          operateOn: { component: "input", select: "data.relationships.stage.id", name: "stageId" },
+          then: [
+            {
+              operateOn: { component: "glue", route: "getStageIdMap", select: "${stageId}" },
+              writeTo: { path: "changed_to" }
+            },
+          ]
+        },
+        {
+          strategy: "PropertyKeyedValue",
+          arrayStrategy: "append_index",
+          transforms: [
+            { inputPath: "data.id", outputPath: "id"},
+            { inputPath: "changed_to", outputPath: "hull_events[0].properties.changed_to"},
+            {
+              outputPath: "hull_events[0].eventName",
+              outputFormat: "Prospect Stage Changed"
+            },
+            {
+              inputPath: "data.attributes.updatedAt",
+              outputPath: "hull_events[0].context.created_at"
+            }
+          ]
         }
       ]
     },
     {
       input: WebPayload,
       output: HullIncomingUser,
-      strategy: "PropertyKeyedValue",
-      arrayStrategy: "append_index",
+      strategy: "MixedTransforms",
       direction: "incoming",
       transforms: [
-        { inputPath: "data.id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
-        { inputPath: "data.id", outputPath: "attributes.outreach/id",
-          outputFormat: {
-            value: "${value}",
-            operation: "set"
+        {
+          strategy: "AtomicReaction",
+          target: { component: "cloneInitialInput" },
+          condition: [
+            mappingExists("incoming_user_attributes", { service: "stageName" }),
+            not(inputIsEqual("data.relationships.stage.id", undefined))
+          ],
+          operateOn: { component: "input", select: "data.relationships.stage.id", name: "stageId" },
+          then: [
+            {
+              operateOn: { component: "glue", route: "getStageIdMap", select: "${stageId}" },
+              writeTo: { path: "data.attributes.stageName" }
+            },
+            {
+              // need to provision for if this was unset and it's null
+              writeTo: {
+                condition: isEqual("stageId", null),
+                path: "data.attributes.stageName"
+              }
             }
+          ]
         },
         {
-          condition: "connector.private_settings.link_users_in_hull",
-          //This is something that's specifically different in the webhook
-          // in the normal pull, it's relationships.account.data.id
-          inputPath: "data.relationships.account.id",
-          outputPath: "accountIdent.anonymous_id",
-          outputFormat: "outreach:${value}"
-        },
-        { mapping: "connector.private_settings.incoming_user_attributes",
-          condition: doesNotContain(["stage", "owner"], "service_field_name"),
-          inputPath: "data.attributes.${service_field_name}",
-          outputPath: "attributes.${hull_field_name}",
-          outputFormat: {
-            value: "${value}",
-            operation: "set"
-          }
+          strategy: "AtomicReaction",
+          target: { component: "cloneInitialInput" },
+          condition: mappingExists("incoming_user_attributes", { service: "stage" }),
+          operateOn: { component: "input", select: "data.relationships.stage.id" },
+          writeTo: { path: "data.attributes.stage" }
         },
         {
-          mapping: "connector.private_settings.incoming_user_attributes",
-          condition: [doesContain(["stage", "owner"], "service_field_name"), isNotEqual("value", 0)],
-          inputPath: "data.relationships.${service_field_name}.id",
-          outputPath: "attributes.${hull_field_name}",
-          outputFormat: {
-            value: "${value}",
-            operation: "set"
-          }
+          strategy: "AtomicReaction",
+          target: { component: "cloneInitialInput" },
+          condition: [
+            mappingExists("incoming_user_attributes", { service: "ownerEmail" }),
+            not(inputIsEqual("data.relationships.owner.id", undefined))
+          ],
+          operateOn: { component: "input", select: "data.relationships.owner.id", name: "ownerId" },
+          then: [
+            {
+              operateOn: { component: "glue", route: "getOwnerIdToEmailMap", select: "${ownerId}" },
+              writeTo: { path: "data.attributes.ownerEmail" }
+            },
+            {
+              // need to provision for if this was unset and it's null
+              writeTo: {
+                condition: isEqual("ownerId", null),
+                path: "data.attributes.ownerEmail"
+              }
+            }
+          ]
         },
         {
-          arrayStrategy: "pick_first",
-          mapping: "connector.private_settings.user_claims",
-          inputPath: "data.attributes.${service_field_name}",
-          outputPath: "ident.${hull_field_name}",
+          strategy: "AtomicReaction",
+          target: { component: "cloneInitialInput" },
+          condition: mappingExists("incoming_user_attributes", { service: "owner" }),
+          operateOn: { component: "input", select: "data.relationships.owner.id" },
+          writeTo: { path: "data.attributes.owner" }
         },
         {
-          condition: "createdByWebhook",
-          outputPath: "attributes.outreach/created_by_webhook",
-          outputFormat: {
-            value: "${createdByWebhook}",
-            operation: "set"
-          }
+          strategy: "PropertyKeyedValue",
+          arrayStrategy: "append_index",
+          transforms: [
+            { inputPath: "data.id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
+            { inputPath: "data.id", outputPath: "attributes.outreach/id",
+              outputFormat: {
+                value: "${value}",
+                operation: "set"
+                }
+            },
+            {
+              condition: "connector.private_settings.link_users_in_hull",
+              //This is something that's specifically different in the webhook
+              // in the normal pull, it's relationships.account.data.id
+              inputPath: "data.relationships.account.id",
+              outputPath: "accountIdent.anonymous_id",
+              outputFormat: "outreach:${value}"
+            },
+            { mapping: "connector.private_settings.incoming_user_attributes",
+              inputPath: "data.attributes.${service_field_name}",
+              allowNull: true,
+              outputPath: "attributes.${hull_field_name}",
+              outputFormat: {
+                value: "${value}",
+                operation: "set"
+              }
+            },
+            {
+              arrayStrategy: "pick_first",
+              mapping: "connector.private_settings.user_claims",
+              inputPath: "data.attributes.${service_field_name}",
+              outputPath: "ident.${hull_field_name}",
+            },
+            {
+              condition: "createdByWebhook",
+              outputPath: "attributes.outreach/created_by_webhook",
+              outputFormat: {
+                value: "${createdByWebhook}",
+                operation: "set"
+              }
+            }
+          ]
         }
       ]
     },
     {
       input: OutreachAccountRead,
       output: HullIncomingAccount,
-      strategy: "PropertyKeyedValue",
-      arrayStrategy: "append_index",
       direction: "incoming",
+      strategy: "MixedTransforms",
       transforms: [
-        { inputPath: "id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
-        { inputPath: "id", outputPath: "attributes.outreach/id",
-          outputFormat: {
-            value: "${value}",
-            operation: "set"
+        {
+          strategy: "AtomicReaction",
+          target: { component: "cloneInitialInput" },
+          operateOn: { component: "input", select: "relationships.owner.data.id", name: "ownerId" },
+          condition: mappingExists("incoming_account_attributes", { service: "ownerEmail" }),
+          then: [
+            {
+              operateOn: { component: "glue", route: "getOwnerIdToEmailMap", select: "${ownerId}" },
+              writeTo: { path: "attributes.ownerEmail" }
+            },
+            {
+              operateOn: { component: "context", select: "ownerId" },
+              writeTo: {
+                condition: isEqual("ownerId", null),
+                path: "attributes.ownerEmail"
+              }
             }
+          ]
         },
-        { mapping: "connector.private_settings.incoming_account_attributes",
-          inputPath: "attributes.${service_field_name}",
-          outputPath: "attributes.${hull_field_name}",
-          outputFormat: {
-            value: "${value}",
-            operation: "set"
-          }
+        {
+          strategy: "AtomicReaction",
+          target: { component: "cloneInitialInput" },
+          operateOn: { component: "input", select: "relationships.owner.data.id", name: "ownerId" },
+          condition: mappingExists("incoming_account_attributes", { service: "owner" }),
+          writeTo: { path: "attributes.owner" }
         },
-        { mapping: "connector.private_settings.account_claims",
-          inputPath: "attributes.${service_field_name}",
-          outputPath: "ident.${hull_field_name}",
-        }
+        {
+          strategy: "PropertyKeyedValue",
+          arrayStrategy: "append_index",
+          transforms: [
+            { inputPath: "id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
+            {
+              inputPath: "id", outputPath: "attributes.outreach/id",
+              outputFormat: {
+                value: "${value}",
+                operation: "set"
+              }
+            },
+            {
+              inputPath: "attributes.name",
+              outputPath: "attributes.name",
+              outputFormat: {
+                value: "${value}",
+                operation: "setIfNull"
+              }
+            },
+            {
+              mapping: "connector.private_settings.incoming_account_attributes",
+              inputPath: "attributes.${service_field_name}",
+              outputPath: "attributes.${hull_field_name}",
+              allowNull: true,
+              outputFormat: {
+                value: "${value}",
+                operation: "set"
+              }
+            },
+            {
+              mapping: "connector.private_settings.account_claims",
+              inputPath: "attributes.${service_field_name}",
+              outputPath: "ident.${hull_field_name}",
+            }
+          ]
+        },
       ]
     },
     {
       input: WebPayload,
       output: HullIncomingAccount,
-      strategy: "PropertyKeyedValue",
-      arrayStrategy: "append_index",
       direction: "incoming",
+      strategy: "MixedTransforms",
       transforms: [
-        { inputPath: "data.id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
-        { inputPath: "data.id", outputPath: "attributes.outreach/id",
-          outputFormat: {
-            value: "${value}",
-            operation: "set"
+        {
+          strategy: "AtomicReaction",
+          target: { component: "cloneInitialInput" },
+          operateOn: { component: "input", select: "data.relationships.owner.id", name: "ownerId" },
+          condition: mappingExists("incoming_account_attributes", { service: "ownerEmail" }),
+          then: [
+            {
+              operateOn: { component: "glue", route: "getOwnerIdToEmailMap", select: "${ownerId}" },
+              writeTo: { path: "data.attributes.ownerEmail" }
+            },
+            {
+              writeTo: {
+                condition: isEqual("ownerId", null),
+                path: "data.attributes.ownerEmail"
+              }
             }
+          ]
         },
-        { mapping: "connector.private_settings.incoming_account_attributes",
-          inputPath: "data.attributes.${service_field_name}",
-          outputPath: "attributes.${hull_field_name}",
-          outputFormat: {
-            value: "${value}",
-            operation: "set"
-          }
+        {
+          strategy: "AtomicReaction",
+          target: { component: "cloneInitialInput" },
+          operateOn: { component: "input", select: "data.relationships.owner.id", name: "ownerId" },
+          condition: mappingExists("incoming_account_attributes", { service: "owner" }),
+          writeTo: { path: "data.attributes.owner" }
         },
-        { mapping: "connector.private_settings.account_claims",
-          inputPath: "data.attributes.${service_field_name}",
-          outputPath: "ident.${hull_field_name}",
+        {
+          strategy: "PropertyKeyedValue",
+          arrayStrategy: "append_index",
+          transforms: [
+            { inputPath: "data.id", outputPath: "ident.anonymous_id", outputFormat: "outreach:${value}" },
+            {
+              inputPath: "data.id", outputPath: "attributes.outreach/id",
+              outputFormat: {
+                value: "${value}",
+                operation: "set"
+              }
+            },
+            {
+              inputPath: "data.attributes.name",
+              outputPath: "attributes.name",
+              outputFormat: {
+                value: "${value}",
+                operation: "setIfNull"
+              }
+            },
+            {
+              mapping: "connector.private_settings.incoming_account_attributes",
+              inputPath: "data.attributes.${service_field_name}",
+              outputPath: "attributes.${hull_field_name}",
+              outputFormat: {
+                value: "${value}",
+                operation: "set"
+              }
+            },
+            {
+              mapping: "connector.private_settings.account_claims",
+              inputPath: "data.attributes.${service_field_name}",
+              outputPath: "ident.${hull_field_name}",
+            }
+          ]
         }
       ]
+    },
+    {
+      input: OutreachEventRead,
+      output: ServiceUserRaw,
+      strategy: "MixedTransforms",
+      transforms: [
+        {
+          strategy: "AtomicReaction",
+          target: { component: "input", name: "eventInput" },
+          validation:
+            {
+              error: "BreakProcess",
+              message: "Event has never been seen before by the connector, please report issue to your Hull Support representative",
+              condition:
+                doesNotContain(require("./events.json"), "eventInput.attributes.name")
+            }
+        },
+        {
+          strategy: "AtomicReaction",
+          target: { component: "input", name: "eventInput" },
+          validation:
+            {
+              error: "BreakToLoop",
+              message: "Event has not been whitelisted by the connector settings, please see the \"Events To Fetch\" in the settings to add this event type",
+              condition:
+                not(resolveIndexOf("connector.private_settings.events_to_fetch", "eventInput.attributes.name"))
+            }
+        },
+        {
+          strategy: "AtomicReaction",
+          target: { component: "input", name: "eventInput" },
+          validation:
+            {
+              error: "BreakToLoop",
+              message: "Event isn't related to a Prospect, skipping",
+              condition:
+                isNull("eventInput.relationships.prospect.data.id")
+            }
+        },
+        {
+          strategy: "Jsonata",
+          direction: "incoming",
+          transforms: [
+            {
+              expression:
+                "{\n" +
+                "\t\"id\": relationships.prospect.data.id,\n" +
+                "\t\"hull_events\": [\n" +
+                "\t\t{\n" +
+                "\t\t\t\"eventName\": attributes.name,\n" +
+                "\t\t\t\"properties\": {\n" +
+                "            \t\"body\": attributes.body,\n" +
+                "                \"event_at\": attributes.eventAt,\n" +
+                "                \"external_url\": attributes.externalUrl,\n" +
+                "                \"email_id\": attributes.mailingId,\n" +
+                "                \"payload\": attributes.payload,\n" +
+                "                \"request_city\": attributes.requestCity,\n" +
+                "                \"user_agent\": attributes.requestDevice,\n" +
+                "                \"ip\": attributes.requestHost,\n" +
+                "                \"request_proxied\": attributes.requestProxied,\n" +
+                "                \"request_region\": attributes.requestRegion,\n" +
+                "                \"user_id\": relationships.user.data.id\n" +
+                "            },\n" +
+                "\t\t\t\"context\": {\n" +
+                "\t\t\t\t\"event_id\": id,\n" +
+                "\t\t\t\t\"created_at\": attributes.createdAt,\n" +
+                "\t\t\t\t\"source\": \"Outreach\"\n" +
+                "\t\t\t}\n" +
+                "\t\t}\n" +
+                "\t]\n" +
+                "}"
+            }
+          ]
+        },
+        {
+          strategy: "AtomicReaction",
+          target: { component: "input", name: "eventInput" },
+          then: [
+            {
+              condition: notNull("eventInput.hull_events[0].properties.email_id"),
+              operateOn: { component: "input", name: "mailingId", select: "hull_events[0].properties.email_id" },
+              then: [
+                {
+                  operateOn: { component: "context", select: "mailingDetails.${mailingId}", name: "enrichedEmail" },
+                  condition: notNull("enrichedEmail"),
+                  then: [
+                    {
+                      writeTo: { path: "hull_events[0].properties.email_subject", format: "${enrichedEmail.email_subject}" }
+                    },
+                    {
+                      writeTo: { path: "hull_events[0].properties.sequence_id", format: "${enrichedEmail.sequence_id}" },
+                    },
+                    {
+                       writeTo: { path: "hull_events[0].properties.sequence_step_id", format: "${enrichedEmail.sequence_step}" },
+                    },
+                    createEnumTransform({
+                      attribute: "hull_events[0].properties.sequence_name",
+                      attributeId: "hull_events[0].properties.sequence_id",
+                      route: "getSequences"
+                      // forceRoute: "forceGetSequences"
+                    }),
+                    createEnumTransform({
+                      attribute: "hull_events[0].properties.sequence_step_name",
+                      attributeId: "hull_events[0].properties.sequence_step_id",
+                      route: "getSequenceSteps"
+                      // Some of the sequences don't appear to be in the endpoint, I imagine they've been deleted
+                      // this introduces a pretty serious concurrency problem for us as we'll delete the sequence steps (without concurrency protection), and try to fetch a lot again...
+                      // need to figure out the best way to handle this... maybe with a specific call for that sequence step??
+                      // forceRoute: "forceGetSequenceSteps"
+                    })
+                  ]
+                }
+              ]
+            },
+            createEnumTransform({
+              attribute: "hull_events[0].properties.user_email",
+              attributeId: "hull_events[0].properties.user_id",
+              route: "getOwnerIdToEmailMap",
+              forceRoute: "forceGetOwnerIdToEmailMap"
+            }),
+            {
+              operateOn: {
+                component: "static",
+                object: {
+                  "bounced_message": "Bounced Message",
+                  "emails_opt_out": "Emails Opt Out",
+                  "inbound_call_completed": "Inbound Call Completed",
+                  "inbound_call_no_answer": "Inbound Call No Answer",
+                  "inbound_message": "Inbound Message",
+                  "message_clicked": "Message Clicked",
+                  "message_opened": "Message Opened",
+                  "message_opened_sender": "Message Opened Sender",
+                  "outbound_call_completed": "Outbound Call Completed",
+                  "outbound_call_no_answer": "Outbound Call No Answer",
+                  "outbound_message": "Outbound Message"
+                },
+                select: "${eventInput.hull_events[0].eventName}",
+                name: "eventName"
+              },
+              then: [
+                {
+                  validation: { error: "BreakToLoop", condition: [
+                      isNull("eventName"),
+                    ]},
+                }
+              ],
+              writeTo: {
+                path: "hull_events[0].eventName"
+              }
+            }
+          ]
+        },
+      ]
     }
-
   ];
 
 module.exports = transformsToHull;

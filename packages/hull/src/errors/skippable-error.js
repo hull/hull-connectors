@@ -3,6 +3,8 @@
 class SkippableError extends Error {
   extra: Object;
 
+  status: number;
+
   code: string;
 
   constructor(message: string, extra?: Object = {}) {

@@ -21,7 +21,7 @@
     }
   ],
   "readme": "readme.md",
-  "version": "0.3.0",
+  "version": "0.1.24-monorepo",
   "private_settings": [
     {
       "name": "sentry_dsn",
@@ -29,6 +29,31 @@
       "description": "URL of a sentry instance to collect logs and exception notifications",
       "type": "string",
       "format": "hidden"
+    },
+    {
+      "name": "variables",
+      "title": "Custom Variables",
+      "description": "Define custom variables here. usually things you don't want to save in the Connector's code, such as API Keys, or values you want to allow non-technical users to be able to update. A variable you define as `foo` Will be available as `variables.foo` in the code editor. Only Strings are supported here",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "title": "Variable Name",
+            "placeholder": "Variable Name",
+            "type": "string",
+            "format": "string"
+          },
+          "value": {
+            "title": "Value",
+            "placeholder": "Variable Value",
+            "type": "string",
+            "format": "string"
+          }
+        }
+      },
+      "default": []
     },
     {
       "name": "synchronized_user_segments",
@@ -46,6 +71,18 @@
       ]
     },
     {
+      "name": "language",
+      "title": "Processing language",
+      "description": "Choose which processing language to use. We support Javascript, and JSONata, which is an easy to use declarative mapping language",
+      "type": "string",
+      "format": "select",
+      "enum": [
+        "javascript",
+        "jsonata"
+      ],
+      "default": "javascript"
+    },
+    {
       "name": "code",
       "title": "Code",
       "description": "Enter Javascript code here, It will receive the data in the middle column, can emit `track()` and `traits()`. Preview results on the right. Save when finished",
@@ -60,7 +97,8 @@
       "title": "Configuration",
       "description": "Configure the way the processor runs",
       "properties": [
-        "private_settings.synchronized_user_segments"
+        "private_settings.synchronized_user_segments",
+        "private_settings.variables"
       ]
     }
   ],
@@ -98,7 +136,9 @@
           ]
         },
         "segments": {
-          "user:update": "private_settings.synchronized_user_segments"
+          "user:update": [
+            "private_settings.synchronized_user_segments"
+          ]
         }
       },
       "channels": [

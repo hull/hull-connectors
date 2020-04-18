@@ -5,11 +5,17 @@ import type {
   HullContext,
   HullConnector,
   HullClientCredentials,
-  HullEntityType
+  HullEntityName
 } from "hull";
 
-type SlackChannel = {};
-type SlackMember = {};
+export type SlackChannel = {
+  name: string,
+  id: string
+};
+export type SlackMember = {
+  name: string,
+  id: string
+};
 
 export type ServerOptions = {
   port: number,
@@ -36,16 +42,13 @@ export type SlackBotConfig = {
 };
 
 export type SlackInstance = {
-  teamChannels?: Array<SlackChannel>,
-  teamMembers?: Array<SlackMember>,
   botConfig: SlackBotConfig,
   clientCredentials: HullClientCredentials,
-  // actions: SlackConnectorAction,
   attachements: Array<SlackConnectorAttachement>
 };
 
-export type SlackConnectorSettings = {
-  ...$Exact<HullConnector>,
+export type SlackConnectorSettings = {|
+  ...HullConnector,
   private_settings: {
     token: string,
     team_id: string,
@@ -63,24 +66,26 @@ export type SlackConnectorSettings = {
     bot: SlackBotConfig,
     whitelist: Array<string>
   }
-};
+|};
 
 export type ConnectedSlack = {
   attachements: Array<SlackConnectorAttachement>,
-  teamChannels?: Array<SlackChannel>,
-  teamMembers?: Array<SlackMember>,
-  post?: ({
+  getChannels: () => Promise<{
+    teamChannels?: Array<SlackChannel>,
+    teamMembers?: Array<SlackMember>
+  }>,
+  post: ({
     scopedClient: Hull,
     payload: any,
     channel: string,
-    entity: HullEntityType
+    entity: HullEntityName
   }) => any,
-  tellOperator?: ({
+  tellOperator: ({
     scopedClient: Hull,
     user_id: string,
     msg: string,
     error: any,
-    entity: HullEntityType
+    entity: HullEntityName
   }) => any
 };
 

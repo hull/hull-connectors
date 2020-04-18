@@ -8,10 +8,13 @@ process.env.CLIENT_SECRET = "abc";
 
 import connectorConfig from "../../../server/config";
 // Clone deep otherwise changes will affect other subsequent tests
-const incomingData = _.cloneDeep(require("../fixtures/get-contacts-groups"));
-
-let index = _.findIndex(incomingData, elem => elem.name === "hull");
-incomingData[index].properties = [];
+const incomingData = [
+  ...require("../fixtures/get-contacts-groups"),
+  {
+    "name": "hull",
+    "displayName": "Hull Properties",
+    "properties": []
+  }];
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
@@ -20,7 +23,9 @@ const connector = {
     token: "hubToken",
     token_fetched_at: 1419967066626,
     expires_in: 10,
-    refresh_token: "123"
+    refresh_token: "123",
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 

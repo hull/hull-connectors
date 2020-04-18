@@ -4,7 +4,7 @@ import type { $Application, Middleware } from "express";
 import _ from "lodash";
 import type { Server } from "http";
 import express from "express";
-import repl from "hull-repl";
+import repl from "hullrepl";
 import minimist from "minimist";
 import type {
   HullContext,
@@ -471,6 +471,7 @@ class HullConnector {
   setupApp(app: $Application): $Application {
     this.middlewares.map(middleware => app.use(middleware));
     app.use(this.baseComposedMiddleware());
+    app.disable("etag");
     app.use("/", staticRouter());
     app.engine("html", renderFile);
     app.set("views", getAbsolutePath("views"));

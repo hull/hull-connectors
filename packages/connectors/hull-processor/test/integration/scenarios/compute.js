@@ -8,6 +8,7 @@ import {
   METRIC_INCOMING_USER,
   NEXT_FLOW_CONTROL,
   USER,
+  METRIC_SERVICE_REQUEST,
   METRIC_CONNECTOR_REQUEST,
   messageWithUser
 } from "../../fixtures";
@@ -50,7 +51,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes, no_ops: {} }
@@ -103,7 +104,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes: { value: "foosball" }, no_ops: {} }
@@ -145,15 +146,44 @@ describe("Basic Attributes manipulation", () => {
             userTraits: [],
             userAliases: [[claims, [[{ anonymous_id: "bar" }, "alias"]]]]
           })
-        ],
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST]
+    }));
+  });
+
+  it("not make any call if user already has alias", () => {
+    const claims = { id: "1234", anonymous_id: "foo" };
+    const asAccount = { id: "1234" };
+    const attributes = { identical: "value" };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: {
+          id: "1234",
+          anonymous_ids: ["foo"]
+        },
+        account: {}
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(`hull.alias({ anonymous_id: "foo" })`),
+      firehoseEvents: [],
+      logs: [
         [
-          "info",
-          "incoming.user.alias.success",
+          "debug",
+          "compute.debug",
           expect.whatever(),
-          {
-            claims: { anonymous_id: "foo", id: "1234" },
-            operations: [[]]
-          }
+          expect.objectContaining({
+            userTraits: [],
+            userAliases: [
+              [
+                {
+                  anonymous_id: "foo",
+                  id: "1234"
+                },
+                [[{ anonymous_id: "foo" }, "alias"]]
+              ]
+            ]
+          })
         ]
       ],
       metrics: [METRIC_CONNECTOR_REQUEST]
@@ -189,7 +219,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes: {}, no_ops: { identical: "identical value" } }
@@ -240,7 +270,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes, no_ops: { identical: "identical value" } }
@@ -285,10 +315,97 @@ describe("Basic Attributes manipulation", () => {
           attributes["foo"]
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes: {}, no_ops: { foo: "identical value" } }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+
+  it("recognizes Arrays of Objects as JSON Objects", () => {
+    const asUser = {
+      id: "1234"
+    };
+    const asAccount = {
+      id: "1234"
+    };
+    const obj = [{ bar: "baz" }];
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: asUser,
+        account: {}
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(
+        `hull.traits({ "foo": [{ "bar": "baz" }] })`
+      ),
+      firehoseEvents: [
+        ["traits", { asUser, subjectType: "user" }, { foo: obj }]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [[asUser, { foo: obj }]]
+          })
+        ],
+        ["info", 'Nested object found in key "foo"', expect.whatever(), obj],
+        [
+          "debug",
+          "incoming.user.success",
+          expect.whatever(),
+          { attributes: { foo: obj }, no_ops: {} }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+
+  it("doesn't confuse Arrays for JSON Objects", () => {
+    const asUser = {
+      id: "1234"
+    };
+    const asAccount = {
+      id: "1234"
+    };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: asUser,
+        account: {}
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(`hull.traits({ "foo": ["bar","baz"] })`),
+      firehoseEvents: [
+        [
+          "traits",
+          {
+            asUser,
+            subjectType: "user"
+          },
+          {
+            foo: ["bar", "baz"]
+          }
+        ]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [[asUser, { foo: ["bar", "baz"] }]]
+          })
+        ],
+        [
+          "debug",
+          "incoming.user.success",
+          expect.whatever(),
+          { attributes: { foo: ["bar", "baz"] }, no_ops: {} }
         ]
       ],
       metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
@@ -341,7 +458,7 @@ describe("Basic Attributes manipulation", () => {
           attributes["foo"]
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes, no_ops: {} }
@@ -392,13 +509,24 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes, no_ops: {} }
         ]
       ],
       metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+
+  it("should handle empty events at top level", () => {
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser(),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(`if(events) { console.log("hi"); }`),
+      firehoseEvents: [],
+      logs: [["debug", "compute.debug", expect.whatever(), expect.whatever()]],
+      metrics: [METRIC_CONNECTOR_REQUEST]
     }));
   });
 
@@ -420,7 +548,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           {
@@ -464,7 +592,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           {
@@ -474,6 +602,142 @@ describe("Basic Attributes manipulation", () => {
         ]
       ],
       metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
+    }));
+  });
+
+  it("should support impersonation from User processor to another User", () => {
+    const asUser = { id: "1234" };
+    const asImpersonatedUser = { email: "foo@bar.com" };
+    const attributes = { foo: "bar" };
+    const impersonatedAttributes = { boo: "booya" };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser(),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(
+        `hull.traits(${JSON.stringify(
+          attributes
+        )}); hull.asUser(${JSON.stringify(
+          asImpersonatedUser
+        )}).traits(${JSON.stringify(impersonatedAttributes)})`
+      ),
+      firehoseEvents: [
+        ["traits", { asUser, subjectType: "user" }, attributes],
+        [
+          "traits",
+          { asUser: asImpersonatedUser, subjectType: "user" },
+          impersonatedAttributes
+        ]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [
+              [asUser, attributes],
+              [asImpersonatedUser, impersonatedAttributes]
+            ]
+          })
+        ],
+        [
+          "debug",
+          "incoming.user.success",
+          {
+            request_id: expect.whatever(),
+            subject_type: "user",
+            user_id: "1234"
+          },
+          {
+            attributes,
+            no_ops: {}
+          }
+        ],
+        [
+          "debug",
+          "incoming.user.success",
+          {
+            request_id: expect.whatever(),
+            subject_type: "user",
+            user_email: asImpersonatedUser.email
+          },
+          {
+            attributes: impersonatedAttributes,
+            no_ops: {}
+          }
+        ]
+      ],
+      metrics: [
+        METRIC_CONNECTOR_REQUEST,
+        ["increment", "ship.incoming.users", 2]
+      ]
+    }));
+  });
+  it("should support impersonation from User processor to Account", () => {
+    const asUser = { id: "1234" };
+    const asImpersonatedAccount = { domain: "bar.com" };
+    const attributes = { foo: "bar" };
+    const impersonatedAttributes = { boo: "booya" };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser(),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode(
+        `hull.traits(${JSON.stringify(
+          attributes
+        )}); hull.asAccount(${JSON.stringify(
+          asImpersonatedAccount
+        )}).traits(${JSON.stringify(impersonatedAttributes)})`
+      ),
+      firehoseEvents: [
+        ["traits", { asUser, subjectType: "user" }, attributes],
+        [
+          "traits",
+          { asAccount: asImpersonatedAccount, subjectType: "account" },
+          impersonatedAttributes
+        ]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            userTraits: [[asUser, attributes]],
+            accountTraits: [[asImpersonatedAccount, impersonatedAttributes]]
+          })
+        ],
+        [
+          "debug",
+          "incoming.user.success",
+          {
+            request_id: expect.whatever(),
+            subject_type: "user",
+            user_id: "1234"
+          },
+          {
+            attributes,
+            no_ops: {}
+          }
+        ],
+        [
+          "debug",
+          "incoming.account.success",
+          {
+            request_id: expect.whatever(),
+            subject_type: "account",
+            account_domain: asImpersonatedAccount.domain
+          },
+          {
+            attributes: impersonatedAttributes,
+            no_ops: {}
+          }
+        ]
+      ],
+      metrics: [
+        METRIC_CONNECTOR_REQUEST,
+        ["increment", "ship.incoming.users", 1],
+        ["increment", "ship.incoming.accounts", 1]
+      ]
     }));
   });
 
@@ -509,7 +773,7 @@ describe("Basic Attributes manipulation", () => {
           attributes["group/group"]
         ],
         [
-          "info",
+          "debug",
           "incoming.user.success",
           expect.whatever(),
           { attributes, no_ops: {} }
@@ -560,7 +824,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.event.success",
           expect.whatever(),
           {
@@ -613,7 +877,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           "incoming.account.link.success",
           expect.whatever(),
           {
@@ -626,6 +890,92 @@ describe("Basic Attributes manipulation", () => {
         METRIC_CONNECTOR_REQUEST,
         ["increment", "ship.incoming.accounts.link", 1]
       ]
+    }));
+  });
+});
+
+describe("Request Methods", () => {
+  const user = {
+    id: "1234",
+    "foo/bar": "baz"
+  };
+  const account = {
+    id: "1234",
+    "foo/bar": "ball"
+  };
+  it("should handle request timeouts", () => {
+    const error_message = "Error: ESOCKETTIMEDOUT";
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({ user, account }),
+      handlerType: handlers.notificationHandler,
+      externalApiMock: () => {
+        const scope = nock("https://foo.com");
+        scope
+          .get("/")
+          .socketDelay(35000)
+          .reply(500, { boom: true });
+        return scope;
+      },
+      connector: connectorWithCode(
+        `const res = await request("https://foo.com")`
+      ),
+      firehoseEvents: [],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            errors: [error_message]
+          })
+        ],
+        [
+          "error",
+          "incoming.user.error",
+          expect.whatever(),
+          {
+            errors: [error_message],
+            hull_summary: `Error Processing user: ${error_message}`
+          }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
+    }));
+  });
+  it("should handle request errors", () => {
+    const error_message = '{"boom":true}';
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({ user, account }),
+      handlerType: handlers.notificationHandler,
+      externalApiMock: () => {
+        const scope = nock("https://foo.com");
+        scope.get("/").reply(500, { boom: true });
+        return scope;
+      },
+      connector: connectorWithCode(
+        `const res = await request("https://foo.com")`
+      ),
+      firehoseEvents: [],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            errors: [error_message]
+          })
+        ],
+        [
+          "error",
+          "incoming.user.error",
+          expect.whatever(),
+          {
+            errors: [error_message],
+            hull_summary: `Error Processing user: ${error_message}`
+          }
+        ]
+      ],
+      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
     }));
   });
 });

@@ -14,7 +14,11 @@ export default function connectorConfig(): HullConnectorConfig {
     NODE_ENV,
     CLIENT_ID,
     CLIENT_SECRET,
-    OVERRIDE_FIREHOSE_URL
+    OVERRIDE_FIREHOSE_URL,
+    SHIP_CACHE_TTL = 180,
+    REDIS_URL,
+    REDIS_MAX_CONNECTIONS = 5,
+    REDIS_MIN_CONNECTIONS = 1,
   } = process.env;
 
   if (!CLIENT_ID || !CLIENT_SECRET) {
@@ -28,6 +32,7 @@ export default function connectorConfig(): HullConnectorConfig {
     handlers:
     new HullRouter(
       {
+        serviceName: "outreach",
         glue: require("./glue"),
         services: {
           outreach: require("./service")({
@@ -46,6 +51,15 @@ export default function connectorConfig(): HullConnectorConfig {
     hostSecret: SECRET || "1234",
     devMode: NODE_ENV === "development",
     port: PORT || 8082,
+    cacheConfig: REDIS_URL
+      ? {
+        store: "redis",
+        url: REDIS_URL,
+        ttl: SHIP_CACHE_TTL || 180,
+        max: REDIS_MAX_CONNECTIONS || 5,
+        min: REDIS_MIN_CONNECTIONS || 1
+      }
+      : undefined,
     middlewares: [],
     logsConfig: {
       logLevel: LOG_LEVEL

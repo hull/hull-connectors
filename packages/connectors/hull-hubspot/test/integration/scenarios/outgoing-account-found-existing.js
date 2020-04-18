@@ -2,6 +2,7 @@
 import connectorConfig from "../../../server/config";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
+const companyPropertyGroups = require("../fixtures/get-properties-companies-groups");
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 process.env.CLIENT_ID = "123";
@@ -10,15 +11,16 @@ process.env.CLIENT_SECRET = "123";
 const connector = {
   private_settings: {
     token: "hubToken",
-    synchronized_account_segments: ["hullSegmentId"]
+    synchronized_account_segments: ["hullSegmentId"],
+    outgoing_account_attributes: [
+      { hull: "name", service: "name", overwrite: true },
+      { "hull": "account_segments.name[]", "service": "hull_segments", "overwrite": true }
+    ],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
-const accountsSegments = [
-  {
-    name: "testSegment",
-    id: "hullSegmentId"
-  }
-];
+const accountsSegments = [{ name: "testSegment", id: "hullSegmentId" }];
 
 it("should send out a new hull account to hubspot found existing", () => {
   const domain = "hull.io";
@@ -32,7 +34,7 @@ it("should send out a new hull account to hubspot found existing", () => {
         scope.get("/contacts/v2/groups?includeProperties=true").reply(200, []);
         scope
           .get("/properties/v1/companies/groups?includeProperties=true")
-          .reply(200, []);
+          .reply(200, companyPropertyGroups);
         scope
           .post("/companies/v2/domains/hull.io/companies", {
             requestOptions: {
@@ -44,14 +46,9 @@ it("should send out a new hull account to hubspot found existing", () => {
           .post("/companies/v1/batch-async/update?auditId=Hull", [
             {
               properties: [
-                {
-                  name: "hull_segments",
-                  value: "testSegment"
-                },
-                {
-                  name: "domain",
-                  value: "hull.io"
-                }
+                { name: "name", value: "New Name" },
+                { name: "hull_segments", value: "testSegment" },
+                { name: "domain", value: "hull.io" }
               ],
               objectId: "184896670"
             }
@@ -64,10 +61,23 @@ it("should send out a new hull account to hubspot found existing", () => {
       accountsSegments,
       messages: [
         {
-          account: {
-            domain
+          changes: {
+            is_new: false,
+            user: {},
+            account: {
+              name: [
+                "old",
+                "New Name"
+              ]
+            },
+            segments: {},
+            account_segments: {}
           },
-          account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          account: {
+            domain,
+            name: "New Name"
+          },
+          account_segments: [{ id: "hullSegmentId", name: "testSegment" }]
         }
       ],
       response: {
@@ -120,30 +130,6 @@ it("should send out a new hull account to hubspot found existing", () => {
         ],
         [
           "info",
-          "outgoing.account.skip",
-          {
-            "subject_type": "account",
-            "request_id": expect.whatever(),
-            "account_domain": "hull.io"
-          },
-          {
-            "reason": "There are no outgoing attributes to synchronize for account.  Please go to the settings page and add outgoing account attributes to synchronize"
-          }
-        ],
-        [
-          "info",
-          "outgoing.account.skipcandidate",
-          {
-            "subject_type": "account",
-            "request_id": expect.whatever(),
-            "account_domain": "hull.io"
-          },
-          {
-            "reason": "attribute change not found"
-          }
-        ],
-        [
-          "info",
           "outgoing.account.success",
           expect.objectContaining({
             subject_type: "account",
@@ -152,6 +138,10 @@ it("should send out a new hull account to hubspot found existing", () => {
           {
             hubspotWriteCompany: {
               properties: [
+                {
+                  name: "name",
+                  value: "New Name"
+                },
                 {
                   name: "hull_segments",
                   value: "testSegment"

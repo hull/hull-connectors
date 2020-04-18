@@ -3,15 +3,14 @@
 import connectorConfig from "../../../server/config";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
+const companyPropertyGroups = require("../fixtures/get-properties-companies-groups");
 
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
-
 process.env.OVERRIDE_HUBSPOT_URL = "";
 
 it("send batch account update to hubspot in a batch", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
-    // const updateMessage = require("../fixtures/outgoin-account-batch");
     return {
       handlerType: handlers.notificationHandler,
       handlerUrl: "smart-notifier",
@@ -23,14 +22,9 @@ it("send batch account update to hubspot in a batch", () => {
       connector: {
         private_settings: {
           outgoing_account_attributes: [
-            {
-              hull: "name",
-              service: "about_us"
-            },
-            {
-              hull: "closeio/industry_sample",
-              service: "industry"
-            }
+            { hull: "name", service: "about_us" },
+            { hull: "closeio/industry_sample", service: "industry" },
+            { "hull": "account_segments.name[]", "service": "hull_segments", "overwrite": true }
           ],
           handle_accounts: true,
           refresh_token: "refreshtoken",
@@ -51,7 +45,9 @@ it("send batch account update to hubspot in a batch", () => {
           expires_in: 21600,
           portal_id: 5088166,
           synchronized_account_segments: ["5bd7201aa682bc4a4d00001e"],
-          link_users_in_hull: false
+          link_users_in_hull: false,
+          mark_deleted_contacts: false,
+          mark_deleted_companies: false
         }
       },
       externalApiMock: () => {
@@ -60,22 +56,21 @@ it("send batch account update to hubspot in a batch", () => {
         scope.get("/contacts/v2/groups?includeProperties=true").reply(200, []);
         scope
           .get("/properties/v1/companies/groups?includeProperties=true")
-          .reply(200, []);
+          .reply(200, companyPropertyGroups);
 
         const updatedCompany = [
           {
             properties: [
               { name: "about_us", value: "Wayne Enterprises (Sample Lead)" },
               { name: "industry", value: "Manufacturing" },
-              { name: "hull_segments", value: "Bad guys" },
               { name: "domain", value: "wayneenterprises.com" }
             ],
             objectId: "1778846597"
           }
         ];
         scope
-          .post("/companies/v1/batch-async/update?auditId=Hull")
-          .reply(202, updatedCompany);
+          .post("/companies/v1/batch-async/update?auditId=Hull", updatedCompany)
+          .reply(202);
 
         return scope;
       },
@@ -87,7 +82,6 @@ it("send batch account update to hubspot in a batch", () => {
           "type": "next",
         },
       },
-      // most of the remaining "whatevers" are returned from the nock endpoints or are tested in traits
       logs: [
         [
           "debug",
@@ -144,7 +138,7 @@ it("send batch account update to hubspot in a batch", () => {
           "outgoing.account.success",
           {
             account_domain: "wayneenterprises.com",
-            account_id: /* "5bf2e7bf064aee16a600092a"*/ expect.whatever(),
+            account_id: expect.whatever(),
             request_id: expect.whatever(),
             subject_type: "account"
           },
@@ -153,7 +147,7 @@ it("send batch account update to hubspot in a batch", () => {
               objectId: "1778846597",
               properties: [
                 { name: "about_us", value: "Wayne Enterprises (Sample Lead)" },
-                { name: "hull_segments", value: "" },
+                { name: "industry", value: "Manufacturing" },
                 { name: "domain", value: "wayneenterprises.com" }
               ]
             },

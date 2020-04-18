@@ -184,7 +184,7 @@ class TestScenarioRunner extends EventEmitter {
         return [
           log.level,
           log.message,
-          _.omit(log.context, "organization", "id", "connector_name"),
+          _.omit(log.context, "organization", "id", "connector_name", "connector"),
           log.data
         ];
       });

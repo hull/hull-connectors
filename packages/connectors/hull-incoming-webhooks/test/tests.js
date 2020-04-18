@@ -100,9 +100,10 @@ module.exports = [
           userTraits: [[{ id: "123" }, { "my-group/customerioid": "321" }]],
           accountTraits: [],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           accountLinks: [],
           accountAliases: [],
+          data: {},
           userAliases: [],
           events: [],
           success: true,
@@ -110,8 +111,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -212,6 +212,7 @@ module.exports = [
               { "my-group/foo": "321" }
             ]
           ],
+          data: {},
           accountTraits: [
             [
               {
@@ -231,7 +232,7 @@ module.exports = [
             ]
           ],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           events: [
             {
               claims: {
@@ -256,8 +257,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -270,7 +270,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -284,7 +284,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -298,8 +298,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.event.success",
+        "debug", "incoming.event.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -312,8 +311,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.account.link.success",
+        "debug", "incoming.account.link.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -432,6 +430,7 @@ module.exports = [
           logs: [],
           logsForLogger: [],
           errors: [],
+          data: {},
           userTraits: [
             [
               {
@@ -459,7 +458,7 @@ module.exports = [
             ]
           ],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           accountAliases: [],
           userAliases: [],
           events: [
@@ -493,8 +492,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -507,7 +505,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -521,7 +519,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -535,8 +533,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.event.success",
+        "debug", "incoming.event.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -549,8 +546,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.account.link.success",
+        "debug", "incoming.account.link.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -643,6 +639,7 @@ module.exports = [
           logs: [],
           logsForLogger: [],
           errors: [],
+          data: {},
           userTraits: [
             [
               {
@@ -655,7 +652,7 @@ module.exports = [
           ],
           accountTraits: [],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           events: [
             {
               claims: {
@@ -680,8 +677,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -694,8 +690,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.event.success",
+        "debug", "incoming.event.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -768,6 +763,7 @@ module.exports = [
           logsForLogger: [],
           errors: [],
           userTraits: [],
+          data: {},
           accountTraits: [
             [
               {
@@ -777,7 +773,7 @@ module.exports = [
             ]
           ],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           events: [],
           accountLinks: [],
           accountAliases: [],
@@ -787,7 +783,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -860,17 +856,18 @@ module.exports = [
             ]
           ],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           events: [],
           accountLinks: [],
           accountAliases: [],
+          data:{},
           userAliases: [],
           success: true,
           isAsync: false
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.success",
         {
           subject_type: "account",
@@ -938,9 +935,10 @@ module.exports = [
           userTraits: [[{ id: "123" }, { foo: "bar" }]],
           accountTraits: [],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           accountLinks: [],
           accountAliases: [],
+          data: {},
           userAliases: [],
           events: [],
           success: true,
@@ -948,8 +946,7 @@ module.exports = [
         }
       ],
       [
-        "info",
-        "incoming.user.success",
+        "debug", "incoming.user.success",
         {
           subject_type: "user",
           user_id: "123"
@@ -1005,9 +1002,10 @@ module.exports = [
           logsForLogger: [],
           errors: [],
           userTraits: [],
+          data: {},
           accountTraits: [],
           claims: undefined,
-          entityType: undefined,
+          entity: undefined,
           accountLinks: [],
           accountAliases: [
             [

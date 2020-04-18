@@ -46,6 +46,9 @@ describe("HullConnector", () => {
       use: () => {
         return this;
       },
+      disable: () => {
+        return this;
+      },
       engine: () => {
         return this;
       },
@@ -88,6 +91,7 @@ describe("HullConnector", () => {
   it("should allow to setup custom middleware at the end of pre-handler middleware stack", () => {
     const appStub = {
       use: () => {},
+      disable: () => {},
       engine: () => {},
       set: () => {}
     };

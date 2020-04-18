@@ -1,16 +1,10 @@
 // @flow
 
-
-
-
-
-
-
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
 
 
-process.env.CLIENT_ID = "123",
+process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
 
 const connector = {
@@ -19,14 +13,13 @@ const connector = {
     refresh_token: "refreshToken",
     token_fetched_at: "1541670608956",
     expires_in: 10000,
-    synchronized_user_segments: ["hullSegmentId"]
+    synchronized_user_segments: ["hullSegmentId"],
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 const usersSegments = [
-  {
-    name: "testSegment",
-    id: "hullSegmentId"
-  }
+  { name: "testSegment", id: "hullSegmentId" }
 ];
 
 it("should refresh token and perform standard operation in case of token expired", () => {
@@ -40,7 +33,6 @@ it("should refresh token and perform standard operation in case of token expired
         const scope = nock("https://api.hubapi.com", {
           reqheaders: {
             Authorization: (headerValue) => {
-              console.log("!!!!!! headerValue", headerValue);
               return false;
             }
           }
@@ -74,7 +66,7 @@ it("should refresh token and perform standard operation in case of token expired
           user: {
             email
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          segments: [{ id: "hullSegmentId", name: "testSegment" }],
           changes: {
             is_new: false,
             user: {},
@@ -115,7 +107,7 @@ it("should refresh token and perform standard operation in case of token expired
           "info",
           "outgoing.user.success",
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
-          {"email": "email@email.com", "properties": [{"property": "hull_segments", "value": "testSegment"}]}
+          { hubspotWriteContact: {"email": "email@email.com", "properties": [{"property": "hull_segments", "value": "testSegment"}]}}
         ]
       ],
       firehoseEvents: [],
@@ -148,7 +140,9 @@ it("should refresh token and perform standard operation in case of token expired
                 "hullSegmentId",
               ],
               token: "newAccessToken",
-              token_fetched_at: expect.any(String)
+              token_fetched_at: expect.any(String),
+              mark_deleted_contacts: false,
+              mark_deleted_companies: false
             },
             "refresh_status": false
           }

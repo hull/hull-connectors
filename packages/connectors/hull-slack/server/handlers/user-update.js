@@ -8,41 +8,11 @@ import _ from "lodash";
 import getNotification from "../lib/get-notification";
 import logResponses from "../lib/log-responses";
 import type { ConnectSlackFunction } from "../types";
+const { getSegmentChanges } = require("../utils/get-segment-changes");
 
 const debug = require("debug")("hull-slack:user-update");
 
 const ENTITY = "user";
-const getSegmentChangeEvents = ({ event, synchronized_segment, changes }) => {
-  const { left = [], entered = [] } = changes.segments || {};
-  if (event === "ENTERED_USER_SEGMENT") {
-    const segment_entered = _.find(entered, e => e.id === synchronized_segment);
-    if (segment_entered) {
-      return [
-        {
-          event: {
-            event: "Entered User Segment"
-          },
-          segment: segment_entered
-        }
-      ];
-    }
-  }
-  if (event === "LEFT_USER_SEGMENT") {
-    const segment_left = _.find(left, e => e.id === synchronized_segment);
-    if (segment_left) {
-      return [
-        {
-          event: {
-            event: "Left User Segment"
-          },
-          segment: segment_left
-        }
-      ];
-    }
-  }
-  return [];
-};
-
 const update = (connectSlack: ConnectSlackFunction) => async (
   ctx: HullContext,
   messages: Array<HullUserUpdateMessage>
@@ -62,9 +32,11 @@ const update = (connectSlack: ConnectSlackFunction) => async (
     const { post, tellOperator } = await connectSlack(ctx);
     if (!post || !tellOperator) {
       return {
-        flow_control: "next",
-        size: 100,
-        in: 1
+        flow_control: {
+          type: "next",
+          size: 100,
+          in: 1
+        }
       };
     }
 
@@ -99,7 +71,7 @@ const update = (connectSlack: ConnectSlackFunction) => async (
                 synchronized_segment === "ALL" || segment
                   ? events.filter(e => e.event === event)
                   : [];
-              const segmentMatches = getSegmentChangeEvents({
+              const segmentMatches = getSegmentChanges({
                 event,
                 synchronized_segment,
                 changes

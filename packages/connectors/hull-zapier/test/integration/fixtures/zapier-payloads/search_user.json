@@ -1,0 +1,30 @@
+{
+  "ip": "::1",
+  "url": "/search?token=12345",
+  "method": "POST",
+  "protocol": "http",
+  "hostname": "hull-staging-zapier.ngrok.io",
+  "path": "/search",
+  "params": {
+
+  },
+  "query": {
+    "token": "12345",
+    "external_id": "external_id_test_1",
+    "email": "ron@hull.com",
+    "entityType": "user"
+  },
+  "headers": {
+    "x-api-key": "12345",
+    "content-type": "application/json",
+    "accept": "application/json",
+    "user-agent": "Zapier",
+    "accept-encoding": "gzip,deflate",
+    "connection": "close",
+    "content-length": "2",
+    "host": "hull-staging-zapier.ngrok.io",
+    "x-forwarded-proto": "https",
+    "x-forwarded-for": "54.90.209.51"
+  },
+  "body": {}
+}

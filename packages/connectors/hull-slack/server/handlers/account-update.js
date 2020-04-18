@@ -8,40 +8,11 @@ import _ from "lodash";
 import getNotification from "../lib/get-notification";
 import logResponses from "../lib/log-responses";
 import type { ConnectSlackFunction } from "../types";
+const { getSegmentChanges } = require("../utils/get-segment-changes");
 
 const debug = require("debug")("hull-slack:account-update");
 
 const ENTITY = "account";
-const getSegmentChangeEvents = ({ event, synchronized_segment, changes }) => {
-  const { left = [], entered = [] } = changes.account_segments || {};
-  if (event === "ENTERED_ACCOUNT_SEGMENT") {
-    const segment_entered = _.find(entered, e => e.id === synchronized_segment);
-    if (segment_entered) {
-      return [
-        {
-          event: {
-            event: "Entered Account Segment"
-          },
-          segment: segment_entered
-        }
-      ];
-    }
-  }
-  if (event === "LEFT_ACCOUNT_SEGMENT") {
-    const segment_left = _.find(left, e => e.id === synchronized_segment);
-    if (segment_left) {
-      return [
-        {
-          event: {
-            event: "Left Account Segment"
-          },
-          segment: segment_left
-        }
-      ];
-    }
-  }
-  return [];
-};
 
 const update = (connectSlack: ConnectSlackFunction) => async (
   ctx: HullContext,
@@ -51,16 +22,22 @@ const update = (connectSlack: ConnectSlackFunction) => async (
   const { private_settings = {} } = connector;
   const {
     user_id = "",
-    notify_events = [],
+    notify_account_events = [],
     attachements = []
   } = private_settings;
   try {
     const { post, tellOperator } = await connectSlack(ctx);
     if (!post || !tellOperator) {
+      client.logger.error("Slack isn't setup properly", {
+        post: !!post,
+        tellOperator: !!tellOperator
+      });
       return {
-        flow_control: "next",
-        size: 100,
-        in: 1
+        flow_control: {
+          type: "next",
+          size: 100,
+          in: 0.1
+        }
       };
     }
     const responses = await Promise.all(
@@ -70,7 +47,7 @@ const update = (connectSlack: ConnectSlackFunction) => async (
         const scopedClient = client.asAccount(account);
         try {
           _.map(
-            notify_events,
+            notify_account_events,
             async ({
               event,
               synchronized_segment,
@@ -84,7 +61,7 @@ const update = (connectSlack: ConnectSlackFunction) => async (
             }) => {
               metric.increment("ship.outgoing.account");
               const { changes = {} } = message;
-              const segmentMatches = getSegmentChangeEvents({
+              const segmentMatches = getSegmentChanges({
                 event,
                 synchronized_segment,
                 changes
@@ -106,12 +83,7 @@ const update = (connectSlack: ConnectSlackFunction) => async (
                     entity: ENTITY,
                     attachements
                   });
-                  post({
-                    scopedClient,
-                    payload,
-                    channel,
-                    entity: ENTITY
-                  });
+                  post({ scopedClient, payload, channel, entity: ENTITY });
                 })
               );
               return null;
