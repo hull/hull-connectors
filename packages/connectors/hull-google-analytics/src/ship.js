@@ -19,6 +19,7 @@ const start = (element, deployment, hull) => {
   // if (!window.ga) {
   //   loadGA();
   // }
+
   const ga = window.ga;
   ga("create", tid, "auto");
   ga("send", "pageview");

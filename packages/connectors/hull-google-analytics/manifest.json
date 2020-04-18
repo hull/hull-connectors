@@ -35,7 +35,7 @@
       "format": "segment",
       "options": {
         "standard": {
-          "ALL": "All Accounts"
+          "ALL": "All Users"
         }
       }
     },
@@ -95,7 +95,7 @@
     },
     {
       "title": "Events to send",
-      "description": "Here you can select additional server-side events to send to Google Analytics using their server-side API. Event name will be sent as 'label'. Events that are tracked in your page don't need to be listed here, they will be sent automatically. You only need to list events that are not generated in the page, such as backend evenst or events from SaaS services",
+      "description": "Here you can select additional server-side events to send to Google Analytics using their server-side API. Event name will be sent as 'label'. Events that are tracked in your page don't need to be listed here, they will be sent automatically. You only need to list events that are not generated in the page, such as backend events or events from SaaS services",
       "properties": [
         "private_settings.synchronized_user_segments",
         "private_settings.events"
