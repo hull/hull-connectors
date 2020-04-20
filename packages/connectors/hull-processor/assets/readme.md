@@ -665,6 +665,9 @@ try {
 }
 ```
 
+There is a slight difference when processing the result of your requests using the super-agent library will be the response object.
+You will need to look into the `res.body` object instead of looking directly at the `res` object.
+
 You can find advanced usages of the super-agent library through [this link](https://visionmedia.github.io/superagent/)
 
 ### Migrating from the Request library to the Super-agent library

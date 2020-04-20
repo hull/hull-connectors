@@ -7,9 +7,36 @@ export default function getSuperagent(
   result: Result
 ): any => any {
   const { request } = ctx;
-  result.isAsync = true;
-  ctx.metric.increment("connector.service_api.call");
-  return request.timeout({
+  // ctx.metric.increment("connector.service_api.call");
+  const rq = request.timeout({
     response: 3000
   });
+  return {
+    ...rq,
+    get: (...args) => {
+      result.isAsync = true;
+      ctx.metric.increment("connector.service_api.call");
+      return rq.get(...args);
+    },
+    post: (...args) => {
+      result.isAsync = true;
+      ctx.metric.increment("connector.service_api.call");
+      return rq.post(...args);
+    },
+    delete: (...args) => {
+      result.isAsync = true;
+      ctx.metric.increment("connector.service_api.call");
+      return rq.delete(...args);
+    },
+    put: (...args) => {
+      result.isAsync = true;
+      ctx.metric.increment("connector.service_api.call");
+      return rq.put(...args);
+    },
+    patch: (...args) => {
+      result.isAsync = true;
+      ctx.metric.increment("connector.service_api.call");
+      return rq.patch(...args);
+    }
+  };
 }

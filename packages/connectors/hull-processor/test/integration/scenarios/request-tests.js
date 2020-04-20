@@ -37,12 +37,6 @@ describe("Request library", () => {
       firehoseEvents: [],
       logs: [
         [
-          "warn",
-          "Using deprecated request library. Please migrate to using superagent in your code.",
-          expect.whatever(),
-          expect.whatever(),
-        ],
-        [
           "debug",
           "compute.debug",
           expect.whatever(),
@@ -80,12 +74,6 @@ describe("Request library", () => {
       `),
       firehoseEvents: [],
       logs: [
-        [
-          "warn",
-          "Using deprecated request library. Please migrate to using superagent in your code.",
-          expect.whatever(),
-          expect.whatever(),
-        ],
         [
           "debug",
           "compute.debug",
@@ -152,12 +140,6 @@ describe("Request library", () => {
         ]
       ],
       logs: [
-        [
-          "warn",
-          "Using deprecated request library. Please migrate to using superagent in your code.",
-          expect.whatever(),
-          expect.whatever(),
-        ],
         [
           "debug",
           "compute.debug",
@@ -250,12 +232,6 @@ describe("Request library", () => {
       firehoseEvents: [],
       logs: [
         [
-          "warn",
-          "Using deprecated request library. Please migrate to using superagent in your code.",
-          expect.whatever(),
-          expect.whatever(),
-        ],
-        [
           "debug",
           "compute.debug",
           expect.whatever(),
@@ -302,12 +278,6 @@ describe("Request library", () => {
       firehoseEvents: [],
       logs: [
         [
-          "warn",
-          "Using deprecated request library. Please migrate to using superagent in your code.",
-          expect.whatever(),
-          expect.whatever(),
-        ],
-        [
           "debug",
           "compute.debug",
           expect.whatever(),
@@ -341,12 +311,6 @@ describe("Request library", () => {
       `),
       firehoseEvents: [],
       logs: [
-        [
-          "warn",
-          "Using deprecated request library. Please migrate to using superagent in your code.",
-          expect.whatever(),
-          expect.whatever(),
-        ],
         [
           "debug",
           "compute.debug",

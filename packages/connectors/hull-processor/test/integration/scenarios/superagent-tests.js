@@ -386,5 +386,6 @@ describe("Superagent library", () => {
       ],
       metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
     }));
-  });
+  })
+    .timeout(10000);
 });
