@@ -39,7 +39,7 @@ function lint(ctx: HullContext, code: string, payload?: Object) {
 }
 
 function deprecateRequest(ctx: HullContext, code: string) {
-  return code.match(/request\s*\(.*?\)/).length > 0;
+  return code.match(/(^|\s+)request\s*\(.*?\)/).length > 0;
 }
 
 const checkFunctions = {
