@@ -23,6 +23,22 @@
     {
       "url": "/canaries-start",
       "handler": "canaryStart"
+    },
+    {
+      "title": "Start Canary",
+      "name": "start_canary",
+      "format": "button",
+      "url": "/manual-canary-start",
+      "handler": "canaryStart",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "start",
+          "text": "You are about to start the canary process, if it is in the middle of running the canary, it could interfere with results",
+          "button": "Start Canary",
+          "entity": "users"
+        }
+      }
     }
   ],
   "subscriptions": [
@@ -46,6 +62,14 @@
           "channel": "account:update",
           "handler": "accountUpdate"
         }
+      ]
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Canary Actions",
+      "properties": [
+        "json.start_canary"
       ]
     }
   ]
