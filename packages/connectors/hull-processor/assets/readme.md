@@ -576,7 +576,7 @@ Calling `PhoneNumberUtil.parse("1234-1234")` will return an instance of `PhoneNu
 
 Checkout the Docs for `CountryCodeSource`, `PhoneNumberFormat`, `PhoneNumberType` which are statics
 
-## [Deprecated] Using Request
+## \[Deprecated\] Using Request
 
 The request library is now deprecated. Processor code currently using the request library will be functional,
 but we would advise you to migrate to the super-agent request library which is much more intuitive and elegant to use.

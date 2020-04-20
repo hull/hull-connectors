@@ -10,9 +10,6 @@ export default function getRequest(
   return function req(...args) {
     result.isAsync = true;
     ctx.metric.increment("connector.service_api.call");
-    ctx.client.logger.warn(
-      "Using deprecated request library. Please migrate to using superagent in your code."
-    );
     return request.defaults({ timeout: 3000 })(...args);
   };
 }
