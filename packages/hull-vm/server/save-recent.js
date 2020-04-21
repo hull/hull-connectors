@@ -26,5 +26,7 @@ export default function saveRecent(
     payload,
     date: new Date().toString()
   };
-  return EntryModel.create(entry);
+  return EntryModel.create([entry], {
+    checkKeys: false
+  });
 }
