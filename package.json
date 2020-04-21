@@ -131,6 +131,7 @@
     "newrelic": "^5.8.0",
     "node-sass": "^4.12.0",
     "parallel-webpack": "^2.4.0",
+    "pm2": "^4.2.3",
     "progress-bar-webpack-plugin": "^1.12.1",
     "raven": "^2.6.4",
     "react": "^16.8.6",

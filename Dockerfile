@@ -3,7 +3,7 @@
 
 FROM node:10.18-alpine
 
-RUN apk --no-cache add bash \
+RUN apk --no-cache add nginx bash \
       g++ \
       ca-certificates \
       lz4-dev \
@@ -14,7 +14,6 @@ RUN apk --no-cache add bash \
       python
 
 RUN apk add --no-cache --virtual .build-deps gcc zlib-dev libc-dev bsd-compat-headers py-setuptools rsync
-
 
 # basic settings
 WORKDIR /app
