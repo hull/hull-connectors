@@ -28,6 +28,7 @@ const buildConfigurationFromEnvironment = env => {
     FIREHOSE_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS = 200,
     LOGGER_KAFKA_BROKERS,
     LOGGER_KAFKA_TOPIC,
+    LOGGER_KAFKA_ENABLED = true,
     PORT = 8082,
     REQUEST_TIMEOUT = "25s",
     REDIS_URL,
@@ -80,13 +81,17 @@ const buildConfigurationFromEnvironment = env => {
   ];
 
   if (LOGGER_KAFKA_BROKERS && LOGGER_KAFKA_TOPIC) {
-    clientConfig.loggerTransport.push(
-      new KafkaLogger({
-        brokersList: LOGGER_KAFKA_BROKERS.split(","),
-        topic: LOGGER_KAFKA_TOPIC,
-        level: "info"
-      })
-    );
+    if (LOGGER_KAFKA_ENABLED !== "false") {
+      clientConfig.loggerTransport.push(
+        new KafkaLogger({
+          brokersList: LOGGER_KAFKA_BROKERS.split(","),
+          topic: LOGGER_KAFKA_TOPIC,
+          level: "info"
+        })
+      );
+    } else {
+      console.warn("Skip kafka logger: ", { LOGGER_KAFKA_ENABLED });
+    }
   }
   const disableWebpack = DISABLE_WEBPACK === "true";
 
