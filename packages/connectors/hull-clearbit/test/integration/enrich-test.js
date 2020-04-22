@@ -161,6 +161,51 @@ describe("Clearbit Enrich Tests", () => {
       ["increment", "ship.incoming.accounts", 1]
     ]
   });
+  const enrichWebhookResponse = (nock, expect, subscribe = true) => ({
+    ...enrichUserResponse(nock, expect, subscribe),
+    firehoseEvents: [
+      [
+        "traits",
+        {
+          asUser: {
+            anonymous_id: `clearbit:${person.id}`,
+            email: EMAIL_USER.email,
+            id: "1234"
+          },
+          subjectType: "user"
+        },
+        {
+          "clearbit/enriched_at": expect.whatever(),
+          source: {
+            operation: "setIfNull",
+            value: "enrich"
+          }
+        }
+      ],
+      [
+        "traits",
+        {
+          asAccount: {
+            anonymous_id: `clearbit:${company.id}`
+          },
+          asUser: {
+            anonymous_id: `clearbit:${person.id}`,
+            email: EMAIL_USER.email,
+            id: "1234"
+          },
+          subjectType: "account"
+        },
+        {
+          "clearbit/enriched_at": expect.whatever(),
+          source: {
+            operation: "setIfNull",
+            value: "enrich"
+          }
+        }
+      ]
+    ],
+  });
+
   const enrichAccountResponse = (nock, expect, subscribe = true) => ({
     ...noOpAccountResponse,
     externalApiMock: () => {
@@ -304,7 +349,7 @@ describe("Clearbit Enrich Tests", () => {
         {
           user: {
             ...EMAIL_USER,
-            "traits_clearbit/fetched_at": moment()
+            "traits_clearbit/enriched_at": moment()
               .subtract(2, "hours")
               .toISOString()
           },
@@ -475,6 +520,28 @@ describe("Clearbit Enrich Tests", () => {
             "traits_clearbit/enriched_at": moment()
               .subtract(10, "days")
               .toISOString()
+          },
+          account: {},
+          segments: [{ id: "enrich-users" }]
+        }
+      ]
+    })));
+
+  it("should handle Webhook responses properly", async () =>
+    testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...enrichUserResponse(nock, expect),
+      handlerType: handlers.notificationHandler,
+      connector: {
+        ...connector,
+        private_settings: {
+          ...connector.private_settings,
+          enrich_refresh: true
+        }
+      },
+      messages: [
+        {
+          user: {
+            ...EMAIL_USER
           },
           account: {},
           segments: [{ id: "enrich-users" }]
