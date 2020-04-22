@@ -12,21 +12,6 @@ export default function connectorConfig(): HullConnectorConfig {
     handlers: handlers({
       flow_size: FLOW_CONTROL_SIZE || 200,
       flow_in: FLOW_CONTROL_IN || 1
-    }),
-    middlewares: [],
-    cacheConfig: {
-      ...cacheConfig,
-      ttl: SHIP_CACHE_TTL || 60,
-      max: SHIP_CACHE_MAX || 100
-    },
-    logsConfig: {
-      logLevel: LOG_LEVEL
-    },
-    clientConfig: {
-      firehoseUrl: OVERRIDE_FIREHOSE_URL
-    },
-    serverConfig: {
-      start: true
-    }
+    })
   };
 }
