@@ -126,8 +126,7 @@ export async function saveAccount(
     person = {},
     company,
     user,
-    source,
-    code
+    source
   }: {
     account: HullAccount,
     user?: HullUser,
