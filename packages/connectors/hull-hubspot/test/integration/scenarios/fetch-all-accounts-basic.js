@@ -18,7 +18,7 @@ const connector = {
   }
 };
 
-it.skip("should fetch all companies", () => {
+it.skip("should fetch recent companies", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,

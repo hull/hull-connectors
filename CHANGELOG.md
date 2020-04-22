@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.1.24-monorepo
+- [hull-sql] add sql connector
+
+## v0.1.23-monorepo
+- [hull-processor] support for uuid
+- [hull-processor] support for libgooglephone
+
 ## v0.1.22-monorepo
 - [hull-hubspot] sync connector if upsert fails due to mismatched segments
 

@@ -4,7 +4,7 @@
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.22-monorepo",
+  "version": "0.1.24-monorepo",
   "tags": [
     "outgoing",
     "batch",

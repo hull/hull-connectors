@@ -12,7 +12,7 @@ You can begin writing your own code right away, but you probably might want to g
 
 - [User](#Input---User)
 - [Changes](#Input---Changes)
-- [Account](#Input---Account)
+- [Account](#Input---
 - [Events](#Input---Events)
 - [User Segments](#Input---User-Segments)
 - [Account Segments](#Input---Account-Segments)
@@ -435,20 +435,25 @@ Now that we know how to deal with users, let’s have a look how to handle accou
 You can **link an account to the current user** by calling the `hull.account` function with claims that identify the account. Supported claims are `domain`, `id` and `external_id`. To link an account that is identified by the domain, you would write
 
 ```js
-  hull.account({ domain: <value> })
+  const claims_object = { domain: <value> }
+  hull.account(claims_object)
 ```
 
 which would either create the account if it doesn’t exist or link the current user to the existing account.
 
 ## How to edit attributes for the account
 
-To **change attributes for an account**, you can use the chained function call `hull.account().traits()`. If the user is already linked to an account, you can skip passing the claims object in the `hull.account()`  function and the attributes will be applied to the current linked account. By specifying the claims, you can explicitly address the account and if it is not linked to the current user, the account will be linked and attributes will be updated.
+To **change attributes for an account**, you can use the chained function call `hull.account(CLAIMS_OBJECT).traits()`. If the user is already linked to an account, you can skip passing the claims object in the `hull.account(CLAIMS_OBJECT)`  function and the attributes will be applied to the current linked account. By specifying the claims, you can explicitly address the account and if it is not linked to the current user, the account will be linked and attributes will be updated.
 In contrast to the user, accounts do only support top-level attributes. You can specify the attributes in the same way as for a user by passing an object into the chained `traits` function like
 
 > NOTE: be careful when doing this as every User in the account will be sent to the processor, and will run this logic. You could easily end up with infinite loop where each User updates the same Account back and forth, with different values. A better way to update account data is to use the Accounts processor.
 
 ```js
-  hull.account().traits({ ATTRIBUTE_NAME: <value>, ATTRIBUTE2_NAME: <value> })
+  const accountExternalId = account.external_id.
+  const accountDomain = account.domain.
+  hull
+    .account({ domain: accountDomain, external_id: accountExternalId })
+    .traits({ ATTRIBUTE_NAME: <value>, ATTRIBUTE2_NAME: <value> })
 ```
 
 ### Limitations
@@ -468,7 +473,7 @@ Here's a scenario that, although it seems intuitive, will **generate an infinite
 
 ```js
   hull
-    .account() //target the user's current account
+    .account(CLAIMS_OBJECT) //target the user's current account
     .traits({
       //set the value of the 'is_customer' attribute to the user's value
       mrr: user.traits.mrr
@@ -497,7 +502,7 @@ The way you solve this is by either doing a `setIfNull` operation on the account
   //There was an MRR change on the User
   if(mrr && mrr[1]) {
     //report the new MRR on the Account
-    hull.account().traits({ mrr: mrr[1] });
+    hull.account(CLAIMS_OBJECT).traits({ mrr: mrr[1] });
   }
 ```
 
@@ -506,7 +511,7 @@ Or you could rely on a User Event if you have such events"
 ```js
 events.map(event => {
   if (event.event === "MRR Changed") {
-    hull.account().traits({ mrr: event.properties.mrr });
+    hull.account(CLAIMS_OBJECT).traits({ mrr: event.properties.mrr });
   }
 });
 ```

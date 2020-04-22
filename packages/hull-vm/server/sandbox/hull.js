@@ -46,7 +46,7 @@ const buildHullContext = ({
       validation
     });
     result.errors.push(
-      `Error validating claims for ${method}  ${JSON.stringify(validation)}`
+      `Error validating claims for ${method} ${JSON.stringify(validation)}`
     );
   };
 

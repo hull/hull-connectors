@@ -7,7 +7,7 @@
     "kraken-exports"
   ],
   "picture": "picture.png",
-  "version": "0.1.22-monorepo",
+  "version": "0.1.24-monorepo",
   "tabs": [
     {
       "title": "Code Editor",
@@ -100,7 +100,7 @@
       "format": "segment",
       "options": {
         "standard": {
-          "ALL": "All Segments"
+          "ALL": "All Users"
         }
       }
     },

@@ -16,7 +16,7 @@ export default async function selectList(
     uri: `${api_endpoint}/3.0/lists`,
     qs: {
       fields: "lists.id,lists.name",
-      count: 250
+      count: 1000
     },
     headers: { Authorization: `OAuth ${api_key}` },
     json: true
