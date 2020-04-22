@@ -118,7 +118,7 @@ class HullClient {
       transports: conf.loggerTransport
     };
 
-    const logger = createLogger(loggerOptions);
+    const logger = conf.logger || createLogger(loggerOptions);
     const ctxKeys = _.pick(conf, [
       "organization",
       "id",

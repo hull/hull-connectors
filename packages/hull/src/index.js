@@ -93,6 +93,13 @@ const buildConfigurationFromEnvironment = env => {
       console.warn("Skip kafka logger: ", { LOGGER_KAFKA_ENABLED });
     }
   }
+
+  clientConfig.logger = winston.createLogger({
+    level: LOG_LEVEL || "info",
+    format: winston.format.json(),
+    transports: clientConfig.loggerTransport
+  });
+
   const disableWebpack = DISABLE_WEBPACK === "true";
 
   const port = PORT;

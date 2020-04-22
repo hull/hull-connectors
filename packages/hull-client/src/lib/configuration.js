@@ -47,6 +47,9 @@ const VALID = {
     return (
       t.type === "kafka" && _.isString(t.topic) && _.isArray(t.brokersList)
     );
+  },
+  logger(l) {
+    return l && typeof l.log === "function";
   }
 };
 
@@ -79,7 +82,8 @@ const VALID_PROPS = {
   logLevel: VALID.string,
   firehoseEvents: VALID.array,
   firehoseTransport: VALID.transport,
-  loggerTransport: VALID.array
+  loggerTransport: VALID.array,
+  logger: VALID.logger
 };
 
 /**
