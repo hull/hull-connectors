@@ -118,6 +118,261 @@
       ]
     },
     {
+      "text": "Hubspot",
+      "children": [
+        {
+          "text": "email",
+          "id": "traits_hubspot/email",
+          "type": "string"
+        },
+        {
+          "text": "days_to_close",
+          "id": "traits_hubspot/days_to_close",
+          "type": "number"
+        },
+        {
+          "text": "first_deal_created_date",
+          "id": "traits_hubspot/first_deal_created_at",
+          "type": "date"
+        },
+        {
+          "text": "hs_lead_status",
+          "id": "traits_hubspot/lead_status",
+          "type": "enumeration"
+        },
+        {
+          "text": "hubspot_owner_assigneddate",
+          "id": "traits_hubspot/owner_assigned_at",
+          "type": "date"
+        },
+        {
+          "text": "lastmodifieddate",
+          "id": "traits_hubspot/updated_at",
+          "type": "date"
+        },
+        {
+          "text": "num_associated_deals",
+          "id": "traits_hubspot/associated_deals_count",
+          "type": "number"
+        },
+        {
+          "text": "recent_deal_amount",
+          "id": "traits_hubspot/recent_deal_amount",
+          "type": "number"
+        },
+        {
+          "text": "recent_deal_close_date",
+          "id": "traits_hubspot/recent_deal_closed_at",
+          "type": "date"
+        },
+        {
+          "text": "total_revenue",
+          "id": "traits_hubspot/total_revenue",
+          "type": "number"
+        },
+        {
+          "text": "firstname",
+          "id": "traits_hubspot/first_name",
+          "type": "string"
+        },
+        {
+          "text": "lastname",
+          "id": "traits_hubspot/last_name",
+          "type": "string"
+        },
+        {
+          "text": "salutation",
+          "id": "traits_hubspot/salutation",
+          "type": "string"
+        },
+        {
+          "text": "email",
+          "id": "email",
+          "type": "string"
+        },
+        {
+          "text": "mobilephone",
+          "id": "traits_hubspot/mobile_phone",
+          "type": "string"
+        },
+        {
+          "text": "phone",
+          "id": "traits_hubspot/phone",
+          "type": "string"
+        },
+        {
+          "text": "fax",
+          "id": "traits_hubspot/fax",
+          "type": "string"
+        },
+        {
+          "text": "address",
+          "id": "traits_hubspot/address_street",
+          "type": "string"
+        },
+        {
+          "text": "hubspot_owner_id",
+          "id": "traits_hubspot/hubspot_owner_id",
+          "type": "enumeration"
+        },
+        {
+          "text": "notes_last_contacted",
+          "id": "traits_hubspot/notes_last_contacted_at",
+          "type": "date"
+        },
+        {
+          "text": "notes_last_updated",
+          "id": "traits_hubspot/last_activity_at",
+          "type": "date"
+        },
+        {
+          "text": "notes_next_activity_date",
+          "id": "traits_hubspot/next_activity_at",
+          "type": "date"
+        },
+        {
+          "text": "num_contacted_notes",
+          "id": "traits_hubspot/contacted_notes_count",
+          "type": "number"
+        },
+        {
+          "text": "num_notes",
+          "id": "traits_hubspot/notes_count",
+          "type": "number"
+        },
+        {
+          "text": "city",
+          "id": "traits_hubspot/address_city",
+          "type": "string"
+        },
+        {
+          "text": "state",
+          "id": "traits_hubspot/address_state",
+          "type": "string"
+        },
+        {
+          "text": "zip",
+          "id": "traits_hubspot/address_postal_code",
+          "type": "string"
+        },
+        {
+          "text": "country",
+          "id": "traits_hubspot/address_country",
+          "type": "string"
+        },
+        {
+          "text": "jobtitle",
+          "id": "traits_hubspot/job_title",
+          "type": "string"
+        },
+        {
+          "text": "message",
+          "id": "traits_hubspot/message",
+          "type": "string"
+        },
+        {
+          "text": "closedate",
+          "id": "traits_hubspot/closed_at",
+          "type": "date"
+        },
+        {
+          "text": "hs_lifecyclestage_lead_date",
+          "id": "traits_hubspot/became_lead_at",
+          "type": "date"
+        },
+        {
+          "text": "hs_lifecyclestage_marketingqualifiedlead_date",
+          "id": "traits_hubspot/became_marketing_qualified_lead_at",
+          "type": "date"
+        },
+        {
+          "text": "hs_lifecyclestage_opportunity_date",
+          "id": "traits_hubspot/became_opportunity_at",
+          "type": "date"
+        },
+        {
+          "text": "lifecyclestage",
+          "id": "traits_hubspot/lifecycle_stage",
+          "type": "string"
+        },
+        {
+          "text": "hs_lifecyclestage_salesqualifiedlead_date",
+          "id": "traits_hubspot/became_sales_qualified_lead_at",
+          "type": "date"
+        },
+        {
+          "text": "createdate",
+          "id": "traits_hubspot/created_at",
+          "type": "date"
+        },
+        {
+          "text": "hs_lifecyclestage_evangelist_date",
+          "id": "traits_hubspot/became_evangelist_at",
+          "type": "date"
+        },
+        {
+          "text": "hs_lifecyclestage_customer_date",
+          "id": "traits_hubspot/became_customer_at",
+          "type": "date"
+        },
+        {
+          "text": "company",
+          "id": "traits_hubspot/company",
+          "type": "string"
+        },
+        {
+          "text": "hs_lifecyclestage_subscriber_date",
+          "id": "traits_hubspot/became_subscriber_at",
+          "type": "date"
+        },
+        {
+          "text": "hs_lifecyclestage_other_date",
+          "id": "traits_hubspot/became_other_at",
+          "type": "date"
+        },
+        {
+          "text": "website",
+          "id": "traits_hubspot/website",
+          "type": "string"
+        },
+        {
+          "text": "numemployees",
+          "id": "traits_hubspot/employees_count",
+          "type": "number"
+        },
+        {
+          "text": "annualrevenue",
+          "id": "traits_hubspot/annual_revenue",
+          "type": "string"
+        },
+        {
+          "text": "industry",
+          "id": "traits_hubspot/industry",
+          "type": "string"
+        },
+        {
+          "text": "associatedcompanyid",
+          "id": "traits_hubspot/associatedcompanyid",
+          "type": "number"
+        },
+        {
+          "text": "hs_email_open",
+          "id": "traits_hubspot/opened_count",
+          "type": "number"
+        },
+        {
+          "text": "hs_email_bounce",
+          "id": "traits_hubspot/emails_bounced_count",
+          "type": "number"
+        },
+        {
+          "text": "hs_email_optout",
+          "id": "traits_hubspot/email_optout",
+          "type": "boolean"
+        }
+      ]
+    },
+    {
       "text": "Group",
       "children": [
         {

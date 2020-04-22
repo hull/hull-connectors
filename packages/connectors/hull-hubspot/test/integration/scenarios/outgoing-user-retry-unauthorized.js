@@ -1,16 +1,10 @@
 // @flow
 
-
-
-
-
-
-
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
 
 
-process.env.CLIENT_ID = "123",
+process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
 
 const connector = {
@@ -25,10 +19,7 @@ const connector = {
   }
 };
 const usersSegments = [
-  {
-    name: "testSegment",
-    id: "hullSegmentId"
-  }
+  { name: "testSegment", id: "hullSegmentId" }
 ];
 
 it("should refresh token and perform standard operation in case of token expired", () => {
@@ -42,7 +33,6 @@ it("should refresh token and perform standard operation in case of token expired
         const scope = nock("https://api.hubapi.com", {
           reqheaders: {
             Authorization: (headerValue) => {
-              console.log("!!!!!! headerValue", headerValue);
               return false;
             }
           }
@@ -76,7 +66,7 @@ it("should refresh token and perform standard operation in case of token expired
           user: {
             email
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          segments: [{ id: "hullSegmentId", name: "testSegment" }],
           changes: {
             is_new: false,
             user: {},

@@ -34,8 +34,8 @@
       "id": "5bf2e7bf064aee16a600092a"
     },
     "user": {},
-    "segments": {},
-    "account_segments": {},
+    "segments": [],
+    "account_segments": [],
     "message_id": "4ckrkcf4544ea54d5950689f97f02f4a2cb389af",
     "update_id": "5d04019a85ab0bef5800e63d:5:0:0"
   }
