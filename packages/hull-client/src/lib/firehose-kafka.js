@@ -128,7 +128,9 @@ function getInstance(
     const topic = kafkaTopicsMapping[hullDomain] || kafkaTopic;
 
     if (!topic) {
-      throw new Error(`Invalid kafka configuration: Topic not found for domain: ${hullDomain}`);
+      throw new Error(
+        `Invalid kafka configuration: Topic not found for domain: ${hullDomain}`
+      );
     }
 
     const message: FirehoseMessage = {
