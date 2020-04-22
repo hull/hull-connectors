@@ -516,7 +516,7 @@ describe("Clearbit Enrich Tests", () => {
         {
           user: {
             ...EMAIL_USER,
-            "traits_clearbit/fetched_at": moment()
+            "traits_clearbit/enriched_at": moment()
               .subtract(30, "minutes")
               .toISOString()
           },
