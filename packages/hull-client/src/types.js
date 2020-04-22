@@ -272,6 +272,7 @@ export type HullEvent = {
 export type HullFirehoseKafkaTransport = {
   type: "kafka",
   topic: string,
+  topicsMapping: Object,
   brokersList: Array<string>,
   producerConfig: Object
 };

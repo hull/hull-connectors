@@ -45,7 +45,7 @@ const VALID = {
   },
   transport(t) {
     return (
-      t.type === "kafka" && _.isString(t.topic) && _.isArray(t.brokersList)
+      t.type === "kafka" && (_.isString(t.topic) || _.isObject(t.topicsMapping)) && _.isArray(t.brokersList)
     );
   },
   logger(l) {

@@ -25,6 +25,7 @@ const buildConfigurationFromEnvironment = env => {
     MARATHON_APP_DOCKER_IMAGE,
     FIREHOSE_KAFKA_BROKERS,
     FIREHOSE_KAFKA_TOPIC,
+    FIREHOSE_KAFKA_TOPICS_MAPPING = "",
     FIREHOSE_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS = 200,
     LOGGER_KAFKA_BROKERS,
     LOGGER_KAFKA_TOPIC,
@@ -57,11 +58,21 @@ const buildConfigurationFromEnvironment = env => {
   }
 
   const clientConfig = {};
-  if (FIREHOSE_KAFKA_BROKERS && FIREHOSE_KAFKA_TOPIC) {
+  if (FIREHOSE_KAFKA_BROKERS) {
+    const topicsMapping = FIREHOSE_KAFKA_TOPICS_MAPPING.split(",").reduce(
+      (m, v) => {
+        const [domain, topic] = v.split("=");
+        m[domain] = topic;
+        return m;
+      },
+      {}
+    );
+
     clientConfig.firehoseTransport = {
       type: "kafka",
       brokersList: FIREHOSE_KAFKA_BROKERS.split(","),
       topic: FIREHOSE_KAFKA_TOPIC,
+      topicsMapping,
       producerConfig: {
         "queue.buffering.max.ms": parseInt(
           FIREHOSE_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS,
