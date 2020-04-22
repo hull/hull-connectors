@@ -65,7 +65,8 @@ export async function shouldProspect(
   if (account["clearbit/prospected_at"]) {
     return {
       should: false,
-      message: "We don't prospect the same domain twice"
+      message:
+        "`clearbit/prospected_at` present. We don't prospect the same domain twice."
     };
   }
 
