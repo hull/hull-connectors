@@ -37,6 +37,7 @@ const buildConfigurationFromEnvironment = env => {
     SECRET,
     SHIP_CACHE_TTL,
     SHIP_CACHE_MAX,
+    SHIP_CACHE_KEY_PREFIX,
     REDIS_MAX_CONNECTIONS = 5,
     REDIS_MIN_CONNECTIONS = 1
   } = env;
@@ -134,7 +135,8 @@ const buildConfigurationFromEnvironment = env => {
   const cacheConfig = {
     ...cacheAdapter,
     ttl: SHIP_CACHE_TTL || 60,
-    max: SHIP_CACHE_MAX || 100
+    max: SHIP_CACHE_MAX || 100,
+    keyPrefix: SHIP_CACHE_KEY_PREFIX
   };
 
   const serverConfig = { start: true };
