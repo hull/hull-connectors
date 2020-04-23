@@ -19,18 +19,18 @@ class ConnectorCache {
 
   promiseReuser: Object;
 
-  cachePrefix;
+  keyPrefix;
 
   constructor(
     ctx: HullContext,
     cache: Object,
     promiseReuser: Object,
-    cachePrefix: string
+    keyPrefix: string
   ) {
     this.ctx = ctx;
     this.cache = cache;
     this.promiseReuser = promiseReuser;
-    this.cachePrefix = cachePrefix;
+    this.keyPrefix = keyPrefix;
   }
 
   /**
@@ -52,8 +52,8 @@ class ConnectorCache {
         "ConnectorCache can be used only with initialized client, otherwise use ctx.cache.cache.set"
       );
     }
-    if (this.cachePrefix) {
-      return `${this.cachePrefix}${key}`;
+    if (this.keyPrefix) {
+      return `${this.keyPrefix}:${key}`;
     }
     const { secret, organization } = this.ctx.client.configuration();
     return jwt.encode({ sub: key, iss: organization }, secret);
