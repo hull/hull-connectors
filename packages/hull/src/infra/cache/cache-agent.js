@@ -66,7 +66,12 @@ class CacheAgent {
 
   getConnectorCache(ctx: HullContext) {
     // eslint-disable-line class-methods-use-this
-    return new ConnectorCache(ctx, this.cache, this.promiseReuser, this.cachePrefix);
+    return new ConnectorCache(
+      ctx,
+      this.cache,
+      this.promiseReuser,
+      this.cachePrefix
+    );
   }
 }
 
