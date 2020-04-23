@@ -52,10 +52,10 @@ class ConnectorCache {
         "ConnectorCache can be used only with initialized client, otherwise use ctx.cache.cache.set"
       );
     }
+    const { id, secret, organization } = this.ctx.client.configuration();
     if (this.keyPrefix) {
-      return `${this.keyPrefix}:${key}`;
+      return `${this.keyPrefix}:${id}:${key}`;
     }
-    const { secret, organization } = this.ctx.client.configuration();
     return jwt.encode({ sub: key, iss: organization }, secret);
   }
 
