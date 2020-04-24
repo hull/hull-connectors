@@ -3,6 +3,7 @@
 const Transport = require("winston-transport");
 const { HighLevelProducer } = require("node-rdkafka");
 const _ = require("lodash");
+const uuid = require("uuid");
 
 /**
  * Transport for outputting to Kafka.
@@ -95,12 +96,11 @@ module.exports = class KafkaLogger extends Transport {
         };
 
         // topic, partition, message, key, timestamp, headers, callback
-        const key = _.get(info, "context.id", now);
         await producer.produce(
           topic,
           null,
           Buffer.from(JSON.stringify(msg)),
-          key,
+          uuid(),
           now,
           null,
           _.identity
