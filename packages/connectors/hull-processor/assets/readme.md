@@ -30,7 +30,7 @@ The Hull Processor allows your team to write Javascript and transform data in Hu
 
 The Processor can  `add traits`,  `update traits` and `create events` for both, users and accounts. Furthermore it allows you to `link accounts`.
 
-You can use the `request` library ([https://github.com/request/request](https://github.com/request/request)) to call external services or send data to webhooks.
+You can use the `superagent` library ([https://github.com/visionmedia/superagent](https://github.com/visionmedia/superagent)) to call external services or send data to webhooks.
 
 Async/await and ES6 are supported by the connector, allowing you to write elegant code.
 
@@ -527,14 +527,15 @@ The processor provides the following methods to help you:
 
 The processor exposes several external libraries that can be used:
 
-|**Variable**| **Library name**                                                  |
-|------------| ------------------------------------------------------------------|
-|`_`         | The lodash library. (https://lodash.com/)                         |
-|`moment`    | The Moment.js library(https://momentjs.com/)                      |
-|`urijs`     | The URI.js library (https://github.com/medialize/URI.js/)         |
-|`request`   | The simplified request client (https://github.com/request/request)|
-|`uuid`      | The uuid library (https://github.com/uuidjs/uuid)                 |
-|`LibPhoneNumber`      | The google-LibPhoneNumber library (https://ruimarinho.github.io/google-libphonenumber/)                 |
+|**Variable**          | **Library name**                                                                        |
+|----------------------| ----------------------------------------------------------------------------------------|
+|`_`                   | The lodash library. (https://lodash.com/)                                               |
+|`moment`              | The Moment.js library(https://momentjs.com/)                                            |
+|`urijs`               | The URI.js library (https://github.com/medialize/URI.js/)                               |
+|`request` (deprecated)| The simplified request client (https://github.com/request/request)                      |
+|`superagent`          | The simple and elegant request library (https://github.com/visionmedia/superagent)      |
+|`uuid`                | The uuid library (https://github.com/uuidjs/uuid)                                       |
+|`LibPhoneNumber`      | The google-LibPhoneNumber library (https://ruimarinho.github.io/google-libphonenumber/) |
 
 Please visit the linked pages for documentation and further information about these third party libraries.
 
