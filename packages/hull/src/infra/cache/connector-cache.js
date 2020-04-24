@@ -53,8 +53,8 @@ class ConnectorCache {
       );
     }
     const { secret, organization } = this.ctx.client.configuration();
-    const cacheKey = this.keyPrefix ? `${this.keyPrefix}:${key}` : key;
-    return jwt.encode({ sub: cacheKey, iss: organization }, secret);
+    const encodedKey = jwt.encode({ sub: key, iss: organization }, secret);
+    return this.keyPrefix ? `${this.keyPrefix}:${encodedKey}` : encodedKey;
   }
 
   /**
