@@ -68,7 +68,7 @@ module.exports = class KafkaLogger extends Transport {
     const callback = cb || _.identity;
     if (this._isConnected) {
       try {
-        const ctxe = info.context;
+        const ctxe = info.context || {};
         const now = Date.now();
 
         const msg = {
@@ -95,7 +95,7 @@ module.exports = class KafkaLogger extends Transport {
         };
 
         // topic, partition, message, key, timestamp, headers, callback
-        const key = _.get(info, "context.id");
+        const key = _.get(info, "context.id", now);
         await producer.produce(
           topic,
           null,
