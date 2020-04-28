@@ -6,10 +6,10 @@ const { isValidClaim } = require("../lib/utils");
 const { getAccountAttributeOutputFields } = require("../lib/output-fields");
 
 const perform = async (z, { inputData }) => {
-  const { domain, external_id } = inputData;
-  const claims = { domain, external_id };
+  const { anonymous_id, domain, external_id } = inputData;
+  const claims = { anonymous_id, domain, external_id };
 
-  if (!isValidClaim({ external_id, domain })) {
+  if (!isValidClaim({ anonymous_id, external_id, domain })) {
     throw new z.errors.HaltedError("Invalid Claims");
   }
 
@@ -49,6 +49,12 @@ const account = {
         label: "Domain",
         helpText:
           "Domain of the account to lookup. If we find multiple accounts with the same domain, we will use the oldest one."
+      },
+      {
+        label: 'Anonymous Id',
+        helpText: 'Anonymous Id of the Hull User',
+        key: 'anonymous_id',
+        type: 'string'
       }
     ],
     perform,

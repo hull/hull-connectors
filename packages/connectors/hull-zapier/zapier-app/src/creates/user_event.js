@@ -4,8 +4,8 @@ const { createUrl } = require("../config");
 const { post } = require("../lib/request");
 
 const perform = async (z, { inputData }) => {
-  const { external_id, email, event_name, properties } = inputData;
-  const claims = _.pickBy({ email, external_id }, (v, _k) => !_.isEmpty(v));
+  const { anonymous_id, external_id, email, event_name, properties } = inputData;
+  const claims = _.pickBy({ anonymous_id, email, external_id }, (v, _k) => !_.isEmpty(v));
   return post(z,{
     url: createUrl,
     body: { entityType: "user_event", claims, event_name, properties }
@@ -41,6 +41,15 @@ const user_event = {
           "The external_id of the user to associate the event to. Takes precedence over the email if present",
         label: "External ID",
         required: false
+      },
+      {
+        required: false,
+        list: false,
+        label: 'Anonymous Id',
+        helpText: 'Anonymous Id of the Hull User',
+        key: 'anonymous_id',
+        type: 'string',
+        altersDynamicFields: false
       },
       {
         key: "event_name",
