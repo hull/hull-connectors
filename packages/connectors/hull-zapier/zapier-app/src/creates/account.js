@@ -6,13 +6,13 @@ const { isValidClaim } = require("../lib/utils");
 const { getAccountAttributeOutputFields } = require("../lib/output-fields");
 
 const perform = async (z, { inputData }) => {
-  const { external_id, domain, attributes } = inputData;
+  const { anonymous_id, external_id, domain, attributes } = inputData;
 
-  if (!isValidClaim({ external_id, domain })) {
+  if (!isValidClaim({ anonymous_id, external_id, domain })) {
     throw new z.errors.HaltedError("Invalid Claims");
   }
 
-  const claims = _.pickBy({ domain, external_id }, (v, _k) => !_.isEmpty(v));
+  const claims = _.pickBy({ anonymous_id, domain, external_id }, (v, _k) => !_.isEmpty(v));
   return post(z, {
     url: createUrl,
     body: { entityType: "account", claims, attributes }
@@ -50,7 +50,16 @@ const account = {
         type: 'string'
       },
       {
-        default: 'Attributes of the Hull Account',
+        required: false,
+        list: false,
+        label: 'Anonymous Id',
+        helpText: 'Anonymous Id of the Hull Account',
+        key: 'anonymous_id',
+        type: 'string',
+        altersDynamicFields: false
+      },
+      {
+        helpText: 'Attributes of the Hull Account',
         required: false,
         label: 'Attributes',
         dict: true,

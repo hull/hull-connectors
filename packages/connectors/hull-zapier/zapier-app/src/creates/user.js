@@ -6,13 +6,13 @@ const { isValidClaim } = require("../lib/utils");
 const { getUserAttributeOutputFields } = require("../lib/output-fields");
 
 const perform = async (z, { inputData }) => {
-  const { external_id, email, attributes } = inputData;
+  const { anonymous_id, external_id, email, attributes } = inputData;
 
-  if (!isValidClaim({ external_id, email })) {
+  if (!isValidClaim({ anonymous_id, external_id, email })) {
     throw new z.errors.HaltedError("Invalid Claims");
   }
 
-  const claims = _.pickBy({ email, external_id }, (v, _k) => !_.isEmpty(v));
+  const claims = _.pickBy({ anonymous_id, email, external_id }, (v, _k) => !_.isEmpty(v));
   return post(z, {
     url: createUrl,
     body: { entityType: "user", claims, attributes }
@@ -52,7 +52,16 @@ const user = {
         altersDynamicFields: false
       },
       {
-        default: 'Attributes of the Hull User',
+        required: false,
+        list: false,
+        label: 'Anonymous Id',
+        helpText: 'Anonymous Id of the Hull User',
+        key: 'anonymous_id',
+        type: 'string',
+        altersDynamicFields: false
+      },
+      {
+        helpText: 'Attributes of the Hull User',
         required: false,
         label: 'Attributes',
         dict: true,
