@@ -1190,6 +1190,149 @@ describe("Linking support", () => {
       ]
     }));
   });
+
+  it("should send an account link using forbidden domain to the firehose", () => {
+    const asUser = { external_id: "1234" };
+    const attributes = { foo: "bar" };
+    const asAccount = { domain: "gmail.com" };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: {
+          ...ENTITY_BOILERPLATE,
+          ...asUser,
+          domain: asAccount.domain,
+        }
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode("hull.account({ domain: user.domain }).traits({ foo: \"bar\" })"),
+      // TODO: This should really exist as a Firehose method as "link"
+      firehoseEvents: [
+        [
+          "traits",
+          {
+            asUser,
+            asAccount,
+            subjectType: "account"
+          },
+          { ...attributes }
+        ],
+        [
+          "traits",
+          {
+            asAccount,
+            asUser,
+            subjectType: "user"
+          },
+          {}
+        ]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            accountLinks: [[{ asUser, subjectType: "user" }, asAccount]],
+            accountTraits: [[{asAccount, asUser, subjectType: "account"}, attributes]],
+            claims: asUser
+          })
+        ],
+        [
+          "debug",
+          "incoming.account.success",
+          expect.objectContaining({
+            account_domain: "gmail.com",
+            subject_type: "account",
+            user_external_id: asUser.external_id,
+          }),
+          expect.objectContaining({
+            attributes
+          })
+        ],
+        [
+          "debug",
+          "incoming.account.link.success",
+          expect.objectContaining({
+            account_domain: asAccount.domain,
+            subject_type: "user",
+            user_external_id: asUser.external_id,
+          }),
+          expect.objectContaining({
+            asAccount,
+            claims: {
+              asUser,
+              subjectType: "user"
+            }
+          })
+        ]
+      ],
+      metrics: [
+        METRIC_CONNECTOR_REQUEST,
+        METRIC_INCOMING_ACCOUNT,
+        METRIC_INCOMING_LINK
+      ]
+    }));
+  });
+
+  it("should send an account link using forbidden domain with empty traits to the firehose", () => {
+    const asUser = { external_id: "1234" };
+    const attributes = { foo: "bar" };
+    const asAccount = { domain: "gmail.com" };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
+      ...messageWithUser({
+        user: {
+          ...ENTITY_BOILERPLATE,
+          ...asUser,
+          domain: asAccount.domain,
+        }
+      }),
+      handlerType: handlers.notificationHandler,
+      connector: connectorWithCode("hull.account({ domain: user.domain }).traits()"),
+      // TODO: This should really exist as a Firehose method as "link"
+      firehoseEvents: [
+        [
+          "traits",
+          {
+            asAccount,
+            asUser,
+            subjectType: "user"
+          },
+          {}
+        ]
+      ],
+      logs: [
+        [
+          "debug",
+          "compute.debug",
+          expect.whatever(),
+          expect.objectContaining({
+            accountLinks: [[{ asUser, subjectType: "user" }, asAccount]],
+            claims: asUser
+          })
+        ],
+        [
+          "debug",
+          "incoming.account.link.success",
+          expect.objectContaining({
+            account_domain: asAccount.domain,
+            subject_type: "user",
+            user_external_id: asUser.external_id,
+          }),
+          expect.objectContaining({
+            asAccount,
+            claims: {
+              asUser,
+              subjectType: "user"
+            }
+          })
+        ]
+      ],
+      metrics: [
+        METRIC_CONNECTOR_REQUEST,
+        METRIC_INCOMING_LINK
+      ]
+    }));
+  });
 });
 
 describe("Request Methods", () => {
