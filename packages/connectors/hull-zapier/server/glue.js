@@ -168,6 +168,7 @@ const glue = {
     status: 200
   },
   segments: returnValue([
+      set("entitySegments", []),
       set("entityType", input("body.entityType")),
       ifL(cond("isEqual", input("body.entityType"), "account"), {
         do: [
