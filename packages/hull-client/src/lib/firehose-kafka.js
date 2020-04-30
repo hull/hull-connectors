@@ -62,6 +62,7 @@ function buildProducer(
     "queue.buffering.max.ms": 100,
     "batch.num.messages": 1000,
     "linger.ms": 10,
+    partitioner: "random",
     dr_cb: true,
     ...kafkaProducerConfig
   };
