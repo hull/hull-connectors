@@ -1,0 +1,23 @@
+{
+  "name": "hull-sql",
+  "version": "0.1.24-monorepo",
+  "description": "Sync persons and organizations with Hull",
+  "scripts": {
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit/{*.js,**/*.js}",
+    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}",
+    "documentation": "exit 0"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "bootstrap-sweetalert": "^1.0.1",
+    "codemirror": "^5.52.2",
+    "hull-mariadb": "^1.0.0",
+    "json-loader": "^0.5.7",
+    "pg-query-stream": "^3.0.4",
+    "s3-upload-stream": "^1.0.7",
+    "snowflake-sdk": "^1.5.0",
+    "tedious": "^8.2.0"
+  },
+  "devDependencies": {}
+}

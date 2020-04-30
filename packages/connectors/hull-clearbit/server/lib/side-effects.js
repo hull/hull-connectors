@@ -10,7 +10,8 @@ import type {
 
 import { now } from "./utils";
 
-const getClearbitAnonymousId = entity => entity.id && `clearbit:${entity.id}`;
+const getClearbitAnonymousId = (entity = {}) =>
+  entity.id && `clearbit:${entity.id}`;
 
 /**
  * Create a new user on Hull from a discovered Prospect
