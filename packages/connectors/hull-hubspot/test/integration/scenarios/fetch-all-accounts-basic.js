@@ -69,7 +69,7 @@ it.skip("should fetch recent companies", () => {
           "incoming.account.skip",
           {},
           {
-            company: incomingData.results[1],
+            company: incomingData.results[1].companyId,
             reason: "Value of field \"properties.domain.value\" is empty, cannot map it to domain, but it's required."
           }
         ],
