@@ -21,7 +21,7 @@ import type {
 type Props = {};
 
 type State = {
-  activeSheetIndex: number,
+  activeSheetIndex?: number,
 
   importStatus?: ImportStatusType,
   importProgress?: ImportProgressType,
@@ -29,9 +29,9 @@ type State = {
   loading: boolean | string,
   displaySettings: boolean,
 
-  settings: SettingsType,
+  settings?: SettingsType,
 
-  type: ImportType,
+  type?: ImportType,
   source?: string,
 
   mapping: AttributeMapping,
@@ -49,25 +49,33 @@ export default class Sidebar extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.autoSaveUserProps = _.debounce(this.saveUserProps, 1000);
-  }
-
-  componentDidMount() {
-    this.setState({
+    this.state = {
+      type: undefined,
+      activeSheetIndex: undefined,
+      settings: undefined,
       loading: false,
       displaySettings: false,
-      settings: undefined,
 
       mapping: [],
       claims: [],
 
       googleColumns: [],
       hullAttributes: []
-    });
-    this.bootstrap();
+    };
+  }
+
+  componentDidMount() {
+    this.startPollingActiveSheet();
   }
 
   componentWillUnmount() {
     this.stopPollingActiveSheet();
+  }
+
+  UNSAFE_componentWillReceiveProps(nextProps: Props, nextState: State) {
+    if (nextState.activeSheetIndex !== this.state.activeSheetIndex) {
+      this.fetchSettings(nextState.activeSheetIndex);
+    }
   }
 
   startPollingActiveSheet() {
@@ -80,12 +88,18 @@ export default class Sidebar extends Component<Props, State> {
     }
   }
 
-  bootstrap = async () => {
-    const { loading } = this.state;
+  getActiveSheet = async () => {
+    const response: GetActiveSheetResponse = await Service.getActiveSheet();
+    this.setState(response);
+  };
+
+  fetchSettings = async () => {
+    const { loading, activeSheetIndex } = this.state;
     if (loading) return false;
     this.setState({ loading: true });
     this.stopPollingActiveSheet();
-    const state = await Service.bootstrap();
+    const state = await Service.bootstrap(activeSheetIndex);
+    console.log("BOOTSTRAPPED", state);
     this.setState({ ...state, loading: false });
     this.startPollingActiveSheet();
     return true;
@@ -105,23 +119,6 @@ export default class Sidebar extends Component<Props, State> {
     this.setState({ loading: false });
   };
 
-  getActiveSheet = async () => {
-    const {
-      activeSheetIndex,
-      importProgress: stateImportProgress
-    } = this.state;
-    const {
-      index,
-      importProgress
-    }: GetActiveSheetResponse = await Service.getActiveSheet();
-    if (!_.isEqual(stateImportProgress, importProgress)) {
-      this.setState({ importProgress, activeSheetIndex: index });
-    }
-    if (activeSheetIndex !== index) {
-      this.bootstrap();
-    }
-  };
-
   toggleSettings = () =>
     this.setState({
       displaySettings: !this.state.displaySettings
@@ -135,7 +132,17 @@ export default class Sidebar extends Component<Props, State> {
     source
   }: UserPropsType) => {
     const { activeSheetIndex } = this.state;
-
+    console.log("SAVING USER PROPS", {
+      activeSheetIndex,
+      settings,
+      mapping,
+      claims,
+      type,
+      source
+    });
+    if (!activeSheetIndex) {
+      return;
+    }
     await Promise.all([
       Service.setUserProp("settings", settings),
       Service.setUserProp(`mapping-${activeSheetIndex}`, mapping),

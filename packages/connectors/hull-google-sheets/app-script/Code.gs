@@ -31,18 +31,18 @@ function showSidebar() {
 
 function getActiveSheet() {
   return {
-    index: getActiveSheetIndex(),
+    activeSheetIndex: getActiveSheetIndex(),
     importProgress: getActiveSheetImportProgress()
   };
 }
 
 function getActiveSheetIndex() {
-  const sheet = SpreadsheetApp.getActiveSheet();
-  return sheet.getIndex();
+  return SpreadsheetApp.getActiveSheet().getIndex();
 }
 
-function getColumnNames() {
-  const values = SpreadsheetApp.getActiveSheet()
+function getColumnNames(activeSheetIndex) {
+  const spreadsheet = SpreadsheetApp.getSheets();
+  const values = spreadsheet[activeSheetIndex]
     .getRange(1, 1, 1, 256)
     .getValues()[0];
 
@@ -72,13 +72,11 @@ function getUserProp(key, fallback) {
   return val || fallback;
 }
 
-function getActiveSheetMapping() {
-  const activeSheetIndex = getActiveSheetIndex();
+function getActiveSheetMapping(activeSheetIndex) {
   return getUserProp("mapping-" + activeSheetIndex, []);
 }
 
-function getActiveSheetType() {
-  const activeSheetIndex = getActiveSheetIndex();
+function getActiveSheetType(activeSheetIndex) {
   return getUserProp("type-" + activeSheetIndex, []);
 }
 
@@ -122,7 +120,7 @@ function api(method, path, data) {
   return ret;
 }
 
-function importData() {
+function importData(activeSheetIndex) {
   var settings = getUserProp("settings", {});
   var numRows = 100;
   var startRow = 2;
@@ -131,7 +129,7 @@ function importData() {
   var fetched;
   var stats = { imported: 0, skipped: 0, empty: 0 };
 
-  const mapping = getActiveSheetMapping().map(function(m) {
+  const mapping = getActiveSheetMapping(activeSheetIndex).map(function(m) {
     if (m) return m.hullField;
   });
 
@@ -204,9 +202,8 @@ function importRange(startRow, numRows, mapping) {
   return undefined;
 }
 
-function getHullAttributes(fieldType) {
+function getHullAttributes(activeSheetIndex, fieldType, settings) {
   const type = fieldType || "user";
-  const settings = getUserProp("settings", {});
   if (!settings.hullToken) return [];
   const response = api("post", "schema", { type: type });
 
@@ -217,14 +214,18 @@ function getHullAttributes(fieldType) {
   return response.body;
 }
 
-function bootstrap() {
+function bootstrap(activeSheetIndex) {
   const props = {};
-  props.activeSheetIndex = getActiveSheetIndex();
-  props.mapping = getActiveSheetMapping();
-  props.type = getActiveSheetType();
+  props.activeSheetIndex = activeSheetIndex;
+  props.mapping = getActiveSheetMapping(activeSheetIndex);
+  props.type = getActiveSheetType(activeSheetIndex);
   props.settings = getUserProp("settings", {});
-  props.googleColumns = getColumnNames();
-  props.hullAttributes = getHullAttributes();
+  props.googleColumns = getColumnNames(activeSheetIndex);
+  props.hullAttributes = getHullAttributes(
+    activeSheetIndex,
+    props.type,
+    props.settings
+  );
   Logger.log(props);
   return props;
 }

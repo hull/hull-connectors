@@ -46,7 +46,7 @@ export type UserPropsType = {
 };
 
 export type GetActiveSheetResponse = {
-  index: number,
+  activeSheetIndex: number,
   importProgress: ImportProgressType
 };
 

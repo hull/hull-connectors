@@ -137,42 +137,57 @@ class Mapping extends Component<Props, State> {
     ));
   }
 
+  renderImportType(type: string) {
+    return (
+      <tr>
+        <td style={{ width: "92px" }}>
+          <h4>Import Type : </h4>
+        </td>
+        <td>
+          <select
+            style={{ width: "100%" }}
+            value={type}
+            onChange={this.handleChangeEntityType}
+          >
+            <option value="user" default>
+              Users
+            </option>
+            <option value="account">Accounts</option>
+          </select>
+        </td>
+      </tr>
+    );
+  }
+
+  renderImportGroup(source: string) {
+    return (
+      <tr>
+        <td>
+          <h4>Import Group : </h4>
+          <p>
+            Attributes will be imported under the group &quot;{source}/&quot;
+          </p>
+        </td>
+        <td>
+          <input
+            style={{ width: "100%" }}
+            type="text"
+            id="source"
+            value={source}
+            onChange={this.handleChangeSource}
+          />
+        </td>
+      </tr>
+    );
+  }
+
   render() {
     const { type = "user", source = "google_sheet" } = this.props;
     return (
       <div style={{ paddingBottom: "5em" }}>
         <table style={{ width: "100%" }}>
-          <tr>
-            <td style={{ width: "92px" }}>
-              <h4>Import Type : </h4>
-            </td>
-            <td>
-              <select
-                style={{ width: "100%" }}
-                value={type}
-                onChange={this.handleChangeEntityType}
-              >
-                <option value="user" default>
-                  Users
-                </option>
-                <option value="account">Accounts</option>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <h4>Import Group : </h4>
-            </td>
-            <td>
-              <input
-                style={{ width: "100%" }}
-                type="text"
-                id="source"
-                value={source}
-                onChange={this.handleChangeSource}
-              />
-            </td>
-          </tr>
+          {this.renderImportType(type)}
+          {this.renderImportGroup(source)}
           <tr>
             <td colSpan={2}>
               <h4>Fields used to identify {type}</h4>
