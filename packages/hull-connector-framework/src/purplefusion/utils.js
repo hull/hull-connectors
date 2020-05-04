@@ -28,7 +28,7 @@ async function asyncForEach(toIterateOn, asyncCallback) {
         !isUndefinedOrNull(toIterateOn) &&
         !isUndefinedOrNull(asyncCallback)) {
         if (!Array.isArray(toIterateOn)) {
-          console.log("Not Array: " + JSON.stringify)
+          console.log("Not Array: " + JSON.stringify(toIterateOn));
         }
       }
     } catch (err) {
