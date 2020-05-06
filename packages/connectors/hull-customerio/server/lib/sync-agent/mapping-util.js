@@ -18,6 +18,7 @@ const EVENTTYPE_MAPPINGS = {
   email_bounced: "Email Bounced",
   email_clicked: "Email Link Clicked",
   email_converted: "Email Converted",
+  email_deferred: "Email Deferred",
   email_delivered: "Email Delivered",
   email_drafted: "Email Drafted",
   email_dropped: "Email Dropped",
@@ -198,17 +199,7 @@ class MappingUtil {
     return identObj;
   }
 
-  /**
-   * Maps the webhook payload to a hull event object.
-   *
-   * @param {Object} payload The webhook payload.
-   * @returns {THullEvent} The event object or null if it cannot be mapped.
-   * @memberof MappingUtil
-   */
-  mapWebhookToHullEvent(payload: Object): HullEvent | null {
-    if (_.get(payload, "data", null) === null) {
-      return null;
-    }
+  mapLecacyWebhook(payload: Object): HullEvent | null {
     // Handle properties
     const eventPropPaths = [
       "email_address",
@@ -240,6 +231,113 @@ class MappingUtil {
       return null;
     }
 
+    const hullEvent: HullEvent = {
+      event_id: _.get(payload, "event_id"),
+      event: eventName,
+      created_at: _.get(payload, "timestamp"),
+      context,
+      properties: eventProps
+    };
+
+    return hullEvent;
+  }
+
+  mapWebhook(payload: Object): HullEvent | null {
+    // Handle properties
+    const eventPropPaths = [
+      "email_address",
+      "customer_id",
+      "campaign_id",
+      "content_id",
+      "delivery_id",
+      "subject"
+    ];
+    const eventProps = _.pick(payload.data, eventPropPaths);
+    _.set(eventProps, "email_subject", _.get(eventProps, "subject"));
+    _.unset(eventProps, "subject");
+
+    // Handle context
+    const context = {
+      ip: "0"
+    };
+
+    // Hanlde the name
+    const eventName = _.get(
+      EVENTTYPE_MAPPINGS,
+      `${_.get(payload, "object_type")}_${_.get(payload, "metric")}`,
+      "n/a"
+    );
+
+    if (eventName === "n/a") {
+      return null;
+    }
+    const hullEvent: HullEvent = {
+      event_id: _.get(payload, "event_id"),
+      event: eventName,
+      created_at: _.get(payload, "timestamp"),
+      context,
+      properties: eventProps
+    };
+
+    return hullEvent;
+  }
+
+  /**
+   * Maps the webhook payload to a hull event object.
+   *
+   * @param {Object} payload The webhook payload.
+   * @returns {THullEvent} The event object or null if it cannot be mapped.
+   * @memberof MappingUtil
+   */
+  mapWebhookToHullEvent(payload: Object): HullEvent | null {
+    if (_.get(payload, "data", null) === null) {
+      return null;
+    }
+    let eventPropPaths;
+    let eventNamePath;
+    if (_.has(payload, "event_type")) {
+      // return this.mapLecacyWebhook(payload);
+      // Handle properties
+      eventPropPaths = [
+        "email_address",
+        "email_id",
+        "customer_id",
+        "campaign_id",
+        "campaign_name",
+        "template_id",
+        "tags",
+        "subject"
+      ];
+      eventNamePath = _.get(payload, "event_type");
+    }
+    if (_.has(payload, "object_type") && _.has(payload, "metric")) {
+      // return this.mapWebhook(payload);
+      // Handle properties
+      eventPropPaths = [
+        "email_address",
+        "customer_id",
+        "campaign_id",
+        "content_id",
+        "delivery_id",
+        "subject"
+      ];
+      eventNamePath = `${_.get(payload, "object_type")}_${_.get(payload, "metric")}`;
+    }
+    const eventProps = _.pick(payload.data, eventPropPaths);
+    _.set(eventProps, "email_subject", _.get(eventProps, "subject"));
+    _.unset(eventProps, "subject");
+
+    // Handle context
+    const context = {
+      ip: "0"
+    };
+
+    // Hanlde the name
+    const eventName = _.get(EVENTTYPE_MAPPINGS, eventNamePath, "n/a");
+
+    if (eventName === "n/a") {
+      return null;
+    }
     const hullEvent: HullEvent = {
       event_id: _.get(payload, "event_id"),
       event: eventName,

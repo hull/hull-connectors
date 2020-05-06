@@ -1,7 +1,7 @@
 module.exports = (ctxMock) => {
   const userData = {
-    id: "test-1",
-    email: "sven+dt7@hull.io"
+    id: "5abc2de89ba6c1be560019e3",
+    email: "sven+dt2@hull.io"
   };
   expect(ctxMock.client.asUser.mock.calls[0])
     .toEqual([userData]);
@@ -10,16 +10,17 @@ module.exports = (ctxMock) => {
     context: {
       ip: "0"
     },
-    created_at: 1522340303,
-    event: "Email Converted",
-    event_id: "01C9S8V5C5E16R6J6T903Q3GF7",
+    created_at: 1522283447,
+    event: "Email Sent",
+    event_id: "01C9QJM259SPWQF2JZ8GX9HY7J",
     properties: {
       campaign_id: "12",
-      customer_id: "test-1",
-      email_address: "Sven <sven+dt7@hull.io>",
-      email_id: "ZI6aBAABYnJ3muVry9xcBjL7Aj-e",
+      campaign_name: "Started Vault Trials - 1 - Welcome, Installing and Deploying Vault",
+      customer_id: "5abc2de89ba6c1be560019e3",
+      email_address: "Sven <sven+dt2@hull.io>",
+      email_id: "ZI6aBAABYm8p-RzGk9KlbP_MSBwc",
       email_subject: "How Vault Enterprise trials work",
-      content_id: "35"
+      template_id: "35"
     }
   };
 

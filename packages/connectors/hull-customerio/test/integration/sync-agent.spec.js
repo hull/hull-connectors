@@ -55,13 +55,35 @@ describe("SyncAgent", () => {
     });
   });
 
-  describe("handleWebhook", () => {
+  describe("handleLegacyWebhook", () => {
     const scenariosToRun = [
       "webhook-emaildelivered",
       "webhook-emailsent",
       "webhook-emailopened",
       "webhook-emailconverted",
       "webhook-emaildrafted-noemail"
+    ];
+    scenariosToRun.forEach((scenarioName) => {
+      test(`${scenarioName}`, () => {
+        const webhookPayload = require(`./scenarios/legacy/${scenarioName}/webhook-payload`)();
+        const ctxMockWebhook = require(`./scenarios/legacy/${scenarioName}/context-config`)();
+
+        const syncAgent = new SyncAgent(ctxMockWebhook);
+
+        return syncAgent.handleWebhook(webhookPayload).then(() => {
+          require(`./scenarios/legacy/${scenarioName}/ctx-expectations`)(ctxMockWebhook);
+        });
+      });
+    });
+  });
+
+  describe("handleWebhook", () => {
+    const scenariosToRun = [
+      // "webhook-emaildelivered",
+      // "webhook-emailsent",
+      // "webhook-emailopened",
+      "webhook-emailconverted",
+      // "webhook-emaildrafted-noemail"
     ];
     scenariosToRun.forEach((scenarioName) => {
       test(`${scenarioName}`, () => {
