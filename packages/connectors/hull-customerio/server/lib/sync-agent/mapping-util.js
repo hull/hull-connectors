@@ -149,19 +149,11 @@ class MappingUtil {
   }
 
   isNewWebhook(payload: Object): boolean {
-    return (
-      _.has(payload, "object_type") &&
-      _.has(payload, "metric") &&
-      !_.has(payload, "event_type")
-    );
+    return _.has(payload, "object_type") && _.has(payload, "metric");
   }
 
   isLegacyWebhook(payload: Object): boolean {
-    return (
-      !_.has(payload, "object_type") &&
-      !_.has(payload, "metric") &&
-      _.has(payload, "event_type")
-    );
+    return _.has(payload, "event_type");
   }
 
   /**
