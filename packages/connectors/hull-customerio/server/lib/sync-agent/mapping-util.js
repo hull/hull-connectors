@@ -228,20 +228,27 @@ class MappingUtil {
     } else if (_.has(payload, "object_type") && _.has(payload, "metric")) {
       // Handle properties
       eventPropPaths = [
-        "email_address",
         "customer_id",
         "campaign_id",
         "content_id",
         "delivery_id",
+        "recipient",
         "subject"
       ];
-      eventNamePath = `${_.get(payload, "object_type")}_${_.get(payload, "metric")}`;
+      eventNamePath = `${_.get(payload, "object_type")}_${_.get(
+        payload,
+        "metric"
+      )}`;
     } else {
       return null;
     }
     const eventProps = _.pick(payload.data, eventPropPaths);
     _.set(eventProps, "email_subject", _.get(eventProps, "subject"));
     _.unset(eventProps, "subject");
+    if (_.has(eventProps, "recipient")) {
+      _.set(eventProps, "recipient", _.get(eventProps, "email_address"));
+      _.unset(eventProps, "recipient");
+    }
 
     // Handle context
     const context = {
