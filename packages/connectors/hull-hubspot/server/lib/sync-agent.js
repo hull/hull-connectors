@@ -1005,7 +1005,7 @@ class SyncAgent {
         });
         if (ident.error) {
           return this.logger.info("incoming.account.skip", {
-            company,
+            company: company.companyId,
             reason: ident.error
           });
         }
@@ -1015,7 +1015,7 @@ class SyncAgent {
           asAccount = this.hullClient.asAccount(ident.claims);
         } catch (error) {
           return this.logger.info("incoming.account.skip", {
-            company,
+            company: company.companyId,
             error
           });
         }
