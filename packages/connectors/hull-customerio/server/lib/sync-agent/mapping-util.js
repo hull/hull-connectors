@@ -189,14 +189,12 @@ class MappingUtil {
     // Handle email
     let emailPath;
     const regex = /[A-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[A-Z0-9.-]+/gim;
-    if (this.isNewWebhook(payload)) {
-      if (payload.object_type === "customer") {
-        emailPath = "data.email_address";
-      } else {
-        emailPath = "data.recipient";
-      }
-    } else {
+    if (this.isLegacyWebhook(payload)) {
       emailPath = "data.email_address";
+    } else if (payload.object_type === "customer") {
+      emailPath = "data.email_address";
+    } else {
+      emailPath = "data.recipient";
     }
     const rawEmail = _.get(payload, emailPath, null);
     const parsedEmails = _.isNil(rawEmail) ? [] : rawEmail.match(regex);
