@@ -10,15 +10,12 @@ module.exports = (ctxMock) => {
     context: {
       ip: "0"
     },
-    created_at: 1585254331,
-    event: "Email Sent",
-    event_id: "01E4C8AY5K21N2QNRBD9YXJ13Z",
+    created_at: 1585250199,
+    event: "Customer Subscribed",
+    event_id: "01E4C4CT6YDC7Y5M7FE1GWWPQJ",
     properties: {
-      campaign_id: 9,
       customer_id: "1",
       email_address: "test@example.com",
-      email_id: "RPILAgABcRhIBqSp7kiPekGBIeVh",
-      email_subject: "hello",
     }
   };
 

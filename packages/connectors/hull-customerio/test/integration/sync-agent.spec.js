@@ -79,11 +79,12 @@ describe("SyncAgent", () => {
 
   describe("handleWebhook", () => {
     const scenariosToRun = [
-      // "webhook-emaildelivered",
-      // "webhook-emailsent",
-      // "webhook-emailopened",
+      "webhook-emaildelivered",
+      "webhook-emailsent",
+      "webhook-emailopened",
       "webhook-emailconverted",
-      // "webhook-emaildrafted-noemail"
+      "webhook-emaildrafted-noemail",
+      "webhook-customer-subscribed"
     ];
     scenariosToRun.forEach((scenarioName) => {
       test(`${scenarioName}`, () => {

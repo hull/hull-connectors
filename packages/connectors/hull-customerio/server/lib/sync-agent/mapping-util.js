@@ -260,7 +260,7 @@ class MappingUtil {
         "delivery_id",
         "subject"
       ];
-      if (payload.object_type === "contact") {
+      if (payload.object_type === "customer") {
         eventPropPaths.push("email_address");
       } else {
         eventPropPaths.push("recipient");
