@@ -213,7 +213,6 @@ class MappingUtil {
     let eventPropPaths;
     let eventNamePath;
     if (_.has(payload, "event_type")) {
-      // return this.mapLecacyWebhook(payload);
       // Handle properties
       eventPropPaths = [
         "email_address",
@@ -226,9 +225,7 @@ class MappingUtil {
         "subject"
       ];
       eventNamePath = _.get(payload, "event_type");
-    }
-    if (_.has(payload, "object_type") && _.has(payload, "metric")) {
-      // return this.mapWebhook(payload);
+    } else if (_.has(payload, "object_type") && _.has(payload, "metric")) {
       // Handle properties
       eventPropPaths = [
         "email_address",
@@ -239,6 +236,8 @@ class MappingUtil {
         "subject"
       ];
       eventNamePath = `${_.get(payload, "object_type")}_${_.get(payload, "metric")}`;
+    } else {
+      return null;
     }
     const eventProps = _.pick(payload.data, eventPropPaths);
     _.set(eventProps, "email_subject", _.get(eventProps, "subject"));
