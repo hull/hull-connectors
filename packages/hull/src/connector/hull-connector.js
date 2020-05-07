@@ -29,6 +29,7 @@ import {
   statusHandler
 } from "../handlers";
 
+import AppMetricsMonitor from "./appmetrics-monitor";
 import errorHandler from "./error";
 
 const { compose } = require("compose-middleware");
@@ -224,6 +225,13 @@ class HullConnector {
   }
 
   async start() {
+    if (this.metricsConfig.statsd_host) {
+      AppMetricsMonitor.start(this, {
+        host: this.metricsConfig.statsd_host,
+        port: this.metricsConfig.statsd_port
+      });
+    }
+
     if (this.workerConfig.start) {
       this.startWorker(this.workerConfig.queueName);
     } else {

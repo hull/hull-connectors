@@ -25,4 +25,4 @@ SHIP_CACHE_KEY_PREFIX=$MARATHON_APP_ID
 ./scripts/load-ssm-settings > .env
 source .env
 
-exec node --optimize_for_size --max_old_space_size=$MEMORY_AVAILABLE --gc_interval=100 -r newrelic $PATH_TO_CONNECTOR
+exec node --optimize_for_size --max_old_space_size=$MEMORY_AVAILABLE --gc_interval=100 -r newrelic -r appmetrics/start $PATH_TO_CONNECTOR
