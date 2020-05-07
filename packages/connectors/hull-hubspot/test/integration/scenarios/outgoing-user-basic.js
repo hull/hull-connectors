@@ -5,7 +5,7 @@ import connectorConfig from "../../../server/config";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
-process.env.CLIENT_ID = "123",
+process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
 
 
@@ -18,10 +18,7 @@ const connector = {
   }
 };
 const usersSegments = [
-  {
-    name: "testSegment",
-    id: "hullSegmentId"
-  }
+  { name: "testSegment", id: "hullSegmentId" }
 ];
 
 it("should send out a new hull user to hubspot - user basic", () => {
@@ -33,7 +30,23 @@ it("should send out a new hull user to hubspot - user basic", () => {
       channel: "user:update",
       externalApiMock: () => {
         const scope = nock("https://api.hubapi.com");
-        scope.get("/contacts/v2/groups?includeProperties=true").reply(200, []);
+        scope.get("/contacts/v2/groups?includeProperties=true").reply(200, [
+          {
+            "name": "contactinformation",
+            "displayName": "Contact Information",
+            "properties": [
+              {
+                "name": "email",
+                "label": "Email",
+                "description": "A contact's email address",
+                "groupName": "contactinformation",
+                "type": "string",
+                "fieldType": "text",
+                "readOnlyValue": false
+              }
+            ]
+          }
+        ]);
         scope
           .get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, []);
@@ -60,7 +73,7 @@ it("should send out a new hull user to hubspot - user basic", () => {
           user: {
             email
           },
-          segments: [{ id: "hullSegmentId", name: "hullSegmentName" }],
+          segments: [{ id: "hullSegmentId", name: "testSegment" }],
           changes: {
             is_new: false,
             user: {},
