@@ -308,20 +308,7 @@ const glue = {
         ])
     }),
 
-  ensureWebhooks: ifL(settings("access_token"),
-    ifL(cond("isEmpty", "${connector.private_settings.webhook_id}"), [
-
-      set("webhookUrl", utils("createWebhookUrl")),
-      set("existingWebhooks", outreach("getAllWebhooks")),
-      set("sameWebhook", filter({ type: "webhook", attributes: { url: "${webhookUrl}" } }, "${existingWebhooks}")),
-      ifL("${sameWebhook[0]}", {
-        do: set("webhookId", "${sameWebhook[0].id}"),
-        eldo: set("webhookId", get("data.id", outreach("insertWebhook", webhookDataTemplate)))
-      }),
-      hull("settingsUpdate", { webhook_id:  "${webhookId}" }),
-      route("deleteBadWebhooks")
-    ])
-  ),
+  ensureWebhooks: [],
   deleteBadWebhooks: [
     set("connectorOrganization", utils("getConnectorOrganization")),
 
