@@ -38,7 +38,7 @@ const buildConfigurationFromEnvironment = env => {
     SHIP_CACHE_TTL,
     SHIP_CACHE_MAX,
     SHIP_CACHE_KEY_PREFIX,
-    REDIS_MAX_CONNECTIONS = 5,
+    REDIS_MAX_CONNECTIONS = 50,
     REDIS_MIN_CONNECTIONS = 1
   } = env;
 
