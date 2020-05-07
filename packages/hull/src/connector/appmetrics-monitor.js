@@ -21,6 +21,13 @@ function start(connector, { host, port }) {
     }
   });
 
+  setInterval(() => {
+    console.log("process.active_handles", process._getActiveHandles());
+    console.log("process.active_requests", process._getActiveRequests());
+    client.gauge("process.active_handles", process._getActiveHandles());
+    client.gauge("process.active_requests", process._getActiveRequests());
+  }, 10000);
+
   monitor.on("cpu", function handleCPU(cpu) {
     client.gauge("cpu.process", cpu.process);
     client.gauge("cpu.system", cpu.system);
