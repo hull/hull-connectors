@@ -2296,7 +2296,19 @@ append-transform@^1.0.0:
   dependencies:
     default-require-extensions "^2.0.0"
 
-appmetrics@^5.1.1:
+appmetrics-dash@^5.3.0:
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/appmetrics-dash/-/appmetrics-dash-5.3.0.tgz#e92f6ef89964416bafdbdc6e3edfcec8e5e33a73"
+  integrity sha512-vc04tJyM1LLok4wkV7Vi2Ez7p2XBpWOENAot/yujTUFRzU60VONy/Kh8Lh2s6oHPI0LPz85o69c2uyyCAGyaRA==
+  dependencies:
+    appmetrics "^5.0.0"
+    debug "^2.6.0"
+    express "^4.14.1"
+    socket.io "^2.0.3"
+  optionalDependencies:
+    node-report "^2.1.0"
+
+appmetrics@^5.0.0, appmetrics@^5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/appmetrics/-/appmetrics-5.1.1.tgz#ae742ca33eb807d87156d4c508b0474b5be40e88"
   integrity sha512-6TkvudkSpJ8VC60U//tNgYQv7+Qc2/RJBGPUcIoRVob6ALot3LqcANpwsDryZBaXKM2Ay7xPtDx+afHkihhZGw==
@@ -4958,7 +4970,7 @@ debug@*, debug@4, debug@^4.0.1, debug@^4.1.0, debug@^4.1.1, debug@~4.1.0:
   dependencies:
     ms "^2.1.1"
 
-debug@2, debug@2.6.9, debug@^2.1.0, debug@^2.2.0, debug@^2.3.3, debug@^2.6.8, debug@^2.6.9, debug@~2.6.8:
+debug@2, debug@2.6.9, debug@^2.1.0, debug@^2.2.0, debug@^2.3.3, debug@^2.6.0, debug@^2.6.8, debug@^2.6.9, debug@~2.6.8:
   version "2.6.9"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
   integrity sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==
@@ -6346,7 +6358,7 @@ express@^3.1.1:
     utils-merge "1.0.0"
     vary "~1.0.1"
 
-express@^4.12.2, express@^4.16.4, express@^4.17.1:
+express@^4.12.2, express@^4.14.1, express@^4.16.4, express@^4.17.1:
   version "4.17.1"
   resolved "https://registry.yarnpkg.com/express/-/express-4.17.1.tgz#4491fc38605cf51f8629d39c2b5d026f98a4c134"
   integrity sha512-mHJ9O79RqluphRrcw2X/GTh3k9tVv8YcoyY4Kkh4WDMUYKRZUq0h1o0w2rrrxBqM7VoeUVqgb27xlEMXTnYt4g==
@@ -11299,6 +11311,13 @@ node-releases@^1.1.38:
   dependencies:
     semver "^6.3.0"
 
+node-report@^2.1.0:
+  version "2.2.10"
+  resolved "https://registry.yarnpkg.com/node-report/-/node-report-2.2.10.tgz#ae8f29e8185a9a026e024c4ccba39c46845719c3"
+  integrity sha512-KANqX94qnO5MpomgNBF/r1+0OFVihwf2Ti4gu5nXne07EDtBI1Cv0xMpT29VWiUD7aJe8YtuVPP2PKapo8h2qw==
+  dependencies:
+    nan "^2.12.1"
+
 node-sass@^4.12.0:
   version "4.13.0"
   resolved "https://registry.yarnpkg.com/node-sass/-/node-sass-4.13.0.tgz#b647288babdd6a1cb726de4545516b31f90da066"
@@ -15032,7 +15051,7 @@ socket.io-redis@^5.2.0:
     socket.io-adapter "~1.1.0"
     uid2 "0.0.3"
 
-socket.io@^2.0.4:
+socket.io@^2.0.3, socket.io@^2.0.4:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/socket.io/-/socket.io-2.3.0.tgz#cd762ed6a4faeca59bc1f3e243c0969311eb73fb"
   integrity sha512-2A892lrj0GcgR/9Qk81EaY2gYhCBxurV0PfmmESO6p27QPrUK1J3zdns+5QPqvUYK2q657nSj0guoIil9+7eFg==
