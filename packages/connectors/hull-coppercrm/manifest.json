@@ -1,6 +1,6 @@
 {
   "name": "Copper",
-  "description": "Two-way CopperCrm integration for Leads",
+  "description": "Two-way Copper integration for Leads",
   "source": "coppercrm",
   "logo": "logo.png",
   "picture": "picture.png",
