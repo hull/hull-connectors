@@ -41,8 +41,9 @@ To receive customer activity from Customer.io you need to tell Customer.io to se
   ![Copy Webhook Url](./docs/webhook01.png)
 2. Then go to **Customer.io**.
 3. Click on "Integrations".
-4. Find and click on "Email Activity Webhooks".
-5. Paste the URL you copied in the box. Check all event types below it.
+4. Find and click on "Reporting Webhooks".
+5. Click on "Add Reporting Webhooks". Make sure you don't already have a Hull webhook set-up, as it will count towards your limits in Hull because of duplicated traffic.
+5. Paste the URL you copied in the box. Check all "Customer" and "Email" event types below it (support for more events later on).
 6. Click on the button “Send Test” and save your changes if the symbol indicates success.
   ![Paste Webhook Url in Customer.io](./docs/webhook03.png)
 
