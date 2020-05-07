@@ -11,7 +11,7 @@ function start(connector, { host, port }) {
   const client = new StatsdClient({
     host,
     port,
-    prefix: "appmetrics",
+    prefix: "connectors.appmetrics",
     tags: {
       connector_version: connector.manifest.version,
       connector_name: connector.manifest.name,
