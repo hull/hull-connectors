@@ -17,7 +17,7 @@ function start(connector, { host, port }) {
       connector_name: connector.manifest.name,
       hull_env: process.env.HULL_ENV || "production",
       MESOS_TASK_ID: process.env.MESOS_TASK_ID,
-      MARATHON_APP_ID: process.env.MESOS_TASK_ID
+      MARATHON_APP_ID: process.env.MARATHON_APP_ID
     }
   });
 
