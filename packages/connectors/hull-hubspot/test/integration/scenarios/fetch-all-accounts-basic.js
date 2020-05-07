@@ -18,7 +18,7 @@ const connector = {
   }
 };
 
-it.skip("should fetch all companies", () => {
+it.skip("should fetch recent companies", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
@@ -69,7 +69,7 @@ it.skip("should fetch all companies", () => {
           "incoming.account.skip",
           {},
           {
-            company: incomingData.results[1],
+            company: incomingData.results[1].companyId,
             reason: "Value of field \"properties.domain.value\" is empty, cannot map it to domain, but it's required."
           }
         ],

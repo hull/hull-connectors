@@ -97,6 +97,18 @@ describe("CopperCRM Incoming Tests", () => {
     return harness.runTest(require("./fixtures/webhooks-deleted-account"));
   });
 
+  it("lead upsert", () => {
+    return harness.runTest(require("./fixtures/leadUpdate"));
+  });
+
+  it("lead update", () => {
+    return harness.runTest(require("./fixtures/leadUpdate_update_email"));
+  });
+
+  it("lead upsert fail", () => {
+    return harness.runTest(require("./fixtures/leadUpdate_fail"));
+  });
+
 //   it("fetch recent coppercrm", () => {
 //     const requestTrace = require("./fixtures/fetchAllActivities");
 //     return harness.runTest(requestTrace);
