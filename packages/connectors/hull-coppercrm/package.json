@@ -1,5 +1,5 @@
 {
-  "name": "hull-coppercrm",
+  "name": "hull-copper",
   "version": "0.1.24-monorepo",
   "description": "Integration with CopperCRM",
   "scripts": {
