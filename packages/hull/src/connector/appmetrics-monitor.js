@@ -3,7 +3,7 @@ import AppMetrics from "appmetrics";
 
 const MonitorStatus = { client: null };
 
-function start({ host, port, connector }) {
+function start(connector, { host, port }) {
   const monitor = AppMetrics.monitor();
 
   if (MonitorStatus.client) return MonitorStatus.client;
