@@ -195,8 +195,8 @@
   "schedules": [],
   "settings_sections": [
     {
-      "title": "Connect with Outreach",
-      "description": "Please begin by authenticating this connector with Outreach.  You must have appropriate privileges to grant access.  Hull requests access to only the endpoints which are required to do User and Account synchronization",
+      "title": "Connect with Hubspot",
+      "description": "Please begin by authenticating this connector with Hubspot.  You must have appropriate privileges to grant access.  Hull requests access to only the endpoints which are required to do User and Account synchronization",
       "properties": [
         "private_settings.oauth"
       ]
