@@ -140,6 +140,7 @@
     "react-dom": "^16.8.6",
     "react-select": "^3.0.4",
     "superagent": "^5.0.5",
+    "svg-inline-loader": "^0.8.2",
     "sweetalert": "^2.1.2",
     "urijs": "^1.19.1",
     "uuid": "^3.3.2"

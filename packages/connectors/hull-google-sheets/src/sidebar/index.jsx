@@ -3,19 +3,27 @@
 import React, { Component } from "react";
 import _ from "lodash";
 import Settings from "./settings";
+import Spinner from "./spinner";
 import Mapping from "./mapping";
+import Claims from "./claims";
 import ImportStatus from "./import-status";
 import Service from "./service";
+import Type from "./type";
+import Source from "./source";
+import Actions from "./actions";
+
 import type {
   ImportType,
   GoogleColumns,
   HullAttributes,
-  SettingsType,
+  UserClaims,
+  AccountClaims,
   GetActiveSheetResponse,
   AttributeMapping,
-  UserPropsType,
+  MappingType,
   ImportProgressType,
-  ImportStatusType
+  ImportStatusType,
+  ClaimsType
 } from "../../types";
 
 type Props = {};
@@ -26,23 +34,32 @@ type State = {
   importStatus?: ImportStatusType,
   importProgress?: ImportProgressType,
 
-  loading: boolean | string,
+  name?: string,
+
+  loading: boolean,
+  initialized: boolean,
+  saving: boolean,
+  importing: boolean,
   displaySettings: boolean,
 
-  settings?: SettingsType,
+  token?: string,
 
-  type?: ImportType,
+  type: ImportType,
   source?: string,
+  error?: string,
 
   mapping: AttributeMapping,
-  claims: AttributeMapping,
+  claims: UserClaims | AccountClaims,
 
   googleColumns: GoogleColumns,
   hullAttributes: HullAttributes
 };
 
+const shouldDisplaySettings = ({ token, initialized }: State) =>
+  initialized && !token;
+
 export default class Sidebar extends Component<Props, State> {
-  autoSaveUserProps: () => Promise<void>;
+  autoSaveUserProps: any => Promise<void>;
 
   activeSheetTimer: IntervalID;
 
@@ -50,14 +67,18 @@ export default class Sidebar extends Component<Props, State> {
     super(props);
     this.autoSaveUserProps = _.debounce(this.saveUserProps, 1000);
     this.state = {
-      type: undefined,
+      type: "user",
       activeSheetIndex: undefined,
-      settings: undefined,
+      token: undefined,
+      initialized: false,
       loading: false,
+      saving: false,
+      importing: false,
       displaySettings: false,
+      error: undefined,
 
       mapping: [],
-      claims: [],
+      claims: {},
 
       googleColumns: [],
       hullAttributes: []
@@ -72,12 +93,6 @@ export default class Sidebar extends Component<Props, State> {
     this.stopPollingActiveSheet();
   }
 
-  UNSAFE_componentWillReceiveProps(nextProps: Props, nextState: State) {
-    if (nextState.activeSheetIndex !== this.state.activeSheetIndex) {
-      this.fetchSettings(nextState.activeSheetIndex);
-    }
-  }
-
   startPollingActiveSheet() {
     this.activeSheetTimer = setInterval(this.getActiveSheet, 1000);
   }
@@ -89,34 +104,63 @@ export default class Sidebar extends Component<Props, State> {
   }
 
   getActiveSheet = async () => {
+    const { loading } = this.state;
+    if (loading) {
+      return;
+    }
     const response: GetActiveSheetResponse = await Service.getActiveSheet();
+    const { activeSheetIndex } = response;
+    if (activeSheetIndex !== this.state.activeSheetIndex) {
+      this.fetchSettings(activeSheetIndex);
+    }
     this.setState(response);
   };
 
-  fetchSettings = async () => {
-    const { loading, activeSheetIndex } = this.state;
-    if (loading) return false;
-    this.setState({ loading: true });
-    this.stopPollingActiveSheet();
-    const state = await Service.bootstrap(activeSheetIndex);
-    console.log("BOOTSTRAPPED", state);
-    this.setState({ ...state, loading: false });
-    this.startPollingActiveSheet();
+  fetchSettings = async (activeSheetIndex?: number) => {
+    const { loading } = this.state;
+    if (loading || activeSheetIndex === undefined) return false;
+    this.setState({ activeSheetIndex, loading: true, error: undefined });
+    try {
+      const state = await Service.bootstrap(activeSheetIndex);
+      console.log("BOOTSTRAPPED", state);
+      const { token, hullAttributes, googleColumns, displaySettings } = state;
+      this.setState({
+        ...state,
+        ...this.state,
+        googleColumns,
+        hullAttributes,
+        token,
+        displaySettings: token ? displaySettings : true,
+        loading: false,
+        error: undefined,
+        initialized: true
+      });
+    } catch (err) {
+      this.setState({ error: err.message });
+      console.log(err);
+    }
     return true;
   };
 
-  saveUserProps = async () => {
-    const userProps = _.pick(
-      this.state,
-      "mapping",
-      "claims",
-      "settings",
-      "type",
-      "source"
-    );
-    this.setState({ loading: "saving..." });
-    await this.handleSaveUserProps(userProps);
-    this.setState({ loading: false });
+  saveUserProps = async (data: {}, options?: { reload: true }) => {
+    this.setState({ saving: true });
+    const { activeSheetIndex } = this.state;
+    if (!activeSheetIndex) {
+      return;
+    }
+    const newState = {
+      index: activeSheetIndex,
+      data
+    };
+    console.log("SAVING USER PROPS", newState);
+    const state = await Service.setUserProps(newState);
+    console.log("SAVED AND RECEIVED", state);
+    if (options && options.reload) {
+      this.setState(state);
+    } else {
+      this.setState(_.pick(state, ["googleColumns", "hullAttributes"]));
+    }
+    this.setState({ loading: false, saving: false });
   };
 
   toggleSettings = () =>
@@ -124,115 +168,125 @@ export default class Sidebar extends Component<Props, State> {
       displaySettings: !this.state.displaySettings
     });
 
-  handleSaveUserProps = async ({
-    mapping,
-    settings,
-    type,
-    claims,
-    source
-  }: UserPropsType) => {
-    const { activeSheetIndex } = this.state;
-    console.log("SAVING USER PROPS", {
-      activeSheetIndex,
-      settings,
-      mapping,
-      claims,
-      type,
-      source
-    });
-    if (!activeSheetIndex) {
-      return;
-    }
-    await Promise.all([
-      Service.setUserProp("settings", settings),
-      Service.setUserProp(`mapping-${activeSheetIndex}`, mapping),
-      Service.setUserProp(`claims-${activeSheetIndex}`, claims),
-      Service.setUserProp(`type-${activeSheetIndex}`, type),
-      Service.setUserProp(`source-${activeSheetIndex}`, source)
-    ]);
-  };
+  updateState = (newState: {}, options?: { reload: boolean }) =>
+    this.setState(newState, () => this.saveUserProps(newState, options));
 
-  handleReloadColumns = () => this.bootstrap();
+  handleReloadColumns = () => this.fetchSettings(this.state.activeSheetIndex);
 
   handleSaveSettings = async () => {
-    await this.saveUserProps();
+    await Service.setUserProp({
+      key: "token",
+      value: this.state.token
+    });
     this.toggleSettings();
   };
 
-  handleChangeToken = (hullToken: string) =>
-    this.setState({
-      settings: { ...this.state.settings, hullToken }
-    });
+  handleChangeToken = (token: string) => this.setState({ token });
 
-  handleChange = ({
-    target,
+  handleChangeSource = async (source: string) => this.updateState({ source });
+
+  handleAddMapping = () => {
+    const { type } = this.state;
+    const key = `${type}_mapping`;
+    const mapping = [
+      ...(this.state[key] || []),
+      {
+        hull: this.state.hullAttributes[0],
+        service: this.state.googleColumns[0]
+      }
+    ];
+    this.updateState({ [key]: mapping });
+  };
+
+  handleRemoveMapping = ({ index }: { index: number }) => {
+    const { type } = this.state;
+    const key = `${type}_mapping`;
+    const mapping = [...(this.state[key] || [])];
+    mapping.splice(index, 1);
+    this.updateState({ [key]: mapping });
+  };
+
+  handleChangeMapping = ({
     value,
     index
   }: {
-    target: "mapping" | "claims",
-    value: string,
+    value: MappingType,
     index: number
   }) => {
-    const mapping = [...this.state[target]];
-    mapping[index] = {
-      hull: value,
-      service: this.state.googleColumns[index]
-    };
-    this.setState({ [target]: mapping });
-    this.autoSaveUserProps();
+    const { type } = this.state;
+    const key = `${type}_mapping`;
+    const mapping = [...(this.state[key] || [])];
+    mapping[index] = value;
+    this.updateState({ [key]: mapping });
   };
 
-  handleChangeEntityType = (type: ImportType) => {
-    this.setState({ type });
-    this.autoSaveUserProps();
+  handleChangeClaim = (newClaims: ClaimsType) => {
+    const { type } = this.state;
+    const key = `${type}_claims`;
+    const claims = { ...this.state[key] };
+    const mergedClaims = { ...claims, ...newClaims };
+    console.log("Merging", { [key]: mergedClaims });
+    this.updateState({
+      [key]: mergedClaims
+    });
   };
+
+  handleChangeType = (type: ImportType) =>
+    this.setState({ loading: true }, () =>
+      this.updateState({ type }, { reload: true })
+    );
 
   handleClearImportStatus = () => this.setState({ importStatus: undefined });
 
   handleStartImport = async () => {
     this.setState({
-      loading: "Importing...",
+      importing: true,
       importStatus: { status: "working" }
     });
     try {
       const result = await Service.importData();
       this.setState({
         importStatus: { status: "done", result },
-        loading: false
+        importing: false
       });
     } catch (err) {
       this.setState({
         importStatus: { status: "error", message: _.get(err, "message") },
-        loading: false
+        importing: false
       });
     }
   };
 
   renderMain() {
     const {
+      importProgress,
       importStatus,
-      settings,
+      token,
+      source,
       loading,
-      mapping,
-      claims,
-      source
+      initialized,
+      type,
+      displaySettings,
+      importing
     } = this.state;
 
-    if (!settings || loading || !mapping || !claims) {
-      return <div>Loading !...</div>;
-    }
+    const valid = true;
 
-    const { hullAttributes, googleColumns, importProgress } = this.state;
-    if (!settings || !settings.hullToken) {
+    if (displaySettings || shouldDisplaySettings(this.state)) {
       return (
         <Settings
-          settings={settings}
+          token={token}
           onChangeToken={this.handleChangeToken}
           onSave={this.handleSaveSettings}
         />
       );
     }
-    if (importStatus) {
+
+    if (loading || !initialized) {
+      return <Spinner />;
+    }
+
+    if (importing) {
       return (
         <ImportStatus
           importStatus={importStatus}
@@ -242,31 +296,79 @@ export default class Sidebar extends Component<Props, State> {
       );
     }
     return (
-      <Mapping
-        mapping={mapping}
+      <div style={{ paddingBottom: "5em" }}>
+        <Type type={type} onChange={this.handleChangeType} />
+        <Source source={source} onChange={this.handleChangeSource} />
+        {this.renderClaims()}
+        {this.renderMapping()}
+      </div>
+    );
+  }
+
+  renderClaims() {
+    const { type, googleColumns } = this.state;
+    const claims = this.state[`${type}_claims`] || [];
+    return (
+      <Claims
+        valid={true}
+        type={type}
         claims={claims}
-        source={source}
-        hullAttributes={hullAttributes}
         googleColumns={googleColumns}
-        importStatus={importStatus}
-        onChange={this.handleChange}
-        onChangeEntityType={this.handleChangeEntityType}
-        onStartImport={this.handleStartImport}
+        onChangeRow={this.handleChangeClaim}
       />
     );
   }
 
+  renderMapping() {
+    const { hullAttributes, source, type, googleColumns, loading } = this.state;
+    const mapping = this.state[`${type}_mapping`] || [];
+    return (
+      hullAttributes &&
+      googleColumns && (
+        <Mapping
+          mapping={mapping}
+          source={source}
+          loading={loading}
+          hullAttributes={hullAttributes}
+          googleColumns={googleColumns}
+          onChangeRow={this.handleChangeMapping}
+          onRemoveRow={this.handleRemoveMapping}
+          onAddRow={this.handleAddMapping}
+        />
+      )
+    );
+  }
+
   render() {
-    const { loading, displaySettings } = this.state;
+    const {
+      claims,
+      initialized,
+      loading,
+      type,
+      saving,
+      error,
+      name = ""
+    } = this.state;
+    const valid = true;
     return (
       <div>
         <div className="sidebar">
           <div>
-            <span style={{ float: "right" }}>{loading}</span>
-            <button onClick={this.toggleSettings}>
-              {displaySettings ? "Hide" : "Show"} token
-            </button>
-            <button onClick={this.handleReloadColumns}>Reload columns</button>
+            <p>
+              {(saving && " Saving...") || (name && ` Current Sheet: ${name}`)}
+            </p>
+            <Actions
+              saving={saving}
+              loading={loading}
+              valid={valid}
+              claims={claims}
+              type={type}
+              initialized={initialized}
+              onReloadColumns={this.handleReloadColumns}
+              onToggleSettings={this.toggleSettings}
+              onStartImport={this.handleStartImport}
+            />
+            <p>{!!error && <span className="error">{error}</span>}</p>
           </div>
           {this.renderMain()}
         </div>

@@ -1,0 +1,47 @@
+// @flow
+
+import React, { Component } from "react";
+// import Select from "react-select";
+import type { GoogleColumns } from "../../types";
+
+type Props = {
+  googleColumns?: GoogleColumns,
+  claim: string,
+  value?: string,
+  onUpdate: ({
+    claim: string,
+    value: number
+  }) => void
+};
+type State = {};
+
+class ClaimLine extends Component<Props, State> {
+  handleUpdateClaim = (event: SyntheticEvent<>) => {
+    // $FlowFixMe
+    const { value } = event.currentTarget;
+    const { claim } = this.props;
+    console.log("Update Claim", { [claim]: value });
+    this.props.onUpdate({ [claim]: value });
+  };
+
+  render() {
+    const { claim, googleColumns = [], value } = this.props;
+    return (
+      <tr className="no-style claim-line">
+        <td className="no-style claim-name">{claim} :</td>
+        <td className="no-style claim-value">
+          <select onChange={this.handleUpdateClaim} value={value}>
+            <option value={undefined}>---[No Mapping]---</option>
+            {googleColumns.map((option, i) => (
+              <option key={i} value={i}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </td>
+      </tr>
+    );
+  }
+}
+
+export default ClaimLine;

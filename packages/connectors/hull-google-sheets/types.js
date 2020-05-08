@@ -19,9 +19,10 @@ export type SettingsType = {
 export type MappingType = {
   hull: string,
   service: string,
-  overwrite?: boolean
+  overwrite?: boolean,
+  enabled?: boolean
 };
-export type AttributeMapping = Array<MappingType>
+export type AttributeMapping = Array<MappingType>;
 
 export type ImportStatusType = {
   status: "done" | "working" | "error",
@@ -38,6 +39,7 @@ export type ImportProgressType = {
 };
 
 export type UserPropsType = {
+  token: string,
   mapping: AttributeMapping,
   claims: AttributeMapping,
   settings: SettingsType,
@@ -47,6 +49,7 @@ export type UserPropsType = {
 
 export type GetActiveSheetResponse = {
   activeSheetIndex: number,
+  name: string,
   importProgress: ImportProgressType
 };
 
@@ -54,3 +57,17 @@ export type Column = string;
 
 export type GoogleColumns = Array<string>;
 export type HullAttributes = Array<string>;
+
+export type UserClaims = {
+  email?: string,
+  anonymous_id?: string,
+  external_id?: string
+};
+
+export type AccountClaims = {
+  domain?: string,
+  anonymous_id?: string,
+  external_id?: string
+};
+
+export type ClaimsType = UserClaims | AccountClaims;

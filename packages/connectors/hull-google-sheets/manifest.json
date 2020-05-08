@@ -33,7 +33,10 @@
     {
       "name": "schema",
       "handler": "schemaHandler",
-      "url": "/schema"
+      "url": "/schema",
+      "options": {
+        "respondWithError": true
+      }
     }
   ],
   "private_settings": [

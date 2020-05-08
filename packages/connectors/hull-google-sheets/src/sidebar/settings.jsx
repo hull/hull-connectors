@@ -1,25 +1,22 @@
 // @flow
 
 import React, { Component } from "react";
-import type { SettingsType } from "../../types";
 
 type Props = {
-  onSave: ({}) => void,
+  onSave: ({}) => Promise<any>,
   onChangeToken: string => void,
-  settings?: SettingsType
+  token?: string
 };
 type State = {};
 
 class Settings extends Component<Props, State> {
   handleChangeToken = (e: any) => {
-    this.props.onChangeToken(
-      e.target.value ? e.target.value.trim() : e.target.value
-    );
+    const value = e.currentTarget.value;
+    this.props.onChangeToken(value ? value.trim() : value);
   };
 
   renderConfig() {
-    const { settings = {} } = this.props;
-    const { hullToken } = settings;
+    const { token } = this.props;
     // const config = this.getConfigFromToken();
     // if (!config || !config.id) {
     //   return undefined;
@@ -30,15 +27,14 @@ class Settings extends Component<Props, State> {
           <label>
             <b>Secure Token</b>
           </label>
-          <p>{hullToken}</p>
+          <p>{token}</p>
         </div>
       </div>
     );
   }
 
   render() {
-    const { settings = {}, onSave } = this.props;
-    const { hullToken } = settings;
+    const { token = "", onSave } = this.props;
     return (
       <div>
         <p>
@@ -50,12 +46,12 @@ class Settings extends Component<Props, State> {
             style={{ width: "100%" }}
             type="text"
             id="token"
-            value={hullToken}
+            value={token}
             onChange={this.handleChangeToken}
           />
         </div>
         <div className="block">
-          <button className="blue" disabled={!hullToken} onClick={onSave}>
+          <button className="blue" disabled={!token} onClick={onSave}>
             Save
           </button>
         </div>

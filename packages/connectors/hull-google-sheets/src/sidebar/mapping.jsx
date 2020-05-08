@@ -1,56 +1,37 @@
 // @flow
 
-import React, { Component } from "react";
+import React, { Fragment, Component } from "react";
 import _ from "lodash";
 import MappingLine from "./mapping-line";
 import type {
   ImportType,
   HullAttributes,
+  MappingType,
   AttributeMapping,
   GoogleColumns
 } from "../../types";
 
-const USER_CLAIMS = ["email", "external_id", "anonymous_id"];
-const ACCOUNT_CLAIMS = ["domain", "external_id", "anonymous_id"];
-
 type Props = {
   type?: ImportType,
   source?: string,
-  onStartImport: () => Promise<void>,
   hullAttributes?: HullAttributes,
   googleColumns?: GoogleColumns,
-  mapping: AttributeMapping,
-  claims: AttributeMapping,
-  onChange: ({
-    target: "mapping" | "claims",
-    value: string,
-    index: number
-  }) => void
+  mapping?: AttributeMapping,
+  loading?: boolean,
+  onAddRow: any => void,
+  onRemoveRow: ({ index: number }) => void,
+  onChangeRow: ({ value: MappingType, index: number }) => void
 };
 
 type State = {};
-type ColumnMapping = [string, { hull: string, enabled: boolean }];
 
 class Mapping extends Component<Props, State> {
-  getMappings(): Array<ColumnMapping> {
-    const { googleColumns = [], mapping = [] } = this.props;
-    return _.zip(googleColumns, mapping).map(([colName, mappingLine]) => [
-      colName,
-      mappingLine || {}
-    ]);
-  }
-
-  getHullFieldOptions(additionalField) {
+  getHullFieldOptions(additionalField: string): Array<string> {
     const { hullAttributes = [] } = this.props;
-    return _.compact(_.uniq(hullAttributes.concat([additionalField]))).map(
-      value => ({
-        value,
-        label: value.replace(/^traits_/, "").replace(/^account\./, "Account > ")
-      })
-    );
+    return _.compact(_.uniq(hullAttributes.concat([additionalField])));
   }
 
-  getMappedField = name => {
+  getMappedField = (name: string) => {
     const { googleColumns = [], mapping = [] } = this.props;
     const idx = _.findIndex(
       mapping,
@@ -60,32 +41,18 @@ class Mapping extends Component<Props, State> {
     return column && { idx, column, mapping: mapping[idx] };
   };
 
-  getClaims = (): Array<string> => {
-    const { type = "user" } = this.props;
-    return type === "user" || type === "user_event"
-      ? USER_CLAIMS
-      : ACCOUNT_CLAIMS;
-  };
-
-  handleChangeMapping = (index: number, e: any) =>
-    this.props.onChange({
-      target: "mapping",
-      value: e ? e.value : null,
+  handleRemove = (index: number) =>
+    this.props.onRemoveRow({
       index
     });
 
-  handleChangeClaims = (index: number, e: any) =>
-    this.props.onChange({
-      target: "claims",
-      value: e ? e.value : null,
+  handleChange = (index: number, value: any) =>
+    this.props.onChangeRow({
+      value,
       index
     });
 
-  handleChangeEntityType = e => this.props.onChangeEntityType(e.target.value);
-
-  handleChangeSource = e => {
-    console.log(e.target.value);
-  };
+  handleAddRow = () => this.props.onAddRow();
 
   renderMappedField = (name: string) => {
     const mapped = this.getMappedField(name);
@@ -104,133 +71,41 @@ class Mapping extends Component<Props, State> {
     );
   };
 
-  isClaimsValid = () => _.some(this.getClaims(), v => !!this.props.claims[v]);
-
-  renderClaims() {
-    const { claims } = this.props;
-    const isClaimsValid = this.isClaimsValid();
-
-    // this.getMandatory().map(this.renderMappedField)
-
-    if (!isClaimsValid) {
-      return (
-        <p>
-          At least one of those two fields has to be linked for the import to be
-          possible
-        </p>
-      );
-    }
-
-    return _.map(this.getClaims(), claim => (
-      <tr key={claim}>
-        <td>{claim}</td>
-        <td>
-          <input
-            style={{ width: "100%" }}
-            type="text"
-            id={claim}
-            value={claims[claim]}
-            onChange={this.handleChangeClaims}
-          />
-        </td>
-      </tr>
-    ));
-  }
-
-  renderImportType(type: string) {
-    return (
-      <tr>
-        <td style={{ width: "92px" }}>
-          <h4>Import Type : </h4>
-        </td>
-        <td>
-          <select
-            style={{ width: "100%" }}
-            value={type}
-            onChange={this.handleChangeEntityType}
-          >
-            <option value="user" default>
-              Users
-            </option>
-            <option value="account">Accounts</option>
-          </select>
-        </td>
-      </tr>
-    );
-  }
-
-  renderImportGroup(source: string) {
-    return (
-      <tr>
-        <td>
-          <h4>Import Group : </h4>
-          <p>
-            Attributes will be imported under the group &quot;{source}/&quot;
-          </p>
-        </td>
-        <td>
-          <input
-            style={{ width: "100%" }}
-            type="text"
-            id="source"
-            value={source}
-            onChange={this.handleChangeSource}
-          />
-        </td>
-      </tr>
-    );
-  }
-
   render() {
-    const { type = "user", source = "google_sheet" } = this.props;
+    const { loading, mapping = [], googleColumns = [] } = this.props;
     return (
-      <div style={{ paddingBottom: "5em" }}>
-        <table style={{ width: "100%" }}>
-          {this.renderImportType(type)}
-          {this.renderImportGroup(source)}
-          <tr>
-            <td colSpan={2}>
-              <h4>Fields used to identify {type}</h4>
-              {this.renderClaims()}
-            </td>
-          </tr>
-          <tr>
-            <td colSpan={2}>
-              <h4>Columns mapping</h4>
-              <p>
-                Pick names of attributes or create new ones. Attributes will be
-                stored in the group above
-              </p>
-            </td>
-          </tr>
-          <tr>
-            <td colSpan={2}>
-              {this.getMappings().map(([google, { enabled, hull }], idx) => (
-                <MappingLine
-                  key={idx}
-                  enabled={enabled}
-                  hull={hull}
-                  google={google}
-                  options={this.getHullFieldOptions(hull)}
-                  onChange={this.handleChangeMapping}
-                  idx={idx}
-                />
-              ))}
-            </td>
-          </tr>
+      <Fragment>
+        <h4>Columns mapping</h4>
+        <p>
+          Pick names of attributes or create new ones. Attributes will be stored
+          in the group above
+        </p>
+        <table className="full-width">
+          <tbody>
+            {mapping.map(({ hull, service }, idx) => (
+              <MappingLine
+                mapping={mapping}
+                key={idx}
+                enabled={true}
+                hull={hull}
+                service={service}
+                sourceOptions={googleColumns}
+                destinationOptions={this.getHullFieldOptions(hull)}
+                onChange={this.handleChange}
+                onRemove={this.handleRemove}
+                idx={idx}
+              />
+            ))}
+            <tr>
+              <td colSpan={2}>
+                <button disabled={loading} onClick={this.handleAddRow}>
+                  + Add new row
+                </button>
+              </td>
+            </tr>
+          </tbody>
         </table>
-        <div className="form-group">
-          <div>
-            <button
-              className="blue"
-              disabled={!this.isClaimsValid()}
-              onClick={this.props.onStartImport}
-            >
-              Start Import
-            </button>
-          </div>
-        </div>
-      </div>
+      </Fragment>
     );
   }
 }

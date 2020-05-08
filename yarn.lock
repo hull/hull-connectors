@@ -13353,20 +13353,6 @@ react-select@^3.0.4:
     react-input-autosize "^2.2.2"
     react-transition-group "^2.2.1"
 
-react-select@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/react-select/-/react-select-3.1.0.tgz#ab098720b2e9fe275047c993f0d0caf5ded17c27"
-  integrity sha512-wBFVblBH1iuCBprtpyGtd1dGMadsG36W5/t2Aj8OE6WbByDg5jIFyT7X5gT+l0qmT5TqWhxX+VsKJvCEl2uL9g==
-  dependencies:
-    "@babel/runtime" "^7.4.4"
-    "@emotion/cache" "^10.0.9"
-    "@emotion/core" "^10.0.9"
-    "@emotion/css" "^10.0.9"
-    memoize-one "^5.0.0"
-    prop-types "^15.6.0"
-    react-input-autosize "^2.2.2"
-    react-transition-group "^4.3.0"
-
 react-transition-group@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/react-transition-group/-/react-transition-group-1.2.1.tgz#e11f72b257f921b213229a774df46612346c7ca6"
@@ -13388,7 +13374,7 @@ react-transition-group@^2.2.1:
     prop-types "^15.6.2"
     react-lifecycles-compat "^3.0.4"
 
-react-transition-group@^4.0.0, react-transition-group@^4.3.0:
+react-transition-group@^4.0.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/react-transition-group/-/react-transition-group-4.3.0.tgz#fea832e386cf8796c58b61874a3319704f5ce683"
   integrity sha512-1qRV1ZuVSdxPlPf4O8t7inxUGpdyO5zG9IoNfJxSO0ImU2A1YWkEQvFPuIPZmMLkg5hYs7vv5mMOyfgSkvAwvw==
@@ -14720,6 +14706,11 @@ simple-assign@^0.1.0:
   resolved "https://registry.yarnpkg.com/simple-assign/-/simple-assign-0.1.0.tgz#17fd3066a5f3d7738f50321bb0f14ca281cc4baa"
   integrity sha1-F/0wZqXz13OPUDIbsPFMooHMS6o=
 
+simple-html-tokenizer@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/simple-html-tokenizer/-/simple-html-tokenizer-0.1.1.tgz#05c2eec579ffffe145a030ac26cfea61b980fabe"
+  integrity sha1-BcLuxXn//+FFoDCsJs/qYbmA+r4=
+
 simple-lru-cache@0.0.2, simple-lru-cache@^0.0.2:
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/simple-lru-cache/-/simple-lru-cache-0.0.2.tgz#d59cc3a193c1a5d0320f84ee732f6e4713e511dd"
@@ -15743,6 +15734,15 @@ supports-color@^5.0.0, supports-color@^5.3.0, supports-color@^5.5.0:
   integrity sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==
   dependencies:
     has-flag "^3.0.0"
+
+svg-inline-loader@^0.8.2:
+  version "0.8.2"
+  resolved "https://registry.yarnpkg.com/svg-inline-loader/-/svg-inline-loader-0.8.2.tgz#9872414f9e4141601e04eb80cda748c9a50dae71"
+  integrity sha512-kbrcEh5n5JkypaSC152eGfGcnT4lkR0eSfvefaUJkLqgGjRQJyKDvvEE/CCv5aTSdfXuc+N98w16iAojhShI3g==
+  dependencies:
+    loader-utils "^1.1.0"
+    object-assign "^4.0.1"
+    simple-html-tokenizer "^0.1.1"
 
 sweetalert@^2.1.2:
   version "2.1.2"

@@ -19,6 +19,8 @@ type SchemaEntry = {
 //
 // const getKey = (schema: Array<SchemaEntry>) => _.map(schema, "key");
 
+const EXCLUDED = ["anonymous_ids", "external_id", "email", "domain"];
+
 const transformAttributes = ({
   schema,
   type,
@@ -33,8 +35,9 @@ const transformAttributes = ({
     (m, { key, visible }) => {
       const k = type === "user" ? key.replace(/traits_/, "") : key;
       if (
+        EXCLUDED.includes(k) ||
         !visible ||
-        (type === "account" && k.indexOf("account.") === 0) ||
+        k.indexOf("account.") === 0 ||
         (source && k.indexOf(source) !== 0)
       ) {
         return m;
@@ -45,14 +48,18 @@ const transformAttributes = ({
     []
   );
 
-const getSchema = async (ctx: HullContext, type: ImportType) => {
+const getSchema = async (
+  ctx: HullContext,
+  type: ImportType,
+  source: string
+) => {
   if (type === "user") {
     const schema = await ctx.entities.users.getSchema();
     return transformAttributes({ schema, type, source });
   }
   if (type === "account") {
     const schema = await ctx.entities.accounts.getSchema();
-    return transformAttributes(schema, type, source);
+    return transformAttributes({ schema, type, source });
   }
   if (type === "user_event") {
     return ctx.entities.events.getSchema();
@@ -65,10 +72,10 @@ export default async function returnSchema(
   message: HullIncomingHandlerMessage
 ) {
   // $FlowFixMe
-  const type: ImportType = message.body.type;
-  const source = message.body.source;
+  const body: { type?: ImportType, source?: string } = message.body;
+  const { type = "user", source = "" } = body;
   try {
-    const schema = await getSchema(ctx, type, source);
+    const schema = await getSchema(ctx, type || "user", source);
     return {
       status: 200,
       data: schema
