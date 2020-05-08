@@ -11,6 +11,7 @@ const {
   input,
   Svc,
   cacheSet,
+  not,
   cacheGet,
   settingsUpdate,
   settings,
@@ -36,6 +37,20 @@ const refreshTokenDataTemplate = {
 
 const glue = {
   shipUpdate: {},
+  isAuthenticated: not(cond("isEmpty", settings("access_token"))),
+  isConfigured: cond("allTrue",[
+    cond("notEmpty", settings("access_token"))
+  ]),
+  status: ifL(cond("isEmpty", settings("access_token")), {
+    do: {
+      status: "setupRequired",
+      message: "'Connector has not been authenticated. Please make sure to allow Hull to access your Hubspot data by going to the \"Settings\" tab and clicking \"Login to your Hubspot account\" in the \"Connect to Hubspot\" section'"
+    },
+    eldo: {
+      status: "ok",
+      message: "allgood"
+    }
+  }),
   userUpdate: [
     set("service_name", "hubspot_deal"),
     set("hullUserId", input("user.id")),
@@ -43,7 +58,7 @@ const glue = {
   ],
   fieldsDealOut:
     ifL(cond("notEmpty",  set("dealProperties", hubspot("getDealProperties"))),
-      jsonata("{\"options\": [properties.{\"label\": label, \"value\": name}]}", "${dealProperties}")
+      jsonata("{ \"data\": { \"options\": [properties.{\"label\": label, \"value\": name}]}, \"status\": 200 }", "${dealProperties}")
     ),
   upsertDeal:
     cacheLock(input("user.id"),
