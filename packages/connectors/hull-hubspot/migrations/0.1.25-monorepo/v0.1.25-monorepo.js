@@ -27,9 +27,9 @@ function isAttributeHullManaged(hubspotProperties, attributeName) {
   });
 
   return (
-    _.isNil(hubspotContactProperty) ||
-    (!_.isNil(hullManagedContactProperty) &&
-      hullManagedContactProperty.groupName === "hull")
+    _.isNil(hubspotContactProperty) &&
+    !_.isNil(hullManagedContactProperty) &&
+    hullManagedContactProperty.groupName === "hull"
   );
 }
 
@@ -47,21 +47,22 @@ function transformIncomingAttributes(
 ) {
   const custom_attributes = [];
   const new_attributes = _.cloneDeep(incoming_attributes).map(attr => {
+    const serviceAttribute = _.toLower(attr.service);
     const hubspotProperty = _.find(hubspotProperties, property => {
-      return property.name === attr.service;
+      return property.name === serviceAttribute;
     });
     const type = _.isNil(hubspotProperty) ? "" : hubspotProperty.type;
     const fieldType = _.isNil(hubspotProperty) ? "" : hubspotProperty.fieldType;
     if (type === "enumeration" && fieldType === "checkbox") {
       return {
-        service: `properties.${attr.service}.value.$split(';')`,
+        service: `properties.${serviceAttribute}.value.$split(';')`,
         hull: attr.hull,
         overwrite: true
       };
     }
 
     return {
-      service: `properties.${attr.service}.value`,
+      service: `properties.${serviceAttribute}.value`,
       hull: attr.hull,
       overwrite: true
     };
@@ -145,12 +146,19 @@ async function transformOutgoingAttributes(
 ) {
   const custom_attributes = [];
   const new_attributes = _.cloneDeep(outgoing_attributes).map(attr => {
+    if (_.isEmpty(attr.service) || _.isEmpty(attr.hull)) {
+      return {};
+    }
+
+    const serviceAttribute = _.toLower(attr.service).replace(/ /g, "_");
     const isHullManaged = isAttributeHullManaged(
       hubspotProperties,
-      attr.service
+      serviceAttribute
     );
 
-    const serviceAttr = isHullManaged ? `hull_${attr.service}` : attr.service;
+    const serviceAttr = isHullManaged
+      ? `hull_${serviceAttribute}`
+      : serviceAttribute;
 
     return {
       service: serviceAttr,
@@ -176,7 +184,10 @@ async function transformOutgoingAttributes(
       overwrite: true
     });
   }
-  return [...custom_attributes, ...new_attributes];
+  const filteredNewAttributes = _.filter(new_attributes, attribute_mapping => {
+    return !_.isEmpty(attribute_mapping);
+  });
+  return [...custom_attributes, ...filteredNewAttributes];
 }
 
 let new_incoming_user_claims;
@@ -218,7 +229,7 @@ const parentDirectory = "/Users/hubspot";
       organization: ship.organization
     });
 
-    const fileName = `${ship.organization}.json`;
+    const fileName = `${ship.ship}.${ship.organization}.json`;
 
     // eslint-disable-next-line no-await-in-loop,no-loop-func
     const connector = await hullClient.get("app");
