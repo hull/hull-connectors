@@ -20,10 +20,10 @@
   "private_settings": [
     {
       "name": "oauth",
-      "title": "Oauth",
-      "type": "string",
+      "title": "Credentials",
+      "description": "Authenticate with Hubspot",
       "format": "oauth",
-      "description": "On the authentication screen, log into Hubspot with your username and password, if you are not already logged in",
+      "type": "string",
       "handler": "oauth",
       "url": "/auth",
       "options": {
@@ -33,7 +33,11 @@
           "authorizationURL": "https://app.hubspot.com/oauth/authorize",
           "tokenURL": "https://api.hubapi.com/oauth/v1/token",
           "grant_type": "authorization_code",
-          "scope": ["oauth", "contacts", "timeline"]
+          "scope": [
+            "oauth",
+            "contacts",
+            "timeline"
+          ]
         }
       }
     },
@@ -143,6 +147,21 @@
   "resources": [],
   "readme": "readme.md",
   "ui": false,
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "5",
+      "handler": "status"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "interval",
+    "value": "5",
+    "handler": "status"
+  },
   "subscriptions": [{
     "url": "/smart-notifier",
     "channels": [
@@ -188,15 +207,16 @@
       }
     },
     {
-      "url": "/fields-outreach-prospect-out",
-      "handler": "fieldsOutreachProspectOutbound"
+      "url": "/fields-deal-out",
+      "handler": "fieldsDealOut"
     }
   ],
   "schedules": [],
   "settings_sections": [
     {
       "title": "Connect with Hubspot",
-      "description": "Please begin by authenticating this connector with Hubspot.  You must have appropriate privileges to grant access.  Hull requests access to only the endpoints which are required to do User and Account synchronization",
+      "step": "credentials",
+      "description": "Please begin by authenticating this connector with Hubspot. You must have appropriate privileges to grant access. Hull requests access to only the endpoints required to do synchronization with our platform",
       "properties": [
         "private_settings.oauth"
       ]
