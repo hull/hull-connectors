@@ -33,14 +33,19 @@ const connector = {
     mark_deleted_contacts: false,
     mark_deleted_companies: false,
     outgoing_user_attributes: [
+      { "hull": "first_name", "service": "firstname", "overwrite": false },
       { "hull": "'hubspot/email'", "service": "email", "overwrite": true },
       { "hull": "'hubspot/lead_status'[]", "service": 'hs_lead_status', "overwrite": true }, // str -> arr -> str
       { "hull": "traits_hubspot/hs_email_quarantined_reason", "service": "hs_email_quarantined_reason", "overwrite": true }, // arr -> str
       { "hull": "traits_hubspot/annualrevenue", "service": "annualrevenue", "overwrite": true }, // not in user message
-      { "hull": 'traits_hubspot/last name', "service": 'lastname', "overwrite": true }, // space in hull attribute
+      { "hull": "traits_hubspot/last name of person", "service": "lastname", "overwrite": true }, // spaces in hull attribute
+      { "hull": "traits_hubspot lifecycle stage", "service": "lifecyclestage", "overwrite": true }, // missing trait group
       { "hull": "account.hubspot/industry", "service": "industry", "overwrite": true }, // single value arr -> str
       { "hull": "custom_attribute", "service": "hull_managed_attribute", "overwrite": true }, // create hull managed attribute
+      { "hull": "traits_country (iso code)--", "service": "ip_country", "overwrite": true }, // parenthesis and spaces in trait
+      { "hull": "traits_country-code", "service": "ip_country_code", "overwrite": true }, // dash in trait
       { "hull": "traits_salesforce_contact/department", "service": "department", "overwrite": true },
+      { "hull": "traits_salesforce contact department", "service": "contact_department", "overwrite": true },
       { "hull": "segments.name[]", "service": "hull_segments", "overwrite": true }
     ]
   }
@@ -65,10 +70,12 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
           .reply(200, []);
         scope.post("/contacts/v1/contact/batch/?auditId=Hull", [{
             "properties": [
+              {"property":"firstname","value":"bob"},
               {"property":"email","value":"email@email.com"},
               {"property":"hs_lead_status","value":"status 1"},
               {"property":"hs_email_quarantined_reason","value":"reason 1;reason 2;reason 3"},
               {"property":"lastname","value":"smith"},
+              {"property":"lifecyclestage","value":"some stage"},
               {"property":"industry","value":"software"},
               {"property":"hull_managed_attribute","value":"some value"},
               {"property":"department","value": "software"},
@@ -90,12 +97,14 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
           },
           user: {
             email,
+            "first_name": "bob",
             "custom_attribute": "some value",
             "traits_hubspot/id": "existingContactId",
             "traits_hubspot/email": "email@email.com",
+            "traits_hubspot lifecycle stage": "some stage",
             "traits_hubspot/lead_status": "status 1",
             "traits_hubspot/hs_email_quarantined_reason": ["reason 1", "reason 2", "reason 3"],
-            "traits_hubspot/last name": "smith",
+            "traits_hubspot/last name of person": "smith",
             "salesforce_contact/department": "software"
           },
           segments: [{ id: "user_segment_1", name: "User Segment 1" },{ id: "user_segment_2", name: "User Segment 2" }],
@@ -114,10 +123,12 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
           expect.objectContaining({ "subject_type": "user", "user_email": "email@email.com"}),
           { hubspotWriteContact: {"vid": "existingContactId", "email": "email@email.com",
               "properties": [
+                {"property":"firstname","value":"bob"},
                 {"property":"email","value":"email@email.com"},
                 {"property":"hs_lead_status","value":"status 1"},
                 {"property":"hs_email_quarantined_reason","value":"reason 1;reason 2;reason 3"},
                 {"property":"lastname","value":"smith"},
+                {"property":"lifecyclestage","value":"some stage"},
                 {"property":"industry","value":"software"},
                 {"property":"hull_managed_attribute","value":"some value"},
                 {"property":"department","value":"software"},

@@ -10,8 +10,6 @@ import type {
 
 import jsonata from "jsonata";
 
-const { ConfigurationError } = require("hull/src/errors");
-
 const cast = (type?: HullJsonataType) => (value: any) => {
   if (!type) return value;
   if (type === "array") return `${value}[]`;
@@ -22,7 +20,7 @@ const cast = (type?: HullJsonataType) => (value: any) => {
 };
 
 // TODO clear up the rules for attribute names
-const rawHullTraitRegex = /^(account\.)?([A-Za-z_\s]*\/[A-Za-z_\s]*)$/g;
+const rawHullTraitRegex = /^(account\.)?([A-Za-z_\-\s()/]+)$/g;
 const noDotInPath = str => str.indexOf(".") === -1;
 const isRawTrait = trait => rawHullTraitRegex.test(trait);
 const mapAttributes = (ctx: HullContext) => ({
@@ -71,17 +69,8 @@ const mapAttributes = (ctx: HullContext) => ({
     {}
   );
 
-  let response = {};
-  try {
-    const transformed = JSON.stringify(transform).replace(
-      /"_{{(.*?)}}_"/g,
-      "$1"
-    );
-    response = jsonata(transformed).evaluate(payload);
-  } catch (error) {
-    const { message } = error;
-    throw new ConfigurationError(message);
-  }
+  const transformed = JSON.stringify(transform).replace(/"_{{(.*?)}}_"/g, "$1");
+  const response = jsonata(transformed).evaluate(payload);
 
   return _.reduce(
     response,
