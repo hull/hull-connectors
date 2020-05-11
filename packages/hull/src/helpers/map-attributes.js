@@ -62,7 +62,7 @@ const mapAttributes = (ctx: HullContext) => ({
       _.set(
         m,
         target,
-        _.isNil(overwrite) || overwrite
+        direction !== "incoming" || _.isNil(overwrite) || overwrite
           ? `_{{${casted(source)}}}_`
           : setIfNull(`_{{${casted(source)}}}_`)
       );
