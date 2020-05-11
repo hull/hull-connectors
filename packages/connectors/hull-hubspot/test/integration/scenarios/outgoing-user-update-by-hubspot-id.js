@@ -37,6 +37,7 @@ const connector = {
       { "hull": "'hubspot/lead_status'[]", "service": 'hs_lead_status', "overwrite": true }, // str -> arr -> str
       { "hull": "traits_hubspot/hs_email_quarantined_reason", "service": "hs_email_quarantined_reason", "overwrite": true }, // arr -> str
       { "hull": "traits_hubspot/annualrevenue", "service": "annualrevenue", "overwrite": true }, // not in user message
+      { "hull": 'traits_hubspot/last name', "service": 'lastname', "overwrite": true }, // space in hull attribute
       { "hull": "account.hubspot/industry", "service": "industry", "overwrite": true }, // single value arr -> str
       { "hull": "custom_attribute", "service": "hull_managed_attribute", "overwrite": true }, // create hull managed attribute
       { "hull": "traits_salesforce_contact/department", "service": "department", "overwrite": true },
@@ -67,6 +68,7 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
               {"property":"email","value":"email@email.com"},
               {"property":"hs_lead_status","value":"status 1"},
               {"property":"hs_email_quarantined_reason","value":"reason 1;reason 2;reason 3"},
+              {"property":"lastname","value":"smith"},
               {"property":"industry","value":"software"},
               {"property":"hull_managed_attribute","value":"some value"},
               {"property":"department","value": "software"},
@@ -93,6 +95,7 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
             "traits_hubspot/email": "email@email.com",
             "traits_hubspot/lead_status": "status 1",
             "traits_hubspot/hs_email_quarantined_reason": ["reason 1", "reason 2", "reason 3"],
+            "traits_hubspot/last name": "smith",
             "salesforce_contact/department": "software"
           },
           segments: [{ id: "user_segment_1", name: "User Segment 1" },{ id: "user_segment_2", name: "User Segment 2" }],
@@ -114,6 +117,7 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
                 {"property":"email","value":"email@email.com"},
                 {"property":"hs_lead_status","value":"status 1"},
                 {"property":"hs_email_quarantined_reason","value":"reason 1;reason 2;reason 3"},
+                {"property":"lastname","value":"smith"},
                 {"property":"industry","value":"software"},
                 {"property":"hull_managed_attribute","value":"some value"},
                 {"property":"department","value":"software"},
