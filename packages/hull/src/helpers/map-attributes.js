@@ -71,17 +71,8 @@ const mapAttributes = (ctx: HullContext) => ({
     {}
   );
 
-  let response = {};
-  try {
-    const transformed = JSON.stringify(transform).replace(
-      /"_{{(.*?)}}_"/g,
-      "$1"
-    );
-    response = jsonata(transformed).evaluate(payload);
-  } catch (error) {
-    const { message } = error;
-    throw new ConfigurationError(message);
-  }
+  const transformed = JSON.stringify(transform).replace(/"_{{(.*?)}}_"/g, "$1");
+  const response = jsonata(transformed).evaluate(payload);
 
   return _.reduce(
     response,
