@@ -10,8 +10,6 @@ import type {
 
 import jsonata from "jsonata";
 
-const { ConfigurationError } = require("hull/src/errors");
-
 const cast = (type?: HullJsonataType) => (value: any) => {
   if (!type) return value;
   if (type === "array") return `${value}[]`;
