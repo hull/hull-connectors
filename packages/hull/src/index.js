@@ -105,10 +105,19 @@ const buildConfigurationFromEnvironment = env => {
           topic: LOGGER_KAFKA_TOPIC,
           level: "info",
           producerOptions: {
-            "queue.buffering.max.messages": LOGGER_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MESSAGES,
-            "queue.buffering.max.ms": LOGGER_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS,
-            "batch.num.messages": LOGGER_KAFKA_PRODUCER_BATCH_NUM_MESSAGES,
-            "linger.ms": LOGGER_KAFKA_PRODUCER_LINGER_MS
+            "queue.buffering.max.messages": parseInt(
+              LOGGER_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MESSAGES,
+              10
+            ),
+            "queue.buffering.max.ms": parseInt(
+              LOGGER_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS,
+              10
+            ),
+            "batch.num.messages": parseInt(
+              LOGGER_KAFKA_PRODUCER_BATCH_NUM_MESSAGES,
+              10
+            ),
+            "linger.ms": parseInt(LOGGER_KAFKA_PRODUCER_LINGER_MS, 10)
           }
         })
       );
