@@ -71,14 +71,14 @@ class MappingUtil {
   companySchema: HubspotSchema;
 
   constructor({
-                ctx,
-                connector,
-                hullClient,
-                usersSegments,
-                accountsSegments,
-                hubspotContactProperties,
-                hubspotCompanyProperties
-              }: Object) {
+    ctx,
+    connector,
+    hullClient,
+    usersSegments,
+    accountsSegments,
+    hubspotContactProperties,
+    hubspotCompanyProperties
+  }: Object) {
     this.ctx = ctx;
     this.connector = connector;
     this.hullClient = hullClient;
@@ -250,11 +250,11 @@ class MappingUtil {
   }
 
   mapToHubspotEntityProperties({
-                                 message,
-                                 hullType,
-                                 serviceType,
-                                 transform = () => {}
-                               }: {
+    message,
+    hullType,
+    serviceType,
+    transform = () => {}
+  }: {
     message: HullUserUpdateMessage | HullAccountUpdateMessage,
     hullType: HullType,
     serviceType: ServiceType,
@@ -342,7 +342,7 @@ class MappingUtil {
       });
 
       const { name, label, displayOrder, readOnlyValue, type, fieldType } =
-      hubspotProperty || {};
+        hubspotProperty || {};
       schema[hubspotPropertyName] = {
         type,
         name: name || hubspotPropertyName,
