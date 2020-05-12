@@ -38,12 +38,17 @@ function lint(ctx: HullContext, code: string, payload?: Object) {
   );
 }
 
+function deprecateRequest(ctx: HullContext, code: string) {
+  return code.match(/(^|\s+)request\s*\(.*?\)/).length > 0;
+}
+
 const checkFunctions = {
   wrapCode,
   empty,
   pristine,
   invalid,
-  lint
+  lint,
+  deprecateRequest
 };
 
 export default checkFunctions;

@@ -7,6 +7,7 @@ import type {
   HullJsonataType,
   HullEntityAttributes
 } from "hull";
+
 import jsonata from "jsonata";
 
 const cast = (type?: HullJsonataType) => (value: any) => {
@@ -18,41 +19,62 @@ const cast = (type?: HullJsonataType) => (value: any) => {
   return value;
 };
 
+// TODO clear up the rules for attribute names
+const rawHullTraitRegex = /^(account\.)?([\w\s\-()/]+)$/g;
 const noDotInPath = str => str.indexOf(".") === -1;
+const isRawTrait = trait => rawHullTraitRegex.test(trait);
 const mapAttributes = (ctx: HullContext) => ({
   payload,
   mapping,
   entity = "user",
-  direction = "incoming"
+  direction = "incoming",
+  serviceSchema = {},
+  attributeFormatter = v => v
 }: {
   payload: {},
   entity?: "user" | "account",
   direction?: "incoming" | "outgoing",
-  mapping: Array<HullAttributeMapping>
+  mapping: Array<HullAttributeMapping>,
+  attributeFormatter: any
 }): HullEntityAttributes => {
   const { helpers } = ctx;
   const { operations } = helpers;
-  // manifest from ConnectorConfig is the one committed with the repository
   const { setIfNull } = operations;
 
   const transform = _.reduce(
     mapping,
     (m, { service, hull, overwrite, castAs }) => {
+      if (_.isEmpty(hull) || _.isEmpty(service)) {
+        return m;
+      }
       const casted = cast(castAs);
+      const isRawHullTrait = isRawTrait(hull);
+      const hullExpression = isRawHullTrait
+        ? hull.replace(rawHullTraitRegex, "$1'$2'")
+        : hull;
+      if (
+        !isRawHullTrait &&
+        !_.startsWith(hullExpression, "'") &&
+        !_.startsWith(hullExpression, "account.'") &&
+        !hull.includes("segment") &&
+        !hull.includes("[") &&
+        !hull.startsWith("`")
+      ) {
+        console.log(`verify trait: "${hull}" -> "${hullExpression}"`);
+      }
       const { source, target } =
         direction === "incoming"
-          ? {
-              target: hull,
-              source: service
-            }
+          ? { target: hull, source: service }
           : {
               target: service,
-              source: noDotInPath(hull) ? `${entity}.${hull}` : hull
+              source: noDotInPath(hull)
+                ? `${entity}.${hullExpression}`
+                : hullExpression
             };
       _.set(
         m,
         target,
-        overwrite
+        direction === "outgoing" || _.isNil(overwrite) || overwrite
           ? `_{{${casted(source)}}}_`
           : setIfNull(`_{{${casted(source)}}}_`)
       );
@@ -63,7 +85,17 @@ const mapAttributes = (ctx: HullContext) => ({
 
   const transformed = JSON.stringify(transform).replace(/"_{{(.*?)}}_"/g, "$1");
   const response = jsonata(transformed).evaluate(payload);
-  return response;
+
+  return _.reduce(
+    response,
+    (r, val, attribute) => {
+      const schema = _.get(serviceSchema, attribute, {});
+      const { formatter = attributeFormatter } = schema;
+      r[attribute] = formatter(val);
+      return r;
+    },
+    {}
+  );
 };
 
 module.exports = mapAttributes;
