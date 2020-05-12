@@ -46,6 +46,7 @@ const connector = {
       { "hull": "custom_attribute", "service": "hull_managed_attribute", "overwrite": true }, // create hull managed attribute
       { "hull": "traits_country (iso code)--", "service": "ip_country", "overwrite": true }, // parenthesis and spaces in trait
       { "hull": "traits_country-code", "service": "ip_country_code", "overwrite": true }, // dash in trait
+      { "hull": "traits_pmep contact 2016-2018", "service": "pmep_contact", "overwrite": true }, // number in trait
       { "hull": "traits_salesforce_contact/department", "service": "department", "overwrite": true },
       { "hull": "traits_salesforce contact department", "service": "contact_department", "overwrite": true },
       { "hull": "segments.name[]", "service": "hull_segments", "overwrite": true }
