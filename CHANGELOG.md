@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.1.25-monorepo
+- [hull-hubspot] jsonata attribute mapper
+
 ## v0.1.24-monorepo
 - [hull-sql] add sql connector
 
