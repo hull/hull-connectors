@@ -328,7 +328,10 @@ class MappingUtil {
     );
 
     return outgoingMapping.reduce((schema, mapping) => {
-      const { service } = mapping;
+      const { hull, service } = mapping;
+      if (_.isEmpty(hull) || _.isEmpty(service)) {
+        return schema;
+      }
       const hubspotPropertyName = slug(service, {
         replacement: "_",
         lower: true
@@ -355,7 +358,9 @@ class MappingUtil {
 
   getHubspotPropertyKeys({ identityClaims, attributeMapping }): Array<string> {
     return _.concat(attributeMapping, identityClaims)
-      .filter(entry => entry.service.indexOf("properties.") === 0)
+      .filter(
+        entry => entry.service && entry.service.indexOf("properties.") === 0
+      )
       .map(entry =>
         entry.service
           .replace(/\$\./, "")
