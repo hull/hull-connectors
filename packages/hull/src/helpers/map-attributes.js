@@ -20,7 +20,7 @@ const cast = (type?: HullJsonataType) => (value: any) => {
 };
 
 // TODO clear up the rules for attribute names
-const rawHullTraitRegex = /^(account\.)?([0-9A-Za-z_\-\s()/]+)$/g;
+const rawHullTraitRegex = /^(account\.)?([\w\s\-()/]+)$/g;
 const noDotInPath = str => str.indexOf(".") === -1;
 const isRawTrait = trait => rawHullTraitRegex.test(trait);
 const mapAttributes = (ctx: HullContext) => ({
@@ -48,9 +48,20 @@ const mapAttributes = (ctx: HullContext) => ({
         return m;
       }
       const casted = cast(castAs);
-      const hullExpression = isRawTrait(hull)
+      const isRawHullTrait = isRawTrait(hull);
+      const hullExpression = isRawHullTrait
         ? hull.replace(rawHullTraitRegex, "$1'$2'")
         : hull;
+      if (
+        !isRawHullTrait &&
+        !_.startsWith(hullExpression, "'") &&
+        !_.startsWith(hullExpression, "account.'") &&
+        !hull.includes("segment") &&
+        !hull.includes("[") &&
+        !hull.startsWith("`")
+      ) {
+        console.log(`verify trait: "${hull}" -> "${hullExpression}"`);
+      }
       const { source, target } =
         direction === "incoming"
           ? { target: hull, source: service }
