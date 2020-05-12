@@ -707,9 +707,6 @@ return new Promise((resolve, reject) => {
 return superagent
     .get("http://www.omdbapi.com/?t=James+Bond")
     .then(data => {
-      if(_.isString(data.body)) {
-        data = JSON.parse(data.body);
-      }
       return data;
     })
     .catch(err => {
