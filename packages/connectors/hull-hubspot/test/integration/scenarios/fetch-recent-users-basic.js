@@ -302,6 +302,8 @@ it("Should Fetch Contact With Mapped Incoming Attributes", () => {
           mark_deleted_contacts: false,
           mark_deleted_companies: false,
           incoming_user_attributes: [
+            { service: "hs_email_domain", overwrite: true },
+            { hull: "email_domain", overwrite: true },
             {
               service: 'properties.job_function.value',
               hull: 'traits_hubspot/job_function',

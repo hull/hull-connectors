@@ -34,6 +34,8 @@ const connector = {
     mark_deleted_companies: false,
     outgoing_user_attributes: [
       { "hull": "first_name", "service": "firstname", "overwrite": false },
+      { "service": "hs_email_domain", "overwrite": true },
+      { "hull": "email_domain", "overwrite": true },
       { "hull": "'hubspot/email'", "service": "email", "overwrite": true },
       { "hull": "'hubspot/lead_status'[]", "service": 'hs_lead_status', "overwrite": true }, // str -> arr -> str
       { "hull": "traits_hubspot/hs_email_quarantined_reason", "service": "hs_email_quarantined_reason", "overwrite": true }, // arr -> str
@@ -44,6 +46,7 @@ const connector = {
       { "hull": "custom_attribute", "service": "hull_managed_attribute", "overwrite": true }, // create hull managed attribute
       { "hull": "traits_country (iso code)--", "service": "ip_country", "overwrite": true }, // parenthesis and spaces in trait
       { "hull": "traits_country-code", "service": "ip_country_code", "overwrite": true }, // dash in trait
+      { "hull": "traits_pmep contact 2016-2018", "service": "pmep_contact", "overwrite": true }, // number in trait
       { "hull": "traits_salesforce_contact/department", "service": "department", "overwrite": true },
       { "hull": "traits_salesforce contact department", "service": "contact_department", "overwrite": true },
       { "hull": "segments.name[]", "service": "hull_segments", "overwrite": true }
@@ -98,6 +101,7 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
           user: {
             email,
             "first_name": "bob",
+            "email_domain": "email.com",
             "custom_attribute": "some value",
             "traits_hubspot/id": "existingContactId",
             "traits_hubspot/email": "email@email.com",
