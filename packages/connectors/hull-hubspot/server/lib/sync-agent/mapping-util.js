@@ -71,14 +71,14 @@ class MappingUtil {
   companySchema: HubspotSchema;
 
   constructor({
-    ctx,
-    connector,
-    hullClient,
-    usersSegments,
-    accountsSegments,
-    hubspotContactProperties,
-    hubspotCompanyProperties
-  }: Object) {
+                ctx,
+                connector,
+                hullClient,
+                usersSegments,
+                accountsSegments,
+                hubspotContactProperties,
+                hubspotCompanyProperties
+              }: Object) {
     this.ctx = ctx;
     this.connector = connector;
     this.hullClient = hullClient;
@@ -250,11 +250,11 @@ class MappingUtil {
   }
 
   mapToHubspotEntityProperties({
-    message,
-    hullType,
-    serviceType,
-    transform = () => {}
-  }: {
+                                 message,
+                                 hullType,
+                                 serviceType,
+                                 transform = () => {}
+                               }: {
     message: HullUserUpdateMessage | HullAccountUpdateMessage,
     hullType: HullType,
     serviceType: ServiceType,
@@ -328,7 +328,10 @@ class MappingUtil {
     );
 
     return outgoingMapping.reduce((schema, mapping) => {
-      const { service } = mapping;
+      const { hull, service } = mapping;
+      if (_.isEmpty(hull) || _.isEmpty(service)) {
+        return schema;
+      }
       const hubspotPropertyName = slug(service, {
         replacement: "_",
         lower: true
@@ -339,7 +342,7 @@ class MappingUtil {
       });
 
       const { name, label, displayOrder, readOnlyValue, type, fieldType } =
-        hubspotProperty || {};
+      hubspotProperty || {};
       schema[hubspotPropertyName] = {
         type,
         name: name || hubspotPropertyName,
@@ -355,7 +358,9 @@ class MappingUtil {
 
   getHubspotPropertyKeys({ identityClaims, attributeMapping }): Array<string> {
     return _.concat(attributeMapping, identityClaims)
-      .filter(entry => entry.service.indexOf("properties.") === 0)
+      .filter(
+        entry => entry.service && entry.service.indexOf("properties.") === 0
+      )
       .map(entry =>
         entry.service
           .replace(/\$\./, "")
