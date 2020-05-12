@@ -44,6 +44,9 @@ const mapAttributes = (ctx: HullContext) => ({
   const transform = _.reduce(
     mapping,
     (m, { service, hull, overwrite, castAs }) => {
+      if (_.isEmpty(hull) || _.isEmpty(service)) {
+        return m;
+      }
       const casted = cast(castAs);
       const hullExpression = isRawTrait(hull)
         ? hull.replace(rawHullTraitRegex, "$1'$2'")

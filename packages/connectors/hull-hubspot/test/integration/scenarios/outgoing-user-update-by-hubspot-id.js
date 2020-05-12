@@ -34,6 +34,8 @@ const connector = {
     mark_deleted_companies: false,
     outgoing_user_attributes: [
       { "hull": "first_name", "service": "firstname", "overwrite": false },
+      { "service": "hs_email_domain", "overwrite": true },
+      { "hull": "email_domain", "overwrite": true },
       { "hull": "'hubspot/email'", "service": "email", "overwrite": true },
       { "hull": "'hubspot/lead_status'[]", "service": 'hs_lead_status', "overwrite": true }, // str -> arr -> str
       { "hull": "traits_hubspot/hs_email_quarantined_reason", "service": "hs_email_quarantined_reason", "overwrite": true }, // arr -> str
@@ -98,6 +100,7 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
           user: {
             email,
             "first_name": "bob",
+            "email_domain": "email.com",
             "custom_attribute": "some value",
             "traits_hubspot/id": "existingContactId",
             "traits_hubspot/email": "email@email.com",
