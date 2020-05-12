@@ -31,6 +31,10 @@ const buildConfigurationFromEnvironment = env => {
     LOGGER_KAFKA_BROKERS,
     LOGGER_KAFKA_TOPIC,
     LOGGER_KAFKA_ENABLED = true,
+    LOGGER_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MESSAGES = 100,
+    LOGGER_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS = 1000,
+    LOGGER_KAFKA_PRODUCER_BATCH_NUM_MESSAGES = 100,
+    LOGGER_KAFKA_PRODUCER_LINGER_MS = 10,
     PORT = 8082,
     REQUEST_TIMEOUT = "25s",
     REDIS_URL,
@@ -99,7 +103,13 @@ const buildConfigurationFromEnvironment = env => {
         new KafkaLogger({
           brokersList: LOGGER_KAFKA_BROKERS.split(","),
           topic: LOGGER_KAFKA_TOPIC,
-          level: "info"
+          level: "info",
+          producerOptions: {
+            "queue.buffering.max.messages": LOGGER_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MESSAGES,
+            "queue.buffering.max.ms": LOGGER_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS,
+            "batch.num.messages": LOGGER_KAFKA_PRODUCER_BATCH_NUM_MESSAGES,
+            "linger.ms": LOGGER_KAFKA_PRODUCER_LINGER_MS
+          }
         })
       );
     } else {

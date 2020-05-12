@@ -30,13 +30,16 @@ module.exports = class KafkaLogger extends Transport {
       "retry.backoff.ms": 200,
       "message.send.max.retries": 10,
       "socket.keepalive.enable": true,
-      "queue.buffering.max.messages": 1000,
-      "queue.buffering.max.ms": 100,
-      "batch.num.messages": 1000,
+      "queue.buffering.max.messages": 100,
+      "queue.buffering.max.ms": 1000,
+      "batch.num.messages": 100,
       "linger.ms": 10,
       dr_cb: true,
       ...options.producerOptions
     };
+
+    console.warn("KafkaLogger producerConfig", producerConfig);
+
     const producer = new HighLevelProducer(producerConfig);
 
     producer.setPollInterval(1000);
