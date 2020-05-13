@@ -47,7 +47,7 @@ const connector = {
       { "hull": "traits_country (iso code)--", "service": "ip_country", "overwrite": true }, // parenthesis and spaces in trait
       { "hull": "traits_country-code", "service": "ip_country_code", "overwrite": true }, // dash in trait
       { "hull": "traits_pmep contact 2016-2018", "service": "pmep_contact", "overwrite": true }, // number in trait
-      { "hull": "traits_salesforce_contact/department", "service": "department", "overwrite": true },
+      { "hull": "traits_salesforce_contact/user_perm_department_2", "service": "department", "overwrite": true },
       { "hull": "traits_salesforce contact department", "service": "contact_department", "overwrite": true },
       { "hull": "segments.name[]", "service": "hull_segments", "overwrite": true }
     ]
@@ -109,7 +109,7 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
             "traits_hubspot/lead_status": "status 1",
             "traits_hubspot/hs_email_quarantined_reason": ["reason 1", "reason 2", "reason 3"],
             "traits_hubspot/last name of person": "smith",
-            "salesforce_contact/department": "software"
+            "salesforce_contact/user_perm_department_2": "software"
           },
           segments: [{ id: "user_segment_1", name: "User Segment 1" },{ id: "user_segment_2", name: "User Segment 2" }],
           changes: { segments: { left: [{ id: "5bffc38f625718d58b000004" }] } }
@@ -151,10 +151,7 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.any(Number)]
       ],
-      platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
-      ]
+      platformApiCalls: []
     };
   });
 });

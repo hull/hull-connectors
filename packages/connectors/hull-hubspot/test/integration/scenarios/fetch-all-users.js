@@ -127,8 +127,6 @@ it("should fetch all users using settings", () => {
         ["GET","/api/v1/app",{},{}],
         ["GET","/api/v1/users_segments?shipId=9993743b22d60dd829001999",{"shipId":"9993743b22d60dd829001999"},{}],
         ["GET","/api/v1/accounts_segments?shipId=9993743b22d60dd829001999",{"shipId":"9993743b22d60dd829001999"},{}],
-        ["GET","/api/v1/search/user_reports/bootstrap",{},{}],
-        ["GET","/api/v1/search/account_reports/bootstrap",{},{}],
         ["GET","/api/v1/app",{},{}],
         ["PUT","/api/v1/9993743b22d60dd829001999",{},{"private_settings":{"token":"hubToken","last_fetch_at":1419967066626,"mark_deleted_contacts":false,"mark_deleted_companies":false,"incoming_user_claims":[{"hull":"email","service":"$['identity-profiles'][*].identities[?(@.type === 'EMAIL')].value","required":false},{"hull":"email","service":"properties.email.value","required":false}],"incoming_user_attributes":[{"service":"`canonical-vid` ? `canonical-vid` : `vid`","hull":"traits_hubspot/id","readOnly":true,"overwrite":true},{"service":"properties.email.value","hull":"traits_hubspot/email","readOnly":true,"overwrite":true},{"service":"`merged-vids`","hull":"traits_hubspot/merged_vids","overwrite":true},{"service":"properties.firstname.value","hull":"traits_hubspot/first_name","overwrite":true},{"service":"properties.phone.value","hull":"traits_hubspot/phone","overwrite":true},{"service":"properties.lastname.value","hull":"traits_hubspot/last_name","overwrite":true}],"fetch_count":2},"refresh_status":false}]]
     };
