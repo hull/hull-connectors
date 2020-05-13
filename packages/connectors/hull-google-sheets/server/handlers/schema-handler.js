@@ -42,7 +42,7 @@ const transformAttributes = ({
       ) {
         return m;
       }
-      m.push(k);
+      m.push(source ? k.replace(`${source}/`, "") : k);
       return m;
     },
     []

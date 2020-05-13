@@ -20,6 +20,9 @@ function setUserProp({ key, index, value }) {
   );
   return value;
 }
+function clearProperties() {
+  PropertiesService.getUserProperties().deleteAllProperties();
+}
 function getUserProp({ key, index, fallback }) {
   const val = PropertiesService.getUserProperties().getProperty(
     index ? `${index}-${key}` : key
@@ -30,14 +33,18 @@ function getUserProp({ key, index, fallback }) {
     return fallback || val;
   }
 }
-function getColumnNames(activeSheetIndex) {
-  // activeSheetIndex - 1 because https://developers.google.com/apps-script/reference/spreadsheet/sheet#getindex - spreadsheets are 1-indexed
-  return (
-    SpreadsheetApp.getActiveSpreadsheet()
-      .getSheets()
-      [activeSheetIndex - 1].getRange(1, 1, 1, MAX_COLUMNS)
-      .getValues()[0] || []
-  ).filter(v => !!v);
+function getSheetData({ index, startRow, rows }) {
+  // index - 1 because https://developers.google.com/apps-script/reference/spreadsheet/sheet#getindex - spreadsheets are 1-indexed
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[index - 1];
+  if (sheet) {
+    return sheet.getRange(startRow, 1, rows, MAX_COLUMNS).getValues() || [];
+  }
+  return [];
+}
+function getColumnNames(index) {
+  return (getSheetData({ index, startRow: 1, rows: 1 })[0] || []).filter(
+    v => !!v
+  );
 }
 function getSheetMapping(index, type) {
   const def = [
@@ -107,117 +114,132 @@ function api(method, path, data) {
 const getVal = val =>
   val != null && val.toString && val.toString().length > 0 ? val : undefined;
 
-const getGroup = name =>
-  ["email", "external_id"].indexOf(name) > -1 ? "claims" : "traits";
-
-const reduceRow = row => mapping =>
-  mapping.reduce(
-    (line, key, columnNumber) => {
-      const value = getVal(row[columnNumber]);
-      const group = getGroup(key);
-      if (key && value) {
-        line[group][key] = value;
-      }
-      return line;
-    },
-    {
-      claims: {},
-      traits: {}
+const rowToPayload = (mapping, claimsMapping, group) => row => ({
+  attributes: mapping.reduce((attributes, { column, hull }) => {
+    const value = getVal(row[column]);
+    if (value !== undefined) {
+      attributes[group ? `${group}/${hull}` : hull] = value;
     }
-  );
+    return attributes;
+  }, {}),
+  claims: Object.keys(claimsMapping).reduce((claims, key) => {
+    const column = claimsMapping[key];
+    if (column !== undefined) {
+      claims[key] = getVal(row[column]);
+    }
+    return claims;
+  }, {})
+});
 
-function fetchRows(startRow, chunkSize, mapping) {
-  return SpreadsheetApp.getActiveSheet()
-    .getRange(startRow, 1, chunkSize, mapping.length)
-    .getValues()
-    .map(reduceRow(mapping));
-}
+const hasKeysAndValues = hash =>
+  !!Object.keys(hash).length &&
+  !!Object.values(hash).filter(v => v !== null).length;
 
-const importRow = (memo, row) => {
-  const { claims, traits } = row;
-  if (Object.keys(traits).length === 0 || Object.keys(claims).length === 0) {
+const checkPayload = (memo, { claims, attributes }) => {
+  if (!hasKeysAndValues(attributes) || !hasKeysAndValues(claims)) {
     memo.stats.skipped += 1;
   } else {
     memo.stats.imported += 1;
-    memo.rows.push(row);
+    memo.rows.push({ claims, attributes });
   }
   return memo;
 };
 
-const getHullField = ({ hullField }) => hullField;
+const getRows = ({ index, startRow, chunkSize, mapping, claims, source }) =>
+  getSheetData({
+    index,
+    startRow,
+    rows: chunkSize
+  })
+    .map(rowToPayload(mapping, claims, source))
+    .reduce(checkPayload, {
+      rows: [],
+      errors: [],
+      stats: { skipped: 0, imported: 0, empty: 0, errors: 0 }
+    });
 
-const getHullMapping = activeSheetIndex =>
-  getSheetMapping(activeSheetIndex).map(getHullField);
-
-function importRange(startRow, chunkSize, mapping) {
-  const fetched = fetchRows(startRow, chunkSize, mapping).reduce(importRow, {
-    rows: [],
-    errors: [],
-    stats: { imported: 0, empty: 0, errors: 0 }
-  });
-
-  if (fetched.rows && fetched.rows.length > 0) {
+function importPayloads({ payloads, type }) {
+  const stats = {};
+  const errors = [];
+  if (payloads && payloads.rows && payloads.rows.length > 0) {
     try {
-      api("post", "import", fetched);
+      api("post", "import", { payloads, type });
     } catch (err) {
       Logger.log("Error while importing", err);
-      fetched.stats.errors += 1;
-      fetched.errors.push(err.toString());
+      stats.errors += 1;
+      errors.push(err.toString());
     }
-    return fetched;
+    return { stats, errors };
   }
   return undefined;
 }
 
-const incrementStats = stats => ret => k => {
-  stats[k] += ret.stats[k] || 0;
-  return undefined;
-};
-
 function getHullAttributes({ type = "user", source = "" }) {
-  const { statusCode, body } = api("post", "schema", { type, source });
+  const { statusCode, body, error } = api("post", "schema", { type, source });
   if (statusCode > 200) {
-    throw new Error(`Error fetching attributes: ${body.error}`);
+    throw new Error(
+      `Error fetching attributes: ${error || (body && body.error)}`
+    );
   }
   return body;
 }
 
-function importData(activeSheetIndex) {
+// IMPURE FUNCTION
+const incrementStats = ({ stats, errors }, operations) => {
+  Object.keys(stats).forEach(function mapKeys(key) {
+    operations.forEach(function mapOperations(operation) {
+      stats[key] += operation.stats[key] || 0;
+      if (operation.errors && operation.errors.length) {
+        operation.errors.forEach(errors.push);
+      }
+    });
+  });
+};
+
+function importData({ index, type, source, mapping, claims }) {
   let startRow = 2;
   let chunk = 1;
   const stats = { imported: 0, empty: 0, errors: 0, skipped: 0 };
   const errors = [];
-  const mapping = getHullMapping(activeSheetIndex);
-  const incrementStatsFor = incrementStats(stats);
 
   while (startRow && chunk < MAX_CHUNKS) {
-    const ret = importRange(startRow, IMPORT_CHUNK_SIZE, mapping);
-    if (!ret) break;
+    const payloads = getRows({
+      index,
+      startRow,
+      chunkSize: IMPORT_CHUNK_SIZE,
+      mapping,
+      claims,
+      source
+    });
+    const importResponse = importPayloads({
+      payloads,
+      type
+    });
+    if (!importResponse) break;
     chunk += 1;
     startRow += IMPORT_CHUNK_SIZE;
-    errors.push(...ret.errors);
-    const increment = incrementStatsFor(ret);
-    Object.keys(stats).forEach(increment);
+    errors.push(...importResponse.errors);
+    incrementStats({ stats, errors }, [payloads, importResponse]);
     setUserProp({
       key: "importProgress",
-      index: activeSheetIndex,
+      index,
       value: stats
     });
     setUserProp({
       key: "importErrors",
-      index: activeSheetIndex,
+      index,
       value: errors
     });
   }
 
   setUserProp({
     key: "importProgress",
-    index: activeSheetIndex,
+    index,
     value: {}
   });
   setUserProp({
     key: "importErrors",
-    index: activeSheetIndex,
+    index,
     value: []
   });
   return stats;
@@ -232,19 +254,23 @@ const prefixAndStringify = ({ prefix = "", data }) =>
 
 function getActiveSheet() {
   const sheet = SpreadsheetApp.getActiveSheet();
-  const activeSheetIndex = sheet.getIndex();
+  const index = sheet.getIndex();
   return {
-    activeSheetIndex,
+    index,
     name: sheet.getName(),
-    googleColumns: getColumnNames(activeSheetIndex),
-    importErrors: getUserProp({
-      key: "importErrors",
-      index: activeSheetIndex
-    }),
-    importProgress: getUserProp({
-      key: "importProgress",
-      index: activeSheetIndex
-    })
+    googleColumns: getColumnNames(index),
+    importErrors:
+      getUserProp({
+        key: "importErrors",
+        index,
+        fallback: []
+      }) || [],
+    importProgress:
+      getUserProp({
+        key: "importProgress",
+        index,
+        fallback: {}
+      }) || {}
   };
 }
 
@@ -262,8 +288,8 @@ const onInstall = addMenu;
 
 const onOpen = addMenu;
 
-function bootstrap(activeSheetIndex) {
-  if (!activeSheetIndex) {
+function bootstrap(index) {
+  if (!index) {
     return {
       error: "No active Sheet"
     };
@@ -271,33 +297,38 @@ function bootstrap(activeSheetIndex) {
   const source =
     getUserProp({
       key: "source",
-      index: activeSheetIndex,
+      index,
       fallback: ""
     }) || "";
   const type =
     getUserProp({
       key: "type",
-      index: activeSheetIndex,
+      index,
       fallback: "user"
     }) || "user";
-  return {
-    token: getUserProp({ key: "token" }),
-    googleColumns: getColumnNames(activeSheetIndex),
-    hullAttributes: getHullAttributes({ type, source }),
-    user_mapping: getSheetMapping(activeSheetIndex, "user"),
-    user_claims: getSheetClaims(activeSheetIndex, "user"),
-    account_mapping: getSheetMapping(activeSheetIndex, "account"),
-    account_claims: getSheetClaims(activeSheetIndex, "account"),
-    user_event_mapping: getSheetMapping(activeSheetIndex, "user_event"),
-    user_event_claims: getSheetClaims(activeSheetIndex, "user_event"),
-    activeSheetIndex,
-    source,
-    type
-  };
+  const token = getUserProp({ key: "token" });
+  return token
+    ? {
+        token,
+        googleColumns: getColumnNames(index),
+        hullAttributes: getHullAttributes({ type, source }),
+        user_mapping: getSheetMapping(index, "user"),
+        user_claims: getSheetClaims(index, "user"),
+        account_mapping: getSheetMapping(index, "account"),
+        account_claims: getSheetClaims(index, "account"),
+        user_event_mapping: getSheetMapping(index, "user_event"),
+        user_event_claims: getSheetClaims(index, "user_event"),
+        index,
+        source,
+        type
+      }
+    : {
+        token: undefined,
+        initialized: false
+      };
 }
 
 function setUserProps({ index, data }) {
-  Logger.log("SetUserProps", { index, data });
   Logger.log("SetUserProps", prefixAndStringify({ prefix: index, data }));
   try {
     PropertiesService.getUserProperties().setProperties(

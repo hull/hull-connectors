@@ -3,6 +3,15 @@ import _ from "lodash";
 import type { HullContext, HullIncomingHandlerMessage } from "hull";
 import type { ImportBody } from "../../types";
 
+// Makes sure we pass the email and domain claims as Attributes so that we can change them
+// - this is the expected behaviour when importing data
+const remapAttributes = type => ({ email, domain }, attributes) => {
+  if (type === "user" && email !== undefined) return { email, ...attributes };
+  if (type === "account" && domain !== undefined)
+    return { domain, ...attributes };
+  return attributes;
+};
+
 export default async function importHandler(
   ctx: HullContext,
   message: HullIncomingHandlerMessage
@@ -11,9 +20,9 @@ export default async function importHandler(
 
   // $FlowFixMe
   const body: ImportBody = message.body || {};
-  const { rows, type = "user" } = body;
-
-  if (!rows) {
+  const { payloads, type } = body;
+  const { rows } = payloads;
+  if (!payloads) {
     return {
       status: 200,
       data: {
@@ -26,11 +35,11 @@ export default async function importHandler(
   const entityType = type === "user" ? "user" : "account";
   const method = entityType === "account" ? client.asAccount : client.asUser;
 
-  rows.forEach(async ({ ident, traits }) => {
-    const scopedClient = method(ident);
+  const remap = remapAttributes(entityType);
+  rows.map(async ({ claims, attributes }) => {
+    const scopedClient = method(claims);
     try {
-      await scopedClient.traits(traits);
-      // scopedClient.logger.info(`incoming.${entityType}.success`, { traits });
+      await scopedClient.traits(remap(claims, attributes));
     } catch (err) {
       scopedClient.logger.info(`incoming.${entityType}.error`, {
         message: _.get(err, "message")

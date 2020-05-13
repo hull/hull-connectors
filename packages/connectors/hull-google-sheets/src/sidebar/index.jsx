@@ -29,7 +29,7 @@ import type {
 type Props = {};
 
 type State = {
-  activeSheetIndex?: number,
+  index?: number,
 
   importStatus?: ImportStatusType,
   importProgress?: ImportProgressType,
@@ -68,7 +68,7 @@ export default class Sidebar extends Component<Props, State> {
     this.autoSaveUserProps = _.debounce(this.saveUserProps, 1000);
     this.state = {
       type: "user",
-      activeSheetIndex: undefined,
+      index: undefined,
       token: undefined,
       initialized: false,
       loading: false,
@@ -109,47 +109,43 @@ export default class Sidebar extends Component<Props, State> {
       return;
     }
     const response: GetActiveSheetResponse = await Service.getActiveSheet();
-    const { activeSheetIndex } = response;
-    if (activeSheetIndex !== this.state.activeSheetIndex) {
-      this.fetchSettings(activeSheetIndex);
+    const { index } = response;
+    if (index !== this.state.index) {
+      this.fetchSettings(index);
     }
     this.setState(response);
   };
 
-  fetchSettings = async (activeSheetIndex?: number) => {
-    const { loading } = this.state;
-    if (loading || activeSheetIndex === undefined) return false;
-    this.setState({ activeSheetIndex, loading: true, error: undefined });
+  fetchSettings = async (index?: number) => {
+    const { loading, displaySettings } = this.state;
+    if (loading || index === undefined) return false;
+    this.setState({ index, loading: true, error: undefined });
     try {
-      const state = await Service.bootstrap(activeSheetIndex);
+      const state = await Service.bootstrap(index);
       console.log("BOOTSTRAPPED", state);
-      const { token, hullAttributes, googleColumns, displaySettings } = state;
+      const { token } = state;
       this.setState({
-        ...state,
-        ...this.state,
-        googleColumns,
-        hullAttributes,
-        token,
-        displaySettings: token ? displaySettings : true,
-        loading: false,
+        initialized: true,
         error: undefined,
-        initialized: true
+        loading: false,
+        ...state,
+        displaySettings: token ? displaySettings : true
       });
     } catch (err) {
-      this.setState({ error: err.message });
+      this.setState({ error: err.message, loading: false });
       console.log(err);
     }
     return true;
   };
 
-  saveUserProps = async (data: {}, options?: { reload: true }) => {
+  saveUserProps = async (data: {}, options?: { reload: boolean }) => {
     this.setState({ saving: true });
-    const { activeSheetIndex } = this.state;
-    if (!activeSheetIndex) {
+    const { index } = this.state;
+    if (!index) {
       return;
     }
     const newState = {
-      index: activeSheetIndex,
+      index,
       data
     };
     console.log("SAVING USER PROPS", newState);
@@ -163,6 +159,16 @@ export default class Sidebar extends Component<Props, State> {
     this.setState({ loading: false, saving: false });
   };
 
+  handleReset = async () => {
+    this.setState({
+      loading: false,
+      initialized: false,
+      displaySettings: true
+    });
+    await Service.clearProperties();
+    this.fetchSettings(this.state.index);
+  };
+
   toggleSettings = () =>
     this.setState({
       displaySettings: !this.state.displaySettings
@@ -171,14 +177,20 @@ export default class Sidebar extends Component<Props, State> {
   updateState = (newState: {}, options?: { reload: boolean }) =>
     this.setState(newState, () => this.saveUserProps(newState, options));
 
-  handleReloadColumns = () => this.fetchSettings(this.state.activeSheetIndex);
+  handleReloadColumns = () => this.fetchSettings(this.state.index);
 
   handleSaveSettings = async () => {
+    this.setState({
+      loading: true,
+      initialized: false,
+      displaySettings: false
+    });
     await Service.setUserProp({
       key: "token",
       value: this.state.token
     });
-    this.toggleSettings();
+    this.fetchSettings(this.state.index);
+    // this.toggleSettings();
   };
 
   handleChangeToken = (token: string) => this.setState({ token });
@@ -192,7 +204,7 @@ export default class Sidebar extends Component<Props, State> {
       ...(this.state[key] || []),
       {
         hull: this.state.hullAttributes[0],
-        service: this.state.googleColumns[0]
+        column: 0
       }
     ];
     this.updateState({ [key]: mapping });
@@ -224,11 +236,7 @@ export default class Sidebar extends Component<Props, State> {
     const { type } = this.state;
     const key = `${type}_claims`;
     const claims = { ...this.state[key] };
-    const mergedClaims = { ...claims, ...newClaims };
-    console.log("Merging", { [key]: mergedClaims });
-    this.updateState({
-      [key]: mergedClaims
-    });
+    this.updateState({ [key]: { ...claims, ...newClaims } });
   };
 
   handleChangeType = (type: ImportType) =>
@@ -241,18 +249,28 @@ export default class Sidebar extends Component<Props, State> {
   handleStartImport = async () => {
     this.setState({
       importing: true,
-      importStatus: { status: "working" }
+      importStatus: "working"
     });
+    const { index, type, source } = this.state;
+    const mapping = this.state[`${type}_mapping`];
+    const claims = this.state[`${type}_claims`];
     try {
-      const result = await Service.importData();
+      const result = await Service.importData({
+        index,
+        type,
+        source,
+        mapping,
+        claims
+      });
       this.setState({
-        importStatus: { status: "done", result },
-        importing: false
+        importing: false,
+        importStatus: "done"
       });
     } catch (err) {
       this.setState({
-        importStatus: { status: "error", message: _.get(err, "message") },
-        importing: false
+        importing: false,
+        importStatus: "error",
+        importErrors: [_.get(err, "message"), ...this.state.importErrors]
       });
     }
   };
@@ -275,7 +293,9 @@ export default class Sidebar extends Component<Props, State> {
     if (displaySettings || shouldDisplaySettings(this.state)) {
       return (
         <Settings
+          initialized={initialized}
           token={token}
+          onReset={this.handleReset}
           onChangeToken={this.handleChangeToken}
           onSave={this.handleSaveSettings}
         />
@@ -346,6 +366,7 @@ export default class Sidebar extends Component<Props, State> {
       loading,
       type,
       saving,
+      displaySettings,
       error,
       name = ""
     } = this.state;
@@ -363,6 +384,7 @@ export default class Sidebar extends Component<Props, State> {
               valid={valid}
               claims={claims}
               type={type}
+              displaySettings={displaySettings}
               initialized={initialized}
               onReloadColumns={this.handleReloadColumns}
               onToggleSettings={this.toggleSettings}

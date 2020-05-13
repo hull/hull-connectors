@@ -1,8 +1,8 @@
 // @flow
 
 import React, { PureComponent } from "react";
+import SVG from "react-inlinesvg";
 import type { ImportType } from "../../types";
-import Import from "../icons/import";
 
 type Props = {
   type?: ImportType,
@@ -10,7 +10,7 @@ type Props = {
   loading: boolean,
   saving: boolean,
   initialized: boolean,
-  showSettings?: boolean,
+  displaySettings?: boolean,
   onToggleSettings: () => any,
   onStartImport: () => Promise<void>,
   onReloadColumns: any => any
@@ -22,32 +22,34 @@ class Actions extends PureComponent<Props, {}> {
       saving,
       loading,
       valid,
-      showSettings,
+      displaySettings,
       onStartImport,
       initialized
     } = this.props;
     return (
       <div className="form-group">
         <button
-          disabled={loading || saving}
-          onClick={this.props.onReloadColumns}
-        >
-          Reload
-        </button>
-        <button
-          disabled={loading || saving}
+          disabled={displaySettings || loading || saving}
           onClick={this.props.onToggleSettings}
         >
-          Edit token
+          Edit Settings
         </button>
-        {initialized && !showSettings && (
+        {!displaySettings && (
           <button
-            className="blue right"
+            disabled={loading || saving}
+            onClick={this.props.onReloadColumns}
+          >
+            Reload
+          </button>
+        )}
+        {initialized && !displaySettings && (
+          <button
+            className="button blue right import"
             disabled={!valid || loading || saving}
             onClick={onStartImport}
           >
-            <Import />
-            Start Import
+            <SVG className="icon small" src={require("../icons/import.svg")} />
+            Import
           </button>
         )}
       </div>

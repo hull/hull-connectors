@@ -138,6 +138,7 @@
     "raven": "^2.6.4",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "react-inlinesvg": "^1.2.0",
     "react-select": "^3.0.4",
     "superagent": "^5.0.5",
     "svg-inline-loader": "^0.8.2",

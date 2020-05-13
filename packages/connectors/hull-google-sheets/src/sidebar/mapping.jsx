@@ -82,13 +82,13 @@ class Mapping extends Component<Props, State> {
         </p>
         <table className="full-width">
           <tbody>
-            {mapping.map(({ hull, service }, idx) => (
+            {mapping.map(({ hull, column }, idx) => (
               <MappingLine
                 mapping={mapping}
                 key={idx}
                 enabled={true}
                 hull={hull}
-                service={service}
+                column={column}
                 sourceOptions={googleColumns}
                 destinationOptions={this.getHullFieldOptions(hull)}
                 onChange={this.handleChange}

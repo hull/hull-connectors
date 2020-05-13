@@ -18,19 +18,13 @@ export type SettingsType = {
 };
 export type MappingType = {
   hull: string,
-  service: string,
+  column: number,
   overwrite?: boolean,
   enabled?: boolean
 };
 export type AttributeMapping = Array<MappingType>;
 
-export type ImportStatusType = {
-  status: "done" | "working" | "error",
-  result?: {
-    imported: number
-  },
-  message?: string
-};
+export type ImportStatusType = "done" | "working" | "error";
 
 export type ImportProgressType = {
   imported: number,
@@ -48,7 +42,7 @@ export type UserPropsType = {
 };
 
 export type GetActiveSheetResponse = {
-  activeSheetIndex: number,
+  index: number,
   name: string,
   importProgress: ImportProgressType
 };

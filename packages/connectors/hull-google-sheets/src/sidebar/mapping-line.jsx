@@ -4,12 +4,11 @@ import React, { PureComponent } from "react";
 import Creatable from "react-select/creatable";
 // import Select from "react-select";
 import _ from "lodash";
-import GoogleSheets from "../icons/google-sheets.svg";
-import Trash from "../icons/trash";
+import SVG from "react-inlinesvg";
 import type { AttributeMapping } from "../../types";
 
 type MappingProp = {
-  service: string,
+  column: number,
   hull: string,
   idx: number,
   destinationOptions: Array<string>,
@@ -31,7 +30,7 @@ export default class MappingLine extends PureComponent<MappingProp> {
   handleUpdateHull = ({ value }: any) =>
     this.props.onChange(this.props.idx, {
       hull: value,
-      service: this.props.service
+      column: this.props.column
     });
 
   handleUpdateService = ({ currentTarget }: SyntheticEvent<>) => {
@@ -39,7 +38,7 @@ export default class MappingLine extends PureComponent<MappingProp> {
     const { value } = currentTarget;
     this.props.onChange(this.props.idx, {
       hull: this.props.hull,
-      service: value
+      column: value
     });
   };
 
@@ -47,19 +46,21 @@ export default class MappingLine extends PureComponent<MappingProp> {
 
   render() {
     const {
-      service,
+      column,
       hull,
       sourceOptions,
       destinationOptions,
       mapping = []
     } = this.props;
-
     return (
       <tr>
         <td colSpan={2} className="no-style mapping-line">
           <div className="map-google">
-            <GoogleSheets />
-            <select value={service} onChange={this.handleUpdateService}>
+            <SVG
+              className="service-icon"
+              src={require("../icons/google-sheets.svg")}
+            />
+            <select value={column} onChange={this.handleUpdateService}>
               {sourceOptions.map((o, i) => (
                 <option key={i} value={i}>
                   {o}
@@ -71,19 +72,16 @@ export default class MappingLine extends PureComponent<MappingProp> {
               className="button red remove mapping__remove-row"
               onClick={this.handleRemove}
             >
-              <Trash />
+              <SVG className="icon" src={require("../icons/trash.svg")} />
             </div>
           </div>
           <div className="map-hull">
-            <span className="title"> ➜ </span>
+            <SVG className="service-icon" src={require("../icons/hull.svg")} />
             <Creatable
               isSearchable
               isOptionDisabled={isOptionDisabled(mapping)}
               allowCreateWhileLoading
-              defaultValue={{
-                value: hull,
-                label: hull
-              }}
+              defaultValue={toOptions(hull || sourceOptions[column])}
               options={(destinationOptions || []).map(toOptions)}
               onChange={this.handleUpdateHull}
             />
