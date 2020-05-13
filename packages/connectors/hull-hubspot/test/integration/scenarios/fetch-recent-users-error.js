@@ -66,10 +66,7 @@ it("Fetch recent contacts should fail on incorrect permissions error", () => {
         ["increment","service.service_api.errors",1],
         ["increment","connector.transient_error",1]
       ],
-      platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
-      ]
+      platformApiCalls: []
     };
   });
 });

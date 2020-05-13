@@ -33,8 +33,6 @@ const MappingUtil = require("./sync-agent/mapping-util");
 const ProgressUtil = require("./sync-agent/progress-util");
 const FilterUtil = require("./sync-agent/filter-util");
 
-const hullClientAccountPropertiesUtil = require("../hull-client-account-properties-util");
-
 class SyncAgent {
   hubspotClient: HubspotClient;
 
@@ -129,29 +127,12 @@ class SyncAgent {
       }
     );
 
-    const hullUserProperties = await this.cache.wrap(
-      "hullUserProperties",
-      () => {
-        return this.hullClient.utils.properties.get();
-      }
-    );
-
-    const hullAccountProperties = await this.cache.wrap(
-      "hullAccountProperties",
-      () => {
-        return hullClientAccountPropertiesUtil({
-          client: this.hullClient
-        });
-      }
-    );
-
     this.contactPropertyUtil = new HubspotPropertyUtil({
       hubspotClient: this.hubspotClient,
       logger: this.logger,
       metric: this.metric,
       segments: this.usersSegments,
       hubspotProperties: hubspotContactProperties,
-      hullProperties: hullUserProperties,
       serviceType: "contact"
     });
 
@@ -161,7 +142,6 @@ class SyncAgent {
       metric: this.metric,
       segments: this.accountsSegments,
       hubspotProperties: hubspotCompanyProperties,
-      hullProperties: hullAccountProperties,
       serviceType: "company"
     });
 
@@ -172,9 +152,7 @@ class SyncAgent {
       usersSegments: this.usersSegments,
       accountsSegments: this.accountsSegments,
       hubspotContactProperties,
-      hubspotCompanyProperties,
-      hullUserProperties,
-      hullAccountProperties
+      hubspotCompanyProperties
     });
   }
 
