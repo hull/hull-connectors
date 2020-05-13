@@ -146,9 +146,7 @@ it("should refresh token and perform standard operation in case of token expired
             },
             "refresh_status": false
           }
-        ],
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
+        ]
       ]
     };
   });
