@@ -220,6 +220,7 @@ const glue = {
       set("stopFetchAt", ex(moment(), "valueOf")),
       loopL([
         set("contactsPage", hubspot("getRecentContactsPage")),
+        ifL(cond("isEmpty", "${contactsPage}"), loopEndL()),
         ifL(cond("lessThan", "${contactsPage.time-offset}", "${lastFetchAt}"), {
           do:
             set("contactsToSave",
