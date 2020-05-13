@@ -4,8 +4,7 @@
   "source": "copper",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.24-monorepo",
-
+  "version": "0.1.25-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -66,6 +65,27 @@
         "allowCreate": true,
         "loadOptions": "/attributes-leads-incoming",
         "source": "coppercrm_lead"
+      }
+    },
+    {
+      "name": "synchronized_lead_segments",
+      "title": "Lead Filter",
+      "description": "Send *Users* as Leads to CopperCrm when belonging to one of these segments",
+      "type": "array",
+      "default": [],
+      "format": "segment"
+    },
+    {
+      "name": "outgoing_lead_attributes",
+      "title": "User Attributes to send to CopperCrm",
+      "type": "array",
+      "format": "traitMapping",
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "CopperCRM Lead Field",
+        "allowCreate": false,
+        "loadOptions": "/attributes-leads-outgoing"
       }
     },
     {
@@ -328,6 +348,10 @@
       "handler": "attributesLeadsIncoming"
     },
     {
+      "url": "/attributes-leads-outgoing",
+      "handler": "attributesLeadsOutgoing"
+    },
+    {
       "url": "/attributes-people-incoming",
       "handler": "attributesPeopleIncoming"
     },
@@ -408,22 +432,34 @@
   "subscriptions": [
     {
       "url": "/smart-notifier",
+      "conditions" : {
+        "segments": {
+          "user:update": ["private_settings.synchronized_lead_segments"]
+        }
+      },
       "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
         {
           "channel": "ship:update",
           "handler": "shipUpdate"
         }
-      ],
-      "conditions": {
-        "channels": {
-          "only": [
-            "ship:update"
-          ]
-        }
-      }
+      ]
     }
   ],
-  "batches": [],
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ]
+    }
+  ],
   "settings_sections": [
     {
       "title": "Connect with Copper",
@@ -446,6 +482,14 @@
       "properties": [
         "private_settings.incoming_lead_attributes",
         "json.fetch_all_leads"
+      ]
+    },
+    {
+      "title": "Lead - Send Leads to CopperCrm",
+      "description": "Hull gives it's customers the ability to send leads to copper crm",
+      "properties": [
+        "private_settings.synchronized_lead_segments",
+        "private_settings.outgoing_lead_attributes"
       ]
     },
     {
