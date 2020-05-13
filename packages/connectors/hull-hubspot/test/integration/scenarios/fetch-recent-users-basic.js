@@ -204,8 +204,6 @@ it("should fetch recent users using settings", () => {
         ["value", "connector.service_api.response_time", expect.any(Number)],
       ],
       platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}],
         ["GET", "/api/v1/app", {}, {}],
         ["PUT", "/api/v1/9993743b22d60dd829001999", {}, expect.objectContaining({"private_settings": expect.whatever()})],
         ["GET", "/api/v1/app", {}, {}],
@@ -302,6 +300,8 @@ it("Should Fetch Contact With Mapped Incoming Attributes", () => {
           mark_deleted_contacts: false,
           mark_deleted_companies: false,
           incoming_user_attributes: [
+            { service: "hs_email_domain", overwrite: true },
+            { hull: "email_domain", overwrite: true },
             {
               service: 'properties.job_function.value',
               hull: 'traits_hubspot/job_function',
@@ -347,8 +347,6 @@ it("Should Fetch Contact With Mapped Incoming Attributes", () => {
         ["increment", "ship.service_api.call", 1], ["value", "connector.service_api.response_time", expect.whatever()]
       ],
       platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}],
         ["GET", "/api/v1/app", {}, {}],
         ["PUT", "/api/v1/9993743b22d60dd829001999", {}, expect.objectContaining({"private_settings": expect.whatever()})],
         ["GET", "/api/v1/app", {}, {}],
@@ -495,8 +493,6 @@ it("Should Fetch Contact With Missing Optional Claims", () => {
         ["increment", "ship.service_api.call", 1], ["value", "connector.service_api.response_time", expect.whatever()]
       ],
       platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}],
         ["GET", "/api/v1/app", {}, {}],
         ["PUT", "/api/v1/9993743b22d60dd829001999", {}, expect.objectContaining({"private_settings": expect.whatever()})],
         ["GET", "/api/v1/app", {}, {}],

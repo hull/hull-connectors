@@ -124,7 +124,11 @@ it("should send out a new hull account to hubspot", () => {
         ]
       ],
       firehoseEvents: [
-        ["traits", { "asAccount": { "domain": "hull.io" }, "subjectType": "account" },
+        ["traits",
+          {
+            "asAccount": { "domain": "hull.io", "anonymous_id": "hubspot:3223871663" },
+            "subjectType": "account"
+          },
           {
             "hubspot/create_date": "1584635613078",
             "hubspot/days_to_close": null,
@@ -146,10 +150,7 @@ it("should send out a new hull account to hubspot", () => {
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.any(Number)]
       ],
-      platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
-      ]
+      platformApiCalls: []
     };
   });
 });

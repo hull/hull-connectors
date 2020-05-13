@@ -116,6 +116,9 @@ class HullDispatcher {
     // need to push a new context here so that we're not setting variables on the global context
     // remember, ensure route needs to share same variable space as primary route
     // because some connectors like marketo initialize variables that are used by all routes
+    // BUT if we're using the ensurePromise, it means the second time it isn't executed...
+    // we're not sending multiple messages from the top anymore, and instead fanning out in the glue, maybe promise not needed
+    // introduces problems with any branching like "sending users and leads"
     context.pushNew();
     if (!_.isEmpty(this.ensure)) {
       if (isUndefinedOrNull(this.ensurePromise)) {

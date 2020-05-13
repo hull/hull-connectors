@@ -245,9 +245,11 @@ export type ClearbitConnectorSettings = {
 
   prospect_account_segments: Array<string>,
   prospect_account_segments_exclusion: Array<string>,
-  prospect_filter_role: Array<string>,
-  prospect_filter_seniority: Array<string>,
+  prospect_filter_roles: Array<string>,
+  prospect_filter_seniorities: Array<string>,
   prospect_filter_titles: Array<string>,
+  prospect_filter_cities: Array<string>,
+  prospect_filter_states: Array<string>,
   prospect_limit_count: number,
 
   reveal_user_segments: Array<string>,

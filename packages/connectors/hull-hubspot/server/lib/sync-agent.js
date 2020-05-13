@@ -33,8 +33,6 @@ const MappingUtil = require("./sync-agent/mapping-util");
 const ProgressUtil = require("./sync-agent/progress-util");
 const FilterUtil = require("./sync-agent/filter-util");
 
-const hullClientAccountPropertiesUtil = require("../hull-client-account-properties-util");
-
 class SyncAgent {
   hubspotClient: HubspotClient;
 
@@ -114,7 +112,6 @@ class SyncAgent {
 
     if (skipCache === true) {
       await this.cache.del("hubspotProperties");
-      await this.cache.del("hullProperties");
     }
     const hubspotContactProperties = await this.cache.wrap(
       "hubspotContactProperties",
@@ -129,29 +126,12 @@ class SyncAgent {
       }
     );
 
-    const hullUserProperties = await this.cache.wrap(
-      "hullUserProperties",
-      () => {
-        return this.hullClient.utils.properties.get();
-      }
-    );
-
-    const hullAccountProperties = await this.cache.wrap(
-      "hullAccountProperties",
-      () => {
-        return hullClientAccountPropertiesUtil({
-          client: this.hullClient
-        });
-      }
-    );
-
     this.contactPropertyUtil = new HubspotPropertyUtil({
       hubspotClient: this.hubspotClient,
       logger: this.logger,
       metric: this.metric,
       segments: this.usersSegments,
       hubspotProperties: hubspotContactProperties,
-      hullProperties: hullUserProperties,
       serviceType: "contact"
     });
 
@@ -161,7 +141,6 @@ class SyncAgent {
       metric: this.metric,
       segments: this.accountsSegments,
       hubspotProperties: hubspotCompanyProperties,
-      hullProperties: hullAccountProperties,
       serviceType: "company"
     });
 
@@ -172,9 +151,7 @@ class SyncAgent {
       usersSegments: this.usersSegments,
       accountsSegments: this.accountsSegments,
       hubspotContactProperties,
-      hubspotCompanyProperties,
-      hullUserProperties,
-      hullAccountProperties
+      hubspotCompanyProperties
     });
   }
 
@@ -621,8 +598,16 @@ class SyncAgent {
                 envelope.hubspotReadCompany,
                 "account"
               );
+              const accountIdentity = this.helpers.incomingClaims(
+                "account",
+                envelope.hubspotReadCompany,
+                {
+                  anonymous_id_prefix: "hubspot",
+                  anonymous_id_service: "companyId"
+                }
+              );
               return this.hullClient
-                .asAccount(envelope.message.account)
+                .asAccount(accountIdentity.claims)
                 .traits(accountTraits)
                 .then(() => {
                   return this.hullClient
@@ -997,7 +982,7 @@ class SyncAgent {
         });
         if (ident.error) {
           return this.logger.info("incoming.account.skip", {
-            company,
+            company: company.companyId,
             reason: ident.error
           });
         }
@@ -1007,7 +992,7 @@ class SyncAgent {
           asAccount = this.hullClient.asAccount(ident.claims);
         } catch (error) {
           return this.logger.info("incoming.account.skip", {
-            company,
+            company: company.companyId,
             error
           });
         }

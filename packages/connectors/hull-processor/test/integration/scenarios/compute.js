@@ -309,7 +309,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           'Nested object found in key "foo"',
           expect.whatever(),
           attributes["foo"]
@@ -354,7 +354,7 @@ describe("Basic Attributes manipulation", () => {
             userTraits: [[asUser, { foo: obj }]]
           })
         ],
-        ["info", 'Nested object found in key "foo"', expect.whatever(), obj],
+        ["debug", 'Nested object found in key "foo"', expect.whatever(), obj],
         [
           "debug",
           "incoming.user.success",
@@ -452,7 +452,7 @@ describe("Basic Attributes manipulation", () => {
           })
         ],
         [
-          "info",
+          "debug",
           'Nested object found in key "foo"',
           expect.whatever(),
           attributes["foo"]
@@ -767,7 +767,7 @@ describe("Basic Attributes manipulation", () => {
           expect.objectContaining({ userTraits: [[asUser, attributes]] })
         ],
         [
-          "info",
+          "debug",
           'Nested object found in key "group/group"',
           expect.whatever(),
           attributes["group/group"]

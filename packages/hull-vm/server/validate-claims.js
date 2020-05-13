@@ -14,7 +14,7 @@ export const isValidClaim = (
     const method = entity === "account" ? client.asAccount : client.asUser;
     if (acceptsEmpty && (!claims || _.isEmpty(claims))) {
       const message =
-        'Using Empty claims in ".account()" call. This is a deprecated syntax, please specify some claims';
+        'Using Empty claims in ".account()" call. This is a deprecated syntax, please specify some claims in the form: hull.account({ domain: xxx, external_id: xxx })';
       return {
         valid: true,
         error: undefined,
