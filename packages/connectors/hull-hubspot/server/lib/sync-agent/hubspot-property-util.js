@@ -1,7 +1,6 @@
 // @flow
 import type { HullSegment } from "hull";
 import type {
-  HullProperty,
   HubspotSchema,
   HubspotPropertyGroup,
   HubspotProperty,

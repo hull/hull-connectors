@@ -33,8 +33,6 @@ const MappingUtil = require("./sync-agent/mapping-util");
 const ProgressUtil = require("./sync-agent/progress-util");
 const FilterUtil = require("./sync-agent/filter-util");
 
-const hullClientAccountPropertiesUtil = require("../hull-client-account-properties-util");
-
 class SyncAgent {
   hubspotClient: HubspotClient;
 
