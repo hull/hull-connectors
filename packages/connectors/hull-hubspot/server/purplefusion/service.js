@@ -156,7 +156,6 @@ const service: RawRestApi = {
     templates: [
       {
         truthy: { status: 400 },
-        condition: notNull("connector.private_settings.token"),
         errorType: ConfigurationError,
         message: (error) => {
           return { message: error.message };
