@@ -87,10 +87,10 @@ class MappingUtil {
     this.accountsSegments = accountsSegments;
 
     const {
-      incoming_user_attributes,
-      outgoing_user_attributes,
-      incoming_account_attributes,
-      outgoing_account_attributes,
+      incoming_user_attributes = [],
+      outgoing_user_attributes = [],
+      incoming_account_attributes = [],
+      outgoing_account_attributes = [],
       link_users_in_service,
       incoming_user_claims,
       incoming_account_claims
