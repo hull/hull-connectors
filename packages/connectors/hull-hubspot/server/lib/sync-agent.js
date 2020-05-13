@@ -112,7 +112,6 @@ class SyncAgent {
 
     if (skipCache === true) {
       await this.cache.del("hubspotProperties");
-      await this.cache.del("hullProperties");
     }
     const hubspotContactProperties = await this.cache.wrap(
       "hubspotContactProperties",
