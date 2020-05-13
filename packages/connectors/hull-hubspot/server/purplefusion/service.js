@@ -163,17 +163,8 @@ const service: RawRestApi = {
       },
       {
         truthy: { status: 401 },
-        condition: isNull("connector.private_settings.token"),
         errorType: ConfigurationError,
-        message: MESSAGES.STATUS_NO_ACCESS_TOKEN_FOUND,
-        recoveryroute: "refreshToken"
-      },
-      {
-        truthy: { status: 401 },
-        condition: notNull("connector.private_settings.token"),
-        errorType: ConfigurationError,
-        message: MESSAGES.STATUS_UNAUTHORIZED_ACCESS_TOKEN,
-        recoveryroute: "refreshToken"
+        message: "Unauthorized"
       },
       {
         truthy: { status: 429 },
