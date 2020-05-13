@@ -9,7 +9,8 @@ const _ = require("lodash");
 const MESSAGES = require("./messages");
 const {
   ConfigurationError,
-  RateLimitError
+  RateLimitError,
+  SkippableError
 } = require("hull/src/errors");
 
 const HubspotStrategy = require("passport-hubspot-oauth2.0");
@@ -153,6 +154,14 @@ const service: RawRestApi = {
     },
 
     templates: [
+      {
+        truthy: { status: 400 },
+        condition: notNull("connector.private_settings.token"),
+        errorType: ConfigurationError,
+        message: (error) => {
+          return { message: error.message };
+        }
+      },
       {
         truthy: { status: 401 },
         condition: isNull("connector.private_settings.token"),
