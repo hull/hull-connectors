@@ -602,7 +602,7 @@ console.log(response)
 
 ## Using Superagent
 
-To perform an API requests, the processor connector exposes the superagent library through the `superagent` keyword.
+To perform API requests, the processor connector exposes the superagent library through the `superagent` keyword.
 It is an instance of the original [superagent](https://visionmedia.github.io/superagent/) library with additional plugins added behind the scenes to make it run smoothly in your processor code.
 This comes with some syntax restrictions that our instance of superagent won't work with, more on that right below.
 
