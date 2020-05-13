@@ -31,7 +31,7 @@ export default async function statusCheck(
     return {
       status: "warning",
       messages: [
-        'This connector contains code with a deprecated request library. Please refer to the Processor documentation to remove this warning, in the section called "Migrating from the Request library to the Super-agent library".'
+        'This connector contains code using a deprecated request library. See more in connector documentation in "Migrating from the Request library to the Superagent library" section.'
       ]
     };
   }
