@@ -1,6 +1,6 @@
 const MappingUtil = require("../../server/lib/sync-agent/mapping-util");
 
-const webhookPayload = require("../integration/fixtures/webhook-payloads/email-sent.json");
+const webhookPayload = require("../integration/fixtures/legacy/webhook-payloads/email-sent.json");
 
 describe("MappingUtil", () => {
   test("should map a hull user with no account and no segments to the minimum customer.io customer object if nothing is configured", () => {

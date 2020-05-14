@@ -54,6 +54,16 @@ const mapAttributes = (ctx: HullContext) => ({
       const hullExpression = isRawHullTrait
         ? hull.replace(rawHullTraitRegex, "$1'$2'")
         : hull;
+      if (
+        !isRawHullTrait &&
+        !_.startsWith(hullExpression, "'") &&
+        !_.startsWith(hullExpression, "account.'") &&
+        !hull.includes("segment") &&
+        !hull.includes("[") &&
+        !hull.startsWith("`")
+      ) {
+        console.log(`verify trait: "${hull}" -> "${hullExpression}"`);
+      }
       const { source, target } =
         direction === "incoming"
           ? { target: hull, source: service }

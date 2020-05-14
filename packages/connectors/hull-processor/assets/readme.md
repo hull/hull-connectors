@@ -30,7 +30,7 @@ The Hull Processor allows your team to write Javascript and transform data in Hu
 
 The Processor can  `add traits`,  `update traits` and `create events` for both, users and accounts. Furthermore it allows you to `link accounts`.
 
-You can use the `request` library ([https://github.com/request/request](https://github.com/request/request)) to call external services or send data to webhooks.
+You can use the `superagent` library ([https://github.com/visionmedia/superagent](https://github.com/visionmedia/superagent)) to call external services or send data to webhooks.
 
 Async/await and ES6 are supported by the connector, allowing you to write elegant code.
 
@@ -532,14 +532,15 @@ The processor provides the following methods to help you:
 
 The processor exposes several external libraries that can be used:
 
-|**Variable**| **Library name**                                                  |
-|------------| ------------------------------------------------------------------|
-|`_`         | The lodash library. (https://lodash.com/)                         |
-|`moment`    | The Moment.js library(https://momentjs.com/)                      |
-|`urijs`     | The URI.js library (https://github.com/medialize/URI.js/)         |
-|`request`   | The simplified request client (https://github.com/request/request)|
-|`uuid`      | The uuid library (https://github.com/uuidjs/uuid)                 |
-|`LibPhoneNumber`      | The google-LibPhoneNumber library (https://ruimarinho.github.io/google-libphonenumber/)                 |
+|**Variable**          | **Library name**                                                                        |
+|----------------------| ----------------------------------------------------------------------------------------|
+|`_`                   | The lodash library. (https://lodash.com/)                                               |
+|`moment`              | The Moment.js library(https://momentjs.com/)                                            |
+|`urijs`               | The URI.js library (https://github.com/medialize/URI.js/)                               |
+|`request` (deprecated)| The simplified request client (https://github.com/request/request)                      |
+|`superagent`          | The simple and elegant request library (https://github.com/visionmedia/superagent)      |
+|`uuid`                | The uuid library (https://github.com/uuidjs/uuid)                                       |
+|`LibPhoneNumber`      | The google-LibPhoneNumber library (https://ruimarinho.github.io/google-libphonenumber/) |
 
 Please visit the linked pages for documentation and further information about these third party libraries.
 
@@ -581,7 +582,12 @@ Calling `PhoneNumberUtil.parse("1234-1234")` will return an instance of `PhoneNu
 
 Checkout the Docs for `CountryCodeSource`, `PhoneNumberFormat`, `PhoneNumberType` which are statics
 
-## Using Request.
+## \[Deprecated\] Using Request
+
+The request library is now deprecated. Processor code currently using the request library will be functional,
+but we would advise you to migrate to the super-agent request library which is much more intuitive and elegant to use.
+
+If you are about to write new code to perform any API request, please refer to the [Using Super-agent](#Using Super-agent) section.
 
 The library exposes `request-promise` to allow you to call external APIs seamlessly:
 
@@ -598,6 +604,134 @@ const response = await request({
 })
 console.log(response)
 ```
+
+## Using Super-agent
+
+To peform API requests, the processor connector exposes the super-agent library through the `superagent` keyword.
+There are some syntax restrictions that the exposed super-agent library can't perform, more on that in the [Exceptions](#Exceptions) section.
+
+### Usage
+
+Here are a few code snippets to use the super-agent request library in your processor code:
+
+```javascript
+const response = await superagent
+    .get("https://example.com/foo")
+    .set("accept", "json")                    // Set a header variable by using the set() function.
+    .set(`Authorization: Bearer ${api_key}`)
+    .send({                                   // Set a body by using the send() function
+      body_variable: "something"              // and by giving it an object.
+    })
+    .query({                                  // Set a query by using the query() function
+      orderBy: "asc"                          // and by giving it an object.
+    })
+```
+
+You can also perform asynchronous requests by using promises as such:
+
+```javascript
+superagent
+    .get("https://example.com/foo")
+    .set("accept", "json")
+    .set(`Authorization: Bearer ${api_key}`)
+    .send({
+      body_variable: "something"
+    })
+    .query({
+      orderBy: "asc"
+    })
+    .then(res => {
+      console.log(res.body);
+    })
+```
+
+Handling errors is also possible, either by using promises or by wrapping the code in a `try catch` statement:
+
+```javascript
+superagent
+    .get("https://example.com/foo")
+    .set("accept", "json")
+    .set(`Authorization: Bearer ${api_key}`)
+    .then(res => {
+      console.log(res.body);
+    })
+    .catch(err => {
+      console.log(`Error: ${err}`);
+    })
+```
+
+```javascript
+try {
+  const response = await superagent
+    .get("https://example.com/foo")
+    .set("accept", "json")
+    .set(`Authorization: Bearer ${api_key}`);
+} catch (err) {
+  console.log(`Error: ${err}`);
+}
+```
+
+There is a slight difference when processing the result of your requests using the super-agent library will be the response object.
+You will need to look into the `res.body` object instead of looking directly at the `res` object.
+
+You can find advanced usages of the super-agent library through [this link](https://visionmedia.github.io/superagent/)
+
+### Migrating from the Request library to the Super-agent library
+
+You might have noticed a warning message coming from your processor code saying that the code you are using is running a deprecated request library.
+In order to fix that, you need to start using the super-agent library instead.
+
+To illustrate that, let's have a look at a code block using the deprecated request library, and another code block with the result of migrating it.
+
+```javascript
+// Old request library
+
+const reqOpts = {
+  method: "GET",
+  uri: "http://www.omdbapi.com/?t=James+Bond"
+};
+
+return new Promise((resolve, reject) => {
+    request(reqOpts, (err, res, data) => {
+      if (err) {
+        console.info("Error:", err);
+        return reject(err);
+      }
+      
+      if(_.isString(data)) {
+        data = JSON.parse(data);
+      }
+      resolve(data);
+    });
+});
+```
+
+```javascript
+// With super-agent library
+
+return superagent
+    .get("http://www.omdbapi.com/?t=James+Bond")
+    .then(data => {
+      if(_.isString(data)) {
+        data = JSON.parse(data);
+      }
+      return data;
+    })
+    .catch(err => {
+      console.info("Error:", err);
+    })
+```
+
+### Exceptions
+
+The exposed super-agent library in processor cannot execute a request with the following syntax:
+
+```javascript
+const res = await superagent('GET', 'https://www.foobar.com/search');
+```
+
+This syntax is very similar to what the old request library was using.
+It is functional as described in the super-agent [library documentation](https://visionmedia.github.io/superagent/#request-basics), but the processor connector won't accept it.
 
 ## Golden Rules
 

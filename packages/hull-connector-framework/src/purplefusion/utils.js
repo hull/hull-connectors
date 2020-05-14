@@ -20,13 +20,19 @@ async function asyncForEach(toIterateOn, asyncCallback) {
 
   if (
     isUndefinedOrNull(toIterateOn) ||
-    isUndefinedOrNull(asyncCallback) ||
-    !Array.isArray(toIterateOn)) {
+    isUndefinedOrNull(asyncCallback)) {
     return;
   }
 
-  for (let i = 0; i < toIterateOn.length; i += 1) {
-    await asyncCallback(toIterateOn[i], i);
+  if (Array.isArray(toIterateOn)) {
+    for (let i = 0; i < toIterateOn.length; i += 1) {
+      await asyncCallback(toIterateOn[i], i);
+    }
+  } else {
+    const keys = Object.keys(toIterateOn);
+    for (let i = 0; i < keys.length; i += 1) {
+      await asyncCallback(toIterateOn[keys[i]], keys[i]);
+    }
   }
 
 }
@@ -224,6 +230,12 @@ function toSendMessage(
       "connector.private_settings.synchronized_account_segments"),
       (outgoingAttributesPath =
         "connector.private_settings.outgoing_account_attributes");
+  } else if (targetEntity === "lead") {
+    segmentAttribute = "segments";
+    (synchronizedSegmentPath =
+      "connector.private_settings.synchronized_lead_segments"),
+      (outgoingAttributesPath =
+        "connector.private_settings.outgoing_lead_attributes");
   } else {
     throw new Error(
       `Invalid input for target entity, option not supported: ${targetEntity}`
