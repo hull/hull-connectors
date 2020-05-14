@@ -608,16 +608,6 @@
       "options": {
         "fireAndForget": true
       }
-    },
-    {
-      "url": "/monitor/checkToken",
-      "type": "interval",
-      "value": "60",
-      "handler": "checkToken",
-      "options": {
-        "fireAndForget": true,
-        "alwaysEnabled": true
-      }
     }
   ],
   "json": [
