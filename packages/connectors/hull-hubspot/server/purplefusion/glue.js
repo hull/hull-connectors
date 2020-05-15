@@ -209,6 +209,39 @@ const glue = {
         })
       )
     ]),
+  fetchRecentCompanies:
+    ifL(settings("handle_accounts"), [
+      set("maxOffset", 9900),
+      set("lastFetchAt", settings("companies_last_fetch_timestamp")),
+      set("stopFetchAt", ex(moment(), "valueOf")),
+
+      ifL(cond("isEmpty", "${lastFetchAt}"),
+        set("lastFetchAt", ex(moment(settings("companies_last_fetch_at")), "valueOf"))),
+
+      ifL(cond("isEmpty", "lastFetchAt"),
+        set("lastFetchAt", ex(ex(moment(), "subtract", { minutes: 5 }), "valueOf"))),
+
+      settingsUpdate({ companies_last_fetch_timestamp: "${stopFetchAt}" }),
+      ifL(cond("notEmpty", settings("companies_last_fetch_at")),
+        settingsUpdate({ companies_last_fetch_at: null })),
+
+      loopL([
+        set("companiesPage", hubspot("getRecentCompaniesPage")),
+        ifL(cond("isEmpty", "${companiesPage}"), loopEndL()),
+        set("companiesToSave", "${companiesPage.results}"),
+        ifL(cond("notEmpty", "${companiesToSave}"),
+          hubspotSyncAgent("saveCompanies", "${companiesToSave}")),
+        ifL(
+          or([
+            cond("isEqual", "${companiesPage.hasMore}", false),
+            cond("greaterThan", "${companiesPage.offset}", "${maxOffset}")
+          ]),
+          loopEndL()
+        ),
+        set("offset", "${companiesPage.offset}"),
+        set("companiesPage", []),
+      ])
+    ]),
   fetchRecentContacts:
     cacheLock("getRecentContacts",[
       set("lastFetchAt", settings("last_fetch_timestamp")),

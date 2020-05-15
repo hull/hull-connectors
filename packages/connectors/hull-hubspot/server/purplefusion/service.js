@@ -108,6 +108,15 @@ const service: RawRestApi = {
         property: "${properties}",
         count: 100
       }
+    },
+    getRecentCompaniesPage: {
+      url: "/companies/v2/companies/recent/modified",
+      operation: "get",
+      query: {
+        since: "${lastFetchAt}",
+        offset: "${offset}",
+        count: 100
+      }
     }
   },
   superagent: {
@@ -164,7 +173,8 @@ const service: RawRestApi = {
       {
         truthy: { status: 401 },
         errorType: ConfigurationError,
-        message: "Unauthorized"
+        message: "Unauthorized",
+        recoveryroute: "refreshToken"
       },
       {
         truthy: { status: 429 },
