@@ -181,8 +181,6 @@ export default class Sidebar extends Component<Props, State> {
 
   handleSaveSettings = async () => {
     this.setState({
-      loading: true,
-      initialized: false,
       displaySettings: false
     });
     await Service.setUserProp({
@@ -190,7 +188,6 @@ export default class Sidebar extends Component<Props, State> {
       value: this.state.token
     });
     this.fetchSettings(this.state.index);
-    // this.toggleSettings();
   };
 
   handleChangeToken = (token: string) => this.setState({ token });

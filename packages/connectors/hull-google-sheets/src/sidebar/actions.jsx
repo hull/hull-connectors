@@ -29,10 +29,10 @@ class Actions extends PureComponent<Props, {}> {
     return (
       <div className="form-group">
         <button
-          disabled={displaySettings || loading || saving}
+          disabled={loading || saving}
           onClick={this.props.onToggleSettings}
         >
-          Edit Settings
+          {displaySettings ? "Cancel" : "Edit Settings"}
         </button>
         {!displaySettings && (
           <button
