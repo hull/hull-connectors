@@ -4,6 +4,7 @@ import type { HullRequest, HullResponse } from "../types";
 import ConnectorNotFoundError from "../errors/connector-not-found";
 import PaymentRequiredError from "../errors/payment-required-error";
 
+const _ = require("lodash");
 const debug = require("debug")("hull-connector:full-context-fetch-middleware");
 
 const {
@@ -59,6 +60,26 @@ async function fetchSegments(ctx, entity = "user", cache) {
   );
 }
 
+function handleError(next, error) {
+  if (error.status === 404) {
+    try {
+      debug(`Connector not found: ${error.message}`);
+    } catch (e2) {
+      debug("Error thrown in debug message");
+    }
+    return next(new ConnectorNotFoundError("Invalid id / secret"));
+  }
+  if (error.status === 402) {
+    try {
+      debug(`Organization is disabled: ${error.message}`);
+    } catch (e2) {
+      debug("Error thrown in debug message");
+    }
+    return next(new PaymentRequiredError("Organization is disabled"));
+  }
+  return next(error);
+}
+
 /**
  * This middleware is responsible for fetching all information
  * using initiated `req.hull.client`.
@@ -86,11 +107,16 @@ function fullContextFetchMiddlewareFactory({
       );
     }
 
+    const ctx = req.hull;
+    const { organization } = ctx.clientCredentials;
+    const platformRespKey = `last-resp-${organization}`;
     try {
-      const ctx = req.hull;
-      if (ctx.client === undefined) {
-        throw new Error("Missing client");
+      const lastResp = await ctx.cache.get(platformRespKey);
+      // eslint-disable-next-line
+      if (!_.isNil(lastResp) && (lastResp.status === 402 || lastResp.status === 404)) {
+        return handleError(next, lastResp);
       }
+
       const [connector, usersSegments, accountsSegments] = await Promise.all([
         fetchConnector(ctx, cacheContextFetch),
         fetchSegments(ctx, "user", cacheContextFetch),
@@ -124,23 +150,14 @@ function fullContextFetchMiddlewareFactory({
       });
       return next();
     } catch (error) {
-      if (error.status === 404) {
-        try {
-          debug(`Connector not found: ${error.message}`);
-        } catch (e2) {
-          debug("Error thrown in debug message");
-        }
-        return next(new ConnectorNotFoundError("Invalid id / secret"));
+      if (platformRespKey && (error.status === 402 || error.status === 404)) {
+        await ctx.cache.set(
+          platformRespKey,
+          _.pick(error, ["message", "status"]),
+          { ttl: 1800 } // 30 minutes
+        );
       }
-      if (error.status === 402) {
-        try {
-          debug(`Organization is disabled: ${error.message}`);
-        } catch (e2) {
-          debug("Error thrown in debug message");
-        }
-        return next(new PaymentRequiredError("Organization is disabled"));
-      }
-      return next(error);
+      return handleError(next, error);
     }
   };
 }
