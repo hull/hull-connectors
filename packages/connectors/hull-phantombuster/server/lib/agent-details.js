@@ -26,11 +26,11 @@ export default async function updateAgentDetails(
 ): Promise<PhantomAgent> {
   const { connector, request, helpers } = ctx;
   const { private_settings = {} } = connector;
-  const { id, api_key, agent = {} } = private_settings;
+  const { agent_id, api_key, agent = {} } = private_settings;
   const { nonce } = agent;
 
   const response = await request
-    .get(`https://phantombuster.com/api/v1/agent/${id}`)
+    .get(`https://phantombuster.com/api/v1/agent/${agent_id}`)
     .type("json")
     .set({
       "X-Phantombuster-key": api_key

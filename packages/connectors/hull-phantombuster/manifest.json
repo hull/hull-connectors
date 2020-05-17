@@ -70,17 +70,21 @@
     },
     {
       "name": "api_key",
-      "description": "The Phantombuster API Key. <a href='https://support.phantombuster.com/hc/en-001/articles/360010229440-How-to-find-my-API-key' target='_blank'>See how to find it here</a>",
+      "description": "The Phantombuster API Key. [See how to find it here](https://support.phantombuster.com/hc/en-001/articles/360010229440-How-to-find-my-API-key)",
       "title": "API Key",
       "type": "string",
       "format": "password"
     },
     {
-      "name": "id",
-      "title": "Agent ID",
-      "description": "The Phantom ID. Open the Phantom in Phantombuster and copy the Identifier in the URL: `https://phantombuster.com/xxx/phantoms/PHANTOM_ID_IS_HERE`",
+      "name": "agent_id",
+      "title": "Phantom to fetch",
+      "description": "Select which Phantom to fetch",
       "type": "string",
-      "format": "string"
+      "format": "select",
+      "options": {
+        "allowCreate": false,
+        "loadOptions": "/agents"
+      }
     },
     {
       "name": "code",
@@ -94,18 +98,18 @@
   "subscriptions": [],
   "settings_sections": [
     {
-      "title": "Request Parameters",
-      "description": "Configure Phantombuster",
+      "title": "Credentials",
+      "description": "Configure Phantombuster. After you have entered the key, hit Save on the top right of the page, and RELOAD the current page to configure the Phantom to fetch",
       "step": "credentials",
       "properties": [
         "private_settings.api_key"
       ]
     },
     {
-      "title": "Schedule",
+      "title": "Configuration",
       "description": "Configure the Phantom to fetch, and at which frequency",
       "properties": [
-        "private_settings.id",
+        "private_settings.agent_id",
         "private_settings.sync_interval"
       ]
     },
@@ -118,6 +122,13 @@
     }
   ],
   "json": [
+    {
+      "url": "/agents",
+      "handler": "agentsHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
+    },
     {
       "url": "/call",
       "handler": "apiCall",
@@ -171,6 +182,7 @@
   },
   "statuses": [
     {
+      "initial_value": "setupRequired",
       "url": "/status",
       "type": "cron",
       "value": "*/30 * * * *",

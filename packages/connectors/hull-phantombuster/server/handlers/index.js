@@ -7,12 +7,13 @@ import type {
 
 import {
   configHandler,
-  statusHandler,
   recentHandler,
   previewHandler,
   removeOldEntriesHandler
 } from "hull-vm";
 import configData from "./config-data";
+import agentsHandler from "./agents-handler";
+import statusHandler from "./status-handler";
 import scheduledCallHandler from "./scheduledcall-handler";
 import apiCall from "./apicall-handler";
 
@@ -29,6 +30,7 @@ const handler = ({ EntryModel }: { EntryModel: any }) => (
       removeOldEntriesHandler: removeOldEntriesHandler(EntryModel)
     },
     json: {
+      agentsHandler,
       getRecent: recentHandler(EntryModel),
       configHandler: configHandler(configData),
       apiCall: apiCall(EntryModel),
