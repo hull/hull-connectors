@@ -98,21 +98,20 @@
       "description": "Configure Phantombuster",
       "step": "credentials",
       "properties": [
-        "private_settings.api_key",
-        "private_settings.id"
+        "private_settings.api_key"
       ]
     },
     {
       "title": "Schedule",
-      "description": "Configure the query's schedule and expected response",
+      "description": "Configure the Phantom to fetch, and at which frequency",
       "properties": [
-        "private_settings.sync_interval",
-        "private_settings.format"
+        "private_settings.id",
+        "private_settings.sync_interval"
       ]
     },
     {
       "title": "Configuration",
-      "description": "Configure custom variables to pass to the connector",
+      "description": "Configure custom variables to pass to the connector (optional)",
       "properties": [
         "private_settings.variables"
       ]
