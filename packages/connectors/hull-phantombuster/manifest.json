@@ -110,7 +110,8 @@
       "description": "Configure the Phantom to fetch, and at which frequency",
       "properties": [
         "private_settings.agent_id",
-        "private_settings.sync_interval"
+        "private_settings.sync_interval",
+        "json.run"
       ]
     },
     {
@@ -122,6 +123,21 @@
     }
   ],
   "json": [
+    {
+      "url": "/run",
+      "handler": "runHandler",
+      "format": "action",
+      "title": "Trigger Phantom",
+      "name": "run",
+      "description": "Run Phantom Now - Check on Phantombuster to see Progress",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "text": "You are about to trigger a Phantom on Phantombuster. Confirm?",
+          "button": "Trigger"
+        }
+      }
+    },
     {
       "url": "/agents",
       "handler": "agentsHandler",
