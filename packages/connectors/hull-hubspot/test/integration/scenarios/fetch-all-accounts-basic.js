@@ -134,8 +134,6 @@ it.skip("should fetch recent companies", () => {
         ["increment", "ship.incoming.accounts", 2]
       ],
       platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}],
         ["GET", "/api/v1/app", {}, {}],
         [
           "PUT",

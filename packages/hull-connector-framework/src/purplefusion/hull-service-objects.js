@@ -44,6 +44,11 @@ const HullUserRaw: ServiceObjectDefinition = {
   name: "User"
 };
 
+const HullLeadRaw: ServiceObjectDefinition = {
+  service_name: "HullLeadRaw",
+  name: "User"
+};
+
 const ServiceUserRaw: ServiceObjectDefinition = {
   service_name: "ServiceUserRaw",
   name: "User"
@@ -180,6 +185,7 @@ module.exports = {
   HullOutgoingDropdownOption,
   HullConnectorEnumDefinition,
   HullUserRaw,
+  HullLeadRaw,
   ServiceUserRaw,
   ServiceLeadRaw,
   ServiceAccountRaw,

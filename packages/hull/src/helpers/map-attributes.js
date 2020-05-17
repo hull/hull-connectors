@@ -10,8 +10,6 @@ import type {
 
 import jsonata from "jsonata";
 
-const { ConfigurationError } = require("hull/src/errors");
-
 const cast = (type?: HullJsonataType) => (value: any) => {
   if (!type) return value;
   if (type === "array") return `${value}[]`;
@@ -22,7 +20,7 @@ const cast = (type?: HullJsonataType) => (value: any) => {
 };
 
 // TODO clear up the rules for attribute names
-const rawHullTraitRegex = /^(account\.)?([A-Za-z_]*\/[A-Za-z_]*)$/g;
+const rawHullTraitRegex = /^(account\.)?([\w\s\-()/]+)$/g;
 const noDotInPath = str => str.indexOf(".") === -1;
 const isRawTrait = trait => rawHullTraitRegex.test(trait);
 const mapAttributes = (ctx: HullContext) => ({
@@ -46,10 +44,24 @@ const mapAttributes = (ctx: HullContext) => ({
   const transform = _.reduce(
     mapping,
     (m, { service, hull, overwrite, castAs }) => {
+      if (_.isEmpty(hull) || _.isEmpty(service)) {
+        return m;
+      }
       const casted = cast(castAs);
-      const hullExpression = isRawTrait(hull)
+      const isRawHullTrait = isRawTrait(hull);
+      const hullExpression = isRawHullTrait
         ? hull.replace(rawHullTraitRegex, "$1'$2'")
         : hull;
+      if (
+        !isRawHullTrait &&
+        !_.startsWith(hullExpression, "'") &&
+        !_.startsWith(hullExpression, "account.'") &&
+        !hull.includes("segment") &&
+        !hull.includes("[") &&
+        !hull.startsWith("`")
+      ) {
+        console.log(`verify trait: "${hull}" -> "${hullExpression}"`);
+      }
       const { source, target } =
         direction === "incoming"
           ? { target: hull, source: service }
@@ -62,7 +74,7 @@ const mapAttributes = (ctx: HullContext) => ({
       _.set(
         m,
         target,
-        _.isNil(overwrite) || overwrite
+        direction === "outgoing" || _.isNil(overwrite) || overwrite
           ? `_{{${casted(source)}}}_`
           : setIfNull(`_{{${casted(source)}}}_`)
       );
@@ -71,17 +83,8 @@ const mapAttributes = (ctx: HullContext) => ({
     {}
   );
 
-  let response = {};
-  try {
-    const transformed = JSON.stringify(transform).replace(
-      /"_{{(.*?)}}_"/g,
-      "$1"
-    );
-    response = jsonata(transformed).evaluate(payload);
-  } catch (error) {
-    const { message } = error;
-    throw new ConfigurationError(message);
-  }
+  const transformed = JSON.stringify(transform).replace(/"_{{(.*?)}}_"/g, "$1");
+  const response = jsonata(transformed).evaluate(payload);
 
   return _.reduce(
     response,

@@ -1,7 +1,6 @@
 // @flow
 import type { HullSegment } from "hull";
 import type {
-  HullProperty,
   HubspotSchema,
   HubspotPropertyGroup,
   HubspotProperty,
@@ -53,8 +52,6 @@ class HubspotPropertyUtil {
 
   hubspotProperties: Array<HubspotPropertyGroup>;
 
-  hullProperties: Array<HullProperty>;
-
   serviceType: ServiceType;
 
   constructor({
@@ -63,7 +60,6 @@ class HubspotPropertyUtil {
     hubspotClient,
     segments,
     hubspotProperties,
-    hullProperties,
     serviceType
   }: Object) {
     this.hubspotClient = hubspotClient;
@@ -72,7 +68,6 @@ class HubspotPropertyUtil {
     this.segments = segments;
     this.serviceType = serviceType;
     this.hubspotProperties = hubspotProperties;
-    this.hullProperties = hullProperties;
   }
 
   sync(outboundMapping: Array<HubspotSchema>): Promise<*> {
