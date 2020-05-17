@@ -234,6 +234,7 @@ The processor provides the following methods to help you:
 | `isInAccountSegment(<name>)`                              | Returns `true` if the account is in the segment with the specified name; otherwise `false`. Please note that the name is case-sensitive.                                                                                                                                                  |
 | `enteredAccountSegment(<name>)`                              | Returns the segment object if the account just entered the segment with the specified name; otherwise `null`. Please note that the name is case-sensitive.                                                                                                                                                  |
 | `leftAccountSegment(<name>)`                              | Returns the segment object if the account just left the segment with the specified name; otherwise `null`. Please note that the name is case-sensitive.                                                                                                                                                  |
+| `setIfNull(value)`                              | A Helper to send a `setIfNull` command for the specified attribute. Use like this: hull.traits({ foo: setIfNull(1234) }).
 
 ## External Libraries
 
