@@ -535,6 +535,7 @@ The processor provides the following methods to help you:
 | `enteredAccountSegment(<name>)`                              | Returns the segment object if the user's Account just entered the segment with the specified name; otherwise `null`. Please note that the name is case-sensitive.                                                                                                                                                  |
 | `leftSegment(<name>)`                              | Returns the segment object if the user just left the segment with the specified name; otherwise `null`. Please note that the name is case-sensitive.                                                                                                                                                  |
 | `leftAccountSegment(<name>)`                              | Returns the segment object if the user's Account just left the segment with the specified name; otherwise `null`. Please note that the name is case-sensitive.                                                                                                                                                  |
+| `setIfNull(value)`                              | A Helper to send a `setIfNull` command for the specified attribute. Use like this: hull.traits({ foo: setIfNull(1234) }).                                                                                                                                                  |
 
 ## External Libraries
 
@@ -705,7 +706,7 @@ return new Promise((resolve, reject) => {
         console.info("Error:", err);
         return reject(err);
       }
-      
+
       if(_.isString(data)) {
         data = JSON.parse(data);
       }
