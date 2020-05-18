@@ -4,8 +4,9 @@ import type { HullContext } from "hull";
 import type { PhantomAgent } from "./agent-details";
 import handleResponseError from "./handle-response-error";
 
-const URL = "https://phantombuster.com/api/v1";
-const agentUrl = ({ agent_id }) => `${URL}/agent/${agent_id}/output`;
+const URL = "https://cache1.phantombooster.com";
+const resultUrl = ({ userAwsFolder, awsFolder }) =>
+  `${URL}/${userAwsFolder}/${awsFolder}/result.json`;
 type Output =
   | {
       status: "success",
@@ -33,11 +34,6 @@ type Output =
 
 type Response = { body: Output, ok: true } | { error: string, ok: false };
 
-// const URL = "https://cache1.phantombooster.com";
-// const agentUrl = ({ userAwsFolder, awsFolder }) =>
-//   `${URL}/${userAwsFolder}/${awsFolder}/result.json
-//   `;
-
 type AgentOutput =
   | {
       skipped?: boolean,
@@ -52,7 +48,6 @@ export default async function callApi(
   const { metric, request, client, connector } = ctx;
   const { private_settings = {} } = connector;
   const { agent_id, api_key } = private_settings;
-  const { awsFolder, userAwsFolder } = agent;
 
   if (!agent_id) {
     throw new Error(
@@ -73,19 +68,13 @@ export default async function callApi(
 
   try {
     // $FlowFixMe
-    const response: Response = await request.get(
-      agentUrl({ agent_id, awsFolder, userAwsFolder })
-    );
-
-    const error = handleResponseError(response);
-
-    if (error) {
-      const err = new Error(error);
-      err.data = { body: response.body };
+    const response: Response = await request.get(resultUrl(agent));
+    if (!response.ok || response.error) {
+      const err = new Error(response.error);
       throw err;
     }
 
-    return JSON.parse(response.body.data.resultObject);
+    return response.body;
   } catch (err) {
     client.logger.error("connector.schedule.error", err);
     throw err;
