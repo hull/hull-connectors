@@ -6,6 +6,7 @@ import type {
   HullExternalResponse
 } from "hull";
 import { asyncComputeAndIngest, varsFromSettings } from "hull-vm";
+import _ from "lodash";
 import callApi from "../lib/call-api";
 import updateAgentDetails from "../lib/agent-details";
 
@@ -32,8 +33,8 @@ export default function handler(EntryModel: Object) {
     }
 
     try {
-      const agent = await updateAgentDetails(ctx, !preview);
-      const data = await callApi(ctx, agent);
+      const newAgent = await updateAgentDetails(ctx, !preview);
+      const data = await callApi(ctx, newAgent);
       const result = await asyncComputeAndIngest(ctx, {
         source: "phantombuster",
         EntryModel,
@@ -42,7 +43,7 @@ export default function handler(EntryModel: Object) {
           method: "GET",
           url: agent.name,
           agent,
-          data,
+          data: preview ? _.take(data, 100) : data,
           variables: varsFromSettings(ctx)
         },
         code,

@@ -1,12 +1,12 @@
 // @flow
 
 import type { HullContext } from "hull";
+import neatCsv from "neat-csv";
 import type { PhantomAgent } from "./agent-details";
-import handleResponseError from "./handle-response-error";
 
 const URL = "https://cache1.phantombooster.com";
 const resultUrl = ({ userAwsFolder, awsFolder }) =>
-  `${URL}/${userAwsFolder}/${awsFolder}/result.json`;
+  `${URL}/${userAwsFolder}/${awsFolder}/result.csv`;
 type Output =
   | {
       status: "success",
@@ -34,12 +34,7 @@ type Output =
 
 type Response = { body: Output, ok: true } | { error: string, ok: false };
 
-type AgentOutput =
-  | {
-      skipped?: boolean,
-      data?: Array<string | {}> | {}
-    }
-  | { error: string };
+type AgentOutput = Array<string | {}>;
 
 export default async function callApi(
   ctx: HullContext,
@@ -73,8 +68,7 @@ export default async function callApi(
       const err = new Error(response.error);
       throw err;
     }
-
-    return response.body;
+    return neatCsv(response.text);
   } catch (err) {
     client.logger.error("connector.schedule.error", err);
     throw err;

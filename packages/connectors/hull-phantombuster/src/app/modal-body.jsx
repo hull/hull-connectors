@@ -5,7 +5,11 @@ import React, { Component } from "react";
 
 type Props = {
   id: string,
-  sync_interval: string
+  sync_interval: string,
+  agent?: {
+    name: string,
+    nbLaunches: number
+  }
 };
 
 export default class ModalBody extends Component<Props> {
@@ -15,14 +19,22 @@ export default class ModalBody extends Component<Props> {
   };
 
   render() {
-    const { id, sync_interval } = this.props;
+    const { sync_interval, agent } = this.props;
     return (
       <div>
         <p>Configure the connector in the Settings tab</p>
-        <h5>Phantom ID:</h5>
-        <p>{id}</p>
-        <h5>Check Interval:</h5>
-        <p>every {sync_interval} minutes</p>
+        {agent && (
+          <h5>
+            Phantom ID:
+            <code> {agent.name}</code>
+          </h5>
+        )}
+        {sync_interval && (
+          <h5>
+            Check Interval:
+            <code> Every {sync_interval} minutes</code>
+          </h5>
+        )}
       </div>
     );
   }

@@ -31,6 +31,7 @@ export default class App extends RecentEntriesUI<Props, State> {
       showConfig,
       recent,
       id,
+      agent,
       sync_interval
     } = this.state;
     if (!initialized) return null;
@@ -57,7 +58,7 @@ export default class App extends RecentEntriesUI<Props, State> {
     return (
       <ConfigurationModal
         title={strings.modalTitle}
-        body={<ModalBody id={id} sync_interval={sync_interval} />}
+        body={<ModalBody id={id} sync_interval={sync_interval} agent={agent} />}
         content={content}
         actions={actions}
         show={showConfig || !hasRecent}
