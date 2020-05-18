@@ -111,10 +111,12 @@ function fullContextFetchMiddlewareFactory({
     const { organization } = ctx.clientCredentials;
     const platformRespKey = `last-resp-${organization}`;
     try {
-      const lastResp = await ctx.cache.get(platformRespKey);
-      // eslint-disable-next-line
-      if (!_.isNil(lastResp) && (lastResp.status === 402 || lastResp.status === 404)) {
-        return handleError(next, lastResp);
+      if (ctx.cache) {
+        const lastResp = await ctx.cache.get(platformRespKey);
+        // eslint-disable-next-line
+        if (!_.isNil(lastResp) && (lastResp.status === 402 || lastResp.status === 404)) {
+          return handleError(next, lastResp);
+        }
       }
 
       const [connector, usersSegments, accountsSegments] = await Promise.all([
@@ -150,7 +152,8 @@ function fullContextFetchMiddlewareFactory({
       });
       return next();
     } catch (error) {
-      if (platformRespKey && (error.status === 402 || error.status === 404)) {
+      // eslint-disable-next-line
+      if (ctx.cache && platformRespKey && (error.status === 402 || error.status === 404)) {
         await ctx.cache.set(
           platformRespKey,
           _.pick(error, ["message", "status"]),
