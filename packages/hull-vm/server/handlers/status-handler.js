@@ -27,15 +27,6 @@ export default async function statusCheck(
     };
   }
 
-  if (check.deprecateRequest(ctx, code)) {
-    return {
-      status: "warning",
-      messages: [
-        'This connector contains code using a deprecated request library. See more in connector documentation in "Migrating from the Request library to the Superagent library" section.'
-      ]
-    };
-  }
-
   let status = "ok";
   const messages = [];
 
