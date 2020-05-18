@@ -68,7 +68,10 @@ const handler = ({
       fetchAllCompanies,
       fetchAllEmailEvents,
       fetchHotOffThePressEvents,
-      getContactProperties,
+      getIncomingContactProperties: getContactProperties("incoming"),
+      getOutgoingContactProperties: getContactProperties("outgoing"),
+      getIncomingCompanyProperties: getCompanyProperties("incoming"),
+      getOutgoingCompanyProperties: getCompanyProperties("outgoing"),
       getIncomingUserClaims,
       getIncomingAccountClaims,
       getCompanyProperties

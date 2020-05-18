@@ -1,4 +1,6 @@
 /* @flow */
+import type { HullContext, HullExternalResponse, HullIncomingHandlerMessage } from "hull";
+
 const HubspotStrategy = require("passport-hubspot-oauth2.0");
 const { oAuthHandler } = require("hull/src/handlers");
 const moment = require("moment");
@@ -12,35 +14,46 @@ const {
 } = require("hull/src/utils");
 
 const hubspotOAuth = {
-    isSetup(req) {
-      const { client, connector } = req.hull;
-      if (req.query.reset) return Promise.reject(new Error("Requested reset"));
-      const { access_token } = connector.private_settings || {};
-      if (access_token) {
-        return client.get(connector.id).then(s => {
-          return { settings: s.private_settings };
-        });
+    onStatus: (req, authorizationMessage) => {
+      const { connector } = req;
+      const { private_settings = {} } = connector;
+      const {
+        portal_id
+      } = private_settings;
+
+      if (portal_id) {
+        const html = `Connected to portal <span>${portal_id}</span>`;
+        const message = `Connected to portal ${portal_id}`;
+        return {
+          status: 200,
+          data: {
+            message,
+            html
+          }
+        };
       }
-      return Promise.reject(new Error("Not authorized"));
+      return {
+        status: 400,
+        data: {
+          message: "Please authenticate"
+        }
+      };
     },
-    onLogin: req => {
-      req.authParams = { ...req.body, ...req.query };
-      return Promise.resolve();
-    },
-    onAuthorize: req => {
-      debug("onAuthorize req.account", req.account);
-      const { refreshToken, accessToken } = req.account || {};
-      const { expires_in } = req.account.params;
+    onLogin: (
+      ctx: HullContext,
+      message: HullIncomingHandlerMessage
+    ): HullExternalResponse => ({
+      ...message.body,
+      ...message.query
+    }),
+    onAuthorize: (req, authorizationMessage) => {
+      debug("onAuthorize req.account", authorizationMessage.account);
+      const { refreshToken, accessToken } = authorizationMessage.account || {};
+      const { expires_in } = authorizationMessage.account.params;
 
       const agent = superagent
         .agent()
         .use(superagentUrlTemplatePlugin({}))
-        /*.use(
-          superagentInstrumentationPlugin({
-            logger: req.hull.client.logger,
-            metric: req.hull.metric
-          })
-        )*/
         .use(
           prefixPlugin(
             process.env.OVERRIDE_HUBSPOT_URL || "https://api.hubapi.com"
@@ -55,24 +68,18 @@ const hubspotOAuth = {
         .get(`/oauth/v1/access-tokens/${accessToken}`)
         .then(res => {
           const portalId = res.body.hub_id;
-          const newConnector = {
-            portal_id: portalId,
-            refresh_token: refreshToken,
-            access_token: accessToken,
-            expires_in,
-            token_fetched_at: moment()
-              .utc()
-              .format("x")
-          };
-          debug("onAuthorize updating settings", newConnector);
-          return req.hull.helpers.settingsUpdate(newConnector);
+          return {
+            private_settings: {
+              portal_id: portalId,
+              refresh_token: refreshToken,
+              access_token: accessToken,
+              expires_in,
+              token_fetched_at: moment()
+                .utc()
+                .format("x")
+            }
+          }
         });
-    },
-    views: {
-      login: "login.html",
-      home: "home.html",
-      failure: "failure.html",
-      success: "success.html"
     }
 };
 

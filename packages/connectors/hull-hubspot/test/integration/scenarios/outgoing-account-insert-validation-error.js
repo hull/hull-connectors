@@ -1,7 +1,7 @@
 // @flow
-const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
-
+const testScenario = require("hull-connector-framework/src/test-scenario");
+const companyPropertyGroups = require("../fixtures/get-properties-companies-groups");
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 process.env.CLIENT_ID = "123";
@@ -12,7 +12,8 @@ const connector = {
     token: "hubToken",
     synchronized_account_segments: ["hullSegmentId"],
     outgoing_account_attributes: [
-      { hull: "name", service: "name", overwrite: true }
+      { hull: "name", service: "name", overwrite: true },
+      { "hull": "account_segments.name[]", "service": "hull_segments", "overwrite": true }
     ],
     mark_deleted_contacts: false,
     mark_deleted_companies: false
@@ -37,7 +38,7 @@ it("should send out a new hull account to hubspot insert validation error", () =
         scope.get("/contacts/v2/groups?includeProperties=true")
           .reply(200, []);
         scope.get("/properties/v1/companies/groups?includeProperties=true")
-          .reply(200, []);
+          .reply(200, companyPropertyGroups);
         scope.post("/companies/v2/domains/hull.io/companies", {
           requestOptions: {
             properties: ["domain", "hs_lastmodifieddate", "name"]
@@ -84,7 +85,7 @@ it("should send out a new hull account to hubspot insert validation error", () =
             name: "New Name",
             domain
           },
-          account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          account_segments: [{ id: "hullSegmentId", name: "testSegment" }]
         }
       ],
       response: {
@@ -157,10 +158,7 @@ it("should send out a new hull account to hubspot insert validation error", () =
         ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "connector.service_api.error", 1]
       ],
-      platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
-      ]
+      platformApiCalls: []
     };
   });
 });

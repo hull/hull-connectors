@@ -56,9 +56,10 @@ export default async function callApi({
 
   metric.increment("ship.service_api.call");
   try {
-    const response = await request[method.toLowerCase()](url).send(
-      JSON.parse(body)
-    );
+    const m = method.toLowerCase();
+    const response = await (m === "get"
+      ? request[m](url)
+      : request[m](url).send(JSON.parse(body)));
     let responseBody;
     if (format === "JSON") {
       responseBody = response.body;

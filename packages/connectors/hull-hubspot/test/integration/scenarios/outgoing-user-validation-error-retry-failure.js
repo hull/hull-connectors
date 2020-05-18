@@ -3,6 +3,8 @@
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
 
+const companyPropertyGroups = require("../fixtures/get-properties-companies-groups");
+
 process.env.OVERRIDE_HUBSPOT_URL = "";
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
@@ -12,16 +14,9 @@ const connector = {
     token: "hubToken",
     synchronized_user_segments: ["hullSegmentId"],
     outgoing_user_attributes: [
-      {
-        hull: "traits_custom_numeric",
-        service: "custom_hubspot_numeric",
-        overwrite: true
-      },
-      {
-        hull: "traits_group/custom_calculated_score",
-        service: "score",
-        overwrite: true
-      }
+      { hull: "traits_custom_numeric", service: "custom_hubspot_numeric", overwrite: true },
+      { hull: "traits_group/custom_calculated_score", service: "score", overwrite: true },
+      { "hull": "segments.name[]", "service": "hull_segments", "overwrite": true }
     ],
     mark_deleted_contacts: false,
     mark_deleted_companies: false
@@ -42,7 +37,7 @@ const usersSegments = [
   }
 ];
 
-it("should send out a new hull user to hubspot - validation error", () => {
+it("should send out a new hull user to hubspot - validation error and retry", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.notificationHandler,
@@ -76,7 +71,7 @@ it("should send out a new hull user to hubspot - validation error", () => {
             }
           ]);
         scope.get("/properties/v1/companies/groups?includeProperties=true")
-          .reply(200, []);
+          .reply(200, companyPropertyGroups);
         scope.post("/contacts/v1/contact/batch/?auditId=Hull", [
           {
             "properties": [
@@ -194,13 +189,14 @@ it("should send out a new hull user to hubspot - validation error", () => {
                 "displayOrder": 2
               }
             ],
-            "description": "All the Segments the User belongs to in Hull",
+            "description": "All the Segments the entity belongs to in Hull",
             "label": "Hull Segments",
             "groupName": "hull",
             "fieldType": "checkbox",
             "formField": false,
             "name": "hull_segments",
             "type": "enumeration",
+            "calculated": false,
             "displayOrder": 0
           }).reply(202);
 
@@ -279,7 +275,7 @@ it("should send out a new hull user to hubspot - validation error", () => {
               entered: [
                 {
                   id: "hullSegmentId",
-                  name: "hullSegmentName",
+                  name: "testSegment",
                   type: "users_segment"
                 }
               ]
@@ -304,7 +300,7 @@ it("should send out a new hull user to hubspot - validation error", () => {
               entered: [
                 {
                   id: "hullSegmentId",
-                  name: "hullSegmentName",
+                  name: "testSegment",
                   type: "users_segment"
                 }
               ]
@@ -339,7 +335,7 @@ it("should send out a new hull user to hubspot - validation error", () => {
               entered: [
                 {
                   id: "hullSegmentId",
-                  name: "hullSegmentName",
+                  name: "testSegment",
                   type: "users_segment"
                 }
               ]
@@ -476,10 +472,7 @@ it("should send out a new hull user to hubspot - validation error", () => {
         ["value","connector.service_api.response_time",expect.whatever()],
         ["increment","connector.service_api.error",1]
       ],
-      platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
-      ]
+      platformApiCalls: []
     };
   });
 });

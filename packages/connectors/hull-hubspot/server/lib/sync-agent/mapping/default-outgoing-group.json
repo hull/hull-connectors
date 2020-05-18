@@ -1,0 +1,19 @@
+[
+  {
+    "name": "hull",
+    "displayName": "Hull Properties",
+    "properties": [
+      {
+        "name": "hull_segments",
+        "label": "Hull Segments",
+        "groupName": "hull",
+        "type": "enumeration",
+        "fieldType": "checkbox",
+        "hidden": false,
+        "options": [],
+        "formField": false,
+        "readOnlyValue": false
+      }
+    ]
+  }
+]
