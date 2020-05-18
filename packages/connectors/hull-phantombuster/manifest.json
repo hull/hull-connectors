@@ -91,7 +91,7 @@
       "title": "Code",
       "description": "Enter Javascript code here, It will receive the data in the middle column, can emit `track()` and `traits()`. Preview results on the right. Save when finished",
       "type": "string",
-      "default": "//console.log(\"Hello !\");\n//hull.asUser({ email: body.email }).traits({ coconuts: 12 });\n//hull.asUser({ email: body.email }).track(\"sample event\");",
+      "default": "//console.log(\"Hello !\");\n//hull.asUser({ email: data.email }).traits({ coconuts: 12 });\n//hull.asAccount({ email: data.email }).traits(\"sample event\");",
       "format": "hidden"
     }
   ],
@@ -107,7 +107,7 @@
     },
     {
       "title": "Configuration",
-      "description": "Configure the Phantom to fetch, and at which frequency",
+      "description": "Select the Phantom to fetch, and at which frequency",
       "properties": [
         "private_settings.agent_id",
         "private_settings.sync_interval",
