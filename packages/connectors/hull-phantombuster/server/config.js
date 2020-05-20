@@ -55,7 +55,7 @@ export default function connectorConfig(): HullConnectorConfig {
         url: REDIS_URL,
         name: KUE_PREFIX
       }
-    : { store: "memor y" };
+    : { store: "memory" };
 
   return {
     manifest,

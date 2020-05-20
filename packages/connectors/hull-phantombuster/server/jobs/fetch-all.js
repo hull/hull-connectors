@@ -6,38 +6,23 @@ import resultsUrl from "../lib/get-results-url";
 /**
  * SyncIn : import all the list members as hull users
  */
-export default function handler(EntryModel: Object) {
+export default function handler(_EntryModel: Object) {
   return function fetchAllUsers(ctx: HullContext, options: any = {}) {
-    console.log("FETCHALL", options);
     const { agent } = options;
     const { helpers, connector } = ctx;
     const { private_settings = {} } = connector;
     const { code } = private_settings;
     const { streamRequest } = helpers;
 
-    const url = resultsUrl(ctx, agent);
-
-    ctx.client.logger.info("incoming.job.start", {
-      options,
-      url
-    });
-
-    let lines = 0;
-    let ingestionErrors = [];
-
     streamRequest({
-      url,
+      url: resultsUrl(ctx, agent),
       format: "csv",
-      batchSize: 10,
-      onError: error => {
-        ingestionErrors.push(error);
-        ctx.client.logger.info("incoming.job.error", { error });
-      },
+      batchSize: 50,
+      onError: _error => {},
       onEnd: () => {},
-      onData: data => {
-        return asyncComputeAndIngest(ctx, {
+      onData: async data =>
+        asyncComputeAndIngest(ctx, {
           source: "phantombuster",
-          EntryModel,
           payload: {
             method: "GET",
             url: agent.name,
@@ -46,9 +31,8 @@ export default function handler(EntryModel: Object) {
             variables: varsFromSettings(ctx)
           },
           code,
-          preview: true
+          preview: false
         })
-      }
     });
   };
 }

@@ -61,12 +61,19 @@ export default async function callApi(
 
   try {
     // $FlowFixMe
-    const response: Response = await request.get(resultUrl(ctx, agent));
-    if (!response.ok || response.error) {
-      const err = new Error(response.error);
+    const response: Response = await request.get(
+      `https://phantombuster.com/api/v1/agent/${agent.id}/output`
+    );
+    if (
+      !response.ok ||
+      response.error ||
+      !response.body?.status === "success"
+    ) {
+      const err = new Error(response.body?.error || response.error);
       throw err;
     }
-    return neatCsv(response.text);
+    // $FlowFixMe
+    return JSON.parse(response?.body?.data?.resultObject);
   } catch (err) {
     client.logger.error("connector.schedule.error", err);
     throw err;

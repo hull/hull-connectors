@@ -1,6 +1,6 @@
 // @flow
 import superagent from "superagent";
-import { chain } from "stream-chain";
+import { chain, final } from "stream-chain";
 import { parser as csvParser } from "stream-csv-as-json";
 import { parser as jsonParser } from "stream-json";
 import { asObjects } from "stream-csv-as-json/AsObjects";
@@ -37,16 +37,20 @@ const streamRequest = (ctx: HullContext) => async ({
     format === "csv" ? csvParser() : jsonParser(),
     asObjects(),
     streamValues(),
-    ({ value }) => value,
     batchStream({ size: batchSize }),
     async data => {
-      chunk += 1;
       client.logger.info("incoming.job.progress", {
         row,
         chunk
       });
+      chunk += 1;
       row += data.length;
-      return onData(data);
+      await onData(data.map(({ value }) => value));
+      return data;
+    },
+    d => {
+      console.log("Final", d)
+      final(d)
     }
   ]);
 
