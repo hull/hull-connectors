@@ -12,7 +12,7 @@ You can begin writing your own code right away, but you probably might want to g
 
 - [User](#Input---User)
 - [Changes](#Input---Changes)
-- [Account](#Input---
+- [Account](#Input---Accounts)
 - [Events](#Input---Events)
 - [User Segments](#Input---User-Segments)
 - [Account Segments](#Input---Account-Segments)
@@ -28,7 +28,7 @@ Read more about writing code:
 
 The Hull Processor allows your team to write Javascript and transform data in Hull for users and accounts. You can emit events based of attribute changes or calculate a lead score, the Processor is your multi-tool when it comes to data in Hull.
 
-The Processor can  `add traits`,  `update traits` and `create events` for both, users and accounts. Furthermore it allows you to `link accounts`.
+The Processor can  `add traits`,  `update traits` and `create events` for both, users and accounts. Furthermore it allows you to `link accounts` And add/remove `aliases` for users
 
 You can use the `superagent` library ([https://github.com/visionmedia/superagent](https://github.com/visionmedia/superagent)) to call external services or send data to webhooks.
 
@@ -428,6 +428,15 @@ Here is how to use the function signature:
 The first parameter is a string defining the name of the event while the second parameter is an object that defines the properties of the event.
 
 
+## How to alias / unalias identifiers
+
+You can add or remove aliases to the processed user with the following syntax:
+
+```js
+  hull.alias({ anonymous_id: "foobar:1234" });
+  hull.unalias ({ anonymous_id: "foobar:1234" });
+```
+
 ## How to link Users to Accounts
 
 Now that we know how to deal with users, let’s have a look how to handle accounts.
@@ -438,7 +447,6 @@ You can **link an account to the current user** by calling the `hull.account` fu
   const claims_object = { domain: <value> }
   hull.account(claims_object)
 ```
-
 which would either create the account if it doesn’t exist or link the current user to the existing account.
 
 ## How to edit attributes for the account

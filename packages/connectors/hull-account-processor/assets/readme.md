@@ -22,7 +22,7 @@ Read more about writing code:
 
 The Hull Account Processor allows your team to write Javascript and transform data in Hull for accounts. You can emit events based of attribute changes or calculate a lead score, the Processor is your multi-tool when it comes to data in Hull.
 
-The Processor can `add traits`, `update traits` for accounts.
+The Processor can `add traits`, `update traits` for accounts and `add/remove aliases` for Accounts
 
 You can use the `superagent` library ([https://github.com/visionmedia/superagent](https://github.com/visionmedia/superagent)) to call external services or send data to webhooks.
 
@@ -212,6 +212,18 @@ Where:
 ### Limitations
 
 The Platform refuses to store Domains in accounts with a domain being a Generic Email Domain - See the list of email domains we refuse here: https://github.com/smudge/freemail/tree/master/data  - This helps preventing accounts with thousands of users under domains like `gmail.com` because you'd have written the following code:
+
+
+
+## How to alias / unalias identifiers
+
+You can add or remove aliases to the processed user with the following syntax:
+
+ ```js
+  hull.alias({ anonymous_id: "foobar:1234" });
+  hull.unalias ({ anonymous_id: "foobar:1234" });
+```
+
 
 
 ## Utility Methods

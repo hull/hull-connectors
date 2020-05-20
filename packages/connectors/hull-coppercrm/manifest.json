@@ -4,7 +4,7 @@
   "source": "copper",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.24-monorepo",
+  "version": "0.1.25-monorepo",
   "tags": [
     "incoming",
     "outgoing",
