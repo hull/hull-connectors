@@ -32,6 +32,7 @@ import {
   extractRequest,
   mappingToOptions,
   mapAttributes,
+  streamRequest,
   getStandardMapping,
   operations
 } from "../helpers";
@@ -115,6 +116,7 @@ export type HullContext = {|
     extractRequest: $Call<typeof extractRequest, HullContext>,
     mappingToOptions: $Call<typeof mappingToOptions, HullContext>,
     mapAttributes: $Call<typeof mapAttributes, HullContext>,
+    streamRequest: $Call<typeof mapAttributes, HullContext>,
     getStandardMapping: $Call<typeof getStandardMapping, HullContext>,
     hasMatchingTriggers: ({
       matchOnBatch?: boolean,
