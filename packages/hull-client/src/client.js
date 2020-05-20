@@ -47,6 +47,33 @@ const logger = new winston.Logger({
   ]
 });
 
+const ELASTIC_FIELDS = [
+  "request_id",
+  "subject_type",
+
+  "connector_name",
+  "organization",
+
+  "user_id",
+  "user_email",
+  "user_anonymous_id",
+  "user_external_id",
+
+  "account_id",
+  "account_domain",
+  "account_external_id",
+  "account_anonymous_id"
+];
+
+const elasticLog = payload =>
+  _.pickBy(
+    payload,
+    (v, k: string) =>
+      [...ELASTIC_FIELDS, "connector"].includes(k) && !_.isNil(v)
+  );
+
+// connector: id,
+
 /**
  * HullClient instance constructor - creates new instance to perform API calls, issue traits/track calls and log information
  *
@@ -174,35 +201,19 @@ class HullClient {
       message: string,
       data: Object | null | void
     ) => {
+      // Can we unify logging formats? Seems this is adding complexity
       if (this.config.esLogTransform) {
-        const timestamp = new Date().toISOString();
-        const label = "";
-        const summary = "";
-
-        const transformedLog = {
-          request_id: ctxe.request_id,
-          connector_name: ctxe.connector_name,
-          user_id: ctxe.user_id,
-          user_anonymous_id: ctxe.user_anonymous_id,
-          user_external_id: ctxe.user_external_id,
-          user_email: ctxe.user_email,
-          account_id: ctxe.account_id,
-          account_domain: ctxe.account_domain,
-          account_external_id: ctxe.account_external_id,
-          account_anonymous_id: ctxe.account_anonymous_id,
+        logger[level]({
+          ..._.pick(ctxe, ...ELASTIC_FIELDS),
           connector: ctxe.id,
-          organization: ctxe.organization,
-          subject_type: ctxe.subject_type,
           data,
           message,
-          label,
+          label: "",
+          summary: "",
           level,
-          summary,
           "@version": "1",
-          "@timestamp": timestamp
-        };
-
-        logger[level](transformedLog);
+          "@timestamp": new Date().toISOString()
+        });
       } else {
         logger[level](message, { context: ctxe, data });
       }
@@ -233,46 +244,18 @@ class HullClient {
         });
       }
       logger.removeAllListeners();
+
+      // Only used for Testing. Could we remove this complexity ?
       logger.on("logged", (level, message, payload) => {
-        let transformedLog;
-
-        if (this.config.esLogTransform) {
-          transformedLog = {
-            message: payload.message,
-            level: payload.level,
-            data: payload.data,
-            context: _.pickBy(payload, (v, k) => {
-              return (
-                [
-                  "request_id",
-                  "connector_name",
-                  "connector",
-                  "user_id",
-                  "user_anonymous_id",
-                  "user_external_id",
-                  "user_email",
-                  "account_id",
-                  "account_domain",
-                  "account_external_id",
-                  "account_anonymous_id",
-                  "subject_type",
-                  "organization"
-                ].includes(k) && !_.isNil(v)
-              );
-            }),
-            timestamp: new Date().toISOString()
-          };
-        } else {
-          transformedLog = {
-            message,
-            level,
-            data: payload.data,
-            context: payload.context,
-            timestamp: new Date().toISOString()
-          };
-        }
-
-        logsArray.push(transformedLog);
+        logsArray.push({
+          message,
+          level,
+          data: payload.data,
+          context: this.config.esLogTransform
+            ? elasticLog(payload)
+            : payload.context,
+          timestamp: new Date().toISOString()
+        });
       });
     }
   }

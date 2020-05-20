@@ -1,9 +1,10 @@
 // @flow
 
-import type { HullContext } from "../../types";
+import type { HullContext, HullQueueConfig } from "../../types";
 
 const enqueue = require("./enqueue");
 const MemoryAdapter = require("./adapter/memory");
+const KueAdapter = require("./adapter/kue");
 
 /**
  * By default it's initiated inside `Hull.Connector` as a very simplistic in-memory queue, but in case of production grade needs, it comes with a [Kue](https://github.com/Automattic/kue) or [Bull](https://github.com/OptimalBits/bull) adapters which you can initiate in a following way:
@@ -47,11 +48,20 @@ const MemoryAdapter = require("./adapter/memory");
  * const connector = new Hull.Connector({ queue });
  * ```
  */
+
 class QueueAgent {
   adapter: any;
 
-  constructor(adapter: any) {
-    this.adapter = adapter;
+  constructor(config: HullQueueConfig) {
+    const { store, url, name } = config;
+    if (store === "redis") {
+      this.adapter = new KueAdapter({
+        prefix: name,
+        redis: url
+      });
+    } else {
+      this.adapter = new MemoryAdapter();
+    }
     if (!this.adapter) {
       this.adapter = new MemoryAdapter();
     }
