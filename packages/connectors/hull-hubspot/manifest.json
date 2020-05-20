@@ -583,15 +583,6 @@
   },
   "schedules": [
     {
-      "url": "/check-cached-credentials",
-      "type": "interval",
-      "value": "10",
-      "handler": "checkCachedCredentials",
-      "options": {
-        "fireAndForget": true
-      }
-    },
-    {
       "url": "/fetch-recent-contacts",
       "type": "interval",
       "value": "5",
@@ -616,16 +607,6 @@
       "handler": "fetchRecentEmailEvents",
       "options": {
         "fireAndForget": true
-      }
-    },
-    {
-      "url": "/monitor/checkToken",
-      "type": "interval",
-      "value": "5",
-      "handler": "checkToken",
-      "options": {
-        "fireAndForget": true,
-        "alwaysEnabled": true
       }
     }
   ],
