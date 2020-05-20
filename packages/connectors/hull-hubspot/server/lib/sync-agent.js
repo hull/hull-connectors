@@ -12,35 +12,32 @@ import type {
   HubspotAccountUpdateMessageEnvelope,
   HubspotUserUpdateMessageEnvelope,
   HubspotReadContact,
-  HubspotReadCompany
+  HubspotReadCompany,
+  ServiceType,
+  HubspotPropertyGroup
 } from "../types";
 
-// const Promise = require("bluebird");
 const _ = require("lodash");
-const moment = require("moment");
-const debug = require("debug")("hull-hubspot:sync-agent");
 
 const { pipeStreamToPromise } = require("hull/src/utils");
 const {
   toSendMessage
 } = require("hull-connector-framework/src/purplefusion/utils");
-const { contactMetaGroup } = require("./sync-agent/contact-meta-group");
+const defaultIncomingGroupMapping = require("./sync-agent/mapping/default-incoming-group");
+const defaultOutgoingGroupMapping = require("./sync-agent/mapping/default-outgoing-group");
 
 const HubspotClient = require("./hubspot-client");
-const ContactPropertyUtil = require("./sync-agent/contact-property-util");
-const CompanyPropertyUtil = require("./sync-agent/company-property-util");
+const HubspotPropertyUtil = require("./sync-agent/hubspot-property-util");
 const MappingUtil = require("./sync-agent/mapping-util");
 const ProgressUtil = require("./sync-agent/progress-util");
 const FilterUtil = require("./sync-agent/filter-util");
 
-const hullClientAccountPropertiesUtil = require("../hull-client-account-properties-util");
-
 class SyncAgent {
   hubspotClient: HubspotClient;
 
-  contactPropertyUtil: ContactPropertyUtil;
+  contactPropertyUtil: HubspotPropertyUtil;
 
-  companyPropertyUtil: CompanyPropertyUtil;
+  companyPropertyUtil: HubspotPropertyUtil;
 
   mappingUtil: MappingUtil;
 
@@ -92,16 +89,14 @@ class SyncAgent {
     this.hubspotClient = new HubspotClient(ctx);
     this.progressUtil = new ProgressUtil(ctx);
     this.filterUtil = new FilterUtil(ctx);
-    // TODO: `handle_accounts` name chosen for hull-salesforce
-    // compatibility
     this.fetchAccounts = ctx.connector.private_settings.handle_accounts;
     this.ctx = ctx;
   }
 
   isInitialized(): boolean {
     return (
-      this.contactPropertyUtil instanceof ContactPropertyUtil &&
-      this.companyPropertyUtil instanceof CompanyPropertyUtil &&
+      this.contactPropertyUtil instanceof HubspotPropertyUtil &&
+      this.companyPropertyUtil instanceof HubspotPropertyUtil &&
       this.mappingUtil instanceof MappingUtil
     );
   }
@@ -116,7 +111,6 @@ class SyncAgent {
 
     if (skipCache === true) {
       await this.cache.del("hubspotProperties");
-      await this.cache.del("hullProperties");
     }
     const hubspotContactProperties = await this.cache.wrap(
       "hubspotContactProperties",
@@ -131,56 +125,32 @@ class SyncAgent {
       }
     );
 
-    const hullUserProperties = await this.cache.wrap(
-      "hullUserProperties",
-      () => {
-        return this.hullClient.utils.properties.get();
-      }
-    );
-
-    const hullAccountProperties = await this.cache.wrap(
-      "hullAccountProperties",
-      () => {
-        return hullClientAccountPropertiesUtil({
-          client: this.hullClient
-        });
-      }
-    );
-    debug("initialize", {
-      usersSegments: typeof this.usersSegments,
-      accountsSegments: typeof this.accountsSegments,
-      hubspotContactProperties: typeof hubspotContactProperties,
-      hubspotCompanyProperties: typeof hubspotCompanyProperties,
-      hullUserProperties: typeof hullUserProperties,
-      hullAccountProperties: typeof hullAccountProperties
-    });
-    this.contactPropertyUtil = new ContactPropertyUtil({
+    this.contactPropertyUtil = new HubspotPropertyUtil({
       hubspotClient: this.hubspotClient,
       logger: this.logger,
       metric: this.metric,
-      usersSegments: this.usersSegments,
+      segments: this.usersSegments,
       hubspotProperties: hubspotContactProperties,
-      hullProperties: hullUserProperties
+      serviceType: "contact"
     });
 
-    this.companyPropertyUtil = new CompanyPropertyUtil({
+    this.companyPropertyUtil = new HubspotPropertyUtil({
       hubspotClient: this.hubspotClient,
       logger: this.logger,
       metric: this.metric,
-      accountsSegments: this.accountsSegments,
+      segments: this.accountsSegments,
       hubspotProperties: hubspotCompanyProperties,
-      hullProperties: hullAccountProperties
+      serviceType: "company"
     });
 
     this.mappingUtil = new MappingUtil({
+      ctx: this.ctx,
       connector: this.connector,
       hullClient: this.hullClient,
       usersSegments: this.usersSegments,
       accountsSegments: this.accountsSegments,
       hubspotContactProperties,
-      hubspotCompanyProperties,
-      hullUserProperties,
-      hullAccountProperties
+      hubspotCompanyProperties
     });
   }
 
@@ -201,25 +171,92 @@ class SyncAgent {
     return this.hubspotClient.checkToken();
   }
 
-  getPortalInformation() {
-    return this.hubspotClient.getPortalInformation();
+  async getContactProperties(direction: ?string) {
+    const groups = await this.cache.wrap("contact_properties", () =>
+      this.getContactPropertyGroups()
+    );
+    return this.getHubspotEntityProperties({
+      groups:
+        direction === "incoming"
+          ? _.concat(groups, defaultIncomingGroupMapping.contact)
+          : groups,
+      direction
+    });
   }
 
-  async getContactPropertyGroups() {
-    const propertyGroups = await this.hubspotClient.getContactPropertyGroups();
-    return _.concat(propertyGroups, contactMetaGroup);
+  async getCompanyProperties(direction: ?string) {
+    const groups = await this.cache.wrap("company_properties", () =>
+      this.getCompanyPropertyGroups()
+    );
+    return this.getHubspotEntityProperties({ groups, direction });
   }
 
-  async getContactProperties() {
+  async getOutgoingProperties(groups: Object) {
     try {
-      const groups = await this.cache.wrap("contact_properties", () =>
-        this.getContactPropertyGroups()
+      const outgoingProps = _.reduce(
+        groups,
+        (formattedGroups, v) => {
+          const { displayName, properties } = v;
+          const duplicate = _.find(formattedGroups, entry => {
+            return entry.label === displayName;
+          });
+          if (_.isNil(duplicate)) {
+            formattedGroups.push({
+              label: displayName,
+              options: _.chain(properties)
+                .filter(({ readOnlyValue }) => {
+                  return !readOnlyValue;
+                })
+                .map(({ label, name }) => {
+                  return { label, value: name };
+                })
+                .value()
+            });
+          }
+          return formattedGroups;
+        },
+        []
       );
+      return { options: outgoingProps };
+    } catch (err) {
+      return { options: [] };
+    }
+  }
+
+  async getIncomingProperties(groups: Object) {
+    try {
       return {
         options: groups.map(group => ({
           label: group.displayName,
           options: _.chain(group.properties)
-            .map(({ label, name: value }) => ({ label, value }))
+            .map(({ label, name: value, type, fieldType }) => {
+              if (label === "Contact ID") {
+                return {
+                  label,
+                  value: "`canonical-vid` ? `canonical-vid` : `vid`"
+                };
+              }
+
+              if (label === "Company ID") {
+                return {
+                  label,
+                  value: "companyId"
+                };
+              }
+
+              if (group.name === "contactmeta") {
+                return { label, value: `\`${value}\`` };
+              }
+
+              if (type === "enumeration" && fieldType === "checkbox") {
+                return {
+                  label,
+                  value: `properties.${value}.value.$split(';')`
+                };
+              }
+
+              return { label, value: `properties.${value}.value` };
+            })
             .value()
         }))
       };
@@ -243,10 +280,12 @@ class SyncAgent {
         },
         ...contactProperties.options.map(({ label, options }) => ({
           label,
-          options: options.map(({ label: optionLabel, value }) => ({
-            label: optionLabel,
-            value: `properties.${value}.value`
-          }))
+          options: options.map(({ label: optionLabel, value }) => {
+            return {
+              label: optionLabel,
+              value
+            };
+          })
         }))
       ]
     };
@@ -257,38 +296,18 @@ class SyncAgent {
     return {
       options: [
         {
-          label: "companyId",
+          label: "Company ID",
           value: "companyId"
         },
         ...companyProperties.options.map(({ label, options }) => ({
           label,
           options: options.map(({ label: optionLabel, value }) => ({
             label: optionLabel,
-            value: `properties.${value}.value`
+            value
           }))
         }))
       ]
     };
-  }
-
-  async getCompanyProperties() {
-    try {
-      const groups = await this.cache.wrap("company_properties", () =>
-        this.hubspotClient.getCompanyPropertyGroups()
-      );
-      return {
-        options: groups.map(({ displayName, properties }) => {
-          return {
-            label: displayName,
-            options: _.chain(properties)
-              .map(({ label, name }) => ({ label, value: name }))
-              .value()
-          };
-        })
-      };
-    } catch (err) {
-      return { options: [] };
-    }
   }
 
   /**
@@ -305,12 +324,8 @@ class SyncAgent {
     try {
       await this.initialize({ skipCache: true });
 
-      await this.contactPropertyUtil.sync(
-        this.mappingUtil.contactOutgoingMapping
-      );
-      await this.companyPropertyUtil.sync(
-        this.mappingUtil.companyOutgoingMapping
-      );
+      await this.contactPropertyUtil.sync(this.mappingUtil.contactSchema);
+      await this.companyPropertyUtil.sync(this.mappingUtil.companySchema);
     } catch (error) {
       this.hullClient.logger.error("outgoing.job.error", {
         error: error.message
@@ -332,7 +347,7 @@ class SyncAgent {
     this.metric.increment("ship.incoming.users", contacts.length);
     return Promise.all(
       contacts.map(async contact => {
-        const traits = this.mappingUtil.getHullUserTraits(contact);
+        const traits = this.mappingUtil.mapToHullEntity(contact, "user");
         const ident = this.helpers.incomingClaims("user", contact, {
           anonymous_id_prefix: "hubspot",
           anonymous_id_service: "vid"
@@ -377,11 +392,6 @@ class SyncAgent {
                   error
                 );
               });
-          } else {
-            // asUser.logger.debug("incoming.account.link.skip", {
-            //   reason:
-            //     "No associatedcompanyid field found in user to link account"
-            // });
           }
         } else {
           asUser.logger.debug("incoming.account.link.skip", {
@@ -429,7 +439,7 @@ class SyncAgent {
     await this.initialize();
 
     const envelopes = messages.map(message =>
-      this.buildUserUpdateMessageEnvelope(message)
+      this.buildUpdateMessageEnvelope(message, "contact")
     );
     const filterResults = this.filterUtil.filterUserUpdateMessageEnvelopes(
       envelopes
@@ -488,94 +498,6 @@ class SyncAgent {
     return Promise.resolve([]);
   }
 
-  async postEnvelopes({
-    envelopes,
-    hullEntity,
-    hubspotEntity,
-    retry,
-    operation
-  }) {
-    return this.hubspotClient
-      .postEnvelopes({
-        envelopes,
-        hubspotEntity
-      })
-      .then(upsertedEnvelopes => {
-        this.logSuccessfulUpsert({
-          envelopes: upsertedEnvelopes,
-          hullEntity,
-          operation
-        });
-      })
-      .catch(async error => {
-        const errorInfo = error.response.body;
-        if (errorInfo.status !== "error") {
-          envelopes.forEach(envelope => {
-            if (hullEntity === "user") {
-              this.hullClient
-                .asUser(envelope.message.user)
-                .logger.error("outgoing.user.error", {
-                  error: "unknown response from hubspot",
-                  hubspotWriteContact: envelope.hubspotWriteContact
-                });
-            } else {
-              this.hullClient
-                .asAccount(envelope.message.account)
-                .logger.error("outgoing.account.error", {
-                  error: "unknown response from hubspot",
-                  hubspotWriteCompany: envelope.hubspotWriteCompany
-                });
-            }
-          });
-          return Promise.resolve([]);
-        }
-
-        const [
-          retryEnvelopes,
-          failedEnvelopes,
-          hullFailedEnvelopes
-        ] = this.filterFailedEnvelopes({ envelopes, errorInfo, hubspotEntity });
-
-        this.logFailedUpsert({
-          envelopes: _.cloneDeep(failedEnvelopes),
-          hullEntity
-        });
-
-        if (!_.isEmpty(hullFailedEnvelopes)) {
-          await this.syncConnector();
-          _.pullAll(hullFailedEnvelopes, failedEnvelopes);
-        }
-
-        if (retry > 0) {
-          return this.postEnvelopes({
-            envelopes: [...retryEnvelopes, ...hullFailedEnvelopes],
-            hullEntity,
-            hubspotEntity,
-            operation,
-            retry: retry - 1
-          });
-        }
-
-        this.logFailedUpsert({
-          envelopes: [...retryEnvelopes, ...hullFailedEnvelopes],
-          hullEntity
-        });
-        return Promise.resolve([]);
-      });
-  }
-
-  buildUserUpdateMessageEnvelope(
-    message: HullUserUpdateMessage
-  ): HubspotUserUpdateMessageEnvelope {
-    // $FlowFixMe
-    message.user.account = message.account;
-    const hubspotWriteContact = this.mappingUtil.getHubspotContact(message);
-    return {
-      message,
-      hubspotWriteContact
-    };
-  }
-
   async sendAccountUpdateMessages(
     messages: Array<HullAccountUpdateMessage>
   ): Promise<*> {
@@ -587,7 +509,7 @@ class SyncAgent {
     }
     await this.initialize();
     const envelopes = messages.map(message =>
-      this.buildAccountUpdateMessageEnvelope(message)
+      this.buildUpdateMessageEnvelope(message, "company")
     );
     const filterResults = this.filterUtil.filterAccountUpdateMessageEnvelopes(
       envelopes
@@ -671,11 +593,20 @@ class SyncAgent {
         .then(resultEnvelopes => {
           resultEnvelopes.forEach(envelope => {
             if (envelope.error === undefined && envelope.hubspotReadCompany) {
-              const accountTraits = this.mappingUtil.getHullAccountTraits(
-                envelope.hubspotReadCompany
+              const accountTraits = this.mappingUtil.mapToHullEntity(
+                envelope.hubspotReadCompany,
+                "account"
+              );
+              const accountIdentity = this.helpers.incomingClaims(
+                "account",
+                envelope.hubspotReadCompany,
+                {
+                  anonymous_id_prefix: "hubspot",
+                  anonymous_id_service: "companyId"
+                }
               );
               return this.hullClient
-                .asAccount(envelope.message.account)
+                .asAccount(accountIdentity.claims)
                 .traits(accountTraits)
                 .then(() => {
                   return this.hullClient
@@ -704,72 +635,109 @@ class SyncAgent {
     return Promise.resolve();
   }
 
-  buildAccountUpdateMessageEnvelope(
-    message: HullAccountUpdateMessage
-  ): HubspotAccountUpdateMessageEnvelope {
-    const hubspotWriteCompany = this.mappingUtil.getHubspotCompany(message);
+  async postEnvelopes({
+    envelopes,
+    hullEntity,
+    hubspotEntity,
+    retry,
+    operation
+  }) {
+    return this.hubspotClient
+      .postEnvelopes({
+        envelopes,
+        hubspotEntity
+      })
+      .then(upsertedEnvelopes => {
+        this.logSuccessfulUpsert({
+          envelopes: upsertedEnvelopes,
+          hullEntity,
+          operation
+        });
+      })
+      .catch(async error => {
+        const errorInfo = error.response.body;
+        if (errorInfo.status !== "error") {
+          envelopes.forEach(envelope => {
+            if (hullEntity === "user") {
+              this.hullClient
+                .asUser(envelope.message.user)
+                .logger.error("outgoing.user.error", {
+                  error: "unknown response from hubspot",
+                  hubspotWriteContact: envelope.hubspotWriteContact
+                });
+            } else {
+              this.hullClient
+                .asAccount(envelope.message.account)
+                .logger.error("outgoing.account.error", {
+                  error: "unknown response from hubspot",
+                  hubspotWriteCompany: envelope.hubspotWriteCompany
+                });
+            }
+          });
+          return Promise.resolve([]);
+        }
+
+        const [
+          retryEnvelopes,
+          failedEnvelopes,
+          hullFailedEnvelopes
+        ] = this.filterFailedEnvelopes({ envelopes, errorInfo, hubspotEntity });
+
+        this.logFailedUpsert({
+          envelopes: _.cloneDeep(failedEnvelopes),
+          hullEntity
+        });
+
+        if (!_.isEmpty(hullFailedEnvelopes)) {
+          await this.syncConnector();
+          _.pullAll(hullFailedEnvelopes, failedEnvelopes);
+        }
+
+        if (retry > 0) {
+          return this.postEnvelopes({
+            envelopes: [...retryEnvelopes, ...hullFailedEnvelopes],
+            hullEntity,
+            hubspotEntity,
+            operation,
+            retry: retry - 1
+          });
+        }
+
+        this.logFailedUpsert({
+          envelopes: [...retryEnvelopes, ...hullFailedEnvelopes],
+          hullEntity
+        });
+        return Promise.resolve([]);
+      });
+  }
+
+  buildUpdateMessageEnvelope(
+    message: HullUserUpdateMessage | HullAccountUpdateMessage,
+    serviceType: ServiceType
+  ): HubspotUserUpdateMessageEnvelope | HubspotAccountUpdateMessageEnvelope {
+    if (serviceType === "contact") {
+      message.user.account = message.account;
+    }
+
+    const hubspotWriteEntity = this.mappingUtil.mapToHubspotEntity(
+      message,
+      serviceType
+    );
     return {
       message,
-      hubspotWriteCompany
+      [`hubspotWrite${_.upperFirst(serviceType)}`]: hubspotWriteEntity
     };
   }
 
   async getContactPropertiesKeys() {
-    return this.mappingUtil.getHubspotContactPropertiesKeys();
-  }
-
-  /**
-   * Handles operation for automatic sync changes of hubspot profiles
-   * to hull users.
-   */
-  async fetchRecentContacts(): Promise<any> {
-    await this.initialize();
-    const lastFetchAt =
-      this.connector.private_settings.last_fetch_at ||
-      moment()
-        .subtract(1, "hour")
-        .format();
-    const stopFetchAt = moment().format();
-    const propertiesToFetch = this.mappingUtil.getHubspotContactPropertiesKeys();
-    let progress = 0;
-
-    this.hullClient.logger.info("incoming.job.start", {
-      jobName: "fetch",
-      type: "user",
-      lastFetchAt,
-      stopFetchAt,
-      propertiesToFetch
+    const {
+      incoming_user_claims = [],
+      incoming_user_attributes = []
+    } = this.connector.private_settings;
+    return this.mappingUtil.getHubspotPropertyKeys({
+      identityClaims: incoming_user_claims,
+      attributeMapping: incoming_user_attributes
     });
-    await this.helpers.settingsUpdate({
-      last_fetch_at: stopFetchAt
-    });
-
-    const streamOfIncomingContacts = this.hubspotClient.getRecentContactsStream(
-      lastFetchAt,
-      stopFetchAt,
-      propertiesToFetch
-    );
-
-    return pipeStreamToPromise(streamOfIncomingContacts, contacts => {
-      progress += contacts.length;
-      this.hullClient.logger.info("incoming.job.progress", {
-        jobName: "fetch",
-        type: "user",
-        progress
-      });
-      return this.saveContacts(contacts);
-    })
-      .then(() => {
-        this.hullClient.logger.info("incoming.job.success", {
-          jobName: "fetch"
-        });
-      })
-      .catch(error => {
-        this.hullClient.logger.info("incoming.job.error", {
-          jobName: "fetch",
-          error
-        });
-      });
   }
 
   /**
@@ -780,7 +748,14 @@ class SyncAgent {
    */
   async fetchAllContacts(): Promise<any> {
     await this.initialize();
-    const propertiesToFetch = this.mappingUtil.getHubspotContactPropertiesKeys();
+    const {
+      incoming_user_claims = [],
+      incoming_user_attributes = []
+    } = this.connector.private_settings;
+    const propertiesToFetch = this.mappingUtil.getHubspotPropertyKeys({
+      identityClaims: incoming_user_claims,
+      attributeMapping: incoming_user_attributes
+    });
     let progress = 0;
 
     this.hullClient.logger.info("incoming.job.start", {
@@ -821,68 +796,16 @@ class SyncAgent {
     }
   }
 
-  /**
-   * Handles operation for automatic sync changes of hubspot profiles
-   * to hull users.
-   */
-  async fetchRecentCompanies(): Promise<any> {
-    await this.initialize();
-    const lastFetchAt =
-      this.connector.private_settings.companies_last_fetch_at ||
-      moment()
-        .subtract(1, "hour")
-        .format();
-    const stopFetchAt = moment().format();
-    const propertiesToFetch = this.mappingUtil.getHubspotCompanyPropertiesKeys();
-    let progress = 0;
-
-    this.hullClient.logger.info("incoming.job.start", {
-      jobName: "fetch",
-      type: "account",
-      lastFetchAt,
-      stopFetchAt,
-      propertiesToFetch
-    });
-    await this.helpers.settingsUpdate({
-      companies_last_fetch_at: stopFetchAt
-    });
-
-    const streamOfIncomingCompanies = this.hubspotClient.getRecentCompaniesStream(
-      lastFetchAt,
-      stopFetchAt,
-      propertiesToFetch
-    );
-
-    try {
-      await pipeStreamToPromise(streamOfIncomingCompanies, companies => {
-        progress += companies.length;
-        this.hullClient.logger.info("incoming.job.progress", {
-          jobName: "fetch",
-          type: "account",
-          progress
-        });
-        return this.saveCompanies(companies);
-      });
-      this.hullClient.logger.info("incoming.job.success", {
-        jobName: "fetch"
-      });
-      return {
-        status: "ok"
-      };
-    } catch (error) {
-      this.hullClient.logger.info("incoming.job.error", {
-        jobName: "fetch",
-        error
-      });
-      return {
-        error: error.message
-      };
-    }
-  }
-
   async fetchAllCompanies(): Promise<any> {
     await this.initialize();
-    const propertiesToFetch = this.mappingUtil.getHubspotCompanyPropertiesKeys();
+    const {
+      incoming_account_claims = [],
+      incoming_account_attributes = []
+    } = this.connector.private_settings;
+    const propertiesToFetch = this.mappingUtil.getHubspotPropertyKeys({
+      identityClaims: incoming_account_claims,
+      attributeMapping: incoming_account_attributes
+    });
     let progress = 0;
 
     this.hullClient.logger.info("incoming.job.start", {
@@ -927,18 +850,18 @@ class SyncAgent {
     if (this.fetchAccounts !== true) {
       return Promise.resolve();
     }
-    this.logger.debug("saveContacts", companies.length);
+    this.logger.debug("saveCompanies", companies.length);
     this.metric.increment("ship.incoming.accounts", companies.length);
     return Promise.all(
       companies.map(async company => {
-        const traits = this.mappingUtil.getHullAccountTraits(company);
+        const traits = this.mappingUtil.mapToHullEntity(company, "account");
         const ident = this.helpers.incomingClaims("account", company, {
           anonymous_id_prefix: "hubspot",
           anonymous_id_service: "companyId"
         });
         if (ident.error) {
           return this.logger.info("incoming.account.skip", {
-            company,
+            company: company.companyId,
             reason: ident.error
           });
         }
@@ -948,7 +871,7 @@ class SyncAgent {
           asAccount = this.hullClient.asAccount(ident.claims);
         } catch (error) {
           return this.logger.info("incoming.account.skip", {
-            company,
+            company: company.companyId,
             error
           });
         }
@@ -1099,44 +1022,25 @@ class SyncAgent {
     return envelope;
   }
 
-  getFailedEnvelopes({ envelopes, errorInfo, hubspotEntity }) {
-    if (hubspotEntity === "contact") {
-      return _.get(errorInfo, "failureMessages", []).map(error => {
-        return this.buildFailedEnvelope(envelopes[error.index], error);
-      });
-    }
-
-    if (hubspotEntity === "company") {
-      return _.get(errorInfo, "validationResults", []).map(error => {
-        const envelope = _.find(envelopes, {
-          hubspotWriteCompany: {
-            objectId: error.id
-          }
-        });
-        return this.buildFailedEnvelope(envelope, error);
-      });
-    }
-
-    return [];
+  getPortalInformation() {
+    return this.hubspotClient.getPortalInformation();
   }
 
-  cleanFailedEnvelope(envelope) {
-    const { hubspotWriteContact, hubspotWriteCompany } = envelope;
+  async getContactPropertyGroups(): Array<HubspotPropertyGroup> {
+    return this.hubspotClient.getContactPropertyGroups();
+  }
 
-    _.unset(envelope, "error");
-    _.unset(envelope, "errorProperty");
+  async getCompanyPropertyGroups(): Array<HubspotPropertyGroup> {
+    return this.hubspotClient.getCompanyPropertyGroups();
+  }
 
-    if (hubspotWriteContact) {
-      _.remove(hubspotWriteContact.properties, mapping => {
-        return mapping.property !== "hull_segments";
-      });
+  async getHubspotEntityProperties({ groups, direction }) {
+    if (direction === "outgoing") {
+      return this.getOutgoingProperties(
+        _.concat(groups, defaultOutgoingGroupMapping)
+      );
     }
-
-    if (hubspotWriteCompany) {
-      _.remove(hubspotWriteCompany.properties, mapping => {
-        return mapping.name !== "hull_segments";
-      });
-    }
+    return this.getIncomingProperties(groups);
   }
 }
 

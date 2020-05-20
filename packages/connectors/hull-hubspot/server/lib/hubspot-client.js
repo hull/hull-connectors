@@ -5,12 +5,12 @@ import type { HullConnector, HullContext } from "hull";
 import type {
   HubspotUserUpdateMessageEnvelope,
   HubspotAccountUpdateMessageEnvelope,
-  HubspotContactPropertyGroups,
-  HubspotCompanyPropertyGroups,
+  HubspotPropertyGroup,
   HubspotReadContact,
   HubspotWriteContact,
   HubspotWriteCompany,
-  HubspotReadCompany
+  HubspotReadCompany,
+  HubspotProperty
 } from "../types";
 
 declare type HubspotGetAllContactsResponse = {
@@ -30,11 +30,6 @@ declare type HubspotGetAllCompaniesResponse = {
     "has-more": boolean,
     offset: string
   }
-};
-
-declare type HubspotGetCompanyResponse = {
-  ...IncomingMessage,
-  body: HubspotReadCompany
 };
 
 const _ = require("lodash");
@@ -60,10 +55,6 @@ class HubspotClient {
   agent: superagent;
 
   settingsUpdate: Function;
-
-  incomingAccountIdentHull: string;
-
-  incomingAccountIdentService: string;
 
   constructor(ctx: HullContext) {
     this.connector = ctx.connector;
@@ -206,6 +197,7 @@ class HubspotClient {
    * and getting another 100 - needs to be processed in one queue without
    * any concurrency
    * @see http://developers.hubspot.com/docs/methods/contacts/get_contacts
+   * @param properties
    * @param  {Number} [count=100]
    * @param  {Number} [offset=0]
    * @return {Promise}
@@ -258,7 +250,8 @@ class HubspotClient {
    * and getting another 100 - needs to be processed in one queue without
    * any concurrency
    * @see http://developers.hubspot.com/docs/methods/contacts/get_contacts
-   * @param  {Number} [count=100]
+   * @param properties
+   * @param limit
    * @param  {Number} [offset=0]
    * @return {Promise}
    */
@@ -301,79 +294,6 @@ class HubspotClient {
     };
     return promiseToReadableStream(push => {
       return getAllCompaniesPage(push, count, offset);
-    });
-  }
-
-  /**
-   * Get most recent contacts and filters out these who last modification
-   * time if older that the lastFetchAt. If there are any contacts modified since
-   * that time queues import of them and getting next chunk from hubspot API.
-   * @see http://developers.hubspot.com/docs/methods/contacts/get_recently_updated_contacts
-   * @param  {Date} lastFetchAt
-   * @param  {Date} stopFetchAt
-   * @param  {Number} [count=100]
-   * @param  {Number} [offset=0]
-   * @return {Promise -> Array}
-   */
-  getRecentlyUpdatedContacts(
-    properties: Array<string> = [],
-    count: number = 100,
-    offset: ?number = null
-  ): Promise<HubspotGetAllContactsResponse> {
-    return this.retryUnauthorized(() => {
-      return this.agent
-        .get("/contacts/v1/lists/recently_updated/contacts/recent")
-        .query({
-          count,
-          timeOffset: offset,
-          property: properties
-        });
-    });
-  }
-
-  getRecentContactsStream(
-    lastFetchAt: string,
-    stopFetchAt: string,
-    properties: Array<string>,
-    count: number = 100,
-    offset: ?string = null
-  ): Readable {
-    return promiseToReadableStream(push => {
-      const getRecentContactsPage = pageOffset => {
-        return this.getRecentlyUpdatedContacts(
-          properties,
-          count,
-          pageOffset
-        ).then(response => {
-          const contacts = response.body.contacts.filter(c => {
-            const time = moment(
-              c.properties.lastmodifieddate.value,
-              "x"
-            ).milliseconds(0);
-            return (
-              time.isAfter(lastFetchAt) &&
-              time
-                .subtract(
-                  process.env.HUBSPOT_FETCH_OVERLAP_SEC || 10,
-                  "seconds"
-                )
-                .isBefore(stopFetchAt)
-            );
-          });
-          const hasMore = response.body["has-more"];
-          // const vidOffset = response.body["vid-offset"];
-          const timeOffset = response.body["time-offset"];
-          if (contacts.length > 0) {
-            push(contacts);
-          }
-          if (hasMore && moment(lastFetchAt).valueOf() <= timeOffset) {
-            return getRecentContactsPage(timeOffset);
-          }
-
-          return Promise.resolve();
-        });
-      };
-      return getRecentContactsPage(offset);
     });
   }
 
@@ -518,7 +438,7 @@ class HubspotClient {
     });
   }
 
-  getContactPropertyGroups(): Promise<HubspotContactPropertyGroups> {
+  getContactPropertyGroups(): Promise<Array<HubspotPropertyGroup>> {
     return this.retryUnauthorized(() => {
       return this.agent
         .get("/contacts/v2/groups")
@@ -529,7 +449,7 @@ class HubspotClient {
     });
   }
 
-  getCompanyPropertyGroups(): Promise<HubspotCompanyPropertyGroups> {
+  getCompanyPropertyGroups(): Promise<Array<HubspotPropertyGroup>> {
     return this.retryUnauthorized(() => {
       return this.agent
         .get("/properties/v1/companies/groups")
@@ -540,101 +460,62 @@ class HubspotClient {
     });
   }
 
-  getCompanyVids(companyId: string, vidOffset?: string) {
-    return this.retryUnauthorized(() => {
-      return this.agent
-        .get("/companies/v2/companies/{{companyId}}/vids")
-        .tmplVar({
-          companyId
-        })
-        .query({
-          vidOffset
-        });
-    });
+  postCompanyPropertyGroups(): Promise<Array<HubspotPropertyGroup>> {
+    return this.agent
+      .post("/properties/v1/companies/groups")
+      .send({
+        name: "hull",
+        displayName: "Hull Properties",
+        displayOrder: 1
+      })
+      .then(res => res.body);
   }
 
-  getCompanyVidsStream(companyId: string) {
-    return promiseToReadableStream(push => {
-      const getCompanyVidsPage = (offset?: string) => {
-        return this.getCompanyVids(companyId, offset).then(response => {
-          const vids = response.body.vids || [];
-          if (vids.length > 0) {
-            push(vids);
-          }
-          if (response.body.hasMore) {
-            return getCompanyVidsPage(response.body.vidOffset);
-          }
-          return Promise.resolve();
-        });
-      };
-
-      return getCompanyVidsPage();
-    });
+  postContactPropertyGroups(): Promise<Array<HubspotPropertyGroup>> {
+    return this.agent
+      .post("/contacts/v2/groups")
+      .send({
+        name: "hull",
+        displayName: "Hull Properties",
+        displayOrder: 1
+      })
+      .then(res => res.body);
   }
 
-  getRecentlyUpdatedCompanies(
-    properties: Array<string>,
-    count: number = 100,
-    offset: ?string = null
-  ): Promise<HubspotGetAllCompaniesResponse> {
-    return this.retryUnauthorized(() => {
-      return this.agent.get("/companies/v2/companies/recent/modified").query({
-        count,
-        offset
-      });
-    });
+  updateCompanyProperty(
+    property: HubspotProperty
+  ): Promise<Array<HubspotPropertyGroup>> {
+    return this.agent
+      .put(`/properties/v1/companies/properties/named/${property.name}`)
+      .send(property)
+      .then(res => res.body);
   }
 
-  getRecentCompaniesStream(
-    lastFetchAt: string,
-    stopFetchAt: string,
-    properties: Array<string>,
-    count: number = 100,
-    offset: ?string = null
-  ): Readable {
-    return promiseToReadableStream(push => {
-      const getRecentCompaniesPage = pageOffset => {
-        return this.getRecentlyUpdatedCompanies(
-          properties,
-          count,
-          pageOffset
-        ).then(response => {
-          const companies = response.body.results.filter(c => {
-            const time = moment(
-              c.properties.hs_lastmodifieddate.value,
-              "x"
-            ).milliseconds(0);
-            return (
-              time.isAfter(lastFetchAt) &&
-              time
-                .subtract(
-                  process.env.HUBSPOT_FETCH_OVERLAP_SEC || 10,
-                  "seconds"
-                )
-                .isBefore(stopFetchAt)
-            );
-          });
-          const hasMore = response.body.hasMore;
-          const newOffset = response.body.offset;
-          // const timeOffset = response.body["time-offset"];
-          if (companies.length > 0) {
-            push(companies);
-          }
-          if (hasMore) {
-            return getRecentCompaniesPage(newOffset);
-          }
-
-          return Promise.resolve();
-        });
-      };
-      return getRecentCompaniesPage(offset);
-    });
+  updateContactProperty(
+    property: HubspotProperty
+  ): Promise<Array<HubspotPropertyGroup>> {
+    return this.agent
+      .put(`/contacts/v2/properties/named/${property.name}`)
+      .send(property)
+      .then(res => res.body);
   }
 
-  async getCompany(companyId: string): Promise<HubspotGetCompanyResponse> {
-    return this.retryUnauthorized(() => {
-      return this.agent.get(`/companies/v2/companies/${companyId}`);
-    });
+  createCompanyProperty(
+    property: HubspotProperty
+  ): Promise<Array<HubspotPropertyGroup>> {
+    return this.agent
+      .post("/properties/v1/companies/properties")
+      .send(property)
+      .then(res => res.body);
+  }
+
+  createContactProperty(
+    property: HubspotProperty
+  ): Promise<Array<HubspotPropertyGroup>> {
+    return this.agent
+      .post("/contacts/v2/properties")
+      .send(property)
+      .then(res => res.body);
   }
 }
 

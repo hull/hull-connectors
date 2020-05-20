@@ -8,7 +8,10 @@ import _ from "lodash";
 import type { Result, ComputeOptions } from "../../types";
 import scopedUserMethods from "../sandbox/user_methods";
 import getRequest from "../sandbox/request";
+import getSuperagent from "../sandbox/superagent";
 import getConsole from "../sandbox/console";
+import getUUID from "../sandbox/uuid";
+import getLibPhoneNumber from "../sandbox/libphonenumber";
 import check from "../check";
 
 const LIBS = { _, moment, urijs };
@@ -25,6 +28,9 @@ export default async function(
     ...LIBS,
     ...(claims ? scopedUserMethods(payload) : {}),
     request: getRequest(ctx, result),
+    superagent: getSuperagent(ctx, result),
+    LibPhoneNumber: getLibPhoneNumber(),
+    uuid: getUUID(ctx, result),
     hull,
     console: getConsole(result, preview),
     connector,

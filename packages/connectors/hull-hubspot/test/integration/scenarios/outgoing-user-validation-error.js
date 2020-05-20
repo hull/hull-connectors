@@ -3,6 +3,8 @@
 const testScenario = require("hull-connector-framework/src/test-scenario");
 import connectorConfig from "../../../server/config";
 
+const companyPropertyGroups = require("../fixtures/get-properties-companies-groups");
+
 process.env.OVERRIDE_HUBSPOT_URL = "";
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "abc";
@@ -12,36 +14,19 @@ const connector = {
     token: "hubToken",
     synchronized_user_segments: ["hullSegmentId"],
     outgoing_user_attributes: [
-      {
-        hull: "traits_custom_numeric",
-        service: "custom_hubspot_numeric",
-        overwrite: true
-      },
-      {
-        hull: "traits_group/custom_calculated_score",
-        service: "score",
-        overwrite: true
-      }
+      { hull: "traits_custom_numeric", service: "custom_hubspot_numeric", overwrite: true },
+      { hull: "traits_group/custom_calculated_score", service: "score", overwrite: true },
+      { hull: "segments.name[]", service: "hull_segments", overwrite: true }
     ],
     mark_deleted_contacts: false,
     mark_deleted_companies: false
   }
 };
 const usersSegments = [
-  {
-    name: "testSegment",
-    id: "hullSegmentId"
-  },
-  {
-    name: "Unsynced Segment 1",
-    id: "unsyncedSegment_1"
-  },
-  {
-    name: "Unsynced Segment 2",
-    id: "unsyncedSegment_2"
-  }
+  { name: "testSegment", id: "hullSegmentId" },
+  { name: "Unsynced Segment 1", id: "unsyncedSegment_1" },
+  { name: "Unsynced Segment 2", id: "unsyncedSegment_2" }
 ];
-
 
 /*
 tests:
@@ -83,44 +68,26 @@ it("should send out a new hull user to hubspot - validation error", () => {
             }
           ]);
         scope.get("/properties/v1/companies/groups?includeProperties=true")
-          .reply(200, []);
+          .reply(200, companyPropertyGroups);
         scope.post("/contacts/v1/contact/batch/?auditId=Hull", [
           {
             "properties": [
-              {
-                "property": "custom_hubspot_numeric",
-                "value": "1/1/1"
-              },
-              {
-                "property": "hull_segments",
-                "value": "testSegment;Unsynced Segment 1"
-              }
+              { "property": "custom_hubspot_numeric", "value": "1/1/1" },
+              { "property": "hull_segments", "value": "testSegment;Unsynced Segment 1" }
             ],
             "email": "bob@hull.io"
           },
           {
             "properties": [
-              {
-                "property": "score",
-                "value": "some score"
-              },
-              {
-                "property": "hull_segments",
-                "value": "testSegment"
-              }
+              { "property": "score", "value": "some score" },
+              { "property": "hull_segments", "value": "testSegment" }
             ],
             "email": "ron@hull.io"
           },
           {
             "properties": [
-              {
-                "property": "custom_hubspot_numeric",
-                "value": "2/2/2"
-              },
-              {
-                "property": "hull_segments",
-                "value": "testSegment;Unsynced Segment 1;Unsynced Segment 2"
-              }
+              { "property": "custom_hubspot_numeric", "value": "2/2/2" },
+              { "property": "hull_segments", "value": "testSegment;Unsynced Segment 1;Unsynced Segment 2" }
             ],
             "email": "will@hull.io"
           }
@@ -201,42 +168,44 @@ it("should send out a new hull user to hubspot - validation error", () => {
                 "displayOrder": 2
               }
             ],
-            "description": "All the Segments the User belongs to in Hull",
+            "description": "All the Segments the entity belongs to in Hull",
             "label": "Hull Segments",
             "groupName": "hull",
             "fieldType": "checkbox",
             "formField": false,
             "name": "hull_segments",
             "type": "enumeration",
-            "displayOrder": 0
+            "displayOrder": 0,
+            "calculated": false
           }).reply(202);
+
+        /*scope.post("/contacts/v2/properties",
+          {
+            "options": [],
+            "description": "Some Custom Field Managed by Hull",
+            "label": "Hull Custom Field",
+            "groupName": "hull",
+            "fieldType": "checkbox",
+            "formField": false,
+            "name": "hull_segments",
+            "type": "enumeration",
+            "displayOrder": 0
+          }).reply(202);*/
 
         scope.post("/properties/v1/companies/groups", { name: "hull", displayName: "Hull Properties", displayOrder: 1}).reply(202);
 
         scope.post("/contacts/v1/contact/batch/?auditId=Hull", [
           {
             "properties": [
-              {
-                "property": "score",
-                "value": "some score"
-              },
-              {
-                "property": "hull_segments",
-                "value": "testSegment"
-              }
+              { "property": "score", "value": "some score" },
+              { "property": "hull_segments", "value": "testSegment" }
             ],
             "email": "ron@hull.io"
           },
           {
             "properties": [
-              {
-                "property": "custom_hubspot_numeric",
-                "value": "2/2/2"
-              },
-              {
-                "property": "hull_segments",
-                "value": "testSegment;Unsynced Segment 1;Unsynced Segment 2"
-              }
+              { "property": "custom_hubspot_numeric", "value": "2/2/2" },
+              { "property": "hull_segments", "value": "testSegment;Unsynced Segment 1;Unsynced Segment 2" }
             ],
             "email": "will@hull.io"
           }
@@ -253,14 +222,8 @@ it("should send out a new hull user to hubspot - validation error", () => {
             custom_numeric: "1/1/1"
           },
           segments: [
-            {
-              name: "testSegment",
-              id: "hullSegmentId"
-            },
-            {
-              name: "Unsynced Segment 1",
-              id: "unsyncedSegment_1"
-            }
+            { name: "testSegment", id: "hullSegmentId" },
+            { name: "Unsynced Segment 1", id: "unsyncedSegment_1" }
           ],
           changes: {
             is_new: false,
@@ -349,11 +312,9 @@ it("should send out a new hull user to hubspot - validation error", () => {
       },
       logs: [
         expect.arrayContaining([
-          "connector.service_api.call",
           expect.objectContaining({ "method": "GET", "url": "/contacts/v2/groups", "status": 200 })
         ]),
         expect.arrayContaining([
-          "connector.service_api.call",
           expect.objectContaining({ "method": "GET", "url": "/properties/v1/companies/groups", "status": 200, })
         ]),
         expect.arrayContaining([
@@ -464,10 +425,7 @@ it("should send out a new hull user to hubspot - validation error", () => {
         ["increment","ship.service_api.call",1],
         ["value","connector.service_api.response_time",expect.whatever()]
       ],
-      platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
-      ]
+      platformApiCalls: []
     };
   });
 });

@@ -12,7 +12,7 @@ You can begin writing your own code right away, but you probably might want to g
 
 - [User](#Input---User)
 - [Changes](#Input---Changes)
-- [Account](#Input---Account)
+- [Account](#Input---Accounts)
 - [Events](#Input---Events)
 - [User Segments](#Input---User-Segments)
 - [Account Segments](#Input---Account-Segments)
@@ -28,9 +28,9 @@ Read more about writing code:
 
 The Hull Processor allows your team to write Javascript and transform data in Hull for users and accounts. You can emit events based of attribute changes or calculate a lead score, the Processor is your multi-tool when it comes to data in Hull.
 
-The Processor can  `add traits`,  `update traits` and `create events` for both, users and accounts. Furthermore it allows you to `link accounts`.
+The Processor can  `add traits`,  `update traits` and `create events` for both, users and accounts. Furthermore it allows you to `link accounts` And add/remove `aliases` for users
 
-You can use the `request` library ([https://github.com/request/request](https://github.com/request/request)) to call external services or send data to webhooks.
+You can use the `superagent` library ([https://github.com/visionmedia/superagent](https://github.com/visionmedia/superagent)) to call external services or send data to webhooks.
 
 Async/await and ES6 are supported by the connector, allowing you to write elegant code.
 
@@ -428,6 +428,15 @@ Here is how to use the function signature:
 The first parameter is a string defining the name of the event while the second parameter is an object that defines the properties of the event.
 
 
+## How to alias / unalias identifiers
+
+You can add or remove aliases to the processed user with the following syntax:
+
+```js
+  hull.alias({ anonymous_id: "foobar:1234" });
+  hull.unalias ({ anonymous_id: "foobar:1234" });
+```
+
 ## How to link Users to Accounts
 
 Now that we know how to deal with users, let’s have a look how to handle accounts.
@@ -435,20 +444,24 @@ Now that we know how to deal with users, let’s have a look how to handle accou
 You can **link an account to the current user** by calling the `hull.account` function with claims that identify the account. Supported claims are `domain`, `id` and `external_id`. To link an account that is identified by the domain, you would write
 
 ```js
-  hull.account({ domain: <value> })
+  const claims_object = { domain: <value> }
+  hull.account(claims_object)
 ```
-
 which would either create the account if it doesn’t exist or link the current user to the existing account.
 
 ## How to edit attributes for the account
 
-To **change attributes for an account**, you can use the chained function call `hull.account().traits()`. If the user is already linked to an account, you can skip passing the claims object in the `hull.account()`  function and the attributes will be applied to the current linked account. By specifying the claims, you can explicitly address the account and if it is not linked to the current user, the account will be linked and attributes will be updated.
+To **change attributes for an account**, you can use the chained function call `hull.account(CLAIMS_OBJECT).traits()`. If the user is already linked to an account, you can skip passing the claims object in the `hull.account(CLAIMS_OBJECT)`  function and the attributes will be applied to the current linked account. By specifying the claims, you can explicitly address the account and if it is not linked to the current user, the account will be linked and attributes will be updated.
 In contrast to the user, accounts do only support top-level attributes. You can specify the attributes in the same way as for a user by passing an object into the chained `traits` function like
 
 > NOTE: be careful when doing this as every User in the account will be sent to the processor, and will run this logic. You could easily end up with infinite loop where each User updates the same Account back and forth, with different values. A better way to update account data is to use the Accounts processor.
 
 ```js
-  hull.account().traits({ ATTRIBUTE_NAME: <value>, ATTRIBUTE2_NAME: <value> })
+  const accountExternalId = account.external_id.
+  const accountDomain = account.domain.
+  hull
+    .account({ domain: accountDomain, external_id: accountExternalId })
+    .traits({ ATTRIBUTE_NAME: <value>, ATTRIBUTE2_NAME: <value> })
 ```
 
 ### Limitations
@@ -468,7 +481,7 @@ Here's a scenario that, although it seems intuitive, will **generate an infinite
 
 ```js
   hull
-    .account() //target the user's current account
+    .account(CLAIMS_OBJECT) //target the user's current account
     .traits({
       //set the value of the 'is_customer' attribute to the user's value
       mrr: user.traits.mrr
@@ -497,7 +510,7 @@ The way you solve this is by either doing a `setIfNull` operation on the account
   //There was an MRR change on the User
   if(mrr && mrr[1]) {
     //report the new MRR on the Account
-    hull.account().traits({ mrr: mrr[1] });
+    hull.account(CLAIMS_OBJECT).traits({ mrr: mrr[1] });
   }
 ```
 
@@ -506,7 +519,7 @@ Or you could rely on a User Event if you have such events"
 ```js
 events.map(event => {
   if (event.event === "MRR Changed") {
-    hull.account().traits({ mrr: event.properties.mrr });
+    hull.account(CLAIMS_OBJECT).traits({ mrr: event.properties.mrr });
   }
 });
 ```
@@ -527,17 +540,62 @@ The processor provides the following methods to help you:
 
 The processor exposes several external libraries that can be used:
 
-|**Variable**| **Library name**                                                  |
-|------------| ------------------------------------------------------------------|
-|`_`         | The lodash library. (https://lodash.com/)                         |
-|`moment`    | The Moment.js library(https://momentjs.com/)                      |
-|`urijs`     | The URI.js library (https://github.com/medialize/URI.js/)         |
-|`request`   | The simplified request client (https://github.com/request/request)|
+|**Variable**          | **Library name**                                                                        |
+|----------------------| ----------------------------------------------------------------------------------------|
+|`_`                   | The lodash library. (https://lodash.com/)                                               |
+|`moment`              | The Moment.js library(https://momentjs.com/)                                            |
+|`urijs`               | The URI.js library (https://github.com/medialize/URI.js/)                               |
+|`request` (deprecated)| The simplified request client (https://github.com/request/request)                      |
+|`superagent`          | The simple and elegant request library (https://github.com/visionmedia/superagent)      |
+|`uuid`                | The uuid library (https://github.com/uuidjs/uuid)                                       |
+|`LibPhoneNumber`      | The google-LibPhoneNumber library (https://ruimarinho.github.io/google-libphonenumber/) |
 
 Please visit the linked pages for documentation and further information about these third party libraries.
 
+### uuid Library
 
-## Using Request.
+The `uuid` library exposes the version 4 of the algorithm, and only accepts the first `options` argument - other arguments will be ignored. As a result, here's the way to use it:
+
+```js
+const user_id = uuid()
+//or
+const user_id = uuid({ random: [ 0x10, 0x91, 0x56, 0xbe, 0xc4, 0xfb, 0xc1, 0xea, 0x71, 0xb4, 0xef, 0xe1, 0x67, 0x1c, 0x58, 0x36, ] });
+```
+
+### LibPhoneNumber Library
+
+The `LibPhoneNumber` library exposes a subset of the `google-libphonenumber` library. Here's how to use it
+
+```js
+//PhoneNumberFormat is the PhoneNumberFormat object from the library;
+//PhoneNumberUtil is an INSTANCE of the PhoneNumberUtil methods
+const { CountrySourceCode, PhoneNumberType, PhoneNumberFormat, PhoneNumberUtil } = LibPhoneNumber;
+
+const number = PhoneNumberUtil.parseAndKeepRawInput('202-456-1414', 'US');
+console.log(number.getCountryCode()); //1
+// Print the phone's national number.
+console.log(number.getNationalNumber());
+// => 2024561414
+
+// Result from isPossibleNumber().
+console.log(PhoneNumberUtil.isPossibleNumber(number));
+// => true
+```
+
+### Supported Methods for `PhoneNumberUtil`
+
+Checkout `i18n.phonenumbers.PhoneNumberUtil`: https://ruimarinho.github.io/google-libphonenumber/#google-libphonenumber-methods-i18nphonenumbersphonenumberutil
+
+Calling `PhoneNumberUtil.parse("1234-1234")` will return an instance of `PhoneNumber`, which has the following methods: https://ruimarinho.github.io/google-libphonenumber/#google-libphonenumber-methods-i18nphonenumbersphonenumber
+
+Checkout the Docs for `CountryCodeSource`, `PhoneNumberFormat`, `PhoneNumberType` which are statics
+
+## \[Deprecated\] Using Request
+
+The request library is now deprecated. Processor code currently using the request library will be functional,
+but we would advise you to migrate to the super-agent request library which is much more intuitive and elegant to use.
+
+If you are about to write new code to perform any API request, please refer to the [Using Super-agent](#Using Super-agent) section.
 
 The library exposes `request-promise` to allow you to call external APIs seamlessly:
 
@@ -554,6 +612,134 @@ const response = await request({
 })
 console.log(response)
 ```
+
+## Using Super-agent
+
+To peform API requests, the processor connector exposes the super-agent library through the `superagent` keyword.
+There are some syntax restrictions that the exposed super-agent library can't perform, more on that in the [Exceptions](#Exceptions) section.
+
+### Usage
+
+Here are a few code snippets to use the super-agent request library in your processor code:
+
+```javascript
+const response = await superagent
+    .get("https://example.com/foo")
+    .set("accept", "json")                    // Set a header variable by using the set() function.
+    .set(`Authorization: Bearer ${api_key}`)
+    .send({                                   // Set a body by using the send() function
+      body_variable: "something"              // and by giving it an object.
+    })
+    .query({                                  // Set a query by using the query() function
+      orderBy: "asc"                          // and by giving it an object.
+    })
+```
+
+You can also perform asynchronous requests by using promises as such:
+
+```javascript
+superagent
+    .get("https://example.com/foo")
+    .set("accept", "json")
+    .set(`Authorization: Bearer ${api_key}`)
+    .send({
+      body_variable: "something"
+    })
+    .query({
+      orderBy: "asc"
+    })
+    .then(res => {
+      console.log(res.body);
+    })
+```
+
+Handling errors is also possible, either by using promises or by wrapping the code in a `try catch` statement:
+
+```javascript
+superagent
+    .get("https://example.com/foo")
+    .set("accept", "json")
+    .set(`Authorization: Bearer ${api_key}`)
+    .then(res => {
+      console.log(res.body);
+    })
+    .catch(err => {
+      console.log(`Error: ${err}`);
+    })
+```
+
+```javascript
+try {
+  const response = await superagent
+    .get("https://example.com/foo")
+    .set("accept", "json")
+    .set(`Authorization: Bearer ${api_key}`);
+} catch (err) {
+  console.log(`Error: ${err}`);
+}
+```
+
+There is a slight difference when processing the result of your requests using the super-agent library will be the response object.
+You will need to look into the `res.body` object instead of looking directly at the `res` object.
+
+You can find advanced usages of the super-agent library through [this link](https://visionmedia.github.io/superagent/)
+
+### Migrating from the Request library to the Super-agent library
+
+You might have noticed a warning message coming from your processor code saying that the code you are using is running a deprecated request library.
+In order to fix that, you need to start using the super-agent library instead.
+
+To illustrate that, let's have a look at a code block using the deprecated request library, and another code block with the result of migrating it.
+
+```javascript
+// Old request library
+
+const reqOpts = {
+  method: "GET",
+  uri: "http://www.omdbapi.com/?t=James+Bond"
+};
+
+return new Promise((resolve, reject) => {
+    request(reqOpts, (err, res, data) => {
+      if (err) {
+        console.info("Error:", err);
+        return reject(err);
+      }
+      
+      if(_.isString(data)) {
+        data = JSON.parse(data);
+      }
+      resolve(data);
+    });
+});
+```
+
+```javascript
+// With super-agent library
+
+return superagent
+    .get("http://www.omdbapi.com/?t=James+Bond")
+    .then(data => {
+      if(_.isString(data)) {
+        data = JSON.parse(data);
+      }
+      return data;
+    })
+    .catch(err => {
+      console.info("Error:", err);
+    })
+```
+
+### Exceptions
+
+The exposed super-agent library in processor cannot execute a request with the following syntax:
+
+```javascript
+const res = await superagent('GET', 'https://www.foobar.com/search');
+```
+
+This syntax is very similar to what the old request library was using.
+It is functional as described in the super-agent [library documentation](https://visionmedia.github.io/superagent/#request-basics), but the processor connector won't accept it.
 
 ## Golden Rules
 

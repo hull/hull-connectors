@@ -1023,7 +1023,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.user.alias.success",
         {
           subject_type: "user",
@@ -1035,7 +1035,7 @@ module.exports = [
         }
       ],
       [
-        "info",
+        "debug",
         "incoming.account.alias.success",
         {
           subject_type: "account",
