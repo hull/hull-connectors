@@ -256,7 +256,7 @@ export type HullConnectorConfig = {
   disableOnExit?: boolean, //Should we disable exit listeners. Default = false
   devMode?: boolean, //development mode
   instrumentation?: HullInstrumentation, // set a custom instrumentation instance
-  queue?: void | HullQueue, // set a Custom Queue instance for workers
+  queueConfig?: HullQueueConfig, // set a Custom Queue instance for workers
   handlers: HullConnector => HullHandlersConfiguration, //Handlers methods
   middlewares: Array<Middleware>, //Array of middlewares to run before handlers
   manifest: HullManifest // the current manifest
@@ -1143,4 +1143,19 @@ docker build . -t hull-connectors
 
 ```
 docker exec -it CONTAINER_ID /bin/sh
+```
+
+## Queue Config
+
+Newer versions deprecate exposing a Queue at the top level, instead opting to expose `queueConfig` to manage it.
+
+```
+const connectorConfig = {
+  ...
+  queueConfig = {
+    store: "memory" | "redis",
+    url: REDIS_URL, //Only if using `redis`
+    name: "Queue Name" //Only if using `redis`
+  }
+}
 ```

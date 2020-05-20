@@ -7,8 +7,7 @@ import type {
   HullClientConfig,
   HullHandlersConfiguration,
   HullContext,
-  HullInstrumentation,
-  HullQueue
+  HullInstrumentation
 } from "./index";
 // =====================================
 // Hull Connector Data Object
@@ -97,6 +96,19 @@ export type HullCacheConfig =
       max?: number | string,
       min?: number | string
     };
+
+export type HullQueueConfig =
+  | {
+      store: "redis",
+      url: string,
+      name: string
+    }
+  | {
+      store: "memory",
+      url: void,
+      name: void
+    };
+
 export type HullClientCredentials = {
   id: string,
   secret: string,
@@ -111,6 +123,7 @@ export type HullConnectorConfig = {
   httpClientConfig?: HullHTTPClientConfig,
   logsConfig?: HullLogsConfig,
   jsonConfig?: HullJsonConfig,
+  queueConfig?: HullQueueConfig,
   hostSecret: string,
   port: number | string,
   connectorName?: string,
@@ -119,7 +132,6 @@ export type HullConnectorConfig = {
   disableOnExit?: boolean,
   devMode?: boolean,
   instrumentation?: HullInstrumentation,
-  queue?: void | HullQueue,
   handlers:
     | HullHandlersConfiguration
     | (HullConnector => HullHandlersConfiguration),

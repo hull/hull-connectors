@@ -55,14 +55,21 @@ class QueueAgent {
   constructor(config: HullQueueConfig) {
     const { store, url, name } = config;
     if (store === "redis") {
+      if (!name) {
+        throw new Error(
+          "Missing Queue Prefix name, Can't boot. Either define a queue Name in `connectorConfig.queueConfig` or use store: 'memory'"
+        );
+      }
+      if (!url) {
+        throw new Error(
+          "Missing Queue REDIS URL, Can't boot. Either define a queue URL in `connectorConfig.queueConfig` or use store: 'memory'"
+        );
+      }
       this.adapter = new KueAdapter({
         prefix: name,
         redis: url
       });
     } else {
-      this.adapter = new MemoryAdapter();
-    }
-    if (!this.adapter) {
       this.adapter = new MemoryAdapter();
     }
 
