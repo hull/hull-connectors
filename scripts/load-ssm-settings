@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const SSM = require("aws-sdk/clients/ssm");
+const Promise = require("bluebird");
 const _ = require("lodash");
 const ssm = new SSM({
   apiVersion: "2014-11-06",
@@ -39,7 +40,7 @@ async function fetchParams(Path, parameters = {}, NextToken = null, pageNum = 0)
 }
 
 async function loadSettings(paths) {
-  return Promise.all(paths.map(path => fetchParams(path, {}))).catch(err => {
+  return Promise.each(paths, path => fetchParams(path, {})).catch(err => {
     console.warn("# error loading SSM params: ", err.message);
   });
 }
