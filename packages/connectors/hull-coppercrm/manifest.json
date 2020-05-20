@@ -210,7 +210,6 @@
             "type": "boolean",
             "title": "Overwrite In Hull",
             "format": "select",
-            "required": true,
             "default": true
           }
         }
