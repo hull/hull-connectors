@@ -37,6 +37,7 @@ const buildConfigurationFromEnvironment = env => {
     LOGGER_KAFKA_PRODUCER_LINGER_MS = 10,
     PORT = 8082,
     REQUEST_TIMEOUT = "25s",
+    CACHE_STORE = "memory",
     REDIS_URL,
     CACHE_REDIS_URL,
     SECRET,
@@ -143,7 +144,8 @@ const buildConfigurationFromEnvironment = env => {
 
   // TODO: deprecate use of CACHE_REDIS_URL to make it consistent across all connectors
   const cacheAdapter =
-    REDIS_URL !== undefined || CACHE_REDIS_URL !== undefined
+    CACHE_STORE === "redis" &&
+    (REDIS_URL !== undefined || CACHE_REDIS_URL !== undefined)
       ? {
           store: "redis",
           url: REDIS_URL || CACHE_REDIS_URL,
