@@ -1135,13 +1135,13 @@ docker build . -t hull-connectors
 
 ### Start with DEBUG enabled
 
-```
+```sh
 > docker run -it -p 8082:8082 -e DEBUG='*' -e CONNECTOR=hull-processor -e MEMORY_AVAILABLE=512 -e SERVER=true hull-connectors:latest
 ```
 
 ### Log in to running container
 
-```
+```sh
 docker exec -it CONTAINER_ID /bin/sh
 ```
 
@@ -1149,13 +1149,60 @@ docker exec -it CONTAINER_ID /bin/sh
 
 Newer versions deprecate exposing a Queue at the top level, instead opting to expose `queueConfig` to manage it.
 
-```
+```js
 const connectorConfig = {
-  ...
-  queueConfig = {
+  ...(queueConfig = {
     store: "memory" | "redis",
     url: REDIS_URL, //Only if using `redis`
     name: "Queue Name" //Only if using `redis`
-  }
+  })
+};
+```
+
+## Streaming imports
+
+New helper to facilitate importing external content in Streaming. Initial version is very naive, only handle `GET` requests without Headers. Later implementations will introduce more power to fetch data. Make sure to handler from a Job Queue as this might be long running.
+
+It creates the following log entries for you:
+
+- `incoming.job.start`
+- `incoming.job.success`
+- `incoming.job.progress`
+- `incoming.job.error`
+
+```js
+/* @flow */
+import type { HullContext } from "hull";
+import { asyncComputeAndIngest, varsFromSettings } from "hull-vm";
+import resultsUrl from "../lib/get-results-url";
+
+/**
+ * SyncIn : import all the list members as hull users
+ */
+export default function handler(EntryModel: Object) {
+  return function fetchAllUsers(ctx: HullContext, options: any = {}) {
+    const { helpers, connector } = ctx;
+    const { streamRequest } = helpers;
+    const url = "http://foo.bar/result.csv";
+    streamRequest({
+      url, //url to fetch data from
+      format: "csv", //CSV or JSON supported
+      batchSize: 10, //How many entries in data chunk,
+      onError: error => {
+        //Do something with Errors
+      },
+      onEnd: () => {
+        //Do someting when it ends
+      },
+      onData: data => {
+        //data = [{xxx}, {xxx}, {xxx}]
+        //batched by the value of `batchSize`
+        data.map(entry => {
+          //Do something with data
+          // hull.asUser(xxx)
+        })
+      }
+    });
+  };
 }
 ```
