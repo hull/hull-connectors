@@ -3,10 +3,8 @@
 import type { HullContext } from "hull";
 import neatCsv from "neat-csv";
 import type { PhantomAgent } from "./agent-details";
+import resultUrl from "./get-results-url";
 
-const URL = "https://cache1.phantombooster.com";
-const resultUrl = ({ userAwsFolder, awsFolder }) =>
-  `${URL}/${userAwsFolder}/${awsFolder}/result.csv`;
 type Output =
   | {
       status: "success",
@@ -63,7 +61,7 @@ export default async function callApi(
 
   try {
     // $FlowFixMe
-    const response: Response = await request.get(resultUrl(agent));
+    const response: Response = await request.get(resultUrl(ctx, agent));
     if (!response.ok || response.error) {
       const err = new Error(response.error);
       throw err;
