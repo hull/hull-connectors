@@ -18,7 +18,6 @@
 /* :: export type * from "./triggers"; */
 
 import type Cache from "../infra/cache/cache-agent";
-import type Queue from "../infra/queue/queue-agent";
 import type Worker from "../connector/worker";
 import type Instrumentation from "../infra/instrumentation/instrumentation-agent";
 
@@ -27,7 +26,6 @@ const Client = require("hull-client");
 
 export type HullInstrumentation = Instrumentation;
 export type HullCache = Cache;
-export type HullQueue = Queue;
 export type HullWorker = Worker;
 export type HullClient = Client;
 
