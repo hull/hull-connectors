@@ -44,14 +44,6 @@ export default class App extends RecentEntriesUI<Props, State> {
       computing && <Spinner className="loading-spinner" />,
       <Button size="sm" key="callNow" onClick={this.callNow}>
         Call Phantom (preview results)
-      </Button>,
-      <Button
-        size="sm"
-        key="callNowAndExecute"
-        variant="danger"
-        onClick={this.callNowAndExecute}
-      >
-        Call Phantom (live call)
       </Button>
     ];
 

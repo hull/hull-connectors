@@ -131,7 +131,6 @@
       "name": "run",
       "description": "Run Phantom Now - Check on Phantombuster to see Progress",
       "options": {
-        "fireAndForget": true,
         "confirm": {
           "text": "You are about to trigger a Phantom on Phantombuster. Confirm?",
           "button": "Trigger"

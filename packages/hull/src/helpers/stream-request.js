@@ -49,8 +49,7 @@ const streamRequest = (ctx: HullContext) => async ({
       return data;
     },
     d => {
-      console.log("Final", d)
-      final(d)
+      final(d);
     }
   ]);
 

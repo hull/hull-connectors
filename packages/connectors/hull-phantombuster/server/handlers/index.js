@@ -14,7 +14,7 @@ import {
 } from "hull-vm";
 import configData from "./config-data";
 import agentsHandler from "./agents-handler";
-// import runHandler from "./run-handler";
+import runHandler from "./run-handler";
 import statusHandler from "./status-handler";
 import scheduledCallHandler from "./scheduledcall-handler";
 import apiCall from "./apicall-handler";
@@ -32,14 +32,11 @@ const handler = ({ EntryModel }: { EntryModel: any }) => (
     },
     statuses: { statusHandler },
     schedules: {
-      scheduledCall: scheduledCallHandler(EntryModel),
+      scheduledCall: scheduledCallHandler,
       removeOldEntriesHandler: removeOldEntriesHandler(EntryModel)
     },
     json: {
-      runHandler: (ctx: HullContext) =>
-        ctx.enqueue("fetchAll", {
-          agent: ctx.connector.private_settings.agent
-        }),
+      runHandler,
       agentsHandler,
       getRecent: recentHandler(EntryModel),
       configHandler: configHandler(configData),

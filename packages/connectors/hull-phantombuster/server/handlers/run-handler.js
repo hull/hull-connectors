@@ -1,6 +1,7 @@
 // @flow
 
 import type { HullContext, HullUISelectResponse } from "hull";
+import updateAgentDetails from "../lib/agent-details";
 
 const agentsHandler = async (ctx: HullContext): HullUISelectResponse => {
   const { connector, request } = ctx;
@@ -15,13 +16,16 @@ const agentsHandler = async (ctx: HullContext): HullUISelectResponse => {
     };
   }
   try {
+    const agent = await updateAgentDetails(ctx, true);
     const response = await request
       .get(`https://phantombuster.com/api/v1/agent/${agent_id}/launch`)
-      .query({ output: "first-result-object" })
       .type("json")
       .set({
         "X-Phantombuster-key": api_key
       });
+
+    // $FlowFixMe
+    ctx.enqueue("fetchAll", { agent }).delay(60000);
 
     if (!response?.body?.status === "success") {
       return {
@@ -33,6 +37,7 @@ const agentsHandler = async (ctx: HullContext): HullUISelectResponse => {
     return {
       status: 200,
       data: {
+        message: "Agent launched, Fetching results starts in 60 seconds",
         ok: response?.body?.status
       }
     };
