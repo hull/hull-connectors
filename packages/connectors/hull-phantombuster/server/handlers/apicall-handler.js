@@ -49,6 +49,10 @@ export default function handler(EntryModel: Object) {
         code,
         preview
       });
+      if (!preview) {
+        // $FlowFixMe
+        ctx.enqueue("fetchAll", { agent: newAgent });
+      }
       return {
         status: 200,
         data: result

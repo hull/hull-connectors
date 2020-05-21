@@ -43,7 +43,10 @@ export default class App extends RecentEntriesUI<Props, State> {
     const actions = [
       computing && <Spinner className="loading-spinner" />,
       <Button size="sm" key="callNow" onClick={this.callNow}>
-        Call Phantom (preview results)
+        Preview Results
+      </Button>,
+      <Button size="sm" key="callNow" onClick={this.callNowAndExecute}>
+        Start Import Job
       </Button>
     ];
 
