@@ -1,5 +1,5 @@
 /* @flow */
-import type { HullContext } from "hull";
+import type { HullContext, HullJob } from "hull";
 import { asyncComputeAndIngest, varsFromSettings } from "hull-vm";
 import resultsUrl from "../lib/get-results-url";
 
@@ -7,7 +7,11 @@ import resultsUrl from "../lib/get-results-url";
  * SyncIn : import all the list members as hull users
  */
 export default function handler(_EntryModel: Object) {
-  return function fetchAllUsers(ctx: HullContext, options: any = {}) {
+  return function fetchAllUsers(
+    ctx: HullContext,
+    options: any = {},
+    _job: HullJob
+  ) {
     const { agent } = options;
     const { helpers, connector } = ctx;
     const { private_settings = {} } = connector;

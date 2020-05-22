@@ -50,8 +50,8 @@
     {
       "name": "sync_interval",
       "type": "number",
-      "title": "Call API every:",
-      "description": "Interval in minutes at which to call external API",
+      "title": "Check every:",
+      "description": "Interval in minutes between checks for new data in Phantombuster",
       "default": 30,
       "enum": [
         1,
