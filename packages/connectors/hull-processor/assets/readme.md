@@ -12,7 +12,7 @@ You can begin writing your own code right away, but you probably might want to g
 
 - [User](#Input---User)
 - [Changes](#Input---Changes)
-- [Account](#Input---
+- [Account](#Input---Accounts)
 - [Events](#Input---Events)
 - [User Segments](#Input---User-Segments)
 - [Account Segments](#Input---Account-Segments)
@@ -28,7 +28,7 @@ Read more about writing code:
 
 The Hull Processor allows your team to write Javascript and transform data in Hull for users and accounts. You can emit events based of attribute changes or calculate a lead score, the Processor is your multi-tool when it comes to data in Hull.
 
-The Processor can  `add traits`,  `update traits` and `create events` for both, users and accounts. Furthermore it allows you to `link accounts`.
+The Processor can  `add traits`,  `update traits` and `create events` for both, users and accounts. Furthermore it allows you to `link accounts` And add/remove `aliases` for users
 
 You can use the `superagent` library ([https://github.com/visionmedia/superagent](https://github.com/visionmedia/superagent)) to call external services or send data to webhooks.
 
@@ -428,6 +428,15 @@ Here is how to use the function signature:
 The first parameter is a string defining the name of the event while the second parameter is an object that defines the properties of the event.
 
 
+## How to alias / unalias identifiers
+
+You can add or remove aliases to the processed user with the following syntax:
+
+```js
+  hull.alias({ anonymous_id: "foobar:1234" });
+  hull.unalias ({ anonymous_id: "foobar:1234" });
+```
+
 ## How to link Users to Accounts
 
 Now that we know how to deal with users, let’s have a look how to handle accounts.
@@ -438,7 +447,6 @@ You can **link an account to the current user** by calling the `hull.account` fu
   const claims_object = { domain: <value> }
   hull.account(claims_object)
 ```
-
 which would either create the account if it doesn’t exist or link the current user to the existing account.
 
 ## How to edit attributes for the account
@@ -584,10 +592,10 @@ Checkout the Docs for `CountryCodeSource`, `PhoneNumberFormat`, `PhoneNumberType
 
 ## \[Deprecated\] Using Request
 
-The request library is now deprecated. Processor code currently using the request library will be functional,
-but we would advise you to migrate to the super-agent request library which is much more intuitive and elegant to use.
+The request library is now deprecated. Processors using the request library will be still operational,
+but we advise you to migrate to the super-agent request library which is much more intuitive and elegant to use.
 
-If you are about to write new code to perform any API request, please refer to the [Using Super-agent](#Using Super-agent) section.
+If you are about to write new code to perform any API request, please refer to the [Using Superagent](#Using-Superagent) section.
 
 The library exposes `request-promise` to allow you to call external APIs seamlessly:
 
@@ -605,10 +613,21 @@ const response = await request({
 console.log(response)
 ```
 
-## Using Super-agent
+## Using Superagent
 
-To peform API requests, the processor connector exposes the super-agent library through the `superagent` keyword.
-There are some syntax restrictions that the exposed super-agent library can't perform, more on that in the [Exceptions](#Exceptions) section.
+To perform API requests, the processor connector exposes the superagent library through the `superagent` keyword.
+It is an instance of the original [superagent](https://visionmedia.github.io/superagent/) library with additional plugins added behind the scenes to make it run smoothly in your processor code.
+This comes with some syntax restrictions that our instance of superagent won't work with, more on that right below.
+
+### Differences
+
+The exposed superagent instances cannot be called as function, so following code won't work:
+
+```javascript
+const res = await superagent('GET', 'https://www.foobar.com/search');
+```
+
+Instead always call a method on superagent object choosing which HTTP method you want to use. See examples Below.
 
 ### Usage
 
@@ -671,15 +690,16 @@ try {
 }
 ```
 
-There is a slight difference when processing the result of your requests using the super-agent library will be the response object.
-You will need to look into the `res.body` object instead of looking directly at the `res` object.
+You can find full documentation of the superagent library [here](https://visionmedia.github.io/superagent/).
+Keep in mind that calling superagent as function does not work.
 
-You can find advanced usages of the super-agent library through [this link](https://visionmedia.github.io/superagent/)
+### Migrating from the Request library to the Superagent library
 
-### Migrating from the Request library to the Super-agent library
+You might have noticed a warning message coming on your processor saying that your code is using a deprecated request library.
+In order to fix that, you need to replace `request` with the superagent library.
 
-You might have noticed a warning message coming from your processor code saying that the code you are using is running a deprecated request library.
-In order to fix that, you need to start using the super-agent library instead.
+There are mostly two things to adjust. First you need to replace your request options object with set of chained methods on superagent instance.
+Second you will need to look for the `response.body` object instead of looking directly at the `data` object.
 
 To illustrate that, let's have a look at a code block using the deprecated request library, and another code block with the result of migrating it.
 
@@ -697,7 +717,7 @@ return new Promise((resolve, reject) => {
         console.info("Error:", err);
         return reject(err);
       }
-      
+      // data contains the response body
       if(_.isString(data)) {
         data = JSON.parse(data);
       }
@@ -711,27 +731,14 @@ return new Promise((resolve, reject) => {
 
 return superagent
     .get("http://www.omdbapi.com/?t=James+Bond")
-    .then(data => {
-      if(_.isString(data)) {
-        data = JSON.parse(data);
-      }
-      return data;
+    .then(res => {
+      // res.body is parsed response body
+      return res.body;
     })
     .catch(err => {
       console.info("Error:", err);
     })
 ```
-
-### Exceptions
-
-The exposed super-agent library in processor cannot execute a request with the following syntax:
-
-```javascript
-const res = await superagent('GET', 'https://www.foobar.com/search');
-```
-
-This syntax is very similar to what the old request library was using.
-It is functional as described in the super-agent [library documentation](https://visionmedia.github.io/superagent/#request-basics), but the processor connector won't accept it.
 
 ## Golden Rules
 
