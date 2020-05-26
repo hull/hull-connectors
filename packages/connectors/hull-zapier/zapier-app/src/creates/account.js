@@ -8,8 +8,13 @@ const { getAccountAttributeOutputFields } = require("../lib/output-fields");
 const perform = async (z, { inputData }) => {
   const { anonymous_id, external_id, domain, attributes } = inputData;
 
-  if (!isValidClaim({ anonymous_id, external_id, domain })) {
-    throw new z.errors.HaltedError("Invalid Claims");
+  if (!isValidClaim({ external_id, domain })) {
+    const errorMessage = {
+      "message": _.isNil(external_id) && _.isNil(domain) ? "Missing Identity Claims": "Invalid Identity Claims",
+      external_id,
+      domain
+    };
+    throw new z.errors.HaltedError(JSON.stringify(errorMessage));
   }
 
   const claims = _.pickBy({ anonymous_id, domain, external_id }, (v, _k) => !_.isEmpty(v));
