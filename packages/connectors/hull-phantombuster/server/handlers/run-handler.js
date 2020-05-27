@@ -4,9 +4,9 @@ import type { HullContext, HullUISelectResponse } from "hull";
 import updateAgentDetails from "../lib/agent-details";
 
 const agentsHandler = async (ctx: HullContext): HullUISelectResponse => {
-  const { connector, request } = ctx;
+  const { connector } = ctx;
   const { private_settings = {} } = connector;
-  const { agent_id, api_key } = private_settings;
+  const { api_key } = private_settings;
   if (!api_key) {
     return {
       status: 200,

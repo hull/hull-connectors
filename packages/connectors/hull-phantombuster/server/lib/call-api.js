@@ -2,6 +2,7 @@
 
 import type { HullContext } from "hull";
 import type { PhantomAgent } from "./agent-details";
+import checkConfig from "./check-config";
 
 type Output =
   | {

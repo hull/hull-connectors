@@ -3,9 +3,7 @@ import type { NextFunction } from "express";
 import HullClient from "hull-client/src";
 import type { HullRequest, HullResponse } from "../types";
 
-const _ = require("lodash");
 const debug = require("debug")("hull-connector:client-middleware");
-const helpers = require("../helpers");
 
 /**
  * This middleware initiates Hull client

@@ -23,7 +23,7 @@ export default async function statusCheck(
         "No Phantom ID detected. Please configure it in the Settings"
       );
     } else {
-      const data = await updateAgentDetails(ctx, false);
+      await updateAgentDetails(ctx, false);
     }
   } catch (err) {
     status = "error";

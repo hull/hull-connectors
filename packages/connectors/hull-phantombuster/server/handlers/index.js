@@ -1,6 +1,5 @@
 // @flow
 import type {
-  HullContext,
   HullExternalResponse,
   HullHandlersConfiguration,
   Connector
