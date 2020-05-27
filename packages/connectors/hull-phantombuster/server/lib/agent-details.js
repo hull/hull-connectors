@@ -1,6 +1,7 @@
 // @flow
 import type { HullContext } from "hull";
 import handleResponseError from "./handle-response-error";
+import checkConfig from "./check-config";
 
 export type PhantomAgent = {
   id: string,
@@ -28,6 +29,8 @@ export default async function updateAgentDetails(
   const { private_settings = {} } = connector;
   const { agent_id, api_key, agent = {} } = private_settings;
   const { nonce } = agent;
+
+  checkConfig(ctx);
 
   const response = await request
     .get(`https://phantombuster.com/api/v1/agent/${agent_id}`)

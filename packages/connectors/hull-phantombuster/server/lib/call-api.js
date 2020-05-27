@@ -1,9 +1,7 @@
 // @flow
 
 import type { HullContext } from "hull";
-import neatCsv from "neat-csv";
 import type { PhantomAgent } from "./agent-details";
-import resultUrl from "./get-results-url";
 
 type Output =
   | {
@@ -40,9 +38,11 @@ export default async function callApi(
 ): Promise<AgentOutput> {
   const { metric, request, client, connector } = ctx;
   const { private_settings = {} } = connector;
-  const { agent_id, api_key } = private_settings;
+  const { api_key } = private_settings;
 
-  if (!agent_id) {
+  checkConfig(ctx);
+
+  if (!agent.id) {
     throw new Error(
       "No Phantom ID defined. Please enter an Phantom ID. Visit the Phantom in Phantombuster and copy the Identifier in the URL: `https://phantombuster.com/xxx/phantoms/PHANTOM_ID_IS_HERE`"
     );
