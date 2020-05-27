@@ -60,7 +60,7 @@ export default function handler(EntryModel: Object) {
     } catch (err) {
       client.logger.error("connector.request.error", {
         ...private_settings,
-        error: err
+        error: err?.response?.body || err
       });
       return {
         status: 500,
