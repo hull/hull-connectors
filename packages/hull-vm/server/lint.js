@@ -19,6 +19,7 @@ const LIBS = [
   "isGenericEmail",
   "isGenericDomain",
   "request",
+  "superagent",
   "captureException",
   "captureMessage"
 ];
