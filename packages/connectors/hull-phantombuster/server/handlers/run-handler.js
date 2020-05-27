@@ -38,13 +38,13 @@ const agentsHandler = async (ctx: HullContext): HullUISelectResponse => {
       status: 200,
       data: {
         message: "Agent launched, Fetching results starts in 60 seconds",
-        ok: response?.body?.status
+        ok: true
       }
     };
   } catch (err) {
     return {
       status: 500,
-      error: err
+      error: err?.response?.body?.error || err
     };
   }
 };
