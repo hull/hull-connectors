@@ -103,6 +103,9 @@ function fullContextFetchMiddlewareFactory({
 
     try {
       const ctx = req.hull;
+      if (ctx.client === undefined) {
+        throw new Error("Missing client");
+      }
       const [connector, usersSegments, accountsSegments] = await Promise.all([
         fetchConnector(ctx, cacheContextFetch),
         fetchSegments(ctx, "user", cacheContextFetch),
@@ -137,9 +140,19 @@ function fullContextFetchMiddlewareFactory({
       return next();
     } catch (error) {
       if (error.status === 404) {
-        return next(new ConnectorNotFoundError("Connector not found"));
+        try {
+          debug(`Connector not found: ${error.message}`);
+        } catch (e2) {
+          debug("Error thrown in debug message");
+        }
+        return next(new ConnectorNotFoundError("Invalid id / secret"));
       }
       if (error.status === 402) {
+        try {
+          debug(`Organization is disabled: ${error.message}`);
+        } catch (e2) {
+          debug("Error thrown in debug message");
+        }
         return next(new PaymentRequiredError("Organization is disabled"));
       }
       return next(error);
