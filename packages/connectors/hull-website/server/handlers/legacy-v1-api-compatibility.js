@@ -7,6 +7,7 @@ import aliasHandler from "./alias-handler";
 import trackHandler from "./track-handler";
 import traitsHandler from "./traits-handler";
 import remoteHandler from "./remote-handler";
+import redirectHandler from "./redirect-handler";
 
 class RemoteDomainMismatchError extends Error {
   status = 403;
@@ -123,5 +124,8 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
   app.post("/t", trackHandler);
   app.put("/me/traits", traitsHandler);
   app.post("/me/alias", aliasHandler);
+
+  // Legacy hull-js redirect routes
+  app.get("/r", redirectHandler);
   return app;
 };
