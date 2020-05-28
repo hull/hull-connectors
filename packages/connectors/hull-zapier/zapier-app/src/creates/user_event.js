@@ -2,10 +2,25 @@ const _ = require("lodash");
 const sample = require("../../samples/user");
 const { createUrl } = require("../config");
 const { post } = require("../lib/request");
+const { isValidClaim } = require("../lib/utils");
 
 const perform = async (z, { inputData }) => {
   const { external_id, email, event_name, properties } = inputData;
   const claims = _.pickBy({ email, external_id }, (v, _k) => !_.isEmpty(v));
+
+  if (_.isNil(event_name)) {
+    throw new z.errors.HaltedError("Missing Event Name");
+  }
+
+  if (!isValidClaim({ external_id, email })) {
+    const errorMessage = {
+      "message": _.isNil(external_id) && _.isNil(email) ? "Missing Identity Claims": "Invalid Identity Claims",
+      external_id,
+      email
+    };
+    throw new z.errors.HaltedError(JSON.stringify(errorMessage));
+  }
+
   return post(z,{
     url: createUrl,
     body: { entityType: "user_event", claims, event_name, properties }
