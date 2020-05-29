@@ -366,7 +366,7 @@ class MappingUtil {
           .replace(/\$\./, "")
           .replace(/properties\./, "")
           .replace(/\.value/, "")
-          .replace(/\.\$split\('\$'\)/, "")
+          .replace(/\.\$split\(';'\)/, "")
           .replace(/"/g, "")
           .replace(/`/g, "")
       );
