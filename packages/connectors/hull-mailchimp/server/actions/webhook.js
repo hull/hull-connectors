@@ -40,12 +40,10 @@ async function handleAction(
     };
   }
   let processedData = _.cloneDeep(data);
+  let member = {};
   switch (
     type // eslint-disable-line default-case
   ) {
-    case "profile":
-      break;
-
     case "subscribe":
       processedData = _.merge({}, data, {
         status: "subscribed",
@@ -56,7 +54,8 @@ async function handleAction(
     case "unsubscribe":
       processedData = _.merge({}, data, {
         status: "unsubscribed",
-        subscribed: false
+        subscribed: false,
+        archived: data.action === "archive" || data.action === "delete"
       });
       break;
 
@@ -66,7 +65,15 @@ async function handleAction(
         value: false
       });
       break;
+
     default:
+      member = await syncAgent.mailchimpClient.getMemberInfo(data.email);
+      if (!_.isEmpty(member)) {
+        processedData = _.merge({}, data, {
+          status: member.status,
+          subscribed: member.status === "subscribed"
+        });
+      }
   }
   await syncAgent.userMappingAgent.updateUser(processedData);
 

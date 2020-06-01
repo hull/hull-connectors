@@ -18,6 +18,7 @@ const {
   superagentInstrumentationPlugin,
   superagentErrorPlugin
 } = require("hull/src/utils");
+const { md5 } = require("./util/utils");
 
 class ServiceClient {
   agent: Object;
@@ -89,6 +90,13 @@ class ServiceClient {
 
   delete(url: string) {
     return this.agent.delete(url);
+  }
+
+  async getMemberInfo(email: string) {
+    const subscriberHash = md5(email);
+    const url = `/lists/${this.listId}/members/${subscriberHash}`;
+    const member = await this.get(url);
+    return member.body;
   }
 
   /**
