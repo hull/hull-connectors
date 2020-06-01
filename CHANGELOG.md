@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.1.26-monorepo
+- [hull-mailchimp] handle archived users
+
 ## v0.1.25-monorepo
 - [hull-hubspot] jsonata attribute mapper
 
