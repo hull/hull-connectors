@@ -37,15 +37,18 @@ export default class App extends RecentEntriesUI<Props, State> {
     if (!initialized) return null;
     const { strings } = this.props;
     const hasRecent = !!_.get(recent, "length", 0);
-    const content = hasRecent
-      ? `Hull calls the Phantom below every ${sync_interval} minutes. Call it now manually by clicking the button below`
-      : "We haven't called the Phantom Yet. Call it now manually by clicking the button below";
+    const content =
+      (hasRecent &&
+        `Hull calls the Phantom below every ${sync_interval} minutes. Call it now manually by clicking the button below`) ||
+      (agent &&
+        "We haven't called the Phantom Yet. Call it now manually by clicking the button below") ||
+      "Please configure the Phantombuster connector in the Settings tab first";
     const actions = [
-      computing && <Spinner className="loading-spinner" />,
+      computing && <Spinner key="computing" className="loading-spinner" />,
       <Button size="sm" key="callNow" onClick={this.callNow}>
         Preview Results
       </Button>,
-      <Button size="sm" key="callNow" onClick={this.callNowAndExecute}>
+      <Button size="sm" key="callAndExecute" onClick={this.callNowAndExecute}>
         Start Import Job
       </Button>
     ];
@@ -56,7 +59,7 @@ export default class App extends RecentEntriesUI<Props, State> {
         body={<ModalBody id={id} sync_interval={sync_interval} agent={agent} />}
         content={content}
         actions={actions}
-        show={showConfig || !hasRecent}
+        show={!agent || showConfig || !hasRecent}
         onHide={this.hideInstructions}
       />
     );

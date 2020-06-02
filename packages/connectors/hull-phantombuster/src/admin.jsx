@@ -15,7 +15,7 @@ const render = Component => {
       <Component
         engine={engine}
         strings={{
-          modalTitle: "Call an external API",
+          modalTitle: "Parse Phantombuster Results",
           leftColumnTitle: "Recent",
           centerColumnCurrentTab: "Current Code",
           centerColumnPreviousTab: "At time of call"

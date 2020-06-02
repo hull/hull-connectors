@@ -22,18 +22,16 @@ export default class ModalBody extends Component<Props> {
     const { sync_interval, agent } = this.props;
     return (
       <div>
-        <p>Configure the connector in the Settings tab</p>
         {agent && (
-          <h5>
-            Phantom ID:
-            <code> {agent.name}</code>
-          </h5>
+          <p>
+            Phantom ID: <code> {agent.name}</code>)
+          </p>
         )}
-        {sync_interval && (
-          <h5>
+        {agent && sync_interval && (
+          <p>
             Check Interval:
             <code> Every {sync_interval} minutes</code>
-          </h5>
+          </p>
         )}
       </div>
     );
