@@ -15,7 +15,7 @@ const scheduledCall = async (ctx: HullContext): HullExternalResponse => {
     const agent = await updateAgentDetails(ctx, true);
     const { isNew } = agent;
     if (!isNew) {
-      client.logger.info("connector.schedule.skip", {
+      client.logger.info("incoming.job.skip", {
         message: "Phantom didn't change since last time",
         agent
       });
@@ -33,7 +33,7 @@ const scheduledCall = async (ctx: HullContext): HullExternalResponse => {
       data
     };
   } catch (err) {
-    client.logger.error("connector.request.error", {
+    client.logger.error("incoming.job.error", {
       ...private_settings,
       error: err?.response?.body || err
     });
