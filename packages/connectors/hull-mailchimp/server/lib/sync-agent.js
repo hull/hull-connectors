@@ -63,7 +63,7 @@ class SyncAgent {
     this.listId = _.get(ctx.connector, "private_settings.mailchimp_list_id");
     this.ignoreArchivedUsers = _.get(
       ctx.connector,
-      "private_settings.ignoreArchivedUsers",
+      "private_settings.ignore_archived_users",
       true
     );
     this.synchronizedSegments = (
