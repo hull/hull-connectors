@@ -175,7 +175,7 @@ function getInstance(
         topic,
         null,
         Buffer.from(JSON.stringify(message)),
-        `${organization}/${message.appId}`,
+        null,
         Date.now()
       );
       return { ok: true, offset };
