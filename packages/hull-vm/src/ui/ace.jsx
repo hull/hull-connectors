@@ -91,7 +91,7 @@ class CodeEditor extends Component<Props, State> {
     }
   }
 
-  componentWillReceiveProps = (nextProps: Props) => {
+  UNSAFE_componentWillReceiveProps = (nextProps: Props) => {
     /* eslint-disable-next-line react/destructuring-assignment */
     if (nextProps.value !== this.state.value) {
       this.setState({ value: nextProps.value });

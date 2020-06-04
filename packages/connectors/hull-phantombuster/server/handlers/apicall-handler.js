@@ -17,7 +17,7 @@ export default function handler(EntryModel: Object) {
   ): HullExternalResponse => {
     const { client, connector } = ctx;
     const { private_settings = {} } = connector;
-    const { code, agent } = private_settings;
+    const { code } = private_settings;
     // $FlowFixMe
     const { preview } = message.body;
 
@@ -33,16 +33,16 @@ export default function handler(EntryModel: Object) {
     }
 
     try {
-      const newAgent = await updateAgentDetails(ctx, !preview);
+      const newAgent = await updateAgentDetails(ctx, true);
       const data = await callApi(ctx, newAgent);
       const result = await asyncComputeAndIngest(ctx, {
         source: "phantombuster",
         EntryModel,
-        date: agent.date,
+        date: newAgent.date,
         payload: {
           method: "GET",
-          url: agent.name,
-          agent,
+          url: newAgent.name,
+          agent: newAgent,
           data: preview ? _.take(data, 100) : data,
           variables: varsFromSettings(ctx)
         },
@@ -55,18 +55,17 @@ export default function handler(EntryModel: Object) {
       }
       return {
         status: 200,
-        data: result
+        data: { ...result, agent: newAgent }
       };
     } catch (err) {
+      const error = err?.response?.body || err?.message || err;
       client.logger.error("connector.request.error", {
         ...private_settings,
-        error: err?.response?.body || err
+        error
       });
       return {
         status: 500,
-        data: {
-          error: err
-        }
+        error
       };
     }
   };

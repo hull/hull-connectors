@@ -34,6 +34,23 @@ const queryParams = (): Config =>
       return q;
     }, {});
 
+
+
+
+
+
+
+
+
+type FetchConfigResponse = {
+ error?: string,
+ token?: string,
+ hostname?: string,
+ computing?: boolean,
+ initialized?: boolean,
+ [string]: any 
+}
+
 export default class Engine extends EventEmitter {
   state: any;
 
@@ -45,32 +62,33 @@ export default class Engine extends EventEmitter {
     const config = queryParams();
     super();
     this.setState({ ...DEFAULT_STATE, config });
-    this.fetchConfig();
   }
 
-  fetchConfig = async () => {
+  initialize = async () => {
+    await this.fetchConfig();
+  }
+
+  fetchConfig = async (): FetchConfigResponse => {
     this.setState({ computing: true });
     try {
-      const response = await this.request({
+      const config = await this.request({
         url: "config",
         method: "get"
       });
-      this.saveConfig(response);
-      return true;
+      return this.saveConfig(config);
     } catch (err) {
-      this.setState({
+      return this.saveConfig({
         error: err.message,
         token: "",
         hostname: "",
         computing: false,
         initialized: false
       });
-      return false;
     }
   };
 
   // This methods finishes the init Sequence
-  saveConfig = response => {
+  saveConfig = (response: FetchConfigResponse) => {
     this.setState({
       error: undefined,
       initialized: true,
@@ -147,12 +165,14 @@ export default class Engine extends EventEmitter {
     async ({ language, code, payload, claims, entity }: PreviewRequest) => {
       this.setState({ computing: true });
       try {
+        console.log("FETCHPREVIEW");
         const response: PreviewResponse = await this.request({
           url: "preview",
           method: "post",
           data: { language, code, payload, claims, entity }
         });
         const state = this.getState();
+        console.log("FETCHPREVIEW DONE");
         this.setState({
           error: undefined,
           computing: false,

@@ -15,6 +15,20 @@ type Props = {
 
 type State = EngineState & {};
 
+const renderTitle = ({ hasRecent, sync_interval, api_key }) => {
+  if (!api_key)
+    return "Please configure the Phantombuster connector in the Settings tab first";
+  if (hasRecent)
+    return (
+      <>
+        Hull calls the Phantom below every {sync_interval} minutes.
+        <br />
+        Call it now manually by clicking the button below.
+      </>
+    );
+  return "We haven't called the Phantom Yet. Call it now manually by clicking the button below";
+};
+
 export default class App extends RecentEntriesUI<Props, State> {
   callNow = () => {
     this.props.engine.callAPI(false);
@@ -31,32 +45,43 @@ export default class App extends RecentEntriesUI<Props, State> {
       showConfig,
       recent,
       id,
+      api_key,
       agent,
       sync_interval
     } = this.state;
     if (!initialized) return null;
     const { strings } = this.props;
     const hasRecent = !!_.get(recent, "length", 0);
-    const content =
-      (hasRecent &&
-        `Hull calls the Phantom below every ${sync_interval} minutes. Call it now manually by clicking the button below`) ||
-      (agent &&
-        "We haven't called the Phantom Yet. Call it now manually by clicking the button below") ||
-      "Please configure the Phantombuster connector in the Settings tab first";
+    const content = (
+      <h5 style={{ textAlign: "center", marginTop: "1rem" }}>
+        {renderTitle({ hasRecent, sync_interval, agent, api_key })}
+      </h5>
+    );
     const actions = [
       computing && <Spinner key="computing" className="loading-spinner" />,
-      <Button size="sm" key="callNow" onClick={this.callNow}>
-        Preview Results
-      </Button>,
-      <Button size="sm" key="callAndExecute" onClick={this.callNowAndExecute}>
-        Start Import Job
-      </Button>
+      api_key && (
+        <Button size="sm" key="callNow" onClick={this.callNow}>
+          Preview Results
+        </Button>
+      ),
+      api_key && (
+        <Button size="sm" key="callAndExecute" onClick={this.callNowAndExecute}>
+          Start Import Job
+        </Button>
+      )
     ];
 
     return (
       <ConfigurationModal
         title={strings.modalTitle}
-        body={<ModalBody id={id} sync_interval={sync_interval} agent={agent} />}
+        body={
+          <ModalBody
+            id={id}
+            api_key={api_key}
+            sync_interval={sync_interval}
+            agent={agent}
+          />
+        }
         content={content}
         actions={actions}
         show={!agent || showConfig || !hasRecent}

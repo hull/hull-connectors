@@ -74,7 +74,8 @@ export default async function callApi(
       throw err;
     }
     // $FlowFixMe
-    return JSON.parse(response?.body?.data?.resultObject);
+    const result = response?.body?.data?.resultObject;
+    return result ? JSON.parse(result) : [];
   } catch (err) {
     client.logger.error("connector.schedule.error", err);
     throw err;

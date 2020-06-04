@@ -28,20 +28,16 @@ const scheduledCall = async (ctx: HullContext): HullExternalResponse => {
     }
     const data = ctx.enqueue("fetchAll", { agent });
 
-    return {
-      status: 200,
-      data
-    };
+    return { status: 200, data };
   } catch (err) {
+    const error = err?.response?.body || err?.message || err;
     client.logger.error("incoming.job.error", {
       ...private_settings,
-      error: err?.response?.body || err
+      error
     });
     return {
       status: 500,
-      data: {
-        error: err?.response?.body || err
-      }
+      error
     };
   }
 };

@@ -1,7 +1,7 @@
 // @flow
 import RecentEntriesEngine from "hull-vm/src/recent-engine";
 
-export default class IncomingWebhookEngine extends RecentEntriesEngine {
+export default class PhantomBusterEngine extends RecentEntriesEngine {
   async callAPI(execute: boolean) {
     this.setState({ computing: true });
     const response = await this.request({

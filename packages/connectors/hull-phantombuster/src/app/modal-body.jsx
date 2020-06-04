@@ -19,12 +19,12 @@ export default class ModalBody extends Component<Props> {
   };
 
   render() {
-    const { sync_interval, agent } = this.props;
+    const { sync_interval, agent, api_key } = this.props;
     return (
       <div>
         {agent && (
           <p>
-            Phantom ID: <code> {agent.name}</code>)
+            Phantom ID: <code> {agent.name}</code>
           </p>
         )}
         {agent && sync_interval && (
