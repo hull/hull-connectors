@@ -162,7 +162,7 @@ function getInstance(
             kafkaTopic,
             null,
             Buffer.from(JSON.stringify(message)),
-            `${organization}/${message.appId}`,
+            null,
             Date.now(),
             (err, offset) => {
               if (err) {
