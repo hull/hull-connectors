@@ -82,11 +82,13 @@ async function handleAction(
         if (!_.isEmpty(member)) {
           if (member.status === 404) {
             const ident = getMemberIdentity(data);
-            client.asUser(ident).logger.info("incoming.user.error", { "status": 404, "message": `Unable to determine status for email ${data.email}. Setting status in Hull to 'cleaned'.` });
+            client.asUser(ident).logger.info("incoming.user.error", { "status": 404, "message": `Unable to determine status for email ${data.email}.` });
+            /*
             processedData = _.merge({}, data, {
                status: "cleaned",
                value: false
             });
+            */
           } else {
             processedData = _.merge({}, data, {
               status: member.status,
