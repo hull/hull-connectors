@@ -82,7 +82,7 @@ class ServiceClient {
       .set("Authorization", `Bearer ${accessToken}`);
   }
 
-  async getForms(): Promise<TypeformGetFormsResponse> {
+  async getForms(): Array<TypeformFormMinimal> {
     let forms = [];
     let page = 1;
     let pageData = await this.agent.get("/forms").query({
