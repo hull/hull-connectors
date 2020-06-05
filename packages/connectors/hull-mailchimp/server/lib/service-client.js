@@ -93,7 +93,7 @@ class ServiceClient {
   }
 
   async getMemberInfo(email: string) {
-    const subscriberHash = md5(email);
+    const subscriberHash = md5(_.toLower(email));
     const url = `/lists/${this.listId}/members/${subscriberHash}`;
     const member = await this.get(url);
     return member.body;
