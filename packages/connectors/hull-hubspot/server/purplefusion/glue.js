@@ -205,9 +205,42 @@ const glue = {
         settingsUpdate({
           expires_in: "${refreshTokenResponse.expires_in}",
           refresh_token: "${refreshTokenResponse.refresh_token}",
-          token: "${refreshTokenResponse.token}"
+          token: "${refreshTokenResponse.access_token}"
         })
       )
+    ]),
+  fetchRecentCompanies:
+    ifL(settings("handle_accounts"), [
+      set("maxOffset", 9900),
+      set("lastFetchAt", settings("companies_last_fetch_timestamp")),
+      set("stopFetchAt", ex(moment(), "valueOf")),
+
+      ifL(cond("isEmpty", "${lastFetchAt}"),
+        set("lastFetchAt", ex(moment(settings("companies_last_fetch_at")), "valueOf"))),
+
+      ifL(cond("isEmpty", "lastFetchAt"),
+        set("lastFetchAt", ex(ex(moment(), "subtract", { minutes: 5 }), "valueOf"))),
+
+      settingsUpdate({ companies_last_fetch_timestamp: "${stopFetchAt}" }),
+      ifL(cond("notEmpty", settings("companies_last_fetch_at")),
+        settingsUpdate({ companies_last_fetch_at: null })),
+
+      loopL([
+        set("companiesPage", hubspot("getRecentCompaniesPage")),
+        ifL(cond("isEmpty", "${companiesPage}"), loopEndL()),
+        set("companiesToSave", "${companiesPage.results}"),
+        ifL(cond("notEmpty", "${companiesToSave}"),
+          hubspotSyncAgent("saveCompanies", "${companiesToSave}")),
+        ifL(
+          or([
+            cond("isEqual", "${companiesPage.hasMore}", false),
+            cond("greaterThan", "${companiesPage.offset}", "${maxOffset}")
+          ]),
+          loopEndL()
+        ),
+        set("offset", "${companiesPage.offset}"),
+        set("companiesPage", []),
+      ])
     ]),
   fetchRecentContacts:
     cacheLock("getRecentContacts",[
@@ -220,6 +253,7 @@ const glue = {
       set("stopFetchAt", ex(moment(), "valueOf")),
       loopL([
         set("contactsPage", hubspot("getRecentContactsPage")),
+        ifL(cond("isEmpty", "${contactsPage}"), loopEndL()),
         ifL(cond("lessThan", "${contactsPage.time-offset}", "${lastFetchAt}"), {
           do:
             set("contactsToSave",

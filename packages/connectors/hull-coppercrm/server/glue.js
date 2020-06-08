@@ -7,6 +7,7 @@ const {
   set,
   ifL,
   iterateL,
+  loopEndL,
   input,
   Svc,
   settings,
@@ -26,9 +27,11 @@ const {
 
 const {
   HullIncomingDropdownOption,
+  HullOutgoingDropdownOption,
   HullConnectorAttributeDefinition,
   HullIncomingUser,
-  HullIncomingAccount
+  HullIncomingAccount,
+  HullOutgoingUser
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const {
@@ -142,6 +145,19 @@ const glue = {
       ]
     })
   ),
+  leadUpdate: ifL(route("isConfigured"),[
+    set("service_name", "coppercrm"),
+    iterateL(input(), { key: "message", async: true }, [
+        ifL(set("leadId", "${message.user.coppercrm_lead/id}"), {
+          do: set("copperLead", coppercrm("updateLead", cast(HullOutgoingUser, "${message}"))),
+          eldo: set("copperLead", coppercrm("upsertLead", cast(HullOutgoingUser, "${message}"))),
+        }),
+        ifL("${copperLead.id}",
+          hull("asUser", "${copperLead}")
+        )
+    ])
+  ]),
+  userUpdate: {},
 
   // Incremental polling logic
   fetchAllLeads: ifL(route("isConfigured"),
@@ -276,6 +292,8 @@ const glue = {
   getActivityTypes: cacheWrap(StandardEnumTimeout, coppercrm("getActivityTypes")),
 
   attributesLeadsIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, route("leadSchema"))),
+  // currently don't support custom fields with no call to customLeadFields
+  attributesLeadsOutgoing: transformTo(HullOutgoingDropdownOption, cast(HullConnectorAttributeDefinition, require("./fields/lead_fields"))),
   leadSchema: ld("concat", require("./fields/lead_fields"), route("customLeadFields")),
   attributesPeopleIncoming: transformTo(HullIncomingDropdownOption, cast(HullConnectorAttributeDefinition, route("personSchema"))),
   personSchema: ld("concat", require("./fields/people_fields"), route("customPeopleFields")),

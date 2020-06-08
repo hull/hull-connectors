@@ -122,11 +122,12 @@ const service = ({ clientID, clientSecret } : {
   //   }
   // },
   authentication: {
-    strategy: "hubspotOauth",
+    strategy: "hubspotoauth",
     params: {
+      name: "Hubspot",
       Strategy: HubspotStrategy,
       clientID,
-      clientSecret,
+      clientSecret
     }
   },
   error: {

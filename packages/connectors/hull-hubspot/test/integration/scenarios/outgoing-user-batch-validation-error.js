@@ -5,6 +5,7 @@ import connectorConfig from "../../../server/config";
 
 
 process.env.CLIENT_ID = "123";
+process.env.CLIENT_SECRET = "123";
 
 const connector = {
   private_settings: {
@@ -15,10 +16,7 @@ const connector = {
   }
 };
 const usersSegments = [
-  {
-    name: "testSegment",
-    id: "hullSegmentId"
-  }
+  { name: "testSegment", id: "hullSegmentId" }
 ];
 
 it("should send out a new hull user to hubspot via batch", () => {
@@ -69,7 +67,7 @@ it("should send out a new hull user to hubspot via batch", () => {
           "segments": [
             {
               "id": "hullSegmentId",
-              "name": "",
+              "name": "testSegment",
               "updated_at": "2018-12-06T15:30:50Z",
               "type": "users_segment",
               "created_at": "2018-11-29T10:46:39Z"
@@ -83,7 +81,7 @@ it("should send out a new hull user to hubspot via batch", () => {
           "segments": [
             {
               "id": "hullSegmentId",
-              "name": "",
+              "name": "testSegment",
               "updated_at": "2018-12-06T15:30:50Z",
               "type": "users_segment",
               "created_at": "2018-11-29T10:46:39Z"
@@ -136,10 +134,7 @@ it("should send out a new hull user to hubspot via batch", () => {
         ["increment", "ship.service_api.call", 1],
         ["value", "connector.service_api.response_time", expect.any(Number)]
       ],
-      platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
-      ]
+      platformApiCalls: []
     };
   });
 });

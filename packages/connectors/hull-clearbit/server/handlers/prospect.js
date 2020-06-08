@@ -14,8 +14,22 @@ const prospect = async (
   ctx: HullContext,
   message: HullIncomingHandlerMessage
 ): HullExternalResponse => {
-  // $FlowFixMe
-  const { domains, role, seniority, titles = [], limit } = message.body;
+  const {
+    // $FlowFixMe
+    domains,
+    // $FlowFixMe
+    roles,
+    // $FlowFixMe
+    seniorities,
+    // $FlowFixMe
+    titles = [],
+    // $FlowFixMe
+    states,
+    // $FlowFixMe
+    cities,
+    // $FlowFixMe
+    limit
+  } = message.body;
   if (!domains || !domains.length) {
     return { status: 400, data: { error: "Empty list of domains" } };
   }
@@ -28,8 +42,10 @@ const prospect = async (
       ctx,
       settings: {
         ...ctx.connector.private_settings,
-        prospect_filter_role: role,
-        prospect_filter_seniority: seniority,
+        prospect_filter_roles: roles,
+        prospect_filter_seniorities: seniorities,
+        prospect_filter_states: states,
+        prospect_filter_cities: cities,
         prospect_filter_titles: titles,
         prospect_limit_count: limit
       },

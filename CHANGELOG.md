@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.1.27-monorepo
+- [hull-typeform] paginate while fetching list of forms when selecting a form
+
+## v0.1.26-monorepo
+- [hull-mailchimp] handle archived users
+
+## v0.1.25-monorepo
+- [hull-hubspot] jsonata attribute mapper
+
+## v0.1.24-monorepo
+- [hull-sql] add sql connector
+
 ## v0.1.23-monorepo
 - [hull-processor] support for uuid
 - [hull-processor] support for libgooglephone

@@ -1,6 +1,6 @@
 {
-  "name": "hull-activecampaign",
-  "version": "0.1.23-monorepo",
+  "name": "hull-sql",
+  "version": "0.1.27-monorepo",
   "description": "Sync persons and organizations with Hull",
   "scripts": {
     "test": "npm run test:unit && npm run test:integration",
@@ -10,14 +10,14 @@
   },
   "dependencies": {
     "body-parser": "^1.19.0",
-    "pg-query-stream": "^3.0.4",
-    "hull-mariadb": "^1.0.0",
-    "tedious": "^8.2.0",
     "bootstrap-sweetalert": "^1.0.1",
     "codemirror": "^5.52.2",
+    "hull-mariadb": "^1.0.0",
     "json-loader": "^0.5.7",
+    "pg-query-stream": "^3.0.4",
     "s3-upload-stream": "^1.0.7",
-    "snowflake-sdk": "^1.5.0"
+    "snowflake-sdk": "^1.5.0",
+    "tedious": "^8.2.0"
   },
   "devDependencies": {}
 }

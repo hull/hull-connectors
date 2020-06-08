@@ -2,6 +2,24 @@
 import connectorConfig from "../../../server/config";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
+const companyPropertyGroups = require("../fixtures/get-properties-companies-groups");
+
+const contactPropertyGroups = [
+  ...require("../fixtures/get-contacts-groups"),
+  {
+    "name": "hull",
+    "displayName": "Hull Properties",
+    "properties": [
+      {
+        "name": "hull_segments",
+        "label": "Hull Segments",
+        "description": "All the Segments the entity belongs to in Hull",
+        "groupName": "hull",
+        "options": []
+      }
+    ]
+  }
+];
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 process.env.CLIENT_ID = "1234";
@@ -11,26 +29,51 @@ const connector = {
   private_settings: {
     token: "hubToken",
     synchronized_account_segments: ["hullSegmentId"],
-    outgoing_account_attributes: [
-      { hull: "name", service: "name", overwrite: true }
-    ],
     mark_deleted_contacts: false,
-    mark_deleted_companies: false
+    mark_deleted_companies: false,
+    outgoing_account_attributes: [
+      { "service": "about_us", "hull": "hubspot/about_us" },
+      { "service": "address", "hull": "hubspot/address" },
+      { "service": "address2", "hull": "hubspot/address2" },
+      { "service": "annualrevenue", "hull": "hubspot/annualrevenue" },
+      { "service": "city", "hull": "hubspot/city" },
+      { "service": "closedate", "hull": "hubspot/close_date" },
+      { "service": "country", "hull": "hubspot/country" },
+      { "service": "description", "hull": "hubspot/description" },
+      { "service": "domain", "hull": "hubspot/domain" },
+      { "service": "facebook_company_page", "hull": "hubspot/facebook_company_page" },
+      { "service": "facebookfans", "hull": "hubspot/facebookfans" },
+      { "service": "founded_year", "hull": "hubspot/founded_year" },
+      { "service": "googleplus_page", "hull": "hubspot/googleplus_page" },
+      { "service": "hs_analytics_source", "hull": "hubspot/hs_analytics_source" },
+      { "service": "hs_lead_status", "hull": "hubspot/hs_lead_status" },
+      { "service": "hubspot_owner_id", "hull": "hubspot/hubspot_owner_id" },
+      { "service": "industry", "hull": "hubspot/industry" },
+      { "service": "is_public", "hull": "hubspot/is_public" },
+      { "service": "lifecyclestage", "hull": "hubspot/lifecyclestage" },
+      { "service": "linkedin_company_page", "hull": "hubspot/linkedin_company_page" },
+      { "service": "linkedinbio", "hull": "hubspot/linkedinbio" },
+      { "service": "name", "hull": "hubspot/name" },
+      { "service": "numberofemployees", "hull": "hubspot/numberofemployees" },
+      { "service": "phone", "hull": "hubspot/phone" },
+      { "service": "state", "hull": "hubspot/state" },
+      { "service": "timezone", "hull": "hubspot/timezone" },
+      { "service": "total_money_raised", "hull": "hubspot/total_money_raised" },
+      { "service": "twitterbio", "hull": "hubspot/twitterbio" },
+      { "service": "twitterfollowers", "hull": "hubspot/twitterfollowers" },
+      { "service": "twitterhandle", "hull": "hubspot/twitterhandle" },
+      { "service": "type", "hull": "hubspot/type" },
+      { "service": "web_technologies", "hull": "hubspot/web_technologies" },
+      { "service": "website", "hull": "hubspot/website" },
+      { "service": "zip", "hull": "hubspot/zip" },
+      { "service": "hull_segments", "hull": "account_segments.name[]", "overwrite": true }
+    ]
   }
 };
 const accountsSegments = [
-  {
-    name: "testSegment",
-    id: "hullSegmentId"
-  },
-  {
-    name: "Unsynced Segment 1",
-    id: "unsyncedSegment_1"
-  },
-  {
-    name: "Unsynced Segment 2",
-    id: "unsyncedSegment_2"
-  }
+  { name: "testSegment", id: "hullSegmentId" },
+  { name: "Unsynced Segment 1", id: "unsyncedSegment_1" },
+  { name: "Unsynced Segment 2", id: "unsyncedSegment_2" }
 ];
 
 /*
@@ -48,60 +91,33 @@ it("should send out a new hull account to hubspot update validation error", () =
       channel: "account:update",
       externalApiMock: () => {
         const scope = nock("https://api.hubapi.com");
-        scope.get("/contacts/v2/groups?includeProperties=true").reply(200, []);
+        scope.get("/contacts/v2/groups?includeProperties=true").reply(200, contactPropertyGroups);
         scope
           .get("/properties/v1/companies/groups?includeProperties=true")
-          .reply(200, []);
+          .reply(200, companyPropertyGroups);
         scope
           .post("/companies/v1/batch-async/update?auditId=Hull", [
             {
               properties: [
-                {
-                  name: "name",
-                  value: "New Name"
-                },
-                {
-                  name: "hull_segments",
-                  value: "testSegment"
-                },
-                {
-                  name: "domain",
-                  value: "hull.io"
-                }
+                { name: "name", value: "New Name" },
+                { name: "hull_segments", value: "testSegment" },
+                { name: "domain", value: "hull.io" }
               ],
               objectId: "hubspot-company-1"
             },
             {
               properties: [
-                {
-                  name: "name",
-                  value: "New Name"
-                },
-                {
-                  name: "hull_segments",
-                  value: "testSegment;Unsynced Segment 1"
-                },
-                {
-                  name: "domain",
-                  value: "non-existing.com"
-                }
+                { name: "name", value: "New Name" },
+                { name: "hull_segments", value: "testSegment;Unsynced Segment 1" },
+                { name: "domain", value: "non-existing.com" }
               ],
               objectId: "hubspot-company-2"
             },
             {
               properties: [
-                {
-                  name: "name",
-                  value: "New Name"
-                },
-                {
-                  name: "hull_segments",
-                  value: "testSegment;Unsynced Segment 1;Unsynced Segment 2"
-                },
-                {
-                  name: "domain",
-                  value: "apple.com"
-                }
+                { name: "name", value: "New Name" },
+                { name: "hull_segments", value: "testSegment;Unsynced Segment 1;Unsynced Segment 2" },
+                { name: "domain", value: "apple.com" }
               ],
               objectId: "hubspot-company-3"
             }
@@ -145,7 +161,6 @@ it("should send out a new hull account to hubspot update validation error", () =
             }
           );
 
-        scope.post("/contacts/v2/groups", { name: "hull", displayName: "Hull Properties", displayOrder: 1}).reply(202);
         scope.post("/properties/v1/companies/groups", { name: "hull", displayName: "Hull Properties", displayOrder: 1}).reply(202);
         scope.post("/properties/v1/companies/properties",
           {
@@ -178,61 +193,33 @@ it("should send out a new hull account to hubspot update validation error", () =
                 "displayOrder": 2
               }
             ],
-            "description": "All the Segments the Account belongs to in Hull",
+            "description": "All the Segments the entity belongs to in Hull",
             "label": "Hull Segments",
             "groupName": "hull",
             "fieldType": "checkbox",
             "formField": false,
             "name": "hull_segments",
             "type": "enumeration",
+            "calculated": false,
             "displayOrder": 0
           }
         ).reply(202);
-
-        scope.post("/properties/v1/companies/properties",
-          {
-            "type": "string",
-            "fieldType": "text",
-            "name": "name",
-            "label": "name",
-            "calculated": false,
-            "groupName": "hull",
-            "formField": false
-          }).reply(202);
 
         scope
           .post("/companies/v1/batch-async/update?auditId=Hull", [
             {
               properties: [
-                {
-                  name: "name",
-                  value: "New Name"
-                },
-                {
-                  name: "hull_segments",
-                  value: "testSegment"
-                },
-                {
-                  name: "domain",
-                  value: "hull.io"
-                }
+                { name: "name", value: "New Name" },
+                { name: "hull_segments", value: "testSegment" },
+                { name: "domain", value: "hull.io" }
               ],
               objectId: "hubspot-company-1"
             },
             {
               properties: [
-                {
-                  name: "name",
-                  value: "New Name"
-                },
-                {
-                  name: "hull_segments",
-                  value: "testSegment;Unsynced Segment 1;Unsynced Segment 2"
-                },
-                {
-                  name: "domain",
-                  value: "apple.com"
-                }
+                { name: "name", value: "New Name" },
+                { name: "hull_segments", value: "testSegment;Unsynced Segment 1;Unsynced Segment 2" },
+                { name: "domain", value: "apple.com" }
               ],
               objectId: "hubspot-company-3"
             }
@@ -248,49 +235,36 @@ it("should send out a new hull account to hubspot update validation error", () =
           changes: {
             is_new: false,
             user: {},
-            account: {
-              name: [
-                "old",
-                "New Name"
-              ]
+            account: { "hubspot/name": ["old", "New Name"]
             },
             segments: {},
             account_segments: {}
           },
           account: {
             domain,
-            name: "New Name",
+            "hubspot/name": "New Name",
             "hubspot/id": "hubspot-company-1"
           },
-          account_segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
+          account_segments: [{ id: "hullSegmentId", name: "testSegment" }]
         },
         {
           changes: {
             is_new: false,
             user: {},
             account: {
-              name: [
-                "old",
-                "New Name"
-              ]
+              "hubspot/name": ["old", "New Name"]
             },
             segments: {},
             account_segments: {}
           },
           account: {
             domain: "non-existing.com",
-            name: "New Name",
+            "hubspot/name": "New Name",
             "hubspot/id": "hubspot-company-2"
           },
           account_segments: [
-            {
-              name: "testSegment",
-              id: "hullSegmentId"
-            },
-            {
-              name: "Unsynced Segment 1",
-              id: "unsyncedSegment_1"
-            }
+            { name: "testSegment", id: "hullSegmentId" },
+            { name: "Unsynced Segment 1", id: "unsyncedSegment_1" }
           ]
         },
         {
@@ -298,32 +272,20 @@ it("should send out a new hull account to hubspot update validation error", () =
             is_new: false,
             user: {},
             account: {
-              name: [
-                "old",
-                "New Name"
-              ]
+              "hubspot/name": ["old", "New Name"]
             },
             segments: {},
             account_segments: {}
           },
           account: {
             domain: "apple.com",
-            name: "New Name",
+            "hubspot/name": "New Name",
             "hubspot/id": "hubspot-company-3"
           },
           account_segments: [
-            {
-              name: "testSegment",
-              id: "hullSegmentId"
-            },
-            {
-              name: "Unsynced Segment 1",
-              id: "unsyncedSegment_1"
-            },
-            {
-              name: "Unsynced Segment 2",
-              id: "unsyncedSegment_2"
-            }
+            { name: "testSegment", id: "hullSegmentId" },
+            { name: "Unsynced Segment 1", id: "unsyncedSegment_1" },
+            { name: "Unsynced Segment 2", id: "unsyncedSegment_2" }
           ]
         }
       ],
@@ -336,37 +298,17 @@ it("should send out a new hull account to hubspot update validation error", () =
         }
       },
       logs: [
-        [
-          "debug",
-          "connector.service_api.call",
-          expect.whatever(),
-          expect.whatever()
-        ],
-        [
-          "debug",
-          "connector.service_api.call",
-          expect.whatever(),
-          expect.whatever()
-        ],
-        [
-          "debug",
-          "outgoing.job.start",
-          expect.whatever(),
-          { toInsert: 0, toSkip: 0, toUpdate: 3 }
-        ],
-        [
-          "debug",
-          "connector.service_api.call",
-          expect.whatever(),
+        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
+        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
+        ["debug", "outgoing.job.start", expect.whatever(), { toInsert: 0, toSkip: 0, toUpdate: 3 }],
+        ["debug", "connector.service_api.call", expect.whatever(),
           expect.objectContaining({
             method: "POST",
             status: 400,
             url: "/companies/v1/batch-async/update"
-          })
-        ],
-        [
-          "error",
-          "outgoing.account.error",
+          }
+        )],
+        ["error", "outgoing.account.error",
           expect.objectContaining({
             account_domain: "non-existing.com",
             subject_type: "account"
@@ -375,105 +317,57 @@ it("should send out a new hull account to hubspot update validation error", () =
             error: 'Property "non-existing-property" does not exist',
             hubspotWriteCompany: {
               properties: [
-                {
-                  name: "name",
-                  value: "New Name"
-                },
-                {
-                  name: "hull_segments",
-                  value: "testSegment;Unsynced Segment 1",
-                },
-                {
-                  name: "domain",
-                  value: "non-existing.com"
-                }
+                { name: "name", value: "New Name" },
+                { name: "hull_segments", value: "testSegment;Unsynced Segment 1", },
+                { name: "domain", value: "non-existing.com" }
               ],
               objectId: "hubspot-company-2"
             }
           }
         ],
         expect.arrayContaining([
-          "connector.service_api.call",
-          expect.objectContaining({ "method": "POST", "url": "/contacts/v2/groups", "status": 202, })
-        ]),
-        expect.arrayContaining([
           "ContactProperty.ensureCustomProperties"
         ]),
         expect.arrayContaining([
           "connector.service_api.call",
-          expect.objectContaining({ "method": "POST", "url": "/properties/v1/companies/groups", "status": 202, })
+          expect.objectContaining({ "method": "POST", "url": "/properties/v1/companies/groups", "status": 202 })
         ]),
         expect.arrayContaining([
           "connector.service_api.call",
-          expect.objectContaining({ "method": "POST", "url": "/properties/v1/companies/properties", "status": 202, })
-        ]),
-        expect.arrayContaining([
-          "connector.service_api.call",
-          expect.objectContaining({ "method": "POST", "url": "/properties/v1/companies/properties", "status": 202, })
+          expect.objectContaining({ "method": "POST", "url": "/properties/v1/companies/properties", "status": 202 })
         ]),
         expect.arrayContaining([
           "CompanyProperty.ensureCustomProperties"
         ]),
-        [
-          "debug",
-          "connector.service_api.call",
-          expect.whatever(),
+        ["debug", "connector.service_api.call", expect.whatever(),
           expect.objectContaining({
             method: "POST",
             status: 202,
             url: "/companies/v1/batch-async/update"
           })
         ],
-        [
-          "info",
-          "outgoing.account.success",
-          expect.objectContaining({
-            subject_type: "account",
-            account_domain: "hull.io"
-          }),
+        ["info", "outgoing.account.success",
+          expect.objectContaining({ subject_type: "account", account_domain: "hull.io" }),
           {
             hubspotWriteCompany: {
               properties: [
-                {
-                  name: "name",
-                  value: "New Name"
-                },
-                {
-                  name: "hull_segments",
-                  value: "testSegment"
-                },
-                {
-                  name: "domain",
-                  value: "hull.io"
-                }
+                { name: "name", value: "New Name" },
+                { name: "hull_segments", value: "testSegment" },
+                { name: "domain", value: "hull.io" }
               ],
               objectId: "hubspot-company-1"
             },
             operation: "update"
           }
         ],
-        [
-          "info",
-          "outgoing.account.success",
-          expect.objectContaining({
-            subject_type: "account",
-            account_domain: "apple.com"
-          }),
+        ["info", "outgoing.account.success",
+          expect.objectContaining({ subject_type: "account", account_domain: "apple.com" }),
           {
             hubspotWriteCompany: {
               properties: [
-                {
-                  name: "name",
-                  value: "New Name"
-                },
-                {
-                  name: "hull_segments",
-                  value: "testSegment;Unsynced Segment 1;Unsynced Segment 2"
-                },
-                {
-                  name: "domain",
-                  value: "apple.com"
-                }
+                { name: "name", value: "New Name" },
+                { name: "hull_segments", value: "testSegment;Unsynced Segment 1;Unsynced Segment 2" },
+                { name: "domain", value: "apple.com" }
               ],
               objectId: "hubspot-company-3"
             },
@@ -488,11 +382,7 @@ it("should send out a new hull account to hubspot update validation error", () =
           ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()],
-          ["increment","ship.service_api.call",1],
-          ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","connector.service_api.error",1],
-          ["increment","ship.service_api.call",1],
-          ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],
@@ -502,10 +392,7 @@ it("should send out a new hull account to hubspot update validation error", () =
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()]
       ],
-      platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
-      ]
+      platformApiCalls: []
     };
   });
 });
