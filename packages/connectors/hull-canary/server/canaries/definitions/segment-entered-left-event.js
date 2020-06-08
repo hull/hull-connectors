@@ -17,6 +17,7 @@ function trackToEnterSegment(context) {
 }
 
 function trackToLeaveSegment(context) {
+  console.log("tracking left segment");
   const { client } = context;
   const externalIdUser = { external_id: `${timestamp}ExternalId` };
   client.asUser(externalIdUser).track("Leave Canary Event", { "canary/event_property": "someeventproperty" });
@@ -29,7 +30,7 @@ module.exports = {
   stages: [
     {
       successCallback: trackToLeaveSegment,
-      userEvents: 1,
+      userEvents: 2,
       accountUpdates: 0,
       userAccountLinks: 0,
       userUpdateDefinitions: [
@@ -40,7 +41,7 @@ module.exports = {
       ]
     },
     {
-      userEvents: 1,
+      userEvents: 2,
       accountUpdates: 0,
       userAccountLinks: 0,
       userUpdateDefinitions: [

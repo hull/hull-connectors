@@ -58,7 +58,9 @@ async function verifyInEs(context, messages, reportType, objectType) {
           objectFromKraken,
           (objValue, srcValue, key, object, source) => {
             // indexed_at isn't going to be equal because of timing, so return true to skip it in equality
-            if (key === "indexed_at") {
+            // segment ids is also somewhat undeterministic, it's use is an internal caching mechanism,
+            // so isn't something we should check anyway..
+            if (key === "indexed_at" || key === "segment_ids") {
               return true;
             }
             return undefined;

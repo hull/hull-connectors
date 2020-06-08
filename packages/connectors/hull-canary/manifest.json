@@ -6,7 +6,27 @@
   "picture": "picture.png",
   "readme": "readme.md",
   "version": "0.0.1",
-  "private_settings": [],
+  "private_settings": [
+    {
+      "name": "events_to_send",
+      "title": "Events To process",
+      "description": "events to process",
+      "type": "array",
+      "format": "event",
+      "options": {
+        "standard": {
+          "ALL": "All Users",
+          "Segments changed": "Segments changed"
+        }
+      },
+      "default": [
+        "Segments changed",
+        "pageview",
+        "Enter Canary Event",
+        "Leave Canary Event"
+      ]
+    }
+  ],
   "schedules": [
     {
       "url": "/canaries-start-scheduled",
@@ -56,7 +76,8 @@
       "channels": [
         {
           "channel": "user:update",
-          "handler": "userUpdate"
+          "handler": "userUpdate",
+          "events-whitelist": ["private_settings.events_to_send"]
         },
         {
           "channel": "account:update",

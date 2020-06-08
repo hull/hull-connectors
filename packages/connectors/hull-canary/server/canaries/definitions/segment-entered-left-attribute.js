@@ -27,7 +27,7 @@ module.exports = {
   stages: [
     {
       successCallback: setAttributeToLeaveSegment,
-      userUpdates: 1,
+      userEvents: 1,
       accountUpdates: 0,
       userAccountLinks: 0,
       userUpdateDefinitions: [
@@ -38,7 +38,7 @@ module.exports = {
       ]
     },
     {
-      userUpdates: 1,
+      userEvents: 1,
       accountUpdates: 0,
       userAccountLinks: 0,
       userUpdateDefinitions: [
