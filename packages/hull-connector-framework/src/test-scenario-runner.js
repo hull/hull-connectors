@@ -6,6 +6,7 @@ const Hull = require("hull");
 const handlers = require("hull/src/handlers");
 const superagent = require("superagent");
 const Minihull = require("minihull");
+const winston = require("winston");
 const nock = require("nock");
 const express = require("express");
 const jwt = require("jwt-simple");
@@ -143,8 +144,10 @@ class TestScenarioRunner extends EventEmitter {
       }
     });
 
-    this.connectorConfig = connectorConfig();
-    // this.minihullPort = 9092;
+    this.connectorConfig = {
+      hostSecret: "please-dont-tell",
+      ...connectorConfig()
+    };
     const { manifest } = this.connectorConfig;
 
     this.connectorManifest = manifest;
@@ -422,13 +425,20 @@ class TestScenarioRunner extends EventEmitter {
   setupTestConnector(minihullPort: number) {
     return new Hull.Connector({
       ...this.connectorConfig,
-      port: 0,
-      hostSecret: "1234",
+      port: _.random(5000, 9000, false),
+      hostSecret: "please-dont-tell",
       skipSignatureValidation: true,
       clientConfig: {
         ...this.connectorConfig.clientConfig,
         protocol: "http",
         firehoseUrl: `http://localhost:${minihullPort}/api/v1/firehose`,
+        loggerTransport: [
+          new winston.transports.File({
+            level: "debug",
+            filename: "logs/test.log",
+            tailable: true
+          })
+        ],
         captureLogs: true,
         logs: this.capturedLogs,
         flushAt: 1,
