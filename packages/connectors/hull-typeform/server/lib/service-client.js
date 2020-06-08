@@ -82,8 +82,21 @@ class ServiceClient {
       .set("Authorization", `Bearer ${accessToken}`);
   }
 
-  getForms(): Promise<TypeformGetFormsResponse> {
-    return this.agent.get("/forms");
+  async getForms(): Promise<Array<TypeformFormMinimal>> {
+    let forms = [];
+    let page = 1;
+    let pageData = await this.agent.get("/forms").query({
+      page
+    });
+    while (pageData.body.items && pageData.body.items.length) {
+      forms = forms.concat(pageData.body.items);
+      page += 1;
+      // eslint-disable-next-line no-await-in-loop
+      pageData = await this.agent.get("/forms").query({
+        page
+      });
+    }
+    return forms;
   }
 
   async getForm(formId: string): Promise<TypeformGetFormResponse> {

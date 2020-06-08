@@ -304,11 +304,16 @@ class MappingUtil {
   ): Array<> {
     const formatter = (property, type) => value => {
       value = attributeFormatter(value);
-      const inferDatetime = _.get(this.connector, "private_settings.infer_datetime", true);
+      const inferDatetime = _.get(
+        this.connector,
+        "private_settings.infer_datetime",
+        true
+      );
 
       if (
-        (/_(at|date)$/.test(property) && inferDatetime)
-        || type === "datetime") {
+        (/_(at|date)$/.test(property) && inferDatetime) ||
+        type === "datetime"
+      ) {
         const dateValue = new Date(value).getTime();
         if (dateValue) {
           value = dateValue;
