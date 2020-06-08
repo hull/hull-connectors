@@ -16,11 +16,13 @@
       "options": {
         "standard": {
           "ALL": "All Users",
-          "Segments changed": "Segments changed"
+          "Segments changed": "Segments changed",
+          "User merged": "User merged"
         }
       },
       "default": [
         "Segments changed",
+        "User merged",
         "pageview",
         "Enter Canary Event",
         "Leave Canary Event"
@@ -90,7 +92,8 @@
     {
       "title": "Canary Actions",
       "properties": [
-        "json.start_canary"
+        "json.start_canary",
+        "private_settings.events_to_send"
       ]
     }
   ]
