@@ -7,8 +7,19 @@ _The `hull.track` call needs to be always enclosed in an `if` statement and we p
 Here is how to use the function signature:
 
 ```js
-  hull.track( "<event_name>" , { PROPERTY_NAME: <value>, PROPERTY2_NAME: <value> })
+  hull
+    .track( "<event_name>" , {
+        PROPERTY_NAME: <value>,
+        PROPERTY2_NAME: <value>
+      }, {
+        ip: "0", //Or the source IP - if present, Event will be geolocated
+        created_at: "created_at_timestamp", //Defaults to `now()`
+        event_id: "unique_event_id", //To prevent duplication
+        referer: "https://referrer.com", //null for Server calls
+        source: "calendly", //a namespace such as "zendesk", "mailchimp", "stripe"...
+        type: "meeting"
+      }
+    );
 ```
 
 The first parameter is a string defining the name of the event while the second parameter is an object that defines the properties of the event.
-

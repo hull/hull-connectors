@@ -2,10 +2,9 @@
 <% entity = "User" %>
 <% users = true %>
 <% accounts = true %>
-
 # Hull Processor
 
-The <%connector_name%> enables you to run your own logic on attributes and events associated to users and leads by writing Javascript.
+The <%=connector_name%> enables you to run your own logic on attributes and events associated to users and leads by writing Javascript.
 
 <%- include("../../../assets/partials/install.md"); %>
 
@@ -13,36 +12,36 @@ After installation, click the `Code Editor` button. You will be presented with t
 
 <%- include("../../../assets/partials/vm/getting-started.md"); %>
 
-<%- include("../../../assets/partials/vm/features.md"); %>
+<%- include("../../../assets/partials/vm/processor/features.md"); %>
 
 <%- include("../../../assets/partials/vm/execution-model.md"); %>
 - The Processor receives events exactly once, or in other words the exposed events are the ones between now and the last run of the Processor.
 
-<%- include("../../../assets/partials/vm/input/user.md"); %>
+<%- include("../../../assets/partials/vm/processor/input/user.md"); %>
 
-<%- include("../../../assets/partials/vm/input/changes.md"); %>
+<%- include("../../../assets/partials/vm/processor/input/changes.md"); %>
 
-<%- include("../../../assets/partials/vm/input/account.md"); %>
+<%- include("../../../assets/partials/vm/processor/input/account.md"); %>
 
-<%- include("../../../assets/partials/vm/input/events.md"); %>
+<%- include("../../../assets/partials/vm/processor/input/events.md"); %>
 
-<%- include("../../../assets/partials/vm/input/segments/user.md"); %>
+<%- include("../../../assets/partials/vm/processor/input/segments/user.md"); %>
 
-<%- include("../../../assets/partials/vm/input/segments/account.md"); %>
+<%- include("../../../assets/partials/vm/processor/input/segments/account.md"); %>
 
-<%- include("../../../assets/partials/vm/code-basics.md"); %>
+<%- include("../../../assets/partials/vm/processor/code-basics.md"); %>
 
-<%- include("../../../assets/partials/vm/operations/traits.md"); %>
+<%- include("../../../assets/partials/vm/processor/operations/traits.md"); %>
 
-<%- include("../../../assets/partials/vm/operations/atomic.md"); %>
+<%- include("../../../assets/partials/vm/processor/operations/atomic.md"); %>
 
-<%- include("../../../assets/partials/vm/operations/track.md"); %>
+<%- include("../../../assets/partials/vm/processor/operations/track.md"); %>
 
-<%- include("../../../assets/partials/vm/operations/alias.md"); %>
+<%- include("../../../assets/partials/vm/processor/operations/alias.md"); %>
 
-<%- include("../../../assets/partials/vm/operations/link.md"); %>
+<%- include("../../../assets/partials/vm/processor/operations/link.md"); %>
 
-<%- include("../../../assets/partials/vm/operations/linked-account.md"); %>
+<%- include("../../../assets/partials/vm/processor/operations/linked-account.md"); %>
 
 ### Understanding the logic behind Accounts, Preventing Infinite Loops
 
@@ -51,25 +50,24 @@ Let's review a particularly critical part of Accounts:
 Here's a scenario that, although it seems intuitive, will **generate an infinite loop** (which is bad. You don't want that). Let's say you store the MRR of the account at the User level and want to use Hull to store it at account level. Intuitively, you'd do this:
 
 ```js
-  hull
-    .account(CLAIMS_OBJECT) //target the user's current account
-    .traits({
-      //set the value of the 'is_customer' attribute to the user's value
-      mrr: user.traits.mrr
-    })
-
+hull
+  .account(CLAIMS_OBJECT) //target the user's current account
+  .traits({
+    //set the value of the 'is_customer' attribute to the user's value
+    mrr: user.traits.mrr
+  })
 ```
 
 Unfortunately, it's enough for 2 users in this account to have different data to have the account go into an infinite loop:
 
 ```
-User1 Update
+User 1 Update
   → Set MRR=100
     → Account Update
-      → User2 Update
+      → User 2 Update
         → Set MRR=200
           → Account Update
-            → User Update
+            → User 1 Update
               → Set MRR=100 → Account Update
 etc...
 ```
@@ -98,6 +96,8 @@ events.map(event => {
 <%- include("../../../assets/partials/vm/utility.md"); %>
 
 <%- include("../../../assets/partials/vm/libs.md"); %>
+
+<%- include("../../../assets/partials/vm/variables.md"); %>
 
 <%- include("../../../assets/partials/vm/golden-rules.md"); %>
 
