@@ -189,8 +189,8 @@ class SyncAgent {
   }
 
   async getForms() {
-    const response = await this.serviceClient.getForms();
-    return response.body.items.map(f => ({ label: f.title, value: f.id }));
+    const forms = await this.serviceClient.getForms();
+    return forms.map(f => ({ label: f.title, value: f.id }));
   }
 
   async getFormResponsesCount() {
