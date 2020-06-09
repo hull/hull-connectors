@@ -4,7 +4,7 @@
   "source": "customerio",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.25-monorepo",
+  "version": "0.1.27-monorepo",
   "tags": [
     "outgoing",
     "batch",
@@ -157,7 +157,7 @@
       "handler": "credentialsHandler",
       "url": "/credentials",
       "title": "Customer.io Webhook url",
-      "description": "In **Customer.io**, go to **Integrations** and **Email Activity Webhooks** and paste at the following url in `WEBHOOK ENDPOINT`",
+      "description": "In **Customer.io**, go to **Integrations** then **Reporting Webhooks**, create or edit one and paste at the following url in `WEBHOOK ENDPOINT`. If you aren't seeing the **Reporting Webhooks** category, please have a look at the documentation tab",
       "format": "credentials",
       "type": "string"
     }
