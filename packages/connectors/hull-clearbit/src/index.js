@@ -106,11 +106,11 @@ export default function boot() {
 
     const updateState = () => {
       const data = {};
-      const titles = $titles
+      data.titles = $titles
         .val()
         .map(d => d.trim())
         .filter(d => d.length > 0);
-      const domains = $domains
+      data.domains = $domains
         .val()
         .map(d => d.trim())
         .filter(d => d.length > 0);
@@ -120,12 +120,12 @@ export default function boot() {
           data[k] = val;
         }
       });
-      if (titles.length && domains.length) {
+      if (data.titles.length && data.domains.length) {
         enableButton(STRINGS.BTN_DEFAULT, $btn_prospect);
       } else {
         disableButton(STRINGS.BTN_DEFAULT, $btn_prospect);
       }
-      return { domains, titles };
+      return data;
     };
 
     $roles

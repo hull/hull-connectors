@@ -8,7 +8,7 @@ type ModelParams = {
   mongoUrl: string,
   collectionName: string
 };
-export default function({ mongoUrl, collectionName }: ModelParams) {
+export default function Entry({ mongoUrl, collectionName }: ModelParams) {
   mongoose.Promise = global.Promise;
   mongoose.connect(mongoUrl, { useNewUrlParser: true, useCreateIndex: true });
   schema =

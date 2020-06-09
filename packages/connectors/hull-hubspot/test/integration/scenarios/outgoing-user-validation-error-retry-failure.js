@@ -472,10 +472,7 @@ it("should send out a new hull user to hubspot - validation error and retry", ()
         ["value","connector.service_api.response_time",expect.whatever()],
         ["increment","connector.service_api.error",1]
       ],
-      platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
-      ]
+      platformApiCalls: []
     };
   });
 });

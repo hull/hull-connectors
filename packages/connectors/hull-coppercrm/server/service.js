@@ -15,6 +15,8 @@ const {
 
 const {
   CopperCRMIncomingLead,
+  CopperCRMOutgoingLead,
+  CopperCRMOutgoingExistingLead,
   CopperCRMIncomingPerson,
   CopperCRMIncomingCompany,
   CopperCRMIncomingOpportunity,
@@ -33,6 +35,18 @@ const service = ({ clientID, clientSecret } : {
   prefix: "https://api.prosperworks.com/developer_api",
   defaultReturnObj: "body",
   endpoints: {
+    updateLead: {
+      url: "/v1/leads/${leadId}",
+      operation: "put",
+      input: CopperCRMOutgoingExistingLead,
+      output: CopperCRMIncomingLead
+    },
+    upsertLead: {
+      url: "/v1/leads/upsert",
+      operation: "put",
+      input: CopperCRMOutgoingLead,
+      output: CopperCRMIncomingLead
+    },
     getUsers: {
       url: "/v1/users/search",
       operation: "post",
@@ -250,6 +264,11 @@ const service = ({ clientID, clientSecret } : {
         message: "The CopperCRM system has thrown an error.  Hull has tried to recover, but was unable.  Please contact your Hull Service Representative so that they can contact CopperCRM and inform them of this bug",
         retryAttempts: 3
       },
+      {
+        truthy: { status: 422 },
+        errorType: SkippableError,
+        message: "Copper has detected an issue with the data that you're trying to send, please inspect the attributes being sent to Copper for correct format, and that the entities you're trying to update are not ambiguous"
+      }
     ]
 
   }

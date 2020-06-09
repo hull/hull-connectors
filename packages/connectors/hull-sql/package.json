@@ -1,6 +1,6 @@
 {
-  "name": "hull-activecampaign",
-  "version": "0.1.24-monorepo",
+  "name": "hull-sql",
+  "version": "0.1.27-monorepo",
   "description": "Sync persons and organizations with Hull",
   "scripts": {
     "test": "npm run test:unit && npm run test:integration",

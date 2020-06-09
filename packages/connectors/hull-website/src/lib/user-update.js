@@ -12,7 +12,7 @@ type UserUpdateParams = {
   changes: any
 };
 
-export default function({
+export default function userUpdate({
   emitter,
   debug,
   payload,

@@ -1,0 +1,58 @@
+{
+    "data": {
+        "campaign_id": "12",
+        "campaign_name": "Started Vault Trials - 1 - Welcome, Installing and Deploying Vault",
+        "customer_id": "5abd08c4aede0354c3000363",
+        "email_address": "Sven <sven+dt7@hull.io>",
+        "email_id": "ZI6aBAABYnJ3muVry9xcBjL7Aj-e",
+        "message_id": "65",
+        "message_name": "How Vault Enterprise trials work",
+        "subject": "How Vault Enterprise trials work",
+        "template_id": "35",
+        "variables": {
+            "campaign": {
+                "id": 12,
+                "name": "Started Vault Trials - 1 - Welcome, Installing and Deploying Vault",
+                "type": "behavioral"
+            },
+            "customer": {
+                "created_at": 1522337988,
+                "email": "sven+dt7@hull.io",
+                "first_name": "Sven",
+                "hull_segments": [
+                    "Enriched Users",
+                    "Known Users",
+                    "Started Vault Trials"
+                ],
+                "id": "5abd08c4aede0354c3000363",
+                "intercom-unsubscribed_from_emails": false,
+                "last_name": "Maschek",
+                "trial_end_date": 1524929988,
+                "unsubscribed_vaulttrials": false,
+                "vault_trial-email": "sven+dt7@hull.io",
+                "vault_trial-end_date": "2018-04-05T00:00:00Z",
+                "vault_trial-end_date_unix": 1522886400000,
+                "vault_trial-ip": "3.5.6.9",
+                "vault_trial-product": "vault",
+                "vault_trial-start_date": "2018-03-29T00:00:00Z",
+                "vault_trial-start_date_unix": 1522281600000,
+                "vault_trial-user_id": 126
+            },
+            "delivery_id": "ZI6aBAABYnJ3muVry9xcBjL7Aj-e",
+            "email_id": "ZI6aBAABYnJ3muVry9xcBjL7Aj-e",
+            "layout": {
+                "id": 1,
+                "name": "Empty Layout"
+            },
+            "message": {
+                "id": 65,
+                "name": "How Vault Enterprise trials work",
+                "subject": "How Vault Enterprise trials work",
+                "type": "email_action"
+            }
+        }
+    },
+    "event_id": "01C9S8V5C5E16R6J6T903Q3GF7",
+    "event_type": "email_converted",
+    "timestamp": 1522340303
+}

@@ -18,6 +18,7 @@ const EVENTTYPE_MAPPINGS = {
   email_bounced: "Email Bounced",
   email_clicked: "Email Link Clicked",
   email_converted: "Email Converted",
+  email_deferred: "Email Deferred",
   email_delivered: "Email Delivered",
   email_drafted: "Email Drafted",
   email_dropped: "Email Dropped",
@@ -147,6 +148,14 @@ class MappingUtil {
     return serviceEvent;
   }
 
+  isNewWebhook(payload: Object): boolean {
+    return _.has(payload, "object_type") && _.has(payload, "metric");
+  }
+
+  isLegacyWebhook(payload: Object): boolean {
+    return _.has(payload, "event_type");
+  }
+
   /**
    * Maps the customer object to hull attributes.
    *
@@ -178,8 +187,16 @@ class MappingUtil {
   mapWebhookToUserIdent(payload: Object): HullUserClaims {
     const identObj = {};
     // Handle email
+    let emailPath;
     const regex = /[A-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[A-Z0-9.-]+/gim;
-    const rawEmail = _.get(payload, "data.email_address", null);
+    if (this.isLegacyWebhook(payload)) {
+      emailPath = "data.email_address";
+    } else if (payload.object_type === "customer") {
+      emailPath = "data.email_address";
+    } else {
+      emailPath = "data.recipient";
+    }
+    const rawEmail = _.get(payload, emailPath, null);
     const parsedEmails = _.isNil(rawEmail) ? [] : rawEmail.match(regex);
     if (parsedEmails && parsedEmails.length > 0) {
       _.set(identObj, "email", parsedEmails[0]);
@@ -209,20 +226,53 @@ class MappingUtil {
     if (_.get(payload, "data", null) === null) {
       return null;
     }
-    // Handle properties
-    const eventPropPaths = [
-      "email_address",
-      "email_id",
-      "customer_id",
-      "campaign_id",
-      "campaign_name",
-      "template_id",
-      "tags",
-      "subject"
-    ];
+    let eventPropPaths;
+    let eventNamePath;
+    if (this.isLegacyWebhook(payload)) {
+      // Handle properties
+      eventPropPaths = [
+        "email_address",
+        "email_id",
+        "customer_id",
+        "campaign_id",
+        "campaign_name",
+        "template_id",
+        "tags",
+        "subject"
+      ];
+      eventNamePath = _.get(payload, "event_type");
+    } else if (this.isNewWebhook(payload)) {
+      // Handle properties
+      eventPropPaths = [
+        "customer_id",
+        "campaign_id",
+        "content_id",
+        "delivery_id",
+        "subject"
+      ];
+      if (payload.object_type === "customer") {
+        eventPropPaths.push("email_address");
+      } else {
+        eventPropPaths.push("recipient");
+      }
+      eventNamePath = `${_.get(payload, "object_type")}_${_.get(
+        payload,
+        "metric"
+      )}`;
+    } else {
+      return null;
+    }
     const eventProps = _.pick(payload.data, eventPropPaths);
     _.set(eventProps, "email_subject", _.get(eventProps, "subject"));
     _.unset(eventProps, "subject");
+    if (this.isNewWebhook(payload)) {
+      if (_.has(eventProps, "recipient")) {
+        _.set(eventProps, "email_address", _.get(eventProps, "recipient"));
+        _.unset(eventProps, "recipient");
+      }
+      _.set(eventProps, "email_id", _.get(eventProps, "delivery_id"));
+      _.unset(eventProps, "delivery_id");
+    }
 
     // Handle context
     const context = {
@@ -230,16 +280,11 @@ class MappingUtil {
     };
 
     // Hanlde the name
-    const eventName = _.get(
-      EVENTTYPE_MAPPINGS,
-      _.get(payload, "event_type"),
-      "n/a"
-    );
+    const eventName = _.get(EVENTTYPE_MAPPINGS, eventNamePath, "n/a");
 
     if (eventName === "n/a") {
       return null;
     }
-
     const hullEvent: HullEvent = {
       event_id: _.get(payload, "event_id"),
       event: eventName,

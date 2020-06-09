@@ -9,7 +9,8 @@ const _ = require("lodash");
 const MESSAGES = require("./messages");
 const {
   ConfigurationError,
-  RateLimitError
+  RateLimitError,
+  SkippableError
 } = require("hull/src/errors");
 
 const HubspotStrategy = require("passport-hubspot-oauth2.0");
@@ -107,6 +108,15 @@ const service: RawRestApi = {
         property: "${properties}",
         count: 100
       }
+    },
+    getRecentCompaniesPage: {
+      url: "/companies/v2/companies/recent/modified",
+      operation: "get",
+      query: {
+        since: "${lastFetchAt}",
+        offset: "${offset}",
+        count: 100
+      }
     }
   },
   superagent: {
@@ -154,17 +164,16 @@ const service: RawRestApi = {
 
     templates: [
       {
-        truthy: { status: 401 },
-        condition: isNull("connector.private_settings.token"),
+        truthy: { status: 400 },
         errorType: ConfigurationError,
-        message: MESSAGES.STATUS_NO_ACCESS_TOKEN_FOUND,
-        recoveryroute: "refreshToken"
+        message: (error) => {
+          return { message: error.message };
+        }
       },
       {
         truthy: { status: 401 },
-        condition: notNull("connector.private_settings.token"),
         errorType: ConfigurationError,
-        message: MESSAGES.STATUS_UNAUTHORIZED_ACCESS_TOKEN,
+        message: "Unauthorized",
         recoveryroute: "refreshToken"
       },
       {

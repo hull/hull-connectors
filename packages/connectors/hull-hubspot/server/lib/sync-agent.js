@@ -18,7 +18,6 @@ import type {
 } from "../types";
 
 const _ = require("lodash");
-const moment = require("moment");
 
 const { pipeStreamToPromise } = require("hull/src/utils");
 const {
@@ -32,8 +31,6 @@ const HubspotPropertyUtil = require("./sync-agent/hubspot-property-util");
 const MappingUtil = require("./sync-agent/mapping-util");
 const ProgressUtil = require("./sync-agent/progress-util");
 const FilterUtil = require("./sync-agent/filter-util");
-
-const hullClientAccountPropertiesUtil = require("../hull-client-account-properties-util");
 
 class SyncAgent {
   hubspotClient: HubspotClient;
@@ -114,7 +111,6 @@ class SyncAgent {
 
     if (skipCache === true) {
       await this.cache.del("hubspotProperties");
-      await this.cache.del("hullProperties");
     }
     const hubspotContactProperties = await this.cache.wrap(
       "hubspotContactProperties",
@@ -129,29 +125,12 @@ class SyncAgent {
       }
     );
 
-    const hullUserProperties = await this.cache.wrap(
-      "hullUserProperties",
-      () => {
-        return this.hullClient.utils.properties.get();
-      }
-    );
-
-    const hullAccountProperties = await this.cache.wrap(
-      "hullAccountProperties",
-      () => {
-        return hullClientAccountPropertiesUtil({
-          client: this.hullClient
-        });
-      }
-    );
-
     this.contactPropertyUtil = new HubspotPropertyUtil({
       hubspotClient: this.hubspotClient,
       logger: this.logger,
       metric: this.metric,
       segments: this.usersSegments,
       hubspotProperties: hubspotContactProperties,
-      hullProperties: hullUserProperties,
       serviceType: "contact"
     });
 
@@ -161,7 +140,6 @@ class SyncAgent {
       metric: this.metric,
       segments: this.accountsSegments,
       hubspotProperties: hubspotCompanyProperties,
-      hullProperties: hullAccountProperties,
       serviceType: "company"
     });
 
@@ -172,9 +150,7 @@ class SyncAgent {
       usersSegments: this.usersSegments,
       accountsSegments: this.accountsSegments,
       hubspotContactProperties,
-      hubspotCompanyProperties,
-      hullUserProperties,
-      hullAccountProperties
+      hubspotCompanyProperties
     });
   }
 
@@ -755,74 +731,13 @@ class SyncAgent {
 
   async getContactPropertiesKeys() {
     const {
-      incoming_user_claims,
-      incoming_user_attributes
+      incoming_user_claims = [],
+      incoming_user_attributes = []
     } = this.connector.private_settings;
     return this.mappingUtil.getHubspotPropertyKeys({
       identityClaims: incoming_user_claims,
       attributeMapping: incoming_user_attributes
     });
-  }
-
-  /**
-   * Handles operation for automatic sync changes of hubspot profiles
-   * to hull users.
-   */
-  async fetchRecentContacts(): Promise<any> {
-    await this.initialize();
-    const lastFetchAt =
-      this.connector.private_settings.last_fetch_at ||
-      moment()
-        .subtract(1, "hour")
-        .format();
-    const stopFetchAt = moment().format();
-    const {
-      incoming_user_claims,
-      incoming_user_attributes
-    } = this.connector.private_settings;
-    const propertiesToFetch = this.mappingUtil.getHubspotPropertyKeys({
-      identityClaims: incoming_user_claims,
-      attributeMapping: incoming_user_attributes
-    });
-    let progress = 0;
-
-    this.hullClient.logger.info("incoming.job.start", {
-      jobName: "fetch",
-      type: "user",
-      lastFetchAt,
-      stopFetchAt,
-      propertiesToFetch
-    });
-    await this.helpers.settingsUpdate({
-      last_fetch_at: stopFetchAt
-    });
-
-    const streamOfIncomingContacts = this.hubspotClient.getRecentContactsStream(
-      lastFetchAt,
-      stopFetchAt,
-      propertiesToFetch
-    );
-
-    return pipeStreamToPromise(streamOfIncomingContacts, contacts => {
-      progress += contacts.length;
-      this.hullClient.logger.info("incoming.job.progress", {
-        jobName: "fetch",
-        type: "user",
-        progress
-      });
-      return this.saveContacts(contacts);
-    })
-      .then(() => {
-        this.hullClient.logger.info("incoming.job.success", {
-          jobName: "fetch"
-        });
-      })
-      .catch(error => {
-        this.hullClient.logger.info("incoming.job.error", {
-          jobName: "fetch",
-          error
-        });
-      });
   }
 
   /**
@@ -834,8 +749,8 @@ class SyncAgent {
   async fetchAllContacts(): Promise<any> {
     await this.initialize();
     const {
-      incoming_user_claims,
-      incoming_user_attributes
+      incoming_user_claims = [],
+      incoming_user_attributes = []
     } = this.connector.private_settings;
     const propertiesToFetch = this.mappingUtil.getHubspotPropertyKeys({
       identityClaims: incoming_user_claims,
@@ -881,75 +796,16 @@ class SyncAgent {
     }
   }
 
-  /**
-   * Handles operation for automatic sync changes of hubspot profiles
-   * to hull users.
-   */
-  async fetchRecentCompanies(): Promise<any> {
+  async fetchAllCompanies(): Promise<any> {
     await this.initialize();
-    const lastFetchAt =
-      this.connector.private_settings.companies_last_fetch_at ||
-      moment()
-        .subtract(1, "hour")
-        .format();
-    const stopFetchAt = moment().format();
     const {
-      incoming_account_claims,
-      incoming_account_attributes
+      incoming_account_claims = [],
+      incoming_account_attributes = []
     } = this.connector.private_settings;
     const propertiesToFetch = this.mappingUtil.getHubspotPropertyKeys({
       identityClaims: incoming_account_claims,
       attributeMapping: incoming_account_attributes
     });
-    let progress = 0;
-
-    this.hullClient.logger.info("incoming.job.start", {
-      jobName: "fetch",
-      type: "account",
-      lastFetchAt,
-      stopFetchAt,
-      propertiesToFetch
-    });
-    await this.helpers.settingsUpdate({
-      companies_last_fetch_at: stopFetchAt
-    });
-
-    const streamOfIncomingCompanies = this.hubspotClient.getRecentCompaniesStream(
-      lastFetchAt,
-      stopFetchAt,
-      propertiesToFetch
-    );
-
-    try {
-      await pipeStreamToPromise(streamOfIncomingCompanies, companies => {
-        progress += companies.length;
-        this.hullClient.logger.info("incoming.job.progress", {
-          jobName: "fetch",
-          type: "account",
-          progress
-        });
-        return this.saveCompanies(companies);
-      });
-      this.hullClient.logger.info("incoming.job.success", {
-        jobName: "fetch"
-      });
-      return {
-        status: "ok"
-      };
-    } catch (error) {
-      this.hullClient.logger.info("incoming.job.error", {
-        jobName: "fetch",
-        error
-      });
-      return {
-        error: error.message
-      };
-    }
-  }
-
-  async fetchAllCompanies(): Promise<any> {
-    await this.initialize();
-    const propertiesToFetch = this.mappingUtil.getHubspotCompanyPropertiesKeys();
     let progress = 0;
 
     this.hullClient.logger.info("incoming.job.start", {
@@ -994,7 +850,7 @@ class SyncAgent {
     if (this.fetchAccounts !== true) {
       return Promise.resolve();
     }
-    this.logger.debug("saveContacts", companies.length);
+    this.logger.debug("saveCompanies", companies.length);
     this.metric.increment("ship.incoming.accounts", companies.length);
     return Promise.all(
       companies.map(async company => {
@@ -1005,7 +861,7 @@ class SyncAgent {
         });
         if (ident.error) {
           return this.logger.info("incoming.account.skip", {
-            company,
+            company: company.companyId,
             reason: ident.error
           });
         }
@@ -1015,7 +871,7 @@ class SyncAgent {
           asAccount = this.hullClient.asAccount(ident.claims);
         } catch (error) {
           return this.logger.info("incoming.account.skip", {
-            company,
+            company: company.companyId,
             error
           });
         }

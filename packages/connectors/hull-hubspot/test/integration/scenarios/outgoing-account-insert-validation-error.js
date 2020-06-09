@@ -158,10 +158,7 @@ it("should send out a new hull account to hubspot insert validation error", () =
         ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "connector.service_api.error", 1]
       ],
-      platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}]
-      ]
+      platformApiCalls: []
     };
   });
 });

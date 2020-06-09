@@ -2,33 +2,24 @@
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
 const _ = require("lodash");
-
+const companyPropertyGroups = require("../fixtures/get-properties-companies-groups.json");
 import connectorConfig from "../../../server/config";
 
 process.env.OVERRIDE_HUBSPOT_URL = "";
 process.env.CLIENT_ID = 1;
 process.env.CLIENT_SECRET = 1;
 
-const incomingData = require("../fixtures/get-companies-recent-modified");
-
 const connector = {
   private_settings: {
-    token: "hubToken",
-    companies_last_fetch_at: 1419967066626,
-    mark_deleted_contacts: false,
-    mark_deleted_companies: false,
     handle_accounts: true,
-    incoming_account_attributes: [
-      {
-        service: 'properties.recent_deal_amount.value',
-        hull: 'hubspot/recent_deal_amount',
-        overwrite: true
-      }
-    ]
+    token: "hubToken",
+    companies_last_fetch_at: 1589481641000,
+    mark_deleted_contacts: false,
+    mark_deleted_companies: false
   }
 };
 
-it("should fetch recent companies using settings", () => {
+it("Should fetch recent companies", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     return {
       handlerType: handlers.scheduleHandler,
@@ -38,46 +29,65 @@ it("should fetch recent companies using settings", () => {
         scope.get("/contacts/v2/groups?includeProperties=true")
           .reply(200, []);
         scope.get("/properties/v1/companies/groups?includeProperties=true")
-          .reply(200, [
-            {
-              "name": "companyinformation",
-              "displayName": "Company Information",
-              "properties": [
-                {
-                  "name": "recent_deal_amount",
-                  "label": "Recent Deal Amount",
-                  "groupName": "companyinformation",
-                  "type": "string",
-                  "fieldType": "text",
-                  "readOnlyValue": false
+          .reply(200, companyPropertyGroups);
+        scope.get("/companies/v2/companies/recent/modified?since=1589481641000&count=100")
+          .reply(200, {
+            "results": [
+              {
+                "portalId": 123456,
+                "companyId": 1,
+                "properties": {
+                  "hs_lastmodifieddate": {
+                    "value": "1589481642000"
+                  },
+                  "domain": {
+                    "value": "apple.com"
+                  },
+                  "about_us": {
+                    "value": "apple"
+                  }
                 }
-              ]
-            },
-            {
-              "name": "hull",
-              "displayName": "Hull Properties",
-              "properties": [
-                {
-                  "name": "hull_segments",
-                  "label": "Hull Segments",
-                  "groupName": "hull",
-                  "type": "enumeration",
-                  "fieldType": "checkbox",
-                  "readOnlyValue": false,
-                  "options": [
-                    {
-                      "readOnly": false,
-                      "label": "HubspotUsers",
-                      "hidden": false,
-                      "value": "HubspotUsers",
-                    }
-                  ]
+              }
+            ],
+            "hasMore": true,
+            "offset": 9900,
+            "total": 63803
+          });
+        scope.get("/companies/v2/companies/recent/modified?since=1589481641000&offset=9900&count=100")
+          .reply(200, {
+            "results": [
+              {
+                "portalId": 123456,
+                "companyId": 2,
+                "properties": {
+                  "hs_lastmodifieddate": {
+                    "value": "1589481642000"
+                  },
+                  "domain": {
+                    "value": "microsoft.com"
+                  },
+                  "about_us": {
+                    "value": "microsoft"
+                  }
                 }
-              ]
-            }
-          ]);
-        scope.get("/companies/v2/companies/recent/modified?count=100&offset")
-          .reply(200, incomingData);
+              },
+              {
+                "portalId": 123456,
+                "companyId": 3,
+                "properties": {
+                  "hs_lastmodifieddate": {
+                    "value": "1589481642000"
+                  },
+                  "about_us": {
+                    "value": "apple"
+                  }
+                }
+              }
+            ],
+            "hasMore": true,
+            "offset": 10000,
+            "total": 63803
+          });
         return scope;
       },
       connector,
@@ -85,92 +95,53 @@ it("should fetch recent companies using settings", () => {
       accountsSegments: [],
       response: {"status": "deferred"},
       logs: [
-        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
-        ["info", "incoming.job.start", expect.whatever(),
-          {
-            jobName: "fetch",
-            lastFetchAt: 1419967066626,
-            propertiesToFetch: ["recent_deal_amount", "domain"],
-            stopFetchAt: expect.whatever(),
-            type: "account"
-          }
-        ],
-        ["debug", "connector.service_api.call", expect.whatever(), expect.objectContaining({ "method": "GET", "status": 200, "url": "/companies/v2/companies/recent/modified" })],
-        ["info", "incoming.job.progress", {}, { jobName: "fetch", progress: 2, type: "account" }],
-        ["debug", "saveContacts", {}, 2],
-        ["debug", "incoming.account", {},
-          {
-            claims: { domain: "foo.com", anonymous_id: "hubspot:19411477" },
-            traits: { "hubspot/recent_deal_amount": "5000", "hubspot/id": 19411477, name: { operation: "setIfNull", value: "madison Inc" } }
-          }
-        ],
+        ["info","incoming.job.start",{},{"jobName":"Incoming Data","type":"webpayload"}],
+        ["debug","connector.service_api.call",{},{"responseTime":expect.whatever(),"method":"GET","url":"/companies/v2/companies/recent/modified","status":200,"vars":{}}],
+        ["debug","connector.service_api.call",{},{"responseTime":expect.whatever(),"method":"GET","url":"/contacts/v2/groups","status":200,"vars":{}}],
+        ["debug","connector.service_api.call",{},{"responseTime":expect.whatever(),"method":"GET","url":"/properties/v1/companies/groups","status":200,"vars":{}}],
+        ["debug","saveCompanies",{},1],
+        ["debug","incoming.account",{},{"claims":{"domain":"apple.com","anonymous_id":"hubspot:1"},"traits":{"hubspot/id":1,"hubspot/domain":"apple.com","hubspot/about_us":"apple","hubspot/hs_lastmodified_date":"1589481642000"}}],
+        ["debug","incoming.account.success",{"subject_type":"account","account_domain":"apple.com","account_anonymous_id":"hubspot:1"},{"traits":{"hubspot/id":1,"hubspot/domain":"apple.com","hubspot/about_us":"apple","hubspot/hs_lastmodified_date":"1589481642000"}}],
+        ["debug","connector.service_api.call",{},{"responseTime":expect.whatever(),"method":"GET","url":"/companies/v2/companies/recent/modified","status":200,"vars":{}}],
+        ["debug","saveCompanies",{},2],
+        ["debug","incoming.account",{},{"claims":{"domain":"microsoft.com","anonymous_id":"hubspot:2"},"traits":{"hubspot/id":2,"hubspot/domain":"microsoft.com","hubspot/about_us":"microsoft","hubspot/hs_lastmodified_date":"1589481642000"}}],
         ["info", "incoming.account.skip", {},
           {
-            company: incomingData.results[1],
-            reason: "Value of field \"properties.domain.value\" is empty, cannot map it to domain, but it's required."
+            "company": 3,
+            "reason": "Value of field \"properties.domain.value\" is empty, cannot map it to domain, but it's required."
           }
         ],
-        ["debug", "incoming.account.success", expect.objectContaining({ "subject_type": "account", "account_domain": "foo.com", "account_anonymous_id": "hubspot:19411477" }),
-          {
-            traits: {
-              "hubspot/recent_deal_amount": "5000",
-              "hubspot/id": 19411477,
-              name: { operation: "setIfNull", value: "madison Inc" }
-            }
-          }
-        ],
-        ["info", "incoming.job.success", {}, { "jobName": "fetch", }]
+        ["debug","incoming.account.success",{"subject_type":"account","account_domain":"microsoft.com","account_anonymous_id":"hubspot:2"},{"traits":{"hubspot/id":2,"hubspot/domain":"microsoft.com","hubspot/about_us":"microsoft","hubspot/hs_lastmodified_date":"1589481642000"}}],
+        ["info","incoming.job.success",{},{"jobName":"Incoming Data","type":"webpayload"}]
       ],
       firehoseEvents: [
         ["traits",
-          { "asAccount": { "domain": "foo.com", "anonymous_id": "hubspot:19411477" }, "subjectType": "account", },
-          {
-            "hubspot/recent_deal_amount": "5000",
-            "hubspot/id": 19411477,
-            "name": {
-              "operation": "setIfNull",
-              "value": "madison Inc"
-            }
-          }
+          { "asAccount":{"domain":"apple.com","anonymous_id":"hubspot:1"},"subjectType":"account"},
+          { "hubspot/id":1,"hubspot/domain":"apple.com","hubspot/about_us":"apple","hubspot/hs_lastmodified_date":"1589481642000"}
+        ],
+        ["traits",
+          { "asAccount":{"domain":"microsoft.com","anonymous_id":"hubspot:2"},"subjectType":"account"},
+          { "hubspot/id":2,"hubspot/domain":"microsoft.com","hubspot/about_us":"microsoft","hubspot/hs_lastmodified_date":"1589481642000"}
         ]
       ],
       metrics: [
-        ["increment", "connector.request", 1],
-        ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.any(Number)],
-        ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.any(Number)],
-        ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.any(Number)],
-        ["increment", "ship.incoming.accounts", 2]
+        ["increment","connector.request",1],
+        ["increment","ship.service_api.call",1],
+        ["value","connector.service_api.response_time",expect.whatever()],
+        ["increment","ship.service_api.call",1],
+        ["value","connector.service_api.response_time",expect.whatever()],
+        ["increment","ship.service_api.call",1],
+        ["value","connector.service_api.response_time",expect.whatever()],
+        ["increment","ship.incoming.accounts",1],
+        ["increment","ship.service_api.call",1],
+        ["value","connector.service_api.response_time",expect.whatever()],
+        ["increment","ship.incoming.accounts",2]
       ],
       platformApiCalls: [
-        ["GET", "/api/v1/search/user_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/search/account_reports/bootstrap", {}, {}],
-        ["GET", "/api/v1/app", {}, {}],
-        [
-          "PUT",
-          "/api/v1/9993743b22d60dd829001999",
-          {},
-          {
-            "private_settings": {
-              "companies_last_fetch_at": expect.whatever(),
-              "handle_accounts": true,
-              "token": "hubToken",
-              "mark_deleted_contacts": false,
-              "mark_deleted_companies": false,
-              "incoming_account_attributes": [
-                {
-                  "service": 'properties.recent_deal_amount.value',
-                  "hull": 'hubspot/recent_deal_amount',
-                  "overwrite": true
-                }
-              ]
-            },
-            "refresh_status": false
-          }
-        ]
+        ["GET","/api/v1/app",{},{}],
+        ["PUT","/api/v1/9993743b22d60dd829001999",{},{"private_settings":{"handle_accounts":true,"token":"hubToken","companies_last_fetch_at":expect.whatever(), "companies_last_fetch_timestamp":expect.whatever(), "mark_deleted_contacts":false,"mark_deleted_companies":false},"refresh_status":false}],
+        ["GET","/api/v1/app",{},{}],
+        ["PUT","/api/v1/9993743b22d60dd829001999",{},{"private_settings":{"handle_accounts":true,"token":"hubToken","companies_last_fetch_at":null,"mark_deleted_contacts":false,"mark_deleted_companies":false},"refresh_status":false}]
       ]
     };
   });

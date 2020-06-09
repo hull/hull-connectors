@@ -20,4 +20,4 @@ fi
 
 echo "Starting $PATH_TO_CONNECTOR";
 
-exec node --optimize_for_size --max_old_space_size=$MEMORY_AVAILABLE -r newrelic $PATH_TO_CONNECTOR
+exec node --optimize_for_size --max_old_space_size=$MEMORY_AVAILABLE --gc_interval=100 -r newrelic $PATH_TO_CONNECTOR
