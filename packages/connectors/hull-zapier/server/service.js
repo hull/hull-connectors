@@ -48,7 +48,8 @@ const service = (): RawRestApi => ({
         truthy: { status: 410 },
         errorType: SkippableError,
         message: "Subscription Invalid",
-        recoveryroute: "unsubscribeFromError"
+        recoveryroute: "unsubscribeFromError",
+        generateNewRecovery: true
       }
     ]
   }
