@@ -7,7 +7,7 @@ import incomingHandler from "./incoming-handler";
 import credentialsHandler from "./credentials";
 import connectHandler from "./connect";
 
-export default function({
+export default function handler({
   flow_size,
   flow_in
 }: {

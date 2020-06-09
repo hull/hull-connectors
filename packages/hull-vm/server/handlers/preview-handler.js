@@ -6,7 +6,7 @@ import type {
   HullExternalResponse
 } from "hull";
 
-import { compute } from "hull-vm";
+import compute from "../compute";
 import type { PreviewRequest } from "../../types";
 import serialize from "../serialize";
 

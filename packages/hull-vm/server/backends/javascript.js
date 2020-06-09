@@ -16,7 +16,7 @@ import check from "../check";
 
 const LIBS = { _, moment, urijs };
 
-export default async function(
+export default async function javascript(
   ctx: HullContext,
   { payload, code, preview, claims, entity }: ComputeOptions,
   result: Result,
