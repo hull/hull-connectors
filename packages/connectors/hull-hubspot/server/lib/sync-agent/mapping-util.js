@@ -92,8 +92,8 @@ class MappingUtil {
       incoming_account_attributes = [],
       outgoing_account_attributes = [],
       link_users_in_service,
-      incoming_user_claims,
-      incoming_account_claims
+      incoming_user_claims = [],
+      incoming_account_claims = []
     } = this.connector.private_settings;
 
     this.outgoingLinking = link_users_in_service || false;

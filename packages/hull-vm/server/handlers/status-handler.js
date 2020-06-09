@@ -1,6 +1,6 @@
 // @flow
 import type { HullContext, HullStatusResponse } from "hull";
-import { check } from "hull-vm";
+import check from "../check";
 
 export default async function statusCheck(
   ctx: HullContext
@@ -26,15 +26,6 @@ export default async function statusCheck(
       ]
     };
   }
-
-  /* if (check.deprecateRequest(ctx, code)) {
-    return {
-      status: "warning",
-      messages: [
-        'This connector contains code with a deprecated request library. Please refer to the Processor documentation to remove this warning, in the section called "Migrating from the Request library to the Super-agent library".'
-      ]
-    };
-  }*/
 
   let status = "ok";
   const messages = [];

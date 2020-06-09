@@ -4,7 +4,7 @@ import type {
   HullIncomingHandlerMessage,
   HullExternalResponse
 } from "hull";
-import type { ConfResponse } from "hull-vm";
+import type ConfResponse from "../../types";
 
 const confHandler = (
   configResponse: (ctx: HullContext) => Promise<Object>

@@ -267,9 +267,9 @@ We recommend to boot the connector like this:
 
 ```js
 // @flow
-import Hull from "hull";
+import { Connector } from "hull";
 import config from "./config";
-new Hull.Connector(config).start();
+new Connector(config).start();
 ```
 
 ## Manifest
