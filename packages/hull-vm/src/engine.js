@@ -34,22 +34,14 @@ const queryParams = (): Config =>
       return q;
     }, {});
 
-
-
-
-
-
-
-
-
 type FetchConfigResponse = {
- error?: string,
- token?: string,
- hostname?: string,
- computing?: boolean,
- initialized?: boolean,
- [string]: any 
-}
+  error?: string,
+  token?: string,
+  hostname?: string,
+  computing?: boolean,
+  initialized?: boolean,
+  [string]: any
+};
 
 export default class Engine extends EventEmitter {
   state: any;
@@ -66,7 +58,7 @@ export default class Engine extends EventEmitter {
 
   initialize = async () => {
     await this.fetchConfig();
-  }
+  };
 
   fetchConfig = async (): FetchConfigResponse => {
     this.setState({ computing: true });

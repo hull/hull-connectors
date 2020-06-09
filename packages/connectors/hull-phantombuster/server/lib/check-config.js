@@ -1,7 +1,7 @@
 // @flow
 import type { HullContext } from "hull";
 
-export default function(ctx: HullContext) {
+export default function checkConfig(ctx: HullContext) {
   const { connector } = ctx;
   const { private_settings = {} } = connector;
   const { agent_id, api_key } = private_settings;
