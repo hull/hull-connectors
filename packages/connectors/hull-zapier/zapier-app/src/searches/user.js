@@ -10,7 +10,12 @@ const perform = async (z, { inputData }) => {
   const claims = { email, external_id };
 
   if (!isValidClaim({ external_id, email })) {
-    throw new z.errors.HaltedError("Invalid Claims");
+    const errorMessage = {
+      "message": _.isNil(external_id) && _.isNil(email) ? "Missing Identity Claims": "Invalid Identity Claims",
+      external_id,
+      email
+    };
+    throw new z.errors.HaltedError(JSON.stringify(errorMessage));
   }
 
   const res = await post(z,{

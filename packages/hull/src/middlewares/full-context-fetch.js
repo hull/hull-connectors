@@ -4,6 +4,7 @@ import type { HullRequest, HullResponse } from "../types";
 import ConnectorNotFoundError from "../errors/connector-not-found";
 import PaymentRequiredError from "../errors/payment-required-error";
 
+const _ = require("lodash");
 const debug = require("debug")("hull-connector:full-context-fetch-middleware");
 
 const {
@@ -19,14 +20,28 @@ async function fetchConnector(ctx, cache): Promise<*> {
   }
   const getConnector = () => ctx.client.get("app", {});
   if (!cache) return getConnector();
-  return ctx.cache.wrap(
-    "connector",
-    () => {
-      debug("fetchConnector - calling API");
-      return getConnector();
-    },
-    { ttl: 60000 }
-  );
+  return ctx.cache
+    .wrap(
+      "connector",
+      () => {
+        debug("fetchConnector - calling API");
+        return getConnector().catch(err => {
+          const { status } = err;
+          if (status === 402 || status === 404) {
+            return Promise.resolve({
+              cachedError: { status }
+            });
+          }
+          return Promise.reject(err);
+        });
+      },
+      { ttl: 60000 }
+    )
+    .then(res => {
+      return !_.isNil(res.cachedError)
+        ? Promise.reject(res.cachedError)
+        : Promise.resolve(res);
+    });
 }
 
 async function fetchSegments(ctx, entity = "user", cache) {
@@ -46,17 +61,31 @@ async function fetchSegments(ctx, entity = "user", cache) {
       { timeout: 5000, retry: 1000 }
     );
   if (!cache) return getSegments();
-  return ctx.cache.wrap(
-    entitySegments,
-    () => {
-      if (ctx.client === undefined) {
-        return Promise.reject(new Error("Missing client"));
-      }
-      debug("fetchSegments - calling API");
-      return getSegments();
-    },
-    { ttl: 60000 }
-  );
+  return ctx.cache
+    .wrap(
+      entitySegments,
+      () => {
+        if (ctx.client === undefined) {
+          return Promise.reject(new Error("Missing client"));
+        }
+        debug("fetchSegments - calling API");
+        return getSegments().catch(err => {
+          const { status } = err;
+          if (status === 402 || status === 404) {
+            return Promise.resolve({
+              cachedError: { status }
+            });
+          }
+          return Promise.reject(err);
+        });
+      },
+      { ttl: 60000 }
+    )
+    .then(res => {
+      return !_.isNil(res.cachedError)
+        ? Promise.reject(res.cachedError)
+        : Promise.resolve(res);
+    });
 }
 
 /**

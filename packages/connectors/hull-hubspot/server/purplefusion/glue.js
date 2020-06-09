@@ -205,7 +205,7 @@ const glue = {
         settingsUpdate({
           expires_in: "${refreshTokenResponse.expires_in}",
           refresh_token: "${refreshTokenResponse.refresh_token}",
-          token: "${refreshTokenResponse.token}"
+          token: "${refreshTokenResponse.access_token}"
         })
       )
     ]),
