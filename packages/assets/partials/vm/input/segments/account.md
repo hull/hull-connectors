@@ -1,6 +1,6 @@
 ## Input - Account Segments
 
-You can access the segments for the Account a user belongs to via `account_segments` which is an array of objects itself. Each segment object has an identifier and name that can be accessed via `id` and `name` and metadata such as `type`, `updated_at` and `created_at`.
+You can access the segments for the Account <%=users?"a user belongs to ":""%> via `account_segments` which is an array of objects itself. Each segment object has an identifier and name that can be accessed via `id` and `name` and metadata such as `type`, `updated_at` and `created_at`.
 
 The following code shows an example of the `account_segments` data:
 

@@ -5,7 +5,7 @@ Given the distributed nature of computation, if you want to increment or decreme
 _DO NOT DO THIS_:
 
 ```javascript
-  hull.traits({ coconuts: user.coconuts+1 });
+hull.traits({ coconuts: user.coconuts+1 });
 ```
 
 To get reliable results, you need to use `atomic operations`. Here's the correct way to do so:
@@ -13,7 +13,7 @@ To get reliable results, you need to use `atomic operations`. Here's the correct
 _DO THIS INSTEAD_:
 
 ```javascript
- hull.traits({ coconuts: { operation: 'inc', value: 1 } })
+hull.traits({ coconuts: { operation: 'inc', value: 1 } })
 ```
 
 Where:

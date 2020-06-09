@@ -6,11 +6,10 @@ You can access the **input data** as described above, here is the summary of ava
 | ---------------------------------- | ------------------------------------------------------------------------------ |
 | `changes`                          | Represents all changes in attributes and segments since the last re-computation.       |
 | `account`                          | Provides access to the account’s attributes.                                   |
-<% if (user) { %>| `user`                             | Provides access to the user’s attributes.                                      |
+<% if (users) { %>| `user`                             | Provides access to the user’s attributes.                                      |
 | `events`                           | Gives you access to all events **since the last re-computation.**              |
 | `segments`                         | Provides a list of all segments the user belongs to                            |
-| `account_segments`                 |  Provides a list of all account segments the user's Account belongs to         | <% } else { %>
-| `account_segments`                 |  Provides a list of all account segments the Account belongs to         |<% } %>
+<% } %>| `account_segments`                 | Provides a list of all account segments the <%=users?"user's Account ":""%>belongs to      |
 
 Please note that some of the input data shown on the left might be fake data that showcases additional fields available in your organization but that might not be applicable to all users.
 
