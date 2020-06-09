@@ -28,7 +28,7 @@ export default class ConfigurationModal extends Component<Props> {
                   <h1 className="mt-0 mb-0 text-center">🤓</h1>
                 </>
               )}
-              {content && <p>{content}</p>}
+              {content}
             </div>
             {body && <div style={{ marginBottom: "1rem" }}>{body}</div>}
             {footer && <div className="mb-1">{footer}</div>}

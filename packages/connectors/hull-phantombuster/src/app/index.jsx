@@ -17,7 +17,11 @@ type State = EngineState & {};
 
 const renderTitle = ({ hasRecent, sync_interval, api_key }) => {
   if (!api_key)
-    return "Please configure the Phantombuster connector in the Settings tab first";
+    return (
+      <p>
+        Please configure the Phantombuster connector in the Settings tab first
+      </p>
+    );
   if (hasRecent)
     return (
       <>
@@ -26,7 +30,12 @@ const renderTitle = ({ hasRecent, sync_interval, api_key }) => {
         Call it now manually by clicking the button below.
       </>
     );
-  return "We haven't called the Phantom Yet. Call it now manually by clicking the button below";
+  return (
+    <p>
+      We haven't called the Phantom Yet. Call it now manually by clicking the
+      button below
+    </p>
+  );
 };
 
 export default class App extends RecentEntriesUI<Props, State> {
@@ -41,6 +50,7 @@ export default class App extends RecentEntriesUI<Props, State> {
   renderSetupMessage() {
     const {
       computing,
+      initializing,
       initialized,
       showConfig,
       recent,
@@ -84,7 +94,9 @@ export default class App extends RecentEntriesUI<Props, State> {
         }
         content={content}
         actions={actions}
-        show={!agent || showConfig || !hasRecent}
+        show={
+          !initializing || (initialized && (!agent || showConfig || !hasRecent))
+        }
         onHide={this.hideInstructions}
       />
     );
