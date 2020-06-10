@@ -7,7 +7,8 @@ const {
   hasCompleted,
   getActiveCanary,
   hasNextCanary,
-  nextCanary
+  nextCanary,
+  getActiveStage
 } = require("./state");
 
 // const defaultTags = [`environment:${process.env.ENVIRONMENT}`];
@@ -53,6 +54,11 @@ function canariesStartNext(previousFailed, reasonFailed) {
     // const tags = _.concat(defaultTags, `canary-test:${previousCanary.name}`);
 
     if (previousFailed) {
+      const previousActiveState = getActiveStage();
+      if (previousActiveState.failureCallback) {
+        previousActiveState.failureCallback(latestContext);
+      }
+
       allCanariesStatus[previousCanary.name] = {
         status: "fail",
         reason: reasonFailed,
