@@ -176,20 +176,19 @@
       ]
     }
   ],
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "60",
+      "handler": "status"
+    }
+  ],
   "status": {
     "initial_value": "ok",
     "url": "/status",
-    "type": "cron",
-    "value": "*/30 * * * *",
-    "handler": "statusHandler"
-  },
-  "statuses": [
-    {
-      "initial_value": "ok",
-      "url": "/status",
-      "type": "cron",
-      "value": "*/30 * * * *",
-      "handler": "statusHandler"
-    }
-  ]
+    "type": "interval",
+    "value": "60",
+    "handler": "status"
+  }
 }
