@@ -16,11 +16,13 @@
       "options": {
         "standard": {
           "ALL": "All Users",
-          "Segments changed": "Segments changed"
+          "Segments changed": "Segments changed",
+          "User merged": "User merged"
         }
       },
       "default": [
         "Segments changed",
+        "User merged",
         "pageview",
         "Enter Canary Event",
         "Leave Canary Event"
