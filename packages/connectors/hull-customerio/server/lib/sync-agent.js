@@ -344,19 +344,11 @@ class SyncAgent {
   updateUserEnvelope(envelope: TUserUpdateEnvelope): Promise<*> {
     const hullUser = envelope.message.user;
     const userAttributeServiceId = this.mappingUtil.userAttributeServiceId;
-    let identObj;
-    if (
-      userAttributeServiceId === "external_id" &&
-      _.has(hullUser, "external_id")
-    ) {
-      identObj = _.pick(hullUser, "external_id");
-    } else if (userAttributeServiceId === "email" && _.has(hullUser, "email")) {
-      identObj = _.pick(hullUser, "email");
-    } else if (userAttributeServiceId === "id") {
-      identObj = _.pick(hullUser, "id");
-    } else {
-      identObj = hullUser;
-    }
+    const identObj =
+      userAttributeServiceId === "external_id" && _.has(hullUser, "external_id")
+        ? _.pick(hullUser, "external_id")
+        : hullUser;
+
     const userScopedClient = this.client.asUser(identObj);
     const validationResult = this.validationUtil.validateCustomer(
       envelope.customer
