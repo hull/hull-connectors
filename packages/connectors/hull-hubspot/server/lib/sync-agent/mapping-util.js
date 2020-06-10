@@ -373,7 +373,7 @@ class MappingUtil {
         entry.service
           .replace(/\$\./, "")
           .replace(/properties\./, "")
-          .replace(/\.value/, "")
+          .replace(/\.value.*/, "")
           .replace(/"/g, "")
           .replace(/`/g, "")
       );
