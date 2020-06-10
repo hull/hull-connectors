@@ -27,8 +27,7 @@ const connector = {
       { service: '`merged-vids`', hull: 'traits_hubspot/merged_vids', overwrite: true },
       { service: 'properties.firstname.value', hull: 'traits_hubspot/first_name', overwrite: true },
       { service: 'properties.phone.value', hull: 'traits_hubspot/phone', overwrite: true },
-      { service: "properties.lastname.value & ' some string ' & $string(100)", hull: 'traits_hubspot/last_name', overwrite: true },
-      { service: "properties.hs_additional_emails.value.$split(';')", hull: 'traits_hubspot/additional_emails', overwrite: true }
+      { service: 'properties.lastname.value', hull: 'traits_hubspot/last_name', overwrite: true }
     ]
   }
 };
@@ -44,9 +43,9 @@ it("should fetch all users using settings", () => {
           .reply(200, contactPropertyGroups);
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, []);
-        scope.get("/contacts/v1/lists/all/contacts/all?count=100&vidOffset&property=email&property=firstname&property=phone&property=lastname&property=hs_additional_emails&property=email")
+        scope.get("/contacts/v1/lists/all/contacts/all?count=100&vidOffset&property=email&property=firstname&property=phone&property=lastname&property=email")
           .reply(200, incomingData);
-        scope.get("/contacts/v1/lists/all/contacts/all?count=100&vidOffset=3714024&property=email&property=firstname&property=phone&property=lastname&property=hs_additional_emails&property=email")
+        scope.get("/contacts/v1/lists/all/contacts/all?count=100&vidOffset=3714024&property=email&property=firstname&property=phone&property=lastname&property=email")
           .reply(200, { contacts: [], "has-more": false, "time-offset": 0 });
         return scope;
       },
@@ -55,16 +54,10 @@ it("should fetch all users using settings", () => {
       accountsSegments: [],
       response: {"status": "deferred"},
       logs: [
-        expect.arrayContaining([
-          expect.objectContaining({ "method": "GET", "url": "/contacts/v2/groups", "status": 200, })
-        ]),
-        expect.arrayContaining([
-          expect.objectContaining({ "method": "GET", "url": "/properties/v1/companies/groups", "status": 200, })
-        ]),
-        ["info","incoming.job.start",{},{"jobName":"fetchAllContacts","type":"user","propertiesToFetch":["email","firstname","phone","lastname","hs_additional_emails","email"]}],
-        expect.arrayContaining([
-          expect.objectContaining({ "method": "GET", "url": "/contacts/v1/lists/all/contacts/all", "status": 200, })
-        ]),
+        ["debug","connector.service_api.call",{},{"responseTime":expect.whatever(),"method":"GET","url":"/contacts/v2/groups","status":200,"vars":{}}],
+        ["debug","connector.service_api.call",{},{"responseTime":expect.whatever(),"method":"GET","url":"/properties/v1/companies/groups","status":200,"vars":{}}],
+        ["info","incoming.job.start",{},{"jobName":"fetchAllContacts","type":"user","propertiesToFetch":["email","firstname","phone","lastname","email"]}],
+        ["debug","connector.service_api.call",{},{"responseTime":expect.whatever(),"method":"GET","url":"/contacts/v1/lists/all/contacts/all","status":200,"vars":{}}],
         ["info","incoming.job.progress",{},{"jobName":"fetchAllContacts","type":"user","progress":2}],
         ["debug","saveContacts",{},2],
         ["debug","incoming.user",{},{
@@ -73,10 +66,9 @@ it("should fetch all users using settings", () => {
             "hubspot/id":3234574,
             "hubspot/merged_vids":null,
             "hubspot/first_name":"Jeff",
-            "hubspot/last_name":"Testing some string 100",
+            "hubspot/last_name":"Testing",
             "first_name":{"operation":"setIfNull","value":"Jeff"},
-            "last_name":{"operation":"setIfNull","value":"Testing some string 100"},
-            "hubspot/additional_emails": ["1", "2", "3"]
+            "last_name":{"operation":"setIfNull","value":"Testing"}
           }
         }],
         ["debug","incoming.account.link.skip",{"subject_type":"user","user_email":"testingapis@hubspot.com","user_anonymous_id":"hubspot:3234574"},{"reason":"incoming linking is disabled, you can enabled it in the settings"}],
@@ -86,15 +78,15 @@ it("should fetch all users using settings", () => {
             "hubspot/id":3714024,
             "hubspot/merged_vids":null,
             "hubspot/first_name":"Updated",
-            "hubspot/last_name":"Record some string 100",
+            "hubspot/last_name":"Record",
             "first_name":{"operation":"setIfNull","value":"Updated"},
-            "last_name":{"operation":"setIfNull","value":"Record some string 100"}
+            "last_name":{"operation":"setIfNull","value":"Record"}
           }
         }],
         ["debug","incoming.account.link.skip",{"subject_type":"user","user_email":"new-email@hubspot.com","user_anonymous_id":"hubspot:3714024"},{"reason":"incoming linking is disabled, you can enabled it in the settings"}],
         ["debug","connector.service_api.call",{},{"responseTime":expect.whatever(),"method":"GET","url":"/contacts/v1/lists/all/contacts/all","status":200,"vars":{}}],
-        ["debug","incoming.user.success",{"subject_type":"user","user_email":"testingapis@hubspot.com","user_anonymous_id":"hubspot:3234574"},{"traits":{"hubspot/id":3234574,"hubspot/merged_vids":null,"hubspot/first_name":"Jeff","hubspot/additional_emails": ["1", "2", "3"], "hubspot/last_name":"Testing some string 100","first_name":{"operation":"setIfNull","value":"Jeff"},"last_name":{"operation":"setIfNull","value":"Testing some string 100"}}}],
-        ["debug","incoming.user.success",{"subject_type":"user","user_email":"new-email@hubspot.com","user_anonymous_id":"hubspot:3714024"},{"traits":{"hubspot/id":3714024,"hubspot/merged_vids":null,"hubspot/first_name":"Updated","hubspot/last_name":"Record some string 100","first_name":{"operation":"setIfNull","value":"Updated"},"last_name":{"operation":"setIfNull","value":"Record some string 100"}}}],
+        ["debug","incoming.user.success",{"subject_type":"user","user_email":"testingapis@hubspot.com","user_anonymous_id":"hubspot:3234574"},{"traits":{"hubspot/id":3234574,"hubspot/merged_vids":null,"hubspot/first_name":"Jeff","hubspot/last_name":"Testing","first_name":{"operation":"setIfNull","value":"Jeff"},"last_name":{"operation":"setIfNull","value":"Testing"}}}],
+        ["debug","incoming.user.success",{"subject_type":"user","user_email":"new-email@hubspot.com","user_anonymous_id":"hubspot:3714024"},{"traits":{"hubspot/id":3714024,"hubspot/merged_vids":null,"hubspot/first_name":"Updated","hubspot/last_name":"Record","first_name":{"operation":"setIfNull","value":"Updated"},"last_name":{"operation":"setIfNull","value":"Record"}}}],
         ["info","incoming.job.success",{},{"jobName":"fetchAllContacts"}]
       ],
       firehoseEvents: [
@@ -103,10 +95,9 @@ it("should fetch all users using settings", () => {
             "hubspot/id":3234574,
             "hubspot/merged_vids":null,
             "hubspot/first_name":"Jeff",
-            "hubspot/last_name":"Testing some string 100",
+            "hubspot/last_name":"Testing",
             "first_name":{"operation":"setIfNull","value":"Jeff"},
-            "last_name":{"operation":"setIfNull","value":"Testing some string 100"},
-            "hubspot/additional_emails": ["1", "2", "3"]
+            "last_name":{"operation":"setIfNull","value":"Testing"}
           }
         ],
         ["traits",{"asUser":{"email":"new-email@hubspot.com","anonymous_id":"hubspot:3714024"},"subjectType":"user"},
@@ -114,23 +105,23 @@ it("should fetch all users using settings", () => {
             "hubspot/id":3714024,
             "hubspot/merged_vids":null,
             "hubspot/first_name":"Updated",
-            "hubspot/last_name":"Record some string 100",
+            "hubspot/last_name":"Record",
             "first_name":{"operation":"setIfNull","value":"Updated"},
-            "last_name":{"operation":"setIfNull","value":"Record some string 100"}
+            "last_name":{"operation":"setIfNull","value":"Record"}
           }
         ]
       ],
       metrics: [
         ["increment", "connector.request", 1],
         ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.whatever()],
+        ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.whatever()],
+        ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.whatever()],
+        ["value", "connector.service_api.response_time", expect.any(Number)],
         ["increment", "ship.incoming.users", 2],
         ["increment", "ship.service_api.call", 1],
-        ["value", "connector.service_api.response_time", expect.whatever()],
+        ["value", "connector.service_api.response_time", expect.any(Number)],
       ],
       platformApiCalls: [
         ["GET","/api/v1/app",{},{}],

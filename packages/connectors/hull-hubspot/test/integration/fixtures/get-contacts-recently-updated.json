@@ -23,9 +23,6 @@
         },
         "lastname": {
           "value": "Testing"
-        },
-        "hs_additional_emails": {
-          "value": ["1", "2", "3"]
         }
       },
       "form-submissions": [
