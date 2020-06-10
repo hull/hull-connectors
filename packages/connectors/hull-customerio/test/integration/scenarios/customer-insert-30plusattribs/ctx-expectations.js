@@ -3,7 +3,7 @@ const moment = require("moment");
 const smartNotifierPayload = _.cloneDeep(require("../../fixtures/smart-notifier-payloads/user-update-withevent.json"));
 
 module.exports = (ctxMock) => {
-  const range = _.range(45);
+  const range = _.range(315);
   const attributes = _.zipObject(range.map(i => `traits_foo_${i}`), range.map(i => `value${i} dynamic generated content`));
   _.forIn(attributes, (val, key) => {
     _.set(smartNotifierPayload, `messages[0].user.${key}`, val);
