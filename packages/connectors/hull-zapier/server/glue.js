@@ -27,6 +27,10 @@ function zapier(op: string, param?: any): Svc {
 }
 
 const glue = {
+  status: {
+    status: "ok",
+    message: "allgood"
+  },
   userUpdate: [],
   accountUpdate: [],
   performTrigger: [
