@@ -1,4 +1,4 @@
-import type { HullManifest } from "../types/index";
+// @flow
 
 const path = require("path");
 
