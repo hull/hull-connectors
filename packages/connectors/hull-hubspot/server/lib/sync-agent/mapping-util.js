@@ -371,10 +371,8 @@ class MappingUtil {
       )
       .map(entry =>
         entry.service
-          .replace(/\$\./, "")
           .replace(/properties\./, "")
-          .replace(/\.value/, "")
-          .replace(/\.\$split\(';'\)/, "")
+          .replace(/\.value.*/, "")
           .replace(/"/g, "")
           .replace(/`/g, "")
       );
