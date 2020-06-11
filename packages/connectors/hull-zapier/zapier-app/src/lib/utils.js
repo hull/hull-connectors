@@ -11,10 +11,10 @@ function matches(value, regex) {
   return false;
 }
 function isValidClaim(claims) {
-  const { external_id, email, domain } = claims;
+  const { anonymous_id, external_id, email, domain } = claims;
 
   if (_.isNil(email) && _.isNil(domain)) {
-    return !_.isNil(external_id);
+    return !_.isNil(external_id) || !_.isNil(anonymous_id);
   }
 
   // can have either email or domain, but not both

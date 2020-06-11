@@ -1,5 +1,4 @@
 // @flow
-//
 export default function({ user, settings }: any) {
   return {
     enabled: settings.use_gtm,
