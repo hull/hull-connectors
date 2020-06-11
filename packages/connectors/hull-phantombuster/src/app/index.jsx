@@ -94,9 +94,7 @@ export default class App extends RecentEntriesUI<Props, State> {
         }
         content={content}
         actions={actions}
-        show={
-          !initializing || (initialized && (!agent || showConfig || !hasRecent))
-        }
+        show={initialized && (!agent || showConfig || !hasRecent)}
         onHide={this.hideInstructions}
       />
     );
