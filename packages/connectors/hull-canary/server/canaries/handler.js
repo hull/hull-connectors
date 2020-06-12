@@ -11,7 +11,7 @@ const {
   getActiveStage
 } = require("./state");
 
-// const defaultTags = [`environment:${process.env.ENVIRONMENT}`];
+const defaultTags = [`environment:${process.env.ENVIRONMENT}`];
 
 let allCanariesStatus = {};
 
@@ -51,7 +51,7 @@ function canariesStartNext(previousFailed, reasonFailed) {
     const previousCanary = getActiveCanary();
     console.log(`Previous: ${JSON.stringify(previousCanary)}`);
 
-    // const tags = _.concat(defaultTags, `canary-test:${previousCanary.name}`);
+    const tags = _.concat(defaultTags, `canary-test:${previousCanary.name}`);
 
     if (previousFailed) {
       const previousActiveState = getActiveStage();
@@ -65,14 +65,16 @@ function canariesStartNext(previousFailed, reasonFailed) {
         final_state: getState(),
         timeToRun: Date.now() - canaryStartTime
       };
-      // metric.value("canary.status.failed", 1, tags);
+      latestContext.metric.value("canary.status.failed", 1, tags);
+      console.log(JSON.stringify(tags));
     } else {
       allCanariesStatus[previousCanary.name] = {
         status: "success",
         final_state: getState(),
         timeToRun: Date.now() - canaryStartTime
       };
-      // metric.value("canary.status.success", 1, tags);
+      latestContext.metric.value("canary.status.success", 1, tags);
+      console.log(JSON.stringify(tags));
     }
   }
 

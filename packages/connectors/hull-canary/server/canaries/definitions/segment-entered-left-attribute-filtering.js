@@ -9,9 +9,9 @@ function setAttributeToEnterSegment(context) {
 
   // first account only has external id
   const externalIdUser = { external_id: `${timestamp}ExternalId` };
-  client
-    .asUser(externalIdUser)
-    .traits({ "canary/segment_attribute2": "somesegmentattribute" })
+  // client
+  //   .asUser(externalIdUser)
+  //   .traits({ "canary/segment_attribute2": "somesegmentattribute" })
   return context.helpers
     .settingsUpdate({
       events_to_send: ["ALL"]
@@ -31,6 +31,7 @@ function resetSettings(context) {
   return context.helpers.settingsUpdate({
     events_to_send: [
       "Segments changed",
+      "User merged",
       "pageview",
       "Enter Canary Event",
       "Leave Canary Event"
@@ -41,9 +42,9 @@ function resetSettings(context) {
 function setAttributeToLeaveSegment(context) {
   const { client } = context;
   const externalIdUser = { external_id: `${timestamp}ExternalId` };
-  client
-    .asUser(externalIdUser)
-    .traits({ "canary/segment_attribute": null });
+  // client
+  //   .asUser(externalIdUser)
+  //   .traits({ "canary/segment_attribute": null });
 
   return resetSettings(context).then(() => {
     return client
@@ -53,7 +54,8 @@ function setAttributeToLeaveSegment(context) {
 }
 
 module.exports = {
-  name: "Test User entering and leaving segment based on attribute change",
+  name:
+    "Test User entering and leaving segment based on attribute change along with disabling and enabling segment change events",
   timeToComplete: 600000,
   initialize: setAttributeToEnterSegment,
   stages: [

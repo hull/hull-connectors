@@ -15,7 +15,7 @@
       "format": "event",
       "options": {
         "standard": {
-          "ALL": "All Users",
+          "ALL": "All Custom Events",
           "Segments changed": "Segments changed",
           "User merged": "User merged"
         }

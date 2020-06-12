@@ -11,7 +11,7 @@ const canaries = [
   require("./definitions/merge-users-then-track"),
   require("./definitions/segment-entered-left-event"),
   require("./definitions/segment-entered-left-attribute"),
-  // require("./definitions/segment-entered-left-attribute-filtering"),
+  require("./definitions/segment-entered-left-attribute-filtering"),
 ];
 
 let currentCanaryIndex = -1;
