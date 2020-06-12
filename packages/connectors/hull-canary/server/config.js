@@ -7,10 +7,7 @@ const { canariesStatus, canariesRestart } = require("./canaries/handler");
 const { canaryNotify } = require("./canaries/notify");
 
 export default function connectorConfig(): HullConnectorConfig {
-  const {
-    CLIENT_ID,
-    CLIENT_SECRET,
-  } = process.env;
+  const { CLIENT_ID, CLIENT_SECRET } = process.env;
 
   if (!CLIENT_ID || !CLIENT_SECRET) {
     throw new Error(
