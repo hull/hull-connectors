@@ -3,6 +3,7 @@
 const Transport = require("winston-transport");
 const { HighLevelProducer } = require("node-rdkafka");
 const _ = require("lodash");
+const uuid = require("uuid");
 
 /**
  * Transport for outputting to Kafka.
@@ -29,13 +30,16 @@ module.exports = class KafkaLogger extends Transport {
       "retry.backoff.ms": 200,
       "message.send.max.retries": 10,
       "socket.keepalive.enable": true,
-      "queue.buffering.max.messages": 1000,
-      "queue.buffering.max.ms": 100,
-      "batch.num.messages": 1000,
+      "queue.buffering.max.messages": 100,
+      "queue.buffering.max.ms": 1000,
+      "batch.num.messages": 100,
       "linger.ms": 10,
       dr_cb: true,
       ...options.producerOptions
     };
+
+    console.warn("KafkaLogger producerConfig", producerConfig);
+
     const producer = new HighLevelProducer(producerConfig);
 
     producer.setPollInterval(1000);
@@ -68,7 +72,7 @@ module.exports = class KafkaLogger extends Transport {
     const callback = cb || _.identity;
     if (this._isConnected) {
       try {
-        const ctxe = info.context;
+        const ctxe = info.context || {};
         const now = Date.now();
 
         const msg = {
@@ -95,12 +99,11 @@ module.exports = class KafkaLogger extends Transport {
         };
 
         // topic, partition, message, key, timestamp, headers, callback
-        const key = _.get(info, "context.id");
         await producer.produce(
           topic,
           null,
           Buffer.from(JSON.stringify(msg)),
-          key,
+          uuid(),
           now,
           null,
           _.identity

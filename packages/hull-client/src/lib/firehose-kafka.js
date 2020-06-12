@@ -62,6 +62,7 @@ function buildProducer(
     "queue.buffering.max.ms": 100,
     "batch.num.messages": 1000,
     "linger.ms": 10,
+    partitioner: "random",
     dr_cb: true,
     ...kafkaProducerConfig
   };
@@ -111,9 +112,10 @@ function getInstance(
   logger: HullClientLogger
 ) {
   const kafkaTopic = firehoseTransport.topic;
+  const kafkaTopicsMapping = firehoseTransport.topicsMapping;
 
-  if (!kafkaTopic) {
-    throw new Error("Invalid kafka configuration: missing topic");
+  if (!kafkaTopic && !kafkaTopicsMapping) {
+    throw new Error("Invalid kafka configuration: missing topic configuration");
   }
 
   const { organization, additionalClaims = {} } = config;
@@ -122,6 +124,15 @@ function getInstance(
       throw new Error(
         "Process is shutting down. Not accepting connections anymore"
       );
+
+    const hullDomain = organization.replace(/^[^.]*\./, "");
+    const topic = kafkaTopicsMapping[hullDomain] || kafkaTopic;
+
+    if (!topic) {
+      throw new Error(
+        `Invalid kafka configuration: Topic not found for domain: ${hullDomain}`
+      );
+    }
 
     const message: FirehoseMessage = {
       type,
@@ -161,10 +172,10 @@ function getInstance(
     try {
       const produceMessage = await getProducer(firehoseTransport, producerName);
       const offset = await produceMessage(
-        kafkaTopic,
+        topic,
         null,
         Buffer.from(JSON.stringify(message)),
-        `${organization}/${message.appId}`,
+        null,
         Date.now()
       );
       return { ok: true, offset };

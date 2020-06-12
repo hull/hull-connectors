@@ -4,7 +4,7 @@ const smartNotifierPayload = _.cloneDeep(require("../../fixtures/smart-notifier-
 module.exports = () => {
   const userSegmentId = _.get(smartNotifierPayload, "messages[0].segments[0].id");
   _.set(smartNotifierPayload, "connector.private_settings.synchronized_segments", [userSegmentId]);
-  const range = _.range(45);
+  const range = _.range(315);
   const attributes = _.zipObject(range.map(i => `traits_foo_${i}`), range.map(i => `value${i} dynamic generated content`));
 
   _.set(smartNotifierPayload, "connector.private_settings.synchronized_attributes", _.keys(attributes));
