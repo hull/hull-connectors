@@ -90,9 +90,6 @@ it("should send out a new hull account to hubspot insert validation error", () =
       ],
       response: {
         flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
           type: "next"
         }
       },
