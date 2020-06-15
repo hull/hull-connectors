@@ -42,9 +42,8 @@ export default function factory({
     return {
       flow_control: {
         type: "next",
-        in_time: 0.1,
-        size: 100,
-        in: 100
+        in_time: 0,
+        size: 100
       }
     };
   };

@@ -95,9 +95,6 @@ it("should send out a new hull user to hubspot - user basic", () => {
       ],
       response: {
         flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
           type: "next"
         }
       },
