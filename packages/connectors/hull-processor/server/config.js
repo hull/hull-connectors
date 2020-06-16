@@ -22,10 +22,7 @@ export default function connectorConfig(): HullConnectorConfig {
 
   const cacheConfig =
     REDIS_URL !== undefined
-      ? {
-          store: "redis",
-          url: REDIS_URL
-        }
+      ? { store: "redis", url: REDIS_URL }
       : { store: "memory" };
   return {
     manifest,
