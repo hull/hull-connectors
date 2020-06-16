@@ -32,7 +32,6 @@ ace.require("ace/snippets/javascript");
 ace.require("ace/snippets/jsonata");
 ace.require("ace/snippets/json");
 
-
 ace.require("ace/ext/beautify");
 ace.require("ace/ext/error_marker");
 ace.require("ace/ext/searchbox");
@@ -81,7 +80,7 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  onValidate = (annotations: any) => {
+  onValidate = (_annotations: any) => {
     // console.log(annotations);
   };
 

@@ -472,8 +472,11 @@ class HullConnector {
     this.middlewares.map(middleware => app.use(middleware));
     app.use(this.baseComposedMiddleware());
     app.disable("etag");
-    app.use("/", staticRouter());
+    app.use("/", staticRouter({ manifest: this.manifest }));
     app.engine("html", renderFile);
+    app.engine("md", renderFile);
+    app.engine("ejs", renderFile);
+    app.engine("md.ejs", renderFile);
     app.set("views", getAbsolutePath("views"));
     app.set("view engine", "ejs");
     return app;

@@ -421,6 +421,7 @@ class TestScenarioRunner extends EventEmitter {
 
   setupTestConnector(minihullPort: number) {
     return new Hull.Connector({
+      manifest:{},
       ...this.connectorConfig,
       port: 0,
       hostSecret: "1234",
