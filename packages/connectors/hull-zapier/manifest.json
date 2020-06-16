@@ -77,13 +77,6 @@
   "resources": [],
   "settings_sections": [
     {
-      "title": "Connect to Zapier",
-      "description": "Please follow the link to begin using our Zapier integration",
-      "properties": [
-        "private_settings.invitation"
-      ]
-    },
-    {
       "title": "Credentials",
       "description": "Copy this token and paste it in the Zapier authentication window",
       "step": "credentials",
@@ -183,20 +176,19 @@
       ]
     }
   ],
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "60",
+      "handler": "status"
+    }
+  ],
   "status": {
     "initial_value": "ok",
     "url": "/status",
-    "type": "cron",
-    "value": "*/30 * * * *",
-    "handler": "statusHandler"
-  },
-  "statuses": [
-    {
-      "initial_value": "ok",
-      "url": "/status",
-      "type": "cron",
-      "value": "*/30 * * * *",
-      "handler": "statusHandler"
-    }
-  ]
+    "type": "interval",
+    "value": "60",
+    "handler": "status"
+  }
 }
