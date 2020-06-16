@@ -434,6 +434,7 @@ class TestScenarioRunner extends EventEmitter {
         flushAt: 1,
         flushAfter: 1
       },
+      manifest:{},
       metricsConfig: {
         ...this.connectorConfig.metricsConfig,
         captureMetrics: this.capturedMetrics
