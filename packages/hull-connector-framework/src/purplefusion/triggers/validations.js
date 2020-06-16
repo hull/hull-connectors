@@ -80,6 +80,7 @@ const isValidSubEntity = (
     return true;
   });
 
+
 const isValidMessage = (
   message: HullUserUpdateMessage | HullAccountUpdateMessage,
   validations: HullTriggerValidations,
