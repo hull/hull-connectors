@@ -131,7 +131,7 @@ class ServiceClient {
     const attributes = _.omit(customer, "id");
     const id = encodeURIComponent(_.get(customer, "id"));
     const promises = [];
-    if (_.keys(attributes).length <= 30) {
+    if (_.keys(attributes).length <= 300) {
       promises.push(
         this.agent
           .put("/api/v1/customers/{{id}}")
@@ -139,7 +139,7 @@ class ServiceClient {
           .send(attributes)
       );
     } else {
-      const chunks = _.chunk(_.keys(attributes), 30);
+      const chunks = _.chunk(_.keys(attributes), 300);
       chunks.forEach(chunk => {
         const chunkedAttributes = _.pick(attributes, chunk);
         promises.push(

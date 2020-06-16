@@ -1,0 +1,193 @@
+{
+  "configuration": {
+    "id": "1a88b55e477466c1af11199a",
+    "organization": "99zz8877.hullapp.io",
+    "secret": "99z6392583a08eaba361b5c999888ycf"
+  },
+  "channel": "user:update",
+  "messages": [
+    {
+      "message_id": "QV5AEkw4A0RJUytDCypYEU4EISE-MD5FU0RQBhYsXUZIUTcZCGhRDk9eIz81IChFGgtTE1FcdRNCEGxcM3UHUQ0Zc3thfWJcQQVRRVt0W1EaH1lcfksGVAofdH5hd21YFgYCQ3v8ysqh4ZFvZhs9XBJLLD5-MzZF",
+      "user": {
+        "accepts_marketing": false,
+        "anonymous_ids": [
+          "salesforce:00Q1I000004WHchUAG"
+        ],
+        "created_at": "2017-12-27T16:46:48Z",
+        "domain": "krakowtraders.pl",
+        "email": "adam.pietrzyk@krakowtraders.pl",
+        "first_name": "Adam",
+        "has_password": false,
+        "id": "5a43ce781f6d9f471d005d44",
+        "is_approved": false,
+        "last_name": "Pietrzyk",
+        "name": "Adam Pietrzyk",
+        "segment_ids": [
+          "59f09bc7f9c5a94af600076d"
+        ],
+        "traits_coconuts": 38,
+        "traits_salesforce_lead/email": "adam.pietrzyk@krakowtraders.pl",
+        "traits_salesforce_lead/first_name": "Adam",
+        "traits_salesforce_lead/id": "00Q1I000004WHchUAG",
+        "traits_salesforce_lead/last_name": "Pietrzyk",
+        "indexed_at": "2017-12-27T18:15:54+00:00"
+      },
+      "segments": [
+        {
+          "id": "59f09bc7f9c5a94af600076d",
+          "name": "Users signed in last 100 days",
+          "type": "users_segment",
+          "created_at": "2017-10-25T14:12:23Z",
+          "updated_at": "2017-10-25T14:12:23Z"
+        }
+      ],
+      "account": {},
+      "account_segments": [],
+      "events": [],
+      "changes": {
+        "user": {
+          "traits_coconuts": [
+            null,
+            38
+          ]
+        },
+        "segments": {},
+        "account": {},
+        "account_segments": {},
+        "is_new": false
+      }
+    }
+  ],
+  "segments": [],
+  "notification_id": "3f462fab-e85f-4cb1-85fb-d8d142e8897d",
+  "connector": {
+    "id": "1a88b55e477466c1af11199a",
+    "settings": {},
+    "manifest": {
+      "name": "Salesforce",
+      "version": "0.4.13",
+      "subscriptions": [
+        {
+          "url": "/smart-notifier"
+        }
+      ],
+      "tags": [
+        "outgoing",
+        "oneColumn",
+        "batch",
+        "smart-notifier"
+      ]
+    },
+    "type": "ship",
+    "name": "Salesforce",
+    "private_settings": {
+      "oauth2": {
+        "clientId": "abc123",
+        "clientSecret": "def456"
+      },
+      "lead_synchronized_segments": [
+        "5a0c1f07b4d8644425002c65"
+      ],
+      "contact_synchronized_segments": [],
+      "ignore_users_withoutemail": false,
+      "ignore_users_withoutchanges": false,
+      "lead_attributes_outbound": [
+        {
+          "hull": "first_name",
+          "service": "FirstName",
+          "overwrite": false
+        },
+        {
+          "hull": "last_name",
+          "service": "LastName",
+          "overwrite": false
+        },
+        {
+          "hull": "email",
+          "service": "Email",
+          "overwrite": false
+        }
+      ],
+      "fetch_resource_schema": true,
+      "lead_assignmentrule": "none",
+      "lead_assignmentrule_update": "none",
+      "contact_attributes_outbound": [
+        {
+          "hull": "first_name",
+          "service": "FirstName",
+          "overwrite": false
+        },
+        {
+          "hull": "last_name",
+          "service": "LastName",
+          "overwrite": false
+        },
+        {
+          "hull": "email",
+          "service": "Email",
+          "overwrite": false
+        }
+      ],
+      "account_attributes_outbound": [
+        {
+          "hull": "domain",
+          "service": "Website",
+          "overwrite": false
+        },
+        {
+          "hull": "name",
+          "service": "Name",
+          "overwrite": false
+        }
+      ],
+      "fetch_accounts": false,
+      "salesforce_oauth_url": "https://login.salesforce.com",
+      "refresh_token": "3Kep801hRJqEPUTYG_dW97P8laAje15mN6om7CqloiJSXBzxCJe5v32KztUkaWCm4GqBsKxm5UgDbG9Zt1gn4Y.",
+      "access_token": "99A5L000002rwPv!WEkDFONqSN.K2dfgNwPcPQdleLxBwAZcDEFGHrZOIYtDSr8IDDmTlJRKdFGH1Cn0xw3BfKHEWnceyK9WZerHU6iRgflKwzOBo",
+      "instance_url": "https://na98.salesforce.com",
+      "salesforce_login": "auto+test@hull.io",
+      "connector_hero": "",
+      "leads": "",
+      "lead_attributes_inbound": [
+        {
+          "service": "FirstName",
+          "hull": "traits_salesforce_lead/first_name",
+          "overwrite": false
+        },
+        {
+          "service": "LastName",
+          "hull": "traits_salesforce_lead/last_name",
+          "overwrite": false
+        },
+        {
+          "service": "Company",
+          "hull": "traits_salesforce_lead/company",
+          "overwrite": false
+        },
+        {
+          "service": "Email",
+          "hull": "traits_salesforce_lead/email",
+          "overwrite": false
+        },
+        {
+          "service": "Website",
+          "hull": "traits_salesforce_lead/website",
+          "overwrite": false
+        }
+      ],
+      "contacts": "",
+      "contact_attributes_inbound": [],
+      "accounts": "",
+      "account_attributes_inbound": [
+        {
+          "service": "Website",
+          "hull": "website",
+          "overwrite": false
+        }
+      ],
+      "advance_hero": ""
+    },
+    "source_url": "https://hull-sfdc-testing.herokuapp.com/",
+    "manifest_url": "https://hull-sfdc-testing.herokuapp.com/manifest.json"
+  }
+}
