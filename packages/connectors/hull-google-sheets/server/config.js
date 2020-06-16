@@ -32,7 +32,7 @@ export default function connectorConfig(): HullConnectorConfig {
     INSTALL_URL
   } = process.env;
 
-  console.log(INSTALL_URL)
+  console.log(INSTALL_URL);
   if (!INSTALL_URL) {
     throw new Error("Missing INSTALL_URL environment variable");
   }

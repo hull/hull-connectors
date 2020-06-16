@@ -116,7 +116,7 @@ export type HullContext = {|
     extractRequest: $Call<typeof extractRequest, HullContext>,
     mappingToOptions: $Call<typeof mappingToOptions, HullContext>,
     mapAttributes: $Call<typeof mapAttributes, HullContext>,
-    streamRequest: $Call<typeof mapAttributes, HullContext>,
+    streamRequest: $Call<typeof streamRequest, HullContext>,
     getStandardMapping: $Call<typeof getStandardMapping, HullContext>,
     hasMatchingTriggers: ({
       matchOnBatch?: boolean,
