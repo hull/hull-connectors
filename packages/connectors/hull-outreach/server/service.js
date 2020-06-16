@@ -6,7 +6,8 @@ const _ = require("lodash");
 const {
   ConfigurationError,
   TransientError,
-  SkippableError
+  SkippableError,
+  RateLimitError
 } = require("hull/src/errors");
 
 
@@ -352,6 +353,11 @@ const service = ({ clientID, clientSecret } : {
         truthy: { status: 400 },
         errorType: SkippableError,
         message: MESSAGES.BAD_RESOURCE_REQUEST_ERROR
+      },
+      {
+        truthy: { status: 429 },
+        errorType: RateLimitError,
+        message: MESSAGES.OPERATION_EXCEEDED_RATE_LIMIT
       }
     ]
 
