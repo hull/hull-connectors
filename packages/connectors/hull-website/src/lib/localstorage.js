@@ -1,5 +1,3 @@
-/* global window, */
-
 import { Promise } from "es6-promise";
 
 export function getLocalStorage() {
