@@ -101,12 +101,12 @@ Then you can run yarn install to get it to build correctly.
 
 Build the image
 ```
-docker build -t ${connector} .
+docker build -t connectors .
 ```
 
 Run the container
 ```
-docker run -p 8082:8082 --env-file ./.env ${image}
+docker run -p 8082:8082 --env-file ./.env connectors:latest
 ```
 
 Environment variables needed
