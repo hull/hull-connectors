@@ -27,6 +27,10 @@ function zapier(op: string, param?: any): Svc {
 }
 
 const glue = {
+  status: {
+    status: "ok",
+    message: "allgood"
+  },
   userUpdate: [],
   accountUpdate: [],
   performTrigger: [
@@ -43,7 +47,7 @@ const glue = {
     zapier("sendZap", input("data"))
   ],
   unsubscribeFromError: [
-    route("unsubscribe", jsonata(`$.{"body": {"url": url}}`, input("response.req")))
+    route("unsubscribe", jsonata(`$.{"body": {"url": url}}`, { "url": "${zap_url}" }))
   ],
   credentials: returnValue([
     set("api_key", get("clientCredentialsEncryptedToken", input("context")))
