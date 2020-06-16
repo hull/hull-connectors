@@ -27,7 +27,7 @@ const connector = {
       { service: '`merged-vids`', hull: 'traits_hubspot/merged_vids', overwrite: true },
       { service: 'properties.firstname.value', hull: 'traits_hubspot/first_name', overwrite: true },
       { service: 'properties.phone.value', hull: 'traits_hubspot/phone', overwrite: true },
-      { service: 'properties.lastname.value', hull: 'traits_hubspot/last_name', overwrite: true }
+      { service: "properties.lastname.value & ' some string ' & $string(100)", hull: 'traits_hubspot/last_name', overwrite: true }
     ]
   }
 };
@@ -66,9 +66,9 @@ it("should fetch all users using settings", () => {
             "hubspot/id":3234574,
             "hubspot/merged_vids":null,
             "hubspot/first_name":"Jeff",
-            "hubspot/last_name":"Testing",
+            "hubspot/last_name":"Testing some string 100",
             "first_name":{"operation":"setIfNull","value":"Jeff"},
-            "last_name":{"operation":"setIfNull","value":"Testing"}
+            "last_name":{"operation":"setIfNull","value":"Testing some string 100"}
           }
         }],
         ["debug","incoming.account.link.skip",{"subject_type":"user","user_email":"testingapis@hubspot.com","user_anonymous_id":"hubspot:3234574"},{"reason":"incoming linking is disabled, you can enabled it in the settings"}],
@@ -78,15 +78,15 @@ it("should fetch all users using settings", () => {
             "hubspot/id":3714024,
             "hubspot/merged_vids":null,
             "hubspot/first_name":"Updated",
-            "hubspot/last_name":"Record",
+            "hubspot/last_name":"Record some string 100",
             "first_name":{"operation":"setIfNull","value":"Updated"},
-            "last_name":{"operation":"setIfNull","value":"Record"}
+            "last_name":{"operation":"setIfNull","value":"Record some string 100"}
           }
         }],
         ["debug","incoming.account.link.skip",{"subject_type":"user","user_email":"new-email@hubspot.com","user_anonymous_id":"hubspot:3714024"},{"reason":"incoming linking is disabled, you can enabled it in the settings"}],
         ["debug","connector.service_api.call",{},{"responseTime":expect.whatever(),"method":"GET","url":"/contacts/v1/lists/all/contacts/all","status":200,"vars":{}}],
-        ["debug","incoming.user.success",{"subject_type":"user","user_email":"testingapis@hubspot.com","user_anonymous_id":"hubspot:3234574"},{"traits":{"hubspot/id":3234574,"hubspot/merged_vids":null,"hubspot/first_name":"Jeff","hubspot/last_name":"Testing","first_name":{"operation":"setIfNull","value":"Jeff"},"last_name":{"operation":"setIfNull","value":"Testing"}}}],
-        ["debug","incoming.user.success",{"subject_type":"user","user_email":"new-email@hubspot.com","user_anonymous_id":"hubspot:3714024"},{"traits":{"hubspot/id":3714024,"hubspot/merged_vids":null,"hubspot/first_name":"Updated","hubspot/last_name":"Record","first_name":{"operation":"setIfNull","value":"Updated"},"last_name":{"operation":"setIfNull","value":"Record"}}}],
+        ["debug","incoming.user.success",{"subject_type":"user","user_email":"testingapis@hubspot.com","user_anonymous_id":"hubspot:3234574"},{"traits":{"hubspot/id":3234574,"hubspot/merged_vids":null,"hubspot/first_name":"Jeff","hubspot/last_name":"Testing some string 100","first_name":{"operation":"setIfNull","value":"Jeff"},"last_name":{"operation":"setIfNull","value":"Testing some string 100"}}}],
+        ["debug","incoming.user.success",{"subject_type":"user","user_email":"new-email@hubspot.com","user_anonymous_id":"hubspot:3714024"},{"traits":{"hubspot/id":3714024,"hubspot/merged_vids":null,"hubspot/first_name":"Updated","hubspot/last_name":"Record some string 100","first_name":{"operation":"setIfNull","value":"Updated"},"last_name":{"operation":"setIfNull","value":"Record some string 100"}}}],
         ["info","incoming.job.success",{},{"jobName":"fetchAllContacts"}]
       ],
       firehoseEvents: [
@@ -95,9 +95,9 @@ it("should fetch all users using settings", () => {
             "hubspot/id":3234574,
             "hubspot/merged_vids":null,
             "hubspot/first_name":"Jeff",
-            "hubspot/last_name":"Testing",
+            "hubspot/last_name":"Testing some string 100",
             "first_name":{"operation":"setIfNull","value":"Jeff"},
-            "last_name":{"operation":"setIfNull","value":"Testing"}
+            "last_name":{"operation":"setIfNull","value":"Testing some string 100"}
           }
         ],
         ["traits",{"asUser":{"email":"new-email@hubspot.com","anonymous_id":"hubspot:3714024"},"subjectType":"user"},
@@ -105,9 +105,9 @@ it("should fetch all users using settings", () => {
             "hubspot/id":3714024,
             "hubspot/merged_vids":null,
             "hubspot/first_name":"Updated",
-            "hubspot/last_name":"Record",
+            "hubspot/last_name":"Record some string 100",
             "first_name":{"operation":"setIfNull","value":"Updated"},
-            "last_name":{"operation":"setIfNull","value":"Record"}
+            "last_name":{"operation":"setIfNull","value":"Record some string 100"}
           }
         ]
       ],
@@ -128,7 +128,7 @@ it("should fetch all users using settings", () => {
         ["GET","/api/v1/users_segments?shipId=9993743b22d60dd829001999",{"shipId":"9993743b22d60dd829001999"},{}],
         ["GET","/api/v1/accounts_segments?shipId=9993743b22d60dd829001999",{"shipId":"9993743b22d60dd829001999"},{}],
         ["GET","/api/v1/app",{},{}],
-        ["PUT","/api/v1/9993743b22d60dd829001999",{},{"private_settings":{"token":"hubToken","last_fetch_at":1419967066626,"mark_deleted_contacts":false,"mark_deleted_companies":false,"incoming_user_claims":[{"hull":"email","service":"$['identity-profiles'][*].identities[?(@.type === 'EMAIL')].value","required":false},{"hull":"email","service":"properties.email.value","required":false}],"incoming_user_attributes":[{"service":"`canonical-vid` ? `canonical-vid` : `vid`","hull":"traits_hubspot/id","readOnly":true,"overwrite":true},{"service":"properties.email.value","hull":"traits_hubspot/email","readOnly":true,"overwrite":true},{"service":"`merged-vids`","hull":"traits_hubspot/merged_vids","overwrite":true},{"service":"properties.firstname.value","hull":"traits_hubspot/first_name","overwrite":true},{"service":"properties.phone.value","hull":"traits_hubspot/phone","overwrite":true},{"service":"properties.lastname.value","hull":"traits_hubspot/last_name","overwrite":true}],"fetch_count":2},"refresh_status":false}]]
+        ["PUT","/api/v1/9993743b22d60dd829001999",{},{"private_settings":{"token":"hubToken","last_fetch_at":1419967066626,"mark_deleted_contacts":false,"mark_deleted_companies":false,"incoming_user_claims":[{"hull":"email","service":"$['identity-profiles'][*].identities[?(@.type === 'EMAIL')].value","required":false},{"hull":"email","service":"properties.email.value","required":false}],"incoming_user_attributes":[{"service":"`canonical-vid` ? `canonical-vid` : `vid`","hull":"traits_hubspot/id","readOnly":true,"overwrite":true},{"service":"properties.email.value","hull":"traits_hubspot/email","readOnly":true,"overwrite":true},{"service":"`merged-vids`","hull":"traits_hubspot/merged_vids","overwrite":true},{"service":"properties.firstname.value","hull":"traits_hubspot/first_name","overwrite":true},{"service":"properties.phone.value","hull":"traits_hubspot/phone","overwrite":true},{"service": "properties.lastname.value & ' some string ' & $string(100)","hull":"traits_hubspot/last_name","overwrite":true}],"fetch_count":2},"refresh_status":false}]]
     };
   });
 });
