@@ -1,6 +1,6 @@
 // @flow
 import type { HullContext, HullStatusResponse } from "hull";
-import { check } from "hull-vm";
+import check from "../check";
 
 export default async function statusCheck(
   ctx: HullContext

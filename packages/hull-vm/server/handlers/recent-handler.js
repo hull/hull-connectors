@@ -2,7 +2,7 @@
 import type { HullContext, HullExternalResponse } from "hull";
 import moment from "moment";
 import _ from "lodash";
-import type { Entry } from "hull-vm";
+import type Entry from "../models/entry";
 
 export default function getRecent(EntryModel: Object) {
   return async (ctx: HullContext): Promise<HullExternalResponse> => {
