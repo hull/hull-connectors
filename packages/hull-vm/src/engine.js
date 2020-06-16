@@ -153,14 +153,12 @@ export default class Engine extends EventEmitter {
     async ({ language, code, payload, claims, entity }: PreviewRequest) => {
       this.setState({ computing: true });
       try {
-        console.log("FETCHPREVIEW");
         const response: PreviewResponse = await this.request({
           url: "preview",
           method: "post",
           data: { language, code, payload, claims, entity }
         });
         const state = this.getState();
-        console.log("FETCHPREVIEW DONE");
         this.setState({
           error: undefined,
           computing: false,
