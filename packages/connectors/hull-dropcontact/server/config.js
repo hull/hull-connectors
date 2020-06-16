@@ -15,16 +15,14 @@ export default function connectorConfig(): HullConnectorConfig {
     WORKER,
     OVERRIDE_FIREHOSE_URL,
     REDIS_URL,
-    KUE_PREFIX = "hull-phantombuster",
+    KUE_PREFIX = "hull-dropcontact",
     QUEUE_NAME = "queueApp",
     SHIP_CACHE_TTL = 60,
-    SHIP_CACHE_MAX = 100,
-    MONGO_URL,
-    MONGO_COLLECTION_NAME = "phantombuster_requests"
+    SHIP_CACHE_MAX = 100
   } = process.env;
 
-  if (!MONGO_COLLECTION_NAME || !MONGO_URL) {
-    throw new Error("One or more MongoDB Environment variables not set.");
+  if (NODE_ENV === "production" && !REDIS_URL) {
+    throw new Error("This connector requires Redis to work");
   }
 
   const startServer = COMBINED === "true" || SERVER === "true";
