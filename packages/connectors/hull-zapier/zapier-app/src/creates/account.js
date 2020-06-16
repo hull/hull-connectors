@@ -9,7 +9,12 @@ const perform = async (z, { inputData }) => {
   const { external_id, domain, attributes } = inputData;
 
   if (!isValidClaim({ external_id, domain })) {
-    throw new z.errors.HaltedError("Invalid Claims");
+    const errorMessage = {
+      "message": _.isNil(external_id) && _.isNil(domain) ? "Missing Identity Claims": "Invalid Identity Claims",
+      external_id,
+      domain
+    };
+    throw new z.errors.HaltedError(JSON.stringify(errorMessage));
   }
 
   const claims = _.pickBy({ domain, external_id }, (v, _k) => !_.isEmpty(v));

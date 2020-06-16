@@ -4,7 +4,7 @@
   "source": "copper",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.25-monorepo",
+  "version": "0.1.27-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -210,7 +210,6 @@
             "type": "boolean",
             "title": "Overwrite In Hull",
             "format": "select",
-            "required": true,
             "default": true
           }
         }
