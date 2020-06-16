@@ -13,7 +13,7 @@ packages/hull-client/*
 packages/hull/*
 !packages/hull/src
 
-
+packages/connectors/hull-salesforce
 packages/connectors/hull-sql
 packages/connectors/hull-outreach
 packages/connectors/hull-warehouse

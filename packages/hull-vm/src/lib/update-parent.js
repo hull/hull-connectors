@@ -1,7 +1,4 @@
 // @flow
-
-/* global window */
-
 import _ from "lodash";
 import type { HullConnector } from "hull";
 

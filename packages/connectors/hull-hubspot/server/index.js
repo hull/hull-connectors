@@ -1,9 +1,9 @@
 // @flow
 
-import Hull from "hull";
+import { Connector } from "hull";
 import config from "./config";
 
-new Hull.Connector(config).start();
+new Connector(config).start();
 
 process.on("uncaughtExceptionMonitor", function(err, origin) {
   console.error("-------------------------");

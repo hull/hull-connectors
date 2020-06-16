@@ -1,5 +1,3 @@
-/* global window */
-
 import queryString from "query-string";
 import { Promise } from "es6-promise";
 

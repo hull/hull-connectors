@@ -1,0 +1,158 @@
+{
+  "configuration": {
+      "id": "1a88b55e477466c1af11199a",
+      "organization": "99zz8877.hullapp.io",
+      "secret": "99z6392583a08eaba361b5c999888ycf"
+  },
+  "channel": "user:update",
+  "messages": [
+      {
+          "message_id": "QV5AEkw4A0RJUytDCypYEU4EISE-MD5FU0RQBhYsXUZIUTcZCGhRDk9eIz81IChFGgtTE1FcdRNCEGxcM3UHUQ0Zc3thfWJcQQVRRVt0W1EaH1lcfksGVAofdH5hd21YFgYCQ3v8ysqh4ZFvZhs9XBJLLD5-MzZF",
+          "user": {},
+          "segments": [],
+          "account": {
+            "created_at": "2017-10-25T10:06:00Z",
+            "domain": "krakowtraders.pl",
+            "employees": 2,
+            "id": "a9461ad518be40ba-b568-4729-a676-f9c55abd72c9",
+            "industry": "Technology",
+            "name": "Krakow Traders",
+            "account_name": "new name",
+            "outreach/account_stage": "new stage",
+            "plan": "Enterprise",
+            "mrr": 950,
+            "_sales_business_won": "2017-10-25T12:45:00Z",
+            "cs_stage": "Pending",
+            "salesforce/id": "0011I000007Cy18QAC"
+          },
+          "account_segments": [
+            {
+              "id": "accountSegmentId1",
+              "name": "accountSegment1",
+              "updated_at": "2019-04-30T22:00:24Z",
+              "type": "accounts_segment",
+              "created_at": "2019-04-30T22:00:24Z"
+            }
+          ],
+          "events": [],
+          "changes": {
+              "user": {},
+              "segments": {},
+              "account": {
+                "account_name": [
+                  "old name",
+                  "new name"
+                ],
+                "outreach/account_stage": [
+                  "old stage",
+                  "new stage"
+                ]
+              },
+              "account_segments": {},
+              "is_new": false
+          }
+      }
+  ],
+  "segments": [],
+  "notification_id": "3f462fab-e85f-4cb1-85fb-d8d142e8897d",
+  "connector": {
+      "id": "1a88b55e477466c1af11199a",
+      "settings": {},
+      "manifest": {
+          "name": "Salesforce",
+          "version": "0.4.13",
+          "subscriptions": [
+              {
+                  "url": "/smart-notifier"
+              }
+          ],
+          "tags": [
+              "outgoing",
+              "oneColumn",
+              "batch",
+              "smart-notifier"
+          ]
+      },
+      "type": "ship",
+      "name": "Salesforce",
+      "private_settings": {
+          "oauth2": {
+            "clientId": "abc123",
+            "clientSecret": "def456"
+          },
+          "fetch_resource_schema": true,
+          "lead_synchronized_segments": [],
+          "contact_synchronized_segments": [],
+          "ignore_users_withoutemail": false,
+          "ignore_users_withoutchanges": false,
+          "lead_attributes_outbound": [],
+          "lead_assignmentrule": "none",
+          "lead_assignmentrule_update": "none",
+          "contact_attributes_outbound": [],
+          "account_claims": [
+            {
+              "hull": "domain",
+              "service": "Website",
+              "required": true
+            }
+          ],
+          "account_attributes_outbound": [
+            {
+              "hull": "account.account_name",
+              "service": "ACCOUNT_NAME__c",
+              "overwrite": true
+            },
+            {
+              "hull": "account.outreach/account_stage",
+              "service": "ACCOUNT_STAGE__c",
+              "overwrite": true
+            }
+          ],
+          "fetch_accounts": false,
+          "salesforce_oauth_url": "https://login.salesforce.com",
+          "refresh_token": "3Kep801hRJqEPUTYG_dW97P8laAje15mN6om7CqloiJSXBzxCJe5v32KztUkaWCm4GqBsKxm5UgDbG9Zt1gn4Y.",
+          "access_token": "99A5L000002rwPv!WEkDFONqSN.K2dfgNwPcPQdleLxBwAZcDEFGHrZOIYtDSr8IDDmTlJRKdFGH1Cn0xw3BfKHEWnceyK9WZerHU6iRgflKwzOBo",
+          "instance_url": "https://na98.salesforce.com",
+          "salesforce_login": "auto+test@hull.io",
+          "connector_hero": "",
+          "leads": "",
+          "lead_attributes_inbound": [],
+          "contacts": "",
+          "contact_attributes_inbound": [],
+          "accounts": "",
+          "account_attributes_inbound": [
+            {
+              "hull": "salesforce/website",
+              "service": "Website",
+              "overwrite": false
+            },
+            {
+              "hull": "salesforce/name",
+              "service": "Name",
+              "overwrite": false
+            },
+            {
+              "hull": "salesforce/mrr",
+              "service": "Mrr__c",
+              "overwrite": false
+            },
+            {
+              "hull": "salesforce/account_stage",
+              "service": "ACCOUNT_STAGE__c",
+              "overwrite": false
+            },
+            {
+              "hull": "salesforce/account_name",
+              "service": "ACCOUNT_NAME__c",
+              "overwrite": false
+            }
+          ],
+          "account_synchronized_segments": [
+            "accountSegmentId1"
+          ],
+          "advance_hero": ""
+      },
+      "source_url": "https://hull-sfdc-testing.herokuapp.com/",
+      "manifest_url": "https://hull-sfdc-testing.herokuapp.com/manifest.json"
+  }
+}
