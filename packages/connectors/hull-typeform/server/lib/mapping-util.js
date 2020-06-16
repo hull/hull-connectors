@@ -122,28 +122,12 @@ class MappingUtil {
     );
     const propertiesFromHidden = response.hidden;
     const propertiesFromCalculated = response.calculated;
-    return Object.assign(
-      {},
-      baseProperties,
-      propertiesFromAnswers,
-      propertiesFromHidden,
-      propertiesFromCalculated
-    );
-    // _.map(_.merge(response.answers, response.hidden), (answer, questionId) => {
-    //   const question = _.find(questions, { id: questionId });
-    //   const propName = (question ? striptags(question.question) : questionId);
-    //
-    //   if (_.has(props, propName)) {
-    //     if (_.isArray(props[propName])) {
-    //       props[propName].push(this.castAnswerType(questionId, answer));
-    //     } else {
-    //       props[propName] = [props[propName], this.castAnswerType(questionId, answer)];
-    //     }
-    //   } else {
-    //     props[propName] = this.castAnswerType(questionId, answer);
-    //   }
-    // });
-    // return props;
+    return {
+      ...baseProperties,
+      ...propertiesFromAnswers,
+      ...propertiesFromHidden,
+      ...propertiesFromCalculated
+    };
   }
 
   getAnswerValue(

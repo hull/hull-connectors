@@ -6,7 +6,7 @@ import statusHandler from "./status-handler";
 import enrich from "../jobs/enrich";
 import userUpdate from "./user-update";
 
-export default function({
+export default function handlers({
   flow_in,
   flow_size,
   flow_in_time

@@ -216,26 +216,22 @@ export const enrich = async (
   const { hostname, metric, clientCredentialsEncryptedToken } = ctx;
   const { connector } = ctx;
   const { private_settings } = connector;
-  try {
-    metric.increment("enrich");
-    const { person, company } = await performEnrich({
-      ctx,
-      settings: private_settings,
-      token: clientCredentialsEncryptedToken,
-      subscribe: true,
-      hostname,
-      message
-    });
-    // if (!response || !response.source) return undefined;
-    // const { person, company } = enrichment;
+  metric.increment("enrich");
+  const { person, company } = await performEnrich({
+    ctx,
+    settings: private_settings,
+    token: clientCredentialsEncryptedToken,
+    subscribe: true,
+    hostname,
+    message
+  });
+  // if (!response || !response.source) return undefined;
+  // const { person, company } = enrichment;
 
-    const source = "enrich";
-    await Promise.all([
-      user && saveUser(ctx, { user, person, source }),
-      account && saveAccount(ctx, { user, person, account, company, source })
-    ]);
-  } catch (err) {
-    throw err;
-  }
+  const source = "enrich";
+  await Promise.all([
+    user && saveUser(ctx, { user, person, source }),
+    account && saveAccount(ctx, { user, person, account, company, source })
+  ]);
   return undefined;
 };

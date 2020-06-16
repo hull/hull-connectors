@@ -126,26 +126,22 @@ export default class Engine extends EventEmitter {
     data?: {},
     headers?: {}
   }): Promise<any> => {
-    try {
-      const { config } = this.state;
-      if (!config) {
-        throw new Error("Can't find a proper config, please reload page");
-      }
-      const response = await fetch(`${url}?${this.getQueryString()}`, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          ...headers
-        },
-        body: JSON.stringify(data)
-      });
-      if (!response.ok) {
-        throw new Error(response.statusText);
-      }
-      return response.json();
-    } catch (err) {
-      throw err;
+    const { config } = this.state;
+    if (!config) {
+      throw new Error("Can't find a proper config, please reload page");
     }
+    const response = await fetch(`${url}?${this.getQueryString()}`, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        ...headers
+      },
+      body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+    return response.json();
   };
 
   getQueryString = () => {
