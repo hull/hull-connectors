@@ -96,6 +96,36 @@ export LDFLAGS=-L/usr/local/opt/openssl/lib
 
 Then you can run yarn install to get it to build correctly.
 
+
+**Run the connector locally using Docker**
+
+Build the image
+```
+docker build -t ${connector} .
+```
+
+Run the container
+```
+docker run -p 8082:8082 --env-file ./.env ${image}
+```
+
+Environment variables needed
+```
+CLIENT_ID=
+CLIENT_SECRET=
+FIREHOSE_KAFKA_BROKERS=
+FIREHOSE_KAFKA_TOPIC=
+FIREHOSE_KAFKA_TOPICS_MAPPING=
+LOGGER_KAFKA_BROKERS=
+LOGGER_KAFKA_TOPIC=
+NODE_ENV=
+LOG_LEVEL=
+REDIS_URL=
+SECRET=
+CONNECTOR=
+```
+
+
 **How do I test the kafka firehose transport locally?**
 
 The docker-compose.yml setup comes with a full setup to start a local Kafka broker.
