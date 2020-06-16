@@ -149,6 +149,15 @@ const MESSAGES = {
       channel: "Operation",
       category: "Unknown"
     };
+  },
+  OPERATION_EXCEEDED_RATE_LIMIT: () => {
+    return {
+      id: "OperationExceededRateLimit",
+      message: "Connector has exceeded the rate limit",
+      level: "Information",
+      channel: "Operation",
+      category: "DataFlow"
+    }
   }
 };
 
