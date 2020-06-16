@@ -3,12 +3,15 @@ const Promise = require("bluebird");
 class ClientMock {
   constructor() {
     this.configuration = { secret: "topsecret123" };
+
+    const logFunction = (msg, data) => process.env.DEBUG && console.log(msg, data);
+
     this.logger = {
-      info: jest.fn((msg, data) => console.log(msg, data)),
-      debug: jest.fn((msg, data) => console.log(msg, data)),
-      error: jest.fn((msg, data) => console.log(msg, data)),
-      warn: jest.fn((msg, data) => console.log(msg, data)),
-      log: jest.fn((msg, data) => console.log(msg, data))
+      info: jest.fn(logFunction),
+      debug: jest.fn(logFunction),
+      error: jest.fn(logFunction),
+      warn: jest.fn(logFunction),
+      log: jest.fn(logFunction)
     };
     this.get = jest.fn(() => Promise.resolve());
     this.post = jest.fn(() => Promise.resolve());
