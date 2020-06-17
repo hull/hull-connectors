@@ -57,11 +57,22 @@ async function handleAction(
     case "subscribe":
       processedData = _.merge({}, data, {
         status: "subscribed",
-        subscribed: true
+        subscribed: true,
+        archived: false
       });
       break;
 
     case "unsubscribe":
+      if (data.action === "archive" || data.action === "delete") {
+        // status: archived
+        // subscribed: false
+        // archived: true
+      } else {
+        // status: "unsubscribed",
+        // subscribed: false,
+        // archived: false
+      }
+
       processedData = _.merge({}, data, {
         status: "unsubscribed",
         subscribed: false,
@@ -72,7 +83,8 @@ async function handleAction(
     case "cleaned":
       processedData = _.merge({}, data, {
         status: "cleaned",
-        value: false
+        subscribed: false,
+        archived: false
       });
       break;
 
@@ -92,7 +104,8 @@ async function handleAction(
           } else {
             processedData = _.merge({}, data, {
               status: member.status,
-              subscribed: member.status === "subscribed"
+              subscribed: member.status === "subscribed",
+              archived: member.status === "archived"
             });
           }
         }
