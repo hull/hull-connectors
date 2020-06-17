@@ -7,11 +7,13 @@ import type {
   HullAccountUpdateMessage
 } from "hull";
 
-import { isValidMessage } from "hull-connector-framework/src/purplefusion/triggers/validations";
-
 import TRIGGER_DEFINITIONS from "hull-connector-framework/src/purplefusion/triggers/triggers";
 
 import _ from "lodash";
+
+const {
+  isValidMessage
+} = require("hull-connector-framework/src/purplefusion/triggers/validations");
 
 const hasMatchingTriggers = (ctx: HullContext) => ({
   mode = "any",

@@ -1,0 +1,17 @@
+{
+  "name": "hull-salesforce",
+  "version": "0.1.28-monorepo",
+  "description": "Hull Salesforce integration",
+  "scripts": {
+    "test": "yarn run test:integration",
+    "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit",
+    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/**/*.js",
+    "documentation": "exit 0"
+  },
+  "dependencies": {
+    "jsforce": "hull/jsforce#f16e4535efb0629310699443bf77d7864d50b2e8",
+    "passport-forcedotcom": "0.1.5",
+    "rosie": "2.0.1"
+  },
+  "devDependencies": {}
+}

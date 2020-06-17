@@ -23,6 +23,7 @@ it("should update customer", () => {
       // messages: [require(`./scenarios/customer-update/smart-notifier-payload`)().messages],
       connector: {
         private_settings: {
+          user_id_mapping: "external_id",
           api_key: "bar",
           site_id: "foo",
           synchronized_segments: ["hullSegmentId"]
@@ -73,7 +74,6 @@ it("should update customer", () => {
           {
             request_id: expect.whatever(),
             subject_type: "user",
-            user_email: "email@email.com",
             user_external_id: "123"
           },
           {
@@ -91,7 +91,7 @@ it("should update customer", () => {
         [
           "traits",
           {
-            asUser: { email: "email@email.com", external_id: "123" },
+            asUser: { external_id: "123" },
             subjectType: "user"
           },
           {

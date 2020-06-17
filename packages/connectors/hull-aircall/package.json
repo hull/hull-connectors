@@ -1,7 +1,7 @@
 {
   "name": "hull-aircall",
   "description": "Capture Aircall Events",
-  "version": "0.1.27-monorepo",
+  "version": "0.1.28-monorepo",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {
     "test": "exit 0; echo 'No Tests here' Sad Panda",

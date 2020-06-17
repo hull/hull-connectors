@@ -342,7 +342,14 @@ class SyncAgent {
   }
 
   updateUserEnvelope(envelope: TUserUpdateEnvelope): Promise<*> {
-    const userScopedClient = this.client.asUser(envelope.message.user);
+    const hullUser = envelope.message.user;
+    const userAttributeServiceId = this.mappingUtil.userAttributeServiceId;
+    const identObj =
+      userAttributeServiceId === "external_id" && _.has(hullUser, "external_id")
+        ? _.pick(hullUser, "external_id")
+        : hullUser;
+
+    const userScopedClient = this.client.asUser(identObj);
     const validationResult = this.validationUtil.validateCustomer(
       envelope.customer
     );
