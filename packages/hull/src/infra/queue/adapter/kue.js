@@ -43,23 +43,23 @@ class KueAdapter {
     return Promise.fromCallback(callback => {
       const job = this.queue.create(jobName, jobPayload).removeOnComplete(true);
 
-      if (attempts) {
+      if (attempts !== undefined) {
         job.attempts(attempts);
       }
 
-      if (ttl) {
+      if (ttl !== undefined) {
         job.ttl(ttl);
       }
 
-      if (delay) {
+      if (delay !== undefined) {
         job.delay(delay);
       }
 
-      if (priority) {
+      if (priority !== undefined) {
         job.priority(priority);
       }
 
-      if (backoff) {
+      if (backoff !== undefined) {
         job.backoff(backoff);
       }
 
@@ -71,9 +71,7 @@ class KueAdapter {
       // job.on("progress", progress => logger.info("job.progress", { progress }));
       // job.on("complete", result => logger.info("job.complete", { result }));
 
-      return job.save(err => {
-        callback(err, job.id);
-      });
+      return job.save(err => callback(err, job.id));
     });
   }
 
@@ -95,9 +93,9 @@ class KueAdapter {
   }
 
   exit() {
-    return Promise.fromCallback(callback => {
-      this.queue.shutdown(5000, callback);
-    });
+    return Promise.fromCallback(callback =>
+      this.queue.shutdown(5000, callback)
+    );
   }
 
   setupUiRouter(router) {
