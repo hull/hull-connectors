@@ -448,7 +448,7 @@ describe("Skip Account Via User Update Tests", () => {
             }
           }
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        response: { "flow_control": { "type": "next", } },
         logs: [
           expect.arrayContaining([
             "ship.service_api.request",
@@ -976,7 +976,7 @@ describe("Skip Account Via User Update Tests", () => {
             }
           }
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        response: { "flow_control": { "type": "next", } },
         logs: [
           expect.arrayContaining([
             "ship.service_api.request",
