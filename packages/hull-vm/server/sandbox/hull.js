@@ -72,7 +72,19 @@ const buildHullContext = ({
     operation: HullAliasOperation,
     target: "userAliases" | "accountAliases"
   ) => (alias: ClaimType) => {
-    // sets the rigth operation for the claim and the given alias.
+    if (
+      (!_.isEmpty(alias) &&
+        (_.isString(alias) || !_.has(alias, "anonymous_id"))) ||
+      _.isObject(alias.anonymous_id)
+    ) {
+      deprecationLogger(
+        `Incorrect alias format '${JSON.stringify(
+          alias
+        )}'. Please use '.alias({ anonymous_id: "..." })'`
+      );
+    }
+
+    // sets the right operation for the claim and the given alias.
     // perform deep value equality checks.
     result[target] = result[target].setIn(
       [
