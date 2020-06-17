@@ -37,6 +37,7 @@ describe("notificationHandler", () => {
 
     app = express();
     connector = new Hull.Connector({
+      manifest: {},
       connectorName: "TestConnector",
       port: 8092,
       timeout: "100ms",
