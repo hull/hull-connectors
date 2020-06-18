@@ -157,14 +157,14 @@ function createEnumTransformOutgoing({ attribute, writePath, attributeList, rout
 }
 
 function createEnumTransformWithAttributeListOutgoing({
-                                                        attribute,
-                                                        attributeList,
-                                                        route,
-                                                        forceRoute,
-                                                        format,
-                                                        formatOnNull,
-  writePath
-                                                      }) {
+    attribute,
+    attributeList,
+    route,
+    forceRoute,
+    format,
+    formatOnNull,
+    writePath
+}) {
   return {
     condition: isServiceAttributeInVarList(attribute, attributeList),
     then: createEnumTransformOutgoing({ attribute, attributeList, route, forceRoute, format, formatOnNull, writePath })
