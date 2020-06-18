@@ -224,8 +224,9 @@ class HullConnector {
 
     if (disableOnExit !== true) {
       onExit(() => {
+        console.log(`Terminator Handling Exit: ${Date.now()}`);
         return this.httpTerminator.terminate().then(() => {
-          console.log("Terminated!!!");
+          console.log(`Terminator Handled Exit: ${Date.now()}`);
           return Promise.all([
             Batcher.exit(),
             this.queue.exit(),
