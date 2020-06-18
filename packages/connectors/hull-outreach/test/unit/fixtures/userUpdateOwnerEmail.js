@@ -37,47 +37,49 @@ module.exports = {
       incoming_account_attributes: []
     }
   },
-  route: "userUpdateStart",
+  route: "userUpdate",
   input: {
     classType: {
       service_name: "HullOutgoingUser",
       name: "User"
     },
     context: {},
-    data: {
-      user: {
-        id: "5d4933d23c51ff4f520754b3",
-        created_at: "2019-08-06T08:01:22Z",
-        email: "user2@chucksfarm.com",
-        domain: "chucksfarm.com",
-        name: "Chuck Norris",
-        last_name: "Norris",
-        first_name: "Chuck",
-        is_approved: false,
-        anonymous_ids: ["hubspot:13401", "outreach:184849"],
-        segment_ids: ["5d2692246bd734f4f10067dd", "5c6b18761d7672a8f21a2f01"],
-        "my_attributes/owner": "someonesemail@outreach.io",
-        indexed_at: "2019-08-07T21:25:39Z",
-        "outreach/id": 184849
-      },
-      segments: [
-        {
-          id: "5d2692246bd734f4f10067dd",
-          name: "Users with email",
-          type: "users_segment",
-          created_at: "2019-07-11T01:34:28Z",
-          updated_at: "2019-07-11T01:34:28Z"
+    data: [
+      {
+        user: {
+          id: "5d4933d23c51ff4f520754b3",
+          created_at: "2019-08-06T08:01:22Z",
+          email: "user2@chucksfarm.com",
+          domain: "chucksfarm.com",
+          name: "Chuck Norris",
+          last_name: "Norris",
+          first_name: "Chuck",
+          is_approved: false,
+          anonymous_ids: ["hubspot:13401", "outreach:184849"],
+          segment_ids: ["5d2692246bd734f4f10067dd", "5c6b18761d7672a8f21a2f01"],
+          "my_attributes/owner": "someonesemail@outreach.io",
+          indexed_at: "2019-08-07T21:25:39Z",
+          "outreach/id": 184849
         },
-        {
-          id: "5c6b18761d7672a8f21a2f01",
-          name: "Send Leads To Intercom",
-          type: "users_segment",
-          created_at: "2019-02-18T20:41:26Z",
-          updated_at: "2019-02-18T20:41:26Z"
-        }
-      ],
-      account: {}
-    }
+        segments: [
+          {
+            id: "5d2692246bd734f4f10067dd",
+            name: "Users with email",
+            type: "users_segment",
+            created_at: "2019-07-11T01:34:28Z",
+            updated_at: "2019-07-11T01:34:28Z"
+          },
+          {
+            id: "5c6b18761d7672a8f21a2f01",
+            name: "Send Leads To Intercom",
+            type: "users_segment",
+            created_at: "2019-02-18T20:41:26Z",
+            updated_at: "2019-02-18T20:41:26Z"
+          }
+        ],
+        account: {}
+      }
+    ]
   },
   serviceRequests: [
     {
@@ -110,11 +112,10 @@ module.exports = {
       }
     },
     {
-      localContext: [
-        {
-          userId: 184849
-        }
-      ],
+      localContext:
+      expect.objectContaining({
+        userId: 184849
+      }),
       name: "outreach",
       op: "updateProspect",
       input: {
@@ -124,7 +125,7 @@ module.exports = {
           relationships: {
             owner: {
               data: {
-                id: 23,
+                id: "23",
                 type: "user"
               }
             }
@@ -150,14 +151,6 @@ module.exports = {
           "outreach/id": {
             value: 184849,
             operation: "set"
-          },
-          "outreach/addressstreet": {
-            operation: "set",
-            value: null
-          },
-          "outreach/custom1": {
-            operation: "set",
-            value: null
           }
         }
       },
@@ -165,14 +158,16 @@ module.exports = {
     }
   ],
   result: [
-    {
-      hullDispatcherStatus: "stop"
-    },
     [
       {
         hullDispatcherStatus: "stop"
       },
-      {}
+      [
+        {
+          hullDispatcherStatus: "stop"
+        },
+        {}
+      ]
     ]
   ]
 };
