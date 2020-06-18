@@ -24,7 +24,10 @@ describe("Outreach User Tests", () => {
     return harness.runTest(require("./fixtures/userUpdateStart"));
   });
   it("outgoing outreach user with owner email mapped", () => {
-    return harness.runTest(require("./fixtures/userUpdateOwnerEMail"));
+    return harness.runTest(require("./fixtures/userUpdateOwnerEmail"));
+  });
+  it("outgoing outreach user with bad owner email mapped", () => {
+    return harness.runTest(require("./fixtures/userUpdateOwnerEmailFail"));
   });
   it("incoming outreach webhook", () => {
     return harness.runTest(require("./fixtures/webhook"));
