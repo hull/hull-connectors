@@ -8,7 +8,11 @@ table.full-width {
 
 h4 {
   margin-top: 20px;
-  padding-top: 10px;
+  margin-bottom: 5px;
+}
+
+h4+p{
+  margin-top: 5px;
 }
 
 .loading {
@@ -28,15 +32,19 @@ h4 {
   padding: 5px;
 }
 
+.service-icon {
+  margin-right: 5px;
+  width: 20px;
+}
+.error-icon {
+  top: 5px;
+  position: relative;
+}
 .map-google,
 .map-hull {
   display: flex;
   flex-direction: row;
   margin-bottom: 5px;
-  .service-icon {
-    margin-right: 5px;
-    width: 20px;
-  }
   > select {
     flex-grow: 1;
     margin-right: 4px;
@@ -52,9 +60,16 @@ h4 {
   }
 }
 
-td.claim-name {
-  text-align: right;
+td.row-name {
+  text-align: left;
   padding-right: 5px;
+  width: 95px;
+  h4 {
+    margin-top: 7px;
+  }
+}
+td.row-value select {
+  width: 100%;
 }
 
 .map-hull {
@@ -63,19 +78,21 @@ td.claim-name {
   }
 }
 
+.border {
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
+}
 .flex-row {
   display: flex;
   flex-direction: row;
   align-items: baseline;
   flex-grow: 1;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 10px;
-  &.border {
-    border-bottom: 1px solid #ccc;
+  .source-select{
+    flex-grow: 1;
   }
   h4 {
-    width: 170px;
-    margin: 10px;
+    white-space: nowrap;
+    margin-right: 10px;;
   }
 }
 
@@ -88,6 +105,13 @@ td.claim-name {
 
 .button.import {
   @extend %flexButton;
+  width: 100%;
+  margin-top: 20px;
+  display: block;
+  float: none;
+  border-radius: 100px;
+  padding: 4px 5px;
+  height: auto;
 }
 
 .icon {

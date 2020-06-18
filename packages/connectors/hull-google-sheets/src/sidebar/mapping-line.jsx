@@ -3,13 +3,20 @@
 import React, { PureComponent } from "react";
 import Creatable from "react-select/creatable";
 // import Select from "react-select";
-import _ from "lodash";
 import SVG from "react-inlinesvg";
+import hasInvalidCharacters from "../lib/has-invalid-characters";
+import {
+  validationErrors,
+  isOptionDisabled,
+  toOptions
+} from "../lib/filter-utils";
+import Errors from "./errors";
 import type { AttributeMapping } from "../../types";
 
 type MappingProp = {
   column: number,
   hull: string,
+  source?: string,
   idx: number,
   destinationOptions: Array<string>,
   sourceOptions: Array<string>,
@@ -19,12 +26,14 @@ type MappingProp = {
   onRemove: (number, any) => void
 };
 
-const toOptions = (value: string) => ({ value, label: value });
-const isOptionDisabled = (mapping: AttributeMapping) => ({
-  value
-}: {
-  value: string
-}): boolean => !!_.some(mapping, { hull: value });
+const ERROR_STYLE = {
+  borderColor: "rgb(233, 0, 51)",
+  background: "rgb(255, 237, 237)"
+};
+const NEW_STYLE = {
+  borderColor: "rgb(0, 144, 233)",
+  background: "rgb(237, 248, 255)"
+};
 
 export default class MappingLine extends PureComponent<MappingProp> {
   handleUpdateHull = ({ value }: any) =>
@@ -42,7 +51,38 @@ export default class MappingLine extends PureComponent<MappingProp> {
     });
   };
 
+  getNewOptionData = (value: string, label: string) => ({
+    value,
+    label
+  });
+
+  getOptionLabel = ({ value }) => `${this.props.source}/${value}`;
+
+  getLabel = ({
+    label,
+    value,
+    __isNew__
+  }: {
+    value: string,
+    label: string,
+    __isNew__?: boolean
+  }) => (__isNew__ ? `Create "${value}"` : label);
+
+  formatCreateLabel = value =>
+    `Create ${this.props.source ? `${this.props.source}/${value}` : value}`;
+
+  isValidNewOption = (inputValue: string) =>
+    !hasInvalidCharacters(inputValue).length;
+
   handleRemove = () => this.props.onRemove(this.props.idx);
+
+  getControlStyle = (control: {}) => {
+    if (!this.isValidNewOption(this.props.hull))
+      return { ...control, ...ERROR_STYLE };
+    if (this.props.destinationOptions.indexOf(this.props.hull) < 0)
+      return { ...control, ...NEW_STYLE };
+    return control;
+  };
 
   render() {
     const {
@@ -52,6 +92,7 @@ export default class MappingLine extends PureComponent<MappingProp> {
       destinationOptions,
       mapping = []
     } = this.props;
+    const invalidChars = validationErrors({ hull });
     return (
       <tr>
         <td colSpan={2} className="no-style mapping-line">
@@ -78,14 +119,20 @@ export default class MappingLine extends PureComponent<MappingProp> {
           <div className="map-hull">
             <SVG className="service-icon" src={require("../icons/hull.svg")} />
             <Creatable
-              isSearchable
+              styles={{
+                control: this.getControlStyle
+              }}
+              getNewOptionData={this.getNewOptionData}
+              formatCreateLabel={this.formatCreateLabel}
               isOptionDisabled={isOptionDisabled(mapping)}
-              allowCreateWhileLoading
-              defaultValue={toOptions(hull || sourceOptions[column])}
+              getOptionLabel={this.getOptionLabel}
+              defaultValue={toOptions(sourceOptions[column])}
+              value={toOptions(hull)}
               options={(destinationOptions || []).map(toOptions)}
               onChange={this.handleUpdateHull}
             />
           </div>
+          <Errors errors={invalidChars} />
         </td>
       </tr>
     );

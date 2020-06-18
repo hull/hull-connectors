@@ -23,8 +23,7 @@ const EXCLUDED = ["anonymous_ids", "external_id", "email", "domain"];
 
 const transformAttributes = ({
   schema,
-  type,
-  source
+  type
 }: {
   schema: Array<SchemaEntry>,
   type: ImportType,
@@ -34,32 +33,23 @@ const transformAttributes = ({
     schema,
     (m, { key, visible }) => {
       const k = type === "user" ? key.replace(/traits_/, "") : key;
-      if (
-        EXCLUDED.includes(k) ||
-        !visible ||
-        k.indexOf("account.") === 0 ||
-        (source && k.indexOf(source) !== 0)
-      ) {
+      if (EXCLUDED.includes(k) || !visible || k.indexOf("account.") === 0) {
         return m;
       }
-      m.push(source ? k.replace(`${source}/`, "") : k);
+      m.push(k);
       return m;
     },
     []
   );
 
-const getSchema = async (
-  ctx: HullContext,
-  type: ImportType,
-  source: string
-) => {
+const getSchema = async (ctx: HullContext, type: ImportType) => {
   if (type === "user") {
     const schema = await ctx.entities.users.getSchema();
-    return transformAttributes({ schema, type, source });
+    return transformAttributes({ schema, type });
   }
   if (type === "account") {
     const schema = await ctx.entities.accounts.getSchema();
-    return transformAttributes({ schema, type, source });
+    return transformAttributes({ schema, type });
   }
   if (type === "user_event") {
     return ctx.entities.events.getSchema();
@@ -73,9 +63,9 @@ export default async function returnSchema(
 ) {
   // $FlowFixMe
   const body: { type?: ImportType, source?: string } = message.body;
-  const { type = "user", source = "" } = body;
+  const { type = "user" } = body;
   try {
-    const schema = await getSchema(ctx, type || "user", source);
+    const schema = await getSchema(ctx, type || "user");
     return {
       status: 200,
       data: schema

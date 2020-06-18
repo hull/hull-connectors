@@ -10,6 +10,7 @@
     "domready": "^1.0.8",
     "material-ui": "^0.20.2",
     "prop-types": "^15.7.2",
-    "supertest": "^4.0.2"
+    "supertest": "^4.0.2",
+    "svg-inline-loader": "^0.8.2"
   }
 }

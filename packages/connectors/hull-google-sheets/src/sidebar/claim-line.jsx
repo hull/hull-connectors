@@ -20,17 +20,17 @@ class ClaimLine extends Component<Props, State> {
     // $FlowFixMe
     const { value } = event.currentTarget;
     const { claim } = this.props;
-    this.props.onUpdate({ [claim]: value });
+    this.props.onUpdate({ [claim]: value === "" ? undefined : value });
   };
 
   render() {
     const { claim, googleColumns = [], value } = this.props;
     return (
       <tr className="no-style claim-line">
-        <td className="no-style claim-name">{claim} :</td>
-        <td className="no-style claim-value">
+        <td className="no-style row-name">{claim} :</td>
+        <td className="no-style row-value">
           <select onChange={this.handleUpdateClaim} value={value}>
-            <option value={undefined}>---[Not Mapped]---</option>
+            <option value="">---[Not Mapped]---</option>
             {googleColumns.map((option, i) => (
               <option key={i} value={i}>
                 {option}

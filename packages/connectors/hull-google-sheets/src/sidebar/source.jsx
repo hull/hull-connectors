@@ -1,57 +1,50 @@
 // @flow
 
 import React, { Fragment, Component } from "react";
+import Creatable from "react-select/creatable";
+import hasInvalidCharacters from "../lib/has-invalid-characters";
+import { toOptions } from "../lib/filter-utils";
+import Errors from "./errors";
 
 type Props = {
-  source?: string,
+  source: string,
+  sources: Array<string>,
   onChange: string => any
 };
 
 type State = {};
 
-const hasInvalidCharacters = (value?: string): Array<string> =>
-  (value && value.match(/[^0-9A-Za-z-_]/g)) || [];
-
 class Source extends Component<Props, State> {
-  handleChange = (e: SyntheticEvent<>) => {
-    // $FlowFixMe
-    const value: string = e.currentTarget.value;
-    this.props.onChange(value);
-  };
+  handleChange = option =>
+    option ? this.props.onChange(option.value) : this.props.onChange();
+
+  renderSourceMessage(source) {
+    return source ? (
+      <p>Attributes will be imported under the group &quot;{source}/&quot;</p>
+    ) : (
+      <p>
+        Attributes will be imported at the Top level. This is discouraged, You
+        should import attributes in a group
+      </p>
+    );
+  }
 
   render() {
-    const { source } = this.props;
+    const { source, sources } = this.props;
     const invalidChars = hasInvalidCharacters(source);
     return (
       <Fragment>
-        <div className="flex-row">
-          <h4>Import Group : </h4>
-          <input
-            style={{ width: "100%" }}
-            type="text"
-            id="source"
-            value={source}
-            onChange={this.handleChange}
-          />
-        </div>
-        {!invalidChars.length && source ? (
-          <p>
-            Attributes will be imported under the group &quot;{source}/&quot;
-          </p>
-        ) : (
-          <p>
-            Attributes will be imported at the Top level. This is discouraged,
-            You should import attributes in a group
-          </p>
-        )}
-        {!!invalidChars.length && (
-          <div className="error">
-            Invalid Characters, please fix:{" "}
-            {invalidChars.map((c, i) => (
-              <span key={i}>{c.replace(" ", "Space Character")}</span>
-            ))}
-          </div>
-        )}
+        <h4>Import Group</h4>
+        <Creatable
+          isClearable
+          isSearchable
+          className="source-select"
+          defaultValue={toOptions(source)}
+          options={sources.map(toOptions)}
+          onChange={this.handleChange}
+        />
+        <Errors errors={invalidChars} />
+        {!invalidChars.length ? this.renderSourceMessage(source) : null}
       </Fragment>
     );
   }

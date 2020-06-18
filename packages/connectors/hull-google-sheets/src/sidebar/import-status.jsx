@@ -22,7 +22,7 @@ export default class ImportStatus extends Component<Props, State> {
             <b>Importing your sheet - {importStatus}</b>
           </p>
         )}
-        <p>{imported || 0} imported</p>
+        {importStatus && <p>{imported || 0} imported</p>}
 
         {importStatus === "done" ? (
           <button onClick={clearImportStatus}>Start another import</button>

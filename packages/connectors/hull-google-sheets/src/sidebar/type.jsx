@@ -16,19 +16,23 @@ class Type extends Component<Props, State> {
   render() {
     const { type } = this.props;
     return (
-      <div className="flex-row">
-        <h4>Import Type : </h4>
-        <select
-          style={{ width: "100%" }}
-          value={type}
-          onChange={this.handleChangeEntityType}
-        >
-          <option value="user" default>
-            Users
-          </option>
-          <option value="account">Accounts</option>
-        </select>
-      </div>
+      <table className="full-width">
+        <tbody>
+          <tr>
+            <td className="no-style row-name">
+              <h4>Import Type : </h4>
+            </td>
+            <td className="no-style row-value">
+              <select value={type} onChange={this.handleChangeEntityType}>
+                <option value="user" default>
+                  Users
+                </option>
+                <option value="account">Accounts</option>
+              </select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     );
   }
 }

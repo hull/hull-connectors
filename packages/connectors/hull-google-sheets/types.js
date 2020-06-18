@@ -18,9 +18,9 @@ export type SettingsType = {
 };
 export type MappingType = {
   hull: string,
-  column: number,
-  overwrite?: boolean,
-  enabled?: boolean
+  column: number
+  // overwrite?: boolean,
+  // enabled?: boolean
 };
 export type AttributeMapping = Array<MappingType>;
 
@@ -30,15 +30,6 @@ export type ImportProgressType = {
   imported: number,
   skipped: number,
   empty: number
-};
-
-export type UserPropsType = {
-  token: string,
-  mapping: AttributeMapping,
-  claims: AttributeMapping,
-  settings: SettingsType,
-  type: ImportType,
-  source: string
 };
 
 export type GetActiveSheetResponse = {

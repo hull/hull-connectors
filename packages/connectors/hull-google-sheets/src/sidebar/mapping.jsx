@@ -1,7 +1,6 @@
 // @flow
 
 import React, { Fragment, Component } from "react";
-import _ from "lodash";
 import MappingLine from "./mapping-line";
 import type {
   ImportType,
@@ -19,6 +18,7 @@ type Props = {
   mapping?: AttributeMapping,
   loading?: boolean,
   onAddRow: any => void,
+  onChangeSource: string => void,
   onRemoveRow: ({ index: number }) => void,
   onChangeRow: ({ value: MappingType, index: number }) => void
 };
@@ -26,71 +26,44 @@ type Props = {
 type State = {};
 
 class Mapping extends Component<Props, State> {
-  getHullFieldOptions(additionalField: string): Array<string> {
-    const { hullAttributes = [] } = this.props;
-    return _.compact(_.uniq(hullAttributes.concat([additionalField])));
-  }
-
-  getMappedField = (name: string) => {
-    const { googleColumns = [], mapping = [] } = this.props;
-    const idx = _.findIndex(
-      mapping,
-      m => m && m.enabled && m.hullField === name
-    );
-    const column = idx > -1 && googleColumns[idx];
-    return column && { idx, column, mapping: mapping[idx] };
-  };
-
   handleRemove = (index: number) =>
     this.props.onRemoveRow({
       index
     });
 
-  handleChange = (index: number, value: any) =>
+  handleChange = (index: number, value: { hull: string, column: number }) => {
     this.props.onChangeRow({
       value,
       index
     });
+  };
 
   handleAddRow = () => this.props.onAddRow();
 
-  renderMappedField = (name: string) => {
-    const mapped = this.getMappedField(name);
-    if (mapped) {
-      return (
-        <p>
-          <b>{name}</b> field mapped to <b>{mapped.column}</b> column
-        </p>
-      );
-    }
-
-    return (
-      <p className="grey">
-        <b>{name}</b> missing
-      </p>
-    );
-  };
-
   render() {
-    const { loading, mapping = [], googleColumns = [] } = this.props;
+    const {
+      source,
+      loading,
+      mapping = [],
+      googleColumns = [],
+      hullAttributes = []
+    } = this.props;
     return (
       <Fragment>
         <h4>Columns mapping</h4>
-        <p>
-          Pick names of attributes or create new ones. Attributes will be stored
-          in the group above
-        </p>
+        <p>Pick names of attributes or create new ones.</p>
         <table className="full-width">
           <tbody>
-            {mapping.map(({ hull, column }, idx) => (
+            {mapping.map(({ hull = "", column }, idx) => (
               <MappingLine
                 mapping={mapping}
-                key={idx}
-                enabled={true}
                 hull={hull}
+                key={idx}
+                source={source}
+                enabled={true}
                 column={column}
                 sourceOptions={googleColumns}
-                destinationOptions={this.getHullFieldOptions(hull)}
+                destinationOptions={hullAttributes}
                 onChange={this.handleChange}
                 onRemove={this.handleRemove}
                 idx={idx}

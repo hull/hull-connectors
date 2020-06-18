@@ -1,6 +1,6 @@
 // @flow
 
-import React, { PureComponent } from "react";
+import React, { Fragment, PureComponent } from "react";
 import SVG from "react-inlinesvg";
 import type { ImportType } from "../../types";
 
@@ -9,6 +9,7 @@ type Props = {
   valid: boolean,
   loading: boolean,
   saving: boolean,
+  range: any,
   initialized: boolean,
   displaySettings?: boolean,
   onToggleSettings: () => any,
@@ -22,37 +23,46 @@ class Actions extends PureComponent<Props, {}> {
       saving,
       loading,
       valid,
+      range,
       displaySettings,
       onStartImport,
       initialized
     } = this.props;
+    const { firstRow, lastRow } = range;
     return (
-      <div className="form-group">
-        <button
-          disabled={loading || saving}
-          onClick={this.props.onToggleSettings}
-        >
-          {displaySettings ? "Cancel" : "Edit Settings"}
-        </button>
-        {!displaySettings && (
+      <Fragment>
+        <div className="form-group">
           <button
             disabled={loading || saving}
-            onClick={this.props.onReloadColumns}
+            onClick={this.props.onToggleSettings}
           >
-            Reload
+            {displaySettings ? "Cancel" : "Edit Settings"}
           </button>
-        )}
-        {initialized && !displaySettings && (
-          <button
-            className="button blue right import"
-            disabled={!valid || loading || saving}
-            onClick={onStartImport}
-          >
-            <SVG className="icon small" src={require("../icons/import.svg")} />
-            Import
-          </button>
-        )}
-      </div>
+          {!displaySettings && (
+            <button
+              disabled={loading || saving}
+              onClick={this.props.onReloadColumns}
+            >
+              Reload
+            </button>
+          )}
+        </div>
+        <div className="form-group">
+          {initialized && !displaySettings && (
+            <button
+              className="button blue import"
+              disabled={!valid || loading || saving}
+              onClick={onStartImport}
+            >
+              <SVG
+                className="icon small"
+                src={require("../icons/import.svg")}
+              />
+              Import {firstRow === lastRow ? `row ${firstRow}` : `rows ${firstRow}-${lastRow}`}
+            </button>
+          )}
+        </div>
+      </Fragment>
     );
   }
 }

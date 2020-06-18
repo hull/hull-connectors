@@ -5,7 +5,7 @@ const MAX_COLUMNS = 1000;
 const MAX_CHUNKS = 10000;
 const IMPORT_CHUNK_SIZE = 100;
 
-const urlFor = path => `https://hull-google-sheets-nextgen/${path}`;
+const urlFor = path => `https://hull-google-sheets.eu.ngrok.io/${path}`;
 
 function addMenu() {
   const menu = SpreadsheetApp.getUi().createAddonMenu();
@@ -33,11 +33,18 @@ function getUserProp({ key, index, fallback }) {
     return fallback || val;
   }
 }
+
+function getSelectedRange() {
+  const sheet = SpreadsheetApp.getActiveSheet();
+  return sheet.getSelection().getActiveRange();
+}
 function getSheetData({ index, startRow, rows }) {
   // index - 1 because https://developers.google.com/apps-script/reference/spreadsheet/sheet#getindex - spreadsheets are 1-indexed
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[index - 1];
-  if (sheet) {
-    return sheet.getRange(startRow, 1, rows, MAX_COLUMNS).getValues() || [];
+  if (sheet && rows > 0) {
+    return (
+      sheet.getRange(startRow, 1, rows, sheet.getLastColumn()).getValues() || []
+    );
   }
   return [];
 }
@@ -111,21 +118,34 @@ function api(method, path, data) {
   }
 }
 
-const getVal = val =>
-  val != null && val.toString && val.toString().length > 0 ? val : undefined;
+const getVal = val => {
+  if (val === null || val === undefined) {
+    return undefined;
+  }
+  if (!isNaN(val)) {
+    return val;
+  }
+  if (val.toString && val.toString().length) {
+    return val;
+  }
+  return undefined;
+};
 
-const rowToPayload = (mapping, claimsMapping, group) => row => ({
+const rowToPayload = (mapping, claimsMapping) => row => ({
   attributes: mapping.reduce((attributes, { column, hull }) => {
     const value = getVal(row[column]);
     if (value !== undefined) {
-      attributes[group ? `${group}/${hull}` : hull] = value;
+      attributes[hull] = value;
     }
     return attributes;
   }, {}),
   claims: Object.keys(claimsMapping).reduce((claims, key) => {
     const column = claimsMapping[key];
-    if (column !== undefined) {
-      claims[key] = getVal(row[column]);
+    if (column !== undefined && column !== null) {
+      const value = getVal(row[column]);
+      if (value !== "" && value !== undefined) {
+        claims[key] = value;
+      }
     }
     return claims;
   }, {})
@@ -133,7 +153,7 @@ const rowToPayload = (mapping, claimsMapping, group) => row => ({
 
 const hasKeysAndValues = hash =>
   !!Object.keys(hash).length &&
-  !!Object.values(hash).filter(v => v !== null).length;
+  !!Object.values(hash).filter(v => v !== undefined).length;
 
 const checkPayload = (memo, { claims, attributes }) => {
   if (!hasKeysAndValues(attributes) || !hasKeysAndValues(claims)) {
@@ -145,25 +165,27 @@ const checkPayload = (memo, { claims, attributes }) => {
   return memo;
 };
 
-const getRows = ({ index, startRow, chunkSize, mapping, claims, source }) =>
+const getRows = ({ index, startRow, rows, mapping, claims }) =>
   getSheetData({
     index,
     startRow,
-    rows: chunkSize
+    rows
   })
-    .map(rowToPayload(mapping, claims, source))
+    .map(rowToPayload(mapping, claims))
     .reduce(checkPayload, {
       rows: [],
       errors: [],
       stats: { skipped: 0, imported: 0, empty: 0, errors: 0 }
     });
 
+// IMPURE FUNCTION
 function importPayloads({ payloads, type }) {
   const stats = {};
   const errors = [];
   if (payloads && payloads.rows && payloads.rows.length > 0) {
     try {
       api("post", "import", { payloads, type });
+      Logger.log("IMPORT DONE", { type, payloads });
     } catch (err) {
       Logger.log("Error while importing", err);
       stats.errors += 1;
@@ -174,14 +196,31 @@ function importPayloads({ payloads, type }) {
   return undefined;
 }
 
-function getHullAttributes({ type = "user", source = "" }) {
-  const { statusCode, body, error } = api("post", "schema", { type, source });
+const onlyUnique = (value, index, self) => self.indexOf(value) === index;
+
+const getGroupsFromSchema = schema =>
+  schema
+    .filter(attribute => attribute.indexOf("/") > 0)
+    .map(attribute => attribute.split("/")[0])
+    .filter(onlyUnique);
+
+// IMPURE FUNCTION
+function getHullSchema({ type = "user" }) {
+  const { statusCode, body, error } = api("post", "schema", { type });
   if (statusCode > 200) {
+    if (body && body.error === "Invalid Token") {
+      throw new Error(
+        "It seems the Token you saved is invalid, please make sure you use the token displayed in the Connector's settings in Hull's Dashboard"
+      );
+    }
     throw new Error(
       `Error fetching attributes: ${error || (body && body.error)}`
     );
   }
-  return body;
+  return {
+    hullGroups: getGroupsFromSchema(body),
+    hullAttributes: body
+  };
 }
 
 // IMPURE FUNCTION
@@ -196,25 +235,44 @@ const incrementStats = ({ stats, errors }, operations) => {
   });
 };
 
-function importData({ index, type, source, mapping, claims }) {
-  let startRow = 2;
+function getSelectedRows() {
+  const range = getSelectedRange();
+  return {
+    firstRow: range.getRow(),
+    lastRow: range.getLastRow()
+  };
+}
+
+function importData({ index, type, mapping, claims }) {
+  const { firstRow, lastRow } = getSelectedRows(index);
+  let startRow = firstRow;
   let chunk = 1;
+  Logger.log("Importing Data", {
+    index,
+    firstRow,
+    lastRow,
+    startRow,
+    chunk,
+    type,
+    mapping,
+    claims
+  });
   const stats = { imported: 0, empty: 0, errors: 0, skipped: 0 };
   const errors = [];
-
-  while (startRow && chunk < MAX_CHUNKS) {
+  while (startRow <= lastRow && chunk < MAX_CHUNKS) {
     const payloads = getRows({
       index,
       startRow,
-      chunkSize: IMPORT_CHUNK_SIZE,
+      rows: Math.min(IMPORT_CHUNK_SIZE, lastRow - (startRow - 1)),
       mapping,
-      claims,
-      source
+      claims
     });
+    Logger.log("Payloads", payloads);
     const importResponse = importPayloads({
       payloads,
       type
     });
+    Logger.log("ImportResponse", importResponse);
     if (!importResponse) break;
     chunk += 1;
     startRow += IMPORT_CHUNK_SIZE;
@@ -258,6 +316,7 @@ function getActiveSheet() {
   return {
     index,
     name: sheet.getName(),
+    range: getSelectedRows(),
     googleColumns: getColumnNames(index),
     importErrors:
       getUserProp({
@@ -307,11 +366,15 @@ function bootstrap(index) {
       fallback: "user"
     }) || "user";
   const token = getUserProp({ key: "token" });
+  const { hullAttributes, hullGroups } = getHullSchema({ type });
+  Logger.log("Token", token);
   return token
     ? {
         token,
+        initialized: true,
         googleColumns: getColumnNames(index),
-        hullAttributes: getHullAttributes({ type, source }),
+        hullAttributes,
+        hullGroups,
         user_mapping: getSheetMapping(index, "user"),
         user_claims: getSheetClaims(index, "user"),
         account_mapping: getSheetMapping(index, "account"),
@@ -328,7 +391,7 @@ function bootstrap(index) {
       };
 }
 
-function setUserProps({ index, data }) {
+function saveConfig({ index, data }) {
   Logger.log("SetUserProps", prefixAndStringify({ prefix: index, data }));
   try {
     PropertiesService.getUserProperties().setProperties(
