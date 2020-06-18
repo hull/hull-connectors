@@ -7,7 +7,7 @@ process.env.CLIENT_SECRET = "1234";
 const testScenario = require("hull-connector-framework/src/test-scenario");
 
 import connectorConfig from "../../../server/config";
-/*
+
 test("send smart-notifier user update to outreach with owner email that is resolved", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = {
@@ -302,7 +302,7 @@ test("send smart-notifier user update to outreach with owner email that is unabl
     });
   });
 });
-*/
+
 test("send smart-notifier user update to outreach with owner email mapped but missing on user", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = {
@@ -421,7 +421,7 @@ test("send smart-notifier user update to outreach with owner email mapped but mi
     });
   });
 });
-/*
+
 test("send smart-notifier user update to outreach with owner email needs to be 'forcefully' resolved", () => {
   return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
     const updateMessages = {
@@ -569,4 +569,3 @@ test("send smart-notifier user update to outreach with owner email needs to be '
     });
   });
 });
-*/
