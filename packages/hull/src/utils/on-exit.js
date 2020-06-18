@@ -10,8 +10,8 @@ function onExit(promise) {
   }
 
   function handleExit() {
-    // const waiting = 30000;
-    // debug("connector.exitHandler.handleExit", { waiting });
+    const waiting = 30000;
+    debug("connector.exitHandler.handleExit", { waiting });
     // setTimeout(exitNow, waiting);
     console.log(`SIGINT Handling Exit: ${Date.now()}`);
     promise().then(exitNow, exitNow);
