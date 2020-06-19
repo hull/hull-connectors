@@ -58,7 +58,7 @@ const updateAccount = ({
       });
     const enriched = enrichable.map(attributeMap);
     const cachedHashes = await Promise.all(
-      enriched.map(getHash).map(cache.get)
+      enriched.map(getHash).map(hash => cache.get(hash))
     );
     const data = enriched.filter((v, i) => cachedHashes[i] !== true);
 
