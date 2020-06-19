@@ -1,11 +1,11 @@
 // @flow
 import _ from "lodash";
-import getHash from "../lib/get-hash";
 import type {
   HullContext,
   HullUserUpdateMessage,
   HullNotificationResponse
 } from "hull";
+import getHash from "../lib/get-hash";
 
 const toDropcontactMapping = hash =>
   _.map(hash, (hull, service) => ({
