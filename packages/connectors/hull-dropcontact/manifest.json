@@ -229,15 +229,20 @@
           "ALL": "All Users"
         }
       },
-      "default": [
-        "ALL"
-      ],
+      "default": [],
       "format": "segment"
+    },
+    {
+      "name": "link_user_in_hull",
+      "title": "Link Users to Accounts in Hull",
+      "description": "Do you want to let Dropcontact create links between Users and Accounts created from Dropcontact? If inactive, the mapping below will be ignored. Be careful about conflicts with other connectors that would link users too. When this option is active, users might be re-linked to different accounts than their original account.",
+      "type": "boolean",
+      "default": false
     },
     {
       "name": "incoming_account_attributes",
       "title": "Incoming Account Attribute Mapping",
-      "description": "Define how Account attributes from Dropcontact are captured",
+      "description": "Define how Account attributes from Dropcontact are captured. Only applied if the `Link Users to Accounts in Hull` option above is active",
       "type": "array",
       "url": "/schema/dropcontact-attributes",
       "handler": "dropcontactAttributesHandler",
@@ -359,6 +364,7 @@
       "description": "Define how the attributes coming from Dropcontact are mapped",
       "properties": [
         "private_settings.incoming_user_attributes",
+        "private_settings.link_user_in_hull",
         "private_settings.incoming_account_attributes"
       ]
     }

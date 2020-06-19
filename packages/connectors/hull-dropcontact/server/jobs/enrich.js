@@ -1,5 +1,6 @@
 /* @flow */
 import type { HullContext, HullJob } from "hull";
+import _ from "lodash";
 
 const debug = require("debug")("hull-dropcontact:enrich");
 
@@ -8,13 +9,18 @@ const debug = require("debug")("hull-dropcontact:enrich");
  */
 export default async function enrichQueue(
   ctx: HullContext,
-  { request_id, ids }: { request_id: string, ids: Array<string> },
+  {
+    request_id,
+    ids,
+    hashes
+  }: { request_id: string, ids: Array<string>, hashes: Array<string> },
   _job: HullJob
 ) {
-  const { request, client, helpers, connector } = ctx;
+  const { cache, request, client, helpers, connector } = ctx;
   const { mapAttributes } = helpers;
   const { private_settings } = connector;
   const {
+    link_user_in_hull,
     incoming_user_attributes,
     incoming_account_attributes,
     api_key
@@ -56,27 +62,36 @@ export default async function enrichQueue(
             id: ids[index]
           });
 
-          const asAccount = asUser.account();
+          const asAccount = link_user_in_hull
+            ? asUser.account({ domain: payload.website })
+            : undefined;
 
-          if (payload.vat) {
-            asAccount.alias({
-              anonymous_id: `vat:${payload.vat}`
-            });
-          }
-
-          if (payload.siret) {
-            asAccount.alias({
-              anonymous_id: `siret:${payload.siret}`
-            });
-          }
-
-          if (payload.siren) {
-            asAccount.alias({
-              anonymous_id: `siren:${payload.siren}`
-            });
-          }
+          const accountPromises = link_user_in_hull
+            ? [
+                payload.vat &&
+                  asAccount.alias({
+                    anonymous_id: `vat:${payload.vat}`
+                  }),
+                payload.siret &&
+                  asAccount.alias({
+                    anonymous_id: `siret:${payload.siret}`
+                  }),
+                payload.siren &&
+                  asAccount.alias({
+                    anonymous_id: `siren:${payload.siren}`
+                  }),
+                asAccount.traits(
+                  mapAttributes({
+                    payload,
+                    direction: "incoming",
+                    mapping: incoming_account_attributes
+                  })
+                )
+              ]
+            : [];
 
           return Promise.all([
+            cache.del(hashes[index]),
             asUser.traits(
               mapAttributes({
                 payload,
@@ -84,13 +99,7 @@ export default async function enrichQueue(
                 mapping: incoming_user_attributes
               })
             ),
-            asAccount.traits(
-              mapAttributes({
-                payload,
-                direction: "incoming",
-                mapping: incoming_account_attributes
-              })
-            )
+            ..._.compact(accountPromises)
           ]);
         })
       );

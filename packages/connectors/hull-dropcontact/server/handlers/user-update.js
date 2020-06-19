@@ -1,5 +1,6 @@
 // @flow
 import _ from "lodash";
+import getHash from "../lib/get-hash";
 import type {
   HullContext,
   HullUserUpdateMessage,
@@ -24,7 +25,7 @@ const updateAccount = ({
   ctx: HullContext,
   messages: Array<HullUserUpdateMessage>
 ): HullNotificationResponse => {
-  const { helpers, connector, enqueue, request, metric, client } = ctx;
+  const { helpers, connector, enqueue, request, metric, client, cache } = ctx;
   const { mapAttributes } = helpers;
   const { private_settings } = connector;
   const {
@@ -55,21 +56,38 @@ const updateAccount = ({
           phone
         })
       });
+    const enriched = enrichable.map(attributeMap);
+    const cachedHashes = await Promise.all(
+      enriched.map(getHash).map(cache.get)
+    );
+    const data = enriched.filter((v, i) => cachedHashes[i] !== true);
+
     const response = await request
-      .post("https://api.dropcontact.io/batch")
-      .set({
-        "X-Access-Token": api_key
-      })
+      .post("https://api.dropcontact.io/batch?hashedInputs=true")
+      .set({ "X-Access-Token": api_key })
       .send({
-        data: enrichable.map(attributeMap),
+        data,
+        hashedInputs: true,
         siren: true
       });
-    const { error, request_id, success, credits_left } = response.body;
+
+    const {
+      error,
+      request_id,
+      success,
+      credits_left,
+      hashedInputs
+    } = response.body;
+
     if (error) {
       throw new Error(error);
     }
 
-    client.logger.info("outgoing.job.queue", { request_id });
+    client.logger.info("outgoing.job.queue", { request_id, data });
+
+    // Set a cache for pending requests.
+    await Promise.all(hashedInputs.map(hash => cache.set(hash, true)));
+
     if (credits_left !== undefined) {
       metric.value("ship.service_api.remaining", credits_left);
     }
@@ -80,7 +98,11 @@ const updateAccount = ({
     if (success && request_id) {
       enqueue(
         "enrich",
-        { request_id, ids: enrichable.map(u => u.user.id) },
+        {
+          request_id,
+          ids: _.map(data, "id"),
+          hashes: hashedInputs
+        },
         {
           delay: 5 * 1000,
           // attempts: 5,
