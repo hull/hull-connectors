@@ -39,6 +39,7 @@ class Source extends Component<Props, State> {
           isClearable
           isSearchable
           className="source-select"
+          value={toOptions(source)}
           defaultValue={toOptions(source)}
           options={sources.map(toOptions)}
           onChange={this.handleChange}
