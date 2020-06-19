@@ -5,28 +5,28 @@ const MAX_COLUMNS = 1000;
 const MAX_CHUNKS = 10000;
 const IMPORT_CHUNK_SIZE = 100;
 
-const urlFor = path => `https://hull-google-sheets-nextgen.herokuapp.com/${path}`;
+const urlFor = path =>
+  `https://hull-google-sheets-nextgen.herokuapp.com/${path}`;
 
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
   var menu = ui.createAddonMenu();
   menu
-    .addItem('Open', 'showSidebar')
-    .addItem('Start', 'showSidebar')
+    .addItem("Open", "showSidebar")
+    .addItem("Start", "showSidebar")
     .addToUi();
-  
-  const customMenu = ui.createMenu('Hull');
+
+  const customMenu = ui.createMenu("Hull");
   customMenu
-    .addItem('Open Importer', 'showSidebar')
+    .addItem("Open Importer", "showSidebar")
     .addSeparator()
-    .addItem('Help', 'menuItem2')
+    .addItem("Help", "menuItem2")
     .addToUi();
 }
 
-const onInstall = function(){
+const onInstall = function() {
   onOpen();
 };
-
 
 function setUserProp({ key, index, value }) {
   PropertiesService.getUserProperties().setProperty(
@@ -357,7 +357,6 @@ function showSidebar() {
 function clearAll() {
   PropertiesService.getUserProperties().deleteAllProperties();
 }
-
 
 function bootstrap(index) {
   if (!index) {
