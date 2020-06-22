@@ -5,8 +5,8 @@ module.exports = function healthCheckHandlerFactory(connector) {
     );
     if (connector.isExiting) {
       return res
-        .status(503)
-        .json({ ok: false, message: "Process is stopping" });
+        .status(200)
+        .json({ ok: false, message: "Still sending 200, processing still allowed" });
     }
     return res.status(200).json({ ok: true });
   };
