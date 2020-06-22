@@ -5,8 +5,10 @@ const debug = require("debug")("hull-connector:on-exit");
  */
 function onExit(promise) {
   function exitNow() {
-    console.warn("connector.exitHandler.exitNow");
-    process.exit(0);
+    setTimeout(() => {
+      console.warn("connector.exitHandler.exitNow");
+      process.exit(0);
+    }, 100000);
   }
 
   function handleExit() {
@@ -25,9 +27,17 @@ function onExit(promise) {
     promise().then(exitNow, exitNow);
   }
 
+  function handleExit3() {
+    // const waiting = 30000;
+    // debug("connector.exitHandler.handleExit", { waiting });
+    // setTimeout(exitNow, waiting);
+    console.log(`gracefulExit Handling Exit: ${Date.now()}`);
+    promise().then(exitNow, exitNow);
+  }
+
   process.on("SIGINT", handleExit);
   process.on("SIGTERM", handleExit2);
-  process.on("gracefulExit", handleExit);
+  process.on("gracefulExit", handleExit3);
 }
 
 module.exports = onExit;
