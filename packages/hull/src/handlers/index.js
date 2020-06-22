@@ -8,3 +8,4 @@ module.exports.incomingRequestHandler = require("./incoming-request-handler/fact
 module.exports.scheduleHandler = require("./schedule-handler/factory");
 module.exports.htmlHandler = require("./html-handler/factory");
 module.exports.statusHandler = require("./status-handler/factory");
+module.exports.healthCheckHandler = require("./health-check-handler");
