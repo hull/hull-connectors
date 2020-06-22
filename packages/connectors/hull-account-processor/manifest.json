@@ -21,7 +21,7 @@
     }
   ],
   "readme": "readme.md",
-  "version": "0.1.27-monorepo",
+  "version": "0.1.28-monorepo",
   "private_settings": [
     {
       "name": "sentry_dsn",
