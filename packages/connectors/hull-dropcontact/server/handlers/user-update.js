@@ -42,7 +42,6 @@ const updateAccount = ({
       throw new Error("No API Key - please set it up in the settings");
     }
     metric.increment("ship.service_api.call");
-    const enrichable = messages.filter(m => !m.user["dropcontact/emails"]);
     const attributeMap = payload =>
       mapAttributes({
         payload,
@@ -56,11 +55,19 @@ const updateAccount = ({
           phone
         })
       });
-    const enriched = enrichable.map(attributeMap);
+    const enrichable = messages
+      .filter(m => !m.user["dropcontact/emails"])
+      .map(attributeMap);
     const cachedHashes = await Promise.all(
-      enriched.map(getHash).map(hash => cache.get(hash))
+      enrichable.map(getHash).map(hash => cache.get(hash))
     );
-    const data = enriched.filter((v, i) => cachedHashes[i] !== true);
+    const data = enrichable.filter((v, i) => cachedHashes[i] !== true);
+
+    client.logger.info("outgoing.user.start", {
+      cachedHashes,
+      enrichable,
+      notQueued: data
+    });
 
     const response = await request
       .post("https://api.dropcontact.io/batch?hashedInputs=true")
@@ -82,7 +89,10 @@ const updateAccount = ({
     if (error) {
       throw new Error(error);
     }
-
+    client.logger.info("outgoing.user.success", {
+      hashedInputs,
+      data
+    });
     client.logger.info("outgoing.job.queue", { request_id, data });
 
     // Set a cache for pending requests.
