@@ -5,7 +5,9 @@ const debug = require("debug")("hull-connector:on-exit");
  */
 function onExit(promise) {
   function exitNow() {
+    console.log(`Exiting in 100s: ${Date.now()}`);
     setTimeout(() => {
+      console.log(`Exiting now: ${Date.now()}`);
       console.warn("connector.exitHandler.exitNow");
       process.exit(0);
     }, 100000);

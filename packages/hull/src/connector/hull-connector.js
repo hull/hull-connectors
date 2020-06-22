@@ -229,14 +229,14 @@ class HullConnector {
       onExit(() => {
         this.isExiting = true;
         console.log(`Terminator Handling Exit: ${Date.now()}`);
-        return this.httpTerminator.terminate().then(() => {
-          console.log(`Terminator Handled Exit: ${Date.now()}`);
-          return Promise.all([
-            Batcher.exit(),
-            this.queue.exit(),
-            dependencies.Client.exit()
-          ]);
-        });
+        // return this.httpTerminator.terminate().then(() => {
+        console.log(`Terminator Handled Exit: ${Date.now()}`);
+        return Promise.all([
+          Batcher.exit(),
+          this.queue.exit(),
+          dependencies.Client.exit()
+        ]);
+        // });
       });
     }
   }
