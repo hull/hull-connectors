@@ -93,7 +93,12 @@ const updateAccount = ({
       hashedInputs,
       data
     });
-    client.logger.info("outgoing.job.queue", { request_id, data });
+    client.logger.info("outgoing.job.queue", {
+      request_id,
+      data,
+      cachedHashes,
+      hashedInputs
+    });
 
     // Set a cache for pending requests.
     await Promise.all(hashedInputs.map(hash => cache.set(hash, true)));
