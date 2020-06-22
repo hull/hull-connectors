@@ -502,7 +502,7 @@ class HullConnector {
     app.use(this.baseComposedMiddleware());
     app.disable("etag");
     app.use("/", staticRouter({ manifest: this.manifest }));
-    app.use("/system/health", healthCheckHandler(this));
+    app.use("/system/health", healthCheckHandler(this, Date.now()));
     app.engine("html", renderFile);
     app.engine("md", renderFile);
     app.engine("ejs", renderFile);
