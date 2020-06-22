@@ -28,7 +28,8 @@ import {
   incomingRequestHandler,
   htmlHandler,
   OAuthHandler,
-  statusHandler
+  statusHandler,
+  healthCheckHandler
 } from "../handlers";
 
 import AppMetricsMonitor from "./appmetrics-monitor";
@@ -182,6 +183,8 @@ class HullConnector {
       disableOnExit = false
     } = resolvedConfig;
 
+    this.isExiting = false;
+
     this.resolvedConfig = resolvedConfig;
     this.clientConfig = {
       ...clientConfig,
@@ -224,6 +227,7 @@ class HullConnector {
 
     if (disableOnExit !== true) {
       onExit(() => {
+        this.isExiting = true;
         console.log(`Terminator Handling Exit: ${Date.now()}`);
         return this.httpTerminator.terminate().then(() => {
           console.log(`Terminator Handled Exit: ${Date.now()}`);
@@ -504,6 +508,7 @@ class HullConnector {
     app.use(this.baseComposedMiddleware());
     app.disable("etag");
     app.use("/", staticRouter({ manifest: this.manifest }));
+    app.use("/system/health", healthCheckHandler(this));
     app.engine("html", renderFile);
     app.engine("md", renderFile);
     app.engine("ejs", renderFile);
