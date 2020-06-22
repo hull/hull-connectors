@@ -1,5 +1,8 @@
 module.exports = function healthCheckHandlerFactory(connector) {
   return (req, res) => {
+    console.log(
+      `${new Date().toString()} Checking health: ${connector.isExiting}`
+    );
     if (connector.isExiting) {
       return res
         .status(503)

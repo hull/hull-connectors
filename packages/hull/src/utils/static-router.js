@@ -6,6 +6,7 @@ const express = require("express");
 
 function manifestRouteFactory(dirname) {
   return function manifestRoute(req, res) {
+    console.log(`${new Date().toString()} Getting manifest`);
     return res.sendFile(path.resolve(dirname, "manifest.json"));
   };
 }
