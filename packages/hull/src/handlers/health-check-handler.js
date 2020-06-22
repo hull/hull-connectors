@@ -7,4 +7,4 @@ module.exports = function healthCheckHandlerFactory(connector) {
     }
     return res.status(200).json({ ok: true });
   };
-}
+};
