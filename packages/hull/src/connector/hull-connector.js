@@ -6,6 +6,8 @@ import type { Server } from "http";
 import express from "express";
 import repl from "hullrepl";
 import minimist from "minimist";
+import { createHttpTerminator } from "http-terminator";
+
 import type {
   HullContext,
   HullServerConfig,
@@ -48,6 +50,11 @@ const {
   extendedComposeMiddleware,
   baseComposedMiddleware
 } = require("../middlewares");
+
+type HttpTerminatorType = {|
+  +terminate: () => Promise<void>
+|};
+
 
 const getAbsolutePath = p =>
   `${path.dirname(path.join(require.main.filename, ".."))}/${p}`;
@@ -144,6 +151,8 @@ class HullConnector {
 
   server: Server;
 
+  httpTerminator: HttpTerminatorType;
+
   constructor(
     dependencies: {
       Worker: Class<Worker>,
@@ -215,11 +224,15 @@ class HullConnector {
 
     if (disableOnExit !== true) {
       onExit(() => {
-        return Promise.all([
-          Batcher.exit(),
-          this.queue.exit(),
-          dependencies.Client.exit()
-        ]);
+        console.log(`Terminator Handling Exit: ${Date.now()}`);
+        return this.httpTerminator.terminate().then(() => {
+          console.log(`Terminator Handled Exit: ${Date.now()}`);
+          return Promise.all([
+            Batcher.exit(),
+            this.queue.exit(),
+            dependencies.Client.exit()
+          ]);
+        });
       });
     }
   }
@@ -526,7 +539,14 @@ class HullConnector {
    */
   startApp(app: $Application): Promise<?Server> {
     const { port } = this.connectorConfig;
-    return app.listen(port, () => debug("connector.server.listen", { port }));
+    const server = app.listen(port, () =>
+      debug("connector.server.listen", { port })
+    );
+    this.httpTerminator = createHttpTerminator({
+      gracefulTerminationTimeout: 30000,
+      server
+    });
+    return server;
   }
 
   use(middleware: Middleware) {
