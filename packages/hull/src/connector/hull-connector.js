@@ -6,8 +6,6 @@ import type { Server } from "http";
 import express from "express";
 import repl from "hullrepl";
 import minimist from "minimist";
-import BluebirdPromise from "bluebird";
-
 import type {
   HullContext,
   HullServerConfig,
@@ -28,8 +26,7 @@ import {
   incomingRequestHandler,
   htmlHandler,
   OAuthHandler,
-  statusHandler,
-  healthCheckHandler
+  statusHandler
 } from "../handlers";
 
 import AppMetricsMonitor from "./appmetrics-monitor";
@@ -176,8 +173,6 @@ class HullConnector {
       disableOnExit = false
     } = resolvedConfig;
 
-    this.isExiting = false;
-
     this.resolvedConfig = resolvedConfig;
     this.clientConfig = {
       ...clientConfig,
@@ -220,9 +215,7 @@ class HullConnector {
 
     if (disableOnExit !== true) {
       onExit(() => {
-        this.isExiting = true;
         return Promise.all([
-          BluebirdPromise.delay(30000),
           Batcher.exit(),
           this.queue.exit(),
           dependencies.Client.exit()
@@ -498,7 +491,6 @@ class HullConnector {
     app.use(this.baseComposedMiddleware());
     app.disable("etag");
     app.use("/", staticRouter({ manifest: this.manifest }));
-    app.use("/system/health", healthCheckHandler(this));
     app.engine("html", renderFile);
     app.engine("md", renderFile);
     app.engine("ejs", renderFile);
