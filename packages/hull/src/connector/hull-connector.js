@@ -221,7 +221,11 @@ class HullConnector {
     if (disableOnExit !== true) {
       onExit(() => {
         this.isExiting = true;
+        const serverClosing = new Promise(resolve =>
+          this.server.close(resolve)
+        );
         return Promise.all([
+          serverClosing,
           BluebirdPromise.delay(30000),
           Batcher.exit(),
           this.queue.exit(),
