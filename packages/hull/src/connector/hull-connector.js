@@ -32,6 +32,8 @@ import {
 import AppMetricsMonitor from "./appmetrics-monitor";
 import errorHandler from "./error";
 
+const { createTerminus } = require('@godaddy/terminus');
+
 const { compose } = require("compose-middleware");
 
 const path = require("path");
@@ -68,6 +70,18 @@ const getCallbacks = (handlers, category: string, handler: string) => {
   }
   return callback;
 };
+
+function onSignal () {
+  console.log("server is starting cleanup");
+  // start cleanup of resource, like databases or file descriptors
+}
+
+async function onHealthCheck () {
+  // checks if the system is healthy, like the db connection is live
+  // resolves, if health, rejects if not
+  console.log("Health Check");
+  return { health_status: "ok" };
+}
 
 // const { TransientError } = require("../errors");
 
@@ -526,7 +540,15 @@ class HullConnector {
    */
   startApp(app: $Application): Promise<?Server> {
     const { port } = this.connectorConfig;
-    return app.listen(port, () => debug("connector.server.listen", { port }));
+    const server = app.listen(port, () => debug("connector.server.listen", { port }));
+
+    createTerminus(server, {
+      signal: "SIGINT",
+      healthChecks: { "/healthcheck": onHealthCheck },
+      onSignal
+    });
+
+    return server;
   }
 
   use(middleware: Middleware) {
