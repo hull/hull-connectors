@@ -12,7 +12,7 @@ const credentialsHandler = REMOTE_DOMAIN => (
   return {
     status: 200,
     data: {
-      url: `<script async id='hull-js-sdk' app-id='${id}' org-url='https://${namespace}.${REMOTE_DOMAIN}' src='${HULL_JS_URL}'></script>`
+      url: `<script async id='hull-js-sdk' data-app-id='${id}' data-org-url='https://${namespace}.${REMOTE_DOMAIN}' src='${HULL_JS_URL}'></script>`
     }
   };
 };
