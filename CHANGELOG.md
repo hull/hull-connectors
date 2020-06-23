@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.1.28-monorepo
+- [hull-salesforce] add salesforce
+
 ## v0.1.27-monorepo
 - [hull-typeform] paginate while fetching list of forms when selecting a form
 

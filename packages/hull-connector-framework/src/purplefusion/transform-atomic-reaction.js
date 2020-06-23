@@ -338,6 +338,9 @@ async function resolve(dispatcher, context, input, target, identifier) {
 
   if (resolvedObject === undefined && identifier.onUndefined !== undefined) {
     return await resolveIdentifier(dispatcher, context, input, target, identifier.onUndefined);
+    // the weird thing here is that if we get something in the onUndefined handler
+    // the "name" for the parent command is not set
+    // should the resolved value of onUndefined set the name for the parent declartion?...
   }
 
   return resolvedObject;
