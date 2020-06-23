@@ -57,9 +57,11 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
         const originHost = new URL(origin).host;
         const allowedHeaders = [
           "content-type",
+          "hull-access-token",
           "hull-app-id",
           "hull-bid",
-          "hull-sid"
+          "hull-sid",
+          "hull-user-id"
         ];
         if (
           originHost === `${req.orgNamespace}.${HULL_DOMAIN}` ||
