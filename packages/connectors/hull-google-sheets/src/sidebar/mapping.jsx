@@ -2,6 +2,7 @@
 
 import React, { Fragment, Component } from "react";
 import MappingLine from "./mapping-line";
+
 import type {
   ImportType,
   HullAttributes,
@@ -18,7 +19,6 @@ type Props = {
   mapping?: AttributeMapping,
   loading?: boolean,
   onAddRow: any => void,
-  onChangeSource: string => void,
   onRemoveRow: ({ index: number }) => void,
   onChangeRow: ({ value: MappingType, index: number }) => void
 };

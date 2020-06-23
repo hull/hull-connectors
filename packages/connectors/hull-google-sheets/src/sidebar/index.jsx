@@ -16,7 +16,6 @@ import {
   filterMapping,
   filterAttributes,
   isValidMapping,
-  validateMapping,
   isValidClaims
 } from "../lib/filter-utils";
 
@@ -77,6 +76,9 @@ const SAVED_CONFIG = [
   "source"
 ];
 
+const sanitizeAttribute = (str: string) =>
+  str.replace(/[ $%&*\.]/g, "_").toLowerCase();
+
 export default class Sidebar extends Component<Props, State> {
   autoSaveConfig: any => Promise<void>;
 
@@ -108,7 +110,8 @@ export default class Sidebar extends Component<Props, State> {
 
     googleColumns: [],
     hullAttributes: [],
-    hullGroups: []
+    hullGroups: [],
+    range: {}
   };
 
   componentDidMount() {
@@ -152,6 +155,7 @@ export default class Sidebar extends Component<Props, State> {
       this.setState({
         error: undefined,
         loading: false,
+        started: true,
         ...state,
         displaySettings: state.token ? displaySettings : true
       });
@@ -175,14 +179,8 @@ export default class Sidebar extends Component<Props, State> {
     isValidClaims(this.getClaims()) && isValidMapping(this.getMapping());
 
   getError = () => {
-    const { type, initialized, error } = this.state;
+    const { initialized, error } = this.state;
     if (!initialized) return undefined;
-    if (!isValidClaims(this.getClaims())) {
-      return `You need to configure at least one claim to resolve ${type} identities`;
-    }
-    if (!isValidMapping(this.getMapping())) {
-      return "Some entries are invalid in your columns mapping.";
-    }
     return error;
   };
 
@@ -190,13 +188,17 @@ export default class Sidebar extends Component<Props, State> {
   handleSaveSettings = async () => {
     this.setState({
       displaySettings: false,
+      savingSettings: true,
       initialized: !!this.state.token
     });
     await Service.setUserProp({
       key: "token",
       value: this.state.token
     });
-    this.bootstrap(this.state.index);
+    await this.bootstrap(this.state.index);
+    this.setState({
+      savingSettings: false
+    });
   };
 
   toggleSettings = () =>
@@ -253,10 +255,12 @@ export default class Sidebar extends Component<Props, State> {
     const mapping = [
       ...this.getMapping(),
       {
-        hull: "",
+        hull: sanitizeAttribute(this.state.googleColumns[0]),
+        isNew: true,
         column: 0
       }
     ];
+    console.log("ADDMAPPING", mapping);
     this.updateConfig({
       [this.getMappingType()]: mapping
     });
@@ -278,7 +282,19 @@ export default class Sidebar extends Component<Props, State> {
     index: number
   }) => {
     const mapping = [...this.getMapping()];
-    mapping[index] = { ...value };
+    const previousMapping = mapping[index];
+    // ChangedService
+    if (previousMapping.isNew && previousMapping.column !== value.column) {
+      mapping[index] = {
+        ...value,
+        isNew: true,
+        hull: sanitizeAttribute(this.state.googleColumns[value.column])
+      };
+    } else {
+      // Changed Hull
+      mapping[index] = { ..._.omit(value, "isNew") };
+    }
+    // mapping[index] = { ...(value.isNew ? value : value) };
     this.updateConfig({
       [this.getMappingType()]: mapping
     });
@@ -323,6 +339,11 @@ export default class Sidebar extends Component<Props, State> {
         importing: false,
         importStatus: "done"
       });
+      setTimeout(() => {
+        this.setState({
+          importStatus: undefined
+        });
+      }, 2000);
     } catch (err) {
       this.setState({
         importing: false,
@@ -360,22 +381,22 @@ export default class Sidebar extends Component<Props, State> {
       );
     }
 
-    if (importing || importStatus) {
-      return (
+    const mapping = this.getMapping();
+    return (
+      <div style={{ paddingBottom: "5em", paddingTop: "1em" }}>
         <ImportStatus
           importStatus={importStatus}
           importProgress={importProgress}
-          clearImportStatus={this.handleClearImportStatus}
         />
-      );
-    }
-
-    return (
-      <div style={{ paddingBottom: "5em", paddingTop: "1em" }}>
         <Type type={type} onChange={this.handleChangeType} />
         <Claims
           valid={true}
           type={type}
+          errors={
+            !isValidClaims(this.getClaims()) && [
+              `You need to configure at least one claim to resolve ${type} identities`
+            ]
+          }
           claims={this.getClaims()}
           googleColumns={googleColumns}
           onChangeRow={this.handleChangeClaim}
@@ -388,7 +409,7 @@ export default class Sidebar extends Component<Props, State> {
               onChange={this.handleChangeSource}
             />
             <Mapping
-              mapping={filterMapping(source, this.getMapping())}
+              mapping={filterMapping(source, mapping)}
               source={source}
               sources={hullGroups}
               loading={loading}
@@ -404,22 +425,34 @@ export default class Sidebar extends Component<Props, State> {
     );
   }
 
+  getSpinnerMessage() {
+    if (this.state.savingSettings) {
+      return "Saving Settings...";
+    }
+    if (this.state.loading) {
+      return "Loading Settings...";
+    }
+    return "Loading...";
+  }
+
   render() {
     const {
       initialized,
       loading,
       type,
       saving,
+      savingSettings,
       displaySettings,
       index,
+      started,
       range = {},
       name = ""
     } = this.state;
 
     const error = this.getError();
 
-    if (!index) {
-      return <Spinner />;
+    if (savingSettings || !started || !index) {
+      return <Spinner message={this.getSpinnerMessage()} />;
     }
 
     return (
@@ -450,7 +483,7 @@ export default class Sidebar extends Component<Props, State> {
               </p>
             )}
           </div>
-          {this.renderMain()}
+          {!loading && this.renderMain()}
         </div>
       </div>
     );

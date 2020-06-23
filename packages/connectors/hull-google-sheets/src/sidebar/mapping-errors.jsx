@@ -11,9 +11,12 @@ const Errors = ({ errors }: { errors?: Array<string> }) =>
         className="error-icon service-icon"
         src={require("../icons/error.svg")}
       />
-      {errors.map((c, i) => (
-        <span key={i}>{c}</span>
-      ))}
+      Invalid Characters, please fix:
+      <ul>
+        {errors.map((c, i) => (
+          <li key={i}>{c}</li>
+        ))}
+      </ul>
     </div>
   );
 export default Errors;

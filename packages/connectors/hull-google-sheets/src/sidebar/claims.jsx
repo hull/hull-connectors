@@ -5,6 +5,7 @@ import _ from "lodash";
 import ClaimLine from "./claim-line";
 
 import type { ClaimsType, ImportType, GoogleColumns } from "../../types";
+import Errors from "./errors";
 
 const USER_CLAIMS = ["email", "external_id", "anonymous_id"];
 const ACCOUNT_CLAIMS = ["domain", "external_id", "anonymous_id"];
@@ -16,6 +17,7 @@ const CLAIMS = {
 
 type Props = {
   type?: ImportType,
+  errors?: Array<string>,
   googleColumns?: GoogleColumns,
   claims?: ClaimsType,
   valid: boolean,
@@ -26,10 +28,12 @@ const Claims = ({
   onChangeRow,
   type = "user",
   googleColumns,
+  errors,
   claims
 }: Props) => (
   <Fragment>
     <h4>Claims used to identify {type}</h4>
+    <Errors errors={errors} />
     <table className="full-width">
       <tbody>
         {CLAIMS[type].map((claim, i) => (

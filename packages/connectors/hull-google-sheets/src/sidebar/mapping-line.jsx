@@ -10,7 +10,7 @@ import {
   isOptionDisabled,
   toOptions
 } from "../lib/filter-utils";
-import Errors from "./errors";
+import Errors from "./mapping-errors";
 import type { AttributeMapping } from "../../types";
 
 type MappingProp = {

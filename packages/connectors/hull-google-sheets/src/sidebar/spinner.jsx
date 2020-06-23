@@ -25,9 +25,9 @@ import React from "react";
 //     </div>
 //   </div>
 // );
-const Spinner = () => (
+const Spinner = ({ message }: { message: string }) => (
   <div className="logo-container">
-    <p>Loading settings...</p>
+    <p>{message}</p>
     <div className="preloader">
       <svg
         className="spinner"
