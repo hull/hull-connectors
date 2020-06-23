@@ -5,8 +5,7 @@ const MAX_COLUMNS = 1000;
 const MAX_CHUNKS = 10000;
 const IMPORT_CHUNK_SIZE = 100;
 
-const urlFor = path =>
-  `https://hull-google-sheets-nextgen.herokuapp.com/${path}`;
+const urlFor = path => `https://hull-google-sheets.eu.ngrok.io/${path}`;
 
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
@@ -304,17 +303,6 @@ function importData({ index, type, mapping, claims }) {
       value: errors
     });
   }
-
-  setUserProp({
-    key: "importProgress",
-    index,
-    value: {}
-  });
-  setUserProp({
-    key: "importErrors",
-    index,
-    value: []
-  });
   return stats;
 }
 
