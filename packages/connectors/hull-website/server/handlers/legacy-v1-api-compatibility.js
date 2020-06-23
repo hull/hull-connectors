@@ -94,9 +94,10 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
     };
 
     const accessToken =
-      remoteUrl &&
-      remoteUrl.match(HULL_DOMAIN) &&
-      new URL(remoteUrl).searchParams.get("access_token");
+      req.get("hull-access-token") ||
+      (remoteUrl &&
+        remoteUrl.match(HULL_DOMAIN) &&
+        new URL(remoteUrl).searchParams.get("access_token"));
 
     if (accessToken) {
       clientParams.accessToken = accessToken;
