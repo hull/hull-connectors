@@ -77,6 +77,7 @@ class MailchimpAgent {
     return this.cache
       .wrap("webhook", () => this.getWebhooks(req))
       .then(webhooks => {
+        const promises = [];
         const { organization, id, secret } = req.client.configuration();
         const { hostname } = req;
         const search = {
@@ -88,13 +89,14 @@ class MailchimpAgent {
           .search(search)
           .toString();
         if (_.filter(webhooks, { url: webhookUrl }) <= 0) {
-          this.createWebhook(webhookUrl);
+          promises.push(this.createWebhook(webhookUrl));
         }
         _.forEach(webhooks, wh => {
           if (wh.url !== webhookUrl && wh.url.includes(organization)) {
-            this.deleteWebhook(wh.id);
+            promises.push(this.deleteWebhook(wh.id));
           }
         });
+        return Promise.resolve(promises);
       })
       .catch(err => {
         this.client.logger.warn("webhook.error", {
