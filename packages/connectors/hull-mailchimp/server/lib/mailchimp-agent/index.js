@@ -96,7 +96,7 @@ class MailchimpAgent {
             promises.push(this.deleteWebhook(wh.id));
           }
         });
-        return Promise.resolve(promises);
+        return Promise.all(promises);
       })
       .catch(err => {
         this.client.logger.warn("webhook.error", {
