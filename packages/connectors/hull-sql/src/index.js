@@ -1,18 +1,56 @@
-/* @flow */
+/* @noflow */
 /* global original_query, swal */
 import CodeMirror from "codemirror";
 import $ from "jquery";
 import _ from "lodash";
 import "codemirror/lib/codemirror.css";
 import "sweetalert/dist/sweetalert.css";
-import "sweetalert";
 import "codemirror/mode/sql/sql.js";
+import bootstrapTable from "bootstrap-table";
+import Swal from "sweetalert2";
+const swal = Swal.mixin({
+  customClass: {
+    confirmButton: "btn btn-success",
+    cancelButton: "btn btn-danger"
+  },
+  buttonsStyling: false
+});
+
+const formatter = value =>
+  typeof value === "object" && value !== null
+    ? `pre style='min-width:200px'><code>${JSON.stringify(value)}</code></pre>`
+    : value;
+
+const getColumnType = (entries, columnName) => {
+  try {
+    if (entries && entries.length) {
+      const values = entries.reduce((ret, e) => {
+        const val = e && e[columnName];
+        if (val) ret.push(val);
+        return ret;
+      }, []);
+      return values[0] && values[0].constructor && values[0].constructor.name;
+    }
+  } catch (err) {
+    return "";
+  }
+  return "";
+};
+
+const emitToParent = query =>
+  window.parent.postMessage(
+    JSON.stringify({
+      from: "embedded-ship",
+      action: "update",
+      ship: { private_settings: { query } }
+    }),
+    "*"
+  );
 
 (function boot() {
   let good_query = null;
   let stored_query = "";
-  const { swal } = window;
-
+  let datatable = null;
   const button_import = $("#button_import");
   const button_preview = $("#button_preview");
   const changed_indicator = $("#changed-indicator");
@@ -20,6 +58,18 @@ import "codemirror/mode/sql/sql.js";
   const preview_results = $("#preview-results");
   const preview_error = $("#preview-error");
   const preview_loading = $("#preview-loading");
+  const maximize = $("#maximize");
+  const body = $("body");
+
+  function empty() {
+    body.removeClass("maximized");
+    preview_query.empty().hide();
+    preview_results.hide();
+    preview_error.empty().hide();
+    $("#result thead tr").empty();
+    $("#result tbody").empty();
+    $("#results-title").empty();
+  }
 
   $(() => {
     const editor = CodeMirror.fromTextArea(
@@ -29,6 +79,7 @@ import "codemirror/mode/sql/sql.js";
         indentWithTabs: false,
         parserfile: "codemirror/contrib/sql/js/parsesql.js",
         path: "codemirror/js/",
+        theme: "material-ocean",
         stylesheet: "css/sqlcolors.css",
         smartIndent: true,
         lineNumbers: true,
@@ -74,28 +125,14 @@ import "codemirror/mode/sql/sql.js";
           updateChangedStatus();
         },
         error(err) {
-          swal(
-            "Stored query",
-            `Failed to load stored query: ${err.message || err.status}`,
-            "error"
-          );
+          swal.fire({
+            title: "Stored query",
+            text: `Failed to load stored query: ${err.message || err.status}`,
+            icon: "error",
+            confirmButtonText: "Ok"
+          });
         }
       });
-    }
-
-    function emitToParent(query) {
-      window.parent.postMessage(
-        JSON.stringify({
-          from: "embedded-ship",
-          action: "update",
-          ship: {
-            private_settings: {
-              query
-            }
-          }
-        }),
-        "*"
-      );
     }
 
     editor.on(
@@ -107,55 +144,48 @@ import "codemirror/mode/sql/sql.js";
       }, 100)
     );
 
-    $(".to-disable").prop("disabled", false);
-
-    getStoredQuery();
-
-    function empty() {
-      preview_query.empty().hide();
-      preview_results.hide();
-      preview_error.empty().hide();
-      $("#result thead tr").empty();
-      $("#result tbody").empty();
-      $("#results-title").empty();
-    }
-
     button_import.click(() => {
       const query = editor.getValue();
 
       if (query === "") {
-        return swal("Empty query", "The current query is empty", "warning");
+        return swal.fire({
+          title: "Empty query",
+          text: "The current query is empty",
+          icon: "warning"
+        });
       }
 
       if (query !== stored_query) {
-        return swal(
-          "Unsaved query",
-          "The current query you ran is not the query you saved. Please save your query first.",
-          "warning"
-        );
-        // return swal("Unsaved query", `The current query '${query}' is not the query you saved. Please save your query first.`, "warning");
+        return swal.fire({
+          title: "Unsaved Query",
+          text:
+            "The current query you ran is not the query you saved. Please save your query first.",
+          icon: "warning"
+        });
       }
 
-      return swal(
-        {
+      return swal
+        .fire({
           title: "Import the users from the current query? ",
           text:
             "If you continue, we will import the users from the currently saved query.",
-          type: "warning",
+          icon: "warning",
           showCancelButton: true,
           confirmButtonColor: "#DD6B55",
           confirmButtonText: "Let's Go",
           closeOnConfirm: false
-        },
-        isConfirm => {
+        })
+        .then(isConfirm => {
           if (isConfirm === true) {
             button_import.prop("disabled", true);
             button_import.text("Importing...");
             empty();
 
-            swal(
-              "Started importing users. Results will be available shortly in Hull!"
-            );
+            Swal.fire({
+              title: "Started importing users",
+              text: "Results will be available shortly in Hull!",
+              icon: "success"
+            });
 
             $.ajax({
               url: `/import${window.location.search}`,
@@ -183,27 +213,8 @@ import "codemirror/mode/sql/sql.js";
               }
             });
           }
-        }
-      );
+        });
     });
-
-    function getColumnType(entries, columnName): string {
-      try {
-        if (entries && entries.length) {
-          const values = entries.reduce((ret, e) => {
-            const val = e && e[columnName];
-            if (val) ret.push(val);
-            return ret;
-          }, []);
-          return (
-            values[0] && values[0].constructor && values[0].constructor.name
-          );
-        }
-      } catch (err) {
-        return "";
-      }
-      return "";
-    }
 
     button_preview.click(() => {
       empty();
@@ -211,13 +222,17 @@ import "codemirror/mode/sql/sql.js";
 
       const query = editor.getValue();
 
-      if (query === "") {
-        return swal("Empty query", "The current query is empty", "warning");
+      if (query === "" || query === "-- Write your SQL query here;") {
+        return swal.fire(
+          "Empty query",
+          "The current query is empty",
+          "warning"
+        );
       }
 
       $(".to-disable").prop("disabled", true);
       preview_loading.show();
-
+      $("#result").bootstrapTable("destroy");
       $.ajax({
         url: `/run${window.location.search}`,
         type: "post",
@@ -229,45 +244,34 @@ import "codemirror/mode/sql/sql.js";
           try {
             if (data.errors && data.errors.length > 0) {
               preview_error.empty();
-
-              data.errors.forEach(error => {
-                preview_error.append(`${error}<br />`);
-              });
-
+              data.errors.forEach(error =>
+                preview_error.append(`${error}<br />`)
+              );
               preview_error.show();
-
               preview_results.hide();
-
               good_query = null;
             } else if (data.entries && data.entries.length) {
-              _.forEach(data.entries[0], (value, columnName) => {
-                $("#result thead tr").append(
-                  `<th>${columnName}<em>(${getColumnType(
-                    data.entries,
-                    columnName
-                  )})</em></th>`
-                );
-              });
-
-              data.entries.forEach(element => {
-                const currentRow = [];
-                $.each(element, (key, value) => {
-                  currentRow.push(
-                    `<td><small>${
-                      typeof value === "object" && value !== null
-                        ? `<pre style='min-width:200px'><code>${JSON.stringify(
-                            value
-                          )}</code></pre>`
-                        : $("<div>").text(value).html()
-                    }</small></td>`
-                  );
-                });
-                $("#result tbody").append(`<tr>${currentRow.join("")}<tr>`);
-              });
-
-              good_query = query;
+              const columnFormatter = name =>
+                `<em>${name}</em><small>(${getColumnType(
+                  data.entries,
+                  name
+                )})</small>`;
 
               preview_results.show();
+
+              const datatable = $("#result").bootstrapTable({
+                height: 500,
+                sortable: true,
+                classes: "table table-striped table-borderless",
+                data: _.tail(data.entries),
+                columns: _.map(_.keys(_.first(data.entries)), field => ({
+                  field,
+                  formatter,
+                  sortable: true,
+                  title: columnFormatter(field)
+                }))
+              });
+              good_query = query;
             } else {
               preview_error
                 .empty()
@@ -277,12 +281,13 @@ import "codemirror/mode/sql/sql.js";
               good_query = query;
             }
           } catch (err) {
+            console.log(err);
             good_query = stored_query;
 
             preview_error
               .empty()
               .show()
-              .append(data.message);
+              .append(data.message || err.toString());
           } finally {
             if (good_query !== null && good_query !== stored_query) {
               emitToParent(good_query);
@@ -311,5 +316,9 @@ import "codemirror/mode/sql/sql.js";
 
       return false;
     });
+
+    maximize.on("click", () => body.toggleClass("maximized"));
+    $(".to-disable").prop("disabled", false);
+    getStoredQuery();
   });
 })();
