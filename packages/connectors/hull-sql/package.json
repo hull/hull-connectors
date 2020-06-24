@@ -1,7 +1,7 @@
 {
   "name": "hull-sql",
   "version": "0.1.28-monorepo",
-  "description": "Sync persons and organizations with Hull",
+  "description": "Import SQL databases as Users, Events and Accounts",
   "scripts": {
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit/{*.js,**/*.js}",
