@@ -159,6 +159,10 @@ it("should remove user from static list if user left the segment", () => {
                   LNAME: ""
                 },
                 status_if_new: "subscribed"
+              },
+              user: {
+                email,
+                "mailchimp/unique_email_id": "1234"
               }
             }
           ],

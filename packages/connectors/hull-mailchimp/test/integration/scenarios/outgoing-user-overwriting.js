@@ -140,6 +140,13 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
                 OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "overwriting value"
               },
               status_if_new: "subscribed"
+            },
+            user: {
+              email,
+              custom_will_overwrite: "overwriting value",
+              "mailchimp/overwritten_merge_field": "will be overwritten",
+              "mailchimp/overwritten_merge_field_from_account":
+                "will be overwritten"
             }
           }
         ],

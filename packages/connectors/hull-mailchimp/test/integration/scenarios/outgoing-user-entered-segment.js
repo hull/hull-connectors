@@ -163,6 +163,11 @@ it("should fetch user events on outgoing traffic", () => {
                   LNAME: ""
                 },
                 status_if_new: "subscribed"
+              },
+              user: {
+                email,
+                email_id: "ed9d75407de56b2b9e206702361823c4",
+                "mailchimp/unique_email_id": "1234"
               }
             }
           ],
