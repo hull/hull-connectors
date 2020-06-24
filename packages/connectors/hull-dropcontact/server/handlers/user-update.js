@@ -25,7 +25,16 @@ const updateAccount = ({
   ctx: HullContext,
   messages: Array<HullUserUpdateMessage>
 ): HullNotificationResponse => {
-  const { helpers, connector, enqueue, request, metric, client, cache } = ctx;
+  const {
+    helpers,
+    connector,
+    enqueue,
+    request,
+    metric,
+    client,
+    cache,
+    isBatch
+  } = ctx;
   const { mapAttributes } = helpers;
   const { private_settings } = connector;
   const {
@@ -56,7 +65,7 @@ const updateAccount = ({
         })
       });
     const enrichable = messages
-      .filter(m => !m.user["dropcontact/emails"])
+      .filter(m => isBatch || !m.user["dropcontact/emails"])
       .map(attributeMap);
     const cachedHashes = await Promise.all(
       enrichable.map(getHash).map(hash => cache.get(hash))
