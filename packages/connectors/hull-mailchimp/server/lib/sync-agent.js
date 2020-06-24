@@ -362,19 +362,18 @@ class SyncAgent {
             if (envelope.permanentError) {
               asUser.logger.error("outgoing.user.error", {
                 error: envelope.permanentError,
-                user: envelope.message.user
+                member: envelope.mailchimpNewMember
               });
               res.errors += 1;
             } else if (envelope.temporaryError) {
               asUser.logger.error("outgoing.user.error", {
                 error: envelope.temporaryError,
-                user: envelope.message.user
+                member: envelope.mailchimpNewMember
               });
               res.errors += 1;
             } else {
               asUser.logger.info("outgoing.user.success", {
-                member: envelope.mailchimpNewMember,
-                user: envelope.message.user
+                member: envelope.mailchimpNewMember
               });
               res.successes += 1;
             }

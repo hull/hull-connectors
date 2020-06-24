@@ -153,9 +153,6 @@ it("should ensure a webhook is registered on outgoing traffic", () => {
                   LNAME: ""
                 },
                 status_if_new: "subscribed"
-              },
-              user: {
-                email
               }
             }
           ],

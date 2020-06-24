@@ -255,20 +255,6 @@ it("should send matching user to the mailchimp", () => {
                 ACCOUNT_CUSTOM_GROUP_TRAIT: "2016-10-24T09:47:39Z"
               },
               status_if_new: "subscribed"
-            },
-            user: {
-              email,
-              first_name: "John",
-              "group/custom_calculated_score": 123,
-              custom_numeric: 123,
-              custom_array: ["A", "B"],
-              custom_empty_array: [],
-              custom_true: true,
-              custom_false: false,
-              custom_null: null,
-              custom_empty_string: "",
-              custom_zero: 0,
-              custom_date_at: "2018-10-24T09:47:39Z"
             }
           }
         ],

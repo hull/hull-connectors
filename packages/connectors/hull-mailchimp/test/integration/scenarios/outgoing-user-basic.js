@@ -123,9 +123,6 @@ it("should send matching user to the mailchimp", () => {
                 LNAME: ""
               },
               status_if_new: "subscribed"
-            },
-            user: {
-              email
             }
           }
         ],
