@@ -1,10 +1,12 @@
 /* @flow */
+/* global original_query, swal */
 import CodeMirror from "codemirror";
 import $ from "jquery";
 import _ from "lodash";
 import "codemirror/lib/codemirror.css";
+import "sweetalert/dist/sweetalert.css";
 import "sweetalert";
-import "codemirror/mode/sql/sql";
+import "codemirror/mode/sql/sql.js";
 
 (function boot() {
   let good_query = null;
@@ -134,54 +136,55 @@ import "codemirror/mode/sql/sql";
         // return swal("Unsaved query", `The current query '${query}' is not the query you saved. Please save your query first.`, "warning");
       }
 
-      return swal({
-        title: "Import Query Results?",
-        text:
-          "If you continue, results will be imported into Hull",
-        type: "warning",
-        icon: "warning",
-        buttons: true,
-        dangerMode: true
-      }).then(isConfirm => {
-        if (isConfirm === true) {
-          button_import.prop("disabled", true);
-          button_import.text("Importing...");
-          empty();
+      return swal(
+        {
+          title: "Import the users from the current query? ",
+          text:
+            "If you continue, we will import the users from the currently saved query.",
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#DD6B55",
+          confirmButtonText: "Let's Go",
+          closeOnConfirm: false
+        },
+        isConfirm => {
+          if (isConfirm === true) {
+            button_import.prop("disabled", true);
+            button_import.text("Importing...");
+            empty();
 
-          swal({
-            title: "Import Initiated",
-            text: "Results will be available shortly in Hull",
-            icon: "success",
-            button: "Okay"
-          });
+            swal(
+              "Started importing users. Results will be available shortly in Hull!"
+            );
 
-          $.ajax({
-            url: `/import${window.location.search}`,
-            type: "post",
-            data: {
-              query,
-              incremental: true
-            },
-            success() {
-              button_import.text("Import");
-              button_import.prop("disabled", false);
-            },
-            error(err) {
-              let error = "";
-              if (err.responseJSON) {
-                error = err.responseJSON.message;
-              } else {
-                error = err.message || err.status;
+            $.ajax({
+              url: `/import${window.location.search}`,
+              type: "post",
+              data: {
+                query,
+                incremental: true
+              },
+              success() {
+                button_import.text("Import");
+                button_import.prop("disabled", false);
+              },
+              error(err) {
+                let error = "";
+                if (err.responseJSON) {
+                  error = err.responseJSON.message;
+                } else {
+                  error = err.message || err.status;
+                }
+                $(".to-disable").prop("disabled", false);
+                preview_error
+                  .empty()
+                  .css("display", "block")
+                  .append(error);
               }
-              $(".to-disable").prop("disabled", false);
-              preview_error
-                .empty()
-                .css("display", "block")
-                .append(error);
-            }
-          });
+            });
+          }
         }
-      });
+      );
     });
 
     function getColumnType(entries, columnName): string {
@@ -255,9 +258,7 @@ import "codemirror/mode/sql/sql";
                         ? `<pre style='min-width:200px'><code>${JSON.stringify(
                             value
                           )}</code></pre>`
-                        : $("<div>")
-                            .text(value)
-                            .html()
+                        : $("<div>").text(value).html()
                     }</small></td>`
                   );
                 });

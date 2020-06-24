@@ -1,0 +1,69 @@
+@import "../../../assets/style/index.scss";
+
+body{
+  background: white;
+}
+#button_import{
+  margin-left: 1rem;
+}
+.alert {
+  border-radius: 0;
+}
+#preview-error, #preview-loading, #changed-indicator, #preview-results {
+  display: none;
+}
+#result {
+  font-family: monospace;
+  white-space: nowrap;
+}
+.check i.icon {
+  color: rgba(75, 222, 122, 0.52);
+  font-size: 2pc;
+  position: relative;
+  top: -11px;
+  left: 3px;
+}
+.check.valid {
+  border-color: rgba(75, 222, 122, 0.52);
+}
+.check {
+  border-radius: 100px;
+  border: 2px solid transparent;
+  padding: 0 5px;
+  height: 37px;
+  width: 37px;
+  position: relative;
+}
+th em {
+  color: #8091AD;
+  font-size: .8em;
+}
+#querying {
+  font-family:  Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 12px;
+}
+.CodeMirror {
+  border: 1px solid #e6e6e6;
+}
+th em {
+  display: block;
+}
+td pre {
+  margin: 0;
+}
+hr {
+  margin: 1rem 0;
+}
+h6 {
+  margin-top: 0;
+}
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+#actions{
+  margin: 0.5rem 0;
+  display: flex;
+  flex-direction: row;
+}

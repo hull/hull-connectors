@@ -1,7 +1,6 @@
 <html><head>
   <title>Hull SQL</title>
-  <link rel="stylesheet" href="//dd04rofzygnm0.cloudfront.net/releases/master/865f04865d2448286626bac92c518a8f8ea8bafe/stylesheets/neue.css">
-  <script src="/index.js" type="text/javascript" charset="utf-8" async defer></script>
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
   <div class="container-fluid">
@@ -45,7 +44,7 @@
                 </div>
                 <div class="col-sm-12 col-lg-3">
                   <h4 class='mt-05 mb-1'>Preview &amp; Save queries</h4>
-                  <p>Every time you change your query, we <strong>strongly recommend</strong> running a successful preview by clicking the <strong>Preview</strong> button before <strong>Saving it</strong> (with the Save button on the top right of this screen)</p>
+                  <p>Everytime you change your query, we <strong>strongly recommend</strong> running a successful preview by clicking the <strong>Preview</strong> button before <strong>Saving it</strong> (with the Save button on the top right of this screen)</p>
                   <p>In preview mode, your query will be run with a <code>LIMIT 100</code> or <code>TOP(100)</code> in T-SQL</p>
                   <p>Preview timeout is set at <%=parseInt(preview_timeout/1000, 10) %> seconds - Longer Queries won't complete successfully.</p>
                 </div>
@@ -121,73 +120,6 @@
       </div>
     </div>
   </div>
-  <style type="text/css" media="screen">
-    body{
-      background: white;
-    }
-    #button_import{
-      margin-left: 1rem;
-    }
-    .alert {
-      border-radius: 0;
-    }
-    #preview-error, #preview-loading, #changed-indicator, #preview-results {
-      display: none;
-    }
-    #result {
-      font-family: monospace;
-      white-space: nowrap;
-    }
-    .check i.icon {
-      color: rgba(75, 222, 122, 0.52);
-      font-size: 2pc;
-      position: relative;
-      top: -11px;
-      left: 3px;
-    }
-    .check.valid {
-      border-color: rgba(75, 222, 122, 0.52);
-    }
-    .check {
-      border-radius: 100px;
-      border: 2px solid transparent;
-      padding: 0 5px;
-      height: 37px;
-      width: 37px;
-      position: relative;
-    }
-    th em {
-      color: #8091AD;
-      font-size: .8em;
-    }
-    #querying {
-      font-family:  Menlo, Monaco, Consolas, "Courier New", monospace;
-      font-size: 12px;
-    }
-    .CodeMirror {
-      border: 1px solid #e6e6e6;
-    }
-    th em {
-      display: block;
-    }
-    td pre {
-      margin: 0;
-    }
-    hr {
-      margin: 1rem 0;
-    }
-    h6 {
-      margin-top: 0;
-    }
-    .flex-row {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-    }
-    #actions{
-      margin: 0.5rem 0;
-      display: flex;
-      flex-direction: row;
-    }
-  </style>
-</body></html>
+  <script src="/ship.js"></script>
+</body>
+</html>
