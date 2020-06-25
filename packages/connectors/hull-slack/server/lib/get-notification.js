@@ -6,9 +6,9 @@ import { getUserName, getAccountName } from "./get-name";
 
 const debug = require("debug")("hull-slack:get-notification");
 
-function urlFor(user = {}, entity = "user", organization) {
+function urlFor({ id } = {}, entity = "user", organization) {
   const [namespace, domain, tld] = organization.split(".");
-  return `https://dashboard.${domain}.${tld}/${namespace}/${entity}s/${user.id}`;
+  return `https://dashboard.${domain}.${tld}/${namespace}/${entity}s/${id}`;
 }
 
 const interpolateText = async (text, message) => {
@@ -36,7 +36,7 @@ module.exports = async function getNotification({
   debug("building payload for", message);
   const slackText = [
     `${prefix} *<${urlFor(
-      user,
+      entity === "user" ? user : account,
       entity,
       client.configuration().organization
     )}|${name}>*`
