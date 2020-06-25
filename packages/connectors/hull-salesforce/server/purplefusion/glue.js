@@ -10,7 +10,9 @@ const {
   moment,
   settings,
   ex,
-  ld
+  cond,
+  ld,
+  not
 } = require("hull-connector-framework/src/purplefusion/language");
 
 function salesforce(op: string, param?: any): Svc {
@@ -28,16 +30,20 @@ const glue = {
     set("fetchStart", ex(ex(moment(), "subtract", { minutes: 6 }), "valueOf")),
     set("fetchEnd", ex(moment(), "valueOf")),
   ],
-  fetchRecent: [
-    route("getFetchWindow"),
+  getFetchFields: [
     set("defaultFetchFields", ld("map", ld("get", defaultFields, "${fetchType}"), "service")),
-
     set("attributeMappingKey", ld("toLower", "${fetchType}_attributes_inbound")),
     set("settingsFetchFields", ld("compact", ld("map", settings("${attributeMappingKey}"), "service"))),
-
     set("fetchFields", ld("uniq", ld("concat", "${defaultFetchFields}", "${settingsFetchFields}"))),
-    set("salesforceIds", salesforceSyncAgent("getUpdatedRecordIds", { type: "${fetchType}", fetchStart: "${fetchStart}", fetchEnd: "${fetchEnd}" })),
 
+    ifL([cond("isEqual", "${fetchType}", "Task"), not(ld("isNil", settings("salesforce_external_id")))], [
+      set("fetchFields", ld("concat", "${fetchFields}", settings("salesforce_external_id")))
+    ])
+  ],
+  fetchRecent: [
+    route("getFetchWindow"),
+    route("getFetchFields"),
+    set("salesforceIds", salesforceSyncAgent("getUpdatedRecordIds", { type: "${fetchType}", fetchStart: "${fetchStart}", fetchEnd: "${fetchEnd}" })),
     salesforceSyncAgent("saveRecords", { type: "${fetchType}", ids: "${salesforceIds}", fields: "${fetchFields}" })
   ],
 
@@ -82,18 +88,12 @@ const glue = {
   fetchRecentDeletedTasks: [
     set("fetchType", "Task"),
     route("fetchRecentDeleted"),
-
-    set("defaultFetchFields", ld("map", ld("get", defaultFields, "${fetchType}"), "service")),
-    set("attributeMappingKey", ld("toLower", "${fetchType}_attributes_inbound")),
-    set("settingsFetchFields", ld("compact", ld("map", settings("${attributeMappingKey}"), "service"))),
-    set("fetchFields", ld("uniq", ld("concat", "${defaultFetchFields}", "${settingsFetchFields}"))),
-
+    route("getFetchFields"),
     salesforceSyncAgent("saveRecords", { type: "${fetchType}", ids: ld("map", "${salesforceIds}", "id"), fields: "${fetchFields}", executeQuery: "queryAll" })
   ],
 
   fetchAll: [
     set("defaultFetchFields", ld("map", ld("get", defaultFields, "${fetchType}"), "service")),
-
     set("attributeMappingKey", ld("toLower", "${fetchType}_attributes_inbound")),
     set("settingsFetchFields", ld("compact", ld("map", settings("${attributeMappingKey}"), "service"))),
 

@@ -749,12 +749,6 @@ class SyncAgent {
     const asUser = this.hullClient.asUser({ anonymous_id: anonymousId });
 
     const context = {};
-
-    const external_id_field = _.get(this.privateSettings, "salesforce_external_id", null);
-    if (!_.isNil(external_id_field) && !_.isNil(_.get(record, external_id_field, null))) {
-      this.hullClient.logger.info("incoming.event.skip", { reason: "Task created from external system", record });
-      return Promise.resolve();
-    }
     const event_id = `salesforce-${_.toLower(serviceType)}:${_.get(record, "Id")}`;
     _.set(context, "source", "salesforce");
     _.set(context, "created_at", createdDate);

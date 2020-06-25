@@ -42,101 +42,7 @@ describe("Fetch Tasks Tests", () => {
         connector: {
           private_settings: {
             ...private_settings,
-            "lead_synchronized_segments": [
-              "5a0c1f07b4d8644425002c65"
-            ],
-            "lead_attributes_outbound": [
-              {
-                "hull": "first_name",
-                "service": "FirstName",
-                "overwrite": false
-              },
-              {
-                "hull": "last_name",
-                "service": "LastName",
-                "overwrite": false
-              },
-              {
-                "hull": "email",
-                "service": "Email",
-                "overwrite": false
-              }
-            ],
-            "contact_attributes_outbound": [
-              {
-                "hull": "first_name",
-                "service": "FirstName",
-                "overwrite": false
-              },
-              {
-                "hull": "last_name",
-                "service": "LastName",
-                "overwrite": false
-              },
-              {
-                "hull": "email",
-                "service": "Email",
-                "overwrite": false
-              }
-            ],
-            "account_attributes_outbound": [
-              {
-                "hull": "domain",
-                "service": "Website",
-                "overwrite": false
-              },
-              {
-                "hull": "name",
-                "service": "Name",
-                "overwrite": false
-              }
-            ],
-            "lead_attributes_inbound": [
-              {
-                "service": "FirstName",
-                "hull": "traits_salesforce_lead/first_name",
-                "overwrite": false
-              },
-              {
-                "service": "LastName",
-                "hull": "traits_salesforce_lead/last_name",
-                "overwrite": false
-              },
-              {
-                "service": "Company",
-                "hull": "traits_salesforce_lead/company",
-                "overwrite": false
-              },
-              {
-                "service": "Email",
-                "hull": "traits_salesforce_lead/email",
-                "overwrite": false
-              },
-              {
-                "service": "Website",
-                "hull": "traits_salesforce_lead/website",
-                "overwrite": false
-              }
-            ],
-            "account_attributes_inbound": [
-              {
-                "service": "Website",
-                "hull": "website",
-                "overwrite": false
-              }
-            ],
-            "account_claims": [
-              {
-                "hull": "domain",
-                "service": "Website",
-                "required": true
-              },
-              {
-                "hull": "external_id",
-                "service": "CustomField1",
-                "required": false
-              }
-            ]
+            salesforce_external_id: "EventExternalId__c"
           }
         },
         usersSegments: [],
@@ -154,7 +60,7 @@ describe("Fetch Tasks Tests", () => {
           scope
             .get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q.match("FROM Task");
+              return query.q && query.q === "SELECT Id,Subject,WhoId,Status,AccountId,CreatedDate,IsArchived,OwnerId,CallDurationInSeconds,CallObject,CallDisposition,CallType,IsClosed,Description,IsRecurrence,CreatedById,IsDeleted,ActivityDate,RecurrenceEndDateOnly,IsHighPriority,LastModifiedById,LastModifiedDate,Priority,RecurrenceActivityId,RecurrenceDayOfMonth,RecurrenceDayOfWeekMask,RecurrenceInstance,RecurrenceInterval,RecurrenceMonthOfYear,RecurrenceTimeZoneSidKey,RecurrenceType,WhatId,ReminderDateTime,IsReminderSet,RecurrenceRegeneratedType,RecurrenceStartDateOnly,Type,EventExternalId__c,Who.Type FROM Task WHERE Id IN ('00TP0000','00TP0001')"
             })
             .reply(200, { records: [
                 {
@@ -167,6 +73,7 @@ describe("Fetch Tasks Tests", () => {
                   "WhoId": "034PvQAH",
                   "AccountId": "14P26SCAbQA",
                   "CreatedDate": "2019-07-01T13:16:20.000+0000",
+                  "EventExternalId__c": "1234",
                   "Who": {
                     "attributes": {
                       "type": "Name",
@@ -185,6 +92,7 @@ describe("Fetch Tasks Tests", () => {
                   "WhoId": "034PvQAH",
                   "AccountId": "14P26SCAbQA",
                   "CreatedDate": "2019-07-01T13:16:20.000+0000",
+                  "EventExternalId__c": "567890",
                   "Who": {
                     "attributes": {
                       "type": "Name",
@@ -242,6 +150,7 @@ describe("Fetch Tasks Tests", () => {
                   "type": "Task",
                   "url": "/services/data/v39.0/sobjects/Task/00TP0000"
                 },
+                "EventExternalId__c": "1234",
                 "Who": {
                   "attributes": {
                     "type": "Name",
@@ -270,6 +179,7 @@ describe("Fetch Tasks Tests", () => {
                   "type": "Task",
                   "url": "/services/data/v39.0/sobjects/Task/00TP0001"
                 },
+                "EventExternalId__c": "567890",
                 "Who": {
                   "attributes": {
                     "type": "Name",
@@ -327,7 +237,8 @@ describe("Fetch Tasks Tests", () => {
                 "Subject": "Send Letter",
                 "WhoId": "034PvQAH",
                 "AccountId": "14P26SCAbQA",
-                "CreatedDate_at": "2019-07-01T13:16:20.000+0000"
+                "CreatedDate_at": "2019-07-01T13:16:20.000+0000",
+                "EventExternalId__c": "1234"
               },
               "event": "Salesforce Task"
             }
@@ -363,7 +274,8 @@ describe("Fetch Tasks Tests", () => {
                 "Subject": "Send Quote",
                 "WhoId": "034PvQAH",
                 "AccountId": "14P26SCAbQA",
-                "CreatedDate_at": "2019-07-01T13:16:20.000+0000"
+                "CreatedDate_at": "2019-07-01T13:16:20.000+0000",
+                "EventExternalId__c": "567890"
               },
               "event": "Salesforce Task"
             }
@@ -390,104 +302,7 @@ describe("Fetch Tasks Tests", () => {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetchRecentTasks",
         connector: {
-          private_settings: {
-            ...private_settings,
-            "lead_synchronized_segments": [
-              "5a0c1f07b4d8644425002c65"
-            ],
-            "lead_attributes_outbound": [
-              {
-                "hull": "first_name",
-                "service": "FirstName",
-                "overwrite": false
-              },
-              {
-                "hull": "last_name",
-                "service": "LastName",
-                "overwrite": false
-              },
-              {
-                "hull": "email",
-                "service": "Email",
-                "overwrite": false
-              }
-            ],
-            "contact_attributes_outbound": [
-              {
-                "hull": "first_name",
-                "service": "FirstName",
-                "overwrite": false
-              },
-              {
-                "hull": "last_name",
-                "service": "LastName",
-                "overwrite": false
-              },
-              {
-                "hull": "email",
-                "service": "Email",
-                "overwrite": false
-              }
-            ],
-            "account_attributes_outbound": [
-              {
-                "hull": "domain",
-                "service": "Website",
-                "overwrite": false
-              },
-              {
-                "hull": "name",
-                "service": "Name",
-                "overwrite": false
-              }
-            ],
-            "lead_attributes_inbound": [
-              {
-                "service": "FirstName",
-                "hull": "traits_salesforce_lead/first_name",
-                "overwrite": false
-              },
-              {
-                "service": "LastName",
-                "hull": "traits_salesforce_lead/last_name",
-                "overwrite": false
-              },
-              {
-                "service": "Company",
-                "hull": "traits_salesforce_lead/company",
-                "overwrite": false
-              },
-              {
-                "service": "Email",
-                "hull": "traits_salesforce_lead/email",
-                "overwrite": false
-              },
-              {
-                "service": "Website",
-                "hull": "traits_salesforce_lead/website",
-                "overwrite": false
-              }
-            ],
-            "account_attributes_inbound": [
-              {
-                "service": "Website",
-                "hull": "website",
-                "overwrite": false
-              }
-            ],
-            "account_claims": [
-              {
-                "hull": "domain",
-                "service": "Website",
-                "required": true
-              },
-              {
-                "hull": "external_id",
-                "service": "CustomField1",
-                "required": false
-              }
-            ]
-          }
+          private_settings
         },
         usersSegments: [],
         accountsSegments: [],
@@ -665,7 +480,10 @@ describe("Fetch Tasks Tests", () => {
         handlerType: handlers.scheduleHandler,
         handlerUrl: "fetchRecentDeletedTasks",
         connector: {
-          private_settings
+          private_settings: {
+            ...private_settings,
+            salesforce_external_id: "EventExternalId__c"
+          }
         },
         usersSegments: [],
         accountsSegments: [],
@@ -696,7 +514,7 @@ describe("Fetch Tasks Tests", () => {
                 "IsDeleted,ActivityDate,RecurrenceEndDateOnly,IsHighPriority,LastModifiedById,LastModifiedDate,Priority," +
                 "RecurrenceActivityId,RecurrenceDayOfMonth,RecurrenceDayOfWeekMask,RecurrenceInstance,RecurrenceInterval," +
                 "RecurrenceMonthOfYear,RecurrenceTimeZoneSidKey,RecurrenceType,WhatId,ReminderDateTime,IsReminderSet," +
-                "RecurrenceRegeneratedType,RecurrenceStartDateOnly,Type,Who.Type FROM Task WHERE Id IN ('00T4P000056lb85UAA')";
+                "RecurrenceRegeneratedType,RecurrenceStartDateOnly,Type,EventExternalId__c,Who.Type FROM Task WHERE Id IN ('00T4P000056lb85UAA')";
             })
             .reply(200, { records: [
                 { attributes:
@@ -708,6 +526,7 @@ describe("Fetch Tasks Tests", () => {
                   Status: 'In Progress',
                   AccountId: null,
                   CreatedDate: '2020-06-25T17:22:17.000+0000',
+                  EventExternalId__c: "1234",
                   IsArchived: false,
                   OwnerId: '0054P000008CIowQAG',
                   CallDurationInSeconds: null,
@@ -803,6 +622,7 @@ describe("Fetch Tasks Tests", () => {
                 "CallType": null,
                 "IsClosed": false,
                 "Description": null,
+                "EventExternalId__c": "1234",
                 "IsRecurrence": false,
                 "RecurrenceEndDateOnly": null,
                 "IsHighPriority": false,
@@ -881,6 +701,7 @@ describe("Fetch Tasks Tests", () => {
                 "CallType": null,
                 "IsClosed": false,
                 "Description": null,
+                "EventExternalId__c": "1234",
                 "IsRecurrence": false,
                 "RecurrenceEndDateOnly": null,
                 "IsHighPriority": false,
