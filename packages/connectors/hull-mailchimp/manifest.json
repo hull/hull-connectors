@@ -1,6 +1,6 @@
 {
   "name": "Mailchimp",
-  "version": "v0.1.29-monorepo",
+  "version": "0.1.29-monorepo",
   "description": "Powerful segmentation and enrichment for Mailchimp - the world’s favorite email platform",
   "tags": [
     "outgoing",
