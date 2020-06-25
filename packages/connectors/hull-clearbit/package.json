@@ -1,7 +1,7 @@
 {
   "name": "hull-clearbit",
   "description": "Enrich Customer data with Clearbit",
-  "version": "0.1.28-monorepo",
+  "version": "v0.1.29-monorepo",
   "license": "MIT",
   "homepage": "https://github.com/hull/hull-connectors",
   "keywords": [

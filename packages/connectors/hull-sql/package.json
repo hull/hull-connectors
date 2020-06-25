@@ -1,6 +1,6 @@
 {
   "name": "hull-sql",
-  "version": "0.1.28-monorepo",
+  "version": "v0.1.29-monorepo",
   "description": "Sync persons and organizations with Hull",
   "scripts": {
     "test": "npm run test:unit && npm run test:integration",
