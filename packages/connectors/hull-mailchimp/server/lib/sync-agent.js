@@ -356,7 +356,8 @@ class SyncAgent {
             const asUser = this.client.asUser(envelope.message.user);
             if (envelope.warning) {
               asUser.logger.warning("outgoing.user.warning", {
-                warning: envelope.warning
+                warning: envelope.warning,
+                member: envelope.mailchimpNewMember
               });
             }
             if (envelope.permanentError) {
