@@ -20,17 +20,7 @@ const connector = {
     segment_mapping: {
       hullSegmentId: "MailchimpSegmentId"
     },
-    synchronized_user_segments: ["hullSegmentId"],
-    outgoing_user_attributes: [
-      {
-        hull: "traits_custom_will_overwrite",
-        service: "OVERWRITTEN_MERGE_FIELD"
-      },
-      {
-        hull: "account.custom_account_will_overwrite",
-        service: "OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT"
-      }
-    ]
+    synchronized_user_segments: ["hullSegmentId"]
   }
 };
 const usersSegments = [
@@ -40,7 +30,7 @@ const usersSegments = [
   }
 ];
 
-it("should send matching user to the mailchimp, allowing to control overwriting", () => {
+it("should log member info when failure in sending user to mailchimp", () => {
   const email = "email@email.com";
   return testScenario({ connectorConfig }, ({ handlers, nock, expect, minihullPort }) => {
     return {
@@ -60,8 +50,8 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
               {
                 email_type: "html",
                 merge_fields: {
-                  OVERWRITTEN_MERGE_FIELD: "overwriting value",
-                  OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "overwriting value"
+                  FNAME: "",
+                  LNAME: ""
                 },
                 interests: {
                   MailchimpInterestId: true
@@ -72,7 +62,14 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
             ],
             update_existing: true
           })
-          .reply(200);
+          .reply(200, {
+            errors: [
+              {
+                email_address: email,
+                error: "Your merge fields were invalid."
+              }
+            ]
+          });
         return scope;
       },
       connector,
@@ -81,14 +78,7 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
       messages: [
         {
           user: {
-            email,
-            traits_custom_will_overwrite: "overwriting value",
-            "traits_mailchimp/overwritten_merge_field": "will be overwritten",
-            "traits_mailchimp/overwritten_merge_field_from_account":
-              "will be overwritten"
-          },
-          account: {
-            custom_account_will_overwrite: "overwriting value"
+            email
           },
           segments: [{ id: "hullSegmentId", name: "hullSegmentName" }]
         }
@@ -125,10 +115,11 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
           expect.objectContaining({ method: "POST", url: "/lists/{{listId}}" })
         ],
         [
-          "info",
-          "outgoing.user.success",
+          "error",
+          "outgoing.user.error",
           expect.objectContaining({ subject_type: "user", user_email: email }),
           {
+            error: "Your merge fields were invalid.",
             member: {
               email_address: email,
               email_type: "html",
@@ -136,8 +127,8 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
                 MailchimpInterestId: true
               },
               merge_fields: {
-                OVERWRITTEN_MERGE_FIELD: "overwriting value",
-                OVERWRITTEN_MERGE_FIELD_FROM_ACCOUNT: "overwriting value"
+                FNAME: "",
+                LNAME: ""
               },
               status_if_new: "subscribed"
             }
@@ -147,7 +138,7 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
           "debug",
           "outgoing.job.success",
           expect.whatever(),
-          { errors: 0, successes: 1 }
+          { errors: 1, successes: 0 }
         ]
       ],
       firehoseEvents: [],
@@ -163,7 +154,7 @@ it("should send matching user to the mailchimp, allowing to control overwriting"
           expect.whatever()
         ],
         ["value", "connector.send_user_update_messages.messages", 1],
-        ["increment", "ship.outgoing.users", 1]
+        ["increment", "ship.outgoing.users", 0]
       ]
     };
   });

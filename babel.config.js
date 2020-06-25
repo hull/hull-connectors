@@ -29,6 +29,7 @@ module.exports = api => {
       ]
     ],
     plugins: [
+      "@babel/plugin-proposal-optional-chaining",
       "@babel/plugin-syntax-export-default-from",
       "@babel/plugin-transform-runtime",
       "@babel/plugin-transform-flow-strip-types",
