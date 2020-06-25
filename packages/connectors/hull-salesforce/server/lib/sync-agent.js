@@ -587,6 +587,226 @@ class SyncAgent {
     this.hullClient.logger.error("outgoing.job.error", { error: "Unknown API error", name: errorName, details: errorMessage });
     throw error;
   }
+
+
+  async getResourceSchema(type: string): Object {
+    const fieldTypes = ["multipicklist"];
+
+    if (!this.fetchResourceSchema) {
+      return {};
+    }
+
+    let resourceSchema = await this.cache.get(`${type.toLowerCase()}Schema`);
+    if (_.isNil(resourceSchema)) {
+      resourceSchema = await this.sf.fetchResourceSchema(type, fieldTypes);
+      await this.cache.set(`${type.toLowerCase()}Schema`, resourceSchema, {
+        ttl: 60000
+      });
+    }
+    return resourceSchema;
+  }
+
+  async saveContact(record: Object, progress = {}): Promise<*> {
+
+    if (!_.isEmpty(progress)) {
+      this.hullClient.logger.info("incoming.job.progress", { jobName: "fetchAll", type: "Contact", progress });
+    }
+    const resourceSchema = await this.getResourceSchema("Contact");
+
+    const traits = this.attributesMapper.mapToHullAttributeObject("Contact", record, resourceSchema);
+    const userIdentity = this.attributesMapper.mapToHullIdentObject("Contact", record);
+    const asContactUser = this.hullClient.asUser(userIdentity);
+    const promises = [];
+
+    if (_.get(record, "Email", "n/a") === "n/a" && this.requireEmail) {
+      return asContactUser.logger.info("incoming.user.skip", { type: "Contact", reason: "User has no email address and is not identifiable." });
+    }
+
+    promises.push(asContactUser
+      .traits(traits)
+      .then(() => {
+        asContactUser.logger.info("incoming.user.success", { traits });
+      })
+      .catch((error) => {
+        asContactUser.logger.error("incoming.user.error", { error });
+      }));
+
+    // Link with this contact's account
+    // Right now account linking does not seem to work because in mapToHullIdentObject pulls the account id from record.Account.Id
+    // but in getSoqlFields in service-client for Contacts, we do not add Account.Id by default to the incoming fields
+    // so we end up with a lot of salesforce:undefined ids seems like
+    // only saving grace might be the linkAccounts is not enabled by default
+    // and even when it is labeled, the this.identMapping.Account.service must be present
+    // which then creates a separate account with a separate "key" which is usually domain
+    if (this.linkAccounts && this.fetchAccounts && record.Account && this.accountClaims.length > 0 && !_.isNil(_.get(record.Account, this.accountClaims[0].service))) {
+      this.hullClient.logger.debug("incoming.account.link", {
+        user: this.attributesMapper.mapToHullIdentObject("Contact", record),
+        account: this.attributesMapper.mapToHullIdentObject("Account", record.Account)
+      });
+      const accountIdentity = this.attributesMapper.mapToHullIdentObject("Account", record.Account);
+      promises.push(this.hullClient
+        .asUser(userIdentity)
+        .account(accountIdentity)
+        .traits({})
+        .then(() => {
+          asContactUser.logger.info("incoming.account.link.success");
+        })
+        .catch((error) => {
+          asContactUser.logger.error("incoming.account.link.error", { error });
+        }));
+    }
+
+    return Promise.all(promises);
+  }
+
+  async saveLead(record: Object, progress = {}): Promise<*> {
+
+    if (!_.isEmpty(progress)) {
+      this.hullClient.logger.info("incoming.job.progress", { jobName: "fetchAll", type: "Lead", progress });
+    }
+    const resourceSchema = await this.getResourceSchema("Lead");
+    const traits = this.attributesMapper.mapToHullAttributeObject("Lead", record, resourceSchema);
+    const userIdentity = this.attributesMapper.mapToHullIdentObject("Lead", record);
+    const asLeadUser = this.hullClient.asUser(userIdentity);
+
+    if (_.get(record, "Email", "n/a") === "n/a" && this.requireEmail) {
+      return asLeadUser.logger.info("incoming.user.skip", { type: "Lead", reason: "User has no email address and is not identifiable." });
+    }
+    return asLeadUser
+      .traits(traits)
+      .then(() => {
+        asLeadUser.logger.info("incoming.user.success", { traits });
+      })
+      .catch((error) => {
+        asLeadUser.logger.error("incoming.user.error", { error });
+      });
+  }
+
+  async saveAccount(record: Object, progress = {}): Promise<*> {
+
+    if (!_.isEmpty(progress)) {
+      this.hullClient.logger.info("incoming.job.progress", { jobName: "fetchAll", type: "Account", progress });
+    }
+    const resourceSchema = await this.getResourceSchema("Account");
+    const traits = this.attributesMapper.mapToHullAttributeObject("Account", record, resourceSchema);
+    const accountIdentity = this.attributesMapper.mapToHullIdentObject("Account", record);
+
+    const asAccount = this.hullClient
+      .asAccount(accountIdentity);
+    return asAccount
+      .traits(traits)
+      .then(() => {
+        asAccount.logger.info("incoming.account.success", { traits });
+      })
+      .catch((error) => {
+        asAccount.logger.error("incoming.account.error", { error });
+      });
+  }
+
+  isValidSalesforceObject(record: Object): boolean {
+    const type = _.get(record, "attributes.type", "");
+
+    let isValid = true;
+    switch (type) {
+      case "Task":
+        if (_.get(record, "WhoId", null) === null) {
+          isValid = false;
+        } else if (_.get(record, "Subject", null) === null) {
+          isValid = false;
+        }
+        break;
+      case "Opportunity":
+        break;
+      default:
+        isValid = true;
+    }
+    return isValid;
+  }
+
+  async saveTask(record: Object): Promise<*> {
+    const promises = [];
+
+    const serviceType = _.get(record, "attributes.type", null);
+    const createdDate = _.get(record, "CreatedDate");
+
+    // Who.Type returns Contact, Lead, Account, etc.
+    const associatedType = _.get(record, "Who.Type", null);
+
+    if (serviceType === null) {
+      this.hullClient.logger.error("Salesforce object type not found");
+      return Promise.resolve();
+    } else if (associatedType === null) {
+      this.hullClient.logger.error(`Salesforce object [${JSON.stringify(record)}] not associated with a user or account entity`);
+      return Promise.resolve();
+    }
+
+    if (!this.isValidSalesforceObject(record)) {
+      this.hullClient.logger.error(`Unable to save record ${_.get(record, "Id")}`);
+      return Promise.resolve();
+    }
+
+    const anonymousId = `salesforce-${associatedType.toLowerCase()}:${_.get(record, "WhoId")}`;
+
+    const asUser = this.hullClient.asUser({ anonymous_id: anonymousId });
+
+    const context = {};
+
+    const external_id_field = _.get(this.privateSettings, "salesforce_external_id", null);
+    if (!_.isNil(external_id_field) && !_.isNil(_.get(record, external_id_field, null))) {
+      this.hullClient.logger.info("incoming.event.skip", { reason: "Task created from external system", record });
+      return Promise.resolve();
+    }
+    const event_id = `salesforce-${_.toLower(serviceType)}:${_.get(record, "Id")}`;
+    _.set(context, "source", "salesforce");
+    _.set(context, "created_at", createdDate);
+
+    _.set(context, "event_id", event_id);
+
+    const taskType = _.get(record, "Type", null);
+    let eventName = !_.isNil(taskType) ? `Salesforce Task:${taskType}` : "Salesforce Task";
+
+    if (_.get(record, "IsDeleted", false)) {
+      eventName = `DELETED - ${eventName}`;
+    }
+
+    const event = this.attributesMapper.mapToHullEvent(_.get(this.mappings, "Task"), serviceType, record);
+
+    if (serviceType === "Task") {
+      promises.push(
+        asUser.track(eventName, event, context)
+          .then(() => {
+            asUser.logger.info("incoming.event.success", { event });
+          })
+          .catch((error) => {
+            asUser.logger.error("incoming.event.error", { error });
+          })
+      );
+    }
+    return Promise.all(promises);
+  }
+
+  async saveDeleted(type: TResourceType, records: Array<TDeletedRecordInfo>): Promise<*> {
+    const promises = [];
+
+    _.forEach(records, (record) => {
+      const scopedClient = type === "Account" ?
+        this.hullClient.asAccount({ anonymous_id: `salesforce:${record.id}` }) : this.hullClient.asUser({
+          anonymous_id: `salesforce-${type.toLowerCase()}:${record.id}`
+        });
+
+      const attribs = this.attributesMapper.mapToHullDeletedObject(type, record.deletedDate);
+
+      promises.push(scopedClient.traits(attribs)
+        .then(() => {
+          scopedClient.logger.info(`incoming.${type.toLowerCase() === "account" ? "account" : "user"}.success`, { traits: attribs });
+        })
+        .catch((error) => {
+          scopedClient.logger.error(`incoming.${type.toLowerCase() === "account" ? "account" : "user"}.error`, { error });
+        }));
+    });
+
+    return Promise.all(promises);
+  }
 }
 
 module.exports = SyncAgent;

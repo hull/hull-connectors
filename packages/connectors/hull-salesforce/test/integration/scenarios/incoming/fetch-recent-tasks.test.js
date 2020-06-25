@@ -38,7 +38,7 @@ describe("Fetch Tasks Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetch",
+        handlerUrl: "fetchRecentTasks",
         connector: {
           private_settings: {
             ...private_settings,
@@ -145,20 +145,6 @@ describe("Fetch Tasks Tests", () => {
           const scope = nock("https://na98.salesforce.com");
 
           scope
-            .get("/services/data/v39.0/sobjects/Lead/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: [] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
-            .get("/services/data/v39.0/sobjects/Contact/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: [] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
             .get("/services/data/v39.0/sobjects/Task/updated")
             .query((query) => {
               return query.start && query.end;
@@ -219,30 +205,8 @@ describe("Fetch Tasks Tests", () => {
             "incoming.job.start",
             {},
             {
-              "jobName": "fetchChanges",
-              "type": "Lead",
-              "fetchFields": [
-                "Email",
-                "FirstName",
-                "LastName",
-                "Id",
-                "ConvertedAccountId",
-                "ConvertedContactId",
-                "Company",
-                "Website"
-              ],
-              "identMapping": [
-                {
-                  "hull": "domain",
-                  "service": "Website",
-                  "required": true
-                },
-                {
-                  "hull": "external_id",
-                  "service": "CustomField1",
-                  "required": false
-                }
-              ]
+              "jobName": "Incoming Data",
+              "type": "webpayload"
             }
           ],
           [
@@ -251,139 +215,7 @@ describe("Fetch Tasks Tests", () => {
             {},
             {
               "method": "GET",
-              "url_length": 147,
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Lead/updated?")
-            }
-          ],
-          [
-            "info",
-            "incoming.job.success",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Lead"
-            }
-          ],
-          [
-            "info",
-            "incoming.job.start",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Contact",
-              "fetchFields": [
-                "Email",
-                "FirstName",
-                "LastName",
-                "Id",
-                "AccountId"
-              ],
-              "identMapping": [
-                {
-                  "hull": "domain",
-                  "service": "Website",
-                  "required": true
-                },
-                {
-                  "hull": "external_id",
-                  "service": "CustomField1",
-                  "required": false
-                }
-              ]
-            }
-          ],
-          [
-            "debug",
-            "ship.service_api.request",
-            {},
-            {
-              "method": "GET",
-              "url_length": 150,
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Contact/updated?")
-            }
-          ],
-          [
-            "info",
-            "incoming.job.success",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Contact"
-            }
-          ],
-          [
-            "debug",
-            "Fetch Accounts not turned on. Skipping account fetch",
-            {},
-            undefined
-          ],
-          [
-            "info",
-            "incoming.job.start",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Task",
-              "fetchFields": [
-                "Id",
-                "Subject",
-                "WhoId",
-                "Status",
-                "AccountId",
-                "CreatedDate",
-                "IsArchived",
-                "OwnerId",
-                "CallDurationInSeconds",
-                "CallObject",
-                "CallDisposition",
-                "CallType",
-                "IsClosed",
-                "Description",
-                "IsRecurrence",
-                "CreatedById",
-                "IsDeleted",
-                "ActivityDate",
-                "RecurrenceEndDateOnly",
-                "IsHighPriority",
-                "LastModifiedById",
-                "LastModifiedDate",
-                "Priority",
-                "RecurrenceActivityId",
-                "RecurrenceDayOfMonth",
-                "RecurrenceDayOfWeekMask",
-                "RecurrenceInstance",
-                "RecurrenceInterval",
-                "RecurrenceMonthOfYear",
-                "RecurrenceTimeZoneSidKey",
-                "RecurrenceType",
-                "WhatId",
-                "ReminderDateTime",
-                "IsReminderSet",
-                "RecurrenceRegeneratedType",
-                "RecurrenceStartDateOnly",
-                "Type"
-              ],
-              "identMapping": [
-                {
-                  "hull": "domain",
-                  "service": "Website",
-                  "required": true
-                },
-                {
-                  "hull": "external_id",
-                  "service": "CustomField1",
-                  "required": false
-                }
-              ]
-            }
-          ],
-          [
-            "debug",
-            "ship.service_api.request",
-            {},
-            {
-              "method": "GET",
-              "url_length": 147,
+              "url_length": expect.whatever(),
               "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Task/updated?")
             }
           ],
@@ -393,7 +225,7 @@ describe("Fetch Tasks Tests", () => {
             {},
             {
               "method": "GET",
-              "url_length": 738,
+              "url_length": expect.whatever(),
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Id%2CSubject%2CWhoId%2CStatus%2CAccountId%2CCreatedDate%2CIsArchived%2COwnerId%2CCallDurationInSeconds%2CCallObject%2CCallDisposition%2CCallType%2CIsClosed%2CDescription%2CIsRecurrence%2CCreatedById%2CIsDeleted%2CActivityDate%2CRecurrenceEndDateOnly%2CIsHighPriority%2CLastModifiedById%2CLastModifiedDate%2CPriority%2CRecurrenceActivityId%2CRecurrenceDayOfMonth%2CRecurrenceDayOfWeekMask%2CRecurrenceInstance%2CRecurrenceInterval%[...]1')"
             }
           ],
@@ -458,8 +290,8 @@ describe("Fetch Tasks Tests", () => {
             "incoming.job.success",
             {},
             {
-              "jobName": "fetchChanges",
-              "type": "Task"
+              "jobName": "Incoming Data",
+              "type": "webpayload"
             }
           ]
         ],
@@ -545,12 +377,6 @@ describe("Fetch Tasks Tests", () => {
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["increment","ship.incoming.users",2]
         ],
         platformApiCalls: []
@@ -562,7 +388,7 @@ describe("Fetch Tasks Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetch",
+        handlerUrl: "fetchRecentTasks",
         connector: {
           private_settings: {
             ...private_settings,
@@ -669,20 +495,6 @@ describe("Fetch Tasks Tests", () => {
           const scope = nock("https://na98.salesforce.com");
 
           scope
-            .get("/services/data/v39.0/sobjects/Lead/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: [] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
-            .get("/services/data/v39.0/sobjects/Contact/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: [] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
             .get("/services/data/v39.0/sobjects/Task/updated")
             .query((query) => {
               return query.start && query.end;
@@ -730,30 +542,8 @@ describe("Fetch Tasks Tests", () => {
             "incoming.job.start",
             {},
             {
-              "jobName": "fetchChanges",
-              "type": "Lead",
-              "fetchFields": [
-                "Email",
-                "FirstName",
-                "LastName",
-                "Id",
-                "ConvertedAccountId",
-                "ConvertedContactId",
-                "Company",
-                "Website"
-              ],
-              "identMapping": [
-                {
-                  "hull": "domain",
-                  "service": "Website",
-                  "required": true
-                },
-                {
-                  "hull": "external_id",
-                  "service": "CustomField1",
-                  "required": false
-                }
-              ]
+              "jobName": "Incoming Data",
+              "type": "webpayload"
             }
           ],
           [
@@ -762,139 +552,7 @@ describe("Fetch Tasks Tests", () => {
             {},
             {
               "method": "GET",
-              "url_length": 147,
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Lead/updated?")
-            }
-          ],
-          [
-            "info",
-            "incoming.job.success",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Lead"
-            }
-          ],
-          [
-            "info",
-            "incoming.job.start",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Contact",
-              "fetchFields": [
-                "Email",
-                "FirstName",
-                "LastName",
-                "Id",
-                "AccountId"
-              ],
-              "identMapping": [
-                {
-                  "hull": "domain",
-                  "service": "Website",
-                  "required": true
-                },
-                {
-                  "hull": "external_id",
-                  "service": "CustomField1",
-                  "required": false
-                }
-              ]
-            }
-          ],
-          [
-            "debug",
-            "ship.service_api.request",
-            {},
-            {
-              "method": "GET",
-              "url_length": 150,
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Contact/updated?")
-            }
-          ],
-          [
-            "info",
-            "incoming.job.success",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Contact"
-            }
-          ],
-          [
-            "debug",
-            "Fetch Accounts not turned on. Skipping account fetch",
-            {},
-            undefined
-          ],
-          [
-            "info",
-            "incoming.job.start",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Task",
-              "fetchFields": [
-                "Id",
-                "Subject",
-                "WhoId",
-                "Status",
-                "AccountId",
-                "CreatedDate",
-                "IsArchived",
-                "OwnerId",
-                "CallDurationInSeconds",
-                "CallObject",
-                "CallDisposition",
-                "CallType",
-                "IsClosed",
-                "Description",
-                "IsRecurrence",
-                "CreatedById",
-                "IsDeleted",
-                "ActivityDate",
-                "RecurrenceEndDateOnly",
-                "IsHighPriority",
-                "LastModifiedById",
-                "LastModifiedDate",
-                "Priority",
-                "RecurrenceActivityId",
-                "RecurrenceDayOfMonth",
-                "RecurrenceDayOfWeekMask",
-                "RecurrenceInstance",
-                "RecurrenceInterval",
-                "RecurrenceMonthOfYear",
-                "RecurrenceTimeZoneSidKey",
-                "RecurrenceType",
-                "WhatId",
-                "ReminderDateTime",
-                "IsReminderSet",
-                "RecurrenceRegeneratedType",
-                "RecurrenceStartDateOnly",
-                "Type"
-              ],
-              "identMapping": [
-                {
-                  "hull": "domain",
-                  "service": "Website",
-                  "required": true
-                },
-                {
-                  "hull": "external_id",
-                  "service": "CustomField1",
-                  "required": false
-                }
-              ]
-            }
-          ],
-          [
-            "debug",
-            "ship.service_api.request",
-            {},
-            {
-              "method": "GET",
-              "url_length": 147,
+              "url_length": expect.whatever(),
               "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Task/updated")
             }
           ],
@@ -904,7 +562,7 @@ describe("Fetch Tasks Tests", () => {
             {},
             {
               "method": "GET",
-              "url_length": 725,
+              "url_length": expect.whatever(),
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Id%2CSubject%2CWhoId%2CStatus%2CAccountId%2CCreatedDate%2CIsArchived%2COwnerId%2CCallDurationInSeconds%2CCallObject%2CCallDisposition%2CCallType%2CIsClosed%2CDescription%2CIsRecurrence%2CCreatedById%2CIsDeleted%2CActivityDate%2CRecurrenceEndDateOnly%2CIsHighPriority%2CLastModifiedById%2CLastModifiedDate%2CPriority%2CRecurrenceActivityId%2CRecurrenceDayOfMonth%2CRecurrenceDayOfWeekMask%2CRecurrenceInstance%2CRecurrenceInterval%[...]0')"
             }
           ],
@@ -942,8 +600,8 @@ describe("Fetch Tasks Tests", () => {
             "incoming.job.success",
             {},
             {
-              "jobName": "fetchChanges",
-              "type": "Task"
+              "jobName": "Incoming Data",
+              "type": "webpayload"
             }
           ]
         ],
@@ -994,6 +652,278 @@ describe("Fetch Tasks Tests", () => {
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
+          ["increment","ship.incoming.users",1]
+        ],
+        platformApiCalls: []
+      };
+    });
+  });
+
+  it("should fetch deleted tasks", () => {
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+      return {
+        handlerType: handlers.scheduleHandler,
+        handlerUrl: "fetchRecentDeletedTasks",
+        connector: {
+          private_settings
+        },
+        usersSegments: [],
+        accountsSegments: [],
+        externalApiMock: () => {
+          const scope = nock("https://na98.salesforce.com");
+
+          scope
+            .get("/services/data/v39.0/sobjects/Task/deleted")
+            .query((query) => {
+              return query.start && query.end;
+            })
+            .reply(200, {
+              deletedRecords: [
+                {
+                  deletedDate: "2020-06-25T17:24:57.000+0000",
+                  id: "00T4P000056lb85UAA"
+                }
+              ],
+              earliestDateAvailable: "2020-04-02T19:55:00.000+0000",
+              latestDateCovered: "2020-06-25T18:03:00.000+0000"
+            }, { "sforce-limit-info": "api-usage=500/50000" });
+
+          scope
+            .get("/services/data/v39.0/queryAll")
+            .query((query) => {
+              return query.q && query.q === "SELECT Id,Subject,WhoId,Status,AccountId,CreatedDate,IsArchived,OwnerId," +
+                "CallDurationInSeconds,CallObject,CallDisposition,CallType,IsClosed,Description,IsRecurrence,CreatedById," +
+                "IsDeleted,ActivityDate,RecurrenceEndDateOnly,IsHighPriority,LastModifiedById,LastModifiedDate,Priority," +
+                "RecurrenceActivityId,RecurrenceDayOfMonth,RecurrenceDayOfWeekMask,RecurrenceInstance,RecurrenceInterval," +
+                "RecurrenceMonthOfYear,RecurrenceTimeZoneSidKey,RecurrenceType,WhatId,ReminderDateTime,IsReminderSet," +
+                "RecurrenceRegeneratedType,RecurrenceStartDateOnly,Type,Who.Type FROM Task WHERE Id IN ('00T4P000056lb85UAA')";
+            })
+            .reply(200, { records: [
+                { attributes:
+                    { type: 'Task',
+                      url: '/services/data/v39.0/sobjects/Task/00T4P000056lb85UAA' },
+                  Id: '00T4P000056lb85UAA',
+                  Subject: 'Email',
+                  WhoId: "034PvQAH",
+                  Status: 'In Progress',
+                  AccountId: null,
+                  CreatedDate: '2020-06-25T17:22:17.000+0000',
+                  IsArchived: false,
+                  OwnerId: '0054P000008CIowQAG',
+                  CallDurationInSeconds: null,
+                  CallObject: null,
+                  CallDisposition: null,
+                  CallType: null,
+                  IsClosed: false,
+                  Description: null,
+                  IsRecurrence: false,
+                  CreatedById: '0054P000008CIowQAG',
+                  IsDeleted: true,
+                  ActivityDate: '2020-06-27',
+                  RecurrenceEndDateOnly: null,
+                  IsHighPriority: false,
+                  LastModifiedById: '0054P000008CIowQAG',
+                  LastModifiedDate: '2020-06-25T17:24:57.000+0000',
+                  Priority: 'Normal',
+                  RecurrenceActivityId: null,
+                  RecurrenceDayOfMonth: null,
+                  RecurrenceDayOfWeekMask: null,
+                  RecurrenceInstance: null,
+                  RecurrenceInterval: null,
+                  RecurrenceMonthOfYear: null,
+                  RecurrenceTimeZoneSidKey: null,
+                  RecurrenceType: null,
+                  WhatId: null,
+                  ReminderDateTime: null,
+                  IsReminderSet: false,
+                  RecurrenceRegeneratedType: null,
+                  RecurrenceStartDateOnly: null,
+                  Type: null,
+                  Who: {
+                    "attributes": {
+                      "type": "Name",
+                      "url": "/services/data/v39.0/sobjects/Contact/034PvQAH"
+                    },
+                    "Type": "Contact"
+                  },
+                }
+              ] }, { "sforce-limit-info": "api-usage=500/50000" });
+
+          return scope;
+        },
+        response: { status : "deferred"},
+        logs: [
+          [
+            "info",
+            "incoming.job.start",
+            {},
+            {
+              "jobName": "Incoming Data",
+              "type": "webpayload"
+            }
+          ],
+          [
+            "debug",
+            "ship.service_api.request",
+            {},
+            {
+              "method": "GET",
+              "url_length": expect.whatever(),
+              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Task/deleted")
+            }
+          ],
+          [
+            "debug",
+            "ship.service_api.request",
+            {},
+            {
+              "method": "GET",
+              "url_length": expect.whatever(),
+              "url": "https://na98.salesforce.com/services/data/v39.0/queryAll?q=SELECT%20Id%2CSubject%2CWhoId%2CStatus%2CAccountId%2CCreatedDate%2CIsArchived%2COwnerId%2CCallDurationInSeconds%2CCallObject%2CCallDisposition%2CCallType%2CIsClosed%2CDescription%2CIsRecurrence%2CCreatedById%2CIsDeleted%2CActivityDate%2CRecurrenceEndDateOnly%2CIsHighPriority%2CLastModifiedById%2CLastModifiedDate%2CPriority%2CRecurrenceActivityId%2CRecurrenceDayOfMonth%2CRecurrenceDayOfWeekMask%2CRecurrenceInstance%2CRecurrenceInterv[...]A')"
+            }
+          ],
+          [
+            "info",
+            "incoming.event.success",
+            {
+              "subject_type": "user",
+              "user_anonymous_id": "salesforce-contact:034PvQAH"
+            },
+            {
+              "event": {
+                "attributes": {
+                  "type": "Task",
+                  "url": "/services/data/v39.0/sobjects/Task/00T4P000056lb85UAA"
+                },
+                "AccountId": null,
+                "IsArchived": false,
+                "CallDurationInSeconds": null,
+                "CallObject": null,
+                "CallDisposition": null,
+                "CallType": null,
+                "IsClosed": false,
+                "Description": null,
+                "IsRecurrence": false,
+                "RecurrenceEndDateOnly": null,
+                "IsHighPriority": false,
+                "RecurrenceActivityId": null,
+                "RecurrenceDayOfMonth": null,
+                "RecurrenceDayOfWeekMask": null,
+                "RecurrenceInstance": null,
+                "RecurrenceInterval": null,
+                "RecurrenceMonthOfYear": null,
+                "RecurrenceTimeZoneSidKey": null,
+                "RecurrenceType": null,
+                "WhatId": null,
+                "ReminderDateTime": null,
+                "IsReminderSet": false,
+                "RecurrenceRegeneratedType": null,
+                "RecurrenceStartDateOnly": null,
+                "Type": null,
+                "Who": {
+                  "attributes": {
+                    "type": "Name",
+                    "url": "/services/data/v39.0/sobjects/Contact/034PvQAH"
+                  },
+                  "Type": "Contact"
+                },
+                "Id": "00T4P000056lb85UAA",
+                "Subject": "Email",
+                "WhoId": "034PvQAH",
+                "Status": "In Progress",
+                "CreatedDate_at": "2020-06-25T17:22:17.000+0000",
+                "OwnerId": "0054P000008CIowQAG",
+                "CreatedById": "0054P000008CIowQAG",
+                "IsDeleted": true,
+                "ActivityDate_at": "2020-06-27",
+                "LastModifiedById": "0054P000008CIowQAG",
+                "LastModifiedDate_at": "2020-06-25T17:24:57.000+0000",
+                "Priority": "Normal"
+              }
+            }
+          ],
+          [
+            "info",
+            "incoming.job.success",
+            {},
+            {
+              "jobName": "Incoming Data",
+              "type": "webpayload"
+            }
+          ]
+        ],
+        firehoseEvents: [
+          [
+            "track",
+            {
+              "asUser": {
+                "anonymous_id": "salesforce-contact:034PvQAH"
+              },
+              "subjectType": "user"
+            },
+            {
+              "ip": null,
+              "url": null,
+              "referer": null,
+              "source": "salesforce",
+              "created_at": "2020-06-25T17:22:17.000+0000",
+              "event_id": "salesforce-task:00T4P000056lb85UAA",
+              "properties": {
+                "attributes": {
+                  "type": "Task",
+                  "url": "/services/data/v39.0/sobjects/Task/00T4P000056lb85UAA"
+                },
+                "AccountId": null,
+                "IsArchived": false,
+                "CallDurationInSeconds": null,
+                "CallObject": null,
+                "CallDisposition": null,
+                "CallType": null,
+                "IsClosed": false,
+                "Description": null,
+                "IsRecurrence": false,
+                "RecurrenceEndDateOnly": null,
+                "IsHighPriority": false,
+                "RecurrenceActivityId": null,
+                "RecurrenceDayOfMonth": null,
+                "RecurrenceDayOfWeekMask": null,
+                "RecurrenceInstance": null,
+                "RecurrenceInterval": null,
+                "RecurrenceMonthOfYear": null,
+                "RecurrenceTimeZoneSidKey": null,
+                "RecurrenceType": null,
+                "WhatId": null,
+                "ReminderDateTime": null,
+                "IsReminderSet": false,
+                "RecurrenceRegeneratedType": null,
+                "RecurrenceStartDateOnly": null,
+                "Type": null,
+                "Who": {
+                  "attributes": {
+                    "type": "Name",
+                    "url": "/services/data/v39.0/sobjects/Contact/034PvQAH"
+                  },
+                  "Type": "Contact"
+                },
+                "Id": "00T4P000056lb85UAA",
+                "Subject": "Email",
+                "WhoId": "034PvQAH",
+                "Status": "In Progress",
+                "CreatedDate_at": "2020-06-25T17:22:17.000+0000",
+                "OwnerId": "0054P000008CIowQAG",
+                "CreatedById": "0054P000008CIowQAG",
+                "IsDeleted": true,
+                "ActivityDate_at": "2020-06-27",
+                "LastModifiedById": "0054P000008CIowQAG",
+                "LastModifiedDate_at": "2020-06-25T17:24:57.000+0000",
+                "Priority": "Normal"
+              },
+              "event": "DELETED - Salesforce Task"
+            }
+          ]
+        ],
+        metrics: [
+          ["increment","connector.request",1],
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
@@ -1006,5 +936,4 @@ describe("Fetch Tasks Tests", () => {
       };
     });
   });
-
 });

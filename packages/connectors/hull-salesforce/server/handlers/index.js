@@ -1,12 +1,9 @@
 // @flow
 import type { HullHandlersConfiguration } from "hull";
 
-import fetch from "../actions/fetch";
-import fetchAllContacts from "../actions/fetch-all-contacts";
-import fetchAllLeads from "../actions/fetch-all-leads";
-import fetchAllAccounts from "../actions/fetch-all-accounts";
-import fetchAllTasks from "../actions/fetch-all-tasks";
-import fetchDeletions from "../actions/fetch-deletions";
+import fetchRecentlyUpdated from "../actions/fetch-recently-updated";
+import fetchRecentlyDeleted from "../actions/fetch-recently-deleted";
+import fetchAll from "../actions/fetch-all";
 import status from "../actions/status";
 import getContactProperties from "../actions/get-contact-properties";
 import getLeadProperties from "../actions/get-lead-properties";
@@ -49,14 +46,20 @@ const handler = ({
     },
     statuses: { status },
     schedules: {
-      fetch,
-      fetchDeletions
+      fetchRecentContacts: fetchRecentlyUpdated("Contact"),
+      fetchRecentLeads: fetchRecentlyUpdated("Lead"),
+      fetchRecentAccounts: fetchRecentlyUpdated("Account"),
+      fetchRecentTasks: fetchRecentlyUpdated("Task"),
+      fetchRecentDeletedContacts: fetchRecentlyDeleted("Contact"),
+      fetchRecentDeletedLeads: fetchRecentlyDeleted("Lead"),
+      fetchRecentDeletedAccounts: fetchRecentlyDeleted("Account"),
+      fetchRecentDeletedTasks: fetchRecentlyDeleted("Task")
     },
     json: {
-      fetchAllLeads,
-      fetchAllContacts,
-      fetchAllAccounts,
-      fetchAllTasks,
+      fetchAllLeads: fetchAll("Lead"),
+      fetchAllContacts: fetchAll("Contact"),
+      fetchAllAccounts: fetchAll("Account"),
+      fetchAllTasks: fetchAll("Task"),
       leadAssignmentRules: getLeadAssignmentRules,
       fieldsSalesforceLeadInbound: getLeadProperties(),
       fieldsSalesforceLeadOutbound: getLeadProperties({ fieldType: "updateable" }),
@@ -64,7 +67,6 @@ const handler = ({
       fieldsSalesforceContactOutbound: getContactProperties({ fieldType: "updateable" }),
       fieldsSalesforceAccountInbound: getAccountProperties(),
       fieldsSalesforceAccountOutbound: getAccountProperties({ fieldType: "updateable" }),
-      // fieldsSalesforceTaskInbound: getTaskProperties(),
       fieldsSalesforceTaskOutbound: getTaskProperties({ fieldType: "updateable" }),
       fieldsSalesforceTaskUnique: getTaskProperties({ fieldType: "unique" }),
       fieldsSalesforceTaskReference: getTaskProperties({ fieldType: "reference" })
