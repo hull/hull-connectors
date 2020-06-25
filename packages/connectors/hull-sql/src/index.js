@@ -4,7 +4,6 @@ import CodeMirror from "codemirror";
 import $ from "jquery";
 import _ from "lodash";
 import "codemirror/lib/codemirror.css";
-import "sweetalert/dist/sweetalert.css";
 import "codemirror/mode/sql/sql.js";
 import bootstrapTable from "bootstrap-table";
 import Swal from "sweetalert2";
