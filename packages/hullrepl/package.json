@@ -1,6 +1,6 @@
 {
   "name": "hullrepl",
-  "version": "0.1.28-monorepo",
+  "version": "0.1.29-monorepo",
   "description": "",
   "main": "src/index.js",
   "scripts": {

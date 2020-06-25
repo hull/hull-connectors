@@ -356,17 +356,20 @@ class SyncAgent {
             const asUser = this.client.asUser(envelope.message.user);
             if (envelope.warning) {
               asUser.logger.warning("outgoing.user.warning", {
-                warning: envelope.warning
+                warning: envelope.warning,
+                member: envelope.mailchimpNewMember
               });
             }
             if (envelope.permanentError) {
               asUser.logger.error("outgoing.user.error", {
-                error: envelope.permanentError
+                error: envelope.permanentError,
+                member: envelope.mailchimpNewMember
               });
               res.errors += 1;
             } else if (envelope.temporaryError) {
               asUser.logger.error("outgoing.user.error", {
-                error: envelope.temporaryError
+                error: envelope.temporaryError,
+                member: envelope.mailchimpNewMember
               });
               res.errors += 1;
             } else {
