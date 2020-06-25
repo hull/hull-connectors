@@ -104,6 +104,11 @@ const buildHullContext = ({
     claims: ClaimType,
     target: "userTraits" | "accountTraits"
   ) => (attributes: Attributes, context?: HullAttributeContext = {}) => {
+    if (attributes.anonymous_id !== undefined) {
+      deprecationLogger(
+        "You are setting an anonymous_id as an attribute value, which is invalid. Please send it in `hull.asUser({ anonymous_id: xxx })`, `hull.asAccount({ anonymous_id: xxx })` or hull.alias({ anonymous_id: xxx })"
+      );
+    }
     // ensures the claims and calls are properly collapsed and aggregated
     result[target] = result[target].withMutations(map => {
       map.mergeDeepIn(

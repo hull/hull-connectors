@@ -815,7 +815,7 @@ const prospectFields = [
   {
     name: "ownerEmail",
     display: "Owner Email",
-    readOnly: true
+    readOnly: false
   },
   {
     name: "personalNote1",
