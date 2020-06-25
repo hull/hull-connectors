@@ -58,6 +58,9 @@ body.dark .btn-success {
   flex-direction: row;
   display: flex;
   align-items: center;
+  small{
+    margin-left: 10px;
+  }
   .check {
     &.valid {
       border-color: rgba(75, 222, 122, 0.52);

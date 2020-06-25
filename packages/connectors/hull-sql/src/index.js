@@ -299,6 +299,12 @@ const emitToParent = query =>
           const err = res.responseJSON;
           $(".to-disable").prop("disabled", false);
           preview_loading.hide();
+          if (res.responseText==="transient-error"){
+            preview_error
+              .empty()
+              .show()
+              .append("An error occurred. It seems the server wasn't able to get a proper response from the Database");
+          }
           if (err) {
             const message =
               err.message === "Timeout error"
