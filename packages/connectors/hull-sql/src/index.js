@@ -15,6 +15,7 @@ const swal = Swal.mixin({
   },
   buttonsStyling: false
 });
+window.$ = $;
 
 const formatter = value =>
   typeof value === "object" && value !== null
@@ -58,7 +59,7 @@ const emitToParent = query =>
   const preview_results = $("#preview-results");
   const preview_error = $("#preview-error");
   const preview_loading = $("#preview-loading");
-  const maximize = $("#maximize");
+  const maximize = $(".btn-maximize");
   const body = $("body");
 
   function empty() {
@@ -233,6 +234,7 @@ const emitToParent = query =>
       $(".to-disable").prop("disabled", true);
       preview_loading.show();
       $("#result").bootstrapTable("destroy");
+      datatable = null;
       $.ajax({
         url: `/run${window.location.search}`,
         type: "post",
@@ -259,7 +261,7 @@ const emitToParent = query =>
 
               preview_results.show();
 
-              const datatable = $("#result").bootstrapTable({
+              datatable = $("#result").bootstrapTable({
                 height: 500,
                 sortable: true,
                 classes: "table table-striped table-borderless",
@@ -317,8 +319,26 @@ const emitToParent = query =>
       return false;
     });
 
-    maximize.on("click", () => body.toggleClass("maximized"));
-    $(".to-disable").prop("disabled", false);
+    function updateDataTable() {
+      const result = $("#result");
+      const area = result.parents(".area");
+      if (datatable) {
+        result.bootstrapTable("resetView", {
+          height: area.hasClass("maximized")
+            ? result.parents(".area-content").height()
+            : 500
+        });
+      }
+    }
+    maximize.on("click", function toggleMaximized(e) {
+      const area = $(e.target).parents(".area");
+      area.toggleClass("maximized");
+      body.toggleClass("maximized");
+      updateDataTable();
+    });
+
+    $(window).resize(updateDataTable);
+
     getStoredQuery();
   });
 })();

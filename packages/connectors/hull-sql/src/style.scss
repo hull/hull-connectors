@@ -3,13 +3,30 @@
 @import "bootstrap-table/dist/bootstrap-table";
 @import "sweetalert2/src/sweetalert2.scss";
 
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
 .page-container{
-  margin-top: 13px;
+  margin-top: 55px;
 }
 
 .header-row{
-  margin-right: 100px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 4;
+  padding: 13px 130px 10px 30px;
+  background: #252a33;
+  box-shadow: 0 0px 20px 0px #252a33;
 }
+
 body{
   background: white;
 }
@@ -17,13 +34,14 @@ body{
   margin-left: 1rem;
 }
 body.dark .btn {
-  border-radius: 4px;
+  border-radius: 6px;
   border: 0;
-  padding: 4px 1rem;
+  padding: 4px 1rem 3px 1rem;
 }
 body.dark .btn-success {
   background-color: #48b648;
 }
+
 #preview-error, #preview-loading, #changed-indicator, #preview-results {
   display: none;
 }
@@ -113,11 +131,6 @@ hr {
 h6 {
   margin-top: 0;
 }
-.flex-row {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
 
 .card{
   background-color: #ffffff12;
@@ -132,14 +145,11 @@ h6 {
 .cm-s-material-ocean .CodeMirror-gutters{
   background: #0f111a33;
 }
-body.dark .btn-preview {
-    margin-left: 10px;
-    border-radius: 6px;
-    padding: 3px 1rem 4px 1rem;
-}
 
-.code-area{
+.area{
   position: relative;
+  z-index: 3;
+  background: transparent;
   .btn.btn-maximize{
     &:focus{
       outline-style: none;
@@ -149,28 +159,24 @@ body.dark .btn-preview {
     position: absolute;
     right: 4px;
     top: 4px;
-    z-index: 10;
+    z-index: 3;
     padding-left: .5rem;
     padding-right: .5rem;
     outline: none;
   }
-}
-body.maximized{
-  overflow: hidden;
-  .code-area{
+  &.maximized{
+    z-index: 4;
     background-color: #242a33e0;
-    z-index: 10;
     position: fixed;
     top: 0px;
     left: 0px;
     right: 0px;
     bottom: 0px;
-    z-index: 1000;
-    .code-content{
+    .area-content{
       position: absolute;
       left: 30px;;
       right: 30px;;
-      top: 66px;;
+      top: 55px;;
       bottom: 20px;
       height: calc(100% - 80px);
       box-shadow: 0 0 20px 8px #0000004f;
@@ -179,6 +185,9 @@ body.maximized{
       height: 100%;
     }
   }
+}
+body.maximized{
+  overflow: hidden;
 }
 
 .table thead th,
