@@ -12,7 +12,7 @@
   "picture": "picture.png",
   "ui": false,
   "readme": "readme.md",
-  "version": "0.1.28-monorepo",
+  "version": "0.1.29-monorepo",
   "private_settings": [
     {
       "name": "triggers",

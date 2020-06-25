@@ -47,7 +47,7 @@ it("should remove user from static list if user left the segment", () => {
           const scope = nock("https://mock.api.mailchimp.com/3.0");
           scope.get("/lists/1/webhooks").reply(200, {
             webhooks: [
-              { url: "localhost:8000/mailchimp?ship=123456789012345678901234" }
+              { url: `https://localhost/mailchimp?organization=localhost%3A${minihullPort}&secret=1234&ship=123456789012345678901234` }
             ]
           });
           scope

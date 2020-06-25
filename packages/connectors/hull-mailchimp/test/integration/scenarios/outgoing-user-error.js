@@ -30,7 +30,7 @@ const usersSegments = [
   }
 ];
 
-it("should send matching user to the mailchimp", () => {
+it("should log member info when failure in sending user to mailchimp", () => {
   const email = "email@email.com";
   return testScenario({ connectorConfig }, ({ handlers, nock, expect, minihullPort }) => {
     return {
@@ -62,7 +62,14 @@ it("should send matching user to the mailchimp", () => {
             ],
             update_existing: true
           })
-          .reply(200);
+          .reply(200, {
+            errors: [
+              {
+                email_address: email,
+                error: "Your merge fields were invalid."
+              }
+            ]
+          });
         return scope;
       },
       connector,
@@ -80,8 +87,8 @@ it("should send matching user to the mailchimp", () => {
         flow_control: {
           type: "next",
           in: 10,
-          size: 50,
-          in_time: 30000
+          in_time: 30000,
+          size: 50
         }
       },
       logs: [
@@ -108,10 +115,11 @@ it("should send matching user to the mailchimp", () => {
           expect.objectContaining({ method: "POST", url: "/lists/{{listId}}" })
         ],
         [
-          "info",
-          "outgoing.user.success",
+          "error",
+          "outgoing.user.error",
           expect.objectContaining({ subject_type: "user", user_email: email }),
           {
+            error: "Your merge fields were invalid.",
             member: {
               email_address: email,
               email_type: "html",
@@ -130,7 +138,7 @@ it("should send matching user to the mailchimp", () => {
           "debug",
           "outgoing.job.success",
           expect.whatever(),
-          { errors: 0, successes: 1 }
+          { errors: 1, successes: 0 }
         ]
       ],
       firehoseEvents: [],
@@ -146,7 +154,7 @@ it("should send matching user to the mailchimp", () => {
           expect.whatever()
         ],
         ["value", "connector.send_user_update_messages.messages", 1],
-        ["increment", "ship.outgoing.users", 1]
+        ["increment", "ship.outgoing.users", 0]
       ]
     };
   });
