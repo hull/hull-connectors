@@ -19,10 +19,18 @@ class ConnectorCache {
 
   promiseReuser: Object;
 
-  constructor(ctx: HullContext, cache: Object, promiseReuser: Object) {
+  keyPrefix;
+
+  constructor(
+    ctx: HullContext,
+    cache: Object,
+    promiseReuser: Object,
+    keyPrefix: string
+  ) {
     this.ctx = ctx;
     this.cache = cache;
     this.promiseReuser = promiseReuser;
+    this.keyPrefix = keyPrefix;
   }
 
   /**
@@ -45,7 +53,8 @@ class ConnectorCache {
       );
     }
     const { secret, organization } = this.ctx.client.configuration();
-    return jwt.encode({ sub: key, iss: organization }, secret);
+    const encodedKey = jwt.encode({ sub: key, iss: organization }, secret);
+    return this.keyPrefix ? `${this.keyPrefix}:${encodedKey}` : encodedKey;
   }
 
   /**

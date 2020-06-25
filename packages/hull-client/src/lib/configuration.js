@@ -1,6 +1,7 @@
 // @flow
+
 import type {
-  HullClientConfig,
+  HullClientInstanceConfig,
   HullEntityClaims,
   HullEntityName,
   HullAdditionalClaims
@@ -41,17 +42,28 @@ const VALID = {
   },
   array(arr) {
     return _.isArray(arr);
+  },
+  transport(t) {
+    return (
+      t.type === "kafka" &&
+      (_.isString(t.topic) || _.isObject(t.topicsMapping)) &&
+      _.isArray(t.brokersList)
+    );
+  },
+  logger(l) {
+    return l && typeof l.log === "function";
   }
 };
 
 const REQUIRED_PROPS = {
   id: VALID.objectId,
-  secret: VALID.string,
   organization: VALID.string
 };
 
 const VALID_PROPS = {
   ...REQUIRED_PROPS,
+  secret: VALID.string,
+  trackingOnly: VALID.boolean,
   prefix: VALID.string,
   domain: VALID.string,
   firehoseUrl: VALID.string,
@@ -69,16 +81,20 @@ const VALID_PROPS = {
   connectorName: VALID.string,
   requestId: VALID.string,
   logs: VALID.array,
-  firehoseEvents: VALID.array
+  logLevel: VALID.string,
+  firehoseEvents: VALID.array,
+  firehoseTransport: VALID.transport,
+  loggerTransport: VALID.array,
+  logger: VALID.logger
 };
 
 /**
  * Class containing configuration
  */
 class Configuration {
-  _state: HullClientConfig;
+  _state: HullClientInstanceConfig;
 
-  constructor(config: HullClientConfig) {
+  constructor(config: HullClientInstanceConfig) {
     if (!_.isObject(config) || !_.size(config)) {
       throw new Error(
         "Configuration is invalid, it should be a non-empty object"
@@ -100,18 +116,25 @@ class Configuration {
         );
       }
 
-      const accessToken = crypto.lookupToken(
-        config,
-        config.subjectType,
-        {
-          user: config.userClaim,
-          account: config.accountClaim
-        },
-        config.additionalClaims
-      );
-      config = { ...config, accessToken };
+      if (config.secret) {
+        const accessToken = crypto.lookupToken(
+          config,
+          config.subjectType,
+          {
+            user: config.userClaim,
+            account: config.accountClaim
+          },
+          config.additionalClaims
+        );
+        config = { ...config, accessToken };
+      } else if (!config.trackingOnly) {
+        const err = new Error(
+          "Client requires a secret unless trackingOnly is set to true"
+        );
+        err.status = 400;
+        throw err;
+      }
     }
-
     this._state = { ...GLOBALS };
 
     _.each(REQUIRED_PROPS, (test, prop) => {
@@ -119,7 +142,6 @@ class Configuration {
         const err = new Error(
           `Configuration is missing required property: ${prop}`
         );
-        // $FlowFixMe
         err.status = 401;
         throw err;
       }
@@ -127,16 +149,15 @@ class Configuration {
         const err = new Error(
           `${prop} property in Configuration is invalid: ${config[prop]}`
         );
-        // $FlowFixMe
         err.status = 401;
         throw err;
       }
     });
 
-    _.each(VALID_PROPS, (test, key) => {
+    _.each(VALID_PROPS, (test, prop) => {
       // @TODO check that this is actually desired as a strict comparison to make sure falsy values are still validated
-      if (config[key] !== undefined) {
-        this._state[key] = config[key];
+      if (config[prop] !== undefined) {
+        this._state[prop] = config[prop];
       }
     });
 
@@ -149,7 +170,7 @@ class Configuration {
     this._state.version = pkg.version;
   }
 
-  set(key: string, value: $Values<HullClientConfig>): void {
+  set(key: string, value: $Values<HullClientInstanceConfig>): void {
     this._state[key] = value;
   }
 
@@ -162,7 +183,7 @@ class Configuration {
     | HullEntityName
     | HullEntityClaims
     | HullAdditionalClaims
-    | HullClientConfig
+    | HullClientInstanceConfig
     | void {
     if (key !== undefined) {
       return this._state[key];
@@ -170,8 +191,8 @@ class Configuration {
     return this.getAll();
   }
 
-  getAll(): HullClientConfig {
-    return JSON.parse(JSON.stringify(this._state));
+  getAll(): HullClientInstanceConfig {
+    return _.clone(this._state);
   }
 }
 

@@ -46,7 +46,7 @@ describe("API client", () => {
       expect(() => new Client(_.omit(config, "id"))).to.throw();
     });
     it("should require `secret`", () => {
-      expect(() => new Client(_.omit(config, "secret"))).to.throw();
+      expect(() => new Client({ id: "123", organization: "yo.hull.io" })).to.throw();
     });
     it("should require `organization`", () => {
       expect(() => new Client(_.omit(config, "organization"))).to.throw();
@@ -55,9 +55,7 @@ describe("API client", () => {
     it("should require a valid `id`", () => {
       expect(() => new Client(_.extend({}, config, { id: true }))).to.throw();
     });
-    it("should require a valid `secret`", () => {
-      expect(() => new Client(_.extend({}, config, { secret: true }))).to.throw();
-    });
+
     it("should require a valid `organization`", () => {
       expect(() => new Client(_.extend({}, config, { organization: true }))).to.throw();
     });
