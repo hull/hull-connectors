@@ -303,18 +303,9 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     });
   }
 
-  /**
-   * Gets all records from Salesforce using autoFetch.
-   * -LEGACY Implementation-
-   *
-   * @param type TResourceType
-   * @param fields
-   * @param accountClaims
-   * @param {Function} onRecord Callback that is invoked for every record received.
-   * @returns {Promise<any>} The query type and fields that have been used for execution.
-   * @memberof SalesforceClient
-   */
-  getAllRecords(type: TResourceType, fields: Array<string> = [], accountClaims: Array<Object> = [], onRecord: Function): Promise<*> {
+  getAllRecords(type: TResourceType,  options: Object = {}, onRecord: Function): Promise<*> {
+    const fields = options.fields || [];
+    const accountClaims = options.account_claims || [];
     const progressFrequency = 0.1; // log progress every 10% of fetch
     let progressIncrement = null;
     return new Promise((resolve, reject) => {
@@ -342,85 +333,37 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     });
   }
 
-  /**
-   * Gets the updated records within ac certain timeframe from Salesforce.
-   * -MOSTLY LEGACY Implementation-
-   *
-   * @param {TResourceType} type The type of resource.
-   * @param {Object} [options={}] Options that control the behavior.
-   * @param onRecord
-   * @param concurrency
-   * @returns {Promise<Object[]>} A list of updated records.
-   * @memberof SalesforceClient
-   */
-  getUpdatedRecords(type: TResourceType, options: Object = {}, onRecord: Function, concurrency: number = 2): Promise<*> {
+  getRecords(type: TResourceType, ids: Array<string>, options: Object = {}, onRecord: Function): Promise<*> {
     const fields = options.fields || [];
     const accountClaims = options.account_claims || [];
-    const since = options.since ? new Date(options.since) : new Date(new Date().getTime() - (3600 * 1000));
-    const until = options.until ? new Date(options.until) : new Date();
+    const chunks = _.chunk(ids, FETCH_CHUNKSIZE);
 
-    return new Promise((resolve, reject) => {
-      return this.connection.sobject(type).updated(
-        since.toISOString(),
-        until.toISOString(),
-        (err, res = {}) => {
-          if (err) {
-            return reject(err);
-          }
-          const chunks = _.chunk(_.get(res, "ids", []), FETCH_CHUNKSIZE);
-          return Promise.map(chunks, (ids) => {
-            return this.findRecordsById(type, ids, fields, accountClaims, options)
-              .then((records) => {
-                this.metricsClient.increment((type === "Account" ? "ship.incoming.accounts" : "ship.incoming.users"), records.length);
-                return Promise.all(records.map(record => onRecord(record)));
-              });
-          }, { concurrency })
-            .then(resolve)
-            .catch(reject);
-        }
-      );
-    });
-  }
-
-  getDeletedRecords(type: TResourceType, options: Object = {}, onRecord: Function, concurrency: number = 2): Promise<*> {
-    const fields = options.fields || [];
-    const accountClaims = options.accountClaims;
-    const since = options.since;
-    const until = new Date();
-
-    return new Promise((resolve, reject) => {
-      return this.connection.sobject(type).deleted(since, until)
-        .then((recordsInfo) => {
-          const deletedRecords = recordsInfo.deletedRecords ? recordsInfo.deletedRecords : [];
-          const recordIds = _.map(deletedRecords, "id");
-          const chunks = _.chunk(recordIds, FETCH_CHUNKSIZE);
-          return Promise.map(chunks, (ids) => {
-            _.set(options, "executeQuery", "queryAll");
-            return this.findRecordsById(type, ids, fields, accountClaims, options)
-              .then((records) => {
-                return Promise.all(records.map((record) => {
-                  return onRecord(record);
-                }));
-              });
-          }, { concurrency })
-            .then(resolve)
-            .catch(reject);
+    return Promise.map(chunks, (ids) => {
+      return this.findRecordsById(type, ids, fields, accountClaims, options)
+        .then((records) => {
+          this.metricsClient.increment((type === "Account" ? "ship.incoming.accounts" : "ship.incoming.users"), records.length);
+          return Promise.all(records.map(record => onRecord(record)));
         });
-    });
+    }, { concurrency: 2 });
   }
 
-  /**
-   * Gets all deleted records within a certain timeframe in Salesforce.
-   *
-   * @param {TResourceType} type The type of the resource.
-   * @param {TDeletedRecordsParameters} options The query options.
-   * @returns {Promise<Array<TDeletedRecordInfo>>} A list of deleted records.
-   * @memberof ServiceClient
-   */
-  getDeletedRecordsData(type: TResourceType, options: TDeletedRecordsParameters): Promise<Array<TDeletedRecordInfo>> {
-    return this.connection.sobject(type).deleted(options.start, options.end)
+  getUpdatedRecordIds(type: TResourceType, options: Object = {}): Promise<*> {
+    const start = options.start ? new Date(options.start) : new Date(new Date().getTime() - (360 * 1000));
+    const end = options.end ? new Date(options.end) : new Date();
+
+    return this.connection.sobject(type).updated(start, end)
+      .then((res) => {
+        return _.get(res, "ids", []);
+      });
+  }
+
+  getDeletedRecordIds(type: TResourceType, options: TDeletedRecordsParameters): Promise<Array<TDeletedRecordInfo>> {
+    const start = options.start ? new Date(options.start) : new Date(new Date().getTime() - (360 * 1000));
+    const end = options.end ? new Date(options.end) : new Date();
+
+    return this.connection.sobject(type).deleted(start, end)
       .then((recordsInfo) => {
-        return recordsInfo.deletedRecords ? recordsInfo.deletedRecords : [];
+        return _.get(recordsInfo, "deletedRecords", []);
       });
   }
 }

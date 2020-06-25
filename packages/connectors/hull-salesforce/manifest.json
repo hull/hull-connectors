@@ -635,19 +635,73 @@
   ],
   "schedules": [
     {
-      "url": "/fetch",
+      "url": "/fetchRecentContacts",
       "type": "interval",
       "value": "5",
-      "handler": "fetch",
+      "handler": "fetchRecentContacts",
       "options": {
         "fireAndForget": true
       }
     },
     {
-      "url": "/fetch-deleted",
+      "url": "/fetchRecentLeads",
       "type": "interval",
       "value": "5",
-      "handler": "fetchDeletions",
+      "handler": "fetchRecentLeads",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetchRecentAccounts",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentAccounts",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetchRecentTasks",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentTasks",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetchRecentDeletedContacts",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentDeletedContacts",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetchRecentDeletedLeads",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentDeletedLeads",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetchRecentDeletedAccounts",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentDeletedAccounts",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetchRecentDeletedTasks",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentDeletedTasks",
       "options": {
         "fireAndForget": true
       }

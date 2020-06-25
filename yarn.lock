@@ -3163,6 +3163,11 @@ bootstrap-table@^1.15.4:
   resolved "https://registry.yarnpkg.com/bootstrap-table/-/bootstrap-table-1.15.4.tgz#18d8c1aa2b86879a5478188a04cf7603783bf019"
   integrity sha512-hGp0480hLFQrqilnITEdJDhdes8zNwptQ7688osKhd1itCkRLrYbIIBFZ3eUanfS7oXxxmarN4krEqDLkrAw8Q==
 
+bootstrap-table@^1.16.0:
+  version "1.16.0"
+  resolved "https://registry.yarnpkg.com/bootstrap-table/-/bootstrap-table-1.16.0.tgz#d05bd262e7f70a76ee872c658918983beb3befce"
+  integrity sha512-bLbVetbyiXYmhU1LSsaiOHH4uvmlyBa/fNUo3y0owCfQSyQms/sfXOBvbcJWlDmjGtTY7kPW5z7KQvQJDPzN5w==
+
 bootstrap@^4.3.1:
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/bootstrap/-/bootstrap-4.3.1.tgz#280ca8f610504d99d7b6b4bfc4b68cec601704ac"
@@ -10965,7 +10970,7 @@ multicast-dns@^6.0.1:
     dns-packet "^1.3.1"
     thunky "^1.0.2"
 
-multiparty@3.3.2, multiparty@^3.3.1:
+multiparty@3.3.2:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/multiparty/-/multiparty-3.3.2.tgz#35de6804dc19643e5249f3d3e3bdc6c8ce301d3f"
   integrity sha1-Nd5oBNwZZD5SSfPT473GyM4wHT8=
@@ -12453,12 +12458,12 @@ passport-forcedotcom@0.1.5:
   dependencies:
     passport-oauth2 "1.3.x"
 
-passport-google-oauth20@2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/passport-google-oauth20/-/passport-google-oauth20-2.0.0.tgz#0d241b2d21ebd3dc7f2b60669ec4d587e3a674ef"
-  integrity sha512-KSk6IJ15RoxuGq7D1UKK/8qKhNfzbLeLrG3gkLZ7p4A6DBCcv7xpyQwuXtWdpyR0+E0mwkpjY1VfPOhxQrKzdQ==
+passport-forcedotcom@0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/passport-forcedotcom/-/passport-forcedotcom-0.1.5.tgz#982d35fd6bb4a93b88617b807a59a388ecb562e3"
+  integrity sha512-raDRQqBJtTEHDxLkxLG+9sYE0xpPy9PqriMPbMy9jmpIcU2+mOq9PgczvUPrU8UjfcZp3gqkDHqujcUWiGOVNQ==
   dependencies:
-    passport-oauth2 "1.x.x"
+    passport-oauth2 "1.3.x"
 
 passport-hubspot-oauth2.0@^1.0.2:
   version "1.0.2"
@@ -15457,7 +15462,7 @@ split2@^2.1.0:
   dependencies:
     through2 "^2.0.2"
 
-split@0.3, split@^0.3.0:
+split@0.3:
   version "0.3.3"
   resolved "https://registry.yarnpkg.com/split/-/split-0.3.3.tgz#cd0eea5e63a211dfff7eb0f091c4133e2d0dd28f"
   integrity sha1-zQ7qXmOiEd//frDwkcQTPi0N0o8=
@@ -15665,11 +15670,6 @@ stream-shift@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/stream-shift/-/stream-shift-1.0.0.tgz#d5c752825e5367e786f78e18e445ea223a155952"
   integrity sha1-1cdSgl5TZ+eG944Y5EXqIjoVWVI=
-
-stream-stream@^1.2.6:
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/stream-stream/-/stream-stream-1.2.6.tgz#a9ae071c64c11b8584f52973f7715e37e5144c43"
-  integrity sha1-qa4HHGTBG4WE9Slz93FeN+UUTEM=
 
 stream-transform@^2.0.1:
   version "2.0.1"
@@ -16062,6 +16062,11 @@ supports-color@^5.0.0, supports-color@^5.3.0, supports-color@^5.5.0:
   integrity sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==
   dependencies:
     has-flag "^3.0.0"
+
+sweetalert2@^9.15.2:
+  version "9.15.2"
+  resolved "https://registry.yarnpkg.com/sweetalert2/-/sweetalert2-9.15.2.tgz#d26f1e6dee91d9ff57b3b98b3d92a0d6c3fa6fc1"
+  integrity sha512-evJfoa49s5ZzSmVc62tslNkzlQoCg2GHjB3MQxawfESppvY5AlXKLGQ3nNKxHXKdodKmIHbkl39DgUhcOK7LgQ==
 
 sweetalert@^2.1.2:
   version "2.1.2"
