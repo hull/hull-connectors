@@ -172,8 +172,16 @@ const service: RawRestApi = {
       },
       {
         truthy: { status: 401 },
+        condition: isNull("connector.private_settings.token"),
         errorType: ConfigurationError,
-        message: "Unauthorized",
+        message: "Unauthorized. Missing Access token.",
+        recoveryroute: "refreshToken"
+      },
+      {
+        truthy: { status: 401 },
+        condition: notNull("connector.private_settings.token"),
+        errorType: ConfigurationError,
+        message: "Unauthorized.",
         recoveryroute: "refreshToken"
       },
       {

@@ -13,24 +13,27 @@ const config = {
 describe("HullClient array capture feature", () => {
   it("should allow to capture traits", () => {
     const clock = sinon.useFakeTimers();
-    const hullClient = new HullClient({ ...config, captureFirehoseEvents: true });
-    hullClient.configuration().firehoseEvents.push("test");
+    const hullClient = new HullClient({ ...config, captureFirehoseEvents: true, requestId: 'r-123' });
+    // hullClient.configuration().firehoseEvents.push("test");
     return Promise.all([
-      hullClient.asUser({ email: "foo@bar.com" }).traits({ coconuts: 123 }),
-      hullClient.asUser({ email: "zoo@bay.com" }).traits({ apples: 345 })
+      hullClient.asUser({ email: "foo@bar.com" }).traits({ coconuts: 123 }, { foo: 'bar' }),
+      hullClient.asUser({ email: "zoo@bay.com" }).traits({ apples: 345 }, { foo: 'bar' })
     ]).then(() => {
-      hullClient.configuration().firehoseEvents.push("test");
-      expect(hullClient.configuration().firehoseEvents).to.eql([
+      const { firehoseEvents } = hullClient.configuration();
+      expect(firehoseEvents).to.eql([
         {
           context: {
             organization: "hull-demos",
             id: "550964db687ee7866d000057",
             subject_type: "user",
-            user_email: "foo@bar.com"
+            user_email: "foo@bar.com",
+            request_id: "r-123"
           },
           data: {
             type: "traits",
-            body: { coconuts: 123 }
+            body: { coconuts: 123 },
+            context: { foo: "bar" },
+            requestId: "r-123"
           }
         },
         {
@@ -38,11 +41,14 @@ describe("HullClient array capture feature", () => {
             organization: "hull-demos",
             id: "550964db687ee7866d000057",
             subject_type: "user",
-            user_email: "zoo@bay.com"
+            user_email: "zoo@bay.com",
+            request_id: "r-123"
           },
           data: {
             type: "traits",
-            body: { apples: 345 }
+            body: { apples: 345 },
+            context: { foo: "bar" },
+            requestId: "r-123"
           }
         }
       ]);
