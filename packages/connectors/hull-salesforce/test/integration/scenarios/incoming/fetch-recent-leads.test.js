@@ -38,7 +38,7 @@ describe("Fetch Leads Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetch",
+        handlerUrl: "fetchRecentLeads",
         connector: {
           private_settings: {
             ...private_settings,
@@ -163,13 +163,6 @@ describe("Fetch Leads Tests", () => {
             .reply(200, { ids: ["00Q1I000004WHbtUAG"] }, { "sforce-limit-info": "api-usage=500/50000" });
 
           scope
-            .get("/services/data/v39.0/sobjects/Contact/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: [] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
             .get("/services/data/v39.0/query")
             .query((query) => {
               return query.q && query.q.match("FROM Lead");
@@ -204,11 +197,6 @@ describe("Fetch Leads Tests", () => {
                 }
               ] }, { "sforce-limit-info": "api-usage=500/50000" });
 
-          scope
-            .get("/services/data/v39.0/sobjects/Contact/describe")
-            .query()
-            .reply(200, { fields: [] }, { "sforce-limit-info": "api-usage=500/50000" });
-
           return scope;
         },
         response: { status : "deferred"},
@@ -218,32 +206,8 @@ describe("Fetch Leads Tests", () => {
             "incoming.job.start",
             {},
             {
-              "jobName": "fetchChanges",
-              "type": "Lead",
-              "fetchFields": [
-                "Email",
-                "FirstName",
-                "LastName",
-                "Id",
-                "ConvertedAccountId",
-                "ConvertedContactId",
-                "Company",
-                "Website",
-                "Department",
-                "UserSegments__c"
-              ],
-              "identMapping": [
-                {
-                  "hull": "domain",
-                  "service": "Website",
-                  "required": true
-                },
-                {
-                  "hull": "external_id",
-                  "service": "CustomField1",
-                  "required": false
-                }
-              ]
+              "jobName": "Incoming Data",
+              "type": "webpayload"
             }
           ],
           [
@@ -252,7 +216,7 @@ describe("Fetch Leads Tests", () => {
             {},
             {
               "method": "GET",
-              "url_length": 70,
+              "url_length": expect.whatever(),
               "url": "https://na98.salesforce.com/services/data/v39.0/sobjects/Lead/describe"
             }
           ],
@@ -262,7 +226,7 @@ describe("Fetch Leads Tests", () => {
             {},
             {
               "method": "GET",
-              "url_length": 147,
+              "url_length": expect.whatever(),
               "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Lead/updated")
             }
           ],
@@ -272,7 +236,7 @@ describe("Fetch Leads Tests", () => {
             {},
             {
               "method": "GET",
-              "url_length": 248,
+              "url_length": expect.whatever(),
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CConvertedAccountId%2CConvertedContactId%2CCompany%2CWebsite%2CDepartment%2CUserSegments__c%20FROM%20Lead%20WHERE%20Id%20IN%20('00Q1I000004WHbtUAG')"
             }
           ],
@@ -337,78 +301,9 @@ describe("Fetch Leads Tests", () => {
             "incoming.job.success",
             {},
             {
-              "jobName": "fetchChanges",
-              "type": "Lead"
+              "jobName": "Incoming Data",
+              "type": "webpayload"
             }
-          ],
-          [
-            "info",
-            "incoming.job.start",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Contact",
-              "fetchFields": [
-                "Email",
-                "FirstName",
-                "LastName",
-                "Id",
-                "AccountId"
-              ],
-              "identMapping": [
-                {
-                  "hull": "domain",
-                  "service": "Website",
-                  "required": true
-                },
-                {
-                  "hull": "external_id",
-                  "service": "CustomField1",
-                  "required": false
-                }
-              ]
-            }
-          ],
-          [
-            "debug",
-            "ship.service_api.request",
-            {},
-            {
-              "method": "GET",
-              "url_length": 73,
-              "url": "https://na98.salesforce.com/services/data/v39.0/sobjects/Contact/describe"
-            }
-          ],
-          [
-            "debug",
-            "ship.service_api.request",
-            {},
-            {
-              "method": "GET",
-              "url_length": 150,
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Contact/updated")
-            }
-          ],
-          [
-            "info",
-            "incoming.job.success",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Contact"
-            }
-          ],
-          [
-            "debug",
-            "Fetch Accounts not turned on. Skipping account fetch",
-            {},
-            undefined
-          ],
-          [
-            "debug",
-            "Fetch Tasks not turned on. Skipping task fetch",
-            {},
-            undefined
           ]
         ],
         firehoseEvents: [
@@ -463,26 +358,26 @@ describe("Fetch Leads Tests", () => {
         ],
         metrics: [
           ["increment","connector.request",1],
+
+          // get ids
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
+
+          // get entities
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
+
+          // get resource schema
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
+
           ["increment","ship.incoming.users",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500]
         ],
         platformApiCalls: []
       };
     });
   });
-
 });
