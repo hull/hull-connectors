@@ -19,7 +19,6 @@ const MatchUtil = require("./sync-agent/match-util");
 const IdentityUtil = require("./utils/identity-utils");
 const { sendEvents } = require("./sync-agent/actions/outgoing/send-events");
 const SalesforceClient = require("./service-client");
-const { getResourceSchema } = require("./utils/get-fields-schema");
 const { errors } = require("./errors");
 const { RELATED_ENTITY_MAPPING } = require("../lib/sync-agent/mappings");
 const { getFieldsSchema } = require("./utils/get-fields-schema");
@@ -248,7 +247,7 @@ class SyncAgent {
     } = filtered;
 
     if (!_.isEmpty(toInsert) || !_.isEmpty(toUpdate)) {
-      schema = await getResourceSchema(resourceType, { fetchResourceSchema: this.fetchResourceSchema, cache: this.cache, serviceClient: this.sf });
+      schema = await this.getResourceSchema(resourceType);
     }
 
     _.forEach(toSkip, (envelope) => {
