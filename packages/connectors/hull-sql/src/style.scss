@@ -150,6 +150,9 @@ h6 {
   position: relative;
   z-index: 3;
   background: transparent;
+  .area-content{
+    background: #242a33e0;
+  }
   .btn.btn-maximize{
     &:focus{
       outline-style: none;
@@ -186,6 +189,7 @@ h6 {
     }
   }
 }
+
 body.maximized{
   overflow: hidden;
 }
