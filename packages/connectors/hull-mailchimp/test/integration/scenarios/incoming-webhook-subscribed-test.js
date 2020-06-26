@@ -75,6 +75,7 @@ it("should handle incoming webhook for subscribe event", () => {
             {
               first_name: { operation: "setIfNull", value: "First" },
               last_name: { operation: "setIfNull", value: "Last" },
+              "mailchimp/archived": false,
               "mailchimp/email": "subscribed@user.com",
               "mailchimp/fname": "First",
               "mailchimp/lname": "Last",
