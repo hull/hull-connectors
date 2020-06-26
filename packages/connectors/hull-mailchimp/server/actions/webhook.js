@@ -63,15 +63,6 @@ async function handleAction(
       break;
 
     case "unsubscribe":
-      if (data.action === "archive" || data.action === "delete") {
-        // status: archived
-        // subscribed: false
-        // archived: true
-      } else {
-        // status: "unsubscribed",
-        // subscribed: false,
-        // archived: false
-      }
 
       processedData = _.merge({}, data, {
         status: "unsubscribed",
@@ -105,7 +96,7 @@ async function handleAction(
             processedData = _.merge({}, data, {
               status: member.status,
               subscribed: member.status === "subscribed",
-              archived: member.status === "archived"
+              archived: false
             });
           }
         }
