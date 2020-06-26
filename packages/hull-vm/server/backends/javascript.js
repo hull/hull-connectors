@@ -2,19 +2,12 @@
 
 import type { HullContext } from "hull";
 import { VM } from "vm2";
-import moment from "moment";
-import urijs from "urijs";
 import _ from "lodash";
 import type { Result, ComputeOptions } from "../../types";
 import scopedUserMethods from "../sandbox/user_methods";
-import getRequest from "../sandbox/request";
-import getSuperagent from "../sandbox/superagent";
 import getConsole from "../sandbox/console";
-import getUUID from "../sandbox/uuid";
-import getLibPhoneNumber from "../sandbox/libphonenumber";
 import check from "../check";
-
-const LIBS = { _, moment, urijs };
+import libs from "../sandbox/libs";
 
 export default async function javascript(
   ctx: HullContext,
@@ -25,15 +18,8 @@ export default async function javascript(
   const { connector } = ctx;
   const frozen = {
     ...payload,
-    ...LIBS,
+    ...libs,
     ...(claims ? scopedUserMethods(payload) : {}),
-    setIfNull: value => ({ operation: "setIfNull", value }),
-    increment: value => ({ operation: "increment", value }),
-    decrement: value => ({ operation: "increment", value }),
-    request: getRequest(ctx, result),
-    superagent: getSuperagent(ctx, result),
-    LibPhoneNumber: getLibPhoneNumber(),
-    uuid: getUUID(ctx, result),
     hull,
     console: getConsole(result, preview),
     connector,
