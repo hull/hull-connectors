@@ -7,7 +7,7 @@ import type { Result, ComputeOptions } from "../../types";
 import scopedUserMethods from "../sandbox/user_methods";
 import getConsole from "../sandbox/console";
 import check from "../check";
-import libs from "../sandbox/libs";
+import getLibs from "../sandbox/libs";
 
 export default async function javascript(
   ctx: HullContext,
@@ -18,7 +18,7 @@ export default async function javascript(
   const { connector } = ctx;
   const frozen = {
     ...payload,
-    ...libs,
+    ...getLibs(ctx, result),
     ...(claims ? scopedUserMethods(payload) : {}),
     hull,
     console: getConsole(result, preview),
