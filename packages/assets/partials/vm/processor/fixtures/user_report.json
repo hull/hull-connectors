@@ -1,0 +1,97 @@
+{
+  "accepts_marketing": false,
+  "anonymous_ids": [
+    "1493661119-49ee68ac-1z58-4r3l-n8ba-2x22wb3762g9",
+    "intercom:5907854a8ez91d591a49b4c2",
+    "hubspot:999999"
+    // additional identifiers
+  ],
+  "created_at": "2017-05-01T19:06:04Z",
+  "domain": "hull.io",
+  "email": "johnny@hull.io",
+  "external_id": "2107091ci8babc17z10017d8",
+  "first_name": "John",
+  "first_seen_at": "2017-05-01T17:51:52Z",
+  "first_session_initial_referrer": "",
+  "first_session_initial_url": "http://www.hull.io/",
+  "first_session_platform_id": "558979x8v29537a316",
+  "first_session_started_at": "2017-05-01T17:51:52Z",
+  "has_password": true,
+  "id": "5907871cy3bdae94k10017p3",
+  "identities_count": 0,
+  "is_approved": true,
+  "last_known_ip": "8.8.8.8",
+  "last_name": "Doe",
+  "last_seen_at": "2017-09-25T11:54:50Z",
+  "latest_session_initial_referrer": "",
+  "latest_session_initial_url": "https://dashboard.hullapp.io/",
+  "latest_session_platform_id": "558979x8v29537a316",
+  "latest_session_started_at": "2017-09-25T11:53:52Z",
+  "main_identity": "external",
+  "name": "John Doe",
+  "picture": "<URL>", // the gravatar URL
+  "signup_session_initial_referrer": "",
+  "signup_session_initial_url": "http://www.hull.io/",
+  "signup_session_platform_id": "558979x8v29537a316",
+  "signup_session_started_at": "2017-05-01T17:51:52Z",
+  "company_name": "Hull Inc",
+  "matching_technologies": 3,
+  "request_demo": false,
+  "unified_domain": "hull.io",
+  "hubspot": {
+    "created_at": "2017-01-22T18:52:08+00:00",
+    "email_optout": "",
+    "hs_sales_email_last_opened": "1495839471456",
+    "hubspot_owner_id": "9999999",
+    "id": 999999,
+    "owner_assigned_at": "2017-01-22T18:52:08+00:00",
+    "updated_at": "2017-05-26T22:57:56+00:00"
+  },
+  "intercom": {
+    "anonymous": false,
+    "avatar": "<URL>", // URL for avatar
+    "companies": [ "Hull" ],
+    "created_at": "2017-05-01T18:58:23+00:00",
+    "id": "5907854x5ze61g395b10b3d7",
+    "last_request_at": "2017-09-21T10:52:30+00:00",
+    "last_seen_ip": "8.8.8.8",
+    "location_city_name": "Atlanta",
+    "location_continent_code": "US",
+    "location_country_code": "USA",
+    "location_country_name": "United States",
+    "location_latitude": 10.0833,
+    "location_longitude": 10.9167,
+    "location_postal_code": "30305",
+    "location_region_name": "Georgia",
+    "location_timezone": "America/NewYork",
+    "name": "John Doe",
+    "pseudonym": "Amber Turtle from Atlanta",
+    "segments": [],
+    "session_count": 416,
+    "signed_up_at": "2017-05-01T19:06:04+00:00",
+    "tags": [],
+    "unsubscribed_from_emails": false,
+    "updated_at": "2017-09-25T08:07:39+00:00"
+  },
+  "salesforce_lead": {
+    "company": "Hull Inc",
+    "email": "johnny@hull.io",
+    "first_name": "John",
+    "id": "00Z39100002XipQXZZ",
+    "last_name": "Doe",
+    "owner_id": "09315080000TSgjBAM",
+    "pi__campaign__c": "Segmentation Checklist",
+    "status": "New"
+  },
+  "indexed_at": "2017-09-25T11:54:58+00:00",
+  "segments": [
+    {
+      "id": "56a7904e8d3714a04c0000da",
+      "name": "Active Users",
+      "type": "users_segment",
+      "created_at": "2016-01-26T15:27:10Z",
+      "updated_at": "2016-01-26T15:27:10Z"
+    },
+    // more segments
+  ]
+}

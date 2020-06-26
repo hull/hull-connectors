@@ -998,7 +998,10 @@ module.exports = [
         "compute.debug",
         {},
         {
-          logs: [],
+          logs: [
+            "Warning: Incorrect alias format '{\"external_id\":\"123\"}'. Please use '.alias({ anonymous_id: \"...\" })'",
+            "Warning: Incorrect alias format '{\"email\":\"foo@bar.com\"}'. Please use '.alias({ anonymous_id: \"...\" })'"
+          ],
           logsForLogger: [],
           errors: [],
           userTraits: [],

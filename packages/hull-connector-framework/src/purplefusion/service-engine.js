@@ -209,6 +209,7 @@ class ServiceEngine {
 
       if (!isUndefinedOrNull(errorTemplate)) {
         const route: string = _.get(errorTemplate, "recoveryroute");
+        const generateNewRecovery: boolean = _.get(errorTemplate, "generateNewRecovery");
         let errorHandlingPromise;
 
         if (!_.isEmpty(route) && !_.isEqual(route, context.get("recoveryroute"))) {
@@ -216,7 +217,7 @@ class ServiceEngine {
           // where the recovery promise exists and it's a different path calling
           // and where it IS the recovery path....
           // should probably look at some sort of time stamp if the recovery promise was done a while ago or something...
-          if (isUndefinedOrNull(this.recoveryPromise)) {
+          if (isUndefinedOrNull(this.recoveryPromise) || generateNewRecovery) {
             debug(`[SERVICE-ERROR]: ${name} [RECOVERY-ROUTE-ATTEMPT]: ${route}`);
             // pushing a new context so that we don't put the recovery route in anyone else's context
             // which may be running

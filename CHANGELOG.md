@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.1.29-monorepo
+- [hull-mailchimp] Improved webhook lifecycle
+- [hull-mailchimp] Logs user member during warnings and errors
+
+## v0.1.28-monorepo
+- [hull-salesforce] add salesforce
+
 ## v0.1.27-monorepo
 - [hull-typeform] paginate while fetching list of forms when selecting a form
 

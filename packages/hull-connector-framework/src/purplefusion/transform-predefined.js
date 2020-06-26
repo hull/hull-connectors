@@ -122,8 +122,58 @@ function createEnumTransformWithAttributeList({ attribute, attributeId, attribut
   }
 }
 
+function createEnumTransformOutgoing({ attribute, writePath, attributeList, route, forceRoute, format, formatOnNull }) {
+  const onUndefined = forceRoute ? { component: "glue", route: forceRoute, select: "${attributeValue}", onUndefined: null} : undefined;
+
+  return {
+    operateOn: { component: "settings", select: [attributeList, { service: attribute }, "[0]", "hull" ], name: "attributeId" },
+    condition: not(varEqual("attributeId", undefined)),
+    then:{
+      operateOn: { component: "context", select: "message.user.${attributeId}", name: "attributeValue", onUndefined: null },
+      then: [
+        {
+          operateOn: {
+            component: "glue",
+            route: route,
+            select: "${attributeValue}",
+            onUndefined
+          },
+          // default null?
+          writeTo: {
+            path: writePath,
+            format
+          }
+        },
+        {
+          condition: varNull("operateOn"),
+          writeTo: {
+            path: writePath,
+            format: formatOnNull
+          }
+        }
+      ]
+    }
+  };
+}
+
+function createEnumTransformWithAttributeListOutgoing({
+    attribute,
+    attributeList,
+    route,
+    forceRoute,
+    format,
+    formatOnNull,
+    writePath
+}) {
+  return {
+    condition: isServiceAttributeInVarList(attribute, attributeList),
+    then: createEnumTransformOutgoing({ attribute, attributeList, route, forceRoute, format, formatOnNull, writePath })
+  }
+}
+
 
 module.exports = {
+  createEnumTransformWithAttributeListOutgoing,
   createIncomingServiceUserTransform,
   createEnumTransformWithAttributeList,
   createEnumTransform
