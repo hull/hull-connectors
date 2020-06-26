@@ -63,7 +63,6 @@ async function handleAction(
       break;
 
     case "unsubscribe":
-
       processedData = _.merge({}, data, {
         status: "unsubscribed",
         subscribed: false,
