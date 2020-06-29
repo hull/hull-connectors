@@ -63,10 +63,11 @@ async function handleAction(
       break;
 
     case "unsubscribe":
+      const isArchived = data.action === "archive" || data.action === "delete";
       processedData = _.merge({}, data, {
-        status: "unsubscribed",
+        status: isArchived ? "archived" : "unsubscribed",
         subscribed: false,
-        archived: data.action === "archive" || data.action === "delete"
+        archived: isArchived
       });
       break;
 
