@@ -11,7 +11,7 @@ const private_settings = {
   refresh_token: "3Kep801hRJqEPUTYG_dW97P8laAje15mN6om7CqloiJSXBzxCJe5v32KztUkaWCm4GqBsKxm5UgDbG9Zt1gn4Y.",
   access_token: "99A5L000002rwPv!WEkDFONqSN.K2dfgNwPcPQdleLxBwAZcDEFGHrZOIYtDSr8IDDmTlJRKdFGH1Cn0xw3BfKHEWnceyK9WZerHU6iRgflKwzOBo",
   fetch_resource_schema: false,
-  fetch_accounts: false,
+  fetch_accounts: true,
   ignore_users_withoutemail: false,
   ignore_users_withoutchanges: false,
   fetch_tasks: false,
@@ -32,13 +32,13 @@ const private_settings = {
   account_synchronized_segments: []
 }
 
-describe("Fetch Contacts Tests", () => {
+describe("Fetch Accounts Tests", () => {
 
   it("should fetch account without a website", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetch",
+        handlerUrl: "fetchRecentAccounts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -147,20 +147,6 @@ describe("Fetch Contacts Tests", () => {
           const scope = nock("https://na98.salesforce.com");
 
           scope
-            .get("/services/data/v39.0/sobjects/Lead/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: [] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
-            .get("/services/data/v39.0/sobjects/Contact/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: [] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
             .get("/services/data/v39.0/sobjects/Account/updated")
             .query((query) => {
               return query.start && query.end;
@@ -194,30 +180,8 @@ describe("Fetch Contacts Tests", () => {
             "incoming.job.start",
             {},
             {
-              "jobName": "fetchChanges",
-              "type": "Lead",
-              "fetchFields": [
-                "Email",
-                "FirstName",
-                "LastName",
-                "Id",
-                "ConvertedAccountId",
-                "ConvertedContactId",
-                "Company",
-                "Website"
-              ],
-              "identMapping": [
-                {
-                  "hull": "domain",
-                  "service": "Website",
-                  "required": false
-                },
-                {
-                  "hull": "external_id",
-                  "service": "CustomIdentifierField",
-                  "required": false
-                }
-              ]
+              "jobName": "Incoming Data",
+              "type": "webpayload"
             }
           ],
           [
@@ -226,98 +190,7 @@ describe("Fetch Contacts Tests", () => {
             {},
             {
               "method": "GET",
-              "url_length": 147,
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Lead/updated?start")
-            }
-          ],
-          [
-            "info",
-            "incoming.job.success",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Lead"
-            }
-          ],
-          [
-            "info",
-            "incoming.job.start",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Contact",
-              "fetchFields": [
-                "Email",
-                "FirstName",
-                "LastName",
-                "Id",
-                "AccountId"
-              ],
-              "identMapping": [
-                {
-                  "hull": "domain",
-                  "service": "Website",
-                  "required": false
-                },
-                {
-                  "hull": "external_id",
-                  "service": "CustomIdentifierField",
-                  "required": false
-                }
-              ]
-            }
-          ],
-          [
-            "debug",
-            "ship.service_api.request",
-            {},
-            {
-              "method": "GET",
-              "url_length": 150,
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Contact/updated?start")
-            }
-          ],
-          [
-            "info",
-            "incoming.job.success",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Contact"
-            }
-          ],
-          [
-            "info",
-            "incoming.job.start",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Account",
-              "fetchFields": [
-                "Id",
-                "Website"
-              ],
-              "identMapping": [
-                {
-                  "hull": "domain",
-                  "service": "Website",
-                  "required": false
-                },
-                {
-                  "hull": "external_id",
-                  "service": "CustomIdentifierField",
-                  "required": false
-                }
-              ]
-            }
-          ],
-          [
-            "debug",
-            "ship.service_api.request",
-            {},
-            {
-              "method": "GET",
-              "url_length": 150,
+              "url_length": expect.whatever(),
               "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Account/updated?start")
             }
           ],
@@ -327,7 +200,7 @@ describe("Fetch Contacts Tests", () => {
             {},
             {
               "method": "GET",
-              "url_length": 186,
+              "url_length": expect.whatever(),
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Id%2CWebsite%2CCustomIdentifierField%20FROM%20Account%20WHERE%20Id%20IN%20('0011I000007Cy18QAC')%20AND%20Id%20!%3D%20null"
             }
           ],
@@ -361,15 +234,9 @@ describe("Fetch Contacts Tests", () => {
             "incoming.job.success",
             {},
             {
-              "jobName": "fetchChanges",
-              "type": "Account"
+              "jobName": "Incoming Data",
+              "type": "webpayload"
             }
-          ],
-          [
-            "debug",
-            "Fetch Tasks not turned on. Skipping task fetch",
-            {},
-            undefined
           ]
         ],
         firehoseEvents: [
@@ -406,12 +273,6 @@ describe("Fetch Contacts Tests", () => {
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["increment","ship.incoming.accounts",1]
         ],
         platformApiCalls: []
@@ -423,7 +284,7 @@ describe("Fetch Contacts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetch",
+        handlerUrl: "fetchRecentAccounts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -531,20 +392,6 @@ describe("Fetch Contacts Tests", () => {
           const scope = nock("https://na98.salesforce.com");
 
           scope
-            .get("/services/data/v39.0/sobjects/Lead/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: [] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
-            .get("/services/data/v39.0/sobjects/Contact/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: [] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
             .get("/services/data/v39.0/sobjects/Account/updated")
             .query((query) => {
               return query.start && query.end;
@@ -579,30 +426,8 @@ describe("Fetch Contacts Tests", () => {
             "incoming.job.start",
             {},
             {
-              "jobName": "fetchChanges",
-              "type": "Lead",
-              "fetchFields": [
-                "Email",
-                "FirstName",
-                "LastName",
-                "Id",
-                "ConvertedAccountId",
-                "ConvertedContactId",
-                "Company",
-                "Website"
-              ],
-              "identMapping": [
-                {
-                  "hull": "domain",
-                  "service": "Website",
-                  "required": true
-                },
-                {
-                  "hull": "external_id",
-                  "service": "CustomField1",
-                  "required": true
-                }
-              ]
+              "jobName": "Incoming Data",
+              "type": "webpayload"
             }
           ],
           [
@@ -611,98 +436,7 @@ describe("Fetch Contacts Tests", () => {
             {},
             {
               "method": "GET",
-              "url_length": 147,
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Lead/updated?start")
-            }
-          ],
-          [
-            "info",
-            "incoming.job.success",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Lead"
-            }
-          ],
-          [
-            "info",
-            "incoming.job.start",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Contact",
-              "fetchFields": [
-                "Email",
-                "FirstName",
-                "LastName",
-                "Id",
-                "AccountId"
-              ],
-              "identMapping": [
-                {
-                  "hull": "domain",
-                  "service": "Website",
-                  "required": true
-                },
-                {
-                  "hull": "external_id",
-                  "service": "CustomField1",
-                  "required": true
-                }
-              ]
-            }
-          ],
-          [
-            "debug",
-            "ship.service_api.request",
-            {},
-            {
-              "method": "GET",
-              "url_length": 150,
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Contact/updated?start")
-            }
-          ],
-          [
-            "info",
-            "incoming.job.success",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Contact"
-            }
-          ],
-          [
-            "info",
-            "incoming.job.start",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Account",
-              "fetchFields": [
-                "Id",
-                "Website"
-              ],
-              "identMapping": [
-                {
-                  "hull": "domain",
-                  "service": "Website",
-                  "required": true
-                },
-                {
-                  "hull": "external_id",
-                  "service": "CustomField1",
-                  "required": true
-                }
-              ]
-            }
-          ],
-          [
-            "debug",
-            "ship.service_api.request",
-            {},
-            {
-              "method": "GET",
-              "url_length": 150,
+              "url_length": expect.whatever(),
               "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Account/updated?start")
             }
           ],
@@ -712,7 +446,7 @@ describe("Fetch Contacts Tests", () => {
             {},
             {
               "method": "GET",
-              "url_length": 242,
+              "url_length": expect.whatever(),
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Id%2CWebsite%2CCustomField1%20FROM%20Account%20WHERE%20Id%20IN%20('0011I000007Cy18QAC')%20AND%20Id%20!%3D%20null%20AND%20Website%20!%3D%20null%20AND%20CustomField1%20!%3D%20null"
             }
           ],
@@ -747,15 +481,9 @@ describe("Fetch Contacts Tests", () => {
             "incoming.job.success",
             {},
             {
-              "jobName": "fetchChanges",
-              "type": "Account"
+              "jobName": "Incoming Data",
+              "type": "webpayload"
             }
-          ],
-          [
-            "debug",
-            "Fetch Tasks not turned on. Skipping task fetch",
-            {},
-            undefined
           ]
         ],
         firehoseEvents: [
@@ -793,12 +521,6 @@ describe("Fetch Contacts Tests", () => {
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["increment","ship.incoming.accounts",1]
         ],
         platformApiCalls: []
@@ -810,7 +532,7 @@ describe("Fetch Contacts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetch",
+        handlerUrl: "fetchRecentAccounts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -916,19 +638,6 @@ describe("Fetch Contacts Tests", () => {
         accountsSegments: [],
         externalApiMock: () => {
           const scope = nock("https://na98.salesforce.com");
-          scope
-            .get("/services/data/v39.0/sobjects/Lead/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: [] }, { "sforce-limit-info": "api-usage=500/50000" });
-
-          scope
-            .get("/services/data/v39.0/sobjects/Contact/updated")
-            .query((query) => {
-              return query.start && query.end;
-            })
-            .reply(200, { ids: [] }, { "sforce-limit-info": "api-usage=500/50000" });
 
           scope
             .get("/services/data/v39.0/sobjects/Account/updated")
@@ -983,30 +692,8 @@ describe("Fetch Contacts Tests", () => {
             "incoming.job.start",
             {},
             {
-              "jobName": "fetchChanges",
-              "type": "Lead",
-              "fetchFields": [
-                "Email",
-                "FirstName",
-                "LastName",
-                "Id",
-                "ConvertedAccountId",
-                "ConvertedContactId",
-                "Company",
-                "Website"
-              ],
-              "identMapping": [
-                {
-                  "hull": "domain",
-                  "service": "Website",
-                  "required": true
-                },
-                {
-                  "hull": "external_id",
-                  "service": "CustomField1",
-                  "required": false
-                }
-              ]
+              "jobName": "Incoming Data",
+              "type": "webpayload"
             }
           ],
           [
@@ -1015,98 +702,7 @@ describe("Fetch Contacts Tests", () => {
             {},
             {
               "method": "GET",
-              "url_length": 147,
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Lead/updated?start=")
-            }
-          ],
-          [
-            "info",
-            "incoming.job.success",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Lead"
-            }
-          ],
-          [
-            "info",
-            "incoming.job.start",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Contact",
-              "fetchFields": [
-                "Email",
-                "FirstName",
-                "LastName",
-                "Id",
-                "AccountId"
-              ],
-              "identMapping": [
-                {
-                  "hull": "domain",
-                  "service": "Website",
-                  "required": true
-                },
-                {
-                  "hull": "external_id",
-                  "service": "CustomField1",
-                  "required": false
-                }
-              ]
-            }
-          ],
-          [
-            "debug",
-            "ship.service_api.request",
-            {},
-            {
-              "method": "GET",
-              "url_length": 150,
-              "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Contact/updated?start")
-            }
-          ],
-          [
-            "info",
-            "incoming.job.success",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Contact"
-            }
-          ],
-          [
-            "info",
-            "incoming.job.start",
-            {},
-            {
-              "jobName": "fetchChanges",
-              "type": "Account",
-              "fetchFields": [
-                "Id",
-                "Website"
-              ],
-              "identMapping": [
-                {
-                  "hull": "domain",
-                  "service": "Website",
-                  "required": true
-                },
-                {
-                  "hull": "external_id",
-                  "service": "CustomField1",
-                  "required": false
-                }
-              ]
-            }
-          ],
-          [
-            "debug",
-            "ship.service_api.request",
-            {},
-            {
-              "method": "GET",
-              "url_length": 150,
+              "url_length": expect.whatever(),
               "url": expect.stringContaining("https://na98.salesforce.com/services/data/v39.0/sobjects/Account/updated?start=")
             }
           ],
@@ -1116,7 +712,7 @@ describe("Fetch Contacts Tests", () => {
             {},
             {
               "method": "GET",
-              "url_length": 253,
+              "url_length": expect.whatever(),
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Id%2CWebsite%2CCustomField1%20FROM%20Account%20WHERE%20Id%20IN%20('0011I000007Cy18QAC'%2C'0011I000007Cy18QAD'%2C'0011I000007Cy18QAE')%20AND%20Id%20!%3D%20null%20AND%20Website%20!%3D%20null"
             }
           ],
@@ -1196,32 +792,13 @@ describe("Fetch Contacts Tests", () => {
             }
           ],
           [
-            "warn",
-            "incoming.job.warning",
-            {},
-            {
-              "warning": "Found duplicated objects while fetching from SFDC",
-              "ident": {
-                "domain": "krakowtraders.pl"
-              },
-              "type": "Account",
-              "count": 3
-            }
-          ],
-          [
             "info",
             "incoming.job.success",
             {},
             {
-              "jobName": "fetchChanges",
-              "type": "Account"
+              "jobName": "Incoming Data",
+              "type": "webpayload"
             }
-          ],
-          [
-            "debug",
-            "Fetch Tasks not turned on. Skipping task fetch",
-            {},
-            undefined
           ]
         ],
         firehoseEvents: [
@@ -1300,12 +877,6 @@ describe("Fetch Contacts Tests", () => {
         ],
         metrics: [
           ["increment","connector.request",1],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
-          ["increment","ship.service_api.call",1],
-          ["value","ship.service_api.limit",50000],
-          ["value","ship.service_api.remaining",49500],
           ["increment","ship.service_api.call",1],
           ["value","ship.service_api.limit",50000],
           ["value","ship.service_api.remaining",49500],

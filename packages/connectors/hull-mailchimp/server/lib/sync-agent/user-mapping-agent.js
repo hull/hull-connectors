@@ -86,7 +86,7 @@ class UserMappingAgent {
       attrs.status = member.status;
     }
 
-    if (member.archived === true) {
+    if (!_.isNil(member.archived)) {
       attrs.archived = member.archived;
     }
 

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.1.30-monorepo
+- [hull-salesforce] Moved fetch to purplefusion
+- [hull-mailchimp] Improved status update when receiving webhooks
+
+## v0.1.29-monorepo
+- [hull-mailchimp] Improved webhook lifecycle
+- [hull-mailchimp] Logs user member during warnings and errors
+
 ## v0.1.28-monorepo
 - [hull-salesforce] add salesforce
 

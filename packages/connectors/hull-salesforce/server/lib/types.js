@@ -122,10 +122,10 @@ export interface IServiceClient {
   findContacts(query: any, fieldsList: string[], limit: number, skip: number): Promise<any[]>;
   findAccounts(query: any, fieldsList: string[], limit: number, skip: number): Promise<any[]>;
   queryExistingRecords(type: string, sfdcId: string, recordIds: string[]): Promise<any[]>;
-  getAllRecords(type: TResourceType, fields: Array<string>, accountClaims: Array<Object>, onRecord: Function): Promise<*>;
-  getUpdatedRecords(type: TResourceType, options: Object, onRecord: Function, concurrency?: number): Promise<*>;
-  getDeletedRecords(type: TResourceType, options: Object, onRecord: Function, concurrency: number): Promise<*>;
-  getDeletedRecordsData(type: TResourceType, options: TDeletedRecordsParameters): Promise<Array<TDeletedRecordInfo>>;
+  getAllRecords(type: TResourceType,  options: Object, onRecord: Function): Promise<*>;
+  getRecords(type: TResourceType, ids: Array<string>, options: Object, onRecord: Function): Promise<*>;
+  getUpdatedRecordIds(type: TResourceType, options: Object): Promise<*>;
+  getDeletedRecordIds(type: TResourceType, options: TDeletedRecordsParameters): Promise<Array<TDeletedRecordInfo>>;
   exec(fn: string, ...args: any): Promise<any>;
 }
 
