@@ -43,26 +43,6 @@ function getFieldsSchema(
   });
 }
 
-async function getResourceSchema(type: string, options: Object): Object {
-  const fieldTypes = ["multipicklist"];
-
-  const { cache, serviceClient, fetchResourceSchema } = options;
-
-  if (!fetchResourceSchema) {
-    return {};
-  }
-
-  let resourceSchema = await cache.get(`${type.toLowerCase()}Schema`);
-  if (_.isNil(resourceSchema)) {
-    resourceSchema = await serviceClient.fetchResourceSchema(type, fieldTypes);
-    await cache.set(`${type.toLowerCase()}Schema`, resourceSchema, {
-      ttl: 60000
-    });
-  }
-  return resourceSchema;
-}
-
 module.exports = {
-  getFieldsSchema,
-  getResourceSchema
+  getFieldsSchema
 };

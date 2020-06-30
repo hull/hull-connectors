@@ -4,7 +4,7 @@
   "source": "salesforce",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.27-monorepo",
+  "version": "0.1.30-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -635,19 +635,73 @@
   ],
   "schedules": [
     {
-      "url": "/fetch",
+      "url": "/fetchRecentContacts",
       "type": "interval",
       "value": "5",
-      "handler": "fetch",
+      "handler": "fetchRecentContacts",
       "options": {
         "fireAndForget": true
       }
     },
     {
-      "url": "/fetch-deleted",
+      "url": "/fetchRecentLeads",
       "type": "interval",
       "value": "5",
-      "handler": "fetchDeletions",
+      "handler": "fetchRecentLeads",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetchRecentAccounts",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentAccounts",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetchRecentTasks",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentTasks",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetchRecentDeletedContacts",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentDeletedContacts",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetchRecentDeletedLeads",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentDeletedLeads",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetchRecentDeletedAccounts",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentDeletedAccounts",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetchRecentDeletedTasks",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentDeletedTasks",
       "options": {
         "fireAndForget": true
       }
@@ -680,7 +734,7 @@
   "settings_sections": [
     {
       "title": "Connect with Salesforce",
-      "description": "Please begin by authenticating this connector with Salesforce. To authorize the connector go to Overview tab and click \"Credentials\" button.<br /><br/>Please note that you connect to your Production Environment by default. If you want to connect to a Sandbox Environment, please scroll down to \"Advanced\" section. Connector needs to be authorized succesfully to finish the rest of the setup.",
+      "description": "Please begin by authenticating this connector with Salesforce.",
       "properties": [
         "private_settings.oauth"
       ]

@@ -1,7 +1,22 @@
 /* @flow */
 import type { Transform, ServiceTransforms } from "hull-connector-framework/src/purplefusion/types";
 
-const { isNull, notNull, isEqual, doesContain, doesNotContain } = require("hull-connector-framework/src/purplefusion/conditionals");
+const {
+  doesNotContain,
+  isEqual,
+  mappingExists,
+  notNull,
+  isNull,
+  doesContain,
+  varEqual,
+  not
+} = require("hull-connector-framework/src/purplefusion/conditionals");
+
+const {
+  createEnumTransformWithAttributeListOutgoing
+} = require("hull-connector-framework/src/purplefusion/transform-predefined");
+
+const _ = require("lodash");
 
 const { HullOutgoingUser, HullOutgoingAccount } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 const { OutreachProspectWrite, OutreachAccountWrite } = require("./service-objects");
@@ -74,7 +89,7 @@ const transformsToService: ServiceTransforms = [
           },
           {
             mapping: "connector.private_settings.outgoing_user_attributes",
-            condition: doesNotContain(["stage", "owner"], "service_field_name"),
+            condition: doesNotContain(["stage", "owner", "ownerEmail"], "service_field_name"),
             outputArrayFields: {
               checkField: "service_field_name",
               fields: outreachProspectArrayFields
@@ -137,6 +152,24 @@ const transformsToService: ServiceTransforms = [
           createStringifyTransform("flattened_account_segments", "connector.private_settings.prospect_outgoing_account_segments", outreachProspectArrayFields),
           createRawArrayTransform("flattened_segments", "connector.private_settings.prospect_outgoing_user_segments", outreachProspectArrayFields),
           createRawArrayTransform("flattened_account_segments", "connector.private_settings.prospect_outgoing_account_segments", outreachProspectArrayFields)
+        ]
+      },
+      {
+        strategy: "AtomicReaction",
+        target: { component: "input" },
+        then: [
+          createEnumTransformWithAttributeListOutgoing({
+            attribute: "ownerEmail",
+            writePath: "data.relationships.owner.data",
+            attributeList: "outgoing_user_attributes",
+            route: "getOwnerEmailToIdMap",
+            forceRoute: "forceGetOwnerEmailToIdMap",
+            format: {
+              id: "${operateOn}",
+              type: "user"
+            },
+            formatOnNull: null
+          })
         ]
       },
     ],

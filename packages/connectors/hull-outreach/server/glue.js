@@ -354,7 +354,16 @@ const glue = {
   getStageIdMap: jsonata("data{ $string(id): attributes.name }", cacheWrap(600, outreach("getStages"))),
   getOwnerIdToEmailMap: cacheWrap(60000, route("paginateUsers")),
   forceGetOwnerIdToEmailMap: returnValue(cacheDel(route("paginateUsers")), route("paginateUsers")),
+  getOwnerEmailToIdMap: cacheWrap(60000, route("paginateUsersEmail")),
+  forceGetOwnerEmailToIdMap: returnValue(cacheDel(route("paginateUsersEmail")), route("paginateUsersEmail")),
 
+  paginateUsersEmail: fetchAllIntoIdMap({
+    serviceName: "outreach",
+    fetchEndpoint: "getUsersPaged",
+    pageSize: 1000,
+    offsetParameter: "id",
+    jsonExpression: "$ {attributes.email: $string(id)}"
+  }),
 
   //route("genericPagingMapper", {page_limit: 100, dataPagingEndpoint: "getUsersPaged", jsonataExpression: "$ {$string(id): attributes.email}"}),
   paginateUsers: fetchAllIntoIdMap({
