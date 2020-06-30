@@ -15,7 +15,6 @@ const LIBS = [
       {}
     )
   ),
-  "hull",
   "console",
   "captureException",
   "captureMessage",
@@ -26,7 +25,15 @@ const LIBS = [
   "leftAccountSegment"
 ];
 
-const COMMON_VARS = ["body", "ship", "connector", "results", "errors", "logs"];
+const COMMON_VARS = [
+  "hull",
+  "body",
+  "ship",
+  "connector",
+  "results",
+  "errors",
+  "logs"
+];
 
 const linter = new Linter();
 
