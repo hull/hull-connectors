@@ -3171,6 +3171,11 @@ bootstrap-table@^1.15.4:
   resolved "https://registry.yarnpkg.com/bootstrap-table/-/bootstrap-table-1.15.4.tgz#18d8c1aa2b86879a5478188a04cf7603783bf019"
   integrity sha512-hGp0480hLFQrqilnITEdJDhdes8zNwptQ7688osKhd1itCkRLrYbIIBFZ3eUanfS7oXxxmarN4krEqDLkrAw8Q==
 
+bootstrap-table@^1.16.0:
+  version "1.16.0"
+  resolved "https://registry.yarnpkg.com/bootstrap-table/-/bootstrap-table-1.16.0.tgz#d05bd262e7f70a76ee872c658918983beb3befce"
+  integrity sha512-bLbVetbyiXYmhU1LSsaiOHH4uvmlyBa/fNUo3y0owCfQSyQms/sfXOBvbcJWlDmjGtTY7kPW5z7KQvQJDPzN5w==
+
 bootstrap@^4.3.1:
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/bootstrap/-/bootstrap-4.3.1.tgz#280ca8f610504d99d7b6b4bfc4b68cec601704ac"
@@ -16169,6 +16174,11 @@ supports-color@^7.1.0:
   integrity sha512-oRSIpR8pxT1Wr2FquTNnGet79b3BWljqOuoW/h4oBhxJ/HUbX5nX6JSruTkvXDCFMwDPvsaTTbvMLKZWSy0R5g==
   dependencies:
     has-flag "^4.0.0"
+
+sweetalert2@^9.15.2:
+  version "9.15.2"
+  resolved "https://registry.yarnpkg.com/sweetalert2/-/sweetalert2-9.15.2.tgz#d26f1e6dee91d9ff57b3b98b3d92a0d6c3fa6fc1"
+  integrity sha512-evJfoa49s5ZzSmVc62tslNkzlQoCg2GHjB3MQxawfESppvY5AlXKLGQ3nNKxHXKdodKmIHbkl39DgUhcOK7LgQ==
 
 sweetalert@^2.1.2:
   version "2.1.2"
