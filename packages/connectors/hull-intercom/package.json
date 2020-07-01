@@ -1,0 +1,15 @@
+{
+  "name": "hull-intercom",
+  "version": "0.1.30-monorepo",
+  "description": "Hull Salesforce integration",
+  "scripts": {
+    "test": "exit 0"
+  },
+  "dependencies": {
+    "passport-intercom": "0.0.4",
+    "superagent-throttle": "1.0.1",
+    "superagent-prefix": "0.0.2",
+    "rosie": "2.0.1"
+  },
+  "devDependencies": {}
+}
