@@ -560,7 +560,7 @@ class SyncAgent {
         },
         {}
       );
-      return this.helpers.updateSettings({
+      return this.helpers.settingsUpdate({
         intercom_segments: intercomSegments
       });
     });
@@ -855,7 +855,7 @@ class SyncAgent {
           );
           const newAttributes = _.difference(customAttributes, oldAttributes);
           if (!_.isEmpty(newAttributes)) {
-            return this.helpers.updateSettings({
+            return this.helpers.settingsUpdate({
               custom_attributes: _.concat(oldAttributes, newAttributes)
             });
           }

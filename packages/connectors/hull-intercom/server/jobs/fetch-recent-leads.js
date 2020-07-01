@@ -68,7 +68,7 @@ function fetchRecentLeads(ctx: HullContext, params = {}) {
 
       if (!hasMore || page % 5 === 0) {
         promises.push(
-          ctx.helpers.updateSettings({
+          ctx.helpers.settingsUpdate({
             leads_last_fetched_at: moment().format()
           })
         );

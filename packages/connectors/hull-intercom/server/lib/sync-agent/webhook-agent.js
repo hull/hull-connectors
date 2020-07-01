@@ -165,7 +165,7 @@ class WebhookAgent {
       .then(res => {
         this.webhookId = res.body.id;
         return this.cache.set("intercom-webhook", res.body).then(() => {
-          return this.helpers.updateSettings({
+          return this.helpers.settingsUpdate({
             webhook_id: this.webhookId
           });
         });

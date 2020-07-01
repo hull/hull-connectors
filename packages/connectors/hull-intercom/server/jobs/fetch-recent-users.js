@@ -90,7 +90,7 @@ function fetchRecentUsers(ctx: HullContext, params = {}) {
             _.get(_.first(users), "updated_at"),
             "X"
           ).format();
-          return ctx.helpers.updateSettings({
+          return ctx.helpers.settingsUpdate({
             last_updated_at: newLastUpdatedAt
           });
         }

@@ -31,7 +31,7 @@ class TagMapping {
     }
     const newSettings = {};
     newSettings[this.settingKey] = this.mapping;
-    return this.helpers.updateSettings(newSettings);
+    return this.helpers.settingsUpdate(newSettings);
   }
 
   getTags() {
