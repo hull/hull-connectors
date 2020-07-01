@@ -6,12 +6,15 @@
   "picture": "picture.png",
   "version": "0.1.30-monorepo",
   "tags": [
-    "incoming",
     "outgoing",
+    "incoming",
     "batch",
-    "kraken-exports",
+    "batch-accounts",
+    "oneColumn",
+    "smart-notifier",
     "first-install",
-    "single-install"
+    "single-install",
+    "kraken-exports"
   ],
   "private_settings": [
     {
