@@ -1,7 +1,6 @@
 // @flow
 
 import type { HullConnectorConfig } from "hull";
-import _ from "lodash";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
 
@@ -10,7 +9,6 @@ const KueAdapter = require("hull/src/infra/queue/adapter/kue");
 
 export default function connectorConfig(): HullConnectorConfig {
   const {
-    PORT = 8082,
     SECRET = "1234",
     KUE_PREFIX = "intercom",
     REDIS_URL,
