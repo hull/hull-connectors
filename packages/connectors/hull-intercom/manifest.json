@@ -238,7 +238,7 @@
   ],
   "schedules": [
     {
-      "url": "/sync",
+      "url": "/fetch-recent-users",
       "type": "interval",
       "value": "5",
       "handler": "fetchRecentlyUpdatedUsers",
@@ -247,7 +247,7 @@
       }
     },
     {
-      "url": "/fetch-leads",
+      "url": "/fetch-recent-leads",
       "type": "interval",
       "value": "5",
       "handler": "fetchRecentlyUpdatedLeads",
