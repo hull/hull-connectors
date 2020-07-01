@@ -1,5 +1,5 @@
 {
-  "name": "Warehouse",
+  "name": "PostgreSQL Exporter",
   "description": "Outgoing integration to warehouses for Users, Accounts and Events",
   "source": "outreach",
   "logo": "logo.png",
@@ -12,6 +12,8 @@
     "oneColumn",
     "smart-notifier",
     "kraken-exports"
+    "postgres",
+    "sql"
   ],
   "private_settings": [
     {
