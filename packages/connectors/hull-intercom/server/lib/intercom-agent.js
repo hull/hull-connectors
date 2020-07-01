@@ -264,14 +264,14 @@ class IntercomAgent {
    * @see https://developers.intercom.com/reference#event-model
    * @see https://developers.intercom.com/reference#bulk-event-ops
    * @see https://developers.intercom.com/reference#submitting-events
-   * @param  {Array} array of events data
    * @return {Promise}
+   * @param events
+   * @param params
    */
-  sendEvents(events) {
+  sendEvents(events, params = {}) {
     this.metric.increment("ship.outgoing.events", events.length);
-    // FIXME: enable bulk jobs and remove `true` here, when we can match the user by `id`,
-    // look at error logged below
-    if (true || events.length <= 10) {
+    const { bulk = false } = params;
+    if (!bulk || events.length <= 10) {
       // eslint-disable-line no-constant-condition
       return Promise.map(
         events,
@@ -344,7 +344,8 @@ class IntercomAgent {
           .get("/data_attributes/customer")
           .then(res => {
             return _.get(res, "body.data_attributes", []);
-          }).catch(error => {
+          })
+          .catch(error => {
             console.log("error", error);
           });
       },

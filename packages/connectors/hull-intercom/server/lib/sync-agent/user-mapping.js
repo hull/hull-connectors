@@ -340,9 +340,7 @@ class UserMapping {
               return intercomSegments[userIntercomSegment.id];
             }
             console.log(
-              `${intercomUser.id}:${intercomUser.user_id} missing segment: ${
-                userIntercomSegment.id
-              }`
+              `${intercomUser.id}:${intercomUser.user_id} missing segment: ${userIntercomSegment.id}`
             );
             return null;
           })
@@ -389,9 +387,7 @@ class UserMapping {
             });
             this.client.logger.info(
               "outgoing.user.info",
-              `Field ${
-                prop.hull
-              } is too long. Maximum length is 255 when current value is ${originalValue}`
+              `Field ${prop.hull} is too long. Maximum length is 255 when current value is ${originalValue}`
             );
           }
           _.set(fields, prop.name, value);

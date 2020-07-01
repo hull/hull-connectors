@@ -2,7 +2,6 @@
 import type { HullContext, HullIncomingHandlerMessage } from "hull";
 
 const Promise = require("bluebird");
-const _ = require("lodash");
 
 const IntercomClient = require("../lib/intercom-client");
 const IntercomAgent = require("../lib/intercom-agent");

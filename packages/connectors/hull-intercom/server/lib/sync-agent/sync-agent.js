@@ -523,7 +523,6 @@ class SyncAgent {
         .catch(err => {
           // return handleRateLimitError(ctx, "sendUsers", params, err);
         })
-
     );
   }
 

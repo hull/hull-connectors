@@ -5,7 +5,6 @@ import type {
   HullOAuthAuthorizeResponse
 } from "hull";
 
-const _ = require("lodash");
 const debug = require("debug")("hull-salesforce:oauth");
 
 const onAuthorize = async (
