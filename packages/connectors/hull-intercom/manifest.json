@@ -187,7 +187,17 @@
     "value": "5",
     "handler": "status"
   },
-  "incoming": [],
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ]
+    }
+  ],
   "json": [
     {
       "url": "/fetchAllLeads",

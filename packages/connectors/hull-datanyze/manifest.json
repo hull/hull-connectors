@@ -1,0 +1,142 @@
+{
+  "name": "Datanyze",
+  "description": "Maximize account-based engagement with Datanyze data in all your tools",
+  "tags": [
+    "outgoing",
+    "batch",
+    "oneColumn",
+    "smart-notifier",
+    "single-install",
+    "kraken-exports"
+  ],
+  "source": "datanyze",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "ui": false,
+  "readme" : "readme.md",
+  "version": "0.1.30-monorepo",
+  "admin": "/admin",
+  "tabs": [
+    {
+      "title": "API Limits",
+      "url": "/admin",
+      "size": "large",
+      "handler": "admin",
+      "editable": false
+    }
+  ],
+  "private_settings": [
+    {
+      "type": "string",
+      "format": "title",
+      "name": "authentication_hero",
+      "title": "Authentication"
+    },
+    {
+      "name":"username",
+      "title": "Datanyze Username",
+      "description":"Datanyze Username or Email",
+      "type": "string",
+      "format": "text"
+    },
+    {
+      "name":"token",
+      "title": "Datanyze API Token",
+      "description":"You can find your personal API Token at https://www.datanyze.com/settings/?tab=api",
+      "type": "string",
+      "format": "text"
+    },
+    {
+      "type": "string",
+      "format": "title",
+      "name": "enrich_hero",
+      "title": "Enrichment",
+      "description": "Enhance user profiles with Datanyze technographic and firmographic data points."
+    },
+    {
+      "name": "synchronized_segments",
+      "title": "User Filter",
+      "default": [],
+      "description": "The above list of segments is a whitelist. You need to *explicitely specify one or more segments* for which enrichment shall be performed.<br/> If you do not specify any segment, no user will be sent to the Datanyze API.",
+      "type": "array",
+      "format": "segment"
+    },
+    {
+      "name": "target_trait",
+      "title": "Attribute that defines the company domain",
+      "description": "The connector will use the value of this attribute as domain when fetching people from Datanyze.",
+      "type": "string",
+      "format": "trait",
+      "default" : "domain"
+    },
+    {
+      "name":"excluded_domains",
+      "title": "Excluded the following domains from Enrichment",
+      "description":"Please specify domain values as comma-separated list. The above list of domains is a blacklist. You need to *explicitely specify one or more domains* for which enrichment shall be skipped. If you do not specify any domain, the connector will perform a call to the Datanyze API for every user matching one of the whitelisted segments. Please note that each call will count towards your monthly rate limit.",
+      "type": "string",
+      "format": "text"
+    },
+    {
+      "name":"handle_accounts",
+      "title": "Handle Accounts",
+      "description":"If active, Data will be written at Account level. The Account Domain field will be used to query Datanyze",
+      "type": "boolean",
+      "default": false,
+      "format": "checkbox"
+    }
+  ],
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "30",
+      "method": "all",
+      "handler": "status"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "interval",
+    "value": "30",
+    "method": "all",
+    "handler": "status"
+  },
+  "schedules" : [],
+  "json": [],
+  "html": [],
+  "settings_sections": [
+    {
+      "title": "Datanyze Credentials",
+      "properties": [
+        "private_settings.username",
+        "private_settings.token"
+      ]
+    },
+    {
+      "title": "Outgoing Data",
+      "properties": [
+        "private_settings.synchronized_segments",
+        "private_settings.target_trait",
+        "private_settings.excluded_domains",
+        "private_settings.handle_accounts"
+      ]
+    }
+  ],
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "conditions" : {
+        "segments": {
+          "user:update": ["private_settings.synchronized_segments"]
+        }
+      },
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ]
+    }
+  ]
+}
