@@ -59,7 +59,7 @@ COPY packages/connectors/hull-website/package.json /app/packages/connectors/hull
 COPY packages/connectors/hull-zapier/package.json /app/packages/connectors/hull-zapier/package.json
 COPY packages/connectors/hull-salesforce/package.json /app/packages/connectors/hull-salesforce/package.json
 COPY packages/connectors/hull-intercom/package.json /app/packages/connectors/hull-intercom/package.json
-COPY packages/connectors/hull-dataynyze/package.json /app/packages/connectors/hull-datanyze/package.json
+COPY packages/connectors/hull-datanyze/package.json /app/packages/connectors/hull-datanyze/package.json
 
 RUN yarn install --frozen-lockfile --no-cache --production
 
