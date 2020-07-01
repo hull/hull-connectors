@@ -58,6 +58,7 @@ COPY packages/connectors/hull-warehouse/package.json /app/packages/connectors/hu
 COPY packages/connectors/hull-website/package.json /app/packages/connectors/hull-website/package.json
 COPY packages/connectors/hull-zapier/package.json /app/packages/connectors/hull-zapier/package.json
 COPY packages/connectors/hull-salesforce/package.json /app/packages/connectors/hull-salesforce/package.json
+COPY packages/connectors/hull-intercom/package.json /app/packages/connectors/hull-intercom/package.json
 
 RUN yarn install --frozen-lockfile --no-cache --production
 
