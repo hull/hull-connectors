@@ -42,6 +42,7 @@ async function fetchParams(Path, parameters = {}, NextToken = null, pageNum = 0)
 async function loadSettings(paths) {
   return Promise.each(paths, path => fetchParams(path, {})).catch(err => {
     console.warn("# error loading SSM params: ", err.message);
+    process.exit(1);
   });
 }
 
