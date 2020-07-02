@@ -10,7 +10,6 @@
   "dependencies": {
     "request-promise": "^4.2.5",
     "request": "^2.88.2",
-    "restler": "^3.4.0",
     "parse-domain": "^3.0.2"
   },
   "devDependencies": {}
