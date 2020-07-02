@@ -17,7 +17,10 @@ export default async function admin(ctx: HullContext, message, res) {
   } else {
     const limits = await superagent
       .get("http://api.datanyze.com/limits/")
-      .query({ email: username, token });
+      .query({ email: username, token })
+      .then(response => {
+        return response.body;
+      });
 
     const { error } = limits;
 
