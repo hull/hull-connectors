@@ -27,9 +27,9 @@ function handleBatch(ctx, messages) {
       true
     );
     const ident = _.pick(updatedUser, ["email", "id"]);
-    const deletedAt = _.get(message, "user.traits_intercom/deleted_at", null);
+    const deletedAt = _.get(message, "user.intercom/deleted_at", null);
     const canSend = !deletedAt || !ignoreDeletedUser;
-    if (message.user["traits_intercom/is_lead"]) {
+    if (message.user["intercom/is_lead"]) {
       if (canSend) {
         leadMessages.push(message);
       } else {
