@@ -41,7 +41,7 @@ class SyncAgent {
       cache,
       metric,
       helpers,
-      segments,
+      usersSegments: segments,
       connector: ship,
       hostname,
       enqueue
@@ -105,7 +105,7 @@ class SyncAgent {
 
       if (
         _.get(this.private_settings, "ignore_deleted_users", true) &&
-        _.get(user, "traits_intercom/deleted_at", null)
+        _.get(user, "intercom/deleted_at", null)
       ) {
         this.client.asUser(user).logger.debug("outgoing.user.skip", {
           reason: "User has been deleted"
@@ -115,7 +115,7 @@ class SyncAgent {
 
       if (
         this.private_settings.skip_users_already_synced &&
-        _.get(user, "traits_intercom/id") &&
+        _.get(user, "intercom/id") &&
         _.isEmpty(events)
       ) {
         const hullTraits = this.userMapping
@@ -149,15 +149,15 @@ class SyncAgent {
       }
 
       if (
-        user["traits_intercom/is_lead"] === true &&
+        user["intercom/is_lead"] === true &&
         user.external_id &&
-        user["traits_intercom/anonymous"] === false
+        user["intercom/anonymous"] === false
       ) {
         leadsToConvert.push(user);
         return accumulator;
       }
 
-      if (user["traits_intercom/is_lead"] === true) {
+      if (user["intercom/is_lead"] === true) {
         leadMessages.push(message);
         return accumulator;
       }
@@ -191,7 +191,7 @@ class SyncAgent {
 
     return this.intercomAgent.intercomClient
       .post("/contacts/convert", {
-        contact: { user_id: user["traits_intercom/lead_user_id"] },
+        contact: { user_id: user["intercom/lead_user_id"] },
         user: { user_id: user.external_id }
       })
       .then(response => {
@@ -304,7 +304,7 @@ class SyncAgent {
   }
 
   getLeadIdPromise(user) {
-    const userLeadId = user["traits_intercom/lead_user_id"];
+    const userLeadId = user["intercom/lead_user_id"];
     this.client.logger.debug(`trying to get leadid: ${userLeadId}`);
     if (_.isEmpty(userLeadId)) {
       return this.cache.get(user.id).then(leadId => {
@@ -373,10 +373,8 @@ class SyncAgent {
             return;
           }
           const hullUser = postResult.user;
-          hullUser["traits_intercom/id"] = intercomData.id;
-          hullUser["traits_intercom/tags"] = intercomData.tags.tags.map(
-            t => t.name
-          );
+          hullUser["intercom/id"] = intercomData.id;
+          hullUser["intercom/tags"] = intercomData.tags.tags.map(t => t.name);
 
           this.client
             .asUser(_.pick(hullUser, ["email", "id", "external_id"]))
@@ -410,7 +408,7 @@ class SyncAgent {
     if (!postResult.response_body) {
       return Promise.resolve();
     }
-    if (!_.isEmpty(postResult.user["traits_intercom/lead_user_id"])) {
+    if (!_.isEmpty(postResult.user["intercom/lead_user_id"])) {
       return Promise.resolve();
     }
 
@@ -480,10 +478,8 @@ class SyncAgent {
             const savedUsers = _.intersectionBy(usersToSave, res, "email").map(
               u => {
                 const intercomData = _.find(res, { email: u.email });
-                u["traits_intercom/id"] = intercomData.id;
-                u["traits_intercom/tags"] = intercomData.tags.tags.map(
-                  t => t.name
-                );
+                u["intercom/id"] = intercomData.id;
+                u["intercom/tags"] = intercomData.tags.tags.map(t => t.name);
 
                 this.client
                   .asUser(_.pick(u, ["email", "id", "external_id"]))
@@ -502,9 +498,15 @@ class SyncAgent {
             });
 
             return this.sendEvents(savedUsers)
-              .then(() => this.groupUsersToTag(savedUsers))
-              .then(groupedUsers => this.intercomAgent.tagUsers(groupedUsers))
-              .then(() => this.handleUserErrors(groupedErrors));
+              .then(() => {
+                return this.groupUsersToTag(savedUsers);
+              })
+              .then(groupedUsers => {
+                return this.intercomAgent.tagUsers(groupedUsers);
+              })
+              .then(() => {
+                return this.handleUserErrors(groupedErrors);
+              });
           }
 
           if (_.get(res, "body.id")) {
@@ -516,9 +518,6 @@ class SyncAgent {
           }
           return Promise.resolve();
         })
-        .catch(ConfigurationError, () => {
-          return Promise.resolve();
-        })
         // eslint-disable-next-line no-unused-vars
         .catch(err => {
           // return handleRateLimitError(ctx, "sendUsers", params, err);
@@ -528,16 +527,15 @@ class SyncAgent {
 
   userAdded(user) {
     // eslint-disable-line class-methods-use-this
-    return !_.isEmpty(user["traits_intercom/id"]);
+    return !_.isEmpty(user["intercom/id"]);
   }
 
   userWithError(user) {
     // eslint-disable-line class-methods-use-this
     return (
-      !_.isEmpty(user["traits_intercom/import_error"]) &&
-      _.get(user, "traits_intercom/import_error", "").match(
-        "Exceeded rate limit"
-      ) === null
+      !_.isEmpty(user["intercom/import_error"]) &&
+      _.get(user, "intercom/import_error", "").match("Exceeded rate limit") ===
+        null
     );
   }
 
@@ -615,13 +613,13 @@ class SyncAgent {
       users,
       (o, user) => {
         const existingUserTags = _.intersection(
-          user["traits_intercom/tags"],
+          user["intercom/tags"],
           segments.map(s => s.name)
         );
 
         const userOp = {};
-        if (!_.isEmpty(user["traits_intercom/id"])) {
-          userOp.id = user["traits_intercom/id"];
+        if (!_.isEmpty(user["intercom/id"])) {
+          userOp.id = user["intercom/id"];
         } else if (!_.isEmpty(user.email)) {
           userOp.email = user.email;
         } else {
@@ -692,7 +690,7 @@ class SyncAgent {
   }
 
   /**
-   * Sends Hull events to Intercom. Only for users with `traits_intercom/id` and events matching
+   * Sends Hull events to Intercom. Only for users with `intercom/id` and events matching
    * the set filter.
    * @param  {Array} users Hull users with `events` property supplied
    * @return {Promise}
@@ -711,12 +709,12 @@ class SyncAgent {
 
     const events = _.chain(users)
       .tap(u => this.logger.debug("sendEvents.users", u.length))
-      .filter(u => !_.isUndefined(u["traits_intercom/id"]))
+      .filter(u => !_.isUndefined(u["intercom/id"]))
       .tap(u => this.logger.debug("sendEvents.users.filtered", u.length))
       .map(u => {
         return _.get(u, "events", []).map(e => {
           e.user = {
-            id: u["traits_intercom/id"]
+            id: u["intercom/id"]
           };
           return e;
         });

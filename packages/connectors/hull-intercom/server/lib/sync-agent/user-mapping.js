@@ -14,14 +14,14 @@ class UserMapping {
       },
       {
         name: "email",
-        hull: "traits_intercom/email",
+        hull: "intercom/email",
         type: "string",
         read_only: false,
         optional: false
       },
       {
         name: "id",
-        hull: "traits_intercom/id",
+        hull: "intercom/id",
         type: "string",
         read_only: true,
         optional: false
@@ -35,196 +35,196 @@ class UserMapping {
       },
       {
         name: "user_id",
-        hull: "traits_intercom/user_id",
+        hull: "intercom/user_id",
         type: "string",
         read_only: false,
         optional: false
       },
       {
         name: "owner_id",
-        hull: "traits_intercom/owner_id",
+        hull: "intercom/owner_id",
         type: "string",
         read_only: false,
         optional: false
       },
       {
         name: "name",
-        hull: "traits_intercom/name",
+        hull: "intercom/name",
         type: "string",
         read_only: false,
         optional: false
       },
       {
         name: "updated_at",
-        hull: "traits_intercom/updated_at",
+        hull: "intercom/updated_at",
         type: "date",
         read_only: false,
         optional: false
       },
       {
         name: "signed_up_at",
-        hull: "traits_intercom/signed_up_at",
+        hull: "intercom/signed_up_at",
         type: "date",
         read_only: false,
         optional: false
       },
       {
         name: "created_at",
-        hull: "traits_intercom/created_at",
+        hull: "intercom/created_at",
         type: "date",
         read_only: false,
         optional: false
       },
       {
         name: "last_request_at",
-        hull: "traits_intercom/last_request_at",
+        hull: "intercom/last_request_at",
         type: "date",
         read_only: false,
         optional: true
       },
       {
         name: "last_seen_ip",
-        hull: "traits_intercom/last_seen_ip",
+        hull: "intercom/last_seen_ip",
         type: "string",
         read_only: false,
         optional: false
       },
       {
         name: "phone",
-        hull: "traits_intercom/phone",
+        hull: "intercom/phone",
         type: "string",
         read_only: false,
         optional: true
       },
       {
         name: "unsubscribed_from_emails",
-        hull: "traits_intercom/unsubscribed_from_emails",
+        hull: "intercom/unsubscribed_from_emails",
         type: "boolean",
         read_only: false,
         optional: true
       },
       {
         name: "session_count",
-        hull: "traits_intercom/session_count",
+        hull: "intercom/session_count",
         type: "number",
         read_only: true,
         optional: true
       },
       {
         name: "pseudonym",
-        hull: "traits_intercom/pseudonym",
+        hull: "intercom/pseudonym",
         type: "true",
         read_only: true,
         optional: true
       },
       {
         name: "anonymous",
-        hull: "traits_intercom/anonymous",
+        hull: "intercom/anonymous",
         type: "boolean",
         read_only: true,
         optional: true
       },
       {
         name: "avatar.image_url",
-        hull: "traits_intercom/avatar",
+        hull: "intercom/avatar",
         type: "string",
         read_only: true,
         optional: true
       },
       {
         name: "location_data.city_name",
-        hull: "traits_intercom/location_city_name",
+        hull: "intercom/location_city_name",
         type: "string",
         read_only: true,
         optional: true
       },
       {
         name: "location_data.continent_code",
-        hull: "traits_intercom/location_continent_code",
+        hull: "intercom/location_continent_code",
         type: "string",
         read_only: true,
         optional: true
       },
       {
         name: "location_data.country_code",
-        hull: "traits_intercom/location_country_code",
+        hull: "intercom/location_country_code",
         type: "string",
         read_only: true,
         optional: true
       },
       {
         name: "location_data.country_name",
-        hull: "traits_intercom/location_country_name",
+        hull: "intercom/location_country_name",
         type: "string",
         read_only: true,
         optional: true
       },
       {
         name: "location_data.latitude",
-        hull: "traits_intercom/location_latitude",
+        hull: "intercom/location_latitude",
         type: "number",
         read_only: true,
         optional: true
       },
       {
         name: "location_data.longitude",
-        hull: "traits_intercom/location_longitude",
+        hull: "intercom/location_longitude",
         type: "number",
         read_only: true,
         optional: true
       },
       {
         name: "location_data.postal_code",
-        hull: "traits_intercom/location_postal_code",
+        hull: "intercom/location_postal_code",
         type: "string",
         read_only: true,
         optional: true
       },
       {
         name: "location_data.region_name",
-        hull: "traits_intercom/location_region_name",
+        hull: "intercom/location_region_name",
         type: "string",
         read_only: true,
         optional: true
       },
       {
         name: "location_data.timezone",
-        hull: "traits_intercom/location_timezone",
+        hull: "intercom/location_timezone",
         type: "string",
         read_only: true,
         optional: true
       },
       {
         name: "utm_campaign",
-        hull: "traits_intercom/utm_campaign",
+        hull: "intercom/utm_campaign",
         data_type: "string",
         read_only: false,
         optional: true
       },
       {
         name: "utm_content",
-        hull: "traits_intercom/utm_content",
+        hull: "intercom/utm_content",
         data_type: "string",
         read_only: false,
         optional: true
       },
       {
         name: "utm_medium",
-        hull: "traits_intercom/utm_medium",
+        hull: "intercom/utm_medium",
         data_type: "string",
         read_only: false,
         optional: true
       },
       {
         name: "utm_source",
-        hull: "traits_intercom/utm_source",
+        hull: "intercom/utm_source",
         data_type: "string",
         read_only: false,
         optional: true
       },
       {
         name: "utm_term",
-        hull: "traits_intercom/utm_term",
+        hull: "intercom/utm_term",
         data_type: "string",
         read_only: false,
         optional: true
@@ -397,8 +397,8 @@ class UserMapping {
       {}
     );
 
-    if (_.get(hullUser, "traits_intercom/id")) {
-      _.set(intercomFields, "id", _.get(hullUser, "traits_intercom/id"));
+    if (_.get(hullUser, "intercom/id")) {
+      _.set(intercomFields, "id", _.get(hullUser, "intercom/id"));
     }
 
     if (_.get(hullUser, "email")) {
@@ -419,7 +419,7 @@ class UserMapping {
    */
   getIntercomLeadFields(hullUser) {
     const fields = this.getIntercomFields(hullUser);
-    _.set(fields, "user_id", _.get(hullUser, "traits_intercom/lead_user_id"));
+    _.set(fields, "user_id", _.get(hullUser, "intercom/lead_user_id"));
     _.unset(fields, "id");
     return fields;
   }
