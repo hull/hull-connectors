@@ -3,7 +3,8 @@
   "version": "0.1.30-monorepo",
   "description": "Hull Salesforce integration",
   "scripts": {
-    "test": "exit 0"
+    "test": "yarn run test:integration",
+    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
   },
   "dependencies": {
     "passport-intercom": "0.0.4",
