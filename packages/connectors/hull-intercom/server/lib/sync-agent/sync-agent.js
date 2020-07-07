@@ -11,7 +11,7 @@ const TagMapping = require("./tag-mapping");
 const UserMapping = require("./user-mapping");
 const WebhookAgent = require("./webhook-agent");
 const { jsonifyArrays } = require("../utils/utils");
-const { deduplicateUserUpdateMessages } = require("../../lib/filter-utils");
+const { deduplicateUserUpdateMessages } = require("../filter-utils");
 const getEventPayload = require("../event/get-event-payload");
 
 // const handleRateLimitError = require("../../lib/handle-rate-limit-error");
