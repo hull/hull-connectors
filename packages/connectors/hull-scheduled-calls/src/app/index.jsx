@@ -38,12 +38,21 @@ export default class App extends RecentEntriesUI<Props, State> {
       sync_interval,
       method
     } = this.state;
-    if (!initialized) return;
+    if (!initialized) return null;
     const { strings } = this.props;
     const hasRecent = !!_.get(recent, "length", 0);
-    const content = hasRecent
-      ? `Hull calls the API below every ${sync_interval} minutes. Call it now manually by clicking the button below`
-      : "We haven't called the API Yet. Call it now manually by clicking the button below";
+    const content = hasRecent ? (
+      <p>
+        Hull calls the API below every {sync_interval} minutes.
+        <br />
+        Call it now manually by clicking the button below
+      </p>
+    ) : (
+      <p>
+        We haven&apos;t called the API Yet. Call it now manually by clicking the
+        button below
+      </p>
+    );
     const actions = [
       computing && <Spinner className="loading-spinner" />,
       <Button size="sm" key="callNow" onClick={this.callNow}>
