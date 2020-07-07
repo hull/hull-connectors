@@ -790,9 +790,10 @@ class MiniHull extends MiniApplication {
     if (!user._segment_ids) {
       user = this._findUser(user);
     }
-    const matchingSegments = this.db
-      .get("users_segments")
-      .intersectionBy((user._segment_ids || []).map(id => ({ id })), "id");
+    const matchingSegments = this.db.get("users_segments").intersectionBy(
+      (user._segment_ids || []).map(id => ({ id })),
+      "id"
+    );
     return matchingSegments;
   }
 
@@ -801,9 +802,10 @@ class MiniHull extends MiniApplication {
       account = this._findAccount(account);
     }
     console.log("_getMatchingAccountsSegments", account);
-    const matchingSegments = this.db
-      .get("accounts_segments")
-      .intersectionBy((account._segment_ids || []).map(id => ({ id })), "id");
+    const matchingSegments = this.db.get("accounts_segments").intersectionBy(
+      (account._segment_ids || []).map(id => ({ id })),
+      "id"
+    );
     return matchingSegments;
   }
 
