@@ -92,7 +92,10 @@ export default async (
       }
 
       // Skip because we are already enriched
-      const rank = datanyzeAccount.rank || user["traits_datanyze/rank"];
+      const rank =
+        datanyzeAccount.rank ||
+        user["traits_datanyze/rank"] ||
+        user["datanyze/rank"];
       if (!!rank && !isBatch && !queued) {
         return skip({
           reason: "Already fetched datanyze/rank"
@@ -112,7 +115,9 @@ export default async (
 
       // Skip because we already have a Fetched date
       const fetched_at =
-        datanyzeAccount.fetched_at || user["traits_datanyze/fetched_at"];
+        datanyzeAccount.fetched_at ||
+        user["traits_datanyze/fetched_at"] ||
+        user["datanyze/fetched_at"];
 
       if (!!fetched_at && !isBatch && !queued) {
         return skip({
@@ -121,7 +126,10 @@ export default async (
       }
 
       // Skip because we had an error
-      const error = datanyzeAccount.error || user["traits_datanyze/error"];
+      const error =
+        datanyzeAccount.error ||
+        user["traits_datanyze/error"] ||
+        user["datanyze/error"];
       if (error && !isBatch && !queued) {
         return skip({
           reason: "Already fetched datanyze/error",
