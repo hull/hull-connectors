@@ -1211,7 +1211,7 @@ export default function handler(EntryModel: Object) {
       onEnd: () => {
         //Do someting when it ends
       },
-      onData: data => {
+      onData: async data => {
         //data = [{xxx}, {xxx}, {xxx}]
         //batched by the value of `batchSize`
         data.map(entry => {

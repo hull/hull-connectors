@@ -17,6 +17,7 @@ const asyncComputeAndIngest = async (
   {
     EntryModel,
     payload,
+    date,
     source,
     language,
     code,
@@ -26,9 +27,10 @@ const asyncComputeAndIngest = async (
   }: {
     source: string,
     code: string,
+    date?: string,
     language?: SupportedLanguage,
     entity?: HullEntityName,
-    claims: HullUserClaims | HullAccountClaims,
+    claims?: HullUserClaims | HullAccountClaims,
     payload: Payload,
     EntryModel?: Object,
     preview?: boolean
@@ -50,7 +52,7 @@ const asyncComputeAndIngest = async (
       await ingest(ctx, result, claims, payload);
     }
     if (EntryModel) {
-      await saveRecent(ctx, { EntryModel, payload, code, result });
+      await saveRecent(ctx, { EntryModel, date, payload, code, result });
     }
     return result;
   } catch (err) {

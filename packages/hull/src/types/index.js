@@ -65,3 +65,20 @@ export type HullAttributeMapping = {
   castAs?: HullJsonataType,
   overwrite: boolean
 };
+
+export type HullJob = {
+  client: any,
+  created_at?: string,
+  data: {
+    context: amu,
+    name: string,
+    payload: any
+  },
+  duration?: string,
+  failed_at?: string,
+  promote_at?: string,
+  started_at?: string,
+  updated_at?: string,
+  workerId?: string,
+  type?: string
+};
