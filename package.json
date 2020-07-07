@@ -144,7 +144,7 @@
     "stream-chain": "^2.2.1",
     "stream-csv-as-json": "^1.0.2",
     "stream-json": "^1.5.0",
-    "superagent": "^5.0.5",
+    "superagent": "^5.3.1",
     "svg-inline-loader": "^0.8.2",
     "sweetalert": "^2.1.2",
     "urijs": "^1.19.1",
