@@ -66,11 +66,11 @@ export default function connectorConfig(): HullConnectorConfig {
       max: SHIP_CACHE_MAX || 100
     },
     queueConfig: REDIS_URL
-    ? {
-        store: "redis",
-        url: REDIS_URL,
-        name: KUE_PREFIX
-      }
-    : { store: "memory" }
+      ? {
+          store: "redis",
+          url: REDIS_URL,
+          name: KUE_PREFIX
+        }
+      : { store: "memory" }
   };
 }
