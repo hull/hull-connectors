@@ -37,7 +37,7 @@ it("Performing sync", () => {
     {
       connectorConfig: () => ({
         ...connectorConfig(),
-        queue: undefined
+        queueConfig: undefined
       })
     },
     ({ handlers, nock, expect }) => {
