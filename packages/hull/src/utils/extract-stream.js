@@ -24,13 +24,20 @@ const promiseToWritableStream = require("./promise-to-writable-stream");
  * @return {Promise}
  */
 function extractStream({
-  body,
+  url,
+  format,
   batchSize,
-  callback,
+  onData,
   onResponse,
   onError
-}: Object): Promise<*> {
-  const { url, format } = body;
+}: {
+  url: string,
+  format: string,
+  batchSize: number,
+  onData: (Array<{}>) => Promise<any>,
+  onResponse: void => void,
+  onError: Error => void
+}): Promise<*> {
   if (!url) return Promise.reject(new Error("Missing URL"));
   const decoder =
     format === "csv"
@@ -55,8 +62,12 @@ function extractStream({
         onError(error);
       }
     });
-  const targetStream = promiseToWritableStream(callback);
-  return promisePipe(responseStream, decoder, batch, targetStream);
+  return promisePipe(
+    responseStream,
+    decoder,
+    batch,
+    promiseToWritableStream(onData)
+  );
 }
 
 module.exports = extractStream;
