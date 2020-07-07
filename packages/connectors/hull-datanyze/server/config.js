@@ -4,9 +4,6 @@ import type { HullConnectorConfig } from "hull";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
 
-const { Queue } = require("hull/src/infra");
-const KueAdapter = require("hull/src/infra/queue/adapter/kue");
-
 export default function connectorConfig(): HullConnectorConfig {
   const {
     PORT = 8082,
