@@ -1152,10 +1152,27 @@ Newer versions deprecate exposing a Queue at the top level, instead opting to ex
 ```js
 const connectorConfig = {
   ...(queueConfig = {
-    store: "memory" | "redis",
-    url: REDIS_URL, //Only if using `redis`
-    name: "Queue Name" //Only if using `redis`
-  })
+      store: "sqs",
+      region: string,
+      accessKeyId: string,
+      secretAccessKey: string,
+      queueUrl: string
+    }
+  | {
+      store: "redis",
+      url: string,
+      name: string,
+      settings?: {
+        lockDuration?: number,
+        stalledInterval?: number
+      }
+    }
+  | {
+      store: "memory",
+      url: void,
+      name: void
+    }
+  )
 };
 ```
 
@@ -1200,7 +1217,7 @@ export default function handler(EntryModel: Object) {
         data.map(entry => {
           //Do something with data
           // hull.asUser(xxx)
-        })
+        });
       }
     });
   };
