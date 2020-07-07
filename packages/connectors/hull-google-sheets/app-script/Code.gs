@@ -5,7 +5,8 @@ const MAX_COLUMNS = 1000;
 const MAX_CHUNKS = 10000;
 const IMPORT_CHUNK_SIZE = 100;
 
-const urlFor = path => `https://hull-google-sheets.eu.ngrok.io/${path}`;
+const urlFor = path =>
+  `https://hull-google-sheets-nextgen.herokuapp.com/${path}`;
 
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
@@ -352,42 +353,48 @@ function bootstrap(index) {
       error: "No active Sheet"
     };
   }
-  const source =
-    getUserProp({
-      key: "source",
-      index,
-      fallback: ""
-    }) || "";
-  const type =
-    getUserProp({
-      key: "type",
-      index,
-      fallback: "user"
-    }) || "user";
-  const token = getUserProp({ key: "token" });
-  const { hullAttributes, hullGroups } = getHullSchema({ type });
-  Logger.log("Token", token);
-  return token
-    ? {
-        token,
-        initialized: true,
-        googleColumns: getColumnNames(index),
-        hullAttributes,
-        hullGroups,
-        user_mapping: getSheetMapping(index, "user"),
-        user_claims: getSheetClaims(index, "user"),
-        account_mapping: getSheetMapping(index, "account"),
-        account_claims: getSheetClaims(index, "account"),
-        user_event_mapping: getSheetMapping(index, "user_event"),
-        user_event_claims: getSheetClaims(index, "user_event"),
+  try {
+    const source =
+      getUserProp({
+        key: "source",
         index,
-        source,
-        type
-      }
-    : {
-        token: undefined,
-        initialized: false
-      };
+        fallback: ""
+      }) || "";
+    const type =
+      getUserProp({
+        key: "type",
+        index,
+        fallback: "user"
+      }) || "user";
+    const token = getUserProp({ key: "token" });
+    const { hullAttributes, hullGroups } = getHullSchema({ type });
+    Logger.log("Token", token);
+    return token
+      ? {
+          token,
+          initialized: true,
+          googleColumns: getColumnNames(index),
+          hullAttributes,
+          hullGroups,
+          user_mapping: getSheetMapping(index, "user"),
+          user_claims: getSheetClaims(index, "user"),
+          account_mapping: getSheetMapping(index, "account"),
+          account_claims: getSheetClaims(index, "account"),
+          user_event_mapping: getSheetMapping(index, "user_event"),
+          user_event_claims: getSheetClaims(index, "user_event"),
+          index,
+          source,
+          type
+        }
+      : {
+          token: undefined,
+          initialized: false
+        };
+  } catch (err) {
+    return {
+      error: err.toString()
+    };
+  }
 }
 
 function saveConfig({ index, data }) {
