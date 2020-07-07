@@ -1,0 +1,332 @@
+{
+  "name": "Intercom",
+  "description": "Enrich your Leads and Contacts in Intercom and Trigger Powerful Workflows",
+  "source": "intercom",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "version": "0.1.30-monorepo",
+  "tags": [
+    "incoming",
+    "outgoing",
+    "batch",
+    "kraken-exports",
+    "first-install",
+    "single-install"
+  ],
+  "private_settings": [
+    {
+      "name": "oauth",
+      "title": "Credentials",
+      "description": "Authenticate with Intercom",
+      "format": "oauth",
+      "type": "string",
+      "handler": "oauth",
+      "url": "/auth",
+      "options": {
+        "tokenInUrl": true,
+        "name": "Intercom",
+        "scope": ["refresh_token", "api"],
+        "strategy": {
+          "tokenInUrl": true,
+          "name": "Intercom",
+          "scope": ["refresh_token", "api"]
+        }
+      }
+    },
+    {
+      "name": "access_token",
+      "title": "Access Token",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "webhook_id",
+      "title": "Intercom webhook id",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "last_fetch_started_at",
+      "description": "Last time fetched at operation was started",
+      "type": "string",
+      "format": "hidden"
+    },
+    {
+      "name": "fetch_count",
+      "description": "Count of contacts already fetched from Intercom",
+      "type": "number",
+      "format": "hidden"
+    },
+    {
+      "name": "is_fetch_completed",
+      "type": "boolean",
+      "default": false,
+      "format": "hidden"
+    },
+    {
+      "name": "skip_users_already_synced",
+      "type": "boolean",
+      "default": false,
+      "format": "hidden"
+    },
+    {
+      "name": "synchronized_segments",
+      "title": "User Filter",
+      "description": "Send users to Intercom when belonging to one of these segments",
+      "default": [],
+      "type": "array",
+
+      "format": "segment"
+    },
+    {
+      "name": "sync_fields_to_intercom",
+      "title": "Send Attributes to Intercom",
+      "type": "array",
+      "format": "table",
+      "default": [],
+      "items": {
+        "type": "object",
+        "properties": {
+          "hull": {
+            "type": "string",
+            "format": "trait",
+            "title": "Hull Attribute"
+          },
+          "name": {
+            "type": "string",
+            "format": "select",
+            "title": "Intercom Attribute",
+            "options": {
+              "placeholder": "Select or create intercom attribute",
+              "allowCreate": true,
+              "loadOptions": "/schema/user_fields"
+            }
+          }
+        },
+        "required": [
+          "hull",
+          "name"
+        ]
+      }
+    },
+    {
+      "name": "sync_fields_to_hull",
+      "title": "Fetch custom attributes from Intercom",
+      "type": "array",
+      "format": "table",
+      "default": [],
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "format": "select",
+            "title": "Intercom Attributes",
+            "options": {
+              "placeholder": "Intercom Attribute",
+              "loadOptions": "/schema/user_fields"
+            }
+          },
+          "hull": {
+            "type": "string",
+            "format": "trait",
+            "title": "Hull Attributes",
+            "options": {
+              "placeholder": "Hull Attribute",
+              "allowCreate": true,
+              "source": "intercom"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "hull"
+        ]
+      }
+    },
+    {
+      "name": "send_events",
+      "title": "Sends Events to Intercom",
+      "format": "event",
+      "type": "array",
+      "default": []
+    },
+    {
+      "name": "mark_deleted_users",
+      "title": "Mark Deleted Users",
+      "description": "If a user or lead has been deleted in Intercom, mark it as such in Hull.",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "ignore_deleted_users",
+      "title": "Ignore deleted users",
+      "description": "Users tagged as deleted in Hull are marked with the attribute \"deleted_at\". Do you want to ignore sending these marked users?",
+      "type": "boolean",
+      "default": true
+    }
+  ],
+  "settings": [],
+  "resources": [],
+  "readme": "readme.md",
+  "tabs": [],
+  "admin": "/admin",
+  "ui": false,
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "5",
+      "handler": "status"
+    }
+  ],
+  "status": {
+    "initial_value": "setupRequired",
+    "url": "/status",
+    "type": "interval",
+    "value": "5",
+    "handler": "status"
+  },
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ]
+    }
+  ],
+  "json": [
+    {
+      "url": "/fetchAllLeads",
+      "handler": "fetchAllLeads",
+      "type": "string",
+      "format": "action",
+      "name": "fetch_all_leads",
+      "title": "Fetch All Leads",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all leads from Intercom into Hull. Be careful when clicking this multiple times as it can result in long operations. Check out the \"Logs\" tab to track incoming.user.success messages as users are ingested",
+          "button": "Fetch Leads",
+          "entity": "users"
+        }
+      }
+    },
+    {
+      "url": "/fetchAllUsers",
+      "handler": "fetchAllUsers",
+      "type": "string",
+      "format": "action",
+      "name": "fetch_all_users",
+      "title": "Fetch All Users",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all contacts from Intercom into Hull. Be careful when clicking this multiple times as it can result in long operations. Check out the \"Logs\" tab to track incoming.user.success messages as users are ingested",
+          "button": "Fetch Contacts",
+          "entity": "users"
+        }
+      }
+    },
+    {
+      "url": "/schema/user_fields",
+      "handler": "fieldsInbound"
+    },
+    {
+      "url": "/delete-contact",
+      "handler": "deleteContact"
+    },
+    {
+      "url": "/delete-user",
+      "handler": "deleteUser"
+    }
+  ],
+  "schedules": [
+    {
+      "url": "/fetch-recent-users",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentlyUpdatedUsers",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetch-recent-leads",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentlyUpdatedLeads",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetch-segments",
+      "type": "interval",
+      "value": "60",
+      "handler": "fetchSegments",
+      "options": {
+        "fireAndForget": true
+      }
+    }
+  ],
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        },
+        {
+          "channel": "users_segment:update",
+          "handler": "userSegmentUpdate"
+        },
+        {
+          "channel": "users_segment:delete",
+          "handler": "userSegmentDelete"
+        }
+      ],
+      "conditions" : {
+        "segments": {
+          "user:update": ["private_settings.synchronized_segments"]
+        }
+      }
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Connect with Intercom",
+      "description": "Please begin by authenticating this connector with Intercom.",
+      "properties": [
+        "private_settings.oauth"
+      ]
+    },
+    {
+      "title": "Outgoing Data",
+      "step": "outgoing",
+      "description": "",
+      "properties": [
+        "private_settings.ignore_deleted_users",
+        "private_settings.synchronized_segments",
+        "private_settings.sync_fields_to_intercom",
+        "private_settings.send_events"
+      ]
+    },
+    {
+      "title": "Incoming Data",
+      "step": "incoming",
+      "description": "Hull fetches all standard attributes from Intercom by default. If you want to capture additional custom attributes, please list them below to fetch them",
+      "properties": [
+        "private_settings.sync_fields_to_hull",
+        "json.fetch_all_leads",
+        "json.fetch_all_users"
+      ]
+    }
+  ]
+}
