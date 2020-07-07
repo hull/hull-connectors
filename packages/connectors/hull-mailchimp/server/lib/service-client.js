@@ -110,7 +110,10 @@ class ServiceClient {
 
     extract.on("entry", (header, stream, callback) => {
       if (header.name.match(/\.json/)) {
-        stream.pipe(decoder, { end: false });
+        stream.pipe(
+          decoder,
+          { end: false }
+        );
       }
 
       stream.on("end", () => callback()); // ready for next entry
