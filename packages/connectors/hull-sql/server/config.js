@@ -2,9 +2,6 @@
 
 import type { HullConnectorConfig } from "hull";
 import Aws from "aws-sdk";
-import BullAdapter from "hull/src/infra/queue/adapter/bull";
-import SqsAdapter from "hull/src/infra/queue/adapter/sqs";
-import { Queue } from "hull/src/infra";
 import express from "express";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
