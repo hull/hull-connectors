@@ -112,7 +112,8 @@ describe("Superagent library", () => {
         METRIC_SERVICE_REQUEST,
         METRIC_SERVICE_REQUEST_SHIP,
         expect.whatever() // Response time metric
-      ]    }));
+      ]
+    }));
   });
 
   it("should handle async await", () => {
@@ -297,7 +298,11 @@ describe("Superagent library", () => {
           })
         ]
       ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST, METRIC_SERVICE_REQUEST_ERROR]
+      metrics: [
+        METRIC_CONNECTOR_REQUEST,
+        METRIC_SERVICE_REQUEST,
+        METRIC_SERVICE_REQUEST_ERROR
+      ]
     }));
   });
 
@@ -333,12 +338,16 @@ describe("Superagent library", () => {
           })
         ]
       ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST, METRIC_SERVICE_REQUEST_ERROR]
+      metrics: [
+        METRIC_CONNECTOR_REQUEST,
+        METRIC_SERVICE_REQUEST,
+        METRIC_SERVICE_REQUEST_ERROR
+      ]
     }));
   });
 
-  it("should return abort error when calling 3rd party API that timeouts", () => {
-    const error = "Error: Aborted";
+  it("should return Timeout error when calling 3rd party API that timeouts", () => {
+    const error = "Error: Response timeout of 3000ms exceeded";
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser(),
       externalApiMock: () => {
@@ -380,12 +389,17 @@ describe("Superagent library", () => {
           expect.whatever(),
           expect.objectContaining({
             errors: [expect.stringContaining(error)],
-            hull_summary: expect.stringContaining("Error Processing user: Error: Aborted")
+            hull_summary: expect.stringContaining(
+              `Error Processing user: ${error}`
+            )
           })
         ]
       ],
-      metrics: [METRIC_CONNECTOR_REQUEST, METRIC_SERVICE_REQUEST]
+      metrics: [
+        METRIC_CONNECTOR_REQUEST,
+        METRIC_SERVICE_REQUEST,
+        METRIC_SERVICE_REQUEST_ERROR
+      ]
     }));
-  })
-    .timeout(10000);
+  }).timeout(10000);
 });
