@@ -51,7 +51,8 @@ function batchExtractProcessingMiddlewareFactory(
         }
         req.hull.isBatch = true;
         return extractStream({
-          body,
+          url,
+          format,
           batchSize: options.maxSize || 100,
           onResponse: () => res.end("ok"),
           onError: err => {
