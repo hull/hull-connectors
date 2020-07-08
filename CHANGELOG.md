@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.1.31-monorepo (2020-07-08)
+- [hull-postgres-exporter] Rename Warehouse to Hull PostgreSQL 
+
 ## v0.1.30-monorepo
 - [hull-salesforce] Moved fetch to purplefusion
 - [hull-mailchimp] Improved status update when receiving webhooks
