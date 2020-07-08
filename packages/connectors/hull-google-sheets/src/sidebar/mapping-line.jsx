@@ -56,7 +56,8 @@ export default class MappingLine extends PureComponent<MappingProp> {
     label
   });
 
-  getOptionLabel = ({ value }) => `${this.props.source}/${value}`;
+  getOptionLabel = ({ value }) =>
+    this.props.source ? `${this.props.source}/${value}` : value;
 
   getLabel = ({
     label,
@@ -92,6 +93,7 @@ export default class MappingLine extends PureComponent<MappingProp> {
       destinationOptions,
       mapping = []
     } = this.props;
+
     const invalidChars = validationErrors({ hull });
     return (
       <tr>
