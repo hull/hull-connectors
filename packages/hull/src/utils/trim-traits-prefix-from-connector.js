@@ -14,10 +14,7 @@ function performTrim(manifest = {}, connector = {}) {
     format: "trait",
     type: "string"
   });
-  debug(
-    "topLevelStringSettings",
-    topLevelStringSettings.map(s => s.name)
-  );
+  debug("topLevelStringSettings", topLevelStringSettings.map(s => s.name));
   topLevelStringSettings.forEach(setting => {
     const { name } = setting;
     if (connector[name]) {
@@ -30,10 +27,7 @@ function performTrim(manifest = {}, connector = {}) {
     format: "trait",
     type: "array"
   });
-  debug(
-    "topLevelArraySettings",
-    topLevelArraySettings.map(s => s.name)
-  );
+  debug("topLevelArraySettings", topLevelArraySettings.map(s => s.name));
   topLevelArraySettings.forEach(setting => {
     const { name } = setting;
     if (connector[name]) {
@@ -45,10 +39,7 @@ function performTrim(manifest = {}, connector = {}) {
   const tableSettings = _.filter(manifest, {
     type: "array"
   });
-  debug(
-    "tableSettings",
-    tableSettings.map(s => s.name)
-  );
+  debug("tableSettings", tableSettings.map(s => s.name));
   tableSettings.forEach(setting => {
     const { name } = setting;
     if (
@@ -89,10 +80,7 @@ function performTrim(manifest = {}, connector = {}) {
       format: "traitMapping"
     })
   );
-  debug(
-    "traitMappingSettings",
-    traitMappingSettings.map(s => s.name)
-  );
+  debug("traitMappingSettings", traitMappingSettings.map(s => s.name));
   traitMappingSettings.forEach(setting => {
     const { name } = setting;
     if (connector[name]) {

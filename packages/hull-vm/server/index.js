@@ -18,4 +18,6 @@ export { default as statusHandler } from "./handlers/status-handler";
 export { default as configHandler } from "./handlers/config-handler";
 export { default as entityHandler } from "./handlers/entity-handler";
 
-export { default as removeOldEntriesHandler } from "./handlers/remove-old-entries-handler";
+export {
+  default as removeOldEntriesHandler
+} from "./handlers/remove-old-entries-handler";
