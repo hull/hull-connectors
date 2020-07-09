@@ -186,18 +186,26 @@ export default class Sidebar extends Component<Props, State> {
   isValid = () =>
     isValidClaims(this.getClaims()) && isValidMapping(this.getMapping());
 
+  hasToken = () => this.state.initialized && this.state.token !== undefined;
+
   getError = () => {
-    const { initialized, error } = this.state;
-    if (
-      error === "Error: Invalid Token" ||
-      error === "Error: Error fetching attributes: No Access Token available"
-    ) {
-      if (this.state.token === undefined && !initialized) {
-        return "Start by adding your Hull Token. You can find it in your Hull Dashboard, in the Google Sheets Connector Settings";
-      }
-      return `It seems the Token you saved is invalid, please make sure you use the token displayed in the Connector's settings in Hull's Dashboard: ${error}`;
+    const { error } = this.state;
+    if (error === "Error: Invalid Token") {
+      return (
+        <p>
+          <span className="error">
+            It seems the Token you saved is invalid, please make sure you use
+            the token displayed in the Connector's settings in Hull's Dashboard:
+            ${error}
+          </span>
+        </p>
+      );
     }
-    return error;
+    return error ? (
+      <p>
+        <span className="error">{error}</span>
+      </p>
+    ) : null;
   };
 
   // Settings
@@ -450,6 +458,33 @@ export default class Sidebar extends Component<Props, State> {
     return "Loading...";
   }
 
+  getSetupMessage = () => (
+    <div className="setup-message">
+      <img src={window._headerImageUrl} className="blankslate-header" alt="" />
+      <h4>What is Hull ?</h4>
+      <p>
+        Hull is a Customer Data Platform. It collects and unifies customer data
+        from all your teams, and synchronizes it to all of your tools. The
+        Google Sheets importer allows you to easily import data into Hull
+      </p>
+      <h4>Don't have a Hull Account ?</h4>
+      <p>
+        <a
+          className="button blue import"
+          href="https://www.hull.io/integrations/googlesheet/"
+          target="_blank"
+        >
+          Request a Hull Account Now
+        </a>
+      </p>
+      <h4>Getting Started</h4>
+      <p>
+        Start by adding your Hull Token. You can find it in your Hull Dashboard,
+        in the Google Sheets Connector Settings.
+      </p>
+    </div>
+  );
+
   render() {
     const {
       initialized,
@@ -474,29 +509,31 @@ export default class Sidebar extends Component<Props, State> {
       <div>
         <div className="sidebar">
           <div>
-            <p>
-              {(loading && "Loading...") ||
-                (saving && "Saving...") ||
-                (name && `Current Sheet: ${name}`)}
-            </p>
-            <Actions
-              saving={saving}
-              loading={loading}
-              valid={this.isValid()}
-              claims={this.getClaims()}
-              type={type}
-              range={range}
-              displaySettings={displaySettings}
-              initialized={initialized}
-              onReloadColumns={this.handleReloadColumns}
-              onToggleSettings={this.toggleSettings}
-              onStartImport={this.handleStartImport}
-            />
-            {error && (
-              <p>
-                <span className="error">{error}</span>
-              </p>
+            {this.hasToken() ? (
+              <Fragment>
+                <p>
+                  {(loading && "Loading...") ||
+                    (saving && "Saving...") ||
+                    (name && `Current Sheet: ${name}`)}
+                </p>
+                <Actions
+                  saving={saving}
+                  loading={loading}
+                  valid={this.isValid()}
+                  claims={this.getClaims()}
+                  type={type}
+                  range={range}
+                  displaySettings={displaySettings}
+                  initialized={initialized}
+                  onReloadColumns={this.handleReloadColumns}
+                  onToggleSettings={this.toggleSettings}
+                  onStartImport={this.handleStartImport}
+                />
+              </Fragment>
+            ) : (
+              this.getSetupMessage()
             )}
+            {this.hasToken() && error}
           </div>
           {!loading && this.renderMain()}
         </div>

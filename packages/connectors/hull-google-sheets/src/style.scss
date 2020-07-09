@@ -11,7 +11,7 @@ h4 {
   margin-bottom: 5px;
 }
 
-h4+p{
+h4 + p {
   margin-top: 5px;
 }
 
@@ -88,12 +88,12 @@ td.row-value select {
   flex-direction: row;
   align-items: baseline;
   flex-grow: 1;
-  .source-select{
+  .source-select {
     flex-grow: 1;
   }
   h4 {
     white-space: nowrap;
-    margin-right: 10px;;
+    margin-right: 10px;
   }
 }
 
@@ -161,4 +161,9 @@ td.row-value select {
   text-align: center;
   width: 100%;
   margin: 140px auto;
+}
+
+.blankslate-header {
+  width: 328px;
+  margin: -28px -27px;
 }
