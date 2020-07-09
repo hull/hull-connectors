@@ -10,4 +10,7 @@ export const getfirstNonNull: (?Array<string>) => ?string = fp.flow(
 
 export const getFirstAnonymousIdFromEvents: (
   ?Array<HullEvent>
-) => ?string = fp.flow(fp.map("anonymous_id"), getfirstNonNull);
+) => ?string = fp.flow(
+  fp.map("anonymous_id"),
+  getfirstNonNull
+);
