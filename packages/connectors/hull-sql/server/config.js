@@ -30,9 +30,7 @@ export default function connectorConfig(): HullConnectorConfig {
     RUN_TIMEOUT_MS,
     COMBINED,
     SERVER,
-    WORKER,
-    AWS_KEY_ID,
-    AWS_SECRET_KEY
+    WORKER
   } = process.env;
 
   const hostSecret = SECRET;
