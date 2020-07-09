@@ -1,7 +1,7 @@
 {
   "name": "Dropcontact",
   "description": "Find and validate emails through Dropcontact",
-  "tags": ["outgoint", "oneColumn", "batch", "kraken-exports"],
+  "tags": ["outgoing", "oneColumn", "batch", "kraken-exports"],
   "source": "dropcontact",
   "picture": "picture.png",
   "ui": false,
