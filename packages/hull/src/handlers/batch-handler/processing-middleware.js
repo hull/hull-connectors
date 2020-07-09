@@ -51,14 +51,15 @@ function batchExtractProcessingMiddlewareFactory(
         }
         req.hull.isBatch = true;
         return extractStream({
-          body,
+          url,
+          format,
           batchSize: options.maxSize || 100,
           onResponse: () => res.end("ok"),
           onError: err => {
             client.logger.error("connector.batch.error", err.stack);
             res.sendStatus(400);
           },
-          callback: entities => {
+          onData: entities => {
             const segmentId = (req.query && req.query.segment_id) || null;
 
             const segmentsList = req.hull[`${entityType}sSegments`].map(s =>
