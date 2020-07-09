@@ -33,6 +33,8 @@ import type {
   ClaimsType
 } from "../../types";
 
+const debug = require("debug")("hull-google-sheets");
+
 type Props = {};
 
 type State = {
@@ -137,21 +139,27 @@ export default class Sidebar extends Component<Props, State> {
     if (loading) {
       return;
     }
-    const response: GetActiveSheetResponse = await Service.getActiveSheet();
-    const { index } = response;
-    if (index !== this.state.index) {
-      this.bootstrap(index);
+    try {
+      const response: GetActiveSheetResponse = await Service.getActiveSheet();
+      debug("GetActiveSheet Response", response);
+      const { index } = response;
+      if (index !== this.state.index) {
+        this.bootstrap(index);
+      }
+      this.setState(response);
+    } catch (error) {
+      debug("GetActiveSheet Error", error.message);
+      this.setState({ error: error.message });
     }
-    this.setState(response);
   };
 
   bootstrap = async (index?: number) => {
-    const { loading, displaySettings } = this.state;
+    const { loading, displaySettings, token } = this.state;
     if (loading || index === undefined) return false;
     this.setState({ index, loading: true, error: undefined });
     try {
-      const state = await Service.bootstrap(index);
-      console.log("BOOTSTRAPPED", state);
+      const state = await Service.bootstrap(index, token);
+      debug("Bootstrap", state);
       this.setState({
         error: undefined,
         loading: false,
@@ -160,8 +168,8 @@ export default class Sidebar extends Component<Props, State> {
         displaySettings: state.token ? displaySettings : true
       });
     } catch (err) {
+      debug("Bootstrap Error", err);
       this.setState({ error: err.message, loading: false });
-      console.log(err);
     }
     return true;
   };
@@ -180,13 +188,22 @@ export default class Sidebar extends Component<Props, State> {
 
   getError = () => {
     const { initialized, error } = this.state;
-    if (!initialized) return undefined;
+    if (
+      error === "Error: Invalid Token" ||
+      error === "Error: Error fetching attributes: No Access Token available"
+    ) {
+      if (this.state.token === undefined && !initialized) {
+        return "Start by adding your Hull Token. You can find it in your Hull Dashboard, in the Google Sheets Connector Settings";
+      }
+      return `It seems the Token you saved is invalid, please make sure you use the token displayed in the Connector's settings in Hull's Dashboard: ${error}`;
+    }
     return error;
   };
 
   // Settings
   handleSaveSettings = async () => {
     this.setState({
+      error: undefined,
       displaySettings: false,
       savingSettings: true,
       initialized: !!this.state.token
@@ -231,9 +248,9 @@ export default class Sidebar extends Component<Props, State> {
       index,
       data: _.pick(this.state, ...SAVED_CONFIG)
     };
-    console.log("SAVING USER PROPS", newState);
+    debug("SAVING USER PROPS", newState);
     const state = await Service.saveConfig(newState);
-    console.log("SAVED AND RECEIVED", state);
+    debug("SAVED AND RECEIVED", state);
     if (options && options.reload) {
       this.setState(state);
     } else {
@@ -260,7 +277,7 @@ export default class Sidebar extends Component<Props, State> {
         column: 0
       }
     ];
-    console.log("ADDMAPPING", mapping);
+    debug("ADDMAPPING", mapping);
     this.updateConfig({
       [this.getMappingType()]: mapping
     });
@@ -365,14 +382,12 @@ export default class Sidebar extends Component<Props, State> {
       initialized,
       source,
       token,
-      type,
-      importing
+      type
     } = this.state;
 
     if (!loading && (!initialized || displaySettings)) {
       return (
         <Settings
-          initialized={initialized}
           token={token}
           onReset={this.handleReset}
           onChangeToken={this.handleChangeToken}
@@ -451,7 +466,7 @@ export default class Sidebar extends Component<Props, State> {
 
     const error = this.getError();
 
-    if (savingSettings || !started || !index) {
+    if (!error && (savingSettings || !started || !index)) {
       return <Spinner message={this.getSpinnerMessage()} />;
     }
 

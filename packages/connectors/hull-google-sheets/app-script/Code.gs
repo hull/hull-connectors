@@ -5,54 +5,54 @@ const MAX_COLUMNS = 1000;
 const MAX_CHUNKS = 10000;
 const IMPORT_CHUNK_SIZE = 100;
 
-const urlFor = path =>
-  `https://hull-google-sheets-nextgen.herokuapp.com/${path}`;
+const urlFor = path => `https://hull-google-sheets.eu.ngrok.io/${path}`;
 
-function onOpen() {
+function onOpen(e) {
   var ui = SpreadsheetApp.getUi();
-  var menu = ui.createAddonMenu();
-  menu
-    .addItem("Open", "showSidebar")
-    .addItem("Start", "showSidebar")
-    .addToUi();
-
-  const customMenu = ui.createMenu("Hull");
-  customMenu
-    .addItem("Open Importer", "showSidebar")
-    .addSeparator()
-    .addItem("Help", "menuItem2")
-    .addToUi();
+  const menu = ui.createMenu("Hull");
+  menu.addItem("Open Importer", "showSidebar").addToUi();
 }
 
-const onInstall = function() {
-  onOpen();
+const onInstall = function(e) {
+  onOpen(e);
+  showSidebar();
 };
 
-function setUserProp({ key, index, value }) {
-  PropertiesService.getUserProperties().setProperty(
-    index ? `${index}-${key}` : key,
-    JSON.stringify(value)
-  );
+function setProp(store, { key, index, value }) {
+  store.setProperty(index ? `${index}-${key}` : key, JSON.stringify(value));
   return value;
+}
+function setUserProp(prop) {
+  return setProp(PropertiesService.getUserProperties(), prop);
+}
+function setDocumentProp(prop) {
+  return setProp(PropertiesService.getDocumentProperties(), prop);
 }
 function clearProperties() {
   PropertiesService.getUserProperties().deleteAllProperties();
+  PropertiesService.getDocumentProperties().deleteAllProperties();
 }
-function getUserProp({ key, index, fallback }) {
-  const val = PropertiesService.getUserProperties().getProperty(
-    index ? `${index}-${key}` : key
-  );
+
+function getProp(store, { key, index, fallback }) {
+  const val = store.getProperty(index ? `${index}-${key}` : key);
   try {
     return JSON.parse(val);
   } catch (err) {
     return fallback || val;
   }
 }
+function getUserProp(prop) {
+  return getProp(PropertiesService.getUserProperties(), prop);
+}
+function getDocumentProp(prop) {
+  return getProp(PropertiesService.getDocumentProperties(), prop);
+}
 
 function getSelectedRange() {
   const sheet = SpreadsheetApp.getActiveSheet();
   return sheet.getSelection().getActiveRange();
 }
+
 function getSheetData({ index, startRow, rows }) {
   // index - 1 because https://developers.google.com/apps-script/reference/spreadsheet/sheet#getindex - spreadsheets are 1-indexed
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[index - 1];
@@ -224,9 +224,7 @@ function getHullSchema({ type = "user" }) {
   const { statusCode, body, error } = api("post", "schema", { type });
   if (statusCode > 200) {
     if (body && body.error === "Invalid Token") {
-      throw new Error(
-        "It seems the Token you saved is invalid, please make sure you use the token displayed in the Connector's settings in Hull's Dashboard"
-      );
+      throw new Error(body.error);
     }
     throw new Error(
       `Error fetching attributes: ${error || (body && body.error)}`
@@ -343,11 +341,7 @@ function showSidebar() {
   SpreadsheetApp.getUi().showSidebar(sidebar);
 }
 
-function clearAll() {
-  PropertiesService.getUserProperties().deleteAllProperties();
-}
-
-function bootstrap(index) {
+function bootstrap(index, token) {
   if (!index) {
     return {
       error: "No active Sheet"
@@ -366,12 +360,12 @@ function bootstrap(index) {
         index,
         fallback: "user"
       }) || "user";
-    const token = getUserProp({ key: "token" });
+    const appToken = token || getUserProp({ key: "token" });
     const { hullAttributes, hullGroups } = getHullSchema({ type });
     Logger.log("Token", token);
-    return token
+    return appToken
       ? {
-          token,
+          token: appToken,
           initialized: true,
           googleColumns: getColumnNames(index),
           hullAttributes,
@@ -400,7 +394,7 @@ function bootstrap(index) {
 function saveConfig({ index, data }) {
   Logger.log("SetUserProps", prefixAndStringify({ prefix: index, data }));
   try {
-    PropertiesService.getUserProperties().setProperties(
+    PropertiesService.getDocumentProperties().setProperties(
       prefixAndStringify({ prefix: index, data })
     );
     return bootstrap(index);

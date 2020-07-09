@@ -1,9 +1,7 @@
 // @flow
 
 function wrap(methodName) {
-  // let counter = 0;
-  return (...args) => {
-    // counter += 1;
+  return function callService(...args) {
     return new Promise((resolve, reject) =>
       window.google.script.run
         .withSuccessHandler(resolve)
