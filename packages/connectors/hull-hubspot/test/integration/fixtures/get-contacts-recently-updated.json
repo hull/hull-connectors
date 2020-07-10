@@ -23,10 +23,48 @@
         },
         "lastname": {
           "value": "Testing"
+        },
+        "hs_calculated_form_submissions": {
+          "value": "3310cc22-c1d9-4ef8-82a8-e2cf549e6a10::1593429970077",
+          "versions": [
+            {
+              "value": "3310cc22-c1d9-4ef8-82a8-e2cf549e6a10::1593429970077",
+              "source-type": "CALCULATED",
+              "source-id": null,
+              "source-label": null,
+              "timestamp": 1593429970077,
+              "selected": false
+            }
+          ]
         }
       },
       "form-submissions": [
+        {
+          "conversion-id": "d470d96f-e63e-42b6-8594-3ccd266af9be",
+          "timestamp": 1593429970077,
+          "form-id": "3310cc22-c1d9-4ef8-82a8-e2cf549e6a10",
+          "portal-id": 4877207,
+          "page-url": "https://productmanagementfestival.com/survey/",
+          "page-title": "Trends and Benchmarks",
+          "title": "Download-Form",
+          "form-type": "HUBSPOT",
+          "meta-data": [
 
+          ]
+        },
+        {
+          "conversion-id": "6383b472-32fd-4463-a01e-4e79db41ed18",
+          "timestamp": 1593429970077,
+          "form-id": "296b690c-1fee-46aa-97cb-f779e63f2f9c",
+          "portal-id": 4877207,
+          "page-url": "https://productmanagementfestival.com/survey/",
+          "page-title": "Some Random Page Title",
+          "title": "Some Random Title",
+          "form-type": "HUBSPOT",
+          "meta-data": [
+
+          ]
+        }
       ],
       "identity-profiles": [
         {

@@ -1,7 +1,7 @@
 {
   "name": "hull-segment",
   "description": "Install Segment in your site",
-  "version": "0.1.31-monorepo",
+  "version": "0.1.32-monorepo",
   "homepage": "https://github.com/hull-ships/hull-segment",
   "license": "MIT",
   "main": "src/index.js",
