@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.1.32-monorepo (2020-07-10)
+- [hull-google-sheets] Rework of the google-sheets connector
+
 ## v0.1.31-monorepo (2020-07-08)
 - [hull-postgres-exporter] Rename Warehouse to Hull PostgreSQL 
 
