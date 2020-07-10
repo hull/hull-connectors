@@ -91,7 +91,7 @@ export default async function enrichQueue(
             : [];
 
           return Promise.all([
-            cache.del(hashes[index]),
+            cache.del(ids[index]),
             asUser.traits(
               mapAttributes({
                 payload,
