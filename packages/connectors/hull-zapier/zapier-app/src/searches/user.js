@@ -6,8 +6,8 @@ const { isValidClaim } = require("../lib/utils");
 const { getUserAttributeOutputFields } = require("../lib/output-fields");
 
 const perform = async (z, { inputData }) => {
-  const { email, external_id } = inputData;
-  const claims = { email, external_id };
+  const { anonymous_id, email, external_id } = inputData;
+  const claims = { anonymous_id, email, external_id };
 
   if (!isValidClaim({ external_id, email })) {
     const errorMessage = {
@@ -54,6 +54,12 @@ const user = {
         label: "Email",
         helpText:
           "Email of the User to lookup. If we find multiple emails, we will use the oldest entry"
+      },
+      {
+        label: 'Anonymous Id',
+        helpText: 'Anonymous Id of the Hull User',
+        key: 'anonymous_id',
+        type: 'string'
       }
     ],
     perform,

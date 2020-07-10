@@ -39,7 +39,7 @@ describe("notificationHandler", () => {
     connector = new Hull.Connector({
       manifest: {},
       connectorName: "TestConnector",
-      port: 9092,
+      port: 8092,
       timeout: "100ms",
       skipSignatureValidation: true,
       hostSecret: "1234",
@@ -92,7 +92,7 @@ describe("notificationHandler", () => {
   });
 
   it("unhandled error", function test() {
-    return miniHull.notifyConnector({ id: connectorId, private_settings: {} }, "localhost:9092/error-notification", "user:update", [])
+    return miniHull.notifyConnector({ id: connectorId, private_settings: {} }, "localhost:8092/error-notification", "user:update", [])
       .catch((err) => {
         expect(stopMiddlewareSpy.called).to.be.true;
         expect(err.response.statusCode).to.equal(500);
@@ -110,7 +110,7 @@ describe("notificationHandler", () => {
       });
   });
   it("timeout error", function test(done) {
-    miniHull.notifyConnector({ id: connectorId, private_settings: {} }, "localhost:9092/timeout-notification", "user:update", [])
+    miniHull.notifyConnector({ id: connectorId, private_settings: {} }, "localhost:8092/timeout-notification", "user:update", [])
       .catch((err) => {
         expect(metricIncrementSpy.args[1]).to.eql([
           "connector.transient_error", 1, ["error_name:transient_error", "error_message:response_timeout"]
@@ -123,7 +123,7 @@ describe("notificationHandler", () => {
     }, 150);
   });
   it("transient error", function test() {
-    return miniHull.notifyConnector({ id: connectorId, private_settings: {} }, "localhost:9092/transient-notification", "user:update", [])
+    return miniHull.notifyConnector({ id: connectorId, private_settings: {} }, "localhost:8092/transient-notification", "user:update", [])
       .catch((err) => {
         expect(metricIncrementSpy.args[1]).to.eql([
           "connector.transient_error", 1, ["error_name:transient_error", "error_message:transient_error_message"]
@@ -146,7 +146,7 @@ describe("notificationHandler", () => {
       });
   });
   it("configuration error", function test() {
-    return miniHull.notifyConnector({ id: connectorId, private_settings: {} }, "localhost:9092/configuration-notification", "user:update", [])
+    return miniHull.notifyConnector({ id: connectorId, private_settings: {} }, "localhost:8092/configuration-notification", "user:update", [])
       .catch((err) => {
         expect(metricIncrementSpy.args[1]).to.eql([
           "connector.transient_error", 1, ["error_name:configuration_error", "error_message:missing_api_key"]
