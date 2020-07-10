@@ -1,10 +1,10 @@
 {
-  "name": "Warehouse",
-  "description": "Outgoing integration to warehouses for Users, Accounts and Events",
+  "name": "PostgreSQL Exporter",
+  "description": "Outgoing integration to PostreSQL for Users, Accounts and Events",
   "source": "outreach",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.30-monorepo",
+  "version": "0.1.32-monorepo",
   "tags": [
     "outgoing",
     "batch",
@@ -12,6 +12,8 @@
     "oneColumn",
     "smart-notifier",
     "kraken-exports"
+    "postgres",
+    "sql"
   ],
   "private_settings": [
     {
@@ -95,14 +97,14 @@
     },
     {
       "name": "user_outgoing_sync_title",
-      "title": "Outgoing User Synchronization Options (Hull to Warehouse)",
+      "title": "Outgoing User Synchronization Options (Hull to PostgreSQL)",
       "format": "title",
       "type": "string"
     },
     {
       "name": "synchronized_user_segments",
       "title": "User Filter",
-      "description": "Send *Users* to your warehouse when belonging to one of these segments",
+      "description": "Send *Users* to your postgreSQL database when belonging to one of these segments",
       "type": "array",
       "default": [],
       "format": "segment",
@@ -115,27 +117,27 @@
     {
       "name": "send_all_user_attributes",
       "title": "Send all user attributes",
-      "description": "When enabled all current and future attributes will be send to the Warehouse and Attributes Mapping below will be ignored.",
+      "description": "When enabled all current and future attributes will be sent to the PostgreSQL database and the Attributes Mapping below will be ignored.",
       "type": "boolean",
       "default": true
     },
     {
       "name": "send_all_account_attributes",
       "title": "Send all account attributes",
-      "description": "When enabled all current and future attributes will be send to the Warehouse and Attributes Mapping below will be ignored.",
+      "description": "When enabled all current and future attributes will be sent to the PostgreSQL database and the Attributes Mapping below will be ignored.",
       "type": "boolean",
       "default": true
     },
     {
       "name": "account_outgoing_synch_title",
-      "title": "Outgoing Account Synchronization Options (Hull to Warehouse)",
+      "title": "Outgoing Account Synchronization Options (Hull to PostreSQL)",
       "format": "title",
       "type": "string"
     },
     {
       "name": "synchronized_account_segments",
       "title": "Account Filter",
-      "description": "Send *Accounts* to your warehouse when belonging to one of these segments",
+      "description": "Send *Accounts* to your PostgreSQL database when belonging to one of these segments",
       "type": "array",
       "default": [],
       "format": "accountSegment",
@@ -205,7 +207,7 @@
     },
     {
       "name": "outgoing_user_attributes",
-      "title": "User Attributes to send to Warehouse",
+      "title": "User Attributes to send to PostgreSQL",
       "type": "array",
       "format": "traitMapping",
       "options": {
@@ -218,7 +220,7 @@
     },
     {
       "name": "outgoing_account_attributes",
-      "title": "Account Attributes to send to Warehouse",
+      "title": "Account Attributes to send to PostgreSQL",
       "type": "array",
       "format": "accountTraitMapping",
       "options": {
