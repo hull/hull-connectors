@@ -40,6 +40,7 @@ COPY yarn.lock /app/
 # COPY packages/connectors/hull-warehouse/package.json /app/packages/connectors/hull-warehouse/package.json
 # COPY packages/connectors/hull-website/package.json /app/packages/connectors/hull-website/package.json
 # COPY packages/connectors/hull-zapier/package.json /app/packages/connectors/hull-zapier/package.json
+# COPY packages/connectors/hull-google-sheets/package.json /app/packages/connectors/hull-google-sheets/package.json
 CMD rsync -mrv --include="*/" --include="package.json" --exclude="*" ./ /app/
 
 COPY ./ /app/
