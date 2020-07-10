@@ -12,7 +12,7 @@
   "picture": "picture.png",
   "ui": false,
   "readme": "readme.md",
-  "version": "0.1.30-monorepo",
+  "version": "0.1.31-monorepo",
   "mappings": {
     "identify": {
       "outgoing": {}

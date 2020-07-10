@@ -1,7 +1,7 @@
 {
   "name": "hull-incoming-webhooks",
   "description": "Receive webhooks and enrich your data in Hull",
-  "version": "0.1.30-monorepo",
+  "version": "0.1.31-monorepo",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {
     "test": "yarn test:unit && yarn test:integration",
