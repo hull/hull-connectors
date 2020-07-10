@@ -5,7 +5,7 @@ const MAX_COLUMNS = 1000;
 const MAX_CHUNKS = 10000;
 const IMPORT_CHUNK_SIZE = 100;
 
-const urlFor = path => `https://hull-google-sheets.eu.ngrok.io/${path}`;
+const urlFor = path => `https://google-sheets.hullapp.com/${path}`;
 
 function onOpen(e) {
   var ui = SpreadsheetApp.getUi();
