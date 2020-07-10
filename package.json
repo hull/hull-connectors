@@ -1,6 +1,6 @@
 {
   "name": "hull-connectors",
-  "version": "0.1.30-monorepo",
+  "version": "0.1.32-monorepo",
   "private": true,
   "workspaces": {
     "packages": [
@@ -140,12 +140,17 @@
     "raven": "^2.6.4",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "react-select": "^3.0.4",
+    "react-inlinesvg": "^1.2.0",
+    "react-select": "^3.1.0",
     "rimraf": "^2.6.3",
     "sass-loader": "^7.1.0",
     "statsd-client": "^0.4.4",
+    "stream-chain": "^2.2.1",
+    "stream-csv-as-json": "^1.0.2",
+    "stream-json": "^1.5.0",
     "style-loader": "^0.23.1",
-    "superagent": "^5.0.5",
+    "superagent": "^5.3.1",
+    "svg-inline-loader": "^0.8.2",
     "sweetalert": "^2.1.2",
     "urijs": "^1.19.1",
     "uuid": "^3.3.2",

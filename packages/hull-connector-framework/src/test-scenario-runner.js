@@ -183,12 +183,12 @@ class TestScenarioRunner extends EventEmitter {
       }
       clearTimeout(this.timeoutId);
       this.finished = true;
-      const transformedLogs = this.capturedLogs.map(log => {
+      const transformedLogs = this.capturedLogs.map(({ level, message, context, data }) => {
         return [
-          log.level,
-          log.message,
-          _.omit(log.context, "organization", "id", "connector_name", "connector"),
-          log.data
+          level,
+          message,
+          _.omit(context, "organization", "id", "connector_name", "connector"),
+          data
         ];
       });
       expect(transformedLogs).toEqualIgnoringOrder(

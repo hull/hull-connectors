@@ -1,6 +1,6 @@
 {
   "name": "hull-datanyze",
-  "version": "0.1.30-monorepo",
+  "version": "0.1.32-monorepo",
   "description": "Enrich Customer data with Datanyze",
   "homepage": "https://github.com/hull/hull-connectors",
   "scripts": {
@@ -8,9 +8,9 @@
     "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
   },
   "dependencies": {
-    "request-promise": "^4.2.5",
+    "parse-domain": "^3.0.2",
     "request": "^2.88.2",
-    "parse-domain": "^3.0.2"
+    "request-promise": "^4.2.5"
   },
   "devDependencies": {}
 }
