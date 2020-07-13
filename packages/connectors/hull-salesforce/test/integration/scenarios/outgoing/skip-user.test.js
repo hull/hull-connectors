@@ -7,6 +7,8 @@ process.env.CLIENT_SECRET = "123";
 
 const private_settings = {
   instance_url: "https://na98.salesforce.com",
+  access_token: "1",
+  refresh_token: "1",
   fetch_resource_schema: false,
   fetch_accounts: false,
   ignore_users_withoutemail: false,
@@ -225,6 +227,7 @@ describe("Skip User Tests", () => {
         ],
         response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
         logs: [
+          ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           [
             "debug",
             "outgoing.user.skip",
@@ -250,7 +253,8 @@ describe("Skip User Tests", () => {
             {
               "reason": "No valid user messages to send"
             }
-          ]
+          ],
+          ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }]
         ],
         firehoseEvents: [],
         metrics:[
@@ -443,6 +447,7 @@ describe("Skip User Tests", () => {
         ],
         response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
         logs: [
+          ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
             "ship.service_api.request",
             {
@@ -501,10 +506,10 @@ describe("Skip User Tests", () => {
               "user_email": "adam.pietrzyk@krakowtraders.pl"
             },
             {
-              "reason": "user was synced as a contact from SFDC before, cannot be in a lead segment. Please check your configuration",
-              "sf_lead_data": {}
+              "reason": "User was synced as a contact from SFDC before, cannot be in a lead segment. Please check your configuration"
             }
-          ]
+          ],
+          ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }]
         ],
         firehoseEvents: [],
         metrics:[
@@ -688,6 +693,7 @@ describe("Skip User Tests", () => {
         ],
         response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
         logs: [
+          ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
             "ship.service_api.request",
             {
@@ -746,10 +752,10 @@ describe("Skip User Tests", () => {
               "user_email": "adam.pietrzyk@krakowtraders.pl"
             },
             {
-              "reason": "Lead has been manually deleted in Salesforce and won't be re-created.",
-              "sf_lead_data": {}
+              "reason": "Lead has been manually deleted in Salesforce and won't be re-created."
             }
-          ]
+          ],
+          ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }]
         ],
         firehoseEvents: [],
         metrics:[
