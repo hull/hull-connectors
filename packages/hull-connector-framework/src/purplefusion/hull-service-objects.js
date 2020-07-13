@@ -84,6 +84,11 @@ const HullOutgoingUser: ServiceObjectDefinition = {
   name: "User"
 };
 
+const HullOutgoingEvent: ServiceObjectDefinition = {
+  service_name: "HullOutgoingEvent",
+  name: "Event"
+};
+
 const HullIncomingAccount: ServiceObjectDefinition = {
   service_name: "HullIncomingAccount",
   name: "Account"
@@ -172,6 +177,7 @@ module.exports = {
   HullIncomingUser,
   HullIncomingAccount,
   HullOutgoingUser,
+  HullOutgoingEvent,
   HullOutgoingAccount,
   HullUserAttributeChangedTrigger,
   HullUserSegmentChangedTrigger,

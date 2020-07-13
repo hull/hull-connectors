@@ -3,6 +3,7 @@ import type { IUserUpdateEnvelope, IAccountUpdateEnvelope } from "../types";
 
 const _ = require("lodash");
 const MatchUtil = require("./match-util");
+const { TResourceType } = require("../types");
 
 type TFilterResults = {
   toInsert: Array<IUserUpdateEnvelope>,
@@ -10,6 +11,7 @@ type TFilterResults = {
   toSkip: Array<IUserUpdateEnvelope>
 };
 
+// eslint-disable-next-line no-unused-vars
 type TAccountFilterResults = {
   toInsert: Array<IAccountUpdateEnvelope>,
   toUpdate: Array<IAccountUpdateEnvelope>,
@@ -98,12 +100,285 @@ class FilterUtil {
     );
   }
 
+  filterAccountEnvelopes(
+    envelopes: Array<IUserUpdateEnvelope> | Array<IAccountUpdateEnvelope>,
+    isBatch: boolean = false
+  ): TFilterResults {
+    const results: TFilterResults = {
+      toSkip: [],
+      toUpdate: [],
+      toInsert: []
+    };
+
+    envelopes.forEach(envelope => {
+      return this.filterAccountEnvelope(results, envelope, isBatch);
+    });
+    return results;
+  }
+
+  filterAccountEnvelope(
+    results: TFilterResults,
+    envelope: Object,
+    isBatch: boolean
+  ): TFilterResults {
+    const { message } = envelope;
+    const { account: sfAccountMatches } = envelope.matches;
+    const { account: hullAccount, user } = message;
+    const sfAccount = _.size(sfAccountMatches) === 1 ? sfAccountMatches[0] : {};
+
+    if (_.has(user, "id")) {
+      if (this.matchesLeadSynchronizedSegments(envelope)) {
+        results.toSkip.push({
+          envelope,
+          hullType: "user",
+          skipReason: "user treated as lead",
+          log: false
+        });
+        return results;
+      }
+
+      if (!this.matchesContactSynchronizedSegments(envelope)) {
+        results.toSkip.push({
+          envelope,
+          hullType: "user",
+          skipReason: "doesn't match filter for accounts and contacts",
+          log: false
+        });
+        return results;
+      }
+    } else if (!isBatch && !this.matchesAccountSynchronizedSegments(envelope)) {
+      results.toSkip.push({
+        envelope,
+        hullType: "account",
+        skipReason: "doesn't match filter for accounts"
+      });
+      return results;
+    }
+
+    if (_.size(sfAccountMatches) > 1) {
+      results.toSkip.push({
+        envelope,
+        hullType: "account",
+        skipReason: "Cannot determine which salesforce account to update"
+      });
+      return results;
+    }
+
+    if (_.isNil(hullAccount) || !_.has(hullAccount, "id")) {
+      results.toSkip.push({
+        envelope,
+        hullType: "account",
+        skipReason: "user doesn't have an account"
+      });
+      return results;
+    }
+
+    if (
+      _.get(hullAccount, "salesforce/deleted_at", null) !== null &&
+      !this.sendDeletedObjects
+    ) {
+      results.toSkip.push({
+        envelope,
+        hullType: "account",
+        skipReason:
+          "Account has been manually deleted in Salesforce and won't be re-created."
+      });
+      return results;
+    }
+
+    const hullAccountClaimFields = _.map(this.accountClaims, "hull");
+    for (let i = 0; i < this.accountClaims.length; i += 1) {
+      const accountClaim = this.accountClaims[i];
+      const isRequired = accountClaim.required;
+      const hullField = accountClaim.hull;
+      if (isRequired && _.isNil(_.get(hullAccount, hullField, null))) {
+        results.toSkip.push({
+          envelope,
+          hullType: "account",
+          skipReason: "Missing required unique identifier in Hull."
+        });
+        return results;
+      }
+    }
+
+    if (_.has(hullAccount, "id")) {
+      if (_.has(hullAccount, "salesforce/id")) {
+        if (
+          _.get(sfAccount, "Id", null) === _.get(hullAccount, "salesforce/id")
+        ) {
+          if (!this.accountInArray(results.toUpdate, hullAccount)) {
+            results.toUpdate.push(envelope);
+          }
+          return results;
+        }
+        if (!this.sendDeletedObjects) {
+          if (!this.accountInArray(results.toUpdate, hullAccount)) {
+            results.toSkip.push({
+              envelope,
+              hullType: "account",
+              skipReason:
+                "Account has been potentially manually deleted in Salesforce, skipping processing."
+            });
+          }
+          return results;
+        }
+
+        if (!this.accountInArray(results.toUpdate, hullAccount)) {
+          results.toInsert.push(envelope);
+        }
+        return results;
+      }
+
+      if (
+        _.includes(hullAccountClaimFields, "domain") &&
+        _.has(hullAccount, "domain") &&
+        _.get(hullAccount, "domain").length < 7 &&
+        !this.allowShortDomains
+      ) {
+        if (!this.accountInArray(results.toSkip, hullAccount)) {
+          results.toSkip.push({
+            envelope,
+            hullType: "account",
+            skipReason:
+              "The domain is too short to perform find on SFDC API, we tried exact match but didn't find any record",
+            log: !_.has(user, "id")
+          });
+        }
+        return results;
+      }
+
+      if (!this.accountInArray(results.toInsert, hullAccount)) {
+        results.toInsert.push(envelope);
+      }
+    }
+    return results;
+  }
+
+  filterEnvelopes(
+    envelopes: Array<IUserUpdateEnvelope>,
+    resourceType: TResourceType
+  ): TFilterResults {
+    const traitGroup = `salesforce_${_.toLower(resourceType)}`;
+    const results: TFilterResults = {
+      toSkip: [],
+      toUpdate: [],
+      toInsert: []
+    };
+    envelopes.forEach(envelope => {
+      const { user, account } = envelope.message;
+      const matches = envelope.matches[_.toLower(resourceType)];
+
+      if (_.size(matches) > 1) {
+        return results.toSkip.push({
+          envelope,
+          hullType: "user",
+          skipReason: `Cannot determine which ${_.toLower(
+            resourceType
+          )} to update`
+        });
+      }
+      const sfObject = _.size(matches) === 1 ? matches[0] : {};
+      const existingId = _.get(sfObject, "Id");
+      const outgoingId = _.get(user, `${_.toLower(traitGroup)}/id`);
+
+      if (resourceType === "Contact") {
+        if (
+          !this.matchesContactSynchronizedSegments(envelope) ||
+          this.matchesLeadSynchronizedSegments(envelope)
+        ) {
+          return null;
+        }
+      }
+
+      if (resourceType === "Lead") {
+        if (!this.matchesLeadSynchronizedSegments(envelope)) {
+          return null;
+        }
+      }
+
+      if (_.get(user, "email", "n/a") === "n/a" && this.requireEmail) {
+        _.set(envelope, "skipReason", "User doesn't have an email address.");
+        return results.toSkip.push({
+          envelope,
+          hullType: "user",
+          skipReason: "User doesn't have an email address"
+        });
+      }
+
+      if (
+        _.get(user, `${_.toLower(traitGroup)}/deleted_at`, null) !== null &&
+        !this.sendDeletedObjects
+      ) {
+        return results.toSkip.push({
+          envelope,
+          hullType: "user",
+          skipReason: `${resourceType} has been manually deleted in Salesforce and won't be re-created.`
+        });
+      }
+
+      if (!_.isNil(outgoingId)) {
+        if (existingId === outgoingId) {
+          return results.toUpdate.push(envelope);
+        }
+        if (!this.sendDeletedObjects) {
+          return results.toSkip.push({
+            envelope,
+            hullType: "user",
+            skipReason: `${resourceType} has been potentially manually deleted in Salesforce and will not be sent out.`
+          });
+        }
+        return results.toInsert.push(envelope);
+      }
+
+      if (!_.isEmpty(sfObject)) {
+        return results.toUpdate.push(envelope);
+      }
+
+      if (
+        resourceType === "Contact" &&
+        (_.has(user, `${traitGroup}/account_id`) || _.has(account, "id"))
+      ) {
+        return results.toInsert.push(envelope);
+      }
+
+      if (resourceType === "Lead") {
+        if (
+          _.has(user, "salesforce_contact/id") ||
+          _.has(user, "salesforce_lead/converted_contact_id")
+        ) {
+          return results.toSkip.push({
+            envelope,
+            hullType: "user",
+            skipReason:
+              "User was synced as a contact from SFDC before, cannot be in a lead segment. Please check your configuration"
+          });
+        }
+
+        return results.toInsert.push(envelope);
+      }
+
+      return null;
+    });
+    return results;
+  }
+
+  filterContactEnvelopes(
+    envelopes: Array<IUserUpdateEnvelope>
+  ): TFilterResults {
+    return this.filterEnvelopes(envelopes, "Contact");
+  }
+
+  filterLeadEnvelopes(envelopes: Array<IUserUpdateEnvelope>): TFilterResults {
+    return this.filterEnvelopes(envelopes, "Lead");
+  }
+
   accountInArray(
     array: Array<IUserUpdateEnvelope> | Array<IAccountUpdateEnvelope>,
     account: Object
   ): boolean {
     const matchUtil = new MatchUtil();
 
+    // TODO find should be every?
     return (
       _.find(array, e => {
         for (let i = 0; i < this.accountClaims.length; i += 1) {
@@ -129,299 +404,6 @@ class FilterUtil {
         return true;
       }) !== undefined
     );
-  }
-
-  filterAccount(
-    results: TFilterResults | TAccountFilterResults,
-    envelope: Object,
-    account: Object,
-    sfAccountMatches: Array<Object>,
-    entity: string,
-    isBatch: boolean
-  ): void {
-    if (_.isNil(account) || !_.has(account, "id")) {
-      _.set(envelope, "skipReason", "user doesn't have an account");
-      results.toSkip.push(envelope);
-      return;
-    }
-
-    if (entity === "user") {
-      if (this.matchesLeadSynchronizedSegments(envelope)) {
-        _.set(envelope, "skipReason", `${entity} treated as a lead`);
-        results.toSkip.push(envelope);
-        return;
-      }
-
-      if (!this.matchesContactSynchronizedSegments(envelope)) {
-        _.set(
-          envelope,
-          "skipReason",
-          "doesn't match filter for accounts and contacts"
-        );
-        results.toSkip.push(envelope);
-        return;
-      }
-    } else if (entity === "account") {
-      if (!isBatch && !this.matchesAccountSynchronizedSegments(envelope)) {
-        _.set(envelope, "skipReason", "doesn't match filter for accounts");
-        results.toSkip.push(envelope);
-        return;
-      }
-    }
-
-    if (
-      _.get(account, "salesforce/deleted_at", null) !== null &&
-      !this.sendDeletedObjects
-    ) {
-      _.set(
-        envelope,
-        "skipReason",
-        "Account has been manually deleted in Salesforce and won't be re-created."
-      );
-      results.toSkip.push(envelope);
-      return;
-    }
-
-    if (sfAccountMatches.length > 1) {
-      _.set(
-        envelope,
-        "skipReason",
-        "Cannot determine which salesforce account to update."
-      );
-      results.toSkip.push(envelope);
-      return;
-    }
-
-    const hullAccountClaimFields = _.map(this.accountClaims, "hull");
-    for (let i = 0; i < this.accountClaims.length; i += 1) {
-      const accountClaim = this.accountClaims[i];
-      const isRequired = accountClaim.required;
-      const hullField = accountClaim.hull;
-      if (isRequired && _.isNil(_.get(account, hullField, null))) {
-        _.set(
-          envelope,
-          "skipReason",
-          "Missing required unique identifier in Hull."
-        );
-        results.toSkip.push(envelope);
-        return;
-      }
-    }
-
-    if (_.has(account, "id")) {
-      // Handle accounts to update
-      if (_.has(account, "salesforce/id")) {
-        // Verify that it is a valid ID, indicated if the currentSfxxx object is present or not
-        if (
-          _.get(envelope, "currentSfAccount.Id", null) ===
-          _.get(account, "salesforce/id")
-        ) {
-          if (!this.accountInArray(results.toUpdate, account)) {
-            results.toUpdate.push(envelope);
-          }
-          return;
-        }
-        if (!this.sendDeletedObjects) {
-          _.set(
-            envelope,
-            "skipReason",
-            "Account has been potentially manually deleted in Salesforce, skipping processing."
-          );
-          if (!this.accountInArray(results.toUpdate, account)) {
-            results.toSkip.push(envelope);
-          }
-          return;
-        }
-
-        if (!this.accountInArray(results.toUpdate, account)) {
-          results.toInsert.push(envelope);
-        }
-        return;
-      }
-
-      // before we decide to insert that account let's see if this is a less than 7 characters
-      // domain, in such case we are only relying on exact match and update
-      if (
-        _.includes(hullAccountClaimFields, "domain") &&
-        _.has(account, "domain") &&
-        _.get(account, "domain").length < 7 &&
-        !this.allowShortDomains
-      ) {
-        _.set(
-          envelope,
-          "skipReason",
-          "The domain is too short to perform find on SFDC API, we tried exact match but didn't find any record"
-        );
-        if (!this.accountInArray(results.toSkip, account)) {
-          results.toSkip.push(envelope);
-        }
-        return;
-      }
-
-      if (!this.accountInArray(results.toInsert, account)) {
-        results.toInsert.push(envelope);
-      }
-    }
-  }
-
-  filterAccounts(
-    envelopes: Array<IUserUpdateEnvelope> | Array<IAccountUpdateEnvelope>,
-    entity: string,
-    isBatch: boolean = false
-  ): TFilterResults {
-    const results: TFilterResults = {
-      toSkip: [],
-      toUpdate: [],
-      toInsert: []
-    };
-
-    envelopes.forEach(envelope => {
-      const { message } = envelope;
-      const account = message.account;
-      const allSfAccountMatches = _.get(envelope, "allSfAccountMatches", []);
-      return this.filterAccount(
-        results,
-        envelope,
-        account,
-        allSfAccountMatches,
-        entity,
-        isBatch
-      );
-    });
-    return results;
-  }
-
-  filterContacts(envelopes: Array<IUserUpdateEnvelope>): TFilterResults {
-    const results: TFilterResults = {
-      toSkip: [],
-      toUpdate: [],
-      toInsert: []
-    };
-    envelopes.forEach(envelope => {
-      const { message } = envelope;
-
-      // Check if it matches a lead segment as that takes priority
-      if (
-        this.matchesContactSynchronizedSegments(envelope) &&
-        !this.matchesLeadSynchronizedSegments(envelope)
-      ) {
-        if (
-          _.get(message, "user.email", "n/a") === "n/a" &&
-          this.requireEmail
-        ) {
-          _.set(envelope, "skipReason", "User doesn't have an email address.");
-          return results.toSkip.push(envelope);
-        }
-
-        if (
-          _.get(message, "user.salesforce_contact/deleted_at", null) !== null &&
-          !this.sendDeletedObjects
-        ) {
-          _.set(
-            envelope,
-            "skipReason",
-            "Contact has been manually deleted in Salesforce and won't be re-created."
-          );
-          return results.toSkip.push(envelope);
-        }
-
-        if (_.has(message, "user.salesforce_contact/id")) {
-          // Verify that it is a valid ID, indicated if the currentSfxxx object is present or not
-          if (
-            _.get(envelope, "currentSfContact.Id", null) ===
-            _.get(message, "user.salesforce_contact/id")
-          ) {
-            return results.toUpdate.push(envelope);
-          }
-          if (!this.sendDeletedObjects) {
-            _.set(
-              envelope,
-              "skipReason",
-              "Contact has been potentially manually deleted in Salesforce, skipping processing."
-            );
-            return results.toSkip.push(envelope);
-          }
-
-          return results.toInsert.push(envelope);
-        }
-
-        if (
-          _.has(message, "user.salesforce_contact/account_id") ||
-          _.has(message, "account.id")
-        ) {
-          return results.toInsert.push(envelope);
-        }
-      }
-      return null;
-    });
-    return results;
-  }
-
-  filterLeads(envelopes: Array<IUserUpdateEnvelope>): TFilterResults {
-    const results: TFilterResults = {
-      toSkip: [],
-      toUpdate: [],
-      toInsert: []
-    };
-    envelopes.forEach(envelope => {
-      const { message } = envelope;
-
-      if (this.matchesLeadSynchronizedSegments(envelope)) {
-        if (
-          _.get(message, "user.email", "n/a") === "n/a" &&
-          this.requireEmail
-        ) {
-          _.set(envelope, "skipReason", "User doesn't have an email address.");
-          return results.toSkip.push(envelope);
-        }
-
-        if (
-          _.has(message, "user.salesforce_contact/id") ||
-          _.has(message, "user.salesforce_lead/converted_contact_id")
-        ) {
-          _.set(
-            envelope,
-            "skipReason",
-            "user was synced as a contact from SFDC before, cannot be in a lead segment. Please check your configuration"
-          );
-          return results.toSkip.push(envelope);
-        }
-
-        if (
-          _.get(message, "user.salesforce_lead/deleted_at", null) !== null &&
-          !this.sendDeletedObjects
-        ) {
-          _.set(
-            envelope,
-            "skipReason",
-            "Lead has been manually deleted in Salesforce and won't be re-created."
-          );
-          return results.toSkip.push(envelope);
-        }
-
-        if (_.has(message, "user.salesforce_lead/id")) {
-          if (
-            _.get(envelope, "currentSfLead.Id", null) ===
-            _.get(message, "user.salesforce_lead/id")
-          ) {
-            return results.toUpdate.push(envelope);
-          }
-          if (!this.sendDeletedObjects) {
-            _.set(
-              envelope,
-              "skipReason",
-              "Lead has been potentially manually deleted in Salesforce, skipping processing."
-            );
-            return results.toSkip.push(envelope);
-          }
-
-          return results.toInsert.push(envelope);
-        }
-        return results.toInsert.push(envelope);
-      }
-      return null;
-    });
-    return results;
   }
 
   matchesContactSynchronizedSegments(envelope: IUserUpdateEnvelope): boolean {

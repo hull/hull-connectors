@@ -96,6 +96,7 @@ describe("AttributesMapper", () => {
         hull: "salesforce/customer_priority",
         overwrite: false }
     ],
+    user_claims: [{ hull: "email", service: "Email" }],
     account_claims: [
       {
         hull: "domain",
@@ -295,7 +296,7 @@ describe("AttributesMapper", () => {
 
     const mapper = new AttributesMapper(CONNECTOR_SETTINGS);
 
-    const hObject = await mapper.mapToHullAttributeObject("Lead", sObject);
+    const hObject = mapper.mapToHullAttributeObject("Lead", sObject);
 
     expect(hObject).toEqual(expectedHullObject);
   });
@@ -319,7 +320,7 @@ describe("AttributesMapper", () => {
 
     const mapper = new AttributesMapper(CONNECTOR_SETTINGS);
 
-    const hObject = await mapper.mapToHullAttributeObject("Account", sObject);
+    const hObject = mapper.mapToHullAttributeObject("Account", sObject);
 
     expect(hObject).toEqual(expectedHullObject);
   });
@@ -340,7 +341,7 @@ describe("AttributesMapper", () => {
     };
 
     const mapper = new AttributesMapper(CONNECTOR_SETTINGS);
-    const hObject = mapper.mapToHullIdentObject("Lead", sObject);
+    const hObject = mapper.mapToHullIdentityObject("Lead", sObject, CONNECTOR_SETTINGS.user_claims);
 
     expect(hObject).toEqual(expectedHullObject);
   });
@@ -360,7 +361,7 @@ describe("AttributesMapper", () => {
 
     const mapper = new AttributesMapper(CONNECTOR_SETTINGS);
 
-    const hObject = mapper.mapToHullIdentObject("Account", sObject);
+    const hObject = mapper.mapToHullIdentityObject("Account", sObject, CONNECTOR_SETTINGS.account_claims);
 
     expect(hObject).toEqual(expectedHullObject);
   });
