@@ -1,16 +1,11 @@
 /* @flow */
-import type { HullClientLogger, HullContext } from "hull";
+import type { HullClientLogger } from "hull";
 import type {
-  CustomApi,
-  RawRestApi
+  CustomApi
 } from "hull-connector-framework/src/purplefusion/types";
 
-const {
-  isUndefinedOrNull
-} = require("hull-connector-framework/src/purplefusion/utils");
 
 const MetricAgent = require("hull/src/infra/instrumentation/metric-agent");
-const { Client } = require("hull");
 
 const { SkippableError, ConfigurationError } = require("hull/src/errors");
 
@@ -76,34 +71,34 @@ class SalesforceSDK {
     return this.syncAgent.sendAccountMessages(messages);
   }
 
-  async getAllRecords({ type, fields }) {
+  async getAllRecords({ sfType, fields }) {
     return this.syncAgent.sf.getAllRecords(
-      type,
+      sfType,
       _.merge({}, this.syncAgent.privateSettings, { fields }),
-      record => this.saveRecord({ type, record })
+      record => this.saveRecord({ sfType, record })
     );
   }
 
-  async getUpdatedRecordIds({ type, fetchStart, fetchEnd }) {
-    return this.syncAgent.sf.getUpdatedRecordIds(type, {
+  async getUpdatedRecordIds({ sfType, fetchStart, fetchEnd }) {
+    return this.syncAgent.sf.getUpdatedRecordIds(sfType, {
       start: fetchStart,
       end: fetchEnd
     });
   }
 
-  async getDeletedRecords({ type, fetchStart, fetchEnd }) {
-    return this.syncAgent.sf.getDeletedRecords(type, {
+  async getDeletedRecords({ sfType, fetchStart, fetchEnd }) {
+    return this.syncAgent.sf.getDeletedRecords(sfType, {
       start: fetchStart,
       end: fetchEnd
     });
   }
 
-  async saveRecords({ type, ids, fields, executeQuery = "query" }) {
+  async saveRecords({ sfType, ids, fields, executeQuery = "query" }) {
     return this.syncAgent.sf.getRecords(
-      type,
+      sfType,
       ids,
       _.merge({}, this.syncAgent.privateSettings, { fields, executeQuery }),
-      record => this.saveRecord({ sfType: type, record })
+      record => this.saveRecord({ sfType, record })
     );
   }
 
