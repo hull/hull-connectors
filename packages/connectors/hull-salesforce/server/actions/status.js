@@ -16,9 +16,7 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
     lead_attributes_outbound,
     lead_attributes_inbound,
     contact_attributes_inbound,
-    contact_attributes_outbound,
-    account_attributes_outbound,
-    account_attributes_inbound
+    contact_attributes_outbound
   } = private_settings;
 
   const messages = [];

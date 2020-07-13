@@ -18,9 +18,17 @@ const Connection = require("./connection");
  * @param {number} [skip=0] The number of records to skip.
  * @returns {Promise<any[]>} The list of records matching the query.
  */
-function find(conn: Connection, resource: TResourceType, query: any, fields: Object, limit: number = 10000, skip: number = 0): Promise<any[]> {
+function find(
+  conn: Connection,
+  resource: TResourceType,
+  query: any,
+  fields: Object,
+  limit: number = 10000,
+  skip: number = 0
+): Promise<any[]> {
   return new Promise((resolve, reject) => {
-    conn.sobject(resource)
+    conn
+      .sobject(resource)
       .find(query, fields)
       // To make sure we are working always on the array with the same order
       // we request the API to get oldest record as first on the array
