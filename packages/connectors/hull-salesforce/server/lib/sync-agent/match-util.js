@@ -183,7 +183,7 @@ class MatchUtil {
     return filteredEntities;
   }
 
-  matchHullMessageToSalesforceEntity(
+  matchHullMessageToSalesforceRecord(
     resource: TResourceType,
     user: THullObject,
     sfObjects: Array<Object>

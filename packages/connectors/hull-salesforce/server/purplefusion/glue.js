@@ -49,8 +49,8 @@ const glue = {
     salesforceSyncAgent("accountUpdate", { messages: input() })
   ],
   getFetchWindow: [
-    set("fetchStart", ex(ex(moment(), "subtract", { minutes: 6 }), "valueOf")),
-    set("fetchEnd", ex(moment(), "valueOf")),
+    set("fetchStart", new Date(new Date().getTime() - 360 * 1000)),
+    set("fetchEnd", new Date()),
   ],
   getFetchFields: [
     set("defaultFetchFields", ld("map", ld("get", defaultFields, "${fetchType}"), "service")),
@@ -65,8 +65,8 @@ const glue = {
   fetchRecent: [
     route("getFetchWindow"),
     route("getFetchFields"),
-    set("salesforceIds", salesforceSyncAgent("getUpdatedRecordIds", { type: "${fetchType}", fetchStart: "${fetchStart}", fetchEnd: "${fetchEnd}" })),
-    salesforceSyncAgent("saveRecords", { type: "${fetchType}", ids: "${salesforceIds}", fields: "${fetchFields}" })
+    set("salesforceIds", salesforceSyncAgent("getUpdatedRecordIds", { sfType: "${fetchType}", fetchStart: "${fetchStart}", fetchEnd: "${fetchEnd}" })),
+    salesforceSyncAgent("saveRecords", { sfType: "${fetchType}", ids: "${salesforceIds}", fields: "${fetchFields}" })
   ],
   fetchRecentContacts: [
     set("fetchType", "Contact"),
@@ -89,7 +89,7 @@ const glue = {
 
   fetchRecentDeleted: [
     route("getFetchWindow"),
-    set("deletedRecords", salesforceSyncAgent("getDeletedRecords", { type: "${fetchType}", fetchStart: "${fetchStart}", fetchEnd: "${fetchEnd}" }))
+    set("deletedRecords", salesforceSyncAgent("getDeletedRecords", { sfType: "${fetchType}", fetchStart: "${fetchStart}", fetchEnd: "${fetchEnd}" }))
   ],
   fetchRecentDeletedContacts: [
     set("fetchType", "Contact"),
@@ -116,7 +116,7 @@ const glue = {
     set("fetchType", "Task"),
     route("fetchRecentDeleted"),
     route("getFetchFields"),
-    salesforceSyncAgent("saveRecords", { type: "${fetchType}", ids: ld("map", "${deletedRecords}", "id"), fields: "${fetchFields}", executeQuery: "queryAll" })
+    salesforceSyncAgent("saveRecords", { sfType: "${fetchType}", ids: ld("map", "${deletedRecords}", "id"), fields: "${fetchFields}", executeQuery: "queryAll" })
   ],
 
   fetchAll: [
@@ -125,7 +125,7 @@ const glue = {
     set("settingsFetchFields", ld("compact", ld("map", settings("${attributeMappingKey}"), "service"))),
 
     set("fetchFields", ld("uniq", ld("concat", "${defaultFetchFields}", "${settingsFetchFields}"))),
-    salesforceSyncAgent("getAllRecords", { type: "${fetchType}", fields: "${fetchFields}" })
+    salesforceSyncAgent("getAllRecords", { sfType: "${fetchType}", fields: "${fetchFields}" })
   ],
   fetchAllContacts: [
     set("fetchType", "Contact"),
