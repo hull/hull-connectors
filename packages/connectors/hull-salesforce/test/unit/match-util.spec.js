@@ -793,7 +793,7 @@ describe("Match Users Tests", () => {
   it("should throw an error if unsupported resource type is passed", () => {
     const user = {};
     const sfObjects = [];
-    expect(() => { matchUtil.matchHullMessageToSalesforceEntity("Opportunity", user, sfObjects); }).toThrowError("Unsupported resource type. Only Contact and Lead can be matched to an user.");
+    expect(() => { matchUtil.matchHullMessageToSalesforceRecord("Opportunity", user, sfObjects); }).toThrowError("Unsupported resource type. Only Contact and Lead can be matched to an user.");
   });
 
   it("should not match with a salesforce contact", () => {
@@ -814,7 +814,7 @@ describe("Match Users Tests", () => {
       }
     ];
 
-    const matches = matchUtil.matchHullMessageToSalesforceEntity("Contact", user, sfContacts);
+    const matches = matchUtil.matchHullMessageToSalesforceRecord("Contact", user, sfContacts);
 
     expect(matches).toEqual([]);
   });
@@ -837,7 +837,7 @@ describe("Match Users Tests", () => {
       }
     ];
 
-    const matches = matchUtil.matchHullMessageToSalesforceEntity("Contact", user, sfContacts);
+    const matches = matchUtil.matchHullMessageToSalesforceRecord("Contact", user, sfContacts);
 
     expect(matches).toEqual([{
       Id: "0011GA0000BQjT1QHA",
@@ -867,7 +867,7 @@ describe("Match Users Tests", () => {
       }
     ];
 
-    const matches = matchUtil.matchHullMessageToSalesforceEntity("Contact", user, sfContacts);
+    const matches = matchUtil.matchHullMessageToSalesforceRecord("Contact", user, sfContacts);
 
     expect(matches).toEqual([{
       Id: "0034600010mr05UAAQ",

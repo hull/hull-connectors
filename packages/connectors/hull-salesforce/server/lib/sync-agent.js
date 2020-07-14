@@ -600,7 +600,7 @@ class SyncAgent {
         }
 
         if (!_.isEmpty(sfContacts)) {
-          matches.contact = this.matchUtil.matchHullMessageToSalesforceEntity(
+          matches.contact = this.matchUtil.matchHullMessageToSalesforceRecord(
             "Contact",
             user,
             sfContacts
@@ -608,7 +608,7 @@ class SyncAgent {
         }
 
         if (!_.isEmpty(sfLeads)) {
-          matches.lead = this.matchUtil.matchHullMessageToSalesforceEntity(
+          matches.lead = this.matchUtil.matchHullMessageToSalesforceRecord(
             "Lead",
             user,
             sfLeads
