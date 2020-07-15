@@ -80,9 +80,12 @@ class Connection extends jsforce.Connection {
     }
 
     const url = _.get(request, "url", "");
-    const truncatedUrl = (url.length > 500)
-      ? `${_.truncate(url, { length: 500, omission: "[...]" })}${url.slice(-3)}`
-      : url;
+    const truncatedUrl =
+      url.length > 500
+        ? `${_.truncate(url, { length: 500, omission: "[...]" })}${url.slice(
+            -3
+          )}`
+        : url;
     if (this._hullLogger) {
       this._hullLogger.debug("ship.service_api.request", {
         method: request.method,
@@ -91,16 +94,25 @@ class Connection extends jsforce.Connection {
       });
     }
 
-    ret.then(() => {
-      if (this.limitInfo && this.limitInfo.apiUsage && this._metrics) {
-        this._metrics.value("ship.service_api.limit", this.limitInfo.apiUsage.limit);
-        this._metrics.value("ship.service_api.remaining", (this.limitInfo.apiUsage.limit - this.limitInfo.apiUsage.used));
+    ret.then(
+      () => {
+        if (this.limitInfo && this.limitInfo.apiUsage && this._metrics) {
+          this._metrics.value(
+            "ship.service_api.limit",
+            this.limitInfo.apiUsage.limit
+          );
+          this._metrics.value(
+            "ship.service_api.remaining",
+            this.limitInfo.apiUsage.limit - this.limitInfo.apiUsage.used
+          );
+        }
+      },
+      () => {
+        if (this._metrics) {
+          this._metrics.increment("ship.service_api.errors", 1);
+        }
       }
-    }, () => {
-      if (this._metrics) {
-        this._metrics.increment("ship.service_api.errors", 1);
-      }
-    });
+    );
     return ret;
   }
 }

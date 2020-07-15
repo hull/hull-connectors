@@ -7,6 +7,8 @@ process.env.CLIENT_SECRET = "123";
 
 const private_settings = {
   instance_url: "https://na98.salesforce.com",
+  access_token: "1",
+  refresh_token: "1",
   fetch_resource_schema: false,
   fetch_accounts: false,
   ignore_users_withoutemail: false,
@@ -209,6 +211,7 @@ describe("Skip Account Tests", () => {
         ],
         response: { "flow_control": { "type": "next", } },
         logs: [
+          ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
             "ship.service_api.request",
             {
@@ -243,7 +246,8 @@ describe("Skip Account Tests", () => {
             {
               "reason": "Missing required unique identifier in Hull."
             }
-          ]
+          ],
+          ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }]
         ],
         firehoseEvents: [],
         metrics:[
@@ -415,6 +419,7 @@ describe("Skip Account Tests", () => {
         ],
         response: { "flow_control": { "type": "next", } },
         logs: [
+          ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
             "ship.service_api.request",
             {
@@ -449,7 +454,8 @@ describe("Skip Account Tests", () => {
             {
               "reason": "The domain is too short to perform find on SFDC API, we tried exact match but didn't find any record"
             }
-          ]
+          ],
+          ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }]
         ],
         firehoseEvents: [],
         metrics:[

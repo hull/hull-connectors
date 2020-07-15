@@ -1,10 +1,17 @@
 /* @flow */
-import type { TResourceType, IUserUpdateEnvelope, IAccountUpdateEnvelope, IApiResultObject } from "../types";
+import type {
+  THullAccountUpdateMessage,
+  THullUserUpdateMessage,
+  THullObject
+} from "hull";
+import type { TResourceType } from "../types";
 
 const _ = require("lodash");
 const UriJs = require("urijs");
 
-const regex = new RegExp("^((https?|ftp)://|(www|ftp)\.)[a-z0-9-]+(\.[a-z0-9-]+)+([/?].*)?$"); // eslint-disable-line no-useless-escape
+const regex = new RegExp(
+  "^((https?|ftp)://|(www|ftp).)[a-z0-9-]+(.[a-z0-9-]+)+([/?].*)?$"
+); // eslint-disable-line no-useless-escape
 
 class MatchUtil {
   /**
@@ -19,7 +26,11 @@ class MatchUtil {
     if (_.isNil(website)) {
       return domainMatch;
     }
-    const matchingWebsite = _.first(website.match(/^((https?|ftps?):\/\/)?[a-z0-9-]+(\.[a-z0-9-]+)+([/?].*)?$/g));
+    const matchingWebsite = _.first(
+      website.match(
+        /^((https?|ftps?):\/\/)?[a-z0-9-]+(\.[a-z0-9-]+)+([/?].*)?$/g
+      )
+    );
     if (_.isNil(matchingWebsite)) {
       return domainMatch;
     }
@@ -63,78 +74,87 @@ class MatchUtil {
     return domainMatch;
   }
 
-  matchAccounts(envelope: IUserUpdateEnvelope | IAccountUpdateEnvelope, sfAccounts: Array<Object>, accountClaims: Array<Object>, entity: string): Array<Object> {
-    let foundSFAccounts: Array<Object> = [];
+  getIdentityClaimMatches({
+    entities, // messages or sf objects
+    identityClaims,
+    searchEntity, // message or sf object
+    searchType // hull (match hull to sf objects) or salesforce (match sf object to messages)
+  }: {
+    entities: Array<Object>,
+    identityClaims: Array<Object>,
+    searchEntity: Object,
+    searchType: string
+  }): Object {
+    const identityClaimMatches = {};
+    _.forEach(identityClaims, identityClaim => {
+      const { hull, service } = identityClaim;
+      identityClaimMatches[hull] = [];
 
-    const message = _.get(envelope, "message", null);
-    const account = message.account;
+      const { searchByKey, searchForKey, searchFor, searchForType } =
+        searchType === "hull"
+          ? {
+              searchByKey: hull,
+              searchForKey: service,
+              searchFor: searchEntity,
+              searchForType: "hull"
+            }
+          : {
+              searchByKey: service,
+              searchForKey: hull,
+              searchFor: searchEntity.record,
+              searchForType: searchEntity.resource
+            };
 
-    if (!_.isNil(account) && _.has(account, "id")) {
-      const findBy = {};
-      let sfAccount;
+      let searchField = _.get(searchFor, searchByKey, "n/a");
 
-      // First attempt to match by Id if present
-      if (_.get(account, "salesforce/id", "n/a") !== "n/a") {
-        _.set(findBy, "Id", _.get(account, "salesforce/id"));
-        sfAccount = _.find(sfAccounts, findBy);
-      }
-
-      // TODO: confirm
-      if (_.isNil(sfAccount)) {
-        if (_.get(envelope, "message.user.salesforce_contact/account_id", "n/a") !== "n/a") {
-          _.set(findBy, "Id", _.get(envelope, "message.user.salesforce_contact/account_id"));
-          sfAccount = _.find(sfAccounts, findBy);
+      const matches = _.filter(entities, entity => {
+        let checkEntity = entity;
+        if (searchForType === "Account") {
+          checkEntity = entity.account;
         }
-      }
 
-      if (!_.isNil(sfAccount)) {
-        const sfAccountId = _.get(sfAccount, "Id", "");
-        if (entity === "user" && _.get(envelope, "message.user.salesforce_contact/account_id", "n/a") === "n/a") {
-          _.set(envelope, "message.user.salesforce_contact/account_id", sfAccountId);
+        if (searchForType === "Contact" || searchForType === "Lead") {
+          checkEntity = entity.user;
         }
 
-        _.set(account, "salesforce/id", sfAccountId);
-        _.set(envelope, "currentSfAccount", sfAccount);
+        let matchField = _.get(checkEntity, `${searchForKey}`, "n/a");
 
-        // eslint-disable-next-line flowtype-errors/show-errors
-        foundSFAccounts.push(sfAccount);
-        _.set(envelope, "allSfAccountMatches", foundSFAccounts);
-        return foundSFAccounts;
-      }
-
-      // Try to find a match by the configured identifier
-      const identityClaims = this.getMatchingAccountIdentityClaims(sfAccounts, accountClaims, account);
-      foundSFAccounts = this.resolveSalesForceAccountIdentityClaims(accountClaims, identityClaims);
-      _.set(envelope, "allSfAccountMatches", foundSFAccounts);
-
-      if (foundSFAccounts.length === 1) {
-        sfAccount = foundSFAccounts[0];
-        if (entity === "user" && _.get(envelope, "message.user.salesforce_contact/account_id", "n/a") === "n/a") {
-          _.set(envelope, "message.user.salesforce_contact/account_id", sfAccount.Id);
+        if (!_.isNil(searchField) && searchByKey === "domain") {
+          searchField = this.extractMatchingDomain(searchField);
+          matchField = this.extractMatchingDomain(matchField);
         }
-        _.set(account, "salesforce/id", sfAccount.Id);
-        _.set(envelope, "currentSfAccount", sfAccount);
-      } else if (foundSFAccounts.length === 0) {
-        _.unset(account, "salesforce/id");
-        _.unset(envelope.message.user, "salesforce_contact/account_id");
-      } else if (foundSFAccounts.length > 1) {
-        _.unset(account, "salesforce/id");
-        _.unset(envelope.message.user, "salesforce_contact/account_id");
-      }
-    }
 
-    return foundSFAccounts;
+        return !_.isNil(searchField) && searchField === matchField;
+      });
+      const existingMatches = _.get(identityClaimMatches, searchByKey, []);
+      _.set(identityClaimMatches, hull, [...existingMatches, ...matches]);
+    });
+
+    return identityClaimMatches;
   }
 
-  resolveSalesForceAccountIdentityClaims(accountClaims: Array<Object>, identityClaims: Object): Array<Object> {
-    let filteredAccounts = [];
-    for (let i = 0; i < accountClaims.length; i += 1) {
-      const accountClaim = accountClaims[i];
+  filterIdentityClaimMatches({
+    identityClaims,
+    identityClaimMatches,
+    intersectBy
+  }: {
+    identityClaims: Array<Object>,
+    identityClaimMatches: Object,
+    intersectBy: Object
+  }): Array<Object> {
+    const { path, resolve } = intersectBy;
 
-      const sfAccounts = _.get(identityClaims, accountClaim.hull);
+    let filteredEntities = [];
+    for (let i = 0; i < identityClaims.length; i += 1) {
+      const { hull } = identityClaims[i];
+
+      // TODO add better support to dynamically resolve key
+      const intersectByKey = resolve ? identityClaims[i][path] : path;
+
+      const sfEntities = _.get(identityClaimMatches, hull);
 
       // no account claims found
-      if (sfAccounts.length === 0) {
+      if (sfEntities.length === 0) {
         // eslint-disable-next-line no-continue
         continue;
       }
@@ -145,130 +165,94 @@ class MatchUtil {
       // if nothing matches on the intersection, leave the matches as is
       // this way we match highest priority identifiers first
       // and ensure we return something if any individual field matches (because we don't want to return empty array)
-      if (filteredAccounts.length === 0) {
-        filteredAccounts = _.cloneDeep(sfAccounts);
+      if (filteredEntities.length === 0) {
+        filteredEntities = sfEntities;
       } else {
-        const intersection = _.intersectionBy(filteredAccounts, sfAccounts, accountClaim.service);
+        const intersection = _.intersectionBy(
+          filteredEntities,
+          sfEntities,
+          intersectByKey
+        );
 
         if (intersection.length > 0) {
-          filteredAccounts = _.cloneDeep(intersection);
+          filteredEntities = intersection;
         }
       }
     }
 
-    return filteredAccounts;
+    return filteredEntities;
   }
 
-  // given hull account, find a matching salesforce account
-  getMatchingAccountIdentityClaims(sfAccounts: Array<Object>, accountClaims: Array<Object>, account: Object): Object {
-    // map of { hullField -> list of matching sfAccount }
-    const identityClaims = {};
-    _.forEach(accountClaims, (accountClaim) => {
-      _.set(identityClaims, accountClaim.hull, []);
-
-      let hullField = _.get(account, `${accountClaim.hull}`, null);
-
-      const sfAccountMatches = _.filter(sfAccounts, (sfAccount) => {
-        let serviceField = _.get(sfAccount, `${accountClaim.service}`, "n/a");
-
-        if (!_.isNil(hullField) && accountClaim.hull === "domain") {
-          hullField = this.extractMatchingDomain(hullField);
-          serviceField = this.extractMatchingDomain(serviceField);
-        }
-
-        return !_.isNil(hullField) && hullField === serviceField;
-      });
-
-      _.set(identityClaims, accountClaim.hull, _.concat(_.get(identityClaims, accountClaim.hull), sfAccountMatches));
-    });
-
-    return identityClaims;
-  }
-
-  getMatchingEnvelopes(envelopes: Array<IAccountUpdateEnvelope>, entityClaims: Array<Object>, sfRecord: IApiResultObject, hullEntityType: string) {
-    const resourceType = sfRecord.resource;
-    const sfObject = sfRecord.record;
-    const identityClaims = {};
-    _.forEach(entityClaims, (claim) => {
-      _.set(identityClaims, claim.hull, []);
-
-      const matchingEnvelopes = _.filter(envelopes, (envelope) => {
-        const message = _.get(envelope, "message", null);
-
-        let hullEntity = {};
-        if (resourceType === "Account") {
-          hullEntity = message.account;
-        }
-
-        if (resourceType === "Contact" || resourceType === "Lead") {
-          hullEntity = _.get(message, hullEntityType);
-        }
-
-        let hullField = _.get(hullEntity, `${claim.hull}`, null);
-        let serviceField = _.get(sfObject, `${claim.service}`, "n/a");
-
-        if (!_.isNil(hullField) && claim.hull === "domain") {
-          hullField = this.extractMatchingDomain(hullField);
-          serviceField = this.extractMatchingDomain(serviceField);
-        }
-
-        return !_.isNil(hullField) && hullField === serviceField;
-      });
-
-      _.set(identityClaims, claim.hull, _.concat(_.get(identityClaims, claim.hull), matchingEnvelopes));
-    });
-
-    return identityClaims;
-  }
-
-  resolveSalesForceEnvelopeIdentityClaims(entityClaims: Array<Object>, identityClaims: Object): Array<Object> {
-    let filteredEnvelopes = [];
-    for (let i = 0; i < entityClaims.length; i += 1) {
-      const accountClaim = entityClaims[i];
-
-      const sfEnvelopes = _.get(identityClaims, accountClaim.hull);
-
-      // no envelopes found
-      if (sfEnvelopes.length === 0) {
-        // eslint-disable-next-line no-continue
-        continue;
-      }
-
-      if (filteredEnvelopes.length === 0) {
-        filteredEnvelopes = sfEnvelopes;
-      } else {
-        const intersection = _.intersectionBy(filteredEnvelopes, sfEnvelopes, "message.message_id");
-        if (intersection.length > 0) {
-          filteredEnvelopes = intersection;
-        }
-      }
-    }
-
-    return filteredEnvelopes;
-  }
-
-  matchUsers(resource: TResourceType, envelope: IUserUpdateEnvelope, sfObjects: Array<Object>): void {
+  matchHullMessageToSalesforceRecord(
+    resource: TResourceType,
+    user: THullObject,
+    sfObjects: Array<Object>
+  ): any {
     if (resource !== "Contact" && resource !== "Lead") {
-      throw new Error("Unsupported resource type. Only Contact and Lead can be matched to an user.");
+      throw new Error(
+        "Unsupported resource type. Only Contact and Lead can be matched to an user."
+      );
     }
     let sfObject;
-    // First attempt to match by Id
-    if (_.get(envelope, `message.user.salesforce_${_.toLower(resource)}/id`, "n/a") !== "n/a") {
-      sfObject = _.find(sfObjects, { Id: _.get(envelope, `message.user.salesforce_${_.toLower(resource)}/id`) });
+    if (_.get(user, `salesforce_${_.toLower(resource)}/id`, "n/a") !== "n/a") {
+      sfObject = _.find(sfObjects, {
+        Id: _.get(user, `salesforce_${_.toLower(resource)}/id`)
+      });
     }
-    // Try to find a match by email
     if (!sfObject) {
-      sfObject = _.find(sfObjects, { Email: _.get(envelope, "message.user.email", "n/a") });
+      sfObject = _.find(sfObjects, { Email: _.get(user, "email", "n/a") });
     }
-    // Handle result
-    if (sfObject) {
-      _.set(envelope, `message.user.salesforce_${_.toLower(resource)}/id`, sfObject.Id);
-      _.set(envelope, `currentSf${resource}`, sfObject);
-    } else {
-      _.unset(envelope, `message.user.salesforce_${_.toLower(resource)}/id`);
+
+    return sfObject ? [sfObject] : [];
+  }
+
+  matchHullMessageToSalesforceAccount(
+    message: THullUserUpdateMessage | THullAccountUpdateMessage,
+    sfAccounts: Array<Object>,
+    accountClaims: Array<Object>
+  ): Object {
+    const foundSFAccounts = {
+      primary: [],
+      secondary: []
+    };
+
+    const { user, account } = message;
+
+    if (!_.isNil(account) && _.has(account, "id")) {
+      const findBy = {};
+      let sfAccount;
+
+      if (_.get(account, "salesforce/id", null)) {
+        _.set(findBy, "Id", _.get(account, "salesforce/id"));
+        sfAccount = _.find(sfAccounts, findBy);
+      }
+      if (_.isNil(sfAccount)) {
+        if (_.get(user, "salesforce_contact/account_id", null)) {
+          _.set(findBy, "Id", _.get(user, "salesforce_contact/account_id"));
+          sfAccount = _.find(sfAccounts, findBy);
+        }
+      }
+
+      if (!_.isNil(sfAccount)) {
+        foundSFAccounts.primary = [sfAccount];
+        return foundSFAccounts;
+      }
+
+      const identityClaimMatches = this.getIdentityClaimMatches({
+        entities: sfAccounts,
+        identityClaims: accountClaims,
+        searchEntity: account,
+        searchType: "hull"
+      });
+      foundSFAccounts.secondary = this.filterIdentityClaimMatches({
+        identityClaims: accountClaims,
+        identityClaimMatches,
+        intersectBy: { path: "service", resolve: true }
+      });
     }
+
+    return foundSFAccounts;
   }
 }
-
 
 module.exports = MatchUtil;

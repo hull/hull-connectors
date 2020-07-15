@@ -9,6 +9,8 @@ process.env.CLIENT_SECRET = "123";
 
 const private_settings = {
   instance_url: "https://na98.salesforce.com",
+  access_token: "1",
+  refresh_token: "1",
   fetch_resource_schema: false,
   fetch_accounts: false,
   ignore_users_withoutemail: false,
@@ -182,11 +184,30 @@ describe("Insert Tasks Tests", () => {
           const respBodyC1 = createSoapEnvelope("createResponse", { result: [{ id: "aOuvlns903760", success: "true" }, { id: "asdfasdf", success: "true" }] });
           nock("https://na98.salesforce.com")
             .post("/services/Soap/u/39.0", (body) => {
-              return body.indexOf("<create><sObjects><type>Task</type><WhoId>contact_id_1</WhoId><Subject>Hubspot-Event-3</Subject><Description>837382</Description><ActivityDate>2019-07-18T20:19:33.000Z</ActivityDate><Type>Email</Type><ExternalEventId__c>hubspot_email_3</ExternalEventId__c></sObjects><sObjects><type>Task</type><WhoId>contact_id_1</WhoId><Subject>Hubspot-Event-4</Subject><Description>837382</Description><ActivityDate>2019-07-18T20:19:33.000Z</ActivityDate><Type>Email</Type><ExternalEventId__c>hubspot_email_4</ExternalEventId__c></sObjects></create>") !== -1;
+              return body.indexOf("" +
+                "<create>" +
+                  "<sObjects>" +
+                    "<type>Task</type>" +
+                    "<WhoId>contact_id_1</WhoId>" +
+                    "<Subject>Hubspot-Event-3</Subject>" +
+                    "<Description>837382</Description>" +
+                    "<ActivityDate>2019-07-18T20:19:33.000Z</ActivityDate>" +
+                    "<Type>Email</Type>" +
+                    "<ExternalEventId__c>hubspot_email_3</ExternalEventId__c>" +
+                  "</sObjects>" +
+                  "<sObjects>" +
+                    "<type>Task</type>" +
+                    "<WhoId>contact_id_1</WhoId>" +
+                    "<Subject>Hubspot-Event-4</Subject>" +
+                    "<Description>837382</Description>" +
+                    "<ActivityDate>2019-07-18T20:19:33.000Z</ActivityDate>" +
+                    "<Type>Email</Type>" +
+                    "<ExternalEventId__c>hubspot_email_4</ExternalEventId__c>" +
+                  "</sObjects>" +
+                "</create>")
+                !== -1;
             })
             .reply(200, respBodyC1, { "Content-Type": "text/xml", "sforce-limit-info": "api-usage=500/50000" });
-
-
           return scope;
         },
         connector,
@@ -271,6 +292,7 @@ describe("Insert Tasks Tests", () => {
         response: { "flow_control": { "type": "next", } },
         // expect.arrayContaining([])
         logs: [
+          ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
             "ship.service_api.request",
             {
@@ -425,7 +447,8 @@ describe("Insert Tasks Tests", () => {
                 }
               ]
             }
-          ]
+          ],
+          ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }]
         ],
         firehoseEvents: [
           [
@@ -491,7 +514,7 @@ describe("Insert Tasks Tests", () => {
     });
   });
 
-  it("should insert new tasks", () => {
+  it("should insert new tasks on existing contact", () => {
     const connector = {
       private_settings: {
         ...private_settings,
@@ -827,6 +850,7 @@ describe("Insert Tasks Tests", () => {
         response: { "flow_control": { "type": "next", } },
         // expect.arrayContaining([]),
         logs: [
+          ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
             "ship.service_api.request",
             {
@@ -1006,7 +1030,8 @@ describe("Insert Tasks Tests", () => {
                 }
               ]
             }
-          ]
+          ],
+          ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }]
         ],
         firehoseEvents: [],
         metrics: [

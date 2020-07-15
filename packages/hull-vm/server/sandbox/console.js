@@ -1,4 +1,5 @@
 // @noflow
+
 import type { Result } from "../../types";
 
 export default function buildConsole(

@@ -25,20 +25,26 @@ export type TAssignmentRule = {
  * @param {TResourceTypeAssignmentRule} type The object type to retrieve assignment rules for.
  * @returns {Promise<AssignmentRule[]>} A Promise that wraps an array of assignment rules.
  */
-function getAssignmentRules(conn: Connection, type: TResourceTypeAssignmentRule): Promise<Array<TAssignmentRule>> {
+function getAssignmentRules(
+  conn: Connection,
+  type: TResourceTypeAssignmentRule
+): Promise<Array<TAssignmentRule>> {
   return new Promise((resolve, reject) => {
-    conn.query(`SELECT Id, Name FROM AssignmentRule WHERE SobjectType = '${type}'`, (err, result) => {
-      if (err) {
-        return reject(err);
+    conn.query(
+      `SELECT Id, Name FROM AssignmentRule WHERE SobjectType = '${type}'`,
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        }
+        const res: Array<TAssignmentRule> = _.map(result.records, r => {
+          return {
+            id: _.get(r, "Id"),
+            name: _.get(r, "Name")
+          };
+        });
+        return resolve(res);
       }
-      const res: Array<TAssignmentRule> = _.map(result.records, (r) => {
-        return {
-          id: _.get(r, "Id"),
-          name: _.get(r, "Name")
-        };
-      });
-      return resolve(res);
-    });
+    );
   });
 }
 

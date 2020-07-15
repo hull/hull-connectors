@@ -9,6 +9,8 @@ process.env.CLIENT_SECRET = "123";
 
 const private_settings = {
   instance_url: "https://na98.salesforce.com",
+  access_token: "1",
+  refresh_token: "1",
   fetch_resource_schema: false,
   fetch_accounts: false,
   ignore_users_withoutemail: false,
@@ -202,6 +204,7 @@ describe("Insert Leads Tests", () => {
         ],
         response: { "flow_control": { "type": "next", } },
         logs: [
+          ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
             "ship.service_api.request",
             {
@@ -270,7 +273,8 @@ describe("Insert Leads Tests", () => {
               "operation": "insert",
               "resource": "Lead"
             }
-          ]
+          ],
+          ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }]
         ],
         firehoseEvents: [
           [
@@ -543,6 +547,7 @@ describe("Insert Leads Tests", () => {
         ],
         response: { "flow_control": { "type": "next", } },
         logs: [
+          ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
             "ship.service_api.request",
             {
@@ -611,7 +616,8 @@ describe("Insert Leads Tests", () => {
               "operation": "insert",
               "resource": "Lead"
             }
-          ]
+          ],
+          ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }]
         ],
         firehoseEvents: [
           [
@@ -841,6 +847,7 @@ describe("Insert Leads Tests", () => {
         ],
         response: { "flow_control": { "type": "next", } },
         logs: [
+          ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
             "ship.service_api.request",
             {
@@ -909,7 +916,8 @@ describe("Insert Leads Tests", () => {
               "operation": "insert",
               "resource": "Lead"
             }
-          ]
+          ],
+          ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }]
         ],
         firehoseEvents: [
           [
