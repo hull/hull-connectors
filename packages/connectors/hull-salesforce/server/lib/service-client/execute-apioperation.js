@@ -1,5 +1,11 @@
 /* @flow */
-import type { IApiResultObject, TApiMethod, TApiOperation, TResourceType, THullObject } from "../types";
+import type {
+  IApiResultObject,
+  TApiMethod,
+  TApiOperation,
+  TResourceType,
+  THullObject
+} from "../types";
 
 const Promise = require("bluebird");
 const _ = require("lodash");
@@ -8,12 +14,20 @@ const Connection = require("./connection");
 
 class ApiResultObject implements IApiResultObject {
   resource: TResourceType;
+
   record: THullObject;
+
   method: TApiMethod;
+
   success: boolean;
+
   error: ?string | string[] | null;
 
-  constructor(resource: TResourceType, record: THullObject, method: TApiMethod) {
+  constructor(
+    resource: TResourceType,
+    record: THullObject,
+    method: TApiMethod
+  ) {
     this.method = method;
     this.resource = resource;
     this.record = record;
@@ -29,7 +43,10 @@ class ApiResultObject implements IApiResultObject {
  * @param {(any|any[])} response The response from the Salesforce API.
  * @returns {IApiResultObject[]} A list of result objects.
  */
-function handleResponse(operation: TApiOperation, response: Object | Array<Object>): IApiResultObject[] {
+function handleResponse(
+  operation: TApiOperation,
+  response: Object | Array<Object>
+): IApiResultObject[] {
   const result = [];
   if (_.isArray(response)) {
     // $FlowFixMe
@@ -40,7 +57,11 @@ function handleResponse(operation: TApiOperation, response: Object | Array<Objec
         _.set(hullObj, "Id", r.id);
       }
 
-      const resObj: IApiResultObject = new ApiResultObject(operation.resource, hullObj, operation.method);
+      const resObj: IApiResultObject = new ApiResultObject(
+        operation.resource,
+        hullObj,
+        operation.method
+      );
 
       if (r.success === false || r.success === "false") {
         resObj.error = r.errors;
@@ -56,9 +77,17 @@ function handleResponse(operation: TApiOperation, response: Object | Array<Objec
       _.set(hullObj, "Id", (response: any).id);
     }
 
-    const resObj: IApiResultObject = new ApiResultObject(operation.resource, hullObj, operation.method);
+    const resObj: IApiResultObject = new ApiResultObject(
+      operation.resource,
+      hullObj,
+      operation.method
+    );
 
-    if (response.success === false || response.success === "false" || (response && response.errors)) {
+    if (
+      response.success === false ||
+      response.success === "false" ||
+      (response && response.errors)
+    ) {
       resObj.error = (response: any).errors;
       resObj.success = false;
     }
@@ -77,17 +106,24 @@ function handleResponse(operation: TApiOperation, response: Object | Array<Objec
  * @param {TApiOperation} operation Information about the API operation to perform.
  * @returns {Promise<IApiResultObject[]>} Returns a list of results.
  */
-function executeApiOperationBulk(conn: Connection, operation: TApiOperation): Promise<IApiResultObject[]> {
+function executeApiOperationBulk(
+  conn: Connection,
+  operation: TApiOperation
+): Promise<IApiResultObject[]> {
   if (!_.has(operation, "records.length") || operation.records.length === 0) {
     return Promise.resolve([]);
   }
-  const options = { };
+  const options = {};
   // External ID field is not valid for insert operation, skip it:
   if (operation.method !== "insert") {
     _.set(options, "extIdField", operation.externalIDFieldName);
   }
   // Lead assignment rule header is only valid for leads and defaults to `none` which needs to be treated as not set:
-  if (operation.resource === "Lead" && !_.isNil(operation.leadAssignmentRule) && operation.leadAssignmentRule !== "none") {
+  if (
+    operation.resource === "Lead" &&
+    !_.isNil(operation.leadAssignmentRule) &&
+    operation.leadAssignmentRule !== "none"
+  ) {
     _.set(options, "assignmentRuleId", operation.leadAssignmentRule);
   }
   const obj = conn.sobject(operation.resource);
@@ -110,32 +146,50 @@ function executeApiOperationBulk(conn: Connection, operation: TApiOperation): Pr
  * @param {TApiOperation} operation Information about the API operation to perform.
  * @returns {Promise<IApiResultObject[]>} Returns a list of results.}
  */
-function executeApiOperationSoap(conn: Connection, operation: TApiOperation): Promise<IApiResultObject[]> {
+function executeApiOperationSoap(
+  conn: Connection,
+  operation: TApiOperation
+): Promise<IApiResultObject[]> {
   if (!_.has(operation, "records.length") || operation.records.length === 0) {
     return Promise.resolve([]);
   }
 
-  const sObjects = operation.records.map(record => Object.assign({}, { type: operation.resource }, record));
+  const sObjects = operation.records.map(record =>
+    Object.assign({}, { type: operation.resource }, record)
+  );
   // Note: Order of the payload properties is important, otherwise SOAP call will fail.
-  const payload = { };
+  const payload = {};
   if (operation.method === "upsert") {
     _.set(payload, "externalIDFieldName", operation.externalIDFieldName);
   }
   _.set(payload, "sObjects", sObjects);
   let customHeaders = null;
-  if (operation.resource === "Lead" && !_.isNil(operation.leadAssignmentRule) && operation.leadAssignmentRule !== "none") {
-    customHeaders = { AssignmentRuleHeader: { assignmentRuleId: operation.leadAssignmentRule } };
+  if (
+    operation.resource === "Lead" &&
+    !_.isNil(operation.leadAssignmentRule) &&
+    operation.leadAssignmentRule !== "none"
+  ) {
+    customHeaders = {
+      AssignmentRuleHeader: { assignmentRuleId: operation.leadAssignmentRule }
+    };
   }
 
-  const soapMethod = operation.method === "insert" ? "create" : operation.method;
+  const soapMethod =
+    operation.method === "insert" ? "create" : operation.method;
 
   return new Promise((resolve, reject) => {
-    conn.soap._invoke(soapMethod, payload, null, (err, res) => {
-      if (err) {
-        return reject(err);
-      }
-      return resolve(handleResponse(operation, res));
-    }, customHeaders);
+    conn.soap._invoke(
+      soapMethod,
+      payload,
+      null,
+      (err, res) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(handleResponse(operation, res));
+      },
+      customHeaders
+    );
   });
 }
 
@@ -147,7 +201,10 @@ function executeApiOperationSoap(conn: Connection, operation: TApiOperation): Pr
  * @param {TApiOperation} operation Information about the API operation to perform.
  * @returns {Promise<IApiResultObject[]>} Returns a list of results.
  */
-function executeApiOperation(conn: Connection, operation: TApiOperation): Promise<IApiResultObject[]> {
+function executeApiOperation(
+  conn: Connection,
+  operation: TApiOperation
+): Promise<IApiResultObject[]> {
   if (!_.has(operation, "records.length") || operation.records.length === 0) {
     return Promise.resolve([]);
   }

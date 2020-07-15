@@ -8,8 +8,8 @@ const FilterUtil = require("../../server/lib/sync-agent/filter-util");
 
 const smartNotifierPayload = require("../fixtures/smartnotifier_payloads/userupdate_noaccount.json");
 
-describe("FilterUtil", function testSuite() {
-  describe("filterAccounts", () => {
+describe("Filter Util Tests", function testSuite() {
+  describe("Filter Account Tests", () => {
     it("should insert an account with short domain name", () => {
       const privateSettings = {
         allow_short_domains: true,
@@ -30,10 +30,12 @@ describe("FilterUtil", function testSuite() {
 
       const message = EntityMessageFactory.build({}, { withAccount: true, account_segments: ["b"] });
       message.account.domain = "i.io";
+      _.unset(message, "user");
 
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterAccounts([{ message }], "account");
-      expect(results.toInsert[0]).toEqual({ message });
+      const envelopes = [{ message, matches: { account: [], contact: [], lead: [] } }];
+      const results = filterUtil.filterAccountEnvelopes(envelopes);
+      expect(results.toInsert[0]).toHaveProperty("message");
       expect(results.toSkip).toHaveLength(0);
       expect(results.toUpdate).toHaveLength(0);
     });
@@ -61,8 +63,9 @@ describe("FilterUtil", function testSuite() {
       message.account.domain = "i.io";
 
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterAccounts([{ message }], "user");
-      expect(results.toInsert[0]).toEqual({ message });
+      const envelopes = [{ message, matches: { account: [], contact: [], lead: [] } }];
+      const results = filterUtil.filterAccountEnvelopes(envelopes);
+      expect(results.toInsert[0]).toHaveProperty("message");
       expect(results.toSkip).toHaveLength(0);
       expect(results.toUpdate).toHaveLength(0);
     });
@@ -91,7 +94,8 @@ describe("FilterUtil", function testSuite() {
       message.account.external_id = "1";
 
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterAccounts([{ message }], "user");
+      const envelopes = [{ message, matches: { account: [], contact: [], lead: [] } }];
+      const results = filterUtil.filterAccountEnvelopes(envelopes);
       expect(results.toInsert).toHaveLength(0);
       expect(results.toSkip).toHaveLength(1);
       expect(results.toSkip[0].skipReason).toEqual("The domain is too short to perform find on SFDC API, we tried exact match but didn't find any record");
@@ -118,8 +122,9 @@ describe("FilterUtil", function testSuite() {
       };
       const message = EntityMessageFactory.build({}, { segments: ["a"], withAccount: true, account_segments: ["b"] });
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterAccounts([{ message }], "account");
-      expect(results.toInsert[0]).toEqual({ message });
+      const envelopes = [{ message, matches: { account: [], contact: [], lead: [] } }];
+      const results = filterUtil.filterAccountEnvelopes(envelopes);
+      expect(results.toInsert[0]).toHaveProperty("message");
       expect(results.toSkip).toHaveLength(0);
       expect(results.toUpdate).toHaveLength(0);
     });
@@ -143,8 +148,9 @@ describe("FilterUtil", function testSuite() {
       };
       const message = EntityMessageFactory.build({}, { segments: ["a"], withAccount: true });
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterAccounts([{ message }], "user");
-      expect(results.toInsert[0]).toEqual({ message });
+      const envelopes = [{ message, matches: { account: [], contact: [], lead: [] } }];
+      const results = filterUtil.filterAccountEnvelopes(envelopes);
+      expect(results.toInsert[0]).toHaveProperty("message");
       expect(results.toSkip).toHaveLength(0);
       expect(results.toUpdate).toHaveLength(0);
     });
@@ -170,10 +176,34 @@ describe("FilterUtil", function testSuite() {
       const message = EntityMessageFactory.build({
         account: { id: "123", "salesforce/id": "123", domain: "hull.io" }
       }, { segments: ["a"], withAccount: true, account_segments: ["b"] });
-      const currentSfAccount = { Id: "123", Name: "Hull Test Inc.", Website: "hull.io" };
+      _.unset(message, "user");
+
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterAccounts([{ message, currentSfAccount }], "account");
-      expect(results.toUpdate[0]).toEqual({ message, currentSfAccount });
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [{ Id: "123", Name: "Hull Test Inc.", Website: "hull.io" }],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+      const results = filterUtil.filterAccountEnvelopes(envelopes);
+      expect(results.toUpdate[0]).toEqual(
+        {
+          "message": {
+            "account": { "id": "123", "salesforce/id": "123", "domain": "hull.io" },
+            "segments": [{ "id": "a", "mame": "Name a" }],
+            "account_segments": [{ "id": "b", "mame": "Name b" }]
+          },
+          "matches": {
+            "account": [{ "Id": "123", "Name": "Hull Test Inc.", "Website": "hull.io" }],
+            "contact": [],
+            "lead": []
+          }
+        }
+      );
       expect(results.toSkip).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -199,19 +229,30 @@ describe("FilterUtil", function testSuite() {
       const message = EntityMessageFactory.build({
         account: { id: "123", "salesforce/id": "123", domain: "hull.io" }
       }, { segments: ["a"], withAccount: true, account_segments: ["b"] });
-      const currentSfAccount = { Id: "123", Name: "Hull Test Inc.", Website: "hull.io" };
+      _.unset(message, "user");
 
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterAccounts([{ message, currentSfAccount }], "account");
-      expect(results.toSkip[0]).toEqual({ message, currentSfAccount, skipReason: "Missing required unique identifier in Hull." });
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [{ Id: "123", Name: "Hull Test Inc.", Website: "hull.io" }],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+      const results = filterUtil.filterAccountEnvelopes(envelopes);
+      expect(results.toSkip[0].skipReason).toEqual( "Missing required unique identifier in Hull.");
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
 
-    // TODO -> not possible scenario since we query with these claims as required fields
-    it("should skip an account that has two required account claims but the second does not match", () => {
-      /* const privateSettings = {
+    // TODO need to revisit these cases:
+    /*it("should update an account that has salesforce id and two required account claims but the second does not match", () => {
+      const privateSettings = {
         contact_synchronized_segments: ["a"],
+        account_synchronized_segments: ["b"],
         lead_synchronized_segments: [],
         account_claims: [
           {
@@ -228,16 +269,65 @@ describe("FilterUtil", function testSuite() {
       };
       const message = EntityMessageFactory.build({
         account: { id: "123", "salesforce/id": "123", domain: "hull.io", external_id: "sfId-1" }
-      }, { segments: ["a"], withAccount: true });
-      const currentSfAccount = { Id: "123", Name: "Hull Test Inc.", Website: "hull.io", CustomIdentifierField__c: "adsf" };
+      }, { segments: ["a"], withAccount: true, account_segments: ["b"] });
+      _.unset(message, "user");
 
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterAccounts([{ message, currentSfAccount }], "account");
-      expect(results.toSkip[0]).toEqual({ message, currentSfAccount, skipReason: "Missing required unique identifier in Hull." });
-      expect(results.toUpdate).toHaveLength(0);
-      expect(results.toInsert).toHaveLength(0); */
-      expect(true).toEqual(true);
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [{ Id: "123", Name: "Hull Test Inc.", Website: "hull.io", CustomIdentifierField__c: "adsf" }],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+      const results = filterUtil.filterAccountEnvelopes(envelopes);
+      expect(results.toUpdate).toHaveLength(1);
+      expect(results.toSkip).toHaveLength(0);
+      expect(results.toInsert).toHaveLength(0);
     });
+
+    it("should insert an account that has two required account claims but the second does not match existing salesforce account", () => {
+      const privateSettings = {
+        contact_synchronized_segments: ["a"],
+        account_synchronized_segments: ["b"],
+        lead_synchronized_segments: [],
+        account_claims: [
+          {
+            hull: "domain",
+            service: "Website",
+            required: true
+          },
+          {
+            hull: "external_id",
+            service: "CustomIdentifierField__c",
+            required: true
+          }
+        ],
+      };
+      const message = EntityMessageFactory.build({
+        account: { id: "123", domain: "hull.io", external_id: "sfId-1" }
+      }, { segments: ["a"], withAccount: true, account_segments: ["b"] });
+      _.unset(message, "user");
+
+      const filterUtil = new FilterUtil(privateSettings);
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [{ Id: "123", Name: "Hull Test Inc.", Website: "hull.io", CustomIdentifierField__c: "adsf" }],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+      const results = filterUtil.filterAccountEnvelopes(envelopes);
+      expect(results.toInsert).toHaveLength(1);
+      expect(results.toUpdate).toHaveLength(0);
+      expect(results.toSkip).toHaveLength(0);
+    });*/
 
     it("should update an account with no required fields", () => {
       const privateSettings = {
@@ -258,11 +348,21 @@ describe("FilterUtil", function testSuite() {
       };
       const message = EntityMessageFactory.build({
         account: { id: "123", "salesforce/id": "123", domain: "hull.io" }
-      }, { segments: ["a"], withAccount: true, account_segments: ["b"] });
-      const currentSfAccount = { Id: "123", Name: "Hull Test Inc.", Website: "hull.io" };
+      }, { withAccount: true, account_segments: ["b"] });
+      _.unset(message, "user");
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterAccounts([{ message, currentSfAccount }], "account");
-      expect(results.toUpdate[0]).toEqual({ message, currentSfAccount });
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [{ Id: "123", Name: "Hull Test Inc.", Website: "hull.io" }],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+      const results = filterUtil.filterAccountEnvelopes(envelopes);
+      expect(results.toUpdate[0]).toHaveProperty("message");
       expect(results.toSkip).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -287,10 +387,19 @@ describe("FilterUtil", function testSuite() {
       const message = EntityMessageFactory.build({
         account: { id: "123", "salesforce/id": "123", domain: "hull.io" }
       }, { segments: ["a"], withAccount: true });
-      const currentSfAccount = { Id: "123", Name: "Hull Test Inc.", Website: "hull.io" };
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterAccounts([{ message, currentSfAccount }], "user");
-      expect(results.toUpdate[0]).toEqual({ message, currentSfAccount });
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [{ Id: "123", Name: "Hull Test Inc.", Website: "hull.io" }],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+      const results = filterUtil.filterAccountEnvelopes(envelopes);
+      expect(results.toUpdate[0]).toHaveProperty("message");
       expect(results.toSkip).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -316,12 +425,22 @@ describe("FilterUtil", function testSuite() {
       const message = EntityMessageFactory.build({
         account: { id: "123", "salesforce/id": "123" }
       }, { account_segments: ["b"], withAccount: true });
+      _.unset(message, "user");
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterAccounts([{ message }], "account");
-      expect(results.toSkip[0]).toEqual({
-        message,
-        skipReason: "Missing required unique identifier in Hull."
-      });
+      const results = filterUtil.filterAccountEnvelopes(envelopes);
+      expect(results.toSkip[0].skipReason).toEqual("Missing required unique identifier in Hull.");
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -347,11 +466,19 @@ describe("FilterUtil", function testSuite() {
         account: { id: "123", "salesforce/id": "123" }
       }, { segments: ["a"], withAccount: true });
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterAccounts([{ message }], "user");
-      expect(results.toSkip[0]).toEqual({
-        message,
-        skipReason: "Missing required unique identifier in Hull."
-      });
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+      const results = filterUtil.filterAccountEnvelopes(envelopes);
+      expect(results.toSkip[0].skipReason).toEqual("Missing required unique identifier in Hull.");
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -375,11 +502,19 @@ describe("FilterUtil", function testSuite() {
       };
       const message = EntityMessageFactory.build({}, { segments: ["a"], withAccount: false });
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterAccounts([{ message }], "user");
-      expect(results.toSkip[0]).toEqual({
-        message,
-        skipReason: "user doesn't have an account"
-      });
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+      const results = filterUtil.filterAccountEnvelopes(envelopes);
+      expect(results.toSkip[0].skipReason).toEqual("user doesn't have an account");
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -403,11 +538,18 @@ describe("FilterUtil", function testSuite() {
       };
       const message = EntityMessageFactory.build({}, { segments: ["b"], withAccount: true });
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterAccounts([{ message }], "user");
-      expect(results.toSkip[0]).toEqual({
-        message,
-        skipReason: "doesn't match filter for accounts and contacts"
-      });
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+      const results = filterUtil.filterAccountEnvelopes(envelopes);
+      expect(results.toSkip[0].skipReason).toEqual("doesn't match filter for accounts and contacts");
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -431,11 +573,18 @@ describe("FilterUtil", function testSuite() {
       };
       const message = EntityMessageFactory.build({}, { segments: ["b"], withAccount: true });
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterAccounts([{ message }], "user");
-      expect(results.toSkip[0]).toEqual({
-        message,
-        skipReason: "user treated as a lead"
-      });
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+      const results = filterUtil.filterAccountEnvelopes(envelopes);
+      expect(results.toSkip[0].skipReason).toEqual("user treated as lead");
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -457,10 +606,29 @@ describe("FilterUtil", function testSuite() {
         account_synchronized_segments: ["b"]
       };
       const message = EntityMessageFactory.build({}, { account_segments: ["b"], withAccount: true });
+      _.unset(message, "user");
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterAccounts([{ message }, { message }], "account");
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        },
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+      const results = filterUtil.filterAccountEnvelopes(envelopes);
       expect(results.toInsert).toHaveLength(1);
-      expect(results.toInsert[0]).toEqual({ message });
       expect(results.toSkip).toHaveLength(0);
       expect(results.toUpdate).toHaveLength(0);
     });
@@ -484,9 +652,26 @@ describe("FilterUtil", function testSuite() {
       };
       const message = EntityMessageFactory.build({}, { segments: ["a"], withAccount: true });
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterAccounts([{ message }, { message }], "user");
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        },
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+      const results = filterUtil.filterAccountEnvelopes(envelopes);
       expect(results.toInsert).toHaveLength(1);
-      expect(results.toInsert[0]).toEqual({ message });
       expect(results.toSkip).toHaveLength(0);
       expect(results.toUpdate).toHaveLength(0);
     });
@@ -512,18 +697,26 @@ describe("FilterUtil", function testSuite() {
       const message = EntityMessageFactory.build({
         account: { id: "123", "salesforce/id": "123" }
       }, { withAccount: true });
+      _.unset(message, "user");
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterAccounts([{ message }], "account");
-      expect(results.toSkip[0]).toEqual({
-        message,
-        skipReason: "doesn't match filter for accounts"
-      });
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+      const results = filterUtil.filterAccountEnvelopes(envelopes);
+      expect(results.toSkip[0].skipReason).toEqual("doesn't match filter for accounts");
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
   });
 
-  describe("filterContacts", () => {
+  describe("Filter Contact Tests", () => {
     it("should insert a contact with linked hull account", () => {
       const privateSettings = {
         contact_synchronized_segments: ["a"],
@@ -531,8 +724,20 @@ describe("FilterUtil", function testSuite() {
       };
       const message = EntityMessageFactory.build({}, { segments: ["a"], withAccount: true });
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterContacts([{ message }]);
-      expect(results.toInsert[0]).toEqual({ message });
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+
+      const results = filterUtil.filterContactEnvelopes(envelopes);
+      expect(results.toInsert).toHaveLength(1);
       expect(results.toSkip).toHaveLength(0);
       expect(results.toUpdate).toHaveLength(0);
     });
@@ -545,8 +750,20 @@ describe("FilterUtil", function testSuite() {
       const message = EntityMessageFactory.build({}, { segments: ["a"], withAccount: true });
       _.set(message, "user.salesforce_contact/deleted_at", "1");
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterContacts([{ message }]);
-      expect(results.toSkip).toHaveLength(1);
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+
+      const results = filterUtil.filterContactEnvelopes(envelopes);
+      expect(results.toSkip[0].skipReason).toEqual("Contact has been manually deleted in Salesforce and won't be re-created.");
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -560,8 +777,20 @@ describe("FilterUtil", function testSuite() {
       const message = EntityMessageFactory.build({}, { segments: ["a"], withAccount: true });
       _.unset(message, "user.email");
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterContacts([{ message }]);
-      expect(results.toSkip).toHaveLength(1);
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+
+      const results = filterUtil.filterContactEnvelopes(envelopes);
+      expect(results.toSkip[0].skipReason).toEqual("User doesn't have an email address");
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -574,9 +803,20 @@ describe("FilterUtil", function testSuite() {
       const message = EntityMessageFactory.build({}, { segments: ["a"], withAccount: false });
       const filterUtil = new FilterUtil(privateSettings);
       message.user["salesforce_contact/id"] = "1234";
-      const currentSfLead = { Id: "123", LastName: "Some Contact", Email: "test@hulltest.io" };
-      const results = filterUtil.filterContacts([{ message, currentSfLead }]);
-      expect(results.toSkip).toHaveLength(1);
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [{ Id: "123", LastName: "Some Contact", Email: "test@hulltest.io" }],
+            lead: []
+          }
+        }
+      ];
+
+      const results = filterUtil.filterContactEnvelopes(envelopes);
+      expect(results.toSkip[0].skipReason).toEqual("Contact has been potentially manually deleted in Salesforce and will not be sent out.");
       expect(results.toInsert).toHaveLength(0);
       expect(results.toUpdate).toHaveLength(0);
     });
@@ -590,8 +830,19 @@ describe("FilterUtil", function testSuite() {
       const message = EntityMessageFactory.build({}, { segments: ["a"], withAccount: false });
       const filterUtil = new FilterUtil(privateSettings);
       message.user["salesforce_contact/id"] = "1234";
-      const currentSfLead = { Id: "123", LastName: "Some Contact", Email: "test@hulltest.io" };
-      const results = filterUtil.filterContacts([{ message, currentSfLead }]);
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [{ Id: "123", LastName: "Some Contact", Email: "test@hulltest.io" }],
+            lead: []
+          }
+        }
+      ];
+
+      const results = filterUtil.filterContactEnvelopes(envelopes);
       expect(results.toSkip).toHaveLength(0);
       expect(results.toInsert).toHaveLength(1);
       expect(results.toUpdate).toHaveLength(0);
@@ -605,8 +856,20 @@ describe("FilterUtil", function testSuite() {
       const message = EntityMessageFactory.build({}, { segments: ["a"], withAccount: false });
       const filterUtil = new FilterUtil(privateSettings);
       message.user["salesforce_contact/account_id"] = "123";
-      const results = filterUtil.filterContacts([{ message }]);
-      expect(results.toInsert[0]).toEqual({ message });
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+
+      const results = filterUtil.filterContactEnvelopes(envelopes);
+      expect(results.toInsert).toHaveLength(1);
       expect(results.toSkip).toHaveLength(0);
       expect(results.toUpdate).toHaveLength(0);
     });
@@ -619,11 +882,22 @@ describe("FilterUtil", function testSuite() {
       const message = EntityMessageFactory.build({
         account: { id: "123", "salesforce/id": "123" }
       }, { segments: ["a"], withAccount: true });
-      const currentSfContact = { Id: "123", LastName: "Some Contact", Email: "test@hulltest.io" };
       const filterUtil = new FilterUtil(privateSettings);
       message.user["salesforce_contact/id"] = "123";
-      const results = filterUtil.filterContacts([{ message, currentSfContact }]);
-      expect(results.toUpdate[0]).toEqual({ message, currentSfContact });
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [{ Id: "123", LastName: "Some Contact", Email: "test@hulltest.io" }],
+            lead: []
+          }
+        }
+      ];
+
+      const results = filterUtil.filterContactEnvelopes(envelopes);
+      expect(results.toUpdate).toHaveLength(1);
       expect(results.toSkip).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -634,11 +908,22 @@ describe("FilterUtil", function testSuite() {
         lead_synchronized_segments: []
       };
       const message = EntityMessageFactory.build({}, { segments: ["a"], withAccount: false });
-      const currentSfContact = { Id: "123", LastName: "Some Contact", Email: "test@hulltest.io" };
       const filterUtil = new FilterUtil(privateSettings);
       message.user["salesforce_contact/id"] = "123";
-      const results = filterUtil.filterContacts([{ message, currentSfContact }]);
-      expect(results.toUpdate[0]).toEqual({ message, currentSfContact });
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [{ Id: "123", LastName: "Some Contact", Email: "test@hulltest.io" }],
+            lead: []
+          }
+        }
+      ];
+
+      const results = filterUtil.filterContactEnvelopes(envelopes);
+      expect(results.toUpdate).toHaveLength(1);
       expect(results.toSkip).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -650,7 +935,18 @@ describe("FilterUtil", function testSuite() {
       };
       const message = EntityMessageFactory.build({}, { segments: ["b"], withAccount: true });
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterContacts([{ message }]);
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+      const results = filterUtil.filterContactEnvelopes(envelopes);
+      expect(results.toSkip).toHaveLength(0);
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -662,14 +958,27 @@ describe("FilterUtil", function testSuite() {
       };
       const message = EntityMessageFactory.build({}, { segments: ["b"], withAccount: true });
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterContacts([{ message }]);
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+
+      const results = filterUtil.filterContactEnvelopes(envelopes);
+      expect(results.toSkip).toHaveLength(0);
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
   });
 
 
-  describe("filterLeads", () => {
+  describe("Filter Lead Tests", () => {
     it("should insert a lead", () => {
       const privateSettings = {
         contact_synchronized_segments: [],
@@ -677,8 +986,20 @@ describe("FilterUtil", function testSuite() {
       };
       const message = EntityMessageFactory.build({}, { segments: ["a"], withAccount: true });
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterLeads([{ message }]);
-      expect(results.toInsert[0]).toEqual({ message });
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+
+      const results = filterUtil.filterLeadEnvelopes(envelopes);
+      expect(results.toInsert).toHaveLength(1);
       expect(results.toSkip).toHaveLength(0);
       expect(results.toUpdate).toHaveLength(0);
     });
@@ -691,7 +1012,19 @@ describe("FilterUtil", function testSuite() {
       const message = EntityMessageFactory.build({}, { segments: ["a"], withAccount: true });
       _.set(message, "user.salesforce_lead/deleted_at", "1");
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterLeads([{ message }]);
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+
+      const results = filterUtil.filterLeadEnvelopes(envelopes);
       expect(results.toSkip).toHaveLength(1);
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
@@ -706,7 +1039,19 @@ describe("FilterUtil", function testSuite() {
       const message = EntityMessageFactory.build({}, { segments: ["a"], withAccount: true });
       _.unset(message, "user.email");
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterLeads([{ message }]);
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+
+      const results = filterUtil.filterLeadEnvelopes(envelopes);
       expect(results.toSkip).toHaveLength(1);
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
@@ -720,8 +1065,20 @@ describe("FilterUtil", function testSuite() {
       };
       const message = { user: { id: "1234", email: "asdf@gmail.com" }, segments: [{ id: "a", name: "1234" }, null] };
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterLeads([{ message }]);
-      expect(results.toInsert[0]).toEqual({ message });
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+
+      const results = filterUtil.filterLeadEnvelopes(envelopes);
+      expect(results.toInsert).toHaveLength(1);
       expect(results.toSkip).toHaveLength(0);
       expect(results.toUpdate).toHaveLength(0);
     });
@@ -734,9 +1091,18 @@ describe("FilterUtil", function testSuite() {
       const message = EntityMessageFactory.build({}, { segments: ["a"], withAccount: false });
       const filterUtil = new FilterUtil(privateSettings);
       message.user["salesforce_lead/id"] = "123";
-      const currentSfLead = { Id: "123", LastName: "Some Lead", Email: "test@hulltest.io" };
-      const results = filterUtil.filterLeads([{ message, currentSfLead }]);
-      expect(results.toUpdate[0]).toEqual({ message, currentSfLead });
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: [{ Id: "123", LastName: "Some Lead", Email: "test@hulltest.io" }]
+          }
+        }
+      ];
+      const results = filterUtil.filterLeadEnvelopes(envelopes);
+      expect(results.toUpdate).toHaveLength(1);
       expect(results.toSkip).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -750,8 +1116,20 @@ describe("FilterUtil", function testSuite() {
       const filterUtil = new FilterUtil(privateSettings);
       message.user["salesforce_lead/id"] = "1234";
       const currentSfLead = { Id: "123", LastName: "Some Lead", Email: "test@hulltest.io" };
-      const results = filterUtil.filterLeads([{ message, currentSfLead }]);
-      expect(results.toSkip).toHaveLength(1);
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+
+      const results = filterUtil.filterLeadEnvelopes(envelopes);
+      expect(results.toSkip[0].skipReason).toEqual("Lead has been potentially manually deleted in Salesforce and will not be sent out.");
       expect(results.toInsert).toHaveLength(0);
       expect(results.toUpdate).toHaveLength(0);
     });
@@ -765,8 +1143,19 @@ describe("FilterUtil", function testSuite() {
       const message = EntityMessageFactory.build({}, { segments: ["a"], withAccount: false });
       const filterUtil = new FilterUtil(privateSettings);
       message.user["salesforce_lead/id"] = "1234";
-      const currentSfLead = { Id: "123", LastName: "Some Lead", Email: "test@hulltest.io" };
-      const results = filterUtil.filterLeads([{ message, currentSfLead }]);
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: [{ Id: "123", LastName: "Some Lead", Email: "test@hulltest.io" }]
+          }
+        }
+      ];
+
+      const results = filterUtil.filterLeadEnvelopes(envelopes);
       expect(results.toSkip).toHaveLength(0);
       expect(results.toInsert).toHaveLength(1);
       expect(results.toUpdate).toHaveLength(0);
@@ -779,7 +1168,20 @@ describe("FilterUtil", function testSuite() {
       };
       const message = EntityMessageFactory.build({}, { segments: ["b"], withAccount: false });
       const filterUtil = new FilterUtil(privateSettings);
-      const results = filterUtil.filterLeads([{ message }]);
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+
+      const results = filterUtil.filterLeadEnvelopes(envelopes);
+      expect(results.toSkip).toHaveLength(0);
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -792,11 +1194,20 @@ describe("FilterUtil", function testSuite() {
       const message = EntityMessageFactory.build({}, { segments: ["a"], withAccount: false });
       const filterUtil = new FilterUtil(privateSettings);
       message.user["salesforce_contact/id"] = "123";
-      const results = filterUtil.filterLeads([{ message }]);
-      expect(results.toSkip[0]).toEqual({
-        message,
-        skipReason: "user was synced as a contact from SFDC before, cannot be in a lead segment. Please check your configuration"
-      });
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+
+      const results = filterUtil.filterLeadEnvelopes(envelopes);
+      expect(results.toSkip[0].skipReason).toEqual("User was synced as a contact from SFDC before, cannot be in a lead segment. Please check your configuration");
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -809,11 +1220,20 @@ describe("FilterUtil", function testSuite() {
       const message = EntityMessageFactory.build({}, { segments: ["a"], withAccount: false });
       const filterUtil = new FilterUtil(privateSettings);
       message.user["salesforce_lead/converted_contact_id"] = "123";
-      const results = filterUtil.filterLeads([{ message }]);
-      expect(results.toSkip[0]).toEqual({
-        message,
-        skipReason: "user was synced as a contact from SFDC before, cannot be in a lead segment. Please check your configuration"
-      });
+
+      const envelopes = [
+        {
+          message,
+          matches: {
+            account: [],
+            contact: [],
+            lead: []
+          }
+        }
+      ];
+
+      const results = filterUtil.filterLeadEnvelopes(envelopes);
+      expect(results.toSkip[0].skipReason).toEqual("User was synced as a contact from SFDC before, cannot be in a lead segment. Please check your configuration");
       expect(results.toUpdate).toHaveLength(0);
       expect(results.toInsert).toHaveLength(0);
     });
@@ -827,18 +1247,17 @@ describe("FilterUtil", function testSuite() {
     const message = EntityMessageFactory.build({}, { segments: ["a"], withAccount: true });
     const filterUtil = new FilterUtil(privateSettings);
 
-    const accountResults = filterUtil.filterAccounts([{ message }], "user");
+    const envelopes = [{ message, matches: { account: [], contact: [], lead: [] } }];
+    const accountResults = filterUtil.filterAccountEnvelopes(envelopes);
     expect(accountResults.toUpdate).toHaveLength(0);
     expect(accountResults.toInsert).toHaveLength(0);
 
-    const contactResults = filterUtil.filterContacts([{ message }]);
+    const contactResults = filterUtil.filterContactEnvelopes(envelopes);
     expect(contactResults.toUpdate).toHaveLength(0);
     expect(contactResults.toInsert).toHaveLength(0);
 
-    const leadResults = filterUtil.filterLeads([{ message }]);
-    expect(leadResults.toInsert[0]).toEqual({
-      message,
-    });
+    const leadResults = filterUtil.filterLeadEnvelopes(envelopes);
+    expect(leadResults.toInsert[0]).toHaveProperty("message");
     expect(leadResults.toUpdate).toHaveLength(0);
     expect(leadResults.toSkip).toHaveLength(0);
   });

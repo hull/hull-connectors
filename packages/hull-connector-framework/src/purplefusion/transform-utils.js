@@ -4,6 +4,7 @@ const _ = require("lodash");
 const { isUndefinedOrNull, asyncForEach } = require("./utils");
 const { Route } = require("./language");
 const { SkippableError, ValidationError } = require("hull/src/errors");
+const moment = require("moment");
 
 const debug = require("debug")("hull-shared:AtomicReaction");
 
@@ -12,6 +13,12 @@ function toUnixTimestamp() {
   return (date) => {
     const closeDate = new Date(date);
     return closeDate.getTime();
+  }
+}
+
+function toISOString() {
+  return (date) => {
+    return moment(date.toString()).toISOString();
   }
 }
 
@@ -72,6 +79,7 @@ function toTransform(transform, context, input) {
 }
 
 module.exports = {
+  toISOString,
   toUnixTimestamp,
   toTransform
 };
