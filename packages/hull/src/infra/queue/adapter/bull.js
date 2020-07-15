@@ -28,7 +28,8 @@ class BullAdapter {
    * @param {Object} jobPayload
    * @return {Promise}
    */
-  create(
+  async create(
+    ctx,
     jobName,
     jobPayload = {},
     { ttl = 0, delay = null, priority = null, backoff, attempts = 3 } = {}
