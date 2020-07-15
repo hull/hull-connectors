@@ -4,9 +4,6 @@ import type {
   HullIncomingHandlerMessage,
   HullSettingsResponse
 } from "hull";
-import moment from "moment";
-
-const SyncAgent = require("../lib/sync-agent");
 
 const statusHandler = async (
   ctx: HullContext,

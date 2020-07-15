@@ -305,7 +305,6 @@ describe("PatchUtil", () => {
 
     const patchResult = util.createPatchObject("Contact", tObject, aObject, serviceSchema);
 
-    console.log(">>> Failing Patch", patchResult);
     expect(patchResult.hasChanges).toBe(true);
     expect(patchResult.patchObject).toEqual(pObject);
   });

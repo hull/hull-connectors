@@ -22,17 +22,28 @@ const events = require("events");
 const Promise = require("bluebird");
 
 const Connection = require("./service-client/connection");
-const { executeApiOperationSoap } = require("./service-client/execute-apioperation");
+const {
+  executeApiOperationSoap
+} = require("./service-client/execute-apioperation");
 const { find } = require("./service-client/find");
 const getAssignmentRules = require("./service-client/assignmentrules");
 const QueryUtil = require("./sync-agent/query-util");
 
-const CONNECTION_EVENTS = ["request.sent", "request.usage", "request.error", "refresh", "error"];
+const CONNECTION_EVENTS = [
+  "request.sent",
+  "request.usage",
+  "request.error",
+  "refresh",
+  "error"
+];
 
 // We cannot go higher than 750 because the SOQL query has a limit of 20k characters;
 // each ID has between 14 and 16 characters, plus 2 characters for ' escape characters plus delimiter
 // plus about 50 characters of overhead.
-const FETCH_CHUNKSIZE = Math.min(parseInt(process.env.FETCH_CHUNKSIZE, 10) || 500, 750);
+const FETCH_CHUNKSIZE = Math.min(
+  parseInt(process.env.FETCH_CHUNKSIZE, 10) || 500,
+  750
+);
 
 class ServiceClient extends events.EventEmitter implements IServiceClient {
   /**
@@ -72,8 +83,8 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     connection.setLogger(options.logger);
     connection.setMetric(options.metrics);
     // re-emit connection events upstream
-    CONNECTION_EVENTS.forEach(
-      e => connection.on(e, this.emit.bind(this, `connection.${e}`))
+    CONNECTION_EVENTS.forEach(e =>
+      connection.on(e, this.emit.bind(this, `connection.${e}`))
     );
     this.connection = connection;
     this.logger = options.logger;
@@ -82,11 +93,23 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
   }
 
   // eslint-disable-next-line no-unused-vars
-  getSoqlQuery(type: TResourceType, fields: Array<string>, accountClaims: Array<Object>): string {
-    const { selectFields, requiredFields } = this.queryUtil.getSoqlFields(type, fields, accountClaims);
+  getSoqlQuery(
+    type: TResourceType,
+    fields: Array<string>,
+    accountClaims: Array<Object>
+  ): string {
+    const { selectFields, requiredFields } = this.queryUtil.getSoqlFields(
+      type,
+      fields,
+      accountClaims
+    );
 
     let query = `SELECT ${selectFields} FROM ${type}`;
-    if (type === "Account" && !_.isNil(requiredFields) && requiredFields.length > 0) {
+    if (
+      type === "Account" &&
+      !_.isNil(requiredFields) &&
+      requiredFields.length > 0
+    ) {
       query += ` WHERE ${requiredFields[0]} != null`;
 
       for (let i = 1; i < requiredFields.length; i += 1) {
@@ -109,14 +132,24 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
    * @memberof SalesforceClient
    */
   // eslint-disable-next-line no-unused-vars
-  findRecordsById(type: TResourceType, identifiers: string[], fields: string[], accountClaims: Array<Object>, options: Object = {}): Promise<any[]> {
+  findRecordsById(
+    type: TResourceType,
+    identifiers: string[],
+    fields: string[],
+    accountClaims: Array<Object>,
+    options: Object = {}
+  ): Promise<any[]> {
     const executeQuery = _.get(options, "executeQuery", "query");
     const idsList = identifiers.map(id => `'${id}'`).join(",");
-    const { selectFields, requiredFields } = this.queryUtil.getSoqlFields(type, fields, accountClaims);
+    const { selectFields, requiredFields } = this.queryUtil.getSoqlFields(
+      type,
+      fields,
+      accountClaims
+    );
     let query = `SELECT ${selectFields} FROM ${type} WHERE Id IN (${idsList})`;
 
     if (type === "Account") {
-      _.forEach(requiredFields, (requiredField) => {
+      _.forEach(requiredFields, requiredField => {
         query += ` AND ${requiredField} != null`;
       });
     }
@@ -137,19 +170,25 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
    * @returns {Promise<IApiResultObject[]>} A list of result objects.
    * @memberof SalesforceClient
    */
-  insert(records: Array<THullObject>, options: IInsertUpdateOptions): Promise<IApiResultObject[]> {
+  insert(
+    records: Array<THullObject>,
+    options: IInsertUpdateOptions
+  ): Promise<IApiResultObject[]> {
     if (records.length === 0) {
       return Promise.resolve([]);
     }
 
-    return Promise.map(_.chunk(records, 200), (chunkOfRecords) => {
+    return Promise.map(_.chunk(records, 200), chunkOfRecords => {
       const ops: TApiOperation = {
         method: "insert",
         resource: options.resource,
         records: chunkOfRecords
       };
 
-      if (!_.isNil(options.leadAssignmentRule) && _.isString(options.leadAssignmentRule)) {
+      if (
+        !_.isNil(options.leadAssignmentRule) &&
+        _.isString(options.leadAssignmentRule)
+      ) {
         _.set(ops, "leadAssignmentRule", options.leadAssignmentRule);
       }
 
@@ -167,19 +206,25 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
    * @returns {Promise<IApiResultObject[]>} A list of result objects.
    * @memberof SalesforceClient
    */
-  update(records: Array<THullObject>, options: TInsertUpdateOptions): Promise<IApiResultObject[]> {
+  update(
+    records: Array<THullObject>,
+    options: TInsertUpdateOptions
+  ): Promise<IApiResultObject[]> {
     if (records.length === 0) {
       return Promise.resolve([]);
     }
 
-    return Promise.map(_.chunk(records, 200), (chunkOfRecords) => {
+    return Promise.map(_.chunk(records, 200), chunkOfRecords => {
       const ops: TApiOperation = {
         method: "update",
         resource: options.resource,
         records: chunkOfRecords
       };
 
-      if (!_.isNil(options.leadAssignmentRule) && _.isString(options.leadAssignmentRule)) {
+      if (
+        !_.isNil(options.leadAssignmentRule) &&
+        _.isString(options.leadAssignmentRule)
+      ) {
         _.set(ops, "leadAssignmentRule", options.leadAssignmentRule);
       }
 
@@ -197,7 +242,7 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
    * @memberof SalesforceClient
    */
   fetchFieldsList(type: TResourceType): any {
-    return this.exec("describe", type).then((meta) => {
+    return this.exec("describe", type).then(meta => {
       return meta.fields.reduce((fields, f) => {
         const fi = _.merge({}, fields, { [f.name]: f });
         return fi;
@@ -206,12 +251,16 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
   }
 
   fetchResourceSchema(type: TResourceType, fieldTypes: string): any {
-    return this.exec("describe", type).then((meta) => {
-      return _.reduce(_.filter(meta.fields, (field) => {
-        return _.includes(fieldTypes, field.type);
-      }), (fields, f) => {
-        return _.merge({}, fields, { [f.name]: f.type });
-      }, {});
+    return this.exec("describe", type).then(meta => {
+      return _.reduce(
+        _.filter(meta.fields, field => {
+          return _.includes(fieldTypes, field.type);
+        }),
+        (fields, f) => {
+          return _.merge({}, fields, { [f.name]: f.type });
+        },
+        {}
+      );
     });
   }
 
@@ -222,7 +271,9 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
    * @returns {Promise<TAssignmentRule[]>} A Promise that wraps an array of assignment rules.
    * @memberof SalesforceClient
    */
-  fetchAssignmentRules(type: TResourceTypeAssignmentRule): Promise<TAssignmentRule[]> {
+  fetchAssignmentRules(
+    type: TResourceTypeAssignmentRule
+  ): Promise<TAssignmentRule[]> {
     return getAssignmentRules(this.connection, type);
   }
 
@@ -236,7 +287,12 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
    * @returns {Promise<any[]>} A list of leads.
    * @memberof SalesforceClient
    */
-  findLeads(query: any, fieldsList: string[], limit: number = 10000, skip: number = 0): Promise<any[]> {
+  findLeads(
+    query: any,
+    fieldsList: string[],
+    limit: number = 10000,
+    skip: number = 0
+  ): Promise<any[]> {
     if (_.isEmpty(query)) return Promise.resolve([]);
     const fields = _.fromPairs(fieldsList.map(f => [f, 1]));
     return find(this.connection, "Lead", query, fields, limit, skip);
@@ -252,7 +308,12 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
    * @returns {Promise<any[]>} A list of contacts.
    * @memberof SalesforceClient
    */
-  findContacts(query: any, fieldsList: string[], limit: number = 10000, skip: number = 0): Promise<any[]> {
+  findContacts(
+    query: any,
+    fieldsList: string[],
+    limit: number = 10000,
+    skip: number = 0
+  ): Promise<any[]> {
     if (_.isEmpty(query)) return Promise.resolve([]);
     const fields = _.fromPairs(fieldsList.map(f => [f, 1]));
     return find(this.connection, "Contact", query, fields, limit, skip);
@@ -268,7 +329,12 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
    * @returns {Promise<any[]>} A list of accounts.
    * @memberof SalesforceClient
    */
-  findAccounts(query: any, fieldsList: string[], limit: number = 10000, skip: number = 0): Promise<any[]> {
+  findAccounts(
+    query: any,
+    fieldsList: string[],
+    limit: number = 10000,
+    skip: number = 0
+  ): Promise<any[]> {
     if (_.isEmpty(query)) return Promise.resolve([]);
     const fields = _.fromPairs(fieldsList.map(f => [f, 1]));
     return find(this.connection, "Account", query, fields, limit, skip);
@@ -277,7 +343,11 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
   /**
    * Finds all matching objects within Salesforce.
    */
-  async queryExistingRecords(type: string, sfdcId: string, recordIds: string[]): Promise<any[]> {
+  async queryExistingRecords(
+    type: string,
+    sfdcId: string,
+    recordIds: string[]
+  ): Promise<any[]> {
     const params = {};
     _.set(params, sfdcId, { $in: recordIds });
     return this.connection.sobject(type).find(params);
@@ -293,17 +363,24 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
    */
   exec(fn: string, ...args: any): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.connection[fn].apply(this.connection, [...args, (err, res) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(res);
+      this.connection[fn].apply(this.connection, [
+        ...args,
+        (err, res) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(res);
+          }
         }
-      }]);
+      ]);
     });
   }
 
-  getAllRecords(type: TResourceType,  options: Object = {}, onRecord: Function): Promise<*> {
+  getAllRecords(
+    type: TResourceType,
+    options: Object = {},
+    onRecord: Function
+  ): Promise<*> {
     const fields = options.fields || [];
     const accountClaims = options.account_claims || [];
     const progressFrequency = 0.1; // log progress every 10% of fetch
@@ -311,58 +388,91 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     return new Promise((resolve, reject) => {
       const soql = this.getSoqlQuery(type, fields, accountClaims);
 
-      const query = this.connection.query(soql)
+      const query = this.connection
+        .query(soql)
         .on("record", (record, numRecord, executingQuery) => {
           const { totalFetched, totalSize } = executingQuery;
 
           if (_.isNil(progressIncrement)) {
-            progressIncrement = Math.ceil((totalSize) * (progressFrequency));
+            progressIncrement = Math.ceil(totalSize * progressFrequency);
           }
 
           // eslint-disable-next-line
           const showProgress = totalFetched % progressIncrement === 0 || totalFetched === totalSize;
-          return showProgress ? onRecord(record, { totalFetched, totalSize }) : onRecord(record);
+          return showProgress
+            ? onRecord(record, { totalFetched, totalSize })
+            : onRecord(record);
         })
         .on("end", () => {
           resolve({ query, type, fields });
         })
-        .on("error", (err) => {
+        .on("error", err => {
           reject(err);
         })
         .run({ autoFetch: true, maxFetch: 500000 });
     });
   }
 
-  getRecords(type: TResourceType, ids: Array<string>, options: Object = {}, onRecord: Function): Promise<*> {
+  getRecords(
+    type: TResourceType,
+    ids: Array<string>,
+    options: Object = {},
+    onRecord: Function
+  ): Promise<*> {
     const fields = options.fields || [];
     const accountClaims = options.account_claims || [];
     const chunks = _.chunk(ids, FETCH_CHUNKSIZE);
 
-    return Promise.map(chunks, (ids) => {
-      return this.findRecordsById(type, ids, fields, accountClaims, options)
-        .then((records) => {
-          this.metricsClient.increment((type === "Account" ? "ship.incoming.accounts" : "ship.incoming.users"), records.length);
+    return Promise.map(
+      chunks,
+      chunk => {
+        return this.findRecordsById(
+          type,
+          chunk,
+          fields,
+          accountClaims,
+          options
+        ).then(records => {
+          this.metricsClient.increment(
+            type === "Account"
+              ? "ship.incoming.accounts"
+              : "ship.incoming.users",
+            records.length
+          );
           return Promise.all(records.map(record => onRecord(record)));
         });
-    }, { concurrency: 2 });
+      },
+      { concurrency: 2 }
+    );
   }
 
   getUpdatedRecordIds(type: TResourceType, options: Object = {}): Promise<*> {
-    const start = options.start ? new Date(options.start) : new Date(new Date().getTime() - (360 * 1000));
+    const start = options.start
+      ? new Date(options.start)
+      : new Date(new Date().getTime() - 360 * 1000);
     const end = options.end ? new Date(options.end) : new Date();
 
-    return this.connection.sobject(type).updated(start, end)
-      .then((res) => {
+    return this.connection
+      .sobject(type)
+      .updated(start, end)
+      .then(res => {
         return _.get(res, "ids", []);
       });
   }
 
-  getDeletedRecordIds(type: TResourceType, options: TDeletedRecordsParameters): Promise<Array<TDeletedRecordInfo>> {
-    const start = options.start ? new Date(options.start) : new Date(new Date().getTime() - (360 * 1000));
+  getDeletedRecords(
+    type: TResourceType,
+    options: TDeletedRecordsParameters
+  ): Promise<Array<TDeletedRecordInfo>> {
+    const start = options.start
+      ? new Date(options.start)
+      : new Date(new Date().getTime() - 360 * 1000);
     const end = options.end ? new Date(options.end) : new Date();
 
-    return this.connection.sobject(type).deleted(start, end)
-      .then((recordsInfo) => {
+    return this.connection
+      .sobject(type)
+      .deleted(start, end)
+      .then(recordsInfo => {
         return _.get(recordsInfo, "deletedRecords", []);
       });
   }

@@ -36,18 +36,9 @@ class Settings extends Component<Props, State> {
   }
 
   render() {
-    const { initialized, token = "", onSave, onReset } = this.props;
+    const { token = "", onSave, onReset } = this.props;
     return (
       <div>
-        {!initialized && (
-          <p>
-            Start by adding the Token you copied from the Hull Connector
-            Settings section
-          </p>
-        )}
-        <p>
-          <b>You can find the Hull token in the Connector settings page</b>
-        </p>
         <div className="form-group block">
           <label htmlFor="token">Hull Token</label>
           <input

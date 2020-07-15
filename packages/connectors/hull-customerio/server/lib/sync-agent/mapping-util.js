@@ -88,7 +88,11 @@ class MappingUtil {
       created_at: moment(_.get(user, "created_at")).unix()
     };
     // Always sync the segments
-    _.set(serviceObj, "hull_segments", _.map(segments, s => s.name));
+    _.set(
+      serviceObj,
+      "hull_segments",
+      _.map(segments, s => s.name)
+    );
 
     // Map the custom attributes
     const filteredAttributes = _.pick(user, this.userAttributeMappings);
