@@ -9,11 +9,7 @@ const debug = require("debug")("hull-dropcontact:enrich");
  */
 export default async function enrichQueue(
   ctx: HullContext,
-  {
-    request_id,
-    ids,
-    hashes
-  }: { request_id: string, ids: Array<string>, hashes: Array<string> },
+  { request_id, ids }: { request_id: string, ids: Array<string> },
   _job: HullJob
 ) {
   const { cache, request, client, helpers, connector } = ctx;
@@ -28,6 +24,7 @@ export default async function enrichQueue(
   if (!api_key) {
     throw new Error("Missing API Key");
   }
+  // Attempt to fetch results from Dropcontact.
   const response = await request
     .get(`https://api.dropcontact.io/batch/${request_id}`)
     .set({
@@ -37,37 +34,43 @@ export default async function enrichQueue(
 
   const { data, error, reason, success } = response.body;
   if (error) {
+    // Not throwing means: job completed (in this case we failed but don't want to retry)
     client.logger.error("outgoing.job.error", { error, reason });
     // We don't throw an error otherwise we would attempt again.
     return {
       error
     };
   }
+
   if (!success) {
     client.logger.info("outgoing.job.progress", {
       request_id,
       response: response.body
     });
+    // Throwing means job failed - in this case, it triggers a retry from the Queue
     // We throw an error so that we attempt this job again
     throw new Error(reason);
   }
+
   if (data) {
     try {
+      // Iterate on Result object. indices must match to properly delete.
       await Promise.all(
         data.map(async (payload, index) => {
+          const id = ids[index];
           const asUser = client.asUser({
             ...(payload?.email?.length
               ? { email: payload.email[0].email }
               : {}),
-            id: ids[index]
+            id
           });
 
           const asAccount = link_user_in_hull
             ? asUser.account({ domain: payload.website })
             : undefined;
 
-          const accountPromises = link_user_in_hull
-            ? [
+          const accountPromises = asAccount
+            ? _.compact([
                 payload.vat &&
                   asAccount.alias({
                     anonymous_id: `vat:${payload.vat}`
@@ -87,11 +90,12 @@ export default async function enrichQueue(
                     mapping: incoming_account_attributes
                   })
                 )
-              ]
+              ])
             : [];
 
           return Promise.all([
-            cache.del(ids[index]),
+            // Remove matched IDs from the Queue
+            cache.del(id),
             asUser.traits(
               mapAttributes({
                 payload,
@@ -99,7 +103,7 @@ export default async function enrichQueue(
                 mapping: incoming_user_attributes
               })
             ),
-            ..._.compact(accountPromises)
+            ...accountPromises
           ]);
         })
       );

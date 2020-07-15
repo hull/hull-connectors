@@ -5,9 +5,6 @@ import type {
   HullUserUpdateMessage,
   HullNotificationResponse
 } from "hull";
-import jwt from "jwt-simple";
-
-import getHash from "../lib/get-hash";
 
 const IN_ENRICH_QUEUE = "queued";
 
@@ -54,13 +51,13 @@ const updateAccount = ({
     if (!api_key) {
       throw new Error("No API Key - please set it up in the settings");
     }
+
     metric.increment("ship.service_api.call");
     const attributeMap = payload =>
       mapAttributes({
         payload,
         direction: "outgoing",
         mapping: toDropcontactMapping({
-          id: "id",
           last_name,
           first_name,
           company,
@@ -70,91 +67,92 @@ const updateAccount = ({
         })
       });
 
-    const enrichable = messages
-      .filter(m => isBatch || !m.user["dropcontact/emails"])
-      .map(attributeMap);
-
-    // Query the cache to fetch the status for each enrichable user ID
-    const cachedIds = await Promise.all(
-      _.map(enrichable, ({ id }) => cache.get(id))
+    // Filter out users who shouldn't be enriched
+    const enrichable = messages.filter(
+      m => isBatch || !m.user["dropcontact/emails"]
     );
 
-    // Select from enrichable Uers only the ones who aren't present in the cache
-    const data = enrichable.filter((v, i) => cachedIds[i] !== IN_ENRICH_QUEUE);
+    const ids = _.map(enrichable, "user.id");
+
+    // Query the cache to fetch the status for each enrichable user ID
+    // TODO: Find a way to be more reliable when looking up users
+    // as the User ID could have changed due to a merge
+    // This is a deeper issue and there is no reliable fix today.
+    // It probably needs to be fixed at the platform level by making asUser({ id }) able to resolve
+    // to merged IDs
+    const cacheResults = await Promise.all(ids.map(id => cache.get(id)));
+    // exclude the enrichments that already are in the cache
+    // We do it in 2 steps as fetching the Cache is asynchronous.
+    // Then turn it into an array of Dropcontact-ready payloads
+    const notInQueue = enrichable
+      .filter((v, i) => cacheResults[i] !== IN_ENRICH_QUEUE)
+      .map(attributeMap);
 
     client.logger.info("outgoing.user.start", {
-      cachedIds,
-      enrichable,
-      notInQueue: data
+      cacheResults,
+      notInQueue
     });
 
-    const response = await request
-      .post("https://api.dropcontact.io/batch?hashedInputs=true")
-      .set({ "X-Access-Token": api_key })
-      .send({
-        data,
-        hashedInputs: true,
-        siren: true
+    if (notInQueue.length) {
+      const response = await request
+        .post("https://api.dropcontact.io/batch?hashedInputs=true")
+        .set({ "X-Access-Token": api_key })
+        .send({
+          data: notInQueue,
+          hashedInputs: true,
+          siren: true
+        });
+
+      const {
+        error,
+        request_id,
+        success,
+        credits_left,
+        hashedInputs
+      } = response.body;
+
+      if (error) {
+        throw new Error(error);
+      }
+
+      client.logger.info("outgoing.job.queue", {
+        request_id,
+        success,
+        notInQueue,
+        cacheResults,
+        hashedInputs
       });
 
-    const {
-      error,
-      request_id,
-      success,
-      credits_left,
-      hashedInputs
-    } = response.body;
+      if (credits_left !== undefined) {
+        metric.value("ship.service_api.remaining", credits_left);
+      }
 
-    if (error) {
-      throw new Error(error);
-    }
+      if (credits_left <= 0) {
+        throw new Error("Insufficient credits");
+      }
 
-    client.logger.info("outgoing.user.success", {
-      hashedInputs,
-      success,
-      data
-    });
-    client.logger.info("outgoing.job.queue", {
-      request_id,
-      success,
-      data,
-      cachedIds,
-      hashedInputs
-    });
+      // Set a cache for pending requests.
+      // Todo: rely on HashedInputs to properly cache what has been requested
+      // Unfortunately it's useless for now
+      await Promise.all(ids.map(id => cache.set(id, IN_ENRICH_QUEUE)));
 
-    // Put all the enriched IDs in the queue.
-    // Rely on Dropcontact's response for greater accuracy
-    const ids = hashedInputs.map(token => {
-      const { id } = jwt.decode(token, api_key);
-      return id;
-    });
-
-    // Set a cache for pending requests.
-    await Promise.all(ids.map(id => cache.set(id, IN_ENRICH_QUEUE)));
-
-    if (credits_left !== undefined) {
-      metric.value("ship.service_api.remaining", credits_left);
-    }
-
-    if (credits_left <= 0) {
-      throw new Error("Insufficient credits");
-    }
-
-    if (success && request_id) {
-      enqueue(
-        "enrich",
-        {
-          request_id,
-          ids,
-          hashes: hashedInputs
-        },
-        {
-          delay: 5 * 1000,
-          // attempts: 5,
-          ttl: 120 * 1000,
-          backoff: { delay: 30 * 1000, type: "fixed" }
-        }
-      );
+      if (success && request_id) {
+        enqueue(
+          "enrich",
+          { request_id, ids },
+          {
+            delay: 5 * 1000,
+            attempts: 5,
+            ttl: 120 * 1000,
+            backoff: { delay: 30 * 1000, type: "fixed" }
+          }
+        );
+      }
+    } else {
+      client.logger.info("outgoing.user.skip", {
+        message: "No users to enrich",
+        notInQueue
+      });
     }
     return {
       type: "next",
