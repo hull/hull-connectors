@@ -46,10 +46,11 @@ export default function handler(EntryModel: Object) {
     }
 
     try {
-      const [{ agent, org }, output]: [AgentResponse, Output] = Promise.all([
+      const responses = await Promise.all([
         updateAgentDetails(ctx, true),
         fetchOutput(ctx, agent_id)
       ]);
+      const [{ agent, org }, output]: [AgentResponse, Output] = responses;
       if (!output || !output.length) {
         client.logger.error("connector.request.error", {
           message:

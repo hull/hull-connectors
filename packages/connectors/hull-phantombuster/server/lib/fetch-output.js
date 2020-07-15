@@ -52,7 +52,7 @@ export default async function fetchOutput(
       })
       .get(`/containers/fetch-all?agentId=${id}&mode=finalized`);
 
-    const containerId = _.get(containerOutput, "0.id");
+    const containerId = _.get(containerOutput, "body.containers.0.id");
 
     if (!containerId) {
       throw new Error(
@@ -60,12 +60,12 @@ export default async function fetchOutput(
       );
     }
 
-    const { resultObject } = await request.get(
+    const resultObject = await request.get(
       `/containers/fetch-result-object?id=${containerId}`
     );
 
     // $FlowFixMe
-    const result = resultObject;
+    const result = _.get(resultObject, "body.resultObject");
     return result ? JSON.parse(result) : [];
   } catch (err) {
     client.logger.error("connector.schedule.error", err);

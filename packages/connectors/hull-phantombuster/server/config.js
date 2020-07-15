@@ -24,8 +24,6 @@ export default function connectorConfig(): HullConnectorConfig {
     MONGO_COLLECTION_NAME = "phantombuster_requests"
   } = process.env;
 
-  console.log(MONGO_COLLECTION_NAME);
-  console.log(MONGO_URL);
   if (!MONGO_COLLECTION_NAME || !MONGO_URL) {
     throw new Error("One or more MongoDB Environment variables not set.");
   }
