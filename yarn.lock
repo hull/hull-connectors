@@ -11646,6 +11646,14 @@ node-rdkafka@^2.7.4:
     bindings "^1.3.1"
     nan "^2.14.0"
 
+node-rdkafka@^2.9.0:
+  version "2.9.0"
+  resolved "https://registry.yarnpkg.com/node-rdkafka/-/node-rdkafka-2.9.0.tgz#5a80831f7b950c464ad1df8f8738b3656144440c"
+  integrity sha512-lVBb3J/KVMDXUSdC0avoNZ/9Yab9XiDMTFPKdMkXc4AjaIafVPGLNa5yVV7hly9pBfZ5yIHF71sAI4SH/E5G4Q==
+  dependencies:
+    bindings "^1.3.1"
+    nan "^2.14.0"
+
 node-redis-scripty@0.0.5:
   version "0.0.5"
   resolved "https://registry.yarnpkg.com/node-redis-scripty/-/node-redis-scripty-0.0.5.tgz#4bf2d365ab6dab202cc08b7ac63f8f55aadc9625"
