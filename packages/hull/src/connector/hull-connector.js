@@ -94,7 +94,7 @@ const getCallbacks = (handlers, category: string, handler: string) => {
  * @param {Object}        [options.cache] override default CacheAgent
  * @param {Object}        [options.queue] override default QueueAgent
  * @param {Array}         [options.captureMetrics] an array to capture metrics
- * @param {Array}         [options.captureLogs] an array to capture logs
+ * @param {Array}         [options.logsConfig] an object of type HullLogsConfig that describes the logger configuration
  * @param {boolean}       [options.disableOnExit=false] an optional param to disable exit listeners
  */
 class HullConnector {
@@ -174,11 +174,12 @@ class HullConnector {
     } = resolvedConfig;
 
     this.resolvedConfig = resolvedConfig;
+    this.logsConfig = logsConfig || {};
     this.clientConfig = {
       ...clientConfig,
+      logsConfig: this.logsConfig,
       connectorName: clientConfig.connectorName || connectorName
     };
-    this.logsConfig = logsConfig || {};
     this.metricsConfig = metricsConfig || {};
     this.cacheConfig = {
       ttl: 60, // Seconds

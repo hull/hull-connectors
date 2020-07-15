@@ -4,9 +4,7 @@
 /* :: export type * from "./types"; */
 
 import HullClient from "hull-client";
-import winston from "winston";
 import type { HullConnectorConfig } from "./types/connector";
-import { KafkaLogger } from "./utils";
 
 const Worker = require("./connector/worker");
 const ConnectorClass = require("./connector/hull-connector");
@@ -41,7 +39,7 @@ const buildConfigurationFromEnvironment = env => {
     QUEUE_ADAPTER = "memory",
     QUEUE_NAME = "queueApp",
     CACHE_STORE = "memory",
-    SERVER,
+    SERVER = "true",
     WORKER,
     COMBINED,
     KUE_PREFIX,
@@ -92,19 +90,13 @@ const buildConfigurationFromEnvironment = env => {
     };
   }
 
-  clientConfig.logLevel = LOG_LEVEL;
-
-  clientConfig.loggerTransport = [
-    new winston.transports.Console({
-      level: LOG_LEVEL,
-      format: winston.format.simple()
-    })
-  ];
+  const transports = [{ type: "console" }];
 
   if (LOGGER_KAFKA_BROKERS && LOGGER_KAFKA_TOPIC) {
     if (LOGGER_KAFKA_ENABLED !== "false") {
-      clientConfig.loggerTransport.push(
-        new KafkaLogger({
+      transports.push({
+        type: "kakfa",
+        options: {
           brokersList: LOGGER_KAFKA_BROKERS.split(","),
           topic: LOGGER_KAFKA_TOPIC,
           level: "info",
@@ -123,18 +115,18 @@ const buildConfigurationFromEnvironment = env => {
             ),
             "linger.ms": parseInt(LOGGER_KAFKA_PRODUCER_LINGER_MS, 10)
           }
-        })
-      );
+        }
+      });
     } else {
       console.warn("Skip kafka logger: ", { LOGGER_KAFKA_ENABLED });
     }
   }
-
-  clientConfig.logger = winston.createLogger({
-    level: LOG_LEVEL || "info",
-    format: winston.format.json(),
-    transports: clientConfig.loggerTransport
-  });
+  const logsConfig = {
+    level: LOG_LEVEL,
+    transports
+    // logs: [],
+    // capture: false
+  };
 
   if (!SECRET && NODE_ENV === "production") {
     throw new Error("Missing SECRET environment variable");
@@ -182,6 +174,7 @@ const buildConfigurationFromEnvironment = env => {
     },
     queueConfig,
     clientConfig,
+    logsConfig,
     devMode: NODE_ENV === "development",
     disableWebpack: DISABLE_WEBPACK === "true",
     hostSecret: SECRET || "1234",

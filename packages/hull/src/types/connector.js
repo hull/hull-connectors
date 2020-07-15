@@ -8,7 +8,8 @@ import type {
   HullHandlersConfiguration,
   HullContext,
   HullInstrumentation,
-  HullQueue
+  HullQueue,
+  HullLogsConfig
 } from "./index";
 // =====================================
 // Hull Connector Data Object
@@ -77,9 +78,6 @@ export type HullMetric =
 export type HullMetricsConfig = {
   captureMetrics?: Array<HullMetric>,
   exitOnError?: boolean
-};
-export type HullLogsConfig = {
-  logLevel?: ?string
 };
 export type HullCacheConfig =
   | {

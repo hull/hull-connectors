@@ -6,7 +6,6 @@ const Hull = require("hull");
 const handlers = require("hull/src/handlers");
 const superagent = require("superagent");
 const Minihull = require("minihull");
-const winston = require("winston");
 const nock = require("nock");
 const express = require("express");
 const jwt = require("jwt-simple");
@@ -433,15 +432,6 @@ class TestScenarioRunner extends EventEmitter {
         ...this.connectorConfig.clientConfig,
         protocol: "http",
         firehoseUrl: `http://localhost:${minihullPort}/api/v1/firehose`,
-        loggerTransport: [
-          new winston.transports.File({
-            level: "debug",
-            filename: "logs/test.log",
-            tailable: true
-          })
-        ],
-        captureLogs: true,
-        logs: this.capturedLogs,
         flushAt: 1,
         flushAfter: 1
       },
@@ -449,8 +439,19 @@ class TestScenarioRunner extends EventEmitter {
         ...this.connectorConfig.metricsConfig,
         captureMetrics: this.capturedMetrics
       },
-      logsConfig: {
-        ...this.connectorConfig.logsConfig
+      logsConfig:{
+        ...this.connectorConfig.logsConfig,
+        capture: true,
+        logs: this.capturedLogs,
+        level: "debug",
+        transports: [{
+          type: "file",
+          options: {
+            level: "debug",
+            filename: "logs/test.log",
+            tailable: true
+          }
+        }],
       },
       disableOnExit: true
     });

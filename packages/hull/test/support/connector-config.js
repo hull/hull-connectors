@@ -31,7 +31,7 @@ const config = {
     ttl: 1
   },
   logsConfig: {
-    logLevel: "debug"
+    level: "debug"
   },
   clientConfig: {},
   serverConfig: {

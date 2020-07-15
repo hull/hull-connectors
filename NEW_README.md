@@ -229,7 +229,12 @@ export default function connectorConfig(): HullConnectorConfig {
     }),
     middlewares: [fetchToken],
     cacheConfig: { store: "memory", ttl: 1 },
-    logsConfig: { logLevel: LOG_LEVEL },
+    logsConfig: {
+      level: LOG_LEVEL,
+      logs: [],
+      transports: [{ type: "console" }]
+      capture: true
+    },
     clientConfig: { firehoseUrl: OVERRIDE_FIREHOSE_URL },
     serverConfig: { start: true }
   };
@@ -673,7 +678,9 @@ const {
 const connectorConfig: HullConnectorConfig = {
   manifest,
   devMode: NODE_ENV === "development",
-  logLevel: LOG_LEVEL,
+  logsConfig: {
+    level: LOG_LEVEL
+  }
   hostSecret: SECRET || "1234",
   port: PORT || 8082,
   handlers: {},

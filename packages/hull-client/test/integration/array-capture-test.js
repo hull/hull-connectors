@@ -13,11 +13,19 @@ const config = {
 describe("HullClient array capture feature", () => {
   it("should allow to capture traits", () => {
     const clock = sinon.useFakeTimers();
-    const hullClient = new HullClient({ ...config, captureFirehoseEvents: true, requestId: 'r-123' });
+    const hullClient = new HullClient({
+      ...config,
+      captureFirehoseEvents: true,
+      requestId: "r-123"
+    });
     // hullClient.configuration().firehoseEvents.push("test");
     return Promise.all([
-      hullClient.asUser({ email: "foo@bar.com" }).traits({ coconuts: 123 }, { foo: 'bar' }),
-      hullClient.asUser({ email: "zoo@bay.com" }).traits({ apples: 345 }, { foo: 'bar' })
+      hullClient
+        .asUser({ email: "foo@bar.com" })
+        .traits({ coconuts: 123 }, { foo: "bar" }),
+      hullClient
+        .asUser({ email: "zoo@bay.com" })
+        .traits({ apples: 345 }, { foo: "bar" })
     ]).then(() => {
       const { firehoseEvents } = hullClient.configuration();
       expect(firehoseEvents).to.eql([
@@ -58,12 +66,17 @@ describe("HullClient array capture feature", () => {
 
   it("should allow to capture logs", () => {
     const clock = sinon.useFakeTimers();
-    const hullClient = new HullClient({ ...config, captureLogs: true });
+    const hullClient = new HullClient({
+      ...config,
+      logsConfig: { capture: true }
+    });
     hullClient.logger.info("test", { foo: "bar" });
-    expect(hullClient.configuration().logs).to.eql([
+    console.log(hullClient.configuration());
+    expect(hullClient.configuration().logsConfig.logs).to.eql([
       {
         context: {
-          organization: "hull-demos", id: "550964db687ee7866d000057"
+          organization: "hull-demos",
+          id: "550964db687ee7866d000057"
         },
         data: { foo: "bar" },
         level: "info",
@@ -73,11 +86,14 @@ describe("HullClient array capture feature", () => {
     ]);
 
     // then log as user
-    hullClient.asUser({ email: "foo@bar.com" }).logger.info("outgoing.user.success", { baz: "bay" });
-    expect(hullClient.configuration().logs).to.eql([
+    hullClient
+      .asUser({ email: "foo@bar.com" })
+      .logger.info("outgoing.user.success", { baz: "bay" });
+    expect(hullClient.configuration().logsConfig.logs).to.eql([
       {
         context: {
-          organization: "hull-demos", id: "550964db687ee7866d000057"
+          organization: "hull-demos",
+          id: "550964db687ee7866d000057"
         },
         data: { foo: "bar" },
         level: "info",

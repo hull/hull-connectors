@@ -299,6 +299,17 @@ export type HullFirehoseTrackContext = {
   event_id?: string
 } & HullFirehoseEventContext;
 
+export type HullLogTransport = {
+  type: "console" | "kafka" | "file",
+  options?: {}
+};
+
+export type HullLogsConfig = {
+  level?: "info" | "error" | "warn" | "debug",
+  transports?: Array<HullLogTransport>,
+  logs?: Array<any>,
+  capture?: bolean
+};
 /**
  * Configuration which can be passed to the HullClient constructor
  * We cannot use exact type here.
@@ -313,7 +324,6 @@ export type HullClientConfig = {|
   retry?: number,
   protocol?: string,
   prefix?: string,
-  logLevel?: "info" | "error" | "warn" | "debug",
   userClaim?: HullUserClaims,
   accountClaim?: HullAccountClaims,
   subjectType?: HullEntityName,
@@ -323,8 +333,8 @@ export type HullClientConfig = {|
   flushAt?: number,
   flushAfter?: number,
   version?: string,
-  logs?: Array<Object>,
-  captureLogs?: boolean,
+  // logs?: Array<Object>,
+  logsConfig: HullLogsConfig,
   firehoseEvents?: Array<Object>,
   captureFirehoseEvents?: boolean,
   firehoseTransport?: HullFirehoseTransport,
