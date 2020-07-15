@@ -24,6 +24,8 @@ export default function connectorConfig(): HullConnectorConfig {
     MONGO_COLLECTION_NAME = "phantombuster_requests"
   } = process.env;
 
+  console.log(MONGO_COLLECTION_NAME);
+  console.log(MONGO_URL);
   if (!MONGO_COLLECTION_NAME || !MONGO_URL) {
     throw new Error("One or more MongoDB Environment variables not set.");
   }
@@ -74,6 +76,9 @@ export default function connectorConfig(): HullConnectorConfig {
     },
     logsConfig: {
       logLevel: LOG_LEVEL
+    },
+    httpClientConfig: {
+      prefix: "https://api.phantombuster.com/api/v2"
     },
     clientConfig: {
       firehoseUrl: OVERRIDE_FIREHOSE_URL

@@ -1,7 +1,7 @@
 /* @flow */
 import type { HullContext, HullJob } from "hull";
 import { asyncComputeAndIngest, varsFromSettings } from "hull-vm";
-import resultsUrl from "../lib/get-results-url";
+import getResultsUrl from "../lib/get-results-url";
 
 /**
  * SyncIn : import all the list members as hull users
@@ -12,14 +12,14 @@ export default function handler(_EntryModel: Object) {
     options: any = {},
     _job: HullJob
   ) {
-    const { agent } = options;
+    const { agent, org } = options;
     const { helpers, connector } = ctx;
     const { private_settings = {} } = connector;
     const { code } = private_settings;
     const { streamRequest } = helpers;
 
     streamRequest({
-      url: resultsUrl(ctx, agent),
+      url: getResultsUrl(ctx, agent, org),
       format: "csv",
       batchSize: 50,
       onError: _error => {},

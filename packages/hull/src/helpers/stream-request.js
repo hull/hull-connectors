@@ -53,30 +53,33 @@ const streamRequest = (ctx: HullContext) => async ({
     }
   ]);
 
+  const handleOnError = async error => {
+    const errorResponse = await onError(error);
+    client.logger.info("incoming.job.error", {
+      error,
+      errorResponse
+    });
+    errors.push(errorResponse);
+  };
+
+  const handleOnEnd = () => {
+    client.logger.info("incoming.job.finished", {
+      chunks: chunk,
+      rows: row,
+      errors
+    });
+    onEnd();
+  };
+
+  pipeline.on("error", handleOnError);
+  pipeline.on("finish", handleOnEnd);
+
   client.logger.info("incoming.job.start", {
     format,
     url
   });
 
-  superagent
-    .get(url)
-    .pipe(pipeline)
-    .on("error", async error => {
-      const errorResponse = await onError(error);
-      client.logger.info("incoming.job.error", {
-        error,
-        errorResponse
-      });
-      errors.push(errorResponse);
-    })
-    .on("end", () => {
-      client.logger.info("incoming.job.finished", {
-        chunks: chunk,
-        rows: row,
-        errors
-      });
-      onEnd();
-    });
+  superagent.get(url).pipe(pipeline);
 };
 
 module.exports = streamRequest;

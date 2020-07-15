@@ -16,21 +16,22 @@ const agentsHandler = async (ctx: HullContext): HullUISelectResponse => {
   }
   try {
     const response = await request
-      .get("https://phantombuster.com/api/v1/user")
       .type("json")
       .set({
-        "X-Phantombuster-key": api_key
-      });
+        "x-phantombuster-key": api_key
+      })
+      .get("/agents/fetch-all");
 
-    if (!response?.body?.status === "success") {
-      throw new Error(response?.body?.error);
+    const { ok, error, body } = response;
+    if (!body || !ok || error) {
+      throw new Error(error);
     }
 
     return {
       status: 200,
       data: {
         label: "Phantoms",
-        options: (response?.body?.data?.agents || []).map(({ id, name }) => ({
+        options: body.map(({ id, name }) => ({
           value: id.toString(),
           label: name
         }))

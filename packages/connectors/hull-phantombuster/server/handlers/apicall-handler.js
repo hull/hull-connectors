@@ -7,8 +7,11 @@ import type {
 } from "hull";
 import { asyncComputeAndIngest, varsFromSettings } from "hull-vm";
 import _ from "lodash";
-import callApi from "../lib/call-api";
+import fetchOutput from "../lib/fetch-output";
 import updateAgentDetails from "../lib/agent-details";
+
+type AgentResponse = { agent: {}, org: {} };
+type Output = {};
 
 export default function handler(EntryModel: Object) {
   return async (
@@ -17,7 +20,7 @@ export default function handler(EntryModel: Object) {
   ): HullExternalResponse => {
     const { client, connector } = ctx;
     const { private_settings = {} } = connector;
-    const { code } = private_settings;
+    const { code, agent_id } = private_settings;
     // $FlowFixMe
     const { preview } = message.body;
 
@@ -31,19 +34,38 @@ export default function handler(EntryModel: Object) {
         }
       };
     }
+    if (!agent_id) {
+      return {
+        status: 404,
+        data: {
+          reason: "agent_not_configured",
+          message:
+            "Can't find an Agent ID in your settings, please pick an Agent to run in the Hull Connector Settings"
+        }
+      };
+    }
 
     try {
-      const newAgent = await updateAgentDetails(ctx, true);
-      const data = await callApi(ctx, newAgent);
+      const [{ agent, org }, output]: [AgentResponse, Output] = Promise.all([
+        updateAgentDetails(ctx, true),
+        fetchOutput(ctx, agent_id)
+      ]);
+      if (!output || !output.length) {
+        client.logger.error("connector.request.error", {
+          message:
+            "Could not find results in Phantombuster, check that the Agent has run successfully at least once"
+        });
+      }
       const result = await asyncComputeAndIngest(ctx, {
         source: "phantombuster",
         EntryModel,
-        date: newAgent.date,
+        date: agent.date,
         payload: {
           method: "GET",
-          url: newAgent.name,
-          agent: newAgent,
-          data: preview ? _.take(data, 100) : data,
+          url: agent.name,
+          agent,
+          org,
+          data: preview ? _.take(output, 100) : output,
           variables: varsFromSettings(ctx)
         },
         code,
@@ -51,11 +73,11 @@ export default function handler(EntryModel: Object) {
       });
       if (!preview) {
         // $FlowFixMe
-        ctx.enqueue("fetchAll", { agent: newAgent });
+        ctx.enqueue("fetchAll", { agent, org });
       }
       return {
         status: 200,
-        data: { ...result, agent: newAgent }
+        data: { ...result, agent, org }
       };
     } catch (err) {
       const error = err?.response?.body || err?.message || err;

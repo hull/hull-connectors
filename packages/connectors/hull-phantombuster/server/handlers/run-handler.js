@@ -16,23 +16,10 @@ const agentsHandler = async (ctx: HullContext): HullUISelectResponse => {
     };
   }
   try {
-    const agent = await updateAgentDetails(ctx, true);
-    // const response = await request
-    //   .get(`https://phantombuster.com/api/v1/agent/${agent_id}/launch`)
-    //   .type("json")
-    //   .set({
-    //     "X-Phantombuster-key": api_key
-    //   });
+    const { agent, org } = await updateAgentDetails(ctx, true);
 
     // $FlowFixMe
-    ctx.enqueue("fetchAll", { agent });
-    //
-    // if (!response?.body?.status === "success") {
-    //   return {
-    //     status: 500,
-    //     error: response?.body?.error
-    //   };
-    // }
+    ctx.enqueue("fetchAll", { agent, org });
 
     return {
       status: 200,

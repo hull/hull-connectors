@@ -7,7 +7,12 @@ import updateAgentDetails from "../lib/agent-details";
 const configHandler = async (ctx: HullContext): Promise<Object> => {
   const agent = await updateAgentDetails(ctx, true);
   return {
-    ..._.pick(ctx.connector.private_settings, "id", "api_key", "sync_interval"),
+    ..._.pick(
+      ctx.connector.private_settings,
+      "agent_id",
+      "api_key",
+      "sync_interval"
+    ),
     agent
   };
 };
