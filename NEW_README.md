@@ -245,7 +245,6 @@ export type HullConnectorConfig = {
   serverConfig?: HullServerConfig, //How to start the express server
   workerConfig?: HullWorkerConfig, //How to start workers
   metricsConfig?: HullMetricsConfig, //Metrics reporting configuration
-  cacheConfig?: HullCacheConfig, //Cache configuration
   httpClientConfig?: HullHTTPClientConfig, //HTTP Client util configuration
   logsConfig?: HullLogsConfig, //Logs configuration
   jsonConfig?: HullJsonConfig, //JSON parsing configuration
@@ -256,6 +255,7 @@ export type HullConnectorConfig = {
   disableOnExit?: boolean, //Should we disable exit listeners. Default = false
   devMode?: boolean, //development mode
   instrumentation?: HullInstrumentation, // set a custom instrumentation instance
+  cacheConfig?: HullCacheConfig, //Cache configuration
   queueConfig?: HullQueueConfig, // set a Custom Queue instance for workers
   handlers: HullConnector => HullHandlersConfiguration, //Handlers methods
   middlewares: Array<Middleware>, //Array of middlewares to run before handlers
