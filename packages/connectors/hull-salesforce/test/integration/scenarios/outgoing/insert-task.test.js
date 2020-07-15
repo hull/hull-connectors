@@ -847,12 +847,8 @@ describe("Insert Tasks Tests", () => {
           }
 
         ],
-<<<<<<< HEAD
         response: { "flow_control": { "type": "next", } },
         // expect.arrayContaining([]),
-=======
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
->>>>>>> feature/declarative-queuing
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
