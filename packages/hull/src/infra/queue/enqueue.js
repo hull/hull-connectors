@@ -25,7 +25,7 @@ import type { HullContext } from "../../types";
  *     });
  * });
  */
-module.exports = function enqueue(
+module.exports = async function enqueue(
   queueAdapter: Object,
   ctx: HullContext,
   jobName: string,
