@@ -69,25 +69,8 @@ const remoteHandler = () => {
   return (req, res) => {
     const appId = req.params.id;
 
-    const remoteUrl = new URL(req.url, `https://${res.hostname}`);
-    const browserId =
-      remoteUrl.searchParams.get("_bid") || req.cookies._bid || uuid();
-    const sessionId =
-      remoteUrl.searchParams.get("_sid") || req.cookies._sid || uuid();
-
-    res.cookie("_bid", browserId, {
-      secure: true,
-      sameSite: "None",
-      maxAge: ONE_YEAR,
-      httpOnly: true
-    });
-
-    res.cookie("_sid", sessionId, {
-      secure: true,
-      sameSite: "None",
-      maxAge: THIRTY_MINUTES,
-      httpOnly: true
-    });
+    const browserId = req["hull-bid"];
+    const sessionId = req["hull-sid"];
 
     fetchRemoteConfig(CACHE, req.organization, appId).then(
       remoteConfig => renderRemote(res, remoteConfig, { browserId, sessionId }),

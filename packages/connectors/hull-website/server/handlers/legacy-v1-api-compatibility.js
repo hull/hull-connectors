@@ -8,6 +8,10 @@ import trackHandler from "./track-handler";
 import traitsHandler from "./traits-handler";
 import remoteHandler from "./remote-handler";
 import redirectHandler from "./redirect-handler";
+import uuid from "uuid/v1";
+
+const ONE_YEAR = 365 * 24 * 3600000;
+const THIRTY_MINUTES = 1800000;
 
 class RemoteDomainMismatchError extends Error {
   status = 403;
@@ -80,11 +84,44 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
     })
   );
 
+  app.use((req, res, next) => {
+    const remoteUrl = req.query.url ?
+      new URL(req.query.url) :
+      new URL(req.url, `https://${res.hostname}`);
+
+    let browserId = req.get("hull-bid") || remoteUrl.searchParams.get("_bid") || req.cookies._bid;
+    let sessionId = req.get("hull-sid") || remoteUrl.searchParams.get("_sid") || req.cookies._sid ;
+    if (!browserId) {
+      browserId = uuid();
+
+      res.cookie("_bid", browserId, {
+        secure: true,
+        sameSite: "None",
+        maxAge: ONE_YEAR,
+        httpOnly: true
+      });
+    }
+
+    if (!sessionId) {
+      sessionId = uuid();
+
+      res.cookie("_sid", sessionId, {
+        secure: true,
+        sameSite: "None",
+        maxAge: THIRTY_MINUTES,
+        httpOnly: true
+      });
+    }
+    req["hull-bid"] = browserId;
+    req["hull-sid"] = sessionId;
+    next();
+  });
+
   app.get("/:id/remote.html", remoteHandler());
 
   app.use((req, res, next) => {
-    const appId = req.get("hull-app-id");
-    const anonymous_id = req.get("hull-bid") || req.cookies._bid;
+    const appId = req.get("hull-app-id") || req.query["hull-app-id"];
+    const anonymous_id = req.get("hull-bid") || req.cookies._bid || req["hull-bid"];
     const remoteUrl = req.get("referer");
     const clientParams = {
       id: appId,
@@ -112,7 +149,7 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
     const { url, referer } = req.body;
 
     req.firehoseEventContext = {
-      sessionId: req.get("hull-sid") || req.cookies._sid,
+      sessionId: req.get("hull-sid") || req.cookies._sid || req["hull-sid"],
       ip: req.ip,
       useragent: req.get("user-agent"),
       created_at: Date.now(),
