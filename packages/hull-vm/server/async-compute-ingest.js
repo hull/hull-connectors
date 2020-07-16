@@ -40,7 +40,6 @@ const asyncComputeAndIngest = async (
 ) => {
   const { client } = ctx;
   try {
-
     const result = await compute(ctx, {
       source,
       language,
