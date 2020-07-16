@@ -62,7 +62,7 @@ class SQSAdapter {
         priority: { DataType: "Number", StringValue: priority.toString() }
       },
       MessageBody: JSON.stringify(jobPayload),
-      QueueUrl: this.options.queueUrl
+      QueueUrl: this.options.url
     });
   }
 
@@ -74,7 +74,7 @@ class SQSAdapter {
   process(jobName, jobCallback) {
     const consumer = SqsConsumer.create({
       messageAttributeNames: [jobName],
-      queueUrl: this.options.queueUrl,
+      queueUrl: this.options.url,
       sqs: this.sqs,
       visibilityTimeout: 3600 * 4,
       terminateVisibilityTimeout: true,

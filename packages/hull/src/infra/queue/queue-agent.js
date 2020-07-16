@@ -1,10 +1,13 @@
 // @flow
 
+import _ from "lodash";
 import type { HullContext, HullQueueConfig } from "../../types";
 
 const enqueue = require("./enqueue");
 const MemoryAdapter = require("./adapter/memory");
-const KueAdapter = require("./adapter/kue");
+// const KueAdapter = require("./adapter/kue");
+const BullAdapter = require("./adapter/bull");
+const SQSAdapter = require("./adapter/sqs");
 
 /**
  * By default it's initiated inside `Hull.Connector` as a very simplistic in-memory queue, but in case of production grade needs, it comes with a [Kue](https://github.com/Automattic/kue) or [Bull](https://github.com/OptimalBits/bull) adapters which you can initiate in a following way:
@@ -49,30 +52,33 @@ const KueAdapter = require("./adapter/kue");
  * ```
  */
 
+const SQS_REQUIRED_KEYS = ["region", "accessKeyId", "secretAccessKey", "url"];
+const REDIS_REQUIRED_KEYS = ["name", "url"];
+const missingKeys = config => (required: Array<string>) => {
+  const missing = _.filter(required, k => config[k] === undefined);
+  if (missing.length) {
+    throw new Error(`Missing key in queueConfig: ${_.join(missing)}, Can't boot.
+    Either define a queue Name in "connectorConfig.queueConfig" or use store: 'memory'`);
+  }
+};
+
 class QueueAgent {
   adapter: any;
 
   constructor(config: HullQueueConfig) {
-    const { store, url, name } = config;
-    if (store === "redis") {
-      if (!name) {
-        throw new Error(
-          "Missing Queue Prefix name, Can't boot. Either define a queue Name in `connectorConfig.queueConfig` or use store: 'memory'"
-        );
-      }
-      if (!url) {
-        throw new Error(
-          "Missing Queue REDIS URL, Can't boot. Either define a queue URL in `connectorConfig.queueConfig` or use store: 'memory'"
-        );
-      }
-      this.adapter = new KueAdapter({
-        prefix: name,
-        redis: url
-      });
+    const { store } = config;
+    const missing = missingKeys(config);
+    if (store === "sqs") {
+      missing(SQS_REQUIRED_KEYS);
+      this.adapter = new SQSAdapter(_.pick(config, SQS_REQUIRED_KEYS));
+    } else if (store === "redis") {
+      missing(REDIS_REQUIRED_KEYS);
+      this.adapter = new BullAdapter(
+        _.pick(config, ["name", "url", "settings"])
+      );
     } else {
       this.adapter = new MemoryAdapter();
     }
-
     this.getEnqueue = this.getEnqueue.bind(this);
   }
 
