@@ -12,6 +12,8 @@ import compute from "./compute";
 import ingest from "./ingest";
 import saveRecent from "./save-recent";
 
+const debug = require("debug")("hull:async-compute-ingest");
+
 const asyncComputeAndIngest = async (
   ctx: HullContext,
   {
@@ -38,7 +40,18 @@ const asyncComputeAndIngest = async (
 ) => {
   const { client } = ctx;
   try {
+
     const result = await compute(ctx, {
+      source,
+      language,
+      claims,
+      payload,
+      entity,
+      code,
+      preview
+    });
+    debug("Async Compute", {
+      result,
       source,
       language,
       claims,

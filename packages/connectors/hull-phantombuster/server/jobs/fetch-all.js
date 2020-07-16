@@ -24,19 +24,21 @@ export default function handler(_EntryModel: Object) {
       batchSize: 50,
       onError: _error => {},
       onEnd: () => {},
-      onData: async data =>
-        asyncComputeAndIngest(ctx, {
+      onData: async data => {
+        return asyncComputeAndIngest(ctx, {
           source: "phantombuster",
           payload: {
             method: "GET",
             url: agent.name,
             agent,
+            org,
             data,
             variables: varsFromSettings(ctx)
           },
           code,
           preview: false
-        })
+        });
+      }
     });
   };
 }
