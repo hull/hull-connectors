@@ -93,8 +93,13 @@ class Worker {
           }
           client.logger.debug("dispatch", { id, name });
           metric.increment(`ship.job.${name}.start`);
-          const jobResponse = this.jobs[name].call(job, req.hull, payload, job);
-          callback(null, jobResponse);
+          const result = await this.jobs[name].call(
+            job,
+            req.hull,
+            payload,
+            job
+          );
+          callback(null, result);
         } catch (err) {
           debug("Worker Error", err, err.stack);
           req.hull.metric.increment(`ship.job.${name}.error`);
