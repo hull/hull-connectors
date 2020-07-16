@@ -3,12 +3,12 @@ import cors from "cors";
 import { Router } from "express";
 
 import HullClient from "hull-client/src";
+import uuid from "uuid/v1";
 import aliasHandler from "./alias-handler";
 import trackHandler from "./track-handler";
 import traitsHandler from "./traits-handler";
 import remoteHandler from "./remote-handler";
 import redirectHandler from "./redirect-handler";
-import uuid from "uuid/v1";
 
 const ONE_YEAR = 365 * 24 * 3600000;
 const THIRTY_MINUTES = 1800000;
@@ -85,12 +85,18 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
   );
 
   app.use((req, res, next) => {
-    const remoteUrl = req.query.url ?
-      new URL(req.query.url) :
-      new URL(req.url, `https://${res.hostname}`);
+    const remoteUrl = req.query.url
+      ? new URL(req.query.url)
+      : new URL(req.url, `https://${res.hostname}`);
 
-    let browserId = req.get("hull-bid") || remoteUrl.searchParams.get("_bid") || req.cookies._bid;
-    let sessionId = req.get("hull-sid") || remoteUrl.searchParams.get("_sid") || req.cookies._sid ;
+    let browserId =
+      req.get("hull-bid") ||
+      remoteUrl.searchParams.get("_bid") ||
+      req.cookies._bid;
+    let sessionId =
+      req.get("hull-sid") ||
+      remoteUrl.searchParams.get("_sid") ||
+      req.cookies._sid;
     if (!browserId) {
       browserId = uuid();
 
@@ -121,7 +127,8 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
 
   app.use((req, res, next) => {
     const appId = req.get("hull-app-id") || req.query["hull-app-id"];
-    const anonymous_id = req.get("hull-bid") || req.cookies._bid || req["hull-bid"];
+    const anonymous_id =
+      req.get("hull-bid") || req.cookies._bid || req["hull-bid"];
     const remoteUrl = req.get("referer");
     const clientParams = {
       id: appId,
