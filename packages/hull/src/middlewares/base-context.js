@@ -26,7 +26,7 @@ function baseContextMiddlewareFactory({
     const context = req.hull || {};
     context.hostname = req.hostname || "";
     context.isBatch = false;
-    context.options = Object.assign({}, req.query);
+    context.options = { ...req.query };
     context.clientConfig = clientConfig;
     context.connectorConfig = connectorConfig;
     // Warning, since we're mutating the object, flow is complaining. need to implement in a better way

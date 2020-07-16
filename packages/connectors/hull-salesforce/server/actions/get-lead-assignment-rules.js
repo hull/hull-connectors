@@ -3,8 +3,6 @@ import type { HullContext, HullExternalResponse } from "hull";
 
 const SyncAgent = require("../lib/sync-agent");
 
-const ENTITY = "lead";
-
 const getLeadAssignmentRules = async (
   ctx: HullContext
 ): HullExternalResponse => {

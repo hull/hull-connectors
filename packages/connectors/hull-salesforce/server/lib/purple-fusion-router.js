@@ -29,7 +29,7 @@ class PurpleFusionRouter {
 
   route: string;
 
-  constructor(route: string) {
+  constructor(route?: string) {
     this.route = route;
 
     this.hullRouter = new HullRouter({
@@ -40,12 +40,23 @@ class PurpleFusionRouter {
     });
   }
 
+  // TODO deprecate
   async invokeRoute(ctx: HullContext, data: Object) {
+    return this.invokeIncomingRoute(ctx, data);
+  }
+
+  async invokeIncomingRoute(ctx: HullContext, data: Object) {
     const endpoint = {
       handler: this.route
     };
-
     return this.hullRouter.createIncomingDispatchCallback(endpoint)(ctx, data);
+  }
+
+  async invokeOutgoingRoute(ctx: HullContext, data: Object) {
+    const endpoint = {
+      handler: this.route
+    };
+    return this.hullRouter.createOutgoingDispatchCallback(endpoint)(ctx, data);
   }
 }
 

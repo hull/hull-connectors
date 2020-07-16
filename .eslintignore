@@ -13,7 +13,6 @@ packages/hull-client/*
 packages/hull/*
 !packages/hull/src
 
-packages/connectors/hull-salesforce
 packages/connectors/hull-sql
 packages/connectors/hull-outreach
 packages/connectors/hull-warehouse
@@ -25,4 +24,5 @@ packages/connectors/hull-pipedrive
 packages/connectors/hull-coppercrm
 packages/connectors/hull-slack
 packages/connectors/hull-hubspot/server/purplefusion
+packages/connectors/hull-salesforce/server/purplefusion
 packages/hull-connector-framework

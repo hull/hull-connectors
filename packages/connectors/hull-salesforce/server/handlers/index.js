@@ -62,14 +62,24 @@ const handler = ({
       fetchAllTasks: fetchAll("Task"),
       leadAssignmentRules: getLeadAssignmentRules,
       fieldsSalesforceLeadInbound: getLeadProperties(),
-      fieldsSalesforceLeadOutbound: getLeadProperties({ fieldType: "updateable" }),
+      fieldsSalesforceLeadOutbound: getLeadProperties({
+        fieldType: "updateable"
+      }),
       fieldsSalesforceContactInbound: getContactProperties(),
-      fieldsSalesforceContactOutbound: getContactProperties({ fieldType: "updateable" }),
+      fieldsSalesforceContactOutbound: getContactProperties({
+        fieldType: "updateable"
+      }),
       fieldsSalesforceAccountInbound: getAccountProperties(),
-      fieldsSalesforceAccountOutbound: getAccountProperties({ fieldType: "updateable" }),
-      fieldsSalesforceTaskOutbound: getTaskProperties({ fieldType: "updateable" }),
+      fieldsSalesforceAccountOutbound: getAccountProperties({
+        fieldType: "updateable"
+      }),
+      fieldsSalesforceTaskOutbound: getTaskProperties({
+        fieldType: "updateable"
+      }),
       fieldsSalesforceTaskUnique: getTaskProperties({ fieldType: "unique" }),
-      fieldsSalesforceTaskReference: getTaskProperties({ fieldType: "reference" })
+      fieldsSalesforceTaskReference: getTaskProperties({
+        fieldType: "reference"
+      })
     }
   };
 };

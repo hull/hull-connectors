@@ -46,9 +46,9 @@ module.exports = function statusCheck(ctx: HullContext): HullStatusResponse {
 
   if (
     write_key &&
-    (!_.size(synchronized_properties) &&
-      !_.size(synchronized_account_properties) &&
-      !_.size(synchronized_events))
+    !_.size(synchronized_properties) &&
+    !_.size(synchronized_account_properties) &&
+    !_.size(synchronized_events)
   ) {
     status = "warning";
     messages.push(
