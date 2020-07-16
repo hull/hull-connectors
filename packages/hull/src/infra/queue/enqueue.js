@@ -47,8 +47,8 @@ module.exports = async function enqueue(
     }
   };
   const queueName = options.queueName || "queueApp";
-
   return queueAdapter.create(
+    ctx,
     queueName,
     {
       name: jobName,
