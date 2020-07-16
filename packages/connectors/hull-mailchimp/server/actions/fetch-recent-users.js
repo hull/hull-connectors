@@ -2,9 +2,7 @@
 import type { HullContext } from "hull";
 
 /**
- * Fetch the most recent contact changes in Mailchimp. No later than 24 hours.
- * @param ctx
- * @returns {*}
+ *  Trigger a job for importing recently updated contacts in Mailchimp
  */
 async function fetchRecentUsers(ctx: HullContext) {
   ctx.enqueue("fetchRecentUsers");
