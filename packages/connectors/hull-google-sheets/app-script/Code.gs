@@ -28,6 +28,12 @@ function setUserProp(prop) {
 function setDocumentProp(prop) {
   return setProp(PropertiesService.getDocumentProperties(), prop);
 }
+function saveToken(value) {
+  return setProp(PropertiesService.getDocumentProperties(), {
+    value,
+    key: "token"
+  });
+}
 function clearProperties() {
   PropertiesService.getUserProperties().deleteAllProperties();
   PropertiesService.getDocumentProperties().deleteAllProperties();
@@ -75,7 +81,7 @@ function getSheetMapping(index, type) {
       service: null
     }
   ];
-  return getUserProp({
+  return getDocumentProp({
     key: `${type}_mapping`,
     index,
     fallback: def
@@ -88,7 +94,7 @@ function getSheetClaims(index, type) {
       service: null
     }
   ];
-  return getUserProp({
+  return getDocumentProp({
     key: `${type}_claims`,
     index,
     fallback: def
@@ -291,12 +297,12 @@ function importData({ index, type, mapping, claims }) {
     startRow += IMPORT_CHUNK_SIZE;
     errors.push(...importResponse.errors);
     incrementStats({ stats, errors }, [payloads, importResponse]);
-    setUserProp({
+    setDocumentProp({
       key: "importProgress",
       index,
       value: stats
     });
-    setUserProp({
+    setDocumentProp({
       key: "importErrors",
       index,
       value: errors
@@ -321,13 +327,13 @@ function getActiveSheet() {
     range: getSelectedRows(),
     googleColumns: getColumnNames(index),
     importErrors:
-      getUserProp({
+      getDocumentProp({
         key: "importErrors",
         index,
         fallback: []
       }) || [],
     importProgress:
-      getUserProp({
+      getDocumentProp({
         key: "importProgress",
         index,
         fallback: {}
@@ -349,13 +355,13 @@ function bootstrap(index, token) {
   }
   try {
     const source =
-      getUserProp({
+      getDocumentProp({
         key: "source",
         index,
         fallback: ""
       }) || "";
     const type =
-      getUserProp({
+      getDocumentProp({
         key: "type",
         index,
         fallback: "user"
@@ -392,13 +398,13 @@ function bootstrap(index, token) {
 }
 
 function saveConfig({ index, data }) {
-  Logger.log("SetUserProps", prefixAndStringify({ prefix: index, data }));
+  Logger.log("saveConfig", prefixAndStringify({ prefix: index, data }));
   try {
     PropertiesService.getDocumentProperties().setProperties(
       prefixAndStringify({ prefix: index, data })
     );
     return bootstrap(index);
   } catch (err) {
-    Logger.log("error in setUserProps", err);
+    Logger.log("error in saveConfig", err);
   }
 }
