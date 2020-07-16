@@ -3,7 +3,7 @@ const moment = require("moment");
 const shipAppFactory = require("../lib/ship-app-factory");
 
 /**
- * SyncIn : import all the list members as hull users
+ * Import recently updated contacts over the past 24 hours
  */
 function fetchRecentUsersJob(ctx: any) {
   const { mailchimpAgent } = shipAppFactory(ctx);
