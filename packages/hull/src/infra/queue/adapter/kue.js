@@ -33,26 +33,31 @@ class KueAdapter {
    * @return {Promise}
    */
   create(
+    ctx,
     jobName,
     jobPayload = {},
-    { ttl = 0, delay = null, priority = null } = {}
+    { ttl = 0, delay = null, priority = null, backoff, attempts = 3 } = {}
   ) {
     return Promise.fromCallback(callback => {
       const job = this.queue
         .create(jobName, jobPayload)
-        .attempts(3)
+        .attempts(attempts)
         .removeOnComplete(true);
 
-      if (ttl) {
+      if (ttl !== undefined) {
         job.ttl(ttl);
       }
 
-      if (delay) {
+      if (delay !== undefined) {
         job.delay(delay);
       }
 
-      if (priority) {
+      if (priority !== undefined) {
         job.priority(priority);
+      }
+
+      if (backoff !== undefined) {
+        job.backoff(backoff);
       }
 
       return job.save(err => {
