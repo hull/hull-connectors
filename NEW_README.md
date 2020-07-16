@@ -1191,7 +1191,6 @@ It creates the following log entries for you:
 /* @flow */
 import type { HullContext } from "hull";
 import { asyncComputeAndIngest, varsFromSettings } from "hull-vm";
-import resultsUrl from "../lib/get-results-url";
 
 /**
  * SyncIn : import all the list members as hull users

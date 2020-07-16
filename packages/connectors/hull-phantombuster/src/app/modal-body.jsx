@@ -19,7 +19,7 @@ export default class ModalBody extends Component<Props> {
   };
 
   render() {
-    const { sync_interval, agent, api_key } = this.props;
+    const { sync_interval, agent } = this.props;
     return (
       <div>
         {agent && (

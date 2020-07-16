@@ -68,6 +68,9 @@ export default function connectorConfig(): HullConnectorConfig {
     logsConfig: {
       logLevel: LOG_LEVEL
     },
+    httpClientConfig: {
+      prefix: "https://api.phantombuster.com/api/v2"
+    },
     clientConfig: {
       firehoseUrl: OVERRIDE_FIREHOSE_URL
     },

@@ -3,20 +3,22 @@
 import type { HullContext } from "hull";
 
 const URL = "https://cache1.phantombooster.com";
-const resultUrl = ({ userAwsFolder, awsFolder }) =>
-  `${URL}/${userAwsFolder}/${awsFolder}/result.csv`;
+const resultUrl = ({ agent, org }) =>
+  `${URL}/${org.s3Folder}/${agent.s3Folder}/result.csv`;
 
 export default function getResultsUrl(
   ctx: HullContext,
   agent: {
-    userAwsFolder: string,
-    awsFolder: string
+    s3Folder: string
+  },
+  org: {
+    s3Folder: string
   }
 ) {
-  const { userAwsFolder, awsFolder } =
-    agent || ctx?.connector?.private_settings?.agent || {};
-  if (!userAwsFolder || !awsFolder) {
-    throw new Error("Can't find an agent to fetch results from");
+  if (!agent.s3Folder || !org.s3Folder) {
+    throw new Error(
+      "Can't find an agent or organization to fetch results from"
+    );
   }
-  return resultUrl({ userAwsFolder, awsFolder });
+  return resultUrl({ agent, org });
 }

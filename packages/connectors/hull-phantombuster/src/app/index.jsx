@@ -71,7 +71,7 @@ export default class App extends RecentEntriesUI<Props, State> {
       computing && <Spinner key="computing" className="loading-spinner" />,
       api_key && (
         <Button size="sm" key="callNow" onClick={this.callNow}>
-          Preview Results
+          Fetch sample from Phantombuster
         </Button>
       ),
       api_key && (

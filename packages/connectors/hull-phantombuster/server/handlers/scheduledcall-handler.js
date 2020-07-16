@@ -12,7 +12,7 @@ const scheduledCall = async (ctx: HullContext): HullExternalResponse => {
   const { private_settings = {} } = connector;
 
   try {
-    const agent = await updateAgentDetails(ctx, true);
+    const { agent, org } = await updateAgentDetails(ctx, true);
     const { isNew } = agent;
     if (!isNew) {
       client.logger.info("incoming.job.skip", {
@@ -26,7 +26,7 @@ const scheduledCall = async (ctx: HullContext): HullExternalResponse => {
         }
       };
     }
-    const data = ctx.enqueue("fetchAll", { agent });
+    const data = ctx.enqueue("fetchAll", { agent, org });
 
     return { status: 200, data };
   } catch (err) {

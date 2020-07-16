@@ -1,4 +1,5 @@
 // @flow
+import _ from "lodash";
 import type { HullContext } from "hull";
 import handleResponseError from "./handle-response-error";
 import checkConfig from "./check-config";
@@ -28,34 +29,41 @@ export default async function updateAgentDetails(
   const { connector, request, helpers } = ctx;
   const { private_settings = {} } = connector;
   const { agent_id, api_key, agent = {} } = private_settings;
-  const { nonce } = agent;
+  const { lastEndedAt } = agent;
 
   checkConfig(ctx);
 
-  const response = await request
-    .get(`https://phantombuster.com/api/v1/agent/${agent_id}`)
-    .type("json")
-    .set({
-      "X-Phantombuster-key": api_key
-    });
+  request.type("json").set({
+    "X-Phantombuster-key": api_key
+  });
 
-  const error = handleResponseError(response);
+  const [agentResponse, orgResponse] = await Promise.all([
+    request.get(`/agents/fetch?id=${agent_id}`),
+    request.get("/orgs/fetch")
+  ]);
+
+  const error = handleResponseError(agentResponse);
 
   if (error) {
     const err = new Error(error);
-    err.data = { body: response.body };
+    err.data = { body: agentResponse.body };
     throw err;
   }
 
-  const { data } = response.body;
-
-  const isNew = nonce !== data.nonce;
+  const isNew = lastEndedAt !== agentResponse.body.lastEndedAt;
+  const output = {
+    agent: _.omit(agentResponse.body, ["argument", "repeatedLaunchTimes"]),
+    org: orgResponse.body
+  };
   if (update) {
-    await helpers.settingsUpdate({ agent: data });
+    await helpers.settingsUpdate(output);
   }
   // $FlowFixMe
   return {
-    ...data,
-    isNew
+    agent: {
+      ...output.agent,
+      isNew
+    },
+    org: output.org
   };
 }
