@@ -33,6 +33,7 @@ class KueAdapter {
    * @return {Promise}
    */
   create(
+    ctx,
     jobName,
     jobPayload = {},
     { ttl = 0, delay = null, priority = null } = {}
