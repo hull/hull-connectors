@@ -17,10 +17,12 @@ import syncOut from "../actions/sync-out";
 import track from "../actions/track";
 import schemaUserFields from "../actions/schema-user-fields";
 import status from "../actions/status";
+import fetchRecentUsers from "../actions/fetch-recent-users";
 
 import handleMailchimpBatch from "../jobs/handle-mailchimp-batch";
 import importUsers from "../jobs/import-users";
 import fetchAllUsers from "../jobs/fetch-all-users";
+import fetchRecentUsersJob from "../jobs/fetch-recent-users-job";
 import syncOutJob from "../jobs/sync-out";
 import trackUsers from "../jobs/track-users";
 import trackJob from "../jobs/track";
@@ -47,7 +49,8 @@ export default function handlers({
       syncOut: syncOutJob,
       trackUsers,
       track: trackJob,
-      trackEmailActivites
+      trackEmailActivites,
+      fetchRecentUsers: fetchRecentUsersJob
     },
     incoming: { webhook },
     subscriptions: {
@@ -72,7 +75,8 @@ export default function handlers({
       syncOut,
       // @TODO : this is used both as a schedule and as a JSON call
       // Check that both work - the Schedules pass things in the body - the JSON don't
-      track
+      track,
+      fetchRecentUsers
     },
     // @TODO: Check we're still working when using the oauth provider as a classic route
     private_settings: {
