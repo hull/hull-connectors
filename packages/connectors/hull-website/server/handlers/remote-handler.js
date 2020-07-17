@@ -1,12 +1,9 @@
 // @flow
 
-import uuid from "uuid/v1";
 import Hull from "hull-client/src";
 import cacheManager from "cache-manager";
 
 const HULL_JS_URL = "https://js.hull.io/0.10.0/hull.js.gz";
-const ONE_YEAR = 365 * 24 * 3600000;
-const THIRTY_MINUTES = 1800000;
 
 const buildConfig = app => {
   return {
@@ -69,25 +66,8 @@ const remoteHandler = () => {
   return (req, res) => {
     const appId = req.params.id;
 
-    const remoteUrl = new URL(req.url, `https://${res.hostname}`);
-    const browserId =
-      remoteUrl.searchParams.get("_bid") || req.cookies._bid || uuid();
-    const sessionId =
-      remoteUrl.searchParams.get("_sid") || req.cookies._sid || uuid();
-
-    res.cookie("_bid", browserId, {
-      secure: true,
-      sameSite: "None",
-      maxAge: ONE_YEAR,
-      httpOnly: true
-    });
-
-    res.cookie("_sid", sessionId, {
-      secure: true,
-      sameSite: "None",
-      maxAge: THIRTY_MINUTES,
-      httpOnly: true
-    });
+    const browserId = req["hull-bid"];
+    const sessionId = req["hull-sid"];
 
     fetchRemoteConfig(CACHE, req.organization, appId).then(
       remoteConfig => renderRemote(res, remoteConfig, { browserId, sessionId }),
