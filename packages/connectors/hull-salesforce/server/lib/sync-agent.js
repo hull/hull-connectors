@@ -495,6 +495,14 @@ class SyncAgent {
         );
       }
 
+      if (_.isEmpty(matchedMessages) && !sfEntity.success) {
+        this.hullClient.logger.info(`outgoing.${hullType}.error`, {
+          error: sfEntity.error,
+          data: sfEntity.record,
+          warning: `Unable to determine Hull ${hullType} identity`
+        });
+      }
+
       _.forEach(matchedMessages, message => {
         const { user, account } = message;
         if (hullType === "account") {

@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.1.33-monorepo (2020-07-16)
+- [hull-mailchimp] Fetch recent contacts
+
 ## v0.1.32-monorepo (2020-07-10)
 - [hull-google-sheets] Rework of the google-sheets connector
 

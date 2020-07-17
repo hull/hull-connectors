@@ -4,7 +4,7 @@
   "source": "salesforce",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.32-monorepo",
+  "version": "0.1.33-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -132,6 +132,12 @@
       "format": "traitMapping",
       "default": [
         {
+          "hull": "email",
+          "service": "Email",
+          "overwrite": false,
+          "readOnly": true
+        },
+        {
           "hull": "first_name",
           "service": "FirstName",
           "default_value": "[Unknown]",
@@ -141,11 +147,6 @@
           "hull": "last_name",
           "service": "LastName",
           "default_value": "[Unknown]",
-          "overwrite": false
-        },
-        {
-          "hull": "email",
-          "service": "Email",
           "overwrite": false
         }
       ],
@@ -228,6 +229,12 @@
       "format": "traitMapping",
       "default": [
         {
+          "hull": "email",
+          "service": "Email",
+          "overwrite": false,
+          "readOnly": true
+        },
+        {
           "hull": "first_name",
           "service": "FirstName",
           "default_value": "[Unknown]",
@@ -237,11 +244,6 @@
           "hull": "last_name",
           "service": "LastName",
           "default_value": "[Unknown]",
-          "overwrite": false
-        },
-        {
-          "hull": "email",
-          "service": "Email",
           "overwrite": false
         }
       ],
