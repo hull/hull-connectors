@@ -101,7 +101,8 @@ export type HullQueueConfig =
   | {
       store: "redis",
       url: string,
-      name: string
+      name: string,
+      settings?: {}
     }
   | {
       store: "memory",
