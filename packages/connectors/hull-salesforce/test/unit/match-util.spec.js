@@ -35,7 +35,7 @@ const domainTestCases = [
   { website: "www.safervpn.com/business", domain: "safervpn.com" }
 ];
 
-describe("extractMatchingDomain", () => {
+describe("Extract Matching Domain Tests", () => {
   domainTestCases.forEach((tc) => {
     it(`should extract the matching domain '${tc.domain}' from website '${tc.website}'`, () => {
       const actual = matchUtil.extractMatchingDomain(tc.website);
@@ -45,7 +45,8 @@ describe("extractMatchingDomain", () => {
   });
 });
 
-describe("matchSalesForceAccountsByMessage", () => {
+describe("Should Match Accounts", () => {
+
   let privateSettings = {
     account_claims: [
       {
@@ -79,10 +80,9 @@ describe("matchSalesForceAccountsByMessage", () => {
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
-    const messages = [];
     const salesForceAccounts = [];
 
-    const accountMessage0 = EntityMessageFactory.build({
+    const message = EntityMessageFactory.build({
       account: { domain: "https://domain1.com", external_id: "salesforceAccountId-1", id: "accountId-1" }
     }, {});
 
@@ -93,20 +93,21 @@ describe("matchSalesForceAccountsByMessage", () => {
     salesForceAccounts.push(sfAccount0);
     salesForceAccounts.push(sfAccount1);
     salesForceAccounts.push(sfAccount2);
-    messages.push(accountMessage0);
 
-    const envelopes = messages.map((message: THullAccountUpdateMessage): IAccountUpdateEnvelope => {
-      const envelope: IAccountUpdateEnvelope = {
-        message: _.cloneDeep(message)
-      };
-      matchUtil.matchAccounts(envelope, salesForceAccounts, accountClaims, "account");
+    const accountMatches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
 
-      return envelope;
-    });
-
-    expect(envelopes).toHaveLength(1);
-    expect(envelopes[0].currentSfAccount).toEqual(sfAccount0);
-    expect(_.get(envelopes[0].message, "account.salesforce/id")).toEqual("salesforceAccountId-1");
+    expect(accountMatches).toEqual(
+      {
+        "primary": [],
+        "secondary": [
+          {
+            "Website": "domain1.com",
+            "Id": "salesforceAccountId-1",
+            "CustomIdentifierField__c": "salesforceAccountId-1"
+          }
+        ]
+      }
+    );
   });
 
   it("2 matches for required domain account claim. 0 matches for required ext id account claim", () => {
@@ -126,10 +127,9 @@ describe("matchSalesForceAccountsByMessage", () => {
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
-    const messages = [];
     const salesForceAccounts = [];
 
-    const accountMessage0 = EntityMessageFactory.build({
+    const message = EntityMessageFactory.build({
       account: { domain: "domain1.com", external_id: "non-matching-sf-id", id: "accountId-1" }
     }, {});
 
@@ -140,20 +140,26 @@ describe("matchSalesForceAccountsByMessage", () => {
     salesForceAccounts.push(sfAccount0);
     salesForceAccounts.push(sfAccount1);
     salesForceAccounts.push(sfAccount2);
-    messages.push(accountMessage0);
 
-    const envelopes = messages.map((message: THullAccountUpdateMessage): IAccountUpdateEnvelope => {
-      const envelope: IAccountUpdateEnvelope = {
-        message: _.cloneDeep(message)
-      };
-      matchUtil.matchAccounts(envelope, salesForceAccounts, accountClaims, "account");
+    const accountMatches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
 
-      return envelope;
-    });
-
-    expect(envelopes).toHaveLength(1);
-    expect(envelopes[0].currentSfAccount).toBeUndefined();
-    expect(_.get(envelopes[0].message, "account.salesforce/id")).toBeUndefined();
+    expect(accountMatches).toEqual(
+      {
+        "primary": [],
+        "secondary": [
+          {
+            "Website": "domain1.com",
+            "Id": "salesforceAccountId-1",
+            "CustomIdentifierField__c": "salesforceAccountId-1"
+          },
+          {
+            "Website": "domain1.com",
+            "Id": "salesforceAccountId-2",
+            "CustomIdentifierField__c": "salesforceAccountId-2"
+          }
+        ]
+      }
+    );
   });
 
   it("2 matches for required domain account claim. 1 match for non required ext id account claim", () => {
@@ -172,10 +178,9 @@ describe("matchSalesForceAccountsByMessage", () => {
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
-    const messages = [];
     const salesForceAccounts = [];
 
-    const accountMessage0 = EntityMessageFactory.build({
+    const message = EntityMessageFactory.build({
       account: { domain: "https://domain1.com", external_id: "salesforceAccountId-1", id: "accountId-1" }
     }, {});
 
@@ -186,20 +191,21 @@ describe("matchSalesForceAccountsByMessage", () => {
     salesForceAccounts.push(sfAccount0);
     salesForceAccounts.push(sfAccount1);
     salesForceAccounts.push(sfAccount2);
-    messages.push(accountMessage0);
 
-    const envelopes = messages.map((message: THullAccountUpdateMessage): IAccountUpdateEnvelope => {
-      const envelope: IAccountUpdateEnvelope = {
-        message: _.cloneDeep(message)
-      };
-      matchUtil.matchAccounts(envelope, salesForceAccounts, accountClaims, "account");
+    const accountMatches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
 
-      return envelope;
-    });
-
-    expect(envelopes).toHaveLength(1);
-    expect(envelopes[0].currentSfAccount).toEqual(sfAccount0);
-    expect(_.get(envelopes[0].message, "account.salesforce/id")).toEqual("salesforceAccountId-1");
+    expect(accountMatches).toEqual(
+      {
+        "primary": [],
+        "secondary": [
+          {
+            "Website": "http://domain1.com",
+            "Id": "salesforceAccountId-1",
+            "CustomIdentifierField__c": "salesforceAccountId-1"
+          }
+        ]
+      }
+    );
   });
 
   it("0 matches for required domain account claim. 1 match for required ext id account claim", () => {
@@ -219,10 +225,9 @@ describe("matchSalesForceAccountsByMessage", () => {
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
-    const messages = [];
     const salesForceAccounts = [];
 
-    const accountMessage0 = EntityMessageFactory.build({
+    const message = EntityMessageFactory.build({
       account: { domain: "non-matching-domain.com", external_id: "salesforceAccountId-1", id: "accountId-1" }
     }, {});
 
@@ -233,20 +238,19 @@ describe("matchSalesForceAccountsByMessage", () => {
     salesForceAccounts.push(sfAccount0);
     salesForceAccounts.push(sfAccount1);
     salesForceAccounts.push(sfAccount2);
-    messages.push(accountMessage0);
 
-    const envelopes = messages.map((message: THullAccountUpdateMessage): IAccountUpdateEnvelope => {
-      const envelope: IAccountUpdateEnvelope = {
-        message: _.cloneDeep(message)
-      };
-      matchUtil.matchAccounts(envelope, salesForceAccounts, accountClaims, "account");
+    const accountMatches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
 
-      return envelope;
+    expect(accountMatches).toEqual({
+      "primary": [],
+      "secondary": [
+        {
+          "Website": "domain1.com",
+          "Id": "salesforceAccountId-1",
+          "CustomIdentifierField__c": "salesforceAccountId-1"
+        }
+      ]
     });
-
-    expect(envelopes).toHaveLength(1);
-    expect(envelopes[0].currentSfAccount).toEqual(sfAccount0);
-    expect(_.get(envelopes[0].message, "account.salesforce/id")).toEqual("salesforceAccountId-1");
   });
 
   it("2 matches for domain account claim. 1 non-overlapping match for required ext id account claim", () => {
@@ -272,10 +276,9 @@ describe("matchSalesForceAccountsByMessage", () => {
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
-    const messages = [];
     const salesForceAccounts = [];
 
-    const accountMessage0 = EntityMessageFactory.build({
+    const message = EntityMessageFactory.build({
       account: { domain: "non-matching-domain.com", external_id: "salesforceAccountId-1", id: "accountId-1" }
     }, {});
 
@@ -286,20 +289,19 @@ describe("matchSalesForceAccountsByMessage", () => {
     salesForceAccounts.push(sfAccount0);
     salesForceAccounts.push(sfAccount1);
     salesForceAccounts.push(sfAccount2);
-    messages.push(accountMessage0);
 
-    const envelopes = messages.map((message: THullAccountUpdateMessage): IAccountUpdateEnvelope => {
-      const envelope: IAccountUpdateEnvelope = {
-        message: _.cloneDeep(message)
-      };
-      matchUtil.matchAccounts(envelope, salesForceAccounts, accountClaims, "account");
+    const accountMatches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
 
-      return envelope;
+    expect(accountMatches).toEqual({
+      "primary": [],
+      "secondary": [
+        {
+          "Website": "domain1.com",
+          "Id": "salesforceAccountId-1",
+          "CustomIdentifierField__c": "salesforceAccountId-1"
+        }
+      ]
     });
-
-    expect(envelopes).toHaveLength(1);
-    expect(envelopes[0].currentSfAccount).toEqual(sfAccount0);
-    expect(_.get(envelopes[0].message, "account.salesforce/id")).toEqual("salesforceAccountId-1");
   });
 
   it("2 Messages - should find salesforce accounts", () => {
@@ -310,13 +312,13 @@ describe("matchSalesForceAccountsByMessage", () => {
     privateSettings = {
       account_claims: [
         {
-          hull: "domain",
-          service: "Website",
+          hull: "external_id",
+          service: "CustomIdentifierField__c",
           required: true
         },
         {
-          hull: "external_id",
-          service: "CustomIdentifierField__c",
+          hull: "domain",
+          service: "Website",
           required: true
         }
       ],
@@ -338,30 +340,47 @@ describe("matchSalesForceAccountsByMessage", () => {
     const sfAccount2 = SalesforceAccountFactory.build({}, { Website: "domain2.com", Id: "salesforceAccountId-3", CustomIdentifierField__c: "salesforceAccountId-3" });
     const sfAccount3 = SalesforceAccountFactory.build({}, { Website: "domain2.com", Id: "salesforceAccountId-4", CustomIdentifierField__c: "salesforceAccountId-4" });
     const sfAccount4 = SalesforceAccountFactory.build({}, { Website: "domain3.com", Id: "salesforceAccountId-5", CustomIdentifierField__c: "salesforceAccountId-5" });
+    const sfAccount5 = SalesforceAccountFactory.build({}, { Website: "domain3.com", Id: "salesforceAccountId-5", CustomIdentifierField__c: "salesforceAccountId-1" });
 
-    salesForceAccounts.push(sfAccount0);
-    salesForceAccounts.push(sfAccount1);
     salesForceAccounts.push(sfAccount2);
     salesForceAccounts.push(sfAccount3);
     salesForceAccounts.push(sfAccount4);
+    salesForceAccounts.push(sfAccount5);
+    salesForceAccounts.push(sfAccount0);
+    salesForceAccounts.push(sfAccount1);
+
     messages.push(accountMessage0);
     messages.push(accountMessage1);
 
-    const envelopes = messages.map((message: THullAccountUpdateMessage): IAccountUpdateEnvelope => {
-      const envelope: IAccountUpdateEnvelope = {
-        message: _.cloneDeep(message)
-      };
-      matchUtil.matchAccounts(envelope, salesForceAccounts, accountClaims, "account");
-
-      return envelope;
-    });
-
-    expect(envelopes).toHaveLength(2);
-    expect(envelopes[0].currentSfAccount).toEqual(sfAccount0);
-    expect(envelopes[1].currentSfAccount).toEqual(sfAccount3);
-
-    expect(_.get(envelopes[0].message, "account.salesforce/id")).toEqual("salesforceAccountId-1");
-    expect(_.get(envelopes[1].message, "account.salesforce/id")).toEqual("salesforceAccountId-4");
+    const matches = [];
+    _.forEach(messages, message => {
+      const accountMatches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
+      matches.push(accountMatches);
+    })
+    expect(matches).toEqual(
+      [
+        {
+          "primary": [],
+          "secondary": [
+            {
+              "Website": "domain1.com",
+              "Id": "salesforceAccountId-1",
+              "CustomIdentifierField__c": "salesforceAccountId-1"
+            }
+          ]
+        },
+        {
+          "primary": [],
+          "secondary": [
+            {
+              "Website": "domain2.com",
+              "Id": "salesforceAccountId-4",
+              "CustomIdentifierField__c": "salesforceAccountId-4"
+            }
+          ]
+        }
+      ]
+    );
   });
 
   it("2 Messages - first message finds sf account", () => {
@@ -410,21 +429,40 @@ describe("matchSalesForceAccountsByMessage", () => {
     messages.push(accountMessage0);
     messages.push(accountMessage1);
 
-    const envelopes = messages.map((message: THullAccountUpdateMessage): IAccountUpdateEnvelope => {
-      const envelope: IAccountUpdateEnvelope = {
-        message: _.cloneDeep(message)
-      };
-      matchUtil.matchAccounts(envelope, salesForceAccounts, accountClaims, "account");
-
-      return envelope;
-    });
-
-    expect(envelopes).toHaveLength(2);
-    expect(envelopes[0].currentSfAccount).toEqual(sfAccount0);
-    expect(_.get(envelopes[0].message, "account.salesforce/id")).toEqual("salesforceAccountId-1");
-
-    expect(envelopes[1].currentSfAccount).toBeUndefined();
-    expect(_.get(envelopes[1].message, "account.salesforce/id", null)).toBeNull();
+    const matches = [];
+    _.forEach(messages, message => {
+      const accountMatches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
+      matches.push(accountMatches);
+    })
+    expect(matches).toEqual(
+      [
+        {
+          "primary": [],
+          "secondary": [
+            {
+              "Website": "domain1.com",
+              "Id": "salesforceAccountId-1",
+              "CustomIdentifierField__c": "salesforceAccountId-1"
+            }
+          ]
+        },
+        {
+          "primary": [],
+          "secondary": [
+            {
+              "Website": "domain2.com",
+              "Id": "salesforceAccountId-3",
+              "CustomIdentifierField__c": "salesforceAccountId-3"
+            },
+            {
+              "Website": "domain2.com",
+              "Id": "salesforceAccountId-4",
+              "CustomIdentifierField__c": "salesforceAccountId-4"
+            }
+          ]
+        }
+      ]
+    );
   });
 
   it("Single match for required claim. No matches for non required claim", () => {
@@ -444,10 +482,9 @@ describe("matchSalesForceAccountsByMessage", () => {
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
-    const messages = [];
     const salesForceAccounts = [];
 
-    const accountMessage0 = EntityMessageFactory.build({
+    const message = EntityMessageFactory.build({
       account: { domain: "non-matching-domain.com", external_id: "salesforceAccountId-1", id: "accountId-1" }
     }, {});
 
@@ -460,19 +497,21 @@ describe("matchSalesForceAccountsByMessage", () => {
     salesForceAccounts.push(sfAccount1);
     salesForceAccounts.push(sfAccount2);
     salesForceAccounts.push(sfAccount3);
-    messages.push(accountMessage0);
 
-    const envelopes = messages.map((message: THullAccountUpdateMessage): IAccountUpdateEnvelope => {
-      const envelope: IAccountUpdateEnvelope = {
-        message: _.cloneDeep(message)
-      };
-      matchUtil.matchAccounts(envelope, salesForceAccounts, accountClaims, "account");
+    const matches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
 
-      return envelope;
-    });
-
-    expect(envelopes).toHaveLength(1);
-    expect(envelopes[0].currentSfAccount).toEqual(sfAccount0);
+    expect(matches).toEqual(
+      {
+        "primary": [],
+        "secondary": [
+          {
+            "Website": "domain1.com",
+            "Id": "salesforceAccountId-1",
+            "CustomIdentifierField__c": "salesforceAccountId-1"
+          }
+        ]
+      }
+    );
   });
 
   it("no account claim matches", () => {
@@ -492,10 +531,9 @@ describe("matchSalesForceAccountsByMessage", () => {
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
-    const messages = [];
     const salesForceAccounts = [];
 
-    const accountMessage0 = EntityMessageFactory.build({
+    const message = EntityMessageFactory.build({
       account: { domain: "non-matching-domain.com", external_id: "non-matching-id", id: "accountId-1" }
     }, {});
 
@@ -510,20 +548,15 @@ describe("matchSalesForceAccountsByMessage", () => {
     salesForceAccounts.push(sfAccount2);
     salesForceAccounts.push(sfAccount3);
     salesForceAccounts.push(sfAccount4);
-    messages.push(accountMessage0);
 
-    const envelopes = messages.map((message: THullAccountUpdateMessage): IAccountUpdateEnvelope => {
-      const envelope: IAccountUpdateEnvelope = {
-        message: _.cloneDeep(message)
-      };
-      matchUtil.matchAccounts(envelope, salesForceAccounts, accountClaims, "account");
+    const matches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
 
-      return envelope;
-    });
-
-    expect(envelopes).toHaveLength(1);
-    expect(envelopes[0].currentSfAccount).toBeUndefined();
-    expect(_.get(envelopes[0].message, "account.salesforce/id", null)).toBeNull();
+    expect(matches).toEqual(
+      {
+        "primary": [],
+        "secondary": []
+      }
+    );
   });
 
   it("2 top domain required account claim matches. 0 external_id required account claim matches.", () => {
@@ -543,33 +576,36 @@ describe("matchSalesForceAccountsByMessage", () => {
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
-    const messages = [];
     const salesForceAccounts = [];
 
-    const accountMessage0 = EntityMessageFactory.build({
+    const message = EntityMessageFactory.build({
       account: { domain: "domain1.com", external_id: "salesforceAccountId-5", id: "accountId-1" }
     }, {});
 
     const sfAccount0 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-1", CustomIdentifierField__c: "salesforceAccountId-1" });
     const sfAccount1 = SalesforceAccountFactory.build({}, { Website: "domain1.com", Id: "salesforceAccountId-2", CustomIdentifierField__c: "salesforceAccountId-2" });
 
-
     salesForceAccounts.push(sfAccount0);
     salesForceAccounts.push(sfAccount1);
-    messages.push(accountMessage0);
+    const matches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
 
-    const envelopes = messages.map((message: THullAccountUpdateMessage): IAccountUpdateEnvelope => {
-      const envelope: IAccountUpdateEnvelope = {
-        message: _.cloneDeep(message)
-      };
-      matchUtil.matchAccounts(envelope, salesForceAccounts, accountClaims, "account");
-
-      return envelope;
-    });
-
-    expect(envelopes).toHaveLength(1);
-    expect(envelopes[0].currentSfAccount).toEqual(undefined);
-    expect(_.get(envelopes[0].message, "account.salesforce/id")).toEqual(undefined);
+    expect(matches).toEqual(
+      {
+        "primary": [],
+        "secondary": [
+          {
+            "Website": "domain1.com",
+            "Id": "salesforceAccountId-1",
+            "CustomIdentifierField__c": "salesforceAccountId-1"
+          },
+          {
+            "Website": "domain1.com",
+            "Id": "salesforceAccountId-2",
+            "CustomIdentifierField__c": "salesforceAccountId-2"
+          }
+        ]
+      }
+    );
   });
 
   it("2 matches for required domain account claim. 2 matches for non required ext id account claim", () => {
@@ -588,10 +624,9 @@ describe("matchSalesForceAccountsByMessage", () => {
     };
     accountClaims = _.get(privateSettings, "account_claims");
 
-    const messages = [];
     const salesForceAccounts = [];
 
-    const accountMessage0 = EntityMessageFactory.build({
+    const message = EntityMessageFactory.build({
       account: { domain: "domain1.com", external_id: "salesforceAccountId-5", id: "accountId-1" }
     }, {});
 
@@ -604,153 +639,68 @@ describe("matchSalesForceAccountsByMessage", () => {
     salesForceAccounts.push(sfAccount1);
     salesForceAccounts.push(sfAccount2);
     salesForceAccounts.push(sfAccount3);
-    messages.push(accountMessage0);
+    const matches = matchUtil.matchHullMessageToSalesforceAccount(message, salesForceAccounts, accountClaims);
 
-    const envelopes = messages.map((message: THullAccountUpdateMessage): IAccountUpdateEnvelope => {
-      const envelope: IAccountUpdateEnvelope = {
-        message: _.cloneDeep(message)
-      };
-      matchUtil.matchAccounts(envelope, salesForceAccounts, accountClaims, "account");
+    expect(matches).toEqual(
+      {
+        "primary": [],
+        "secondary": [
+          {
+            "Website": "domain1.com",
+            "Id": "salesforceAccountId-1",
+            "CustomIdentifierField__c": "salesforceAccountId-1"
+          },
+          {
+            "Website": "domain1.com",
+            "Id": "salesforceAccountId-1",
+            "CustomIdentifierField__c": "salesforceAccountId-1"
+          }
+        ]
+      }
+    );
+  });
 
-      return envelope;
+  it("should error out when there are no accounts to match", () => {
+    const message = {
+      user: {
+        id: "872594a6-1d60-45f8-a73c-678dbd25e4c1",
+        email: "betty.rich@solomonscastle.com",
+        "salesforce_lead/id": "0034600010mr05UAAQ"
+      }
+    };
+
+    const sfAccounts = [
+      {
+        Id: "0012F00000BPjT7QAL",
+        Website: "UppercaseInc.com",
+        Name: "Uppercase Inc."
+      },
+      {
+        Id: "0011GA0000BQjT1QHA",
+        Website: "http://goldminingco.com",
+        Name: "Gold Mining Corp."
+      }
+    ];
+
+    const matches = matchUtil.matchHullMessageToSalesforceAccount(message, sfAccounts, accountClaims);
+
+    expect(matches).toEqual({
+      "primary": [],
+      "secondary": []
     });
-
-    expect(envelopes).toHaveLength(1);
-    expect(envelopes[0].currentSfAccount).toEqual(undefined);
-    expect(_.get(envelopes[0].message, "account.salesforce/id")).toEqual(undefined);
   });
-});
 
-describe("matchAccounts", () => {
-  const privateSettings = {
-    account_claims: [
-      {
-        hull: "domain",
-        service: "Website",
-        required: true
-      }
-    ],
-  };
-  const accountClaims = _.get(privateSettings, "account_claims");
-
-  it("should not modify the envelope if no matching account is found", () => {
-    const envelope = {
-      message: {
-        user: {
-          id: "872594a6-1d60-45f8-a73c-678dbd25e4c1",
-          email: "betty.rich@solomonscastle.com",
-          "salesforce_lead/id": "0034600010mr05UAAQ"
-        }
-      }
-    };
-
-    const sfAccounts = [
-      {
-        Id: "0012F00000BPjT7QAL",
-        Website: "UppercaseInc.com",
-        Name: "Uppercase Inc."
+  it("should match an account by domain/Website with only a single secondary match", () => {
+    const message = {
+      account: {
+        id: "a3136f61-ac4f-4ae2-ab13-43eaf4f4ac34",
+        domain: "goldminingco.com",
+        Name: "Gold Mining"
       },
-      {
-        Id: "0011GA0000BQjT1QHA",
-        Website: "http://goldminingco.com",
-        Name: "Gold Mining Corp."
-      }
-    ];
-
-    matchUtil.matchAccounts(envelope, sfAccounts, accountClaims, "user");
-
-    expect(envelope.currentSfAccount).toBeUndefined();
-    expect(envelope.message.account).toBeUndefined();
-    expect(envelope.message.user["salesforce_contact/account_id"]).toBeUndefined();
-  });
-
-  it("should match an account", () => {
-    const envelope = {
-      message: {
-        account: {
-          id: "a3136f61-ac4f-4ae2-ab13-43eaf4f4ac34",
-          domain: "goldminingco.com",
-          Name: "Gold Mining"
-        },
-      }
-    };
-
-    const sfAccounts = [
-      {
-        Id: "0012F00000BPjT7QAL",
-        Website: "UppercaseInc.com",
-        Name: "Uppercase Inc."
-      },
-      {
-        Id: "0011GA0000BQjT1QHA",
-        Website: "http://goldminingco.com",
-        Name: "Gold Mining Corp."
-      }
-    ];
-
-    matchUtil.matchAccounts(envelope, sfAccounts, accountClaims, "account");
-    expect(envelope.currentSfAccount).toEqual(sfAccounts[1]);
-    expect(envelope.message.account["salesforce/id"]).toBe(sfAccounts[1].Id);
-  });
-
-  it("should modify the envelope if a matching account by domain/Website is found", () => {
-    const envelope = {
-      message: {
-        account: {
-          id: "a3136f61-ac4f-4ae2-ab13-43eaf4f4ac34",
-          domain: "goldminingco.com",
-          Name: "Gold Mining"
-        },
-        user: {
-          account: {
-            id: "a3136f61-ac4f-4ae2-ab13-43eaf4f4ac34",
-            domain: "goldminingco.com",
-            Name: "Gold Mining"
-          },
-          id: "872594a6-1d60-45f8-a73c-678dbd25e4c1",
-          email: "lotta.sweet@goldminingco.com",
-          "salesforce_contact/id": "0034600010mr05UAAQ"
-        }
-      }
-    };
-
-    const sfAccounts = [
-      {
-        Id: "0012F00000BPjT7QAL",
-        Website: "UppercaseInc.com",
-        Name: "Uppercase Inc."
-      },
-      {
-        Id: "0011GA0000BQjT1QHA",
-        Website: "http://goldminingco.com",
-        Name: "Gold Mining Corp."
-      }
-    ];
-
-    matchUtil.matchAccounts(envelope, sfAccounts, accountClaims, "user");
-    expect(envelope.currentSfAccount).toEqual(sfAccounts[1]);
-    expect(envelope.message.account["salesforce/id"]).toBe(sfAccounts[1].Id);
-    expect(envelope.message.user["salesforce_contact/account_id"]).toBe(sfAccounts[1].Id);
-  });
-
-  it("should modify the envelope if a matching account by domain/Website is found and partial matches are found", () => {
-    const envelope = {
-      message: {
-        account: {
-          id: "a3136f61-ac4f-4ae2-ab13-43eaf4f4ac34",
-          domain: "goldminingco.com",
-          Name: "Gold Mining"
-        },
-        user: {
-          account: {
-            id: "a3136f61-ac4f-4ae2-ab13-43eaf4f4ac34",
-            domain: "goldminingco.com",
-            Name: "Gold Mining"
-          },
-          id: "872594a6-1d60-45f8-a73c-678dbd25e4c1",
-          email: "lotta.sweet@goldminingco.com",
-          "salesforce_contact/id": "0034600010mr05UAAQ"
-        }
+      user: {
+        id: "872594a6-1d60-45f8-a73c-678dbd25e4c1",
+        email: "lotta.sweet@goldminingco.com",
+        "salesforce_contact/id": "0034600010mr05UAAQ"
       }
     };
 
@@ -777,32 +727,32 @@ describe("matchAccounts", () => {
       }
     ];
 
-    matchUtil.matchAccounts(envelope, sfAccounts, accountClaims, "user");
-    expect(envelope.currentSfAccount).toEqual(sfAccounts[3]);
-    expect(envelope.message.account["salesforce/id"]).toBe(sfAccounts[3].Id);
-    expect(envelope.message.user["salesforce_contact/account_id"]).toBe(sfAccounts[3].Id);
+    const matches = matchUtil.matchHullMessageToSalesforceAccount(message, sfAccounts, accountClaims);
+
+    expect(matches).toEqual({
+      "primary": [],
+      "secondary": [
+        {
+          "Id": "0011GA0000BQjT1QHA",
+          "Website": "http://goldminingco.com",
+          "Name": "Gold Mining Corp."
+        }
+      ]
+    });
   });
 
-  it("should modify the envelope if a matching account by Id is found", () => {
-    const envelope = {
-      message: {
-        account: {
-          id: "a3136f61-ac4f-4ae2-ab13-43eaf4f4ac34",
-          domain: "goldminingco.shop",
-          Name: "Gold Mining",
-          "salesforce/id": "0011GA0000BQjT1QHA"
-        },
-        user: {
-          account: {
-            id: "a3136f61-ac4f-4ae2-ab13-43eaf4f4ac34",
-            domain: "goldminingco.shop",
-            Name: "Gold Mining",
-            "salesforce/id": "0011GA0000BQjT1QHA"
-          },
-          id: "872594a6-1d60-45f8-a73c-678dbd25e4c1",
-          email: "lotta.sweet@goldminingco.com",
-          "salesforce_contact/id": "0034600010mr05UAAQ"
-        }
+  it("should match an account by salesforce Id", () => {
+    const message = {
+      account: {
+        id: "a3136f61-ac4f-4ae2-ab13-43eaf4f4ac34",
+        domain: "goldminingco.shop",
+        Name: "Gold Mining",
+        "salesforce/id": "0011GA0000BQjT1QHA"
+      },
+      user: {
+        id: "872594a6-1d60-45f8-a73c-678dbd25e4c1",
+        email: "lotta.sweet@goldminingco.com",
+        "salesforce_contact/id": "0034600010mr05UAAQ"
       }
     };
 
@@ -824,29 +774,33 @@ describe("matchAccounts", () => {
       }
     ];
 
-    matchUtil.matchAccounts(envelope, sfAccounts, accountClaims, "user");
-    expect(envelope.currentSfAccount).toEqual(sfAccounts[2]);
-    expect(envelope.message.account["salesforce/id"]).toBe(sfAccounts[2].Id);
-    expect(envelope.message.user["salesforce_contact/account_id"]).toBe(sfAccounts[2].Id);
+    const matches = matchUtil.matchHullMessageToSalesforceAccount(message, sfAccounts, accountClaims);
+
+    expect(matches).toEqual({
+      "primary": [
+        {
+          "Id": "0011GA0000BQjT1QHA",
+          "Website": "http://goldminingco.com",
+          "Name": "Gold Mining Corp."
+        }
+      ],
+      "secondary": []
+    });
   });
 });
 
-describe("matchUsers", () => {
+describe("Match Users Tests", () => {
   it("should throw an error if unsupported resource type is passed", () => {
-    const envelope = {};
+    const user = {};
     const sfObjects = [];
-    expect(() => { matchUtil.matchUsers("Account", envelope, sfObjects); }).toThrowError("Unsupported resource type. Only Contact and Lead can be matched to an user.");
+    expect(() => { matchUtil.matchHullMessageToSalesforceRecord("Opportunity", user, sfObjects); }).toThrowError("Unsupported resource type. Only Contact and Lead can be matched to an user.");
   });
 
-  it("should not modify the envelope if no matching contact is found", () => {
-    const envelope = {
-      message: {
-        user: {
-          id: "872594a6-1d60-45f8-a73c-678dbd25e4c1",
-          email: "betty.rich@solomonscastle.com",
-          "salesforce_lead/id": "0034600010mr05UAAQ"
-        }
-      }
+  it("should not match with a salesforce contact", () => {
+    const user = {
+      id: "872594a6-1d60-45f8-a73c-678dbd25e4c1",
+      email: "betty.rich@solomonscastle.com",
+      "salesforce_lead/id": "0034600010mr05UAAQ"
     };
 
     const sfContacts = [
@@ -860,21 +814,16 @@ describe("matchUsers", () => {
       }
     ];
 
-    matchUtil.matchUsers("Contact", envelope, sfContacts);
+    const matches = matchUtil.matchHullMessageToSalesforceRecord("Contact", user, sfContacts);
 
-    expect(envelope.currentSfContact).toBeUndefined();
-    expect(envelope.message.user["salesforce_contact/id"]).toBeUndefined();
+    expect(matches).toEqual([]);
   });
 
-  it("should modify the envelope if a matching contact by email is found", () => {
-    const envelope = {
-      message: {
-        user: {
-          id: "872594a6-1d60-45f8-a73c-678dbd25e4c1",
-          email: "betty.rich@solomonscastle.com",
-          "salesforce_lead/id": "0034600010mr05UAAQ"
-        }
-      }
+  it("should find a matching contact", () => {
+    const user = {
+      id: "872594a6-1d60-45f8-a73c-678dbd25e4c1",
+      email: "betty.rich@solomonscastle.com",
+      "salesforce_lead/id": "0034600010mr05UAAQ"
     };
 
     const sfContacts = [
@@ -888,21 +837,19 @@ describe("matchUsers", () => {
       }
     ];
 
-    matchUtil.matchUsers("Contact", envelope, sfContacts);
+    const matches = matchUtil.matchHullMessageToSalesforceRecord("Contact", user, sfContacts);
 
-    expect(envelope.currentSfContact).toEqual(sfContacts[1]);
-    expect(envelope.message.user["salesforce_contact/id"]).toBe(sfContacts[1].Id);
+    expect(matches).toEqual([{
+      Id: "0011GA0000BQjT1QHA",
+      Email: "betty.rich@solomonscastle.com"
+    }]);
   });
 
-  it("should modify the envelope if a matching contact by Id is found", () => {
-    const envelope = {
-      message: {
-        user: {
-          id: "872594a6-1d60-45f8-a73c-678dbd25e4c1",
-          email: "betty.rich@solomonscastle.com",
-          "salesforce_contact/id": "0034600010mr05UAAQ"
-        }
-      }
+  it("should find a matching contact by Id", () => {
+    const user = {
+      id: "872594a6-1d60-45f8-a73c-678dbd25e4c1",
+      email: "betty.rich@solomonscastle.com",
+      "salesforce_contact/id": "0034600010mr05UAAQ"
     };
 
     const sfContacts = [
@@ -920,9 +867,65 @@ describe("matchUsers", () => {
       }
     ];
 
-    matchUtil.matchUsers("Contact", envelope, sfContacts);
+    const matches = matchUtil.matchHullMessageToSalesforceRecord("Contact", user, sfContacts);
 
-    expect(envelope.currentSfContact).toEqual(sfContacts[2]);
-    expect(envelope.message.user["salesforce_contact/id"]).toBe(sfContacts[2].Id);
+    expect(matches).toEqual([{
+      Id: "0034600010mr05UAAQ",
+      Email: "betty.rich@solomonscastle.de"
+    }]);
+  });
+});
+
+describe("Filter Identity Claim Matches", () => {
+  it("should find a single salesforce account match from identity claims and intersecting by external id", () => {
+    const accountClaims = [
+      { "hull": "domain", "service": "Website", "required": true },
+      { "hull": "external_id", "service": "CustomIdentifierField__c", "required": true }
+    ];
+    const identityClaimMatches = {
+      "external_id": [
+        { "Website": "domain3.com", "CustomIdentifierField__c": "salesforceAccountId-1" },
+        { "Website": "domain1.com", "CustomIdentifierField__c": "salesforceAccountId-1" }
+      ],
+      "domain": [
+        { "Website": "domain1.com", "CustomIdentifierField__c": "salesforceAccountId-1" },
+        { "Website": "domain1.com", "CustomIdentifierField__c": "salesforceAccountId-2" }
+      ]
+    };
+    const matches = matchUtil.filterIdentityClaimMatches({
+      identityClaims: accountClaims,
+      identityClaimMatches,
+      intersectBy: { path: "service", resolve: true }
+    });
+    expect(matches).toEqual([{
+      "Website": "domain1.com",
+      "CustomIdentifierField__c": "salesforceAccountId-1"
+    }]);
+  });
+
+  it("should find a single salesforce account match from identity claims and intersecting by domain", () => {
+    const accountClaims = [
+      { "hull": "external_id", "service": "CustomIdentifierField__c", "required": true },
+      { "hull": "domain", "service": "Website", "required": true }
+    ];
+    const identityClaimMatches = {
+      "external_id": [
+        { "Website": "domain3.com", "CustomIdentifierField__c": "salesforceAccountId-1" },
+        { "Website": "domain1.com", "CustomIdentifierField__c": "salesforceAccountId-1" }
+      ],
+      "domain": [
+        { "Website": "domain1.com", "CustomIdentifierField__c": "salesforceAccountId-1" },
+        { "Website": "domain1.com", "CustomIdentifierField__c": "salesforceAccountId-2" }
+      ]
+    };
+    const matches = matchUtil.filterIdentityClaimMatches({
+      identityClaims: accountClaims,
+      identityClaimMatches,
+      intersectBy: { path: "service", resolve: true }
+    });
+    expect(matches).toEqual([{
+      "Website": "domain1.com",
+      "CustomIdentifierField__c": "salesforceAccountId-1"
+    }]);
   });
 });

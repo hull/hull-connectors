@@ -1,8 +1,7 @@
-
 const errors = [
   {
     name: "invalid_grant",
-    message: "expired access/refresh token",
+    message: "expired access/refresh token"
   },
   {
     name: "Error",
@@ -15,7 +14,6 @@ const errors = [
   {
     name: "INVALID_FIELD"
   }
-
 ];
 
 module.exports = {

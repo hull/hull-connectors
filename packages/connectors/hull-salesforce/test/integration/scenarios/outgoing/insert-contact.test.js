@@ -9,6 +9,8 @@ process.env.CLIENT_SECRET = "123";
 
 const private_settings = {
   instance_url: "https://na98.salesforce.com",
+  access_token: "1",
+  refresh_token: "1",
   fetch_resource_schema: false,
   fetch_accounts: false,
   ignore_users_withoutemail: false,
@@ -20,6 +22,220 @@ const private_settings = {
 }
 
 describe("Insert Contacts Tests", () => {
+
+  it("should batch fail to insert a new contact", () => {
+    const connector = {
+      private_settings: {
+        contact_synchronized_segments: ["contact_segment_1"],
+        send_null_values: true,
+        contact_attributes_outbound: [
+          { hull: "email", service: "Email", overwrite: false },
+          { hull: "traits_salesforce_contact/department",
+            service: "Department",
+            overwrite: true }
+        ],
+        account_attributes_outbound: [],
+        account_claims: [{ hull: "domain", service: "Website", required: true }],
+        account_synchronized_segments: ["account_segment_1"],
+        ...private_settings
+      }
+    };
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+      return {
+        handlerType: handlers.notificationHandler,
+        handlerUrl: "smart-notifier",
+        channel: "user:update",
+        externalApiMock: () => {
+          const scope = nock("https://na98.salesforce.com");
+          scope
+            .get("/services/data/v39.0/query")
+            .query((query) => {
+              return query.q && query.q.match("FROM Lead");
+            })
+            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
+
+          scope
+            .get("/services/data/v39.0/query")
+            .query((query) => {
+              return query.q && query.q.match("FROM Account");
+            })
+            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
+
+          scope
+            .get("/services/data/v39.0/query")
+            .query((query) => {
+              return query.q && query.q.match("FROM Contact");
+            })
+            .reply(200, { records: [], done: true }, { "sforce-limit-info": "api-usage=500/50000" });
+
+          const respBodyAccount = createSoapEnvelope("updateResponse", { result: [{ id: "00Q1I000004WHchUAA", success: "true" }] });
+          nock("https://na98.salesforce.com")
+            .post("/services/Soap/u/39.0")
+            .reply(200, respBodyAccount, { "Content-Type": "text/xml", "sforce-limit-info": "api-usage=500/50000" });
+
+          const respBody = createSoapEnvelope("updateResponse", { result: [{ id: "00Q1I000004WHchUAG", success: "true" }] });
+          nock("https://na98.salesforce.com")
+            .post("/services/Soap/u/39.0")
+            .reply(400, { "message": "some random error" });
+          return scope;
+        },
+        connector,
+        messages: [
+          {
+            message_id: "1",
+            user: {
+              anonymous_ids: [],
+              email: "adam@apple.com",
+              id: "5a43ce781f6d9f471d005d44",
+            },
+            segments: [{ id: "contact_segment_1" }],
+            account: {
+              domain: "apple.com",
+              id: "a9461ad518be40ba-b568-4729-a676-f9c55abd72c9",
+              name: "Apple",
+              "salesforce/description": "description from account"
+            },
+            account_segments: [{ id: "account_segment_2" }],
+            events: [],
+            changes: {}
+          }
+
+        ],
+        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        logs: [
+          ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
+          expect.arrayContaining([
+            "ship.service_api.request",
+            {
+              "method": "GET",
+              "url_length": 262,
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%20FROM%20Lead%20WHERE%20Email%20IN%20('adam%40apple.com')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+            }
+          ]),
+          expect.arrayContaining([
+            "ship.service_api.request",
+            {
+              "method": "GET",
+              "url_length": 248,
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2C%20Department%2C%20FirstName%2C%20LastName%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam%40apple.com')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+            }
+          ]),
+          expect.arrayContaining([
+            "ship.service_api.request",
+            {
+              "method": "GET",
+              "url_length": 191,
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Id%2C%20Website%20FROM%20Account%20WHERE%20Website%20LIKE%20'%25apple.com%25'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+            }
+          ]),
+          expect.arrayContaining([
+            "outgoing.job.progress",
+            {
+              "step": "findResults",
+              "sfLeads": 0,
+              "sfContacts": 0,
+              "sfAccounts": 0,
+              "userIds": [
+                "5a43ce781f6d9f471d005d44"
+              ],
+              "userEmails": [
+                "adam@apple.com"
+              ],
+              "accountDomains": [
+                "apple.com"
+              ]
+            }
+          ]),
+          expect.arrayContaining([
+            "outgoing.job.progress",
+            {
+              "step": "findResults",
+              "sfLeads": 0,
+              "sfContacts": 0,
+              "sfAccounts": 0,
+              "userIds": [
+                "5a43ce781f6d9f471d005d44"
+              ],
+              "userEmails": [
+                "adam@apple.com"
+              ],
+              "accountDomains": [
+                "apple.com"
+              ]
+            }
+          ]),
+          [
+            "info",
+            "outgoing.account.success",
+            {
+              "subject_type": "account",
+              "request_id": expect.whatever(),
+              "account_id": "a9461ad518be40ba-b568-4729-a676-f9c55abd72c9",
+              "account_domain": "apple.com",
+              "account_anonymous_id": "salesforce:00Q1I000004WHchUAA"
+            },
+            {
+              "record": {
+                "Website": "apple.com",
+                "Id": "00Q1I000004WHchUAA"
+              },
+              "operation": "insert",
+              "resource": "Account"
+            }
+          ],
+          [
+            "info",
+            "outgoing.user.error",
+            {
+              "subject_type": "user",
+              "request_id": expect.whatever(),
+              "user_id": "5a43ce781f6d9f471d005d44",
+              "user_email": "adam@apple.com"
+            },
+            {
+              "error": "Outgoing Batch Error: ERROR_HTTP_400: {\"message\":\"some random error\"}",
+              "resourceType": "Contact"
+            }
+          ],
+          ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }]
+        ],
+        firehoseEvents: [
+          [
+            "traits",
+            {
+              "asAccount": {
+                "id": "a9461ad518be40ba-b568-4729-a676-f9c55abd72c9",
+                "domain": "apple.com",
+                "anonymous_id": "salesforce:00Q1I000004WHchUAA"
+              },
+              "subjectType": "account"
+            },
+            {
+              "salesforce/id": {
+                "value": "00Q1I000004WHchUAA",
+                "operation": "setIfNull"
+              }
+            }
+          ]
+        ],
+        metrics:[
+          ["increment","connector.request",1],
+          ["increment","ship.service_api.call",1],
+          ["increment","ship.service_api.call",1],
+          ["increment","ship.service_api.call",1],
+          ["value","ship.service_api.limit",50000],
+          ["value","ship.service_api.remaining",49500],
+          ["value","ship.service_api.limit",50000],
+          ["value","ship.service_api.remaining",49500],
+          ["value","ship.service_api.limit",50000],
+          ["value","ship.service_api.remaining",49500],
+          ["increment","ship.service_api.call",1],
+          ["increment","ship.service_api.call",1]
+        ],
+        platformApiCalls: []
+      };
+    });
+  });
 
   it("should insert a new contact and insert a new account", () => {
     const connector = {
@@ -102,6 +318,7 @@ describe("Insert Contacts Tests", () => {
         response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
         // expect.arrayContaining([
         logs: [
+          ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
             "ship.service_api.request",
             {
@@ -200,7 +417,8 @@ describe("Insert Contacts Tests", () => {
               "operation": "insert",
               "resource": "Contact"
             }
-          ]
+          ],
+          ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }]
         ],
         firehoseEvents: [
           [
@@ -515,6 +733,7 @@ describe("Insert Contacts Tests", () => {
         ],
         response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
         logs: [
+          ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
             "ship.service_api.request",
             {
@@ -620,7 +839,8 @@ describe("Insert Contacts Tests", () => {
               "operation": "insert",
               "resource": "Contact"
             }
-          ]
+          ],
+          ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }]
         ],
         firehoseEvents: [
           [

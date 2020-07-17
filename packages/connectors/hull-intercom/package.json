@@ -1,6 +1,6 @@
 {
   "name": "hull-intercom",
-  "version": "0.1.32-monorepo",
+  "version": "0.1.33-monorepo",
   "description": "Hull Salesforce integration",
   "scripts": {
     "test": "yarn run test:integration",

@@ -29,19 +29,39 @@ class PatchUtil {
     this.mappingsOutbound = {};
     this.sendNullValues = _.get(connectorSettings, "send_null_values", false);
 
-    _.forEach(SUPPORTED_RESOURCE_TYPES, (r) => {
-      _.set(this.mappingsOutbound, r, _.cloneDeep(_.get(connectorSettings, `${r.toLowerCase()}_attributes_outbound`, [])));
+    _.forEach(SUPPORTED_RESOURCE_TYPES, r => {
+      _.set(
+        this.mappingsOutbound,
+        r,
+        _.cloneDeep(
+          _.get(connectorSettings, `${r.toLowerCase()}_attributes_outbound`, [])
+        )
+      );
     });
 
-    _.forEach(SUPPORTED_RESOURCE_TYPES, (r) => {
-      const userSegmentsAttribute = _.get(connectorSettings, `${r.toLowerCase()}_outgoing_user_segments`);
+    _.forEach(SUPPORTED_RESOURCE_TYPES, r => {
+      const userSegmentsAttribute = _.get(
+        connectorSettings,
+        `${r.toLowerCase()}_outgoing_user_segments`
+      );
 
       if (userSegmentsAttribute) {
-        this.mappingsOutbound[r].push({ hull: "materialized_hull_user_segments", service: userSegmentsAttribute, overwrite: true });
+        this.mappingsOutbound[r].push({
+          hull: "materialized_hull_user_segments",
+          service: userSegmentsAttribute,
+          overwrite: true
+        });
       }
-      const accountSegmentsAttribute = _.get(connectorSettings, `${r.toLowerCase()}_outgoing_account_segments`);
+      const accountSegmentsAttribute = _.get(
+        connectorSettings,
+        `${r.toLowerCase()}_outgoing_account_segments`
+      );
       if (accountSegmentsAttribute) {
-        this.mappingsOutbound[r].push({ hull: "materialized_hull_account_segments", service: accountSegmentsAttribute, overwrite: true });
+        this.mappingsOutbound[r].push({
+          hull: "materialized_hull_account_segments",
+          service: accountSegmentsAttribute,
+          overwrite: true
+        });
       }
     });
   }
@@ -50,18 +70,26 @@ class PatchUtil {
     return !_.isNil(value.match(/[0-9]{4}-[0-9]{2}-[0-9]{2}/g));
   }
 
-  attributeChanged(hullAttributeValue: any, sfAttributeValue: any, sfFieldType: string, isTimestamp: boolean): boolean {
+  attributeChanged(
+    hullAttributeValue: any,
+    sfAttributeValue: any,
+    sfFieldType: string,
+    isTimestamp: boolean
+  ): boolean {
     if (_.isNil(sfFieldType)) {
       if (!_.isNil(hullAttributeValue) && !_.isNil(sfAttributeValue)) {
         if (isTimestamp) {
-          if (moment(hullAttributeValue)
-            .diff(moment(sfAttributeValue), "seconds") === 0) {
+          if (
+            moment(hullAttributeValue).diff(
+              moment(sfAttributeValue),
+              "seconds"
+            ) === 0
+          ) {
             return false;
           }
 
           if (_.isString(sfAttributeValue) && this.isDate(sfAttributeValue)) {
-            return !moment(hullAttributeValue)
-              .isSame(sfAttributeValue, "day");
+            return !moment(hullAttributeValue).isSame(sfAttributeValue, "day");
           }
         }
       }
@@ -84,10 +112,10 @@ class PatchUtil {
       if (sfArrayValues.length !== hullAttributeValues.length) {
         return true;
       }
-      const missingArrayValues = _.filter(hullAttributeValues, (hullValue) => {
+      const missingArrayValues = _.filter(hullAttributeValues, hullValue => {
         // return !_.includes(sfArrayValues, hullValue);
 
-        return !_.some(sfArrayValues, (sfValue) => {
+        return !_.some(sfArrayValues, sfValue => {
           return sfValue.toLowerCase() === hullValue.toLowerCase();
         });
       });
@@ -111,7 +139,12 @@ class PatchUtil {
    * @throws Will throw an error if the `Id` of the targetObject and actualObject are different to
    *         prevent incorrect patches.
    */
-  createPatchObject(resource: TResourceType, hullToSFObject: any, existingSFObject: any, schema: Object): TPatchResult {
+  createPatchObject(
+    resource: TResourceType,
+    hullToSFObject: any,
+    existingSFObject: any,
+    schema: Object
+  ): TPatchResult {
     const mappings = _.get(this.mappingsOutbound, resource);
     const result: TPatchResult = {
       hasChanges: false,
@@ -123,18 +156,25 @@ class PatchUtil {
     }
 
     // Throw an error if one attempts to patch two different objects.
-    if (_.has(hullToSFObject, "Id") && _.has(existingSFObject, "Id") && hullToSFObject.Id !== existingSFObject.Id) {
-      throw new Error(`The identifier for the hull object ${hullToSFObject.Id} and salesforce object ${existingSFObject.Id} do not match.`);
+    if (
+      _.has(hullToSFObject, "Id") &&
+      _.has(existingSFObject, "Id") &&
+      hullToSFObject.Id !== existingSFObject.Id
+    ) {
+      throw new Error(
+        `The identifier for the hull object ${hullToSFObject.Id} and salesforce object ${existingSFObject.Id} do not match.`
+      );
     }
 
-    _.forEach(mappings, (m) => {
+    _.forEach(mappings, m => {
       let valueChanged = false;
       const sfFieldName = m.service;
       const sfFieldType = _.get(schema, sfFieldName, null);
       const hullAttributeValue = _.get(hullToSFObject, sfFieldName, null);
       const sfAttributeValue = _.get(existingSFObject, sfFieldName, null);
 
-      const isTimestamp = _.endsWith(m.hull, "_at") || _.endsWith(m.hull, "_date");
+      const isTimestamp =
+        _.endsWith(m.hull, "_at") || _.endsWith(m.hull, "_date");
 
       if (!_.isNil(hullAttributeValue) && _.isNil(sfAttributeValue)) {
         // Add new attribute to SF
@@ -145,7 +185,15 @@ class PatchUtil {
         }
 
         valueChanged = true;
-      } else if (m.overwrite === true && this.attributeChanged(hullAttributeValue, sfAttributeValue, sfFieldType, isTimestamp)) {
+      } else if (
+        m.overwrite === true &&
+        this.attributeChanged(
+          hullAttributeValue,
+          sfAttributeValue,
+          sfFieldType,
+          isTimestamp
+        )
+      ) {
         // Changing attribute
         valueChanged = !_.isNil(hullAttributeValue) || this.sendNullValues;
         if (_.isArray(hullAttributeValue)) {
@@ -166,17 +214,22 @@ class PatchUtil {
         }
       }
 
-
       if (valueChanged) {
         result.hasChanges = valueChanged;
       }
     });
 
-    if (resource === "Contact" &&
+    if (
+      resource === "Contact" &&
       existingSFObject &&
       _.get(existingSFObject, "AccountId", null) === null &&
-      _.get(hullToSFObject, "AccountId", null) !== null) {
-      _.set(result, "patchObject.AccountId", _.get(hullToSFObject, "AccountId"));
+      _.get(hullToSFObject, "AccountId", null) !== null
+    ) {
+      _.set(
+        result,
+        "patchObject.AccountId",
+        _.get(hullToSFObject, "AccountId")
+      );
       result.hasChanges = true;
     }
 

@@ -1,9 +1,16 @@
-/* @flow */
-import type { THullUserUpdateMessage, THullAccountUpdateMessage } from "hull";
+// @flow
+
+import type { THullAccountUpdateMessage, THullUserUpdateMessage } from "hull";
+import type { HullContext } from "hull/src/types/context";
 import type {
-  IAttributesMapper, IApiResultObject,
-  IConnectionOptions, IOauth2Credentials, ISalesforceClientOptions,
-  IUserUpdateEnvelope, IAccountUpdateEnvelope, THullObject, TResourceType
+  IAttributesMapper,
+  IConnectionOptions,
+  IOauth2Credentials,
+  ISalesforceClientOptions,
+  IServiceClient,
+  IUserUpdateEnvelope,
+  THullObject,
+  TResourceType
 } from "./types";
 
 const _ = require("lodash");
@@ -17,13 +24,15 @@ const FilterUtil = require("./sync-agent/filter-util");
 const QueryUtil = require("./sync-agent/query-util");
 const MatchUtil = require("./sync-agent/match-util");
 const IdentityUtil = require("./utils/identity-utils");
-const { sendEvents } = require("./sync-agent/actions/outgoing/send-events");
 const SalesforceClient = require("./service-client");
 const { errors } = require("./errors");
 const { RELATED_ENTITY_MAPPING } = require("../lib/sync-agent/mappings");
 const { getFieldsSchema } = require("./utils/get-fields-schema");
 
-function createConnectionOptions(ship: Object, oauth2: IOauth2Credentials): IConnectionOptions {
+function createConnectionOptions(
+  ship: Object,
+  oauth2: IOauth2Credentials
+): IConnectionOptions {
   const keys = ["access_token", "refresh_token", "instance_url"];
   const opts = camelize(_.pick(ship.private_settings, ...keys));
   opts.oauth2 = oauth2 || {
@@ -36,63 +45,93 @@ function createConnectionOptions(ship: Object, oauth2: IOauth2Credentials): ICon
 
 class SyncAgent {
   attributesMapper: IAttributesMapper;
+
   patchUtil: PatchUtil;
+
   hullClient: Object;
+
   metric: Object;
-  sf: SalesforceClient;
+
+  sf: IServiceClient;
+
   fetchResourceSchema: boolean;
+
   fetchAccounts: boolean;
+
   linkAccounts: boolean;
+
   leadAssignmentRuleOnCreate: string;
+
   leadAssignmentRuleOnUpdate: string;
+
   mappings: Object;
+
   accountClaims: Array<Object>;
+
   userClaims: Array<Object>;
+
   filterUtil: FilterUtil;
+
   queryUtil: QueryUtil;
+
   matchUtil: MatchUtil;
+
   requireEmail: boolean;
+
   privateSettings: Object;
+
   cache: Object;
+
   isBatch: boolean;
+
   asEntity: any;
 
-  constructor(ctx: Object) {
+  ctx: HullContext;
+
+  constructor(ctx: HullContext) {
     const { client, cache, metric } = ctx;
     const connector = _.get(ctx, "connector") || _.get(ctx, "ship");
+    const { private_settings } = connector;
+
+    this.ctx = ctx;
     this.cache = cache;
-    this.privateSettings = connector.private_settings;
-    this.fetchAccounts = connector.private_settings.fetch_accounts;
-    this.linkAccounts = _.get(connector, "private_settings.link_accounts", false);
-    this.fetchResourceSchema = _.get(connector, "private_settings.fetch_resource_schema", false);
-    this.leadAssignmentRuleOnCreate = connector.private_settings.lead_assignmentrule;
-    this.leadAssignmentRuleOnUpdate = _.get(connector, "private_settings.lead_assignmentrule_update", "");
-    this.requireEmail = _.get(connector, "private_settings.ignore_users_withoutemail", false);
+    this.privateSettings = private_settings;
+    this.fetchAccounts = private_settings.fetch_accounts;
+    this.linkAccounts = private_settings.link_accounts || false;
+    this.fetchResourceSchema = private_settings.fetch_resource_schema || false;
+    this.leadAssignmentRuleOnCreate =
+      connector.private_settings.lead_assignmentrule;
+    this.leadAssignmentRuleOnUpdate =
+      private_settings.lead_assignmentrule_update;
+    this.requireEmail = private_settings.ignore_users_withoutemail || false;
     this.mappings = getMappings(connector);
     this.isBatch = _.get(ctx.notification, "is_export", false);
-    this.accountClaims = _.get(connector, "private_settings.account_claims", []);
-    this.userClaims = [{
-      hull: "email",
-      service: "Email"
-    }];
+    this.accountClaims = private_settings.account_claims || [];
+    this.userClaims = [{ hull: "email", service: "Email" }];
 
     this.hullClient = client;
     this.metric = metric;
     const clntOpts: ISalesforceClientOptions = {
-      connection: createConnectionOptions(connector, connector.private_settings.oauth2),
+      connection: createConnectionOptions(
+        connector,
+        connector.private_settings.oauth2
+      ),
       logger: this.hullClient.logger,
       metrics: this.metric
     };
     this.sf = new SalesforceClient(clntOpts);
-    this.patchUtil = new PatchUtil(connector.private_settings);
-    this.attributesMapper = new AttributesMapper(connector.private_settings);
-    this.filterUtil = new FilterUtil(connector.private_settings);
+    this.patchUtil = new PatchUtil(private_settings);
+    this.attributesMapper = new AttributesMapper(private_settings);
+    this.filterUtil = new FilterUtil(private_settings);
     this.queryUtil = new QueryUtil();
     this.matchUtil = new MatchUtil();
     this.asEntity = () => {};
 
     this.sf.on("refresh", (accessToken, res) => {
-      this.hullClient.logger.debug("connector.sfClient.refresh", { accessToken, res });
+      this.hullClient.logger.debug("connector.sfClient.refresh", {
+        accessToken,
+        res
+      });
     });
   }
 
@@ -127,9 +166,11 @@ class SyncAgent {
       });
   }
 
-  // TODO fix attribute mapper so this is no longer needed
-  enrichMessages(hullEntityType: string, messages: Array<THullUserUpdateMessage | THullAccountUpdateMessage>) {
-    _.forEach(messages, (message) => {
+  enrichMessages(
+    hullEntityType: string,
+    messages: Array<THullUserUpdateMessage | THullAccountUpdateMessage>
+  ) {
+    _.forEach(messages, message => {
       if (hullEntityType === "user") {
         const account = _.get(message, "account", {});
         _.set(message.user, "account", account);
@@ -143,45 +184,47 @@ class SyncAgent {
     return this.sendMessages("user", messages);
   }
 
-  async sendAccountMessages(messages: Array<THullAccountUpdateMessage>): Promise<*> {
+  async sendAccountMessages(
+    messages: Array<THullAccountUpdateMessage>
+  ): Promise<*> {
     this.asEntity = this.hullClient.asAccount;
     return this.sendMessages("account", messages);
   }
 
-  async sendMessages(hullEntityType: string, messages: Array<THullAccountUpdateMessage>): Promise<*> {
-    const sendHullEvents = _.get(this.privateSettings, "send_outgoing_tasks", false);
-
-    const dedupedMessages = this.filterUtil.filterDuplicateMessages(messages, hullEntityType);
-    const findableMessages = this.filterUtil.filterFindableMessages(hullEntityType, dedupedMessages, this.isBatch);
+  async sendMessages(
+    hullEntityType: string,
+    messages: Array<THullAccountUpdateMessage>
+  ): Promise<*> {
+    const dedupedMessages = this.filterUtil.filterDuplicateMessages(
+      messages,
+      hullEntityType
+    );
+    const findableMessages = this.filterUtil.filterFindableMessages(
+      hullEntityType,
+      dedupedMessages,
+      this.isBatch
+    );
 
     if (findableMessages.length === 0) {
-      dedupedMessages.forEach((message) => {
-        this.asEntity(_.get(message, hullEntityType))
-          .logger.debug(`outgoing.${hullEntityType}.skip`, { reason: `No valid ${hullEntityType} messages to send` });
+      dedupedMessages.forEach(message => {
+        // eslint-disable-next-line
+        this.asEntity(_.get(message, hullEntityType)).logger.debug(`outgoing.${hullEntityType}.skip`, { reason: `No valid ${hullEntityType} messages to send` });
       });
       return Promise.resolve({});
     }
-    const entitiesSent = hullEntityType === "account" ?
-      await this.sendAccounts(dedupedMessages) :
-      await this.sendUsers(dedupedMessages);
-
-    if (hullEntityType === "user" && sendHullEvents) {
-      const hullEventIdentifier = _.get(this.privateSettings, "hull_event_id", null);
-      const sfExternalIdentifier = _.get(this.privateSettings, "salesforce_external_id", null);
-
-      if (sfExternalIdentifier !== null && hullEventIdentifier !== null) {
-        await sendEvents(this.hullClient, this.sf, this.privateSettings, findableMessages);
-      } else {
-        this.hullClient.logger.info("Skipping sending events. Event identifiers not defined.");
-      }
-    }
-    return entitiesSent;
+    return hullEntityType === "account"
+      ? this.sendAccounts(dedupedMessages)
+      : this.sendUsers(dedupedMessages);
   }
 
   async sendUsers(messages: Array<THullUserUpdateMessage>): Promise<*> {
     let sfEntities = null;
     try {
-      sfEntities = await this.findSalesforceEntities(messages, ["lead", "contact", "account"]);
+      sfEntities = await this.findSalesforceEntities(messages, [
+        "lead",
+        "contact",
+        "account"
+      ]);
     } catch (error) {
       return this.handleError(error);
     }
@@ -196,22 +239,38 @@ class SyncAgent {
 
     const { sfLeads = [], sfContacts = [], sfAccounts = [] } = sfEntities;
     this.log({ sfLeads, sfContacts, sfAccounts }, messages);
-    if (sfLeads.length === 10000 || sfContacts.length === 10000 || sfAccounts.length === 1000) {
+    if (
+      sfLeads.length === 10000 ||
+      sfContacts.length === 10000 ||
+      sfAccounts.length === 1000
+    ) {
       return Promise.resolve();
     }
 
     const envelopes = this.buildEnvelopes(messages, sfEntities);
 
-    const accountsToUpsert = this.filterUtil.filterAccounts(envelopes, "user", this.isBatch);
+    const filteredAccounts = this.filterUtil.filterAccountEnvelopes(
+      envelopes,
+      this.isBatch
+    );
     return Promise.resolve(
-      this.sendEntity("account", "Account", envelopes, _.pick(accountsToUpsert, ["toInsert", "toUpdate"]))
-    )
-      .then(() => {
-        return Promise.all([
-          this.sendEntity("user", "Contact", envelopes, this.filterUtil.filterContacts(envelopes)),
-          this.sendEntity("user", "Lead", envelopes, this.filterUtil.filterLeads(envelopes))
-        ]);
-      });
+      this.sendToSalesforce("account", "Account", envelopes, filteredAccounts)
+    ).then(() => {
+      return Promise.all([
+        this.sendToSalesforce(
+          "user",
+          "Contact",
+          envelopes,
+          this.filterUtil.filterContactEnvelopes(envelopes)
+        ),
+        this.sendToSalesforce(
+          "user",
+          "Lead",
+          envelopes,
+          this.filterUtil.filterLeadEnvelopes(envelopes)
+        )
+      ]);
+    });
   }
 
   async sendAccounts(messages: Array<THullAccountUpdateMessage>): Promise<*> {
@@ -234,268 +293,256 @@ class SyncAgent {
     const envelopes = this.buildEnvelopes(messages, sfEntities);
 
     return Promise.resolve(
-      this.sendEntity("account", "Account", _.compact(envelopes), this.filterUtil.filterAccounts(envelopes, "account", this.isBatch))
+      this.sendToSalesforce(
+        "account",
+        "Account",
+        _.compact(envelopes),
+        this.filterUtil.filterAccountEnvelopes(envelopes, this.isBatch)
+      )
     );
   }
 
-  async sendEntity(hullEntityType: string, resourceType: TResourceType, envelopes: Array<Object>, filtered: Object): Promise<*> {
+  buildSalesforceObjects(
+    envelopes: Object,
+    resourceType: TResourceType,
+    schema: Object
+  ): Object {
+    const { toInsert, toUpdate } = envelopes;
+
+    const sfObjectsInSync = [];
+    const sfObjectsToInsert = [];
+    const sfObjectsToUpdate = [];
+
+    _.forEach(toInsert, envelope => {
+      const { message } = envelope;
+      const { user, account } = message;
+      const hullEntity = resourceType === "Account" ? account : user;
+      const userSegments = _.get(message, "segments", []);
+      const accountSegments = _.get(message, "account_segments", []);
+      const sfObject = this.attributesMapper.mapToServiceObject(
+        resourceType,
+        hullEntity,
+        userSegments,
+        accountSegments
+      );
+
+      sfObjectsToInsert.push(sfObject);
+    });
+
+    _.forEach(toUpdate, envelope => {
+      const { message } = envelope;
+      const { user, account } = message;
+      const hullEntity = resourceType === "Account" ? account : user;
+      const userSegments = _.get(message, "segments", []);
+      const accountSegments = _.get(message, "account_segments", []);
+
+      const sfObject = this.attributesMapper.mapToServiceObject(
+        resourceType,
+        hullEntity,
+        userSegments,
+        accountSegments
+      );
+      const patch = this.patchUtil.createPatchObject(
+        resourceType,
+        sfObject,
+        _.get(envelope, `matches.${_.toLower(resourceType)}[0]`),
+        schema
+      );
+
+      if (patch.hasChanges) {
+        sfObjectsToUpdate.push(patch.patchObject);
+      } else {
+        sfObjectsInSync.push({
+          envelope,
+          hullType: resourceType === "Account" ? "account" : "user",
+          skipReason: `The ${_.toLower(
+            resourceType
+          )} in Salesforce is already in sync with Hull.`
+        });
+      }
+    });
+
+    return {
+      sfObjectsInSync,
+      sfObjectsToInsert,
+      sfObjectsToUpdate
+    };
+  }
+
+  async sendToSalesforce(
+    hullType: string,
+    resourceType: TResourceType,
+    envelopes: Array<Object>,
+    filtered: Object
+  ): Promise<*> {
     let schema = {};
-    const {
-      toInsert,
-      toUpdate,
-      toSkip
-    } = filtered;
+    const { toInsert, toUpdate, toSkip } = filtered;
 
     if (!_.isEmpty(toInsert) || !_.isEmpty(toUpdate)) {
       schema = await this.getResourceSchema(resourceType);
     }
 
-    _.forEach(toSkip, (envelope) => {
-      const skipReason = {};
-      _.set(skipReason, "reason", _.get(envelope, "skipReason", ""));
-      if (hullEntityType === "user") {
-        _.set(skipReason, `sf_${resourceType.toLowerCase()}_data`, _.get(envelope, `currentSf${resourceType}`, {}));
-        this.hullClient.asUser(envelope.message.user).logger.info(`outgoing.${hullEntityType}.skip`, skipReason);
-      }
-      if (hullEntityType === "account") {
-        this.hullClient.asAccount(envelope.message.account).logger.info(`outgoing.${hullEntityType}.skip`, skipReason);
-      }
-    });
+    const {
+      sfObjectsInSync,
+      sfObjectsToUpdate,
+      sfObjectsToInsert
+    } = this.buildSalesforceObjects(
+      { toInsert, toUpdate },
+      resourceType,
+      schema
+    );
 
-    const sfObjectsToInsert = [];
-    _.forEach(toInsert, (envelope) => {
-      const userSegments = hullEntityType === "user" ? _.get(envelope, "message.segments", []) : [];
-      const accountSegments = _.get(envelope, "message.account_segments", []);
-      const sfObject = this.attributesMapper.mapToServiceObject(resourceType, _.get(envelope.message, hullEntityType), userSegments, accountSegments);
-
-      sfObjectsToInsert.push(sfObject);
-    });
-
-    const sfObjectsToUpdate = [];
-    _.forEach(toUpdate, (envelope) => {
-      const hullEntity = _.get(envelope.message, hullEntityType, {});
-      const asHullEntity = resourceType === "Account" ? this.hullClient.asAccount(hullEntity) : this.hullClient.asUser(hullEntity);
-      const userSegments = hullEntityType === "user" ? _.get(envelope, "message.segments", []) : [];
-      const accountSegments = _.get(envelope, "message.account_segments", []);
-
-      const sfObject = this.attributesMapper.mapToServiceObject(resourceType, hullEntity, userSegments, accountSegments);
-      const patch = this.patchUtil.createPatchObject(resourceType, sfObject, _.get(envelope, `currentSf${resourceType}`), schema);
-
-      if (patch.hasChanges) {
-        sfObjectsToUpdate.push(patch.patchObject);
-      } else {
-        asHullEntity
-          .logger
-          .info(`outgoing.${hullEntityType}.skip`, { reason: `The ${resourceType.toLowerCase()} in Salesforce is already in sync with Hull.` });
-      }
-    });
-
-    return Promise.all([
-      this.insertSfObject(hullEntityType, resourceType, sfObjectsToInsert, schema, envelopes),
-      this.updateSfObject(hullEntityType, resourceType, sfObjectsToUpdate, schema, envelopes)
-    ]).spread((inserted, updated) => {
-      return {
-        inserted,
-        updated
-      };
-    });
-  }
-
-  async insertSfObject(hullEntityType: string, resourceType: TResourceType, records: Array<THullObject>, schema: Object, envelopes: Array<Object>): Promise<*> {
-    let sfObjectsInserted = [];
-
-    if (!_.isEmpty(records)) {
-      try {
-        sfObjectsInserted = await this.sf.insert(records, {
-          leadAssignmentRule: this.leadAssignmentRuleOnCreate,
-          resource: resourceType
-        });
-
-        if (!_.isNil(sfObjectsInserted) && !_.isEmpty(sfObjectsInserted)) {
-          await this.resolveHullEntities(schema, sfObjectsInserted, envelopes, hullEntityType);
-        }
-      } catch (error) {
-        this.hullClient.logger.error("outgoing.job.error", {
-          error,
-          errorMessage: _.isFunction(error.toString) ? error.toString() : "Unknown error."
-        });
-        records.forEach((sfObject) => {
-          const hullIdentity = this.attributesMapper.mapToHullIdentObject(resourceType, sfObject);
-          const asHullEntity = resourceType === "Account" ? this.hullClient.asAccount(hullIdentity) : this.hullClient.asUser(hullIdentity);
-          asHullEntity
-            .logger
-            .info(`outgoing.${hullEntityType}.error`, {
-              error: `At least one outgoing ${hullEntityType} in the batch has failed: ${_.isFunction(error.toString) ? error.toString() : "Unknown error."}`,
-              resourceType
-            });
-        });
-      }
+    const skippedMessages = [...toSkip, ...sfObjectsInSync];
+    if (!_.isEmpty(skippedMessages)) {
+      this.logSkip(skippedMessages);
     }
-    return Promise.resolve(sfObjectsInserted);
-  }
 
-  async updateSfObject(hullEntityType: string, resourceType: TResourceType, records: Array<THullObject>, schema: Object, envelopes: Array<Object>): Promise<*> {
-    let sfObjectsUpdated = [];
+    let upsertedSfEntities = [];
+    try {
+      upsertedSfEntities = await Promise.all([
+        this.insertSfObject(resourceType, sfObjectsToInsert),
+        this.updateSfObject(resourceType, sfObjectsToUpdate)
+      ]).spread(async (inserted, updated) => {
+        return [...inserted, ...updated];
+      });
+    } catch (error) {
+      // outgoing job error
+      // TODO call this.handlerError(...);
+      const asEntity =
+        resourceType === "Account"
+          ? this.hullClient.asAccount
+          : this.hullClient.asUser;
+      const toUpsert = [...toInsert, ...toUpdate];
 
-    if (!_.isEmpty(records)) {
-      try {
-        sfObjectsUpdated = await this.sf.update(records, {
-          leadAssignmentRule: this.leadAssignmentRuleOnUpdate,
-          resource: resourceType
+      const promises = [];
+      let i = 0;
+      for (i = 0; i < _.size(toUpsert); i += 1) {
+        const { message } = toUpsert[i];
+        const hullEntity = _.get(message, hullType);
+        promises.push(
+          asEntity(hullEntity).logger.info(`outgoing.${hullType}.error`, {
+            error: `Outgoing Batch Error: ${
+              _.isFunction(error.toString) ? error.toString() : "Unknown error."
+            }`,
+            resourceType
+          })
+        );
+      }
+      return Promise.all(promises);
+    }
+
+    const messages = _.map(envelopes, "message");
+    const identityClaims =
+      hullType === "account" ? this.accountClaims : this.userClaims;
+
+    const promises = [];
+    for (let i: number = 0; i < _.size(upsertedSfEntities); i += 1) {
+      const sfEntity = upsertedSfEntities[i];
+
+      const findBy =
+        hullType === "account"
+          ? _.set({}, "account.salesforce/id", sfEntity.record.Id)
+          : _.set(
+              {},
+              `user.salesforce_${_.toLower(resourceType)}/id`,
+              sfEntity.record.Id
+            );
+
+      let matchedMessages = _.filter(messages, findBy);
+
+      if (_.isNil(matchedMessages) || _.isEmpty(matchedMessages)) {
+        const identityClaimMatches = this.matchUtil.getIdentityClaimMatches({
+          entities: messages,
+          identityClaims,
+          searchEntity: sfEntity,
+          searchType: "salesforce"
         });
-
-        if (!_.isNil(sfObjectsUpdated) && !_.isEmpty(sfObjectsUpdated)) {
-          await this.resolveHullEntities(schema, sfObjectsUpdated, envelopes, hullEntityType);
-        }
-      } catch (error) {
-        this.hullClient.logger.error("outgoing.job.error", {
-          error,
-          errorMessage: _.isFunction(error.toString) ? error.toString() : "Unknown error."
-        });
-        records.forEach((sfObject) => {
-          let matchingEnvelopes = [];
-
-          if (resourceType === "Account") {
-            matchingEnvelopes = _.filter(envelopes, (envelope) => {
-              return _.get(envelope, "message.account.salesforce/id") === sfObject.Id;
-            });
-
-            const matchingEnvelope = matchingEnvelopes.length > 0 ? matchingEnvelopes[0] : null;
-
-            if (!_.isNil(matchingEnvelope)) {
-              // eslint-disable-next-line
-              const accountIdentity = IdentityUtil.getEntityIdentity(matchingEnvelope.message.account, sfObject, resourceType, this.hullClient);
-
-              this.hullClient.asAccount(accountIdentity)
-                .logger
-                .info(`outgoing.${hullEntityType}.error`, {
-                  error: `At least one outgoing ${hullEntityType} in the batch has failed: ${_.isFunction(error.toString) ? error.toString() : "Unknown error."}`,
-                  resourceType
-                });
-            }
-          } else {
-            const hullIdentity = this.attributesMapper.mapToHullIdentObject(resourceType, sfObject);
-            const asHullEntity = resourceType === "Account" ? this.hullClient.asAccount(hullIdentity) : this.hullClient.asUser(hullIdentity);
-            asHullEntity
-              .logger
-              .info(`outgoing.${hullEntityType}.error`, {
-                error: `At least one outgoing ${hullEntityType} in the batch has failed: ${_.isFunction(error.toString) ? error.toString() : "Unknown error."}`,
-                resourceType
-              });
-          }
+        matchedMessages = this.matchUtil.filterIdentityClaimMatches({
+          identityClaims,
+          identityClaimMatches,
+          intersectBy: { path: "message_id" }
         });
       }
-    }
-    return Promise.resolve(sfObjectsUpdated);
-  }
-
-  async resolveHullEntities(resourceSchema: Object, sfObjects: IApiResultObject[], envelopes: IAccountUpdateEnvelope[] | IUserUpdateEnvelope[], hullEntityType: string): Promise<*> {
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < _.size(sfObjects); i++) {
-      const sfObject = sfObjects[i];
-      const resourceType = sfObject.resource;
-      const currentObjectPropertyName = `currentSf${resourceType}.Id`;
-      let matchingEnvelopes = [];
-      let claims = [];
       if (resourceType === "Contact" || resourceType === "Lead") {
-        claims = this.userClaims;
+        promises.push(
+          this.saveUser(
+            {
+              source: "hull",
+              hullType: "user",
+              sfType: resourceType,
+              method: sfEntity.method,
+              error: sfEntity.error,
+              success: sfEntity.success
+            },
+            sfEntity.record,
+            matchedMessages[0]
+          )
+        );
       } else if (resourceType === "Account") {
-        claims = this.accountClaims;
+        promises.push(
+          this.saveAccount(
+            {
+              source: "hull",
+              hullType: "account",
+              sfType: resourceType,
+              method: sfEntity.method,
+              error: sfEntity.error,
+              success: sfEntity.success
+            },
+            sfEntity.record,
+            matchedMessages[0]
+          )
+        );
       }
 
-      const findBy = {};
-
-      _.set(findBy, currentObjectPropertyName, sfObject.record.Id);
-
-      let matchingEnvelope = _.find(envelopes, findBy);
-
-      if (!matchingEnvelope && resourceType === "Account") {
-        matchingEnvelopes = _.filter(envelopes, (envelope) => {
-          return _.get(envelope, "message.account.salesforce/id") === sfObject.record.Id;
-        });
-      }
-
-      if (!matchingEnvelope) {
-        const identityClaims = this.matchUtil.getMatchingEnvelopes(envelopes, claims, sfObject, hullEntityType);
-        matchingEnvelopes = this.matchUtil.resolveSalesForceEnvelopeIdentityClaims(claims, identityClaims);
-
-        if (matchingEnvelopes.length > 0) {
-          matchingEnvelope = matchingEnvelopes[0];
-        }
-      }
-
-      if (matchingEnvelope) {
-        if (resourceType === "Contact" || resourceType === "Lead") {
-          const userIdentity = IdentityUtil.getEntityIdentity(matchingEnvelope.message.user, sfObject.record, sfObject.resource, this.hullClient);
-          const asUser = this.hullClient.asUser(userIdentity);
-
-          if (sfObject.success) {
-            asUser.logger.info("outgoing.user.success", {
-              record: sfObject.record,
-              operation: sfObject.method,
-              resource: sfObject.resource
-            });
-
-            // eslint-disable-next-line no-await-in-loop
-            const userTraits = await this.attributesMapper.mapToHullAttributeObject(sfObject.resource, sfObject.record, resourceSchema);
-            asUser.traits(userTraits);
-            _.set(matchingEnvelope.message.user, `salesforce_${sfObject.resource.toLowerCase()}/id`, sfObject.record.Id);
-          } else {
-            this.hullClient.asUser(matchingEnvelope.message.user)
-              .logger
-              .info("outgoing.user.error", {
-                error: sfObject.error,
-                data: sfObject.record
-              });
+      _.forEach(matchedMessages, message => {
+        const { user, account } = message;
+        if (hullType === "account") {
+          if (!_.isEmpty(user)) {
+            _.set(user, "salesforce_contact/account_id", sfEntity.record.Id);
           }
+          _.set(account, "salesforce/id", sfEntity.record.Id);
+        } else {
+          _.set(
+            user,
+            `salesforce_${sfEntity.resource.toLowerCase()}/id`,
+            sfEntity.record.Id
+          );
         }
-        if (resourceType === "Account") {
-          if (sfObject.success) {
-            const accountIdentity = IdentityUtil.getEntityIdentity(matchingEnvelope.message.account, sfObject.record, sfObject.resource, this.hullClient);
-            const asAccount = this.hullClient.asAccount(accountIdentity);
-
-            asAccount.logger.info("outgoing.account.success", {
-              record: sfObject.record,
-              operation: sfObject.method,
-              resource: sfObject.resource
-            });
-            // eslint-disable-next-line no-await-in-loop
-            const accountTraits = await this.attributesMapper.mapToHullAttributeObject(sfObject.resource, sfObject.record, resourceSchema);
-            asAccount.traits(accountTraits);
-
-            matchingEnvelopes.forEach((me) => {
-              if (!_.isEmpty(me.message.user)) {
-                _.set(me.message.user, "salesforce_contact/account_id", sfObject.record.Id);
-              }
-              _.set(me.message.account, "salesforce/id", sfObject.record.Id);
-            });
-          } else {
-            this.hullClient.asAccount(matchingEnvelope.message.account).logger.info("outgoing.account.error", {
-              error: sfObject.error,
-              data: sfObject.record
-            });
-          }
-        }
-      }
+      });
     }
-    return Promise.resolve();
+    return Promise.all(promises);
   }
 
-  buildFindQuery(messages: Array<THullUserUpdateMessage | THullAccountUpdateMessage>, resourceType: string): Object {
-    const hullEntityType = _.includes(["lead", "contact"], resourceType) ? "user" : "account";
-    const queryOpts = this.queryUtil.buildQueryOpts(resourceType, this.accountClaims);
+  buildFindQuery(
+    messages: Array<THullUserUpdateMessage | THullAccountUpdateMessage>,
+    resourceType: string
+  ): Object {
+    const hullEntityType = _.includes(["lead", "contact"], resourceType)
+      ? "user"
+      : "account";
+    const queryOpts = this.queryUtil.buildQueryOpts(
+      resourceType,
+      this.accountClaims
+    );
     return this.queryUtil.composeFindQuery(messages, queryOpts, hullEntityType);
   }
 
-  findSalesforceEntities(messages: Array<THullUserUpdateMessage | THullAccountUpdateMessage>, salesforceEntityTypes: Array<string>) {
+  findSalesforceEntities(
+    messages: Array<THullUserUpdateMessage | THullAccountUpdateMessage>,
+    salesforceEntityTypes: Array<string>
+  ) {
     const queries = {};
     const fetchFields = {};
 
-    _.forEach(salesforceEntityTypes, (resourceType) => {
-      const fields = this.queryUtil.composeFindFields(_.upperFirst(resourceType), this.mappings);
+    _.forEach(salesforceEntityTypes, resourceType => {
+      const fields = this.queryUtil.composeFindFields(
+        _.upperFirst(resourceType),
+        this.mappings
+      );
 
       if (resourceType === "account") {
-        _.forEach(this.accountClaims, (accountClaim) => {
+        _.forEach(this.accountClaims, accountClaim => {
           if (!_.includes(fields, accountClaim.service)) {
             fields.push(accountClaim.service);
           }
@@ -510,83 +557,163 @@ class SyncAgent {
       this.sf.findLeads(queries.lead, fetchFields.lead),
       this.sf.findContacts(queries.contact, fetchFields.contact),
       this.sf.findAccounts(queries.account, fetchFields.account)
-    ])
-      .spread((sfLeads, sfContacts, sfAccounts) => {
-        this.log({ sfLeads, sfContacts, sfAccounts }, messages);
-        if (sfLeads.length === 10000 || sfContacts.length === 10000 || sfAccounts.length === 1000) {
-          return Promise.resolve({});
-        }
-        return { sfLeads, sfContacts, sfAccounts };
-      });
+    ]).spread((sfLeads, sfContacts, sfAccounts) => {
+      this.log({ sfLeads, sfContacts, sfAccounts }, messages);
+      if (
+        sfLeads.length === 10000 ||
+        sfContacts.length === 10000 ||
+        sfAccounts.length === 1000
+      ) {
+        return Promise.resolve({});
+      }
+      return { sfLeads, sfContacts, sfAccounts };
+    });
   }
 
-  buildEnvelopes(messages: Array<THullUserUpdateMessage | THullAccountUpdateMessage>, sfEntities: Object) {
+  buildEnvelopes(
+    messages: Array<THullUserUpdateMessage | THullAccountUpdateMessage>,
+    sfEntities: Object
+  ) {
     const { sfAccounts = [], sfContacts = [], sfLeads = [] } = sfEntities;
-    return messages.map((message: THullUserUpdateMessage): IUserUpdateEnvelope => {
-      const envelope: IUserUpdateEnvelope = {
-        message
-      };
+    return messages.map(
+      (message: THullUserUpdateMessage): IUserUpdateEnvelope => {
+        const matches = {
+          account: [],
+          contact: [],
+          lead: []
+        };
 
-      if (!_.isEmpty(sfAccounts)) {
-        this.matchUtil.matchAccounts(envelope, sfAccounts, this.accountClaims, "user");
+        const { user, account } = message;
+        if (!_.isEmpty(sfAccounts)) {
+          const accountMatches = this.matchUtil.matchHullMessageToSalesforceAccount(
+            message,
+            sfAccounts,
+            this.accountClaims
+          );
+          const { primary, secondary } = accountMatches;
+
+          if (!_.isEmpty(primary)) {
+            matches.account = primary;
+          } else {
+            matches.account = secondary;
+          }
+        }
+
+        if (!_.isEmpty(sfContacts)) {
+          matches.contact = this.matchUtil.matchHullMessageToSalesforceRecord(
+            "Contact",
+            user,
+            sfContacts
+          );
+        }
+
+        if (!_.isEmpty(sfLeads)) {
+          matches.lead = this.matchUtil.matchHullMessageToSalesforceRecord(
+            "Lead",
+            user,
+            sfLeads
+          );
+        }
+
+        _.map(matches, (sfObjects, resource) => {
+          if (!_.isEmpty(sfObjects)) {
+            const sfObject = _.isEmpty(sfObjects) ? {} : sfObjects[0];
+            if (resource === "lead" || resource === "contact") {
+              if (_.isEmpty(sfObject)) {
+                _.unset(user, `salesforce_${_.toLower(resource)}/id`);
+              } else {
+                _.set(
+                  user,
+                  `salesforce_${_.toLower(resource)}/id`,
+                  sfObject.Id
+                );
+              }
+            }
+
+            if (resource === "account") {
+              if (_.isEmpty(sfObject)) {
+                _.unset(account, "salesforce/id");
+                _.unset(user, "salesforce_contact/account_id");
+              } else {
+                const sfAccountId = _.get(sfObject, "Id", "");
+
+                if (!_.isEmpty(user)) {
+                  const linkedAccountId = _.get(
+                    user,
+                    "salesforce_contact/account_id",
+                    null
+                  );
+                  if (_.isNil(linkedAccountId)) {
+                    _.set(user, "salesforce_contact/account_id", sfAccountId);
+                  }
+                }
+                _.set(account, "salesforce/id", sfAccountId);
+              }
+            }
+          }
+        });
+        return {
+          message,
+          matches
+        };
       }
-
-      if (!_.isEmpty(sfContacts)) {
-        this.matchUtil.matchUsers("Contact", envelope, sfContacts);
-      }
-
-      if (!_.isEmpty(sfLeads)) {
-        this.matchUtil.matchUsers("Lead", envelope, sfLeads);
-      }
-
-      return envelope;
-    });
+    );
   }
 
-  // TODO handle logging correctly
-  log(entities: Object, messages: Array<Object>) {
-    const { sfLeads = [], sfContacts = [], sfAccounts = [] } = entities;
-    if (sfLeads.length === 10000 || sfContacts.length === 10000 || sfAccounts.length === 1000) {
-      this.hullClient.logger.error("outgoing.job.error", {
-        error: "Found hard limit hit, we cannot match objects",
-        sfLeads: sfLeads.length,
-        sfContacts: sfContacts.length,
-        sfAccounts: sfAccounts.length,
-        userIds: this.queryUtil.extractUniqueValues(messages, "user.id"),
-        userEmails: this.queryUtil.extractUniqueValues(messages, "user.email"),
-        accountDomains: this.queryUtil.extractUniqueValues(messages, "account.domain"),
+  async linkIncomingAccount(asEntity: any, sfObject): Promise<*> {
+    this.hullClient.logger.debug("incoming.account.link", {
+      user: this.attributesMapper.mapToHullIdentityObject(
+        "Contact",
+        sfObject,
+        this.userClaims
+      ),
+      account: this.attributesMapper.mapToHullIdentityObject(
+        "Account",
+        sfObject.Account,
+        this.accountClaims
+      )
+    });
+    const accountIdentity = this.attributesMapper.mapToHullIdentityObject(
+      "Account",
+      sfObject.Account,
+      this.accountClaims
+    );
+    return asEntity
+      .account(accountIdentity)
+      .traits({})
+      .then(() => {
+        asEntity.logger.info("incoming.account.link.success");
+      })
+      .catch(err => {
+        asEntity.logger.error("incoming.account.link.error", { error: err });
+      });
+  }
+
+  async insertSfObject(
+    resourceType: TResourceType,
+    records: Array<THullObject>
+  ): Promise<*> {
+    if (!_.isEmpty(records)) {
+      return this.sf.insert(records, {
+        leadAssignmentRule: this.privateSettings.lead_assignmentrule,
+        resource: resourceType
       });
     }
-
-    this.hullClient.logger.debug("outgoing.job.progress", {
-      step: "findResults",
-      sfLeads: sfLeads.length,
-      sfContacts: sfContacts.length,
-      sfAccounts: sfAccounts.length,
-      userIds: this.queryUtil.extractUniqueValues(messages, "user.id"),
-      userEmails: this.queryUtil.extractUniqueValues(messages, "user.email"),
-      accountDomains: this.queryUtil.extractUniqueValues(messages, "account.domain"),
-    });
+    return Promise.resolve([]);
   }
 
-
-  handleError(error: any): Promise<*> {
-    const errorName = _.get(error, "name", "");
-    const errorMessage = _.get(error, "message", "");
-
-    const errorTemplate = _.find(errors, (err) => {
-      return err.name === errorName && (_.isNil(err.message) || errorMessage.includes(err.message));
-    });
-
-    if (!_.isNil(errorTemplate)) {
-      this.hullClient.logger.error("outgoing.job.error", { error: errorName, details: errorMessage });
-      return Promise.resolve({});
+  async updateSfObject(
+    resourceType: TResourceType,
+    records: Array<THullObject>
+  ): Promise<*> {
+    if (!_.isEmpty(records)) {
+      return this.sf.update(records, {
+        leadAssignmentRule: this.privateSettings.lead_assignmentrule,
+        resource: resourceType
+      });
     }
-
-    this.hullClient.logger.error("outgoing.job.error", { error: "Unknown API error", name: errorName, details: errorMessage });
-    throw error;
+    return Promise.resolve([]);
   }
-
 
   async getResourceSchema(type: string): Object {
     const fieldTypes = ["multipicklist"];
@@ -605,172 +732,73 @@ class SyncAgent {
     return resourceSchema;
   }
 
-  async saveContact(record: Object, progress = {}): Promise<*> {
-
-    if (!_.isEmpty(progress)) {
-      this.hullClient.logger.info("incoming.job.progress", { jobName: "fetchAll", type: "Contact", progress });
-    }
-    const resourceSchema = await this.getResourceSchema("Contact");
-
-    const traits = this.attributesMapper.mapToHullAttributeObject("Contact", record, resourceSchema);
-    const userIdentity = this.attributesMapper.mapToHullIdentObject("Contact", record);
-    const asContactUser = this.hullClient.asUser(userIdentity);
-    const promises = [];
-
-    if (_.get(record, "Email", "n/a") === "n/a" && this.requireEmail) {
-      return asContactUser.logger.info("incoming.user.skip", { type: "Contact", reason: "User has no email address and is not identifiable." });
-    }
-
-    promises.push(asContactUser
-      .traits(traits)
-      .then(() => {
-        asContactUser.logger.info("incoming.user.success", { traits });
-      })
-      .catch((error) => {
-        asContactUser.logger.error("incoming.user.error", { error });
-      }));
-
-    // Link with this contact's account
-    // Right now account linking does not seem to work because in mapToHullIdentObject pulls the account id from record.Account.Id
-    // but in getSoqlFields in service-client for Contacts, we do not add Account.Id by default to the incoming fields
-    // so we end up with a lot of salesforce:undefined ids seems like
-    // only saving grace might be the linkAccounts is not enabled by default
-    // and even when it is labeled, the this.identMapping.Account.service must be present
-    // which then creates a separate account with a separate "key" which is usually domain
-    if (this.linkAccounts && this.fetchAccounts && record.Account && this.accountClaims.length > 0 && !_.isNil(_.get(record.Account, this.accountClaims[0].service))) {
-      this.hullClient.logger.debug("incoming.account.link", {
-        user: this.attributesMapper.mapToHullIdentObject("Contact", record),
-        account: this.attributesMapper.mapToHullIdentObject("Account", record.Account)
-      });
-      const accountIdentity = this.attributesMapper.mapToHullIdentObject("Account", record.Account);
-      promises.push(this.hullClient
-        .asUser(userIdentity)
-        .account(accountIdentity)
-        .traits({})
-        .then(() => {
-          asContactUser.logger.info("incoming.account.link.success");
-        })
-        .catch((error) => {
-          asContactUser.logger.error("incoming.account.link.error", { error });
-        }));
-    }
-
-    return Promise.all(promises);
-  }
-
-  async saveLead(record: Object, progress = {}): Promise<*> {
-
-    if (!_.isEmpty(progress)) {
-      this.hullClient.logger.info("incoming.job.progress", { jobName: "fetchAll", type: "Lead", progress });
-    }
-    const resourceSchema = await this.getResourceSchema("Lead");
-    const traits = this.attributesMapper.mapToHullAttributeObject("Lead", record, resourceSchema);
-    const userIdentity = this.attributesMapper.mapToHullIdentObject("Lead", record);
-    const asLeadUser = this.hullClient.asUser(userIdentity);
-
-    if (_.get(record, "Email", "n/a") === "n/a" && this.requireEmail) {
-      return asLeadUser.logger.info("incoming.user.skip", { type: "Lead", reason: "User has no email address and is not identifiable." });
-    }
-    return asLeadUser
-      .traits(traits)
-      .then(() => {
-        asLeadUser.logger.info("incoming.user.success", { traits });
-      })
-      .catch((error) => {
-        asLeadUser.logger.error("incoming.user.error", { error });
-      });
-  }
-
-  async saveAccount(record: Object, progress = {}): Promise<*> {
-
-    if (!_.isEmpty(progress)) {
-      this.hullClient.logger.info("incoming.job.progress", { jobName: "fetchAll", type: "Account", progress });
-    }
-    const resourceSchema = await this.getResourceSchema("Account");
-    const traits = this.attributesMapper.mapToHullAttributeObject("Account", record, resourceSchema);
-    const accountIdentity = this.attributesMapper.mapToHullIdentObject("Account", record);
-
-    const asAccount = this.hullClient
-      .asAccount(accountIdentity);
-    return asAccount
-      .traits(traits)
-      .then(() => {
-        asAccount.logger.info("incoming.account.success", { traits });
-      })
-      .catch((error) => {
-        asAccount.logger.error("incoming.account.error", { error });
-      });
-  }
-
-  isValidSalesforceObject(record: Object): boolean {
-    const type = _.get(record, "attributes.type", "");
-
-    let isValid = true;
-    switch (type) {
-      case "Task":
-        if (_.get(record, "WhoId", null) === null) {
-          isValid = false;
-        } else if (_.get(record, "Subject", null) === null) {
-          isValid = false;
-        }
-        break;
-      case "Opportunity":
-        break;
-      default:
-        isValid = true;
-    }
-    return isValid;
-  }
-
   async saveTask(record: Object): Promise<*> {
     const promises = [];
 
     const serviceType = _.get(record, "attributes.type", null);
     const createdDate = _.get(record, "CreatedDate");
-
-    // Who.Type returns Contact, Lead, Account, etc.
     const associatedType = _.get(record, "Who.Type", null);
 
     if (serviceType === null) {
       this.hullClient.logger.error("Salesforce object type not found");
       return Promise.resolve();
-    } else if (associatedType === null) {
-      this.hullClient.logger.error(`Salesforce object [${JSON.stringify(record)}] not associated with a user or account entity`);
+    }
+    if (associatedType === null) {
+      this.hullClient.logger.error(
+        `Salesforce object [${JSON.stringify(
+          record
+        )}] not associated with a user or account entity`
+      );
       return Promise.resolve();
     }
 
-    if (!this.isValidSalesforceObject(record)) {
-      this.hullClient.logger.error(`Unable to save record ${_.get(record, "Id")}`);
+    const isValid = !!_.get(record, "WhoId") && !!_.get(record, "Subject");
+    if (!isValid) {
+      this.hullClient.logger.error(
+        `Unable to save record ${_.get(record, "Id")}`
+      );
       return Promise.resolve();
     }
 
-    const anonymousId = `salesforce-${associatedType.toLowerCase()}:${_.get(record, "WhoId")}`;
+    const anonymousId = `salesforce-${associatedType.toLowerCase()}:${_.get(
+      record,
+      "WhoId"
+    )}`;
 
     const asUser = this.hullClient.asUser({ anonymous_id: anonymousId });
 
     const context = {};
-    const event_id = `salesforce-${_.toLower(serviceType)}:${_.get(record, "Id")}`;
+    const event_id = `salesforce-${_.toLower(serviceType)}:${_.get(
+      record,
+      "Id"
+    )}`;
     _.set(context, "source", "salesforce");
     _.set(context, "created_at", createdDate);
-
     _.set(context, "event_id", event_id);
 
     const taskType = _.get(record, "Type", null);
-    let eventName = !_.isNil(taskType) ? `Salesforce Task:${taskType}` : "Salesforce Task";
+    let eventName = !_.isNil(taskType)
+      ? `Salesforce Task:${taskType}`
+      : "Salesforce Task";
 
     if (_.get(record, "IsDeleted", false)) {
       eventName = `DELETED - ${eventName}`;
     }
 
-    const event = this.attributesMapper.mapToHullEvent(_.get(this.mappings, "Task"), serviceType, record);
+    const event = this.attributesMapper.mapToHullEvent(
+      _.get(this.mappings, "Task"),
+      serviceType,
+      record
+    );
 
     if (serviceType === "Task") {
       promises.push(
-        asUser.track(eventName, event, context)
+        asUser
+          .track(eventName, event, context)
           .then(() => {
             asUser.logger.info("incoming.event.success", { event });
           })
-          .catch((error) => {
+          .catch(error => {
             asUser.logger.error("incoming.event.error", { error });
           })
       );
@@ -778,27 +806,244 @@ class SyncAgent {
     return Promise.all(promises);
   }
 
-  async saveDeleted(type: TResourceType, records: Array<TDeletedRecordInfo>): Promise<*> {
+  async saveUser(
+    params: {
+      sfType: TResourceType,
+      source: string,
+      method: string,
+      error: Object
+    },
+    sfObject: Object,
+    message?: Object
+  ): Promise<*> {
+    return this.save(
+      {
+        hullType: "user",
+        ...params
+      },
+      sfObject,
+      message
+    );
+  }
+
+  async saveAccount(
+    params: {
+      sfType: TResourceType,
+      source: string,
+      method: string,
+      error: Object
+    },
+    sfObject: Object,
+    message?: Object
+  ): Promise<*> {
+    return this.save(
+      {
+        hullType: "account",
+        ...params
+      },
+      sfObject,
+      message
+    );
+  }
+
+  // TODO implement consistent support for events
+  async saveEvent(
+    params: {
+      sfType: TResourceType,
+      source: string,
+      method: string,
+      error: Object
+    },
+    sfObject: Object,
+    // eslint-disable-next-line
+    message?: Object
+  ): Promise<*> {
+    return this.saveTask(sfObject);
+  }
+
+  async save(
+    params: {
+      hullType: string,
+      sfType: TResourceType,
+      source: string,
+      method: string,
+      error: Object
+    },
+    sfObject: Object,
+    message?: Object
+  ): Promise<*> {
+    const { hullType, sfType, source, method, error, success } = params;
+
+    const resourceSchema = await this.getResourceSchema(sfType);
+
+    const identity = _.isNil(message)
+      ? this.attributesMapper.mapToHullIdentityObject(
+          sfType,
+          sfObject,
+          hullType !== "account" ? this.userClaims : this.accountClaims
+        )
+      : IdentityUtil.getEntityIdentity(
+          _.get(message, hullType),
+          sfObject,
+          sfType,
+          this.hullClient
+        );
+
+    const asEntity = this.hullClient[`as${_.upperFirst(hullType)}`](identity);
+
+    if (
+      hullType === "user" &&
+      this.requireEmail &&
+      _.get(sfObject, "Email", "n/a") === "n/a"
+    ) {
+      return asEntity.logger.info("incoming.user.skip", {
+        type: "Contact",
+        reason: "User has no email address and is not identifiable."
+      });
+    }
+
     const promises = [];
 
-    _.forEach(records, (record) => {
-      const scopedClient = type === "Account" ?
-        this.hullClient.asAccount({ anonymous_id: `salesforce:${record.id}` }) : this.hullClient.asUser({
-          anonymous_id: `salesforce-${type.toLowerCase()}:${record.id}`
-        });
+    const direction = source === "hull" ? "outgoing" : "incoming";
+    const action = `${direction}.${hullType}`;
 
-      const attribs = this.attributesMapper.mapToHullDeletedObject(type, record.deletedDate);
+    const traits =
+      direction === "incoming" && sfObject.deletedDate
+        ? this.attributesMapper.mapToHullDeletedObject(
+            sfType,
+            sfObject.deletedDate
+          )
+        : this.attributesMapper.mapToHullAttributeObject(
+            sfType,
+            sfObject,
+            resourceSchema
+          );
 
-      promises.push(scopedClient.traits(attribs)
-        .then(() => {
-          scopedClient.logger.info(`incoming.${type.toLowerCase() === "account" ? "account" : "user"}.success`, { traits: attribs });
-        })
-        .catch((error) => {
-          scopedClient.logger.error(`incoming.${type.toLowerCase() === "account" ? "account" : "user"}.error`, { error });
-        }));
-    });
+    if (source === "hull") {
+      if (_.isEmpty(error) && success) {
+        promises.push(asEntity.traits(traits));
+        promises.push(
+          asEntity.logger.info(`${action}.success`, {
+            record: sfObject,
+            operation: method,
+            resource: sfType
+          })
+        );
+      } else {
+        promises.push(
+          asEntity.logger.info(`${action}.error`, {
+            error,
+            data: sfObject
+          })
+        );
+      }
+    } else if (source === "salesforce") {
+      promises.push(
+        asEntity
+          .traits(traits)
+          .then(() => {
+            asEntity.logger.info(`${action}.success`, { traits });
+          })
+          .catch(err => {
+            asEntity.logger.error(`${action}.error`, { error: err });
+          })
+      );
+
+      if (
+        sfType === "Contact" &&
+        sfObject.Account &&
+        this.linkAccounts &&
+        this.fetchAccounts &&
+        this.accountClaims.length > 0 &&
+        !_.isNil(_.get(sfObject.Account, this.accountClaims[0].service))
+      ) {
+        promises.push(this.linkIncomingAccount(asEntity, sfObject));
+      }
+    }
 
     return Promise.all(promises);
+  }
+
+  // TODO handle logging and errors correctly
+  log(entities: Object, messages: Array<Object>) {
+    const { sfLeads = [], sfContacts = [], sfAccounts = [] } = entities;
+    if (
+      sfLeads.length === 10000 ||
+      sfContacts.length === 10000 ||
+      sfAccounts.length === 1000
+    ) {
+      this.hullClient.logger.error("outgoing.job.error", {
+        error: "Found hard limit hit, we cannot match objects",
+        sfLeads: sfLeads.length,
+        sfContacts: sfContacts.length,
+        sfAccounts: sfAccounts.length,
+        userIds: this.queryUtil.extractUniqueValues(messages, "user.id"),
+        userEmails: this.queryUtil.extractUniqueValues(messages, "user.email"),
+        accountDomains: this.queryUtil.extractUniqueValues(
+          messages,
+          "account.domain"
+        )
+      });
+    }
+
+    this.hullClient.logger.debug("outgoing.job.progress", {
+      step: "findResults",
+      sfLeads: sfLeads.length,
+      sfContacts: sfContacts.length,
+      sfAccounts: sfAccounts.length,
+      userIds: this.queryUtil.extractUniqueValues(messages, "user.id"),
+      userEmails: this.queryUtil.extractUniqueValues(messages, "user.email"),
+      accountDomains: this.queryUtil.extractUniqueValues(
+        messages,
+        "account.domain"
+      )
+    });
+  }
+
+  logSkip(skippedMessages: Array<Object>) {
+    _.forEach(skippedMessages, skipped => {
+      const { envelope, skipReason, log, hullType } = skipped;
+      if (log === false) {
+        return;
+      }
+      const { user, account } = envelope.message;
+      if (hullType === "user") {
+        this.hullClient
+          .asUser(user)
+          .logger.info("outgoing.user.skip", { reason: skipReason });
+      } else {
+        this.hullClient
+          .asAccount(account)
+          .logger.info("outgoing.account.skip", { reason: skipReason });
+      }
+    });
+  }
+
+  handleError(error: any): Promise<*> {
+    const errorName = _.get(error, "name", "");
+    const errorMessage = _.get(error, "message", "");
+
+    const errorTemplate = _.find(errors, err => {
+      return (
+        err.name === errorName &&
+        (_.isNil(err.message) || errorMessage.includes(err.message))
+      );
+    });
+
+    if (!_.isNil(errorTemplate)) {
+      this.hullClient.logger.error("outgoing.job.error", {
+        error: errorName,
+        details: errorMessage
+      });
+      return Promise.resolve({});
+    }
+
+    this.hullClient.logger.error("outgoing.job.error", {
+      error: "Unknown API error",
+      name: errorName,
+      details: errorMessage
+    });
+    throw error;
   }
 }
 
