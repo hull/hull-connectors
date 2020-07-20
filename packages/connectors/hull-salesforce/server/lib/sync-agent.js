@@ -424,6 +424,7 @@ class SyncAgent {
             error: `Outgoing Batch Error: ${
               _.isFunction(error.toString) ? error.toString() : "Unknown error."
             }`,
+            warning: `Unable to determine invalid ${hullType}`,
             resourceType
           })
         );
@@ -503,21 +504,24 @@ class SyncAgent {
         });
       }
 
-      _.forEach(matchedMessages, message => {
-        const { user, account } = message;
+      if (sfEntity.success && sfEntity.record.Id) {
         if (hullType === "account") {
-          if (!_.isEmpty(user)) {
-            _.set(user, "salesforce_contact/account_id", sfEntity.record.Id);
-          }
-          _.set(account, "salesforce/id", sfEntity.record.Id);
-        } else {
+          _.forEach(matchedMessages, message => {
+            const { user, account } = message;
+            if (!_.isEmpty(user)) {
+              _.set(user, "salesforce_contact/account_id", sfEntity.record.Id);
+            }
+            _.set(account, "salesforce/id", sfEntity.record.Id);
+          });
+        } else if (!_.isEmpty(matchedMessages)) {
+          const { user } = matchedMessages[0];
           _.set(
             user,
-            `salesforce_${sfEntity.resource.toLowerCase()}/id`,
+            `salesforce_${_.toLower(resourceType)}/id`,
             sfEntity.record.Id
           );
         }
-      });
+      }
     }
     return Promise.all(promises);
   }
@@ -950,10 +954,10 @@ class SyncAgent {
         asEntity
           .traits(traits)
           .then(() => {
-            asEntity.logger.info(`${action}.success`, { traits });
+            return asEntity.logger.info(`${action}.success`, { traits });
           })
           .catch(err => {
-            asEntity.logger.error(`${action}.error`, { error: err });
+            return asEntity.logger.error(`${action}.error`, { error: err });
           })
       );
 
