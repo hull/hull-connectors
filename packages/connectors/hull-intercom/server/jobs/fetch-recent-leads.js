@@ -29,9 +29,9 @@ function fetchRecentLeads(ctx: HullContext, params = {}) {
   }
 
   if (page === 1) {
-    ctx.client.logger.info("incoming.job.start", {
-      jobName: "fetch",
-      type: "user",
+    ctx.client.logger.debug("incoming.job.start", {
+      jobName: "fetch-recent",
+      type: "leads",
       updated_after,
       updated_before
     });
@@ -45,7 +45,7 @@ function fetchRecentLeads(ctx: HullContext, params = {}) {
       updated_before
     })
     .then(({ leads, hasMore }) => {
-      ctx.client.logger.info("incoming.job.progress", {
+      ctx.client.logger.debug("incoming.job.progress", {
         jobName: "fetch",
         stepName: "recent-leads",
         progress: (page - 1) * count + leads.length,
