@@ -23,7 +23,7 @@ const private_settings = {
 
 describe("Update Tasks Tests", () => {
 
-  it("should insert new task and insert new contact", () => {
+  it("should update new task and insert new contact", () => {
     const connector = {
       private_settings: {
         ...private_settings,
