@@ -40,6 +40,14 @@ function fetchRecentUsers(ctx: HullContext, params = {}) {
     }
   }
 
+  if (page === 1) {
+    ctx.client.logger.info("incoming.job.start", {
+      jobName: "fetch-recent",
+      type: "users",
+      last_updated_at
+    });
+  }
+
   ctx.client.logger.debug("fetchUsers", { last_updated_at, page });
   ctx.metric.value("ship.incoming.fetch.page", page);
   return intercomAgent
