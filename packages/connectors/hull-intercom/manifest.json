@@ -201,6 +201,16 @@
       ]
     }
   ],
+  "incoming": [
+    {
+      "url": "/intercom",
+      "handler": "webhook",
+      "options": {
+        "credentialsFromQuery": true,
+        "bodyParser": "json"
+      }
+    }
+  ],
   "json": [
     {
       "url": "/fetchAllLeads",
