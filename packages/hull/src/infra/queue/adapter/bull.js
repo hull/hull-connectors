@@ -6,7 +6,8 @@ const Queue = require("bull");
 class BullAdapter {
   constructor(options) {
     this.options = options;
-    this.queue = new Queue("main", options);
+    this.queue = new Queue("main", options.url, options);
+
     this.queue.on("error", err => {
       console.error("queue.adapter.error", err);
     });
