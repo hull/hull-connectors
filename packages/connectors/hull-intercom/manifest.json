@@ -26,11 +26,9 @@
       "handler": "oauth",
       "url": "/auth",
       "options": {
-        "tokenInUrl": true,
         "name": "Intercom",
         "scope": ["refresh_token", "api"],
         "strategy": {
-          "tokenInUrl": true,
           "name": "Intercom",
           "scope": ["refresh_token", "api"]
         }
