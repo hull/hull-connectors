@@ -1,5 +1,7 @@
 // @flow
 import type { HullContext, HullExternalResponse } from "hull";
+import fetchAllLeads from "./fetch-all-leads";
+import fetchAllUsers from "./fetch-all-users";
 
 const _ = require("lodash");
 
@@ -22,9 +24,9 @@ const fetchAll = (intercomEntity: string) => async (
   }
 
   if (intercomEntity === "User") {
-    await Promise.resolve(ctx.enqueue("fetchAllUsers"));
+    await fetchAllUsers(ctx);
   } else if (intercomEntity === "Lead") {
-    await Promise.resolve(ctx.enqueue("fetchAllLeads"));
+    await fetchAllLeads(ctx);
   }
 
   return {

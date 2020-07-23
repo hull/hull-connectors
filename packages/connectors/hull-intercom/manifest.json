@@ -238,7 +238,7 @@
       "default": [
         { "service": "id", "hull": "intercom/id", "readOnly": true, "overwrite": true },
         { "service": "website", "hull": "intercom/website", "readOnly": true, "overwrite": true },
-        { "service": "Tags", "hull": "intercom/tags", "readOnly": true, "overwrite": true }
+        { "service": "tags", "hull": "intercom/tags", "readOnly": true, "overwrite": true }
       ]
     }
   ],
@@ -320,7 +320,7 @@
       }
     },
     {
-      "url": "/fetch-all-companies",
+      "url": "/fetchAllCompanies",
       "handler": "fetchAllCompanies",
       "type": "string",
       "format": "action",

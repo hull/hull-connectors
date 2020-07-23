@@ -15,21 +15,13 @@ const {
   cast,
   cond,
   ld,
-  not,
   iterateL,
-  transformTo,
-  input,
-  filter,
-  utils,
   loopEndL,
   loopL,
   or,
-  hull
+  hull,
+  settingsUpdate
 } = require("hull-connector-framework/src/purplefusion/language");
-
-const {
-  CompanyRead
-} = require("./service-objects");
 
 function intercom(op: string, param?: any): Svc {
   return new Svc({ name: "intercom", op }, param);
@@ -57,9 +49,17 @@ const glue = {
     ]), [
       set("pageOffset", 1),
       set("pageSize", 60),
+      set("lastFetchAt", settings("companies_last_fetch_timestamp")),
+      ifL(cond("isEmpty", "lastFetchAt"), [
+        set("lastFetchAt", ex(ex(moment(), "subtract", { hour: 1 }), "unix"))
+      ]),
+      settingsUpdate({companies_last_fetch_timestamp: ex(moment(), "unix") }),
       loopL([
         set("page", intercom("getRecentCompanies")),
-        set("intercomCompanies", filterL(cond("greaterThan", "${company.updated_at}", settings("companies_last_fetch_timestamp")), "company", "${page.data}")),
+        set("intercomCompanies", filterL(or([
+          cond("greaterThan", "${company.updated_at}", "${lastFetchAt}"),
+          cond("isEqual", "${company.updated_at}", "${lastFetchAt}")
+        ]), "company", "${page.data}")),
         iterateL("${intercomCompanies}", { key: "intercomCompany", async: true},
           hull("asAccount", cast(IntercomIncomingCompany, "${intercomCompany}"))
         ),

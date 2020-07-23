@@ -22,8 +22,6 @@ import userSegmentUpdate from "./user-segment-update";
 import userSegmentDelete from "./user-segment-delete";
 import shipUpdate from "./ship-update";
 
-import fetchAllUsers from "../jobs/fetch-all-users";
-import fetchAllLeads from "../jobs/fetch-all-leads";
 import fetchRecentUsers from "../jobs/fetch-recent-users";
 import fetchRecentLeads from "../jobs/fetch-recent-leads";
 import handleBatch from "../jobs/handle-batch";
@@ -49,8 +47,6 @@ const handler = ({
       userSegmentDelete
     },
     jobs: {
-      fetchAllUsers,
-      fetchAllLeads,
       fetchRecentUsers,
       fetchRecentLeads,
       handleBatch,
