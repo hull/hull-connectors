@@ -53,7 +53,6 @@ export default function connectorConfig(): HullConnectorConfig {
       }
     : { store: "memory" };
 
-  console.log({ REDIS_URL, KUE_PREFIX, cacheConfig, queueConfig });
   return {
     manifest,
     hostSecret,
