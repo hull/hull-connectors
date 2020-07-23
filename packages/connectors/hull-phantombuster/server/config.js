@@ -46,7 +46,6 @@ export default function connectorConfig(): HullConnectorConfig {
     throw new Error("Missing KUE_PREFIX to define queue name");
   }
 
-  console.log({ REDIS_URL, KUE_PREFIX, cacheConfig, queueConfig });
   return {
     manifest,
     hostSecret,

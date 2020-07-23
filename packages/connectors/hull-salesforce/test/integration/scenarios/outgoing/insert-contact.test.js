@@ -194,7 +194,8 @@ describe("Insert Contacts Tests", () => {
             },
             {
               "error": "Outgoing Batch Error: ERROR_HTTP_400: {\"message\":\"some random error\"}",
-              "resourceType": "Contact"
+              "resourceType": "Contact",
+              "warning": "Unable to determine invalid user"
             }
           ],
           ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }]

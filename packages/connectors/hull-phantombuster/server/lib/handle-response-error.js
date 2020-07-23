@@ -17,10 +17,16 @@ export default function handleResponseError({
   error,
   body
 }: Response): void | string {
-  if (error || !ok || !body || body.status === "error" || !body.agent) {
-    return error || body?.error || "Error when calling Phantombuster";
+  if (error) {
+    return error;
   }
-  if (body.agent.lastExitCode) {
+  if (!ok || !body) {
+    return "Could not get a response from Phantombuster. API Down?";
+  }
+  if (body.status === "error") {
+    return `Phantombuster returned an error code: ${body.error}`;
+  }
+  if (body.lastExitCode) {
     return "Last Agent launch didn't finish correctly, check status in Phantombuster";
   }
   return undefined;

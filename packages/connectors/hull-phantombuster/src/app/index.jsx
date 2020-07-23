@@ -15,12 +15,20 @@ type Props = {
 
 type State = EngineState & {};
 
-const renderTitle = ({ hasRecent, sync_interval, api_key }) => {
+const renderTitle = ({ error, hasRecent, sync_interval, api_key }) => {
   if (!api_key)
     return (
       <p>
         Please configure the Phantombuster connector in the Settings tab first
       </p>
+    );
+  if (error)
+    return (
+      <>
+        There was an error while fetching the Agent configuration:
+        <br />
+        {error}
+      </>
     );
   if (hasRecent)
     return (
@@ -57,6 +65,7 @@ export default class App extends RecentEntriesUI<Props, State> {
       id,
       api_key,
       agent,
+      config_error,
       sync_interval
     } = this.state;
     if (!initialized) return null;
@@ -64,7 +73,13 @@ export default class App extends RecentEntriesUI<Props, State> {
     const hasRecent = !!_.get(recent, "length", 0);
     const content = (
       <h5 style={{ textAlign: "center", marginTop: "1rem" }}>
-        {renderTitle({ hasRecent, sync_interval, agent, api_key })}
+        {renderTitle({
+          error: config_error,
+          hasRecent,
+          sync_interval,
+          agent,
+          api_key
+        })}
       </h5>
     );
     const actions = [
