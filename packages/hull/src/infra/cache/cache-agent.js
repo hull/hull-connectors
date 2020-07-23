@@ -7,7 +7,6 @@ const cacheManager = require("cache-manager");
 const ConnectorCache = require("./connector-cache");
 const PromiseReuser = require("../../utils/promise-reuser");
 
-
 /**
  * This is a wrapper over https://github.com/BryanDonovan/node-cache-manager
  * to manage ship cache storage.

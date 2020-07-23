@@ -1,5 +1,3 @@
-import _ from "lodash";
-
 const Promise = require("bluebird");
 const kue = require("kue");
 const ui = require("kue-ui");
@@ -29,8 +27,10 @@ class KueAdapter {
       "completeCount",
       "failedCount",
       "delayedCount"
-    ].forEach(name => {
-      this[name] = Promise.promisify(this.queue[name]).bind(this.queue);
+    ].forEach(queueName => {
+      this[queueName] = Promise.promisify(this.queue[queueName]).bind(
+        this.queue
+      );
     });
   }
 
