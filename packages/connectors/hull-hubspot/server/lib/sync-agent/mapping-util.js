@@ -151,7 +151,16 @@ class MappingUtil {
       payload: accountData,
       direction: "incoming",
       mapping: this.connector.private_settings.incoming_account_attributes,
-      attributeFormatter: value => (_.isNil(value) ? null : value)
+      attributeFormatter: value => {
+        if (_.isNil(value) || (!_.isNumber(value) && _.isEmpty(value))) {
+          return null;
+        }
+        // eslint-disable-next-line no-restricted-globals
+        if (!isNaN(value)) {
+          return parseInt(value, 10);
+        }
+        return value;
+      }
     });
 
     hullTraits["hubspot/id"] = accountData.companyId;
