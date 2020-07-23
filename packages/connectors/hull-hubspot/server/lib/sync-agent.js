@@ -255,13 +255,6 @@ class SyncAgent {
                 };
               }
 
-              if (type === "number") {
-                return {
-                  label,
-                  value: `$number(properties.${value}.value)`
-                };
-              }
-
               return { label, value: `properties.${value}.value` };
             })
             .value()

@@ -80,8 +80,8 @@ it("should send out a new hull account to hubspot", () => {
                 "founded_year": {
                   "value": ""
                 },
-                "twitterbio": {
-                  "value": "\"\""
+                "days_to_close": {
+                  "value": ""
                 }
               }
             }
@@ -133,11 +133,11 @@ it("should send out a new hull account to hubspot", () => {
             "subjectType": "account"
           },
           {
-            "hubspot/create_date": "1584635613078",
-            "hubspot/founded_year": "",
+            "hubspot/create_date": 1584635613078,
+            "hubspot/days_to_close": null,
+            "hubspot/founded_year": null,
             "hubspot/domain": "hull.io",
-            "hubspot/hs_lastmodified_date": "1584635613078",
-            "hubspot/twitterbio": "\"\"",
+            "hubspot/hs_lastmodified_date": 1584635613078,
             "hubspot/website": "hull.io",
             "hubspot/id": 3223871663
           }

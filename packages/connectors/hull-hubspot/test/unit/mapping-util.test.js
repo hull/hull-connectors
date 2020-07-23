@@ -10,7 +10,7 @@ process.env.CLIENT_ID = 1;
 process.env.CLIENT_SECRET = 1;
 
 describe("Mapping Util Unit Tests", () => {
-  it("Should fetch recent companies", () => {
+  it("Should build list of properties to fetch", () => {
     const private_settings = {
       incoming_account_claims: [
         { "hull": "domain", "service": "properties.domain.value" }
