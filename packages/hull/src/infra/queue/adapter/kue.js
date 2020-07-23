@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 const Promise = require("bluebird");
 const kue = require("kue");
 const ui = require("kue-ui");
@@ -9,7 +11,12 @@ const ui = require("kue-ui");
 class KueAdapter {
   constructor(options) {
     this.options = options;
-    this.queue = kue.createQueue(options);
+    const { name, url, settings } = options;
+    this.queue = kue.createQueue({
+      ...settings,
+      prefix: name,
+      redis: url
+    });
     this.queue.watchStuckJobs();
     this.queue.on("error", err => {
       console.error("queue.adapter.error", err);

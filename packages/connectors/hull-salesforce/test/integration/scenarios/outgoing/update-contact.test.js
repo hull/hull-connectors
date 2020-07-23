@@ -135,7 +135,7 @@ describe("Update Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 262,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%20FROM%20Lead%20WHERE%20Email%20IN%20('adam%40apple.com')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2C%20FirstName%2C%20LastName%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%20FROM%20Lead%20WHERE%20Email%20IN%20('adam%40apple.com')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
             }
           ]),
           expect.arrayContaining([

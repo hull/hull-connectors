@@ -26,7 +26,14 @@ export default function handler(_EntryModel: {}) {
         format: "csv",
         batchSize: 50,
         onError: error => reject(error),
-        onEnd: () => resolve(),
+        onEnd: () =>
+          resolve({
+            status: "ok",
+            data: {
+              message: "Job Completed",
+              total: progress
+            }
+          }),
         onData: async data => {
           progress += data.length;
           job.progress(progress);

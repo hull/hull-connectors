@@ -38,18 +38,15 @@ export default function connectorConfig(): HullConnectorConfig {
     collectionName: MONGO_COLLECTION_NAME
   });
 
-  const cacheConfig =
-    REDIS_URL !== undefined
-      ? {
-          store: "redis",
-          url: REDIS_URL
-        }
-      : { store: "memory" };
+  const cacheConfig = REDIS_URL
+    ? { store: "redis", url: REDIS_URL }
+    : { store: "memory" };
 
   if (REDIS_URL && !KUE_PREFIX) {
     throw new Error("Missing KUE_PREFIX to define queue name");
   }
 
+  console.log({ REDIS_URL, KUE_PREFIX, cacheConfig, queueConfig });
   return {
     manifest,
     hostSecret,

@@ -2,9 +2,11 @@
 import type { HullContext, HullCacheConfig } from "hull";
 import redisStore from "cache-manager-redis";
 
+const debug = require("debug")("hull:cache-agent");
 const cacheManager = require("cache-manager");
 const ConnectorCache = require("./connector-cache");
 const PromiseReuser = require("../../utils/promise-reuser");
+
 
 /**
  * This is a wrapper over https://github.com/BryanDonovan/node-cache-manager
@@ -51,10 +53,11 @@ class CacheAgent {
 
   promiseReuser: PromiseReuser;
 
-  constructor(options: HullCacheConfig) {
-    const { store } = options;
+  constructor(config: HullCacheConfig) {
+    debug("New Cache Store", { config });
+    const { store } = config;
     this.cache = cacheManager.caching({
-      ...options,
+      ...config,
       store: store === "redis" ? redisStore : "memory"
     });
     this.getConnectorCache = this.getConnectorCache.bind(this);
