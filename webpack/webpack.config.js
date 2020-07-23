@@ -44,7 +44,7 @@ const getPlugins = ({ mode, assets, destination }) =>
 const buildConfig = ({ assets, files, destination, mode = "production" }) => ({
   mode,
   entry: getEntry(files),
-  devtool: mode === "production" ? "source-map" : "inline-source-map",
+  devtool: mode === "production" ? "source-map" : "eval-source-map",
   output: {
     path: path.resolve(destination),
     filename: "[name].js",
@@ -66,7 +66,7 @@ const buildConfig = ({ assets, files, destination, mode = "production" }) => ({
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader",
+          loader: "babel-loader?cacheDirectory",
           options: {
             presets: [
               ["@babel/preset-env", { modules: false }],

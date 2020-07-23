@@ -12,6 +12,7 @@ import deleteUser from "../actions/delete-user";
 import fetchSegments from "../actions/fetch-segments";
 import fetchRecentlyUpdatedUsers from "../actions/fetch-recent-users";
 import fetchRecentlyUpdatedLeads from "../actions/fetch-recent-leads";
+import webhook from "../actions/webhook";
 
 import userUpdate from "./user-update";
 import userSegmentUpdate from "./user-segment-update";
@@ -35,6 +36,9 @@ const handler = ({
   clientSecret: string
 }) => (): HullHandlersConfiguration => {
   return {
+    incoming: {
+      webhook
+    },
     subscriptions: {
       userUpdate,
       shipUpdate,
