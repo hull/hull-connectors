@@ -6,7 +6,7 @@ const moment = require("moment");
 const _ = require("lodash");
 const { RateLimitError, ConfigurationError } = require("hull/src/errors");
 
-const fetchAllUsers = require("./fetch-all-users");
+const fetchAllUsers = require("../actions/fetch-all-users");
 const IntercomClient = require("../lib/intercom-client");
 const IntercomAgent = require("../lib/intercom-agent");
 const SyncAgent = require("../lib/sync-agent/sync-agent");
