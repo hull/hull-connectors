@@ -2,16 +2,19 @@
 import type { HullHandlersConfiguration } from "hull";
 
 import fetchAll from "../actions/fetch-all";
+import fetchAllPF from "../actions/fetch-all-pf";
 import status from "../actions/status";
 import onStatus from "../actions/on-status";
 import onAuthorize from "../actions/on-authorize";
 import onLogin from "../actions/on-login";
 import fields from "../actions/fields";
+import companyFields from "../actions/company-fields";
 import deleteContact from "../actions/delete-contact";
 import deleteUser from "../actions/delete-user";
 import fetchSegments from "../actions/fetch-segments";
 import fetchRecentlyUpdatedUsers from "../actions/fetch-recent-users";
 import fetchRecentlyUpdatedLeads from "../actions/fetch-recent-leads";
+import fetchRecentlyUpdated from "../actions/fetch-recent-pf";
 import webhook from "../actions/webhook";
 
 import userUpdate from "./user-update";
@@ -68,12 +71,15 @@ const handler = ({
     schedules: {
       fetchRecentlyUpdatedUsers,
       fetchRecentlyUpdatedLeads,
+      fetchRecentlyUpdatedCompanies: fetchRecentlyUpdated("Company"),
       fetchSegments
     },
     json: {
       fetchAllLeads: fetchAll("Lead"),
       fetchAllUsers: fetchAll("User"),
+      fetchAllCompanies: fetchAllPF("Company"),
       fieldsInbound: fields,
+      companyFieldsInbound: companyFields,
       deleteContact,
       deleteUser
     }
