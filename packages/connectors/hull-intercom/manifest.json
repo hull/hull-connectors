@@ -71,6 +71,53 @@
       "format": "hidden"
     },
     {
+      "name": "user_claims",
+      "title": "User and Lead Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hull": {
+            "title": "Hull Identifier",
+            "enum": [
+              "external_id",
+              "email"
+            ]
+          },
+          "service": {
+            "title": "Intercom Identifier",
+            "type": "string",
+            "format": "select",
+            "options": {
+              "allowCreate": false,
+              "loadOptions": "/schema/contact_fields"
+            }
+          },
+          "required": {
+            "type": "boolean",
+            "format": "select",
+            "title": "required?"
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "external_id",
+          "service": "external_id",
+          "required": false
+        },
+        {
+          "hull": "email",
+          "service": "email",
+          "required": false
+        }
+      ],
+      "options": {
+        "itemsPerRow": 3
+      }
+    },
+    {
       "name": "synchronized_segments",
       "title": "User Filter",
       "description": "Send users to Intercom when belonging to one of these segments",
@@ -221,6 +268,20 @@
       "default": false
     },
     {
+      "name": "fetch_leads",
+      "title": "Lead Fetch",
+      "description": "Enable fetching Intercom Leads",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "fetch_users",
+      "title": "User Fetch",
+      "description": "Enable fetching Intercom Users",
+      "type": "boolean",
+      "default": true
+    },
+    {
       "name": "incoming_account_attributes",
       "title": "Company Incoming Fields",
       "description": "List of Account fields to fetch from Salesforce",
@@ -231,7 +292,6 @@
         "showOverwriteToggle": false,
         "placeholder": "Intercom Company Field",
         "allowCreate": true,
-        "allowExpression": true,
         "loadOptions": "/schema/company_fields",
         "source": "intercom"
       },

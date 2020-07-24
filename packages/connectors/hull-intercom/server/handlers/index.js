@@ -2,7 +2,6 @@
 import type { HullHandlersConfiguration } from "hull";
 
 import fetchAll from "../actions/fetch-all";
-import fetchAllPF from "../actions/fetch-all-pf";
 import status from "../actions/status";
 import onStatus from "../actions/on-status";
 import onAuthorize from "../actions/on-authorize";
@@ -12,9 +11,7 @@ import companyFields from "../actions/company-fields";
 import deleteContact from "../actions/delete-contact";
 import deleteUser from "../actions/delete-user";
 import fetchSegments from "../actions/fetch-segments";
-import fetchRecentlyUpdatedUsers from "../actions/fetch-recent-users";
-import fetchRecentlyUpdatedLeads from "../actions/fetch-recent-leads";
-import fetchRecentlyUpdated from "../actions/fetch-recent-pf";
+import fetchRecentlyUpdated from "../actions/fetch-recent";
 import webhook from "../actions/webhook";
 
 import userUpdate from "./user-update";
@@ -22,8 +19,6 @@ import userSegmentUpdate from "./user-segment-update";
 import userSegmentDelete from "./user-segment-delete";
 import shipUpdate from "./ship-update";
 
-import fetchRecentUsers from "../jobs/fetch-recent-users";
-import fetchRecentLeads from "../jobs/fetch-recent-leads";
 import handleBatch from "../jobs/handle-batch";
 import handleBulk from "../jobs/handle-bulk";
 
@@ -47,8 +42,6 @@ const handler = ({
       userSegmentDelete
     },
     jobs: {
-      fetchRecentUsers,
-      fetchRecentLeads,
       handleBatch,
       handleBulk
     },
@@ -65,15 +58,15 @@ const handler = ({
     },
     statuses: { status },
     schedules: {
-      fetchRecentlyUpdatedUsers,
-      fetchRecentlyUpdatedLeads,
-      fetchRecentlyUpdatedCompanies: fetchRecentlyUpdated("Company"),
+      fetchRecentlyUpdatedUsers: fetchRecentlyUpdated("Users"),
+      fetchRecentlyUpdatedLeads: fetchRecentlyUpdated("Leads"),
+      fetchRecentlyUpdatedCompanies: fetchRecentlyUpdated("Companies"),
       fetchSegments
     },
     json: {
-      fetchAllLeads: fetchAll("Lead"),
-      fetchAllUsers: fetchAll("User"),
-      fetchAllCompanies: fetchAllPF("Company"),
+      fetchAllLeads: fetchAll("Leads"),
+      fetchAllCompanies: fetchAll("Companies"),
+      fetchAllUsers: fetchAll("Users"),
       fieldsInbound: fields,
       companyFieldsInbound: companyFields,
       deleteContact,
