@@ -157,7 +157,7 @@ class MappingUtil {
         }
         // eslint-disable-next-line no-restricted-globals
         if (!isNaN(value)) {
-          return parseInt(value, 10);
+          return parseFloat(value);
         }
         return value;
       }
