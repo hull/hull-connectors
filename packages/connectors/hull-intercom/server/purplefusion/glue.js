@@ -1,6 +1,6 @@
 /* @flow */
 
-import { IntercomIncomingCompany } from "./service-objects";
+import { IntercomIncomingCompany, IntercomIncomingLead, IntercomIncomingUser } from "./service-objects";
 import { filterL, inc } from "hull-connector-framework/src/purplefusion/language";
 
 const {
@@ -20,7 +20,10 @@ const {
   loopL,
   or,
   hull,
-  settingsUpdate
+  settingsUpdate,
+  input,
+  returnValue,
+  not
 } = require("hull-connector-framework/src/purplefusion/language");
 
 function intercom(op: string, param?: any): Svc {
@@ -42,7 +45,7 @@ const glue = {
     set("fetchEnd", ex(moment(), "valueOf")),
   ],
   getFetchFields: [],
-  fetchRecentCompany: ifL(
+  fetchRecentCompanies: ifL(
     cond("allTrue", [
       route("isConfigured"),
       settings("fetch_companies")
@@ -50,8 +53,8 @@ const glue = {
       set("pageOffset", 1),
       set("pageSize", 60),
       set("lastFetchAt", settings("companies_last_fetch_timestamp")),
-      ifL(cond("isEmpty", "lastFetchAt"), [
-        set("lastFetchAt", ex(ex(moment(), "subtract", { hour: 1 }), "unix"))
+      ifL(cond("isEmpty", "${lastFetchAt}"), [
+        set("lastFetchAt", ex(ex(moment(), "subtract", { minute: 5 }), "unix"))
       ]),
       settingsUpdate({companies_last_fetch_timestamp: ex(moment(), "unix") }),
       loopL([
@@ -65,29 +68,117 @@ const glue = {
         ),
         ifL(or([
           cond("isEqual", "${page.pages.next}", null),
-          cond("lessThan", get("updated_at", ld("last", "${page.data}")), settings("companies_last_fetch_timestamp"))
+          cond("lessThan", get("updated_at", ld("last", "${page.data}")), "${lastFetchAt}")
         ]), loopEndL()),
         set("pageOffset", inc("${pageOffset}"))
       ])
   ]),
-  fetchAllCompany: ifL(
+  fetchAllCompanies: ifL(
     cond("allTrue", [
-      route("isConfigured")]
-    ), [
+      route("isConfigured")
+    ]), [
+      loopL([
+        set("page", intercom("getAllCompaniesScroll")),
+        ifL(or([
+          cond("isEmpty", "${page}"),
+          cond("isEmpty", "${page.data}")
+        ]), loopEndL()),
+        iterateL("${page.data}", { key: "intercomCompany", async: true},
+          hull("asAccount", cast(IntercomIncomingCompany, "${intercomCompany}"))
+        ),
+        set("offset", "${page.scroll_param}"),
+        set("page", []),
+      ])
+  ]),
+  fetchContacts: [
+    ifL(cond("isEmpty", "${lastFetchAt}"), {
+      do: set("fetchFrom", ex(ex(moment(), "subtract", { day: 1 }), "unix")),
+      eldo: [
+        set("secondsInDay", 86400),
+        set("fetchFrom", ld("subtract", "${lastFetchAt}", "${secondsInDay}"))
+      ]
+    }),
+    ifL(cond("isEqual", "${fetchAll}", true), set("fetchFrom", 0)),
 
     loopL([
-      set("page", intercom("getAllCompaniesScroll")),
-      ifL(or([
-        cond("isEmpty", "${page}"),
-        cond("isEmpty", "${page.data}")
-      ]), loopEndL()),
-      iterateL("${page.data}", { key: "intercomCompany", async: true},
-        hull("asAccount", cast(IntercomIncomingCompany, "${intercomCompany}"))
+      set("page", intercom("getContacts", {
+        "query":  {
+          "operator": "AND",
+          "value": [
+            { "field": "updated_at", "operator": ">", "value": "${fetchFrom}" },
+            { "field": "role", "operator": "=", "value": "${serviceType}" }
+          ]
+        },
+        "pagination": {
+          "per_page": 150,
+          "starting_after": "${pageOffset}"
+        },
+        "sort": {
+          "field": "updated_at",
+          "order": "descending"
+        }
+      })),
+      set("intercomContacts", filterL(or([
+        cond("greaterThan", "${contact.updated_at}", "${lastFetchAt}"),
+        cond("isEqual", "${contact.updated_at}", "${lastFetchAt}")
+      ]), "contact", "${page.data}")),
+      iterateL("${intercomContacts}", { key: "intercomContact", async: true},
+        hull("asUser", cast("${serviceEntity}", "${intercomContact}"))
       ),
-      set("offset", "${page.scroll_param}"),
-      set("page", []),
+      ifL(or([
+        cond("isEqual", "${page.pages.next}", undefined),
+        cond("lessThan", get("updated_at", ld("last", "${page.data}")), "${lastFetchAt}")
+      ]), loopEndL()),
+      set("pageOffset", "${page.pages.next.starting_after}")
     ])
-  ])
+  ],
+  fetchRecentLeads: ifL(
+    cond("allTrue", [
+      route("isConfigured"),
+      settings("fetch_leads")
+    ]), [
+      set("serviceType", "lead"),
+      set("serviceEntity", IntercomIncomingLead),
+      set("lastFetchAt", settings("leads_last_fetch_timestamp")),
+      settingsUpdate({ leads_last_fetch_timestamp: ex(moment(), "unix") }),
+      route("fetchContacts")
+    ]),
+  fetchRecentUsers: ifL(
+    cond("allTrue", [
+      route("isConfigured"),
+      settings("fetch_users")
+    ]), [
+      set("serviceType", "user"),
+      set("serviceEntity", IntercomIncomingUser),
+      set("lastFetchAt", settings("users_last_fetch_timestamp")),
+      settingsUpdate({ users_last_fetch_timestamp: ex(moment(), "unix") }),
+      route("fetchContacts")
+    ]),
+  fetchAllLeads: ifL(
+    cond("allTrue", [
+      route("isConfigured")
+    ]), [
+      set("serviceType", "lead"),
+      set("serviceEntity", IntercomIncomingLead),
+      set("lastFetchAt", 0),
+      set("fetchAll", true),
+      settingsUpdate({ leads_last_fetch_timestamp: ex(moment(), "unix") }),
+      route("fetchContacts")
+    ]),
+  fetchAllUsers: ifL(
+    cond("allTrue", [
+      route("isConfigured")
+    ]), [
+      set("serviceType", "user"),
+      set("serviceEntity", IntercomIncomingUser),
+      set("lastFetchAt", 0),
+      set("fetchAll", true),
+      settingsUpdate({ users_last_fetch_timestamp: ex(moment(), "unix") }),
+      route("fetchContacts")
+    ]),
+  getContactTags: returnValue([
+    set("contactId", input("id"))
+  ], intercom("getContactTags")),
 };
 
 module.exports = glue;

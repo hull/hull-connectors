@@ -7,6 +7,18 @@ const IntercomIncomingCompany: ServiceObjectDefinition = {
   name: "Company"
 };
 
+const IntercomIncomingLead: ServiceObjectDefinition = {
+  service_name: "intercom_incoming_lead",
+  name: "Lead"
+};
+
+const IntercomIncomingUser: ServiceObjectDefinition = {
+  service_name: "intercom_incoming_user",
+  name: "User"
+};
+
 module.exports = {
-  IntercomIncomingCompany
+  IntercomIncomingCompany,
+  IntercomIncomingLead,
+  IntercomIncomingUser
 };
