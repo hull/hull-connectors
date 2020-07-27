@@ -80,42 +80,49 @@
         "properties": {
           "hull": {
             "title": "Hull Identifier",
-            "enum": [
-              "external_id",
-              "email"
-            ]
+            "enum": ["email", "external_id"]
           },
           "service": {
             "title": "Intercom Identifier",
-            "type": "string",
-            "format": "select",
-            "options": {
-              "allowCreate": false,
-              "loadOptions": "/schema/contact_fields"
-            }
-          },
-          "required": {
-            "type": "boolean",
-            "format": "select",
-            "title": "required?"
+            "enum": ["email", "external_id"]
           }
         }
       },
       "default": [
         {
-          "hull": "external_id",
-          "service": "external_id",
-          "required": false
+          "hull": "email",
+          "service": "email"
         },
         {
-          "hull": "email",
-          "service": "email",
-          "required": false
+          "hull": "external_id",
+          "service": "external_id"
         }
-      ],
-      "options": {
-        "itemsPerRow": 3
-      }
+      ]
+    },
+    {
+      "name": "lead_claims",
+      "title": "Lead Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hull": {
+            "title": "Hull Identifier",
+            "enum": ["email"]
+          },
+          "service": {
+            "title": "Intercom Identifier",
+            "enum": ["email"]
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "email",
+          "service": "email"
+        }
+      ]
     },
     {
       "name": "synchronized_segments",

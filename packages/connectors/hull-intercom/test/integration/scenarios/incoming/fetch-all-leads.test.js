@@ -61,7 +61,7 @@ describe("Fetch All Leads Tests", () => {
                   "type": "contact",
                   "id": "5f161b7a332231fc10b44e5f",
                   "workspace_id": "lkqcyt9t",
-                  "external_id": "34235",
+                  "external_id": "lead_user_id_1",
                   "role": "lead",
                   "email": "lizalead@rei.com",
                   "phone": "+1123456789",
@@ -264,7 +264,7 @@ describe("Fetch All Leads Tests", () => {
                   "type": "contact",
                   "id": "5f1afdc24c358c20a4545cdc",
                   "workspace_id": "lkqcyt9t",
-                  "external_id": null,
+                  "external_id": "lead_user_id_2",
                   "role": "lead",
                   "email": "roberto.hernandez@rei.com",
                   "phone": null,
@@ -364,15 +364,14 @@ describe("Fetch All Leads Tests", () => {
             {
               "subject_type": "user",
               "user_email": "lizalead@rei.com",
-              "user_external_id": "34235",
-              "user_anonymous_id": "intercom:5f161b7a332231fc10b44e5f"
+              "user_anonymous_id": "intercom:lead_user_id_1"
             },
             {
               "data": {
                 "type": "contact",
                 "id": "5f161b7a332231fc10b44e5f",
                 "workspace_id": "lkqcyt9t",
-                "external_id": "34235",
+                "external_id": "lead_user_id_1",
                 "role": "lead",
                 "email": "lizalead@rei.com",
                 "phone": "+1123456789",
@@ -482,14 +481,14 @@ describe("Fetch All Leads Tests", () => {
             {
               "subject_type": "user",
               "user_email": "roberto.hernandez@rei.com",
-              "user_anonymous_id": "intercom:5f1afdc24c358c20a4545cdc"
+              "user_anonymous_id": "intercom:lead_user_id_2"
             },
             {
               "data": {
                 "type": "contact",
                 "id": "5f1afdc24c358c20a4545cdc",
                 "workspace_id": "lkqcyt9t",
-                "external_id": null,
+                "external_id": "lead_user_id_2",
                 "role": "lead",
                 "email": "roberto.hernandez@rei.com",
                 "phone": null,
@@ -572,8 +571,7 @@ describe("Fetch All Leads Tests", () => {
             {
               "asUser": {
                 "email": "lizalead@rei.com",
-                "external_id": "34235",
-                "anonymous_id": "intercom:5f161b7a332231fc10b44e5f"
+                "anonymous_id": "intercom:lead_user_id_1"
               },
               "subjectType": "user"
             },
@@ -590,13 +588,13 @@ describe("Fetch All Leads Tests", () => {
                 "operation": "setIfNull",
                 "value": "5f161b7a332231fc10b44e5f"
               },
-              "external_id": {
-                "operation": "setIfNull",
-                "value": "34235"
+              "intercom/is_lead": {
+                "operation": "set",
+                "value": true
               },
-              "intercom/user_id": {
-                "operation": "setIfNull",
-                "value": "34235"
+              "intercom/lead_user_id": {
+                "operation": "set",
+                "value": "lead_user_id_1"
               },
               "intercom/twitter_url": {
                 "operation": "setIfNull",
@@ -658,23 +656,23 @@ describe("Fetch All Leads Tests", () => {
                 "value": 1571069751
               },
               "intercom/last_seen_at": {
-                "operation": "setIfNull",
+                "operation": "set",
                 "value": 1571069751
               },
               "intercom/last_replied_at": {
-                "operation": "setIfNull",
+                "operation": "set",
                 "value": 1571672158
               },
               "intercom/last_contacted_at": {
-                "operation": "setIfNull",
+                "operation": "set",
                 "value": 1571672158
               },
               "intercom/last_email_opened_at": {
-                "operation": "setIfNull",
+                "operation": "set",
                 "value": 1571673478
               },
               "intercom/last_email_clicked_at": {
-                "operation": "setIfNull",
+                "operation": "set",
                 "value": 1571676789
               },
               "intercom/language_override": {
@@ -749,7 +747,7 @@ describe("Fetch All Leads Tests", () => {
             {
               "asUser": {
                 "email": "roberto.hernandez@rei.com",
-                "anonymous_id": "intercom:5f1afdc24c358c20a4545cdc"
+                "anonymous_id": "intercom:lead_user_id_2"
               },
               "subjectType": "user"
             },
@@ -766,13 +764,13 @@ describe("Fetch All Leads Tests", () => {
                 "operation": "setIfNull",
                 "value": "5f1afdc24c358c20a4545cdc"
               },
-              "external_id": {
-                "operation": "setIfNull",
-                "value": null
+              "intercom/is_lead": {
+                "operation": "set",
+                "value": true
               },
-              "intercom/user_id": {
-                "operation": "setIfNull",
-                "value": null
+              "intercom/lead_user_id": {
+                "operation": "set",
+                "value": "lead_user_id_2"
               },
               "intercom/phone": {
                 "operation": "setIfNull",
@@ -823,23 +821,23 @@ describe("Fetch All Leads Tests", () => {
                 "value": null
               },
               "intercom/last_seen_at": {
-                "operation": "setIfNull",
+                "operation": "set",
                 "value": null
               },
               "intercom/last_replied_at": {
-                "operation": "setIfNull",
+                "operation": "set",
                 "value": null
               },
               "intercom/last_contacted_at": {
-                "operation": "setIfNull",
+                "operation": "set",
                 "value": null
               },
               "intercom/last_email_opened_at": {
-                "operation": "setIfNull",
+                "operation": "set",
                 "value": null
               },
               "intercom/last_email_clicked_at": {
-                "operation": "setIfNull",
+                "operation": "set",
                 "value": null
               },
               "intercom/language_override": {

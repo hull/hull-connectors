@@ -12,14 +12,6 @@
     "hull": "intercom/id"
   },
   {
-    "name": "external_id",
-    "hull": "external_id"
-  },
-  {
-    "name": "external_id",
-    "hull": "intercom/user_id"
-  },
-  {
     "name": "phone",
     "hull": "intercom/phone"
   },
