@@ -77,7 +77,7 @@ const service: RawRestApi = {
   superagent: {
     settings: [
       { method: "set", params: { "Intercom-Version": "${intercomApiVersion}" }},
-      { method: "set", params: { "Content-Type": "application/json" }},
+      { method: "set", params: { "Accept": "application/json" }},
       {
         method: "set",
         params: {
