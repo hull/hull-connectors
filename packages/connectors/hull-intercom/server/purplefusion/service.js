@@ -48,11 +48,35 @@ const service: RawRestApi = {
         "scroll_param": "${offset}"
       }
     },
+    getContacts: {
+      url: "/contacts/search",
+      operation: "post"
+    },
+    getContactTags: {
+      url: "/contacts/${contactId}/tags",
+      operation: "get",
+      returnObj: "body.data",
+    },
+    getContactCompanies: {
+      url: "/contacts/${contactId}/companies",
+      operation: "get",
+      returnObj: "body.data",
+    },
+    getContactSegments: {
+      url: "/contacts/${contactId}/segments",
+      operation: "get",
+      returnObj: "body.data",
+    },
+    getCompanySegments: {
+      url: "/companies/${companyId}/segments",
+      operation: "get",
+      returnObj: "body.data",
+    }
   },
   superagent: {
     settings: [
       { method: "set", params: { "Intercom-Version": "${intercomApiVersion}" }},
-      { method: "set", params: { "Accept": "application/json" }},
+      { method: "set", params: { "Content-Type": "application/json" }},
       {
         method: "set",
         params: {
