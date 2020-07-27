@@ -403,4 +403,76 @@ describe("Fetch All Companies Tests", () => {
       };
     });
   });
+
+  it("should throw error after fetching all companies when scroll exists", () => {
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+      return {
+        handlerType: handlers.jsonHandler,
+        handlerUrl: "fetchAllCompanies",
+        connector: {
+          private_settings: {
+            access_token: "12345",
+            fetch_companies: false,
+            incoming_account_attributes: [
+              { hull: "intercom/tags", service: "tags", "overwrite": true },
+              { hull: "intercom/segments", service: "segments", "overwrite": true },
+              { hull: 'intercom/web_sessions', service: 'session_count', overwrite: true },
+              { hull: 'intercom/website', service: 'website', overwrite: true },
+              { hull: 'intercom/name', service: 'name', overwrite: true },
+              { hull: 'intercom/monthly_spend', service: 'monthly_spend', overwrite: true },
+              { hull: 'intercom/description', service: 'company_description', overwrite: true }
+            ]
+          }
+        },
+        usersSegments: [],
+        accountsSegments: [],
+        externalApiMock: () => {
+          const scope = nock("https://api.intercom.io");
+
+          scope
+            .get("/companies/scroll")
+            .reply(400, {
+              "type": "error.list",
+              "request_id": "002je5a3asm5btar2flg",
+              "errors": [
+                {
+                  "code": "scroll_exists",
+                  "message": "scroll already exists for this workspace"
+                }
+              ]
+            });
+
+          return scope;
+        },
+        response: { status : "deferred"},
+        logs: [
+          ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" }],
+          ["debug", "connector.service_api.call", {},
+            { "responseTime": expect.whatever(), "method": "GET", "url": "/companies/scroll", "status": 400, "vars": {} }
+          ],
+          ["error", "incoming.job.error", {},
+            {
+              "jobName": "Incoming Data",
+              "error": "Client Error (Intercom Error Details: scroll_exists: scroll already exists for this workspace)",
+              "type": "webpayload"
+            }
+          ]
+        ],
+        firehoseEvents: [],
+        metrics: [
+          ["increment", "connector.request", 1],
+          ["increment", "ship.service_api.call", 1],
+          ["value", "connector.service_api.response_time", expect.whatever()],
+          ["increment", "connector.service_api.error", 1],
+          ["increment", "service.service_api.errors", 1],
+          ["increment", "connector.transient_error", 1]
+        ],
+        platformApiCalls: [
+          ["GET", "/api/v1/app", {}, {}],
+          ["GET", "/api/v1/users_segments?shipId=9993743b22d60dd829001999", { "shipId": "9993743b22d60dd829001999" }, {}],
+          ["GET", "/api/v1/accounts_segments?shipId=9993743b22d60dd829001999", { "shipId": "9993743b22d60dd829001999" }, {}]
+        ]
+      };
+    });
+  });
 });
