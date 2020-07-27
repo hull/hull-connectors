@@ -62,7 +62,7 @@ describe("Fetch Recent Users Tests", () => {
                   "type": "contact",
                   "id": "5f161b7a332231fc10b44e5f",
                   "workspace_id": "lkqcyt9t",
-                  "external_id": "34235",
+                  "external_id": "user_id_1",
                   "role": "user",
                   "email": "lizalead@rei.com",
                   "phone": "+1123456789",
@@ -439,7 +439,7 @@ describe("Fetch Recent Users Tests", () => {
             {
               "subject_type": "user",
               "user_email": "lizalead@rei.com",
-              "user_external_id": "34235",
+              "user_external_id": "user_id_1",
               "user_anonymous_id": "intercom:5f161b7a332231fc10b44e5f"
             },
             {
@@ -447,7 +447,7 @@ describe("Fetch Recent Users Tests", () => {
                 "type": "contact",
                 "id": "5f161b7a332231fc10b44e5f",
                 "workspace_id": "lkqcyt9t",
-                "external_id": "34235",
+                "external_id": "user_id_1",
                 "role": "user",
                 "email": "lizalead@rei.com",
                 "phone": "+1123456789",
@@ -647,7 +647,7 @@ describe("Fetch Recent Users Tests", () => {
             {
               "asUser": {
                 "email": "lizalead@rei.com",
-                "external_id": "34235",
+                "external_id": "user_id_1",
                 "anonymous_id": "intercom:5f161b7a332231fc10b44e5f"
               },
               "subjectType": "user"
@@ -665,13 +665,13 @@ describe("Fetch Recent Users Tests", () => {
                 "operation": "setIfNull",
                 "value": "5f161b7a332231fc10b44e5f"
               },
-              "external_id": {
+              "intercom/anonymous": {
                 "operation": "set",
-                "value": "34235"
+                "value": false
               },
               "intercom/user_id": {
                 "operation": "set",
-                "value": "34235"
+                "value": "user_id_1"
               },
               "intercom/twitter_url": {
                 "operation": "set",
@@ -841,13 +841,9 @@ describe("Fetch Recent Users Tests", () => {
                 "operation": "setIfNull",
                 "value": "5f1afdc24c358c20a4545cdc"
               },
-              "external_id": {
+              "intercom/anonymous": {
                 "operation": "set",
-                "value": null
-              },
-              "intercom/user_id": {
-                "operation": "set",
-                "value": null
+                "value": false
               },
               "intercom/phone": {
                 "operation": "set",
