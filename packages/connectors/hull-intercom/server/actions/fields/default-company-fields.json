@@ -2,5 +2,9 @@
   {
     "label": "Tags",
     "name": "tags"
+  },
+  {
+    "label": "Segments",
+    "name": "segments"
   }
 ]

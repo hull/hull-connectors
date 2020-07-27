@@ -20,6 +20,7 @@ describe("Fetch All Companies Tests", () => {
             fetch_companies: false,
             incoming_account_attributes: [
               { hull: "intercom/tags", service: "tags", "overwrite": true },
+              { hull: "intercom/segments", service: "segments", "overwrite": true },
               { hull: 'intercom/web_sessions', service: 'session_count', overwrite: true },
               { hull: 'intercom/website', service: 'website', overwrite: true },
               { hull: 'intercom/name', service: 'name', overwrite: true },
@@ -115,6 +116,45 @@ describe("Fetch All Companies Tests", () => {
             });
 
           scope
+            .get("/companies/5f187aa44fd1ce23c1cf25f7/segments")
+            .reply(200, {
+              "type": "list",
+              "data": [
+                {
+                  "type": "segment",
+                  "id": "5d2640faa76403cb13d73c2c",
+                  "name": "CompanySegment1",
+                  "created_at": 1562788090,
+                  "updated_at": 1595776956,
+                  "person_type": "user"
+                },
+                {
+                  "type": "segment",
+                  "id": "5f1e41325f4fcb287ba18427",
+                  "name": "CompanySegment2",
+                  "created_at": 1595818290,
+                  "updated_at": 1595818290,
+                  "person_type": "user"
+                },
+                {
+                  "type": "segment",
+                  "id": "5d2640faa76403cb13d73c2b",
+                  "name": "CompanySegment3",
+                  "created_at": 1562788090,
+                  "updated_at": 1595640589,
+                  "person_type": "user"
+                }
+              ]
+            });
+
+          scope
+            .get("/companies/5f161ef9ce73f3ea2605304e/segments")
+            .reply(200, {
+              "type": "list",
+              "data": []
+            });
+
+          scope
             .get("/companies/scroll?scroll_param=a1af2da1-4aa4-474a-bd82-f7b176214aac")
             .reply(200, {
               "type": "list",
@@ -138,6 +178,10 @@ describe("Fetch All Companies Tests", () => {
               "vars": {}
             }
           ],
+          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
+            "method": "GET", "url": "/companies/5f187aa44fd1ce23c1cf25f7/segments", "status": 200, "vars": {} }],
+          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
+            "method": "GET", "url": "/companies/5f161ef9ce73f3ea2605304e/segments", "status": 200, "vars": {} }],
           ["debug", "incoming.account.success",
             {
               "subject_type": "account",
@@ -256,7 +300,18 @@ describe("Fetch All Companies Tests", () => {
               "subjectType": "account"
             },
             {
-              "intercom/tags": [],
+              "intercom/segments": {
+                "operation": "set",
+                "value": [
+                  "CompanySegment1",
+                  "CompanySegment2",
+                  "CompanySegment3"
+                ]
+              },
+              "intercom/tags": {
+                "operation": "set",
+                "value": []
+              },
               "intercom/web_sessions": {
                 "operation": "set",
                 "value": 8
@@ -290,7 +345,14 @@ describe("Fetch All Companies Tests", () => {
               "subjectType": "account"
             },
             {
-              "intercom/tags": ["Tag1", "Tag2", "Tag3" ],
+              "intercom/segments": {
+                "operation": "set",
+                "value": []
+              },
+              "intercom/tags": {
+                "operation": "set",
+                "value": ["Tag1", "Tag2", "Tag3" ]
+              },
               "intercom/web_sessions": {
                 "operation": "set",
                 "value": 3
@@ -324,6 +386,10 @@ describe("Fetch All Companies Tests", () => {
         ],
         metrics: [
           ["increment", "connector.request", 1],
+          ["increment", "ship.service_api.call", 1],
+          ["value", "connector.service_api.response_time", expect.whatever()],
+          ["increment", "ship.service_api.call", 1],
+          ["value", "connector.service_api.response_time", expect.whatever()],
           ["increment", "ship.service_api.call", 1],
           ["value", "connector.service_api.response_time", expect.whatever()],
           ["increment", "ship.service_api.call", 1],

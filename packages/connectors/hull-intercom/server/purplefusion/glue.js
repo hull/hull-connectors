@@ -26,6 +26,8 @@ const {
   not
 } = require("hull-connector-framework/src/purplefusion/language");
 
+const v2DefaultContactMapping = require("../actions/mapping/api-v2-default-contact-mapping.json");
+
 function intercom(op: string, param?: any): Svc {
   return new Svc({ name: "intercom", op }, param);
 }
@@ -33,8 +35,8 @@ function intercom(op: string, param?: any): Svc {
 const glue = {
   ensureHook: [
     set("intercomApiVersion", "2.1"),
-    set("service_name", "intercom")
-
+    set("service_name", "intercom"),
+    set("contactAttributeMapping", ld("concat", v2DefaultContactMapping, "${connector.private_settings.sync_fields_to_hull}"))
   ],
   refreshToken: [],
   isConfigured: cond("allTrue", [
@@ -50,6 +52,7 @@ const glue = {
       route("isConfigured"),
       settings("fetch_companies")
     ]), [
+      set("attributeOperation", "set"),
       set("pageOffset", 1),
       set("pageSize", 60),
       set("lastFetchAt", settings("companies_last_fetch_timestamp")),
@@ -138,6 +141,7 @@ const glue = {
       settings("fetch_leads")
     ]), [
       set("serviceType", "lead"),
+      set("attributeOperation", "setIfNull"),
       set("serviceEntity", IntercomIncomingLead),
       set("lastFetchAt", settings("leads_last_fetch_timestamp")),
       settingsUpdate({ leads_last_fetch_timestamp: ex(moment(), "unix") }),
@@ -149,6 +153,7 @@ const glue = {
       settings("fetch_users")
     ]), [
       set("serviceType", "user"),
+      set("attributeOperation", "set"),
       set("serviceEntity", IntercomIncomingUser),
       set("lastFetchAt", settings("users_last_fetch_timestamp")),
       settingsUpdate({ users_last_fetch_timestamp: ex(moment(), "unix") }),
@@ -159,6 +164,7 @@ const glue = {
       route("isConfigured")
     ]), [
       set("serviceType", "lead"),
+      set("attributeOperation", "setIfNull"),
       set("serviceEntity", IntercomIncomingLead),
       set("lastFetchAt", 0),
       set("fetchAll", true),
@@ -170,6 +176,7 @@ const glue = {
       route("isConfigured")
     ]), [
       set("serviceType", "user"),
+      set("attributeOperation", "set"),
       set("serviceEntity", IntercomIncomingUser),
       set("lastFetchAt", 0),
       set("fetchAll", true),
@@ -179,6 +186,15 @@ const glue = {
   getContactTags: returnValue([
     set("contactId", input("id"))
   ], intercom("getContactTags")),
+  getContactCompanies: returnValue([
+    set("contactId", input("id"))
+  ], intercom("getContactCompanies")),
+  getContactSegments: returnValue([
+    set("contactId", input("id"))
+  ], intercom("getContactSegments")),
+  getCompanySegments: returnValue([
+    set("companyId", input("id"))
+  ], intercom("getCompanySegments"))
 };
 
 module.exports = glue;

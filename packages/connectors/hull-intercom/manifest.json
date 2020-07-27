@@ -298,7 +298,8 @@
       "default": [
         { "service": "id", "hull": "intercom/id", "readOnly": true, "overwrite": true },
         { "service": "website", "hull": "intercom/website", "readOnly": true, "overwrite": true },
-        { "service": "tags", "hull": "intercom/tags", "readOnly": true, "overwrite": true }
+        { "service": "tags", "hull": "intercom/tags", "readOnly": true, "overwrite": true },
+        { "service": "segments", "hull": "intercom/segments", "readOnly": true, "overwrite": true }
       ]
     }
   ],

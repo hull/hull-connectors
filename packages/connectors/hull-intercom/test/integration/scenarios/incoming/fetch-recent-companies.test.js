@@ -21,6 +21,7 @@ describe("Fetch Recent Companies Tests", () => {
             companies_last_fetch_timestamp: 1595439770,
             incoming_account_attributes: [
               { hull: "intercom/tags", service: "tags", "overwrite": true },
+              { hull: "intercom/segments", service: "segments", "overwrite": true },
               { hull: 'intercom/web_sessions', service: 'session_count', overwrite: true },
               { hull: 'intercom/website', service: 'website', overwrite: true },
               { hull: 'intercom/name', service: 'name', overwrite: true },
@@ -82,6 +83,13 @@ describe("Fetch Recent Companies Tests", () => {
                 "total_pages": 2
               },
               "total_count": 2
+            });
+
+          scope
+            .get("/companies/5f161ef9ce73f3ea2605304e/segments")
+            .reply(200, {
+              "type": "list",
+              "data": []
             });
 
           scope
@@ -166,6 +174,20 @@ describe("Fetch Recent Companies Tests", () => {
               "total_count": 2
             });
 
+          scope
+            .get("/companies/5f187aa44fd1ce23c1cf25f7/segments")
+            .reply(200, {
+              "type": "list",
+              "data": []
+            });
+
+          scope
+            .get("/companies/5f187aa44fd1ce23c1cf25f8/segments")
+            .reply(200, {
+              "type": "list",
+              "data": []
+            });
+
           return scope;
         },
         response: { status : "deferred"},
@@ -191,6 +213,12 @@ describe("Fetch Recent Companies Tests", () => {
               "vars": {}
             }
           ],
+          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
+            "method": "GET", "url": "/companies/5f161ef9ce73f3ea2605304e/segments", "status": 200, "vars": {} }],
+          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
+            "method": "GET", "url": "/companies/5f187aa44fd1ce23c1cf25f7/segments", "status": 200, "vars": {} }],
+          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
+            "method": "GET", "url": "/companies/5f187aa44fd1ce23c1cf25f8/segments", "status": 200, "vars": {} }],
           [
             "debug",
             "incoming.account.success",
@@ -340,9 +368,14 @@ describe("Fetch Recent Companies Tests", () => {
               "subjectType": "account"
             },
             {
-              "intercom/tags": [
-                "NewCompany"
-              ],
+              "intercom/segments": {
+                "operation": "set",
+                "value": []
+              },
+              "intercom/tags": {
+                "operation": "set",
+                "value": ["NewCompany"]
+              },
               "intercom/web_sessions": {
                 "operation": "set",
                 "value": 0
@@ -383,7 +416,14 @@ describe("Fetch Recent Companies Tests", () => {
               "subjectType": "account"
             },
             {
-              "intercom/tags": [],
+              "intercom/segments": {
+                "operation": "set",
+                "value": []
+              },
+              "intercom/tags": {
+                "operation": "set",
+                "value": []
+              },
               "intercom/web_sessions": {
                 "operation": "set",
                 "value": 0
@@ -416,7 +456,14 @@ describe("Fetch Recent Companies Tests", () => {
               "subjectType": "account"
             },
             {
-              "intercom/tags": [],
+              "intercom/segments": {
+                "operation": "set",
+                "value": []
+              },
+              "intercom/tags": {
+                "operation": "set",
+                "value": []
+              },
               "intercom/web_sessions": {
                 "operation": "set",
                 "value": 0
@@ -445,6 +492,12 @@ describe("Fetch Recent Companies Tests", () => {
           ["increment", "ship.service_api.call", 1],
           ["value", "connector.service_api.response_time", expect.whatever()],
           ["increment", "ship.service_api.call", 1],
+          ["value", "connector.service_api.response_time", expect.whatever()],
+          ["increment", "ship.service_api.call", 1],
+          ["value", "connector.service_api.response_time", expect.whatever()],
+          ["increment", "ship.service_api.call", 1],
+          ["value", "connector.service_api.response_time", expect.whatever()],
+          ["increment", "ship.service_api.call", 1],
           ["value", "connector.service_api.response_time", expect.whatever()]
         ],
         platformApiCalls: [
@@ -467,6 +520,11 @@ describe("Fetch Recent Companies Tests", () => {
                   {
                     "hull": "intercom/tags",
                     "service": "tags",
+                    "overwrite": true
+                  },
+                  {
+                    "hull": "intercom/segments",
+                    "service": "segments",
                     "overwrite": true
                   },
                   {
@@ -840,9 +898,10 @@ describe("Fetch Recent Companies Tests", () => {
               "subjectType": "account"
             },
             {
-              "intercom/tags": [
-                "NewCompany"
-              ],
+              "intercom/tags": {
+                "operation": "set",
+                "value": ["NewCompany"]
+              },
               "intercom/web_sessions": {
                 "operation": "set",
                 "value": 0
@@ -883,7 +942,10 @@ describe("Fetch Recent Companies Tests", () => {
               "subjectType": "account"
             },
             {
-              "intercom/tags": [],
+              "intercom/tags": {
+                "operation": "set",
+                "value": []
+              },
               "intercom/web_sessions": {
                 "operation": "set",
                 "value": 0
@@ -916,7 +978,10 @@ describe("Fetch Recent Companies Tests", () => {
               "subjectType": "account"
             },
             {
-              "intercom/tags": [],
+              "intercom/tags": {
+                "operation": "set",
+                "value": []
+              },
               "intercom/web_sessions": {
                 "operation": "set",
                 "value": 0
