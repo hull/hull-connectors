@@ -78,6 +78,7 @@ const service: RawRestApi = {
     settings: [
       { method: "set", params: { "Intercom-Version": "${intercomApiVersion}" }},
       { method: "set", params: { "Accept": "application/json" }},
+      { method: "set", params: { "Content-Type": "application/json" }},
       {
         method: "set",
         params: {
