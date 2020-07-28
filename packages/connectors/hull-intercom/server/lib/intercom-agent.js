@@ -334,23 +334,16 @@ class IntercomAgent {
       });
   }
 
-  getAttributes() {
+  getAttributes(intercomEntity = "customer") {
     this.logger.debug("connector.getAttributes");
-    return this.cache.wrap(
-      "intercomAttributes",
-      () => {
-        this.logger.debug("connector.intercomAttributes.cachemiss");
-        return this.intercomClient
-          .get("/data_attributes/customer")
-          .then(res => {
-            return _.get(res, "body.data_attributes", []);
-          })
-          .catch(error => {
-            console.log("error", error);
-          });
-      },
-      { ttl: 3000 }
-    );
+    return this.intercomClient
+      .get(`/data_attributes/${intercomEntity}`)
+      .then(res => {
+        return _.get(res, "body.data_attributes", []);
+      })
+      .catch(error => {
+        console.log("error", error);
+      });
   }
 }
 
