@@ -250,6 +250,7 @@ const transformsToService: ServiceTransforms = [
       },
       {
         operateOn: { component: "input", select: "external_id" },
+        condition: not(varUndefinedOrNull("operateOn")),
         then:[
           { writeTo: { path: "ident.anonymous_id", format: "${service_name}:${operateOn}" } }
         ]
