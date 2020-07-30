@@ -8,7 +8,7 @@ const _ = require("lodash");
 
 const { Queue } = require("hull/src/infra");
 const KueAdapter = require("hull/src/infra/queue/adapter/kue");
-require("dotenv").config();
+
 export default function connectorConfig(): HullConnectorConfig {
   const {
     PORT = 8082,
