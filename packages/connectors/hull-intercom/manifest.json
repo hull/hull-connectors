@@ -47,28 +47,20 @@
       "format": "hidden"
     },
     {
-      "name": "last_fetch_started_at",
-      "description": "Last time fetched at operation was started",
-      "type": "string",
-      "format": "hidden"
+      "name": "synchronized_lead_segments",
+      "title": "Lead Filter",
+      "description": "Send Hull users as Intercom leads when they belong to one of these segments to Intercom. Only users in the specified segments are sent. Updates from Intercom are always fetched for all leads.",
+      "type": "array",
+      "format": "segment",
+      "default": []
     },
     {
-      "name": "fetch_count",
-      "description": "Count of contacts already fetched from Intercom",
-      "type": "number",
-      "format": "hidden"
-    },
-    {
-      "name": "is_fetch_completed",
-      "type": "boolean",
-      "default": false,
-      "format": "hidden"
-    },
-    {
-      "name": "skip_users_already_synced",
-      "type": "boolean",
-      "default": false,
-      "format": "hidden"
+      "name": "synchronized_user_segments",
+      "title": "User Filter",
+      "description": "Send Hull users as Intercom users when they belong to one of these segments to Intercom. Only users in the specified segments are sent. Updates from Intercom are always fetched for all users.",
+      "type": "array",
+      "format": "segment",
+      "default": []
     },
     {
       "name": "user_claims",
@@ -125,78 +117,127 @@
       ]
     },
     {
-      "name": "synchronized_segments",
-      "title": "User Filter",
-      "description": "Send users to Intercom when belonging to one of these segments",
-      "default": [],
+      "name": "incoming_lead_attributes",
+      "title": "Lead Incoming Fields",
+      "description": "List of Lead fields to fetch from Intercom.",
       "type": "array",
-
-      "format": "segment"
+      "format": "traitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": false,
+        "placeholder": "Intercom Lead Field",
+        "allowCreate": true,
+        "loadOptions": "/schema/contact_fields",
+        "source": "intercom_lead"
+      },
+      "default": [
+        { "service": "external_id", "hull": "intercom_lead/user_id", "readOnly": true, "overwrite": true },
+        { "service": "id", "hull": "intercom_lead/id", "readOnly": true, "overwrite": true },
+        { "service": "email", "hull": "intercom_lead/email", "readOnly": true, "overwrite": true },
+        { "service": "avatar", "hull": "intercom_lead/avatar", "overwrite": true },
+        { "service": "browser", "hull": "intercom_lead/browser", "overwrite": true },
+        { "service": "browser_language", "hull": "intercom_lead/browser_language", "overwrite": true },
+        { "service": "browser_version", "hull": "intercom_lead/browser_version", "overwrite": true },
+        { "service": "companies", "hull": "intercom_lead/companies", "overwrite": true },
+        { "service": "created_at", "hull": "intercom_lead/created_at", "overwrite": true },
+        { "service": "has_hard_bounced", "hull": "intercom_lead/has_hard_bounced", "overwrite": true },
+        { "service": "language_override", "hull": "intercom_lead/language_override", "overwrite": true },
+        { "service": "last_contacted_at", "hull": "intercom_lead/last_contacted_at", "overwrite": true },
+        { "service": "last_email_clicked_at", "hull": "intercom_lead/last_email_clicked_at", "overwrite": true },
+        { "service": "last_email_opened_at", "hull": "intercom_lead/last_email_opened_at", "overwrite": true },
+        { "service": "last_replied_at", "hull": "intercom_lead/last_replied_at", "overwrite": true },
+        { "service": "last_seen_at", "hull": "intercom_lead/last_seen_at", "overwrite": true },
+        { "service": "location.city", "hull": "intercom_lead/location_city_name", "overwrite": true },
+        { "service": "location.country", "hull": "intercom_lead/location_country_name", "overwrite": true },
+        { "service": "location.region", "hull": "intercom_lead/location_region_name", "overwrite": true },
+        { "service": "marked_email_as_spam", "hull": "intercom_lead/marked_email_as_spam", "overwrite": true },
+        { "service": "name", "hull": "intercom_lead/name", "overwrite": true },
+        { "service": "os", "hull": "intercom_lead/os", "overwrite": true },
+        { "service": "owner_id", "hull": "intercom_lead/owner_id", "overwrite": true },
+        { "service": "phone", "hull": "intercom_lead/phone", "overwrite": true },
+        { "service": "segments", "hull": "intercom_lead/segments", "overwrite": true },
+        { "service": "signed_up_at", "hull": "intercom_lead/signed_up_at", "overwrite": true },
+        { "service": "social_profiles", "hull": "intercom_lead/social_profiles", "overwrite": true },
+        { "service": "tags", "hull": "intercom_lead/tags", "overwrite": true },
+        { "service": "unsubscribed_from_emails", "hull": "intercom_lead/unsubscribed_from_emails", "overwrite": true },
+        { "service": "updated_at", "hull": "intercom_lead/updated_at", "overwrite": true }
+      ]
     },
     {
-      "name": "sync_fields_to_intercom",
-      "title": "Send Attributes to Intercom",
+      "name": "outgoing_lead_attributes",
+      "title": "Lead Outgoing Fields",
+      "description": "List of Lead fields to send from Hull to Intercom",
       "type": "array",
-      "format": "table",
+      "format": "traitMapping",
       "default": [],
-      "items": {
-        "type": "object",
-        "properties": {
-          "hull": {
-            "type": "string",
-            "format": "trait",
-            "title": "Hull Attribute"
-          },
-          "name": {
-            "type": "string",
-            "format": "select",
-            "title": "Intercom Attribute",
-            "options": {
-              "placeholder": "Select or create intercom attribute",
-              "allowCreate": true,
-              "loadOptions": "/schema/user_fields"
-            }
-          }
-        },
-        "required": [
-          "hull",
-          "name"
-        ]
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": true,
+        "placeholder": "Intercom Field",
+        "allowCreate": false,
+        "loadOptions": "/schema/contact_fields_writable"
       }
     },
     {
-      "name": "sync_fields_to_hull",
-      "title": "Fetch custom attributes from Intercom",
+      "name": "incoming_user_attributes",
+      "title": "Lead Incoming Fields",
+      "description": "List of User fields to fetch from Intercom.",
       "type": "array",
-      "format": "table",
+      "format": "traitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": false,
+        "placeholder": "Intercom User Field",
+        "allowCreate": true,
+        "loadOptions": "/schema/contact_fields",
+        "source": "intercom_user"
+      },
+      "default": [
+        { "service": "external_id", "hull": "intercom_user/user_id", "readOnly": true, "overwrite": true },
+        { "service": "id", "hull": "intercom_user/id", "readOnly": true, "overwrite": true },
+        { "service": "email", "hull": "intercom_user/email", "readOnly": true, "overwrite": true },
+        { "service": "avatar", "hull": "intercom_user/avatar", "overwrite": true },
+        { "service": "browser", "hull": "intercom_user/browser", "overwrite": true },
+        { "service": "browser_language", "hull": "intercom_user/browser_language", "overwrite": true },
+        { "service": "browser_version", "hull": "intercom_user/browser_version", "overwrite": true },
+        { "service": "companies", "hull": "intercom_user/companies", "overwrite": true },
+        { "service": "created_at", "hull": "intercom_user/created_at", "overwrite": true },
+        { "service": "has_hard_bounced", "hull": "intercom_user/has_hard_bounced", "overwrite": true },
+        { "service": "language_override", "hull": "intercom_user/language_override", "overwrite": true },
+        { "service": "last_contacted_at", "hull": "intercom_user/last_contacted_at", "overwrite": true },
+        { "service": "last_email_clicked_at", "hull": "intercom_user/last_email_clicked_at", "overwrite": true },
+        { "service": "last_email_opened_at", "hull": "intercom_user/last_email_opened_at", "overwrite": true },
+        { "service": "last_replied_at", "hull": "intercom_user/last_replied_at", "overwrite": true },
+        { "service": "last_seen_at", "hull": "intercom_user/last_seen_at", "overwrite": true },
+        { "service": "location.city", "hull": "intercom_user/location_city_name", "overwrite": true },
+        { "service": "location.country", "hull": "intercom_user/location_country_name", "overwrite": true },
+        { "service": "location.region", "hull": "intercom_user/location_region_name", "overwrite": true },
+        { "service": "marked_email_as_spam", "hull": "intercom_user/marked_email_as_spam", "overwrite": true },
+        { "service": "name", "hull": "intercom_user/name", "overwrite": true },
+        { "service": "os", "hull": "intercom_user/os", "overwrite": true },
+        { "service": "owner_id", "hull": "intercom_user/owner_id", "overwrite": true },
+        { "service": "phone", "hull": "intercom_user/phone", "overwrite": true },
+        { "service": "segments", "hull": "intercom_user/segments", "overwrite": true },
+        { "service": "signed_up_at", "hull": "intercom_user/signed_up_at", "overwrite": true },
+        { "service": "social_profiles", "hull": "intercom_user/social_profiles", "overwrite": true },
+        { "service": "tags", "hull": "intercom_user/tags", "overwrite": true },
+        { "service": "unsubscribed_from_emails", "hull": "intercom_user/unsubscribed_from_emails", "overwrite": true },
+        { "service": "updated_at", "hull": "intercom_user/updated_at", "overwrite": true }
+      ]
+    },
+    {
+      "name": "outgoing_user_attributes",
+      "title": "User Outgoing Fields",
+      "description": "List of User fields to send from Hull to Intercom",
+      "type": "array",
+      "format": "traitMapping",
       "default": [],
-      "items": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "format": "select",
-            "title": "Intercom Attributes",
-            "options": {
-              "placeholder": "Intercom Attribute",
-              "loadOptions": "/schema/user_fields"
-            }
-          },
-          "hull": {
-            "type": "string",
-            "format": "trait",
-            "title": "Hull Attributes",
-            "options": {
-              "placeholder": "Hull Attribute",
-              "allowCreate": true,
-              "source": "intercom"
-            }
-          }
-        },
-        "required": [
-          "name",
-          "hull"
-        ]
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": true,
+        "placeholder": "Intercom Field",
+        "allowCreate": false,
+        "loadOptions": "/schema/contact_fields_writable"
       }
     },
     {
@@ -270,21 +311,21 @@
     {
       "name": "fetch_companies",
       "title": "Company Fetch",
-      "description": "Enable fetching Intercom Companies",
+      "description": "Enable Fetching Intercom Companies",
       "type": "boolean",
       "default": false
     },
     {
       "name": "fetch_leads",
       "title": "Lead Fetch",
-      "description": "Enable fetching Intercom Leads",
+      "description": "Enable Fetching Intercom Leads",
       "type": "boolean",
       "default": true
     },
     {
       "name": "fetch_users",
       "title": "User Fetch",
-      "description": "Enable fetching Intercom Users",
+      "description": "Enable Fetching Intercom Users",
       "type": "boolean",
       "default": true
     },
@@ -405,8 +446,12 @@
       }
     },
     {
-      "url": "/schema/user_fields",
-      "handler": "fieldsInbound"
+      "url": "/schema/contact_fields_writable",
+      "handler": "contactFieldsOutbound"
+    },
+    {
+      "url": "/schema/contact_fields",
+      "handler": "contactFieldsInbound"
     },
     {
       "url": "/schema/company_fields",
@@ -478,7 +523,13 @@
       ],
       "conditions" : {
         "segments": {
-          "user:update": ["private_settings.synchronized_segments"]
+          "user:update": [
+            "private_settings.synchronized_lead_segments",
+            "private_settings.synchronized_user_segments"
+          ]
+        },
+        "channels": {
+          "only": ["user:update", "users_segment:update", "users_segment:delete", "ship:update"]
         }
       }
     }
@@ -492,24 +543,37 @@
       ]
     },
     {
-      "title": "Outgoing Data",
-      "step": "outgoing",
+      "title": "Fetching Leads from Intercom",
       "description": "",
       "properties": [
-        "private_settings.ignore_deleted_users",
-        "private_settings.synchronized_segments",
-        "private_settings.sync_fields_to_intercom",
-        "private_settings.send_events"
+        "private_settings.fetch_leads",
+        "private_settings.incoming_lead_attributes",
+        "json.fetch_all_leads"
       ]
     },
     {
-      "title": "User Incoming Data",
-      "step": "incoming",
-      "description": "Hull fetches all standard attributes from Intercom by default. If you want to capture additional custom attributes, please list them below to fetch them",
+      "title": "Sending Leads to Intercom",
+      "description": "",
       "properties": [
-        "private_settings.sync_fields_to_hull",
-        "json.fetch_all_leads",
+        "private_settings.synchronized_lead_segments",
+        "private_settings.outgoing_lead_attributes"
+      ]
+    },
+    {
+      "title": "Fetching Users from Intercom",
+      "description": "",
+      "properties": [
+        "private_settings.fetch_users",
+        "private_settings.incoming_user_attributes",
         "json.fetch_all_users"
+      ]
+    },
+    {
+      "title": "Sending Users to Intercom",
+      "description": "",
+      "properties": [
+        "private_settings.synchronized_user_segments",
+        "private_settings.outgoing_user_attributes"
       ]
     },
     {

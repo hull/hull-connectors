@@ -72,6 +72,16 @@ const service: RawRestApi = {
       url: "/companies/${companyId}/segments",
       operation: "get",
       returnObj: "body.data",
+    },
+    getContactFields: {
+      url: "/data_attributes?model=contact",
+      operation: "get",
+      returnObj: "body.data",
+    },
+    getCompanyFields: {
+      url: "/data_attributes?model=company",
+      operation: "get",
+      returnObj: "body.data",
     }
   },
   superagent: {

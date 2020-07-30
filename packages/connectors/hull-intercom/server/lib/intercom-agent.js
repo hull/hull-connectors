@@ -333,18 +333,6 @@ class IntercomAgent {
         return response.body;
       });
   }
-
-  getAttributes(intercomEntity = "customer") {
-    this.logger.debug("connector.getAttributes");
-    return this.intercomClient
-      .get(`/data_attributes/${intercomEntity}`)
-      .then(res => {
-        return _.get(res, "body.data_attributes", []);
-      })
-      .catch(error => {
-        console.log("error", error);
-      });
-  }
 }
 
 module.exports = IntercomAgent;

@@ -3,34 +3,26 @@
 import type { HullContext, HullExternalResponse } from "hull";
 
 const _ = require("lodash");
-const IntercomClient = require("../lib/intercom-client");
-const IntercomAgent = require("../lib/intercom-agent");
+const PurpleFusionRouter = require("../lib/purple-fusion-router");
 
-async function fields(ctx: HullContext): HullExternalResponse {
+const fields = (serviceEntity, direction) => async (
+  ctx: HullContext
+): HullExternalResponse => {
   const privateSettings = ctx.connector.private_settings;
 
-  const intercomClient = new IntercomClient(ctx);
-  const intercomAgent = new IntercomAgent(intercomClient, ctx);
+  if (!_.get(privateSettings, "access_token")) {
+    return {
+      status: 200,
+      data: {
+        options: []
+      }
+    };
+  }
 
-  const { custom_attributes } = privateSettings;
-  const attributes = await intercomAgent.getAttributes();
-  const attributeNames = _.filter(attributes, {
-    api_writable: true
-  }).map(result => result.name);
+  const route = `fields${serviceEntity}${direction}`;
 
-  const fieldsList = _.compact(
-    _.uniq(_.concat(custom_attributes, attributeNames))
-  );
-
-  const options = fieldsList.map(f => {
-    return { label: f, value: f };
-  });
-  return {
-    status: 200,
-    data: {
-      options
-    }
-  };
-}
+  const router = new PurpleFusionRouter(route);
+  return router.invokeIncomingRoute(ctx);
+};
 
 module.exports = fields;

@@ -1,7 +1,7 @@
 {
   "name": "hull-intercom",
   "version": "0.1.33-monorepo",
-  "description": "Hull Salesforce integration",
+  "description": "Hull Intercom integration",
   "scripts": {
     "test": "yarn run test:integration",
     "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"

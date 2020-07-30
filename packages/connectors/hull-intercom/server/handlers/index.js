@@ -7,7 +7,6 @@ import onStatus from "../actions/on-status";
 import onAuthorize from "../actions/on-authorize";
 import onLogin from "../actions/on-login";
 import fields from "../actions/fields";
-import companyFields from "../actions/company-fields";
 import deleteContact from "../actions/delete-contact";
 import deleteUser from "../actions/delete-user";
 import fetchSegments from "../actions/fetch-segments";
@@ -67,8 +66,9 @@ const handler = ({
       fetchAllLeads: fetchAll("Leads"),
       fetchAllCompanies: fetchAll("Companies"),
       fetchAllUsers: fetchAll("Users"),
-      fieldsInbound: fields,
-      companyFieldsInbound: companyFields,
+      contactFieldsInbound: fields("Contact", "Inbound"),
+      contactFieldsOutbound: fields("Contact", "Outbound"),
+      companyFieldsInbound: fields("Company", "Inbound"),
       deleteContact,
       deleteUser
     }

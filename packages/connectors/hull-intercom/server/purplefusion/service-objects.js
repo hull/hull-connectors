@@ -17,8 +17,14 @@ const IntercomIncomingUser: ServiceObjectDefinition = {
   name: "User"
 };
 
+const IntercomAttributeDefinition: ServiceObjectDefinition = {
+  service_name: "intercom_attribute_definition",
+  name: "IntercomAttributeDefinition"
+};
+
 module.exports = {
   IntercomIncomingCompany,
   IntercomIncomingLead,
-  IntercomIncomingUser
+  IntercomIncomingUser,
+  IntercomAttributeDefinition
 };

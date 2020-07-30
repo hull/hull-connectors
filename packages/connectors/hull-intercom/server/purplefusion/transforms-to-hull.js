@@ -9,219 +9,194 @@ import {
   inputIsNotEmpty,
   inputIsEmpty,
   varEqual,
-  varInArray
+  varInArray,
 } from "hull-connector-framework/src/purplefusion/conditionals";
 
-import { HullIncomingAccount, HullIncomingUser } from "hull-connector-framework/src/purplefusion/hull-service-objects";
-import { IntercomIncomingCompany, IntercomIncomingUser, IntercomIncomingLead } from "./service-objects";
+import {
+  isUndefinedOrNull
+} from "hull-connector-framework/src/purplefusion/utils";
+
+import {
+  serviceUserTransforms
+} from "hull-connector-framework/src/purplefusion/transform-predefined";
+
+import { HullIncomingAccount, HullIncomingUser, HullConnectorAttributeDefinition } from "hull-connector-framework/src/purplefusion/hull-service-objects";
+import { IntercomIncomingCompany, IntercomIncomingUser, IntercomIncomingLead, IntercomAttributeDefinition } from "./service-objects";
 
 const _ = require("lodash");
 
-const SET_CONTACT_TRAITS = [
-  "last_seen_at",
-  "last_contacted_at",
-  "last_email_clicked_at",
-  "last_email_opened_at",
-  "last_replied_at"
-];
+function contactTransformation({ entityType }) {
+  let attributeName = "user";
 
-const contactTransformation = [
-  {
-    operateOn: "${contactAttributeMapping}",
-    expand: { valueName: "mapping" },
-    then: [
-      {
-        operateOn: { component: "input", select: "custom_attributes.${mapping.name}", name: "serviceValue"},
-        condition: isNotEqual("serviceValue", undefined),
-        then: [
-          {
-            writeTo: { path: "attributes.${mapping.hull}", format: { operation: "${attributeOperation}", value: "${operateOn}" } }
-          }
-        ]
-      },
-      {
-        operateOn: { component: "input", select: "${mapping.name}", name: "serviceValue"},
-        condition: [
-          isNotEqual("serviceValue", undefined),
-          not(varInArray("mapping.name", ["tags", "companies", "segments", "social_profiles"]))
-        ],
-        then: [
-          {
-            condition: [
-              not(varInArray("mapping.name", SET_CONTACT_TRAITS))
-            ],
-            writeTo: {
-              path: "attributes.${mapping.hull}", format: { operation: "${attributeOperation}", value: "${operateOn}" }
-            }
-          },
-          {
-            condition: [
-              varInArray("mapping.name", SET_CONTACT_TRAITS)
-            ],
-            writeTo: {
-              path: "attributes.${mapping.hull}", format: { operation: "set", value: "${operateOn}" }
-            }
-          }
-        ]
-      },
-      {
-        condition: [
-          inputIsNotEmpty("tags.data"),
-          varEqual("mapping.name", "tags"),
-        ],
-        then: [
-          {
-            operateOn: { component: "glue", route: "getContactTags", name: "contactTags" },
-            writeTo: { path: "attributes.intercom/tags.operation", value: "${attributeOperation}" } ,
-            expand: { valueName: "contactTag" },
-            then: [
-              {
-                writeTo: {
-                  path: "attributes.intercom/tags.value",
-                  appendToArray: "unique",
-                  format: "${contactTag.name}"
+  if (!isUndefinedOrNull(entityType)) {
+    attributeName = entityType;
+  }
+  return [
+    {
+      operateOn: `\${connector.private_settings.incoming_${attributeName}_attributes}`,
+      expand: { valueName: "mapping" },
+      then: [
+        {
+          condition: [
+            inputIsNotEmpty("tags.data"),
+            varEqual("mapping.service", "tags"),
+          ],
+          then: [
+            {
+              operateOn: { component: "glue", route: "getContactTags", name: "contactTags" },
+              writeTo: { path: "attributes.intercom_${service_entity}/tags.operation", value: "set" },
+              expand: { valueName: "contactTag" },
+              then: [
+                {
+                  writeTo: {
+                    path: "attributes.intercom_${service_entity}/tags.value",
+                    appendToArray: "unique",
+                    format: "${contactTag.name}"
+                  }
                 }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        condition: [
-          inputIsNotEmpty("companies.data"),
-          varEqual("mapping.name", "companies"),
-        ],
-        then: [
-          {
-            operateOn: { component: "glue", route: "getContactCompanies", name: "contactCompany" },
-            writeTo: { path: "attributes.intercom/companies.operation", value: "${attributeOperation}" } ,
-            expand: { valueName: "contactCompany" },
-            then: [
-              {
-                writeTo: {
-                  path: "attributes.intercom/companies.value",
-                  appendToArray: "unique",
-                  format: "${contactCompany.name}"
+              ]
+            }
+          ]
+        },
+        {
+          condition: [
+            inputIsNotEmpty("companies.data"),
+            varEqual("mapping.service", "companies"),
+          ],
+          then: [
+            {
+              operateOn: { component: "glue", route: "getContactCompanies", name: "contactCompany" },
+              writeTo: { path: "attributes.intercom_${service_entity}/companies.operation", value: "set" },
+              expand: { valueName: "contactCompany" },
+              then: [
+                {
+                  writeTo: {
+                    path: "attributes.intercom_${service_entity}/companies.value",
+                    appendToArray: "unique",
+                    format: "${contactCompany.name}"
+                  }
                 }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        condition: [
-          varEqual("mapping.name", "segments"),
-        ],
-        then: [
-          {
-            operateOn: { component: "glue", route: "getContactSegments", name: "contactSegments" },
-            then: [
-              {
-                condition: varEqual("contactSegments", []),
-                then: [{ writeTo: { path: "attributes.intercom/segments", format: { operation: "${attributeOperation}", value: [] } } }]
-              },
-              {
-                condition: not(varEqual("contactSegments", [])),
-                expand: { valueName: "contactSegment" },
-                writeTo: { path: "attributes.intercom/segments.operation", value: "${attributeOperation}" } ,
-                then: [
-                  {
+              ]
+            }
+          ]
+        },
+        {
+          condition: [
+            varEqual("mapping.service", "segments"),
+          ],
+          then: [
+            {
+              operateOn: { component: "glue", route: "getContactSegments", name: "contactSegments" },
+              then: [
+                {
+                  condition: varEqual("contactSegments", []),
+                  then: [{
                     writeTo: {
-                      path: "attributes.intercom/segments.value",
+                      path: "attributes.intercom_${service_entity}/segments",
+                      format: { operation: "set", value: [] }
+                    }
+                  }]
+                },
+                {
+                  condition: not(varEqual("contactSegments", [])),
+                  expand: { valueName: "contactSegment" },
+                  writeTo: { path: "attributes.intercom_${service_entity}/segments.operation", value: "set" },
+                  then: [
+                    {
+                      writeTo: {
+                        path: "attributes.intercom_${service_entity}/segments.value",
+                        appendToArray: "unique",
+                        format: "${contactSegment.name}"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          condition: [
+            inputIsNotEmpty("social_profiles.data"),
+            varEqual("mapping.service", "social_profiles"),
+          ],
+          then: [
+            {
+              operateOn: { component: "input", select: "${mapping.service}.data", name: "profiles" },
+              expand: { valueName: "profile" },
+              then: {
+                writeTo: {
+                  path: "attributes.intercom_${service_entity}/${profile.name}_url",
+                  format: { operation: "set", value: "${profile.url}" },
+                  pathFormatter: (path) => path.toLowerCase()
+                },
+                then: {
+                  writeTo: { path: "attributes.intercom_${service_entity}/social_profiles.operation", value: "set" },
+                  then: {
+                    writeTo: {
+                      path: "attributes.intercom_${service_entity}/social_profiles.value",
                       appendToArray: "unique",
-                      format: "${contactSegment.name}"
+                      format: "${profile.url}"
                     }
                   }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        condition: [
-          inputIsNotEmpty("social_profiles.data"),
-          varEqual("mapping.name", "social_profiles"),
-        ],
-        then: [
-          {
-            operateOn: { component: "input", select: "${mapping.name}.data", name: "profiles"},
-            expand: { valueName: "profile" },
-            then: {
-              writeTo: {
-                path: "attributes.intercom/${profile.name}_url",
-                format: { operation: "${attributeOperation}", value: "${profile.url}" },
-                pathFormatter: (path) => path.toLowerCase()
-              },
-              then: {
-                writeTo: { path: "attributes.intercom/social_profiles.operation", value: "${attributeOperation}" } ,
-                then: {
-                  writeTo: {
-                    path: "attributes.intercom/social_profiles.value",
-                    appendToArray: "unique",
-                    format: "${profile.url}"
-                  }
                 }
               }
+            },
+          ]
+        },
+        {
+          condition: [inputIsEmpty("tags.data"), varEqual("mapping.service", "tags")],
+          then: [{
+            writeTo: {
+              path: "attributes.intercom_${service_entity}/tags",
+              format: { operation: "set", value: [] }
             }
-          },
-        ]
-      },
-      {
-        condition: [inputIsEmpty("tags.data"), varEqual("mapping.name", "tags"),],
-        then: [{ writeTo: { path: "attributes.intercom/tags", format: { operation: "${attributeOperation}", value: [] } } }]
-      },
-      {
-        condition: [inputIsEmpty("companies.data"), varEqual("mapping.name", "companies"),],
-        then: [{ writeTo: { path: "attributes.intercom/companies", format: { operation: "${attributeOperation}", value: [] } } }]
-      },
-      {
-        condition: [inputIsEmpty("social_profiles.data"), varEqual("mapping.name", "social_profiles"),],
-        then: [{ writeTo: { path: "attributes.intercom/social_profiles", format: { operation: "${attributeOperation}", value: [] } } }]
-      }
-    ]
-  },
-  {
-    operateOn: { component: "input", select: "name" },
-    condition: not(varUndefinedOrNull("operateOn")),
-    writeTo: { path: "attributes.name", format: { operation: "setIfNull", value: "${operateOn}" } }
-  }
-];
+          }]
+        },
+        {
+          condition: [inputIsEmpty("companies.data"), varEqual("mapping.service", "companies")],
+          then: [{
+            writeTo: {
+              path: "attributes.intercom_${service_entity}/companies",
+              format: { operation: "set", value: [] }
+            }
+          }]
+        },
+        {
+          condition: [inputIsEmpty("social_profiles.data"), varEqual("mapping.service", "social_profiles")],
+          then: [{
+            writeTo: {
+              path: "attributes.intercom_${service_entity}/social_profiles",
+              format: { operation: "set", value: [] }
+            }
+          }]
+        }
+      ]
+    }
+  ];
+}
 
 const transformsToService: ServiceTransforms = [
+  {
+    input: IntercomAttributeDefinition,
+    output: HullConnectorAttributeDefinition,
+    strategy: "Jsonata",
+    direction: "incoming",
+    batchTransform: true,
+    transforms: [
+      `$.{ "type": data_type, "name": full_name, "display": label, "readOnly": $not(api_writable) }`
+    ]
+  },
   {
     input: IntercomIncomingUser,
     output: HullIncomingUser,
     direction: "incoming",
     strategy: "AtomicReaction",
     target: { component: "new" },
-    then: _.concat(contactTransformation, [
-      { writeTo: { path: "attributes.intercom/anonymous", format: { operation: "set", value: false } } },
-      {
-        operateOn: "${connector.private_settings.user_claims}",
-        expand: { valueName: "mapping" },
-        then: {
-          operateOn: { component: "input", select: "${mapping.service}"},
-          condition: not(varUndefinedOrNull("operateOn")),
-          writeTo: { path: "ident.${mapping.hull}" }
-        }
-      },
-      {
-        operateOn: { component: "input", select: "external_id" },
-        condition: not(varUndefinedOrNull("operateOn")),
-        writeTo: {
-          path: "attributes.intercom/user_id",
-          format: { operation: "set", value: "${operateOn}" }
-        }
-      },
-      {
-        operateOn: { component: "input", select: "id" },
-        then:[
-          { writeTo: { path: "ident.anonymous_id", format: "${service_name}:${operateOn}" } },
-          { writeTo: { path: "attributes.${service_name}/id", format: { operation: "setIfNull", value: "${operateOn}" } } }
-        ]
-      },
-    ])
+    then: _.concat(
+      serviceUserTransforms({ entityType: "user", attributeExclusions: ["tags", "companies", "segments", "social_profiles"] }),
+      contactTransformation({ entityType: "user" })
+    )
   },
   {
     input: IntercomIncomingLead,
@@ -229,39 +204,10 @@ const transformsToService: ServiceTransforms = [
     direction: "incoming",
     strategy: "AtomicReaction",
     target: { component: "new" },
-    then: _.concat(contactTransformation, [
-      { writeTo: { path: "attributes.intercom/is_lead", format: { operation: "set", value: true } } },
-      {
-        operateOn: { component: "input", select: "external_id" },
-        condition: not(varUndefinedOrNull("operateOn")),
-        writeTo: {
-          path: "attributes.intercom/lead_user_id",
-          format: { operation: "set", value: "${operateOn}" }
-        }
-      },
-      {
-        operateOn: "${connector.private_settings.lead_claims}",
-        expand: { valueName: "mapping" },
-        then: {
-          operateOn: { component: "input", select: "${mapping.service}"},
-          condition: not(varUndefinedOrNull("operateOn")),
-          writeTo: { path: "ident.${mapping.hull}" }
-        }
-      },
-      {
-        operateOn: { component: "input", select: "external_id" },
-        condition: not(varUndefinedOrNull("operateOn")),
-        then:[
-          { writeTo: { path: "ident.anonymous_id", format: "${service_name}:${operateOn}" } }
-        ]
-      },
-      {
-        operateOn: { component: "input", select: "id" },
-        then:[
-          { writeTo: { path: "attributes.${service_name}/id", format: { operation: "setIfNull", value: "${operateOn}" } } }
-        ]
-      },
-    ])
+    then: _.concat(
+      serviceUserTransforms({ entityType: "lead", attributeExclusions: ["tags", "companies", "segments", "social_profiles"] }),
+      contactTransformation({ entityType: "lead" })
+    )
   },
   {
     input: IntercomIncomingCompany,

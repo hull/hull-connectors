@@ -19,9 +19,47 @@ describe("Fetch Recent Leads Tests", () => {
             access_token: "12345",
             fetch_leads: true,
             leads_last_fetch_timestamp: 1593169500,
-            sync_fields_to_hull: [
-              { name: 'job_title', hull: 'traits_intercom/job_title' },
-              { name: 'c_domain', hull: 'traits_intercom/duplicate_domain' }
+            user_claims: [
+              { hull: 'email', service: 'email' },
+              { hull: 'external_id', service: 'external_id' }
+            ],
+            lead_claims: [
+              { hull: 'email', service: 'email' }
+            ],
+            incoming_lead_attributes: [
+              { service: 'external_id', hull: 'intercom_lead/user_id', readOnly: true, overwrite: true },
+              { service: 'id', hull: 'intercom_lead/id', readOnly: true, overwrite: true },
+              { service: 'email', hull: 'intercom_lead/email', readOnly: true, overwrite: true },
+              { service: 'avatar', hull: 'intercom_lead/avatar', overwrite: true },
+              { service: 'browser', hull: 'intercom_lead/browser', overwrite: true },
+              { service: 'browser_language', hull: 'intercom_lead/browser_language', overwrite: true },
+              { service: 'browser_version', hull: 'intercom_lead/browser_version', overwrite: true },
+              { service: 'companies', hull: 'intercom_lead/companies', overwrite: true },
+              { service: 'created_at', hull: 'intercom_lead/created_at', overwrite: true },
+              { service: 'has_hard_bounced', hull: 'intercom_lead/has_hard_bounced', overwrite: true },
+              { service: 'language_override', hull: 'intercom_lead/language_override', overwrite: true },
+              { service: 'last_contacted_at', hull: 'intercom_lead/last_contacted_at', overwrite: true },
+              { service: 'last_email_clicked_at', hull: 'intercom_lead/last_email_clicked_at', overwrite: true },
+              { service: 'last_email_opened_at', hull: 'intercom_lead/last_email_opened_at', overwrite: true },
+              { service: 'last_replied_at', hull: 'intercom_lead/last_replied_at', overwrite: true },
+              { service: 'last_seen_at', hull: 'intercom_lead/last_seen_at', overwrite: true },
+              { service: 'location.city', hull: 'intercom_lead/location_city_name', overwrite: true },
+              { service: 'location.country', hull: 'intercom_lead/location_country_name', overwrite: true },
+              { service: 'location.region', hull: 'intercom_lead/location_region_name', overwrite: true },
+              { service: 'marked_email_as_spam', hull: 'intercom_lead/marked_email_as_spam', overwrite: true },
+              { service: 'name', hull: 'intercom_lead/name', overwrite: true },
+              { service: 'os', hull: 'intercom_lead/os', overwrite: true },
+              { service: 'owner_id', hull: 'intercom_lead/owner_id', overwrite: true },
+              { service: 'phone', hull: 'intercom_lead/phone', overwrite: true },
+              { service: 'segments', hull: 'intercom_lead/segments', overwrite: true },
+              { service: 'signed_up_at', hull: 'intercom_lead/signed_up_at', overwrite: true },
+              { service: 'social_profiles', hull: 'intercom_lead/social_profiles', overwrite: true },
+              { service: 'tags', hull: 'intercom_lead/tags', overwrite: true },
+              { service: 'unsubscribed_from_emails', hull: 'intercom_lead/unsubscribed_from_emails', overwrite: true },
+              { service: 'updated_at', hull: 'intercom_lead/updated_at', overwrite: true },
+              { service: 'custom_attributes.department', hull: 'traits_intercom_lead/c_department', overwrite: true },
+              { service: 'custom_attributes.job_title', hull: 'traits_intercom_lead/job_title', overwrite: true },
+              { service: 'custom_attributes.c_domain', hull: 'traits_intercom_lead/duplicate_domain', overwrite: true }
             ]
           }
         },
@@ -119,6 +157,7 @@ describe("Fetch Recent Leads Tests", () => {
                   "ios_sdk_version": null,
                   "ios_last_seen_at": null,
                   "custom_attributes": {
+                    "department": "integrations",
                     "job_title": "engineer"
                   },
                   "tags": {
@@ -433,13 +472,19 @@ describe("Fetch Recent Leads Tests", () => {
           ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" }],
           ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
             "method": "POST", "url": "/contacts/search", "status": 200, "vars": {} }],
+          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
+            "method": "GET", "url": "/contacts/5f161b7a332231fc10b44e5f/companies", "status": 200, "vars": {} }],
+          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
+            "method": "GET", "url": "/contacts/5f161b7a332231fc10b44e5f/segments", "status": 200, "vars": {} }],
+          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
+            "method": "GET", "url": "/contacts/5f161b7a332231fc10b44e5f/tags", "status": 200, "vars": {} }],
           [
             "debug",
             "incoming.user.success",
             {
               "subject_type": "user",
               "user_email": "lizalead@rei.com",
-              "user_anonymous_id": "intercom:lead_user_id_1"
+              "user_anonymous_id": "intercom-lead:lead-5f161b7a332231fc10b44e5f"
             },
             {
               "data": {
@@ -503,6 +548,7 @@ describe("Fetch Recent Leads Tests", () => {
                 "ios_sdk_version": null,
                 "ios_last_seen_at": null,
                 "custom_attributes": {
+                  "department": "integrations",
                   "job_title": "engineer"
                 },
                 "tags": {
@@ -543,20 +589,16 @@ describe("Fetch Recent Leads Tests", () => {
             }
           ],
           ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
-            "method": "GET", "url": "/contacts/5f161b7a332231fc10b44e5f/tags", "status": 200, "vars": {} }],
-          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
-            "method": "GET", "url": "/contacts/5f161b7a332231fc10b44e5f/companies", "status": 200, "vars": {} }],
-          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
-            "method": "GET", "url": "/contacts/5f161b7a332231fc10b44e5f/segments", "status": 200, "vars": {} }],
-          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
             "method": "POST", "url": "/contacts/search", "status": 200, "vars": {} }],
+          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
+            "method": "GET", "url": "/contacts/5f1afdc24c358c20a4545cdc/segments", "status": 200, "vars": {} }],
           [
             "debug",
             "incoming.user.success",
             {
               "subject_type": "user",
               "user_email": "roberto.hernandez@rei.com",
-              "user_anonymous_id": "intercom:lead_user_id_2"
+              "user_anonymous_id": "intercom-lead:lead-5f1afdc24c358c20a4545cdc"
             },
             {
               "data": {
@@ -636,8 +678,6 @@ describe("Fetch Recent Leads Tests", () => {
               "type": "Lead"
             }
           ],
-          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
-            "method": "GET", "url": "/contacts/5f1afdc24c358c20a4545cdc/segments", "status": 200, "vars": {} }],
           ["info", "incoming.job.success", {}, { "jobName": "Incoming Data", "type": "webpayload" }]
         ],
         firehoseEvents: [
@@ -646,144 +686,140 @@ describe("Fetch Recent Leads Tests", () => {
             {
               "asUser": {
                 "email": "lizalead@rei.com",
-                "anonymous_id": "intercom:lead_user_id_1"
+                "anonymous_id": "intercom-lead:lead-5f161b7a332231fc10b44e5f"
               },
               "subjectType": "user"
             },
             {
-              "email": {
+              "name": {
                 "operation": "setIfNull",
+                "value": "Liza"
+              },
+              "intercom_lead/email": {
+                "operation": "set",
                 "value": "lizalead@rei.com"
               },
-              "intercom/email": {
-                "operation": "setIfNull",
-                "value": "lizalead@rei.com"
-              },
-              "intercom/id": {
-                "operation": "setIfNull",
+              "intercom_lead/id": {
+                "operation": "set",
                 "value": "5f161b7a332231fc10b44e5f"
               },
-              "intercom/is_lead": {
-                "operation": "set",
-                "value": true
-              },
-              "intercom/lead_user_id": {
+              "intercom_lead/user_id": {
                 "operation": "set",
                 "value": "lead_user_id_1"
               },
-              "intercom/twitter_url": {
-                "operation": "setIfNull",
+              "intercom_lead/twitter_url": {
+                "operation": "set",
                 "value": "http://twitter.com/th1sland"
               },
-              "intercom/facebook_url": {
-                "operation": "setIfNull",
+              "intercom_lead/facebook_url": {
+                "operation": "set",
                 "value": "http://facebook.com/th1sland"
               },
-              "intercom/social_profiles": {
-                "operation": "setIfNull",
+              "intercom_lead/social_profiles": {
+                "operation": "set",
                 "value": [
                   "http://twitter.com/th1sland",
                   "http://facebook.com/th1sland"
                 ]
               },
-              "intercom/phone": {
-                "operation": "setIfNull",
+              "intercom_lead/phone": {
+                "operation": "set",
                 "value": "+1123456789"
               },
-              "intercom/name": {
-                "operation": "setIfNull",
+              "intercom_lead/name": {
+                "operation": "set",
                 "value": "Liza"
               },
-              "intercom/avatar": {
-                "operation": "setIfNull",
+              "intercom_lead/avatar": {
+                "operation": "set",
                 "value": "https://example.org/128Wash.jpg"
               },
-              "intercom/owner_id": {
-                "operation": "setIfNull",
+              "intercom_lead/owner_id": {
+                "operation": "set",
                 "value": 127
               },
-              "intercom/has_hard_bounced": {
-                "operation": "setIfNull",
+              "intercom_lead/has_hard_bounced": {
+                "operation": "set",
                 "value": false
               },
-              "intercom/marked_email_as_spam": {
-                "operation": "setIfNull",
+              "intercom_lead/marked_email_as_spam": {
+                "operation": "set",
                 "value": false
               },
-              "intercom/unsubscribed_from_emails": {
-                "operation": "setIfNull",
+              "intercom_lead/unsubscribed_from_emails": {
+                "operation": "set",
                 "value": false
               },
-              "intercom/created_at": {
-                "operation": "setIfNull",
+              "intercom_lead/created_at": {
+                "operation": "set",
                 "value": 1593169501
               },
-              "intercom/updated_at": {
-                "operation": "setIfNull",
+              "intercom_lead/updated_at": {
+                "operation": "set",
                 "value": 1593169501
               },
-              "intercom/segments": {
-                "operation": "setIfNull",
+              "intercom_lead/segments": {
+                "operation": "set",
                 "value": ["Segment1", "Segment2"]
               },
-              "intercom/signed_up_at": {
-                "operation": "setIfNull",
-                "value": 1571069751
-              },
-              "intercom/last_seen_at": {
+              "intercom_lead/signed_up_at": {
                 "operation": "set",
                 "value": 1571069751
               },
-              "intercom/last_replied_at": {
+              "intercom_lead/last_seen_at": {
+                "operation": "set",
+                "value": 1571069751
+              },
+              "intercom_lead/last_replied_at": {
                 "operation": "set",
                 "value": 1571672158
               },
-              "intercom/last_contacted_at": {
+              "intercom_lead/last_contacted_at": {
                 "operation": "set",
                 "value": 1571672158
               },
-              "intercom/last_email_opened_at": {
+              "intercom_lead/last_email_opened_at": {
                 "operation": "set",
                 "value": 1571673478
               },
-              "intercom/last_email_clicked_at": {
+              "intercom_lead/last_email_clicked_at": {
                 "operation": "set",
                 "value": 1571676789
               },
-              "intercom/language_override": {
-                "operation": "setIfNull",
+              "intercom_lead/language_override": {
+                "operation": "set",
                 "value": null
               },
-              "intercom/browser": {
-                "operation": "setIfNull",
+              "intercom_lead/browser": {
+                "operation": "set",
                 "value": "chrome"
               },
-              "intercom/browser_version": {
-                "operation": "setIfNull",
+              "intercom_lead/browser_version": {
+                "operation": "set",
                 "value": "77.0.3865.90"
               },
-              "intercom/browser_language": {
-                "operation": "setIfNull",
+              "intercom_lead/browser_language": {
+                "operation": "set",
                 "value": "en"
               },
-              "intercom/os": {
-                "operation": "setIfNull",
+              "intercom_lead/os": {
+                "operation": "set",
                 "value": "OS X 10.14.6"
               },
-              "intercom/location_country_name": {
-                "operation": "setIfNull",
+              "intercom_lead/location_country_name": {
+                "operation": "set",
                 "value": "United States"
               },
-              "intercom/location_region_name": {
-                "operation": "setIfNull",
+              "intercom_lead/location_region_name": {
+                "operation": "set",
                 "value": "Georgia"
               },
-              "intercom/location_city_name": {
-                "operation": "setIfNull",
+              "intercom_lead/location_city_name": {
+                "operation": "set",
                 "value": "Atlanta"
               },
-              "intercom/tags": {
-                "operation": "setIfNull",
+              "intercom_lead/tags": {
+                "operation": "set",
                 "value": [
                   "Tag1",
                   "Tag2",
@@ -799,21 +835,21 @@ describe("Fetch Recent Leads Tests", () => {
                   "Tag12"
                 ]
               },
-              "intercom/companies": {
-                "operation": "setIfNull",
+              "intercom_lead/companies": {
+                "operation": "set",
                 "value": [
                   "Company1",
                   "Company2",
                   "Company3"
                 ]
               },
-              "intercom/job_title": {
-                "operation": "setIfNull",
-                "value": "engineer"
+              "intercom_lead/c_department": {
+                "operation": "set",
+                "value": "integrations"
               },
-              "name": {
-                "operation": "setIfNull",
-                "value": "Liza"
+              "intercom_lead/job_title": {
+                "operation": "set",
+                "value": "engineer"
               }
             }
           ],
@@ -822,141 +858,133 @@ describe("Fetch Recent Leads Tests", () => {
             {
               "asUser": {
                 "email": "roberto.hernandez@rei.com",
-                "anonymous_id": "intercom:lead_user_id_2"
+                "anonymous_id": "intercom-lead:lead-5f1afdc24c358c20a4545cdc"
               },
               "subjectType": "user"
             },
             {
-              "email": {
-                "operation": "setIfNull",
+              "intercom_lead/email": {
+                "operation": "set",
                 "value": "roberto.hernandez@rei.com"
               },
-              "intercom/email": {
-                "operation": "setIfNull",
-                "value": "roberto.hernandez@rei.com"
-              },
-              "intercom/id": {
-                "operation": "setIfNull",
+              "intercom_lead/id": {
+                "operation": "set",
                 "value": "5f1afdc24c358c20a4545cdc"
               },
-              "intercom/is_lead": {
-                "operation": "set",
-                "value": true
-              },
-              "intercom/lead_user_id": {
+              "intercom_lead/user_id": {
                 "operation": "set",
                 "value": "lead_user_id_2"
               },
-              "intercom/phone": {
-                "operation": "setIfNull",
+              "intercom_lead/phone": {
+                "operation": "set",
                 "value": null
               },
-              "intercom/name": {
-                "operation": "setIfNull",
+              "intercom_lead/name": {
+                "operation": "set",
                 "value": "Roberto Hernandez"
               },
-              "intercom/avatar": {
-                "operation": "setIfNull",
+              "intercom_lead/avatar": {
+                "operation": "set",
                 "value": null
               },
-              "intercom/owner_id": {
-                "operation": "setIfNull",
+              "intercom_lead/owner_id": {
+                "operation": "set",
                 "value": null
               },
-              "intercom/has_hard_bounced": {
-                "operation": "setIfNull",
+              "intercom_lead/has_hard_bounced": {
+                "operation": "set",
                 "value": false
               },
-              "intercom/marked_email_as_spam": {
-                "operation": "setIfNull",
+              "intercom_lead/marked_email_as_spam": {
+                "operation": "set",
                 "value": false
               },
-              "intercom/unsubscribed_from_emails": {
-                "operation": "setIfNull",
+              "intercom_lead/unsubscribed_from_emails": {
+                "operation": "set",
                 "value": false
               },
-              "intercom/created_at": {
-                "operation": "setIfNull",
+              "intercom_lead/created_at": {
+                "operation": "set",
                 "value": 1593169501
               },
-              "intercom/updated_at": {
-                "operation": "setIfNull",
+              "intercom_lead/updated_at": {
+                "operation": "set",
                 "value": 1593169501
               },
-              "intercom/segments": {
-                "operation": "setIfNull",
+              "intercom_lead/segments": {
+                "operation": "set",
                 "value": []
               },
-              "intercom/social_profiles": {
-                "operation": "setIfNull",
+              "intercom_lead/social_profiles": {
+                "operation": "set",
                 "value": []
               },
-              "intercom/signed_up_at": {
-                "operation": "setIfNull",
-                "value": null
-              },
-              "intercom/last_seen_at": {
+              "intercom_lead/signed_up_at": {
                 "operation": "set",
                 "value": null
               },
-              "intercom/last_replied_at": {
+              "intercom_lead/last_seen_at": {
                 "operation": "set",
                 "value": null
               },
-              "intercom/last_contacted_at": {
+              "intercom_lead/last_replied_at": {
                 "operation": "set",
                 "value": null
               },
-              "intercom/last_email_opened_at": {
+              "intercom_lead/last_contacted_at": {
                 "operation": "set",
                 "value": null
               },
-              "intercom/last_email_clicked_at": {
+              "intercom_lead/last_email_opened_at": {
                 "operation": "set",
                 "value": null
               },
-              "intercom/language_override": {
-                "operation": "setIfNull",
+              "intercom_lead/last_email_clicked_at": {
+                "operation": "set",
                 "value": null
               },
-              "intercom/browser": {
-                "operation": "setIfNull",
+              "intercom_lead/language_override": {
+                "operation": "set",
                 "value": null
               },
-              "intercom/browser_version": {
-                "operation": "setIfNull",
+              "intercom_lead/browser": {
+                "operation": "set",
                 "value": null
               },
-              "intercom/browser_language": {
-                "operation": "setIfNull",
+              "intercom_lead/browser_version": {
+                "operation": "set",
                 "value": null
               },
-              "intercom/os": {
-                "operation": "setIfNull",
+              "intercom_lead/browser_language": {
+                "operation": "set",
                 "value": null
               },
-              "intercom/location_country_name": {
-                "operation": "setIfNull",
+              "intercom_lead/os": {
+                "operation": "set",
                 "value": null
               },
-              "intercom/location_region_name": {
-                "operation": "setIfNull",
+              "intercom_lead/location_country_name": {
+                "operation": "set",
                 "value": null
               },
-              "intercom/location_city_name": {
-                "operation": "setIfNull",
+              "intercom_lead/location_region_name": {
+                "operation": "set",
                 "value": null
               },
-              "intercom/tags": {
-                "operation": "setIfNull",
+              "intercom_lead/location_city_name": {
+                "operation": "set",
+                "value": null
+              },
+              "intercom_lead/tags": {
+                "operation": "set",
                 "value": []
               },
-              "intercom/companies": {
-                "operation": "setIfNull",
+              "intercom_lead/companies": {
+                "operation": "set",
                 "value": []
               },
-              "intercom/duplicate_domain": {
-                "operation": "setIfNull",
+              "intercom_lead/duplicate_domain": {
+                "operation": "set",
                 "value": "rei.com"
               },
               "name": {
@@ -987,24 +1015,7 @@ describe("Fetch Recent Leads Tests", () => {
             "PUT",
             "/api/v1/9993743b22d60dd829001999",
             {},
-            {
-              "private_settings": {
-                "access_token": "12345",
-                "fetch_leads": true,
-                "leads_last_fetch_timestamp": expect.whatever(),
-                "sync_fields_to_hull": [
-                  {
-                    "name": "job_title",
-                    "hull": "traits_intercom/job_title"
-                  },
-                  {
-                    "name": "c_domain",
-                    "hull": "traits_intercom/duplicate_domain"
-                  }
-                ]
-              },
-              "refresh_status": false
-            }
+            expect.objectContaining({"private_settings": expect.whatever()})
           ]
         ]
       };

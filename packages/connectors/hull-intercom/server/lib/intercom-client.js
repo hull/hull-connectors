@@ -141,6 +141,7 @@ class IntercomClient {
     }
     return this.agent
       .set("Accept", "application/json")
+      .set("Intercom-Version", "2.1")
       .delete(url)
       .query(params);
   }
