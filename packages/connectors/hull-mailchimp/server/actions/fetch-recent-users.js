@@ -16,7 +16,7 @@ async function fetchRecentUsers(ctx: HullContext) {
     response = "ok";
     await ctx.enqueue("fetchRecentUsers", { operationName });
   } else {
-    response = `Sync operation already running with batch id: ${
+    response = `Fetch recent users operation already running with batch id: ${
       private_settings[`${operationName}_batch_id`]
     }. Please wait for the previous one to finish.`;
   }
