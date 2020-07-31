@@ -241,14 +241,6 @@ describe("Fetch Intercom Attributes Tests", () => {
         response: {
           "options": [
             {
-              "label": "Companies",
-              "value": "companies"
-            },
-            {
-              "label": "Tags",
-              "value": "tags"
-            },
-            {
               "label": "Contact role",
               "value": "role"
             },

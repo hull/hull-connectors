@@ -4,7 +4,14 @@ import type {
   EndpointType,
   RequestType
 } from "hull-connector-framework/src/purplefusion/types";
-import { IntercomIncomingCompany } from "./service-objects";
+import {
+  IntercomCompanyRead,
+  IntercomUserWrite,
+  IntercomUserRead,
+  IntercomLeadWrite,
+  IntercomLeadRead,
+  IntercomEventWrite
+} from "./service-objects";
 
 const _ = require("lodash");
 const MESSAGES = require("./messages");
@@ -26,7 +33,10 @@ const {
   SuperagentApi
 } = require("hull-connector-framework/src/purplefusion/superagent-api");
 
-const service: RawRestApi = {
+const service = ({ clientID, clientSecret } : {
+  clientID: string,
+  clientSecret: string
+}): RawRestApi => ({
   initialize: (context, api) => new SuperagentApi(context, api),
   prefix: "https://api.intercom.io",
   defaultReturnObj: "body",
@@ -34,7 +44,7 @@ const service: RawRestApi = {
     getRecentCompanies: {
       url: "/companies",
       operation: "get",
-      output: IntercomIncomingCompany,
+      output: IntercomCompanyRead,
       query: {
         "page": "${pageOffset}",
         "per_page": "${pageSize}",
@@ -44,17 +54,61 @@ const service: RawRestApi = {
     getAllCompaniesScroll: {
       url: "/companies/scroll",
       operation: "get",
-      output: IntercomIncomingCompany,
+      output: IntercomCompanyRead,
       query: {
         "scroll_param": "${offset}"
       }
+    },
+    insertUser: {
+      url: "/contacts",
+      operation: "post",
+      endpointType: "update",
+      returnObj: "body",
+      input: IntercomUserWrite,
+      output: IntercomUserRead
+    },
+    insertLead: {
+      url: "/contacts",
+      operation: "post",
+      endpointType: "update",
+      returnObj: "body",
+      input: IntercomLeadWrite,
+      output: IntercomLeadRead
+    },
+    updateUser: {
+      url: "/contacts/${contactId}",
+      operation: "put",
+      endpointType: "update",
+      returnObj: "body",
+      input: IntercomUserWrite,
+      output: IntercomUserRead
+    },
+    updateLead: {
+      url: "/contacts/${contactId}",
+      operation: "put",
+      endpointType: "update",
+      returnObj: "body",
+      input: IntercomLeadWrite,
+      output: IntercomLeadRead
+    },
+    submitEvent: {
+      url: "/events",
+      operation: "post",
+      endpointType: "update",
+      returnObj: "body",
+      input: IntercomEventWrite
     },
     getContacts: {
       url: "/contacts/search",
       operation: "post"
     },
-    getContactTags: {
-      url: "/contacts/${contactId}/tags",
+    lookupContact: {
+      url: "/contacts/search",
+      operation: "post",
+      returnObj: "body.data"
+    },
+    getContactFields: {
+      url: "/data_attributes?model=contact",
       operation: "get",
       returnObj: "body.data",
     },
@@ -73,15 +127,35 @@ const service: RawRestApi = {
       operation: "get",
       returnObj: "body.data",
     },
-    getContactFields: {
-      url: "/data_attributes?model=contact",
-      operation: "get",
-      returnObj: "body.data",
-    },
     getCompanyFields: {
       url: "/data_attributes?model=company",
       operation: "get",
       returnObj: "body.data",
+    },
+    getAllTags: {
+      url: "/tags",
+      operation: "get",
+      returnObj: "body.data",
+    },
+    getContactTags: {
+      url: "/contacts/${contactId}/tags",
+      operation: "get",
+      returnObj: "body.data",
+    },
+    createTag: {
+      url: "/tags",
+      operation: "post",
+      returnObj: "body",
+    },
+    tagContact: {
+      url: "/contacts/${contactId}/tags",
+      operation: "post",
+      returnObj: "body",
+    },
+    unTagContact: {
+      url: "/contacts/${contactId}/tags/${tagId}",
+      operation: "delete",
+      returnObj: "body",
     }
   },
   superagent: {
@@ -204,6 +278,6 @@ const service: RawRestApi = {
       }
     ]
   }
-};
+});
 
 module.exports = service;

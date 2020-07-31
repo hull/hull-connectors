@@ -13,27 +13,23 @@ import {
 } from "hull-connector-framework/src/purplefusion/conditionals";
 
 import {
-  isUndefinedOrNull
-} from "hull-connector-framework/src/purplefusion/utils";
-
-import {
   serviceUserTransforms
 } from "hull-connector-framework/src/purplefusion/transform-predefined";
 
 import { HullIncomingAccount, HullIncomingUser, HullConnectorAttributeDefinition } from "hull-connector-framework/src/purplefusion/hull-service-objects";
-import { IntercomIncomingCompany, IntercomIncomingUser, IntercomIncomingLead, IntercomAttributeDefinition } from "./service-objects";
+import {
+  IntercomCompanyRead,
+  IntercomUserRead,
+  IntercomLeadRead,
+  IntercomAttributeDefinition
+} from "./service-objects";
 
 const _ = require("lodash");
 
 function contactTransformation({ entityType }) {
-  let attributeName = "user";
-
-  if (!isUndefinedOrNull(entityType)) {
-    attributeName = entityType;
-  }
   return [
     {
-      operateOn: `\${connector.private_settings.incoming_${attributeName}_attributes}`,
+      operateOn: `\${connector.private_settings.incoming_${entityType}_attributes}`,
       expand: { valueName: "mapping" },
       then: [
         {
@@ -44,12 +40,12 @@ function contactTransformation({ entityType }) {
           then: [
             {
               operateOn: { component: "glue", route: "getContactTags", name: "contactTags" },
-              writeTo: { path: "attributes.intercom_${service_entity}/tags.operation", value: "set" },
+              writeTo: { path: "attributes.intercom_${service_type}/tags.operation", value: "set" },
               expand: { valueName: "contactTag" },
               then: [
                 {
                   writeTo: {
-                    path: "attributes.intercom_${service_entity}/tags.value",
+                    path: "attributes.intercom_${service_type}/tags.value",
                     appendToArray: "unique",
                     format: "${contactTag.name}"
                   }
@@ -66,12 +62,12 @@ function contactTransformation({ entityType }) {
           then: [
             {
               operateOn: { component: "glue", route: "getContactCompanies", name: "contactCompany" },
-              writeTo: { path: "attributes.intercom_${service_entity}/companies.operation", value: "set" },
+              writeTo: { path: "attributes.intercom_${service_type}/companies.operation", value: "set" },
               expand: { valueName: "contactCompany" },
               then: [
                 {
                   writeTo: {
-                    path: "attributes.intercom_${service_entity}/companies.value",
+                    path: "attributes.intercom_${service_type}/companies.value",
                     appendToArray: "unique",
                     format: "${contactCompany.name}"
                   }
@@ -92,7 +88,7 @@ function contactTransformation({ entityType }) {
                   condition: varEqual("contactSegments", []),
                   then: [{
                     writeTo: {
-                      path: "attributes.intercom_${service_entity}/segments",
+                      path: "attributes.intercom_${service_type}/segments",
                       format: { operation: "set", value: [] }
                     }
                   }]
@@ -100,11 +96,11 @@ function contactTransformation({ entityType }) {
                 {
                   condition: not(varEqual("contactSegments", [])),
                   expand: { valueName: "contactSegment" },
-                  writeTo: { path: "attributes.intercom_${service_entity}/segments.operation", value: "set" },
+                  writeTo: { path: "attributes.intercom_${service_type}/segments.operation", value: "set" },
                   then: [
                     {
                       writeTo: {
-                        path: "attributes.intercom_${service_entity}/segments.value",
+                        path: "attributes.intercom_${service_type}/segments.value",
                         appendToArray: "unique",
                         format: "${contactSegment.name}"
                       }
@@ -126,15 +122,15 @@ function contactTransformation({ entityType }) {
               expand: { valueName: "profile" },
               then: {
                 writeTo: {
-                  path: "attributes.intercom_${service_entity}/${profile.name}_url",
+                  path: "attributes.intercom_${service_type}/${profile.name}_url",
                   format: { operation: "set", value: "${profile.url}" },
                   pathFormatter: (path) => path.toLowerCase()
                 },
                 then: {
-                  writeTo: { path: "attributes.intercom_${service_entity}/social_profiles.operation", value: "set" },
+                  writeTo: { path: "attributes.intercom_${service_type}/social_profiles.operation", value: "set" },
                   then: {
                     writeTo: {
-                      path: "attributes.intercom_${service_entity}/social_profiles.value",
+                      path: "attributes.intercom_${service_type}/social_profiles.value",
                       appendToArray: "unique",
                       format: "${profile.url}"
                     }
@@ -148,7 +144,7 @@ function contactTransformation({ entityType }) {
           condition: [inputIsEmpty("tags.data"), varEqual("mapping.service", "tags")],
           then: [{
             writeTo: {
-              path: "attributes.intercom_${service_entity}/tags",
+              path: "attributes.intercom_${service_type}/tags",
               format: { operation: "set", value: [] }
             }
           }]
@@ -157,7 +153,7 @@ function contactTransformation({ entityType }) {
           condition: [inputIsEmpty("companies.data"), varEqual("mapping.service", "companies")],
           then: [{
             writeTo: {
-              path: "attributes.intercom_${service_entity}/companies",
+              path: "attributes.intercom_${service_type}/companies",
               format: { operation: "set", value: [] }
             }
           }]
@@ -166,7 +162,7 @@ function contactTransformation({ entityType }) {
           condition: [inputIsEmpty("social_profiles.data"), varEqual("mapping.service", "social_profiles")],
           then: [{
             writeTo: {
-              path: "attributes.intercom_${service_entity}/social_profiles",
+              path: "attributes.intercom_${service_type}/social_profiles",
               format: { operation: "set", value: [] }
             }
           }]
@@ -188,18 +184,7 @@ const transformsToService: ServiceTransforms = [
     ]
   },
   {
-    input: IntercomIncomingUser,
-    output: HullIncomingUser,
-    direction: "incoming",
-    strategy: "AtomicReaction",
-    target: { component: "new" },
-    then: _.concat(
-      serviceUserTransforms({ entityType: "user", attributeExclusions: ["tags", "companies", "segments", "social_profiles"] }),
-      contactTransformation({ entityType: "user" })
-    )
-  },
-  {
-    input: IntercomIncomingLead,
+    input: IntercomLeadRead,
     output: HullIncomingUser,
     direction: "incoming",
     strategy: "AtomicReaction",
@@ -210,7 +195,18 @@ const transformsToService: ServiceTransforms = [
     )
   },
   {
-    input: IntercomIncomingCompany,
+    input: IntercomUserRead,
+    output: HullIncomingUser,
+    direction: "incoming",
+    strategy: "AtomicReaction",
+    target: { component: "new" },
+    then: _.concat(
+      serviceUserTransforms({ entityType: "user", attributeExclusions: ["tags", "companies", "segments", "social_profiles"] }),
+      contactTransformation({ entityType: "user" })
+    )
+  },
+  {
+    input: IntercomCompanyRead,
     output: HullIncomingAccount,
     direction: "incoming",
     strategy: "AtomicReaction",

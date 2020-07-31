@@ -2,12 +2,12 @@
   {
     "label": "Companies",
     "full_name": "companies",
-    "api_writable": true
+    "api_writable": false
   },
   {
     "label": "Tags",
     "full_name": "tags",
-    "api_writable": true
+    "api_writable": false
   },
   {
     "label": "Segments",
