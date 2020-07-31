@@ -25,7 +25,8 @@ function trackJob(ctx: any) {
         additionalData: {
           last_track_at,
           campaigns
-        }
+        },
+        operationName: this.data.payload.operationName || null
       });
     })
     .then(() => {
