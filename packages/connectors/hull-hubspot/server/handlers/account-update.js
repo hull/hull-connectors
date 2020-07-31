@@ -7,7 +7,13 @@ export default async (
   ctx: HullContext,
   messages: Array<HullAccountUpdateMessage>
 ) => {
-  const syncAgent = new SyncAgent(ctx);
-  await syncAgent.sendAccountUpdateMessages(messages);
-  return {};
+  try {
+    const syncAgent = new SyncAgent(ctx);
+    await syncAgent.sendAccountUpdateMessages(messages);
+    return {};
+  } catch (err) {
+    return {
+      flow_control: { type: "retry" }
+    };
+  }
 };
