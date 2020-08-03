@@ -10,7 +10,9 @@ import {
   IntercomUserRead,
   IntercomLeadWrite,
   IntercomLeadRead,
-  IntercomEventWrite
+  IntercomEventWrite,
+  IntercomAttributeWrite,
+  IntercomAttributeRead
 } from "./service-objects";
 
 const _ = require("lodash");
@@ -22,7 +24,7 @@ const {
   TransientError
 } = require("hull/src/errors");
 
-const {} = require("hull-connector-framework/src/purplefusion/hull-service-objects");
+const { Strategy } = require("passport-intercom");
 
 const {
   isNull,
@@ -107,55 +109,63 @@ const service = ({ clientID, clientSecret } : {
       operation: "post",
       returnObj: "body.data"
     },
-    getContactFields: {
-      url: "/data_attributes?model=contact",
-      operation: "get",
-      returnObj: "body.data",
-    },
     getContactCompanies: {
       url: "/contacts/${contactId}/companies",
       operation: "get",
-      returnObj: "body.data",
+      returnObj: "body.data"
     },
     getContactSegments: {
       url: "/contacts/${contactId}/segments",
       operation: "get",
-      returnObj: "body.data",
+      returnObj: "body.data"
     },
     getCompanySegments: {
       url: "/companies/${companyId}/segments",
       operation: "get",
-      returnObj: "body.data",
-    },
-    getCompanyFields: {
-      url: "/data_attributes?model=company",
-      operation: "get",
-      returnObj: "body.data",
+      returnObj: "body.data"
     },
     getAllTags: {
       url: "/tags",
       operation: "get",
-      returnObj: "body.data",
+      returnObj: "body.data"
     },
     getContactTags: {
       url: "/contacts/${contactId}/tags",
       operation: "get",
-      returnObj: "body.data",
+      returnObj: "body.data"
     },
     createTag: {
       url: "/tags",
       operation: "post",
-      returnObj: "body",
+      returnObj: "body"
     },
     tagContact: {
       url: "/contacts/${contactId}/tags",
       operation: "post",
-      returnObj: "body",
+      returnObj: "body"
     },
     unTagContact: {
       url: "/contacts/${contactId}/tags/${tagId}",
       operation: "delete",
+      returnObj: "body"
+    },
+
+    getCompanyDataAttributes: {
+      url: "/data_attributes?model=company",
+      operation: "get",
+      returnObj: "body.data"
+    },
+    getContactDataAttributes: {
+      url: "/data_attributes?model=contact",
+      operation: "get",
+      returnObj: "body.data"
+    },
+    createDataAttribute: {
+      url: "/data_attributes",
+      operation: "post",
       returnObj: "body",
+      input: IntercomAttributeWrite,
+      output: IntercomAttributeRead
     }
   },
   superagent: {
@@ -171,7 +181,14 @@ const service = ({ clientID, clientSecret } : {
       }
     ]
   },
-  authentication: {},
+  authentication: {
+    strategy: "oauth2",
+    params: {
+      Strategy,
+      clientID,
+      clientSecret
+    }
+  },
   error: {
     parser: {
       httpStatus: "status",
@@ -189,6 +206,13 @@ const service = ({ clientID, clientSecret } : {
         errorType: TransientError,
         message: MESSAGES.BAD_REQUEST
       },
+/*      {
+        truthy: { status: 400 },
+        condition -> message is Custom attribute ... does not exist
+        errorType: TransientError,
+        message: MESSAGES.BAD_REQUEST,
+        recoveryroute: "syncDataAttributes"
+      },*/
       {
         truthy: { status: 401 },
         condition: isNull("connector.private_settings.access_token"),

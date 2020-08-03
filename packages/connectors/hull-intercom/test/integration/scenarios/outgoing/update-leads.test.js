@@ -2,6 +2,7 @@
 import connectorConfig from "../../../../server/config";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
+const contactFields = require("../attributes/api-responses/get-contact-fields-response.json");
 
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "123";
@@ -18,7 +19,7 @@ describe("Update Lead Tests", () => {
         connector: {
           private_settings: {
             access_token: "intercomABC",
-            tag_contacts: false,
+            tag_leads: false,
             synchronized_lead_segments: ["lead_segment_1"],
             synchronized_user_segments: [],
             lead_claims: [
@@ -26,9 +27,9 @@ describe("Update Lead Tests", () => {
             ],
             outgoing_lead_attributes: [
               { hull: 'intercom_lead/name', service: 'name' },
-              { hull: 'intercom_lead/description', service: 'custom_attributes.c_description' },
-              { hull: 'intercom_lead/job_title', service: 'custom_attributes.job_title' },
-              { hull: 'account.description', service: 'custom_attributes.c_description' }
+              { hull: 'intercom_lead/description', service: 'c_description' },
+              { hull: 'intercom_lead/job_title', service: 'job_title' },
+              { hull: 'account.description', service: 'c_description' }
             ],
             incoming_lead_attributes: [
               { service: 'email', hull: 'traits_intercom_lead/email', overwrite: true },
@@ -164,7 +165,7 @@ describe("Update Lead Tests", () => {
         connector: {
           private_settings: {
             access_token: "intercomABC",
-            tag_contacts: false,
+            tag_leads: false,
             synchronized_lead_segments: ["lead_segment_1"],
             synchronized_user_segments: [],
             lead_claims: [
@@ -172,9 +173,9 @@ describe("Update Lead Tests", () => {
             ],
             outgoing_lead_attributes: [
               { hull: 'intercom_lead/name', service: 'name' },
-              { hull: 'intercom_lead/description', service: 'custom_attributes.c_description' },
-              { hull: 'intercom_lead/job_title', service: 'custom_attributes.job_title' },
-              { hull: 'account.description', service: 'custom_attributes.c_description' }
+              { hull: 'intercom_lead/description', service: 'c_description' },
+              { hull: 'intercom_lead/job_title', service: 'job_title' },
+              { hull: 'account.description', service: 'c_description' }
             ],
             incoming_lead_attributes: [
               { service: 'email', hull: 'traits_intercom_lead/email', overwrite: true },
@@ -380,6 +381,10 @@ describe("Update Lead Tests", () => {
             }
           });
 
+          scope
+            .get("/data_attributes?model=contact")
+            .reply(200, contactFields);
+
           return scope;
         },
         messages: [
@@ -442,6 +447,10 @@ describe("Update Lead Tests", () => {
               "vars": {}
             }
           ],
+          ["debug", "connector.service_api.call", { "request_id": expect.whatever() }, {
+            "responseTime": expect.whatever(),
+            "method": "GET", "url": "/data_attributes?model=contact", "status": 200, "vars": {}
+          }],
           [
             "debug",
             "connector.service_api.call",
@@ -612,6 +621,8 @@ describe("Update Lead Tests", () => {
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()]
         ],
         platformApiCalls: []
@@ -628,7 +639,7 @@ describe("Update Lead Tests", () => {
         connector: {
           private_settings: {
             access_token: "intercomABC",
-            tag_contacts: false,
+            tag_leads: false,
             synchronized_lead_segments: ["lead_segment_1"],
             synchronized_user_segments: [],
             lead_claims: [
@@ -636,9 +647,9 @@ describe("Update Lead Tests", () => {
             ],
             outgoing_lead_attributes: [
               { hull: 'intercom_lead/name', service: 'name' },
-              { hull: 'intercom_lead/description', service: 'custom_attributes.c_description' },
-              { hull: 'intercom_lead/job_title', service: 'custom_attributes.job_title' },
-              { hull: 'account.description', service: 'custom_attributes.c_description' }
+              { hull: 'intercom_lead/description', service: 'c_description' },
+              { hull: 'intercom_lead/job_title', service: 'job_title' },
+              { hull: 'account.description', service: 'c_description' }
             ],
             incoming_lead_attributes: [
               { service: 'email', hull: 'traits_intercom_lead/email', overwrite: true },
@@ -739,6 +750,10 @@ describe("Update Lead Tests", () => {
               }
           });
 
+          scope
+            .get("/data_attributes?model=contact")
+            .reply(200, contactFields);
+
           return scope;
         },
         messages: [
@@ -788,6 +803,10 @@ describe("Update Lead Tests", () => {
               "reason": "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment"
             }
           ],
+          ["debug", "connector.service_api.call", { "request_id": expect.whatever() }, {
+            "responseTime": expect.whatever(),
+            "method": "GET", "url": "/data_attributes?model=contact", "status": 200, "vars": {}
+          }],
           [
             "debug",
             "connector.service_api.call",
@@ -955,6 +974,8 @@ describe("Update Lead Tests", () => {
         ],
         metrics: [
           ["increment","connector.request",1],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()]
         ],

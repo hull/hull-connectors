@@ -2,6 +2,7 @@
 
 import type { ServiceObjectDefinition } from "./types";
 import type { HullAccountUpdateMessage, HullContext, HullEntityName, HullUserUpdateMessage } from "hull";
+import type { HullSegment } from "hull-client/src/types";
 const _ = require("lodash");
 const debug = require("debug")("hull-shared:utils");
 const {
@@ -173,6 +174,11 @@ function createAnonymizedObject(object, pathsToAnonymize = {
   }, 2);
 }
 
+function matchesUserSegments(message: HullUserUpdateMessage, synchronizedSegments: Array<HullSegment>): boolean {
+  const userSegmentIds = _.compact(message.segments).map(s => s.id);
+  return _.intersection(userSegmentIds, synchronizedSegments).length > 0;
+}
+
 /**
  * TODO break apart method so can unit test individual pieces...
  * @param  {[type]} context                 [description]
@@ -212,6 +218,33 @@ function toSendMessage(
   // right? or should we just send the identifiers?
   // we'll keep it for now.
   if (context.isBatch) {
+
+    const synchronizedUserSegments = _.get(
+      context,
+      "connector.private_settings.synchronized_user_segments"
+    );
+    const synchronizedLeadSegments = _.get(
+      context,
+      "connector.private_settings.synchronized_lead_segments"
+    );
+
+    if (!_.isNil(synchronizedUserSegments) && !_.isNil(synchronizedLeadSegments)) {
+      const matchesUser = matchesUserSegments(message, synchronizedUserSegments);
+      const matchesLead = matchesUserSegments(message, synchronizedLeadSegments);
+
+      if (!matchesUser && !matchesLead) {
+        return false;
+      }
+
+      if (targetEntity === "user" && (!matchesUser || (matchesUser && matchesLead))) {
+        return false;
+      }
+
+      if (targetEntity === "lead" && !matchesLead) {
+        return false;
+      }
+    }
+
     return true;
   }
 

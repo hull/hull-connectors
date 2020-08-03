@@ -1,12 +1,14 @@
 [
   {
     "label": "Tags",
+    "name": "tags",
     "full_name": "tags",
-    "api_writable": true
+    "api_writable": false
   },
   {
     "label": "Segments",
+    "name": "segments",
     "full_name": "segments",
-    "api_writable": true
+    "api_writable": false
   }
 ]

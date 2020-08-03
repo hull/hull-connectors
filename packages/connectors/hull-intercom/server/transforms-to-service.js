@@ -2,12 +2,13 @@
 
 import type { ServiceTransforms } from "hull-connector-framework/src/purplefusion/types";
 
-import { HullOutgoingUser, HullOutgoingEvent } from "hull-connector-framework/src/purplefusion/hull-service-objects";
-import { IntercomUserWrite, IntercomLeadWrite, IntercomEventWrite } from "./service-objects";
+import { HullOutgoingUser, HullOutgoingEvent, HullApiAttributeDefinition } from "hull-connector-framework/src/purplefusion/hull-service-objects";
+import { IntercomUserWrite, IntercomLeadWrite, IntercomEventWrite, IntercomAttributeWrite } from "./service-objects";
 
 import {
   varUndefinedOrNull,
-  not
+  not,
+  varInResolvedArray
 } from "hull-connector-framework/src/purplefusion/conditionals";
 
 const _ = require("lodash");
@@ -32,13 +33,35 @@ function contactTransformation({ entityType }) {
       expand: { valueName: "mapping" },
       then: [
         {
-          operateOn: { component: "input", select: "user.${mapping.hull}" },
-          writeTo: { path: "${mapping.service}" }
+          condition: [
+            varInResolvedArray("mapping.service", "${contact_custom_attributes}")
+          ],
+          then: [
+            {
+              operateOn: { component: "input", select: "user.${mapping.hull}" },
+              writeTo: { path: "custom_attributes.${mapping.service}" }
+            },
+            {
+              operateOn: { component: "input", select: "${mapping.hull}" },
+              writeTo: { path: "custom_attributes.${mapping.service}" }
+            }
+          ]
         },
         {
-          operateOn: { component: "input", select: "${mapping.hull}" },
-          writeTo: { path: "${mapping.service}" }
-        },
+          condition: [
+            not(varInResolvedArray("mapping.service", "${contact_custom_attributes}"))
+          ],
+          then: [
+            {
+              operateOn: { component: "input", select: "user.${mapping.hull}" },
+              writeTo: { path: "${mapping.service}" }
+            },
+            {
+              operateOn: { component: "input", select: "${mapping.hull}" },
+              writeTo: { path: "${mapping.service}" }
+            }
+          ]
+        }
       ]
     },
     {
@@ -117,6 +140,21 @@ const transformsToService: ServiceTransforms = [
             }
           }
         }
+      }
+    ]
+  },
+  {
+    input: HullApiAttributeDefinition,
+    output: IntercomAttributeWrite,
+    direction: "outgoing",
+    strategy: "AtomicReaction",
+    target: { component: "new" },
+    then: [
+      { writeTo: { path: "model", value: "contact" } },
+      { writeTo: { path: "data_type", value: "string" } },
+      {
+        operateOn: { component: "input", select: "service" },
+        writeTo: { path: "name" }
       }
     ]
   }

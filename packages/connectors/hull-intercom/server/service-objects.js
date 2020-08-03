@@ -32,9 +32,29 @@ const IntercomEventWrite: ServiceObjectDefinition = {
   name: "Event"
 };
 
-const IntercomAttributeDefinition: ServiceObjectDefinition = {
-  service_name: "intercom_attribute_definition",
-  name: "IntercomAttributeDefinition"
+const IntercomAttributeWrite: ServiceObjectDefinition = {
+  service_name: "intercom_attribute_write",
+  name: "IntercomAttribute"
+};
+
+const IntercomAttributeRead: ServiceObjectDefinition = {
+  service_name: "intercom_attribute_read",
+  name: "IntercomAttribute"
+};
+
+const IntercomIncomingAttributeDefinition: ServiceObjectDefinition = {
+  service_name: "intercom_incoming_attribute_definition",
+  name: "IntercomIncomingAttributeDefinition"
+};
+
+const IntercomOutgoingAttributeDefinition: ServiceObjectDefinition = {
+  service_name: "intercom_outgoing_attribute_definition",
+  name: "IntercomOutgoingAttributeDefinition"
+};
+
+const IntercomAttributeMapping: ServiceObjectDefinition = {
+  service_name: "intercom_attribute_mapping",
+  name: "IntercomAttributeMapping"
 };
 
 module.exports = {
@@ -44,5 +64,9 @@ module.exports = {
   IntercomUserWrite,
   IntercomLeadWrite,
   IntercomEventWrite,
-  IntercomAttributeDefinition
+  IntercomIncomingAttributeDefinition,
+  IntercomOutgoingAttributeDefinition,
+  IntercomAttributeWrite,
+  IntercomAttributeRead,
+  IntercomAttributeMapping
 };

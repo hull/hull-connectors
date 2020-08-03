@@ -16,12 +16,17 @@ import {
   serviceUserTransforms
 } from "hull-connector-framework/src/purplefusion/transform-predefined";
 
-import { HullIncomingAccount, HullIncomingUser, HullConnectorAttributeDefinition } from "hull-connector-framework/src/purplefusion/hull-service-objects";
+import {
+  HullIncomingAccount,
+  HullIncomingUser,
+  HullConnectorAttributeDefinition
+} from "hull-connector-framework/src/purplefusion/hull-service-objects";
 import {
   IntercomCompanyRead,
   IntercomUserRead,
   IntercomLeadRead,
-  IntercomAttributeDefinition
+  IntercomIncomingAttributeDefinition,
+  IntercomOutgoingAttributeDefinition
 } from "./service-objects";
 
 const _ = require("lodash");
@@ -174,13 +179,23 @@ function contactTransformation({ entityType }) {
 
 const transformsToService: ServiceTransforms = [
   {
-    input: IntercomAttributeDefinition,
+    input: IntercomIncomingAttributeDefinition,
     output: HullConnectorAttributeDefinition,
     strategy: "Jsonata",
     direction: "incoming",
     batchTransform: true,
     transforms: [
       `$.{ "type": data_type, "name": full_name, "display": label, "readOnly": $not(api_writable) }`
+    ]
+  },
+  {
+    input: IntercomOutgoingAttributeDefinition,
+    output: HullConnectorAttributeDefinition,
+    strategy: "Jsonata",
+    direction: "incoming",
+    batchTransform: true,
+    transforms: [
+      `$.{ "type": data_type, "name": name, "display": label, "readOnly": $not(api_writable) }`
     ]
   },
   {

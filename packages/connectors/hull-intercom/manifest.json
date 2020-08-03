@@ -26,11 +26,11 @@
       "handler": "oauth",
       "url": "/auth",
       "options": {
+        "tokenInUrl": false,
         "name": "Intercom",
-        "scope": ["refresh_token", "api"],
         "strategy": {
-          "name": "Intercom",
-          "scope": ["refresh_token", "api"]
+          "authorizationURL": "https://app.intercom.com/oauth",
+          "grant_type": "authorization_code"
         }
       }
     },
@@ -169,14 +169,12 @@
       "description": "List of Lead fields to send from Hull to Intercom",
       "type": "array",
       "format": "traitMapping",
-      "default": [
-        { "service": "tags", "hull": "intercom_lead/tags", "readOnly": true, "overwrite": true }
-      ],
+      "default": [],
       "options": {
         "direction": "outgoing",
         "showOverwriteToggle": true,
         "placeholder": "Intercom Field",
-        "allowCreate": false,
+        "allowCreate": true,
         "loadOptions": "/schema/contact_fields_writable"
       }
     },
@@ -238,7 +236,7 @@
         "direction": "outgoing",
         "showOverwriteToggle": true,
         "placeholder": "Intercom Field",
-        "allowCreate": false,
+        "allowCreate": true,
         "loadOptions": "/schema/contact_fields_writable"
       }
     },
@@ -332,9 +330,16 @@
       "default": true
     },
     {
-      "name": "tag_contacts",
-      "title": "Tag Contacts",
-      "description": "Should Tag Contacts",
+      "name": "tag_users",
+      "title": "Tag Users",
+      "description": "Should Tag Users",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "tag_leads",
+      "title": "Tag Leads",
+      "description": "Should Tag Leads",
       "type": "boolean",
       "default": true
     },
@@ -502,15 +507,6 @@
       "options": {
         "fireAndForget": true
       }
-    },
-    {
-      "url": "/fetch-segments",
-      "type": "interval",
-      "value": "60",
-      "handler": "fetchSegments",
-      "options": {
-        "fireAndForget": true
-      }
     }
   ],
   "subscriptions": [
@@ -522,12 +518,8 @@
           "handler": "userUpdate"
         },
         {
-          "channel": "users_segment:update",
-          "handler": "userSegmentUpdate"
-        },
-        {
-          "channel": "users_segment:delete",
-          "handler": "userSegmentDelete"
+          "channel": "ship:update",
+          "handler": "shipUpdate"
         }
       ],
       "conditions" : {
@@ -538,7 +530,7 @@
           ]
         },
         "channels": {
-          "only": ["user:update", "users_segment:update", "users_segment:delete", "ship:update"]
+          "only": ["user:update", "ship:update"]
         }
       }
     }
@@ -552,7 +544,7 @@
       ]
     },
     {
-      "title": "Fetching Leads from Intercom",
+      "title": "Fetch Leads from Intercom",
       "description": "",
       "properties": [
         "private_settings.fetch_leads",
@@ -561,15 +553,16 @@
       ]
     },
     {
-      "title": "Sending Leads to Intercom",
+      "title": "Send Leads to Intercom",
       "description": "",
       "properties": [
+        "private_settings.tag_leads",
         "private_settings.synchronized_lead_segments",
         "private_settings.outgoing_lead_attributes"
       ]
     },
     {
-      "title": "Fetching Users from Intercom",
+      "title": "Fetch Users from Intercom",
       "description": "",
       "properties": [
         "private_settings.fetch_users",
@@ -578,12 +571,19 @@
       ]
     },
     {
-      "title": "Sending Users to Intercom",
+      "title": "Send Users to Intercom",
       "description": "",
       "properties": [
-        "private_settings.tag_contacts",
+        "private_settings.tag_users",
         "private_settings.synchronized_user_segments",
         "private_settings.outgoing_user_attributes",
+        "private_settings.outgoing_events"
+      ]
+    },
+    {
+      "title": "Send Events to Intercom",
+      "description": "",
+      "properties": [
         "private_settings.outgoing_events"
       ]
     },
@@ -595,7 +595,7 @@
       ]
     },
     {
-      "title": "Company Incoming Data",
+      "title": "Fetch Companies from Intercom",
       "step": "incoming",
       "description": "Fetch Companies From Intercom",
       "properties": [

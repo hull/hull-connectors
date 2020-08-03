@@ -2,6 +2,7 @@
 import connectorConfig from "../../../../server/config";
 
 const testScenario = require("hull-connector-framework/src/test-scenario");
+const contactFields = require("../attributes/api-responses/get-contact-fields-response.json");
 
 process.env.CLIENT_ID = "123";
 process.env.CLIENT_SECRET = "123";
@@ -18,7 +19,7 @@ describe("Update User Tests", () => {
         connector: {
           private_settings: {
             access_token: "intercomABC",
-            tag_contacts: false,
+            tag_users: false,
             synchronized_user_segments: ["user_segment_1"],
             user_claims: [
               { hull: 'email', service: 'email' },
@@ -26,9 +27,9 @@ describe("Update User Tests", () => {
             ],
             outgoing_user_attributes: [
               { hull: 'intercom_user/name', service: 'name' },
-              { hull: 'intercom_user/description', service: 'custom_attributes.c_description' },
-              { hull: 'intercom_user/job_title', service: 'custom_attributes.job_title' },
-              { hull: 'account.description', service: 'custom_attributes.c_description' }
+              { hull: 'intercom_user/description', service: 'c_description' },
+              { hull: 'intercom_user/job_title', service: 'job_title' },
+              { hull: 'account.description', service: 'c_description' }
             ],
             incoming_user_attributes: [
               { service: 'email', hull: 'traits_intercom_user/email', overwrite: true },
@@ -129,6 +130,10 @@ describe("Update User Tests", () => {
               }
           });
 
+          scope
+            .get("/data_attributes?model=contact")
+            .reply(200, contactFields);
+
           return scope;
         },
         messages: [
@@ -167,6 +172,10 @@ describe("Update User Tests", () => {
             { "request_id": expect.whatever() },
             { "jobName": "Outgoing Data", "type": "user" }
           ],
+          ["debug", "connector.service_api.call", { "request_id": expect.whatever() }, {
+            "responseTime": expect.whatever(),
+            "method": "GET", "url": "/data_attributes?model=contact", "status": 200, "vars": {}
+          }],
           [
             "debug",
             "connector.service_api.call",
@@ -336,6 +345,8 @@ describe("Update User Tests", () => {
         ],
         metrics: [
           ["increment","connector.request",1],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()]
         ],

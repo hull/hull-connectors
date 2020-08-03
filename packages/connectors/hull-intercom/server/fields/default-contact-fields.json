@@ -1,21 +1,25 @@
 [
   {
     "label": "Companies",
+    "name": "companies",
     "full_name": "companies",
     "api_writable": false
   },
   {
     "label": "Tags",
+    "name": "tags",
     "full_name": "tags",
     "api_writable": false
   },
   {
     "label": "Segments",
+    "name": "segments",
     "full_name": "segments",
     "api_writable": false
   },
   {
     "label": "Social Profiles",
+    "name": "social_profiles",
     "full_name": "social_profiles",
     "api_writable": false
   }

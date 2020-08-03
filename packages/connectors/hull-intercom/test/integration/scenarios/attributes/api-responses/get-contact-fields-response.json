@@ -360,6 +360,21 @@
       "model": "contact"
     },
     {
+      "id": 7678376,
+      "type": "data_attribute",
+      "name": "c_description",
+      "full_name": "custom_attributes.c_description",
+      "label": "c_description",
+      "data_type": "string",
+      "api_writable": true,
+      "ui_writable": false,
+      "custom": true,
+      "archived": false,
+      "created_at": 1595434500,
+      "updated_at": 1595434500,
+      "model": "contact"
+    },
+    {
       "id": 7686420,
       "type": "data_attribute",
       "name": "MyCustomDescription",

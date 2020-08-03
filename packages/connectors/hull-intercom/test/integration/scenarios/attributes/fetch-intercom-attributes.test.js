@@ -11,7 +11,115 @@ process.env.COMBINED = true;
 
 describe("Fetch Intercom Attributes Tests", () => {
 
-  it("should fetch all contact attributes and build attribute mapper options", () => {
+  it("should fetch api_writable contact attributes and build outgoing attribute mapper options", () => {
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+      return {
+        handlerType: handlers.jsonHandler,
+        handlerUrl: "schema/contact_fields_writable",
+        connector: {
+          private_settings: {
+            access_token: "12345"
+          }
+        },
+        usersSegments: [],
+        accountsSegments: [],
+        externalApiMock: () => {
+          const scope = nock("https://api.intercom.io");
+
+          scope
+            .get("/data_attributes?model=contact")
+            .reply(200, contactFields);
+
+          return scope;
+        },
+        response: {
+          "options": [
+            {
+              "label": "Contact role",
+              "value": "role"
+            },
+            {
+              "label": "Name",
+              "value": "name"
+            },
+            {
+              "label": "Owner",
+              "value": "owner_id"
+            },
+            {
+              "label": "Email",
+              "value": "email"
+            },
+            {
+              "label": "Phone",
+              "value": "phone"
+            },
+            {
+              "label": "User ID",
+              "value": "external_id"
+            },
+            {
+              "label": "Signed up",
+              "value": "signed_up_at"
+            },
+            {
+              "label": "Last seen",
+              "value": "last_seen_at"
+            },
+            {
+              "label": "Unsubscribed from Emails",
+              "value": "unsubscribed_from_emails"
+            },
+            {
+              "label": "job_title",
+              "value": "job_title"
+            },
+            {
+              "label": "customerDepartment",
+              "value": "customerDepartment"
+            },
+            {
+              "label": "c_domain",
+              "value": "c_domain"
+            },
+            {
+              "label": "c_description",
+              "value": "c_description"
+            },
+            {
+              "label": "MyCustomDescription",
+              "value": "MyCustomDescription"
+            },
+            {
+              "label": "Avatar image url",
+              "value": "avatar"
+            }
+          ]
+        },
+        logs: [
+          ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" }],
+          ["debug", "connector.service_api.call", {}, {
+            "responseTime": expect.whatever(),
+            "method": "GET", "url": "/data_attributes?model=contact", "status": 200, "vars": {}
+          }],
+          ["info", "incoming.job.success", {}, { "jobName": "Incoming Data", "type": "webpayload" }]
+        ],
+        firehoseEvents: [],
+        metrics: [
+          ["increment", "connector.request", 1],
+          ["increment", "ship.service_api.call", 1],
+          ["value", "connector.service_api.response_time",expect.whatever()]
+        ],
+        platformApiCalls: [
+          ["GET", "/api/v1/app", {}, {}],
+          ["GET", "/api/v1/users_segments?shipId=9993743b22d60dd829001999", { "shipId": "9993743b22d60dd829001999" }, {}],
+          ["GET", "/api/v1/accounts_segments?shipId=9993743b22d60dd829001999", { "shipId": "9993743b22d60dd829001999" }, {}]
+        ]
+      };
+    });
+  });
+
+  it("should fetch all contact attributes and build incoming attribute mapper options", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.jsonHandler,
@@ -157,6 +265,10 @@ describe("Fetch Intercom Attributes Tests", () => {
             "label": "c_domain",
             "value": "custom_attributes.c_domain"
           },
+            {
+            "label": "c_description",
+            "value": "custom_attributes.c_description"
+          },
           {
             "label": "MyCustomDescription",
             "value": "custom_attributes.MyCustomDescription"
@@ -217,111 +329,7 @@ describe("Fetch Intercom Attributes Tests", () => {
     });
   });
 
-  it("should fetch api_writable contact attributes and build attribute mapper options", () => {
-    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
-      return {
-        handlerType: handlers.jsonHandler,
-        handlerUrl: "schema/contact_fields_writable",
-        connector: {
-          private_settings: {
-            access_token: "12345"
-          }
-        },
-        usersSegments: [],
-        accountsSegments: [],
-        externalApiMock: () => {
-          const scope = nock("https://api.intercom.io");
-
-          scope
-            .get("/data_attributes?model=contact")
-            .reply(200, contactFields);
-
-          return scope;
-        },
-        response: {
-          "options": [
-            {
-              "label": "Contact role",
-              "value": "role"
-            },
-            {
-              "label": "Name",
-              "value": "name"
-            },
-            {
-              "label": "Owner",
-              "value": "owner_id"
-            },
-            {
-              "label": "Email",
-              "value": "email"
-            },
-            {
-              "label": "Phone",
-              "value": "phone"
-            },
-            {
-              "label": "User ID",
-              "value": "external_id"
-            },
-            {
-              "label": "Signed up",
-              "value": "signed_up_at"
-            },
-            {
-              "label": "Last seen",
-              "value": "last_seen_at"
-            },
-            {
-              "label": "Unsubscribed from Emails",
-              "value": "unsubscribed_from_emails"
-            },
-            {
-              "label": "job_title",
-              "value": "custom_attributes.job_title"
-            },
-            {
-              "label": "customerDepartment",
-              "value": "custom_attributes.customerDepartment"
-            },
-            {
-              "label": "c_domain",
-              "value": "custom_attributes.c_domain"
-            },
-            {
-              "label": "MyCustomDescription",
-              "value": "custom_attributes.MyCustomDescription"
-            },
-            {
-              "label": "Avatar image url",
-              "value": "avatar"
-            }
-          ]
-        },
-        logs: [
-          ["info", "incoming.job.start", {}, { "jobName": "Incoming Data", "type": "webpayload" }],
-          ["debug", "connector.service_api.call", {}, {
-            "responseTime": expect.whatever(),
-            "method": "GET", "url": "/data_attributes?model=contact", "status": 200, "vars": {}
-          }],
-          ["info", "incoming.job.success", {}, { "jobName": "Incoming Data", "type": "webpayload" }]
-        ],
-        firehoseEvents: [],
-        metrics: [
-          ["increment", "connector.request", 1],
-          ["increment", "ship.service_api.call", 1],
-          ["value", "connector.service_api.response_time",expect.whatever()]
-        ],
-        platformApiCalls: [
-          ["GET", "/api/v1/app", {}, {}],
-          ["GET", "/api/v1/users_segments?shipId=9993743b22d60dd829001999", { "shipId": "9993743b22d60dd829001999" }, {}],
-          ["GET", "/api/v1/accounts_segments?shipId=9993743b22d60dd829001999", { "shipId": "9993743b22d60dd829001999" }, {}]
-        ]
-      };
-    });
-  });
-
-  it("should fetch all company attributes and build attribute mapper options", () => {
+  it("should fetch all company attributes and build incoming attribute mapper options", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.jsonHandler,

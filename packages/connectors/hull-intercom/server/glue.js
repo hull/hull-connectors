@@ -4,9 +4,13 @@ import {
   IntercomUserRead,
   IntercomLeadRead,
   IntercomCompanyRead,
-  IntercomAttributeDefinition
+  IntercomIncomingAttributeDefinition,
+  IntercomOutgoingAttributeDefinition,
+  IntercomAttributeWrite,
+  IntercomAttributeMapping
 } from "./service-objects";
 import { filterL, inc } from "hull-connector-framework/src/purplefusion/language";
+import { HullApiAttributeDefinition } from "hull-connector-framework/src/purplefusion/hull-service-objects";
 
 const _ = require("lodash");
 
@@ -14,7 +18,8 @@ const {
   HullIncomingDropdownOption,
   HullOutgoingDropdownOption,
   HullOutgoingUser,
-  HullOutgoingEvent
+  HullOutgoingEvent,
+  HullAttributeMapping
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const defaultContactFields = require("./fields/default-contact-fields.json");
@@ -43,10 +48,12 @@ const {
   transformTo,
   cacheLock,
   cacheGet,
+  cacheSet,
   notFilter,
   not,
   utils,
-  filter
+  filter,
+  cacheWrap
 } = require("hull-connector-framework/src/purplefusion/language");
 
 function intercom(op: string, param?: any): Svc {
@@ -58,22 +65,35 @@ const glue = {
     set("intercomApiVersion", "2.1"),
     set("service_name", "intercom")
   ],
+  shipUpdate: [
+    route("syncDataAttributes")
+  ],
+  status: ifL(cond("isEmpty", settings("access_token")), {
+    do: {
+      status: "setupRequired",
+      message: "'Connector has not been authenticated with Intercom."
+    },
+    eldo: {
+      status: "ok",
+      message: "allgood"
+    }
+  }),
   deleteContact: [],
   deleteUser: [],
   contactFieldsInbound: returnValue([
-      set("contactInboundFields", ld("concat", defaultContactFields, intercom("getContactFields")))
+      set("contactInboundFields", ld("concat", defaultContactFields, intercom("getContactDataAttributes")))
     ],
-    transformTo(HullIncomingDropdownOption, cast(IntercomAttributeDefinition, "${contactInboundFields}"))
+    transformTo(HullIncomingDropdownOption, cast(IntercomIncomingAttributeDefinition, "${contactInboundFields}"))
   ),
   contactFieldsOutbound: returnValue([
-      set("contactOutboundFields", ld("concat", defaultContactFields, intercom("getContactFields")))
+      set("contactOutboundFields", ld("concat", defaultContactFields, intercom("getContactDataAttributes")))
     ],
-    transformTo(HullOutgoingDropdownOption, cast(IntercomAttributeDefinition, "${contactOutboundFields}"))
+    transformTo(HullOutgoingDropdownOption, cast(IntercomOutgoingAttributeDefinition, "${contactOutboundFields}"))
   ),
   companyFieldsInbound: returnValue([
-      set("companyInboundFields", ld("concat", defaultCompanyFields, intercom("getCompanyFields")))
+      set("companyInboundFields", ld("concat", defaultCompanyFields, intercom("getCompanyDataAttributes")))
     ],
-    transformTo(HullIncomingDropdownOption, cast(IntercomAttributeDefinition, "${companyInboundFields}"))
+    transformTo(HullIncomingDropdownOption, cast(IntercomIncomingAttributeDefinition, "${companyInboundFields}"))
   ),
   refreshToken: [],
   isConfigured: cond("allTrue", [
@@ -250,8 +270,8 @@ const glue = {
   contactUpdateStart: [
     cacheLock(input("user.id"),
       ifL(or([
-          set("contactId", input("user.intercom_${service_type}/id")),
-          set("contactId", cacheGet(input("user.id")))
+          set("contactId", cacheGet(input("user.id"))),
+          set("contactId", input("user.intercom_${service_type}/id"))
         ]), {
           do: [
             route("updateContact")
@@ -283,29 +303,37 @@ const glue = {
   ],
   updateContact: [
     set("updateRoute", ld("camelCase", "update_${service_type}")),
+
+    // TODO cacheWrap
+    set("contactDataAttributes", intercom("getContactDataAttributes")),
+    set("contact_custom_attributes", ld("map", filter({ "custom": true }, "${contactDataAttributes}"), "name")),
     ifL(cond("notEmpty", set("contactFromIntercom", intercom("${updateRoute}", input()))),
       [
         hull("asUser","${contactFromIntercom}"),
         ifL(cond("notEmpty", settings("outgoing_events")), [
           route("sendEvents")
         ]),
-        ifL(cond("isEqual", settings("tag_contacts"), true), [
-          route("handleContactTags")
-        ])
+        route("checkTags")
       ]
     )
   ],
   insertContact: [
     set("insertRoute", ld("camelCase", "insert_${service_type}")),
+
+    // TODO cacheWrap
+    set("contactDataAttributes", intercom("getContactDataAttributes")),
+
+    set("outgoing_lead_attributes", transformTo(IntercomAttributeMapping, cast(HullAttributeMapping, settings("outgoing_lead_attributes")))),
+    set("outgoing_user_attributes", transformTo(IntercomAttributeMapping, cast(HullAttributeMapping, settings("outgoing_user_attributes")))),
+    set("contact_custom_attributes", ld("map", filter({ "custom": true }, "${contactDataAttributes}"), "name")),
+
     ifL(cond("notEmpty", set("contactFromIntercom", intercom("${insertRoute}", input()))),
       [
         hull("asUser","${contactFromIntercom}"),
         ifL(cond("notEmpty", settings("outgoing_events")), [
           route("sendEvents")
         ]),
-        ifL(cond("isEqual", settings("tag_contacts"), true), [
-          route("handleContactTags")
-        ])
+        route("checkTags")
       ]
     )
   ],
@@ -344,17 +372,34 @@ const glue = {
       ]
     })
   ],
+  checkTags: [
+    ifL([
+      cond("isEqual", settings("tag_leads"), true),
+      cond("isEqual", "${service_type}", "lead")
+    ], [
+      route("handleContactTags")
+    ]),
+    ifL([
+      cond("isEqual", settings("tag_users"), true),
+      cond("isEqual", "${service_type}", "user")
+    ], [
+      route("handleContactTags")
+    ])
+  ],
   handleContactTags: [
     set("allTags", intercom("getAllTags")),
 
     set("contactId", "${contactFromIntercom.id}"),
     set("contactTags", ld("map", intercom("getContactTags"), "name")),
 
-    set("segmentsEntered", ld("map", input("changes.segments.entered"), "name")),
+    set("tagsOnHullUser", input("user.intercom_lead/tags")),
+
+    set("segmentsIn", ld("map", input("segments"), "name")),
     set("segmentsLeft", ld("map", input("changes.segments.left"), "name")),
 
-    iterateL("${segmentsEntered}", "segmentName", [
-      set("existingTag", filter({ name: "${segmentName}" }, "${allTags}")),
+    set("missingTags", ld("difference", "${segmentsIn}", "${tagsOnHullUser}")),
+    iterateL("${missingTags}", "segmentName", [
+      set("existingTag", filter({ name: ld("trim", "${segmentName}") }, "${allTags}")),
       ifL(cond("notEmpty", "${existingTag}"), {
         do: [
           ifL(not(ld("includes", "${contactTags}", "${existingTag[0].name}")), [
@@ -401,6 +446,30 @@ const glue = {
         ])
       ])
     ]),
+  ],
+  syncDataAttributes: [
+    cacheLock("syncingAttributes",
+      [
+        set("outgoing_user_attributes", settings("outgoing_user_attributes")),
+        set("outgoing_lead_attributes", settings("outgoing_lead_attributes")),
+
+        set("contactDataAttributes", intercom("getContactDataAttributes")),
+
+        iterateL(ld("concat", "${outgoing_user_attributes}", "${outgoing_lead_attributes}"), "attribute", [
+          ifL([
+            cond("isEmpty", filter({ name: "${attribute.service}" }, "${contactDataAttributes}"))
+          ], [
+            set("attributeProcessing", cacheGet("${attributeName}")),
+            ifL(cond("isEmpty", "${processing}"), [
+              cacheSet({ key: "${attributeName}" }, "attributeProcessing"),
+
+              set("intercomAttribute", transformTo(IntercomAttributeWrite, cast(HullApiAttributeDefinition, "${attribute}"))),
+              intercom("createDataAttribute", "${intercomAttribute}")
+            ])
+          ])
+        ])
+      ]
+    )
   ]
 };
 
