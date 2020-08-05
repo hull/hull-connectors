@@ -18,14 +18,18 @@ describe("Fetch All Companies Tests", () => {
           private_settings: {
             access_token: "12345",
             fetch_companies: false,
+            account_claims: [
+              { "hull": "external_id", "service": "company_id", "required": false },
+              { "hull": "domain", "service": "website", "required": false }
+            ],
             incoming_account_attributes: [
-              { hull: "intercom/tags", service: "tags", "overwrite": true },
-              { hull: "intercom/segments", service: "segments", "overwrite": true },
+              { hull: "intercom/c_tags", service: "tags", "overwrite": true },
+              { hull: "intercom/c_segments", service: "segments", "overwrite": true },
               { hull: 'intercom/web_sessions', service: 'session_count', overwrite: true },
               { hull: 'intercom/website', service: 'website', overwrite: true },
               { hull: 'intercom/name', service: 'name', overwrite: true },
               { hull: 'intercom/monthly_spend', service: 'monthly_spend', overwrite: true },
-              { hull: 'intercom/description', service: 'company_description', overwrite: true }
+              { hull: 'intercom/description', service: 'custom_attributes.company_description', overwrite: true }
             ]
           }
         },
@@ -294,50 +298,6 @@ describe("Fetch All Companies Tests", () => {
             "traits",
             {
               "asAccount": {
-                "external_id": "5f187aa44fd1ce23c1cf25f8-qualification-company",
-                "anonymous_id": "intercom:5f187aa44fd1ce23c1cf25f7"
-              },
-              "subjectType": "account"
-            },
-            {
-              "intercom/segments": {
-                "operation": "set",
-                "value": [
-                  "CompanySegment1",
-                  "CompanySegment2",
-                  "CompanySegment3"
-                ]
-              },
-              "intercom/tags": {
-                "operation": "set",
-                "value": []
-              },
-              "intercom/web_sessions": {
-                "operation": "set",
-                "value": 8
-              },
-              "intercom/name": {
-                "operation": "set",
-                "value": "Sony"
-              },
-              "intercom/monthly_spend": {
-                "operation": "set",
-                "value": 2000
-              },
-              "intercom/id": {
-                "operation": "set",
-                "value": "5f187aa44fd1ce23c1cf25f7"
-              },
-              "name": {
-                "operation": "setIfNull",
-                "value": "Sony"
-              }
-            }
-          ],
-          [
-            "traits",
-            {
-              "asAccount": {
                 "external_id": "5f161ef9ce73f3ea2605304f-qualification-company",
                 "domain": "rei.com",
                 "anonymous_id": "intercom:5f161ef9ce73f3ea2605304e"
@@ -345,11 +305,11 @@ describe("Fetch All Companies Tests", () => {
               "subjectType": "account"
             },
             {
-              "intercom/segments": {
+              "intercom/c_segments": {
                 "operation": "set",
                 "value": []
               },
-              "intercom/tags": {
+              "intercom/c_tags": {
                 "operation": "set",
                 "value": ["Tag1", "Tag2", "Tag3" ]
               },
@@ -380,6 +340,50 @@ describe("Fetch All Companies Tests", () => {
               "name": {
                 "operation": "setIfNull",
                 "value": "REI"
+              }
+            }
+          ],
+          [
+            "traits",
+            {
+              "asAccount": {
+                "external_id": "5f187aa44fd1ce23c1cf25f8-qualification-company",
+                "anonymous_id": "intercom:5f187aa44fd1ce23c1cf25f7"
+              },
+              "subjectType": "account"
+            },
+            {
+              "intercom/c_segments": {
+                "operation": "set",
+                "value": [
+                  "CompanySegment1",
+                  "CompanySegment2",
+                  "CompanySegment3"
+                ]
+              },
+              "intercom/c_tags": {
+                "operation": "set",
+                "value": []
+              },
+              "intercom/web_sessions": {
+                "operation": "set",
+                "value": 8
+              },
+              "intercom/name": {
+                "operation": "set",
+                "value": "Sony"
+              },
+              "intercom/monthly_spend": {
+                "operation": "set",
+                "value": 2000
+              },
+              "intercom/id": {
+                "operation": "set",
+                "value": "5f187aa44fd1ce23c1cf25f7"
+              },
+              "name": {
+                "operation": "setIfNull",
+                "value": "Sony"
               }
             }
           ]

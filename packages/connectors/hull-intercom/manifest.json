@@ -397,16 +397,6 @@
       ]
     }
   ],
-  "incoming": [
-    {
-      "url": "/intercom",
-      "handler": "webhook",
-      "options": {
-        "credentialsFromQuery": true,
-        "bodyParser": "json"
-      }
-    }
-  ],
   "json": [
     {
       "url": "/fetchAllLeads",
@@ -502,7 +492,7 @@
     {
       "url": "/fetch-recent-companies",
       "type": "interval",
-      "value": "5",
+      "value": "30",
       "handler": "fetchRecentCompanies",
       "options": {
         "fireAndForget": true

@@ -7,10 +7,13 @@ import {
   IntercomIncomingAttributeDefinition,
   IntercomOutgoingAttributeDefinition,
   IntercomAttributeWrite,
-  IntercomAttributeMapping
+  IntercomAttributeMapping,
+  IntercomWebhookLeadRead,
+  IntercomWebhookUserRead,
+  IntercomWebhookCompanyRead
 } from "./service-objects";
-import { filterL, inc } from "hull-connector-framework/src/purplefusion/language";
-import { HullApiAttributeDefinition } from "hull-connector-framework/src/purplefusion/hull-service-objects";
+import { filterL } from "hull-connector-framework/src/purplefusion/language";
+import { HullIncomingUser, HullApiAttributeDefinition } from "hull-connector-framework/src/purplefusion/hull-service-objects";
 
 const _ = require("lodash");
 
@@ -104,33 +107,39 @@ const glue = {
     set("fetchEnd", ex(moment(), "valueOf")),
   ],
   getFetchFields: [],
-  fetchRecentCompanies: ifL(
-    cond("allTrue", [
-      route("isConfigured"),
-      settings("fetch_companies")
-    ]), [
-      set("attributeOperation", "set"),
-      set("pageOffset", 1),
-      set("pageSize", 60),
-      set("lastFetchAt", settings("companies_last_fetch_timestamp")),
-      ifL(cond("isEmpty", "${lastFetchAt}"), [
-        set("lastFetchAt", ex(ex(moment(), "subtract", { minute: 5 }), "unix"))
-      ]),
-      settingsUpdate({companies_last_fetch_timestamp: ex(moment(), "unix") }),
-      loopL([
-        set("page", intercom("getRecentCompanies")),
-        set("intercomCompanies", filterL(or([
-          cond("greaterThan", "${company.updated_at}", "${lastFetchAt}"),
-          cond("isEqual", "${company.updated_at}", "${lastFetchAt}")
-        ]), "company", "${page.data}")),
-        iterateL("${intercomCompanies}", { key: "intercomCompany", async: true},
-          hull("asAccount", cast(IntercomCompanyRead, "${intercomCompany}"))
-        ),
-        ifL(or([
-          cond("isEqual", "${page.pages.next}", null),
-          cond("lessThan", get("updated_at", ld("last", "${page.data}")), "${lastFetchAt}")
-        ]), loopEndL()),
-        set("pageOffset", inc("${pageOffset}"))
+  fetchRecentCompanies: cacheLock("fetchRecentCompanies", [
+    ifL(
+      cond("allTrue", [
+        route("isConfigured"),
+        settings("fetch_companies")
+      ]), [
+        set("attributeOperation", "set"),
+        set("pageOffset", 1),
+        set("pageSize", 60),
+        set("lastFetchAt", settings("companies_last_fetch_timestamp")),
+        ifL(cond("isEmpty", "${lastFetchAt}"), [
+          set("lastFetchAt", ex(ex(moment(), "subtract", { minute: 5 }), "unix"))
+        ]),
+        settingsUpdate({companies_last_fetch_timestamp: ex(moment(), "unix") }),
+        loopL([
+          set("page", intercom("getAllCompaniesScroll")),
+
+          ifL(or([
+            cond("isEmpty", "${page}"),
+            cond("isEmpty", "${page.data}")
+          ]), loopEndL()),
+
+          set("intercomCompanies", filterL(or([
+            cond("greaterThan", "${company.updated_at}", "${lastFetchAt}"),
+            cond("isEqual", "${company.updated_at}", "${lastFetchAt}")
+          ]), "company", "${page.data}")),
+          iterateL("${intercomCompanies}", { key: "intercomCompany", async: true},
+            hull("asAccount", cast(IntercomCompanyRead, "${intercomCompany}"))
+          ),
+
+          set("offset", "${page.scroll_param}"),
+          set("page", [])
+        ])
       ])
   ]),
   fetchAllCompanies: ifL(
@@ -187,6 +196,7 @@ const glue = {
       ),
       ifL(or([
         cond("isEqual", "${page.pages.next}", undefined),
+        cond("isEmpty", "${page.pages.next}"),
         cond("lessThan", get("updated_at", ld("last", "${page.data}")), "${lastFetchAt}")
       ]), loopEndL()),
       set("pageOffset", "${page.pages.next.starting_after}")
@@ -470,6 +480,56 @@ const glue = {
         ])
       ]
     )
+  ],
+  webhooks: [
+    set("webhookData", input("data")),
+    set("webhookTopic", input("topic")),
+
+    ifL(cond("isEqual", "${webhookTopic}", "ping"), [
+
+    ]),
+    ifL(cond("isEqual", "${webhookTopic}", "company.created"), [
+      set("entity", transformTo(IntercomCompanyRead, cast(IntercomWebhookCompanyRead, input("data.item")))),
+      hull("asAccount", "${entity}")
+    ]),
+    ifL(or([
+      cond("isEqual", "${webhookTopic}", "contact.created"),
+      cond("isEqual", "${webhookTopic}", "contact.added_email"),
+      cond("isEqual", "${webhookTopic}", "contact.signed_up")
+    ]), [
+      set("entity", transformTo(IntercomLeadRead, cast(IntercomWebhookLeadRead, input("data.item")))),
+      hull("asUser", "${entity}")
+    ]),
+    ifL(or([
+      cond("isEqual", "${webhookTopic}", "user.created"),
+      cond("isEqual", "${webhookTopic}", "user.email.updated"),
+      cond("isEqual", "${webhookTopic}", "user.signed_up")
+    ]), [
+      set("entity", transformTo(IntercomUserRead, cast(IntercomWebhookUserRead, input("data.item")))),
+      hull("asUser", "${entity}")
+    ]),
+    ifL(or([
+      cond("isEqual", "${webhookTopic}", "user.deleted")
+    ]), [
+      set("userId", input("data.item.id")),
+      set("deletedAt", input("created_at")),
+      hull("userDeletedInService", cast(HullIncomingUser, { ident: { anonymous_id: "intercom-user:user-${userId}" }, attributes: { "intercom_user/deleted_at": "${deletedAt}" } }))
+    ]),
+
+    ifL(or([
+      cond("isEqual", "${webhookTopic}", "contact.tag.created"),
+      cond("isEqual", "${webhookTopic}", "contact.tag.deleted")
+    ]), [
+      set("entity", transformTo(IntercomLeadRead, cast(IntercomWebhookLeadRead, input("data.item.contact")))),
+      hull("asUser", "${entity}")
+    ]),
+    ifL(or([
+      cond("isEqual", "${webhookTopic}", "user.tag.created"),
+      cond("isEqual", "${webhookTopic}", "user.tag.deleted")
+    ]), [
+      set("entity", transformTo(IntercomUserRead, cast(IntercomWebhookUserRead, input("data.item.user")))),
+      hull("asUser", "${entity}")
+    ])
   ]
 };
 

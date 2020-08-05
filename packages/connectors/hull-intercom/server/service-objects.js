@@ -57,6 +57,21 @@ const IntercomAttributeMapping: ServiceObjectDefinition = {
   name: "IntercomAttributeMapping"
 };
 
+const IntercomWebhookLeadRead: ServiceObjectDefinition = {
+  service_name: "intercom_webhook_lead_read",
+  name: "Lead"
+};
+
+const IntercomWebhookUserRead: ServiceObjectDefinition = {
+  service_name: "intercom_webhook_user_read",
+  name: "User"
+};
+
+const IntercomWebhookCompanyRead: ServiceObjectDefinition = {
+  service_name: "intercom_webhook_company_read",
+  name: "Company"
+};
+
 module.exports = {
   IntercomCompanyRead,
   IntercomUserRead,
@@ -68,5 +83,8 @@ module.exports = {
   IntercomOutgoingAttributeDefinition,
   IntercomAttributeWrite,
   IntercomAttributeRead,
-  IntercomAttributeMapping
+  IntercomAttributeMapping,
+  IntercomWebhookLeadRead,
+  IntercomWebhookUserRead,
+  IntercomWebhookCompanyRead
 };

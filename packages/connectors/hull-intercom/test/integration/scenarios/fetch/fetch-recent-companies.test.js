@@ -26,7 +26,7 @@ describe("Fetch Recent Companies Tests", () => {
               { hull: 'intercom/website', service: 'website', overwrite: true },
               { hull: 'intercom/name', service: 'name', overwrite: true },
               { hull: 'intercom/monthly_spend', service: 'monthly_spend', overwrite: true },
-              { hull: 'intercom/description', service: 'company_description', overwrite: true }
+              { hull: 'intercom/description', service: 'custom_attributes.company_description', overwrite: true }
             ]
           }
         },
@@ -36,7 +36,7 @@ describe("Fetch Recent Companies Tests", () => {
           const scope = nock("https://api.intercom.io");
 
           scope
-            .get("/companies?page=1&per_page=60&order=desc")
+            .get("/companies/scroll")
             .reply(200, {
               "type": "list",
               "data": [
@@ -75,14 +75,9 @@ describe("Fetch Recent Companies Tests", () => {
                   }
                 }
               ],
-              "pages": {
-                "type": "pages",
-                "next": "https://api.intercom.io/companies?page=2&per_page=60&order=desc",
-                "page": 1,
-                "per_page": 1,
-                "total_pages": 2
-              },
-              "total_count": 2
+              "pages": null,
+              "total_count": null,
+              "scroll_param": "a1af2da1-4aa4-474a-bd82-f7b176214aac"
             });
 
           scope
@@ -93,7 +88,7 @@ describe("Fetch Recent Companies Tests", () => {
             });
 
           scope
-            .get("/companies?page=2&per_page=60&order=desc")
+            .get("/companies/scroll?scroll_param=a1af2da1-4aa4-474a-bd82-f7b176214aac")
             .reply(200, {
               "type": "list",
               "data": [
@@ -164,14 +159,9 @@ describe("Fetch Recent Companies Tests", () => {
                   "custom_attributes": {}
                 }
               ],
-              "pages": {
-                "type": "pages",
-                "next": "https://api.intercom.io/companies?page=2&per_page=60&order=desc",
-                "page": 2,
-                "per_page": 1,
-                "total_pages": 2
-              },
-              "total_count": 2
+              "pages": null,
+              "total_count": null,
+              "scroll_param": "a1af2da1-4aa4-474a-bd82-f7b176214aad"
             });
 
           scope
@@ -186,6 +176,16 @@ describe("Fetch Recent Companies Tests", () => {
             .reply(200, {
               "type": "list",
               "data": []
+            });
+
+          scope
+            .get("/companies/scroll?scroll_param=a1af2da1-4aa4-474a-bd82-f7b176214aad")
+            .reply(200, {
+              "type": "list",
+              "data": [],
+              "pages": null,
+              "total_count": null,
+              "scroll_param": "c6d2d8c1-1676-4b72-9aa6-4062bcc37d66"
             });
 
           return scope;
@@ -208,17 +208,13 @@ describe("Fetch Recent Companies Tests", () => {
             {
               "responseTime": expect.whatever(),
               "method": "GET",
-              "url": "/companies",
+              "url": "/companies/scroll",
               "status": 200,
               "vars": {}
             }
           ],
           ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
             "method": "GET", "url": "/companies/5f161ef9ce73f3ea2605304e/segments", "status": 200, "vars": {} }],
-          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
-            "method": "GET", "url": "/companies/5f187aa44fd1ce23c1cf25f7/segments", "status": 200, "vars": {} }],
-          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
-            "method": "GET", "url": "/companies/5f187aa44fd1ce23c1cf25f8/segments", "status": 200, "vars": {} }],
           [
             "debug",
             "incoming.account.success",
@@ -273,11 +269,15 @@ describe("Fetch Recent Companies Tests", () => {
             {
               "responseTime": expect.whatever(),
               "method": "GET",
-              "url": "/companies",
+              "url": "/companies/scroll",
               "status": 200,
               "vars": {}
             }
           ],
+          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
+            "method": "GET", "url": "/companies/5f187aa44fd1ce23c1cf25f7/segments", "status": 200, "vars": {} }],
+          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
+            "method": "GET", "url": "/companies/5f187aa44fd1ce23c1cf25f8/segments", "status": 200, "vars": {} }],
           [
             "debug",
             "incoming.account.success",
@@ -344,6 +344,18 @@ describe("Fetch Recent Companies Tests", () => {
                 "custom_attributes": {}
               },
               "type": "Company"
+            }
+          ],
+          [
+            "debug",
+            "connector.service_api.call",
+            {},
+            {
+              "responseTime": expect.whatever(),
+              "method": "GET",
+              "url": "/companies/scroll",
+              "status": 200,
+              "vars": {}
             }
           ],
           [
@@ -498,64 +510,17 @@ describe("Fetch Recent Companies Tests", () => {
           ["increment", "ship.service_api.call", 1],
           ["value", "connector.service_api.response_time", expect.whatever()],
           ["increment", "ship.service_api.call", 1],
+          ["value", "connector.service_api.response_time", expect.whatever()],
+          ["increment", "ship.service_api.call", 1],
           ["value", "connector.service_api.response_time", expect.whatever()]
         ],
         platformApiCalls: [
-          [
-            "GET",
-            "/api/v1/app",
-            {},
-            {}
-          ],
+          ["GET", "/api/v1/app", {}, {}],
           [
             "PUT",
             "/api/v1/9993743b22d60dd829001999",
             {},
-            {
-              "private_settings": {
-                "access_token": "12345",
-                "fetch_companies": true,
-                "companies_last_fetch_timestamp": expect.whatever(),
-                "incoming_account_attributes": [
-                  {
-                    "hull": "intercom/tags",
-                    "service": "tags",
-                    "overwrite": true
-                  },
-                  {
-                    "hull": "intercom/segments",
-                    "service": "segments",
-                    "overwrite": true
-                  },
-                  {
-                    "hull": "intercom/web_sessions",
-                    "service": "session_count",
-                    "overwrite": true
-                  },
-                  {
-                    "hull": "intercom/website",
-                    "service": "website",
-                    "overwrite": true
-                  },
-                  {
-                    "hull": "intercom/name",
-                    "service": "name",
-                    "overwrite": true
-                  },
-                  {
-                    "hull": "intercom/monthly_spend",
-                    "service": "monthly_spend",
-                    "overwrite": true
-                  },
-                  {
-                    "hull": "intercom/description",
-                    "service": "company_description",
-                    "overwrite": true
-                  }
-                ]
-              },
-              "refresh_status": false
-            }
+            expect.objectContaining({"private_settings": expect.whatever()})
           ]
         ]
       };
@@ -578,7 +543,7 @@ describe("Fetch Recent Companies Tests", () => {
               { hull: 'intercom/website', service: 'website', overwrite: true },
               { hull: 'intercom/name', service: 'name', overwrite: true },
               { hull: 'intercom/monthly_spend', service: 'monthly_spend', overwrite: true },
-              { hull: 'intercom/description', service: 'company_description', overwrite: true }
+              { hull: 'intercom/description', service: 'custom_attributes.company_description', overwrite: true }
             ]
           }
         },
@@ -588,7 +553,7 @@ describe("Fetch Recent Companies Tests", () => {
           const scope = nock("https://api.intercom.io");
 
           scope
-            .get("/companies?page=1&per_page=60&order=desc")
+            .get("/companies/scroll")
             .reply(200, {
               "type": "list",
               "data": [
@@ -627,18 +592,13 @@ describe("Fetch Recent Companies Tests", () => {
                   }
                 }
               ],
-              "pages": {
-                "type": "pages",
-                "next": "https://api.intercom.io/companies?page=2&per_page=60&order=desc",
-                "page": 1,
-                "per_page": 1,
-                "total_pages": 2
-              },
-              "total_count": 2
+              "pages": null,
+              "total_count": null,
+              "scroll_param": "a1af2da1-4aa4-474a-bd82-f7b176214aac"
             });
 
           scope
-            .get("/companies?page=2&per_page=60&order=desc")
+            .get("/companies/scroll?scroll_param=a1af2da1-4aa4-474a-bd82-f7b176214aac")
             .reply(200, {
               "type": "list",
               "data": [
@@ -687,29 +647,19 @@ describe("Fetch Recent Companies Tests", () => {
                   "custom_attributes": {}
                 }
               ],
-              "pages": {
-                "type": "pages",
-                "next": "https://api.intercom.io/companies?page=3&per_page=60&order=desc",
-                "page": 2,
-                "per_page": 1,
-                "total_pages": 2
-              },
-              "total_count": 2
+              "pages": null,
+              "total_count": null,
+              "scroll_param": "a1af2da1-4aa4-474a-bd82-f7b176214aad"
             });
 
           scope
-            .get("/companies?page=3&per_page=60&order=desc")
+            .get("/companies/scroll?scroll_param=a1af2da1-4aa4-474a-bd82-f7b176214aad")
             .reply(200, {
               "type": "list",
               "data": [],
-              "pages": {
-                "type": "pages",
-                "next": null,
-                "page": 3,
-                "per_page": 20,
-                "total_pages": 1
-              },
-              "total_count": 2
+              "pages": null,
+              "total_count": null,
+              "scroll_param": "c6d2d8c1-1676-4b72-9aa6-4062bcc37d66"
             });
 
           return scope;
@@ -732,7 +682,7 @@ describe("Fetch Recent Companies Tests", () => {
             {
               "responseTime": expect.whatever(),
               "method": "GET",
-              "url": "/companies",
+              "url": "/companies/scroll",
               "status": 200,
               "vars": {}
             }
@@ -791,7 +741,7 @@ describe("Fetch Recent Companies Tests", () => {
             {
               "responseTime": expect.whatever(),
               "method": "GET",
-              "url": "/companies",
+              "url": "/companies/scroll",
               "status": 200,
               "vars": {}
             }
@@ -871,7 +821,7 @@ describe("Fetch Recent Companies Tests", () => {
             {
               "responseTime": expect.whatever(),
               "method": "GET",
-              "url": "/companies",
+              "url": "/companies/scroll",
               "status": 200,
               "vars": {}
             }
@@ -1015,56 +965,12 @@ describe("Fetch Recent Companies Tests", () => {
           ["value", "connector.service_api.response_time", expect.whatever()]
         ],
         platformApiCalls: [
-          [
-            "GET",
-            "/api/v1/app",
-            {},
-            {}
-          ],
+          ["GET", "/api/v1/app", {}, {}],
           [
             "PUT",
             "/api/v1/9993743b22d60dd829001999",
             {},
-            {
-              "private_settings": {
-                "access_token": "12345",
-                "fetch_companies": true,
-                "companies_last_fetch_timestamp": expect.whatever(),
-                "incoming_account_attributes": [
-                  {
-                    "hull": "intercom/tags",
-                    "service": "tags",
-                    "overwrite": true
-                  },
-                  {
-                    "hull": "intercom/web_sessions",
-                    "service": "session_count",
-                    "overwrite": true
-                  },
-                  {
-                    "hull": "intercom/website",
-                    "service": "website",
-                    "overwrite": true
-                  },
-                  {
-                    "hull": "intercom/name",
-                    "service": "name",
-                    "overwrite": true
-                  },
-                  {
-                    "hull": "intercom/monthly_spend",
-                    "service": "monthly_spend",
-                    "overwrite": true
-                  },
-                  {
-                    "hull": "intercom/description",
-                    "service": "company_description",
-                    "overwrite": true
-                  }
-                ]
-              },
-              "refresh_status": false
-            }
+            expect.objectContaining({"private_settings": expect.whatever()})
           ]
         ]
       };
