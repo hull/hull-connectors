@@ -49,8 +49,8 @@ const glue = {
     salesforceSyncAgent("accountUpdate", { messages: input() })
   ],
   getFetchWindow: [
-    set("fetchStart", new Date(new Date().getTime() - 360 * 1000)),
-    set("fetchEnd", new Date()),
+    set("fetchStart", ex(ex(moment(), "subtract", { minutes: 6 }), "valueOf")),
+    set("fetchEnd", ex(moment(), "valueOf")),
   ],
   getFetchFields: [
     set("defaultFetchFields", ld("map", ld("get", defaultFields, "${fetchType}"), "service")),

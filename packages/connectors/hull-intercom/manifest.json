@@ -4,14 +4,17 @@
   "source": "intercom",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.32-monorepo",
+  "version": "0.1.33-monorepo",
   "tags": [
-    "incoming",
     "outgoing",
+    "incoming",
     "batch",
-    "kraken-exports",
+    "batch-accounts",
+    "oneColumn",
+    "smart-notifier",
     "first-install",
-    "single-install"
+    "single-install",
+    "kraken-exports"
   ],
   "private_settings": [
     {
@@ -23,11 +26,9 @@
       "handler": "oauth",
       "url": "/auth",
       "options": {
-        "tokenInUrl": true,
         "name": "Intercom",
         "scope": ["refresh_token", "api"],
         "strategy": {
-          "tokenInUrl": true,
           "name": "Intercom",
           "scope": ["refresh_token", "api"]
         }
@@ -68,6 +69,60 @@
       "type": "boolean",
       "default": false,
       "format": "hidden"
+    },
+    {
+      "name": "user_claims",
+      "title": "User and Lead Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hull": {
+            "title": "Hull Identifier",
+            "enum": ["email", "external_id"]
+          },
+          "service": {
+            "title": "Intercom Identifier",
+            "enum": ["email", "external_id"]
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "email",
+          "service": "email"
+        },
+        {
+          "hull": "external_id",
+          "service": "external_id"
+        }
+      ]
+    },
+    {
+      "name": "lead_claims",
+      "title": "Lead Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hull": {
+            "title": "Hull Identifier",
+            "enum": ["email"]
+          },
+          "service": {
+            "title": "Intercom Identifier",
+            "enum": ["email"]
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "email",
+          "service": "email"
+        }
+      ]
     },
     {
       "name": "synchronized_segments",
@@ -164,6 +219,95 @@
       "description": "Users tagged as deleted in Hull are marked with the attribute \"deleted_at\". Do you want to ignore sending these marked users?",
       "type": "boolean",
       "default": true
+    },
+    {
+      "name": "account_claims",
+      "title": "Company Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hull": {
+            "title": "Hull Identifier",
+            "enum": [
+              "external_id",
+              "domain"
+            ]
+          },
+          "service": {
+            "title": "Intercom Identifier",
+            "type": "string",
+            "format": "select",
+            "options": {
+              "allowCreate": false,
+              "loadOptions": "/schema/company_fields"
+            }
+          },
+          "required": {
+            "type": "boolean",
+            "format": "select",
+            "title": "required?"
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "external_id",
+          "service": "company_id",
+          "required": false
+        },
+        {
+          "hull": "domain",
+          "service": "website",
+          "required": false
+        }
+      ],
+      "options": {
+        "itemsPerRow": 3
+      }
+    },
+    {
+      "name": "fetch_companies",
+      "title": "Company Fetch",
+      "description": "Enable fetching Intercom Companies",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "fetch_leads",
+      "title": "Lead Fetch",
+      "description": "Enable fetching Intercom Leads",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "fetch_users",
+      "title": "User Fetch",
+      "description": "Enable fetching Intercom Users",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "incoming_account_attributes",
+      "title": "Company Incoming Fields",
+      "description": "List of Account fields to fetch from Salesforce",
+      "type": "array",
+      "format": "accountTraitMapping",
+      "options": {
+        "direction": "incoming",
+        "showOverwriteToggle": false,
+        "placeholder": "Intercom Company Field",
+        "allowCreate": true,
+        "loadOptions": "/schema/company_fields",
+        "source": "intercom"
+      },
+      "default": [
+        { "service": "id", "hull": "intercom/id", "readOnly": true, "overwrite": true },
+        { "service": "website", "hull": "intercom/website", "readOnly": true, "overwrite": true },
+        { "service": "tags", "hull": "intercom/tags", "readOnly": true, "overwrite": true },
+        { "service": "segments", "hull": "intercom/segments", "readOnly": true, "overwrite": true }
+      ]
     }
   ],
   "settings": [],
@@ -196,6 +340,16 @@
           "handler": "userUpdate"
         }
       ]
+    }
+  ],
+  "incoming": [
+    {
+      "url": "/intercom",
+      "handler": "webhook",
+      "options": {
+        "credentialsFromQuery": true,
+        "bodyParser": "json"
+      }
     }
   ],
   "json": [
@@ -234,8 +388,29 @@
       }
     },
     {
+      "url": "/fetchAllCompanies",
+      "handler": "fetchAllCompanies",
+      "type": "string",
+      "format": "action",
+      "name": "fetch_all_companies",
+      "title": "Fetch All Companies",
+      "options": {
+        "fireAndForget": true,
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to pull all companies from Intercom into Hull. Be careful when clicking this multiple times as it can result in long operations. Check out the \"Logs\" tab to track incoming.account.success messages as users are ingested",
+          "button": "Fetch Companies",
+          "entity": "users"
+        }
+      }
+    },
+    {
       "url": "/schema/user_fields",
       "handler": "fieldsInbound"
+    },
+    {
+      "url": "/schema/company_fields",
+      "handler": "companyFieldsInbound"
     },
     {
       "url": "/delete-contact",
@@ -261,6 +436,15 @@
       "type": "interval",
       "value": "5",
       "handler": "fetchRecentlyUpdatedLeads",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/fetch-recent-companies",
+      "type": "interval",
+      "value": "5",
+      "handler": "fetchRecentlyUpdatedCompanies",
       "options": {
         "fireAndForget": true
       }
@@ -319,13 +503,30 @@
       ]
     },
     {
-      "title": "Incoming Data",
+      "title": "User Incoming Data",
       "step": "incoming",
       "description": "Hull fetches all standard attributes from Intercom by default. If you want to capture additional custom attributes, please list them below to fetch them",
       "properties": [
         "private_settings.sync_fields_to_hull",
         "json.fetch_all_leads",
         "json.fetch_all_users"
+      ]
+    },
+    {
+      "title": "Company Identity",
+      "description": "",
+      "properties": [
+        "private_settings.account_claims"
+      ]
+    },
+    {
+      "title": "Company Incoming Data",
+      "step": "incoming",
+      "description": "Fetch Companies From Intercom",
+      "properties": [
+        "private_settings.fetch_companies",
+        "private_settings.incoming_account_attributes",
+        "json.fetch_all_companies"
       ]
     }
   ]

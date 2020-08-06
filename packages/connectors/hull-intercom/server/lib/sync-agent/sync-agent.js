@@ -35,6 +35,8 @@ class SyncAgent {
 
   private_settings;
 
+  cache;
+
   constructor(intercomAgent, ctx: HullContext) {
     const {
       client,
@@ -55,6 +57,7 @@ class SyncAgent {
     this.logger = client.logger;
     this.metric = metric;
     this.private_settings = ship.private_settings;
+    this.cache = cache;
 
     this.tagMapping = new TagMapping(
       intercomAgent,
@@ -334,7 +337,7 @@ class SyncAgent {
   }
 
   sendLeadsImpl(leadMessages) {
-    this.ctx.client.logger.debug("sendLeads.preFilter", leadMessages.length);
+    this.client.logger.debug("sendLeads.preFilter", leadMessages.length);
 
     leadMessages.map(message =>
       this.client.asUser(message.user).logger.debug("outgoing.user.start")

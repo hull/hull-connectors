@@ -4,7 +4,7 @@
   "source": "salesforce",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.32-monorepo",
+  "version": "0.1.33-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -132,6 +132,12 @@
       "format": "traitMapping",
       "default": [
         {
+          "hull": "email",
+          "service": "Email",
+          "overwrite": false,
+          "readOnly": true
+        },
+        {
           "hull": "first_name",
           "service": "FirstName",
           "default_value": "[Unknown]",
@@ -141,11 +147,6 @@
           "hull": "last_name",
           "service": "LastName",
           "default_value": "[Unknown]",
-          "overwrite": false
-        },
-        {
-          "hull": "email",
-          "service": "Email",
           "overwrite": false
         }
       ],
@@ -200,6 +201,13 @@
       }
     },
     {
+      "name": "fetch_leads",
+      "title": "Lead Fetch",
+      "description": "Enable fetching Salesforce Leads to Hull",
+      "type": "boolean",
+      "default": true
+    },
+    {
       "name": "lead_attributes_inbound",
       "title": "Lead Incoming Fields",
       "description": "List of Lead fields to fetch from Salesforce.",
@@ -228,6 +236,12 @@
       "format": "traitMapping",
       "default": [
         {
+          "hull": "email",
+          "service": "Email",
+          "overwrite": false,
+          "readOnly": true
+        },
+        {
           "hull": "first_name",
           "service": "FirstName",
           "default_value": "[Unknown]",
@@ -237,11 +251,6 @@
           "hull": "last_name",
           "service": "LastName",
           "default_value": "[Unknown]",
-          "overwrite": false
-        },
-        {
-          "hull": "email",
-          "service": "Email",
           "overwrite": false
         }
       ],
@@ -272,6 +281,13 @@
       "options": {
         "loadOptions": "/schema/contact_updateable"
       }
+    },
+    {
+      "name": "fetch_contacts",
+      "title": "Contact Fetch",
+      "description": "Enable fetching Salesforce Contacts to Hull",
+      "type": "boolean",
+      "default": true
     },
     {
       "name": "contact_attributes_inbound",
@@ -404,7 +420,7 @@
     },
     {
       "name": "fetch_tasks",
-      "title": "Fetch Tasks",
+      "title": "Task Fetch",
       "description": "Enable fetching Salesforce Tasks to Hull as events",
       "type": "boolean",
       "default": false
@@ -743,6 +759,7 @@
       "title": "Users - Fetching Leads from Salesforce",
       "description": "Hull gives it's customers the ability to capture a subset of Leads fields in order to have fine grain control over the dataflow. Please configure the fields that you would like to be pulled from Salesforce below. See connector documentation (Docs tab above) for attributes mapping best practices.",
       "properties": [
+        "private_settings.fetch_leads",
         "private_settings.lead_attributes_inbound",
         "json.fetch_all_leads"
       ]
@@ -763,6 +780,7 @@
       "title": "Users - Fetching Contacts from Salesforce",
       "description": "Hull gives it's customers the ability to capture a subset of Contacts fields in order to have fine grain control over the dataflow. Please configure the fields that you would like pulled from Salesforce below. See connector documentation (Docs tab above) for attributes mapping best practices.",
       "properties": [
+        "private_settings.fetch_contacts",
         "private_settings.contact_attributes_inbound",
         "json.fetch_all_contacts"
       ]

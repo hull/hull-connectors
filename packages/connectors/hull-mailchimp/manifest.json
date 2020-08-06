@@ -1,6 +1,6 @@
 {
   "name": "Mailchimp",
-  "version": "0.1.32-monorepo",
+  "version": "0.1.33-monorepo",
   "description": "Powerful segmentation and enrichment for Mailchimp - the world’s favorite email platform",
   "tags": [
     "outgoing",
@@ -224,6 +224,21 @@
       }
     },
     {
+      "url": "/fetch-recent-users",
+      "handler": "fetchRecentUsers",
+      "name": "fetchRecentUsers",
+      "title": "Fetch Recent Users",
+      "format": "action",
+      "options": {
+        "confirm": {
+          "action": "fetch",
+          "text": "You are going to trigger a fetch for Mailchimp contacts that got updated for the last 24 hours ago. This might take long if you have recently imported large amounts of contacts to your Mailchimp account. Confirm your choice?",
+          "button": "Start Fetching",
+          "entity": "users"
+        }
+      }
+    },
+    {
       "url": "/sync-out",
       "handler": "syncOut"
     }
@@ -248,7 +263,8 @@
       "title": "Fetch Data from Mailchimp",
       "description": "Trigger a full fetch of the entire mailchimp list. Be careful. If your list is large, it might take a while",
       "properties": [
-        "json.syncIn"
+        "json.syncIn",
+        "json.fetchRecentUsers"
       ]
     },
     {

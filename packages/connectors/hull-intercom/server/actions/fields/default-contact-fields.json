@@ -1,0 +1,18 @@
+[
+  {
+    "label": "Companies",
+    "name": "companies"
+  },
+  {
+    "label": "Tags",
+    "name": "tags"
+  },
+  {
+    "label": "Segments",
+    "name": "segments"
+  },
+  {
+    "label": "Social Profiles",
+    "name": "social_profiles"
+  }
+]
