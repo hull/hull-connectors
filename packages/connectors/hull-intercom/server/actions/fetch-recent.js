@@ -12,7 +12,7 @@ const fetchAll = serviceEntity => async (
 
   if (!_.get(privateSettings, "access_token")) {
     ctx.client.logger.info("incoming.job.skip", {
-      jobName: `fetch${serviceEntity}`,
+      jobName: `fetchRecent${serviceEntity}`,
       reason: "Connector is not or not properly authenticated."
     });
     return {
@@ -23,7 +23,7 @@ const fetchAll = serviceEntity => async (
     };
   }
 
-  const route = `fetchAll${serviceEntity}`;
+  const route = `fetchRecent${serviceEntity}`;
 
   const router = new PurpleFusionRouter(route);
   await router.invokeIncomingRoute(ctx);
