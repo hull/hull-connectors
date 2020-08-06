@@ -1,0 +1,123 @@
+[
+  {
+    "name": "email",
+    "hull": "email"
+  },
+  {
+    "name": "email",
+    "hull": "intercom/email"
+  },
+  {
+    "name": "id",
+    "hull": "intercom/id"
+  },
+  {
+    "name": "phone",
+    "hull": "intercom/phone"
+  },
+  {
+    "name": "name",
+    "hull": "intercom/name"
+  },
+  {
+    "name": "avatar",
+    "hull": "intercom/avatar"
+  },
+  {
+    "name": "owner_id",
+    "hull": "intercom/owner_id"
+  },
+  {
+    "name": "has_hard_bounced",
+    "hull": "intercom/has_hard_bounced"
+  },
+  {
+    "name": "marked_email_as_spam",
+    "hull": "intercom/marked_email_as_spam"
+  },
+  {
+    "name": "unsubscribed_from_emails",
+    "hull": "intercom/unsubscribed_from_emails"
+  },
+  {
+    "name": "created_at",
+    "hull": "intercom/created_at"
+  },
+  {
+    "name": "updated_at",
+    "hull": "intercom/updated_at"
+  },
+
+  {
+    "name": "signed_up_at",
+    "hull": "intercom/signed_up_at"
+  },
+  {
+    "name": "last_seen_at",
+    "hull": "intercom/last_seen_at"
+  },
+  {
+    "name": "last_replied_at",
+    "hull": "intercom/last_replied_at"
+  },
+  {
+    "name": "last_contacted_at",
+    "hull": "intercom/last_contacted_at"
+  },
+  {
+    "name": "last_email_opened_at",
+    "hull": "intercom/last_email_opened_at"
+  },
+  {
+    "name": "last_email_clicked_at",
+    "hull": "intercom/last_email_clicked_at"
+  },
+  {
+    "name": "language_override",
+    "hull": "intercom/language_override"
+  },
+  {
+    "name": "browser",
+    "hull": "intercom/browser"
+  },
+  {
+    "name": "browser_version",
+    "hull": "intercom/browser_version"
+  },
+  {
+    "name": "browser_language",
+    "hull": "intercom/browser_language"
+  },
+  {
+    "name": "os",
+    "hull": "intercom/os"
+  },
+  {
+    "name": "location.country",
+    "hull": "intercom/location_country_name"
+  },
+  {
+    "name": "location.region",
+    "hull": "intercom/location_region_name"
+  },
+  {
+    "name": "location.city",
+    "hull": "intercom/location_city_name"
+  },
+  {
+    "name": "tags",
+    "hull": "intercom/tags"
+  },
+  {
+    "name": "companies",
+    "hull": "intercom/companies"
+  },
+  {
+    "name": "social_profiles",
+    "hull": "intercom/social_profiles"
+  },
+  {
+    "name": "segments",
+    "hull": "intercom/segments"
+  }
+]

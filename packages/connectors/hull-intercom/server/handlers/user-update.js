@@ -33,6 +33,7 @@ export default async (
     await syncAgent.sendUserMessages(enrichedMessages);
     return {};
   } catch (err) {
+    ctx.client.logger.info("outgoing.job.error", { error: err });
     return {
       flow_control: { type: "retry" }
     };
