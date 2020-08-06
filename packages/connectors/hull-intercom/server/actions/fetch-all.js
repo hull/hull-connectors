@@ -1,16 +1,18 @@
 // @flow
+
 import type { HullContext, HullExternalResponse } from "hull";
 
 const _ = require("lodash");
+const PurpleFusionRouter = require("../lib/purple-fusion-router");
 
-const fetchAll = (intercomEntity: string) => async (
+const fetchAll = serviceEntity => async (
   ctx: HullContext
 ): HullExternalResponse => {
   const privateSettings = ctx.connector.private_settings;
 
   if (!_.get(privateSettings, "access_token")) {
     ctx.client.logger.info("incoming.job.skip", {
-      jobName: "fetch",
+      jobName: `fetch${serviceEntity}`,
       reason: "Connector is not or not properly authenticated."
     });
     return {
@@ -21,11 +23,10 @@ const fetchAll = (intercomEntity: string) => async (
     };
   }
 
-  if (intercomEntity === "User") {
-    await Promise.resolve(ctx.enqueue("fetchAllUsers"));
-  } else if (intercomEntity === "Lead") {
-    await Promise.resolve(ctx.enqueue("fetchAllLeads"));
-  }
+  const route = `fetchAll${serviceEntity}`;
+
+  const router = new PurpleFusionRouter(route);
+  await router.invokeIncomingRoute(ctx);
 
   return {
     status: 200,

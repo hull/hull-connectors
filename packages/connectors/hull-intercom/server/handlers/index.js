@@ -7,21 +7,18 @@ import onStatus from "../actions/on-status";
 import onAuthorize from "../actions/on-authorize";
 import onLogin from "../actions/on-login";
 import fields from "../actions/fields";
+import companyFields from "../actions/company-fields";
 import deleteContact from "../actions/delete-contact";
 import deleteUser from "../actions/delete-user";
 import fetchSegments from "../actions/fetch-segments";
-import fetchRecentlyUpdatedUsers from "../actions/fetch-recent-users";
-import fetchRecentlyUpdatedLeads from "../actions/fetch-recent-leads";
+import fetchRecentlyUpdated from "../actions/fetch-recent";
+import webhook from "../actions/webhook";
 
 import userUpdate from "./user-update";
 import userSegmentUpdate from "./user-segment-update";
 import userSegmentDelete from "./user-segment-delete";
 import shipUpdate from "./ship-update";
 
-import fetchAllUsers from "../jobs/fetch-all-users";
-import fetchAllLeads from "../jobs/fetch-all-leads";
-import fetchRecentUsers from "../jobs/fetch-recent-users";
-import fetchRecentLeads from "../jobs/fetch-recent-leads";
 import handleBatch from "../jobs/handle-batch";
 import handleBulk from "../jobs/handle-bulk";
 
@@ -35,6 +32,9 @@ const handler = ({
   clientSecret: string
 }) => (): HullHandlersConfiguration => {
   return {
+    incoming: {
+      webhook
+    },
     subscriptions: {
       userUpdate,
       shipUpdate,
@@ -42,10 +42,6 @@ const handler = ({
       userSegmentDelete
     },
     jobs: {
-      fetchAllUsers,
-      fetchAllLeads,
-      fetchRecentUsers,
-      fetchRecentLeads,
       handleBatch,
       handleBulk
     },
@@ -62,14 +58,17 @@ const handler = ({
     },
     statuses: { status },
     schedules: {
-      fetchRecentlyUpdatedUsers,
-      fetchRecentlyUpdatedLeads,
+      fetchRecentlyUpdatedUsers: fetchRecentlyUpdated("Users"),
+      fetchRecentlyUpdatedLeads: fetchRecentlyUpdated("Leads"),
+      fetchRecentlyUpdatedCompanies: fetchRecentlyUpdated("Companies"),
       fetchSegments
     },
     json: {
-      fetchAllLeads: fetchAll("Lead"),
-      fetchAllUsers: fetchAll("User"),
+      fetchAllLeads: fetchAll("Leads"),
+      fetchAllCompanies: fetchAll("Companies"),
+      fetchAllUsers: fetchAll("Users"),
       fieldsInbound: fields,
+      companyFieldsInbound: companyFields,
       deleteContact,
       deleteUser
     }

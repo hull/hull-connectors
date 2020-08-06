@@ -44,9 +44,9 @@ it("should fetch all users using settings", () => {
           .reply(200, contactPropertyGroups);
         scope.get("/properties/v1/companies/groups?includeProperties=true")
           .reply(200, []);
-        scope.get("/contacts/v1/lists/all/contacts/all?count=100&vidOffset&property=email&property=firstname&property=phone&property=lastname&property=email")
+        scope.get("/contacts/v1/lists/all/contacts/all?count=100&vidOffset&property=email&property=firstname&property=phone&property=lastname&property=hs_calculated_form_submissions&property=email")
           .reply(200, incomingData);
-        scope.get("/contacts/v1/lists/all/contacts/all?count=100&vidOffset=3714024&property=email&property=firstname&property=phone&property=lastname&property=email")
+        scope.get("/contacts/v1/lists/all/contacts/all?count=100&vidOffset=3714024&property=email&property=firstname&property=phone&property=lastname&property=hs_calculated_form_submissions&property=email")
           .reply(200, { contacts: [], "has-more": false, "time-offset": 0 });
         return scope;
       },
@@ -57,7 +57,7 @@ it("should fetch all users using settings", () => {
       logs: [
         ["debug","connector.service_api.call",{},{"responseTime":expect.whatever(),"method":"GET","url":"/contacts/v2/groups","status":200,"vars":{}}],
         ["debug","connector.service_api.call",{},{"responseTime":expect.whatever(),"method":"GET","url":"/properties/v1/companies/groups","status":200,"vars":{}}],
-        ["info","incoming.job.start",{},{"jobName":"fetchAllContacts","type":"user","propertiesToFetch":["email","firstname","phone","lastname","email"]}],
+        ["info","incoming.job.start",{},{"jobName":"fetchAllContacts","type":"user","propertiesToFetch":["email","firstname","phone","lastname","hs_calculated_form_submissions","email"]}],
         ["debug","connector.service_api.call",{},{"responseTime":expect.whatever(),"method":"GET","url":"/contacts/v1/lists/all/contacts/all","status":200,"vars":{}}],
         ["info","incoming.job.progress",{},{"jobName":"fetchAllContacts","type":"user","progress":2}],
         ["debug","saveContacts",{},2],
