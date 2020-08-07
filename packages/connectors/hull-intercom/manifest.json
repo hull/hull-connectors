@@ -248,6 +248,46 @@
       "default": []
     },
     {
+      "name": "incoming_events",
+      "title": "Events To Receive From Intercom",
+      "format": "select",
+      "type": "array",
+      "uniqueItems": true,
+      "default": [
+        "user.created",
+        "contact.created",
+        "company.created"
+      ],
+      "items": {
+        "type": "string",
+        "enum": [
+          "conversation.user.created",
+          "conversation.user.replied",
+          "conversation.admin.replied",
+          "conversation.admin.single.created",
+          "conversation.admin.assigned",
+          "conversation.admin.noted",
+          "conversation.admin.closed",
+          "conversation.admin.opened",
+          "conversation.admin.snoozed",
+          "conversation.admin.unsnoozed",
+          "conversation_part.tag.created",
+          "conversation_part.redacted",
+          "user.created",
+          "user.deleted",
+          "user.unsubscribed",
+          "user.email.updated",
+          "user.tag.created",
+          "user.tag.deleted",
+          "contact.created",
+          "contact.added_email",
+          "contact.tag.created",
+          "contact.tag.deleted",
+          "company.created"
+        ]
+      }
+    },
+    {
       "name": "mark_deleted_users",
       "title": "Mark Deleted Users",
       "description": "If a user or lead has been deleted in Intercom, mark it as such in Hull.",
@@ -566,15 +606,21 @@
       "properties": [
         "private_settings.tag_users",
         "private_settings.synchronized_user_segments",
-        "private_settings.outgoing_user_attributes",
-        "private_settings.outgoing_events"
+        "private_settings.outgoing_user_attributes"
       ]
     },
     {
       "title": "Send Events to Intercom",
-      "description": "",
+      "description": "Define which events will be sent to Intercom",
       "properties": [
         "private_settings.outgoing_events"
+      ]
+    },
+    {
+      "title": "Receive Events from Intercom",
+      "description": "Define which events will be received from Intercom",
+      "properties": [
+        "private_settings.incoming_events"
       ]
     },
     {

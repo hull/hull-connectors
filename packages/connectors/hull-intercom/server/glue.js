@@ -10,11 +10,12 @@ import {
   IntercomAttributeMapping,
   IntercomWebhookLeadRead,
   IntercomWebhookUserRead,
-  IntercomWebhookCompanyRead
+  IntercomWebhookCompanyRead,
+  IntercomWebhookLeadEventRead
 } from "./service-objects";
 import { filterL } from "hull-connector-framework/src/purplefusion/language";
-import { HullIncomingUser, HullApiAttributeDefinition } from "hull-connector-framework/src/purplefusion/hull-service-objects";
-
+import { HullIncomingUser, HullIncomingEvent, HullApiAttributeDefinition } from "hull-connector-framework/src/purplefusion/hull-service-objects";
+const { EVENT_MAPPING } = require("./event-mapping");
 const _ = require("lodash");
 
 const {
@@ -22,7 +23,8 @@ const {
   HullOutgoingDropdownOption,
   HullOutgoingUser,
   HullOutgoingEvent,
-  HullAttributeMapping
+  HullAttributeMapping,
+  HullUserIdentity
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 const defaultContactFields = require("./fields/default-contact-fields.json");
@@ -56,7 +58,8 @@ const {
   not,
   utils,
   filter,
-  cacheWrap
+  cacheWrap,
+  jsonata
 } = require("hull-connector-framework/src/purplefusion/language");
 
 function intercom(op: string, param?: any): Svc {
@@ -481,80 +484,48 @@ const glue = {
       ]
     )
   ],
+  getEvent: returnValue([
+
+  ], "${event}"),
   webhooks: [
     set("webhookData", input("data")),
     set("webhookTopic", input("topic")),
+    set("eventSource", "intercom"),
+    set("eventMapping", EVENT_MAPPING),
 
-    ifL(cond("isEqual", "${webhookTopic}", "ping"), [
+    ifL(ld("includes", settings("incoming_events"), "${webhookTopic}"), [
 
-    ]),
-    ifL(cond("isEqual", "${webhookTopic}", "company.created"), [
-      set("entity", transformTo(IntercomCompanyRead, cast(IntercomWebhookCompanyRead, input("data.item")))),
-      hull("asAccount", "${entity}")
-    ]),
-    ifL(or([
-      cond("isEqual", "${webhookTopic}", "contact.created"),
-      cond("isEqual", "${webhookTopic}", "contact.added_email"),
-      cond("isEqual", "${webhookTopic}", "contact.signed_up")
-    ]), [
-      set("entity", transformTo(IntercomLeadRead, cast(IntercomWebhookLeadRead, input("data.item")))),
-      hull("asUser", "${entity}")
-    ]),
-    ifL(or([
-      cond("isEqual", "${webhookTopic}", "user.created"),
-      cond("isEqual", "${webhookTopic}", "user.email.updated"),
-      cond("isEqual", "${webhookTopic}", "user.signed_up")
-    ]), [
-      set("entity", transformTo(IntercomUserRead, cast(IntercomWebhookUserRead, input("data.item")))),
-      hull("asUser", "${entity}")
-    ]),
-    ifL(or([
-      cond("isEqual", "${webhookTopic}", "user.deleted")
-    ]), [
-      set("userId", input("data.item.id")),
-      set("deletedAt", input("created_at")),
-      hull("userDeletedInService", cast(HullIncomingUser, { ident: { anonymous_id: "intercom-user:user-${userId}" }, attributes: { "intercom_user/deleted_at": "${deletedAt}" } }))
-    ]),
+      set("action", get("action", get("${webhookTopic}", EVENT_MAPPING))),
+      set("webhookType", get("webhookType", get("${webhookTopic}", EVENT_MAPPING))),
+      set("pathToEntity", get("pathToEntity", get("${webhookTopic}", EVENT_MAPPING))),
 
-    ifL(or([
-      cond("isEqual", "${webhookTopic}", "contact.tag.created"),
-      cond("isEqual", "${webhookTopic}", "contact.tag.deleted")
-    ]), [
-      set("entity", transformTo(IntercomLeadRead, cast(IntercomWebhookLeadRead, input("data.item.contact")))),
-      hull("asUser", "${entity}")
-    ]),
-    ifL(or([
-      cond("isEqual", "${webhookTopic}", "user.tag.created"),
-      cond("isEqual", "${webhookTopic}", "user.tag.deleted")
-    ]), [
-      set("entity", transformTo(IntercomUserRead, cast(IntercomWebhookUserRead, input("data.item.user")))),
-      hull("asUser", "${entity}")
+      ifL(cond("isEqual", "${action}", "track"), {
+        do: [
+          set("eventName", get("eventName", get("${webhookTopic}", EVENT_MAPPING))),
+          set("eventType", get("eventType", get("${webhookTopic}", EVENT_MAPPING))),
+          set("propertiesMapping", get("properties", get("${webhookTopic}", EVENT_MAPPING))),
+          set("contextMapping", get("context", get("${webhookTopic}", EVENT_MAPPING))),
+
+          hull("asUser", {
+            ident: transformTo(HullUserIdentity, cast("${webhookType}", input("${pathToEntity}"))),
+            events: [
+              transformTo(HullIncomingEvent, cast(IntercomWebhookLeadEventRead, input()))
+            ]
+          })
+        ],
+        eldo: [
+          set("webhookType", get("webhookType", get("${webhookTopic}", EVENT_MAPPING))),
+          set("entityType", get("entityType", get("${webhookTopic}", EVENT_MAPPING))),
+          set("asEntity", get("asEntity", get("${webhookTopic}", EVENT_MAPPING))),
+          ifL(cond("isEmpty", "${pathToEntity}"), {
+            do: set("transformInput", input()),
+            eldo: set("transformInput", input("${pathToEntity}"))
+          }),
+          hull("${asEntity}", transformTo("${entityType}", cast("${webhookType}", "${transformInput}")))
+        ]
+      })
     ])
   ]
 };
 
 module.exports = glue;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

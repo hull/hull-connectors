@@ -6,6 +6,11 @@ module.exports = {
     "hostname": "connectortest.connectordomain.io",
     "clientCredentialsEncryptedToken": "shhhclientCredentialsEncryptedToken",
     "private_settings": {
+      "incoming_events": [
+        'conversation.user.created',
+        'conversation.user.replied',
+        'company.created'
+      ],
       account_claims: [
         { "hull": "external_id", "service": "company_id", "required": false },
         { "hull": "domain", "service": "website", "required": false }

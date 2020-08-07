@@ -10,6 +10,11 @@ module.exports = {
         { "hull": 'email', "service": 'email' },
         { "hull": 'external_id', "service": 'external_id' }
       ],
+      "incoming_events": [
+        'conversation.user.created',
+        'conversation.user.replied',
+        'user.deleted'
+      ],
       "incoming_user_attributes": [
         { "service": "external_id", "hull": "intercom_user/user_id", "readOnly": true, "overwrite": true },
         { "service": "id", "hull": "intercom_user/id", "readOnly": true, "overwrite": true },

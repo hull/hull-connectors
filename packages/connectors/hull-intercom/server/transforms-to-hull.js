@@ -10,7 +10,8 @@ import {
   inputIsEmpty,
   varEqual,
   varInArray,
-  inputIsEqual
+  inputIsEqual,
+  resolveIndexOf
 } from "hull-connector-framework/src/purplefusion/conditionals";
 
 import {
@@ -20,7 +21,9 @@ import {
 import {
   HullIncomingAccount,
   HullIncomingUser,
-  HullConnectorAttributeDefinition
+  HullConnectorAttributeDefinition,
+  HullIncomingEvent,
+  HullUserIdentity
 } from "hull-connector-framework/src/purplefusion/hull-service-objects";
 import {
   IntercomCompanyRead,
@@ -30,13 +33,16 @@ import {
   IntercomWebhookLeadRead,
   IntercomWebhookCompanyRead,
   IntercomIncomingAttributeDefinition,
-  IntercomOutgoingAttributeDefinition
+  IntercomOutgoingAttributeDefinition,
+  IntercomWebhookLeadEventRead,
+  IntercomWebhookUserEventRead,
+  IntercomDeletedUserRead
 } from "./service-objects";
 
 const _ = require("lodash");
 
 const webhookTransformation = {
-  company: [
+  companyTraits: [
     "{\n" +
     "    \"id\": id,\n" +
     "    \"website\": website,\n" +
@@ -51,7 +57,7 @@ const webhookTransformation = {
     "    \"custom_attributes\": custom_attributes\n" +
     "}"
   ],
-  contact: [
+  contactTraits: [
     "{\n" +
     "    \"external_id\": user_id,\n" +
     "    \"id\": id,\n" +
@@ -84,9 +90,33 @@ const webhookTransformation = {
     "        \"data\": tags.tags\n" +
     "    }\n" +
     "}"
+  ],
+  contactEvent: [
+
   ]
 }
 
+function contactIdentityTransformation({ entityType }) {
+  return [
+    {
+      operateOn: `\${connector.private_settings.${entityType}_claims}`,
+      expand: { valueName: "mapping" },
+      then: {
+        operateOn: { component: "input", select: "${mapping.service}", name: "serviceValue" },
+        condition: not(varUndefinedOrNull("serviceValue")),
+        writeTo: {
+          path: "${mapping.hull}"
+        }
+      }
+    },
+    {
+      operateOn: { component: "input", select: "id" },
+      then:[
+        { writeTo: { path: "anonymous_id", format: `\${service_name}-${entityType}:${entityType}-\${operateOn}` } }
+      ]
+    }
+  ]
+}
 // TODO clean this up
 function contactTransformation({ entityType }) {
   return [
@@ -258,6 +288,58 @@ function contactTransformation({ entityType }) {
   ];
 }
 
+function eventTransformation() {
+  return [
+    { writeTo: { path: "eventName", value: "${eventName}" } },
+    { writeTo: { path: "context.source", value: "${eventSource}" } },
+    { writeTo: { path: "props.topic", value: "${webhookTopic}" } },
+    {
+      operateOn: { component: "input", select: "created_at" },
+      writeTo: {
+        path: "context.created_at",
+        value: "${operateOn}"
+      }
+    },
+    {
+      operateOn: { component: "input", name: "event" },
+      writeTo: {
+        path: "context.event_id",
+        formatter: (event) => {
+          // TODO fix this
+          const id = _.get(event, "data.item.contact.id",
+            _.get(event, "data.item.user.id",
+            _.get(event, "data.item.id")))
+          return [id, event.topic, event.created_at].join("-")
+        }
+      }
+    },
+    {
+      operateOn: "${propertiesMapping}",
+      expand: { keyName: "hullAttribute", valueName: "intercomPath" },
+      then: {
+        operateOn: { component: "input", select: "${intercomPath}", name: "serviceValue" },
+        condition: not(varUndefinedOrNull("serviceValue")),
+        writeTo: {
+          path: "props.${hullAttribute}",
+          value: "${operateOn}"
+        }
+      }
+    },
+    {
+      operateOn: "${contextMapping}",
+      expand: { keyName: "hullAttribute", valueName: "intercomPath" },
+      then: {
+        operateOn: { component: "input", select: "${intercomPath}", name: "serviceValue" },
+        condition: not(varUndefinedOrNull("serviceValue")),
+        writeTo: {
+          path: "context.${hullAttribute}",
+          value: "${operateOn}"
+        }
+      }
+    }
+  ];
+}
+
 const transformsToService: ServiceTransforms = [
   {
     input: IntercomIncomingAttributeDefinition,
@@ -306,21 +388,68 @@ const transformsToService: ServiceTransforms = [
     output: IntercomUserRead,
     direction: "incoming",
     strategy: "Jsonata",
-    transforms: webhookTransformation["contact"]
+    transforms: webhookTransformation["contactTraits"]
   },
   {
     input: IntercomWebhookLeadRead,
     output: IntercomLeadRead,
     direction: "incoming",
     strategy: "Jsonata",
-    transforms: webhookTransformation["contact"]
+    transforms: webhookTransformation["contactTraits"]
   },
   {
     input: IntercomWebhookCompanyRead,
     output: IntercomCompanyRead,
     direction: "incoming",
     strategy: "Jsonata",
-    transforms: webhookTransformation["company"]
+    transforms: webhookTransformation["companyTraits"]
+  },
+  {
+    input: IntercomWebhookLeadEventRead,
+    output: HullUserIdentity,
+    direction: "incoming",
+    strategy: "AtomicReaction",
+    target: { component: "new" },
+    then: contactIdentityTransformation({ entityType: "lead" })
+  },
+  {
+    input: IntercomWebhookUserEventRead,
+    output: HullUserIdentity,
+    direction: "incoming",
+    strategy: "AtomicReaction",
+    target: { component: "new" },
+    then: contactIdentityTransformation({ entityType: "user" })
+  },
+  {
+    input: IntercomWebhookLeadEventRead,
+    output: HullIncomingEvent,
+    direction: "incoming",
+    strategy: "AtomicReaction",
+    target: { component: "new" },
+    then: eventTransformation()
+  },
+  {
+    input: IntercomDeletedUserRead,
+    output: HullIncomingUser,
+    direction: "incoming",
+    strategy: "AtomicReaction",
+    target: { component: "new" },
+    then: [
+      {
+        operateOn: { component: "input", select: "data.item.id" },
+        writeTo: {
+          path: "ident.anonymous_id",
+          value: "intercom-user:user-${operateOn}"
+        }
+      },
+      {
+        operateOn: { component: "input", select: "created_at" },
+        writeTo: {
+          path: "attributes.intercom_user/deleted_at",
+          value: "${operateOn}"
+        }
+      }
+    ]
   },
 
   // TODO clean this up a lot

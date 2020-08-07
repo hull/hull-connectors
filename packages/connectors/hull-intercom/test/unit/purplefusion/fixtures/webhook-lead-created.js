@@ -6,6 +6,11 @@ module.exports = {
     "hostname": "connectortest.connectordomain.io",
     "clientCredentialsEncryptedToken": "shhhclientCredentialsEncryptedToken",
     "private_settings": {
+      "incoming_events": [
+        'conversation.user.created',
+        'conversation.user.replied',
+        'contact.created'
+      ],
       "lead_claims": [
         { "hull": 'email', "service": 'email' }
       ],
@@ -52,137 +57,114 @@ module.exports = {
     "data": {
       "type": "notification_event_data",
       "item": {
-        "type": "contact_tag",
-        "created_at": 1596633126,
-        "tag": {
-          "type": "tag",
-          "id": "4391517",
-          "name": "GonnaEmail"
+        "type": "contact",
+        "id": "5f297f71bce3e055f3afdf6e",
+        "user_id": "2345234523452345",
+        "anonymous": false,
+        "email": "johnnybravo@rei.com",
+        "phone": null,
+        "name": "Johnny Bravo",
+        "pseudonym": null,
+        "avatar": {
+          "type": "avatar",
+          "image_url": null
         },
-        "contact": {
-          "type": "contact",
-          "id": "5f161b7a332231fc10b44e5f",
-          "user_id": null,
-          "anonymous": true,
-          "email": "lizalead_3@rei.com",
-          "phone": null,
-          "name": "Liza Lead",
-          "pseudonym": "Pink Squirrel",
-          "avatar": {
-            "type": "avatar",
-            "image_url": null
-          },
-          "app_id": "lkqcyt9t",
-          "companies": {
-            "type": "company.list",
-            "companies": [
-              {
-                "type": "company",
-                "company_id": "5f161ef9ce73f3ea2605304f-qualification-company",
-                "id": "5f161ef9ce73f3ea2605304e",
-                "name": "REI"
-              }
-            ]
-          },
-          "location_data": {},
-          "last_request_at": null,
-          "created_at": "2020-07-20T22:32:26.965+00:00",
-          "remote_created_at": null,
-          "signed_up_at": null,
-          "updated_at": "2020-08-05T13:12:06.065+00:00",
-          "session_count": 0,
-          "social_profiles": {
-            "type": "social_profile.list",
-            "social_profiles": []
-          },
-          "owner_id": null,
-          "unsubscribed_from_emails": false,
-          "marked_email_as_spam": false,
-          "has_hard_bounced": false,
-          "tags": {
-            "type": "tag.list",
-            "tags": [
-              {
-                "type": "tag",
-                "id": "4406230"
-              },
-              {
-                "type": "tag",
-                "id": "4406236"
-              },
-              {
-                "type": "tag",
-                "id": "4406235"
-              },
-              {
-                "type": "tag",
-                "id": "4406234"
-              },
-              {
-                "type": "tag",
-                "id": "4406233"
-              },
-              {
-                "type": "tag",
-                "id": "4406239"
-              },
-              {
-                "type": "tag",
-                "id": "4406238"
-              },
-              {
-                "type": "tag",
-                "id": "4406237"
-              },
-              {
-                "type": "tag",
-                "id": "4406232"
-              },
-              {
-                "type": "tag",
-                "id": "4406231"
-              },
-              {
-                "type": "tag",
-                "id": "4406229"
-              },
-              {
-                "type": "tag",
-                "id": "4391517"
-              },
-              {
-                "type": "tag",
-                "id": "4406240"
-              }
-            ]
-          },
-          "segments": {
-            "type": "segment.list",
-            "segments": []
-          },
-          "custom_attributes": {
-            "job_title": "software ....."
-          },
-          "referrer": null,
-          "utm_campaign": null,
-          "utm_content": null,
-          "utm_medium": null,
-          "utm_source": null,
-          "utm_term": null,
-          "do_not_track": null,
-          "last_seen_ip": null,
-          "user_agent_data": null
-        }
+        "app_id": "lkqcyt9t",
+        "location_data": {
+          "type": "location_data",
+          "city_name": "Dublin",
+          "continent_code": "EU",
+          "country_code": "IRL",
+          "country_name": "Ireland",
+          "latitude": 53.159233,
+          "longitude": -6.723,
+          "postal_code": null,
+          "region_name": "Dublin",
+          "timezone": "Europe/Dublin"
+        },
+        "social_profiles": {
+          "type": "social_profile.list",
+          "social_profiles": [
+            {
+              "name": "Twitter",
+              "id": "1235d3213",
+              "username": "th1sland",
+              "url": "http://twitter.com/th1sland"
+            },
+            {
+              "name": "Facebook",
+              "id": "1235d3213",
+              "username": "facebookusrname",
+              "url": "http://facebook.com/th1sland"
+            }
+          ]
+        },
+        "companies": {
+          "type": "company.list",
+          "companies": [
+            {
+              "type": "company",
+              "company_id": "5f161ef9ce73f3ea2605304f-qualification-company",
+              "id": "5f161ef9ce73f3ea2605304e",
+              "name": "REI"
+            },
+            {
+              "type": "company",
+              "company_id": "5f161ef9ce73f3ea2605304f-qualification-company",
+              "id": "4563456345634563456",
+              "name": "REI"
+            }
+          ]
+        },
+        "last_request_at": null,
+        "created_at": "2020-08-04T15:32:01.666+00:00",
+        "remote_created_at": null,
+        "signed_up_at": null,
+        "updated_at": "2020-08-04T15:32:01.664+00:00",
+        "session_count": 0,
+        "owner_id": null,
+        "unsubscribed_from_emails": false,
+        "marked_email_as_spam": false,
+        "has_hard_bounced": false,
+        "tags": {
+          "type": "tag.list",
+          "tags": [
+            {
+              "type": "tag",
+              "id": "4406230"
+            },
+            {
+              "type": "tag",
+              "id": "4406236"
+            }
+          ]
+        },
+        "segments": {
+          "type": "segment.list",
+          "segments": []
+        },
+        "custom_attributes": {
+          "job_title": "sales"
+        },
+        "referrer": null,
+        "utm_campaign": null,
+        "utm_content": null,
+        "utm_medium": null,
+        "utm_source": null,
+        "utm_term": null,
+        "do_not_track": null,
+        "last_seen_ip": null,
+        "user_agent_data": null
       }
     },
     "links": {},
-    "id": "notif_688dce04-a75c-4bfa-a164-d06ec822a92d",
-    "topic": "contact.tag.created",
+    "id": "notif_d67fe036-69ce-4202-99c7-0b99c9a5b098",
+    "topic": "contact.created",
     "delivery_status": "pending",
     "delivery_attempts": 1,
     "delivered_at": 0,
-    "first_sent_at": 1596633126,
-    "created_at": 1596633126,
+    "first_sent_at": 1596555121,
+    "created_at": 1596555121,
     "self": null
   },
   "serviceRequests": [
@@ -192,26 +174,26 @@ module.exports = {
       "op": "getContactSegments",
       "result": {
         "body": {
-          "type": "list",
-          "data": [
-            {
-              "type": "segment",
-              "id": "5d2640faa76403cb13d73c2f",
-              "name": "Segment1",
-              "created_at": 1562788090,
-              "updated_at": 1595788749,
-              "person_type": "lead"
-            },
-            {
-              "type": "segment",
-              "id": "5dd30458939b587add11f1aa",
-              "name": "Segment2",
-              "created_at": 1574110296,
-              "updated_at": 1595795580,
-              "person_type": "lead"
-            }
-          ]
-        }
+            "type": "list",
+            "data": [
+              {
+                "type": "segment",
+                "id": "5d2640faa76403cb13d73c2f",
+                "name": "Segment1",
+                "created_at": 1562788090,
+                "updated_at": 1595788749,
+                "person_type": "lead"
+              },
+              {
+                "type": "segment",
+                "id": "5dd30458939b587add11f1aa",
+                "name": "Segment2",
+                "created_at": 1574110296,
+                "updated_at": 1595795580,
+                "person_type": "lead"
+              }
+            ]
+          }
       }
     },
     {
@@ -220,12 +202,12 @@ module.exports = {
       "op": "getContactTags",
       "result": {
         "body": {
-          "type": "list",
-          "data": [
-            { "type": "tag", "id": "4406234", "name": "Tag1" },
-            { "type": "tag", "id": "4406229", "name": "Tag2" }
-          ]
-        }
+            "type": "list",
+            "data": [
+              { "type": "tag", "id": "4406234", "name": "Tag1" },
+              { "type": "tag", "id": "4406229", "name": "Tag2" }
+            ]
+          }
       }
     },
     {
@@ -234,21 +216,21 @@ module.exports = {
       "op": "asUser",
       "input": {
         "ident": {
-          "email": "lizalead_3@rei.com",
-          "anonymous_id": "intercom-lead:lead-5f161b7a332231fc10b44e5f"
+          "email": "johnnybravo@rei.com",
+          "anonymous_id": "intercom-lead:lead-5f297f71bce3e055f3afdf6e"
         },
         "attributes": {
           "intercom_lead/user_id": {
             "operation": "set",
-            "value": null
+            "value": "2345234523452345"
           },
           "intercom_lead/id": {
-            "value": "5f161b7a332231fc10b44e5f",
+            "value": "5f297f71bce3e055f3afdf6e",
             "operation": "set"
           },
           "intercom_lead/email": {
             "operation": "set",
-            "value": "lizalead_3@rei.com"
+            "value": "johnnybravo@rei.com"
           },
           "intercom_lead/avatar": {
             "operation": "set",
@@ -256,11 +238,23 @@ module.exports = {
           },
           "intercom_lead/created_at": {
             "operation": "set",
-            "value": 1595284347
+            "value": 1596555122
           },
           "intercom_lead/has_hard_bounced": {
             "operation": "set",
             "value": false
+          },
+          "intercom_lead/location_city_name": {
+            "operation": "set",
+            "value": "Dublin"
+          },
+          "intercom_lead/location_country_name": {
+            "operation": "set",
+            "value": "Ireland"
+          },
+          "intercom_lead/location_region_name": {
+            "operation": "set",
+            "value": "Dublin"
           },
           "intercom_lead/owner_id": {
             "operation": "set",
@@ -276,11 +270,11 @@ module.exports = {
           },
           "intercom_lead/updated_at": {
             "operation": "set",
-            "value": 1596633127
+            "value": 1596555122
           },
           "intercom_lead/job_title": {
             "operation": "set",
-            "value": "software ....."
+            "value": "sales"
           },
           "intercom_lead/c_companies": {
             "value": [
@@ -296,10 +290,19 @@ module.exports = {
             "operation": "set"
           },
           "intercom_lead/c_social_profiles": {
-            "operation": "set",
             "value": [
-
-            ]
+              "http://twitter.com/th1sland",
+              "http://facebook.com/th1sland"
+            ],
+            "operation": "set"
+          },
+          "intercom_lead/twitter_url": {
+            "operation": "set",
+            "value": "http://twitter.com/th1sland"
+          },
+          "intercom_lead/facebook_url": {
+            "operation": "set",
+            "value": "http://facebook.com/th1sland"
           },
           "intercom_lead/c_tags": {
             "value": [
