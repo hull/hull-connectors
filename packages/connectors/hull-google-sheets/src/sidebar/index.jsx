@@ -78,7 +78,8 @@ const SAVED_CONFIG = [
   "user_claims",
   "account_claims",
   "type",
-  "source"
+  "source",
+  "user_event"
 ];
 
 const sanitizeAttribute = (str: string) =>
@@ -191,7 +192,9 @@ export default class Sidebar extends Component<Props, State> {
   getEventSetup = () => this.state[this.getEventType()] || [];
 
   isValid = () =>
-    isValidClaims(this.getClaims()) && isValidMapping(this.getMapping());
+    isValidClaims(this.getClaims()) &&
+    isValidMapping(this.getMapping()) &&
+    isValidEventSetup(this.getEventSetup());
 
   hasToken = () => this.state.initialized && this.state.token !== undefined;
 
@@ -446,7 +449,7 @@ export default class Sidebar extends Component<Props, State> {
           <EventSetup
             valid={true}
             type={type}
-            onChangeRow={this.handleChangeClaim()}
+            onChangeRow={this.handleChangeClaim}
             googleColumns={googleColumns}
             claims={this.getClaims()}
             errors={
@@ -532,7 +535,6 @@ export default class Sidebar extends Component<Props, State> {
       range = {},
       name = ""
     } = this.state;
-    // this.setState({ [this.getEventType()]: {} });
 
     const error = this.getError();
 

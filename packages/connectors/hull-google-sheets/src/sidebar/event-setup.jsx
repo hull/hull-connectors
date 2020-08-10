@@ -4,7 +4,7 @@ import React, { Fragment } from "react";
 import _ from "lodash";
 import ClaimLine from "./claim-line";
 
-import type { EventType, ImportType, GoogleColumns } from "../../types";
+import type { ImportType, GoogleColumns, ClaimsType } from "../../types";
 import Errors from "./errors";
 
 const USER_EVENT_ATTRIBUTES = ["event_id", "event_name", "created_at"];
@@ -16,9 +16,9 @@ type Props = {
   type?: ImportType,
   errors?: Array<string>,
   googleColumns?: GoogleColumns,
-  eventSetup?: EventType,
+  eventSetup?: ClaimsType,
   valid: boolean,
-  onChangeRow: EventType => void
+  onChangeRow: ClaimsType => void
 };
 
 const EventSetup = ({

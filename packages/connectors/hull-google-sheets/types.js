@@ -57,8 +57,8 @@ export type AccountClaims = {
 
 export type EventType = {
   event_id?: string,
-  event_name: string,
+  event_name?: string,
   created_at?: string
 };
 
-export type ClaimsType = UserClaims | AccountClaims;
+export type ClaimsType = UserClaims | AccountClaims | EventType;

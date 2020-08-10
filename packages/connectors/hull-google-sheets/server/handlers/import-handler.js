@@ -32,7 +32,13 @@ export default async function importHandler(
   }
 
   if (type === "user_event") {
-    rows.map(async ({ claims, attributes, eventSetup }) => {
+    const properties = ["event_id", "event_name", "created_at"];
+    rows.map(async ({ claims, attributes }) => {
+      const eventSetup = {};
+      properties.forEach(prop => {
+        eventSetup[prop] = claims[prop];
+        delete claims[prop];
+      });
       try {
         await client.asUser(claims).track(eventSetup.event_name, attributes, {
           event_id: eventSetup.event_id,
