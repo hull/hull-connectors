@@ -31,22 +31,22 @@ function errorHandlerMiddlewareFactory({
 
     // if we have a transient error
     if (err instanceof ConfigurationError) {
-      console.log("ConfigurationError", err);
+      req.hull.client.logger.error("ConfigurationError", err);
       res.status(status || 503);
       return res.end("configuration-error");
     }
     if (err instanceof TransientError) {
-      console.log("TransientError", err);
+      req.hull.client.logger.error("TransientError", err);
       res.status(status || 503);
       return res.end("transient-error");
     }
     if (err instanceof ConnectorNotFoundError) {
-      console.log("ConnectorNotFound", err);
+      req.hull.client.logger.error("ConnectorNotFound", err);
       res.status(status || 404);
       return res.end("not-found");
     }
     if (err instanceof PaymentRequiredError) {
-      console.log("PaymentRequired", err);
+      req.hull.client.logger.error("PaymentRequired", err);
       res.status(status || 402);
       return res.end("payment-required");
     }
