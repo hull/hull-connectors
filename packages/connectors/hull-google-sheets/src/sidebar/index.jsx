@@ -5,6 +5,7 @@ import _ from "lodash";
 import Settings from "./settings";
 import Spinner from "./spinner";
 import Mapping from "./mapping";
+import EventSetup from "./event-setup";
 import Claims from "./claims";
 import ImportStatus from "./import-status";
 import Service from "./service";
@@ -16,7 +17,8 @@ import {
   filterMapping,
   filterAttributes,
   isValidMapping,
-  isValidClaims
+  isValidClaims,
+  isValidEventSetup
 } from "../lib/filter-utils";
 
 import type {
@@ -30,7 +32,8 @@ import type {
   MappingType,
   ImportProgressType,
   ImportStatusType,
-  ClaimsType
+  ClaimsType,
+  EventType
 } from "../../types";
 
 const debug = require("debug")("hull-google-sheets");
@@ -179,9 +182,13 @@ export default class Sidebar extends Component<Props, State> {
 
   getMappingType = () => `${this.state.type}_mapping`;
 
+  getEventType = () => `${this.state.type}_setup`;
+
   getClaims = () => this.state[this.getClaimsType()] || [];
 
   getMapping = () => this.state[this.getMappingType()] || [];
+
+  getEventSetup = () => this.state[this.getEventType()] || [];
 
   isValid = () =>
     isValidClaims(this.getClaims()) && isValidMapping(this.getMapping());
@@ -335,6 +342,16 @@ export default class Sidebar extends Component<Props, State> {
     });
   };
 
+  // Events Setup
+  handleChangeEventSetup = (newSetup: EventType) => {
+    this.updateConfig({
+      [this.getEventType()]: {
+        ...this.getEventSetup(),
+        ...newSetup
+      }
+    });
+  };
+
   // Type
   handleChangeType = (type: ImportType) =>
     this.setState({ loading: true }, () =>
@@ -358,7 +375,8 @@ export default class Sidebar extends Component<Props, State> {
           hull: addSource(source, hull),
           column
         })),
-        claims: this.getClaims()
+        claims: this.getClaims(),
+        eventSetup: this.getEventSetup()
       });
       this.setState({
         importing: false,
@@ -424,14 +442,30 @@ export default class Sidebar extends Component<Props, State> {
           googleColumns={googleColumns}
           onChangeRow={this.handleChangeClaim}
         />
+        {type === "user_event" && (
+          <EventSetup
+            valid={true}
+            type={type}
+            onChangeRow={this.handleChangeClaim()}
+            googleColumns={googleColumns}
+            claims={this.getClaims()}
+            errors={
+              !isValidEventSetup(this.getClaims()) && [
+                "You need to configure the event name column"
+              ]
+            }
+          />
+        )}
         {hullAttributes && googleColumns && (
           <Fragment>
             <Source
+              type={type}
               sources={hullGroups}
               source={source}
               onChange={this.handleChangeSource}
             />
             <Mapping
+              type={type}
               mapping={filterMapping(source, mapping)}
               source={source}
               sources={hullGroups}
@@ -498,6 +532,7 @@ export default class Sidebar extends Component<Props, State> {
       range = {},
       name = ""
     } = this.state;
+    // this.setState({ [this.getEventType()]: {} });
 
     const error = this.getError();
 

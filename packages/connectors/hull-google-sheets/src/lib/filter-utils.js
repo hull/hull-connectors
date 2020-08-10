@@ -1,7 +1,7 @@
 // @flow
 import _ from "lodash";
 import hasInvalidCharacters from "./has-invalid-characters";
-import type { AttributeMapping, ClaimsType } from "../../types";
+import type { AttributeMapping, ClaimsType, EventType } from "../../types";
 
 const filterSource = (source?: string) => (a: string): boolean =>
   source ? a.indexOf(`${source}/`) === 0 : true;
@@ -58,3 +58,6 @@ export const isValidMapping = (mapping: AttributeMapping) =>
   _.flattenDeep(validateMapping(mapping) || []).length === 0;
 
 export const isValidClaims = (claims: ClaimsType) => _.some(claims, v => !!v);
+
+export const isValidEventSetup = (eventSetup: EventType) =>
+  !!_.get(eventSetup, "name");

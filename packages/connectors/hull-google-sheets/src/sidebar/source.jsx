@@ -5,8 +5,10 @@ import Creatable from "react-select/creatable";
 import hasInvalidCharacters from "../lib/has-invalid-characters";
 import { toOptions } from "../lib/filter-utils";
 import Errors from "./errors";
+import type { ImportType } from "../../types";
 
 type Props = {
+  type: ImportType,
   source: string,
   sources: Array<string>,
   onChange: string => any
@@ -30,9 +32,9 @@ class Source extends Component<Props, State> {
   }
 
   render() {
-    const { source, sources } = this.props;
+    const { source, sources, type } = this.props;
     const invalidChars = hasInvalidCharacters(source);
-    return (
+    return type === "user_event" ? null : (
       <Fragment>
         <h4>Import Group</h4>
         <Creatable

@@ -55,4 +55,10 @@ export type AccountClaims = {
   external_id?: string
 };
 
+export type EventType = {
+  event_id?: string,
+  event_name: string,
+  created_at?: string
+};
+
 export type ClaimsType = UserClaims | AccountClaims;
