@@ -47,7 +47,7 @@ it("should update customer", () => {
       ],
       accountsSegments: [],
       response: {
-        flow_control: { in: 5, in_time: 10, size: 10, type: "next" }
+        flow_control: { type: "next" }
       },
       logs: [
         [
