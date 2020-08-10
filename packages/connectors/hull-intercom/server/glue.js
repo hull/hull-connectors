@@ -502,13 +502,16 @@ const glue = {
           set("eventType", get("eventType", get("${webhookTopic}", EVENT_MAPPING))),
           set("propertiesMapping", get("properties", get("${webhookTopic}", EVENT_MAPPING))),
           set("contextMapping", get("context", get("${webhookTopic}", EVENT_MAPPING))),
+          set("identity", transformTo(HullUserIdentity, cast("${webhookType}", input("${pathToEntity}")))),
 
-          hull("asUser", {
-            ident: transformTo(HullUserIdentity, cast("${webhookType}", input("${pathToEntity}"))),
-            events: [
-              transformTo(HullIncomingEvent, cast(IntercomWebhookLeadEventRead, input()))
-            ]
-          })
+          ifL(cond("notEmpty", "${identity}"), [
+            hull("asUser", {
+              ident: "${identity}",
+              events: [
+                transformTo(HullIncomingEvent, cast(IntercomWebhookLeadEventRead, input()))
+              ]
+            })
+          ])
         ],
         eldo: [
           set("webhookType", get("webhookType", get("${webhookTopic}", EVENT_MAPPING))),

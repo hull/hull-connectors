@@ -10,7 +10,7 @@ process.env.COMBINED = true;
 
 describe("Update User Tests", () => {
 
-  /*it("should update a user and save user (with no additional api calls to resolve fields) back to Hull", () => {
+  it("should update a user and save user (with no additional api calls to resolve fields) back to Hull", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.notificationHandler,
@@ -355,7 +355,7 @@ describe("Update User Tests", () => {
         platformApiCalls: []
       };
     });
-  });*/
+  });
 
   it("should skip outgoing user that was deleted in intercom", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
@@ -390,100 +390,7 @@ describe("Update User Tests", () => {
           { id: "s2", name: "Segment 2" }
         ],
         accountsSegments: [],
-        externalApiMock: () => {
-          const scope = nock("https://api.intercom.io");
-
-          scope
-            .put("/contacts/5f22f1b6fcaca714eb055739", {
-              "email": "bob@rei.com",
-              "name": "Bob",
-              "custom_attributes": {
-                "c_description": "a description",
-                "job_title": "sales"
-              },
-              "role": "user"
-            }).reply(200, {
-            "type": "contact",
-            "id": "5f22f1b6fcaca714eb055739",
-            "workspace_id": "lkqcyt9t",
-            "external_id": "user_external_id_1",
-            "role": "user",
-            "email": "bob@rei.com",
-            "phone": "a phone number",
-            "name": "Bob",
-            "avatar": null,
-            "owner_id": null,
-            "social_profiles": {
-              "type": "list",
-              "data": []
-            },
-            "has_hard_bounced": false,
-            "marked_email_as_spam": false,
-            "unsubscribed_from_emails": false,
-            "created_at": 1596125622,
-            "updated_at": 1596125622,
-            "signed_up_at": null,
-            "last_seen_at": null,
-            "last_replied_at": null,
-            "last_contacted_at": null,
-            "last_email_opened_at": null,
-            "last_email_clicked_at": null,
-            "language_override": null,
-            "browser": null,
-            "browser_version": null,
-            "browser_language": null,
-            "os": null,
-            "location": {
-              "type": "location",
-              "country": null,
-              "region": null,
-              "city": "Atlanta"
-            },
-            "android_app_name": null,
-            "android_app_version": null,
-            "android_device": null,
-            "android_os_version": null,
-            "android_sdk_version": null,
-            "android_last_seen_at": null,
-            "ios_app_name": null,
-            "ios_app_version": null,
-            "ios_device": null,
-            "ios_os_version": null,
-            "ios_sdk_version": null,
-            "ios_last_seen_at": null,
-            "custom_attributes": {
-              "c_description": "a description",
-              "job_title": "sales"
-            },
-            "tags": {
-              "type": "list",
-              "data": [],
-              "url": "/contacts/5f22f1b6fcaca714eb055739/tags",
-              "total_count": 0,
-              "has_more": false
-            },
-            "notes": {
-              "type": "list",
-              "data": [],
-              "url": "/contacts/5f22f1b6fcaca714eb055739/notes",
-              "total_count": 0,
-              "has_more": false
-            },
-            "companies": {
-              "type": "list",
-              "data": [],
-              "url": "/contacts/5f22f1b6fcaca714eb055739/companies",
-              "total_count": 0,
-              "has_more": false
-            }
-          });
-
-          scope
-            .get("/data_attributes?model=contact")
-            .reply(200, contactFields);
-
-          return scope;
-        },
+        externalApiMock: () => {},
         messages: [
           {
             account: {
@@ -520,27 +427,9 @@ describe("Update User Tests", () => {
             { "request_id": expect.whatever() },
             { "jobName": "Outgoing Data", "type": "user" }
           ],
-          ["debug", "connector.service_api.call", { "request_id": expect.whatever() }, {
-            "responseTime": expect.whatever(),
-            "method": "GET", "url": "/data_attributes?model=contact", "status": 200, "vars": {}
-          }],
           [
             "debug",
-            "connector.service_api.call",
-            {
-              "request_id": expect.whatever()
-            },
-            {
-              "responseTime": expect.whatever(),
-              "method": "PUT",
-              "url": "/contacts/5f22f1b6fcaca714eb055739",
-              "status": 200,
-              "vars": {}
-            }
-          ],
-          [
-            "info",
-            "outgoing.user.success",
+            "outgoing.user.skip",
             {
               "subject_type": "user",
               "request_id": expect.whatever(),
@@ -548,156 +437,16 @@ describe("Update User Tests", () => {
               "user_email": "bob@rei.com"
             },
             {
-              "data": {
-                "name": "Bob",
-                "custom_attributes": {
-                  "c_description": "a description",
-                  "job_title": "sales"
-                },
-                "role": "user",
-                "email": "bob@rei.com"
-              },
-              "type": "User"
-            }
-          ],
-          [
-            "debug",
-            "incoming.user.success",
-            {
-              "subject_type": "user",
-              "request_id": expect.whatever(),
-              "user_email": "bob@rei.com",
-              "user_external_id": "user_external_id_1",
-              "user_anonymous_id": "intercom-user:user-5f22f1b6fcaca714eb055739"
-            },
-            {
-              "data": {
-                "type": "contact",
-                "id": "5f22f1b6fcaca714eb055739",
-                "workspace_id": "lkqcyt9t",
-                "external_id": "user_external_id_1",
-                "role": "user",
-                "email": "bob@rei.com",
-                "phone": "a phone number",
-                "name": "Bob",
-                "avatar": null,
-                "owner_id": null,
-                "social_profiles": {
-                  "type": "list",
-                  "data": []
-                },
-                "has_hard_bounced": false,
-                "marked_email_as_spam": false,
-                "unsubscribed_from_emails": false,
-                "created_at": 1596125622,
-                "updated_at": 1596125622,
-                "signed_up_at": null,
-                "last_seen_at": null,
-                "last_replied_at": null,
-                "last_contacted_at": null,
-                "last_email_opened_at": null,
-                "last_email_clicked_at": null,
-                "language_override": null,
-                "browser": null,
-                "browser_version": null,
-                "browser_language": null,
-                "os": null,
-                "location": {
-                  "type": "location",
-                  "country": null,
-                  "region": null,
-                  "city": "Atlanta"
-                },
-                "android_app_name": null,
-                "android_app_version": null,
-                "android_device": null,
-                "android_os_version": null,
-                "android_sdk_version": null,
-                "android_last_seen_at": null,
-                "ios_app_name": null,
-                "ios_app_version": null,
-                "ios_device": null,
-                "ios_os_version": null,
-                "ios_sdk_version": null,
-                "ios_last_seen_at": null,
-                "custom_attributes": {
-                  "c_description": "a description",
-                  "job_title": "sales",
-                },
-                "tags": {
-                  "type": "list",
-                  "data": [],
-                  "url": "/contacts/5f22f1b6fcaca714eb055739/tags",
-                  "total_count": 0,
-                  "has_more": false
-                },
-                "notes": {
-                  "type": "list",
-                  "data": [],
-                  "url": "/contacts/5f22f1b6fcaca714eb055739/notes",
-                  "total_count": 0,
-                  "has_more": false
-                },
-                "companies": {
-                  "type": "list",
-                  "data": [],
-                  "url": "/contacts/5f22f1b6fcaca714eb055739/companies",
-                  "total_count": 0,
-                  "has_more": false
-                }
-              },
-              "type": "User"
+              "reason": "User has been deleted"
             }
           ],
           ["info", "outgoing.job.success", { "request_id": expect.whatever() },
             { "jobName": "Outgoing Data", "type": "user" }
           ]
         ],
-        firehoseEvents: [
-          [
-            "traits",
-            {
-              "asUser": {
-                "email": "bob@rei.com",
-                "external_id": "user_external_id_1",
-                "anonymous_id": "intercom-user:user-5f22f1b6fcaca714eb055739"
-              },
-              "subjectType": "user"
-            },
-            {
-              "intercom_user/email": {
-                "operation": "set",
-                "value": "bob@rei.com"
-              },
-              "intercom_user/name": {
-                "operation": "set",
-                "value": "Bob"
-              },
-              "intercom_user/phone": {
-                "operation": "set",
-                "value": "a phone number"
-              },
-              "intercom_user/city": {
-                "operation": "set",
-                "value": "Atlanta"
-              },
-              "intercom_user/id": {
-                "value": "5f22f1b6fcaca714eb055739",
-                "operation": "set"
-              },
-              "name": {
-                "operation": "setIfNull",
-                "value": "Bob"
-              }
-            }
-          ]
-        ],
+        firehoseEvents: [],
         metrics: [
-          ["increment","connector.request",1],
-          ["increment","ship.service_api.call",1],
-          ["value","connector.service_api.response_time",expect.whatever()],
-          ["increment","ship.service_api.call",1],
-          ["value","connector.service_api.response_time",expect.whatever()]
+          ["increment","connector.request",1]
         ],
         platformApiCalls: []
       };

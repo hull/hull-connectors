@@ -74,7 +74,7 @@ describe("Intercom Webhook Tests", () => {
 
   // TODO CHECK IF THIS IS A REAL CASE:
   it("conversation.admin.single.created - lead - webhook", () => {
-    // return harness.runTest(require("./fixtures/webhook-conversation-admin-single-created-lead"));
+    return harness.runTest(require("./fixtures/webhook-conversation-admin-single-created-lead"));
   });
 
   it("conversation.admin.assigned webhook", () => {

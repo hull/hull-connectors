@@ -400,7 +400,8 @@ describe("Update Lead Tests", () => {
               "name": "Bob",
               "intercom_lead/name": "Bob",
               "intercom_lead/description": "a description",
-              "intercom_lead/job_title": "sales"
+              "intercom_lead/job_title": "sales",
+              "intercom_user/deleted_at": 1,
             },
             segments: [{ id: "lead_segment_1", name: "User Segment 1" }],
             changes: {
@@ -431,7 +432,7 @@ describe("Update Lead Tests", () => {
               "user_id": "123",
             },
             {
-              "reason": "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment"
+              "reason": "User has been deleted"
             }
           ],
           [
@@ -982,6 +983,114 @@ describe("Update Lead Tests", () => {
           ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()]
+        ],
+        platformApiCalls: []
+      };
+    });
+  });
+
+  it("should skip outgoing lead that was deleted in intercom", () => {
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+      return {
+        handlerType: handlers.notificationHandler,
+        handlerUrl: "smart-notifier",
+        channel: "user:update",
+        connector: {
+          private_settings: {
+            access_token: "intercomABC",
+            tag_users: false,
+            synchronized_user_segments: [],
+            synchronized_lead_segments: ["user_segment_1"],
+            lead_claims: [
+              { hull: 'email', service: 'email' },
+              { hull: 'external_id', service: 'external_id' }
+            ],
+            outgoing_lead_attributes: [
+              { hull: 'intercom_lead/name', service: 'name' },
+              { hull: 'intercom_lead/description', service: 'c_description' },
+              { hull: 'intercom_lead/job_title', service: 'job_title' },
+              { hull: 'account.description', service: 'c_description' }
+            ],
+            incoming_lead_attributes: [
+              { service: 'email', hull: 'traits_intercom_lead/email', overwrite: true },
+              { service: 'name', hull: 'traits_intercom_lead/name', overwrite: true },
+              { service: 'phone', hull: 'traits_intercom_lead/phone', overwrite: true },
+              { service: 'location.city', hull: 'traits_intercom_lead/city',  overwrite: true }
+            ]
+          }
+        },
+        usersSegments: [
+          { id: "s2", name: "Segment 2" }
+        ],
+        accountsSegments: [],
+        externalApiMock: () => {},
+        messages: [
+          {
+            account: {
+              id: "1"
+            },
+            user: {
+              id: "123",
+              email: "bob@rei.com",
+              "traits_intercom_lead/tags": ["Segment 2"],
+              "name": "Bob",
+              "intercom_lead/id": "5f22f1b6fcaca714eb055739",
+              "intercom_lead/name": "Bob",
+              "intercom_lead/description": "a description",
+              "intercom_lead/deleted_at": 1
+            },
+            segments: [{ id: "user_segment_1", name: "User Segment 1" }],
+            changes: {
+              user: {
+                "traits_intercom_lead/description": [
+                  "something",
+                  "a description"
+                ]
+              },
+              segments: {
+                left: [{ id: "s2", name: "Segment 2" }]
+              }
+            },
+            events: []
+          }
+        ],
+        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        logs: [
+          ["info", "outgoing.job.start",
+            { "request_id": expect.whatever() },
+            { "jobName": "Outgoing Data", "type": "user" }
+          ],
+          ["debug", "outgoing.user.skip",
+            {
+              "request_id": expect.whatever(),
+              "subject_type": "user",
+              "user_email": "bob@rei.com",
+              "user_id": "123",
+            },
+            {
+              "reason": "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment"
+            }
+          ],
+          [
+            "debug",
+            "outgoing.user.skip",
+            {
+              "subject_type": "user",
+              "request_id": expect.whatever(),
+              "user_id": "123",
+              "user_email": "bob@rei.com"
+            },
+            {
+              "reason": "User has been deleted"
+            }
+          ],
+          ["info", "outgoing.job.success", { "request_id": expect.whatever() },
+            { "jobName": "Outgoing Data", "type": "user" }
+          ]
+        ],
+        firehoseEvents: [],
+        metrics: [
+          ["increment","connector.request",1]
         ],
         platformApiCalls: []
       };

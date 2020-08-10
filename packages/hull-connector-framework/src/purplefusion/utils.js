@@ -267,15 +267,15 @@ function toSendMessage(
     );
   }
 
-  const entity: any = _.get(message, targetEntity);
+  const hullType = targetEntity === "account" ? "account" : "user";
+  const entity: any = _.get(message, hullType);
 
   const serviceName = _.get(options, "serviceName");
   if (!isUndefinedOrNull(serviceName)) {
-    const isDeleted = _.get(message, `${targetEntity}.${serviceName}/deleted_at`, null);
-    const isDeletedUser = _.get(message, `${targetEntity}.${serviceName}_user/deleted_at`, null);
-    const isDeletedLead = _.get(message, `${targetEntity}.${serviceName}_lead/deleted_at`, null);
+    const isDeleted = _.get(message, `${hullType}.${serviceName}/deleted_at`, null);
+    const isDeletedUser = _.get(message, `${hullType}.${serviceName}_${targetEntity}/deleted_at`, null);
 
-    if (!isUndefinedOrNull(isDeleted) || !isUndefinedOrNull(isDeletedUser) || !isUndefinedOrNull(isDeletedLead)) {
+    if (!isUndefinedOrNull(isDeleted) || !isUndefinedOrNull(isDeletedUser)) {
 
       const ignoreDeletedUsers = _.get(
         context,
@@ -287,28 +287,20 @@ function toSendMessage(
         "connector.private_settings.ignore_deleted_accounts"
       );
 
+      let skipDeleted = false;
       if (ignoreDeletedUsers) {
-        if (isUserLeadConnector) {
-          if (targetEntity === 'user' && isDeletedUser) {
-            return false;
-          }
-
-          if (targetEntity === 'lead' && isDeletedLead) {
-            return false;
-          }
+        if (isUserLeadConnector && isDeletedUser && (targetEntity === 'user' || targetEntity === 'lead')) {
+          skipDeleted = true;
         }
 
-        if (isDeleted) {
-          if (targetEntity === 'user') {
-            context.client.asUser(entity).logger.debug("outgoing.user.skip", { reason: "User has been deleted" });
-            return false;
-          }
-
-          if (targetEntity === 'account') {
-            context.client.asUser(entity).logger.debug("outgoing.account.skip", { reason: "Account has been deleted" });
-            return false;
-          }
+        if (isDeleted && (targetEntity === 'user' || targetEntity === 'account')) {
+          skipDeleted = true;
         }
+      }
+
+      if (skipDeleted) {
+        context.client.asUser(entity).logger.debug(`outgoing.${hullType}.skip`, { reason: `${_.capitalize(hullType)} has been deleted` });
+        return false;
       }
     }
   }
