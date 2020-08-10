@@ -23,7 +23,8 @@ function statusHandlerFactory(
       res.json(response);
     } catch (err) {
       res.status(500).json({
-        status: "error"
+        status: "error",
+        messages: ["Error while reporting Status to Hull Platform", err.message]
       });
     }
   }
