@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "jwt-simple": "^0.5.0",
-    "winston": "^2.2.0"
+    "node-rdkafka": "^2.7.4"
   },
   "devDependencies": {}
 }

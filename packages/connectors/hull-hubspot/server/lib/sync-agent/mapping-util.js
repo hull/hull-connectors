@@ -155,9 +155,12 @@ class MappingUtil {
         if (_.isNil(value) || (!_.isNumber(value) && _.isEmpty(value))) {
           return null;
         }
+        if (_.isNumber(value)) {
+          return value;
+        }
         // eslint-disable-next-line no-restricted-globals
-        if (!isNaN(value)) {
-          return parseInt(value, 10);
+        if (!isNaN(value) && !_.startsWith(value, "0")) {
+          return parseFloat(value);
         }
         return value;
       }

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -eu
 
 CONNECTOR=${CONNECTOR:=$1}
 
@@ -18,6 +19,11 @@ if [ ! -d $PATH_TO_CONNECTOR ]; then
   exit 1
 fi
 
-echo "Starting $PATH_TO_CONNECTOR";
+echo "Starting $PATH_TO_CONNECTOR on PORT=$PORT";
+export MEMORY_AVAILABLE=`echo $MARATHON_APP_RESOURCE_MEM | awk '{print int(0.75 * int($1+0.5))}'`
 
-exec node --optimize_for_size --max_old_space_size=$MEMORY_AVAILABLE --gc_interval=100 -r newrelic $PATH_TO_CONNECTOR
+SHIP_CACHE_KEY_PREFIX=$MARATHON_APP_ID
+./scripts/load-ssm-settings > .env
+source .env
+
+exec node --optimize_for_size --max_old_space_size=$MEMORY_AVAILABLE --gc_interval=100 -r newrelic -r appmetrics/start $PATH_TO_CONNECTOR

@@ -51,19 +51,27 @@ class CacheAgent {
 
   promiseReuser: PromiseReuser;
 
+  keyPrefix: string;
+
   constructor(options: HullCacheConfig) {
-    const { store } = options;
+    const { keyPrefix, store } = options;
     this.cache = cacheManager.caching({
       ...options,
       store: store === "redis" ? redisStore : "memory"
     });
     this.getConnectorCache = this.getConnectorCache.bind(this);
     this.promiseReuser = new PromiseReuser();
+    this.keyPrefix = keyPrefix;
   }
 
   getConnectorCache(ctx: HullContext) {
     // eslint-disable-line class-methods-use-this
-    return new ConnectorCache(ctx, this.cache, this.promiseReuser);
+    return new ConnectorCache(
+      ctx,
+      this.cache,
+      this.promiseReuser,
+      this.keyPrefix
+    );
   }
 }
 

@@ -24,6 +24,7 @@ packages/connectors/hull-pipedrive
 packages/connectors/hull-coppercrm
 packages/connectors/hull-slack
 packages/connectors/hull-intercom
+packages/connectors/hull-canary
 packages/connectors/hull-hubspot/server/purplefusion
 packages/connectors/hull-salesforce/server/purplefusion
 packages/hull-connector-framework
