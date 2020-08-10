@@ -197,7 +197,11 @@ describe("Basic Attributes manipulation", () => {
     const asAccount = {
       id: "1234"
     };
-    const attributes = { identical: "value" };
+    const attributes = {
+      identical: "value",
+      identical_date: "2020-08-06T16:56:59+02:00"
+    };
+    const identical_date = "2020-08-06T17:56:59+03:00";
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => ({
       ...messageWithUser({
         user: {
@@ -207,7 +211,9 @@ describe("Basic Attributes manipulation", () => {
         account: {}
       }),
       handlerType: handlers.notificationHandler,
-      connector: connectorWithCode(`hull.traits({ identical: "value" })`),
+      connector: connectorWithCode(
+        `hull.traits({ identical: "value", identical_date: "${identical_date}" })`
+      ),
       firehoseEvents: [],
       logs: [
         [
@@ -215,14 +221,20 @@ describe("Basic Attributes manipulation", () => {
           "compute.debug",
           expect.whatever(),
           expect.objectContaining({
-            userTraits: [[asUser, attributes]]
+            userTraits: [[asUser, { ...attributes, identical_date }]]
           })
         ],
         [
           "debug",
           "incoming.user.success",
           expect.whatever(),
-          { attributes: {}, no_ops: { identical: "identical value" } }
+          {
+            attributes: {},
+            no_ops: {
+              identical: "identical value",
+              identical_date: "identical date"
+            }
+          }
         ]
       ],
       metrics: [METRIC_CONNECTOR_REQUEST, METRIC_INCOMING_USER]
