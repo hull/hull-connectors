@@ -75,6 +75,12 @@ function contactTransformation({ entityType }) {
         }
       }
     },
+    {
+      writeTo: {
+        path: "role",
+        value: entityType
+      }
+    }
   ];
 
 }

@@ -180,7 +180,7 @@
     },
     {
       "name": "incoming_user_attributes",
-      "title": "Lead Incoming Fields",
+      "title": "User Incoming Fields",
       "description": "List of User fields to fetch from Intercom.",
       "type": "array",
       "format": "traitMapping",
@@ -255,6 +255,7 @@
       "uniqueItems": true,
       "default": [
         "user.created",
+        "user.deleted",
         "contact.created",
         "company.created"
       ],
@@ -286,6 +287,17 @@
           "company.created"
         ]
       }
+    },
+    {
+      "name": "send_batch_as",
+      "title": "Send Batch Hull Users as Intercom Users or Leads",
+      "type": "string",
+      "enum": [
+        "Users",
+        "Leads"
+      ],
+      "default": "Users",
+      "required" : true
     },
     {
       "name": "mark_deleted_users",
@@ -574,6 +586,20 @@
       ]
     },
     {
+      "title": "Send Batch Hull Users As Intercom Users or Leads",
+      "description": "When manually sending Hull Users to Intercom, define if they will be sent as Intercom Leads or Users.",
+      "properties": [
+        "private_settings.send_batch_as"
+      ]
+    },
+    {
+      "title": "Lead Identity",
+      "description": "",
+      "properties": [
+        "private_settings.lead_claims"
+      ]
+    },
+    {
       "title": "Fetch Leads from Intercom",
       "description": "",
       "properties": [
@@ -589,6 +615,13 @@
         "private_settings.tag_leads",
         "private_settings.synchronized_lead_segments",
         "private_settings.outgoing_lead_attributes"
+      ]
+    },
+    {
+      "title": "User Identity",
+      "description": "",
+      "properties": [
+        "private_settings.user_claims"
       ]
     },
     {

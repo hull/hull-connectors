@@ -220,6 +220,10 @@ module.exports = {
           "anonymous_id": "intercom-lead:lead-5f297f71bce3e055f3afdf6e"
         },
         "attributes": {
+          "name": {
+            "operation": "setIfNull",
+            "value": "Johnny Bravo"
+          },
           "intercom_lead/user_id": {
             "operation": "set",
             "value": "2345234523452345"
@@ -243,6 +247,10 @@ module.exports = {
           "intercom_lead/has_hard_bounced": {
             "operation": "set",
             "value": false
+          },
+          "intercom_lead/name": {
+            "operation": "set",
+           "value": "Johnny Bravo"
           },
           "intercom_lead/location_city_name": {
             "operation": "set",

@@ -284,6 +284,7 @@ describe("Lead Webhooks Tests", () => {
                 "created_at": 1596555122,
                 "signed_up_at": null,
                 "updated_at": 1596555122,
+                "name": "Johnny Bravo",
                 "owner_id": null,
                 "has_hard_bounced": false,
                 "custom_attributes": {
@@ -451,12 +452,20 @@ describe("Lead Webhooks Tests", () => {
                 "operation": "set",
                 "value": "http://facebook.com/th1sland"
               },
+              "intercom_lead/name": {
+                "operation": "set",
+                "value": "Johnny Bravo"
+              },
               "intercom_lead/c_tags": {
                 "value": [
                   "Tag1",
                   "Tag2"
                 ],
                 "operation": "set"
+              },
+              "name": {
+                "operation": "setIfNull",
+                "value": "Johnny Bravo"
               }
             }
           ]

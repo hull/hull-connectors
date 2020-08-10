@@ -62,6 +62,7 @@ const webhookTransformation = {
     "    \"external_id\": user_id,\n" +
     "    \"id\": id,\n" +
     "    \"email\": email,\n" +
+    "    \"name\": name,\n" +
     "    \"avatar\": avatar.image_url,\n" +
     "    \"phone\": phone,\n" +
     "    \"last_request_at\": $boolean(last_request_at) ? $ceil($toMillis(last_request_at) / 1000) : null,\n" +
@@ -124,6 +125,18 @@ function contactTransformation({ entityType }) {
       operateOn: `\${connector.private_settings.incoming_${entityType}_attributes}`,
       expand: { valueName: "mapping" },
       then: [
+        {
+          condition: [
+            inputIsNotEmpty("email"),
+            varEqual("mapping.service", "email"),
+          ],
+          operateOn: { component: "input", select: "${mapping.service}", name: "serviceValue" },
+          then: [
+            {
+              writeTo: { path: "attributes.${mapping.hull}", format: { operation: "set", value: "${operateOn}" } }
+            }
+          ]
+        },
         {
           condition: [
             inputIsNotEmpty("tags.data"),
@@ -368,7 +381,7 @@ const transformsToService: ServiceTransforms = [
     strategy: "AtomicReaction",
     target: { component: "new" },
     then: _.concat(
-      serviceUserTransforms({ entityType: "lead", attributeExclusions: ["tags", "companies", "segments", "social_profiles"] }),
+      serviceUserTransforms({ entityType: "lead", attributeExclusions: ["email", "tags", "companies", "segments", "social_profiles"] }),
       contactTransformation({ entityType: "lead" })
     )
   },
@@ -379,7 +392,7 @@ const transformsToService: ServiceTransforms = [
     strategy: "AtomicReaction",
     target: { component: "new" },
     then: _.concat(
-      serviceUserTransforms({ entityType: "user", attributeExclusions: ["tags", "companies", "segments", "social_profiles"] }),
+      serviceUserTransforms({ entityType: "user", attributeExclusions: ["email", "tags", "companies", "segments", "social_profiles"] }),
       contactTransformation({ entityType: "user" })
     )
   },

@@ -286,6 +286,7 @@ describe("User Webhooks Tests", () => {
                 "created_at": 1596555122,
                 "signed_up_at": null,
                 "updated_at": 1596555122,
+                "name": "Johnny Bravo",
                 "owner_id": null,
                 "has_hard_bounced": false,
                 "custom_attributes": {
@@ -460,6 +461,14 @@ describe("User Webhooks Tests", () => {
                   "Tag2"
                 ],
                 "operation": "set"
+              },
+              "intercom_user/name": {
+                "operation": "set",
+                "value": "Johnny Bravo"
+              },
+              "name": {
+                "operation": "setIfNull",
+                "value": "Johnny Bravo"
               }
             }
           ]

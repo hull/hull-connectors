@@ -23,6 +23,7 @@ describe("Insert User Tests", () => {
             tag_users: false,
             synchronized_user_segments: ["user_segment_1"],
             synchronized_lead_segments: [],
+            send_batch_as: "Users",
             user_claims: [
               { hull: 'email', service: 'email' }
             ],
@@ -79,6 +80,7 @@ describe("Insert User Tests", () => {
 
           scope
             .post("/contacts", {
+              "role": "user",
               "email": "bob@rei.com",
               "name": "Bob",
               "custom_attributes": {
@@ -250,6 +252,7 @@ describe("Insert User Tests", () => {
                   "c_description": "a description",
                   "job_title": "sales"
                 },
+                "role": "user",
                 "email": "bob@rei.com"
               },
               "type": "User"

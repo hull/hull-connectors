@@ -220,6 +220,14 @@ module.exports = {
           "anonymous_id": "intercom-user:user-5f297f71bce3e055f3afdf6e"
         },
         "attributes": {
+          "name": {
+            "operation": "setIfNull",
+            "value": "Johnny Bravo"
+          },
+          "intercom_user/name": {
+            "operation": "set",
+            "value": "Johnny Bravo"
+          },
           "intercom_user/user_id": {
             "operation": "set",
             "value": "2345234523452345"

@@ -174,11 +174,6 @@ function createAnonymizedObject(object, pathsToAnonymize = {
   }, 2);
 }
 
-function matchesUserSegments(message: HullUserUpdateMessage, synchronizedSegments: Array<HullSegment>): boolean {
-  const userSegmentIds = _.compact(message.segments).map(s => s.id);
-  return _.intersection(userSegmentIds, synchronizedSegments).length > 0;
-}
-
 /**
  * TODO break apart method so can unit test individual pieces...
  * @param  {[type]} context                 [description]
@@ -197,6 +192,17 @@ function toSendMessage(
     sendOnAnySegmentChanges?: boolean
   }
 ): boolean {
+
+  const synchronizedUserSegments = _.get(
+    context,
+    "connector.private_settings.synchronized_user_segments"
+  );
+  const synchronizedLeadSegments = _.get(
+    context,
+    "connector.private_settings.synchronized_lead_segments"
+  );
+  const isUserLeadConnector = !_.isNil(synchronizedUserSegments) && !_.isNil(synchronizedLeadSegments);
+
   // Entered segment
   // First: entered segment notification (no attribute change)
   // Second: segment_id change on user (is only attribute change)
@@ -218,33 +224,19 @@ function toSendMessage(
   // right? or should we just send the identifiers?
   // we'll keep it for now.
   if (context.isBatch) {
+    if (isUserLeadConnector) {
+      const sendBatchAs = _.get(context, "connector.private_settings.send_batch_as");
 
-    const synchronizedUserSegments = _.get(
-      context,
-      "connector.private_settings.synchronized_user_segments"
-    );
-    const synchronizedLeadSegments = _.get(
-      context,
-      "connector.private_settings.synchronized_lead_segments"
-    );
-
-    if (!_.isNil(synchronizedUserSegments) && !_.isNil(synchronizedLeadSegments)) {
-      const matchesUser = matchesUserSegments(message, synchronizedUserSegments);
-      const matchesLead = matchesUserSegments(message, synchronizedLeadSegments);
-
-      if (!matchesUser && !matchesLead) {
+      if (!sendBatchAs) {
+        context.client.asUser(message.user).logger.info("outgoing.user.skip", { reason: "Please set batch type in your connector settings" });
         return false;
       }
 
-      if (targetEntity === "user" && (!matchesUser || (matchesUser && matchesLead))) {
-        return false;
-      }
-
-      if (targetEntity === "lead" && !matchesLead) {
+      if ((targetEntity === "user" && sendBatchAs !== "Users") ||
+        (targetEntity === "lead" && sendBatchAs !== "Leads")) {
         return false;
       }
     }
-
     return true;
   }
 
@@ -280,8 +272,11 @@ function toSendMessage(
   const serviceName = _.get(options, "serviceName");
   if (!isUndefinedOrNull(serviceName)) {
     const isDeleted = _.get(message, `${targetEntity}.${serviceName}/deleted_at`, null);
+    const isDeletedUser = _.get(message, `${targetEntity}.${serviceName}_user/deleted_at`, null);
+    const isDeletedLead = _.get(message, `${targetEntity}.${serviceName}_lead/deleted_at`, null);
 
-    if (!isUndefinedOrNull(isDeleted)) {
+    if (!isUndefinedOrNull(isDeleted) || !isUndefinedOrNull(isDeletedUser) || !isUndefinedOrNull(isDeletedLead)) {
+
       const ignoreDeletedUsers = _.get(
         context,
         "connector.private_settings.ignore_deleted_users"
@@ -292,14 +287,28 @@ function toSendMessage(
         "connector.private_settings.ignore_deleted_accounts"
       );
 
-      if (targetEntity === 'user' && ignoreDeletedUsers === true) {
-        context.client.asUser(entity).logger.debug("outgoing.user.skip", { reason: "User has been deleted" });
-        return false;
-      }
+      if (ignoreDeletedUsers) {
+        if (isUserLeadConnector) {
+          if (targetEntity === 'user' && isDeletedUser) {
+            return false;
+          }
 
-      if (targetEntity === 'account' && ignoreDeletedAccounts === true) {
-        context.client.asUser(entity).logger.debug("outgoing.account.skip", { reason: "Account has been deleted" });
-        return false;
+          if (targetEntity === 'lead' && isDeletedLead) {
+            return false;
+          }
+        }
+
+        if (isDeleted) {
+          if (targetEntity === 'user') {
+            context.client.asUser(entity).logger.debug("outgoing.user.skip", { reason: "User has been deleted" });
+            return false;
+          }
+
+          if (targetEntity === 'account') {
+            context.client.asUser(entity).logger.debug("outgoing.account.skip", { reason: "Account has been deleted" });
+            return false;
+          }
+        }
       }
     }
   }

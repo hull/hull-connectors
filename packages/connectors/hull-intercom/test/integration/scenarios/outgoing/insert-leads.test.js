@@ -24,6 +24,7 @@ describe("Insert Lead Tests", () => {
             outgoing_events: ["Email Opened", "Email Sent"],
             synchronized_lead_segments: ["lead_segment_1"],
             synchronized_user_segments: [],
+            send_batch_as: "Leads",
             lead_claims: [
               { hull: 'email', service: 'email' }
             ],
@@ -83,6 +84,7 @@ describe("Insert Lead Tests", () => {
 
           scope
             .post("/contacts", {
+              "role": "lead",
               "email": "bob@rei.com",
               "name": "Bob",
               "custom_attributes": {
@@ -411,6 +413,7 @@ describe("Insert Lead Tests", () => {
                   "c_description": "a description",
                   "job_title": "sales"
                 },
+                "role": "lead",
                 "email": "bob@rei.com"
               },
               "type": "Lead"
@@ -435,6 +438,7 @@ describe("Insert Lead Tests", () => {
                 "email": "bob@rei.com",
                 "phone": "a phone number",
                 "name": "Bob",
+                "role": "lead",
                 "avatar": null,
                 "owner_id": null,
                 "social_profiles": {
@@ -716,6 +720,7 @@ describe("Insert Lead Tests", () => {
 
           scope
             .post("/contacts", {
+              "role": "lead",
               "email": "bob@rei.com",
               "name": "Bob",
               "custom_attributes": {
@@ -928,6 +933,7 @@ describe("Insert Lead Tests", () => {
                   "c_description": "a description",
                   "job_title": "sales"
                 },
+                "role": "lead",
                 "email": "bob@rei.com"
               },
               "type": "Lead"

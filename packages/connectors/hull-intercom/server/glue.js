@@ -484,9 +484,6 @@ const glue = {
       ]
     )
   ],
-  getEvent: returnValue([
-
-  ], "${event}"),
   webhooks: [
     set("webhookData", input("data")),
     set("webhookTopic", input("topic")),
@@ -517,6 +514,9 @@ const glue = {
           set("webhookType", get("webhookType", get("${webhookTopic}", EVENT_MAPPING))),
           set("entityType", get("entityType", get("${webhookTopic}", EVENT_MAPPING))),
           set("asEntity", get("asEntity", get("${webhookTopic}", EVENT_MAPPING))),
+          ifL(cond("isEqual", "${webhookTopic}", "user.deleted"), [
+            set("service_name", ld("toLower", "intercom_${webhookType.name}")),
+          ]),
           ifL(cond("isEmpty", "${pathToEntity}"), {
             do: set("transformInput", input()),
             eldo: set("transformInput", input("${pathToEntity}"))

@@ -304,7 +304,8 @@ describe("Update Lead Tests", () => {
               "custom_attributes": {
                 "c_description": "a description",
                 "job_title": "sales"
-              }
+              },
+              "role": "lead"
             }).reply(200, {
             "type": "contact",
             "id": "5f22f1b6fcaca714eb055739",
@@ -481,6 +482,7 @@ describe("Update Lead Tests", () => {
                   "c_description": "a description",
                   "job_title": "sales"
                 },
+                "role": "lead",
                 "email": "bob@rei.com"
               },
               "type": "Lead"
@@ -673,7 +675,8 @@ describe("Update Lead Tests", () => {
               "custom_attributes": {
                 "c_description": "a description",
                 "job_title": "sales"
-              }
+              },
+              "role": "lead"
             }).reply(200, {
               "type": "contact",
               "id": "5f22f1b6fcaca714eb055739",
@@ -837,6 +840,7 @@ describe("Update Lead Tests", () => {
                   "c_description": "a description",
                   "job_title": "sales"
                 },
+                "role": "lead",
                 "email": "bob@rei.com"
               },
               "type": "Lead"
