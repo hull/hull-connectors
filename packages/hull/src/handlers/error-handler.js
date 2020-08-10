@@ -31,7 +31,7 @@ function errorHandlerMiddlewareFactory({
 
     // if we have a transient error
     if (err instanceof ConfigurationError) {
-      req.hull.client.logger.error("ConfigurationError", err);
+      req.hull.client.logger.error("ConfigurationError", err.message);
       res.status(status || 503);
       return res.end("configuration-error");
     }
