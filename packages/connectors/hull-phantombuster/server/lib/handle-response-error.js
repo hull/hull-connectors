@@ -23,11 +23,12 @@ export default function handleResponseError({
   if (!ok || !body) {
     return "Could not get a response from Phantombuster. API Down?";
   }
-  if (body.status === "error") {
+  if (body?.status === "error") {
     return `Phantombuster returned an error code: ${body.error}`;
   }
-  if (body.lastExitCode) {
-    return "Last Agent launch didn't finish correctly, check status in Phantombuster";
-  }
+  // Comment out for now
+  // if (body.lastEndType !== "finished") {
+  //   return "Last Agent launch didn't finish correctly, check status in Phantombuster";
+  // }
   return undefined;
 }

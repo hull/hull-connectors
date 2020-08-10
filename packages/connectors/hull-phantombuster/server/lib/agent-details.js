@@ -45,6 +45,11 @@ export default async function updateAgentDetails(
   const error = handleResponseError(agentResponse);
 
   if (error) {
+    ctx.client.logger.error("Error parsing Phantombuster", {
+      error,
+      agentResponse,
+      orgResponse
+    });
     const err = new Error(error);
     err.data = { body: agentResponse.body };
     throw err;
