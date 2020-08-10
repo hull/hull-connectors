@@ -37,7 +37,7 @@ function statusHandlerFactory(
       ...options
     },
     requestName: "status",
-    errorHandler,
+    errorHandler: errorHandler(options),
     handler
   });
 }
