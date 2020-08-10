@@ -27,7 +27,7 @@ export default async function statusCheck(
     }
   } catch (err) {
     status = "error";
-    messages.push(err);
+    messages.push(err.message);
   }
 
   return { messages, status };
