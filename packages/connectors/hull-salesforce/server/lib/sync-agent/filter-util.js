@@ -334,11 +334,18 @@ class FilterUtil {
         return results.toUpdate.push(envelope);
       }
 
-      if (
-        resourceType === "Contact" &&
-        (_.has(user, `${traitGroup}/account_id`) || _.has(account, "id"))
-      ) {
-        return results.toInsert.push(envelope);
+      if (resourceType === "Contact") {
+        if (_.has(user, `${traitGroup}/account_id`) || _.has(account, "id")) {
+          return results.toInsert.push(envelope);
+        }
+        // logging this outside 'batch sent' may produce too many logs
+        if (this.isBatch) {
+          return results.toSkip.push({
+            envelope,
+            hullType: "user",
+            skipReason: `${resourceType} does not have an account`
+          });
+        }
       }
 
       if (resourceType === "Lead") {

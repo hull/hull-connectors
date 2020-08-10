@@ -1,14 +1,22 @@
 const { isUndefinedOrNull } = require("./utils");
-const { varEqual, not, isServiceAttributeInVarList, varNull, varUndefinedOrNull } = require("./conditionals");
+const {
+  varEqual,
+  not,
+  isServiceAttributeInVarList,
+  varNull,
+  varUndefinedOrNull,
+  varInArray,
+  or
+} = require("./conditionals");
 
 function createIncomingServiceUserTransform(entityType) {
   return {
     target: { component: "new" },
-    then: serviceUserTransforms(entityType)
+    then: serviceUserTransforms({ entityType })
   };
 }
 
-function serviceUserTransforms(entityType) {
+function serviceUserTransforms({ entityType, attributeExclusions = [] }) {
   let anonymousIdPostFix = "";
   let anonymousIdPrefix = "";
   let anonymousIdAttributePostfix = "";
@@ -26,7 +34,7 @@ function serviceUserTransforms(entityType) {
       expand: { valueName: "mapping" },
       then: {
         operateOn: { component: "input", select: "${mapping.service}", name: "serviceValue" },
-        condition: not(varEqual("serviceValue", undefined)),
+        condition: not(varUndefinedOrNull("serviceValue")),
         writeTo: {
           // should expose specific identity mappings like "primaryEmail" if there are service specific rules/attributes...
           path: "ident.${mapping.hull}"
@@ -38,7 +46,13 @@ function serviceUserTransforms(entityType) {
       expand: { valueName: "mapping" },
       then: {
         operateOn: { component: "input", select: "${mapping.service}", name: "serviceValue" },
-        condition: not(varEqual("serviceValue", undefined)),
+        condition: [
+          or(
+            varEqual(attributeExclusions, []),
+            not(varInArray("mapping.service", attributeExclusions))
+          ),
+          not(varEqual("serviceValue", undefined))
+        ],
         then: [
           {
             condition: varEqual("mapping.overwrite", false),
@@ -176,5 +190,6 @@ module.exports = {
   createEnumTransformWithAttributeListOutgoing,
   createIncomingServiceUserTransform,
   createEnumTransformWithAttributeList,
-  createEnumTransform
+  createEnumTransform,
+  serviceUserTransforms
 };

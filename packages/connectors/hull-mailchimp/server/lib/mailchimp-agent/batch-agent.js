@@ -30,7 +30,7 @@ class MailchimpBatchAgent {
       extractField: null
     });
 
-    const { operations, jobs = [] } = options;
+    const { operations, jobs = [], operationName } = options;
 
     if (_.isEmpty(operations)) {
       return Promise.resolve([]);
@@ -52,6 +52,11 @@ class MailchimpBatchAgent {
           return Promise.resolve();
         }
         options.batchId = id;
+        if (!_.isNil(operationName)) {
+          this.ctx.helpers.settingsUpdate({
+            [`${operationName}_batch_id`]: id
+          });
+        }
         return this.ctx.enqueue("handleMailchimpBatch", options, {
           delay: process.env.MAILCHIMP_BATCH_HANDLER_INTERVAL || 10000
         });
@@ -77,7 +82,8 @@ class MailchimpBatchAgent {
       jobs = [],
       chunkSize,
       extractField,
-      additionalData
+      additionalData,
+      operationName
     } = options;
     return this.mailchimpClient
       .get("/batches/{{batchId}}")
@@ -166,6 +172,13 @@ class MailchimpBatchAgent {
               .delete("/batches/{{batchId}}")
               .tmplVar({ batchId })
           )
+          .then(() => {
+            if (!_.isNil(operationName)) {
+              this.ctx.helpers.settingsUpdate({
+                [`${operationName}_batch_id`]: null
+              });
+            }
+          })
           .then(() =>
             this.client.logger.info("incoming.job.success", {
               jobName: "mailchimp-batch-job"
