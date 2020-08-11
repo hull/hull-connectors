@@ -32,7 +32,7 @@ export default async function importHandler(
   }
 
   // Don't use customer-provided data directly
-  const entityType = type === "user" ? "user" : "account";
+  const entityType = type === "account" ? "account" : "user";
   const method = entityType === "account" ? client.asAccount : client.asUser;
   const remap = remapAttributes(entityType);
   rows.map(async ({ context, claims, attributes }) => {
