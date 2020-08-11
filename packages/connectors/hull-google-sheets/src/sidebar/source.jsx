@@ -32,9 +32,9 @@ class Source extends Component<Props, State> {
   }
 
   render() {
-    const { source, sources, type } = this.props;
+    const { source, sources } = this.props;
     const invalidChars = hasInvalidCharacters(source);
-    return type === "user_event" ? null : (
+    return (
       <Fragment>
         <h4>Import Group</h4>
         <Creatable

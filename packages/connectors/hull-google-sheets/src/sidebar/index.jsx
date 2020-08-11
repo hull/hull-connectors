@@ -461,12 +461,13 @@ export default class Sidebar extends Component<Props, State> {
         )}
         {hullAttributes && googleColumns && (
           <Fragment>
-            <Source
-              type={type}
-              sources={hullGroups}
-              source={source}
-              onChange={this.handleChangeSource}
-            />
+            {type !== "user_event" && (
+              <Source
+                sources={hullGroups}
+                source={source}
+                onChange={this.handleChangeSource}
+              />
+            )}
             <Mapping
               type={type}
               mapping={filterMapping(source, mapping)}
