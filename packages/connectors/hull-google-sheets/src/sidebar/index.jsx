@@ -425,6 +425,8 @@ export default class Sidebar extends Component<Props, State> {
       );
     }
 
+    const displayType = type === "user_event" ? "user" : type;
+
     const mapping = this.getMapping();
     return (
       <div style={{ paddingBottom: "5em", paddingTop: "1em" }}>
@@ -438,7 +440,7 @@ export default class Sidebar extends Component<Props, State> {
           type={type}
           errors={
             !isValidClaims(this.getClaims()) && [
-              `You need to configure at least one claim to resolve ${type} identities`
+              `You need to configure at least one claim to resolve ${displayType} identities`
             ]
           }
           claims={this.getClaims()}
