@@ -8,13 +8,12 @@ import {
   IntercomOutgoingAttributeDefinition,
   IntercomAttributeWrite,
   IntercomAttributeMapping,
-  IntercomWebhookLeadRead,
-  IntercomWebhookUserRead,
-  IntercomWebhookCompanyRead,
-  IntercomWebhookLeadEventRead
+  IntercomWebhookUserEventRead,
+  IntercomWebhookLeadEventRead,
+  IntercomWebhookEventRead
 } from "./service-objects";
 import { filterL } from "hull-connector-framework/src/purplefusion/language";
-import { HullIncomingUser, HullIncomingEvent, HullApiAttributeDefinition } from "hull-connector-framework/src/purplefusion/hull-service-objects";
+import { HullIncomingEvent, HullApiAttributeDefinition } from "hull-connector-framework/src/purplefusion/hull-service-objects";
 const { EVENT_MAPPING } = require("./event-mapping");
 const _ = require("lodash");
 
@@ -485,48 +484,55 @@ const glue = {
     )
   ],
   webhooks: [
-    set("webhookData", input("data")),
     set("webhookTopic", input("topic")),
-    set("eventSource", "intercom"),
-    set("eventMapping", EVENT_MAPPING),
 
     ifL(ld("includes", settings("incoming_events"), "${webhookTopic}"), [
+      set("eventSource", "intercom"),
+      set("webhookData", input("data")),
 
-      set("action", get("action", get("${webhookTopic}", EVENT_MAPPING))),
-      set("webhookType", get("webhookType", get("${webhookTopic}", EVENT_MAPPING))),
-      set("pathToEntity", get("pathToEntity", get("${webhookTopic}", EVENT_MAPPING))),
+      set("eventDefinition", get("${webhookTopic}", EVENT_MAPPING)),
+      set("webhookType", "${eventDefinition.webhookType}"),
+      set("pathToEntity", "${eventDefinition.pathToEntity}"),
+      set("eventName", "${eventDefinition.eventName}"),
+      set("eventType", "${eventDefinition.eventType}"),
+      set("propertiesMapping", "${eventDefinition.properties}"),
+      set("contextMapping", "${eventDefinition.context}"),
+      set("transformTo", "${eventDefinition.transformTo}"),
+      set("asEntity", "${eventDefinition.asEntity}"),
 
-      ifL(cond("isEqual", "${action}", "track"), {
-        do: [
-          set("eventName", get("eventName", get("${webhookTopic}", EVENT_MAPPING))),
-          set("eventType", get("eventType", get("${webhookTopic}", EVENT_MAPPING))),
-          set("propertiesMapping", get("properties", get("${webhookTopic}", EVENT_MAPPING))),
-          set("contextMapping", get("context", get("${webhookTopic}", EVENT_MAPPING))),
-          set("identity", transformTo(HullUserIdentity, cast("${webhookType}", input("${pathToEntity}")))),
+      ifL(cond("isEqual", "${eventDefinition.webhookType.name}", "Conversation"), [
+        set("eventItem", input("${pathToEntity}.type")),
+        ifL(cond("isEqual", "${eventItem}", "user"), [
+          set("webhookType", IntercomWebhookUserEventRead)
+        ]),
+        ifL(cond("isEqual", "${eventItem}", "lead"), [
+          set("webhookType", IntercomWebhookLeadEventRead)
+        ])
+      ]),
 
-          ifL(cond("notEmpty", "${identity}"), [
-            hull("asUser", {
-              ident: "${identity}",
-              events: [
-                transformTo(HullIncomingEvent, cast(IntercomWebhookLeadEventRead, input()))
-              ]
-            })
-          ])
-        ],
-        eldo: [
-          set("webhookType", get("webhookType", get("${webhookTopic}", EVENT_MAPPING))),
-          set("entityType", get("entityType", get("${webhookTopic}", EVENT_MAPPING))),
-          set("asEntity", get("asEntity", get("${webhookTopic}", EVENT_MAPPING))),
-          ifL(cond("isEqual", "${webhookTopic}", "user.deleted"), [
-            set("service_name", ld("toLower", "intercom_${webhookType.name}")),
-          ]),
-          ifL(cond("isEmpty", "${pathToEntity}"), {
-            do: set("transformInput", input()),
-            eldo: set("transformInput", input("${pathToEntity}"))
-          }),
-          hull("${asEntity}", transformTo("${entityType}", cast("${webhookType}", "${transformInput}")))
-        ]
-      })
+      set("action", get("action", "${eventDefinition}")),
+      ifL(cond("isEqual", "${action}", "track"), [
+        set("identity", transformTo(HullUserIdentity, cast("${webhookType}", input("${pathToEntity}")))),
+        ifL(cond("notEmpty", "${identity}"), [
+          hull("asUser", {
+            ident: "${identity}",
+            events: [
+              transformTo(HullIncomingEvent, cast(IntercomWebhookEventRead, input()))
+            ]
+          })
+        ])
+      ]),
+      ifL(cond("isEqual", "${action}", "traits"), [
+        set("webhookType", "${eventDefinition.webhookType}"),
+        ifL(cond("isEqual", "${webhookTopic}", "user.deleted"), [
+          set("service_name", ld("toLower", "intercom_${webhookType.name}")),
+        ]),
+        ifL(cond("isEmpty", "${pathToEntity}"), {
+          do: set("transformInput", input()),
+          eldo: set("transformInput", input("${pathToEntity}"))
+        }),
+        hull("${asEntity}", transformTo("${transformTo}", cast("${webhookType}", "${transformInput}")))
+      ])
     ])
   ]
 };

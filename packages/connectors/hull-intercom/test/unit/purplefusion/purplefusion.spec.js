@@ -40,9 +40,7 @@ describe("Intercom Webhook Tests", () => {
     },
   });
 
-  const run = false;
   // Save Leads/Contacts Webhook actions
-
   it("company.created webhook", () => {
     return harness.runTest(require("./fixtures/webhook-company-created"));
   });
@@ -72,7 +70,6 @@ describe("Intercom Webhook Tests", () => {
     return harness.runTest(require("./fixtures/webhook-conversation-admin-single-created"));
   });
 
-  // TODO CHECK IF THIS IS A REAL CASE:
   it("conversation.admin.single.created - lead - webhook", () => {
     return harness.runTest(require("./fixtures/webhook-conversation-admin-single-created-lead"));
   });

@@ -82,6 +82,16 @@ const IntercomWebhookUserEventRead: ServiceObjectDefinition = {
   name: "Lead"
 };
 
+const IntercomWebhookEventRead: ServiceObjectDefinition = {
+  service_name: "intercom_webhook_event_read",
+  name: "Event"
+};
+
+const IntercomWebhookConversationEventRead: ServiceObjectDefinition = {
+  service_name: "intercom_webhook_conversation_event_read",
+  name: "Conversation"
+};
+
 const IntercomDeletedUserRead: ServiceObjectDefinition = {
   service_name: "intercom_deleted_user_read",
   name: "User"
@@ -104,5 +114,7 @@ module.exports = {
   IntercomWebhookCompanyRead,
   IntercomWebhookLeadEventRead,
   IntercomWebhookUserEventRead,
+  IntercomWebhookConversationEventRead,
+  IntercomWebhookEventRead,
   IntercomDeletedUserRead
 };
