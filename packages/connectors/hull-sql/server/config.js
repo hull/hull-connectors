@@ -12,10 +12,6 @@ const path = require("path");
 
 export default function connectorConfig(): HullConnectorConfig {
   const {
-    LOG_LEVEL,
-    NODE_ENV,
-    PORT = 8082,
-    OVERRIDE_FIREHOSE_URL,
     AWS_REGION,
     AWS_KEY_ID,
     AWS_SECRET_KEY,
@@ -31,9 +27,6 @@ export default function connectorConfig(): HullConnectorConfig {
     SERVER,
     WORKER
   } = process.env;
-
-  const port = PORT || 8082;
-  const devMode = NODE_ENV === "development";
 
   Aws.config.update({
     accessKeyId: AWS_KEY_ID,
@@ -63,12 +56,7 @@ export default function connectorConfig(): HullConnectorConfig {
 
   return {
     manifest,
-    devMode,
-    port,
-    cacheConfig: {
-      store: "memory",
-      ttl: 1
-    },
+    cacheConfig: { store: "memory", ttl: 1 },
     handlers: handlers(),
     middlewares: [
       // bodyParser.urlencoded({ extended: true }),
@@ -76,13 +64,6 @@ export default function connectorConfig(): HullConnectorConfig {
         `${path.dirname(path.join(require.main.filename, ".."))}/connectors`
       )
     ],
-    logsConfig: {
-      logLevel: LOG_LEVEL
-    },
-    clientConfig: {
-      firehoseUrl: OVERRIDE_FIREHOSE_URL
-    },
-    timeout: CONNECTOR_TIMEOUT,
     workerConfig: {
       start: COMBINED || WORKER,
       queueName: "queueApp"

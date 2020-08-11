@@ -87,7 +87,8 @@ export type HullCacheConfig =
       isCacheableValue?: () => boolean,
       ttl?: number | string,
       max?: number | string,
-      min?: number | string
+      min?: number | string,
+      keyPrefix?: string
     }
   | {
       store: "redis",
@@ -95,7 +96,8 @@ export type HullCacheConfig =
       url: string,
       ttl?: number | string,
       max?: number | string,
-      min?: number | string
+      min?: number | string,
+      keyPrefix?: string
     };
 export type HullClientCredentials = {
   id: string,

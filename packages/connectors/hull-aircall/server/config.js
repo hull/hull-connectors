@@ -9,10 +9,6 @@ export default function connectorConfig(): HullConnectorConfig {
   return {
     manifest,
     handlers: handlers(),
-    middlewares: [fetchToken],
-    cacheConfig: {
-      store: "memory",
-      ttl: 1
-    }
+    middlewares: [fetchToken]
   };
 }

@@ -1,4 +1,5 @@
 /* @flow */
+/* eslint-disable no-nested-ternary */
 /* :: export type * from "hull-client"; */
 /* :: export type * from "./types"; */
 
@@ -37,7 +38,9 @@ const buildConfigurationFromEnvironment = env => {
     LOGGER_KAFKA_PRODUCER_LINGER_MS = 10,
     PORT = 8082,
     REQUEST_TIMEOUT = "25s",
+    QUEUE_ADAPTER = "memory",
     CACHE_STORE = "memory",
+    KUE_PREFIX,
     REDIS_URL,
     CACHE_REDIS_URL,
     SECRET,
@@ -47,10 +50,6 @@ const buildConfigurationFromEnvironment = env => {
     REDIS_MAX_CONNECTIONS = 50,
     REDIS_MIN_CONNECTIONS = 1
   } = env;
-
-  const timeout = REQUEST_TIMEOUT;
-
-  const devMode = NODE_ENV === "development";
 
   const metricsConfig = {};
   if (LIBPROCESS_IP || STATSD_HOST) {
@@ -133,10 +132,6 @@ const buildConfigurationFromEnvironment = env => {
     transports: clientConfig.loggerTransport
   });
 
-  const disableWebpack = DISABLE_WEBPACK === "true";
-
-  const port = PORT;
-
   if (!SECRET && NODE_ENV === "production") {
     throw new Error("Missing SECRET environment variable");
   }
@@ -153,25 +148,37 @@ const buildConfigurationFromEnvironment = env => {
         }
       : { store: "memory" };
 
-  const cacheConfig = {
-    ...cacheAdapter,
-    ttl: SHIP_CACHE_TTL || 60,
-    max: SHIP_CACHE_MAX || 100,
-    keyPrefix: SHIP_CACHE_KEY_PREFIX
-  };
+  if (QUEUE_ADAPTER === "redis" && (!REDIS_URL || !KUE_PREFIX)) {
+    throw new Error(
+      `Incomplete cache configuration, some environment variables aren't defined: REDIS_URL:${REDIS_URL}, KUE_PREFIX:${KUE_PREFIX}`
+    );
+  }
 
-  const serverConfig = { start: true };
+  const queueConfig =
+    QUEUE_ADAPTER === "redis" && REDIS_URL && KUE_PREFIX
+      ? {
+          store: "redis",
+          name: KUE_PREFIX,
+          url: REDIS_URL
+        }
+      : { store: "memory" };
 
   return {
-    cacheConfig,
+    cacheConfig: {
+      ...cacheAdapter,
+      ttl: SHIP_CACHE_TTL || 60,
+      max: SHIP_CACHE_MAX || 100,
+      keyPrefix: SHIP_CACHE_KEY_PREFIX
+    },
+    queueConfig,
     clientConfig,
-    devMode,
-    disableWebpack,
+    devMode: NODE_ENV === "development",
+    disableWebpack: DISABLE_WEBPACK === "true",
     hostSecret: SECRET || "1234",
     metricsConfig,
-    port,
-    timeout,
-    serverConfig
+    port: PORT,
+    timeout: REQUEST_TIMEOUT,
+    serverConfig: { start: true }
   };
 };
 

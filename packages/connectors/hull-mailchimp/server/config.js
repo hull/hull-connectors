@@ -6,8 +6,6 @@ import handlers from "./handlers";
 
 export default function connectorConfig(): HullConnectorConfig {
   const {
-    KUE_PREFIX = "hull-mailchimp",
-    REDIS_URL,
     QUEUE_NAME = "queueApp",
     COMBINED,
     SERVER,
@@ -27,9 +25,6 @@ export default function connectorConfig(): HullConnectorConfig {
       "Can't find Mailchimp Client ID and/or Client Secret, check env vars"
     );
   }
-  if (REDIS_URL && !KUE_PREFIX) {
-    throw new Error("Missing KUE_PREFIX to define queue name");
-  }
 
   return {
     manifest,
@@ -43,21 +38,6 @@ export default function connectorConfig(): HullConnectorConfig {
     workerConfig: {
       start: COMBINED === "true" || WORKER === "true",
       queueName: QUEUE_NAME || "queue"
-    },
-    clientConfig: {
-      firehoseUrl: OVERRIDE_FIREHOSE_URL
-    },
-    cacheConfig: {
-      store: "memory",
-      max: !_.isNil(SHIP_CACHE_MAX) ? parseInt(SHIP_CACHE_MAX, 10) : 100,
-      ttl: !_.isNil(SHIP_CACHE_TTL) ? parseInt(SHIP_CACHE_TTL, 10) : 60
-    },
-    queueConfig: REDIS_URL
-      ? {
-          store: "redis",
-          url: REDIS_URL,
-          name: KUE_PREFIX
-        }
-      : { store: "memory" }
+    }
   };
 }

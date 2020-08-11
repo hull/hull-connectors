@@ -6,9 +6,6 @@ import handlers from "./handlers";
 
 export default function connectorConfig(): HullConnectorConfig {
   const {
-    LOG_LEVEL,
-    PORT = 8082,
-    NODE_ENV,
     SHIP_CACHE_TTL = 180,
     OVERRIDE_FIREHOSE_URL,
     CACHE_REDIS_URL,
@@ -29,8 +26,6 @@ export default function connectorConfig(): HullConnectorConfig {
       clientID: CLIENT_ID,
       clientSecret: CLIENT_SECRET
     }),
-    devMode: NODE_ENV === "development",
-    port: PORT || 8082,
     cacheConfig: CACHE_REDIS_URL
       ? {
           store: "redis",
@@ -40,9 +35,6 @@ export default function connectorConfig(): HullConnectorConfig {
           min: CACHE_REDIS_MIN_CONNECTIONS || 1
         }
       : undefined,
-    logsConfig: {
-      logLevel: LOG_LEVEL
-    },
     clientConfig: {
       firehoseUrl: OVERRIDE_FIREHOSE_URL,
       timeout: 20000
