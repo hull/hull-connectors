@@ -242,7 +242,7 @@ export default class Sidebar extends Component<Props, State> {
     });
 
   // Token
-  handleChangeToken = (token: string) => this.setState({ token });
+  handleChangeToken = (token: string) => this.setState({ token: token.trim() });
 
   handleReset = async () => {
     this.setState({
