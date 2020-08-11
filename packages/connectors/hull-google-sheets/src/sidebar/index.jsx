@@ -476,7 +476,10 @@ export default class Sidebar extends Component<Props, State> {
               source={source}
               sources={hullGroups}
               loading={loading}
-              hullAttributes={filterAttributes(source, hullAttributes)}
+              hullAttributes={
+                type !== "user_event" &&
+                filterAttributes(source, hullAttributes)
+              }
               googleColumns={googleColumns}
               onChangeRow={this.handleChangeMapping}
               onRemoveRow={this.handleRemoveMapping}
