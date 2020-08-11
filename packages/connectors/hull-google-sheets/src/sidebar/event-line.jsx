@@ -6,7 +6,9 @@ import type { GoogleColumns } from "../../types";
 
 type Props = {
   googleColumns?: GoogleColumns,
-  claim: string,
+  setting: string,
+  description: string,
+  name: string,
   value?: string,
   onUpdate: ({
     [string]: string
@@ -14,21 +16,21 @@ type Props = {
 };
 type State = {};
 
-class ClaimLine extends Component<Props, State> {
-  handleUpdateClaim = (event: SyntheticEvent<>) => {
+class EventLine extends Component<Props, State> {
+  handleUpdateSetting = (event: SyntheticEvent<>) => {
     // $FlowFixMe
     const { value } = event.currentTarget;
-    const { claim } = this.props;
-    this.props.onUpdate({ [claim]: value === "" ? undefined : value });
+    const { setting } = this.props;
+    this.props.onUpdate({ [setting]: value === "" ? undefined : value });
   };
 
   render() {
-    const { claim, googleColumns = [], value } = this.props;
+    const { name, description, googleColumns = [], value } = this.props;
     return (
       <tr className="no-style claim-line">
-        <td className="no-style row-name">{claim} :</td>
+        <td className="no-style row-name">{name} :</td>
         <td className="no-style row-value">
-          <select onChange={this.handleUpdateClaim} value={value}>
+          <select onChange={this.handleUpdateSetting} value={value}>
             <option value="">---[Not Mapped]---</option>
             {googleColumns.map((option, i) => (
               <option key={i} value={i}>
@@ -36,10 +38,11 @@ class ClaimLine extends Component<Props, State> {
               </option>
             ))}
           </select>
+          <small>{description}</small>
         </td>
       </tr>
     );
   }
 }
 
-export default ClaimLine;
+export default EventLine;
