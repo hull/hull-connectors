@@ -100,6 +100,20 @@ function getSheetClaims(index, type) {
     fallback: def
   });
 }
+function getSheetSettings(index, type) {
+  const def = {
+    event_name: null,
+    created_at: null,
+    event_id: null,
+    source: null,
+    type: null
+  };
+  return getDocumentProp({
+    key: `${type}_claims`,
+    index,
+    fallback: def
+  });
+}
 
 function api(method, path, data) {
   try {
@@ -366,30 +380,32 @@ function bootstrap(index, token) {
         index,
         fallback: "user"
       }) || "user";
-    const appToken = token || getUserProp({ key: "token" });
-    const { hullAttributes, hullGroups } = getHullSchema({ type });
     Logger.log("Token", token);
-    return appToken
-      ? {
-          token: appToken,
-          initialized: true,
-          googleColumns: getColumnNames(index),
-          hullAttributes,
-          hullGroups,
-          user_mapping: getSheetMapping(index, "user"),
-          user_claims: getSheetClaims(index, "user"),
-          account_mapping: getSheetMapping(index, "account"),
-          account_claims: getSheetClaims(index, "account"),
-          user_event_mapping: getSheetMapping(index, "user_event"),
-          user_event_claims: getSheetClaims(index, "user_event"),
-          index,
-          source,
-          type
-        }
-      : {
-          token: undefined,
-          initialized: false
-        };
+    const appToken = token || getUserProp({ key: "token" });
+    if (!appToken) {
+      return {
+        token: undefined,
+        initialized: false
+      };
+    }
+    const { hullAttributes, hullGroups } = getHullSchema({ type });
+    return {
+      token: appToken,
+      initialized: true,
+      googleColumns: getColumnNames(index),
+      user_mapping: getSheetMapping(index, "user"),
+      user_claims: getSheetClaims(index, "user"),
+      account_mapping: getSheetMapping(index, "account"),
+      account_claims: getSheetClaims(index, "account"),
+      user_event_mapping: getSheetMapping(index, "user_event"),
+      user_event_claims: getSheetClaims(index, "user_event"),
+      user_event_settings: getSheetSettings(index, "user_event"),
+      index,
+      source,
+      type,
+      hullAttributes,
+      hullGroups
+    };
   } catch (err) {
     return {
       error: err.toString()
