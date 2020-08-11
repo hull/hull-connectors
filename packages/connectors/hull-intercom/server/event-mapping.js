@@ -13,6 +13,7 @@ const {
   IntercomWebhookCompanyRead,
   IntercomWebhookLeadEventRead,
   IntercomWebhookUserEventRead,
+  IntercomWebhookConversationEventRead,
   IntercomDeletedUserRead
 } = require("./service-objects");
 
@@ -22,33 +23,33 @@ const EVENT_MAPPING = {
     "asEntity": "asAccount",
     "pathToEntity": "data.item",
     "webhookType": IntercomWebhookCompanyRead,
-    "entityType": IntercomCompanyRead
+    "transformTo": IntercomCompanyRead
   },
   "contact.created": {
     "action": "traits",
     "asEntity": "asUser",
     "pathToEntity": "data.item",
     "webhookType": IntercomWebhookLeadRead,
-    "entityType": IntercomLeadRead
+    "transformTo": IntercomLeadRead
   },
   "user.created": {
     "action": "traits",
     "asEntity": "asUser",
     "pathToEntity": "data.item",
     "webhookType": IntercomWebhookUserRead,
-    "entityType": IntercomUserRead
+    "transformTo": IntercomUserRead
   },
   "user.deleted": {
     "action": "traits",
     "asEntity": "userDeletedInService",
     "webhookType": IntercomDeletedUserRead,
-    "entityType": HullIncomingUser
+    "transformTo": HullIncomingUser
   },
   // TODO write test for
   "conversation.user.created": {
     "action": "track",
     "pathToEntity": "data.item.user",
-    "webhookType": IntercomWebhookUserEventRead,
+    "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "User started conversation",
     "properties": {
       "message": "data.item.conversation_message.body",
@@ -67,7 +68,7 @@ const EVENT_MAPPING = {
   "conversation.user.replied": {
     "action": "track",
     "pathToEntity": "data.item.user",
-    "webhookType": IntercomWebhookUserEventRead,
+    "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "User replied to conversation",
     "properties": {
       "message": "data.item.conversation_parts.conversation_parts[0].body",
@@ -97,7 +98,7 @@ const EVENT_MAPPING = {
   "conversation.admin.replied": {
     "action": "track",
     "pathToEntity": "data.item.user",
-    "webhookType": IntercomWebhookUserEventRead,
+    "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Admin replied to conversation",
     "properties": {
       "message": "data.item.conversation_parts.conversation_parts[0].body",
@@ -115,7 +116,7 @@ const EVENT_MAPPING = {
   "conversation.admin.single.created": {
     "action": "track",
     "pathToEntity": "data.item.user",
-    "webhookType": IntercomWebhookUserEventRead,
+    "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Admin started conversation",
     "properties": {
       "message": "data.item.conversation_message.body",
@@ -133,7 +134,7 @@ const EVENT_MAPPING = {
   "conversation_part.redacted": {
     "action": "track",
     "pathToEntity": "data.item.user",
-    "webhookType": IntercomWebhookUserEventRead,
+    "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Conversation Part Redacted",
     "properties": {
       "message": "data.item.conversation_parts.conversation_parts[0].body",
@@ -151,7 +152,7 @@ const EVENT_MAPPING = {
   "conversation_part.tag.created": {
     "action": "track",
     "pathToEntity": "data.item.user",
-    "webhookType": IntercomWebhookUserEventRead,
+    "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Conversation Part Tag Added",
     "properties": {
       "message": "data.item.conversation_message.body",
@@ -170,7 +171,7 @@ const EVENT_MAPPING = {
   "conversation.admin.assigned": {
     "action": "track",
     "pathToEntity": "data.item.user",
-    "webhookType": IntercomWebhookUserEventRead,
+    "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Admin assigned conversation",
     "properties": {
       "link": "data.item.links.conversation_web",
@@ -191,7 +192,7 @@ const EVENT_MAPPING = {
   "conversation.admin.closed": {
     "action": "track",
     "pathToEntity": "data.item.user",
-    "webhookType": IntercomWebhookUserEventRead,
+    "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Admin closed conversation",
     "properties": {
       "link": "data.item.links.conversation_web",
@@ -210,7 +211,7 @@ const EVENT_MAPPING = {
   "conversation.admin.opened": {
     "action": "track",
     "pathToEntity": "data.item.user",
-    "webhookType": IntercomWebhookUserEventRead,
+    "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Admin opened conversation",
     "properties": {
       "link": "data.item.links.conversation_web",
@@ -229,7 +230,7 @@ const EVENT_MAPPING = {
   "conversation.admin.noted": {
     "action": "track",
     "pathToEntity": "data.item.user",
-    "webhookType": IntercomWebhookUserEventRead,
+    "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Admin added note to conversation",
     "properties": {
       "link": "data.item.links.conversation_web",
@@ -248,7 +249,7 @@ const EVENT_MAPPING = {
   "conversation.admin.snoozed": {
     "action": "track",
     "pathToEntity": "data.item.user",
-    "webhookType": IntercomWebhookUserEventRead,
+    "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Admin snoozed conversation",
     "properties": {
       "link": "data.item.links.conversation_web",
@@ -264,7 +265,7 @@ const EVENT_MAPPING = {
   "conversation.admin.unsnoozed": {
     "action": "track",
     "pathToEntity": "data.item.user",
-    "webhookType": IntercomWebhookUserEventRead,
+    "webhookType": IntercomWebhookConversationEventRead,
     "eventName": "Admin unsnoozed conversation",
     "properties": {
       "link": "data.item.links.conversation_web",

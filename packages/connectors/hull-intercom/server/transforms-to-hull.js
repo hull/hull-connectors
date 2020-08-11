@@ -36,6 +36,7 @@ import {
   IntercomOutgoingAttributeDefinition,
   IntercomWebhookLeadEventRead,
   IntercomWebhookUserEventRead,
+  IntercomWebhookEventRead,
   IntercomDeletedUserRead
 } from "./service-objects";
 
@@ -434,7 +435,7 @@ const transformsToService: ServiceTransforms = [
     then: contactIdentityTransformation({ entityType: "user" })
   },
   {
-    input: IntercomWebhookLeadEventRead,
+    input: IntercomWebhookEventRead,
     output: HullIncomingEvent,
     direction: "incoming",
     strategy: "AtomicReaction",
