@@ -125,6 +125,7 @@ class HullDispatcher {
         this.ensurePromise = this.resolve(context, new Route(this.ensure), data);
       }
       await this.ensurePromise;
+      this.ensurePromise = null;
     }
     return await this.resolve(context, new Route(route), data);
 
