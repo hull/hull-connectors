@@ -195,7 +195,8 @@ export default class Sidebar extends Component<Props, State> {
   isValid = () =>
     isValidClaims(this.getClaims()) &&
     isValidMapping(this.getMapping()) &&
-    isValidEventContext(this.getContext());
+    (this.state.type !== "user_event" ||
+      isValidEventContext(this.getContext()));
 
   hasToken = () => this.state.initialized && this.state.token !== undefined;
 
