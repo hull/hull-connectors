@@ -307,7 +307,7 @@ function importData({ index, type, mapping, claims, context }) {
       startRow,
       rows: Math.min(IMPORT_CHUNK_SIZE, lastRow - (startRow - 1)),
       mapping,
-      context,
+      context: type === "user_event" ? context : undefined,
       claims
     });
     Logger.log("Payloads", payloads);

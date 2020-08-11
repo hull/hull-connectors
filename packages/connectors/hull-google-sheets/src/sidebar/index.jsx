@@ -186,11 +186,11 @@ export default class Sidebar extends Component<Props, State> {
 
   getContextType = () => `${this.state.type}_context`;
 
-  getClaims = () => this.state[this.getClaimsType()] || [];
+  getClaims = () => this.state[this.getClaimsType()] || {};
 
   getMapping = () => this.state[this.getMappingType()] || [];
 
-  getContext = () => this.state[this.getContextType()] || [];
+  getContext = () => this.state[this.getContextType()] || {};
 
   isValid = () =>
     isValidClaims(this.getClaims()) &&
