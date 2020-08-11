@@ -104,9 +104,7 @@ function getSheetContext(index, type) {
   const def = {
     event_name: null,
     created_at: null,
-    event_id: null,
-    source: null,
-    type: null
+    event_id: null
   };
   return getDocumentProp({
     key: `${type}_context`,
