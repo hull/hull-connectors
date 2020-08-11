@@ -479,7 +479,7 @@ export default class Sidebar extends Component<Props, State> {
               sources={hullGroups}
               loading={loading}
               hullAttributes={
-                type !== "user_event"
+                type === "user_event"
                   ? []
                   : filterAttributes(source, hullAttributes)
               }
