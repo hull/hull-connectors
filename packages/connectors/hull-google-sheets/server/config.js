@@ -2,7 +2,6 @@
 // import app from "./app";
 //
 // const options = {
-//   hostSecret: process.env.SECRET || "1234",
 //   devMode: process.env.NODE_ENV === "development",
 //   port: process.env.PORT || 8082,
 //   Hull,
@@ -27,7 +26,6 @@ export default function connectorConfig(): HullConnectorConfig {
     PORT = 8082,
     LOG_LEVEL,
     NODE_ENV,
-    SECRET,
     OVERRIDE_FIREHOSE_URL,
     INSTALL_URL
   } = process.env;
@@ -36,12 +34,9 @@ export default function connectorConfig(): HullConnectorConfig {
   if (!INSTALL_URL) {
     throw new Error("Missing INSTALL_URL environment variable");
   }
-  // We're not using default assignments because "null" values makes Flow choke
-  const hostSecret = SECRET || "1234";
 
   return {
     manifest,
-    hostSecret,
     devMode: NODE_ENV === "development",
     port: PORT || 8082,
     timeout: "25s",

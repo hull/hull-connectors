@@ -19,7 +19,6 @@ export type SlackMember = {
 
 export type ServerOptions = {
   port: number,
-  hostSecret: string,
   clientID: string,
   clientSecret: string,
   Hull: Hull,

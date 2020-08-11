@@ -13,7 +13,6 @@ const path = require("path");
 export default function connectorConfig(): HullConnectorConfig {
   const {
     LOG_LEVEL,
-    SECRET,
     NODE_ENV,
     PORT = 8082,
     OVERRIDE_FIREHOSE_URL,
@@ -33,7 +32,6 @@ export default function connectorConfig(): HullConnectorConfig {
     WORKER
   } = process.env;
 
-  const hostSecret = SECRET;
   const port = PORT || 8082;
   const devMode = NODE_ENV === "development";
 
@@ -65,7 +63,6 @@ export default function connectorConfig(): HullConnectorConfig {
 
   return {
     manifest,
-    hostSecret,
     devMode,
     port,
     cacheConfig: {

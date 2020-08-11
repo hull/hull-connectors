@@ -31,11 +31,9 @@ export default function connectorConfig(): HullConnectorConfig {
     throw new Error("Missing KUE_PREFIX to define queue name");
   }
 
-  const hostSecret = SECRET || "1234";
   return {
     manifest,
     handlers: handlers({
-      hostSecret,
       clientID: MAILCHIMP_CLIENT_ID,
       clientSecret: MAILCHIMP_CLIENT_SECRET
     }),

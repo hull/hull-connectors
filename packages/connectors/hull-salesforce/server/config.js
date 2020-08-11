@@ -7,7 +7,6 @@ import handlers from "./handlers";
 export default function connectorConfig(): HullConnectorConfig {
   const {
     LOG_LEVEL,
-    SECRET,
     PORT = 8082,
     NODE_ENV,
     SHIP_CACHE_TTL = 180,
@@ -23,10 +22,8 @@ export default function connectorConfig(): HullConnectorConfig {
     throw new Error("CLIENT_ID or CLIENT_SECRET variables missing");
   }
 
-  const hostSecret = SECRET || "1234";
   return {
     manifest,
-    hostSecret,
     middlewares: [],
     handlers: handlers({
       clientID: CLIENT_ID,

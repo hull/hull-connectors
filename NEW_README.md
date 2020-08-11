@@ -210,17 +210,14 @@ import handlers from "./handlers";
 export default function connectorConfig(): HullConnectorConfig {
   const {
     LOG_LEVEL,
-    SECRET,
     NODE_ENV,
     PORT = 8082,
     OVERRIDE_FIREHOSE_URL
   } = process.env;
 
-  const hostSecret = SECRET || "1234";
-
   return {
     manifest,
-    hostSecret,
+    hostSecret: SECRET || "1234", //Defaults to process.env.SECRET
     devMode: NODE_ENV === "development",
     port: PORT || 8082,
     handlers: async (connectorInstance: HullConnector) => ({
