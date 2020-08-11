@@ -31,42 +31,33 @@ export default async function importHandler(
     };
   }
 
-  if (type === "user_event") {
-    const properties = ["event_id", "event_name", "created_at"];
-    rows.map(async ({ claims, attributes }) => {
-      const eventSetup = {};
-      properties.forEach(prop => {
-        eventSetup[prop] = claims[prop];
-        delete claims[prop];
-      });
-      try {
-        await client.asUser(claims).track(eventSetup.event_name, attributes, {
-          event_id: eventSetup.event_id,
-          created_at: eventSetup.created_at
-        });
-      } catch (err) {
-        client.asUser.logger.info("incoming.event.error", {
-          message: _.get(err, "message")
-        });
-      }
-    });
-  } else {
-    // Don't use customer-provided data directly
-    const entityType = type === "user" ? "user" : "account";
-    const method = entityType === "account" ? client.asAccount : client.asUser;
-
-    const remap = remapAttributes(entityType);
-    rows.map(async ({ claims, attributes }) => {
-      const scopedClient = method(claims);
-      try {
+  // Don't use customer-provided data directly
+  const entityType = type === "user" ? "user" : "account";
+  const method = entityType === "account" ? client.asAccount : client.asUser;
+  const remap = remapAttributes(entityType);
+  rows.map(async ({ context, claims, attributes }) => {
+    const scopedClient = method(claims);
+    try {
+      if (type === "user_event") {
+        const { event_name } = context;
+        if (!event_name) {
+          throw new Error("Can't import an event without a name");
+        }
+        // This way we can easily add new entries to the context
+        await scopedClient.track(
+          event_name,
+          attributes,
+          _.omit(context, "event_name")
+        );
+      } else {
         await scopedClient.traits(remap(claims, attributes));
-      } catch (err) {
-        scopedClient.logger.info(`incoming.${entityType}.error`, {
-          message: _.get(err, "message")
-        });
       }
-    });
-  }
+    } catch (err) {
+      scopedClient.logger.info(`incoming.${entityType}.error`, {
+        message: _.get(err, "message")
+      });
+    }
+  });
 
   return {
     status: 200,

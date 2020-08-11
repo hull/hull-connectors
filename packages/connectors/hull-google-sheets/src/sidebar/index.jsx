@@ -5,7 +5,7 @@ import _ from "lodash";
 import Settings from "./settings";
 import Spinner from "./spinner";
 import Mapping from "./mapping";
-import EventSetup from "./event-setup";
+import EventContext from "./event-context";
 import Claims from "./claims";
 import ImportStatus from "./import-status";
 import Service from "./service";
@@ -18,7 +18,7 @@ import {
   filterAttributes,
   isValidMapping,
   isValidClaims,
-  isValidEventSetup
+  isValidEventContext
 } from "../lib/filter-utils";
 
 import type {
@@ -32,8 +32,7 @@ import type {
   MappingType,
   ImportProgressType,
   ImportStatusType,
-  ClaimsType,
-  EventType
+  ClaimsType
 } from "../../types";
 
 const debug = require("debug")("hull-google-sheets");
@@ -75,11 +74,13 @@ type State = {
 const SAVED_CONFIG = [
   "user_mapping",
   "account_mapping",
+  "user_event_mapping",
   "user_claims",
   "account_claims",
+  "user_event_claims",
   "type",
   "source",
-  "user_event"
+  "user_event_context"
 ];
 
 const sanitizeAttribute = (str: string) =>
@@ -183,18 +184,18 @@ export default class Sidebar extends Component<Props, State> {
 
   getMappingType = () => `${this.state.type}_mapping`;
 
-  getEventType = () => `${this.state.type}_setup`;
+  getContextType = () => `${this.state.type}_context`;
 
   getClaims = () => this.state[this.getClaimsType()] || [];
 
   getMapping = () => this.state[this.getMappingType()] || [];
 
-  getEventSetup = () => this.state[this.getEventType()] || [];
+  getContext = () => this.state[this.getContextType()] || [];
 
   isValid = () =>
     isValidClaims(this.getClaims()) &&
     isValidMapping(this.getMapping()) &&
-    isValidEventSetup(this.getEventSetup());
+    isValidEventContext(this.getContext());
 
   hasToken = () => this.state.initialized && this.state.token !== undefined;
 
@@ -345,12 +346,12 @@ export default class Sidebar extends Component<Props, State> {
     });
   };
 
-  // Events Setup
-  handleChangeEventSetup = (newSetup: EventType) => {
+  // Events Settings
+  handleChangeContext = (newContext: EventType) => {
     this.updateConfig({
-      [this.getEventType()]: {
-        ...this.getEventSetup(),
-        ...newSetup
+      [this.getContextType()]: {
+        ...this.getContext(),
+        ...newContext
       }
     });
   };
@@ -379,7 +380,7 @@ export default class Sidebar extends Component<Props, State> {
           column
         })),
         claims: this.getClaims(),
-        eventSetup: this.getEventSetup()
+        context: this.getContext()
       });
       this.setState({
         importing: false,
@@ -398,6 +399,12 @@ export default class Sidebar extends Component<Props, State> {
       });
     }
   };
+
+  getContextErrors(): Array<string> | void {
+    return isValidEventContext(this.getContext())
+      ? undefined
+      : ["You need to define a value for the Event Name"];
+  }
 
   renderMain() {
     const {
@@ -448,17 +455,12 @@ export default class Sidebar extends Component<Props, State> {
           onChangeRow={this.handleChangeClaim}
         />
         {type === "user_event" && (
-          <EventSetup
-            valid={true}
-            type={type}
-            onChangeRow={this.handleChangeClaim}
+          <EventContext
+            valid={isValidEventContext(this.getContext())}
+            onChangeRow={this.handleChangeContext}
             googleColumns={googleColumns}
-            claims={this.getClaims()}
-            errors={
-              !isValidEventSetup(this.getClaims()) && [
-                "You need to configure the event name column"
-              ]
-            }
+            context={this.getContext()}
+            errors={this.getContextErrors()}
           />
         )}
         {hullAttributes && googleColumns && (
@@ -477,8 +479,9 @@ export default class Sidebar extends Component<Props, State> {
               sources={hullGroups}
               loading={loading}
               hullAttributes={
-                type !== "user_event" &&
-                filterAttributes(source, hullAttributes)
+                type !== "user_event"
+                  ? []
+                  : filterAttributes(source, hullAttributes)
               }
               googleColumns={googleColumns}
               onChangeRow={this.handleChangeMapping}
