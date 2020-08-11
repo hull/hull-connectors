@@ -100,6 +100,18 @@ function getSheetClaims(index, type) {
     fallback: def
   });
 }
+function getSheetContext(index, type) {
+  const def = {
+    event_name: null,
+    created_at: null,
+    event_id: null
+  };
+  return getDocumentProp({
+    key: `${type}_context`,
+    index,
+    fallback: def
+  });
+}
 
 function api(method, path, data) {
   try {
@@ -152,7 +164,19 @@ const getVal = val => {
   return undefined;
 };
 
-const rowToPayload = (mapping, claimsMapping) => row => ({
+const hashToValues = (row, hash) =>
+  Object.keys(hash).reduce((obj, key) => {
+    const column = hash[key];
+    if (column !== undefined && column !== null) {
+      const value = getVal(row[column]);
+      if (value !== "" && value !== undefined) {
+        obj[key] = value;
+      }
+    }
+    return obj;
+  }, {});
+
+const rowToPayload = (mapping, claimsMapping, contextMapping) => row => ({
   attributes: mapping.reduce((attributes, { column, hull }) => {
     const value = getVal(row[column]);
     if (value !== undefined) {
@@ -160,39 +184,37 @@ const rowToPayload = (mapping, claimsMapping) => row => ({
     }
     return attributes;
   }, {}),
-  claims: Object.keys(claimsMapping).reduce((claims, key) => {
-    const column = claimsMapping[key];
-    if (column !== undefined && column !== null) {
-      const value = getVal(row[column]);
-      if (value !== "" && value !== undefined) {
-        claims[key] = value;
-      }
-    }
-    return claims;
-  }, {})
+  claims: hashToValues(row, claimsMapping),
+  context: contextMapping ? hashToValues(row, contextMapping) : undefined
 });
 
 const hasKeysAndValues = hash =>
   !!Object.keys(hash).length &&
   !!Object.values(hash).filter(v => v !== undefined).length;
 
-const checkPayload = (memo, { claims, attributes }) => {
-  if (!hasKeysAndValues(attributes) || !hasKeysAndValues(claims)) {
+const hasValidEventContext = ({ event_name }) => event_name !== undefined;
+
+const checkPayload = (memo, { claims, attributes, context }) => {
+  if (
+    !hasKeysAndValues(attributes) ||
+    !hasKeysAndValues(claims) ||
+    (context !== undefined && !hasValidEventContext(context))
+  ) {
     memo.stats.skipped += 1;
   } else {
     memo.stats.imported += 1;
-    memo.rows.push({ claims, attributes });
+    memo.rows.push({ claims, attributes, context });
   }
   return memo;
 };
 
-const getRows = ({ index, startRow, rows, mapping, claims }) =>
+const getRows = ({ index, startRow, rows, context, mapping, claims }) =>
   getSheetData({
     index,
     startRow,
     rows
   })
-    .map(rowToPayload(mapping, claims))
+    .map(rowToPayload(mapping, claims, context))
     .reduce(checkPayload, {
       rows: [],
       errors: [],
@@ -262,7 +284,7 @@ function getSelectedRows() {
   };
 }
 
-function importData({ index, type, mapping, claims }) {
+function importData({ index, type, mapping, claims, context }) {
   const { firstRow, lastRow } = getSelectedRows(index);
   let startRow = firstRow;
   let chunk = 1;
@@ -274,6 +296,7 @@ function importData({ index, type, mapping, claims }) {
     chunk,
     type,
     mapping,
+    context,
     claims
   });
   const stats = { imported: 0, empty: 0, errors: 0, skipped: 0 };
@@ -284,6 +307,7 @@ function importData({ index, type, mapping, claims }) {
       startRow,
       rows: Math.min(IMPORT_CHUNK_SIZE, lastRow - (startRow - 1)),
       mapping,
+      context: type === "user_event" ? context : undefined,
       claims
     });
     Logger.log("Payloads", payloads);
@@ -366,30 +390,32 @@ function bootstrap(index, token) {
         index,
         fallback: "user"
       }) || "user";
-    const appToken = token || getUserProp({ key: "token" });
-    const { hullAttributes, hullGroups } = getHullSchema({ type });
     Logger.log("Token", token);
-    return appToken
-      ? {
-          token: appToken,
-          initialized: true,
-          googleColumns: getColumnNames(index),
-          hullAttributes,
-          hullGroups,
-          user_mapping: getSheetMapping(index, "user"),
-          user_claims: getSheetClaims(index, "user"),
-          account_mapping: getSheetMapping(index, "account"),
-          account_claims: getSheetClaims(index, "account"),
-          user_event_mapping: getSheetMapping(index, "user_event"),
-          user_event_claims: getSheetClaims(index, "user_event"),
-          index,
-          source,
-          type
-        }
-      : {
-          token: undefined,
-          initialized: false
-        };
+    const appToken = token || getUserProp({ key: "token" });
+    if (!appToken) {
+      return {
+        token: undefined,
+        initialized: false
+      };
+    }
+    const { hullAttributes, hullGroups } = getHullSchema({ type });
+    return {
+      token: appToken,
+      initialized: true,
+      googleColumns: getColumnNames(index),
+      user_mapping: getSheetMapping(index, "user"),
+      user_claims: getSheetClaims(index, "user"),
+      account_mapping: getSheetMapping(index, "account"),
+      account_claims: getSheetClaims(index, "account"),
+      user_event_mapping: getSheetMapping(index, "user_event"),
+      user_event_claims: getSheetClaims(index, "user_event"),
+      user_event_context: getSheetContext(index, "user_event"),
+      index,
+      source,
+      type,
+      hullAttributes,
+      hullGroups
+    };
   } catch (err) {
     return {
       error: err.toString()
