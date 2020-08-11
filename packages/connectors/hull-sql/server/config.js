@@ -22,10 +22,7 @@ export default function connectorConfig(): HullConnectorConfig {
     OVERRIDE_STALLED_INTERVAL = 60000,
     QUEUE_ADAPTER,
     CONNECTOR_TIMEOUT,
-    RUN_TIMEOUT_MS,
-    COMBINED,
-    SERVER,
-    WORKER
+    RUN_TIMEOUT_MS
   } = process.env;
 
   Aws.config.update({
@@ -64,13 +61,6 @@ export default function connectorConfig(): HullConnectorConfig {
         `${path.dirname(path.join(require.main.filename, ".."))}/connectors`
       )
     ],
-    workerConfig: {
-      start: COMBINED || WORKER,
-      queueName: "queueApp"
-    },
-    serverConfig: {
-      start: COMBINED || SERVER
-    },
     preview_timeout: RUN_TIMEOUT_MS || 60000,
     queueConfig
   };

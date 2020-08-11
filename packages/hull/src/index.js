@@ -39,7 +39,11 @@ const buildConfigurationFromEnvironment = env => {
     PORT = 8082,
     REQUEST_TIMEOUT = "25s",
     QUEUE_ADAPTER = "memory",
+    QUEUE_NAME = "queueApp",
     CACHE_STORE = "memory",
+    SERVER,
+    WORKER,
+    COMBINED,
     KUE_PREFIX,
     REDIS_URL,
     CACHE_REDIS_URL,
@@ -163,6 +167,12 @@ const buildConfigurationFromEnvironment = env => {
         }
       : { store: "memory" };
 
+  if (COMBINED !== "true" && WORKER !== "true" && SERVER !== "true") {
+    throw new Error(
+      "None of the processes were started, set any of COMBINED, SERVER or WORKER env vars"
+    );
+  }
+
   return {
     cacheConfig: {
       ...cacheAdapter,
@@ -178,7 +188,11 @@ const buildConfigurationFromEnvironment = env => {
     metricsConfig,
     port: PORT,
     timeout: REQUEST_TIMEOUT,
-    serverConfig: { start: true }
+    serverConfig: { start: COMBINED === "true" || SERVER === "true" },
+    workerConfig: {
+      start: COMBINED === "true" || WORKER === "true",
+      queueName: QUEUE_NAME
+    }
   };
 };
 
