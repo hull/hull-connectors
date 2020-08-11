@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.1.34-monorepo (2020-08-11)
+- [hull-google-sheets] Support for events
+
 ## v0.1.33-monorepo (2020-07-16)
 - [hull-mailchimp] Fetch recent contacts
 
