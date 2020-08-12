@@ -118,7 +118,7 @@ module.exports = {
               "source": "intercom",
             },
             "eventName": "Updated email address",
-            "props": {
+            "properties": {
               "email": "bob.dylan@rei.com",
               "topic": "user.email.updated",
             }

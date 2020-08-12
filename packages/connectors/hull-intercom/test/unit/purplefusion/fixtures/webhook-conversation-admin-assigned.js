@@ -126,7 +126,7 @@ module.exports = {
               "event_type": "conversation",
               "event_id": "5ee3d479d1cf3dedbee23d68-conversation.admin.assigned-1596635010"
             },
-            "props": {
+            "properties": {
               "topic": "conversation.admin.assigned",
               "link": "https://app.intercom.com/a/apps/lkqcyt9t/conversations/137324500000000",
               "assignee_name": "Andy",

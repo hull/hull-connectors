@@ -9,8 +9,8 @@ import {
   IntercomAttributeWrite,
   IntercomAttributeMapping,
   IntercomWebhookUserEventRead,
-  IntercomWebhookLeadEventRead,
-  IntercomWebhookEventRead
+  IntercomWebhookEventRead,
+  IntercomWebhookLeadEventRead
 } from "./service-objects";
 import { filterL } from "hull-connector-framework/src/purplefusion/language";
 import { HullIncomingEvent, HullApiAttributeDefinition } from "hull-connector-framework/src/purplefusion/hull-service-objects";
@@ -120,7 +120,7 @@ const glue = {
         set("pageSize", 60),
         set("lastFetchAt", settings("companies_last_fetch_timestamp")),
         ifL(cond("isEmpty", "${lastFetchAt}"), [
-          set("lastFetchAt", ex(ex(moment(), "subtract", { minute: 5 }), "unix"))
+          set("lastFetchAt", ex(ex(moment(), "subtract", { hour: 1 }), "unix"))
         ]),
         settingsUpdate({companies_last_fetch_timestamp: ex(moment(), "unix") }),
         loopL([
@@ -160,7 +160,7 @@ const glue = {
         set("offset", "${page.scroll_param}"),
         set("page", []),
       ])
-  ]),
+    ]),
   fetchContacts: [
     ifL(cond("isEmpty", "${lastFetchAt}"), {
       do: set("fetchFrom", ex(ex(moment(), "subtract", { day: 1 }), "unix")),
@@ -271,9 +271,9 @@ const glue = {
   ],
   contactUpdate: [
     ifL([
-      cond("notEmpty", input()),
-      route("isConfigured")
-    ],
+        cond("notEmpty", input()),
+        route("isConfigured")
+      ],
       iterateL(input(), { key: "message", async: true }, [
         route("contactUpdateStart", cast(HullOutgoingUser, "${message}"))
       ])

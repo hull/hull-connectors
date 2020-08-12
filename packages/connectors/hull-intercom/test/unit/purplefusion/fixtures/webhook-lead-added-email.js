@@ -107,7 +107,7 @@ module.exports = {
         "events": [
           {
             "eventName": "Updated email address",
-            "props": {
+            "properties": {
               "email": "lead@rei.com",
               "topic": "contact.added_email"
             },

@@ -122,7 +122,7 @@ module.exports = {
               "event_type": "conversation",
               "event_id": "5ee3d479d1cf3dedbee23d68-conversation_part.redacted-1596635312"
             },
-            "props": {
+            "properties": {
               "topic": "conversation_part.redacted",
               "message": "<p><i>This message was deleted</i></p>",
               "link": "https://app.intercom.com/a/apps/lkqcyt9t/conversations/137324500000000",

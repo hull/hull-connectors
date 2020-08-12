@@ -134,7 +134,7 @@ module.exports = {
               "event_type": "conversation",
               "event_id": "5ee3d479d1cf3dedbee23d68-conversation_part.tag.created-1596635272"
             },
-            "props": {
+            "properties": {
               "topic": "conversation_part.tag.created",
               "message": "<p>Hi Bob</p>",
               "tags_added": "sample tag",

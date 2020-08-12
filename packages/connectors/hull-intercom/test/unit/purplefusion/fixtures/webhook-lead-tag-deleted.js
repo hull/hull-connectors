@@ -134,7 +134,7 @@ module.exports = {
               "source": "intercom",
             },
             "eventName": "Removed Tag",
-            "props": {
+            "properties": {
               "tag": "NewCompany",
               "topic": "contact.tag.deleted",
             }

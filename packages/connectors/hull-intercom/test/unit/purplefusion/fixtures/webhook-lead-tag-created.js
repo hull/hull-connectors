@@ -130,7 +130,7 @@ module.exports = {
               "source": "intercom",
             },
             "eventName": "Added Tag",
-            "props": {
+            "properties": {
               "tag": "NewCompany",
               "topic": "contact.tag.created",
             }

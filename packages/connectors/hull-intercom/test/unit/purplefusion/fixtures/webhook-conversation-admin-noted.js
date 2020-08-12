@@ -122,7 +122,7 @@ module.exports = {
               "event_type": "conversation",
               "event_id": "5ee3d479d1cf3dedbee23d68-conversation.admin.noted-1596635095"
             },
-            "props": {
+            "properties": {
               "topic": "conversation.admin.noted",
               "note": "<p>this is a note</p>",
               "link": "https://app.intercom.com/a/apps/lkqcyt9t/conversations/137324500000000",

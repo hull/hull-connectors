@@ -104,7 +104,7 @@ module.exports = {
               "event_type": "conversation",
               "event_id": "59e0e10b12ce6cb8f7a30587-conversation.admin.single.created-1597106522"
             },
-            "props": {
+            "properties": {
               "topic": "conversation.admin.single.created",
               "message": "<p>Hi there,</p>",
               "link": "https://app.intercom.com/a/apps/iynax7cx/conversations/15494800000000",

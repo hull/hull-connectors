@@ -118,7 +118,7 @@ describe("Lead Webhooks Tests", () => {
         },
         externalIncomingRequest: ({ superagent, connectorUrl, plainCredentials }) => {
           return superagent
-            .post(`${connectorUrl}/webhooks?ship=${plainCredentials.ship}&organization=${plainCredentials.organization}&secret=1234`)
+            .post(`${connectorUrl}/webhooks?id=${plainCredentials.ship}&organization=${plainCredentials.organization}&secret=1234`)
             .send(
               {
                 "type": "notification_event",
