@@ -18,7 +18,8 @@ function fetchAllUsers(ctx: any) {
     operations: [op],
     jobs: ["importUsers"],
     chunkSize: 200,
-    extractField: "members"
+    extractField: "members",
+    operationName: this.data.payload.operationName || null
   });
 }
 

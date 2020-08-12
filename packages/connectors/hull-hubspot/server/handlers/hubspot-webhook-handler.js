@@ -69,11 +69,12 @@ async function processRequest(request, res, message) {
   try {
     const shouldProcess = await middleware(request, res);
     if (shouldProcess) {
-      incomingWebhooksHandler(request.hull, message);
+      return incomingWebhooksHandler(request.hull, message);
     }
   } catch (err) {
     console.log(err);
   }
+  return Promise.resolve();
 }
 
 async function hubspotWebhookHandler(req: HullRequest, res: HullResponse) {
@@ -88,13 +89,12 @@ async function hubspotWebhookHandler(req: HullRequest, res: HullResponse) {
   }
 
   for (let i = 0; i < clientCredentialsArray.length; i += 1) {
-    const request = _.cloneDeep(req);
     const clientCredentials = clientCredentialsArray[i];
 
-    request.hull = Object.assign(request.hull, { clientCredentials });
+    req.hull = Object.assign(req.hull, { clientCredentials });
 
     // eslint-disable-next-line
-    await processRequest(request, res, message);
+    await processRequest(req, res, message);
   }
   return sendResponse(res);
 }
