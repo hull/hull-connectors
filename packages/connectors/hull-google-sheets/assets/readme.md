@@ -77,7 +77,9 @@ It can be left blank in order to import top-level attributes.
 ### Columns Mapping
 
 Defines how to map sheet columns into attributes or event properties.
-By default, attribute or property name is populated using the lower underscore case version of the column name. It can be changed to any name which is accepted by Hull. Refer [platform documentation](https://www.hull.io/docs/data_lifecycle/ingest/#trait-types) for details.
+By default, attribute or property name is populated using the lower underscore case version of the column name. It can be changed to any name which is accepted by Hull. In case of dates you need to add `_at` or `_date` at the end of the name.
+Refer [platform documentation](https://www.hull.io/docs/data_lifecycle/ingest/#trait-types) for details and forbidden names.
+
 Non mapped columns are ignored.
 
 ## Import operation
@@ -90,3 +92,15 @@ Before triggering the import some rows needs to be selected in order to be impor
 Text on the button reflects the selection of rows and gives a hint of which rows will be imported.
 
 Once the button is hit, the import operation starts and a confirmation message will appear below that button.
+
+
+## FAQ
+
+### Number of imported users is smaller than number of selected rows, why?
+
+This may be caused by the fact that some of the selected rows does not contain
+any identifier. In such case whole row is ignored since non-identifiable entities are not allowed in Hull.
+Screenshot below illustrate this behavior - 3 rows are selected, but two of them have empty cells mapped to identity claims.
+As a result just 1 row is processed.
+
+![Users ignored](./screenshots/users_ignored.png)
