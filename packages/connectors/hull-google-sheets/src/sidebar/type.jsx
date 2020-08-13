@@ -28,6 +28,7 @@ class Type extends Component<Props, State> {
                   Users
                 </option>
                 <option value="account">Accounts</option>
+                <option value="user_event">User Events</option>
               </select>
             </td>
           </tr>
