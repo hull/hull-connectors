@@ -28,7 +28,7 @@ const handler = ({
   incoming: {
     importHandler
   },
-  status: {
+  statuses: {
     statusHandler
   },
   subscriptions: {}
