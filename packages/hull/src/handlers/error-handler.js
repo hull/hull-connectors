@@ -36,17 +36,17 @@ function errorHandlerMiddlewareFactory({
       return res.end("configuration-error");
     }
     if (err instanceof TransientError) {
-      req.hull.client.logger.error("TransientError", err);
+      req.hull.client.logger.error("TransientError", err.message);
       res.status(status || 503);
       return res.end("transient-error");
     }
     if (err instanceof ConnectorNotFoundError) {
-      req.hull.client.logger.error("ConnectorNotFound", err);
+      req.hull.client.logger.error("ConnectorNotFound", err.message);
       res.status(status || 404);
       return res.end("not-found");
     }
     if (err instanceof PaymentRequiredError) {
-      req.hull.client.logger.error("PaymentRequired", err);
+      req.hull.client.logger.error("PaymentRequired", err.message);
       res.status(status || 402);
       return res.end("payment-required");
     }
