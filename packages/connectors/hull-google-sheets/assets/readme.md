@@ -78,7 +78,7 @@ It can be left blank in order to import top-level attributes.
 
 Defines how to map sheet columns into attributes or event properties.
 By default, attribute or property name is populated using the lower underscore case version of the column name. It can be changed to any name which is accepted by Hull. Refer [platform documentation](https://www.hull.io/docs/data_lifecycle/ingest/#trait-types) for details.
-Non mapped columns are ignored. During imports, an entire row can be skipped if a column used in the mapper doesn't contain a value for that row.
+Non mapped columns are ignored.
 
 ## Import operation
 
