@@ -77,7 +77,7 @@ It can be left blank in order to import top-level attributes.
 ### Columns Mapping
 
 Defines how to map sheet columns into attributes or event properties.
-By default, attribute or property name is populated using the lower underscore case version of the column name. It can be changed to any name which is accepted by Hull. In case of dates you need to add `_at` or `_date` at the end of the name.
+By default, attribute or property name is populated using the lower underscore case version of the column name. It can be changed to any name using Hull's naming conventions. When mapping dates or timestamps, you need to add `_at` or `_date` at the end of the attribute name.
 Refer [platform documentation](https://www.hull.io/docs/data_lifecycle/ingest/#trait-types) for details and forbidden names.
 
 Non mapped columns are ignored.
@@ -98,7 +98,7 @@ Once the button is hit, the import operation starts and a confirmation message w
 
 ### Number of imported users is smaller than number of selected rows, why?
 
-This may be caused by the fact that some of the selected rows does not contain
+This may be caused by the fact that some of the selected rows don't contain
 any identifier. In such case whole row is ignored since non-identifiable entities are not allowed in Hull.
 Screenshot below illustrate this behavior - 3 rows are selected, but two of them have empty cells mapped to identity claims.
 As a result just 1 row is processed.
