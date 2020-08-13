@@ -15,7 +15,7 @@ export default async (
   const route = "incomingWebhooksHandler";
 
   const router = new HubspotPurpleFusionRouter(route);
-  router.invokeRoute(ctx, message.body);
+  await router.invokeRoute(ctx, message.body);
 
   return {
     status: 200,
