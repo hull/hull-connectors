@@ -104,3 +104,18 @@ Screenshot below illustrate this behavior - 3 rows are selected, but two of them
 As a result just 1 row is processed.
 
 ![Users ignored](./screenshots/users_ignored.png)
+
+
+### How to switch organization Hull Importer Add-on is sending data to?
+
+Being able to switch existing spreadsheet from one organization to another may be important
+to perform first testing import in staging organization and then re-run the exact same setup against production organization.
+``
+Assuming that you have a spreadsheet where Hull Importer Add-on is already present and configured you just need
+to click "Edit settings" button at the top of the sidebar and paste a token from the connector which is installed in your target organization.
+
+![Users ignored](./screenshots/edit_settings.png)
+
+Then hit "save", the connector will reload and work with new organization.
+
+![Users ignored](./screenshots/save_token.png)
