@@ -14,14 +14,14 @@ Or alternative search for it directly in G-Suite Marketplace:
 
 ![Go to G-Suite Marketplace](./screenshots/go_to_marketplace.png)
 
-Install the add-on and provide it necessary permissions in order to read content of your spreadsheet and send it to your Hull organization.
+Install the add-on and provide it with the necessary permissions in order to read content of your spreadsheet and send it to your Hull organization.
 
 ![Install Add-on](./screenshots/install_addon.png)
 
 Once the add-on is installed it will be available in the Add-ons menu.
 
-The next step is to connect the add-on with connector by copying and pasting an authorization ticket.
-If you open the add-on you will see a sidebar appearing with a welcome screen with a field to save the token:
+The next step is to connect the add-on with connector by copying and pasting an authorization token.
+If you open the add-on you will see a sidebar appearing with a welcome screen, and a field within to save the token:
 
 ![Add-on Sidebar initial screen](./screenshots/sidebar_initial_screen.png)
 
@@ -33,11 +33,11 @@ Once the token is saved you will see fields to setup and run your import. You ar
 
 ## Getting Started
 
-To perform an import on new or existing spreadsheet, at any time you can open the sidebar by going to Add-ons menu:
+To perform an import on a new or existing spreadsheet, at any time you can open the sidebar by going to Add-ons menu:
 
 ![Open add-on sidebar](./screenshots/open_addon_sidebar.png)
 
-Sidebar configuration and import operation are always applied and run on current sheet.
+Sidebar configuration and import operation are always applied and running on the sheet you are displaying with the sidebar.
 
 Please check our detailed Guides on how to import data in different scenarios:
 
@@ -47,7 +47,7 @@ Please check our detailed Guides on how to import data in different scenarios:
 
 ### Import Type
 
-Defines entity which will be created during the import based on row data.
+Defines the entity type that will be created during the import based on row data.
 
 In case of User Events import Users still can be created if they were not present in Hull before import. This is required in order to attach events to them correctly.
 
@@ -57,7 +57,7 @@ Mapping for user or account identification claims. Defines columns where identif
 At least one mapping needs to be setup.
 Rows without any valid identifier will be skipped.
 
-In case of User Events since they are attached to Users this setting works exactly the same as for Users.
+In case of User Events, since they are attached to Users, this setting works exactly the same as for Users.
 
 ### Event Settings
 
@@ -77,16 +77,16 @@ It can be left blank in order to import top-level attributes.
 ### Columns Mapping
 
 Defines how to map sheet columns into attributes or event properties.
-By default attribute or property name is populated as lower underscore case version of the column name. It can be changed to any name which is accepted by Hull. Refer [platform documentation](https://www.hull.io/docs/data_lifecycle/ingest/#trait-types) for details.
-Non mapped columns are ignored.
+By default, attribute or property name is populated using the lower underscore case version of the column name. It can be changed to any name which is accepted by Hull. Refer [platform documentation](https://www.hull.io/docs/data_lifecycle/ingest/#trait-types) for details.
+Non mapped columns are ignored. During imports, an entire row can be skipped if a column used in the mapper doesn't contain a value for that row.
 
 ## Import operation
 
-When import setup is valid and complete an import button at the top becomes active.
-If it's inactive that may mean some configuration issues are not resolved.
+When import setup is valid and complete, an import button at the top becomes active.
+If it's inactive, there may be unresolved configuration you need to take care of before importing.
 
 Before triggering the import some rows needs to be selected in order to be imported. It does not matter which columns are selected. All configured mappings are applied to whole rows.
 
 Text on the button reflects the selection of rows and gives a hint of which rows will be imported.
 
-Once the button is hit the import operation starts and.
+Once the button is hit, the import operation starts and a confirmation message will appear below that button.
