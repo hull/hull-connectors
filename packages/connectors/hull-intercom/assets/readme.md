@@ -77,8 +77,66 @@ The default events received are limited to `user.created`, `user.deleted`, and `
 3) To preserve the existing `intercom/` attribute group and to manipulate the anonymous
 ids, in your org, install the Processor and copy this code
     ```javascript
-    function() {
-        return true;
+    function createLegacyAnonIds(intercomEntityTraits, intercomEntity, entityId) {
+
+      const legacyAnonIds = [];
+      const anonIds = user.anonymous_ids;
+      const externalId = _.get(intercomEntityTraits, "user_id");
+
+      const legacyAnonId = _.find(anonIds, aid => {
+        return aid === `intercom:${entityId}`;
+      });
+
+      if (_.isNil(legacyAnonId)) {
+        legacyAnonIds.push(`intercom:${targetId}`);
+      }
+
+      if (intercomEntity === "lead" && !_.isNil(externalId)) {
+
+        const externalIdAnonId = _.find(anonIds, aid => {
+          return aid === `intercom:${externalId}`;
+        });
+
+        if (_.isNil(externalIdAnonId)) {
+          legacyAnonIds.push(`intercom:${externalId}`);
+        }
+      }
+      return legacyAnonIds;
+    }
+
+    function createLegacyAttributes(intercomEntityTraits, target) {
+      const externalId = _.get(intercomEntityTraits, "user_id");
+      if (target === "lead") {
+        _.set(targetTraits, "anonymous", true);
+        _.set(targetTraits, "is_lead", true);
+        _.set(targetTraits, "lead_user_id", externalId);
+        _.set(targetTraits, "user_id", null);
+      } else {
+         _.set(targetTraits, "is_lead", false);
+         _.set(targetTraits, "anonymous", false);
+      }
+
+      return _.reduce(targetTraits, (result, value, key) => {
+        result[`intercom/${key}`] = value;
+        return result;
+      }, {});
+    }
+
+    const userId = _.get(user, "intercom_user.id");
+    const target = !_.isNil(userId) ? "user" : "lead";
+    const targetId = _.get(user, `intercom_${target}.id`);
+    const targetTraits = _.get(user, `intercom_${target}`, {});
+
+    if (!_.isEmpty(targetTraits) && !_.isNil(targetId)) {
+
+      const legacyAnonIds = createdLegacyAnonIds(targetTraits, target, targetId);
+      const legacyTraits = createLegacyAttributes(targetTraits, target);
+
+      _.forEach(legacyAnonIds, (legacyAnonId) => {
+        hull.alias({ anonymous_id: legacyAnonId });
+      });
+
+      hull.traits(legacyTraits);
     }
     ```
    
