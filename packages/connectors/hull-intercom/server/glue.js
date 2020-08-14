@@ -65,10 +65,76 @@ function intercom(op: string, param?: any): Svc {
   return new Svc({ name: "intercom", op }, param);
 }
 
+const webhookDataTemplate = {
+  "url": "${webhookUrl}",
+  "topics": [
+    "conversation.user.created",
+    "conversation.user.replied",
+    "conversation.admin.replied",
+    "conversation.admin.single.created",
+    "conversation.admin.assigned",
+    "conversation.admin.noted",
+    "conversation.admin.closed",
+    "conversation.admin.opened",
+    "conversation.admin.snoozed",
+    "conversation.admin.unsnoozed",
+    "conversation_part.tag.created",
+    "conversation_part.redacted",
+    "user.created",
+    "user.deleted",
+    "user.unsubscribed",
+    "user.email.updated",
+    "user.tag.created",
+    "user.tag.deleted",
+    "contact.created",
+    "contact.signed_up",
+    "contact.added_email",
+    "contact.tag.created",
+    "contact.tag.deleted",
+    "visitor.signed_up",
+    "company.created"
+  ]
+};
+
 const glue = {
   ensure: [
-    set("intercomApiVersion", "2.1"),
-    set("service_name", "intercom")
+    set("intercomApiVersion", "2.2"),
+    set("service_name", "intercom"),
+    cacheLock("processingWebhooks", [
+      route("ensureWebhooks")
+    ])
+  ],
+  ensureWebhooks: ifL(settings("access_token"),
+    ifL([
+      cond("notEmpty", "${connector.private_settings.incoming_events}"),
+      cond("isEmpty", "${connector.private_settings.webhook_id}")
+    ], [
+
+      set("webhookUrl", utils("createWebhookUrl")),
+      set("existingWebhooks", intercom("getAllWebhooks")),
+      set("sameWebhook", filter({ type: "notification_subscription", url: "${webhookUrl}" }, "${existingWebhooks}")),
+      ifL("${sameWebhook[0]}", {
+        do: set("webhookId", "${sameWebhook[0].id}"),
+        eldo: [
+          set("webhookTopics", settings("incoming_events")),
+          set("webhookId", get("data.id", intercom("insertWebhook", webhookDataTemplate)))
+        ]
+      }),
+      hull("settingsUpdate", { webhook_id:  "${webhookId}" }),
+      route("deleteBadWebhooks")
+    ])
+  ),
+  deleteBadWebhooks: [
+    set("connectorOrganization", utils("getConnectorOrganization")),
+    iterateL("${existingWebhooks}", "candidateWebhook",
+      ifL([
+        cond("not", cond("isEqual", "${candidateWebhook.url}", "${webhookUrl}")),
+        ex("${candidateWebhook.url}", "includes", "${connectorOrganization}"),
+      ], [
+        set("webhookIdToDelete","${candidateWebhook.id}"),
+        intercom("deleteWebhook")
+      ])
+    )
   ],
   shipUpdate: [
     route("syncDataAttributes")
@@ -484,11 +550,11 @@ const glue = {
     )
   ],
   webhooks: [
-    set("webhookTopic", input("topic")),
+    set("webhookData", input("body")),
+    set("webhookTopic", "${webhookData.topic}"),
 
     ifL(ld("includes", settings("incoming_events"), "${webhookTopic}"), [
       set("eventSource", "intercom"),
-      set("webhookData", input("data")),
 
       set("eventDefinition", get("${webhookTopic}", EVENT_MAPPING)),
       set("webhookType", "${eventDefinition.webhookType}"),
@@ -501,7 +567,7 @@ const glue = {
       set("asEntity", "${eventDefinition.asEntity}"),
 
       ifL(cond("isEqual", "${eventDefinition.webhookType.name}", "Conversation"), [
-        set("eventItem", input("${pathToEntity}.type")),
+        set("eventItem",  get("${pathToEntity}.type", "${webhookData}")),
         ifL(cond("isEqual", "${eventItem}", "user"), [
           set("webhookType", IntercomWebhookUserEventRead)
         ]),
@@ -512,12 +578,12 @@ const glue = {
 
       set("action", get("action", "${eventDefinition}")),
       ifL(cond("isEqual", "${action}", "track"), [
-        set("identity", transformTo(HullUserIdentity, cast("${webhookType}", input("${pathToEntity}")))),
+        set("identity", transformTo(HullUserIdentity, cast("${webhookType}", get("${pathToEntity}", "${webhookData}")))),
         ifL(cond("notEmpty", "${identity}"), [
           hull("asUser", {
             ident: "${identity}",
             events: [
-              transformTo(HullIncomingEvent, cast(IntercomWebhookEventRead, input()))
+              transformTo(HullIncomingEvent, cast(IntercomWebhookEventRead, "${webhookData}"))
             ]
           })
         ])
@@ -528,8 +594,8 @@ const glue = {
           set("service_name", ld("toLower", "intercom_${webhookType.name}")),
         ]),
         ifL(cond("isEmpty", "${pathToEntity}"), {
-          do: set("transformInput", input()),
-          eldo: set("transformInput", input("${pathToEntity}"))
+          do: set("transformInput", "${webhookData}"),
+          eldo: set("transformInput", get("${pathToEntity}", "${webhookData}"))
         }),
         hull("${asEntity}", transformTo("${transformTo}", cast("${webhookType}", "${transformInput}")))
       ])

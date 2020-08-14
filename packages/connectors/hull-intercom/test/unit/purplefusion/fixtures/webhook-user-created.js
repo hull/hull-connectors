@@ -6,6 +6,7 @@ module.exports = {
     "hostname": "connectortest.connectordomain.io",
     "clientCredentialsEncryptedToken": "shhhclientCredentialsEncryptedToken",
     "private_settings": {
+      "webhook_id": "1",
       "user_claims": [
         { "hull": 'email', "service": 'email' }
       ],
@@ -51,121 +52,122 @@ module.exports = {
     }
   },
   "route": "webhooks",
-  "input": {
-    "type": "notification_event",
-    "app_id": "lkqcyt9t",
-    "data": {
-      "type": "notification_event_data",
-      "item": {
-        "type": "user",
-        "id": "5f297f71bce3e055f3afdf6e",
-        "user_id": "2345234523452345",
-        "anonymous": false,
-        "email": "johnnybravo@rei.com",
-        "phone": null,
-        "name": "Johnny Bravo",
-        "pseudonym": null,
-        "avatar": {
-          "type": "avatar",
-          "image_url": null
-        },
-        "app_id": "lkqcyt9t",
-        "location_data": {
-          "type": "location_data",
-          "city_name": "Dublin",
-          "continent_code": "EU",
-          "country_code": "IRL",
-          "country_name": "Ireland",
-          "latitude": 53.159233,
-          "longitude": -6.723,
-          "postal_code": null,
-          "region_name": "Dublin",
-          "timezone": "Europe/Dublin"
-        },
-        "social_profiles": {
-          "type": "social_profile.list",
-          "social_profiles": [
-            {
-              "name": "Twitter",
-              "id": "1235d3213",
-              "username": "th1sland",
-              "url": "http://twitter.com/th1sland"
-            },
-            {
-              "name": "Facebook",
-              "id": "1235d3213",
-              "username": "facebookusrname",
-              "url": "http://facebook.com/th1sland"
-            }
-          ]
-        },
-        "companies": {
-          "type": "company.list",
-          "companies": [
-            {
-              "type": "company",
-              "company_id": "5f161ef9ce73f3ea2605304f-qualification-company",
-              "id": "5f161ef9ce73f3ea2605304e",
-              "name": "REI"
-            },
-            {
-              "type": "company",
-              "company_id": "5f161ef9ce73f3ea2605304f-qualification-company",
-              "id": "4563456345634563456",
-              "name": "REI"
-            }
-          ]
-        },
-        "last_request_at": null,
-        "created_at": "2020-08-04T15:32:01.666+00:00",
-        "remote_created_at": null,
-        "signed_up_at": null,
-        "updated_at": "2020-08-04T15:32:01.664+00:00",
-        "session_count": 0,
-        "owner_id": null,
-        "unsubscribed_from_emails": false,
-        "marked_email_as_spam": false,
-        "has_hard_bounced": false,
-        "tags": {
-          "type": "tag.list",
-          "tags": [
-            {
-              "type": "tag",
-              "id": "4406230"
-            },
-            {
-              "type": "tag",
-              "id": "4406236"
-            }
-          ]
-        },
-        "segments": {
-          "type": "segment.list",
-          "segments": []
-        },
-        "custom_attributes": {
-          "job_title": "sales"
-        },
-        "referrer": null,
-        "utm_campaign": null,
-        "utm_content": null,
-        "utm_medium": null,
-        "utm_source": null,
-        "utm_term": null,
-        "do_not_track": null,
-        "last_seen_ip": null,
-        "user_agent_data": null
-      }
-    },
-    "links": {},
-    "id": "notif_d67fe036-69ce-4202-99c7-0b99c9a5b098",
-    "topic": "user.created",
-    "delivery_status": "pending",
-    "delivery_attempts": 1,
-    "delivered_at": 0,
-    "first_sent_at": 1596555121,
-    "created_at": 1596555121,
-    "self": null
+  "input": { "body": {
+      "type": "notification_event",
+      "app_id": "lkqcyt9t",
+      "data": {
+        "type": "notification_event_data",
+        "item": {
+          "type": "user",
+          "id": "5f297f71bce3e055f3afdf6e",
+          "user_id": "2345234523452345",
+          "anonymous": false,
+          "email": "johnnybravo@rei.com",
+          "phone": null,
+          "name": "Johnny Bravo",
+          "pseudonym": null,
+          "avatar": {
+            "type": "avatar",
+            "image_url": null
+          },
+          "app_id": "lkqcyt9t",
+          "location_data": {
+            "type": "location_data",
+            "city_name": "Dublin",
+            "continent_code": "EU",
+            "country_code": "IRL",
+            "country_name": "Ireland",
+            "latitude": 53.159233,
+            "longitude": -6.723,
+            "postal_code": null,
+            "region_name": "Dublin",
+            "timezone": "Europe/Dublin"
+          },
+          "social_profiles": {
+            "type": "social_profile.list",
+            "social_profiles": [
+              {
+                "name": "Twitter",
+                "id": "1235d3213",
+                "username": "th1sland",
+                "url": "http://twitter.com/th1sland"
+              },
+              {
+                "name": "Facebook",
+                "id": "1235d3213",
+                "username": "facebookusrname",
+                "url": "http://facebook.com/th1sland"
+              }
+            ]
+          },
+          "companies": {
+            "type": "company.list",
+            "companies": [
+              {
+                "type": "company",
+                "company_id": "5f161ef9ce73f3ea2605304f-qualification-company",
+                "id": "5f161ef9ce73f3ea2605304e",
+                "name": "REI"
+              },
+              {
+                "type": "company",
+                "company_id": "5f161ef9ce73f3ea2605304f-qualification-company",
+                "id": "4563456345634563456",
+                "name": "REI"
+              }
+            ]
+          },
+          "last_request_at": null,
+          "created_at": "2020-08-04T15:32:01.666+00:00",
+          "remote_created_at": null,
+          "signed_up_at": null,
+          "updated_at": "2020-08-04T15:32:01.664+00:00",
+          "session_count": 0,
+          "owner_id": null,
+          "unsubscribed_from_emails": false,
+          "marked_email_as_spam": false,
+          "has_hard_bounced": false,
+          "tags": {
+            "type": "tag.list",
+            "tags": [
+              {
+                "type": "tag",
+                "id": "4406230"
+              },
+              {
+                "type": "tag",
+                "id": "4406236"
+              }
+            ]
+          },
+          "segments": {
+            "type": "segment.list",
+            "segments": []
+          },
+          "custom_attributes": {
+            "job_title": "sales"
+          },
+          "referrer": null,
+          "utm_campaign": null,
+          "utm_content": null,
+          "utm_medium": null,
+          "utm_source": null,
+          "utm_term": null,
+          "do_not_track": null,
+          "last_seen_ip": null,
+          "user_agent_data": null
+        }
+      },
+      "links": {},
+      "id": "notif_d67fe036-69ce-4202-99c7-0b99c9a5b098",
+      "topic": "user.created",
+      "delivery_status": "pending",
+      "delivery_attempts": 1,
+      "delivered_at": 0,
+      "first_sent_at": 1596555121,
+      "created_at": 1596555121,
+      "self": null
+    }
   },
   "serviceRequests": [
     {

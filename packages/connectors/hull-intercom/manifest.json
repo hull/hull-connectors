@@ -439,6 +439,16 @@
     "value": "5",
     "handler": "status"
   },
+  "incoming": [
+    {
+      "url": "/webhooks",
+      "handler": "webhooks",
+      "options": {
+        "credentialsFromQuery": true,
+        "bodyParser": "json"
+      }
+    }
+  ],
   "batches": [
     {
       "url": "/batch",

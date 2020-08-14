@@ -18,6 +18,7 @@ describe("Update Lead Tests", () => {
         channel: "user:update",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "intercomABC",
             tag_leads: false,
             synchronized_lead_segments: ["lead_segment_1"],
@@ -164,6 +165,7 @@ describe("Update Lead Tests", () => {
         channel: "user:update",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "intercomABC",
             tag_leads: false,
             synchronized_lead_segments: ["lead_segment_1"],
@@ -641,6 +643,7 @@ describe("Update Lead Tests", () => {
         channel: "user:update",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "intercomABC",
             tag_leads: false,
             synchronized_lead_segments: ["lead_segment_1"],
@@ -997,6 +1000,7 @@ describe("Update Lead Tests", () => {
         channel: "user:update",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "intercomABC",
             tag_users: false,
             synchronized_user_segments: [],

@@ -19,6 +19,7 @@ describe("Insert Lead Tests", () => {
         is_export: true,
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "intercomABC",
             tag_leads: true,
             outgoing_events: ["Email Opened", "Email Sent"],
@@ -660,6 +661,7 @@ describe("Insert Lead Tests", () => {
         channel: "user:update",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "intercomABC",
             tag_leads: true,
             synchronized_lead_segments: ["lead_segment_1"],

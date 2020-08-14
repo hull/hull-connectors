@@ -16,6 +16,7 @@ describe("Fetch Recent Users Tests", () => {
         handlerUrl: "fetch-recent-users",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "12345",
             fetch_users: true,
             user_claims: [
