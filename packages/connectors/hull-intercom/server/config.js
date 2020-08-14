@@ -36,7 +36,7 @@ export default function connectorConfig(): HullConnectorConfig {
     clientConfig: {
       cachedCredentials: {
         cacheCredentials: true,
-        appendCredentials: false,
+        appendCredentials: true,
         credentialsKeyPath: "profile._json.app.id_code",
         serviceKey: "app_id",
         handler: intercomWebhookHandler

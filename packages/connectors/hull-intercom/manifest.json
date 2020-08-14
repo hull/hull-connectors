@@ -64,7 +64,7 @@
     },
     {
       "name": "user_claims",
-      "title": "User and Lead Identity",
+      "title": "User Identity",
       "type": "array",
       "format": "table",
       "items": {
@@ -256,8 +256,7 @@
       "default": [
         "user.created",
         "user.deleted",
-        "contact.created",
-        "company.created"
+        "contact.created"
       ],
       "items": {
         "type": "string",
@@ -281,9 +280,11 @@
           "user.tag.created",
           "user.tag.deleted",
           "contact.created",
+          "contact.signed_up",
           "contact.added_email",
           "contact.tag.created",
           "contact.tag.deleted",
+          "visitor.signed_up",
           "company.created"
         ]
       }
