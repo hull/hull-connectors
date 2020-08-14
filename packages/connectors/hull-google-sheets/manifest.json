@@ -54,12 +54,15 @@
     }
   ],
   "html": [],
-  "status": {
-    "url": "/status",
-    "handler": "statusHandler",
-    "type": "cron",
-    "value": "*/30 * * * *"
-  },
+  "statuses": [
+    {
+      "initial_value": "ok",
+      "url": "/status",
+      "handler": "statusHandler",
+      "type": "cron",
+      "value": "*/30 * * * *"
+    }
+  ],
   "settings_sections": [
     {
       "title": "Credentials",
