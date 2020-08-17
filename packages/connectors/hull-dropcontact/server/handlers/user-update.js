@@ -52,7 +52,6 @@ const updateAccount = ({
       throw new Error("No API Key - please set it up in the settings");
     }
 
-    metric.increment("ship.service_api.call");
     const attributeMap = payload =>
       mapAttributes({
         payload,
@@ -94,6 +93,7 @@ const updateAccount = ({
     });
 
     if (notInQueue.length) {
+      metric.increment("ship.service_api.call", notInQueue.length);
       const response = await request
         .post("https://api.dropcontact.io/batch?hashedInputs=true")
         .set({ "X-Access-Token": api_key })
