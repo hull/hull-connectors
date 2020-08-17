@@ -1,0 +1,83 @@
+{
+  "name": "Bigquery",
+  "description": "Import your Bigquery results to Hull",
+  "source": "bigquery",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "version": "0.1.33-monorepo",
+  "tags": [
+    "incoming",
+    "first-install"
+  ],
+  "private_settings": [
+    {
+      "name": "oauth",
+      "title": "Oauth",
+      "type": "string",
+      "format": "oauth",
+      "description": "On the authentication screen, log into your Google account with your username and password, if you are not already logged in",
+      "handler": "oauth",
+      "url": "/auth",
+      "options": {
+        "tokenInUrl": false,
+        "name": "Bigquery",
+        "access_type": "offline",
+        "strategy": {
+          "authorizationURL": "https://accounts.google.com/o/oauth2/v2/auth",
+          "tokenURL": "https://oauth2.googleapis.com/token",
+          "grant_type": "authorization_code",
+          "scope": [
+            "https://www.googleapis.com/auth/bigquery"
+          ]
+        }
+      }
+    },
+    {
+      "name": "import_type",
+      "title": "Import type",
+      "description": "What do you want to import to Hull ?",
+      "type": "string",
+      "enum": [
+        "users",
+        "accounts",
+        "events"
+      ],
+      "default": "users",
+      "required": true
+    }
+  ],
+  "settings": [],
+  "resources": [],
+  "readme": "readme.md",
+  "ui": false,
+  "incoming": [],
+  "json": [],
+  "schedules": [],
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "5",
+      "handler": "status"
+    }
+  ],
+  "subscriptions": [],
+  "batches": [],
+  "settings_sections": [
+    {
+      "title": "Authentication",
+      "description": "On the authentication screen, log into your Google account with your username and password, if you are not already logged in",
+      "step": "credentials",
+      "properties": [
+        "private_settings.oauth"
+      ]
+    },
+    {
+      "title": "Select Project",
+      "description": "After you have authenticated with your Google account, please select the project that Hull will use for your queries. Once you have selected a project, please click Save on the top right",
+      "properties": [
+        "private_settings.bigquery_project_id"
+      ]
+    }
+  ]
+}
