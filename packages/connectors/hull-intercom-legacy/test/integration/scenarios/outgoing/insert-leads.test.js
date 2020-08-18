@@ -299,9 +299,9 @@ describe("Insert Lead Tests", () => {
             ]
           }
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        response: { "flow_control": { "type": "next", } },
         logs: [
-          ["debug", "Got lock value for sendleads: undefined in 0.001s", { "request_id": expect.whatever() }, undefined],
+          ["debug", expect.whatever(), { "request_id": expect.whatever() }, undefined],
           ["debug", expect.whatever(), { "request_id": expect.whatever() }, undefined],
           ["debug", "sendLeads.preFilter", { "request_id": expect.whatever() }, 1],
           ["debug", "outgoing.user.start",
