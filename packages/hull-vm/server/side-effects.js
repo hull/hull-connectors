@@ -2,6 +2,7 @@
 import type { HullUser, HullAccount, HullClient, HullContext } from "hull";
 import _ from "lodash";
 import { Map } from "immutable";
+import moment from "moment";
 import type { Result, Event } from "../types";
 
 type TraitsSignature =
@@ -81,6 +82,14 @@ export const callTraits = async ({
             // Lodash allows deep object comparison
             if (_.isEqual(previous, v)) {
               no_ops[k] = "identical value";
+              return true;
+            }
+            if (
+              // $FlowFixMe
+              (k.endsWith("_date") || k.endsWith("_at")) &&
+              moment(previous).isSame(moment(v))
+            ) {
+              no_ops[k] = "identical date";
               return true;
             }
             return false;

@@ -11,7 +11,7 @@
     "batch-accounts",
     "oneColumn",
     "smart-notifier",
-    "kraken-exports"
+    "kraken-exports",
     "postgres",
     "sql"
   ],

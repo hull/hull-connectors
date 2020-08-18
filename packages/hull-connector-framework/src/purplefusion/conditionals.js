@@ -1,4 +1,6 @@
 /* @flow */
+import { doVariableReplacement } from "./variable-utils";
+
 const _ = require("lodash");
 
 const { isUndefinedOrNull } = require("./utils");
@@ -58,6 +60,14 @@ function varInArray(param: string, listValues) {
   return (context) => {
     const contextVariable = context.get(param);
     return listValues.indexOf(contextVariable) > -1;
+  };
+}
+
+function varInResolvedArray(param: string, listValues) {
+  return (context) => {
+    const contextVariable = context.get(param);
+    const varList = doVariableReplacement(context, listValues);
+    return varList.indexOf(contextVariable) > -1;
   };
 }
 
@@ -203,5 +213,6 @@ module.exports = {
   isServiceAttributeInVarList,
   isVarServiceAttributeInVarList,
   or,
-  varStartsWithString
+  varStartsWithString,
+  varInResolvedArray
 };

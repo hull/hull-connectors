@@ -124,6 +124,7 @@ export default class MappingLine extends PureComponent<MappingProp> {
               styles={{
                 control: this.getControlStyle
               }}
+              noOptionsMessage={() => "Enter something"}
               getNewOptionData={this.getNewOptionData}
               formatCreateLabel={this.formatCreateLabel}
               isOptionDisabled={isOptionDisabled(mapping)}
