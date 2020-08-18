@@ -29,9 +29,6 @@ test("send smart-notifier user update to outreach", () => {
       response: {
         flow_control: {
           type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10
         }
       },
       logs: [
