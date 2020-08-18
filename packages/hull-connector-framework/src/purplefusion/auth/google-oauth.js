@@ -42,7 +42,7 @@ const googleOAuth = {
   ): HullExternalResponse => ({
     ...message.body,
     ...message.query,
-    access_type: "offline"
+    accessType: "offline"
   }),
   onAuthorize: async (
     ctx: HullContext,
@@ -55,8 +55,8 @@ const googleOAuth = {
     // for some reason, refreshToken looks like it's at the top level
     // and the more detailed variables are in a params object below req.account
     const { account = {} } = message;
-    const { params } = account;
-    const { access_token, expires_in, created_at, refresh_token } = params || {};
+    const { params, refreshToken } = account;
+    const { access_token, expires_in, created_at } = params || {};
 
     if (cacheCredentials && credentialsKeyPath && serviceKey) {
       const credentialsKey = _.get(account, credentialsKeyPath, null);
@@ -68,7 +68,7 @@ const googleOAuth = {
       private_settings: {
         token_expires_in: expires_in,
         token_created_at: created_at,
-        refresh_token: refresh_token,
+        refresh_token: refreshToken,
         access_token
       }
     };

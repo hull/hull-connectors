@@ -12512,6 +12512,13 @@ passport-forcedotcom@0.1.5:
   dependencies:
     passport-oauth2 "1.3.x"
 
+passport-google-oauth20@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/passport-google-oauth20/-/passport-google-oauth20-2.0.0.tgz#0d241b2d21ebd3dc7f2b60669ec4d587e3a674ef"
+  integrity sha512-KSk6IJ15RoxuGq7D1UKK/8qKhNfzbLeLrG3gkLZ7p4A6DBCcv7xpyQwuXtWdpyR0+E0mwkpjY1VfPOhxQrKzdQ==
+  dependencies:
+    passport-oauth2 "1.x.x"
+
 passport-hubspot-oauth2.0@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/passport-hubspot-oauth2.0/-/passport-hubspot-oauth2.0-1.0.2.tgz#70cf9ff314fe6f2ea33e7941979c483850e689c0"

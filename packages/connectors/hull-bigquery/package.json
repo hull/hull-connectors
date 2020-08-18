@@ -7,7 +7,7 @@
     "documentation": "exit 0"
   },
   "dependencies": {
-    "passport-google-oauth": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0"
   },
   "devDependencies": {}
 }

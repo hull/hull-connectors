@@ -1,7 +1,7 @@
 import type { RawRestApi } from "hull-connector-framework/src/purplefusion/types";
 import { SuperagentApi } from "hull-connector-framework/src/purplefusion/superagent-api";
 
-const OAuth2Strategy = require("passport-oauth2");
+const OAuth2Strategy = require("passport-google-oauth20").Strategy;
 const service = ({clientID, clientSecret}: {
   clientId: string,
   clientSecret: string

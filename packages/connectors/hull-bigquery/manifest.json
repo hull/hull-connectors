@@ -21,10 +21,9 @@
       "options": {
         "tokenInUrl": false,
         "name": "Bigquery",
-        "access_type": "offline",
         "strategy": {
-          "authorizationURL": "https://accounts.google.com/o/oauth2/v2/auth",
-          "tokenURL": "https://oauth2.googleapis.com/token",
+          "skipUserProfile": true,
+          "accessType": "offline",
           "grant_type": "authorization_code",
           "scope": [
             "https://www.googleapis.com/auth/bigquery"
