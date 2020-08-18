@@ -101,7 +101,7 @@ describe("Insert Contacts Tests", () => {
           }
 
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        response: { "flow_control": { "type": "next", } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
@@ -109,7 +109,7 @@ describe("Insert Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 262,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%20FROM%20Lead%20WHERE%20Email%20IN%20('adam%40apple.com')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2C%20FirstName%2C%20LastName%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%20FROM%20Lead%20WHERE%20Email%20IN%20('adam%40apple.com')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
             }
           ]),
           expect.arrayContaining([
@@ -194,7 +194,8 @@ describe("Insert Contacts Tests", () => {
             },
             {
               "error": "Outgoing Batch Error: ERROR_HTTP_400: {\"message\":\"some random error\"}",
-              "resourceType": "Contact"
+              "resourceType": "Contact",
+              "warning": "Unable to determine invalid user"
             }
           ],
           ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }]
@@ -315,7 +316,7 @@ describe("Insert Contacts Tests", () => {
           }
 
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        response: { "flow_control": { "type": "next", } },
         // expect.arrayContaining([
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
@@ -324,7 +325,7 @@ describe("Insert Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 262,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%20FROM%20Lead%20WHERE%20Email%20IN%20('adam%40apple.com')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2C%20FirstName%2C%20LastName%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%20FROM%20Lead%20WHERE%20Email%20IN%20('adam%40apple.com')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
             }
           ]),
           expect.arrayContaining([
@@ -731,7 +732,7 @@ describe("Insert Contacts Tests", () => {
             }
           }
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        response: { "flow_control": { "type": "next", } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([
@@ -739,7 +740,7 @@ describe("Insert Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 317,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%20FROM%20Lead%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2C%20FirstName%2C%20LastName%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%20FROM%20Lead%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
             }
           ]),
           expect.arrayContaining([

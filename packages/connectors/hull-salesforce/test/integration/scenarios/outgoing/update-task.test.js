@@ -23,7 +23,7 @@ const private_settings = {
 
 describe("Update Tasks Tests", () => {
 
-  it("should insert new task and insert new contact", () => {
+  it("should update new task and insert new contact", () => {
     const connector = {
       private_settings: {
         ...private_settings,
@@ -308,7 +308,7 @@ describe("Update Tasks Tests", () => {
             }
           }
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        response: { "flow_control": { "type": "next", } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           expect.arrayContaining([

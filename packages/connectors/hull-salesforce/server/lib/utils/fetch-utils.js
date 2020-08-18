@@ -29,6 +29,8 @@ function shouldFetch(
 ): boolean {
   const entityToFetch = _.get(privateSettings, "entity", null);
   const fetchAccounts = _.get(privateSettings, "fetch_accounts", false);
+  const fetchContacts = _.get(privateSettings, "fetch_contacts", true);
+  const fetchLeads = _.get(privateSettings, "fetch_leads", true);
   const fetchTasks = _.get(privateSettings, "fetch_tasks", false);
 
   if (
@@ -48,6 +50,18 @@ function shouldFetch(
     hullClient.logger.debug(
       "Fetch Accounts not turned on. Skipping account fetch"
     );
+    return false;
+  }
+
+  if (type === "Contact" && !fetchContacts) {
+    hullClient.logger.debug(
+      "Fetch Contacts not turned on. Skipping contact fetch"
+    );
+    return false;
+  }
+
+  if (type === "Lead" && !fetchLeads) {
+    hullClient.logger.debug("Fetch Leads not turned on. Skipping lead fetch");
     return false;
   }
 

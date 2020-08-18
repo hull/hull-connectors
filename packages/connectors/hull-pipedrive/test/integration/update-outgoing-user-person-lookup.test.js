@@ -137,7 +137,7 @@ it("Update Single User To Pipedrive With Successful Lookup", () => {
 
         return scope;
       },
-      response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
+      response: { flow_control: { type: "next" } },
       logs: [
         [
           "info",

@@ -32,14 +32,26 @@ export default async function importHandler(
   }
 
   // Don't use customer-provided data directly
-  const entityType = type === "user" ? "user" : "account";
+  const entityType = type === "account" ? "account" : "user";
   const method = entityType === "account" ? client.asAccount : client.asUser;
-
   const remap = remapAttributes(entityType);
-  rows.map(async ({ claims, attributes }) => {
+  rows.map(async ({ context, claims, attributes }) => {
     const scopedClient = method(claims);
     try {
-      await scopedClient.traits(remap(claims, attributes));
+      if (type === "user_event") {
+        const { event_name } = context;
+        if (!event_name) {
+          throw new Error("Can't import an event without a name");
+        }
+        // This way we can easily add new entries to the context
+        await scopedClient.track(
+          event_name,
+          attributes,
+          _.omit(context, "event_name")
+        );
+      } else {
+        await scopedClient.traits(remap(claims, attributes));
+      }
     } catch (err) {
       scopedClient.logger.info(`incoming.${entityType}.error`, {
         message: _.get(err, "message")

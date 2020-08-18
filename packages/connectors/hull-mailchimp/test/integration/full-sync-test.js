@@ -445,9 +445,32 @@ it("Performing sync", () => {
                 api_key: "1",
                 domain: "mock",
                 interest_category_id: "2",
-                interests_mapping: {},
+                interests_mapping: {
+                  hullSegmentId: "MailchimpInterestId",
+                },
                 mailchimp_list_id: "1",
                 segment_mapping: { hullSegmentId: "MailchimpSegmentId" },
+                synchronized_user_segments: ["hullSegmentId"],
+                sync_batch_id: "8b2428d747"
+              },
+              refresh_status: false
+            }
+          ],
+          ["GET", "/api/v1/app", {}, {}],
+          [
+            "PUT",
+            "/api/v1/123456789012345678901234",
+            {},
+            {
+              private_settings: {
+                api_key: "1",
+                domain: "mock",
+                interest_category_id: "2",
+                interests_mapping: {},
+                mailchimp_list_id: "1",
+                segment_mapping: {
+                  hullSegmentId: "MailchimpSegmentId",
+                },
                 synchronized_user_segments: ["hullSegmentId"]
               },
               refresh_status: false
@@ -463,10 +486,35 @@ it("Performing sync", () => {
                 api_key: "1",
                 domain: "mock",
                 interest_category_id: "2",
-                interests_mapping: { hullSegmentId: "MailchimpInterestId" },
+                interests_mapping: {
+                  hullSegmentId: "MailchimpInterestId"
+                },
+                mailchimp_list_id: "1",
+                segment_mapping: {
+                  hullSegmentId: "MailchimpSegmentId",
+                },
+                synchronized_user_segments: ["hullSegmentId"],
+                sync_batch_id: null,
+              },
+              refresh_status: false
+            }
+          ],
+          ["GET", "/api/v1/app", {}, {}],
+          [
+            "PUT",
+            "/api/v1/123456789012345678901234",
+            {},
+            {
+              private_settings: {
+                api_key: "1",
+                domain: "mock",
+                interest_category_id: "2",
+                interests_mapping: {
+                  hullSegmentId: "MailchimpInterestId"
+                },
                 mailchimp_list_id: "1",
                 segment_mapping: {},
-                synchronized_user_segments: ["hullSegmentId"]
+                synchronized_user_segments: ["hullSegmentId"],
               },
               refresh_status: false
             }

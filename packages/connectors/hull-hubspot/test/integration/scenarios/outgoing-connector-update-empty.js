@@ -72,9 +72,6 @@ it("should not create fields on 3rd party if no segments are in the org", () => 
       ],
       response: {
         flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
           type: "next"
         }
       },
