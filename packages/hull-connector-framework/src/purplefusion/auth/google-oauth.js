@@ -9,6 +9,7 @@ import type {
 } from "hull";
 import { cacheClientCredentials } from "../webhooks/cache-client-credentials";
 
+const moment = require("moment");
 const _ = require("lodash");
 
 const googleOAuth = {
@@ -42,7 +43,8 @@ const googleOAuth = {
   ): HullExternalResponse => ({
     ...message.body,
     ...message.query,
-    accessType: "offline"
+    accessType: "offline",
+    prompt: "consent"
   }),
   onAuthorize: async (
     ctx: HullContext,
@@ -51,12 +53,9 @@ const googleOAuth = {
     const { cachedCredentials = {} } = ctx.clientConfig;
     const { cacheCredentials = false, appendCredentials = false, serviceKey, credentialsKeyPath } = cachedCredentials;
 
-    // access_token, expires_in, refresh_token, created_at
-    // for some reason, refreshToken looks like it's at the top level
-    // and the more detailed variables are in a params object below req.account
     const { account = {} } = message;
     const { params, refreshToken } = account;
-    const { access_token, expires_in, created_at } = params || {};
+    const { access_token, expires_in } = params || {};
 
     if (cacheCredentials && credentialsKeyPath && serviceKey) {
       const credentialsKey = _.get(account, credentialsKeyPath, null);
@@ -64,14 +63,18 @@ const googleOAuth = {
         await cacheClientCredentials(ctx, { credentialsKey, appendCredentials } );
       }
     }
-    return {
+    const returnObj = {
       private_settings: {
         token_expires_in: expires_in,
-        token_created_at: created_at,
-        refresh_token: refreshToken,
+        token_fetched_at: moment().utc().format(),
         access_token
       }
     };
+    // We don't wanna override a possibly already existing refresh token
+    if (!_.isNil(refreshToken)) {
+      returnObj.private_settings.refresh_token = refreshToken;
+    }
+    return returnObj
   }
 };
 

@@ -43,6 +43,29 @@
       ],
       "default": "users",
       "required": true
+    },
+    {
+      "name": "query",
+      "title": "Query",
+      "type": "string",
+      "required": true,
+      "description": "The query that the connector will execute in Bigquery. Please paste a valid query that you have written and tested in Bigquery's editor."
+    },
+    {
+      "name": "import_interval",
+      "title": "Import interval",
+      "description": "Define here the amount of time (in minutes) between imports.",
+      "type": "string",
+      "default": "180",
+      "enum": [
+        "30",
+        "60",
+        "180",
+        "360",
+        "720",
+        "1440",
+        "43800"
+      ]
     }
   ],
   "settings": [],
@@ -50,8 +73,31 @@
   "readme": "readme.md",
   "ui": false,
   "incoming": [],
-  "json": [],
-  "schedules": [],
+  "json": [
+    {
+      "name": "import",
+      "url": "/import",
+      "format": "action",
+      "handler": "importResults",
+      "title": "Manual import",
+      "options": {
+        "confirm": {
+          "action": "fetch",
+          "text": "You are about to execute the currently saved query and import its results. Confirm?",
+          "button": "Start import"
+        }
+      }
+    }
+  ],
+  "schedules": [
+    {
+      "url": "/import",
+      "type": "interval",
+      "handler": "import",
+      "value_from": "private_settings.import_interval",
+      "default": "180"
+    }
+  ],
   "statuses": [
     {
       "url": "/status",
@@ -60,6 +106,13 @@
       "handler": "status"
     }
   ],
+  "status": {
+    "url": "/status",
+    "handler": "status",
+    "initial_value": "setupRequired",
+    "type": "cron",
+    "value": "*/5 * * * *"
+  },
   "subscriptions": [],
   "batches": [],
   "settings_sections": [
@@ -72,10 +125,13 @@
       ]
     },
     {
-      "title": "Select Project",
-      "description": "After you have authenticated with your Google account, please select the project that Hull will use for your queries. Once you have selected a project, please click Save on the top right",
+      "title": "Import Setup",
+      "description": "Basic setup for the Bigquery connector.",
       "properties": [
-        "private_settings.bigquery_project_id"
+        "private_settings.import_type",
+        "private_settings.import_interval",
+        "private_settings.query",
+        "json.import"
       ]
     }
   ]
