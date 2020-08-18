@@ -22,13 +22,13 @@ export default async (
       return m;
     });
 
-    if (ctx.notification.is_export) {
-      return Promise.resolve(ctx.enqueue("handleBatch", enrichedMessages));
-    }
-
     const intercomClient = new IntercomClient(ctx);
     const intercomAgent = new IntercomAgent(intercomClient, ctx);
     const syncAgent = new SyncAgent(intercomAgent, ctx);
+
+    if (ctx.notification.is_export) {
+      return syncAgent.sendBatch(enrichedMessages);
+    }
 
     await syncAgent.sendUserMessages(enrichedMessages);
     return {};

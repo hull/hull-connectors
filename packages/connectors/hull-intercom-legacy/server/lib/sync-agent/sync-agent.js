@@ -5,7 +5,7 @@ import type { HullContext } from "hull/src/types/context";
 const _ = require("lodash");
 const moment = require("moment");
 const Promise = require("bluebird");
-const { ConfigurationError } = require("hull/src/errors");
+const { RateLimitError, ConfigurationError } = require("hull/src/errors");
 
 const TagMapping = require("./tag-mapping");
 const UserMapping = require("./user-mapping");
@@ -13,6 +13,7 @@ const WebhookAgent = require("./webhook-agent");
 const { jsonifyArrays } = require("../utils/utils");
 const { deduplicateUserUpdateMessages } = require("../filter-utils");
 const getEventPayload = require("../event/get-event-payload");
+const fetchAllUsers = require("../../actions/fetch-all-users");
 
 // const handleRateLimitError = require("../../lib/handle-rate-limit-error");
 
@@ -37,6 +38,8 @@ class SyncAgent {
 
   cache;
 
+  ctx;
+
   constructor(intercomAgent, ctx: HullContext) {
     const {
       client,
@@ -48,6 +51,7 @@ class SyncAgent {
       hostname,
       enqueue
     } = ctx;
+    this.ctx = ctx;
     this.enqueue = enqueue;
     this.intercomAgent = intercomAgent;
     this.ship = ship;
@@ -996,6 +1000,237 @@ class SyncAgent {
         );
       })
     );
+  }
+
+  fetchRecentUsers(params) {
+    const { count = 50, page = 1 } = params;
+    let { last_updated_at } = params;
+
+    if (!last_updated_at || !moment(last_updated_at).isValid()) {
+      if (
+        this.private_settings.last_updated_at &&
+        moment(this.private_settings.last_updated_at).isValid() &&
+        moment(this.private_settings.last_updated_at).isAfter(
+          moment().subtract(1, "day")
+        )
+      ) {
+        last_updated_at = this.private_settings.last_updated_at;
+      } else {
+        this.client.logger.debug("fetchRecentUsers.last_updated_at.fallback", {
+          last_updated_at: this.private_settings.last_updated_at
+        });
+        last_updated_at = moment()
+          .subtract(1, "day")
+          .format();
+      }
+    }
+
+    if (page === 1) {
+      this.client.logger.info("incoming.job.start", {
+        jobName: "fetch-recent",
+        type: "users",
+        last_updated_at
+      });
+    }
+
+    this.client.logger.debug("fetchUsers", { last_updated_at, page });
+    this.metric.value("ship.incoming.fetch.page", page);
+    return this.intercomAgent
+      .getRecentUsers(last_updated_at, count, page)
+      .then(({ users, hasMore }) => {
+        const promises = [];
+
+        if ((page + 1) * count >= 10000) {
+          if (process.env.ENABLE_FETCH_ALL_FALLBACK) {
+            const updated_after = last_updated_at;
+            const updated_before = moment(
+              _.get(_.last(users), "updated_at"),
+              "X"
+            ).format();
+            this.metric.event({
+              title:
+                "fetchRecentUsers - going to too high page, switching to fetchAllUsers with filtering",
+              text: JSON.stringify({ updated_after, updated_before })
+            });
+            promises.push(
+              fetchAllUsers(this.ctx, { updated_before, updated_after })
+            );
+          } else {
+            this.metric.event({
+              title:
+                "fetchRecentUsers - going to too high page, stopping the fetch"
+            });
+          }
+        } else if (hasMore) {
+          promises.push(
+            this.fetchRecentUsers({
+              last_updated_at,
+              count,
+              page: page + 1
+            })
+          );
+        }
+
+        if (!_.isEmpty(users)) {
+          promises.push(this.saveUsers(users));
+        }
+
+        return Promise.all(promises).then(() => {
+          this.client.logger.debug("fetchRecentUsers.finishedStep", {
+            page,
+            usersCount: users.length
+          });
+          if (page === 1 && !_.isEmpty(users)) {
+            const newLastUpdatedAt = moment(
+              _.get(_.first(users), "updated_at"),
+              "X"
+            ).format();
+            return this.helpers.settingsUpdate({
+              last_updated_at: newLastUpdatedAt
+            });
+          }
+          return Promise.resolve();
+        });
+      })
+      .catch(RateLimitError, () => Promise.resolve("ok"))
+      .catch(ConfigurationError, () => Promise.resolve("ok"))
+      .catch(err => {
+        if (
+          _.get(err, "statusCode") === 429 ||
+          _.get(err, "response.statusCode") === 429
+        ) {
+          this.client.logger.debug("service.api.ratelimit", {
+            message: "stopping fetch, another will continue"
+          });
+          return Promise.resolve("skip");
+        }
+        return Promise.reject(err);
+      });
+  }
+
+  fetchRecentLeads(params = {}) {
+    const private_settings = this.private_settings;
+
+    const { updated_before, page = 1, count = 50 } = params;
+
+    let { updated_after } = params;
+
+    if (!updated_after && !updated_before) {
+      updated_after =
+        private_settings.leads_last_fetched_at ||
+        moment()
+          .subtract(process.env.LEADS_FETCH_DEFAULT_HOURS || 24, "hours")
+          .format();
+    }
+
+    if (page === 1) {
+      this.client.logger.debug("incoming.job.start", {
+        jobName: "fetch-recent",
+        type: "leads",
+        updated_after,
+        updated_before
+      });
+    }
+
+    return this.intercomAgent
+      .getRecentLeads({
+        page,
+        count,
+        updated_after,
+        updated_before
+      })
+      .then(({ leads, hasMore }) => {
+        this.client.logger.debug("incoming.job.progress", {
+          jobName: "fetch",
+          stepName: "recent-leads",
+          progress: (page - 1) * count + leads.length,
+          hasMore
+        });
+        const promises = [];
+        if (hasMore) {
+          promises.push(
+            this.fetchRecentLeads({
+              updated_after,
+              updated_before,
+              page: page + 1,
+              count
+            })
+          );
+        }
+        if (leads.length > 0) {
+          promises.push(this.saveLeads(leads));
+        }
+
+        if (!hasMore || page % 5 === 0) {
+          promises.push(
+            this.helpers.settingsUpdate({
+              leads_last_fetched_at: moment().format()
+            })
+          );
+        }
+        return Promise.all(promises);
+      })
+      .catch(RateLimitError, () => Promise.resolve("ok"))
+      .catch(ConfigurationError, () => Promise.resolve("ok"))
+      .catch(err => {
+        if (err.statusCode === 429) {
+          return Promise.resolve("ok");
+        }
+        return Promise.reject(err);
+      });
+  }
+
+  sendBatch(messages) {
+    const private_settings = this.private_settings;
+
+    const filteredUsers = [];
+    const leadMessages = [];
+    const ignoreDeletedUser = _.get(
+      private_settings,
+      "ignore_deleted_users",
+      true
+    );
+    messages.forEach(message => {
+      const { segments, user } = message;
+      const updatedUser = this.updateUserSegments(
+        user,
+        { add_segment_ids: _.compact(segments).map(s => s.id) },
+        true
+      );
+      const ident = _.pick(updatedUser, ["email", "id"]);
+      const deletedAt = _.get(message, "user.intercom/deleted_at", null);
+      const canSend = !deletedAt || !ignoreDeletedUser;
+      if (message.user["intercom/is_lead"]) {
+        if (canSend) {
+          leadMessages.push(message);
+        } else {
+          this.client.asUser(ident).logger.debug("outgoing.user.skip", {
+            reason: "(Lead) User has been deleted"
+          });
+        }
+      } else {
+        this.client.asUser(ident).logger.debug("outgoing.user.start");
+        if (canSend) {
+          filteredUsers.push(updatedUser);
+        } else {
+          this.client.asUser(ident).logger.debug("outgoing.user.skip", {
+            reason: "User has been deleted"
+          });
+        }
+      }
+    });
+
+    return (() => {
+      if (!_.isEmpty(leadMessages)) {
+        return this.sendLeads(leadMessages);
+      }
+      return Promise.resolve();
+    })().then(() => {
+      if (!_.isEmpty(filteredUsers)) {
+        return this.sendUsers(filteredUsers);
+      }
+      return Promise.resolve();
+    });
   }
 }
 

@@ -76,7 +76,6 @@
       "description": "Send users to Intercom when belonging to one of these segments",
       "default": [],
       "type": "array",
-
       "format": "segment"
     },
     {
@@ -262,7 +261,7 @@
       "url": "/fetch-recent-users",
       "type": "interval",
       "value": "5",
-      "handler": "fetchRecentlyUpdatedUsers",
+      "handler": "fetchRecentUsers",
       "options": {
         "fireAndForget": true
       }
@@ -271,7 +270,7 @@
       "url": "/fetch-recent-leads",
       "type": "interval",
       "value": "5",
-      "handler": "fetchRecentlyUpdatedLeads",
+      "handler": "fetchRecentLeads",
       "options": {
         "fireAndForget": true
       }

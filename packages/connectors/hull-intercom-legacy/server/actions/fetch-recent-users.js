@@ -1,14 +1,23 @@
 // @flow
-import type { HullContext, HullExternalResponse } from "hull";
+import type { HullContext } from "hull/src/types/context";
+import type { HullExternalResponse } from "hull";
 
-async function fetchUsersAction(ctx: HullContext): HullExternalResponse {
-  await Promise.resolve(ctx.enqueue("fetchRecentUsers"));
+const IntercomClient = require("../lib/intercom-client");
+const IntercomAgent = require("../lib/intercom-agent");
+const SyncAgent = require("../lib/sync-agent/sync-agent");
+
+async function fetchRecentUsers(ctx: HullContext): HullExternalResponse {
+  const intercomClient = new IntercomClient(ctx);
+  const intercomAgent = new IntercomAgent(intercomClient, ctx);
+  const syncAgent = new SyncAgent(intercomAgent, ctx);
+
+  await syncAgent.fetchRecentUsers({ count: 50, page: 1 });
   return {
     status: 200,
     data: {
-      response: "ok"
+      status: "ok"
     }
   };
 }
 
-module.exports = fetchUsersAction;
+module.exports = fetchRecentUsers;

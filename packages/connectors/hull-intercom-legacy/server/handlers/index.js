@@ -10,8 +10,6 @@ import fields from "../actions/fields";
 import deleteContact from "../actions/delete-contact";
 import deleteUser from "../actions/delete-user";
 import fetchSegments from "../actions/fetch-segments";
-import fetchRecentlyUpdatedUsers from "../actions/fetch-recent-users";
-import fetchRecentlyUpdatedLeads from "../actions/fetch-recent-leads";
 import webhook from "../actions/webhook";
 
 import userUpdate from "./user-update";
@@ -19,9 +17,8 @@ import userSegmentUpdate from "./user-segment-update";
 import userSegmentDelete from "./user-segment-delete";
 import shipUpdate from "./ship-update";
 
-import fetchRecentUsers from "../jobs/fetch-recent-users";
-import fetchRecentLeads from "../jobs/fetch-recent-leads";
-import handleBatch from "../jobs/handle-batch";
+import fetchRecentUsers from "../actions/fetch-recent-users";
+import fetchRecentLeads from "../actions/fetch-recent-leads";
 import handleBulk from "../jobs/handle-bulk";
 
 const { Strategy } = require("passport-intercom");
@@ -44,9 +41,6 @@ const handler = ({
       userSegmentDelete
     },
     jobs: {
-      fetchRecentUsers,
-      fetchRecentLeads,
-      handleBatch,
       handleBulk
     },
     batches: { userUpdate },
@@ -62,8 +56,8 @@ const handler = ({
     },
     statuses: { status },
     schedules: {
-      fetchRecentlyUpdatedUsers,
-      fetchRecentlyUpdatedLeads,
+      fetchRecentUsers,
+      fetchRecentLeads,
       fetchSegments
     },
     json: {

@@ -40,7 +40,8 @@ describe("Fetch Lead Tests", () => {
                 {
                   user_id: "2",
                   updated_at: "1593702674"
-                }, {
+                },
+                {
                   email: "skip@it.com",
                   user_id: "3",
                   updated_at: "1593612734"
