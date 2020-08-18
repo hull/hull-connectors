@@ -29,6 +29,8 @@ const {
 const defaultContactFields = require("./fields/default-contact-fields.json");
 const defaultCompanyFields = require("./fields/default-company-fields.json");
 
+const CACHE_TIMEOUT = 60;
+
 const {
   route,
   set,
@@ -465,7 +467,7 @@ const glue = {
     ])
   ],
   handleContactTags: [
-    set("allTags", intercom("getAllTags")),
+    set("allTags", cacheWrap(CACHE_TIMEOUT, intercom("getAllTags"))),
 
     set("contactId", "${contactFromIntercom.id}"),
     set("contactTags", ld("map", intercom("getContactTags"), "name")),
@@ -488,6 +490,9 @@ const glue = {
           ])
         ],
         eldo: [
+          // creating a tag will return the tag if it exists
+          // so don't need to worry about invalidating
+          // getAllTags cache
           set("createdTag", intercom("createTag", {
             "name": "${segmentName}"
           })),
@@ -531,14 +536,14 @@ const glue = {
         set("outgoing_user_attributes", settings("outgoing_user_attributes")),
         set("outgoing_lead_attributes", settings("outgoing_lead_attributes")),
 
-        set("contactDataAttributes", intercom("getContactDataAttributes")),
+        set("contactDataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getContactDataAttributes"))),
 
         iterateL(ld("concat", "${outgoing_user_attributes}", "${outgoing_lead_attributes}"), "attribute", [
           ifL([
             cond("isEmpty", filter({ name: "${attribute.service}" }, "${contactDataAttributes}"))
           ], [
             set("attributeProcessing", cacheGet("${attributeName}")),
-            ifL(cond("isEmpty", "${processing}"), [
+            ifL(cond("isEmpty", "${attributeProcessing}"), [
               cacheSet({ key: "${attributeName}" }, "attributeProcessing"),
 
               set("intercomAttribute", transformTo(IntercomAttributeWrite, cast(HullApiAttributeDefinition, "${attribute}"))),
