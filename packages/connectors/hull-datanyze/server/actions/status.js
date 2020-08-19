@@ -11,7 +11,7 @@ async function statusCheckAction(ctx: HullContext): HullStatusResponse {
 
   if (!token || !username) {
     return {
-      status: "warning",
+      status: "setupRequired",
       message:
         "No Credentials stored, connector is inactive. Enter Username and Token in Settings"
     };

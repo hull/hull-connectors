@@ -154,9 +154,10 @@ function executeApiOperationSoap(
     return Promise.resolve([]);
   }
 
-  const sObjects = operation.records.map(record =>
-    Object.assign({}, { type: operation.resource }, record)
-  );
+  const sObjects = operation.records.map(record => ({
+    type: operation.resource,
+    ...record
+  }));
   // Note: Order of the payload properties is important, otherwise SOAP call will fail.
   const payload = {};
   if (operation.method === "upsert") {
