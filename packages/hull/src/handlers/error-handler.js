@@ -31,6 +31,7 @@ function errorHandlerMiddlewareFactory({
 
     // if we have a transient error
     if (err instanceof ConfigurationError) {
+      console.log("ConfigurationError", err);
       res.status(status || 503);
       return res.end("configuration-error");
     }
@@ -40,7 +41,7 @@ function errorHandlerMiddlewareFactory({
       return res.end("transient-error");
     }
     if (err instanceof ConnectorNotFoundError) {
-      console.log("COnnectorNotFound", err);
+      console.log("ConnectorNotFound", err);
       res.status(status || 404);
       return res.end("not-found");
     }

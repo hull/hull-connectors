@@ -14,12 +14,19 @@ import type {
 export type HullResponse = express$Response;
 
 // === Notification Handler response
-export type HullNotificationFlowControl = {
-  type: "next" | "retry",
-  size?: number,
-  in?: number,
-  in_time?: number
-};
+export type HullNotificationFlowControl =
+  | {
+      type: "next" | "retry",
+      size?: number,
+      in?: number,
+      in_time?: number
+    }
+  | {
+      type: "next" | "retry",
+      max_messages?: number,
+      min_delay?: number,
+      max_delay?: number
+    };
 
 export type HullKrakenResponse = void | {|
   action: "success" | "skip" | "error",

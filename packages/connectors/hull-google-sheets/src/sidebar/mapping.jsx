@@ -42,16 +42,19 @@ class Mapping extends Component<Props, State> {
 
   render() {
     const {
+      type,
       source,
       loading,
       mapping = [],
       googleColumns = [],
       hullAttributes = []
     } = this.props;
+    const description = "Pick names of attributes or create new ones.";
+    const eventDescription = "Map columns to event properties";
     return (
       <Fragment>
         <h4>Columns mapping</h4>
-        <p>Pick names of attributes or create new ones.</p>
+        <p>{type === "user_event" ? eventDescription : description}</p>
         <table className="full-width">
           <tbody>
             {mapping.map(({ hull = "", column }, idx) => (

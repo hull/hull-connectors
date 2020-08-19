@@ -9,8 +9,7 @@ type Props = {
   claim: string,
   value?: string,
   onUpdate: ({
-    claim: string,
-    value: number
+    [string]: string
   }) => void
 };
 type State = {};
