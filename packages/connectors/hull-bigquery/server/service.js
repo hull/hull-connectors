@@ -34,6 +34,10 @@ const service = ({clientID, clientSecret}: {
       operation: "post",
       endpointType: "create"
     },
+    insertQueryJob: {
+      url: "/projects/{projectId}/jobs",
+      operation: "post"
+    }
   },
   authentication: {
     strategy: "googleoauth",

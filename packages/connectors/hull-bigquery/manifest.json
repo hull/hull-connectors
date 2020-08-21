@@ -32,6 +32,19 @@
       }
     },
     {
+      "name": "project_id",
+      "title": "Project ID",
+      "description": "Google cloud project id",
+      "type": "string",
+      "url": "/get-projects",
+      "format": "select",
+      "options": {
+        "loadOptions": "/get-projects",
+        "allowCreate": false,
+        "placeholder": "Select Google project to work with"
+      }
+    },
+    {
       "name": "import_type",
       "title": "Import type",
       "description": "What do you want to import to Hull ?",
@@ -75,10 +88,10 @@
   "incoming": [],
   "json": [
     {
-      "name": "import",
-      "url": "/import",
+      "name": "manual_import",
+      "url": "/manual-import",
       "format": "action",
-      "handler": "importResults",
+      "handler": "manualImport",
       "title": "Manual import",
       "options": {
         "confirm": {
@@ -87,6 +100,10 @@
           "button": "Start import"
         }
       }
+    },
+    {
+      "url" : "/get-projects",
+      "handler": "getProjects"
     }
   ],
   "schedules": [
@@ -96,6 +113,12 @@
       "handler": "import",
       "value_from": "private_settings.import_interval",
       "default": "180"
+    },
+    {
+      "url": "/check-job",
+      "handler": "checkJob",
+      "type": "interval",
+      "value": "5"
     }
   ],
   "statuses": [
@@ -125,13 +148,20 @@
       ]
     },
     {
+      "title": "Select project",
+      "description": "Select the google project you'd like to work on. The connector will create jobs associated to this project.",
+      "properties": [
+        "private_settings.project_id"
+      ]
+    },
+    {
       "title": "Import Setup",
       "description": "Basic setup for the Bigquery connector.",
       "properties": [
         "private_settings.import_type",
         "private_settings.import_interval",
         "private_settings.query",
-        "json.import"
+        "json.manual_import"
       ]
     }
   ]
