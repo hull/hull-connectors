@@ -77,58 +77,58 @@ const glue = {
     set("salesforceIds", salesforceSyncAgent("getUpdatedRecordIds", { sfType: "${fetchType}", fetchStart: "${fetchStart}", fetchEnd: "${fetchEnd}" })),
     salesforceSyncAgent("saveRecords", { sfType: "${fetchType}", ids: "${salesforceIds}", fields: "${fetchFields}" })
   ],
-  fetchRecentContacts: [
-    set("fetchType", "Contact"),
-    set("claimMappingKey", ld("toLower", "user_claims")),
-    route("fetchRecent")
-  ],
-  fetchRecentLeads: [
+  fetchRecentContacts: ifL(cond("isEqual", settings("fetch_contacts"), true), [
+      set("fetchType", "Contact"),
+      set("claimMappingKey", ld("toLower", "user_claims")),
+      route("fetchRecent")
+  ]),
+  fetchRecentLeads: ifL(cond("isEqual", settings("fetch_leads"), true), [
     set("fetchType", "Lead"),
     set("claimMappingKey", ld("toLower", "lead_claims")),
     route("fetchRecent")
-  ],
-  fetchRecentAccounts: [
+  ]),
+  fetchRecentAccounts: ifL(cond("isEqual", settings("fetch_accounts"), true), [
     ifL(settings("fetch_accounts"), [
       set("fetchType", "Account"),
       route("fetchRecent")
     ])
-  ],
-  fetchRecentTasks: [
+  ]),
+  fetchRecentTasks: ifL(cond("isEqual", settings("fetch_tasks"), true), [
     set("fetchType", "Task"),
     route("fetchRecent")
-  ],
+  ]),
 
   fetchRecentDeleted: [
     route("getFetchWindow"),
     set("deletedRecords", salesforceSyncAgent("getDeletedRecords", { sfType: "${fetchType}", fetchStart: "${fetchStart}", fetchEnd: "${fetchEnd}" }))
   ],
-  fetchRecentDeletedContacts: [
+  fetchRecentDeletedContacts: ifL(cond("isEqual", settings("fetch_contacts"), true), [
     set("fetchType", "Contact"),
     route("fetchRecentDeleted"),
     iterateL("${deletedRecords}", { key: "deletedObject", async: true },
       salesforceSyncAgent("saveRecord", { sfType: "${fetchType}", record: "${deletedObject}" })
     )
-  ],
-  fetchRecentDeletedLeads: [
+  ]),
+  fetchRecentDeletedLeads: ifL(cond("isEqual", settings("fetch_leads"), true), [
     set("fetchType", "Lead"),
     route("fetchRecentDeleted"),
     iterateL("${deletedRecords}", { key: "deletedObject", async: true },
       salesforceSyncAgent("saveRecord", { sfType: "${fetchType}", record: "${deletedObject}" })
     )
-  ],
-  fetchRecentDeletedAccounts: [
+  ]),
+  fetchRecentDeletedAccounts: ifL(cond("isEqual", settings("fetch_accounts"), true), [
     set("fetchType", "Account"),
     route("fetchRecentDeleted"),
     iterateL("${deletedRecords}", { key: "deletedObject", async: true },
       salesforceSyncAgent("saveRecord", { sfType: "${fetchType}", record: "${deletedObject}" })
     )
-  ],
-  fetchRecentDeletedTasks: [
+  ]),
+  fetchRecentDeletedTasks: ifL(cond("isEqual", settings("fetch_tasks"), true), [
     set("fetchType", "Task"),
     route("fetchRecentDeleted"),
     route("getFetchFields"),
     salesforceSyncAgent("saveRecords", { sfType: "${fetchType}", ids: ld("map", "${deletedRecords}", "id"), fields: "${fetchFields}", executeQuery: "queryAll" })
-  ],
+  ]),
 
   fetchAll: [
     set("defaultFetchFields", ld("map", ld("get", defaultFields, "${fetchType}"), "service")),
