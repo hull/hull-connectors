@@ -3,7 +3,7 @@
   "version": "0.1.34-monorepo",
   "description": "Hull Salesforce integration",
   "scripts": {
-    "test": "yarn test:unit && yarn test:integration",
+    "test": "yarn test:unit",
     "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit",
     "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/**/*.js",
     "documentation": "exit 0"
