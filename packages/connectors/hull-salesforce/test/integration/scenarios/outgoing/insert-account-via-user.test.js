@@ -30,7 +30,13 @@ const private_settings = {
   task_attributes_outbound: [],
   lead_synchronized_segments: [],
   contact_synchronized_segments: [],
-  account_synchronized_segments: []
+  account_synchronized_segments: [],
+  user_claims: [
+    { "hull": "email", "service": "Email" }
+  ],
+  lead_claims: [
+    { "hull": "email", "service": "Email" }
+  ]
 }
 
 describe("Insert Accounts Via User Update Tests", () => {
@@ -210,7 +216,7 @@ describe("Insert Accounts Via User Update Tests", () => {
           const respBodyC1 = createSoapEnvelope("createResponse", { result: [{ id: "00Q1I000004WO7uUAG", success: "true" }, { id: "0031I000004SLT3QAO", success: "true" }] });
           nock("https://na98.salesforce.com")
             .post("/services/Soap/u/39.0", (body) => {
-              return body.indexOf("<create><sObjects><type>Contact</type><FirstName>Adam</FirstName><LastName>Pietrzyk</LastName><Email>adam.pietrzyk@krakowtraders.pl</Email>") !== -1;
+              return body.indexOf("<create><sObjects><type>Contact</type><Email>adam.pietrzyk@krakowtraders.pl</Email><FirstName>Adam</FirstName><LastName>Pietrzyk</LastName>") !== -1;
             })
             .reply(200, respBodyC1, { "Content-Type": "text/xml", "sforce-limit-info": "api-usage=500/50000" });
 
@@ -434,7 +440,7 @@ describe("Insert Accounts Via User Update Tests", () => {
             {
               "method": "GET",
               "url_length": 343,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%2C%20Company%2C%20Website%20FROM%20Lead%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Lead.*/)
             }
           ],
           [
@@ -446,7 +452,7 @@ describe("Insert Accounts Via User Update Tests", () => {
             {
               "method": "GET",
               "url_length": 287,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl'%2C%20'rafa.kasczka%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Contact.*/)
             }
           ],
           [
@@ -458,7 +464,7 @@ describe("Insert Accounts Via User Update Tests", () => {
             {
               "method": "GET",
               "url_length": 323,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Website%2C%20Name%2C%20Mrr__c%2C%20CS_Stage__c%2C%20Id%2C%20CustomIdentifierField%20FROM%20Account%20WHERE%20Website%20LIKE%20'%25krakowtraders.pl%25'%20OR%20CustomIdentifierField%20IN%20('0011I000007Cy18QAC')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ],
           [

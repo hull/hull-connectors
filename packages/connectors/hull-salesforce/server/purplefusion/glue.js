@@ -61,8 +61,11 @@ const glue = {
   getFetchFields: [
     set("defaultFetchFields", ld("map", ld("get", defaultFields, "${fetchType}"), "service")),
     set("attributeMappingKey", ld("toLower", "${fetchType}_attributes_inbound")),
+
+    set("identityClaims", ld("compact", ld("map", settings("${claimMappingKey}"), "service"))),
     set("settingsFetchFields", ld("compact", ld("map", settings("${attributeMappingKey}"), "service"))),
-    set("fetchFields", ld("uniq", ld("concat", "${defaultFetchFields}", "${settingsFetchFields}"))),
+
+    set("fetchFields", ld("uniq", ld("concat", "${identityClaims}", "${defaultFetchFields}", "${settingsFetchFields}"))),
 
     ifL([cond("isEqual", "${fetchType}", "Task"), not(ld("isNil", settings("salesforce_external_id")))], [
       set("fetchFields", ld("concat", "${fetchFields}", settings("salesforce_external_id")))
@@ -76,10 +79,12 @@ const glue = {
   ],
   fetchRecentContacts: [
     set("fetchType", "Contact"),
+    set("claimMappingKey", ld("toLower", "user_claims")),
     route("fetchRecent")
   ],
   fetchRecentLeads: [
     set("fetchType", "Lead"),
+    set("claimMappingKey", ld("toLower", "lead_claims")),
     route("fetchRecent")
   ],
   fetchRecentAccounts: [

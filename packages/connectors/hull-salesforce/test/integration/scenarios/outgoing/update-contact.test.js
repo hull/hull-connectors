@@ -18,7 +18,13 @@ const private_settings = {
   fetch_tasks: false,
   send_outgoing_tasks: false,
   lead_assignmentrule: "none",
-  lead_assignmentrule_update: "none"
+  lead_assignmentrule_update: "none",
+  user_claims: [
+    { "hull": "email", "service": "Email" }
+  ],
+  lead_claims: [
+    { "hull": "email", "service": "Email" }
+  ]
 }
 
 
@@ -73,7 +79,7 @@ describe("Update Contacts Tests", () => {
           scope
             .get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q === "SELECT Email, Department, About, Description, FirstName, LastName, Id, AccountId FROM Contact WHERE Email IN ('adam@apple.com') OR Id IN ('00Q1I000004WHchUAG') ORDER BY CreatedDate ASC LIMIT 10000";
+              return query.q && query.q === "SELECT Email, Department, About, Description, FirstName, LastName, Id, AccountId FROM Contact WHERE Id IN ('00Q1I000004WHchUAG') OR Email IN ('adam@apple.com') ORDER BY CreatedDate ASC LIMIT 10000";
             })
             .reply(200, { records: [
                 {
@@ -135,7 +141,7 @@ describe("Update Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 262,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2C%20FirstName%2C%20LastName%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%20FROM%20Lead%20WHERE%20Email%20IN%20('adam%40apple.com')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Lead.*/)
             }
           ]),
           expect.arrayContaining([
@@ -143,7 +149,7 @@ describe("Update Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 316,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2C%20Department%2C%20About%2C%20Description%2C%20FirstName%2C%20LastName%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam%40apple.com')%20OR%20Id%20IN%20('00Q1I000004WHchUAG')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Contact.*/)
             }
           ]),
           expect.arrayContaining([
@@ -151,7 +157,7 @@ describe("Update Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 191,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Id%2C%20Website%20FROM%20Account%20WHERE%20Website%20LIKE%20'%25apple.com%25'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
           expect.arrayContaining([
@@ -346,7 +352,7 @@ describe("Update Contacts Tests", () => {
 
           scope.get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q === "SELECT Email, Department, Description, FirstName, LastName, Id, AccountId, Owner.Email FROM Contact WHERE Email IN ('adam@apple.com') OR Id IN ('00Q1I000004WHchUAG') ORDER BY CreatedDate ASC LIMIT 10000";
+              return query.q && query.q === "SELECT Email, Department, Description, FirstName, LastName, Id, AccountId, Owner.Email FROM Contact WHERE Id IN ('00Q1I000004WHchUAG') OR Email IN ('adam@apple.com') ORDER BY CreatedDate ASC LIMIT 10000";
             })
             .reply(200, { records: [
                 {
@@ -433,7 +439,7 @@ describe("Update Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 292,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2C%20FirstName%2C%20LastName%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%2C%20OwnerId%2C%20Owner.Email%20FROM%20Lead%20WHERE%20Email%20IN%20('adam%40apple.com')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Lead.*/)
             }
           ]),
           expect.arrayContaining([
@@ -441,7 +447,7 @@ describe("Update Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 322,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2C%20Department%2C%20Description%2C%20FirstName%2C%20LastName%2C%20Id%2C%20AccountId%2C%20Owner.Email%20FROM%20Contact%20WHERE%20Email%20IN%20('adam%40apple.com')%20OR%20Id%20IN%20('00Q1I000004WHchUAG')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Contact.*/)
             }
           ]),
           expect.arrayContaining([
@@ -449,7 +455,7 @@ describe("Update Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": 191,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Id%2C%20Website%20FROM%20Account%20WHERE%20Website%20LIKE%20'%25apple.com%25'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
           expect.arrayContaining([

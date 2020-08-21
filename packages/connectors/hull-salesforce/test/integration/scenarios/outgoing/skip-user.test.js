@@ -28,7 +28,13 @@ const private_settings = {
   task_attributes_outbound: [],
   lead_synchronized_segments: [],
   contact_synchronized_segments: [],
-  account_synchronized_segments: []
+  account_synchronized_segments: [],
+  user_claims: [
+    { "hull": "email", "service": "Email" }
+  ],
+  lead_claims: [
+    { "hull": "email", "service": "Email" }
+  ]
 }
 
 describe("Skip User Tests", () => {
@@ -453,7 +459,7 @@ describe("Skip User Tests", () => {
             {
               "method": "GET",
               "url_length": 304,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20ConvertedAccountId%2C%20ConvertedContactId%2C%20Company%2C%20Website%20FROM%20Lead%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Lead.*/)
             }
           ]),
           expect.arrayContaining([
@@ -461,7 +467,7 @@ describe("Skip User Tests", () => {
             {
               "method": "GET",
               "url_length": 288,
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl')%20OR%20Id%20IN%20('0031I000004SLT5QAO')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
+              "url": expect.stringMatching(/.*FROM.*Contact.*/)
             }
           ]),
           expect.arrayContaining([

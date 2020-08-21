@@ -30,7 +30,11 @@ const private_settings = {
   task_attributes_outbound: [],
   lead_synchronized_segments: [],
   contact_synchronized_segments: [],
-  account_synchronized_segments: []
+  account_synchronized_segments: [],
+  user_claims: [],
+  lead_claims: [
+    { "hull": "email", "service": "Email" }
+  ]
 }
 describe("Insert Leads Tests", () => {
 
