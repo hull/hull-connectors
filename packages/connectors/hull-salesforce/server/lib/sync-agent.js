@@ -17,7 +17,7 @@ const _ = require("lodash");
 const camelize = require("camelize");
 const Promise = require("bluebird");
 
-const getMappings = require("./sync-agent/mapping-util");
+const { getMappings } = require("./sync-agent/mapping-util");
 const PatchUtil = require("./sync-agent/patch-util");
 const { AttributesMapper } = require("./sync-agent/attributes-mapper");
 const FilterUtil = require("./sync-agent/filter-util");
@@ -95,7 +95,6 @@ class SyncAgent {
 
     this.ctx = ctx;
     this.cache = cache;
-    this.privateSettings = private_settings;
     this.fetchAccounts = private_settings.fetch_accounts;
     this.linkAccounts = private_settings.link_accounts || false;
     this.fetchResourceSchema = private_settings.fetch_resource_schema || false;
@@ -107,8 +106,18 @@ class SyncAgent {
     this.mappings = getMappings(connector);
     this.isBatch = _.get(ctx.notification, "is_export", false);
     this.accountClaims = private_settings.account_claims || [];
-    this.userClaims = [{ hull: "email", service: "Email" }];
 
+    if (_.isEmpty(private_settings.user_claims)) {
+      private_settings.user_claims = [{ hull: "email", service: "Email" }];
+    }
+    if (_.isEmpty(private_settings.lead_claims)) {
+      private_settings.lead_claims = [{ hull: "email", service: "Email" }];
+    }
+
+    this.userClaims = private_settings.user_claims;
+    this.leadClaims = private_settings.lead_claims;
+
+    this.privateSettings = private_settings;
     this.hullClient = client;
     this.metric = metric;
     const clntOpts: ISalesforceClientOptions = {
@@ -133,6 +142,29 @@ class SyncAgent {
         res
       });
     });
+  }
+
+  getIdentityClaims({ sfType }) {
+    switch (_.toLower(sfType)) {
+      case "account": {
+        return this.accountClaims;
+      }
+
+      case "contact": {
+        return this.userClaims;
+      }
+
+      case "lead": {
+        return this.leadClaims;
+      }
+
+      case "task": {
+        return this.userClaims;
+      }
+
+      default:
+        return [];
+    }
   }
 
   fetchLeadAssignmentRules() {
@@ -167,11 +199,11 @@ class SyncAgent {
   }
 
   enrichMessages(
-    hullEntityType: string,
+    hullType: string,
     messages: Array<THullUserUpdateMessage | THullAccountUpdateMessage>
   ) {
     _.forEach(messages, message => {
-      if (hullEntityType === "user") {
+      if (hullType === "user") {
         const account = _.get(message, "account", {});
         _.set(message.user, "account", account);
       }
@@ -192,15 +224,15 @@ class SyncAgent {
   }
 
   async sendMessages(
-    hullEntityType: string,
+    hullType: string,
     messages: Array<THullAccountUpdateMessage>
   ): Promise<*> {
     const dedupedMessages = this.filterUtil.filterDuplicateMessages(
       messages,
-      hullEntityType
+      hullType
     );
     const findableMessages = this.filterUtil.filterFindableMessages(
-      hullEntityType,
+      hullType,
       dedupedMessages,
       this.isBatch
     );
@@ -208,11 +240,11 @@ class SyncAgent {
     if (findableMessages.length === 0) {
       dedupedMessages.forEach(message => {
         // eslint-disable-next-line
-        this.asEntity(_.get(message, hullEntityType)).logger.debug(`outgoing.${hullEntityType}.skip`, { reason: `No valid ${hullEntityType} messages to send` });
+        this.asEntity(_.get(message, hullType)).logger.debug(`outgoing.${hullType}.skip`, { reason: `No valid ${hullType} messages to send` });
       });
       return Promise.resolve({});
     }
-    return hullEntityType === "account"
+    return hullType === "account"
       ? this.sendAccounts(dedupedMessages)
       : this.sendUsers(dedupedMessages);
   }
@@ -377,6 +409,9 @@ class SyncAgent {
   ): Promise<*> {
     let schema = {};
     const { toInsert, toUpdate, toSkip } = filtered;
+    const identityClaims = this.getIdentityClaims({
+      sfType: resourceType
+    });
 
     if (!_.isEmpty(toInsert) || !_.isEmpty(toUpdate)) {
       schema = await this.getResourceSchema(resourceType);
@@ -433,8 +468,6 @@ class SyncAgent {
     }
 
     const messages = _.map(envelopes, "message");
-    const identityClaims =
-      hullType === "account" ? this.accountClaims : this.userClaims;
 
     const promises = [];
     for (let i: number = 0; i < _.size(upsertedSfEntities); i += 1) {
@@ -464,39 +497,23 @@ class SyncAgent {
           intersectBy: { path: "message_id" }
         });
       }
-      if (resourceType === "Contact" || resourceType === "Lead") {
-        promises.push(
-          this.saveUser(
-            {
-              source: "hull",
-              hullType: "user",
-              sfType: resourceType,
-              method: sfEntity.method,
-              error: sfEntity.error,
-              success: sfEntity.success
-            },
-            sfEntity.record,
-            matchedMessages[0]
-          )
-        );
-      } else if (resourceType === "Account") {
-        promises.push(
-          this.saveAccount(
-            {
-              source: "hull",
-              hullType: "account",
-              sfType: resourceType,
-              method: sfEntity.method,
-              error: sfEntity.error,
-              success: sfEntity.success
-            },
-            sfEntity.record,
-            matchedMessages[0]
-          )
-        );
-      }
 
-      if (_.isEmpty(matchedMessages) && !sfEntity.success) {
+      promises.push(
+        this.save(
+          {
+            hullType,
+            sfType: resourceType,
+            source: "hull",
+            method: sfEntity.method,
+            error: sfEntity.error,
+            success: sfEntity.success
+          },
+          sfEntity.record,
+          matchedMessages[0]
+        )
+      );
+
+      if (!sfEntity.success) {
         this.hullClient.logger.info(`outgoing.${hullType}.error`, {
           error: sfEntity.error,
           data: sfEntity.record,
@@ -528,16 +545,15 @@ class SyncAgent {
 
   buildFindQuery(
     messages: Array<THullUserUpdateMessage | THullAccountUpdateMessage>,
-    resourceType: string
+    resourceType: string,
+    identityClaims: Array<Object>
   ): Object {
-    const hullEntityType = _.includes(["lead", "contact"], resourceType)
-      ? "user"
-      : "account";
+    const hullType = _.toLower(resourceType) === "account" ? "account" : "user";
     const queryOpts = this.queryUtil.buildQueryOpts(
       resourceType,
-      this.accountClaims
+      identityClaims
     );
-    return this.queryUtil.composeFindQuery(messages, queryOpts, hullEntityType);
+    return this.queryUtil.composeFindQuery(messages, queryOpts, hullType);
   }
 
   findSalesforceEntities(
@@ -548,20 +564,26 @@ class SyncAgent {
     const fetchFields = {};
 
     _.forEach(salesforceEntityTypes, resourceType => {
+      const identityClaims = this.getIdentityClaims({
+        sfType: resourceType
+      });
+
       const fields = this.queryUtil.composeFindFields(
         _.upperFirst(resourceType),
         this.mappings
       );
 
-      if (resourceType === "account") {
-        _.forEach(this.accountClaims, accountClaim => {
-          if (!_.includes(fields, accountClaim.service)) {
-            fields.push(accountClaim.service);
-          }
-        });
-      }
+      _.forEach(identityClaims, claim => {
+        if (!_.includes(fields, claim.service)) {
+          fields.push(claim.service);
+        }
+      });
 
-      _.set(queries, resourceType, this.buildFindQuery(messages, resourceType));
+      _.set(
+        queries,
+        resourceType,
+        this.buildFindQuery(messages, resourceType, identityClaims)
+      );
       _.set(fetchFields, resourceType, fields);
     });
 
@@ -615,7 +637,8 @@ class SyncAgent {
           matches.contact = this.matchUtil.matchHullMessageToSalesforceRecord(
             "Contact",
             user,
-            sfContacts
+            sfContacts,
+            this.userClaims
           );
         }
 
@@ -623,7 +646,8 @@ class SyncAgent {
           matches.lead = this.matchUtil.matchHullMessageToSalesforceRecord(
             "Lead",
             user,
-            sfLeads
+            sfLeads,
+            this.leadClaims
           );
         }
 
@@ -707,7 +731,7 @@ class SyncAgent {
   ): Promise<*> {
     if (!_.isEmpty(records)) {
       return this.sf.insert(records, {
-        leadAssignmentRule: this.privateSettings.lead_assignmentrule,
+        leadAssignmentRule: this.leadAssignmentRuleOnCreate,
         resource: resourceType
       });
     }
@@ -720,7 +744,7 @@ class SyncAgent {
   ): Promise<*> {
     if (!_.isEmpty(records)) {
       return this.sf.update(records, {
-        leadAssignmentRule: this.privateSettings.lead_assignmentrule,
+        leadAssignmentRule: this.leadAssignmentRuleOnCreate,
         resource: resourceType
       });
     }
@@ -744,7 +768,7 @@ class SyncAgent {
     return resourceSchema;
   }
 
-  async saveTask(record: Object): Promise<*> {
+  async saveTask(params: Object, record: Object): Promise<*> {
     const promises = [];
 
     const serviceType = _.get(record, "attributes.type", null);
@@ -818,7 +842,27 @@ class SyncAgent {
     return Promise.all(promises);
   }
 
-  async saveUser(
+  async saveContact(
+    params: {
+      sfType: TResourceType,
+      source: string,
+      method: string,
+      error: Object
+    },
+    sfObject: Object,
+    message?: Object
+  ): Promise<*> {
+    return this.save(
+      {
+        hullType: "user",
+        ...params
+      },
+      sfObject,
+      message
+    );
+  }
+
+  async saveLead(
     params: {
       sfType: TResourceType,
       source: string,
@@ -858,41 +902,28 @@ class SyncAgent {
     );
   }
 
-  // TODO implement consistent support for events
-  async saveEvent(
-    params: {
-      sfType: TResourceType,
-      source: string,
-      method: string,
-      error: Object
-    },
-    sfObject: Object,
-    // eslint-disable-next-line
-    message?: Object
-  ): Promise<*> {
-    return this.saveTask(sfObject);
-  }
-
   async save(
     params: {
       hullType: string,
       sfType: TResourceType,
       source: string,
       method: string,
-      error: Object
+      error: Object,
+      success: boolean
     },
     sfObject: Object,
     message?: Object
   ): Promise<*> {
     const { hullType, sfType, source, method, error, success } = params;
 
+    const identityClaims = this.getIdentityClaims({ sfType });
     const resourceSchema = await this.getResourceSchema(sfType);
 
     const identity = _.isNil(message)
       ? this.attributesMapper.mapToHullIdentityObject(
           sfType,
           sfObject,
-          hullType !== "account" ? this.userClaims : this.accountClaims
+          identityClaims
         )
       : IdentityUtil.getEntityIdentity(
           _.get(message, hullType),
@@ -903,15 +934,31 @@ class SyncAgent {
 
     const asEntity = this.hullClient[`as${_.upperFirst(hullType)}`](identity);
 
-    if (
-      hullType === "user" &&
-      this.requireEmail &&
-      _.get(sfObject, "Email", "n/a") === "n/a"
-    ) {
-      return asEntity.logger.info("incoming.user.skip", {
-        type: "Contact",
-        reason: "User has no email address and is not identifiable."
-      });
+    if (source === "salesforce") {
+      for (let i = 0; i < _.size(identityClaims); i += 1) {
+        const claim = identityClaims[i];
+        if (
+          claim.required === true &&
+          _.get(sfObject, claim.service, "n/a") === "n/a"
+        ) {
+          return asEntity.logger.info(`incoming.${hullType}.skip`, {
+            type: sfType,
+            reason: `${sfType} is missing required claim ${claim.service}.`
+          });
+        }
+      }
+
+      // backwards compatible before claims settings
+      if (
+        hullType === "user" &&
+        this.requireEmail &&
+        _.get(sfObject, "Email", "n/a") === "n/a"
+      ) {
+        return asEntity.logger.info("incoming.user.skip", {
+          type: "Contact",
+          reason: "User has no email address and is not identifiable."
+        });
+      }
     }
 
     const promises = [];
