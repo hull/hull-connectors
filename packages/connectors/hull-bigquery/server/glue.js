@@ -13,6 +13,7 @@ const {
   returnValue,
   transformTo,
   jsonata,
+  or,
   Svc
 } = require("hull-connector-framework/src/purplefusion/language");
 
@@ -30,11 +31,28 @@ const refreshTokenDataTemplate = {
   grant_type: "refresh_token"
 };
 
+const jobPayloadTemplate = {
+    configuration: {
+      query: {
+        query: "${connector.private_settings.query}",
+        useLegacySql: false,
+      }
+    },
+    jobReference: {
+      projectId: "${projectId}",
+      jobId: "${jobId}"
+    },
+  };
+
 const glue = {
+  ensure: [
+    set("jobId", settings("job_id")),
+    set("projectId", settings("project_id")),
+  ],
   isConfigured: cond("allTrue", [
     cond("notEmpty", settings("access_token")),
     cond("notEmpty", settings("refresh_token")),
-    cond("notEmpty", bigquery("getProjects"))
+    cond("notEmpty", settings("project_id"))
   ]),
   getProjects: returnValue([
     ifL(route("isConfigured"), [
@@ -60,16 +78,56 @@ const glue = {
     }),
     eldo: {
       status: "setupRequired",
-      message: "Connector not authenticated"
+      message: "Please authenticate and select a Google Cloud project."
     }
   }),
-  checkJob: [],
-  import: [],
-  manualImport: [
-    ifL(route("isConfigured"), [
-      set("projectId", settings("project_id")),
-      bigquery("insertQueryJob")
+  checkJob: [
+    ifL(or([
+      cond("notEmpty", settings("job_id")),
+      cond("notEmpty", "${jobId}")
+    ]), [
+      set("jobStatus", bigquery("getJob")),
+      ifL(cond("isEqual", get("jobStatus.status.state"), "DONE"), {
+        do: [
+          ifL([
+            cond("isEmpty", get("jobStatus.status.errorResult")),
+            cond("isEmpty", get("jobStatus.status.errors"))
+          ], {
+            // all good, ready for import
+            do: route("importResults"),
+            // job is finished but has some errors
+            eldo: utils("logError", get("jobStatus.status.errors"))
+          }),
+          // In any case, we no longer follow the job
+          settingsUpdate({ job_id: null })
+        ],
+        eldo:
+          ifL(cond("isEmpty", "${jobStatus}"), {
+            do: [
+              utils("logInfo", "The tracked job ${jobId} doesn't exist or has been removed, skipping"),
+              settingsUpdate({ job_id: null }),
+            ],
+            eldo: utils("logInfo", get("jobStatus.statistics"))
+          })
+      }),
     ])
+  ],
+  import: [],
+  manualImport: returnValue([
+    ifL(route("isConfigured"), [
+      set("nowTime", ex(moment(), "unix")),
+      set("jobId", "hull_import_${connector.id}_${nowTime}"),
+      ifL(cond("isEmpty", get("error", bigquery("insertQueryJob", jobPayloadTemplate))), [
+        settingsUpdate({ job_id: "${jobId}"}),
+        route("checkJob")
+      ])
+    ])
+  ], {
+    status: 200,
+    message: "ok"
+  }),
+  importResults: [
+    set("importType", settings("import_type"))
   ],
   refreshToken:
     ifL(cond("notEmpty", "${connector.private_settings.refresh_token}"), [
@@ -81,6 +139,11 @@ const glue = {
         })
       )
     ]),
+  stopTracking: [
+    utils("logInfo", "The tracked job ${jobId} doesn't exist or has been removed, skipping"),
+    settingsUpdate({ job_id: null }),
+    set("jobId", null)
+  ]
 };
 
 module.exports = glue;

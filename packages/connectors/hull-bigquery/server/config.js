@@ -32,7 +32,7 @@ export default function connectorConfig(): HullConnectorConfig {
         })
       },
       transforms: require("./transforms-to-hull"),
-      // ensureHook: "ensure"
+      ensureHook: "ensure"
     }).createHandler,
     hostSecret: SECRET,
     devMode: NODE_ENV === "development",

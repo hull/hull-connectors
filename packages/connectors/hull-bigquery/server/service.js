@@ -2,7 +2,8 @@ import type { RawRestApi } from "hull-connector-framework/src/purplefusion/types
 import { SuperagentApi } from "hull-connector-framework/src/purplefusion/superagent-api";
 
 const {
-  ConfigurationError
+  ConfigurationError,
+  SkippableError
 } = require("hull/src/errors");
 
 const OAuth2Strategy = require("passport-google-oauth20").Strategy;
@@ -35,8 +36,12 @@ const service = ({clientID, clientSecret}: {
       endpointType: "create"
     },
     insertQueryJob: {
-      url: "/projects/{projectId}/jobs",
+      url: "/projects/${projectId}/jobs",
       operation: "post"
+    },
+    getJob: {
+      url: "/projects/${projectId}/jobs/${jobId}",
+      operation: "get",
     }
   },
   authentication: {
@@ -65,6 +70,11 @@ const service = ({clientID, clientSecret}: {
         message: MESSAGES.STATUS_UNAUTHORIZED_REFRESH_TOKEN,
         recoveryroute: "refreshToken",
       },
+      {
+        truthy: { status: 404 },
+        errorType: SkippableError,
+        message: MESSAGES.GOOGLE_ENTITY_NOT_FOUND
+      }
     ]
   }
 });
