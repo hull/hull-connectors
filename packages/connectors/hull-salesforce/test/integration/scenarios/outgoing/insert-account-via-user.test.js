@@ -422,7 +422,7 @@ describe("Insert Accounts Via User Update Tests", () => {
             }
           }
         ],
-        response: { "flow_control": { "in": 5, "in_time": 10, "size": 10, "type": "next", } },
+        response: { "flow_control": { "type": "next", } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }],
           [

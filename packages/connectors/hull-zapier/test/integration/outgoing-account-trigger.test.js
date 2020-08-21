@@ -82,7 +82,7 @@ describe("Outgoing Account Tests", () => {
 
           return scope;
         },
-        response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
+        response: { flow_control: { type: "next" } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }],
           ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
@@ -194,7 +194,7 @@ describe("Outgoing Account Tests", () => {
 
           return scope;
         },
-        response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
+        response: { flow_control: { type: "next" } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }],
           ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
@@ -316,7 +316,7 @@ describe("Outgoing Account Tests", () => {
 
           return scope;
         },
-        response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
+        response: { flow_control: { type: "next" } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }],
           ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
@@ -471,7 +471,7 @@ describe("Outgoing Account Tests", () => {
 
           return scope;
         },
-        response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
+        response: { flow_control: { type: "next" } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }],
           ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
@@ -658,7 +658,7 @@ describe("Outgoing Account Tests", () => {
 
           return scope;
         },
-        response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
+        response: { flow_control: { type: "next" } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }],
           ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
@@ -837,7 +837,7 @@ describe("Outgoing Account Tests", () => {
 
           return scope;
         },
-        response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
+        response: { flow_control: { type: "next" } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }],
           ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
@@ -932,7 +932,7 @@ describe("Outgoing Account Tests", () => {
         handlerUrl: "smart-notifier",
         channel: "account:update",
         externalApiMock: () => {},
-        response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
+        response: { flow_control: { type: "next" } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }],
           ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }]

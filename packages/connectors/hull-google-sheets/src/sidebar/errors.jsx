@@ -4,8 +4,7 @@ import SVG from "react-inlinesvg";
 import React from "react";
 
 const Errors = ({ errors }: { errors?: Array<string> }) =>
-  errors &&
-  !!errors.length && (
+  errors && !!errors.length ? (
     <div className="error">
       <SVG
         className="error-icon service-icon"
@@ -15,5 +14,5 @@ const Errors = ({ errors }: { errors?: Array<string> }) =>
         <span key={i}>{c}</span>
       ))}
     </div>
-  );
+  ) : null;
 export default Errors;

@@ -77,6 +77,9 @@ it("should send out a new hull account to hubspot", () => {
                 "createdate": {
                   "value": "1584635613078"
                 },
+                "founded_year": {
+                  "value": ""
+                },
                 "days_to_close": {
                   "value": ""
                 }
@@ -97,7 +100,7 @@ it("should send out a new hull account to hubspot", () => {
         }
       ],
       response: {
-        flow_control: { in: 5, in_time: 10, size: 10, type: "next" }
+        flow_control: { type: "next" }
       },
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
@@ -130,10 +133,11 @@ it("should send out a new hull account to hubspot", () => {
             "subjectType": "account"
           },
           {
-            "hubspot/create_date": "1584635613078",
+            "hubspot/create_date": 1584635613078,
             "hubspot/days_to_close": null,
+            "hubspot/founded_year": null,
             "hubspot/domain": "hull.io",
-            "hubspot/hs_lastmodified_date": "1584635613078",
+            "hubspot/hs_lastmodified_date": 1584635613078,
             "hubspot/website": "hull.io",
             "hubspot/id": 3223871663
           }
