@@ -118,9 +118,6 @@ it("should allow through with mapped account attribute changes", () => {
       ],
       response: {
         flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
           type: "next"
         }
       },

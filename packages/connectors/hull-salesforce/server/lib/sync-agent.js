@@ -26,7 +26,7 @@ const MatchUtil = require("./sync-agent/match-util");
 const IdentityUtil = require("./utils/identity-utils");
 const SalesforceClient = require("./service-client");
 const { errors } = require("./errors");
-const { RELATED_ENTITY_MAPPING } = require("../lib/sync-agent/mappings");
+const { RELATED_ENTITY_MAPPING } = require("./sync-agent/mappings");
 const { getFieldsSchema } = require("./utils/get-fields-schema");
 
 function createConnectionOptions(

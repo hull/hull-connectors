@@ -36,7 +36,8 @@ const update = (connectSlack: ConnectSlackFunction) => async (
         flow_control: {
           type: "next",
           size: 100,
-          in: 0.1
+          in: 0,
+          in_time: 1000,
         }
       };
     }
@@ -107,7 +108,7 @@ const update = (connectSlack: ConnectSlackFunction) => async (
       flow_control: {
         type: "next",
         size: 100,
-        in: 0.1
+        in_time: 1000
       }
     };
   } catch (err) {
