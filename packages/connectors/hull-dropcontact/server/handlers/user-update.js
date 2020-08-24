@@ -71,34 +71,36 @@ const updateAccount = ({
       m => isBatch || !m.user["dropcontact/emails"]
     );
 
-    const ids = _.map(enrichable, "user.id");
-
     // Query the cache to fetch the status for each enrichable user ID
     // TODO: Find a way to be more reliable when looking up users
     // as the User ID could have changed due to a merge
     // This is a deeper issue and there is no reliable fix today.
     // It probably needs to be fixed at the platform level by making asUser({ id }) able to resolve
     // to merged IDs
-    const cacheResults = await Promise.all(ids.map(id => cache.get(id)));
+    const cacheResults = await Promise.all(
+      enrichable.map(message => cache.get(_.get(message, "user.id")))
+    );
     // exclude the enrichments that already are in the cache
     // We do it in 2 steps as fetching the Cache is asynchronous.
     // Then turn it into an array of Dropcontact-ready payloads
-    const notInQueue = enrichable
-      .filter((v, i) => cacheResults[i] !== IN_ENRICH_QUEUE)
-      .map(attributeMap);
+    const queuable = enrichable.filter(
+      (v, i) => cacheResults[i] !== IN_ENRICH_QUEUE
+    );
+    const queuablePayloads = queuable.map(attributeMap);
+    const ids = _.map(queuable, "user.id");
 
     client.logger.info("outgoing.user.start", {
       cacheResults,
-      notInQueue
+      queuablePayloads
     });
 
-    if (notInQueue.length) {
-      metric.increment("ship.service_api.call", notInQueue.length);
+    if (queuablePayloads.length) {
+      metric.increment("ship.service_api.call", queuablePayloads.length);
       const response = await request
         .post("https://api.dropcontact.io/batch?hashedInputs=true")
         .set({ "X-Access-Token": api_key })
         .send({
-          data: notInQueue,
+          data: queuablePayloads,
           hashedInputs: true,
           siren: true
         });
@@ -118,7 +120,7 @@ const updateAccount = ({
       client.logger.info("outgoing.job.queue", {
         request_id,
         success,
-        notInQueue,
+        queuablePayloads,
         cacheResults,
         hashedInputs
       });
@@ -151,7 +153,7 @@ const updateAccount = ({
     } else {
       client.logger.info("outgoing.user.skip", {
         message: "No users to enrich",
-        notInQueue
+        queuablePayloads
       });
     }
     return {
