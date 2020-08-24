@@ -2,11 +2,17 @@
 
 import type { ServiceObjectDefinition } from "hull-connector-framework/src/purplefusion/types";
 
-const BigqueryProjectsMap: ServiceObjectDefinition = {
-  service_name: "bigquery_projects_map",
-  name: "Map"
+const BigqueryUserRead: ServiceObjectDefinition = {
+  service_name: "bigquery_incoming_user",
+  name: "User"
+};
+
+const BigqueryAccountRead: ServiceObjectDefinition = {
+  service_name: "bigquery_incoming_user",
+  name: "User"
 };
 
 module.exports = {
-  BigqueryProjectsMap
+  BigqueryUserRead,
+  BigqueryAccountRead
 };

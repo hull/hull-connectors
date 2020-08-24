@@ -18,13 +18,13 @@ const {
   jsonata,
   or,
   iterateL,
-  filter,
+  ld,
   hull,
   Svc
 } = require("hull-connector-framework/src/purplefusion/language");
 
-const { BigqueryProjectsMap } = require("./service-objects");
-const { HullEnumMap } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
+const { BigqueryUserRead, BigqueryAccountRead } = require("./service-objects");
+const { HullIncomingUser, HullIncomingAccount, ServiceUserRaw } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 function bigquery(op: string, param?: any): Svc {
   return new Svc({ name: "bigquery", op }, param);
@@ -50,11 +50,26 @@ const jobPayloadTemplate = {
     },
   };
 
+const EVENT_MAPPING = {
+  users: {
+    hull: "asUser",
+    type: BigqueryUserRead,
+    transformTo: HullIncomingUser
+  },
+  accounts: {
+    hull: "asAccount",
+    type: BigqueryAccountRead,
+    transformTo: HullIncomingAccount
+  }
+};
+
 const glue = {
   ensure: [
     set("jobId", settings("job_id")),
     set("projectId", settings("project_id")),
     set("importType", settings("import_type")),
+    set("operation", get("${importType}", EVENT_MAPPING)),
+    set("service_name", "bigquery")
   ],
   isConfigured: cond("allTrue", [
     cond("notEmpty", settings("access_token")),
@@ -120,50 +135,38 @@ const glue = {
     ])
   ],
   import: [],
-  manualImport: returnValue([
-    ifL(route("isConfigured"), [
-      set("nowTime", ex(moment(), "unix")),
-      set("jobId", "hull_import_${connector.id}_${nowTime}"),
-      ifL(cond("isEmpty", get("error", bigquery("insertQueryJob", jobPayloadTemplate))), [
-        settingsUpdate({ job_id: "${jobId}"}),
-        route("checkJob")
-      ])
+  manualImport: ifL(route("isConfigured"), [
+    set("nowTime", ex(moment(), "unix")),
+    set("jobId", "hull_import_${connector.id}_${nowTime}"),
+    ifL(cond("isEmpty", get("error", bigquery("insertQueryJob", jobPayloadTemplate))), [
+      settingsUpdate({ job_id: "${jobId}"}),
+      route("checkJob")
     ])
-  ], {
-    status: 200,
-    message: "ok"
-  }),
+  ]),
   importResults: [
     set("queryPageResults", bigquery("getJobResults")),
-    set("arrangedResults", jsonata("($f := $.schema.fields; rows.($merge($.f~>$map(function($v, $i) { {\"bigquery/\" & $f[$i].name: $v.v} }))))", "${queryPageResults}")),
-    iterateL("${arrangedResults}", { key: "entity", async: true }, [
-      ifL(cond("isEqual", "${importType}", "users"), [
-        set("identity", { email: "${entity.bigquery/email}", external_id: "${entity.bigquery/external_id}"}),
-        ifL(cond("notEmpty", "${entity.bigquery/anonymous_id}"), set("identity.anonymous_id", "bigquery:${entity.bigquery/anonymous_id}")),
-        hull("asUser", {
-          ident: "${identity}",
-          attributes: "${entity}"
-        })
-      ]),
-      ifL(cond("isEqual", "${importType}", "accounts"), [
-        set("identity", { domain: "${entity.domain}", external_id: "${entity.external_id}"}),
-        ifL(cond("notEmpty", "${entity.anonymous_id}"), set("identity.anonymous_id", "bigquery:${entity.anonymous_id}")),
-        hull("asAccount", {
-          ident: "${identity}",
-          attributes: "${entity}"
-        })
-      ]),
-      ifL(cond("isEqual", "${importType}", "events"), [
-        set("identity", { email: "${entity.email}", external_id: "${entity.external_id}"}),
-        ifL(cond("notEmpty", "${entity.anonymous_id}"), set("identity.anonymous_id", "bigquery:${entity.anonymous_id}")),
-        hull("asUser", {
-          ident: "${identity}",
-          events: [
-            "${entity}"
-          ]
-        })
-      ])
-    ]),
+    set("arrangedResults", jsonata("($f := $.schema.fields; rows.($merge($.f~>$map(function($v, $i) { {$f[$i].name: $v.v} }))))[]", "${queryPageResults}")),
+    iterateL("${arrangedResults}", { key: "entity", async: false }, [
+      ifL(cond("isEqual", "${importType}", "events"), {
+        do: [
+          set("identity", { email: "${entity.email}", external_id: "${entity.external_id}"}),
+          set("context", { source: "Bigquery", event_id: "${entity.bigquery/event_id}"}),
+          ifL(cond("notEmpty", "${entity.anonymous_id}"), set("identity.anonymous_id", "bigquery:${entity.anonymous_id}")),
+          hull("asUser", {
+            ident: "${identity}",
+            events: [
+              {
+                context: "${context}",
+                props: "",
+              }
+            ]
+          })
+        ],
+        eldo: [
+          hull("${operation.hull}", cast("${operation.type}", "${entity}"))
+        ]
+      })
+    ])
   ],
   refreshToken:
     ifL(cond("notEmpty", "${connector.private_settings.refresh_token}"), [
