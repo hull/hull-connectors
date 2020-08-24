@@ -8,11 +8,17 @@ const BigqueryUserRead: ServiceObjectDefinition = {
 };
 
 const BigqueryAccountRead: ServiceObjectDefinition = {
-  service_name: "bigquery_incoming_user",
+  service_name: "bigquery_incoming_account",
   name: "User"
+};
+
+const BigqueryEventRead: ServiceObjectDefinition = {
+  service_name: "bigquery_incoming_user_event",
+  name: "Event"
 };
 
 module.exports = {
   BigqueryUserRead,
-  BigqueryAccountRead
+  BigqueryAccountRead,
+  BigqueryEventRead
 };

@@ -1,6 +1,3 @@
-import { HullIncomingEvent } from "hull-connector-framework/src/purplefusion/hull-service-objects";
-import { IntercomWebhookEventRead } from "hull-intercom/server/service-objects";
-
 const {
   ifL,
   cond,
@@ -23,8 +20,8 @@ const {
   Svc
 } = require("hull-connector-framework/src/purplefusion/language");
 
-const { BigqueryUserRead, BigqueryAccountRead } = require("./service-objects");
-const { HullIncomingUser, HullIncomingAccount, ServiceUserRaw } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
+const { BigqueryUserRead, BigqueryAccountRead, BigqueryEventRead } = require("./service-objects");
+const { HullIncomingUser, HullIncomingAccount } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
 function bigquery(op: string, param?: any): Svc {
   return new Svc({ name: "bigquery", op }, param);
@@ -146,25 +143,10 @@ const glue = {
   importResults: [
     set("queryPageResults", bigquery("getJobResults")),
     set("arrangedResults", jsonata("($f := $.schema.fields; rows.($merge($.f~>$map(function($v, $i) { {$f[$i].name: $v.v} }))))[]", "${queryPageResults}")),
-    iterateL("${arrangedResults}", { key: "entity", async: false }, [
+    iterateL("${arrangedResults}", { key: "entity", async: true }, [
       ifL(cond("isEqual", "${importType}", "events"), {
-        do: [
-          set("identity", { email: "${entity.email}", external_id: "${entity.external_id}"}),
-          set("context", { source: "Bigquery", event_id: "${entity.bigquery/event_id}"}),
-          ifL(cond("notEmpty", "${entity.anonymous_id}"), set("identity.anonymous_id", "bigquery:${entity.anonymous_id}")),
-          hull("asUser", {
-            ident: "${identity}",
-            events: [
-              {
-                context: "${context}",
-                props: "",
-              }
-            ]
-          })
-        ],
-        eldo: [
-          hull("${operation.hull}", cast("${operation.type}", "${entity}"))
-        ]
+        do: hull("asUser", cast(BigqueryEventRead, "${entity}")),
+        eldo: hull("${operation.hull}", cast("${operation.type}", "${entity}"))
       })
     ])
   ],
