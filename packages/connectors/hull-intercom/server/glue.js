@@ -473,7 +473,7 @@ const glue = {
     set("contactId", "${contactFromIntercom.id}"),
     set("contactTags", ld("map", intercom("getContactTags"), "name")),
 
-    set("tagsOnHullUser", input("user.intercom_lead/tags")),
+    set("tagsOnHullUser", input("user.intercom_${service_type}/tags")),
 
     set("segmentsIn", ld("map", input("segments"), "name")),
     set("segmentsLeft", ld("map", input("changes.segments.left"), "name")),

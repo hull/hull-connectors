@@ -285,7 +285,8 @@ describe("Insert Lead Tests", () => {
             segments: [
               { id: "lead_segment_1", name: "Lead Segment 1" },
               { id: "lead_segment_2", name: "Lead Segment 2" },
-              { id: "lead_segment_3", name: "Lead Segment 3  " }
+              { id: "lead_segment_3", name: "Lead Segment 3  " },
+              { id: "user_segment_4", name: "Intercom Tag 1" }
             ],
             changes: {
               user: {
@@ -440,7 +441,6 @@ describe("Insert Lead Tests", () => {
                 "email": "bob@rei.com",
                 "phone": "a phone number",
                 "name": "Bob",
-                "role": "lead",
                 "avatar": null,
                 "owner_id": null,
                 "social_profiles": {
