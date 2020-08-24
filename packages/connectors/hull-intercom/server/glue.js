@@ -386,8 +386,8 @@ const glue = {
   updateContact: [
     set("updateRoute", ld("camelCase", "update_${service_type}")),
 
-    // TODO cacheWrap
-    set("contactDataAttributes", intercom("getContactDataAttributes")),
+    set("contactDataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getContactDataAttributes"))),
+
     set("contact_custom_attributes", ld("map", filter({ "custom": true }, "${contactDataAttributes}"), "name")),
     ifL(cond("notEmpty", set("contactFromIntercom", intercom("${updateRoute}", input()))),
       [
@@ -402,8 +402,7 @@ const glue = {
   insertContact: [
     set("insertRoute", ld("camelCase", "insert_${service_type}")),
 
-    // TODO cacheWrap
-    set("contactDataAttributes", intercom("getContactDataAttributes")),
+    set("contactDataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getContactDataAttributes"))),
 
     set("outgoing_lead_attributes", transformTo(IntercomAttributeMapping, cast(HullAttributeMapping, settings("outgoing_lead_attributes")))),
     set("outgoing_user_attributes", transformTo(IntercomAttributeMapping, cast(HullAttributeMapping, settings("outgoing_user_attributes")))),

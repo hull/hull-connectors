@@ -124,7 +124,7 @@
       "format": "traitMapping",
       "options": {
         "direction": "incoming",
-        "showOverwriteToggle": false,
+        "showOverwriteToggle": true,
         "placeholder": "Intercom Lead Field",
         "allowCreate": true,
         "loadOptions": "/schema/contact_fields",
@@ -172,7 +172,7 @@
       "default": [],
       "options": {
         "direction": "outgoing",
-        "showOverwriteToggle": true,
+        "showOverwriteToggle": false,
         "placeholder": "Intercom Field",
         "allowCreate": true,
         "loadOptions": "/schema/contact_fields_writable"
@@ -186,7 +186,7 @@
       "format": "traitMapping",
       "options": {
         "direction": "incoming",
-        "showOverwriteToggle": false,
+        "showOverwriteToggle": true,
         "placeholder": "Intercom User Field",
         "allowCreate": true,
         "loadOptions": "/schema/contact_fields",
@@ -234,7 +234,7 @@
       "default": [],
       "options": {
         "direction": "outgoing",
-        "showOverwriteToggle": true,
+        "showOverwriteToggle": false,
         "placeholder": "Intercom Field",
         "allowCreate": true,
         "loadOptions": "/schema/contact_fields_writable"
@@ -418,7 +418,7 @@
       "format": "accountTraitMapping",
       "options": {
         "direction": "incoming",
-        "showOverwriteToggle": false,
+        "showOverwriteToggle": true,
         "placeholder": "Intercom Company Field",
         "allowCreate": true,
         "loadOptions": "/schema/company_fields",

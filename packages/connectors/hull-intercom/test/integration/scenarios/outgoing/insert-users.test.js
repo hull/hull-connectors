@@ -31,7 +31,7 @@ describe("Insert User Tests", () => {
             outgoing_user_attributes: [
               { hull: 'intercom_user/name', service: 'name' },
               { hull: 'intercom_user/description', service: 'c_description' },
-              { hull: 'intercom_user/job_title', service: 'job_title' },
+              { hull: 'intercom_user/job_title', service: 'job title' },
               { hull: 'account.description', service: 'c_description' }
             ],
             incoming_user_attributes: [
@@ -81,13 +81,13 @@ describe("Insert User Tests", () => {
 
           scope
             .post("/contacts", {
-              "role": "user",
-              "email": "bob@rei.com",
               "name": "Bob",
               "custom_attributes": {
                 "c_description": "a description",
-                "job_title": "sales"
-              }
+                "job title": "sales"
+              },
+              "email": "bob@rei.com",
+              "role": "user"
             }).reply(200, {
             "type": "contact",
             "id": "5f22f1b6fcaca714eb055739",
@@ -139,7 +139,7 @@ describe("Insert User Tests", () => {
             "ios_last_seen_at": null,
             "custom_attributes": {
               "c_description": "a description",
-              "job_title": "sales"
+              "job title": "sales"
             },
             "tags": {
               "type": "list",
@@ -166,7 +166,41 @@ describe("Insert User Tests", () => {
 
           scope
             .get("/data_attributes?model=contact")
-            .reply(200, contactFields);
+            .reply(200, {
+              "type": "list",
+              "data": [
+                {
+                  "id": 7063364,
+                  "type": "data_attribute",
+                  "name": "job title",
+                  "full_name": "custom_attributes.job title",
+                  "label": "job_title",
+                  "data_type": "string",
+                  "api_writable": true,
+                  "ui_writable": true,
+                  "custom": true,
+                  "archived": false,
+                  "created_at": 1562865949,
+                  "updated_at": 1562865949,
+                  "model": "contact"
+                },
+                {
+                  "id": 7678376,
+                  "type": "data_attribute",
+                  "name": "c_description",
+                  "full_name": "custom_attributes.c_description",
+                  "label": "c_description",
+                  "data_type": "string",
+                  "api_writable": true,
+                  "ui_writable": false,
+                  "custom": true,
+                  "archived": false,
+                  "created_at": 1595434500,
+                  "updated_at": 1595434500,
+                  "model": "contact"
+                }
+              ]
+            });
 
           return scope;
         },
@@ -251,7 +285,7 @@ describe("Insert User Tests", () => {
                 "name": "Bob",
                 "custom_attributes": {
                   "c_description": "a description",
-                  "job_title": "sales"
+                  "job title": "sales"
                 },
                 "role": "user",
                 "email": "bob@rei.com"
@@ -320,7 +354,7 @@ describe("Insert User Tests", () => {
                 "ios_last_seen_at": null,
                 "custom_attributes": {
                   "c_description": "a description",
-                  "job_title": "sales",
+                  "job title": "sales",
                 },
                 "tags": {
                   "type": "list",
