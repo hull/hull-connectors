@@ -7,6 +7,7 @@ module.exports = {
     "clientCredentialsEncryptedToken": "shhhclientCredentialsEncryptedToken",
     "private_settings": {
       "webhook_id": "1",
+      "receive_events": true,
       "incoming_events": [
         'conversation.user.created',
         'conversation.user.replied',

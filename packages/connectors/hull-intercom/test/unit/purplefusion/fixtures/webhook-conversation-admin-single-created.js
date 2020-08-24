@@ -6,6 +6,7 @@ module.exports = {
     "hostname": "connectortest.connectordomain.io",
     "clientCredentialsEncryptedToken": "shhhclientCredentialsEncryptedToken",
     "private_settings": {
+      "receive_events": true,
       "webhook_id": "1",
       "user_claims": [
         { "hull": 'email', "service": 'email' }

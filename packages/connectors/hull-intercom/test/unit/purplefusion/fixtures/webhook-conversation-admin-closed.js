@@ -7,6 +7,7 @@ module.exports = {
     "clientCredentialsEncryptedToken": "shhhclientCredentialsEncryptedToken",
     "private_settings": {
       "webhook_id": "1",
+      "receive_events": true,
       "user_claims": [
         { "hull": 'email', "service": 'email' }
       ],
