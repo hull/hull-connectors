@@ -32,6 +32,13 @@ const EVENT_MAPPING = {
     "webhookType": IntercomWebhookLeadRead,
     "transformTo": IntercomLeadRead
   },
+  "contact.signed_up": {
+    "action": "traits",
+    "asEntity": "asUser",
+    "pathToEntity": "data.item",
+    "webhookType": IntercomWebhookUserRead,
+    "transformTo": IntercomUserRead
+  },
   "user.created": {
     "action": "traits",
     "asEntity": "asUser",
@@ -355,7 +362,7 @@ const EVENT_MAPPING = {
       "ip": "data.item.last_seen_ip",
       "event_type": "data.item.type" // TODO should be static 'email'
     }
-  },
+  }
 }
 
 module.exports = {

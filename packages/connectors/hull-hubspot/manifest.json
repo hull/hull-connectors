@@ -127,7 +127,7 @@
     {
       "name": "incoming_user_attributes",
       "title": "Incoming User Attribute Mapping",
-      "description": "Define which Custom Attributes are captured from Hubspot",
+      "description": "Define which attributes are captured from Hubspot",
       "type": "array",
       "format": "traitMapping",
       "options": {
