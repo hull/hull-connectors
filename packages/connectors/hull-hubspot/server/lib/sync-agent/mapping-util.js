@@ -185,8 +185,12 @@ class MappingUtil {
       payload: hubspotReadContact,
       direction: "incoming",
       mapping: this.connector.private_settings.incoming_user_attributes,
-      attributeFormatter: value =>
-        _.isNil(value) || _.isEmpty(value) ? null : value
+      attributeFormatter: value => {
+        if (_.isNil(value) || (!_.isNumber(value) && _.isEmpty(value))) {
+          return null;
+        }
+        return value;
+      }
     });
 
     hullTraits["hubspot/id"] =
