@@ -413,7 +413,7 @@
     {
       "name": "incoming_account_attributes",
       "title": "Company Incoming Fields",
-      "description": "List of Account fields to fetch from Salesforce",
+      "description": "List of Account fields to fetch from Intercom",
       "type": "array",
       "format": "accountTraitMapping",
       "options": {
