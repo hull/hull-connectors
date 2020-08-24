@@ -1,3 +1,6 @@
+import { HullIncomingEvent } from "hull-connector-framework/src/purplefusion/hull-service-objects";
+import { IntercomWebhookEventRead } from "hull-intercom/server/service-objects";
+
 const {
   ifL,
   cond,
@@ -14,6 +17,9 @@ const {
   transformTo,
   jsonata,
   or,
+  iterateL,
+  filter,
+  hull,
   Svc
 } = require("hull-connector-framework/src/purplefusion/language");
 
@@ -48,6 +54,7 @@ const glue = {
   ensure: [
     set("jobId", settings("job_id")),
     set("projectId", settings("project_id")),
+    set("importType", settings("import_type")),
   ],
   isConfigured: cond("allTrue", [
     cond("notEmpty", settings("access_token")),
@@ -127,7 +134,36 @@ const glue = {
     message: "ok"
   }),
   importResults: [
-    set("importType", settings("import_type"))
+    set("queryPageResults", bigquery("getJobResults")),
+    set("arrangedResults", jsonata("($f := $.schema.fields; rows.($merge($.f~>$map(function($v, $i) { {\"bigquery/\" & $f[$i].name: $v.v} }))))", "${queryPageResults}")),
+    iterateL("${arrangedResults}", { key: "entity", async: true }, [
+      ifL(cond("isEqual", "${importType}", "users"), [
+        set("identity", { email: "${entity.bigquery/email}", external_id: "${entity.bigquery/external_id}"}),
+        ifL(cond("notEmpty", "${entity.bigquery/anonymous_id}"), set("identity.anonymous_id", "bigquery:${entity.bigquery/anonymous_id}")),
+        hull("asUser", {
+          ident: "${identity}",
+          attributes: "${entity}"
+        })
+      ]),
+      ifL(cond("isEqual", "${importType}", "accounts"), [
+        set("identity", { domain: "${entity.domain}", external_id: "${entity.external_id}"}),
+        ifL(cond("notEmpty", "${entity.anonymous_id}"), set("identity.anonymous_id", "bigquery:${entity.anonymous_id}")),
+        hull("asAccount", {
+          ident: "${identity}",
+          attributes: "${entity}"
+        })
+      ]),
+      ifL(cond("isEqual", "${importType}", "events"), [
+        set("identity", { email: "${entity.email}", external_id: "${entity.external_id}"}),
+        ifL(cond("notEmpty", "${entity.anonymous_id}"), set("identity.anonymous_id", "bigquery:${entity.anonymous_id}")),
+        hull("asUser", {
+          ident: "${identity}",
+          events: [
+            "${entity}"
+          ]
+        })
+      ])
+    ]),
   ],
   refreshToken:
     ifL(cond("notEmpty", "${connector.private_settings.refresh_token}"), [

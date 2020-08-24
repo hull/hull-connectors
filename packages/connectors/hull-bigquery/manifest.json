@@ -94,6 +94,7 @@
       "handler": "manualImport",
       "title": "Manual import",
       "options": {
+        "fireAndForget": true,
         "confirm": {
           "action": "fetch",
           "text": "You are about to execute the currently saved query and import its results. Confirm?",
@@ -112,7 +113,10 @@
       "type": "interval",
       "handler": "import",
       "value_from": "private_settings.import_interval",
-      "default": "180"
+      "default": "180",
+      "options": {
+        "fireAndForget": true
+      }
     },
     {
       "url": "/check-job",
