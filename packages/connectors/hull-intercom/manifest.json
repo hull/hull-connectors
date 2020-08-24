@@ -397,6 +397,20 @@
       "default": true
     },
     {
+      "name": "send_events",
+      "title": "Send Events",
+      "description": "Should Send Events",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "receive_events",
+      "title": "Receive Events",
+      "description": "Should Receive Events",
+      "type": "boolean",
+      "default": true
+    },
+    {
       "name": "incoming_account_attributes",
       "title": "Company Incoming Fields",
       "description": "List of Account fields to fetch from Salesforce",
@@ -657,6 +671,7 @@
       "title": "Send Events to Intercom",
       "description": "Define which events will be sent to Intercom",
       "properties": [
+        "private_settings.send_events",
         "private_settings.outgoing_events"
       ]
     },
@@ -664,6 +679,7 @@
       "title": "Receive Events from Intercom",
       "description": "Define which events will be received from Intercom",
       "properties": [
+        "private_settings.receive_events",
         "private_settings.incoming_events"
       ]
     },

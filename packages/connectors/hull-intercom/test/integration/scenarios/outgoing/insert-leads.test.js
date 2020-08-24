@@ -22,6 +22,7 @@ describe("Insert Lead Tests", () => {
             webhook_id: "1",
             access_token: "intercomABC",
             tag_leads: true,
+            send_events: true,
             outgoing_events: ["Email Opened", "Email Sent"],
             synchronized_lead_segments: ["lead_segment_1"],
             synchronized_user_segments: [],
