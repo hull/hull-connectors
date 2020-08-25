@@ -47,7 +47,7 @@ const jobPayloadTemplate = {
     },
   };
 
-const EVENT_MAPPING = {
+const OPERATION_MAPPING = {
   users: {
     hull: "asUser",
     type: BigqueryUserRead,
@@ -57,6 +57,11 @@ const EVENT_MAPPING = {
     hull: "asAccount",
     type: BigqueryAccountRead,
     transformTo: HullIncomingAccount
+  },
+  events: {
+    hull: "asUser",
+    type: BigqueryEventRead,
+    transformTo: HullIncomingUser
   }
 };
 
@@ -65,7 +70,7 @@ const glue = {
     set("jobId", settings("job_id")),
     set("projectId", settings("project_id")),
     set("importType", settings("import_type")),
-    set("operation", get("${importType}", EVENT_MAPPING)),
+    set("operation", get("${importType}", OPERATION_MAPPING)),
     set("service_name", "bigquery")
   ],
   isConfigured: cond("allTrue", [
@@ -106,16 +111,16 @@ const glue = {
       cond("notEmpty", "${jobId}")
     ]), [
       set("jobStatus", bigquery("getJob")),
-      ifL(cond("isEqual", get("jobStatus.status.state"), "DONE"), {
+      ifL(cond("isEqual", "${jobStatus.status.state}", "DONE"), {
         do: [
           ifL([
-            cond("isEmpty", get("jobStatus.status.errorResult")),
-            cond("isEmpty", get("jobStatus.status.errors"))
+            cond("isEmpty", "${jobStatus.status.errorResult}"),
+            cond("isEmpty", "${jobStatus.status.errors}")
           ], {
             // all good, ready for import
             do: route("importResults"),
             // job is finished but has some errors
-            eldo: utils("logError", get("jobStatus.status.errors"))
+            eldo: utils("logError", "${jobStatus.status.errors}")
           }),
           // In any case, we no longer follow the job
           settingsUpdate({ job_id: null })
@@ -126,7 +131,7 @@ const glue = {
               utils("logInfo", "The tracked job ${jobId} doesn't exist or has been removed, skipping"),
               settingsUpdate({ job_id: null }),
             ],
-            eldo: utils("logInfo", get("jobStatus.statistics"))
+            eldo: utils("logInfo", "${jobStatus.statistics}")
           })
       }),
     ])
@@ -142,12 +147,10 @@ const glue = {
   ]),
   importResults: [
     set("queryPageResults", bigquery("getJobResults")),
-    set("arrangedResults", jsonata("($f := $.schema.fields; rows.($merge($.f~>$map(function($v, $i) { {$f[$i].name: $v.v} }))))[]", "${queryPageResults}")),
+    set("arrangedResults", jsonata("($f := $.schema.fields; rows.($merge($.f~>$map(function($v, $i) { {$f[$i].name: $v.v} })))[])", "${queryPageResults}")),
     iterateL("${arrangedResults}", { key: "entity", async: true }, [
-      ifL(cond("isEqual", "${importType}", "events"), {
-        do: hull("asUser", cast(BigqueryEventRead, "${entity}")),
-        eldo: hull("${operation.hull}", cast("${operation.type}", "${entity}"))
-      })
+      // cast("${operation.type}", "${entity}")
+      hull("${operation.hull}", cast("${operation.type}", "${entity}"))
     ])
   ],
   refreshToken:
