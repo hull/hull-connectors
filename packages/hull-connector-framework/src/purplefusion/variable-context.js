@@ -90,7 +90,7 @@ class HullVariableContext {
     return false;
   };
 
-  set = (key: string, value: any) => {
+  set(key: string, value: any) {
     if (_.isEmpty(this.localContext)) {
       _.set(this.hullContext, key, value);
     } else {
@@ -126,6 +126,6 @@ class HullVariableContext {
       }
     }
     return doVariableReplacement(this, key);
-  };
+  }
 }
 module.exports = HullVariableContext;
