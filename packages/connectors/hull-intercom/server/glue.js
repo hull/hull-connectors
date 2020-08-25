@@ -387,20 +387,15 @@ const glue = {
   ]),
   convertLead: ifL([
     cond("isEqual", settings("convert_leads"), true),
-    cond("isEqual", "${service_type}", "lead"),
+    // cond("isEqual", "${service_type}", "lead"),
     cond("notEmpty", input("user.intercom_lead/user_id")),
     cond("notEmpty", input("user.intercom_user/user_id")),
-    cond("isEmpty", input("user.intercom_lead/lead_converted_at")),
+    not(cond("isEqual", input("user.intercom_lead/lead_converted"), true)),
   ], [
     set("intercomApiVersion", "${appApiVersion}"),
     set("conversionRequest", jsonata("{\"contact\":{\"user_id\":`intercom_lead/user_id`},\"user\":{\"user_id\":`intercom_user/user_id`}}", input("user"))),
-    set("convertedLeadResponse", intercom("convertLead", "${conversionRequest}")),
-    ifL([
-      cond("notEmpty", "${convertedLeadResponse}"),
-      cond("isEmpty", "${convertedLeadResponse.errors}")
-    ],[
-      ld("set", "${contactFromIntercom}", "lead_converted_at", ex(moment(), "valueOf"))
-    ]),
+    intercom("convertLead", "${conversionRequest}"),
+    ld("set", "${contactFromIntercom}", "lead_converted", true)
   ]),
   contactLookup: [
     route("buildContactSearchQuery"),
