@@ -49,7 +49,7 @@ export default function statusCheck(ctx: HullContext) {
       "Prospector enabled, but no Account segments are listed. No Account will trigger prospection"
     );
   }
-  if (_.size(prospect_filter_roles)) {
+  if (!_.size(prospect_filter_roles)) {
     status = "warning";
     messages.push(
       "Prospector enabled, but no Roles are listed. Prospection will be unpredictable"
