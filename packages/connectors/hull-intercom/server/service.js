@@ -185,6 +185,11 @@ const service = ({ clientID, clientSecret } : {
       operation: "delete",
       endpointType: "delete"
     },
+    convertLead: {
+      url: "/contacts/convert",
+      operation: "post",
+      returnObj: "body"
+    }
   },
   superagent: {
     settings: [

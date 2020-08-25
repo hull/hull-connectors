@@ -48,6 +48,13 @@ describe("Update Lead Tests", () => {
           const scope = nock("https://api.intercom.io");
 
           scope
+            .get("/data_attributes?model=contact")
+            .reply(200, {
+              "type": "list",
+              "data": []
+            });
+
+          scope
             .post("/contacts/search", {
               "query":  {
                 "operator": "AND",
@@ -136,6 +143,20 @@ describe("Update Lead Tests", () => {
             },
             {
               "responseTime": expect.whatever(),
+              "method": "GET",
+              "url": "/data_attributes?model=contact",
+              "status": 200,
+              "vars": {}
+            }
+          ],
+          [
+            "debug",
+            "connector.service_api.call",
+            {
+              "request_id": expect.whatever()
+            },
+            {
+              "responseTime": expect.whatever(),
               "method": "POST",
               "url": "/contacts/search",
               "status": 200,
@@ -149,6 +170,8 @@ describe("Update Lead Tests", () => {
         firehoseEvents: [],
         metrics: [
           ["increment","connector.request",1],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()]
         ],

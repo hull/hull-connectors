@@ -100,7 +100,9 @@ const webhookDataTemplate = {
 
 const glue = {
   ensure: [
-    set("intercomApiVersion", "2.2"),
+    set("appApiVersion", "1.0"),
+    set("latestApiVersion", "2.2"),
+    set("intercomApiVersion", "${latestApiVersion}"),
     set("service_name", "intercom"),
     ifL(cond("isEqual", settings("receive_events"), true), [
       cacheLock("processingWebhooks", [
@@ -349,30 +351,57 @@ const glue = {
       ])
     )
   ],
-  contactUpdateStart: [
-    cacheLock(input("user.id"),
-      ifL(or([
-          set("contactId", cacheGet(input("user.id"))),
-          set("contactId", input("user.intercom_${service_type}/id"))
-        ]), {
-          do: [
-            route("updateContact")
-          ],
-          eldo: [
-            route("contactLookup"),
-            ifL(not(cond("isEqual", "${skipContact}", true)), [
-              ifL([
-                cond("isEmpty", "${contactId}")
-              ], {
-                do: route("insertContact"),
-                eldo: route("updateContact")
-              })
-            ])
-          ]
-        }
-      )
+  contactUpdateStart: cacheLock(input("user.id"), [
+    set("contactDataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getContactDataAttributes"))),
+    set("contact_custom_attributes", ld("map", filter({ "custom": true }, "${contactDataAttributes}"), "name")),
+
+    ifL(or([
+      set("contactId", cacheGet(input("user.id"))),
+      set("contactId", input("user.intercom_${service_type}/id"))
+    ]), {
+      do: [
+        route("updateContact")
+      ],
+      eldo: [
+        route("contactLookup"),
+        ifL(not(cond("isEqual", "${skipContact}", true)), [
+          ifL([
+            cond("isEmpty", "${contactId}")
+          ], {
+            do: route("insertContact"),
+            eldo: route("updateContact")
+          })
+        ])
+      ]
+    }),
+
+    ifL(cond("notEmpty", "${contactFromIntercom}"),
+      [
+        route("sendEvents"),
+        route("checkTags"),
+        route("convertLead"),
+
+        hull("asUser","${contactFromIntercom}")
+      ]
     )
-  ],
+  ]),
+  convertLead: ifL([
+    cond("isEqual", settings("convert_leads"), true),
+    cond("isEqual", "${service_type}", "lead"),
+    cond("notEmpty", input("user.intercom_lead/user_id")),
+    cond("notEmpty", input("user.intercom_user/user_id")),
+    cond("isEmpty", input("user.intercom_lead/lead_converted_at")),
+  ], [
+    set("intercomApiVersion", "${appApiVersion}"),
+    set("conversionRequest", jsonata("{\"contact\":{\"user_id\":`intercom_lead/user_id`},\"user\":{\"user_id\":`intercom_user/user_id`}}", input("user"))),
+    set("convertedLeadResponse", intercom("convertLead", "${conversionRequest}")),
+    ifL([
+      cond("notEmpty", "${convertedLeadResponse}"),
+      cond("isEmpty", "${convertedLeadResponse.errors}")
+    ],[
+      ld("set", "${contactFromIntercom}", "lead_converted_at", ex(moment(), "valueOf"))
+    ]),
+  ]),
   contactLookup: [
     route("buildContactSearchQuery"),
     ifL(cond("notEmpty", "${contactQuery}"), set("existingContacts", intercom("lookupContact", "${contactQuery}")),),
@@ -385,38 +414,11 @@ const glue = {
   ],
   updateContact: [
     set("updateRoute", ld("camelCase", "update_${service_type}")),
-
-    set("contactDataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getContactDataAttributes"))),
-
-    set("contact_custom_attributes", ld("map", filter({ "custom": true }, "${contactDataAttributes}"), "name")),
-    ifL(cond("notEmpty", set("contactFromIntercom", intercom("${updateRoute}", input()))),
-      [
-        hull("asUser","${contactFromIntercom}"),
-        ifL(cond("notEmpty", settings("outgoing_events")), [
-          route("sendEvents")
-        ]),
-        route("checkTags")
-      ]
-    )
+    set("contactFromIntercom", intercom("${updateRoute}", input()))
   ],
   insertContact: [
     set("insertRoute", ld("camelCase", "insert_${service_type}")),
-
-    set("contactDataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getContactDataAttributes"))),
-
-    set("outgoing_lead_attributes", transformTo(IntercomAttributeMapping, cast(HullAttributeMapping, settings("outgoing_lead_attributes")))),
-    set("outgoing_user_attributes", transformTo(IntercomAttributeMapping, cast(HullAttributeMapping, settings("outgoing_user_attributes")))),
-    set("contact_custom_attributes", ld("map", filter({ "custom": true }, "${contactDataAttributes}"), "name")),
-
-    ifL(cond("notEmpty", set("contactFromIntercom", intercom("${insertRoute}", input()))),
-      [
-        hull("asUser","${contactFromIntercom}"),
-        ifL(cond("notEmpty", settings("outgoing_events")), [
-          route("sendEvents")
-        ]),
-        route("checkTags")
-      ]
-    )
+    set("contactFromIntercom", intercom("${insertRoute}", input()))
   ],
   buildContactSearchQuery: [
     set("queries", utils("emptyArray")),
@@ -514,7 +516,10 @@ const glue = {
       })
     ])
   ],
-  sendEvents: ifL(cond("isEqual", settings("send_events"), true), [
+  sendEvents: ifL([
+    cond("notEmpty", settings("outgoing_events")),
+    cond("isEqual", settings("send_events"), true)
+  ], [
     set("contactId", "${contactFromIntercom.id}"),
     set("events", input("events")),
     set("eventNames", ld("intersection", settings("outgoing_events"), ld("map", input("events"), "event"))),

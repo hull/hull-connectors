@@ -376,6 +376,13 @@
       "default": true
     },
     {
+      "name": "convert_leads",
+      "title": "Convert Leads",
+      "description": "Enable Converting Leads to Users",
+      "type": "boolean",
+      "default": false
+    },
+    {
       "name": "fetch_users",
       "title": "User Fetch",
       "description": "Enable Fetching Intercom Users",

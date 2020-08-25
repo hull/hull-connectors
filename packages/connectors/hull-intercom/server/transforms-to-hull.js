@@ -298,6 +298,11 @@ function contactTransformation({ entityType }) {
           }]
         }
       ]
+    },
+    {
+      operateOn: { component: "input", select: "lead_converted_at" },
+      condition: not(varUndefinedOrNull("operateOn")),
+      writeTo: { path: "attributes.intercom_lead/lead_converted_at", format: { operation: "setIfNull", value: "${operateOn}" } }
     }
   ];
 }
