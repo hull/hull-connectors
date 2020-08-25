@@ -35,7 +35,7 @@ const service = ({clientID, clientSecret}: {
       operation: "post",
       endpointType: "create"
     },
-    insertQueryJob:
+    insertQueryJob: {
       url: "/projects/${projectId}/jobs",
       operation: "post"
     },
