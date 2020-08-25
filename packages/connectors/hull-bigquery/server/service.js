@@ -6,7 +6,7 @@ const {
   SkippableError
 } = require("hull/src/errors");
 
-const OAuth2Strategy = require("passport-google-oauth20").Strategy;
+const OAuth2Strategy = require("passport-oauth2");
 
 const { notNull } = require("hull-connector-framework/src/purplefusion/conditionals");
 const MESSAGES = require("./messages");
