@@ -58,12 +58,6 @@ it("Performing sync", () => {
             })
             .reply(200, require("./fixtures/get-batches.json"));
 
-          scope.delete("/lists/1/segments/MailchimpSegmentId").reply(204);
-          scope
-            .delete(
-              "/lists/1/interest-categories/2/interests/MailchimpInterestId"
-            )
-            .reply(204);
           scope
             .get("/batches/8b2428d747")
             .reply(200, require("./fixtures/get-batch.json"));
@@ -85,8 +79,6 @@ it("Performing sync", () => {
         accountsSegments: [],
         response: { response: "ok" },
         logs: [
-          ["debug", "dispatch", {}, { id: 0, name: "syncOut" }],
-          ["info", "outgoing.job.start", {}, { recreate: true }],
           ["debug", "dispatch", {}, { id: 0, name: "fetchAllUsers" }],
           [
             "debug",
@@ -98,18 +90,6 @@ it("Performing sync", () => {
               status: 200,
               url: "/batches",
               vars: { listId: "1" }
-            }
-          ],
-          [
-            "debug",
-            "connector.service_api.call",
-            {},
-            {
-              method: "DELETE",
-              responseTime: expect.whatever(),
-              status: 204,
-              url: "/lists/{{listId}}/segments/{{audienceId}}",
-              vars: { audienceId: "MailchimpSegmentId", listId: "1" }
             }
           ],
           [
@@ -150,23 +130,6 @@ it("Performing sync", () => {
               }
             }
           ],
-          [
-            "debug",
-            "connector.service_api.call",
-            {},
-            {
-              method: "DELETE",
-              responseTime: expect.whatever(),
-              status: 204,
-              url:
-                "/lists/{{listId}}/interest-categories/{{interestsCategoryId}}/interests/{{interestId}}",
-              vars: {
-                interestId: "MailchimpInterestId",
-                interestsCategoryId: "2",
-                listId: "1"
-              }
-            }
-          ],
           ["debug", "JOB", {}, { job: "importUsers", length: 3 }],
           ["debug", "dispatch", {}, { id: 0, name: "importUsers" }],
           ["debug", "incoming.users.start", {}, 3],
@@ -181,12 +144,6 @@ it("Performing sync", () => {
               url: "/batches/{{batchId}}",
               vars: { batchId: "8b2428d747", listId: "1" }
             }
-          ],
-          [
-            "info",
-            "incoming.job.success",
-            {},
-            { jobName: "mailchimp-batch-job" }
           ],
           [
             "debug", "incoming.user.success",
@@ -278,37 +235,11 @@ it("Performing sync", () => {
             }
           ],
           [
-            "debug",
-            "connector.requestExtract.params",
+            "info",
+            "incoming.job.success",
             {},
             {
-              fields: [
-                "traits_mailchimp/import_error",
-                "traits_mailchimp/last_activity_at",
-                "id",
-                "email",
-                "first_name",
-                "last_name",
-                "traits_mailchimp/email_client",
-                "traits_mailchimp/language",
-                "traits_mailchimp/last_changed",
-                "traits_mailchimp/country_code",
-                "traits_mailchimp/latitude",
-                "traits_mailchimp/longitude",
-                "traits_mailchimp/timezone",
-                "traits_mailchimp/member_rating",
-                "traits_mailchimp/avg_click_rate",
-                "traits_mailchimp/avg_open_rate",
-                "traits_mailchimp/status",
-                "traits_mailchimp/subscribed",
-                "traits_mailchimp/unique_email_id",
-                "traits_mailchimp/vip"
-              ],
-              format: "csv",
-              query: undefined,
-              url: expect.stringMatching(
-                /https:\/\/localhost\/batch\?ship=123456789012345678901234&secret=1234&organization=localhost%3A[0-9]+&source=connector&segment_id=hullSegmentId/
-              )
+              jobName: "mailchimp-batch-job"
             }
           ]
         ],
@@ -405,34 +336,24 @@ it("Performing sync", () => {
         ],
         metrics: [
           ["increment", "connector.request", 1],
-          ["increment", "ship.job.syncOut.start", 1],
           ["increment", "ship.job.fetchAllUsers.start", 1],
           ["increment", "batch_job.count", 1],
-          ["increment", "ship.service_api.call", 1],
-          ["value", "connector.service_api.response_time", expect.any(Number)],
+          ["value", "ship.job.fetchAllUsers.duration", expect.any(Number)],
           ["increment", "ship.service_api.call", 1],
           ["value", "connector.service_api.response_time", expect.any(Number)],
           ["increment", "ship.job.handleMailchimpBatch.start", 1],
+          ["value", "ship.job.handleMailchimpBatch.duration", expect.any(Number)],
           ["increment", "ship.service_api.call", 1],
           ["value", "connector.service_api.response_time", expect.any(Number)],
           ["increment", "batch_job.attempts", 1],
           ["value", "batch_job.completion_time", 10],
-          ["increment", "ship.service_api.call", 1],
-          ["value", "connector.service_api.response_time", expect.any(Number)],
           ["increment", "ship.job.importUsers.start", 1],
           ["increment", "ship.incoming.users", 1],
           ["increment", "ship.incoming.users", 1],
           ["increment", "ship.incoming.users", 1],
           ["value", "ship.job.importUsers.duration", expect.any(Number)],
           ["increment", "ship.service_api.call", 1],
-          ["value", "connector.service_api.response_time", expect.any(Number)],
-          [
-            "value",
-            "ship.job.handleMailchimpBatch.duration",
-            expect.any(Number)
-          ],
-          ["value", "ship.job.fetchAllUsers.duration", expect.any(Number)],
-          ["value", "ship.job.syncOut.duration", expect.any(Number)]
+          ["value", "connector.service_api.response_time", expect.any(Number)]
         ],
         platformApiCalls: [
           ["GET", "/api/v1/app", {}, {}],
@@ -466,26 +387,6 @@ it("Performing sync", () => {
                 api_key: "1",
                 domain: "mock",
                 interest_category_id: "2",
-                interests_mapping: {},
-                mailchimp_list_id: "1",
-                segment_mapping: {
-                  hullSegmentId: "MailchimpSegmentId",
-                },
-                synchronized_user_segments: ["hullSegmentId"]
-              },
-              refresh_status: false
-            }
-          ],
-          ["GET", "/api/v1/app", {}, {}],
-          [
-            "PUT",
-            "/api/v1/123456789012345678901234",
-            {},
-            {
-              private_settings: {
-                api_key: "1",
-                domain: "mock",
-                interest_category_id: "2",
                 interests_mapping: {
                   hullSegmentId: "MailchimpInterestId"
                 },
@@ -497,60 +398,6 @@ it("Performing sync", () => {
                 sync_batch_id: null,
               },
               refresh_status: false
-            }
-          ],
-          ["GET", "/api/v1/app", {}, {}],
-          [
-            "PUT",
-            "/api/v1/123456789012345678901234",
-            {},
-            {
-              private_settings: {
-                api_key: "1",
-                domain: "mock",
-                interest_category_id: "2",
-                interests_mapping: {
-                  hullSegmentId: "MailchimpInterestId"
-                },
-                mailchimp_list_id: "1",
-                segment_mapping: {},
-                synchronized_user_segments: ["hullSegmentId"],
-              },
-              refresh_status: false
-            }
-          ],
-          ["GET", "/api/v1/hullSegmentId", {}, {}],
-          [
-            "POST",
-            "/api/v1/extract/user_reports",
-            {},
-            {
-              fields: [
-                "traits_mailchimp/import_error",
-                "traits_mailchimp/last_activity_at",
-                "id",
-                "email",
-                "first_name",
-                "last_name",
-                "traits_mailchimp/email_client",
-                "traits_mailchimp/language",
-                "traits_mailchimp/last_changed",
-                "traits_mailchimp/country_code",
-                "traits_mailchimp/latitude",
-                "traits_mailchimp/longitude",
-                "traits_mailchimp/timezone",
-                "traits_mailchimp/member_rating",
-                "traits_mailchimp/avg_click_rate",
-                "traits_mailchimp/avg_open_rate",
-                "traits_mailchimp/status",
-                "traits_mailchimp/subscribed",
-                "traits_mailchimp/unique_email_id",
-                "traits_mailchimp/vip"
-              ],
-              format: "csv",
-              url: expect.stringMatching(
-                /https:\/\/localhost\/batch\?ship=123456789012345678901234&secret=1234&organization=localhost%3A[0-9]+&source=connector&segment_id=hullSegmentId/
-              )
             }
           ]
         ]
