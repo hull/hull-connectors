@@ -150,7 +150,15 @@ const glue = {
   ]),
   importResults: [
     set("queryPageResults", bigquery("getJobResults")),
-    set("arrangedResults", jsonata("($f := $.schema.fields; rows.($merge($.f~>$map(function($v, $i) { {$f[$i].name: $v.v} })))[])", "${queryPageResults}")),
+    set("arrangedResults", jsonata("[$.rows.(\n" +
+      "    $merge(\n" +
+      "        $map($.f, function($v, $i) {\n" +
+      "            {\n" +
+      "                $$.schema.fields[$i].name: $v.v\n" +
+      "            }\n" +
+      "        })\n" +
+      "    )\n" +
+      ")]\n", "${queryPageResults}")),
     iterateL("${arrangedResults}", { key: "entity", async: true }, [
       // cast("${operation.type}", "${entity}")
       hull("${operation.hull}", cast("${operation.type}", "${entity}"))
