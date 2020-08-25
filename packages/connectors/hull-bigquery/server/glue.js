@@ -75,10 +75,15 @@ const glue = {
   ],
   isConfigured: cond("allTrue", [
     cond("notEmpty", settings("access_token")),
+    cond("notEmpty", settings("refresh_token")),
+    cond("notEmpty", settings("project_id"))
+  ]),
+  isAuthenticated: cond("allTrue", [
+    cond("notEmpty", settings("access_token")),
     cond("notEmpty", settings("refresh_token"))
   ]),
   getProjects: returnValue([
-    ifL(route("isConfigured"), [
+    ifL(route("isAuthenticated"), [
       set("projectsMap", jsonata(`[$.{"value": id, "label":friendlyName}]`, bigquery("getProjects")))
     ])
     ],
@@ -105,10 +110,13 @@ const glue = {
     }
   }),
   checkJob: [
-    ifL(or([
-      cond("notEmpty", settings("job_id")),
-      cond("notEmpty", "${jobId}")
-    ]), [
+    ifL([
+      route("isConfigured"),
+      or([
+        cond("notEmpty", settings("job_id")),
+        cond("notEmpty", "${jobId}")
+      ])
+    ], [
       set("jobStatus", bigquery("getJob")),
       ifL(cond("isEqual", "${jobStatus.status.state}", "DONE"), {
         do: [
@@ -119,7 +127,7 @@ const glue = {
             // all good, ready for import
             do: [
               route("importResults"),
-              utils("logInfo", "incoming.job.success")
+              utils("logInfo", "incoming.job.finished")
             ],
             // job is finished but has some errors
             eldo: utils("logError", "incoming.job.error: ${jobStatus.status.errors}")
@@ -138,16 +146,24 @@ const glue = {
       }),
     ])
   ],
-  import: [],
-  manualImport: ifL(route("isConfigured"), [
-    set("nowTime", ex(moment(), "unix")),
-    set("jobId", "hull_import_${connector.id}_${nowTime}"),
-    ifL(cond("isEmpty", get("error", bigquery("insertQueryJob", jobPayloadTemplate))), [
-      settingsUpdate({ job_id: "${jobId}"}),
-      utils("logInfo", "incoming.job.start: ${jobStatus.statistics}"),
-      route("checkJob")
-    ])
-  ]),
+  startImport: [
+    ifL(cond("isEmpty", "${jobId}"), {
+      do: ifL(route("isConfigured"), [
+        set("nowTime", ex(moment(), "unix")),
+        set("jobId", "hull_import_${connector.id}_${nowTime}"),
+        ifL(cond("isEmpty", get("error", bigquery("insertQueryJob", jobPayloadTemplate))), [
+          settingsUpdate({ job_id: "${jobId}"}),
+          utils("logInfo", "incoming.job.start: ${jobStatus.statistics}"),
+          route("checkJob")
+        ])
+      ]),
+      eldo: [
+        utils("logError", "incoming.job.error: a job is already running. Wait for it to finish.")
+      ]
+    })
+  ],
+  import: route("startImport"),
+  manualImport: route("startImport"),
   importResults: [
     set("queryPageResults", bigquery("getJobResults")),
     set("arrangedResults", jsonata("[$.rows.(\n" +
@@ -160,7 +176,6 @@ const glue = {
       "    )\n" +
       ")]\n", "${queryPageResults}")),
     iterateL("${arrangedResults}", { key: "entity", async: true }, [
-      // cast("${operation.type}", "${entity}")
       hull("${operation.hull}", cast("${operation.type}", "${entity}"))
     ]),
     ifL(cond("notEmpty", "${getJobResults.pageToken}"), [
