@@ -15,7 +15,8 @@ the latest Intercom API version, 2.x.
 
 1) In API version 2.x, the Users API & Leads API are deprecated and replaced with the Contacts API.
 As a result, the following fields are no longer retrievable via the API:
-    ```
+    
+   ```
       anonymous
       pseudonym
       session_count
@@ -76,36 +77,36 @@ The default events received are limited to `user.created`, `user.deleted`, and `
 
 3) To preserve the existing `intercom/` attribute group and to manipulate the anonymous
 ids, in your org, install the Processor and copy this code
-    ```javascript
-    function createLegacyAnonIds(intercomEntityTraits, intercomEntity, entityId) {
-
+    
+   ```javascript
+    function createLegacyAnonIds(targetTraits, intercomEntity, entityId) {
+      
       const legacyAnonIds = [];
       const anonIds = user.anonymous_ids;
-      const externalId = _.get(intercomEntityTraits, "user_id");
-
+      const externalId = _.get(targetTraits, "user_id");
+      
       const legacyAnonId = _.find(anonIds, aid => {
         return aid === `intercom:${entityId}`;
       });
-
-      if (_.isNil(legacyAnonId)) {
+    
+      if (target === "user" && _.isNil(legacyAnonId)) {
         legacyAnonIds.push(`intercom:${targetId}`);
       }
-
+      
       if (intercomEntity === "lead" && !_.isNil(externalId)) {
-
         const externalIdAnonId = _.find(anonIds, aid => {
           return aid === `intercom:${externalId}`;
         });
-
+        
         if (_.isNil(externalIdAnonId)) {
           legacyAnonIds.push(`intercom:${externalId}`);
         }
       }
       return legacyAnonIds;
     }
-
-    function createLegacyAttributes(intercomEntityTraits, target) {
-      const externalId = _.get(intercomEntityTraits, "user_id");
+    
+    function createLegacyAttributes(targetTraits, target) {
+      const externalId = _.get(targetTraits, "user_id");
       if (target === "lead") {
         _.set(targetTraits, "anonymous", true);
         _.set(targetTraits, "is_lead", true);
@@ -115,27 +116,27 @@ ids, in your org, install the Processor and copy this code
          _.set(targetTraits, "is_lead", false);
          _.set(targetTraits, "anonymous", false);
       }
-
+      
       return _.reduce(targetTraits, (result, value, key) => {
         result[`intercom/${key}`] = value;
         return result;
       }, {});
     }
-
+    
     const userId = _.get(user, "intercom_user.id");
     const target = !_.isNil(userId) ? "user" : "lead";
     const targetId = _.get(user, `intercom_${target}.id`);
-    const targetTraits = _.get(user, `intercom_${target}`, {});
-
+    const targetTraits = _.cloneDeep(_.get(user, `intercom_${target}`, {}));
+    
     if (!_.isEmpty(targetTraits) && !_.isNil(targetId)) {
-
-      const legacyAnonIds = createdLegacyAnonIds(targetTraits, target, targetId);
+      
+      const legacyAnonIds = createLegacyAnonIds(targetTraits, target, targetId);
       const legacyTraits = createLegacyAttributes(targetTraits, target);
-
+    
       _.forEach(legacyAnonIds, (legacyAnonId) => {
         hull.alias({ anonymous_id: legacyAnonId });
       });
-
+      
       hull.traits(legacyTraits);
     }
     ```

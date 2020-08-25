@@ -1,24 +1,16 @@
 /* @flow */
-import type { IUserUpdateEnvelope, IAccountUpdateEnvelope } from "../types";
+import type {
+  TFilterResults,
+  IUserUpdateEnvelope,
+  IAccountUpdateEnvelope,
+  IFilterUtil
+} from "../types";
 
 const _ = require("lodash");
 const MatchUtil = require("./match-util");
 const { TResourceType } = require("../types");
 
-type TFilterResults = {
-  toInsert: Array<IUserUpdateEnvelope>,
-  toUpdate: Array<IUserUpdateEnvelope>,
-  toSkip: Array<IUserUpdateEnvelope>
-};
-
-// eslint-disable-next-line no-unused-vars
-type TAccountFilterResults = {
-  toInsert: Array<IAccountUpdateEnvelope>,
-  toUpdate: Array<IAccountUpdateEnvelope>,
-  toSkip: Array<IAccountUpdateEnvelope>
-};
-
-class FilterUtil {
+class FilterUtil implements IFilterUtil {
   contactSynchronizedSegments: Array<string>;
 
   leadSynchronizedSegments: Array<string>;

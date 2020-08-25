@@ -270,14 +270,40 @@ export type HullEvent = {
   properties: HullEventProperties
 };
 
+export type HullFirehoseKafkaTransport = {
+  type: "kafka",
+  topic: string,
+  topicsMapping: Object,
+  brokersList: Array<string>,
+  producerConfig: Object
+};
+
+type HullFirehoseRestTransport = void;
+
+export type HullFirehoseTransport =
+  | HullFirehoseKafkaTransport
+  | HullFirehoseRestTransport;
+
+export type HullFirehoseEventContext = {
+  sessionId?: string,
+  page?: string,
+  referer?: string,
+  useragent?: string,
+  ip?: string,
+  source?: string,
+  type?: string
+};
+
+export type HullFirehoseTrackContext = {
+  created_at?: int,
+  event_id?: string
+} & HullFirehoseEventContext;
+
 /**
  * Configuration which can be passed to the HullClient constructor
  * We cannot use exact type here.
  */
-export type HullClientConfig = {
-  id?: string,
-  secret?: string,
-  organization?: string,
+export type HullClientConfig = {|
   domain?: string,
   namespace?: string,
   requestId?: string,
@@ -288,8 +314,8 @@ export type HullClientConfig = {
   protocol?: string,
   prefix?: string,
   logLevel?: "info" | "error" | "warn" | "debug",
-  userClaim?: string | HullUserClaims,
-  accountClaim?: string | HullAccountClaims,
+  userClaim?: HullUserClaims,
+  accountClaim?: HullAccountClaims,
   subjectType?: HullEntityName,
   additionalClaims?: HullAdditionalClaims,
   accessToken?: string,
@@ -300,7 +326,20 @@ export type HullClientConfig = {
   logs?: Array<Object>,
   captureLogs?: boolean,
   firehoseEvents?: Array<Object>,
-  captureFirehoseEvents?: boolean
+  captureFirehoseEvents?: boolean,
+  firehoseTransport?: HullFirehoseTransport,
+  trackingOnly?: true
+|};
+
+export type HullClientCredentials = {|
+  id: string,
+  secret?: string,
+  organization: string
+|};
+
+export type HullClientInstanceConfig = {
+  ...$Exact<HullClientConfig>,
+  ...$Exact<HullClientCredentials>
 };
 
 /**

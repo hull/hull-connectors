@@ -18,6 +18,7 @@ describe("Update User Tests", () => {
         channel: "user:update",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "intercomABC",
             tag_users: false,
             synchronized_user_segments: ["user_segment_1"],
@@ -365,6 +366,7 @@ describe("Update User Tests", () => {
         channel: "user:update",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "intercomABC",
             tag_users: false,
             synchronized_user_segments: ["user_segment_1"],

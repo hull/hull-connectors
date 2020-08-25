@@ -1,7 +1,7 @@
 /* global describe, test, expect */
 const _ = require("lodash");
 const { getContextMock } = require("./support/hull-mock");
-const getMappings = require("../../server/lib/sync-agent/mapping-util");
+const { getMappings } = require("../../server/lib/sync-agent/mapping-util");
 const expect = require("expect");
 
 describe("getMappings", () => {

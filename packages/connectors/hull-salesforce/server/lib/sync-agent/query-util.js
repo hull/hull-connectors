@@ -1,32 +1,32 @@
 /* @flow */
 import type { THullUserUpdateMessage, THullAccountUpdateMessage } from "hull";
+import type { IQueryUtil } from "../types";
 
 const _ = require("lodash");
 
-class QueryUtil {
+class QueryUtil implements IQueryUtil {
   extractUniqueValues(messages: Array<any>, path: string): Array<any> {
     return _.uniq(_.compact(_.map(messages, path)));
   }
 
-  buildQueryOpts(sfEntityType: string, params: Array<Object>): Object {
-    if (_.includes(["lead", "contact"], sfEntityType)) {
-      return { Email: "email", Id: `salesforce_${sfEntityType}/id` };
+  buildQueryOpts(sfType: string, params: Array<Object>): Object {
+    const queryOpts = {};
+    if (_.includes(["lead", "contact"], sfType)) {
+      _.set(queryOpts, "Id", `salesforce_${sfType}/id`);
     }
-
-    if (sfEntityType === "account") {
-      const queryOpts = { Id: "salesforce/id" };
-      _.forEach(params, param => {
-        _.set(queryOpts, param.service, param.hull);
-      });
-      return queryOpts;
+    if (sfType === "account") {
+      _.set(queryOpts, "Id", "salesforce/id");
     }
-    return {};
+    _.forEach(params, param => {
+      _.set(queryOpts, param.service, param.hull);
+    });
+    return queryOpts;
   }
 
   composeFindQuery(
     messages: Array<THullUserUpdateMessage> | Array<THullAccountUpdateMessage>,
     searchMapping: Object,
-    hullEntityType: string
+    hullType: string
   ): Object {
     // Collect unique terms in message for each field to query by
     const uniqueTerms = _.reduce(
@@ -35,7 +35,7 @@ class QueryUtil {
         return _.merge(memo, {
           [salesforceField]: this.extractUniqueValues(
             messages,
-            `${hullEntityType}.${hullField}`
+            `${hullType}.${hullField}`
           )
         });
       },

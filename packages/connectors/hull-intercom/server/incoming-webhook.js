@@ -15,7 +15,7 @@ const incomingWebhook = async (
   const route = "webhooks";
 
   const router = new PurpleFusionRouter(route);
-  router.invokeRoute(ctx, message.body);
+  await router.invokeRoute(ctx, message.body);
 
   return {
     status: 200,

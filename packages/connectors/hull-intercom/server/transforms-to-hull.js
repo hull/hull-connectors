@@ -298,6 +298,11 @@ function contactTransformation({ entityType }) {
           }]
         }
       ]
+    },
+    {
+      operateOn: { component: "input", select: "lead_converted" },
+      condition: not(varUndefinedOrNull("operateOn")),
+      writeTo: { path: "attributes.intercom_lead/lead_converted", format: { operation: "set", value: "${operateOn}" } }
     }
   ];
 }
@@ -306,7 +311,7 @@ function eventTransformation() {
   return [
     { writeTo: { path: "eventName", value: "${eventName}" } },
     { writeTo: { path: "context.source", value: "${eventSource}" } },
-    { writeTo: { path: "props.topic", value: "${webhookTopic}" } },
+    { writeTo: { path: "properties.topic", value: "${webhookTopic}" } },
     {
       operateOn: { component: "input", select: "created_at" },
       writeTo: {
@@ -334,7 +339,7 @@ function eventTransformation() {
         operateOn: { component: "input", select: "${intercomPath}", name: "serviceValue" },
         condition: not(varUndefinedOrNull("serviceValue")),
         writeTo: {
-          path: "props.${hullAttribute}",
+          path: "properties.${hullAttribute}",
           value: "${operateOn}"
         }
       }

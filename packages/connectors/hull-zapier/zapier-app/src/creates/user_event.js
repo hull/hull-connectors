@@ -20,7 +20,6 @@ const perform = async (z, { inputData }) => {
     };
     throw new z.errors.HaltedError(JSON.stringify(errorMessage));
   }
-
   return post(z,{
     url: createUrl,
     body: { entityType: "user_event", claims, event_name, properties }
@@ -56,6 +55,15 @@ const user_event = {
           "The external_id of the user to associate the event to. Takes precedence over the email if present",
         label: "External ID",
         required: false
+      },
+      {
+        required: false,
+        list: false,
+        label: 'Anonymous Id',
+        helpText: 'Anonymous Id of the Hull User',
+        key: 'anonymous_id',
+        type: 'string',
+        altersDynamicFields: false
       },
       {
         key: "event_name",

@@ -3,10 +3,11 @@ import _ from "lodash";
 import type { HullContext } from "hull";
 
 export default function statusCheck(ctx: HullContext) {
-  const { connector } = ctx;
+  const { connector, client } = ctx;
   const { private_settings } = connector;
   const messages = [];
   let status = "ok";
+
   const {
     api_key,
     enrich_user_segments,
@@ -87,6 +88,9 @@ export default function statusCheck(ctx: HullContext) {
       `Prospector limit count is high ${prospect_limit_count}. We recommend keeping it under 20`
     );
   }
+
+  client.logger.info("connector.status", { status, messages });
+
   return {
     status,
     messages

@@ -145,14 +145,12 @@ describe("Intercom Webhook Tests", () => {
     return harness.runTest(require("./fixtures/webhook-lead-added-email"));
   });
 
-  /*
-  TODO Add support for these webhooks
   it("contact.signed_up webhook", () => {
     return harness.runTest(require("./fixtures/webhook-lead-signed-up"));
   });
 
-  it("visitor.signed_up webhook", () => {
+  /*it("visitor.signed_up webhook", () => {
     return harness.runTest(require("./fixtures/webhook-visitor-signed-up"));
-  });
-  */
+  });*/
+
 });
