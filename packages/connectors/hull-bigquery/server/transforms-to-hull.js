@@ -70,7 +70,7 @@ const transformsToHull: ServiceTransforms = [
       {
         mapping: { type: "input" },
         arrayStrategy: "append_index",
-        condition: doesNotContain(["domain", "external_id", "created_at", "event_id"], "service_field_name"),
+        condition: doesNotContain(["domain", "external_id", "created_at", "event_id", "event_name", "email"], "service_field_name"),
         inputPath: "${service_field_name}",
         outputPath: "events[0].properties.${service_field_name}",
       },
@@ -88,6 +88,13 @@ const transformsToHull: ServiceTransforms = [
         inputPath: "${service_field_name}",
         outputPath: "events[0].context.${service_field_name}",
       },
+      {
+        mapping: { type: "input" },
+        arrayStrategy: "append_index",
+        condition: doesContain(["event_name"], "service_field_name"),
+        inputPath: "${service_field_name}",
+        outputPath: "events[0].eventName",
+      }
     ]
   },
 ];

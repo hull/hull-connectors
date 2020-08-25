@@ -44,7 +44,7 @@ const service = ({clientID, clientSecret}: {
       operation: "get",
     },
     getJobResults: {
-      url: "/projects/${projectId}/queries/${jobId}",
+      url: "/projects/${projectId}/queries/${jobId}?pageToken=${pageToken}",
       operation: "get"
     }
   },

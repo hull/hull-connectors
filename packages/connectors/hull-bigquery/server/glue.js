@@ -75,8 +75,7 @@ const glue = {
   ],
   isConfigured: cond("allTrue", [
     cond("notEmpty", settings("access_token")),
-    cond("notEmpty", settings("refresh_token")),
-    cond("notEmpty", settings("project_id"))
+    cond("notEmpty", settings("refresh_token"))
   ]),
   getProjects: returnValue([
     ifL(route("isConfigured"), [
@@ -118,9 +117,12 @@ const glue = {
             cond("isEmpty", "${jobStatus.status.errors}")
           ], {
             // all good, ready for import
-            do: route("importResults"),
+            do: [
+              route("importResults"),
+              utils("logInfo", "incoming.job.success")
+            ],
             // job is finished but has some errors
-            eldo: utils("logError", "${jobStatus.status.errors}")
+            eldo: utils("logError", "incoming.job.error: ${jobStatus.status.errors}")
           }),
           // In any case, we no longer follow the job
           settingsUpdate({ job_id: null })
@@ -128,10 +130,10 @@ const glue = {
         eldo:
           ifL(cond("isEmpty", "${jobStatus}"), {
             do: [
-              utils("logInfo", "The tracked job ${jobId} doesn't exist or has been removed, skipping"),
+              utils("logInfo", "incoming.job.error: The tracked job ${jobId} doesn't exist or has been removed, skipping"),
               settingsUpdate({ job_id: null }),
             ],
-            eldo: utils("logInfo", "${jobStatus.statistics}")
+            eldo: utils("logInfo", "incoming.job.progress: ${jobStatus.statistics}")
           })
       }),
     ])
@@ -142,6 +144,7 @@ const glue = {
     set("jobId", "hull_import_${connector.id}_${nowTime}"),
     ifL(cond("isEmpty", get("error", bigquery("insertQueryJob", jobPayloadTemplate))), [
       settingsUpdate({ job_id: "${jobId}"}),
+      utils("logInfo", "incoming.job.start: ${jobStatus.statistics}"),
       route("checkJob")
     ])
   ]),
@@ -151,6 +154,10 @@ const glue = {
     iterateL("${arrangedResults}", { key: "entity", async: true }, [
       // cast("${operation.type}", "${entity}")
       hull("${operation.hull}", cast("${operation.type}", "${entity}"))
+    ]),
+    ifL(cond("notEmpty", "${getJobResults.pageToken}"), [
+      set("pageToken"),
+      route("importResults")
     ])
   ],
   refreshToken:
