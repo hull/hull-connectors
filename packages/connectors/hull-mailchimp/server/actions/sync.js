@@ -15,10 +15,7 @@ async function sync(ctx: HullContext): HullExternalResponse {
   const { private_settings = {} } = connector;
   let response;
   if (_.isNil(private_settings[`${operationName}_batch_id`])) {
-    await Promise.all([
-      ctx.enqueue("syncOut"),
-      ctx.enqueue("fetchAllUsers", { operationName })
-    ]);
+    await ctx.enqueue("fetchAllUsers", { operationName });
     response = "ok";
   } else {
     response = `Sync operation already running with batch id: ${
