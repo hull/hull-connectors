@@ -96,7 +96,7 @@ const glue = {
   status: ifL(cond("isEmpty", settings("access_token")), {
     do: {
       status: "setupRequired",
-      message: "'Connector has not been authenticated with Intercom."
+      message: "Connector has not been authenticated with Bigquery."
     },
     eldo: {
       status: "ok",
