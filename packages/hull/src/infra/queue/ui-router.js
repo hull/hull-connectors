@@ -16,7 +16,6 @@ function auth(pass) {
 
 module.exports = function queueUiRouter({ hostSecret, queueAgent, queue }) {
   const router = Router();
-
   router.use(auth(hostSecret));
   // @deprecated queueAgent
   (queueAgent || queue).adapter.setupUiRouter(router);

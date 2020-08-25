@@ -103,7 +103,7 @@ describe("Outgoing User Event Tests", () => {
 
           return scope;
         },
-        response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
+        response: { flow_control: { type: "next" } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "user" }],
           ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
@@ -227,7 +227,7 @@ describe("Outgoing User Event Tests", () => {
         handlerUrl: "smart-notifier",
         channel: "user:update",
         externalApiMock: () => {},
-        response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
+        response: { flow_control: { type: "next" } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "user" }],
           ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "user" }]

@@ -30,9 +30,6 @@ test("should not link account in outreach if user is not in segment", () => {
       response: {
         flow_control: {
           type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10,
         }
       },
       logs: [

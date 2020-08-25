@@ -100,7 +100,7 @@ it("should send out a new hull account to hubspot", () => {
         }
       ],
       response: {
-        flow_control: { in: 5, in_time: 10, size: 10, type: "next" }
+        flow_control: { type: "next" }
       },
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],

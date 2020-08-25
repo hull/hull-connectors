@@ -324,7 +324,7 @@ it("should send out a new hull account to hubspot update validation error and re
           ]
         }
       ],
-      response: { flow_control: { in: 5, in_time: 10, size: 10, type: "next" } },
+      response: { flow_control: { type: "next" } },
       logs: [
         expect.arrayContaining([
           expect.objectContaining({ "method": "GET", "url": "/contacts/v2/groups", "status": 200, })

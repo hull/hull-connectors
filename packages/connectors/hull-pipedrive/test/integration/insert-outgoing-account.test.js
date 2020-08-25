@@ -23,7 +23,7 @@ it("Insert Single Account To Pipedrive", () => {
 
         return scope;
       },
-      response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
+      response: { flow_control: { type: "next" } },
       logs: [
         ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "account" }],
         ["debug", "connector.service_api.call", { "request_id": expect.whatever() }, { "responseTime": expect.whatever(), "method": "POST", "url": "/organizations", "status": 201, "vars": {} }],

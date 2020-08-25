@@ -49,9 +49,6 @@ test("send smart-notifier user update to outreach with specific attribute change
       response: {
         flow_control: {
           type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10,
         }
       },
       // most of the remaining "whatevers" are returned from the nock endpoints or are tested in traits

@@ -74,7 +74,7 @@ it("Batch - Insert Single Account To Pipedrive", () => {
 
         return scope;
       },
-      response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
+      response: { flow_control: { type: "next" } },
       logs: [
         [
           "info",

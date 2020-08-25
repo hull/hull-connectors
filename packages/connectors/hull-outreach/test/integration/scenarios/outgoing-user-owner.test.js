@@ -84,10 +84,7 @@ test("send smart-notifier user update to outreach with owner email that is resol
       },
       response: {
         flow_control: {
-          type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10,
+          type: "next"
         }
       },
       logs: [
@@ -238,10 +235,7 @@ test("send smart-notifier user update to outreach with owner email that is unabl
       },
       response: {
         flow_control: {
-          type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10,
+          type: "next"
         }
       },
       logs: [
@@ -368,10 +362,7 @@ test("send smart-notifier user update to outreach with owner email mapped but mi
       },
       response: {
         flow_control: {
-          type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10,
+          type: "next"
         }
       },
       logs: [
@@ -507,10 +498,7 @@ test("send smart-notifier user update to outreach with owner email needs to be '
       },
       response: {
         flow_control: {
-          type: "next",
-          in: 5,
-          in_time: 10,
-          size: 10,
+          type: "next"
         }
       },
       logs: [
