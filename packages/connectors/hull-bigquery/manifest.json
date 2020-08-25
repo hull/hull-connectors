@@ -23,7 +23,8 @@
         "name": "Bigquery",
         "strategy": {
           "skipUserProfile": true,
-          "accessType": "offline",
+          "authorizationURL": "https://accounts.google.com/o/oauth2/v2/auth?access_type=offline&prompt=consent",
+          "tokenURL": "https://oauth2.googleapis.com/token",
           "grant_type": "authorization_code",
           "scope": [
             "https://www.googleapis.com/auth/bigquery"
@@ -134,11 +135,11 @@
     }
   ],
   "status": {
-    "url": "/status",
-    "handler": "status",
     "initial_value": "setupRequired",
-    "type": "cron",
-    "value": "*/5 * * * *"
+    "url": "/status",
+    "type": "interval",
+    "value": "5",
+    "handler": "status"
   },
   "subscriptions": [],
   "batches": [],

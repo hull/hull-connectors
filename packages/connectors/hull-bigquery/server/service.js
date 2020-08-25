@@ -49,7 +49,7 @@ const service = ({clientID, clientSecret}: {
     }
   },
   authentication: {
-    strategy: "googleoauth",
+    strategy: "oauth2",
     params: {
       Strategy: OAuth2Strategy,
       clientID,

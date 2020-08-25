@@ -76,7 +76,6 @@ const glue = {
   isConfigured: cond("allTrue", [
     cond("notEmpty", settings("access_token")),
     cond("notEmpty", settings("refresh_token")),
-    cond("notEmpty", settings("project_id"))
   ]),
   isAuthenticated: cond("allTrue", [
     cond("notEmpty", settings("access_token")),
@@ -94,19 +93,14 @@ const glue = {
       }
     }
   ),
-  status: ifL(route("isConfigured"), {
-    do: ifL(cond("notEmpty", settings("query")), {
-      do: {
-        status: "ok"
-      },
-      eldo: {
-        status: "setupRequired",
-        message: "You haven't saved a query yet, nothing will be imported."
-      }
-    }),
-    eldo: {
+  status: ifL(cond("isEmpty", settings("access_token")), {
+    do: {
       status: "setupRequired",
-      message: "Please authenticate and select a Google Cloud project."
+      message: "'Connector has not been authenticated with Intercom."
+    },
+    eldo: {
+      status: "ok",
+      message: "allgood"
     }
   }),
   checkJob: [

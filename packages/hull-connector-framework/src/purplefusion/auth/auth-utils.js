@@ -5,7 +5,6 @@ const _ = require("lodash");
 const { isUndefinedOrNull } = require("../utils");
 
 const { hubspotOAuth } = require("./hubspot-oauth");
-const { googleOAuth } = require("./google-oauth");
 const { oauth2 } = require("./oauth2");
 
 function getServiceOAuthParams(manifest, serviceDefinitions) {
@@ -20,8 +19,6 @@ function getServiceOAuthParams(manifest, serviceDefinitions) {
       _.merge(params, oauth2);
     } else if (authentication.strategy === "hubspotoauth") {
       _.merge(params, hubspotOAuth);
-    } else if (authentication.strategy === "googleoauth") {
-      _.merge(params, googleOAuth);
     }
     return params;
   }
