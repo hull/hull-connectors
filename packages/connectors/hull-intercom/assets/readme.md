@@ -15,8 +15,7 @@ the latest Intercom API version, 2.x.
 
 1) In API version 2.x, the Users API & Leads API are deprecated and replaced with the Contacts API.
 As a result, the following fields are no longer retrievable via the API:
-    
-   ```
+     ```
       anonymous
       pseudonym
       session_count
@@ -34,7 +33,7 @@ As a result, the following fields are no longer retrievable via the API:
       latitude
       longitude
       last_seen_ip
-    ```
+      ```
 
 2) The Contact field `user_id` is now `external_id`.
 
