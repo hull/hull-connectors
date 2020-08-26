@@ -11,7 +11,7 @@ The legacy Intercom connector was built off of the Intercom API version 1.0.
 The current version of the connector was built to support
 the latest Intercom API version, 2.x.
 
-##### Breaking changes between the API versions:
+#### Breaking changes between the API versions:
 
 1) In API version 2.x, the Users API & Leads API are deprecated and replaced with the Contacts API.
 As a result, the following fields are no longer retrievable via the API:
@@ -37,7 +37,7 @@ As a result, the following fields are no longer retrievable via the API:
 
 2) The Contact field `user_id` is now `external_id`.
 
-##### Breaking changes between the Connector versions:
+#### Breaking changes between the Connector versions:
 
 1) Enhanced support for Users and Leads
 
@@ -52,7 +52,7 @@ As a result, the following fields are no longer retrievable via the API:
     - Intercom leads are modeled as `intercom-lead:lead-${intercom_id}`
 
     
-##### Migration Plan
+#### Migration Plan
 
 1) Copy the relevant settings (see below) from the legacy connector to the new connector.
 
@@ -62,7 +62,7 @@ As a result, the following fields are no longer retrievable via the API:
 anonymous id format and guarantee user merges in Hull.
 
 
-##### Migration Action Items
+#### Migration Action Items
 
 *Contact Hull Support for assistance through this process*
 

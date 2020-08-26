@@ -106,8 +106,15 @@ class SyncAgent {
     this.mappings = getMappings(connector);
     this.isBatch = _.get(ctx.notification, "is_export", false);
     this.accountClaims = private_settings.account_claims || [];
-    this.userClaims = private_settings.user_claims || [];
-    this.leadClaims = private_settings.lead_claims || [];
+    if (_.isEmpty(private_settings.user_claims)) {
+      private_settings.user_claims = [{ hull: "email", service: "Email" }];
+    }
+    if (_.isEmpty(private_settings.lead_claims)) {
+      private_settings.lead_claims = [{ hull: "email", service: "Email" }];
+    }
+
+    this.userClaims = private_settings.user_claims;
+    this.leadClaims = private_settings.lead_claims;
 
     this.privateSettings = private_settings;
     this.hullClient = client;
