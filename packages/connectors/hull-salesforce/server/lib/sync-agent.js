@@ -232,11 +232,12 @@ class SyncAgent {
     if (findableMessages.length === 0) {
       dedupedMessages.forEach(message => {
         // eslint-disable-next-line
-        this.asEntity(
-          _.get(message, hullType)
-        ).logger.debug(`outgoing.${hullType}.skip`, {
-          reason: `No valid ${hullType} messages to send`
-        });
+        this.asEntity(_.get(message, hullType)).logger.debug(
+          `outgoing.${hullType}.skip`,
+          {
+            reason: `No valid ${hullType} messages to send`
+          }
+        );
       });
       return Promise.resolve({});
     }
