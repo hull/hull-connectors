@@ -16,6 +16,7 @@ describe("Fetch All Users Tests", () => {
         handlerUrl: "fetchAllUsers",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "12345",
             fetch_users: true,
             user_claims: [
@@ -54,7 +55,7 @@ describe("Fetch All Users Tests", () => {
               { "service": "tags", "hull": "intercom_user/tags", "overwrite": true },
               { "service": "unsubscribed_from_emails", "hull": "intercom_user/unsubscribed_from_emails", "overwrite": true },
               { "service": "updated_at", "hull": "intercom_user/updated_at", "overwrite": true },
-              { "service": 'custom_attributes.job_title', "hull": 'traits_intercom_user/job_title', "overwrite": true  },
+              { "service": 'custom_attributes.job title', "hull": 'traits_intercom_user/job_title', "overwrite": true  },
               { "service": 'custom_attributes.c_domain', "hull": 'traits_intercom_user/duplicate_domain', "overwrite": true }
             ]
           }
@@ -153,7 +154,7 @@ describe("Fetch All Users Tests", () => {
                   "ios_sdk_version": null,
                   "ios_last_seen_at": null,
                   "custom_attributes": {
-                    "job_title": "engineer"
+                    "job title": "engineer"
                   },
                   "tags": {
                     "type": "list",
@@ -250,7 +251,7 @@ describe("Fetch All Users Tests", () => {
                   "ios_sdk_version": null,
                   "ios_last_seen_at": null,
                   "custom_attributes": {
-                    "job_title": "engineer"
+                    "job title": "engineer"
                   },
                   "tags": {
                     "type": "list",
@@ -347,7 +348,7 @@ describe("Fetch All Users Tests", () => {
                   "ios_sdk_version": null,
                   "ios_last_seen_at": null,
                   "custom_attributes": {
-                    "job_title": "engineer"
+                    "job title": "engineer"
                   },
                   "tags": {
                     "type": "list",
@@ -784,7 +785,7 @@ describe("Fetch All Users Tests", () => {
                 "ios_sdk_version": null,
                 "ios_last_seen_at": null,
                 "custom_attributes": {
-                  "job_title": "engineer"
+                  "job title": "engineer"
                 },
                 "tags": {
                   "type": "list",
@@ -894,7 +895,7 @@ describe("Fetch All Users Tests", () => {
                 "ios_sdk_version": null,
                 "ios_last_seen_at": null,
                 "custom_attributes": {
-                  "job_title": "engineer"
+                  "job title": "engineer"
                 },
                 "tags": {
                   "type": "list",
@@ -1004,7 +1005,7 @@ describe("Fetch All Users Tests", () => {
                 "ios_sdk_version": null,
                 "ios_last_seen_at": null,
                 "custom_attributes": {
-                  "job_title": "engineer"
+                  "job title": "engineer"
                 },
                 "tags": {
                   "type": "list",

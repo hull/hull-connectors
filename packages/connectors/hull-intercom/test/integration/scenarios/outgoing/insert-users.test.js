@@ -19,18 +19,20 @@ describe("Insert User Tests", () => {
         is_export: true,
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "intercomABC",
-            tag_users: false,
+            tag_users: true,
             synchronized_user_segments: ["user_segment_1"],
             synchronized_lead_segments: [],
             send_batch_as: "Users",
             user_claims: [
-              { hull: 'email', service: 'email' }
+              { hull: 'email', service: 'email' },
+              { hull: 'external_id', service: 'external_id' }
             ],
             outgoing_user_attributes: [
               { hull: 'intercom_user/name', service: 'name' },
               { hull: 'intercom_user/description', service: 'c_description' },
-              { hull: 'intercom_user/job_title', service: 'job_title' },
+              { hull: 'intercom_user/job_title', service: 'job title' },
               { hull: 'account.description', service: 'c_description' }
             ],
             incoming_user_attributes: [
@@ -59,6 +61,11 @@ describe("Insert User Tests", () => {
                     "value": "bob@rei.com"
                   },
                   {
+                    "field": "external_id",
+                    "operator": "=",
+                    "value": "user_external_id_1"
+                  },
+                  {
                     "field": "role",
                     "operator": "=",
                     "value": "user"
@@ -80,13 +87,14 @@ describe("Insert User Tests", () => {
 
           scope
             .post("/contacts", {
-              "role": "user",
-              "email": "bob@rei.com",
               "name": "Bob",
+              "external_id": "user_external_id_1",
               "custom_attributes": {
                 "c_description": "a description",
-                "job_title": "sales"
-              }
+                "job title": "sales"
+              },
+              "email": "bob@rei.com",
+              "role": "user"
             }).reply(200, {
             "type": "contact",
             "id": "5f22f1b6fcaca714eb055739",
@@ -138,7 +146,7 @@ describe("Insert User Tests", () => {
             "ios_last_seen_at": null,
             "custom_attributes": {
               "c_description": "a description",
-              "job_title": "sales"
+              "job title": "sales"
             },
             "tags": {
               "type": "list",
@@ -165,7 +173,105 @@ describe("Insert User Tests", () => {
 
           scope
             .get("/data_attributes?model=contact")
-            .reply(200, contactFields);
+            .reply(200, {
+              "type": "list",
+              "data": [
+                {
+                  "id": 7063364,
+                  "type": "data_attribute",
+                  "name": "job title",
+                  "full_name": "custom_attributes.job title",
+                  "label": "job_title",
+                  "data_type": "string",
+                  "api_writable": true,
+                  "ui_writable": true,
+                  "custom": true,
+                  "archived": false,
+                  "created_at": 1562865949,
+                  "updated_at": 1562865949,
+                  "model": "contact"
+                },
+                {
+                  "id": 7678376,
+                  "type": "data_attribute",
+                  "name": "c_description",
+                  "full_name": "custom_attributes.c_description",
+                  "label": "c_description",
+                  "data_type": "string",
+                  "api_writable": true,
+                  "ui_writable": false,
+                  "custom": true,
+                  "archived": false,
+                  "created_at": 1595434500,
+                  "updated_at": 1595434500,
+                  "model": "contact"
+                }
+              ]
+            });
+
+          scope
+            .get("/tags")
+            .reply(200, {
+                "type": "list",
+                "data": [
+                  { "type": "tag", "id": "tag_id_2", "name": "User Segment 2" },
+                  { "type": "tag", "id": "tag_id_3", "name": "User Segment 3" },
+                  { "type": "tag", "id": "tag_id_4", "name": "User Segment 4" }
+                ]
+              }
+            );
+
+          scope
+            .get("/contacts/5f22f1b6fcaca714eb055739/tags")
+            .reply(200, {
+                "type": "list",
+                "data": [
+                  { "type": "tag", "id": "tag_id_2", "name": "User Segment 2" }
+                ]
+              }
+            );
+
+          scope
+            .post("/tags", {
+              "name": "User Segment 1"
+            })
+            .reply(200, {
+                "type": "tag",
+                "id": "tag_id_1",
+                "name": "User Segment 1"
+              }
+            );
+
+          scope
+            .post("/contacts/5f22f1b6fcaca714eb055739/tags", {
+              "id": "tag_id_1"
+            })
+            .reply(200, {
+                "type": "tag",
+                "id": "tag_id_1",
+                "name": "User Segment 1"
+              }
+            );
+
+          scope
+            .post("/contacts/5f22f1b6fcaca714eb055739/tags", {
+              "id": "tag_id_3"
+            })
+            .reply(200, {
+                "type": "tag",
+                "id": "tag_id_3",
+                "name": "User Segment 3"
+              }
+            );
+
+          scope
+            .delete("/contacts/5f22f1b6fcaca714eb055739/tags/tag_id_4")
+            .reply(200, {
+                "type": "tag",
+                "id": "tag_id_4",
+                "name": "User Segment 4"
+              }
+            );
 
           return scope;
         },
@@ -176,14 +282,20 @@ describe("Insert User Tests", () => {
             },
             user: {
               id: "123",
+              external_id: "user_external_id_1",
               email: "bob@rei.com",
-              "traits_intercom_user/tags": ["Segment 2"],
+              "traits_intercom_user/tags": ["User Segment 2", "Intercom Tag 1", "Intercom Tag 2"],
               "name": "Bob",
               "intercom_user/name": "Bob",
               "intercom_user/description": "a description",
               "intercom_user/job_title": "sales"
             },
-            segments: [{ id: "user_segment_1", name: "User Segment 1" }],
+            segments: [
+              { id: "user_segment_1", name: "User Segment 1" },
+              { id: "user_segment_2", name: "User Segment 2" },
+              { id: "user_segment_3", name: "User Segment 3  " },
+              { id: "user_segment_4", name: "Intercom Tag 1" }
+            ],
             changes: {
               user: {
                 "traits_intercom_user/description": [
@@ -192,7 +304,14 @@ describe("Insert User Tests", () => {
                 ]
               },
               segments: {
-                left: [{ id: "s2", name: "Segment 2" }]
+                entered: [
+                  { id: "user_segment_1", name: "User Segment 1" },
+                  { id: "user_segment_2", name: "User Segment 2" }
+                ],
+                left: [
+                  { id: "user_segment_4", name: "User Segment 4" },
+                  { id: "user_segment_5", name: "User Segment 5" }
+                ]
               }
             },
             events: []
@@ -243,17 +362,19 @@ describe("Insert User Tests", () => {
               "subject_type": "user",
               "request_id": expect.whatever(),
               "user_id": "123",
-              "user_email": "bob@rei.com"
+              "user_email": "bob@rei.com",
+              "user_external_id": "user_external_id_1"
             },
             {
               "data": {
                 "name": "Bob",
                 "custom_attributes": {
                   "c_description": "a description",
-                  "job_title": "sales"
+                  "job title": "sales"
                 },
                 "role": "user",
-                "email": "bob@rei.com"
+                "email": "bob@rei.com",
+                "external_id": "user_external_id_1"
               },
               "type": "User"
             }
@@ -265,7 +386,8 @@ describe("Insert User Tests", () => {
               "subject_type": "user",
               "request_id": expect.whatever(),
               "user_email": "bob@rei.com",
-              "user_anonymous_id": "intercom-user:user-5f22f1b6fcaca714eb055739"
+              "user_anonymous_id": "intercom-user:user-5f22f1b6fcaca714eb055739",
+              "user_external_id": "user_external_id_1"
             },
             {
               "data": {
@@ -319,7 +441,7 @@ describe("Insert User Tests", () => {
                 "ios_last_seen_at": null,
                 "custom_attributes": {
                   "c_description": "a description",
-                  "job_title": "sales",
+                  "job title": "sales",
                 },
                 "tags": {
                   "type": "list",
@@ -346,6 +468,60 @@ describe("Insert User Tests", () => {
               "type": "User"
             }
           ],
+          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+            {
+              "responseTime": expect.whatever(),
+              "method": "GET",
+              "url": "/tags",
+              "status": 200,
+              "vars": {}
+            }
+          ],
+          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+            {
+              "responseTime": expect.whatever(),
+              "method": "GET",
+              "url": "/contacts/5f22f1b6fcaca714eb055739/tags",
+              "status": 200,
+              "vars": {}
+            }
+          ],
+          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+            {
+              "responseTime": expect.whatever(),
+              "method": "POST",
+              "url": "/tags",
+              "status": 200,
+              "vars": {}
+            }
+          ],
+          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+            {
+              "responseTime": expect.whatever(),
+              "method": "POST",
+              "url": "/contacts/5f22f1b6fcaca714eb055739/tags",
+              "status": 200,
+              "vars": {}
+            }
+          ],
+          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+            {
+              "responseTime": expect.whatever(),
+              "method": "POST",
+              "url": "/contacts/5f22f1b6fcaca714eb055739/tags",
+              "status": 200,
+              "vars": {}
+            }
+          ],
+          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+            {
+              "responseTime": expect.whatever(),
+              "method": "DELETE",
+              "url": "/contacts/5f22f1b6fcaca714eb055739/tags/tag_id_4",
+              "status": 200,
+              "vars": {}
+            }
+          ],
           ["info", "outgoing.job.success", { "request_id": expect.whatever() },
             { "jobName": "Outgoing Data", "type": "user" }
           ]
@@ -356,7 +532,8 @@ describe("Insert User Tests", () => {
             {
               "asUser": {
                 "email": "bob@rei.com",
-                "anonymous_id": "intercom-user:user-5f22f1b6fcaca714eb055739"
+                "anonymous_id": "intercom-user:user-5f22f1b6fcaca714eb055739",
+                "external_id": "user_external_id_1",
               },
               "subjectType": "user"
             },
@@ -390,6 +567,18 @@ describe("Insert User Tests", () => {
         ],
         metrics: [
           ["increment","connector.request",1],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],

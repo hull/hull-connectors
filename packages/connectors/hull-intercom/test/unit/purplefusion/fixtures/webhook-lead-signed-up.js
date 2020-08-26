@@ -14,7 +14,8 @@ module.exports = {
       "incoming_events": [
         'conversation.user.created',
         'conversation.user.replied',
-        'user.created'
+        'user.created',
+        'contact.signed_up'
       ],
       "incoming_user_attributes": [
         { "service": "external_id", "hull": "intercom_user/user_id", "readOnly": true, "overwrite": true },
@@ -160,14 +161,13 @@ module.exports = {
         }
       },
       "links": {},
-      "id": "notif_d67fe036-69ce-4202-99c7-0b99c9a5b098",
-      "topic": "user.created",
+      "id": "notif_3ae38212-81d0-4117-88d2-a0b1755594f1",
+      "topic": "contact.signed_up",
       "delivery_status": "pending",
       "delivery_attempts": 1,
       "delivered_at": 0,
-      "first_sent_at": 1596555121,
-      "created_at": 1596555121,
-      "self": null
+      "first_sent_at": 1598018535,
+      "created_at": 1598018535
     }
   },
   "serviceRequests": [
