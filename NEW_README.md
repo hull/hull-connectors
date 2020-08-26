@@ -1229,3 +1229,50 @@ export default function handler(EntryModel: Object) {
   };
 }
 ```
+
+
+### Consolidated defaults, and environment variable conventions
+
+We now automatically configure the connector if the `config.js` file exposes no value, and specific environment variables are set. This means that if no value is set for some configuration entries in `HullConnectorConfig`, we will rely on the environment variables to define them.
+
+```
+NODE_ENV = , // if `development`, will boot the connector in dev mode, with webpack compilation enabled
+DISABLE_WEBPACK, //if true, allows to forcefully disable webpack in dev mode
+LOG_LEVEL = "info", // will set the log level for the connector
+PORT = 8082, // prot to boot on
+REQUEST_TIMEOUT = "25s", //defines the timeout for a request - connector will close the connection after this time.
+QUEUE_ADAPTER = "memory",
+QUEUE_NAME = "queueApp",
+CACHE_STORE = "memory",
+SERVER = "true", //Boot the server 
+WORKER, // Boots the worker (for connectors which use a Queue)
+COMBINED, //Boots in worker+server mode in a single process (for local dev.)
+KUE_PREFIX, // Prefix for Queues - should be unique per connector
+REDIS_MAX_CONNECTIONS = 50,
+REDIS_MIN_CONNECTIONS = 1
+REDIS_URL, // URL for the Redis queue and cache
+CACHE_REDIS_URL, // Specific url for the REDIS cache
+SECRET, //Host secret - set this to a complex string
+SHIP_CACHE_TTL, //Custom configure the ship cache
+SHIP_CACHE_MAX,, //Custom configure the ship cache
+SHIP_CACHE_KEY_PREFIX, //Custom configure the ship cache
+
+LIBPROCESS_IP,
+STATSD_HOST,
+STATSD_PORT,
+MARATHON_APP_ID,
+MARATHON_APP_DOCKER_IMAGE,
+FIREHOSE_KAFKA_BROKERS,
+FIREHOSE_KAFKA_TOPIC,
+FIREHOSE_KAFKA_TOPICS_MAPPING = "",
+FIREHOSE_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS = 200,
+FIREHOSE_KAFKA_ENABLED = true,
+LOGGER_KAFKA_BROKERS,
+LOGGER_KAFKA_TOPIC,
+LOGGER_KAFKA_ENABLED = true,
+LOGGER_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MESSAGES = 100,
+LOGGER_KAFKA_PRODUCER_QUEUE_BUFFERING_MAX_MS = 1000,
+LOGGER_KAFKA_PRODUCER_BATCH_NUM_MESSAGES = 100,
+LOGGER_KAFKA_PRODUCER_LINGER_MS = 10,
+
+```

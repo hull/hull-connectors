@@ -24,8 +24,7 @@ Then separate packages are defined here:
 
 **How repository is built/linted/flow tested?**
 
-There is one configuration in the root of repository,
-the whole project is linted, flow tested and built as one package.
+There is one configuration in the root of repository, the whole project is linted, flow tested and built as one package.
 Everything from `packages/*` directory is transpiled into
 `dist/*` with the very same structure.
 After babeljs build rest of the files such as assets are copied into the `dist`.
@@ -36,17 +35,17 @@ Linting and flow testing is global (look above).
 Tests are done in two different ways:
 
 - new tests are using `jest` framework and it's run globally across whole repository
-- some of packages are still using deprecated `mocha` framework, so when performing tests, yarn is getting into every package/workspace and run `test` script
+- some of packages are still using `mocha`, so when performing tests, yarn is getting into every package/workspace and run `test` script
 
 
-## How to add new connector hull-foo?
+## How to migrate a hull-foo connector to the monorepo?
 
 1. copy the code into `pacakges/connectors/hull-foo`
 2. make sure that the `name` in package.json is `hull-foo` (some steps depends on it)
 3. remove all unnecessary dev and prod dependencies from `package.json` (look at root package.json to see what can be removed)
 4. remove all unnecessary npm/yarn scripts for linting and building
 5. plug in testing:
-  - if tests are written in deprecated `mocha` framework keep `test` script which runs the mocha tests, but include a special `babel` js file to make sure transpilation is applied: `mocha --require ../../root-babel-register`
+  - if tests are written with `mocha`, keep `test` script which runs the mocha tests, but include a special `babel` js file to make sure transpilation is applied: `mocha --require ../../root-babel-register`
   - if tests are written in new `jest` framework go to `jest.config.js` file and add your connector paths
 6. make sure that links to hull packages are local:
   ```
@@ -64,6 +63,10 @@ First copy the env file and fill it in:
 Then you can start it with the `yarn dev` script:
 `dotenv -e .env.hull-foo yarn dev hull-foo`
 
+**How to start a connector and expose it through ngrok**
+
+Start the connector with `yarn combined hull-foo`
+
 **How to start connector in production mode?**
 
 First build the production dist:
@@ -78,6 +81,12 @@ Then given you have the env file in place (if not look above), you can use bash 
 Run `jest packages/connectors/hull-foo` if the connector is already on jest.
 
 If on mocha run `yarn workspace hull-foo run test`.
+
+**How to run a test watcher for Mocha tests**
+
+Run `yarn watch:test path_to_tests/*.js`
+
+Tests will run on each file change
 
 **How to lint single connector?**
 
@@ -95,6 +104,14 @@ export LDFLAGS=-L/usr/local/opt/openssl/lib
 ```
 
 Then you can run yarn install to get it to build correctly.
+
+**Installing node-rdkafka on catalina**
+If your `yarn install` fails, as per https://github.com/schnerd/d3-scale-cluster/issues/7, you need to reinstall command line tools from time to time
+
+```
+sudo rm -rf $(xcode-select -print-path)
+xcode-select --install
+```
 
 
 **Run the connector locally using Docker**
