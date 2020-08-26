@@ -76,7 +76,6 @@ The default events received are limited to `user.created`, `user.deleted`, and `
 
 3) To preserve the existing `intercom/` attribute group and to manipulate the anonymous
 ids, in your org, install the Processor and copy this code
-    
    ```javascript
     function createLegacyAnonIds(targetTraits, intercomEntity, entityId) {
       
