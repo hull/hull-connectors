@@ -19,7 +19,9 @@ const cast = (type?: HullJsonataType) => (value: any) => {
   return value;
 };
 
-// TODO clear up the rules for attribute names
+// TODO clear up the rules for attribute names - how to
+// differentiate between a jsonata expression and a raw
+// attribute name
 const rawHullTraitRegex = /^(account\.)?([\w\s\-()/]+)$/g;
 const noDotInPath = str => str.indexOf(".") === -1;
 const isRawTrait = trait => rawHullTraitRegex.test(trait);

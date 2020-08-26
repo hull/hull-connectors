@@ -1,0 +1,11 @@
+{
+  "name": "hull-canary",
+  "version": "0.1.35-monorepo",
+  "description": "Canary Connector for E2E tests",
+  "scripts": {
+    "test": "exit 0; echo 'tests are run by global jest'",
+    "documentation": "exit 0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
