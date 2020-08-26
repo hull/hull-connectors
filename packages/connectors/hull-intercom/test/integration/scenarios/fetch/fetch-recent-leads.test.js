@@ -16,6 +16,7 @@ describe("Fetch Recent Leads Tests", () => {
         handlerUrl: "fetch-recent-leads",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "12345",
             fetch_leads: true,
             leads_last_fetch_timestamp: 1593169500,

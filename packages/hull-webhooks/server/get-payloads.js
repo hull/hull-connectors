@@ -57,9 +57,14 @@ const getPayloads = ({
     ...synchronized_segments_enter,
     ...synchronized_segments_leave
   ]);
-  const matchingEvents = _.filter(events, e =>
-    _.includes(_.omit(synchronized_events, "CREATED"), e.event)
-  );
+
+  const matchingEvents = _.filter(events, e => {
+    return (
+      _.includes(synchronized_events, "ALL") ||
+      _.includes(synchronized_events, "all_events") ||
+      _.includes(synchronized_events, e.event)
+    );
+  });
 
   return [
     groupEntities({

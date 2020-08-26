@@ -36,29 +36,6 @@ class SalesforceSDK {
     this.syncAgent = new SyncAgent(reqContext);
   }
 
-  getHullType({ sfType }) {
-    switch (sfType) {
-      case "Account": {
-        return "Account";
-      }
-
-      case "Contact": {
-        return "User";
-      }
-
-      case "Lead": {
-        return "User";
-      }
-
-      case "Task": {
-        return "Event";
-      }
-
-      default:
-        return null;
-    }
-  }
-
   async dispatch(methodName: string, params: any) {
     return this[methodName](params);
   }
@@ -103,8 +80,7 @@ class SalesforceSDK {
   }
 
   async saveRecord({ sfType, record, progress = {} }) {
-    const hullType = this.getHullType({ sfType });
-    return this.syncAgent[`save${hullType}`](
+    return this.syncAgent[`save${sfType}`](
       { source: "salesforce", sfType },
       record
     );
@@ -128,7 +104,7 @@ class SalesforceSDK {
 
   async logOutgoing({ status, records, identity, hullType }) {
     if (!_.isEmpty(records)) {
-      const asEntity = hullType === "account" ?
+      const asEntity = _.toLower(hullType) === "account" ?
         this.syncAgent.hullClient.asAccount(identity) :
         this.syncAgent.hullClient.asUser(identity);
       return asEntity.logger.info(`outgoing.${hullType}.${status}`, { records });

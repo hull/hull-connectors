@@ -1,6 +1,6 @@
 {
   "name": "hull-connectors",
-  "version": "0.1.33-monorepo",
+  "version": "0.1.35-monorepo",
   "private": true,
   "workspaces": {
     "packages": [
@@ -126,9 +126,9 @@
     "datadog-metrics": "^0.8.1",
     "debug": "^4.1.1",
     "dotenv": "^8.2.0",
-    "expect": "26.1.0",
     "ejs": "^2.6.1",
     "eslint-import-resolver-babel-module": "^5.1.0",
+    "expect": "26.1.0",
     "express": "^4.16.4",
     "hashmap": "^2.3.0",
     "immutable": "^4.0.0-rc.12",

@@ -18,6 +18,7 @@ describe("Fetch Intercom Attributes Tests", () => {
         handlerUrl: "schema/contact_fields_writable",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "12345"
           }
         },
@@ -126,6 +127,7 @@ describe("Fetch Intercom Attributes Tests", () => {
         handlerUrl: "schema/contact_fields",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "12345"
           }
         },
@@ -336,6 +338,7 @@ describe("Fetch Intercom Attributes Tests", () => {
         handlerUrl: "schema/company_fields",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "12345"
           }
         },

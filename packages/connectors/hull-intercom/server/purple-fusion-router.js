@@ -24,7 +24,7 @@ const services = {
   })
 }
 
-class HubspotPurpleFusionRouter {
+class PurpleFusionRouter {
   hullRouter: HullRouter;
 
   route: string;
@@ -49,4 +49,4 @@ class HubspotPurpleFusionRouter {
   }
 }
 
-module.exports = HubspotPurpleFusionRouter;
+module.exports = PurpleFusionRouter;

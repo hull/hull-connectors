@@ -4,7 +4,7 @@
   "source": "salesforce",
   "logo": "logo.png",
   "picture": "picture.png",
-  "version": "0.1.33-monorepo",
+  "version": "0.1.35-monorepo",
   "tags": [
     "incoming",
     "outgoing",
@@ -125,18 +125,90 @@
       "format": "hidden"
     },
     {
+      "name": "user_claims",
+      "title": "Contact Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "title": "Salesforce Identifier",
+            "type": "string",
+            "format": "select",
+            "options": {
+              "allowCreate": false,
+              "loadOptions": "/schema/contact_updateable"
+            }
+          },
+          "hull": {
+            "title": "Hull Identifier",
+            "enum": [
+              "external_id",
+              "email"
+            ]
+          },
+          "required": {
+            "type": "boolean",
+            "title": "required?",
+            "format": "select"
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "email",
+          "service": "Email",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "lead_claims",
+      "title": "Lead Identity",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "title": "Salesforce Identifier",
+            "type": "string",
+            "format": "select",
+            "options": {
+              "allowCreate": false,
+              "loadOptions": "/schema/lead_updateable"
+            }
+          },
+          "hull": {
+            "title": "Hull Identifier",
+            "enum": [
+              "external_id",
+              "email"
+            ]
+          },
+          "required": {
+            "type": "boolean",
+            "title": "required?",
+            "format": "select"
+          }
+        }
+      },
+      "default": [
+        {
+          "hull": "email",
+          "service": "Email",
+          "required": false
+        }
+      ]
+    },
+    {
       "name": "lead_attributes_outbound",
       "title": "Lead Outgoing Fields",
       "description": "List of Lead fields to send from Hull to Salesforce",
       "type": "array",
       "format": "traitMapping",
       "default": [
-        {
-          "hull": "email",
-          "service": "Email",
-          "overwrite": false,
-          "readOnly": true
-        },
         {
           "hull": "first_name",
           "service": "FirstName",
@@ -235,12 +307,6 @@
       "type": "array",
       "format": "traitMapping",
       "default": [
-        {
-          "hull": "email",
-          "service": "Email",
-          "overwrite": false,
-          "readOnly": true
-        },
         {
           "hull": "first_name",
           "service": "FirstName",
@@ -756,6 +822,13 @@
       ]
     },
     {
+      "title": "Lead Identity",
+      "description": "Lead Identity",
+      "properties": [
+        "private_settings.lead_claims"
+      ]
+    },
+    {
       "title": "Users - Fetching Leads from Salesforce",
       "description": "Hull gives it's customers the ability to capture a subset of Leads fields in order to have fine grain control over the dataflow. Please configure the fields that you would like to be pulled from Salesforce below. See connector documentation (Docs tab above) for attributes mapping best practices.",
       "properties": [
@@ -774,6 +847,13 @@
         "private_settings.lead_outgoing_account_segments",
         "private_settings.lead_assignmentrule",
         "private_settings.lead_assignmentrule_update"
+      ]
+    },
+    {
+      "title": "Contact Identity",
+      "description": "Contact Identity",
+      "properties": [
+        "private_settings.user_claims"
       ]
     },
     {

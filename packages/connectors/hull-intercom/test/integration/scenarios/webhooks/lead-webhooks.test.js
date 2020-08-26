@@ -15,7 +15,7 @@ describe("Lead Webhooks Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.incomingRequestHandler,
-        rawCustomRoutes: [
+        /*rawCustomRoutes: [
           {
             url: "/webhooks",
             handler: webhookHandler,
@@ -30,9 +30,10 @@ describe("Lead Webhooks Tests", () => {
             serviceKey: "app_id",
             handler: intercomWebhookHandler
           }
-        },
+        },*/
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "12345",
             fetch_users: true,
             lead_claims: [
@@ -118,7 +119,7 @@ describe("Lead Webhooks Tests", () => {
         },
         externalIncomingRequest: ({ superagent, connectorUrl, plainCredentials }) => {
           return superagent
-            .post(`${connectorUrl}/webhooks?ship=${plainCredentials.ship}&organization=${plainCredentials.organization}&secret=1234`)
+            .post(`${connectorUrl}/webhooks?id=${plainCredentials.ship}&organization=${plainCredentials.organization}&secret=1234`)
             .send(
               {
                 "type": "notification_event",
