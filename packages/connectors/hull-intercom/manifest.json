@@ -552,6 +552,10 @@
     {
       "url": "/delete-user",
       "handler": "deleteUser"
+    },
+    {
+      "url": "/convert-lead",
+      "handler": "convertLead"
     }
   ],
   "schedules": [

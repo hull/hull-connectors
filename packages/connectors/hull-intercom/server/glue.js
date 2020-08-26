@@ -379,13 +379,13 @@ const glue = {
       [
         route("sendEvents"),
         route("checkTags"),
-        route("convertLead"),
+        route("convertLeadDefault"),
 
         hull("asUser","${contactFromIntercom}")
       ]
     )
   ]),
-  convertLead: ifL([
+  convertLeadDefault: ifL([
     cond("isEqual", settings("convert_leads"), true),
     // cond("isEqual", "${service_type}", "lead"),
     cond("notEmpty", input("user.intercom_lead/user_id")),
@@ -397,6 +397,10 @@ const glue = {
     intercom("convertLead", "${conversionRequest}"),
     ld("set", "${contactFromIntercom}", "lead_converted", true)
   ]),
+  convertLead: [
+    set("intercomApiVersion", "${appApiVersion}"),
+    intercom("convertLead", input("body"))
+  ],
   contactLookup: [
     route("buildContactSearchQuery"),
     ifL(cond("notEmpty", "${contactQuery}"), set("existingContacts", intercom("lookupContact", "${contactQuery}")),),
