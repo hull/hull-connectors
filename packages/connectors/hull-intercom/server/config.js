@@ -18,11 +18,6 @@ export default function connectorConfig(): HullConnectorConfig {
     OVERRIDE_FIREHOSE_URL,
     SHIP_CACHE_TTL = 60,
     REDIS_URL,
-    COMBINED,
-    SERVER,
-    WORKER,
-    QUEUE_NAME = "queueApp",
-    KUE_PREFIX = "intercom",
     REDIS_MAX_CONNECTIONS = 5,
     REDIS_MIN_CONNECTIONS = 1
   } = process.env;
@@ -32,8 +27,6 @@ export default function connectorConfig(): HullConnectorConfig {
       "Can't find Client ID and/or Client Secret, check env vars"
     );
   }
-
-  const hostSecret = SECRET || "1234";
 
   return {
     manifest,
@@ -65,13 +58,6 @@ export default function connectorConfig(): HullConnectorConfig {
         }
       : undefined,
     middlewares: [],
-    serverConfig: {
-      start: COMBINED === "true" || SERVER === "true"
-    },
-    workerConfig: {
-      start: COMBINED === "true" || WORKER === "true",
-      queueName: QUEUE_NAME || "queue"
-    },
     logsConfig: {
       logLevel: LOG_LEVEL
     },
@@ -88,13 +74,6 @@ export default function connectorConfig(): HullConnectorConfig {
     serverConfig: {
       start: true
     },
-    queueConfig: REDIS_URL
-      ? {
-          store: "redis",
-          url: REDIS_URL,
-          name: KUE_PREFIX
-        }
-      : { store: "memory" },
     rawCustomRoutes: [
       {
         url: "/webhooks",
