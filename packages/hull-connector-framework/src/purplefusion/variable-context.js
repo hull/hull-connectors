@@ -15,21 +15,21 @@ class HullVariableContext {
     this.localContext = [];
   }
 
-  pushNew = (context?: Object) => {
+  pushNew(context?: Object) {
     if (context) {
       this.localContext.push(context);
     } else {
       this.localContext.push({});
     }
-  };
+  }
 
-  popLatest = () => {
+  popLatest() {
     if (!_.isEmpty(this.localContext)) {
       this.localContext.pop();
     }
-  };
+  }
 
-  get = (key: string) => {
+  get(key: string) {
     // TODO might potentially try to detect if the first object on the path exists as a key in the context
     // may not have the whole path, but if just top level is there, return undefined
     // same thing for keys whose value is explicitly "undefined" where we may want to return that...
@@ -58,7 +58,7 @@ class HullVariableContext {
     // this.logBadBehavior(this.hullContext, hullValue, rootKey, key, foundRootObject);
 
     return hullValue;
-  };
+  }
 
   logBadBehavior = (
     context,
@@ -96,27 +96,31 @@ class HullVariableContext {
     } else {
       _.set(_.last(this.localContext), key, value);
     }
-  };
+  }
 
   setOnHullContext = (key: string, value: any) =>
     _.set(this.hullContext, key, value);
 
   reqContext = () => this.hullContext;
 
-  createFlattenedContext = () => ({
-    ...this.hullContext,
-    ...this.localContext
-  });
+  createFlattenedContext() {
+    return {
+      ...this.hullContext,
+      ...this.localContext
+    };
+  }
 
-  cloneLocalContext = () => _.cloneDeep(this.localContext);
+  cloneLocalContext() {
+    return _.cloneDeep(this.localContext);
+  }
 
-  shallowCloneContext = () => {
+  shallowCloneContext() {
     const shallowClone = new HullVariableContext(this.hullContext);
     this.localContext.map(context => shallowClone.pushNew(context));
     return shallowClone;
-  };
+  }
 
-  resolveVariables = (key: string, localContext?: Object) => {
+  resolveVariables(key: string, localContext?: Object) {
     if (localContext) {
       this.pushNew(localContext);
       try {
