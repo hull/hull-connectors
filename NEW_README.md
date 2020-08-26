@@ -567,7 +567,7 @@ By default, the cache uses a Memory store. If you want to use persistence, or sh
 ```js
 const connectorConfig: HullConnectorConfig = {
   ...
-  cache: {
+  cacheConfig: {
     store: "redis",
     url: CACHE_REDIS_URL,
     ttl: SHIP_CACHE_TTL,
