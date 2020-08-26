@@ -1,0 +1,11 @@
+{
+  "name": "hull-bigquery",
+  "version": "0.1.33-monorepo",
+  "description": "Integration with Bigquery",
+  "scripts": {
+    "test": "exit 0; echo 'tests are run by global jest'",
+    "documentation": "exit 0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
