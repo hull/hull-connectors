@@ -29,10 +29,15 @@ const private_settings = {
   task_attributes_outbound: [],
   lead_synchronized_segments: [],
   contact_synchronized_segments: [],
-  account_synchronized_segments: []
+  account_synchronized_segments: [],
+  lead_claims: [],
+  user_claims: [
+    { "hull": "email", "service": "Email" }
+  ],
 }
 
 describe("Fetch Contacts Tests", () => {
+
   it("should fetch a deleted contact", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
@@ -283,83 +288,12 @@ describe("Fetch Contacts Tests", () => {
         connector: {
           private_settings: {
             ...private_settings,
-            "lead_synchronized_segments": [
-              "5a0c1f07b4d8644425002c65"
-            ],
-            "lead_attributes_outbound": [
-              {
-                "hull": "first_name",
-                "service": "FirstName",
-                "overwrite": false
-              },
-              {
-                "hull": "last_name",
-                "service": "LastName",
-                "overwrite": false
-              },
-              {
-                "hull": "email",
-                "service": "Email",
-                "overwrite": false
-              }
-            ],
+            "lead_synchronized_segments": [],
+            "lead_attributes_outbound": [],
             "fetch_resource_schema": true,
-            "contact_attributes_outbound": [
-              {
-                "hull": "first_name",
-                "service": "FirstName",
-                "overwrite": false
-              },
-              {
-                "hull": "last_name",
-                "service": "LastName",
-                "overwrite": false
-              },
-              {
-                "hull": "email",
-                "service": "Email",
-                "overwrite": false
-              }
-            ],
-            "account_attributes_outbound": [
-              {
-                "hull": "domain",
-                "service": "Website",
-                "overwrite": false
-              },
-              {
-                "hull": "name",
-                "service": "Name",
-                "overwrite": false
-              }
-            ],
-            "lead_attributes_inbound": [
-              {
-                "service": "FirstName",
-                "hull": "traits_salesforce_lead/first_name",
-                "overwrite": false
-              },
-              {
-                "service": "LastName",
-                "hull": "traits_salesforce_lead/last_name",
-                "overwrite": false
-              },
-              {
-                "service": "Company",
-                "hull": "traits_salesforce_lead/company",
-                "overwrite": false
-              },
-              {
-                "service": "Email",
-                "hull": "traits_salesforce_lead/email",
-                "overwrite": false
-              },
-              {
-                "service": "Website",
-                "hull": "traits_salesforce_lead/website",
-                "overwrite": false
-              }
-            ],
+            "contact_attributes_outbound": [],
+            "account_attributes_outbound": [],
+            "lead_attributes_inbound": [],
             "contact_attributes_inbound": [
               {
                 "service": "FirstName",
@@ -392,25 +326,8 @@ describe("Fetch Contacts Tests", () => {
                 "overwrite": false
               }
             ],
-            "account_attributes_inbound": [
-              {
-                "service": "Website",
-                "hull": "website",
-                "overwrite": false
-              }
-            ],
-            "account_claims": [
-              {
-                "hull": "domain",
-                "service": "Website",
-                "required": true
-              },
-              {
-                "hull": "external_id",
-                "service": "CustomField1",
-                "required": false
-              }
-            ]
+            "account_attributes_inbound": [],
+            "account_claims": []
           }
         },
         usersSegments: [],

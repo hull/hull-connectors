@@ -4,7 +4,7 @@ import type {
   THullUserUpdateMessage,
   THullObject
 } from "hull";
-import type { TResourceType } from "../types";
+import type { IMatchUtil, TResourceType } from "../types";
 
 const _ = require("lodash");
 const UriJs = require("urijs");
@@ -13,7 +13,7 @@ const regex = new RegExp(
   "^((https?|ftp)://|(www|ftp).)[a-z0-9-]+(.[a-z0-9-]+)+([/?].*)?$"
 ); // eslint-disable-line no-useless-escape
 
-class MatchUtil {
+class MatchUtil implements IMatchUtil {
   /**
    * Extracts the matching domain from the provided website address.
    *
@@ -186,7 +186,8 @@ class MatchUtil {
   matchHullMessageToSalesforceRecord(
     resource: TResourceType,
     user: THullObject,
-    sfObjects: Array<Object>
+    sfObjects: Array<Object>,
+    identityClaims: Array<Object>
   ): any {
     if (resource !== "Contact" && resource !== "Lead") {
       throw new Error(
@@ -200,7 +201,20 @@ class MatchUtil {
       });
     }
     if (!sfObject) {
-      sfObject = _.find(sfObjects, { Email: _.get(user, "email", "n/a") });
+      const identityClaimMatches = this.getIdentityClaimMatches({
+        entities: sfObjects,
+        identityClaims,
+        searchEntity: user,
+        searchType: "hull"
+      });
+      const filteredMatches = this.filterIdentityClaimMatches({
+        identityClaims,
+        identityClaimMatches,
+        intersectBy: { path: "service", resolve: true }
+      });
+      if (!_.isEmpty(filteredMatches)) {
+        sfObject = filteredMatches[0];
+      }
     }
 
     return sfObject ? [sfObject] : [];

@@ -24,6 +24,12 @@ export type TPrivateSettings = {
   privateSettings: Object
 };
 
+export type TFilterResults = {
+  toInsert: Array<IUserUpdateEnvelope>,
+  toUpdate: Array<IUserUpdateEnvelope>,
+  toSkip: Array<IUserUpdateEnvelope>
+};
+
 export type ServiceObjectDefinition = {
   hull: string,
   service: string
@@ -129,6 +135,32 @@ export interface IAttributesMapper {
   mapToHullAttributeObject(resource: TResourceType, sObject: any, resourceSchema: Object): any;
   mapToHullEvent(mappings: Object, resource: TResourceType, sObject: any): any;
   mapToHullDeletedObject(resource: TResourceType, deletedAt: Date): any;
+}
+
+export interface IQueryUtil {
+  getSoqlFields(serviceType: string, fields: Array<string>, accountClaims: Array<Object>): Object;
+  composeFindFields(serviceType: string, mappings: Object): Array<string>;
+  extractUniqueValues(messages: Array<any>, path: string): Array<any>;
+  buildQueryOpts(sfType: string, params: Array<Object>): Object;
+  composeFindQuery(messages: Array<THullUserUpdateMessage> | Array<THullAccountUpdateMessage>, searchMapping: Object, hullType: string): Object;
+}
+
+export interface IFilterUtil {
+  filterDuplicateMessages(messages: Array<Object>, entity: string): Array<Object>;
+  filterFindableAccountMessages(messages: Array<Object>, isBatch: boolean): Array<Object>;
+  filterFindableMessages(hullEntityType: string, messages: Array<Object>, isBatch: boolean): Array<Object>;
+  filterLeadEnvelopes(envelopes: Array<IUserUpdateEnvelope>): TFilterResults;
+  filterContactEnvelopes(envelopes: Array<IUserUpdateEnvelope>): TFilterResults;
+  filterEnvelopes(envelopes: Array<IUserUpdateEnvelope>, resourceType: TResourceType): TFilterResults;
+  filterAccountEnvelope(results: TFilterResults, envelope: Object, isBatch: boolean): TFilterResults;
+  filterAccountEnvelopes(envelopes: Array<IUserUpdateEnvelope> | Array<IAccountUpdateEnvelope>, isBatch: boolean): TFilterResults;
+}
+
+export interface IMatchUtil {
+  matchHullMessageToSalesforceAccount(message: THullUserUpdateMessage | THullAccountUpdateMessage, sfAccounts: Array<Object>, accountClaims: Array<Object>): Object;
+  matchHullMessageToSalesforceRecord(resource: TResourceType, user: THullObject, sfObjects: Array<Object>, identityClaims: Array<Object>): any;
+  getIdentityClaimMatches({ entities: Array<Object>, identityClaims: Array<Object>, searchEntity: Object, searchType: string }): Object;
+  filterIdentityClaimMatches({ identityClaims: Array<Object>, identityClaimMatches: Object, intersectBy: Object }): Array<Object>;
 }
 
 module.exports = {

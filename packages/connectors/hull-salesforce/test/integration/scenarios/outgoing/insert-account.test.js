@@ -35,7 +35,7 @@ const private_settings = {
 
 describe("Update Accounts Tests", () => {
 
-  it("should update an account, via the user, that was already synced in salessorce", () => {
+  it("should update an account, via the user, that was already synced in salesforce", () => {
     const connector = {
       private_settings: {
         ...private_settings,
