@@ -18,6 +18,7 @@ describe("Update Lead Tests", () => {
         channel: "user:update",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "intercomABC",
             tag_leads: false,
             synchronized_lead_segments: ["lead_segment_1"],
@@ -45,6 +46,13 @@ describe("Update Lead Tests", () => {
         accountsSegments: [],
         externalApiMock: () => {
           const scope = nock("https://api.intercom.io");
+
+          scope
+            .get("/data_attributes?model=contact")
+            .reply(200, {
+              "type": "list",
+              "data": []
+            });
 
           scope
             .post("/contacts/search", {
@@ -135,6 +143,20 @@ describe("Update Lead Tests", () => {
             },
             {
               "responseTime": expect.whatever(),
+              "method": "GET",
+              "url": "/data_attributes?model=contact",
+              "status": 200,
+              "vars": {}
+            }
+          ],
+          [
+            "debug",
+            "connector.service_api.call",
+            {
+              "request_id": expect.whatever()
+            },
+            {
+              "responseTime": expect.whatever(),
               "method": "POST",
               "url": "/contacts/search",
               "status": 200,
@@ -148,6 +170,8 @@ describe("Update Lead Tests", () => {
         firehoseEvents: [],
         metrics: [
           ["increment","connector.request",1],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()]
         ],
@@ -164,6 +188,7 @@ describe("Update Lead Tests", () => {
         channel: "user:update",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "intercomABC",
             tag_leads: false,
             synchronized_lead_segments: ["lead_segment_1"],
@@ -641,6 +666,7 @@ describe("Update Lead Tests", () => {
         channel: "user:update",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "intercomABC",
             tag_leads: false,
             synchronized_lead_segments: ["lead_segment_1"],
@@ -997,6 +1023,7 @@ describe("Update Lead Tests", () => {
         channel: "user:update",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "intercomABC",
             tag_users: false,
             synchronized_user_segments: [],

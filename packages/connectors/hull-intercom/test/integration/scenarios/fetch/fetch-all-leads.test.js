@@ -16,6 +16,7 @@ describe("Fetch All Leads Tests", () => {
         handlerUrl: "fetchAllLeads",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "12345",
             fetch_leads: true,
             lead_claims: [

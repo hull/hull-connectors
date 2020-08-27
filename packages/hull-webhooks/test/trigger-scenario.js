@@ -71,6 +71,35 @@ function createSimpleTriggerScenario({trigger, negative = false, settingsOverwri
       break;
     }
 
+    case "user_events_all": {
+
+      synchronized_events = ['all_events'];
+      synchronized_segments_whitelist = ['all_segments'];
+
+      private_settings = {
+        ...private_settings,
+        synchronized_events,
+        synchronized_segments_whitelist
+      };
+
+      if (negative) {
+        _.set(message, "events", []);
+      } else {
+        _.set(message, "events", [
+          {
+            "event": "Email Opened",
+            "event_id": "email_opened_1",
+            "user_id": "5bd329d5e2bcf3eeaf000099",
+            "properties": {
+              "emailCampaignId": "837382",
+              "created": "1563746708853"
+            }
+          }
+        ]);
+      }
+      break;
+    }
+
     case "user_segments_entered": {
 
       if (!negative) {

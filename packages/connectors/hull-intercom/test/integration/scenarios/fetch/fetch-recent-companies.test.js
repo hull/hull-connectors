@@ -16,6 +16,7 @@ describe("Fetch Recent Companies Tests", () => {
         handlerUrl: "fetch-recent-companies",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "12345",
             fetch_companies: true,
             companies_last_fetch_timestamp: 1595439770,
@@ -534,6 +535,7 @@ describe("Fetch Recent Companies Tests", () => {
         handlerUrl: "fetch-recent-companies",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "12345",
             fetch_companies: true,
             companies_last_fetch_timestamp: 1595439770,

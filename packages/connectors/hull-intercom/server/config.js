@@ -2,25 +2,17 @@
 
 import type { HullConnectorConfig } from "hull";
 import manifest from "../manifest.json";
+
+/*
 const webhookHandler = require("hull-connector-framework/src/purplefusion/webhooks/webhook-handler");
 const intercomWebhookHandler = require("./incoming-webhook");
+*/
+
 const _ = require("lodash");
 const HullRouter = require("hull-connector-framework/src/purplefusion/router");
 
 export default function connectorConfig(): HullConnectorConfig {
-  const {
-    LOG_LEVEL,
-    SECRET,
-    PORT = 8082,
-    NODE_ENV,
-    CLIENT_ID,
-    CLIENT_SECRET,
-    OVERRIDE_FIREHOSE_URL,
-    SHIP_CACHE_TTL = 60,
-    REDIS_URL,
-    REDIS_MAX_CONNECTIONS = 5,
-    REDIS_MIN_CONNECTIONS = 1
-  } = process.env;
+  const { CLIENT_ID, CLIENT_SECRET } = process.env;
 
   if (!CLIENT_ID || !CLIENT_SECRET) {
     throw new Error(
@@ -30,6 +22,7 @@ export default function connectorConfig(): HullConnectorConfig {
 
   return {
     manifest,
+    middlewares: [],
     handlers: new HullRouter({
       serviceName: "intercom",
       glue: require("./glue"),
@@ -44,35 +37,17 @@ export default function connectorConfig(): HullConnectorConfig {
         require("./transforms-to-service")
       ),
       ensureHook: "ensure"
-    }).createHandler,
-    hostSecret: SECRET || "1234",
-    devMode: NODE_ENV === "development",
-    port: PORT || 8082,
-    cacheConfig: REDIS_URL
-      ? {
-          store: "redis",
-          url: REDIS_URL,
-          ttl: SHIP_CACHE_TTL || 180,
-          max: REDIS_MAX_CONNECTIONS || 5,
-          min: REDIS_MIN_CONNECTIONS || 1
-        }
-      : undefined,
-    middlewares: [],
-    logsConfig: {
-      logLevel: LOG_LEVEL
-    },
+    }).createHandler
+    /*
+    Intercom API V2 webhooks support:
     clientConfig: {
-      firehoseUrl: OVERRIDE_FIREHOSE_URL,
       cachedCredentials: {
         cacheCredentials: true,
-        appendCredentials: false,
+        appendCredentials: true,
         credentialsKeyPath: "profile._json.app.id_code",
         serviceKey: "app_id",
         handler: intercomWebhookHandler
       }
-    },
-    serverConfig: {
-      start: true
     },
     rawCustomRoutes: [
       {
@@ -80,6 +55,6 @@ export default function connectorConfig(): HullConnectorConfig {
         handler: webhookHandler,
         method: "post"
       }
-    ]
+    ]*/
   };
 }

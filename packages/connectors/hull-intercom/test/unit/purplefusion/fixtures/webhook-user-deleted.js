@@ -6,6 +6,8 @@ module.exports = {
     "hostname": "connectortest.connectordomain.io",
     "clientCredentialsEncryptedToken": "shhhclientCredentialsEncryptedToken",
     "private_settings": {
+      "webhook_id": "1",
+      "receive_events": true,
       "user_claims": [
         { "hull": 'email', "service": 'email' },
         { "hull": 'external_id', "service": 'external_id' }
@@ -52,27 +54,28 @@ module.exports = {
     }
   },
   "route": "webhooks",
-  "input": {
-    "type": "notification_event",
-    "app_id": "lkqcyt9t",
-    "data": {
-      "type": "notification_event_data",
-      "item": {
-        "type": "user",
-        "id": "5ee3d479d1cf3dedbee23d68",
-        "user_id": "234523452345345",
-        "email": "bob.dylan@rei.com"
-      }
-    },
-    "links": {},
-    "id": "notif_ff77ab17-14b0-462d-a37e-1afe2defc6ad",
-    "topic": "user.deleted",
-    "delivery_status": "pending",
-    "delivery_attempts": 1,
-    "delivered_at": 0,
-    "first_sent_at": 1596662517,
-    "created_at": 1596662517,
-    "self": null
+  "input": { "body": {
+      "type": "notification_event",
+      "app_id": "lkqcyt9t",
+      "data": {
+        "type": "notification_event_data",
+        "item": {
+          "type": "user",
+          "id": "5ee3d479d1cf3dedbee23d68",
+          "user_id": "234523452345345",
+          "email": "bob.dylan@rei.com"
+        }
+      },
+      "links": {},
+      "id": "notif_ff77ab17-14b0-462d-a37e-1afe2defc6ad",
+      "topic": "user.deleted",
+      "delivery_status": "pending",
+      "delivery_attempts": 1,
+      "delivered_at": 0,
+      "first_sent_at": 1596662517,
+      "created_at": 1596662517,
+      "self": null
+    }
   },
   "serviceRequests": [
     {
