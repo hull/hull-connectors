@@ -376,41 +376,38 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     });
   }
 
-  getAllRecords(
+  async saveRecords(records, onRecord) {
+    const chunks = _.chunk(records, FETCH_CHUNKSIZE);
+    await Promise.map(chunks, async chunk => {
+      return Promise.all(chunk.map(record => onRecord(record)));
+    });
+  }
+
+  async getAllRecords(
     type: TResourceType,
     options: Object = {},
     onRecord: Function
   ): Promise<*> {
     const fields = options.fields || [];
     const accountClaims = options.account_claims || [];
-    const progressFrequency = 0.1; // log progress every 10% of fetch
-    let progressIncrement = null;
-    return new Promise((resolve, reject) => {
-      const soql = this.getSoqlQuery(type, fields, accountClaims);
 
-      const query = this.connection
-        .query(soql)
-        .on("record", (record, numRecord, executingQuery) => {
-          const { totalFetched, totalSize } = executingQuery;
+    const query = this.getSoqlQuery(type, fields, accountClaims);
+    let result = await this.connection.query(query);
+    let { done, nextRecordsUrl } = result;
 
-          if (_.isNil(progressIncrement)) {
-            progressIncrement = Math.ceil(totalSize * progressFrequency);
-          }
+    await this.saveRecords(result.records, onRecord);
 
-          // eslint-disable-next-line
-          const showProgress = totalFetched % progressIncrement === 0 || totalFetched === totalSize;
-          return showProgress
-            ? onRecord(record, { totalFetched, totalSize })
-            : onRecord(record);
-        })
-        .on("end", () => {
-          resolve({ query, type, fields });
-        })
-        .on("error", err => {
-          reject(err);
-        })
-        .run({ autoFetch: true, maxFetch: 500000 });
-    });
+    while (!done && nextRecordsUrl) {
+      // eslint-disable-next-line no-await-in-loop
+      result = await this.connection.queryMore(nextRecordsUrl);
+
+      done = result.done;
+      nextRecordsUrl = result.nextRecordsUrl;
+
+      // eslint-disable-next-line no-await-in-loop
+      await this.saveRecords(result.records, onRecord);
+    }
+    return Promise.resolve();
   }
 
   getRecords(

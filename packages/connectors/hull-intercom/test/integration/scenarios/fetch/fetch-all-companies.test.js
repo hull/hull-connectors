@@ -16,6 +16,7 @@ describe("Fetch All Companies Tests", () => {
         handlerUrl: "fetchAllCompanies",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "12345",
             fetch_companies: false,
             account_claims: [
@@ -415,6 +416,7 @@ describe("Fetch All Companies Tests", () => {
         handlerUrl: "fetchAllCompanies",
         connector: {
           private_settings: {
+            webhook_id: "1",
             access_token: "12345",
             fetch_companies: false,
             incoming_account_attributes: [

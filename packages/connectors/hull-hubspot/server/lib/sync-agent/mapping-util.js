@@ -155,9 +155,12 @@ class MappingUtil {
         if (_.isNil(value) || (!_.isNumber(value) && _.isEmpty(value))) {
           return null;
         }
+        if (_.isNumber(value)) {
+          return value;
+        }
         // eslint-disable-next-line no-restricted-globals
-        if (!isNaN(value)) {
-          return parseInt(value, 10);
+        if (!isNaN(value) && !_.startsWith(value, "0")) {
+          return parseFloat(value);
         }
         return value;
       }
@@ -182,8 +185,12 @@ class MappingUtil {
       payload: hubspotReadContact,
       direction: "incoming",
       mapping: this.connector.private_settings.incoming_user_attributes,
-      attributeFormatter: value =>
-        _.isNil(value) || _.isEmpty(value) ? null : value
+      attributeFormatter: value => {
+        if (_.isNil(value) || (!_.isNumber(value) && _.isEmpty(value))) {
+          return null;
+        }
+        return value;
+      }
     });
 
     hullTraits["hubspot/id"] =

@@ -166,6 +166,29 @@ const service = ({ clientID, clientSecret } : {
       returnObj: "body",
       input: IntercomAttributeWrite,
       output: IntercomAttributeRead
+    },
+
+    // API Version 1 endpoints only
+    getAllWebhooks: {
+      url: "/subscriptions/",
+      operation: "get",
+      endpointType: "fetchAll",
+      returnObj: "body.items"
+    },
+    insertWebhook: {
+      url: "/subscriptions/",
+      operation: "post",
+      endpointType: "create"
+    },
+    deleteWebhook: {
+      url: "/subscriptions/${webhookIdToDelete}",
+      operation: "delete",
+      endpointType: "delete"
+    },
+    convertLead: {
+      url: "/contacts/convert",
+      operation: "post",
+      returnObj: "body"
     }
   },
   superagent: {

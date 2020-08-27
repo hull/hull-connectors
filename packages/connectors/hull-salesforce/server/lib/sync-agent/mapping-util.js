@@ -23,7 +23,7 @@ type Field = {
   defaultValue?: any
 };
 
-const getTypes = (): Array<RecordType> => _.keys(DEFAULT_MAPPING);
+const getTypes = (): Array<RecordType> => _.keys(DEFAULT_MAPPING)
 
 /**
  * Returns a mapping between Salesforce attributes and Hull top level
@@ -112,4 +112,6 @@ function getMappings(ship: Ship) {
   }, {});
 }
 
-module.exports = getMappings;
+module.exports = {
+  getMappings
+};
