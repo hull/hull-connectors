@@ -443,9 +443,9 @@ describe("Fetch All Users Tests", () => {
             .reply(200, {
               "type": "list",
               "data": [
-                { "name": "Company1" },
-                { "name": "Company2" },
-                { "name": "Company3" }
+                { "name": "Company1", "id": "company_1", },
+                { "name": "Company2", "id": "company_2" },
+                { "name": "Company3", "id": "company_3" }
               ],
               "pages": {
                 "type": "pages",
@@ -462,9 +462,9 @@ describe("Fetch All Users Tests", () => {
             .reply(200, {
               "type": "list",
               "data": [
-                { "name": "Company4" },
-                { "name": "Company5" },
-                { "name": "Company6" }
+                { "name": "Company4", "id": "company_4", },
+                { "name": "Company5", "id": "company_5" },
+                { "name": "Company6", "id": "company_6" }
               ],
               "pages": {
                 "type": "pages",
@@ -481,9 +481,9 @@ describe("Fetch All Users Tests", () => {
             .reply(200, {
               "type": "list",
               "data": [
-                { "name": "Company7" },
-                { "name": "Company8" },
-                { "name": "Company9" }
+                { "name": "Company8", "id": "company_8", },
+                { "name": "Company9", "id": "company_9" },
+                { "name": "Company10", "id": "company_10" }
               ],
               "pages": {
                 "type": "pages",

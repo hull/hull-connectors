@@ -1,11 +1,10 @@
 /* @flow */
 import type {
-  RawRestApi,
-  EndpointType,
-  RequestType
+  RawRestApi
 } from "hull-connector-framework/src/purplefusion/types";
 import {
   IntercomCompanyRead,
+  IntercomCompanyWrite,
   IntercomUserWrite,
   IntercomUserRead,
   IntercomLeadWrite,
@@ -43,6 +42,22 @@ const service = ({ clientID, clientSecret } : {
   prefix: "https://api.intercom.io",
   defaultReturnObj: "body",
   endpoints: {
+    searchCompanies: {
+      url: "/companies",
+      operation: "get",
+      output: IntercomCompanyRead,
+      query: {
+        "${property}": "${value}"
+      }
+    },
+    upsertCompany: {
+      url: "/companies",
+      operation: "post",
+      endpointType: "update",
+      returnObj: "body",
+      input: IntercomCompanyWrite,
+      output: IntercomCompanyRead
+    },
     getRecentCompanies: {
       url: "/companies",
       operation: "get",
@@ -135,6 +150,16 @@ const service = ({ clientID, clientSecret } : {
       returnObj: "body.data"
     },
     createTag: {
+      url: "/tags",
+      operation: "post",
+      returnObj: "body"
+    },
+    tagCompanies: {
+      url: "/tags",
+      operation: "post",
+      returnObj: "body"
+    },
+    unTagCompanies: {
       url: "/tags",
       operation: "post",
       returnObj: "body"
