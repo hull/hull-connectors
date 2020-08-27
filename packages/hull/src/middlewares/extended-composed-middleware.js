@@ -14,6 +14,7 @@ import haltOnTimedoutMiddleware from "./halt-on-timedout";
 import instrumentationContextMiddleware from "./instrumentation-context";
 // import instrumentationTransientErrorMiddleware from "./instrumentation-transient-error";
 import httpClientMiddleware from "./httpclient-middleware";
+import helpersMiddleware from "./helpers-middleware";
 import getEntityMiddleware from "./get-entity";
 import generateTokensMiddleware from "./generate-tokens-middleware";
 
@@ -46,6 +47,8 @@ function extendedComposeMiddleware({
     generateTokensMiddleware(), // rehydrate Tokens
     bodyParser ? getBodyParser(bodyParser) : undefined,
     clientMiddleware(), // initialize client
+    // --Hull Helpers
+    helpersMiddleware(),
     // ---------The middlewares below require presence of req.hull;
     timeoutMiddleware(), // properly handle timeout from connectorConfig
     instrumentationContextMiddleware({ handlerName }),

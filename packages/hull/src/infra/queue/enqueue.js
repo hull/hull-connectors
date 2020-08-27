@@ -25,7 +25,7 @@ import type { HullContext } from "../../types";
  *     });
  * });
  */
-module.exports = function enqueue(
+module.exports = async function enqueue(
   queueAdapter: Object,
   ctx: HullContext,
   jobName: string,
@@ -47,8 +47,8 @@ module.exports = function enqueue(
     }
   };
   const queueName = options.queueName || "queueApp";
-
   return queueAdapter.create(
+    ctx,
     queueName,
     {
       name: jobName,

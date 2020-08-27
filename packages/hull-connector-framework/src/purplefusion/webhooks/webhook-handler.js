@@ -1,18 +1,10 @@
 // @flow
 
+import BluebirdPromise from "bluebird";
 import type { HullRequest, HullResponse } from "hull/src/types";
 import getMessage from "hull/src/utils/get-message-from-request";
 
-const {
-  credentialsFromQueryMiddleware,
-  clientMiddleware,
-  fullContextFetchMiddleware,
-  fullContextBodyMiddleware,
-  timeoutMiddleware,
-  haltOnTimedoutMiddleware,
-  instrumentationContextMiddleware,
-  httpClientMiddleware
-} = require("hull/src/middlewares");
+const { extendedComposeMiddleware } = require("hull/src/middlewares");
 
 const _ = require("lodash");
 
@@ -42,22 +34,25 @@ function sendResponse(res) {
 async function middleware(request, res) {
   const requestName = "requests-buffer";
   try {
-    credentialsFromQueryMiddleware()(request, res, () => {});
-    clientMiddleware()(request, res, () => {});
-    timeoutMiddleware()(request, res, () => {});
-    haltOnTimedoutMiddleware()(request, res, () => {});
-    instrumentationContextMiddleware({})(request, res, () => {});
-    fullContextBodyMiddleware({ requestName })(request, res, () => {});
-    await fullContextFetchMiddleware({ requestName })(request, res, () => {});
+    await BluebirdPromise.mapSeries(
+      extendedComposeMiddleware({
+        requestName,
+        handlerName: "webhook",
+        options: {
+          credentialsFromQuery: true,
+          credentialsFromNotification: false,
+          cacheContextFetch: true
+        }
+      }),
+      async middleware => await middleware(request, res, () => {})
+    );
     const { connector } = request.hull;
     if (!connector) {
       // TODO remove connector config from cache
       return false;
     }
-
-    httpClientMiddleware()(request, res, () => {});
   } catch (err) {
-    console.log(err);
+    console.error("Error in Webhook Handler", err)
     return false;
   }
   return true;
@@ -89,8 +84,7 @@ async function webhookHandler(req: HullRequest, res: HullResponse) {
   for (let i = 0; i < clientCredentialsArray.length; i += 1) {
     const request = _.cloneDeep(req);
     const clientCredentials = clientCredentialsArray[i];
-
-    request.hull = Object.assign(request.hull, { clientCredentials });
+    request.hull.clientCredentials = clientCredentials;
 
     // eslint-disable-next-line
     await processRequest(request, res, message);
