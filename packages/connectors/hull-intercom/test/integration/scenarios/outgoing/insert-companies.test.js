@@ -281,7 +281,7 @@ describe("Insert Company Tests", () => {
             account_segments: [
               { id: "account_segment_1", name: "Account Segment 1" },
               { id: "account_segment_2", name: "Account Segment 2" },
-              { id: "account_segment_3", name: "Account Segment 3" },
+              { id: "account_segment_3", name: "Account Segment 3   " },
               { id: "account_segment_4", name: "Intercom Tag 1" }
             ],
             changes: {

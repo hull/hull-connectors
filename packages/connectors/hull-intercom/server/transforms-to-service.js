@@ -184,7 +184,7 @@ const transformsToService: ServiceTransforms = [
     strategy: "AtomicReaction",
     target: { component: "new" },
     then: [
-      { writeTo: { path: "model", value: "contact" } },
+      { writeTo: { path: "model", value: "${service_model}" } },
       { writeTo: { path: "data_type", value: "string" } },
       {
         operateOn: { component: "input", select: "service" },

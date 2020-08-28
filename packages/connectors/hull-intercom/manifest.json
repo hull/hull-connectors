@@ -370,7 +370,7 @@
     },
     {
       "name": "synchronized_account_segments",
-      "title": "Account Filter",
+      "title": "Company Filter",
       "description": "Send Hull accounts as Intercom Companies when they belong to one of these segments to Intercom",
       "type": "array",
       "default": [],
@@ -378,7 +378,7 @@
     },
     {
       "name": "outgoing_account_attributes",
-      "title": "Account Outgoing Fields",
+      "title": "Company Outgoing Fields",
       "type": "array",
       "format": "accountTraitMapping",
       "default": [],

@@ -28,6 +28,9 @@ describe("Fetch Recent Companies Tests", () => {
               { hull: 'intercom/name', service: 'name', overwrite: true },
               { hull: 'intercom/monthly_spend', service: 'monthly_spend', overwrite: true },
               { hull: 'intercom/description', service: 'custom_attributes.company_description', overwrite: true }
+            ],
+            account_claims: [
+              { "hull": "external_id", "service": "company_id" }
             ]
           }
         },
@@ -222,8 +225,7 @@ describe("Fetch Recent Companies Tests", () => {
             {
               "subject_type": "account",
               "account_external_id": "5f161ef9ce73f3ea2605304f-qualification-company",
-              "account_anonymous_id": "intercom:5f161ef9ce73f3ea2605304e",
-              "account_domain": "rei.com"
+              "account_anonymous_id": "intercom:5f161ef9ce73f3ea2605304e"
             },
             {
               "data": {
@@ -375,7 +377,6 @@ describe("Fetch Recent Companies Tests", () => {
             {
               "asAccount": {
                 "external_id": "5f161ef9ce73f3ea2605304f-qualification-company",
-                "domain": "rei.com",
                 "anonymous_id": "intercom:5f161ef9ce73f3ea2605304e"
               },
               "subjectType": "account"
@@ -546,6 +547,9 @@ describe("Fetch Recent Companies Tests", () => {
               { hull: 'intercom/name', service: 'name', overwrite: true },
               { hull: 'intercom/monthly_spend', service: 'monthly_spend', overwrite: true },
               { hull: 'intercom/description', service: 'custom_attributes.company_description', overwrite: true }
+            ],
+            account_claims: [
+              { "hull": "external_id", "service": "company_id" }
             ]
           }
         },
@@ -695,8 +699,7 @@ describe("Fetch Recent Companies Tests", () => {
             {
               "subject_type": "account",
               "account_external_id": "5f161ef9ce73f3ea2605304f-qualification-company",
-              "account_anonymous_id": "intercom:5f161ef9ce73f3ea2605304e",
-              "account_domain": "rei.com"
+              "account_anonymous_id": "intercom:5f161ef9ce73f3ea2605304e"
             },
             {
               "data": {
@@ -844,7 +847,6 @@ describe("Fetch Recent Companies Tests", () => {
             {
               "asAccount": {
                 "external_id": "5f161ef9ce73f3ea2605304f-qualification-company",
-                "domain": "rei.com",
                 "anonymous_id": "intercom:5f161ef9ce73f3ea2605304e"
               },
               "subjectType": "account"

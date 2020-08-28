@@ -542,11 +542,10 @@ const glue = {
     set("companyTags", ld("map", "${companyFromIntercom.tags.tags}", "name")),
     set("tagsOnHullAccount", input("account.intercom/tags")),
 
-    // TODO trim segment names
     set("segmentsIn", ld("map", input("account_segments"), "name")),
     set("segmentsLeft", ld("map", input("changes.account_segments.left"), "name")),
 
-    set("missingTags", ld("differenceBy", "${segmentsIn}", "${tagsOnHullAccount}")),
+    set("missingTags", ld("differenceBy", ld("map", "${segmentsIn}", _.trim), "${tagsOnHullAccount}")),
     iterateL("${missingTags}", "segmentName", [
       intercom("tagCompanies", {
         "name": "${segmentName}",
@@ -559,7 +558,7 @@ const glue = {
     ]),
     iterateL("${segmentsLeft}", "segmentName", [
       intercom("unTagCompanies", {
-        "name": "${segmentName}",
+        "name": ld("trim", "${segmentName}"),
         "companies": [
           {
             "id" : "${companyFromIntercom.id}",
@@ -636,27 +635,29 @@ const glue = {
       ])
     ])
   ]),
+  createDataAttribute: ifL([
+    cond("isEmpty", filter({ name: "${attribute.service}" }, "${dataAttributes}"))
+  ], [
+    set("intercomAttribute", transformTo(IntercomAttributeWrite, cast(HullApiAttributeDefinition, "${attribute}"))),
+    intercom("createDataAttribute", "${intercomAttribute}")
+  ]),
   syncDataAttributes: [
-    // TODO sync company attributes
     cacheLock("syncingAttributes",
       [
         set("outgoing_user_attributes", settings("outgoing_user_attributes")),
         set("outgoing_lead_attributes", settings("outgoing_lead_attributes")),
-
-        set("contactDataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getContactDataAttributes"))),
+        set("outgoing_account_attributes", settings("outgoing_account_attributes")),
 
         iterateL(ld("concat", "${outgoing_user_attributes}", "${outgoing_lead_attributes}"), "attribute", [
-          ifL([
-            cond("isEmpty", filter({ name: "${attribute.service}" }, "${contactDataAttributes}"))
-          ], [
-            set("attributeProcessing", cacheGet("${attributeName}")),
-            ifL(cond("isEmpty", "${attributeProcessing}"), [
-              cacheSet({ key: "${attributeName}" }, "attributeProcessing"),
+          set("service_model", "contact"),
+          set("dataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getContactDataAttributes"))),
+          route("createDataAttribute")
+        ]),
 
-              set("intercomAttribute", transformTo(IntercomAttributeWrite, cast(HullApiAttributeDefinition, "${attribute}"))),
-              intercom("createDataAttribute", "${intercomAttribute}")
-            ])
-          ])
+        iterateL("${outgoing_account_attributes}", "attribute", [
+          set("service_model", "company"),
+          set("dataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getCompanyDataAttributes"))),
+          route("createDataAttribute")
         ])
       ]
     )
