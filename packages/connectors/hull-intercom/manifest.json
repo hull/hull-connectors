@@ -49,7 +49,7 @@
     {
       "name": "synchronized_lead_segments",
       "title": "Lead Filter",
-      "description": "Send Hull users as Intercom leads when they belong to one of these segments to Intercom. Only users in the specified segments are sent. Updates from Intercom are always fetched for all leads.",
+      "description": "Send Hull users as Intercom Leads when they belong to one of these segments to Intercom",
       "type": "array",
       "format": "segment",
       "default": []
@@ -57,7 +57,7 @@
     {
       "name": "synchronized_user_segments",
       "title": "User Filter",
-      "description": "Send Hull users as Intercom users when they belong to one of these segments to Intercom. Only users in the specified segments are sent. Updates from Intercom are always fetched for all users.",
+      "description": "Send Hull users as Intercom Users when they belong to one of these segments to Intercom",
       "type": "array",
       "format": "segment",
       "default": []
@@ -315,6 +315,20 @@
       "default": true
     },
     {
+      "name": "mark_deleted_accounts",
+      "title": "Mark Deleted Accounts",
+      "description": "If a company has been deleted in Intercom, mark it as such in Hull.",
+      "type": "boolean",
+      "default": true
+    },
+    {
+      "name": "ignore_deleted_accounts",
+      "title": "Ignore deleted accounts",
+      "description": "Accounts tagged as deleted in Hull are marked with the attribute \"deleted_at\". Do you want to ignore sending these marked accounts?",
+      "type": "boolean",
+      "default": true
+    },
+    {
       "name": "account_claims",
       "title": "Company Identity",
       "type": "array",
@@ -331,12 +345,10 @@
           },
           "service": {
             "title": "Intercom Identifier",
-            "type": "string",
-            "format": "select",
-            "options": {
-              "allowCreate": false,
-              "loadOptions": "/schema/company_fields"
-            }
+            "enum": [
+              "company_id",
+              "name"
+            ]
           },
           "required": {
             "type": "boolean",
@@ -350,15 +362,32 @@
           "hull": "external_id",
           "service": "company_id",
           "required": false
-        },
-        {
-          "hull": "domain",
-          "service": "website",
-          "required": false
         }
       ],
       "options": {
         "itemsPerRow": 3
+      }
+    },
+    {
+      "name": "synchronized_account_segments",
+      "title": "Company Filter",
+      "description": "Send Hull accounts as Intercom Companies when they belong to one of these segments to Intercom",
+      "type": "array",
+      "default": [],
+      "format": "accountSegment"
+    },
+    {
+      "name": "outgoing_account_attributes",
+      "title": "Company Outgoing Fields",
+      "type": "array",
+      "format": "accountTraitMapping",
+      "default": [],
+      "options": {
+        "direction": "outgoing",
+        "showOverwriteToggle": false,
+        "placeholder": "Intercom Field",
+        "allowCreate": true,
+        "loadOptions": "/schema/company_fields_writable"
       }
     },
     {
@@ -404,6 +433,13 @@
       "default": true
     },
     {
+      "name": "tag_companies",
+      "title": "Tag Companies",
+      "description": "Should Tag Companies",
+      "type": "boolean",
+      "default": true
+    },
+    {
       "name": "send_events",
       "title": "Send Events",
       "description": "Should Send Events",
@@ -433,6 +469,7 @@
       },
       "default": [
         { "service": "id", "hull": "intercom/id", "readOnly": true, "overwrite": true },
+        { "service": "company_id", "hull": "intercom/company_id", "readOnly": true, "overwrite": true },
         { "service": "website", "hull": "intercom/website", "readOnly": true, "overwrite": true },
         { "service": "tags", "hull": "intercom/tags", "readOnly": true, "overwrite": true },
         { "service": "segments", "hull": "intercom/segments", "readOnly": true, "overwrite": true }
@@ -542,6 +579,10 @@
       "handler": "contactFieldsInbound"
     },
     {
+      "url": "/schema/company_fields_writable",
+      "handler": "companyFieldsOutbound"
+    },
+    {
       "url": "/schema/company_fields",
       "handler": "companyFieldsInbound"
     },
@@ -596,6 +637,10 @@
           "handler": "userUpdate"
         },
         {
+          "channel": "account:update",
+          "handler": "accountUpdate"
+        },
+        {
           "channel": "ship:update",
           "handler": "shipUpdate"
         }
@@ -605,7 +650,8 @@
           "user:update": [
             "private_settings.synchronized_lead_segments",
             "private_settings.synchronized_user_segments"
-          ]
+          ],
+          "account:update": ["private_settings.synchronized_account_segments"]
         },
         "channels": {
           "only": ["user:update", "ship:update"]
@@ -709,6 +755,15 @@
         "private_settings.fetch_companies",
         "private_settings.incoming_account_attributes",
         "json.fetch_all_companies"
+      ]
+    },
+    {
+      "title": "Send Accounts to Intercom",
+      "description": "",
+      "properties": [
+        "private_settings.tag_companies",
+        "private_settings.synchronized_account_segments",
+        "private_settings.outgoing_account_attributes"
       ]
     }
   ]
