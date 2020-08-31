@@ -15,8 +15,6 @@ const { deduplicateUserUpdateMessages } = require("../filter-utils");
 const getEventPayload = require("../event/get-event-payload");
 const fetchAllUsers = require("../../actions/fetch-all-users");
 
-// const handleRateLimitError = require("../../lib/handle-rate-limit-error");
-
 class SyncAgent {
   enqueue;
 
@@ -525,10 +523,6 @@ class SyncAgent {
           }
           return Promise.resolve();
         })
-        // eslint-disable-next-line no-unused-vars
-        .catch(err => {
-          // return handleRateLimitError(ctx, "sendUsers", params, err);
-        })
     );
   }
 
@@ -824,8 +818,6 @@ class SyncAgent {
     return Promise.map(users, intercomUser => {
       return this.detachUserFromIntercom(intercomUser);
       // eslint-disable-next-line no-unused-vars
-    }).catch(err => {
-      // return handleRateLimitError(ctx, "saveUsers", payload, err)
     });
   }
 
@@ -865,10 +857,6 @@ class SyncAgent {
             });
           }
           return true;
-        })
-        // eslint-disable-next-line no-unused-vars
-        .catch(err => {
-          // return handleRateLimitError(ctx, "saveUsers", payload, err)
         })
     );
   }
@@ -951,8 +939,6 @@ class SyncAgent {
           })
       );
       // eslint-disable-next-line no-unused-vars
-    }).catch(err => {
-      // return handleRateLimitError(ctx, "saveEvents", payload, err)
     });
   }
 
