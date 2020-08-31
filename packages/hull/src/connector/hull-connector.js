@@ -159,7 +159,7 @@ class HullConnector {
       manifest,
       instrumentation,
       cacheConfig,
-      queue,
+      queueConfig = {},
       clientConfig,
       jsonConfig,
       serverConfig,
@@ -198,7 +198,7 @@ class HullConnector {
     this.manifest = manifest;
     this.instrumentation =
       instrumentation || new Instrumentation(this.metricsConfig, manifest);
-    this.queue = queue || new Queue();
+    this.queue = new Queue(queueConfig);
 
     // Rebuild a sanitized and defaults-enriched Connector Config
     this.connectorConfig = {

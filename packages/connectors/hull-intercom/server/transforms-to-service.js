@@ -2,13 +2,26 @@
 
 import type { ServiceTransforms } from "hull-connector-framework/src/purplefusion/types";
 
-import { HullOutgoingUser, HullOutgoingEvent, HullApiAttributeDefinition } from "hull-connector-framework/src/purplefusion/hull-service-objects";
-import { IntercomUserWrite, IntercomLeadWrite, IntercomEventWrite, IntercomAttributeWrite } from "./service-objects";
+import {
+  HullOutgoingUser,
+  HullOutgoingAccount,
+  HullOutgoingEvent,
+  HullApiAttributeDefinition
+} from "hull-connector-framework/src/purplefusion/hull-service-objects";
+
+import {
+  IntercomCompanyWrite,
+  IntercomUserWrite,
+  IntercomLeadWrite,
+  IntercomEventWrite,
+  IntercomAttributeWrite
+} from "./service-objects";
 
 import {
   varUndefinedOrNull,
   not,
-  varInResolvedArray
+  varInResolvedArray,
+  isNotEqual
 } from "hull-connector-framework/src/purplefusion/conditionals";
 
 const _ = require("lodash");
@@ -26,19 +39,19 @@ const jsonifyArrays = obj => {
   return obj;
 };
 
-function contactTransformation({ entityType }) {
+function outgoingTransformation({ hullType, serviceType }) {
   return [
     {
-      operateOn: `\${connector.private_settings.outgoing_${entityType}_attributes}`,
+      operateOn: `\${connector.private_settings.outgoing_${serviceType}_attributes}`,
       expand: { valueName: "mapping" },
       then: [
         {
           condition: [
-            varInResolvedArray("mapping.service", "${contact_custom_attributes}")
+            varInResolvedArray("mapping.service", "${custom_attributes}")
           ],
           then: [
             {
-              operateOn: { component: "input", select: "user.${mapping.hull}" },
+              operateOn: { component: "input", select: `${hullType}.\${mapping.hull}` },
               writeTo: { path: "custom_attributes.${mapping.service}" }
             },
             {
@@ -49,11 +62,11 @@ function contactTransformation({ entityType }) {
         },
         {
           condition: [
-            not(varInResolvedArray("mapping.service", "${contact_custom_attributes}"))
+            not(varInResolvedArray("mapping.service", "${custom_attributes}"))
           ],
           then: [
             {
-              operateOn: { component: "input", select: "user.${mapping.hull}" },
+              operateOn: { component: "input", select:`${hullType}.\${mapping.hull}` },
               writeTo: { path: "${mapping.service}" }
             },
             {
@@ -65,10 +78,10 @@ function contactTransformation({ entityType }) {
       ]
     },
     {
-      operateOn: `\${connector.private_settings.${entityType}_claims}`,
+      operateOn: `\${connector.private_settings.${serviceType}_claims}`,
       expand: { valueName: "mapping" },
       then: {
-        operateOn: { component: "input", select: "user.${mapping.hull}"},
+        operateOn: { component: "input", select: `${hullType}.\${mapping.hull}` },
         condition: not(varUndefinedOrNull("operateOn")),
         writeTo: {
           path: "${mapping.service}"
@@ -76,10 +89,17 @@ function contactTransformation({ entityType }) {
       }
     },
     {
-      writeTo: {
-        path: "role",
-        value: entityType
-      }
+      condition: [
+        isNotEqual("service_type", "company"),
+      ],
+      then: [
+        {
+          writeTo: {
+            path: "role",
+            value: serviceType
+          }
+        }
+      ]
     }
   ];
 
@@ -87,12 +107,20 @@ function contactTransformation({ entityType }) {
 
 const transformsToService: ServiceTransforms = [
   {
+    input: HullOutgoingAccount,
+    output: IntercomCompanyWrite,
+    direction: "outgoing",
+    strategy: "AtomicReaction",
+    target: { component: "new" },
+    then: outgoingTransformation({ hullType: "account", serviceType: "account" })
+  },
+  {
     input: HullOutgoingUser,
     output: IntercomUserWrite,
     direction: "outgoing",
     strategy: "AtomicReaction",
     target: { component: "new" },
-    then: contactTransformation({ entityType: "user" })
+    then: outgoingTransformation({ hullType: "user", serviceType: "user" })
   },
   {
     input: HullOutgoingUser,
@@ -100,7 +128,7 @@ const transformsToService: ServiceTransforms = [
     direction: "outgoing",
     strategy: "AtomicReaction",
     target: { component: "new" },
-    then: contactTransformation({ entityType: "lead" })
+    then: outgoingTransformation({ hullType: "user", serviceType: "lead" })
   },
   {
     input: HullOutgoingEvent,
@@ -156,7 +184,7 @@ const transformsToService: ServiceTransforms = [
     strategy: "AtomicReaction",
     target: { component: "new" },
     then: [
-      { writeTo: { path: "model", value: "contact" } },
+      { writeTo: { path: "model", value: "${service_model}" } },
       { writeTo: { path: "data_type", value: "string" } },
       {
         operateOn: { component: "input", select: "service" },

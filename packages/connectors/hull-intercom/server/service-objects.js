@@ -7,6 +7,11 @@ const IntercomCompanyRead: ServiceObjectDefinition = {
   name: "Company"
 };
 
+const IntercomCompanyWrite: ServiceObjectDefinition = {
+  service_name: "intercom_company_write",
+  name: "Company"
+};
+
 const IntercomUserRead: ServiceObjectDefinition = {
   service_name: "intercom_user_read",
   name: "User"
@@ -99,6 +104,7 @@ const IntercomDeletedUserRead: ServiceObjectDefinition = {
 
 module.exports = {
   IntercomCompanyRead,
+  IntercomCompanyWrite,
   IntercomUserRead,
   IntercomLeadRead,
   IntercomUserWrite,

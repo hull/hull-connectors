@@ -4,9 +4,6 @@ import type { HullConnectorConfig } from "hull";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
 
-const { Queue } = require("hull/src/infra");
-const KueAdapter = require("hull/src/infra/queue/adapter/kue");
-
 export default function connectorConfig(): HullConnectorConfig {
   const {
     REDIS_URL,
@@ -23,23 +20,22 @@ export default function connectorConfig(): HullConnectorConfig {
     );
   }
 
-  const startServer = COMBINED === "true" || SERVER === "true";
-  const startWorker = COMBINED === "true" || WORKER === "true";
   return {
     manifest,
     handlers,
     serverConfig: {
-      start: startServer
+      start: COMBINED === "true" || SERVER === "true"
     },
     workerConfig: {
-      start: startWorker,
+      start: COMBINED === "true" || WORKER === "true",
       queueName: QUEUE_NAME || "queue"
     },
-    queue: new Queue(
-      new KueAdapter({
-        prefix: KUE_PREFIX,
-        redis: REDIS_URL
-      })
-    )
+    queueConfig: REDIS_URL
+      ? {
+          store: "redis",
+          url: REDIS_URL,
+          name: KUE_PREFIX
+        }
+      : { store: "memory" }
   };
 }

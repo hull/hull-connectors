@@ -22,7 +22,7 @@ const {
   HullOutgoingDropdownOption,
   HullOutgoingUser,
   HullOutgoingEvent,
-  HullAttributeMapping,
+  HullOutgoingAccount,
   HullUserIdentity
 } = require("hull-connector-framework/src/purplefusion/hull-service-objects");
 
@@ -166,6 +166,11 @@ const glue = {
       set("contactOutboundFields", ld("concat", defaultContactFields, intercom("getContactDataAttributes")))
     ],
     transformTo(HullOutgoingDropdownOption, cast(IntercomOutgoingAttributeDefinition, "${contactOutboundFields}"))
+  ),
+  companyFieldsOutbound: returnValue([
+      set("companyOutboundFields", ld("concat", defaultCompanyFields, intercom("getCompanyDataAttributes")))
+    ],
+    transformTo(HullOutgoingDropdownOption, cast(IntercomOutgoingAttributeDefinition, "${companyOutboundFields}"))
   ),
   companyFieldsInbound: returnValue([
       set("companyInboundFields", ld("concat", defaultCompanyFields, intercom("getCompanyDataAttributes")))
@@ -341,6 +346,65 @@ const glue = {
     set("service_type", "user"),
     route("contactUpdate")
   ],
+  accountUpdate: [
+    set("service_type", "company"),
+    route("companyUpdate")
+  ],
+  companyUpdate: [
+    ifL([
+        cond("notEmpty", input()),
+        route("isConfigured")
+      ],
+      iterateL(input(), { key: "message", async: true }, [
+        route("companyUpdateStart", cast(HullOutgoingAccount, "${message}"))
+      ])
+    )
+  ],
+  companyUpdateStart: cacheLock(input("account.id"), [
+    set("companyDataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getCompanyDataAttributes"))),
+    set("custom_attributes", ld("map", filter({ "custom": true }, "${companyDataAttributes}"), "name")),
+
+    ifL(or([
+      set("companyId", cacheGet(input("account.id"))),
+      set("companyId", input("account.intercom/id"))
+    ]), {
+      do: [
+        route("upsertCompany")
+      ],
+      eldo: [
+        route("companyLookup"),
+        ifL(not(cond("isEqual", "${skipCompany}", true)), [
+          ifL([
+            cond("isEmpty", "${companyId}")
+          ], {
+            do: route("upsertCompany"),
+            eldo: route("upsertCompany")
+          })
+        ])
+      ]
+    }),
+
+    ifL(cond("notEmpty", "${companyFromIntercom}"),
+      [
+        route("checkTags"),
+        hull("asAccount","${companyFromIntercom}")
+      ]
+    )
+  ]),
+  companyLookup:
+    iterateL(notFilter({ service: "id" }, "${connector.private_settings.account_claims}"), "claim",
+      ifL([
+          cond("notEmpty", set("value", input("account.${claim.hull}"))),
+          cond("notEmpty", set("property", "${claim.service}")),
+          cond("notEmpty", set("accountId", get("id", intercom("searchCompanies"))))
+        ],
+        [loopEndL()]
+      )
+    ),
+  upsertCompany: [
+    set("companyFromIntercom", intercom("upsertCompany", input()))
+  ],
+
   contactUpdate: [
     ifL([
         cond("notEmpty", input()),
@@ -353,7 +417,7 @@ const glue = {
   ],
   contactUpdateStart: cacheLock(input("user.id"), [
     set("contactDataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getContactDataAttributes"))),
-    set("contact_custom_attributes", ld("map", filter({ "custom": true }, "${contactDataAttributes}"), "name")),
+    set("custom_attributes", ld("map", filter({ "custom": true }, "${contactDataAttributes}"), "name")),
 
     ifL(or([
       set("contactId", cacheGet(input("user.id"))),
@@ -466,6 +530,42 @@ const glue = {
       cond("isEqual", "${service_type}", "user")
     ], [
       route("handleContactTags")
+    ]),
+    ifL([
+      cond("isEqual", settings("tag_companies"), true),
+      cond("isEqual", "${service_type}", "company")
+    ], [
+      route("handleCompanyTags")
+    ])
+  ],
+  handleCompanyTags: [
+    set("companyTags", ld("map", "${companyFromIntercom.tags.tags}", "name")),
+    set("tagsOnHullAccount", input("account.intercom/tags")),
+
+    set("segmentsIn", ld("map", input("account_segments"), "name")),
+    set("segmentsLeft", ld("map", input("changes.account_segments.left"), "name")),
+
+    set("missingTags", ld("differenceBy", ld("map", "${segmentsIn}", _.trim), "${tagsOnHullAccount}")),
+    iterateL("${missingTags}", "segmentName", [
+      intercom("tagCompanies", {
+        "name": "${segmentName}",
+        "companies": [
+          {
+            "id" : "${companyFromIntercom.id}"
+          }
+        ]
+      })
+    ]),
+    iterateL("${segmentsLeft}", "segmentName", [
+      intercom("unTagCompanies", {
+        "name": ld("trim", "${segmentName}"),
+        "companies": [
+          {
+            "id" : "${companyFromIntercom.id}",
+            "untag": true
+          }
+        ]
+      })
     ])
   ],
   handleContactTags: [
@@ -535,26 +635,29 @@ const glue = {
       ])
     ])
   ]),
+  createDataAttribute: ifL([
+    cond("isEmpty", filter({ name: "${attribute.service}" }, "${dataAttributes}"))
+  ], [
+    set("intercomAttribute", transformTo(IntercomAttributeWrite, cast(HullApiAttributeDefinition, "${attribute}"))),
+    intercom("createDataAttribute", "${intercomAttribute}")
+  ]),
   syncDataAttributes: [
     cacheLock("syncingAttributes",
       [
         set("outgoing_user_attributes", settings("outgoing_user_attributes")),
         set("outgoing_lead_attributes", settings("outgoing_lead_attributes")),
-
-        set("contactDataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getContactDataAttributes"))),
+        set("outgoing_account_attributes", settings("outgoing_account_attributes")),
 
         iterateL(ld("concat", "${outgoing_user_attributes}", "${outgoing_lead_attributes}"), "attribute", [
-          ifL([
-            cond("isEmpty", filter({ name: "${attribute.service}" }, "${contactDataAttributes}"))
-          ], [
-            set("attributeProcessing", cacheGet("${attributeName}")),
-            ifL(cond("isEmpty", "${attributeProcessing}"), [
-              cacheSet({ key: "${attributeName}" }, "attributeProcessing"),
+          set("service_model", "contact"),
+          set("dataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getContactDataAttributes"))),
+          route("createDataAttribute")
+        ]),
 
-              set("intercomAttribute", transformTo(IntercomAttributeWrite, cast(HullApiAttributeDefinition, "${attribute}"))),
-              intercom("createDataAttribute", "${intercomAttribute}")
-            ])
-          ])
+        iterateL("${outgoing_account_attributes}", "attribute", [
+          set("service_model", "company"),
+          set("dataAttributes", cacheWrap(CACHE_TIMEOUT, intercom("getCompanyDataAttributes"))),
+          route("createDataAttribute")
         ])
       ]
     )
