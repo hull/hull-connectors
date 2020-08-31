@@ -251,7 +251,7 @@ const service = ({ clientID, clientSecret } : {
     templates: [
       {
         truthy: { status: 400 },
-        errorType: TransientError,
+        errorType: SkippableError,
         message: MESSAGES.BAD_REQUEST
       },
 /*      {
