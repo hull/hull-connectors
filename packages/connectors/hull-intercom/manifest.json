@@ -654,7 +654,7 @@
           "account:update": ["private_settings.synchronized_account_segments"]
         },
         "channels": {
-          "only": ["user:update", "ship:update"]
+          "only": ["user:update", "ship:update", "account:update"]
         }
       }
     }
