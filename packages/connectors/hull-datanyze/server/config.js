@@ -20,7 +20,6 @@ export default function connectorConfig(): HullConnectorConfig {
     );
   }
 
-  const hostSecret = SECRET || "1234";
   return {
     manifest,
     handlers,
