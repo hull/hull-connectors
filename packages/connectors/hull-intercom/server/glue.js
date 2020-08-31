@@ -206,18 +206,21 @@ const glue = {
           ifL(or([
             cond("isEmpty", "${page}"),
             cond("isEmpty", "${page.data}")
-          ]), loopEndL()),
+          ]), {
+            do: loopEndL(),
+            eldo: [
+              set("intercomCompanies", filterL(or([
+                cond("greaterThan", "${company.updated_at}", "${lastFetchAt}"),
+                cond("isEqual", "${company.updated_at}", "${lastFetchAt}")
+              ]), "company", "${page.data}")),
+              iterateL("${intercomCompanies}", { key: "intercomCompany", async: true},
+                hull("asAccount", cast(IntercomCompanyRead, "${intercomCompany}"))
+              ),
 
-          set("intercomCompanies", filterL(or([
-            cond("greaterThan", "${company.updated_at}", "${lastFetchAt}"),
-            cond("isEqual", "${company.updated_at}", "${lastFetchAt}")
-          ]), "company", "${page.data}")),
-          iterateL("${intercomCompanies}", { key: "intercomCompany", async: true},
-            hull("asAccount", cast(IntercomCompanyRead, "${intercomCompany}"))
-          ),
-
-          set("offset", "${page.scroll_param}"),
-          set("page", [])
+              set("offset", "${page.scroll_param}"),
+              set("page", [])
+            ]
+          })
         ])
       ])
   ]),
@@ -230,12 +233,16 @@ const glue = {
         ifL(or([
           cond("isEmpty", "${page}"),
           cond("isEmpty", "${page.data}")
-        ]), loopEndL()),
-        iterateL("${page.data}", { key: "intercomCompany", async: true},
-          hull("asAccount", cast(IntercomCompanyRead, "${intercomCompany}"))
-        ),
-        set("offset", "${page.scroll_param}"),
-        set("page", []),
+        ]), {
+          do: loopEndL(),
+          eldo: [
+            iterateL("${page.data}", { key: "intercomCompany", async: true},
+              hull("asAccount", cast(IntercomCompanyRead, "${intercomCompany}"))
+            ),
+            set("offset", "${page.scroll_param}"),
+            set("page", [])
+          ]
+        })
       ])
     ]),
   fetchContacts: [
