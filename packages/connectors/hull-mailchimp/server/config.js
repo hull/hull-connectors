@@ -12,6 +12,7 @@ export default function connectorConfig(): HullConnectorConfig {
     COMBINED,
     SERVER,
     WORKER,
+    SECRET,
     MAILCHIMP_CLIENT_ID,
     MAILCHIMP_CLIENT_SECRET
   } = process.env;
@@ -46,14 +47,6 @@ export default function connectorConfig(): HullConnectorConfig {
     workerConfig: {
       start: COMBINED === "true" || WORKER === "true",
       queueName: QUEUE_NAME || "queue"
-    },
-    clientConfig: {
-      firehoseUrl: OVERRIDE_FIREHOSE_URL
-    },
-    cacheConfig: {
-      store: "memory",
-      max: !_.isNil(SHIP_CACHE_MAX) ? parseInt(SHIP_CACHE_MAX, 10) : 100,
-      ttl: !_.isNil(SHIP_CACHE_TTL) ? parseInt(SHIP_CACHE_TTL, 10) : 60
     },
     queueConfig: REDIS_URL
       ? {
