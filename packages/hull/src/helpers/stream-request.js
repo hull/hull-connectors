@@ -12,6 +12,7 @@ type HullStreamOptions = {
   url: string,
   format: string,
   batchSize: number,
+  limit: number,
   onData: (Array<any>) => Promise<any>,
   onEnd: any => any,
   onError: Error => any
@@ -23,6 +24,7 @@ const streamRequest = (ctx: HullContext) => async ({
   format = "json",
   url,
   batchSize = 100,
+  limit = 0,
   onError = noop,
   onData = noop,
   onEnd = noop
@@ -31,6 +33,7 @@ const streamRequest = (ctx: HullContext) => async ({
 
   let chunk = 0;
   let row = 0;
+  let request;
   const errors = [];
 
   const pipeline = chain([
@@ -45,6 +48,9 @@ const streamRequest = (ctx: HullContext) => async ({
       });
       chunk += 1;
       row += data.length;
+      if (limit && limit >= row) {
+        request.abort();
+      }
       await onData(data.map(({ value }) => value));
       return data;
     },
@@ -79,7 +85,7 @@ const streamRequest = (ctx: HullContext) => async ({
     url
   });
 
-  superagent.get(url).pipe(pipeline);
+  const request = superagent.get(url).pipe(pipeline);
 };
 
 module.exports = streamRequest;

@@ -66,7 +66,30 @@ export default async function fetchOutput(
 
     // $FlowFixMe
     const result = _.get(resultObject, "body.resultObject");
-    return result ? JSON.parse(result) : [];
+    if (!result) return [];
+    const parsedResult = JSON.parse(result);
+    if (_.isArray(parsedResult)) {
+      return parsedResult;
+    }
+    if (parsedResult.csvUrl) {
+      const { helpers } = ctx;
+      const { streamRequest } = helpers;
+      return new Promise((resolve, reject) =>
+        streamRequest({
+          url: parsedResult.csvUrl,
+          format: "csv",
+          batchSize: 100,
+          limit: 100,
+          onError: error => reject(error),
+          onEnd: () => {},
+          onData: async data => {
+            resolve(data);
+          }
+        })
+      );
+    }
+    client.logger.error("connector.schedule.error", { result });
+    throw new Error("Unrecognized Container result format");
   } catch (err) {
     client.logger.error("connector.schedule.error", err);
     throw err;
