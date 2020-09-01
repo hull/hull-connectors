@@ -16,6 +16,8 @@ describe("Fetch All Users Tests", () => {
         handlerUrl: "fetchAllUsers",
         connector: {
           private_settings: {
+            link_users_in_hull: true,
+            link_users_in_service: true,
             webhook_id: "1",
             access_token: "12345",
             fetch_users: true,
@@ -443,9 +445,7 @@ describe("Fetch All Users Tests", () => {
             .reply(200, {
               "type": "list",
               "data": [
-                { "name": "Company1", "id": "company_1", },
-                { "name": "Company2", "id": "company_2" },
-                { "name": "Company3", "id": "company_3" }
+                { "name": "Company1", "id": "company_1" }
               ],
               "pages": {
                 "type": "pages",
@@ -1609,9 +1609,7 @@ describe("Fetch All Users Tests", () => {
               "intercom_user/companies": {
                 "operation": "set",
                 "value": [
-                  "Company1",
-                  "Company2",
-                  "Company3"
+                  "Company1"
                 ]
               },
               "intercom_user/job_title": {
@@ -1623,6 +1621,21 @@ describe("Fetch All Users Tests", () => {
                 "value": "Liza"
               }
             }
+          ],
+          [
+            "traits",
+            {
+              "asAccount": {
+                "anonymous_id": "intercom:company_1"
+              },
+              "asUser": {
+                "email": "lizalead@rei.com",
+                "external_id": "user_id_1",
+                "anonymous_id": "intercom-user:user-5f161b7a332231fc10b44e5f"
+              },
+              "subjectType": "account"
+            },
+            {}
           ],
           [
             "traits",

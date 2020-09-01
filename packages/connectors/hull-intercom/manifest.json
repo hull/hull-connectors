@@ -301,6 +301,20 @@
       "required" : true
     },
     {
+      "name": "link_users_in_hull",
+      "title": "Link Intercom Users to Accounts in Hull",
+      "description": "Allow Intercom to update links between Intercom Users and Accounts in Hull. Be careful about conflicts with other connectors that would link users too.\n\n**IMPORTANT:** when this checkbox is checked the connector will create a Hull Account for EVERY Intercom Account any User is linked to.",
+      "type": "boolean",
+      "default": false
+    },
+    {
+      "name": "link_users_in_service",
+      "title": "Link Intercom Users to Accounts in Intercom",
+      "description": "Allow Hull to associate Users and Companies in Intercom",
+      "type": "boolean",
+      "default": false
+    },
+    {
       "name": "mark_deleted_users",
       "title": "Mark Deleted Users",
       "description": "If a user or lead has been deleted in Intercom, mark it as such in Hull.",
@@ -361,7 +375,7 @@
         {
           "hull": "external_id",
           "service": "company_id",
-          "required": false
+          "required": true
         }
       ],
       "options": {

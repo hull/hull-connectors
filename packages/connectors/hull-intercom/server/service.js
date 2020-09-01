@@ -115,6 +115,10 @@ const service = ({ clientID, clientSecret } : {
       returnObj: "body",
       input: IntercomEventWrite
     },
+    linkContactToCompany: {
+      url: "/contacts/${contactId}/companies",
+      operation: "post"
+    },
     getContacts: {
       url: "/contacts/search",
       operation: "post"

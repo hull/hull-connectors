@@ -32,6 +32,7 @@ describe("Insert Company Tests", () => {
               { "hull": "intercom/size", "service": "size" }
             ],
             incoming_account_attributes: [
+              { hull: "intercom/company_id", service: "company_id", "overwrite": true },
               { hull: "intercom/c_tags", service: "tags", "overwrite": true },
               { hull: "intercom/c_segments", service: "segments", "overwrite": true },
               { hull: 'intercom/web_sessions', service: 'session_count', overwrite: true },
@@ -537,6 +538,10 @@ describe("Insert Company Tests", () => {
               "subjectType": "account"
             },
             {
+              "intercom/company_id": {
+                "operation": "set",
+                "value": "account_external_id_1"
+              },
               "intercom/c_segments": {
                 "operation": "set",
                 "value": []

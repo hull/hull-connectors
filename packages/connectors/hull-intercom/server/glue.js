@@ -399,7 +399,7 @@ const glue = {
     )
   ]),
   companyLookup:
-    iterateL(notFilter({ service: "id" }, "${connector.private_settings.account_claims}"), "claim",
+    iterateL(notFilter({ service: "id" }, settings("account_claims")), "claim",
       ifL([
           cond("notEmpty", set("value", input("account.${claim.hull}"))),
           cond("notEmpty", set("property", "${claim.service}")),
@@ -411,6 +411,33 @@ const glue = {
   upsertCompany: [
     set("companyFromIntercom", intercom("upsertCompany", input()))
   ],
+  linkCompany:
+    ifL([
+        settings("link_users_in_service"),
+        cond("isEmpty", set("accountId", input("account.intercom/id"))),
+        or([
+          cond("notEmpty", ld("intersection", settings("synchronized_account_segments"), ld("map", input("account_segments"), "id"))),
+          cond("allTrue", [
+            not(input("account_segments")),
+            cond("notEmpty", input("account"))
+          ])
+        ])
+      ],
+      [
+        set("service_type", "company"),
+        route("companyUpdateStart", cast(HullOutgoingAccount, ld("cloneDeep", "${message}"))),
+        set("contactId", "${contactFromIntercom.id}"),
+        set("companyId", "${companyFromIntercom.company_id}"),
+        ifL([
+          cond("notEmpty", "${contactId}"),
+          cond("notEmpty", "${companyId}"),
+        ], [
+          intercom("linkContactToCompany", {
+            "company_id": "${companyId}"
+          })
+        ])
+      ]
+    ),
 
   contactUpdate: [
     ifL([
@@ -451,8 +478,13 @@ const glue = {
         route("sendEvents"),
         route("checkTags"),
         route("convertLeadDefault"),
+        hull("asUser","${contactFromIntercom}"),
 
-        hull("asUser","${contactFromIntercom}")
+        ifL([
+          cond("isEqual", settings("link_users_in_service"), true)
+        ], [
+          route("linkCompany")
+        ])
       ]
     )
   ]),
