@@ -71,12 +71,12 @@ export default async function fetchOutput(
     if (_.isArray(parsedResult)) {
       return parsedResult;
     }
-    if (parsedResult.csvUrl) {
+    if (parsedResult.csvURL) {
       const { helpers } = ctx;
       const { streamRequest } = helpers;
       return new Promise((resolve, reject) =>
         streamRequest({
-          url: parsedResult.csvUrl,
+          url: parsedResult.csvURL,
           format: "csv",
           batchSize: 100,
           limit: 100,
