@@ -19,6 +19,8 @@ describe("Insert User Tests", () => {
         is_export: true,
         connector: {
           private_settings: {
+            link_users_in_service: true,
+            link_users_in_hull: true,
             webhook_id: "1",
             access_token: "intercomABC",
             tag_users: true,
@@ -273,12 +275,164 @@ describe("Insert User Tests", () => {
               }
             );
 
+          scope
+            .get("/data_attributes?model=company")
+            .reply(200, {
+              "type": "list",
+              "data": [
+                {
+                  "type": "data_attribute",
+                  "name": "name",
+                  "full_name": "name",
+                  "label": "Company name",
+                  "description": "The name of a company",
+                  "data_type": "string",
+                  "api_writable": true,
+                  "ui_writable": true,
+                  "custom": false,
+                  "archived": false,
+                  "model": "company"
+                },
+                {
+                  "type": "data_attribute",
+                  "name": "company_id",
+                  "full_name": "company_id",
+                  "label": "Company ID",
+                  "description": "A number identifying a company",
+                  "data_type": "string",
+                  "api_writable": false,
+                  "ui_writable": false,
+                  "custom": false,
+                  "archived": false,
+                  "model": "company"
+                },
+                {
+                  "type": "data_attribute",
+                  "name": "monthly_spend",
+                  "full_name": "monthly_spend",
+                  "label": "Monthly Spend",
+                  "description": "The monthly revenue you receive from a company",
+                  "data_type": "float",
+                  "api_writable": true,
+                  "ui_writable": false,
+                  "custom": false,
+                  "archived": false,
+                  "model": "company"
+                },
+                {
+                  "type": "data_attribute",
+                  "name": "size",
+                  "full_name": "size",
+                  "label": "Company size",
+                  "description": "The number of people employed in this company, expressed as a single number",
+                  "data_type": "integer",
+                  "api_writable": true,
+                  "ui_writable": true,
+                  "custom": false,
+                  "archived": false,
+                  "model": "company"
+                },
+                {
+                  "id": 7678696,
+                  "type": "data_attribute",
+                  "name": "custom_monthly_spend",
+                  "full_name": "custom_attributes.custom_monthly_spend",
+                  "label": "company_description",
+                  "data_type": "string",
+                  "api_writable": true,
+                  "ui_writable": false,
+                  "custom": true,
+                  "archived": false,
+                  "admin_id": "3330619",
+                  "created_at": 1595445305,
+                  "updated_at": 1595445305,
+                  "model": "company"
+                },
+              ]
+            });
+
+          scope
+            .get("/companies?company_id=account_external_id_1")
+            .reply(404, {
+              "type": "error.list",
+              "request_id": "001kil5vake9eikife90",
+              "errors": [
+                {
+                  "code": "company_not_found",
+                  "message": "Company Not Found"
+                }
+              ]
+            });
+
+          scope
+            .post("/companies", {
+              "company_id": "account_external_id_1"
+            })
+            .reply(200, {
+              "type": "company",
+              "company_id": "account_external_id_1",
+              "id": "5f4e82462bc3732be3cdf6b0",
+              "app_id": "lkqcyt9t",
+              "created_at": 1598980678,
+              "updated_at": 1598980678,
+              "monthly_spend": 0,
+              "session_count": 0,
+              "user_count": 0,
+              "tags": {
+                "type": "tag.list",
+                "tags": []
+              },
+              "segments": {
+                "type": "segment.list",
+                "segments": []
+              },
+              "plan": {},
+              "custom_attributes": {
+                "creation_source": "api"
+              }
+            });
+
+          scope
+            .get("/companies/5f4e82462bc3732be3cdf6b0/segments")
+            .reply(200, {
+              "type": "list",
+              "data": []
+            });
+
+          scope
+            .post("/contacts/5f22f1b6fcaca714eb055739/companies", {
+              "company_id": "account_external_id_1"
+            }).reply(200, {
+            "type": "company",
+            "company_id": "account_external_id_1",
+            "id": "5f4e82462bc3732be3cdf6b0",
+            "app_id": "lkqcyt9t",
+            "created_at": 1598980678,
+            "updated_at": 1598980678,
+            "monthly_spend": 0,
+            "session_count": 0,
+            "user_count": 0,
+            "tags": {
+              "type": "tag.list",
+              "tags": []
+            },
+            "segments": {
+              "type": "segment.list",
+              "segments": []
+            },
+            "plan": {},
+            "custom_attributes": {
+              "creation_source": "api"
+            }
+          })
+
           return scope;
         },
         messages: [
           {
             account: {
-              id: "1"
+              external_id: "account_external_id_1",
+              id: "account-1"
             },
             user: {
               id: "123",
@@ -323,6 +477,10 @@ describe("Insert User Tests", () => {
             { "request_id": expect.whatever() },
             { "jobName": "Outgoing Data", "type": "user" }
           ],
+          ["debug", "connector.service_api.call", { "request_id": expect.whatever() }, {
+            "responseTime": expect.whatever(),
+            "method": "GET", "url": "/data_attributes?model=contact", "status": 200, "vars": {}
+          }],
           [
             "debug",
             "connector.service_api.call",
@@ -337,10 +495,6 @@ describe("Insert User Tests", () => {
               "vars": {}
             }
           ],
-          ["debug", "connector.service_api.call", { "request_id": expect.whatever() }, {
-            "responseTime": expect.whatever(),
-            "method": "GET", "url": "/data_attributes?model=contact", "status": 200, "vars": {}
-          }],
           [
             "debug",
             "connector.service_api.call",
@@ -377,6 +531,60 @@ describe("Insert User Tests", () => {
                 "external_id": "user_external_id_1"
               },
               "type": "User"
+            }
+          ],
+          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+            {
+              "responseTime": expect.whatever(),
+              "method": "GET",
+              "url": "/tags",
+              "status": 200,
+              "vars": {}
+            }
+          ],
+          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+            {
+              "responseTime": expect.whatever(),
+              "method": "GET",
+              "url": "/contacts/5f22f1b6fcaca714eb055739/tags",
+              "status": 200,
+              "vars": {}
+            }
+          ],
+          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+            {
+              "responseTime": expect.whatever(),
+              "method": "POST",
+              "url": "/tags",
+              "status": 200,
+              "vars": {}
+            }
+          ],
+          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+            {
+              "responseTime": expect.whatever(),
+              "method": "POST",
+              "url": "/contacts/5f22f1b6fcaca714eb055739/tags",
+              "status": 200,
+              "vars": {}
+            }
+          ],
+          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+            {
+              "responseTime": expect.whatever(),
+              "method": "POST",
+              "url": "/contacts/5f22f1b6fcaca714eb055739/tags",
+              "status": 200,
+              "vars": {}
+            }
+          ],
+          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+            {
+              "responseTime": expect.whatever(),
+              "method": "DELETE",
+              "url": "/contacts/5f22f1b6fcaca714eb055739/tags/tag_id_4",
+              "status": 200,
+              "vars": {}
             }
           ],
           [
@@ -468,56 +676,124 @@ describe("Insert User Tests", () => {
               "type": "User"
             }
           ],
-          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+          [
+            "debug",
+            "connector.service_api.call",
+            {
+              "request_id": expect.whatever()
+            },
             {
               "responseTime": expect.whatever(),
               "method": "GET",
-              "url": "/tags",
+              "url": "/data_attributes?model=company",
               "status": 200,
               "vars": {}
             }
           ],
-          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+          [
+            "debug",
+            "connector.service_api.call",
+            {
+              "request_id": expect.whatever()
+            },
             {
               "responseTime": expect.whatever(),
               "method": "GET",
-              "url": "/contacts/5f22f1b6fcaca714eb055739/tags",
-              "status": 200,
+              "url": "/companies",
+              "status": 404,
               "vars": {}
             }
           ],
-          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+          [
+            "debug",
+            "connector.service_api.call",
+            {
+              "request_id": expect.whatever()
+            },
             {
               "responseTime": expect.whatever(),
               "method": "POST",
-              "url": "/tags",
+              "url": "/companies",
               "status": 200,
               "vars": {}
             }
           ],
-          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
+          [
+            "info",
+            "outgoing.account.success",
+            {
+              "subject_type": "account",
+              "request_id": expect.whatever(),
+              "account_id": "account-1",
+              "account_external_id": "account_external_id_1"
+            },
+            {
+              "data": {
+                "company_id": "account_external_id_1"
+              },
+              "type": "Company"
+            }
+          ],
+          [
+            "debug",
+            "connector.service_api.call",
+            {
+              "request_id": expect.whatever()
+            },
+            {
+              "responseTime": expect.whatever(),
+              "method": "GET",
+              "url": "/companies/5f4e82462bc3732be3cdf6b0/segments",
+              "status": 200,
+              "vars": {}
+            }
+          ],
+          [
+            "debug",
+            "incoming.account.success",
+            {
+              "subject_type": "account",
+              "request_id": expect.whatever(),
+              "account_external_id": "account_external_id_1",
+              "account_anonymous_id": "intercom:5f4e82462bc3732be3cdf6b0"
+            },
+            {
+              "data": {
+                "type": "company",
+                "company_id": "account_external_id_1",
+                "id": "5f4e82462bc3732be3cdf6b0",
+                "app_id": "lkqcyt9t",
+                "created_at": 1598980678,
+                "updated_at": 1598980678,
+                "monthly_spend": 0,
+                "session_count": 0,
+                "user_count": 0,
+                "tags": {
+                  "type": "tag.list",
+                  "tags": []
+                },
+                "segments": {
+                  "type": "segment.list",
+                  "segments": []
+                },
+                "plan": {},
+                "custom_attributes": {
+                  "creation_source": "api"
+                }
+              },
+              "type": "Company"
+            }
+          ],
+          [
+            "debug",
+            "connector.service_api.call",
+            {
+              "request_id": expect.whatever()
+            },
             {
               "responseTime": expect.whatever(),
               "method": "POST",
-              "url": "/contacts/5f22f1b6fcaca714eb055739/tags",
-              "status": 200,
-              "vars": {}
-            }
-          ],
-          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
-            {
-              "responseTime": expect.whatever(),
-              "method": "POST",
-              "url": "/contacts/5f22f1b6fcaca714eb055739/tags",
-              "status": 200,
-              "vars": {}
-            }
-          ],
-          ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
-            {
-              "responseTime": expect.whatever(),
-              "method": "DELETE",
-              "url": "/contacts/5f22f1b6fcaca714eb055739/tags/tag_id_4",
+              "url": "/contacts/5f22f1b6fcaca714eb055739/companies",
               "status": 200,
               "vars": {}
             }
@@ -563,6 +839,34 @@ describe("Insert User Tests", () => {
                 "value": "Bob"
               }
             }
+          ],
+          [
+            "traits",
+            {
+              "asAccount": {
+                "anonymous_id": "intercom:5f4e82462bc3732be3cdf6b0",
+                "external_id": "account_external_id_1"
+              },
+              "subjectType": "account",
+            },
+            {
+              "intercom/company_id": {
+                "operation": "set",
+                "value": "account_external_id_1"
+              },
+              "intercom/id": {
+                "operation": "set",
+                "value": "5f4e82462bc3732be3cdf6b0"
+              },
+              "intercom/segments": {
+                "operation": "set",
+                "value": []
+              },
+              "intercom/tags": {
+                "operation": "set",
+                "value": []
+              }
+            }
           ]
         ],
         metrics: [
@@ -579,6 +883,18 @@ describe("Insert User Tests", () => {
           ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","ship.service_api.call",1],
+          ["value","connector.service_api.response_time",expect.whatever()],
+          ["increment","connector.service_api.error",1],
+          ["increment","service.service_api.errors",1],
           ["increment","ship.service_api.call",1],
           ["value","connector.service_api.response_time",expect.whatever()],
           ["increment","ship.service_api.call",1],

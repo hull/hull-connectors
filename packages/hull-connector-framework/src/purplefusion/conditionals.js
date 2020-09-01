@@ -93,6 +93,13 @@ function varStartsWithString(param: string, stringStart: string) {
   }
 }
 
+function varSizeEquals(param: string, value) {
+  return (context, input) => {
+    const contextVariable = context.get(param);
+    return _.size(contextVariable) === value;
+  };
+}
+
 /***************************/
 
 function notNull(param: string) {
@@ -214,5 +221,6 @@ module.exports = {
   isVarServiceAttributeInVarList,
   or,
   varStartsWithString,
-  varInResolvedArray
+  varInResolvedArray,
+  varSizeEquals
 };
