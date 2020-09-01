@@ -33,7 +33,6 @@ const streamRequest = (ctx: HullContext) => async ({
 
   let chunk = 0;
   let row = 0;
-  let request;
   const errors = [];
 
   const pipeline = chain([
@@ -49,6 +48,7 @@ const streamRequest = (ctx: HullContext) => async ({
       chunk += 1;
       row += data.length;
       if (limit && limit >= row) {
+        // eslint-disable-next-line no-use-before-define
         request.abort();
       }
       await onData(data.map(({ value }) => value));
