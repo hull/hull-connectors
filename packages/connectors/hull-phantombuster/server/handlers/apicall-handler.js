@@ -54,7 +54,9 @@ export default function handler(EntryModel: Object) {
       if (!output || !output.length) {
         client.logger.error("connector.request.error", {
           message:
-            "Could not find results in Phantombuster, check that the Agent has run successfully at least once"
+            "Could not find results in Phantombuster, check that the Agent has run successfully at least once",
+          agent,
+          output
         });
       }
       const result = await asyncComputeAndIngest(ctx, {
