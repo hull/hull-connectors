@@ -534,7 +534,7 @@ class SyncAgent {
     return (
       !_.isEmpty(user["intercom/import_error"]) &&
       _.get(user, "intercom/import_error", "").match("Exceeded rate limit") ===
-      null
+        null
     );
   }
 
@@ -871,7 +871,7 @@ class SyncAgent {
       (_.includes(
         this.tagMapping.getTagIds(),
         intercomEvent.data.item.tag.id
-        ) ||
+      ) ||
         _.includes(
           this.segments.map(s => s.name),
           intercomEvent.data.item.tag.name
