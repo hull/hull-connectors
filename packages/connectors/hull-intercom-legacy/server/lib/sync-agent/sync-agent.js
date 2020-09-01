@@ -473,57 +473,55 @@ class SyncAgent {
     this.client.logger.debug("sendUsers.filtered", intercomUsersToSave.length);
     this.metric.increment("ship.outgoing.users", intercomUsersToSave.length);
 
-    return (
-      this.syncShip()
-        .then(() => {
-          return this.intercomAgent.sendUsers(intercomUsersToSave, mode);
-        })
-        .then(res => {
-          if (_.isArray(res)) {
-            const savedUsers = _.intersectionBy(usersToSave, res, "email").map(
-              u => {
-                const intercomData = _.find(res, { email: u.email });
-                u["intercom/id"] = intercomData.id;
-                u["intercom/tags"] = intercomData.tags.tags.map(t => t.name);
+    return this.syncShip()
+      .then(() => {
+        return this.intercomAgent.sendUsers(intercomUsersToSave, mode);
+      })
+      .then(res => {
+        if (_.isArray(res)) {
+          const savedUsers = _.intersectionBy(usersToSave, res, "email").map(
+            u => {
+              const intercomData = _.find(res, { email: u.email });
+              u["intercom/id"] = intercomData.id;
+              u["intercom/tags"] = intercomData.tags.tags.map(t => t.name);
 
-                this.client
-                  .asUser(_.pick(u, ["email", "id", "external_id"]))
-                  .logger.info("outgoing.user.success", intercomData);
-                return u;
-              }
-            );
-            const errors = _.filter(res, { body: { type: "error.list" } });
+              this.client
+                .asUser(_.pick(u, ["email", "id", "external_id"]))
+                .logger.info("outgoing.user.success", intercomData);
+              return u;
+            }
+          );
+          const errors = _.filter(res, { body: { type: "error.list" } });
 
-            const groupedErrors = errors.map(errorReq => {
-              return {
-                data: errorReq.req.data,
-                error: errorReq.body.errors,
-                statusCode: res.statusCode
-              };
+          const groupedErrors = errors.map(errorReq => {
+            return {
+              data: errorReq.req.data,
+              error: errorReq.body.errors,
+              statusCode: res.statusCode
+            };
+          });
+
+          return this.sendEvents(savedUsers)
+            .then(() => {
+              return this.groupUsersToTag(savedUsers);
+            })
+            .then(groupedUsers => {
+              return this.intercomAgent.tagUsers(groupedUsers);
+            })
+            .then(() => {
+              return this.handleUserErrors(groupedErrors);
             });
+        }
 
-            return this.sendEvents(savedUsers)
-              .then(() => {
-                return this.groupUsersToTag(savedUsers);
-              })
-              .then(groupedUsers => {
-                return this.intercomAgent.tagUsers(groupedUsers);
-              })
-              .then(() => {
-                return this.handleUserErrors(groupedErrors);
-              });
-          }
-
-          if (_.get(res, "body.id")) {
-            return this.enqueue(
-              "handleBulk",
-              { users: usersToSave, id: res.body.id },
-              { delay: parseInt(process.env.BULK_JOB_DELAY, 10) || 10000 }
-            );
-          }
-          return Promise.resolve();
-        })
-    );
+        if (_.get(res, "body.id")) {
+          return this.enqueue(
+            "handleBulk",
+            { users: usersToSave, id: res.body.id },
+            { delay: parseInt(process.env.BULK_JOB_DELAY, 10) || 10000 }
+          );
+        }
+        return Promise.resolve();
+      });
   }
 
   userAdded(user) {
@@ -824,41 +822,34 @@ class SyncAgent {
   saveUsers(users) {
     this.metric.increment("ship.incoming.users", users.length);
 
-    return (
-      Promise.map(users, intercomUser => {
-        const ident = this.userMapping.getIdentFromIntercom(intercomUser);
-        const traits = this.userMapping.getHullTraits(intercomUser);
-        if (ident.email) {
-          const asUser = this.client.asUser(ident);
-          return asUser
-            .traits(traits)
-            .then(() =>
-              asUser.logger.debug("incoming.user.success", { traits })
-            )
-            .catch(error =>
-              asUser.logger.error("incoming.user.error", { error })
-            );
-        }
-        return this.client.asUser(ident).logger.debug("incoming.user.skip", {
-          reason: "missing email in ident"
+    return Promise.map(users, intercomUser => {
+      const ident = this.userMapping.getIdentFromIntercom(intercomUser);
+      const traits = this.userMapping.getHullTraits(intercomUser);
+      if (ident.email) {
+        const asUser = this.client.asUser(ident);
+        return asUser
+          .traits(traits)
+          .then(() => asUser.logger.debug("incoming.user.success", { traits }))
+          .catch(error =>
+            asUser.logger.error("incoming.user.error", { error })
+          );
+      }
+      return this.client.asUser(ident).logger.debug("incoming.user.skip", {
+        reason: "missing email in ident"
+      });
+    }).then(() => {
+      const customAttributes = _.uniq(
+        _.flatten(users.map(u => _.keys(u.custom_attributes)))
+      );
+      const oldAttributes = _.compact(this.private_settings.custom_attributes);
+      const newAttributes = _.difference(customAttributes, oldAttributes);
+      if (!_.isEmpty(newAttributes)) {
+        return this.helpers.settingsUpdate({
+          custom_attributes: _.concat(oldAttributes, newAttributes)
         });
-      })
-        .then(() => {
-          const customAttributes = _.uniq(
-            _.flatten(users.map(u => _.keys(u.custom_attributes)))
-          );
-          const oldAttributes = _.compact(
-            this.private_settings.custom_attributes
-          );
-          const newAttributes = _.difference(customAttributes, oldAttributes);
-          if (!_.isEmpty(newAttributes)) {
-            return this.helpers.settingsUpdate({
-              custom_attributes: _.concat(oldAttributes, newAttributes)
-            });
-          }
-          return true;
-        })
-    );
+      }
+      return true;
+    });
   }
 
   getLeadIdentity(lead: Object): Object {
