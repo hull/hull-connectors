@@ -654,15 +654,21 @@ const glue = {
       })
     ])
   ],
+  filterEvents: [
+    set("eventNames", ld("map", input("events"), "event")),
+    ifL(not(ex(settings("outgoing_events"), "includes", "all_events")), [
+      set("eventNames", ld("intersection", settings("outgoing_events"), "${eventNames}"))
+    ])
+  ],
   sendEvents: ifL([
     cond("notEmpty", settings("outgoing_events")),
     cond("isEqual", settings("send_events"), true)
   ], [
     set("contactId", "${contactFromIntercom.id}"),
     set("events", input("events")),
-    set("eventNames", ld("intersection", settings("outgoing_events"), ld("map", input("events"), "event"))),
     set("hasNewEvents", cond("lessThan", 0, ld("size", "${events}"))),
 
+    route("filterEvents"),
     ifL("${hasNewEvents}", [
 
       iterateL("${eventNames}", "eventName", [

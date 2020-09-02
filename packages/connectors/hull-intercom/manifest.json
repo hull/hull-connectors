@@ -245,7 +245,12 @@
       "title": "Sends Events to Intercom",
       "format": "event",
       "type": "array",
-      "default": []
+      "default": [],
+      "options": {
+        "standard": {
+          "all_events": "All Events"
+        }
+      }
     },
     {
       "name": "incoming_events",
