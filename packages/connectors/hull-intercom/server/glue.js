@@ -672,11 +672,13 @@ const glue = {
     ifL("${hasNewEvents}", [
 
       iterateL("${eventNames}", "eventName", [
-        set("event", filter({ event: "${eventName}" }, "${events}")),
-        ifL(not(cond("isEqual", "${event[0].event_source}", "intercom")), [
-          set("hullEvent", cast(HullOutgoingEvent, "${event[0]}")),
-          intercom("submitEvent", "${hullEvent}")
-        ])
+        set("eventsToSend", filter({ event: "${eventName}" }, "${events}")),
+
+        iterateL("${eventsToSend}", "event", [
+          ifL(not(cond("isEqual", "${event.event_source}", "intercom")), [
+            intercom("submitEvent", cast(HullOutgoingEvent, "${event}"))
+          ])
+        ]),
       ])
     ])
   ]),
