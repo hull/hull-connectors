@@ -616,6 +616,10 @@
     {
       "url": "/convert-lead",
       "handler": "convertLead"
+    },
+    {
+      "url": "/fetch-company",
+      "handler": "fetchCompany"
     }
   ],
   "schedules": [
