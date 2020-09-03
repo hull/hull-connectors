@@ -58,6 +58,14 @@ const service = ({ clientID, clientSecret } : {
       input: IntercomCompanyWrite,
       output: IntercomCompanyRead
     },
+    fetchCompany: {
+      url: "/companies",
+      operation: "get",
+      output: IntercomCompanyRead,
+      query: {
+        "company_id": "${company_id}"
+      }
+    },
     getRecentCompanies: {
       url: "/companies",
       operation: "get",
