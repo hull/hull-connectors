@@ -224,10 +224,10 @@ const glue = {
         ])
       ])
   ]),
-  fetchCompany: [
-    set("company_id", input("company_id")),
-    hull("asAccount", cast(IntercomCompanyRead, intercom("fetchCompany")))
-  ],
+  fetchCompany:
+    ifL(cond("notEmpty", set("company_id", input("body.company_id"))),[
+      hull("asAccount", cast(IntercomCompanyRead, intercom("fetchCompany")))
+    ]),
   fetchAllCompanies: ifL(
     cond("allTrue", [
       route("isConfigured")
