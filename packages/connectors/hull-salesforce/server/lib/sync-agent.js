@@ -106,6 +106,7 @@ class SyncAgent {
     this.mappings = getMappings(connector);
     this.isBatch = _.get(ctx.notification, "is_export", false);
     this.accountClaims = private_settings.account_claims || [];
+
     if (_.isEmpty(private_settings.user_claims)) {
       private_settings.user_claims = [{ hull: "email", service: "Email" }];
     }

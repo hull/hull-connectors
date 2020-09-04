@@ -15,3 +15,4 @@ hull-salesforce | http://docs.releasenotes.salesforce.com | TDB | https://develo
 hull-segment | https://github.com/segmentio/analytics-node/blob/master/History.md | 3.2.0 | https://segment.com/docs/sources/server/node/
 hull-slack | [botkit library](https://github.com/howdyai/botkit/blob/master/changelog.md) (wrapper around https://api.slack.com/changelog)  | 0.4.10 | https://botkit.ai/docs/ (wrapper around https://api.slack.com/)
 hull-typeform | https://medium.com/typeforms-engineering-blog | none | https://developer.typeform.com/
+
