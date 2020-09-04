@@ -6,7 +6,7 @@ const { isValidClaim } = require("../lib/utils");
 const { getUserAttributeOutputFields } = require("../lib/output-fields");
 
 const perform = async (z, { inputData }) => {
-  const { external_id, email, attributes } = inputData;
+  const { external_id, email, attributes, account_domain, account_external_id } = inputData;
 
   if (!isValidClaim({ external_id, email })) {
     const errorMessage = {
@@ -18,9 +18,10 @@ const perform = async (z, { inputData }) => {
   }
 
   const claims = _.pickBy({ email, external_id }, (v, _k) => !_.isEmpty(v));
+  const account_claims = _.pickBy({ account_domain, account_external_id }, (v, _k) => !_.isEmpty(v));
   return post(z, {
     url: createUrl,
-    body: { entityType: "user", claims, attributes }
+    body: { entityType: "user", claims, attributes, account_claims }
   });
 };
 
@@ -53,6 +54,24 @@ const user = {
         label: 'Email',
         helpText: 'Email of the Hull User',
         key: 'email',
+        type: 'string',
+        altersDynamicFields: false
+      },
+      {
+        required: false,
+        list: false,
+        label: 'Account Domain',
+        helpText: 'Domain of the Hull Account to link the Hull User to',
+        key: 'account_domain',
+        type: 'string',
+        altersDynamicFields: false
+      },
+      {
+        required: false,
+        list: false,
+        label: 'Account External Id',
+        helpText: 'External Id of the Hull Account to link the Hull User to',
+        key: 'account_external_id',
         type: 'string',
         altersDynamicFields: false
       },
