@@ -3,7 +3,7 @@ const _ = require("lodash");
 
 const { PurpleFusionTestHarness } = require("hull-connector-framework/src/purplefusiontester/purplefusion-test-harness");
 
-describe("Zapier Create User Tests", () => {
+describe("Zapier Create User Event Tests", () => {
 
   const testDefinition = require("./fixtures/create-user-event");
 
@@ -19,7 +19,7 @@ describe("Zapier Create User Tests", () => {
     "");
 
 
-  it("Receive Request to Create Hull User", () => {
+  it("Receive Request to Create Hull User Event", () => {
     const userSegmentsTest = _.cloneDeep(testDefinition);
     return harness.runTest(userSegmentsTest);
   });
