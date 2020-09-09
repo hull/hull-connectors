@@ -22,7 +22,6 @@ export default function connectorConfig(): HullConnectorConfig {
 
   return {
     manifest,
-    middlewares: [],
     handlers: new HullRouter({
       serviceName: "intercom",
       glue: require("./glue"),
