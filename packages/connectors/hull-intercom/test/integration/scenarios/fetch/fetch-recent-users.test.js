@@ -461,6 +461,134 @@ describe("Fetch Recent Users Tests", () => {
               "data": []
             });
 
+          scope
+            .post("/contacts/search", {
+              "query":  {
+                "operator": "AND",
+                "value": [
+                  {
+                    "field": "last_seen_at",
+                    "operator": ">",
+                    "value": 1593083100
+                  },
+                  {
+                    "field": "role",
+                    "operator": "=",
+                    "value": "user"
+                  }
+                ]
+              },
+              "pagination": {
+                "per_page": 150
+              },
+              "sort": {
+                "field": "last_seen_at",
+                "order": "descending"
+              }
+            })
+            .reply(200, {
+              "type": "list",
+              "data": [
+                {
+                  "type": "contact",
+                  "id": "last-seen-at-search-1",
+                  "workspace_id": "lkqcyt9t",
+                  "external_id": "234523542",
+                  "role": "user",
+                  "email": "bob-1@rei.com",
+                  "phone": "+1123456789",
+                  "name": "Bob1",
+                  "updated_at": 1593100000,
+                  "last_seen_at": 1593169501,
+                  "custom_attributes": {
+                    "job_title": "engineer"
+                  },
+                  "tags": { "data": [] },
+                  "notes": { "data": [] },
+                  "companies": { "data": [] }
+                }
+              ],
+              "total_count": 1,
+              "pages": {
+                "type": "pages",
+                "next": {
+                  "page": 2,
+                  "starting_after": "Wy0xLCI1ZjE2MWI3YTMzMjIzMWZjMTBiNDRlNWYiLDJd"
+                },
+                "page": 1,
+                "per_page": 1,
+                "total_pages": 2
+              }
+            });
+
+          scope
+            .get("/contacts/last-seen-at-search-1/segments")
+            .reply(200, {
+              "type": "list",
+              "data": []
+            });
+
+          scope
+            .post("/contacts/search", {
+              "query":  {
+                "operator": "AND",
+                "value": [
+                  {
+                    "field": "last_seen_at",
+                    "operator": ">",
+                    "value": 1593083100
+                  },
+                  {
+                    "field": "role",
+                    "operator": "=",
+                    "value": "user"
+                  }
+                ]
+              },
+              "pagination": {
+                "per_page": 150,
+                "starting_after": "Wy0xLCI1ZjE2MWI3YTMzMjIzMWZjMTBiNDRlNWYiLDJd"
+              },
+              "sort": {
+                "field": "last_seen_at",
+                "order": "descending"
+              }
+            })
+            .reply(200, {
+              "type": "list",
+              "data": [
+                {
+                  "type": "contact",
+                  "id": "last-seen-at-search-2",
+                  "workspace_id": "lkqcyt9t",
+                  "external_id": "234523542",
+                  "role": "user",
+                  "email": "bob-2@rei.com",
+                  "phone": "+1123456789",
+                  "name": "Bob2",
+                  "updated_at": 1593100000,
+                  "last_seen_at": 1593100000,
+                  "custom_attributes": {
+                    "job_title": "engineer"
+                  },
+                  "tags": { "data": [] },
+                  "notes": { "data": [] },
+                  "companies": { "data": [] }
+                }
+              ],
+              "total_count": 2,
+              "pages": {
+                "type": "pages",
+                "next": {
+                  "page": 2,
+                  "starting_after": "Wy0xLCI1ZjE2MWI3YTMzMjIzMWZjMTBiNDRlNWYiLDJd"
+                },
+                "page": 1,
+                "per_page": 1,
+                "total_pages": 2
+              }
+            });
+
           return scope;
         },
         response: { status : "deferred"},
@@ -674,6 +802,49 @@ describe("Fetch Recent Users Tests", () => {
               "type": "User"
             }
           ],
+          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
+            "method": "POST", "url": "/contacts/search", "status": 200, "vars": {} }],
+          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
+            "method": "GET", "url": "/contacts/last-seen-at-search-1/segments", "status": 200, "vars": {} }],
+          [
+            "debug",
+            "incoming.user.success",
+            {
+              "subject_type": "user",
+              "user_anonymous_id": "intercom-user:user-last-seen-at-search-1",
+              "user_email": "bob-1@rei.com",
+              "user_external_id": "234523542"
+            },
+            {
+              "data": {
+                "companies": {
+                  "data": []
+                },
+                "custom_attributes": {
+                  "job_title": "engineer"
+                },
+                "email": "bob-1@rei.com",
+                "external_id": "234523542",
+                "id": "last-seen-at-search-1",
+                "last_seen_at": 1593169501,
+                "name": "Bob1",
+                "notes": {
+                  "data": []
+                },
+                "phone": "+1123456789",
+                "role": "user",
+                "tags": {
+                  "data": [],
+                },
+                "type": "contact",
+                "updated_at": 1593100000,
+                "workspace_id": "lkqcyt9t",
+              },
+              "type": "User",
+            }
+          ],
+          ["debug", "connector.service_api.call", {}, { "responseTime": expect.whatever(),
+            "method": "POST", "url": "/contacts/search", "status": 200, "vars": {} }],
           ["info", "incoming.job.success", {}, { "jobName": "Incoming Data", "type": "webpayload" }]
         ],
         firehoseEvents: [
@@ -985,10 +1156,81 @@ describe("Fetch Recent Users Tests", () => {
                 "value": "Roberto Hernandez"
               }
             }
+          ],
+          [
+            "traits",
+            {
+              "asUser": {
+                "email": "bob-1@rei.com",
+                "external_id": "234523542",
+                "anonymous_id": "intercom-user:user-last-seen-at-search-1"
+              },
+              "subjectType": "user"
+            },
+            {
+              "intercom_user/user_id": {
+                "operation": "set",
+                "value": "234523542"
+              },
+              "intercom_user/id": {
+                "value": "last-seen-at-search-1",
+                "operation": "set"
+              },
+              "intercom_user/last_seen_at": {
+                "operation": "set",
+                "value": 1593169501
+              },
+              "intercom_user/name": {
+                "operation": "set",
+                "value": "Bob1"
+              },
+              "intercom_user/phone": {
+                "operation": "set",
+                "value": "+1123456789"
+              },
+              "intercom_user/updated_at": {
+                "operation": "set",
+                "value": 1593100000
+              },
+              "intercom_user/job_title": {
+                "operation": "set",
+                "value": "engineer"
+              },
+              "name": {
+                "operation": "setIfNull",
+                "value": "Bob1"
+              },
+              "intercom_user/email": {
+                "operation": "set",
+                "value": "bob-1@rei.com"
+              },
+              "intercom_user/companies": {
+                "operation": "set",
+                "value": []
+              },
+              "intercom_user/segments": {
+                "operation": "set",
+                "value": []
+              },
+              "intercom_user/social_profiles": {
+                "operation": "set",
+                "value": []
+              },
+              "intercom_user/tags": {
+                "operation": "set",
+                "value": []
+              }
+            }
           ]
         ],
         metrics: [
           ["increment", "connector.request", 1],
+          ["increment", "ship.service_api.call", 1],
+          ["value", "connector.service_api.response_time", expect.whatever()],
+          ["increment", "ship.service_api.call", 1],
+          ["value", "connector.service_api.response_time", expect.whatever()],
+          ["increment", "ship.service_api.call", 1],
+          ["value", "connector.service_api.response_time", expect.whatever()],
           ["increment", "ship.service_api.call", 1],
           ["value", "connector.service_api.response_time", expect.whatever()],
           ["increment", "ship.service_api.call", 1],

@@ -254,21 +254,27 @@ const glue = {
       ])
     ]),
   fetchContacts: [
-    ifL(cond("isEmpty", "${lastFetchAt}"), {
+    set("pageOffset", undefined),
+
+    set("service_type", input("service_type")),
+    set("last_fetch_at", input("last_fetch_at")),
+    set("search_by", input("search_by")),
+    set("transform_to", input("transform_to")),
+    ifL(cond("isEmpty", "${last_fetch_at}"), {
       do: set("fetchFrom", ex(ex(moment(), "subtract", { day: 1 }), "unix")),
       eldo: [
         set("secondsInDay", 86400),
-        set("fetchFrom", ld("subtract", "${lastFetchAt}", "${secondsInDay}"))
+        set("fetchFrom", ld("subtract", "${last_fetch_at}", "${secondsInDay}"))
       ]
     }),
-    ifL(cond("isEqual", "${fetchAll}", true), set("fetchFrom", 0)),
+    ifL(cond("isEqual", "${fetch_all}", true), set("fetchFrom", 0)),
 
     loopL([
       set("page", intercom("getContacts", {
         "query":  {
           "operator": "AND",
           "value": [
-            { "field": "updated_at", "operator": ">", "value": "${fetchFrom}" },
+            { "field": "${search_by}", "operator": ">", "value": "${fetchFrom}" },
             { "field": "role", "operator": "=", "value": "${service_type}" }
           ]
         },
@@ -277,35 +283,68 @@ const glue = {
           "starting_after": "${pageOffset}"
         },
         "sort": {
-          "field": "updated_at",
+          "field": "${search_by}",
           "order": "descending"
         }
       })),
-      set("intercomContacts", filterL(or([
-        cond("greaterThan", "${contact.updated_at}", "${lastFetchAt}"),
-        cond("isEqual", "${contact.updated_at}", "${lastFetchAt}")
-      ]), "contact", "${page.data}")),
+
+      route("filterContacts"),
+
       iterateL("${intercomContacts}", { key: "intercomContact", async: true },
-        hull("asUser", cast("${transformTo}", "${intercomContact}"))
+        hull("asUser", cast("${transform_to}", "${intercomContact}"))
       ),
       ifL(or([
         cond("isEqual", "${page.pages.next}", undefined),
         cond("isEmpty", "${page.pages.next}"),
-        cond("lessThan", get("updated_at", ld("last", "${page.data}")), "${lastFetchAt}")
+        cond("lessThan", get("${search_by}", ld("last", "${page.data}")), "${last_fetch_at}")
       ]), loopEndL()),
       set("pageOffset", "${page.pages.next.starting_after}")
     ])
   ],
+  filterContacts: [
+    ifL(cond("isEqual", "${search_by}", "updated_at"), [
+      set("intercomContacts", route("filterByUpdatedAt"))
+    ]),
+    ifL(cond("isEqual", "${search_by}", "last_seen_at"), [
+      set("intercomContacts", route("filterByLastSeenAt"))
+    ])
+  ],
+  filterByUpdatedAt: filterL(or([
+      cond("greaterThan", ld("get", "${fetchItem}", "${search_by}"), "${last_fetch_at}"),
+      cond("isEqual", ld("get", "${fetchItem}", "${search_by}"), "${last_fetch_at}")
+    ]), "fetchItem", "${page.data}"),
+  filterByLastSeenAt: filterL(cond("allTrue",
+    [
+      or([
+        cond("greaterThan", ld("get", "${fetchItem}", "${search_by}"), "${last_fetch_at}"),
+        cond("isEqual", ld("get", "${fetchItem}", "${search_by}"), "${last_fetch_at}")
+      ]),
+      cond("lessThan", ld("get", "${fetchItem}", "updated_at"), "${last_fetch_at}")
+    ]
+  ), "fetchItem", "${page.data}"),
   fetchRecentLeads: ifL(
     cond("allTrue", [
       route("isConfigured"),
       settings("fetch_leads")
     ]), [
       set("service_type", "lead"),
-      set("transformTo", IntercomLeadRead),
-      set("lastFetchAt", settings("leads_last_fetch_timestamp")),
+
+      set("last_fetch_at", settings("leads_last_fetch_timestamp")),
       settingsUpdate({ leads_last_fetch_timestamp: ex(moment(), "unix") }),
-      route("fetchContacts")
+      route("fetchContacts", {
+        service_type: "lead",
+        last_fetch_at: "${last_fetch_at}",
+        transform_to: IntercomLeadRead,
+        search_by: "updated_at"
+      }),
+      ifL(ex(jsonata("$.service", settings("incoming_lead_attributes")), "includes", "last_seen_at"), [
+        route("fetchContacts", {
+          service_type: "lead",
+          last_fetch_at: "${last_fetch_at}",
+          transform_to: IntercomLeadRead,
+          search_by: "last_seen_at"
+        })
+      ])
     ]),
   fetchRecentUsers: ifL(
     cond("allTrue", [
@@ -313,32 +352,50 @@ const glue = {
       settings("fetch_users")
     ]), [
       set("service_type", "user"),
-      set("transformTo", IntercomUserRead),
-      set("lastFetchAt", settings("users_last_fetch_timestamp")),
+      set("last_fetch_at", settings("users_last_fetch_timestamp")),
       settingsUpdate({ users_last_fetch_timestamp: ex(moment(), "unix") }),
-      route("fetchContacts")
+      route("fetchContacts", {
+        service_type: "user",
+        last_fetch_at: "${last_fetch_at}",
+        transform_to: IntercomUserRead,
+        search_by: "updated_at"
+      }),
+      ifL(ex(jsonata("$.service", settings("incoming_user_attributes")), "includes", "last_seen_at"), [
+        route("fetchContacts", {
+          service_type: "user",
+          last_fetch_at: "${last_fetch_at}",
+          transform_to: IntercomUserRead,
+          search_by: "last_seen_at"
+        })
+      ])
     ]),
   fetchAllLeads: ifL(
     cond("allTrue", [
       route("isConfigured")
     ]), [
       set("service_type", "lead"),
-      set("transformTo", IntercomLeadRead),
-      set("lastFetchAt", 0),
-      set("fetchAll", true),
+      set("fetch_all", true),
       settingsUpdate({ leads_last_fetch_timestamp: ex(moment(), "unix") }),
-      route("fetchContacts")
+      route("fetchContacts", {
+        service_type: "lead",
+        last_fetch_at: 0,
+        transform_to: IntercomLeadRead,
+        search_by: "updated_at"
+      })
     ]),
   fetchAllUsers: ifL(
     cond("allTrue", [
       route("isConfigured")
     ]), [
       set("service_type", "user"),
-      set("transformTo", IntercomUserRead),
-      set("lastFetchAt", 0),
-      set("fetchAll", true),
+      set("fetch_all", true),
       settingsUpdate({ users_last_fetch_timestamp: ex(moment(), "unix") }),
-      route("fetchContacts")
+      route("fetchContacts", {
+        service_type: "user",
+        last_fetch_at: 0,
+        transform_to: IntercomUserRead,
+        search_by: "updated_at"
+      })
     ]),
   getContactTags: returnValue([
     set("contactId", input("id"))
