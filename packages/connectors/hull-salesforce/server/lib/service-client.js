@@ -1,4 +1,5 @@
 /* @flow */
+import promiseToReadableStream from "hull/src/utils/promise-to-readable-stream";
 import type {
   IServiceClient,
   IApiResultObject,
@@ -17,6 +18,7 @@ import type {
 
 import type { TAssignmentRule } from "./service-client/assignmentrules";
 
+const { pipeStreamToPromise } = require("hull/src/utils");
 const _ = require("lodash");
 const events = require("events");
 const Promise = require("bluebird");
@@ -393,19 +395,11 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
 
     const query = this.getSoqlQuery(type, fields, accountClaims);
 
-    /* this.connection
-      .query(query)
-      .on("record", (record, numRecord, executingQuery) => {
-        return onRecord(record);
-      })
-      .on("end", () => {})
-      .on("error", err => {})
-      .run({ autoFetch: true, maxFetch: 500000 });*/
-
+    /* const records = [];
     let result = await this.connection.query(query);
     let { done, nextRecordsUrl } = result;
 
-    await this.saveRecords(result.records, onRecord);
+    Array.prototype.push.apply(records, result.records);
 
     while (!done && nextRecordsUrl) {
       // eslint-disable-next-line no-await-in-loop
@@ -414,10 +408,60 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
       done = result.done;
       nextRecordsUrl = result.nextRecordsUrl;
 
-      // eslint-disable-next-line no-await-in-loop
-      await this.saveRecords(result.records, onRecord);
+      Array.prototype.push.apply(records, result.records);
     }
-    return Promise.resolve();
+    return this.saveRecords(records, onRecord);*/
+
+    const incomingStream = this.getIncomingStream(query);
+
+    try {
+      let progress = 0;
+      await pipeStreamToPromise(incomingStream, records => {
+        progress += records.length;
+        this.logger.info("incoming.job.progress", {
+          jobName: `fetch-all-${_.toLower(type)}`,
+          progress
+        });
+        return this.saveRecords(records, onRecord);
+      });
+      return {
+        status: "ok"
+      };
+    } catch (error) {
+      this.logger.info("incoming.job.error", {
+        jobName: `fetch-all-${_.toLower(type)}`,
+        error: error.message
+      });
+      return {
+        error: error.message
+      };
+    }
+  }
+
+  getAllEntities(query: string, nextRecordsUrl: ?string = null): Promise<*> {
+    return _.isNil(nextRecordsUrl)
+      ? this.connection.query(query)
+      : this.connection.queryMore(nextRecordsUrl);
+  }
+
+  getIncomingStream(query: string, page: ?string = null) {
+    const getAllEntities = this.getAllEntities.bind(this);
+
+    function getAllEntitiesPage(push, soqlQuery, nextPage) {
+      return getAllEntities(query, nextPage).then(response => {
+        const { records, done, nextRecordsUrl } = response;
+
+        push(records);
+        if (!done && nextRecordsUrl) {
+          return getAllEntitiesPage(push, soqlQuery, nextRecordsUrl);
+        }
+        return Promise.resolve();
+      });
+    }
+
+    return promiseToReadableStream(push => {
+      return getAllEntitiesPage(push, query, page);
+    });
   }
 
   getRecords(
