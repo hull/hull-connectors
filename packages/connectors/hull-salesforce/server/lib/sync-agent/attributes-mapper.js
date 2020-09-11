@@ -366,7 +366,11 @@ class AttributesMapper implements IAttributesMapper {
           const identSfdc = claim.service;
           const identHull = claim.hull;
 
-          _.set(ident, identHull, _.get(sfObject, identSfdc));
+          const identity = _.get(sfObject, identSfdc);
+
+          if (!_.isNil(identity)) {
+            _.set(ident, identHull, identity);
+          }
         });
 
         break;
@@ -383,7 +387,11 @@ class AttributesMapper implements IAttributesMapper {
           const identSfdc = claim.service;
           const identHull = claim.hull;
 
-          _.set(ident, identHull, _.get(sfObject, identSfdc));
+          const identity = _.get(sfObject, identSfdc);
+
+          if (!_.isNil(identity)) {
+            _.set(ident, identHull, identity);
+          }
         });
         break;
     }

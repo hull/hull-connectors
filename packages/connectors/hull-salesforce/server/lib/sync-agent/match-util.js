@@ -105,7 +105,7 @@ class MatchUtil implements IMatchUtil {
               searchForType: searchEntity.resource
             };
 
-      let searchField = _.get(searchFor, searchByKey, "n/a");
+      let searchField = _.get(searchFor, searchByKey);
 
       const matches = _.filter(entities, entity => {
         let checkEntity = entity;
@@ -117,7 +117,7 @@ class MatchUtil implements IMatchUtil {
           checkEntity = entity.user;
         }
 
-        let matchField = _.get(checkEntity, `${searchForKey}`, "n/a");
+        let matchField = _.get(checkEntity, `${searchForKey}`);
 
         if (!_.isNil(searchField) && searchByKey === "domain") {
           searchField = this.extractMatchingDomain(searchField);

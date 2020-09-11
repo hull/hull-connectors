@@ -245,20 +245,6 @@ describe("Update Accounts Tests", () => {
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Website%2C%20Name%2C%20Mrr__c%2C%20CS_Stage__c%2C%20Id%2C%20CustomIdentifierField%20FROM%20Account%20WHERE%20Website%20LIKE%20'%25krakowtraders.pl%25'%20OR%20CustomIdentifierField%20IN%20('0011I000007Cy18QAC')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
             }
           ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 2,
-              "userIds": [],
-              "userEmails": [],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
           [
             "info",
             "outgoing.account.success",
@@ -537,20 +523,6 @@ describe("Update Accounts Tests", () => {
               "method": "GET",
               "url_length": 237,
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Website%2C%20Name%2C%20Mrr__c%2C%20CS_Stage__c%2C%20Id%20FROM%20Account%20WHERE%20Website%20LIKE%20'%25krakowtraders.pl%25'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 4,
-              "userIds": [],
-              "userEmails": [],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
             }
           ]),
           [
@@ -868,20 +840,6 @@ describe("Update Accounts Tests", () => {
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Website%2C%20Name%2C%20Mrr__c%2C%20CS_Stage__c%2C%20Id%20FROM%20Account%20WHERE%20Website%20LIKE%20'%25krakowtraders.pl%25'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
             }
           ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 9,
-              "userIds": [],
-              "userEmails": [],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
           [
             "info",
             "outgoing.account.skip",
@@ -1139,20 +1097,6 @@ describe("Update Accounts Tests", () => {
               "method": "GET",
               "url_length": 377,
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20ACCOUNT_NAME__c%2C%20ACCOUNT_STAGE__c%2C%20ACCOUNT_SEGMENTS__c%2C%20ACCOUNT_STAGES__c%2C%20ACCOUNT_RANDOM_PL__c%2C%20Id%2C%20Website%2C%20Name%2C%20Mrr__c%20FROM%20Account%20WHERE%20Id%20IN%20('0011I000007Cy18QAC')%20OR%20Website%20LIKE%20'%25krakowtraders.pl%25'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 1,
-              "userIds": [],
-              "userEmails": [],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
             }
           ]),
           expect.arrayContaining([
@@ -1427,20 +1371,6 @@ describe("Update Accounts Tests", () => {
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Website%2C%20Name%2C%20Mrr__c%2C%20CS_Stage__c%2C%20Id%2C%20CustomField1%20FROM%20Account%20WHERE%20Website%20LIKE%20'%25krakowtraders.pl%25'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
             }
           ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 1,
-              "userIds": [],
-              "userEmails": [],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
           [
             "info",
             "outgoing.account.success",
@@ -1594,20 +1524,6 @@ describe("Update Accounts Tests", () => {
               "method": "GET",
               "url_length": 282,
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20KYB_validate_at__c%2C%20contract_signed_at__c%2C%20Last_Load_Date__c%2C%20Description%2C%20Id%2C%20Website%20FROM%20Account%20WHERE%20Website%20LIKE%20'%25apple.com%25'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 1,
-              "userIds": [],
-              "userEmails": [],
-              "accountDomains": [
-                "apple.com"
-              ]
             }
           ]),
           [
@@ -1839,20 +1755,6 @@ describe("Update Accounts Tests", () => {
               "method": "GET",
               "url_length": 342,
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Website%2C%20Name%2C%20Mrr__c%2C%20CS_Stage__c%2C%20Id%2C%20CustomField1%20FROM%20Account%20WHERE%20Id%20IN%20('0011I000007Cy18QAC')%20OR%20Website%20LIKE%20'%25krakowtraders.pl%25'%20OR%20CustomField1%20IN%20('salesforce-id-1')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 1,
-              "userIds": [],
-              "userEmails": [],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
             }
           ]),
           [

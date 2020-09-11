@@ -468,54 +468,6 @@ describe("Insert Accounts Via User Update Tests", () => {
             }
           ],
           [
-            "debug",
-            "outgoing.job.progress",
-            {
-              "request_id": expect.whatever()
-            },
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ],
-          [
-            "debug",
-            "outgoing.job.progress",
-            {
-              "request_id": expect.whatever()
-            },
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44",
-                "59c975d75226a8c3a6001f40"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl",
-                "rafa.kasczka@krakowtraders.pl"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ],
-          [
             "info",
             "outgoing.account.success",
             {

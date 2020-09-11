@@ -392,6 +392,16 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     const accountClaims = options.account_claims || [];
 
     const query = this.getSoqlQuery(type, fields, accountClaims);
+
+    /* this.connection
+      .query(query)
+      .on("record", (record, numRecord, executingQuery) => {
+        return onRecord(record);
+      })
+      .on("end", () => {})
+      .on("error", err => {})
+      .run({ autoFetch: true, maxFetch: 500000 });*/
+
     let result = await this.connection.query(query);
     let { done, nextRecordsUrl } = result;
 
