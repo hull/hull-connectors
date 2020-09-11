@@ -220,20 +220,6 @@ describe("Skip Account Tests", () => {
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Website%2C%20Name%2C%20Mrr__c%2C%20CS_Stage__c%2C%20Id%2C%20CustomField1%20FROM%20Account%20WHERE%20Id%20IN%20('0011I000007Cy18QAC')%20OR%20Website%20LIKE%20'%25krakowtraders.pl%25'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
             }
           ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 1,
-              "userIds": [],
-              "userEmails": [],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
           [
             "info",
             "outgoing.account.skip",
@@ -426,20 +412,6 @@ describe("Skip Account Tests", () => {
               "method": "GET",
               "url_length": 219,
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Website%2C%20Name%2C%20Mrr__c%2C%20CS_Stage__c%2C%20Id%20FROM%20Account%20WHERE%20Website%20%3D%20'a.com'%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 0,
-              "userIds": [],
-              "userEmails": [],
-              "accountDomains": [
-                "a.com"
-              ]
             }
           ]),
           [
