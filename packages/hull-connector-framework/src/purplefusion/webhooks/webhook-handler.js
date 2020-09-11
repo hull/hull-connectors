@@ -82,12 +82,11 @@ async function webhookHandler(req: HullRequest, res: HullResponse) {
   }
 
   for (let i = 0; i < clientCredentialsArray.length; i += 1) {
-    const request = _.cloneDeep(req);
     const clientCredentials = clientCredentialsArray[i];
     request.hull.clientCredentials = clientCredentials;
 
     // eslint-disable-next-line
-    await processRequest(request, res, message);
+    await processRequest(req, res, message);
   }
   return sendResponse(res);
 }

@@ -255,6 +255,8 @@ export type HullConnectorConfig = {
   timeout?: number | string, //Connector timeout settings. Default = 25s
   disableOnExit?: boolean, //Should we disable exit listeners. Default = false
   devMode?: boolean, //development mode
+  disableWebpack?: boolean, // disable webpack building of client side assets. Speeds up process reload when only working on server side code
+  trustProxy?: boolean, // Get express to compute proper client ip if the app is behind a proxy. https://expressjs.com/en/guide/behind-proxies.html
   instrumentation?: HullInstrumentation, // set a custom instrumentation instance
   queueConfig?: HullQueueConfig, // set a Custom Queue instance for workers
   handlers: HullConnector => HullHandlersConfiguration, //Handlers methods

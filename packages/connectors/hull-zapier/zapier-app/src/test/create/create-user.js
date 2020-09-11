@@ -43,9 +43,10 @@ describe('Action - User Created', () => {
       "name": "Andy Hull",
       "pipedrive/id": "pipedrive_id"
     };
+    const account_claims = {};
     const scope = nock(connector_url)
       .post("/create?token=YOUR_TOKEN",
-        { entityType: "user", claims, attributes }
+        { entityType: "user", claims, attributes, account_claims }
       )
       .reply(200, {
         data: {
@@ -91,9 +92,10 @@ describe('Action - User Created', () => {
       "name": "Andy Hull",
       "pipedrive/id": "pipedrive_id"
     };
+    const account_claims = {};
     const scope = nock(connector_url)
       .post("/create?token=YOUR_TOKEN",
-        { entityType: "user", claims, attributes }
+        { entityType: "user", claims, attributes, account_claims }
       )
       .reply(200, {
         data: {
@@ -122,7 +124,7 @@ describe('Action - User Created', () => {
 
       inputData: {
         email: "al@alincorporated.com",
-        external_id: "",
+        external_id: 234,
         random_field: "blah blah",
         attributes: {
           "pipedrive/department": "marketing",
@@ -133,16 +135,18 @@ describe('Action - User Created', () => {
     };
 
     const claims = {
-      "email": "al@alincorporated.com"
+      "email": "al@alincorporated.com",
+      "external_id": 234,
     };
     const attributes = {
       "pipedrive/department": "marketing",
       "name": "Andy Hull",
       "pipedrive/id": "pipedrive_id"
     };
+    const account_claims = {};
     const scope = nock(connector_url)
       .post("/create?token=YOUR_TOKEN",
-        { entityType: "user", claims, attributes }
+        { entityType: "user", claims, attributes, account_claims }
       )
       .reply(200, {
         data: {

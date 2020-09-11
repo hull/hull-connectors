@@ -1,10 +1,24 @@
 version: 2
 jobs:
   build:
+    machine:
+      docker_layer_caching: true
+    steps:
+      - checkout
+      - run:
+          name: Build docker image
+          command: |
+            echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
+            docker build . -t hull/hull-connectors:$CIRCLE_SHA1
+      - run:
+          name: Publish to docker
+          command: |
+            docker push hull/hull-connectors:$CIRCLE_SHA1
+  test:
     docker:
       - image: circleci/node:10.15
-      - image: circleci/mongo:3.6.12
       - image: circleci/redis:5.0.4
+      - image: circleci/mongo:3.6.12
     steps:
       - checkout
       - run:
@@ -16,7 +30,7 @@ jobs:
             - yarn-packages-{{ checksum "yarn.lock" }}
       - run:
           name: Install Dependencies
-          command: yarn
+          command: yarn install --frozen-lockfile --verbose
       - save_cache:
           name: Save Yarn Package cache
           key: yarn-packages-{{ checksum "yarn.lock" }}
@@ -25,18 +39,6 @@ jobs:
       - run:
           name: Run tests
           command: yarn test:ci
-      # Don't try building connectors if not in branch master or develop
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - run:
-          name: Build docker image
-          command: |
-            echo "$DOCKER_PASS" | docker login --username $DOCKER_USER --password-stdin
-            docker build . -t hull/hull-connectors:$CIRCLE_SHA1
-      - run:
-          name: Publish to docker
-          command: |
-            docker push hull/hull-connectors:$CIRCLE_SHA1
   deploy:
     docker:
       - image: hull/dcos-deploy:latest
@@ -58,3 +60,4 @@ workflows:
   build_and_test:
     jobs:
       - build
+      - test
