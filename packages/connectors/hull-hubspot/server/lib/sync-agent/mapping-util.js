@@ -144,6 +144,22 @@ class MappingUtil {
     return {};
   }
 
+  format(value) {
+    if (_.isNil(value) || (!_.isNumber(value) && _.isEmpty(value))) {
+      return null;
+    }
+    if (_.isNumber(value)) {
+      return value;
+    }
+
+    // TODO tmp fix - use castAs
+    // eslint-disable-next-line
+    if (!isNaN(value) && (_.startsWith(value, "0.") || !_.startsWith(value, "0"))) {
+      return parseFloat(value);
+    }
+    return value;
+  }
+
   mapToHullAccount(accountData: HubspotReadCompany): HullAccountAttributes {
     const { helpers } = this.ctx;
     const { mapAttributes } = helpers;
@@ -152,17 +168,7 @@ class MappingUtil {
       direction: "incoming",
       mapping: this.connector.private_settings.incoming_account_attributes,
       attributeFormatter: value => {
-        if (_.isNil(value) || (!_.isNumber(value) && _.isEmpty(value))) {
-          return null;
-        }
-        if (_.isNumber(value)) {
-          return value;
-        }
-        // eslint-disable-next-line no-restricted-globals
-        if (!isNaN(value) && !_.startsWith(value, "0")) {
-          return parseFloat(value);
-        }
-        return value;
+        return this.format(value);
       }
     });
 
@@ -186,10 +192,7 @@ class MappingUtil {
       direction: "incoming",
       mapping: this.connector.private_settings.incoming_user_attributes,
       attributeFormatter: value => {
-        if (_.isNil(value) || (!_.isNumber(value) && _.isEmpty(value))) {
-          return null;
-        }
-        return value;
+        return this.format(value);
       }
     });
 
