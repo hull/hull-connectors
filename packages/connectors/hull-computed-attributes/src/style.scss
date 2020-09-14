@@ -1,0 +1,183 @@
+@import "../../../assets/style/index.scss";
+@import "../../../assets/style/vm/index.scss";
+
+i.glyphicon {
+  display: none;
+}
+.btn-add::after {
+  content: "✚ Add Computed Attribute";
+}
+.array-item-move-up::after {
+  content: "⬆";
+}
+.array-item-move-down::after {
+  content: "⬇";
+}
+.array-item-remove::after {
+  content: "✖";
+}
+.btn-danger.array-item-remove {
+  width: 32px;
+  padding: 3px;
+}
+
+%panel_body {
+  padding: 1rem;
+  border-radius: 8px;
+  background: #ffffff06;
+  box-shadow: rgba(0, 0, 0, 0.18) 0px 4px 12px, #ffffff08 0px 0px 0px 1px inset;
+}
+
+.panel-body {
+  @extend %panel_body;
+}
+
+.json-form {
+  height: calc(100vh - 300px);
+  overflow: scroll;
+
+  .btn.array-item-move-up,
+  .btn.array-item-move-down,
+  .btn.array-item-remove {
+    flex: 1;
+    border-radius: 100px;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .btn.array-item-move-up + .btn.array-item-move-down,
+  .btn.array-item-move-down + .btn.array-item-remove {
+    margin-left: 2px;
+  }
+
+  .row {
+    margin: 0;
+    flex-direction: column;
+  }
+
+  legend {
+    height: auto;
+    display: block;
+    font-size: 18px;
+    font-weight: 500;
+    opacity: 0.3;
+  }
+
+  .row.array-item-list {
+    flex-direction: column;
+
+    border-bottom: 1px solid #ffffff36;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    .array-item-list {
+      border: 0;
+      padding: 0;
+      margin: 0;
+    }
+  }
+  .array-item {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    > .col-xs-9 {
+      flex-grow: 1;
+    }
+    > .array-item-toolbox {
+      padding-left: 1rem;
+    }
+  }
+}
+
+.field_sources {
+  .btn-add::after {
+    content: "✚ Add Fallback";
+  }
+  // Hide the useless group
+  .field-object {
+    legend {
+      display: none;
+    }
+  }
+  > .field-array
+    > .array-item-list
+    > .array-item
+    > div
+    > .field-object
+    > .field_object_row {
+    display: none;
+  }
+}
+
+.field_mappings {
+  // Design for a Mapping Block
+  > .field-array {
+    @extend %panel_body;
+    padding: 0.2rem 0.6rem 0.2rem 0.6rem;
+    margin-top: 0.5rem;
+    .btn-add::after {
+      content: "✚ Add Mapping";
+    }
+  }
+
+  > .field-array-of-object {
+    display: flex;
+    flex-direction: column;
+    > legend {
+      display: block;
+    }
+  }
+
+  > div {
+    > .array-item-list {
+      > .array-item {
+        > div {
+          .field-object {
+            display: flex;
+            flex-direction: row;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Display fields and labels horizontally
+.field-string {
+  display: flex;
+  align-items: baseline;
+  label {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    margin-right: 1rem;
+  }
+}
+
+.field_mapping_source {
+  padding-right: 5px;
+}
+
+.field_mapping_source,
+.field_mapping_destination {
+  margin: 0;
+  flex-grow: 1;
+}
+
+.field_source {
+  .field_source,
+  .field_object_row > .field-string {
+    margin: 0;
+  }
+}
+
+// Display horizontal fields in the Mapping section
+.field_mapping .field_object_row {
+  display: flex;
+  flex-direction: row;
+}
+
+.field_source_property {
+  margin-bottom: 0;
+}

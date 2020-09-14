@@ -1,0 +1,82 @@
+{
+  "name": "fallbacks",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "default": [{
+      "target": "",
+      "value": "",
+      "unknown": "",
+      "sources":[
+        {
+          "property": ""
+        }
+      ]
+    }],
+    "required": ["target", "operation"],
+    "properties": {
+      "target": {
+        "title": "Target Attribute",
+        "type": "string"
+      },
+      "operation": {
+        "title": "Update Strategy",
+        "type": "string",
+        "default": "set",
+        "enumNames": ["Always", "Only if not previously set"],
+        "enum": ["set", "setIfNull"]
+      },
+      "sources": {
+        "type": "array",
+        "title": "Fallbacks",
+        "default": [
+          {
+            "property": ""
+          }
+        ],
+        "items": {
+          "type": "object",
+          "anyOf": [
+            {
+              "title": "Attribute Value",
+              "required": ["property"],
+              "properties": {
+                "property": { "type": "string", "title": "Source attribute" }
+              }
+            },
+            {
+              "title": "Remapped Attribute Value",
+              "required": ["property"],
+              "properties": {
+                "property": { "type": "string", "title": "Source attribute" },
+                "mapping": {
+                  "title": "Mapping",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "source": { "type": "string", "title": "Original Value" },
+                      "destination": { "type": "string", "title": "Remapped Value" }
+                    },
+                    "default": []
+                  }
+                },
+                "unknown": {
+                  "type": "string",
+                  "title": "Mapping Default"
+                }
+              }
+            },
+            {
+              "title": "Static Value",
+              "required": ["value"],
+              "properties":{
+                "value": { "type": "string", "title": "Static Value" } 
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

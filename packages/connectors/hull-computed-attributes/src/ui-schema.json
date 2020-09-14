@@ -1,0 +1,51 @@
+{
+  "items": {
+    "classNames": "field_fallback",
+    "target": {
+      "classNames": "field_target",
+      "ui:label": false,
+      "ui:placeholder": "Attribute to write to"
+    },
+    "operation": {
+      "classNames": "field_operation"
+    },
+    "sources": {
+      "classNames": "field_sources",
+      "items": {
+        "classNames": "field_source",
+        "ui:order": ["property", "value", "mapping", "unknown"],
+        "ui:label": false,
+        "property": {
+          "classNames": "field_source_property",
+          "ui:label": false,
+          "ui:placeholder": "Attribute to read from"
+        },
+        "unknown": {
+          "classNames": "field_source_unknown",
+          "ui:label": false,
+          "ui:placeholder": "Value if no mapping matches"
+        },
+        "value": {
+         "ui:label": false,
+         "ui:placeholder": "Static Value"
+        },
+        "mapping":{
+          "classNames": "field_mappings",
+          "items":{
+            "classNames": "field_mapping",
+            "source": {
+              "classNames": "field_mapping_source",
+              "ui:placeholder": "Original Value",
+              "ui:label": false
+            },
+            "destination": {
+              "classNames": "field_mapping_destination",
+              "ui:placeholder": "Destination Value",
+              "ui:label": false
+            }
+          }
+        }
+      }
+    }
+  }
+}

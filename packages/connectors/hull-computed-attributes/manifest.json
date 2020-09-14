@@ -1,0 +1,188 @@
+{
+  "name": "Computed Attributes",
+  "description": "Compute User Attributes based on Fallbacks and Mappings",
+  "tags": [
+    "batch",
+    "smart-notifier",
+    "kraken-exports"
+  ],
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "ui": false,
+  "tabs": [
+    {
+      "title": "Code Editor",
+      "url": "/admin.html",
+      "size": "large",
+      "setup": false,
+      "workspace": true,
+      "editable": true,
+      "handler": "admin"
+    }
+  ],
+  "readme": "readme.md",
+  "version": "0.1.33-monorepo",
+  "private_settings": [
+    {
+      "name": "code",
+      "type": "string",
+      "description": "Prepare the data object to pass to the compute attribute logic. Allows you to extract valuable items, such as the first event with a specific name for instance",
+      "format": "code",
+      "default":"{\n \"user\": user,\n \"account\": account,\n \"segments\": segments,\n \"account_segments\": account_segments,\n \"events\": events,\n \"tracking_id\": $filter(user.anonymous_ids, /:/)[0]\n }"
+    },
+    {
+      "name": "fallbacks",
+      "description": "Compute the attributes from the data object passed above",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "string",
+            "format": "string"
+          },
+          "operation":{
+            "type": ["string"],
+            "enum": [ "setIfNull" ]
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties":{
+                "property": { "type": "string" },
+                "empty": { "type": "string" },
+                "unknown": { "type": "string" },
+                "mapping": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "source": { "type": "string" },
+                      "destination": { "type": "string" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "variables",
+      "title": "Custom Variables",
+      "description": "Define custom variables here. usually things you don't want to save in the Connector's code, such as API Keys, or values you want to allow non-technical users to be able to update. A variable you define as `foo` Will be available as `variables.foo` in the code editor. Only Strings are supported here",
+      "type": "array",
+      "format": "table",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "title": "Variable Name",
+            "placeholder": "Variable Name",
+            "type": "string",
+            "format": "string"
+          },
+          "value": {
+            "title": "Value",
+            "placeholder": "Variable Value",
+            "type": "string",
+            "format": "string"
+          }
+        }
+      },
+      "default": []
+    },
+    {
+      "name": "synchronized_user_segments",
+      "title": "User Filter",
+      "description": "Which users are sent through the Connector",
+      "type": "array",
+      "format": "segment",
+      "options": {
+        "standard": {
+          "ALL": "All Users"
+        }
+      },
+      "default": [
+        "ALL"
+      ]
+    }
+  ],
+  "resources": [],
+  "settings_sections": [
+    {
+      "title": "Configuration",
+      "description": "Configure the way the Connector runs",
+      "properties": [
+        "private_settings.synchronized_user_segments",
+        "private_settings.variables",
+        "private_settings.fallbacks"
+      ]
+    }
+  ],
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "conditions": {
+        "channels": {
+          "only": [
+            "user:update"
+          ]
+        },
+        "segments": {
+          "user:update": [
+            "private_settings.synchronized_user_segments"
+          ]
+        }
+      },
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdate"
+        }
+      ]
+    }
+  ],
+  "json": [
+    {
+      "url": "/config",
+      "handler": "configHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
+    },
+    {
+      "url": "/entry",
+      "handler": "entityHandler",
+      "options": {
+        "cacheContextFetch": false,
+        "respondWithError": true
+      }
+    },
+    {
+      "url": "/preview",
+      "handler": "previewHandler",
+      "options": {
+        "cacheContextFetch": false
+      }
+    }
+  ],
+  "status": {
+    "initial_value": "ok",
+    "url": "/status",
+    "type": "cron",
+    "value": "*/30 * * * *",
+    "handler": "statusHandler"
+  },
+  "statuses": [
+    {
+      "initial_value": "ok",
+      "url": "/status",
+      "type": "cron",
+      "value": "*/30 * * * *",
+      "handler": "statusHandler"
+    }
+  ]
+}
