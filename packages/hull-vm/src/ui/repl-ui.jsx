@@ -62,7 +62,14 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
   };
 
   render() {
-    const { current, computing, showBindings, error, entity } = this.state;
+    const {
+      code,
+      current,
+      computing,
+      showBindings,
+      error,
+      entity
+    } = this.state;
 
     if (!current) {
       return (
@@ -85,7 +92,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
             <Code
               focusOnLoad={true}
               computing={computing}
-              code={current.code}
+              code={code}
               readOnly={false}
               onChange={this.handleCodeUpdate}
             />

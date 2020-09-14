@@ -1,14 +1,17 @@
 // @flow
 
 import _ from "lodash";
-import type { HullEntityName } from "hull";
-import type { EventSelect, Entry, ProcessorEngineState } from "hull-vm";
+import type {
+  ProcessorConfResponse,
+  EventSelect,
+  Entry,
+  ProcessorEngineState
+} from "../types";
 import Engine from "./engine";
 
-type QueryParams = {
-  search?: string,
-  entity: HullEntityName,
-  selectedEvents: Array<EventSelect>
+const ERROR_MESSAGES = {
+  "Can't search for an empty value": "empty",
+  "No entity found": "notfound"
 };
 
 export default class ProcessorEngine extends Engine {
@@ -21,48 +24,49 @@ export default class ProcessorEngine extends Engine {
   }
 
   getSearchCache = (): string =>
-    localStorage.getItem(`search-${this.state.config.id}`);
+    (this.state.config &&
+      localStorage.getItem(`search-${this.state.config.id}`)) ||
+    "";
 
   setSearchCache = (value: string) =>
+    this.state.config &&
     localStorage.setItem(`search-${this.state.config.id}`, value);
 
   // This methods finishes the init Sequence
-  saveConfig = response => {
-    const { eventSchema = [], entity } = response;
-    const events = _.sortBy(
-      eventSchema.map(e => ({ value: e.name, label: e.name })),
-      e => e.label
-    );
+  saveConfig = (config: ProcessorConfResponse) => {
+    const { eventSchema = [] } = config;
     this.setState({
       error: "empty",
       initialized: true,
-      entity,
-      ...response,
-      events
+      ...config,
+      events: _.sortBy(
+        eventSchema.map(e => ({ value: e.name, label: e.name })),
+        e => e.label
+      )
     });
     this.fetchEntry(this.state);
   };
 
   saveEntry = (entry?: Entry) => {
-    this.setState({ entry });
-    if (!entry || entry.error) {
+    if (!entry || entry.error !== undefined) {
       return;
     }
-    const { code } = this.state.current || {};
-    const newCode = code !== undefined ? code : entry.code;
     const claims = _.get(entry, "result.claims");
-    const { entity } = this.state;
-    const current = {
-      ...entry,
-      language: this.state.language,
-      code: newCode,
-      editable: true,
-      claims,
-      entity
-    };
-    this.setState({ error: undefined, current });
-    if (_.size(claims)) {
-      this.fetchPreview(current);
+    this.setState({
+      error: undefined,
+      current: {
+        ...entry,
+        claims
+      },
+      editable: true
+    });
+    const { code } = this.getState();
+    if (_.size(claims) && code !== _.get(entry, "code")) {
+      // Refresh data if code has changed
+      this.fetchPreview({ code });
+    } else {
+      // Shortcut for first load, avoid 1 api call and finish now
+      this.setState({ computing: false });
     }
   };
 
@@ -96,8 +100,10 @@ export default class ProcessorEngine extends Engine {
   fetchEntry = async ({
     search = "",
     entity,
+    language,
+    code,
     selectedEvents = []
-  }: QueryParams) => {
+  }: ProcessorEngineState) => {
     if (!entity) {
       return;
     }
@@ -109,6 +115,8 @@ export default class ProcessorEngine extends Engine {
         data: {
           search,
           entity,
+          language,
+          code,
           include: {
             events: {
               names: selectedEvents
@@ -117,19 +125,11 @@ export default class ProcessorEngine extends Engine {
         }
       });
       this.setState({ error: undefined, fetching: false });
-      if (entry.error) {
-        if (entry.error === "Can't search for an empty value") {
-          throw new Error("empty");
-        }
-        if (entry.error === "No entity found") {
-          throw new Error("notfound");
-        }
-        throw new Error(entry.error);
-      }
       this.saveEntry(entry);
-    } catch (err) {
+    } catch (error) {
+      const message = ERROR_MESSAGES[error.message] || error.message;
       this.setState({
-        error: err.message,
+        error: message,
         computing: false,
         fetching: false,
         current: {

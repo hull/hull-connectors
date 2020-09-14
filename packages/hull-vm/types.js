@@ -12,7 +12,8 @@ import type {
   HullAccountUpdateMessage,
   HullAttributeContext,
   HullFetchedUser,
-  HullEntityName
+  HullEntityName,
+  HullEventSchemaEntry
 } from "hull";
 import { Map } from "immutable";
 
@@ -72,6 +73,9 @@ export type Payload =
   | {
       ...HullFetchedUser,
       variables: {}
+    }
+  | {
+      variables: {}
     };
 
 export type HullAliasOperation = "alias" | "unalias";
@@ -129,18 +133,18 @@ export type PreviewRequest = {
   entity?: HullEntityName,
   language?: SupportedLanguage,
   claims?: HullEntityClaims,
+  fallbacks?: {},
   code: string
 };
+
 export type PreviewResponse = SerializedResult;
 
 export type Entry = {
-  error?: string,
-  connectorId: string,
+  date: string,
+  result: Result | SerializedResult,
   code: string,
   payload: Payload,
-  result: Result | SerializedResult,
-  date: string,
-  editable?: boolean
+  error?: string
 };
 
 export type ComputeOptions = {
@@ -211,17 +215,40 @@ export type ClaimsValidation =
     };
 
 export type Current = {
-  connectorId: string,
   code: string
 };
-export type IncomingConfResponse = {
-  current: Current,
+export type IncomingConfResponse = {|
+  language: "javascript",
+  code: string,
   url: string
-};
-export type ProcessorConfResponse = {
-  current: Current
-};
-export type ConfResponse = IncomingConfResponse | ProcessorConfResponse;
+|};
+export type ProcessorConfResponse = {|
+  eventSchema: Array<HullEventSchemaEntry>,
+  language: "javascript",
+  entity: "user" | "account",
+  code: string
+|};
+export type OutgoingConfResponse = {|
+  eventSchema: Array<HullEventSchemaEntry>,
+  headers: {},
+  url: string,
+  language: "javascript",
+  entity: "user" | "account",
+  code: string
+|};
+
+export type BasicConfResponse = {|
+  language: "javascript",
+  entity?: "user" | "account",
+  code: string
+|};
+export type ReplConfResponse = BasicConfResponse;
+
+export type ConfResponse =
+  | BasicConfResponse
+  | OutgoingConfResponse
+  | IncomingConfResponse
+  | ProcessorConfResponse;
 
 export type Config = {
   id: string,
@@ -238,6 +265,10 @@ export type EngineState = {
   config: Config,
   selected?: Entry,
   current?: Entry,
+  code?: string,
+  language?: string,
+  entity: HullEntityName,
+  fallbacks?: string,
   recent: Array<Entry>
 };
 export type EventSelect = {
@@ -254,8 +285,10 @@ export type ProcessorEngineState = {
   selected?: Entry,
   current?: Entry,
   recent: Array<Entry>,
-  entity?: HullEntityName,
+  code?: string,
+  language?: string,
+  entity: HullEntityName,
   search?: string,
-  selectedEvents: Array<EventSelect>
+  selectedEvents?: Array<EventSelect>
 };
 export type RecentEngineState = EngineState & {};

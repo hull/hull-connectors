@@ -4,7 +4,6 @@ import type {
   HullIncomingHandlerMessage,
   HullExternalResponse
 } from "hull";
-import type ConfResponse from "../../types";
 
 const confHandler = (
   configResponse: (ctx: HullContext) => Promise<Object>
@@ -13,16 +12,16 @@ const confHandler = (
   message: HullIncomingHandlerMessage
 ): HullExternalResponse => {
   const { hostname } = message;
-  const { clientCredentialsEncryptedToken } = ctx;
+  const { clientCredentialsEncryptedToken, connector } = ctx;
+  const { private_settings } = connector;
+  const { code, language } = private_settings;
   if (hostname && clientCredentialsEncryptedToken) {
-    const data: ConfResponse = await configResponse(ctx);
+    const data: {} = await configResponse(ctx);
     return {
       status: 200,
       data: {
-        current: {
-          connectorId: ctx.connector.id,
-          code: ctx.connector.private_settings.code
-        },
+        language: language || "javascript",
+        code,
         ...data
       }
     };

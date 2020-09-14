@@ -24,11 +24,11 @@ export default class RecentEntriesEngine extends Engine {
   selectEntry = (selected?: Entry) => {
     this.setState({ error: undefined, selected });
     if (!selected) return;
-    const { code } = this.state.current || {};
+    const { code } = this.state;
     const newCode = code !== undefined ? code : selected.code;
-    const current = { ...selected, code: newCode, editable: true };
-    this.setState({ current });
-    this.fetchPreview(current);
+    const current = { ...selected };
+    this.setState({ current, editable: true });
+    this.fetchPreview({ code: newCode });
   };
 
   selectEntryByDate = (date: string) => {
@@ -42,7 +42,12 @@ export default class RecentEntriesEngine extends Engine {
       const recent: Array<Entry> = await this.request({
         url: "recent"
       });
-      this.setState({ recent, fetching: false, error: undefined });
+      this.setState({
+        recent,
+        fetching: false,
+        error: undefined,
+        editable: true
+      });
       return true;
     } catch (err) {
       this.setState({ error: err.message, fetching: false });

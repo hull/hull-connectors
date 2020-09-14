@@ -80,6 +80,8 @@ export default class RecentEntriesUI extends VirtualMachineUI<Props, State> {
     const {
       selected,
       current,
+      code,
+      editable,
       initialized,
       fetching,
       recent,
@@ -94,9 +96,9 @@ export default class RecentEntriesUI extends VirtualMachineUI<Props, State> {
     const { strings } = this.props;
 
     const showingCurrent = this.showingCurrent();
-    const active: Entry | void = showingCurrent ? current : selected;
+    const active: Entry | {} = (showingCurrent ? current : selected) || {};
 
-    if (!active || !initialized) {
+    if (!initialized) {
       return (
         <div className="text-center pt-2">
           <h4>Loading...</h4>
@@ -157,8 +159,8 @@ export default class RecentEntriesUI extends VirtualMachineUI<Props, State> {
             <Code
               focusOnLoad={true}
               computing={computing}
-              code={active.code}
-              readOnly={!active.editable}
+              code={code}
+              readOnly={!editable}
               onChange={this.handleCodeUpdate}
             />
           </div>

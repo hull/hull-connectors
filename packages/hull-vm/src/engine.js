@@ -2,9 +2,9 @@
 import _ from "lodash";
 import updateParent from "hull-vm/src/lib/update-parent";
 import type {
+  ConfResponse,
   EngineState,
   Config,
-  PreviewRequest,
   PreviewResponse
 } from "../types";
 
@@ -15,14 +15,6 @@ const EventEmitter = require("events");
 const noop = () => {};
 const EVENT = "CHANGE";
 // const CORS_HEADERS = { "Access-Control-Allow-Origin": "*" };
-
-const DEFAULT_STATE = {
-  computing: false,
-  initialized: false,
-  current: undefined,
-  selected: undefined,
-  recent: []
-};
 
 const queryParams = (): Config =>
   document.location.search
@@ -35,7 +27,22 @@ const queryParams = (): Config =>
     }, {});
 
 export default class Engine extends EventEmitter {
-  state: any;
+  state: {};
+
+  state = {
+    code: undefined,
+    language: undefined,
+    config: undefined,
+    entity: undefined,
+    error: undefined,
+    computing: false,
+    initialized: false,
+    loading: false,
+    search: "",
+    current: undefined,
+    selected: undefined,
+    recent: []
+  };
 
   config: Config;
 
@@ -44,18 +51,18 @@ export default class Engine extends EventEmitter {
   constructor() {
     const config = queryParams();
     super();
-    this.setState({ ...DEFAULT_STATE, config });
+    this.setState({ config });
     this.fetchConfig();
   }
 
   fetchConfig = async () => {
     this.setState({ computing: true });
     try {
-      const response = await this.request({
+      const config: ConfResponse = await this.request({
         url: "config",
         method: "get"
       });
-      this.saveConfig(response);
+      this.saveConfig(config);
       return true;
     } catch (err) {
       this.setState({
@@ -70,11 +77,11 @@ export default class Engine extends EventEmitter {
   };
 
   // This methods finishes the init Sequence
-  saveConfig = response => {
+  saveConfig = (config: ConfResponse) => {
     this.setState({
       error: undefined,
       initialized: true,
-      ...response
+      ...config
     });
   };
 
@@ -94,15 +101,14 @@ export default class Engine extends EventEmitter {
   removeChangeListener = (listener: AnyFunction) =>
     this.removeListener(EVENT, listener);
 
-  updateParent = (code: string) => updateParent({ private_settings: { code } });
+  updateParent = (private_settings: {}) => updateParent({ private_settings });
 
   updateCode = (code: string) => {
-    const { current: old, language } = this.state;
-    if (!old) return;
-    const current = { ...old, code, language, editable: true };
-    this.updateParent(code);
-    this.setState({ current });
-    this.fetchPreview(current);
+    const { current } = this.state;
+    if (!current) return;
+    this.updateParent({ code });
+    this.setState({ code });
+    this.fetchPreview({ code });
   };
 
   request = async ({
@@ -128,10 +134,17 @@ export default class Engine extends EventEmitter {
       },
       body: JSON.stringify(data)
     });
-    if (!response.ok) {
-      throw new Error(response.statusText);
+    let body;
+    try {
+      body = await response.json();
+    } catch (err) {
+      body = {};
     }
-    return response.json();
+    const { error } = body;
+    if (!response.ok || error) {
+      throw new Error(error || response.statusText);
+    }
+    return body;
   };
 
   getQueryString = () => {
@@ -140,27 +153,32 @@ export default class Engine extends EventEmitter {
   };
 
   fetchPreview = _.debounce(
-    async ({ language, code, payload, claims, entity }: PreviewRequest) => {
+    async (data: { code: string }) => {
       this.setState({ computing: true });
       try {
-        const response: PreviewResponse = await this.request({
+        const { current, entity, language } = this.getState();
+        const result: PreviewResponse = await this.request({
           url: "preview",
           method: "post",
-          data: { language, code, payload, claims, entity }
+          data: {
+            language,
+            entity,
+            ..._.pick(current, ["payload", "claims"]),
+            ...data
+          }
         });
-        const state = this.getState();
         this.setState({
           error: undefined,
           computing: false,
           current: {
-            ...state.current,
-            result: response
+            ...current,
+            result
           }
         });
         return true;
-      } catch (err) {
+      } catch (error) {
         this.setState({
-          error: err.message,
+          error: `Error fetching Preview: ${error.message}`,
           computing: false
         });
         return false;

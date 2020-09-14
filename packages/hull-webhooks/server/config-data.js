@@ -11,7 +11,6 @@ const configHandler = (data: {}) => async (
     url: ctx.connector.private_settings.url,
     headers: getHeaders(ctx),
     language: "jsonata",
-    entity: "user",
     ...data
   };
 };

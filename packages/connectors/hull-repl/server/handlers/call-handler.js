@@ -24,6 +24,7 @@ export default async function handler(
       payload: {
         variables: varsFromSettings(ctx)
       },
+      language: "javascript",
       code,
       preview
     });

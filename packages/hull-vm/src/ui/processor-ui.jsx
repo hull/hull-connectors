@@ -69,6 +69,8 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
   render() {
     const {
       current,
+      code,
+      editable,
       fetching,
       initialized,
       recent,
@@ -136,7 +138,7 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
             </Header>
             <CodeTitle
               title={`Code - (${language}) ${
-                !current.editable
+                !editable
                   ? "(disabled - first search for something on the left panel)"
                   : ""
               }`}
@@ -145,8 +147,8 @@ export default class ProcessorUI extends VirtualMachineUI<Props, State> {
               focusOnLoad={true}
               computing={computing}
               mode={language}
-              code={current.code}
-              readOnly={!current.editable}
+              code={code}
+              readOnly={!editable}
               onChange={this.handleCodeUpdate}
             />
           </div>

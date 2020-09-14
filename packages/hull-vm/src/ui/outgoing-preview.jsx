@@ -59,7 +59,7 @@ const Preview = ({ result = {}, url, headers }: Props) => {
               <Badge variant="success">POST</Badge>  <code>{url}</code>
             </Fragment>
           ) : (
-            "Go to the Settings tab to enter a destination URL"
+            "Enter a destination URL in the settings tab"
           )}
         </ListGroup.Item>
       </ListGroup>

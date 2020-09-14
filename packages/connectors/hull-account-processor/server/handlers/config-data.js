@@ -4,8 +4,7 @@ import type { HullContext } from "hull";
 
 const configHandler = async (ctx: HullContext): Promise<Object> => {
   return {
-    entity: "account",
-    language: ctx.connector.private_settings.language || "javascript"
+    entity: "account"
   };
 };
 

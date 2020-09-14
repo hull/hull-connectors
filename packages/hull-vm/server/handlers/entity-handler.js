@@ -1,38 +1,23 @@
 // @flow
 import type {
   HullContext,
-  HullEvent,
   HullIncomingHandlerMessage,
   HullExternalResponse
 } from "hull";
 import _ from "lodash";
 import type Entry from "../../types";
-import compute from "../compute";
+import formatPayload from "../lib/format-payload";
 import serialize from "../serialize";
-import varsFromSettings from "../lib/vars-from-settings";
-import getSample from "../lib/get-sample";
-import getClaims from "../lib/get-claims";
 
-const EXCLUDED_EVENTS = [
-  "Attributes changed",
-  "Entered segment",
-  "Left segment",
-  "Segments changed"
-];
-
-export const isVisible = ({ event }: HullEvent) =>
-  !_.includes(EXCLUDED_EVENTS, event);
+import compute from "../compute";
 
 export default async function getEntity(
   ctx: HullContext,
   message: HullIncomingHandlerMessage
 ): HullExternalResponse {
-  const { connector } = ctx;
-  const { private_settings } = connector;
-  const { code } = private_settings;
   const { body } = message;
   // $FlowFixMe
-  const { search, claims, entity, include } = body;
+  const { search, claims, entity, include, language, code } = body;
   if (!search && (!claims || _.isEmpty(claims))) {
     return {
       status: 404,
@@ -40,7 +25,6 @@ export default async function getEntity(
     };
   }
 
-  const isUser = entity === "user";
   try {
     const payloads = await ctx.entities.get({
       claims,
@@ -62,27 +46,16 @@ export default async function getEntity(
         error: `Can't find ${entity} with ${search}`
       };
     }
-    const { group } = ctx.client.utils.traits;
-    const { user, account = {}, events = [] } = rawPayload;
-    const userPayload =
-      events && user && isUser
-        ? {
-            user: group(user),
-            changes: getSample(user),
-            events: events.filter(isVisible)
-          }
-        : {};
-    const payload = {
-      ...rawPayload,
-      variables: varsFromSettings(ctx),
-      account: group(account),
-      changes: getSample(account),
-      ...userPayload
-    };
+    const { claims: foundClaims, payload } = formatPayload(ctx, {
+      entity,
+      message: rawPayload
+    });
 
+    // Here we are saving 1 api call by direcly embedding the response
     const result = await compute(ctx, {
       source: "processor",
-      claims: getClaims(isUser ? "user" : "account", rawPayload),
+      claims: foundClaims,
+      language,
       preview: true,
       entity,
       payload,
@@ -90,7 +63,6 @@ export default async function getEntity(
     });
 
     const data: Entry = {
-      connectorId: connector.id,
       date: new Date().toString(),
       result: serialize(result),
       code,

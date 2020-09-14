@@ -72,6 +72,8 @@ export default class OutgoingUI extends VirtualMachineUI<Props, State> {
       url,
       headers,
       current,
+      code,
+      editable,
       fetching,
       initialized,
       recent,
@@ -140,7 +142,7 @@ export default class OutgoingUI extends VirtualMachineUI<Props, State> {
               title={
                 <span>
                   {`Body (${language} supported) `}
-                  {!current.editable ? (
+                  {!editable ? (
                     <small style={{ opacity: 0.5 }}>
                       (disabled - first search for something on the left panel)
                     </small>
@@ -154,8 +156,8 @@ export default class OutgoingUI extends VirtualMachineUI<Props, State> {
               focusOnLoad={true}
               computing={computing}
               mode={language}
-              code={current.code}
-              readOnly={!current.editable}
+              code={code}
+              readOnly={!editable}
               onChange={this.handleCodeUpdate}
             />
           </div>
