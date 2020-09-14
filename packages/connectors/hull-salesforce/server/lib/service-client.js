@@ -18,6 +18,7 @@ import type {
 
 import type { TAssignmentRule } from "./service-client/assignmentrules";
 
+// eslint-disable-next-line no-unused-vars
 const { pipeStreamToPromise } = require("hull/src/utils");
 const _ = require("lodash");
 const events = require("events");
@@ -98,20 +99,17 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
   getSoqlQuery(
     type: TResourceType,
     fields: Array<string>,
-    accountClaims: Array<Object>
+    identityClaims: Array<Object>
   ): string {
     const { selectFields, requiredFields } = this.queryUtil.getSoqlFields(
       type,
       fields,
-      accountClaims
+      identityClaims
     );
 
     let query = `SELECT ${selectFields} FROM ${type}`;
-    if (
-      type === "Account" &&
-      !_.isNil(requiredFields) &&
-      requiredFields.length > 0
-    ) {
+
+    if (!_.isNil(requiredFields) && requiredFields.length > 0) {
       query += ` WHERE ${requiredFields[0]} != null`;
 
       for (let i = 1; i < requiredFields.length; i += 1) {
@@ -119,6 +117,9 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
         query += ` AND ${requiredField} != null`;
       }
     }
+
+    query += " ORDER BY CreatedDate ASC";
+
     return query;
   }
 
@@ -128,7 +129,7 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
    * @param type
    * @param {string[]} identifiers The list of identifiers.
    * @param {string[]} fields The list of fields.
-   * @param accountClaims
+   * @param identityClaims
    * @param options
    * @returns {Promise<any[]>} A list of Salesforce objects.
    * @memberof SalesforceClient
@@ -138,7 +139,7 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     type: TResourceType,
     identifiers: string[],
     fields: string[],
-    accountClaims: Array<Object>,
+    identityClaims: Array<Object>,
     options: Object = {}
   ): Promise<any[]> {
     const executeQuery = _.get(options, "executeQuery", "query");
@@ -146,15 +147,13 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     const { selectFields, requiredFields } = this.queryUtil.getSoqlFields(
       type,
       fields,
-      accountClaims
+      identityClaims
     );
     let query = `SELECT ${selectFields} FROM ${type} WHERE Id IN (${idsList})`;
 
-    if (type === "Account") {
-      _.forEach(requiredFields, requiredField => {
-        query += ` AND ${requiredField} != null`;
-      });
-    }
+    _.forEach(requiredFields, requiredField => {
+      query += ` AND ${requiredField} != null`;
+    });
     return this.exec(executeQuery, query).then(({ records }) => records);
   }
 
@@ -390,29 +389,37 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     options: Object = {},
     onRecord: Function
   ): Promise<*> {
-    const fields = options.fields || [];
-    const accountClaims = options.account_claims || [];
+    const { fields = [], identityClaims = [] } = options;
 
-    const query = this.getSoqlQuery(type, fields, accountClaims);
+    const query = this.getSoqlQuery(type, fields, identityClaims);
 
-    /* const records = [];
-    let result = await this.connection.query(query);
-    let { done, nextRecordsUrl } = result;
-
-    Array.prototype.push.apply(records, result.records);
-
-    while (!done && nextRecordsUrl) {
+    let totalSize;
+    let progress = 0;
+    let done = false;
+    let nextRecordsUrl = null;
+    while (!done) {
       // eslint-disable-next-line no-await-in-loop
-      result = await this.connection.queryMore(nextRecordsUrl);
+      const result = await this.queryAllRecords(query, nextRecordsUrl);
 
+      const records = result.records;
       done = result.done;
       nextRecordsUrl = result.nextRecordsUrl;
 
-      Array.prototype.push.apply(records, result.records);
-    }
-    return this.saveRecords(records, onRecord);*/
+      if (!totalSize) {
+        totalSize = result.totalSize;
+      }
 
-    const incomingStream = this.getIncomingStream(query);
+      progress += _.size(records);
+      this.logger.info("incoming.job.progress", {
+        jobName: `fetch-all-${_.toLower(type)}s`,
+        progress: `${progress} / ${totalSize}`
+      });
+
+      // eslint-disable-next-line no-await-in-loop
+      await this.saveRecords(records, onRecord);
+    }
+
+    /* const incomingStream = this.getIncomingStream(query);
 
     try {
       let progress = 0;
@@ -435,17 +442,17 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
       return {
         error: error.message
       };
-    }
+    }*/
   }
 
-  getAllEntities(query: string, nextRecordsUrl: ?string = null): Promise<*> {
+  queryAllRecords(query: string, nextRecordsUrl: ?string = null): Promise<*> {
     return _.isNil(nextRecordsUrl)
       ? this.connection.query(query)
       : this.connection.queryMore(nextRecordsUrl);
   }
 
   getIncomingStream(query: string, page: ?string = null) {
-    const getAllEntities = this.getAllEntities.bind(this);
+    const getAllEntities = this.queryAllRecords.bind(this);
 
     function getAllEntitiesPage(push, soqlQuery, nextPage) {
       return getAllEntities(query, nextPage).then(response => {
@@ -470,8 +477,7 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     options: Object = {},
     onRecord: Function
   ): Promise<*> {
-    const fields = options.fields || [];
-    const accountClaims = options.account_claims || [];
+    const { fields = [], identityClaims = [] } = options;
     const chunks = _.chunk(ids, FETCH_CHUNKSIZE);
 
     return Promise.map(
@@ -481,7 +487,7 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
           type,
           chunk,
           fields,
-          accountClaims,
+          identityClaims,
           options
         ).then(records => {
           this.metricsClient.increment(

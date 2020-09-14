@@ -49,9 +49,10 @@ class SalesforceSDK {
   }
 
   async getAllRecords({ sfType, fields }) {
+    const identityClaims = this.syncAgent.getIdentityClaims({ sfType });
     return this.syncAgent.sf.getAllRecords(
       sfType,
-      _.merge({}, this.syncAgent.privateSettings, { fields }),
+      { identityClaims, fields },
       record => this.saveRecord({ sfType, record })
     );
   }
@@ -71,10 +72,11 @@ class SalesforceSDK {
   }
 
   async saveRecords({ sfType, ids, fields, executeQuery = "query" }) {
+    const identityClaims = this.syncAgent.getIdentityClaims({ sfType });
     return this.syncAgent.sf.getRecords(
       sfType,
       ids,
-      _.merge({}, this.syncAgent.privateSettings, { fields, executeQuery }),
+      { identityClaims, fields, executeQuery },
       record => this.saveRecord({ sfType, record })
     );
   }
