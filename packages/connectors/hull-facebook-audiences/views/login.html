@@ -1,0 +1,69 @@
+<html>
+  <head>
+    <title>Login - Hull Facebook Audiences</title>
+    <link rel="stylesheet" href="//dd04rofzygnm0.cloudfront.net/releases/master/865f04865d2448286626bac92c518a8f8ea8bafe/stylesheets/neue.css" />
+  </head>
+  <body>
+    <div class="row">
+      <div class="col-md-4 col-md-offset-4 col-sm-offset-2 col-sm-8 col-xs-offset-1 col-xs-10 mt-2 panel">
+        <div class="panel-body text-center">
+          <div class="mb-1">
+            <h1 class="mb-0 mt-05">
+              <i class="icon icon-hull" style="font-size:64px;"></i>
+            </h1>
+            <h5 class="uppercase text-accented underlined mb-1">Connect your Facebook Account</h5>
+            <p class="text-muted mb-1">
+              <span>Please give Hull permission to access your Ad account </span>
+            </p>
+            <button id='login' class='btn btn-block btn-facebook'>
+              <i class="icon icon-facebook"></i>
+              Continue with Facebook
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '<%= facebookAppId %>',
+          xfbml      : true,
+          version    : 'v2.5'
+        });
+
+        var btn = document.querySelector('#login');
+        btn.addEventListener('click', function() {
+          FB.login(function(response) {
+            if (response && response.status === 'connected') {
+              var auth = response.authResponse || { grantedScopes: '' };
+              var scopes = auth.grantedScopes.split(',');
+              var accessToken = auth.accessToken;
+              if (scopes.indexOf('ads_management') > -1 && scopes.indexOf('ads_read') > -1) {
+                var input = document.getElementById('facebook_access_token');
+                input.setAttribute('value', accessToken);
+                var form = document.getElementById('login-form');
+                form.submit();
+              } else {
+                alert('We need your permission to manage ads. Please try again.')
+              }
+            }
+          }, { scope: 'ads_read,ads_management,business_management', return_scopes: true })
+        });
+      };
+
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+    </script>
+
+    <form method="post" id="login-form">
+      <input type="hidden" name="extendAccessToken" value="true" />
+      <input type="hidden" name="facebook_access_token" value="" id="facebook_access_token" />
+    </form>
+
+  </body>
+</html>
