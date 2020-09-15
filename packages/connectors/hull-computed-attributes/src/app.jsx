@@ -37,14 +37,18 @@ export default class ComputedAttributesUI extends JsonataUI {
   getAttributeSchema() {
     return [
       {
-        label: "Attributes",
-        options: this.state.attributeSchema
-      },
-      {
         label: "Variables",
         options: (this.state.locals || []).map(({ target, source }) => ({
           key: target
         }))
+      },
+      {
+        label: "User Attributes",
+        options: this.state.userAttributeSchema
+      },
+      {
+        label: "Account Attributes",
+        options: this.state.accountAttributeSchema
       }
     ];
   }
@@ -65,7 +69,7 @@ export default class ComputedAttributesUI extends JsonataUI {
           extraErrors={this.getLocalsErrors()}
           onChange={this.onLocalsUpdate}
         />
-        <CodeTitle title={<span>Computed Attribute Logic (JSON)</span>} />
+        <CodeTitle title={<span>Computed Attributes</span>} />
         <Form
           className="fallbacks_form"
           attributeSchema={this.getAttributeSchema()}

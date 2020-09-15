@@ -10,13 +10,11 @@
     "required": ["target", "source"],
     "properties": {
       "target": {
-        "default": "new_variable",
         "title": "Variable Name",
         "type": "string",
         "pattern": "^[/a-zA-Z_\\-0-9]+$"
       },
       "source": {
-        "default": "user.email",
         "title": "Expression",
         "type": "string"
       }

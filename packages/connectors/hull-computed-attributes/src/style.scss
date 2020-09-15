@@ -114,6 +114,7 @@ i.glyphicon {
 }
 
 .field_sources {
+  width: 100%;
   .btn-add::after {
     content: "✚ Add Fallback";
   }
@@ -208,13 +209,17 @@ i.glyphicon {
 .field_target {
   flex-grow: 1;
 }
-.field_locals_target, 
-.field_target,
-.field_mapping_source {
-  &:after{
-    content: "➡";
-    margin: 0 1rem;
-  }
+.field_target:after{
+  content: "➡";
+  margin: 0 1rem;
+}
+.field_locals_target:after{
+  content: "=";
+  margin: 0 1rem;
+}
+.field_mapping_source:after{
+  content: "➡";
+  margin: 0 1rem;
 }
 
 .attribute_type {
