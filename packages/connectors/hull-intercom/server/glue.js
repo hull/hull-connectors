@@ -142,10 +142,10 @@ const glue = {
       ])
     )
   ],
-  shipUpdate: cond("allTrue", [
-      route("isConfigured"),
-      settings("sync_attributes")
-  ], route("syncDataAttributes")),
+  shipUpdate: ifL(cond("allTrue", [
+    route("isConfigured"),
+    settings("sync_attributes")
+  ]), route("syncDataAttributes")),
   status: ifL(cond("isEmpty", settings("access_token")), {
     do: {
       status: "setupRequired",
