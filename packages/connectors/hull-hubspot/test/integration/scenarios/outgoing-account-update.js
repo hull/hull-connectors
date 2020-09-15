@@ -31,6 +31,7 @@ const connector = {
     token: "hubToken",
     synchronized_account_segments: ["account_segment_1"],
     outgoing_account_attributes: [
+      { "hull": "my_hubspot/id", "service": "hubspot_entity_id" },
       { "hull": "name", "service": "name", "overwrite": true },
       { "hull": "'hubspot/web_technologies'[]", "service": 'web_technologies', "overwrite": true },
       { "hull": "'hubspot/hs_additional_domains'", "service": "hs_additional_domains", "overwrite": true },
@@ -91,7 +92,7 @@ it("should send out a new hull account to hubspot account update", () => {
           account: {
             domain,
             name: "New Name",
-            "hubspot/id": "companyHubspotId123",
+            "my_hubspot/id": "companyHubspotId123",
             "hubspot/web_technologies": "technology 1",
             "hubspot/hs_additional_domains": ["domain 1", "domain 2", "domain 3"]
           },

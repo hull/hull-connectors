@@ -222,6 +222,7 @@
         "loadOptions": "/schema/outgoing_contact_properties"
       },
       "default": [
+        { "hull": "hubspot/id", "service": "hubspot_entity_id", "readOnly": true, "overwrite": false },
         { "hull": "segments.name[]", "service": "hull_segments", "readOnly":  true, "overwrite": true }
       ]
     },
@@ -394,6 +395,7 @@
         "loadOptions": "/schema/outgoing_company_properties"
       },
       "default": [
+        { "hull": "hubspot/id", "service": "hubspot_entity_id", "readOnly": true, "overwrite": false },
         { "hull": "account_segments.name[]", "service": "hull_segments", "readOnly":  true, "overwrite": true }
       ]
     },

@@ -84,6 +84,19 @@ class FilterUtil {
     return filterUtilResults;
   }
 
+  getHubspotIdMapping(hullType) {
+    return (
+      _.findLast(
+        this.connector.private_settings[
+          `outgoing_${_.toLower(hullType)}_attributes`
+        ],
+        attribute => {
+          return attribute.service === "hubspot_entity_id";
+        }
+      ) || { hull: "hubspot/id" }
+    );
+  }
+
   filterAccountUpdateMessageEnvelopes(
     envelopes: Array<HubspotAccountUpdateMessageEnvelope>
   ): FilterUtilResults<HubspotAccountUpdateMessageEnvelope> {
@@ -106,14 +119,13 @@ class FilterUtil {
         return filterUtilResults.toSkip.push(envelope);
       }
 
-      if (envelope.message.account["hubspot/id"]) {
+      const hubspotIdMapping = this.getHubspotIdMapping("account");
+      const { hull = "hubspot/id" } = hubspotIdMapping || {};
+      if (envelope.message.account[hull]) {
         return filterUtilResults.toUpdate.push(envelope);
       }
 
-      if (
-        typeof envelope.message.account.domain !== "string" ||
-        envelope.message.account.domain.trim() === ""
-      ) {
+      if (_.isNil(envelope.message.account.domain)) {
         envelope.skipReason = "Account doesn't have value for domain";
         return filterUtilResults.toSkip.push(envelope);
       }
