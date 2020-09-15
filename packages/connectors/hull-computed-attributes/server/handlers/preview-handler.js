@@ -22,7 +22,7 @@ export default async function preview(
     };
   }
 
-  const { fallbacks, code, payload } = body;
+  const { fallbacks, locals, payload } = body;
   if (!client || !connector || !payload) {
     return {
       status: 404,
@@ -32,7 +32,7 @@ export default async function preview(
 
   try {
     const data = await buildResponse({
-      code,
+      locals,
       payload,
       fallbacks
     });

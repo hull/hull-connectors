@@ -26,7 +26,7 @@ export default async function getEntity(
 ): HullExternalResponse {
   const { connector } = ctx;
   const { private_settings } = connector;
-  const { code, fallbacks } = private_settings;
+  const { locals, fallbacks } = private_settings;
   const { body } = message;
   // $FlowFixMe
   const { search, claims, entity, include } = body;
@@ -66,7 +66,7 @@ export default async function getEntity(
     // Here we are saving 1 api call by direcly embedding the response
 
     const { data, traits } = await buildResponse({
-      code,
+      locals,
       payload,
       fallbacks
     });

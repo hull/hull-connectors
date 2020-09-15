@@ -3,23 +3,25 @@
 import ProcessorEngine from "hull-vm/src/processor-engine";
 
 export default class ComputedAttributesEngine extends ProcessorEngine {
-  updateFallbacks = (fallbacks: string) => {
+  updateData = (data: {}) => {
     try {
-      this.updateParent({ fallbacks });
-      const { code } = this.getState();
+      this.updateParent(data);
       this.setState({
-        fallbacks,
+        ...data,
         error: undefined
       });
+      const { fallbacks, locals } = this.getState();
       this.fetchPreview({
-        code,
-        fallbacks
+        fallbacks,
+        locals,
+        ...data
       });
-    } catch (err) {
-      console.log("Couldn't update Fallbacks", err);
-      this.setState({
-        error: `Invalid Fallbacks data object: ${err}`
-      });
+    } catch (error) {
+      this.setState({ error: `Invalid Update: ${error} ` });
     }
   };
+
+  updateFallbacks = (fallbacks: {}) => this.updateData({ fallbacks });
+
+  updateLocals = (locals: {}) => this.updateData({ locals });
 }

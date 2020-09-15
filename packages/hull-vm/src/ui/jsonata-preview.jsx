@@ -32,16 +32,6 @@ const Preview = ({ result = {}, errors = [] }: Props) => {
     </Fragment>
   ) : (
     <Fragment>
-      <CodeTitle title="Payload Preview" />
-      <Area
-        aceOptions={{
-          wrapMethod: "text",
-          wrapEnabled: true
-        }}
-        id="code-console"
-        value={data}
-        mode="json"
-      />
       <CodeTitle title="Computed Attribute Changes Preview" />
       <Area
         aceOptions={{

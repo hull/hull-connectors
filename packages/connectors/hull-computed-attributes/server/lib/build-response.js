@@ -1,11 +1,22 @@
 // @flow
 
+import _ from "lodash";
 import jsonata from "jsonata";
 import compute from "./compute";
 
-function computePayload({ code, payload }) {
+function computePayload({ locals, payload }) {
   try {
-    return jsonata(code).evaluate(payload);
+    return {
+      ..._.reduce(
+        locals,
+        (obj, { target, source }) => {
+          obj[target] = jsonata(source).evaluate(payload);
+          return obj;
+        },
+        {}
+      )
+    };
+    // return jsonata(code).evaluate(payload);
   } catch (err) {
     throw new Error(
       `Error in Computed Attribute Payload JSONATA: ${err.message}`
@@ -13,10 +24,10 @@ function computePayload({ code, payload }) {
   }
 }
 
-async function computeTraits({ payload, fallbacks, code }) {
+async function computeTraits({ payload, fallbacks, locals }) {
   try {
     return compute({
-      code,
+      locals,
       payload,
       fallbacks
     });
@@ -25,9 +36,16 @@ async function computeTraits({ payload, fallbacks, code }) {
   }
 }
 
-export default async function buildResponse({ code, payload, fallbacks }) {
-  const data = computePayload({ code, payload });
-  const traits = await computeTraits({ payload: data, code, fallbacks });
+export default async function buildResponse({ locals, payload, fallbacks }) {
+  const data = computePayload({ locals, payload });
+  const traits = await computeTraits({
+    payload: {
+      ...payload,
+      ...data
+    },
+    locals,
+    fallbacks
+  });
   return {
     traits,
     data

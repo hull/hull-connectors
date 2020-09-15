@@ -10,7 +10,11 @@ type ModelParams = {
 };
 export default function Entry({ mongoUrl, collectionName }: ModelParams) {
   mongoose.Promise = global.Promise;
-  mongoose.connect(mongoUrl, { useNewUrlParser: true, useCreateIndex: true });
+  mongoose.connect(mongoUrl, {
+    useNewUrlParser: true,
+    retryWrites: false,
+    useCreateIndex: true
+  });
   schema =
     schema ||
     new mongoose.Schema(

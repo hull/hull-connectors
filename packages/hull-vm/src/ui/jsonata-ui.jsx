@@ -68,7 +68,7 @@ export default class JsonataUI extends VirtualMachineUI<Props, State> {
   };
 
   renderComposer() {
-    return null;
+    return <div></div>;
   }
 
   render() {
@@ -143,42 +143,6 @@ export default class JsonataUI extends VirtualMachineUI<Props, State> {
                 "Enter an account identifier"
               )}
             </Header>
-            <CodeTitle
-              title={
-                <span>
-                  {`Computed Attribute Payload (${language}) `}
-                  {!editable ? (
-                    <small style={{ opacity: 0.5 }}>
-                      (disabled - first search for something on the left panel)
-                    </small>
-                  ) : (
-                    ""
-                  )}
-                </span>
-              }
-            />
-            <Code
-              focusOnLoad={true}
-              computing={computing}
-              mode={language}
-              code={code}
-              readOnly={!editable}
-              onChange={this.handleCodeUpdate}
-            />
-            <CodeTitle
-              title={
-                <span>
-                  Computed Attribute Logic (JSON)
-                  {!editable ? (
-                    <small style={{ opacity: 0.5 }}>
-                      (disabled - first search for something on the left panel)
-                    </small>
-                  ) : (
-                    ""
-                  )}
-                </span>
-              }
-            />
             {this.renderComposer()}
           </div>
           <div className="col-3 vm-column">

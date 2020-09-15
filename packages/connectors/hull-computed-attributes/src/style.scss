@@ -32,9 +32,18 @@ i.glyphicon {
   @extend %panel_body;
 }
 
-.json-form {
+.fallbacks_form,
+.locals_form {
   height: calc(100vh - 300px);
   overflow: scroll;
+  padding: 0 2rem;
+  
+  .form-group {
+    padding: 0;
+    margin-bottom: 0.3rem;
+    flex-direction: row;
+    flex-grow: 1;
+  }
 
   .btn.array-item-move-up,
   .btn.array-item-move-down,
@@ -64,13 +73,7 @@ i.glyphicon {
     font-weight: 500;
     opacity: 0.3;
   }
-
   .row.array-item-list {
-    flex-direction: column;
-
-    border-bottom: 1px solid #ffffff36;
-    padding: 1rem;
-    margin-bottom: 1rem;
     .array-item-list {
       border: 0;
       padding: 0;
@@ -88,6 +91,25 @@ i.glyphicon {
     > .array-item-toolbox {
       padding-left: 1rem;
     }
+  }
+}
+
+.locals_form {
+  height: 25%;
+  .btn-add::after {
+    content: "✚ Add Local Variable";
+  }
+}
+
+.field_fallback {
+  flex-direction: column;
+  border-bottom: 1px solid #ffffff36;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  > .field_object_row {
+    flex-direction: row;
+    display: flex;
+    flex-wrap: wrap;
   }
 }
 
@@ -165,19 +187,36 @@ i.glyphicon {
   flex-grow: 1;
 }
 
-.field_source {
-  .field_source,
-  .field_object_row > .field-string {
-    margin: 0;
-  }
-}
-
 // Display horizontal fields in the Mapping section
-.field_mapping .field_object_row {
+.field_mapping .field_object_row,
+.field_locals .field_object_row {
   display: flex;
   flex-direction: row;
+  flex-grow: 1;
 }
 
 .field_source_property {
   margin-bottom: 0;
+  > div {
+    width: 100%;
+  }
+}
+
+.field_locals_target,
+.field_locals_source,
+.field_operation,
+.field_target {
+  flex-grow: 1;
+}
+.field_locals_target, 
+.field_target,
+.field_mapping_source {
+  &:after{
+    content: "➡";
+    margin: 0 1rem;
+  }
+}
+
+.attribute_type {
+  opacity: 0.5;
 }

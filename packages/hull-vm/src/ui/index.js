@@ -15,3 +15,4 @@ export { default as ProcessorUI } from "./processor-ui";
 export { default as ReplUI } from "./repl-ui";
 export { default as OutgoingUI } from "./outgoing-ui";
 export { default as JsonataUI } from "./jsonata-ui";
+export { default as ReactSelectStyles } from "./react-select-styles";

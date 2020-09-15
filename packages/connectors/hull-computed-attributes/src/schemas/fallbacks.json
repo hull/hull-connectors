@@ -1,23 +1,24 @@
 {
   "name": "fallbacks",
   "type": "array",
+  "default": [{
+    "target": "",
+    "value": "",
+    "unknown": "",
+    "sources":[
+      {
+        "property": ""
+      }
+    ]
+  }],
   "items": {
     "type": "object",
-    "default": [{
-      "target": "",
-      "value": "",
-      "unknown": "",
-      "sources":[
-        {
-          "property": ""
-        }
-      ]
-    }],
     "required": ["target", "operation"],
     "properties": {
       "target": {
         "title": "Target Attribute",
-        "type": "string"
+        "type": "string",
+        "pattern": "^[/a-zA-Z_\\-0-9]+$"
       },
       "operation": {
         "title": "Update Strategy",
