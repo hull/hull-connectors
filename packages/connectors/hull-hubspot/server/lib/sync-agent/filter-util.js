@@ -110,10 +110,7 @@ class FilterUtil {
         return filterUtilResults.toUpdate.push(envelope);
       }
 
-      if (
-        typeof envelope.message.account.domain !== "string" ||
-        envelope.message.account.domain.trim() === ""
-      ) {
+      if (_.isNil(envelope.message.account.domain)) {
         envelope.skipReason = "Account doesn't have value for domain";
         return filterUtilResults.toSkip.push(envelope);
       }

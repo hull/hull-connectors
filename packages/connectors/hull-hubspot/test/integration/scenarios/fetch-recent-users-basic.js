@@ -63,7 +63,7 @@ it("should fetch recent users using settings", () => {
               "hubspot/id": 3234574,
               "hubspot/company": "HubSpot",
               "hubspot/first_name": "Jeff",
-              "hubspot/updated_at": 1484858431084,
+              "hubspot/updated_at": "1484858431084",
               "hubspot/last_name": "Testing",
               "first_name": {
                 "operation": "setIfNull",
@@ -89,7 +89,7 @@ it("should fetch recent users using settings", () => {
             "traits": {
               "hubspot/id": 3714024,
               "hubspot/first_name": "Updated",
-              "hubspot/updated_at": 1484854580823,
+              "hubspot/updated_at": "1484854580823",
               "hubspot/last_name": "Record",
               "first_name": {
                 "operation": "setIfNull",
@@ -113,7 +113,7 @@ it("should fetch recent users using settings", () => {
               "hubspot/id": 3234574,
               "hubspot/company": "HubSpot",
               "hubspot/first_name": "Jeff",
-              "hubspot/updated_at": 1484858431084,
+              "hubspot/updated_at": "1484858431084",
               "hubspot/last_name": "Testing",
               "first_name": {
                 "operation": "setIfNull",
@@ -132,7 +132,7 @@ it("should fetch recent users using settings", () => {
             "traits": {
               "hubspot/id": 3714024,
               "hubspot/first_name": "Updated",
-              "hubspot/updated_at": 1484854580823,
+              "hubspot/updated_at": "1484854580823",
               "hubspot/last_name": "Record",
               "first_name": {
                 "operation": "setIfNull",
@@ -155,7 +155,7 @@ it("should fetch recent users using settings", () => {
             "hubspot/id": 3234574,
             "hubspot/company": "HubSpot",
             "hubspot/first_name": "Jeff",
-            "hubspot/updated_at": 1484858431084,
+            "hubspot/updated_at": "1484858431084",
             "hubspot/last_name": "Testing",
             "first_name": {
               "operation": "setIfNull",
@@ -178,7 +178,7 @@ it("should fetch recent users using settings", () => {
           {
             "hubspot/id": 3714024,
             "hubspot/first_name": "Updated",
-            "hubspot/updated_at": 1484854580823,
+            "hubspot/updated_at": "1484854580823",
             "hubspot/last_name": "Record",
             "first_name": {
               "operation": "setIfNull",
