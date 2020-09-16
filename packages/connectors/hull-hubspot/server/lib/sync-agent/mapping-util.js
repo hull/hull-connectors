@@ -290,7 +290,7 @@ class MappingUtil {
       name: "domain"
     });
 
-    if (domainProperties.length === 0) {
+    if (!_.isNil(message.account.domain) && domainProperties.length === 0) {
       hubspotWriteCompany.properties.push({
         name: "domain",
         value: message.account.domain
