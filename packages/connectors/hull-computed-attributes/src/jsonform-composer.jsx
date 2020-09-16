@@ -1,73 +1,29 @@
 // @flow
 
-import _ from "lodash";
 import React, { Component } from "react";
 import Form from "@rjsf/core";
-import ObjectFieldTemplate from "./lib/object-field-template";
-import ArrayFieldTemplate from "./lib/array-field-template";
+import type { EngineState } from "hull-vm";
 
+import transformErrors from "./lib/transform-errors";
+import ObjectFieldTemplate from "./templates/object-field";
+import ArrayFieldTemplate from "./templates/array-field";
 import attributeField from "./fields/attribute";
 
 type Props = {
   computing: boolean,
   schema: {},
   className: string,
-  data: {},
+  formData: {},
+  formContext: {},
   uiSchema: {},
   extraErrors: {},
   readOnly: boolean,
   attributeSchema: [],
-  onChange: any => void
+  onChange: any => void,
+  getPreview: string => string
 };
 
 type State = EngineState;
-
-const transformErrors = (
-  errors: Array<{ message: string, schemaPath: string, name: string }>
-) =>
-  _.compact(
-    errors.map(error => {
-      console.log(error);
-      if (
-        error.name === "pattern" &&
-        (error.schemaPath === "#/items/properties/target/pattern" ||
-          error.schemaPath === "#/items/required")
-      ) {
-        return {
-          ...error,
-          message:
-            "This needs to be a valid Attribute Name. Only letters, numbers, / _ and - are allowed"
-        };
-      }
-
-      if (error.name === "required") {
-        if (error.schemaPath === "#/items/required") {
-          return {
-            ...error,
-            message: "You need to define a value here"
-          };
-        }
-        if (error.params?.missingProperty === "value") {
-          return {
-            ...error,
-            message: "Enter a default value"
-          };
-        }
-        if (error.params?.missingProperty === "property") {
-          return {
-            ...error,
-            message: "Pick an Attribute to lookup"
-          };
-        }
-      }
-
-      if (error.name === "anyOf") {
-        return undefined;
-      }
-
-      return error;
-    })
-  );
 
 export default class JSONFormComposer extends Component<Props, State> {
   getCustomFields = () => {
@@ -84,7 +40,8 @@ export default class JSONFormComposer extends Component<Props, State> {
       extraErrors,
       schema,
       uiSchema,
-      data,
+      formContext,
+      formData,
       onChange,
       className
     } = this.props;
@@ -93,7 +50,8 @@ export default class JSONFormComposer extends Component<Props, State> {
         className={className}
         onChange={onChange}
         uiSchema={uiSchema}
-        formData={data}
+        formData={formData}
+        formContext={formContext}
         schema={schema}
         extraErrors={extraErrors}
         showErrorList={false}

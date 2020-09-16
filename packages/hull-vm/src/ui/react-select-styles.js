@@ -1,7 +1,9 @@
 const backgroundColor = "#13151a";
+const white = "#FFF";
 const dark = "#111";
 const disabled = "#444";
 const selected = "#2684FF";
+const backgroundSelected = "#4c545f";
 const noBorder = {
   border: "0",
   ":active": { boxShadow: 0, border: 0 },
@@ -42,21 +44,34 @@ const styles = {
     ...s,
     backgroundColor: "#444"
   }),
-  option: (s, { isDisabled, isSelected }) => ({
+  option: (s, { isDisabled, isSelected, isFocused }) => ({
     ...s,
     cursor: "pointer",
-    color: isSelected ? selected : isDisabled ? "#666" : "#CCC",
-    backgroundColor: isDisabled ? disabled : backgroundColor,
+    color: isDisabled ? "#666" : isSelected ? white : isFocused ? white : "CCC",
+    backgroundColor: isDisabled
+      ? disabled
+      : isSelected
+      ? selected
+      : isFocused
+      ? backgroundSelected
+      : backgroundColor,
     ":active": {
-      backgroundColor: dark
+      backgroundColor: selected
     },
     ":hover": {
-      backgroundColor: isDisabled ? disabled : dark
+      backgroundColor: isDisabled
+        ? disabled
+        : isSelected
+        ? selected
+        : isFocused
+        ? backgroundSelected
+        : backgroundColor
     }
   }),
-  singleValue: (s, { data }) => ({
+  singleValue: (s, { data, isFocued }) => ({
     ...s,
-    color: "#FFFFFF"
+    color: white,
+    backgroundColor
   }),
   multiValue: (s, { data }) => ({
     ...s,
@@ -69,9 +84,10 @@ const styles = {
   }),
   multiValueRemove: (s, { data }) => ({
     ...s,
-    color: "#FFF",
+    color: white,
     ":hover": {
-      backgroundColor: dark,
+      backgroundColor: "#ffffff22",
+      color: dark,
       cursor: "pointer"
     }
   })

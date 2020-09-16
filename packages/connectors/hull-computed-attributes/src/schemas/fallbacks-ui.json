@@ -4,7 +4,7 @@
     "target": {
       "classNames": "field_target",
       "ui:label": false,
-      "ui:placeholder": "Attribute to write to"
+      "ui:placeholder": "Target Attribute"
     },
     "operation": {
       "ui:label": false,

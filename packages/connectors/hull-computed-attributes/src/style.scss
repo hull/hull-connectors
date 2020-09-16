@@ -1,6 +1,7 @@
 @import "../../../assets/style/index.scss";
 @import "../../../assets/style/vm/index.scss";
 
+// Styling the Array Sorting Buttons
 i.glyphicon {
   display: none;
 }
@@ -32,19 +33,7 @@ i.glyphicon {
   @extend %panel_body;
 }
 
-.fallbacks_form,
-.locals_form {
-  height: calc(100vh - 300px);
-  overflow: scroll;
-  padding: 0 2rem;
-  
-  .form-group {
-    padding: 0;
-    margin-bottom: 0.3rem;
-    flex-direction: row;
-    flex-grow: 1;
-  }
-
+%array_buttons_styling {
   .btn.array-item-move-up,
   .btn.array-item-move-down,
   .btn.array-item-remove {
@@ -55,29 +44,29 @@ i.glyphicon {
     height: 32px;
     font-size: 12px;
   }
-
   .btn.array-item-move-up + .btn.array-item-move-down,
   .btn.array-item-move-down + .btn.array-item-remove {
     margin-left: 2px;
   }
+}
 
+%vertical_form_group {
+  .form-group {
+    padding: 0;
+    margin-bottom: 0.3rem;
+    flex-direction: row;
+    flex-grow: 1;
+  }
   .row {
     margin: 0;
     flex-direction: column;
-  }
-
-  legend {
-    height: auto;
-    display: block;
-    font-size: 18px;
-    font-weight: 500;
-    opacity: 0.3;
-  }
-  .row.array-item-list {
-    .array-item-list {
-      border: 0;
-      padding: 0;
-      margin: 0;
+    flex-wrap: nowrap;
+    &.array-item-list {
+      .array-item-list {
+        border: 0;
+        padding: 0;
+        margin: 0;
+      }
     }
   }
   .array-item {
@@ -94,6 +83,47 @@ i.glyphicon {
   }
 }
 
+%form_typography {
+  legend {
+    height: auto;
+    display: block;
+    font-size: 18px;
+    font-weight: 500;
+    opacity: 0.3;
+  }
+}
+
+%field_grow {
+  flex-grow: 1;
+}
+
+.fallbacks_modal {
+  @extend %vertical_form_group;
+  @extend %array_buttons_styling;
+  @extend %form_typography;
+
+  .modal-body {
+    height: 500px;
+    overflow: scroll;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .field_target,
+  .field_operation {
+    @extend %field_grow;
+  }
+}
+
+.fallbacks_form,
+.locals_form {
+  @extend %vertical_form_group;
+  @extend %array_buttons_styling;
+  @extend %form_typography;
+  padding: 1rem;
+}
+
 .locals_form {
   height: 25%;
   .btn-add::after {
@@ -103,7 +133,7 @@ i.glyphicon {
 
 .field_fallback {
   flex-direction: column;
-  border-bottom: 1px solid #ffffff36;
+  // border-bottom: 1px solid #ffffff36;
   padding: 1rem;
   margin-bottom: 1rem;
   > .field_object_row {
@@ -111,6 +141,16 @@ i.glyphicon {
     display: flex;
     flex-wrap: wrap;
   }
+}
+
+.field_target {
+  &:after {
+    content: "➡";
+    margin: 0 1rem;
+  }
+}
+
+.field_operation {
 }
 
 .field_sources {
@@ -204,24 +244,25 @@ i.glyphicon {
 }
 
 .field_locals_target,
-.field_locals_source,
-.field_operation,
-.field_target {
+.field_locals_source {
   flex-grow: 1;
 }
-.field_target:after{
-  content: "➡";
-  margin: 0 1rem;
-}
-.field_locals_target:after{
+.field_locals_target:after {
   content: "=";
   margin: 0 1rem;
 }
-.field_mapping_source:after{
+.field_mapping_source:after {
   content: "➡";
   margin: 0 1rem;
 }
 
 .attribute_type {
   opacity: 0.5;
+}
+
+.input-group-text {
+  border: 0;
+  background: #ffffff0a;
+  color: #aaa;
+  font-weight: 600;
 }

@@ -3,10 +3,13 @@
 import React, { Fragment } from "react";
 import { CodeTitle, JsonataUI } from "hull-vm/src/ui";
 import Form from "./jsonform-composer";
+
 import localsSchema from "./schemas/locals.json";
 import localsUiSchema from "./schemas/locals-ui.json";
 import fallbacksSchema from "./schemas/fallbacks.json";
 import fallbacksUiSchema from "./schemas/fallbacks-ui.json";
+
+import FallbackFieldTemplate from "./templates/fallback-field";
 
 type FormData = { formData: {} };
 
@@ -34,7 +37,7 @@ export default class ComputedAttributesUI extends JsonataUI {
     return {};
   }
 
-  getAttributeSchema() {
+  getAttributeSchema = () => {
     return [
       {
         label: "Variables",
@@ -51,9 +54,9 @@ export default class ComputedAttributesUI extends JsonataUI {
         options: this.state.accountAttributeSchema
       }
     ];
-  }
+  };
 
-  renderComposer() {
+  renderComposer = () => {
     const { computing, editable, fallbacks, locals } = this.state;
     return (
       <Fragment>
@@ -62,10 +65,11 @@ export default class ComputedAttributesUI extends JsonataUI {
           className="locals_form"
           attributeSchema={this.getAttributeSchema()}
           schema={localsSchema}
-          uiSchema={localsUiSchema}
           computing={computing}
-          data={locals}
-          readOnly={!editable}
+          uiSchema={localsUiSchema}
+          formData={locals}
+          formContext={{ current: this.state.current }}
+          editable={!editable}
           extraErrors={this.getLocalsErrors()}
           onChange={this.onLocalsUpdate}
         />
@@ -74,14 +78,21 @@ export default class ComputedAttributesUI extends JsonataUI {
           className="fallbacks_form"
           attributeSchema={this.getAttributeSchema()}
           schema={fallbacksSchema}
-          uiSchema={fallbacksUiSchema}
+          uiSchema={{
+            ...fallbacksUiSchema,
+            items: {
+              ...fallbacksUiSchema.items,
+              "ui:ObjectFieldTemplate": FallbackFieldTemplate
+            }
+          }}
           computing={computing}
-          data={fallbacks}
+          formData={fallbacks}
+          formContext={{ current: this.state.current }}
           extraErrors={this.getFallbacksErrors()}
-          readOnly={!editable}
+          editable={!editable}
           onChange={this.onFallbackUpdate}
         />
       </Fragment>
     );
-  }
+  };
 }
