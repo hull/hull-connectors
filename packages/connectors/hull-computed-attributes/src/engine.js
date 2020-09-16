@@ -10,15 +10,42 @@ export default class ComputedAttributesEngine extends ProcessorEngine {
         ...data,
         error: undefined
       });
-      const { fallbacks, locals } = this.getState();
-      this.fetchPreview({
-        fallbacks,
-        locals,
-        ...data
-      });
+      this.fetchPreview(this.getPreviewData(data));
     } catch (error) {
       this.setState({ error: `Invalid Update: ${error} ` });
     }
+  };
+
+  getPreviewData = (data = {}) => {
+    const { fallbacks, locals } = this.getState();
+    return {
+      fallbacks,
+      locals,
+      ...data
+    };
+  };
+
+  getEntryData = () => {
+    const {
+      language,
+      entity,
+      selectedEvents,
+      search,
+      fallbacks,
+      locals
+    } = this.state;
+    return {
+      language,
+      entity,
+      search,
+      fallbacks,
+      locals,
+      include: {
+        events: {
+          names: selectedEvents
+        }
+      }
+    };
   };
 
   updateFallbacks = (fallbacks: {}) => this.updateData({ fallbacks });

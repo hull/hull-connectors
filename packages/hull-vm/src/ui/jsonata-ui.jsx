@@ -145,24 +145,6 @@ export default class JsonataUI extends VirtualMachineUI<Props, State> {
             </Header>
             {this.renderComposer()}
           </div>
-          <div className="col-3 vm-column">
-            <Header>
-              <ButtonGroup>
-                <Button variant="secondary" onClick={this.showBindings}>
-                  Keyboard Shortcuts
-                </Button>
-              </ButtonGroup>
-            </Header>
-
-            <Preview
-              title="Preview"
-              url={url}
-              headers={headers}
-              errors={errors}
-              result={current.result}
-              computing={computing}
-            />
-          </div>
         </div>
       </Fragment>
     );

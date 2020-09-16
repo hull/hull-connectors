@@ -57,17 +57,21 @@ export default class FallbackFieldTemplate extends Component<Props, State> {
     this.setState({ show: false });
   };
 
-  getPreview = key => {
+  getPreview = (key: string) => {
     const preview = _.get(this.props.formContext, [
       "current",
       "result",
       "traits",
       key
     ]);
-    if (preview !== undefined) {
-      return <Badge variant="success">{JSON.stringify(preview)}</Badge>;
+
+    if (!key || preview === undefined) {
+      return <Badge variant="secondary">No value</Badge>;
     }
-    return <Badge variant="secondary">No value</Badge>;
+    if (_.isObject(preview) || _.isArray(preview)) {
+      return JSON.stringify(preview);
+    }
+    return preview;
   };
 
   render() {
@@ -99,10 +103,10 @@ export default class FallbackFieldTemplate extends Component<Props, State> {
 
         <InputGroup>
           <InputGroup.Prepend>
-            <InputGroup.Text>Computed Attribute Name</InputGroup.Text>
+            <InputGroup.Text>Name</InputGroup.Text>
           </InputGroup.Prepend>
           <FormControl
-            value={key}
+            value={key || ""}
             disabled
             placeholder={uiSchema.target["ui:placeholder"]}
           />

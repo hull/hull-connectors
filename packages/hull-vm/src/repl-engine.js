@@ -5,6 +5,11 @@ import Engine from "./engine";
 
 export default class ReplEngine extends Engine {
   // This methods finishes the init Sequence
+  getPreviewData = () => {
+    const { code } = this.getState();
+    return { code };
+  };
+
   saveConfig = (config: ReplConfResponse) => {
     this.setState({
       error: undefined,
@@ -14,8 +19,7 @@ export default class ReplEngine extends Engine {
       },
       ...config
     });
-    const { code } = this.getState();
-    this.fetchPreview({ code });
+    this.fetchPreview(this.getPreviewData());
   };
 
   async callAPI() {

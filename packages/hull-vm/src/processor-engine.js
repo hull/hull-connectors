@@ -20,7 +20,6 @@ export default class ProcessorEngine extends Engine {
   constructor() {
     super();
     this.state.search = this.getSearchCache();
-    this.fetchEntry(this.state);
   }
 
   getSearchCache = (): string =>
@@ -44,7 +43,7 @@ export default class ProcessorEngine extends Engine {
         e => e.label
       )
     });
-    this.fetchEntry(this.state);
+    this.fetchEntry(this.getEntryData());
   };
 
   saveEntry = (entry?: Entry) => {
@@ -60,14 +59,12 @@ export default class ProcessorEngine extends Engine {
       },
       editable: true
     });
+    this.setState({ computing: false });
+  };
+
+  getPreviewData = () => {
     const { code } = this.getState();
-    if (_.size(claims) && code !== _.get(entry, "code")) {
-      // Refresh data if code has changed
-      this.fetchPreview({ code });
-    } else {
-      // Shortcut for first load, avoid 1 api call and finish now
-      this.setState({ computing: false });
-    }
+    return { code };
   };
 
   updateSearch = async (search: string) => {
@@ -89,7 +86,7 @@ export default class ProcessorEngine extends Engine {
   };
 
   fetchEntryDebounced = _.debounce(
-    async () => this.fetchEntry(this.state),
+    async () => this.fetchEntry(this.getEntryData()),
     1000,
     {
       leading: false,
@@ -97,32 +94,24 @@ export default class ProcessorEngine extends Engine {
     }
   );
 
-  fetchEntry = async ({
-    search = "",
-    entity,
-    language,
-    code,
-    selectedEvents = []
-  }: ProcessorEngineState) => {
-    if (!entity) {
-      return;
-    }
+  getEntryData = () => {
+    return {
+      ..._.omit(this.state, "selectedEvents"),
+      include: {
+        events: {
+          names: this.state.selectedEvents
+        }
+      }
+    };
+  };
+
+  fetchEntry = async (data: {}) => {
     this.setState({ fetching: true });
     try {
       const entry: Entry = await this.request({
         url: "entry",
         method: "post",
-        data: {
-          search,
-          entity,
-          language,
-          code,
-          include: {
-            events: {
-              names: selectedEvents
-            }
-          }
-        }
+        data
       });
       this.setState({ error: undefined, fetching: false });
       this.saveEntry(entry);

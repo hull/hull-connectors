@@ -153,7 +153,7 @@ export default class Engine extends EventEmitter {
   };
 
   fetchPreview = _.debounce(
-    async (data: { code: string }) => {
+    async data => {
       this.setState({ computing: true });
       try {
         const { current, entity, language } = this.getState();
