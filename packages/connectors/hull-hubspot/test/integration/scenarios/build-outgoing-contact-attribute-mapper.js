@@ -111,15 +111,6 @@ describe("Should fetch contact groups and properties and transform it to outgoin
                   "value": "hull_segments"
                 }
               ]
-            },
-            {
-              "label": "Hull Reference Properties",
-              "options": [
-                {
-                  "label": "Id",
-                  "value": "hubspot_entity_id"
-                }
-              ]
             }
           ]
         },
@@ -207,15 +198,6 @@ describe("Should fetch contact groups and properties and transform it to outgoin
                 {
                   "label": "Hull Segments",
                   "value": "hull_segments"
-                }
-              ]
-            },
-            {
-              "label": "Hull Reference Properties",
-              "options": [
-                {
-                  "label": "Id",
-                  "value": "hubspot_entity_id"
                 }
               ]
             }

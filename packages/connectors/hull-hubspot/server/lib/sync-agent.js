@@ -179,7 +179,7 @@ class SyncAgent {
       groups:
         direction === "incoming"
           ? _.concat(groups, defaultIncomingGroupMapping.contact)
-          : _.concat(groups, defaultOutgoingGroupMapping),
+          : groups,
       direction
     });
   }
@@ -188,13 +188,7 @@ class SyncAgent {
     const groups = await this.cache.wrap("company_properties", () =>
       this.getCompanyPropertyGroups()
     );
-    return this.getHubspotEntityProperties({
-      groups:
-        direction === "incoming"
-          ? groups
-          : _.concat(groups, defaultOutgoingGroupMapping),
-      direction
-    });
+    return this.getHubspotEntityProperties({ groups, direction });
   }
 
   async getOutgoingProperties(groups: Object) {
@@ -330,12 +324,8 @@ class SyncAgent {
     try {
       await this.initialize({ skipCache: true });
 
-      await this.contactPropertyUtil.sync(
-        this.mappingUtil.outgoingContactSchema
-      );
-      await this.companyPropertyUtil.sync(
-        this.mappingUtil.outgoingCompanySchema
-      );
+      await this.contactPropertyUtil.sync(this.mappingUtil.contactSchema);
+      await this.companyPropertyUtil.sync(this.mappingUtil.companySchema);
     } catch (error) {
       this.hullClient.logger.error("outgoing.job.error", {
         error: error.message
@@ -358,11 +348,8 @@ class SyncAgent {
     return Promise.all(
       contacts.map(async contact => {
         const traits = this.mappingUtil.mapToHullEntity(contact, "user");
-
-        const anonymous_id_prefix =
-          this.connector.private_settings.user_anon_id_prefix || "hubspot";
         const ident = this.helpers.incomingClaims("user", contact, {
-          anonymous_id_prefix,
+          anonymous_id_prefix: "hubspot",
           anonymous_id_service: "vid"
         });
         if (ident.error) {
@@ -610,15 +597,11 @@ class SyncAgent {
                 envelope.hubspotReadCompany,
                 "account"
               );
-
-              const anonymous_id_prefix =
-                this.connector.private_settings.account_anon_id_prefix ||
-                "hubspot";
               const accountIdentity = this.helpers.incomingClaims(
                 "account",
                 envelope.hubspotReadCompany,
                 {
-                  anonymous_id_prefix,
+                  anonymous_id_prefix: "hubspot",
                   anonymous_id_service: "companyId"
                 }
               );
@@ -872,11 +855,8 @@ class SyncAgent {
     return Promise.all(
       companies.map(async company => {
         const traits = this.mappingUtil.mapToHullEntity(company, "account");
-
-        const anonymous_id_prefix =
-          this.connector.private_settings.account_anon_id_prefix || "hubspot";
         const ident = this.helpers.incomingClaims("account", company, {
-          anonymous_id_prefix,
+          anonymous_id_prefix: "hubspot",
           anonymous_id_service: "companyId"
         });
         if (ident.error) {
@@ -1055,9 +1035,12 @@ class SyncAgent {
   }
 
   async getHubspotEntityProperties({ groups, direction }) {
-    return direction === "outgoing"
-      ? this.getOutgoingProperties(groups)
-      : this.getIncomingProperties(groups);
+    if (direction === "outgoing") {
+      return this.getOutgoingProperties(
+        _.concat(groups, defaultOutgoingGroupMapping)
+      );
+    }
+    return this.getIncomingProperties(groups);
   }
 }
 

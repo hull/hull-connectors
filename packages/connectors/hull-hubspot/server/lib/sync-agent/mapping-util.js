@@ -66,13 +66,9 @@ class MappingUtil {
 
   incomingAccountClaims: Array<HullIncomingClaimsSetting>;
 
-  outgoingContactSchema: HubspotSchema;
+  contactSchema: HubspotSchema;
 
-  outgoingCompanySchema: HubspotSchema;
-
-  incomingCompanySchema: HubspotSchema;
-
-  incomingContactSchema: HubspotSchema;
+  companySchema: HubspotSchema;
 
   constructor({
     ctx,
@@ -103,25 +99,14 @@ class MappingUtil {
     this.outgoingLinking = link_users_in_service || false;
     this.incomingUserClaims = incoming_user_claims;
 
-    // TODO combine outgoing/incoming schema handling
-    this.outgoingContactSchema = this.getOutgoingServiceSchema(
+    this.contactSchema = this.getServiceSchema(
       hubspotContactProperties,
       outgoing_user_attributes
     );
 
-    this.outgoingCompanySchema = this.getOutgoingServiceSchema(
+    this.companySchema = this.getServiceSchema(
       hubspotCompanyProperties,
       outgoing_account_attributes
-    );
-
-    this.incomingCompanySchema = this.getIncomingServiceSchema(
-      hubspotCompanyProperties,
-      incoming_account_attributes
-    );
-
-    this.incomingConctactSchema = this.getIncomingServiceSchema(
-      hubspotContactProperties,
-      incoming_user_attributes
     );
 
     this.incomingAccountClaims = incoming_account_claims;
@@ -159,6 +144,22 @@ class MappingUtil {
     return {};
   }
 
+  format(value) {
+    if (_.isNil(value) || (!_.isNumber(value) && _.isEmpty(value))) {
+      return null;
+    }
+    if (_.isNumber(value)) {
+      return value;
+    }
+
+    // TODO tmp fix - use castAs
+    // eslint-disable-next-line
+    if (!isNaN(value) && (_.startsWith(value, "0.") || !_.startsWith(value, "0"))) {
+      return parseFloat(value);
+    }
+    return value;
+  }
+
   mapToHullAccount(accountData: HubspotReadCompany): HullAccountAttributes {
     const { helpers } = this.ctx;
     const { mapAttributes } = helpers;
@@ -166,23 +167,12 @@ class MappingUtil {
       payload: accountData,
       direction: "incoming",
       mapping: this.connector.private_settings.incoming_account_attributes,
-      serviceSchema: this.incomingCompanySchema
+      attributeFormatter: value => {
+        return this.format(value);
+      }
     });
 
-    const idMapping = _.find(
-      this.connector.private_settings.incoming_account_attributes,
-      mapping => {
-        const { service, hull } = mapping;
-        if (_.isEmpty(service) || _.isEmpty(hull)) {
-          return false;
-        }
-        return service === "companyId";
-      }
-    );
-
-    if (_.isNil(idMapping)) {
-      hullTraits["hubspot/id"] = accountData.companyId;
-    }
+    hullTraits["hubspot/id"] = accountData.companyId;
 
     const hubspotName = _.get(accountData, "properties.name.value");
     if (!_.isEmpty(hubspotName)) {
@@ -201,29 +191,13 @@ class MappingUtil {
       payload: hubspotReadContact,
       direction: "incoming",
       mapping: this.connector.private_settings.incoming_user_attributes,
-      serviceSchema: this.incomingConctactSchema
+      attributeFormatter: value => {
+        return this.format(value);
+      }
     });
 
-    // TODO do not do this
-    const idMapping = _.find(
-      this.connector.private_settings.incoming_user_attributes,
-      mapping => {
-        const { service, hull } = mapping;
-        if (_.isEmpty(service) || _.isEmpty(hull)) {
-          return false;
-        }
-        return (
-          mapping.service === "`canonical-vid` ? `canonical-vid` : `vid`" ||
-          mapping.service === "canonical-vid" ||
-          mapping.service === "vid"
-        );
-      }
-    );
-
-    if (_.isNil(idMapping)) {
-      hullTraits["hubspot/id"] =
-        hubspotReadContact["canonical-vid"] || hubspotReadContact.vid;
-    }
+    hullTraits["hubspot/id"] =
+      hubspotReadContact["canonical-vid"] || hubspotReadContact.vid;
 
     if (hullTraits["hubspot/first_name"]) {
       hullTraits.first_name = {
@@ -253,12 +227,8 @@ class MappingUtil {
     const hubspotWriteContact: HubspotWriteContact = {
       properties: hubspotWriteProperties
     };
-
-    const hubspotIdMapping = this.getHubspotIdMapping("user");
-    const { hull = "hubspot/id" } = hubspotIdMapping || {};
-    const hubspotId = hull.replace(/^traits_/, "");
-    if (message.user[hubspotId]) {
-      hubspotWriteContact.vid = message.user[hubspotId];
+    if (message.user["hubspot/id"]) {
+      hubspotWriteContact.vid = message.user["hubspot/id"];
     }
 
     if (message.user.email) {
@@ -279,11 +249,8 @@ class MappingUtil {
     const hubspotWriteCompany: HubspotWriteCompany = {
       properties: hubspotWriteProperties
     };
-
-    const hubspotIdMapping = this.getHubspotIdMapping("account");
-    const { hull = "hubspot/id" } = hubspotIdMapping || {};
-    if (message.account[hull]) {
-      hubspotWriteCompany.objectId = message.account[hull].toString();
+    if (message.account["hubspot/id"]) {
+      hubspotWriteCompany.objectId = message.account["hubspot/id"].toString();
     }
 
     const domainProperties = _.filter(hubspotWriteCompany.properties, {
@@ -319,19 +286,14 @@ class MappingUtil {
       payload: message,
       direction: "outgoing",
       mapping: outgoingMapping,
-      serviceSchema: this[`outgoing${_.upperFirst(serviceType)}Schema`],
+      serviceSchema: this[`${_.toLower(serviceType)}Schema`],
       attributeFormatter
     });
 
     const properties = _.reduce(
       rawHubspotProperties,
       (r, value, property) => {
-        // TODO check if property is in reference group
-        if (
-          _.isNil(value) ||
-          value === "" ||
-          property === "hubspot_entity_id"
-        ) {
+        if (_.isNil(value) || value === "") {
           return r;
         }
         return [...r, transform({ property, value })];
@@ -340,34 +302,21 @@ class MappingUtil {
     );
 
     // link to company
-    if (serviceType === "contact" && this.outgoingLinking && message.account) {
-      const hubspotIdMapping = this.getHubspotIdMapping("account");
-
-      const { hull = "hubspot/id" } = hubspotIdMapping || {};
-      if (message.account[hull]) {
-        properties.push({
-          property: "associatedcompanyid",
-          value: message.account[hull]
-        });
-      }
+    if (
+      serviceType === "contact" &&
+      this.outgoingLinking &&
+      message.account &&
+      message.account["hubspot/id"]
+    ) {
+      properties.push({
+        property: "associatedcompanyid",
+        value: message.account["hubspot/id"]
+      });
     }
     return properties;
   }
 
-  getHubspotIdMapping(hullType) {
-    return (
-      _.findLast(
-        this.connector.private_settings[
-          `outgoing_${_.toLower(hullType)}_attributes`
-        ],
-        attribute => {
-          return attribute.service === "hubspot_entity_id";
-        }
-      ) || { hull: "hubspot/id" }
-    );
-  }
-
-  getOutgoingServiceSchema(
+  getServiceSchema(
     hubspotPropertyGroups: Array<HubspotPropertyGroup>,
     outgoingMapping: Array<HubspotSchema>
   ): Array<> {
@@ -406,13 +355,7 @@ class MappingUtil {
 
     return outgoingMapping.reduce((schema, mapping) => {
       const { hull, service } = mapping;
-
-      // TODO if service field is in Reference Field Group
-      if (
-        _.isEmpty(hull) ||
-        _.isEmpty(service) ||
-        service === "hubspot_entity_id"
-      ) {
+      if (_.isEmpty(hull) || _.isEmpty(service)) {
         return schema;
       }
       const hubspotPropertyName = slug(service, {
@@ -435,60 +378,6 @@ class MappingUtil {
         readOnlyValue,
         formatter: formatter(hubspotPropertyName, type)
       };
-      return schema;
-    }, {});
-  }
-
-  getIncomingServiceSchema(
-    hubspotPropertyGroups: Array<HubspotPropertyGroup>,
-    attributeMapping: Array<HubspotSchema>
-  ): Array<> {
-    const formatter = (property, type) => value => {
-      if (_.isNil(value) || (!_.isNumber(value) && _.isEmpty(value))) {
-        return null;
-      }
-      if (_.isNumber(value)) {
-        return value;
-      }
-
-      // eslint-disable-next-line
-      if (type === "number") {
-        return parseFloat(value);
-      }
-      return value;
-    };
-
-    const hubspotProperties = _.flatten(
-      hubspotPropertyGroups.map(group => group.properties)
-    );
-
-    return attributeMapping.reduce((schema, mapping) => {
-      const { hull, service } = mapping;
-      if (_.isEmpty(hull) || _.isEmpty(service)) {
-        return schema;
-      }
-      const cleanedServiceName = service
-        .replace(/.*properties\./, "")
-        .replace(/\.value.*/, "")
-        .replace(/"/g, "")
-        .replace(/`/g, "");
-
-      const hubspotPropertyName = slug(cleanedServiceName, {
-        replacement: "_",
-        lower: true
-      });
-
-      const hubspotProperty = _.find(hubspotProperties, {
-        name: hubspotPropertyName
-      });
-
-      if (hubspotProperty) {
-        const { name, type } = hubspotProperty;
-        schema[hull.replace(/^traits_/, "")] = {
-          type,
-          formatter: formatter(name, type)
-        };
-      }
       return schema;
     }, {});
   }

@@ -65,7 +65,7 @@ it("should fetch all users using settings", () => {
           "claims":{"email":"testingapis@hubspot.com","anonymous_id":"hubspot:3234574"},
           "traits":{
             "hubspot/id":3234574,
-            "hubspot/merged_vids":[],
+            "hubspot/merged_vids":null,
             "hubspot/first_name":"Jeff",
             "hubspot/form_submission": "Download-Form",
             "hubspot/last_name":"Testing some string 100",
@@ -78,7 +78,7 @@ it("should fetch all users using settings", () => {
           "claims":{"email":"new-email@hubspot.com","anonymous_id":"hubspot:3714024"},
           "traits":{
             "hubspot/id":3714024,
-            "hubspot/merged_vids":[],
+            "hubspot/merged_vids":null,
             "hubspot/first_name":"Updated",
             "hubspot/last_name":"Record some string 100",
             "first_name":{"operation":"setIfNull","value":"Updated"},
@@ -87,15 +87,15 @@ it("should fetch all users using settings", () => {
         }],
         ["debug","incoming.account.link.skip",{"subject_type":"user","user_email":"new-email@hubspot.com","user_anonymous_id":"hubspot:3714024"},{"reason":"incoming linking is disabled, you can enabled it in the settings"}],
         ["debug","connector.service_api.call",{},{"responseTime":expect.whatever(),"method":"GET","url":"/contacts/v1/lists/all/contacts/all","status":200,"vars":{}}],
-        ["debug","incoming.user.success",{"subject_type":"user","user_email":"testingapis@hubspot.com","user_anonymous_id":"hubspot:3234574"},{"traits":{"hubspot/id":3234574,"hubspot/merged_vids":[],"hubspot/first_name":"Jeff","hubspot/form_submission": "Download-Form","hubspot/last_name":"Testing some string 100","first_name":{"operation":"setIfNull","value":"Jeff"},"last_name":{"operation":"setIfNull","value":"Testing some string 100"}}}],
-        ["debug","incoming.user.success",{"subject_type":"user","user_email":"new-email@hubspot.com","user_anonymous_id":"hubspot:3714024"},{"traits":{"hubspot/id":3714024,"hubspot/merged_vids":[],"hubspot/first_name":"Updated","hubspot/last_name":"Record some string 100","first_name":{"operation":"setIfNull","value":"Updated"},"last_name":{"operation":"setIfNull","value":"Record some string 100"}}}],
+        ["debug","incoming.user.success",{"subject_type":"user","user_email":"testingapis@hubspot.com","user_anonymous_id":"hubspot:3234574"},{"traits":{"hubspot/id":3234574,"hubspot/merged_vids":null,"hubspot/first_name":"Jeff","hubspot/form_submission": "Download-Form","hubspot/last_name":"Testing some string 100","first_name":{"operation":"setIfNull","value":"Jeff"},"last_name":{"operation":"setIfNull","value":"Testing some string 100"}}}],
+        ["debug","incoming.user.success",{"subject_type":"user","user_email":"new-email@hubspot.com","user_anonymous_id":"hubspot:3714024"},{"traits":{"hubspot/id":3714024,"hubspot/merged_vids":null,"hubspot/first_name":"Updated","hubspot/last_name":"Record some string 100","first_name":{"operation":"setIfNull","value":"Updated"},"last_name":{"operation":"setIfNull","value":"Record some string 100"}}}],
         ["info","incoming.job.success",{},{"jobName":"fetchAllContacts"}]
       ],
       firehoseEvents: [
         ["traits",{"asUser":{"email":"testingapis@hubspot.com","anonymous_id":"hubspot:3234574"},"subjectType":"user"},
           {
             "hubspot/id":3234574,
-            "hubspot/merged_vids":[],
+            "hubspot/merged_vids":null,
             "hubspot/first_name":"Jeff",
             "hubspot/form_submission": "Download-Form",
             "hubspot/last_name":"Testing some string 100",
@@ -106,7 +106,7 @@ it("should fetch all users using settings", () => {
         ["traits",{"asUser":{"email":"new-email@hubspot.com","anonymous_id":"hubspot:3714024"},"subjectType":"user"},
           {
             "hubspot/id":3714024,
-            "hubspot/merged_vids":[],
+            "hubspot/merged_vids":null,
             "hubspot/first_name":"Updated",
             "hubspot/last_name":"Record some string 100",
             "first_name":{"operation":"setIfNull","value":"Updated"},

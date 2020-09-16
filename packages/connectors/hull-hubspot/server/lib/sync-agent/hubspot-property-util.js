@@ -159,13 +159,11 @@ class HubspotPropertyUtil {
       return Promise.resolve(existing);
     }
 
-    if (property.name !== "hubspot_entity_id") {
-      if (this.serviceType === "contact") {
-        return this.hubspotClient.createContactProperty(property);
-      }
-      if (this.serviceType === "company") {
-        return this.hubspotClient.createCompanyProperty(property);
-      }
+    if (this.serviceType === "contact") {
+      return this.hubspotClient.createContactProperty(property);
+    }
+    if (this.serviceType === "company") {
+      return this.hubspotClient.createCompanyProperty(property);
     }
 
     return [];
