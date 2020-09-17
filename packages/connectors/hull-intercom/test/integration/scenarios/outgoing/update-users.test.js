@@ -52,7 +52,7 @@ describe("Update User Tests", () => {
               "email": "bob@rei.com",
               "name": "Bob",
               "custom_attributes": {
-                "c_description": "a description",
+                "c_description": "[\"a\",\"description\",\"list\"]",
                 "job_title": "sales"
               },
               "role": "user"
@@ -106,7 +106,7 @@ describe("Update User Tests", () => {
               "ios_sdk_version": null,
               "ios_last_seen_at": null,
               "custom_attributes": {
-                "c_description": "a description",
+                "c_description": "[\"a\",\"description\",\"list\"]",
                 "job_title": "sales"
               },
               "tags": {
@@ -150,7 +150,7 @@ describe("Update User Tests", () => {
               "name": "Bob",
               "intercom_user/id": "5f22f1b6fcaca714eb055739",
               "intercom_user/name": "Bob",
-              "intercom_user/description": "a description",
+              "intercom_user/description": ["a", "description", "list"],
               "intercom_user/job_title": "sales"
             },
             segments: [{ id: "user_segment_1", name: "User Segment 1" }],
@@ -205,7 +205,7 @@ describe("Update User Tests", () => {
               "data": {
                 "name": "Bob",
                 "custom_attributes": {
-                  "c_description": "a description",
+                  "c_description": "[\"a\",\"description\",\"list\"]",
                   "job_title": "sales"
                 },
                 "role": "user",
@@ -275,7 +275,7 @@ describe("Update User Tests", () => {
                 "ios_sdk_version": null,
                 "ios_last_seen_at": null,
                 "custom_attributes": {
-                  "c_description": "a description",
+                  "c_description": "[\"a\",\"description\",\"list\"]",
                   "job_title": "sales",
                 },
                 "tags": {

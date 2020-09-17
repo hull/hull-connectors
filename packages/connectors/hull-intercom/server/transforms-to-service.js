@@ -52,11 +52,31 @@ function outgoingTransformation({ hullType, serviceType }) {
           then: [
             {
               operateOn: { component: "input", select: `${hullType}.\${mapping.hull}` },
-              writeTo: { path: "custom_attributes.${mapping.service}" }
+              writeTo: {
+                path: "custom_attributes.${mapping.service}",
+                formatter: (value) => {
+                  if (Array.isArray(value)) {
+                    return JSON.stringify(value);
+                  } else if (_.isPlainObject(value)) {
+                    return jsonifyArrays(value);
+                  }
+                  return value;
+                }
+              }
             },
             {
               operateOn: { component: "input", select: "${mapping.hull}" },
-              writeTo: { path: "custom_attributes.${mapping.service}" }
+              writeTo: {
+                path: "custom_attributes.${mapping.service}",
+                formatter: (value) => {
+                  if (Array.isArray(value)) {
+                    return JSON.stringify(value);
+                  } else if (_.isPlainObject(value)) {
+                    return jsonifyArrays(value);
+                  }
+                  return value;
+                }
+              }
             }
           ]
         },
@@ -169,7 +189,6 @@ const transformsToService: ServiceTransforms = [
               } else if (_.isPlainObject(value)) {
                 return jsonifyArrays(value);
               }
-
               return value;
             }
           }
