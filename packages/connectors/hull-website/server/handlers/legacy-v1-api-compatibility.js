@@ -153,15 +153,13 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
       );
     }
 
-    const { url, referer } = req.body;
-
     req.firehoseEventContext = {
       sessionId: req.get("hull-sid") || req.cookies._sid || req["hull-sid"],
       ip: req.ip,
       useragent: req.get("user-agent"),
       created_at: Date.now(),
-      url,
-      referer
+      url: req.body.url || req.get("x-track-url"),
+      referer: req.body.referer || req.get("x-track-referer")
     };
 
     next();

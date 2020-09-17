@@ -51,6 +51,7 @@ function renderRemote(
     var config = ${JSON.stringify(buildConfig(app))};
     config.me = { id: _bid };
     config.identify = { browser: _bid, session: _sid };
+    config.location = { referer: searchParams.get('r'), url: searchParams.get('url')  }
     window.Hull.initRemote(config);
   </script>
   </head>
