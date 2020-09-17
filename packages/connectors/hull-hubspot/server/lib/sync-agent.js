@@ -334,7 +334,7 @@ class SyncAgent {
       this.hullClient.logger.error("outgoing.job.error", {
         error: error.message
       });
-      return Promise.reject(error);
+      return Promise.resolve(error);
     }
     return Promise.resolve();
   }
