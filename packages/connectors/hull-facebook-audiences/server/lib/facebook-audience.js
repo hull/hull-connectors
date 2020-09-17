@@ -14,8 +14,8 @@ const ACCOUNT_FIELDS = [
   "account_status",
   "owner",
   "capabilities",
-  "business",
-  "user_role"
+  "business"
+  // "user_role"
 ];
 
 const AUDIENCE_FIELDS_SIMPLE = ["description"];
@@ -455,7 +455,7 @@ class FacebookAudience {
 
   fb(path, params = {}, method = "get") {
     this.metric.increment("ship.service_api.call", 1);
-    fbgraph.setVersion("4.0");
+    fbgraph.setVersion("7.0");
     const { accessToken, accountId } = this.getCredentials();
     if (!accessToken) {
       return Promise.reject(new ConfigurationError("MissingCredentials"));

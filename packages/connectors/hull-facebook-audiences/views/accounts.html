@@ -40,7 +40,7 @@
                     <% }) -%>
                   </td>
                   <td style='vertical-align: middle;'>
-                    <form method="post">
+                    <form method="post" action="/saveAccount">
                       <input type="hidden" name="facebook_access_token" value="<%= fb.getAccessToken() %>" />
                       <input type="hidden" name="facebook_ad_account_id" value="<%= account.account_id %>" />
                       <input type="submit" value="Select Account" class=' mt-05 mb-05 btn btn-primary btn-pill btn-rounded btn-block' />

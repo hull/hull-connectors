@@ -23,10 +23,24 @@
         </div>
       </div>
     </div>
+    <% if (error) { %>
+    <div class="row">
+      <div class="col-md-4 col-md-offset-4 col-sm-offset-2 col-sm-8 col-xs-offset-1 col-xs-10 mt-2 panel">
+        <div class="panel-body text-center">
+          <div class="mb-1">
+            <h5 class="uppercase text-accented underlined mb-1">An error happened</h5>
+            <p class="text-muted mb-1">
+              <span><> <%= error %> </span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <% } %>
     <script>
       window.fbAsyncInit = function() {
         FB.init({
-          appId      : '<%= facebookAppId %>',
+          appId      : '<%= clientID %>',
           xfbml      : true,
           version    : 'v2.5'
         });
@@ -60,7 +74,7 @@
        }(document, 'script', 'facebook-jssdk'));
     </script>
 
-    <form method="post" id="login-form">
+    <form method="post" id="login-form" action="/saveAccount">
       <input type="hidden" name="extendAccessToken" value="true" />
       <input type="hidden" name="facebook_access_token" value="" id="facebook_access_token" />
     </form>

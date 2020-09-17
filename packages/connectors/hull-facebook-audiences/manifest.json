@@ -11,7 +11,8 @@
   "tabs": [
     {
       "title": "Credentials & Actions",
-      "url": "admin",
+      "url": "/admin",
+      "method": "get",
       "editable": false,
       "handler": "admin"
     }
@@ -19,11 +20,25 @@
   "readme" : "readme.md",
   "private_settings": [
     {
+      "name": "oauth",
+      "title": "Oauth",
+      "description": "Authenticate with Mailchimp",
+      "format": "oauth",
+      "type": "string",
+      "handler": "oauth",
+      "url": "/auth",
+      "options": {
+        "strategy": {
+          "graphAPIVersion": "v2.5",
+          "grant_type": "authorization_code"
+        }
+      }
+    },
+    {
       "name" : "facebook_access_token",
       "title" : "Facebook Access Token",
       "type" : "string",
       "format":"hidden"
-
     },
     {
       "name" : "facebook_ad_account_id",
@@ -180,6 +195,42 @@
           "channel": "user:update",
           "handler": "user_update"
         }
+      ]
+    }
+  ],
+  "json": [
+    {
+      "url": "/save-account",
+      "handler": "saveAccount"
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Connect with Facebook",
+      "step": "credentials",
+      "properties": [
+        "private_settings.oauth"
+      ]
+    },
+    {
+      "title": "User Filter",
+      "description": "Select the Segments to sync with Facebook Audiences and pick a data source value for each segment. Please refer to Facebook Ads documentation for more details.",
+      "properties": [
+        "private_settings.synchronized_segments_mapping"
+      ]
+    },
+    {
+      "title": "User Mapping",
+      "description": "Select attributes to send in your audiences members",
+      "properties": [
+        "private_settings.field_email",
+        "private_settings.field_first_name",
+        "private_settings.field_last_name",
+        "private_settings.field_phone",
+        "private_settings.field_gender",
+        "private_settings.field_state",
+        "private_settings.field_city",
+        "private_settings.field_country"
       ]
     }
   ]

@@ -39,7 +39,9 @@ function statusHandler(ctx: HullContext) {
 
   if (!handler.isConfigured()) {
     status = determineStatus(status, STATUS_TYPE.ERROR);
-    messages.push("Connector is not authorized with Facebook API");
+    messages.push(
+      "Please make sure you are logged in to Facebook and that you have selected an ad account."
+    );
   }
 
   if (

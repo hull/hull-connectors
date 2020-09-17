@@ -8,6 +8,8 @@ const triggerExtractAction = require("./handlers/trigger-extract");
 
 export default function connectorConfig(): HullConnectorConfig {
   const {
+    CLIENT_ID,
+    CLIENT_SECRET,
     LOG_LEVEL,
     SECRET,
     PORT = 8082,
@@ -22,8 +24,10 @@ export default function connectorConfig(): HullConnectorConfig {
     hostSecret,
     devMode: NODE_ENV === "development",
     port: PORT || 8082,
-    handlers: handlers(),
-    // middlewares: [fetchToken],
+    handlers: handlers({
+      clientID: CLIENT_ID,
+      clientSecret: CLIENT_SECRET
+    }),
     cacheConfig: {
       store: "redis",
       url: CACHE_REDIS_URL,

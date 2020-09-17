@@ -11,6 +11,7 @@
   "dependencies": {
     "country-data": "0.0.31",
     "fbgraph": "^1.2.0",
+    "passport-facebook": "^3.0.0",
     "rimraf": "^2.4.3",
     "urijs": "^1.17.1"
   },
