@@ -209,7 +209,7 @@
   ],
   "json": [
     {
-      "url": "/track",
+      "url": "/force-track",
       "handler": "track"
     },
     {
