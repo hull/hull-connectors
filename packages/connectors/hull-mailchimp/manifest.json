@@ -209,6 +209,10 @@
   ],
   "json": [
     {
+      "url": "/track",
+      "handler": "track"
+    },
+    {
       "url": "/sync",
       "handler": "sync",
       "name": "syncIn",
