@@ -476,7 +476,8 @@ function toSendMessage(
   // or could be because it's a new connector which we haven't done a full fetch
   if (!isUndefinedOrNull(serviceName)) {
     const serviceId = _.get(message, `${targetEntity}.${serviceName}/id`);
-    if (isUndefinedOrNull(serviceId)) {
+    const serviceIdUser = _.get(message, `${targetEntity}.${serviceName}_${targetEntity}/id`);
+    if (_.isNil(serviceId) && _.isNil(serviceIdUser)) {
       return true;
     }
   }
