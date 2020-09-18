@@ -526,9 +526,17 @@ class SyncAgent {
     });
 
     filterResults.toSkip.forEach(envelope => {
-      this.hullClient
-        .asAccount(envelope.message.account)
-        .logger.debug("outgoing.account.skip", { reason: envelope.skipReason });
+      // TODO - tmp quick fix
+      const asAccount = this.hullClient.asAccount(envelope.message.account);
+      if (envelope.skipReasonLog) {
+        asAccount.logger.info("outgoing.account.skip", {
+          reason: envelope.skipReasonLog
+        });
+      } else {
+        asAccount.logger.debug("outgoing.account.skip", {
+          reason: envelope.skipReason
+        });
+      }
     });
 
     try {
