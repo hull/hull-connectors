@@ -6,9 +6,11 @@ import compute from "./compute";
 
 function computePayload({ locals, payload }) {
   try {
+    console.log(locals);
     return {
       ..._.reduce(
-        locals,
+        // Ignore blank target lines in Locals
+        _.filter(locals, ({ target, source }) => target && source),
         (obj, { target, source }) => {
           obj[target] = jsonata(source).evaluate(payload);
           return obj;

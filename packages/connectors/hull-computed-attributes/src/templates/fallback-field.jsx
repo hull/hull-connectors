@@ -5,28 +5,13 @@
 import _ from "lodash";
 import React, { Component } from "react";
 import Modal from "react-bootstrap/Modal";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 import InputGroup from "react-bootstrap/InputGroup";
 import FormControl from "react-bootstrap/FormControl";
 import Button from "react-bootstrap/Button";
-import Badge from "react-bootstrap/Badge";
-import { utils } from "@rjsf/core";
-const { getUiOptions } = utils;
 
-export function canExpand(schema, uiSchema, formData) {
-  if (!schema.additionalProperties) {
-    return false;
-  }
-  const { expandable } = getUiOptions(uiSchema);
-  if (expandable === false) {
-    return expandable;
-  }
-  // if ui:options.expandable was not explicitly set to false, we can add
-  // another property if we have not exceeded maxProperties yet
-  if (schema.maxProperties !== undefined) {
-    return Object.keys(formData).length < schema.maxProperties;
-  }
-  return true;
-}
 type Props = {
   TitleField: React$Node,
   DescriptionField: React$Node,
@@ -66,7 +51,7 @@ export default class FallbackFieldTemplate extends Component<Props, State> {
     ]);
 
     if (!key || preview === undefined) {
-      return <Badge variant="secondary">No value</Badge>;
+      return "[No change]";
     }
     if (_.isObject(preview) || _.isArray(preview)) {
       return JSON.stringify(preview);
@@ -76,55 +61,35 @@ export default class FallbackFieldTemplate extends Component<Props, State> {
 
   render() {
     const { props } = this;
-    const {
-      TitleField,
-      DescriptionField,
-      title,
-      formData,
-      formContext,
-      uiSchema,
-      idSchema,
-      description,
-      required,
-      properties
-    } = props;
+    const { formData, idSchema, properties } = props;
 
     const key = formData.target;
+    const modalProps = _.tail(properties);
+    const target = _.head(properties);
     return (
       <div id={idSchema.$id} className="field_object_row">
-        {(uiSchema["ui:title"] || title) && (
-          <TitleField
-            id={`${idSchema.$id}__title`}
-            title={title || uiSchema["ui:title"]}
-            required={required}
-            formContext={formContext}
-          />
-        )}
-
-        <InputGroup>
-          <InputGroup.Prepend>
-            <InputGroup.Text>Name</InputGroup.Text>
-          </InputGroup.Prepend>
-          <FormControl
-            value={key || ""}
-            disabled
-            placeholder={uiSchema.target["ui:placeholder"]}
-          />
-          <InputGroup.Append>
-            <InputGroup.Text>{this.getPreview(key)}</InputGroup.Text>
-            <Button onClick={this.handleOpenModal} variant="primary">
-              Edit
-            </Button>
-          </InputGroup.Append>
-        </InputGroup>
-
-        {description && (
-          <DescriptionField
-            id={`${idSchema.$id}__description`}
-            description={description}
-            formContext={formContext}
-          />
-        )}
+        <Container fluid>
+          <Row noGutters className="fallback_row">
+            <Col md={4}>{target.content}</Col>
+            <Col className="fallback_value">
+              <InputGroup>
+                <InputGroup.Prepend>
+                  <InputGroup.Text>Preview:</InputGroup.Text>
+                </InputGroup.Prepend>
+                <FormControl value={this.getPreview(key)} disabled />
+                <InputGroup.Append>
+                  <Button
+                    disabled={!key}
+                    onClick={this.handleOpenModal}
+                    variant="primary"
+                  >
+                    Edit
+                  </Button>
+                </InputGroup.Append>
+              </InputGroup>
+            </Col>
+          </Row>
+        </Container>
         <Modal
           centered
           dialogClassName="fallbacks_modal"
@@ -132,26 +97,28 @@ export default class FallbackFieldTemplate extends Component<Props, State> {
           show={this.state.show}
           onHide={this.handleCloseModal}
         >
-          <Modal.Header closeButton>Edit Computed Attribute</Modal.Header>
-          <Modal.Body>{properties.map(prop => prop.content)}</Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={this.handleCloseModal}>
-              Close
-            </Button>
-          </Modal.Footer>
+          <Modal.Header closeButton>
+            <Row>
+              <Col md={5}>
+                <InputGroup size="sm">
+                  <InputGroup.Prepend>
+                    <InputGroup.Text>Attribute Name:</InputGroup.Text>
+                  </InputGroup.Prepend>
+                  <FormControl value={key} disabled />
+                </InputGroup>
+              </Col>
+              <Col md={7}>
+                <InputGroup size="sm">
+                  <InputGroup.Prepend>
+                    <InputGroup.Text>Preview:</InputGroup.Text>
+                  </InputGroup.Prepend>
+                  <FormControl value={this.getPreview(key)} disabled />
+                </InputGroup>
+              </Col>
+            </Row>
+          </Modal.Header>
+          <Modal.Body>{modalProps.map(prop => prop.content)}</Modal.Body>
         </Modal>
-
-        {/* {canExpand(schema, uiSchema, formData) && (
-            <IconButton
-              type="info"
-              icon="plus"
-              className="btn-add btn-secondary btn-sm col-xs-12"
-              aria-label="Add"
-              tabIndex="0"
-              onClick={props.onAddClick(props.schema)}
-              disabled={props.disabled || props.readonly}
-            />
-          )} */}
       </div>
     );
   }

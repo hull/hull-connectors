@@ -1,9 +1,11 @@
-const backgroundColor = "#13151a";
+const backgroundColor = "#3a414c";
+const backgroundSelected = "#4c545f";
+const menuBackgroundColor = "#3a414c";
 const white = "#FFF";
 const dark = "#111";
 const disabled = "#444";
 const selected = "#2684FF";
-const backgroundSelected = "#4c545f";
+const borderRadius = "0.5rem";
 const noBorder = {
   border: "0",
   ":active": { boxShadow: 0, border: 0 },
@@ -11,27 +13,37 @@ const noBorder = {
   ":hover": { boxShadow: 0, border: 0 }
 };
 const styles = {
-  menu: s => ({ ...s, backgroundColor: "black" }),
+  menu: s => ({
+    ...s,
+    backgroundColor,
+    margin: 0,
+    border: "none",
+    boxShadow: "0 15px 15px #00000047",
+    borderRadius: ` 0 0 ${borderRadius} ${borderRadius}`
+  }),
   valueContainer: s => ({
     ...s,
     padding: "2px 8px",
     backgroundColor,
-    cursor: "pointer"
+    cursor: "pointer",
+    borderRadius: "0.5rem"
   }),
-  menuList: s => ({ ...s, backgroundColor }),
+  menuList: s => ({
+    ...s,
+    backgroundColor: "transparent",
+    padding: 0
+  }),
   container: s => ({
     ...s,
     ...noBorder
   }),
-  control: s => ({
+  control: (s, { menuIsOpen }) => ({
     ...s,
     ...noBorder,
     backgroundColor,
     minHeight: "31px",
-    borderRadius: "0.5rem",
-    ">div": {
-      borderRadius: "0.5rem"
-    }
+    boxShadow: "none",
+    borderRadius: menuIsOpen ? "0.5rem 0.5rem 0 0" : "0.5rem"
   }),
   indicatorsContainer: s => ({
     ...s,
@@ -54,7 +66,7 @@ const styles = {
       ? selected
       : isFocused
       ? backgroundSelected
-      : backgroundColor,
+      : "transparent",
     ":active": {
       backgroundColor: selected
     },

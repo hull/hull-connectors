@@ -9,8 +9,7 @@
     "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
   },
   "dependencies": {
-    "@rjsf/bootstrap-4": "^2.3.0",
-    "@rjsf/core": "^2.3.0"
+    "@rjsf/core": "^2.4.0"
   },
   "devDependencies": {}
 }

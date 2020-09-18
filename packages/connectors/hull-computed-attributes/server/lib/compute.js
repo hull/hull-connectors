@@ -6,23 +6,28 @@ const IGNORE_IDENTICAL = true;
 
 // Mapping Logic. Maps a source value to a result value
 const applyMapping = (source, data) => {
-  const { property, mapping, value, unknown } = source;
-  const v = _.get(data, property);
+  const { property, mapper, value } = source;
+
   // With this you set the attribute to a hardcoded value.
   // Use last in the fallback list to set a default
-  if (value !== undefined) {
+  if (value) {
     return value;
   }
-  // If we have a Mapping entry or an Unknown entry, perform the matching
-  if (_.has(source, "mapping") || _.has(source, "unknown")) {
-    const mapped = (_.find(mapping, { source: v }) || {}).destination;
-    if (mapped === undefined) {
-      return unknown;
-    }
+
+  if (property) {
+    return _.get(data, property);
+  }
+
+  // If we have a Mapping entry perform the matching
+  if (mapper) {
+    const { mapping, property: mappingProperty } = mapper;
+    const mapped = (
+      _.find(mapping, { source: _.get(data, mappingProperty) }) || {}
+    ).destination;
     return mapped;
   }
-  // Otherwise return the found value
-  return v;
+
+  return undefined;
 };
 
 // Fallback Logic. First defined value in sources.
@@ -44,7 +49,8 @@ const lookup = ({ data, sources }) =>
 
 const getFallbacks = (target_entity, data, fallbacks) =>
   _.reduce(
-    fallbacks,
+    // Skip undefined traits
+    _.filter(fallbacks, ({ target }) => !!target),
     (traits, { operation, sources, target }) => {
       const target_key = [target_entity, ..._.toPath(target)];
       const previousValue = _.get(data, target_key);

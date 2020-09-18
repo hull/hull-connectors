@@ -4,6 +4,8 @@ import React, { Component } from "react";
 import Form from "@rjsf/core";
 import type { EngineState } from "hull-vm";
 
+import SelectWidget from "./widgets/select";
+
 import transformErrors from "./lib/transform-errors";
 import ObjectFieldTemplate from "./templates/object-field";
 import ArrayFieldTemplate from "./templates/array-field";
@@ -26,13 +28,14 @@ type Props = {
 type State = EngineState;
 
 export default class JSONFormComposer extends Component<Props, State> {
-  getCustomFields = () => {
-    const { attributeSchema } = this.props;
-    return {
-      SourceAttributeField: attributeField(attributeSchema)
-      // TargetAttributeField:
-    };
-  };
+  getCustomFields = () => ({
+    SourceAttributeField: attributeField(this.props.attributeSchema)
+    // TargetAttributeField:
+  });
+
+  getCustomWidgets = () => ({
+    SelectWidget
+  });
 
   render() {
     const {
@@ -60,6 +63,7 @@ export default class JSONFormComposer extends Component<Props, State> {
         ObjectFieldTemplate={ObjectFieldTemplate}
         ArrayFieldTemplate={ArrayFieldTemplate}
         liveValidate={true}
+        widgets={this.getCustomWidgets()}
         fields={this.getCustomFields()}
       >
         <div></div>

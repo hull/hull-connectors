@@ -30,49 +30,54 @@
       "sources": {
         "type": "array",
         "title": "Fallbacks",
-        "default": [
-          {
-            "property": ""
-          }
-        ],
+        "default": [],
         "items": {
           "type": "object",
           "anyOf": [
             {
-              "title": "Attribute Value",
-              "required": ["property"],
-              "properties": {
-                "property": { "type": "string", "title": "Source attribute" }
+              "type": "object",
+              "title": "Attribute",
+              "properties":{
+                "property": {
+                  "type": "string",
+                  "title": "Attribute"
+                }                
               }
             },
             {
-              "title": "Remapped Attribute Value",
-              "required": ["property"],
+              "type": "object",
+              "title": "Remapped Attribute",
               "properties": {
-                "property": { "type": "string", "title": "Source attribute" },
-                "mapping": {
-                  "title": "Mapping",
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "source": { "type": "string", "title": "Original Value" },
-                      "destination": { "type": "string", "title": "Remapped Value" }
-                    },
-                    "default": []
+                "mapper":{
+                  "title": "Remapped Attribute",
+                  "required": ["property", "mapping"],
+                  "properties": {
+                    "property": { "type": "string", "title": "Source attribute" },
+                    "mapping": {
+                      "title": "Mapping",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "source": { "type": "string", "title": "Original Value" },
+                          "destination": { "type": "string", "title": "Remapped Value" }
+                        },
+                        "default": [{ "source": "", "destination": ""}]
+                      }
+                    }
                   }
-                },
-                "unknown": {
-                  "type": "string",
-                  "title": "Mapping Default"
                 }
               }
             },
+            
             {
+              "type": "object",
               "title": "Static Value",
-              "required": ["value"],
               "properties":{
-                "value": { "type": "string", "title": "Static Value" } 
+                "value": {
+                  "type": "string",
+                  "title": "Static Value"
+                }
               }
             }
           ]

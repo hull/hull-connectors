@@ -3,6 +3,22 @@ import _ from "lodash";
 import type { HullContext } from "hull";
 // import type { ConfResponse } from "hull-vm";
 
+const reduceAttributes = (entity = "user", attributes) =>
+  _.reduce(
+    attributes,
+    (schema, attribute) => {
+      const { key } = attribute;
+      if (entity === "user" && key.indexOf("account.") === 0) {
+        return schema;
+      }
+      schema.push({
+        ...attribute,
+        key: `${entity}.${key.replace(/^traits_/, "").replace("/", ".")}`
+      });
+      return schema;
+    },
+    []
+  );
 const configHandler = async (ctx: HullContext): Promise<Object> => {
   const [
     eventSchema,
@@ -18,14 +34,8 @@ const configHandler = async (ctx: HullContext): Promise<Object> => {
   const { code, locals, fallbacks } = private_settings;
   return {
     eventSchema,
-    userAttributeSchema: _.map(
-      _.omitBy(userAttributeSchema, ({ key }) => key.indexOf("account.") === 0),
-      attribute => ({ ...attribute, key: `user.${attribute.key}` })
-    ),
-    accountAttributeSchema: _.map(accountAttributeSchema, attribute => ({
-      ...attribute,
-      key: `account.${attribute.key}`
-    })),
+    userAttributeSchema: reduceAttributes("user", userAttributeSchema),
+    accountAttributeSchema: reduceAttributes("account", accountAttributeSchema),
     language: "jsonata",
     entity: "user",
     code,

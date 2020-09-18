@@ -1,6 +1,14 @@
 @import "../../../assets/style/index.scss";
 @import "../../../assets/style/vm/index.scss";
 
+body.dark .modal-content {
+  background: #2f3640;
+  box-shadow: 0 0 50px 17px #00000045;
+}
+
+body.dark .form-control {
+  font-size: 1rem;
+}
 // Styling the Array Sorting Buttons
 i.glyphicon {
   display: none;
@@ -25,7 +33,7 @@ i.glyphicon {
 %panel_body {
   padding: 1rem;
   border-radius: 8px;
-  background: #ffffff06;
+  background: #ffffff14;
   box-shadow: rgba(0, 0, 0, 0.18) 0px 4px 12px, #ffffff08 0px 0px 0px 1px inset;
 }
 
@@ -52,15 +60,9 @@ i.glyphicon {
 
 %vertical_form_group {
   .form-group {
-    padding: 0;
-    margin-bottom: 0.3rem;
-    flex-direction: row;
-    flex-grow: 1;
+    margin: 0 0 0.5rem 0;
   }
   .row {
-    margin: 0;
-    flex-direction: column;
-    flex-wrap: nowrap;
     &.array-item-list {
       .array-item-list {
         border: 0;
@@ -73,7 +75,7 @@ i.glyphicon {
     flex-grow: 1;
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
+    align-items: baseline;
     > .col-xs-9 {
       flex-grow: 1;
     }
@@ -102,18 +104,28 @@ i.glyphicon {
   @extend %array_buttons_styling;
   @extend %form_typography;
 
+  .field_source_property {
+    flex-direction: column;
+  }
+
   .modal-body {
     height: 500px;
     overflow: scroll;
     display: flex;
+    flex-direction: column;
+  }
+  .modal-header {
     flex-direction: row;
-    flex-wrap: wrap;
+    border-bottom: 1px solid #454c55;
+    .row {
+      flex-grow: 1;
+    }
   }
+}
 
-  .field_target,
-  .field_operation {
-    @extend %field_grow;
-  }
+.field_operation {
+  display: flex;
+  flex-direction: row;
 }
 
 .fallbacks_form,
@@ -122,6 +134,14 @@ i.glyphicon {
   @extend %array_buttons_styling;
   @extend %form_typography;
   padding: 1rem;
+  .row {
+    margin: 0;
+  }
+}
+.field_sources {
+  .row {
+    margin: 0;
+  }
 }
 
 .locals_form {
@@ -129,35 +149,30 @@ i.glyphicon {
   .btn-add::after {
     content: "✚ Add Local Variable";
   }
+  .container-fluid {
+    padding: 0;
+  }
 }
 
 .field_fallback {
   flex-direction: column;
-  // border-bottom: 1px solid #ffffff36;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  margin: 0;
   > .field_object_row {
     flex-direction: row;
     display: flex;
     flex-wrap: wrap;
   }
 }
-
-.field_target {
-  &:after {
-    content: "➡";
-    margin: 0 1rem;
+.fallbacks_form {
+  .field_sources {
+    .btn-add::after {
+      content: "✚ Add Fallback";
+    }
   }
-}
-
-.field_operation {
 }
 
 .field_sources {
   width: 100%;
-  .btn-add::after {
-    content: "✚ Add Fallback";
-  }
   // Hide the useless group
   .field-object {
     legend {
@@ -209,7 +224,6 @@ i.glyphicon {
 
 // Display fields and labels horizontally
 .field-string {
-  display: flex;
   align-items: baseline;
   label {
     flex-wrap: nowrap;
@@ -238,22 +252,11 @@ i.glyphicon {
 
 .field_source_property {
   margin-bottom: 0;
-  > div {
-    width: 100%;
-  }
 }
 
 .field_locals_target,
 .field_locals_source {
   flex-grow: 1;
-}
-.field_locals_target:after {
-  content: "=";
-  margin: 0 1rem;
-}
-.field_mapping_source:after {
-  content: "➡";
-  margin: 0 1rem;
 }
 
 .attribute_type {
@@ -264,5 +267,26 @@ i.glyphicon {
   border: 0;
   background: #ffffff0a;
   color: #aaa;
-  font-weight: 600;
+}
+
+.row.fallback_row,
+.row.locals_row {
+  flex-direction: row;
+  margin: 0 -15px 1rem -15px;
+  .field_target {
+    width: 100%;
+    flex-direction: column;
+  }
+  .fallback_value.col {
+    padding-left: 1rem;
+  }
+}
+
+input.form-control[disabled] {
+  background: #ffffff0a;
+  color: #999;
+}
+
+.react-select {
+  min-width: 300px;
 }

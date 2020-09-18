@@ -5,11 +5,9 @@ import { CodeTitle, JsonataUI } from "hull-vm/src/ui";
 import Form from "./jsonform-composer";
 
 import localsSchema from "./schemas/locals.json";
-import localsUiSchema from "./schemas/locals-ui.json";
+import localsUiSchema from "./schemas/locals-ui.js";
 import fallbacksSchema from "./schemas/fallbacks.json";
-import fallbacksUiSchema from "./schemas/fallbacks-ui.json";
-
-import FallbackFieldTemplate from "./templates/fallback-field";
+import fallbacksUiSchema from "./schemas/fallbacks-ui.js";
 
 type FormData = { formData: {} };
 
@@ -38,20 +36,25 @@ export default class ComputedAttributesUI extends JsonataUI {
   }
 
   getAttributeSchema = () => {
+    const {
+      locals = [],
+      userAttributeSchema,
+      accountAttributeSchema
+    } = this.state;
     return [
       {
         label: "Variables",
-        options: (this.state.locals || []).map(({ target, source }) => ({
+        options: locals.map(({ target, source }) => ({
           key: target
         }))
       },
       {
         label: "User Attributes",
-        options: this.state.userAttributeSchema
+        options: userAttributeSchema
       },
       {
         label: "Account Attributes",
-        options: this.state.accountAttributeSchema
+        options: accountAttributeSchema
       }
     ];
   };
@@ -78,13 +81,7 @@ export default class ComputedAttributesUI extends JsonataUI {
           className="fallbacks_form"
           attributeSchema={this.getAttributeSchema()}
           schema={fallbacksSchema}
-          uiSchema={{
-            ...fallbacksUiSchema,
-            items: {
-              ...fallbacksUiSchema.items,
-              "ui:ObjectFieldTemplate": FallbackFieldTemplate
-            }
-          }}
+          uiSchema={fallbacksUiSchema}
           computing={computing}
           formData={fallbacks}
           formContext={{ current: this.state.current }}

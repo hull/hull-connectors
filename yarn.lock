@@ -1621,17 +1621,10 @@
     lodash "^4.17.15"
     lodash-es "^4.17.15"
 
-"@rjsf/bootstrap-4@^2.3.0":
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/@rjsf/bootstrap-4/-/bootstrap-4-2.3.0.tgz#78955028c7cb7a37968bdfaebcd82430e49d5d95"
-  integrity sha512-SuuLj/GokP5v2VK8o07d2R/qO+rv+XpRLQYV39Bhh3XIkdhfirYU46JXBt0Kb0usyyvyvRSRTO7i+6Lggnz88w==
-  dependencies:
-    react-icons "^3.10.0"
-
-"@rjsf/core@^2.3.0":
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/@rjsf/core/-/core-2.3.0.tgz#334c73d2262ef1a8cda477e238067af7336c5599"
-  integrity sha512-OZKYHt9tjKhzOH4CvsPiCwepuIacqI++cNmnL2fsxh1IF+uEWGlo3NLDWhhSaBbOv9jps6a5YQcLbLtjNuSwug==
+"@rjsf/core@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@rjsf/core/-/core-2.4.0.tgz#c50bcff0d8178948ce08123177399d8816d51929"
+  integrity sha512-8zlydBkGldOxGXFEwNGFa1gzTxpcxaYn7ofegcu8XHJ7IKMCfpnU3ABg+H3eml1KZCX3FODmj1tHFJKuTmfynw==
   dependencies:
     "@babel/runtime-corejs2" "^7.8.7"
     "@types/json-schema" "^7.0.4"
@@ -13673,13 +13666,6 @@ react-hot-loader@^4.11.1, react-hot-loader@^4.2.0:
     react-lifecycles-compat "^3.0.4"
     shallowequal "^1.1.0"
     source-map "^0.7.3"
-
-react-icons@^3.10.0:
-  version "3.11.0"
-  resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-3.11.0.tgz#2ca2903dfab8268ca18ebd8cc2e879921ec3b254"
-  integrity sha512-JRgiI/vdF6uyBgyZhVyYJUZAop95Sy4XDe/jmT3R/bKliFWpO/uZBwvSjWEdxwzec7SYbEPNPck0Kff2tUGM2Q==
-  dependencies:
-    camelcase "^5.0.0"
 
 react-inlinesvg@^1.2.0:
   version "1.2.0"

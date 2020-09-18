@@ -26,6 +26,7 @@ const AttributeField = (schema = []) => props => {
       getOptionLabel={getOptionLabel}
       formatOptionLabel={formatOptionLabel}
       classNamePrefix="react-select"
+      className="react-select"
       placeholder={"Pick Attribute"}
       options={schema}
       styles={ReactSelectStyles}
