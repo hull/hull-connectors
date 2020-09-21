@@ -65,7 +65,9 @@ export default (firehoseTransport, HULL_DOMAIN, REMOTE_DOMAIN) => {
           "hull-app-id",
           "hull-bid",
           "hull-sid",
-          "hull-user-id"
+          "hull-user-id",
+          "x-track-url",
+          "x-track-referer"
         ];
         if (
           originHost === `${req.orgNamespace}.${HULL_DOMAIN}` ||
