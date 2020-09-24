@@ -293,7 +293,6 @@ describe("PatchUtil", () => {
 
     const pObject = {
       AccountId: "0037900000WuEMrCAN",
-      Role__c: "OWNER",
       Last_visited_upgrade_page__c: "2018-01-14T00:00:00.000Z",
       Last_visited_pricing_page__c: "2018-02-15T00:00:00.000Z",
       last_seen__c: "2018-03-08T00:00:00.000Z",
