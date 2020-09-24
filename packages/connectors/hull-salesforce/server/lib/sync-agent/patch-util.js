@@ -93,6 +93,11 @@ class PatchUtil {
           }
         }
       }
+
+      if (_.isString(sfAttributeValue) && _.isString(hullAttributeValue)) {
+        return _.toLower(sfAttributeValue) !== _.toLower(hullAttributeValue);
+      }
+
       return sfAttributeValue !== hullAttributeValue;
     }
 
