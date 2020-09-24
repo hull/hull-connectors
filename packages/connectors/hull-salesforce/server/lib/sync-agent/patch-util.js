@@ -122,6 +122,11 @@ class PatchUtil {
 
       return missingArrayValues.length > 0;
     }
+
+    if (_.isString(sfAttributeValue) && _.isString(hullAttributeValue)) {
+      return _.toLower(sfAttributeValue) !== _.toLower(hullAttributeValue);
+    }
+
     return sfAttributeValue !== hullAttributeValue;
   }
 
