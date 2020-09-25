@@ -174,6 +174,19 @@ describe("Update User Tests", () => {
             { "request_id": expect.whatever() },
             { "jobName": "Outgoing Data", "type": "user" }
           ],
+          [
+            "debug",
+            "outgoing.user.skip",
+            {
+              "subject_type": "user",
+              "request_id": expect.whatever(),
+              "user_id": "123",
+              "user_email": "bob@rei.com"
+            },
+            {
+              "reason": "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment"
+            }
+          ],
           ["debug", "connector.service_api.call", { "request_id": expect.whatever() }, {
             "responseTime": expect.whatever(),
             "method": "GET", "url": "/data_attributes?model=contact", "status": 200, "vars": {}
@@ -440,6 +453,19 @@ describe("Update User Tests", () => {
             },
             {
               "reason": "User has been deleted"
+            }
+          ],
+          [
+            "debug",
+            "outgoing.user.skip",
+            {
+              "subject_type": "user",
+              "request_id": expect.whatever(),
+              "user_id": "123",
+              "user_email": "bob@rei.com"
+            },
+            {
+              "reason": "User is not present in any of the defined segments to send to service.  Please either add a new synchronized segment which the user is present in the settings page, or add the user to an existing synchronized segment"
             }
           ],
           ["info", "outgoing.job.success", { "request_id": expect.whatever() },
