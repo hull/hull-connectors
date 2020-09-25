@@ -115,7 +115,7 @@ it("should send out a hull user to hubspot using known hubspot id", () => {
           changes: { segments: { left: [{ id: "5bffc38f625718d58b000004" }] } }
         }
       ],
-      response: { flow_control: { in: 5, in_time: 10, size: 10, type: "next" } },
+      response: { flow_control: { type: "next" } },
       logs: [
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],
         ["debug", "connector.service_api.call", expect.whatever(), expect.whatever()],

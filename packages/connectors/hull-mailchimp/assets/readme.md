@@ -73,7 +73,7 @@ Now that you know how Hull synchronizes segments, let us have a closer look when
 
 The webhooks will handle the incoming events from the users belonging to the list you have selected, as well as attribute changes. For example, if one of your Mailchimp contact is unsubscribed from your mailings, Hull will mark this user with the attributes "subscribed" as `false` and "status" as `unsubscribed`. The Hull user will also have a new entry in its timeline showing the "Unsubscribed" event in it.
 
-Note that when a Mailchimp contact is archived, the Hull user will have a special attribute called "archived" set to `true`. However, when this same use is un-archived, the Hull user won't receive any update from Mailchimp until the latter is explicitly updated in Mailchimp. Therefore, you may notice some users in Hull with the attribute "archived" set to `true` while they aren't archived anymore in Mailchimp. You will have to wait for an attribute update, or an event to fire from Mailchimp.
+Note that when a Mailchimp contact is archived, the Hull user will have a special attribute called "archived" set to `true`. However, when this same use is un-archived, the Hull user won't receive any update to its subscription and archived fields until the latter is updated in Mailchimp. Therefore, you may notice some users in Hull with the attribute "archived" set to `true` while they aren't archived anymore in Mailchimp. You will have to wait for an attribute update, or an event to fire from Mailchimp.
 
 Let us look at some examples to see how the data flow works.
 
@@ -160,3 +160,15 @@ A couple of months later, the user cancels his subscription which results in the
 ----------
 
 The user is no longer in any synchronized Hull segment which will remove the user from all static segments.
+
+## Troubleshooting
+
+### Why am I not receiving user updates when I un-archive contacts in my Mailchimp account?
+
+As opposed to the action of archiving contacts, the Mailchimp connector does not receive a webhook for each un-archived contact.
+The Hull user's subscription and archive statuses will be updated after receive any update from Mailchimp until the latter is updated in Mailchimp (updating an attribute, triggering an event...). Therefore, you may notice some users in Hull with the attribute "archived" set to `true` while they aren't archived anymore in Mailchimp. You will have to wait for an attribute update, or an event to fire from Mailchimp.
+
+### Why am I not receiving user updates after importing contacts to my Mailchimp list?
+
+After successfully importing contacts to your Mailchimp list using a *csv* or *json* file, Mailchimp will not trigger webhooks to the connector for each of them.
+Instead, you have to trigger a fetch of contacts that received updates over the past 24 hours, by clicking on the "Fetch Recent Users" button in your connector settings page. Mailchimp considers those newly added contacts as recently updated contacts.

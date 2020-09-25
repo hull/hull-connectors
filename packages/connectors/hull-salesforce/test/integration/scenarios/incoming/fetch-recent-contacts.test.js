@@ -29,15 +29,20 @@ const private_settings = {
   task_attributes_outbound: [],
   lead_synchronized_segments: [],
   contact_synchronized_segments: [],
-  account_synchronized_segments: []
+  account_synchronized_segments: [],
+  lead_claims: [],
+  user_claims: [
+    { "hull": "email", "service": "Email" }
+  ],
 }
 
 describe("Fetch Contacts Tests", () => {
+
   it("should fetch a deleted contact", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentDeletedContacts",
+        handlerUrl: "fetch-recent-deleted-contacts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -279,87 +284,16 @@ describe("Fetch Contacts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentContacts",
+        handlerUrl: "fetch-recent-contacts",
         connector: {
           private_settings: {
             ...private_settings,
-            "lead_synchronized_segments": [
-              "5a0c1f07b4d8644425002c65"
-            ],
-            "lead_attributes_outbound": [
-              {
-                "hull": "first_name",
-                "service": "FirstName",
-                "overwrite": false
-              },
-              {
-                "hull": "last_name",
-                "service": "LastName",
-                "overwrite": false
-              },
-              {
-                "hull": "email",
-                "service": "Email",
-                "overwrite": false
-              }
-            ],
+            "lead_synchronized_segments": [],
+            "lead_attributes_outbound": [],
             "fetch_resource_schema": true,
-            "contact_attributes_outbound": [
-              {
-                "hull": "first_name",
-                "service": "FirstName",
-                "overwrite": false
-              },
-              {
-                "hull": "last_name",
-                "service": "LastName",
-                "overwrite": false
-              },
-              {
-                "hull": "email",
-                "service": "Email",
-                "overwrite": false
-              }
-            ],
-            "account_attributes_outbound": [
-              {
-                "hull": "domain",
-                "service": "Website",
-                "overwrite": false
-              },
-              {
-                "hull": "name",
-                "service": "Name",
-                "overwrite": false
-              }
-            ],
-            "lead_attributes_inbound": [
-              {
-                "service": "FirstName",
-                "hull": "traits_salesforce_lead/first_name",
-                "overwrite": false
-              },
-              {
-                "service": "LastName",
-                "hull": "traits_salesforce_lead/last_name",
-                "overwrite": false
-              },
-              {
-                "service": "Company",
-                "hull": "traits_salesforce_lead/company",
-                "overwrite": false
-              },
-              {
-                "service": "Email",
-                "hull": "traits_salesforce_lead/email",
-                "overwrite": false
-              },
-              {
-                "service": "Website",
-                "hull": "traits_salesforce_lead/website",
-                "overwrite": false
-              }
-            ],
+            "contact_attributes_outbound": [],
+            "account_attributes_outbound": [],
+            "lead_attributes_inbound": [],
             "contact_attributes_inbound": [
               {
                 "service": "FirstName",
@@ -392,25 +326,8 @@ describe("Fetch Contacts Tests", () => {
                 "overwrite": false
               }
             ],
-            "account_attributes_inbound": [
-              {
-                "service": "Website",
-                "hull": "website",
-                "overwrite": false
-              }
-            ],
-            "account_claims": [
-              {
-                "hull": "domain",
-                "service": "Website",
-                "required": true
-              },
-              {
-                "hull": "external_id",
-                "service": "CustomField1",
-                "required": false
-              }
-            ]
+            "account_attributes_inbound": [],
+            "account_claims": []
           }
         },
         usersSegments: [],
@@ -491,7 +408,7 @@ describe("Fetch Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2CContactMultiPL__c%2CUserSegments__c%2CDepartment%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHbtUAG')"
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2CContactMultiPL__c%2CUserSegments__c%2CDepartment%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHbtUAG')%20AND%20Id%20!%3D%20null"
             }
           ],
           [
@@ -647,7 +564,7 @@ describe("Fetch Contacts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentContacts",
+        handlerUrl: "fetch-recent-contacts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -851,7 +768,7 @@ describe("Fetch Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2CContactMultiPL__c%2CDepartment%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHbtUAG')"
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2CContactMultiPL__c%2CDepartment%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHbtUAG')%20AND%20Id%20!%3D%20null"
             }
           ],
           [
@@ -998,7 +915,7 @@ describe("Fetch Contacts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentContacts",
+        handlerUrl: "fetch-recent-contacts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -1036,7 +953,7 @@ describe("Fetch Contacts Tests", () => {
           scope
             .get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q === "SELECT Email,FirstName,LastName,Id,AccountId,OwnerId,Owner.Email FROM Contact WHERE Id IN ('00Q1I000004WHchUAG')";
+              return query.q && query.q === "SELECT Email,FirstName,LastName,Id,AccountId,OwnerId,Owner.Email FROM Contact WHERE Id IN ('00Q1I000004WHchUAG') AND Id != null";
             })
             .reply(200, { records: [
                 {
@@ -1087,7 +1004,7 @@ describe("Fetch Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2COwnerId%2COwner.Email%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHchUAG')"
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2COwnerId%2COwner.Email%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHchUAG')%20AND%20Id%20!%3D%20null"
             }
           ],
           [
@@ -1178,7 +1095,7 @@ describe("Fetch Contacts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentContacts",
+        handlerUrl: "fetch-recent-contacts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -1221,7 +1138,7 @@ describe("Fetch Contacts Tests", () => {
           scope
             .get("/services/data/v39.0/query")
             .query((query) => {
-              return query.q && query.q === "SELECT Email,FirstName,LastName,Id,AccountId,Owner.Email,Description FROM Contact WHERE Id IN ('00Q1I000004WHchUAG')";
+              return query.q && query.q === "SELECT Email,FirstName,LastName,Id,AccountId,Owner.Email,Description FROM Contact WHERE Id IN ('00Q1I000004WHchUAG') AND Id != null";
             })
             .reply(200, { records: [
                 {
@@ -1272,7 +1189,7 @@ describe("Fetch Contacts Tests", () => {
             {
               "method": "GET",
               "url_length": expect.whatever(),
-              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2COwner.Email%2CDescription%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHchUAG')"
+              "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20Email%2CFirstName%2CLastName%2CId%2CAccountId%2COwner.Email%2CDescription%20FROM%20Contact%20WHERE%20Id%20IN%20('00Q1I000004WHchUAG')%20AND%20Id%20!%3D%20null"
             }
           ],
           [

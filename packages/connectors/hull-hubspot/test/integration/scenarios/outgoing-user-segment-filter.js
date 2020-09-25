@@ -56,9 +56,6 @@ it("should send out an user to hubspot filtering them based on segment", () => {
       ],
       response: {
         flow_control: {
-          in: 5,
-          in_time: 10,
-          size: 10,
           type: "next"
         }
       },

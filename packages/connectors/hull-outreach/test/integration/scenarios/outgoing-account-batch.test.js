@@ -70,7 +70,7 @@ test("send batch account update to outreach in a batch", () => {
 
         return scope;
       },
-      response: {"flow_control": {"in": 5, "in_time": 10, "size": 10, "type": "next"}},
+      response: {"flow_control": {"type": "next"}},
       // most of the remaining "whatevers" are returned from the nock endpoints or are tested in traits
       logs: [
         ["info", "outgoing.job.start", expect.whatever(), {"jobName": "Outgoing Data", "type": "account"}],

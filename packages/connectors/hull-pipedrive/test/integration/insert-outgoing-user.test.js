@@ -62,7 +62,7 @@ describe("Insert User Tests", () => {
 
           return scope;
         },
-        response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
+        response: { flow_control: { type: "next" } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "user" }],
           ["debug", "connector.service_api.call", { "request_id": expect.whatever() },
@@ -235,7 +235,7 @@ describe("Insert User Tests", () => {
 
           return scope;
         },
-        response: { flow_control: { type: "next", in: 5, in_time: 10, size: 10, } },
+        response: { flow_control: { type: "next" } },
         logs: [
           ["info", "outgoing.job.start", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "user" }],
           ["debug", "connector.service_api.call", { "request_id": expect.whatever() },

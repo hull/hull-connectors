@@ -1,100 +1,292 @@
-# Intercom Connector - Docs
+# Intercom Connector
 
-The Intercom Connector enables your sales team to engage with leads and helps your support team to stay in touch with customers by integrating Intercom seamlessly with other data sources.
+The Intercom Connector enables your sales team to engage with leads 
+and helps your support team stay in touch with customers by integrating 
+your Intercom data with other data sources.
 
+##
+### Migrate From the Intercom Legacy Connector
+
+The legacy Intercom connector was built off of the Intercom API version 1.0.
+The current version of the connector was built to support
+the latest Intercom API version, 2.x.
+
+#### Breaking changes between the API versions:
+
+1) In API version 2.x, the Users API & Leads API are deprecated and replaced with the Contacts API.
+As a result, the following fields are no longer retrievable via the API:
+     ```
+      anonymous
+      pseudonym
+      session_count
+      referrer
+      utm_campaign
+      utm_content
+      utm_medium
+      utm_source
+      utm_term
+      postal_code
+      timezone
+      continent_code
+      country_code
+      user_agent_data
+      latitude
+      longitude
+      last_seen_ip
+      ```
+
+2) The Contact field `user_id` is now `external_id`.
+
+#### Breaking changes between the Connector versions:
+
+1) Enhanced support for Users and Leads
+    - Users and leads are treated as distinct entities within a single Hull user. User attributes
+    will be written to the `intercom_user/` attribute group and lead attributes will be written
+    to the `intercom_lead/`, each under the corresponding Hull user representation.
+    
+2) Anonymous ids are now representative of the intercom entity
+    - Intercom users are modeled as `intercom-user:user-${intercom_id}`
+    - Intercom leads are modeled as `intercom-lead:lead-${intercom_id}`
+
+    
+#### Migration Plan
+
+1) Copy the relevant settings (see below) from the legacy connector to the new connector.
+
+2) Write `intercom_user/` and `intercom_lead` attributes to a single `intercom/` attribute group.
+
+3) For each incoming user and lead, manipulate the anonymous ids to preserve the existing
+anonymous id format and guarantee user merges in Hull.
+
+
+#### Migration Action Items
+
+*Contact Hull Support for assistance through this process*
+
+1) Copy the attribute mapping from the legacy connector to this connector.
+All standard attributes on the Contact model are mapped by default.
+
+2) Copy the outgoing events whitelist from the legacy connector to this connector.
+
+2) Populate incoming events list with the events you would like to receive.
+The default events received are limited to `user.created`, `user.deleted`, and `contact.created`.
+
+3) To preserve the existing `intercom/` attribute group and to manipulate the anonymous
+ids, in your org, install the Processor and copy this code
+
+```
+function createLegacyAnonIds(targetTraits, intercomEntity, entityId) {
+
+  const legacyAnonIds = [];
+  const anonIds = user.anonymous_ids;
+  const externalId = _.get(targetTraits, "user_id");
+
+  const legacyAnonId = _.find(anonIds, aid => {
+    return aid === `intercom:${entityId}`;
+  });
+
+  if (target === "user" && _.isNil(legacyAnonId)) {
+    legacyAnonIds.push(`intercom:${targetId}`);
+  }
+
+  if (intercomEntity === "lead" && !_.isNil(externalId)) {
+    const externalIdAnonId = _.find(anonIds, aid => {
+      return aid === `intercom:${externalId}`;
+    });
+
+    if (_.isNil(externalIdAnonId)) {
+      legacyAnonIds.push(`intercom:${externalId}`);
+    }
+  }
+  return legacyAnonIds;
+}
+
+function createLegacyAttributes(targetTraits, target) {
+  const externalId = _.get(targetTraits, "user_id");
+  if (target === "lead") {
+    _.set(targetTraits, "anonymous", true);
+    _.set(targetTraits, "is_lead", true);
+    _.set(targetTraits, "lead_user_id", externalId);
+    _.set(targetTraits, "user_id", null);
+  } else {
+     _.set(targetTraits, "is_lead", false);
+     _.set(targetTraits, "anonymous", false);
+  }
+
+  return _.reduce(targetTraits, (result, value, key) => {
+    result[`intercom/${key}`] = value;
+    return result;
+  }, {});
+}
+
+const userId = _.get(user, "intercom_user.id");
+const target = !_.isNil(userId) ? "user" : "lead";
+const targetId = _.get(user, `intercom_${target}.id`);
+const targetTraits = _.cloneDeep(_.get(user, `intercom_${target}`, {}));
+
+if (!_.isEmpty(targetTraits) && !_.isNil(targetId)) {
+
+  const legacyAnonIds = createLegacyAnonIds(targetTraits, target, targetId);
+  const legacyTraits = createLegacyAttributes(targetTraits, target);
+
+  _.forEach(legacyAnonIds, (legacyAnonId) => {
+    hull.alias({ anonymous_id: legacyAnonId });
+  });
+
+  hull.traits(legacyTraits);
+}
+```
+    
+    
+3) Create a whitelisted segment of all users with an intercom id to ensure that all
+incoming Intercom traffic will run through the processor created in the previous
+step.
+
+4) The intercom connector will no longer convert leads by default. Contact us to enable this feature.
+
+
+##
 ## Getting Started
 
-Go to the Connectors page of your Hull organization, click the button “Add Connector” and click “Install” on the Intercom card. After installation, start at the “Dashboard” tab by authenticating with Intercom:
-![Getting Started Step 1](./docs/gettingstarted01.png)
 
-After clicking on the button “Continue with Intercom”, you will be redirected to the login page of Intercom. Enter your credentials here or authenticate with Google to continue:
-![Getting Started Step 2](./docs/gettingstarted02.png)
+### Add a new Intercom Connector
+1. From your Connectors list in the dashboard, click `Add Connector`
+2. Choose `Intercom`
+3. Confirm the installation by clicking `Install`
+4. Click on `Credentials` and complete the authorization flow. The window will take you to the Intercom site which will ask you to authorize Hull to
+create/update users, accounts and webhooks
+5. Complete the configuration of the Intercom connector
 
-Upon successful authentication you will be redirected back to Hull:
-![Getting Started Step 3](./docs/gettingstarted03.png)
+##
+### Configure Your Intercom Connector
 
-Before you fetch leads or users from Intercom, you need to complete your setup on the “Settings” and customize how Hull integrates with Intercom:
+The integration synchronizes users, leads, events, and companies.
 
-- [Specify the Users who are getting synchronized](#Specify-the-Users-who-are-getting-synchronized)
-- [Define whether and which Events are sent to Intercom](#Define-whether-and-which-Events-are-sent-to-Intercom)
-- [Determine the attributes Hull sends to Intercom](#Determine-the-attributes-Hull-sends-to-Intercom)
-- [Specify custom attributes to fetch from Intercom](#Specify-custom-attributes-to-fetch-from-Intercom)
 
-## Features
+#### Lead Synchronization
 
-The Hull Intercom Connector allows your organization to synchronize leads and users from and to our platform. Once you have your data in Hull, you can send it to other tools to keep your entire stack in sync or update Intercom with data from other sources.
-If you want to reveal anonymous traffic, you can combine the Intercom lead data with tracking data from your website and Clearbit data.
-You can leverage Hull’s powerful segmentation engine together with Intercom to automate tagging of leads and users. By using action-driven segments in Hull you can create dynamic lists in Intercom to automate your messaging based on touchpoint activities. The Connector automatically creates the segment tags for you which you can combine with your own custom tags in Intercom. Hull provides you the flexibility to communicate with your customers in a flexible and automated way.
-Conversations in Intercom are synchronized near-real time with the Event stream of the Hull user profile which enables you to trigger further actions in other tools of your stack.
+##### Lead Identity
+By default, the Intercom connector uses email to resolve Hull Users to Intercom Leads. 
+This identification strategy can be configured in the `Lead Identity` section in the settings.
 
-The Intercom connector supports to `create users`, `add traits` and `update traits`.
+For outgoing traffic (Hull Users -> Intercom Leads), Hull checks if the lead exists in Intercom by 
+searching for leads that match the identity strategy defined above. If Hull finds a match, 
+the Intercom user will be updated, otherwise a new lead will be inserted.
 
-## Specify the Users who are getting synchronized
+### Incoming Leads
 
-The Intercom Connector fetches updates for all leads and users from Intercom automatically.
-By default no users are sent from Hull to Intercom, you need to define explicitly the segments for which users are getting sent. Go to the “Settings” tab of the connector and locate the section “Connector Configuration”. Specify the segments in the following field:
-![Connector Configuration](./docs/connectorconfig01.png)
+Leads are fetched and received by Hull in three ways:
 
-## Define whether and which Events are sent to Intercom
+1) `Fetch All Leads` is a manual action you can that will retrieve all users in your Intercom account
 
-Events are how user activity is stored in Intercom. The Intercom Connector allows your team to send any event from Hull to Intercom. You can configure which events are sent to Intercom in the section “Event Handling:
-![Event Handling](./docs/eventhandling01.png)
+2) `Incremental Fetch` is a background job that runs at a given interval to retrieve the latest updated leads
 
-Events are used for filtering and messaging, and event names are used directly in Intercom, we recommend sending high-level activity about your users rather than raw streams of all events. The recommendation for event names is to combine a past tense verb and nouns.
+3) `Webhooks` can be configured to accept the `user.created` webhook topic
 
-Note: The Intercom Connector automatically handles events received from Intercom, for a detailed list of the events received, see [Deep-Dive: Received Notifications from Intercom (Topics)](#Deep-Dive%3A-Received-Notifications-from-Intercom-%28Topics%29).
+**Configuration**
 
-## Determine the attributes Hull sends to Intercom
+- `User Incoming Fields` defines which Intercom Lead attributes are updated/created on Hull Users.
+By default, Hull will map all fields on the Intercom `Contact` model.
+These mappings can be removed and additional custom attributes can be added in.
 
-You can customize the attributes which are getting synchronized with Intercom in the section “Outgoing Attributes (Hull to Intercom)” of the “Settings” tab:
-![Outgoing Attributes](./docs/outgoingconfig01.png)
 
-You have the option to determine which is the leading, either Hull or Intercom in case of conflicting data. If you make Hull the leading system, check the box “Hull overwrites Intercom”. In this case the value in Hull for a given attribute will always take precedence over the value in Intercom. For example, the attribute company does have the value “XYZ Inc.” in Hull and Intercom has “XYZ”, if you check the box, the value in Intercom will be updated with “XYZ Inc.”, otherwise “XYZ” will stay in Intercom.
+### Outgoing Leads
 
-Note: If you have changed your custom attributes in Intercom or set up the Connector for the first time, please refer to the section [Retrieve Intercom Attributes initially or Refresh Custom Attributes](#Retrieve-Intercom-Attributes-initially-or-Refresh-Custom-Attribute).
+**Configuration**
 
-## Specify custom attributes to fetch from Intercom
+- `Tag Users` defines whether Hull will update Intercom Leads' tags with Hull segments
+- `Lead Filter` defines the segments Hull Users must be in to be sent to Intercom. If empty, 
+Hull will not send any users. A user only needs to match a single segment to be sent. 
+    - Note: If a Hull User belongs to a segment in the Lead Filter AND a segment in the User Filter (see below), the Hull user will
+be sent as a Lead. 
+- `User Outgoing Fields` defines which Hull User attributes are updated/created on Intercom Leads.
+If an outgoing field mapped to Intercom does not yet exist, Hull will create that field as a custom attribute in your Intercom account.
 
-Hull will always fetch all standard attributes for leads and users from Intercom and save them in the attribute group Intercom. If you do have custom attributes or want to map standard attributes to a specific attribute in Hull, you can define this behavior in the section “Incoming Attributes (Intercom to Hull)” within the “Settings” tab:
-![Incoming Attributes](./docs/incomingconfig01.png)
 
-Note: If you have changed your custom attributes in Intercom or set up the Connector for the first time, please refer to the section [Retrieve Intercom Attributes initially or Refresh Custom Attributes](#Retrieve-Intercom-Attributes-initially-or-Refresh-Custom-Attribute).
+#### User Synchronization
 
-## How to distinguish between leads and customers?
+##### User Identity
+By default, the Intercom connector uses email and external_id to resolve Hull Users to Intercom Users. 
+This identification strategy can be configured in the `User Identity` section in the settings.
 
-Intercom distinguishes leads and customers which are both users in Hull, but you can easily distinguish them by looking at the attribute `intercom/is_lead`. If this attribute is set to `true`, the user is a lead, otherwise a customer:
-![User is Intercom Lead](./docs/leadvscustomer01.png)
+For outgoing traffic (Hull Users -> Intercom Users), Hull checks if the user exists in Intercom by 
+searching for users that match the identity strategy defined above. If Hull finds a match, 
+the Intercom user will be updated, otherwise a new user will be inserted.
 
-## How does the Connector handle if a Lead turns into a Customer?
+### Incoming Users
 
-If a Lead is converted in a Customer, Intercom sends this information to Hull in near-real time. As soon as the information is available, the attribute `intercom/is_lead` is set to `false` as shown below:
-![User is Intercom Customer](./docs/leadvscustomer02.png)
+Users are fetched and received by Hull in three ways:
 
-As soon as a lead turned into a customer, all further interaction between Hull and Intercom will be associated with the customer.
+1) `Fetch All Users` is a manual action you can that will retrieve all users in your Intercom account
 
-## Retrieve Intercom Attributes initially or Refresh Custom Attributes
+2) `Incremental Fetch` is a background job that runs at a given interval to retrieve the latest updated users
 
-When you initially configure the Intercom Connector, it does not have any information about the available Intercom attributes. You will see a spinning progress indicator that indicates this status:
-![Attributes Initial](./docs/attributesini01.png)
+3) `Webhooks` can be configured to accept the `contact.created` webhook topic
 
-If this is the case, please return to your Dashboard tab and click on either “fetch” button. This will force the Connector to retrieve metadata from Intercom. The attributes will become available near-real time, so you can continue with the configuration.
+**Configuration**
 
-Note: Intercom does not provide an API endpoint to gather this information, that is why the Connector has to rely on the metadata from fetched customers and leads.
+- `User Incoming Fields` defines which Intercom User attributes are updated/created on Hull Users.
+By default, Hull will map all fields on the Intercom `Contact` model.
+These mappings can be removed and additional custom attributes can be added in.
 
-## How do I link anonymous traffic on my website and Intercom Leads in Hull
 
-To link the anonymous traffic and the leads in Intercom, you need to be using [Hull.js](https://www.hull.io/docs/reference/hull_js/) to track data in your website (You do this by adding a `Platform` to Hull)
-and then you need to enable the Intercom connector client-side component by adding it to the platform.
+### Outgoing Users
 
-When you do this: 
-- The Intercom Visitor IDs will be added to the current visitor list of aliases and this will link the Intercom Lead profile and the online visitor profile.
-- Any `tracking` or `traits` call you make to Hull.js will also be sent to Intercom in parallel, This way you don't have to instrument your code twice.
+**Configuration**
 
-This is an advanced topic and we suggest you reach out to us so we can help you set this up
+- `Tag Users` defines whether Hull will update Intercom Users' tags with Hull segments
+- `User Filter` defines the segments Hull Users must be in to be sent to Intercom. If empty, 
+Hull will not send any users. A user only needs to match a single segment to be sent.
+    - Note: If a Hull User belongs to a segment in the Lead Filter AND a segment in the User Filter, the Hull user will
+be sent as a Lead. 
+- `User Outgoing Fields` defines which Hull User attributes are updated/created on Intercom Users.
+If an outgoing field mapped to Intercom does not yet exist, Hull will create that field as a custom attribute in your Intercom account.
 
-## Deep-Dive: Received Notifications from Intercom (Topics)
 
-The Connector subscribes to the following topics to receive near-real time notifications from Intercom. The following list provides an overview of the different types and clarifies how hull treats data in each case:
+#### Company Synchronization
+
+##### Company Identity
+By default, the Intercom connector uses domain and external_id to resolve Hull Accounts to Intercom Companies. 
+This identification strategy can be configured in the `User Identity` section in the settings.
+
+### Incoming Companies
+
+Users are fetched and received by Hull in three ways:
+
+1) `Fetch All Companies` is a manual action you can that will retrieve all companies in your Intercom account
+
+2) `Incremental Fetch` is a background job that runs at a given interval to retrieve the latest updated accounts
+
+3) `Webhooks` can be configured to accept the `company.created` webhook topic
+
+**Configuration**9ouy
+
+- `User Incoming Fields` defines which Intercom User attributes are updated/created on Hull Users.
+By default, Hull will map all fields on the Intercom `Contact` model.
+These mappings can be removed and additional custom attributes can be added in.
+
+
+### Outgoing Accounts
+
+*Currently Not Supported*
+
+
+### Outgoing Events
+
+**Configuration**
+
+- `Hull Events Whitelist` defines which events will be sent to to Intercom. The Hull User must belong to one of
+the whitelisted segments (User or Lead) 
+
+
+### Incoming Events
+
+**Configuration**
+
+- `Intercom Events Whitelist` defines which webhook events will be accepted by Hull. The default webhooks received are 
+`user.created`, `contact.created`, and `user.deleted`.
+
+You may subscribe to the following webhook topics:
 
 | **Topic**                         | **Description**                              | **Connector Action**                                                                                                  |
 | --------------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
@@ -105,13 +297,24 @@ The Connector subscribes to the following topics to receive near-real time notif
 | conversation.admin.assigned       | Admin conversation assignments               | Create a new event “Admin assigned conversation”                                                                      |
 | conversation.admin.opened         | Admin opens conversation                     | Create new event “Admin opened conversation”                                                                          |
 | conversation.admin.closed         | Admin closes conversation                    | Create a new event “Admin closed conversation”                                                                        |
-| user.created                      | Customer creations                           | Create a new user in Hull or update an existing one.                                                                  |
-| user.deleted*                     | Customer deletions. Not for bulk operations. | Update user in Hull.                                                                                                  |
+| conversation.admin.noted          | Admin added a note to conversation           | Create a new event “Admin added note to conversation”
+| conversation.admin.snoozed        | Admin snoozed a conversation                 | Create a new event “Admin snoozed conversation”
+| conversation.admin.unsnoozed      | Admin unsnoozed a conversation               | Create a new event “Admin unsnoozed conversation”
+| conversation_part.tag.created     | Conversation part was tagged                 | Create a new event “Conversation Part Tag Added”
+| conversation_part.redacted        | Conversation part was redacted               | Create a new event “Conversation Part Redacted”
+| user.created                      | User creations                               | Create a new user in Hull or update an existing one.                                                                  |
+| user.deleted*                     | User deletions. Not for bulk operations.     | Update user in Hull.                                                                                                  |
+| user.unsubscribed                 | User unsubscribes                            | Create a new event “Unsubscribed from emails”
 | user.tag.created                  | User being tagged.                           | If the tag does not match a segment in Hull a new event “Added Tag” is created.                                       |
 | user.tag.deleted                  | User being untagged. Not for bulk deletions. | If the tag does not match a segment in Hull a new event “Removed Tag” is created.                                     |
-| user.email.updated                | Customer’s email address being updated.      | Update user in Hull.                                                                                                  |
+| user.email.updated                | User’s email address being updated.          | Update user in Hull.                                                                                                  |
 | contact.created                   | Lead creations                               | Create a new user in Hull or update an existing one.                                                                  |
+| contact.added_email               | Lead added an email                          | Create a new event “Updated email address”
 | contact.signed_up                 | Lead converting to a Customer                | Update user in Hull and set trait `intercom.is_lead` to `false`.                                                      |
+| contact.tag.created               | Lead being tagged                            | If the tag does not match a segment in Hull a new event “Added Tag” is created
+| contact.tag.deleted               | Lead being untagged                          | If the tag does not match a segment in Hull a new event “Removed Tag” is created.
+| visitor.signed_up                 | Visitor converted to a User                  | Create a new event “Admin closed conversation”
+| company.created                   | Company created                              | Create a new event “Admin closed conversation”
 
 
 \* User Deletion Caveats:

@@ -324,8 +324,9 @@ export default class SyncAgent {
    * Returns the SQL query from the ship settings.
    * @return {string} The SQL query string as supplied by the user.
    */
-  getQuery() {
-    return _.trimEnd(this.ship.private_settings.query, ";");
+  getQuery(pendingQuery) {
+    const query = _.isEmpty(pendingQuery) ? this.ship.private_settings.query : pendingQuery;
+    return _.trimEnd(query, ";");
   }
 
   /**

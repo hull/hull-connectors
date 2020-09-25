@@ -95,7 +95,7 @@ it("should remove user from static list if user left the segment", () => {
           }
         ],
         response: {
-          flow_control: { in: 10, in_time: 30000, size: 50, type: "next" }
+          flow_control: { in: 10, size: 50, in_time: 30000, type: "next" }
         },
         logs: [
           [

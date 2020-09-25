@@ -313,10 +313,60 @@ describe("Outgoing Users Tests", () => {
     });
   });
 
-  it("Not Whitelisted User Event Occurred. Should Send Payload", () => {
+  it("Not Whitelisted User Event Occurred. Should Not Send Payload", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
 
       const triggerScenario = createSimpleTriggerScenario({ trigger: "user_events", negative: true });
+
+      return _.assign(triggerScenario.getScenarioDefinition(), {
+        handlerType: handlers.notificationHandler,
+        handlerUrl: "smart-notifier",
+        channel: "user:update",
+        externalApiMock: () => {},
+        response: triggerScenario.getExpectedResponse(),
+        logs: triggerScenario.getExpectedLogs(),
+        firehoseEvents: triggerScenario.getExpectedFirehoseEvents(),
+        metrics: triggerScenario.getExpectedMetrics(),
+        platformApiCalls: triggerScenario.getExpectedPlatformApiCalls()
+      });
+    });
+  });
+
+  it("Should send user with events and 'All Events' whitelist", () => {
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_events_all" });
+
+      return _.assign(triggerScenario.getScenarioDefinition(), {
+        handlerType: handlers.notificationHandler,
+        handlerUrl: "smart-notifier",
+        channel: "user:update",
+        externalApiMock: () => {
+          const scope = nock("http://fake-url.io");
+
+          scope
+            .post("/mock", {
+              email: "bob@bobby.com"
+            })
+            .reply(200, {
+              status: 200
+            });
+
+          return scope;
+        },
+        response: triggerScenario.getExpectedResponse(),
+        logs: triggerScenario.getExpectedLogs(),
+        firehoseEvents: triggerScenario.getExpectedFirehoseEvents(),
+        metrics: triggerScenario.getExpectedMetrics(),
+        platformApiCalls: triggerScenario.getExpectedPlatformApiCalls()
+      });
+    });
+  });
+
+  it("Should not send user without events and 'All Events' whitelist", () => {
+    return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
+
+      const triggerScenario = createSimpleTriggerScenario({ trigger: "user_events_all", negative: true });
 
       return _.assign(triggerScenario.getScenarioDefinition(), {
         handlerType: handlers.notificationHandler,

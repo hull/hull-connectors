@@ -151,8 +151,19 @@ class MappingUtil {
       payload: accountData,
       direction: "incoming",
       mapping: this.connector.private_settings.incoming_account_attributes,
-      attributeFormatter: value =>
-        _.isNil(value) || _.isEmpty(value) ? null : value
+      attributeFormatter: value => {
+        if (_.isNil(value) || (!_.isNumber(value) && _.isEmpty(value))) {
+          return null;
+        }
+        if (_.isNumber(value)) {
+          return value;
+        }
+        // eslint-disable-next-line no-restricted-globals
+        if (!isNaN(value) && !_.startsWith(value, "0")) {
+          return parseFloat(value);
+        }
+        return value;
+      }
     });
 
     hullTraits["hubspot/id"] = accountData.companyId;
@@ -174,8 +185,20 @@ class MappingUtil {
       payload: hubspotReadContact,
       direction: "incoming",
       mapping: this.connector.private_settings.incoming_user_attributes,
-      attributeFormatter: value =>
-        _.isNil(value) || _.isEmpty(value) ? null : value
+      attributeFormatter: value => {
+        if (_.isNil(value) || (!_.isNumber(value) && _.isEmpty(value))) {
+          return null;
+        }
+        if (_.isNumber(value)) {
+          return value;
+        }
+        // TODO fix this
+        // eslint-disable-next-line no-restricted-globals
+        if (!isNaN(value) && !_.startsWith(value, "0")) {
+          return parseFloat(value);
+        }
+        return value;
+      }
     });
 
     hullTraits["hubspot/id"] =
@@ -365,13 +388,12 @@ class MappingUtil {
   }
 
   getHubspotPropertyKeys({ identityClaims, attributeMapping }): Array<string> {
+    const propertyRegex = /.*properties\..*\.value.*/;
     return _.concat(attributeMapping, identityClaims)
-      .filter(
-        entry => entry.service && entry.service.indexOf("properties.") === 0
-      )
+      .filter(entry => entry.service && propertyRegex.test(entry.service))
       .map(entry =>
         entry.service
-          .replace(/properties\./, "")
+          .replace(/.*properties\./, "")
           .replace(/\.value.*/, "")
           .replace(/"/g, "")
           .replace(/`/g, "")

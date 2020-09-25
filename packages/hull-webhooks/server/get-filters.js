@@ -2,11 +2,11 @@
 import type { HullEntityName, HullTriggerSet } from "hull";
 import type { PrivateSettings } from "../types";
 
-const getTriggers = (
+const getFilters = (
   entity: HullEntityName,
   private_settings: PrivateSettings
 ): HullTriggerSet => ({
   [`${entity}_segments_blacklist`]: private_settings.synchronized_segments_blacklist,
   [`${entity}_segments_whitelist`]: private_settings.synchronized_segments_whitelist
 });
-export default getTriggers;
+export default getFilters;
