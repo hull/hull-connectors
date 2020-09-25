@@ -1,14 +1,16 @@
 @import "../../../assets/style/index.scss";
 @import "../../../assets/style/vm/index.scss";
 
-body.dark .modal-content {
-  background: #2f3640;
-  box-shadow: 0 0 50px 17px #00000045;
+body.dark {
+  .modal-content {
+    background: #2f3640;
+    box-shadow: 0 0 50px 17px #00000045;
+  }
+  .form-control {
+    font-size: 1rem;
+  }
 }
 
-body.dark .form-control {
-  font-size: 1rem;
-}
 // Styling the Array Sorting Buttons
 i.glyphicon {
   display: none;
@@ -28,6 +30,18 @@ i.glyphicon {
 .btn-danger.array-item-remove {
   width: 32px;
   padding: 3px;
+}
+
+.computed_attributes_form {
+  padding: 0 1rem;
+}
+
+.row.array-item-list {
+  margin: 0;
+}
+
+.array_item_actions {
+  padding: 0 1rem;
 }
 
 %panel_body {
@@ -62,20 +76,10 @@ i.glyphicon {
   .form-group {
     margin: 0 0 0.5rem 0;
   }
-  .row {
-    &.array-item-list {
-      .array-item-list {
-        border: 0;
-        padding: 0;
-        margin: 0;
-      }
-    }
-  }
   .array-item {
-    flex-grow: 1;
     display: flex;
-    flex-direction: row;
     align-items: baseline;
+    width: 100%;
     > .col-xs-9 {
       flex-grow: 1;
     }
@@ -95,9 +99,6 @@ i.glyphicon {
   }
 }
 
-%field_grow {
-  flex-grow: 1;
-}
 
 .computed_attributes_modal {
   @extend %vertical_form_group;
@@ -123,30 +124,27 @@ i.glyphicon {
   }
 }
 
-.field_operation, .field_type, .field_strategy {
+.field_operation,
+.field_type,
+.field_strategy {
   display: flex;
   flex-direction: row;
+  label {
+    width: 120px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    margin-right: 1rem;
+  }
 }
 
-.computed_attributes_form,
-.locals_form {
+.field_params > .field_object_row > legend {
+  display: none;
+}
+
+.computed_attributes_form {
   @extend %vertical_form_group;
   @extend %array_buttons_styling;
   @extend %form_typography;
-  padding: 1rem;
-  .row {
-    margin: 0;
-  }
-}
-
-.locals_form {
-  height: 25%;
-  .btn-add::after {
-    content: "✚ Add Local Variable";
-  }
-  .container-fluid {
-    padding: 0;
-  }
 }
 
 .field_computed_attribute {
@@ -163,7 +161,7 @@ i.glyphicon {
   // Design for a Mapping Block
   > .field-array {
     @extend %panel_body;
-    padding: 0.2rem 0.6rem 0.2rem 0.6rem;
+    padding: 1rem;
     margin-top: 0.5rem;
     .btn-add::after {
       content: "✚ Add Mapping";
@@ -177,28 +175,15 @@ i.glyphicon {
       display: block;
     }
   }
-
-  > div {
-    > .array-item-list {
-      > .array-item {
-        > div {
-          .field-object {
-            display: flex;
-            flex-direction: row;
-          }
-        }
-      }
-    }
-  }
 }
 
 // Display fields and labels horizontally
 .field-string {
   align-items: baseline;
   label {
-    flex-wrap: nowrap;
-    white-space: nowrap;
-    margin-right: 1rem;
+    // flex-wrap: nowrap;
+    // white-space: nowrap;
+    // margin-right: 1rem;
   }
 }
 

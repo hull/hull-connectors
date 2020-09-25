@@ -1,6 +1,6 @@
 const backgroundColor = "#3a414c";
 const backgroundSelected = "#4c545f";
-const menuBackgroundColor = "#3a414c";
+// const menuBackgroundColor = "#3a414c";
 const white = "#FFF";
 const dark = "#111";
 const disabled = "#444";
@@ -13,6 +13,10 @@ const noBorder = {
   ":hover": { boxShadow: 0, border: 0 }
 };
 const styles = {
+  input: s => ({
+    ...s,
+    color: white
+  }),
   menu: s => ({
     ...s,
     backgroundColor,

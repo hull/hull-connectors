@@ -33,13 +33,9 @@ export default class ComputedAttributesUI extends JsonataUI {
     return [
       {
         label: "Computed Attributes",
-        options: computedAttributes.map(({ target }) => ({
-          key: `user.${target}`
+        options: computedAttributes.map(({ computed_attribute }) => ({
+          key: `user.${computed_attribute}`
         }))
-      },
-      {
-        label: "Segments",
-        key: "segments"
       },
       {
         label: "User Attributes",
@@ -56,15 +52,16 @@ export default class ComputedAttributesUI extends JsonataUI {
     const { computing, editable, computedAttributes } = this.state;
     return (
       <Fragment>
-        <CodeTitle title={<span>Computed Attributes</span>} />
         <Form
           className="computed_attributes_form"
-          attributeSchema={this.getAttributeSchema()}
           schema={computedAttributesSchema}
           uiSchema={computedAttributesUiSchema}
           computing={computing}
           formData={computedAttributes}
-          formContext={{ current: this.state.current }}
+          formContext={{
+            current: this.state.current,
+            getAttributeSchema: this.getAttributeSchema
+          }}
           extraErrors={this.getErrors()}
           editable={!editable}
           onChange={this.onComputedAttributeUpdate}

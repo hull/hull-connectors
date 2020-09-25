@@ -6,31 +6,35 @@ import { ReactSelectStyles } from "hull-vm/src/ui";
 const getOptionValue = ({ key }) => key;
 const getOptionLabel = ({ key, type }) => `${key} [${type}]`;
 
-const formatOptionLabel = ({ key, type }) => (
-  <span>
-    {key} {type ? <i className="attribute_type">[{type}]</i> : undefined}
-  </span>
-);
-const AttributeField = (schema = []) => props => {
-  const onChange = ({
-    key /* , type, visible, track_changes, configurable */
-  }) => {
-    props.onChange(key);
-  };
+type Props = {
+  formContext: {
+    getAttributeSchema: any
+  },
+  formData: {},
+  onChange: any => void
+};
+const AttributeField = (props: Props) => {
+  const { onChange, formData, formContext } = props;
+  const { getAttributeSchema } = formContext;
+
   return (
     <Select
       isMulti={false}
-      value={props.formData ? { key: props.formData } : undefined}
+      value={formData ? { key: formData } : undefined}
       isSearchable={true}
       getOptionValue={getOptionValue}
       getOptionLabel={getOptionLabel}
-      formatOptionLabel={formatOptionLabel}
+      formatOptionLabel={({ key, type }) => (
+        <span>
+          {key} {type ? <i className="attribute_type">[{type}]</i> : undefined}
+        </span>
+      )}
       classNamePrefix="react-select"
       className="react-select"
       placeholder={"Pick Attribute"}
-      options={schema}
+      options={getAttributeSchema()}
       styles={ReactSelectStyles}
-      onChange={onChange}
+      onChange={({ key }) => onChange(key)}
       closeMenuOnSelect={true}
     />
   );

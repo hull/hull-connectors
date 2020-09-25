@@ -68,25 +68,17 @@ export default class JsonataUI extends VirtualMachineUI<Props, State> {
 
   render() {
     const {
-      url,
-      headers,
       current,
       fetching,
-      initialized,
       recent,
       computing,
       showBindings,
-      events,
-      error,
-      entity,
-      search,
-      language,
-      code,
-      editable
+      // error,
+      search
     } = this.state;
     const { strings } = this.props;
 
-    const errors = _.compact([error, ...(current?.result?.errors || [])]);
+    // const errors = _.compact([error, ...(current?.result?.errors || [])]);
     if (!current) {
       return (
         <div className="text-center pt-2">
@@ -119,7 +111,6 @@ export default class JsonataUI extends VirtualMachineUI<Props, State> {
                 </div>
               </EntrySelector>
             </Header>
-            <CodeTitle title="Notification Content" />
             <Area
               id="code-payload"
               mode="json"
@@ -127,7 +118,7 @@ export default class JsonataUI extends VirtualMachineUI<Props, State> {
             />
           </div>
           <div className="col vm-column code-column">
-            <Header>Enter an account identifier</Header>
+            <Header>Computed Attributes</Header>
             {this.renderComposer()}
           </div>
         </div>

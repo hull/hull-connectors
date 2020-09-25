@@ -15,13 +15,7 @@ function DefaultArrayItem(props) {
 
       {props.hasToolbar && (
         <div className="col-xs-3 array-item-toolbox">
-          <div
-            className=""
-            style={{
-              display: "flex",
-              justifyContent: "space-around"
-            }}
-          >
+          <div className="array_item_actions">
             {(props.hasMoveUp || props.hasMoveDown) && (
               <IconButton
                 icon="arrow-up"

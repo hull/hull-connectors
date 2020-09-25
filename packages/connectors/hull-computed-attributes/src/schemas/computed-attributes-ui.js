@@ -30,6 +30,8 @@ const computedAttributesUiSchema = {
       classNames: "field_type"
     },
     params: {
+      "ui:label": false,
+      classNames: "field_params",
       attribute: sourceAttribute,
       mapping: {
         classNames: "field_mappings",

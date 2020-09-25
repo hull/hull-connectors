@@ -53,7 +53,14 @@ export default async function getEntity(
       message: rawPayload
     });
 
-    const payload = _.omit(tempPayload, ["segment_ids", "account_segment_ids"]);
+    const payload = _.omit(tempPayload, [
+      "segments",
+      "account_segments",
+      "changes",
+      "events",
+      "segment_ids",
+      "account_segment_ids"
+    ]);
 
     // Here we are saving 1 api call by direcly embedding the response
 

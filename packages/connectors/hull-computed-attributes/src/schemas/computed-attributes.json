@@ -172,16 +172,14 @@
           "mapping",
           "fallback",
           "value",
-          "expression",
-          "atIndex"
+          "expression"
         ],
         "enumNames": [
-          "Attribute",
-          "Mapping",
-          "Fallback",
+          "Attribute Value",
+          "Remapped Attribute Value",
+          "Fallbacks",
           "Static Value",
-          "Expression",
-          "Get Item in Array"
+          "Expression"
         ]
       }
     },

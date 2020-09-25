@@ -9,7 +9,7 @@ import SelectWidget from "./widgets/select";
 import transformErrors from "./lib/transform-errors";
 import ObjectFieldTemplate from "./templates/object-field";
 import ArrayFieldTemplate from "./templates/array-field";
-import attributeField from "./fields/attribute";
+import AttributeField from "./fields/attribute";
 
 type Props = {
   computing: boolean,
@@ -20,7 +20,6 @@ type Props = {
   uiSchema: {},
   extraErrors: {},
   readOnly: boolean,
-  attributeSchema: [],
   onChange: any => void,
   getPreview: string => string
 };
@@ -28,9 +27,7 @@ type Props = {
 type State = EngineState;
 
 export default class JSONFormComposer extends Component<Props, State> {
-  getCustomFields = () => ({
-    AttributeField: attributeField(this.props.attributeSchema)
-  });
+  getCustomFields = () => ({ AttributeField });
 
   getCustomWidgets = () => ({
     SelectWidget

@@ -76,34 +76,32 @@ export default class ComputedAttributesFieldTemplate extends Component<
     // const type = _.find(properties, { name: "type" });
     return (
       <div id={idSchema.$id} className="field_object_row">
-        <Container fluid>
-          <Row noGutters className="computed_attributes_row">
-            <Col md={4}>{attribute.content}</Col>
-            <Col className="computed_attributes_value">
-              <InputGroup>
-                <InputGroup.Prepend>
-                  <InputGroup.Text>Preview:</InputGroup.Text>
-                </InputGroup.Prepend>
-                <FormControl
-                  value={this.getPreview(computed_attribute)}
-                  disabled
-                />
-                <InputGroup.Append>
-                  <InputGroup.Text>
-                    <Badge variant="primary">{type}</Badge>
-                  </InputGroup.Text>
-                  <Button
-                    disabled={!computed_attribute}
-                    onClick={this.handleOpenModal}
-                    variant="primary"
-                  >
-                    Edit
-                  </Button>
-                </InputGroup.Append>
-              </InputGroup>
-            </Col>
-          </Row>
-        </Container>
+        <Row className="computed_attributes_row">
+          <Col md={4}>{attribute.content}</Col>
+          <Col className="computed_attributes_value">
+            <InputGroup>
+              <InputGroup.Prepend>
+                <InputGroup.Text>Preview:</InputGroup.Text>
+              </InputGroup.Prepend>
+              <FormControl
+                value={this.getPreview(computed_attribute)}
+                disabled
+              />
+              <InputGroup.Append>
+                <InputGroup.Text>
+                  <Badge variant="primary">{type}</Badge>
+                </InputGroup.Text>
+                <Button
+                  disabled={!computed_attribute}
+                  onClick={this.handleOpenModal}
+                  variant="primary"
+                >
+                  Edit
+                </Button>
+              </InputGroup.Append>
+            </InputGroup>
+          </Col>
+        </Row>
         <Modal
           centered
           dialogClassName="computed_attributes_modal"
