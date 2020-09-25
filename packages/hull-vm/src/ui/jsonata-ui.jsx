@@ -3,13 +3,8 @@
 import _ from "lodash";
 import React, { Fragment } from "react";
 
-import ButtonGroup from "react-bootstrap/ButtonGroup";
-import Button from "react-bootstrap/Button";
-import Code from "./code";
-import Preview from "./jsonata-preview";
 import KeyBindings from "./key-bindings";
 import EntrySelector from "./entry-selector";
-import EventSelector from "./event-selector";
 import Area from "./area";
 import Header from "./header";
 import CodeTitle from "./code-title";
@@ -132,17 +127,7 @@ export default class JsonataUI extends VirtualMachineUI<Props, State> {
             />
           </div>
           <div className="col vm-column code-column">
-            <Header>
-              {entity === "user" ? (
-                <EventSelector
-                  loading={!initialized && fetching}
-                  onChange={this.handleUpdateEvents}
-                  events={events}
-                />
-              ) : (
-                "Enter an account identifier"
-              )}
-            </Header>
+            <Header>Enter an account identifier</Header>
             {this.renderComposer()}
           </div>
         </div>

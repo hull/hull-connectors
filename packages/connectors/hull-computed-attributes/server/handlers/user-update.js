@@ -19,7 +19,7 @@ const update = ({ flow_size = 100, flow_in = 10 }: FlowControl) => async (
 ): HullNotificationResponse => {
   const { connector, client } = ctx;
   const { private_settings = {} } = connector;
-  const { code = "", fallbacks } = private_settings;
+  const { computedAttributes } = private_settings;
 
   // const user_ids = _.map(messages, "user.id");
   try {
@@ -29,11 +29,7 @@ const update = ({ flow_size = 100, flow_in = 10 }: FlowControl) => async (
           entity: "user",
           message
         });
-        const traits = await buildResponse({
-          code,
-          payload,
-          fallbacks
-        });
+        const traits = await buildResponse({ payload, computedAttributes });
         if (traits && _.size(traits)) {
           client.asUser(message.user).traits(traits);
         }

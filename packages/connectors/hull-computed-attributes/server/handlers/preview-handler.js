@@ -22,7 +22,7 @@ export default async function preview(
     };
   }
 
-  const { fallbacks, locals, payload } = body;
+  const { computedAttributes, payload } = body;
   if (!client || !connector || !payload) {
     return {
       status: 404,
@@ -31,14 +31,13 @@ export default async function preview(
   }
 
   try {
-    const data = await buildResponse({
-      locals,
+    const traits = await buildResponse({
       payload,
-      fallbacks
+      computedAttributes
     });
     return {
       status: 200,
-      data
+      data: { traits }
     };
   } catch (error) {
     console.log(error);

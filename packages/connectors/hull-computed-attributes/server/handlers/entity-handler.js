@@ -16,7 +16,7 @@ export type ComputedAttributesResponse = {
   payload: Payload,
   entity?: HullEntityName,
   claims?: HullEntityClaims,
-  fallbacks?: {},
+  computedAttributes?: {},
   code: string
 };
 
@@ -24,12 +24,9 @@ export default async function getEntity(
   ctx: HullContext,
   message: HullIncomingHandlerMessage
 ): HullExternalResponse {
-  const { connector } = ctx;
-  const { private_settings } = connector;
-  const { locals, fallbacks } = private_settings;
   const { body } = message;
   // $FlowFixMe
-  const { search, claims, entity, include } = body;
+  const { search, claims, entity, computedAttributes } = body;
   if (!search && (!claims || _.isEmpty(claims))) {
     return {
       status: 404,
@@ -41,14 +38,7 @@ export default async function getEntity(
     const payloads = await ctx.entities.get({
       claims,
       search,
-      entity,
-      include: {
-        events: {
-          ...include.events,
-          per_page: 20,
-          page: 1
-        }
-      }
+      entity
     });
 
     const rawPayload = _.first(payloads.data);
@@ -58,18 +48,16 @@ export default async function getEntity(
         error: `Can't find ${entity} with ${search}`
       };
     }
-    const { claims: foundClaims, payload } = formatPayload(ctx, {
+    const { claims: foundClaims, payload: tempPayload } = formatPayload(ctx, {
       entity,
       message: rawPayload
     });
 
+    const payload = _.omit(tempPayload, ["segment_ids", "account_segment_ids"]);
+
     // Here we are saving 1 api call by direcly embedding the response
 
-    const { data, traits } = await buildResponse({
-      locals,
-      payload,
-      fallbacks
-    });
+    const traits = await buildResponse({ payload, computedAttributes });
 
     return {
       status: 200,
@@ -79,7 +67,6 @@ export default async function getEntity(
         result: {
           source: "computed-attributes",
           claims: foundClaims,
-          data,
           traits,
           entity,
           error: [],

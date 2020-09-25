@@ -29,8 +29,7 @@ type State = EngineState;
 
 export default class JSONFormComposer extends Component<Props, State> {
   getCustomFields = () => ({
-    SourceAttributeField: attributeField(this.props.attributeSchema)
-    // TargetAttributeField:
+    AttributeField: attributeField(this.props.attributeSchema)
   });
 
   getCustomWidgets = () => ({

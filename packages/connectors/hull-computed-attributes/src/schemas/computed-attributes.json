@@ -1,0 +1,213 @@
+{
+  "name": "fallbacks",
+  "type": "array",
+  "definitions": {
+    "fields": {
+      "attribute": {
+        "type": "string",
+        "title": "Attribute"
+      }
+    },
+    "computedAttributes": {
+      "attribute":{
+        "properties": {
+          "operation": { "enum": ["attribute"]},
+          "params": {
+            "type": "object",
+            "properties": {
+              "attribute": {
+                "type": "string",
+                "title": "Attribute"
+              }
+            }
+          }
+        }
+      },
+      "mapping":{
+        "properties": {
+          "operation": { "enum": ["mapping"]},
+          "params": {
+            "type": "object",
+            "properties": {
+              "attribute": {
+                "$ref": "#/definitions/fields/attribute"
+              },
+              "mapping": {
+                "title": "Mapping",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "source": { "type": "string", "title": "Original Value" },
+                    "destination": { "type": "string", "title": "Remapped Value" }
+                  },
+                  "default": [{ "source": "", "destination": ""}]
+                }
+              }
+            }
+          }
+        }
+      },
+      "fallback":{
+        "properties": {
+          "operation": { "enum": ["fallback"]},
+          "params": {
+            "type": "object",
+            "properties": {
+              "attributes": {
+                "type": "array",
+                "title": "Fallbacks",
+                "items": { 
+                  "$ref": "#/definitions/fields/attribute"
+                 }
+              }
+            }
+          }
+        }
+      },
+      "value":{
+        "properties": {
+          "operation": { "enum": ["value"]},
+          "params": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "title": "Value"
+              }
+            }
+          }
+        }
+      },
+      "expression":{
+        "properties": {
+          "operation": { "enum": ["expression"]},
+          "params": {
+            "type": "object",
+            "properties": {
+              "attribute": {
+                "$ref": "#/definitions/fields/attribute"
+              },
+              "expression": {
+                "type": "string",
+                "title": "Expression (Jsonata)",
+                "default": "$"
+              }
+            }
+          }
+        }
+      },
+      "atIndex":{
+        "properties": {
+          "operation": { "enum": ["atIndex"]},
+          "params": {
+            "type": "object",
+            "properties": {
+              "attribute": {
+                "$ref": "#/definitions/fields/attribute"
+              },
+              "accessor": {
+                "title": "Array Accessor",
+                "default": "first",
+                "enum": ["first", "last", "index"],
+                "enumNames": ["First item", "Last Item", "Item at Index"]
+              }
+            },
+            "dependencies": {
+              "accessor": {
+                "oneOf": [
+                  {
+                    "properties": {
+                      "accessor": { "enum": ["first"] }
+                    }
+                  },
+                  {
+                    "properties": {
+                      "accessor": { "enum": ["last"] }
+                    }
+                  },
+                  {
+                    "properties": {
+                      "accessor": { "enum": ["index"] },
+                      "accessor_value": { "type": "number", "title": "Index (negative supported)" }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "items": {
+    "type": "object",
+    "required": ["computed_attribute", "operation", "strategy"],
+    "properties": {
+      "computed_attribute": {
+        "$ref": "#/definitions/fields/attribute",
+        "title": "Target Attribute",
+        "type": "string",
+        "pattern": "^[/a-zA-Z_\\-0-9]+$"
+      },
+      "type": {
+        "title": "Data Type",
+        "type": "string",
+        "default": "string",
+        "enumNames": ["String", "Number", "Boolean", "Date"],
+        "enum": ["string", "number", "boolean", "date"]
+      },
+      "strategy": {
+        "title": "Update Strategy",
+        "type": "string",
+        "default": "set",
+        "enumNames": ["Always", "Only if not previously set"],
+        "enum": ["set", "setIfNull"]
+      },
+      "operation": {
+        "title": "Operation",
+        "default": "attribute",
+        "enum": [
+          "attribute",
+          "mapping",
+          "fallback",
+          "value",
+          "expression",
+          "atIndex"
+        ],
+        "enumNames": [
+          "Attribute",
+          "Mapping",
+          "Fallback",
+          "Static Value",
+          "Expression",
+          "Get Item in Array"
+        ]
+      }
+    },
+    "dependencies": {
+      "operation": {
+        "oneOf": [
+          {
+            "$ref": "#/definitions/computedAttributes/fallback"
+          },
+          {
+            "$ref": "#/definitions/computedAttributes/value"
+          },
+          {
+            "$ref": "#/definitions/computedAttributes/attribute"
+          },
+          {
+            "$ref": "#/definitions/computedAttributes/expression"
+          },
+          {
+            "$ref": "#/definitions/computedAttributes/mapping"
+          },
+          {
+            "$ref": "#/definitions/computedAttributes/atIndex"
+          }
+        ]
+      }
+    }
+  }
+}

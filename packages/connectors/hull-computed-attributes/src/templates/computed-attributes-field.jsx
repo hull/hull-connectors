@@ -11,6 +11,7 @@ import Col from "react-bootstrap/Col";
 import InputGroup from "react-bootstrap/InputGroup";
 import FormControl from "react-bootstrap/FormControl";
 import Button from "react-bootstrap/Button";
+import Badge from "react-bootstrap/Badge";
 
 type Props = {
   TitleField: React$Node,
@@ -29,7 +30,10 @@ type State = {
   show: boolean
 };
 
-export default class FallbackFieldTemplate extends Component<Props, State> {
+export default class ComputedAttributesFieldTemplate extends Component<
+  Props,
+  State
+> {
   state = {
     show: false
   };
@@ -53,6 +57,9 @@ export default class FallbackFieldTemplate extends Component<Props, State> {
     if (!key || preview === undefined) {
       return "[No change]";
     }
+    if (preview === null) {
+      return "[null value]";
+    }
     if (_.isObject(preview) || _.isArray(preview)) {
       return JSON.stringify(preview);
     }
@@ -63,23 +70,30 @@ export default class FallbackFieldTemplate extends Component<Props, State> {
     const { props } = this;
     const { formData, idSchema, properties } = props;
 
-    const key = formData.target;
+    const { computed_attribute, type } = formData;
     const modalProps = _.tail(properties);
-    const target = _.head(properties);
+    const attribute = _.find(properties, { name: "computed_attribute" });
+    // const type = _.find(properties, { name: "type" });
     return (
       <div id={idSchema.$id} className="field_object_row">
         <Container fluid>
-          <Row noGutters className="fallback_row">
-            <Col md={4}>{target.content}</Col>
-            <Col className="fallback_value">
+          <Row noGutters className="computed_attributes_row">
+            <Col md={4}>{attribute.content}</Col>
+            <Col className="computed_attributes_value">
               <InputGroup>
                 <InputGroup.Prepend>
                   <InputGroup.Text>Preview:</InputGroup.Text>
                 </InputGroup.Prepend>
-                <FormControl value={this.getPreview(key)} disabled />
+                <FormControl
+                  value={this.getPreview(computed_attribute)}
+                  disabled
+                />
                 <InputGroup.Append>
+                  <InputGroup.Text>
+                    <Badge variant="primary">{type}</Badge>
+                  </InputGroup.Text>
                   <Button
-                    disabled={!key}
+                    disabled={!computed_attribute}
                     onClick={this.handleOpenModal}
                     variant="primary"
                   >
@@ -92,7 +106,7 @@ export default class FallbackFieldTemplate extends Component<Props, State> {
         </Container>
         <Modal
           centered
-          dialogClassName="fallbacks_modal"
+          dialogClassName="computed_attributes_modal"
           size="lg"
           show={this.state.show}
           onHide={this.handleCloseModal}
@@ -104,7 +118,7 @@ export default class FallbackFieldTemplate extends Component<Props, State> {
                   <InputGroup.Prepend>
                     <InputGroup.Text>Attribute Name:</InputGroup.Text>
                   </InputGroup.Prepend>
-                  <FormControl value={key} disabled />
+                  <FormControl value={computed_attribute} disabled />
                 </InputGroup>
               </Col>
               <Col md={7}>
@@ -112,7 +126,10 @@ export default class FallbackFieldTemplate extends Component<Props, State> {
                   <InputGroup.Prepend>
                     <InputGroup.Text>Preview:</InputGroup.Text>
                   </InputGroup.Prepend>
-                  <FormControl value={this.getPreview(key)} disabled />
+                  <FormControl
+                    value={this.getPreview(computed_attribute)}
+                    disabled
+                  />
                 </InputGroup>
               </Col>
             </Row>

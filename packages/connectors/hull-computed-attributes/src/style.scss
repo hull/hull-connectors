@@ -99,12 +99,12 @@ i.glyphicon {
   flex-grow: 1;
 }
 
-.fallbacks_modal {
+.computed_attributes_modal {
   @extend %vertical_form_group;
   @extend %array_buttons_styling;
   @extend %form_typography;
 
-  .field_source_property {
+  .field_attribute {
     flex-direction: column;
   }
 
@@ -123,22 +123,17 @@ i.glyphicon {
   }
 }
 
-.field_operation {
+.field_operation, .field_type, .field_strategy {
   display: flex;
   flex-direction: row;
 }
 
-.fallbacks_form,
+.computed_attributes_form,
 .locals_form {
   @extend %vertical_form_group;
   @extend %array_buttons_styling;
   @extend %form_typography;
   padding: 1rem;
-  .row {
-    margin: 0;
-  }
-}
-.field_sources {
   .row {
     margin: 0;
   }
@@ -154,38 +149,13 @@ i.glyphicon {
   }
 }
 
-.field_fallback {
+.field_computed_attribute {
   flex-direction: column;
   margin: 0;
   > .field_object_row {
     flex-direction: row;
     display: flex;
     flex-wrap: wrap;
-  }
-}
-.fallbacks_form {
-  .field_sources {
-    .btn-add::after {
-      content: "✚ Add Fallback";
-    }
-  }
-}
-
-.field_sources {
-  width: 100%;
-  // Hide the useless group
-  .field-object {
-    legend {
-      display: none;
-    }
-  }
-  > .field-array
-    > .array-item-list
-    > .array-item
-    > div
-    > .field-object
-    > .field_object_row {
-    display: none;
   }
 }
 
@@ -250,13 +220,8 @@ i.glyphicon {
   flex-grow: 1;
 }
 
-.field_source_property {
+.field_attribute {
   margin-bottom: 0;
-}
-
-.field_locals_target,
-.field_locals_source {
-  flex-grow: 1;
 }
 
 .attribute_type {
@@ -269,15 +234,14 @@ i.glyphicon {
   color: #aaa;
 }
 
-.row.fallback_row,
-.row.locals_row {
+.row.computed_attribute_row {
   flex-direction: row;
   margin: 0 -15px 1rem -15px;
-  .field_target {
+  .field_computed_attribute {
     width: 100%;
     flex-direction: column;
   }
-  .fallback_value.col {
+  .computed_attribute_value.col {
     padding-left: 1rem;
   }
 }

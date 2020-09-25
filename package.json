@@ -46,7 +46,7 @@
     "heroku-prebuild": "rm -rf node_modules"
   },
   "engines": {
-    "node": "^10.15.3",
+    "node": "^12",
     "npm": "6.4.x",
     "yarn": "^1.10.x"
   },

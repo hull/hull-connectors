@@ -13,7 +13,7 @@ const reduceAttributes = (entity = "user", attributes) =>
       }
       schema.push({
         ...attribute,
-        key: `${entity}.${key.replace(/^traits_/, "").replace("/", ".")}`
+        key: `${entity}.${key.replace(/^traits_/, "")}`
       });
       return schema;
     },
@@ -31,16 +31,14 @@ const configHandler = async (ctx: HullContext): Promise<Object> => {
   ]);
   const { connector } = ctx;
   const { private_settings = {} } = connector;
-  const { code, locals, fallbacks } = private_settings;
+  const { computedAttributes } = private_settings;
   return {
     eventSchema,
     userAttributeSchema: reduceAttributes("user", userAttributeSchema),
     accountAttributeSchema: reduceAttributes("account", accountAttributeSchema),
     language: "jsonata",
     entity: "user",
-    code,
-    locals,
-    fallbacks
+    computedAttributes
   };
 };
 

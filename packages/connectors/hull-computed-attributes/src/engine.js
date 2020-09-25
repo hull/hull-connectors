@@ -17,38 +17,23 @@ export default class ComputedAttributesEngine extends ProcessorEngine {
   };
 
   getPreviewData = (data = {}) => {
-    const { fallbacks, locals } = this.getState();
+    const { computedAttributes } = this.getState();
     return {
-      fallbacks,
-      locals,
+      computedAttributes,
       ...data
     };
   };
 
   getEntryData = () => {
-    const {
-      language,
-      entity,
-      selectedEvents,
-      search,
-      fallbacks,
-      locals
-    } = this.state;
+    const { language, entity, search, computedAttributes } = this.state;
     return {
       language,
       entity,
       search,
-      fallbacks,
-      locals,
-      include: {
-        events: {
-          names: selectedEvents
-        }
-      }
+      computedAttributes
     };
   };
 
-  updateFallbacks = (fallbacks: {}) => this.updateData({ fallbacks });
-
-  updateLocals = (locals: {}) => this.updateData({ locals });
+  updateComputedAttributes = (computedAttributes: {}) =>
+    this.updateData({ computedAttributes });
 }

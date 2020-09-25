@@ -24,14 +24,6 @@ export default function SourceFieldTemplate(props: any) {
   const { TitleField, DescriptionField } = props;
   return (
     <div id={props.idSchema.$id} className="field_object_row">
-      {(props.uiSchema["ui:title"] || props.title) && (
-        <TitleField
-          id={`${props.idSchema.$id}__title`}
-          title={props.title || props.uiSchema["ui:title"]}
-          required={props.required}
-          formContext={props.formContext}
-        />
-      )}
       {props.description && (
         <DescriptionField
           id={`${props.idSchema.$id}__description`}
@@ -40,17 +32,6 @@ export default function SourceFieldTemplate(props: any) {
         />
       )}
       {props.properties.map(prop => prop.content)}
-      {canExpand(props.schema, props.uiSchema, props.formData) && (
-        <IconButton
-          type="info"
-          icon="plus"
-          className="btn-add btn-secondary btn-sm col-xs-12"
-          aria-label="Add"
-          tabIndex="0"
-          onClick={props.onAddClick(props.schema)}
-          disabled={props.disabled || props.readonly}
-        />
-      )}
     </div>
   );
 }

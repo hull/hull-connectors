@@ -9,7 +9,11 @@
     "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/{*.js,**/*.js}"
   },
   "dependencies": {
-    "@rjsf/core": "^2.4.0"
+    "@rjsf/core": "^2.4.0",
+    "dag-map": "^2.0.2",
+    "flat": "^5.0.2",
+    "js-graph-algorithms": "^1.0.18",
+    "topologica": "^3.2.0"
   },
   "devDependencies": {}
 }

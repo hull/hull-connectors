@@ -4,17 +4,15 @@ import React, { Fragment } from "react";
 import { CodeTitle, JsonataUI } from "hull-vm/src/ui";
 import Form from "./jsonform-composer";
 
-import localsSchema from "./schemas/locals.json";
-import localsUiSchema from "./schemas/locals-ui.js";
-import fallbacksSchema from "./schemas/fallbacks.json";
-import fallbacksUiSchema from "./schemas/fallbacks-ui.js";
+import computedAttributesSchema from "./schemas/computed-attributes.json";
+import computedAttributesUiSchema from "./schemas/computed-attributes-ui";
 
 type FormData = { formData: {} };
 
 export default class ComputedAttributesUI extends JsonataUI {
-  onFallbackUpdate = ({ formData }: FormData) => {
+  onComputedAttributeUpdate = ({ formData }: FormData) => {
     const { engine } = this.props;
-    engine.updateFallbacks(formData);
+    engine.updateComputedAttributes(formData);
   };
 
   onLocalsUpdate = ({ formData }: FormData) => {
@@ -22,31 +20,26 @@ export default class ComputedAttributesUI extends JsonataUI {
     engine.updateLocals(formData);
   };
 
-  getLocalsErrors() {
-    // const { locals } = this.state;
-    return {
-      target: {
-        __errors: ["Can't be empty"]
-      }
-    };
-  }
-
-  getFallbacksErrors() {
+  getErrors() {
     return {};
   }
 
   getAttributeSchema = () => {
     const {
-      locals = [],
+      computedAttributes = [],
       userAttributeSchema,
       accountAttributeSchema
     } = this.state;
     return [
       {
-        label: "Variables",
-        options: locals.map(({ target, source }) => ({
-          key: target
+        label: "Computed Attributes",
+        options: computedAttributes.map(({ target }) => ({
+          key: `user.${target}`
         }))
+      },
+      {
+        label: "Segments",
+        key: "segments"
       },
       {
         label: "User Attributes",
@@ -60,34 +53,21 @@ export default class ComputedAttributesUI extends JsonataUI {
   };
 
   renderComposer = () => {
-    const { computing, editable, fallbacks, locals } = this.state;
+    const { computing, editable, computedAttributes } = this.state;
     return (
       <Fragment>
-        <CodeTitle title={<span>Intermediate Variables</span>} />
-        <Form
-          className="locals_form"
-          attributeSchema={this.getAttributeSchema()}
-          schema={localsSchema}
-          computing={computing}
-          uiSchema={localsUiSchema}
-          formData={locals}
-          formContext={{ current: this.state.current }}
-          editable={!editable}
-          extraErrors={this.getLocalsErrors()}
-          onChange={this.onLocalsUpdate}
-        />
         <CodeTitle title={<span>Computed Attributes</span>} />
         <Form
-          className="fallbacks_form"
+          className="computed_attributes_form"
           attributeSchema={this.getAttributeSchema()}
-          schema={fallbacksSchema}
-          uiSchema={fallbacksUiSchema}
+          schema={computedAttributesSchema}
+          uiSchema={computedAttributesUiSchema}
           computing={computing}
-          formData={fallbacks}
+          formData={computedAttributes}
           formContext={{ current: this.state.current }}
-          extraErrors={this.getFallbacksErrors()}
+          extraErrors={this.getErrors()}
           editable={!editable}
-          onChange={this.onFallbackUpdate}
+          onChange={this.onComputedAttributeUpdate}
         />
       </Fragment>
     );
