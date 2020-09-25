@@ -28,7 +28,7 @@ export default async function importEmailBatch(ctx: HullContext) {
     };
   }
 
-  await ctx.cache.set("email_batch_lock", true, { ttl: 0 });
+  await ctx.cache.set("email_batch_lock", true, { ttl: 43200 });
   return executeBatchJob(ctx, {
     jobName,
     batchId,

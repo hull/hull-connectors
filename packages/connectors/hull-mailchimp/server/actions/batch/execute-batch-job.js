@@ -23,6 +23,12 @@ export default async function executeBatchJob(
       }
     };
   }
+
+  ctx.client.logger.info("incoming.job.start", {
+    batchId,
+    message: `Executing ${importType} batch: ${batchId}`
+  });
+
   const { syncAgent, mailchimpClient } = shipAppFactory(ctx);
   let batchData;
   try {
@@ -45,6 +51,8 @@ export default async function executeBatchJob(
       batchId,
       message: "Batch Job Not Found"
     });
+    await ctx.cache.del(`${importType}_batch_id`);
+    await ctx.cache.del(`${importType}_batch_lock`);
     return {
       status: 404,
       data: {
@@ -54,7 +62,7 @@ export default async function executeBatchJob(
   }
 
   if (status !== "finished") {
-    ctx.client.logger.debug("incoming.job.progress", {
+    ctx.client.logger.info("incoming.job.progress", {
       batchId,
       message: "Batch Job Still Processing in Mailchimp"
     });

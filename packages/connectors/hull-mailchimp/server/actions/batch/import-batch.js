@@ -39,7 +39,7 @@ export default async function importBatch(
     };
   }
 
-  await ctx.cache.set(`${import_type}_batch_lock`, true, { ttl: 0 });
+  await ctx.cache.set(`${import_type}_batch_lock`, true, { ttl: 43200 });
   if (import_type === "email") {
     return executeBatchJob(ctx, {
       jobName: "trackEmailActivities",
