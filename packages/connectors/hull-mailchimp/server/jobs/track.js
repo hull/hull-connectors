@@ -19,7 +19,7 @@ function trackJob(ctx: any) {
       ctx.metric.increment("track.operations", operations.length);
       return mailchimpAgent.batchAgent.create({
         operations,
-        jobs: ["trackEmailActivites"],
+        jobs: ["trackEmailActivities"],
         chunkSize: 200,
         extractField: "emails",
         additionalData: {
