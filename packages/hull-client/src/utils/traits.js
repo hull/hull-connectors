@@ -10,7 +10,7 @@ import type {
 } from "../types";
 
 const _ = require("lodash");
-
+const trimTraits = key => key.replace(/^traits_/, "");
 /**
  * The Hull API returns traits in a "flat" format, with '/' delimiters in the key.
  * This method can be used to group those traits into subobjects:
@@ -55,17 +55,8 @@ const _ = require("lodash");
 const group = <+T: HullUser | HullAccount>(entity: T): HullGrouped<T> =>
   _.reduce(
     entity,
-    (grouped, value, key: string) => {
-      let dest = key;
-      if (key.match(/^traits_/)) {
-        dest = key.replace(/^traits_/, "");
-        // if (key.match(/\//)) {
-        // } else {
-        //   dest = key.replace(/^traits_/, "traits/");
-        // }
-      }
-      return _.setWith(grouped, dest.split("/"), value, Object);
-    },
+    (grouped, value, key: string) =>
+      _.setWith(grouped, trimTraits(key).split("/"), value, Object),
     {}
   );
 // Creates a flat object from `/` and `source` parameters
@@ -86,6 +77,10 @@ function applyContext(
   return payload;
 }
 
+// Removes `traits_` from Key names in User
+const trimTraitsPrefix = (user: HullUser) =>
+  _.mapKeys(user, (v, k) => trimTraits(k));
+
 function normalize(traits: HullEntityAttributes): HullEntityAttributes {
   return _.reduce(
     traits,
@@ -105,6 +100,7 @@ function normalize(traits: HullEntityAttributes): HullEntityAttributes {
 
 module.exports = {
   group,
+  trimTraitsPrefix,
   applyContext,
   normalize
 };
