@@ -624,6 +624,10 @@
     {
       "url": "/fetch-company",
       "handler": "fetchCompany"
+    },
+    {
+      "url": "/fetch-contact",
+      "handler": "fetchContact"
     }
   ],
   "schedules": [

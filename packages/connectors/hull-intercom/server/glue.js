@@ -224,6 +224,20 @@ const glue = {
         ])
       ])
   ]),
+  fetchContact: [
+    ifL(cond("notEmpty", set("contact_id", input("body.contact_id"))),[
+      set("intercomContact", intercom("fetchContactByContactId")),
+      ifL(cond("notEmpty", "${intercomContact}"),[
+        set("service_type", "${intercomContact.role}"),
+        ifL(cond("isEqual", "${service_type}", "user"),[
+          hull("asUser", cast(IntercomUserRead, "${intercomContact}"))
+        ]),
+        ifL(cond("isEqual", "${service_type}", "lead"),[
+          hull("asUser", cast(IntercomLeadRead, "${intercomContact}"))
+        ])
+      ])
+    ])
+  ],
   fetchCompany: [
     ifL(cond("notEmpty", set("company_id", input("body.company_id"))),[
       hull("asAccount", cast(IntercomCompanyRead, intercom("fetchCompanyByCompanyId")))
