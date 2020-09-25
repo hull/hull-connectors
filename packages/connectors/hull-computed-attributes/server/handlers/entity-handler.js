@@ -53,6 +53,7 @@ export default async function getEntity(
       message: rawPayload
     });
 
+    // For now we don't have a good way to access arrays. so they're omitted.
     const payload = _.omit(tempPayload, [
       "segments",
       "account_segments",

@@ -27,15 +27,13 @@ const ARRAY_ACCESSORS = {
 
 const getAtIndex = ({ attribute, accessor, accessor_value }) => (
   data: Payload
-) => {
-  debugger;
-  return _.nth(
+) =>
+  _.nth(
     _.get(data, attribute),
     ARRAY_ACCESSORS[accessor] !== undefined
       ? ARRAY_ACCESSORS[accessor]
       : accessor_value
   );
-};
 
 export default {
   value: getValue,
