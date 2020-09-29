@@ -6,7 +6,6 @@ const countryData = require("country-data");
  * @see https://developers.facebook.com/docs/marketing-api/custom-audience-api/v2.8
  */
 class CustomAudiences {
-
   constructor(ship) {
     this.ship = ship;
     /**
@@ -22,7 +21,7 @@ class CustomAudiences {
       GEN: "field_gender",
       ST: "field_state",
       CT: "field_city",
-      COUNTRY: "field_country",
+      COUNTRY: "field_country"
     };
   }
 
@@ -30,7 +29,8 @@ class CustomAudiences {
     if (!value) {
       return "";
     }
-    return crypto.createHash("sha256")
+    return crypto
+      .createHash("sha256")
       .update(value)
       .digest("hex");
   }
@@ -65,25 +65,29 @@ class CustomAudiences {
       });
     });
 
-    const data = users.map(user => {
-      const userData = [];
-      schema.forEach(fbKey => {
-        const hullKey = _.get(this.matches, fbKey);
-        let value = _.get(user, this.getHullTrait(hullKey));
-        if (value) {
-          if (_.isArray(value)) {
-            return;
-          }
-          if (this[`normalize${_.upperFirst(fbKey.toLowerCase())}`]) {
-            value = this[`normalize${_.upperFirst(fbKey.toLowerCase())}`](value);
-          }
+    const data = users
+      .map(user => {
+        const userData = [];
+        schema.forEach(fbKey => {
+          const hullKey = _.get(this.matches, fbKey);
+          let value = _.get(user, this.getHullTrait(hullKey));
+          if (value) {
+            if (_.isArray(value)) {
+              return;
+            }
+            if (this[`normalize${_.upperFirst(fbKey.toLowerCase())}`]) {
+              value = this[`normalize${_.upperFirst(fbKey.toLowerCase())}`](
+                value
+              );
+            }
 
-          value = _.trim(value).toLowerCase();
-          userData.push(this.hashValue(value));
-        } else userData.push("");
-      });
-      return userData;
-    }).filter(userData => userData.length > 0);
+            value = _.trim(value).toLowerCase();
+            userData.push(this.hashValue(value));
+          } else userData.push("");
+        });
+        return userData;
+      })
+      .filter(userData => userData.length > 0);
 
     return { schema, data };
   }
@@ -139,9 +143,11 @@ class CustomAudiences {
    * @return {String}
    */
   normalizeCountry(country) {
-    if (countryData.lookup.countries({
-      alpha2: country
-    })) {
+    if (
+      countryData.lookup.countries({
+        alpha2: country
+      })
+    ) {
       return country;
     }
     return country;

@@ -6,7 +6,8 @@ module.exports = {
   CUSTOM_CLUSTER_SHARING: "Can share Custom Audiences",
   DIRECT_SALES: "Direct Sales account, run by Facebook Employees",
   HAS_AVAILABLE_PAYMENT_METHODS: "Has a payment method",
-  HOLDOUT_VIEW_TAGS: "Cabn use 3rd party view tags for managing target restrictions over an audience",
+  HOLDOUT_VIEW_TAGS:
+    "Can use 3rd party view tags for managing target restrictions over an audience",
   PREMIUM: "Can buy ads on a fixed CPM",
   VIEW_TAGS: "Can track impressions using 3rd party view tags"
 };

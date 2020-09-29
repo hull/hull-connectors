@@ -3,10 +3,9 @@
   "description": "Target your Leads with Facebook Ads",
   "version": "0.1.35-monorepo",
   "scripts": {
-    "test": "npm run test:lint && npm run test:manifest && npm run test:unit && npm run test:integration",
-    "test:lint": "eslint server",
-    "test:unit": "NODE_ENV=test mocha -r babel-register -R spec ./test/unit/*.js",
-    "test:integration": "NODE_ENV=test mocha -r babel-register -R spec ./test/integration/*.js"
+    "test": "yarn run test:unit && yarn run test:integration",
+    "test:unit": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/unit/{*.js,**/*.js}",
+    "test:integration": "NODE_ENV=test mocha --exit --require ../../../root-babel-register.js -R spec ./test/integration/**/*.js"
   },
   "dependencies": {
     "country-data": "0.0.31",
