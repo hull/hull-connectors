@@ -69,7 +69,24 @@ const buildConfig = ({ assets, files, destination, mode = "production" }) => ({
           loader: "babel-loader?cacheDirectory",
           options: {
             presets: [
-              ["@babel/preset-env", { modules: false }],
+              [
+                "@babel/preset-env",
+                {
+                  modules: false,
+                  useBuiltIns: "usage",
+                  corejs: 3,
+                  targets: {
+                    browsers: [
+                      "last 2 versions",
+                      "Firefox ESR",
+                      "> 1%",
+                      "ie >= 10",
+                      "iOS >= 8",
+                      "Android >= 4"
+                    ]
+                  }
+                }
+              ],
               "@babel/preset-react"
             ],
             plugins: ["lodash", "react-hot-loader/babel"]
@@ -98,6 +115,5 @@ module.exports = ({ assets, source, destination, mode }) => {
     return undefined;
   }
 
-  console.log(`${process.cwd()}/packages`);
   return buildConfig({ assets, files, destination, mode });
 };
