@@ -165,14 +165,8 @@
       "url": "/smart-notifier",
       "conditions" : {
         "channels": { "only": [
-          "user:update",
-          "ship:update",
-          "users_segment:update",
-          "users_segment:delete"
-        ] },
-        "segments": {
-          "user:update": ["private_settings.synchronized_segments_mapping"]
-        }
+          "user:update"
+        ] }
       },
       "channels": [
         {
