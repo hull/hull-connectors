@@ -1,25 +1,56 @@
+// @flow
+
+import type { HullContext, HullIncomingHandlerMessage } from "hull";
+
 const FacebookAudience = require("../lib/facebook-audience");
 
-function triggerExtract(req, res) {
-  if (!req.hull) {
-    res.status(401).end("error");
-  }
+async function triggerExtract(
+  ctx: HullContext,
+  _message: HullIncomingHandlerMessage
+) {
+  const { connector, client, helpers, usersSegments, metric, options } = ctx;
+  const { segment_id } = options;
   const handler = new FacebookAudience(
-    req.hull.ship,
-    req.hull.client,
-    req.hull.helpers,
-    req.hull.segments,
-    req.hull.metric
+    connector,
+    client,
+    helpers,
+    usersSegments,
+    metric
   );
   if (!handler.isConfigured()) {
-    return res.status(403).end("Missing credentials");
+    return {
+      status: 403,
+      data: {
+        message: "Missing credentials for trigger extract"
+      }
+    };
   }
 
-  if (!req.query.segment_id) {
-    return res.status(400).end("Missing segment_id");
+  if (!segment_id) {
+    return {
+      status: 400,
+      data: {
+        message: "Missing segment id in query for trigger extract"
+      }
+    };
   }
-  handler.triggerExtractJob(req.query.segment_id);
-  return res.end("ok");
+  try {
+    await handler.triggerExtractJob(segment_id);
+  } catch (error) {
+    return {
+      status: 500,
+      error,
+      data: {
+        message: "Error during trigger extract job"
+      }
+    };
+  }
+  return {
+    status: 200,
+    data: {
+      message: "ok"
+    }
+  };
 }
 
 module.exports = triggerExtract;

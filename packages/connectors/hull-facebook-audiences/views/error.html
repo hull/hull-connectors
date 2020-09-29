@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Login - Hull Facebook Audiences</title>
+    <title>Hull Facebook Audiences</title>
     <link rel="stylesheet" href="//dd04rofzygnm0.cloudfront.net/releases/master/865f04865d2448286626bac92c518a8f8ea8bafe/stylesheets/neue.css" />
   </head>
   <body>
@@ -12,14 +12,14 @@
               <i class="icon icon-hull" style="font-size:64px;"></i>
             </h1>
             <h5 class="uppercase text-accented underlined mb-1">
-              <%= err.title %>
+              <%= error.title %>
             </h5>
             <p class="text-muted mb-1">
-              <span><%= err.message %></span>
+              <span><%= error.message %></span>
             </p>
-            <% if (err.action) { %>
+            <% if (error.action) { %>
             <p>
-              <a href="<%= err.action.url%>" target="_blank" class="btn btn-danger"><%= err.action.message %></a>
+              <a href="<%= error.action.url%>" target="_blank" class="btn btn-danger"><%= error.action.message %></a>
             </p>
             <% }%>
           </div>

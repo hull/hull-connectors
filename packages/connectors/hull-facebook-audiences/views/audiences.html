@@ -73,12 +73,12 @@
               </tbody>
             </table>
 
-            <% if (_.difference(synchronizedSegments.map(s => s.id), _.keys(audiences)).length > 0) { -%>
+            <% if (_.difference(synchronizedSegments.map(s => s.id), audiences.map(a => a.description)).length > 0) { -%>
               <div class="panel-body text-center">
                   <h1 class="condensed mt-0 mb-0">Some segments are out of sync</h1>
                   <div class="mt-2">
                     <div class="mb-2 col-md-4 col-md-offset-4">
-                      <form method="post" action="/admin/sync?ship=<%= query.ship %>&organization=<%= query.organization %>&secret=<%= query.secret%>">
+                      <form method="post" action="/sync-audiences?ship=<%= query.ship %>&organization=<%= query.organization %>&secret=<%= query.secret%>">
                         <input type="submit" name="action" value="Create & Sync new segments" class="btn btn-danger">
                       </form>
                     </div>
@@ -120,7 +120,7 @@
                   </div>
                   <div class="mt-2">
                     <div class="mb-2 col-md-4 col-md-offset-4">
-                      <form method="post" action="/admin/sync?ship=<%= query.ship %>&organization=<%= query.organization %>&secret=<%= query.secret%>">
+                      <form method="post" action="/sync-audiences?ship=<%= query.ship %>&organization=<%= query.organization %>&secret=<%= query.secret%>">
                         <input type="submit" name="action" value="Sync selected segments" class="btn btn-danger">
                       </form>
                     </div>
@@ -155,7 +155,7 @@
           closeOnConfirm: false
         }, function(isConfirm) {
           if (isConfirm) {
-            $.post(window.location.href.replace("/admin", "/trigger-extract") + "&segment_id=" + segmentId);
+            $.post(window.location.href.replace("/audiences", "/trigger-extract") + "&segment_id=" + segmentId);
             swal("Re-sync started", "Selected segment will be re synced shortly.", "success");
           }
         });

@@ -8,13 +8,13 @@ const CAPABILITIES = require("./capabilities");
 const CustomAudiences = require("./custom-audiences");
 
 const ACCOUNT_FIELDS = [
-  "id",
+  // "id",
   "account_id",
-  "name",
-  "account_status",
-  "owner",
-  "capabilities",
-  "business"
+  "name"
+  // "account_status",
+  // "owner",
+  // "capabilities",
+  // "business"
   // "user_role"
 ];
 
@@ -369,7 +369,7 @@ class FacebookAudience {
       "post"
     ).then(audience => {
       if (extract) {
-        this.helpers.requestExtract({
+        this.helpers.extractRequest({
           segment,
           fields: this.customAudiences.getExtractFields(),
           additionalQuery: {

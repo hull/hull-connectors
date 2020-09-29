@@ -5,11 +5,9 @@ import onAuthorize from "./on-authorize";
 import onStatus from "./on-status";
 
 const userUpdateSmartNotifierHandler = require("./user-update-smart-notifier");
-const adminHandlerFactory = require("./new-admin");
+const adminHandlerFactory = require("./admin");
 const statusHandler = require("./status");
 const userUpdateBatch = require("./user-update-batch");
-const segmentUpdateSmartNotifierHandler = require("./segment-update-smart-notifier");
-const segmentDeleteSmartNotifierHandler = require("./segment-delete-smart-notifier");
 
 const handlers = ({
   clientID,
@@ -18,23 +16,24 @@ const handlers = ({
   clientID: string,
   clientSecret: string
 }): HullHandlersConfiguration => {
-  const { getAdmin, saveAccount } = adminHandlerFactory({
+  const { getAudiences, syncAudiences, accountList } = adminHandlerFactory({
     clientID,
     clientSecret
   });
   return {
     statuses: { statusHandler },
     tabs: {
-      admin: getAdmin
+      audiences: getAudiences
     },
-    batches: { user_update: userUpdateBatch },
+    html: {
+      syncAudiences
+    },
     subscriptions: {
-      user_update: userUpdateSmartNotifierHandler,
-      users_segment_update: segmentUpdateSmartNotifierHandler,
-      users_segment_delete: segmentDeleteSmartNotifierHandler
+      user_update: userUpdateSmartNotifierHandler
     },
     schedules: {},
     private_settings: {
+      accountList,
       oauth: () => ({
         onAuthorize,
         onStatus,
@@ -44,7 +43,7 @@ const handlers = ({
       })
     },
     json: {
-      saveAccount
+      batch: userUpdateBatch
     }
   };
 };

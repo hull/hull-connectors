@@ -19,8 +19,8 @@ function determineStatus(currentStatus, newStatus) {
   return currentStatus;
 }
 
-function statusHandler(ctx: HullContext) {
-  const { connector, client, helpers, segments, metric } = ctx;
+async function statusHandler(ctx: HullContext) {
+  const { connector, client, helpers, usersSegments: segments, metric } = ctx;
   const messages = [];
 
   let status = STATUS_TYPE.OK;
@@ -65,19 +65,14 @@ function statusHandler(ctx: HullContext) {
     );
   }
 
-  handler
-    .fetchAudiences(1, false)
-    .then(() => {
-      // correct response
-    })
-    .catch(error => {
-      status = determineStatus(status, STATUS_TYPE.ERROR);
-      messages.push(error.message);
-    })
-    .then(() => {
-      // client.put(`${connector.id}/status`, { status, messages });
-      return { messages, status };
-    });
+  try {
+    await handler.fetchAudiences(1, false);
+  } catch (error) {
+    status = determineStatus(status, STATUS_TYPE.ERROR);
+    messages.push(error.message);
+  }
+
+  return { messages, status };
 }
 
 module.exports = statusHandler;

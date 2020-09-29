@@ -11,9 +11,12 @@ export default async function onStatus(
 ): HullSettingsResponse {
   const { connector } = ctx;
   const { private_settings = {} } = connector;
-  const { facebook_access_token, audience_id } = private_settings;
-  if (facebook_access_token) {
-    if (audience_id) {
+  const { facebook_access_token, facebook_ad_account_id } = private_settings;
+  try {
+    if (!facebook_access_token) {
+      throw new Error("Please authenticate with Facebook to continue");
+    }
+    if (facebook_ad_account_id) {
       return {
         status: 200,
         data: {
@@ -26,14 +29,15 @@ export default async function onStatus(
       status: 200,
       data: {
         message:
-          "Select an audience in the credentials & action section in the overview tab to complete setup"
+          'Select an audience below in the "Select ad account" section to complete setup'
+      }
+    };
+  } catch (error) {
+    return {
+      status: 400,
+      data: {
+        message: error.message
       }
     };
   }
-  return {
-    status: 400,
-    data: {
-      message: "Please authenticate with Facebook to continue"
-    }
-  };
 }

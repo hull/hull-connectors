@@ -13,7 +13,7 @@ function userUpdateSmartNotifier(
     client,
     connector,
     helpers,
-    segments,
+    usersSegments,
     metric,
     smartNotifierResponse
   } = ctx;
@@ -30,13 +30,16 @@ function userUpdateSmartNotifier(
     connector,
     client,
     helpers,
-    segments,
+    usersSegments,
     metric
   );
   if (!handler.isConfigured()) {
-    return Promise.resolve({
-      message: "Missing credentials, skipping"
-    });
+    return {
+      status: 403,
+      data: {
+        message: "Missing credentials, skipping"
+      }
+    };
   }
 
   if (
@@ -46,15 +49,11 @@ function userUpdateSmartNotifier(
     client.logger.debug("outgoing.user.skip", {
       reason: "segments mapping doesn't contain any filtered segment"
     });
-    return Promise.resolve({});
+    return {
+      status: 200
+    };
   }
-  const agent = new FacebookAudience(
-    connector,
-    client,
-    helpers,
-    segments,
-    metric
-  );
+
   const filteredMessages = messages.reduce((acc, message) => {
     const { user, changes } = message;
     const asUser = client.asUser(_.pick(user, "id", "external_id", "email"));
@@ -71,7 +70,7 @@ function userUpdateSmartNotifier(
     const payload = {
       user: _.pick(
         user,
-        agent.customAudiences.getExtractFields(),
+        handler.customAudiences.getExtractFields(),
         "id",
         "external_id",
         "email"
@@ -83,8 +82,8 @@ function userUpdateSmartNotifier(
   }, []);
 
   return filteredMessages.length === 0
-    ? Promise.resolve({})
-    : FacebookAudience.flushUserUpdates(agent, filteredMessages);
+    ? { status: 200 }
+    : FacebookAudience.flushUserUpdates(handler, filteredMessages);
 }
 
 module.exports = userUpdateSmartNotifier;

@@ -2,12 +2,24 @@ const _ = require("lodash");
 
 const FacebookAudience = require("../lib/facebook-audience");
 
-function segmentDeleteSmartNotifier({ client, ship, helpers, segments, metric }, messages) {
-  const handler = new FacebookAudience(ship, client, helpers, segments, metric);
+function segmentDeleteSmartNotifier(
+  { client, connector, helpers, usersSegments, metric },
+  messages
+) {
+  const handler = new FacebookAudience(
+    connector,
+    client,
+    helpers,
+    usersSegments,
+    metric
+  );
   if (!handler.isConfigured()) {
-    return Promise.resolve({
-      message: "Missing credentials, skipping"
-    });
+    return {
+      status: 403,
+      data: {
+        message: "Missing credentials, skipping"
+      }
+    };
   }
   return handler.handleSegmentDelete(_.get(messages, 0));
 }

@@ -2,19 +2,24 @@
   "name": "Facebook Ad Audiences",
   "version": "0.1.35-monorepo",
   "description": "Target your Leads with Facebook Ads",
-  "tags": ["outgoing", "smart-notifier", "batch"],
+  "tags": ["outgoing", "smart-notifier"],
   "source": "facebook-audiences",
   "logo": "logo.png",
   "picture": "picture.png",
   "ui": false,
-  "admin": "/admin",
   "tabs": [
     {
-      "title": "Credentials & Actions",
-      "url": "/admin",
+      "title": "Audiences",
+      "url": "/audiences",
       "method": "get",
       "editable": false,
-      "handler": "admin"
+      "handler": "audiences"
+    }
+  ],
+  "html": [
+    {
+      "url": "/sync-audiences",
+      "handler": "syncAudiences"
     }
   ],
   "readme" : "readme.md",
@@ -22,7 +27,7 @@
     {
       "name": "oauth",
       "title": "Oauth",
-      "description": "Authenticate with Mailchimp",
+      "description": "Authenticate with Facebook",
       "format": "oauth",
       "type": "string",
       "handler": "oauth",
@@ -35,14 +40,22 @@
       }
     },
     {
-      "name" : "facebook_access_token",
-      "title" : "Facebook Access Token",
-      "type" : "string",
-      "format":"hidden"
+      "type": "string",
+      "name": "facebook_ad_account_id",
+      "description": "Facebook ad account by user",
+      "title": "Facebook ad account",
+      "url": "/account-list",
+      "handler": "accountList",
+      "format": "select",
+      "options": {
+        "loadOptions": "/account-list",
+        "allowCreate": false,
+        "placeholder": "Select facebook ad account to use"
+      }
     },
     {
-      "name" : "facebook_ad_account_id",
-      "title" : "Facebook Ad Account ID",
+      "name" : "facebook_access_token",
+      "title" : "Facebook Access Token",
       "type" : "string",
       "format":"hidden"
     },
@@ -147,7 +160,6 @@
       "default": "address_country"
     }
   ],
-  "resources": [],
   "subscriptions": [
     {
       "url": "/smart-notifier",
@@ -166,14 +178,6 @@
         {
           "channel": "user:update",
           "handler": "user_update"
-        },
-        {
-          "channel": "users_segment:update",
-          "handler": "users_segment_update"
-        },
-        {
-          "channel": "users_segment:delete",
-          "handler": "users_segment_delete"
         }
       ]
     }
@@ -186,22 +190,10 @@
       "handler": "statusHandler"
     }
   ],
-  "schedules" : [],
-  "batches": [
-    {
-      "url": "/batch",
-      "channels": [
-        {
-          "channel": "user:update",
-          "handler": "user_update"
-        }
-      ]
-    }
-  ],
   "json": [
     {
-      "url": "/save-account",
-      "handler": "saveAccount"
+      "url": "/batch",
+      "handler": "batch"
     }
   ],
   "settings_sections": [
@@ -210,6 +202,14 @@
       "step": "credentials",
       "properties": [
         "private_settings.oauth"
+      ]
+    },
+    {
+      "title": "Select ad account",
+      "description": "After you have authenticated with Facebook, please select the ad account that Hull will synchronize with. You can only pick one ad account, and you will have to reinstall the connector if you wish to change it afterwards. Once you have selected the ad account, please click Save on the top right",
+      "step": "credentials",
+      "properties": [
+        "private_settings.facebook_ad_account_id"
       ]
     },
     {
