@@ -210,7 +210,10 @@
   "json": [
     {
       "url": "/import-batch",
-      "handler": "importBatch"
+      "handler": "importBatch",
+      "options": {
+        "fireAndForget": true
+      }
     },
     {
       "url": "/build-email-batch",
