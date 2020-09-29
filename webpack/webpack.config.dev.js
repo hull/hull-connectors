@@ -11,7 +11,7 @@ const { env } = process;
 const { PORT = 8082 } = env;
 const { source } = argv;
 
-function devMode({ port = 3000, source, destination }) {
+function devMode({ source, destination }) {
   const config = require("./webpack.config")({
     source: path.resolve(source),
     destination: path.resolve(destination),
@@ -21,20 +21,35 @@ function devMode({ port = 3000, source, destination }) {
   return {
     ...config,
     devServer: {
-      contentBase: destination,
       hot: true,
-      port,
+      hotOnly: true,
+      inline: true,
+      quiet: false,
+      overlay: false,
+      noInfo: false,
+      watchContentBase: true,
       disableHostCheck: true,
+      stats: { colors: true },
+      publicPath: config.output.publicPath,
+      public: "http://0.0.0.0",
+      headers: { "Access-Control-Allow-Origin": "http://0.0.0.0" },
+      contentBase: destination,
+      watchOptions: {
+        ignored: [/node_modules/]
+      },
+      historyApiFallback: {
+        disableDotRule: true
+      },
       proxy: {
         "/": {
-          target: `http://localhost:${PORT}`
+          target: `http://0.0.0.0:${PORT}`
         }
       }
     },
     entry: _.reduce(
       config.entry,
       (m, v, k) => {
-        m[k] = v;
+        m[k] = ["webpack-dev-server/client?http://0.0.0.0", v];
         return m;
       },
       {}
