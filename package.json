@@ -36,6 +36,7 @@
     "build:client": "sh scripts/build-webpack-project.sh",
     "ngrok": "sh scripts/ngrok.sh",
     "dev": "NODE_ENV=development sh scripts/start-dev-connector.sh",
+    "client": "NODE_ENV=development sh scripts/start-client-connector.sh",
     "run-test": "sh scripts/run-test.sh",
     "watch-test": "sh scripts/watch-test.sh",
     "test": "yarn test:lint && jest && yarn workspaces run test",
@@ -115,6 +116,7 @@
   },
   "dependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.9.0",
+    "@babel/runtime-corejs3": "^7.11.2",
     "JSONStream": "^1.3.5",
     "basic-auth": "^2.0.1",
     "bluebird": "^3.5.4",
@@ -124,6 +126,7 @@
     "compose-middleware": "^5.0.1",
     "concurrently": "^5.0.0",
     "copy-webpack-plugin": "^5.0.4",
+    "core-js": "3",
     "datadog-metrics": "^0.8.1",
     "debug": "^4.1.1",
     "dotenv": "^8.2.0",

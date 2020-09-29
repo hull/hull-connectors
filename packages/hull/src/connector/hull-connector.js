@@ -232,14 +232,6 @@ class HullConnector {
       this.app = app;
       if (this.connectorConfig.devMode) {
         debug("Starting Server in DevMode");
-        // eslint-disable-next-line global-require
-        const webpackDevMode = require("./dev-mode");
-
-        webpackDevMode(app, {
-          port: this.connectorConfig.port,
-          source: getAbsolutePath("src"),
-          destination: getAbsolutePath("dist")
-        });
       } else {
         debug("Starting Server");
       }
