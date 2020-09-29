@@ -164,9 +164,11 @@
     {
       "url": "/smart-notifier",
       "conditions" : {
-        "channels": { "only": [
-          "user:update"
-        ] }
+        "channels": {
+          "only": [
+            "user:update"
+          ]
+        }
       },
       "channels": [
         {
