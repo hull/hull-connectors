@@ -30,10 +30,8 @@ const private_settings = {
   lead_synchronized_segments: [],
   contact_synchronized_segments: [],
   account_synchronized_segments: [],
-  user_claims: [],
-  lead_claims: [
-    { "hull": "email", "service": "Email" }
-  ]
+  user_claims: [{ hull: "email", service: "Email" }],
+  lead_claims: [{ hull: "email", service: "Email" }]
 }
 
 describe("Update Lead Tests", () => {
@@ -342,38 +340,6 @@ describe("Update Lead Tests", () => {
             }
           ]),
           expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 2,
-              "sfContacts": 0,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl"
-              ],
-              "accountDomains": []
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 2,
-              "sfContacts": 0,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl"
-              ],
-              "accountDomains": []
-            }
-          ]),
-          expect.arrayContaining([
             "ship.service_api.request",
             {
               "method": "GET",
@@ -652,38 +618,6 @@ describe("Update Lead Tests", () => {
               "method": "GET",
               "url_length": 248,
               "url": expect.stringMatching(/.*FROM.*Contact.*/)
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl"
-              ],
-              "accountDomains": []
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl"
-              ],
-              "accountDomains": []
             }
           ]),
           [
@@ -1002,38 +936,6 @@ describe("Update Lead Tests", () => {
               "method": "GET",
               "url_length": 248,
               "url": expect.stringMatching(/.*FROM.*Contact.*/)
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 2,
-              "sfContacts": 0,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl"
-              ],
-              "accountDomains": []
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 2,
-              "sfContacts": 0,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl"
-              ],
-              "accountDomains": []
             }
           ]),
           [

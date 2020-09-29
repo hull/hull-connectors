@@ -470,38 +470,6 @@ describe("Skip User Tests", () => {
               "url": expect.stringMatching(/.*FROM.*Contact.*/)
             }
           ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 1,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl"
-              ],
-              "accountDomains": []
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 1,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl"
-              ],
-              "accountDomains": []
-            }
-          ]),
           [
             "info",
             "outgoing.user.skip",
@@ -716,38 +684,6 @@ describe("Skip User Tests", () => {
               "url": "https://na98.salesforce.com/services/data/v39.0/query?q=SELECT%20FirstName%2C%20LastName%2C%20Email%2C%20Id%2C%20AccountId%20FROM%20Contact%20WHERE%20Email%20IN%20('adam.pietrzyk%40krakowtraders.pl')%20ORDER%20BY%20CreatedDate%20ASC%20LIMIT%2010000"
             }
           ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl"
-              ],
-              "accountDomains": []
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam.pietrzyk@krakowtraders.pl"
-              ],
-              "accountDomains": []
-            }
-          ]),
           [
             "info",
             "outgoing.user.skip",
@@ -758,7 +694,7 @@ describe("Skip User Tests", () => {
               "user_email": "adam.pietrzyk@krakowtraders.pl"
             },
             {
-              "reason": "Lead has been manually deleted in Salesforce and won't be re-created."
+              "reason": "Lead has been manually deleted in Salesforce."
             }
           ],
           ["info", "outgoing.job.success", { "request_id": expect.whatever() }, { "jobName": "Outgoing Data", "type": "webpayload" }]

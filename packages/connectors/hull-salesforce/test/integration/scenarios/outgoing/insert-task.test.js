@@ -323,55 +323,6 @@ describe("Insert Tasks Tests", () => {
               "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 1,
-              "userIds": [
-                "user_id_1"
-              ],
-              "userEmails": [
-                "user_1@hull.com"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 1,
-              "userIds": [
-                "user_id_1"
-              ],
-              "userEmails": [
-                "user_1@hull.com"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
-          [
-            "info",
-            "outgoing.account.skip",
-            {
-              "subject_type": "account",
-              "request_id": expect.whatever(),
-              "account_id": "a9461ad518be40ba-b568-4729-a676-f9c55abd72c9",
-              "account_domain": "krakowtraders.pl"
-            },
-            {
-              "reason": "The account in Salesforce is already in sync with Hull."
-            }
-          ],
           [
             "info",
             "outgoing.user.success",
@@ -881,63 +832,6 @@ describe("Insert Tasks Tests", () => {
               "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 1,
-              "sfAccounts": 1,
-              "userIds": [
-                "user_id_1",
-                "user_id_2",
-                "user_id_3"
-              ],
-              "userEmails": [
-                "user_1@hull.com",
-                "user_2@hull.com",
-                "user_3@hull.com"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 1,
-              "sfAccounts": 1,
-              "userIds": [
-                "user_id_1",
-                "user_id_2",
-                "user_id_3"
-              ],
-              "userEmails": [
-                "user_1@hull.com",
-                "user_2@hull.com",
-                "user_3@hull.com"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
-          [
-            "info",
-            "outgoing.account.skip",
-            {
-              "subject_type": "account",
-              "request_id": expect.whatever(),
-              "account_id": "a9461ad518be40ba-b568-4729-a676-f9c55abd72c9",
-              "account_domain": "krakowtraders.pl"
-            },
-            {
-              "reason": "The account in Salesforce is already in sync with Hull."
-            }
-          ],
           [
             "info",
             "outgoing.user.skip",

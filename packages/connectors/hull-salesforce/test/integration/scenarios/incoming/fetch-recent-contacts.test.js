@@ -42,7 +42,7 @@ describe("Fetch Contacts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentDeletedContacts",
+        handlerUrl: "fetch-recent-deleted-contacts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -284,7 +284,7 @@ describe("Fetch Contacts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentContacts",
+        handlerUrl: "fetch-recent-contacts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -564,7 +564,7 @@ describe("Fetch Contacts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentContacts",
+        handlerUrl: "fetch-recent-contacts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -915,7 +915,7 @@ describe("Fetch Contacts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentContacts",
+        handlerUrl: "fetch-recent-contacts",
         connector: {
           private_settings: {
             ...private_settings,
@@ -1095,7 +1095,7 @@ describe("Fetch Contacts Tests", () => {
     return testScenario({ connectorConfig }, ({ handlers, nock, expect }) => {
       return {
         handlerType: handlers.scheduleHandler,
-        handlerUrl: "fetchRecentContacts",
+        handlerUrl: "fetch-recent-contacts",
         connector: {
           private_settings: {
             ...private_settings,

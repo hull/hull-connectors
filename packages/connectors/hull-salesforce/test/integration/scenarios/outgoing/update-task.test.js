@@ -19,12 +19,8 @@ const private_settings = {
   send_outgoing_tasks: true,
   lead_assignmentrule: "none",
   lead_assignmentrule_update: "none",
-  user_claims: [
-    { "hull": "email", "service": "Email" }
-  ],
-  lead_claims: [
-    { "hull": "email", "service": "Email" }
-  ]
+  user_claims: [{ hull: "email", service: "Email" }],
+  lead_claims: [{ hull: "email", service: "Email" }]
 }
 
 describe("Update Tasks Tests", () => {
@@ -341,55 +337,6 @@ describe("Update Tasks Tests", () => {
               "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 1,
-              "userIds": [
-                "user_id_1"
-              ],
-              "userEmails": [
-                "user_1@hull.com"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 0,
-              "sfAccounts": 1,
-              "userIds": [
-                "user_id_1"
-              ],
-              "userEmails": [
-                "user_1@hull.com"
-              ],
-              "accountDomains": [
-                "krakowtraders.pl"
-              ]
-            }
-          ]),
-          [
-            "info",
-            "outgoing.account.skip",
-            {
-              "subject_type": "account",
-              "request_id": expect.whatever(),
-              "account_id": "a9461ad518be40ba-b568-4729-a676-f9c55abd72c9",
-              "account_domain": "krakowtraders.pl"
-            },
-            {
-              "reason": "The account in Salesforce is already in sync with Hull."
-            }
-          ],
           [
             "info",
             "outgoing.user.success",

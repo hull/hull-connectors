@@ -160,42 +160,6 @@ describe("Update Contacts Tests", () => {
               "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
           ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 1,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam@apple.com"
-              ],
-              "accountDomains": [
-                "apple.com"
-              ]
-            }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress",
-            {
-              "step": "findResults",
-              "sfLeads": 0,
-              "sfContacts": 1,
-              "sfAccounts": 0,
-              "userIds": [
-                "5a43ce781f6d9f471d005d44"
-              ],
-              "userEmails": [
-                "adam@apple.com"
-              ],
-              "accountDomains": [
-                "apple.com"
-              ]
-            }
-          ]),
           [
             "info",
             "outgoing.account.success",
@@ -454,12 +418,6 @@ describe("Update Contacts Tests", () => {
               "url_length": 191,
               "url": expect.stringMatching(/.*FROM.*Account.*/)
             }
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress"
-          ]),
-          expect.arrayContaining([
-            "outgoing.job.progress"
           ]),
           ["info", "outgoing.account.success",
             {
