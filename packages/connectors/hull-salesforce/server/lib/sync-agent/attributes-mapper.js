@@ -88,18 +88,22 @@ class AttributesMapper implements IAttributesMapper {
     this.mappingsInbound = {};
 
     _.forEach(SUPPORTED_RESOURCE_TYPES, r => {
+      const attribPrefix =
+        r === "Account" ? "salesforce" : `salesforce_${r.toLowerCase()}`;
       const claimsKey = getIdentityClaimsKey(r);
       const outgoingAttributes = _.cloneDeep(
-        _.get(connectorSettings, `${r.toLowerCase()}_attributes_outbound`)
+        _.get(connectorSettings, `${r.toLowerCase()}_attributes_outbound`, [])
       );
       const incomingAttributes = _.cloneDeep(
-        _.get(connectorSettings, `${r.toLowerCase()}_attributes_inbound`)
+        _.get(connectorSettings, `${r.toLowerCase()}_attributes_inbound`, [])
       );
       const claims = _.cloneDeep(
         _.get(connectorSettings, `${claimsKey}_claims`, [])
       );
 
       _.set(this.mappingsOutbound, r, _.concat(claims, outgoingAttributes));
+
+      incomingAttributes.push({ service: "Id", hull: `${attribPrefix}/id` });
       _.set(this.mappingsInbound, r, incomingAttributes);
     });
 
@@ -261,10 +265,6 @@ class AttributesMapper implements IAttributesMapper {
       resource === "Account"
         ? "salesforce"
         : `salesforce_${resource.toLowerCase()}`;
-
-    if (!_.includes(mappings, "Id")) {
-      mappings.push({ service: "Id", hull: `${attribPrefix}/id` });
-    }
 
     const topLevelAttributes = TOPLEVEL_ATTRIBUTES[resource];
     const topLevelAttributesSf = _.map(topLevelAttributes, "service");
