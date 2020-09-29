@@ -1,53 +1,11 @@
 /* @flow */
 import type { HullContext, HullIncomingHandlerMessage } from "hull";
 
-const fbgraph = require("fbgraph");
-const Promise = require("bluebird");
 const _ = require("lodash");
 const debug = require("debug")("hull-facebook-audiences");
 const FacebookAudience = require("../lib/facebook-audience");
 
-function adminHander({ clientID, clientSecret }: any) {
-  function getAccessToken({ facebook_access_token, extendAccessToken }) {
-    return new Promise((resolve, reject) => {
-      if (extendAccessToken && facebook_access_token) {
-        fbgraph.extendAccessToken(
-          {
-            access_token: facebook_access_token,
-            client_id: clientID,
-            client_secret: clientSecret
-          },
-          (err, res) => {
-            return err ? reject(err) : resolve(res.access_token);
-          }
-        );
-      } else {
-        resolve(facebook_access_token);
-      }
-    });
-  }
-
-  function updateSettings({ client, helpers, segments, metric, params }) {
-    const { facebook_ad_account_id } = params;
-    return getAccessToken(params)
-      .then(facebook_access_token => {
-        return helpers.settingsUpdate({
-          facebook_access_token,
-          facebook_ad_account_id
-        });
-      })
-      .then(updatedShip => {
-        const fb = new FacebookAudience(
-          updatedShip,
-          client,
-          helpers,
-          segments,
-          metric
-        );
-        return fb.isConfigured() && fb.sync();
-      });
-  }
-
+function adminHandler() {
   function handleError(context, err = {}) {
     if (
       err.type === "OAuthException" &&
@@ -153,7 +111,7 @@ function adminHander({ clientID, clientSecret }: any) {
     const fb = new FacebookAudience(ship, client, helpers, segments, metric);
 
     const { accessToken, accountId } = fb.getCredentials();
-    const context = { fb, url, query, clientID };
+    const context = { fb, url, query };
 
     debug("admin.accessToken", typeof accessToken);
     if (!accessToken) {
@@ -217,7 +175,7 @@ function adminHander({ clientID, clientSecret }: any) {
       metric
     } = ctx;
     const { query } = message;
-    const context = { query, clientID, ship };
+    const context = { query, ship };
     const fb = new FacebookAudience(ship, client, helpers, segments, metric);
     if (fb.isConfigured()) {
       try {
@@ -242,4 +200,4 @@ function adminHander({ clientID, clientSecret }: any) {
   };
 }
 
-module.exports = adminHander;
+module.exports = adminHandler;
