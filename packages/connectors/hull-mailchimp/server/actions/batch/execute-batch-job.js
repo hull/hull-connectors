@@ -86,6 +86,11 @@ export default async function executeBatchJob(
         } catch (e) {} // eslint-disable-line no-empty
 
         if (_.get(responseObj, `${importType}s`)) {
+          ctx.client.logger.info("incoming.job.progress", {
+            jobName: "mailchimp-batch-job",
+            step: "parsing-batch",
+            importType
+          });
           return _.get(responseObj, `${importType}s`, []).map(r => {
             return this.emit("data", r);
           });
@@ -97,6 +102,11 @@ export default async function executeBatchJob(
     .pipe(
       ps.map(ops => {
         try {
+          ctx.client.logger.info("incoming.job.progress", {
+            jobName: "mailchimp-batch-job",
+            step: "enqueueing-batch",
+            importType
+          });
           return ctx.enqueue(jobName, {
             response: ops
           });
