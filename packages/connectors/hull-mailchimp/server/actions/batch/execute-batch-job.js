@@ -85,8 +85,8 @@ export default async function executeBatchJob(
           responseObj = JSON.parse(data.response);
         } catch (e) {} // eslint-disable-line no-empty
 
-        if (_.get(responseObj, importType)) {
-          return _.get(responseObj, importType, []).map(r => {
+        if (_.get(responseObj, `${importType}s`)) {
+          return _.get(responseObj, `${importType}s`, []).map(r => {
             return this.emit("data", r);
           });
         }
