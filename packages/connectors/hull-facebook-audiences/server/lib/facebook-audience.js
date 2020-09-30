@@ -599,7 +599,7 @@ class FacebookAudience {
             new Error("You cannot resync a segment which is not whitelisted")
           );
         }
-        return this.helpers.requestExtract({
+        return this.helpers.extractRequest({
           segment: { id: segmentId },
           additionalQuery: {
             audience: audience.id

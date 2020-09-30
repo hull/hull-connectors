@@ -4,8 +4,6 @@ import type { HullConnectorConfig } from "hull";
 import manifest from "../manifest.json";
 import handlers from "./handlers";
 
-const triggerExtractAction = require("./handlers/trigger-extract");
-
 export default function connectorConfig(): HullConnectorConfig {
   const {
     CLIENT_ID,
@@ -41,13 +39,6 @@ export default function connectorConfig(): HullConnectorConfig {
     },
     serverConfig: {
       start: true
-    },
-    rawCustomRoutes: [
-      {
-        url: "/trigger-extract",
-        handler: triggerExtractAction,
-        method: "post"
-      }
-    ]
+    }
   };
 }

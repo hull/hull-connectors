@@ -8,6 +8,7 @@ const userUpdateSmartNotifierHandler = require("./user-update-smart-notifier");
 const adminHandler = require("./admin");
 const statusHandler = require("./status");
 const userUpdateBatch = require("./user-update-batch");
+const triggerExtract = require("./trigger-extract");
 
 const handlers = ({
   clientID,
@@ -40,7 +41,8 @@ const handlers = ({
       })
     },
     json: {
-      batch: userUpdateBatch
+      batch: userUpdateBatch,
+      triggerExtract
     }
   };
 };

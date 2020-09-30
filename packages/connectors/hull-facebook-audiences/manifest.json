@@ -190,6 +190,10 @@
     {
       "url": "/batch",
       "handler": "batch"
+    },
+    {
+      "url": "/trigger-extract",
+      "handler": "triggerExtract"
     }
   ],
   "settings_sections": [
