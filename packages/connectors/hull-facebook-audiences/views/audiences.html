@@ -73,7 +73,7 @@
               </tbody>
             </table>
 
-            <% if (_.difference(synchronizedSegments.map(s => s.id), audiences.map(a => a.description)).length > 0) { -%>
+          <% if (_.difference(synchronizedSegments.map(s => s.id), _.keys(audiences)).length > 0) { -%>
               <div class="panel-body text-center">
                   <h1 class="condensed mt-0 mb-0">Some segments are out of sync</h1>
                   <div class="mt-2">

@@ -583,7 +583,10 @@ class FacebookAudience {
   fetchAudienceDetails(audienceID) {
     return this.fb(audienceID, {
       fields: AUDIENCE_FIELDS.join(",")
-    }).then(data => data);
+    }).then(data => {
+      data.segmentId = data.description;
+      return data;
+    });
   }
 
   triggerExtractJob(segmentId) {

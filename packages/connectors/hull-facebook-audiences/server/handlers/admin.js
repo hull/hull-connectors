@@ -146,12 +146,16 @@ function adminHandler() {
       const detailedAudiences = await Promise.all(
         _.map(audiences, aud => fb.fetchAudienceDetails(aud.id))
       );
+      const formattedAudiences = detailedAudiences.reduce((formatted, a) => {
+        formatted[a.description] = a;
+        return formatted;
+      }, {});
       return {
         status: 200,
         pageLocation: "audiences.html",
         data: {
           ...context,
-          audiences: detailedAudiences,
+          audiences: formattedAudiences,
           segments: segmentsToSpread,
           synchronizedSegments,
           _
