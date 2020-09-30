@@ -19,7 +19,11 @@ async function createEmailBatch(ctx: any) {
     .getCampaignsAndAutomationsToTrack()
     .then(async campaigns => {
       const operations = syncAgent.eventsAgent.getEmailActivitiesOps(campaigns);
-      const res = await createBatch({ syncAgent, operations });
+      const res = await createBatch({
+        syncAgent,
+        operations,
+        importType: "email"
+      });
       if (res.status === 200 && res.data.id) {
         await mailchimpAgent.cache.set("email_batch_id", res.data.id, {
           ttl: 0

@@ -1,5 +1,5 @@
 /* @flow */
-async function executeBatchCreation({ syncAgent, operations }) {
+async function executeBatchCreation({ syncAgent, operations, importType }) {
   try {
     const batchJob = await syncAgent.mailchimpClient
       .createBatchJob({ operations })
@@ -8,7 +8,7 @@ async function executeBatchCreation({ syncAgent, operations }) {
         syncAgent.client.logger.info("incoming.job.start", {
           id,
           jobName: "mailchimp-batch-job",
-          type: "user"
+          type: importType
         });
         return responseBody;
       });
@@ -25,7 +25,7 @@ async function executeBatchCreation({ syncAgent, operations }) {
       status: 200,
       data: {
         id: batchJob.id,
-        message: "Fetch All Batch Initiated"
+        message: "Batch Job Initiated"
       }
     };
   } catch (error) {

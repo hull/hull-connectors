@@ -24,7 +24,12 @@ async function createMemberBatch(ctx: any) {
     }
   };
 
-  const res = await createBatch({ syncAgent, ctx, operations: [operation] });
+  const res = await createBatch({
+    syncAgent,
+    ctx,
+    operations: [operation],
+    importType: "member"
+  });
   if (res.status === 200 && res.data.id) {
     await mailchimpAgent.cache.set("member_batch_id", res.data.id, {
       ttl: 0
