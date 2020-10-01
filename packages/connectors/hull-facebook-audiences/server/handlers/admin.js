@@ -96,6 +96,36 @@ function adminHandler() {
     }
   }
 
+  async function showAudiences(fb, context) {
+    const [
+      audiences,
+      segmentsToSpread,
+      synchronizedSegments
+    ] = await Promise.all([
+      fb.fetchAudiences(),
+      fb.client.get("segments"),
+      fb.getSynchronizedSegments()
+    ]);
+    const detailedAudiences = await Promise.all(
+      _.map(audiences, aud => fb.fetchAudienceDetails(aud.id))
+    );
+    const formattedAudiences = detailedAudiences.reduce((formatted, a) => {
+      formatted[a.description] = a;
+      return formatted;
+    }, {});
+    return {
+      status: 200,
+      pageLocation: "audiences.html",
+      data: {
+        ...context,
+        audiences: formattedAudiences,
+        segments: segmentsToSpread,
+        synchronizedSegments,
+        _
+      }
+    };
+  }
+
   async function getAudiences(
     ctx: HullContext,
     message: HullIncomingHandlerMessage
@@ -134,33 +164,7 @@ function adminHandler() {
       return handleError(context, error);
     }
     try {
-      const [
-        audiences,
-        segmentsToSpread,
-        synchronizedSegments
-      ] = await Promise.all([
-        fb.fetchAudiences(),
-        fb.client.get("segments"),
-        fb.getSynchronizedSegments()
-      ]);
-      const detailedAudiences = await Promise.all(
-        _.map(audiences, aud => fb.fetchAudienceDetails(aud.id))
-      );
-      const formattedAudiences = detailedAudiences.reduce((formatted, a) => {
-        formatted[a.description] = a;
-        return formatted;
-      }, {});
-      return {
-        status: 200,
-        pageLocation: "audiences.html",
-        data: {
-          ...context,
-          audiences: formattedAudiences,
-          segments: segmentsToSpread,
-          synchronizedSegments,
-          _
-        }
-      };
+      return showAudiences(fb, context);
     } catch (error) {
       client.logger.error("admin.error", error);
       return handleError(context, error);
@@ -178,9 +182,9 @@ function adminHandler() {
       usersSegments: segments,
       metric
     } = ctx;
-    const { query } = message;
-    const context = { query, ship };
     const fb = new FacebookAudience(ship, client, helpers, segments, metric);
+    const { query } = message;
+    const context = { query, ship, fb };
     if (fb.isConfigured()) {
       try {
         await fb.sync();
@@ -190,11 +194,12 @@ function adminHandler() {
       }
     }
 
-    return {
-      status: 200,
-      pageLocation: "synced.html",
-      data: {}
-    };
+    try {
+      return showAudiences(fb, context);
+    } catch (error) {
+      client.logger.error("admin.error", error);
+      return handleError(context, error);
+    }
   }
 
   return {
