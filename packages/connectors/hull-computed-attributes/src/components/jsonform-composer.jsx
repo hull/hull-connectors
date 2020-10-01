@@ -6,7 +6,7 @@ import type { EngineState } from "hull-vm";
 
 import SelectWidget from "./widgets/select";
 
-import transformErrors from "./lib/transform-errors";
+import transformErrors from "../lib/transform-errors";
 import ObjectFieldTemplate from "./templates/object-field";
 import ArrayFieldTemplate from "./templates/array-field";
 import AttributeField from "./fields/attribute";
@@ -59,6 +59,8 @@ export default class JSONFormComposer extends Component<Props, State> {
         ObjectFieldTemplate={ObjectFieldTemplate}
         ArrayFieldTemplate={ArrayFieldTemplate}
         liveValidate={true}
+        liveOmit={true}
+        omitExtraData={true}
         widgets={this.getCustomWidgets()}
         fields={this.getCustomFields()}
       >

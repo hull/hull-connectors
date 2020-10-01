@@ -104,6 +104,7 @@
             "type": "object",
             "properties": {
               "attribute": {
+                "types": "array",
                 "$ref": "#/definitions/fields/attribute"
               },
               "accessor": {
@@ -163,6 +164,10 @@
         "default": "set",
         "enumNames": ["Always", "Only if not previously set"],
         "enum": ["set", "setIfNull"]
+      },
+      "materialized": {
+        "type": "boolean",
+        "title": "Write to Profile"
       },
       "operation": {
         "title": "Operation",

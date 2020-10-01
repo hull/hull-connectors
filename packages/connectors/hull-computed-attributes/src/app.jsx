@@ -1,8 +1,10 @@
 // @flow
 
 import React, { Fragment } from "react";
-import { CodeTitle, JsonataUI } from "hull-vm/src/ui";
-import Form from "./jsonform-composer";
+import { /* CodeTitle,  */ JsonataUI } from "hull-vm/src/ui";
+import Form from "./components/jsonform-composer";
+
+import _ from "lodash";
 
 import computedAttributesSchema from "./schemas/computed-attributes.json";
 import computedAttributesUiSchema from "./schemas/computed-attributes-ui";
@@ -24,18 +26,31 @@ export default class ComputedAttributesUI extends JsonataUI {
     return {};
   }
 
-  getAttributeSchema = () => {
-    const {
-      computedAttributes = [],
-      userAttributeSchema,
-      accountAttributeSchema
-    } = this.state;
+  getArraySchema = () => {
+    const { current } = this.state;
+    const { schema = [] } = current?.result || {};
     return [
       {
         label: "Computed Attributes",
-        options: computedAttributes.map(({ computed_attribute }) => ({
-          key: `user.${computed_attribute}`
-        }))
+        options: _.filter(schema, { type: "array" })
+      },
+      {
+        label: "Segments",
+        options: [
+          { label: "User Segments", key: "segments" },
+          { label: "Account Segments", key: "account_segments" }
+        ]
+      }
+    ];
+  };
+
+  getAttributeSchema = () => {
+    const { userAttributeSchema, current, accountAttributeSchema } = this.state;
+    const { schema = [] } = current?.result || {};
+    return [
+      {
+        label: "Computed Attributes",
+        options: schema
       },
       {
         label: "User Attributes",
@@ -60,6 +75,7 @@ export default class ComputedAttributesUI extends JsonataUI {
           formData={computedAttributes}
           formContext={{
             current: this.state.current,
+            getArraySchema: this.getArraySchema,
             getAttributeSchema: this.getAttributeSchema
           }}
           extraErrors={this.getErrors()}

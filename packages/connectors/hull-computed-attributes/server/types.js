@@ -2,22 +2,22 @@
 import type { HullUserUpdateMessage } from "hull";
 
 export type ComputedAttributeDefinition = {
-  target: string,
+  computed_attribute: string,
   type: "string" | "number" | "boolean" | "date",
   strategy: "set" | "setIfNull",
   operation: "attribute" | "mapping" | "fallback" | "value",
   params:
     | {
-        properties: Array<string>
+        attributes: Array<string>
       }
     | {
         value: string
       }
     | {
-        property: string
+        attributes: string
       }
     | {
-        property: string,
+        attributes: Array<string>,
         mapping: Array<{ source: string, destination: string }>
       }
 };

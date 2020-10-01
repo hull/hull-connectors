@@ -1,10 +1,13 @@
 // @flow
 import _ from "lodash";
+import flat from "flat";
 import type { ComputeParams } from "../types";
-
-import Topologica from "./topologica";
+import getTraits from "./getTraits";
 
 import OPERATIONS from "./operations";
+
+const omitInvalid = changes =>
+  _.omitBy(changes, ({ computed_attribute }) => !computed_attribute);
 
 const getStateChanges = changes =>
   _.reduce(
@@ -13,9 +16,9 @@ const getStateChanges = changes =>
       const { attribute, attributes = [] } = params;
       const op = OPERATIONS[operation];
       if (op) {
-        stateChange[`user.${computed_attribute}`] = [
+        stateChange[computed_attribute] = [
           op(params) || _.identity,
-          [attribute, ...attributes]
+          _.compact([attribute, ...attributes])
         ];
       }
       return stateChange;
@@ -23,9 +26,13 @@ const getStateChanges = changes =>
     {}
   );
 
-const omitInvalid = changes =>
-  _.omitBy(changes, ({ computed_attribute }) => !computed_attribute);
-
+const getType = i => {
+  if (_.isArray(i)) return "array";
+  if (_.isPlainObject(i)) return "object";
+  if (_.isFinite(i)) return "number";
+  if (_.isString(i)) return "string";
+  if (i === true || i === false) return "boolean";
+};
 export default async function compute({
   computedAttributes = [],
   payload = {}
@@ -34,11 +41,14 @@ export default async function compute({
     return {};
   }
 
-  const stateChanges = getStateChanges(omitInvalid(computedAttributes));
+  const funcs = getStateChanges(omitInvalid(computedAttributes));
+  const traits = getTraits(funcs, payload);
 
-  const dataflow = Topologica(stateChanges);
-  dataflow.set(payload);
-  const { user } = dataflow.getComputed();
-
-  return user;
+  return {
+    traits,
+    schema: _.map(
+      flat(traits || {}, { safe: true, overwrite: true }),
+      (value, key) => ({ key, type: getType(value) })
+    )
+  };
 }

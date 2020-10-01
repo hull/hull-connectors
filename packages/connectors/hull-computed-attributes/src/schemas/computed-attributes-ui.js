@@ -1,4 +1,4 @@
-import ComptuedAttributesField from "../templates/computed-attributes-field";
+import ComptuedAttributesField from "../components/templates/computed-attributes-field";
 // import SourceFieldTemplate from "../templates/source-field";
 
 const sourceAttribute = {
@@ -21,7 +21,8 @@ const computedAttributesUiSchema = {
       "ui:placeholder": "Computed Attribute Name"
     },
     strategy: {
-      classNames: "field_strategy"
+      classNames: "field_strategy",
+      "ui:widget": "radio"
     },
     operation: {
       classNames: "field_operation"
@@ -33,6 +34,12 @@ const computedAttributesUiSchema = {
       "ui:label": false,
       classNames: "field_params",
       attribute: sourceAttribute,
+      accessor: {
+        "ui:label": false
+      },
+      attributes: {
+        items: sourceAttribute
+      },
       mapping: {
         classNames: "field_mappings",
         items: {

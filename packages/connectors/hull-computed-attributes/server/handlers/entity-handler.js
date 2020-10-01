@@ -55,8 +55,6 @@ export default async function getEntity(
 
     // For now we don't have a good way to access arrays. so they're omitted.
     const payload = _.omit(tempPayload, [
-      "segments",
-      "account_segments",
       "changes",
       "events",
       "segment_ids",
@@ -65,7 +63,10 @@ export default async function getEntity(
 
     // Here we are saving 1 api call by direcly embedding the response
 
-    const traits = await buildResponse({ payload, computedAttributes });
+    const { traits, schema } = await buildResponse({
+      payload,
+      computedAttributes
+    });
 
     return {
       status: 200,
@@ -76,6 +77,7 @@ export default async function getEntity(
           source: "computed-attributes",
           claims: foundClaims,
           traits,
+          schema,
           entity,
           error: [],
           success: true

@@ -8,15 +8,24 @@ const getOptionLabel = ({ key, type }) => `${key} [${type}]`;
 
 type Props = {
   formContext: {
-    getAttributeSchema: any
+    getAttributeSchema: () => Array<any>,
+    getArraySchema: () => Array<any>
+  },
+  schema: {
+    title: string,
+    types?: "array" | void,
+    type: string
   },
   formData: {},
   onChange: any => void
 };
 const AttributeField = (props: Props) => {
-  const { onChange, formData, formContext } = props;
-  const { getAttributeSchema } = formContext;
-
+  const { onChange, formData, formContext, schema } = props;
+  const { types } = schema;
+  const { getAttributeSchema, getArraySchema } = formContext;
+  const options = types === "array" ? getArraySchema : getAttributeSchema;
+  const placeholder =
+    types === "array" ? "Pick an Array attribute" : "Pick an attribute";
   return (
     <Select
       isMulti={false}
@@ -31,8 +40,8 @@ const AttributeField = (props: Props) => {
       )}
       classNamePrefix="react-select"
       className="react-select"
-      placeholder={"Pick Attribute"}
-      options={getAttributeSchema()}
+      placeholder={placeholder}
+      options={options()}
       styles={ReactSelectStyles}
       onChange={({ key }) => onChange(key)}
       closeMenuOnSelect={true}

@@ -9,12 +9,16 @@ const getValue = ({ value }) => (_data: Payload) => value;
 const getAttribute = ({ attribute }) => (data: Payload) =>
   _.get(data, attribute);
 const getFallback = ({ attributes }) => (data: Payload) =>
-  _.reduce(attributes, (value, attribute) => {
-    if (value !== undefined) {
-      return value;
-    }
-    return getAttribute({ attribute })(data);
-  });
+  _.reduce(
+    attributes,
+    (value, attribute) => {
+      if (value !== undefined) {
+        return value;
+      }
+      return getAttribute({ attribute })(data);
+    },
+    undefined
+  );
 const getMapping = ({ attribute, mapping = [] }) => (data: Payload) =>
   _.find(mapping, { source: getAttribute({ attribute })(data) })?.destination;
 const getExpression = ({ attribute, expression }) => (data: Payload) =>

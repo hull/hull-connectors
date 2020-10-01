@@ -31,13 +31,13 @@ export default async function preview(
   }
 
   try {
-    const traits = await buildResponse({
+    const { traits, schema } = await buildResponse({
       payload,
       computedAttributes
     });
     return {
       status: 200,
-      data: { traits }
+      data: { traits, schema }
     };
   } catch (error) {
     console.log(error);
