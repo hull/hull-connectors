@@ -30,7 +30,8 @@ export default (reactiveFunctions: ReactiveFunctions, payload: Payload) => {
       try {
         graph.addNode(dep, { func: getDelayedValue(dep) });
       } catch (err) {
-        console.log(err);
+        console.log("Node already exists", { attribute, deps });
+        // console.log(err);
       }
       graph.addEdge(attribute, dep);
     });
