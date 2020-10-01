@@ -41,8 +41,10 @@ const handlers = ({
       })
     },
     json: {
-      batch: userUpdateBatch,
       triggerExtract
+    },
+    batches: {
+      userUpdateBatch
     }
   };
 };

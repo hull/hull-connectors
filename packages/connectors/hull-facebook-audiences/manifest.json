@@ -178,6 +178,17 @@
       ]
     }
   ],
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdateBatch"
+        }
+      ]
+    }
+  ],
   "statuses": [
     {
       "url": "/status",
@@ -187,10 +198,6 @@
     }
   ],
   "json": [
-    {
-      "url": "/batch",
-      "handler": "batch"
-    },
     {
       "url": "/trigger-extract",
       "handler": "triggerExtract"

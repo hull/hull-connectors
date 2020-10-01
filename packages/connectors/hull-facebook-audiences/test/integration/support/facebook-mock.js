@@ -1,11 +1,10 @@
-const nock = require("nock");
-
-module.exports = function mocks() {
-  const API_PREFIX = "https://graph.facebook.com/v5.0";
+module.exports = function mocks(nock) {
+  nock = nock("https://graph.facebook.com/v7.0");
   return {
+    getNock: () => nock,
     setUpGetAudiencesNock: (fulfilled) => {
       if (!fulfilled) {
-        return nock(API_PREFIX)
+        return nock
           .get("/act_123/customaudiences")
           .query(true)
           .reply(200, {
@@ -14,7 +13,7 @@ module.exports = function mocks() {
           });
       }
 
-      return nock(API_PREFIX)
+      return nock
         .get("/act_123/customaudiences")
         .query(true)
         .reply(200, {
@@ -32,7 +31,7 @@ module.exports = function mocks() {
         });
     },
     setupGetAudienceDetailNock: (audienceID) => {
-      return nock(API_PREFIX)
+      return nock
         .get(`/${audienceID}`)
         .query(true)
         .reply(200, {
@@ -40,17 +39,17 @@ module.exports = function mocks() {
           description: `${audienceID}`
         });
     },
-    setUpCreateAudiencesNock: (audienceId) => nock(API_PREFIX)
+    setUpCreateAudiencesNock: (audienceId) => nock
       .post("/act_123/customaudiences")
       .query(true)
       .reply(200, {
         id: audienceId
       }),
-    setUpCreateUserInAudienceNock: (audienceId, bodyValidator = () => true) => nock(API_PREFIX)
+    setUpCreateUserInAudienceNock: (audienceId, bodyValidator = () => true) => nock
       .post(`/${audienceId}/users`, (body) => bodyValidator(body))
       .query(true)
       .reply(200),
-    setUpDeleteUserInAudienceNock: (audienceId) => nock(API_PREFIX)
+    setUpDeleteUserInAudienceNock: (audienceId) => nock
       .post(`/${audienceId}/users`)
       .query({ method: "delete" })
       .reply(200)
