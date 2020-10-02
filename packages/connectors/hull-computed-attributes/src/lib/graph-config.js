@@ -11,7 +11,7 @@ const getConfig = () => ({
   focusAnimationDuration: 0.75,
   height: 300,
   width: window.innerWidth - 373,
-  highlightDegree: 1,
+  highlightDegree: 2,
   highlightOpacity: 0.5,
   nodeHighlightBehavior: true,
   linkHighlightBehavior: false,
@@ -23,9 +23,9 @@ const getConfig = () => ({
   staticGraph: false,
   staticGraphWithDragAndDrop: false,
   d3: {
-    alphaTarget: 0.05,
-    gravity: -200,
-    linkLength: 100,
+    alphaTarget: 0.5,
+    gravity: -300,
+    linkLength: 20,
     linkStrength: 1
   },
   node: {
@@ -37,16 +37,17 @@ const getConfig = () => ({
     highlightFontSize: 16,
     highlightFontWeight: "normal",
     mouseCursor: "pointer",
-    labelPosition: "right",
+    labelPosition: "bottom",
     renderLabel: true,
     opacity: 1,
     // size: {
     //   width: 2500,
     //   height: 1000
     // },
-    strokeColor: "white",
+    strokeColor: "#FFFFFFCC",
     strokeWidth: 2,
-    labelProperty: ({ id, value }) => `${id}: ${JSON.stringify(value)}`
+    // labelProperty: ({ id, value }) => `${id}: ${JSON.stringify(value)}`
+    labelProperty: ({ id, value }) => id
     // viewGenerator: ({ id }) => {
     //   // console.log(argum);
     //   return (
@@ -58,7 +59,7 @@ const getConfig = () => ({
   },
   link: {
     type: "STRAIGHT",
-    color: "#2684FF",
+    color: "#999",
     fontColor: "white",
     fontSize: 12,
     fontWeight: "normal",

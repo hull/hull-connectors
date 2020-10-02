@@ -5,7 +5,6 @@ import _ from "lodash";
 import { Graph } from "react-d3-graph";
 import { /* CodeTitle,  */ JsonataUI } from "hull-vm/src/ui";
 import Form from "./components/jsonform-composer";
-
 import graphConfig from "./lib/graph-config";
 import computedAttributesSchema from "./schemas/computed-attributes.json";
 import computedAttributesUiSchema from "./schemas/computed-attributes-ui";
@@ -16,12 +15,18 @@ const filterType = type => schema =>
   type ? _.filter(schema, { type }) : schema;
 
 const NODE_PROPS = {
-  cx: 200,
-  cy: 0
+  color: "#2684FF"
+};
+const LINK_PROPS = {
+  color: "#2684FF"
+};
+const OBJECT_LINK_PROPS = {
+  color: "#999"
 };
 export default class ComputedAttributesUI extends JsonataUI {
   onComputedAttributeUpdate = ({ formData }: FormData) => {
     const { engine } = this.props;
+    console.log("UPDATING");
     engine.updateComputedAttributes(formData);
   };
 
@@ -77,41 +82,86 @@ export default class ComputedAttributesUI extends JsonataUI {
     ];
   };
 
-  getGraph = (computedAttributes, data) => {
-    const nodes = [];
-    const links = [];
-    _.map(computedAttributes, ({ computed_attribute, params }) => {
-      const { attribute, attributes = [], type } = params;
-      const dependencies = [attribute, ...attributes];
-      dependencies.map(id => {
-        links.push({ target: computed_attribute, source: id });
-        const value = this.getValue(id);
-        nodes.push({
-          ...NODE_PROPS,
-          id,
-          value,
-          color: undefined
+  addNode = ({ nodes, links, dependencies, target, linkProps, nodeProps }) => {
+    dependencies.map(property => {
+      if (!property) {
+        return;
+      }
+      links.push({ ...linkProps, target, source: property });
+      const path = _.toPath(property);
+      if (path.length > 1) {
+        this.addNode({
+          nodes,
+          links,
+          dependencies: [_.dropRight(path).join(".")],
+          target: path.join("."),
+          linkProps: { ...LINK_PROPS, ...OBJECT_LINK_PROPS },
+          nodeProps: { ...NODE_PROPS, color: "#4c545e" }
         });
-      });
-      nodes.push({
-        ...NODE_PROPS,
-        id: computed_attribute,
-        color: "#2684FF",
-        value: this.getValue(computed_attribute),
-        dependencies
+      }
+      const nodeTarget = nodes[property] || { id: property };
+      nodes[property] = {
+        ...nodeProps,
+        ...nodeTarget,
+        color: this.getNodeColor(property),
+        value: this.getValue(property)
+      };
+      console.log("Adding Node in Loop from", nodes[property]);
+    });
+    const nodeTarget = nodes[target] || { id: target };
+    nodes[target] = {
+      ...nodeTarget,
+      ...nodeProps,
+      value: this.getValue(target),
+      color: this.getNodeColor(target),
+      dependencies: _.uniq([
+        ...(nodeTarget?.dependencies || []),
+        ...dependencies
+      ])
+    };
+    console.log("Adding Node Outside of loop", nodes[target]);
+  };
+
+  getGraph = (computedAttributes, data) => {
+    const nodes = {};
+    const links = [];
+
+    _.map(computedAttributes, ({ computed_attribute, params }) => {
+      if (!computed_attribute) {
+        return;
+      }
+      const { attribute, attributes = [] } = params;
+      const dependencies = [attribute, ...attributes];
+      this.addNode({
+        nodes,
+        links,
+        dependencies,
+        target: computed_attribute,
+        linkProps: LINK_PROPS,
+        nodeProps: NODE_PROPS
       });
     });
-
+    console.log("COMPUTATION DONE --------------------------");
     return {
       data: {
-        nodes: _.uniqBy(
-          _.sortBy(nodes, n => n.dependencies?.length),
-          "id"
-        ),
+        nodes: _.sortBy(_.values(nodes), n => n.dependencies?.length),
         links
       },
       config: graphConfig()
     };
+  };
+  
+  getNodeColor = node => {
+    if (this.state.current?.result.traits?.[node]) {
+      return "#2684FF";
+    }
+    if (_.has(this.state.current?.result.traits, node)) {
+      return "#4f266b";
+    }
+    if (_.has(this.state.current?.payload, node)) {
+      return "#51c725";
+    }
+    return "#999";
   };
 
   getValue = key => {
