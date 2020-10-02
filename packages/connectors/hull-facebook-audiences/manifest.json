@@ -1,6 +1,6 @@
 {
   "name": "Facebook Ad Audiences",
-  "version": "0.1.35-monorepo",
+  "version": "0.1.36-monorepo",
   "description": "Target your Leads with Facebook Ads",
   "tags": ["outgoing", "smart-notifier"],
   "source": "facebook-audiences",
