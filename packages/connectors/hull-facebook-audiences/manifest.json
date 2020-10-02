@@ -1,0 +1,244 @@
+{
+  "name": "Facebook Ad Audiences",
+  "version": "0.1.35-monorepo",
+  "description": "Target your Leads with Facebook Ads",
+  "tags": ["outgoing", "smart-notifier"],
+  "source": "facebook-audiences",
+  "logo": "logo.png",
+  "picture": "picture.png",
+  "ui": false,
+  "tabs": [
+    {
+      "title": "Audiences",
+      "url": "/audiences",
+      "method": "get",
+      "editable": false,
+      "handler": "audiences"
+    }
+  ],
+  "html": [
+    {
+      "url": "/sync-audiences",
+      "handler": "syncAudiences"
+    }
+  ],
+  "readme" : "readme.md",
+  "private_settings": [
+    {
+      "name": "oauth",
+      "title": "Oauth",
+      "description": "Authenticate with Facebook",
+      "format": "oauth",
+      "type": "string",
+      "handler": "oauth",
+      "url": "/auth",
+      "options": {
+        "strategy": {
+          "graphAPIVersion": "v2.5",
+          "grant_type": "authorization_code"
+        }
+      }
+    },
+    {
+      "type": "string",
+      "name": "facebook_ad_account_id",
+      "description": "Facebook ad account by user",
+      "title": "Facebook ad account",
+      "url": "/account-list",
+      "handler": "accountList",
+      "format": "select",
+      "options": {
+        "loadOptions": "/account-list",
+        "allowCreate": false,
+        "placeholder": "Select facebook ad account to use"
+      }
+    },
+    {
+      "name" : "facebook_access_token",
+      "title" : "Facebook Access Token",
+      "type" : "string",
+      "format":"hidden"
+    },
+    {
+      "name": "synchronized_segments",
+      "title": "Segments",
+      "description": "Sync to Facebook these segments (deprecated, fill in table below)",
+      "default": [],
+      "type": "array",
+      "format": "hidden"
+    },
+    {
+      "name": "synchronized_segments_mapping_hero",
+      "type": "string",
+      "headerTemplate": "Select the Segments to sync with Facebook Audiences and pick a data source value for each segment. Please refer to Facebook Ads documentation for more details.",
+      "format": "information",
+      "title": "Whitelisted Segments"
+    },
+    {
+      "name": "synchronized_segments_mapping",
+      "title": "Hull Segments to sync as FB Audiences",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "segment_id": {
+            "title": "Hull Segment",
+            "type": "string",
+            "format": "segment"
+          },
+          "customer_file_source": {
+            "title": "Data Source",
+            "type": "string",
+            "enum": [
+              "USER_PROVIDED_ONLY",
+              "PARTNER_PROVIDED_ONLY",
+              "BOTH_USER_AND_PARTNER_PROVIDED"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type" : "string",
+      "name" : "matching_fields",
+      "title": "Matching Fields",
+      "format": "title",
+      "description": "The fields which are sent to custom audiences to build matching."
+    },
+    {
+      "title": "Email Address",
+      "name" : "field_email",
+      "type" : "string",
+      "format" : "trait",
+      "default": "email"
+    },
+    {
+      "title": "First Name",
+      "name" : "field_first_name",
+      "type" : "string",
+      "format" : "trait",
+      "default": "first_name"
+    },
+    {
+      "title": "Last Name",
+      "name" : "field_last_name",
+      "type" : "string",
+      "format" : "trait",
+      "default": "last_name"
+    },
+    {
+      "title": "Phone",
+      "name" : "field_phone",
+      "type" : "string",
+      "format" : "trait",
+      "default": "phone"
+    },
+    {
+      "title": "Gender",
+      "name" : "field_gender",
+      "type" : "string",
+      "format": "trait"
+    },
+    {
+      "title": "US State",
+      "name" : "field_state",
+      "type" : "string",
+      "format": "trait"
+    },
+    {
+      "title": "City",
+      "name" : "field_city",
+      "type" : "string",
+      "format" : "trait",
+      "default": "address_city"
+    },
+    {
+      "title": "Country",
+      "name" : "field_country",
+      "type" : "string",
+      "format" : "trait",
+      "default": "address_country"
+    }
+  ],
+  "subscriptions": [
+    {
+      "url": "/smart-notifier",
+      "conditions" : {
+        "channels": {
+          "only": [
+            "user:update"
+          ]
+        }
+      },
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "user_update"
+        }
+      ]
+    }
+  ],
+  "batches": [
+    {
+      "url": "/batch",
+      "channels": [
+        {
+          "channel": "user:update",
+          "handler": "userUpdateBatch"
+        }
+      ]
+    }
+  ],
+  "statuses": [
+    {
+      "url": "/status",
+      "type": "interval",
+      "value": "30",
+      "handler": "statusHandler"
+    }
+  ],
+  "json": [
+    {
+      "url": "/trigger-extract",
+      "handler": "triggerExtract"
+    }
+  ],
+  "settings_sections": [
+    {
+      "title": "Connect with Facebook",
+      "step": "credentials",
+      "properties": [
+        "private_settings.oauth"
+      ]
+    },
+    {
+      "title": "Select ad account",
+      "description": "After you have authenticated with Facebook, please select the ad account that Hull will synchronize with. You can only pick one ad account, and you will have to reinstall the connector if you wish to change it afterwards. Once you have selected the ad account, please click Save on the top right",
+      "step": "credentials",
+      "properties": [
+        "private_settings.facebook_ad_account_id"
+      ]
+    },
+    {
+      "title": "User Filter",
+      "description": "Select the Segments to sync with Facebook Audiences and pick a data source value for each segment. Please refer to Facebook Ads documentation for more details.",
+      "properties": [
+        "private_settings.synchronized_segments_mapping"
+      ]
+    },
+    {
+      "title": "User Mapping",
+      "description": "Select attributes to send in your audiences members",
+      "properties": [
+        "private_settings.field_email",
+        "private_settings.field_first_name",
+        "private_settings.field_last_name",
+        "private_settings.field_phone",
+        "private_settings.field_gender",
+        "private_settings.field_state",
+        "private_settings.field_city",
+        "private_settings.field_country"
+      ]
+    }
+  ]
+}
