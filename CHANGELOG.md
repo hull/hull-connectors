@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.1.36-monorepo (2020-10-02)
+- [hull-facebook-audiences] Migrated to monorepo
+
 ## v0.1.35-monorepo (2020-08-25)
 - [hull-bigquery] Bigquery mvp
 

@@ -390,7 +390,6 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     onRecord: Function
   ): Promise<*> {
     const { fields = [], identityClaims = [] } = options;
-
     const query = this.getSoqlQuery(type, fields, identityClaims);
     return this.fetchRecords({ query }, type, onRecord);
   }
@@ -460,7 +459,6 @@ class ServiceClient extends events.EventEmitter implements IServiceClient {
     function getAllEntitiesPage(push, soqlQuery, nextPage) {
       return getAllEntities(query, nextPage).then(response => {
         const { records, done, nextRecordsUrl } = response;
-
         push(records);
         if (!done && nextRecordsUrl) {
           return getAllEntitiesPage(push, soqlQuery, nextRecordsUrl);
