@@ -4,7 +4,7 @@ The Intercom Connector enables your sales team to engage with leads
 and helps your support team stay in touch with customers by integrating
 your Intercom data with other data sources.
 
-Upgrading for existing Intercom connector? See "Migrate From the Intercom Legacy Connector" at the bottom.
+Upgrading for existing Intercom connector? See [Migrate From the Intercom Legacy Connector](#migrate-from-the-intercom-legacy-connector) at the bottom of this document.
 
 ## Getting Started
 
@@ -183,14 +183,13 @@ the whitelisted segments (User or Lead)
 
 ---
 
-How do I link anonymous traffic on my website and Intercom Leads in Hull
-To link the anonymous traffic and the leads in Intercom, you need to be using Hull.js to track data in your website (You do this by adding a Platform to Hull) and then you need to enable the Intercom connector client-side component by adding it to the platform.
+## Linking website anonymous traffic with Intercom Leads
 
-When you do this:
+To link the anonymous traffic and the leads in Intercom, you need to be using Hull.js to track data in your website (You do this by adding a Website connector to Hull) and then you need to inject a dedicated script from Intercom connector (more on that in Website connector documentation.)
 
-The Intercom Visitor IDs will be added to the current visitor list of aliases and this will link the Intercom Lead profile and the online visitor profile.
+As a result the Intercom Visitor IDs will be added to the current visitor list of aliases and this will link the Intercom Lead profile and the online visitor profile.
 Any tracking or traits call you make to Hull.js will also be sent to Intercom in parallel, This way you don't have to instrument your code twice.
-This is an advanced topic and we suggest you reach out to us so we can help you set this up
+Since this is an advanced topic and we suggest you reach out to us so we can help you set this up.
 
 ---
 
@@ -242,7 +241,7 @@ anonymous id format and guarantee user merges in Hull.
 
 ### Migration Action Items
 
-*Contact [Hull Support](support@hull.io) for assistance through this process*
+*Contact [Hull Support](mailto:support@hull.io) for assistance through this process*
 
 1. Copy the attribute mapping from the legacy connector to this connector.
 All standard attributes on the Contact model are mapped by default.
@@ -316,4 +315,4 @@ ids, in your org, install the Processor and copy this code:
 5. Create a whitelisted segment of all users with an intercom id to ensure that all
 incoming Intercom traffic will run through the processor created in the previous
 step.
-6. The intercom connector will no longer convert leads by default. [Contact us](support@hull.io) to enable this feature.
+6. The intercom connector will no longer convert leads by default. [Contact us](mailto:support@hull.io) to enable this feature.
