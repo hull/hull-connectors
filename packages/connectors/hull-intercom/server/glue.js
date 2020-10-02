@@ -142,9 +142,9 @@ const glue = {
       ])
     )
   ],
-  shipUpdate: [
-    route("syncDataAttributes")
-  ],
+  shipUpdate: ifL(cond("allTrue", [
+    route("isConfigured")
+  ]), route("syncDataAttributes")),
   status: ifL(cond("isEmpty", settings("access_token")), {
     do: {
       status: "setupRequired",
@@ -224,6 +224,20 @@ const glue = {
         ])
       ])
   ]),
+  fetchContact: [
+    ifL(cond("notEmpty", set("contact_id", input("body.contact_id"))),[
+      set("intercomContact", intercom("fetchContactByContactId")),
+      ifL(cond("notEmpty", "${intercomContact}"),[
+        set("service_type", "${intercomContact.role}"),
+        ifL(cond("isEqual", "${service_type}", "user"),[
+          hull("asUser", cast(IntercomUserRead, "${intercomContact}"))
+        ]),
+        ifL(cond("isEqual", "${service_type}", "lead"),[
+          hull("asUser", cast(IntercomLeadRead, "${intercomContact}"))
+        ])
+      ])
+    ])
+  ],
   fetchCompany: [
     ifL(cond("notEmpty", set("company_id", input("body.company_id"))),[
       hull("asAccount", cast(IntercomCompanyRead, intercom("fetchCompanyByCompanyId")))
@@ -672,20 +686,47 @@ const glue = {
       })
     ])
   ],
+  manualTagContact: [
+    ifL(cond("allTrue", [
+        cond("notEmpty", set("contactId", input("body.contact_id"))),
+        cond("notEmpty", set("service_type", input("body.service_type"))),
+    ]),[
+      set("allTags", cacheWrap(CACHE_TIMEOUT, intercom("getAllTags"))),
+      set("tagsOnHullUser", input("user.intercom_${service_type}/tags")),
+      set("addTags", input("body.tag")),
+      set("removeTags", input("body.untag")),
+
+      route("tagContacts"),
+      route("unTagContacts")
+    ])
+  ],
   handleContactTags: [
     set("allTags", cacheWrap(CACHE_TIMEOUT, intercom("getAllTags"))),
-
     set("contactId", "${contactFromIntercom.id}"),
     set("contactTags", ld("map", intercom("getContactTags"), "name")),
-
     set("tagsOnHullUser", input("user.intercom_${service_type}/tags")),
+    set("addTags", ld("map", input("segments"), "name")),
+    set("removeTags", ld("map", input("changes.segments.left"), "name")),
 
-    set("segmentsIn", ld("map", input("segments"), "name")),
-    set("segmentsLeft", ld("map", input("changes.segments.left"), "name")),
-
-    set("missingTags", ld("difference", "${segmentsIn}", "${tagsOnHullUser}")),
-    iterateL("${missingTags}", "segmentName", [
-      set("existingTag", filter({ name: ld("trim", "${segmentName}") }, "${allTags}")),
+    route("tagContacts"),
+    route("unTagContacts")
+  ],
+  unTagContacts: ifL(cond("notEmpty", "${removeTags}"), [
+    iterateL("${removeTags}", "tagName", [
+      set("existingTag", filter({ name: "${tagName}" }, "${allTags}")),
+      ifL(cond("notEmpty", "${existingTag}"), {
+        do: [
+          set("tagId", "${existingTag[0].id}"),
+          intercom("unTagContact")
+        ],
+        eldo: []
+      })
+    ])
+  ]),
+  tagContacts: ifL(cond("notEmpty", "${addTags}"), [
+    set("missingTags", ld("difference", "${addTags}", "${tagsOnHullUser}")),
+    iterateL("${missingTags}", "tagName", [
+      set("existingTag", filter({ name: ld("trim", "${tagName}") }, "${allTags}")),
       ifL(cond("notEmpty", "${existingTag}"), {
         do: [
           ifL(not(ld("includes", "${contactTags}", "${existingTag[0].name}")), [
@@ -700,7 +741,7 @@ const glue = {
           // so don't need to worry about invalidating
           // getAllTags cache
           set("createdTag", intercom("createTag", {
-            "name": "${segmentName}"
+            "name": "${tagName}"
           })),
           intercom("tagContact", {
             "id": "${createdTag.id}"
@@ -708,17 +749,7 @@ const glue = {
         ]
       })
     ]),
-    iterateL("${segmentsLeft}", "segmentName", [
-      set("existingTag", filter({ name: "${segmentName}" }, "${allTags}")),
-      ifL(cond("notEmpty", "${existingTag}"), {
-        do: [
-          set("tagId", "${existingTag[0].id}"),
-          intercom("unTagContact")
-        ],
-        eldo: []
-      })
-    ])
-  ],
+  ]),
   filterEvents: [
     set("eventNames", ld("map", input("events"), "event")),
     ifL(not(ex(settings("outgoing_events"), "includes", "all_events")), [

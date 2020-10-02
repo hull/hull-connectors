@@ -618,8 +618,16 @@
       "handler": "convertLead"
     },
     {
+      "url": "/tag-contact",
+      "handler": "manualTagContact"
+    },
+    {
       "url": "/fetch-company",
       "handler": "fetchCompany"
+    },
+    {
+      "url": "/fetch-contact",
+      "handler": "fetchContact"
     }
   ],
   "schedules": [

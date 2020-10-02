@@ -209,16 +209,31 @@
   ],
   "json": [
     {
-      "url": "/sync",
-      "handler": "sync",
-      "name": "syncIn",
+      "url": "/import-batch",
+      "handler": "importBatch",
+      "options": {
+        "fireAndForget": true
+      }
+    },
+    {
+      "url": "/build-email-batch",
+      "handler": "createEmailBatch"
+    },
+    {
+      "url": "/force-track",
+      "handler": "track"
+    },
+    {
+      "url": "/fetch-list",
+      "handler": "createMemberBatch",
+      "name": "fetchList",
       "title": "Fetch List",
       "format": "action",
       "options": {
         "confirm": {
           "action": "fetch",
-          "text": "You are going to resync Mailchimp with Hull. This will empty the list you picked ? This will remove all interest groups and static segments (possibly breaking any automation configuration) and can generate a lot of traffic. Are you sure?",
-          "button": "Start Fetching",
+          "text": "Fetch all Mailchimp contacts. This will remove all interest groups and static segments (possibly breaking any automation configuration) and may generate significant traffic. Are you sure?",
+          "button": "Fetch List",
           "entity": "users"
         }
       }
@@ -232,8 +247,8 @@
       "options": {
         "confirm": {
           "action": "fetch",
-          "text": "You are going to trigger a fetch for Mailchimp contacts that got updated for the last 24 hours ago. This might take long if you have recently imported large amounts of contacts to your Mailchimp account. Confirm your choice?",
-          "button": "Start Fetching",
+          "text": "Fetch Mailchimp contacts that have been updated in the last 24 hours. This may generate significant traffic. Are you sure?",
+          "button": "Fetch Recent Users",
           "entity": "users"
         }
       }
@@ -263,7 +278,7 @@
       "title": "Fetch Data from Mailchimp",
       "description": "Trigger a full fetch of the entire mailchimp list. Be careful. If your list is large, it might take a while",
       "properties": [
-        "json.syncIn",
+        "json.fetchList",
         "json.fetchRecentUsers"
       ]
     },
@@ -285,10 +300,22 @@
   ],
   "schedules": [
     {
-      "url": "/track",
+      "url": "/create-email-batch",
+      "handler": "createEmailBatch",
       "type": "cron",
-      "handler": "track",
       "value": "7 */6 * * *"
+    },
+    {
+      "url": "/import-email-batch",
+      "handler": "importEmailBatch",
+      "type": "interval",
+      "value": "33"
+    },
+    {
+      "url": "/import-member-batch",
+      "handler": "importMemberBatch",
+      "type": "interval",
+      "value": "60"
     }
   ],
   "status": {
